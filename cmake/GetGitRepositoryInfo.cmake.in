@@ -1,0 +1,68 @@
+# 
+# Internal file for GetGitRevisionDescription.cmake
+#
+# Requires CMake 2.6 or newer (uses the 'function' command)
+#
+# Original Author:
+# 2009-2010 Ryan Pavlik <rpavlik@iastate.edu> <abiryan@ryand.net>
+# http://academic.cleardefinition.com
+# Iowa State University HCI Graduate Program/VRAC
+#
+#
+# Copyright Iowa State University 2009-2010.
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE_1_0.txt or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+#
+#
+# The following is modified version by charlie-wong
+# https://github.com/charlie-wong
+# https://github.com/snail-community
+# 2016/12/31 Huizhou, Guangdong, China
+
+set(HEAD_HASH)
+set(HEAD_BRANCH_NAME)
+
+file(READ "@HEAD_FILE@" HEAD_CONTENTS LIMIT 1024)
+# string(STRIP <string> <output variable>)
+# Store in an output variable a substring of a given string with leading and trailing spaces removed
+string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
+
+if(HEAD_CONTENTS MATCHES "ref")
+    # named branch
+    string(REPLACE "ref: " "" HEAD_REF "${HEAD_CONTENTS}")
+    get_filename_component(_current_branch_name ${HEAD_REF} NAME)
+
+    if(EXISTS "@GIT_DIR@/${HEAD_REF}")
+        configure_file("@GIT_DIR@/${HEAD_REF}"
+                       "@CUSTOM_CMAKE_MODULES_DIR@/${_current_branch_name}"
+                       COPYONLY)
+        set(HEAD_BRANCH_NAME "${_current_branch_name}")
+        option(_is_good_git_repo "current branch metadata"  ON)
+    endif()
+else()
+    # detached HEAD
+    option(_is_detached_head "detached metadata" ON)
+    set(HEAD_BRANCH_NAME "HEAD detached")
+endif()
+
+if(_is_good_git_repo)
+    file(READ "@CUSTOM_CMAKE_MODULES_DIR@/${_current_branch_name}" HEAD_CONTENTS LIMIT 1024)
+    string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
+    set(HEAD_HASH "${HEAD_CONTENTS}")
+elseif(_is_detached_head)
+    set(HEAD_HASH "${HEAD_CONTENTS}")
+endif()
+
+# string(LENGTH <string> <output variable>)
+#     Store in an output variable a given string’s length
+#
+# string(SUBSTRING <string> <begin> <length> <output variable>)
+#     Store in an output variable a substring of a given string.
+#     If length is -1 the remainder of the string starting at begin will be returned.
+#     If string is shorter than length then end of string is used instead.
+# Note
+# CMake 3.1 and below reported an error if length pointed past the end of string.
+
+# for short git hash number
+# string(SUBSTRING ${HEAD_HASH} 0 10 HEAD_HASH)
