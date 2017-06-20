@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.1.0)
 
 set(SNAIL_INFO_DESC  "snail is a elegant and sophisticated editor for programmers.")
 set(SNAIL_INFO_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
@@ -171,8 +171,44 @@ foreach(item ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${item}  ${CMAKE_BINARY_DIR}/lib)
 endforeach()
 
-#add_subdirectory(source)
-#add_subdirectory(tests)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" AND
+   NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"     AND
+   NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+
+    # for Dev/Debug and other type build, reset default install perfix
+    set(CMAKE_INSTALL_PREFIX    "${PROJECT_BINARY_DIR}/disk/snail"   CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
+
+    set(SNAIL_USR_HOME_PREFIX   "${PROJECT_BINARY_DIR}/disk/.snail"  CACHE PATH "" FORCE)
+else()
+    # for RelWithDebInfo/MinSizeRel/Release type build, set default install perfix
+    if(HOST_OS_LINUX)
+        set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
+    elseif(HOST_OS_WIN)
+        set(CMAKE_INSTALL_PREFIX  "C:\\Program Files\\snail"  CACHE  PATH  ""  FORCE)
+        message(AUTHOR_WARNING "todo for Windows")
+    elseif(HOST_OS_MACOS)
+        set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
+        message(AUTHOR_WARNING "todo for MacOSX")
+    endif()
+
+    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
+
+    # SNAIL_USR_HOME_PREFIX => ${HOME}/.snail
+    set(SNAIL_USR_HOME_PREFIX   "~/.snail"  CACHE PATH "" FORCE)
+endif()
+message(STATUS "Sys Install Perfix: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "User Config Perfix: ${SNAIL_USR_HOME_PREFIX}")
+
+add_subdirectory(source)
 
 if(SNAIL_RELEASE_READY)
     message(STATUS "===========================================")
