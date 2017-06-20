@@ -1,0 +1,4 @@
+build/*
+tmp/*
+local.mk
+CMakeLists.txt.user
