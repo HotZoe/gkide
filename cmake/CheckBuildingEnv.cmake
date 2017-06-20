@@ -57,14 +57,14 @@ include(BasicBuildingInfo)
 # get host name and user name
 GetHostNameUserName(HOST_PC_USER HOST_PC_NAME)
 
-# set target system index
+# set host(target) system index
 SetTargetSystemIndex("")                   # automatically
 #SetTargetSystemIndex(HOST_OS_IDX_DEBIAN)  # host system is debian
 #SetTargetSystemIndex(HOST_OS_IDX_UBUNTU)  # host system is ubuntu
 #SetTargetSystemIndex(HOST_OS_IDX_WIN7)    # host system is windows7
 #SetTargetSystemIndex(HOST_OS_IDX_CYGWIN)  # host system is cygwin
 
-# check build architecture
+# check host(target) architecture
 include(CheckBuildArch)
 
 set(target_arch "x86")
@@ -72,14 +72,23 @@ if(HOST_OS_ARCH_64)
     set(target_arch "x86_64")
 endif()
 
+# Check host(target) system endian
+include(CheckHostEndianType)
+CheckHostEndianType(target_endian)
+
+if(target_endian STREQUAL "little endian")
+    option(HOST_OS_LITTLE_ENDIAN "Host(target) system little endian" ON)
+elseif(target_endian STREQUAL "big endian")
+    option(HOST_OS_BIG_ENDIAN "Host(target) system big endian" ON)
+endif()
+
 message(STATUS "C Compiler        : ${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION}")
 message(STATUS "C++ Compiler      : ${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Target System     : ${target_system}, ${target_arch}")
+message(STATUS "Target System     : ${target_system}, ${target_arch}, ${target_endian}")
 message(STATUS "CMake Generator   : ${CMAKE_GENERATOR}")
 message(STATUS "CMake Build Type  : ${CMAKE_BUILD_TYPE}")
 
 # Get Current System Data Time
-# This have problem, not run each time ...
 GetCurrentSystemTime(PACKAGE_BUILD_TIMESTAMP)
 
 # For release package
@@ -97,3 +106,6 @@ set(SNAIL_PACKAGE_VER "v${SNAIL_VERSION_BASIC}-${SNAIL_VERSION_TRAIL}")
 
 set(SNAIL_PACKAGE_NAME "snail-${SNAIL_PACKAGE_VER}-${SNAIL_PACKAGE_SRC}")
 set(SNAIL_PACKAGE_NAME "${SNAIL_PACKAGE_NAME}-${SNAIL_PACKAGE_SYS}-${SNAIL_PACKAGE_NUM}.tar.gz")
+
+configure_file("${CMAKE_CURRENT_LIST_DIR}/PackageInfo.in"
+               "${CMAKE_BINARY_DIR}/PackageInfo")

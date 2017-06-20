@@ -121,7 +121,7 @@ function(GetGitCurrentBranchInfo _branch_name _hash_num)
         return()
     endif()
 
-    set(CUSTOM_CMAKE_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomCMakeModules)
+    set(CUSTOM_CMAKE_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomModules)
     if(NOT EXISTS ${CUSTOM_CMAKE_MODULES_DIR})
         file(MAKE_DIRECTORY ${CUSTOM_CMAKE_MODULES_DIR})
     endif()

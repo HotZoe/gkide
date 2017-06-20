@@ -138,6 +138,7 @@ function(SetTargetSystemIndex _hsi)
 endfunction()
 
 function(GetCurrentSystemTime cur_sys_time)
+
     if(HOST_OS_LINUX)
         get_current_system_time_linux(_sys_time)
     elseif(HOST_OS_WIN)
@@ -147,4 +148,10 @@ function(GetCurrentSystemTime cur_sys_time)
     endif()
 
     set(${cur_sys_time}  "${_sys_time}"  PARENT_SCOPE)
+
+    # this is put here for each time running cmake, we can get
+    # current system time.
+    configure_file("${CMAKE_CURRENT_LIST_DIR}/PackageInfo.in"
+                   "${CMAKE_BINARY_DIR}/PackageInfo"
+                   @ONLY)
 endfunction()
