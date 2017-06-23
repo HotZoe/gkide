@@ -18,40 +18,40 @@ set(DEPS_LIB_DIR      "${DEPS_INSTALL_DIR}/lib"       CACHE PATH "Deps library i
 
 option(SKIP_DOWNLOAD_DEPS       "Skip download dependencies."  OFF)
 
-option(SKIP_DOWNLOAD_LUV        "Skip download : luv"         ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_LUA        "Skip download : lua"         ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"       ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"       ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"     ${SKIP_DOWNLOAD_DEPS})#
+option(SKIP_DOWNLOAD_LUV        "Skip download : luv"         ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUA        "Skip download : lua"         ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"       ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"       ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"     ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LUAROCKS   "Skip download : luarocks"    ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_JEMALLOC   "Skip download : jemalloc"    ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_LIBICONV   "Skip download : libiconv"    ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_LIBVTERM   "Skip download : libvterm"    ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_UNIBILIUM  "Skip download : unibilium"   ${SKIP_DOWNLOAD_DEPS})#
-option(SKIP_DOWNLOAD_LIBTERMKEY "Skip download : libtermkey"  ${SKIP_DOWNLOAD_DEPS})#
+option(SKIP_DOWNLOAD_JEMALLOC   "Skip download : jemalloc"    ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBICONV   "Skip download : libiconv"    ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBVTERM   "Skip download : libvterm"    ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_UNIBILIUM  "Skip download : unibilium"   ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBTERMKEY "Skip download : libtermkey"  ${SKIP_DOWNLOAD_DEPS})
 
 if(UNIX)
-    find_program(MAKE_PRG NAMES gmake make)
-    if(MAKE_PRG)
-        execute_process(COMMAND          "${MAKE_PRG}" --version
+    find_program(MAKE_PROG NAMES gmake make)
+    if(MAKE_PROG)
+        execute_process(COMMAND          "${MAKE_PROG}" --version
                         OUTPUT_VARIABLE  MAKE_VERSION_INFO)
 
         if(NOT "${MAKE_VERSION_INFO}" MATCHES ".*GNU.*")
-            message(STATUS "Found NOT GNU Make: ${MAKE_PRG}")
-            unset(MAKE_PRG)
+            message(STATUS "GNU Make: ${MAKE_PROG}, is not GNU Make.")
+            unset(MAKE_PROG)
         endif()
     endif()
 
-    if(NOT MAKE_PRG)
+    if(NOT MAKE_PROG)
         message(FATAL_ERROR "GNU Make is required to build the dependencies.")
     else()
-        message(STATUS "Found GNU Make: ${MAKE_PRG}")
+        message(STATUS "GNU Make: ${MAKE_PROG}")
     endif()
 endif()
 
 # When using make, use the $(MAKE) variable to avoid warning about the job server.
 if(CMAKE_GENERATOR MATCHES "Makefiles")
-    set(MAKE_PRG "$(MAKE)")
+    set(MAKE_PROG "$(MAKE)")
 endif()
 
 set(DEPS_C_COMPILER "${CMAKE_C_COMPILER}")
@@ -97,11 +97,11 @@ include(BuildUnibilium)
 # dependencies: unibilium
 include(BuildLibtermkey)
 
-# dependencies: lua
-include(BuildLuarocks)
-
 # dependencies: libuv, lua
 include(BuildLuv)
+
+# dependencies: lua
+include(BuildLuarocks)
 
 # dependencies: luarocks
 include(BuildLuarocksModules)

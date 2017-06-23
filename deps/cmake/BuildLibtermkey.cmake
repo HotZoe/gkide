@@ -28,7 +28,7 @@ externalproject_add(   libtermkey
     BUILD_IN_SOURCE    1
     WORKING_DIRECTORY  ${DEPS_BUILD_DIR}/src/libtermkey
     BUILD_COMMAND      ""
-    INSTALL_COMMAND    ${MAKE_PRG}
+    INSTALL_COMMAND    ${MAKE_PROG}
                        CC=${DEPS_C_COMPILER}
                        PREFIX=${DEPS_INSTALL_DIR}
                        PKG_CONFIG_PATH=${DEPS_LIB_DIR}/pkgconfig

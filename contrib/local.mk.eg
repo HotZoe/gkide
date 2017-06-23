@@ -1,20 +1,20 @@
 # Individual entries must be uncommented to take effect.
-#####################################################################################################
+
 # By default, CMAKE_GENERATOR_NAME set to
-# - "Unix Makefiles" for UNIX
-# - "MinGW Makefiles" for Windows
-# - "MSYS Makefiles" for Windows
+# - "Unix Makefiles"  for UNIX
+# - "Unix Makefiles"  for Windows/Cygwin
+# - "MinGW Makefiles" for Windows/MinGW
+# - "MSYS Makefiles"  for Windows/MSYS
 #
 # Uncomment the following to generates standard UNIX makefiles
 # CMAKE_GENERATOR_NAME="Unix Makefiles"
 #
-# Uncomment the following to generates makefiles for use with mingw32-make under a Windows command prompt
+# Uncomment the following to generates makefiles for mingw32-make under a Windows command prompt
 # CMAKE_GENERATOR_NAME="MinGW Makefiles"
 #
 # Uncomment the following to generates makefiles for use with MSYS make under the MSYS shell
 # CMAKE_GENERATOR_NAME="MSYS Makefiles"
-#
-#####################################################################################################
+
 # By default, the architecture will automatically detect, but you can select one explicitly.
 #
 # Uncomment the following for 32-bit build
@@ -22,13 +22,11 @@
 #
 # Uncomment the following for 64-bit build
 # ARCH_64_ENABLE=ON
-#
-####################################################################################################
+
 # By default, the installation prefix is '/opt'
 #
 # SNAIL_CMAKE_EXTRA_FLAGS += -DCMAKE_INSTALL_PREFIX=/usr/local
-#
-####################################################################################################
+
 # Valid release type (the trail of the full version) for all build:
 #
 # dev     : in development
@@ -41,113 +39,93 @@
 # dev -> alpha -> beta -> rc -> release -> stable
 #
 # SNAIL_CMAKE_EXTRA_FLAGS += -DSNAIL_RELEASE_TYPE=release
-#
-####################################################################################################
+
 # Sets the build type; defaults to Debug. Valid values:
+#
+# - Dev:            => Enables all optimizations that do not interfere with debugging
+#                      -Og if available, -O2 and -g if not
+#                   => Enables debug information
+#                   => Enables logging
 #
 # - Debug:          => Disables optimizations (-O0)
 #                   => Enables debug information
 #                   => Enables logging
 #
-# - Dev:            => Enables all optimizations that do not interfere with debugging
-                       -Og if available, -O2 and -g if not
-#                   => Enables debug information
-#                   => Enables logging
-#
-# - RelWithDebInfo: => Enables optimizations (-O2)
-#                   => Enables debug information
-#                   => Disables logging
+# - Release:        Same as RelWithDebInfo, but disables debug information.
 #
 # - MinSizeRel:     => Enables all -O2 optimization that do not typically increase code size,
 #                      and performs further optimizations designed to reduce code size (-Os).
 #                   => Disables debug information
 #                   => Disables logging
 #
-# - Release:        Same as RelWithDebInfo, but disables debug information.
-#
 # The default build type for snail is 'Debug'
-#
-# SNAIL_CMAKE_BUILD_TYPE  := Debug
-#
-####################################################################################################
-# You should set the Qt5 install perfix by uncomment the following line. The value is mine, you
-# should set it yours, my Qt5 install path is: /opt/Qt5.5.1/5.5/gcc_64/bin/qmake, so the Qt5 install
-# perfix is: /opt/Qt5.5.1/5.5/gcc_64
-#
-# SNAIL_CMAKE_EXTRA_FLAGS += -DQT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
-#
-####################################################################################################
-# Valid values for logging level is: DEBUG(0) INFO(1) WARNING(2) ERROR(3)
-#
-# By default, enable only for Dev/Debug/RelWithDebInfo build, and it set to INFO(1)
+# SNAIL_CMAKE_BUILD_TYPE := Debug
+
+# Valid values for logging level is: DEV(0), DEBUG(1), INFO(2), WARNING(3) or ERROR(4)
+# By default, enable for Dev/Debug/Release and other type build, disable for MinSizeRel.
 #
 # Uncomment the following to set log level to DEBUG(0)
 # SNAIL_CMAKE_EXTRA_FLAGS += -DLOG_LEVEL_MIN=0
 #
 # Uncomment the following to disable logging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DLOGGING_ENABLE=ON
-#
-# Uncomment the following to enable logging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DLOGGING_DISABLE=ON
-#
-# Uncomment the following to enable development logging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DDEV_LOGGING_ENABLE=ON
-#
-# Uncomment the following to disable development logging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DDEV_LOGGING_DISABLE=ON
-#
-# Uncomment the following to enable debugging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DDEBUGGING_ENABLE=ON
+# SNAIL_CMAKE_EXTRA_FLAGS += -DLOGGING_ENABLE=OFF
 #
 # Uncomment the following to disable debugging
-# SNAIL_CMAKE_EXTRA_FLAGS += -DDEBUGGING_DISABLE=ON
-#
-# Uncomment the following to enable the assertion
-# SNAIL_CMAKE_EXTRA_FLAGS += -DASSERTION_ENABLE=ON
+# SNAIL_CMAKE_EXTRA_FLAGS += -DDEBUGGING_ENABLE=OFF
 #
 # Uncomment the following to disable the assertion
-# SNAIL_CMAKE_EXTRA_FLAGS += -DASSERTION_DISABLE=ON 
+# SNAIL_CMAKE_EXTRA_FLAGS += -DASSERTION_ENABLE=OFF
 #
-####################################################################################################
-# By default, the jemalloc family of memory allocation functions are used for linux like system.
-# Uncomment the following to use libc memory allocation functions instead.
+# Uncomment the following to disable the assertion
+# SNAIL_CMAKE_EXTRA_FLAGS += -DTESTING_ENABLE=OFF
 #
-# SNAIL_CMAKE_EXTRA_FLAGS += -DJEMALLOC_ENABLE=OFF
+# Uncomment the following to enable Travis CI
+# SNAIL_CMAKE_EXTRA_FLAGS += -DTRAVIS_CI_ENABLE=ON
 #
-####################################################################################################
-# Enable Travis CI build, set extra compilation flags: -Werror
+# Uncomment the following to enable gcov support
+# SNAIL_CMAKE_EXTRA_FLAGS += -DGCOV_ENABLE=ON
+
+# You should set the Qt5 install perfix by uncomment the following line. The value is mine, you
+# should set it yours, my Qt5 install perfix is: /opt/Qt5.5.1/5.5/gcc_64, contain bin/, lib/, etc.
+# - /opt/Qt5.5.1/5.5/gcc_64/bin/qmake
+# - /opt/Qt5.5.1/5.5/gcc_64/lib/
 #
-# SNAIL_CMAKE_EXTRA_FLAGS += -DTRAVIS_CI_BUILD_ENABLE=ON
-#
-####################################################################################################
-# Add more extra cmake build flags for snail
-#
-# SNAIL_CMAKE_EXTRA_FLAGS += "-DCMAKE_CXX_FLAGS=..."
-# SNAIL_CMAKE_EXTRA_FLAGS += "-DCMAKE_C_FLAGS=..."
-#
-####################################################################################################
+# SNAIL_CMAKE_EXTRA_FLAGS += -DQT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
+
 # By default, the required dependencies will auto download, extract, build and install. The bundled
-# libraries are statically linked to nvim.
+# libraries are statically linked to nvim. If you download the correctly required dependencies source
+# tarball by hand, and put the tarball to the proper place with proper name, then just use them and
+# skip download. You can find the details information will auto download, just stop it and do it by
+# hand if you want.
 #
-# If you download the correctly required dependencies source tarball by hand, and put the tarball to
-# the proper place with proper name, then just use them and skip download. You can find the details
-# information will auto download, just stop it and do it by hand if you want.
+# By default, the jemalloc family of memory allocation functions are used for linux like system.
 #
-####################################################################################################
+# Uncomment the following to use libc memory allocation functions instead.
+# SNAIL_CMAKE_EXTRA_FLAGS += -DJEMALLOC_ENABLE=OFF
+
 # Add more extra cmake build flags
 #
-# For nvim CMAKE_C_FLAGS
+# Build flags for nvim, in C
 # SNAIL_CMAKE_EXTRA_FLAGS += "-DCMAKE_C_FLAGS=..."
 #
-# For snail CMAKE_CXX_FLAGS
+# Build flags for snail, in C++
 # SNAIL_CMAKE_EXTRA_FLAGS += "-DCMAKE_CXX_FLAGS=..."
 #
-####################################################################################################
-# Show details build command, this can be reached by doing one of the following:
-# - setting 'CMAKE_VERBOSE_MAKEFILE' to on in the CMakeList.txt
+# Build flags for deps
+# DEPS_CMAKE_EXTRA_FLAGS += "..."
+
+# Show details build command, this can be reached by doing one of the followings:
+#
+# - setting 'CMAKE_VERBOSE_MAKEFILE' to 'ON' in the CMakeList.txt
 # - using 'make VERBOSE=1 ...'
-# - using 'cmake -DCMAKE_VERBOSE_MAKEFILE=ON ...'
+# - using one of the followings:
+#   cmake -DCMAKE_VERBOSE_MAKEFILE=ON ...
 #   SNAIL_CMAKE_EXTRA_FLAGS += -DCMAKE_VERBOSE_MAKEFILE=ON
 #   DEPS_CMAKE_EXTRA_FLAGS  += -DCMAKE_VERBOSE_MAKEFILE=ON
 #
 # Generating the details build log: $ make | tee build.log
+
+# Generates a compile_commands.json file in machine-readable form
+#
+# SNAIL_CMAKE_EXTRA_FLAGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+# DEPS_CMAKE_EXTRA_FLAGS  += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON

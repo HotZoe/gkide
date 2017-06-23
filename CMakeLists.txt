@@ -1,7 +1,16 @@
 cmake_minimum_required(VERSION 3.1.0)
+project(snail)
 
-set(SNAIL_INFO_DESC  "snail is a elegant and sophisticated editor for programmers.")
+option(TESTING_ENABLE "Enable testing." ON)
+option(LOGGING_ENABLE "Enable logging." ON)
+option(DEBUGGING_ENABLE "Enable debugging." ON)
+option(ASSERTION_ENABLE "Enable assertion." ON)
+option(GCOV_ENABLE "Enable gcov support." OFF)
+option(TRAVIS_CI_ENABLE "Enable Travis CI build." OFF)
+option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate a compile_commands.json" OFF)
+
 set(SNAIL_INFO_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
+set(SNAIL_INFO_DESC  "snail is a elegant and sophisticated editor for programmers.")
 
 # Full version: Major.Minor.Patch-GitShortHash-GitDateTime-Trail
 set(SNAIL_VERSION_MAJOR   0)
@@ -9,42 +18,36 @@ set(SNAIL_VERSION_MINOR   0)
 set(SNAIL_VERSION_PATCH   0)
 
 # dev -> alpha -> beta -> rc -> release -> stable
-set(SNAIL_RELEASE_CHECK  false)
-set(SNAIL_RELEASE_READY  false)
-set(SNAIL_VERSION_TRAIL  "dev")
-
-project(snail)
+set(SNAIL_VERSION_TRAIL  beta)
+set(SNAIL_RELEASE_READY  true)
+set(rce_msg  "") # release check error message
 
 # Basic version
 set(SNAIL_VERSION_BASIC "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")
 
 # Set available build types for CMake GUIs.
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
-             "Debug"  "Dev"  "Release"  "MinSizeRel"  "RelWithDebInfo")
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev"  "Debug"  "Release"  "MinSizeRel")
 
 # Set default build type, in case of not given
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Dev" CACHE STRING "Choose the build type ..." FORCE)
 endif()
 
+string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
+
 # Check release type
 if(SNAIL_RELEASE_TYPE)
-    if(NOT SNAIL_RELEASE_TYPE STREQUAL "dev"  AND NOT SNAIL_RELEASE_TYPE STREQUAL "alpha"   AND
-       NOT SNAIL_RELEASE_TYPE STREQUAL "rc"   AND NOT SNAIL_RELEASE_TYPE STREQUAL "release" AND
-       NOT SNAIL_RELEASE_TYPE STREQUAL "beta" AND NOT SNAIL_RELEASE_TYPE STREQUAL "stable")
-
+    if(SNAIL_RELEASE_TYPE STREQUAL "dev"  OR SNAIL_RELEASE_TYPE STREQUAL "alpha"   OR
+       SNAIL_RELEASE_TYPE STREQUAL "rc"   OR SNAIL_RELEASE_TYPE STREQUAL "release" OR
+       SNAIL_RELEASE_TYPE STREQUAL "beta" OR SNAIL_RELEASE_TYPE STREQUAL "stable")
+        set(SNAIL_VERSION_TRAIL  "${SNAIL_RELEASE_TYPE}")
+    else()
         set(warning_msg "SNAIL_RELEASE_TYPE = ${SNAIL_RELEASE_TYPE}, it must one of followings:")
         set(warning_msg "${warning_msg}\ndev, alpha, beta, rc, release, stable")
         set(warning_msg "${warning_msg}\nset to default: beta")
         message(WARNING "${err_msg}")
-
-        set(SNAIL_VERSION_TRAIL  "beta")
-    else()
-        set(SNAIL_VERSION_TRAIL "${SNAIL_RELEASE_TYPE}")
     endif()
 endif()
-
-set(rce_msg  "") # release check error message
 
 # Append custom cmake modules search path
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -64,10 +67,10 @@ if(EXISTS "${SNAIL_GIT_REPO_DIR}" AND IS_DIRECTORY "${SNAIL_GIT_REPO_DIR}")
 
     if(NOT ${GIT_BRANCH_NAME} STREQUAL "master")
         # The release version must be the 'master' branch of git repo
+        set(SNAIL_RELEASE_READY  false)
         if(NOT rce_msg)
             set(rce_msg "Release version must be the 'master' branch.")
         endif()
-        set(SNAIL_RELEASE_READY  false)
     endif()
 
     if(${GIT_COMMIT_TAG} MATCHES "NOTAGNAME")
@@ -150,11 +153,6 @@ else()
     message(STATUS "Git commit time   : ${GIT_COMMIT_TIMESTAMP}")
 endif()
 
-option(GCOV_ENABLE "Enable gcov support." OFF)
-option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
-option(TRAVIS_CI_BUILD_ENABLE "Enable Travis CI build." OFF)
-option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate a compile_commands.json" ON)
-
 # check building environment
 include(CheckBuildingEnv)
 
@@ -163,7 +161,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY  ${CMAKE_BINARY_DIR}/lib)
 
-# Dev, Debug, Release, MinSizeRel, RelWithDebInfo, etc.
+# Dev, Debug, Release, MinSizeRel, etc.
 foreach(item ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${CFGNAME} item)
     set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${item}  ${CMAKE_BINARY_DIR}/bin)
@@ -171,29 +169,22 @@ foreach(item ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${item}  ${CMAKE_BINARY_DIR}/lib)
 endforeach()
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo" AND
-   NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"     AND
-   NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-
-    # for Dev/Debug and other type build, reset default install perfix
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    # none MinSizeRel/Release type build
     set(CMAKE_INSTALL_PREFIX    "${PROJECT_BINARY_DIR}/disk/snail"   CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
-
     set(SNAIL_USR_HOME_PREFIX   "${PROJECT_BINARY_DIR}/disk/.snail"  CACHE PATH "" FORCE)
 else()
-    # for RelWithDebInfo/MinSizeRel/Release type build, set default install perfix
-    if(HOST_OS_LINUX)
-        set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
-    elseif(HOST_OS_WIN)
+    # MinSizeRel/Release type build
+    set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
+
+    if(HOST_OS_WIN)
         set(CMAKE_INSTALL_PREFIX  "C:\\Program Files\\snail"  CACHE  PATH  ""  FORCE)
         message(AUTHOR_WARNING "todo for Windows")
-    elseif(HOST_OS_MACOS)
-        set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
-        message(AUTHOR_WARNING "todo for MacOSX")
     endif()
 
     set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
@@ -202,8 +193,7 @@ else()
     set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
 
-    # SNAIL_USR_HOME_PREFIX => ${HOME}/.snail
-    set(SNAIL_USR_HOME_PREFIX   "~/.snail"  CACHE PATH "" FORCE)
+    set(SNAIL_USR_HOME_PREFIX   "~/.snail"  CACHE PATH "" FORCE) # ${HOME}/.snail
 endif()
 message(STATUS "Sys Install Perfix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "User Config Perfix: ${SNAIL_USR_HOME_PREFIX}")
@@ -215,9 +205,7 @@ if(SNAIL_RELEASE_READY)
     message(STATUS "Release Package: ${SNAIL_PACKAGE_NAME}")
     message(STATUS "===========================================")
     include(ReleasePackage)
-endif()
-
-if(SNAIL_RELEASE_CHECK AND rce_msg)
+else()
     message(STATUS "===========================================")
     message(STATUS "${rce_msg}")
     message(STATUS "===========================================")

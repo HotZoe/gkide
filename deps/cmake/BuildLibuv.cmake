@@ -51,7 +51,7 @@ set(UNIX_CFGCMD sh ${DEPS_BUILD_DIR}/src/libuv/autogen.sh &&
 if(UNIX OR CYGWIN)
     BuildLibuv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${UNIX_CFGCMD}
-               INSTALL_COMMAND   ${MAKE_PRG} V=1 install)
+               INSTALL_COMMAND   ${MAKE_PROG} V=1 install)
 else()
     set(err_msg "Trying to build [ libuv ] in an unsupported system.")
     set(err_msg "${err_msg}\n  Current System Name  : ${CMAKE_SYSTEM_NAME}")

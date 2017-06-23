@@ -38,7 +38,6 @@ function(BuildLuarocks)
 endfunction()
 
 if(UNIX OR CYGWIN)
-
     BuildLuarocks(CONFIGURE_COMMAND
                   ${DEPS_BUILD_DIR}/src/luarocks/configure
                   --prefix=${DEPS_INSTALL_DIR}
@@ -46,7 +45,7 @@ if(UNIX OR CYGWIN)
                   # will check '${DEPS_INSTALL_DIR}/bin'
                   --with-lua=${DEPS_INSTALL_DIR}
                   --with-lua-include=${DEPS_INSTALL_DIR}/include
-                  INSTALL_COMMAND   ${MAKE_PRG} bootstrap)
+                  INSTALL_COMMAND   ${MAKE_PROG} bootstrap)
 
 else()
     set(err_msg "Trying to build [ luarocks ] in an unsupported system.")
@@ -55,9 +54,7 @@ else()
     message(FATAL_ERROR "${err_msg}")
 endif()
 
-if(USE_BUNDLED_LUA)
-    # The lua must be dynamic linked, and install dynamic lua library
-    add_dependencies(luarocks lua)
-endif()
+message(STATUS  "Building: luarocks-v${LUAROCKS_VERSION}")
+add_dependencies(luarocks lua)
 list(APPEND THIRD_PARTY_LIBS luarocks)
 

@@ -52,7 +52,7 @@ message(STATUS "Building: gperf-v${GPERF_VERSION}")
 if(UNIX OR CYGWIN)
     BuildGperf(CONFIGURE_COMMAND ${DEPS_BUILD_DIR}/src/gperf/configure
                                  --prefix=${DEPS_INSTALL_DIR}
-               INSTALL_COMMAND   ${MAKE_PRG} install)
+               INSTALL_COMMAND   ${MAKE_PROG} install)
 
 else()
     set(err_msg "Trying to build [ gperf ] in an unsupported system.")

@@ -63,11 +63,11 @@ set(LUA_CONFIGURE_COMMAND
     sed -e "/#define LUA_USE_READLINE/d"
         -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
 
-set(LUA_BUILD_COMMAND   ${MAKE_PRG} ${LUA_TARGET})
-set(LUA_INSTALL_COMMAND ${MAKE_PRG} INSTALL_TOP=${DEPS_INSTALL_DIR} install)
+set(LUA_BUILD_COMMAND   ${MAKE_PROG} ${LUA_TARGET})
+set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${DEPS_INSTALL_DIR} install)
 
+# The lua must be dynamic linked, and install dynamic lua library
 message(STATUS  "Building: lua-v${LUA_VERSION} => ${LUA_TARGET}")
-
 BuildLua(CONFIGURE_COMMAND ${LUA_CONFIGURE_COMMAND}
          BUILD_COMMAND     ${LUA_BUILD_COMMAND}
          INSTALL_COMMAND   ${LUA_INSTALL_COMMAND})

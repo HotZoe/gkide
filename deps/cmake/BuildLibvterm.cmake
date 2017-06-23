@@ -62,7 +62,7 @@ if(CYGWIN OR WIN32)
 else()
     # unix/linux
     set(LIBVTERM_INSTALL_COMMAND
-        ${MAKE_PRG} -C ${DEPS_BUILD_DIR}/src/libvterm
+        ${MAKE_PROG} -C ${DEPS_BUILD_DIR}/src/libvterm
                     CC=${DEPS_C_COMPILER}
                     PREFIX=${DEPS_INSTALL_DIR}
                     CFLAGS=-fPIC

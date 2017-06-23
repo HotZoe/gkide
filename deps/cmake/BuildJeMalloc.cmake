@@ -25,6 +25,6 @@ ExternalProject_Add(   jemalloc
     BUILD_IN_SOURCE    1
     WORKING_DIRECTORY  ${DEPS_BUILD_DIR}/src/jemalloc
     BUILD_COMMAND      ""
-    INSTALL_COMMAND    ${MAKE_PRG} install_include install_lib_static)
+    INSTALL_COMMAND    ${MAKE_PROG} install_include install_lib_static)
 
 list(APPEND THIRD_PARTY_LIBS jemalloc)
