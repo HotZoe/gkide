@@ -11,7 +11,7 @@
 
 #include "config.generated.h"
 
-#ifdef HAVE_SYS_UIO_H
+#ifdef HAVE_HDR_SYS_UIO_H
 # include <sys/uio.h>
 #endif
 
@@ -402,7 +402,7 @@ int os_open(const char* path, int flags, int mode)
 // @return -1 if failed to set, 0 otherwise.
 int os_set_cloexec(const int fd)
 {
-#ifdef HAVE_FD_CLOEXEC
+#ifdef HAVE_SYM_FD_CLOEXEC
   int e;
   int fdflags = fcntl(fd, F_GETFD);
   if (fdflags < 0) {
@@ -486,7 +486,7 @@ ptrdiff_t os_read(const int fd, bool *ret_eof, char *const ret_buf,
   return (ptrdiff_t)read_bytes;
 }
 
-#ifdef HAVE_READV
+#ifdef HAVE_FUN_READV
 /// Read from a file to multiple buffers at once
 ///
 /// Wrapper for readv().
@@ -544,7 +544,7 @@ ptrdiff_t os_readv(int fd, bool *ret_eof, struct iovec *iov, size_t iov_size)
   }
   return (ptrdiff_t)read_bytes;
 }
-#endif  // HAVE_READV
+#endif  // HAVE_FUN_READV
 
 /// Write to a file
 ///

@@ -26,54 +26,15 @@ include_directories(SYSTEM ${LIBUV_INCLUDE_DIRS})
 find_package(Msgpack 1.0.0 REQUIRED)
 include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 
-# jemalloc
-if(JEMALLOC_ENABLE)
-    if(CYGWIN)
-        set(USE_JEMALLOC false)
-        message(STATUS "Build in Windows(Cygwin), do not use jemalloc")
-    else()
-        find_package(JeMalloc REQUIRED)
-        include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
-        set(USE_JEMALLOC true)
-    endif()
-else()
-    set(USE_JEMALLOC false)
-    message(STATUS "Use standard libc")
-endif()
-
-# libiconv
-find_package(Iconv)
-if(Iconv_FOUND)
-    include_directories(SYSTEM ${Iconv_INCLUDE_DIRS})
-    list(APPEND LINKING_LIBS_DEPS ${Iconv_LIBRARIES})
-    message(STATUS "Found libiconv")
-    set(FOUND_WORKING_ICONV  1)
-else()
-    message(STATUS "NOT Found libiconv")
-    set(FOUND_WORKING_ICONV  0)
-endif()
-
-# libintl
-find_package(LibIntl)
-if(LibIntl_FOUND)
-    include_directories(SYSTEM ${LibIntl_INCLUDE_DIRS})
-    list(APPEND LINKING_LIBS_DEPS ${LibIntl_LIBRARIES}) # exist separate libintl
-    message(STATUS "Found libintl(separate library)")
-else()
-    if(FOUND_WORKING_LIBINTL)
-        message(STATUS "Found libintl(built into glibc)")
-    else()
-        message(STATUS "NOT Found libintl")
-    endif()
-endif()
-
-###########################################################
 # libvterm
 find_package(LibVterm REQUIRED)
 include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
-###########################################################
 
-# find threading library
+# lua
+find_package(Lua REQUIRED)
+include_directories(SYSTEM ${LUA_INCLUDE_DIR})
+
+# threads
 # see 'FindThreads.cmake' for details
 # This module determines the thread library of the system. The following variables are set:
 #     CMAKE_THREAD_LIBS_INIT       - the thread library
@@ -83,7 +44,48 @@ include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
 #     CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
 find_package(Threads REQUIRED)
 
-# Lua
+# jemalloc
+if(JEMALLOC_ENABLE)
+    if(CYGWIN)
+        set(FOUND_WORKING_JEMALLOC false)
+        message(STATUS "Build in Windows(Cygwin), do not use jemalloc")
+    else()
+        find_package(JeMalloc REQUIRED)
+        include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
+        set(FOUND_WORKING_JEMALLOC true)
+    endif()
+else()
+    set(FOUND_WORKING_JEMALLOC false)
+    message(STATUS "Use standard libc")
+endif()
+
+# libintl
+find_package(LibIntl)
+if(LibIntl_FOUND)
+    include_directories(SYSTEM ${LibIntl_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LibIntl_LIBRARIES}) # exist separate libintl
+    message(STATUS "Found libintl(separate library)")
+else()
+    if(FOUND_WORKING_LIBINTL)
+        message(STATUS "Found libintl(built into glibc)")
+    else()
+        message(STATUS "NOT Found libintl")
+    endif()
+endif()
+
+# libiconv
+find_package(Iconv)
+if(Iconv_FOUND)
+    include_directories(SYSTEM ${Iconv_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
+    message(STATUS "Found libiconv")
+    set(FOUND_WORKING_ICONV  1)
+else()
+    message(STATUS "NOT Found libiconv")
+    set(FOUND_WORKING_ICONV  0)
+endif()
+
+# Lua program
 include(CheckLuaProg)
 set(LUA_MODULES lpeg mpack bit)
 foreach(lua_prog lua lua5.2 lua5.1)
@@ -104,7 +106,7 @@ if(NOT LUA_PROG_WORKS)
     message(FATAL_ERROR "A suitable Lua interpreter was not found.")
 endif()
 
-# gperf
+# gperf program
 find_program(GPERF_PROG gperf)
 if(GPERF_PROG MATCHES "NOTFOUND")
     message(FATAL_ERROR "gperf: NOT FOUND")
@@ -212,18 +214,6 @@ else()
     message(STATUS "Disable debugging")
 endif()
 
-# API level control
-set(NVIM_API_LEVEL_NUM  1)     # Current nvim API level
-set(NVIM_API_LEVEL_BRK  false) # nvim API changed, breaking
-set(NVIM_API_LEVEL_DEV  true)  # Current nvim API is under development
-
-if(NVIM_API_LEVEL_DEV)
-    set(SNAIL_RELEASE_READY  false)
-    if(NOT rce_msg)
-        set(rce_msg "nvim API is not stable.")
-    endif()
-endif()
-
 set(CMAKE_EXE_LINKER_FLAGS_DEV    "" CACHE STRING "CFlags used for development build." FORCE)
 set(CMAKE_SHARED_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
 
@@ -278,14 +268,10 @@ else()
     message(STATUS "Disable Gcov")
 endif()
 
-set(AUTO_DATA_DIR ${PROJECT_BINARY_DIR}/auto)
-set(AUTO_NVIM_DIR ${PROJECT_BINARY_DIR}/auto/nvim)
-set(AUTO_CONFIG_DIR ${PROJECT_BINARY_DIR}/auto/config)
-set(AUTO_INCLUDE_DIR ${PROJECT_BINARY_DIR}/auto/include)
+set(GEN_DATA_DIR ${PROJECT_BINARY_DIR}/gen)
+set(GEN_CONFIG_DIR ${PROJECT_BINARY_DIR}/gen/config)
 
-include_directories("${AUTO_NVIM_DIR}")
-include_directories("${AUTO_CONFIG_DIR}")
-include_directories("${AUTO_INCLUDE_DIR}")
+include_directories("${GEN_CONFIG_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/source")
 
 add_subdirectory(nvim)

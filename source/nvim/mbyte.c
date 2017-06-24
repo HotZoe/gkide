@@ -34,7 +34,7 @@
 
 #include "nvim/vim.h"
 #include "nvim/ascii.h"
-#ifdef HAVE_LOCALE_H
+#ifdef HAVE_HDR_LOCALE_H
 # include <locale.h>
 #endif
 #include "nvim/iconv.h"
@@ -1906,7 +1906,7 @@ static int enc_alias_search(char_u *name)
 }
 
 
-#ifdef HAVE_LANGINFO_H
+#ifdef HAVE_HDR_LANGINFO_H
 # include <langinfo.h>
 #endif
 
@@ -1924,7 +1924,7 @@ char_u * enc_locale(void)
   if (!(s = nl_langinfo(CODESET)) || *s == NUL)
 # endif
   {
-#  if defined(HAVE_LOCALE_H)
+#  if defined(HAVE_HDR_LOCALE_H)
     if (!(s = setlocale(LC_CTYPE, NULL)) || *s == NUL)
 #  endif
     {

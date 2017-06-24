@@ -1,74 +1,97 @@
-# True when the host system is Macos
+# [1] Linux   => HOST_OS_LINUX   => "Unix Makefiles"
+# [2] MacOS   => HOST_OS_MACOS   => "Unix Makefiles"
+# [3] Windows => HOST_OS_WINDOWS
+#     [3.1] MSYS   => "MSYS Makefiles"
+#     [3.2] MinGW  => "MinGW Makefiles"
+#     [3.3] Cygwin => "Unix Makefiles"
+###############################################################################
+# UNIX
+#   true when the target system is UNIX or UNIX like (i.e. APPLE, CYGWIN).
+# WIN32
+#   true when the target system is Windows(32/64).
+# MINGW
+#   true when the compiler is some version of MinGW.
+# CYGWIN
+#   true when using Cygwin.
+###############################################################################
+# True on OS X.
+if(APPLE)
+    option(HOST_OS_MACOS "Host System: Macos" ON)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported." OFF)
+    set(target_system "macos")
+endif()
+
+# True when the host system is Apple OS X.
 if(CMAKE_HOST_APPLE)
     option(HOST_OS_MACOS "Host System: Macos" ON)
     option(CURRENT_HOST_SUPPORTED "Current host is supported." OFF)
     set(target_system "macos")
-    message(FATAL_ERROR "Mac OS not supported yet!")
 endif()
 
-# True on Windows systems, including Win64, the host system is Windows and on Cygwin.
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+    option(HOST_OS_MACOS "Host System: Macos" ON)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported." OFF)
+    set(target_system "macos")
+endif()
+###############################################################################
+# True when the host system is Windows(32/64) and on Cygwin
 if(CMAKE_HOST_WIN32)
-    option(HOST_OS_WIN "Host System: Windows" ON)
+    option(HOST_OS_WINDOWS "Host System: Windows" ON)
     option(CURRENT_HOST_SUPPORTED "Current host is supported." ON)
     set(target_system "windows")
 endif()
 
-if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
-    # for UNIX and UNIX like operating systems.
-    if(NOT CYGWIN AND NOT CMAKE_HOST_APPLE)
+# True when the target system is Windows(32/64).
+if(WIN32)
+    option(HOST_OS_WINDOWS "Host System: Windows" ON)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported." ON)
+    set(target_system "windows")
+endif()
+
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+    option(HOST_OS_WINDOWS "Host System: Windows" ON)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported." ON)
+    set(target_system "windows")
+endif()
+
+if(HOST_OS_WINDOWS)
+    if(NOT CYGWIN AND NOT MINGW)
+        message(FATAL_ERROR "Windows native build is not supported!")
+    endif()
+endif()
+###############################################################################
+# True when the target system is UNIX or UNIX like (i.e. APPLE, CYGWIN).
+if(UNIX)
+    if(NOT APPLE AND NOT CYGWIN)
         option(HOST_OS_LINUX "Build for Linux or Linux like operating systems." ON)
         option(CURRENT_HOST_SUPPORTED "Current host is supported" ON)
         set(target_system "linux")
     endif()
-else()
-    # True for UNIX and UNIX like operating systems.
-    # true when the host system is UNIX or UNIX like (i.e. APPLE and CYGWIN).
-    if(CMAKE_HOST_UNIX AND NOT CYGWIN AND NOT CMAKE_HOST_APPLE)
-        option(HOST_OS_UNIX "Build for UNIX or UNIX like operating systems." ON)
-        option(CURRENT_HOST_SUPPORTED "Current host is supported" ON)
-        set(target_system "unix")
-    endif()
 endif()
 
+if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+    option(HOST_OS_LINUX "Build for Linux or Linux like operating systems." ON)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported" ON)
+    set(target_system "linux")
+endif()
+###############################################################################
 if(NOT CURRENT_HOST_SUPPORTED)
-    set(err_msg "Trying to build [ snail ] in an unsupported host system.")
-    set(err_msg "${err_msg}\n  Current Host System Name: ${CMAKE_HOST_SYSTEM}")
-    set(err_msg "${err_msg}\n  Current C Compiler ID   : ${CMAKE_C_COMPILER_ID}")
-    set(err_msg "${err_msg}\n  Current C++ Compiler ID : ${CMAKE_CXX_COMPILER_ID}")
+    set(err_msg "Trying to build snail in an unsupported host system: ${CMAKE_HOST_SYSTEM}")
     message(FATAL_ERROR "${err_msg}")
 endif()
-
-# Set to true when using Cygwin.
-if(CYGWIN)
-    option(HOST_OS_CYGWIN "Host System: Windows/Cygwin" ON)
-endif()
-
-# Set to true when the compiler is some version of MinGW.
-if(MINGW)
-    option(HOST_OS_MINGW "Host System: Windows/MinGW" ON)
-endif()
-
-if(HOST_OS_WIN AND (NOT HOST_OS_CYGWIN OR NOT HOST_OS_MINGW) )
-    message(FATAL_ERROR "Windows native build is not supported!")
-endif()
-
+###############################################################################
 include(BasicBuildingInfo)
 
 # get host name and user name
-GetHostNameUserName(HOST_PC_USER HOST_PC_NAME)
+GetHostNameUserName(BUILD_USER_NAME BUILD_HOST_NAME)
+# get host system name
+GetHostSystemName("")
 
-# set host(target) system index
-SetTargetSystemIndex("")                   # automatically
-#SetTargetSystemIndex(HOST_OS_IDX_DEBIAN)  # host system is debian
-#SetTargetSystemIndex(HOST_OS_IDX_UBUNTU)  # host system is ubuntu
-#SetTargetSystemIndex(HOST_OS_IDX_WIN7)    # host system is windows7
-#SetTargetSystemIndex(HOST_OS_IDX_CYGWIN)  # host system is cygwin
-
-# check host(target) architecture
+# check host architecture
 include(CheckBuildArch)
 
 set(target_arch "x86")
-if(HOST_OS_ARCH_64)
+if(HOST_ARCH_64)
     set(target_arch "x86_64")
 endif()
 
@@ -77,9 +100,9 @@ include(CheckHostEndianType)
 CheckHostEndianType(target_endian)
 
 if(target_endian STREQUAL "little endian")
-    option(HOST_OS_LITTLE_ENDIAN "Host(target) system little endian" ON)
+    option(HOST_ENDIAN_L "Host system little endian" ON)
 elseif(target_endian STREQUAL "big endian")
-    option(HOST_OS_BIG_ENDIAN "Host(target) system big endian" ON)
+    option(HOST_ENDIAN_B "Host system big endian" ON)
 endif()
 
 message(STATUS "C Compiler        : ${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION}")

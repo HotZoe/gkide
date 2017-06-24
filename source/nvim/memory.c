@@ -16,7 +16,7 @@
 #include "nvim/misc1.h"
 #include "nvim/ui.h"
 
-#ifdef HAVE_JEMALLOC
+#ifdef FOUND_WORKING_JEMALLOC
 // Force je_ prefix on jemalloc functions.
 # define JEMALLOC_NO_DEMANGLE
 # include <jemalloc/jemalloc.h>
@@ -27,7 +27,7 @@
 # define calloc(count, size) mem_calloc(count, size)
 # define realloc(ptr, size) mem_realloc(ptr, size)
 # define free(ptr) mem_free(ptr)
-# ifdef HAVE_JEMALLOC
+# ifdef FOUND_WORKING_JEMALLOC
 MemMalloc mem_malloc = &je_malloc;
 MemFree mem_free = &je_free;
 MemCalloc mem_calloc = &je_calloc;
@@ -39,7 +39,7 @@ MemCalloc mem_calloc = &calloc;
 MemRealloc mem_realloc = &realloc;
 # endif
 #else
-# ifdef HAVE_JEMALLOC
+# ifdef FOUND_WORKING_JEMALLOC
 #  define malloc(size) je_malloc(size)
 #  define calloc(count, size) je_calloc(count, size)
 #  define realloc(ptr, size) je_realloc(ptr, size)

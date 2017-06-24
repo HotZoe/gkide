@@ -14,7 +14,7 @@
 
 // Use iconv() when it's available, either by linking to the library at
 // compile time or by loading it at runtime.
-#if (defined(HAVE_ICONV_H) && defined(HAVE_ICONV)) || defined(DYNAMIC_ICONV)
+#if (defined(HAVE_HDR_ICONV_H) && defined(FOUND_WORKING_ICONV)) || defined(DYNAMIC_ICONV)
 # define USE_ICONV
 #endif
 
@@ -23,7 +23,7 @@
 // This enables us to still load and use iconv dynamically at runtime.
 #ifdef USE_ICONV
 #  include <errno.h>
-#  ifdef HAVE_ICONV_H
+#  ifdef HAVE_HDR_ICONV_H
 #    include <iconv.h>
 #  else
 typedef void *iconv_t;

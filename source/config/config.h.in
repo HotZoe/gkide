@@ -3,96 +3,74 @@
 #ifndef SNAIL_GENERATED_CONFIG_CONFIG_H
 #define SNAIL_GENERATED_CONFIG_CONFIG_H
 
-#cmakedefine HOST_OS_ARCH_32
-#cmakedefine HOST_OS_ARCH_64
+#cmakedefine HOST_ARCH_32
+#cmakedefine HOST_ARCH_64
+#cmakedefine HOST_ENDIAN_B
+#cmakedefine HOST_ENDIAN_L
 
-#cmakedefine HOST_SYS_LITTLE_ENDIAN
-#cmakedefine HOST_SYS_BIG_ENDIAN
-
-#cmakedefine HOST_OS_UNIX
-#cmakedefine HOST_OS_BSD
-#cmakedefine HOST_OS_FREEBSD
-#cmakedefine HOST_OS_NETBSD
-#cmakedefine HOST_OS_OPENBSD
 #cmakedefine HOST_OS_MACOS
 #cmakedefine HOST_OS_LINUX
-#cmakedefine HOST_OS_DEBIAN
-#cmakedefine HOST_OS_UBUNTU
-#cmakedefine HOST_OS_WIN
-#cmakedefine HOST_OS_CYGWIN
-#cmakedefine HOST_OS_MINGW
-#cmakedefine HOST_OS_XP
-#cmakedefine HOST_OS_WIN7
-#cmakedefine HOST_OS_WIN8
-#cmakedefine HOST_OS_WIN10
+#cmakedefine HOST_OS_WINDOWS
 
-#define HOST_OS_INDEX      @HOST_OS_INDEX@
-#define HOST_OS_VERSION    "@CMAKE_HOST_SYSTEM_VERSION@"
-#define HOST_OS_ENDIAN     "@HOST_OS_ENDIAN_NAME@"
-#define SELECTED_ENDIAN_H  <@INCLUDE_FILE_ENDIAN_H@>
+#cmakedefine UNIX
+#cmakedefine WIN32
+#cmakedefine MINGW
+#cmakedefine CYGWIN
+
+#define HOST_OS_NAME      "@HOST_OS_NAME@"
+#define HOST_OS_VERSION   "@HOST_OS_VERSION@"
 
 #define HOST_SIZEOF_INT        @CHECK_SIZEOF_INT@
 #define HOST_SIZEOF_LONG       @CHECK_SIZEOF_LONG@
 #define HOST_SIZEOF_OFF_T      @CHECK_SIZEOF_OFF_T@
 #define HOST_SIZEOF_TIME_T     @CHECK_SIZEOF_TIME_T@
 #define HOST_SIZEOF_SIZE_T     @CHECK_SIZEOF_SIZE_T@
-#define HOST_SIZEOF_VOID_PTR   @CHECK_SIZEOF_VOID_PTR@
 #define HOST_SIZEOF_INTMAX_T   @CHECK_SIZEOF_INTMAX_T@
 #define HOST_SIZEOF_LONG_LONG  @CHECK_SIZEOF_LONG_LONG@
 
 // check header files
-#cmakedefine HAVE_HDR_LOCALE_H       ///< have header file: @b locale.h
-#cmakedefine HAVE_HDR_ICONV_H        ///< have header file: @b iconv.h
-#cmakedefine HAVE_HDR_LANGINFO_H     ///< have header file: @b langinfo.h
-#cmakedefine HAVE_HDR_PWD_H          ///< have header file: @b pwd.h
-#cmakedefine HAVE_HDR_STRINGS_H      ///< have header file: @b strings.h
-#cmakedefine HAVE_HDR_SYS_UTSNAME_H  ///< have header file: @b sys/utsname.h
-#cmakedefine HAVE_HDR_SYS_WAIT_H     ///< have header file: @b sys/wait.h
-#cmakedefine HAVE_HDR_TERMIOS_H      ///< have header file: @b termios.h
-#cmakedefine HAVE_HDR_UTIME_H        ///< have header file: @b utime.h
-#cmakedefine HAVE_HDR_SYS_UIO_H      ///< have header file: @b sys/uio.h
+#cmakedefine HAVE_HDR_PWD_H
+#cmakedefine HAVE_HDR_UTIME_H
+#cmakedefine HAVE_HDR_ICONV_H
+#cmakedefine HAVE_HDR_FCNTL_H
+#cmakedefine HAVE_HDR_LOCALE_H
+#cmakedefine HAVE_HDR_STRINGS_H
+#cmakedefine HAVE_HDR_TERMIOS_H
+#cmakedefine HAVE_HDR_SYS_UIO_H
+#cmakedefine HAVE_HDR_SYS_WAIT_H
+#cmakedefine HAVE_HDR_LANGINFO_H
+#cmakedefine HAVE_HDR_SYS_UTSNAME_H
 
 // check C functions
-#cmakedefine HAVE_FUN_STRCASECMP     ///< have function: @b strcasecmp
-#cmakedefine HAVE_FUN_FSEEKO         ///< have function: @b fseeko
-#cmakedefine HAVE_FUN_GETPWENT       ///< have function: @b getpwent
-#cmakedefine HAVE_FUN_GETPWNAM       ///< have function: @b getpwnam
-#cmakedefine HAVE_FUN_GETPWUID       ///< have function: @b getpwuid
-#cmakedefine HAVE_FUN_READV          ///< have function: @b readv
-#ifdef HAVE_HDR_SYS_UIO_H
-#   ifndef HAVE_FUN_READV
-#       undef HAVE_HDR_SYS_UIO_H
-#   endif
-#endif
-#cmakedefine HAVE_FUN_READLINK        ///< have function: @b readlink
-#cmakedefine HAVE_FUN_SETENV          ///< have function: @b setenv
-#cmakedefine HAVE_FUN_UNSETENV        ///< have function: @b unsetenv
-#cmakedefine HAVE_FUN_SETPGID         ///< have function: @b setpgid
-#cmakedefine HAVE_FUN_SETSID          ///< have function: @b setsid
-#cmakedefine HAVE_FUN_SIGACTION       ///< have function: @b sigaction
-#cmakedefine HAVE_FUN_STRNCASECMP     ///< have function: @b strncasecmp
-#cmakedefine HAVE_FUN_UTIME           ///< have function: @b utime
-#cmakedefine HAVE_FUN_UTIMES          ///< have function: @b utimes
+#cmakedefine HAVE_FUN_UTIME
+#cmakedefine HAVE_FUN_READV
+#cmakedefine HAVE_FUN_UTIMES
+#cmakedefine HAVE_FUN_FSEEKO
+#cmakedefine HAVE_FUN_SETENV
+#cmakedefine HAVE_FUN_SETSID
+#cmakedefine HAVE_FUN_OPENDIR
+#cmakedefine HAVE_FUN_SETPGID
+#cmakedefine HAVE_FUN_GETPWENT
+#cmakedefine HAVE_FUN_GETPWNAM
+#cmakedefine HAVE_FUN_GETPWUID
+#cmakedefine HAVE_FUN_READLINK
+#cmakedefine HAVE_FUN_UNSETENV
+#cmakedefine HAVE_FUN_PUTENV_S
+#cmakedefine HAVE_FUN_SIGACTION
+#cmakedefine HAVE_FUN_STRCASECMP
+#cmakedefine HAVE_FUN_STRNCASECMP
 
 // check C symbols
-#cmakedefine HAVE_SYM_LC_ALL          ///< have symbol: @b LC_ALL in @b locale.h
-#cmakedefine HAVE_SYM_LC_MESSAGES     ///< have symbol: @b LC_MESSAGES in @b locale.h
-#cmakedefine HAVE_SYM_CODESET         ///< have symbol: @b CODESET in @b langinfo.h
+#cmakedefine HAVE_SYM_CODESET
+#cmakedefine HAVE_SYM_BE64TOH
+#cmakedefine HAVE_SYM_FD_CLOEXEC
 
 // check dependency libraries
-#cmakedefine FOUND_WORKING_ICONV      ///< found working libraries: @b iconv
-#cmakedefine FOUND_WORKING_LIBINTL    ///< found working libraries: @b libintl
-#cmakedefine FOUND_WORKING_JEMALLOC   ///< found working libraries: @b jemalloc
+#cmakedefine FOUND_WORKING_ICONV
+#cmakedefine FOUND_WORKING_LIBINTL
+#cmakedefine FOUND_WORKING_JEMALLOC
 
-/// API level number
-#define SNAIL_API_NUM        @SNAIL_API_NUM@
-
-/// true : development version
-/// false: release version
-#define SNAIL_API_DEV        @SNAIL_API_DEV@
-
-/// true : breaking, current API are not compat to the previous one
-/// false: current API compat to the previous one
-#define SNAIL_API_BRK        @SNAIL_API_BRK@
+#define SYSHDR_ENDIAN_H  <@INCLUDE_FILE_ENDIAN_H@>
+#cmakedefine ORDER_BIG_ENDIAN
 
 #endif // SNAIL_GENERATED_CONFIG_CONFIG_H

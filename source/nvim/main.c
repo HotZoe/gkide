@@ -25,7 +25,7 @@
 #include "nvim/hashtab.h"
 #include "nvim/iconv.h"
 #include "nvim/if_cscope.h"
-#ifdef HAVE_LOCALE_H
+#ifdef HAVE_HDR_LOCALE_H
 # include <locale.h>
 #endif
 #include "nvim/mark.h"
@@ -183,7 +183,7 @@ void early_init(void)
   init_path(argv0 ? argv0 : "nvim");
   init_normal_cmds();   // Init the table of Normal mode commands.
 
-#if defined(HAVE_LOCALE_H)
+#if defined(HAVE_HDR_LOCALE_H)
   // Setup to use the current locale (for ctype() and many other things).
   // NOTE: Translated messages with encodings other than latin1 will not
   // work until set_init_1() has been called!
@@ -667,7 +667,7 @@ static int get_number_arg(const char *p, int *idx, int def)
   return def;
 }
 
-#if defined(HAVE_LOCALE_H)
+#if defined(HAVE_HDR_LOCALE_H)
 /*
  * Setup to use the current locale (for ctype() and many other things).
  */

@@ -27,7 +27,7 @@
 #include <crt_externs.h>
 #endif
 
-#ifdef HAVE_SYS_UTSNAME_H
+#ifdef HAVE_HDR_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif
 
@@ -66,7 +66,7 @@ int os_setenv(const char *name, const char *value, int overwrite)
   return 0;
 #elif defined(HAVE_FUN_SETENV)
   return setenv(name, value, overwrite);
-#elif defined(HAVE_PUTENV_S)
+#elif defined(HAVE_FUN_PUTENV_S)
   if (!overwrite && os_getenv(name) != NULL) {
     return 0;
   }
@@ -85,7 +85,7 @@ int os_setenv(const char *name, const char *value, int overwrite)
 /// empty string
 int os_unsetenv(const char *name)
 {
-#ifdef HAVE_UNSETENV
+#ifdef HAVE_FUN_UNSETENV
   return unsetenv(name);
 #else
   return os_setenv(name, "", 1);
@@ -136,7 +136,7 @@ int64_t os_get_pid(void)
 /// @param size       Size of `hostname`.
 void os_get_hostname(char *hostname, size_t size)
 {
-#ifdef HAVE_SYS_UTSNAME_H
+#ifdef HAVE_HDR_SYS_UTSNAME_H
   struct utsname vutsname;
 
   if (uname(&vutsname) < 0) {

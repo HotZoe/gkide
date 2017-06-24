@@ -110,7 +110,7 @@ static char_u   *tagmatchname = NULL;   /* name of last used tag */
  * which helps if long is 32 bit and off_t is 64 bit.
  * We assume that when fseeko() is available then ftello() is too.
  */
-#ifdef HAVE_FSEEKO
+#ifdef HAVE_FUN_FSEEKO
 # define ftell ftello
 #endif
 
@@ -1378,7 +1378,7 @@ find_tags (
         if (state == TS_BINARY || state == TS_SKIP_BACK) {
           /* Adjust the search file offset to the correct position */
           search_info.curr_offset_used = search_info.curr_offset;
-#ifdef HAVE_FSEEKO
+#ifdef HAVE_FUN_FSEEKO
           fseeko(fp, search_info.curr_offset, SEEK_SET);
 #else
           fseek(fp, (long)search_info.curr_offset, SEEK_SET);
@@ -1390,7 +1390,7 @@ find_tags (
             search_info.curr_offset = ftell(fp);
             if (search_info.curr_offset == search_info.high_offset) {
               /* oops, gone a bit too far; try from low offset */
-#ifdef HAVE_FSEEKO
+#ifdef HAVE_FUN_FSEEKO
               fseeko(fp, search_info.low_offset, SEEK_SET);
 #else
               fseek(fp, (long)search_info.low_offset, SEEK_SET);
@@ -1564,7 +1564,7 @@ parse_line:
                 /* Avoid getting stuck. */
                 linear = TRUE;
                 state = TS_LINEAR;
-# ifdef HAVE_FSEEKO
+# ifdef HAVE_FUN_FSEEKO
                 fseeko(fp, search_info.low_offset, SEEK_SET);
 # else
                 fseek(fp, (long)search_info.low_offset, SEEK_SET);

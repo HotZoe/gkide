@@ -416,7 +416,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
     if (!(flags & EW_SILENT)) {
       redraw_later_clear();             // probably messed up screen
       msg_putchar('\n');                // clear bottom line quickly
-#if SIZEOF_LONG > SIZEOF_INT
+#if HOST_SIZEOF_LONG > HOST_SIZEOF_INT
       assert(Rows <= (long)INT_MAX + 1);
 #endif
       cmdline_row = (int)(Rows - 1);           // continue on last line
@@ -455,7 +455,7 @@ int mch_expand_wildcards(int num_pat, char_u **pat, int *num_file,
     fclose(fd);
     return FAIL;
   }
-#if SIZEOF_LONG_LONG > SIZEOF_SIZE_T
+#if HOST_SIZEOF_LONG_LONG > HOST_SIZEOF_SIZE_T
   assert(templen <= (long long)SIZE_MAX);
 #endif
   len = (size_t)templen;

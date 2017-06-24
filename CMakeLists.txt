@@ -12,18 +12,35 @@ option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate a compile_commands.json" OFF)
 set(SNAIL_INFO_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
 set(SNAIL_INFO_DESC  "snail is a elegant and sophisticated editor for programmers.")
 
-# Full version: Major.Minor.Patch-GitShortHash-GitDateTime-Trail
+# snail full version: Major.Minor.Patch-Trail-GitShortHash-GitDateTime
 set(SNAIL_VERSION_MAJOR   0)
 set(SNAIL_VERSION_MINOR   0)
-set(SNAIL_VERSION_PATCH   0)
+set(SNAIL_VERSION_PATCH   1)
+
+# nvim version
+set(NVIM_VERSION_MAJOR    0)
+set(NVIM_VERSION_MINOR    2)
+set(NVIM_VERSION_PATCH    1)
+
+# nvim API version
+set(NVIM_API_VERSION      1) # nvim API version
+set(NVIM_API_COMPATV      1) # nvim compat API version
+set(NVIM_API_PRERELEASE   true)
 
 # dev -> alpha -> beta -> rc -> release -> stable
 set(SNAIL_VERSION_TRAIL  beta)
 set(SNAIL_RELEASE_READY  true)
 set(rce_msg  "") # release check error message
 
-# Basic version
+# snail basic version
 set(SNAIL_VERSION_BASIC "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")
+math(EXPR SNAIL_VERSION_INT32
+          "(${SNAIL_VERSION_MAJOR}<<16) + (${SNAIL_VERSION_MINOR}<<8) + ${SNAIL_VERSION_PATCH}")
+
+# nvim basic version
+set(NVIM_VERSION_BASIC "${NVIM_VERSION_MAJOR}.${NVIM_VERSION_MINOR}.${NVIM_VERSION_PATCH}")
+math(EXPR NVIM_VERSION_INT32
+          "(${NVIM_VERSION_MAJOR}<<16) + (${NVIM_VERSION_MINOR}<<8) + ${NVIM_VERSION_PATCH}")
 
 # Set available build types for CMake GUIs.
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev"  "Debug"  "Release"  "MinSizeRel")
@@ -152,6 +169,7 @@ else()
     message(STATUS "Git commit hash   : ${GIT_COMMIT_HASH_SHORT}")
     message(STATUS "Git commit time   : ${GIT_COMMIT_TIMESTAMP}")
 endif()
+set(SNAIL_VERSION_GIT "${SNAIL_VERSION_HASH}-${SNAIL_VERSION_TIME}")
 
 # check building environment
 include(CheckBuildingEnv)
@@ -182,7 +200,7 @@ else()
     # MinSizeRel/Release type build
     set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
 
-    if(HOST_OS_WIN)
+    if(HOST_OS_WINDOWS)
         set(CMAKE_INSTALL_PREFIX  "C:\\Program Files\\snail"  CACHE  PATH  ""  FORCE)
         message(AUTHOR_WARNING "todo for Windows")
     endif()

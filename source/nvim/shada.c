@@ -45,19 +45,19 @@
 #include "nvim/lib/khash.h"
 #include "nvim/lib/kvec.h"
 
-#ifdef HAVE_BE64TOH
-# define _BSD_SOURCE 1
-# define _DEFAULT_SOURCE 1
-# include ENDIAN_INCLUDE_FILE
+#ifdef HAVE_SYM_BE64TOH
+#   define _BSD_SOURCE 1
+#   define _DEFAULT_SOURCE 1
+#   include SYSHDR_ENDIAN_H
 #endif
 
 // Note: when using bufset hash pointers are intentionally casted to uintptr_t
 // and not to khint32_t or khint64_t: this way compiler must give a warning
 // (-Wconversion) when types change.
-#ifdef HOST_OS_ARCH_32
-KHASH_SET_INIT_INT(bufset)
-#elif defined(HOST_OS_ARCH_64)
-KHASH_SET_INIT_INT64(bufset)
+#ifdef HOST_ARCH_32
+    KHASH_SET_INIT_INT(bufset)
+#elif defined(HOST_ARCH_64)
+    KHASH_SET_INIT_INT64(bufset)
 #else
 #   error "Not 64-bit or 32-bit architecture"
 #endif
@@ -3079,22 +3079,24 @@ static void shada_free_shada_entry(ShadaEntry *const entry)
   }
 }
 
-#ifndef HAVE_BE64TOH
+#ifndef HAVE_SYM_BE64TOH
 static inline uint64_t be64toh(uint64_t big_endian_64_bits)
 {
-#ifdef ORDER_BIG_ENDIAN
-  return big_endian_64_bits;
-#else
-  // It may appear that when !defined(ORDER_BIG_ENDIAN) actual order is big
-  // endian. This variant is suboptimal, but it works regardless of actual
-  // order.
-  uint8_t *buf = (uint8_t *) &big_endian_64_bits;
-  uint64_t ret = 0;
-  for (size_t i = 8; i; i--) {
-    ret |= ((uint64_t) buf[i - 1]) << ((8 - i) * 8);
-  }
-  return ret;
-#endif
+    #ifdef ORDER_BIG_ENDIAN
+        return big_endian_64_bits;
+    #else
+        // It may appear that when !defined(ORDER_BIG_ENDIAN) actual order is big endian.
+        // This variant is suboptimal, but it works regardless of actual order.
+        uint8_t *buf = (uint8_t *) &big_endian_64_bits;
+        uint64_t ret = 0;
+
+        for(size_t i = 8; i; i--)
+        {
+            ret |= ((uint64_t) buf[i - 1]) << ((8 - i) * 8);
+        }
+
+        return ret;
+    #endif
 }
 #endif
 

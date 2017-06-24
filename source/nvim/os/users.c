@@ -10,7 +10,7 @@
 #include "nvim/garray.h"
 #include "nvim/memory.h"
 #include "nvim/strings.h"
-#ifdef HAVE_PWD_H
+#ifdef HAVE_HDR_PWD_H
 # include <pwd.h>
 #endif
 
@@ -23,7 +23,7 @@ int os_get_usernames(garray_T *users)
   }
   ga_init(users, sizeof(char *), 20);
 
-# if defined(HAVE_GETPWENT) && defined(HAVE_PWD_H)
+# if defined(HAVE_FUN_GETPWENT) && defined(HAVE_HDR_PWD_H)
   struct passwd *pw;
 
   setpwent();
@@ -56,7 +56,7 @@ int os_get_user_name(char *s, size_t len)
 // If the name is not found, write the uid into s[len] and return FAIL.
 int os_get_uname(uv_uid_t uid, char *s, size_t len)
 {
-#if defined(HAVE_PWD_H) && defined(HAVE_GETPWUID)
+#if defined(HAVE_HDR_PWD_H) && defined(HAVE_FUN_GETPWUID)
   struct passwd *pw;
 
   if ((pw = getpwuid(uid)) != NULL  // NOLINT(runtime/threadsafe_fn)
@@ -74,7 +74,7 @@ int os_get_uname(uv_uid_t uid, char *s, size_t len)
 // If the username is not found, NULL is returned.
 char *os_get_user_directory(const char *name)
 {
-#if defined(HAVE_GETPWNAM) && defined(HAVE_PWD_H)
+#if defined(HAVE_FUN_GETPWNAM) && defined(HAVE_HDR_PWD_H)
   struct passwd *pw;
   if (name == NULL) {
     return NULL;

@@ -14,7 +14,7 @@
 
 #include "config.generated.h"
 
-#ifdef HAVE_SYS_UIO_H
+#ifdef HAVE_HDR_SYS_UIO_H
 # include <sys/uio.h>
 #endif
 
@@ -244,7 +244,7 @@ ptrdiff_t file_read(FileDescriptor *const fp, char *const ret_buf,
     if (read_remaining) {
       assert(rbuffer_size(rv) == 0);
       rbuffer_reset(rv);
-#ifdef HAVE_READV
+#ifdef HAVE_FUN_READV
       // If there is readv() syscall, then take an opportunity to populate
       // both target buffer and RBuffer at once, …
       size_t write_count;

@@ -651,7 +651,7 @@ char *u_get_undo_file_name(const char *const buf_ffname, const bool reading)
   char *munged_name = NULL;
   char *undo_file_name = NULL;
   const char *ffname = buf_ffname;
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
   char fname_buf[MAXPATHL];
 #endif
 
@@ -659,7 +659,7 @@ char *u_get_undo_file_name(const char *const buf_ffname, const bool reading)
     return NULL;
   }
 
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
   // Expand symlink in the file name, so that we put the undo file with the
   // actual file instead of with the symlink.
   if (resolve_symlink((const char_u *)ffname, (char_u *)fname_buf) == OK) {

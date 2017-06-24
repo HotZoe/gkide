@@ -818,9 +818,9 @@ err_closing:
     xfree(ppath);
 
 #if defined(UNIX)
-# if defined(HAVE_SETSID) || defined(HAVE_SETPGID)
+# if defined(HAVE_FUN_SETSID) || defined(HAVE_FUN_SETPGID)
     /* Change our process group to avoid cscope receiving SIGWINCH. */
-#  if defined(HAVE_SETSID)
+#  if defined(HAVE_FUN_SETSID)
     (void)setsid();
 #  else
     if (setpgid(0, 0) == -1)
@@ -1866,7 +1866,7 @@ static void cs_release_csp(size_t i, int freefnpp)
     int pstat;
     pid_t pid;
 
-# if defined(HAVE_SIGACTION)
+# if defined(HAVE_FUN_SIGACTION)
     struct sigaction sa, old;
 
     /* Use sigaction() to limit the waiting time to two seconds. */

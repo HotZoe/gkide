@@ -1,19 +1,16 @@
 # Build flags for Dev build type
-if(MSVC)
-    set(CMAKE_C_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
+if(CMAKE_COMPILER_IS_GNUCC)
+    check_c_compiler_flag(-Og GNUCC_HAS_OG_FLAG)
 else()
-    if(CMAKE_COMPILER_IS_GNUCC)
-        check_c_compiler_flag(-Og GNUCC_HAS_OG_FLAG)
-    else()
-        set(GNUCC_HAS_OG_FLAG false)
-    endif()
-
-    if(GNUCC_HAS_OG_FLAG)
-        set(CMAKE_C_FLAGS_DEV "-Og -g" CACHE STRING "CFlags used for development build." FORCE)
-    else()
-        set(CMAKE_C_FLAGS_DEV "-O2 -g" CACHE STRING "CFlags used for development build." FORCE)
-    endif()
+    set(GNUCC_HAS_OG_FLAG false)
 endif()
+
+if(GNUCC_HAS_OG_FLAG)
+    set(CMAKE_C_FLAGS_DEV "-Og -g" CACHE STRING "CFlags used for development build." FORCE)
+else()
+    set(CMAKE_C_FLAGS_DEV "-O2 -g" CACHE STRING "CFlags used for development build." FORCE)
+endif()
+
 mark_as_advanced(CMAKE_C_FLAGS_DEV)
 
 # Default to -O2 on release build
@@ -29,7 +26,7 @@ if(CMAKE_C_FLAGS_MINSIZEREL MATCHES "-O2")
 endif()
 
 # Fixing case-insensitive filenames for Windows and Mac
-if(HOST_OS_WIN OR HOST_OS_MACOS)
+if(HOST_OS_WINDOWS OR HOST_OS_MACOS)
     add_definitions("-DFIX_CASE_INSENSITIVE")
     message(STATUS "Enable fix case-insensitive for Mac/Windows")
 endif()
@@ -109,6 +106,7 @@ if(GNUCC_HAS_DIAG_COLOR_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=auto")
 endif()
 
+# nvim source/header files
 file(GLOB NVIM_SOURCES *.c)
 file(GLOB NVIM_HEADERS *.h)
 
@@ -124,9 +122,12 @@ list(APPEND subdir_set "api/private")
 list(APPEND subdir_set "msgpack_rpc")
 list(APPEND subdir_set "rpc/msgpack")
 
+set(NVIM_AUTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/auto)
+set(NVIM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
+
 foreach(subdir ${subdir_set})
-    file(MAKE_DIRECTORY ${AUTO_NVIM_DIR}/${subdir})
-    file(MAKE_DIRECTORY ${AUTO_INCLUDE_DIR}/${subdir})
+    file(MAKE_DIRECTORY ${NVIM_AUTO_DIR}/${subdir})
+    file(MAKE_DIRECTORY ${NVIM_INCLUDE_DIR}/${subdir})
 
     file(GLOB sources ${subdir}/*.c)
     file(GLOB headers ${subdir}/*.h)
@@ -179,83 +180,84 @@ foreach(sfile ${CONV_SOURCES})
     endif()
 endforeach()
 
-# These lists must be mutually exclusive.
-#
-# NVIM_GEN_SOURCES   : generated source files
-# NVIM_GEN_FOR_SOURCE: generated headers to be included in sources, static
-# NVIM_GEN_FOR_HEADER: generated headers to be included in headers, global
+include_directories("${NVIM_AUTO_DIR}")
+include_directories("${NVIM_INCLUDE_DIR}")
 add_definitions(-DINCLUDE_GENERATED_DECLARATIONS)
 set(GENERATOR_DIR ${CMAKE_CURRENT_LIST_DIR}/generators)
 
-# generating the EX commands table
-set(GENERATOR_EX_CMDS ${GENERATOR_DIR}/gen_ex_cmds.lua)
-set(NVIM_GEN_SRC_EX_CMDS_ENUM ${AUTO_INCLUDE_DIR}/ex_cmds_enum.generated.h)
-set(NVIM_GEN_SRC_EX_CMDS_DEFS ${AUTO_NVIM_DIR}/ex_cmds_defs.generated.h)
+# Headers
+set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
 
-list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EX_CMDS_ENUM}")
-list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EX_CMDS_DEFS}")
-
-add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
-                            ${NVIM_GEN_SRC_EX_CMDS_DEFS}
-                   COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
-                            ${LUA_PROG} ${GENERATOR_EX_CMDS} ${CMAKE_CURRENT_LIST_DIR}
-                                        ${AUTO_INCLUDE_DIR}
-                                        ${AUTO_NVIM_DIR}
-                   DEPENDS  ${GENERATOR_EX_CMDS}
-                            ${CMAKE_CURRENT_LIST_DIR}/ex_cmds.lua)
-
-# generating the API information
+# API
 file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack_rpc/*.h)
 set(GENERATOR_API_DISPATCH ${GENERATOR_DIR}/gen_api_dispatch.lua)
-set(NVIM_GEN_BIN_API_METADATA ${AUTO_DATA_DIR}/nvim_api_metadata.mpack)
-set(NVIM_GEN_SRC_FUNCS_METADATA ${AUTO_NVIM_DIR}/api/private/funcs_metadata.generated.h)
-set(NVIM_GEN_SRC_API_DISPATCH ${AUTO_NVIM_DIR}/api/private/dispatch_wrappers.generated.h)
-set(NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS ${AUTO_NVIM_DIR}/msgpack_lua_c_bindings.generated.c)
+set(NVIM_GEN_BIN_API_METADATA ${GEN_DATA_DIR}/nvim_api_metadata.mpack)
+set(NVIM_GEN_SRC_FUNCS_METADATA ${NVIM_AUTO_DIR}/api/private/funcs_metadata.generated.h)
+set(NVIM_GEN_SRC_API_DISPATCH ${NVIM_AUTO_DIR}/api/private/dispatch_wrappers.generated.h)
+set(NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS ${NVIM_AUTO_DIR}/msgpack_lua_c_bindings.generated.c)
 
-list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_API_DISPATCH}")
+# UI events
+set(GENERATOR_API_UI_EVENTS ${GENERATOR_DIR}/gen_api_ui_events.lua)
+set(NVIM_GEN_SRC_UI_EVENTS ${NVIM_AUTO_DIR}/ui_events.generated.h)
+set(NVIM_GEN_SRC_UI_EVENTS_CALL ${NVIM_AUTO_DIR}/ui_events_call.generated.h)
+set(NVIM_GEN_SRC_UI_EVENTS_REMOTE ${NVIM_AUTO_DIR}/ui_events_remote.generated.h)
+set(NVIM_GEN_SRC_UI_EVENTS_BRIDGE ${NVIM_AUTO_DIR}/ui_events_bridge.generated.h)
+set(NVIM_GEN_SRC_UI_EVENTS_METADATA ${NVIM_AUTO_DIR}/api/private/ui_events_metadata.generated.h)
+
+# events
+set(GENERATOR_EVENTS ${GENERATOR_DIR}/gen_events.lua)
+set(NVIM_GEN_SRC_EVENTS_ENUM ${NVIM_INCLUDE_DIR}/auevents_enum.generated.h)
+set(NVIM_GEN_SRC_EVENTS_NAMES_MAP ${NVIM_AUTO_DIR}/auevents_name_map.generated.h)
+
+# EX commands
+set(GENERATOR_EX_CMDS ${GENERATOR_DIR}/gen_ex_cmds.lua)
+set(NVIM_GEN_SRC_EX_CMDS_ENUM ${NVIM_INCLUDE_DIR}/ex_cmds_enum.generated.h)
+set(NVIM_GEN_SRC_EX_CMDS_DEFS ${NVIM_AUTO_DIR}/ex_cmds_defs.generated.h)
+
+# vim language
+set(GENERATOR_FUNCS ${GENERATOR_DIR}/gen_eval.lua)
+set(NVIM_GEN_SRC_FUNCS ${NVIM_AUTO_DIR}/funcs.generated.h)
+set(NVIM_GEN_BIN_FUNCS_DATA ${GEN_DATA_DIR}/nvim_funcs_data.mpack)
+
+# vim module
+set(GENERATOR_CHAR_BLOB ${GENERATOR_DIR}/gen_char_blob.lua)
+set(VIM_MODULE_SOURCE ${CMAKE_CURRENT_LIST_DIR}/lua/vim.lua)
+set(NVIM_GEN_SRC_VIM_MODULE ${NVIM_AUTO_DIR}/lua/vim_module.generated.h)
+
+# options
+set(GENERATOR_OPTIONS ${GENERATOR_DIR}/gen_options.lua)
+set(NVIM_GEN_SRC_OPTIONS ${NVIM_AUTO_DIR}/options.generated.h)
+
+# unicode
+set(UNICODE_DIR ${CMAKE_CURRENT_LIST_DIR}/unicode)
+file(GLOB UNICODE_FILES ${UNICODE_DIR}/*.txt)
+set(GENERATOR_UNICODETAB ${GENERATOR_DIR}/gen_unicode_tables.lua)
+set(NVIM_GEN_SRC_UNICODETABLE ${NVIM_AUTO_DIR}/unicode_tables.generated.h)
+
+# NVIM_GEN_SOURCES   : generated source files
 list(APPEND NVIM_GEN_SOURCES "${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}")
 
-add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
-                            ${NVIM_GEN_SRC_FUNCS_METADATA}
-                            ${NVIM_GEN_BIN_API_METADATA}
-                            ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
-                   COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
-                            ${LUA_PROG} ${GENERATOR_API_DISPATCH} ${CMAKE_CURRENT_LIST_DIR}
-                                        ${NVIM_GEN_SRC_API_DISPATCH}
-                                        ${NVIM_GEN_SRC_FUNCS_METADATA}
-                                        ${NVIM_GEN_BIN_API_METADATA}
-                                        ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
-                                        ${NVIM_API_HEADERS}
-                   DEPENDS  ${NVIM_API_HEADERS}
-                            ${NVIM_RPC_MSGPACK_HEADERS}
-                            ${GENERATOR_API_DISPATCH}
-                            ${CMAKE_CURRENT_LIST_DIR}/api/dispatch_deprecated.lua)
-
-# generating the event table
-set(GENERATOR_EVENTS ${GENERATOR_DIR}/gen_events.lua)
-set(NVIM_GEN_SRC_EVENTS_ENUM ${AUTO_INCLUDE_DIR}/auevents_enum.generated.h)
-set(NVIM_GEN_SRC_EVENTS_NAMES_MAP ${AUTO_NVIM_DIR}/auevents_name_map.generated.h)
-
+# NVIM_GEN_FOR_HEADER: generated headers to be included in headers, global
+list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EX_CMDS_ENUM}")
 list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EVENTS_ENUM}")
+
+# NVIM_GEN_FOR_SOURCE: generated headers to be included in sources, static
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_API_DISPATCH}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EX_CMDS_DEFS}")
 list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EVENTS_NAMES_MAP}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_OPTIONS}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_UNICODETABLE}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_VIM_MODULE}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_FUNCS}")
 
-add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EVENTS_ENUM}
-                            ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
-                   COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
-                            ${LUA_PROG} ${GENERATOR_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
-                                        ${NVIM_GEN_SRC_EVENTS_ENUM}
-                                        ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
-                   DEPENDS  ${GENERATOR_EVENTS}
-                            ${CMAKE_CURRENT_LIST_DIR}/auevents.lua)
+# NVIM_GEN_FOR_HEADER and NVIM_GEN_FOR_SOURCE must be mutually exclusive.
+foreach(hfile ${NVIM_GEN_FOR_HEADER})
+    list(FIND NVIM_GEN_FOR_SOURCE ${hfile} hfile_idx)
+    if(NOT ${hfile_idx} EQUAL -1)
+        message(FATAL_ERROR "${hfile} in both: NVIM_GEN_FOR_HEADER, NVIM_GEN_FOR_SOURCE")
+    endif()
+endforeach()
 
-# generating header files: static/global function declarations
-set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
 set_source_files_properties(${CONV_SOURCES} PROPERTIES COMPILE_FLAGS
                             "${NVIM_COMPILE_FLAGS} -Wno-conversion")
 
@@ -287,13 +289,17 @@ separate_arguments(NVIM_CFLAGS_${build_type} UNIX_COMMAND ${CMAKE_C_FLAGS_${buil
 set(gen_cflags ${gen_cflags} ${NVIM_CFLAGS_${build_type}} ${NVIM_CFLAGS})
 
 foreach(sfile ${NVIM_SOURCES}
-              ${NVIM_GEN_SRC_API_DISPATCH})
+              ${CMAKE_CURRENT_LIST_DIR}/regexp_nfa.c
+              ${NVIM_GEN_SRC_API_DISPATCH}
+              ${NVIM_GEN_SRC_UI_EVENTS_CALL}
+              ${NVIM_GEN_SRC_UI_EVENTS_REMOTE}
+              ${NVIM_GEN_SRC_UI_EVENTS_BRIDGE})
     get_filename_component(full_path ${sfile} DIRECTORY) # get directory without file name
 
     file(RELATIVE_PATH relative_path "${CMAKE_CURRENT_LIST_DIR}" "${full_path}")
 
-    if(${relative_path} MATCHES "auto/nvim")
-        file(RELATIVE_PATH relative_path "${AUTO_NVIM_DIR}" "${full_path}")
+    if(${relative_path} MATCHES "nvim/auto")
+        file(RELATIVE_PATH relative_path "${NVIM_AUTO_DIR}" "${full_path}")
     endif()
 
     get_filename_component(file_name_we ${sfile} NAME)    # file name with extension
@@ -305,9 +311,9 @@ foreach(sfile ${NVIM_SOURCES}
     endif()
 
     # generated files
-    set(gf_i   "${AUTO_NVIM_DIR}/${file_name_oe}.i") # processor output file
-    set(gf_c_h "${AUTO_NVIM_DIR}/${file_name_oe}.c.generated.h") # static, to be included in sources
-    set(gf_h_h "${AUTO_INCLUDE_DIR}/${file_name_oe}.h.generated.h") # global, to be included in headers
+    set(gf_i   "${NVIM_AUTO_DIR}/${file_name_oe}.i") # processor output file
+    set(gf_c_h "${NVIM_AUTO_DIR}/${file_name_oe}.c.generated.h") # static, to be included in sources
+    set(gf_h_h "${NVIM_INCLUDE_DIR}/${file_name_oe}.h.generated.h") # global, to be included in headers
 
     # set preprocessor output directory for source file
     set(preproc_output -E -o ${gf_i})
@@ -330,16 +336,147 @@ foreach(sfile ${NVIM_SOURCES}
     list(APPEND NVIM_GEN_FOR_SOURCE "${gf_c_h}")
     list(APPEND NVIM_GEN_FOR_HEADER "${gf_h_h}")
 
-    if(${d} MATCHES "^api$" AND NOT ${f} MATCHES "^api/helpers.c$")
+    if(${relative_path} MATCHES "^api$" AND NOT ${file_name_we} MATCHES "^api/helpers.c$")
         list(APPEND NVIM_API_HEADERS ${gf_h_h})
     endif()
 endforeach()
 
-####################################################################
+# generating: API
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
+                            ${NVIM_GEN_SRC_FUNCS_METADATA}
+                            ${NVIM_GEN_BIN_API_METADATA}
+                            ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_API_DISPATCH} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_GEN_SRC_API_DISPATCH}
+                                        ${NVIM_GEN_SRC_FUNCS_METADATA}
+                                        ${NVIM_GEN_BIN_API_METADATA}
+                                        ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
+                                        ${NVIM_API_HEADERS}
+                   DEPENDS  ${NVIM_API_HEADERS}
+                            ${NVIM_RPC_MSGPACK_HEADERS}
+                            ${GENERATOR_API_DISPATCH}
+                            ${CMAKE_CURRENT_LIST_DIR}/api/dispatch_deprecated.lua)
+
+# generating: vim module
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_VIM_MODULE}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_CHAR_BLOB}
+                                        ${VIM_MODULE_SOURCE}
+                                        ${NVIM_GEN_SRC_VIM_MODULE}
+                                        vim_module
+                   DEPENDS  ${GENERATOR_CHAR_BLOB}
+                            ${VIM_MODULE_SOURCE})
+
+# generating: UI events
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UI_EVENTS}
+                            ${NVIM_GEN_SRC_UI_EVENTS_CALL}
+                            ${NVIM_GEN_SRC_UI_EVENTS_REMOTE}
+                            ${NVIM_GEN_SRC_UI_EVENTS_BRIDGE}
+                            ${NVIM_GEN_SRC_UI_EVENTS_METADATA}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_API_UI_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h
+                                        ${NVIM_GEN_SRC_UI_EVENTS}
+                                        ${NVIM_GEN_SRC_UI_EVENTS_CALL}
+                                        ${NVIM_GEN_SRC_UI_EVENTS_REMOTE}
+                                        ${NVIM_GEN_SRC_UI_EVENTS_BRIDGE}
+                                        ${NVIM_GEN_SRC_UI_EVENTS_METADATA}
+                   DEPENDS  ${GENERATOR_API_UI_EVENTS}
+                            ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
+
+# generating: EX commands
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
+                            ${NVIM_GEN_SRC_EX_CMDS_DEFS}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_EX_CMDS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_INCLUDE_DIR}
+                                        ${NVIM_AUTO_DIR}
+                   DEPENDS  ${GENERATOR_EX_CMDS}
+                            ${CMAKE_CURRENT_LIST_DIR}/ex_cmds.lua)
+
+# generating: events
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EVENTS_ENUM}
+                            ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_GEN_SRC_EVENTS_ENUM}
+                                        ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
+                   DEPENDS  ${GENERATOR_EVENTS}
+                            ${CMAKE_CURRENT_LIST_DIR}/auevents.lua)
+
+# generating: vim language
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_FUNCS}
+                            ${NVIM_GEN_BIN_FUNCS_DATA}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_FUNCS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_AUTO_DIR}
+                                        ${NVIM_GEN_BIN_API_METADATA}
+                                        ${NVIM_GEN_BIN_FUNCS_DATA}
+                   COMMAND  ${GPERF_PROG} ${NVIM_AUTO_DIR}/funcs.generated.h.gperf
+                                          --output-file=${NVIM_GEN_SRC_FUNCS}
+                   DEPENDS ${GENERATOR_FUNCS}
+                           ${CMAKE_CURRENT_LIST_DIR}/eval.lua
+                           ${NVIM_GEN_BIN_API_METADATA})
+
+# generating: options
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_OPTIONS}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_OPTIONS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_GEN_SRC_OPTIONS}
+                   DEPENDS  ${GENERATOR_OPTIONS}
+                            ${CMAKE_CURRENT_LIST_DIR}/options.lua)
+
+# generating: unicode
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_UNICODETAB}
+                            ${UNICODE_DIR}
+                            ${NVIM_GEN_SRC_UNICODETABLE}
+                   DEPENDS  ${GENERATOR_UNICODETAB}
+                            ${UNICODE_FILES})
+
+# Put these last on the link line, since multiple things may depend on them.
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
+if(FOUND_WORKING_JEMALLOC)
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
+endif()
+
+set(NVIM_EXEC_LINK_LIBS ${LUA_LIBRARIES})
+
+if(UNIX)
+    # Add libraries for unix.
+    list(APPEND NVIM_EXEC_LINK_LIBS  m)
+    list(APPEND NVIM_EXEC_LINK_LIBS  util)
+endif()
+
+list(APPEND NVIM_EXEC_LINK_LIBS  ${NVIM_DEP_LINK_LIBRARIES})
+
 add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
                     ${NVIM_GEN_FOR_HEADER}
                     ${NVIM_GEN_SOURCES}
                     ${NVIM_SOURCES}
                     ${NVIM_HEADERS})
 
-target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBRARIES})
+target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBS})

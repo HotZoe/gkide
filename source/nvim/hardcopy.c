@@ -12,7 +12,7 @@
 
 #include "nvim/vim.h"
 #include "nvim/ascii.h"
-#ifdef HAVE_LOCALE_H
+#ifdef HAVE_HDR_LOCALE_H
 # include <locale.h>
 #endif
 #include "nvim/hardcopy.h"

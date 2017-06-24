@@ -37,7 +37,7 @@
 // Note: Some systems need both string.h and strings.h (Savage).  However,
 // some systems can't handle both, only use string.h in that case.
 #include <string.h>
-#if defined(HAVE_STRINGS_H) && !defined(NO_STRINGS_WITH_STRING_H)
+#if defined(HAVE_HDR_STRINGS_H) && !defined(NO_STRINGS_WITH_STRING_H)
 # include <strings.h>
 #endif
 

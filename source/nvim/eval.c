@@ -18,7 +18,7 @@
 #include "nvim/assert.h"
 #include "nvim/vim.h"
 #include "nvim/ascii.h"
-#ifdef HAVE_LOCALE_H
+#ifdef HAVE_HDR_LOCALE_H
 # include <locale.h>
 #endif
 #include "nvim/eval.h"
@@ -10492,7 +10492,7 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
     "fork",
 #endif
     "gettext",
-#if defined(HAVE_ICONV_H) && defined(USE_ICONV)
+#if defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)
     "iconv",
 #endif
     "insert_expand",
@@ -13384,7 +13384,7 @@ static void f_resolve(typval_T *argvars, typval_T *rettv, FunPtr fptr)
   char *const v = os_resolve_shortcut(fname);
   rettv->vval.v_string = (char_u *)(v == NULL ? xstrdup(fname) : v);
 #else
-# ifdef HAVE_READLINK
+# ifdef HAVE_FUN_READLINK
   {
     bool is_relative_to_current = false;
     bool has_trailing_pathsep = false;

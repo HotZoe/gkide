@@ -13,7 +13,7 @@
 
 #include "nvim/vim.h"
 #include "nvim/ascii.h"
-#ifdef HAVE_LOCALE_H
+#ifdef HAVE_HDR_LOCALE_H
 # include <locale.h>
 #endif
 #include "nvim/ex_cmds2.h"
@@ -3402,7 +3402,7 @@ void ex_checktime(exarg_T *eap)
   no_check_timestamps = save_no_check_timestamps;
 }
 
-#if defined(HAVE_LOCALE_H)
+#if defined(HAVE_HDR_LOCALE_H)
 # define HAVE_GET_LOCALE_VAL
 
 static char *get_locale_val(int what)

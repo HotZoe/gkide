@@ -223,7 +223,7 @@ enum { FOLD_TEXT_LEN = 51 };  //!< buffer size for get_foldtext()
 #define STRLCPY(d, s, n)    xstrlcpy((char *)(d), (char *)(s), (size_t)(n))
 #define STRCMP(d, s)        strcmp((char *)(d), (char *)(s))
 #define STRNCMP(d, s, n)    strncmp((char *)(d), (char *)(s), (size_t)(n))
-#ifdef HAVE_STRCASECMP
+#ifdef HAVE_FUN_STRCASECMP
 # define STRICMP(d, s)      strcasecmp((char *)(d), (char *)(s))
 #else
 # ifdef HAVE_STRICMP
@@ -236,7 +236,7 @@ enum { FOLD_TEXT_LEN = 51 };  //!< buffer size for get_foldtext()
 /* Like strcpy() but allows overlapped source and destination. */
 #define STRMOVE(d, s)       memmove((d), (s), STRLEN(s) + 1)
 
-#ifdef HAVE_STRNCASECMP
+#ifdef HAVE_FUN_STRNCASECMP
 # define STRNICMP(d, s, n)  strncasecmp((char *)(d), (char *)(s), (size_t)(n))
 #else
 # ifdef HAVE_STRNICMP

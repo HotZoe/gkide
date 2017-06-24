@@ -58,7 +58,7 @@
 #include "nvim/os/time.h"
 #include "nvim/os/input.h"
 
-#if defined(HAVE_UTIME) && defined(HAVE_UTIME_H)
+#if defined(HAVE_FUN_UTIME) && defined(HAVE_HDR_UTIME_H)
 # include <utime.h>             /* for struct utimbuf */
 #endif
 
@@ -2167,14 +2167,14 @@ set_file_time (
     time_t mtime               /* modification time */
 )
 {
-# if defined(HAVE_UTIME) && defined(HAVE_UTIME_H)
+# if defined(HAVE_FUN_UTIME) && defined(HAVE_HDR_UTIME_H)
   struct utimbuf buf;
 
   buf.actime  = atime;
   buf.modtime = mtime;
   (void)utime((char *)fname, &buf);
 # else
-#  if defined(HAVE_UTIMES)
+#  if defined(HAVE_FUN_UTIMES)
   struct timeval tvp[2];
 
   tvp[0].tv_sec   = atime;

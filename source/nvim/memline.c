@@ -1274,12 +1274,12 @@ recover_names (
   char_u      *dirp;
   char_u      *dir_name;
   char_u      *fname_res = NULL;
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
   char_u fname_buf[MAXPATHL];
 #endif
 
   if (fname != NULL) {
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
     /* Expand symlink in the file name, because the swap file is created
      * with the actual file instead of with the symlink. */
     if (resolve_symlink(fname, fname_buf) == OK)
@@ -2967,7 +2967,7 @@ static void ml_lineadd(buf_T *buf, int count)
   }
 }
 
-#if defined(HAVE_READLINK)
+#if defined(HAVE_FUN_READLINK)
 /*
  * Resolve a symlink in the last component of a file name.
  * Note that f_resolve() does it for every part of the path, we don't do that
@@ -3047,7 +3047,7 @@ char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf, char_u *dir_name
 {
   char_u      *r, *s;
   char_u      *fname_res = fname;
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
   char_u fname_buf[MAXPATHL];
 #endif
 
@@ -3061,7 +3061,7 @@ char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf, char_u *dir_name
     return r;
   }
 
-#ifdef HAVE_READLINK
+#ifdef HAVE_FUN_READLINK
   /* Expand symlink in the file name, so that we put the swap file with the
    * actual file instead of with the symlink. */
   if (resolve_symlink(fname, fname_buf) == OK)
