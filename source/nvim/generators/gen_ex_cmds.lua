@@ -86,3 +86,7 @@ cmdidxs = cmdidxs .. [[
 };
 ]]
 defsfile:write(cmdidxs)
+
+enumfile:close()
+defsfile:close()
+

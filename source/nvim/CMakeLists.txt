@@ -109,20 +109,11 @@ if(GNUCC_HAS_DIAG_COLOR_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=auto")
 endif()
 
-add_definitions(-DINCLUDE_GENERATED_DECLARATIONS)
-
-set(GENERATOR_DIR ${PROJECT_SOURCE_DIR}/scripts/generators)
-
-#file(MAKE_DIRECTORY ${AUTO_NVIM_DIR})
-#file(MAKE_DIRECTORY ${AUTO_INCLUDE_DIR})
-
-# header generator: static/global function declarations
-set(GENERATOR_HEADERS  ${GENERATOR_DIR}/gen_header.lua)
-
 file(GLOB NVIM_SOURCES *.c)
 file(GLOB NVIM_HEADERS *.h)
-file(GLOB NVIM_API_HEADERS api/*.h)
 
+file(GLOB NVIM_API_HEADERS api/*.h)
+list(REMOVE_ITEM NVIM_API_HEADERS ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
 
 list(APPEND subdir_set "os")
 list(APPEND subdir_set "api")
@@ -130,6 +121,7 @@ list(APPEND subdir_set "lua")
 list(APPEND subdir_set "eval")
 list(APPEND subdir_set "event")
 list(APPEND subdir_set "api/private")
+list(APPEND subdir_set "msgpack_rpc")
 list(APPEND subdir_set "rpc/msgpack")
 
 foreach(subdir ${subdir_set})
@@ -187,10 +179,86 @@ foreach(sfile ${CONV_SOURCES})
     endif()
 endforeach()
 
+# These lists must be mutually exclusive.
+#
+# NVIM_GEN_SOURCES   : generated source files
+# NVIM_GEN_FOR_SOURCE: generated headers to be included in sources, static
+# NVIM_GEN_FOR_HEADER: generated headers to be included in headers, global
+add_definitions(-DINCLUDE_GENERATED_DECLARATIONS)
+set(GENERATOR_DIR ${CMAKE_CURRENT_LIST_DIR}/generators)
+
+# generating the EX commands table
+set(GENERATOR_EX_CMDS ${GENERATOR_DIR}/gen_ex_cmds.lua)
+set(NVIM_GEN_SRC_EX_CMDS_ENUM ${AUTO_INCLUDE_DIR}/ex_cmds_enum.generated.h)
+set(NVIM_GEN_SRC_EX_CMDS_DEFS ${AUTO_NVIM_DIR}/ex_cmds_defs.generated.h)
+
+list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EX_CMDS_ENUM}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EX_CMDS_DEFS}")
+
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
+                            ${NVIM_GEN_SRC_EX_CMDS_DEFS}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_EX_CMDS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${AUTO_INCLUDE_DIR}
+                                        ${AUTO_NVIM_DIR}
+                   DEPENDS  ${GENERATOR_EX_CMDS}
+                            ${CMAKE_CURRENT_LIST_DIR}/ex_cmds.lua)
+
+# generating the API information
+file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack_rpc/*.h)
+set(GENERATOR_API_DISPATCH ${GENERATOR_DIR}/gen_api_dispatch.lua)
+set(NVIM_GEN_BIN_API_METADATA ${AUTO_DATA_DIR}/nvim_api_metadata.mpack)
+set(NVIM_GEN_SRC_FUNCS_METADATA ${AUTO_NVIM_DIR}/api/private/funcs_metadata.generated.h)
+set(NVIM_GEN_SRC_API_DISPATCH ${AUTO_NVIM_DIR}/api/private/dispatch_wrappers.generated.h)
+set(NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS ${AUTO_NVIM_DIR}/msgpack_lua_c_bindings.generated.c)
+
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_API_DISPATCH}")
+list(APPEND NVIM_GEN_SOURCES "${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}")
+
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
+                            ${NVIM_GEN_SRC_FUNCS_METADATA}
+                            ${NVIM_GEN_BIN_API_METADATA}
+                            ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_API_DISPATCH} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_GEN_SRC_API_DISPATCH}
+                                        ${NVIM_GEN_SRC_FUNCS_METADATA}
+                                        ${NVIM_GEN_BIN_API_METADATA}
+                                        ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
+                                        ${NVIM_API_HEADERS}
+                   DEPENDS  ${NVIM_API_HEADERS}
+                            ${NVIM_RPC_MSGPACK_HEADERS}
+                            ${GENERATOR_API_DISPATCH}
+                            ${CMAKE_CURRENT_LIST_DIR}/api/dispatch_deprecated.lua)
+
+# generating the event table
+set(GENERATOR_EVENTS ${GENERATOR_DIR}/gen_events.lua)
+set(NVIM_GEN_SRC_EVENTS_ENUM ${AUTO_INCLUDE_DIR}/auevents_enum.generated.h)
+set(NVIM_GEN_SRC_EVENTS_NAMES_MAP ${AUTO_NVIM_DIR}/auevents_name_map.generated.h)
+
+list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EVENTS_ENUM}")
+list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EVENTS_NAMES_MAP}")
+
+add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EVENTS_ENUM}
+                            ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
+                   COMMAND  ${CMAKE_COMMAND} -E
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            ${LUA_PROG} ${GENERATOR_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
+                                        ${NVIM_GEN_SRC_EVENTS_ENUM}
+                                        ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
+                   DEPENDS  ${GENERATOR_EVENTS}
+                            ${CMAKE_CURRENT_LIST_DIR}/auevents.lua)
+
+# generating header files: static/global function declarations
+set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
 set_source_files_properties(${CONV_SOURCES} PROPERTIES COMPILE_FLAGS
                             "${NVIM_COMPILE_FLAGS} -Wno-conversion")
 
-# gperf generates ANSI-C with incorrect linkage, ignore it.
 check_c_compiler_flag(-Wno-static-in-inline GNUCC_HAS_WNO_STATIC_IN_INLINE_FLAG)
 if(GNUCC_HAS_WNO_STATIC_IN_INLINE_FLAG)
     set_source_files_properties(eval.c PROPERTIES COMPILE_FLAGS
@@ -218,13 +286,8 @@ separate_arguments(NVIM_CFLAGS_${build_type} UNIX_COMMAND ${CMAKE_C_FLAGS_${buil
 
 set(gen_cflags ${gen_cflags} ${NVIM_CFLAGS_${build_type}} ${NVIM_CFLAGS})
 
-# NVIM_GEN_SRC_FILES  : generated source files
-# NVIM_GEN_SOURCE_INC : generated headers to be included in sources, static
-# NVIM_GEN_HEADER_INC : generated headers to be included in headers, global
-#
-# These lists must be mutually exclusive.
-
-foreach(sfile ${NVIM_SOURCES})
+foreach(sfile ${NVIM_SOURCES}
+              ${NVIM_GEN_SRC_API_DISPATCH})
     get_filename_component(full_path ${sfile} DIRECTORY) # get directory without file name
 
     file(RELATIVE_PATH relative_path "${CMAKE_CURRENT_LIST_DIR}" "${full_path}")
@@ -247,40 +310,36 @@ foreach(sfile ${NVIM_SOURCES})
     set(gf_h_h "${AUTO_INCLUDE_DIR}/${file_name_oe}.h.generated.h") # global, to be included in headers
 
     # set preprocessor output directory for source file
-    set(PREPROC_OUTPUT -E -o ${gf_i})
+    set(preproc_output -E -o ${gf_i})
 
     # generating the header files
     add_custom_command(OUTPUT   ${gf_c_h}
                                 ${gf_h_h}
-                       COMMAND  ${CMAKE_C_COMPILER}
-                                ${sfile}
-                                ${PREPROC_OUTPUT}
-                                ${gen_cflags}
+                       COMMAND  ${CMAKE_C_COMPILER} ${sfile} ${preproc_output} ${gen_cflags}
                        COMMAND  ${CMAKE_COMMAND} -E
                                 env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
                                 env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
                                 ${LUA_PROG} ${GENERATOR_HEADERS}
-                                ${sfile}
-                                ${gf_c_h}
-                                ${gf_h_h}
-                                ${gf_i}
+                                            ${sfile}
+                                            ${gf_c_h}
+                                            ${gf_h_h}
+                                            ${gf_i}
                        DEPENDS  ${GENERATOR_HEADERS}
                                 ${sfile})
 
-    list(APPEND NVIM_GEN_SOURCE_INC "${gf_c_h}")
-    list(APPEND NVIM_GEN_HEADER_INC "${gf_h_h}")
+    list(APPEND NVIM_GEN_FOR_SOURCE "${gf_c_h}")
+    list(APPEND NVIM_GEN_FOR_HEADER "${gf_h_h}")
 
     if(${d} MATCHES "^api$" AND NOT ${f} MATCHES "^api/helpers.c$")
         list(APPEND NVIM_API_HEADERS ${gf_h_h})
     endif()
 endforeach()
 
-if(1)
-add_executable(nvim ${NVIM_GEN_SOURCE_INC}
-                    ${NVIM_GEN_HEADER_INC}
-                    ${NVIM_GEN_SRC_FILES}
+####################################################################
+add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
+                    ${NVIM_GEN_FOR_HEADER}
+                    ${NVIM_GEN_SOURCES}
                     ${NVIM_SOURCES}
                     ${NVIM_HEADERS})
 
 target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBRARIES})
-endif()

@@ -15,7 +15,6 @@ functions = {}
 
 local nvimdir = arg[1]
 package.path = nvimdir .. '/?.lua;' .. package.path
-
 -- names of all headers relative to the source root (for inclusion in the
 -- generated file)
 headers = {}

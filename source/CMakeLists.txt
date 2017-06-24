@@ -278,6 +278,7 @@ else()
     message(STATUS "Disable Gcov")
 endif()
 
+set(AUTO_DATA_DIR ${PROJECT_BINARY_DIR}/auto)
 set(AUTO_NVIM_DIR ${PROJECT_BINARY_DIR}/auto/nvim)
 set(AUTO_CONFIG_DIR ${PROJECT_BINARY_DIR}/auto/config)
 set(AUTO_INCLUDE_DIR ${PROJECT_BINARY_DIR}/auto/include)
