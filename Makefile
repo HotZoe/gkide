@@ -86,6 +86,6 @@ distclean:
 depsclean: distclean
 	$(Q)rm -rf deps/build
 
-.PHONY: deps nvim snail
-.PHONY: cmake
+.PHONY: deps cmake nvim snail
+.PHONY: test functionaltest unittest
 .PHONY: clean distclean depsclean
