@@ -51,14 +51,17 @@ else
     Q=@
 endif
 
-all: snail
+all: nvim snail
 
 cmake:
 	$(Q)touch CMakeLists.txt
 	$(Q)make build/.run-cmake
 
-snail: build/.run-cmake deps
-	$(Q)make -C build
+snail: cmake
+	$(Q)make -C build snail
+
+nvim: cmake
+	$(Q)make -C build nvim
 
 build/.run-cmake: | deps
 	$(Q)cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(SNAIL_CMAKE_BUILD_FLAGS) ..
@@ -83,6 +86,6 @@ distclean:
 depsclean: distclean
 	$(Q)rm -rf deps/build
 
-.PHONY: deps cmake
-.PHONY: snail
+.PHONY: deps nvim snail
+.PHONY: cmake
 .PHONY: clean distclean depsclean
