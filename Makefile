@@ -44,7 +44,6 @@ ifneq (,$(SNAIL_CMAKE_EXTRA_FLAGS))
     SNAIL_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
 endif
 
-
 ifeq ($(V),1)
     Q=
 else
@@ -57,18 +56,18 @@ cmake:
 	$(Q)touch CMakeLists.txt
 	$(Q)make build/.run-cmake
 
-snail: cmake
-	$(Q)make -C build snail
+snail: build/.run-cmake
+	+make -C build snail
 
-nvim: cmake
-	$(Q)make -C build nvim
+nvim: build/.run-cmake
+	+make -C build nvim
 
 build/.run-cmake: | deps
 	$(Q)cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(SNAIL_CMAKE_BUILD_FLAGS) ..
 	$(Q)touch $@
 
 deps: | build/.run-deps-cmake
-	$(Q)make -C deps/build
+	+make -C deps/build
 
 build/.run-deps-cmake:
 	$(Q)if [ ! -d deps/build ]; then mkdir deps/build; fi
@@ -86,6 +85,11 @@ distclean:
 depsclean: distclean
 	$(Q)rm -rf deps/build
 
+run-nvim-functional-test: | nvim
+	+make -C build functionaltest
+
 .PHONY: deps cmake nvim snail
-.PHONY: test functionaltest unittest
 .PHONY: clean distclean depsclean
+.PHONY: run-test run-nvim-test run-snail-test
+.PHONY: run-nvim-functional-test run-nvim-unit-test
+

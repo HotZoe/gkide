@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(snail)
 
-option(TESTING_ENABLE "Enable testing." ON)
 option(LOGGING_ENABLE "Enable logging." ON)
 option(DEBUGGING_ENABLE "Enable debugging." ON)
 option(ASSERTION_ENABLE "Enable assertion." ON)

@@ -169,14 +169,6 @@ else()
     message(STATUS "Disable logging")
 endif()
 
-# Checking testing
-if(TESTING_ENABLE)
-    add_definitions("-DTESTING_ENABLE")
-    message(STATUS "Enable testing")
-else()
-    message(STATUS "Disable testing")
-endif()
-
 # Checking assertion
 if(ASSERTION_ENABLE)
     # enable assertion

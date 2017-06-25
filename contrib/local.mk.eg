@@ -76,9 +76,6 @@
 # Uncomment the following to disable the assertion
 # SNAIL_CMAKE_EXTRA_FLAGS += -DASSERTION_ENABLE=OFF
 #
-# Uncomment the following to disable the assertion
-# SNAIL_CMAKE_EXTRA_FLAGS += -DTESTING_ENABLE=OFF
-#
 # Uncomment the following to enable Travis CI
 # SNAIL_CMAKE_EXTRA_FLAGS += -DTRAVIS_CI_ENABLE=ON
 #
