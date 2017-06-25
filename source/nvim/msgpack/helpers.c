@@ -9,7 +9,7 @@
 
 #include "nvim/api/private/dispatch.h"
 #include "nvim/api/private/helpers.h"
-#include "nvim/msgpack_rpc/helpers.h"
+#include "nvim/msgpack/helpers.h"
 #include "nvim/lib/kvec.h"
 #include "nvim/vim.h"
 #include "nvim/log.h"
@@ -17,7 +17,7 @@
 #include "nvim/assert.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "msgpack_rpc/helpers.c.generated.h"
+# include "msgpack/helpers.c.generated.h"
 #endif
 
 static msgpack_zone zone;

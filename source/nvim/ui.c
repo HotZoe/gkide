@@ -36,7 +36,7 @@
 #ifdef FEAT_TUI
 # include "nvim/tui/tui.h"
 #else
-# include "nvim/msgpack_rpc/server.h"
+# include "nvim/msgpack/server.h"
 #endif
 #include "nvim/api/private/helpers.h"
 

@@ -43,7 +43,7 @@
 #include "nvim/os/input.h"
 #include "nvim/os/shell.h"
 #include "nvim/os/signal.h"
-#include "nvim/msgpack_rpc/helpers.h"
+#include "nvim/msgpack/helpers.h"
 
 #ifdef HAVE_SELINUX
 # include <selinux/selinux.h>

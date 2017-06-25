@@ -17,6 +17,6 @@
 MultiQueue *ch_before_blocking_events;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "msgpack_rpc/channel.h.generated.h"
+# include "msgpack/channel.h.generated.h"
 #endif
 #endif  // NVIM_MSGPACK_RPC_CHANNEL_H

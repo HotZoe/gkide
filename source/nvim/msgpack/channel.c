@@ -11,14 +11,14 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/vim.h"
 #include "nvim/api/ui.h"
-#include "nvim/msgpack_rpc/channel.h"
-#include "nvim/msgpack_rpc/server.h"
+#include "nvim/msgpack/channel.h"
+#include "nvim/msgpack/server.h"
 #include "nvim/event/loop.h"
 #include "nvim/event/libuv_process.h"
 #include "nvim/event/rstream.h"
 #include "nvim/event/wstream.h"
 #include "nvim/event/socket.h"
-#include "nvim/msgpack_rpc/helpers.h"
+#include "nvim/msgpack/helpers.h"
 #include "nvim/vim.h"
 #include "nvim/main.h"
 #include "nvim/ascii.h"
@@ -87,7 +87,7 @@ static PMap(cstr_t) *event_strings = NULL;
 static msgpack_sbuffer out_buffer;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "msgpack_rpc/channel.c.generated.h"
+# include "msgpack/channel.c.generated.h"
 #endif
 
 /// Initializes the module

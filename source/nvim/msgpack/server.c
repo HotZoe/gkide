@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "nvim/msgpack_rpc/channel.h"
-#include "nvim/msgpack_rpc/server.h"
+#include "nvim/msgpack/channel.h"
+#include "nvim/msgpack/server.h"
 #include "nvim/os/os.h"
 #include "nvim/event/socket.h"
 #include "nvim/ascii.h"
@@ -28,7 +28,7 @@
 static garray_T watchers = GA_EMPTY_INIT_VALUE;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "msgpack_rpc/server.c.generated.h"
+# include "msgpack/server.c.generated.h"
 #endif
 
 /// Initializes the module

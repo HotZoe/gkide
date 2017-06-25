@@ -119,8 +119,7 @@ list(APPEND subdir_set "lua")
 list(APPEND subdir_set "eval")
 list(APPEND subdir_set "event")
 list(APPEND subdir_set "api/private")
-list(APPEND subdir_set "msgpack_rpc")
-list(APPEND subdir_set "rpc/msgpack")
+list(APPEND subdir_set "msgpack")
 
 set(NVIM_AUTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/auto)
 set(NVIM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
@@ -189,7 +188,7 @@ set(GENERATOR_DIR ${CMAKE_CURRENT_LIST_DIR}/generators)
 set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
 
 # API
-file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack_rpc/*.h)
+file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack/*.h)
 set(GENERATOR_API_DISPATCH ${GENERATOR_DIR}/gen_api_dispatch.lua)
 set(NVIM_GEN_BIN_API_METADATA ${GEN_DATA_DIR}/nvim_api_metadata.mpack)
 set(NVIM_GEN_SRC_FUNCS_METADATA ${NVIM_AUTO_DIR}/api/private/funcs_metadata.generated.h)

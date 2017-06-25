@@ -10,7 +10,7 @@
 #include "nvim/map.h"
 #include "nvim/log.h"
 #include "nvim/vim.h"
-#include "nvim/msgpack_rpc/helpers.h"
+#include "nvim/msgpack/helpers.h"
 #include "nvim/api/private/dispatch.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"

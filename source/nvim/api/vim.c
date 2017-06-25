@@ -14,7 +14,7 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/buffer.h"
-#include "nvim/msgpack_rpc/channel.h"
+#include "nvim/msgpack/channel.h"
 #include "nvim/lua/executor.h"
 #include "nvim/vim.h"
 #include "nvim/buffer.h"

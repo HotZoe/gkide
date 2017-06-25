@@ -10,7 +10,7 @@
 #include "nvim/ui.h"
 #include "nvim/memory.h"
 #include "nvim/map.h"
-#include "nvim/msgpack_rpc/channel.h"
+#include "nvim/msgpack/channel.h"
 #include "nvim/api/ui.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/private/helpers.h"

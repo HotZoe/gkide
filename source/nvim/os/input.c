@@ -23,7 +23,7 @@
 #include "nvim/main.h"
 #include "nvim/misc1.h"
 #include "nvim/state.h"
-#include "nvim/msgpack_rpc/channel.h"
+#include "nvim/msgpack/channel.h"
 
 #define READ_BUFFER_SIZE 0xfff
 #define INPUT_BUFFER_SIZE (READ_BUFFER_SIZE * 4)

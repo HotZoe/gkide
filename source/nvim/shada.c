@@ -25,7 +25,7 @@
 #include "nvim/ops.h"
 #include "nvim/garray.h"
 #include "nvim/option.h"
-#include "nvim/msgpack_rpc/helpers.h"
+#include "nvim/msgpack/helpers.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/buffer.h"
