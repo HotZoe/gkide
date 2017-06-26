@@ -18,21 +18,28 @@ list(INSERT CMAKE_PREFIX_PATH 0 ${BUNDLED_DEPS_PREFIX})
 set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${BUNDLED_DEPS_PREFIX}/lib/pkgconfig")
 message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 
-# libuv
-find_package(LibUV 1.9.1 REQUIRED)
-include_directories(SYSTEM ${LIBUV_INCLUDE_DIRS})
-
 # msgpack
 find_package(Msgpack 1.0.0 REQUIRED)
 include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
+list(APPEND SNAIL_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
 
-# libvterm
-find_package(LibVterm REQUIRED)
-include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
-
-# lua
-find_package(Lua REQUIRED)
-include_directories(SYSTEM ${LUA_INCLUDE_DIR})
+# jemalloc
+if(JEMALLOC_ENABLE)
+    if(CYGWIN)
+        set(FOUND_WORKING_JEMALLOC false)
+        message(STATUS "Build in Windows(Cygwin), do not use jemalloc")
+    else()
+        find_package(JeMalloc REQUIRED)
+        set(FOUND_WORKING_JEMALLOC true)
+        include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
+        list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
+        list(APPEND SNAIL_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
+    endif()
+else()
+    set(FOUND_WORKING_JEMALLOC false)
+    message(STATUS "Use standard libc")
+endif()
 
 # threads
 # see 'FindThreads.cmake' for details
@@ -43,47 +50,8 @@ include_directories(SYSTEM ${LUA_INCLUDE_DIR})
 #     CMAKE_USE_PTHREADS_INIT      - are we using pthreads
 #     CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
 find_package(Threads REQUIRED)
-
-# jemalloc
-if(JEMALLOC_ENABLE)
-    if(CYGWIN)
-        set(FOUND_WORKING_JEMALLOC false)
-        message(STATUS "Build in Windows(Cygwin), do not use jemalloc")
-    else()
-        find_package(JeMalloc REQUIRED)
-        include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
-        set(FOUND_WORKING_JEMALLOC true)
-    endif()
-else()
-    set(FOUND_WORKING_JEMALLOC false)
-    message(STATUS "Use standard libc")
-endif()
-
-# libintl
-find_package(LibIntl)
-if(LibIntl_FOUND)
-    include_directories(SYSTEM ${LibIntl_INCLUDE_DIRS})
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LibIntl_LIBRARIES}) # exist separate libintl
-    message(STATUS "Found libintl(separate library)")
-else()
-    if(FOUND_WORKING_LIBINTL)
-        message(STATUS "Found libintl(built into glibc)")
-    else()
-        message(STATUS "NOT Found libintl")
-    endif()
-endif()
-
-# libiconv
-find_package(Iconv)
-if(Iconv_FOUND)
-    include_directories(SYSTEM ${Iconv_INCLUDE_DIRS})
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
-    message(STATUS "Found libiconv")
-    set(FOUND_WORKING_ICONV  1)
-else()
-    message(STATUS "NOT Found libiconv")
-    set(FOUND_WORKING_ICONV  0)
-endif()
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+list(APPEND SNAIL_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 # Lua program
 include(CheckLuaProg)
@@ -171,16 +139,17 @@ endif()
 
 # Checking assertion
 if(ASSERTION_ENABLE)
-    # enable assertion
+    # enable assertion, for nvim
     if(CMAKE_C_FLAGS_${build_type} MATCHES DNDEBUG)
         string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_${build_type} "${CMAKE_C_FLAGS_${build_type}}")
     endif()
+    # enable assertion, for snail
     if(CMAKE_CXX_FLAGS_${build_type} MATCHES DNDEBUG)
         string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_${build_type} "${CMAKE_CXX_FLAGS_${build_type}}")
     endif()
     message(STATUS "Enable assertion")
 else()
-    # disable assertion
+    # disable assertion, for nvim
     if(NOT CMAKE_C_FLAGS_${build_type} MATCHES DNDEBUG)
         if(CMAKE_C_FLAGS_${build_type})
             set(CMAKE_C_FLAGS_${build_type}  "${CMAKE_C_FLAGS_${build_type}} -DNDEBUG")
@@ -188,6 +157,7 @@ else()
             set(CMAKE_C_FLAGS_${build_type}  "-DNDEBUG")
         endif()
     endif()
+    # disable assertion, for snail
     if(NOT CMAKE_CXX_FLAGS_${build_type} MATCHES DNDEBUG)
         if(CMAKE_CXX_FLAGS_${build_type})
             set(CMAKE_CXX_FLAGS_${build_type}  "${CMAKE_CXX_FLAGS_${build_type}} -DNDEBUG")
@@ -208,8 +178,11 @@ endif()
 
 set(CMAKE_EXE_LINKER_FLAGS_DEV    "" CACHE STRING "CFlags used for development build." FORCE)
 set(CMAKE_SHARED_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
+set(CMAKE_MODULE_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
 
-mark_as_advanced(CMAKE_EXE_LINKER_FLAGS_DEV CMAKE_SHARED_LINKER_FLAGS_DEV)
+mark_as_advanced(CMAKE_EXE_LINKER_FLAGS_DEV)
+mark_as_advanced(CMAKE_SHARED_LINKER_FLAGS_DEV)
+mark_as_advanced(CMAKE_MODULE_LINKER_FLAGS_DEV)
 
 # Remove --sort-common from linker flags
 if(CMAKE_EXE_LINKER_FLAGS    MATCHES "--sort-common" OR
@@ -234,18 +207,17 @@ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined")
 endif()
 
-include(InstallHelpers)
-include(CheckCCompilerFlag)
-include(CheckCXXCompilerFlag)
-
-add_definitions("-Wall")
-add_definitions("-Wextra")
-add_definitions("-Wconversion")
-add_definitions("-Wno-unused-parameter")
+add_compile_options("-Wall")
+add_compile_options("-Wextra")
+add_compile_options("-Wunused")
+add_compile_options("-Winit-self")
+add_compile_options("-Wconversion")
+add_compile_options("-Wfatal-errors")
+add_compile_options("-Wuninitialized")
 
 if(TRAVIS_CI_ENABLE)
-    add_definitions("-Werror")
-    message(STATUS "Enable Travis CI")
+    add_compile_options("-Werror")
+    message(STATUS "Enable Travis CI, add -Werror flag.")
 else()
     message(STATUS "Disable Travis CI")
 endif()
@@ -260,8 +232,13 @@ else()
     message(STATUS "Disable Gcov")
 endif()
 
-set(GEN_DATA_DIR ${PROJECT_BINARY_DIR}/gen)
-set(GEN_CONFIG_DIR ${PROJECT_BINARY_DIR}/gen/config)
+set(GENERATED_DIR       ${PROJECT_BINARY_DIR}/generated)
+set(GEN_CONFIG_DIR      ${GENERATED_DIR}/config)
+set(GEN_BINARY_DATA_DIR ${GENERATED_DIR})
+
+include(InstallHelpers)
+include(CheckCCompilerFlag)
+include(CheckCXXCompilerFlag)
 
 include_directories("${GEN_CONFIG_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/source")

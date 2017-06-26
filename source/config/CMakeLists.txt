@@ -133,14 +133,27 @@ if(NOT "${HAVE_BSD_BE64TOH}")
     ORDER_BIG_ENDIAN)
 endif()
 
+# get nvim and snail compile flags
+include(GetCompileFlags)
+GetNvimCompileFlags(NVIM_BUILD_CFLAGS)
+GetSnailCompileFlags(SNAIL_BUILD_CXXFLAGS)
+
+# set the project root directory to ~/project/snail
+# unifying the information to be shown in the program
+string(REPLACE "${CMAKE_SOURCE_DIR}" "snail/build" NVIM_BUILD_CFLAGS "${NVIM_BUILD_CFLAGS}")
+string(REPLACE "${CMAKE_SOURCE_DIR}" "snail/build" SNAIL_BUILD_CXXFLAGS "${SNAIL_BUILD_CXXFLAGS}")
+
+message(STATUS "==================================================================")
+message(STATUS "                      generated config files")
+message(STATUS "==================================================================")
 # Generated configuration files for source
 configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
                 "${GEN_CONFIG_DIR}/config.generated.h")
 message(STATUS "[${CMAKE_BUILD_TYPE}] Generated header: ${GEN_CONFIG_DIR}/config.h")
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/srcinfo.h.in"
-                "${GEN_CONFIG_DIR}/srcinfo.generated.h")
-message(STATUS "[${CMAKE_BUILD_TYPE}] Generated header: ${GEN_CONFIG_DIR}/srcinfo.h")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/miscinfo.h.in"
+                "${GEN_CONFIG_DIR}/miscinfo.generated.h")
+message(STATUS "[${CMAKE_BUILD_TYPE}] Generated header: ${GEN_CONFIG_DIR}/miscinfo.h")
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/versiondef.h.in"
                 "${GEN_CONFIG_DIR}/versiondef.generated.h")
@@ -149,3 +162,5 @@ message(STATUS "[${CMAKE_BUILD_TYPE}] Generated header: ${GEN_CONFIG_DIR}/versio
 configure_file("${CMAKE_CURRENT_LIST_DIR}/pathdef.h.in"
                 "${GEN_CONFIG_DIR}/pathdef.generated.h")
 message(STATUS "[${CMAKE_BUILD_TYPE}] Generated header: ${GEN_CONFIG_DIR}/pathdef.h")
+
+

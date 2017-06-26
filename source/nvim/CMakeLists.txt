@@ -190,7 +190,7 @@ set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
 # API
 file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack/*.h)
 set(GENERATOR_API_DISPATCH ${GENERATOR_DIR}/gen_api_dispatch.lua)
-set(NVIM_GEN_BIN_API_METADATA ${GEN_DATA_DIR}/nvim_api_metadata.mpack)
+set(NVIM_GEN_BIN_API_METADATA ${GEN_BINARY_DATA_DIR}/nvim_api_metadata.mpack)
 set(NVIM_GEN_SRC_FUNCS_METADATA ${NVIM_AUTO_DIR}/api/private/funcs_metadata.generated.h)
 set(NVIM_GEN_SRC_API_DISPATCH ${NVIM_AUTO_DIR}/api/private/dispatch_wrappers.generated.h)
 set(NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS ${NVIM_AUTO_DIR}/msgpack_lua_c_bindings.generated.c)
@@ -216,7 +216,7 @@ set(NVIM_GEN_SRC_EX_CMDS_DEFS ${NVIM_AUTO_DIR}/ex_cmds_defs.generated.h)
 # vim language
 set(GENERATOR_FUNCS ${GENERATOR_DIR}/gen_eval.lua)
 set(NVIM_GEN_SRC_FUNCS ${NVIM_AUTO_DIR}/funcs.generated.h)
-set(NVIM_GEN_BIN_FUNCS_DATA ${GEN_DATA_DIR}/nvim_funcs_data.mpack)
+set(NVIM_GEN_BIN_FUNCS_DATA ${GEN_BINARY_DATA_DIR}/nvim_funcs_data.mpack)
 
 # vim module
 set(GENERATOR_CHAR_BLOB ${GENERATOR_DIR}/gen_char_blob.lua)
@@ -451,18 +451,53 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
                    DEPENDS  ${GENERATOR_UNICODETAB}
                             ${UNICODE_FILES})
 
-# Put these last on the link line, since multiple things may depend on them.
+add_compile_options("-std=gnu99")
+add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
+                    ${NVIM_GEN_FOR_HEADER}
+                    ${NVIM_GEN_SOURCES}
+                    ${NVIM_SOURCES}
+                    ${NVIM_HEADERS})
+
+# libuv, for nvim only
+find_package(LibUV 1.9.1 REQUIRED)
+target_include_directories(nvim SYSTEM PUBLIC ${LIBUV_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
+
+# libvterm
+find_package(LibVterm REQUIRED)
+target_include_directories(nvim SYSTEM PUBLIC ${LIBVTERM_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
-if(FOUND_WORKING_JEMALLOC)
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
+
+# libintl
+find_package(LibIntl)
+if(LibIntl_FOUND)
+    target_include_directories(nvim SYSTEM PUBLIC ${LibIntl_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LibIntl_LIBRARIES}) # exist separate libintl
+    message(STATUS "Found libintl(separate library)")
+else()
+    if(FOUND_WORKING_LIBINTL)
+        message(STATUS "Found libintl(built into glibc)")
+    else()
+        message(STATUS "NOT Found libintl")
+    endif()
 endif()
 
-set(NVIM_EXEC_LINK_LIBS ${LUA_LIBRARIES})
+# libiconv
+find_package(Iconv)
+if(Iconv_FOUND)
+    target_include_directories(nvim SYSTEM PUBLIC ${Iconv_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
+    message(STATUS "Found libiconv")
+    set(FOUND_WORKING_ICONV  1)
+else()
+    message(STATUS "NOT Found libiconv")
+    set(FOUND_WORKING_ICONV  0)
+endif()
+
+# lua
+find_package(Lua REQUIRED)
+target_include_directories(nvim SYSTEM PUBLIC ${LUA_INCLUDE_DIR})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
 if(UNIX)
     # Add libraries for unix.
@@ -470,12 +505,6 @@ if(UNIX)
     list(APPEND NVIM_EXEC_LINK_LIBS  util)
 endif()
 
-list(APPEND NVIM_EXEC_LINK_LIBS  ${NVIM_DEP_LINK_LIBRARIES})
-
-add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
-                    ${NVIM_GEN_FOR_HEADER}
-                    ${NVIM_GEN_SOURCES}
-                    ${NVIM_SOURCES}
-                    ${NVIM_HEADERS})
+list(APPEND NVIM_EXEC_LINK_LIBS ${NVIM_DEP_LINK_LIBRARIES})
 
 target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBS})

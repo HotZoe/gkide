@@ -86,7 +86,7 @@ depsclean: distclean
 	$(Q)rm -rf deps/build
 
 run-nvim-functional-test: | nvim
-	+make -C build functionaltest
+	+make -C build nvim-functional-test
 
 .PHONY: deps cmake nvim snail
 .PHONY: clean distclean depsclean
