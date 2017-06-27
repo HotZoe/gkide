@@ -6,7 +6,7 @@ function(GetCompileFlags _compile_flags _target)
     # Create template akin to 'CMAKE_C_COMPILE_OBJECT' <= 'CMAKE_<LANG>_COMPILE_OBJECT'
     set(compile_flags "<DEFINITIONS> <INCLUDES> <CFLAGS>")
 
-    # Get flags set by add_definitions()
+    # Get Macros set by add_definitions()
     set(out_msg false)
     set(code_msg false)
     get_directory_property(tgt_definitions DIRECTORY "${CMAKE_SOURCE_DIR}/source/${_target}"
@@ -54,12 +54,15 @@ function(GetCompileFlags _compile_flags _target)
                                      COMPILE_OPTIONS)
 
     if(_target STREQUAL nvim)
-        set(tgt_build_flags ${CMAKE_C_FLAGS_${build_type}})
-        set(tgt_compile_flags ${CMAKE_C_FLAGS})
+        set(tgt_build_flags ${NVIM_CONFIG_C_FLAGS_${build_type}})
+        set(tgt_compile_flags ${NVIM_CONFIG_C_FLAGS})
     else()
-        set(tgt_build_flags ${CMAKE_CXX_FLAGS_${build_type}})
-        set(tgt_compile_flags ${CMAKE_CXX_FLAGS})
+        set(tgt_build_flags ${SNAIL_CONFIG_CXX_FLAGS_${build_type}})
+        set(tgt_compile_flags ${SNAIL_CONFIG_CXX_FLAGS})
     endif()
+
+    separate_arguments(tgt_build_flags UNIX_COMMAND ${tgt_build_flags})
+    separate_arguments(tgt_compile_flags UNIX_COMMAND ${tgt_compile_flags})
 
     foreach(flag_item ${tgt_flags} ${tgt_compile_flags} ${tgt_build_flags})
         if(code_msg)

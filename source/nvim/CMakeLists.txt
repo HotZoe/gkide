@@ -14,13 +14,13 @@ endif()
 mark_as_advanced(CMAKE_C_FLAGS_DEV)
 
 # Default to -O2 on release build
-if(CMAKE_C_FLAGS_RELEASE MATCHES "-O3")
+if(${build_type} STREQUAL "RELEASE" AND CMAKE_C_FLAGS_RELEASE MATCHES "-O3")
     message(STATUS "Replacing -O3 in CMAKE_C_FLAGS_RELEASE with -O2 for release build.")
     string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
 endif()
 
 # Default to -O3 on MinSizeRel build
-if(CMAKE_C_FLAGS_MINSIZEREL MATCHES "-O2")
+if(${build_type} STREQUAL "MINSIZEREL" AND CMAKE_C_FLAGS_MINSIZEREL MATCHES "-O2")
     message(STATUS "Replacing -O2 in CMAKE_C_FLAGS_MINSIZEREL with -O3 for MinSizeRel build.")
     string(REPLACE "-O2" "-O3" CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")
 endif()
@@ -74,10 +74,6 @@ if(NOT GNUCC_HAS_ACCEPTABLE_FORTIFY)
     set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} ${_FORTIFY_SOURCE_PREFIX}-D_FORTIFY_SOURCE=1")
 endif()
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
-
 if(MINGW)
     # Use POSIX compatible stdio in Mingw
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D__USE_MINGW_ANSI_STDIO")
@@ -105,6 +101,14 @@ check_c_compiler_flag(-fdiagnostics-color=auto GNUCC_HAS_DIAG_COLOR_FLAG)
 if(GNUCC_HAS_DIAG_COLOR_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=auto")
 endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
+
+# for config, hard code into source
+set(NVIM_CONFIG_C_FLAGS ${CMAKE_C_FLAGS} PARENT_SCOPE)
+set(NVIM_CONFIG_C_FLAGS_${build_type} ${CMAKE_C_FLAGS_${build_type}} PARENT_SCOPE)
 
 # nvim source/header files
 file(GLOB NVIM_SOURCES *.c)
@@ -451,7 +455,6 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
                    DEPENDS  ${GENERATOR_UNICODETAB}
                             ${UNICODE_FILES})
 
-add_compile_options("-std=gnu99")
 add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
                     ${NVIM_GEN_FOR_HEADER}
                     ${NVIM_GEN_SOURCES}
