@@ -7,21 +7,32 @@
 # - "MSYS Makefiles"  for Windows/MSYS
 #
 # Uncomment the following to generates standard UNIX makefiles
-# CMAKE_GENERATOR_NAME="Unix Makefiles"
+# CMAKE_GENERATOR_NAME := "Unix Makefiles"
 #
 # Uncomment the following to generates makefiles for mingw32-make under a Windows command prompt
-# CMAKE_GENERATOR_NAME="MinGW Makefiles"
+# CMAKE_GENERATOR_NAME := "MinGW Makefiles"
 #
 # Uncomment the following to generates makefiles for use with MSYS make under the MSYS shell
-# CMAKE_GENERATOR_NAME="MSYS Makefiles"
+# CMAKE_GENERATOR_NAME := "MSYS Makefiles"
 
 # By default, the architecture will automatically detect, but you can select one explicitly.
 #
 # Uncomment the following for 32-bit build
-# ARCH_32_ENABLE=ON
+# ARCH_32_ENABLE := ON
 #
 # Uncomment the following for 64-bit build
-# ARCH_64_ENABLE=ON
+# ARCH_64_ENABLE := ON
+
+# By default, enable testing for nvim & snail, but you can make your choice if you want.
+#
+# Uncomment the following to disable all testing
+# TESTING_ENABLE := OFF
+#
+# Uncomment the following to enable testing for nvim only
+# TESTING_ENABLE := nvim
+#
+# Uncomment the following to enable testing for snail only
+# TESTING_ENABLE := snail
 
 # By default, the installation prefix is '/opt'
 #

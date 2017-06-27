@@ -4,8 +4,13 @@ project(snail)
 option(LOGGING_ENABLE "Enable logging." ON)
 option(DEBUGGING_ENABLE "Enable debugging." ON)
 option(ASSERTION_ENABLE "Enable assertion." ON)
+
+option(NVIM_TESTING_ENABLE "Enable nvim testing." ON)
+option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
+
 option(GCOV_ENABLE "Enable gcov support." OFF)
 option(TRAVIS_CI_ENABLE "Enable Travis CI build." OFF)
+
 option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate a compile_commands.json" OFF)
 
 set(SNAIL_INFO_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
@@ -216,6 +221,14 @@ message(STATUS "Sys Install Perfix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "User Config Perfix: ${SNAIL_USR_HOME_PREFIX}")
 
 add_subdirectory(source)
+
+if(NVIM_TESTING_ENABLE)
+    add_subdirectory(test/nvim)
+endif()
+
+if(SNAIL_TESTING_ENABLE)
+    add_subdirectory(test/snail)
+endif()
 
 if(SNAIL_RELEASE_READY)
     message(STATUS "==================================================================")

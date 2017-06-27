@@ -1,7 +1,13 @@
 filter-false = $(strip $(filter-out 0 off OFF false FALSE, $1))
 filter-true  = $(strip $(filter-out 1 on ON true TRUE    , $1))
 
-SNAIL_HOMEPAGE_URL   := https://github/gkide/snail
+ifeq ($(V),1)
+    Q=
+else
+    Q=@
+endif
+
+SNAIL_HOME_PAGE_URL  := https://github/gkide/snail
 SNAIL_ONLINE_DOC_URL := https://github.io/gkide/snail
 
 # copy 'contrib/local.mk.eg' to 'local.mk'
@@ -11,6 +17,22 @@ ARCH_32_ENABLE       ?= OFF
 ARCH_64_ENABLE       ?= OFF
 CMAKE_GENERATOR_NAME ?= "Unix Makefiles"
 
+NVIM_TESTING_ENABLE  ?= ON
+SNAIL_TESTING_ENABLE ?= ON
+
+ifeq (OFF,$(TESTING_ENABLE))
+    NVIM_TESTING_ENABLE  := OFF
+    SNAIL_TESTING_ENABLE := OFF
+endif
+
+ifeq (nvim,$(TESTING_ENABLE))
+    SNAIL_TESTING_ENABLE := OFF
+endif
+
+ifeq (snail,$(TESTING_ENABLE))
+    NVIM_TESTING_ENABLE  := OFF
+endif
+
 DEPS_CMAKE_BUILD_FLAGS :=
 
 ifeq (,$(call filter-true,$(ARCH_32_ENABLE)))
@@ -19,6 +41,14 @@ endif
 
 ifeq (,$(call filter-true,$(ARCH_64_ENABLE)))
     DEPS_CMAKE_BUILD_FLAGS += -DARCH_64_ENABLE=ON
+endif
+
+ifeq (,$(call filter-true,$(NVIM_TESTING_ENABLE)))
+    DEPS_CMAKE_BUILD_FLAGS += -DNVIM_TESTING_ENABLE=ON
+endif
+
+ifeq (,$(call filter-true,$(SNAIL_TESTING_ENABLE)))
+    DEPS_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
 endif
 
 ifneq (,$(DEPS_CMAKE_EXTRA_FLAGS))
@@ -40,14 +70,16 @@ ifneq (Dev,$(SNAIL_CMAKE_BUILD_TYPE))
     SNAIL_CMAKE_BUILD_FLAGS += -Wno-dev
 endif
 
-ifneq (,$(SNAIL_CMAKE_EXTRA_FLAGS))
-    SNAIL_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
+ifeq (,$(call filter-true,$(NVIM_TESTING_ENABLE)))
+    SNAIL_CMAKE_BUILD_FLAGS += -DNVIM_TESTING_ENABLE=ON
 endif
 
-ifeq ($(V),1)
-    Q=
-else
-    Q=@
+ifeq (,$(call filter-true,$(SNAIL_TESTING_ENABLE)))
+    SNAIL_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
+endif
+
+ifneq (,$(SNAIL_CMAKE_EXTRA_FLAGS))
+    SNAIL_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
 endif
 
 all: nvim snail
