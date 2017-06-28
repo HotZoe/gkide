@@ -461,7 +461,7 @@ add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
                     ${NVIM_SOURCES}
                     ${NVIM_HEADERS})
 
-# libuv, for nvim only
+# libuv
 find_package(LibUV 1.9.1 REQUIRED)
 target_include_directories(nvim SYSTEM PUBLIC ${LIBUV_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
@@ -511,3 +511,8 @@ endif()
 list(APPEND NVIM_EXEC_LINK_LIBS ${NVIM_DEP_LINK_LIBRARIES})
 
 target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBS})
+
+if(NVIM_TESTING_ENABLE)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test/nvim
+                     ${PROJECT_BINARY_DIR}/test/nvim)
+endif()

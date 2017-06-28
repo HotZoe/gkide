@@ -60,9 +60,13 @@ add_custom_target(inspect
                   DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/inspect)
 list(APPEND THIRD_PARTY_LIBS inspect)
 
+# check if need to install the lua modules for testing
+if(NOT NVIM_TESTING_ENABLE)
+    return()
+endif()
 
 # for unit test, see: https://github.com/Olivine-Labs/busted/
-message(STATUS  "Building: luarocks => penlight")
+message(STATUS  "Building: luarocks => penlight, for nvim testing")
 add_custom_command(OUTPUT ${DEPS_LIB_DIR}/luarocks/rocks/penlight/1.3.2-2
                    COMMAND ${LUAROCKS_BINARY} build penlight 1.3.2-2 ${LUAROCKS_BUILDARGS}
                    DEPENDS inspect)
@@ -72,7 +76,7 @@ list(APPEND THIRD_PARTY_LIBS penlight)
 
 
 # Run tests
-message(STATUS  "Building: luarocks => busted")
+message(STATUS  "Building: luarocks => busted, for nvim testing")
 set(BUSTED_JIT  "${DEPS_BIN_DIR}/busted")
 set(busted_rockspec_url
     "https://raw.githubusercontent.com/Olivine-Labs/busted/v2.0.rc11-0/busted-2.0.rc11-0.rockspec")
@@ -85,7 +89,7 @@ list(APPEND THIRD_PARTY_LIBS busted)
 
 
 # By default, busted use luajit, change to lua
-message(STATUS  "Building: luarocks => busted-lua")
+message(STATUS  "Building: luarocks => busted-lua, for nvim testing")
 set(BUSTED_LUA  "${DEPS_BIN_DIR}/busted-lua")
 add_custom_command(OUTPUT ${BUSTED_LUA}
                    COMMAND sed -e 's/^exec/exec $$LUA_DEBUGGER/' -e 's/jit//g' < ${BUSTED_JIT} > ${BUSTED_LUA}
@@ -95,7 +99,7 @@ add_custom_target(busted-lua DEPENDS ${BUSTED_LUA})
 list(APPEND THIRD_PARTY_LIBS busted-lua)
 
 
-message(STATUS  "Building: luarocks => luacheck")
+message(STATUS  "Building: luarocks => luacheck, for nvim testing")
 set(luacheck_rockspec_url
     "https://raw.githubusercontent.com/mpeterv/luacheck/master/luacheck-scm-1.rockspec")
 add_custom_command(OUTPUT  ${DEPS_BIN_DIR}/luacheck

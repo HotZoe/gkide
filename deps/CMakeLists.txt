@@ -16,6 +16,8 @@ set(DEPS_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/downloads" CACHE PATH "Deps download 
 set(DEPS_BIN_DIR      "${DEPS_INSTALL_DIR}/bin"       CACHE PATH "Deps binary install directory.")
 set(DEPS_LIB_DIR      "${DEPS_INSTALL_DIR}/lib"       CACHE PATH "Deps library install directory.")
 
+option(NVIM_TESTING_ENABLE      "Enable nvim testing."         ON)
+option(SNAIL_TESTING_ENABLE     "Enable snail testing."        ON)
 option(SKIP_DOWNLOAD_DEPS       "Skip download dependencies."  OFF)
 
 option(SKIP_DOWNLOAD_LUV        "Skip download : luv"         ${SKIP_DOWNLOAD_DEPS})

@@ -118,10 +118,18 @@ depsclean: distclean
 	$(Q)rm -rf deps/build
 
 run-nvim-functional-test: | nvim
-	+make -C build nvim-functional-test
+	+make -C build run-nvim-functional-test
+
+run-nvim-unit-test: | nvim
+
+check-nvim: run-nvim-functional-test run-nvim-unit-test
+
+check-snail:
+
+check: check-nvim check-snail
 
 .PHONY: deps cmake nvim snail
 .PHONY: clean distclean depsclean
-.PHONY: run-test run-nvim-test run-snail-test
+.PHONY: check check-nvim check-snail
 .PHONY: run-nvim-functional-test run-nvim-unit-test
 
