@@ -30,3 +30,7 @@ list(APPEND SNAIL_EXEC_LINK_LIBS ${SNAIL_DEP_LINK_LIBRARIES})
 
 target_link_libraries(snail ${SNAIL_EXEC_LINK_LIBS})
 
+if(SNAIL_TESTING_ENABLE)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test/snail
+                     ${PROJECT_BINARY_DIR}/test/snail)
+endif()

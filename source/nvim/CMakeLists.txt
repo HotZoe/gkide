@@ -322,12 +322,13 @@ foreach(sfile ${NVIM_SOURCES}
     set(preproc_output -E -o ${gf_i})
 
     # generating the header files
+    # not child process of the main process, need to set lua env
     add_custom_command(OUTPUT   ${gf_c_h}
                                 ${gf_h_h}
                        COMMAND  ${CMAKE_C_COMPILER} ${sfile} ${preproc_output} ${gen_cflags}
                        COMMAND  ${CMAKE_COMMAND} -E
-                                env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                                env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                                env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                                env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                                 ${LUA_PROG} ${GENERATOR_HEADERS}
                                             ${sfile}
                                             ${gf_c_h}
@@ -350,8 +351,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
                             ${NVIM_GEN_BIN_API_METADATA}
                             ${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_API_DISPATCH} ${CMAKE_CURRENT_LIST_DIR}
                                         ${NVIM_GEN_SRC_API_DISPATCH}
                                         ${NVIM_GEN_SRC_FUNCS_METADATA}
@@ -366,8 +367,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
 # generating: vim module
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_VIM_MODULE}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_CHAR_BLOB}
                                         ${VIM_MODULE_SOURCE}
                                         ${NVIM_GEN_SRC_VIM_MODULE}
@@ -382,8 +383,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UI_EVENTS}
                             ${NVIM_GEN_SRC_UI_EVENTS_BRIDGE}
                             ${NVIM_GEN_SRC_UI_EVENTS_METADATA}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_API_UI_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
                                         ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h
                                         ${NVIM_GEN_SRC_UI_EVENTS}
@@ -398,8 +399,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UI_EVENTS}
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
                             ${NVIM_GEN_SRC_EX_CMDS_DEFS}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_EX_CMDS} ${CMAKE_CURRENT_LIST_DIR}
                                         ${NVIM_INCLUDE_DIR}
                                         ${NVIM_AUTO_DIR}
@@ -410,8 +411,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EVENTS_ENUM}
                             ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_EVENTS} ${CMAKE_CURRENT_LIST_DIR}
                                         ${NVIM_GEN_SRC_EVENTS_ENUM}
                                         ${NVIM_GEN_SRC_EVENTS_NAMES_MAP}
@@ -422,8 +423,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EVENTS_ENUM}
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_FUNCS}
                             ${NVIM_GEN_BIN_FUNCS_DATA}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_FUNCS} ${CMAKE_CURRENT_LIST_DIR}
                                         ${NVIM_AUTO_DIR}
                                         ${NVIM_GEN_BIN_API_METADATA}
@@ -437,8 +438,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_FUNCS}
 # generating: options
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_OPTIONS}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_OPTIONS} ${CMAKE_CURRENT_LIST_DIR}
                                         ${NVIM_GEN_SRC_OPTIONS}
                    DEPENDS  ${GENERATOR_OPTIONS}
@@ -447,8 +448,8 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_OPTIONS}
 # generating: unicode
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
                    COMMAND  ${CMAKE_COMMAND} -E
-                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}\;$ENV{LUA_PATH}\;"
-                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}\;$ENV{LUA_CPATH}\;"
+                            env LUA_PATH="${LUA_PATH_SEARCH_PATH}"
+                            env LUA_CPATH="${LUA_CPATH_SEARCH_PATH}"
                             ${LUA_PROG} ${GENERATOR_UNICODETAB}
                             ${UNICODE_DIR}
                             ${NVIM_GEN_SRC_UNICODETABLE}
@@ -461,7 +462,7 @@ add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
                     ${NVIM_SOURCES}
                     ${NVIM_HEADERS})
 
-# libuv, for nvim only
+# libuv
 find_package(LibUV 1.9.1 REQUIRED)
 target_include_directories(nvim SYSTEM PUBLIC ${LIBUV_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
@@ -511,3 +512,8 @@ endif()
 list(APPEND NVIM_EXEC_LINK_LIBS ${NVIM_DEP_LINK_LIBRARIES})
 
 target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBS})
+
+if(NVIM_TESTING_ENABLE)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/test/nvim
+                     ${PROJECT_BINARY_DIR}/test/nvim)
+endif()

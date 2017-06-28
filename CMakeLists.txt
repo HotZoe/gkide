@@ -222,14 +222,6 @@ message(STATUS "User Config Perfix: ${SNAIL_USR_HOME_PREFIX}")
 
 add_subdirectory(source)
 
-if(NVIM_TESTING_ENABLE)
-    add_subdirectory(test/nvim)
-endif()
-
-if(SNAIL_TESTING_ENABLE)
-    add_subdirectory(test/snail)
-endif()
-
 if(SNAIL_RELEASE_READY)
     message(STATUS "==================================================================")
     message(STATUS "Release Package: ${SNAIL_PACKAGE_NAME}")

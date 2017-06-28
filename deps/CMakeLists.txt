@@ -16,12 +16,15 @@ set(DEPS_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/downloads" CACHE PATH "Deps download 
 set(DEPS_BIN_DIR      "${DEPS_INSTALL_DIR}/bin"       CACHE PATH "Deps binary install directory.")
 set(DEPS_LIB_DIR      "${DEPS_INSTALL_DIR}/lib"       CACHE PATH "Deps library install directory.")
 
+option(NVIM_TESTING_ENABLE      "Enable nvim testing."         ON)
+option(SNAIL_TESTING_ENABLE     "Enable snail testing."        ON)
 option(SKIP_DOWNLOAD_DEPS       "Skip download dependencies."  OFF)
 
 option(SKIP_DOWNLOAD_LUV        "Skip download : luv"         ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LUA        "Skip download : lua"         ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"       ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"       ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUAJIT     "Skip download : luajit"      ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"     ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LUAROCKS   "Skip download : luarocks"    ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_JEMALLOC   "Skip download : jemalloc"    ${SKIP_DOWNLOAD_DEPS})
@@ -72,6 +75,9 @@ include(SnailDepsURLSet)
 
 # dependencies: none
 include(BuildLua)
+
+# dependencies: none
+include(BuildLuajit)
 
 # dependencies: none
 include(BuildGperf)

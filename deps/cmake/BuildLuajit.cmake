@@ -1,4 +1,3 @@
-message(STATUS  "Building: luajit-v${LUAJIT_VERSION}")
 include(CMakeParseArguments)
 
 # BuildLuajit(<TARGET targetname> <CONFIGURE_COMMAND ...> <BUILD_COMMAND ...> <INSTALL_COMMAND ...>)
@@ -32,7 +31,7 @@ function(BuildLuajit)
                            -DBUILD_INTREE=1
                            -DEXPECT_SHA256=${LUAJIT_SHA256}
                            -DSKIP_DOWNLOAD=${SKIP_DOWNLOAD_LUAJIT}
-                           -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/DownloadAndExtractFile.cmake
+                           -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/DownloadExtract.cmake
         CONFIGURE_COMMAND  "${_luajit_CONFIGURE_COMMAND}"
         BUILD_IN_SOURCE    1
         WORKING_DIRECTORY  "${DEPS_BUILD_DIR}/src/luajit"
@@ -44,15 +43,14 @@ if(NOT CYGWIN)
     set(cflags_fpic "CFLAGS=-fPIC")
 endif()
 
-set(INSTALLCMD_UNIX  ${MAKE_PRG}
-                     ${cflags_fpic}
+set(INSTALLCMD_UNIX  ${MAKE_PRG} ${cflags_fpic}
                      CFLAGS+=-DLUAJIT_DISABLE_JIT
                      CFLAGS+=-DLUA_USE_APICHECK
                      CFLAGS+=-DLUA_USE_ASSERT
-                     CCDEBUG+=-g
-                     Q=
+                     CCDEBUG+=-g Q=
                      install)
 
+message(STATUS  "Building: luajit-v${LUAJIT_VERSION}")
 if(UNIX)
 
     # Unix/Cygwin
@@ -70,31 +68,7 @@ if(UNIX)
                                 PREFIX=${DEPS_INSTALL_DIR}
                                 ${cygwin_build_args})
 
-elseif(MINGW AND CMAKE_CROSSCOMPILING)
-
-    # Build luajit for the host
-    BuildLuaJit(TARGET             luajit-host
-                CONFIGURE_COMMAND  ""
-                BUILD_COMMAND      ""
-                INSTALL_COMMAND    ${INSTALLCMD_UNIX}
-                                   CC=${HOST_C_COMPILER}
-                                   PREFIX=${DEPS_INSTALL_DIR})
-
-    # Build luajit for the target, Similar to Unix + cross - fPIC
-    BuildLuaJit(INSTALL_COMMAND    ${MAKE_PRG}
-                                   PREFIX=${DEPS_INSTALL_DIR}
-                                   BUILDMODE=static install
-                                   TARGET_SYS=${CMAKE_SYSTEM_NAME}
-                                   CROSS=${CROSS_TARGET}-
-                                   HOST_CC=${HOST_C_COMPILER}
-                                   HOST_CFLAGS=${HOST_C_FLAGS}
-                                   HOST_LDFLAGS=${HOST_EXE_LINKER_FLAGS}
-                                   FILE_T=luajit.exe
-                                   Q=
-                                   INSTALL_TSYMNAME=luajit.exe)
-
 elseif(MINGW)
-
     BuildLuaJit(
     BUILD_COMMAND   ${CMAKE_MAKE_PROGRAM}
                     CC=${DEPS_C_COMPILER}
@@ -117,24 +91,6 @@ elseif(MINGW)
                     COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/luajit/src/lua51.dll
                                                      ${DEPS_INSTALL_DIR}/lib
                     COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/luajit/src/libluajit.a
-                                                     ${DEPS_INSTALL_DIR}/lib
-                    COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/include/luajit-2.1
-                    COMMAND ${CMAKE_COMMAND} -DFROM_GLOB=${DEPS_BUILD_DIR}/src/luajit/src/*.h
-                                             -DTO=${DEPS_INSTALL_DIR}/include/luajit-2.1
-                                             -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/CopyFilesGlob.cmake)
-
-elseif(MSVC)
-
-    BuildLuaJit(
-    BUILD_COMMAND   ${CMAKE_COMMAND} -E chdir ${DEPS_BUILD_DIR}/src/luajit/src
-                                                  ${DEPS_BUILD_DIR}/src/luajit/src/msvcbuild.bat
-    INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/bin
-                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/luajit/src/luajit.exe
-                                                     ${DEPS_INSTALL_DIR}/bin
-                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/luajit/src/lua51.dll
-                                                     ${DEPS_INSTALL_DIR}/bin
-                    COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/lib
-                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/luajit/src/lua51.lib
                                                      ${DEPS_INSTALL_DIR}/lib
                     COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/include/luajit-2.1
                     COMMAND ${CMAKE_COMMAND} -DFROM_GLOB=${DEPS_BUILD_DIR}/src/luajit/src/*.h
