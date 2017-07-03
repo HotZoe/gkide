@@ -61,13 +61,12 @@ return function(options)
     }
 
     local fileStartString = c.sect('[ Spec ]') .. ' ' .. c.file('%s') .. '\n'
-    local runString       = c.sect('[ Runs ]') .. ' ' .. c.test('%s') .. ': '
+    local runString       = c.sect('[ Runs ]') .. ' ' .. c.test('%s')
     local errorString     = c.errr('ERRR') .. '\n'
     local successString   = c.succ('PASS') .. '\n'
     local skippedString   = c.skip('SKIP') .. '\n'
     local failureString   = c.fail('FAIL') .. '\n'
-    local fileEndString   = c.sect('[Result]') .. ' ' .. c.file('%s') .. ' has ' .. c.nmbr('%d')
-                                                      .. ' %s: ' .. c.time('elapsed %.6f ms') .. '\n\n'
+    local fileEndString   = c.sect('[Result]') .. ' ' .. c.file('%s') .. ' has ' .. c.nmbr('%d') .. ' %s'
 
     local repeatSuiteString = c.sect('[ Note ]') .. ' ' ..
                               c.note('Repeating all tests (run ') .. c.nmbr('%d') .. c.note(' of ') .. c.nmbr('%d\n\n')
@@ -238,19 +237,32 @@ return function(options)
         return nil, true
     end
 
+    local function line_append_align(len)
+        for i=len, 100 do
+            io.write(' ')
+        end
+    end
+
     handler.fileEnd = function(file)
-        local elapsedTime_ms = getElapsedTime(file)
         local tests = (fileTestCount == 1 and 'test' or 'tests')
+        local elapsedTime_ms = getElapsedTime(file)
 
         fileCount = fileCount + 1
         io.write(fileEndString:format(file.name, fileTestCount, tests, elapsedTime_ms))
+
+        local len = string.len(file.name .. tests)
+        len = len + string.len(tostring(fileTestCount))
+        line_append_align(len+6)
+        io.write(timeString:format(elapsedTime_ms) .. '\n\n')
         io.flush()
 
         return nil, true
     end
 
     handler.testStart = function(element, parent)
-        io.write(runString:format(handler.getFullName(element)))
+        local full_file_name = handler.getFullName(element)
+        io.write(runString:format(full_file_name))
+        line_append_align(string.len(full_file_name))
         io.flush()
         return nil, true
     end
@@ -280,7 +292,6 @@ return function(options)
             if elapsedTime_ms == elapsedTime_ms then
                 string = timeString:format(elapsedTime_ms) .. ' ' .. string
             end
-
             io.write(string)
             io.flush()
         end

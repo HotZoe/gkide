@@ -101,3 +101,11 @@ add_custom_target(luacheck
                   DEPENDS  ${DEPS_BIN_DIR}/luacheck)
 list(APPEND THIRD_PARTY_LIBS luacheck)
 
+message(STATUS  "Building: luarocks => nvim-client, for nvim testing")
+add_custom_command(OUTPUT ${DEPS_LIB_DIR}/luarocks/rocks/nvim-client
+                   COMMAND ${LUAROCKS_BINARY} nvim-client ${LUAROCKS_BUILDARGS}
+                   DEPENDS luacheck)
+add_custom_target(nvim-client
+                  DEPENDS ${DEPS_LIB_DIR}/luarocks/rocks/nvim-client)
+list(APPEND THIRD_PARTY_LIBS nvim-client)
+
