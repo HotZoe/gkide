@@ -1,5 +1,6 @@
 local s = require("say")
 local term = require("term")
+local socket = require("socket")
 local pretty = require("pl.pretty")
 
 local colors
@@ -34,7 +35,7 @@ return function(options)
     local globalTeardown  = c.sect('[======]') .. ' Global test environment teardown\n'
     local suiteEndString  = c.sect('[Result]') .. ' ' .. c.nmbr('%03d') .. ' %s from'
                                                .. ' ' .. c.nmbr('%03d') .. ' spec %s:'
-                                               .. ' ' .. c.time('elapsed %.6f ms') .. '\n'
+                                               .. ' ' .. c.time('elapsed %03.6f ms') .. '\n'
     local successStatus   = c.succ('[ PASS ]') .. ' ' .. c.nmbr('%03d') .. ' %s\n'
     local summaryStrings  =
     {
@@ -62,10 +63,10 @@ return function(options)
 
     local fileStartString = c.sect('[ Spec ]') .. ' ' .. c.file('%s') .. '\n'
     local runString       = c.sect('[ Runs ]') .. ' ' .. c.test('%s')
-    local errorString     = c.errr('ERRR') .. '\n'
-    local successString   = c.succ('PASS') .. '\n'
-    local skippedString   = c.skip('SKIP') .. '\n'
-    local failureString   = c.fail('FAIL') .. '\n'
+    local errorString     = c.errr('ERRR')
+    local successString   = c.succ('PASS')
+    local skippedString   = c.skip('SKIP')
+    local failureString   = c.fail('FAIL')
     local fileEndString   = c.sect('[Result]') .. ' ' .. c.file('%s') .. ' has ' .. c.nmbr('%d') .. ' %s'
 
     local repeatSuiteString = c.sect('[ Note ]') .. ' ' ..
@@ -73,7 +74,7 @@ return function(options)
     local randomizeString   = c.sect('[ Note ]') .. ' ' ..
                               c.note('Randomizing test order with a seed of ') .. c.nmbr('%d\n')
 
-    local timeString = c.time('%.6f ms')
+    local timeString = c.time('%03.6f ms')
 
     c = nil
 
@@ -86,6 +87,10 @@ return function(options)
     local skippedCount = 0
     local failureCount = 0
     local errorCount = 0
+
+    local suite_start_time = 0
+    local test_start_time = 0
+    local file_start_time = 0
 
     local pendingDescription = function(pending)
         local name = pending.name
@@ -193,6 +198,8 @@ return function(options)
     end
 
     handler.suiteStart = function(suite, count, total, randomseed)
+        suite_start_time = socket.gettime()
+
         if total > 1 then
             io.write(repeatSuiteString:format(count, total))
         end
@@ -207,16 +214,8 @@ return function(options)
         return nil, true
     end
 
-    local function getElapsedTime(tbl)
-        if tbl.duration then
-            return tbl.duration * 1000
-        else
-            return 0
-        end
-    end
-
     handler.suiteEnd = function(suite, count, total)
-        local elapsedTime_ms = getElapsedTime(suite)
+        local elapsedTime_ms = (socket.gettime() - suite_start_time) * 1000
         local tests = (testCount == 1 and 'test' or 'tests')
         local files = (fileCount == 1 and 'file' or 'files')
 
@@ -230,6 +229,7 @@ return function(options)
 
     handler.fileStart = function(file)
         fileTestCount = 0
+        file_start_time = socket.gettime()
 
         io.write(fileStartString:format(file.name))
         io.flush()
@@ -245,14 +245,14 @@ return function(options)
 
     handler.fileEnd = function(file)
         local tests = (fileTestCount == 1 and 'test' or 'tests')
-        local elapsedTime_ms = getElapsedTime(file)
+        local elapsedTime_ms = (socket.gettime() - file_start_time) * 1000
 
         fileCount = fileCount + 1
         io.write(fileEndString:format(file.name, fileTestCount, tests, elapsedTime_ms))
 
         local len = string.len(file.name .. tests)
         len = len + string.len(tostring(fileTestCount))
-        line_append_align(len+6)
+        line_append_align(len+1)
         io.write(timeString:format(elapsedTime_ms) .. '\n\n')
         io.flush()
 
@@ -261,6 +261,8 @@ return function(options)
 
     handler.testStart = function(element, parent)
         local full_file_name = handler.getFullName(element)
+        test_start_time = socket.gettime()
+
         io.write(runString:format(full_file_name))
         line_append_align(string.len(full_file_name))
         io.flush()
@@ -269,7 +271,7 @@ return function(options)
 
     handler.testEnd = function(element, parent, status, debug)
         local string
-        local elapsedTime_ms = getElapsedTime(element)
+        local elapsedTime_ms = (socket.gettime() - test_start_time) * 1000
 
         testCount = testCount + 1
         fileTestCount = fileTestCount + 1
@@ -289,9 +291,7 @@ return function(options)
         end
 
         if string ~= nil then
-            if elapsedTime_ms == elapsedTime_ms then
-                string = timeString:format(elapsedTime_ms) .. ' ' .. string
-            end
+            string = string .. ' ' .. timeString:format(elapsedTime_ms) .. '\n'
             io.write(string)
             io.flush()
         end
