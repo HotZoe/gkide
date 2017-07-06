@@ -11,8 +11,6 @@ option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
 option(GCOV_ENABLE "Enable gcov support." OFF)
 option(TRAVIS_CI_ENABLE "Enable Travis CI build." OFF)
 
-option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate a compile_commands.json" OFF)
-
 set(SNAIL_INFO_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
 set(SNAIL_INFO_DESC  "snail is a elegant and sophisticated editor for programmers.")
 
@@ -53,6 +51,9 @@ set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev"  "Debug"  "Release"  
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Dev" CACHE STRING "Choose the build type ..." FORCE)
 endif()
+
+# Enable output of compile commands during generation
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # generates compile_commands.json
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
 

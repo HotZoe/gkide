@@ -22,7 +22,6 @@ message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 find_package(Msgpack 1.0.0 REQUIRED)
 include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
-list(APPEND SNAIL_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
 
 # jemalloc
 if(JEMALLOC_ENABLE)
@@ -34,7 +33,6 @@ if(JEMALLOC_ENABLE)
         set(FOUND_WORKING_JEMALLOC true)
         include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
         list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
-        list(APPEND SNAIL_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
     endif()
 else()
     set(FOUND_WORKING_JEMALLOC false)
@@ -51,7 +49,6 @@ endif()
 #     CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
 find_package(Threads REQUIRED)
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
-list(APPEND SNAIL_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 # Lua program
 include(CheckLuaProg)
