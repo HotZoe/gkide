@@ -82,6 +82,8 @@ ifneq (,$(SNAIL_CMAKE_EXTRA_FLAGS))
     SNAIL_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
 endif
 
+.PHONY: deps cmake nvim snail all
+
 all: nvim snail
 
 cmake:
@@ -108,14 +110,9 @@ build/.run-deps-cmake:
 	$(Q)if [ ! -d build ]; then mkdir build; fi
 	$(Q)touch $@
 
-clean:
-	$(Q)test -d build && make -C build clean || true
-
-distclean:
-	$(Q)rm -rf build
-
-depsclean: distclean
-	$(Q)rm -rf deps/build
+.PHONY: check-nvim
+.PHONY: run-nvim-unit-test
+.PHONY: run-nvim-functional-test
 
 run-nvim-functional-test: | nvim
 	+make -C build run-nvim-functional-test
@@ -124,12 +121,28 @@ run-nvim-unit-test: | nvim
 
 check-nvim: run-nvim-functional-test run-nvim-unit-test
 
-check-snail:
+.PHONY: check-snail
+.PHONY: run-snail-libs-test
+.PHONY: run-snail-shared-test
+.PHONY: run-snail-plugins-test
+
+run-snail-libs-test: | snail
+	+make -C build run-snail-libs-test
+
+check-snail: run-snail-libs-test
+
+.PHONY: check
 
 check: check-nvim check-snail
 
-.PHONY: deps cmake nvim snail
 .PHONY: clean distclean depsclean
-.PHONY: check check-nvim check-snail
-.PHONY: run-nvim-functional-test run-nvim-unit-test
+
+clean:
+	$(Q)test -d build && make -C build clean || true
+
+distclean:
+	$(Q)rm -rf build
+
+depsclean: distclean
+	$(Q)rm -rf deps/build
 
