@@ -1,7 +1,7 @@
 #ifndef NEOVIM_QT_CONNECTORHELPER
 #define NEOVIM_QT_CONNECTORHELPER
 
-#include "neovimconnector.h"
+#include "snail/libs/nvimapi/neovimconnector.h"
 
 namespace NeovimQt {
 

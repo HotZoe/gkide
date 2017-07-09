@@ -1,4 +1,4 @@
-#include "stdinreader.h"
+#include "snail/libs/nvimapi/stdinreader.h"
 
 #include <QDebug>
 #ifdef _WIN32

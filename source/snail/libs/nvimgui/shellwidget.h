@@ -2,8 +2,7 @@
 #define QSHELLWIDGET2_SHELLWIDGET
 
 #include <QWidget>
-
-#include "shellcontents.h"
+#include "snail/libs/nvimgui/shellcontents.h"
 
 class ShellWidget: public QWidget
 {

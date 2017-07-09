@@ -17,7 +17,7 @@ public:
 
 #ifndef NEOVIMQT_NO_AUTO
 // Bring in auto-generated enum
-#include "auto/func_idx.h"
+#include "snail/libs/nvimapi/auto/func_idx.h"
 #endif
 
 	Function();

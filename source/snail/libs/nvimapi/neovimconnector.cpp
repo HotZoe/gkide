@@ -1,11 +1,11 @@
-#include "neovimconnector.h"
 #include <QtGlobal>
 #include <QMetaMethod>
 #include <QLocalSocket>
 #include <QTcpSocket>
-#include "msgpackrequest.h"
-#include "neovimconnectorhelper.h"
-#include "msgpackiodevice.h"
+#include "snail/libs/nvimapi/neovimconnector.h"
+#include "snail/libs/nvimapi/msgpackrequest.h"
+#include "snail/libs/nvimapi/neovimconnectorhelper.h"
+#include "snail/libs/nvimapi/msgpackiodevice.h"
 
 namespace NeovimQt {
 

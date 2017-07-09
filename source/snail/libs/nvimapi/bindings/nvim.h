@@ -2,8 +2,8 @@
 #ifndef LIBS_NVIM_AUTO_NVIM_H
 #define LIBS_NVIM_AUTO_NVIM_H
 
-#include "function.h"
-#include "msgpack.h"
+#include <msgpack.h>
+#include "snail/libs/nvimapi/function.h"
 
 namespace NeovimQt
 {

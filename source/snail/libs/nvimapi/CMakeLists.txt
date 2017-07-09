@@ -24,7 +24,7 @@ file(GLOB LIBS_NVIMAPI_SOURCES *.cpp)
 
 list(APPEND LIBS_NVIMAPI_AUTOSRC auto/nvim.cpp)
 
-if(WIN32)
+if(NOT WIN32)
     list(REMOVE_ITEM LIBS_NVIMAPI_SOURCES stdinreader.cpp)
 endif()
 
@@ -34,6 +34,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 
+message(===========${MSGPACK_LIBRARIES})
 add_library(nvimapi STATIC ${LIBS_NVIMAPI_HEADERS}
                            ${LIBS_NVIMAPI_SOURCES}
                            ${LIBS_NVIMAPI_AUTOSRC})

@@ -67,7 +67,7 @@
  */
 
 // Own
-#include "konsole_wcwidth.h"
+#include "snail/libs/nvimgui/konsole_wcwidth.h"
 
 struct interval {
     unsigned long first;

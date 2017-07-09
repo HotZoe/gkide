@@ -5,8 +5,8 @@
 #include <QAbstractSocket>
 #include <QProcess>
 #include <QTextCodec>
-#include "function.h"
-#include "auto/nvim.h"
+#include "snail/libs/nvimapi/function.h"
+#include "snail/libs/nvimapi/auto/nvim.h"
 
 namespace NeovimQt
 {

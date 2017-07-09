@@ -3,7 +3,8 @@
 
 #include <QObject>
 #include <QTimer>
-#include "function.h"
+#include "snail/libs/nvimapi/function.h"
+
 namespace NeovimQt {
 
 class MsgpackIODevice;

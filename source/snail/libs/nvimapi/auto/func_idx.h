@@ -1,4 +1,4 @@
-// Auto generated 2017-07-06 19:46:21.977781
+// Auto generated 2017-07-08 18:47:15.223024
 #ifndef LIBS_NVIM_AUTO_FUNC_IDX_H
 #define LIBS_NVIM_AUTO_FUNC_IDX_H
 enum FunctionId

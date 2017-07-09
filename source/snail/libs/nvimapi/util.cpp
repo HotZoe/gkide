@@ -1,4 +1,4 @@
-#include "util.h"
+#include "snail/libs/nvimapi/util.h"
 
 namespace NeovimQt {
 

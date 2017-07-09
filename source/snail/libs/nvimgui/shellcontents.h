@@ -4,7 +4,7 @@
 /// A class to hold the contents of the shell / i.e. a grid of characters. This
 /// class is meant to hold state about shell contents, but no more - e.g. cursor
 /// information should be stored somewhere else.
-#include "cell.h"
+#include "snail/libs/nvimgui/cell.h"
 
 class ShellContents
 {

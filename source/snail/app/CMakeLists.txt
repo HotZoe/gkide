@@ -2,11 +2,22 @@
 file(GLOB SNAIL_APP_HEADERS *.h)
 file(GLOB SNAIL_APP_SOURCES *.cpp)
 
-add_executable(snail ${SNAIL_APP_SOURCES})
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+
+add_executable(snail WIN32 MACOSX_BUNDLE ${SNAIL_APP_SOURCES})
 
 list(APPEND SNAIL_EXEC_LINK_LIBS "$<TARGET_LINKER_FILE:nvimapi>")
-list(APPEND SNAIL_EXEC_LINK_LIBS "$<TARGET_LINKER_FILE:qtshell>")
+list(APPEND SNAIL_EXEC_LINK_LIBS "$<TARGET_LINKER_FILE:nvimgui>")
 
-target_link_libraries(snail ${SNAIL_EXEC_LINK_LIBS})
+target_link_libraries(snail  ${SNAIL_EXEC_LINK_LIBS}
+
+$<TARGET_LINKER_FILE:nvimgui>
+$<TARGET_LINKER_FILE:nvimapi>
+ ${MSGPACK_LIBRARIES} Qt5::Network
+Qt5::Widgets)
 
 

@@ -1,6 +1,6 @@
-#include "function.h"
 #include <QMetaMethod>
 #include <QStringList>
+#include "snail/libs/nvimapi/function.h"
 
 namespace NeovimQt {
 
@@ -20,7 +20,7 @@ typedef QPair<QString,QString> StringPair;
  */
 
 #ifndef NEOVIMQT_NO_AUTO
-#include "auto/func_sig.hpp"
+#include "snail/libs/nvimapi/auto/func_sig.hpp"
 #endif
 
 /**

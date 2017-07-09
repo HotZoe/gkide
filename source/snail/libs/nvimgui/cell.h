@@ -3,7 +3,7 @@
 
 #include <QColor>
 #include <QChar>
-#include "konsole_wcwidth.h"
+#include "snail/libs/nvimgui/konsole_wcwidth.h"
 
 struct Cell {
 public:

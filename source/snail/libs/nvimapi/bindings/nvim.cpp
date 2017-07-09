@@ -1,9 +1,10 @@
 // Auto generated {{date}}
-#include "nvim.h"
-#include "util.h"
-#include "neovimconnector.h"
-#include "msgpackrequest.h"
-#include "msgpackiodevice.h"
+
+#include "snail/libs/nvimapi/auto/nvim.h"
+#include "snail/libs/nvimapi/util.h"
+#include "snail/libs/nvimapi/neovimconnector.h"
+#include "snail/libs/nvimapi/msgpackrequest.h"
+#include "snail/libs/nvimapi/msgpackiodevice.h"
 
 namespace NeovimQt
 {

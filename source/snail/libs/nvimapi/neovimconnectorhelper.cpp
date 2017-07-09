@@ -1,10 +1,10 @@
 #include <QMap>
 
-#include "neovimconnectorhelper.h"
-#include "neovimconnector.h"
-#include "msgpackiodevice.h"
-#include "msgpackrequest.h"
-#include "util.h"
+#include "snail/libs/nvimapi/neovimconnectorhelper.h"
+#include "snail/libs/nvimapi/neovimconnector.h"
+#include "snail/libs/nvimapi/msgpackiodevice.h"
+#include "snail/libs/nvimapi/msgpackrequest.h"
+#include "snail/libs/nvimapi/util.h"
 
 namespace NeovimQt {
 

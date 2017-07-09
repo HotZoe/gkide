@@ -1,7 +1,7 @@
 #include <QFile>
 #include <QDebug>
-#include "shellcontents.h"
-#include "konsole_wcwidth.h"
+#include "snail/libs/nvimgui/shellcontents.h"
+#include "snail/libs/nvimgui/konsole_wcwidth.h"
 
 Cell ShellContents::invalidCell = Cell::invalid();;
 

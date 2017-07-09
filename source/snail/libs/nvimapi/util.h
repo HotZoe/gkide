@@ -3,7 +3,7 @@
 
 #include <QDebug>
 #include <msgpack.h>
-#include "function.h"
+#include "snail/libs/nvimapi/function.h"
 
 QDebug operator<<(QDebug dbg, const msgpack_object&);
 QDebug operator<<(QDebug dbg, const NeovimQt::Function& f);

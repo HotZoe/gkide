@@ -4,15 +4,15 @@
 
 // read/write
 #ifdef _WIN32
-# include <io.h>
-# include "stdinreader.h"
+#   include <io.h>
+#   include "snail/libs/nvimapi/stdinreader.h"
 #else
-# include <unistd.h>
+#   include <unistd.h>
 #endif
 
-#include "msgpackiodevice.h"
-#include "util.h"
-#include "msgpackrequest.h"
+#include "snail/libs/nvimapi/util.h"
+#include "snail/libs/nvimapi/msgpackrequest.h"
+#include "snail/libs/nvimapi/msgpackiodevice.h"
 
 namespace NeovimQt {
 

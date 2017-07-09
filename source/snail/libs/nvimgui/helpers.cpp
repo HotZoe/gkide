@@ -1,7 +1,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QDebug>
-#include "helpers.h"
+#include "snail/libs/nvimgui/helpers.h"
 
 /// Save shell contents into a file, returns file on error (see QImage::save)
 bool saveShellContents(const ShellContents& s, const QString& filename)

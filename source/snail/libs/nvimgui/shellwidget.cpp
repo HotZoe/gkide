@@ -1,8 +1,8 @@
 #include <QPainter>
 #include <QPaintEvent>
 #include <QDebug>
-#include "shellwidget.h"
-#include "helpers.h"
+#include "snail/libs/nvimgui/shellwidget.h"
+#include "snail/libs/nvimgui/helpers.h"
 
 ShellWidget::ShellWidget(QWidget *parent)
 :QWidget(parent), m_contents(0,0), m_bgColor(Qt::white),
