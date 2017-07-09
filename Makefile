@@ -7,17 +7,17 @@ else
     Q=@
 endif
 
-SNAIL_HOME_PAGE_URL  := https://github/gkide/snail
-SNAIL_ONLINE_DOC_URL := https://github.io/gkide/snail
+GKIDE_HOME_PAGE_URL  := https://github/gkide/snail
+GKIDE_ONLINE_DOC_URL := https://github.io/gkide/snail
 
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
-ARCH_32_ENABLE       ?= OFF
-ARCH_64_ENABLE       ?= OFF
+ARCH_32_ENABLE ?= OFF
+ARCH_64_ENABLE ?= OFF
 CMAKE_GENERATOR_NAME ?= "Unix Makefiles"
 
-NVIM_TESTING_ENABLE  ?= ON
+NVIM_TESTING_ENABLE ?= ON
 SNAIL_TESTING_ENABLE ?= ON
 
 ifeq (OFF,$(TESTING_ENABLE))
@@ -55,31 +55,31 @@ ifneq (,$(DEPS_CMAKE_EXTRA_FLAGS))
     DEPS_CMAKE_BUILD_FLAGS += $(DEPS_CMAKE_EXTRA_FLAGS)
 endif
 
-SNAIL_CMAKE_BUILD_TYPE  ?= Debug
-SNAIL_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(SNAIL_CMAKE_BUILD_TYPE)
+GKIDE_CMAKE_BUILD_TYPE  ?= Release
+GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(GKIDE_CMAKE_BUILD_TYPE)
 
 ifeq (,$(call filter-true,$(ARCH_32_ENABLE)))
-    SNAIL_CMAKE_BUILD_FLAGS += -DARCH_32_ENABLE=ON
+    GKIDE_CMAKE_BUILD_FLAGS += -DARCH_32_ENABLE=ON
 endif
 
 ifeq (,$(call filter-true,$(ARCH_64_ENABLE)))
-    SNAIL_CMAKE_BUILD_FLAGS += -DARCH_64_ENABLE=ON
+    GKIDE_CMAKE_BUILD_FLAGS += -DARCH_64_ENABLE=ON
 endif
 
-ifneq (Dev,$(SNAIL_CMAKE_BUILD_TYPE))
-    SNAIL_CMAKE_BUILD_FLAGS += -Wno-dev
+ifneq (Dev,$(GKIDE_CMAKE_BUILD_TYPE))
+    GKIDE_CMAKE_BUILD_FLAGS += -Wno-dev
 endif
 
 ifeq (,$(call filter-true,$(NVIM_TESTING_ENABLE)))
-    SNAIL_CMAKE_BUILD_FLAGS += -DNVIM_TESTING_ENABLE=ON
+    GKIDE_CMAKE_BUILD_FLAGS += -DNVIM_TESTING_ENABLE=ON
 endif
 
 ifeq (,$(call filter-true,$(SNAIL_TESTING_ENABLE)))
-    SNAIL_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
+    GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
 endif
 
 ifneq (,$(SNAIL_CMAKE_EXTRA_FLAGS))
-    SNAIL_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
+    GKIDE_CMAKE_BUILD_FLAGS += $(SNAIL_CMAKE_EXTRA_FLAGS)
 endif
 
 .PHONY: deps cmake nvim snail all
@@ -97,7 +97,7 @@ nvim: build/.run-cmake
 	+make -C build nvim
 
 build/.run-cmake: | deps
-	$(Q)cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(SNAIL_CMAKE_BUILD_FLAGS) ..
+	$(Q)cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
 	$(Q)touch $@
 
 deps: | build/.run-deps-cmake

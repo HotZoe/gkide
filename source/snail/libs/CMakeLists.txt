@@ -1,2 +1,1 @@
-add_subdirectory(nvimapi)
-add_subdirectory(nvimgui)
+add_subdirectory(nvimcore)

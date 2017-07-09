@@ -3,4 +3,4 @@ enable_testing()
 
 message(STATUS "Enable snail testing")
 
-add_subdirectory(libs)
+#add_subdirectory(libs)

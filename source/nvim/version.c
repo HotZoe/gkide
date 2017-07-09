@@ -41,7 +41,7 @@ char *longVersion = NVIM_VERSION_LONG;
 char *version_buildtype = "Build type: " NVIM_BUILD_TYPE;
 char *version_cflags = "Compilation: " NVIM_BUILD_CFLAGS;
 
-char *default_vim_dir = SNAIL_SYS_PREFIX;
+char *default_vim_dir = NVIM_SYS_PREFIX;
 char *default_vimruntime_dir = "";
 char_u *compiled_user = (char_u *)BUILD_BY_USER;
 char_u *compiled_sys = (char_u *)BUILD_ON_HOST;

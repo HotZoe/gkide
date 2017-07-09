@@ -141,8 +141,8 @@ GetSnailCompileFlags(SNAIL_BUILD_CXXFLAGS)
 
 # set the project root directory to ~/project/snail
 # unifying the information to be shown in the program
-string(REPLACE "${CMAKE_SOURCE_DIR}" "snail/build" NVIM_BUILD_CFLAGS "${NVIM_BUILD_CFLAGS}")
-string(REPLACE "${CMAKE_SOURCE_DIR}" "snail/build" SNAIL_BUILD_CXXFLAGS "${SNAIL_BUILD_CXXFLAGS}")
+string(REPLACE "${CMAKE_SOURCE_DIR}" "snail" NVIM_BUILD_CFLAGS "${NVIM_BUILD_CFLAGS}")
+string(REPLACE "${CMAKE_SOURCE_DIR}" "snail" SNAIL_BUILD_CXXFLAGS "${SNAIL_BUILD_CXXFLAGS}")
 
 message(STATUS "==================================================================")
 message(STATUS "                      generated config files")
