@@ -1,4 +1,4 @@
-find_package(PythonInterp)
+find_package(PythonInterp QUIET)
 if(PYTHONINTERP_FOUND)
     add_custom_target(update-nvimbindings
                       COMMAND  ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_LIST_DIR}/auto/*
