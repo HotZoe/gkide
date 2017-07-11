@@ -11,7 +11,8 @@
 #define RUNTIME_DIRNAME "runtime"
 /* end */
 
-#include "config.generated.h"
+#include "config.h"
+#include "confignvim.h"
 #define HAVE_PATHDEF
 
 // Check if configure correctly managed to find sizeof(int).

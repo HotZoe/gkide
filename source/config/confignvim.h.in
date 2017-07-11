@@ -1,0 +1,52 @@
+/// @file
+/// @headerfile ""
+#ifndef GKIDE_GENERATED_CONFIG_CONFIGNVIM_H
+#define GKIDE_GENERATED_CONFIG_CONFIGNVIM_H
+
+// check header files
+#cmakedefine HAVE_HDR_PWD_H
+#cmakedefine HAVE_HDR_UTIME_H
+#cmakedefine HAVE_HDR_ICONV_H
+#cmakedefine HAVE_HDR_FCNTL_H
+#cmakedefine HAVE_HDR_LOCALE_H
+#cmakedefine HAVE_HDR_STRINGS_H
+#cmakedefine HAVE_HDR_TERMIOS_H
+#cmakedefine HAVE_HDR_SYS_UIO_H
+#cmakedefine HAVE_HDR_SYS_WAIT_H
+#cmakedefine HAVE_HDR_LANGINFO_H
+#cmakedefine HAVE_HDR_SYS_UTSNAME_H
+
+// check C functions
+#cmakedefine HAVE_FUN_UTIME
+#cmakedefine HAVE_FUN_READV
+#cmakedefine HAVE_FUN_UTIMES
+#cmakedefine HAVE_FUN_FSEEKO
+#cmakedefine HAVE_FUN_SETENV
+#cmakedefine HAVE_FUN_SETSID
+#cmakedefine HAVE_FUN_OPENDIR
+#cmakedefine HAVE_FUN_SETPGID
+#cmakedefine HAVE_FUN_GETPWENT
+#cmakedefine HAVE_FUN_GETPWNAM
+#cmakedefine HAVE_FUN_GETPWUID
+#cmakedefine HAVE_FUN_READLINK
+#cmakedefine HAVE_FUN_UNSETENV
+#cmakedefine HAVE_FUN_PUTENV_S
+#cmakedefine HAVE_FUN_SIGACTION
+#cmakedefine HAVE_FUN_STRCASECMP
+#cmakedefine HAVE_FUN_STRNCASECMP
+
+// check C symbols
+#cmakedefine HAVE_SYM_CODESET
+#cmakedefine HAVE_SYM_BE64TOH
+#cmakedefine HAVE_SYM_FD_CLOEXEC
+
+// check dependency libraries
+#cmakedefine FOUND_WORKING_ICONV
+#cmakedefine FOUND_WORKING_LIBINTL
+
+#cmakedefine ORDER_BIG_ENDIAN
+
+#define SYSHDR_ENDIAN_H     <${INCLUDE_FILE_ENDIAN_H}>
+#define NVIM_LOG_LEVEL_MIN  @NVIM_LOG_LEVEL_MIN@
+
+#endif // GKIDE_GENERATED_CONFIG_CONFIGNVIM_H

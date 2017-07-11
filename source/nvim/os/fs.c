@@ -9,7 +9,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "config.generated.h"
+#include "config.h"
+#include "confignvim.h"
 
 #ifdef HAVE_HDR_SYS_UIO_H
 # include <sys/uio.h>

@@ -152,6 +152,5 @@ function(GetCurrentSystemTime cur_sys_time)
     # this is put here for each time running cmake, we can get
     # current system time.
     configure_file("${CMAKE_CURRENT_LIST_DIR}/PackageInfo.in"
-                   "${CMAKE_BINARY_DIR}/PackageInfo"
-                   @ONLY)
+                   "${CMAKE_BINARY_DIR}/PackageInfo" @ONLY)
 endfunction()

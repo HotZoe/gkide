@@ -12,7 +12,8 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-#include "config.generated.h"
+#include "config.h"
+#include "confignvim.h"
 
 #ifdef HAVE_HDR_SYS_UIO_H
 # include <sys/uio.h>

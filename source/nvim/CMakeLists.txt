@@ -113,6 +113,8 @@ else()
     message(STATUS "nvim disable FATAL logging")
 endif()
 
+include(ConfigNvim) # generate configurations for nvim only
+
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCC)
     check_c_compiler_flag(-Og GNUCC_HAS_OG_FLAG)
@@ -570,6 +572,7 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
                             ${NVIM_GEN_SRC_UNICODETABLE}
                    DEPENDS  ${GENERATOR_UNICODETAB}
                             ${UNICODE_FILES})
+
 
 add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
                     ${NVIM_GEN_FOR_HEADER}
