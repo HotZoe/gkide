@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-set(SNAIL_LOGO  "${PROJECT_SOURCE_DIR}/snail.png")
-set(SNAIL_DESC  "snail is a elegant and sophisticated editor for programmers.")
+set(SNAIL_LOGO  "${PROJECT_SOURCE_DIR}/gkide.png")
+set(SNAIL_DESC  "GKIDE is an elegant and sophisticated code editor based on vim/nvim.")
 
-project(snail)
+project(gkide)
 
 # Enable output of compile commands during generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # generates compile_commands.json

@@ -29,6 +29,6 @@ private:
 	Function::FunctionId m_function;
 	QTimer m_timer;
 };
-} // Namespace
+} // [Namespace] SnailNvimQt
 
 #endif

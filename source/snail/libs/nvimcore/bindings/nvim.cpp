@@ -1,12 +1,12 @@
 // Auto generated {{date}}
 
-#include "snail/libs/nvimapi/auto/nvim.h"
-#include "snail/libs/nvimapi/util.h"
-#include "snail/libs/nvimapi/neovimconnector.h"
-#include "snail/libs/nvimapi/msgpackrequest.h"
-#include "snail/libs/nvimapi/msgpackiodevice.h"
+#include "snail/libs/nvimcore/util.h"
+#include "snail/libs/nvimcore/auto/nvim.h"
+#include "snail/libs/nvimcore/nvimconnector.h"
+#include "snail/libs/nvimcore/msgpackrequest.h"
+#include "snail/libs/nvimcore/msgpackiodevice.h"
 
-namespace NeovimQt
+namespace SnailNvimQt
 {
 
 // Unpack Neovim EXT types: Window, Buffer Tabpage, which are all uint64_t
@@ -27,7 +27,7 @@ QVariant unpackBuffer(MsgpackIODevice *dev, const char* in, quint32 size)
 #define unpackWindow unpackBuffer
 #define unpackTabpage unpackBuffer
 
-Neovim::Neovim(NeovimConnector *c) :m_c(c)
+Neovim::Neovim(NvimConnector *c) :m_c(c)
 {
 	// EXT types
 	{% for typename in exttypes %}
@@ -78,7 +78,7 @@ void Neovim::handleResponseError(quint32 msgid, Function::FunctionId fun, const 
 		break;
     {% endfor %}
 	default:
-		m_c->setError(NeovimConnector::RuntimeMsgpackError,
+		m_c->setError(NvimConnector::RuntimeMsgpackError,
 		              QString("Received error for function that should not fail: %s").arg(fun));
 	}
 }
@@ -94,7 +94,7 @@ void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVari
         {{f.return_type.native_type}} data;
         if(decode(res, data))
         {
-            m_c->setError(NeovimConnector::RuntimeMsgpackError,
+            m_c->setError(NvimConnector::RuntimeMsgpackError,
                           "Error unpacking return type for {{f.name}}");
             return;
         }
@@ -113,4 +113,4 @@ void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVari
 	}
 }
 
-} // namespace: NvimQt
+} // [Namespace] SnailNvimQt

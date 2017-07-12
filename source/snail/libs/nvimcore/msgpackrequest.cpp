@@ -60,4 +60,4 @@ void MsgpackRequest::requestTimeout()
 	emit timeout(this->id);
 }
 
-} // namespace SnailNvimQt
+} // [Namespace] SnailNvimQt

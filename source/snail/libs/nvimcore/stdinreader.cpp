@@ -56,4 +56,4 @@ void StdinReader::run()
  * @see StdinReader::StdinReader
  */
 
-} // Namespace
+} // [Namespace] SnailNvimQt

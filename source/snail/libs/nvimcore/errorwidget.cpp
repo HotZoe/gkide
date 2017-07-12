@@ -40,4 +40,4 @@ void ErrorWidget::showReconnect(bool on)
 	m_closeButton->setVisible(on);
 }
 
-} //Namespace
+} // [Namespace] SnailNvimQt

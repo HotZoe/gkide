@@ -906,4 +906,4 @@ bool MsgpackIODevice::checkVariant(const QVariant& var)
 	return true;
 }
 
-} // Namespace SnailNvimQt
+} // [Namespace] SnailNvimQt

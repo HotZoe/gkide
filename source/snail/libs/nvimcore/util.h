@@ -49,6 +49,6 @@ inline bool variant_not_zero(const QVariant& v)
 	return !ok || int_val != 0;
 }
 
-}
+} // [Namespace] SnailNvimQt
 
 #endif

@@ -135,14 +135,14 @@ check-snail: run-snail-libs-test
 
 check: check-nvim check-snail
 
-.PHONY: clean distclean depsclean
+.PHONY: clean gkideclean distclean
 
 clean:
 	$(Q)test -d build && make -C build clean || true
 
-distclean:
+gkideclean:
 	$(Q)rm -rf build
 
-depsclean: distclean
+distclean: gkideclean
 	$(Q)rm -rf deps/build
 

@@ -48,6 +48,6 @@ protected:
 
 extern InputConv Input;
 
-} //Namespace
+} // [Namespace] SnailNvimQt
 
 #endif

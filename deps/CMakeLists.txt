@@ -2,7 +2,7 @@
 # This is not meant to be included by the top-level cmake.
 #
 cmake_minimum_required(VERSION 3.1.0)
-project(snail-deps)
+project(gkide-deps)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
@@ -77,7 +77,7 @@ include(SnailDepsURLSet)
 include(BuildLua)
 
 # dependencies: none
-include(BuildLuajit)
+#include(BuildLuajit)
 
 # dependencies: none
 include(BuildGperf)

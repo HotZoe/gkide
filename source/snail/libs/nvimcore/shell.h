@@ -133,5 +133,6 @@ private:
 	bool m_neovimBusy;
 };
 
-} // Namespace
+} // [Namespace] SnailNvimQt
+
 #endif

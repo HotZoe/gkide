@@ -23,6 +23,6 @@ private:
 	QPushButton *m_closeButton;
 };
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 
 #endif

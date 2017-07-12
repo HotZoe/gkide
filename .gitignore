@@ -1,5 +1,5 @@
-build/*
 tmp/*
+build/*
 local.mk
 PackageInfo
 CMakeLists.txt.user

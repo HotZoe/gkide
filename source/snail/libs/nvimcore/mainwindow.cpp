@@ -199,5 +199,5 @@ Shell* MainWindow::shell()
 	return m_shell;
 }
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 

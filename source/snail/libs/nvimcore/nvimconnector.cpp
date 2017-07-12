@@ -386,6 +386,6 @@ NvimConnector* NvimConnector::reconnect()
  * is emitted when the process exits.
  */
 
-} // namespace SnailNvimQt
+} // [Namespace] SnailNvimQt
 
 #include "moc_nvimconnector.cpp"

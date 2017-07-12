@@ -1,10 +1,10 @@
-#ifndef NEOVIM_QT_CONNECTOR
-#define NEOVIM_QT_CONNECTOR
+#ifndef SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
+#define SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
 
 #include <QObject>
-#include <QAbstractSocket>
 #include <QProcess>
 #include <QTextCodec>
+#include <QAbstractSocket>
 #include "snail/libs/nvimcore/function.h"
 #include "snail/libs/nvimcore/auto/nvim.h"
 
@@ -13,6 +13,7 @@ namespace SnailNvimQt
 
 class MsgpackIODevice;
 class NvimConnectorHelper;
+
 class NvimConnector: public QObject
 {
 	friend class Neovim;
@@ -109,7 +110,9 @@ private:
 	int m_connPort;
 	bool m_ready;
 };
-} // namespace SnailNvimQt
+
+} // [Namespace] SnailNvimQt
+
 Q_DECLARE_METATYPE(SnailNvimQt::NvimConnector::NeovimError)
 
-#endif
+#endif // SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H

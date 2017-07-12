@@ -9,3 +9,4 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 	, false)
 {% endfor %}
 	;
+

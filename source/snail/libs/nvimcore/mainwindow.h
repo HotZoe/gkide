@@ -50,6 +50,6 @@ private:
 	QStackedWidget m_stack;
 };
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 
 #endif

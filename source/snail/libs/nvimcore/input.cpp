@@ -243,4 +243,4 @@ QString InputConv::convertKey(const QString& text, int k, Qt::KeyboardModifiers 
 	return QString(c);
 }
 
-} // Namespace
+} // [Namespace] SnailNvimQt

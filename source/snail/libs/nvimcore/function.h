@@ -48,6 +48,6 @@ private:
 	bool m_valid;
 };
 
-}
+} // [Namespace] SnailNvimQt
 
 #endif // NEOVIM_QT_FUNCTIONS

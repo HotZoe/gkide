@@ -1016,4 +1016,4 @@ void Shell::openFiles(QList<QUrl> urls)
 	}
 }
 
-} // Namespace
+} // [Namespace] SnailNvimQt

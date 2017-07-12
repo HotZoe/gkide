@@ -1,4 +1,4 @@
-// Auto generated 2017-07-08 18:47:15.192689
+// Auto generated 2017-07-12 22:09:26.826170
 const QList<Function> Function::knownFunctions = QList<Function>()
 << Function("Integer", "nvim_buf_line_count",
 	QList<QString>()

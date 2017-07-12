@@ -1,7 +1,7 @@
-// Auto generated 2017-07-08 18:47:15.202734
+// Auto generated 2017-07-12 22:09:26.834382
 
-#include "snail/libs/nvimcore/auto/nvim.h"
 #include "snail/libs/nvimcore/util.h"
+#include "snail/libs/nvimcore/auto/nvim.h"
 #include "snail/libs/nvimcore/nvimconnector.h"
 #include "snail/libs/nvimcore/msgpackrequest.h"
 #include "snail/libs/nvimcore/msgpackiodevice.h"
@@ -3974,4 +3974,4 @@ void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVari
 	}
 }
 
-} // namespace: NvimQt
+} // [Namespace] SnailNvimQt

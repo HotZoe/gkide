@@ -23,5 +23,6 @@ private:
 
 };
 
-} // Namespace SnailNvimQt
+} // [Namespace] SnailNvimQt
+
 #endif

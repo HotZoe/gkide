@@ -115,7 +115,8 @@ public:
 	virtual void handleRequest(MsgpackIODevice*, quint32 msgid, const QByteArray&, const QVariantList&)=0;
 };
 
-} // Namespace SnailNvimQt
+} // [Namespace] SnailNvimQt
+
 Q_DECLARE_METATYPE(SnailNvimQt::MsgpackIODevice::MsgpackError)
 
 #endif

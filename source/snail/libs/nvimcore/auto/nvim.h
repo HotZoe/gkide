@@ -1,6 +1,6 @@
-// Auto generated 2017-07-08 18:47:15.229175
-#ifndef LIBS_NVIM_AUTO_NVIM_H
-#define LIBS_NVIM_AUTO_NVIM_H
+// Auto generated 2017-07-12 22:09:26.857280
+#ifndef SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H
+#define SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H
 
 #include <msgpack.h>
 #include "snail/libs/nvimcore/function.h"
@@ -9,6 +9,7 @@ namespace SnailNvimQt
 {
 class NvimConnector;
 class MsgpackRequest;
+
 class Neovim: public QObject
 {
     Q_OBJECT
@@ -768,6 +769,6 @@ signals:
 	void err_window_is_valid(const QString&, const QVariant&);
 };
 
-} // namespace: NvimQt
+} // [Namespace] SnailNvimQt
 
-#endif // LIBS_NVIM_AUTO_NVIM_H
+#endif // SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H

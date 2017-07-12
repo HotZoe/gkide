@@ -23,6 +23,7 @@
 
 // gcc and clang expose their version as follows:
 //
+// https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
 // gcc 4.7.2:
 //   __GNUC__          = 4
 //   __GNUC_MINOR__    = 7

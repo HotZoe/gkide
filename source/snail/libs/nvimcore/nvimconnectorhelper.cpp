@@ -109,4 +109,4 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList& ftable)
 	return Function::knownFunctions.size() == supported.size();
 }
 
-} // Namespace SnailNvimQt
+} // [Namespace] SnailNvimQt

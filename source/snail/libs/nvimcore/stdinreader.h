@@ -19,6 +19,6 @@ private:
         qint64 m_maxSize;
 };
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 
 #endif

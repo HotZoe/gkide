@@ -1,10 +1,10 @@
-#ifndef NEOVIM_QT_APP
-#define NEOVIM_QT_APP
+#ifndef SNAIL_LIBS_NVIMCORE_APP_H
+#define SNAIL_LIBS_NVIMCORE_APP_H
 
-#include <QApplication>
-#include <QEvent>
 #include <QUrl>
 #include <QList>
+#include <QEvent>
+#include <QApplication>
 #include <QCommandLineParser>
 
 namespace SnailNvimQt
@@ -27,6 +27,6 @@ signals:
 	void openFilesTriggered(const QList<QUrl>);
 };
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 
-#endif
+#endif // SNAIL_LIBS_NVIMCORE_APP_H

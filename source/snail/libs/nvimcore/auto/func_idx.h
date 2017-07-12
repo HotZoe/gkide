@@ -1,6 +1,5 @@
-// Auto generated 2017-07-08 18:47:15.223024
-#ifndef LIBS_NVIM_AUTO_FUNC_IDX_H
-#define LIBS_NVIM_AUTO_FUNC_IDX_H
+// Auto generated 2017-07-12 22:09:26.851279
+
 enum FunctionId
 {
     	NEOVIM_FN_NVIM_BUF_LINE_COUNT,
@@ -169,4 +168,3 @@ enum FunctionId
     	NEOVIM_FN_WINDOW_IS_VALID,
     	NEOVIM_FN_NULL
 };
-#endif // LIBS_NVIM_AUTO_FUNC_IDX_H

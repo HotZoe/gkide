@@ -213,5 +213,5 @@ Function::FunctionId Function::functionId(const Function& f)
 }
 
 
-} // Namespace
+} // [Namespace] SnailNvimQt
 

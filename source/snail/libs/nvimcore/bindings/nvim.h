@@ -1,19 +1,20 @@
 // Auto generated {{date}}
-#ifndef LIBS_NVIM_AUTO_NVIM_H
-#define LIBS_NVIM_AUTO_NVIM_H
+#ifndef SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H
+#define SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H
 
 #include <msgpack.h>
-#include "snail/libs/nvimapi/function.h"
+#include "snail/libs/nvimcore/function.h"
 
-namespace NeovimQt
+namespace SnailNvimQt
 {
-class NeovimConnector;
+class NvimConnector;
 class MsgpackRequest;
+
 class Neovim: public QObject
 {
     Q_OBJECT
 public:
-	Neovim(NeovimConnector *);
+	Neovim(NvimConnector *);
 
 protected slots:
 	void handleResponse(quint32 id, Function::FunctionId fun, const QVariant&);
@@ -24,7 +25,7 @@ signals:
 	void neovimNotification(const QByteArray &name, const QVariantList& args);
 
 private:
-	NeovimConnector *m_c;
+	NvimConnector *m_c;
 
 public slots:
 {% for f in functions %}
@@ -42,6 +43,7 @@ signals:
 {% endfor %}
 };
 
-} // namespace: NvimQt
+} // [Namespace] SnailNvimQt
 
-#endif // LIBS_NVIM_AUTO_NVIM_H
+#endif // SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H
+
