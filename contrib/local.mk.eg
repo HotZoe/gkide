@@ -1,5 +1,12 @@
 # Individual entries must be uncommented to take effect.
 
+# You must set the Qt5 install perfix by uncomment the following line. The value is mine, you
+# should set it yours, my Qt5 install perfix is: /opt/Qt5.5.1/5.5/gcc_64, contains bin/, lib/, etc.
+# - /opt/Qt5.5.1/5.5/gcc_64/bin/qmake
+# - /opt/Qt5.5.1/5.5/gcc_64/lib/
+#
+# QT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
+
 # By default, CMAKE_GENERATOR_NAME set to
 # - "Unix Makefiles"  for UNIX
 # - "Unix Makefiles"  for Windows/Cygwin
@@ -93,13 +100,6 @@
 #
 # Uncomment the following to enable gcov support
 # GKIDE_CMAKE_EXTRA_FLAGS += -DGCOV_ENABLE=ON
-
-# You should set the Qt5 install perfix by uncomment the following line. The value is mine, you
-# should set it yours, my Qt5 install perfix is: /opt/Qt5.5.1/5.5/gcc_64, contain bin/, lib/, etc.
-# - /opt/Qt5.5.1/5.5/gcc_64/bin/qmake
-# - /opt/Qt5.5.1/5.5/gcc_64/lib/
-#
-# GKIDE_CMAKE_EXTRA_FLAGS += -DQT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
 
 # By default, the required dependencies will auto download, extract, build and install. The bundled
 # libraries are statically linked to nvim. If you download the correctly required dependencies source

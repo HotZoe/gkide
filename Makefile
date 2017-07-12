@@ -13,6 +13,13 @@ GKIDE_ONLINE_DOC_URL := https://github.io/gkide/snail
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
+# Qt5 install prefix
+ifeq (,$(QT5_INSTALL_PREFIX))
+    $(error Qt5 install perfix not set, see contrib/local.mk.eg)
+else
+    QT5ENV="CMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
+endif
+
 ARCH_32_ENABLE ?= OFF
 ARCH_64_ENABLE ?= OFF
 CMAKE_GENERATOR_NAME ?= "Unix Makefiles"
@@ -97,7 +104,7 @@ nvim: build/.run-cmake
 	+make -C build nvim
 
 build/.run-cmake: | deps
-	$(Q)cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
+	$(Q)export $(QT5ENV) && cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
 	$(Q)touch $@
 
 deps: | build/.run-deps-cmake

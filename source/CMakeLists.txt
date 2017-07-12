@@ -1,16 +1,11 @@
 option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
 
 # Qt5
-if(NOT QT5_INSTALL_PREFIX AND NOT "$ENV{CMAKE_PREFIX_PATH}")
+set(QT5_INSTALL_PREFIX "$ENV{CMAKE_PREFIX_PATH}" CACHE PATH "Qt5 install perfix")
+if(NOT QT5_INSTALL_PREFIX)
     message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
 endif()
-
-if(QT5_INSTALL_PREFIX)
-    set(ENV{CMAKE_PREFIX_PATH} "${QT5_INSTALL_PREFIX}")
-    message(STATUS "Qt5 Search Path   : ${QT5_INSTALL_PREFIX}")
-else()
-    message(STATUS "Qt5 Search Path   : $ENV{CMAKE_PREFIX_PATH}")
-endif()
+message(STATUS "Qt5 Search Path   : ${QT5_INSTALL_PREFIX}")
 
 # Dependency libraries search path
 set(BUNDLED_DEPS_PREFIX "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps path search prefix.")
