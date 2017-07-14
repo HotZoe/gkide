@@ -1,24 +1,25 @@
 
 # The commit message format as following:
+#
 # <type>(<scope>): <subject>
-# <ONE BLANK LINE>
+# <HERE-SHOULD-BE-ONE-BLANK-LINE>
 # <body>
-# <ONE BLANK LINE>
+# <HERE-SHOULD-BE-ONE-BLANK-LINE>
 # <footer>
 #
 # - Any line of the commit message can not be longer 100 characters.
 #
 # <type> must be one of the followings:
 #   - fix: A bug fix
-#   - feat: A new feature
+#   - new: A new feature or something
 #   - docs: Only documentation changes
 #   - perf: A code change that improves performance
 #   - test: Adding missing or correcting existing tests
-#   - chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
 #   - style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+#   - chore: Changes to the build process or auxiliary tools and libraries such as documentation generation
 #   - refactor: A code change that neither fixes a bug nor adds a feature
 #
-# <scope> could be anything specifying the place of the commit change, just only one word, for example:
+# <scope> could be anything specifying the place of the commit change, just only one word, optional, for example:
 #   - You can use * when the change affects more than a single scope
 #   - module: the commit changes related to a module
 #   - compile: the commit changes related to compile
@@ -29,10 +30,10 @@
 #   - do not capitalize first letter
 #   - no dot (.) at the end
 # 
-# <body> should include the motivation for the change and contrast with previous behavior, following the rules:
+# <body> should include the motivation for the change and contrast with previous behavior, optional, following the rules:
 #   - use the imperative, present tense: "change" not "changed" nor "changes"
 # 
-# <footer> should only contain information about:
+# <footer> should only contain information about the following ones(optional):
 #   - Breaking Changes, it should be the following format:
 #     [BREAKING CHANGE]: a short description message
 #         - more details information
