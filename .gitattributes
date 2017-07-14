@@ -1,0 +1,7 @@
+* text=auto
+
+*.ico binary
+*.png binary
+*.jpg binary
+
+.gitcommitstyle eol=lf
