@@ -4,13 +4,11 @@
 - Make sure the working directory text files end of line is **LF** for Linux/Macos
 - Make sure the working directory text files end of line is **CRLF** for Windows
 
-# All the command you should to run:
-
-## Windows:
+# All the command you should to run for Windows
   - ```$ git config --global core.safecrlf=true```
   - ```$ git config commit.template ${PWD}/.gitcommitstyle```
 
-## Linux/Macos:
+# All the command you should to run for Linux/Macos
   - ```$ git config --global core.safecrlf=true```
   - ```$ git config --global core.autocrlf=input```
   - ```$ git config commit.template ${PWD}/.gitcommitstyle```
