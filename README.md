@@ -25,13 +25,10 @@ GKIDE is an elegant and sophisticated code editor based on vim/nvim.
 
 # Build & Install
 
-
-
 # License
 
-license/LICENSE.nvim: LICENSE from [neovim][neovim_url]
-
-license/LICENSE.neovim-qt: LICENSE from [neovim-qt][neovim_qt_url]
+- license/LICENSE.nvim: LICENSE from [neovim][neovim_url]
+- license/LICENSE.neovim-qt: LICENSE from [neovim-qt][neovim_qt_url]
 
 [neovim_url]: https://github.com/neovim/neovim
 [neovim_qt_url]: https://github.com/equalsraf/neovim-qt

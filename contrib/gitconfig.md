@@ -1,15 +1,16 @@
 # Git Configurations
 
-Make sure the repo is always using **LF**, and the working directory text files end of line
-is **LF** for Linux/Macos, is **CRLF** for Windows.
+- Make sure the repo is always using **LF**
+- Make sure the working directory text files end of line is **LF** for Linux/Macos
+- Make sure the working directory text files end of line is **CRLF** for Windows
 
 # All the command you should to run:
 
-- Windows:
+## Windows:
   - ```$ git config --global core.safecrlf=true```
   - ```$ git config commit.template ${PWD}/.gitcommitstyle```
 
-- Linux/Macos:
+## Linux/Macos:
   - ```$ git config --global core.safecrlf=true```
   - ```$ git config --global core.autocrlf=input```
   - ```$ git config commit.template ${PWD}/.gitcommitstyle```
