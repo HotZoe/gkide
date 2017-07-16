@@ -2,7 +2,7 @@
 
 The following external projects are referenced by GKIDE with code piece, script file, use or ideas.
 
-# [Git Conventional Commits][git_conventional_commits_url]
+# [Git Conventional Commits](https://github.com/conventional-changelog/conventionalcommits.org)
 
 [git_conventional_commits_url]: (https://github.com/conventional-changelog/conventionalcommits.org)
 

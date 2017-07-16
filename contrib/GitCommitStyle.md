@@ -8,7 +8,7 @@
 <footer>
 ```
 
-- expect <type> & <subject>, others are optional
+- expect `<type>` & `<subject>`, others are optional
 - All message lines prefer not being longer than 100 characters
 
 # <type> must be one of
@@ -24,15 +24,15 @@
 - **revert**: Reverts a previous commit
 - **refactor**: A code change that neither fixes a bug nor adds a feature
 
-# <scope> is optional
+# `<scope>` is optional
 
-<scope> if any, it should be one word that specifying the place of the commit change, for example:
+`<scope>` if any, it should be one word that specifying the place of the commit change, for example:
 
 - You can use * when the change affects more than a single scope
 - **module**: the commit changes related to a module
 - **compile**: the commit changes related to compile
 
-# <subject> is one short line of succinct description of the change
+# `<subject>` is one short line of succinct description of the change
 
 The subject following the rules:
 
@@ -40,16 +40,16 @@ The subject following the rules:
 - do not capitalize first letter
 - no dot (.) at the end
 
-# <body> is optional
+# `<body>` is optional
 
-<body> if any, it should include the motivation for the change and following the rules:
+`<body>` if any, it should include the motivation for the change and following the rules:
 
 - use the imperative, present tense: "change" not "changed" nor "changes"
 - what this commit changes, and why?
 
-# <footer> is optional
+# `<footer>` is optional
 
-<footer> if any, it should only contain information about the following ones:
+`<footer>` if any, it should only contain information about the following ones:
 
 - Breaking Changes, it should be the following format:
 ```
