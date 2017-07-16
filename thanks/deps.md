@@ -1,6 +1,7 @@
 # Dependence External Projects
 
 [lua_url]: http://www.lua.org
+[qt_org_url]: https://www.qt.io/
 [gperf_url]: https://www.gnu.org/software/gperf
 [libuv_url]: https://github.com/libuv/libuv
 [msgpack_c_url]: https://github.com/msgpack/msgpack-c
@@ -10,6 +11,10 @@
 [unibilium_url]: https://github.com/mauke/unibilium
 [luv_url]: https://github.com/luvit/luv/archive/1.9.1-0.tar.gz
 [luarocks_url]: https://github.com/luarocks/luarocks
+
+- [Qt][qt_org_url] is much more than just a cross-platform SDK. It's a technology strategy that lets
+  you quickly and cost-effectively design, develop, deploy, and maintain software while delivering
+  a seamless user experience across all devices.
 
 - [Lua][lua_url] is a powerful, efficient, lightweight, embeddable scripting language.
 

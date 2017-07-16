@@ -21,16 +21,15 @@ GKIDE is an elegant and sophisticated code editor based on vim/nvim.
     ├─ test/nvim      Testing code about nvim
     └─ test/snail     Testing code about snail
 
-# Prerequisite
-
 # Install from source
 
+- install **Qt5**
 - `$ make env-check`
 - fix the missing
 - `$ make`
 - `$ make install`
 
-See the [Build & Install](https://github.com/gkide/gkide/wiki/build_install) for details.
+See the [Build & Install](https://github.com/gkide/gkide/wiki/build-install) for details.
 
 # License
 
