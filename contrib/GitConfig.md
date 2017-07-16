@@ -11,7 +11,13 @@ Run the following commands in the project root directory:
   - `$ git config commit.template ${PWD}/.gitcommitstyle`
 
 # How to install nodejs & npm
-- install **Node.js** and **npm**
+
+[node_js_url]: https://nodejs.org/en/
+[node_js_npm_url]: https://www.npmjs.com/
+[validate_commit_msg_url]: https://github.com/conventional-changelog/validate-commit-msg
+[standard_version_url]: https://github.com/conventional-changelog/standard-version
+
+- install [node.js][node_js_url] and [npm][node_js_npm_url]
   - download **node-vx.x.x-x86/64.msi** and install for windows
   - run the following commands for ubuntu
     - `$ sudo apt install nodejs`
@@ -19,8 +25,10 @@ Run the following commands in the project root directory:
   - To check is node.js and npm install correctly
     - `$ npm --version`
     - `$ node --version`
-- install **validate-commit-msg**
+- install [validate-commit-msg][validate_commit_msg_url]
   - `$ npm install -g validate-commit-msg`
+- install [standard-version][standard_version_url]
+  - `$ npm install -g standard-version`
 
 # eol = native      [default]
 - when under Windows:
