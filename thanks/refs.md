@@ -11,6 +11,11 @@ GKIDE use Conventional Commits v1.0.0, many thanks for the project!
 # [validate-commit-msg](https://github.com/conventional-changelog/validate-commit-msg)
 Validates the commit message follows [Git Conventional Commits][git_conventional_commits_url]
 
+# [Standard Version](https://github.com/conventional-changelog/standard-version)
+Automatic versioning and CHANGELOG generation, using
+[GitHub's squash](https://github.com/blog/2141-squash-your-commits) and
+[conventional commit messages](https://conventionalcommits.org/).
+
 # Git Hooks
 
 [git_hooks_url]: https://github.com/icefox/git-hooks
