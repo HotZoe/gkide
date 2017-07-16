@@ -2,14 +2,6 @@
 #
 # check if we have non-ASCII filenames, if it does then no commit
 
-if git rev-parse --verify HEAD >/dev/null 2>&1
-then
-	against=HEAD
-else
-	# Initial commit: diff against an empty tree object
-	against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
-fi
-
 # If you want to allow non-ASCII filenames set this variable to true.
 allownonascii=$(git config --bool hooks.allownonascii)
 
@@ -23,7 +15,7 @@ if [ "$allownonascii" != "true" ] &&
 	# Note that the use of brackets around a tr range is ok here, (it's
 	# even required, for portability to Solaris 10's /usr/bin/tr), since
 	# the square bracket bytes happen to fall in the designated range.
-	test $(git diff --cached --name-only --diff-filter=A -z $against |
+	test $(git diff --cached --name-only --diff-filter=A -z HEAD |
 	  LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
 then
     err_msg="
@@ -37,4 +29,5 @@ $ \033[0;33mgit config hooks.allownonascii true\033[0m"
 fi
 
 # If there are whitespace errors, print the offending file names and fail.
-exec git diff-index --check --cached $against --
+# Check for introduced trailing whitespace or an indent that uses a space before a tab.
+exec git diff-index --check --cached HEAD --

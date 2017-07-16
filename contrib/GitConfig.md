@@ -19,6 +19,8 @@ Run the following commands in the project root directory:
   - To check is node.js and npm install correctly
     - `$ npm --version`
     - `$ node --version`
+- install **validate-commit-msg**
+  - `$ npm install -g validate-commit-msg`
 
 # eol = native      [default]
 - when under Windows:

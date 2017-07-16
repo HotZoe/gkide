@@ -12,14 +12,16 @@
 - All message lines prefer not being longer than 100 characters
 
 # <type> must be one of
-
+- **ci**: Changes to CI configuration files and scripts
 - **fix**: A bug fix
-- **new**: A new feature or something
-- **docs**: Only documentation changes
+- **feat**: A new feature or something
+- **docs**: Documentation only changes
 - **perf**: A code change that improves performance
-- **test**: Adding missing or correcting existing tests
+- **test**: Adding missing tests or correcting existing tests
+- **build**: Changes that affect the build system or external dependencies
 - **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
-- **chore**: Changes to the build process or auxiliary tools and libraries such as documentation generation
+- **chore**: Other changes that don't modify src or test files
+- **revert**: Reverts a previous commit
 - **refactor**: A code change that neither fixes a bug nor adds a feature
 
 # <scope> is optional

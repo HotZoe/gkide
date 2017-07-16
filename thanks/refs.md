@@ -1,9 +1,15 @@
 # Reference External Projects
 
-The following external projects are referenced by GKIDE with code piece, a script file or ideas.
+The following external projects are referenced by GKIDE with code piece, script file, use or ideas.
 
-# [Git Conventional Commits](https://github.com/conventional-changelog/conventionalcommits.org)
+# [Git Conventional Commits][git_conventional_commits_url]
+
+[git_conventional_commits_url]: (https://github.com/conventional-changelog/conventionalcommits.org)
+
 GKIDE use Conventional Commits v1.0.0, many thanks for the project!
+
+# [validate-commit-msg](https://github.com/conventional-changelog/validate-commit-msg)
+Validates the commit message follows [Git Conventional Commits][git_conventional_commits_url]
 
 # Git Hooks
 
