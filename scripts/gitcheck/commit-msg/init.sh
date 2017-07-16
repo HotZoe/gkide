@@ -36,9 +36,14 @@ function backup_msg()
     tail_1_msg=$(tail -n1 ${tmp_msg_file})
 
     if [ "${head_1_msg}" = "${tail_1_msg}" ]; then
-        # only signed off line, just remove it
-        rm ${tmp_msg_file}
-        return 1
+        usr_msg=$(grep "^Signed-off-by: .*" "${tmp_msg_file}")
+
+        # check if we forget signed-off-by, but input commit message, keep it
+        if [ "${usr_msg}" != "" ]; then
+            # only signed off line, just remove it
+            rm ${tmp_msg_file}
+            return 1
+        fi
     fi
 
     echo -e "The input commit message save to: \033[33m${tmp_msg_file}\033[0m"
