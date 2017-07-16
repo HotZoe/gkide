@@ -13,7 +13,6 @@ Run the following commands in the project root directory:
   - `$ git config commit.template ${PWD}/.gitcommitstyle`
 
 # Install nodejs & npm
-
 [node_js_url]: https://nodejs.org/en/
 [node_js_npm_url]: https://www.npmjs.com/
 [validate_commit_msg_url]: https://github.com/conventional-changelog/validate-commit-msg
