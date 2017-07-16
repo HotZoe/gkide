@@ -14,7 +14,7 @@
 ## `<type>` must be one of
 - **ci**: Changes to CI configuration files and scripts
 - **fix**: A bug fix
-- **feat**: A new feature or something
+- **feat**: A new feature
 - **docs**: Documentation only changes
 - **perf**: A code change that improves performance
 - **test**: Adding missing tests or correcting existing tests
@@ -53,7 +53,7 @@ The subject following the rules:
 
 - Breaking Changes, it should be the following format:
 ```
-[BREAKING CHANGE]: a short description message
+[BREAKING CHANGE]: a short description message for the breaking changes
     - more details information
 ```
 
