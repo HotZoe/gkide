@@ -1,6 +1,5 @@
 # GKIDE
 
-[![commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 GKIDE is an elegant and sophisticated code editor based on vim/nvim.
@@ -24,7 +23,14 @@ GKIDE is an elegant and sophisticated code editor based on vim/nvim.
 
 # Prerequisite
 
-# Build & Install
+# Install from source
+
+- `$ make env-check`
+- fix the missing
+- `$ make`
+- `$ make install`
+
+See the [Build & Install](https://github.com/gkide/gkide/wiki/build_install) for details.
 
 # License
 
