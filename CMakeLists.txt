@@ -24,10 +24,14 @@ option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
 #option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
 #option(NVIM_DEBUGGING_ENABLE "Enable nvim debugging." ON)
 
+set(GKIDE_VERSION_MAJOR   0)
+set(GKIDE_VERSION_MINOR   0)
+set(GKIDE_VERSION_PATCH   0)
+
 # snail full version: Major.Minor.Patch-Trail-GitShortHash-GitDateTime
 set(SNAIL_VERSION_MAJOR   0)
-set(SNAIL_VERSION_MINOR   0)
-set(SNAIL_VERSION_PATCH   1)
+set(SNAIL_VERSION_MINOR   2)
+set(SNAIL_VERSION_PATCH   7)
 
 # nvim version
 set(NVIM_VERSION_MAJOR    0)
