@@ -130,7 +130,7 @@ else
 fi
 
 if ${check_status}; then
-    echo "\033[33mChecking Prerequisite Env\033[0m => \033[32mPASS\033[0m"
+    echo "\033[33mChecking Prerequisite Env\033[0m => \033[36mPASS\033[0m"
 else
     echo "\033[33mChecking Prerequisite Env\033[0m => \033[31mFAIL\033[0m"
 fi

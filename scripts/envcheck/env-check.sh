@@ -45,6 +45,7 @@ echo "\033[33mChecking Development Env\033[0m (\033[34m${host_os}\033[0m)"
 
 prog=$(which grep)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mgrep\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m =>" $(grep --version | head -n1)
@@ -52,6 +53,7 @@ fi
 
 prog=$(which python)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mpython\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m =>" $(python --version 2>&1)
@@ -59,6 +61,7 @@ fi
 
 prog=$(which node)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mnode\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m =>" $(node --version | head -n1)
@@ -66,6 +69,7 @@ fi
 
 prog=$(which npm)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mnpm\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m =>" $(npm --version | head -n1)
@@ -73,6 +77,7 @@ fi
 
 prog=$(which validate-commit-msg)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mvalidate-commit-msg\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m"
@@ -80,7 +85,14 @@ fi
 
 prog=$(which standard-version)
 if [ "${prog}" = "" ]; then
+    check_status="false"
     echo "Not Found: \033[31mstandard-version\033[0m"
 else
     echo "Found: \033[32m${prog}\033[0m =>" $(standard-version --version | head -n1)
+fi
+
+if ${check_status}; then
+    echo "\033[33mChecking Development Env\033[0m => \033[36mPASS\033[0m"
+else
+    echo "\033[33mChecking Development Env\033[0m => \033[31mFAIL\033[0m"
 fi
