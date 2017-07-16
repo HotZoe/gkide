@@ -153,3 +153,8 @@ gkideclean:
 distclean: gkideclean
 	$(Q)rm -rf deps/build
 
+.PHONY: env-check
+
+env-check:
+	$(Q)scripts/envcheck/env-check.sh ${QT5_INSTALL_PREFIX}
+

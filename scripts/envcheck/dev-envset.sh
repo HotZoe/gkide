@@ -31,4 +31,3 @@ printf "nvim log file  : %s\n" ${NVIM_LOGGING_FILE}
 FUNC_LOG_MSG ${SNAIL_LOGGING_LEVEL}
 printf "snail log level: %s\n" ${log_level_msg}
 printf "snail log file : %s\n" ${SNAIL_LOGGING_FILE}
-
