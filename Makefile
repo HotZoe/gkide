@@ -15,7 +15,13 @@ GKIDE_ONLINE_DOC_URL := https://github.io/gkide/snail
 
 # Qt5 install prefix
 ifeq (,$(QT5_INSTALL_PREFIX))
-    $(error Qt5 install perfix not set, see contrib/local.mk.eg)
+    ifeq (,$(findstring env-check,$(MAKECMDGOALS)))
+        $(error Qt5 install perfix not set, see contrib/local.mk.eg)
+    endif
+
+    ifeq (,$(MAKECMDGOALS))
+        $(error Qt5 install perfix not set, see contrib/local.mk.eg)
+    endif
 else
     QT5ENV="CMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
 endif
