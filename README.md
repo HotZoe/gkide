@@ -1,6 +1,10 @@
 # GKIDE
 
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Travis Build Status](https://www.travis-ci.org/gkide/gkide.svg?branch=master)](https://www.travis-ci.org/gkide/gkide)
+[![Coverage Status](https://coveralls.io/repos/github/gkide/gkide/badge.svg)](https://coveralls.io/github/gkide/gkide)
+[![Stories in Ready](https://badge.waffle.io/gkide/gkide.svg?label=ready&title=Ready)](http://waffle.io/gkide/gkide)
+
 
 GKIDE is an elegant and sophisticated code editor based on vim/nvim.
 
