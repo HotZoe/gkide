@@ -7,10 +7,14 @@
 
 # All the command you should to run
 Run the following commands in the project root directory:
-  - `$ git config core.eol lf`, make sure working directory file's EOL is always **LF**
-  - `$ git config core.safecrlf true`, make sure no mixing **LF** and **CRLF**
-  - `$ git config core.autocrlf input`, make sure convert **CRLF** to **LF** if ayn.
-  - `$ git config commit.template ${PWD}/.gitcommitstyle`
+  - Run: `$ git config core.eol lf`, make sure working directory file's EOL is always **LF**
+  - Run: `$ git config core.safecrlf true`, make sure no mixing **LF** and **CRLF**
+  - Run: `$ git config core.autocrlf input`, make sure convert **CRLF** to **LF** if any
+  - For Windows:
+    - Run: `$ cp .gitcommitstyle gitcommitstyle`
+    - Run: `$ git config commit.template ${PWD}/gitcommitstyle`
+  - For Linux/Macosx:
+    - Run: `$ git config commit.template ${PWD}/.gitcommitstyle`
 
 # Install nodejs & npm
 [node_js_url]: https://nodejs.org/en/
