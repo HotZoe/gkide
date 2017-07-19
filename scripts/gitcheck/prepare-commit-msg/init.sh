@@ -34,8 +34,8 @@ case "$2,$3" in
     message,*)
         ${GITCHECK_COMMIT_MSG_DIR}/check-msg-fmt.sh $1
         if [ ! $? -eq 0 ] ; then
-            echo "See: \033[33mcontrib/GitConfig.md\033[0m"
-            echo "See: \033[33mcontrib/GitCommitStyle.md\033[0m"
+            echo -e "See: \033[33mcontrib/GitConfig.md\033[0m"
+            echo -e "See: \033[33mcontrib/GitCommitStyle.md\033[0m"
             exit 1
         fi
         ;;

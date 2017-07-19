@@ -24,7 +24,7 @@ This can cause problems if you want to work with people on other platforms.\n\n
 To be portable it is advisable to rename the file.\n\n
 If you know what you are doing you can disable this check using:\n\n
 $ \033[0;33mgit config hooks.allownonascii true\033[0m"
-    echo $err_msg
+    echo -e $err_msg
     exit 1
 fi
 

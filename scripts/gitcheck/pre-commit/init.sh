@@ -16,7 +16,7 @@ else
 fi
 
 if [ "${against}" != "HEAD" ]; then
-    echo "\033[0;33mHEAD\033[0m is detached, do not commit."
+    echo -e "\033[0;33mHEAD\033[0m is detached, do not commit."
     exit 1
 fi
 
