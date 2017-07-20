@@ -1,6 +1,6 @@
 #!/bin/sh
 
-function cc_check_linux()
+function toolchain_check_linux()
 {
     prog=$(which gcc 2>/dev/null)
     if [ "${prog}" = "" ]; then
@@ -27,28 +27,52 @@ function cc_check_linux()
     fi
 }
 
-if ${os_macos}; then
+function toolchain_check_windows()
+{
+    echo -e "Toolchain for build dependencies:"
+    prog=$(which gcc 2>/dev/null)
+    if [ "${prog}" = "" ]; then
+        check_status="false"
+        echo -e "Not Found: \033[31mgcc\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version | head -n1)
+    fi
+
+    prog=$(which g++ 2>/dev/null)
+    if [ "${prog}" = "" ]; then
+        check_status="false"
+        echo -e "Not Found: \033[31mg++\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(g++ --version | head -n1)
+    fi
+
+    prog=$(which ldd 2>/dev/null)
+    if [ "${prog}" = "" ]; then
+        check_status="false"
+        echo -e "Not Found: \033[31mldd\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(ldd --version | head -n1 | cut -d" " -f2-)
+    fi
+
+    echo -e "Toolchain for build GKIDE:"
+    if [ -f "/mingw32/" = "" ]; then
+        check_status="false"
+        echo -e "Not Found: \033[31mgcc\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version | head -n1)
+    fi
+}
+
+if ${host_macos}; then
     echo "todo for macos env checking"
 fi
 
-if ${os_windows}; then
-    if ${os_cygwin}; then
-        cc_check_linux
-    fi
-
-    if ${os_mingw}; then
-        check_status="false"
-        echo "todo for windows/mingw env checking"
-    fi
-
-    if ${os_msys}; then
-        check_status="false"
-        echo "todo for windows/msys env checking"
-    fi
+if ${host_linux}; then
+    toolchain_check_linux
 fi
 
-if ${os_linux}; then
-    cc_check_linux
+if ${host_windows}; then
+    toolchain_check_windows
 fi
 
 prog=$(which git 2>/dev/null)
