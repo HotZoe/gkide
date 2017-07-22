@@ -1,6 +1,29 @@
 filter-true = $(strip $(filter-out 1 on ON true TRUE, $1))
 filter-false = $(strip $(filter-out 0 off OFF false FALSE, $1))
 
+MAKE_PROG := $(MAKE)
+
+ifeq (,$(shell which cmake 2> /dev/null))
+    $(error Do not found 'cmake', STOP!)
+endif
+
+ifneq (,$(shell uname -a | grep '^MSYS_NT-*'))
+    $(error Do not use MSYS shell as the build environment!)
+endif
+
+ifneq (,$(shell uname -a | grep '[L|l]inux'))
+    CMAKE_GENERATOR_NAME := "Unix Makefiles"
+endif
+
+ifneq (,$(shell uname -a | grep '^MINGW[3|6][2|4]_NT*'))
+    CMAKE_GENERATOR_NAME := "MSYS Makefiles"
+
+    MAKE_PROG ?= $(shell which mingw32-make 2> /dev/null)
+    ifeq (,$(MAKE_PROG))
+        $(error Do not found 'mingw32-make', STOP!)
+    endif
+endif
+
 ifeq ($(V),1)
     Q=
 else
@@ -28,7 +51,6 @@ endif
 
 ARCH_32_ENABLE ?= OFF
 ARCH_64_ENABLE ?= OFF
-CMAKE_GENERATOR_NAME ?= "Unix Makefiles"
 
 NVIM_TESTING_ENABLE ?= ON
 SNAIL_TESTING_ENABLE ?= ON
@@ -64,6 +86,10 @@ ifeq (,$(call filter-true,$(SNAIL_TESTING_ENABLE)))
     DEPS_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
 endif
 
+ifneq (,$(shell uname -a | grep '^MINGW[3|6][2|4]_NT*'))
+    DEPS_CMAKE_BUILD_FLAGS += -DCMAKE_MAKE_PROGRAM:FILEPATH=$(MAKE_PROG)
+endif
+
 ifneq (,$(DEPS_CMAKE_EXTRA_FLAGS))
     DEPS_CMAKE_BUILD_FLAGS += $(DEPS_CMAKE_EXTRA_FLAGS)
 endif
@@ -91,6 +117,10 @@ ifeq (,$(call filter-true,$(SNAIL_TESTING_ENABLE)))
     GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_TESTING_ENABLE=ON
 endif
 
+ifneq (,$(shell uname -a | grep '^MINGW[3|6][2|4]_NT*'))
+    GKIDE_CMAKE_BUILD_FLAGS += -DCMAKE_MAKE_PROGRAM:FILEPATH=$(MAKE_PROG)
+endif
+
 ifneq (,$(GKIDE_CMAKE_EXTRA_FLAGS))
     GKIDE_CMAKE_BUILD_FLAGS += $(GKIDE_CMAKE_EXTRA_FLAGS)
 endif
@@ -101,20 +131,20 @@ all: nvim snail
 
 cmake:
 	$(Q)touch CMakeLists.txt
-	$(Q)make build/.run-cmake
+	$(Q)$(MAKE_PROG) build/.run-cmake
 
 snail: build/.run-cmake
-	+make -C build snail
+	+$(MAKE_PROG) -C build snail
 
 nvim: build/.run-cmake
-	+make -C build nvim
+	+$(MAKE_PROG) -C build nvim
 
 build/.run-cmake: | deps
 	$(Q)export $(QT5ENV) && cd build && cmake -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
 	$(Q)touch $@
 
 deps: | build/.run-deps-cmake
-	+make -C deps/build
+	+$(MAKE_PROG) -C deps/build
 
 build/.run-deps-cmake:
 	$(Q)if [ ! -d deps/build ]; then mkdir deps/build; fi
@@ -128,7 +158,7 @@ build/.run-deps-cmake:
 .PHONY: run-nvim-functional-test
 
 run-nvim-functional-test: | nvim
-	+make -C build run-nvim-functional-test
+	+$(MAKE_PROG) -C build run-nvim-functional-test
 
 run-nvim-unit-test: | nvim
 
@@ -140,7 +170,7 @@ check-nvim: run-nvim-functional-test run-nvim-unit-test
 .PHONY: run-snail-plugins-test
 
 run-snail-libs-test: | snail
-	+make -C build run-snail-libs-test
+	+$(MAKE_PROG) -C build run-snail-libs-test
 
 check-snail: run-snail-libs-test
 
@@ -163,4 +193,3 @@ distclean: gkideclean
 
 env-check:
 	$(Q)scripts/envcheck/env-check.sh ${QT5_INSTALL_PREFIX}
-
