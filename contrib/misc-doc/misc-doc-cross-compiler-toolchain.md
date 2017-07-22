@@ -1,3 +1,14 @@
+# MSYS2 source China mirror
+if you are chinese, you may want to change the source to get fast download, then try the following:
+- add `Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/msys/$arch`
+  to the head of file: `/etc/pacman.d/mirrorlist.msys`
+- add `Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/i686`
+  to the head of file: `/etc/pacman.d/mirrorlist.mingw32`
+- add `Server = https://mirrors.tuna.tsinghua.edu.cn/msys2/mingw/x86_64`
+  to the head of file: `/etc/pacman.d/mirrorlist.mingw64`
+- You can find other mirros that have Msys2 if you want!
+  See [here](http://blog.csdn.net/qiuzhiqian1990/article/details/56671839) to get more about this!
+
 # [Cross Toolchain Types](http://crosstool-ng.github.io/docs/toolchain-types/)
 There are four kinds of toolchains you could encounter.
 
