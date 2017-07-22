@@ -29,21 +29,43 @@ function toolchain_check_linux()
 
 function toolchain_check_windows()
 {
-    echo -e "Toolchain for build dependencies:"
-    prog=$(which gcc 2>/dev/null)
+    check_status_x32="true"
+    check_status_x64="true"
+
+    prog=$(which x86_64-w64-mingw32-gcc 2>/dev/null)
     if [ "${prog}" = "" ]; then
-        check_status="false"
-        echo -e "Not Found: \033[31mgcc\033[0m"
+        check_status_x64="false"
+        echo -e "Not Found: \033[31mx86_64-w64-mingw32-gcc\033[0m"
     else
-        echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version | head -n1)
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(x86_64-w64-mingw32-gcc --version | head -n1)
     fi
 
-    prog=$(which g++ 2>/dev/null)
+    prog=$(which x86_64-w64-mingw32-g++ 2>/dev/null)
     if [ "${prog}" = "" ]; then
-        check_status="false"
-        echo -e "Not Found: \033[31mg++\033[0m"
+        check_status_x64="false"
+        echo -e "Not Found: \033[31mx86_64-w64-mingw32-g++\033[0m"
     else
-        echo -e "Found: \033[32m${prog}\033[0m =>" $(g++ --version | head -n1)
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(x86_64-w64-mingw32-g++ --version | head -n1)
+    fi
+
+    prog=$(which i686-w64-mingw32-gcc 2>/dev/null)
+    if [ "${prog}" = "" ]; then
+        check_status_x32="false"
+        echo -e "Not Found: \033[31mi686-w64-mingw32-gcc\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(i686-w64-mingw32-gcc --version | head -n1)
+    fi
+
+    prog=$(which i686-w64-mingw32-g++ 2>/dev/null)
+    if [ "${prog}" = "" ]; then
+        check_status_x32="false"
+        echo -e "Not Found: \033[31mi686-w64-mingw32-g++\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(i686-w64-mingw32-g++ --version | head -n1)
+    fi
+
+    if [ ! ${check_status_x32} -a ! ${check_status_x64} ]; then
+        check_status="false"
     fi
 
     prog=$(which ldd 2>/dev/null)
@@ -52,14 +74,6 @@ function toolchain_check_windows()
         echo -e "Not Found: \033[31mldd\033[0m"
     else
         echo -e "Found: \033[32m${prog}\033[0m =>" $(ldd --version | head -n1 | cut -d" " -f2-)
-    fi
-
-    echo -e "Toolchain for build GKIDE:"
-    if [ -f "/mingw32/" = "" ]; then
-        check_status="false"
-        echo -e "Not Found: \033[31mgcc\033[0m"
-    else
-        echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version | head -n1)
     fi
 }
 
