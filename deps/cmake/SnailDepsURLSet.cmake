@@ -64,13 +64,13 @@ set(LUAROCKS_URL        https://github.com/luarocks/luarocks/archive/v2.4.2.tar.
 set(LUAROCKS_SHA256     eef88c2429c715a7beb921e4b1ba571dddb7c74a250fbb0d3cc0d4be7a5865d9)
 list(APPEND dep_urls    ${LUAROCKS_URL})
 
-
+# TODO, remove this, and git for deps build
 # orginal version: http://www.leonerd.org.uk/code/libvterm/
 set(LIBVTERM_VERSION    0.0.0)
 set(LIBVTERM_GIT_REPO   https://github.com/neovim/libvterm.git)
 
 # wget --input-file=deps-wget-list --continue --directory-prefix=downloads
-if(UPDATE_DEPS_WGET_LIST)
+if(GKIDE_DEPS_WGET_LIST_UPDATE)
     set(deps_wget ${PROJECT_SOURCE_DIR}/deps-wget-list)
     foreach(url ${dep_urls})
         file(APPEND ${deps_wget} "${url}\n")

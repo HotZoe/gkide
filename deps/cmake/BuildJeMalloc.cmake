@@ -1,10 +1,11 @@
-if(WIN32 OR CYGWIN)
-    message(STATUS "Building: jemalloc in Windows is not supported, skipping ...")
+# Dependencies library link to nvim & snail
+
+if(WIN32 OR MINGW)
+    message(STATUS "Building: jemalloc for Windows is not supported, skipping ...")
     return()
 endif()
 
 message(STATUS  "Building: jemalloc-v${JEMALLOC_VERSION}")
-
 ExternalProject_Add(   jemalloc
     PREFIX             ${DEPS_BUILD_DIR}
     URL                ${JEMALLOC_URL}

@@ -1,3 +1,5 @@
+# Host use only, no link to nvim or snail
+
 include(CMakeParseArguments)
 
 # BuildLua(<CONFIGURE_COMMAND ...> <BUILD_COMMAND ...> <INSTALL_COMMAND ...>)
@@ -35,16 +37,18 @@ function(BuildLua)
         INSTALL_COMMAND    "${_lua_INSTALL_COMMAND}")
 endfunction()
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Linux")
     set(LUA_TARGET linux)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Darwin")
     set(LUA_TARGET macosx)
-elseif(CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
-    set(LUA_TARGET freebsd)
-elseif(CMAKE_SYSTEM_NAME MATCHES "BSD")
-    set(CMAKE_LUA_TARGET bsd)
-elseif(SYSTEM_NAME MATCHES "^MINGW")
-    set(CMAKE_LUA_TARGET mingw)
+elseif(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    set(LUA_TARGET mingw)
+    if(NOT MINGW)
+        set(err_msg "The compiler should some version of MinGW\n")
+        set(err_msg "${err_msg}  C Compiler: ${HOSTDEPS_C_COMPILER}\n")
+        set(err_msg "${err_msg}C++ Compiler: ${HOSTDEPS_CXX_COMPILER}\n")
+        message(FATAL_ERROR "${err_msg}")
+    endif()
 else()
     if(UNIX)
         set(LUA_TARGET posix)
@@ -53,9 +57,13 @@ else()
     endif()
 endif()
 
+set(LUA_CFLAGS "-O0 -g3 -fPIC")
+set(LUA_LDFLAGS "")
+
 set(LUA_CONFIGURE_COMMAND
-    sed -e "/^CC/s@gcc@${CMAKE_C_COMPILER} ${CMAKE_C_COMPILER_ARG1}@"
-        -e "/^CFLAGS/s@-O2@-g3@"
+    sed -e "/^CC/s@gcc@${HOSTDEPS_C_COMPILER}@"
+        -e "/^CFLAGS/s@-O2@${LUA_CFLAGS}@"
+        -e "/^MYLDFLAGS/s@$@${LUA_LDFLAGS}@"
         -e "s@-lreadline@@g"
         -e "s@-lhistory@@g"
         -e "s@-lncurses@@g"
@@ -64,7 +72,13 @@ set(LUA_CONFIGURE_COMMAND
         -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
 
 set(LUA_BUILD_COMMAND   ${MAKE_PROG} ${LUA_TARGET})
-set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${DEPS_INSTALL_DIR} install)
+set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${HOSTDEPS_INSTALL_DIR} install)
+
+if(MINGW AND NOT UNIX)
+    set(LUA_INSTALL_COMMAND ${LUA_INSTALL_COMMAND}
+                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/lua/src/lua53.dll
+                                                     ${HOSTDEPS_BIN_DIR}/lua53.dll)
+endif()
 
 # The lua must be dynamic linked, and install dynamic lua library
 message(STATUS  "Building: lua-v${LUA_VERSION} => ${LUA_TARGET}")

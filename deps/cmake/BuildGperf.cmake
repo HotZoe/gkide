@@ -1,4 +1,4 @@
-# Gperf is required when building snail.
+# Host use only, no link to nvim or snail
 
 include(CMakeParseArguments)
 
@@ -43,21 +43,18 @@ if(GPERF_PROG)
     return()
 endif()
 
-if(WIN32)
-    message(FATAL_ERROR  "Deps Build Error: gperf-v${GPERF_VERSION} is required.")
-endif()
-
-message(STATUS "Building: gperf-v${GPERF_VERSION}")
-
-if(UNIX OR CYGWIN)
+if(UNIX)
+    message(STATUS "Building: gperf-v${GPERF_VERSION}")
     BuildGperf(CONFIGURE_COMMAND ${DEPS_BUILD_DIR}/src/gperf/configure
-                                 --prefix=${DEPS_INSTALL_DIR}
+                                 --prefix=${HOSTDEPS_INSTALL_DIR}
                INSTALL_COMMAND   ${MAKE_PROG} install)
 
 else()
     set(err_msg "Trying to build [ gperf ] in an unsupported system.")
-    set(err_msg "${err_msg}\n  Current System Name  : ${CMAKE_SYSTEM_NAME}")
-    set(err_msg "${err_msg}\n  Current C Compiler ID: ${CMAKE_C_COMPILER_ID}")
+    set(err_msg "${err_msg}\n  Host System Name  : ${CMAKE_HOST_SYSTEM}")
+    set(err_msg "${err_msg}\n  Target System Name: ${CMAKE_SYSTEM}")
+    set(err_msg "${err_msg}\n  C Compiler Name   : ${CMAKE_C_COMPILER}")
+    set(err_msg "${err_msg}\n  CXX Compiler Name : ${CMAKE_CXX_COMPILER}")
     message(FATAL_ERROR "${err_msg}")
 endif()
 

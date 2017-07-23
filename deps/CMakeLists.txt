@@ -4,17 +4,76 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(gkide-deps)
 
+# check for dependencies build environment first
+if(UNIX)
+    find_program(MAKE_PROG NAMES gmake make)
+    if(MAKE_PROG)
+        execute_process(COMMAND "${MAKE_PROG}" --version
+                        OUTPUT_VARIABLE MAKE_VERSION_INFO)
+
+        if(NOT "${MAKE_VERSION_INFO}" MATCHES ".*GNU.*")
+            message(STATUS "GNU Make: ${MAKE_PROG}, is not GNU Make.")
+            unset(MAKE_PROG)
+        endif()
+    endif()
+
+    if(NOT MAKE_PROG)
+        message(FATAL_ERROR "GNU Make is required to build the dependencies.")
+    else()
+        message(STATUS "GNU Make: ${MAKE_PROG}")
+    endif()
+else()
+    find_program(MAKE_PROG NAMES mingw32-make)
+    if(NOT MAKE_PROG)
+        message(FATAL_ERROR "GNU Make is required to build the dependencies.")
+    else()
+        message(STATUS "GNU Make: ${MAKE_PROG}")
+    endif()
+endif()
+
+# When using make, use the $(MAKE) variable to avoid warning about the job server.
+if(CMAKE_GENERATOR MATCHES "Makefiles")
+    set(MAKE_PROG "$(MAKE)")
+endif()
+
+# TODO, remove this
+find_program(GIT_PRG git)
+if(NOT GIT_PRG)
+    message(FATAL_ERROR "Git is needed to download deps, but NOT found.")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(DEPS_INSTALL_DIR  "${CMAKE_BINARY_DIR}/usr"       CACHE PATH "Deps install perfix directory.")
 set(DEPS_BUILD_DIR    "${CMAKE_BINARY_DIR}"           CACHE PATH "Deps build perfix directory.")
 set(DEPS_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/downloads" CACHE PATH "Deps download root directory.")
+
+# Dependencies built for the TARGET system
+set(DEPS_C_COMPILER   "${CMAKE_C_COMPILER}")
+set(DEPS_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
+set(DEPS_INSTALL_DIR  "${CMAKE_BINARY_DIR}/usr"       CACHE PATH "Deps install perfix directory.")
 set(DEPS_BIN_DIR      "${DEPS_INSTALL_DIR}/bin"       CACHE PATH "Deps binary install directory.")
 set(DEPS_LIB_DIR      "${DEPS_INSTALL_DIR}/lib"       CACHE PATH "Deps library install directory.")
+
+# Cross Compiling:
+# Dependencies built for the HOST system, when not crosscompiling these should be the same as DEPS_*.
+# Except when target is Unix, in which case all the dependencies the same as DEPS_*.
+if(CMAKE_CROSSCOMPILING AND NOT UNIX)
+    set(HOSTDEPS_C_COMPILER   "${HOST_C_COMPILER}")
+    set(HOSTDEPS_CXX_COMPILER "${HOST_CXX_COMPILER}")
+    set(HOSTDEPS_INSTALL_DIR  "${CMAKE_BINARY_DIR}/host")
+    set(HOSTDEPS_BIN_DIR      "${HOSTDEPS_INSTALL_DIR}/bin")
+    set(HOSTDEPS_LIB_DIR      "${HOSTDEPS_INSTALL_DIR}/lib")
+else()
+    set(HOSTDEPS_C_COMPILER   "${DEPS_C_COMPILER}")
+    set(HOSTDEPS_CXX_COMPILER "${DEPS_CXX_COMPILER}")
+    set(HOSTDEPS_INSTALL_DIR  "${DEPS_INSTALL_DIR}")
+    set(HOSTDEPS_BIN_DIR      "${DEPS_BIN_DIR}")
+    set(HOSTDEPS_LIB_DIR      "${DEPS_LIB_DIR}")
+endif()
 
 option(NVIM_TESTING_ENABLE      "Enable nvim testing."         ON)
 option(SNAIL_TESTING_ENABLE     "Enable snail testing."        ON)
@@ -33,42 +92,11 @@ option(SKIP_DOWNLOAD_LIBVTERM   "Skip download : libvterm"    ${SKIP_DOWNLOAD_DE
 option(SKIP_DOWNLOAD_UNIBILIUM  "Skip download : unibilium"   ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LIBTERMKEY "Skip download : libtermkey"  ${SKIP_DOWNLOAD_DEPS})
 
-if(UNIX)
-    find_program(MAKE_PROG NAMES gmake make)
-    if(MAKE_PROG)
-        execute_process(COMMAND          "${MAKE_PROG}" --version
-                        OUTPUT_VARIABLE  MAKE_VERSION_INFO)
-
-        if(NOT "${MAKE_VERSION_INFO}" MATCHES ".*GNU.*")
-            message(STATUS "GNU Make: ${MAKE_PROG}, is not GNU Make.")
-            unset(MAKE_PROG)
-        endif()
-    endif()
-
-    if(NOT MAKE_PROG)
-        message(FATAL_ERROR "GNU Make is required to build the dependencies.")
-    else()
-        message(STATUS "GNU Make: ${MAKE_PROG}")
-    endif()
-endif()
-
-# When using make, use the $(MAKE) variable to avoid warning about the job server.
-if(CMAKE_GENERATOR MATCHES "Makefiles")
-    set(MAKE_PROG "$(MAKE)")
-endif()
-
-set(DEPS_C_COMPILER "${CMAKE_C_COMPILER}")
-
-find_program(GIT_PRG git)
-if(NOT GIT_PRG)
-    message(FATAL_ERROR "Git is needed to download deps, but NOT found.")
-endif()
+# create custom targets to build external projects
+include(ExternalProject)
 
 # check the build architecture
 include(CheckBuildArch)
-
-# create custom targets to build external projects
-include(ExternalProject)
 
 # all the URLs of deps
 include(SnailDepsURLSet)
@@ -92,14 +120,17 @@ include(BuildMsgpack)
 include(BuildLibuv)
 
 # dependencies: none
-include(BuildLibiconv)
+#include(BuildLibiconv)
 
+# TODO, remove
 # dependencies: none
 include(BuildLibvterm)
 
+# TODO, remove
 # dependencies: none
 include(BuildUnibilium)
 
+# TODO, remove
 # dependencies: unibilium
 include(BuildLibtermkey)
 
@@ -110,7 +141,7 @@ include(BuildLuv)
 include(BuildLuarocks)
 
 # dependencies: luarocks
-include(BuildLuarocksModules)
+#include(BuildLuarocksModules)
 
 set(all_shared_lib_files "${CMAKE_SHARED_LIBRARY_PREFIX}*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
 add_custom_target(clean-shared-libraries

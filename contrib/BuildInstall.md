@@ -19,7 +19,7 @@
   - install [Msys2](http://www.msys2.org/)
   - in **MSYS** shell, run:
     ```
-    $ pacman -S gperf git
+    $ pacman -S gperf unzip git
 
     # for 32-bit build
     $ pacman -S mingw-w64-i686-gcc mingw-w64-i686-libtool mingw-w64-i686-make \
@@ -37,4 +37,8 @@
   ```
 
 # Local Makefile Configurations
-Local configuration template is: `contrib/local.mk.eg`
+Local configuration [template](contrib/local.mk.eg) is: `contrib/local.mk.eg`
+
+# Generated The Details Build Log
+- run: `make VERBOSE=1 | tee build.log`
+- run: `mingw32-make VERBOSE=1 | tee build.log`

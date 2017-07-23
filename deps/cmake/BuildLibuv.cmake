@@ -1,4 +1,5 @@
-message(STATUS  "Building: libuv-v${LIBUV_VERSION}")
+# Dependencies library link to nvim
+
 include(CMakeParseArguments)
 
 # BuildLibuv(<TARGET targetname> <CONFIGURE_COMMAND ...> <BUILD_COMMAND ...> <INSTALL_COMMAND ...>)
@@ -48,14 +49,43 @@ set(UNIX_CFGCMD sh ${DEPS_BUILD_DIR}/src/libuv/autogen.sh &&
                    --libdir=${DEPS_INSTALL_DIR}/lib
                    CC=${DEPS_C_COMPILER})
 
-if(UNIX OR CYGWIN)
+message(STATUS  "Building: libuv-v${LIBUV_VERSION}")
+if(UNIX)
+    # Target=Linux/Uinx, native build
     BuildLibuv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${UNIX_CFGCMD}
                INSTALL_COMMAND   ${MAKE_PROG} V=1 install)
+elseif(MINGW AND NOT CMAKE_CROSSCOMPILING)
+    # Target=Windows, native build
+    BuildLibUv(BUILD_IN_SOURCE
+               CONFIGURE_COMMAND ${MAKE_PROG} -f Makefile.mingw
+               BUILD_COMMAND   "pwd" # MinGW shell of MSYS2 must have a command, so give 'pwd' make it happy!
+               INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/lib
+                               COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/libuv/libuv.a
+                                                                ${DEPS_INSTALL_DIR}/lib
+                               COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEPS_BUILD_DIR}/src/libuv/include
+                                                                          ${DEPS_INSTALL_DIR}/include)
+elseif(MINGW AND CMAKE_CROSSCOMPILING)
+    # TODO, figure out what is this
+    # Build libuv for the host=Linux/Uinx
+    BuildLibuv(TARGET host-libuv
+               CONFIGURE_COMMAND sh ${DEPS_BUILD_DIR}/src/libuv_host/autogen.sh &&
+                                    ${DEPS_BUILD_DIR}/src/libuv_host/configure
+                                    --with-pic
+                                    --disable-shared
+                                    --prefix=${HOSTDEPS_INSTALL_DIR}
+                                    CC=${HOSTDEPS_C_COMPILER}
+               INSTALL_COMMAND ${MAKE_PROG} V=1 install)
+
+    # Build libuv for the target=Windows
+    BuildLibuv(CONFIGURE_COMMAND ${UNIX_CFGCMD} --host=${CROSS_TARGET}
+               INSTALL_COMMAND   ${MAKE_PRG} V=1 install)
 else()
     set(err_msg "Trying to build [ libuv ] in an unsupported system.")
-    set(err_msg "${err_msg}\n  Current System Name  : ${CMAKE_SYSTEM_NAME}")
-    set(err_msg "${err_msg}\n  Current C Compiler ID: ${CMAKE_C_COMPILER_ID}")
+    set(err_msg "${err_msg}\n  Host System Name  : ${CMAKE_HOST_SYSTEM}")
+    set(err_msg "${err_msg}\n  Target System Name: ${CMAKE_SYSTEM}")
+    set(err_msg "${err_msg}\n  C Compiler Name   : ${CMAKE_C_COMPILER}")
+    set(err_msg "${err_msg}\n  CXX Compiler Name : ${CMAKE_CXX_COMPILER}")
     message(FATAL_ERROR "${err_msg}")
 endif()
 

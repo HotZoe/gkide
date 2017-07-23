@@ -7,27 +7,14 @@
 #
 # QT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
 
-# By default, CMAKE_GENERATOR_NAME set to
-# - "Unix Makefiles"  for UNIX
-# - "Unix Makefiles"  for Windows/Cygwin
-# - "MinGW Makefiles" for Windows/MinGW
-# - "MSYS Makefiles"  for Windows/MSYS
+# By default, the architecture will automatically detect if not cross compiling
+# If do cross compiling, select one explicitly by uncomment the following entries.
+# 'ARCH_32_ENABLE' and 'ARCH_64_ENABLE' are mutually exclusive, please just select one!
 #
-# Uncomment the following to generates standard UNIX makefiles
-# CMAKE_GENERATOR_NAME := "Unix Makefiles"
-#
-# Uncomment the following to generates makefiles for mingw32-make under a Windows command prompt
-# CMAKE_GENERATOR_NAME := "MinGW Makefiles"
-#
-# Uncomment the following to generates makefiles for use with MSYS make under the MSYS shell
-# CMAKE_GENERATOR_NAME := "MSYS Makefiles"
-
-# By default, the architecture will automatically detect, but you can select one explicitly.
-#
-# Uncomment the following for 32-bit build
+# Uncomment the following for 32-bit target build
 # ARCH_32_ENABLE := ON
 #
-# Uncomment the following for 64-bit build
+# Uncomment the following for 64-bit target build
 # ARCH_64_ENABLE := ON
 
 # By default, enable testing for nvim & snail, but you can make your choice if you want.

@@ -1,6 +1,7 @@
 tmp/*
 build/*
 local.mk
+build.log
 PackageInfo
 gitcommitstyle
 CMakeLists.txt.user

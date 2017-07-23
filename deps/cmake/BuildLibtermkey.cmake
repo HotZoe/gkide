@@ -1,15 +1,13 @@
-if(WIN32)
-    message(STATUS "Building libtermkey in Windows is not supported, skipping ...")
+# Dependencies library link to nvim
+
+if(WIN32 OR MINGW)
+    message(STATUS "Building: libtermkey for Windows is not supported, skipping ...")
     return()
 endif()
 
-message(STATUS  "Building: libtermkey-v${LIBTERMKEY_VERSION}")
-
 find_package(PkgConfig REQUIRED)
-if(NOT CYGWIN)
-    set(CFLAGS_ARGS "CFLAGS=-fPIC")
-endif()
 
+message(STATUS  "Building: libtermkey-v${LIBTERMKEY_VERSION}")
 externalproject_add(   libtermkey
     PREFIX             ${DEPS_BUILD_DIR}
     URL                ${LIBTERMKEY_URL}
@@ -32,7 +30,7 @@ externalproject_add(   libtermkey
                        CC=${DEPS_C_COMPILER}
                        PREFIX=${DEPS_INSTALL_DIR}
                        PKG_CONFIG_PATH=${DEPS_LIB_DIR}/pkgconfig
-                       ${CFLAGS_ARGS}
+                       CFLAGS=-fPIC
                        install)
 
 add_dependencies(libtermkey  unibilium)

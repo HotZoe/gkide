@@ -1,3 +1,5 @@
+# Dependencies library link to nvim
+
 include(CMakeParseArguments)
 
 # BuildLuv(<PATCH_COMMAND ...> <CONFIGURE_COMMAND ...> <BUILD_COMMAND ...> <INSTALL_COMMAND ...>)
@@ -42,39 +44,41 @@ set(LUV_PATCH_COMMAND  ${CMAKE_COMMAND}
                        -DLUV_SRC_DIR=${LUV_SRC_DIR}
                        -P ${PROJECT_SOURCE_DIR}/cmake/PatchLuv.cmake)
 
-set(LUV_CONFIGURE_COMMAND_COMMON
-            ${CMAKE_COMMAND} ${LUV_SRC_DIR}
-            -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-            -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}
-            -DLUA_BUILD_TYPE=System
-            -DWITH_SHARED_LIBUV=ON
-            -DBUILD_SHARED_LIBS=OFF
-            -DBUILD_MODULE=OFF)
+set(LUV_CONFIGURE_COMMAND_COMMON ${CMAKE_COMMAND} ${LUV_SRC_DIR}
+                                 -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                                 -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}
+                                 -DLUA_BUILD_TYPE=System
+                                 -DWITH_SHARED_LIBUV=ON
+                                 -DBUILD_SHARED_LIBS=OFF
+                                 -DBUILD_MODULE=OFF)
 
-# Unix/Cygwin
-if(CYGWIN)
+# Target=Linux/Unix
+set(cflags_fpic "-fPIC")
+
+# Target=Windows
+if(WIN32 OR MINGW)
     set(cflags_fpic "")
-else()
-    set(cflags_fpic "-fPIC")
+    set(LUV_CONFIGURE_COMMAND_COMMON
+        ${LUV_CONFIGURE_COMMAND_COMMON}
+        -DWITH_LUA_ENGINE=Lua
+        -DCMAKE_MAKE_PROGRAM:FILEPATH=${MAKE_PROG})
 endif()
 
 set(LUV_CONFIGURE_COMMAND
     ${LUV_CONFIGURE_COMMAND_COMMON}
-    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-    "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_COMPILER_ARG1} ${LUV_INCLUDE_FLAGS} ${cflags_fpic}")
+    -DCMAKE_C_COMPILER=${DEPS_C_COMPILER}
+    "-DCMAKE_C_FLAGS:STRING=${LUV_INCLUDE_FLAGS} ${cflags_fpic}")
 
 set(LUV_BUILD_COMMAND   ${CMAKE_COMMAND} --build .)
 set(LUV_INSTALL_COMMAND ${CMAKE_COMMAND} --build . --target install)
 
-
 message(STATUS  "Building: luv-v${LUV_VERSION}")
-
 BuildLuv(PATCH_COMMAND     ${LUV_PATCH_COMMAND}
          CONFIGURE_COMMAND ${LUV_CONFIGURE_COMMAND}
          BUILD_COMMAND     ${LUV_BUILD_COMMAND}
          INSTALL_COMMAND   ${LUV_INSTALL_COMMAND})
 
-add_dependencies(luv-static libuv)
 add_dependencies(luv-static lua)
+add_dependencies(luv-static libuv)
 
 list(APPEND THIRD_PARTY_LIBS luv-static)

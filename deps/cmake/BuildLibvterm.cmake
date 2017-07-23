@@ -1,3 +1,5 @@
+# Dependencies library link to nvim
+
 include(CMakeParseArguments)
 
 # BuildLibvterm(<CONFIGURE_COMMAND ...>  <BUILD_COMMAND ...>  <INSTALL_COMMAND ...>)
@@ -43,16 +45,17 @@ function(BuildLibvterm)
     endif()
 endfunction()
 
-if(CYGWIN OR WIN32)
+if(MINGW OR WIN32)
     # Cygwin or MinGW
     set(LIBVTERM_CONFIGURE_COMMAND
         ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/LibvtermCMakeLists.txt
                                  ${DEPS_BUILD_DIR}/src/libvterm/CMakeLists.txt
                          COMMAND ${CMAKE_COMMAND} ${DEPS_BUILD_DIR}/src/libvterm
                                  -DCMAKE_INSTALL_PREFIX=${DEPS_INSTALL_DIR}
-                                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                                 "-DCMAKE_C_FLAGS:STRING=${CMAKE_C_COMPILER_ARG1} -fPIC"
-                                 -DCMAKE_GENERATOR=${CMAKE_GENERATOR})
+                                 -DCMAKE_C_COMPILER=${DEPS_C_COMPILER}
+                                 "-DCMAKE_C_FLAGS:STRING=-fPIC"
+                                 -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                                 -DCMAKE_MAKE_PROGRAM:FILEPATH=${MAKE_PROG})
 
     set(LIBVTERM_BUILD_COMMAND
         ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE})
@@ -63,14 +66,13 @@ else()
     # unix/linux
     set(LIBVTERM_INSTALL_COMMAND
         ${MAKE_PROG} -C ${DEPS_BUILD_DIR}/src/libvterm
-                    CC=${DEPS_C_COMPILER}
-                    PREFIX=${DEPS_INSTALL_DIR}
-                    CFLAGS=-fPIC
-                    install)
+                        CC=${DEPS_C_COMPILER}
+                        PREFIX=${DEPS_INSTALL_DIR}
+                        CFLAGS=-fPIC
+                        install)
 endif()
 
 message(STATUS  "Building: libvterm-v${LIBVTERM_VERSION}")
-
 BuildLibvterm(CONFIGURE_COMMAND ${LIBVTERM_CONFIGURE_COMMAND}
               BUILD_COMMAND     ${LIBVTERM_BUILD_COMMAND}
               INSTALL_COMMAND   ${LIBVTERM_INSTALL_COMMAND})

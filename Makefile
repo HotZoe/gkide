@@ -3,6 +3,10 @@ filter-false = $(strip $(filter-out 0 off OFF false FALSE, $1))
 
 MAKE_PROG := $(MAKE)
 
+ifneq (%PATH%, $(shell echo %PATH%))
+    $(error Do not use Microsoft-Console as the build environment!)
+endif
+
 ifeq (,$(shell which cmake 2> /dev/null))
     $(error Do not found 'cmake', STOP!)
 endif
@@ -17,12 +21,8 @@ endif
 
 ifneq (,$(shell uname -a | grep '^MINGW[3|6][2|4]_NT*'))
     CMAKE_GENERATOR_NAME := "MSYS Makefiles"
-
-    MAKE_PROG ?= $(shell which mingw32-make 2> /dev/null)
-    ifeq (,$(MAKE_PROG))
-        $(error Do not found 'mingw32-make', STOP!)
-    endif
 endif
+
 
 ifeq ($(V),1)
     Q=

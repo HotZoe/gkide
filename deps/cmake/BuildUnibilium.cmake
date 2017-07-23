@@ -1,13 +1,13 @@
-if(WIN32)
-    message(STATUS "Building unibilium in Windows is not supported, skipping ...")
+# Dependencies library link to nvim
+
+if(WIN32 OR MINGW)
+    message(STATUS "Building: unibilium for Windows is not supported, skipping ...")
     return()
 endif()
 
-message(STATUS  "Building: unibilium-v${UNIBILIUM_VERSION}")
-if(NOT CYGWIN)
-    set(CFLAGS_ARGS "CFLAGS=-fPIC")
-endif()
+set(CFLAGS_ARGS "CFLAGS=-fPIC")
 
+message(STATUS  "Building: unibilium-v${UNIBILIUM_VERSION}")
 externalproject_add(   unibilium
     PREFIX             ${DEPS_BUILD_DIR}
     URL                ${UNIBILIUM_URL}
