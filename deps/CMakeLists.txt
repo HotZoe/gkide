@@ -141,7 +141,7 @@ include(BuildLuv)
 include(BuildLuarocks)
 
 # dependencies: luarocks
-#include(BuildLuarocksModules)
+include(BuildLuarocksModules)
 
 set(all_shared_lib_files "${CMAKE_SHARED_LIBRARY_PREFIX}*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
 add_custom_target(clean-shared-libraries

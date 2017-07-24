@@ -1,9 +1,9 @@
 # SHA256 => For Linux:$ sha256sum FILE-NAME
 # MD5    => For Linux:$ md5sum    FILE-NAME
 
-set(LUA_VERSION         5.3.4)
-set(LUA_URL             http://www.lua.org/ftp/lua-5.3.4.tar.gz)
-set(LUA_SHA256          f681aa518233bc407e23acf0f5887c884f17436f000d453b2491a9f11a52400c)
+set(LUA_VERSION         5.2.4)
+set(LUA_URL             http://www.lua.org/ftp/lua-5.2.4.tar.gz)
+set(LUA_SHA256          b9e2e4aad6789b3b63a056d442f7b39f0ecfca3ae0f1fc0ae4e9614401b69f4b)
 list(APPEND dep_urls    ${LUA_URL})
 
 set(LUAJIT_VERSION      2.1.0)
