@@ -52,11 +52,11 @@ set(LUV_CONFIGURE_COMMAND_COMMON ${CMAKE_COMMAND} ${LUV_SRC_DIR}
                                  -DBUILD_SHARED_LIBS=OFF
                                  -DBUILD_MODULE=OFF)
 
-# Target=Linux/Unix
 set(cflags_fpic "-fPIC")
 
-# Target=Windows
 if(WIN32 OR MINGW)
+    # Host=Linux, Target=Windows
+    # Host=Windows, Target=Windows
     set(cflags_fpic "")
     set(LUV_CONFIGURE_COMMAND_COMMON
         ${LUV_CONFIGURE_COMMAND_COMMON}
@@ -64,6 +64,8 @@ if(WIN32 OR MINGW)
         -DCMAKE_MAKE_PROGRAM:FILEPATH=${MAKE_PROG})
 endif()
 
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
 set(LUV_CONFIGURE_COMMAND
     ${LUV_CONFIGURE_COMMAND_COMMON}
     -DCMAKE_C_COMPILER=${DEPS_C_COMPILER}

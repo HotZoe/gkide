@@ -7,6 +7,20 @@
 - [About MinGW-w64, MinGW, MSYS, MSYS2 and Qt 5](http://wiki.qt.io/MinGW-64-bit)
 - [MinGW-builds based Qt( v5.2.1) binary builds(pre-built)](https://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/Qt-Builds/)
 
+# Quick Reference for Native & Cross Build of CMake ENV
+
+|  ENV\\(Host,Target)  |(Linux,Linux) | (Linux,Windows) | (Windows,Windows) | (MacOS,MacOS) |
+|:--------------------:|:------------:|:---------------:|:-----------------:|:-------------:|
+|        MINGW         |    false     |      true       |       true        |     false     |
+| CMAKE_CROSSCOMPILING |    false     |      true       |       false       |     false     |
+|        UNIX          |    true      |      false      |       false       |     true      |
+|        WIN32         |    false     |      true       |       true        |     false     |
+|        APPLE         |    false     |      false      |       false       |     true      |
+|   CMAKE_SYSTEM_NAME  |   "Linux"    |    "Windows"    |     "Windows"     |    "Darwin"   |
+|    CMAKE_HOST_UNIX   |    true      |      true       |       false       |     true      |
+|    CMAKE_HOST_WIN32  |    false     |      false      |       true        |     false     |
+|    CMAKE_HOST_APPLE  |    false     |      false      |       false       |     true      |
+|CMAKE_HOST_SYSTEM_NAME|   "Linux"    |     "Linux"     |     "Windows"     |    "Darwin"   |
 
 # Host(Macos), Target(Macos)
 # Host(Linux), Target(Linux)

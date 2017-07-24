@@ -45,8 +45,9 @@ function(BuildLibvterm)
     endif()
 endfunction()
 
-if(MINGW OR WIN32)
-    # MinGW
+if(WIN32 OR MINGW)
+    # Host=Linux, Target=Windows
+    # Host=Windows, Target=Windows
     set(LIBVTERM_CONFIGURE_COMMAND
         ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/LibvtermCMakeLists.txt
                                  ${DEPS_BUILD_DIR}/src/libvterm/CMakeLists.txt
@@ -63,7 +64,8 @@ if(MINGW OR WIN32)
     set(LIBVTERM_INSTALL_COMMAND
         ${CMAKE_COMMAND} --build . --target install --config ${CMAKE_BUILD_TYPE})
 else()
-    # unix/linux
+    # Host=Linux, Target=Linux
+    # Host=MacOS, Target=MacOS
     set(LIBVTERM_INSTALL_COMMAND
         ${MAKE_PROG} -C ${DEPS_BUILD_DIR}/src/libvterm
                         CC=${DEPS_C_COMPILER}

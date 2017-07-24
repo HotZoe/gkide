@@ -1,10 +1,14 @@
 # Dependencies library link to nvim
 
 if(WIN32 OR MINGW)
+    # Host=Linux, Target=Windows
+    # Host=Windows, Target=Windows
     message(STATUS "Building: libtermkey for Windows is not supported, skipping ...")
     return()
 endif()
 
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
 find_package(PkgConfig REQUIRED)
 
 message(STATUS  "Building: libtermkey-v${LIBTERMKEY_VERSION}")

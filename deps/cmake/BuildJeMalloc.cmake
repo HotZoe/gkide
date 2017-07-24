@@ -1,10 +1,14 @@
 # Dependencies library link to nvim & snail
 
 if(WIN32 OR MINGW)
+    # Host=Windows, Target=Windows
+    # Host=Linux, Target=Windows
     message(STATUS "Building: jemalloc for Windows is not supported, skipping ...")
     return()
 endif()
 
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
 message(STATUS  "Building: jemalloc-v${JEMALLOC_VERSION}")
 ExternalProject_Add(   jemalloc
     PREFIX             ${DEPS_BUILD_DIR}

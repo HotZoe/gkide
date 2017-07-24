@@ -51,12 +51,13 @@ set(UNIX_CFGCMD sh ${DEPS_BUILD_DIR}/src/libuv/autogen.sh &&
 
 message(STATUS  "Building: libuv-v${LIBUV_VERSION}")
 if(UNIX)
-    # Target=Linux/Uinx, native build
+    # Host=Linux, Target=Linux
+    # Host=MacOS, Target=MacOS
     BuildLibuv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${UNIX_CFGCMD}
                INSTALL_COMMAND   ${MAKE_PROG} V=1 install)
-elseif(MINGW AND NOT CMAKE_CROSSCOMPILING)
-    # Target=Windows, native build
+elseif(CMAKE_HOST_WIN32 AND (WIN32 OR MINGW))
+    # Host=Windows, Target=Windows
     BuildLibUv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${MAKE_PROG} -f Makefile.mingw
                BUILD_COMMAND   "pwd" # MinGW shell of MSYS2 must have a command, so give 'pwd' make it happy!
@@ -65,9 +66,9 @@ elseif(MINGW AND NOT CMAKE_CROSSCOMPILING)
                                                                 ${DEPS_INSTALL_DIR}/lib
                                COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEPS_BUILD_DIR}/src/libuv/include
                                                                           ${DEPS_INSTALL_DIR}/include)
-elseif(MINGW AND CMAKE_CROSSCOMPILING)
+elseif(CMAKE_HOST_UNIX AND WIN32 AND MINGW)
     # TODO, figure out what is this
-    # Build libuv for the host=Linux/Uinx
+    # Host=Linux, Target=Windows
     BuildLibuv(TARGET host-libuv
                CONFIGURE_COMMAND sh ${DEPS_BUILD_DIR}/src/libuv_host/autogen.sh &&
                                     ${DEPS_BUILD_DIR}/src/libuv_host/configure

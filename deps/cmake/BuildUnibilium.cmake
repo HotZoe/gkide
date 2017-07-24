@@ -1,10 +1,14 @@
 # Dependencies library link to nvim
 
 if(WIN32 OR MINGW)
+    # Host=Linux, Target=Windows
+    # Host=Windows, Target=Windows
     message(STATUS "Building: unibilium for Windows is not supported, skipping ...")
     return()
 endif()
 
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
 set(CFLAGS_ARGS "CFLAGS=-fPIC")
 
 message(STATUS  "Building: unibilium-v${UNIBILIUM_VERSION}")

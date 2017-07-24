@@ -72,9 +72,14 @@ set(LUA_CONFIGURE_COMMAND
         -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
 
 set(LUA_BUILD_COMMAND   ${MAKE_PROG} ${LUA_TARGET})
+
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
+# Host=Linux, Target=Windows
 set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${HOSTDEPS_INSTALL_DIR} install)
 
-if(MINGW AND NOT UNIX)
+if(CMAKE_HOST_WIN32 AND WIN32 AND MINGW)
+    # Host=Windows, Target=Windows
     set(LUA_INSTALL_COMMAND ${LUA_INSTALL_COMMAND}
                     COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/lua/src/lua53.dll
                                                      ${HOSTDEPS_BIN_DIR}/lua53.dll)

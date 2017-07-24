@@ -47,14 +47,15 @@ set(common_configuration ${CMAKE_COMMAND} ${DEPS_BUILD_DIR}/src/msgpack
                          -DCMAKE_GENERATOR=${CMAKE_GENERATOR})
 set(common_cmake_cfg     ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE})
 
-# target=Linux/Unix
+# Host=Linux, Target=Linux
+# Host=MacOS, Target=MacOS
 set(MSGPACK_CONFIGURE_COMMAND ${common_configuration} "-DCMAKE_C_FLAGS:STRING=-fPIC")
 set(MSGPACK_BUILD_COMMAND     ${common_cmake_cfg})
 set(MSGPACK_INSTALL_COMMAND   ${common_cmake_cfg} --target install)
 
-if(MINGW)
-    # Target=Windows, cross build
-    # Target=Windows, native build
+if(WIN32 OR MINGW)
+    # Host=Linux, Target=Windows
+    # Host=Windows, Target=Windows
     set(MSGPACK_CONFIGURE_COMMAND ${common_configuration} -DCMAKE_MAKE_PROGRAM:FILEPATH=${MAKE_PROG})
     set(MSGPACK_INSTALL_COMMAND   ${common_cmake_cfg} --target install
                                   COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/msgpack/libmsgpack.dll
