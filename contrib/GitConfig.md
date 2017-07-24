@@ -11,6 +11,7 @@ Run the following commands in the project root directory:
   - Run: `$ git config core.safecrlf true`, make sure no mixing **LF** and **CRLF**
   - Run: `$ git config core.autocrlf input`, make sure convert **CRLF** to **LF** if any
   - For Windows:
+    - Run: `$ git config core.filemode false`
     - Run: `$ cp .gitcommitstyle gitcommitstyle`
     - Run: `$ git config commit.template ${PWD}/gitcommitstyle`
   - For Linux/Macosx:
