@@ -49,10 +49,15 @@ if(UNIX OR (MINGW AND CMAKE_CROSSCOMPILING))
                   INSTALL_COMMAND   ${MAKE_PROG} bootstrap)
 elseif(MINGW AND NOT CMAKE_CROSSCOMPILING)
     # Host=Windows, Target=Windows
-    configure_file(${PROJECT_SOURCE_DIR}/cmake/InstallLuarocks.bat.in
-                   ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat)
-
-    BuildLuarocks(INSTALL_COMMAND ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat)
+    BuildLuarocks(CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/cmake/InstallLuarocks.bat.in
+                                                             ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat
+                                    COMMAND sed
+                                            -e "s@HOSTDEPS_INSTALL_DIR@${HOSTDEPS_INSTALL_DIR}@g"
+                                            -e "s@LUAROCKS_VERSION@${LUAROCKS_VERSION}@g"
+                                            -e "s@HOSTDEPS_BIN_DIR@${HOSTDEPS_BIN_DIR}@g"
+                                            -e "s@DEPS_BUILD_DIR@${DEPS_BUILD_DIR}@g"
+                                            -i ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat
+                  INSTALL_COMMAND  ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat)
 else()
     set(err_msg "Trying to build [ luarocks ] in an unsupported system.")
     set(err_msg "${err_msg}\n  Host System Name  : ${CMAKE_HOST_SYSTEM}")

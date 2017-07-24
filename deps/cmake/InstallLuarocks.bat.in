@@ -2,14 +2,14 @@
 
 set fix_args=/FORCECONFIG /NOREG /NOADMIN /Q /F /MW
 
-set cfg_args=%cfg_args% /P       ${HOSTDEPS_INSTALL_DIR}/${LUAROCKS_VERSION}
-set cfg_args=%cfg_args% /LUA     ${HOSTDEPS_INSTALL_DIR}
-set cfg_args=%cfg_args% /LIB     ${HOSTDEPS_BIN_DIR}
-set cfg_args=%cfg_args% /BIN     ${HOSTDEPS_BIN_DIR}
-set cfg_args=%cfg_args% /INC     ${HOSTDEPS_INSTALL_DIR}/include
-set cfg_args=%cfg_args% /TREE    ${HOSTDEPS_INSTALL_DIR}
-set cfg_args=%cfg_args% /SCRIPTS ${HOSTDEPS_BIN_DIR}
-set cfg_args=%cfg_args% /CMOD    ${HOSTDEPS_BIN_DIR}
-set cfg_args=%cfg_args% /LUAMOD  ${HOSTDEPS_BIN_DIR}/lua
+set cfg_args=%cfg_args% /P       HOSTDEPS_INSTALL_DIR/LUAROCKS_VERSION
+set cfg_args=%cfg_args% /LUA     HOSTDEPS_INSTALL_DIR
+set cfg_args=%cfg_args% /LIB     HOSTDEPS_BIN_DIR
+set cfg_args=%cfg_args% /BIN     HOSTDEPS_BIN_DIR
+set cfg_args=%cfg_args% /INC     HOSTDEPS_INSTALL_DIR/include
+set cfg_args=%cfg_args% /TREE    HOSTDEPS_INSTALL_DIR
+set cfg_args=%cfg_args% /SCRIPTS HOSTDEPS_BIN_DIR
+set cfg_args=%cfg_args% /CMOD    HOSTDEPS_BIN_DIR
+set cfg_args=%cfg_args% /LUAMOD  HOSTDEPS_BIN_DIR/lua
 
-${DEPS_BUILD_DIR}/src/luarocks/install.bat %fix_args% %cfg_args%
+DEPS_BUILD_DIR/src/luarocks/install.bat %fix_args% %cfg_args%

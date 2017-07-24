@@ -46,7 +46,7 @@ function(BuildLibvterm)
 endfunction()
 
 if(MINGW OR WIN32)
-    # Cygwin or MinGW
+    # MinGW
     set(LIBVTERM_CONFIGURE_COMMAND
         ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/LibvtermCMakeLists.txt
                                  ${DEPS_BUILD_DIR}/src/libvterm/CMakeLists.txt
