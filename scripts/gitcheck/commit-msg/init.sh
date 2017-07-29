@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # replace '.git/hooks/commit-msg' contents with the following lines
 # -----------------------------------------------------------------

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 # check if we have non-ASCII filenames, if it does then no commit
 

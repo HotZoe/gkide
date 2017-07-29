@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
 msg=$(cat "${1}")
 
 # https://github.com/conventional-changelog/validate-commit-msg

@@ -1,5 +1,5 @@
-#!/bin/sh
-
+#!/usr/bin/env bash
+#
 # replace '.git/hooks/pre-commit' contents with the following lines
 # -----------------------------------------------------------------
 # !/bin/sh
