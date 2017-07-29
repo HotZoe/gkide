@@ -1,7 +1,8 @@
 tmp/*
 build/*
 local.mk
+DistInfo
+mingw-w64
 build.log
-PackageInfo
 gitcommitstyle
 CMakeLists.txt.user
