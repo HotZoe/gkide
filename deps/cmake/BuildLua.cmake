@@ -60,18 +60,17 @@ endif()
 set(LUA_CFLAGS "-O0 -g3 -fPIC")
 set(LUA_LDFLAGS "")
 
-set(LUA_CONFIGURE_COMMAND
-    sed -e "/^CC/s@gcc@${HOSTDEPS_C_COMPILER}@"
-        -e "/^CFLAGS/s@-O2@${LUA_CFLAGS}@"
-        -e "/^MYLDFLAGS/s@$@${LUA_LDFLAGS}@"
-        -e "s@-lreadline@@g"
-        -e "s@-lhistory@@g"
-        -e "s@-lncurses@@g"
-        -i ${DEPS_BUILD_DIR}/src/lua/src/Makefile &&
-    sed -e "/#define LUA_USE_READLINE/d"
-        -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
+set(LUA_CONFIGURE_COMMAND ${SED_PROG} -e "/^CC/s@gcc@${HOSTDEPS_C_COMPILER}@"
+                                      -e "/^CFLAGS/s@-O2@${LUA_CFLAGS}@"
+                                      -e "/^MYLDFLAGS/s@$@${LUA_LDFLAGS}@"
+                                      -e "s@-lreadline@@g"
+                                      -e "s@-lhistory@@g"
+                                      -e "s@-lncurses@@g"
+                                      -i ${DEPS_BUILD_DIR}/src/lua/src/Makefile
+                  COMMAND ${SED_PROG} -e "/#define LUA_USE_READLINE/d"
+                                      -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
 
-set(LUA_BUILD_COMMAND   ${MAKE_PROG} ${LUA_TARGET})
+set(LUA_BUILD_COMMAND ${MAKE_PROG} ${LUA_TARGET})
 
 # Host=Linux, Target=Linux
 # Host=MacOS, Target=MacOS
@@ -80,9 +79,13 @@ set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${HOSTDEPS_INSTALL_DIR} install
 
 if(CMAKE_HOST_WIN32 AND WIN32 AND MINGW)
     # Host=Windows, Target=Windows
+    set(LUA_CONFIGURE_COMMAND ${LUA_CONFIGURE_COMMAND}
+                      COMMAND ${SED_PROG} -e "/^MKDIR/s@mkdir@${MKDIR_PROG}@"
+                                          -e "/^INSTALL/s@install@${INSTALL_PROG}@"
+                                          -i ${DEPS_BUILD_DIR}/src/lua/Makefile)
     set(LUA_INSTALL_COMMAND ${LUA_INSTALL_COMMAND}
-                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/lua/src/lua53.dll
-                                                     ${HOSTDEPS_BIN_DIR}/lua53.dll)
+                    COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/lua/src/lua52.dll
+                                                     ${HOSTDEPS_BIN_DIR}/lua52.dll)
 endif()
 
 # The lua must be dynamic linked, and install dynamic lua library

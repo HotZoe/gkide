@@ -37,6 +37,11 @@ function(BuildGperf)
         INSTALL_COMMAND    "${_gperf_INSTALL_COMMAND}")
 endfunction()
 
+if(GPERF_PROG)
+    message(STATUS "Building: gperf is found, skip building ...")
+    return()
+endif()
+
 find_program(GPERF_PROG gperf)
 if(GPERF_PROG)
     message(STATUS "Building: gperf is found, skip building ...")

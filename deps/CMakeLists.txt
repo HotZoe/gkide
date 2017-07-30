@@ -36,10 +36,35 @@ if(CMAKE_GENERATOR MATCHES "Makefiles")
     set(MAKE_PROG "$(MAKE)")
 endif()
 
-# TODO, remove this
-find_program(GIT_PRG git)
-if(NOT GIT_PRG)
-    message(FATAL_ERROR "Git is needed to download deps, but NOT found.")
+if(NOT GIT_PROG)
+    find_program(GIT_PROG git)
+    if(NOT GIT_PROG)
+        message(FATAL_ERROR "Git is needed to download deps, but NOT found.")
+    endif()
+endif()
+
+file(TO_CMAKE_PATH "${GIT_PROG}" GIT_PROG)
+
+if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+    if(NOT SED_PROG)
+        message(FATAL_ERROR "MSYS version of 'sed' is needed, but NOT found.")
+    endif()
+
+    if(NOT MKDIR_PROG)
+        message(FATAL_ERROR "MSYS version of 'mkdir' is needed, but NOT found.")
+    endif()
+
+    if(NOT INSTALL_PROG)
+        message(FATAL_ERROR "MSYS version of 'install' is needed, but NOT found.")
+    endif()
+
+    file(TO_CMAKE_PATH "${SED_PROG}" SED_PROG)
+    file(TO_CMAKE_PATH "${MKDIR_PROG}" MKDIR_PROG)
+    file(TO_CMAKE_PATH "${INSTALL_PROG}" INSTALL_PROG)
+endif()
+
+if(NOT SED_PROG)
+    set(SED_PROG sed)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
@@ -101,6 +126,8 @@ include(CheckBuildArch)
 # all the URLs of deps
 include(SnailDepsURLSet)
 
+# Build host use tools
+#
 # dependencies: none
 include(BuildLua)
 
@@ -110,6 +137,17 @@ include(BuildLua)
 # dependencies: none
 include(BuildGperf)
 
+# dependencies: libuv, lua
+include(BuildLuv)
+
+# dependencies: lua
+include(BuildLuarocks)
+
+# dependencies: luarocks
+include(BuildLuarocksModules)
+
+# Build target link libraries
+#
 # dependencies: none
 include(BuildJeMalloc)
 
@@ -133,15 +171,6 @@ include(BuildUnibilium)
 # TODO, remove
 # dependencies: unibilium
 include(BuildLibtermkey)
-
-# dependencies: libuv, lua
-include(BuildLuv)
-
-# dependencies: lua
-include(BuildLuarocks)
-
-# dependencies: luarocks
-include(BuildLuarocksModules)
 
 set(all_shared_lib_files "${CMAKE_SHARED_LIBRARY_PREFIX}*${CMAKE_SHARED_LIBRARY_SUFFIX}*")
 add_custom_target(clean-shared-libraries

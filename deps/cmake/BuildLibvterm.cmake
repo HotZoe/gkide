@@ -40,7 +40,7 @@ function(BuildLibvterm)
             ExternalProject_Add_Step(libvterm libvterm-repo-clone
                 COMMENT           "git clone ${LIBVTERM_GIT_REPO}"
                 WORKING_DIRECTORY ${DEPS_DOWNLOAD_DIR}
-                COMMAND           ${GIT_PRG} clone ${LIBVTERM_GIT_REPO})
+                COMMAND           ${GIT_PROG} clone ${LIBVTERM_GIT_REPO})
 
     endif()
 endfunction()

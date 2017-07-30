@@ -54,7 +54,7 @@ set(LUV_CONFIGURE_COMMAND_COMMON ${CMAKE_COMMAND} ${LUV_SRC_DIR}
 
 set(cflags_fpic "-fPIC")
 
-if(WIN32 OR MINGW)
+if(WIN32 AND MINGW)
     # Host=Linux, Target=Windows
     # Host=Windows, Target=Windows
     set(cflags_fpic "")

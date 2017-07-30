@@ -56,11 +56,11 @@ if(UNIX)
     BuildLibuv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${UNIX_CFGCMD}
                INSTALL_COMMAND   ${MAKE_PROG} V=1 install)
-elseif(CMAKE_HOST_WIN32 AND (WIN32 OR MINGW))
+elseif(CMAKE_HOST_WIN32 AND WIN32 AND MINGW)
     # Host=Windows, Target=Windows
     BuildLibUv(BUILD_IN_SOURCE
                CONFIGURE_COMMAND ${MAKE_PROG} -f Makefile.mingw
-               BUILD_COMMAND   "pwd" # MinGW shell of MSYS2 must have a command, so give 'pwd' make it happy!
+               BUILD_COMMAND   "dir" # Here must have a command, so give 'dir' make it happy!
                INSTALL_COMMAND ${CMAKE_COMMAND} -E make_directory ${DEPS_INSTALL_DIR}/lib
                                COMMAND ${CMAKE_COMMAND} -E copy ${DEPS_BUILD_DIR}/src/libuv/libuv.a
                                                                 ${DEPS_INSTALL_DIR}/lib

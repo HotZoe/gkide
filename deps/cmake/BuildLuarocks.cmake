@@ -42,7 +42,7 @@ if(CMAKE_HOST_UNIX)
     # Host=Linux, Target=Linux
     # Host=Linux, Target=Windows
     # Host=MacOS, Target=MacOS
-    set(LUAROCKS_BIN_DIR ${HOSTDEPS_BIN_DIR}) # The luarocks binary location
+    set(LUAROCKS_BINARY ${HOSTDEPS_BIN_DIR}/luarocks) # The luarocks binary file
     BuildLuarocks(CONFIGURE_COMMAND ${DEPS_BUILD_DIR}/src/luarocks/configure
                                     --prefix=${HOSTDEPS_INSTALL_DIR}
                                     --force-config
@@ -51,15 +51,14 @@ if(CMAKE_HOST_UNIX)
                   INSTALL_COMMAND   ${MAKE_PROG} bootstrap)
 elseif(CMAKE_HOST_WIN32)
     # Host=Windows, Target=Windows
-    set(LUAROCKS_BIN_DIR ${HOSTDEPS_BIN_DIR}/luarocks) # The luarocks binary location
+    set(LUAROCKS_BINARY ${HOSTDEPS_BIN_DIR}/luarocks/luarocks.bat) # The luarocks binary file
     BuildLuarocks(CONFIGURE_COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/cmake/InstallLuarocks.bat.in
                                                              ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat
-                                    COMMAND sed
-                                            -e "s@HOSTDEPS_INSTALL_DIR@${HOSTDEPS_INSTALL_DIR}@g"
-                                            -e "s@LUAROCKS_BIN_DIR@${LUAROCKS_BIN_DIR}@g"
-                                            -e "s@HOSTDEPS_BIN_DIR@${HOSTDEPS_BIN_DIR}@g"
-                                            -e "s@DEPS_BUILD_DIR@${DEPS_BUILD_DIR}@g"
-                                            -i ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat
+                            COMMAND ${SED_PROG} -e "s@HOSTDEPS_INSTALL_DIR@${HOSTDEPS_INSTALL_DIR}@g"
+                                                -e "s@LUAROCKS_BIN_DIR@${HOSTDEPS_BIN_DIR}/luarocks@g"
+                                                -e "s@HOSTDEPS_BIN_DIR@${HOSTDEPS_BIN_DIR}@g"
+                                                -e "s@DEPS_BUILD_DIR@${DEPS_BUILD_DIR}@g"
+                                                -i ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat
                   INSTALL_COMMAND  ${DEPS_BUILD_DIR}/src/luarocks/InstallLuarocks.bat)
 else()
     set(err_msg "Trying to build [ luarocks ] in an unsupported system.")

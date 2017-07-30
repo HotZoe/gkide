@@ -1,62 +1,80 @@
-# lua => luarocks => luasec => luabitop
-#                           => mpack   => lpeg
-#                           => inspect => penlight => busted => luacheck
-
-set(LUAROCKS_BINARY   ${DEPS_BIN_DIR}/luarocks) # The luarocks binary location
-# I need this because I do not want the warnings when luarocks download modules using ssl
-set(MODULE_DEP_ARGS   DEPENDS luarocks luasec)
-
 # Arguments for calls to 'luarocks build'
-if(NOT MSVC)
-    # In MSVC don't pass the compiler/linker to luarocks
-    # the bundled version already knows, and passing them here breaks the build
-    set(LUAROCKS_BUILDARGS CC=${DEPS_C_COMPILER} LD=${DEPS_C_COMPILER})
+set(LUAROCKS_BUILDARGS CC=${HOSTDEPS_C_COMPILER} LD=${HOSTDEPS_C_COMPILER})
+if(CMAKE_HOST_WIN32)
+    set(LUAROCKS_BUILDARGS ${LUAROCKS_BUILDARGS} GIT=${GIT_PROG})
+    set(mingw_bin_dir $ENV{GKIDE_MINGW_BIN_DIR})
+    set(mingw_inc_dir $ENV{GKIDE_MINGW_INC_DIR})
+    set(mingw_lib_dir $ENV{GKIDE_MINGW_LIB_DIR})
+    file(TO_CMAKE_PATH "${mingw_bin_dir}" mingw_bin_dir)
+    file(TO_CMAKE_PATH "${mingw_inc_dir}" mingw_inc_dir)
+    file(TO_CMAKE_PATH "${mingw_lib_dir}" mingw_lib_dir)
 endif()
 
-message(STATUS  "Building: luarocks => luasec")
-add_custom_command(OUTPUT  ${DEPS_LIB_DIR}/luarocks/rocks/luasec
-                   COMMAND ${LUAROCKS_BINARY} build luasec ${LUAROCKS_BUILDARGS}
+
+message(STATUS  "Building: luarocks => luasocket")
+add_custom_command(OUTPUT  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasocket
+                   COMMAND ${LUAROCKS_BINARY} build luasocket ${LUAROCKS_BUILDARGS}
                    DEPENDS luarocks)
+add_custom_target(luasocket
+                  DEPENDS  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasocket)
+list(APPEND THIRD_PARTY_LIBS luasocket)
+
+
+message(STATUS  "Building: luarocks => luasec")
+if(CMAKE_HOST_WIN32)
+    set(OPENSSL_INC_LIB_ARGS OPENSSL_INCDIR=${mingw_inc_dir} OPENSSL_LIBDIR=${mingw_bin_dir})
+endif()
+add_custom_command(OUTPUT  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasec
+                   COMMAND ${LUAROCKS_BINARY} build luasec ${LUAROCKS_BUILDARGS} ${OPENSSL_INC_LIB_ARGS}
+                   DEPENDS luasocket)
 add_custom_target(luasec
-                  DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/luasec)
+                  DEPENDS  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasec)
 list(APPEND THIRD_PARTY_LIBS luasec)
+
 
 message(STATUS  "Building: luarocks => luabitop")
 add_custom_command(OUTPUT  ${DEPS_LIB_DIR}/luarocks/rocks/luabitop
                    COMMAND ${LUAROCKS_BINARY} build luabitop ${LUAROCKS_BUILDARGS}
-                   ${MODULE_DEP_ARGS})
+                   DEPENDS luarocks)
 add_custom_target(luabitop
                   DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/luabitop)
 list(APPEND THIRD_PARTY_LIBS luabitop)
 
-# The following each target depends on the previous module.
-# this serializes all calls to luarocks since it is unhappy to be called in parallel.
+
 message(STATUS  "Building: luarocks => mpack")
 add_custom_command(OUTPUT  ${DEPS_LIB_DIR}/luarocks/rocks/mpack
                    COMMAND ${LUAROCKS_BINARY} build mpack ${LUAROCKS_BUILDARGS}
-                   ${MODULE_DEP_ARGS})
+                   DEPENDS luarocks)
 add_custom_target(mpack
                   DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/mpack)
 list(APPEND THIRD_PARTY_LIBS mpack)
 
+
 message(STATUS  "Building: luarocks => lpeg")
 add_custom_command(OUTPUT  ${DEPS_LIB_DIR}/luarocks/rocks/lpeg
                    COMMAND ${LUAROCKS_BINARY} build lpeg ${LUAROCKS_BUILDARGS}
-                   DEPENDS mpack)
+                   DEPENDS luarocks)
 add_custom_target(lpeg
                   DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/lpeg)
 list(APPEND THIRD_PARTY_LIBS lpeg)
 
+
 message(STATUS  "Building: luarocks => inspect")
 add_custom_command(OUTPUT  ${DEPS_LIB_DIR}/luarocks/rocks/inspect
                    COMMAND ${LUAROCKS_BINARY} build inspect ${LUAROCKS_BUILDARGS}
-                   DEPENDS mpack)
+                   DEPENDS luarocks)
 add_custom_target(inspect
                   DEPENDS  ${DEPS_LIB_DIR}/luarocks/rocks/inspect)
 list(APPEND THIRD_PARTY_LIBS inspect)
 
 # check if need to install the lua modules for testing
 if(NOT NVIM_TESTING_ENABLE)
+    return()
+endif()
+
+if(CMAKE_HOST_WIN32)
+    # TODO, the following is for nvim testing, need fix for windows build
+    # for now, just skip testing
     return()
 endif()
 

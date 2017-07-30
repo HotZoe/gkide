@@ -33,12 +33,12 @@ ifneq (%OS%, $(shell echo %OS%))
     windows_cmd_shell := ON
     CMAKE_GENERATOR_NAME := "MinGW Makefiles"
 
-    ifneq (,$(findstring mingw32,$(shell echo %MINGW_TOOLCHAIN_DIR%)))
+    ifneq (,$(findstring mingw32,$(shell echo %GKIDE_MINGW_TOOLCHAIN_DIR%)))
         TARGET_ARCH_32 := ON
         TARGET_ARCH_64 := OFF
     endif
 
-    ifneq (,$(findstring mingw64,$(shell echo %MINGW_TOOLCHAIN_DIR%)))
+    ifneq (,$(findstring mingw64,$(shell echo %GKIDE_MINGW_TOOLCHAIN_DIR%)))
         TARGET_ARCH_32 := OFF
         TARGET_ARCH_64 := ON
     endif
@@ -62,6 +62,14 @@ endif
 # CMake build flags
 DEPS_CMAKE_BUILD_FLAGS  := -DCMAKE_BUILD_TYPE=Release
 GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=Release
+
+ifeq (ON,$(windows_cmd_shell))
+    DEPS_CMAKE_BUILD_FLAGS += -DGIT_PROG=$(shell echo %GKIDE_PROG_GIT%)
+    DEPS_CMAKE_BUILD_FLAGS += -DSED_PROG=$(shell echo %GKIDE_PROG_SED%)
+    DEPS_CMAKE_BUILD_FLAGS += -DMKDIR_PROG=$(shell echo %GKIDE_PROG_MKDIR%)
+    DEPS_CMAKE_BUILD_FLAGS += -DGPERF_PROG=$(shell echo %GKIDE_PROG_GPERF%)
+    DEPS_CMAKE_BUILD_FLAGS += -DINSTALL_PROG=$(shell echo %GKIDE_PROG_INSTALL%)
+endif
 
 # If not set by hand, then auto detected, same as the host
 TARGET_ARCH_32 ?= OFF
