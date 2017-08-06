@@ -19,11 +19,11 @@
   - To build `snail` using static Qt5 will get a little bigger output, and depends none Qt shared libraries.
   - To build `snail` using shared Qt5 will get much smaller output, but depends on many Qt shared libraries.
 
-## Host(Macos), Target(Macos)
+## Macos
 
 - not supported yet!
 
-## Host(Windows), Target(Windows)
+## Windows(MSYS2)
   - install [Msys2](http://www.msys2.org/)
   - in **MSYS** shell install prerequisite libraries, run:
     ```
@@ -54,9 +54,8 @@
   - do local configuration, [template](local.mk.eg) is `contrib/local.mk.eg`
   - open `tools/cmder_mini/Cmder.exe` shell, then run: `$ make`
 
-## Host(Ubuntu), Target(Ubuntu)
+## Debian/Ubuntu
 
-## Host(Debian), Target(Debian)
 
 # About Qt & MSYS2
 
