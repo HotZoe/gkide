@@ -10,6 +10,7 @@ endif
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
+NINJA_PROG ?=
 CMAKE_PROG := cmake
 MAKE_PROG  := $(MAKE)
 BUILD_CMD  := $(MAKE)
@@ -19,11 +20,11 @@ windows_cmd_shell := OFF
 
 CMAKE_GENERATOR_NAME := "Unix Makefiles"
 
-ifneq (, $(shell ninja --version 2> nul))
+ifneq (, $(NINJA_PROG))
     ifneq (, $(VERBOSE))
-        BUILD_CMD := ninja -v
+        BUILD_CMD := $(NINJA_PROG) -v
     else
-        BUILD_CMD := ninja
+        BUILD_CMD := $(NINJA_PROG)
     endif
 endif
 
