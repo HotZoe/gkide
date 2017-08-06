@@ -1,3 +1,7 @@
+local luapathcfg = require('config')
+package.path  = luapathcfg.path .. package.path
+package.cpath = luapathcfg.cpath .. package.cpath
+
 mpack = require('mpack')
 
 -- we need at least 4 arguments since the last two are output files

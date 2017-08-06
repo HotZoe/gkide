@@ -1,3 +1,7 @@
+local luapathcfg = require('config')
+package.path  = luapathcfg.path .. package.path
+package.cpath = luapathcfg.cpath .. package.cpath
+
 lpeg = require('lpeg')
 
 -- lpeg grammar for building api metadata from a set of header files. It

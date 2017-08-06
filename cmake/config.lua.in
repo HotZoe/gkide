@@ -1,6 +1,6 @@
 local pathconfig = {}
 
-pathconfig.path  = "${CONFIG_LUA_PATH};" .. package.path
-pathconfig.cpath = "${CONFIG_LUA_CPATH};" .. package.cpath
+pathconfig.path  = "${CONFIG_LUA_PATH};"
+pathconfig.cpath = "${CONFIG_LUA_CPATH};"
 
 return pathconfig

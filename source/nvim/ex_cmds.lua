@@ -1,3 +1,7 @@
+local luapathcfg = require('config')
+package.path  = luapathcfg.path .. package.path
+package.cpath = luapathcfg.cpath .. package.cpath
+
 bit = require 'bit'
 
 -- Description of the values below is contained in ex_cmds_defs.h file.

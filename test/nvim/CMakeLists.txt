@@ -42,8 +42,8 @@ add_custom_target(run-nvim-functional-test
                            -DLUA_PROG=${LUA_PROG}
                            -DBUSTED_PROG=${BUSTED_PROG}
                            -DNVIM_PROG=$<TARGET_FILE:nvim>
-                           -DLUA_PATH_ENV="${LUA_PATH_SEARCH_PATH}"
-                           -DLUA_CPATH_ENV="${LUA_CPATH_SEARCH_PATH}"
+                           -DLUA_PATH_ENV="${CONFIG_LUA_PATH_ENV}"
+                           -DLUA_CPATH_ENV="${CONFIG_LUA_CPATH_ENV}"
                            -DWORKING_SRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
                            -DWORKING_BIN_DIR=${CMAKE_CURRENT_BINARY_DIR}
                            -DBUSTED_OUTPUT_TYPE=${BUSTED_OUTPUT_TYPE}

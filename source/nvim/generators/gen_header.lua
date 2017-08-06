@@ -1,10 +1,13 @@
 #!/usr/bin/lua
 
+local luapathcfg = require('config')
+package.path  = luapathcfg.path .. package.path
+package.cpath = luapathcfg.cpath .. package.cpath
+
 local fname = arg[1]
 local static_fname = arg[2]
 local non_static_fname = arg[3]
 local preproc_fname = arg[4]
-
 
 local lpeg = require('lpeg')
 

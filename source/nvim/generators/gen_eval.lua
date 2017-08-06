@@ -1,3 +1,7 @@
+local luapathcfg = require('config')
+package.path  = luapathcfg.path .. package.path
+package.cpath = luapathcfg.cpath .. package.cpath
+
 mpack = require('mpack')
 
 local nvimsrcdir = arg[1]
