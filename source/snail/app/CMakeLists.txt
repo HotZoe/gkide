@@ -48,18 +48,16 @@ list(APPEND SNAIL_EXEC_LINK_LIBS "Qt5::Widgets")
 
 target_link_libraries(snail ${SNAIL_EXEC_LINK_LIBS})
 
-# Auto deploy for shared Qt5
-if(SNAIL_USE_SHARED_QT5)
+if(SNAIL_USE_SHARED_QT5 AND HOST_OS_WINDOWS)
+    # Auto deploy when using shared Qt5 for windows build
     find_program(WINDEPLOYQT_PROG windeployqt)
     if(NOT WINDEPLOYQT_PROG)
         message(WARNING "'windeployqt' program not find, you may want to run it by hand!")
     endif()
 
     message("==============${WINDEPLOYQT_PROG}")
-    if(HOST_OS_WINDOWS)
-        add_custom_target(run_windeployqt_prog    ALL
-                          COMMAND echo "here==========================="
-                          WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin
-                          COMMENT "Run 'windeployqt.exe' for 'snail.exe'")
-    endif()
+    add_custom_target(run_windeployqt_prog ALL
+                      COMMAND echo "here==========================="
+                      COMMENT "Run 'windeployqt.exe' for 'snail.exe'"
+                      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 endif()
