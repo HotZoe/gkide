@@ -13,27 +13,13 @@
 |    CMAKE_HOST_APPLE  |    false     |      false      |       false       |     true      |
 |CMAKE_HOST_SYSTEM_NAME|   "Linux"    |     "Linux"     |     "Windows"     |    "Darwin"   |
 
-- All dependencies libraries for `nvim` are always using static linking
-- static/dynamic Qt5 are both supported for snail.
-  - It is recommend to build **Release** or **MinSizeRel** type of `snail` using static Qt5,
-    while build **Dev** or **Debug** type of `snail` using dynamic Qt5.
-  - To build **Dev** or **Debug** type of `snail` using static Qt5 is also supported, but the output is really BIG.
-  - To build `snail` using dynamic Qt5 will get much smaller output, but depends on many Qt shared libraries.
+- All dependencies libraries for `nvim` are always using static linking.
+- static/shared Qt5 are both supported for snail.
+  - To build **Release** or **MinSizeRel** type of `snail` using static Qt5 is recommend.
+  - To build `snail` using static Qt5 will get a little bigger output, and depends none Qt shared libraries.
+  - To build `snail` using shared Qt5 will get much smaller output, but depends on many Qt shared libraries.
 
 ## Host(Macos), Target(Macos)
-
-- not supported yet!
-
-## Host(Linux), Target(Linux)
-
-- not supported yet!
-
-## Host(Linux), Target(Windows)
-[mingw_w64_packages_on_ubuntu_url]: https://launchpad.net/ubuntu/+source/mingw-w64
-[mingw_w64_packages_on_debian_url]: https://packages.debian.org/sid/mingw-w64
-
-- [Mingw-w64 packages on Ubuntu][mingw_w64_packages_on_ubuntu_url]
-- [Mingw-w64 packages on Debian][mingw_w64_packages_on_debian_url]
 
 - not supported yet!
 
@@ -63,13 +49,24 @@
 
     $ pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-libtool mingw-w64-x86_64-make \
                 mingw-w64-x86_64-pkg-config mingw-w64-x86_64-unibilium mingw-w64-x86_64-cmake \
-                mingw-w64-x86_64-perl mingw-w64-x86_64-python2 mingw-w64-x86_64-qt5
+                mingw-w64-x86_64-perl mingw-w64-x86_64-python2
     ```
-  - do local configurations:  configuration [template](contrib/local.mk.eg) `contrib/local.mk.eg`
-  - open `tools/cmder_mini/Cmder.exe` shell, then run:
-  ```
-  $ make
-  ```
+  - do local configuration, [template](local.mk.eg) is `contrib/local.mk.eg`
+  - open `tools/cmder_mini/Cmder.exe` shell, then run: `$ make`
+
+## Host(Linux), Target(Windows)
+[mingw_w64_packages_on_ubuntu_url]: https://launchpad.net/ubuntu/+source/mingw-w64
+[mingw_w64_packages_on_debian_url]: https://packages.debian.org/sid/mingw-w64
+
+- [Mingw-w64 packages on Ubuntu][mingw_w64_packages_on_ubuntu_url]
+- [Mingw-w64 packages on Debian][mingw_w64_packages_on_debian_url]
+
+- not supported yet!
+
+## Host(Linux), Target(Linux)
+
+### Debian & Ubuntu
+- build pass, to write the build tips
 
 # About Qt & MSYS2
 
@@ -78,5 +75,5 @@
 - [MinGW-builds based Qt( v5.2.1) binary builds(pre-built)](https://sourceforge.net/projects/mingwbuilds/files/external-binary-packages/Qt-Builds/)
 
 # Generated The Details Build Log
-- run: `make VERBOSE=1 | tee build.log`
-- run: `mingw32-make VERBOSE=1 | tee build.log`
+- run: `$ make V=1 VERBOSE=1 | tee build.log`
+- run: `$ mingw32-make V=1 VERBOSE=1 | tee build.log`

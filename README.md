@@ -27,11 +27,11 @@ GKIDE is an elegant and sophisticated code editor based on vim/nvim.
 
 # Build & Install
 
-- install **Qt5**
-- `$ make env-check`
-- fix the missing
-- `$ make`
-- `$ make install`
+- step 1: install **Qt5**
+- step 2: run `$ make env-check` to check the build environment
+- step 3: fix the missings of the build environment and do config
+- step 4: run `$ make` to build
+- step 5: run `$ make install` to install
 
 See the [Build & Install](contrib/BuildInstall.md) for details.
 
