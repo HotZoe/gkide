@@ -1,4 +1,3 @@
-message(STATUS  "Building: libiconv-v${LIBICONV_VERSION}")
 include(CMakeParseArguments)
 
 # BuildMsgpack(<CONFIGURE_COMMAND ...> <BUILD_COMMAND ...> <INSTALL_COMMAND ...>)
@@ -87,6 +86,7 @@ if(CYGWIN)
     endif()
 endif()
 
+message(STATUS  "Building: libiconv-v${LIBICONV_VERSION}")
 BuildLibiconv(CONFIGURE_COMMAND  ${LIBICONV_CONFIGURE_CMD}
               BUILD_COMMAND      ${LIBICONV_BUILD_CMD}
               INSTALL_COMMAND    ${LIBICONV_INSTALL_CMD})

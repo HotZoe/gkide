@@ -1,7 +1,6 @@
 # Dependencies library link to nvim
 
 if(WIN32 OR MINGW)
-    # Host=Linux, Target=Windows
     # Host=Windows, Target=Windows
     message(STATUS "Building: libtermkey for Windows is not supported, skipping ...")
     return()

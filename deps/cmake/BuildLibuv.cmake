@@ -66,21 +66,6 @@ elseif(CMAKE_HOST_WIN32 AND WIN32 AND MINGW)
                                                                 ${DEPS_INSTALL_DIR}/lib
                                COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEPS_BUILD_DIR}/src/libuv/include
                                                                           ${DEPS_INSTALL_DIR}/include)
-elseif(CMAKE_HOST_UNIX AND WIN32 AND MINGW)
-    # TODO, figure out what is this
-    # Host=Linux, Target=Windows
-    BuildLibuv(TARGET host-libuv
-               CONFIGURE_COMMAND sh ${DEPS_BUILD_DIR}/src/libuv_host/autogen.sh &&
-                                    ${DEPS_BUILD_DIR}/src/libuv_host/configure
-                                    --with-pic
-                                    --disable-shared
-                                    --prefix=${HOSTDEPS_INSTALL_DIR}
-                                    CC=${HOSTDEPS_C_COMPILER}
-               INSTALL_COMMAND ${MAKE_PROG} V=1 install)
-
-    # Build libuv for the target=Windows
-    BuildLibuv(CONFIGURE_COMMAND ${UNIX_CFGCMD} --host=${CROSS_TARGET}
-               INSTALL_COMMAND   ${MAKE_PRG} V=1 install)
 else()
     set(err_msg "Trying to build [ libuv ] in an unsupported system.")
     set(err_msg "${err_msg}\n  Host System Name  : ${CMAKE_HOST_SYSTEM}")

@@ -2,7 +2,6 @@
 
 if(WIN32 OR MINGW)
     # Host=Windows, Target=Windows
-    # Host=Linux, Target=Windows
     message(STATUS "Building: jemalloc for Windows is not supported, skipping ...")
     return()
 endif()

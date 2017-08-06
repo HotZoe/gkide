@@ -37,6 +37,7 @@ function(BuildGperf)
         INSTALL_COMMAND    "${_gperf_INSTALL_COMMAND}")
 endfunction()
 
+# Host=Windows, Target=Windows
 if(GPERF_PROG)
     message(STATUS "Building: gperf is found, skip building ...")
     return()
@@ -51,7 +52,6 @@ endif()
 if(CMAKE_HOST_UNIX)
     # Host=Linux, Target=Linux
     # Host=MacOS, Target=MacOS
-    # Host=Linux, Target=Windows
     message(STATUS "Building: gperf-v${GPERF_VERSION}")
     BuildGperf(CONFIGURE_COMMAND ${DEPS_BUILD_DIR}/src/gperf/configure
                                  --prefix=${HOSTDEPS_INSTALL_DIR}

@@ -40,7 +40,6 @@ endfunction()
 message(STATUS  "Building: luarocks-v${LUAROCKS_VERSION}")
 if(CMAKE_HOST_UNIX)
     # Host=Linux, Target=Linux
-    # Host=Linux, Target=Windows
     # Host=MacOS, Target=MacOS
     set(LUAROCKS_BINARY ${HOSTDEPS_BIN_DIR}/luarocks) # The luarocks binary file
     BuildLuarocks(CONFIGURE_COMMAND ${DEPS_BUILD_DIR}/src/luarocks/configure

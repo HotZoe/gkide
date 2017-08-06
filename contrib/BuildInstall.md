@@ -1,17 +1,17 @@
-# Quick Reference for Native & Cross Build of CMake ENV
+# Quick Reference for Native Build of CMake ENV
 
-|  ENV\\(Host,Target)  |(Linux,Linux) | (Linux,Windows) | (Windows,Windows) | (MacOS,MacOS) |
-|:--------------------:|:------------:|:---------------:|:-----------------:|:-------------:|
-|        MINGW         |    false     |      true       |       true        |     false     |
-| CMAKE_CROSSCOMPILING |    false     |      true       |       false       |     false     |
-|        UNIX          |    true      |      false      |       false       |     true      |
-|        WIN32         |    false     |      true       |       true        |     false     |
-|        APPLE         |    false     |      false      |       false       |     true      |
-|   CMAKE_SYSTEM_NAME  |   "Linux"    |    "Windows"    |     "Windows"     |    "Darwin"   |
-|    CMAKE_HOST_UNIX   |    true      |      true       |       false       |     true      |
-|    CMAKE_HOST_WIN32  |    false     |      false      |       true        |     false     |
-|    CMAKE_HOST_APPLE  |    false     |      false      |       false       |     true      |
-|CMAKE_HOST_SYSTEM_NAME|   "Linux"    |     "Linux"     |     "Windows"     |    "Darwin"   |
+|  ENV\\(Host,Target)  |(Linux,Linux) | (Windows,Windows) | (MacOS,MacOS) |
+|:--------------------:|:------------:|:-----------------:|:-------------:|
+|        MINGW         |    false     |       true        |     false     |
+| CMAKE_CROSSCOMPILING |    false     |       false       |     false     |
+|        UNIX          |    true      |       false       |     true      |
+|        WIN32         |    false     |       true        |     false     |
+|        APPLE         |    false     |       false       |     true      |
+|   CMAKE_SYSTEM_NAME  |   "Linux"    |     "Windows"     |    "Darwin"   |
+|    CMAKE_HOST_UNIX   |    true      |       false       |     true      |
+|    CMAKE_HOST_WIN32  |    false     |       true        |     false     |
+|    CMAKE_HOST_APPLE  |    false     |       false       |     true      |
+|CMAKE_HOST_SYSTEM_NAME|   "Linux"    |     "Windows"     |    "Darwin"   |
 
 - All dependencies libraries for `nvim` are always using static linking.
 - static/shared Qt5 are both supported for snail.
@@ -54,19 +54,9 @@
   - do local configuration, [template](local.mk.eg) is `contrib/local.mk.eg`
   - open `tools/cmder_mini/Cmder.exe` shell, then run: `$ make`
 
-## Host(Linux), Target(Windows)
-[mingw_w64_packages_on_ubuntu_url]: https://launchpad.net/ubuntu/+source/mingw-w64
-[mingw_w64_packages_on_debian_url]: https://packages.debian.org/sid/mingw-w64
+## Host(Ubuntu), Target(Ubuntu)
 
-- [Mingw-w64 packages on Ubuntu][mingw_w64_packages_on_ubuntu_url]
-- [Mingw-w64 packages on Debian][mingw_w64_packages_on_debian_url]
-
-- not supported yet!
-
-## Host(Linux), Target(Linux)
-
-### Debian & Ubuntu
-- build pass, to write the build tips
+## Host(Debian), Target(Debian)
 
 # About Qt & MSYS2
 

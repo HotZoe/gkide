@@ -46,7 +46,6 @@ function(BuildLibvterm)
 endfunction()
 
 if(WIN32 OR MINGW)
-    # Host=Linux, Target=Windows
     # Host=Windows, Target=Windows
     set(LIBVTERM_CONFIGURE_COMMAND
         ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/cmake/LibvtermCMakeLists.txt

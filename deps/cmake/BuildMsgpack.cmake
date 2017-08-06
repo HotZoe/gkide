@@ -54,7 +54,6 @@ set(MSGPACK_BUILD_COMMAND     ${common_cmake_cfg})
 set(MSGPACK_INSTALL_COMMAND   ${common_cmake_cfg} --target install)
 
 if(WIN32 OR MINGW)
-    # Host=Linux, Target=Windows
     # Host=Windows, Target=Windows
     set(MSGPACK_CONFIGURE_COMMAND ${common_configuration} -DCMAKE_MAKE_PROGRAM:FILEPATH=${MAKE_PROG})
     set(MSGPACK_INSTALL_COMMAND   ${common_cmake_cfg} --target install

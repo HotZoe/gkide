@@ -74,7 +74,6 @@ set(LUA_BUILD_COMMAND ${MAKE_PROG} ${LUA_TARGET})
 
 # Host=Linux, Target=Linux
 # Host=MacOS, Target=MacOS
-# Host=Linux, Target=Windows
 set(LUA_INSTALL_COMMAND ${MAKE_PROG} INSTALL_TOP=${HOSTDEPS_INSTALL_DIR} install)
 
 if(CMAKE_HOST_WIN32 AND WIN32 AND MINGW)
