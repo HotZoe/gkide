@@ -57,7 +57,7 @@ else()
     # just following the build host
     if(HOST_OS_ARCH_32)
         option(HOST_ARCH_32 "Target GKIDE will running on 32-bits OS." ON)
-    elseif(HOST_OS_ARCH_32)
+    elseif(HOST_OS_ARCH_64)
         option(HOST_ARCH_64 "Target GKIDE will running on 64-bits OS." ON)
     else()
         message(FATAL_ERROR "Unknown target os architecture!")
