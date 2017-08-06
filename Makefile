@@ -59,9 +59,16 @@ ifeq (OFF,$(windows_cmd_shell))
     endif
 endif
 
-# CMake build flags
+# CMake build flags for deps, most time the build type should be 'Release'
 DEPS_CMAKE_BUILD_FLAGS  := -DCMAKE_BUILD_TYPE=Release
-GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=Release
+
+# CMake build flags for GKIDE, if not set the build type, then it will be 'Release'
+ifeq (,$(GKIDE_CMAKE_BUILD_TYPE))
+    GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=Release
+else
+    GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(GKIDE_CMAKE_BUILD_TYPE)
+endif
+
 
 ifeq (ON,$(windows_cmd_shell))
     DEPS_CMAKE_BUILD_FLAGS += -DGIT_PROG=$(shell echo %GKIDE_PROG_GIT%)
@@ -69,6 +76,9 @@ ifeq (ON,$(windows_cmd_shell))
     DEPS_CMAKE_BUILD_FLAGS += -DMKDIR_PROG=$(shell echo %GKIDE_PROG_MKDIR%)
     DEPS_CMAKE_BUILD_FLAGS += -DGPERF_PROG=$(shell echo %GKIDE_PROG_GPERF%)
     DEPS_CMAKE_BUILD_FLAGS += -DINSTALL_PROG=$(shell echo %GKIDE_PROG_INSTALL%)
+
+    GKIDE_CMAKE_BUILD_FLAGS += -DGIT_PROG=$(shell echo %GKIDE_PROG_GIT%)
+    GKIDE_CMAKE_BUILD_FLAGS += -DGPERF_PROG=$(shell echo %GKIDE_PROG_GPERF%)
 endif
 
 # If not set by hand, then auto detected, same as the host
@@ -126,7 +136,20 @@ ifneq (Dev,$(GKIDE_CMAKE_BUILD_TYPE))
     GKIDE_CMAKE_BUILD_FLAGS += -Wno-dev
 endif
 
-# check local Qt5 install prefix
+# check local Qt5 library install prefix
+ifneq (,$(QT5_SHARED_LIB_PREFIX))
+    QT5_INSTALL_PREFIX := $(QT5_SHARED_LIB_PREFIX)
+    GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_USE_STATIC_QT5=OFF
+    GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_USE_SHARED_QT5=ON
+endif
+
+ifneq (,$(QT5_STATIC_LIB_PREFIX))
+    # if given static qt path, then always use the static version
+    QT5_INSTALL_PREFIX := $(QT5_STATIC_LIB_PREFIX)
+    GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_USE_STATIC_QT5=ON
+    GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_USE_SHARED_QT5=OFF
+endif
+
 ifeq (,$(QT5_INSTALL_PREFIX))
     ifneq (env-check,$(MAKECMDGOALS))
         $(error Qt5 install perfix not set, see contrib/local.mk.eg)

@@ -7,17 +7,6 @@
 # ...
 # ARGN  when call function with more arguments then want,
 #       this is the list of the that part args
-#
-# (none)         = Important information
-# STATUS         = Incidental information
-# WARNING        = CMake Warning, continue processing
-# AUTHOR_WARNING = CMake Warning (dev), continue processing
-# SEND_ERROR     = CMake Error, continue processing,
-#                  but skip generation
-# FATAL_ERROR    = CMake Error, stop processing and generation
-# DEPRECATION    = CMake Deprecation Error or Warning if variable
-#                  CMAKE_ERROR_DEPRECATED or CMAKE_WARN_DEPRECATED
-#                  is enabled, respectively, else no message.
 
 function(get_host_name_user_name_linux _un _hn)
     find_program(WHOAMI_PROG   whoami)
@@ -45,7 +34,8 @@ function(get_host_name_user_name_linux _un _hn)
 endfunction()
 
 function(get_host_name_user_name_windows _un _hn)
-    message(AUTHOR_WARNING "[windows] => get user/host name.")
+    set(${_un} "$ENV{USERNAME}" PARENT_SCOPE)
+    set(${_hn} "$ENV{USERDOMAIN}" PARENT_SCOPE)
 endfunction()
 
 function(get_host_name_user_name_macosx _un _hn)
@@ -80,7 +70,29 @@ function(get_host_system_name_linux _hsn _rv)
 endfunction()
 
 function(get_host_system_name_windows _hsn _rv)
-    message(AUTHOR_WARNING "[windows] => set host category code")
+    if(NOT _hsn STREQUAL auto)
+        set(${_rv} ${_hsn} PARENT_SCOPE)
+        return()
+    endif()
+
+    string(SUBSTRING "${CMAKE_HOST_SYSTEM_VERSION}" 0 4 windows_major_version)
+    if(windows_major_version STREQUAL "6.10")
+        set(${_rv} "Windows 10" PARENT_SCOPE)
+        return()
+    endif()
+
+    string(SUBSTRING "${CMAKE_HOST_SYSTEM_VERSION}" 0 3 windows_major_version)
+    if(windows_major_version STREQUAL "6.1")
+        set(${_rv} "Windows 7" PARENT_SCOPE)
+        return()
+    endif()
+
+    if(windows_major_version STREQUAL "6.2" OR windows_major_version STREQUAL "6.3")
+        set(${_rv} "Windows 8" PARENT_SCOPE)
+        return()
+    endif()
+
+    set(${_rv} "Windows" PARENT_SCOPE)
 endfunction()
 
 function(get_host_system_name_macosx _hsn _rv)
@@ -102,7 +114,19 @@ function(get_current_system_time_linux _sys_time)
 endfunction()
 
 function(get_current_system_time_windows _sys_time)
-    message(AUTHOR_WARNING "[windows] => get_current_system_time")
+    # see: https://stackoverflow.com/questions/5300572/show-execute-process-output-for-commands-like-dir-or-echo-on-stdout
+    # cmd /c echo %date:~0,4%-%date:~5,2%-%date:~8,2% %time:~0,2%:%time:~3,2%:%time:~6,2%
+    execute_process(COMMAND cmd /c echo %date:~0,4%-%date:~5,2%-%date:~8,2%
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    OUTPUT_VARIABLE _cur_date)
+    execute_process(COMMAND cmd /c time /T
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    OUTPUT_VARIABLE _cur_hhmm)
+    execute_process(COMMAND cmd /c echo %time:~6,2%
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    OUTPUT_VARIABLE _cur_ss)
+    set(_cur_date_time "${_cur_date} ${_cur_hhmm}:${_cur_ss}")
+    set(${_sys_time} ${_cur_date_time} PARENT_SCOPE)
 endfunction()
 
 function(get_current_system_time_macosx _sys_time)
@@ -134,6 +158,7 @@ function(GetHostSystemName _hsn)
     elseif(HOST_OS_MACOS)
         get_host_system_name_macosx(${_hsn} _rv)
     endif()
+
     set(HOST_OS_NAME ${_rv} PARENT_SCOPE)
 endfunction()
 
@@ -152,5 +177,5 @@ function(GetCurrentSystemTime cur_sys_time)
     # this is put here for each time running cmake, we can get
     # current system time.
     configure_file("${CMAKE_CURRENT_LIST_DIR}/DistInfo.in"
-                   "${CMAKE_BINARY_DIR}/DistInfo" @ONLY)
+                   "${CMAKE_BINARY_DIR}/DistInfo")
 endfunction()

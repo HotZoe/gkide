@@ -1,21 +1,31 @@
 # Individual entries must be uncommented to take effect.
 
-# You must set the Qt5 install perfix by uncomment the following line. The value is mine, you
-# should set it yours, my Qt5 install perfix is: /opt/Qt5.5.1/5.5/gcc_64, contains bin/, lib/, etc.
-# - /opt/Qt5.5.1/5.5/gcc_64/bin/qmake
-# - /opt/Qt5.5.1/5.5/gcc_64/lib/
+# You should set the Qt5 install perfix by uncomment the following line.
+# This is the location directory which contains: bin/, lib/, include/, share/, etc.
 #
-# QT5_INSTALL_PREFIX=/opt/Qt5.5.1/5.5/gcc_64
+# my Qt5 install perfix(for linux dynamic)   is: /opt/Qt5.5.1/5.5/gcc_64
+# my Qt5 install perfix(for windows dynamic) is: D:/App/Msys2/mingw64
+# my Qt5 install perfix(for windows dynamic) is: D:/App/Msys2/mingw32
+#
+# QT5_SHARED_LIB_PREFIX := /opt/Qt5.5.1/5.5/gcc_64
+# QT5_SHARED_LIB_PREFIX := D:/App/Msys2/mingw64
+#
+# my Qt5 install perfix(for linux static)    is: /opt/Qt/qt-static/5.8.0
+# my Qt5 install perfix(for windows static)  is: D:/App/Msys2/mingw64/qt5-static
+# my Qt5 install perfix(for windows static)  is: D:/App/Msys2/mingw32/qt5-static
+#
+# QT5_STATIC_LIB_PREFIX := /opt/Qt/qt-static/5.8.0
+# QT5_STATIC_LIB_PREFIX := D:/App/Msys2/mingw64/qt5-static
 
 # By default, the architecture will automatically detect if not cross compiling
 # If do cross compiling, select one explicitly by uncomment the following entries.
-# 'ARCH_32_ENABLE' and 'ARCH_64_ENABLE' are mutually exclusive, please just select one!
+# 'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive, please just select one!
 #
 # Uncomment the following for 32-bit target build
-# ARCH_32_ENABLE := ON
+# TARGET_ARCH_32 := ON
 #
 # Uncomment the following for 64-bit target build
-# ARCH_64_ENABLE := ON
+# TARGET_ARCH_64 := ON
 
 # By default, enable testing for nvim & snail, but you can make your choice if you want.
 #

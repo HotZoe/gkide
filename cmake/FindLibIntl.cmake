@@ -27,7 +27,15 @@ find_path(LibIntl_INCLUDE_DIR
           PATH_SUFFIXES gettext)
 
 find_library(LibIntl_LIBRARY
-             NAMES intl libintl.a)
+             NAMES libintl.a intl)
+
+# check for windows MinGW, use the static version
+if(LibIntl_LIBRARY MATCHES ".dll.a")
+    string(REPLACE "dll." "" libintl_a ${LibIntl_LIBRARY})
+    if(EXISTS ${libintl_a})
+        set(LibIntl_LIBRARY ${libintl_a})
+    endif()
+endif()
 
 if(LibIntl_INCLUDE_DIR)
     set(CMAKE_REQUIRED_INCLUDES "${LibIntl_INCLUDE_DIR}")

@@ -1,3 +1,12 @@
+# prefer to use static Qt5 for release build and shared Qt5 for debug build
+# you can also select to use what you want to!
+option(SNAIL_USE_STATIC_QT5 "snail use static Qt5 library enable." ON)
+option(SNAIL_USE_SHARED_QT5 "snail use shared Qt5 library enable." OFF)
+
+if(SNAIL_USE_STATIC_QT5 AND SNAIL_USE_SHARED_QT5)
+    message(FATAL_ERROR "static/shared Qt5 can not both enable!")
+endif()
+
 # Logging Level:
 # LOGALL(0), TRACE(1), DEBUG(2), STATE(3), ALERT(4), ERROR(5), FATAL(6) or LOGOFF(7)
 #
@@ -154,6 +163,10 @@ if(GNUCXX_HAS_OG_FLAG)
     set(CMAKE_CXX_FLAGS_DEV "-Og -g" CACHE STRING "CXXFlags used for development build." FORCE)
 else()
     set(CMAKE_CXX_FLAGS_DEV "-O2 -g" CACHE STRING "CXXFlags used for development build." FORCE)
+endif()
+
+if(SNAIL_USE_STATIC_QT5)
+    add_definitions("-DQT_STATICPLUGIN")
 endif()
 
 add_compile_options("-std=c++11")

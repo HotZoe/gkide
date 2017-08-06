@@ -1,11 +1,10 @@
 option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
 
 # Qt5
-set(QT5_INSTALL_PREFIX "$ENV{CMAKE_PREFIX_PATH}" CACHE PATH "Qt5 install perfix")
-if(NOT QT5_INSTALL_PREFIX)
+if(NOT CMAKE_PREFIX_PATH)
     message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
 endif()
-message(STATUS "Qt5 Search Path   : ${QT5_INSTALL_PREFIX}")
+message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
 
 # Dependency libraries search path
 set(BUNDLED_DEPS_PREFIX "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps path search prefix.")
@@ -20,9 +19,9 @@ list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
 
 # jemalloc
 if(JEMALLOC_ENABLE)
-    if(CYGWIN)
+    if(WIN32 OR MINGW)
         set(FOUND_WORKING_JEMALLOC false)
-        message(STATUS "Build in Windows(Cygwin), do not use jemalloc")
+        message(STATUS "Jemalloc for Windows is not supported, skipping ...")
     else()
         find_package(JeMalloc REQUIRED)
         set(FOUND_WORKING_JEMALLOC true)
@@ -53,7 +52,6 @@ foreach(lua_prog lua lua5.2 lua5.1)
     unset(LUA_PROG_WORKS)
 
     find_program(LUA_PROG ${lua_prog})
-
     if(LUA_PROG)
         check_lua_deps(${LUA_PROG} "${LUA_MODULES}" LUA_PROG_WORKS)
         if(LUA_PROG_WORKS)
@@ -67,12 +65,13 @@ if(NOT LUA_PROG_WORKS)
 endif()
 
 # gperf program
-find_program(GPERF_PROG gperf)
-if(GPERF_PROG MATCHES "NOTFOUND")
-    message(FATAL_ERROR "gperf: NOT FOUND")
-else()
-    message(STATUS "gperf: ${GPERF_PROG}")
+if(NOT GPERF_PROG)
+    find_program(GPERF_PROG gperf)
+    if(GPERF_PROG MATCHES "NOTFOUND")
+        message(FATAL_ERROR "gperf: NOT FOUND")
+    endif()
 endif()
+message(STATUS "gperf: ${GPERF_PROG}")
 
 set(CMAKE_EXE_LINKER_FLAGS_DEV    "" CACHE STRING "CFlags used for development build." FORCE)
 set(CMAKE_SHARED_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)

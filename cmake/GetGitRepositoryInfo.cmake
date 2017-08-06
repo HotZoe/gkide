@@ -72,6 +72,18 @@ if(GetGitRepositoryInfo_Flag)
 endif()
 set(GetGitRepositoryInfo_Flag TRUE)
 
+# we can use "FindGit.cmake" in CMAKE_MODULE_PATH to find git, if find then set:
+#   GIT_EXECUTABLE           Path to Git command-line client.
+#   Git_FOUND, GIT_FOUND     True if the Git command-line client was found.
+#   GIT_VERSION_STRING       The version of Git found.
+# If git is not in the env-var 'PATH', then we can also given it by hand using 'GIT_PROG'
+if(NOT GIT_FOUND AND GIT_PROG)
+    set(Git_FOUND true)
+    set(GIT_FOUND true)
+    set(GIT_EXECUTABLE ${GIT_PROG})
+    set(GIT_VERSION_STRING "todo: set the real version of git")
+endif()
+
 # We must run the following at "include" time, not at function call time,
 # to find the path to this module(GetGitRepositoryInfo) rather than
 # the path to a calling list file(the CMakeLists.txt which include this module)
@@ -153,8 +165,10 @@ function(GegGitBranchRecentTagName _tag_name)
     endif()
 
     if(NOT GIT_FOUND)
-        # using "FindGit.cmake" in CMAKE_MODULE_PATH to do that
-        # if find then set GIT_FOUND to true
+        # using "FindGit.cmake" in CMAKE_MODULE_PATH to do that, if find then set:
+        # GIT_EXECUTABLE           Path to Git command-line client.
+        # Git_FOUND, GIT_FOUND     True if the Git command-line client was found.
+        # GIT_VERSION_STRING       The version of Git found.
         find_package(Git QUIET)
     endif()
 

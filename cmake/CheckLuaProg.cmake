@@ -1,30 +1,46 @@
 #
-# Checking Lua interpreter
-# Checking Lua modules
+# Checking Lua interpreter & Lua modules
+# Config lua package search path
 
-# set lua package/module search path
-set(LUA_PATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/share/lua") # for LUA_PATH
-set(LUA_CPATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/lib/lua") # for LUA_CPATH
+set(CONFIG_LUA_PATH)
+set(CONFIG_LUA_CPATH)
 
-set(LUA_PATH_SEARCH_PATH)
-set(LUA_CPATH_SEARCH_PATH)
+if(NOT HOST_OS_WINDOWS)
+    list(APPEND CONFIG_LUA_PATH "${BUNDLED_DEPS_PREFIX}/bin/lua/?.lua")
+    list(APPEND CONFIG_LUA_PATH "${BUNDLED_DEPS_PREFIX}/bin/lua/init/?.lua")
+    list(APPEND CONFIG_LUA_CPATH "${BUNDLED_DEPS_PREFIX}/bin/?.dll")
 
-if(EXISTS "${LUA_PATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_PATH_SEARCH_DIR_PERFIX}")
-    file(GLOB lua_version_dirs "${LUA_PATH_SEARCH_DIR_PERFIX}/*")
-    foreach(lvd ${lua_version_dirs})
-        list(APPEND LUA_PATH_SEARCH_PATH "${lvd}/?/init.lua\;")
-        list(APPEND LUA_PATH_SEARCH_PATH "${lvd}/?.lua\;")
-        set(ENV{LUA_PATH} "${lvd}/?/init.lua;$ENV{LUA_PATH}")
-        set(ENV{LUA_PATH} "${lvd}/?.lua;$ENV{LUA_PATH}")
-    endforeach()
-endif()
+    string(REPLACE "/" "\\" CONFIG_LUA_PATH "${CONFIG_LUA_PATH}")
+    string(REPLACE "/" "\\" CONFIG_LUA_CPATH "${CONFIG_LUA_CPATH}")
 
-if(EXISTS "${LUA_CPATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_CPATH_SEARCH_DIR_PERFIX}")
-    file(GLOB lua_version_dirs "${LUA_CPATH_SEARCH_DIR_PERFIX}/*")
-    foreach(lvd ${lua_version_dirs})
-        list(APPEND LUA_CPATH_SEARCH_PATH "${lvd}/?.so\;")
-        set(ENV{LUA_CPATH} "${lvd}/?.so;$ENV{LUA_CPATH}")
-    endforeach()
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/config.lua.in
+                   ${PROJECT_BINARY_DIR}/source/nvim/config.lua)
+
+    set(LUA_PATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/share/lua") # for LUA_PATH
+    set(LUA_CPATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/lib/lua") # for LUA_CPATH
+
+    set(LUA_PATH_SEARCH_PATH)
+    set(LUA_CPATH_SEARCH_PATH)
+
+    if(EXISTS "${LUA_PATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_PATH_SEARCH_DIR_PERFIX}")
+        file(GLOB lua_version_dirs "${LUA_PATH_SEARCH_DIR_PERFIX}/*")
+        foreach(lvd ${lua_version_dirs})
+            list(APPEND LUA_PATH_SEARCH_PATH "${lvd}/?/init.lua\;")
+            list(APPEND LUA_PATH_SEARCH_PATH "${lvd}/?.lua\;")
+            list(APPEND CONFIG_LUA_PATH "${lvd}/?/init.lua\;")
+            list(APPEND CONFIG_LUA_PATH "${lvd}/?.lua\;")
+            set(ENV{LUA_PATH} "${lvd}/?/init.lua;$ENV{LUA_PATH}")
+            set(ENV{LUA_PATH} "${lvd}/?.lua;$ENV{LUA_PATH}")
+        endforeach()
+    endif()
+
+    if(EXISTS "${LUA_CPATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_CPATH_SEARCH_DIR_PERFIX}")
+        file(GLOB lua_version_dirs "${LUA_CPATH_SEARCH_DIR_PERFIX}/*")
+        foreach(lvd ${lua_version_dirs})
+            list(APPEND LUA_CPATH_SEARCH_PATH "${lvd}/?.so\;")
+            set(ENV{LUA_CPATH} "${lvd}/?.so;$ENV{LUA_CPATH}")
+        endforeach()
+    endif()
 endif()
 
 function(check_lua_module LUA_PRG_PATH MODULE RESULT_VAR)

@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.1.0)
 
-set(SNAIL_LOGO  "${PROJECT_SOURCE_DIR}/gkide.png")
-set(SNAIL_DESC  "GKIDE is an elegant and sophisticated code editor based on vim/nvim.")
+set(GKIDE_LOGO "${PROJECT_SOURCE_DIR}/gkide.png")
+set(GKIDE_HOME "https://github.com/gkide/gkide")
+set(GKIDE_DESC "GKIDE is an elegant and sophisticated code editor based on vim/nvim.")
 
 project(gkide)
 
@@ -24,19 +25,22 @@ option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
 #option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
 #option(NVIM_DEBUGGING_ENABLE "Enable nvim debugging." ON)
 
-set(GKIDE_VERSION_MAJOR   0)
-set(GKIDE_VERSION_MINOR   0)
-set(GKIDE_VERSION_PATCH   0)
+set(GKIDE_VERSION_MAJOR   0) # bump when snail/nvim major changing
+set(GKIDE_VERSION_MINOR   0) # bump when snail/nvim minor changing
+set(GKIDE_VERSION_PATCH   0) # bump when snail/nvim patch changing
+
+# package release version
+set(PACKAGE_VERSION_BASIC "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
 
 # snail full version: Major.Minor.Patch-Trail-GitShortHash-GitDateTime
-set(SNAIL_VERSION_MAJOR   0)
-set(SNAIL_VERSION_MINOR   2)
-set(SNAIL_VERSION_PATCH   7)
+set(SNAIL_VERSION_MAJOR   0) # bump for big version
+set(SNAIL_VERSION_MINOR   2) # bump when: feature, plugin, etc.
+set(SNAIL_VERSION_PATCH   7) # bump when: bug fix, none user perception changing, etc.
 
 # nvim version
-set(NVIM_VERSION_MAJOR    0)
-set(NVIM_VERSION_MINOR    2)
-set(NVIM_VERSION_PATCH    1)
+set(NVIM_VERSION_MAJOR    0) # bump for big version
+set(NVIM_VERSION_MINOR    2) # bump when: feature, api, plugin, etc.
+set(NVIM_VERSION_PATCH    1) # bump when: bug fix, none user perception changing, etc.
 
 # nvim API version
 set(NVIM_API_VERSION      1) # nvim API version
@@ -52,9 +56,6 @@ math(EXPR SNAIL_VERSION_INT32
 set(NVIM_VERSION_BASIC "${NVIM_VERSION_MAJOR}.${NVIM_VERSION_MINOR}.${NVIM_VERSION_PATCH}")
 math(EXPR NVIM_VERSION_INT32
           "(${NVIM_VERSION_MAJOR}<<16) + (${NVIM_VERSION_MINOR}<<8) + ${NVIM_VERSION_PATCH}")
-
-# package release version
-set(PACKAGE_VERSION_BASIC "snail-v${SNAIL_VERSION_BASIC}-nvim-v${NVIM_VERSION_BASIC}")
 
 # Set available build types for CMake GUIs.
 set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev"  "Debug"  "Release"  "MinSizeRel")
@@ -86,9 +87,16 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # do NOT want building in source-tree
 include(PreventInTreeBuilds)
 
-# If git repo exist, get the current commit info
-file(TO_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR}/.git SNAIL_GIT_REPO_DIR)
-if(EXISTS "${SNAIL_GIT_REPO_DIR}" AND IS_DIRECTORY "${SNAIL_GIT_REPO_DIR}")
+# If git in the env-var 'PATH', it will auto find by cmake; if not given it by hand.
+if(GIT_PROG)
+    file(TO_CMAKE_PATH "${GIT_PROG}" GIT_PROG)
+endif()
+
+# Check if git repo exist
+file(TO_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR}/.git GKIDE_GIT_REPO_DIR)
+
+# Get GKIDE distribution info: from git repo or 'DistInfo' file.
+if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
     include(GetGitRepositoryInfo)
     option(ENABLE_VERSION_MIDDLE "Make git info into version info." ON)
 
@@ -120,7 +128,7 @@ if(EXISTS "${SNAIL_GIT_REPO_DIR}" AND IS_DIRECTORY "${SNAIL_GIT_REPO_DIR}")
         endif()
     endif()
 
-    string(REPLACE "\"" "" GIT_COMMIT_TIMESTAMP ${GIT_COMMIT_TIMESTAMP})
+    string(REPLACE "\"" "" GIT_COMMIT_TIMESTAMP "${GIT_COMMIT_TIMESTAMP}")
 
     string(SUBSTRING "${GIT_COMMIT_TIMESTAMP}" 00 10 GIT_COMMIT_DATE)
     string(SUBSTRING "${GIT_COMMIT_TIMESTAMP}" 11 08 GIT_COMMIT_TIME)
@@ -140,25 +148,8 @@ if(EXISTS "${SNAIL_GIT_REPO_DIR}" AND IS_DIRECTORY "${SNAIL_GIT_REPO_DIR}")
 else()
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/DistInfo)
         file(STRINGS  ${CMAKE_CURRENT_LIST_DIR}/DistInfo dist_info NEWLINE_CONSUME)
-
-        string(FIND "${dist_info}"  "GITHASH:" hash_idx)
-        string(FIND "${dist_info}"  "GITTIME:" time_idx)
-        string(FIND "${dist_info}"  "PACKAGE:" pack_idx)
-
-        math(EXPR hash_len ${time_idx}-1)
-        math(EXPR time_len ${pack_idx}-${time_idx}-1)
-
-        string(SUBSTRING "${dist_info}" ${hash_idx} ${hash_len} hash_str)
-        string(SUBSTRING "${dist_info}" ${time_idx} ${time_len} time_str)
-
-        string(REGEX REPLACE "^GITHASH:( *)([0-9a-zA-Z]*)( *)$" "\\2" GIT_COMMIT_HASH_FULL "${hash_str}")
-        string(REGEX REPLACE "^GITTIME:( *)([-0-9:+ ]*)( *)$"   "\\2" GIT_COMMIT_TIMESTAMP "${time_str}")
-
-        if(hash_idx EQUAL -1 OR time_idx EQUAL -1 OR pack_idx EQUAL -1)
-            message(WARNING "DistInfo format error. You can ignore this and continue.")
-            set(GIT_COMMIT_HASH_FULL "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-            set(GIT_COMMIT_TIMESTAMP "yyyy-mm-dd hh:mm:ss +xxxx")
-        endif()
+        string(REGEX REPLACE ".*GITHASH[ \t]?=[ \t]?([0-9a-f]+).*"  "\\1" GIT_COMMIT_HASH_FULL "${dist_info}")
+        string(REGEX REPLACE ".*GITTIME[ \t]?=[ \t]?([0-9+-: ]+).*" "\\1" GIT_COMMIT_TIMESTAMP "${dist_info}")
     else()
         message(WARNING "DistInfo file missing. You can ignore this and continue.")
         set(GIT_COMMIT_HASH_FULL "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
@@ -182,7 +173,7 @@ else()
     message(STATUS "Git commit time   : ${GIT_COMMIT_TIMESTAMP}")
 endif()
 
-set(PACKAGE_VERSION_GIT   "${GIT_COMMIT_HASH_SHORT}-${GIT_COMMIT_DATE_TIME}")
+set(PACKAGE_VERSION_GIT "${GIT_COMMIT_HASH_SHORT}-${GIT_COMMIT_DATE_TIME}")
 
 # check building environment
 include(CheckBuildingEnv)
@@ -200,22 +191,11 @@ foreach(item ${CMAKE_CONFIGURATION_TYPES})
     set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${item}  ${CMAKE_BINARY_DIR}/lib)
 endforeach()
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Release" AND NOT CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
-    # none MinSizeRel/Release type build
-    set(CMAKE_INSTALL_PREFIX    "${PROJECT_BINARY_DIR}/disk/snail"   CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
-    set(USR_CONFIG_DIR_PREFIX   "${PROJECT_BINARY_DIR}/disk/.snail"  CACHE PATH "" FORCE)
-else()
-    # MinSizeRel/Release type build
-    set(CMAKE_INSTALL_PREFIX  "/opt/snail"  CACHE  PATH  ""  FORCE)
+if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+    set(CMAKE_INSTALL_PREFIX  "/opt/gkide"  CACHE  PATH  ""  FORCE)
 
     if(HOST_OS_WINDOWS)
-        set(CMAKE_INSTALL_PREFIX  "C:\\Program Files\\snail"  CACHE  PATH  ""  FORCE)
-        message(AUTHOR_WARNING "todo for Windows")
+        set(CMAKE_INSTALL_PREFIX  "C:/Program Files/gkide"  CACHE  PATH  ""  FORCE)
     endif()
 
     set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
@@ -224,7 +204,16 @@ else()
     set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
     set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
 
-    set(USR_CONFIG_DIR_PREFIX   "~/.snail"  CACHE PATH "" FORCE) # ${HOME}/.snail
+    set(USR_CONFIG_DIR_PREFIX   "\${HOME}/.gkide"  CACHE PATH "" FORCE) # $ENV{HOME}/.gkide
+else()
+    # none MinSizeRel/Release type build
+    set(CMAKE_INSTALL_PREFIX    "${PROJECT_BINARY_DIR}/disk/gkide"   CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
+    set(USR_CONFIG_DIR_PREFIX   "${PROJECT_BINARY_DIR}/disk/.gkide"  CACHE PATH "" FORCE)
 endif()
 message(STATUS "Sys Install Perfix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "User Config Perfix: ${USR_CONFIG_DIR_PREFIX}")
