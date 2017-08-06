@@ -19,7 +19,7 @@
   - To build `snail` using static Qt5 will get a little bigger output, and depends none Qt shared libraries.
   - To build `snail` using shared Qt5 will get much smaller output, but depends on many Qt shared libraries.
 
-## Macos
+## MacOS
 
 - not supported yet!
 

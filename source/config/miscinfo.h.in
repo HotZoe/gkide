@@ -3,6 +3,8 @@
 #ifndef GKIDE_GENERATED_CONFIG_MISCINFO_H
 #define GKIDE_GENERATED_CONFIG_MISCINFO_H
 
+#define BUILD_OS_NAME            "@BUILD_OS_NAME@"
+#define BUILD_OS_VERSION         "@BUILD_OS_VERSION@"
 #define BUILD_ON_HOST            "@BUILD_HOST_NAME@"
 #define BUILD_BY_USER            "@BUILD_USER_NAME@"
 

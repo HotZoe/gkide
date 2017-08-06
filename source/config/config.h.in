@@ -3,22 +3,18 @@
 #ifndef GKIDE_GENERATED_CONFIG_CONFIG_H
 #define GKIDE_GENERATED_CONFIG_CONFIG_H
 
+#cmakedefine HOST_OS_MACOS
+#cmakedefine HOST_OS_LINUX
+#cmakedefine HOST_OS_WINDOWS
+
 #cmakedefine HOST_ARCH_32
 #cmakedefine HOST_ARCH_64
 #cmakedefine HOST_ENDIAN_B
 #cmakedefine HOST_ENDIAN_L
 
-#cmakedefine HOST_OS_MACOS
-#cmakedefine HOST_OS_LINUX
-#cmakedefine HOST_OS_WINDOWS
-
 #cmakedefine UNIX
 #cmakedefine WIN32
 #cmakedefine MINGW
-#cmakedefine CYGWIN
-
-#define HOST_OS_NAME      "${HOST_OS_NAME}"
-#define HOST_OS_VERSION   "${HOST_OS_VERSION}"
 
 #define HOST_SIZEOF_INT        ${CHECK_SIZEOF_INT}
 #define HOST_SIZEOF_LONG       ${CHECK_SIZEOF_LONG}

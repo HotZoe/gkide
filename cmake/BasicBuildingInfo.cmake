@@ -159,7 +159,7 @@ function(GetHostSystemName _hsn)
         get_host_system_name_macosx(${_hsn} _rv)
     endif()
 
-    set(HOST_OS_NAME ${_rv} PARENT_SCOPE)
+    set(BUILD_OS_NAME ${_rv} PARENT_SCOPE)
 endfunction()
 
 function(GetCurrentSystemTime cur_sys_time)

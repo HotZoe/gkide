@@ -2,6 +2,7 @@ option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
 
 # Qt5
 if(NOT CMAKE_PREFIX_PATH)
+    message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
     message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
 endif()
 message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")

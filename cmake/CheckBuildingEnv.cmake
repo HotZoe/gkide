@@ -40,12 +40,6 @@ GetHostSystemName("")
 # Check host architecture
 include(CheckBuildArch)
 
-# HOST_OS_* & host_os_*: for current real build host
-# HOST_OS_ARCH_32, HOST_OS_ARCH_64, host_os_arch, host_os_system, ...
-#
-# HOST_*    & host_*   : for GKIDE at running time(the 2nd word must not 'os' or 'OS')
-# HOST_ARCH_32, HOST_ARCH_64, ...
-
 # If not do cross compiling, target just following the host
 if(TARGET_ARCH_32 AND TARGET_ARCH_64)
     message(FATAL_ERROR "'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive!")
@@ -82,7 +76,7 @@ endif()
 
 message(STATUS "C Compiler        : ${CMAKE_C_COMPILER_ID}-${CMAKE_C_COMPILER_VERSION}")
 message(STATUS "C++ Compiler      : ${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILER_VERSION}")
-message(STATUS "Host System       : ${HOST_OS_NAME}, ${host_os_arch}, ${host_os_endian}")
+message(STATUS "Host System       : ${target_system}, ${hostos_arch}, ${host_os_endian}")
 message(STATUS "Target System     : ${target_system}, ${target_arch}, ${host_os_endian}")
 message(STATUS "CMake Generator   : ${CMAKE_GENERATOR}")
 message(STATUS "CMake Build Type  : ${CMAKE_BUILD_TYPE}")
