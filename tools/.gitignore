@@ -1,5 +1,6 @@
+cmder_mini/config/profile.d/
+
 cmder_mini/config/.history
 cmder_mini/config/settings
-cmder_mini/config/ConEmu.xml
 cmder_mini/config/user-ConEmu.xml
 cmder_mini/vendor/conemu-maximus5/ConEmu.xml
