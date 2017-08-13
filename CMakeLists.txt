@@ -18,12 +18,12 @@ set(PACKAGE_RELEASE_READY true)
 set(PACKAGE_VERSION_TRAIL beta) # dev -> alpha -> beta -> rc -> release -> stable
 
 option(NVIM_TESTING_ENABLE "Enable nvim testing." ON)
-option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
+option(NVIM_LOGGING_ENABLE "Enable nvim logging." ON)
+option(NVIM_DEBUGGING_ENABLE "Enable nvim debugging." ON)
 
-#option(SNAIL_LOGGING_ENABLE   "Enable snail logging."   ON)
-#option(NVIM_LOGGING_ENABLE   "Enable nvim logging."   ON)
-#option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
-#option(NVIM_DEBUGGING_ENABLE "Enable nvim debugging." ON)
+option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
+option(SNAIL_LOGGING_ENABLE "Enable snail logging." ON)
+option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
 
 set(GKIDE_VERSION_MAJOR   0) # bump when snail/nvim major changing
 set(GKIDE_VERSION_MINOR   0) # bump when snail/nvim minor changing
@@ -198,22 +198,23 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "MinSizeRel"
         set(CMAKE_INSTALL_PREFIX  "C:/Program Files/gkide"  CACHE  PATH  ""  FORCE)
     endif()
 
-    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_BIN_DIR  "${CMAKE_INSTALL_PREFIX}/bin"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_ETC_DIR  "${CMAKE_INSTALL_PREFIX}/etc"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_DOC_DIR  "${CMAKE_INSTALL_PREFIX}/doc"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PLG_DIR  "${CMAKE_INSTALL_PREFIX}/plg"  CACHE PATH "" FORCE)
 
-    set(USR_CONFIG_DIR_PREFIX   "\${HOME}/.gkide"  CACHE PATH "" FORCE) # $ENV{HOME}/.gkide
+    # $ENV{GKIDE_HOME}, $ENV{HOME}/.gkide
+    set(USR_CONFIG_DIR_PREFIX  "~/.gkide"  CACHE PATH "" FORCE)
 else()
     # none MinSizeRel/Release type build
-    set(CMAKE_INSTALL_PREFIX    "${PROJECT_BINARY_DIR}/disk/gkide"   CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_BIN_DIR   "${CMAKE_INSTALL_PREFIX}/bin"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_DOC_DIR   "${CMAKE_INSTALL_PREFIX}/doc"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_LIB_DIR   "${CMAKE_INSTALL_PREFIX}/lib"        CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_PLG_DIR   "${CMAKE_INSTALL_PREFIX}/plugins"    CACHE PATH "" FORCE)
-    set(CMAKE_INSTALL_RUN_DIR   "${CMAKE_INSTALL_PREFIX}/runtime"    CACHE PATH "" FORCE)
-    set(USR_CONFIG_DIR_PREFIX   "${PROJECT_BINARY_DIR}/disk/.gkide"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PREFIX   "${PROJECT_BINARY_DIR}/disk/gkide"   CACHE PATH "" FORCE)
+
+    set(CMAKE_INSTALL_BIN_DIR  "${CMAKE_INSTALL_PREFIX}/bin"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_ETC_DIR  "${CMAKE_INSTALL_PREFIX}/etc"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_DOC_DIR  "${CMAKE_INSTALL_PREFIX}/doc"  CACHE PATH "" FORCE)
+    set(CMAKE_INSTALL_PLG_DIR  "${CMAKE_INSTALL_PREFIX}/plg"  CACHE PATH "" FORCE)
+
+    set(USR_CONFIG_DIR_PREFIX  "${PROJECT_BINARY_DIR}/disk/.gkide"  CACHE PATH "" FORCE)
 endif()
 message(STATUS "Sys Install Perfix: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "User Config Perfix: ${USR_CONFIG_DIR_PREFIX}")

@@ -55,7 +55,7 @@
 #
 # GKIDE_CMAKE_EXTRA_FLAGS += -DPACKAGE_RELEASE_TYPE=release
 
-# Sets the build type; defaults to Debug. Valid values:
+# Sets the build type: defaults to 'Release'. Valid values:
 #
 # - Dev:            => Enable all optimizations, -Og if available, -O2 and -g if not
 #                   => Enable TRACE logging
@@ -74,7 +74,7 @@
 #                   => Disable logging
 #                   => Disable assertion
 #
-# The default build type for snail is 'Debug'
+# Set the build type to 'Debug'
 # GKIDE_CMAKE_BUILD_TYPE := Debug
 
 # Valid values for logging level is:
