@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# source file: qt-everywhere-opensource-src-5.9.1.tar.xz
+# download the linux/mac version of qt-v5.9.1 source and build static version of Qt5 for linux
+
+# If you later need to reconfigure and rebuild Qt from the same location, ensure that all traces
+# of the previous configuration are removed by entering the build directory and typing
+# 'cd qtbase && make distclean' before running 'configure' again.
+#
+# When linking your application against static Qt libraries, note that you might need to add more
+# libraries to the LIBS line in your project file.
+
+# To check that the application really links statically with Qt, run the 'ldd' tool and verify that
+# the Qt libraries are not mentioned in the output.
+#
+# One easy way to check that the application really can be run stand-alone is to copy it to a machine
+# that doesn't have Qt or any Qt applications installed, and run it on that machine. Remember that if
+# your application depends on compiler specific libraries, these must still be redistributed along
+# with your application.
+
+# http://doc.qt.io/qt-5/linux.html
+# http://doc.qt.io/qt-5/linux-building.html
+# http://doc.qt.io/qt-5/linux-deployment.html
+# http://doc.qt.io/qt-5/configure-options.html
+# http://doc.qt.io/qt-5/linux-requirements.html
+#
+# http://doc.qt.io/qt-5/osx.html
+# http://doc.qt.io/qt-5/osx-building.html
+
+# Qt install path prefix for 32-bit linux
+#target_platform="linux-g++-32"
+#qt_install_prefix=/opt/qt/5.9.1/lib32
+
+# Qt install path prefix for 64-bit linux
+target_platform="linux-g++"
+qt_install_prefix=/opt/qt/5.9.1/lib64
+
+# Qt build args
+qt_build_args=
+
+# config qt5 all 3rd libs
+#
+# sudo apt install libfontconfig1-dev
+# sudo apt install libfreetype6-dev
+# sudo apt install libx11-dev
+# sudo apt install libxext-dev
+# sudo apt install libxfixes-dev
+# sudo apt install libxi-dev
+# sudo apt install libxrender-dev
+# sudo apt install libxcb1-dev
+# sudo apt install libx11-xcb-dev
+# sudo apt install libxcb-glx0-dev
+qt_build_args="-qt-xcb ${qt_build_args}"
+# others auto detected
+
+qt_build_args="-no-opengl ${qt_build_args}"
+qt_build_args="-opensource ${qt_build_args}"
+qt_build_args="-release ${qt_build_args}"
+qt_build_args="-optimize-size ${qt_build_args}"
+qt_build_args="-strip ${qt_build_args}"
+qt_build_args="-nomake tests ${qt_build_args}"
+qt_build_args="-nomake examples ${qt_build_args}"
+qt_build_args="-confirm-license ${qt_build_args}"
+qt_build_args="-silent ${qt_build_args}"
+
+# run: '$ ./configure --help' for more details
+#
+# static build
+./configure -prefix ${qt_install_prefix} -platform ${target_platform} -static ${qt_build_args}
+
+echo "run: '$ make -j 4' for example"

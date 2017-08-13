@@ -46,18 +46,15 @@ set(LIBTERMKEY_SHA256   c81e33e38662b151a49847ff4feef4f8c4b2a66f3e159a28b575cbc9
 endif()
 list(APPEND dep_urls    ${LIBTERMKEY_URL})
 
-
 set(UNIBILIUM_VERSION   1.2.0)
 set(UNIBILIUM_URL       https://github.com/mauke/unibilium/archive/v1.2.0.tar.gz)
 set(UNIBILIUM_SHA256    623af1099515e673abfd3cae5f2fa808a09ca55dda1c65a7b5c9424eb304ead8)
 list(APPEND dep_urls    ${UNIBILIUM_URL})
 
-
 set(LUV_VERSION         1.9.1-0)
 set(LUV_URL             https://github.com/luvit/luv/archive/1.9.1-0.tar.gz)
 set(LUV_SHA256          86a199403856018cd8e5529c8527450c83664a3d36f52d5253cbe909ea6c5a06)
 list(APPEND dep_urls    ${LUV_URL})
-
 
 set(LUAROCKS_VERSION    2.4.2)
 set(LUAROCKS_URL        https://github.com/luarocks/luarocks/archive/v2.4.2.tar.gz)

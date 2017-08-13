@@ -50,7 +50,7 @@ string(REGEX MATCH "[^/\\?]*$" fn_extension "${DOWNLOAD_URL}") # / or ?
 
 # file_name.extension
 #           bz2  tar  tgz  tar.gz  zip tar.bz2
-if("${fn_extension}" MATCHES "(\\.)(tar\\.)*(bz2|bz2|tar|tgz|gz|zip)$")
+if("${fn_extension}" MATCHES "(\\.)(tar\\.)*(bz2|bz2|tar|tgz|gz|zip|xz)$")
     set(file_extension "${CMAKE_MATCH_2}${CMAKE_MATCH_3}") # download file extension
 else()
     set(err_msg "can NOT extract tarball filename from URL.")

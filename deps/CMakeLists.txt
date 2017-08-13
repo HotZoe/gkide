@@ -124,7 +124,7 @@ include(ExternalProject)
 include(CheckBuildArch)
 
 # all the URLs of deps
-include(SnailDepsURLSet)
+include(GkideDepsURLs)
 
 # Build host use tools
 #

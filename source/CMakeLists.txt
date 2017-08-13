@@ -1,16 +1,27 @@
 option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
 
-# Qt5
+# prefer to use static Qt5 for release build and shared Qt5 for debug build
+# you can also select to use what you want to!
+option(SNAIL_USE_STATIC_QT5 "snail use static Qt5 library enable." ON)
+option(SNAIL_USE_SHARED_QT5 "snail use shared Qt5 library enable." OFF)
+
+if(SNAIL_USE_STATIC_QT5 AND SNAIL_USE_SHARED_QT5)
+    message(FATAL_ERROR "static/shared Qt5 can not both enable!")
+endif()
+
+# Qt5 library is set through 'CMAKE_PREFIX_PATH'
 if(NOT CMAKE_PREFIX_PATH)
     message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
     message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
 endif()
+set(QT_LIB_PREFIX_DIR ${CMAKE_PREFIX_PATH})
 message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
 
 # Dependency libraries search path
-set(BUNDLED_DEPS_PREFIX "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps path search prefix.")
+set(BUNDLED_DEPS_PREFIX "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps libs search prefix.")
 list(INSERT CMAKE_PREFIX_PATH 0 ${BUNDLED_DEPS_PREFIX})
 set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${BUNDLED_DEPS_PREFIX}/lib/pkgconfig")
+message(STATUS "Pkg Config Path   : $ENV{PKG_CONFIG_PATH}")
 message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 
 # msgpack
