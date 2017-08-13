@@ -168,9 +168,6 @@ set(SNAIL_CONFIG_CXX_FLAGS_${build_type} ${CMAKE_CXX_FLAGS_${build_type}} PARENT
 
 add_subdirectory(app)
 add_subdirectory(libs)
-add_subdirectory(share)
-add_subdirectory(plugins)
-add_subdirectory(utilities)
 
 if(SNAIL_TESTING_ENABLE)
     add_subdirectory(${PROJECT_SOURCE_DIR}/test/snail
