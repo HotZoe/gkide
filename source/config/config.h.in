@@ -3,18 +3,20 @@
 #ifndef GKIDE_GENERATED_CONFIG_CONFIG_H
 #define GKIDE_GENERATED_CONFIG_CONFIG_H
 
+// todo: remove this kind of macro
+#cmakedefine UNIX
+#cmakedefine WIN32
+#cmakedefine MINGW
+
 #cmakedefine HOST_OS_MACOS
 #cmakedefine HOST_OS_LINUX
 #cmakedefine HOST_OS_WINDOWS
 
-#cmakedefine HOST_ARCH_32
-#cmakedefine HOST_ARCH_64
-#cmakedefine HOST_ENDIAN_B
-#cmakedefine HOST_ENDIAN_L
+#cmakedefine HOST_OS_ARCH_32
+#cmakedefine HOST_OS_ARCH_64
 
-#cmakedefine UNIX
-#cmakedefine WIN32
-#cmakedefine MINGW
+#cmakedefine HOST_OS_ENDIAN_B
+#cmakedefine HOST_OS_ENDIAN_L
 
 #define HOST_SIZEOF_INT        ${CHECK_SIZEOF_INT}
 #define HOST_SIZEOF_LONG       ${CHECK_SIZEOF_LONG}

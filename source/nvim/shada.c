@@ -54,9 +54,9 @@
 // Note: when using bufset hash pointers are intentionally casted to uintptr_t
 // and not to khint32_t or khint64_t: this way compiler must give a warning
 // (-Wconversion) when types change.
-#ifdef HOST_ARCH_32
+#ifdef HOST_OS_ARCH_32
     KHASH_SET_INIT_INT(bufset)
-#elif defined(HOST_ARCH_64)
+#elif defined(HOST_OS_ARCH_64)
     KHASH_SET_INIT_INT64(bufset)
 #else
 #   error "Not 64-bit or 32-bit architecture"
