@@ -31,10 +31,10 @@ if(NOT HOST_OS_WINDOWS)
             set(ENV{LUA_CPATH} "${lvd}/?.so;$ENV{LUA_CPATH}")
         endforeach()
     endif()
-
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/config.lua.in
-                   ${PROJECT_BINARY_DIR}/source/nvim/config.lua)
 endif()
+
+configure_file(${CMAKE_CURRENT_LIST_DIR}/config.lua.in
+               ${PROJECT_BINARY_DIR}/source/nvim/config.lua)
 
 function(check_lua_module LUA_PRG_PATH MODULE RESULT_VAR)
     execute_process(COMMAND ${LUA_PRG_PATH} -e "require('${MODULE}')"
