@@ -50,6 +50,15 @@ if(SNAIL_USE_STATIC_QT5)
     list(APPEND SNAIL_APP_SOURCES ${qt_plugin_moc_cpp})
 endif()
 
+if(HOST_OS_WINDOWS)
+    include_directories(${PROJECT_BINARY_DIR})
+    list(APPEND SNAIL_APP_SOURCES snail.rc)
+endif()
+
+if(HOST_OS_MACOS)
+    #list(APPEND SNAIL_APP_SOURCES info.plist)
+endif()
+
 add_executable(snail WIN32 MACOSX_BUNDLE ${SNAIL_APP_HEADERS} ${SNAIL_APP_SOURCES})
 
 target_link_libraries(snail ${SNAIL_EXEC_LINK_LIBS}) # --verbose

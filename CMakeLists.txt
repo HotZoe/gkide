@@ -25,7 +25,7 @@ option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
 option(SNAIL_LOGGING_ENABLE "Enable snail logging." ON)
 option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
 
-set(GKIDE_VERSION_MAJOR   0) # bump when snail/nvim major changing
+set(GKIDE_VERSION_MAJOR   1) # bump when snail/nvim major changing
 set(GKIDE_VERSION_MINOR   0) # bump when snail/nvim minor changing
 set(GKIDE_VERSION_PATCH   0) # bump when snail/nvim patch changing
 
@@ -46,6 +46,12 @@ set(NVIM_VERSION_PATCH    1) # bump when: bug fix, none user perception changing
 set(NVIM_API_VERSION      1) # nvim API version
 set(NVIM_API_COMPATV      1) # nvim compat API version
 set(NVIM_API_PRERELEASE   true)
+
+# gkide basic version
+set(GKIDE_VERSION_BASIC "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
+math(EXPR SNAIL_VERSION_INT32
+          "(${GKIDE_VERSION_MAJOR}<<16) + (${GKIDE_VERSION_MINOR}<<8) + ${GKIDE_VERSION_PATCH}")
+
 
 # snail basic version
 set(SNAIL_VERSION_BASIC "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")

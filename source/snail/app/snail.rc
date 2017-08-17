@@ -1,0 +1,49 @@
+// Set windows App ICON
+// http://doc.qt.io/qt-5/appicon.html
+// https://msdn.microsoft.com/en-us/library/aa381043(v=vs.85).aspx
+
+#include <winver.h>
+#include <winresrc.h>
+#include "version.h"
+
+#define VER_FILE_VERSION_NUM       SNAIL_VERSION_MAJOR,SNAIL_VERSION_MINOR,SNAIL_VERSION_PATCH,0
+#define VER_FILE_VERSION_STR       SNAIL_VERSION_BASIC
+#define VER_PROD_VERSION_NUM       GKIDE_VERSION_MAJOR,GKIDE_VERSION_MINOR,GKIDE_VERSION_PATCH,0
+#define VER_PROD_VERSION_STR       GKIDE_VERSION_BASIC
+#define VER_COMPANYNAME_STR        "JustForFun"
+#define VER_FILEDESCRIPTION_STR    "Variant Vim Frontend"
+#define VER_LEGALCOPYRIGHT_STR     "Copyright GPL3 License"
+#define VER_PRODUCTNAME_STR        "GKIDE"
+#define VER_INTERNALNAME_STR       "gkide-snail.exe"
+#define VER_ORIGINALFILENAME_STR   "snail.exe"
+
+SNAIL_ICON_IDX    ICON    "pix/snail.ico"
+VS_VERSION_INFO   VERSIONINFO
+FILEVERSION       VER_FILE_VERSION_NUM
+PRODUCTVERSION    VER_PROD_VERSION_NUM
+FILEFLAGSMASK     0x3FL
+FILEFLAGS         0x0L
+//FILEFLAGS       (VS_FF_DEBUG|VS_FF_PRERELEASE)
+FILEOS            (VOS_NT|VOS__WINDOWS32)
+FILETYPE          VFT_APP
+FILESUBTYPE       VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080404b0"
+        BEGIN
+            VALUE "CompanyName",      VER_COMPANYNAME_STR
+            VALUE "FileDescription",  VER_FILEDESCRIPTION_STR
+            VALUE "FileVersion",      VER_FILE_VERSION_STR
+            VALUE "InternalName",     VER_INTERNALNAME_STR
+            VALUE "LegalCopyright",   VER_LEGALCOPYRIGHT_STR
+            VALUE "OriginalFilename", VER_ORIGINALFILENAME_STR
+            VALUE "ProductName",      VER_PRODUCTNAME_STR
+            VALUE "ProductVersion",   VER_PROD_VERSION_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x804, 1200
+    END
+END

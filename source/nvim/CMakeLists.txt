@@ -547,12 +547,23 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UNICODETABLE}
                    DEPENDS  ${GENERATOR_UNICODETAB}
                             ${UNICODE_FILES})
 
+list(APPEND NVIM_ALL_SOURCES ${NVIM_GEN_FOR_SOURCE})
+list(APPEND NVIM_ALL_SOURCES ${NVIM_GEN_FOR_HEADER})
+list(APPEND NVIM_ALL_SOURCES ${NVIM_GEN_SOURCES})
+list(APPEND NVIM_ALL_SOURCES ${NVIM_SOURCES})
+list(APPEND NVIM_ALL_SOURCES ${NVIM_HEADERS})
 
-add_executable(nvim ${NVIM_GEN_FOR_SOURCE}
-                    ${NVIM_GEN_FOR_HEADER}
-                    ${NVIM_GEN_SOURCES}
-                    ${NVIM_SOURCES}
-                    ${NVIM_HEADERS})
+if(HOST_OS_WINDOWS)
+    include_directories(${PROJECT_BINARY_DIR})
+    list(APPEND NVIM_ALL_SOURCES nvim.rc)
+endif()
+
+if(HOST_OS_MACOS)
+    #list(APPEND NVIM_ALL_SOURCES info.plist)
+endif()
+
+
+add_executable(nvim ${NVIM_ALL_SOURCES})
 
 # libuv
 find_package(LibUV 1.9.1 REQUIRED)
