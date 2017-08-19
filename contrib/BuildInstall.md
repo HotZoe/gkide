@@ -21,7 +21,14 @@
 
 ## MacOS
 
-- not supported yet!
+- install **brew**, run:
+  ```
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+  ```
+- install prerequisite tools and libraries, run:
+  ```
+  $ brew install cmake libtool automake pkg-config gettext
+  ```
 
 ## Windows(MSYS2)
   - install [Msys2](http://www.msys2.org/)

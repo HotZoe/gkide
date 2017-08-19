@@ -28,6 +28,8 @@ Run the following commands in the project root directory:
   - run the following commands for ubuntu
     - `$ sudo apt install nodejs`
     - `$ sudo apt install nodejs-legacy`
+  - run the following commands for macos
+    - `$ brew install node`
   - To check is node.js and npm install correctly
     - `$ npm --version`
     - `$ node --version`
