@@ -27,7 +27,7 @@
   ```
 - install prerequisite tools and libraries, run:
   ```
-  $ brew install cmake libtool automake pkg-config gettext
+  $ brew install cmake libtool automake pkg-config gettext openssl
   ```
 
 ## Windows(MSYS2)
