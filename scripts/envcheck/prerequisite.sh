@@ -2,7 +2,7 @@
 
 function toolchain_check_linux()
 {
-    prog=$(which gcc 2> ${null_device})
+    prog=$(which gcc 2> /dev/null)
     if [ "${prog}" = "" ]; then
         check_status="false"
         echo -e "Not Found: \033[31mgcc\033[0m"
@@ -10,7 +10,7 @@ function toolchain_check_linux()
         echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version | head -n1)
     fi
 
-    prog=$(which g++ 2> ${null_device})
+    prog=$(which g++ 2> /dev/null)
     if [ "${prog}" = "" ]; then
         check_status="false"
         echo -e "Not Found: \033[31mg++\033[0m"
@@ -18,7 +18,7 @@ function toolchain_check_linux()
         echo -e "Found: \033[32m${prog}\033[0m =>" $(g++ --version | head -n1)
     fi
 
-    prog=$(which ldd 2> ${null_device})
+    prog=$(which ldd 2> /dev/null)
     if [ "${prog}" = "" ]; then
         check_status="false"
         echo -e "Not Found: \033[31mldd\033[0m"
@@ -27,10 +27,67 @@ function toolchain_check_linux()
     fi
 }
 
-function toolchain_check_windows()
+function toolchain_check_macos()
 {
     toolchain_gcc="true"
     toolchain_clang="true"
+
+    prog=$(which gcc 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_gcc="false"
+        echo -e "Not Found: \033[31mgcc\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(gcc --version 2> /dev/null | head -n1)
+    fi
+
+    prog=$(which g++ 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_gcc="false"
+        echo -e "Not Found: \033[31mg++\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(g++ --version 2> /dev/null | head -n1)
+    fi
+
+    prog=$(which ldd 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_gcc="false"
+        echo -e "Not Found: \033[31mldd\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(ldd --version 2> /dev/null | head -n1 | cut -d" " -f2-)
+    fi
+
+    prog=$(which clang 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_clang="false"
+        echo -e "Not Found: \033[31mclang\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(clang --version 2> /dev/null | head -n1)
+    fi
+
+    prog=$(which clang++ 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_clang="false"
+        echo -e "Not Found: \033[31mclang++\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(clang++ --version 2> /dev/null | head -n1)
+    fi
+
+    prog=$(which otool 2> /dev/null)
+    if [ "${prog}" = "" ]; then
+        toolchain_clang="false"
+        echo -e "Not Found: \033[31mldd\033[0m"
+    else
+        echo -e "Found: \033[32m${prog}\033[0m =>" $(otool --version 2> /dev/null | head -n1 | cut -d" " -f2-)
+    fi
+
+    if [ ! ${toolchain_clang} -a ! ${toolchain_gcc} ]; then
+        check_status="false"
+    fi
+}
+
+function toolchain_check_windows()
+{
+    toolchain_gcc="true"
 
     check_status_x64_gcc=$(shell which x86_64-w64-mingw32-gcc 2> ${null_device})
     check_status_x64_gxx=$(shell which x86_64-w64-mingw32-g++ 2> ${null_device})
@@ -68,14 +125,10 @@ function toolchain_check_windows()
     if [ ! ${toolchain_gcc} ]; then
         check_status="false"
     fi
-
-    if [ ! ${toolchain_clang} ]; then
-        check_status="false"
-    fi
 }
 
 if ${host_macos}; then
-    echo "todo for macos env checking"
+    toolchain_check_macos
 fi
 
 if ${host_linux}; then
@@ -115,7 +168,7 @@ if [ "${prog}" = "" ]; then
     check_status="false"
     echo -e "Not Found: \033[31mlibtool\033[0m"
 else
-    echo -e "Found: \033[32m${prog}\033[0m =>" $(libtool --version | head -n1)
+    echo -e "Found: \033[32m${prog}\033[0m =>" $(libtool -V | head -n1)
 fi
 
 prog=$(which autoconf 2> ${null_device})

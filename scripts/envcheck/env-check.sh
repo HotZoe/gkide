@@ -63,7 +63,12 @@ echo -e "Target System: \033[33m${host_os}\033[0m\n"
 if [ "${host_windows}" = "false" ]; then
     # check for bash and /bin/sh
     bash --version | head -n1 | cut -d" " -f2-4
-    prog=$(readlink -f /bin/sh)
+
+    if [ "${host_linux}" = "true" ]; then
+        prog=$(readlink -f /bin/sh)
+    else
+        prog=/bin/sh
+    fi
     echo "/bin/sh -> ${prog}"
     echo ""
 fi
@@ -133,7 +138,7 @@ else
     echo -e "Found: \033[32m${prog}\033[0m =>" $(standard-version --version | head -n1)
 fi
 
-echo -e "\nIf missing something, you can seak for help following:"
+echo -e "\nIf missing something, you can seak for help by following:"
 echo -e "    \033[33mcontrib/local.mk.eg\033[0m"
 echo -e "    \033[33mcontrib/GitConfig.md\033[0m"
 echo -e "    \033[33mcontrib/BuildInstall.md\033[0m"
