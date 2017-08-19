@@ -10,6 +10,20 @@ if(CMAKE_HOST_WIN32)
     file(TO_CMAKE_PATH "${mingw_lib_dir}" mingw_lib_dir)
 endif()
 
+if(CMAKE_HOST_APPLE)
+    set(openssl_brew_dir /usr/local/Cellar/openssl)
+    if(EXISTS "${openssl_brew_dir}" AND IS_DIRECTORY "${openssl_brew_dir}")
+        file(GLOB openssl_versioned_dirs "${openssl_brew_dir}/*")
+        foreach(openssl_versioned_dir ${openssl_versioned_dirs})
+            message(STATUS "Found openssl: ${openssl_versioned_dir}")
+            set(macos_openssl_inc_dir "${openssl_versioned_dir}/include")
+            set(macos_openssl_lib_dir "${openssl_versioned_dir}/lib")
+        endforeach()
+    else()
+        message(FATAL_ERROR "Openssl library not found, run '$ brew install openssl' to install it!")
+    endif()
+endif()
+
 
 message(STATUS  "Building: luarocks => luasocket")
 add_custom_command(OUTPUT  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasocket
@@ -23,6 +37,9 @@ list(APPEND THIRD_PARTY_LIBS luasocket)
 message(STATUS  "Building: luarocks => luasec")
 if(CMAKE_HOST_WIN32)
     set(OPENSSL_INC_LIB_ARGS OPENSSL_INCDIR=${mingw_inc_dir} OPENSSL_LIBDIR=${mingw_bin_dir})
+endif()
+if(CMAKE_HOST_APPLE)
+    set(OPENSSL_INC_LIB_ARGS OPENSSL_INCDIR=${macos_openssl_inc_dir} OPENSSL_LIBDIR=${macos_openssl_lib_dir})
 endif()
 add_custom_command(OUTPUT  ${HOSTDEPS_LIB_DIR}/luarocks/rocks/luasec
                    COMMAND ${LUAROCKS_BINARY} build luasec ${LUAROCKS_BUILDARGS} ${OPENSSL_INC_LIB_ARGS}

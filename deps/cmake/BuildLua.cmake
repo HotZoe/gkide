@@ -60,15 +60,21 @@ endif()
 set(LUA_CFLAGS "-O0 -g3 -fPIC")
 set(LUA_LDFLAGS "")
 
+if(CMAKE_HOST_APPLE)
+    # "$ sed -i file_to_edit"               linux usage format
+    # "$ sed -i 'extension' file_to_edit"   macos usage format
+    set(arg '.org') 
+endif()
+
 set(LUA_CONFIGURE_COMMAND ${SED_PROG} -e "/^CC/s@gcc@${HOSTDEPS_C_COMPILER}@"
                                       -e "/^CFLAGS/s@-O2@${LUA_CFLAGS}@"
                                       -e "/^MYLDFLAGS/s@$@${LUA_LDFLAGS}@"
                                       -e "s@-lreadline@@g"
                                       -e "s@-lhistory@@g"
                                       -e "s@-lncurses@@g"
-                                      -i ${DEPS_BUILD_DIR}/src/lua/src/Makefile
+                                      -i ${arg} ${DEPS_BUILD_DIR}/src/lua/src/Makefile
                   COMMAND ${SED_PROG} -e "/#define LUA_USE_READLINE/d"
-                                      -i ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
+                                      -i ${arg} ${DEPS_BUILD_DIR}/src/lua/src/luaconf.h)
 
 set(LUA_BUILD_COMMAND ${MAKE_PROG} ${LUA_TARGET})
 
