@@ -1,11 +1,15 @@
 #ifndef SNAIL_LIBS_NVIMCORE_LOGMANAGER_H
 #define SNAIL_LIBS_NVIMCORE_LOGMANAGER_H
 
-#include <QApplication>
-#include <QEvent>
 #include <QUrl>
 #include <QList>
+#include <QEvent>
+#include <QApplication>
 #include <QCommandLineParser>
+
+#ifdef Q_OS_MAC
+#include <QProcess>
+#endif
 
 namespace SnailNvimQt
 {

@@ -6,6 +6,7 @@
 #include "configsnail.h"
 #include "snail/app/envdefs.h"
 #include "snail/app/attributes.h"
+#include "snail/libs/nvimcore/logmanager.h"
 
 namespace SnailNvimQt
 {
@@ -119,7 +120,7 @@ bool getLoginEnvironment(const QString &path)
 	proc.start(path, {"-l", "-c", "env", "-i"});
     if(!proc.waitForFinished())
     {
-        qDebug() << "Failed to execute shell to get environemnt: " << path;
+        //qDebug() << "Failed to execute shell to get environemnt: " << path;
 		return false;
 	}
 
@@ -130,7 +131,7 @@ bool getLoginEnvironment(const QString &path)
         if(index > 0)
         {
 			qputenv(item.mid(0, index), item.mid(index+1));
-			qDebug() << item.mid(0, index) << item.mid(index+1);
+			//qDebug() << item.mid(0, index) << item.mid(index+1);
 		}
 	}
 
