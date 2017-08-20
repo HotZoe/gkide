@@ -3,7 +3,7 @@
 # HOST_OS_WINDOWS, HOST_OS_LINUX, HOST_OS_MACOS
 
 # Check host build: Windows
-if(CMAKE_HOST_WIN32 OR CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
+if(CMAKE_HOST_WIN32 AND CMAKE_HOST_SYSTEM_NAME MATCHES "Windows")
     option(HOST_OS_WINDOWS "Host System: Windows" ON)
     option(CURRENT_HOST_SUPPORTED "Current host is supported." ON)
     set(target_system "windows")
@@ -15,7 +15,7 @@ endif()
 
 
 # Check host build: UNIX
-if(CMAKE_HOST_UNIX OR CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
+if(CMAKE_HOST_UNIX AND CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
     # Check UNIX first, because Macos is a kinde of UNIX
     option(HOST_OS_LINUX "Build for Linux or Linux like operating systems." ON)
     option(CURRENT_HOST_SUPPORTED "Current host is supported" ON)
@@ -24,9 +24,9 @@ endif()
 
 
 # Check host build: Mac OS X
-if(CMAKE_HOST_APPLE OR CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
+if(CMAKE_HOST_APPLE AND CMAKE_HOST_SYSTEM_NAME MATCHES "Darwin")
     option(HOST_OS_MACOS "Host System: Macos" ON)
-    option(CURRENT_HOST_SUPPORTED "Current host is supported." OFF)
+    option(CURRENT_HOST_SUPPORTED "Current host is supported." ON)
     set(target_system "macos")
 endif()
 
@@ -38,8 +38,8 @@ endif()
 
 # Get build host info: hostname, user name, host system
 include(BasicBuildingInfo)
+GetHostSystemInfo(BUILD_OS_NAME BUILD_OS_VERSION)
 GetHostNameUserName(BUILD_USER_NAME BUILD_HOST_NAME)
-GetHostSystemName("")
 
 # Check host architecture
 include(CheckBuildArch)
