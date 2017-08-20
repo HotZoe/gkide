@@ -614,6 +614,11 @@ endif()
 
 list(APPEND NVIM_EXEC_LINK_LIBS ${NVIM_DEP_LINK_LIBRARIES})
 
+if(CMAKE_HOST_APPLE)
+    find_library(CoreFoundation_LIBRARIES CoreFoundation)
+    list(APPEND NVIM_EXEC_LINK_LIBS ${CoreFoundation_LIBRARIES})
+endif()
+
 target_link_libraries(nvim ${NVIM_EXEC_LINK_LIBS})
 
 if(NVIM_TESTING_ENABLE)
