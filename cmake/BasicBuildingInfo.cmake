@@ -64,31 +64,40 @@ function(get_host_name_user_name_macosx _un _hn)
 endfunction()
 
 function(get_host_system_info_linux os_name os_version)
-# TODO
-    find_program(UNAME_PROG  uname)
     find_program(LSB_RELEASE_PROG  lsb_release)
-
-    if(EXISTS ${UNAME_PROG})
-        execute_process(COMMAND ${UNAME_PROG} --all
+    if(EXISTS ${LSB_RELEASE_PROG})
+        execute_process(COMMAND ${LSB_RELEASE_PROG} -i
                         OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE  uname_all)
-
-        if(uname_all MATCHES "Ubuntu")
-            set(${os_name} "Ubuntu" PARENT_SCOPE)
-        elseif(uname_all MATCHES "Debian")
-            execute_process(COMMAND cat /etc/debian_version
+                        OUTPUT_VARIABLE  distributor_id)
+        execute_process(COMMAND ${LSB_RELEASE_PROG} -r
                         OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE  debian_version)
+                        OUTPUT_VARIABLE  release_version)
 
-            set(${os_name} "Debian" PARENT_SCOPE)
-            set(${os_version} "${debian_version}" PARENT_SCOPE)
-        else()
-            message(AUTHOR_WARNING "[linux] => add support for new linux distribution.")
-            set(${os_name} "Linux" PARENT_SCOPE)
-        endif()
+        string(REGEX REPLACE "^Release:[ \t]*([0-9.]*)$" "\\1" release_version "${release_version}")
+        string(REGEX REPLACE "^Distributor ID:[ \t]*([^ ]*)$" "\\1" distributor_id "${distributor_id}")
+
+        set(${os_name} "${distributor_id}" PARENT_SCOPE)
+        set(${os_version} "${release_version}" PARENT_SCOPE)
+        return()
     endif()
 
-    message(WARNING "[linux] => current linux system has no 'uname' found.")
+    execute_process(COMMAND cat /etc/issue
+                    OUTPUT_STRIP_TRAILING_WHITESPACE
+                    ERROR_QUIET
+                    RESULT_VARIABLE  read_status
+                    OUTPUT_VARIABLE  issue_txt)
+    if(read_status EQUAL 0)
+        string(REGEX REPLACE "^[ \t]*([^0-9. ]*)[ \t]*[0-9].*" "\\1"
+                             distributor_id "${issue_txt}")
+        string(REGEX REPLACE "^[ \t]*[a-zA-Z]*[^0-9.]*[ \t]*([0-9.]+)[ \t]*.*" "\\1"
+                             release_version "${issue_txt}")
+
+        set(${os_name} "${distributor_id}" PARENT_SCOPE)
+        set(${os_version} "${release_version}" PARENT_SCOPE)
+        return()
+    endif()
+
+    message(AUTHOR_WARNING "[linux] => add support for host linux distribution.")
     set(${os_name} "Linux" PARENT_SCOPE)
     set(${os_version} "" PARENT_SCOPE)
 endfunction()
