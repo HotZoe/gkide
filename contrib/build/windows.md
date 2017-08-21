@@ -31,6 +31,7 @@
   - `contrib/local.mk.eg` => `local.mk`
   - `contrib/mingw-w64.eg` => `mingw-w64`
 - open `tools/cmder_mini/Cmder.exe` shell, then run: `$ make`
+  - for windows 10, need to set the cmd back to the old style to make cmder works
 
 # About Qt & MSYS2
 

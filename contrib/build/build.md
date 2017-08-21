@@ -16,13 +16,16 @@
 # [Macos](macos.md)
   - macOS 10.10, 10.11, 10.12
   - clang, xcode
+  - 32-bit, 64-bit
 
 # [Windows](windows.md)
   - windows 7, 8, 10
+  - mingw-w64-gcc
+  - 32-bit, 64-bit
 
-# [Debian](debian.md)
-
-# [Ubuntu](debian.md)
+# Linux(32-bit, 64-bit)
+  - [Debian](debian.md)
+  - [Ubuntu](debian.md)
 
 # Generated The Details Build Log
 - run: `$ make V=1 VERBOSE=1 | tee build.log`
