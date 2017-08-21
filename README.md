@@ -33,7 +33,7 @@ GKIDE is an elegant and sophisticated code editor based on vim/nvim.
 - step 4: run `$ make` to build
 - step 5: run `$ make install` to install
 
-See the [Build & Install](contrib/BuildInstall.md) for details.
+See the [contrib/build/build.md](contrib/build/build.md) for details.
 
 # License
 
