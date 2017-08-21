@@ -5,11 +5,13 @@
 #             : http://wiki.qt.io/Deploying_a_Qt5_Application_Linux
 # To search Qt documention for more details.
 
-# snail source/header files
+# snail source/header/resource files
 file(GLOB SNAIL_APP_HEADERS *.h)
 file(GLOB SNAIL_APP_SOURCES *.cpp)
+file(GLOB SNAIL_APP_QTRESRC *.qrc)
 
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5Widgets REQUIRED)
@@ -58,6 +60,8 @@ endif()
 if(HOST_OS_MACOS)
     #list(APPEND SNAIL_APP_SOURCES info.plist)
 endif()
+
+list(APPEND SNAIL_APP_SOURCES ${SNAIL_APP_QTRESRC})
 
 add_executable(snail WIN32 MACOSX_BUNDLE ${SNAIL_APP_HEADERS} ${SNAIL_APP_SOURCES})
 
