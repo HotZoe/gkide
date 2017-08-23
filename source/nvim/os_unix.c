@@ -135,20 +135,20 @@ void mch_free_acl(vim_acl_T aclent)
 
 void mch_exit(int r) FUNC_ATTR_NORETURN
 {
-  exiting = true;
+    exiting = true;
 
-  ui_builtin_stop();
-  ui_flush();
-  ml_close_all(true);           // remove all memfiles
+    ui_builtin_stop();
+    ui_flush();
+    ml_close_all(true); // remove all memfiles
 
-  event_teardown();
-  stream_set_blocking(input_global_fd(), true);  // normalize stream (#2598)
+    event_teardown();
+    stream_set_blocking(input_global_fd(), true); // normalize stream (#2598)
 
-#ifdef EXITFREE
-  free_all_mem();
-#endif
+    #ifdef EXITFREE
+    free_all_mem();
+    #endif
 
-  exit(r);
+    exit(r);
 }
 
 #define SHELL_SPECIAL (char_u *)"\t \"&'$;<>()\\|"

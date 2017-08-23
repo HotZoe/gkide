@@ -49,11 +49,11 @@ void ga_clear_strings(garray_T *gap)
 /// @param growsize
 void ga_init(garray_T *gap, int itemsize, int growsize)
 {
-  gap->ga_data = NULL;
-  gap->ga_maxlen = 0;
-  gap->ga_len = 0;
-  gap->ga_itemsize = itemsize;
-  ga_set_growsize(gap, growsize);
+    gap->ga_data = NULL;
+    gap->ga_maxlen = 0;
+    gap->ga_len = 0;
+    gap->ga_itemsize = itemsize;
+    ga_set_growsize(gap, growsize);
 }
 
 /// A setter for the growsize that guarantees it will be at least 1.
@@ -62,12 +62,15 @@ void ga_init(garray_T *gap, int itemsize, int growsize)
 /// @param growsize
 void ga_set_growsize(garray_T *gap, int growsize)
 {
-  if (growsize < 1) {
-    WLOG("trying to set an invalid ga_growsize: %d", growsize);
-    gap->ga_growsize = 1;
-  } else {
-    gap->ga_growsize = growsize;
-  }
+    if(growsize < 1)
+    {
+        WLOG("trying to set an invalid ga_growsize: %d", growsize);
+        gap->ga_growsize = 1;
+    }
+    else
+    {
+        gap->ga_growsize = growsize;
+    }
 }
 
 /// Make room in growing array "gap" for at least "n" items.

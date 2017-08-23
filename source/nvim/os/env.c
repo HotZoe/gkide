@@ -32,19 +32,16 @@
 #endif
 
 /// Like getenv(), but returns NULL if the variable is empty.
-const char *os_getenv(const char *name)
-  FUNC_ATTR_NONNULL_ALL
+const char *os_getenv(const char *name) FUNC_ATTR_NONNULL_ALL
 {
-  const char *e = getenv(name);
-  return e == NULL || *e == NUL ? NULL : e;
+    const char *e = getenv(name);
+    return (e == NULL || *e == NUL) ? NULL : e;
 }
 
-/// Returns `true` if the environment variable, `name`, has been defined
-/// (even if empty).
-bool os_env_exists(const char *name)
-  FUNC_ATTR_NONNULL_ALL
+/// Returns `true` if the environment variable, `name`, has been defined, even if empty.
+bool os_env_exists(const char *name) FUNC_ATTR_NONNULL_ALL
 {
-  return getenv(name) != NULL;
+    return getenv(name) != NULL;
 }
 
 int os_setenv(const char *name, const char *value, int overwrite)
@@ -169,59 +166,73 @@ void os_get_hostname(char *hostname, size_t size)
 #endif
 }
 
-/// To get the "real" home directory:
-///   - get value of $HOME
+/// home directory
+static char_u *homedir = NULL;
+
+/// To get the "real" home directory: get value of $HOME
+///
 /// For Unix:
 ///   - go to that directory
-///   - do os_dirname() to get the real name of that directory.
+///   - do `os_dirname` to get the real name of that directory.
 /// This also works with mounts and links.
+///
 /// Don't do this for Windows, it will change the "current dir" for a drive.
-static char_u   *homedir = NULL;
-
 void init_homedir(void)
 {
-  // In case we are called a second time.
-  xfree(homedir);
-  homedir = NULL;
+    // In case we are called a second time.
+    xfree(homedir);
+    homedir = NULL;
 
-  const char *var = os_getenv("HOME");
+    const char *var = os_getenv("HOME");
 
-#ifdef WIN32
-  // Typically, $HOME is not defined on Windows, unless the user has
-  // specifically defined it for Vim's sake. However, on Windows NT
-  // platforms, $HOMEDRIVE and $HOMEPATH are automatically defined for
-  // each user. Try constructing $HOME from these.
-  if (var == NULL) {
-    const char *homedrive = os_getenv("HOMEDRIVE");
-    const char *homepath = os_getenv("HOMEPATH");
-    if (homepath == NULL) {
-        homepath = "\\";
-    }
-    if (homedrive != NULL && strlen(homedrive) + strlen(homepath) < MAXPATHL) {
-      snprintf(os_buf, MAXPATHL, "%s%s", homedrive, homepath);
-      if (os_buf[0] != NUL) {
-        var = os_buf;
-        vim_setenv("HOME", os_buf);
-      }
-    }
-  }
-#endif
+    #ifdef HOST_OS_WINDOWS
+    // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
+    // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
+    // defined for each user. Try constructing $HOME from these.
+    if(var == NULL)
+    {
+        const char *homedrive = os_getenv("HOMEDRIVE");
+        const char *homepath = os_getenv("HOMEPATH");
+        if(homepath == NULL)
+        {
+            homepath = "\\";
+        }
 
-  if (var != NULL) {
-#ifdef UNIX
-    // Change to the directory and get the actual path.  This resolves
-    // links.  Don't do it when we can't return.
-    if (os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0) {
-      if (!os_chdir(var) && os_dirname(IObuff, IOSIZE) == OK) {
-        var = (char *)IObuff;
-      }
-      if (os_chdir(os_buf) != 0) {
-        EMSG(_(e_prev_dir));
-      }
+        if(homedrive != NULL && strlen(homedrive) + strlen(homepath) < MAXPATHL)
+        {
+            snprintf(os_buf, MAXPATHL, "%s%s", homedrive, homepath);
+            if(os_buf[0] != NUL)
+            {
+                var = os_buf;
+                vim_setenv("HOME", os_buf);
+            }
+        }
     }
-#endif
-    homedir = vim_strsave((char_u *)var);
-  }
+    #endif
+
+    if(var != NULL)
+    {
+        #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
+        // Change to the home directory and get the actual path. This resolves links.
+        // Don't do it when we can't return.
+        if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
+        {
+            // change to home directory
+            if(!os_chdir(var) && os_dirname(IObuff, IOSIZE) == OK)
+            {
+                var = (char *)IObuff;
+            }
+
+            // go back
+            if(os_chdir(os_buf) != 0)
+            {
+                EMSG(_(e_prev_dir));
+            }
+        }
+        #endif
+
+        homedir = vim_strsave((char_u *)var);
+    }
 }
 
 #if defined(EXITFREE)

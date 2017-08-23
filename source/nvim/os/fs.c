@@ -55,25 +55,25 @@ static const int kLibuvSuccess = 0;
 static uv_loop_t fs_loop;
 
 
-// Initialize the fs module
+/// Initialize the fs module
 void fs_init(void)
 {
-  uv_loop_init(&fs_loop);
+    uv_loop_init(&fs_loop);
 }
 
 
 /// Changes the current directory to `path`.
 ///
 /// @return 0 on success, or negative error code.
-int os_chdir(const char *path)
-  FUNC_ATTR_NONNULL_ALL
+int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL
 {
-  if (p_verbose >= 5) {
-    verbose_enter();
-    smsg("chdir(%s)", path);
-    verbose_leave();
-  }
-  return uv_chdir(path);
+    if(p_verbose >= 5)
+    {
+        verbose_enter();
+        smsg("chdir(%s)", path);
+        verbose_leave();
+    }
+    return uv_chdir(path);
 }
 
 /// Get the name of current directory.
@@ -81,15 +81,15 @@ int os_chdir(const char *path)
 /// @param buf Buffer to store the directory name.
 /// @param len Length of `buf`.
 /// @return `OK` for success, `FAIL` for failure.
-int os_dirname(char_u *buf, size_t len)
-  FUNC_ATTR_NONNULL_ALL
+int os_dirname(char_u *buf, size_t len) FUNC_ATTR_NONNULL_ALL
 {
-  int error_number;
-  if ((error_number = uv_cwd((char *)buf, &len)) != kLibuvSuccess) {
-    STRLCPY(buf, uv_strerror(error_number), len);
-    return FAIL;
-  }
-  return OK;
+    int error_number;
+    if((error_number = uv_cwd((char *)buf, &len)) != kLibuvSuccess)
+    {
+        STRLCPY(buf, uv_strerror(error_number), len);
+        return FAIL;
+    }
+    return OK;
 }
 
 /// Check if the given path is a directory and not a symlink to a directory.

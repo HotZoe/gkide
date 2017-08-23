@@ -208,10 +208,9 @@ void *xmallocz(size_t size)
 /// @param data Pointer to the data that will be copied
 /// @param len number of bytes that will be copied
 void *xmemdupz(const void *data, size_t len)
-  FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
-  return memcpy(xmallocz(len), data, len);
+    return memcpy(xmallocz(len), data, len);
 }
 
 /// A version of strchr() that returns a pointer to the terminating NUL if it
@@ -423,10 +422,9 @@ size_t xstrlcat(char *const dst, const char *const src, const size_t dsize)
 /// @param str 0-terminated string that will be copied
 /// @return pointer to a copy of the string
 char *xstrdup(const char *str)
-  FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL
 {
-  return xmemdupz(str, strlen(str));
+    return xmemdupz(str, strlen(str));
 }
 
 /// strdup() wrapper

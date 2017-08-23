@@ -2886,22 +2886,21 @@ void win_init_empty(win_T *wp)
   wp->w_s = &wp->w_buffer->b_s;
 }
 
-/*
- * Allocate the first window and put an empty buffer in it.
- * Called from main().
- *
- * Return FAIL when something goes wrong.
- */
+/// Allocate the first window and put an empty buffer in it, called from main().
+///
+/// Return `FAIL` when something goes wrong, otherwise return `OK`.
 int win_alloc_first(void)
 {
-  if (win_alloc_firstwin(NULL) == FAIL)
-    return FAIL;
+    if(win_alloc_firstwin(NULL) == FAIL)
+    {
+        return FAIL;
+    }
 
-  first_tabpage = alloc_tabpage();
-  first_tabpage->tp_topframe = topframe;
-  curtab = first_tabpage;
+    first_tabpage = alloc_tabpage();
+    first_tabpage->tp_topframe = topframe;
+    curtab = first_tabpage;
 
-  return OK;
+    return OK;
 }
 
 /*

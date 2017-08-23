@@ -59,17 +59,17 @@ static bool log_path_init(void)
 
 void log_init(void)
 {
-  uv_mutex_init(&mutex);
+    uv_mutex_init(&mutex);
 }
 
 void log_lock(void)
 {
-  uv_mutex_lock(&mutex);
+    uv_mutex_lock(&mutex);
 }
 
 void log_unlock(void)
 {
-  uv_mutex_unlock(&mutex);
+    uv_mutex_unlock(&mutex);
 }
 
 bool do_log(int log_level, const char *func_name, int line_num, bool eol,

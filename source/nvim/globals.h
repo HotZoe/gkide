@@ -913,16 +913,17 @@ EXTERN int swap_exists_action INIT(= SEA_NONE);
 EXTERN int swap_exists_did_quit INIT(= FALSE);
 /* Selected "quit" at the dialog. */
 
-EXTERN char_u IObuff[IOSIZE];               ///< Buffer for sprintf, I/O, etc.
-EXTERN char_u NameBuff[MAXPATHL];           ///< Buffer for expanding file names
-EXTERN char_u msg_buf[MSG_BUF_LEN];         ///< Small buffer for messages
-EXTERN char os_buf[                         ///< Buffer for the os/ layer
 #if MAXPATHL > IOSIZE
-MAXPATHL
+#   define OS_BUF_SIZE MAXPATHL
 #else
-IOSIZE
+#   define OS_BUF_SIZE IOSIZE
 #endif
-];
+
+EXTERN char os_buf[OS_BUF_SIZE];       ///< Buffer for the os/ layer
+EXTERN char_u IObuff[IOSIZE];          ///< Buffer for sprintf, I/O, etc.
+EXTERN char_u NameBuff[MAXPATHL];      ///< Buffer for expanding file names
+EXTERN char_u msg_buf[MSG_BUF_LEN];    ///< Small buffer for messages
+
 
 /* When non-zero, postpone redrawing. */
 EXTERN int RedrawingDisabled INIT(= 0);
@@ -1007,24 +1008,21 @@ EXTERN int keep_help_flag INIT(= FALSE);      /* doing :ta from help file */
  * situations), it is set to empty_option, to avoid having to check for NULL
  * everywhere.
  */
-EXTERN char_u   *empty_option INIT(= (char_u *)"");
+EXTERN char_u *empty_option INIT(= (char_u *)"");
 
-EXTERN int redir_off INIT(= false);         // no redirection for a moment
-EXTERN FILE *redir_fd INIT(= NULL);         // message redirection file
-EXTERN int redir_reg INIT(= 0);             // message redirection register
-EXTERN int redir_vname INIT(= 0);           // message redirection variable
-EXTERN garray_T *capture_ga INIT(= NULL);   // captured output for execute()
-
-EXTERN char_u langmap_mapchar[256];     /* mapping for language keys */
-
-EXTERN int save_p_ls INIT(= -1);        /* Save 'laststatus' setting */
-EXTERN int save_p_wmh INIT(= -1);       /* Save 'winminheight' setting */
+EXTERN int redir_off INIT(= false);         ///< no redirection for a moment
+EXTERN FILE *redir_fd INIT(= NULL);         ///< message redirection file
+EXTERN int redir_reg INIT(= 0);             ///< message redirection register
+EXTERN int redir_vname INIT(= 0);           ///< message redirection variable
+EXTERN garray_T *capture_ga INIT(= NULL);   ///< captured output for execute()
+EXTERN char_u langmap_mapchar[256];         ///< mapping for language keys
+EXTERN int save_p_ls INIT(= -1);            ///< Save 'laststatus' setting
+EXTERN int save_p_wmh INIT(= -1);           ///< Save 'winminheight' setting
+EXTERN char breakat_flags[256];             ///< which characters are in 'breakat'
 EXTERN int wild_menu_showing INIT(= 0);
-# define WM_SHOWN       1               /* wildmenu showing */
-# define WM_SCROLLED    2               /* wildmenu showing with scroll */
+#define WM_SHOWN     1   ///< wildmenu showing
+#define WM_SCROLLED  2   ///< wildmenu showing with scroll
 
-
-EXTERN char breakat_flags[256];         /* which characters are in 'breakat' */
 
 /*
  * Some file names are stored in pathdef.c, which is generated from the
@@ -1185,8 +1183,7 @@ EXTERN char_u e_noroom[] INIT(= N_("E36: Not enough room"));
 EXTERN char_u e_notmp[] INIT(= N_("E483: Can't get temp file name"));
 EXTERN char_u e_notopen[] INIT(= N_("E484: Can't open file %s"));
 EXTERN char_u e_notread[] INIT(= N_("E485: Can't read file %s"));
-EXTERN char_u e_nowrtmsg[] INIT(= N_(
-        "E37: No write since last change (add ! to override)"));
+EXTERN char_u e_nowrtmsg[] INIT(= N_("E37: No write since last change (add ! to override)"));
 EXTERN char_u e_nowrtmsg_nobang[] INIT(= N_("E37: No write since last change"));
 EXTERN char_u e_null[] INIT(= N_("E38: Null argument"));
 EXTERN char_u e_number_exp[] INIT(= N_("E39: Number expected"));
@@ -1195,20 +1192,16 @@ EXTERN char_u e_outofmem[] INIT(= N_("E41: Out of memory!"));
 EXTERN char_u e_patnotf[] INIT(= N_("Pattern not found"));
 EXTERN char_u e_patnotf2[] INIT(= N_("E486: Pattern not found: %s"));
 EXTERN char_u e_positive[] INIT(= N_("E487: Argument must be positive"));
-EXTERN char_u e_prev_dir[] INIT(= N_(
-        "E459: Cannot go back to previous directory"));
-
+EXTERN char_u e_prev_dir[] INIT(= N_("E459: Cannot go back to previous directory"));
 EXTERN char_u e_quickfix[] INIT(= N_("E42: No Errors"));
 EXTERN char_u e_loclist[] INIT(= N_("E776: No location list"));
 EXTERN char_u e_re_damg[] INIT(= N_("E43: Damaged match string"));
 EXTERN char_u e_re_corr[] INIT(= N_("E44: Corrupted regexp program"));
-EXTERN char_u e_readonly[] INIT(= N_(
-    "E45: 'readonly' option is set (add ! to override)"));
+EXTERN char_u e_readonly[] INIT(= N_("E45: 'readonly' option is set (add ! to override)"));
 EXTERN char_u e_readerrf[] INIT(= N_("E47: Error while reading errorfile"));
 EXTERN char_u e_sandbox[] INIT(= N_("E48: Not allowed in sandbox"));
 EXTERN char_u e_secure[] INIT(= N_("E523: Not allowed here"));
-EXTERN char_u e_screenmode[] INIT(= N_(
-        "E359: Screen mode setting not supported"));
+EXTERN char_u e_screenmode[] INIT(= N_("E359: Screen mode setting not supported"));
 EXTERN char_u e_scroll[] INIT(= N_("E49: Invalid scroll size"));
 EXTERN char_u e_shellempty[] INIT(= N_("E91: 'shell' option is empty"));
 EXTERN char_u e_signdata[] INIT(= N_("E255: Couldn't read in sign data!"));

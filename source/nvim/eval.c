@@ -524,109 +524,128 @@ static PMap(uint64_t) *timers = NULL;
 /// - using va_start() to initialize it gives "function with fixed args" error
 static va_list dummy_ap;
 
-static const char *const msgpack_type_names[] = {
-  [kMPNil] = "nil",
-  [kMPBoolean] = "boolean",
-  [kMPInteger] = "integer",
-  [kMPFloat] = "float",
-  [kMPString] = "string",
-  [kMPBinary] = "binary",
-  [kMPArray] = "array",
-  [kMPMap] = "map",
-  [kMPExt] = "ext",
+static const char *const msgpack_type_names[] =
+{
+    [kMPNil] = "nil",
+    [kMPBoolean] = "boolean",
+    [kMPInteger] = "integer",
+    [kMPFloat] = "float",
+    [kMPString] = "string",
+    [kMPBinary] = "binary",
+    [kMPArray] = "array",
+    [kMPMap] = "map",
+    [kMPExt] = "ext",
 };
-const list_T *eval_msgpack_type_lists[] = {
-  [kMPNil] = NULL,
-  [kMPBoolean] = NULL,
-  [kMPInteger] = NULL,
-  [kMPFloat] = NULL,
-  [kMPString] = NULL,
-  [kMPBinary] = NULL,
-  [kMPArray] = NULL,
-  [kMPMap] = NULL,
-  [kMPExt] = NULL,
+const list_T *eval_msgpack_type_lists[] =
+{
+    [kMPNil] = NULL,
+    [kMPBoolean] = NULL,
+    [kMPInteger] = NULL,
+    [kMPFloat] = NULL,
+    [kMPString] = NULL,
+    [kMPBinary] = NULL,
+    [kMPArray] = NULL,
+    [kMPMap] = NULL,
+    [kMPExt] = NULL,
 };
 
-/*
- * Initialize the global and v: variables.
- */
+/// Initialize the global and v: variables.
 void eval_init(void)
 {
-  vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
+    vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
 
-  jobs = pmap_new(uint64_t)();
-  timers = pmap_new(uint64_t)();
-  struct vimvar   *p;
+    jobs = pmap_new(uint64_t)();
+    timers = pmap_new(uint64_t)();
+    struct vimvar *p;
 
-  init_var_dict(&globvardict, &globvars_var, VAR_DEF_SCOPE);
-  init_var_dict(&vimvardict, &vimvars_var, VAR_SCOPE);
-  vimvardict.dv_lock = VAR_FIXED;
-  hash_init(&compat_hashtab);
-  hash_init(&func_hashtab);
+    init_var_dict(&globvardict, &globvars_var, VAR_DEF_SCOPE);
+    init_var_dict(&vimvardict, &vimvars_var, VAR_SCOPE);
+    vimvardict.dv_lock = VAR_FIXED;
+    hash_init(&compat_hashtab);
+    hash_init(&func_hashtab);
 
-  for (size_t i = 0; i < ARRAY_SIZE(vimvars); i++) {
-    p = &vimvars[i];
-    assert(STRLEN(p->vv_name) <= 16);
-    STRCPY(p->vv_di.di_key, p->vv_name);
-    if (p->vv_flags & VV_RO)
-      p->vv_di.di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
-    else if (p->vv_flags & VV_RO_SBX)
-      p->vv_di.di_flags = DI_FLAGS_RO_SBX | DI_FLAGS_FIX;
-    else
-      p->vv_di.di_flags = DI_FLAGS_FIX;
+    for(size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
+    {
+        p = &vimvars[i];
+        assert(STRLEN(p->vv_name) <= 16);
+        STRCPY(p->vv_di.di_key, p->vv_name);
 
-    /* add to v: scope dict, unless the value is not always available */
-    if (p->vv_type != VAR_UNKNOWN)
-      hash_add(&vimvarht, p->vv_di.di_key);
-    if (p->vv_flags & VV_COMPAT)
-      /* add to compat scope dict */
-      hash_add(&compat_hashtab, p->vv_di.di_key);
-  }
-  vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
+        if(p->vv_flags & VV_RO)
+        {
+            p->vv_di.di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
+        }
+        else if(p->vv_flags & VV_RO_SBX)
+        {
+            p->vv_di.di_flags = DI_FLAGS_RO_SBX | DI_FLAGS_FIX;
+        }
+        else
+        {
+            p->vv_di.di_flags = DI_FLAGS_FIX;
+        }
 
-  dict_T *const msgpack_types_dict = tv_dict_alloc();
-  for (size_t i = 0; i < ARRAY_SIZE(msgpack_type_names); i++) {
-    list_T *const type_list = tv_list_alloc();
-    type_list->lv_lock = VAR_FIXED;
-    type_list->lv_refcount = 1;
-    dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
-    di->di_flags |= DI_FLAGS_RO|DI_FLAGS_FIX;
-    di->di_tv = (typval_T) {
-      .v_type = VAR_LIST,
-      .vval = { .v_list = type_list, },
-    };
-    eval_msgpack_type_lists[i] = type_list;
-    if (tv_dict_add(msgpack_types_dict, di) == FAIL) {
-      // There must not be duplicate items in this dictionary by definition.
-      assert(false);
+        // add to v: scope dict, unless the value is not always available
+        if(p->vv_type != VAR_UNKNOWN)
+        {
+            hash_add(&vimvarht, p->vv_di.di_key);
+        }
+
+        // add to compat scope dict
+        if(p->vv_flags & VV_COMPAT)
+        {
+            hash_add(&compat_hashtab, p->vv_di.di_key);
+        }
     }
-  }
-  msgpack_types_dict->dv_lock = VAR_FIXED;
 
-  set_vim_var_dict(VV_MSGPACK_TYPES, msgpack_types_dict);
-  set_vim_var_dict(VV_COMPLETED_ITEM, tv_dict_alloc());
+    vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
 
-  dict_T *v_event = tv_dict_alloc();
-  v_event->dv_lock = VAR_FIXED;
-  set_vim_var_dict(VV_EVENT, v_event);
-  set_vim_var_list(VV_ERRORS, tv_list_alloc());
-  set_vim_var_nr(VV_SEARCHFORWARD, 1L);
-  set_vim_var_nr(VV_HLSEARCH, 1L);
-  set_vim_var_nr(VV_COUNT1, 1);
-  set_vim_var_nr(VV_TYPE_NUMBER, VAR_TYPE_NUMBER);
-  set_vim_var_nr(VV_TYPE_STRING, VAR_TYPE_STRING);
-  set_vim_var_nr(VV_TYPE_FUNC,   VAR_TYPE_FUNC);
-  set_vim_var_nr(VV_TYPE_LIST,   VAR_TYPE_LIST);
-  set_vim_var_nr(VV_TYPE_DICT,   VAR_TYPE_DICT);
-  set_vim_var_nr(VV_TYPE_FLOAT,  VAR_TYPE_FLOAT);
-  set_vim_var_nr(VV_TYPE_BOOL,   VAR_TYPE_BOOL);
+    dict_T *const msgpack_types_dict = tv_dict_alloc();
+    for(size_t i = 0; i < ARRAY_SIZE(msgpack_type_names); i++)
+    {
+        list_T *const type_list = tv_list_alloc();
+        type_list->lv_lock = VAR_FIXED;
+        type_list->lv_refcount = 1;
+        dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
+        di->di_flags |= DI_FLAGS_RO|DI_FLAGS_FIX;
 
-  set_vim_var_special(VV_FALSE, kSpecialVarFalse);
-  set_vim_var_special(VV_TRUE, kSpecialVarTrue);
-  set_vim_var_special(VV_NULL, kSpecialVarNull);
-  set_vim_var_special(VV_EXITING, kSpecialVarNull);
+        di->di_tv = (typval_T) { .vval   = { .v_list = type_list, },
+                                 .v_type = VAR_LIST,
+                               };
 
-  set_reg_var(0);  // default for v:register is not 0 but '"'
+        eval_msgpack_type_lists[i] = type_list;
+
+        // There must not be duplicate items in this dictionary by definition.
+        if(tv_dict_add(msgpack_types_dict, di) == FAIL)
+        {
+            assert(false);
+        }
+    }
+
+    msgpack_types_dict->dv_lock = VAR_FIXED;
+
+    set_vim_var_dict(VV_MSGPACK_TYPES, msgpack_types_dict);
+    set_vim_var_dict(VV_COMPLETED_ITEM, tv_dict_alloc());
+
+    dict_T *v_event = tv_dict_alloc();
+    v_event->dv_lock = VAR_FIXED;
+    set_vim_var_dict(VV_EVENT, v_event);
+    set_vim_var_list(VV_ERRORS, tv_list_alloc());
+    set_vim_var_nr(VV_SEARCHFORWARD, 1L);
+    set_vim_var_nr(VV_HLSEARCH, 1L);
+    set_vim_var_nr(VV_COUNT1, 1);
+    set_vim_var_nr(VV_TYPE_NUMBER, VAR_TYPE_NUMBER);
+    set_vim_var_nr(VV_TYPE_STRING, VAR_TYPE_STRING);
+    set_vim_var_nr(VV_TYPE_FUNC,   VAR_TYPE_FUNC);
+    set_vim_var_nr(VV_TYPE_LIST,   VAR_TYPE_LIST);
+    set_vim_var_nr(VV_TYPE_DICT,   VAR_TYPE_DICT);
+    set_vim_var_nr(VV_TYPE_FLOAT,  VAR_TYPE_FLOAT);
+    set_vim_var_nr(VV_TYPE_BOOL,   VAR_TYPE_BOOL);
+
+    set_vim_var_special(VV_FALSE, kSpecialVarFalse);
+    set_vim_var_special(VV_TRUE, kSpecialVarTrue);
+    set_vim_var_special(VV_NULL, kSpecialVarNull);
+    set_vim_var_special(VV_EXITING, kSpecialVarNull);
+
+    set_reg_var(0);  // default for v:register is not 0 but '"'
 }
 
 #if defined(EXITFREE)

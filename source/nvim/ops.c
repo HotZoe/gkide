@@ -2265,14 +2265,6 @@ int op_change(oparg_T *oap)
   return retval;
 }
 
-/*
- * set all the yank registers to empty (called from main())
- */
-void init_yank(void)
-{
-  memset(&(y_regs[0]), 0, sizeof(y_regs));
-}
-
 #if defined(EXITFREE)
 void clear_registers(void)
 {
@@ -2285,6 +2277,12 @@ void clear_registers(void)
 
 #endif
 
+
+/// set all the yank registers to empty
+void init_yank(void)
+{
+    memset(&(y_regs[0]), 0, sizeof(y_regs));
+}
 
  /// Free contents of yankreg `reg`.
  /// Called for normal freeing and in case of error.

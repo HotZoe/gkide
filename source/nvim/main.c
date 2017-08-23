@@ -1,5 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file
 
 #define EXTERN
 #include <assert.h>
@@ -25,9 +24,11 @@
 #include "nvim/hashtab.h"
 #include "nvim/iconv.h"
 #include "nvim/if_cscope.h"
+
 #ifdef HAVE_HDR_LOCALE_H
-# include <locale.h>
+#   include <locale.h>
 #endif
+
 #include "nvim/mark.h"
 #include "nvim/mbyte.h"
 #include "nvim/memline.h"
@@ -68,58 +69,55 @@
 #include "nvim/api/private/handle.h"
 #include "nvim/api/private/dispatch.h"
 
-/* Maximum number of commands from + or -c arguments. */
-#define MAX_ARG_CMDS 10
+#define WIN_HOR      1   ///< *-o* horizontally split windows for `window_layout`
+#define WIN_VER      2   ///< *-O* vertically split windows for `window_layout`
+#define WIN_TABS     3   ///< *-p* windows on tab pages for `window_layout`
 
-/* values for "window_layout" */
-#define WIN_HOR     1       /* "-o" horizontally split windows */
-#define WIN_VER     2       /* "-O" vertically split windows */
-#define WIN_TABS    3       /* "-p" windows on tab pages */
+#define MAX_ARG_CMDS 10  ///< Maximum number of commands from + or -c arguments
 
-/* Struct for various parameters passed between main() and other functions. */
-typedef struct {
-  int argc;
-  char        **argv;
+/// Struct for various parameters passed between main() and other functions.
+typedef struct
+{
+    int argc;
+    char **argv;
 
-  char *use_vimrc;                           // vimrc from -u argument
+    char *use_vimrc;                  ///< vimrc from -u argument
+    int n_commands;                   ///< number of commands from + or -c
+    char *commands[MAX_ARG_CMDS];     ///< commands from + or -c arg
+    char_u cmds_tofree[MAX_ARG_CMDS]; ///< commands that need free()
+    int n_pre_commands;               ///< number of commands from --cmd
+    char *pre_commands[MAX_ARG_CMDS]; ///< commands from --cmd argument
 
-  int n_commands;                            /* no. of commands from + or -c */
-  char *commands[MAX_ARG_CMDS];              // commands from + or -c arg
-  char_u cmds_tofree[MAX_ARG_CMDS];          /* commands that need free() */
-  int n_pre_commands;                        /* no. of commands from --cmd */
-  char *pre_commands[MAX_ARG_CMDS];          // commands from --cmd argument
+    int edit_type;              ///< type of editing to do
+    char_u *tagname;            ///< tag from -t argument
+    char_u *use_ef;             ///< 'errorfile' from -q argument
 
-  int edit_type;                        /* type of editing to do */
-  char_u      *tagname;                 /* tag from -t argument */
-  char_u      *use_ef;                  /* 'errorfile' from -q argument */
+    int want_full_screen;       ///< full screen on startup
+    bool input_isatty;          ///< stdin is a terminal
+    bool output_isatty;         ///< stdout is a terminal
+    bool err_isatty;            ///< stderr is a terminal
+    bool headless;              ///< Dont try to start an user interface
+                                ///< or read/write to stdio(unless embedding)
+    int no_swap_file;           ///< *-n* argument used
+    int use_debug_break_level;
+    int window_count;           ///< number of windows to use
+    int window_layout;          ///< 0, WIN_HOR, WIN_VER or WIN_TABS
 
-  int want_full_screen;
-  bool input_isatty;                    // stdin is a terminal
-  bool output_isatty;                   // stdout is a terminal
-  bool err_isatty;                      // stderr is a terminal
-  bool headless;                        // Dont try to start an user interface
-                                        // or read/write to stdio(unless
-                                        // embedding)
-  int no_swap_file;                     /* "-n" argument used */
-  int use_debug_break_level;
-  int window_count;                     /* number of windows to use */
-  int window_layout;                    /* 0, WIN_HOR, WIN_VER or WIN_TABS */
-
-#if !defined(UNIX)
-  int literal;                          /* don't expand file names */
-#endif
-  int diff_mode;                        /* start with 'diff' set */
+    #if !defined(UNIX)
+    int literal;               ///< don't expand file names
+    #endif
+    int diff_mode;             ///< start with **diff** set
 } mparm_T;
 
-/* Values for edit_type. */
-#define EDIT_NONE   0       /* no edit type yet */
-#define EDIT_FILE   1       /* file name argument[s] given, use argument list */
-#define EDIT_STDIN  2       /* read file from stdin */
-#define EDIT_TAG    3       /* tag name argument given, use tagname */
-#define EDIT_QF     4       /* start in quickfix mode */
+// Values for edit_type
+#define EDIT_NONE   0   ///< no edit type yet
+#define EDIT_FILE   1   ///< file name argument[s] given, use argument list
+#define EDIT_STDIN  2   ///< read file from stdin
+#define EDIT_TAG    3   ///< tag name argument given, use tagname
+#define EDIT_QF     4   ///< start in quickfix mode
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "main.c.generated.h"
+#   include "main.c.generated.h"
 #endif
 
 Loop main_loop;
@@ -131,9 +129,7 @@ static const char *err_arg_missing = N_("Argument missing after");
 static const char *err_opt_garbage = N_("Garbage after option argument");
 static const char *err_opt_unknown = N_("Unknown option argument");
 static const char *err_too_many_args = N_("Too many edit arguments");
-static const char *err_extra_cmd =
-  N_("Too many \"+command\", \"-c command\" or \"--cmd command\" arguments");
-
+static const char *err_extra_cmd = N_("Too many \"+command\", \"-c command\" or \"--cmd command\" arguments");
 
 void event_init(void)
 {
@@ -174,67 +170,63 @@ void event_teardown(void)
 /// Performs early initialization.
 ///
 /// Needed for unit tests. Must be called after `time_init()`.
-void early_init(void)
+static void early_init(void)
 {
-  log_init();
-  fs_init();
-  handle_init();
-  eval_init();          // init global variables
-  init_path(argv0 ? argv0 : "nvim");
-  init_normal_cmds();   // Init the table of Normal mode commands.
+    log_init();
+    fs_init();
+    handle_init();
+    eval_init(); // init global variables
+    init_path(argv0 ? argv0 : "nvim");
+    init_normal_cmds(); // Init the table of Normal mode commands.
 
-#if defined(HAVE_HDR_LOCALE_H)
-  // Setup to use the current locale (for ctype() and many other things).
-  // NOTE: Translated messages with encodings other than latin1 will not
-  // work until set_init_1() has been called!
-  init_locale();
-#endif
+    #if defined(HAVE_HDR_LOCALE_H)
+    // Setup to use the current locale (for ctype() and many other things).
+    // NOTE: Translated messages with encodings other than latin1 will not
+    // work until set_init_1() has been called!
+    init_locale();
+    #endif
 
-  // Allocate the first window and buffer.
-  // Can't do anything without it, exit when it fails.
-  if (!win_alloc_first()) {
-    mch_exit(0);
-  }
+    // Allocate the first window and buffer.
+    // Can't do anything without it, exit when it fails.
+    if(!win_alloc_first())
+    {
+        mch_exit(0);
+    }
 
-  init_yank();                  // init yank buffers
+    init_yank(); // init yank buffers
 
-  alist_init(&global_alist);    // Init the argument list to empty.
-  global_alist.id = 0;
+    alist_init(&global_alist); // Init the argument list to empty.
+    global_alist.id = 0;
 
-  // Set the default values for the options.
-  // NOTE: Non-latin1 translated messages are working only after this,
-  // because this is where "has_mbyte" will be set, which is used by
-  // msg_outtrans_len_attr().
-  // First find out the home directory, needed to expand "~" in options.
-  init_homedir();               // find real value of $HOME
-  set_init_1();
-  TIME_MSG("inits 1");
+    // Find out the home directory, needed to expand "~" in options.
+    init_homedir(); // find real value of $HOME
 
-  set_lang_var();               // set v:lang and v:ctype
+    // Set the default values for the options.
+    // NOTE: Non-latin1 translated messages are working only after this,
+    // because this is where "has_mbyte" will be set, which is used by
+    // msg_outtrans_len_attr().
+    set_init_1();
+
+    TIME_MSG("init mbyte");
+
+    set_lang_var(); // set v:lang and v:ctype
 }
 
-#ifdef MAKE_LIB
-int nvim_main(int argc, char **argv)
-#else
 int main(int argc, char **argv)
-#endif
 {
-  argv0 = argv[0];
+    argv0 = argv[0];
 
-  char_u *fname = NULL;   // file name from command line
-  mparm_T params;         // various parameters passed between
-                          // main() and other functions.
-  char_u *cwd = NULL;     // current workding dir on startup
-  time_init();
+    mparm_T params;       // various parameters passed between main() and other functions.
+    char_u *cwd = NULL;   // current workding dir on startup
+    char_u *fname = NULL; // file name from command line
 
-  /* Many variables are in "params" so that we can pass them to invoked
-   * functions without a lot of arguments.  "argc" and "argv" are also
-   * copied, so that they can be changed. */
-  init_params(&params, argc, argv);
+    time_init();
 
-  init_startuptime(&params);
+    init_params(&params, argc, argv);
 
-  early_init();
+    init_startuptime(&params);
+
+    early_init();
 
   // Check if we have an interactive window.
   check_and_set_isatty(&params);
@@ -668,43 +660,38 @@ static int get_number_arg(const char *p, int *idx, int def)
 }
 
 #if defined(HAVE_HDR_LOCALE_H)
-/*
- * Setup to use the current locale (for ctype() and many other things).
- */
+/// Setup to use the current locale (for ctype() and many other things).
 static void init_locale(void)
 {
-  setlocale(LC_ALL, "");
+    setlocale(LC_ALL, "");
 
-# ifdef LC_NUMERIC
-  /* Make sure strtod() uses a decimal point, not a comma. */
-  setlocale(LC_NUMERIC, "C");
-# endif
+    #ifdef LC_NUMERIC
+    // Make sure strtod() uses a decimal point, not a comma.
+    setlocale(LC_NUMERIC, "C");
+    #endif
 
-# ifdef LOCALE_INSTALL_DIR    // gnu/linux standard: $prefix/share/locale
-  bindtextdomain(PROJECT_NAME, LOCALE_INSTALL_DIR);
-# else                        // old vim style: $runtime/lang
-  {
-    char_u  *p;
-
+    #ifdef LOCALE_INSTALL_DIR    // gnu/linux standard: $prefix/share/locale
+    bindtextdomain(PROJECT_NAME, LOCALE_INSTALL_DIR);
+    #else                        // old vim style: $runtime/lang
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
-    p = (char_u *)vim_getenv("VIMRUNTIME");
-    if (p != NULL && *p != NUL) {
-      vim_snprintf((char *)NameBuff, MAXPATHL, "%s/lang", p);
-      bindtextdomain(PROJECT_NAME, (char *)NameBuff);
+    char_u *p = (char_u *)vim_getenv("VIMRUNTIME");
+    if (p != NULL && *p != NUL)
+    {
+        vim_snprintf((char *)NameBuff, MAXPATHL, "%s/lang", p);
+        bindtextdomain(PROJECT_NAME, (char *)NameBuff);
     }
     xfree(p);
-  }
-# endif
-  textdomain(PROJECT_NAME);
-  TIME_MSG("locale set");
+    #endif
+
+    textdomain(PROJECT_NAME);
+
+    TIME_MSG("init locale");
 }
 #endif
 
 
-/*
- * Scan the command line arguments.
- */
+/// Scan the command line arguments.
 static void command_line_scan(mparm_T *parmp)
 {
   int argc = parmp->argc;
@@ -1174,35 +1161,33 @@ scripterror:
   TIME_MSG("parsing arguments");
 }
 
-/*
- * Many variables are in "params" so that we can pass them to invoked
- * functions without a lot of arguments.  "argc" and "argv" are also
- * copied, so that they can be changed. */
+/// Many variables are in "paramp" so that we can pass them to invoked functions without a
+/// lot of arguments. "argc" and "argv" are also copied, so that they can be changed.
 static void init_params(mparm_T *paramp, int argc, char **argv)
 {
-  memset(paramp, 0, sizeof(*paramp));
-  paramp->argc = argc;
-  paramp->argv = argv;
-  paramp->headless = false;
-  paramp->want_full_screen = true;
-  paramp->use_debug_break_level = -1;
-  paramp->window_count = -1;
+    memset(paramp, 0, sizeof(*paramp));
+    paramp->argc = argc;
+    paramp->argv = argv;
+    paramp->headless = false;
+    paramp->want_full_screen = true;
+    paramp->use_debug_break_level = -1;
+    paramp->window_count = -1;
 }
 
-/*
- * Initialize global startuptime file if "--startuptime" passed as an argument.
- */
+/// Initialize global startuptime file if **--startuptime** passed as an argument.
 static void init_startuptime(mparm_T *paramp)
 {
-  for (int i = 1; i < paramp->argc; i++) {
-    if (STRICMP(paramp->argv[i], "--startuptime") == 0 && i + 1 < paramp->argc) {
-      time_fd = mch_fopen(paramp->argv[i + 1], "a");
-      time_start("--- NVIM STARTING ---");
-      break;
+    for(int i = 1; i < paramp->argc; i++)
+    {
+        if(STRICMP(paramp->argv[i], "--startuptime") == 0 && i + 1 < paramp->argc)
+        {
+            time_fd = mch_fopen(paramp->argv[i + 1], "a");
+            time_start("--- NVIM STARTING ---");
+            break;
+        }
     }
-  }
 
-  starttime = time(NULL);
+    starttime = time(NULL);
 }
 
 static void check_and_set_isatty(mparm_T *paramp)

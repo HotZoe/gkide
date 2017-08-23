@@ -642,19 +642,24 @@ EXTERN unsigned vop_flags;      ///< uses SSOP_ flags
 EXTERN int p_vb;                ///< 'visualbell'
 EXTERN char_u *p_ve;            ///< 'virtualedit'
 EXTERN unsigned ve_flags;
+
 # ifdef IN_OPTION_C
 static char *(p_ve_values[]) = {"block", "insert", "all", "onemore", NULL};
 # endif
+
 # define VE_BLOCK       5       /* includes "all" */
 # define VE_INSERT      6       /* includes "all" */
 # define VE_ALL         4
 # define VE_ONEMORE     8
+
 EXTERN long p_verbose;          /* 'verbose' */
+
 #ifdef IN_OPTION_C
 char_u  *p_vfile = (char_u *)""; /* used before options are initialized */
 #else
 extern char_u   *p_vfile;       /* 'verbosefile' */
 #endif
+
 EXTERN int p_warn;              // 'warn'
 EXTERN char_u   *p_wop;         // 'wildoptions'
 EXTERN long p_window;           // 'window'

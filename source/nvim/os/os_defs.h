@@ -17,9 +17,9 @@
 
 // Use the system path length if it makes sense.
 #if defined(PATH_MAX) && (PATH_MAX > 1024)
-# define MAXPATHL PATH_MAX
+#   define MAXPATHL PATH_MAX
 #else
-# define MAXPATHL 1024
+#   define MAXPATHL 1024
 #endif
 
 // Command-processing buffer. Use large buffers for all platforms.

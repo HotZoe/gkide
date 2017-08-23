@@ -6377,12 +6377,12 @@ void alist_clear(alist_T *al)
   GA_DEEP_CLEAR(&al->al_ga, aentry_T, FREE_AENTRY_FNAME);
 }
 
-/*
- * Init an argument list.
- */
+/// Init an argument list.
+///
+/// @param al
 void alist_init(alist_T *al)
 {
-  ga_init(&al->al_ga, (int)sizeof(aentry_T), 5);
+    ga_init(&al->al_ga, (int)sizeof(aentry_T), 5);
 }
 
 

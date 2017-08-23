@@ -540,11 +540,9 @@ static void set_runtimepath_default(void)
 
 #undef NVIM_SIZE
 
-/*
- * Initialize the options, first part.
- *
- * Called only once from main(), just after creating the first buffer.
- */
+/// Initialize the options, first part.
+///
+/// Called only once from main(), just after creating the first buffer.
 void set_init_1(void)
 {
   int opt_idx;
@@ -6206,9 +6204,10 @@ static int wc_use_keyname(char_u *varp, long *wcp)
 /*
  * With multi-byte support use growarray for 'langmap' chars >= 256
  */
-typedef struct {
-  int from;
-  int to;
+typedef struct
+{
+    int from;
+    int to;
 } langmap_entry_T;
 
 static garray_T langmap_mapga = GA_EMPTY_INIT_VALUE;
@@ -6275,9 +6274,12 @@ int langmap_adjust_mb(int c)
 
 static void langmap_init(void)
 {
-  for (int i = 0; i < 256; i++)
-    langmap_mapchar[i] = (char_u)i;      /* we init with a one-to-one map */
-  ga_init(&langmap_mapga, sizeof(langmap_entry_T), 8);
+    for(int i = 0; i < 256; i++)
+    {
+        langmap_mapchar[i] = (char_u)i; // init with a one-to-one map
+    }
+
+    ga_init(&langmap_mapga, sizeof(langmap_entry_T), 8); // init size 8 enough
 }
 
 /*

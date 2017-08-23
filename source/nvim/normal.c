@@ -358,53 +358,56 @@ static short nv_cmd_idx[NV_CMDS_SIZE];
  * nv_cmds[idx].cmd_char == nv_cmd_idx[nv_cmds[idx].cmd_char] */
 static int nv_max_linear;
 
-/*
- * Compare functions for qsort() below, that checks the command character
- * through the index in nv_cmd_idx[].
- */
+/// Compare functions for qsort() below, that checks the command character through the
+/// index in `nv_cmd_idx`
 static int nv_compare(const void *s1, const void *s2)
 {
-  int c1, c2;
+    // The commands are sorted on absolute value.
+    int c1 = nv_cmds[*(const short *)s1].cmd_char;
+    int c2 = nv_cmds[*(const short *)s2].cmd_char;
 
-  /* The commands are sorted on absolute value. */
-  c1 = nv_cmds[*(const short *)s1].cmd_char;
-  c2 = nv_cmds[*(const short *)s2].cmd_char;
-  if (c1 < 0)
-    c1 = -c1;
-  if (c2 < 0)
-    c2 = -c2;
-  return c1 - c2;
+    if(c1 < 0)
+    {
+        c1 = -c1;
+    }
+
+    if(c2 < 0)
+    {
+        c2 = -c2;
+    }
+
+    return c1 - c2;
 }
 
-/*
- * Initialize the nv_cmd_idx[] table.
- */
+/// Initialize the `nv_cmd_idx` table.
 void init_normal_cmds(void)
 {
-  assert(NV_CMDS_SIZE <= SHRT_MAX);
+    assert(NV_CMDS_SIZE <= SHRT_MAX);
 
-  /* Fill the index table with a one to one relation. */
-  for (short int i = 0; i < (short int)NV_CMDS_SIZE; ++i) {
-    nv_cmd_idx[i] = i;
-  }
-
-  /* Sort the commands by the command character.  */
-  qsort(&nv_cmd_idx, NV_CMDS_SIZE, sizeof(short), nv_compare);
-
-  /* Find the first entry that can't be indexed by the command character. */
-  short int i;
-  for (i = 0; i < (short int)NV_CMDS_SIZE; ++i) {
-    if (i != nv_cmds[nv_cmd_idx[i]].cmd_char) {
-      break;
+    // Fill the index table with a one to one relation.
+    for(short int i = 0; i < (short int)NV_CMDS_SIZE; ++i)
+    {
+        nv_cmd_idx[i] = i;
     }
-  }
-  nv_max_linear = i - 1;
+
+    // Sort the commands by the command character.
+    qsort(&nv_cmd_idx, NV_CMDS_SIZE, sizeof(short), nv_compare);
+
+    // Find the first entry that can't be indexed by the command character.
+    short int i;
+    for(i = 0; i < (short int)NV_CMDS_SIZE; ++i)
+    {
+        if(i != nv_cmds[nv_cmd_idx[i]].cmd_char)
+        {
+            break;
+        }
+    }
+    nv_max_linear = i - 1;
 }
 
-/*
- * Search for a command in the commands table.
- * Returns -1 for invalid command.
- */
+/// Search for a command in the commands table.
+///
+/// Returns -1 for invalid command.
 static int find_command(int cmdchar)
 {
   int i;
