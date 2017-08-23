@@ -49,9 +49,8 @@ set(NVIM_API_PRERELEASE   true)
 
 # gkide basic version
 set(GKIDE_VERSION_BASIC "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
-math(EXPR SNAIL_VERSION_INT32
+math(EXPR GKIDE_VERSION_INT32
           "(${GKIDE_VERSION_MAJOR}<<16) + (${GKIDE_VERSION_MINOR}<<8) + ${GKIDE_VERSION_PATCH}")
-
 
 # snail basic version
 set(SNAIL_VERSION_BASIC "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")
@@ -83,7 +82,7 @@ if(PACKAGE_RELEASE_TYPE)
         set(warning_msg "PACKAGE_RELEASE_TYPE = ${PACKAGE_RELEASE_TYPE}, it must one of followings:")
         set(warning_msg "${warning_msg}\ndev, alpha, beta, rc, release, stable")
         set(warning_msg "${warning_msg}\nset to default: beta")
-        message(WARNING "${err_msg}")
+        message(WARNING "${warning_msg}")
     endif()
 endif()
 
@@ -120,14 +119,14 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
 
     if(${GIT_COMMIT_TAG} MATCHES "NOTAGNAME")
         # no release tag set for current commit
-        set(git_commit_tag  "Not Set")
+        set(GIT_COMMIT_TAG  "Not Set")
         set(PACKAGE_RELEASE_READY  false)
         if(NOT release_check_msg)
-            set(release_check_msg "Release tag should be: ${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(release_check_msg "Release tag should be: v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
         endif()
-    elseif(NOT ${GIT_COMMIT_TAG} MATCHES "^snail-v[0-9]*\.[0-9]*\.[0-9]*-nvim-v[0-9]*\.[0-9]*\.[0-9]*-[a-z]*$")
+    elseif(NOT ${GIT_COMMIT_TAG} MATCHES "^v[0-9]+\.[0-9]+\.[0-9]+[-]*[a-z]*$")
         # if the current commit is ready to release, must set a tag
-        # tag format like:  snail-v0.0.0-nvim-v0.2.1-dev
+        # tag format like:  v1.0.0-dev
         set(PACKAGE_RELEASE_READY  false)
         if(NOT release_check_msg)
             set(release_check_msg "Release tag should be: ${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
@@ -147,7 +146,7 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
 
     string(SUBSTRING "${GIT_COMMIT_HASH_FULL}" 0 7 GIT_COMMIT_HASH_SHORT)
 
-    message(STATUS "Git commit tag    : ${git_commit_tag}")
+    message(STATUS "Git commit tag    : ${GIT_COMMIT_TAG}")
     message(STATUS "Git commit hash   : ${GIT_COMMIT_HASH_SHORT}")
     message(STATUS "Git commit time   : ${GIT_COMMIT_TIMESTAMP}")
     message(STATUS "Git commit branch : ${GIT_BRANCH_NAME}")
