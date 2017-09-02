@@ -1,0 +1,29 @@
+# This file is astyle 'Options File' for C
+#
+# Artistic Style for details see:
+# http://astyle.sourceforge.net
+# 
+# convert the source file in current directory and below, by run:
+# $ astyle --options=options-c --recursive '*.c' '*.h'
+#
+# Note: astyle version should be more then 3.0.1
+
+--mode=c
+--style=allman
+--indent=spaces=4
+--attach-closing-while
+--indent-switches
+--indent-preproc-block
+--indent-preproc-define
+--min-conditional-indent=2
+--max-continuation-indent=100
+--break-blocks
+--delete-empty-lines
+--align-pointer=name
+--add-braces
+--max-code-length=100
+--lineend=linux
+
+# if you can easily restore the original file, just comment the following line
+# to auto backup the original file with '.ogir' suffix
+--suffix=none

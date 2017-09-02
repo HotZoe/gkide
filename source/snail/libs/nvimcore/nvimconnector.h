@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
 #define SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
 
@@ -8,107 +10,107 @@
 #include "snail/libs/nvimcore/function.h"
 #include "snail/libs/nvimcore/auto/nvim.h"
 
-namespace SnailNvimQt
-{
+namespace SnailNvimQt {
 
 class MsgpackIODevice;
 class NvimConnectorHelper;
 
 class NvimConnector: public QObject
 {
-	friend class Neovim;
-	friend class NvimConnectorHelper;
-	Q_OBJECT
-	/**
-	 * True if the Neovim instance is ready
-	 * @see neovimObject
-	 */
-	Q_PROPERTY(bool ready READ isReady NOTIFY ready)
-	Q_ENUMS(NeovimError)
+    friend class Neovim;
+    friend class NvimConnectorHelper;
+    Q_OBJECT
+
+    /// True if the Neovim instance is ready
+    /// @see neovimObject
+    Q_PROPERTY(bool ready READ isReady NOTIFY ready)
+    Q_ENUMS(NeovimError)
 public:
-	enum NeovimError {
-		NoError=0,
-		NoMetadata,
-		MetadataDescriptorError,
-		UnexpectedMsg,
-		APIMisMatch,
-		NoSuchMethod,
-		FailedToStart,
-		Crashed,
-		SocketError,
-		MsgpackError,
-		RuntimeMsgpackError,
-	};
+    enum NeovimError
+    {
+        NoError=0,
+        NoMetadata,
+        MetadataDescriptorError,
+        UnexpectedMsg,
+        APIMisMatch,
+        NoSuchMethod,
+        FailedToStart,
+        Crashed,
+        SocketError,
+        MsgpackError,
+        RuntimeMsgpackError,
+    };
 
-	/** Underlying connection used to read Neovim */
-        enum NeovimConnectionType {
-		OtherConnection,
-		SpawnedConnection,
-		HostConnection,
-		SocketConnection,
-        };
+    /// Underlying connection used to read Neovim
+    enum NeovimConnectionType
+    {
+        OtherConnection,
+        SpawnedConnection,
+        HostConnection,
+        SocketConnection,
+    };
 
-	NvimConnector(QIODevice* s);
-	NvimConnector(MsgpackIODevice* s);
-	static NvimConnector* spawn(const QStringList& params=QStringList(),
-									const QString& exe="nvim");
-	static NvimConnector* connectToSocket(const QString&);
-	static NvimConnector* connectToHost(const QString& host, int port);
-	static NvimConnector* connectToNeovim(const QString& server=QString());
-	static NvimConnector* fromStdinOut();
+    NvimConnector(QIODevice *s);
+    NvimConnector(MsgpackIODevice *s);
+    static NvimConnector *spawn(const QStringList &params=QStringList(), const QString &exe="nvim");
+    static NvimConnector *connectToSocket(const QString &);
+    static NvimConnector *connectToHost(const QString &host, int port);
+    static NvimConnector *connectToNeovim(const QString &server=QString());
+    static NvimConnector *fromStdinOut();
 
-	bool canReconnect();
-	NvimConnector* reconnect();
+    bool canReconnect();
+    NvimConnector *reconnect();
 
-	NeovimError errorCause();
-	QString errorString();
+    NeovimError errorCause();
+    QString errorString();
 
-	// FIXME: remove this
-	MsgpackRequest* attachUi(int64_t width, int64_t height);
-	void detachUi();
+    // FIXME: remove this
+    MsgpackRequest *attachUi(int64_t width, int64_t height);
+    void detachUi();
 
-	bool isReady();
-	Neovim* neovimObject();
-	uint64_t channel();
-	QString decode(const QByteArray&);
-	QByteArray encode(const QString&);
-	NeovimConnectionType connectionType();
+    bool isReady();
+    Neovim *neovimObject();
+    uint64_t channel();
+    QString decode(const QByteArray &);
+    QByteArray encode(const QString &);
+    NeovimConnectionType connectionType();
 
 signals:
-	/** Emitted when Neovim is ready @see ready */
-	void ready();
-	void error(NeovimError);
-	void processExited(int exitCode);
+    /// Emitted when Neovim is ready
+    /// @see ready
+    void ready();
+    void error(NeovimError);
+    void processExited(int exitCode);
 
 public slots:
-	void fatalTimeout();
+    void fatalTimeout();
 
 protected:
-	void setError(NeovimError err, const QString& msg);
-	void clearError();
+    void setError(NeovimError err, const QString &msg);
+    void clearError();
 
 protected slots:
-	void discoverMetadata();
-	void processError(QProcess::ProcessError);
-	void socketError();
-	void msgpackError();
+    void discoverMetadata();
+    void processError(QProcess::ProcessError);
+    void socketError();
+    void msgpackError();
 
 private:
-	MsgpackIODevice *m_dev;
-	NvimConnectorHelper *m_helper;
-	QString m_errorString;
-	NeovimError m_error;
+    MsgpackIODevice *m_dev;
+    NvimConnectorHelper *m_helper;
+    QString m_errorString;
+    NeovimError m_error;
 
-	Neovim *m_neovimobj;
-	quint64 m_channel;
+    Neovim *m_neovimobj;
+    quint64 m_channel;
 
-	// Store connection arguments for reconnect()
-	NeovimConnectionType m_ctype;
-	QStringList m_spawnArgs;
-	QString m_spawnExe;
-	QString m_connSocket, m_connHost;
-	int m_connPort;
-	bool m_ready;
+    // Store connection arguments for reconnect()
+    NeovimConnectionType m_ctype;
+    QStringList m_spawnArgs;
+    QString m_spawnExe;
+    QString m_connSocket, m_connHost;
+    int m_connPort;
+    bool m_ready;
 };
 
 } // [Namespace] SnailNvimQt

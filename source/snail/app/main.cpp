@@ -1,3 +1,5 @@
+/// @file
+
 #include <QFile>
 #include <QtGlobal>
 #include <QProcess>
@@ -6,27 +8,23 @@
 #include "snail/libs/nvimcore/app.h"
 #include "snail/libs/nvimcore/nvimconnector.h"
 
-// GUI Main
+/// GUI Interface
 int gui_main(int argc, char **argv)
 {
     SnailNvimQt::App app(argc, argv);
-
     QCommandLineParser parser;
     SnailNvimQt::App::processCliOptions(parser, app.arguments());
-
     auto c = app.createConnector(parser);
     app.showUi(c, parser);
     return app.exec();
 }
 
-// Command Line Interface Main
+// Command Line Interface
 int cli_main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-
     QCommandLineParser parser;
     SnailNvimQt::App::processCliOptions(parser, app.arguments());
-
     QStringList new_args = app.arguments().mid(1);
     new_args.insert(0, "--nofork");
 
@@ -47,6 +45,7 @@ int main(int argc, char **argv)
     // Do an early check for --nofork before creating a QApplication,
     // thus we have chance to parse the command line arguments by QCommandLineParser
     bool nofork = false;
+
     for(int i=1; i<argc; i++)
     {
         if(QString::compare("--", argv[i]) == 0)
@@ -72,6 +71,7 @@ int main(int argc, char **argv)
     {
         return cli_main(argc, argv);
     }
+
 #else
     return gui_main(argc, argv);
 #endif

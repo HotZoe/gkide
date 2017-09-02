@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef SNAIL_APP_ATTRIBUTES_H
 #define SNAIL_APP_ATTRIBUTES_H
 
@@ -15,7 +17,6 @@
     #define FUNC_ATTR_NONNULL_RET        __attribute__((returns_nonnull))
     #define FUNC_ATTR_WARN_UNUSED_RESULT __attribute__((warn_unused_result))
     #define FUNC_ATTR_NONNULL_ARGS(...)  __attribute__((nonnull(__VA_ARGS__)))
-
     #define VARS_ATTR_UNUSED             __attribute__((unused))
 #else
     #define FUNC_ATTR_PURE
@@ -33,4 +34,4 @@
     #define VARS_ATTR_UNUSED
 #endif // __GNUG__
 
-#endif  // SNAIL_APP_ATTRIBUTES_H
+#endif // SNAIL_APP_ATTRIBUTES_H

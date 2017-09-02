@@ -6,111 +6,161 @@
 #include "snail/libs/nvimcore/msgpackrequest.h"
 #include "snail/libs/nvimcore/msgpackiodevice.h"
 
-namespace SnailNvimQt
-{
+namespace SnailNvimQt {
 
 // Unpack Neovim EXT types: Window, Buffer Tabpage, which are all uint64_t
 // see Neovim:msgpack_rpc_to_
-QVariant unpackBuffer(MsgpackIODevice *dev, const char* in, quint32 size)
+QVariant unpackBuffer(MsgpackIODevice *dev, const char *in, quint32 size)
 {
-	msgpack_unpacked result;
-	msgpack_unpacked_init(&result);
-	msgpack_unpack_return ret = msgpack_unpack_next(&result, in, size, NULL);
-	msgpack_unpacked_destroy(&result);
+    msgpack_unpacked result;
+    msgpack_unpacked_init(&result);
+    msgpack_unpack_return ret = msgpack_unpack_next(&result, in, size, NULL);
+    msgpack_unpacked_destroy(&result);
 
-	if(ret != MSGPACK_UNPACK_SUCCESS)
-	{
-		return QVariant();
-	}
-	return QVariant((quint64)result.data.via.u64);
+    if(ret != MSGPACK_UNPACK_SUCCESS)
+    {
+        return QVariant();
+    }
+
+    return QVariant((quint64)result.data.via.u64);
 }
 #define unpackWindow unpackBuffer
 #define unpackTabpage unpackBuffer
 
 Neovim::Neovim(NvimConnector *c) :m_c(c)
 {
-	// EXT types
-	{% for typename in exttypes %}
-	m_c->m_dev->registerExtType({{exttypes[typename]}}, unpack{{typename}});
-	{% endfor %}
-	connect(m_c->m_dev, &MsgpackIODevice::notification,
-			this, &Neovim::neovimNotification);
+    // EXT types
+    {
+
+        % for typename in exttypes %
+    }
+m_c->m_dev->registerExtType({{exttypes[typename]}}, unpack{{typename}});
+    {
+        % endfor %
+    }
+    connect(m_c->m_dev, &MsgpackIODevice::notification,
+            this, &Neovim::neovimNotification);
 }
 
 // Slots
-{% for f in functions %}
-MsgpackRequest* Neovim::{{f.name}}({{f.argstring}})
 {
-	MsgpackRequest *r = m_c->m_dev->startRequestUnchecked("{{f.name}}", {{f.argcount}});
-	r->setFunction(Function::NEOVIM_FN_{{f.name.upper()}});
-	connect(r, &MsgpackRequest::finished, this, &Neovim::handleResponse);
-	connect(r, &MsgpackRequest::error, this, &Neovim::handleResponseError);
-{% for param in f.parameters %}
-	m_c->m_dev->{{param.sendmethod}}({{param.name}});
-{% endfor %}
-	return r;
+
+    % for f in functions %
 }
-{% endfor %}
+MsgpackRequest *Neovim::
+{
+{
+    f.name
+}
+}({{f.argstring}})
+{
+    MsgpackRequest *r = m_c->m_dev->startRequestUnchecked("{{f.name}}", {{f.argcount}});
+    r->setFunction(Function::NEOVIM_FN_{{f.name.upper()}});
+    connect(r, &MsgpackRequest::finished, this, &Neovim::handleResponse);
+    connect(r, &MsgpackRequest::error, this, &Neovim::handleResponseError);
+    {
+
+        % for param in f.parameters %
+    }
+m_c->m_dev-> {{param.sendmethod}}({{param.name}});
+    {
+        % endfor %
+    }
+    return r;
+}
+{
+    % endfor %
+}
 
 // Handlers
-void Neovim::handleResponseError(quint32 msgid, Function::FunctionId fun, const QVariant& res)
+void Neovim::handleResponseError(quint32 msgid, Function::FunctionId fun, const QVariant &res)
 {
-	// TODO: support Neovim error types Exception/Validation/etc
-	QString errMsg;
-	const QVariantList asList = res.toList();
-	if(asList.size() >= 2)
-	{
-		if(asList.at(1).canConvert<QByteArray>())
-		{
-			errMsg = m_c->m_dev->decode(asList.at(1).toByteArray());
-		}
-		else
-		{
-			errMsg = tr("Received unsupported Neovim error type");
-		}
-	}
+    // TODO: support Neovim error types Exception/Validation/etc
+    QString errMsg;
+    const QVariantList asList = res.toList();
 
-	switch(fun)
-	{
-    {% for f in functions %}
-	case Function::NEOVIM_FN_{{f.name.upper()}}:
-		emit err_{{f.name}}(errMsg, res);
-		break;
-    {% endfor %}
-	default:
-		m_c->setError(NvimConnector::RuntimeMsgpackError,
-		              QString("Received error for function that should not fail: %s").arg(fun));
-	}
-}
-
-void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVariant& res)
-{
-	switch(fun)
-	{
-{% for f in functions %}
-	case Function::NEOVIM_FN_{{f.name.upper()}}:
+    if(asList.size() >= 2)
     {
-    {% if f.return_type.native_type != 'void' %}
-        {{f.return_type.native_type}} data;
-        if(decode(res, data))
+        if(asList.at(1).canConvert<QByteArray>())
         {
-            m_c->setError(NvimConnector::RuntimeMsgpackError,
-                          "Error unpacking return type for {{f.name}}");
-            return;
+            errMsg = m_c->m_dev->decode(asList.at(1).toByteArray());
         }
         else
         {
-            emit on_{{f.name}}(data);
+            errMsg = tr("Received unsupported Neovim error type");
         }
-        {% else %}
-        emit on_{{f.name}}();
-    {% endif %}
     }
-    break;
-{% endfor %}
-	default:
-		qWarning() << "Received unexpected response";
-	}
+
+    switch(fun)
+    {
+            {
+
+                % for f in functions %
+            }
+
+    case Function::NEOVIM_FN_{{f.name.upper()}}:
+            emit err_{{f.name}}(errMsg, res);
+            break;
+            {
+                % endfor %
+            }
+
+        default:
+            m_c->setError(NvimConnector::RuntimeMsgpackError,
+                          QString("Received error for function that should not fail: %s").arg(fun));
+    }
+}
+
+void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVariant &res)
+{
+    switch(fun)
+    {
+            {
+
+                % for f in functions %
+            }
+
+    case Function::NEOVIM_FN_{{f.name.upper()}}:
+        {
+            {
+
+                % if f.return_type.native_type != 'void' %
+            }
+        {
+            {
+                f.return_type.native_type
+            }
+        }
+        data;
+
+        if(decode(res, data))
+            {
+                m_c->setError(NvimConnector::RuntimeMsgpackError,
+                              "Error unpacking return type for {{f.name}}");
+                return;
+            }
+            else
+            {
+                emit on_{{f.name}}(data);
+            }
+
+            {
+                % else %
+                }
+
+            emit on_{{f.name}}();
+            {
+                % endif %
+            }
+        }
+        break;
+        {
+            % endfor %
+        }
+
+        default:
+            qWarning() << "Received unexpected response";
+    }
 }
 
 } // [Namespace] SnailNvimQt
