@@ -10,7 +10,9 @@ rem Change to the project root directory
 set GKIDE_ROOT_DIR=%CMDER_ROOT:~0,-17%
 cd /d "%GKIDE_ROOT_DIR%"
 
-for /F "tokens=1,2* delims=^= " %%i in (%GKIDE_ROOT_DIR%\mingw-w64) do set %%i=%%j
+for /F "tokens=1,2* delims=^= " %%i in (%GKIDE_ROOT_DIR%\mingw-w64) do (
+    REM if %%i == # ( echo "skip" ) else ( set %%i=%%j)
+    if not %%i == # set %%i=%%j)
 
 set CC=gcc
 set GKIDE_PROG_M4=%GKIDE_MSYS2_USR_BIN_DIR%\m4.exe
