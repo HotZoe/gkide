@@ -1,4 +1,24 @@
-GKIDE_MINGW_TOOLCHAIN_DIR=D:\App\Msys2\mingw64\bin
+# Note:
+# - The number sign must be the first char for a comment line following by a space
+# - If the directory name contains space, the whole path should be surrounded by
+#   double quotation marks, like "C:\Program Files\mingw64"
+# - Make sure no trailing space for configuration line
+# - Change the command to old style for windows 10, reboot then continue
+# - Required: MUST config the correct one for building
+#   Optional: should just given a fake one
+
+# Required
+# Mingw Root Dir of MSYS2, which should be '...\mingw64' or '...\mingw32'
+GKIDE_MINGW_TOOLCHAIN_DIR=D:\App\Msys2\mingw64
+
+# Required
+# Path to the dir of MSYS2's usr/bin
 GKIDE_MSYS2_USR_BIN_DIR=D:\App\Msys2\usr\bin
+
+# Required
+# Path to the dir which contains 'git.exe'
 GKIDE_MSYS2_GIT_BIN_DIR=D:\App\Git\bin
+
+# Optional
+# Path to the dir which contains 'nodejs.exe'
 GKIDE_NODEJS_INSTALL_DIR=D:\App\nodejs
