@@ -1299,17 +1299,16 @@ static void profile_init(scriptitem_T *si)
 }
 
 /// save time when starting to invoke another script or function.
-void script_prof_save(
-    proftime_T  *tm             // place to store wait time
-)
+///
+/// @param tm  place to store wait time
+void script_prof_save(proftime_T  *tm)
 {
-    scriptitem_T    *si;
+    scriptitem_T *si;
 
-    if (current_SID > 0 && current_SID <= script_items.ga_len)
+    if(current_SID > 0 && current_SID <= script_items.ga_len)
     {
         si = &SCRIPT_ITEM(current_SID);
-
-        if (si->sn_prof_on && si->sn_pr_nest++ == 0)
+        if(si->sn_prof_on && si->sn_pr_nest++ == 0)
         {
             si->sn_pr_child = profile_start();
         }
@@ -3348,7 +3347,7 @@ static FILE *fopen_noinh_readbin(char *filename)
 }
 
 
-/// Read the file "fname" and execute its lines as EX commands.
+/// Read the file `fname` and execute its lines as EX commands.
 ///
 /// This function may be called recursively!
 ///
@@ -3356,25 +3355,25 @@ static FILE *fopen_noinh_readbin(char *filename)
 /// @param check_other  check for .vimrc and _vimrc
 /// @param is_vimrc     DOSO_ value
 ///
-/// @return FAIL if file could not be opened, OK otherwise
+/// @return `FAIL` if file could not be opened, `OK` otherwise
 int do_source(char_u *fname, int check_other, int is_vimrc)
 {
     struct source_cookie cookie;
-    char_u                  *save_sourcing_name;
+    char_u *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    char_u                  *p;
-    char_u                  *fname_exp;
-    char_u                  *firstline = NULL;
+    char_u *p;
+    char_u *fname_exp;
+    char_u *firstline = NULL;
     int retval = FAIL;
     scid_T save_current_SID;
     static scid_T last_current_SID = 0;
-    void                    *save_funccalp;
+    void *save_funccalp;
     int save_debug_break_level = debug_break_level;
-    scriptitem_T            *si = NULL;
-    proftime_T wait_start;
+    scriptitem_T *si = NULL;
+
     p = expand_env_save(fname);
 
-    if (p == NULL)
+    if(p == NULL)
     {
         return retval;
     }
@@ -3382,21 +3381,20 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     fname_exp = (char_u *)fix_fname((char *)p);
     xfree(p);
 
-    if (fname_exp == NULL)
+    if(fname_exp == NULL)
     {
         return retval;
     }
 
-    if (os_isdir(fname_exp))
+    if(os_isdir(fname_exp))
     {
         smsg(_("Cannot source a directory: \"%s\""), fname);
         goto theend;
     }
 
     // Apply SourceCmd autocommands, they should get the file and source it.
-    if (has_autocmd(EVENT_SOURCECMD, fname_exp, NULL)
-            && apply_autocmds(EVENT_SOURCECMD, fname_exp, fname_exp,
-                              false, curbuf))
+    if(has_autocmd(EVENT_SOURCECMD, fname_exp, NULL)
+       && apply_autocmds(EVENT_SOURCECMD, fname_exp, fname_exp, false, curbuf))
     {
         retval = aborting() ? FAIL : OK;
         goto theend;
@@ -3406,34 +3404,33 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     apply_autocmds(EVENT_SOURCEPRE, fname_exp, fname_exp, false, curbuf);
     cookie.fp = fopen_noinh_readbin((char *)fname_exp);
 
-    if (cookie.fp == NULL && check_other)
+    if(cookie.fp == NULL && check_other)
     {
         // Try again, replacing file name ".vimrc" by "_vimrc" or vice versa,
         // and ".exrc" by "_exrc" or vice versa.
         p = path_tail(fname_exp);
 
-        if ((*p == '.' || *p == '_')
-                && (STRICMP(p + 1, "nvimrc") == 0 || STRICMP(p + 1, "exrc") == 0))
+        if((*p == '.' || *p == '_')
+           && (STRICMP(p + 1, "nvimrc") == 0 || STRICMP(p + 1, "exrc") == 0))
         {
             *p = (*p == '_') ? '.' : '_';
             cookie.fp = fopen_noinh_readbin((char *)fname_exp);
         }
     }
 
-    if (cookie.fp == NULL)
+    if(cookie.fp == NULL)
     {
-        if (p_verbose > 0)
+        if(p_verbose > 0)
         {
             verbose_enter();
 
-            if (sourcing_name == NULL)
+            if(sourcing_name == NULL)
             {
                 smsg(_("could not source \"%s\""), fname);
             }
             else
             {
-                smsg(_("line %" PRId64 ": could not source \"%s\""),
-                     (int64_t)sourcing_lnum, fname);
+                smsg(_("line %" PRId64 ": could not source \"%s\""), (int64_t)sourcing_lnum, fname);
             }
 
             verbose_leave();
@@ -3445,36 +3442,34 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     // The file exists.
     // - In verbose mode, give a message.
     // - For a vimrc file, may want to call vimrc_found().
-    if (p_verbose > 1)
+    if(p_verbose > 1)
     {
         verbose_enter();
 
-        if (sourcing_name == NULL)
+        if(sourcing_name == NULL)
         {
             smsg(_("sourcing \"%s\""), fname);
         }
         else
         {
-            smsg(_("line %" PRId64 ": sourcing \"%s\""),
-                 (int64_t)sourcing_lnum, fname);
+            smsg(_("line %" PRId64 ": sourcing \"%s\""), (int64_t)sourcing_lnum, fname);
         }
 
         verbose_leave();
     }
 
-    if (is_vimrc == DOSO_VIMRC)
+    if(is_vimrc == DOSO_VIMRC)
     {
         vimrc_found(fname_exp, (char_u *)"MYVIMRC");
     }
-    else if (is_vimrc == DOSO_GVIMRC)
+    else if(is_vimrc == DOSO_GVIMRC)
     {
         vimrc_found(fname_exp, (char_u *)"MYGVIMRC");
     }
 
-#ifdef USE_CRNL
-
+    #ifdef USE_CRNL
     // If no automatic file format: Set default to CR-NL.
-    if (*p_ffs == NUL)
+    if(*p_ffs == NUL)
     {
         cookie.fileformat = EOL_DOS;
     }
@@ -3482,33 +3477,39 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     {
         cookie.fileformat = EOL_UNKNOWN;
     }
-
     cookie.error = false;
-#endif
+    #endif
+
     cookie.nextline = NULL;
     cookie.finished = false;
+
     // Check if this script has a breakpoint.
     cookie.breakpoint = dbg_find_breakpoint(true, fname_exp, (linenr_T)0);
     cookie.fname = fname_exp;
     cookie.dbg_tick = debug_tick;
     cookie.level = ex_nesting_level;
+
     // Keep the sourcing name/lnum, for recursive calls.
     save_sourcing_name = sourcing_name;
     sourcing_name = fname_exp;
     save_sourcing_lnum = sourcing_lnum;
     sourcing_lnum = 0;
-    cookie.conv.vc_type = CONV_NONE;              // no conversion
+    cookie.conv.vc_type = CONV_NONE; // no conversion
+
     // Read the first line so we can check for a UTF-8 BOM.
     firstline = getsourceline(0, (void *)&cookie, 0);
 
-    if (firstline != NULL && STRLEN(firstline) >= 3 && firstline[0] == 0xef
-            && firstline[1] == 0xbb && firstline[2] == 0xbf)
+    if(firstline != NULL
+       && STRLEN(firstline) >= 3
+       && firstline[0] == 0xef
+       && firstline[1] == 0xbb
+       && firstline[2] == 0xbf)
     {
         // Found BOM; setup conversion, skip over BOM and recode the line.
         convert_setup(&cookie.conv, (char_u *)"utf-8", p_enc);
         p = string_convert(&cookie.conv, firstline + 3, NULL);
 
-        if (p == NULL)
+        if(p == NULL)
         {
             p = vim_strsave(firstline + 3);
         }
@@ -3523,21 +3524,22 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     proftime_T start_time;
     FILE *const l_time_fd = time_fd;
 
-    if (l_time_fd != NULL)
+    if(l_time_fd != NULL)
     {
         time_push(&rel_time, &start_time);
     }
 
     const int l_do_profiling = do_profiling;
-
-    if (l_do_profiling == PROF_YES)
+    proftime_T wait_start;
+    if(l_do_profiling == PROF_YES)
     {
-        prof_child_enter(&wait_start);    // entering a child now
+        prof_child_enter(&wait_start); // entering a child now
     }
 
     // Don't use local function variables, if called from a function.
     // Also starts profiling timer for nested script.
     save_funccalp = save_funccal();
+
     // Check if this script was sourced before to finds its SID.
     // If it's new, generate a new SID.
     save_current_SID = current_SID;
@@ -3545,27 +3547,26 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     bool file_id_ok = os_fileid((char *)fname_exp, &file_id);
     assert(script_items.ga_len >= 0);
 
-    for (current_SID = script_items.ga_len; current_SID > 0; current_SID--)
+    for(current_SID = script_items.ga_len; current_SID > 0; current_SID--)
     {
         si = &SCRIPT_ITEM(current_SID);
         // Compare dev/ino when possible, it catches symbolic links.
         // Also compare file names, the inode may change when the file was edited.
-        bool file_id_equal = file_id_ok && si->file_id_valid
+        bool file_id_equal = file_id_ok
+                             && si->file_id_valid
                              && os_fileid_equal(&(si->file_id), &file_id);
 
-        if (si->sn_name != NULL
-                && (file_id_equal || fnamecmp(si->sn_name, fname_exp) == 0))
+        if(si->sn_name != NULL && (file_id_equal || fnamecmp(si->sn_name, fname_exp) == 0))
         {
             break;
         }
     }
 
-    if (current_SID == 0)
+    if(current_SID == 0)
     {
         current_SID = ++last_current_SID;
         ga_grow(&script_items, (int)(current_SID - script_items.ga_len));
-
-        while (script_items.ga_len < current_SID)
+        while(script_items.ga_len < current_SID)
         {
             script_items.ga_len++;
             SCRIPT_ITEM(script_items.ga_len).sn_name = NULL;
@@ -3576,7 +3577,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         si->sn_name = fname_exp;
         fname_exp = NULL;
 
-        if (file_id_ok)
+        if(file_id_ok)
         {
             si->file_id_valid = true;
             si->file_id = file_id;
@@ -3590,18 +3591,18 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         new_script_vars(current_SID);
     }
 
-    if (l_do_profiling == PROF_YES)
+    if(l_do_profiling == PROF_YES)
     {
         bool forceit;
 
         // Check if we do profiling for this script.
-        if (!si->sn_prof_on && has_profiling(true, si->sn_name, &forceit))
+        if(!si->sn_prof_on && has_profiling(true, si->sn_name, &forceit))
         {
             profile_init(si);
             si->sn_pr_force = forceit;
         }
 
-        if (si->sn_prof_on)
+        if(si->sn_prof_on)
         {
             si->sn_pr_count++;
             si->sn_pr_start = profile_start();
@@ -3610,26 +3611,23 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     }
 
     // Call do_cmdline, which will call getsourceline() to get the lines.
-    do_cmdline(firstline, getsourceline, (void *)&cookie,
-               DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_REPEAT);
+    do_cmdline(firstline, getsourceline, (void *)&cookie, DOCMD_VERBOSE|DOCMD_NOWAIT|DOCMD_REPEAT);
     retval = OK;
 
-    if (l_do_profiling == PROF_YES)
+    if(l_do_profiling == PROF_YES)
     {
         // Get "si" again, "script_items" may have been reallocated.
         si = &SCRIPT_ITEM(current_SID);
-
-        if (si->sn_prof_on)
+        if(si->sn_prof_on)
         {
             si->sn_pr_start = profile_end(si->sn_pr_start);
             si->sn_pr_start = profile_sub_wait(wait_start, si->sn_pr_start);
             si->sn_pr_total = profile_add(si->sn_pr_total, si->sn_pr_start);
-            si->sn_pr_self = profile_self(si->sn_pr_self, si->sn_pr_start,
-                                          si->sn_pr_children);
+            si->sn_pr_self = profile_self(si->sn_pr_self, si->sn_pr_start, si->sn_pr_children);
         }
     }
 
-    if (got_int)
+    if(got_int)
     {
         EMSG(_(e_interr));
     }
@@ -3637,12 +3635,12 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     sourcing_name = save_sourcing_name;
     sourcing_lnum = save_sourcing_lnum;
 
-    if (p_verbose > 1)
+    if(p_verbose > 1)
     {
         verbose_enter();
         smsg(_("finished sourcing %s"), fname);
 
-        if (sourcing_name != NULL)
+        if(sourcing_name != NULL)
         {
             smsg(_("continuing in %s"), sourcing_name);
         }
@@ -3650,17 +3648,15 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         verbose_leave();
     }
 
-    if (l_time_fd != NULL)
+    if(l_time_fd != NULL)
     {
         vim_snprintf((char *)IObuff, IOSIZE, "sourcing %s", fname);
         time_msg((char *)IObuff, &start_time);
         time_pop(rel_time);
     }
 
-    // After a "finish" in debug mode, need to break at first command of next
-    // sourced file.
-    if (save_debug_break_level > ex_nesting_level
-            && debug_break_level == ex_nesting_level)
+    // After a "finish" in debug mode, need to break at first command of next sourced file.
+    if(save_debug_break_level > ex_nesting_level && debug_break_level == ex_nesting_level)
     {
         debug_break_level++;
     }
@@ -3668,9 +3664,9 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     current_SID = save_current_SID;
     restore_funccal(save_funccalp);
 
-    if (l_do_profiling == PROF_YES)
+    if(l_do_profiling == PROF_YES)
     {
-        prof_child_exit(&wait_start);    // leaving a child now
+        prof_child_exit(&wait_start); // leaving a child now
     }
 
     fclose(cookie.fp);

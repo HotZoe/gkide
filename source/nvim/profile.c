@@ -1,5 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file
 
 #include <stdio.h>
 #include <math.h>
@@ -10,14 +9,14 @@
 #include "nvim/func_attr.h"
 #include "nvim/os/os_defs.h"
 
-#include "nvim/globals.h"  // for the global `time_fd` (startuptime)
+// for the global `time_fd` (startuptime)
+#include "nvim/globals.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "profile.c.generated.h"
 #endif
 
-/// functions for profiling
-
+/// @todo: what is this ?
 static proftime_T prof_wait_time;
 
 /// profile_start - return the current time
@@ -193,8 +192,9 @@ int profile_cmp(proftime_T tm1, proftime_T tm2) FUNC_ATTR_CONST
     return sgn64((int64_t)(tm2 - tm1));
 }
 
-/// globals for use in the startuptime related functionality (time_*).
+/// nvim startup time, init on startup and nerver changing will running, for time_* funcs to use
 static proftime_T g_start_time;
+/// the start point of a period of time, e.g: how long do we need to load a plugin
 static proftime_T g_prev_time;
 
 /// time_push - save the previous time before doing something that could nest
@@ -202,15 +202,17 @@ static proftime_T g_prev_time;
 /// After calling this function, the static global `g_prev_time` will
 /// contain the current time.
 ///
-/// @param[out] rel to the time elapsed so far
+/// @param[out] rel   to the time elapsed so far
 /// @param[out] start the current time
 void time_push(proftime_T *rel, proftime_T *start)
 {
     proftime_T now = profile_start();
-    // subtract the previous time from now, store it in `rel`
+
+    // subtract the previous time from now, store it in 'rel'
     *rel = profile_sub(now, g_prev_time);
     *start = now;
-    // reset global `g_prev_time` for the next call
+
+    // reset global 'g_prev_time' for the next call
     g_prev_time = now;
 }
 
@@ -241,16 +243,16 @@ static void time_diff(proftime_T then, proftime_T now)
 /// @param message the message that will be displayed
 void time_start(const char *message)
 {
-    if (time_fd == NULL)
+    if(time_fd == NULL)
     {
         return;
     }
 
-    // intialize the global variables
+    // intialize the global time variables
     g_prev_time = g_start_time = profile_start();
-    fprintf(time_fd, "\n\ntimes in msec\n");
-    fprintf(time_fd, " clock   self+sourced   self:  sourced script\n");
-    fprintf(time_fd, " clock   elapsed:              other lines\n\n");
+    fprintf(time_fd, "nvim startup logging file, times in msec\n\n");
+    fprintf(time_fd, "msg-fmt-1: timeline    self+source    self: sourcing script\n");
+    fprintf(time_fd, "msg-fmt-2: timeline    elapsedtime        : startup message\n\n");
     time_msg(message, NULL);
 }
 
@@ -262,26 +264,28 @@ void time_start(const char *message)
 /// @param start only for do_source: start time
 void time_msg(const char *mesg, const proftime_T *start)
 {
-    if (time_fd == NULL)
+    if(time_fd == NULL)
     {
         return;
     }
 
-    // print out the difference between `start` (init earlier) and `now`
+    // print out the difference between 'g_start_time' and 'now'
     proftime_T now = profile_start();
     time_diff(g_start_time, now);
 
-    // if `start` was supplied, print the diff between `start` and `now`
-    if (start != NULL)
+    // if 'start' was supplied, print the diff between 'start' and 'now'
+    // this is used to measure the script/plugin load time
+    if(start != NULL)
     {
         fprintf(time_fd, "  ");
         time_diff(*start, now);
     }
 
-    // print the difference between the global `g_prev_time` and `now`
+    // print the difference between the global 'g_prev_time' and 'now'
     fprintf(time_fd, "  ");
     time_diff(g_prev_time, now);
-    // reset `g_prev_time` and print the message
+
+    // reset 'g_prev_time' and print the message
     g_prev_time = now;
     fprintf(time_fd, ": %s\n", mesg);
 }

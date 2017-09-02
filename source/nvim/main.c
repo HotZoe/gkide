@@ -1330,7 +1330,7 @@ static void init_params(mparm_T *paramp, int argc, char **argv)
     paramp->window_count = -1;
 }
 
-/// Initialize global startuptime file if **--startuptime** passed as an argument.
+/// Initialize global startuptime file if **--startuptime nvim.log** passed as an argument.
 static void init_startuptime(mparm_T *paramp)
 {
     for(int i = 1; i < paramp->argc; i++)

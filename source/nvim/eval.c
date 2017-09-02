@@ -255,28 +255,30 @@ static garray_T ga_loaded = { 0, 0, sizeof(char_u *), 4, NULL };
 /// Number of fixed variables used for arguments
 #define FIXVAR_CNT 12
 
+/// Structure to hold info for a function that is currently being executed.
+/// also @see funccall_T
 struct funccall_S
 {
-    ufunc_T *func;  ///< Function being called.
-    int linenr;  ///< Next line to be executed.
-    int returned;  ///< ":return" used.
+    ufunc_T *func;                         ///< Function being called.
+    int linenr;                            ///< Next line to be executed.
+    int returned;                          ///< ":return" used.
     /// Fixed variables for arguments.
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
-    dict_T l_vars;  ///< l: local function variables.
-    ScopeDictDictItem l_vars_var;  ///< Variable for l: scope.
-    dict_T l_avars;  ///< a: argument variables.
-    ScopeDictDictItem l_avars_var;  ///< Variable for a: scope.
-    list_T l_varlist;  ///< List for a:000.
-    listitem_T l_listitems[MAX_FUNC_ARGS];  ///< List items for a:000.
-    typval_T *rettv;  ///< Return value.
-    linenr_T breakpoint;  ///< Next line with breakpoint or zero.
-    int dbg_tick;  ///< Debug_tick when breakpoint was set.
-    int level;  ///< Top nesting level of executed function.
-    proftime_T prof_child;  ///< Time spent in a child.
-    funccall_T *caller;  ///< Calling function or NULL.
-    int fc_refcount;  ///< Number of user functions that reference this funccall.
-    int fc_copyID;  ///< CopyID used for garbage collection.
-    garray_T fc_funcs;  ///< List of ufunc_T* which keep a reference to "func".
+    dict_T l_vars;                         ///< l: local function variables.
+    ScopeDictDictItem l_vars_var;          ///< Variable for l: scope.
+    dict_T l_avars;                        ///< a: argument variables.
+    ScopeDictDictItem l_avars_var;         ///< Variable for a: scope.
+    list_T l_varlist;                      ///< List for a:000.
+    listitem_T l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
+    typval_T *rettv;         ///< Return value.
+    linenr_T breakpoint;     ///< Next line with breakpoint or zero.
+    int dbg_tick;            ///< Debug_tick when breakpoint was set.
+    int level;               ///< Top nesting level of executed function.
+    proftime_T prof_child;   ///< Time spent in a child.
+    funccall_T *caller;      ///< Calling function or NULL.
+    int fc_refcount;         ///< Number of user functions that reference this funccall.
+    int fc_copyID;           ///< CopyID used for garbage collection.
+    garray_T fc_funcs;       ///< List of ufunc_T* which keep a reference to "func".
 };
 
 ///< Structure used by trans_function_name()
@@ -734,33 +736,27 @@ int *func_dbg_tick(void *cookie)
     return &((funccall_T *)cookie)->dbg_tick;
 }
 
-/*
- * Return the nesting level for a funccall cookie.
- */
+/// Return the nesting level for a funccall cookie.
 int func_level(void *cookie)
 {
     return ((funccall_T *)cookie)->level;
 }
 
-/* pointer to funccal for currently active function */
+/// pointer to funccal for currently active function
 funccall_T *current_funccal = NULL;
 
-/* pointer to list of previously used funccal, still around because some
- * item in it is still being used. */
+/// pointer to list of previously used funccal, still around because some
+/// item in it is still being used.
 funccall_T *previous_funccal = NULL;
 
-/*
- * Return TRUE when a function was ended by a ":return" command.
- */
+/// Return TRUE when a function was ended by a ":return" command.
 int current_func_returned(void)
 {
     return current_funccal->returned;
 }
 
-/*
- * Set an internal variable to a string value. Creates the variable if it does
- * not already exist.
- */
+/// Set an internal variable to a string value.
+/// Creates the variable if it does not already exist.
 void set_internal_string_var(char_u *name, char_u *value)
 {
     const typval_T tv =
@@ -1478,10 +1474,8 @@ call_func_retlist (
     return rettv.vval.v_list;
 }
 
-/*
- * Save the current function call pointer, and set it to NULL.
- * Used when executing autocommands and for ":source".
- */
+/// Save the current function call pointer, and set it to NULL.
+/// Used when executing autocommands and for ":source".
 void *save_funccal(void)
 {
     funccall_T *fc = current_funccal;
@@ -1495,44 +1489,35 @@ void restore_funccal(void *vfc)
     current_funccal = fc;
 }
 
-/*
- * Prepare profiling for entering a child or something else that is not
- * counted for the script/function itself.
- * Should always be called in pair with prof_child_exit().
- */
-void prof_child_enter(proftime_T *tm /* place to store waittime */
-                     )
+/// Prepare profiling for entering a child or something else
+/// that is not counted for the script/function itself.
+/// Should always be called in pair with prof_child_exit().
+///
+/// @param tm  place to store waittime
+void prof_child_enter(proftime_T *tm)
 {
     funccall_T *fc = current_funccal;
-
-    if (fc != NULL && fc->func->uf_profiling)
+    if(fc != NULL && fc->func->uf_profiling)
     {
         fc->prof_child = profile_start();
     }
-
     script_prof_save(tm);
 }
 
-/*
- * Take care of time spent in a child.
- * Should always be called after prof_child_enter().
- */
-void prof_child_exit(proftime_T *tm /* where waittime was stored */
-                    )
+/// Take care of time spent in a child.
+/// Should always be called after prof_child_enter().
+///
+/// @param tm  where waittime was stored
+void prof_child_exit(proftime_T *tm)
 {
     funccall_T *fc = current_funccal;
-
-    if (fc != NULL && fc->func->uf_profiling)
+    if(fc != NULL && fc->func->uf_profiling)
     {
         fc->prof_child = profile_end(fc->prof_child);
-        // don't count waiting time
-        fc->prof_child = profile_sub_wait(*tm, fc->prof_child);
-        fc->func->uf_tm_children =
-            profile_add(fc->func->uf_tm_children, fc->prof_child);
-        fc->func->uf_tml_children =
-            profile_add(fc->func->uf_tml_children, fc->prof_child);
+        fc->prof_child = profile_sub_wait(*tm, fc->prof_child); // don't count waiting time
+        fc->func->uf_tm_children = profile_add(fc->func->uf_tm_children, fc->prof_child);
+        fc->func->uf_tml_children = profile_add(fc->func->uf_tml_children, fc->prof_child);
     }
-
     script_prof_restore(tm);
 }
 

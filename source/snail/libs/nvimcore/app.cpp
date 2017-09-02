@@ -144,8 +144,11 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     parser.addOption(arg_geometry);
     // --help
     parser.addHelpOption();
+
+
     arg_desc = QCoreApplication::translate("main", "Edit specified file(s).");
     parser.addPositionalArgument("file", arg_desc, "[file...]");
+
     arg_desc = QCoreApplication::translate("main", "Additional arguments forwarded to nvim.");
     parser.addPositionalArgument("...", arg_desc, "[-- ...]");
     parser.process(arguments);
