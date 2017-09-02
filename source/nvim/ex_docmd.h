@@ -21,6 +21,6 @@
 #define EXMODE_VIM              2
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "ex_docmd.h.generated.h"
+    #include "ex_docmd.h.generated.h"
 #endif
 #endif  // NVIM_EX_DOCMD_H

@@ -4,19 +4,19 @@
 // EXTERN is only defined in main.c. That's where global variables are
 // actually defined and initialized.
 #ifndef EXTERN
-# define EXTERN extern
-# define INIT(...)
+    #define EXTERN extern
+    #define INIT(...)
 #else
-# ifndef INIT
-#  define INIT(...) __VA_ARGS__
-# endif
+    #ifndef INIT
+        #define INIT(...) __VA_ARGS__
+    #endif
 #endif
 
 #ifndef MIN
-# define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+    #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
 #endif
 #ifndef MAX
-# define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
+    #define MAX(X, Y) ((X) > (Y) ? (X) : (Y))
 #endif
 
 /// String with length
@@ -72,19 +72,19 @@
  * The do-while is just to ignore a ';' after the macro.
  */
 #  define LANGMAP_ADJUST(c, condition) \
-  do { \
-    if (*p_langmap \
-        && (condition) \
-        && (p_lrm || KeyTyped) \
-        && !KeyStuffed \
-        && (c) >= 0) \
-    { \
-      if ((c) < 256) \
-        c = langmap_mapchar[c]; \
-      else \
-        c = langmap_adjust_mb(c); \
-    } \
-  } while (0)
+    do { \
+        if (*p_langmap \
+                && (condition) \
+                && (p_lrm || KeyTyped) \
+                && !KeyStuffed \
+                && (c) >= 0) \
+        { \
+            if ((c) < 256) \
+                c = langmap_mapchar[c]; \
+            else \
+                c = langmap_adjust_mb(c); \
+        } \
+    } while (0)
 
 /*
  * vim_isbreak() is used very often if 'linebreak' is set, use a macro to make
@@ -100,11 +100,11 @@
 
 /* mch_open_rw(): invoke os_open() with third argument for user R/W. */
 #if defined(UNIX)  /* open in rw------- mode */
-# define mch_open_rw(n, f)      os_open((n), (f), (mode_t)0600)
+    #define mch_open_rw(n, f)      os_open((n), (f), (mode_t)0600)
 #elif defined(WIN32)
-# define mch_open_rw(n, f)      os_open((n), (f), S_IREAD | S_IWRITE)
+    #define mch_open_rw(n, f)      os_open((n), (f), S_IREAD | S_IWRITE)
 #else
-# define mch_open_rw(n, f)      os_open((n), (f), 0)
+    #define mch_open_rw(n, f)      os_open((n), (f), 0)
 #endif
 
 # define REPLACE_NORMAL(s) (((s) & REPLACE_FLAG) && !((s) & VREPLACE_FLAG))
@@ -154,21 +154,21 @@
 #define STR(x) STR_(x)
 
 #ifndef __has_attribute
-# define NVIM_HAS_ATTRIBUTE(x) 0
+    #define NVIM_HAS_ATTRIBUTE(x) 0
 #elif defined(__clang__) && __clang__ == 1 \
     && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 5))
-// Starting in Clang 3.6, __has_attribute was fixed to only report true for
-// GNU-style attributes.  Prior to that, it reported true if _any_ backend
-// supported the attribute.
-# define NVIM_HAS_ATTRIBUTE(x) 0
+    // Starting in Clang 3.6, __has_attribute was fixed to only report true for
+    // GNU-style attributes.  Prior to that, it reported true if _any_ backend
+    // supported the attribute.
+    #define NVIM_HAS_ATTRIBUTE(x) 0
 #else
-# define NVIM_HAS_ATTRIBUTE __has_attribute
+    #define NVIM_HAS_ATTRIBUTE __has_attribute
 #endif
 
 #if NVIM_HAS_ATTRIBUTE(fallthrough)
-# define FALLTHROUGH __attribute__((fallthrough))
+    #define FALLTHROUGH __attribute__((fallthrough))
 #else
-# define FALLTHROUGH
+    #define FALLTHROUGH
 #endif
 
 // -V:STRUCT_CAST:641

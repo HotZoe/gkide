@@ -9,6 +9,6 @@
 #define SIN_UNDO        4       /* save line for undo before changing it */
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "indent.h.generated.h"
+    #include "indent.h.generated.h"
 #endif
 #endif  // NVIM_INDENT_H

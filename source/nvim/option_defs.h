@@ -26,7 +26,7 @@
  * written to a file.
  */
 #define DFLT_EFM \
-  "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%-G%f:%l: (Each undeclared identifier is reported only once,%-G%f:%l: for each function it appears in.),%-GIn file included from %f:%l:%c:,%-GIn file included from %f:%l:%c\\,,%-GIn file included from %f:%l:%c,%-GIn file included from %f:%l,%-G%*[ ]from %f:%l:%c,%-G%*[ ]from %f:%l:,%-G%*[ ]from %f:%l\\,,%-G%*[ ]from %f:%l,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory %*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%D%*\\a: Entering directory %*[`']%f',%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a in %f,%f|%l| %m"
+    "%*[^\"]\"%f\"%*\\D%l: %m,\"%f\"%*\\D%l: %m,%-G%f:%l: (Each undeclared identifier is reported only once,%-G%f:%l: for each function it appears in.),%-GIn file included from %f:%l:%c:,%-GIn file included from %f:%l:%c\\,,%-GIn file included from %f:%l:%c,%-GIn file included from %f:%l,%-G%*[ ]from %f:%l:%c,%-G%*[ ]from %f:%l:,%-G%*[ ]from %f:%l\\,,%-G%*[ ]from %f:%l,%f:%l:%c:%m,%f(%l):%m,%f:%l:%m,\"%f\"\\, line %l%*\\D%c%*[^ ] %m,%D%*\\a[%*\\d]: Entering directory %*[`']%f',%X%*\\a[%*\\d]: Leaving directory %*[`']%f',%D%*\\a: Entering directory %*[`']%f',%X%*\\a: Leaving directory %*[`']%f',%DMaking %*\\a in %f,%f|%l| %m"
 
 #define DFLT_GREPFORMAT "%f:%l:%m,%f:%l%m,%f  %l%m"
 
@@ -36,13 +36,13 @@
 #define FF_UNIX         "unix"
 
 #ifdef USE_CRNL
-# define DFLT_FF        "dos"
-# define DFLT_FFS_VIM   "dos,unix"
-# define DFLT_FFS_VI    "dos,unix"      /* also autodetect in compatible mode */
+    #define DFLT_FF        "dos"
+    #define DFLT_FFS_VIM   "dos,unix"
+    #define DFLT_FFS_VI    "dos,unix"      /* also autodetect in compatible mode */
 #else
-#  define DFLT_FF       "unix"
-#  define DFLT_FFS_VIM  "unix,dos"
-#   define DFLT_FFS_VI  ""
+    #define DFLT_FF       "unix"
+    #define DFLT_FFS_VIM  "unix,dos"
+    #define DFLT_FFS_VI  ""
 #endif
 
 
@@ -152,41 +152,42 @@
 #define COCU_ALL        "nvic"          /* flags for 'concealcursor' */
 
 /// characters for p_shm option:
-enum {
-  SHM_RO             = 'r',  ///< Readonly.
-  SHM_MOD            = 'm',  ///< Modified.
-  SHM_FILE           = 'f',  ///< (file 1 of 2)
-  SHM_LAST           = 'i',  ///< Last line incomplete.
-  SHM_TEXT           = 'x',  ///< Tx instead of textmode.
-  SHM_LINES          = 'l',  ///< "L" instead of "lines".
-  SHM_NEW            = 'n',  ///< "[New]" instead of "[New file]".
-  SHM_WRI            = 'w',  ///< "[w]" instead of "written".
-  SHM_ABBREVIATIONS  = 'a',  ///< Use abbreviations from #SHM_ALL_ABBREVIATIONS.
-  SHM_WRITE          = 'W',  ///< Don't use "written" at all.
-  SHM_TRUNC          = 't',  ///< Trunctate file messages.
-  SHM_TRUNCALL       = 'T',  ///< Trunctate all messages.
-  SHM_OVER           = 'o',  ///< Overwrite file messages.
-  SHM_OVERALL        = 'O',  ///< Overwrite more messages.
-  SHM_SEARCH         = 's',  ///< No search hit bottom messages.
-  SHM_ATTENTION      = 'A',  ///< No ATTENTION messages.
-  SHM_INTRO          = 'I',  ///< Intro messages.
-  SHM_COMPLETIONMENU = 'c',  ///< Completion menu messages.
-  SHM_RECORDING      = 'q',  ///< Short recording message.
-  SHM_FILEINFO       = 'F',  ///< No file info messages.
+enum
+{
+    SHM_RO             = 'r',  ///< Readonly.
+    SHM_MOD            = 'm',  ///< Modified.
+    SHM_FILE           = 'f',  ///< (file 1 of 2)
+    SHM_LAST           = 'i',  ///< Last line incomplete.
+    SHM_TEXT           = 'x',  ///< Tx instead of textmode.
+    SHM_LINES          = 'l',  ///< "L" instead of "lines".
+    SHM_NEW            = 'n',  ///< "[New]" instead of "[New file]".
+    SHM_WRI            = 'w',  ///< "[w]" instead of "written".
+    SHM_ABBREVIATIONS  = 'a',  ///< Use abbreviations from #SHM_ALL_ABBREVIATIONS.
+    SHM_WRITE          = 'W',  ///< Don't use "written" at all.
+    SHM_TRUNC          = 't',  ///< Trunctate file messages.
+    SHM_TRUNCALL       = 'T',  ///< Trunctate all messages.
+    SHM_OVER           = 'o',  ///< Overwrite file messages.
+    SHM_OVERALL        = 'O',  ///< Overwrite more messages.
+    SHM_SEARCH         = 's',  ///< No search hit bottom messages.
+    SHM_ATTENTION      = 'A',  ///< No ATTENTION messages.
+    SHM_INTRO          = 'I',  ///< Intro messages.
+    SHM_COMPLETIONMENU = 'c',  ///< Completion menu messages.
+    SHM_RECORDING      = 'q',  ///< Short recording message.
+    SHM_FILEINFO       = 'F',  ///< No file info messages.
 };
 /// Represented by 'a' flag.
 #define SHM_ALL_ABBREVIATIONS ((char_u[]) { \
-  SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
-  0, \
-})
+        SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
+        0, \
+    })
 /// All possible flags for 'shm'.
 #define SHM_ALL ((char_u[]) { \
-  SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
-  SHM_ABBREVIATIONS, SHM_WRITE, SHM_TRUNC, SHM_TRUNCALL, SHM_OVER, \
-  SHM_OVERALL, SHM_SEARCH, SHM_ATTENTION, SHM_INTRO, SHM_COMPLETIONMENU, \
-  SHM_RECORDING, SHM_FILEINFO, \
-  0, \
-})
+        SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
+        SHM_ABBREVIATIONS, SHM_WRITE, SHM_TRUNC, SHM_TRUNCALL, SHM_OVER, \
+        SHM_OVERALL, SHM_SEARCH, SHM_ATTENTION, SHM_INTRO, SHM_COMPLETIONMENU, \
+        SHM_RECORDING, SHM_FILEINFO, \
+        0, \
+    })
 
 /* characters for p_go: */
 #define GO_ASEL         'a'             /* autoselect */
@@ -226,57 +227,58 @@ enum {
 #define COM_MAX_LEN     50              /* maximum length of a part */
 
 /// 'statusline' option flags
-enum {
-  STL_FILEPATH        = 'f',  ///< Path of file in buffer.
-  STL_FULLPATH        = 'F',  ///< Full path of file in buffer.
-  STL_FILENAME        = 't',  ///< Last part (tail) of file path.
-  STL_COLUMN          = 'c',  ///< Column og cursor.
-  STL_VIRTCOL         = 'v',  ///< Virtual column.
-  STL_VIRTCOL_ALT     = 'V',  ///< - with 'if different' display.
-  STL_LINE            = 'l',  ///< Line number of cursor.
-  STL_NUMLINES        = 'L',  ///< Number of lines in buffer.
-  STL_BUFNO           = 'n',  ///< Current buffer number.
-  STL_KEYMAP          = 'k',  ///< 'keymap' when active.
-  STL_OFFSET          = 'o',  ///< Offset of character under cursor.
-  STL_OFFSET_X        = 'O',  ///< - in hexadecimal.
-  STL_BYTEVAL         = 'b',  ///< Byte value of character.
-  STL_BYTEVAL_X       = 'B',  ///< - in hexadecimal.
-  STL_ROFLAG          = 'r',  ///< Readonly flag.
-  STL_ROFLAG_ALT      = 'R',  ///< - other display.
-  STL_HELPFLAG        = 'h',  ///< Window is showing a help file.
-  STL_HELPFLAG_ALT    = 'H',  ///< - other display.
-  STL_FILETYPE        = 'y',  ///< 'filetype'.
-  STL_FILETYPE_ALT    = 'Y',  ///< - other display.
-  STL_PREVIEWFLAG     = 'w',  ///< Window is showing the preview buf.
-  STL_PREVIEWFLAG_ALT = 'W',  ///< - other display.
-  STL_MODIFIED        = 'm',  ///< Modified flag.
-  STL_MODIFIED_ALT    = 'M',  ///< - other display.
-  STL_QUICKFIX        = 'q',  ///< Quickfix window description.
-  STL_PERCENTAGE      = 'p',  ///< Percentage through file.
-  STL_ALTPERCENT      = 'P',  ///< Percentage as TOP BOT ALL or NN%.
-  STL_ARGLISTSTAT     = 'a',  ///< Argument list status as (x of y).
-  STL_PAGENUM         = 'N',  ///< Page number (when printing).
-  STL_VIM_EXPR        = '{',  ///< Start of expression to substitute.
-  STL_SEPARATE        = '=',  ///< Separation between alignment sections.
-  STL_TRUNCMARK       = '<',  ///< Truncation mark if line is too long.
-  STL_USER_HL         = '*',  ///< Highlight from (User)1..9 or 0.
-  STL_HIGHLIGHT       = '#',  ///< Highlight name.
-  STL_TABPAGENR       = 'T',  ///< Tab page label nr.
-  STL_TABCLOSENR      = 'X',  ///< Tab page close nr.
-  STL_CLICK_FUNC      = '@',  ///< Click region start.
+enum
+{
+    STL_FILEPATH        = 'f',  ///< Path of file in buffer.
+    STL_FULLPATH        = 'F',  ///< Full path of file in buffer.
+    STL_FILENAME        = 't',  ///< Last part (tail) of file path.
+    STL_COLUMN          = 'c',  ///< Column og cursor.
+    STL_VIRTCOL         = 'v',  ///< Virtual column.
+    STL_VIRTCOL_ALT     = 'V',  ///< - with 'if different' display.
+    STL_LINE            = 'l',  ///< Line number of cursor.
+    STL_NUMLINES        = 'L',  ///< Number of lines in buffer.
+    STL_BUFNO           = 'n',  ///< Current buffer number.
+    STL_KEYMAP          = 'k',  ///< 'keymap' when active.
+    STL_OFFSET          = 'o',  ///< Offset of character under cursor.
+    STL_OFFSET_X        = 'O',  ///< - in hexadecimal.
+    STL_BYTEVAL         = 'b',  ///< Byte value of character.
+    STL_BYTEVAL_X       = 'B',  ///< - in hexadecimal.
+    STL_ROFLAG          = 'r',  ///< Readonly flag.
+    STL_ROFLAG_ALT      = 'R',  ///< - other display.
+    STL_HELPFLAG        = 'h',  ///< Window is showing a help file.
+    STL_HELPFLAG_ALT    = 'H',  ///< - other display.
+    STL_FILETYPE        = 'y',  ///< 'filetype'.
+    STL_FILETYPE_ALT    = 'Y',  ///< - other display.
+    STL_PREVIEWFLAG     = 'w',  ///< Window is showing the preview buf.
+    STL_PREVIEWFLAG_ALT = 'W',  ///< - other display.
+    STL_MODIFIED        = 'm',  ///< Modified flag.
+    STL_MODIFIED_ALT    = 'M',  ///< - other display.
+    STL_QUICKFIX        = 'q',  ///< Quickfix window description.
+    STL_PERCENTAGE      = 'p',  ///< Percentage through file.
+    STL_ALTPERCENT      = 'P',  ///< Percentage as TOP BOT ALL or NN%.
+    STL_ARGLISTSTAT     = 'a',  ///< Argument list status as (x of y).
+    STL_PAGENUM         = 'N',  ///< Page number (when printing).
+    STL_VIM_EXPR        = '{',  ///< Start of expression to substitute.
+    STL_SEPARATE        = '=',  ///< Separation between alignment sections.
+    STL_TRUNCMARK       = '<',  ///< Truncation mark if line is too long.
+    STL_USER_HL         = '*',  ///< Highlight from (User)1..9 or 0.
+    STL_HIGHLIGHT       = '#',  ///< Highlight name.
+    STL_TABPAGENR       = 'T',  ///< Tab page label nr.
+    STL_TABCLOSENR      = 'X',  ///< Tab page close nr.
+    STL_CLICK_FUNC      = '@',  ///< Click region start.
 };
 /// C string containing all 'statusline' option flags
 #define STL_ALL ((char_u[]) { \
-  STL_FILEPATH, STL_FULLPATH, STL_FILENAME, STL_COLUMN, STL_VIRTCOL, \
-  STL_VIRTCOL_ALT, STL_LINE, STL_NUMLINES, STL_BUFNO, STL_KEYMAP, STL_OFFSET, \
-  STL_OFFSET_X, STL_BYTEVAL, STL_BYTEVAL_X, STL_ROFLAG, STL_ROFLAG_ALT, \
-  STL_HELPFLAG, STL_HELPFLAG_ALT, STL_FILETYPE, STL_FILETYPE_ALT, \
-  STL_PREVIEWFLAG, STL_PREVIEWFLAG_ALT, STL_MODIFIED, STL_MODIFIED_ALT, \
-  STL_QUICKFIX, STL_PERCENTAGE, STL_ALTPERCENT, STL_ARGLISTSTAT, STL_PAGENUM, \
-  STL_VIM_EXPR, STL_SEPARATE, STL_TRUNCMARK, STL_USER_HL, STL_HIGHLIGHT, \
-  STL_TABPAGENR, STL_TABCLOSENR, STL_CLICK_FUNC, \
-  0, \
-})
+        STL_FILEPATH, STL_FULLPATH, STL_FILENAME, STL_COLUMN, STL_VIRTCOL, \
+        STL_VIRTCOL_ALT, STL_LINE, STL_NUMLINES, STL_BUFNO, STL_KEYMAP, STL_OFFSET, \
+        STL_OFFSET_X, STL_BYTEVAL, STL_BYTEVAL_X, STL_ROFLAG, STL_ROFLAG_ALT, \
+        STL_HELPFLAG, STL_HELPFLAG_ALT, STL_FILETYPE, STL_FILETYPE_ALT, \
+        STL_PREVIEWFLAG, STL_PREVIEWFLAG_ALT, STL_MODIFIED, STL_MODIFIED_ALT, \
+        STL_QUICKFIX, STL_PERCENTAGE, STL_ALTPERCENT, STL_ARGLISTSTAT, STL_PAGENUM, \
+        STL_VIM_EXPR, STL_SEPARATE, STL_TRUNCMARK, STL_USER_HL, STL_HIGHLIGHT, \
+        STL_TABPAGENR, STL_TABCLOSENR, STL_CLICK_FUNC, \
+        0, \
+    })
 
 /* flags used for parsed 'wildmode' */
 #define WIM_FULL        1
@@ -289,7 +291,7 @@ enum {
 #define BS_START        's'     /* "Start" */
 
 #define LISPWORD_VALUE \
-  "defun,define,defmacro,set!,lambda,if,case,let,flet,let*,letrec,do,do*,define-syntax,let-syntax,letrec-syntax,destructuring-bind,defpackage,defparameter,defstruct,deftype,defvar,do-all-symbols,do-external-symbols,do-symbols,dolist,dotimes,ecase,etypecase,eval-when,labels,macrolet,multiple-value-bind,multiple-value-call,multiple-value-prog1,multiple-value-setq,prog1,progv,typecase,unless,unwind-protect,when,with-input-from-string,with-open-file,with-open-stream,with-output-to-string,with-package-iterator,define-condition,handler-bind,handler-case,restart-bind,restart-case,with-simple-restart,store-value,use-value,muffle-warning,abort,continue,with-slots,with-slots*,with-accessors,with-accessors*,defclass,defmethod,print-unreadable-object"
+    "defun,define,defmacro,set!,lambda,if,case,let,flet,let*,letrec,do,do*,define-syntax,let-syntax,letrec-syntax,destructuring-bind,defpackage,defparameter,defstruct,deftype,defvar,do-all-symbols,do-external-symbols,do-symbols,dolist,dotimes,ecase,etypecase,eval-when,labels,macrolet,multiple-value-bind,multiple-value-call,multiple-value-prog1,multiple-value-setq,prog1,progv,typecase,unless,unwind-protect,when,with-input-from-string,with-open-file,with-open-stream,with-output-to-string,with-package-iterator,define-condition,handler-bind,handler-case,restart-bind,restart-case,with-simple-restart,store-value,use-value,muffle-warning,abort,continue,with-slots,with-slots*,with-accessors,with-accessors*,defclass,defmethod,print-unreadable-object"
 
 /*
  * The following are actual variables for the options
@@ -321,10 +323,11 @@ EXTERN char_u   *p_bo;          // 'belloff'
 EXTERN unsigned bo_flags;
 # ifdef IN_OPTION_C
 static char *(p_bo_values[]) = {"all", "backspace", "cursor", "complete",
-  "copy", "ctrlg", "error", "esc", "ex",
-  "hangul", "insertmode", "lang", "mess",
-  "showmatch", "operator", "register", "shell",
-  "spell", "wildmode", NULL};
+                                "copy", "ctrlg", "error", "esc", "ex",
+                                "hangul", "insertmode", "lang", "mess",
+                                "showmatch", "operator", "register", "shell",
+                                "spell", "wildmode", NULL
+                               };
 # endif
 
 // values for the 'belloff' option
@@ -363,12 +366,15 @@ EXTERN char_u   *p_ccv;         /* 'charconvert' */
 EXTERN char_u   *p_cedit;       /* 'cedit' */
 EXTERN char_u   *p_cb;          /* 'clipboard' */
 EXTERN unsigned cb_flags;
+
 #ifdef IN_OPTION_C
 static char *(p_cb_values[]) = {"unnamed", "unnamedplus", NULL};
 #endif
-# define CB_UNNAMED             0x001
-# define CB_UNNAMEDPLUS         0x002
-# define CB_UNNAMEDMASK         (CB_UNNAMED | CB_UNNAMEDPLUS)
+
+#define CB_UNNAMED       0x001
+#define CB_UNNAMEDPLUS   0x002
+#define CB_UNNAMEDMASK   (CB_UNNAMED | CB_UNNAMEDPLUS)
+
 EXTERN long p_cwh;              // 'cmdwinheight'
 EXTERN long p_ch;               // 'cmdheight'
 EXTERN int p_confirm;           // 'confirm'
@@ -423,7 +429,8 @@ EXTERN unsigned fdo_flags;
 # ifdef IN_OPTION_C
 static char *(p_fdo_values[]) = {"all", "block", "hor", "mark", "percent",
                                  "quickfix", "search", "tag", "insert",
-                                 "undo", "jump", NULL};
+                                 "undo", "jump", NULL
+                                };
 # endif
 # define FDO_ALL                0x001
 # define FDO_BLOCK              0x002
@@ -541,7 +548,8 @@ static char *(p_ssop_values[]) = {"buffers", "winpos", "resize", "winsize",
                                   "localoptions", "options", "help", "blank",
                                   "globals", "slash", "unix",
                                   "sesdir", "curdir", "folds", "cursor",
-                                  "tabpages", NULL};
+                                  "tabpages", NULL
+                                 };
 # endif
 # define SSOP_BUFFERS           0x001
 # define SSOP_WINPOS            0x002
@@ -568,7 +576,7 @@ EXTERN char_u   *p_sxe;         /* 'shellxescape' */
 EXTERN char_u   *p_srr;         /* 'shellredir' */
 EXTERN int p_stmp;              /* 'shelltemp' */
 #ifdef BACKSLASH_IN_FILENAME
-EXTERN int p_ssl;               /* 'shellslash' */
+    EXTERN int p_ssl;               /* 'shellslash' */
 #endif
 EXTERN char_u   *p_stl;         // 'statusline'
 EXTERN int p_sr;                // 'shiftround'
@@ -593,7 +601,7 @@ EXTERN char_u   *p_swb;         // 'switchbuf'
 EXTERN unsigned swb_flags;
 #ifdef IN_OPTION_C
 static char *(p_swb_values[]) =
-  { "useopen", "usetab", "split", "newtab", "vsplit", NULL };
+{ "useopen", "usetab", "split", "newtab", "vsplit", NULL };
 #endif
 #define SWB_USEOPEN             0x001
 #define SWB_USETAB              0x002
@@ -605,7 +613,7 @@ EXTERN char_u *p_tc;            ///< 'tagcase'
 EXTERN unsigned tc_flags;       ///< flags from 'tagcase'
 #ifdef IN_OPTION_C
 static char *(p_tc_values[]) =
-  { "followic", "ignore", "match", "followscs", "smart", NULL };
+{ "followic", "ignore", "match", "followscs", "smart", NULL };
 #endif
 #define TC_FOLLOWIC             0x01
 #define TC_IGNORE               0x02
@@ -655,9 +663,9 @@ static char *(p_ve_values[]) = {"block", "insert", "all", "onemore", NULL};
 EXTERN long p_verbose;          /* 'verbose' */
 
 #ifdef IN_OPTION_C
-char_u  *p_vfile = (char_u *)""; /* used before options are initialized */
+    char_u  *p_vfile = (char_u *)""; /* used before options are initialized */
 #else
-extern char_u   *p_vfile;       /* 'verbosefile' */
+    extern char_u   *p_vfile;       /* 'verbosefile' */
 #endif
 
 EXTERN int p_warn;              // 'warn'
@@ -689,85 +697,86 @@ EXTERN int p_force_off;         ///< options that cannot be turned on.
  * These need to be defined globally, so that the BV_COUNT can be used with
  * b_p_scriptID[].
  */
-enum {
-  BV_AI = 0
-  , BV_AR
-  , BV_BH
-  , BV_BKC
-  , BV_BT
-  , BV_EFM
-  , BV_GP
-  , BV_MP
-  , BV_BIN
-  , BV_BL
-  , BV_BOMB
-  , BV_CI
-  , BV_CIN
-  , BV_CINK
-  , BV_CINO
-  , BV_CINW
-  , BV_CM
-  , BV_CMS
-  , BV_COM
-  , BV_CPT
-  , BV_DICT
-  , BV_TSR
-  , BV_CFU
-  , BV_DEF
-  , BV_INC
-  , BV_EOL
-  , BV_FIXEOL
-  , BV_EP
-  , BV_ET
-  , BV_FENC
-  , BV_FP
-  , BV_BEXPR
-  , BV_FEX
-  , BV_FF
-  , BV_FLP
-  , BV_FO
-  , BV_FT
-  , BV_IMI
-  , BV_IMS
-  , BV_INDE
-  , BV_INDK
-  , BV_INEX
-  , BV_INF
-  , BV_ISK
-  , BV_KMAP
-  , BV_KP
-  , BV_LISP
-  , BV_LW
-  , BV_MA
-  , BV_ML
-  , BV_MOD
-  , BV_MPS
-  , BV_NF
-  , BV_OFU
-  , BV_PATH
-  , BV_PI
-  , BV_QE
-  , BV_RO
-  , BV_SCBK
-  , BV_SI
-  , BV_SMC
-  , BV_SYN
-  , BV_SPC
-  , BV_SPF
-  , BV_SPL
-  , BV_STS
-  , BV_SUA
-  , BV_SW
-  , BV_SWF
-  , BV_TAGS
-  , BV_TC
-  , BV_TS
-  , BV_TW
-  , BV_TX
-  , BV_UDF
-  , BV_UL
-  , BV_WM
-  , BV_COUNT        /* must be the last one */
+enum
+{
+    BV_AI = 0
+    , BV_AR
+    , BV_BH
+    , BV_BKC
+    , BV_BT
+    , BV_EFM
+    , BV_GP
+    , BV_MP
+    , BV_BIN
+    , BV_BL
+    , BV_BOMB
+    , BV_CI
+    , BV_CIN
+    , BV_CINK
+    , BV_CINO
+    , BV_CINW
+    , BV_CM
+    , BV_CMS
+    , BV_COM
+    , BV_CPT
+    , BV_DICT
+    , BV_TSR
+    , BV_CFU
+    , BV_DEF
+    , BV_INC
+    , BV_EOL
+    , BV_FIXEOL
+    , BV_EP
+    , BV_ET
+    , BV_FENC
+    , BV_FP
+    , BV_BEXPR
+    , BV_FEX
+    , BV_FF
+    , BV_FLP
+    , BV_FO
+    , BV_FT
+    , BV_IMI
+    , BV_IMS
+    , BV_INDE
+    , BV_INDK
+    , BV_INEX
+    , BV_INF
+    , BV_ISK
+    , BV_KMAP
+    , BV_KP
+    , BV_LISP
+    , BV_LW
+    , BV_MA
+    , BV_ML
+    , BV_MOD
+    , BV_MPS
+    , BV_NF
+    , BV_OFU
+    , BV_PATH
+    , BV_PI
+    , BV_QE
+    , BV_RO
+    , BV_SCBK
+    , BV_SI
+    , BV_SMC
+    , BV_SYN
+    , BV_SPC
+    , BV_SPF
+    , BV_SPL
+    , BV_STS
+    , BV_SUA
+    , BV_SW
+    , BV_SWF
+    , BV_TAGS
+    , BV_TC
+    , BV_TS
+    , BV_TW
+    , BV_TX
+    , BV_UDF
+    , BV_UL
+    , BV_WM
+    , BV_COUNT        /* must be the last one */
 };
 
 /*
@@ -775,45 +784,46 @@ enum {
  * These need to be defined globally, so that the WV_COUNT can be used in the
  * window structure.
  */
-enum {
-  WV_LIST = 0
-  , WV_ARAB
-  , WV_COCU
-  , WV_COLE
-  , WV_CRBIND
-  , WV_BRI
-  , WV_BRIOPT
-  , WV_DIFF
-  , WV_FDC
-  , WV_FEN
-  , WV_FDI
-  , WV_FDL
-  , WV_FDM
-  , WV_FML
-  , WV_FDN
-  , WV_FDE
-  , WV_FDT
-  , WV_FMR
-  , WV_LBR
-  , WV_NU
-  , WV_RNU
-  , WV_NUW
-  , WV_PVW
-  , WV_RL
-  , WV_RLC
-  , WV_SCBIND
-  , WV_SCROLL
-  , WV_SPELL
-  , WV_CUC
-  , WV_CUL
-  , WV_CC
-  , WV_STL
-  , WV_WFH
-  , WV_WFW
-  , WV_WRAP
-  , WV_SCL
-  , WV_WINHL
-  , WV_COUNT        // must be the last one
+enum
+{
+    WV_LIST = 0
+    , WV_ARAB
+    , WV_COCU
+    , WV_COLE
+    , WV_CRBIND
+    , WV_BRI
+    , WV_BRIOPT
+    , WV_DIFF
+    , WV_FDC
+    , WV_FEN
+    , WV_FDI
+    , WV_FDL
+    , WV_FDM
+    , WV_FML
+    , WV_FDN
+    , WV_FDE
+    , WV_FDT
+    , WV_FMR
+    , WV_LBR
+    , WV_NU
+    , WV_RNU
+    , WV_NUW
+    , WV_PVW
+    , WV_RL
+    , WV_RLC
+    , WV_SCBIND
+    , WV_SCROLL
+    , WV_SPELL
+    , WV_CUC
+    , WV_CUL
+    , WV_CC
+    , WV_STL
+    , WV_WFH
+    , WV_WFW
+    , WV_WRAP
+    , WV_SCL
+    , WV_WINHL
+    , WV_COUNT        // must be the last one
 };
 
 /* Value for b_p_ul indicating the global value must be used. */

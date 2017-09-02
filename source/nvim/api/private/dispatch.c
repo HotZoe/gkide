@@ -1,5 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file
 
 #include <inttypes.h>
 #include <stdbool.h>
@@ -23,26 +22,24 @@
 
 static Map(String, MsgpackRpcRequestHandler) *methods = NULL;
 
-static void msgpack_rpc_add_method_handler(String method,
-                                           MsgpackRpcRequestHandler handler)
+static void msgpack_rpc_add_method_handler(String method, MsgpackRpcRequestHandler handler)
 {
-  map_put(String, MsgpackRpcRequestHandler)(methods, method, handler);
+    map_put(String, MsgpackRpcRequestHandler)(methods, method, handler);
 }
 
-MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name,
-                                                     size_t name_len)
+MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name, size_t name_len)
 {
-  String m = { .data = (char *)name, .size = name_len };
-  MsgpackRpcRequestHandler rv =
-    map_get(String, MsgpackRpcRequestHandler)(methods, m);
+    String m = { .data = (char *)name, .size = name_len };
+    MsgpackRpcRequestHandler rv = map_get(String, MsgpackRpcRequestHandler)(methods, m);
 
-  if (!rv.fn) {
-    rv.fn = msgpack_rpc_handle_missing_method;
-  }
+    if(!rv.fn)
+    {
+        rv.fn = msgpack_rpc_handle_missing_method;
+    }
 
-  return rv;
+    return rv;
 }
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-#include "api/private/dispatch_wrappers.generated.h"
+    #include "api/private/dispatch_wrappers.generated.h"
 #endif

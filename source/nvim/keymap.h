@@ -119,130 +119,131 @@
 // K_SPECIAL KS_EXTRA KE_xxx
 //
 // Entries must be in the range 0x02-0x7f (see comment at K_SPECIAL).
-enum key_extra {
-  KE_NAME = 3           /* name of this terminal entry */
+enum key_extra
+{
+    KE_NAME = 3           /* name of this terminal entry */
 
-  , KE_S_UP             /* shift-up */
-  , KE_S_DOWN           /* shift-down */
+    , KE_S_UP             /* shift-up */
+    , KE_S_DOWN           /* shift-down */
 
-  , KE_S_F1             /* shifted function keys */
-  , KE_S_F2
-  , KE_S_F3
-  , KE_S_F4
-  , KE_S_F5
-  , KE_S_F6
-  , KE_S_F7
-  , KE_S_F8
-  , KE_S_F9
-  , KE_S_F10
+    , KE_S_F1             /* shifted function keys */
+    , KE_S_F2
+    , KE_S_F3
+    , KE_S_F4
+    , KE_S_F5
+    , KE_S_F6
+    , KE_S_F7
+    , KE_S_F8
+    , KE_S_F9
+    , KE_S_F10
 
-  , KE_S_F11
-  , KE_S_F12
-  , KE_S_F13
-  , KE_S_F14
-  , KE_S_F15
-  , KE_S_F16
-  , KE_S_F17
-  , KE_S_F18
-  , KE_S_F19
-  , KE_S_F20
+    , KE_S_F11
+    , KE_S_F12
+    , KE_S_F13
+    , KE_S_F14
+    , KE_S_F15
+    , KE_S_F16
+    , KE_S_F17
+    , KE_S_F18
+    , KE_S_F19
+    , KE_S_F20
 
-  , KE_S_F21
-  , KE_S_F22
-  , KE_S_F23
-  , KE_S_F24
-  , KE_S_F25
-  , KE_S_F26
-  , KE_S_F27
-  , KE_S_F28
-  , KE_S_F29
-  , KE_S_F30
+    , KE_S_F21
+    , KE_S_F22
+    , KE_S_F23
+    , KE_S_F24
+    , KE_S_F25
+    , KE_S_F26
+    , KE_S_F27
+    , KE_S_F28
+    , KE_S_F29
+    , KE_S_F30
 
-  , KE_S_F31
-  , KE_S_F32
-  , KE_S_F33
-  , KE_S_F34
-  , KE_S_F35
-  , KE_S_F36
-  , KE_S_F37
+    , KE_S_F31
+    , KE_S_F32
+    , KE_S_F33
+    , KE_S_F34
+    , KE_S_F35
+    , KE_S_F36
+    , KE_S_F37
 
-  , KE_MOUSE            /* mouse event start */
+    , KE_MOUSE            /* mouse event start */
 
-  /*
-   * Symbols for pseudo keys which are translated from the real key symbols
-   * above.
-   */
-  , KE_LEFTMOUSE        /* Left mouse button click */
-  , KE_LEFTDRAG         /* Drag with left mouse button down */
-  , KE_LEFTRELEASE      /* Left mouse button release */
-  , KE_MIDDLEMOUSE      /* Middle mouse button click */
-  , KE_MIDDLEDRAG       /* Drag with middle mouse button down */
-  , KE_MIDDLERELEASE    /* Middle mouse button release */
-  , KE_RIGHTMOUSE       /* Right mouse button click */
-  , KE_RIGHTDRAG        /* Drag with right mouse button down */
-  , KE_RIGHTRELEASE     /* Right mouse button release */
+    /*
+     * Symbols for pseudo keys which are translated from the real key symbols
+     * above.
+     */
+    , KE_LEFTMOUSE        /* Left mouse button click */
+    , KE_LEFTDRAG         /* Drag with left mouse button down */
+    , KE_LEFTRELEASE      /* Left mouse button release */
+    , KE_MIDDLEMOUSE      /* Middle mouse button click */
+    , KE_MIDDLEDRAG       /* Drag with middle mouse button down */
+    , KE_MIDDLERELEASE    /* Middle mouse button release */
+    , KE_RIGHTMOUSE       /* Right mouse button click */
+    , KE_RIGHTDRAG        /* Drag with right mouse button down */
+    , KE_RIGHTRELEASE     /* Right mouse button release */
 
-  , KE_IGNORE           /* Ignored mouse drag/release */
+    , KE_IGNORE           /* Ignored mouse drag/release */
 
-  , KE_TAB              /* unshifted TAB key */
-  , KE_S_TAB_OLD        /* shifted TAB key (no longer used) */
+    , KE_TAB              /* unshifted TAB key */
+    , KE_S_TAB_OLD        /* shifted TAB key (no longer used) */
 
-  , KE_XF1              /* extra vt100 function keys for xterm */
-  , KE_XF2
-  , KE_XF3
-  , KE_XF4
-  , KE_XEND             /* extra (vt100) end key for xterm */
-  , KE_ZEND             /* extra (vt100) end key for xterm */
-  , KE_XHOME            /* extra (vt100) home key for xterm */
-  , KE_ZHOME            /* extra (vt100) home key for xterm */
-  , KE_XUP              /* extra vt100 cursor keys for xterm */
-  , KE_XDOWN
-  , KE_XLEFT
-  , KE_XRIGHT
+    , KE_XF1              /* extra vt100 function keys for xterm */
+    , KE_XF2
+    , KE_XF3
+    , KE_XF4
+    , KE_XEND             /* extra (vt100) end key for xterm */
+    , KE_ZEND             /* extra (vt100) end key for xterm */
+    , KE_XHOME            /* extra (vt100) home key for xterm */
+    , KE_ZHOME            /* extra (vt100) home key for xterm */
+    , KE_XUP              /* extra vt100 cursor keys for xterm */
+    , KE_XDOWN
+    , KE_XLEFT
+    , KE_XRIGHT
 
-  , KE_LEFTMOUSE_NM     /* non-mappable Left mouse button click */
-  , KE_LEFTRELEASE_NM   /* non-mappable left mouse button release */
+    , KE_LEFTMOUSE_NM     /* non-mappable Left mouse button click */
+    , KE_LEFTRELEASE_NM   /* non-mappable left mouse button release */
 
-  , KE_S_XF1            /* extra vt100 shifted function keys for xterm */
-  , KE_S_XF2
-  , KE_S_XF3
-  , KE_S_XF4
+    , KE_S_XF1            /* extra vt100 shifted function keys for xterm */
+    , KE_S_XF2
+    , KE_S_XF3
+    , KE_S_XF4
 
-  /* NOTE: The scroll wheel events are inverted: i.e. UP is the same as
-   * moving the actual scroll wheel down, LEFT is the same as moving the
-   * scroll wheel right. */
-  , KE_MOUSEDOWN        /* scroll wheel pseudo-button Down */
-  , KE_MOUSEUP          /* scroll wheel pseudo-button Up */
-  , KE_MOUSELEFT        /* scroll wheel pseudo-button Left */
-  , KE_MOUSERIGHT       /* scroll wheel pseudo-button Right */
+    /* NOTE: The scroll wheel events are inverted: i.e. UP is the same as
+     * moving the actual scroll wheel down, LEFT is the same as moving the
+     * scroll wheel right. */
+    , KE_MOUSEDOWN        /* scroll wheel pseudo-button Down */
+    , KE_MOUSEUP          /* scroll wheel pseudo-button Up */
+    , KE_MOUSELEFT        /* scroll wheel pseudo-button Left */
+    , KE_MOUSERIGHT       /* scroll wheel pseudo-button Right */
 
-  , KE_KINS             /* keypad Insert key */
-  , KE_KDEL             /* keypad Delete key */
+    , KE_KINS             /* keypad Insert key */
+    , KE_KDEL             /* keypad Delete key */
 
-  , KE_CSI              /* CSI typed directly */
-  , KE_SNR              /* <SNR> */
-  , KE_PLUG             /* <Plug> */
-  , KE_CMDWIN           /* open command-line window from Command-line Mode */
+    , KE_CSI              /* CSI typed directly */
+    , KE_SNR              /* <SNR> */
+    , KE_PLUG             /* <Plug> */
+    , KE_CMDWIN           /* open command-line window from Command-line Mode */
 
-  , KE_C_LEFT           /* control-left */
-  , KE_C_RIGHT          /* control-right */
-  , KE_C_HOME           /* control-home */
-  , KE_C_END            /* control-end */
+    , KE_C_LEFT           /* control-left */
+    , KE_C_RIGHT          /* control-right */
+    , KE_C_HOME           /* control-home */
+    , KE_C_END            /* control-end */
 
-  , KE_X1MOUSE          /* X1/X2 mouse-buttons */
-  , KE_X1DRAG
-  , KE_X1RELEASE
-  , KE_X2MOUSE
-  , KE_X2DRAG
-  , KE_X2RELEASE
+    , KE_X1MOUSE          /* X1/X2 mouse-buttons */
+    , KE_X1DRAG
+    , KE_X1RELEASE
+    , KE_X2MOUSE
+    , KE_X2DRAG
+    , KE_X2RELEASE
 
-  , KE_DROP             /* DnD data is available */
-  , KE_NOP              /* doesn't do something */
-  , KE_FOCUSGAINED      /* focus gained */
-  , KE_FOCUSLOST        /* focus lost */
-  , KE_EVENT            // event
-  , KE_PASTE            // special key to toggle the 'paste' option.
-                        // sent only by UIs
+    , KE_DROP             /* DnD data is available */
+    , KE_NOP              /* doesn't do something */
+    , KE_FOCUSGAINED      /* focus gained */
+    , KE_FOCUSLOST        /* focus lost */
+    , KE_EVENT            // event
+    , KE_PASTE            // special key to toggle the 'paste' option.
+    // sent only by UIs
 };
 
 /*
@@ -473,6 +474,6 @@ enum key_extra {
                              : FLAG_CPO_SPECI))
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "keymap.h.generated.h"
+    #include "keymap.h.generated.h"
 #endif
 #endif  // NVIM_KEYMAP_H

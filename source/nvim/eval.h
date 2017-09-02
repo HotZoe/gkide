@@ -21,7 +21,8 @@ EXTERN ufunc_T dumuf;
 #define HI2UF(hi)    HIKEY2UF((hi)->hi_key)
 
 /// Defines for Vim variables
-typedef enum {
+typedef enum
+{
     VV_COUNT,
     VV_COUNT1,
     VV_PREVCOUNT,
@@ -108,16 +109,17 @@ typedef enum {
 } VimVarIndex;
 
 /// All recognized msgpack types
-typedef enum {
-  kMPNil,
-  kMPBoolean,
-  kMPInteger,
-  kMPFloat,
-  kMPString,
-  kMPBinary,
-  kMPArray,
-  kMPMap,
-  kMPExt,
+typedef enum
+{
+    kMPNil,
+    kMPBoolean,
+    kMPInteger,
+    kMPFloat,
+    kMPString,
+    kMPBinary,
+    kMPArray,
+    kMPMap,
+    kMPExt,
 #define LAST_MSGPACK_TYPE kMPExt
 } MessagePackType;
 
@@ -130,6 +132,6 @@ typedef int (*ArgvFunc)(int current_argcount, typval_T *argv,
                         int called_func_argcount);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "eval.h.generated.h"
+    #include "eval.h.generated.h"
 #endif
 #endif  // NVIM_EVAL_H

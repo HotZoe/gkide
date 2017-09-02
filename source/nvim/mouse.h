@@ -42,7 +42,7 @@
 
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "mouse.h.generated.h"
+    #include "mouse.h.generated.h"
 #endif
 
 #endif  // NVIM_MOUSE_H

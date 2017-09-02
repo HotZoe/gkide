@@ -11,6 +11,6 @@
 #define MFS_ZERO        8       /// only write block 0
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "memfile.h.generated.h"
+    #include "memfile.h.generated.h"
 #endif
 #endif  // NVIM_MEMFILE_H

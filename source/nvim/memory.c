@@ -1,7 +1,7 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check
 // it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
- // Various routines dealing with allocation and deallocation of memory.
+// Various routines dealing with allocation and deallocation of memory.
 
 #include <assert.h>
 #include <inttypes.h>
@@ -17,60 +17,62 @@
 #include "nvim/ui.h"
 
 #ifdef FOUND_WORKING_JEMALLOC
-// Force je_ prefix on jemalloc functions.
-# define JEMALLOC_NO_DEMANGLE
-# include <jemalloc/jemalloc.h>
+    // Force je_ prefix on jemalloc functions.
+    #define JEMALLOC_NO_DEMANGLE
+    #include <jemalloc/jemalloc.h>
 #endif
 
 #ifdef UNIT_TESTING
-# define malloc(size) mem_malloc(size)
-# define calloc(count, size) mem_calloc(count, size)
-# define realloc(ptr, size) mem_realloc(ptr, size)
-# define free(ptr) mem_free(ptr)
-# ifdef FOUND_WORKING_JEMALLOC
-MemMalloc mem_malloc = &je_malloc;
-MemFree mem_free = &je_free;
-MemCalloc mem_calloc = &je_calloc;
-MemRealloc mem_realloc = &je_realloc;
-# else
-MemMalloc mem_malloc = &malloc;
-MemFree mem_free = &free;
-MemCalloc mem_calloc = &calloc;
-MemRealloc mem_realloc = &realloc;
-# endif
+    #define malloc(size) mem_malloc(size)
+    #define calloc(count, size) mem_calloc(count, size)
+    #define realloc(ptr, size) mem_realloc(ptr, size)
+    #define free(ptr) mem_free(ptr)
+    #ifdef FOUND_WORKING_JEMALLOC
+        MemMalloc mem_malloc = &je_malloc;
+        MemFree mem_free = &je_free;
+        MemCalloc mem_calloc = &je_calloc;
+        MemRealloc mem_realloc = &je_realloc;
+    #else
+        MemMalloc mem_malloc = &malloc;
+        MemFree mem_free = &free;
+        MemCalloc mem_calloc = &calloc;
+        MemRealloc mem_realloc = &realloc;
+    #endif
 #else
-# ifdef FOUND_WORKING_JEMALLOC
-#  define malloc(size) je_malloc(size)
-#  define calloc(count, size) je_calloc(count, size)
-#  define realloc(ptr, size) je_realloc(ptr, size)
-#  define free(ptr) je_free(ptr)
-# endif
+    #ifdef FOUND_WORKING_JEMALLOC
+        #define malloc(size) je_malloc(size)
+        #define calloc(count, size) je_calloc(count, size)
+        #define realloc(ptr, size) je_realloc(ptr, size)
+        #define free(ptr) je_free(ptr)
+    #endif
 #endif
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "memory.c.generated.h"
+    #include "memory.c.generated.h"
 #endif
 
 #ifdef EXITFREE
-bool entered_free_all_mem = false;
+    bool entered_free_all_mem = false;
 #endif
 
 /// Try to free memory. Used when trying to recover from out of memory errors.
 /// @see {xmalloc}
 void try_to_free_memory(void)
 {
-  static bool trying_to_free = false;
-  // avoid recursive calls
-  if (trying_to_free)
-    return;
-  trying_to_free = true;
+    static bool trying_to_free = false;
 
-  // free any scrollback text
-  clear_sb_text();
-  // Try to save all buffers and release as many blocks as possible
-  mf_release_all();
+    // avoid recursive calls
+    if (trying_to_free)
+    {
+        return;
+    }
 
-  trying_to_free = false;
+    trying_to_free = true;
+    // free any scrollback text
+    clear_sb_text();
+    // Try to save all buffers and release as many blocks as possible
+    mf_release_all();
+    trying_to_free = false;
 }
 
 /// malloc() wrapper
@@ -83,13 +85,16 @@ void try_to_free_memory(void)
 /// @return pointer to allocated space. NULL if out of memory
 void *try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 {
-  size_t allocated_size = size ? size : 1;
-  void *ret = malloc(allocated_size);
-  if (!ret) {
-    try_to_free_memory();
-    ret = malloc(allocated_size);
-  }
-  return ret;
+    size_t allocated_size = size ? size : 1;
+    void *ret = malloc(allocated_size);
+
+    if (!ret)
+    {
+        try_to_free_memory();
+        ret = malloc(allocated_size);
+    }
+
+    return ret;
 }
 
 /// try_malloc() wrapper that shows an out-of-memory error message to the user
@@ -100,11 +105,14 @@ void *try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 /// @return pointer to allocated space. NULL if out of memory
 void *verbose_try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 {
-  void *ret = try_malloc(size);
-  if (!ret) {
-    do_outofmem_msg(size);
-  }
-  return ret;
+    void *ret = try_malloc(size);
+
+    if (!ret)
+    {
+        do_outofmem_msg(size);
+    }
+
+    return ret;
 }
 
 /// malloc() wrapper that never returns NULL
@@ -116,21 +124,24 @@ void *verbose_try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 /// @param size
 /// @return pointer to allocated space. Never NULL
 void *xmalloc(size_t size)
-  FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1) FUNC_ATTR_NONNULL_RET
 {
-  void *ret = try_malloc(size);
-  if (!ret) {
-    mch_errmsg(e_outofmem);
-    mch_errmsg("\n");
-    preserve_exit();
-  }
-  return ret;
+    void *ret = try_malloc(size);
+
+    if (!ret)
+    {
+        mch_errmsg(e_outofmem);
+        mch_errmsg("\n");
+        preserve_exit();
+    }
+
+    return ret;
 }
 
 /// free wrapper that returns delegates to the backing memory manager
 void xfree(void *ptr)
 {
-  free(ptr);
+    free(ptr);
 }
 
 /// calloc() wrapper
@@ -140,21 +151,26 @@ void xfree(void *ptr)
 /// @param size
 /// @return pointer to allocated space. Never NULL
 void *xcalloc(size_t count, size_t size)
-  FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE_PROD(1, 2) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE_PROD(1, 2) FUNC_ATTR_NONNULL_RET
 {
-  size_t allocated_count = count && size ? count : 1;
-  size_t allocated_size = count && size ? size : 1;
-  void *ret = calloc(allocated_count, allocated_size);
-  if (!ret) {
-    try_to_free_memory();
-    ret = calloc(allocated_count, allocated_size);
-    if (!ret) {
-      mch_errmsg(e_outofmem);
-      mch_errmsg("\n");
-      preserve_exit();
+    size_t allocated_count = count && size ? count : 1;
+    size_t allocated_size = count && size ? size : 1;
+    void *ret = calloc(allocated_count, allocated_size);
+
+    if (!ret)
+    {
+        try_to_free_memory();
+        ret = calloc(allocated_count, allocated_size);
+
+        if (!ret)
+        {
+            mch_errmsg(e_outofmem);
+            mch_errmsg("\n");
+            preserve_exit();
+        }
     }
-  }
-  return ret;
+
+    return ret;
 }
 
 /// realloc() wrapper
@@ -163,20 +179,25 @@ void *xcalloc(size_t count, size_t size)
 /// @param size
 /// @return pointer to reallocated space. Never NULL
 void *xrealloc(void *ptr, size_t size)
-  FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
 {
-  size_t allocated_size = size ? size : 1;
-  void *ret = realloc(ptr, allocated_size);
-  if (!ret) {
-    try_to_free_memory();
-    ret = realloc(ptr, allocated_size);
-    if (!ret) {
-      mch_errmsg(e_outofmem);
-      mch_errmsg("\n");
-      preserve_exit();
+    size_t allocated_size = size ? size : 1;
+    void *ret = realloc(ptr, allocated_size);
+
+    if (!ret)
+    {
+        try_to_free_memory();
+        ret = realloc(ptr, allocated_size);
+
+        if (!ret)
+        {
+            mch_errmsg(e_outofmem);
+            mch_errmsg("\n");
+            preserve_exit();
+        }
     }
-  }
-  return ret;
+
+    return ret;
 }
 
 /// xmalloc() wrapper that allocates size + 1 bytes and zeroes the last byte
@@ -185,18 +206,20 @@ void *xrealloc(void *ptr, size_t size)
 /// @param size
 /// @return pointer to allocated space. Never NULL
 void *xmallocz(size_t size)
-  FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
 {
-  size_t total_size = size + 1;
-  if (total_size < size) {
-    mch_errmsg(_("Vim: Data too large to fit into virtual memory space\n"));
-    preserve_exit();
-  }
+    size_t total_size = size + 1;
 
-  void *ret = xmalloc(total_size);
-  ((char*)ret)[size] = 0;
+    if (total_size < size)
+    {
+        mch_errmsg(_("Vim: Data too large to fit into virtual memory space\n"));
+        preserve_exit();
+    }
 
-  return ret;
+    void *ret = xmalloc(total_size);
+    ((char *)ret)[size] = 0;
+
+    return ret;
 }
 
 /// Allocates (len + 1) bytes of memory, duplicates `len` bytes of
@@ -221,10 +244,10 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NO
 /// @returns a pointer to the first instance of `c`, or to the NUL terminator
 ///          if not found.
 char *xstrchrnul(const char *str, char c)
-  FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-  char *p = strchr(str, c);
-  return p ? p : (char *)(str + strlen(str));
+    char *p = strchr(str, c);
+    return p ? p : (char *)(str + strlen(str));
 }
 
 /// A version of memchr() that returns a pointer one past the end
@@ -236,10 +259,10 @@ char *xstrchrnul(const char *str, char c)
 /// @returns a pointer to the first instance of `c`, or one past the end if not
 ///          found.
 void *xmemscan(const void *addr, char c, size_t size)
-  FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-  char *p = memchr(addr, c, size);
-  return p ? p : (char *)addr + size;
+    char *p = memchr(addr, c, size);
+    return p ? p : (char *)addr + size;
 }
 
 /// Replaces every instance of `c` with `x`.
@@ -250,12 +273,14 @@ void *xmemscan(const void *addr, char c, size_t size)
 /// @param c   The unwanted byte.
 /// @param x   The replacement.
 void strchrsub(char *str, char c, char x)
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
 {
-  assert(c != '\0');
-  while ((str = strchr(str, c))) {
-    *str++ = x;
-  }
+    assert(c != '\0');
+
+    while ((str = strchr(str, c)))
+    {
+        *str++ = x;
+    }
 }
 
 /// Replaces every instance of `c` with `x`.
@@ -265,12 +290,14 @@ void strchrsub(char *str, char c, char x)
 /// @param x    The replacement.
 /// @param len  The length of data.
 void memchrsub(void *data, char c, char x, size_t len)
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
 {
-  char *p = data, *end = (char *)data + len;
-  while ((p = memchr(p, c, (size_t)(end - p)))) {
-    *p++ = x;
-  }
+    char *p = data, *end = (char *)data + len;
+
+    while ((p = memchr(p, c, (size_t)(end - p))))
+    {
+        *p++ = x;
+    }
 }
 
 /// Counts the number of occurrences of `c` in `str`.
@@ -281,15 +308,18 @@ void memchrsub(void *data, char c, char x, size_t len)
 /// @param c   The byte to search for.
 /// @returns the number of occurrences of `c` in `str`.
 size_t strcnt(const char *str, char c)
-  FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-  assert(c != 0);
-  size_t cnt = 0;
-  while ((str = strchr(str, c))) {
-    cnt++;
-    str++;  // Skip the instance of c.
-  }
-  return cnt;
+    assert(c != 0);
+    size_t cnt = 0;
+
+    while ((str = strchr(str, c)))
+    {
+        cnt++;
+        str++;  // Skip the instance of c.
+    }
+
+    return cnt;
 }
 
 /// Counts the number of occurrences of byte `c` in `data[len]`.
@@ -299,15 +329,18 @@ size_t strcnt(const char *str, char c)
 /// @param len  The length of `data`.
 /// @returns the number of occurrences of `c` in `data[len]`.
 size_t memcnt(const void *data, char c, size_t len)
-  FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-  size_t cnt = 0;
-  const char *ptr = data, *end = ptr + len;
-  while ((ptr = memchr(ptr, c, (size_t)(end - ptr))) != NULL) {
-    cnt++;
-    ptr++;  // Skip the instance of c.
-  }
-  return cnt;
+    size_t cnt = 0;
+    const char *ptr = data, *end = ptr + len;
+
+    while ((ptr = memchr(ptr, c, (size_t)(end - ptr))) != NULL)
+    {
+        cnt++;
+        ptr++;  // Skip the instance of c.
+    }
+
+    return cnt;
 }
 
 /// Copies the string pointed to by src (including the terminating NUL
@@ -325,10 +358,10 @@ size_t memcnt(const void *data, char c, size_t len)
 /// @param dst
 /// @param src
 char *xstpcpy(char *restrict dst, const char *restrict src)
-  FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
-  const size_t len = strlen(src);
-  return (char *)memcpy(dst, src, len + 1) + len;
+    const size_t len = strlen(src);
+    return (char *)memcpy(dst, src, len + 1) + len;
 }
 
 /// Copies not more than n bytes (bytes that follow a NUL character are not
@@ -348,15 +381,19 @@ char *xstpcpy(char *restrict dst, const char *restrict src)
 /// @param src
 /// @param maxlen
 char *xstpncpy(char *restrict dst, const char *restrict src, size_t maxlen)
-  FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     const char *p = memchr(src, '\0', maxlen);
-    if (p) {
+
+    if (p)
+    {
         size_t srclen = (size_t)(p - src);
         memcpy(dst, src, srclen);
         memset(dst + srclen, 0, maxlen - srclen);
         return dst + srclen;
-    } else {
+    }
+    else
+    {
         memcpy(dst, src, maxlen);
         return dst + maxlen;
     }
@@ -373,17 +410,18 @@ char *xstpncpy(char *restrict dst, const char *restrict src, size_t maxlen)
 /// @param dsize  Size of `dst`
 /// @return       strlen(src). If retval >= dstsize, truncation occurs.
 size_t xstrlcpy(char *restrict dst, const char *restrict src, size_t dsize)
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
 {
-  size_t slen = strlen(src);
+    size_t slen = strlen(src);
 
-  if (dsize) {
-    size_t len = MIN(slen, dsize - 1);
-    memcpy(dst, src, len);
-    dst[len] = '\0';
-  }
+    if (dsize)
+    {
+        size_t len = MIN(slen, dsize - 1);
+        memcpy(dst, src, len);
+        dst[len] = '\0';
+    }
 
-  return slen;  // Does not include NUL.
+    return slen;  // Does not include NUL.
 }
 
 /// Appends `src` to string `dst` of size `dsize` (unlike strncat, dsize is the
@@ -399,21 +437,24 @@ size_t xstrlcpy(char *restrict dst, const char *restrict src, size_t dsize)
 /// @return         strlen(src) + strlen(initial dst)
 ///                 If retval >= dsize, truncation occurs.
 size_t xstrlcat(char *const dst, const char *const src, const size_t dsize)
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
 {
-  assert(dsize > 0);
-  const size_t dlen = strlen(dst);
-  assert(dlen < dsize);
-  const size_t slen = strlen(src);
+    assert(dsize > 0);
+    const size_t dlen = strlen(dst);
+    assert(dlen < dsize);
+    const size_t slen = strlen(src);
 
-  if (slen > dsize - dlen - 1) {
-    memmove(dst + dlen, src, dsize - dlen - 1);
-    dst[dsize - 1] = '\0';
-  } else {
-    memmove(dst + dlen, src, slen + 1);
-  }
+    if (slen > dsize - dlen - 1)
+    {
+        memmove(dst + dlen, src, dsize - dlen - 1);
+        dst[dsize - 1] = '\0';
+    }
+    else
+    {
+        memmove(dst + dlen, src, slen + 1);
+    }
 
-  return slen + dlen;  // Does not include NUL.
+    return slen + dlen;  // Does not include NUL.
 }
 
 /// strdup() wrapper
@@ -431,13 +472,16 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NO
 ///
 /// Unlike xstrdup() allocates a new empty string if it receives NULL.
 char *xstrdupnul(const char *const str)
-  FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
 {
-  if (str == NULL) {
-    return xmallocz(0);
-  } else {
-    return xstrdup(str);
-  }
+    if (str == NULL)
+    {
+        return xmallocz(0);
+    }
+    else
+    {
+        return xstrdup(str);
+    }
 }
 
 /// A version of memchr that starts the search at `src + len`.
@@ -449,14 +493,17 @@ char *xstrdupnul(const char *const str)
 /// @param len The length of the memory object.
 /// @returns a pointer to the found byte in src[len], or NULL.
 void *xmemrchr(const void *src, uint8_t c, size_t len)
-  FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-  while (len--) {
-    if (((uint8_t *)src)[len] == c) {
-      return (uint8_t *) src + len;
+    while (len--)
+    {
+        if (((uint8_t *)src)[len] == c)
+        {
+            return (uint8_t *) src + len;
+        }
     }
-  }
-  return NULL;
+
+    return NULL;
 }
 
 /// strndup() wrapper
@@ -465,11 +512,11 @@ void *xmemrchr(const void *src, uint8_t c, size_t len)
 /// @param str 0-terminated string that will be copied
 /// @return pointer to a copy of the string
 char *xstrndup(const char *str, size_t len)
-  FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ALL
 {
-  char *p = memchr(str, '\0', len);
-  return xmemdupz(str, p ? (size_t)(p - str) : len);
+    char *p = memchr(str, '\0', len);
+    return xmemdupz(str, p ? (size_t)(p - str) : len);
 }
 
 /// Duplicates a chunk of memory using xmalloc
@@ -479,24 +526,24 @@ char *xstrndup(const char *str, size_t len)
 /// @param len size of the chunk
 /// @return a pointer
 void *xmemdup(const void *data, size_t len)
-  FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
-  FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
-  return memcpy(xmalloc(len), data, len);
+    return memcpy(xmalloc(len), data, len);
 }
 
 /// Returns true if strings `a` and `b` are equal. Arguments may be NULL.
 bool strequal(const char *a, const char *b)
-  FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 {
-  return (a == NULL && b == NULL) || (a && b && strcmp(a, b) == 0);
+    return (a == NULL && b == NULL) || (a && b && strcmp(a, b) == 0);
 }
 
 /// Case-insensitive `strequal`.
 bool striequal(const char *a, const char *b)
-  FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 {
-  return (a == NULL && b == NULL) || (a && b && STRICMP(a, b) == 0);
+    return (a == NULL && b == NULL) || (a && b && STRICMP(a, b) == 0);
 }
 
 /*
@@ -505,26 +552,26 @@ bool striequal(const char *a, const char *b)
  */
 void do_outofmem_msg(size_t size)
 {
-  if (!did_outofmem_msg) {
-    /* Don't hide this message */
-    emsg_silent = 0;
-
-    /* Must come first to avoid coming back here when printing the error
-     * message fails, e.g. when setting v:errmsg. */
-    did_outofmem_msg = true;
-
-    EMSGU(_("E342: Out of memory!  (allocating %" PRIu64 " bytes)"), size);
-  }
+    if (!did_outofmem_msg)
+    {
+        /* Don't hide this message */
+        emsg_silent = 0;
+        /* Must come first to avoid coming back here when printing the error
+         * message fails, e.g. when setting v:errmsg. */
+        did_outofmem_msg = true;
+        EMSGU(_("E342: Out of memory!  (allocating %" PRIu64 " bytes)"), size);
+    }
 }
 
 /// Writes time_t to "buf[8]".
 void time_to_bytes(time_t time_, uint8_t buf[8])
 {
-  // time_t can be up to 8 bytes in size, more than uintmax_t in 32 bits
-  // systems, thus we can't use put_bytes() here.
-  for (size_t i = 7, bufi = 0; bufi < 8; i--, bufi++) {
-    buf[bufi] = (uint8_t)((uint64_t)time_ >> (i * 8));
-  }
+    // time_t can be up to 8 bytes in size, more than uintmax_t in 32 bits
+    // systems, thus we can't use put_bytes() here.
+    for (size_t i = 7, bufi = 0; bufi < 8; i--, bufi++)
+    {
+        buf[bufi] = (uint8_t)((uint64_t)time_ >> (i * 8));
+    }
 }
 
 #if defined(EXITFREE)
@@ -567,129 +614,122 @@ void time_to_bytes(time_t time_, uint8_t buf[8])
  */
 void free_all_mem(void)
 {
-  buf_T       *buf, *nextbuf;
+    buf_T       *buf, *nextbuf;
 
-  // When we cause a crash here it is caught and Vim tries to exit cleanly.
-  // Don't try freeing everything again.
-  if (entered_free_all_mem) {
-    return;
-  }
-  entered_free_all_mem = true;
+    // When we cause a crash here it is caught and Vim tries to exit cleanly.
+    // Don't try freeing everything again.
+    if (entered_free_all_mem)
+    {
+        return;
+    }
 
-  // Don't want to trigger autocommands from here on.
-  block_autocmds();
+    entered_free_all_mem = true;
+    // Don't want to trigger autocommands from here on.
+    block_autocmds();
+    /* Close all tabs and windows.  Reset 'equalalways' to avoid redraws. */
+    p_ea = false;
 
-  /* Close all tabs and windows.  Reset 'equalalways' to avoid redraws. */
-  p_ea = false;
-  if (first_tabpage->tp_next != NULL)
-    do_cmdline_cmd("tabonly!");
-  if (firstwin != lastwin)
-    do_cmdline_cmd("only!");
+    if (first_tabpage->tp_next != NULL)
+    {
+        do_cmdline_cmd("tabonly!");
+    }
 
-  /* Free all spell info. */
-  spell_free_all();
+    if (firstwin != lastwin)
+    {
+        do_cmdline_cmd("only!");
+    }
 
-  /* Clear user commands (before deleting buffers). */
-  ex_comclear(NULL);
+    /* Free all spell info. */
+    spell_free_all();
+    /* Clear user commands (before deleting buffers). */
+    ex_comclear(NULL);
+    /* Clear menus. */
+    do_cmdline_cmd("aunmenu *");
+    do_cmdline_cmd("menutranslate clear");
+    /* Clear mappings, abbreviations, breakpoints. */
+    do_cmdline_cmd("lmapclear");
+    do_cmdline_cmd("xmapclear");
+    do_cmdline_cmd("mapclear");
+    do_cmdline_cmd("mapclear!");
+    do_cmdline_cmd("abclear");
+    do_cmdline_cmd("breakdel *");
+    do_cmdline_cmd("profdel *");
+    do_cmdline_cmd("set keymap=");
+    free_titles();
+    free_findfile();
+    /* Obviously named calls. */
+    free_all_autocmds();
+    free_all_options();
+    free_all_marks();
+    alist_clear(&global_alist);
+    free_homedir();
+    free_users();
+    free_search_patterns();
+    free_old_sub();
+    free_last_insert();
+    free_prev_shellcmd();
+    free_regexp_stuff();
+    free_tag_stuff();
+    free_cd_dir();
+    free_signs();
+    set_expr_line(NULL);
+    diff_clear(curtab);
+    clear_sb_text();            /* free any scrollback text */
+    /* Free some global vars. */
+    xfree(last_cmdline);
+    xfree(new_last_cmdline);
+    set_keep_msg(NULL, 0);
+    /* Clear cmdline history. */
+    p_hi = 0;
+    init_history();
+    qf_free_all(NULL);
+    /* Free all location lists */
+    FOR_ALL_TAB_WINDOWS(tab, win)
+    {
+        qf_free_all(win);
+    }
+    /* Close all script inputs. */
+    close_all_scripts();
+    /* Destroy all windows.  Must come before freeing buffers. */
+    win_free_all();
+    free_cmdline_buf();
+    /* Clear registers. */
+    clear_registers();
+    ResetRedobuff();
+    ResetRedobuff();
+    /* highlight info */
+    free_highlight();
+    reset_last_sourcing();
+    free_tabpage(first_tabpage);
+    first_tabpage = NULL;
 
-  /* Clear menus. */
-  do_cmdline_cmd("aunmenu *");
-  do_cmdline_cmd("menutranslate clear");
+    /* message history */
+    for (;; )
+        if (delete_first_msg() == FAIL)
+        {
+            break;
+        }
 
-  /* Clear mappings, abbreviations, breakpoints. */
-  do_cmdline_cmd("lmapclear");
-  do_cmdline_cmd("xmapclear");
-  do_cmdline_cmd("mapclear");
-  do_cmdline_cmd("mapclear!");
-  do_cmdline_cmd("abclear");
-  do_cmdline_cmd("breakdel *");
-  do_cmdline_cmd("profdel *");
-  do_cmdline_cmd("set keymap=");
+    eval_clear();
+    // Free all buffers.  Reset 'autochdir' to avoid accessing things that
+    // were freed already.
+    // Must be after eval_clear to avoid it trying to access b:changedtick after
+    // freeing it.
+    p_acd = false;
 
-  free_titles();
-  free_findfile();
+    for (buf = firstbuf; buf != NULL; )
+    {
+        bufref_T bufref;
+        set_bufref(&bufref, buf);
+        nextbuf = buf->b_next;
+        close_buffer(NULL, buf, DOBUF_WIPE, false);
+        // Didn't work, try next one.
+        buf = bufref_valid(&bufref) ? nextbuf : firstbuf;
+    }
 
-  /* Obviously named calls. */
-  free_all_autocmds();
-  free_all_options();
-  free_all_marks();
-  alist_clear(&global_alist);
-  free_homedir();
-  free_users();
-  free_search_patterns();
-  free_old_sub();
-  free_last_insert();
-  free_prev_shellcmd();
-  free_regexp_stuff();
-  free_tag_stuff();
-  free_cd_dir();
-  free_signs();
-  set_expr_line(NULL);
-  diff_clear(curtab);
-  clear_sb_text();            /* free any scrollback text */
-
-  /* Free some global vars. */
-  xfree(last_cmdline);
-  xfree(new_last_cmdline);
-  set_keep_msg(NULL, 0);
-
-  /* Clear cmdline history. */
-  p_hi = 0;
-  init_history();
-
-  qf_free_all(NULL);
-  /* Free all location lists */
-  FOR_ALL_TAB_WINDOWS(tab, win) {
-    qf_free_all(win);
-  }
-
-  /* Close all script inputs. */
-  close_all_scripts();
-
-  /* Destroy all windows.  Must come before freeing buffers. */
-  win_free_all();
-
-  free_cmdline_buf();
-
-  /* Clear registers. */
-  clear_registers();
-  ResetRedobuff();
-  ResetRedobuff();
-
-
-  /* highlight info */
-  free_highlight();
-
-  reset_last_sourcing();
-
-  free_tabpage(first_tabpage);
-  first_tabpage = NULL;
-
-  /* message history */
-  for (;; )
-    if (delete_first_msg() == FAIL)
-      break;
-
-  eval_clear();
-
-  // Free all buffers.  Reset 'autochdir' to avoid accessing things that
-  // were freed already.
-  // Must be after eval_clear to avoid it trying to access b:changedtick after
-  // freeing it.
-  p_acd = false;
-  for (buf = firstbuf; buf != NULL; ) {
-    bufref_T bufref;
-    set_bufref(&bufref, buf);
-    nextbuf = buf->b_next;
-    close_buffer(NULL, buf, DOBUF_WIPE, false);
-    // Didn't work, try next one.
-    buf = bufref_valid(&bufref) ? nextbuf : firstbuf;
-  }
-
-  /* screenlines (can't display anything now!) */
-  free_screenlines();
-
-  clear_hl_tables();
+    /* screenlines (can't display anything now!) */
+    free_screenlines();
+    clear_hl_tables();
 }
 
 #endif

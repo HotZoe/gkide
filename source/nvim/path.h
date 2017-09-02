@@ -22,20 +22,21 @@
 * is used when executing commands and EW_SILENT for interactive expanding. */
 #define EW_ALLLINKS     0x1000  // also links not pointing to existing file
 #define EW_SHELLCMD     0x2000  // called from expand_shellcmd(), don't check
-                                //  if executable is in $PATH
+//  if executable is in $PATH
 #define EW_DODOT        0x4000  // also files starting with a dot
 #define EW_EMPTYOK      0x8000  // no matches is not an error
 
 /// Return value for the comparison of two files. Also @see path_full_compare.
-typedef enum file_comparison {
-  kEqualFiles = 1,        ///< Both exist and are the same file.
-  kDifferentFiles = 2,    ///< Both exist and are different files.
-  kBothFilesMissing = 4,  ///< Both don't exist.
-  kOneFileMissing = 6,    ///< One of them doesn't exist.
-  kEqualFileNames = 7     ///< Both don't exist and file names are same.
+typedef enum file_comparison
+{
+    kEqualFiles = 1,        ///< Both exist and are the same file.
+    kDifferentFiles = 2,    ///< Both exist and are different files.
+    kBothFilesMissing = 4,  ///< Both don't exist.
+    kOneFileMissing = 6,    ///< One of them doesn't exist.
+    kEqualFileNames = 7     ///< Both don't exist and file names are same.
 } FileComparison;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "path.h.generated.h"
+    #include "path.h.generated.h"
 #endif
 #endif

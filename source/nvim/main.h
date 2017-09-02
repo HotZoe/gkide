@@ -7,6 +7,6 @@
 extern Loop main_loop;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "main.h.generated.h"
+    #include "main.h.generated.h"
 #endif
 #endif  // NVIM_MAIN_H

@@ -21,21 +21,24 @@
 #define CLEAR                   50  /* screen messed up, clear it */
 
 /// Status line click definition
-typedef struct {
-  enum {
-    kStlClickDisabled = 0,  ///< Clicks to this area are ignored.
-    kStlClickTabSwitch,     ///< Switch to the given tab.
-    kStlClickTabClose,      ///< Close given tab.
-    kStlClickFuncRun,       ///< Run user function.
-  } type;      ///< Type of the click.
-  int tabnr;   ///< Tab page number.
-  char *func;  ///< Function to run.
+typedef struct
+{
+    enum
+    {
+        kStlClickDisabled = 0,  ///< Clicks to this area are ignored.
+        kStlClickTabSwitch,     ///< Switch to the given tab.
+        kStlClickTabClose,      ///< Close given tab.
+        kStlClickFuncRun,       ///< Run user function.
+    } type;      ///< Type of the click.
+    int tabnr;   ///< Tab page number.
+    char *func;  ///< Function to run.
 } StlClickDefinition;
 
 /// Used for tabline clicks
-typedef struct {
-  StlClickDefinition def;  ///< Click definition.
-  const char *start;       ///< Location where region starts.
+typedef struct
+{
+    StlClickDefinition def;  ///< Click definition.
+    const char *start;       ///< Location where region starts.
 } StlClickRecord;
 
 /// Array defining what should be done when tabline is clicked
@@ -45,6 +48,6 @@ extern StlClickDefinition *tab_page_click_defs;
 extern long tab_page_click_defs_size;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "screen.h.generated.h"
+    #include "screen.h.generated.h"
 #endif
 #endif  // NVIM_SCREEN_H

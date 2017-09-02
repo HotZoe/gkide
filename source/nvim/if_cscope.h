@@ -5,6 +5,6 @@
 #include "nvim/ex_cmds_defs.h" // for exarg_T
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "if_cscope.h.generated.h"
+    #include "if_cscope.h.generated.h"
 #endif
 #endif  // NVIM_IF_CSCOPE_H

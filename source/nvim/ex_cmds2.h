@@ -22,6 +22,6 @@ typedef void (*DoInRuntimepathCB)(char_u *, void *);
 #define DOSO_GVIMRC     2       /* loading gvimrc file */
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "ex_cmds2.h.generated.h"
+    #include "ex_cmds2.h.generated.h"
 #endif
 #endif  // NVIM_EX_CMDS2_H

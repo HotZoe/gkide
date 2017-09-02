@@ -18,6 +18,6 @@
 
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "getchar.h.generated.h"
+    #include "getchar.h.generated.h"
 #endif
 #endif  // NVIM_GETCHAR_H

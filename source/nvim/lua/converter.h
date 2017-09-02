@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_LUA_CONVERTER_H
 #define NVIM_LUA_CONVERTER_H
 
@@ -10,6 +12,7 @@
 #include "nvim/eval.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "lua/converter.h.generated.h"
+    #include "lua/converter.h.generated.h"
 #endif
-#endif  // NVIM_LUA_CONVERTER_H
+
+#endif // NVIM_LUA_CONVERTER_H

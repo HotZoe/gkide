@@ -28,11 +28,11 @@
 
 
 #if defined(HOST_OS_ARCH_64)
-#define ptr_t_hash(key) uint64_t_hash((uint64_t)key)
-#define ptr_t_eq(a, b) uint64_t_eq((uint64_t)a, (uint64_t)b)
+    #define ptr_t_hash(key) uint64_t_hash((uint64_t)key)
+    #define ptr_t_eq(a, b) uint64_t_eq((uint64_t)a, (uint64_t)b)
 #elif defined(HOST_OS_ARCH_32)
-#define ptr_t_hash(key) uint32_t_hash((uint32_t)key)
-#define ptr_t_eq(a, b) uint32_t_eq((uint32_t)a, (uint32_t)b)
+    #define ptr_t_hash(key) uint32_t_hash((uint32_t)key)
+    #define ptr_t_eq(a, b) uint32_t_eq((uint32_t)a, (uint32_t)b)
 #endif
 
 #define INITIALIZER(T, U) T##_##U##_initializer
@@ -40,104 +40,109 @@
 #define DEFAULT_INITIALIZER {0}
 
 #define MAP_IMPL(T, U, ...) \
-  INITIALIZER_DECLARE(T, U, __VA_ARGS__); \
-  __KHASH_IMPL(T##_##U##_map,, T, U, 1, T##_hash, T##_eq) \
-  \
-  Map(T, U) *map_##T##_##U##_new() \
-  { \
-    Map(T, U) *rv = xmalloc(sizeof(Map(T, U))); \
-    rv->table = kh_init(T##_##U##_map); \
-    return rv; \
-  } \
-  \
-  void map_##T##_##U##_free(Map(T, U) *map) \
-  { \
-    kh_destroy(T##_##U##_map, map->table); \
-    xfree(map); \
-  } \
-  \
-  U map_##T##_##U##_get(Map(T, U) *map, T key) \
-  { \
-    khiter_t k; \
+    INITIALIZER_DECLARE(T, U, __VA_ARGS__); \
+    __KHASH_IMPL(T##_##U##_map,, T, U, 1, T##_hash, T##_eq) \
     \
-    if ((k = kh_get(T##_##U##_map, map->table, key)) == kh_end(map->table)) { \
-      return INITIALIZER(T, U); \
+    Map(T, U) *map_##T##_##U##_new() \
+    { \
+        Map(T, U) *rv = xmalloc(sizeof(Map(T, U))); \
+        rv->table = kh_init(T##_##U##_map); \
+        return rv; \
     } \
     \
-    return kh_val(map->table, k); \
-  } \
-  \
-  bool map_##T##_##U##_has(Map(T, U) *map, T key) \
-  { \
-    return kh_get(T##_##U##_map, map->table, key) != kh_end(map->table); \
-  } \
-  \
-  U map_##T##_##U##_put(Map(T, U) *map, T key, U value) \
-  { \
-    int ret; \
-    U rv = INITIALIZER(T, U); \
-    khiter_t k = kh_put(T##_##U##_map, map->table, key, &ret); \
-    \
-    if (!ret) { \
-      rv = kh_val(map->table, k); \
+    void map_##T##_##U##_free(Map(T, U) *map) \
+    { \
+        kh_destroy(T##_##U##_map, map->table); \
+        xfree(map); \
     } \
     \
-    kh_val(map->table, k) = value; \
-    return rv; \
-  } \
-  \
-  U *map_##T##_##U##_ref(Map(T, U) *map, T key, bool put) \
-  { \
-    int ret; \
-    khiter_t k; \
-    if (put) { \
-      k = kh_put(T##_##U##_map, map->table, key, &ret); \
-      if (ret) { \
-        kh_val(map->table, k) = INITIALIZER(T, U); \
-      } \
-    } else { \
-      k = kh_get(T##_##U##_map, map->table, key); \
-      if (k == kh_end(map->table)) { \
-        return NULL; \
-      } \
+    U map_##T##_##U##_get(Map(T, U) *map, T key) \
+    { \
+        khiter_t k; \
+        \
+        if ((k = kh_get(T##_##U##_map, map->table, key)) == kh_end(map->table)) { \
+            return INITIALIZER(T, U); \
+        } \
+        \
+        return kh_val(map->table, k); \
     } \
     \
-    return &kh_val(map->table, k); \
-  } \
-  \
-  U map_##T##_##U##_del(Map(T, U) *map, T key) \
-  { \
-    U rv = INITIALIZER(T, U); \
-    khiter_t k; \
-    \
-    if ((k = kh_get(T##_##U##_map, map->table, key)) != kh_end(map->table)) { \
-      rv = kh_val(map->table, k); \
-      kh_del(T##_##U##_map, map->table, k); \
+    bool map_##T##_##U##_has(Map(T, U) *map, T key) \
+    { \
+        return kh_get(T##_##U##_map, map->table, key) != kh_end(map->table); \
     } \
     \
-    return rv; \
-  } \
-  \
-  void map_##T##_##U##_clear(Map(T, U) *map) \
-  { \
-    kh_clear(T##_##U##_map, map->table); \
-  }
+    U map_##T##_##U##_put(Map(T, U) *map, T key, U value) \
+    { \
+        int ret; \
+        U rv = INITIALIZER(T, U); \
+        khiter_t k = kh_put(T##_##U##_map, map->table, key, &ret); \
+        \
+        if (!ret) { \
+            rv = kh_val(map->table, k); \
+        } \
+        \
+        kh_val(map->table, k) = value; \
+        return rv; \
+    } \
+    \
+    U *map_##T##_##U##_ref(Map(T, U) *map, T key, bool put) \
+    { \
+        int ret; \
+        khiter_t k; \
+        if (put) { \
+            k = kh_put(T##_##U##_map, map->table, key, &ret); \
+            if (ret) { \
+                kh_val(map->table, k) = INITIALIZER(T, U); \
+            } \
+        } else { \
+            k = kh_get(T##_##U##_map, map->table, key); \
+            if (k == kh_end(map->table)) { \
+                return NULL; \
+            } \
+        } \
+        \
+        return &kh_val(map->table, k); \
+    } \
+    \
+    U map_##T##_##U##_del(Map(T, U) *map, T key) \
+    { \
+        U rv = INITIALIZER(T, U); \
+        khiter_t k; \
+        \
+        if ((k = kh_get(T##_##U##_map, map->table, key)) != kh_end(map->table)) { \
+            rv = kh_val(map->table, k); \
+            kh_del(T##_##U##_map, map->table, k); \
+        } \
+        \
+        return rv; \
+    } \
+    \
+    void map_##T##_##U##_clear(Map(T, U) *map) \
+    { \
+        kh_clear(T##_##U##_map, map->table); \
+    }
 
 static inline khint_t String_hash(String s)
 {
-  khint_t h = 0;
-  for (size_t i = 0; i < s.size && s.data[i]; i++) {
-    h = (h << 5) - h + (uint8_t)s.data[i];
-  }
-  return h;
+    khint_t h = 0;
+
+    for (size_t i = 0; i < s.size && s.data[i]; i++)
+    {
+        h = (h << 5) - h + (uint8_t)s.data[i];
+    }
+
+    return h;
 }
 
 static inline bool String_eq(String a, String b)
 {
-  if (a.size != b.size) {
-    return false;
-  }
-  return memcmp(a.data, b.data, a.size) == 0;
+    if (a.size != b.size)
+    {
+        return false;
+    }
+
+    return memcmp(a.data, b.data, a.size) == 0;
 }
 
 

@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_EVENT_TIME_H
 #define NVIM_EVENT_TIME_H
 
@@ -8,15 +10,17 @@
 typedef struct time_watcher TimeWatcher;
 typedef void (*time_cb)(TimeWatcher *watcher, void *data);
 
-struct time_watcher {
-  uv_timer_t uv;
-  void *data;
-  time_cb cb, close_cb;
-  MultiQueue *events;
-  bool blockable;
+struct time_watcher
+{
+    uv_timer_t uv;
+    void *data;
+    time_cb cb, close_cb;
+    MultiQueue *events;
+    bool blockable;
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "event/time.h.generated.h"
+    #include "event/time.h.generated.h"
 #endif
-#endif  // NVIM_EVENT_TIME_H
+
+#endif // NVIM_EVENT_TIME_H

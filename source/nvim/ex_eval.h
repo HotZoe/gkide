@@ -11,9 +11,10 @@
  */
 
 typedef struct eslist_elem eslist_T;
-struct eslist_elem {
-  int saved_emsg_silent;                /* saved value of "emsg_silent" */
-  eslist_T    *next;                    /* next element on the list */
+struct eslist_elem
+{
+    int saved_emsg_silent;                /* saved value of "emsg_silent" */
+    eslist_T    *next;                    /* next element on the list */
 };
 
 /*
@@ -22,20 +23,22 @@ struct eslist_elem {
  */
 #define CSTACK_LEN      50
 
-struct condstack {
-  int cs_flags[CSTACK_LEN];             // CSF_ flags
-  char cs_pending[CSTACK_LEN];          // CSTP_: what's pending in ":finally"
-  union {
-    void    *csp_rv[CSTACK_LEN];        // return typeval for pending return
-    void    *csp_ex[CSTACK_LEN];        // exception for pending throw
-  }           cs_pend;
-  void        *cs_forinfo[CSTACK_LEN];  // info used by ":for"
-  int cs_line[CSTACK_LEN];              // line nr of ":while"/":for" line
-  int cs_idx;                           // current entry, or -1 if none
-  int cs_looplevel;                     // nr of nested ":while"s and ":for"s
-  int cs_trylevel;                      // nr of nested ":try"s
-  eslist_T    *cs_emsg_silent_list;     // saved values of "emsg_silent"
-  int cs_lflags;                        // loop flags: CSL_ flags
+struct condstack
+{
+    int cs_flags[CSTACK_LEN];             // CSF_ flags
+    char cs_pending[CSTACK_LEN];          // CSTP_: what's pending in ":finally"
+    union
+    {
+        void    *csp_rv[CSTACK_LEN];        // return typeval for pending return
+        void    *csp_ex[CSTACK_LEN];        // exception for pending throw
+    }           cs_pend;
+    void        *cs_forinfo[CSTACK_LEN];  // info used by ":for"
+    int cs_line[CSTACK_LEN];              // line nr of ":while"/":for" line
+    int cs_idx;                           // current entry, or -1 if none
+    int cs_looplevel;                     // nr of nested ":while"s and ":for"s
+    int cs_trylevel;                      // nr of nested ":try"s
+    eslist_T    *cs_emsg_silent_list;     // saved values of "emsg_silent"
+    int cs_lflags;                        // loop flags: CSL_ flags
 };
 # define cs_rettv       cs_pend.csp_rv
 # define cs_exception   cs_pend.csp_ex
@@ -83,10 +86,11 @@ struct condstack {
  * original message stored in that element, but sometimes it points to a later
  * message in the list.  See cause_errthrow() below.
  */
-struct msglist {
-  char_u              *msg;             /* original message */
-  char_u              *throw_msg;       /* msg to throw: usually original one */
-  struct msglist      *next;            /* next of several messages in a row */
+struct msglist
+{
+    char_u              *msg;             /* original message */
+    char_u              *throw_msg;       /* msg to throw: usually original one */
+    struct msglist      *next;            /* next of several messages in a row */
 };
 
 /*
@@ -94,13 +98,14 @@ struct msglist {
  * (don't use "struct exception", it's used by the math library).
  */
 typedef struct vim_exception except_T;
-struct vim_exception {
-  int type;                             /* exception type */
-  char_u              *value;           /* exception value */
-  struct msglist      *messages;        /* message(s) causing error exception */
-  char_u              *throw_name;      /* name of the throw point */
-  linenr_T throw_lnum;                  /* line number of the throw point */
-  except_T            *caught;          /* next exception on the caught stack */
+struct vim_exception
+{
+    int type;                             /* exception type */
+    char_u              *value;           /* exception value */
+    struct msglist      *messages;        /* message(s) causing error exception */
+    char_u              *throw_name;      /* name of the throw point */
+    linenr_T throw_lnum;                  /* line number of the throw point */
+    except_T            *caught;          /* next exception on the caught stack */
 };
 
 /*
@@ -116,12 +121,13 @@ struct vim_exception {
  * variable by the (common) caller of these functions.
  */
 typedef struct cleanup_stuff cleanup_T;
-struct cleanup_stuff {
-  int pending;                  /* error/interrupt/exception state */
-  except_T *exception;          /* exception value */
+struct cleanup_stuff
+{
+    int pending;                  /* error/interrupt/exception state */
+    except_T *exception;          /* exception value */
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "ex_eval.h.generated.h"
+    #include "ex_eval.h.generated.h"
 #endif
 #endif  // NVIM_EX_EVAL_H

@@ -33,28 +33,29 @@
 
 typedef struct VimMenu vimmenu_T;
 
-struct VimMenu {
-  int modes;                        /* Which modes is this menu visible for? */
-  int enabled;                      /* for which modes the menu is enabled */
-  char_u      *name;                /* Name of menu, possibly translated */
-  char_u      *dname;               /* Displayed Name ("name" without '&') */
-  char_u      *en_name;             /* "name" untranslated, NULL when "name"
+struct VimMenu
+{
+    int modes;                        /* Which modes is this menu visible for? */
+    int enabled;                      /* for which modes the menu is enabled */
+    char_u      *name;                /* Name of menu, possibly translated */
+    char_u      *dname;               /* Displayed Name ("name" without '&') */
+    char_u      *en_name;             /* "name" untranslated, NULL when "name"
                                      * was not translated */
-  char_u      *en_dname;            /* "dname" untranslated, NULL when "dname"
+    char_u      *en_dname;            /* "dname" untranslated, NULL when "dname"
                                      * was not translated */
-  int mnemonic;                     /* mnemonic key (after '&') */
-  char_u      *actext;              /* accelerator text (after TAB) */
-  long priority;                     /* Menu order priority */
-  char_u      *strings[MENU_MODES];   /* Mapped string for each mode */
-  int noremap[MENU_MODES];           /* A REMAP_ flag for each mode */
-  bool silent[MENU_MODES];          /* A silent flag for each mode */
-  vimmenu_T   *children;            /* Children of sub-menu */
-  vimmenu_T   *parent;              /* Parent of menu */
-  vimmenu_T   *next;                /* Next item in menu */
+    int mnemonic;                     /* mnemonic key (after '&') */
+    char_u      *actext;              /* accelerator text (after TAB) */
+    long priority;                     /* Menu order priority */
+    char_u      *strings[MENU_MODES];   /* Mapped string for each mode */
+    int noremap[MENU_MODES];           /* A REMAP_ flag for each mode */
+    bool silent[MENU_MODES];          /* A silent flag for each mode */
+    vimmenu_T   *children;            /* Children of sub-menu */
+    vimmenu_T   *parent;              /* Parent of menu */
+    vimmenu_T   *next;                /* Next item in menu */
 };
 
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "menu.h.generated.h"
+    #include "menu.h.generated.h"
 #endif
 #endif  // NVIM_MENU_H

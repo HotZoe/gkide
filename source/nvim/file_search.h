@@ -12,6 +12,6 @@
 #define FINDFILE_BOTH   2       /* files and directories */
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "file_search.h.generated.h"
+    #include "file_search.h.generated.h"
 #endif
 #endif  // NVIM_FILE_SEARCH_H

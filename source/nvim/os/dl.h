@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_OS_DL_H
 #define NVIM_OS_DL_H
 
@@ -5,6 +7,7 @@
 #include <stdint.h>
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "os/dl.h.generated.h"
+    #include "os/dl.h.generated.h"
 #endif
-#endif  // NVIM_OS_DL_H
+
+#endif // NVIM_OS_DL_H

@@ -12,6 +12,6 @@
 #define OPENLINE_COM_LIST  16   /* format comments with list/2nd line indent */
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "misc1.h.generated.h"
+    #include "misc1.h.generated.h"
 #endif
 #endif  // NVIM_MISC1_H

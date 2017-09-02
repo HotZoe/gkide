@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_SPELL_H
 #define NVIM_SPELL_H
 
@@ -8,6 +10,7 @@
 #include "nvim/globals.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "spell.h.generated.h"
+    #include "spell.h.generated.h"
 #endif
-#endif  // NVIM_SPELL_H
+
+#endif // NVIM_SPELL_H

@@ -16,6 +16,6 @@
              :((int)(c)))
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "charset.h.generated.h"
+    #include "charset.h.generated.h"
 #endif
 #endif  // NVIM_CHARSET_H

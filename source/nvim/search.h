@@ -53,24 +53,26 @@
 ///
 /// @note Only offset for the last search pattern is used, not for the last
 ///       substitute pattern.
-typedef struct soffset {
-  char dir;     ///< Search direction: forward ('/') or backward ('?')
-  bool line;    ///< True if search has line offset.
-  bool end;     ///< True if search sets cursor at the end.
-  int64_t off;  ///< Actual offset value.
+typedef struct soffset
+{
+    char dir;     ///< Search direction: forward ('/') or backward ('?')
+    bool line;    ///< True if search has line offset.
+    bool end;     ///< True if search sets cursor at the end.
+    int64_t off;  ///< Actual offset value.
 } SearchOffset;
 
 /// Structure containing last search pattern and its attributes.
-typedef struct spat {
-  char_u *pat;          ///< The pattern (in allocated memory) or NULL.
-  bool magic;           ///< Magicness of the pattern.
-  bool no_scs;          ///< No smartcase for this pattern.
-  Timestamp timestamp;  ///< Time of the last change.
-  SearchOffset off;     ///< Pattern offset.
-  dict_T *additional_data;  ///< Additional data from ShaDa file.
+typedef struct spat
+{
+    char_u *pat;          ///< The pattern (in allocated memory) or NULL.
+    bool magic;           ///< Magicness of the pattern.
+    bool no_scs;          ///< No smartcase for this pattern.
+    Timestamp timestamp;  ///< Time of the last change.
+    SearchOffset off;     ///< Pattern offset.
+    dict_T *additional_data;  ///< Additional data from ShaDa file.
 } SearchPattern;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "search.h.generated.h"
+    #include "search.h.generated.h"
 #endif
 #endif  // NVIM_SEARCH_H

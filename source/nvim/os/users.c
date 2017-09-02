@@ -1,7 +1,6 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-// users.c -- operating system user information
+/// @file
+///
+/// operating system user information
 
 #include <uv.h>
 
@@ -10,33 +9,37 @@
 #include "nvim/garray.h"
 #include "nvim/memory.h"
 #include "nvim/strings.h"
+
 #ifdef HAVE_HDR_PWD_H
-# include <pwd.h>
+    #include <pwd.h>
 #endif
 
 // Initialize users garray and fill it with os usernames.
 // Return Ok for success, FAIL for failure.
 int os_get_usernames(garray_T *users)
 {
-  if (users == NULL) {
-    return FAIL;
-  }
-  ga_init(users, sizeof(char *), 20);
-
-# if defined(HAVE_FUN_GETPWENT) && defined(HAVE_HDR_PWD_H)
-  struct passwd *pw;
-
-  setpwent();
-  while ((pw = getpwent()) != NULL) {
-    // pw->pw_name shouldn't be NULL but just in case...
-    if (pw->pw_name != NULL) {
-      GA_APPEND(char *, users, xstrdup(pw->pw_name));
+    if(users == NULL)
+    {
+        return FAIL;
     }
-  }
-  endpwent();
-# endif
 
-  return OK;
+    ga_init(users, sizeof(char *), 20);
+#if defined(HAVE_FUN_GETPWENT) && defined(HAVE_HDR_PWD_H)
+    struct passwd *pw;
+    setpwent();
+
+    while((pw = getpwent()) != NULL)
+    {
+        // pw->pw_name shouldn't be NULL but just in case...
+        if(pw->pw_name != NULL)
+        {
+            GA_APPEND(char *, users, xstrdup(pw->pw_name));
+        }
+    }
+
+    endpwent();
+#endif
+    return OK;
 }
 
 // Insert user name in s[len].
@@ -44,10 +47,10 @@ int os_get_usernames(garray_T *users)
 int os_get_user_name(char *s, size_t len)
 {
 #ifdef UNIX
-  return os_get_uname((uv_uid_t)getuid(), s, len);
+    return os_get_uname((uv_uid_t)getuid(), s, len);
 #else
-  // TODO(equalsraf): Windows GetUserName()
-  return os_get_uname((uv_uid_t)0, s, len);
+    // TODO(equalsraf): Windows GetUserName()
+    return os_get_uname((uv_uid_t)0, s, len);
 #endif
 }
 
@@ -57,16 +60,20 @@ int os_get_user_name(char *s, size_t len)
 int os_get_uname(uv_uid_t uid, char *s, size_t len)
 {
 #if defined(HAVE_HDR_PWD_H) && defined(HAVE_FUN_GETPWUID)
-  struct passwd *pw;
+    struct passwd *pw;
 
-  if ((pw = getpwuid(uid)) != NULL  // NOLINT(runtime/threadsafe_fn)
-      && pw->pw_name != NULL && *(pw->pw_name) != NUL) {
-    STRLCPY(s, pw->pw_name, len);
-    return OK;
-  }
+    if((pw = getpwuid(uid)) != NULL  // NOLINT(runtime/threadsafe_fn)
+            && pw->pw_name != NULL
+            && *(pw->pw_name) != NUL)
+    {
+        STRLCPY(s, pw->pw_name, len);
+        return OK;
+    }
+
 #endif
-  snprintf(s, len, "%d", (int)uid);
-  return FAIL;  // a number is not a name
+    // a number is not a name
+    snprintf(s, len, "%d", (int)uid);
+    return FAIL;
 }
 
 // Returns the user directory for the given username.
@@ -75,16 +82,22 @@ int os_get_uname(uv_uid_t uid, char *s, size_t len)
 char *os_get_user_directory(const char *name)
 {
 #if defined(HAVE_FUN_GETPWNAM) && defined(HAVE_HDR_PWD_H)
-  struct passwd *pw;
-  if (name == NULL) {
-    return NULL;
-  }
-  pw = getpwnam(name);  // NOLINT(runtime/threadsafe_fn)
-  if (pw != NULL) {
-    // save the string from the static passwd entry into malloced memory
-    return xstrdup(pw->pw_dir);
-  }
+    struct passwd *pw;
+
+    if(name == NULL)
+    {
+        return NULL;
+    }
+
+    pw = getpwnam(name); // NOLINT(runtime/threadsafe_fn)
+
+    if(pw != NULL)
+    {
+        // save the string from the static passwd entry into malloced memory
+        return xstrdup(pw->pw_dir);
+    }
+
 #endif
-  return NULL;
+    return NULL;
 }
 

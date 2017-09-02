@@ -67,25 +67,27 @@ typedef int (*Indenter)(void);
 #define OP_FORMAT2      26      // "gw" format operator, keeps cursor pos
 #define OP_FUNCTION     27      // "g@" call 'operatorfunc'
 #define OP_NR_ADD       28      // "<C-A>" Add to the number or alphabetic
-                                // character (OP_ADD conflicts with Perl)
+// character (OP_ADD conflicts with Perl)
 #define OP_NR_SUB       29      // "<C-X>" Subtract from the number or
-                                // alphabetic character
+// alphabetic character
 
 /// Flags for get_reg_contents().
-enum GRegFlags {
-  kGRegNoExpr  = 1,  ///< Do not allow expression register.
-  kGRegExprSrc = 2,  ///< Return expression itself for "=" register.
-  kGRegList    = 4   ///< Return list.
+enum GRegFlags
+{
+    kGRegNoExpr  = 1,  ///< Do not allow expression register.
+    kGRegExprSrc = 2,  ///< Return expression itself for "=" register.
+    kGRegList    = 4   ///< Return list.
 };
 
 /// Definition of one register
-typedef struct yankreg {
-  char_u **y_array;   ///< Pointer to an array of line pointers.
-  size_t y_size;      ///< Number of lines in y_array.
-  MotionType y_type;  ///< Register type
-  colnr_T y_width;    ///< Register width (only valid for y_type == kBlockWise).
-  Timestamp timestamp;  ///< Time when register was last modified.
-  dict_T *additional_data;  ///< Additional data from ShaDa file.
+typedef struct yankreg
+{
+    char_u **y_array;   ///< Pointer to an array of line pointers.
+    size_t y_size;      ///< Number of lines in y_array.
+    MotionType y_type;  ///< Register type
+    colnr_T y_width;    ///< Register width (only valid for y_type == kBlockWise).
+    Timestamp timestamp;  ///< Time when register was last modified.
+    dict_T *additional_data;  ///< Additional data from ShaDa file.
 } yankreg_T;
 
 /// Convert register name into register index
@@ -94,26 +96,39 @@ typedef struct yankreg {
 ///
 /// @return Index in y_regs array or -1 if register name was not recognized.
 static inline int op_reg_index(const int regname)
-  FUNC_ATTR_CONST
+FUNC_ATTR_CONST
 {
-  if (ascii_isdigit(regname)) {
-    return regname - '0';
-  } else if (ASCII_ISLOWER(regname)) {
-    return CharOrdLow(regname) + 10;
-  } else if (ASCII_ISUPPER(regname)) {
-    return CharOrdUp(regname) + 10;
-  } else if (regname == '-') {
-    return DELETION_REGISTER;
-  } else if (regname == '*') {
-    return STAR_REGISTER;
-  } else if (regname == '+') {
-    return PLUS_REGISTER;
-  } else {
-    return -1;
-  }
+    if (ascii_isdigit(regname))
+    {
+        return regname - '0';
+    }
+    else if (ASCII_ISLOWER(regname))
+    {
+        return CharOrdLow(regname) + 10;
+    }
+    else if (ASCII_ISUPPER(regname))
+    {
+        return CharOrdUp(regname) + 10;
+    }
+    else if (regname == '-')
+    {
+        return DELETION_REGISTER;
+    }
+    else if (regname == '*')
+    {
+        return STAR_REGISTER;
+    }
+    else if (regname == '+')
+    {
+        return PLUS_REGISTER;
+    }
+    else
+    {
+        return -1;
+    }
 }
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "ops.h.generated.h"
+    #include "ops.h.generated.h"
 #endif
 #endif  // NVIM_OPS_H

@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_OS_INPUT_H
 #define NVIM_OS_INPUT_H
 
@@ -7,6 +9,7 @@
 #include "nvim/api/private/defs.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "os/input.h.generated.h"
+    #include "os/input.h.generated.h"
 #endif
-#endif  // NVIM_OS_INPUT_H
+
+#endif // NVIM_OS_INPUT_H

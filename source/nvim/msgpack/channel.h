@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_MSGPACK_RPC_CHANNEL_H
 #define NVIM_MSGPACK_RPC_CHANNEL_H
 
@@ -17,6 +19,7 @@
 MultiQueue *ch_before_blocking_events;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "msgpack/channel.h.generated.h"
+    #include "msgpack/channel.h.generated.h"
 #endif
-#endif  // NVIM_MSGPACK_RPC_CHANNEL_H
+
+#endif // NVIM_MSGPACK_RPC_CHANNEL_H

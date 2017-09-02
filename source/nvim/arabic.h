@@ -1,3 +1,5 @@
+/// @headerfile ""
+
 #ifndef NVIM_ARABIC_H
 #define NVIM_ARABIC_H
 
@@ -11,6 +13,7 @@ static inline bool arabic_char(int c)
 }
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "arabic.h.generated.h"
+    #include "arabic.h.generated.h"
 #endif
-#endif  // NVIM_ARABIC_H
+
+#endif // NVIM_ARABIC_H

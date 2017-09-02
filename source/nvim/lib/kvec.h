@@ -51,9 +51,9 @@
 
 #define kvec_t(type) \
     struct { \
-      size_t size; \
-      size_t capacity; \
-      type *items; \
+        size_t size; \
+        size_t capacity; \
+        type *items; \
     }
 
 #define kv_init(v) ((v).size = (v).capacity = 0, (v).items = 0)
@@ -73,11 +73,11 @@
 
 #define kv_copy(v1, v0) \
     do { \
-      if ((v1).capacity < (v0).size) { \
-        kv_resize(v1, (v0).size); \
-      } \
-      (v1).size = (v0).size; \
-      memcpy((v1).items, (v0).items, sizeof((v1).items[0]) * (v0).size); \
+        if ((v1).capacity < (v0).size) { \
+            kv_resize(v1, (v0).size); \
+        } \
+        (v1).size = (v0).size; \
+        memcpy((v1).items, (v0).items, sizeof((v1).items[0]) * (v0).size); \
     } while (0) \
 
 #define kv_pushp(v) \
@@ -94,7 +94,7 @@
          kv_resize((v), (v).capacity), 0) \
       : ((v).size <= (size_t) (i) \
          ? (v).size = (i) + 1 \
-         : 0)), \
+                      : 0)), \
      (v).items[(i)])
 
 /// Type of a vector with a few first members allocated on stack
@@ -107,10 +107,10 @@
 /// @param[in]  init_size  Number of the elements in the initial array.
 #define kvec_withinit_t(type, INIT_SIZE) \
     struct { \
-      size_t size; \
-      size_t capacity; \
-      type *items; \
-      type init_array[INIT_SIZE]; \
+        size_t size; \
+        size_t capacity; \
+        type *items; \
+        type init_array[INIT_SIZE]; \
     }
 
 /// Initialize vector with preallocated array
@@ -125,11 +125,11 @@
 static inline void *_memcpy_free(void *const restrict dest,
                                  void *const restrict src,
                                  const size_t size)
-  FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET FUNC_ATTR_ALWAYS_INLINE
 {
-  memcpy(dest, src, size);
-  xfree(src);
-  return dest;
+    memcpy(dest, src, size);
+    xfree(src);
+    return dest;
 }
 
 /// Resize vector with preallocated array
@@ -188,9 +188,9 @@ static inline void *_memcpy_free(void *const restrict dest,
 /// @param[out]  v  Vector to free.
 #define kvi_destroy(v) \
     do { \
-      if ((v).items != (v).init_array) { \
-        xfree((v).items); \
-      } \
+        if ((v).items != (v).init_array) { \
+            xfree((v).items); \
+        } \
     } while (0)
 
 #endif  // NVIM_LIB_KVEC_H

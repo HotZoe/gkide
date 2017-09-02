@@ -9,13 +9,13 @@
 #include "nvim/regexp_defs.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "ex_cmds_enum.generated.h"
+    #include "ex_cmds_enum.generated.h"
 #endif
 
 /*
  * When adding an Ex command:
- * 1. Add an entry to the table in src/nvim/ex_cmds.lua.  Keep it sorted on the 
- *    shortest version of the command name that works.  If it doesn't start with 
+ * 1. Add an entry to the table in src/nvim/ex_cmds.lua.  Keep it sorted on the
+ *    shortest version of the command name that works.  If it doesn't start with
  *    a lower case letter, add it at the end.
  *
  *    Each table entry is a table with the following keys:
@@ -27,7 +27,7 @@
  *      flags   | A set of the flags from below list joined by bitwise or.
  *      func    | Name of the function containing the implementation.
  *
- *    Referenced function should be either non-static one or defined in 
+ *    Referenced function should be either non-static one or defined in
  *    ex_docmd.c and be coercible to ex_func_T type from below.
  *
  *    All keys not described in the above table are reserved for future use.
@@ -89,44 +89,46 @@ typedef void (*ex_func_T)(exarg_T *eap);
 typedef char_u *(*LineGetter)(int, void *, int);
 
 /// Structure for command definition.
-typedef struct cmdname {
-  char_u *cmd_name;    ///< Name of the command.
-  ex_func_T cmd_func;  ///< Function with implementation of this command.
-  uint32_t cmd_argt;     ///< Relevant flags from the declared above.
-  int cmd_addr_type;     ///< Flag for address type
+typedef struct cmdname
+{
+    char_u *cmd_name;    ///< Name of the command.
+    ex_func_T cmd_func;  ///< Function with implementation of this command.
+    uint32_t cmd_argt;     ///< Relevant flags from the declared above.
+    int cmd_addr_type;     ///< Flag for address type
 } CommandDefinition;
 
 /// Arguments used for Ex commands.
-struct exarg {
-  char_u      *arg;             ///< argument of the command
-  char_u      *nextcmd;         ///< next command (NULL if none)
-  char_u      *cmd;             ///< the name of the command (except for :make)
-  char_u      **cmdlinep;       ///< pointer to pointer of allocated cmdline
-  cmdidx_T cmdidx;              ///< the index for the command
-  uint32_t argt;                ///< flags for the command
-  int skip;                     ///< don't execute the command, only parse it
-  int forceit;                  ///< TRUE if ! present
-  int addr_count;               ///< the number of addresses given
-  linenr_T line1;               ///< the first line number
-  linenr_T line2;               ///< the second line number or count
-  int addr_type;                ///< type of the count/range
-  int flags;                    ///< extra flags after count: EXFLAG_
-  char_u      *do_ecmd_cmd;     ///< +command arg to be used in edited file
-  linenr_T do_ecmd_lnum;        ///< the line number in an edited file
-  int append;                   ///< TRUE with ":w >>file" command
-  int usefilter;                ///< TRUE with ":w !command" and ":r!command"
-  int amount;                   ///< number of '>' or '<' for shift command
-  int regname;                  ///< register name (NUL if none)
-  int force_bin;                ///< 0, FORCE_BIN or FORCE_NOBIN
-  int read_edit;                ///< ++edit argument
-  int force_ff;                 ///< ++ff= argument (index in cmd[])
-  int force_enc;                ///< ++enc= argument (index in cmd[])
-  int bad_char;                 ///< BAD_KEEP, BAD_DROP or replacement byte
-  int useridx;                  ///< user command index
-  char_u *errmsg;               ///< returned error message
-  LineGetter getline;           ///< Function used to get the next line
-  void   *cookie;               ///< argument for getline()
-  struct condstack *cstack;     ///< condition stack for ":if" etc.
+struct exarg
+{
+    char_u      *arg;             ///< argument of the command
+    char_u      *nextcmd;         ///< next command (NULL if none)
+    char_u      *cmd;             ///< the name of the command (except for :make)
+    char_u      **cmdlinep;       ///< pointer to pointer of allocated cmdline
+    cmdidx_T cmdidx;              ///< the index for the command
+    uint32_t argt;                ///< flags for the command
+    int skip;                     ///< don't execute the command, only parse it
+    int forceit;                  ///< TRUE if ! present
+    int addr_count;               ///< the number of addresses given
+    linenr_T line1;               ///< the first line number
+    linenr_T line2;               ///< the second line number or count
+    int addr_type;                ///< type of the count/range
+    int flags;                    ///< extra flags after count: EXFLAG_
+    char_u      *do_ecmd_cmd;     ///< +command arg to be used in edited file
+    linenr_T do_ecmd_lnum;        ///< the line number in an edited file
+    int append;                   ///< TRUE with ":w >>file" command
+    int usefilter;                ///< TRUE with ":w !command" and ":r!command"
+    int amount;                   ///< number of '>' or '<' for shift command
+    int regname;                  ///< register name (NUL if none)
+    int force_bin;                ///< 0, FORCE_BIN or FORCE_NOBIN
+    int read_edit;                ///< ++edit argument
+    int force_ff;                 ///< ++ff= argument (index in cmd[])
+    int force_enc;                ///< ++enc= argument (index in cmd[])
+    int bad_char;                 ///< BAD_KEEP, BAD_DROP or replacement byte
+    int useridx;                  ///< user command index
+    char_u *errmsg;               ///< returned error message
+    LineGetter getline;           ///< Function used to get the next line
+    void   *cookie;               ///< argument for getline()
+    struct condstack *cstack;     ///< condition stack for ":if" etc.
 };
 
 #define FORCE_BIN 1             // ":edit ++bin file"
@@ -138,21 +140,22 @@ struct exarg {
 #define EXFLAG_PRINT    0x04    // 'p': print
 
 // used for completion on the command line
-struct expand {
-  int xp_context;               // type of expansion
-  char_u *xp_pattern;           // start of item to expand
-  int xp_pattern_len;           // bytes in xp_pattern before cursor
-  char_u *xp_arg;               // completion function
-  int xp_scriptID;              // SID for completion function
-  int xp_backslash;             // one of the XP_BS_ values
+struct expand
+{
+    int xp_context;               // type of expansion
+    char_u *xp_pattern;           // start of item to expand
+    int xp_pattern_len;           // bytes in xp_pattern before cursor
+    char_u *xp_arg;               // completion function
+    int xp_scriptID;              // SID for completion function
+    int xp_backslash;             // one of the XP_BS_ values
 #ifndef BACKSLASH_IN_FILENAME
-  int xp_shell;                 // TRUE for a shell command, more
-                                // characters need to be escaped
+    int xp_shell;                 // TRUE for a shell command, more
+    // characters need to be escaped
 #endif
-  int xp_numfiles;              // number of files found by file name completion
-  char_u **xp_files;            // list of files
-  char_u *xp_line;              // text being completed
-  int xp_col;                   // cursor position in line
+    int xp_numfiles;              // number of files found by file name completion
+    char_u **xp_files;            // list of files
+    char_u *xp_line;              // text being completed
+    int xp_col;                   // cursor position in line
 };
 
 // values for xp_backslash
@@ -163,21 +166,22 @@ struct expand {
 /// Command modifiers ":vertical", ":browse", ":confirm", ":hide", etc. set a
 /// flag.  This needs to be saved for recursive commands, put them in a
 /// structure for easy manipulation.
-typedef struct {
-  int split;                   ///< flags for win_split()
-  int tab;                     ///< > 0 when ":tab" was used
-  bool browse;                 ///< true to invoke file dialog
-  bool confirm;                ///< true to invoke yes/no dialog
-  bool hide;                   ///< true when ":hide" was used
-  bool keepalt;                ///< true when ":keepalt" was used
-  bool keepjumps;              ///< true when ":keepjumps" was used
-  bool keepmarks;              ///< true when ":keepmarks" was used
-  bool keeppatterns;           ///< true when ":keeppatterns" was used
-  bool lockmarks;              ///< true when ":lockmarks" was used
-  bool noswapfile;             ///< true when ":noswapfile" was used
-  char_u *save_ei;             ///< saved value of 'eventignore'
-  regmatch_T filter_regmatch;  ///< set by :filter /pat/
-  bool filter_force;           ///< set for :filter!
+typedef struct
+{
+    int split;                   ///< flags for win_split()
+    int tab;                     ///< > 0 when ":tab" was used
+    bool browse;                 ///< true to invoke file dialog
+    bool confirm;                ///< true to invoke yes/no dialog
+    bool hide;                   ///< true when ":hide" was used
+    bool keepalt;                ///< true when ":keepalt" was used
+    bool keepjumps;              ///< true when ":keepjumps" was used
+    bool keepmarks;              ///< true when ":keepmarks" was used
+    bool keeppatterns;           ///< true when ":keeppatterns" was used
+    bool lockmarks;              ///< true when ":lockmarks" was used
+    bool noswapfile;             ///< true when ":noswapfile" was used
+    char_u *save_ei;             ///< saved value of 'eventignore'
+    regmatch_T filter_regmatch;  ///< set by :filter /pat/
+    bool filter_force;           ///< set for :filter!
 } cmdmod_T;
 
 #endif  // NVIM_EX_CMDS_DEFS_H

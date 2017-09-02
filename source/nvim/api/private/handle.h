@@ -6,9 +6,9 @@
 #include "nvim/api/private/defs.h"
 
 #define HANDLE_DECLS(type, name) \
-  type *handle_get_##name(handle_T handle); \
-  void handle_register_##name(type *name); \
-  void handle_unregister_##name(type *name);
+    type *handle_get_##name(handle_T handle); \
+    void handle_register_##name(type *name); \
+    void handle_unregister_##name(type *name);
 
 // handle_get_buffer handle_register_buffer, handle_unregister_buffer
 HANDLE_DECLS(buf_T, buffer)

@@ -42,7 +42,7 @@
         return xcalloc(1, sizeof(kmp_##name##_t)); \
     } \
     static inline void kmp_destroy_##name(kmp_##name##_t *mp) \
-        REAL_FATTR_UNUSED; \
+    REAL_FATTR_UNUSED; \
     static inline void kmp_destroy_##name(kmp_##name##_t *mp) { \
         size_t k; \
         for (k = 0; k < mp->n; k++) { \
@@ -53,7 +53,7 @@
     static inline kmptype_t *kmp_alloc_##name(kmp_##name##_t *mp) { \
         mp->cnt++; \
         if (mp->n == 0) { \
-          return xcalloc(1, sizeof(kmptype_t)); \
+            return xcalloc(1, sizeof(kmptype_t)); \
         } \
         return mp->buf[--mp->n]; \
     } \
@@ -92,7 +92,7 @@
         return kl; \
     } \
     static inline void kl_destroy_##name(kl_##name##_t *kl) \
-        REAL_FATTR_UNUSED; \
+    REAL_FATTR_UNUSED; \
     static inline void kl_destroy_##name(kl_##name##_t *kl) { \
         kl1_##name *p; \
         for (p = kl->head; p != kl->tail; p = p->next) { \
@@ -116,7 +116,7 @@
         p = *n; \
         *n = (*n)->next; \
         if (p == kl->head) { \
-          kl->head = *n; \
+            kl->head = *n; \
         } \
         kltype_t d = p->data; \
         kmp_free(name, kl->mp, p); \
@@ -140,6 +140,6 @@
 // `break` statement is executed before the next iteration.
 #define kl_iter(name, kl, p) kl_iter_at(name, kl, p, NULL)
 #define kl_iter_at(name, kl, p, h) \
-  for (kl1_##name **p = h ? h : &kl->head; *p != kl->tail; p = &(*p)->next)
+    for (kl1_##name **p = h ? h : &kl->head; *p != kl->tail; p = &(*p)->next)
 
 #endif

@@ -19,25 +19,25 @@ typedef void *(*MemCalloc)(size_t, size_t);
 typedef void *(*MemRealloc)(void *, size_t);
 
 #ifdef UNIT_TESTING
-/// When unit testing: pointer to the `malloc()` function, may be altered
-extern MemMalloc mem_malloc;
+    /// When unit testing: pointer to the `malloc()` function, may be altered
+    extern MemMalloc mem_malloc;
 
-/// When unit testing: pointer to the `free()` function, may be altered
-extern MemFree mem_free;
+    /// When unit testing: pointer to the `free()` function, may be altered
+    extern MemFree mem_free;
 
-/// When unit testing: pointer to the `calloc()` function, may be altered
-extern MemCalloc mem_calloc;
+    /// When unit testing: pointer to the `calloc()` function, may be altered
+    extern MemCalloc mem_calloc;
 
-/// When unit testing: pointer to the `realloc()` function, may be altered
-extern MemRealloc mem_realloc;
+    /// When unit testing: pointer to the `realloc()` function, may be altered
+    extern MemRealloc mem_realloc;
 #endif
 
 #ifdef EXITFREE
-/// Indicates that free_all_mem function was or is running
-extern bool entered_free_all_mem;
+    /// Indicates that free_all_mem function was or is running
+    extern bool entered_free_all_mem;
 #endif
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "memory.h.generated.h"
+    #include "memory.h.generated.h"
 #endif
 #endif  // NVIM_MEMORY_H

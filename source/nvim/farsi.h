@@ -169,6 +169,6 @@ extern const char_u farsi_text_5[];
 
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "farsi.h.generated.h"
+    #include "farsi.h.generated.h"
 #endif
 #endif  // NVIM_FARSI_H

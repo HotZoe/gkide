@@ -10,44 +10,47 @@
 /*
  * Structure to hold printing color and font attributes.
  */
-typedef struct {
-  uint32_t fg_color;
-  uint32_t bg_color;
-  int bold;
-  int italic;
-  int underline;
-  int undercurl;
+typedef struct
+{
+    uint32_t fg_color;
+    uint32_t bg_color;
+    int bold;
+    int italic;
+    int underline;
+    int undercurl;
 } prt_text_attr_T;
 
 /*
  * Structure passed back to the generic printer code.
  */
-typedef struct {
-  int n_collated_copies;
-  int n_uncollated_copies;
-  int duplex;
-  int chars_per_line;
-  int lines_per_page;
-  int has_color;
-  prt_text_attr_T number;
-  int modec;
-  int do_syntax;
-  int user_abort;
-  char_u      *jobname;
-  char_u      *outfile;
-  char_u      *arguments;
+typedef struct
+{
+    int n_collated_copies;
+    int n_uncollated_copies;
+    int duplex;
+    int chars_per_line;
+    int lines_per_page;
+    int has_color;
+    prt_text_attr_T number;
+    int modec;
+    int do_syntax;
+    int user_abort;
+    char_u      *jobname;
+    char_u      *outfile;
+    char_u      *arguments;
 } prt_settings_T;
 
 /*
  * Generic option table item, only used for printer at the moment.
  */
-typedef struct {
-  const char  *name;
-  int hasnum;
-  int number;
-  char_u      *string;          /* points into option string */
-  int strlen;
-  int present;
+typedef struct
+{
+    const char  *name;
+    int hasnum;
+    int number;
+    char_u      *string;          /* points into option string */
+    int strlen;
+    int present;
 } option_table_T;
 
 #define OPT_PRINT_TOP          0
@@ -78,6 +81,6 @@ typedef struct {
 
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-# include "hardcopy.h.generated.h"
+    #include "hardcopy.h.generated.h"
 #endif
 #endif  // NVIM_HARDCOPY_H
