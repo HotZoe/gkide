@@ -168,7 +168,7 @@ void event_teardown(void)
 
 /// Performs early initialization.
 ///
-/// Needed for unit tests. Must be called after `time_init()`.
+/// Needed for unit tests. Must be called after time_init().
 static void early_init(void)
 {
     log_init();
@@ -177,12 +177,13 @@ static void early_init(void)
     eval_init(); // init global variables
     init_path(argv0 ? argv0 : "nvim");
     init_normal_cmds(); // Init the table of Normal mode commands.
-#if defined(HAVE_HDR_LOCALE_H)
+
+    #if defined(HAVE_HDR_LOCALE_H)
     // Setup to use the current locale (for ctype() and many other things).
     // NOTE: Translated messages with encodings other than latin1 will not
     // work until set_init_1() has been called!
     init_locale();
-#endif
+    #endif
 
     // Allocate the first window and buffer.
     // Can't do anything without it, exit when it fails.
@@ -211,13 +212,14 @@ int main(int argc, char **argv)
     mparm_T params;       // various parameters passed between main() and other functions.
     char_u *cwd = NULL;   // current workding dir on startup
     char_u *fname = NULL; // file name from command line
+
     time_init();
     init_params(&params, argc, argv);
     init_startuptime(&params);
     early_init();
-    // Check if we have an interactive window.
-    check_and_set_isatty(&params);
+    check_and_set_isatty(&params); // Check if we have an interactive window.
     event_init();
+
     // Process the command line arguments.
     // File names are put in the global argument list "global_alist".
     command_line_scan(&params);
@@ -1317,8 +1319,8 @@ scripterror:
     TIME_MSG("parsing arguments");
 }
 
-/// Many variables are in "paramp" so that we can pass them to invoked functions without a
-/// lot of arguments. "argc" and "argv" are also copied, so that they can be changed.
+/// Many variables are in **paramp** so that we can pass it to invoked functions without a
+/// lot of arguments. **argc** and **argv** are also copied, so that they can be changed.
 static void init_params(mparm_T *paramp, int argc, char **argv)
 {
     memset(paramp, 0, sizeof(*paramp));

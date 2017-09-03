@@ -1,5 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file
 
 #include <assert.h>
 #include <stdint.h>
@@ -12,17 +11,17 @@
 
 #define HANDLE_IMPL(type, name)                                 \
     static PMap(handle_T) *name##_handles = NULL;               \
-    \
+                                                                \
     type *handle_get_##name(handle_T handle)                    \
     {                                                           \
         return pmap_get(handle_T)(name##_handles, handle);      \
     }                                                           \
-    \
+                                                                \
     void handle_register_##name(type *name)                     \
     {                                                           \
         pmap_put(handle_T)(name##_handles, name->handle, name); \
     }                                                           \
-    \
+                                                                \
     void handle_unregister_##name(type *name)                   \
     {                                                           \
         pmap_del(handle_T)(name##_handles, name->handle);       \

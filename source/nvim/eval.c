@@ -1,9 +1,6 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * eval.c: Expression evaluation.
- */
+/// @file
+///
+/// Expression evaluation.
 
 #include <assert.h>
 #include <inttypes.h>
@@ -566,7 +563,7 @@ const list_T *eval_msgpack_type_lists[] =
     [kMPExt] = NULL,
 };
 
-/// Initialize the global and v: variables.
+/// Initialize the global and **v:** variables.
 void eval_init(void)
 {
     vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
@@ -621,11 +618,12 @@ void eval_init(void)
         type_list->lv_refcount = 1;
         dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
         di->di_flags |= DI_FLAGS_RO|DI_FLAGS_FIX;
-        di->di_tv = (typval_T)
-        {
-            .vval   = { .v_list = type_list, },
-             .v_type = VAR_LIST,
+
+        di->di_tv = (typval_T) {
+            .vval = { .v_list = type_list, },
+            .v_type = VAR_LIST,
         };
+
         eval_msgpack_type_lists[i] = type_list;
 
         // There must not be duplicate items in this dictionary by definition.
@@ -663,17 +661,15 @@ void eval_init(void)
 void eval_clear(void)
 {
     struct vimvar   *p;
-
-    for (size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
+    for(size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
     {
         p = &vimvars[i];
-
-        if (p->vv_di.di_tv.v_type == VAR_STRING)
+        if(p->vv_di.di_tv.v_type == VAR_STRING)
         {
             xfree(p->vv_str);
             p->vv_str = NULL;
         }
-        else if (p->vv_di.di_tv.v_type == VAR_LIST)
+        else if(p->vv_di.di_tv.v_type == VAR_LIST)
         {
             tv_list_unref(p->vv_list);
             p->vv_list = NULL;
@@ -681,56 +677,46 @@ void eval_clear(void)
     }
 
     hash_clear(&vimvarht);
-    hash_init(&vimvarht);    /* garbage_collect() will access it */
+    hash_init(&vimvarht); // garbage_collect() will access it
     hash_clear(&compat_hashtab);
     free_scriptnames();
     free_locales();
-    /* global variables */
-    vars_clear(&globvarht);
-    /* autoloaded script names */
-    ga_clear_strings(&ga_loaded);
+    vars_clear(&globvarht); // global variables
+    ga_clear_strings(&ga_loaded); // autoloaded script names
 
-    /* Script-local variables. First clear all the variables and in a second
-     * loop free the scriptvar_T, because a variable in one script might hold
-     * a reference to the whole scope of another script. */
-    for (int i = 1; i <= ga_scripts.ga_len; ++i)
+    // Script-local variables. First clear all the variables and in a second
+    // loop free the scriptvar_T, because a variable in one script might hold
+    // a reference to the whole scope of another script.
+    for(int i = 1; i <= ga_scripts.ga_len; ++i)
     {
         vars_clear(&SCRIPT_VARS(i));
     }
 
-    for (int i = 1; i <= ga_scripts.ga_len; ++i)
+    for(int i = 1; i <= ga_scripts.ga_len; ++i)
     {
         xfree(SCRIPT_SV(i));
     }
 
     ga_clear(&ga_scripts);
-    // unreferenced lists and dicts
-    (void)garbage_collect(false);
-    // functions
+    (void)garbage_collect(false); // unreferenced lists and dicts
     free_all_functions();
 }
 
 #endif
 
-/*
- * Return the name of the executed function.
- */
+/// Return the name of the executed function.
 char_u *func_name(void *cookie)
 {
     return ((funccall_T *)cookie)->func->uf_name;
 }
 
-/*
- * Return the address holding the next breakpoint line for a funccall cookie.
- */
+/// Return the address holding the next breakpoint line for a funccall cookie.
 linenr_T *func_breakpoint(void *cookie)
 {
     return &((funccall_T *)cookie)->breakpoint;
 }
 
-/*
- * Return the address holding the debug tick for a funccall cookie.
- */
+/// Return the address holding the debug tick for a funccall cookie.
 int *func_dbg_tick(void *cookie)
 {
     return &((funccall_T *)cookie)->dbg_tick;

@@ -40,9 +40,9 @@
     do                                           \
     {                                            \
         bool did_try_to_free = false;            \
-        \
-    uv_call_start: {}                                \
-        \
+                                                 \
+    uv_call_start: {}                            \
+                                                 \
         uv_fs_t req;                             \
         ret = func(&fs_loop, &req, __VA_ARGS__); \
         uv_fs_req_cleanup(&req);                 \
@@ -64,7 +64,7 @@ void fs_init(void)
     uv_loop_init(&fs_loop);
 }
 
-/// Changes the current directory to `path`.
+/// Changes the current directory to **path**.
 ///
 /// @return 0 on success, or negative error code.
 int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL

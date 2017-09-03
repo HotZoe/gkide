@@ -197,9 +197,9 @@ static proftime_T g_start_time;
 /// the start point of a period of time, e.g: how long do we need to load a plugin
 static proftime_T g_prev_time;
 
-/// time_push - save the previous time before doing something that could nest
+/// save the previous time before doing something that could nest
 ///
-/// After calling this function, the static global `g_prev_time` will
+/// After calling this function, the static global ::g_prev_time will
 /// contain the current time.
 ///
 /// @param[out] rel   to the time elapsed so far
@@ -235,10 +235,10 @@ static void time_diff(proftime_T then, proftime_T now)
     fprintf(time_fd, "%07.3lf", (double) diff / 1.0E6);
 }
 
-/// time_start - initialize the startuptime code
+/// initialize the startuptime code
 ///
-/// Needs to be called once before calling other startuptime code (such as
-/// time_{push,pop,msg,...}).
+/// Needs to be called once before calling other startuptime code, such as functions link:
+/// time_push(), time_pop(), time_msg() ...
 ///
 /// @param message the message that will be displayed
 void time_start(const char *message)
