@@ -43,9 +43,6 @@ bool tv_in_free_unref_items = false;
 
 const char *const tv_empty_string = "";
 
-//{{{1 Lists
-//{{{2 List item
-
 /// Allocate a list item
 ///
 /// @warning Allocated item is not initialized, do not forget to initialize it
@@ -79,8 +76,6 @@ void tv_list_item_remove(list_T *const l, listitem_T *const item) FUNC_ATTR_NONN
     tv_list_remove_items(l, item, item);
     tv_list_item_free(item);
 }
-
-//{{{2 List watchers
 
 /// Add a watcher to a list
 ///
@@ -130,8 +125,6 @@ void tv_list_watch_fix(list_T *const l, const listitem_T *const item) FUNC_ATTR_
         }
     }
 }
-
-//{{{2 Alloc/free
 
 /// Allocate an empty list
 ///
@@ -226,8 +219,6 @@ void tv_list_unref(list_T *const l)
         tv_list_free(l);
     }
 }
-
-//{{{2 Add/remove
 
 /// Remove items "item" to "item2" from list "l".
 ///
@@ -433,8 +424,6 @@ void tv_list_append_number(list_T *const l, const varnumber_T n)
     li->li_tv.vval.v_number = n;
     tv_list_append(l, li);
 }
-
-//{{{2 Operations on the whole list
 
 /// Make a copy of list
 ///
@@ -707,8 +696,6 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return true;
 }
 
-//{{{2 Indexing/searching
-
 /// Locate item with a given index in a list and return it
 ///
 /// @param[in]  l  List to index.
@@ -874,9 +861,6 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 
     return idx;
 }
-
-//{{{1 Dictionaries
-//{{{2 Dictionary watchers
 
 /// Perform all necessary cleanup for a `DictWatcher` instance
 ///
@@ -1080,8 +1064,6 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     }
 }
 
-//{{{2 Dictionary item
-
 /// Allocate a dictionary item
 ///
 /// @note that the value of the item (->di_tv) still needs to be initialized.
@@ -1158,8 +1140,6 @@ void tv_dict_item_remove(dict_T *const dict, dictitem_T *const item) FUNC_ATTR_N
 
     tv_dict_item_free(item);
 }
-
-//{{{2 Alloc/free
 
 /// Allocate an empty dictionary
 ///
@@ -1271,8 +1251,6 @@ void tv_dict_unref(dict_T *const d)
         tv_dict_free(d);
     }
 }
-
-//{{{2 Indexing/searching
 
 /// Find item in dictionary
 ///
@@ -1440,8 +1418,6 @@ FUNC_ATTR_NONNULL_ARG(2, 4) FUNC_ATTR_WARN_UNUSED_RESULT
     return res;
 }
 
-//{{{2 dict_add*
-
 /// Add item to dictionary
 ///
 /// @param[out] d     Dictionary to add to.
@@ -1568,8 +1544,6 @@ FUNC_ATTR_NONNULL_ALL
 
     return OK;
 }
-
-//{{{2 Operations on the whole dict
 
 /// Clear all the keys of a Dictionary. "d" remains a valid empty Dictionary.
 ///
@@ -1805,10 +1779,6 @@ void tv_dict_set_keys_readonly(dict_T *const dict) FUNC_ATTR_NONNULL_ALL
     TV_DICT_ITER(dict, di, { di->di_flags |= DI_FLAGS_RO | DI_FLAGS_FIX; });
 }
 
-//{{{1 Generic typval operations
-//{{{2 Init/alloc/clear
-//{{{3 Alloc
-
 /// Allocate an empty list for a return value
 ///
 /// Also sets reference count.
@@ -1841,7 +1811,6 @@ void tv_dict_alloc_ret(typval_T *const ret_tv) FUNC_ATTR_NONNULL_ALL
     d->dv_refcount++;
 }
 
-//{{{3 Clear
 #define TYPVAL_ENCODE_ALLOW_SPECIALS false
 
 #define TYPVAL_ENCODE_CONV_NIL(tv)             \
@@ -2131,8 +2100,6 @@ void tv_clear(typval_T *const tv)
     }
 }
 
-//{{{3 Free
-
 /// Free allocated VimL object and value stored inside
 ///
 /// @param  tv  Object to free.
@@ -2184,8 +2151,6 @@ void tv_free(typval_T *tv)
         xfree(tv);
     }
 }
-
-//{{{3 Copy
 
 /// Copy typval from one location to another
 ///
@@ -2264,8 +2229,6 @@ void tv_copy(typval_T *const from, typval_T *const to)
         }
     }
 }
-
-//{{{2 Locks
 
 /// Lock or unlock an item
 ///
@@ -2457,8 +2420,6 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return true;
 }
 
-//{{{2 Comparison
-
 static int tv_equal_recurse_limit;
 
 /// Compare two VimL values
@@ -2570,8 +2531,6 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 
     return false;
 }
-
-//{{{2 Type checks
 
 /// Check that given value is a number or string
 ///
@@ -2736,8 +2695,6 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
     return false;
 }
-
-//{{{2 Get
 
 /// Get the number value of a VimL object
 ///

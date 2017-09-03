@@ -1,10 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0)
+project(gkide)
 
 set(GKIDE_LOGO "${PROJECT_SOURCE_DIR}/gkide.png")
 set(GKIDE_HOME "https://github.com/gkide/gkide")
-set(GKIDE_DESC "GKIDE is an elegant and sophisticated code editor based on vim/nvim.")
-
-project(gkide)
+set(GKIDE_DESC "GKIDE is an elegant and sophisticated code editor&viewer based on vim/nvim.")
 
 # Enable output of compile commands during generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # generates compile_commands.json

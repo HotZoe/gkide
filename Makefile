@@ -10,10 +10,21 @@ endif
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
+ifeq (, $(DOXYGEN_PROG))
+    DOXYGEN_PROG := doxygen
+endif
+
 NINJA_PROG ?=
-CMAKE_PROG := cmake
-MAKE_PROG  := $(MAKE)
-BUILD_CMD  := $(MAKE)
+
+ifeq (, $(CMAKE_PROG))
+    CMAKE_PROG := cmake
+endif
+
+ifeq (, $(MAKE_PROG))
+    MAKE_PROG := $(MAKE)
+endif
+
+BUILD_CMD := $(MAKE_PROG)
 
 # Build env is windows cmd shell
 windows_cmd_shell := OFF
@@ -213,8 +224,6 @@ check-nvim: run-nvim-functional-test run-nvim-unit-test
 
 .PHONY: check-snail
 .PHONY: run-snail-libs-test
-.PHONY: run-snail-shared-test
-.PHONY: run-snail-plugins-test
 
 run-snail-libs-test: | snail
 	+$(BUILD_CMD) -C build run-snail-libs-test
@@ -248,7 +257,77 @@ else
 	$(Q)rm -rf deps/build
 endif
 
-.PHONY: env-check
+.PHONY: htmls pdfs html-nvim pdf-nvim html-snail pdf-snail
 
+# generated nvim & snail html/pdf manual from source code
+htmls:
+	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
+	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
+pdfs: htmls
+	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
+	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
+	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then  \
+        mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/doxygen/nvim.pdf; fi
+	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
+        mv build/generated/doxygen/snail/latex/refman.pdf build/generated/doxygen/snail.pdf; fi
+
+# generated nvim manual only from source code
+html-nvim:
+	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
+pdf-nvim: html-nvim
+	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
+	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then \
+        mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/doxygen/nvim.pdf; fi
+
+# generated snail manual only from source code
+html-snail:
+	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
+pdf-snail: html-snail
+	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
+	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
+        mv build/generated/doxygen/snail/latex/refman.pdf build/generated/doxygen/snail.pdf; fi
+
+.PHONY: env-check
 env-check:
 	$(Q)$(MSYS_SHELL_PATH) scripts/envcheck/env-check.sh $(QT5_INSTALL_PREFIX) $(MSYS_SHELL_PATH)
+
+.PHONY: help
+help:
+	@echo "The <target> of the Makefile are as following:"
+	@echo ""
+	@echo "  all                       to build nvim & snail, the default target."
+	@echo "  cmake                     to re-run cmake for gkide."
+	@echo "  deps                      to build gkide dependence libraries."
+	@echo "  nvim                      to build nvim."
+	@echo "  snail                     to build snail."
+	@echo ""
+	@echo "  check                     equal to 'check-nvim' and 'check-snail'."
+	@echo "  check-nvim                equal to 'run-nvim-*' targets."
+	@echo "  run-nvim-unit-test        to run nvim unit testing."
+	@echo "  run-nvim-functional-test  to run nvim functional testing."
+	@echo "  check-snail               equal to 'run-snail-*' targets."
+	@echo "  run-snail-libs-test       to run snail lib testing."
+	@echo ""
+	@echo "  env-check                 to check the building environment."
+	@echo ""
+	@echo "  htmls                     to generated html manual for nvim & snail using doxygen."
+	@echo "  pdfs                      to generated pdf manual for nvim & snail using latex."
+	@echo "  html-nvim                 to generated html manual for nvim using doxygen."
+	@echo "  pdf-nvim                  to generated pdf manual for nvim using latex."
+	@echo "  html-snail                to generated html manual for snail using doxygen."
+	@echo "  pdf-snail                 to generated pdf manual for snail using latex."
+	@echo ""
+	@echo "  clean                     to clean up 'build' directory."
+	@echo "  gkideclean                to remove the 'build' directory."
+	@echo "  distclean                 to remove 'deps/build' and 'build' directory."
+	@echo ""
+	@echo "The <argument> of the Makefile are as following:"
+	@echo ""
+	@echo "  V=1                       Show make rules commands, the default is hidden."
+	@echo "  DOXYGEN_PROG=...          Where is doxygen program, the default is: 'doxygen'"
+	@echo "  NINJA_PROG=...            Where is ninja program,   the default is: ''"
+	@echo "  CMAKE_PROG=...            Where is cmake program,   the default is: 'cmake'"
+	@echo "  MAKE_PROG=...             Where is make program,    the default is: '\$$(MAKE)'"
+	@echo ""
+	@echo "  Much more settings can be config using 'local.mk'"
+	@echo ""

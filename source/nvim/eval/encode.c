@@ -230,10 +230,9 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Convert readfile()-style list to a char * buffer with length
 ///
-/// @param[in]  list  Converted list.
-/// @param[out]  ret_len  Resulting buffer length.
-/// @param[out]  ret_buf  Allocated buffer with the result or NULL if ret_len is
-///                       zero.
+/// @param[in]  list     Converted list.
+/// @param[out] ret_len  Resulting buffer length.
+/// @param[out] ret_buf  Allocated buffer with the result or NULL if ret_len is zero.
 ///
 /// @return true in case of success, false in case of failure.
 bool encode_vim_list_to_buf(const list_T *const list, size_t *const ret_len, char **const ret_buf)

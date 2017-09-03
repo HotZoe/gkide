@@ -235,9 +235,9 @@ FUNC_ATTR_NONNULL_ALL
 #define OBJ(obj_tv, is_sp_string, didcomma_, didcolon_) \
     ((ValuesStackItem) {                                \
         .is_special_string = (is_sp_string),            \
-                             .val = (obj_tv),                                \
-                                    .didcomma = (didcomma_),                        \
-                                                .didcolon = (didcolon_),                        \
+        .val = (obj_tv),                                \
+        .didcomma = (didcomma_),                        \
+        .didcolon = (didcolon_),                        \
     })
 
 #define POP(obj_tv, is_sp_string)                                            \
@@ -400,7 +400,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
                 {
                     if(p + 4 >= e)
                     {
-                        emsgf(_("E474: Unfinished unicode escape sequence: %.*s"), (int) buf_len, buf);
+                        emsgf(_("E474: Unfinished unicode escape sequence: %.*s"),
+                              (int) buf_len, buf);
+
                         goto parse_json_string_fail;
                     }
                     else if(!ascii_isxdigit(p[1]) ||
@@ -802,16 +804,16 @@ parse_json_number_ret:
     do                                                                     \
     {                                                                      \
         if(json_decoder_pop(OBJ(obj_tv, is_sp_string, didcomma, didcolon), \
-                            &stack,                                    \
-                            &container_stack,                          \
-                            &p,                                        \
-                            &next_map_special,                         \
-                            &didcomma,                                 \
-                            &didcolon) == FAIL)                        \
+                            &stack,                                        \
+                            &container_stack,                              \
+                            &p,                                            \
+                            &next_map_special,                             \
+                            &didcomma,                                     \
+                            &didcolon) == FAIL)                            \
         {                                                                  \
             goto json_decode_string_fail;                                  \
         }                                                                  \
-        \
+                                                                           \
         if(next_map_special)                                               \
         {                                                                  \
             goto json_decode_string_cycle_start;                           \

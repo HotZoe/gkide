@@ -103,12 +103,12 @@ else
 fi
 
 if ${check_status}; then
-    echo -e "\033[33mChecking Development Env\033[0m => \033[36mPASS\033[0m"
+    echo -e "\033[33mChecking Development Env\033[0m => \033[36mPASS\033[0m (nvim & snail dev-env fine)"
 else
-    echo -e "\033[33mChecking Development Env\033[0m => \033[31mFAIL\033[0m"
+    echo -e "\033[33mChecking Development Env\033[0m => \033[31mFAIL\033[0m (nvim & snail dev-env missing)"
 fi
 
-echo -e "\nFor \033[33mgit\033[0m commit use only:\n"
+echo -e "\n\033[33mgit\033[0m config(commit) use only for dev user:\n"
 
 prog=$(which node 2> ${null_device})
 if [ "${prog}" = "" ]; then
