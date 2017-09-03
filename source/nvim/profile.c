@@ -256,7 +256,7 @@ void time_start(const char *message)
     time_msg(message, NULL);
 }
 
-/// time_msg - print out timing info
+/// print out timing info
 ///
 /// @warning don't forget to call `time_start()` once before calling this.
 ///

@@ -259,33 +259,37 @@ endif
 
 .PHONY: htmls pdfs html-nvim pdf-nvim html-snail pdf-snail
 
-# generated nvim & snail html/pdf manual from source code
-htmls:
-	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
-	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
-pdfs: htmls
+build/generated/doxygen/.run-doxygen-nvim:
+	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
+	@touch $@
+
+build/generated/doxygen/.run-latex-nvim: build/generated/doxygen/.run-doxygen-nvim
 	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
-	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
 	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then  \
-        mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/gkide-nvim.pdf; fi
+	    mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/gkide-nvim.pdf; fi
+	@touch $@
+
+build/generated/doxygen/.run-doxygen-snail:
+	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
+	@touch $@
+
+build/generated/doxygen/.run-latex-snail: build/generated/doxygen/.run-doxygen-snail
+	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
 	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
-        mv build/generated/doxygen/snail/latex/refman.pdf build/generated/gkide-snail.pdf; fi
+	    mv build/generated/doxygen/snail/latex/refman.pdf build/generated/gkide-snail.pdf; fi
+	@touch $@
+
+# generated nvim & snail html/pdf manual from source code
+htmls: build/generated/doxygen/.run-doxygen-nvim build/generated/doxygen/.run-doxygen-snail
+pdfs:  build/generated/doxygen/.run-latex-nvim   build/generated/doxygen/.run-latex-snail
 
 # generated nvim manual only from source code
-html-nvim:
-	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
-pdf-nvim: html-nvim
-	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
-	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then \
-        mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/gkide-nvim.pdf; fi
+html-nvim: build/generated/doxygen/.run-doxygen-nvim
+pdf-nvim:  build/generated/doxygen/.run-latex-nvim
 
 # generated snail manual only from source code
-html-snail:
-	$(Q)$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
-pdf-snail: html-snail
-	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
-	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
-        mv build/generated/doxygen/snail/latex/refman.pdf build/generated/gkide-snail.pdf; fi
+html-snail: build/generated/doxygen/.run-doxygen-snail
+pdf-snail:  build/generated/doxygen/.run-latex-snail
 
 .PHONY: env-check
 env-check:
