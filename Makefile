@@ -261,23 +261,19 @@ endif
 
 build/generated/doxygen/.run-doxygen-nvim:
 	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
-	@touch $@
 
 build/generated/doxygen/.run-latex-nvim: build/generated/doxygen/.run-doxygen-nvim
 	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
 	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then  \
 	    mv build/generated/doxygen/nvim/latex/refman.pdf build/generated/gkide-nvim.pdf; fi
-	@touch $@
 
 build/generated/doxygen/.run-doxygen-snail:
 	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
-	@touch $@
 
 build/generated/doxygen/.run-latex-snail: build/generated/doxygen/.run-doxygen-snail
 	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
 	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
 	    mv build/generated/doxygen/snail/latex/refman.pdf build/generated/gkide-snail.pdf; fi
-	@touch $@
 
 # generated nvim & snail html/pdf manual from source code
 htmls: build/generated/doxygen/.run-doxygen-nvim build/generated/doxygen/.run-doxygen-snail
