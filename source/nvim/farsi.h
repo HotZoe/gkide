@@ -1,4 +1,4 @@
-/// @file farsi.h
+/// @file nvim/farsi.h
 ///
 /// Farsi characters are categorized into following types:
 ///
@@ -167,8 +167,8 @@ extern const char_u farsi_text_2[];
 extern const char_u farsi_text_3[];
 extern const char_u farsi_text_5[];
 
-
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "farsi.h.generated.h"
 #endif
+
 #endif  // NVIM_FARSI_H

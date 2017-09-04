@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/pty_process_unix.h
 
 #ifndef NVIM_OS_PTY_PROCESS_UNIX_H
 #define NVIM_OS_PTY_PROCESS_UNIX_H

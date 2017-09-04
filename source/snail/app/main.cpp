@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/app/main.cpp
 
 #include <QFile>
 #include <QtGlobal>

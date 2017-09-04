@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/errorwidget.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_ERRORWIDGET_H
 #define SNAIL_LIBS_NVIMCORE_ERRORWIDGET_H

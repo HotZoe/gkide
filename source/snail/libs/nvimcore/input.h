@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/input.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_INPUT_H
 #define SNAIL_LIBS_NVIMCORE_INPUT_H

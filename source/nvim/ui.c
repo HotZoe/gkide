@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/ui.c
 
 #include <assert.h>
 #include <inttypes.h>

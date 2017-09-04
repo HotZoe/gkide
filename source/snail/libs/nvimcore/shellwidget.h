@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/shellwidget.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_SHELLWIDGET_H
 #define SNAIL_LIBS_NVIMCORE_SHELLWIDGET_H

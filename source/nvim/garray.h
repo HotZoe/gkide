@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/garray.h
 
 #ifndef NVIM_GARRAY_H
 #define NVIM_GARRAY_H

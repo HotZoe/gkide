@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/api/tabpage.h
 
 #ifndef NVIM_API_TABPAGE_H
 #define NVIM_API_TABPAGE_H

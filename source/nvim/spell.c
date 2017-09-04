@@ -1,11 +1,11 @@
-/// @file
+/// @file nvim/spell.c
 ///
 /// code for spell checking
 ///
 /// See spellfile.c for the Vim spell file format.
 ///
 /// The spell checking mechanism uses a tree (aka trie).  Each node in the tree
-// has a list of bytes that can appear (siblings).  For each byte there is a
+/// has a list of bytes that can appear (siblings).  For each byte there is a
 /// pointer to the node with the byte that follows in the word (child).
 ///
 /// A NUL byte is used where the word may end.  The bytes are sorted, so that

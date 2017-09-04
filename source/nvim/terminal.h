@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/terminal.h
 
 #ifndef NVIM_TERMINAL_H
 #define NVIM_TERMINAL_H

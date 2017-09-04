@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/app.cpp
 
 #include <QDir>
 #include <QFileInfo>

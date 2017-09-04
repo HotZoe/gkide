@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/mem.c
 ///
 /// Functions for accessing system memory information.
 

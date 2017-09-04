@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/arabic.h
 
 #ifndef NVIM_ARABIC_H
 #define NVIM_ARABIC_H

@@ -1,3 +1,5 @@
+/// @file nvim/ops.h
+
 #ifndef NVIM_OPS_H
 #define NVIM_OPS_H
 
@@ -131,4 +133,5 @@ FUNC_ATTR_CONST
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ops.h.generated.h"
 #endif
-#endif  // NVIM_OPS_H
+
+#endif // NVIM_OPS_H

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/eval/decode.h
 
 #ifndef NVIM_EVAL_DECODE_H
 #define NVIM_EVAL_DECODE_H

@@ -1,13 +1,10 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * CSCOPE support for Vim added by Andy Kahn <kahn@zk3.dec.com>
- * Ported to Win32 by Sergey Khorev <sergey.khorev@gmail.com>
- *
- * The basic idea/structure of cscope for Vim was borrowed from Nvi.  There
- * might be a few lines of code that look similar to what Nvi has.
- */
+/// @file nvim/if_cscope.c
+///
+/// CSCOPE support for Vim added by Andy Kahn <kahn@zk3.dec.com>
+/// Ported to Win32 by Sergey Khorev <sergey.khorev@gmail.com>
+///
+/// The basic idea/structure of cscope for Vim was borrowed from Nvi.  There
+/// might be a few lines of code that look similar to what Nvi has.
 
 #include <stdbool.h>
 

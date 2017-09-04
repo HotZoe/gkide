@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/terminal.c
 ///
 /// VT220/xterm-like terminal emulator.
 /// Powered by libvterm http://www.leonerd.org.uk/code/libvterm

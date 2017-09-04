@@ -1,3 +1,5 @@
+/// @file nvim/mouse.h
+
 #ifndef NVIM_MOUSE_H
 #define NVIM_MOUSE_H
 
@@ -45,4 +47,4 @@
     #include "mouse.h.generated.h"
 #endif
 
-#endif  // NVIM_MOUSE_H
+#endif // NVIM_MOUSE_H

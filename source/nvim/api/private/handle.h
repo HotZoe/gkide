@@ -1,3 +1,5 @@
+/// @file nvim/api/private/handle.h
+
 #ifndef NVIM_API_PRIVATE_HANDLE_H
 #define NVIM_API_PRIVATE_HANDLE_H
 
@@ -19,6 +21,5 @@ HANDLE_DECLS(tabpage_T, tabpage)
 
 void handle_init(void);
 
-
-#endif  // NVIM_API_PRIVATE_HANDLE_H
+#endif // NVIM_API_PRIVATE_HANDLE_H
 

@@ -1,3 +1,5 @@
+/// @file nvim/macros.h
+
 #ifndef NVIM_MACROS_H
 #define NVIM_MACROS_H
 
@@ -183,4 +185,4 @@
 /// @return ((Type *)obj).
 #define STRUCT_CAST(Type, obj) ((Type *)(obj))
 
-#endif  // NVIM_MACROS_H
+#endif // NVIM_MACROS_H

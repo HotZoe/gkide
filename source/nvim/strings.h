@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/strings.h
 
 #ifndef NVIM_STRINGS_H
 #define NVIM_STRINGS_H

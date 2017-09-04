@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/eval/decode.c
 
 #include <stddef.h>
 

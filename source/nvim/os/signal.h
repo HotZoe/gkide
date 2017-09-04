@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/signal.h
 
 #ifndef NVIM_OS_SIGNAL_H
 #define NVIM_OS_SIGNAL_H

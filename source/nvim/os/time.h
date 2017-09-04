@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/time.h
 
 #ifndef NVIM_OS_TIME_H
 #define NVIM_OS_TIME_H

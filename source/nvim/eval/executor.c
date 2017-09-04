@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/eval/executor.c
 
 #include "nvim/eval/typval.h"
 #include "nvim/eval/executor.h"

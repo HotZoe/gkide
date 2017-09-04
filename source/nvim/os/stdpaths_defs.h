@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/stdpaths_defs.h
 
 #ifndef NVIM_OS_STDPATHS_DEFS_H
 #define NVIM_OS_STDPATHS_DEFS_H

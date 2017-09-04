@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/dl.h
 
 #ifndef NVIM_OS_DL_H
 #define NVIM_OS_DL_H

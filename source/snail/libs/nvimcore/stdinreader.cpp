@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/stdinreader.cpp
 
 #include <QDebug>
 

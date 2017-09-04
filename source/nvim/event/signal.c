@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/event/signal.c
 
 #include <uv.h>
 

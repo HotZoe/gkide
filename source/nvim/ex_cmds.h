@@ -1,3 +1,5 @@
+/// @file nvim/ex_cmds.h
+
 #ifndef NVIM_EX_CMDS_H
 #define NVIM_EX_CMDS_H
 
@@ -34,4 +36,5 @@ typedef struct
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds.h.generated.h"
 #endif
-#endif  // NVIM_EX_CMDS_H
+
+#endif // NVIM_EX_CMDS_H

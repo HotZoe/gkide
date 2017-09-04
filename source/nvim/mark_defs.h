@@ -1,3 +1,5 @@
+/// @file nvim/mark_defs.h
+
 #ifndef NVIM_MARK_DEFS_H
 #define NVIM_MARK_DEFS_H
 

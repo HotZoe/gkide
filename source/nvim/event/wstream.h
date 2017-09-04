@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/wstream.h
 
 #ifndef NVIM_EVENT_WSTREAM_H
 #define NVIM_EVENT_WSTREAM_H

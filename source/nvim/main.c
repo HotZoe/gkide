@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/main.c
 
 #define EXTERN
 #include <assert.h>

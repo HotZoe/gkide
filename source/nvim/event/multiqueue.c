@@ -1,48 +1,48 @@
-/// @file
-
-// Multi-level queue for selective async event processing.
-// Not threadsafe; access must be synchronized externally.
-//
-// Multiqueue supports a parent-child relationship with these properties:
-// - pushing a node to a child queue will push a corresponding link node to the
-//   parent queue
-// - removing a link node from a parent queue will remove the next node
-//   in the linked child queue
-// - removing a node from a child queue will remove the corresponding link node
-//   in the parent queue
-//
-// These properties allow Nvim to organize and process events from different
-// sources with a certain degree of control. How the multiqueue is used:
-//
-//                         +----------------+
-//                         |   Main loop    |
-//                         +----------------+
-//
-//                         +----------------+
-//         +-------------->|   Event loop   |<------------+
-//         |               +--+-------------+             |
-//         |                  ^           ^               |
-//         |                  |           |               |
-//    +-----------+   +-----------+    +---------+    +---------+
-//    | Channel 1 |   | Channel 2 |    |  Job 1  |    |  Job 2  |
-//    +-----------+   +-----------+    +---------+    +---------+
-//
-//
-// The lower boxes represent event emitters, each with its own private queue
-// having the event loop queue as the parent.
-//
-// When idle, the main loop spins the event loop which queues events from many
-// sources (channels, jobs, user...). Each event emitter pushes events to its
-// private queue which is propagated to the event loop queue. When the main loop
-// consumes an event, the corresponding event is removed from the emitter's
-// queue.
-//
-// The main reason for this queue hierarchy is to allow focusing on a single
-// event emitter while blocking the main loop. For example, if the `jobwait`
-// VimL function is called on job1, the main loop will temporarily stop polling
-// the event loop queue and poll job1 queue instead. Same with channels, when
-// calling `rpcrequest` we want to temporarily stop processing events from
-// other sources and focus on a specific channel.
+/// @file nvim/event/multiqueue.c
+///
+/// Multi-level queue for selective async event processing.
+/// Not threadsafe; access must be synchronized externally.
+///
+/// Multiqueue supports a parent-child relationship with these properties:
+/// - pushing a node to a child queue will push a corresponding link node to the
+///   parent queue
+/// - removing a link node from a parent queue will remove the next node
+///   in the linked child queue
+/// - removing a node from a child queue will remove the corresponding link node
+///   in the parent queue
+///
+/// These properties allow Nvim to organize and process events from different
+/// sources with a certain degree of control. How the multiqueue is used:
+///
+///                         +----------------+
+///                         |   Main loop    |
+///                         +----------------+
+///
+///                         +----------------+
+///         +-------------->|   Event loop   |<------------+
+///         |               +--+-------------+             |
+///         |                  ^           ^               |
+///         |                  |           |               |
+///    +-----------+   +-----------+    +---------+    +---------+
+///    | Channel 1 |   | Channel 2 |    |  Job 1  |    |  Job 2  |
+///    +-----------+   +-----------+    +---------+    +---------+
+///
+///
+/// The lower boxes represent event emitters, each with its own private queue
+/// having the event loop queue as the parent.
+///
+/// When idle, the main loop spins the event loop which queues events from many
+/// sources (channels, jobs, user...). Each event emitter pushes events to its
+/// private queue which is propagated to the event loop queue. When the main loop
+/// consumes an event, the corresponding event is removed from the emitter's
+/// queue.
+///
+/// The main reason for this queue hierarchy is to allow focusing on a single
+/// event emitter while blocking the main loop. For example, if the `jobwait`
+/// VimL function is called on job1, the main loop will temporarily stop polling
+/// the event loop queue and poll job1 queue instead. Same with channels, when
+/// calling `rpcrequest` we want to temporarily stop processing events from
+/// other sources and focus on a specific channel.
 
 #include <assert.h>
 #include <stdarg.h>

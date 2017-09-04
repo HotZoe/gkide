@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/fs_defs.h
 
 #ifndef NVIM_OS_FS_DEFS_H
 #define NVIM_OS_FS_DEFS_H

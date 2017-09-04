@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/api/windows.h
 
 #ifndef NVIM_API_WINDOW_H
 #define NVIM_API_WINDOW_H

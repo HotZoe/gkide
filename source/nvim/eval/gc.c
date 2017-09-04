@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/eval/gc.c
 
 #include "nvim/eval/typval.h"
 #include "nvim/eval/gc.h"

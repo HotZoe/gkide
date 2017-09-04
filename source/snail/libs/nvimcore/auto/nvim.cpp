@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/auto/nvim.cpp
 ///
 /// Auto generated 2017-07-12 22:09:26.834382
 

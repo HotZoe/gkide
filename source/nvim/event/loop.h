@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/loop.h
 
 #ifndef NVIM_EVENT_LOOP_H
 #define NVIM_EVENT_LOOP_H

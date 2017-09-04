@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/input.cpp
 
 #include <QDebug>
 #include "snail/libs/nvimcore/input.h"

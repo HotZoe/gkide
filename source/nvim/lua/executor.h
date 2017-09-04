@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/lua/executor.h
 
 #ifndef NVIM_LUA_EXECUTOR_H
 #define NVIM_LUA_EXECUTOR_H

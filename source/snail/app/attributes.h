@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/app/attributes.h
 
 #ifndef SNAIL_APP_ATTRIBUTES_H
 #define SNAIL_APP_ATTRIBUTES_H

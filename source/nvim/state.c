@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/state.c
 
 #include <assert.h>
 

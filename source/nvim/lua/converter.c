@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/lua/converter.c
 
 #include <lua.h>
 #include <lualib.h>

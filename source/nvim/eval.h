@@ -1,3 +1,5 @@
+/// @file nvim/eval.h
+
 #ifndef NVIM_EVAL_H
 #define NVIM_EVAL_H
 
@@ -128,10 +130,10 @@ extern const list_T *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
 
 #undef LAST_MSGPACK_TYPE
 
-typedef int (*ArgvFunc)(int current_argcount, typval_T *argv,
-                        int called_func_argcount);
+typedef int (*ArgvFunc)(int current_argcount, typval_T *argv, int called_func_argcount);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval.h.generated.h"
 #endif
-#endif  // NVIM_EVAL_H
+
+#endif // NVIM_EVAL_H

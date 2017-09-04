@@ -1,7 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/// @file hashtab.c
+/// @file nvim/hashtab.c
 ///
 /// Handling of a hashtable with Vim-specific properties.
 ///
@@ -18,8 +15,7 @@
 /// implemented. The algorithm is from Knuth Vol. 3, Sec. 6.4.
 ///
 /// The hashtable grows to accommodate more entries when needed. At least 1/3
-/// of the entries is empty to keep the lookup efficient (at the cost of extra
-/// memory).
+/// of the entries is empty to keep the lookup efficient (at the cost of extra memory).
 
 #include <assert.h>
 #include <stdbool.h>

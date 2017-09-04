@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/stdpaths.c
 
 #include <stdbool.h>
 

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/version.h
 
 #ifndef NVIM_VERSION_H
 #define NVIM_VERSION_H

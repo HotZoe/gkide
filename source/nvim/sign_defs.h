@@ -1,3 +1,5 @@
+/// @file nvim/sign_defs.h
+
 #ifndef NVIM_SIGN_DEFS_H
 #define NVIM_SIGN_DEFS_H
 
@@ -20,7 +22,5 @@ struct signlist
 #define SIGN_LINEHL	1
 #define SIGN_ICON	2
 #define SIGN_TEXT	3
-
-
 
 #endif // NVIM_SIGN_DEFS_H

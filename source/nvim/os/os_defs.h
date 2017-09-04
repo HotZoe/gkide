@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/os_defs.h
 
 #ifndef NVIM_OS_OS_DEFS_H
 #define NVIM_OS_OS_DEFS_H

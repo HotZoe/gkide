@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/shell.cpp
 
 #include <QPainter>
 #include <QPaintEvent>

@@ -1,3 +1,5 @@
+/// @file nvim/bufhl_defs.h
+
 #ifndef NVIM_BUFHL_DEFS_H
 #define NVIM_BUFHL_DEFS_H
 

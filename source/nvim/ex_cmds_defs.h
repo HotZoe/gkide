@@ -1,3 +1,5 @@
+/// @file nvim/ex_cmds_defs.h
+
 #ifndef NVIM_EX_CMDS_DEFS_H
 #define NVIM_EX_CMDS_DEFS_H
 
@@ -184,4 +186,4 @@ typedef struct
     bool filter_force;           ///< set for :filter!
 } cmdmod_T;
 
-#endif  // NVIM_EX_CMDS_DEFS_H
+#endif // NVIM_EX_CMDS_DEFS_H

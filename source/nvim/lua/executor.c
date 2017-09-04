@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/lua/executor.c
 
 #include <lua.h>
 #include <lualib.h>

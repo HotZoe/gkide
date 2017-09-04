@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/event/loop.c
 
 #include <stdarg.h>
 #include <stdint.h>

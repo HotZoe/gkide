@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/time.c
 
 #include <assert.h>
 #include <stdint.h>

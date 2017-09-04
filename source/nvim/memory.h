@@ -1,3 +1,5 @@
+/// @file nvim/memory.h
+
 #ifndef NVIM_MEMORY_H
 #define NVIM_MEMORY_H
 
@@ -40,4 +42,5 @@ typedef void *(*MemRealloc)(void *, size_t);
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "memory.h.generated.h"
 #endif
-#endif  // NVIM_MEMORY_H
+
+#endif // NVIM_MEMORY_H

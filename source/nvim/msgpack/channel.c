@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/msgpack/channel.c
 
 #include <stdbool.h>
 #include <string.h>

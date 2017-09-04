@@ -1,3 +1,5 @@
+/// @file nvim/cursor_shape.h
+
 #ifndef NVIM_CURSOR_SHAPE_H
 #define NVIM_CURSOR_SHAPE_H
 
@@ -61,4 +63,5 @@ extern cursorentry_T shape_table[SHAPE_IDX_COUNT];
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "cursor_shape.h.generated.h"
 #endif
-#endif  // NVIM_CURSOR_SHAPE_H
+
+#endif // NVIM_CURSOR_SHAPE_H

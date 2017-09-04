@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/fs.c
 ///
 /// filesystem access
 

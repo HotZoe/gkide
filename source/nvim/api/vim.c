@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/vim.c
 
 #include <assert.h>
 #include <stdint.h>

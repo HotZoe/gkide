@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/multiqueue.h
 
 #ifndef NVIM_EVENT_MULTIQUEUE_H
 #define NVIM_EVENT_MULTIQUEUE_H

@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/ui.c
 
 #include <assert.h>
 #include <stddef.h>

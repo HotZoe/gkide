@@ -1,7 +1,6 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/// mbyte.c: Code specifically for handling multi-byte characters.
+/// @file nvim/mbyte.c
+///
+/// Code specifically for handling multi-byte characters.
 /// Multibyte extensions partly by Sung-Hoon Baek
 ///
 /// The encoding used in nvim is always UTF-8. "enc_utf8" and "has_mbyte" is

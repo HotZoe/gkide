@@ -1,9 +1,11 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file nvim/memline.c
 
-/* for debugging */
-/* #define CHECK(c, s)	if (c) EMSG(s) */
-#define CHECK(c, s)
+/// for debugging
+#if 0
+    #define CHECK(c, s)    if(c) EMSG(s)
+#else
+    #define CHECK(c, s)
+#endif
 
 /*
  * memline.c: Contains the functions for appending, deleting and changing the

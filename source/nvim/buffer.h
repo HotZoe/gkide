@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/buffer.h
 
 #ifndef NVIM_BUFFER_H
 #define NVIM_BUFFER_H

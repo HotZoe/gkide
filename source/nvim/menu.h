@@ -1,3 +1,5 @@
+/// @file nvim/menu.h
+
 #ifndef NVIM_MENU_H
 #define NVIM_MENU_H
 
@@ -54,8 +56,8 @@ struct VimMenu
     vimmenu_T   *next;                /* Next item in menu */
 };
 
-
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "menu.h.generated.h"
 #endif
-#endif  // NVIM_MENU_H
+
+#endif // NVIM_MENU_H

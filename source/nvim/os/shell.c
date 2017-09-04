@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/shell.c
 
 #include <string.h>
 #include <assert.h>

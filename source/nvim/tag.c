@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/tag.c
 ///
 /// Code to handle tags and the tag stack
 

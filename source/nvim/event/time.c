@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/event/time.c
 
 #include <stdint.h>
 

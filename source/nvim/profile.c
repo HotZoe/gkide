@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/profile.c
 
 #include <stdio.h>
 #include <math.h>

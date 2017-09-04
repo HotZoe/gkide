@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/api/private/defs.h
 
 #ifndef NVIM_API_PRIVATE_DEFS_H
 #define NVIM_API_PRIVATE_DEFS_H

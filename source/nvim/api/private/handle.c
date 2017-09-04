@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/private/handle.c
 
 #include <assert.h>
 #include <stdint.h>

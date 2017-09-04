@@ -1,6 +1,6 @@
-/// @file
+/// @file nvim/os/env.c
 ///
-// Environment inspection
+/// Environment inspection
 
 #include <assert.h>
 #include <uv.h>

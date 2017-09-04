@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/mainwindow.cpp
 
 #include <QCloseEvent>
 #include "snail/libs/nvimcore/mainwindow.h"

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/process.h
 
 #ifndef NVIM_EVENT_PROCESS_H
 #define NVIM_EVENT_PROCESS_H
@@ -43,27 +43,26 @@ struct process
 
 static inline Process process_init(Loop *loop, ProcessType type, void *data)
 {
-    return (Process)
-    {
+    return (Process) {
         .type = type,
-         .data = data,
-          .loop = loop,
-           .events = NULL,
-            .pid = 0,
-             .status = 0,
-              .refcount = 0,
-               .stopped_time = 0,
-                .cwd = NULL,
-                 .argv = NULL,
-                  .in = NULL,
-                   .out = NULL,
-                    .err = NULL,
-                     .cb = NULL,
-                      .closed = false,
-                       .term_sent = false,
-                        .internal_close_cb = NULL,
-                         .internal_exit_cb = NULL,
-                          .detach = false
+        .data = data,
+        .loop = loop,
+        .events = NULL,
+        .pid = 0,
+        .status = 0,
+        .refcount = 0,
+        .stopped_time = 0,
+        .cwd = NULL,
+        .argv = NULL,
+        .in = NULL,
+        .out = NULL,
+        .err = NULL,
+        .cb = NULL,
+        .closed = false,
+        .term_sent = false,
+        .internal_close_cb = NULL,
+        .internal_exit_cb = NULL,
+        .detach = false
     };
 }
 

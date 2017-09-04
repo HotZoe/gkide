@@ -1,3 +1,5 @@
+/// @file nvim/memline_defs.h
+
 #ifndef NVIM_MEMLINE_DEFS_H
 #define NVIM_MEMLINE_DEFS_H
 

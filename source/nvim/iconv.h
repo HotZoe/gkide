@@ -1,3 +1,5 @@
+/// @file nvim/iconv.h
+
 #ifndef NVIM_ICONV_H
 #define NVIM_ICONV_H
 
@@ -50,4 +52,4 @@
     #endif
 #endif
 
-#endif  // NVIM_ICONV_H
+#endif // NVIM_ICONV_H

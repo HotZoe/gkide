@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/eval/typval.h
 
 #ifndef NVIM_EVAL_TYPVAL_H
 #define NVIM_EVAL_TYPVAL_H

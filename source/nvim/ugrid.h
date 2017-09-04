@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/ugrid.h
 
 #ifndef NVIM_UGRID_H
 #define NVIM_UGRID_H

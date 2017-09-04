@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/eval/executor.h
 
 #ifndef NVIM_EVAL_EXECUTOR_H
 #define NVIM_EVAL_EXECUTOR_H

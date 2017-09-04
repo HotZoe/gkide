@@ -1,13 +1,4 @@
-/*
- * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
- *
- * This is NOT the original regular expression code as written by Henry
- * Spencer.  This code has been modified specifically for use with Vim, and
- * should not be used apart from compiling Vim.  If you want a good regular
- * expression library, get the original code.
- *
- * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE
- */
+/// @file nvim/regexp_defs.h
 
 #ifndef NVIM_REGEXP_DEFS_H
 #define NVIM_REGEXP_DEFS_H
@@ -168,4 +159,4 @@ struct regengine
     char_u      *expr;
 };
 
-#endif  // NVIM_REGEXP_DEFS_H
+#endif // NVIM_REGEXP_DEFS_H

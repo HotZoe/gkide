@@ -1,4 +1,4 @@
-/// @headerfile
+/// @file snail/libs/nvimcore/msgpackiodevice.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_MSGPACKIODEVICE_H
 #define SNAIL_LIBS_NVIMCORE_MSGPACKIODEVICE_H

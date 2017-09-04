@@ -1,10 +1,8 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file nvim/menu.c
+///
+/// Code for menus.
+/// Used for the GUI and 'wildmenu'. GUI/Motif support by Robert Webb
 
-/*
- * Code for menus.  Used for the GUI and 'wildmenu'.
- * GUI/Motif support by Robert Webb
- */
 
 #include <assert.h>
 #include <inttypes.h>

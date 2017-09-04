@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/ui.h
 
 #ifndef NVIM_UI_H
 #define NVIM_UI_H

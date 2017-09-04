@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/syntax.h
 
 #ifndef NVIM_SYNTAX_H
 #define NVIM_SYNTAX_H

@@ -1,3 +1,5 @@
+/// @file nvim/option_defs.h
+
 #ifndef NVIM_OPTION_DEFS_H
 #define NVIM_OPTION_DEFS_H
 

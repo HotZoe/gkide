@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/logmanager.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_LOGMANAGER_H
 #define SNAIL_LIBS_NVIMCORE_LOGMANAGER_H

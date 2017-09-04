@@ -1,5 +1,5 @@
-/// @file
-/// @headerfile ""
+/// @file generated/config/versiondef.h
+
 #ifndef GKIDE_GENERATED_CONFIG_VERSIONDEF_H
 #define GKIDE_GENERATED_CONFIG_VERSIONDEF_H
 

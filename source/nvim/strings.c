@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/strings.c
 
 #include <inttypes.h>
 #include <stdarg.h>

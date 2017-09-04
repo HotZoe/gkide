@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/app/envdefs.h
 
 #ifndef SNAIL_APP_ENVDEFS_H
 #define SNAIL_APP_ENVDEFS_H

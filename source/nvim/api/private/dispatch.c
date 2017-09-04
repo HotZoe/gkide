@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/private/dispatch.c
 
 #include <inttypes.h>
 #include <stdbool.h>

@@ -1,3 +1,5 @@
+/// @file nvim/mbyte.h
+
 #ifndef NVIM_MBYTE_H
 #define NVIM_MBYTE_H
 
@@ -85,4 +87,5 @@ static inline int mb_strcmp_ic(bool ic, const char *s1, const char *s2)
 {
     return (ic ? mb_stricmp(s1, s2) : strcmp(s1, s2));
 }
-#endif  // NVIM_MBYTE_H
+
+#endif // NVIM_MBYTE_H

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/signal.h
 
 #ifndef NVIM_EVENT_SIGNAL_H
 #define NVIM_EVENT_SIGNAL_H

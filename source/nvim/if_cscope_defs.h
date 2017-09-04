@@ -1,3 +1,5 @@
+/// @file nvim/if_cscope_defs.h
+
 #ifndef NVIM_IF_CSCOPE_DEFS_H
 #define NVIM_IF_CSCOPE_DEFS_H
 
@@ -67,4 +69,4 @@ typedef enum
     Print
 } mcmd_e;
 
-#endif  // NVIM_IF_CSCOPE_DEFS_H
+#endif // NVIM_IF_CSCOPE_DEFS_H

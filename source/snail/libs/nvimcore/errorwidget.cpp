@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/errorwidget.cpp
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>

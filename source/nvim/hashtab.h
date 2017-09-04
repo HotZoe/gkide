@@ -1,3 +1,5 @@
+/// @file nvim/hashtab.h
+
 #ifndef NVIM_HASHTAB_H
 #define NVIM_HASHTAB_H
 

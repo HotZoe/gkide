@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/tag.h
 
 #ifndef NVIM_TAG_H
 #define NVIM_TAG_H

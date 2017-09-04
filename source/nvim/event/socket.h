@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/socket.h
 
 #ifndef NVIM_EVENT_SOCKET_H
 #define NVIM_EVENT_SOCKET_H

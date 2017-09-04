@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/signal.c
 
 #include <assert.h>
 #include <stdbool.h>

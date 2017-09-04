@@ -1,12 +1,9 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * os_unix.c -- code for all flavors of Unix (BSD, SYSV, SVR4, POSIX, ...)
- *
- * A lot of this file was originally written by Juergen Weigert and later
- * changed beyond recognition.
- */
+/// @file nvim/os_unix.c
+///
+/// code for all flavors of Unix (BSD, SYSV, SVR4, POSIX, ...)
+///
+/// A lot of this file was originally written by Juergen Weigert and later
+/// changed beyond recognition.
 
 #include <assert.h>
 #include <errno.h>

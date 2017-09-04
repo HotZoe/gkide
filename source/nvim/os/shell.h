@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/shell.h
 
 #ifndef NVIM_OS_SHELL_H
 #define NVIM_OS_SHELL_H

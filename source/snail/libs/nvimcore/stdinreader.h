@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/stdinreader.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_STDINNOTIFIER_H
 #define SNAIL_LIBS_NVIMCORE_STDINNOTIFIER_H

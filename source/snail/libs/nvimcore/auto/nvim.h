@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/auto/nvim.h
 ///
 /// Auto generated 2017-07-12 22:09:26.857280
 #ifndef SNAIL_LIBS_NVIMCORE_AUTO_NVIM_H

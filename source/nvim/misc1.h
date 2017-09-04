@@ -1,3 +1,5 @@
+/// @file nvim/misc1.h
+
 #ifndef NVIM_MISC1_H
 #define NVIM_MISC1_H
 
@@ -14,4 +16,5 @@
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "misc1.h.generated.h"
 #endif
-#endif  // NVIM_MISC1_H
+
+#endif // NVIM_MISC1_H

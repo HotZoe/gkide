@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/types.h
 
 #ifndef NVIM_TYPES_H
 #define NVIM_TYPES_H

@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/ugrid.c
 
 #include <assert.h>
 #include <stdbool.h>

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/app/version.h
 
 #ifndef SNAIL_APP_VERSION_H
 #define SNAIL_APP_VERSION_H

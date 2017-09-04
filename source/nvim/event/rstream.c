@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/event/rstream.c
 
 #include <assert.h>
 #include <stdint.h>

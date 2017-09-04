@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/spellfile.c
 ///
 ///  for reading and writing spell files.
 ///

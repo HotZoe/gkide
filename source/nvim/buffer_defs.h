@@ -1,3 +1,5 @@
+/// @file nvim/buffer_defs.h
+
 #ifndef NVIM_BUFFER_DEFS_H
 #define NVIM_BUFFER_DEFS_H
 

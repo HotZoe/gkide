@@ -1,24 +1,23 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-// User-settable options. Checklist for adding a new option:
-// - Put it in options.lua
-// - For a global option: Add a variable for it in option_defs.h.
-// - For a buffer or window local option:
-//   - Add a BV_XX or WV_XX entry to option_defs.h
-//   - Add a variable to the window or buffer struct in buffer_defs.h.
-//   - For a window option, add some code to copy_winopt().
-//   - For a window string option, add code to check_winopt()
-//     and clear_winopt(). If setting the option needs parsing,
-//     add some code to didset_window_options().
-//   - For a buffer option, add some code to buf_copy_options().
-//   - For a buffer string option, add code to check_buf_options().
-// - If it's a numeric option, add any necessary bounds checks to do_set().
-// - If it's a list of flags, add some code in do_set(), search for WW_ALL.
-// - When adding an option with expansion (P_EXPAND), but with a different
-//   default for Vi and Vim (no P_VI_DEF), add some code at VIMEXP.
-// - Add documentation! doc/options.txt, and any other related places.
-// - Add an entry in runtime/optwin.vim.
+/// @file nvim/option.c
+///
+/// User-settable options. Checklist for adding a new option:
+/// - Put it in options.lua
+/// - For a global option: Add a variable for it in option_defs.h.
+/// - For a buffer or window local option:
+///   - Add a BV_XX or WV_XX entry to option_defs.h
+///   - Add a variable to the window or buffer struct in buffer_defs.h.
+///   - For a window option, add some code to copy_winopt().
+///   - For a window string option, add code to check_winopt()
+///     and clear_winopt(). If setting the option needs parsing,
+///     add some code to didset_window_options().
+///   - For a buffer option, add some code to buf_copy_options().
+///   - For a buffer string option, add code to check_buf_options().
+/// - If it's a numeric option, add any necessary bounds checks to do_set().
+/// - If it's a list of flags, add some code in do_set(), search for WW_ALL.
+/// - When adding an option with expansion (P_EXPAND), but with a different
+///   default for Vi and Vim (no P_VI_DEF), add some code at VIMEXP.
+/// - Add documentation! doc/options.txt, and any other related places.
+/// - Add an entry in runtime/optwin.vim.
 
 #define IN_OPTION_C
 #include <assert.h>

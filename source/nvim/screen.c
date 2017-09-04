@@ -1,85 +1,80 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * screen.c: code for displaying on the screen
- *
- * Output to the screen (console, terminal emulator or GUI window) is minimized
- * by remembering what is already on the screen, and only updating the parts
- * that changed.
- *
- * ScreenLines[off]  Contains a copy of the whole screen, as it is currently
- *		     displayed (excluding text written by external commands).
- * ScreenAttrs[off]  Contains the associated attributes.
- * LineOffset[row]   Contains the offset into ScreenLines*[] and ScreenAttrs[]
- *		     for each line.
- * LineWraps[row]    Flag for each line whether it wraps to the next line.
- *
- * For double-byte characters, two consecutive bytes in ScreenLines[] can form
- * one character which occupies two display cells.
- * For UTF-8 a multi-byte character is converted to Unicode and stored in
- * ScreenLinesUC[].  ScreenLines[] contains the first byte only.  For an ASCII
- * character without composing chars ScreenLinesUC[] will be 0 and
- * ScreenLinesC[][] is not used.  When the character occupies two display
- * cells the next byte in ScreenLines[] is 0.
- * ScreenLinesC[][] contain up to 'maxcombine' composing characters
- * (drawn on top of the first character).  There is 0 after the last one used.
- * ScreenLines2[] is only used for euc-jp to store the second byte if the
- * first byte is 0x8e (single-width character).
- *
- * The screen_*() functions write to the screen and handle updating
- * ScreenLines[].
- *
- * update_screen() is the function that updates all windows and status lines.
- * It is called form the main loop when must_redraw is non-zero.  It may be
- * called from other places when an immediate screen update is needed.
- *
- * The part of the buffer that is displayed in a window is set with:
- * - w_topline (first buffer line in window)
- * - w_topfill (filler lines above the first line)
- * - w_leftcol (leftmost window cell in window),
- * - w_skipcol (skipped window cells of first line)
- *
- * Commands that only move the cursor around in a window, do not need to take
- * action to update the display.  The main loop will check if w_topline is
- * valid and update it (scroll the window) when needed.
- *
- * Commands that scroll a window change w_topline and must call
- * check_cursor() to move the cursor into the visible part of the window, and
- * call redraw_later(VALID) to have the window displayed by update_screen()
- * later.
- *
- * Commands that change text in the buffer must call changed_bytes() or
- * changed_lines() to mark the area that changed and will require updating
- * later.  The main loop will call update_screen(), which will update each
- * window that shows the changed buffer.  This assumes text above the change
- * can remain displayed as it is.  Text after the change may need updating for
- * scrolling, folding and syntax highlighting.
- *
- * Commands that change how a window is displayed (e.g., setting 'list') or
- * invalidate the contents of a window in another way (e.g., change fold
- * settings), must call redraw_later(NOT_VALID) to have the whole window
- * redisplayed by update_screen() later.
- *
- * Commands that change how a buffer is displayed (e.g., setting 'tabstop')
- * must call redraw_curbuf_later(NOT_VALID) to have all the windows for the
- * buffer redisplayed by update_screen() later.
- *
- * Commands that change highlighting and possibly cause a scroll too must call
- * redraw_later(SOME_VALID) to update the whole window but still use scrolling
- * to avoid redrawing everything.  But the length of displayed lines must not
- * change, use NOT_VALID then.
- *
- * Commands that move the window position must call redraw_later(NOT_VALID).
- * TODO: should minimize redrawing by scrolling when possible.
- *
- * Commands that change everything (e.g., resizing the screen) must call
- * redraw_all_later(NOT_VALID) or redraw_all_later(CLEAR).
- *
- * Things that are handled indirectly:
- * - When messages scroll the screen up, msg_scrolled will be set and
- *   update_screen() called to redraw.
- */
+/// @file nvim/screen.c
+///
+/// code for displaying on the screen
+///
+/// Output to the screen (console, terminal emulator or GUI window) is minimized
+/// by remembering what is already on the screen, and only updating the parts that
+/// changed.
+///
+/// ScreenLines[off]  Contains a copy of the whole screen, as it is currently
+///		     displayed (excluding text written by external commands).
+/// ScreenAttrs[off]  Contains the associated attributes.
+/// LineOffset[row]   Contains the offset into ScreenLines*[] and ScreenAttrs[]
+///		     for each line.
+/// LineWraps[row]    Flag for each line whether it wraps to the next line.
+///
+/// For double-byte characters, two consecutive bytes in ScreenLines[] can form
+/// one character which occupies two display cells.
+/// For UTF-8 a multi-byte character is converted to Unicode and stored in
+/// ScreenLinesUC[].  ScreenLines[] contains the first byte only.  For an ASCII
+/// character without composing chars ScreenLinesUC[] will be 0 and
+/// ScreenLinesC[][] is not used.  When the character occupies two display
+/// cells the next byte in ScreenLines[] is 0.
+/// ScreenLinesC[][] contain up to 'maxcombine' composing characters
+/// (drawn on top of the first character).  There is 0 after the last one used.
+/// ScreenLines2[] is only used for euc-jp to store the second byte if the
+/// first byte is 0x8e (single-width character).
+///
+/// The screen_*() functions write to the screen and handle updating ScreenLines[].
+///
+/// update_screen() is the function that updates all windows and status lines.
+/// It is called form the main loop when must_redraw is non-zero.  It may be
+/// called from other places when an immediate screen update is needed.
+///
+/// The part of the buffer that is displayed in a window is set with:
+/// - w_topline (first buffer line in window)
+/// - w_topfill (filler lines above the first line)
+/// - w_leftcol (leftmost window cell in window),
+/// - w_skipcol (skipped window cells of first line)
+///
+/// Commands that only move the cursor around in a window, do not need to take
+/// action to update the display.  The main loop will check if w_topline is
+/// valid and update it (scroll the window) when needed.
+///
+/// Commands that scroll a window change w_topline and must call
+/// check_cursor() to move the cursor into the visible part of the window, and
+/// call redraw_later(VALID) to have the window displayed by update_screen() later.
+///
+/// Commands that change text in the buffer must call changed_bytes() or
+/// changed_lines() to mark the area that changed and will require updating
+/// later.  The main loop will call update_screen(), which will update each
+/// window that shows the changed buffer.  This assumes text above the change
+/// can remain displayed as it is.  Text after the change may need updating for
+/// scrolling, folding and syntax highlighting.
+///
+/// Commands that change how a window is displayed (e.g., setting 'list') or
+/// invalidate the contents of a window in another way (e.g., change fold
+/// settings), must call redraw_later(NOT_VALID) to have the whole window
+/// redisplayed by update_screen() later.
+///
+/// Commands that change how a buffer is displayed (e.g., setting 'tabstop')
+/// must call redraw_curbuf_later(NOT_VALID) to have all the windows for the
+/// buffer redisplayed by update_screen() later.
+///
+/// Commands that change highlighting and possibly cause a scroll too must call
+/// redraw_later(SOME_VALID) to update the whole window but still use scrolling
+/// to avoid redrawing everything.  But the length of displayed lines must not
+/// change, use NOT_VALID then.
+///
+/// Commands that move the window position must call redraw_later(NOT_VALID).
+/// TODO: should minimize redrawing by scrolling when possible.
+///
+/// Commands that change everything (e.g., resizing the screen) must call
+/// redraw_all_later(NOT_VALID) or redraw_all_later(CLEAR).
+///
+/// Things that are handled indirectly:
+/// - When messages scroll the screen up, msg_scrolled will be set and
+///   update_screen() called to redraw.
 
 #include <assert.h>
 #include <inttypes.h>

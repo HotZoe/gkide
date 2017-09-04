@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/mainwindow.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_MAINWINDOW_H
 #define SNAIL_LIBS_NVIMCORE_MAINWINDOW_H

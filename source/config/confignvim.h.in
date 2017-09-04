@@ -1,5 +1,5 @@
-/// @file
-/// @headerfile ""
+/// @file generated/config/confignvim.h
+
 #ifndef GKIDE_GENERATED_CONFIG_CONFIGNVIM_H
 #define GKIDE_GENERATED_CONFIG_CONFIGNVIM_H
 

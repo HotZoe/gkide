@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/nvimconnector.cpp
 
 #include <QtGlobal>
 #include <QMetaMethod>

@@ -1,11 +1,9 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-// TODO(ZyX-I): move to eval/executor
-
-/// @file ex_eval.c
+/// @file nvim/ex_eval.c
 ///
 /// Functions for Ex command line for the +eval feature.
+/// @todo (ZyX-I): move to eval/executor
+
+
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>

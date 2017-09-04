@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/unix_defs.h
 
 #ifndef NVIM_OS_UNIX_DEFS_H
 #define NVIM_OS_UNIX_DEFS_H
@@ -11,7 +11,7 @@
 #include <limits.h>
 
 #define TEMP_FILE_PATH_MAXLEN  256
-#define TEMP_DIR_NAMES  { "$TMPDIR", "/tmp", ".", "~" }
+#define TEMP_DIR_NAMES         { "$TMPDIR", "/tmp", ".", "~" }
 
 #define HAVE_ACL  (HAVE_POSIX_ACL || HAVE_SOLARIS_ACL)
 

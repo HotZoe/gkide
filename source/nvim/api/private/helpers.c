@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/private/helpers.c
 
 #include <assert.h>
 #include <inttypes.h>

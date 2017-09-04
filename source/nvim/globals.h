@@ -1,3 +1,5 @@
+/// @file nvim/globals.h
+
 #ifndef NVIM_GLOBALS_H
 #define NVIM_GLOBALS_H
 
@@ -1265,4 +1267,4 @@ typedef enum
 #define MIN_CD_SCOPE  kCdScopeWindow
 #define MAX_CD_SCOPE  kCdScopeGlobal
 
-#endif /* NVIM_GLOBALS_H */
+#endif // NVIM_GLOBALS_H

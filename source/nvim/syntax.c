@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/syntax.c
 ///
 /// code for syntax highlighting
 

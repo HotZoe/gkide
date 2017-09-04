@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/libuv_process.h
 
 #ifndef NVIM_EVENT_LIBUV_PROCESS_H
 #define NVIM_EVENT_LIBUV_PROCESS_H

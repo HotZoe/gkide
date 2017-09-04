@@ -1,3 +1,5 @@
+/// @file nvim/ex_eval.h
+
 #ifndef NVIM_EX_EVAL_H
 #define NVIM_EX_EVAL_H
 
@@ -130,4 +132,5 @@ struct cleanup_stuff
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_eval.h.generated.h"
 #endif
-#endif  // NVIM_EX_EVAL_H
+
+#endif // NVIM_EX_EVAL_H

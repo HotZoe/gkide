@@ -1,3 +1,5 @@
+/// @file nvim/fileio.h
+
 #ifndef NVIM_FILEIO_H
 #define NVIM_FILEIO_H
 
@@ -33,4 +35,5 @@ typedef struct
     #include "auevents_enum.generated.h"
     #include "fileio.h.generated.h"
 #endif
-#endif  // NVIM_FILEIO_H
+
+#endif // NVIM_FILEIO_H

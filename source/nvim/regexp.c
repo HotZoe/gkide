@@ -1,50 +1,44 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+/// @file nvim/regexp.c
+///
+/// Handling of regular expressions: vim_regcomp(), vim_regexec(), vim_regsub()
+///
+/// @note:
+/// This is NOT the original regular expression code as written by Henry
+/// Spencer.  This code has been modified specifically for use with the VIM
+/// editor, and should not be used separately from Vim.  If you want a good
+/// regular expression library, get the original code.  The copyright notice
+/// that follows is from the original.
+///
+///	Copyright (c) 1986 by University of Toronto.
+///	Written by Henry Spencer.  Not derived from licensed software.
+///
+/// Permission is granted to anyone to use this software for any
+///	purpose on any computer system, and to redistribute it freely,
+///	subject to the following restrictions:
+///
+///	1. The author is not responsible for the consequences of use of
+///		this software, no matter how awful, even if they arise
+///		from defects in it.
+///
+///	2. The origin of this software must not be misrepresented, either
+///		by explicit claim or by omission.
+///
+///	3. Altered versions must be plainly marked as such, and must not
+///		be misrepresented as being the original software.
+///
+/// Beware that some of this code is subtly aware of the way operator
+/// precedence is structured in regular expressions.  Serious changes in
+/// regular-expression syntax might require a total rethink.
+///
+/// Changes have been made by Tony Andrews, Olaf 'Rhialto' Seibert, Robert
+/// Webb, Ciaran McCreesh and Bram Moolenaar.
+/// Named character class support added by Walter Briscoe (1998 Jul 01)
 
-/*
- * Handling of regular expressions: vim_regcomp(), vim_regexec(), vim_regsub()
- *
- * NOTICE:
- *
- * This is NOT the original regular expression code as written by Henry
- * Spencer.  This code has been modified specifically for use with the VIM
- * editor, and should not be used separately from Vim.  If you want a good
- * regular expression library, get the original code.  The copyright notice
- * that follows is from the original.
- *
- * END NOTICE
- *
- *	Copyright (c) 1986 by University of Toronto.
- *	Written by Henry Spencer.  Not derived from licensed software.
- *
- *	Permission is granted to anyone to use this software for any
- *	purpose on any computer system, and to redistribute it freely,
- *	subject to the following restrictions:
- *
- *	1. The author is not responsible for the consequences of use of
- *		this software, no matter how awful, even if they arise
- *		from defects in it.
- *
- *	2. The origin of this software must not be misrepresented, either
- *		by explicit claim or by omission.
- *
- *	3. Altered versions must be plainly marked as such, and must not
- *		be misrepresented as being the original software.
- *
- * Beware that some of this code is subtly aware of the way operator
- * precedence is structured in regular expressions.  Serious changes in
- * regular-expression syntax might require a total rethink.
- *
- * Changes have been made by Tony Andrews, Olaf 'Rhialto' Seibert, Robert
- * Webb, Ciaran McCreesh and Bram Moolenaar.
- * Named character class support added by Walter Briscoe (1998 Jul 01)
- */
-
-/* Uncomment the first if you do not want to see debugging logs or files
- * related to regular expressions, even when compiling with -DDEBUG.
- * Uncomment the second to get the regexp debugging. */
-/* #undef REGEXP_DEBUG */
-/* #define REGEXP_DEBUG */
+// Uncomment the first if you do not want to see debugging logs or files
+// related to regular expressions, even when compiling with -DDEBUG.
+// Uncomment the second to get the regexp debugging.
+// #undef  REGEXP_DEBUG
+// #define REGEXP_DEBUG
 
 #include <assert.h>
 #include <inttypes.h>

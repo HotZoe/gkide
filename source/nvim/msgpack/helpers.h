@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/msgpack/helpers.h
 
 #ifndef NVIM_MSGPACK_RPC_HELPERS_H
 #define NVIM_MSGPACK_RPC_HELPERS_H

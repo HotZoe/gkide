@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/nvimconnectorhelper.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_CONNECTORHELPER_H
 #define SNAIL_LIBS_NVIMCORE_CONNECTORHELPER_H

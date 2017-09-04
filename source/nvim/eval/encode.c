@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/eval/encode.c
 ///
 /// File containing functions for encoding and decoding VimL values.
 ///

@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/buffer.c
 ///
 /// functions for dealing with the buffer structure.
 ///

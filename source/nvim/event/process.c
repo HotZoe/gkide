@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/event/process.c
 
 #include <assert.h>
 #include <stdlib.h>

@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/arabic.c
 ///
 /// Functions for Arabic language.
 ///

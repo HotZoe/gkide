@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file snail/libs/nvimcore/cell.h
 
 #ifndef SNAIL_LIBS_NVIMCORE_CELL_H
 #define SNAIL_LIBS_NVIMCORE_CELL_H

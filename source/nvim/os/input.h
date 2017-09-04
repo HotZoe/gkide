@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/os/input.h
 
 #ifndef NVIM_OS_INPUT_H
 #define NVIM_OS_INPUT_H

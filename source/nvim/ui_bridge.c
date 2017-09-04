@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/ui_bridge.c
 ///
 /// UI wrapper that sends requests to the UI thread.
 /// Used by the built-in TUI and libnvim-based UIs.

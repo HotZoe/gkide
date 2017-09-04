@@ -1,3 +1,5 @@
+/// @file nvim/getchar.h
+
 #ifndef NVIM_GETCHAR_H
 #define NVIM_GETCHAR_H
 

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/msgpack/channel.h
 
 #ifndef NVIM_MSGPACK_RPC_CHANNEL_H
 #define NVIM_MSGPACK_RPC_CHANNEL_H

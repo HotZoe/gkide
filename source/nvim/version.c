@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/version.c
 ///
 /// Nvim was forked from Vim 7.4.160.
 /// Vim originated from Stevie version 3.6 (Fish disk 217) by GRWalter (Fred).

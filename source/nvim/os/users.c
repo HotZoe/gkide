@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/users.c
 ///
 /// operating system user information
 

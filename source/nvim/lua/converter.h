@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/lua/converter.h
 
 #ifndef NVIM_LUA_CONVERTER_H
 #define NVIM_LUA_CONVERTER_H

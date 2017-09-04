@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/eval/gc.h
 
 #ifndef NVIM_EVAL_GC_H
 #define NVIM_EVAL_GC_H

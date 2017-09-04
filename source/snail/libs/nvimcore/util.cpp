@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/util.cpp
 
 #include "snail/libs/nvimcore/util.h"
 

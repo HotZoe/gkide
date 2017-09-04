@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/os/pty_process_unix.c
 
 // Some of the code came from pangoterm and libuv
 #include <stdbool.h>

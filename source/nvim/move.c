@@ -1,16 +1,12 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * move.c: Functions for moving the cursor and scrolling text.
- *
- * There are two ways to move the cursor:
- * 1. Move the cursor directly, the text is scrolled to keep the cursor in the
- *    window.
- * 2. Scroll the text, the cursor is moved into the text visible in the
- *    window.
- * The 'scrolloff' option makes this a bit complicated.
- */
+/// @file nvim/move.c
+///
+/// Functions for moving the cursor and scrolling text.
+///
+/// There are two ways to move the cursor:
+/// - Move the cursor directly, the text is scrolled to keep the cursor in the window.
+/// - Scroll the text, the cursor is moved into the text visible in the window.
+///
+/// The 'scrolloff' option makes this a bit complicated.
 
 #include <assert.h>
 #include <inttypes.h>

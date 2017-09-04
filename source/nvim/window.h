@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/window.h
 
 #ifndef NVIM_WINDOW_H
 #define NVIM_WINDOW_H

@@ -1,3 +1,5 @@
+/// @file nvim/cursor.h
+
 #ifndef NVIM_CURSOR_H
 #define NVIM_CURSOR_H
 
@@ -9,4 +11,4 @@
     #include "cursor.h.generated.h"
 #endif
 
-#endif  // NVIM_CURSOR_H
+#endif // NVIM_CURSOR_H

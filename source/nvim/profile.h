@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/profile.h
 
 #ifndef NVIM_PROFILE_H
 #define NVIM_PROFILE_H

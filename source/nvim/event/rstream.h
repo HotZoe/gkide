@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/event/rstream.h
 
 #ifndef NVIM_EVENT_RSTREAM_H
 #define NVIM_EVENT_RSTREAM_H

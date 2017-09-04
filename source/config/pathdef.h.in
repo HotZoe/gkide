@@ -1,5 +1,5 @@
-/// @file
-/// @headerfile
+/// @file generated/config/pathdef.h
+
 #ifndef GKIDE_GENERATED_CONFIG_PATHDEF_H
 #define GKIDE_GENERATED_CONFIG_PATHDEF_H
 

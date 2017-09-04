@@ -1,3 +1,5 @@
+/// @file nvim/mark.h
+
 #ifndef NVIM_MARK_H
 #define NVIM_MARK_H
 
@@ -123,4 +125,5 @@ static inline void clearpos(pos_T *a)
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "mark.h.generated.h"
 #endif
-#endif  // NVIM_MARK_H
+
+#endif // NVIM_MARK_H

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/spell.h
 
 #ifndef NVIM_SPELL_H
 #define NVIM_SPELL_H

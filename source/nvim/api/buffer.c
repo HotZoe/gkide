@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/buffer.c
 
 // Much of this code was adapted from 'if_py_both.h' from the original vim source
 #include <stdbool.h>

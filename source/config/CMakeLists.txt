@@ -43,8 +43,10 @@ message(STATUS "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/pathdef.h
 set(DOXYGEN_MANUAL_NAME        "nvim")
 set(DOXYGEN_MANUAL_OUTPUT_DIR  "nvim")
 set(DOXYGEN_MANUAL_INPUT       "${GEN_CONFIG_DIR} ${PROJECT_SOURCE_DIR}/source/nvim")
-# TODO, use doxygen to generated the docs for this file, and it can not convert to pdf, need to fix
-set(DOXYGEN_MANUAL_EXCLUDE     "${PROJECT_SOURCE_DIR}/source/nvim/eval/typval.c")
+# TODO, use doxygen to generated the docs for the files, and it can not convert to pdf, need to fix
+set(DOXYGEN_MANUAL_EXCLUDE     "${PROJECT_SOURCE_DIR}/source/nvim/eval/typval.c \
+                                ${PROJECT_SOURCE_DIR}/source/nvim/edit.c \
+                                ${PROJECT_SOURCE_DIR}/source/nvim/ex_getln.c")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/doxygen/Doxyfile.in"
                 "${GENERATED_DIR}/doxygen/Doxyfile.nvim")
 message(STATUS "Doxygen Config: ${GENERATED_DIR}/doxygen/Doxyfile.nvim")

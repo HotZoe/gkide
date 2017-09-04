@@ -1,3 +1,5 @@
+/// @file nvim/popupmnu.h
+
 #ifndef NVIM_POPUPMNU_H
 #define NVIM_POPUPMNU_H
 
@@ -16,4 +18,5 @@ typedef struct
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "popupmnu.h.generated.h"
 #endif
-#endif  // NVIM_POPUPMNU_H
+
+#endif // NVIM_POPUPMNU_H

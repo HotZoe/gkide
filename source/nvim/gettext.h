@@ -1,3 +1,5 @@
+/// @file nvim/gettext.h
+
 #ifndef NVIM_GETTEXT_H
 #define NVIM_GETTEXT_H
 
@@ -18,4 +20,4 @@
     #define textdomain(x)  // empty
 #endif
 
-#endif  // NVIM_GETTEXT_H
+#endif // NVIM_GETTEXT_H

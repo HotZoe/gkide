@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/function.cpp
 
 #include <QMetaMethod>
 #include <QStringList>

@@ -1,3 +1,5 @@
+/// @file nvim/memfile.h
+
 #ifndef NVIM_MEMFILE_H
 #define NVIM_MEMFILE_H
 
@@ -13,4 +15,5 @@
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "memfile.h.generated.h"
 #endif
-#endif  // NVIM_MEMFILE_H
+
+#endif // NVIM_MEMFILE_H

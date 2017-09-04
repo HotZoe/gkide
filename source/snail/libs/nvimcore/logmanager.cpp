@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/logmanager.cpp
 
 #include <QDir>
 #include <QDateTime>

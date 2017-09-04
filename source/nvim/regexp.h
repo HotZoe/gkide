@@ -1,3 +1,5 @@
+/// @file nvim/regexp.h
+
 #ifndef NVIM_REGEXP_H
 #define NVIM_REGEXP_H
 
@@ -20,4 +22,4 @@
     #include "regexp.h.generated.h"
 #endif
 
-#endif /* NVIM_REGEXP_H */
+#endif // NVIM_REGEXP_H

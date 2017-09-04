@@ -1,4 +1,4 @@
-/// @file
+/// @file nvim/api/windows.c
 
 #include <stdbool.h>
 #include <stdint.h>

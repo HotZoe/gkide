@@ -1,4 +1,4 @@
-/// @file
+/// @file snail/libs/nvimcore/nvimconnectorhelper.cpp
 
 #include <QMap>
 #include "snail/libs/nvimcore/util.h"

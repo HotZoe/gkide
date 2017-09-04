@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/api/private/helpers.h
 
 #ifndef NVIM_API_PRIVATE_HELPERS_H
 #define NVIM_API_PRIVATE_HELPERS_H
@@ -15,55 +15,55 @@
 #define BOOLEAN_OBJ(b)                 \
     ((Object) {                        \
         .type = kObjectTypeBoolean,    \
-                .data.boolean = b              \
+        .data.boolean = b              \
     })
 
 #define INTEGER_OBJ(i)                 \
     ((Object) {                        \
         .type = kObjectTypeInteger,    \
-                .data.integer = i              \
+        .data.integer = i              \
     })
 
 #define FLOAT_OBJ(f)                   \
     ((Object) {                        \
         .type = kObjectTypeFloat,      \
-                .data.floating = f             \
+        .data.floating = f             \
     })
 
 #define STRING_OBJ(s)                  \
     ((Object) {                        \
         .type = kObjectTypeString,     \
-                .data.string = s               \
+        .data.string = s               \
     })
 
 #define BUFFER_OBJ(s)                  \
     ((Object) {                        \
         .type = kObjectTypeBuffer,     \
-                .data.integer = s              \
+        .data.integer = s              \
     })
 
 #define WINDOW_OBJ(s)                  \
     ((Object) {                        \
         .type = kObjectTypeWindow,     \
-                .data.integer = s              \
+        .data.integer = s              \
     })
 
 #define TABPAGE_OBJ(s)                 \
     ((Object) {                        \
         .type = kObjectTypeTabpage,    \
-                .data.integer = s              \
+        .data.integer = s              \
     })
 
 #define ARRAY_OBJ(a)                   \
     ((Object) {                        \
         .type = kObjectTypeArray,      \
-                .data.array = a                \
+        .data.array = a                \
     })
 
 #define DICTIONARY_OBJ(d)              \
     ((Object) {                        \
         .type = kObjectTypeDictionary, \
-                .data.dictionary = d           \
+        .data.dictionary = d           \
     })
 
 #define NIL              ((Object) { .type = kObjectTypeNil })
@@ -79,7 +79,7 @@
 #define STATIC_CSTR_TO_STRING(s)            \
     ((String) {                             \
         .data = xmemdupz(s, sizeof(s) - 1), \
-                .size = sizeof(s) - 1               \
+        .size = sizeof(s) - 1               \
     })
 
 // Helpers used by the generated msgpack-rpc api wrappers

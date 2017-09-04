@@ -1,9 +1,6 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
-/*
- * hardcopy.c: printing to paper
- */
+/// @file nvim/hardcopy.c
+///
+/// printing to paper
 
 #include <assert.h>
 #include <string.h>

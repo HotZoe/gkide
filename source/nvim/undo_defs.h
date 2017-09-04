@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/undo_defs.h
 
 #ifndef NVIM_UNDO_DEFS_H
 #define NVIM_UNDO_DEFS_H

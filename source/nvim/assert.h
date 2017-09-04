@@ -1,14 +1,14 @@
-/// @headerfile ""
+/// @file nvim/assert.h
 
 #ifndef NVIM_ASSERT_H
 #define NVIM_ASSERT_H
 
 // support static asserts (aka compile-time asserts)
 
-// some compilers don't properly support short-circuiting apparently, giving
-// ugly syntax errors when using things like defined(__clang__) &&
-// defined(__has_feature) && __has_feature(...). Therefore we define Clang's
-// __has_feature and __has_extension macro's before referring to them.
+/// some compilers don't properly support short-circuiting apparently, giving
+/// ugly syntax errors when using things like defined(__clang__) &&
+/// defined(__has_feature) && __has_feature(...). Therefore we define Clang's
+/// __has_feature and __has_extension macro's before referring to them.
 #ifndef __has_feature
     #define __has_feature(x)  0
 #endif

@@ -1,4 +1,4 @@
-/// @headerfile ""
+/// @file nvim/state.h
 
 #ifndef NVIM_STATE_H
 #define NVIM_STATE_H
