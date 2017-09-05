@@ -35,21 +35,21 @@ MAP_DECLS(handle_T, ptr_t)
 MAP_DECLS(String, MsgpackRpcRequestHandler)
 MAP_DECLS(linenr_T, bufhl_vec_T)
 
-#define map_new(T, U) map_##T##_##U##_new
-#define map_free(T, U) map_##T##_##U##_free
-#define map_get(T, U) map_##T##_##U##_get
-#define map_has(T, U) map_##T##_##U##_has
-#define map_put(T, U) map_##T##_##U##_put
-#define map_ref(T, U) map_##T##_##U##_ref
-#define map_del(T, U) map_##T##_##U##_del
+#define map_new(T, U)   map_##T##_##U##_new
+#define map_free(T, U)  map_##T##_##U##_free
+#define map_get(T, U)   map_##T##_##U##_get
+#define map_has(T, U)   map_##T##_##U##_has
+#define map_put(T, U)   map_##T##_##U##_put
+#define map_ref(T, U)   map_##T##_##U##_ref
+#define map_del(T, U)   map_##T##_##U##_del
 #define map_clear(T, U) map_##T##_##U##_clear
 
-#define pmap_new(T) map_new(T, ptr_t)
-#define pmap_free(T) map_free(T, ptr_t)
-#define pmap_get(T) map_get(T, ptr_t)
-#define pmap_has(T) map_has(T, ptr_t)
-#define pmap_put(T) map_put(T, ptr_t)
-#define pmap_del(T) map_del(T, ptr_t)
+#define pmap_new(T)   map_new(T, ptr_t)
+#define pmap_free(T)  map_free(T, ptr_t)
+#define pmap_get(T)   map_get(T, ptr_t)
+#define pmap_has(T)   map_has(T, ptr_t)
+#define pmap_put(T)   map_put(T, ptr_t)
+#define pmap_del(T)   map_del(T, ptr_t)
 #define pmap_clear(T) map_clear(T, ptr_t)
 
 #define map_foreach(map, key, value, block)   kh_foreach(map->table, key, value, block)

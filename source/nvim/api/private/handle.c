@@ -31,6 +31,7 @@ HANDLE_IMPL(buf_T, buffer)
 HANDLE_IMPL(win_T, window)
 HANDLE_IMPL(tabpage_T, tabpage)
 
+/// init three big thing: buffer, window, tabpage
 void handle_init(void)
 {
     HANDLE_INIT(buffer);

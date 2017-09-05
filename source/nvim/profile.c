@@ -9,7 +9,7 @@
 #include "nvim/func_attr.h"
 #include "nvim/os/os_defs.h"
 
-// for the global `time_fd` (startuptime)
+// for the global 'time_fd' (startuptime)
 #include "nvim/globals.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -19,7 +19,7 @@
 /// @todo: what is this ?
 static proftime_T prof_wait_time;
 
-/// profile_start - return the current time
+/// return the current time
 ///
 /// @return the current time
 proftime_T profile_start(void) FUNC_ATTR_WARN_UNUSED_RESULT
@@ -27,21 +27,21 @@ proftime_T profile_start(void) FUNC_ATTR_WARN_UNUSED_RESULT
     return os_hrtime();
 }
 
-/// profile_end - compute the time elapsed
+/// compute the time elapsed
 ///
-/// @return the elapsed time from `tm` until now.
+/// @return the elapsed time from **tm** until now.
 proftime_T profile_end(proftime_T tm) FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return os_hrtime() - tm;
 }
 
-/// profile_msg - return a string that represents the time in `tm`
+/// return a string that represents the time in **tm**
 ///
 /// @warning Do not modify or free this string, not multithread-safe.
 ///
 /// @param tm The time to be represented
-/// @return a static string representing `tm` in the
-///         form "seconds.microseconds".
+///
+/// @return a static string representing **tm** in the form "seconds.microseconds".
 const char *profile_msg(proftime_T tm) FUNC_ATTR_WARN_UNUSED_RESULT
 {
     static char buf[50];
@@ -216,9 +216,9 @@ void time_push(proftime_T *rel, proftime_T *start)
     g_prev_time = now;
 }
 
-/// time_pop - compute the prev time after doing something that could nest
+/// compute the prev time after doing something that could nest
 ///
-/// Subtracts `tp` from the static global `g_prev_time`.
+/// Subtracts **tp*** from the static global ::g_prev_time.
 ///
 /// @param tp the time to subtract
 void time_pop(proftime_T tp)
@@ -226,7 +226,7 @@ void time_pop(proftime_T tp)
     g_prev_time -= tp;
 }
 
-/// time_diff - print the difference between `then` and `now`
+/// print the difference between **then** and **now**
 ///
 /// the format is "msec.usec".
 static void time_diff(proftime_T then, proftime_T now)
@@ -258,7 +258,7 @@ void time_start(const char *message)
 
 /// print out timing info
 ///
-/// @warning don't forget to call `time_start()` once before calling this.
+/// @warning don't forget to call time_start() once before calling this.
 ///
 /// @param mesg the message to display next to the timing information
 /// @param start only for do_source: start time

@@ -286,60 +286,62 @@ typedef struct
     dictitem_T  *fd_di;  ///< Dictionary item used.
 } funcdict_T;
 
-/*
- * Info used by a ":for" loop.
- */
+/// Info used by a ":for" loop.
 typedef struct
 {
-    int fi_semicolon;             /* TRUE if ending in '; var]' */
-    int fi_varcount;              /* nr of variables in the list */
-    listwatch_T fi_lw;            /* keep an eye on the item used. */
-    list_T      *fi_list;         /* list being used */
+    int fi_semicolon;    ///< TRUE if ending in '; var]'
+    int fi_varcount;     ///< nr of variables in the list
+    listwatch_T fi_lw;   ///< keep an eye on the item used.
+    list_T *fi_list;     ///< list being used
 } forinfo_T;
 
-/*
- * enum used by var_flavour()
- */
+/// enum used by var_flavour()
 typedef enum
 {
-    VAR_FLAVOUR_DEFAULT,          /* doesn't start with uppercase */
-    VAR_FLAVOUR_SESSION,          /* starts with uppercase, some lower */
-    VAR_FLAVOUR_SHADA             /* all uppercase */
+    VAR_FLAVOUR_DEFAULT,   ///< doesn't start with uppercase
+    VAR_FLAVOUR_SESSION,   ///< starts with uppercase, some lower
+    VAR_FLAVOUR_SHADA      ///< all uppercase
 } var_flavour_T;
 
-/* values for vv_flags: */
-#define VV_COMPAT       1       /* compatible, also used without "v:" */
-#define VV_RO           2       /* read-only */
-#define VV_RO_SBX       4       /* read-only in the sandbox */
+#define VV_COMPAT       1  ///< for vimvar::vv_flags, compatible, also used without **v:**
+#define VV_RO           2  ///< for vimvar::vv_flags, read-only
+#define VV_RO_SBX       4  ///< for vimvar::vv_flags, read-only in the sandbox
 
-#define VV(idx, name, type, flags) \
-    [idx] = { \
-              .vv_name = name, \
-              .vv_di = { \
-                         .di_tv = { .v_type = type }, \
-                         .di_flags = 0, \
-                         .di_key = { 0 }, \
-                       }, \
-              .vv_flags = flags, \
+/// for init ::vimvars only
+#define VV(idx, name, type, flags)                  \
+    [idx] = {                                       \
+             .vv_name = name,                       \
+             .vv_di = {                             \
+                       .di_tv = { .v_type = type }, \
+                       .di_flags = 0,               \
+                       .di_key = { 0 },             \
+                       },                           \
+              .vv_flags = flags,                    \
             }
 
-// Array to hold the value of v: variables.
-// The value is in a dictitem, so that it can also be used in the v: scope.
-// The reason to use this table anyway is for very quick access to the
-// variables with the VV_ defines.
+/// Array to hold the value of **v:** variables.
+///
+/// The value is in a dictitem, so that it can also be used in the **v:** scope.
+/// The reason to use this table anyway is for very quick access to the variables
+/// with the **VV_** defines.
 static struct vimvar
 {
-    char        *vv_name;  ///< Name of the variable, without v:.
-    TV_DICTITEM_STRUCT(17) vv_di;  ///< Value and name for key (max 16 chars).
-    char vv_flags;  ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
+    char *vv_name;            ///< Name of the variable, without **v:**
+    struct
+    {
+        typval_T di_tv;       ///< scope dictionary
+        uint8_t  di_flags;    ///< Flags.
+        char_u   di_key[17];  ///< Key value.
+    } vv_di;                  ///< Value and name for key (max 16 chars)
+    char vv_flags;            ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
 } vimvars[] =
 {
     // VV_ tails differing from upcased string literals:
-    // VV_CC_FROM "charconvert_from"
-    // VV_CC_TO "charconvert_to"
-    // VV_SEND_SERVER "servername"
-    // VV_REG "register"
-    // VV_OP "operator"
+    // VV_CC_FROM       "charconvert_from"
+    // VV_CC_TO         "charconvert_to"
+    // VV_SEND_SERVER   "servername"
+    // VV_REG           "register"
+    // VV_OP            "operator"
     VV(VV_COUNT,          "count",            VAR_NUMBER, VV_COMPAT+VV_RO),
     VV(VV_COUNT1,         "count1",           VAR_NUMBER, VV_RO),
     VV(VV_PREVCOUNT,      "prevcount",        VAR_NUMBER, VV_RO),
@@ -426,7 +428,7 @@ static struct vimvar
 };
 #undef VV
 
-/* shorthand */
+// for shorthand
 #define vv_type         vv_di.di_tv.v_type
 #define vv_nr           vv_di.di_tv.vval.v_number
 #define vv_special      vv_di.di_tv.vval.v_special
@@ -436,11 +438,11 @@ static struct vimvar
 #define vv_dict         vv_di.di_tv.vval.v_dict
 #define vv_tv           vv_di.di_tv
 
-/// Variable used for v:
+/// Variable used for **v:**
 static ScopeDictDictItem vimvars_var;
 
-/// v: hashtab
-#define vimvarht  vimvardict.dv_hashtab
+/// **v:** hashtab
+#define vimvarht        vimvardict.dv_hashtab
 
 typedef struct
 {
@@ -522,13 +524,12 @@ typedef enum
     #include "eval.c.generated.h"
 #endif
 
-#define FNE_INCL_BR     1       /* find_name_end(): include [] in name */
-#define FNE_CHECK_START 2       /* find_name_end(): check name starts with
-                                   valid character */
-static PMap(uint64_t) *jobs = NULL;
+#define FNE_INCL_BR      1  ///< find_name_end(): include [] in name
+#define FNE_CHECK_START  2  ///< find_name_end(): check name starts with valid character
 
-static uint64_t last_timer_id = 0;
+static PMap(uint64_t) *jobs = NULL;
 static PMap(uint64_t) *timers = NULL;
+static uint64_t last_timer_id = 0;
 
 /// Dummy va_list for passing to vim_snprintf
 ///
