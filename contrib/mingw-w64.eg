@@ -22,3 +22,7 @@ GKIDE_MSYS2_GIT_BIN_DIR=D:\App\Git\bin
 # Optional
 # Path to the dir which contains 'nodejs.exe'
 GKIDE_NODEJS_INSTALL_DIR=D:\App\nodejs
+
+# Optional
+# Path to the graphviz install 'bin' dir, which contains 'dot.exe', 'gvedit.exe'
+GKIDE_GRAPHVIZ_BIN_DIR=D:\AppData\graphviz-2.38\bin

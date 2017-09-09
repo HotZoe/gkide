@@ -12,19 +12,22 @@ clear=cls
 cmderr=cd /d "%CMDER_ROOT%"
 history=cat "%CMDER_ROOT%\config\.history"
 
-m4=%GKIDE_PROG_M4% $*
 ls=%GKIDE_PROG_LS% $*
+m4=%GKIDE_PROG_M4% $*
+
 cat=%GKIDE_PROG_CAT% $*
-sed=%GKIDE_PROG_SED% $*
 cut=%GKIDE_PROG_CUT% $*
+dot=%GKIDE_PROG_DOT% $*
 git=%GKIDE_PROG_GIT% $*
 ldd=%GKIDE_PROG_LDD% $*
-grep=%GKIDE_PROG_GREP% $*
+sed=%GKIDE_PROG_SED% $*
+
 echo=%GKIDE_PROG_ECHO% $*
-head=%GKIDE_PROG_HEAD% $*
 find=%GKIDE_PROG_FIND% $*
+grep=%GKIDE_PROG_GREP% $*
+head=%GKIDE_PROG_HEAD% $*
+make=%GKIDE_PROG_MINGW32_MAKE% $*
+
 gperf=%GKIDE_PROG_GPERF% $*
 which=%GKIDE_PROG_WHICH% $*
 unzip=%GKIDE_PROG_UNZIP% $*
-
-make=%GKIDE_PROG_MINGW32_MAKE% $*
