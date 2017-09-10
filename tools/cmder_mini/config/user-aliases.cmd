@@ -17,7 +17,6 @@ m4=%GKIDE_PROG_M4% $*
 
 cat=%GKIDE_PROG_CAT% $*
 cut=%GKIDE_PROG_CUT% $*
-dot=%GKIDE_PROG_DOT% $*
 git=%GKIDE_PROG_GIT% $*
 ldd=%GKIDE_PROG_LDD% $*
 sed=%GKIDE_PROG_SED% $*

@@ -7,6 +7,8 @@ else
     Q=@
 endif
 
+export Q
+
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
@@ -80,7 +82,6 @@ ifeq (,$(GKIDE_CMAKE_BUILD_TYPE))
 else
     GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(GKIDE_CMAKE_BUILD_TYPE)
 endif
-
 
 ifeq (ON,$(windows_cmd_shell))
     DEPS_CMAKE_BUILD_FLAGS += -DGIT_PROG=$(shell echo %GKIDE_PROG_GIT%)
@@ -234,7 +235,7 @@ check-snail: run-snail-libs-test
 
 check: check-nvim check-snail
 
-.PHONY: clean gkideclean distclean
+.PHONY: clean gkideclean docsclean distclean
 
 clean:
 ifeq (ON,$(windows_cmd_shell))
@@ -250,7 +251,16 @@ else
 	$(Q)rm -rf build
 endif
 
-distclean: gkideclean
+docsclean:
+ifeq (ON,$(windows_cmd_shell))
+	$(Q)if exist build rmdir /S /Q build\generated\doxygen
+	$(Q)if exist build del build\.run-cmake
+	$(Q)cd docs && if exist build rmdir /S /Q build
+else
+	$(Q)rm -rf build/generated/doxygen build/.run-cmake docs/build
+endif
+
+distclean: docsclean gkideclean
 ifeq (ON,$(windows_cmd_shell))
 	$(Q)cd deps && if exist build rmdir /S /Q build
 else
@@ -291,6 +301,27 @@ pdf-snail:  build/generated/doxygen/.run-latex-snail
 env-check:
 	$(Q)$(MSYS_SHELL_PATH) scripts/envcheck/env-check.sh $(QT5_INSTALL_PREFIX) $(MSYS_SHELL_PATH)
 
+# The output format of dot
+DOT_OUTPUT_FORMAT ?= svg
+# The output directory of dot
+ifeq (ON,$(windows_cmd_shell))
+    DOT_OUTPUT_DIR=$(subst \,/,$(strip $(shell cd)))/docs/build/graphviz
+else
+    DOT_OUTPUT_DIR=$(shell pwd)/docs/build/graphviz
+endif
+# generated the flow diagram by run dot
+.PHONY: flowchart
+flowchart:
+ifeq (ON,$(windows_cmd_shell))
+	$(Q)cd docs && if not exist build mkdir build
+	$(Q)cd docs/build && if not exist graphviz mkdir graphviz
+else
+	$(Q)if [ ! -d docs/build/graphviz ]; then mkdir -p docs/build/graphviz; fi
+endif
+	$(Q)$(MAKE_PROG) -C docs/graphviz DOT_OUTPUT_DIR=$(DOT_OUTPUT_DIR)       \
+	                                  DOT_OUTPUT_FORMAT=$(DOT_OUTPUT_FORMAT) \
+	                                  WINDOWS_CMD_SHELL=$(windows_cmd_shell)
+
 .PHONY: help
 help:
 	@echo "The <target> of the Makefile are as following:"
@@ -310,6 +341,8 @@ help:
 	@echo ""
 	@echo "  env-check                 to check the building environment."
 	@echo ""
+	@echo "  flowchart                 to generated the flow diagram by run 'dot'."
+	@echo ""
 	@echo "  htmls                     to generated html manual for nvim & snail using doxygen."
 	@echo "  pdfs                      to generated pdf manual for nvim & snail using latex."
 	@echo "  html-nvim                 to generated html manual for nvim using doxygen."
@@ -318,6 +351,7 @@ help:
 	@echo "  pdf-snail                 to generated pdf manual for snail using latex."
 	@echo ""
 	@echo "  clean                     to clean up 'build' directory."
+	@echo "  docsclean                 to remove the generated documention files of doxygen, dot etc."
 	@echo "  gkideclean                to remove the 'build' directory."
 	@echo "  distclean                 to remove 'deps/build' and 'build' directory."
 	@echo ""

@@ -31,8 +31,6 @@ set GKIDE_PROG_WHICH=%GKIDE_MSYS2_USR_BIN_DIR%\which.exe
 set GKIDE_PROG_UNZIP=%GKIDE_MSYS2_USR_BIN_DIR%\unzip.exe
 set GKIDE_PROG_INSTALL=%GKIDE_MSYS2_USR_BIN_DIR%\install.exe
 
-set GKIDE_PROG_DOT=%GKIDE_GRAPHVIZ_BIN_DIR%\dot.exe
-
 set GKIDE_PROG_GIT=%GKIDE_MSYS2_GIT_BIN_DIR%\git.exe
 
 set GKIDE_MINGW_BIN_DIR=%GKIDE_MINGW_TOOLCHAIN_DIR%\bin
@@ -49,29 +47,32 @@ set GKIDE_PROG_MINGW32_MAKE=%GKIDE_MINGW_BIN_DIR%\mingw32-make.exe
 echo %PATH% > %GKIDE_ROOT_DIR%\cmder_env_path_1
 %GKIDE_PROG_SED% -e 's/;/;\n/g' %GKIDE_ROOT_DIR%\cmder_env_path_1 > %GKIDE_ROOT_DIR%\cmder_env_path_2
 
-rem Clean the ENV PATH
+rem Clean the environment PATH
 set PATH=
 
-rem Add Local build path for convenient
+rem Add Local 'build\bin' path to PATH for convenient
 echo %GKIDE_ROOT_DIR%\build\bin; >> %GKIDE_ROOT_DIR%\cmder_env_path_3
 
-rem Add MinGW
+rem Add MinGW to PATH
 echo %GKIDE_MINGW_BIN_DIR%; >> %GKIDE_ROOT_DIR%\cmder_env_path_3
 
-rem Add NodeJS install path to ENV path
+rem Add NodeJS path to PATH
 echo %GKIDE_NODEJS_INSTALL_DIR%; >> %GKIDE_ROOT_DIR%\cmder_env_path_3
+
+rem Add Graphviz 'bin' path to PATH
+echo %GKIDE_GRAPHVIZ_BIN_DIR%; >> %GKIDE_ROOT_DIR%\cmder_env_path_3
 
 %GKIDE_PROG_GREP% -e "AppData\\\\Roaming\\\\npm" %GKIDE_ROOT_DIR%\cmder_env_path_2 > %GKIDE_ROOT_DIR%\cmder_env_path_1
 for /F "delims=;" %%i in (%GKIDE_ROOT_DIR%\cmder_env_path_1) do (
     if not $%%i$ == $""$ echo %%i; >> %GKIDE_ROOT_DIR%\cmder_env_path_3)
 
-rem Add cmder path to ENV path
+rem Add cmder path to PATH
 %GKIDE_PROG_GREP% 'cmder_mini' %GKIDE_ROOT_DIR%\cmder_env_path_2 > %GKIDE_ROOT_DIR%\cmder_env_path_1
 for /F "delims=;" %%i in (%GKIDE_ROOT_DIR%\cmder_env_path_1) do (
     if not $%%i$ == $""$ echo %%i; >> %GKIDE_ROOT_DIR%\cmder_env_path_3)
 
-rem Add windows standard path to ENV path
-echo C:\Windows; >> cmder_env_path_3
+rem Add windows standard path to PATH
+echo C:\Windows; >> %GKIDE_ROOT_DIR%\cmder_env_path_3
 
 %GKIDE_PROG_GREP% -e "[S|s]ystem32" %GKIDE_ROOT_DIR%\cmder_env_path_2 > %GKIDE_ROOT_DIR%\cmder_env_path_1
 for /F "delims=;" %%i in (%GKIDE_ROOT_DIR%\cmder_env_path_1) do (
@@ -82,7 +83,7 @@ rem remove the unwanted spaces
 %GKIDE_PROG_SED% ':a;N;$!ba;s/\n/ /g' %GKIDE_ROOT_DIR%\cmder_env_path_3 > %GKIDE_ROOT_DIR%\cmder_env_path_4
 %GKIDE_PROG_SED% -i 's/; /;/g' %GKIDE_ROOT_DIR%\cmder_env_path_4
 
-rem set the final build ENV path
+rem set the final build PATH environment variable
 for /F %%i in (%GKIDE_ROOT_DIR%\cmder_env_path_4) do set PATH=%%i
 
 del %GKIDE_ROOT_DIR%\cmder_env_path_1
