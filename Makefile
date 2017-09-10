@@ -253,8 +253,8 @@ endif
 
 docsclean:
 ifeq (ON,$(windows_cmd_shell))
-	$(Q)if exist build rmdir /S /Q build\generated\doxygen
-	$(Q)if exist build del build\.run-cmake
+	$(Q)if exist build\generated\doxygen rmdir /S /Q build\generated\doxygen
+	$(Q)if exist build\.run-cmake del build\.run-cmake
 	$(Q)cd docs && if exist build rmdir /S /Q build
 else
 	$(Q)rm -rf build/generated/doxygen build/.run-cmake docs/build
