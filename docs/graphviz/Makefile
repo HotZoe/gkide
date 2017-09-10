@@ -48,7 +48,7 @@ TARGETS = $(foreach item,$(INPUTS_NAMES),$(item).$(DOT_OUTPUT_FORMAT))
 all: $(TARGETS)
 
 %.$(DOT_OUTPUT_FORMAT): %.dot mk-sub-dirs
-	$(Q)$(DOT_PROG) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/$@ $<
+	$(Q)$(DOT_PROG) $(DOT_ARGS) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/$@ $<
 	$(Q)echo Generating $(DOT_OUTPUT_DIR)/$@
 
 mk-sub-dirs:

@@ -318,7 +318,8 @@ ifeq (ON,$(windows_cmd_shell))
 else
 	$(Q)if [ ! -d docs/build/graphviz ]; then mkdir -p docs/build/graphviz; fi
 endif
-	$(Q)$(MAKE_PROG) -C docs/graphviz DOT_OUTPUT_DIR=$(DOT_OUTPUT_DIR)       \
+	$(Q)$(MAKE_PROG) -C docs/graphviz DOT_ARGS=-Kcirco                       \
+	                                  DOT_OUTPUT_DIR=$(DOT_OUTPUT_DIR)       \
 	                                  DOT_OUTPUT_FORMAT=$(DOT_OUTPUT_FORMAT) \
 	                                  WINDOWS_CMD_SHELL=$(windows_cmd_shell)
 
