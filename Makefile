@@ -303,6 +303,10 @@ env-check:
 
 # The output format of dot
 DOT_OUTPUT_FORMAT ?= svg
+# extra args passed to dot program
+ifeq (, $(DOT_ARGS))
+    DOT_ARGS := -Kcirco
+endif
 # The output directory of dot
 ifeq (ON,$(windows_cmd_shell))
     DOT_OUTPUT_DIR=$(subst \,/,$(strip $(shell cd)))/docs/build/graphviz
@@ -318,7 +322,7 @@ ifeq (ON,$(windows_cmd_shell))
 else
 	$(Q)if [ ! -d docs/build/graphviz ]; then mkdir -p docs/build/graphviz; fi
 endif
-	$(Q)$(MAKE_PROG) -C docs/graphviz DOT_ARGS=-Kcirco                       \
+	$(Q)$(MAKE_PROG) -C docs/graphviz DOT_ARGS=$(DOT_ARGS)                   \
 	                                  DOT_OUTPUT_DIR=$(DOT_OUTPUT_DIR)       \
 	                                  DOT_OUTPUT_FORMAT=$(DOT_OUTPUT_FORMAT) \
 	                                  WINDOWS_CMD_SHELL=$(windows_cmd_shell)

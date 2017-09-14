@@ -1,0 +1,72 @@
+digraph "TypeValue"
+{
+    // global attributes
+    fontname="Helvetica"
+    fontsize="10"
+    //rankdir=LR
+
+    // edge attributes
+    edge [labelfontname="Helvetica", labelfontsize="10"];
+    // node attributes
+    node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
+
+    // node
+    VarLockStatus [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">VarLockStatus</FONT></TD></TR>
+        <TR><TD PORT="f0">VAR_UNLOCKED</TD></TR>
+        <TR><TD PORT="f1">VAR_LOCKED</TD></TR>
+        <TR><TD PORT="f2">VAR_FIXED</TD></TR>
+    </TABLE>>];
+
+    // node
+    ScopeType [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">ScopeType</FONT></TD></TR>
+        <TR><TD PORT="f0">VAR_NO_SCOPE</TD></TR>
+        <TR><TD PORT="f1">VAR_SCOPE</TD></TR>
+        <TR><TD PORT="f2">VAR_DEF_SCOPE</TD></TR>
+    </TABLE>>];
+
+    // node
+    QUEUE [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">QUEUE</FONT></TD></TR>
+        <TR><TD PORT="f0">*next</TD></TR>
+        <TR><TD PORT="f1">*prev</TD></TR>
+    </TABLE>>];
+
+    // relationship
+    QUEUE:f0 -> QUEUE;
+    QUEUE:f1 -> QUEUE;
+
+    // node
+    dict_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">dict_T</FONT></TD></TR>
+        <TR><TD PORT="f0">dv_lock</TD></TR>
+        <TR><TD PORT="f1">dv_scope</TD></TR>
+        <TR><TD PORT="f2">dv_refcount</TD></TR>
+        <TR><TD PORT="f3">dv_copyID</TD></TR>
+        <TR><TD PORT="f4">dv_hashtab</TD></TR>
+        <TR><TD PORT="f5">*dv_copydict</TD></TR>
+        <TR><TD PORT="f6">*dv_used_next</TD></TR>
+        <TR><TD PORT="f7">*dv_used_prev</TD></TR>
+        <TR><TD PORT="f8">watchers</TD></TR>
+    </TABLE>>];
+
+    // other svg files node
+    hashtab_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75" HREF="hash.svg"><FONT COLOR="blue">hashtab_T</FONT></TD></TR>
+    </TABLE>>];
+
+    // relationship
+    dict_T:f0 -> VarLockStatus;
+    dict_T:f1 -> ScopeType;
+    dict_T:f4 -> hashtab_T;
+    dict_T:f5 -> dict_T;
+    dict_T:f6 -> dict_T;
+    dict_T:f7 -> dict_T;
+    dict_T:f8 -> QUEUE;
+}

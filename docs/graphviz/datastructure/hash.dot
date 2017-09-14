@@ -1,4 +1,4 @@
-digraph "hashtable_S"
+digraph "HashTable"
 {
     // global attributes
     fontname="Helvetica"

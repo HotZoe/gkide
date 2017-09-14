@@ -121,9 +121,9 @@ typedef struct
 /// Values for (struct dictvar_S).dv_scope
 typedef enum
 {
-    VAR_NO_SCOPE = 0,   ///< Not a scope dictionary.
-    VAR_SCOPE = 1,      ///< Scope dictionary which requires prefix (a:, v:, …).
-    VAR_DEF_SCOPE = 2,  ///< Scope dictionary which may be accessed without prefix (l:, g:).
+    VAR_NO_SCOPE = 0,  ///< Not a scope dictionary.
+    VAR_SCOPE = 1,     ///< Scope dictionary which requires prefix (**a:**, **v:**, ...).
+    VAR_DEF_SCOPE = 2, ///< Scope dictionary which may be accessed without prefix (**l:**, **g:**).
 } ScopeType;
 
 /// Structure to hold an item of a list
@@ -218,7 +218,7 @@ struct dictvar_S
 {
     VarLockStatus dv_lock;  ///< Whole dictionary lock status.
     ScopeType dv_scope;     ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
-    ///< dictionary represents a scope (i.e. g:, l: …).
+                            ///< dictionary represents a scope (i.e. **g:**, **l:** ...).
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
     hashtab_T dv_hashtab;   ///< Hashtab containing all items.
