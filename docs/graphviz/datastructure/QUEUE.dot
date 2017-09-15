@@ -1,0 +1,20 @@
+digraph "TypeValue"
+{
+    // global attributes
+    fontname="Helvetica"
+    fontsize="10"
+    //rankdir=LR
+
+    // edge attributes
+    edge [labelfontname="Helvetica", labelfontsize="10"];
+    // node attributes
+    node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
+
+    // node
+    QUEUE [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">QUEUE</FONT></TD></TR>
+        <TR><TD PORT="f0">QUEUE *next</TD></TR>
+        <TR><TD PORT="f1">QUEUE *prev</TD></TR>
+    </TABLE>>];
+}

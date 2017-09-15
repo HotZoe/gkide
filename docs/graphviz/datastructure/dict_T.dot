@@ -1,0 +1,27 @@
+digraph "TypeValue"
+{
+    // global attributes
+    fontname="Helvetica"
+    fontsize="10"
+    //rankdir=LR
+
+    // edge attributes
+    edge [labelfontname="Helvetica", labelfontsize="10"];
+    // node attributes
+    node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
+
+    // node
+    dict_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">dict_T</FONT></TD></TR>
+        <TR><TD PORT="f0" HREF="VarLockStatus.svg"><FONT COLOR="darkgoldenrod3">dv_lock</FONT></TD></TR>
+        <TR><TD PORT="f1" HREF="ScopeType.svg"><FONT COLOR="darkgoldenrod3">dv_scope</FONT></TD></TR>
+        <TR><TD PORT="f2">dv_refcount</TD></TR>
+        <TR><TD PORT="f3">dv_copyID</TD></TR>
+        <TR><TD PORT="f4" HREF="hashtab_T.svg"><FONT COLOR="darkgoldenrod3">dv_hashtab</FONT></TD></TR>
+        <TR><TD PORT="f5">dict_T *dv_copydict</TD></TR>
+        <TR><TD PORT="f6">dict_T *dv_used_next</TD></TR>
+        <TR><TD PORT="f7">dict_T *dv_used_prev</TD></TR>
+        <TR><TD PORT="f8" HREF="QUEUE.svg"><FONT COLOR="darkgoldenrod3">watchers</FONT></TD></TR>
+    </TABLE>>];
+}

@@ -32,7 +32,7 @@ endif
 # OFF for unix shell
 WINDOWS_CMD_SHELL ?= OFF
 
-# the Root DIRectroy File NameS only, which is 'graphviz/'
+# the Root DIRectroy File NameS only, which is 'graphviz/*.dot' files
 INPUTS_RDIR_FNS = $(basename $(wildcard *.dot))
 
 # the SubDIRectroy of 'graphviz/' File NameS, 1 level deep only
@@ -45,7 +45,10 @@ INPUTS_NAMES = $(INPUTS_RDIR_FNS) $(INPUTS_SDIR_FNS)
 
 TARGETS = $(foreach item,$(INPUTS_NAMES),$(item).$(DOT_OUTPUT_FORMAT))
 
+# the 'index.dot' fies use the default layout algorithm, which is 'dot'
 all: $(TARGETS)
+	$(Q)$(DOT_PROG) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/datastructure/index.$(DOT_OUTPUT_FORMAT) datastructure/index.dot
+	$(Q)echo ReGenerating $(DOT_OUTPUT_DIR)/datastructure/index.$(DOT_OUTPUT_FORMAT)
 
 %.$(DOT_OUTPUT_FORMAT): %.dot mk-sub-dirs
 	$(Q)$(DOT_PROG) $(DOT_ARGS) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/$@ $<

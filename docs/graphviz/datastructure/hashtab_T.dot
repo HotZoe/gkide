@@ -1,4 +1,4 @@
-digraph "HashTable"
+digraph "hashtab_T"
 {
     // global attributes
     fontname="Helvetica"
@@ -11,14 +11,6 @@ digraph "HashTable"
     node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
 
     // node
-    hashitem_T [label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">hashitem_T</FONT></TD></TR>
-        <TR><TD PORT="f0">hi_hash</TD></TR>
-        <TR><TD PORT="f1">*hi_key</TD></TR>
-    </TABLE>>];
-
-    // node
     hashtable_T [label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
         <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">hashtable_T</FONT></TD></TR>
@@ -26,17 +18,10 @@ digraph "HashTable"
         <TR><TD PORT="f1">ht_used</TD></TR>
         <TR><TD PORT="f2">ht_filled</TD></TR>
         <TR><TD PORT="f3">ht_locked</TD></TR>
-        <TR><TD PORT="f4">*ht_array</TD></TR>
-        <TR><TD PORT="f5">ht_smallarray[]</TD></TR>
+        <TR><TD PORT="f4" HREF="hashitem_T.svg">*<FONT COLOR="darkgoldenrod3">ht_array</FONT></TD></TR>
+        <TR><TD PORT="f5" HREF="hashitem_T.svg"><FONT COLOR="darkgoldenrod3">ht_smallarray</FONT>[]</TD></TR>
     </TABLE>>];
 
     // relationship
     hashtable_T:f4 -> hashtable_T:f5;
-    hashtable_T:f5 -> hashitem_T;
-
-    // example of link to other svg/html etc.
-    //Link [label=<
-    //<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-    //    <TR><TD BGCOLOR="grey75" HREF="wlc.svg"><FONT COLOR="blue">WLC</FONT></TD></TR>
-    //</TABLE>>];
 }

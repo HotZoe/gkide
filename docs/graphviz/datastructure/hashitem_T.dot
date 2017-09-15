@@ -1,0 +1,20 @@
+digraph "hashitem_T"
+{
+    // global attributes
+    fontname="Helvetica"
+    fontsize="10"
+    //rankdir=LR
+
+    // edge attributes
+    edge [labelfontname="Helvetica", labelfontsize="10"];
+    // node attributes
+    node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
+
+    // node
+    hashitem_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD BGCOLOR="grey75"><FONT COLOR="blue">hashitem_T</FONT></TD></TR>
+        <TR><TD PORT="f0">hi_hash</TD></TR>
+        <TR><TD PORT="f1">*hi_key</TD></TR>
+    </TABLE>>];
+}
