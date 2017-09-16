@@ -264,11 +264,11 @@ struct ufunc
     int          uf_tml_idx;       ///< index of line being timed; -1 if none
     int          uf_tml_execed;    ///< line being timed was executed
     scid_T       uf_script_ID;     ///< ID of script where function was defined,
-    ///< used for s: variables
+                                   ///< used for **s:** variables
     int          uf_refcount;      ///< reference count, see func_name_refcount()
-    funccall_T   *uf_scoped;       ///< l: local variables for closure
-    char_u       uf_name[1];       ///< name of function (actually longer); can
-    ///< start with <SNR>123_ (<SNR> is K_SPECIAL KS_EXTRA KE_SNR)
+    funccall_T   *uf_scoped;       ///< **l:** local variables for closure
+    char_u       uf_name[1];       ///< name of function (actually longer); can start with
+                                   ///< <SNR>123_ (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
 };
 
 /// Maximum number of function arguments

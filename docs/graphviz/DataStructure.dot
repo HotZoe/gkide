@@ -1,0 +1,329 @@
+digraph "DataStructure"
+{
+    /* global attributes */
+    fontname="Helvetica"
+    fontsize="10"
+    rankdir="LR"
+    ranksep="1.0 equally"
+    /* edge attributes */
+    edge [labelfontname="Helvetica", labelfontsize="10", arrowhead="open", style="solid", color=black];
+    /* node attributes */
+    node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0.1];
+
+    // data structure
+    VarType [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">VarType</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_UNKNOWN = 0</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_NUMBER</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_STRING</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_FUNC</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_LIST</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_DICT</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_FLOAT</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_SPECIAL</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_PARTIAL</FONT></TD></TR>
+    </TABLE>>];
+
+    // data structure
+    VarLockStatus [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">VarLockStatus</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_UNLOCKED=0</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_LOCKED=1</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_FIXED=2</FONT></TD></TR>
+    </TABLE>>];
+
+    // data structure
+    SpecialVarValue [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">SpecialVarValue</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">kSpecialVarFalse = 0</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">kSpecialVarTrue = 1</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">kSpecialVarNull = 2</FONT></TD></TR>
+    </TABLE>>];
+
+    // data structure
+    listwatch_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">listwatch_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*lw_item</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="listwatch_T" HREF=""><FONT COLOR="darkgoldenrod3">*lw_next</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    listwatch_T:f1 -> listitem_T:f0;
+    listwatch_T:f2 -> listwatch_T:f0 [color=gray81];
+
+    // data structure
+    listitem_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">listitem_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*li_next</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*li_prev</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">li_tv</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    listitem_T:f1 -> listitem_T:f0 [color=gray81];
+    listitem_T:f2 -> listitem_T:f0 [color=gray81];
+    listitem_T:f3 -> typval_T:f0 [style="dashed"];
+
+    // data structure
+    list_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">list_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_first</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_last</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="int" HREF="">lv_refcount</TD></TR>
+        <TR><TD PORT="f4" TITLE="int" HREF="">lv_len</TD></TR>
+        <TR><TD PORT="f5" TITLE="listwatch_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_watch</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="int" HREF="">lv_idx</TD></TR>
+        <TR><TD PORT="f7" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_idx_item</FONT></TD></TR>
+        <TR><TD PORT="f8" TITLE="int" HREF="">lv_copyID</TD></TR>
+        <TR><TD PORT="f9" TITLE="list_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_copylist</FONT></TD></TR>
+        <TR><TD PORT="f10" TITLE="VarLockStatus" HREF=""><FONT COLOR="darkgoldenrod3">lv_lock</FONT></TD></TR>
+        <TR><TD PORT="f11" TITLE="list_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_used_next</FONT></TD></TR>
+        <TR><TD PORT="f12" TITLE="list_T" HREF=""><FONT COLOR="darkgoldenrod3">*lv_used_prev</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    list_T:f5 -> listwatch_T:f0 [color=yellow];
+    list_T:f1 -> listitem_T:f0 [color=yellow];
+    list_T:f2 -> listitem_T:f0 [color=yellow];
+    list_T:f7 -> listitem_T:f0 [color=yellow];
+    list_T:f9 -> list_T:f0 [color=gray81];
+    list_T:f10 -> VarLockStatus:f0 [color=yellow];
+    list_T:f11 -> list_T:f0 [color=gray81];
+    list_T:f12 -> list_T:f0 [color=gray81];
+
+    // data structure
+    ScopeType [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">ScopeType</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_NO_SCOPE=0</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_SCOPE=1</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">VAR_DEF_SCOPE=2</FONT></TD></TR>
+    </TABLE>>];
+
+    // data structure
+    hashitem_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">hashitem_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="size_t" HREF="">hi_hash</TD></TR>
+        <TR><TD PORT="f2" TITLE="char_u" HREF="">*hi_key</TD></TR>
+    </TABLE>>];
+
+    // data structure
+    hashtab_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">hashtab_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="size_t" HREF="">ht_mask</TD></TR>
+        <TR><TD PORT="f2" TITLE="size_t" HREF="">ht_used</TD></TR>
+        <TR><TD PORT="f3" TITLE="size_t" HREF="">ht_filled</TD></TR>
+        <TR><TD PORT="f4" TITLE="int" HREF="">ht_locked</TD></TR>
+        <TR><TD PORT="f5" TITLE="hashitem_T" HREF=""><FONT COLOR="darkgoldenrod3">*ht_array</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="hashitem_T" HREF=""><FONT COLOR="darkgoldenrod3">ht_smallarray[16]</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    hashtab_T:f5 -> hashitem_T:f0 [color=black];
+    hashtab_T:f6 -> hashitem_T:f0 [color=black];
+
+    // data structure
+    QUEUE [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">QUEUE</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="" HREF=""><FONT COLOR="darkgoldenrod3">*next</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="" HREF=""><FONT COLOR="darkgoldenrod3">*prev</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    QUEUE:f1 -> QUEUE:f0 [color=gray81];
+    QUEUE:f2 -> QUEUE:f0 [color=gray81];
+
+    // data structure
+    dict_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">dict_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="darkgoldenrod3">dv_lock</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="darkgoldenrod3">dv_scope</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="int" HREF="">dv_refcount</TD></TR>
+        <TR><TD PORT="f4" TITLE="int" HREF="">dv_copyID</TD></TR>
+        <TR><TD PORT="f5" TITLE="hashtab_T" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">*dv_copydict</FONT></TD></TR>
+        <TR><TD PORT="f7" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">*dv_used_next</FONT></TD></TR>
+        <TR><TD PORT="f8" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">*dv_used_prev</FONT></TD></TR>
+        <TR><TD PORT="f9" TITLE="QUEUE" HREF=""><FONT COLOR="darkgoldenrod3">watchers</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    dict_T:f1 -> VarLockStatus:f0 [color="indigo"];
+    dict_T:f2 -> ScopeType:f0 [color="indigo"];
+    dict_T:f5 -> hashtab_T:f0 [color="indigo"];
+    dict_T:f6 -> dict_T:f0 [color=gray81];
+    dict_T:f7 -> dict_T:f0 [color=gray81];
+    dict_T:f8 -> dict_T:f0 [color=gray81];
+    dict_T:f9 -> QUEUE:f0 [color="indigo"];
+
+    // data structure
+    garray_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">garray_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="int" HREF="">ga_len</TD></TR>
+        <TR><TD PORT="f2" TITLE="int" HREF="">ga_maxlen</TD></TR>
+        <TR><TD PORT="f3" TITLE="int" HREF="">ga_itemsize</TD></TR>
+        <TR><TD PORT="f4" TITLE="int" HREF="">ga_growsize</TD></TR>
+        <TR><TD PORT="f5" TITLE="void" HREF="">*ga_data</TD></TR>
+    </TABLE>>];
+
+    // data structure
+    funccall_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">funccall_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="ufunc_T" HREF=""><FONT COLOR="darkgoldenrod3">*func</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="int" HREF="">linenr</TD></TR>
+        <TR><TD PORT="f3" TITLE="int" HREF="">returned</TD></TR>
+        <TR><TD PORT="f4" TITLE="funccall_T_anonymous" HREF=""><FONT COLOR="darkgoldenrod3">fixvar[12]</FONT></TD></TR>
+        <TR><TD PORT="f5" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">l_vars</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="ScopeDictDictItem" HREF=""><FONT COLOR="darkgoldenrod3">l_vars_var</FONT></TD></TR>
+        <TR><TD PORT="f7" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">l_avars</FONT></TD></TR>
+        <TR><TD PORT="f8" TITLE="ScopeDictDictItem" HREF=""><FONT COLOR="darkgoldenrod3">l_avars_var</FONT></TD></TR>
+        <TR><TD PORT="f9" TITLE="list_T" HREF=""><FONT COLOR="darkgoldenrod3">l_varlist</FONT></TD></TR>
+        <TR><TD PORT="f10" TITLE="listitem_T" HREF=""><FONT COLOR="darkgoldenrod3">l_listitems[20]</FONT></TD></TR>
+        <TR><TD PORT="f11" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">*rettv</FONT></TD></TR>
+        <TR><TD PORT="f12" TITLE="long" HREF="">breakpoint</TD></TR>
+        <TR><TD PORT="f13" TITLE="int" HREF="">dbg_tick</TD></TR>
+        <TR><TD PORT="f14" TITLE="int" HREF="">level</TD></TR>
+        <TR><TD PORT="f15" TITLE="uint64_t" HREF="">prof_child</TD></TR>
+        <TR><TD PORT="f16" TITLE="funccall_T" HREF=""><FONT COLOR="darkgoldenrod3">*caller</FONT></TD></TR>
+        <TR><TD PORT="f17" TITLE="int" HREF="">fc_refcount</TD></TR>
+        <TR><TD PORT="f18" TITLE="int" HREF="">fc_copyID</TD></TR>
+        <TR><TD PORT="f19" TITLE="garray_T" HREF=""><FONT COLOR="darkgoldenrod3">fc_funcs</FONT></TD></TR>
+    </TABLE>>];
+    // data structure
+    funccall_T_anonymous [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">funccall_T_anonymous</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">di_tv</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="uint8_t" HREF="">di_flags</TD></TR>
+        <TR><TD PORT="f3" TITLE="char_u" HREF="">di_key[21]</TD></TR>
+    </TABLE>>];
+    // relationship
+    funccall_T_anonymous:f1 -> typval_T:f0 [color="forestgreen", style="dashed"];
+    funccall_T:f1 -> ufunc_T:f0 [color="forestgreen"];
+    funccall_T:f4 -> funccall_T_anonymous:f0 [color="forestgreen"];
+    funccall_T:f5 -> dict_T:f0 [color="forestgreen"];
+    funccall_T:f6 -> ScopeDictDictItem:f0 [color="forestgreen"];
+    funccall_T:f7 -> dict_T:f0 [color="forestgreen"];
+    funccall_T:f8 -> ScopeDictDictItem:f0 [color="forestgreen"];
+    funccall_T:f9 -> list_T:f0 [color="forestgreen"];
+    funccall_T:f10 -> listitem_T:f0 [color="forestgreen"];
+    funccall_T:f11 -> typval_T:f0 [color="forestgreen", style="dashed"];
+    funccall_T:f16 -> funccall_T:f0 [color="gray81"];
+    funccall_T:f19 -> garray_T:f0 [color="forestgreen"];
+
+    // data structure
+    ScopeDictDictItem [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">ScopeDictDictItem</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">di_tv</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="uint8_t" HREF="">di_flags</TD></TR>
+        <TR><TD PORT="f3" TITLE="char_u" HREF="">di_key[1]</TD></TR>
+    </TABLE>>];
+    // relationship
+    ScopeDictDictItem:f1 -> typval_T:f0 [color="salmon", style="dashed"];
+
+    // data structure
+    ufunc_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">ufunc_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="int" HREF="">uf_varargs</TD></TR>
+        <TR><TD PORT="f2" TITLE="int" HREF="">uf_flags</TD></TR>
+        <TR><TD PORT="f3" TITLE="int" HREF="">uf_calls</TD></TR>
+        <TR><TD PORT="f4" TITLE="bool" HREF="">uf_cleared</TD></TR>
+        <TR><TD PORT="f5" TITLE="garray_T" HREF=""><FONT COLOR="darkgoldenrod3">uf_args</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="garray_T" HREF=""><FONT COLOR="darkgoldenrod3">uf_lines</FONT></TD></TR>
+        <TR><TD PORT="f7" TITLE="int" HREF="">uf_profiling</TD></TR>
+        <TR><TD PORT="f8" TITLE="int" HREF="">uf_tm_count</TD></TR>
+        <TR><TD PORT="f9" TITLE="uint64_t" HREF="">uf_tm_total</TD></TR>
+        <TR><TD PORT="f10" TITLE="uint64_t" HREF="">uf_tm_self</TD></TR>
+        <TR><TD PORT="f11" TITLE="uint64_t" HREF="">uf_tm_children</TD></TR>
+        <TR><TD PORT="f12" TITLE="int" HREF="">*uf_tml_count</TD></TR>
+        <TR><TD PORT="f13" TITLE="uint64_t" HREF="">*uf_tml_total</TD></TR>
+        <TR><TD PORT="f14" TITLE="uint64_t" HREF="">*uf_tml_self</TD></TR>
+        <TR><TD PORT="f15" TITLE="uint64_t" HREF="">uf_tml_start</TD></TR>
+        <TR><TD PORT="f16" TITLE="uint64_t" HREF="">uf_tml_children</TD></TR>
+        <TR><TD PORT="f17" TITLE="uint64_t" HREF="">uf_tml_wait</TD></TR>
+        <TR><TD PORT="f18" TITLE="int" HREF="">uf_tml_idx</TD></TR>
+        <TR><TD PORT="f19" TITLE="int" HREF="">uf_tml_execed</TD></TR>
+        <TR><TD PORT="f20" TITLE="int" HREF="">uf_script_ID</TD></TR>
+        <TR><TD PORT="f21" TITLE="int" HREF="">uf_refcount</TD></TR>
+        <TR><TD PORT="f22" TITLE="funccall_T" HREF=""><FONT COLOR="darkgoldenrod3">*uf_scoped</FONT></TD></TR>
+        <TR><TD PORT="f23" TITLE="char_u" HREF="">uf_name[1]</TD></TR>
+    </TABLE>>];
+    // relationship
+    ufunc_T:f5 -> garray_T:f0 [color="darkorange4"];
+    ufunc_T:f6 -> garray_T:f0 [color="darkorange4"];
+    ufunc_T:f22 -> funccall_T:f0 [color="darkorange4"];
+
+    // data structure
+    partial_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">partial_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="int" HREF="">pt_refcount</TD></TR>
+        <TR><TD PORT="f2" TITLE="char_u" HREF="">*pt_name</TD></TR>
+        <TR><TD PORT="f3" TITLE="ufunc_T" HREF=""><FONT COLOR="darkgoldenrod3">*pt_func</FONT></TD></TR>
+        <TR><TD PORT="f4" TITLE="bool" HREF="">pt_auto</TD></TR>
+        <TR><TD PORT="f5" TITLE="int" HREF="">pt_argc</TD></TR>
+        <TR><TD PORT="f6" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">*pt_argv</FONT></TD></TR>
+        <TR><TD PORT="f7" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">*pt_dict</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    partial_T:f3 -> ufunc_T:f0 [color="cornflowerblue"];
+    partial_T:f6 -> typval_T:f0 [color="cornflowerblue"];
+    partial_T:f7 -> dict_T:f0 [color="cornflowerblue"];
+
+    // data structure
+    typval_T [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">typval_T</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="VarType" HREF=""><FONT COLOR="darkgoldenrod3">v_type</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="VarLockStatus" HREF=""><FONT COLOR="darkgoldenrod3">v_lock</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="typval_vval_union" HREF=""><FONT COLOR="darkgoldenrod3">vval</FONT></TD></TR>
+    </TABLE>>];
+    // data structure
+    typval_vval_union [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">typval_vval_union</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="int" HREF="">v_number</TD></TR>
+        <TR><TD PORT="f2" TITLE="SpecialVarValue" HREF=""><FONT COLOR="darkgoldenrod3">v_special</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="double" HREF="">v_float</TD></TR>
+        <TR><TD PORT="f4" TITLE="char_u" HREF="">*v_string</TD></TR>
+        <TR><TD PORT="f5" TITLE="list_T" HREF=""><FONT COLOR="darkgoldenrod3">*v_list</FONT></TD></TR>
+        <TR><TD PORT="f6" TITLE="dict_T" HREF=""><FONT COLOR="darkgoldenrod3">*v_dict</FONT></TD></TR>
+        <TR><TD PORT="f7" TITLE="partial_T" HREF=""><FONT COLOR="darkgoldenrod3">*v_partial</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    typval_T:f1 -> VarType:f0 [color="crimson"];
+    typval_T:f2 -> VarLockStatus:f0 [color="crimson"];
+    typval_T:f3 -> typval_vval_union:f0 [color="crimson"];
+    typval_vval_union:f2 -> SpecialVarValue:f0 [color="crimson"];
+    typval_vval_union:f5 -> list_T:f0 [color="crimson"];
+    typval_vval_union:f6 -> dict_T:f0 [color="crimson"];
+    typval_vval_union:f7 -> partial_T:f0 [color="crimson"];
+
+    // data structure
+    vimvar [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">vimvar</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="char" HREF="">*vv_name</TD></TR>
+        <TR><TD PORT="f2" TITLE="vimvar_anonymous" HREF=""><FONT COLOR="darkgoldenrod3">vv_di</FONT></TD></TR>
+        <TR><TD PORT="f3" TITLE="char" HREF="">vv_flags</TD></TR>
+    </TABLE>>];
+    // data structure
+    vimvar_anonymous [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">vimvar_anonymous</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="typval_T" HREF=""><FONT COLOR="darkgoldenrod3">di_tv</FONT></TD></TR>
+        <TR><TD PORT="f2" TITLE="uint8_t" HREF="">di_flags</TD></TR>
+        <TR><TD PORT="f3" TITLE="char_u" HREF="">di_key[17]</TD></TR>
+    </TABLE>>];
+    // relationship
+    vimvar:f2 -> vimvar_anonymous:f0;
+    vimvar_anonymous:f1 -> typval_T:f0;
+}

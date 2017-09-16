@@ -1,0 +1,17 @@
+digraph "template"
+{
+    // data structure
+    template_id [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" BGCOLOR="grey75"><FONT COLOR="blue">template_id</FONT></TD></TR>
+        <TR><TD PORT="f1" TITLE="" HREF="">member_basic</TD></TR>
+        <TR><TD PORT="f2" TITLE="" HREF=""><FONT COLOR="darkgoldenrod3">member_user</FONT></TD></TR>
+        <TR><TD><FONT COLOR="green">member_constant</FONT></TD></TR>
+    </TABLE>>];
+
+    # global variable
+    global_var [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" TITLE="" HREF="" BGCOLOR="darkgoldenrod3"><FONT COLOR="black">global_var</FONT></TD></TR>
+    </TABLE>>];
+}

@@ -305,7 +305,7 @@ env-check:
 DOT_OUTPUT_FORMAT ?= svg
 # extra args passed to dot program
 ifeq (, $(DOT_ARGS))
-    DOT_ARGS := -Kcirco
+    DOT_ARGS := -Kdot
 endif
 # The output directory of dot
 ifeq (ON,$(windows_cmd_shell))

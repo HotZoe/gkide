@@ -47,8 +47,6 @@ TARGETS = $(foreach item,$(INPUTS_NAMES),$(item).$(DOT_OUTPUT_FORMAT))
 
 # the 'index.dot' fies use the default layout algorithm, which is 'dot'
 all: $(TARGETS)
-	$(Q)$(DOT_PROG) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/datastructure/index.$(DOT_OUTPUT_FORMAT) datastructure/index.dot
-	$(Q)echo ReGenerating $(DOT_OUTPUT_DIR)/datastructure/index.$(DOT_OUTPUT_FORMAT)
 
 %.$(DOT_OUTPUT_FORMAT): %.dot mk-sub-dirs
 	$(Q)$(DOT_PROG) $(DOT_ARGS) -T$(DOT_OUTPUT_FORMAT) -o $(DOT_OUTPUT_DIR)/$@ $<
