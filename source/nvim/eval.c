@@ -609,7 +609,6 @@ void eval_init(void)
         }
     }
 
-    vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
     dict_T *const msgpack_types_dict = tv_dict_alloc();
 
     for(size_t i = 0; i < ARRAY_SIZE(msgpack_type_names); i++)
