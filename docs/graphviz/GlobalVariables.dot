@@ -4,14 +4,306 @@ digraph "GlobalVariables"
     fontname="Helvetica"
     fontsize="10"
     rankdir="LR"
+    ranksep="1.0 equally"
     /* edge attributes */
-    edge [labelfontname="Helvetica", labelfontsize="10"];
+    edge [labelfontname="Helvetica", labelfontsize="10", arrowhead="open", style="dashed", color=black];
     /* node attributes */
     node [color="black", fillcolor="white", style="filled", fontcolor="black", shape=none, width=0, height=0, margin=0];
 
     # global variable
     vimvars [label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
-        <TR><TD PORT="f0" TITLE="vimvar" HREF="DataStructure.svg" BGCOLOR="darkgoldenrod3"><FONT COLOR="black">vimvars</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="vimvar" HREF="" BGCOLOR="red"><FONT COLOR="black">vimvars[i]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="char *" HREF=""><FONT COLOR="gray">vv_name</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="vimvar_anonymous" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">vv_di</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="typval_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">vv_di.di_tv</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="VarType" HREF=""><FONT COLOR="green">vv_di.di_tv.v_type</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">vv_di.di_tv.v_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="typval_vval_union" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">vv_di.di_tv.vval</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="int" HREF=""><FONT COLOR="gray">vv_di.di_tv.vval.v_number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="SpecialVarValue" HREF=""><FONT COLOR="green">vv_di.di_tv.vval.v_special</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="double" HREF=""><FONT COLOR="gray">vv_di.di_tv.vval.v_float</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="char_u *" HREF=""><FONT COLOR="gray">vv_di.di_tv.vval.v_string</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">vv_di.di_tv.vval.v_list</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">vv_di.di_tv.vval.v_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="partial_T *" HREF=""><FONT COLOR="darkgoldenrod3">vv_di.di_tv.vval.v_partial</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="uint8_t" HREF=""><FONT COLOR="gray">vv_di.di_flags</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="char_u" HREF=""><FONT COLOR="gray">vv_di.di_key[17]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="char" HREF=""><FONT COLOR="gray">vv_flags</FONT></TD></TR>
     </TABLE>>];
+    // relationship
+    vimvars:f1 -> vimvars:f15 [label=<<FONT COLOR="darkgoldenrod">StringCopyTo</FONT>>, color="darkgoldenrod"];
+    vimvars:f15 -> vimvardict:f5 [label=<<FONT COLOR="brown1">MaybeHashAdd</FONT>>, color="brown1", dir="back"];
+    vimvars:f15 -> compat_hashtab:f5 [label=<<FONT COLOR="darkorchid3">HashAddForCompatKeys</FONT>>, color="darkorchid3", dir="back"];
+    vimvars:f12 -> malloc_msgpack_types_dict:f0 [label=<<FONT COLOR="deeppink">(VV_MSGPACK_TYPES) PointTo</FONT>>, color="deeppink"];
+    vimvars:f12 -> malloc_completed_item_dict:f0 [label=<<FONT COLOR="deepskyblue">(VV_COMPLETED_ITEM) PointTo</FONT>>, color="deepskyblue"];
+    vimvars:f12 -> malloc_v_event:f0 [label=<<FONT COLOR="deepskyblue">(VV_EVENT) PointTo</FONT>>, color="deepskyblue"];
+
+    # global variable
+    globvardict [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T" HREF="" BGCOLOR="red"><FONT COLOR="black">globvardict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">dv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="green">dv_scope</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">dv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">dv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashtab_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="int" HREF=""><FONT COLOR="gray">dv_hashtab.ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab.ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab.ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u *" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_key</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_copydict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_prev</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f17" TITLE="QUEUE" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">watchers</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f18" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f19" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.prev</FONT></TD></TR>
+    </TABLE>>];
+
+     # global variable
+    vimvardict [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T" HREF="" BGCOLOR="red"><FONT COLOR="black">vimvardict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">dv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="green">dv_scope</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">dv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">dv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashtab_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="int" HREF=""><FONT COLOR="gray">dv_hashtab.ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab.ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab.ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u *" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_key</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_copydict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_prev</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f17" TITLE="QUEUE" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">watchers</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f18" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f19" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.prev</FONT></TD></TR>
+    </TABLE>>];
+
+    # global static variable
+    globvars_var [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="ScopeDictDictItem" HREF="" BGCOLOR="blue"><FONT COLOR="black">globvars_var</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="typval_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="VarType" HREF=""><FONT COLOR="green">di_tv.v_type</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">di_tv.v_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="typval_vval_union" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv.vval</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="int" HREF=""><FONT COLOR="gray">di_tv.vval.v_number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="SpecialVarValue" HREF=""><FONT COLOR="green">di_tv.vval.v_special</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="double" HREF=""><FONT COLOR="gray">di_tv.vval.v_float</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="char_u *" HREF=""><FONT COLOR="gray">di_tv.vval.v_string</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_list</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f22" TITLE="partial_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_partial</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="uint8_t" HREF=""><FONT COLOR="gray">di_flags</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u" HREF=""><FONT COLOR="gray">di_key[1]</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    globvars_var:f10 -> globvardict:f0 [label="PointTo"];
+
+    # global static variable
+    vimvars_var [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="ScopeDictDictItem" HREF="" BGCOLOR="blue"><FONT COLOR="black">vimvars_var</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="typval_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="VarType" HREF=""><FONT COLOR="green">di_tv.v_type</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">di_tv.v_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="typval_vval_union" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv.vval</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="int" HREF=""><FONT COLOR="gray">di_tv.vval.v_number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="SpecialVarValue" HREF=""><FONT COLOR="green">di_tv.vval.v_special</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="double" HREF=""><FONT COLOR="gray">di_tv.vval.v_float</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="char_u *" HREF=""><FONT COLOR="gray">di_tv.vval.v_string</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_list</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f22" TITLE="partial_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_partial</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="uint8_t" HREF=""><FONT COLOR="gray">di_flags</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u" HREF=""><FONT COLOR="gray">di_key[1]</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    vimvars_var:f10 -> vimvardict:f0 [label="PointTo"];
+
+    # global static variable
+    compat_hashtab [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="hashtab_T" HREF="" BGCOLOR="blue"><FONT COLOR="black">compat_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="char_u *" HREF=""><FONT COLOR="gray">ht_smallarray[i].hi_key</FONT></TD></TR>
+    </TABLE>>];
+
+    # global variable
+    func_hashtab [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="hashtab_T" HREF="" BGCOLOR="red"><FONT COLOR="black">func_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="char_u *" HREF=""><FONT COLOR="gray">ht_smallarray[i].hi_key</FONT></TD></TR>
+    </TABLE>>];
+
+    # malloc variable
+    malloc_completed_item_dict [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T" HREF="" BGCOLOR="green"><FONT COLOR="black">malloc_completed_item_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">dv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="green">dv_scope</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">dv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">dv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashtab_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="int" HREF=""><FONT COLOR="gray">dv_hashtab.ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab.ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab.ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u *" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_key</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_copydict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_prev</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f17" TITLE="QUEUE" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">watchers</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f18" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f19" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.prev</FONT></TD></TR>
+    </TABLE>>];
+
+    # malloc variable
+    malloc_v_event [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T" HREF="" BGCOLOR="green"><FONT COLOR="black">v_event</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">dv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="green">dv_scope</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">dv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">dv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashtab_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="int" HREF=""><FONT COLOR="gray">dv_hashtab.ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab.ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab.ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u *" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_key</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_copydict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_prev</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f17" TITLE="QUEUE" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">watchers</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f18" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f19" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.prev</FONT></TD></TR>
+    </TABLE>>];
+
+    # malloc variable
+    malloc_msgpack_types_dict [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T" HREF="" BGCOLOR="green"><FONT COLOR="black">msgpack_types_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">dv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="ScopeType" HREF=""><FONT COLOR="green">dv_scope</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">dv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">dv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="hashtab_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_mask</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_used</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_filled</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="int" HREF=""><FONT COLOR="gray">dv_hashtab.ht_locked</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="hashitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_hashtab.ht_array</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="hashitem_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">dv_hashtab.ht_smallarray[16]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="size_t" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_hash </FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u *" HREF=""><FONT COLOR="gray">dv_hashtab.ht_smallarray[i].hi_key</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f14" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_copydict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f15" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f16" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">dv_used_prev</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f17" TITLE="QUEUE" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">watchers</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f18" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f19" TITLE="QUEUE *" HREF=""><FONT COLOR="darkgoldenrod3">watchers.prev</FONT></TD></TR>
+    </TABLE>>];
+
+    # malloc variable
+    malloc_type_list [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="list_T" HREF="" BGCOLOR="green"><FONT COLOR="black">type_list[i]</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="listitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_first</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="listitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_last</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="int" HREF=""><FONT COLOR="gray">lv_refcount</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="int" HREF=""><FONT COLOR="gray">lv_len</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="listwatch_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_watch</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="int" HREF=""><FONT COLOR="gray">lv_idx</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="listitem_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_idx_item</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="int" HREF=""><FONT COLOR="gray">lv_copyID</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_copylist</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">lv_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_used_next</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">lv_used_prev</FONT></TD></TR>
+    </TABLE>>];
+
+    # malloc variable
+    malloc_di [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dictitem_T" HREF="" BGCOLOR="green"><FONT COLOR="black">di</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f1" TITLE="typval_T" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f2" TITLE="VarType" HREF=""><FONT COLOR="green">di_tv.v_type</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f3" TITLE="VarLockStatus" HREF=""><FONT COLOR="green">di_tv.v_lock</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f4" TITLE="typval_vval_union" HREF="" BGCOLOR="aquamarine"><FONT COLOR="black">di_tv.vval</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f5" TITLE="int" HREF=""><FONT COLOR="gray">di_tv.vval.v_number</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f6" TITLE="SpecialVarValue" HREF=""><FONT COLOR="green">di_tv.vval.v_special</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f7" TITLE="double" HREF=""><FONT COLOR="gray">di_tv.vval.v_float</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f8" TITLE="char_u *" HREF=""><FONT COLOR="gray">di_tv.vval.v_string</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f9" TITLE="list_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_list</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f10" TITLE="dict_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_dict</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f11" TITLE="partial_T *" HREF=""><FONT COLOR="darkgoldenrod3">di_tv.vval.v_partial</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f12" TITLE="uint8_t" HREF="">di_flags</TD></TR>
+        <TR><TD ALIGN="LEFT" PORT="f13" TITLE="char_u" HREF="">di_key[]</TD></TR>
+    </TABLE>>];
+    // relationship
+    malloc_di:f9 -> malloc_type_list:f0 [label=<<FONT COLOR="chartreuse3">PointTo</FONT>>, color="chartreuse3"];
+    malloc_di:f13 -> malloc_msgpack_types_dict:f5 [label=<<FONT COLOR="brown1">HashAddTo</FONT>>, color="brown1", dir="back"];
+
+    # global static variable
+    eval_msgpack_type_lists [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" TITLE="list_T *" HREF="" BGCOLOR="blue"><FONT COLOR="black">eval_msgpack_type_lists[i]</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    eval_msgpack_type_lists:f0 -> malloc_type_list:f0 [label=<<FONT COLOR="brown">PointTo</FONT>>, color="darkgoldenrod"];
+
+    # global static variable
+    msgpack_type_names [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD PORT="f0" TITLE="char *" HREF="" BGCOLOR="blue"><FONT COLOR="black">msgpack_type_names[i]</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    msgpack_type_names:f0 -> malloc_di:f13 [label="StringCopyTo"];
+
+    # global variable
+    gc_first_dict [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="dict_T *" HREF="" BGCOLOR="red"><FONT COLOR="black">gc_first_dict</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    malloc_msgpack_types_dict:f0 -> gc_first_dict:f0[label="AppendedToDoublyLinkedList"];
+    gc_first_dict:f0 -> malloc_completed_item_dict:f0 [label="AppendedToDoublyLinkedList", dir="back"];
+
+    # global variable
+    gc_first_list [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0">
+        <TR><TD ALIGN="LEFT" PORT="f0" TITLE="list_T *" HREF="" BGCOLOR="red"><FONT COLOR="black">gc_first_list</FONT></TD></TR>
+    </TABLE>>];
+    // relationship
+    malloc_type_list:f0 -> gc_first_list:f0 [label="AppendedToDoublyLinkedList"];
 }
