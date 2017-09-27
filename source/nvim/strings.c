@@ -49,6 +49,8 @@
 #include "nvim/os/shell.h"
 #include "nvim/eval/encode.h"
 
+#include "config.h"
+
 /// Copy `string` into newly allocated memory.
 char_u *vim_strsave(const char_u *string)
 FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
@@ -223,7 +225,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
 
     for(const char_u *p = string; *p != NUL; mb_ptr_adv(p))
     {
-        #ifdef WIN32
+        #ifdef HOST_OS_WINDOWS
         if(!p_ssl)
         {
             if(*p == '"')
@@ -262,7 +264,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
     d = escaped_string;
 
     // add opening quote
-    #ifdef WIN32
+    #ifdef HOST_OS_WINDOWS
     if(!p_ssl)
     {
         *d++ = '"';
@@ -275,7 +277,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
 
     for(const char_u *p = string; *p != NUL; )
     {
-        #ifdef WIN32
+        #ifdef HOST_OS_WINDOWS
         if(!p_ssl)
         {
             if(*p == '"')
@@ -329,7 +331,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
     }
 
     // add terminating quote and finish with a NUL
-    #ifdef WIN32
+    #ifdef HOST_OS_WINDOWS
     if (!p_ssl)
     {
         *d++ = '"';

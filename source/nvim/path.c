@@ -33,6 +33,8 @@
 #include "nvim/os/input.h"
 #include "nvim/window.h"
 
+#include "config.h"
+
 #define URL_SLASH       1               /* path_is_url() has found "://" */
 #define URL_BACKSLASH   2               /* path_is_url() has found ":\\" */
 
@@ -206,14 +208,13 @@ const char *path_next_component(const char *fname)
 char_u *get_past_head(const char_u *path)
 {
     const char_u *retval = path;
-#ifdef WIN32
 
+#ifdef HOST_OS_WINDOWS
     // May skip "c:"
     if (isalpha(path[0]) && path[1] == ':')
     {
         retval = path + 2;
     }
-
 #endif
 
     while (vim_ispathsep(*retval))
@@ -699,7 +700,7 @@ FUNC_ATTR_NONNULL_ALL
         }
         else if (path_end >= path + wildoff
                  && (vim_strchr((char_u *)"*?[{~$", *path_end) != NULL
-#ifndef WIN32
+#ifndef HOST_OS_WINDOWS
                      || (!p_fic && (flags & EW_ICASE)
                          && isalpha(PTR2CHAR(path_end)))
 #endif
@@ -2706,7 +2707,7 @@ static int path_get_absolute_path(const char_u *fname, char_u *buf,
 /// @return `TRUE` if "fname" is absolute.
 int path_is_absolute_path(const char_u *fname)
 {
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     // A name like "d:/foo" and "//server/share" is absolute
     return ((isalpha(fname[0]) && fname[1] == ':'
              && vim_ispathsep_nocolon(fname[2]))

@@ -48,6 +48,7 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"
 
+#include "config.h"
 
 /// Growarray to store info about already sourced scripts.
 /// Also store the dev/ino, so that we don't have to stat() each
@@ -3328,7 +3329,7 @@ int source_level(void *cookie)
 /// If possible the handle is closed on exec().
 static FILE *fopen_noinh_readbin(char *filename)
 {
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     int fd_tmp = os_open(filename, O_RDONLY | O_BINARY | O_NOINHERIT, 0);
 #else
     int fd_tmp = os_open(filename, O_RDONLY, 0);

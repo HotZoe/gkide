@@ -66,6 +66,8 @@
 #include "nvim/os/input.h"
 #include "nvim/os/fs_defs.h"
 
+#include "config.h"
+
 static char_u   *ff_expand_buffer = NULL; /* used for expanding filenames */
 
 /*
@@ -1639,7 +1641,7 @@ find_file_in_path_option (
     if (vim_isAbsName(ff_file_to_find)
             // "..", "../path", "." and "./path": don't use the path_option
             || rel_to_curdir
-#if defined(WIN32)
+#if defined(HOST_OS_WINDOWS)
             // handle "\tmp" as absolute path
             || vim_ispathsep(ff_file_to_find[0])
             // handle "c:name" as absolute path

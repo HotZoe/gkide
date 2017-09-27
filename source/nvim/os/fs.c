@@ -28,7 +28,9 @@
 #include "nvim/path.h"
 #include "nvim/strings.h"
 
-#ifdef WIN32
+#include "config.h"
+
+#ifdef HOST_OS_WINDOWS
     #include "nvim/mbyte.h"  // for utf8_to_utf16, utf16_to_utf8
 #endif
 
@@ -145,8 +147,7 @@ bool os_isdir(const char_u *name) FUNC_ATTR_NONNULL_ALL
 ///         NODE_OTHER: non-writable things
 int os_nodetype(const char *name)
 {
-#ifdef WIN32
-
+#ifdef HOST_OS_WINDOWS
     // Edge case from Vim os_win32.c:
     // We can't open a file with a name "\\.\con" or "\\.\prn", trying to read
     // from it later will cause Vim to hang. Thus return NODE_WRITABLE here.
@@ -163,7 +164,7 @@ int os_nodetype(const char *name)
         return NODE_NORMAL; // File doesn't exist.
     }
 
-#ifndef WIN32
+#ifndef HOST_OS_WINDOWS
 
     // libuv does not handle BLK and DIR in uv_handle_type.
     // Related: https://github.com/joyent/libuv/pull/1421
@@ -208,11 +209,11 @@ int os_nodetype(const char *name)
         case UV_TCP:         // unix only
         case UV_UNKNOWN_HANDLE:
         default:
-#ifdef WIN32
+            #ifdef HOST_OS_WINDOWS
             nodetype = NODE_NORMAL;
-#else
+            #else
             nodetype = NODE_WRITABLE;  // Everything else is writable?
-#endif
+            #endif
             break;
     }
 
@@ -248,14 +249,14 @@ int os_exepath(char *buffer, size_t *size) FUNC_ATTR_NONNULL_ALL
 bool os_can_exe(const char_u *name, char_u **abspath, bool use_path) FUNC_ATTR_NONNULL_ARG(1)
 {
     bool no_path = !use_path || path_is_absolute_path(name);
-#ifndef WIN32
+#ifndef HOST_OS_WINDOWS
     // If the filename is "qualified" (relative or absolute) do not check $PATH.
     no_path |= (name[0] == '.' && (name[1] == '/' || (name[1] == '.' && name[2] == '/')));
 #endif
 
     if(no_path)
     {
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
         const char *pathext = os_getenv("PATHEXT");
 
         if(!pathext)
@@ -296,7 +297,7 @@ static bool is_executable(const char *name) FUNC_ATTR_NONNULL_ALL
         return false;
     }
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     // Windows does not have exec bit; just check if the file exists and is not a directory.
     return (S_ISREG(mode));
 #else
@@ -304,7 +305,7 @@ static bool is_executable(const char *name) FUNC_ATTR_NONNULL_ALL
 #endif
 }
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
 /// Appends file extensions from `pathext` to `name` and returns true if any
 /// such combination is executable.
 static bool is_executable_ext(char *name, const char *pathext) FUNC_ATTR_NONNULL_ALL
@@ -356,7 +357,7 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
         return false;
     }
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     // Prepend ".;" to $PATH.
     size_t pathlen = strlen(path_env);
     char *path = memcpy(xmallocz(pathlen + 3), "." ENV_SEPSTR, 2);
@@ -364,8 +365,10 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
 #else
     char *path = xstrdup(path_env);
 #endif
+
     size_t buf_len = STRLEN(name) + strlen(path) + 2;
-#ifdef WIN32
+
+#ifdef HOST_OS_WINDOWS
     const char *pathext = os_getenv("PATHEXT");
 
     if(!pathext)
@@ -386,7 +389,7 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
         // Combine the $PATH segment with `name`.
         STRLCPY(buf, p, e - p + 1);
         append_path(buf, (char *)name, buf_len);
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
         bool ok = is_executable(buf) || is_executable_ext(buf, pathext);
 #else
         bool ok = is_executable(buf);
@@ -1086,7 +1089,7 @@ FUNC_ATTR_NONNULL_ALL
     && file_id->device_id == file_info->stat.st_dev;
 }
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
 # include <shlobj.h>
 
 /// When "fname" is the name of a shortcut (*.lnk) resolve the file it points
@@ -1198,7 +1201,7 @@ int os_translate_sys_error(int sys_errno)
 {
 #ifdef HAVE_UV_TRANSLATE_SYS_ERROR
     return uv_translate_sys_error(sys_errno);
-#elif defined(WIN32)
+#elif defined(HOST_OS_WINDOWS)
     // TODO(equalsraf): libuv does not yet expose uv_translate_sys_error()
     // in its public API, include a version here until it can be used.
     // See https://github.com/libuv/libuv/issues/79

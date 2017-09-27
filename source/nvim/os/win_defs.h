@@ -3,8 +3,10 @@
 #ifndef NVIM_OS_WIN_DEFS_H
 #define NVIM_OS_WIN_DEFS_H
 
-#ifndef WIN32
-    #   error Header must be included only when compiling for Windows.
+#include "config.h"
+
+#ifndef HOST_OS_WINDOWS
+    #error "Header must be included only when compiling for Windows."
 #endif
 
 // winsock2.h must be first to avoid incompatibilities

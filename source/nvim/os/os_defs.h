@@ -9,7 +9,9 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#ifdef WIN32
+#include "config.h"
+
+#ifdef HOST_OS_WINDOWS
     #include "nvim/os/win_defs.h"
 #else
     #include "nvim/os/unix_defs.h"
@@ -51,7 +53,7 @@
 /// negative libuv error codes are returned by a number of os functions.
 #define os_strerror          uv_strerror
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     #define os_strtok         strtok_s
 #else
     #define os_strtok         strtok_r

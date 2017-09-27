@@ -3,6 +3,8 @@
 #ifndef NVIM_MACROS_H
 #define NVIM_MACROS_H
 
+#include "config.h"
+
 // EXTERN is only defined in main.c. That's where global variables are
 // actually defined and initialized.
 #ifndef EXTERN
@@ -103,7 +105,7 @@
 /* mch_open_rw(): invoke os_open() with third argument for user R/W. */
 #if defined(UNIX)  /* open in rw------- mode */
     #define mch_open_rw(n, f)      os_open((n), (f), (mode_t)0600)
-#elif defined(WIN32)
+#elif defined(HOST_OS_WINDOWS)
     #define mch_open_rw(n, f)      os_open((n), (f), S_IREAD | S_IWRITE)
 #else
     #define mch_open_rw(n, f)      os_open((n), (f), 0)
@@ -149,6 +151,12 @@
 /// time is implemented. It works by the second division producing a division by
 /// zero in those cases (-Wdiv-by-zero in GCC).
 #define ARRAY_SIZE(arr) ((sizeof(arr)/sizeof((arr)[0])) / ((size_t)(!(sizeof(arr) % sizeof((arr)[0])))))
+
+#ifdef RGB
+// avoid RGB redefined warnings when build under windows using Msys2
+// "wingdi.h" also defined RGB macro
+#undef RGB
+#endif
 
 #define RGB(r, g, b) ((r << 16) | (g << 8) | b)
 

@@ -54,6 +54,8 @@
 #include "nvim/arabic.h"
 #include "nvim/mark.h"
 
+#include "config.h"
+
 typedef struct
 {
     int rangeStart;
@@ -1579,9 +1581,10 @@ static int utf_strnicmp(const char_u *s1, const char_u *s2, size_t n1,
     return n1 == 0 ? -1 : 1;
 }
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
+
 #ifndef CP_UTF8
-    #define CP_UTF8 65001  /* magic number from winnls.h */
+#define CP_UTF8 65001  /* magic number from winnls.h */
 #endif
 
 /// Reassigns `strw` to a new, allocated pointer to a UTF16 string.

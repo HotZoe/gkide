@@ -7,6 +7,8 @@
 #include "nvim/event/stream.h"
 #include "nvim/event/time.h"
 
+#include "config.h"
+
 typedef struct term_input
 {
     int in_fd;
@@ -18,7 +20,7 @@ typedef struct term_input
 #endif
     TimeWatcher timer_handle;
     Loop *loop;
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     uv_tty_t tty_in;
 #endif
     Stream read_stream;

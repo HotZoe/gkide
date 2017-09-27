@@ -18,7 +18,9 @@
 #include "nvim/ex_getln.h"
 #include "nvim/version.h"
 
-#ifdef WIN32
+#include "config.h"
+
+#ifdef HOST_OS_WINDOWS
     #include "nvim/mbyte.h"  // for utf8_to_utf16, utf16_to_utf8
 #endif
 
@@ -1069,7 +1071,7 @@ char_u *get_env_name(expand_T *xp, int idx)
 /// @return true if `path` was appended-to
 bool os_setenv_append_path(const char *fname) FUNC_ATTR_NONNULL_ALL
 {
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
 #   define MAX_ENVPATHLEN  8192     ///< 8191 plus NUL is considered the practical maximum.
 #else
 #   define MAX_ENVPATHLEN  INT_MAX  ///< No prescribed maximum on unix.
@@ -1117,7 +1119,7 @@ bool os_setenv_append_path(const char *fname) FUNC_ATTR_NONNULL_ALL
 /// control codes.
 bool os_term_is_nice(void)
 {
-#if defined(__APPLE__) || defined(WIN32)
+#if defined(__APPLE__) || defined(HOST_OS_WINDOWS)
     return true;
 #else
     const char *vte_version = os_getenv("VTE_VERSION");

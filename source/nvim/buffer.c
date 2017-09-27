@@ -73,6 +73,8 @@
     #include "buffer.c.generated.h"
 #endif
 
+#include "config.h"
+
 static char *msg_loclist = N_("[Location List]");
 static char *msg_qflist = N_("[Quickfix List]");
 static char *e_auabort = N_("E855: Autocommands caused command to abort");
@@ -5171,7 +5173,7 @@ void fname_expand(buf_T *buf, char_u **ffname, char_u **sfname)
     }
 
     *ffname =(char_u *)fix_fname((char *)*ffname);  // expand to full path
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
 
     if(!buf->b_p_bin)
     {

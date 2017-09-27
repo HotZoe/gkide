@@ -69,6 +69,8 @@
 #include "nvim/api/private/handle.h"
 #include "nvim/api/private/dispatch.h"
 
+#include "config.h"
+
 #define WIN_HOR      1   ///< *-o* horizontally split windows for `window_layout`
 #define WIN_VER      2   ///< *-O* vertically split windows for `window_layout`
 #define WIN_TABS     3   ///< *-p* windows on tab pages for `window_layout`

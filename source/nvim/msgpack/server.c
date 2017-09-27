@@ -21,6 +21,8 @@
 #include "nvim/path.h"
 #include "nvim/strings.h"
 
+#include "config.h"
+
 #define MAX_CONNECTIONS         32
 #define LISTEN_ADDRESS_ENV_VAR  "NVIM_LISTEN_ADDRESS"
 

@@ -100,6 +100,8 @@
 #include "nvim/eval/gc.h"
 #include "nvim/macros.h"
 
+#include "config.h"
+
 // TODO(ZyX-I): Remove DICT_MAXNEST, make users be non-recursive instead
 
 #define DICT_MAXNEST 100        /* maximum nesting of lists and dicts */
@@ -13279,7 +13281,7 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 #ifdef UNIX
         "unix",
 #endif
-#if defined(WIN32)
+#if defined(HOST_OS_WINDOWS)
         "win32",
 #endif
 #if defined(WIN64) || defined(_WIN64)
@@ -16920,7 +16922,7 @@ static void f_resolve(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
     rettv->v_type = VAR_STRING;
     const char *fname = tv_get_string(&argvars[0]);
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     char *const v = os_resolve_shortcut(fname);
     rettv->vval.v_string = (char_u *)(v == NULL ? xstrdup(fname) : v);
 #else

@@ -8,6 +8,8 @@
 #include "nvim/memory.h"
 #include "nvim/ascii.h"
 
+#include "config.h"
+
 /// Names of the environment variables, mapped to XDGVarType values
 static const char *xdg_env_vars[] =
 {
@@ -19,7 +21,7 @@ static const char *xdg_env_vars[] =
     [kXDGDataDirs]   = "XDG_DATA_DIRS",
 };
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
 static const char *const xdg_defaults_env_vars[] =
 {
     [kXDGConfigHome] = "LOCALAPPDATA",
@@ -36,7 +38,7 @@ static const char *const xdg_defaults_env_vars[] =
 /// Used in case environment variables contain nothing. Need to be expanded.
 static const char *const xdg_defaults[] =
 {
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     [kXDGConfigHome] = "~\\AppData\\Local",
     [kXDGDataHome]   = "~\\AppData\\Local",
     [kXDGCacheHome]  = "~\\AppData\\Local\\Temp",
@@ -64,13 +66,11 @@ char *stdpaths_get_xdg_var(const XDGVarType idx) FUNC_ATTR_WARN_UNUSED_RESULT
     const char *const fallback = xdg_defaults[idx];
     const char *env_val = os_getenv(env);
 
-#ifdef WIN32
-
+#ifdef HOST_OS_WINDOWS
     if(env_val == NULL)
     {
         env_val = os_getenv(xdg_defaults_env_vars[idx]);
     }
-
 #endif
 
     char *ret = NULL;
@@ -101,7 +101,7 @@ static char *get_xdg_home(const XDGVarType idx) FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(dir)
     {
-#if defined(WIN32)
+#if defined(HOST_OS_WINDOWS)
         dir = concat_fnames_realloc(dir, (idx == kXDGDataHome ? "nvim-data" : "nvim"), true);
 #else
         dir = concat_fnames_realloc(dir, "nvim", true);

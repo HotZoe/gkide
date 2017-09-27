@@ -16,6 +16,8 @@
 #include "nvim/event/loop.h"
 #include "nvim/os/os_defs.h"
 
+#include "config.h"
+
 #define IOSIZE         (1024+1)          // file I/O and sprintf buffer size
 
 #define MAX_MCO        6                 // maximum value for 'maxcombine'
@@ -24,7 +26,7 @@
 # define MSG_BUF_CLEN  (MSG_BUF_LEN / 6) // cell length (worst case: utf-8
 // takes 6 bytes for one cell)
 
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     #define _PATHSEPSTR "\\"
 #else
     #define _PATHSEPSTR "/"

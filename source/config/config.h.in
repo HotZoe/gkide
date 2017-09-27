@@ -5,7 +5,6 @@
 
 // todo: remove this kind of macro
 #cmakedefine UNIX
-#cmakedefine WIN32
 #cmakedefine MINGW
 
 #cmakedefine HOST_OS_MACOS

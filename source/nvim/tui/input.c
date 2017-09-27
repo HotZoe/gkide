@@ -1,6 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check
-// it. PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
-
+/// @file nvim/tui/input.c
 
 #include "nvim/tui/input.h"
 #include "nvim/vim.h"
@@ -11,6 +9,8 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 #include "nvim/event/rstream.h"
+
+#include "config.h"
 
 #define PASTETOGGLE_KEY "<Paste>"
 #define FOCUSGAINED_KEY "<FocusGained>"
@@ -47,7 +47,7 @@ void term_input_init(TermInput *input, Loop *loop)
     int curflags = termkey_get_canonflags(input->tk);
     termkey_set_canonflags(input->tk, curflags | TERMKEY_CANON_DELBS);
     // setup input handle
-#ifdef WIN32
+#ifdef HOST_OS_WINDOWS
     uv_tty_init(loop, &input->tty_in, 0, 1);
     uv_tty_set_mode(&input->tty_in, UV_TTY_MODE_RAW);
     rstream_init_stream(&input->read_stream, &input->tty_in, 0xfff);
