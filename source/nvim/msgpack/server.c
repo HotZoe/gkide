@@ -137,7 +137,7 @@ int server_start(const char *endpoint)
 {
     if(endpoint == NULL || endpoint[0] == '\0')
     {
-        ELOG("Empty or NULL endpoint");
+        ERROR_LOG("Empty or NULL endpoint");
         return 1;
     }
 
@@ -155,7 +155,7 @@ int server_start(const char *endpoint)
     {
         if(!strcmp(watcher->addr, ((SocketWatcher **)watchers.ga_data)[i]->addr))
         {
-            ELOG("Already listening on %s", watcher->addr);
+            ERROR_LOG("Already listening on %s", watcher->addr);
 
             if(watcher->stream->type == UV_TCP)
             {
@@ -171,7 +171,7 @@ int server_start(const char *endpoint)
 
     if(result < 0)
     {
-        ELOG("Failed to start server: %s", uv_strerror(result));
+        ERROR_LOG("Failed to start server: %s", uv_strerror(result));
         socket_watcher_close(watcher, free_server);
         return result;
     }
@@ -220,7 +220,7 @@ void server_stop(char *endpoint)
 
     if(i >= watchers.ga_len)
     {
-        ELOG("Not listening on %s", addr);
+        ERROR_LOG("Not listening on %s", addr);
         return;
     }
 
@@ -273,7 +273,7 @@ static void connection_cb(SocketWatcher *watcher, int result, void *data)
 {
     if(result)
     {
-        ELOG("Failed to accept connection: %s", uv_strerror(result));
+        ERROR_LOG("Failed to accept connection: %s", uv_strerror(result));
         return;
     }
 

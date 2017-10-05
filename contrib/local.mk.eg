@@ -78,16 +78,16 @@
 # GKIDE_CMAKE_BUILD_TYPE := Debug
 
 # Valid values for logging level is:
-# LOGALL(0), TRACE(1), DEBUG(2), STATE(3), ALERT(4), ERROR(5), FATAL(6) or LOGOFF(7)
+# TRACE(0), DEBUG(1), STATE(2), ALERT(3), ERROR(4), FATAL(5), LOGOFF(6)
 # By default, enable for Dev/Debug/Release and other type build, disable for MinSizeRel.
 #
-# Uncomment the following to set log level: STATE(3)
-# GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=3
-# GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=3
+# Uncomment the following to set log level: STATE(2)
+# GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=2
+# GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=2
 #
-# Uncomment the following to disable logging: LOGOFF(7)
-# GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=7
-# GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=7
+# Uncomment the following to disable logging: LOGOFF(6)
+# GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=6
+# GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=6
 #
 # Uncomment the following to disable the assertion
 # GKIDE_CMAKE_EXTRA_FLAGS += -DASSERTION_ENABLE=OFF

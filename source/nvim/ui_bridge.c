@@ -23,7 +23,7 @@
 
 #define UI(b) (((UIBridgeData *)b)->ui)
 
-#if MIN_LOG_LEVEL <= DEBUG_LOG_LEVEL
+#if NVIM_LOG_LEVEL_MIN <= DEBUG_LOG_LEVEL
 static size_t        uilog_seen = 0;
 static argv_callback uilog_event = NULL;
 
@@ -38,9 +38,9 @@ static argv_callback uilog_event = NULL;
         {                                                                      \
             if(uilog_seen > 0)                                                 \
             {                                                                  \
-                DLOG("UI bridge: ...%zu times", uilog_seen);                   \
+                DEBUG_LOG("UI bridge: ...%zu times", uilog_seen);              \
             }                                                                  \
-            DLOG("UI bridge: " STR(name));                                     \
+            DEBUG_LOG("UI bridge: " STR(name));                                \
             uilog_seen = 0;                                                    \
             uilog_event = ui_bridge_##name##_event;                            \
         }                                                                      \
@@ -48,7 +48,7 @@ static argv_callback uilog_event = NULL;
                                                      argc,                     \
                                                      __VA_ARGS__),             \
                                         UI(ui));                               \
-    } while(0)
+    }while(0)
 #else
 /// Schedule a function call on the UI bridge thread.
 #define UI_CALL(ui, name, argc, ...)                                       \

@@ -34,7 +34,7 @@
 
 #define CHANNEL_BUFFER_SIZE 0xffff
 
-#if MIN_LOG_LEVEL > DEBUG_LOG_LEVEL
+#if NVIM_LOG_LEVEL_MIN > DEBUG_LOG_LEVEL
     #define log_client_msg(...)
     #define log_server_msg(...)
 #endif
@@ -407,7 +407,7 @@ static void receive_msgpack(Stream *stream, RBuffer *rbuf, size_t c, void *data,
     }
 
     size_t count = rbuffer_size(rbuf);
-    DLOG("parsing %u bytes of msgpack data from Stream(%p)", count, stream);
+    DEBUG_LOG("parsing %u bytes of msgpack data from Stream(%p)", count, stream);
     // Feed the unpacker with data
     msgpack_unpacker_reserve_buffer(channel->unpacker, count);
     rbuffer_read(rbuf, msgpack_unpacker_buffer(channel->unpacker), count);
@@ -867,7 +867,7 @@ static void complete_call(msgpack_object *obj, Channel *channel)
 
 static void call_set_error(Channel *channel, char *msg)
 {
-    ELOG("RPC: %s", msg);
+    ERROR_LOG("RPC: %s", msg);
 
     for(size_t i = 0; i < kv_size(channel->call_stack); i++)
     {
@@ -943,7 +943,7 @@ static void decref(Channel *channel)
     }
 }
 
-#if MIN_LOG_LEVEL <= DEBUG_LOG_LEVEL
+#if NVIM_LOG_LEVEL_MIN <= DEBUG_LOG_LEVEL
 #define REQ "[request]  "
 #define RES "[response] "
 #define NOT "[notify]   "
@@ -965,7 +965,7 @@ static void log_server_msg(uint64_t channel_id, msgpack_sbuffer *packed)
 {
     msgpack_unpacked unpacked;
     msgpack_unpacked_init(&unpacked);
-    DLOGN("RPC ->ch %" PRIu64 ": ", channel_id);
+    DEBUG_LOGN("RPC ->ch %" PRIu64 ": ", channel_id);
     const msgpack_unpack_return result = msgpack_unpack_next(&unpacked,
                                                              packed->data,
                                                              packed->size,
@@ -1006,7 +1006,7 @@ static void log_server_msg(uint64_t channel_id, msgpack_sbuffer *packed)
 
 static void log_client_msg(uint64_t channel_id, bool is_request, msgpack_object msg)
 {
-    DLOGN("RPC <-ch %" PRIu64 ": ", channel_id);
+    DEBUG_LOGN("RPC <-ch %" PRIu64 ": ", channel_id);
     log_lock();
     FILE *f = open_log_file();
     fprintf(f, is_request ? REQ : RES);

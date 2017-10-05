@@ -3466,7 +3466,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
         // y_array invalid.  Start undo now to avoid that.
         if (u_save(curwin->w_cursor.lnum, curwin->w_cursor.lnum + 1) == FAIL)
         {
-            ELOG(_("Failed to save undo information"));
+            ERROR_LOG(_("Failed to save undo information"));
             return;
         }
     }

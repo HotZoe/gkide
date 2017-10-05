@@ -45,7 +45,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(ret == FAIL || iport < 0 || iport > UINT16_MAX)
         {
-            ELOG("Invalid port: %s", port);
+            ERROR_LOG("Invalid port: %s", port);
             return UV_EINVAL;
         }
 
@@ -71,7 +71,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(retval != 0)
         {
-            ELOG("Host lookup failed: %s", endpoint);
+            ERROR_LOG("Host lookup failed: %s", endpoint);
             return retval;
         }
 

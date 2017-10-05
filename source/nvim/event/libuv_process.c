@@ -75,7 +75,7 @@ int libuv_process_spawn(LibuvProcess *uvproc) FUNC_ATTR_NONNULL_ALL
 
     if((status = uv_spawn(&proc->loop->uv, &uvproc->uv, &uvproc->uvopts)))
     {
-        ELOG("uv_spawn failed: %s", uv_strerror(status));
+        ERROR_LOG("uv_spawn failed: %s", uv_strerror(status));
         return status;
     }
 

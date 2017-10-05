@@ -1,24 +1,25 @@
 # Logging Level:
-# LOGALL(0), TRACE(1), DEBUG(2), STATE(3), ALERT(4), ERROR(5), FATAL(6) or LOGOFF(7)
+# TRACE(0), DEBUG(1), STATE(2), ALERT(3), ERROR(4), FATAL(5), LOGOFF(6)
 if(NOT NVIM_LOG_LEVEL_MIN)
     if(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
-        set(NVIM_LOG_LEVEL_MIN  7) # LOGOFF(7)
+        set(NVIM_LOG_LEVEL_MIN  6) # LOGOFF(6)
     elseif(CMAKE_BUILD_TYPE MATCHES "Release")
-        set(NVIM_LOG_LEVEL_MIN  4) # ALERT(4)
+        set(NVIM_LOG_LEVEL_MIN  3) # ALERT(3)
     elseif(CMAKE_BUILD_TYPE MATCHES "Debug")
-        set(NVIM_LOG_LEVEL_MIN  2) # DEBUG(2)
+        set(NVIM_LOG_LEVEL_MIN  1) # DEBUG(1)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "Debug build, not ready to release.")
         endif()
     elseif(CMAKE_BUILD_TYPE MATCHES "Dev")
-        set(NVIM_LOG_LEVEL_MIN  1) # TRACE(1)
+        set(NVIM_LOG_LEVEL_MIN  0) # TRACE(0)
+        add_definitions("-DNVIM_DEVMSG_ENABLE")
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "Dev build, not ready to release.")
         endif()
     else()
-        set(NVIM_LOG_LEVEL_MIN  3) # STATE(3)
+        set(NVIM_LOG_LEVEL_MIN  2) # STATE(2)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "${CMAKE_BUILD_TYPE} build, not ready to release.")
@@ -29,89 +30,92 @@ endif()
 set(NVIM_TRACE_ENABLE false) # disable nvim trace logging by default
 set(NVIM_DEBUG_ENABLE false) # disable nvim debug logging by default
 set(NVIM_STATE_ENABLE false) # disable nvim state logging by default
-set(NVIM_ALERT_ENABLE true)  # enable  nvim alert logging by default
-set(NVIM_ERROR_ENABLE true)  # enable  nvim error logging by default
-set(NVIM_FATAL_ENABLE true)  # enable  nvim fatal logging by default
+set(NVIM_ALERT_ENABLE false) # enable  nvim alert logging by default
+set(NVIM_ERROR_ENABLE false) # enable  nvim error logging by default
+set(NVIM_FATAL_ENABLE false) # enable  nvim fatal logging by default
 
 # Checking logging level
-if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-7]$")
+if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-6]$")
     if(NVIM_LOG_LEVEL_MIN EQUAL 0)
-        set(log_level_msg "LOGALL(0), enable loggings")
-        set(NVIM_TRACE_ENABLE true)
-        set(NVIM_DEBUG_ENABLE true)
-        set(NVIM_STATE_ENABLE true)
+        set(log_level_msg "TRACE(0)")
+        set(NVIM_TRACE_ENABLE true) # 0
+        set(NVIM_DEBUG_ENABLE true) # 1
+        set(NVIM_STATE_ENABLE true) # 2
+        set(NVIM_ALERT_ENABLE true) # 3
+        set(NVIM_ERROR_ENABLE true) # 4
+        set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 1)
-        set(log_level_msg "TRACE(1)")
-        set(NVIM_TRACE_ENABLE true)
-        set(NVIM_DEBUG_ENABLE true)
-        set(NVIM_STATE_ENABLE true)
+        set(log_level_msg "DEBUG(1)")
+        set(NVIM_DEBUG_ENABLE true) # 1
+        set(NVIM_STATE_ENABLE true) # 2
+        set(NVIM_ALERT_ENABLE true) # 3
+        set(NVIM_ERROR_ENABLE true) # 4
+        set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 2)
-        set(log_level_msg "DEBUG(2)")
-        set(NVIM_DEBUG_ENABLE true)
-        set(NVIM_STATE_ENABLE true)
+        set(log_level_msg "STATE(2)")
+        set(NVIM_STATE_ENABLE true) # 2
+        set(NVIM_ALERT_ENABLE true) # 3
+        set(NVIM_ERROR_ENABLE true) # 4
+        set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 3)
-        set(log_level_msg "STATE(3)")
-        set(NVIM_STATE_ENABLE true)
+        set(log_level_msg "ALERT(3)")
+        set(NVIM_ALERT_ENABLE true) # 3
+        set(NVIM_ERROR_ENABLE true) # 4
+        set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 4)
-        set(log_level_msg "ALERT(4)")
+        set(log_level_msg "ERROR(4)")
+        set(NVIM_ERROR_ENABLE true) # 4
+        set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 5)
-        set(log_level_msg "ERROR(5)")
-    elseif(NVIM_LOG_LEVEL_MIN EQUAL 6)
-        set(log_level_msg "FATAL(6)")
+        set(log_level_msg "FATAL(5)")
+        set(NVIM_FATAL_ENABLE true) # 5
     else()
-        set(log_level_msg "LOGOFF(7), disable loggings")
-        set(DISABLE_LOGGING true)
-        set(NVIM_ALERT_ENABLE false)
-        set(NVIM_ERROR_ENABLE false)
-        set(NVIM_FATAL_ENABLE false)
+        set(log_level_msg "LOGOFF(6)")
+        add_definitions("-DNVIM_LOGGING_DISABLE")
     endif()
-    message(STATUS "nvim logging level set to: ${log_level_msg}")
+    message(STATUS "nvim logging level: ${log_level_msg}")
 else()
-    set(NVIM_LOG_LEVEL_MIN 3) # illegal, reset to STATE(3)
+    set(NVIM_LOG_LEVEL_MIN 2) # illegal, reset to STATE(2)
     set(NVIM_STATE_ENABLE true)
-    message(STATUS "nvim logging level reset to: STATE(3)")
+    message(STATUS "nvim logging level: STATE(2)")
 endif()
 
+add_definitions("-DNVIM_LOG_LEVEL_MIN=${NVIM_LOG_LEVEL_MIN}")
+
 if(NVIM_TRACE_ENABLE)
-    add_definitions("-DTRACE_LOG_ENABLE")
-    message(STATUS "nvim *enable TRACE(1) logging")
+    message(STATUS "nvim *enable TRACE(0) logging")
 else()
-    message(STATUS "nvim disable TRACE(1) logging")
+    message(STATUS "nvim disable TRACE(0) logging")
 endif()
 
 if(NVIM_DEBUG_ENABLE)
-    add_definitions("-DDEBUG_LOG_ENABLE")
-    message(STATUS "nvim *enable DEBUG(2) logging")
+    message(STATUS "nvim *enable DEBUG(1) logging")
 else()
-    message(STATUS "nvim disable DEBUG(2) logging")
+    message(STATUS "nvim disable DEBUG(1) logging")
 endif()
 
 if(NVIM_STATE_ENABLE)
-    add_definitions("-DSTATE_LOG_ENABLE")
-    message(STATUS "nvim *enable STATE(3) logging")
+    message(STATUS "nvim *enable STATE(2) logging")
 else()
-    message(STATUS "nvim disable STATE(3) logging")
+    message(STATUS "nvim disable STATE(2) logging")
 endif()
 
 if(NVIM_ALERT_ENABLE)
-    add_definitions("-DALERT_LOG_ENABLE")
-    message(STATUS "nvim *enable ALERT(4) logging")
+    message(STATUS "nvim *enable ALERT(3) logging")
 else()
-    message(STATUS "nvim disable ALERT(4) logging")
+    message(STATUS "nvim disable ALERT(3) logging")
 endif()
 
 if(NVIM_ERROR_ENABLE)
-    add_definitions("-DERROR_LOG_ENABLE")
-    message(STATUS "nvim *enable ERROR(5) logging")
+    message(STATUS "nvim *enable ERROR(4) logging")
 else()
-    message(STATUS "nvim disable ERROR(5) logging")
+    message(STATUS "nvim disable ERROR(4) logging")
 endif()
 
 if(NVIM_FATAL_ENABLE)
-    add_definitions("-DFATAL_LOG_ENABLE")
-    message(STATUS "nvim *enable FATAL(6) logging")
+    message(STATUS "nvim *enable FATAL(5) logging")
 else()
-    message(STATUS "nvim disable FATAL(6) logging")
+    message(STATUS "nvim disable FATAL(5) logging")
 endif()
 
 include(ConfigNvim) # generate configurations for nvim only

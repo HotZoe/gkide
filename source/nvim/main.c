@@ -530,7 +530,7 @@ int main(int argc, char **argv)
     }
 
     TIME_MSG("before starting main loop");
-    ILOG("starting main loop");
+    STATE_LOG("starting main loop");
     // Call the main command loop.  This never returns.
     normal_enter(false, false);
     return 0;

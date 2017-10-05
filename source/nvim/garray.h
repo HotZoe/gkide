@@ -44,7 +44,7 @@ static inline void *ga_append_via_ptr(garray_T *gap, size_t item_size)
 {
     if((int)item_size != gap->ga_itemsize)
     {
-        ELOG("wrong item size in garray(%d), should be %d", item_size);
+        ERROR_LOG("wrong item size in garray(%d), should be %d", item_size);
     }
 
     ga_grow(gap, 1);

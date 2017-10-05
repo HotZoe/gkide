@@ -453,7 +453,7 @@ int os_set_cloexec(const int fd)
     if(fdflags < 0)
     {
         e = errno;
-        ELOG("Failed to get flags on descriptor %d: %s", fd, strerror(e));
+        ERROR_LOG("Failed to get flags on descriptor %d: %s", fd, strerror(e));
         errno = e;
         return -1;
     }
@@ -461,7 +461,7 @@ int os_set_cloexec(const int fd)
     if((fdflags & FD_CLOEXEC) == 0 && fcntl(fd, F_SETFD, fdflags | FD_CLOEXEC) == -1)
     {
         e = errno;
-        ELOG("Failed to set CLOEXEC on descriptor %d: %s", fd, strerror(e));
+        ERROR_LOG("Failed to set CLOEXEC on descriptor %d: %s", fd, strerror(e));
         errno = e;
         return -1;
     }

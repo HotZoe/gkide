@@ -198,20 +198,22 @@ void os_get_hostname(char *hostname, size_t size)
 /// home directory
 static char_u *homedir = NULL;
 
-/// To get the "real" home directory: get value of $HOME
+/// To get the real home directory: get value of $HOME
 ///
 /// For Unix:
 ///   - go to that directory
-///   - do `os_dirname` to get the real name of that directory.
+///   - do os_dirname() to get the real name of that directory.
 /// This also works with mounts and links.
 ///
-/// Don't do this for Windows, it will change the "current dir" for a drive.
+/// Don't do this for Windows, it will change the current directory for a drive.
 void init_homedir(void)
 {
-    // In case we are called a second time.
     xfree(homedir);
-    homedir = NULL;
+    homedir = NULL; // In case we are called a second time.
+
     const char *var = os_getenv("HOME");
+    DEV_MSG("$HOME=%s", var);
+
 #ifdef HOST_OS_WINDOWS
 
     // Typically, $HOME is not defined on Windows, unless the user has specifically defined it

@@ -297,7 +297,7 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
     {
         // When there's at least one stop request pending, start a timer that
         // will periodically check if a signal should be send to a to the job
-        DLOG("Starting job kill timer");
+        DEBUG_LOG("Starting job kill timer");
         uv_timer_start(&loop->children_kill_timer, children_kill_cb, 100, 100);
     }
 }
@@ -321,13 +321,13 @@ static void children_kill_cb(uv_timer_t *handle)
 
         if(!proc->term_sent && elapsed >= TERM_TIMEOUT)
         {
-            ILOG("Sending SIGTERM to pid %d", proc->pid);
+            STATE_LOG("Sending SIGTERM to pid %d", proc->pid);
             uv_kill(proc->pid, SIGTERM);
             proc->term_sent = true;
         }
         else if(elapsed >= KILL_TIMEOUT)
         {
-            ILOG("Sending SIGKILL to pid %d", proc->pid);
+            STATE_LOG("Sending SIGKILL to pid %d", proc->pid);
             uv_kill(proc->pid, SIGKILL);
         }
     }
@@ -465,7 +465,7 @@ static void on_process_exit(Process *proc)
     if(proc->stopped_time && loop->children_stop_requests && !--loop->children_stop_requests)
     {
         // Stop the timer if no more stop requests are pending
-        DLOG("Stopping process kill timer");
+        DEBUG_LOG("Stopping process kill timer");
         uv_timer_stop(&loop->children_kill_timer);
     }
 

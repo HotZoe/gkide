@@ -60,7 +60,7 @@ void ga_set_growsize(garray_T *gap, int growsize)
 {
     if(growsize < 1)
     {
-        WLOG("trying to set an invalid ga_growsize: %d", growsize);
+        ALERT_LOG("trying to set an invalid ga_growsize: %d", growsize);
         gap->ga_growsize = 1;
     }
     else
@@ -83,7 +83,7 @@ void ga_grow(garray_T *gap, int n)
 
     if (gap->ga_growsize < 1)
     {
-        WLOG("ga_growsize(%d) is less than 1", gap->ga_growsize);
+        ALERT_LOG("ga_growsize(%d) is less than 1", gap->ga_growsize);
     }
 
     // the garray grows by at least growsize

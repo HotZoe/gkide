@@ -45,7 +45,7 @@ void signal_init(void)
 
     if(pthread_sigmask(SIG_SETMASK, &mask, NULL) != 0)
     {
-        ELOG("Could not unblock signals, nvim might behave strangely.");
+        ERROR_LOG("Could not unblock signals, nvim might behave strangely.");
     }
 
 #endif

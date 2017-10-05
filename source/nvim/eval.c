@@ -28440,7 +28440,7 @@ static void term_write(char *buf, size_t size, void *d)
     {
         // If the backing stream was closed abruptly, there may be write events
         // ahead of the terminal close event. Just ignore the writes.
-        ILOG("write failed: stream is closed");
+        STATE_LOG("write failed: stream is closed");
         return;
     }
 

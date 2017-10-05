@@ -62,7 +62,7 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     if(pid < 0)
     {
         status = -errno;
-        ELOG("forkpty failed: %s", strerror(errno));
+        ERROR_LOG("forkpty failed: %s", strerror(errno));
         return status;
     }
     else if(pid == 0)
@@ -77,14 +77,14 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     if(master_status_flags == -1)
     {
         status = -errno;
-        ELOG("Failed to get master descriptor status flags: %s", strerror(errno));
+        ERROR_LOG("Failed to get master descriptor status flags: %s", strerror(errno));
         goto error;
     }
 
     if(fcntl(master, F_SETFL, master_status_flags | O_NONBLOCK) == -1)
     {
         status = -errno;
-        ELOG("Failed to make master descriptor non-blocking: %s", strerror(errno));
+        ERROR_LOG("Failed to make master descriptor non-blocking: %s", strerror(errno));
         goto error;
     }
 
@@ -92,7 +92,7 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     if(os_set_cloexec(master) == -1)
     {
         status = -errno;
-        ELOG("Failed to set CLOEXEC on ptmx file descriptor");
+        ERROR_LOG("Failed to set CLOEXEC on ptmx file descriptor");
         goto error;
     }
 
@@ -253,14 +253,14 @@ static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe) FUNC_ATTR_NONNULL
     if(fd_dup < 0)
     {
         status = -errno;
-        ELOG("Failed to dup descriptor %d: %s", fd, strerror(errno));
+        ERROR_LOG("Failed to dup descriptor %d: %s", fd, strerror(errno));
         return status;
     }
 
     if(os_set_cloexec(fd_dup) == -1)
     {
         status = -errno;
-        ELOG("Failed to set CLOEXEC on duplicate fd");
+        ERROR_LOG("Failed to set CLOEXEC on duplicate fd");
         goto error;
     }
 
@@ -268,7 +268,7 @@ static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe) FUNC_ATTR_NONNULL
 
     if(status)
     {
-        ELOG("Failed to set pipe to descriptor %d: %s", fd_dup, uv_strerror(status));
+        ERROR_LOG("Failed to set pipe to descriptor %d: %s", fd_dup, uv_strerror(status));
         goto error;
     }
 

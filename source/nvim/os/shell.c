@@ -780,7 +780,7 @@ static void shell_write_cb(Stream *stream, void *data, int status)
     if(stream->closed)
     {
         // Process may have exited before this write.
-        ELOG("stream was already closed");
+        ERROR_LOG("stream was already closed");
         return;
     }
 

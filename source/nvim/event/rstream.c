@@ -123,10 +123,10 @@ static void read_cb(uv_stream_t *uvstream, ssize_t cnt, const uv_buf_t *buf)
         // to `alloc_cb` will return the same unused pointer(`rbuffer_produced` won't be called)
         if(cnt != UV_ENOBUFS && cnt != 0)
         {
-            DLOG("Closing Stream (%p): %s (%s)",
-                 stream,
-                 uv_err_name((int)cnt),
-                 os_strerror((int)cnt));
+            DEBUG_LOG("Closing Stream (%p): %s (%s)",
+                      stream,
+                      uv_err_name((int)cnt),
+                      os_strerror((int)cnt));
             // Read error or EOF, either way stop the stream and invoke the callback
             // with eof == true
             uv_read_stop(uvstream);
@@ -160,7 +160,7 @@ static void fread_idle_cb(uv_idle_t *handle)
 
     if(fpos_intmax > INT64_MAX)
     {
-        ELOG("stream offset overflow");
+        ERROR_LOG("stream offset overflow");
         preserve_exit();
     }
 
