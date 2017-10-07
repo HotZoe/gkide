@@ -1,4 +1,33 @@
 /// @file nvim/memline.c
+///
+/// Contains the functions for appending, deleting and changing the
+/// text lines. The memfile functions are used to store the information in
+/// blocks of memory, backed up by a file. The structure of the information is
+/// a tree.  The root of the tree is a pointer block. The leaves of the tree
+/// are data blocks. In between may be several layers of pointer blocks,
+/// forming branches.
+///
+/// Three types of blocks are used:
+/// - Block nr 0 contains information for recovery
+/// - Pointer blocks contain list of pointers to other blocks.
+/// - Data blocks contain the actual text.
+///
+/// Block nr 0 contains the block0 structure (see below).
+///
+/// Block nr 1 is the first pointer block. It is the root of the tree.
+/// Other pointer blocks are branches.
+///
+/// If a line is too big to fit in a single page, the block containing that
+/// line is made big enough to hold the line. It may span several pages.
+/// Otherwise all blocks are one page.
+///
+/// A data block that was filled when starting to edit a file and was not
+/// changed since then, can have a negative block number. This means that it
+/// has not yet been assigned a place in the file. When recovering, the lines
+/// in this data block can be read from the original file. When the block is
+/// changed (lines appended/deleted/changed) or when it is flushed it gets a
+/// positive number. Use mf_trans_del() to get the new number, before calling
+/// mf_get().
 
 /// for debugging
 #if 0
@@ -6,37 +35,6 @@
 #else
     #define CHECK(c, s)
 #endif
-
-/*
- * memline.c: Contains the functions for appending, deleting and changing the
- * text lines. The memfile functions are used to store the information in
- * blocks of memory, backed up by a file. The structure of the information is
- * a tree.  The root of the tree is a pointer block. The leaves of the tree
- * are data blocks. In between may be several layers of pointer blocks,
- * forming branches.
- *
- * Three types of blocks are used:
- * - Block nr 0 contains information for recovery
- * - Pointer blocks contain list of pointers to other blocks.
- * - Data blocks contain the actual text.
- *
- * Block nr 0 contains the block0 structure (see below).
- *
- * Block nr 1 is the first pointer block. It is the root of the tree.
- * Other pointer blocks are branches.
- *
- *  If a line is too big to fit in a single page, the block containing that
- *  line is made big enough to hold the line. It may span several pages.
- *  Otherwise all blocks are one page.
- *
- *  A data block that was filled when starting to edit a file and was not
- *  changed since then, can have a negative block number. This means that it
- *  has not yet been assigned a place in the file. When recovering, the lines
- *  in this data block can be read from the original file. When the block is
- *  changed (lines appended/deleted/changed) or when it is flushed it gets a
- *  positive number. Use mf_trans_del() to get the new number, before calling
- *  mf_get().
- */
 
 #include <assert.h>
 #include <errno.h>
@@ -74,209 +72,187 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 
-#ifndef UNIX            /* it's in os/unix_defs.h for Unix */
+#ifndef UNIX
+    // it's in os/unix_defs.h for Unix
     #include <time.h>
 #endif
 
-typedef struct block0 ZERO_BL;              /* contents of the first block */
-typedef struct pointer_block PTR_BL;        /* contents of a pointer block */
-typedef struct data_block DATA_BL;          /* contents of a data block */
-typedef struct pointer_entry PTR_EN;        /* block/line-count pair */
+typedef struct block0        ZERO_BL;       ///< contents of the first block
+typedef struct pointer_block PTR_BL;        ///< contents of a pointer block
+typedef struct data_block    DATA_BL;       ///< contents of a data block
+typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
 
-#define DATA_ID        (('d' << 8) + 'a')   /* data block id */
-#define PTR_ID         (('p' << 8) + 't')   /* pointer block id */
-#define BLOCK0_ID0     'b'                  /* block 0 id 0 */
-#define BLOCK0_ID1     '0'                  /* block 0 id 1 */
+#define DATA_ID        (('d' << 8) + 'a')   ///< data block id
+#define PTR_ID         (('p' << 8) + 't')   ///< pointer block id
+#define BLOCK0_ID0     'b'                  ///< block 0 id 0
+#define BLOCK0_ID1     '0'                  ///< block 0 id 1
 
-/*
- * pointer to a block, used in a pointer block
- */
+/// pointer to a block, used in a pointer block
 struct pointer_entry
 {
-    blocknr_T pe_bnum;            /* block number */
-    linenr_T pe_line_count;       /* number of lines in this branch */
-    linenr_T pe_old_lnum;         /* lnum for this block (for recovery) */
-    int pe_page_count;            /* number of pages in block pe_bnum */
+    blocknr_T pe_bnum;         ///< block number
+    linenr_T pe_line_count;    ///< number of lines in this branch
+    linenr_T pe_old_lnum;      ///< lnum for this block (for recovery)
+    int pe_page_count;         ///< number of pages in block pe_bnum
 };
 
-/*
- * A pointer block contains a list of branches in the tree.
- */
+/// A pointer block contains a list of branches in the tree.
 struct pointer_block
 {
-    uint16_t pb_id;               /* ID for pointer block: PTR_ID */
-    uint16_t pb_count;            /* number of pointers in this block */
-    uint16_t pb_count_max;        /* maximum value for pb_count */
-    PTR_EN pb_pointer[1];         /* list of pointers to blocks (actually longer)
-                                 * followed by empty space until end of page */
+    uint16_t pb_id;            ///< ID for pointer block: PTR_ID
+    uint16_t pb_count;         ///< number of pointers in this block
+    uint16_t pb_count_max;     ///< maximum value for pb_count
+    PTR_EN pb_pointer[1];      ///< list of pointers to blocks (actually longer)
+                               ///< followed by empty space until end of page
 };
 
-/*
- * A data block is a leaf in the tree.
- *
- * The text of the lines is at the end of the block. The text of the first line
- * in the block is put at the end, the text of the second line in front of it,
- * etc. Thus the order of the lines is the opposite of the line number.
- */
+/// A data block is a leaf in the tree.
+///
+/// The text of the lines is at the end of the block. The text of the first line
+/// in the block is put at the end, the text of the second line in front of it,
+/// etc. Thus the order of the lines is the opposite of the line number.
 struct data_block
 {
-    uint16_t db_id;               /* ID for data block: DATA_ID */
-    unsigned db_free;             /* free space available */
-    unsigned db_txt_start;        /* byte where text starts */
-    unsigned db_txt_end;          /* byte just after data block */
-    linenr_T db_line_count;       /* number of lines in this block */
-    unsigned db_index[1];         /* index for start of line (actually bigger)
-                                 * followed by empty space upto db_txt_start
-                                 * followed by the text in the lines until
-                                 * end of page */
+    uint16_t db_id;           ///< ID for data block: DATA_ID
+    unsigned db_free;         ///< free space available
+    unsigned db_txt_start;    ///< byte where text starts
+    unsigned db_txt_end;      ///< byte just after data block
+    linenr_T db_line_count;   ///< number of lines in this block
+    unsigned db_index[1];     ///< index for start of line (actually bigger) followed
+                              ///< by empty space upto db_txt_start followed by the text
+                              ///< in the lines until end of page
 };
 
-/*
- * The low bits of db_index hold the actual index. The topmost bit is
- * used for the global command to be able to mark a line.
- * This method is not clean, but otherwise there would be at least one extra
- * byte used for each line.
- * The mark has to be in this place to keep it with the correct line when other
- * lines are inserted or deleted.
- */
+// The low bits of db_index hold the actual index.
+// The topmost bit is used for the global command to be able to mark a line.
+//
+// This method is not clean, but otherwise there would be at least one extra
+// byte used for each line.
+//
+// The mark has to be in this place to keep it with the correct line when other
+// lines are inserted or deleted.
+
 #define DB_MARKED       ((unsigned)1 << ((sizeof(unsigned) * 8) - 1))
 #define DB_INDEX_MASK   (~DB_MARKED)
 
-#define INDEX_SIZE  (sizeof(unsigned))      /* size of one db_index entry */
-#define HEADER_SIZE (sizeof(DATA_BL) - INDEX_SIZE)  /* size of data block header */
+/// size of one db_index entry
+#define INDEX_SIZE      (sizeof(unsigned))
 
-#define B0_FNAME_SIZE_ORG       900     /* what it was in older versions */
-#define B0_FNAME_SIZE_NOCRYPT   898     /* 2 bytes used for other things */
-#define B0_FNAME_SIZE_CRYPT     890     /* 10 bytes used for other things */
-#define B0_UNAME_SIZE           40
-#define B0_HNAME_SIZE           40
-/*
- * Restrict the numbers to 32 bits, otherwise most compilers will complain.
- * This won't detect a 64 bit machine that only swaps a byte in the top 32
- * bits, but that is crazy anyway.
- */
-#define B0_MAGIC_LONG   0x30313233L
-#define B0_MAGIC_INT    0x20212223L
-#define B0_MAGIC_SHORT  0x10111213L
-#define B0_MAGIC_CHAR   0x55
+/// size of data block header
+#define HEADER_SIZE     (sizeof(DATA_BL) - INDEX_SIZE)
 
-/*
- * Block zero holds all info about the swap file.
- *
- * NOTE: DEFINITION OF BLOCK 0 SHOULD NOT CHANGE! It would make all existing
- * swap files unusable!
- *
- * If size of block0 changes anyway, adjust MIN_SWAP_PAGE_SIZE in vim.h!!
- *
- * This block is built up of single bytes, to make it portable across
- * different machines. b0_magic_* is used to check the byte order and size of
- * variables, because the rest of the swap file is not portable.
- */
+#define B0_FNAME_SIZE_ORG       900   ///< what it was in older versions
+#define B0_FNAME_SIZE_NOCRYPT   898   ///< 2 bytes used for other things
+#define B0_FNAME_SIZE_CRYPT     890   ///< 10 bytes used for other things
+#define B0_UNAME_SIZE           40    ///<
+#define B0_HNAME_SIZE           40    ///<
+
+// Restrict the numbers to 32 bits, otherwise most compilers will complain.
+// This won't detect a 64 bit machine that only swaps a byte in the top 32
+// bits, but that is crazy anyway.
+#define B0_MAGIC_LONG     0x30313233L
+#define B0_MAGIC_INT      0x20212223L
+#define B0_MAGIC_SHORT    0x10111213L
+#define B0_MAGIC_CHAR     0x55
+
+/// Block zero holds all info about the swap file.
+///
+/// @note
+/// DEFINITION OF BLOCK 0 SHOULD NOT CHANGE! It would make all existing
+/// swap files unusable!
+///
+/// If size of block0 changes anyway, adjust MIN_SWAP_PAGE_SIZE in vim.h!!
+///
+/// This block is built up of single bytes, to make it portable across
+/// different machines. b0_magic_* is used to check the byte order and size of
+/// variables, because the rest of the swap file is not portable.
 struct block0
 {
-    char_u b0_id[2];              ///< ID for block 0: BLOCK0_ID0 and BLOCK0_ID1.
-    char_u b0_version[10];        /* Vim version string */
-    char_u b0_page_size[4];       /* number of bytes per page */
-    char_u b0_mtime[4];           /* last modification time of file */
-    char_u b0_ino[4];             /* inode of b0_fname */
-    char_u b0_pid[4];             /* process id of creator (or 0) */
-    char_u b0_uname[B0_UNAME_SIZE];        /* name of user (uid if no name) */
-    char_u b0_hname[B0_HNAME_SIZE];        /* host name (if it has a name) */
-    char_u b0_fname[B0_FNAME_SIZE_ORG];        /* name of file being edited */
-    long b0_magic_long;           /* check for byte order of long */
-    int b0_magic_int;             /* check for byte order of int */
-    short b0_magic_short;         /* check for byte order of short */
-    char_u b0_magic_char;         /* check for last char */
+    char_u b0_id[2];                    ///< ID for block 0: BLOCK0_ID0 and BLOCK0_ID1.
+    char_u b0_version[10];              ///< Vim version string
+    char_u b0_page_size[4];             ///< number of bytes per page
+    char_u b0_mtime[4];                 ///< last modification time of file
+    char_u b0_ino[4];                   ///< inode of b0_fname
+    char_u b0_pid[4];                   ///< process id of creator (or 0)
+    char_u b0_uname[B0_UNAME_SIZE];     ///< name of user (uid if no name)
+    char_u b0_hname[B0_HNAME_SIZE];     ///< host name (if it has a name)
+    char_u b0_fname[B0_FNAME_SIZE_ORG]; ///< name of file being edited
+    long b0_magic_long;                 ///< check for byte order of long
+    int b0_magic_int;                   ///< check for byte order of int
+    short b0_magic_short;               ///< check for byte order of short
+    char_u b0_magic_char;               ///< check for last char
 };
 
-/*
- * Note: b0_dirty and b0_flags are put at the end of the file name.  For very
- * long file names in older versions of Vim they are invalid.
- * The 'fileencoding' comes before b0_flags, with a NUL in front.  But only
- * when there is room, for very long file names it's omitted.
- */
-#define B0_DIRTY        0x55
-#define b0_dirty        b0_fname[B0_FNAME_SIZE_ORG - 1]
+// Note: b0_dirty and b0_flags are put at the end of the file name.  For very
+// long file names in older versions of Vim they are invalid.
+// The 'fileencoding' comes before b0_flags, with a NUL in front.  But only
+// when there is room, for very long file names it's omitted.
+#define B0_DIRTY     0x55
+#define b0_dirty     b0_fname[B0_FNAME_SIZE_ORG - 1]
 
-/*
- * The b0_flags field is new in Vim 7.0.
- */
-#define b0_flags        b0_fname[B0_FNAME_SIZE_ORG - 2]
+/// The b0_flags field is new in Vim 7.0.
+#define b0_flags     b0_fname[B0_FNAME_SIZE_ORG - 2]
 
-/* The lowest two bits contain the fileformat.  Zero means it's not set
- * (compatible with Vim 6.x), otherwise it's EOL_UNIX + 1, EOL_DOS + 1 or
- * EOL_MAC + 1. */
+/// The lowest two bits contain the fileformat.  Zero means it's not set
+/// (compatible with Vim 6.x), otherwise it's EOL_UNIX + 1, EOL_DOS + 1 or
+/// EOL_MAC + 1.
 #define B0_FF_MASK      3
 
-/* Swap file is in directory of edited file.  Used to find the file from
- * different mount points. */
+/// Swap file is in directory of edited file.  Used to find the file from
+/// different mount points.
 #define B0_SAME_DIR     4
 
-/* The 'fileencoding' is at the end of b0_fname[], with a NUL in front of it.
- * When empty there is only the NUL. */
+/// The 'fileencoding' is at the end of b0_fname[], with a NUL in front of it.
+/// When empty there is only the NUL.
 #define B0_HAS_FENC     8
 
-#define STACK_INCR      5       /* nr of entries added to ml_stack at a time */
+///  nr of entries added to ml_stack at a time
+#define STACK_INCR      5
 
-/*
- * The line number where the first mark may be is remembered.
- * If it is 0 there are no marks at all.
- * (always used for the current buffer only, no buffer change possible while
- * executing a global command).
- */
+/// The line number where the first mark may be is remembered.
+/// If it is 0 there are no marks at all.
+/// (always used for the current buffer only, no buffer change possible while
+/// executing a global command).
 static linenr_T lowest_marked = 0;
 
-/*
- * arguments for ml_find_line()
- */
-#define ML_DELETE       0x11        /* delete line */
-#define ML_INSERT       0x12        /* insert line */
-#define ML_FIND         0x13        /* just find the line */
-#define ML_FLUSH        0x02        /* flush locked block */
-#define ML_SIMPLE(x)    (x & 0x10)  /* DEL, INS or FIND */
+// arguments for ml_find_line()
+#define ML_DELETE       0x11        ///< delete line
+#define ML_INSERT       0x12        ///< insert line
+#define ML_FIND         0x13        ///< just find the line
+#define ML_FLUSH        0x02        ///< flush locked block
+#define ML_SIMPLE(x)    (x & 0x10)  ///< DEL, INS or FIND
 
-/* argument for ml_upd_block0() */
+/// argument for ml_upd_block0()
 typedef enum
 {
-    UB_FNAME = 0          /* update timestamp and filename */
-    , UB_SAME_DIR         /* update the B0_SAME_DIR flag */
+    UB_FNAME = 0,     ///< update timestamp and filename
+    UB_SAME_DIR = 1   ///< update the B0_SAME_DIR flag
 } upd_block0_T;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "memline.c.generated.h"
 #endif
 
-/*
- * Open a new memline for "buf".
- *
- * Return FAIL for failure, OK otherwise.
- */
+/// Open a new memline for **buf**
+///
+/// Return FAIL for failure, OK otherwise.
 int ml_open(buf_T *buf)
 {
-    memfile_T   *mfp;
-    bhdr_T      *hp = NULL;
-    ZERO_BL     *b0p;
-    PTR_BL      *pp;
-    DATA_BL     *dp;
-    /*
-     * init fields in memline struct
-     */
-    buf->b_ml.ml_stack_size = 0;   /* no stack yet */
-    buf->b_ml.ml_stack = NULL;    /* no stack yet */
-    buf->b_ml.ml_stack_top = 0;   /* nothing in the stack */
-    buf->b_ml.ml_locked = NULL;   /* no cached block */
-    buf->b_ml.ml_line_lnum = 0;   /* no cached line */
+    // init fields in memline struct
+    buf->b_ml.ml_stack_size = 0;  // no stack yet
+    buf->b_ml.ml_stack = NULL;    // no stack yet
+    buf->b_ml.ml_stack_top = 0;   // nothing in the stack
+    buf->b_ml.ml_locked = NULL;   // no cached block
+    buf->b_ml.ml_line_lnum = 0;   // no cached line
     buf->b_ml.ml_chunksize = NULL;
 
-    if (cmdmod.noswapfile)
+    if(cmdmod.noswapfile)
     {
         buf->b_p_swf = false;
     }
 
-    /*
-     * When 'updatecount' is non-zero swap file may be opened later.
-     */
-    if (!buf->terminal && p_uc && buf->b_p_swf)
+    // When 'updatecount' is non-zero swap file may be opened later.
+    if(!buf->terminal && p_uc && buf->b_p_swf)
     {
         buf->b_may_swap = true;
     }
@@ -285,12 +261,10 @@ int ml_open(buf_T *buf)
         buf->b_may_swap = false;
     }
 
-    /*
-     * Open the memfile.  No swap file is created yet.
-     */
-    mfp = mf_open(NULL, 0);
+    // Open the memfile. No swap file is created yet.
+    memfile_T *mfp = mf_open(NULL, 0);
 
-    if (mfp == NULL)
+    if(mfp == NULL)
     {
         goto error;
     }
@@ -299,18 +273,18 @@ int ml_open(buf_T *buf)
     buf->b_ml.ml_flags = ML_EMPTY;
     buf->b_ml.ml_line_count = 1;
     curwin->w_nrwidth_line_count = 0;
-    /*
-     * fill block0 struct and write page 0
-     */
+
+    // fill block0 struct and write page 0
+    bhdr_T *hp = NULL;
     hp = mf_new(mfp, false, 1);
 
-    if (hp->bh_bnum != 0)
+    if(hp->bh_bnum != 0)
     {
         EMSG(_("E298: Didn't get block nr 0?"));
         goto error;
     }
 
-    b0p = hp->bh_data;
+    ZERO_BL *b0p = hp->bh_data;
     b0p->b0_id[0] = BLOCK0_ID0;
     b0p->b0_id[1] = BLOCK0_ID1;
     b0p->b0_magic_long = (long)B0_MAGIC_LONG;
@@ -320,7 +294,7 @@ int ml_open(buf_T *buf)
     xstrlcpy(xstpcpy((char *) b0p->b0_version, "VIM "), Version, 6);
     long_to_char((long)mfp->mf_page_size, b0p->b0_page_size);
 
-    if (!buf->b_spell)
+    if(!buf->b_spell)
     {
         b0p->b0_dirty = buf->b_changed ? B0_DIRTY : 0;
         b0p->b0_flags = get_fileformat(buf) + 1;
@@ -332,78 +306,72 @@ int ml_open(buf_T *buf)
         long_to_char(os_get_pid(), b0p->b0_pid);
     }
 
-    /*
-     * Always sync block number 0 to disk, so we can check the file name in
-     * the swap file in findswapname(). Don't do this for a help files or
-     * a spell buffer though.
-     * Only works when there's a swapfile, otherwise it's done when the file
-     * is created.
-     */
+    // Always sync block number 0 to disk, so we can check the file name in
+    // the swap file in findswapname(). Don't do this for a help files or
+    // a spell buffer though.
+    // Only works when there's a swapfile, otherwise it's done when the file
+    // is created.
     mf_put(mfp, hp, true, false);
 
-    if (!buf->b_help && !B_SPELL(buf))
+    if(!buf->b_help && !B_SPELL(buf))
     {
         (void)mf_sync(mfp, 0);
     }
 
-    /*
-     * Fill in root pointer block and write page 1.
-     */
-    if ((hp = ml_new_ptr(mfp)) == NULL)
+    // Fill in root pointer block and write page 1.
+    if((hp = ml_new_ptr(mfp)) == NULL)
     {
         goto error;
     }
 
-    if (hp->bh_bnum != 1)
+    if(hp->bh_bnum != 1)
     {
         EMSG(_("E298: Didn't get block nr 1?"));
         goto error;
     }
 
-    pp = hp->bh_data;
+    PTR_BL *pp = hp->bh_data;
     pp->pb_count = 1;
     pp->pb_pointer[0].pe_bnum = 2;
     pp->pb_pointer[0].pe_page_count = 1;
     pp->pb_pointer[0].pe_old_lnum = 1;
-    pp->pb_pointer[0].pe_line_count = 1;      /* line count after insertion */
+    pp->pb_pointer[0].pe_line_count = 1; // line count after insertion
     mf_put(mfp, hp, true, false);
-    /*
-     * Allocate first data block and create an empty line 1.
-     */
+
+    // Allocate first data block and create an empty line 1.
     hp = ml_new_data(mfp, FALSE, 1);
 
-    if (hp->bh_bnum != 2)
+    if(hp->bh_bnum != 2)
     {
         EMSG(_("E298: Didn't get block nr 2?"));
         goto error;
     }
 
-    dp = hp->bh_data;
-    dp->db_index[0] = --dp->db_txt_start;         /* at end of block */
+    DATA_BL *dp = hp->bh_data;
+    dp->db_index[0] = --dp->db_txt_start; // at end of block
     dp->db_free -= 1 + INDEX_SIZE;
     dp->db_line_count = 1;
-    *((char_u *)dp + dp->db_txt_start) = NUL;     /* empty line */
+    *((char_u *)dp + dp->db_txt_start) = NUL; // empty line
     return OK;
+
 error:
 
-    if (mfp != NULL)
+    if(mfp != NULL)
     {
-        if (hp)
+        if(hp)
         {
             mf_put(mfp, hp, false, false);
         }
 
-        mf_close(mfp, true);            /* will also xfree(mfp->mf_fname) */
+        mf_close(mfp, true); // will also xfree(mfp->mf_fname)
     }
 
     buf->b_ml.ml_mfp = NULL;
     return FAIL;
 }
 
-/*
- * ml_setname() is called when the file name of "buf" has been changed.
- * It may rename the swap file.
- */
+/// ml_setname() is called when the file name of "buf" has been changed.
+/// It may rename the swap file.
 void ml_setname(buf_T *buf)
 {
     int success = FALSE;
@@ -412,64 +380,61 @@ void ml_setname(buf_T *buf)
     char_u      *dirp;
     mfp = buf->b_ml.ml_mfp;
 
-    if (mfp->mf_fd < 0)               /* there is no swap file yet */
+    if(mfp->mf_fd < 0) // there is no swap file yet
     {
-        /*
-         * When 'updatecount' is 0 and 'noswapfile' there is no swap file.
-         * For help files we will make a swap file now.
-         */
-        if (p_uc != 0 && !cmdmod.noswapfile)
+        // When 'updatecount' is 0 and 'noswapfile' there is no swap file.
+        // For help files we will make a swap file now.
+        if(p_uc != 0 && !cmdmod.noswapfile)
         {
-            ml_open_file(buf); /* create a swap file */
+            ml_open_file(buf); // create a swap file
         }
-
         return;
     }
 
-    /*
-     * Try all directories in the 'directory' option.
-     */
+    // Try all directories in the 'directory' option.
     dirp = p_dir;
     bool found_existing_dir = false;
 
-    for (;; )
+    for(;;)
     {
-        if (*dirp == NUL)               /* tried all directories, fail */
+        if(*dirp == NUL) // tried all directories, fail
         {
             break;
         }
 
-        fname = (char_u *)findswapname(buf, (char **)&dirp, (char *)mfp->mf_fname,
+        fname = (char_u *)findswapname(buf,
+                                       (char **)&dirp,
+                                       (char *)mfp->mf_fname,
                                        &found_existing_dir);
 
-        /* alloc's fname */
-        if (dirp == NULL)               /* out of memory */
+        // alloc's fname
+        if(dirp == NULL) // out of memory
         {
             break;
         }
 
-        if (fname == NULL)              /* no file name found for this dir */
+        if(fname == NULL) // no file name found for this dir
         {
             continue;
         }
 
-        /* if the file name is the same we don't have to do anything */
-        if (fnamecmp(fname, mfp->mf_fname) == 0)
+        // if the file name is the same we don't have to do anything
+        if(fnamecmp(fname, mfp->mf_fname) == 0)
         {
             xfree(fname);
             success = TRUE;
             break;
         }
 
-        /* need to close the swap file before renaming */
-        if (mfp->mf_fd >= 0)
+        // need to close the swap file before renaming
+        if(mfp->mf_fd >= 0)
         {
             close(mfp->mf_fd);
             mfp->mf_fd = -1;
         }
 
-        /* try to rename the swap file */
-        if (vim_rename(mfp->mf_fname, fname) == 0)
+        // try to rename the swap file
+        if(vim_rename(mfp->mf_fname, fname) == 0)
         {
             success = TRUE;
             mf_free_fnames(mfp);
@@ -478,16 +443,16 @@ void ml_setname(buf_T *buf)
             break;
         }
 
-        xfree(fname);                /* this fname didn't work, try another */
+        xfree(fname); // this fname didn't work, try another
     }
 
-    if (mfp->mf_fd == -1)             /* need to (re)open the swap file */
+    if(mfp->mf_fd == -1) // need to (re)open the swap file
     {
         mfp->mf_fd = os_open((char *)mfp->mf_fname, O_RDWR, 0);
 
-        if (mfp->mf_fd < 0)
+        if(mfp->mf_fd < 0)
         {
-            /* could not (re)open the swap file, what can we do???? */
+            // could not (re)open the swap file, what can we do ?
             EMSG(_("E301: Oops, lost the swap file!!!"));
             return;
         }
@@ -495,33 +460,29 @@ void ml_setname(buf_T *buf)
         (void)os_set_cloexec(mfp->mf_fd);
     }
 
-    if (!success)
+    if(!success)
     {
         EMSG(_("E302: Could not rename swap file"));
     }
 }
 
-/*
- * Open a file for the memfile for all buffers that are not readonly or have
- * been modified.
- * Used when 'updatecount' changes from zero to non-zero.
- */
+/// Open a file for the memfile for all buffers that are not readonly or have been modified.
+///
+/// Used when 'updatecount' changes from zero to non-zero.
 void ml_open_files(void)
 {
     FOR_ALL_BUFFERS(buf)
     {
-        if (!buf->b_p_ro || buf->b_changed)
+        if(!buf->b_p_ro || buf->b_changed)
         {
             ml_open_file(buf);
         }
     }
 }
 
-/*
- * Open a swap file for an existing memfile, if there is no swap file yet.
- * If we are unable to find a file name, mf_fname will be NULL
- * and the memfile will be in memory only (no recovery possible).
- */
+/// Open a swap file for an existing memfile, if there is no swap file yet.
+/// If we are unable to find a file name, mf_fname will be NULL
+/// and the memfile will be in memory only (no recovery possible).
 void ml_open_file(buf_T *buf)
 {
     memfile_T   *mfp;
@@ -529,35 +490,32 @@ void ml_open_file(buf_T *buf)
     char_u      *dirp;
     mfp = buf->b_ml.ml_mfp;
 
-    if (mfp == NULL || mfp->mf_fd >= 0 || !buf->b_p_swf || cmdmod.noswapfile
-            || buf->terminal)
+    if(mfp == NULL || mfp->mf_fd >= 0 || !buf->b_p_swf || cmdmod.noswapfile || buf->terminal)
     {
-        return; /* nothing to do */
+        return; // nothing to do
     }
 
-    /* For a spell buffer use a temp file name. */
-    if (buf->b_spell)
+    // For a spell buffer use a temp file name.
+    if(buf->b_spell)
     {
         fname = vim_tempname();
 
-        if (fname != NULL)
+        if(fname != NULL)
         {
-            (void)mf_open_file(mfp, fname);    /* consumes fname! */
+            (void)mf_open_file(mfp, fname); // consumes fname !
         }
 
         buf->b_may_swap = false;
         return;
     }
 
-    /*
-     * Try all directories in 'directory' option.
-     */
+    // Try all directories in 'directory' option.
     dirp = p_dir;
     bool found_existing_dir = false;
 
-    for (;; )
+    for(;;)
     {
-        if (*dirp == NUL)
+        if(*dirp == NUL)
         {
             break;
         }
@@ -565,81 +523,77 @@ void ml_open_file(buf_T *buf)
         // There is a small chance that between choosing the swap file name
         // and creating it, another Vim creates the file.  In that case the
         // creation will fail and we will use another directory.
-        fname = (char_u *)findswapname(buf, (char **)&dirp, NULL,
-                                       &found_existing_dir);
+        fname = (char_u *)findswapname(buf, (char **)&dirp, NULL, &found_existing_dir);
 
-        if (dirp == NULL)
+        if(dirp == NULL)
         {
-            break;    /* out of memory */
+            break; // out of memory
         }
 
-        if (fname == NULL)
+        if(fname == NULL)
         {
             continue;
         }
 
-        if (mf_open_file(mfp, fname) == OK)         /* consumes fname! */
+        if(mf_open_file(mfp, fname) == OK) // consumes fname !
         {
             ml_upd_block0(buf, UB_SAME_DIR);
 
-            /* Flush block zero, so others can read it */
-            if (mf_sync(mfp, MFS_ZERO) == OK)
+            // Flush block zero, so others can read it
+            if(mf_sync(mfp, MFS_ZERO) == OK)
             {
-                /* Mark all blocks that should be in the swapfile as dirty.
-                 * Needed for when the 'swapfile' option was reset, so that
-                 * the swap file was deleted, and then on again. */
+                // Mark all blocks that should be in the swapfile as dirty.
+                // Needed for when the 'swapfile' option was reset, so that
+                // the swap file was deleted, and then on again.
                 mf_set_dirty(mfp);
                 break;
             }
 
-            /* Writing block 0 failed: close the file and try another dir */
+            // Writing block 0 failed: close the file and try another dir
             mf_close_file(buf, false);
         }
     }
 
-    if (mfp->mf_fname == NULL)            /* Failed! */
+    if (mfp->mf_fname == NULL) // Failed !
     {
-        need_wait_return = TRUE;            /* call wait_return later */
+        need_wait_return = TRUE; // call wait_return later
         ++no_wait_return;
-        (void)EMSG2(_(
-                        "E303: Unable to open swap file for \"%s\", recovery impossible"),
+
+        (void)EMSG2(_("E303: Unable to open swap file for \"%s\", recovery impossible"),
                     buf_spname(buf) != NULL ? buf_spname(buf) : buf->b_fname);
+
         --no_wait_return;
     }
 
-    /* don't try to open a swap file again */
+    // don't try to open a swap file again
     buf->b_may_swap = false;
 }
 
-/*
- * If still need to create a swap file, and starting to edit a not-readonly
- * file, or reading into an existing buffer, create a swap file now.
- */
-void
-check_need_swap (
-    int newfile                    /* reading file into new buffer */
-)
+/// If still need to create a swap file, and starting to edit a not-readonly
+/// file, or reading into an existing buffer, create a swap file now.
+///
+/// @param newfile  reading file into new buffer
+void check_need_swap(int newfile)
 {
-    if (curbuf->b_may_swap && (!curbuf->b_p_ro || !newfile))
+    if(curbuf->b_may_swap && (!curbuf->b_p_ro || !newfile))
     {
         ml_open_file(curbuf);
     }
 }
 
-/*
- * Close memline for buffer 'buf'.
- * If 'del_file' is TRUE, delete the swap file
- */
+/// Close memline for buffer 'buf'.
+///
+/// If 'del_file' is TRUE, delete the swap file
 void ml_close(buf_T *buf, int del_file)
 {
-    if (buf->b_ml.ml_mfp == NULL)                 /* not open */
+    if(buf->b_ml.ml_mfp == NULL) // not open
     {
         return;
     }
 
-    mf_close(buf->b_ml.ml_mfp, del_file);       /* close the .swp file */
+    mf_close(buf->b_ml.ml_mfp, del_file); // close the .swp file
 
-    if (buf->b_ml.ml_line_lnum != 0 && (buf->b_ml.ml_flags & ML_LINE_DIRTY))
+    if(buf->b_ml.ml_line_lnum != 0 && (buf->b_ml.ml_flags & ML_LINE_DIRTY))
     {
         xfree(buf->b_ml.ml_line_ptr);
     }
@@ -648,46 +602,40 @@ void ml_close(buf_T *buf, int del_file)
     xfree(buf->b_ml.ml_chunksize);
     buf->b_ml.ml_chunksize = NULL;
     buf->b_ml.ml_mfp = NULL;
-    /* Reset the "recovered" flag, give the ATTENTION prompt the next time
-     * this buffer is loaded. */
+    // Reset the "recovered" flag, give the ATTENTION
+    // prompt the next time this buffer is loaded.
     buf->b_flags &= ~BF_RECOVERED;
 }
 
-/*
- * Close all existing memlines and memfiles.
- * Only used when exiting.
- * When 'del_file' is TRUE, delete the memfiles.
- * But don't delete files that were ":preserve"d when we are POSIX compatible.
- */
+/// Close all existing memlines and memfiles.
+/// Only used when exiting.
+/// When 'del_file' is TRUE, delete the memfiles.
+/// But don't delete files that were ":preserve"d when we are POSIX compatible.
 void ml_close_all(int del_file)
 {
     FOR_ALL_BUFFERS(buf)
     {
         ml_close(buf, del_file && ((buf->b_flags & BF_PRESERVED) == 0));
     }
-    spell_delete_wordlist();      /* delete the internal wordlist */
-    vim_deltempdir();             /* delete created temp directory */
+    spell_delete_wordlist(); // delete the internal wordlist
+    vim_deltempdir(); // delete created temp directory
 }
 
-/*
- * Close all memfiles for not modified buffers.
- * Only use just before exiting!
- */
+/// Close all memfiles for not modified buffers.
+/// Only use just before exiting!
 void ml_close_notmod(void)
 {
     FOR_ALL_BUFFERS(buf)
     {
-        if (!bufIsChanged(buf))
+        if(!bufIsChanged(buf))
         {
-            ml_close(buf, TRUE);          /* close all not-modified buffers */
+            ml_close(buf, TRUE); // close all not-modified buffers
         }
     }
 }
 
-/*
- * Update the timestamp in the .swp file.
- * Used when the file has been written.
- */
+/// Update the timestamp in the .swp file.
+/// Used when the file has been written.
 void ml_timestamp(buf_T *buf)
 {
     ml_upd_block0(buf, UB_FNAME);
@@ -710,9 +658,7 @@ FUNC_ATTR_NONNULL_ALL
             && memchr(b0p->b0_fname, NUL, B0_FNAME_SIZE_CRYPT));  // -V512
 }
 
-/*
- * Update the timestamp or the B0_SAME_DIR flag of the .swp file.
- */
+/// Update the timestamp or the B0_SAME_DIR flag of the .swp file.
 static void ml_upd_block0(buf_T *buf, upd_block0_T what)
 {
     memfile_T   *mfp;
@@ -720,24 +666,24 @@ static void ml_upd_block0(buf_T *buf, upd_block0_T what)
     ZERO_BL     *b0p;
     mfp = buf->b_ml.ml_mfp;
 
-    if (mfp == NULL || (hp = mf_get(mfp, 0, 1)) == NULL)
+    if(mfp == NULL || (hp = mf_get(mfp, 0, 1)) == NULL)
     {
         return;
     }
 
     b0p = hp->bh_data;
 
-    if (ml_check_b0_id(b0p) == FAIL)
+    if(ml_check_b0_id(b0p) == FAIL)
     {
         EMSG(_("E304: ml_upd_block0(): Didn't get block 0??"));
     }
     else
     {
-        if (what == UB_FNAME)
+        if(what == UB_FNAME)
         {
             set_b0_fname(b0p, buf);
         }
-        else     /* what == UB_SAME_DIR */
+        else // what == UB_SAME_DIR
         {
             set_b0_dir_flag(b0p, buf);
         }
@@ -746,38 +692,34 @@ static void ml_upd_block0(buf_T *buf, upd_block0_T what)
     mf_put(mfp, hp, true, false);
 }
 
-/*
- * Write file name and timestamp into block 0 of a swap file.
- * Also set buf->b_mtime.
- * Don't use NameBuff[]!!!
- */
+/// Write file name and timestamp into block 0 of a swap file.
+/// Also set buf->b_mtime.
+/// Don't use NameBuff[]!!!
 static void set_b0_fname(ZERO_BL *b0p, buf_T *buf)
 {
-    if (buf->b_ffname == NULL)
+    if(buf->b_ffname == NULL)
     {
         b0p->b0_fname[0] = NUL;
     }
     else
     {
         char uname[B0_UNAME_SIZE];
-        /*
-         * For a file under the home directory of the current user, we try to
-         * replace the home directory path with "~user". This helps when
-         * editing the same file on different machines over a network.
-         * First replace home dir path with "~/" with home_replace().
-         * Then insert the user name to get "~user/".
-         */
-        home_replace(NULL, buf->b_ffname, b0p->b0_fname,
-                     B0_FNAME_SIZE_CRYPT, TRUE);
 
-        if (b0p->b0_fname[0] == '~')
+        // For a file under the home directory of the current user, we try to
+        // replace the home directory path with "~user". This helps when
+        // editing the same file on different machines over a network.
+        // First replace home dir path with "~/" with home_replace().
+        // Then insert the user name to get "~user/".
+        home_replace(NULL, buf->b_ffname, b0p->b0_fname, B0_FNAME_SIZE_CRYPT, TRUE);
+
+        if(b0p->b0_fname[0] == '~')
         {
-            /* If there is no user name or it is too long, don't use "~/" */
+            // If there is no user name or it is too long, don't use "~/"
             int retval = os_get_user_name(uname, B0_UNAME_SIZE);
             size_t ulen = STRLEN(uname);
             size_t flen = STRLEN(b0p->b0_fname);
 
-            if (retval == FAIL || ulen + flen > B0_FNAME_SIZE_CRYPT - 1)
+            if(retval == FAIL || ulen + flen > B0_FNAME_SIZE_CRYPT - 1)
             {
                 STRLCPY(b0p->b0_fname, buf->b_ffname, B0_FNAME_SIZE_CRYPT);
             }
@@ -790,7 +732,7 @@ static void set_b0_fname(ZERO_BL *b0p, buf_T *buf)
 
         FileInfo file_info;
 
-        if (os_fileinfo((char *)buf->b_ffname, &file_info))
+        if(os_fileinfo((char *)buf->b_ffname, &file_info))
         {
             long_to_char(file_info.stat.st_mtim.tv_sec, b0p->b0_mtime);
             long_to_char((long)os_fileinfo_inode(&file_info), b0p->b0_ino);
@@ -808,19 +750,17 @@ static void set_b0_fname(ZERO_BL *b0p, buf_T *buf)
         }
     }
 
-    /* Also add the 'fileencoding' if there is room. */
+    // Also add the 'fileencoding' if there is room.
     add_b0_fenc(b0p, curbuf);
 }
 
-/*
- * Update the B0_SAME_DIR flag of the swap file.  It's set if the file and the
- * swapfile for "buf" are in the same directory.
- * This is fail safe: if we are not sure the directories are equal the flag is
- * not set.
- */
+/// Update the B0_SAME_DIR flag of the swap file.  It's set if the file and the
+/// swapfile for "buf" are in the same directory.
+/// This is fail safe: if we are not sure the directories are equal the flag is
+/// not set.
 static void set_b0_dir_flag(ZERO_BL *b0p, buf_T *buf)
 {
-    if (same_directory(buf->b_ml.ml_mfp->mf_fname, buf->b_ffname))
+    if(same_directory(buf->b_ml.ml_mfp->mf_fname, buf->b_ffname))
     {
         b0p->b0_flags |= B0_SAME_DIR;
     }
@@ -830,32 +770,27 @@ static void set_b0_dir_flag(ZERO_BL *b0p, buf_T *buf)
     }
 }
 
-/*
- * When there is room, add the 'fileencoding' to block zero.
- */
+/// When there is room, add the 'fileencoding' to block zero.
 static void add_b0_fenc(ZERO_BL *b0p, buf_T *buf)
 {
     int n;
     int size = B0_FNAME_SIZE_NOCRYPT;
     n = (int)STRLEN(buf->b_p_fenc);
 
-    if ((int)STRLEN(b0p->b0_fname) + n + 1 > size)
+    if((int)STRLEN(b0p->b0_fname) + n + 1 > size)
     {
         b0p->b0_flags &= ~B0_HAS_FENC;
     }
     else
     {
-        memmove((char *)b0p->b0_fname + size - n,
-                (char *)buf->b_p_fenc, (size_t)n);
+        memmove((char *)b0p->b0_fname + size - n, (char *)buf->b_p_fenc, (size_t)n);
         *(b0p->b0_fname + size - n - 1) = NUL;
         b0p->b0_flags |= B0_HAS_FENC;
     }
 }
 
 
-/*
- * Try to recover curbuf from the .swp file.
- */
+/// Try to recover curbuf from the .swp file.
 void ml_recover(void)
 {
     buf_T       *buf = NULL;
@@ -892,97 +827,94 @@ void ml_recover(void)
     recoverymode = TRUE;
     called_from_main = (curbuf->b_ml.ml_mfp == NULL);
     attr = hl_attr(HLF_E);
-    /*
-     * If the file name ends in ".s[uvw][a-z]" we assume this is the swap file.
-     * Otherwise a search is done to find the swap file(s).
-     */
+
+    // If the file name ends in ".s[uvw][a-z]" we assume this is the swap file.
+    // Otherwise a search is done to find the swap file(s).
     fname = curbuf->b_fname;
 
-    if (fname == NULL)                /* When there is no file name */
+    if(fname == NULL) // When there is no file name
     {
         fname = (char_u *)"";
     }
 
     len = (int)STRLEN(fname);
 
-    if (len >= 4
-            && STRNICMP(fname + len - 4, ".s", 2) == 0
-            && vim_strchr((char_u *)"UVWuvw", fname[len - 2]) != NULL
-            && ASCII_ISALPHA(fname[len - 1]))
+    if(len >= 4
+       && STRNICMP(fname + len - 4, ".s", 2) == 0
+       && vim_strchr((char_u *)"UVWuvw", fname[len - 2]) != NULL
+       && ASCII_ISALPHA(fname[len - 1]))
     {
         directly = TRUE;
-        fname_used = vim_strsave(fname);     /* make a copy for mf_open() */
+        fname_used = vim_strsave(fname); // make a copy for mf_open()
     }
     else
     {
         directly = FALSE;
-        /* count the number of matching swap files */
+        // count the number of matching swap files
         len = recover_names(fname, FALSE, 0, NULL);
 
-        if (len == 0)                   /* no swap files found */
+        if(len == 0) // no swap files found
         {
             EMSG2(_("E305: No swap file found for %s"), fname);
             goto theend;
         }
 
-        if (len == 1)                   /* one swap file found, use it */
+        if(len == 1) // one swap file found, use it
         {
             i = 1;
         }
-        else                            /* several swap files found, choose */
+        else // several swap files found, choose
         {
-            /* list the names of the swap files */
+            // list the names of the swap files
             (void)recover_names(fname, TRUE, 0, NULL);
             msg_putchar('\n');
             MSG_PUTS(_("Enter number of swap file to use (0 to quit): "));
             i = get_number(FALSE, NULL);
 
-            if (i < 1 || i > len)
+            if(i < 1 || i > len)
             {
                 goto theend;
             }
         }
 
-        /* get the swap file name that will be used */
+        // get the swap file name that will be used
         (void)recover_names(fname, FALSE, i, &fname_used);
     }
 
-    if (fname_used == NULL)
+    if(fname_used == NULL)
     {
-        goto theend;    // user chose invalid number.
+        goto theend; // user chose invalid number.
     }
 
-    /* When called from main() still need to initialize storage structure */
-    if (called_from_main && ml_open(curbuf) == FAIL)
+    // When called from main() still need to initialize storage structure
+    if(called_from_main && ml_open(curbuf) == FAIL)
     {
         getout(1);
     }
 
-    /*
-     * Allocate a buffer structure for the swap file that is used for recovery.
-     * Only the memline in it is really used.
-     */
+    // Allocate a buffer structure for the swap file that is used for recovery.
+    // Only the memline in it is really used.
     buf = xmalloc(sizeof(buf_T));
-    /*
-     * init fields in memline struct
-     */
-    buf->b_ml.ml_stack_size = 0;          /* no stack yet */
-    buf->b_ml.ml_stack = NULL;            /* no stack yet */
-    buf->b_ml.ml_stack_top = 0;           /* nothing in the stack */
-    buf->b_ml.ml_line_lnum = 0;           /* no cached line */
-    buf->b_ml.ml_locked = NULL;           /* no locked block */
+
+    // init fields in memline struct
+    buf->b_ml.ml_stack_size = 0;  // no stack yet
+    buf->b_ml.ml_stack = NULL;    // no stack yet
+    buf->b_ml.ml_stack_top = 0;   // nothing in the stack
+    buf->b_ml.ml_line_lnum = 0;   // no cached line
+    buf->b_ml.ml_locked = NULL;   // no locked block
     buf->b_ml.ml_flags = 0;
-    /*
-     * open the memfile from the old swap file
-     */
-    p = vim_strsave(fname_used);   /* save "fname_used" for the message:
-                                    mf_open() will consume "fname_used"! */
+
+    // open the memfile from the old swap file
+    // save "fname_used" for the message:
+    // mf_open() will consume "fname_used"!
+    p = vim_strsave(fname_used);
+
     mfp = mf_open(fname_used, O_RDONLY);
     fname_used = p;
 
-    if (mfp == NULL || mfp->mf_fd < 0)
+    if(mfp == NULL || mfp->mf_fd < 0)
     {
-        if (fname_used != NULL)
+        if(fname_used != NULL)
         {
             EMSG2(_("E306: Cannot open %s"), fname_used);
         }
@@ -991,56 +923,52 @@ void ml_recover(void)
     }
 
     buf->b_ml.ml_mfp = mfp;
-    /*
-     * The page size set in mf_open() might be different from the page size
-     * used in the swap file, we must get it from block 0.  But to read block
-     * 0 we need a page size.  Use the minimal size for block 0 here, it will
-     * be set to the real value below.
-     */
+
+    // The page size set in mf_open() might be different from the page size
+    // used in the swap file, we must get it from block 0.  But to read block
+    // 0 we need a page size.  Use the minimal size for block 0 here, it will
+    // be set to the real value below.
     mfp->mf_page_size = MIN_SWAP_PAGE_SIZE;
 
-    /*
-     * try to read block 0
-     */
-    if ((hp = mf_get(mfp, 0, 1)) == NULL)
+    // try to read block 0
+    if((hp = mf_get(mfp, 0, 1)) == NULL)
     {
         msg_start();
         MSG_PUTS_ATTR(_("Unable to read block 0 from "), attr | MSG_HIST);
         msg_outtrans_attr(mfp->mf_fname, attr | MSG_HIST);
-        MSG_PUTS_ATTR(_(
-                          "\nMaybe no changes were made or Vim did not update the swap file."),
+
+        MSG_PUTS_ATTR(_("\nMaybe no changes were made or Vim did not update the swap file."),
                       attr | MSG_HIST);
+
         msg_end();
         goto theend;
     }
 
     b0p = hp->bh_data;
 
-    if (STRNCMP(b0p->b0_version, "VIM 3.0", 7) == 0)
+    if(STRNCMP(b0p->b0_version, "VIM 3.0", 7) == 0)
     {
         msg_start();
         msg_outtrans_attr(mfp->mf_fname, MSG_HIST);
-        MSG_PUTS_ATTR(_(" cannot be used with this version of Vim.\n"),
-                      MSG_HIST);
+        MSG_PUTS_ATTR(_(" cannot be used with this version of Vim.\n"), MSG_HIST);
         MSG_PUTS_ATTR(_("Use Vim version 3.0.\n"), MSG_HIST);
         msg_end();
         goto theend;
     }
 
-    if (ml_check_b0_id(b0p) == FAIL)
+    if(ml_check_b0_id(b0p) == FAIL)
     {
         EMSG2(_("E307: %s does not look like a Vim swap file"), mfp->mf_fname);
         goto theend;
     }
 
-    if (b0_magic_wrong(b0p))
+    if(b0_magic_wrong(b0p))
     {
         msg_start();
         msg_outtrans_attr(mfp->mf_fname, attr | MSG_HIST);
-        MSG_PUTS_ATTR(_(" cannot be used on this computer.\n"),
-                      attr | MSG_HIST);
+        MSG_PUTS_ATTR(_(" cannot be used on this computer.\n"), attr | MSG_HIST);
         MSG_PUTS_ATTR(_("The file was created on "), attr | MSG_HIST);
-        /* avoid going past the end of a corrupted hostname */
+        // avoid going past the end of a corrupted hostname
         b0p->b0_fname[0] = NUL;
         MSG_PUTS_ATTR(b0p->b0_hname, attr | MSG_HIST);
         MSG_PUTS_ATTR(_(",\nor the file has been damaged."), attr | MSG_HIST);
@@ -1048,29 +976,28 @@ void ml_recover(void)
         goto theend;
     }
 
-    /*
-     * If we guessed the wrong page size, we have to recalculate the
-     * highest block number in the file.
-     */
-    if (mfp->mf_page_size != (unsigned)char_to_long(b0p->b0_page_size))
+    // If we guessed the wrong page size, we have to recalculate the
+    // highest block number in the file.
+    if(mfp->mf_page_size != (unsigned)char_to_long(b0p->b0_page_size))
     {
         unsigned previous_page_size = mfp->mf_page_size;
         mf_new_page_size(mfp, (unsigned)char_to_long(b0p->b0_page_size));
 
-        if (mfp->mf_page_size < previous_page_size)
+        if(mfp->mf_page_size < previous_page_size)
         {
             msg_start();
             msg_outtrans_attr(mfp->mf_fname, attr | MSG_HIST);
-            MSG_PUTS_ATTR(_(
-                              " has been damaged (page size is smaller than minimum value).\n"),
+
+            MSG_PUTS_ATTR(_(" has been damaged (page size is smaller than minimum value).\n"),
                           attr | MSG_HIST);
+
             msg_end();
             goto theend;
         }
 
-        if ((size = lseek(mfp->mf_fd, (off_t)0L, SEEK_END)) <= 0)
+        if((size = lseek(mfp->mf_fd, (off_t)0L, SEEK_END)) <= 0)
         {
-            mfp->mf_blocknr_max = 0;    /* no file or empty file */
+            mfp->mf_blocknr_max = 0; // no file or empty file
         }
         else
         {
@@ -1078,7 +1005,7 @@ void ml_recover(void)
         }
 
         mfp->mf_infile_count = mfp->mf_blocknr_max;
-        /* need to reallocate the memory used to store the data */
+        // need to reallocate the memory used to store the data
         p = xmalloc(mfp->mf_page_size);
         memmove(p, hp->bh_data, previous_page_size);
         xfree(hp->bh_data);
@@ -1086,14 +1013,11 @@ void ml_recover(void)
         b0p = hp->bh_data;
     }
 
-    /*
-     * If .swp file name given directly, use name from swap file for buffer.
-     */
-    if (directly)
+    // If .swp file name given directly, use name from swap file for buffer.
+    if(directly)
     {
         expand_env(b0p->b0_fname, NameBuff, MAXPATHL);
-
-        if (setfname(curbuf, NameBuff, NULL, TRUE) == FAIL)
+        if(setfname(curbuf, NameBuff, NULL, TRUE) == FAIL)
         {
             goto theend;
         }
@@ -1102,7 +1026,7 @@ void ml_recover(void)
     home_replace(NULL, mfp->mf_fname, NameBuff, MAXPATHL, TRUE);
     smsg(_("Using swap file \"%s\""), NameBuff);
 
-    if (buf_spname(curbuf) != NULL)
+    if(buf_spname(curbuf) != NULL)
     {
         STRLCPY(NameBuff, buf_spname(curbuf), MAXPATHL);
     }
@@ -1113,81 +1037,84 @@ void ml_recover(void)
 
     smsg(_("Original file \"%s\""), NameBuff);
     msg_putchar('\n');
-    /*
-     * check date of swap file and original file
-     */
+
+    // check date of swap file and original file
     FileInfo org_file_info;
     FileInfo swp_file_info;
     mtime = char_to_long(b0p->b0_mtime);
 
-    if (curbuf->b_ffname != NULL
-            && os_fileinfo((char *)curbuf->b_ffname, &org_file_info)
-            && ((os_fileinfo((char *)mfp->mf_fname, &swp_file_info)
-                 && org_file_info.stat.st_mtim.tv_sec
-                 > swp_file_info.stat.st_mtim.tv_sec)
-                || org_file_info.stat.st_mtim.tv_sec != mtime))
+    if(curbuf->b_ffname != NULL
+       && os_fileinfo((char *)curbuf->b_ffname, &org_file_info)
+       && ((os_fileinfo((char *)mfp->mf_fname, &swp_file_info)
+            && org_file_info.stat.st_mtim.tv_sec > swp_file_info.stat.st_mtim.tv_sec)
+           || org_file_info.stat.st_mtim.tv_sec != mtime))
     {
         EMSG(_("E308: Warning: Original file may have been changed"));
     }
 
     ui_flush();
-    /* Get the 'fileformat' and 'fileencoding' from block zero. */
+    // Get the 'fileformat' and 'fileencoding' from block zero.
     b0_ff = (b0p->b0_flags & B0_FF_MASK);
 
-    if (b0p->b0_flags & B0_HAS_FENC)
+    if(b0p->b0_flags & B0_HAS_FENC)
     {
         int fnsize = B0_FNAME_SIZE_NOCRYPT;
 
-        for (p = b0p->b0_fname + fnsize; p > b0p->b0_fname && p[-1] != NUL; --p)
-            ;
+        for(p = b0p->b0_fname + fnsize; p > b0p->b0_fname && p[-1] != NUL; --p)
+        {
+            // empty body
+        }
 
         b0_fenc = vim_strnsave(p, (int)(b0p->b0_fname + fnsize - p));
     }
 
-    mf_put(mfp, hp, false, false);        /* release block 0 */
+    mf_put(mfp, hp, false, false); // release block 0
     hp = NULL;
 
-    /*
-     * Now that we are sure that the file is going to be recovered, clear the
-     * contents of the current buffer.
-     */
-    while (!(curbuf->b_ml.ml_flags & ML_EMPTY))
+    // Now that we are sure that the file is going to be recovered, clear the
+    // contents of the current buffer.
+    while(!(curbuf->b_ml.ml_flags & ML_EMPTY))
     {
         ml_delete((linenr_T)1, FALSE);
     }
 
-    /*
-     * Try reading the original file to obtain the values of 'fileformat',
-     * 'fileencoding', etc.  Ignore errors.  The text itself is not used.
-     */
-    if (curbuf->b_ffname != NULL)
-        orig_file_status = readfile(curbuf->b_ffname, NULL, (linenr_T)0,
-                                    (linenr_T)0, (linenr_T)MAXLNUM, NULL, READ_NEW);
+    // Try reading the original file to obtain the values of 'fileformat',
+    // 'fileencoding', etc.  Ignore errors.  The text itself is not used.
+    if(curbuf->b_ffname != NULL)
+    {
+        orig_file_status = readfile(curbuf->b_ffname,
+                                    NULL,
+                                    (linenr_T)0,
+                                    (linenr_T)0,
+                                    (linenr_T)MAXLNUM,
+                                    NULL,
+                                    READ_NEW);
+    }
 
-    /* Use the 'fileformat' and 'fileencoding' as stored in the swap file. */
-    if (b0_ff != 0)
+    // Use the 'fileformat' and 'fileencoding' as stored in the swap file.
+    if(b0_ff != 0)
     {
         set_fileformat(b0_ff - 1, OPT_LOCAL);
     }
 
-    if (b0_fenc != NULL)
+    if(b0_fenc != NULL)
     {
         set_option_value("fenc", 0L, (char *)b0_fenc, OPT_LOCAL);
         xfree(b0_fenc);
     }
 
     unchanged(curbuf, TRUE);
-    bnum = 1;             /* start with block 1 */
-    page_count = 1;       /* which is 1 page */
-    lnum = 0;             /* append after line 0 in curbuf */
+    bnum = 1; // start with block 1
+    page_count = 1; // which is 1 page
+    lnum = 0; // append after line 0 in curbuf
     line_count = 0;
-    idx = 0;              /* start with first index in block 1 */
+    idx = 0; // start with first index in block 1
     error = 0;
     buf->b_ml.ml_stack_top = 0;
     buf->b_ml.ml_stack = NULL;
-    buf->b_ml.ml_stack_size = 0;          /* no stack yet */
+    buf->b_ml.ml_stack_size = 0; // no stack yet
 
-    if (curbuf->b_ffname == NULL)
+    if(curbuf->b_ffname == NULL)
     {
         cannot_open = TRUE;
     }
@@ -1198,72 +1125,68 @@ void ml_recover(void)
 
     serious_error = FALSE;
 
-    for (; !got_int; line_breakcheck())
+    for(; !got_int; line_breakcheck())
     {
-        if (hp != NULL)
+        if(hp != NULL)
         {
-            mf_put(mfp, hp, false, false);    /* release previous block */
+            mf_put(mfp, hp, false, false); // release previous block
         }
 
-        /*
-         * get block
-         */
-        if ((hp = mf_get(mfp, bnum, page_count)) == NULL)
+        // get block
+        if((hp = mf_get(mfp, bnum, page_count)) == NULL)
         {
-            if (bnum == 1)
+            if(bnum == 1)
             {
                 EMSG2(_("E309: Unable to read block 1 from %s"), mfp->mf_fname);
                 goto theend;
             }
 
             ++error;
-            ml_append(lnum++, (char_u *)_("???MANY LINES MISSING"),
-                      (colnr_T)0, TRUE);
+            ml_append(lnum++, (char_u *)_("???MANY LINES MISSING"), (colnr_T)0, TRUE);
         }
-        else              /* there is a block */
+        else // there is a block
         {
             pp = hp->bh_data;
 
-            if (pp->pb_id == PTR_ID)                  /* it is a pointer block */
+            if(pp->pb_id == PTR_ID) // it is a pointer block
             {
-                /* check line count when using pointer block first time */
-                if (idx == 0 && line_count != 0)
+                // check line count when using pointer block first time
+                if(idx == 0 && line_count != 0)
                 {
-                    for (i = 0; i < (int)pp->pb_count; ++i)
+                    for(i = 0; i < (int)pp->pb_count; ++i)
                     {
                         line_count -= pp->pb_pointer[i].pe_line_count;
                     }
 
-                    if (line_count != 0)
+                    if(line_count != 0)
                     {
                         ++error;
-                        ml_append(lnum++, (char_u *)_("???LINE COUNT WRONG"),
-                                  (colnr_T)0, TRUE);
+                        ml_append(lnum++, (char_u *)_("???LINE COUNT WRONG"), (colnr_T)0, TRUE);
                     }
                 }
 
-                if (pp->pb_count == 0)
+                if(pp->pb_count == 0)
                 {
-                    ml_append(lnum++, (char_u *)_("???EMPTY BLOCK"),
-                              (colnr_T)0, TRUE);
+                    ml_append(lnum++, (char_u *)_("???EMPTY BLOCK"), (colnr_T)0, TRUE);
                     ++error;
                 }
-                else if (idx < (int)pp->pb_count)             /* go a block deeper */
+                else if(idx < (int)pp->pb_count) // go a block deeper
                 {
-                    if (pp->pb_pointer[idx].pe_bnum < 0)
+                    if(pp->pb_pointer[idx].pe_bnum < 0)
                     {
-                        /*
-                         * Data block with negative block number.
-                         * Try to read lines from the original file.
-                         * This is slow, but it works.
-                         */
-                        if (!cannot_open)
+                        // Data block with negative block number.
+                        // Try to read lines from the original file.
+                        // This is slow, but it works.
+                        if(!cannot_open)
                         {
                             line_count = pp->pb_pointer[idx].pe_line_count;
 
-                            if (readfile(curbuf->b_ffname, NULL, lnum,
-                                         pp->pb_pointer[idx].pe_old_lnum - 1, line_count,
-                                         NULL, 0) != OK)
+                            if(readfile(curbuf->b_ffname,
+                                        NULL,
+                                        lnum,
+                                        pp->pb_pointer[idx].pe_old_lnum - 1,
+                                        line_count,
+                                        NULL, 0) != OK)
                             {
                                 cannot_open = true;
                             }
@@ -1273,21 +1196,18 @@ void ml_recover(void)
                             }
                         }
 
-                        if (cannot_open)
+                        if(cannot_open)
                         {
                             ++error;
-                            ml_append(lnum++, (char_u *)_("???LINES MISSING"),
-                                      (colnr_T)0, TRUE);
+                            ml_append(lnum++, (char_u *)_("???LINES MISSING"), (colnr_T)0, TRUE);
                         }
 
-                        ++idx;                  /* get same block again for next index */
+                        ++idx; // get same block again for next index
                         continue;
                     }
 
-                    /*
-                     * going one block deeper in the tree
-                     */
-                    top = ml_add_stack(buf);  // new entry in stack
+                    // going one block deeper in the tree
+                    top = ml_add_stack(buf); // new entry in stack
                     ip = &(buf->b_ml.ml_stack[top]);
                     ip->ip_bnum = bnum;
                     ip->ip_index = idx;
@@ -1298,68 +1218,61 @@ void ml_recover(void)
                     continue;
                 }
             }
-            else                /* not a pointer block */
+            else // not a pointer block
             {
                 dp = hp->bh_data;
 
-                if (dp->db_id != DATA_ID)               /* block id wrong */
+                if(dp->db_id != DATA_ID) // block id wrong
                 {
-                    if (bnum == 1)
+                    if(bnum == 1)
                     {
-                        EMSG2(_("E310: Block 1 ID wrong (%s not a .swp file?)"),
-                              mfp->mf_fname);
+                        EMSG2(_("E310: Block 1 ID wrong (%s not a .swp file?)"), mfp->mf_fname);
                         goto theend;
                     }
 
                     ++error;
-                    ml_append(lnum++, (char_u *)_("???BLOCK MISSING"),
-                              (colnr_T)0, TRUE);
+                    ml_append(lnum++, (char_u *)_("???BLOCK MISSING"), (colnr_T)0, TRUE);
                 }
                 else
                 {
-                    /*
-                     * it is a data block
-                     * Append all the lines in this block
-                     */
+                    // it is a data block
+                    // Append all the lines in this block
                     has_error = FALSE;
 
-                    /*
-                     * check length of block
-                     * if wrong, use length in pointer block
-                     */
-                    if (page_count * mfp->mf_page_size != dp->db_txt_end)
+                    // check length of block
+                    // if wrong, use length in pointer block
+                    if(page_count * mfp->mf_page_size != dp->db_txt_end)
                     {
                         ml_append(lnum++,
                                   (char_u *)_("??? from here until ???END lines may be messed up"),
-                                  (colnr_T)0, TRUE);
+                                  (colnr_T)0,
+                                  TRUE);
+
                         ++error;
                         has_error = TRUE;
                         dp->db_txt_end = page_count * mfp->mf_page_size;
                     }
 
-                    /* make sure there is a NUL at the end of the block */
+                    // make sure there is a NUL at the end of the block
                     *((char_u *)dp + dp->db_txt_end - 1) = NUL;
 
-                    /*
-                     * check number of lines in block
-                     * if wrong, use count in data block
-                     */
-                    if (line_count != dp->db_line_count)
+                    // check number of lines in block
+                    // if wrong, use count in data block
+                    if(line_count != dp->db_line_count)
                     {
                         ml_append(lnum++,
-                                  (char_u *)_(
-                                      "??? from here until ???END lines may have been inserted/deleted"),
+                                  (char_u *)_("??? from here until ???END lines may have been inserted/deleted"),
                                   (colnr_T)0, TRUE);
+
                         ++error;
                         has_error = TRUE;
                     }
 
-                    for (i = 0; i < dp->db_line_count; ++i)
+                    for(i = 0; i < dp->db_line_count; ++i)
                     {
                         txt_start = (dp->db_index[i] & DB_INDEX_MASK);
 
-                        if (txt_start <= (int)HEADER_SIZE
-                                || txt_start >= (int)dp->db_txt_end)
+                        if(txt_start <= (int)HEADER_SIZE || txt_start >= (int)dp->db_txt_end)
                         {
                             p = (char_u *)"???";
                             ++error;
@@ -1372,39 +1285,36 @@ void ml_recover(void)
                         ml_append(lnum++, p, (colnr_T)0, TRUE);
                     }
 
-                    if (has_error)
-                        ml_append(lnum++, (char_u *)_("???END"),
-                                  (colnr_T)0, TRUE);
+                    if(has_error)
+                    {
+                        ml_append(lnum++, (char_u *)_("???END"), (colnr_T)0, TRUE);
+                    }
                 }
             }
         }
 
-        if (buf->b_ml.ml_stack_top == 0)            /* finished */
+        if(buf->b_ml.ml_stack_top == 0) // finished
         {
             break;
         }
 
-        /*
-         * go one block up in the tree
-         */
+        // go one block up in the tree
         ip = &(buf->b_ml.ml_stack[--(buf->b_ml.ml_stack_top)]);
         bnum = ip->ip_bnum;
-        idx = ip->ip_index + 1;         /* go to next index */
+        idx = ip->ip_index + 1; // go to next index
         page_count = 1;
     }
 
-    /*
-     * Compare the buffer contents with the original file.  When they differ
-     * set the 'modified' flag.
-     * Lines 1 - lnum are the new contents.
-     * Lines lnum + 1 to ml_line_count are the original contents.
-     * Line ml_line_count + 1 in the dummy empty line.
-     */
-    if (orig_file_status != OK || curbuf->b_ml.ml_line_count != lnum * 2 + 1)
+    // Compare the buffer contents with the original file.  When they differ
+    // set the 'modified' flag.
+    // Lines 1 - lnum are the new contents.
+    // Lines lnum + 1 to ml_line_count are the original contents.
+    // Line ml_line_count + 1 in the dummy empty line.
+    if(orig_file_status != OK || curbuf->b_ml.ml_line_count != lnum * 2 + 1)
     {
         /* Recovering an empty file results in two lines and the first line is
          * empty.  Don't set the modified flag then. */
-        if (!(curbuf->b_ml.ml_line_count == 2 && *ml_get(1) == NUL))
+        if(!(curbuf->b_ml.ml_line_count == 2 && *ml_get(1) == NUL))
         {
             changed_int();
             buf_set_changedtick(curbuf, curbuf->b_changedtick + 1);

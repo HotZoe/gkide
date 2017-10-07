@@ -2063,15 +2063,14 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
 
 static int prt_check_resource(struct prt_ps_resource_S *resource, char_u *version)
 {
-    /* Version number m.n should match, the revision number does not matter */
+    // Version number m.n should match, the revision number does not matter
     if (STRNCMP(resource->version, version, STRLEN(version)))
     {
-        EMSG2(_("E621: \"%s\" resource file has wrong version"),
-              resource->name);
+        EMSG2(_("E621: \"%s\" resource file has wrong version"), resource->name);
         return FALSE;
     }
 
-    /* Other checks to be added as needed */
+    // Other checks to be added as needed
     return TRUE;
 }
 

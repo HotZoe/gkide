@@ -2691,7 +2691,15 @@ void list_version(void)
     version_msg(msg_buf);
 
     // directories layout
-    version_msg("\n   directory layout: bin, etc, plg, doc, loc\n");
+    version_msg("\n     Default Layout: bin, etc, plg, doc, loc\n");
+
+    version_msg("\n      System nvimrc: $GKIDE_SYS_HOME/etc/config.nvimrc or $GKIDE_NVIM_SYS_CFG");
+    version_msg("\n        User nvimrc: $GKIDE_USR_HOME/etc/config.nvimrc or $GKIDE_NVIM_USR_CFG");
+    version_msg("\n     Project nvimrc: $GKIDE_DYN_HOME/etc/config.nvimrc or $GKIDE_NVIM_DYN_CFG\n");
+
+    version_msg("\n       System cmdrc: $GKIDE_SYS_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_SYS_CMD");
+    version_msg("\n         User cmdrc: $GKIDE_USR_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_USR_CMD");
+    version_msg("\n      Project cmdrc: $GKIDE_DYN_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_DYN_CMD");
 }
 
 /// Output a string for the version message.  If it's going to wrap, output a

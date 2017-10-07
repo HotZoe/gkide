@@ -9766,10 +9766,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 }
 
 #if defined(EINTR)
-/*
- * Version of read() that retries when interrupted by EINTR (possibly
- * by a SIGWINCH).
- */
+/// Version of read() that retries when interrupted by EINTR (possibly by a SIGWINCH).
 long read_eintr(int fd, void *buf, size_t bufsize)
 {
     long ret;
@@ -9787,10 +9784,7 @@ long read_eintr(int fd, void *buf, size_t bufsize)
     return ret;
 }
 
-/*
- * Version of write() that retries when interrupted by EINTR (possibly
- * by a SIGWINCH).
- */
+/// Version of write() that retries when interrupted by EINTR (possibly by a SIGWINCH).
 long write_eintr(int fd, void *buf, size_t bufsize)
 {
     long ret = 0;
