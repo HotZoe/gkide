@@ -28,4 +28,18 @@
 // check dependency libraries
 #cmakedefine FOUND_WORKING_JEMALLOC
 
+#define GKIDE_NVIM   "nvim"
+#define GKIDE_SNAIL  "snail"
+
+// Environment Variables
+#define ENV_GKIDE_SYS_HOME  "GKIDE_SYS_HOME"
+#define ENV_GKIDE_USR_HOME  "GKIDE_USR_HOME"
+#define ENV_GKIDE_DYN_HOME  "GKIDE_DYN_HOME"
+
+/// the local directory,  is **loc/language**
+#define ENV_GKIDE_NVIM_LANGUAGE  "GKIDE_NVIM_LANGUAGE"
+
+/// nvim runtime logging file
+#define ENV_GKIDE_NVIM_LOGGINGS  "GKIDE_NVIM_LOGGINGS"
+
 #endif // GKIDE_GENERATED_CONFIG_CONFIG_H

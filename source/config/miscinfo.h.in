@@ -8,6 +8,7 @@
 #define BUILD_ON_HOST            "@BUILD_HOST_NAME@"
 #define BUILD_BY_USER            "@BUILD_USER_NAME@"
 #define BUILD_DATA_TIME          "@RELEASE_BUILD_TIMESTAMP@"
+#define BUILD_TIMESTAMP          "@GKIDE_BUILD_TIMESTAMP@"
 
 #define GIT_BRANCH_NAME          "@GIT_BRANCH_NAME@"
 #define GIT_COMMIT_DATE          "@GIT_COMMIT_DATE@"
@@ -16,16 +17,12 @@
 #define GIT_COMMIT_HASH          "@GIT_COMMIT_HASH_SHORT@"
 #define GIT_COMMIT_HASH_FULL     "@GIT_COMMIT_HASH_FULL@"
 
-#define NVIM_BUILD_DATE          __DATE__
-#define NVIM_BUILD_TIME          __TIME__
 #define NVIM_BUILD_TYPE          "@CMAKE_BUILD_TYPE@"
 #define NVIM_BUILD_CFLAGS        "@NVIM_BUILD_CFLAGS@"
 #define C_COMPLIER               "@CMAKE_C_COMPILER@"
 #define C_COMPLIER_ID            "@CMAKE_C_COMPILER_ID@"
 #define C_COMPLIER_VERSION       "@CMAKE_C_COMPILER_VERSION@"
 
-#define SNAIL_BUILD_DATE         __DATE__
-#define SNAIL_BUILD_TIME         __TIME__
 #define SNAIL_BUILD_TYPE         "@CMAKE_BUILD_TYPE@"
 #define SNAIL_BUILD_CXXFLAGS     "@SNAIL_BUILD_CXXFLAGS@"
 #define CXX_COMPLIER             "@CMAKE_CXX_COMPILER@"

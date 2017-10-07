@@ -12,11 +12,13 @@
 #include "nvim/os/os.h"
 #include "nvim/os/time.h"
 
+#include "config.h"
+
 /// First location of the log file used by log_path_init()
-#define USR_LOG_FILE          "$GKIDE_NVIM_LOG_FILE"
+#define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_LOGGINGS
 
 /// Fall back location of the log file used by log_path_init()
-#define USR_LOG_FILE_DEFAULT  "$HOME" _PATHSEPSTR ".gkide" _PATHSEPSTR "nvim.log"
+#define USR_LOG_FILE_DEFAULT  "$" ENV_GKIDE_USR_HOME _PATHSEPSTR "nvim.log"
 
 /// Cached location of the log file set by log_path_init()
 static char expanded_log_file_path[MAXPATHL + 1] = { 0 };
@@ -61,6 +63,8 @@ static bool log_path_init(void)
             return false;
         }
     }
+
+    INFO_MSG("runtime logfile=> %s", expanded_log_file_path);
 
     return true;
 }

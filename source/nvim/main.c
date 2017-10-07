@@ -70,6 +70,7 @@
 #include "nvim/api/private/dispatch.h"
 
 #include "config.h"
+#include "pathdef.h"
 
 #define WIN_HOR      1   ///< *-o* horizontally split windows for `window_layout`
 #define WIN_VER      2   ///< *-O* vertically split windows for `window_layout`
@@ -197,14 +198,21 @@ static void early_init(void)
     init_yank(); // init yank buffers
     alist_init(&global_alist); // Init the argument list to empty.
     global_alist.id = 0;
-    // Find out the home directory, needed to expand "~" in options.
-    init_homedir(); // find real value of $HOME
+
+    init_gkide_usr_home(); // Find out the gkide user home directory
+    assert(gkide_usr_home != NULL);
+
+    init_homedir();
+
     // Set the default values for the options.
     // NOTE: Non-latin1 translated messages are working only after this,
     // because this is where "has_mbyte" will be set, which is used by
     // msg_outtrans_len_attr().
     set_init_1();
-    TIME_MSG("init part-1");
+    TIME_MSG("set_init_1");
+
+    init_gkide_dyn_home(); // Find out the dynamic home directory
+
     set_lang_var(); // set v:lang and v:ctype
 }
 
@@ -668,34 +676,46 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 #if defined(HAVE_HDR_LOCALE_H)
-/// Setup to use the current locale (for ctype() and many other things).
+/// Setup to use the current locale, for ctype() and many other things.
 static void init_locale(void)
 {
+    // each part of the locale that should be modified is set according
+    // to the environment variables, see '$ man setlocale' for details.
     setlocale(LC_ALL, "");
-#ifdef LC_NUMERIC
+
+    #ifdef LC_NUMERIC
     // Make sure strtod() uses a decimal point, not a comma.
     setlocale(LC_NUMERIC, "C");
-#endif
-#ifdef LOCALE_INSTALL_DIR    // gnu/linux standard: $prefix/share/locale
-    bindtextdomain(PROJECT_NAME, LOCALE_INSTALL_DIR);
-#else                        // old vim style: $runtime/lang
+    #endif
+
+    // the default local root directory for nvim, which is
+    // $GKIDE_SYS_HOME/loc/language
+    vim_snprintf((char *)NameBuff, MAXPATHL,
+                 "%s" _PATHSEPSTR "loc" _PATHSEPSTR "language", gkide_sys_home);
+
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
-    char_u *p = (char_u *)vim_getenv("VIMRUNTIME");
+    char_u *p = (char_u *)vim_getenv(ENV_GKIDE_NVIM_LANGUAGE);
 
-    if (p != NULL && *p != NUL)
+    if(p != NULL && *p != NUL)
     {
-        vim_snprintf((char *)NameBuff, MAXPATHL, "%s/lang", p);
-        bindtextdomain(PROJECT_NAME, (char *)NameBuff);
+        // user env settings comes first, overwrite
+        vim_snprintf((char *)NameBuff, MAXPATHL, "%s", p);
+
+    }
+    xfree(p);
+
+    if(!os_path_exists(NameBuff))
+    {
+        TIME_MSG("nvim local directory not exists");
     }
 
-    xfree(p);
-#endif
-    textdomain(PROJECT_NAME);
-    TIME_MSG("init locale");
+    bindtextdomain(GKIDE_NVIM, (char *)NameBuff);
+    textdomain(GKIDE_NVIM);
+
+    INFO_MSG("nvim local bind=> %s", NameBuff);
 }
 #endif
-
 
 /// Scan the command line arguments.
 static void command_line_scan(mparm_T *parmp)
@@ -1358,6 +1378,52 @@ static void check_and_set_isatty(mparm_T *paramp)
     TIME_MSG("tty window checked");
 }
 
+static void init_gkide_sys_home(const char *exepath)
+{
+    if(exepath == NULL)
+    {
+        TIME_MSG("GKIDE_SYS_HOME is NULL, this should be fixed");
+        return;
+    }
+
+    char path_buf[MAXPATHL] = { 0 };
+    snprintf(path_buf, MAXPATHL, "%s", exepath);
+
+    char *idx = path_buf;
+    while(*idx != NUL)
+    {
+        idx++;
+    }
+
+    do
+    {
+        *idx = NUL;
+        idx--;
+    } while(vim_ispathsep(*idx) == 0);
+
+    // check if the current running 'nvim' or 'nvim.exe' is in directory named 'bin'
+    // .../bin/nvim or .../bin/nvim.exe, this is what we want, if not, then the directory layout
+    // is unknown and do not touch it, just use it as gkide system home directory.
+    idx = idx -4;
+    if(idx[0] == idx[4] && idx[1] == 'b' && idx[2] == 'i' && idx[3] == 'n')
+    {
+        idx[0] = NUL; // default directory layout
+    }
+
+    if(gkide_sys_home)
+    {
+        // In case we are called a second time.
+        xfree(gkide_sys_home);
+        gkide_sys_home = NULL;
+    }
+
+    gkide_sys_home = xstrdup(path_buf);
+
+    vim_setenv(ENV_GKIDE_SYS_HOME, gkide_sys_home);
+
+    INFO_MSG("GKIDE_SYS_HOME => %s", gkide_sys_home);
+}
+
 // Sets v:progname and v:progpath. Also modifies $PATH on Windows.
 static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
 {
@@ -1369,6 +1435,9 @@ static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
         // Fall back to argv[0]. Missing procfs? #6734
         path_guess_exepath(exename, exepath, sizeof(exepath));
     }
+
+    init_gkide_sys_home(exepath);
+    assert(gkide_sys_home != NULL);
 
     set_vim_var_string(VV_PROGPATH, exepath, -1);
     set_vim_var_string(VV_PROGNAME, (char *)path_tail((char_u *)exename), -1);

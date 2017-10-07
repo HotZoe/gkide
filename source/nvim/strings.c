@@ -51,7 +51,7 @@
 
 #include "config.h"
 
-/// Copy `string` into newly allocated memory.
+/// Copy **string** into newly allocated memory.
 char_u *vim_strsave(const char_u *string)
 FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
 {

@@ -25,25 +25,16 @@
 #include "pathdef.h"
 #include "versiondef.h"
 
-// for ":version", ":intro", and "nvim --version"
-#ifndef NVIM_VERSION_MEDIUM
-    #define NVIM_VERSION_MEDIUM     "v" STR(NVIM_VERSION_MAJOR) "." \
-                                        STR(NVIM_VERSION_MINOR) "." \
-                                        STR(NVIM_VERSION_PATCH)
-#endif
+// for ":version", "nvim --version"
+#define NVIM_VERSION_LONG    "nvim v" NVIM_VERSION_BASIC
 
-#define NVIM_VERSION_LONG           "NVIM " NVIM_VERSION_MEDIUM
-
+#define NVIM_VERSION_FULL    NVIM_VERSION_LONG "-" RELEASE_VERSION_HASH
 
 char *Version = VIM_VERSION_SHORT;
-char *longVersion = NVIM_VERSION_LONG;
-char *version_buildtype = "Build type: " NVIM_BUILD_TYPE;
-char *version_cflags = "Compilation: " NVIM_BUILD_CFLAGS;
+char *longVersion = "NVIM v" NVIM_VERSION_BASIC;
 
-char *default_vim_dir = NVIM_SYS_PREFIX;
-char *default_vimruntime_dir = "";
-char_u *compiled_user = (char_u *)BUILD_BY_USER;
-char_u *compiled_sys = (char_u *)BUILD_ON_HOST;
+static char_u *compiled_sys = (char_u *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
+static char_u *compiled_usr = (char_u *)BUILD_BY_USER;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "version.c.generated.h"
@@ -2638,24 +2629,25 @@ static void list_features(void)
             }
         }
     }
-
-    MSG_PUTS("For differences from Vim, see :help vim-differences\n\n");
 }
 
 void list_version(void)
 {
-    // When adding features here, don't forget to update the list of
-    // internal variables in eval.c!
-    MSG(longVersion);
-    MSG(version_buildtype);
-    MSG(version_cflags);
-    // Print the list of extra patch descriptions if there is at least one.
-    char *s = "";
+    MSG_PUTS("\n    Version: " NVIM_VERSION_LONG " @ " RELEASE_PACKAGE_NAME);
+    MSG_PUTS("\n Build date: " BUILD_TIMESTAMP);
+    MSG_PUTS("\n Build type: " NVIM_BUILD_TYPE);
+    MSG_PUTS("\nModified at: " GIT_COMMIT_DATE " " GIT_COMMIT_TIME " " GIT_COMMIT_ZONE);
+    MSG_PUTS("\nCompiled by: ");
+    MSG_PUTS(compiled_usr);
+    MSG_PUTS("@");
+    MSG_PUTS(compiled_sys);
 
+    // When adding features here, don't forget to update the list of internal variables
+    // in 'eval.c'. Print the list of extra patch descriptions if there is at least one.
     if(extra_patches[0] != NULL)
     {
-        MSG_PUTS(_("\nExtra patches: "));
-        s = "";
+        MSG_PUTS("\n\nExtra patches:\n");
+        char *s = "";
 
         for(int i = 0; extra_patches[i] != NULL; ++i)
         {
@@ -2665,48 +2657,41 @@ void list_version(void)
         }
     }
 
-    #ifdef HAVE_PATHDEF
-    if((*compiled_user != NUL) || (*compiled_sys != NUL))
-    {
-        MSG_PUTS(_("\nCompiled "));
-
-        if(*compiled_user != NUL)
-        {
-            MSG_PUTS(_("by "));
-            MSG_PUTS(compiled_user);
-        }
-
-        if(*compiled_sys != NUL)
-        {
-            MSG_PUTS("@");
-            MSG_PUTS(compiled_sys);
-        }
-    }
-    #endif
-
-    version_msg(_("\n\nOptional features included (+) or not (-): "));
+    version_msg("\n\nOptional features included (+) or excluded (-):\n");
     list_features();
 
-    #ifdef SYS_VIMRC_FILE
-    version_msg(_("   system vimrc file: \""));
-    version_msg(SYS_VIMRC_FILE);
-    version_msg("\"\n");
-    #endif
+    size_t len;
+    char msg_buf[MAXPATHL] = { 0 };
 
-    #ifdef HAVE_PATHDEF
-    if(*default_vim_dir != NUL)
+    // gkide system home
+    snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_SYS_HOME);
+    len = strlen(msg_buf);
+    if(gkide_sys_home != NULL)
     {
-        version_msg(_("  fall-back for $VIM: \""));
-        version_msg(default_vim_dir);
-        version_msg("\"\n");
+        snprintf(msg_buf + len, MAXPATHL, "%s", gkide_sys_home);
     }
-    if(*default_vimruntime_dir != NUL)
+    version_msg(msg_buf);
+
+    // gkide user home
+    snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_USR_HOME);
+    len = strlen(msg_buf);
+    if(gkide_usr_home != NULL)
     {
-        version_msg(_(" f-b for $VIMRUNTIME: \""));
-        version_msg(default_vimruntime_dir);
-        version_msg("\"\n");
+        snprintf(msg_buf + len, MAXPATHL, "%s", gkide_usr_home);
     }
-    #endif
+    version_msg(msg_buf);
+
+    // gkide dynamic home
+    snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_DYN_HOME);
+    len = strlen(msg_buf);
+    if(gkide_dyn_home != NULL)
+    {
+        snprintf(msg_buf + len, MAXPATHL, "%s", gkide_dyn_home);
+    }
+    version_msg(msg_buf);
+
+    // directories layout
+    version_msg("\n   directory layout: bin, etc, plg, doc, loc\n");
 }
 
 /// Output a string for the version message.  If it's going to wrap, output a
@@ -2751,33 +2736,28 @@ void maybe_intro_message(void)
 /// @param colon TRUE for ":intro"
 void intro_message(int colon)
 {
-    int i;
-    long row;
-    long blanklines;
-    int sponsor;
-    char *p;
-
     static char *(lines[]) =
     {
-        N_(NVIM_VERSION_LONG),
+        N_("NVIM v" NVIM_VERSION_BASIC),
         "",
-        N_("by Bram Moolenaar et al."),
-        N_("Nvim is open source and freely distributable"),
-        N_("https://neovim.io/community"),
+        N_("by Charlie WONG et al."),
+        N_("nvim is open source and freely distributable"),
+        N_("https://github.com/gkide/gkide"),
         "",
-        N_("type  :help nvim<Enter>       if you are new! "),
-        N_("type  :CheckHealth<Enter>     to optimize Nvim"),
-        N_("type  :q<Enter>               to exit         "),
-        N_("type  :help<Enter>            for help        "),
+        N_("type :help nvim<Enter>       if you are new  "),
+        N_("type :CheckHealth<Enter>     to optimize nvim"),
+        N_("type :q<Enter>               to exit         "),
+        N_("type :help<Enter>            for help        "),
         "",
         N_("Help poor children in Uganda!"),
-        N_("type  :help iccf<Enter>       for information "),
+        N_("type :help iccf<Enter>       for information "),
     };
 
     // blanklines = screen height - # message lines
     size_t lines_size = ARRAY_SIZE(lines);
     assert(lines_size <= LONG_MAX);
-    blanklines = Rows - ((long)lines_size - 1l);
+
+    long blanklines = Rows - ((long)lines_size - 1l);
 
     // Don't overwrite a statusline. Depends on 'cmdheight'.
     if(p_ls > 1)
@@ -2790,53 +2770,95 @@ void intro_message(int colon)
         blanklines = 0;
     }
 
-    // Show the sponsor and register message one out of four times, the Uganda
-    // message two out of four times.
-    sponsor = (int)time(NULL);
-    sponsor = ((sponsor & 2) == 0) - ((sponsor & 4) == 0);
     // start displaying the message lines after half of the blank lines
-    row = blanklines / 2;
+    long row_num = blanklines / 2;
 
-    if(((row >= 2) && (Columns >= 50)) || colon)
+    // Show the empty message, 4/8
+    // Show the uganda message, 2/8
+    // Show the sponsor message, 1/8
+    // Show the register message, 1/8
+    int magic = (int)time(NULL);
+
+    if(((row_num >= 2) && (Columns >= 50)) || colon)
     {
-        for(i = 0; i < (int)ARRAY_SIZE(lines); ++i)
+        char *p = NULL;
+        for(int i=0, replace=0; i < (int)lines_size; ++i, replace=0)
         {
             p = lines[i];
 
-            if(sponsor != 0)
+            // check the last two lines of messages
+            if((i+1)==(int)lines_size || (i+2)==(int)lines_size)
             {
-                if(strstr(p, "children") != NULL)
+                if((magic & 1) == 0)
                 {
-                    p = sponsor < 0
-                        ? N_("Sponsor Vim development!")
-                        : N_("Become a registered Vim user!");
+                    p = ""; // show nothing, 4/8
                 }
-                else if(strstr(p, "iccf") != NULL)
+                else
                 {
-                    p = sponsor < 0
-                        ? N_("type  :help sponsor<Enter>    for information ")
-                        : N_("type  :help register<Enter>   for information ");
-                }
-                else if(strstr(p, "Orphans") != NULL)
-                {
-                    p = N_("menu  Help->Sponsor/Register  for information    ");
+                    if(strstr(p, "children") != NULL)
+                    {
+                        replace = 1;
+                    }
+
+                    if(!replace && strstr(p, "iccf") != NULL)
+                    {
+                        replace = 2;
+                    }
+
+                    if((magic & 2) == 0)
+                    {
+                        if((magic & 4) == 0)
+                        {
+                            // show sponsor message, 1/8
+                            if(replace==1)
+                            {
+                                p = N_("Become a registered Vim user!");
+                            }
+                            else if(replace==2)
+                            {
+                                p = N_("type :help register<Enter>   for information ");
+                            }
+                        }
+                        else
+                        {
+                            // show register message, 1/8
+                            if(replace==1)
+                            {
+                                p = N_("Sponsor Vim development!");
+                            }
+                            else if(replace==2)
+                            {
+                                p = N_("type :help sponsor<Enter>    for information ");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // show uganda message, 2/8
+                    }
                 }
             }
 
             if(*p != NUL)
             {
-                do_intro_line(row, (char_u *)_(p), 0);
+                do_intro_line(row_num, (char_u *)p, 0);
             }
 
-            row++;
+            row_num++;
         }
+    }
+
+    for(int i=0; i < blanklines/2; ++i)
+    {
+        do_intro_line(row_num, (char_u *)"", 0);
+        row_num++;
     }
 
     // Make the wait-return message appear just below the text.
     if(colon)
     {
-        assert(row <= INT_MAX);
-        msg_row = (int)row;
+        assert(row_num <= INT_MAX);
+        msg_row = (int)row_num;
     }
 }
 

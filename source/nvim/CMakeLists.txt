@@ -13,7 +13,6 @@ if(NOT NVIM_LOG_LEVEL_MIN)
         endif()
     elseif(CMAKE_BUILD_TYPE MATCHES "Dev")
         set(NVIM_LOG_LEVEL_MIN  0) # TRACE(0)
-        add_definitions("-DNVIM_DEVMSG_ENABLE")
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "Dev build, not ready to release.")
@@ -37,7 +36,7 @@ set(NVIM_FATAL_ENABLE false) # enable  nvim fatal logging by default
 # Checking logging level
 if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-6]$")
     if(NVIM_LOG_LEVEL_MIN EQUAL 0)
-        set(log_level_msg "TRACE(0)")
+        set(log_level_msg "TRACE(0)") # Dev
         set(NVIM_TRACE_ENABLE true) # 0
         set(NVIM_DEBUG_ENABLE true) # 1
         set(NVIM_STATE_ENABLE true) # 2
@@ -45,20 +44,20 @@ if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-6]$")
         set(NVIM_ERROR_ENABLE true) # 4
         set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 1)
-        set(log_level_msg "DEBUG(1)")
+        set(log_level_msg "DEBUG(1)") # Debug
         set(NVIM_DEBUG_ENABLE true) # 1
         set(NVIM_STATE_ENABLE true) # 2
         set(NVIM_ALERT_ENABLE true) # 3
         set(NVIM_ERROR_ENABLE true) # 4
         set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 2)
-        set(log_level_msg "STATE(2)")
+        set(log_level_msg "STATE(2)") # XXXX
         set(NVIM_STATE_ENABLE true) # 2
         set(NVIM_ALERT_ENABLE true) # 3
         set(NVIM_ERROR_ENABLE true) # 4
         set(NVIM_FATAL_ENABLE true) # 5
     elseif(NVIM_LOG_LEVEL_MIN EQUAL 3)
-        set(log_level_msg "ALERT(3)")
+        set(log_level_msg "ALERT(3)") # Release
         set(NVIM_ALERT_ENABLE true) # 3
         set(NVIM_ERROR_ENABLE true) # 4
         set(NVIM_FATAL_ENABLE true) # 5
@@ -70,7 +69,7 @@ if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-6]$")
         set(log_level_msg "FATAL(5)")
         set(NVIM_FATAL_ENABLE true) # 5
     else()
-        set(log_level_msg "LOGOFF(6)")
+        set(log_level_msg "LOGOFF(6)")# MinSizeRel
         add_definitions("-DNVIM_LOGGING_DISABLE")
     endif()
     message(STATUS "nvim logging level: ${log_level_msg}")

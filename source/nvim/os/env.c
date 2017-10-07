@@ -69,7 +69,6 @@ int os_setenv(const char *name, const char *value, int overwrite) FUNC_ATTR_NONN
 #elif defined(HAVE_FUN_SETENV)
     return setenv(name, value, overwrite);
 #elif defined(HAVE_FUN_PUTENV_S)
-
     if(!overwrite && os_getenv(name) != NULL)
     {
         return 0;
@@ -82,7 +81,7 @@ int os_setenv(const char *name, const char *value, int overwrite) FUNC_ATTR_NONN
 
     return -1;
 #else
-#   error "This system has no implementation available for os_setenv()"
+    #error "This system has no implementation available for os_setenv()"
 #endif
 }
 
@@ -198,24 +197,145 @@ void os_get_hostname(char *hostname, size_t size)
 /// home directory
 static char_u *homedir = NULL;
 
-/// To get the real home directory: get value of $HOME
+char *gkide_sys_home = NULL; /// gkide system  home directory, runtime fixed
+char *gkide_usr_home = NULL; /// gkide user    home directory, runtime fixed
+char *gkide_dyn_home = NULL; /// gkide dynamic home directory, runtime can changed
+
+/// To get the real user home directory: get value of $GKIDE_USR_HOME
+/// Here used this environment is because $HOME is used everywhere, so that we can changed its
+/// value which will affect others, now, use another one, if you need, then just do it!
 ///
-/// For Unix:
-///   - go to that directory
-///   - do os_dirname() to get the real name of that directory.
-/// This also works with mounts and links.
+/// For all:
+/// - check $GKIDE_USR_HOME, if not set, then
+/// - check $HOME, if set, then reset $GKIDE_USR_HOME to $HOME
+///   This also works with mounts and links.
 ///
-/// Don't do this for Windows, it will change the current directory for a drive.
+/// For unix:
+/// - go to that directory
+/// - do os_dirname() to get the real name of that directory.
+///   Don't do this for Windows, it will change the current directory for a drive.
+///
+/// For windows:
+/// - if $GKIDE_USR_HOME and $HOME both not set, then check $HOMEDRIVE and $HOMEPATH for
+///   Windows NT platforms, then reset $GKIDE_USR_HOME
+void init_gkide_usr_home(void)
+{
+    if(gkide_usr_home)
+    {
+        // In case we are called a second time.
+        xfree(gkide_usr_home);
+        gkide_usr_home = NULL;
+    }
+
+    bool usr_home_reset = false; // need to reset gkide usr home env ?
+    const char *usr_home = os_getenv(ENV_GKIDE_USR_HOME);
+
+    if(usr_home == NULL)
+    {
+        // if GKIDE_USR_HOME not set, then check HOME
+        usr_home = os_getenv("HOME");
+        usr_home_reset = true;
+    }
+
+    #ifdef HOST_OS_WINDOWS
+    // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
+    // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
+    // defined for each user. Try constructing $HOME from these.
+    if(usr_home == NULL)
+    {
+        const char *homedrive = os_getenv("HOMEDRIVE");
+        const char *homepath = os_getenv("HOMEPATH");
+
+        if(homepath == NULL)
+        {
+            homepath = "\\";
+        }
+
+        if(homedrive != NULL && strlen(homedrive) + strlen(homepath) < MAXPATHL)
+        {
+            snprintf(os_buf, OS_BUF_SIZE, "%s%s", homedrive, homepath);
+
+            if(os_buf[0] != NUL)
+            {
+                usr_home = os_buf;
+            }
+        }
+    }
+    #endif
+
+    if(usr_home == NULL)
+    {
+        TIME_MSG("GKIDE_USR_HOME is NULL, this should be fixed");
+        return;
+    }
+
+    if(usr_home_reset)
+    {
+        // make '.gkide' directory first, then reset gkide usr home env
+        snprintf(NameBuff, MAXPATHL, "%s" _PATHSEPSTR ".gkide", usr_home);
+    }
+    else
+    {
+        // gkide usr home env already set, check if it exist, if not, try to create it.
+        snprintf(NameBuff, MAXPATHL, "%s", usr_home);
+    }
+
+    if(os_path_exists((char_u *)NameBuff))
+    {
+        // already exists, do not need to create
+        usr_home = (char *)NameBuff;
+    }
+    else
+    {
+        TIME_MSG("try to create $GKIDE_USR_HOME directory");
+        int ret = os_mkdir((char *)NameBuff, 0755);
+        if(ret == 0)
+        {
+            // if can not created it, then just ignore
+            usr_home = (char *)NameBuff;
+        }
+    }
+
+    #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
+    // Change to the home directory and get the actual path.
+    // This resolves links. Don't do it when we can't return.
+    if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
+    {
+        // change to home directory
+        if(!os_chdir(usr_home) && os_dirname(IObuff, IOSIZE) == OK)
+        {
+            usr_home = (char *)IObuff;
+        }
+
+        // go back
+        if(os_chdir(os_buf) != 0)
+        {
+            EMSG(_(e_prev_dir));
+        }
+    }
+    #endif
+    gkide_usr_home = vim_strsave((char_u *)usr_home);
+
+    if(usr_home_reset)
+    {
+        vim_setenv(ENV_GKIDE_USR_HOME, gkide_usr_home);
+    }
+
+    INFO_MSG("GKIDE_USR_HOME => %s", gkide_usr_home);
+}
+
+void init_gkide_dyn_home(void)
+{}
+
+/// todo: remove this func, no use $HOME any more
 void init_homedir(void)
 {
     xfree(homedir);
     homedir = NULL; // In case we are called a second time.
 
     const char *var = os_getenv("HOME");
-    DEV_MSG("$HOME=%s", var);
 
-#ifdef HOST_OS_WINDOWS
-
+    #ifdef HOST_OS_WINDOWS
     // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
     // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
     // defined for each user. Try constructing $HOME from these.
@@ -240,13 +360,11 @@ void init_homedir(void)
             }
         }
     }
-
-#endif
+    #endif
 
     if(var != NULL)
     {
-#if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
-
+        #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
         // Change to the home directory and get the actual path. This resolves links.
         // Don't do it when we can't return.
         if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
@@ -263,8 +381,7 @@ void init_homedir(void)
                 EMSG(_(e_prev_dir));
             }
         }
-
-#endif
+        #endif
         homedir = vim_strsave((char_u *)var);
     }
 }
@@ -722,164 +839,25 @@ FUNC_ATTR_NONNULL_ARG(2, 4, 5) FUNC_ATTR_WARN_UNUSED_RESULT
     }
 }
 
-/// Vim's version of getenv().
-///
-/// Special handling of $HOME, $VIM and $VIMRUNTIME, allowing the user to
-/// override the vim runtime directory at runtime.  Also does ACP to 'enc'
-/// conversion for Win32.  Result must be freed by the caller.
+/// nvim's version of getenv().
 ///
 /// @param name Environment variable to expand
 char *vim_getenv(const char *name)
 {
     // init_path() should have been called before now.
     assert(get_vim_var_str(VV_PROGPATH)[0] != NUL);
-    const char *kos_env_path = os_getenv(name);
 
-    if(kos_env_path != NULL)
+    const char *env_val = os_getenv(name);
+
+    if(env_val != NULL)
     {
-        return xstrdup(kos_env_path);
+        return xstrdup(env_val);
     }
 
-    bool vimruntime = (strcmp(name, "VIMRUNTIME") == 0);
-
-    if(!vimruntime && strcmp(name, "VIM") != 0)
-    {
-        return NULL;
-    }
-
-    // When expanding $VIMRUNTIME fails, try using $VIM/vim<version> or $VIM.
-    // Don't do this when default_vimruntime_dir is non-empty.
-    char *vim_path = NULL;
-
-    if(vimruntime
-#ifdef HAVE_PATHDEF
-            && *default_vimruntime_dir == NUL
-#endif
-      )
-    {
-        kos_env_path = os_getenv("VIM");
-
-        if(kos_env_path != NULL)
-        {
-            vim_path = vim_version_dir(kos_env_path);
-
-            if(vim_path == NULL)
-            {
-                vim_path = xstrdup(kos_env_path);
-            }
-        }
-    }
-
-    // When expanding $VIM or $VIMRUNTIME fails, try using:
-    // - the directory name from 'helpfile' (unless it contains '$')
-    // - the executable name from argv[0]
-    if(vim_path == NULL)
-    {
-        if(p_hf != NULL && vim_strchr(p_hf, '$') == NULL)
-        {
-            vim_path = (char *)p_hf;
-        }
-
-        char exe_name[MAXPATHL];
-
-        // Find runtime path relative to the nvim binary: ../share/nvim/runtime
-        if(vim_path == NULL)
-        {
-            xstrlcpy(exe_name, (char *)get_vim_var_str(VV_PROGPATH), sizeof(exe_name));
-            char *path_end = (char *)path_tail_with_sep((char_u *)exe_name);
-            // remove the trailing "nvim.exe"
-            *path_end = '\0';
-            path_end = (char *)path_tail((char_u *)exe_name);
-            // remove the trailing "nvim.exe"
-            *path_end = '\0';
-
-            if(append_path(exe_name,
-                           "share" _PATHSEPSTR "nvim" _PATHSEPSTR "runtime" _PATHSEPSTR,
-                           MAXPATHL) == OK)
-            {
-                vim_path = exe_name;  // -V507
-            }
-        }
-
-        if(vim_path != NULL)
-        {
-            // remove the file name
-            char *vim_path_end = (char *)path_tail((char_u *)vim_path);
-
-            // remove "doc/" from 'helpfile', if present
-            if(vim_path == (char *)p_hf)
-            {
-                vim_path_end = remove_tail(vim_path, vim_path_end, "doc");
-            }
-
-            // for $VIM, remove "runtime/" or "vim54/", if present
-            if(!vimruntime)
-            {
-                vim_path_end = remove_tail(vim_path, vim_path_end, RUNTIME_DIRNAME);
-                vim_path_end = remove_tail(vim_path, vim_path_end, VIM_VERSION_NODOT);
-            }
-
-            // remove trailing path separator
-            if(vim_path_end > vim_path && after_pathsep(vim_path, vim_path_end))
-            {
-                vim_path_end--;
-            }
-
-            // check that the result is a directory name
-            assert(vim_path_end >= vim_path);
-            vim_path = xstrndup(vim_path, (size_t)(vim_path_end - vim_path));
-
-            if(!os_isdir((char_u *)vim_path))
-            {
-                xfree(vim_path);
-                vim_path = NULL;
-            }
-        }
-
-        assert(vim_path != exe_name);
-    }
-
-#ifdef HAVE_PATHDEF
-
-    // When there is a pathdef.c file we can use default_vim_dir and default_vimruntime_dir
-    if(vim_path == NULL)
-    {
-        // Only use default_vimruntime_dir when it is not empty
-        if(vimruntime && *default_vimruntime_dir != NUL)
-        {
-            vim_path = xstrdup(default_vimruntime_dir);
-        }
-        else if(*default_vim_dir != NUL)
-        {
-            if(vimruntime && (vim_path = vim_version_dir(default_vim_dir)) == NULL)
-            {
-                vim_path = xstrdup(default_vim_dir);
-            }
-        }
-    }
-
-#endif
-
-    // Set the environment variable, so that the new value can be found fast
-    // next time, and others can also use it (e.g. Perl).
-    if(vim_path != NULL)
-    {
-        if(vimruntime)
-        {
-            vim_setenv("VIMRUNTIME", vim_path);
-            didset_vimruntime = true;
-        }
-        else
-        {
-            vim_setenv("VIM", vim_path);
-            didset_vim = true;
-        }
-    }
-
-    return vim_path;
+    return NULL;
 }
 
-/// Replace home directory by "~" in each space or comma separated file name in 'src'.
+/// Replace home directory by **~** in each space or comma separated file name in **src**
 /// If anything fails (except when out of space) dst equals src.
 ///
 /// @param buf    When not NULL, check for help files
@@ -1027,24 +1005,10 @@ char_u *home_replace_save(buf_T *buf, char_u *src) FUNC_ATTR_NONNULL_RET
     return dst;
 }
 
-/// Our portable version of setenv.
-///
-/// Has special handling for $VIMRUNTIME to keep the localization machinery sane.
+/// Our portable version of setenv().
 void vim_setenv(const char *name, const char *val)
 {
-    os_setenv(name, val, 1);
-#ifndef LOCALE_INSTALL_DIR
-
-    // When setting $VIMRUNTIME adjust the directory to find message
-    // translations to $VIMRUNTIME/lang.
-    if(*val != NUL && STRICMP(name, "VIMRUNTIME") == 0)
-    {
-        char *buf = (char *)concat_str((char_u *)val, (char_u *)"/lang");
-        bindtextdomain(PROJECT_NAME, buf);
-        xfree(buf);
-    }
-
-#endif
+    (void)os_setenv(name, val, 1); // overwrite if exist
 }
 
 /// Function given to ExpandGeneric() to obtain an environment variable name.

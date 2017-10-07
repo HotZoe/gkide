@@ -14,7 +14,6 @@
 
 #include "config.h"
 #include "confignvim.h"
-#define  HAVE_PATHDEF
 
 // Check if configure correctly managed to find sizeof(int).
 // If this failed, it becomes zero.

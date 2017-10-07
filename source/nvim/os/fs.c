@@ -748,7 +748,7 @@ int os_fchown(int fd, uv_uid_t owner, uv_gid_t group)
 
 /// Check if a path exists.
 ///
-/// @return `true` if `path` exists
+/// @return **true** if **path** exists
 bool os_path_exists(const char_u *path) FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
@@ -796,7 +796,7 @@ int os_rename(const char_u *path, const char_u *new_path) FUNC_ATTR_NONNULL_ALL
 
 /// Make a directory.
 ///
-/// @return `0` for success, libuv error code for failure.
+/// @return 0 for success, libuv error code for failure.
 int os_mkdir(const char *path, int32_t mode) FUNC_ATTR_NONNULL_ALL
 {
     int r;

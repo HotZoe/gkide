@@ -96,8 +96,8 @@ typedef enum
 // Use screen_Rows and screen_Columns to access items in ScreenLines[].
 // They may have different values when the screen wasn't (re)allocated yet
 // after setting Rows or Columns (e.g., when starting up).
-#define DFLT_COLS       80              ///< default value for 'columns'
-#define DFLT_ROWS       24              ///< default value for 'lines'
+#define DFLT_COLS       100             ///< default value for 'columns'
+#define DFLT_ROWS       35              ///< default value for 'lines'
 EXTERN long Rows INIT(= DFLT_ROWS);     ///< nr of rows in the screen
 EXTERN long Columns INIT(= DFLT_COLS);  ///< nr of columns in the screen
 
@@ -1005,15 +1005,9 @@ EXTERN int wild_menu_showing INIT(= 0);
 #define WM_SHOWN     1   ///< wildmenu showing
 #define WM_SCROLLED  2   ///< wildmenu showing with scroll
 
-
-/*
- * Some file names are stored in pathdef.c, which is generated from the
- * Makefile to make their value depend on the Makefile.
- */
-extern char *default_vim_dir;
-extern char *default_vimruntime_dir;
-extern char_u *compiled_user;
-extern char_u *compiled_sys;
+extern char *gkide_sys_home;
+extern char *gkide_usr_home;
+extern char *gkide_dyn_home;
 
 /* When a window has a local directory, the absolute path of the global
  * current directory is stored here (in allocated memory).  If the current
@@ -1219,7 +1213,6 @@ EXTERN char_u e_dirnotf[] INIT(= N_(
 EXTERN char_u e_unsupportedoption[] INIT(= N_("E519: Option not supported"));
 EXTERN char_u e_fnametoolong[] INIT(= N_("E856: Filename too long"));
 EXTERN char_u e_float_as_string[] INIT(= N_("E806: using Float as a String"));
-
 
 EXTERN char top_bot_msg[] INIT(= N_("search hit TOP, continuing at BOTTOM"));
 EXTERN char bot_top_msg[] INIT(= N_("search hit BOTTOM, continuing at TOP"));
