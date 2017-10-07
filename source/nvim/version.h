@@ -3,15 +3,11 @@
 #ifndef NVIM_VERSION_H
 #define NVIM_VERSION_H
 
+#include "versiondef.h"
 #include "nvim/ex_cmds_defs.h"
 
 // defined in version.c
-extern char *longVersion;
-
-// Vim version number, name, etc. Patchlevel is defined in version.c.
-#define VIM_VERSION_MAJOR    7
-#define VIM_VERSION_MINOR    4
-#define VIM_VERSION_100      (VIM_VERSION_MAJOR * 100 + VIM_VERSION_MINOR)
+extern char *nvim_gkide_version;
 
 /// swap file version, for compatibility, also the base version of vim.
 ///

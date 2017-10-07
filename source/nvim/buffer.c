@@ -5854,10 +5854,10 @@ static int chk_modeline(linenr_T lnum, int flags)
                         && (s[0] != 'V'
                             || STRNCMP(skipwhite(e + 1), "set", 3) == 0)
                         && (s[3] == ':'
-                            || (VIM_VERSION_100 >= vers && isdigit(s[3]))
-                            || (VIM_VERSION_100 < vers && s[3] == '<')
-                            || (VIM_VERSION_100 > vers && s[3] == '>')
-                            || (VIM_VERSION_100 == vers && s[3] == '=')))
+                            || (NVIM_VERSION_INT32 >= vers && isdigit(s[3]))
+                            || (NVIM_VERSION_INT32 < vers && s[3] == '<')
+                            || (NVIM_VERSION_INT32 > vers && s[3] == '>')
+                            || (NVIM_VERSION_INT32 == vers && s[3] == '=')))
                 {
                     break;
                 }

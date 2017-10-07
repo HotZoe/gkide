@@ -1,3 +1,12 @@
+set(NVIM_TRACE_ENABLE false) # disable nvim trace logging by default
+set(NVIM_DEBUG_ENABLE false) # disable nvim debug logging by default
+set(NVIM_STATE_ENABLE false) # disable nvim state logging by default
+set(NVIM_ALERT_ENABLE false) # enable  nvim alert logging by default
+set(NVIM_ERROR_ENABLE false) # enable  nvim error logging by default
+set(NVIM_FATAL_ENABLE false) # enable  nvim fatal logging by default
+
+set(NVIM_LANGUAGE_DEBUG_ENABLE false) # disable nvim language debug by default
+
 # Logging Level:
 # TRACE(0), DEBUG(1), STATE(2), ALERT(3), ERROR(4), FATAL(5), LOGOFF(6)
 if(NOT NVIM_LOG_LEVEL_MIN)
@@ -8,30 +17,26 @@ if(NOT NVIM_LOG_LEVEL_MIN)
     elseif(CMAKE_BUILD_TYPE MATCHES "Debug")
         set(NVIM_LOG_LEVEL_MIN  1) # DEBUG(1)
         set(PACKAGE_RELEASE_READY false)
+        set(NVIM_LANGUAGE_DEBUG_ENABLE true)
         if(NOT release_check_msg)
             set(release_check_msg "Debug build, not ready to release.")
         endif()
     elseif(CMAKE_BUILD_TYPE MATCHES "Dev")
         set(NVIM_LOG_LEVEL_MIN  0) # TRACE(0)
         set(PACKAGE_RELEASE_READY false)
+        set(NVIM_LANGUAGE_DEBUG_ENABLE true)
         if(NOT release_check_msg)
             set(release_check_msg "Dev build, not ready to release.")
         endif()
     else()
         set(NVIM_LOG_LEVEL_MIN  2) # STATE(2)
         set(PACKAGE_RELEASE_READY false)
+        set(NVIM_LANGUAGE_DEBUG_ENABLE true)
         if(NOT release_check_msg)
             set(release_check_msg "${CMAKE_BUILD_TYPE} build, not ready to release.")
         endif()
     endif()
 endif()
-
-set(NVIM_TRACE_ENABLE false) # disable nvim trace logging by default
-set(NVIM_DEBUG_ENABLE false) # disable nvim debug logging by default
-set(NVIM_STATE_ENABLE false) # disable nvim state logging by default
-set(NVIM_ALERT_ENABLE false) # enable  nvim alert logging by default
-set(NVIM_ERROR_ENABLE false) # enable  nvim error logging by default
-set(NVIM_FATAL_ENABLE false) # enable  nvim fatal logging by default
 
 # Checking logging level
 if(NVIM_LOG_LEVEL_MIN MATCHES "^[0-6]$")
@@ -115,6 +120,13 @@ if(NVIM_FATAL_ENABLE)
     message(STATUS "nvim *enable FATAL(5) logging")
 else()
     message(STATUS "nvim disable FATAL(5) logging")
+endif()
+
+if(NVIM_LANGUAGE_DEBUG_ENABLE)
+    add_definitions("-DNVIM_LANGUAGE_DEBUG_ENABLE")
+    message(STATUS "*enable nvim language debug")
+else()
+    message(STATUS "disable nvim language debug")
 endif()
 
 include(ConfigNvim) # generate configurations for nvim only

@@ -569,7 +569,7 @@ const list_T *eval_msgpack_type_lists[] =
 /// Initialize the global and **v:** variables.
 void eval_init(void)
 {
-    vimvars[VV_VERSION].vv_nr = VIM_VERSION_100;
+    vimvars[VV_VERSION].vv_nr = NVIM_VERSION_INT32;
     jobs = pmap_new(uint64_t)();
     timers = pmap_new(uint64_t)();
     struct vimvar *p;
@@ -13262,35 +13262,72 @@ static void f_globpath(typval_T *argvars, typval_T *rettv, FunPtr fptr)
     }
 }
 
-// "glob2regpat()" function
+/// NvimL: **glob2regpat()** function
 static void f_glob2regpat(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
     const char *const pat = tv_get_string_chk(&argvars[0]);  // NULL on type error
     rettv->v_type = VAR_STRING;
     rettv->vval.v_string = ((pat == NULL)
-                            ? NULL
-                            : file_pat_to_reg_pat((char_u *)pat, NULL, NULL,
-                                                  false));
+                            ? NULL : file_pat_to_reg_pat((char_u *)pat, NULL, NULL, false));
 }
 
-/// "has()" function
+/// NvimL: **has()** function
 static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
+    // the basic check list
     static const char *const has_list[] =
     {
-#ifdef UNIX
-        "unix",
-#endif
-#if defined(HOST_OS_WINDOWS)
-        "win32",
-#endif
-#if defined(WIN64) || defined(_WIN64)
-        "win64",
-#endif
-        "fname_case",
-#ifdef HAVE_ACL
+    // platform: unix/linux, windows, macos
+    #ifdef HOST_OS_LINUX
+        "os_linux",
+    #endif
+
+    #ifdef HOST_OS_WINDOWS
+        "os_windows",
+    #endif
+
+    #ifdef HOST_OS_MACOS
+        "os_macos",
+    #endif
+
+    // arch: arch 32
+    #ifdef HOST_OS_ARCH_32
+        "os_arch_32",
+
+        #ifdef HOST_OS_LINUX
+        "os_linux32",
+        #endif
+
+        #if defined(HOST_OS_WINDOWS)
+        "os_windows32",
+        #endif
+
+        #ifdef HOST_OS_MACOS
+        "os_macos32",
+        #endif
+    #endif
+
+    // arch: arch 64
+    #ifdef HOST_OS_ARCH_64
+        "os_arch_64",
+
+        #ifdef HOST_OS_LINUX
+        "os_linux64",
+        #endif
+
+        #if defined(HOST_OS_WINDOWS)
+        "os_windows64",
+        #endif
+
+        #ifdef HOST_OS_MACOS
+        "os_macos64",
+        #endif
+    #endif
+
+    // common staff
+    #ifdef HAVE_ACL
         "acl",
-#endif
+    #endif
         "arabic",
         "autocmd",
         "browsefilter",
@@ -13303,13 +13340,10 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "cscope",
         "cursorbind",
         "cursorshape",
-#ifdef DEBUG
-        "debug",
-#endif
         "dialog_con",
         "diff",
         "digraphs",
-        "eval",         /* always present, of course! */
+        "eval",
         "ex_extra",
         "extra_search",
         "farsi",
@@ -13318,13 +13352,14 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "find_in_path",
         "float",
         "folding",
-#if defined(UNIX)
+        "fname_case",
+    #ifdef HOST_OS_LINUX
         "fork",
-#endif
+    #endif
         "gettext",
-#if defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)
+    #if defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)
         "iconv",
-#endif
+    #endif
         "insert_expand",
         "jumplist",
         "keymap",
@@ -13335,16 +13370,17 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "lispindent",
         "listcmds",
         "localmap",
-#ifdef __APPLE__
-        "mac",
-        "macunix",
-#endif
         "menu",
         "mksession",
         "modify_fname",
         "mouse",
         "multi_byte",
         "multi_lang",
+    #ifdef NVIM_LANGUAGE_DEBUG_ENABLE
+        "nviml_debug",
+    #else
+        "nviml_release",
+    #endif
         "packages",
         "path_extra",
         "persistent_undo",
@@ -13364,9 +13400,6 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "statusline",
         "spell",
         "syntax",
-#if !defined(UNIX)
-        "system",  // TODO(SplinterOfChaos): This IS defined for UNIX!
-#endif
         "tablineat",
         "tag_binary",
         "tag_old_static",
@@ -13375,7 +13408,6 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "textobjects",
         "timers",
         "title",
-        "user-commands",        /* was accidentally included in 5.4 */
         "user_commands",
         "vertsplit",
         "virtualedit",
@@ -13387,86 +13419,87 @@ static void f_has(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         "windows",
         "winaltkeys",
         "writebackup",
-        "nvim",
     };
-    bool n = false;
+
+    bool status = false;
     const char *const name = tv_get_string(&argvars[0]);
 
-    for (size_t i = 0; i < ARRAY_SIZE(has_list); i++)
+    for(size_t i = 0; i < ARRAY_SIZE(has_list); i++)
     {
-        if (STRICMP(name, has_list[i]) == 0)
+        if(STRICMP(name, has_list[i]) == 0)
         {
-            n = true;
+            status = true;
             break;
         }
     }
 
-    if (!n)
+    if(!status)
     {
-        if (STRNICMP(name, "patch", 5) == 0)
+        // check patch
+        if(STRNICMP(name, "patch", 5) == 0)
         {
-            if (name[5] == '-'
-                    && strlen(name) >= 11
-                    && ascii_isdigit(name[6])
-                    && ascii_isdigit(name[8])
-                    && ascii_isdigit(name[10]))
+            if(name[5] == ':') // patch:123456
             {
-                int major = atoi(name + 6);
-                int minor = atoi(name + 8);
-                // Expect "patch-9.9.01234".
-                n = (major < VIM_VERSION_MAJOR
-                     || (major == VIM_VERSION_MAJOR
-                         && (minor < VIM_VERSION_MINOR
-                             || (minor == VIM_VERSION_MINOR
-                                 && has_vim_patch(atoi(name + 10))))));
+                status = has_nvim_patch(atoi(name + 5));
             }
-            else
+            else if(name[5] == '-') // patch-0.2@123456
             {
-                n = has_vim_patch(atoi(name + 5));
+                if(ascii_isdigit(name[6])    // nvim version: major
+                   && name[7] == '.'
+                   && ascii_isdigit(name[8]) // nvim version: minor
+                   && name[9] == '@'
+                   && strlen(name) >= 11)
+                {
+                    int nvim_major = atoi(name + 6);
+                    int nvim_minor = atoi(name + 8);
+
+                    status = (nvim_major < NVIM_VERSION_MAJOR
+                              || (nvim_major == NVIM_VERSION_MAJOR
+                                  && (nvim_minor < NVIM_VERSION_MINOR
+                                      || (nvim_minor == NVIM_VERSION_MINOR
+                                          && has_nvim_patch(atoi(name + 10))))));
+                }
             }
         }
-        else if (STRNICMP(name, "nvim-", 5) == 0)
+        else if(STRNICMP(name, "nvim@", 5) == 0)
         {
-            // Expect "nvim-x.y.z"
-            n = has_nvim_version(name + 5);
+            status = has_nvim_version(name + 5); // nvim@x.y.z
         }
-        else if (STRICMP(name, "vim_starting") == 0)
+        else if(STRNICMP(name, "gkide@", 6) == 0)
         {
-            n = (starting != 0);
+            status = has_gkide_version(name + 6); // gkide@x.y.z
         }
-        else if (STRICMP(name, "multi_byte_encoding") == 0)
+        else if(STRICMP(name, "nvim_starting") == 0)
         {
-            n = has_mbyte != 0;
+            status = (runtime_status != kRS_Normal);
+        }
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
-        }
-        else if (STRICMP(name, "iconv") == 0)
+        else if(STRICMP(name, "iconv") == 0)
         {
-            n = iconv_enabled(false);
+            status = iconv_enabled(false);
+        }
 #endif
-        }
-        else if (STRICMP(name, "syntax_items") == 0)
+        else if(STRICMP(name, "syntax_items") == 0)
         {
-            n = syntax_present(curwin);
-#ifdef UNIX
+            status = syntax_present(curwin);
+#ifdef HOST_OS_LINUX
         }
         else if (STRICMP(name, "unnamedplus") == 0)
         {
-            n = eval_has_provider("clipboard");
+            status = eval_has_provider("clipboard");
 #endif
         }
     }
 
-    if (!n && eval_has_provider(name))
+    if(!status && eval_has_provider(name))
     {
-        n = true;
+        status = true;
     }
 
-    rettv->vval.v_number = n;
+    rettv->vval.v_number = status;
 }
 
-/*
- * "has_key()" function
- */
+/// NvimL: **has_key()** function
 static void f_has_key(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
     if (argvars[0].v_type != VAR_DICT)

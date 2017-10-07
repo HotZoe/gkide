@@ -2879,7 +2879,7 @@ int mch_print_begin(prt_settings_T *psettings)
     }
 
     prt_dsc_textline("For", buffer);
-    prt_dsc_textline("Creator", longVersion);
+    prt_dsc_textline("Creator", nvim_gkide_version);
     /* Note: to ensure Clean8bit I don't think we can use LC_TIME */
     now = time(NULL);
     p_time = ctime(&now);

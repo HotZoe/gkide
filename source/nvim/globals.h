@@ -85,6 +85,23 @@ typedef enum
     kTrue  = 1,
 } TriState;
 
+/// nvim running status
+typedef enum
+{
+    kRS_Normal  = 0, ///< startup/exit has finished, normal status
+
+    /// startup not finished: needs to update the screen
+    kRS_Screens = 1,
+
+    /// startup not finished: needs to run auto cmds
+    kRS_Autocmd = 2,
+
+    /// startup not finished: needs to load buffers
+    kRS_Buffers = 3,
+
+    /// startup not finished: needs to load plugins
+    kRS_Plugins = 4,
+} RunningStatus;
 // Values for "starting"
 #define NO_SCREEN    2   ///< no screen updating yet
 #define NO_BUFFERS   1   ///< not all buffers loaded yet
@@ -635,6 +652,8 @@ EXTERN int ru_col;   ///< column for ruler
 EXTERN int ru_wid;   ///< 'rulerfmt' width of ruler when non-zero
 EXTERN int sc_col;   ///< column for shown command
 
+EXTERN RunningStatus runtime_status INIT(= kRS_Screens);
+
 /// When starting or exiting some things are done differently (e.g. screen updating).
 EXTERN int starting INIT(= NO_SCREEN);
 
@@ -791,8 +810,8 @@ EXTERN int vr_lines_changed INIT(= 0);      /* #Lines changed by "gR" so far */
 // mbyte flags that used to depend on 'encoding'. These are now deprecated, as
 // 'encoding' is always "utf-8". Code that use them can be refactored to
 // remove dead code.
-#define enc_dbcs false
-#define enc_utf8 true
+#define enc_dbcs  false
+#define enc_utf8  true
 #define has_mbyte true
 
 /// Encoding used when 'fencs' is set to "default"
