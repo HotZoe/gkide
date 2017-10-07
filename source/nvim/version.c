@@ -30,7 +30,6 @@
 
 #define NVIM_VERSION_FULL    NVIM_VERSION_LONG "-" RELEASE_VERSION_HASH
 
-char *Version = VIM_VERSION_SHORT;
 char *longVersion = "NVIM v" NVIM_VERSION_BASIC;
 
 static char_u *compiled_sys = (char_u *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";

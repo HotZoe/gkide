@@ -687,35 +687,6 @@ void expand_env_esc(char_u *restrict srcp,
     *dst = NUL;
 }
 
-/// Check if the directory "vimdir/<version>" or "vimdir/runtime" exists.
-/// Return NULL if not, return its name in allocated memory otherwise.
-/// @param vimdir directory to test
-static char *vim_version_dir(const char *vimdir)
-{
-    if(vimdir == NULL || *vimdir == NUL)
-    {
-        return NULL;
-    }
-
-    char *p = concat_fnames(vimdir, VIM_VERSION_NODOT, true);
-
-    if(os_isdir((char_u *)p))
-    {
-        return p;
-    }
-
-    xfree(p);
-    p = concat_fnames(vimdir, RUNTIME_DIRNAME, true);
-
-    if(os_isdir((char_u *)p))
-    {
-        return p;
-    }
-
-    xfree(p);
-    return NULL;
-}
-
 /// If `dirname + "/"` precedes `pend` in the path, return the pointer to
 /// `dirname + "/" + pend`.  Otherwise return `pend`.
 ///
