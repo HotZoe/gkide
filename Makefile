@@ -171,9 +171,12 @@ else
     GKIDE_CMAKE_BUILD_FLAGS += -DCMAKE_PREFIX_PATH=$(QT5_INSTALL_PREFIX)
 endif
 
-.PHONY: deps cmake nvim snail all
+.PHONY: deps cmake nvim snail all install
 
 all: nvim snail
+
+install: all
+	+$(BUILD_CMD) -C build install
 
 cmake:
 ifeq (OFF,$(windows_cmd_shell))

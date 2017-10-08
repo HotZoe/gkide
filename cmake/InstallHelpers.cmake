@@ -1,46 +1,3 @@
-# CMAKE_INSTALL_<dir>
-#     Destination for files of a given type
-# CMAKE_INSTALL_FULL_<dir>
-#     The absolute path generated from the corresponding CMAKE_INSTALL_<dir> value
-#     <dir> is one of:
-#         BINDIR
-#             user executables (bin)
-#         SBINDIR
-#             system admin executables (sbin)
-#         LIBEXECDIR
-#             program executables (libexec)
-#         SYSCONFDIR
-#             read-only single-machine data (etc)
-#         SHAREDSTATEDIR
-#             modifiable architecture-independent data (com)
-#         LOCALSTATEDIR
-#             modifiable single-machine data (var)
-#         LIBDIR
-#             object code libraries (lib or lib64 or lib/<multiarch-tuple> on Debian)
-#         INCLUDEDIR
-#             C header files (include)
-#         OLDINCLUDEDIR
-#             C header files for non-gcc (/usr/include)
-#         DATAROOTDIR
-#             read-only architecture-independent data root (share)
-#         DATADIR
-#             read-only architecture-independent data (DATAROOTDIR)
-#         INFODIR
-#             info documentation (DATAROOTDIR/info)
-#         LOCALEDIR
-#             locale-dependent data (DATAROOTDIR/locale)
-#         MANDIR
-#             man documentation (DATAROOTDIR/man)
-#         DOCDIR
-#             documentation root (DATAROOTDIR/doc/PROJECT_NAME)
-#
-# If not define a value the above-shown default will be used
-# and the value will appear in the cache for editing by the user.
-#
-# This will create any directories that need to be created in the destination
-# path with the typical owner, group, and user permissions independent of the umask setting
-
-include(GNUInstallDirs)
 function(create_install_dir_with_perms)
     cmake_parse_arguments(_install_dir
     ""
@@ -90,9 +47,6 @@ function(create_install_dir_with_perms)
     endif()
 
     # Create any missing folders with the properly permissions.
-    # Note:
-    #     this uses a hidden option of CMake, but it's been shown to work with 2.8.11 thru 3.0.2.
-    #
     foreach(_current_dir \${_parent_dirs})
         if(NOT IS_DIRECTORY \${_current_dir})
             # file(INSTALL ...) implicitly respects DESTDIR, so there's no need to prepend it here.
@@ -106,10 +60,13 @@ function(create_install_dir_with_perms)
     ")
 endfunction()
 
-# This is to prevent the user's umask from corrupting the expected permissions for the parent
-# directories. Set properly and useful permissions.
 function(install_helper)
 
+    # cmake_parse_arguments(<prefix>
+    #                       <options>
+    #                       <one_value_keywords>
+    #                       <multi_value_keywords>
+    #                       args...)
     cmake_parse_arguments(_install_helper
     ""
     "DESTINATION;DIRECTORY;RENAME"
@@ -150,25 +107,24 @@ function(install_helper)
     endif()
 
     if(_install_helper_RENAME)
-        set(RENAME RENAME ${_install_helper_RENAME})
+        set(RENAME_ARGS RENAME ${_install_helper_RENAME})
     endif()
 
     if(_install_helper_TARGETS)
         set(_install_helper_DESTINATION "")
     endif()
 
+    # install executable (the build target)
     if(_install_helper_TARGETS)
-        # Ensure the bin area exists with the correct permissions.
-        create_install_dir_with_perms(DESTINATION ${CMAKE_INSTALL_BINDIR})
+        create_install_dir_with_perms(DESTINATION "bin")
 
         install(TARGETS ${_install_helper_TARGETS}
-                RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}) # bin
+                RUNTIME DESTINATION ${CMAKE_INSTALL_BIN_DIR}) # bin
     else()
-        create_install_dir_with_perms(
-                DESTINATION           ${_install_helper_DESTINATION}
-                DIRECTORY_PERMISSIONS ${_install_helper_DIRECTORY_PERMISSIONS})
+        create_install_dir_with_perms(DESTINATION ${_install_helper_DESTINATION})
     endif()
 
+    # install directory
     if(_install_helper_DIRECTORY)
         install(DIRECTORY             ${_install_helper_DIRECTORY}
                 DESTINATION           ${_install_helper_DESTINATION}
@@ -176,17 +132,19 @@ function(install_helper)
                 FILE_PERMISSIONS      ${_install_helper_FILE_PERMISSIONS})
     endif()
 
+    # install normal file
     if(_install_helper_FILES)
         install(FILES       ${_install_helper_FILES}
                 DESTINATION ${_install_helper_DESTINATION}
                 PERMISSIONS ${_install_helper_FILE_PERMISSIONS}
-                ${RENAME})
+                ${RENAME_ARGS})
     endif()
 
+    # install script file
     if(_install_helper_PROGRAMS)
         install(PROGRAMS    ${_install_helper_PROGRAMS}
                 DESTINATION ${_install_helper_DESTINATION}
                 PERMISSIONS ${_install_helper_PROGRAM_PERMISSIONS}
-                ${RENAME})
+                ${RENAME_ARGS})
     endif()
 endfunction()

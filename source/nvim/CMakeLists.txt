@@ -577,8 +577,8 @@ if(HOST_OS_MACOS)
     #list(APPEND NVIM_ALL_SOURCES info.plist)
 endif()
 
-
 add_executable(nvim ${NVIM_ALL_SOURCES})
+install_helper(TARGETS nvim)
 
 # libuv
 find_package(LibUV 1.9.1 REQUIRED)

@@ -64,5 +64,6 @@ endif()
 list(APPEND SNAIL_APP_SOURCES ${SNAIL_APP_QTRESRC})
 
 add_executable(snail WIN32 MACOSX_BUNDLE ${SNAIL_APP_HEADERS} ${SNAIL_APP_SOURCES})
+install_helper(TARGETS snail)
 
 target_link_libraries(snail ${SNAIL_EXEC_LINK_LIBS}) # --verbose
