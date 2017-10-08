@@ -123,7 +123,7 @@ bool os_isrealdir(const char *name) FUNC_ATTR_NONNULL_ALL
 
 /// Check if the given path is a directory or not.
 ///
-/// @return `true` if `fname` is a directory.
+/// @return **true** if **fname** is a directory.
 bool os_isdir(const char_u *name) FUNC_ATTR_NONNULL_ALL
 {
     int32_t mode = os_getperm((const char *)name);

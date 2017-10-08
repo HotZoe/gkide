@@ -434,15 +434,16 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
     return fname1;
 }
 
-/// Concatenate file names fname1 and fname2 into allocated memory.
+/// Concatenate file names **fname1** and **fname2** into allocated memory.
 ///
-/// Only add a '/' or '\\' when 'sep' is true and it is necessary.
+/// Only add a '/' or '\\' when **sep** is true and it is necessary.
 ///
-/// @param fname1 is the first part of the path or filename
-/// @param fname2 is the second half of the path or filename
-/// @param sep    is a flag to indicate a path separator should be added
-///               if necessary
-/// @return [allocated] Concatenation of fname1 and fname2.
+/// @param fname1  is the first part of the path or filename
+/// @param fname2  is the second half of the path or filename
+/// @param sep     is a flag to indicate a path separator should be added if necessary
+///
+/// @return
+/// Concatenation of **fname1** and **fname2**, caller should call xfree()
 char *concat_fnames(const char *fname1, const char *fname2, bool sep)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
 {

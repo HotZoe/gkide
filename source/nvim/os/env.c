@@ -197,6 +197,15 @@ void os_get_hostname(char *hostname, size_t size)
 /// home directory
 static char_u *homedir = NULL;
 
+/// Nvim layout subdirectory check flags
+typedef enum
+{
+    kNLC_SYS = 1, ///< if set, do check $GKIDE_SYS_HOME
+    kNLC_USR = 2, ///< if set, do check $GKIDE_USR_HOME
+    kNLC_DYN = 4, ///< if set, do check $GKIDE_DYN_HOME
+    kNLC_FLG = 8  ///< if set, check sequence: SYS->USR->DYN, otherwise, the reverse
+} NvimLayoutCheck;
+
 char *gkide_sys_home = NULL; /// gkide system  home directory, runtime fixed
 char *gkide_usr_home = NULL; /// gkide user    home directory, runtime fixed
 char *gkide_dyn_home = NULL; /// gkide dynamic home directory, runtime can changed
@@ -686,6 +695,220 @@ void expand_env_esc(char_u *restrict srcp,
 
     *dst = NUL;
 }
+
+/// Check and return: **base_dir**/**fd_name**
+///
+/// @param base_dir  basedir name, should be full path
+/// @param fd_name   file name or dir name
+/// @param flags     0: directory, 1: normal file 2: executable file
+///
+/// @return
+/// - if the **fd_name** exist, then return allocated string, the caller need to call xfree()
+/// - if the **fd_name** not exist, just return NULL
+static char *nvim_check_pathname(const char *base_dir, const char *fd_name, bool flags)
+{
+    if(base_dir == NULL || *base_dir == NUL)
+    {
+        return NULL;
+    }
+
+    char *retval = NULL;
+    if(flags == 0)
+    {
+        // subdirectory check
+        if(fd_name != NULL && *fd_name != NUL)
+        {
+            retval = concat_fnames(base_dir, fd_name, true);
+        }
+        else
+        {
+            retval = xstrdup(base_dir); // just check the base directory
+        }
+
+
+        if(os_isdir((char_u *)retval))
+        {
+            return retval; // subdir exist
+        }
+    }
+    else if(flags == 1)
+    {
+        // normal file check
+        if(fd_name != NULL && *fd_name != NUL)
+        {
+            retval = concat_fnames(base_dir, fd_name, true);
+        }
+        else
+        {
+            return NULL;
+        }
+
+        if(os_file_is_readable(retval))
+        {
+            return retval; // normal file exist and readable
+        }
+    }
+    else if(flags == 2)
+    {
+        // executable file check
+        if(fd_name != NULL && *fd_name != NUL)
+        {
+            retval = concat_fnames(base_dir, fd_name, true);
+        }
+        else
+        {
+            return NULL;
+        }
+
+        if(os_can_exe((char_u *)retval, NULL, false))
+        {
+            return retval; // programme exist
+        }
+    }
+    else
+    {
+        // flags arguments error
+        return NULL;
+    }
+
+    xfree(retval);
+    return NULL; // not exist
+}
+
+/// check GKIDE default layout directory
+///
+/// @param layoutdir  GKIDE default directory to check
+///
+/// check if the **chkname** exist in the given layout directory and what we want
+///
+/// @param chkflg     see NvimLayoutCheck
+/// @param chktype    0: directory, 1: file, 2: programme
+/// @param chkname    directory, file or programme to check
+///
+/// - check the layout directory: $GKIDE_XXX_HOME/**layoutdir**/**chkname**
+///   - **GKIDE_XXX_HOME** depends on **chkflg**:
+///     - if set NvimLayoutCheck::kNLC_SYS, then check gkide_sys_home, otherwise skip
+///     - if set NvimLayoutCheck::kNLC_USR, then check gkide_usr_home, otherwise skip
+///     - if set NvimLayoutCheck::kNLC_DYN, then check gkide_dyn_home, otherwise skip
+///
+/// @return
+/// - if the check is a true, then return allocated string, caller need to call xfree()
+/// - if not, just return NULL
+#define GKIDE_LAYOUT_CHECK_IMPL(layoutdir)                                         \
+    char *gkide_##layoutdir##_check(int chkflg, int chktype, const char *chkname)  \
+    {                                                                              \
+        if(chkname == NULL || *chkname == NUL)                                     \
+        {                                                                          \
+            return NULL;                                                           \
+        }                                                                          \
+                                                                                   \
+        chkflg = chkflg & 0xF; /* get the lower flag bits */                       \
+                                                                                   \
+        if(chkflg == 0 || chkflg == kNLC_FLG)                                      \
+        {                                                                          \
+            /* use none of sys/usr/dyn, so do nothing */                           \
+            return NULL;                                                           \
+        }                                                                          \
+                                                                                   \
+        char *retval = NULL;                                                       \
+        char *base_dir = NULL;                                                     \
+        bool sys_first = chkflg & kNLC_FLG;                                        \
+                                                                                   \
+        if(sys_first)                                                              \
+        {                                                                          \
+            /* check SYS, if not then */                                           \
+            /* check USR, if not then */                                           \
+            /* check DYN, if not then */                                           \
+            /* return NULL            */                                           \
+            if(gkide_sys_home && (chkflg & kNLC_SYS))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_sys_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+                                                                                   \
+            if(gkide_usr_home && (chkflg & kNLC_USR))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_usr_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+                                                                                   \
+            if(gkide_dyn_home && (chkflg & kNLC_DYN))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_dyn_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+        }                                                                          \
+        else                                                                       \
+        {                                                                          \
+            /* check DYN, if not then */                                           \
+            /* check USR, if not then */                                           \
+            /* check SYS, if not then */                                           \
+            /* return NULL            */                                           \
+            if(gkide_dyn_home && (chkflg & kNLC_DYN))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_dyn_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+                                                                                   \
+            if(gkide_usr_home && (chkflg & kNLC_USR))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_usr_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+                                                                                   \
+            if(gkide_sys_home && (chkflg & kNLC_SYS))                              \
+            {                                                                      \
+                base_dir = concat_fnames(gkide_sys_home, #layoutdir, true);        \
+                retval = nvim_check_pathname(base_dir, chkname, chktype);          \
+                xfree(base_dir);                                                   \
+                                                                                   \
+                if(retval)                                                         \
+                {                                                                  \
+                    return retval;                                                 \
+                }                                                                  \
+            }                                                                      \
+        }                                                                          \
+                                                                                   \
+        return NULL;                                                               \
+    }
+
+GKIDE_LAYOUT_CHECK_IMPL(bin) /* check: $GKIDE_XXX_HOME/bin */
+GKIDE_LAYOUT_CHECK_IMPL(plg) /* check: $GKIDE_XXX_HOME/plg */
+GKIDE_LAYOUT_CHECK_IMPL(etc) /* check: $GKIDE_XXX_HOME/etc */
+GKIDE_LAYOUT_CHECK_IMPL(doc) /* check: $GKIDE_XXX_HOME/doc */
+GKIDE_LAYOUT_CHECK_IMPL(loc) /* check: $GKIDE_XXX_HOME/loc */
+
+#undef GKIDE_LAYOUT_CHECK_IMPL
 
 /// If `dirname + "/"` precedes `pend` in the path, return the pointer to
 /// `dirname + "/" + pend`.  Otherwise return `pend`.
