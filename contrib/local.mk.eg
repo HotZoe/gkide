@@ -38,9 +38,9 @@
 # Uncomment the following to enable testing for snail only
 # TESTING_ENABLE := snail
 
-# By default, the installation prefix is '/opt'
+# By default, the installation prefix is: ${PROJECT_BINARY_DIR}/gkide
 #
-# GKIDE_CMAKE_EXTRA_FLAGS += -DCMAKE_INSTALL_PREFIX=/usr/local
+# GKIDE_CMAKE_EXTRA_FLAGS += -DCMAKE_INSTALL_PREFIX=Other_Install_Full_Path
 
 # Valid package release type (the trail of the full version) for all build:
 #
