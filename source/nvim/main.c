@@ -202,8 +202,6 @@ static void early_init(void)
     init_gkide_usr_home(); // Find out the gkide user home directory
     assert(gkide_usr_home != NULL);
 
-    init_homedir();
-
     // Set the default values for the options.
     // NOTE: Non-latin1 translated messages are working only after this,
     // because this is where "has_mbyte" will be set, which is used by

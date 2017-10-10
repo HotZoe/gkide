@@ -194,9 +194,6 @@ void os_get_hostname(char *hostname, size_t size)
 #endif
 }
 
-/// home directory
-static char_u *homedir = NULL;
-
 /// Nvim layout subdirectory check flags
 typedef enum
 {
@@ -229,13 +226,6 @@ char *gkide_dyn_home = NULL; /// gkide dynamic home directory, runtime can chang
 ///   Windows NT platforms, then reset $GKIDE_USR_HOME
 void init_gkide_usr_home(void)
 {
-    if(gkide_usr_home)
-    {
-        // In case we are called a second time.
-        xfree(gkide_usr_home);
-        gkide_usr_home = NULL;
-    }
-
     bool usr_home_reset = false; // need to reset gkide usr home env ?
     const char *usr_home = os_getenv(ENV_GKIDE_USR_HOME);
 
@@ -323,6 +313,14 @@ void init_gkide_usr_home(void)
         }
     }
     #endif
+
+    if(gkide_usr_home)
+    {
+        // In case we are called a second time.
+        xfree(gkide_usr_home);
+        gkide_usr_home = NULL;
+    }
+
     gkide_usr_home = vim_strsave((char_u *)usr_home);
 
     if(usr_home_reset)
@@ -334,73 +332,45 @@ void init_gkide_usr_home(void)
 }
 
 void init_gkide_dyn_home(void)
-{}
-
-/// todo: remove this func, no use $HOME any more
-void init_homedir(void)
 {
-    xfree(homedir);
-    homedir = NULL; // In case we are called a second time.
+    const char *dyn_home = os_getenv(ENV_GKIDE_DYN_HOME);
 
-    const char *var = os_getenv("HOME");
-
-    #ifdef HOST_OS_WINDOWS
-    // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
-    // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
-    // defined for each user. Try constructing $HOME from these.
-    if(var == NULL)
+    if(dyn_home == NULL)
     {
-        const char *homedrive = os_getenv("HOMEDRIVE");
-        const char *homepath = os_getenv("HOMEPATH");
+        // $GKIDE_DYN_HOME not set, just skip
+        return;
+    }
 
-        if(homepath == NULL)
+    #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
+    // Change to the dynamic home directory and get the actual path.
+    // This resolves links. Don't do it when we can't return.
+    if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
+    {
+        // change to dynamic home directory
+        if(!os_chdir(dyn_home) && os_dirname(IObuff, IOSIZE) == OK)
         {
-            homepath = "\\";
+            dyn_home = (char *)IObuff;
         }
 
-        if(homedrive != NULL && strlen(homedrive) + strlen(homepath) < MAXPATHL)
+        // go back
+        if(os_chdir(os_buf) != 0)
         {
-            snprintf(os_buf, MAXPATHL, "%s%s", homedrive, homepath);
-
-            if(os_buf[0] != NUL)
-            {
-                var = os_buf;
-                vim_setenv("HOME", os_buf);
-            }
+            EMSG(_(e_prev_dir));
         }
     }
     #endif
 
-    if(var != NULL)
+    if(gkide_dyn_home)
     {
-        #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
-        // Change to the home directory and get the actual path. This resolves links.
-        // Don't do it when we can't return.
-        if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
-        {
-            // change to home directory
-            if(!os_chdir(var) && os_dirname(IObuff, IOSIZE) == OK)
-            {
-                var = (char *)IObuff;
-            }
-
-            // go back
-            if(os_chdir(os_buf) != 0)
-            {
-                EMSG(_(e_prev_dir));
-            }
-        }
-        #endif
-        homedir = vim_strsave((char_u *)var);
+        // In case we are called a second time.
+        xfree(gkide_dyn_home);
+        gkide_dyn_home = NULL;
     }
-}
 
-#if defined(EXITFREE)
-void free_homedir(void)
-{
-    xfree(homedir);
+    gkide_dyn_home = vim_strsave((char_u *)dyn_home);
+
+    INFO_MSG("GKIDE_DYN_HOME: %s", gkide_dyn_home);
 }
-#endif
 
 /// Call expand_env() and store the result in an allocated string.
 /// This is not very memory efficient, this expects the result to be freed again soon.
@@ -553,7 +523,7 @@ void expand_env_esc(char_u *restrict srcp,
                     || vim_ispathsep(src[1])
                     || vim_strchr((char_u *)" ,\t\n", src[1]) != NULL)
             {
-                var = homedir;
+                var = gkide_usr_home;
                 tail = src + 1;
             }
             else
@@ -1078,9 +1048,9 @@ void home_replace(const buf_T *const buf, const char_u *src, char_u *dst, size_t
     }
 
     // We check both the value of the $HOME environment variable and the "real" home directory.
-    if(homedir != NULL)
+    if(gkide_usr_home != NULL)
     {
-        dirlen = STRLEN(homedir);
+        dirlen = STRLEN(gkide_usr_home);
     }
 
     char_u *homedir_env = (char_u *)os_getenv("HOME");
@@ -1121,7 +1091,7 @@ void home_replace(const buf_T *const buf, const char_u *src, char_u *dst, size_t
         // and the home directory is "/home/piet", the file does not end up
         // as "~er/bla" (which would seem to indicate the file "bla" in user
         // er's home directory)).
-        char_u *p = homedir;
+        char_u *p = gkide_usr_home;
         len = dirlen;
 
         for(;;)

@@ -148,7 +148,7 @@ FILE *open_log_file(void)
     do_log_to_file(stderr, ERROR_LOG_LEVEL, __func__, __LINE__, true,
                    "Couldn't open $GKIDE_NVIM_LOG_FILE or $HOME/.gkide/nvim.log, logging to stderr! "
                    "This may be caused by attempting to do logging before the initialization "
-                   "functions are called (e.g. init_homedir()).");
+                   "functions are called (e.g. init_gkide_usr_home()).");
     return stderr;
 }
 

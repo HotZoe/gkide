@@ -2089,21 +2089,22 @@ static const char *list_arg_vars(exarg_T *eap, const char *arg, int *first)
     return arg;
 }
 
-// TODO(ZyX-I): move to eval/ex_cmds
+// move to eval/ex_cmds
 
-/// Set one item of `:let var = expr` or `:let [v1, v2] = list` to its value
+/// Set one item of **:let var = expr** or **:let [v1, v2] = list** to its value
 ///
-/// @param[in]  arg  Start of the variable name.
-/// @param[in]  tv  Value to assign to the variable.
-/// @param[in]  copy  If true, copy value from `tv`.
+/// @param[in]  arg       Start of the variable name.
+/// @param[in]  tv        Value to assign to the variable.
+/// @param[in]  copy      If true, copy value from `tv`.
 /// @param[in]  endchars  Valid characters after variable name or NULL.
-/// @param[in]  op  Operation performed: *op is `+`, `-`, `.` for `+=`, etc.
-///                 NULL for `=`.
+/// @param[in]  op        Operation performed: *op is **+**, **-**, **.** for **+=**, etc.
+///                       NULL for **=**.
 ///
-/// @return a pointer to the char just after the var name or NULL in case of
-///         error.
-static char_u *ex_let_one(char_u *arg, typval_T *const tv,
-                          const bool copy, const char_u *const endchars,
+/// @return a pointer to the char just after the var name or NULL in case of error.
+static char_u *ex_let_one(char_u *arg,
+                          typval_T *const tv,
+                          const bool copy,
+                          const char_u *const endchars,
                           const char_u *const op)
 FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -2112,42 +2113,39 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
     int opt_flags;
     char_u *tofree = NULL;
 
-    /*
-     * ":let $VAR = expr": Set environment variable.
-     */
-    if (*arg == '$')
+    // ":let $VAR = expr": Set environment variable.
+    if(*arg == '$')
     {
         // Find the end of the name.
         arg++;
         char *name = (char *)arg;
         len = get_env_len((const char_u **)&arg);
 
-        if (len == 0)
+        if(len == 0)
         {
             EMSG2(_(e_invarg2), name - 1);
         }
         else
         {
-            if (op != NULL && (*op == '+' || *op == '-'))
+            if(op != NULL && (*op == '+' || *op == '-'))
             {
                 EMSG2(_(e_letwrong), op);
             }
-            else if (endchars != NULL
-                     && vim_strchr(endchars, *skipwhite(arg)) == NULL)
+            else if(endchars != NULL && vim_strchr(endchars, *skipwhite(arg)) == NULL)
             {
                 EMSG(_(e_letunexp));
             }
-            else if (!check_secure())
+            else if(!check_secure())
             {
                 const char c1 = name[len];
                 name[len] = NUL;
                 const char *p = tv_get_string_chk(tv);
 
-                if (p != NULL && op != NULL && *op == '.')
+                if(p != NULL && op != NULL && *op == '.')
                 {
                     char *s = vim_getenv(name);
 
-                    if (s != NULL)
+                    if(s != NULL)
                     {
                         tofree = concat_str((const char_u *)s, (const char_u *)p);
                         p = (const char *)tofree;
@@ -2155,20 +2153,23 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
                     }
                 }
 
-                if (p != NULL)
+                if(p != NULL)
                 {
                     vim_setenv(name, p);
 
-                    if (STRICMP(name, "HOME") == 0)
+                    if(STRICMP(name, ENV_GKIDE_USR_HOME) == 0)
                     {
-                        init_homedir();
+                        init_gkide_usr_home();
                     }
-                    else if (didset_vim && STRICMP(name, "VIM") == 0)
+                    else if(didset_vim && STRICMP(name, ENV_GKIDE_DYN_HOME) == 0)
+                    {
+                        init_gkide_dyn_home();
+                    }
+                    else if(didset_vim && STRICMP(name, "VIM") == 0)
                     {
                         didset_vim = false;
                     }
-                    else if (didset_vimruntime
-                             && STRICMP(name, "VIMRUNTIME") == 0)
+                    else if(didset_vimruntime && STRICMP(name, "VIMRUNTIME") == 0)
                     {
                         didset_vimruntime = false;
                     }
@@ -2185,14 +2186,13 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
         // ":let &l:option = expr": Set local option value.
         // ":let &g:option = expr": Set global option value.
     }
-    else if (*arg == '&')
+    else if(*arg == '&')
     {
         // Find the end of the name.
         char *const p = (char *)find_option_end((const char **)&arg, &opt_flags);
 
-        if (p == NULL
-                || (endchars != NULL
-                    && vim_strchr(endchars, *skipwhite((const char_u *)p)) == NULL))
+        if(p == NULL
+           || (endchars != NULL && vim_strchr(endchars, *skipwhite((const char_u *)p)) == NULL))
         {
             EMSG(_(e_letunexp));
         }
@@ -2206,21 +2206,20 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
             varnumber_T n = tv_get_number(tv);
             const char *s = tv_get_string_chk(tv);  // != NULL if number or string.
 
-            if (s != NULL && op != NULL && *op != '=')
+            if(s != NULL && op != NULL && *op != '=')
             {
                 opt_type = get_option_value(arg, &numval, (char_u **)&stringval,
                                             opt_flags);
 
-                if ((opt_type == 1 && *op == '.')
-                        || (opt_type == 0 && *op != '.'))
+                if((opt_type == 1 && *op == '.') || (opt_type == 0 && *op != '.'))
                 {
                     EMSG2(_(e_letwrong), op);
                 }
                 else
                 {
-                    if (opt_type == 1)    // number
+                    if(opt_type == 1)    // number
                     {
-                        if (*op == '+')
+                        if(*op == '+')
                         {
                             n = numval + n;
                         }
@@ -2229,18 +2228,20 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
                             n = numval - n;
                         }
                     }
-                    else if (opt_type == 0 && stringval != NULL)      // string
+                    else if(opt_type == 0 && stringval != NULL)      // string
                     {
                         char *const oldstringval = stringval;
+
                         stringval = (char *)concat_str((const char_u *)stringval,
                                                        (const char_u *)s);
+
                         xfree(oldstringval);
                         s = stringval;
                     }
                 }
             }
 
-            if (s != NULL)
+            if(s != NULL)
             {
                 set_option_value((const char *)arg, n, s, opt_flags);
                 arg_end = (char_u *)p;
@@ -2249,33 +2250,31 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
             *p = c1;
             xfree(stringval);
         }
-
         // ":let @r = expr": Set register contents.
     }
-    else if (*arg == '@')
+    else if(*arg == '@')
     {
         arg++;
 
-        if (op != NULL && (*op == '+' || *op == '-'))
+        if(op != NULL && (*op == '+' || *op == '-'))
         {
             emsgf(_(e_letwrong), op);
         }
-        else if (endchars != NULL
-                 && vim_strchr(endchars, *skipwhite(arg + 1)) == NULL)
+        else if(endchars != NULL && vim_strchr(endchars, *skipwhite(arg + 1)) == NULL)
         {
             emsgf(_(e_letunexp));
         }
         else
         {
-            char_u      *s;
+            char_u *s;
             char_u *ptofree = NULL;
             const char *p = tv_get_string_chk(tv);
 
-            if (p != NULL && op != NULL && *op == '.')
+            if(p != NULL && op != NULL && *op == '.')
             {
                 s = get_reg_contents(*arg == '@' ? '"' : *arg, kGRegExprSrc);
 
-                if (s != NULL)
+                if(s != NULL)
                 {
                     ptofree = concat_str(s, (const char_u *)p);
                     p = (const char *)ptofree;
@@ -2283,10 +2282,9 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
                 }
             }
 
-            if (p != NULL)
+            if(p != NULL)
             {
-                write_reg_contents(*arg == '@' ? '"' : *arg,
-                                   (const char_u *)p, STRLEN(p), false);
+                write_reg_contents(*arg == '@' ? '"' : *arg, (const char_u *)p, STRLEN(p), false);
                 arg_end = arg + 1;
             }
 
@@ -2294,18 +2292,16 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
         }
     }
 
-    /*
-     * ":let var = expr": Set internal variable.
-     * ":let {expr} = expr": Idem, name made with curly braces
-     */
-    else if (eval_isnamec1(*arg) || *arg == '{')
+    // ":let var = expr": Set internal variable.
+    // ":let {expr} = expr": Idem, name made with curly braces
+    else if(eval_isnamec1(*arg) || *arg == '{')
     {
         lval_T lv;
         char_u *const p = get_lval(arg, tv, &lv, false, false, 0, FNE_CHECK_START);
 
-        if (p != NULL && lv.ll_name != NULL)
+        if(p != NULL && lv.ll_name != NULL)
         {
-            if (endchars != NULL && vim_strchr(endchars, *skipwhite(p)) == NULL)
+            if(endchars != NULL && vim_strchr(endchars, *skipwhite(p)) == NULL)
             {
                 EMSG(_(e_letunexp));
             }
