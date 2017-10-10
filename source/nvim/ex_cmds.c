@@ -6816,9 +6816,7 @@ static void do_helptags(char_u *dirname, bool add_help_tags)
         }
     }
 
-    /*
-     * Loop over the found languages to generate a tags file for each one.
-     */
+    // Loop over the found languages to generate a tags file for each one.
     for (j = 0; j < ga.ga_len; j += 2)
     {
         STRCPY(fname, "tags-xx");

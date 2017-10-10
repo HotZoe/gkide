@@ -33,7 +33,7 @@ int stream_set_blocking(int fd, bool blocking)
     return retval;
 }
 
-void stream_init(Loop *loop, Stream *stream, int fd, uv_stream_t *uvstream)
+void stream_init(main_loop_T *loop, Stream *stream, int fd, uv_stream_t *uvstream)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     stream->uvstream = uvstream;

@@ -5466,7 +5466,7 @@ static int ExpandUserList(expand_T *xp, int *num_file, char_u ***file)
 
     ga_init(&ga, (int)sizeof(char *), 3);
 
-    /* Loop over the items in the list. */
+    // Loop over the items in the list.
     for (li = retlist->lv_first; li != NULL; li = li->li_next)
     {
         if (li->li_tv.v_type != VAR_STRING || li->li_tv.vval.v_string == NULL)

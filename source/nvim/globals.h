@@ -18,19 +18,14 @@
 
 #include "config.h"
 
-#define IOSIZE         (1024+1)          // file I/O and sprintf buffer size
-
-#define MAX_MCO        6                 // maximum value for 'maxcombine'
-
-# define MSG_BUF_LEN 480                 // length of buffer for small messages
-# define MSG_BUF_CLEN  (MSG_BUF_LEN / 6) // cell length (worst case: utf-8
-// takes 6 bytes for one cell)
-
-#ifdef HOST_OS_WINDOWS
-    #define _PATHSEPSTR "\\"
-#else
-    #define _PATHSEPSTR "/"
-#endif
+/// file I/O and sprintf buffer size
+#define IOSIZE         (1024+1)
+/// maximum value for 'maxcombine'
+#define MAX_MCO        (6)
+/// length of buffer for small messages
+#define MSG_BUF_LEN    (480)
+/// cell length, worst case: utf-8 takes 6 bytes for one cell
+#define MSG_BUF_CLEN   (MSG_BUF_LEN / 6)
 
 #ifndef FILETYPE_FILE
     #define FILETYPE_FILE  "filetype.vim"
@@ -59,15 +54,15 @@
 #define DFLT_ERRORFILE  "errors.err"
 
 #ifndef SYS_VIMRC_FILE
-    #define SYS_VIMRC_FILE "$VIM" _PATHSEPSTR "sysinit.vim"
+    #define SYS_VIMRC_FILE "$VIM" OS_PATH_SEP_STR "sysinit.vim"
 #endif
 
 #ifndef DFLT_HELPFILE
-    #define DFLT_HELPFILE  "$VIMRUNTIME" _PATHSEPSTR "doc" _PATHSEPSTR "help.txt"
+    #define DFLT_HELPFILE  "$VIMRUNTIME" OS_PATH_SEP_STR "doc" OS_PATH_SEP_STR "help.txt"
 #endif
 
 #ifndef SYNTAX_FNAME
-    #define SYNTAX_FNAME   "$VIMRUNTIME" _PATHSEPSTR "syntax" _PATHSEPSTR "%s.vim"
+    #define SYNTAX_FNAME   "$VIMRUNTIME" OS_PATH_SEP_STR "syntax" OS_PATH_SEP_STR "%s.vim"
 #endif
 
 #ifndef EXRC_FILE
@@ -102,6 +97,7 @@ typedef enum
     /// startup not finished: needs to load plugins
     kRS_Plugins = 4,
 } RunningStatus;
+
 // Values for "starting"
 #define NO_SCREEN    2   ///< no screen updating yet
 #define NO_BUFFERS   1   ///< not all buffers loaded yet
@@ -693,33 +689,33 @@ EXTERN int sandbox INIT(= 0);
  * "sandbox".  Several things are not allowed
  * then. */
 
+/// set to TRUE when **-s** commandline argument used for ex
 EXTERN int silent_mode INIT(= FALSE);
-/* set to TRUE when "-s" commandline argument
- * used for ex */
 
 // Set to true when sourcing of startup scripts (init.vim) is done.
 // Used for options that cannot be changed after startup scripts.
 EXTERN bool did_source_startup_scripts INIT(= false);
 
-EXTERN pos_T VIsual;            /* start position of active Visual selection */
+/// start position of active Visual selection
+EXTERN pos_T VIsual;
+
 EXTERN int VIsual_active INIT(= FALSE);
-/* whether Visual mode is active */
+
+/// whether Visual mode is active
 EXTERN int VIsual_select INIT(= FALSE);
-/* whether Select mode is active */
+
+/// whether Select mode is active
 EXTERN int VIsual_reselect;
-/* whether to restart the selection after a
- * Select mode mapping or menu */
 
+/// whether to restart the selection after a Select mode mapping or menu
+/// type of Visual mode
 EXTERN int VIsual_mode INIT(= 'v');
-/* type of Visual mode */
 
+/// TRUE when redoing Visual
 EXTERN int redo_VIsual_busy INIT(= FALSE);
-/* TRUE when redoing Visual */
 
-/*
- * When pasting text with the middle mouse button in visual mode with
- * restart_edit set, remember where it started so we can set Insstart.
- */
+/// When pasting text with the middle mouse button in visual mode with
+/// restart_edit set, remember where it started so we can set Insstart.
 EXTERN pos_T where_paste_started;
 
 /*

@@ -24,7 +24,7 @@
     #include "event/socket.c.generated.h"
 #endif
 
-int socket_watcher_init(Loop *loop, SocketWatcher *watcher, const char *endpoint)
+int socket_watcher_init(main_loop_T *loop, SocketWatcher *watcher, const char *endpoint)
 FUNC_ATTR_NONNULL_ALL
 {
     xstrlcpy(watcher->addr, endpoint, sizeof(watcher->addr));
@@ -241,7 +241,7 @@ static void connect_cb(uv_connect_t *req, int status)
     }
 }
 
-bool socket_connect(Loop *loop,
+bool socket_connect(main_loop_T *loop,
                     Stream *stream,
                     bool is_tcp,
                     const char *address,

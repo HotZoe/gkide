@@ -8356,12 +8356,9 @@ void alist_init(alist_T *al)
     ga_init(&al->al_ga, (int)sizeof(aentry_T), 5);
 }
 
-
-/*
- * Remove a reference from an argument list.
- * Ignored when the argument list is the global one.
- * If the argument list is no longer used by any window, free it.
- */
+/// Remove a reference from an argument list.
+/// Ignored when the argument list is the global one.
+/// If the argument list is no longer used by any window, free it.
 void alist_unlink(alist_T *al)
 {
     if (al != &global_alist && --al->al_refcount <= 0)
@@ -8371,9 +8368,7 @@ void alist_unlink(alist_T *al)
     }
 }
 
-/*
- * Create a new argument list and use it for the current window.
- */
+/// Create a new argument list and use it for the current window.
 void alist_new(void)
 {
     curwin->w_alist = xmalloc(sizeof(*curwin->w_alist));

@@ -20,7 +20,7 @@ typedef void (*internal_process_cb)(Process *proc);
 struct process
 {
     ProcessType type;
-    Loop *loop;
+    main_loop_T *loop;
     void *data;
     int pid;
     int status;
@@ -41,7 +41,7 @@ struct process
     MultiQueue *events;
 };
 
-static inline Process process_init(Loop *loop, ProcessType type, void *data)
+static inline Process process_init(main_loop_T *loop, ProcessType type, void *data)
 {
     return (Process) {
         .type = type,

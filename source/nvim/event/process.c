@@ -136,7 +136,7 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-void process_teardown(Loop *loop) FUNC_ATTR_NONNULL_ALL
+void process_teardown(main_loop_T *loop) FUNC_ATTR_NONNULL_ALL
 {
     process_is_tearing_down = true;
 
@@ -291,7 +291,7 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
             abort();
     }
 
-    Loop *loop = proc->loop;
+    main_loop_T *loop = proc->loop;
 
     if(!loop->children_stop_requests++)
     {
@@ -306,7 +306,7 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
 /// to those that didn't die from SIGTERM after a while(exit_timeout is 0).
 static void children_kill_cb(uv_timer_t *handle)
 {
-    Loop *loop = handle->loop->data;
+    main_loop_T *loop = handle->loop->data;
     uint64_t now = os_hrtime();
     kl_iter(WatcherPtr, loop->children, current)
     {
@@ -356,7 +356,7 @@ static void decref(Process *proc)
         return;
     }
 
-    Loop *loop = proc->loop;
+    main_loop_T *loop = proc->loop;
     kliter_t(WatcherPtr) **node = NULL;
     kl_iter(WatcherPtr, loop->children, current)
     {
@@ -460,7 +460,7 @@ static void process_close_handles(void **argv)
 
 static void on_process_exit(Process *proc)
 {
-    Loop *loop = proc->loop;
+    main_loop_T *loop = proc->loop;
 
     if(proc->stopped_time && loop->children_stop_requests && !--loop->children_stop_requests)
     {

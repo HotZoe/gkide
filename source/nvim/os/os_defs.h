@@ -56,8 +56,10 @@
 
 #ifdef HOST_OS_WINDOWS
     #define os_strtok        strtok_s
+    #define OS_PATH_SEP_STR  "\\"
 #else
     #define os_strtok        strtok_r
+    #define OS_PATH_SEP_STR  "/"
 #endif
 
 #endif // NVIM_OS_OS_DEFS_H

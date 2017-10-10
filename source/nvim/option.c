@@ -1055,7 +1055,7 @@ void free_all_options(void)
 #endif
 
 
-/// Initialize the options, part two: After getting `Rows` and `Columns`.
+/// Initialize the options, part two: After getting **Rows** and **Columns**.
 void set_init_2(bool headless)
 {
     // 'scroll' defaults to half the window height. Note that this default is
@@ -1088,9 +1088,7 @@ void set_init_2(bool headless)
     (void)parse_printoptions();     // parse 'printoptions' default value
 }
 
-/*
- * Initialize the options, part three: After reading the .vimrc
- */
+/// Initialize the options, part three: After reading the *.nvimrc
 void set_init_3(void)
 {
     // Set 'shellpipe' and 'shellredir', depending on the 'shell' option.

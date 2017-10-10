@@ -17,7 +17,7 @@ typedef void *WatcherPtr;
 
 KLIST_INIT(WatcherPtr, WatcherPtr, _noop)
 
-typedef struct loop
+typedef struct main_loop_S
 {
     uv_loop_t uv;
     MultiQueue *events;
@@ -33,7 +33,7 @@ typedef struct loop
     uv_async_t async;
     uv_mutex_t mutex;
     int recursive;
-} Loop;
+} main_loop_T;
 
 #define CREATE_EVENT(multiqueue, handler, argc, ...)                    \
     do                                                                  \

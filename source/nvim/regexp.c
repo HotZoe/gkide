@@ -2078,7 +2078,7 @@ static char_u *regconcat(int *flagp)
         }
     }
 
-    if (first == NULL)            /* Loop ran zero times. */
+    if (first == NULL) // Loop ran zero times.
     {
         first = regnode(NOTHING);
     }

@@ -2436,9 +2436,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
         return NULL;
     }
 
-    /*
-     * Loop until no more [idx] or .key is following.
-     */
+    // Loop until no more [idx] or .key is following.
     lp->ll_tv = &v->di_tv;
 
     while (*p == '[' || (*p == '.' && lp->ll_tv->v_type == VAR_DICT))

@@ -773,9 +773,7 @@ void ex_hardcopy(exarg_T *eap)
         goto print_fail_no_begin;
     }
 
-    /*
-     * Loop over collated copies: 1 2 3, 1 2 3, ...
-     */
+    // Loop over collated copies: 1 2 3, 1 2 3, ...
     page_count = 0;
 
     for (collated_copies = 0;
@@ -800,15 +798,11 @@ void ex_hardcopy(exarg_T *eap)
             }
         }
 
-        /*
-         * Loop over all pages in the print job: 1 2 3 ...
-         */
+        // Loop over all pages in the print job: 1 2 3 ...
         for (page_count = 0; prtpos.file_line <= eap->line2; ++page_count)
         {
-            /*
-             * Loop over uncollated copies: 1 1 1, 2 2 2, 3 3 3, ...
-             * For duplex: 12 12 12 34 34 34, ...
-             */
+            // Loop over uncollated copies: 1 1 1, 2 2 2, 3 3 3, ...
+            // For duplex: 12 12 12 34 34 34, ...
             for (uncollated_copies = 0;
                     uncollated_copies < settings.n_uncollated_copies;
                     uncollated_copies++)
@@ -972,9 +966,7 @@ static colnr_T hardcopy_line(prt_settings_T *psettings, int page_line, prt_pos_T
     mch_print_start_line(0, page_line);
     line = ml_get(ppos->file_line);
 
-    /*
-     * Loop over the columns until the end of the file line or right margin.
-     */
+    // Loop over the columns until the end of the file line or right margin.
     for (col = ppos->column; line[col] != NUL && !need_break; col += outputlen)
     {
         if ((outputlen = (*mb_ptr2len)(line + col)) < 1)

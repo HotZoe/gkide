@@ -11,7 +11,7 @@
     #include "event/time.c.generated.h"
 #endif
 
-void time_watcher_init(Loop *loop, TimeWatcher *watcher, void *data)
+void time_watcher_init(main_loop_T *loop, TimeWatcher *watcher, void *data)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_NONNULL_ARG(2)
 {
     uv_timer_init(&loop->uv, &watcher->uv);

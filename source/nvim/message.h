@@ -9,19 +9,15 @@
 
 #include "nvim/types.h"
 
-/*
- * Types of dialogs passed to do_dialog().
- */
+// Types of dialogs passed to do_dialog().
 #define VIM_GENERIC     0
 #define VIM_ERROR       1
 #define VIM_WARNING     2
 #define VIM_INFO        3
 #define VIM_QUESTION    4
-#define VIM_LAST_TYPE   4       /* sentinel value */
+#define VIM_LAST_TYPE   4  /* sentinel value */
 
-/*
- * Return values for functions like vim_dialogyesno()
- */
+// Return values for functions like vim_dialogyesno()
 #define VIM_YES         2
 #define VIM_NO          3
 #define VIM_CANCEL      4
@@ -66,7 +62,7 @@
 /// Like #MSG_PUTS_ATTR, but if middle part of long messages will be replaced
 #define MSG_PUTS_LONG_ATTR(s, a)    msg_puts_long_attr((char_u *)(s), (a))
 
-/// Message history for `:messages`
+/// Message history for **:messages**
 typedef struct msg_hist
 {
     struct msg_hist *next;  ///< Next message.
@@ -76,6 +72,7 @@ typedef struct msg_hist
 
 /// First message
 extern MessageHistoryEntry *first_msg_hist;
+
 /// Last message
 extern MessageHistoryEntry *last_msg_hist;
 

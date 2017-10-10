@@ -123,7 +123,7 @@ typedef struct
     #include "main.c.generated.h"
 #endif
 
-Loop main_loop;
+main_loop_T main_loop;
 
 static char *argv0 = NULL;
 
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
     init_params(&params, argc, argv);
     init_startuptime(&params);
     early_init();
-    check_and_set_isatty(&params); // Check if we have an interactive window.
+    check_and_set_isatty(&params);
     event_init();
 
     // Process the command line arguments.
@@ -271,15 +271,19 @@ int main(int argc, char **argv)
     assert(p_ch >= 0 && Rows >= p_ch && Rows - p_ch <= INT_MAX);
     cmdline_row = (int)(Rows - p_ch);
     msg_row = cmdline_row;
-    // allocate screen buffers
-    screenalloc(false);
+
+    screenalloc(false); // allocate screen buffers
+
     set_init_2(params.headless);
-    TIME_MSG("init part-2");
+    TIME_MSG("set_init_2");
+
     msg_scroll = TRUE;
     no_wait_return = TRUE;
+
     // set the default highlight groups
     init_highlight(TRUE, FALSE);
-    TIME_MSG("init highlight");
+    TIME_MSG("init_highlight");
+
     // Set the break level after the terminal is initialized.
     debug_break_level = params.use_debug_break_level;
     bool reading_input = !params.headless && (params.input_isatty  ||
@@ -327,6 +331,7 @@ int main(int argc, char **argv)
 
     // Execute --cmd arguments.
     exe_pre_commands(&params);
+
     // Source startup scripts.
     source_startup_scripts(&params);
 
@@ -689,7 +694,7 @@ static void init_locale(void)
     // the default local root directory for nvim, which is
     // $GKIDE_SYS_HOME/loc/language
     vim_snprintf((char *)NameBuff, MAXPATHL,
-                 "%s" _PATHSEPSTR "loc" _PATHSEPSTR "language", gkide_sys_home);
+                 "%s" OS_PATH_SEP_STR "loc" OS_PATH_SEP_STR "language", gkide_sys_home);
 
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
@@ -718,17 +723,17 @@ static void init_locale(void)
 /// Scan the command line arguments.
 static void command_line_scan(mparm_T *parmp)
 {
-    int argc = parmp->argc;
-    char **argv = parmp->argv;
-    int argv_idx;               // index in argv[n][]
-    int had_minmin = FALSE;     // found "--" argument
-    int want_argument;          // option argument with argument
+    // skip the programe name itself
+    int argc = parmp->argc - 1;
+    char **argv = parmp->argv + 1;
+
+    int want_argument;      // option argument with argument
+    int had_minmin = FALSE; // found "--" argument
+    int argv_idx = 1;       // index in argv[n][]
+
     int c;
-    char_u *p = NULL;
     long n;
-    --argc;
-    ++argv;
-    argv_idx = 1; // active option letter is argv[0][argv_idx]
+    char_u *p = NULL;
 
     while(argc > 0)
     {
@@ -1336,7 +1341,7 @@ scripterror:
         xfree(swcmd);
     }
 
-    TIME_MSG("parsing arguments");
+    TIME_MSG("command_line_scan");
 }
 
 /// Many variables are in **paramp** so that we can pass it to invoked functions without a
@@ -1368,12 +1373,13 @@ static void init_startuptime(mparm_T *paramp)
     starttime = time(NULL);
 }
 
+/// Check if we have an interactive window, if it does, set flags
 static void check_and_set_isatty(mparm_T *paramp)
 {
     paramp->input_isatty = os_isatty(fileno(stdin));
     paramp->output_isatty = os_isatty(fileno(stdout));
     paramp->err_isatty = os_isatty(fileno(stderr));
-    TIME_MSG("tty window checked");
+    TIME_MSG("check_and_set_isatty");
 }
 
 static void init_gkide_sys_home(const char *exepath)
@@ -2110,30 +2116,25 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 static void source_startup_scripts(const mparm_T *const parmp)
 FUNC_ATTR_NONNULL_ALL
 {
-    // If -u argument given, use only the initializations from that file and
-    // nothing else.
-    if (parmp->use_vimrc != NULL)
+    // If -u argument given, use only the initializations from that file and nothing else.
+    if(parmp->use_vimrc != NULL)
     {
-        if (strcmp(parmp->use_vimrc, "NONE") == 0
-                || strcmp(parmp->use_vimrc, "NORC") == 0)
+        if(!(strcmp(parmp->use_vimrc, "NONE") == 0 || strcmp(parmp->use_vimrc, "NORC") == 0))
         {
-        }
-        else
-        {
-            if (do_source((char_u *)parmp->use_vimrc, FALSE, DOSO_NONE) != OK)
+            if(do_source((char_u *)parmp->use_vimrc, FALSE, DOSO_NONE) != OK)
             {
                 EMSG2(_("E282: Cannot read from \"%s\""), parmp->use_vimrc);
             }
         }
     }
-    else if (!silent_mode)
+    else if(!silent_mode)
     {
-#ifdef SYS_VIMRC_FILE
+        #ifdef SYS_VIMRC_FILE
         // Get system wide defaults, if the file name is defined.
         (void) do_source((char_u *)SYS_VIMRC_FILE, false, DOSO_NONE);
-#endif
+        #endif
 
-        if (do_user_initialization())
+        if(do_user_initialization())
         {
             // Read initialization commands from ".vimrc" or ".exrc" in current
             // directory.  This is only done if the 'exrc' option is set.
@@ -2142,18 +2143,17 @@ FUNC_ATTR_NONNULL_ALL
             // option has been reset in environment of global "exrc" or "vimrc".
             // Only do this if VIMRC_FILE is not the same as vimrc file sourced in
             // do_user_initialization.
-#if defined(UNIX)
+            #if defined(UNIX)
             // If vimrc file is not owned by user, set 'secure' mode.
             if (!file_owned(VIMRC_FILE))
-#endif
+            #endif
                 secure = p_secure;
 
-            if (do_source((char_u *)VIMRC_FILE, true, DOSO_VIMRC) == FAIL)
+            if(do_source((char_u *)VIMRC_FILE, true, DOSO_VIMRC) == FAIL)
             {
-#if defined(UNIX)
-
+                #if defined(UNIX)
                 // if ".exrc" is not owned by user set 'secure' mode
-                if (!file_owned(EXRC_FILE))
+                if(!file_owned(EXRC_FILE))
                 {
                     secure = p_secure;
                 }
@@ -2161,13 +2161,13 @@ FUNC_ATTR_NONNULL_ALL
                 {
                     secure = 0;
                 }
+                #endif
 
-#endif
                 (void)do_source((char_u *)EXRC_FILE, false, DOSO_NONE);
             }
         }
 
-        if (secure == 2)
+        if(secure == 2)
         {
             need_wait_return = true;
         }
@@ -2176,12 +2176,10 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     did_source_startup_scripts = true;
-    TIME_MSG("sourcing vimrc file(s)");
+    TIME_MSG("sourcing nvimrc file(s)");
 }
 
-/*
- * Setup to start using the GUI.  Exit with an error when not available.
- */
+/// Setup to start using the GUI.  Exit with an error when not available.
 static void main_start_gui(void)
 {
     mch_errmsg(_(e_nogvim));
@@ -2195,15 +2193,14 @@ static void main_start_gui(void)
 /// @param env         environment variable to execute
 /// @param is_viminit  when true, called for VIMINIT
 ///
-/// @return FAIL if the environment variable was not executed,
-///         OK otherwise.
+/// @return FAIL if the environment variable was not executed, OK otherwise.
 static int process_env(char *env, bool is_viminit)
 {
     const char *initstr = os_getenv(env);
 
-    if (initstr != NULL)
+    if(initstr != NULL)
     {
-        if (is_viminit)
+        if(is_viminit)
         {
             vimrc_found(NULL, NULL);
         }
@@ -2232,17 +2229,15 @@ static bool file_owned(const char *fname)
 {
     uid_t uid = getuid();
     FileInfo file_info;
-    bool file_owned = os_fileinfo(fname, &file_info)
-                      && file_info.stat.st_uid == uid;
-    bool link_owned = os_fileinfo_link(fname, &file_info)
-                      && file_info.stat.st_uid == uid;
+    bool file_owned = os_fileinfo(fname, &file_info) && file_info.stat.st_uid == uid;
+    bool link_owned = os_fileinfo_link(fname, &file_info) && file_info.stat.st_uid == uid;
     return file_owned && link_owned;
 }
 #endif
 
 /// Prints the following then exits:
-/// - An error message `errstr`
-/// - A string `str` if not null
+/// - An error message **errstr**
+/// - A string **str** if not null
 ///
 /// @param errstr  string containing an error message
 /// @param str     string to append to the primary error message, or NULL
@@ -2267,19 +2262,19 @@ static void mainerr(const char *errstr, const char *str)
     mch_exit(1);
 }
 
-/// Prints version information for "nvim -v" or "nvim --version".
+/// Prints version information for **nvim -v** or **nvim --version**
 static void version(void)
 {
-    info_message = TRUE;  // use mch_msg(), not mch_errmsg()
+    info_message = TRUE; // use mch_msg(), not mch_errmsg()
     list_version();
     msg_putchar('\n');
     msg_didout = FALSE;
 }
 
-/// Prints help message for "nvim -h" or "nvim --help".
+/// Prints help message for **nvim -h** or **nvim --help**
 static void usage(void)
 {
-    signal_stop();              // kill us with CTRL-C here, if you like
+    signal_stop(); // kill us with CTRL-C here, if you like
     mch_msg(_("Usage:\n"));
     mch_msg(_("  nvim [arguments] [file ...]      Edit specified file(s)\n"));
     mch_msg(_("  nvim [arguments] -               Read text from stdin\n"));
@@ -2287,9 +2282,11 @@ static void usage(void)
     mch_msg(_("  nvim [arguments] -q [errorfile]  Edit file with first error\n"));
     mch_msg(_("\nArguments:\n"));
     mch_msg(_("  --                    Only file names after this\n"));
-#if !defined(UNIX)
+
+    #if !defined(UNIX)
     mch_msg(_("  --literal             Don't expand wildcards\n"));
-#endif
+    #endif
+
     mch_msg(_("  -e                    Ex mode\n"));
     mch_msg(_("  -E                    Improved Ex mode\n"));
     mch_msg(_("  -s                    Silent (batch) mode (only for ex mode)\n"));
@@ -2332,14 +2329,13 @@ static void usage(void)
 }
 
 
-/*
- * Check the result of the ATTENTION dialog:
- * When "Quit" selected, exit Vim.
- * When "Recover" selected, recover the file.
- */
+/// Check the result of the ATTENTION dialog:
+///
+// When "Quit" selected, exit Vim.
+// When "Recover" selected, recover the file.
 static void check_swap_exists_action(void)
 {
-    if (swap_exists_action == SEA_QUIT)
+    if(swap_exists_action == SEA_QUIT)
     {
         getout(1);
     }

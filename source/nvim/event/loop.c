@@ -12,7 +12,7 @@
     #include "event/loop.c.generated.h"
 #endif
 
-void loop_init(Loop *loop, void *data)
+void loop_init(main_loop_T *loop, void *data)
 {
     uv_loop_init(&loop->uv);
     loop->recursive = 0;
@@ -29,7 +29,7 @@ void loop_init(Loop *loop, void *data)
     uv_timer_init(&loop->uv, &loop->poll_timer);
 }
 
-void loop_poll_events(Loop *loop, int ms)
+void loop_poll_events(main_loop_T *loop, int ms)
 {
     if(loop->recursive++)
     {
@@ -62,7 +62,7 @@ void loop_poll_events(Loop *loop, int ms)
 }
 
 // Schedule an event from another thread
-void loop_schedule(Loop *loop, Event event)
+void loop_schedule(main_loop_T *loop, Event event)
 {
     uv_mutex_lock(&loop->mutex);
     multiqueue_put_event(loop->thread_events, event);
@@ -72,7 +72,7 @@ void loop_schedule(Loop *loop, Event event)
 
 void loop_on_put(MultiQueue *queue, void *data)
 {
-    Loop *loop = data;
+    main_loop_T *loop = data;
     // Sometimes libuv will run pending callbacks(timer for example) before
     // blocking for a poll. If this happens and the callback pushes a event to one
     // of the queues, the event would only be processed after the poll
@@ -81,7 +81,7 @@ void loop_on_put(MultiQueue *queue, void *data)
     uv_stop(&loop->uv);
 }
 
-void loop_close(Loop *loop, bool wait)
+void loop_close(main_loop_T *loop, bool wait)
 {
     uv_mutex_destroy(&loop->mutex);
     uv_close((uv_handle_t *)&loop->children_watcher, NULL);
@@ -100,7 +100,7 @@ void loop_close(Loop *loop, bool wait)
     kl_destroy(WatcherPtr, loop->children);
 }
 
-void loop_purge(Loop *loop)
+void loop_purge(main_loop_T *loop)
 {
     uv_mutex_lock(&loop->mutex);
     multiqueue_purge_events(loop->thread_events);
@@ -108,7 +108,7 @@ void loop_purge(Loop *loop)
     uv_mutex_unlock(&loop->mutex);
 }
 
-size_t loop_size(Loop *loop)
+size_t loop_size(main_loop_T *loop)
 {
     uv_mutex_lock(&loop->mutex);
     size_t rv = multiqueue_size(loop->thread_events);
@@ -118,7 +118,7 @@ size_t loop_size(Loop *loop)
 
 static void async_cb(uv_async_t *handle)
 {
-    Loop *l = handle->loop->data;
+    main_loop_T *l = handle->loop->data;
     uv_mutex_lock(&l->mutex);
 
     while(!multiqueue_empty(l->thread_events))

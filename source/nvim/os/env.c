@@ -271,7 +271,7 @@ void init_gkide_usr_home(void)
     if(usr_home_reset)
     {
         // make '.gkide' directory first, then reset gkide usr home env
-        snprintf(NameBuff, MAXPATHL, "%s" _PATHSEPSTR ".gkide", usr_home);
+        snprintf(NameBuff, MAXPATHL, "%s" OS_PATH_SEP_STR ".gkide", usr_home);
     }
     else
     {

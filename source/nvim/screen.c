@@ -3903,8 +3903,7 @@ win_line (
                                     }
                                 }
 
-                                /* Loop to check if the match starts at the
-                                 * current position */
+                                // Loop to check if the match starts at the current position
                                 continue;
                             }
                         }

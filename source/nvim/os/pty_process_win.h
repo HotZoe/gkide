@@ -23,7 +23,7 @@ typedef struct pty_process
 #define pty_process_teardown(loop) \
     ((void)loop, 0)
 
-static inline PtyProcess pty_process_init(Loop *loop, void *data)
+static inline PtyProcess pty_process_init(main_loop_T *loop, void *data)
 {
     PtyProcess rv;
     rv.process = process_init(loop, kProcessTypePty, data);

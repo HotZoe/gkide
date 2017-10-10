@@ -7669,9 +7669,7 @@ void do_autocmd(char_u *arg_in, int forceit)
         MSG_PUTS_TITLE(_("\n--- Auto-Commands ---"));
     }
 
-    /*
-     * Loop over the events.
-     */
+    // Loop over the events.
     last_event = (event_T)-1;             // for listing the event name
     last_group = AUGROUP_ERROR;           // for listing the group name
 
@@ -7800,9 +7798,7 @@ static int do_autocmd_event(event_T event, char_u *pat, int nested, char_u *cmd,
         }
     }
 
-    /*
-     * Loop through all the specified patterns.
-     */
+    // Loop through all the specified patterns.
     for (; *pat; pat = (*endpat == ',' ? endpat + 1 : endpat))
     {
         /*
@@ -8065,9 +8061,7 @@ do_doautocmd (
 
     fname = skipwhite(fname);
 
-    /*
-     * Loop over the events.
-     */
+    // Loop over the events.
     while (*arg && !ascii_iswhite(*arg))
         if (apply_autocmds_group(event_name2nr(arg, &arg),
                                  fname, NULL, TRUE, group, curbuf, NULL))

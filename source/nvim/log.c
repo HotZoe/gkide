@@ -18,7 +18,7 @@
 #define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_LOGGINGS
 
 /// Fall back location of the log file used by log_path_init()
-#define USR_LOG_FILE_DEFAULT  "$" ENV_GKIDE_USR_HOME _PATHSEPSTR "nvim.log"
+#define USR_LOG_FILE_DEFAULT  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "nvim.log"
 
 /// Cached location of the log file set by log_path_init()
 static char expanded_log_file_path[MAXPATHL + 1] = { 0 };

@@ -6,7 +6,7 @@
 #include "nvim/normal.h"
 #include "nvim/event/loop.h"
 
-extern Loop main_loop;
+extern main_loop_T main_loop;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "main.h.generated.h"
