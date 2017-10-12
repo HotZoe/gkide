@@ -9,14 +9,24 @@
 
 typedef void (*DoInRuntimepathCB)(char_u *, void *);
 
-/*
- * flags for check_changed()
- */
-#define CCGD_AW         1       /* do autowrite if buffer was changed */
-#define CCGD_MULTWIN    2       /* check also when several wins for the buf */
-#define CCGD_FORCEIT    4       /* ! used */
-#define CCGD_ALLBUF     8       /* may write all buffers */
-#define CCGD_EXCMD      16      /* may suggest using ! */
+// flags for check_changed()
+#define CCGD_AW         1       /// do autowrite if buffer was changed
+#define CCGD_MULTWIN    2       /// check also when several wins for the buf
+#define CCGD_FORCEIT    4       /// ! used
+#define CCGD_ALLBUF     8       /// may write all buffers
+#define CCGD_EXCMD      16      /// may suggest using
+
+/// The nvim config, plugin and autocmds file types
+enum SourceFileType_S
+{
+    kLoadNvimrcSys = 0,  ///< loading system nvimrc
+    kLoadNvimrcUsr = 1,  ///< loading user nvimrc
+    kLoadNvimrcDyn = 2,  ///< loading dynamic nvimrc, e.g.: for project
+
+    kLoadCmdrcSys  = 3,  ///< loading system cmdrc
+    kLoadCmdrcUsr  = 4,  ///< loading user cmdrc
+    kLoadCmdrcDyn  = 5,  ///< loading dynamic cmdrc, e.g.: for project
+};
 
 /* last argument for do_source() */
 #define DOSO_NONE       0

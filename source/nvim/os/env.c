@@ -412,12 +412,12 @@ void expand_env(char_u *src, char_u *dst, int dstlen)
 /// Expand environment variable with path name and escaping.
 /// @see expand_env
 ///
-/// @param srcp       Input string e.g. "$HOME/vim.hlp"
-/// @param dst[out]   Where to put the result
-/// @param dstlen     Maximum length of the result
-/// @param esc        Escape spaces in expanded variables
-/// @param one        `srcp` is a single filename
-/// @param prefix     Start again after this (can be NULL)
+/// @param[in]  srcp       Input string e.g. "$GKIDE_USR_HOME/help.nvim"
+/// @param[out] dst        Where to put the result
+/// @param[in]  dstlen     Maximum length of the result
+/// @param[in]  esc        Escape spaces in expanded variables
+/// @param[in]  one        **srcp** is a single filename
+/// @param[in]  prefix     Start again after this (can be NULL)
 void expand_env_esc(char_u *restrict srcp,
                     char_u *restrict dst,
                     int dstlen,
@@ -428,11 +428,13 @@ void expand_env_esc(char_u *restrict srcp,
     char_u *tail;
     char_u *var;
     bool copy_char;
-    bool mustfree;         // var was allocated, need to free it later
-    bool at_start = true;  // at start of a name
+    bool mustfree; // var was allocated, need to free it later
+
+    bool at_start = true; // at start of a name
     int prefix_len = (prefix == NULL) ? 0 : (int)STRLEN(prefix);
+    dstlen--; // leave one char space for comma, which is ','
+
     char_u *src = skipwhite(srcp);
-    dstlen--;  // leave one char space for "\,"
 
     while(*src && dstlen > 0)
     {

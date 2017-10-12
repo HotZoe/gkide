@@ -205,7 +205,6 @@ enum
 #define UNDO_HASH_SIZE   32
 
 // defines to avoid typecasts from (char_u *) to (char *) and back
-// (vim_strchr() and vim_strrchr() are now in alloc.c)
 #define STRLEN(s)           strlen((char *)(s))
 #define STRCPY(d, s)        strcpy((char *)(d), (char *)(s))
 #define STRNCPY(d, s, n)    strncpy((char *)(d), (char *)(s), (size_t)(n))

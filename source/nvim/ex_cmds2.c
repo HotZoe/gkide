@@ -96,11 +96,13 @@ struct source_cookie
 {
     FILE *fp;                     ///< opened file for sourcing
     char_u *nextline;             ///< if not NULL: line that was read ahead
-    int finished;                 ///< ":finish" used
-#if defined(USE_CRNL)
+    int finished;                 ///< **:finish** used
+
+    #if defined(USE_CRNL)
     int fileformat;               ///< EOL_UNKNOWN, EOL_UNIX or EOL_DOS
-    bool error;                    ///< true if LF found after CR-LF
-#endif
+    bool error;                   ///< true if LF found after CR-LF
+    #endif
+
     linenr_T breakpoint;          ///< next line with breakpoint or zero
     char_u *fname;                ///< name of sourced file
     int dbg_tick;                 ///< debug_tick when breakpoint was set
@@ -108,7 +110,7 @@ struct source_cookie
     vimconv_T conv;               ///< type of conversion
 };
 
-#  define PRL_ITEM(si, idx)     (((sn_prl_T *)(si)->sn_prl_ga.ga_data)[(idx)])
+#define PRL_ITEM(si, idx)     (((sn_prl_T *)(si)->sn_prl_ga.ga_data)[(idx)])
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds2.c.generated.h"
@@ -3345,31 +3347,31 @@ static FILE *fopen_noinh_readbin(char *filename)
 }
 
 
-/// Read the file `fname` and execute its lines as EX commands.
+/// Read the file **fname** and execute its lines as EX commands.
 ///
 /// This function may be called recursively!
 ///
 /// @param fname
-/// @param check_other  check for .vimrc and _vimrc
+/// @param check_other  check for .nvimrc and _nvimrc
 /// @param is_vimrc     DOSO_ value
 ///
-/// @return `FAIL` if file could not be opened, `OK` otherwise
+/// @return **FAIL** if file could not be opened, **OK** otherwise
 int do_source(char_u *fname, int check_other, int is_vimrc)
 {
     struct source_cookie cookie;
     char_u *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    char_u *p;
     char_u *fname_exp;
     char_u *firstline = NULL;
-    int retval = FAIL;
+
     scid_T save_current_SID;
     static scid_T last_current_SID = 0;
     void *save_funccalp;
     int save_debug_break_level = debug_break_level;
     scriptitem_T *si = NULL;
 
-    p = expand_env_save(fname);
+    int retval = FAIL;
+    char_u *p = expand_env_save(fname);
 
     if(p == NULL)
     {

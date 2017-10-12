@@ -2129,10 +2129,8 @@ FUNC_ATTR_NONNULL_ALL
     }
     else if(!silent_mode)
     {
-        #ifdef SYS_VIMRC_FILE
         // Get system wide defaults, if the file name is defined.
-        (void) do_source((char_u *)SYS_VIMRC_FILE, false, DOSO_NONE);
-        #endif
+        (void) do_source((char_u *)SYSINIT_NVIMRC, false, DOSO_NONE);
 
         if(do_user_initialization())
         {

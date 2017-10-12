@@ -18,6 +18,14 @@
 
 #include "config.h"
 
+#define GKIDE_SYS_HOME_PLG  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "plg"
+#define GKIDE_USR_HOME_PLG  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "plg"
+#define GKIDE_DYN_HOME_PLG  "$" ENV_GKIDE_DYN_HOME OS_PATH_SEP_STR "plg"
+
+#define SYSINIT_NVIMRC  GKIDE_SYS_HOME_PLG OS_PATH_SEP_STR "sysinit.nvimrc"
+#define USRINIT_NVIMRC  GKIDE_USR_HOME_PLG OS_PATH_SEP_STR "usrinit.nvimrc"
+#define DYNINIT_NVIMRC  GKIDE_DYN_HOME_PLG OS_PATH_SEP_STR "dyninit.nvimrc"
+
 /// file I/O and sprintf buffer size
 #define IOSIZE         (1024+1)
 /// maximum value for 'maxcombine'
@@ -51,11 +59,7 @@
     #define INDOFF_FILE    "indoff.vim"
 #endif
 
-#define DFLT_ERRORFILE  "errors.err"
-
-#ifndef SYS_VIMRC_FILE
-    #define SYS_VIMRC_FILE "$VIM" OS_PATH_SEP_STR "sysinit.vim"
-#endif
+#define DFLT_ERRORFILE     "errors.err"
 
 #ifndef DFLT_HELPFILE
     #define DFLT_HELPFILE  "$VIMRUNTIME" OS_PATH_SEP_STR "doc" OS_PATH_SEP_STR "help.txt"
