@@ -18,13 +18,13 @@
 
 #include "config.h"
 
-#define GKIDE_SYS_HOME_PLG  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "plg"
-#define GKIDE_USR_HOME_PLG  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "plg"
-#define GKIDE_DYN_HOME_PLG  "$" ENV_GKIDE_DYN_HOME OS_PATH_SEP_STR "plg"
+#define GKIDE_SYS_HOME_ETC  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "etc"
+#define GKIDE_USR_HOME_ETC  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "etc"
+#define GKIDE_DYN_HOME_ETC  "$" ENV_GKIDE_DYN_HOME OS_PATH_SEP_STR "etc"
 
-#define SYSINIT_NVIMRC  GKIDE_SYS_HOME_PLG OS_PATH_SEP_STR "sysinit.nvimrc"
-#define USRINIT_NVIMRC  GKIDE_USR_HOME_PLG OS_PATH_SEP_STR "usrinit.nvimrc"
-#define DYNINIT_NVIMRC  GKIDE_DYN_HOME_PLG OS_PATH_SEP_STR "dyninit.nvimrc"
+#define SYSINIT_NVIMRC  GKIDE_SYS_HOME_ETC OS_PATH_SEP_STR "sysinit.nvimrc"
+#define USRINIT_NVIMRC  GKIDE_USR_HOME_ETC OS_PATH_SEP_STR "usrinit.nvimrc"
+#define DYNINIT_NVIMRC  GKIDE_DYN_HOME_ETC OS_PATH_SEP_STR "dyninit.nvimrc"
 
 /// file I/O and sprintf buffer size
 #define IOSIZE         (1024+1)

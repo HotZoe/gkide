@@ -3673,6 +3673,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     xfree(cookie.nextline);
     xfree(firstline);
     convert_setup(&cookie.conv, NULL, NULL);
+
 theend:
     xfree(fname_exp);
     return retval;

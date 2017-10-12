@@ -1,3 +1,9 @@
+# CMake is painful here.
+#
+# It will create the destination using the user's current umask, and we don't want that.
+# So we try to create it with given permissions, if it's preexisting, leave it alone.
+# For now, this seems like the best compromise. If we create it, then everyone can see it.
+
 function(create_install_dir_with_perms)
     cmake_parse_arguments(_install_dir
     ""

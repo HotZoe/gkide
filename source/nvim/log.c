@@ -64,7 +64,7 @@ static bool log_path_init(void)
         }
     }
 
-    INFO_MSG("runtime logfile=> %s", expanded_log_file_path);
+    INFO_MSG("nvim runtime logfile is %s", expanded_log_file_path);
 
     return true;
 }

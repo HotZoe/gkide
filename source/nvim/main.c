@@ -716,7 +716,7 @@ static void init_locale(void)
     bindtextdomain(GKIDE_NVIM, (char *)NameBuff);
     textdomain(GKIDE_NVIM);
 
-    INFO_MSG("nvim local bind=> %s", NameBuff);
+    INFO_MSG("nvim local bind to %s", NameBuff);
 }
 #endif
 
@@ -1425,7 +1425,7 @@ static void init_gkide_sys_home(const char *exepath)
 
     vim_setenv(ENV_GKIDE_SYS_HOME, gkide_sys_home);
 
-    INFO_MSG("GKIDE_SYS_HOME => %s", gkide_sys_home);
+    INFO_MSG("$GKIDE_SYS_HOME=%s", gkide_sys_home);
 }
 
 // Sets v:progname and v:progpath. Also modifies $PATH on Windows.
@@ -2116,6 +2116,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 static void source_startup_scripts(const mparm_T *const parmp)
 FUNC_ATTR_NONNULL_ALL
 {
+    TIME_MSG("============ startup sourcing beginning ============");
+
     // If -u argument given, use only the initializations from that file and nothing else.
     if(parmp->use_vimrc != NULL)
     {
@@ -2174,7 +2176,8 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     did_source_startup_scripts = true;
-    TIME_MSG("sourcing nvimrc file(s)");
+
+    TIME_MSG("============ startup sourcing files end ============");
 }
 
 /// Setup to start using the GUI.  Exit with an error when not available.

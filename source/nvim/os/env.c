@@ -328,7 +328,7 @@ void init_gkide_usr_home(void)
         vim_setenv(ENV_GKIDE_USR_HOME, gkide_usr_home);
     }
 
-    INFO_MSG("GKIDE_USR_HOME => %s", gkide_usr_home);
+    INFO_MSG("$GKIDE_USR_HOME=%s", gkide_usr_home);
 }
 
 void init_gkide_dyn_home(void)
