@@ -436,6 +436,7 @@ void expand_env_esc(char_u *restrict srcp,
     // should leave one char space for comma at the end, which is ','
     dstlen--; // now turn to index
 
+    DEV_TRACE_MSG("srcp=%s", srcp);
     char_u *src = skipwhite(srcp);
 
     while(*src && dstlen > 0)
@@ -496,6 +497,7 @@ void expand_env_esc(char_u *restrict srcp,
                 else
             #endif
                 {
+                    // $VarName type of environment vars
                     // c now is the string length count
                     while(c-- > 0 && *tail != NUL && vim_isIDc(*tail))
                     {
@@ -517,9 +519,12 @@ void expand_env_esc(char_u *restrict srcp,
                     }
 
             #endif
-                    *var = NUL;
+                    *var = NUL; // set the 'dst' last char to NUL
                     var = (char_u *)vim_getenv((char *)dst);
                     mustfree = true;
+
+                    DEV_TRACE_MSG("env=%s", dst);
+                    DEV_TRACE_MSG("val=%s", var);
 
             #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 }

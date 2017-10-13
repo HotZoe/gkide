@@ -33,9 +33,6 @@
     #include "charset.c.generated.h"
 #endif
 
-
-static bool chartab_initialized = false;
-
 // b_chartab[] is an array with 256 bits, each bit representing one of the characters 0-255.
 #define SET_CHARTAB(buf, c)          (buf)->b_chartab[(unsigned)(c) >> 6] |= (1ull << ((c) & 0x3f))
 #define RESET_CHARTAB(buf, c)        (buf)->b_chartab[(unsigned)(c) >> 6] &= ~(1ull << ((c) & 0x3f))
@@ -52,6 +49,7 @@ enum CharTableVarFlags
 
 /// Table used below, see init_chartab() for an explanation
 static char_u g_chartab[256];
+static bool chartab_initialized = false;
 
 /// Fill ::g_chartab.
 /// Also fills @b curbuf->b_chartab with flags for keyword characters for current buffer.
@@ -94,10 +92,6 @@ int init_chartab(void)
 int buf_init_chartab(buf_T *buf, int global)
 {
     int c;
-    int c2;
-    int i;
-    bool tilde;
-    bool do_isalpha;
 
     if(global)
     {
@@ -162,38 +156,36 @@ int buf_init_chartab(buf_T *buf, int global)
         SET_CHARTAB(buf, '-');
     }
 
-    // Walk through the 'isident', 'iskeyword', 'isfname' and 'isprint'
-    // options Each option is a list of characters, character numbers or
-    // ranges, separated by commas, e.g.: "200-210,x,#-178,-"
-    for(i = global ? 0 : 3; i <= 3; i++)
+    // Walk through the 'isident', 'iskeyword', 'isfname' and 'isprint' options.
+    //
+    // Each option is a list of characters, character numbers or ranges, separated
+    // by commas, e.g.: "200-210,x,#-178,-"
+    for(int i = global ? 0 : 3; i <= 3; i++)
     {
-        const char_u *p;
+        const char_u *p = NULL;
 
-        if(i == 0)
+        switch(i)
         {
-            // first round: 'isident'
+        case 0: // 'isident'
             p = p_isi;
-        }
-        else if(i == 1)
-        {
-            // second round: 'isprint'
+            break;
+        case 1: // 'isprint'
             p = p_isp;
-        }
-        else if(i == 2)
-        {
-            // third round: 'isfname'
+            break;
+        case 2: // 'isfname'
             p = p_isf;
-        }
-        else  // i == 3
-        {
-            // fourth round: 'iskeyword'
+            break;
+        case 3: // 'iskeyword'
             p = buf->b_p_isk;
+            break;
+        default:
+            break;
         }
 
-        while(*p)
+        while(p && *p)
         {
-            tilde = false;
-            do_isalpha = false;
+            bool tilde = false;
+            bool do_isalpha = false;
 
             if((*p == '^') && (p[1] != NUL))
             {
@@ -210,7 +202,7 @@ int buf_init_chartab(buf_T *buf, int global)
                 c = mb_ptr2char_adv(&p);
             }
 
-            c2 = -1;
+            int c2 = -1;
 
             if((*p == '-') && (p[1] != NUL))
             {
@@ -262,9 +254,9 @@ int buf_init_chartab(buf_T *buf, int global)
                    || mb_isupper(c)
                    || (p_altkeymap && (F_isalpha(c) || F_isdigit(c))))
                 {
-                    if(i == 0)
+                    switch(i)
                     {
-                        // (re)set ID flag
+                    case 0: // (re)set ID flag
                         if(tilde)
                         {
                             g_chartab[c] &= (uint8_t)~kCT_CharID;
@@ -273,15 +265,13 @@ int buf_init_chartab(buf_T *buf, int global)
                         {
                             g_chartab[c] |= kCT_CharID;
                         }
-                    }
-                    else if(i == 1)
-                    {
-                        // (re)set printable
+                        break;
+                    case 1: // (re)set printable
                         // For double-byte we keep the cell width, so
                         // that we can detect it from the first byte.
                         if(((c < ' ')
-                            || (c > '~')
-                            || (p_altkeymap && (F_isalpha(c) || F_isdigit(c)))))
+                           || (c > '~')
+                           || (p_altkeymap && (F_isalpha(c) || F_isdigit(c)))))
                         {
                             if(tilde)
                             {
@@ -295,10 +285,8 @@ int buf_init_chartab(buf_T *buf, int global)
                                 g_chartab[c] |= kCT_CharPrint;
                             }
                         }
-                    }
-                    else if(i == 2)
-                    {
-                        // (re)set fname flag
+                        break;
+                    case 2: // (re)set fname flag
                         if(tilde)
                         {
                             g_chartab[c] &= (uint8_t)~kCT_CharFName;
@@ -307,10 +295,9 @@ int buf_init_chartab(buf_T *buf, int global)
                         {
                             g_chartab[c] |= kCT_CharFName;
                         }
-                    }
-                    else // i == 3
-                    {
-                        if(tilde) // (re)set keyword flag
+                        break;
+                    case 3: // (re)set keyword flag
+                        if(tilde)
                         {
                             RESET_CHARTAB(buf, c);
                         }
@@ -318,6 +305,9 @@ int buf_init_chartab(buf_T *buf, int global)
                         {
                             SET_CHARTAB(buf, c);
                         }
+                        break;
+                    default:
+                        break;
                     }
                 }
 

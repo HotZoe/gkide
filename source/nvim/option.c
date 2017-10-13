@@ -2551,13 +2551,11 @@ static char_u *option_expand(int opt_idx, char_u *val)
     return NameBuff;
 }
 
-/*
- * After setting various option values: recompute variables that depend on
- * option values.
- */
+/// After setting various option values:
+/// recompute variables that depend on option values.
 static void didset_options(void)
 {
-    /* initialize the table for 'iskeyword' et.al. */
+    // initialize the table for 'iskeyword' et.al.
     (void)init_chartab();
     (void)opt_strings_flags(p_cmp, p_cmp_values, &cmp_flags, true);
     (void)opt_strings_flags(p_bkc, p_bkc_values, &bkc_flags, true);
@@ -2572,11 +2570,10 @@ static void didset_options(void)
     (void)spell_check_sps();
     (void)compile_cap_prog(curwin->w_s);
     (void)did_set_spell_option(true);
-    // set cedit_key
-    (void)check_cedit();
-    briopt_check(curwin);
-    // initialize the table for 'breakat'.
-    fill_breakat_flags();
+    (void)check_cedit(); // set cedit_key
+    (void)briopt_check(curwin);
+
+    fill_breakat_flags(); // initialize the table for 'breakat'
 }
 
 // More side effects of setting options.
