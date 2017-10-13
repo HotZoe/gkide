@@ -449,162 +449,137 @@ typedef struct
 /// Primary exists so that literals of relevant type can be made.
 typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
 
-#define BUF_HAS_QF_ENTRY 1
-#define BUF_HAS_LL_ENTRY 2
+#define BUF_HAS_QF_ENTRY   1
+#define BUF_HAS_LL_ENTRY   2
 
-// Maximum number of maphash blocks we will have
-#define MAX_MAPHASH 256
+/// Maximum number of maphash blocks we will have
+#define MAX_MAPHASH        256
 
-/*
- * buffer: structure that holds information about one file
- *
- * Several windows can share a single Buffer
- * A buffer is unallocated if there is no memfile for it.
- * A buffer is new if the associated file has never been loaded yet.
- */
-
+/// buffer: structure that holds information about one file
+///
+/// Several windows can share a single Buffer
+/// A buffer is unallocated if there is no memfile for it.
+/// A buffer is new if the associated file has never been loaded yet.
 struct file_buffer
 {
-    handle_T handle;              // unique id for the buffer (buffer number)
-#define b_fnum handle
+    handle_T handle;       ///< unique id for the buffer (buffer number)
+    #define b_fnum handle
 
-    memline_T b_ml;               // associated memline (also contains line count
+    memline_T b_ml;        ///< associated memline (also contains line count
 
-    buf_T       *b_next;          /* links in list of buffers */
-    buf_T       *b_prev;
+    buf_T *b_next;         ///< links in list of buffers
+    buf_T *b_prev;
 
-    int b_nwindows;               /* nr of windows open on this buffer */
+    int b_nwindows;        ///< nr of windows open on this buffer
 
-    int b_flags;                  // various BF_ flags
-    int b_locked;                 // Buffer is being closed or referenced, don't
-    // let autocommands wipe it out.
+    int b_flags;           ///< various BF_ flags
+    int b_locked;          ///< Buffer is being closed or referenced, don't
+                           ///< let autocommands wipe it out.
 
-    /*
-     * b_ffname has the full path of the file (NULL for no name).
-     * b_sfname is the name as the user typed it (or NULL).
-     * b_fname is the same as b_sfname, unless ":cd" has been done,
-     *		then it is the same as b_ffname (NULL for no name).
-     */
-    char_u      *b_ffname;        /* full path file name */
-    char_u      *b_sfname;        /* short file name */
-    char_u      *b_fname;         /* current file name */
+    // b_ffname has the full path of the file (NULL for no name).
+    // b_sfname is the name as the user typed it (or NULL).
+    // b_fname is the same as b_sfname, unless ":cd" has been done,
+    // then it is the same as b_ffname (NULL for no name).
+    char_u *b_ffname;      ///< full path file name
+    char_u *b_sfname;      ///< short file name
+    char_u *b_fname;       ///< current file name
 
     bool file_id_valid;
     FileID file_id;
 
-    int b_changed;                // 'modified': Set to true if something in the
-    // file has been changed and not written out.
-/// Change identifier incremented for each change, including undo
-#define b_changedtick changedtick_di.di_tv.vval.v_number
-    ChangedtickDictItem changedtick_di;  // b:changedtick dictionary item.
+    int b_changed;         ///< 'modified': Set to true if something in the
+                           ///< file has been changed and not written out.
+                           ///
+    /// Change identifier incremented for each change, including undo
+    #define b_changedtick changedtick_di.di_tv.vval.v_number
+    ChangedtickDictItem changedtick_di; ///< b:changedtick dictionary item.
 
-    bool b_saving;                /* Set to true if we are in the middle of
-                                   saving the buffer. */
+    bool b_saving; ///< Set to true if we are in the middle of saving the buffer.
 
-    /*
-     * Changes to a buffer require updating of the display.  To minimize the
-     * work, remember changes made and update everything at once.
-     */
-    bool b_mod_set;               /* true when there are changes since the last
-                                   time the display was updated */
-    linenr_T b_mod_top;           /* topmost lnum that was changed */
-    linenr_T b_mod_bot;           /* lnum below last changed line, AFTER the
-                                   change */
-    long b_mod_xlines;            /* number of extra buffer lines inserted;
-                                   negative when lines were deleted */
+    // Changes to a buffer require updating of the display.  To minimize the
+    // work, remember changes made and update everything at once.
+    bool b_mod_set;               ///< true when there are changes since the last
+                                  ///< time the display was updated
+    linenr_T b_mod_top;           ///< topmost lnum that was changed
+    linenr_T b_mod_bot;           ///< lnum below last changed line, AFTER the change
+    long b_mod_xlines;            ///< number of extra buffer lines inserted
+                                  ///< negative when lines were deleted
 
-    wininfo_T   *b_wininfo;       /* list of last used info for each window */
+    wininfo_T *b_wininfo;         ///< list of last used info for each window
 
-    long b_mtime;                 /* last change time of original file */
-    long b_mtime_read;            /* last change time when reading */
-    uint64_t b_orig_size;         /* size of original file in bytes */
-    int b_orig_mode;              /* mode of original file */
+    long b_mtime;                 ///< last change time of original file
+    long b_mtime_read;            ///< last change time when reading
+    uint64_t b_orig_size;         ///< size of original file in bytes
+    int b_orig_mode;              ///< mode of original file
 
-    fmark_T b_namedm[NMARKS];     /* current named marks (mark.c) */
+    fmark_T b_namedm[NMARKS];     ///< current named marks (mark.c)
 
-    /* These variables are set when VIsual_active becomes FALSE */
-    visualinfo_T b_visual;
-    int b_visual_mode_eval;            /* b_visual.vi_mode for visualmode() */
+    visualinfo_T b_visual;        ///< These variables are set when VIsual_active becomes FALSE
+    int b_visual_mode_eval;       ///< b_visual.vi_mode for visualmode()
+    fmark_T b_last_cursor;        ///< cursor position when last unloading this
+    fmark_T b_last_insert;        ///< where Insert mode was left
+    fmark_T b_last_change;        ///< position of last change: '. mark'
 
-    fmark_T b_last_cursor;        // cursor position when last unloading this
-    // buffer
-    fmark_T b_last_insert;        // where Insert mode was left
-    fmark_T b_last_change;        // position of last change: '. mark
 
-    /*
-     * the changelist contains old change positions
-     */
+    /// the changelist contains old change positions
     fmark_T b_changelist[JUMPLISTSIZE];
-    int b_changelistlen;                  /* number of active entries */
-    bool b_new_change;                    /* set by u_savecommon() */
+    int b_changelistlen;          ///< number of active entries
+    bool b_new_change;            ///< set by u_savecommon()
 
-    /*
-     * Character table, only used in charset.c for 'iskeyword'
-     * bitset with 4*64=256 bits: 1 bit per character 0-255.
-     */
+    /// Character table, only used in charset.c for 'iskeyword'
+    /// bitset with 4*64=256 bits: 1 bit per character 0-255.
     uint64_t b_chartab[4];
 
-    // Table used for mappings local to a buffer.
-    mapblock_T  *(b_maphash[MAX_MAPHASH]);
+    mapblock_T *(b_maphash[MAX_MAPHASH]); ///< Table used for mappings local to a buffer.
+    mapblock_T *b_first_abbr;             ///< First abbreviation local to a buffer.
+    garray_T b_ucmds;                     ///< User commands local to the buffer.
 
-    /* First abbreviation local to a buffer. */
-    mapblock_T  *b_first_abbr;
-    /* User commands local to the buffer. */
-    garray_T b_ucmds;
-    /*
-     * start and end of an operator, also used for '[ and ']
-     */
-    pos_T b_op_start;
-    pos_T b_op_start_orig;  // used for Insstart_orig
+    pos_T b_op_start;       ///< start and end of an operator, also used for '[ and ']
+    pos_T b_op_start_orig;  ///< used for Insstart_orig
     pos_T b_op_end;
 
-    bool b_marks_read;            /* Have we read ShaDa marks yet? */
+    bool b_marks_read;      ///< Have we read ShaDa marks yet ?
 
-    /*
-     * The following only used in undo.c.
-     */
-    u_header_T  *b_u_oldhead;     /* pointer to oldest header */
-    u_header_T  *b_u_newhead;     /* pointer to newest header; may not be valid
-                                   if b_u_curhead is not NULL */
-    u_header_T  *b_u_curhead;     /* pointer to current header */
-    int b_u_numhead;              /* current number of headers */
-    bool b_u_synced;              /* entry lists are synced */
-    long b_u_seq_last;            /* last used undo sequence number */
-    long b_u_save_nr_last;          /* counter for last file write */
-    long b_u_seq_cur;             /* hu_seq of header below which we are now */
-    time_t b_u_time_cur;          /* uh_time of header below which we are now */
-    long b_u_save_nr_cur;          /* file write nr after which we are now */
+    // The following only used in undo.c.
+    u_header_T *b_u_oldhead;     ///< pointer to oldest header
+    u_header_T *b_u_newhead;     ///< pointer to newest header, may not be valid
+                                 ///< if b_u_curhead is not NULL
+    u_header_T *b_u_curhead;     ///< pointer to current header
+    int b_u_numhead;             ///< current number of headers
+    bool b_u_synced;             ///< entry lists are synced
+    long b_u_seq_last;           ///< last used undo sequence number
+    long b_u_save_nr_last;       ///< counter for last file write
+    long b_u_seq_cur;            ///< hu_seq of header below which we are now
+    time_t b_u_time_cur;         ///< uh_time of header below which we are now
+    long b_u_save_nr_cur;        ///< file write nr after which we are now
 
-    /*
-     * variables for "U" command in undo.c
-     */
-    char_u      *b_u_line_ptr;    /* saved line for "U" command */
-    linenr_T b_u_line_lnum;       /* line number of line in u_line */
-    colnr_T b_u_line_colnr;       /* optional column number */
+    // variables for "U" command in undo.c
+    char_u *b_u_line_ptr;        ///< saved line for "U" command
+    linenr_T b_u_line_lnum;      ///< line number of line in u_line
+    colnr_T b_u_line_colnr;      ///< optional column number
 
-    bool b_scanned;               /* ^N/^P have scanned this buffer */
+    bool b_scanned;              ///< ^N/^P have scanned this buffer
 
-    /* flags for use of ":lmap" and IM control */
-    long b_p_iminsert;            /* input mode for insert */
-    long b_p_imsearch;            /* input mode for search */
-#define B_IMODE_USE_INSERT -1   /*	Use b_p_iminsert value for search */
-#define B_IMODE_NONE 0          /*	Input via none */
-#define B_IMODE_LMAP 1          /*	Input via langmap */
-# define B_IMODE_LAST 1
+    // flags for use of ":lmap" and IM control
+    long b_p_iminsert;           ///< input mode for insert
+    long b_p_imsearch;           ///< input mode for search
 
-    short b_kmap_state;           /* using "lmap" mappings */
-# define KEYMAP_INIT    1       /* 'keymap' was set, call keymap_init() */
-# define KEYMAP_LOADED  2       /* 'keymap' mappings have been loaded */
-    garray_T b_kmap_ga;           /* the keymap table */
+#define B_IMODE_USE_INSERT -1    ///< Use b_p_iminsert value for search
+#define B_IMODE_NONE        0    ///< Input via none
+#define B_IMODE_LMAP        1    ///< Input via langmap
+#define B_IMODE_LAST        1
 
-    /*
-     * Options local to a buffer.
-     * They are here because their value depends on the type of file
-     * or contents of the file being edited.
-     */
-    bool b_p_initialized;                 /* set when options initialized */
+    short b_kmap_state;          ///< using "lmap" mappings
+#define KEYMAP_INIT         1    ///< 'keymap' was set, call keymap_init()
+#define KEYMAP_LOADED       2    ///< 'keymap' mappings have been loaded
+    garray_T b_kmap_ga;          ///< the keymap table
 
-    int b_p_scriptID[BV_COUNT];           /* SIDs for buffer-local options */
+    //////////////////////////////////////////////////////////////
+    // Options local to a buffer.
+    // They are here because their value depends on the type of file
+    // or contents of the file being edited.
+    bool b_p_initialized;         ///< set when options initialized
+    int b_p_scriptID[BV_COUNT];   ///< SIDs for buffer-local options
 
     int b_p_ai;                   ///< 'autoindent'
     int b_p_ai_nopaste;           ///< b_p_ai saved for paste mode
@@ -629,8 +604,8 @@ struct file_buffer
     int b_p_eol;                  ///< 'endofline'
     int b_p_fixeol;               ///< 'fixendofline'
     int b_p_et;                   ///< 'expandtab'
-    int b_p_et_nobin;             ///< b_p_et saved for binary mode
-    int b_p_et_nopaste;           ///< b_p_et saved for paste mode
+    int b_p_et_nobin;             ///< 'b_p_et' saved for binary mode
+    int b_p_et_nopaste;           ///< 'b_p_et' saved for paste mode
     char_u *b_p_fenc;             ///< 'fileencoding'
     char_u *b_p_ff;               ///< 'fileformat'
     char_u *b_p_ft;               ///< 'filetype'
@@ -652,7 +627,7 @@ struct file_buffer
     int b_p_lisp;                 ///< 'lisp'
     char_u *b_p_mps;              ///< 'matchpairs'
     int b_p_ml;                   ///< 'modeline'
-    int b_p_ml_nobin;             ///< b_p_ml saved for binary mode
+    int b_p_ml_nobin;             ///< 'b_p_ml' saved for binary mode
     int b_p_ma;                   ///< 'modifiable'
     char_u *b_p_nf;               ///< 'nrformats'
     int b_p_pi;                   ///< 'preserveindent'
@@ -662,18 +637,18 @@ struct file_buffer
     long b_p_scbk;                ///< 'scrollback'
     int b_p_si;                   ///< 'smartindent'
     long b_p_sts;                 ///< 'softtabstop'
-    long b_p_sts_nopaste;         ///< b_p_sts saved for paste mode
+    long b_p_sts_nopaste;         ///< 'b_p_sts' saved for paste mode
     char_u *b_p_sua;              ///< 'suffixesadd'
     int b_p_swf;                  ///< 'swapfile'
     long b_p_smc;                 ///< 'synmaxcol'
     char_u *b_p_syn;              ///< 'syntax'
     long b_p_ts;                  ///< 'tabstop'
     long b_p_tw;                  ///< 'textwidth'
-    long b_p_tw_nobin;            ///< b_p_tw saved for binary mode
-    long b_p_tw_nopaste;          ///< b_p_tw saved for paste mode
-    long b_p_wm;                  ///< 'wrapmargin'
-    long b_p_wm_nobin;            ///< b_p_wm saved for binary mode
-    long b_p_wm_nopaste;          ///< b_p_wm saved for paste mode
+    long b_p_tw_nobin;            ///< 'b_p_tw' saved for binary mode
+    long b_p_tw_nopaste;          ///< 'b_p_tw saved for paste mode
+    long b_p_wm;                  ///< 'wrapma'rgin'
+    long b_p_wm_nobin;            ///< 'b_p_wm' saved for binary mode
+    long b_p_wm_nopaste;          ///< 'b_p_wm' saved for paste mode
     char_u *b_p_keymap;           ///< 'keymap'
 
     // local values for options which are normally global
@@ -691,10 +666,10 @@ struct file_buffer
     long b_p_ul;                  ///< 'undolevels' local value
     int b_p_udf;                  ///< 'undofile'
     char_u *b_p_lw;               ///< 'lispwords' local value
+    // end of buffer options
+    //////////////////////////////////////////////////////////////
 
-    /* end of buffer options */
-
-    /* values set from b_p_cino */
+    // values set from b_p_cino
     int b_ind_level;
     int b_ind_open_imag;
     int b_ind_no_brace;
@@ -731,56 +706,42 @@ struct file_buffer
     int b_ind_cpp_namespace;
     int b_ind_if_for_while;
 
-    linenr_T b_no_eol_lnum;       /* non-zero lnum when last line of next binary
-                                 * write should not have an end-of-line */
-
-    int b_start_eol;              /* last line had eol when it was read */
-    int b_start_ffc;              /* first char of 'ff' when edit started */
-    char_u      *b_start_fenc;    /* 'fileencoding' when edit started or NULL */
-    int b_bad_char;               /* "++bad=" argument when edit started or 0 */
-    int b_start_bomb;             /* 'bomb' when it was read */
+    linenr_T b_no_eol_lnum;   ///< non-zero lnum when last line of next binary
+                              ///< write should not have an end-of-line
+    int b_start_eol;          ///< last line had eol when it was read
+    int b_start_ffc;          ///< first char of 'ff' when edit started
+    char_u *b_start_fenc;     ///< 'fileencoding' when edit started or NULL
+    int b_bad_char;           ///< "++bad=" argument when edit started or 0
+    int b_start_bomb;         ///< 'bomb' when it was read */
 
     ScopeDictDictItem b_bufvar;  ///< Variable for "b:" Dictionary.
-    dict_T *b_vars;  ///< b: scope dictionary.
+    dict_T *b_vars;              ///< b: scope dictionary.
 
-    /* When a buffer is created, it starts without a swap file.  b_may_swap is
-     * then set to indicate that a swap file may be opened later.  It is reset
-     * if a swap file could not be opened.
-     */
+    // When a buffer is created, it starts without a swap file.  b_may_swap is
+    // then set to indicate that a swap file may be opened later.  It is reset
+    // if a swap file could not be opened.
     bool b_may_swap;
-    bool b_did_warn;              /* Set to true if user has been warned on first
-                                   change of a read-only file */
+    bool b_did_warn; ///< Set to true if user has been warned on first change of a read-only file
 
-    /* Two special kinds of buffers:
-     * help buffer  - used for help files, won't use a swap file.
-     * spell buffer - used for spell info, never displayed and doesn't have a
-     *		      file name.
-     */
-    bool b_help;                  /* TRUE for help file buffer (when set b_p_bt
-                                   is "help") */
-    bool b_spell;                 /* True for a spell file buffer, most fields
-                                   are not used!  Use the B_SPELL macro to
-                                   access b_spell without #ifdef. */
-
-    synblock_T b_s;               /* Info related to syntax highlighting.  w_s
-                                 * normally points to this, but some windows
-                                 * may use a different synblock_T. */
-
-    signlist_T *b_signlist;       /* list of signs to draw */
-
-    Terminal *terminal;           // Terminal instance associated with the buffer
-
-    dict_T *additional_data;      // Additional data from shada file if any.
-
-    int b_mapped_ctrl_c;          // modes where CTRL-C is mapped
-
-    bufhl_info_T *b_bufhl_info;   // buffer stored highlights
+    // Two special kinds of buffers:
+    // help buffer  - used for help files, won't use a swap file.
+    // spell buffer - used for spell info, never displayed and doesn't have a file name.
+    bool b_help;                  ///< TRUE for help file buffer (when set b_p_bt is "help")
+    bool b_spell;                 ///< True for a spell file buffer, most fields
+                                  ///< are not used!  Use the B_SPELL macro to
+                                  ///< access b_spell without #ifdef.
+    synblock_T b_s;               ///< Info related to syntax highlighting. w_s
+                                  ///< normally points to this, but some windows
+                                  ///< may use a different synblock_T.
+    signlist_T *b_signlist;       ///< list of signs to draw
+    Terminal *terminal;           ///< Terminal instance associated with the buffer
+    dict_T *additional_data;      ///< Additional data from shada file if any.
+    int b_mapped_ctrl_c;          ///< modes where CTRL-C is mapped
+    bufhl_info_T *b_bufhl_info;   ///< buffer stored highlights
 };
 
-/*
- * Stuff for diff mode.
- */
-# define DB_COUNT 8     // up to four buffers can be diff'ed
+/// Stuff for diff mode.
+#define DB_COUNT   8  ///< up to four buffers can be diff'ed
 
 /*
  * Each diffblock defines where a block of lines starts in each of the buffers

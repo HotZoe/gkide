@@ -233,7 +233,7 @@ FUNC_API_SINCE(1)
     try_start();
     typval_T rettv;
 
-    if(eval0((char_u *)expr.data, &rettv, NULL, true) == FAIL)
+    if(eval_lev_0((char_u *)expr.data, &rettv, NULL, true) == FAIL)
     {
         api_set_error(err, kErrorTypeException, "Failed to evaluate expression");
     }

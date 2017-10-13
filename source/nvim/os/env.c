@@ -432,7 +432,9 @@ void expand_env_esc(char_u *restrict srcp,
 
     bool at_start = true; // at start of a name
     int prefix_len = (prefix == NULL) ? 0 : (int)STRLEN(prefix);
-    dstlen--; // leave one char space for comma, which is ','
+
+    // should leave one char space for comma at the end, which is ','
+    dstlen--; // now turn to index
 
     char_u *src = skipwhite(srcp);
 
@@ -443,6 +445,8 @@ void expand_env_esc(char_u *restrict srcp,
         {
             var = src;
             src += 2;
+
+            // skip 'expr'
             (void)skip_expr(&src);
 
             if(*src == '`')
@@ -471,35 +475,35 @@ void expand_env_esc(char_u *restrict srcp,
 
             // The variable name is copied into dst temporarily, because it may
             // be a string in read-only memory and a NUL needs to be appended.
-            if(*src != '~')
+            if(*src != '~') // environment var
             {
-                // environment var
-                tail = src + 1;
+                tail = src + 1; // begin of the env-var name
                 var = dst;
-                int c = dstlen - 1;
-#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
+                int c = dstlen - 1; // index for comma
 
+            #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Unix has ${var-name} type environment vars
                 if(*tail == '{' && !vim_isIDc('{'))
                 {
                     tail++; // ignore '{'
 
+                    // c now is the string length count
                     while(c-- > 0 && *tail != NUL && *tail != '}')
                     {
                         *var++ = *tail++;
                     }
                 }
                 else
-#endif
+            #endif
                 {
-                    while (c-- > 0 && *tail != NUL && vim_isIDc(*tail))
+                    // c now is the string length count
+                    while(c-- > 0 && *tail != NUL && vim_isIDc(*tail))
                     {
                         *var++ = *tail++;
                     }
                 }
 
-#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
-
+            #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Verify that we have found the end of a Unix ${VAR} style variable
                 if(src[1] == '{' && *tail != '}')
                 {
@@ -512,14 +516,15 @@ void expand_env_esc(char_u *restrict srcp,
                         ++tail;
                     }
 
-#endif
+            #endif
                     *var = NUL;
                     var = (char_u *)vim_getenv((char *)dst);
                     mustfree = true;
-#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
-                }
 
-#endif
+            #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
+                }
+            #endif
+
             }
             else if(src[1] == NUL // home directory
                     || vim_ispathsep(src[1])
@@ -531,7 +536,7 @@ void expand_env_esc(char_u *restrict srcp,
             else
             {
                 // user directory
-#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
+            #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Copy ~user to dst[], so we can put a NUL after it.
                 tail = src;
                 var = dst;
@@ -565,16 +570,14 @@ void expand_env_esc(char_u *restrict srcp,
                                     WILD_EXPAND_FREE);
                     mustfree = true;
                 }
-
-#else
+            #else
                 // cannot expand user's home directory, so don't try
                 var = NULL;
-                tail = (char_u *)"";  // for gcc
-#endif
+                tail = (char_u *)""; // for gcc
+            #endif
             }
 
-#ifdef BACKSLASH_IN_FILENAME
-
+            #ifdef BACKSLASH_IN_FILENAME
             // If 'shellslash' is set change backslashes to forward slashes.
             // Can't use slash_adjust(), p_ssl may be set temporarily.
             if(p_ssl && var != NULL && vim_strchr(var, '\\') != NULL)
@@ -590,8 +593,7 @@ void expand_env_esc(char_u *restrict srcp,
                 mustfree = true;
                 forward_slash(var);
             }
-
-#endif
+            #endif
 
             // If "var" contains white space, escape it with a backslash.
             // Required for ":e ~/tt" when $HOME includes a space.
@@ -608,8 +610,7 @@ void expand_env_esc(char_u *restrict srcp,
                 mustfree = true;
             }
 
-            if(var != NULL && *var != NUL
-                    && (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen))
+            if(var != NULL && *var != NUL && (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen))
             {
                 STRCPY(dst, var);
                 dstlen -= (int)STRLEN(var);
@@ -617,9 +618,9 @@ void expand_env_esc(char_u *restrict srcp,
 
                 // if var[] ends in a path separator and tail[] starts with it, skip a character
                 if(*var != NUL && after_pathsep((char *)dst, (char *)dst + c)
-#if defined(BACKSLASH_IN_FILENAME)
+                #if defined(BACKSLASH_IN_FILENAME)
                         && dst[-1] != ':'
-#endif
+                #endif
                         && vim_ispathsep(*tail))
                 {
                     ++tail;
@@ -657,8 +658,9 @@ void expand_env_esc(char_u *restrict srcp,
             *dst++ = *src++;
             --dstlen;
 
-            if(prefix != NULL && src - prefix_len >= srcp
-                    && STRNCMP(src - prefix_len, prefix, prefix_len) == 0)
+            if(prefix != NULL
+               && src - prefix_len >= srcp
+               && STRNCMP(src - prefix_len, prefix, prefix_len) == 0)
             {
                 at_start = true;
             }

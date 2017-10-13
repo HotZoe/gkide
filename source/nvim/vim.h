@@ -93,14 +93,15 @@ typedef enum
     BACKWARD_FILE = (-3),
 } Direction;
 
-// return values for functions
-// OK already defined to 1 in MacOS X curses, skip this
-#if !(defined(OK) && (OK == 1))
-    #define OK     1
-#endif
-#define FAIL       0
+#undef OK
+#undef FAIL
+#undef NOTDONE
 
-/// not `OK` or `FAIL` but skipped
+/// return values for functions: false
+#define FAIL       0
+/// return values for functions: true
+#define OK         1
+/// return values for functions: not OK or FAIL but skipped
 #define NOTDONE    2
 
 // Type values for type().

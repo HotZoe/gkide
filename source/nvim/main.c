@@ -2132,7 +2132,7 @@ FUNC_ATTR_NONNULL_ALL
     else if(!silent_mode)
     {
         // Get system wide defaults, if the file name is defined.
-        (void) do_source((char_u *)SYSINIT_NVIMRC, false, DOSO_NONE);
+        (void)do_source((char_u *)SYSINIT_NVIMRC, false, DOSO_NONE);
 
         if(do_user_initialization())
         {
