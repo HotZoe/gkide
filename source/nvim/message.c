@@ -3130,55 +3130,49 @@ int redirecting(void)
            || redir_reg || redir_vname || capture_ga != NULL;
 }
 
-/*
- * Before giving verbose message.
- * Must always be called paired with verbose_leave()!
- */
+/// Before giving verbose message.
+/// Must always be called paired with verbose_leave()!
 void verbose_enter(void)
 {
-    if (*p_vfile != NUL)
+    if(*p_vfile != NUL)
     {
         ++msg_silent;
     }
 }
 
-/*
- * After giving verbose message.
- * Must always be called paired with verbose_enter()!
- */
+/// After giving verbose message.
+/// Must always be called paired with verbose_enter()!
 void verbose_leave(void)
 {
-    if (*p_vfile != NUL)
-        if (--msg_silent < 0)
+    if(*p_vfile != NUL)
+    {
+        if(--msg_silent < 0)
         {
             msg_silent = 0;
         }
+    }
 }
 
-/*
- * Like verbose_enter() and set msg_scroll when displaying the message.
- */
+/// Like verbose_enter() and set msg_scroll when displaying the message.
 void verbose_enter_scroll(void)
 {
-    if (*p_vfile != NUL)
+    if(*p_vfile != NUL)
     {
         ++msg_silent;
     }
     else
-        /* always scroll up, don't overwrite */
     {
+        // always scroll up, don't overwrite
         msg_scroll = TRUE;
     }
 }
 
-/*
- * Like verbose_leave() and set cmdline_row when displaying the message.
- */
+/// Like verbose_leave() and set cmdline_row when displaying the message.
 void verbose_leave_scroll(void)
 {
-    if (*p_vfile != NUL)
+    if(*p_vfile != NUL)
     {
-        if (--msg_silent < 0)
+        if(--msg_silent < 0)
         {
             msg_silent = 0;
         }
@@ -3189,12 +3183,10 @@ void verbose_leave_scroll(void)
     }
 }
 
-/*
- * Called when 'verbosefile' is set: stop writing to the file.
- */
+/// Called when 'verbosefile' is set: stop writing to the file.
 void verbose_stop(void)
 {
-    if (verbose_fd != NULL)
+    if(verbose_fd != NULL)
     {
         fclose(verbose_fd);
         verbose_fd = NULL;
@@ -3203,19 +3195,17 @@ void verbose_stop(void)
     verbose_did_open = FALSE;
 }
 
-/*
- * Open the file 'verbosefile'.
- * Return FAIL or OK.
- */
+/// Open the file 'verbosefile'.
+/// Return FAIL or OK.
 int verbose_open(void)
 {
-    if (verbose_fd == NULL && !verbose_did_open)
+    if(verbose_fd == NULL && !verbose_did_open)
     {
-        /* Only give the error message once. */
+        // Only give the error message once.
         verbose_did_open = TRUE;
         verbose_fd = mch_fopen((char *)p_vfile, "a");
 
-        if (verbose_fd == NULL)
+        if(verbose_fd == NULL)
         {
             EMSG2(_(e_notopen), p_vfile);
             return FAIL;
@@ -3225,25 +3215,23 @@ int verbose_open(void)
     return OK;
 }
 
-/*
- * Give a warning message (for searching).
- * Use 'w' highlighting and may repeat the message after redrawing
- */
+/// Give a warning message (for searching).
+/// Use 'w' highlighting and may repeat the message after redrawing
 void give_warning(char_u *message, bool hl) FUNC_ATTR_NONNULL_ARG(1)
 {
-    /* Don't do this for ":silent". */
-    if (msg_silent != 0)
+    // Don't do this for ":silent".
+    if(msg_silent != 0)
     {
         return;
     }
 
-    /* Don't want a hit-enter prompt here. */
+    // Don't want a hit-enter prompt here.
     ++no_wait_return;
     set_vim_var_string(VV_WARNINGMSG, (char *) message, -1);
     xfree(keep_msg);
     keep_msg = NULL;
 
-    if (hl)
+    if(hl)
     {
         keep_msg_attr = hl_attr(HLF_W);
     }
@@ -3252,7 +3240,7 @@ void give_warning(char_u *message, bool hl) FUNC_ATTR_NONNULL_ARG(1)
         keep_msg_attr = 0;
     }
 
-    if (msg_attr((const char *)message, keep_msg_attr) && msg_scrolled == 0)
+    if(msg_attr((const char *)message, keep_msg_attr) && msg_scrolled == 0)
     {
         set_keep_msg(message, keep_msg_attr);
     }
@@ -3263,32 +3251,35 @@ void give_warning(char_u *message, bool hl) FUNC_ATTR_NONNULL_ARG(1)
     --no_wait_return;
 }
 
-/*
- * Advance msg cursor to column "col".
- */
+/// Advance msg cursor to column "col".
+///
 void msg_advance(int col)
 {
-    if (msg_silent != 0)          /* nothing to advance to */
+    if(msg_silent != 0) // nothing to advance to
     {
-        msg_col = col;              /* for redirection, may fill it up later */
+        msg_col = col; // for redirection, may fill it up later
         return;
     }
 
-    if (col >= Columns)           /* not enough room */
+    if(col >= Columns) // not enough room
     {
         col = Columns - 1;
     }
 
-    if (cmdmsg_rl)
-        while (msg_col > Columns - col)
+    if(cmdmsg_rl)
+    {
+        while(msg_col > Columns - col)
         {
             msg_putchar(' ');
         }
+    }
     else
-        while (msg_col < col)
+    {
+        while(msg_col < col)
         {
             msg_putchar(' ');
         }
+    }
 }
 
 /*

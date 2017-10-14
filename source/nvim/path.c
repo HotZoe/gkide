@@ -94,24 +94,25 @@ FileComparison path_full_compare(char_u *s1, char_u *s2, int checkname)
     return kDifferentFiles;
 }
 
-/// Gets the tail (i.e., the filename segment) of a path `fname`.
+/// Gets the tail (i.e., the filename segment) of a path @b fname.
 ///
 /// @return pointer just past the last path separator (empty string, if fname
 ///         ends in a slash), or empty string if fname is NULL.
 char_u *path_tail(const char_u *fname)
 FUNC_ATTR_NONNULL_RET
 {
-    if (fname == NULL)
+    if(fname == NULL)
     {
         return (char_u *)"";
     }
 
     const char_u *tail = get_past_head(fname);
     const char_u *p = tail;
+
     // Find last part of path.
-    while (*p != NUL)
+    while(*p != NUL)
     {
-        if (vim_ispathsep_nocolon(*p))
+        if(vim_ispathsep_nocolon(*p))
         {
             tail = p + 1;
         }
@@ -122,23 +123,26 @@ FUNC_ATTR_NONNULL_RET
     return (char_u *)tail;
 }
 
-/// Get pointer to tail of "fname", including path separators.
+/// Get pointer to tail of @b fname, including path separators.
 ///
-/// Takes care of "c:/" and "//". That means `path_tail_with_sep("dir///file.txt")`
-/// will return a pointer to `"///file.txt"`.
+/// Takes care of "c:/" and "//". That means <b>path_tail_with_sep("dir///file.txt")</b>
+/// will return a pointer to <b>"///file.txt"</b>.
+///
 /// @param fname A file path. (Must be != NULL.)
+///
 /// @return
-///   - Pointer to the last path separator of `fname`, if there is any.
-///   - `fname` if it contains no path separator.
-///   - Never NULL.
+/// - Pointer to the last path separator of @b fname, if there is any.
+/// - @b fname if it contains no path separator.
+/// - Never NULL.
 char_u *path_tail_with_sep(char_u *fname)
 {
     assert(fname != NULL);
+
     // Don't remove the '/' from "c:/file".
     char_u *past_head = get_past_head(fname);
     char_u *tail = path_tail(fname);
 
-    while (tail > past_head && after_pathsep((char *)fname, (char *)tail))
+    while(tail > past_head && after_pathsep((char *)fname, (char *)tail))
     {
         tail--;
     }
@@ -148,11 +152,10 @@ char_u *path_tail_with_sep(char_u *fname)
 
 /// Finds the path tail (or executable) in an invocation.
 ///
-/// @param[in]  invocation A program invocation in the form:
-///                        "path/to/exe [args]".
+/// @param[in]  invocation A program invocation in the form: "path/to/exe [args]".
 /// @param[out] len Stores the length of the executable name.
 ///
-/// @post if `len` is not null, stores the length of the executable name.
+/// @post if @b len is not null, stores the length of the executable name.
 ///
 /// @return The position of the last path separator + 1.
 const char_u *invocation_path_tail(const char_u *invocation, size_t *len)
@@ -161,18 +164,18 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1)
     const char_u *tail = get_past_head((char_u *) invocation);
     const char_u *p = tail;
 
-    while (*p != NUL && *p != ' ')
+    while(*p != NUL && *p != ' ')
     {
         bool was_sep = vim_ispathsep_nocolon(*p);
         mb_ptr_adv(p);
 
-        if (was_sep)
+        if(was_sep)
         {
-            tail = p;  // Now tail points one past the separator.
+            tail = p; // Now tail points one past the separator.
         }
     }
 
-    if (len != NULL)
+    if(len != NULL)
     {
         *len = (size_t)(p - tail);
     }
@@ -183,18 +186,19 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1)
 /// Get the next path component of a path name.
 ///
 /// @param fname A file path. (Must be != NULL.)
+///
 /// @return Pointer to first found path separator + 1.
-/// An empty string, if `fname` doesn't contain a path separator,
+///         An empty string, if @b fname doesn't contain a path separator,
 const char *path_next_component(const char *fname)
 {
     assert(fname != NULL);
 
-    while (*fname != NUL && !vim_ispathsep(*fname))
+    while(*fname != NUL && !vim_ispathsep(*fname))
     {
         mb_ptr_adv(fname);
     }
 
-    if (*fname != NUL)
+    if(*fname != NUL)
     {
         fname++;
     }
@@ -494,22 +498,22 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Get an allocated copy of the full path to a file.
 ///
-/// @param fname is the filename to save
-/// @param force is a flag to expand `fname` even if it looks absolute
+/// @param fname   is the filename to save
+/// @param force   is a flag to expand @b fname even if it looks absolute
 ///
-/// @return [allocated] Copy of absolute path to `fname` or NULL when
-///                     `fname` is NULL.
-char *FullName_save(const char *fname, bool force)
-FUNC_ATTR_MALLOC
+/// @return
+/// - Copy of absolute path to @b fname or NULL when @b fname is NULL.
+/// - the caller need to call free if not NULL.
+char *FullName_save(const char *fname, bool force) FUNC_ATTR_MALLOC
 {
-    if (fname == NULL)
+    if(fname == NULL)
     {
         return NULL;
     }
 
     char *buf = xmalloc(MAXPATHL);
 
-    if (vim_FullName(fname, buf, MAXPATHL, force) == FAIL)
+    if(vim_FullName(fname, buf, MAXPATHL, force) == FAIL)
     {
         xfree(buf);
         return xstrdup(fname);
@@ -2042,33 +2046,33 @@ bool vim_isAbsName(char_u *name)
     return path_with_url((char *)name) != 0 || path_is_absolute_path(name);
 }
 
-/// Save absolute file name to "buf[len]".
+/// Save absolute file name to @b buf[len].
 ///
 /// @param      fname filename to evaluate
-/// @param[out] buf   contains `fname` absolute path, or:
-///                   - truncated `fname` if longer than `len`
-///                   - unmodified `fname` if absolute path fails or is a URL
-/// @param      len   length of `buf`
+/// @param[out] buf   contains @b fname absolute path, or:
+///                   - truncated @b fname if longer than @b len
+///                   - unmodified @b fname if absolute path fails or is a URL
+/// @param      len   length of @b buf
 /// @param      force flag to force expanding even if the path is absolute
 ///
-/// @return           FAIL for failure, OK otherwise
+/// @return FAIL for failure, OK otherwise
 int vim_FullName(const char *fname, char *buf, size_t len, bool force)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     *buf = NUL;
 
-    if (fname == NULL)
+    if(fname == NULL)
     {
         return FAIL;
     }
 
-    if (strlen(fname) > (len - 1))
+    if(strlen(fname) > (len - 1))
     {
-        xstrlcpy(buf, fname, len);  // truncate
+        xstrlcpy(buf, fname, len); // truncate
         return FAIL;
     }
 
-    if (path_with_url(fname))
+    if(path_with_url(fname))
     {
         xstrlcpy(buf, fname, len);
         return OK;
@@ -2076,9 +2080,9 @@ FUNC_ATTR_NONNULL_ARG(2)
 
     int rv = path_get_absolute_path((char_u *)fname, (char_u *)buf, len, force);
 
-    if (rv == FAIL)
+    if(rv == FAIL)
     {
-        xstrlcpy(buf, fname, len);  // something failed; use the filename
+        xstrlcpy(buf, fname, len); // something failed; use the filename
     }
 
     return rv;

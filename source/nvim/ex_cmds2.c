@@ -3337,7 +3337,7 @@ static FILE *fopen_noinh_readbin(char *filename)
     int fd_tmp = os_open(filename, O_RDONLY, 0);
 #endif
 
-    if (fd_tmp < 0)
+    if(fd_tmp < 0)
     {
         return NULL;
     }
@@ -3358,7 +3358,6 @@ static FILE *fopen_noinh_readbin(char *filename)
 /// @return **FAIL** if file could not be opened, **OK** otherwise
 int do_source(char_u *fname, int check_other, int is_vimrc)
 {
-    struct source_cookie cookie;
     char_u *save_sourcing_name;
     linenr_T save_sourcing_lnum;
     char_u *firstline = NULL;
@@ -3378,6 +3377,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         return retval;
     }
 
+    // get the file full path
     char_u *fname_exp = (char_u *)fix_fname((char *)p);
     xfree(p);
 
@@ -3388,7 +3388,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
 
     if(os_isdir(fname_exp))
     {
-        smsg(_("Cannot source a directory: \"%s\""), fname);
+        smsg(_("can not source a directory: \"%s\""), fname);
         goto theend;
     }
 
@@ -3402,16 +3402,20 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
 
     // Apply SourcePre autocommands, they may get the file.
     apply_autocmds(EVENT_SOURCEPRE, fname_exp, fname_exp, false, curbuf);
+
+    struct source_cookie cookie;
     cookie.fp = fopen_noinh_readbin((char *)fname_exp);
 
     if(cookie.fp == NULL && check_other)
     {
-        // Try again, replacing file name ".vimrc" by "_vimrc" or vice versa,
-        // and ".exrc" by "_exrc" or vice versa.
-        p = path_tail(fname_exp);
+        // Try again
+        // - replacing file name ".nvimrc" by "_nvimrc" or vice versa,
+        // - replacing file name ".cmdrc" by "_cmdrc" or vice versa.
+
+        p = path_tail(fname_exp); // get the file name first
 
         if((*p == '.' || *p == '_')
-           && (STRICMP(p + 1, "nvimrc") == 0 || STRICMP(p + 1, "exrc") == 0))
+           && (STRICMP(p + 1, "nvimrc") == 0 || STRICMP(p + 1, "cmdrc") == 0))
         {
             *p = (*p == '_') ? '.' : '_';
             cookie.fp = fopen_noinh_readbin((char *)fname_exp);
@@ -3441,7 +3445,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
 
     // The file exists.
     // - In verbose mode, give a message.
-    // - For a vimrc file, may want to call vimrc_found().
+    // - For a nvimrc file, may want to call vimrc_found().
     if(p_verbose > 1)
     {
         verbose_enter();

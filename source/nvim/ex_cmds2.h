@@ -16,16 +16,12 @@ typedef void (*DoInRuntimepathCB)(char_u *, void *);
 #define CCGD_ALLBUF     8       /// may write all buffers
 #define CCGD_EXCMD      16      /// may suggest using
 
-/// The nvim config, plugin and autocmds file types
+/// The nvim source file type:  @b nvimrc type and @b cmdrc type
 enum SourceFileType_S
 {
-    kLoadNvimrcSys = 0,  ///< loading system nvimrc
-    kLoadNvimrcUsr = 1,  ///< loading user nvimrc
-    kLoadNvimrcDyn = 2,  ///< loading dynamic nvimrc, e.g.: for project
-
-    kLoadCmdrcSys  = 3,  ///< loading system cmdrc
-    kLoadCmdrcUsr  = 4,  ///< loading user cmdrc
-    kLoadCmdrcDyn  = 5,  ///< loading dynamic cmdrc, e.g.: for project
+    kLoadFtNone   = 0,  ///< loading other type file
+    kLoadFtNvimrc = 1,  ///< loading nvimrc file
+    kLoadFtCmdrc  = 2,  ///< loading cmdrc file
 };
 
 /* last argument for do_source() */

@@ -8692,24 +8692,24 @@ static void paste_option_changed(void)
     old_p_paste = p_paste;
 }
 
-/// vimrc_found() - Called when a vimrc or "VIMINIT" has been found.
+/// Called when a vimrc or "VIMINIT" has been found.
 ///
 /// Set the values for options that didn't get set yet to the Vim defaults.
-/// When "fname" is not NULL, use it to set $"envname" when it wasn't set yet.
+/// When @b fname is not NULL, use it to set @b $envname when it wasn't set yet.
 void vimrc_found(char_u *fname, char_u *envname)
 {
-    char_u      *p;
+    char_u *p;
 
-    if (fname != NULL)
+    if(fname != NULL)
     {
         p = (char_u *)vim_getenv((char *)envname);
 
-        if (p == NULL)
+        if(p == NULL)
         {
-            /* Set $MYVIMRC to the first vimrc file found. */
+            // Set $MYVIMRC to the first vimrc file found.
             p = (char_u *)FullName_save((char *)fname, FALSE);
 
-            if (p != NULL)
+            if(p != NULL)
             {
                 vim_setenv((char *)envname, (char *)p);
                 xfree(p);

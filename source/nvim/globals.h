@@ -273,7 +273,7 @@ EXTERN int didset_vimruntime INIT(= FALSE); ///< idem for $VIMRUNTIME
 EXTERN int lines_left INIT(= -1);      ///< lines left for listing
 EXTERN int msg_no_more INIT(= FALSE);  ///< don't use more prompt, truncate messages
 
-EXTERN char_u   *sourcing_name INIT( = NULL); ///< name of error message source
+EXTERN char_u *sourcing_name INIT( = NULL);   ///< name of error message source
 EXTERN linenr_T sourcing_lnum INIT(= 0);      ///< line number of the source file
 
 EXTERN int ex_nesting_level INIT(= 0);        ///< nesting level

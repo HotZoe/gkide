@@ -4795,7 +4795,7 @@ static void cleanup_help_tags(int num_file, char_u **file)
                 continue;
             }
 
-            if (STRCMP(file[i] + len, buf) == 0)
+            if(STRCMP(file[i] + len, buf) == 0)
             {
                 // remove the default language
                 file[i][len] = NUL;
@@ -4806,89 +4806,88 @@ static void cleanup_help_tags(int num_file, char_u **file)
 
 typedef char_u *(*ExpandFunc)(expand_T *, int);
 
-/*
- * Do the expansion based on xp->xp_context and "pat".
- */
-static int
-ExpandFromContext (
-    expand_T *xp,
-    char_u *pat,
-    int *num_file,
-    char_u ***file,
-    int options              /* EW_ flags */
-)
+/// Do the expansion based on xp->xp_context and @b pat.
+///
+/// @param xp
+/// @param pat
+/// @param num_file
+/// @param file
+/// @param options     EW_ flags
+static int ExpandFromContext(expand_T *xp,
+                             char_u *pat,
+                             int *num_file,
+                             char_u ***file,
+                             int options)
 {
     regmatch_T regmatch;
     int ret;
     int flags;
-    flags = EW_DIR;       /* include directories */
+    flags = EW_DIR; // include directories
 
-    if (options & WILD_LIST_NOTFOUND)
+    if(options & WILD_LIST_NOTFOUND)
     {
         flags |= EW_NOTFOUND;
     }
 
-    if (options & WILD_ADD_SLASH)
+    if(options & WILD_ADD_SLASH)
     {
         flags |= EW_ADDSLASH;
     }
 
-    if (options & WILD_KEEP_ALL)
+    if(options & WILD_KEEP_ALL)
     {
         flags |= EW_KEEPALL;
     }
 
-    if (options & WILD_SILENT)
+    if(options & WILD_SILENT)
     {
         flags |= EW_SILENT;
     }
 
-    if (options & WILD_ALLLINKS)
+    if(options & WILD_ALLLINKS)
     {
         flags |= EW_ALLLINKS;
     }
 
-    if (xp->xp_context == EXPAND_FILES
-            || xp->xp_context == EXPAND_DIRECTORIES
-            || xp->xp_context == EXPAND_FILES_IN_PATH)
+    if(xp->xp_context == EXPAND_FILES
+       || xp->xp_context == EXPAND_DIRECTORIES
+       || xp->xp_context == EXPAND_FILES_IN_PATH)
     {
-        /*
-         * Expand file or directory names.
-         */
+        // Expand file or directory names.
         int free_pat = FALSE;
         int i;
 
-        /* for ":set path=" and ":set tags=" halve backslashes for escaped
-         * space */
-        if (xp->xp_backslash != XP_BS_NONE)
+        // for ":set path=" and ":set tags=" halve backslashes for escaped space
+        if(xp->xp_backslash != XP_BS_NONE)
         {
             free_pat = TRUE;
             pat = vim_strsave(pat);
 
-            for (i = 0; pat[i]; ++i)
-                if (pat[i] == '\\')
+            for(i = 0; pat[i]; ++i)
+            {
+                if(pat[i] == '\\')
                 {
-                    if (xp->xp_backslash == XP_BS_THREE
-                            && pat[i + 1] == '\\'
-                            && pat[i + 2] == '\\'
-                            && pat[i + 3] == ' ')
+                    if(xp->xp_backslash == XP_BS_THREE
+                       && pat[i + 1] == '\\'
+                       && pat[i + 2] == '\\'
+                       && pat[i + 3] == ' ')
                     {
                         STRMOVE(pat + i, pat + i + 3);
                     }
 
-                    if (xp->xp_backslash == XP_BS_ONE
-                            && pat[i + 1] == ' ')
+                    if (xp->xp_backslash == XP_BS_ONE && pat[i + 1] == ' ')
                     {
                         STRMOVE(pat + i, pat + i + 1);
                     }
                 }
+            }
         }
 
-        if (xp->xp_context == EXPAND_FILES)
+        if(xp->xp_context == EXPAND_FILES)
         {
             flags |= EW_FILE;
         }
-        else if (xp->xp_context == EXPAND_FILES_IN_PATH)
+        else if(xp->xp_context == EXPAND_FILES_IN_PATH)
         {
             flags |= (EW_FILE | EW_PATH);
         }
@@ -4897,15 +4896,15 @@ ExpandFromContext (
             flags = (flags | EW_DIR) & ~EW_FILE;
         }
 
-        if (options & WILD_ICASE)
+        if(options & WILD_ICASE)
         {
             flags |= EW_ICASE;
         }
 
-        /* Expand wildcards, supporting %:h and the like. */
+        // Expand wildcards, supporting %:h and the like.
         ret = expand_wildcards_eval(&pat, num_file, file, flags);
 
-        if (free_pat)
+        if(free_pat)
         {
             xfree(pat);
         }
@@ -4916,12 +4915,11 @@ ExpandFromContext (
     *file = (char_u **)"";
     *num_file = 0;
 
-    if (xp->xp_context == EXPAND_HELP)
+    if(xp->xp_context == EXPAND_HELP)
     {
-        /* With an empty argument we would get all the help tags, which is
-         * very slow.  Get matches for "help" instead. */
-        if (find_help_tags(*pat == NUL ? (char_u *)"help" : pat,
-                           num_file, file, FALSE) == OK)
+        // With an empty argument we would get all the help tags, which is very slow.
+        // Get matches for "help" instead. */
+        if(find_help_tags(*pat == NUL ? (char_u *)"help" : pat, num_file, file, FALSE) == OK)
         {
             cleanup_help_tags(*num_file, *file);
             return OK;
@@ -4930,84 +4928,82 @@ ExpandFromContext (
         return FAIL;
     }
 
-    if (xp->xp_context == EXPAND_SHELLCMD)
+    if(xp->xp_context == EXPAND_SHELLCMD)
     {
         *file = NULL;
         expand_shellcmd(pat, num_file, file, flags);
         return OK;
     }
 
-    if (xp->xp_context == EXPAND_OLD_SETTING)
+    if(xp->xp_context == EXPAND_OLD_SETTING)
     {
         ExpandOldSetting(num_file, file);
         return OK;
     }
 
-    if (xp->xp_context == EXPAND_BUFFERS)
+    if(xp->xp_context == EXPAND_BUFFERS)
     {
         return ExpandBufnames(pat, num_file, file, options);
     }
 
-    if (xp->xp_context == EXPAND_TAGS
-            || xp->xp_context == EXPAND_TAGS_LISTFILES)
+    if(xp->xp_context == EXPAND_TAGS || xp->xp_context == EXPAND_TAGS_LISTFILES)
     {
         return expand_tags(xp->xp_context == EXPAND_TAGS, pat, num_file, file);
     }
 
-    if (xp->xp_context == EXPAND_COLORS)
+    if(xp->xp_context == EXPAND_COLORS)
     {
         char *directories[] = { "colors", NULL };
         return ExpandRTDir(pat, DIP_START + DIP_OPT, num_file, file, directories);
     }
 
-    if (xp->xp_context == EXPAND_COMPILER)
+    if(xp->xp_context == EXPAND_COMPILER)
     {
         char *directories[] = { "compiler", NULL };
         return ExpandRTDir(pat, 0, num_file, file, directories);
     }
 
-    if (xp->xp_context == EXPAND_OWNSYNTAX)
+    if(xp->xp_context == EXPAND_OWNSYNTAX)
     {
         char *directories[] = { "syntax", NULL };
         return ExpandRTDir(pat, 0, num_file, file, directories);
     }
 
-    if (xp->xp_context == EXPAND_FILETYPE)
+    if(xp->xp_context == EXPAND_FILETYPE)
     {
         char *directories[] = { "syntax", "indent", "ftplugin", NULL };
         return ExpandRTDir(pat, 0, num_file, file, directories);
     }
 
-    if (xp->xp_context == EXPAND_USER_LIST)
+    if(xp->xp_context == EXPAND_USER_LIST)
     {
         return ExpandUserList(xp, num_file, file);
     }
 
-    if (xp->xp_context == EXPAND_PACKADD)
+    if(xp->xp_context == EXPAND_PACKADD)
     {
         return ExpandPackAddDir(pat, num_file, file);
     }
 
     regmatch.regprog = vim_regcomp(pat, p_magic ? RE_MAGIC : 0);
 
-    if (regmatch.regprog == NULL)
+    if(regmatch.regprog == NULL)
     {
         return FAIL;
     }
 
-    /* set ignore-case according to p_ic, p_scs and pat */
+    // set ignore-case according to p_ic, p_scs and pat
     regmatch.rm_ic = ignorecase(pat);
 
-    if (xp->xp_context == EXPAND_SETTINGS
-            || xp->xp_context == EXPAND_BOOL_SETTINGS)
+    if(xp->xp_context == EXPAND_SETTINGS || xp->xp_context == EXPAND_BOOL_SETTINGS)
     {
         ret = ExpandSettings(xp, &regmatch, num_file, file);
     }
-    else if (xp->xp_context == EXPAND_MAPPINGS)
+    else if(xp->xp_context == EXPAND_MAPPINGS)
     {
         ret = ExpandMappings(&regmatch, num_file, file);
     }
-    else if (xp->xp_context == EXPAND_USER_DEFINED)
+    else if(xp->xp_context == EXPAND_USER_DEFINED)
     {
         ret = ExpandUserDefined(xp, &regmatch, num_file, file);
     }
@@ -5020,130 +5016,133 @@ ExpandFromContext (
             int ic;
             int escaped;
         } tab[] =
-        {
-            { EXPAND_COMMANDS, get_command_name, false, true },
-            { EXPAND_BEHAVE, get_behave_arg, true, true },
-            { EXPAND_HISTORY, get_history_arg, true, true },
-            { EXPAND_USER_COMMANDS, get_user_commands, false, true },
-            { EXPAND_USER_ADDR_TYPE, get_user_cmd_addr_type, false, true },
-            { EXPAND_USER_CMD_FLAGS, get_user_cmd_flags, false, true },
-            { EXPAND_USER_NARGS, get_user_cmd_nargs, false, true },
-            { EXPAND_USER_COMPLETE, get_user_cmd_complete, false, true },
-            { EXPAND_USER_VARS, get_user_var_name, false, true },
-            { EXPAND_FUNCTIONS, get_function_name, false, true },
-            { EXPAND_USER_FUNC, get_user_func_name, false, true },
-            { EXPAND_EXPRESSION, get_expr_name, false, true },
-            { EXPAND_MENUS, get_menu_name, false, true },
-            { EXPAND_MENUNAMES, get_menu_names, false, true },
-            { EXPAND_SYNTAX, get_syntax_name, true, true },
-            { EXPAND_SYNTIME, get_syntime_arg, true, true },
-            { EXPAND_HIGHLIGHT, (ExpandFunc)get_highlight_name, true, true },
-            { EXPAND_EVENTS, get_event_name, true, true },
-            { EXPAND_AUGROUP, get_augroup_name, true, true },
-            { EXPAND_CSCOPE, get_cscope_name, true, true },
-            { EXPAND_SIGN, get_sign_name, true, true },
-            { EXPAND_PROFILE, get_profile_name, true, true },
-#ifdef HAVE_WORKING_LIBINTL
-            { EXPAND_LANGUAGE, get_lang_arg, true, false },
-            { EXPAND_LOCALES, get_locales, true, false },
-#endif
-            { EXPAND_ENV_VARS, get_env_name, true, true },
-            { EXPAND_USER, get_users, true, false },
+        {   // context               func                    ic       escaped
+            { EXPAND_COMMANDS,       get_command_name,       false,   true },
+            { EXPAND_BEHAVE,         get_behave_arg,         true,    true },
+            { EXPAND_HISTORY,        get_history_arg,        true,    true },
+            { EXPAND_USER_COMMANDS,  get_user_commands,      false,   true },
+            { EXPAND_USER_ADDR_TYPE, get_user_cmd_addr_type, false,   true },
+            { EXPAND_USER_CMD_FLAGS, get_user_cmd_flags,     false,   true },
+            { EXPAND_USER_NARGS,     get_user_cmd_nargs,     false,   true },
+            { EXPAND_USER_COMPLETE,  get_user_cmd_complete,  false,   true },
+            { EXPAND_USER_VARS,      get_user_var_name,      false,   true },
+            { EXPAND_FUNCTIONS,      get_function_name,      false,   true },
+            { EXPAND_USER_FUNC,      get_user_func_name,     false,   true },
+            { EXPAND_EXPRESSION,     get_expr_name,          false,   true },
+            { EXPAND_MENUS,          get_menu_name,          false,   true },
+            { EXPAND_MENUNAMES,      get_menu_names,         false,   true },
+            { EXPAND_SYNTAX,         get_syntax_name,        true,    true },
+            { EXPAND_SYNTIME,        get_syntime_arg,        true,    true },
+            { EXPAND_HIGHLIGHT,      (ExpandFunc)get_highlight_name, true, true },
+            { EXPAND_EVENTS,         get_event_name,         true,    true },
+            { EXPAND_AUGROUP,        get_augroup_name,       true,    true },
+            { EXPAND_CSCOPE,         get_cscope_name,        true,    true },
+            { EXPAND_SIGN,           get_sign_name,          true,    true },
+            { EXPAND_PROFILE,        get_profile_name,       true,    true },
+            #ifdef HAVE_WORKING_LIBINTL
+            { EXPAND_LANGUAGE,       get_lang_arg,           true,    false },
+            { EXPAND_LOCALES,        get_locales,            true,    false },
+            #endif
+            { EXPAND_ENV_VARS,       get_env_name,           true,    true },
+            { EXPAND_USER,           get_users,              true,    false },
         };
+
         int i;
-        /*
-         * Find a context in the table and call the ExpandGeneric() with the
-         * right function to do the expansion.
-         */
+        // Find a context in the table and call the ExpandGeneric() with the
+        // right function to do the expansion.
         ret = FAIL;
 
-        for (i = 0; i < (int)ARRAY_SIZE(tab); ++i)
-            if (xp->xp_context == tab[i].context)
+        for(i = 0; i < (int)ARRAY_SIZE(tab); ++i)
+        {
+            if(xp->xp_context == tab[i].context)
             {
-                if (tab[i].ic)
+                if(tab[i].ic)
                 {
                     regmatch.rm_ic = TRUE;
                 }
 
-                ExpandGeneric(xp, &regmatch, num_file, file, tab[i].func,
-                              tab[i].escaped);
+                ExpandGeneric(xp, &regmatch, num_file, file, tab[i].func, tab[i].escaped);
                 ret = OK;
                 break;
             }
+        }
     }
 
     vim_regfree(regmatch.regprog);
     return ret;
 }
 
-/*
- * Expand a list of names.
- *
- * Generic function for command line completion.  It calls a function to
- * obtain strings, one by one.	The strings are matched against a regexp
- * program.  Matching strings are copied into an array, which is returned.
- */
-void ExpandGeneric(
-    expand_T    *xp,
-    regmatch_T  *regmatch,
-    int         *num_file,
-    char_u      ***file,
-    CompleteListItemGetter func, /* returns a string from the list */
-    int escaped
-)
+/// Expand a list of names.
+///
+/// Generic function for command line completion. It calls a function to
+/// obtain strings, one by one.	The strings are matched against a regexp
+/// program. Matching strings are copied into an array, which is returned.
+///
+/// @param xp
+/// @param regmatch
+/// @param num_file
+/// @param file
+/// @param func       returns a string from the list
+/// @param escaped
+///
+void ExpandGeneric(expand_T *xp,
+                   regmatch_T *regmatch,
+                   int *num_file,
+                   char_u ***file,
+                   CompleteListItemGetter func,
+                   int escaped)
 {
     int i;
     int count = 0;
-    char_u      *str;
+    char_u *str;
 
     // count the number of matching names
-    for (i = 0;; ++i)
+    for(i = 0;; ++i)
     {
         str = (*func)(xp, i);
 
-        if (str == NULL) // end of list
+        if(str == NULL) // end of list
         {
             break;
         }
 
-        if (*str == NUL) // skip empty strings
+        if(*str == NUL) // skip empty strings
         {
             continue;
         }
 
-        if (vim_regexec(regmatch, str, (colnr_T)0))
+        if(vim_regexec(regmatch, str, (colnr_T)0))
         {
             ++count;
         }
     }
 
-    if (count == 0)
+    if(count == 0)
     {
         return;
     }
 
     *num_file = count;
     *file = (char_u **)xmalloc(count * sizeof(char_u *));
-    // copy the matching names into allocated memory
-    count = 0;
+    count = 0; // copy the matching names into allocated memory
 
-    for (i = 0;; ++i)
+    for(i = 0;; ++i)
     {
         str = (*func)(xp, i);
 
-        if (str == NULL) // end of list
+        if(str == NULL) // end of list
         {
             break;
         }
 
-        if (*str == NUL) // skip empty strings
+        if(*str == NUL) // skip empty strings
         {
             continue;
         }
 
-        if (vim_regexec(regmatch, str, (colnr_T)0))
+        if(vim_regexec(regmatch, str, (colnr_T)0))
         {
-            if (escaped)
+            if(escaped)
             {
                 str = vim_strsave_escaped(str, (char_u *)" \t\\.");
             }
@@ -5154,9 +5153,9 @@ void ExpandGeneric(
 
             (*file)[count++] = str;
 
-            if (func == get_menu_names && str != NULL)
+            if(func == get_menu_names && str != NULL)
             {
-                /* test for separator added by get_menu_names() */
+                // test for separator added by get_menu_names()
                 str += STRLEN(str) - 1;
 
                 if (*str == '\001')
@@ -5167,23 +5166,25 @@ void ExpandGeneric(
         }
     }
 
-    /* Sort the results.  Keep menu's in the specified order. */
-    if (xp->xp_context != EXPAND_MENUNAMES && xp->xp_context != EXPAND_MENUS)
+    // Sort the results.
+    // Keep menu's in the specified order.
+    if(xp->xp_context != EXPAND_MENUNAMES && xp->xp_context != EXPAND_MENUS)
     {
-        if (xp->xp_context == EXPAND_EXPRESSION
-                || xp->xp_context == EXPAND_FUNCTIONS
-                || xp->xp_context == EXPAND_USER_FUNC)
-            /* <SNR> functions should be sorted to the end. */
-            qsort((void *)*file, (size_t)*num_file, sizeof(char_u *),
-                  sort_func_compare);
+        if(xp->xp_context == EXPAND_EXPRESSION
+           || xp->xp_context == EXPAND_FUNCTIONS
+           || xp->xp_context == EXPAND_USER_FUNC)
+        {
+            // <SNR> functions should be sorted to the end.
+            qsort((void *)*file, (size_t)*num_file, sizeof(char_u *), sort_func_compare);
+        }
         else
         {
             sort_strings(*file, *num_file);
         }
     }
 
-    /* Reset the variables used for special highlight names expansion, so that
-     * they don't show up when getting normal highlight names by ID. */
+    // Reset the variables used for special highlight names expansion,
+    // so that they don't show up when getting normal highlight names by ID.
     reset_expand_highlight();
 }
 
