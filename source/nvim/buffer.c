@@ -5158,9 +5158,11 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-/// Make "ffname" a full file name, set "sfname" to "ffname" if not NULL.
-/// "ffname" becomes a pointer to allocated memory (or NULL).
-void fname_expand(buf_T *buf, char_u **ffname, char_u **sfname)
+/// Make @b ffname a full file name, set @b sfname to @b ffname if not NULL.
+/// @b ffname becomes a pointer to allocated memory or NULL.
+void fname_expand(buf_T *FUNC_ARGS_UNUSED_MAYBE(buf),
+                  char_u **ffname,
+                  char_u **sfname)
 {
     if(*ffname == NULL) // if no file name given, nothing to do
     {
@@ -5173,8 +5175,8 @@ void fname_expand(buf_T *buf, char_u **ffname, char_u **sfname)
     }
 
     *ffname =(char_u *)fix_fname((char *)*ffname);  // expand to full path
-#ifdef HOST_OS_WINDOWS
 
+#ifdef HOST_OS_WINDOWS
     if(!buf->b_p_bin)
     {
         // If the file name is a shortcut file, use the file it links to.

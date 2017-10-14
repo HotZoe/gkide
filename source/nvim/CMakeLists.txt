@@ -258,8 +258,8 @@ list(APPEND subdir_set "api")
 list(APPEND subdir_set "lua")
 list(APPEND subdir_set "eval")
 list(APPEND subdir_set "event")
-list(APPEND subdir_set "api/private")
 list(APPEND subdir_set "msgpack")
+list(APPEND subdir_set "api/private")
 
 set(NVIM_AUTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/auto)
 set(NVIM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
@@ -313,20 +313,17 @@ list(APPEND CONV_SOURCES "ex_docmd.c")
 list(APPEND CONV_SOURCES "ex_getln.c")
 list(APPEND CONV_SOURCES "spellfile.c")
 
-foreach(sfile ${CONV_SOURCES})
-    if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/${sfile}")
-        message(FATAL_ERROR "[${sfile}] doesn't exist (it was added to CONV_SOURCES)")
-    endif()
-endforeach()
-
 include_directories("${NVIM_AUTO_DIR}")
 include_directories("${NVIM_INCLUDE_DIR}")
+
+# used by *.c files, to included the generated header files, *.generated.h
 add_definitions(-DINCLUDE_GENERATED_DECLARATIONS)
+
 set(GENERATOR_DIR ${CMAKE_CURRENT_LIST_DIR}/generators)
 
+# for convenient, set up the lua generator related inputs and outputs
 # Headers
 set(GENERATOR_HEADERS ${GENERATOR_DIR}/gen_header.lua)
-
 # API
 file(GLOB NVIM_RPC_MSGPACK_HEADERS msgpack/*.h)
 set(GENERATOR_API_DISPATCH ${GENERATOR_DIR}/gen_api_dispatch.lua)
@@ -334,7 +331,6 @@ set(NVIM_GEN_BIN_API_METADATA ${GEN_BINARY_DATA_DIR}/nvim_api_metadata.mpack)
 set(NVIM_GEN_SRC_FUNCS_METADATA ${NVIM_AUTO_DIR}/api/private/funcs_metadata.generated.h)
 set(NVIM_GEN_SRC_API_DISPATCH ${NVIM_AUTO_DIR}/api/private/dispatch_wrappers.generated.h)
 set(NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS ${NVIM_AUTO_DIR}/msgpack_lua_c_bindings.generated.c)
-
 # UI events
 set(GENERATOR_API_UI_EVENTS ${GENERATOR_DIR}/gen_api_ui_events.lua)
 set(NVIM_GEN_SRC_UI_EVENTS ${NVIM_AUTO_DIR}/ui_events.generated.h)
@@ -342,44 +338,35 @@ set(NVIM_GEN_SRC_UI_EVENTS_CALL ${NVIM_AUTO_DIR}/ui_events_call.generated.h)
 set(NVIM_GEN_SRC_UI_EVENTS_REMOTE ${NVIM_AUTO_DIR}/ui_events_remote.generated.h)
 set(NVIM_GEN_SRC_UI_EVENTS_BRIDGE ${NVIM_AUTO_DIR}/ui_events_bridge.generated.h)
 set(NVIM_GEN_SRC_UI_EVENTS_METADATA ${NVIM_AUTO_DIR}/api/private/ui_events_metadata.generated.h)
-
 # events
 set(GENERATOR_EVENTS ${GENERATOR_DIR}/gen_events.lua)
 set(NVIM_GEN_SRC_EVENTS_ENUM ${NVIM_INCLUDE_DIR}/auevents_enum.generated.h)
 set(NVIM_GEN_SRC_EVENTS_NAMES_MAP ${NVIM_AUTO_DIR}/auevents_name_map.generated.h)
-
 # EX commands
 set(GENERATOR_EX_CMDS ${GENERATOR_DIR}/gen_ex_cmds.lua)
 set(NVIM_GEN_SRC_EX_CMDS_ENUM ${NVIM_INCLUDE_DIR}/ex_cmds_enum.generated.h)
 set(NVIM_GEN_SRC_EX_CMDS_DEFS ${NVIM_AUTO_DIR}/ex_cmds_defs.generated.h)
-
 # vim language
 set(GENERATOR_FUNCS ${GENERATOR_DIR}/gen_eval.lua)
 set(NVIM_GEN_SRC_FUNCS ${NVIM_AUTO_DIR}/funcs.generated.h)
 set(NVIM_GEN_BIN_FUNCS_DATA ${GEN_BINARY_DATA_DIR}/nvim_funcs_data.mpack)
-
 # vim module
 set(GENERATOR_CHAR_BLOB ${GENERATOR_DIR}/gen_char_blob.lua)
 set(VIM_MODULE_SOURCE ${CMAKE_CURRENT_LIST_DIR}/lua/vim.lua)
 set(NVIM_GEN_SRC_VIM_MODULE ${NVIM_AUTO_DIR}/lua/vim_module.generated.h)
-
 # options
 set(GENERATOR_OPTIONS ${GENERATOR_DIR}/gen_options.lua)
 set(NVIM_GEN_SRC_OPTIONS ${NVIM_AUTO_DIR}/options.generated.h)
-
 # unicode
 set(UNICODE_DIR ${CMAKE_CURRENT_LIST_DIR}/unicode)
 file(GLOB UNICODE_FILES ${UNICODE_DIR}/*.txt)
 set(GENERATOR_UNICODETAB ${GENERATOR_DIR}/gen_unicode_tables.lua)
 set(NVIM_GEN_SRC_UNICODETABLE ${NVIM_AUTO_DIR}/unicode_tables.generated.h)
-
-# NVIM_GEN_SOURCES   : generated source files
+# NVIM_GEN_SOURCES: generated source files
 list(APPEND NVIM_GEN_SOURCES "${NVIM_GEN_SRC_MSGPACK_LUA_C_BINDINGS}")
-
 # NVIM_GEN_FOR_HEADER: generated headers to be included in headers, global
 list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EX_CMDS_ENUM}")
 list(APPEND NVIM_GEN_FOR_HEADER "${NVIM_GEN_SRC_EVENTS_ENUM}")
-
 # NVIM_GEN_FOR_SOURCE: generated headers to be included in sources, static
 list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_API_DISPATCH}")
 list(APPEND NVIM_GEN_FOR_SOURCE "${NVIM_GEN_SRC_EX_CMDS_DEFS}")
@@ -409,15 +396,18 @@ else()
                                 "${NVIM_COMPILE_FLAGS} -Wno-conversion")
 endif()
 
+# get the related flags for pre-processing, generating the *.i files for lua generator to use
 get_directory_property(cflags_defs COMPILE_DEFINITIONS)
 get_directory_property(includes_defs INCLUDE_DIRECTORIES)
 
+# skip include the generated header files when pre-processing, not exist yet for now
 foreach(cflag ${cflags_defs})
     if(NOT "${cflag}" MATCHES "INCLUDE_GENERATED_DECLARATIONS")
         list(APPEND gen_cflags "-D${cflag}")
     endif()
 endforeach()
 
+# add necessary header search path
 foreach(include ${includes_defs})
     list(APPEND gen_cflags "-I${include}")
 endforeach()
@@ -425,7 +415,11 @@ endforeach()
 separate_arguments(NVIM_CFLAGS UNIX_COMMAND ${CMAKE_C_FLAGS})
 separate_arguments(NVIM_CFLAGS_${build_type} UNIX_COMMAND ${CMAKE_C_FLAGS_${build_type}})
 
+# add common compile flags
 set(gen_cflags ${gen_cflags} ${NVIM_CFLAGS_${build_type}} ${NVIM_CFLAGS})
+
+# keep the FUNC_ATTR_* macros untouched in the generated *.i files
+list(APPEND gen_cflags "-DDEFINE_KEEP_ATTRIBUTES")
 
 foreach(sfile ${NVIM_SOURCES}
               ${CMAKE_CURRENT_LIST_DIR}/regexp_nfa.c

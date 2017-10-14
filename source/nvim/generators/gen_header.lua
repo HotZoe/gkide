@@ -63,7 +63,10 @@ local right_word = concat(
 )
 local word = branch(
   concat(
-    branch(lit('ArrayOf('), lit('DictionaryOf(')), -- typed container macro
+    branch(lit('ArrayOf('),
+           lit('DictionaryOf('),
+           lit('FUNC_ARGS_UNUSED_MAYBE('),
+           lit('FUNC_ARGS_UNUSED_REALY(')), -- typed container macro
     one_or_more(any_character - lit(')')),
     lit(')')
   ),
@@ -169,7 +172,7 @@ local pattern = concat(
 if fname == '--help' then
   print'Usage:'
   print()
-  print'  gendeclarations.lua definitions.c static.h non-static.h preprocessor.i'
+  print'    $ lua gen_header.lua definitions.c static.h non-static.h preprocessor.i'
   os.exit()
 end
 
@@ -179,15 +182,26 @@ preproc_f:close()
 
 
 local header = [[
+// open the GCC attributs switch
 #ifndef DEFINE_FUNC_ATTRIBUTES
-# define DEFINE_FUNC_ATTRIBUTES
+#define DEFINE_FUNC_ATTRIBUTES
 #endif
+
+// clean up FUNC_ATTR_* anyway first, then set up to the
+// GCC attributs values for the current header declarations
 #include "nvim/func_attr.h"
+
+// close the GCC attributs switch
 #undef DEFINE_FUNC_ATTRIBUTES
+
 ]]
 
 local footer = [[
+
+// clean up FUNC_ATTR_* anyway first, then set up to
+// the empty value for the *.c files included this header
 #include "nvim/func_attr.h"
+
 ]]
 
 local non_static = header
@@ -219,9 +233,9 @@ while init ~= nil do
       curfile = file
       is_needed_file = (curfile == neededfile)
       declline = tonumber(line) - 1
-      local curdir_start = dir:find('src/nvim/')
+      local curdir_start = dir:find('source/nvim/')
       if curdir_start ~= nil then
-        curdir = dir:sub(curdir_start + #('src/nvim/'))
+        curdir = dir:sub(curdir_start + #('source/nvim/'))
       else
         curdir = dir
       end
@@ -235,8 +249,7 @@ while init ~= nil do
     e = pattern:match(text, init)
     if e ~= nil then
       local declaration = text:sub(s, e - 1)
-      -- Comments are really handled by preprocessor, so the following is not 
-      -- needed
+      -- Comments are really handled by preprocessor, so the following is not needed
       declaration = declaration:gsub('/%*.-%*/', '')
       declaration = declaration:gsub('//.-\n', '\n')
 
@@ -248,12 +261,11 @@ while init ~= nil do
       -- declaration = declaration:gsub(' ?%) ?', ')')
       declaration = declaration:gsub(' ?, ?', ', ')
       declaration = declaration:gsub(' ?(%*+) ?', ' %1')
-      declaration = declaration:gsub(' ?(FUNC_ATTR_)', ' %1')
+      declaration = declaration:gsub(' ?(FUNC_ATTR_)', ' %1')    
       declaration = declaration:gsub(' $', '')
       declaration = declaration:gsub('^ ', '')
       declaration = declaration .. ';'
-      declaration = declaration .. ('  // %s/%s:%u'):format(
-          curdir, curfile, declline)
+      declaration = declaration .. ('  // %s/%s:%u'):format(curdir, curfile, declline)
       declaration = declaration .. '\n'
       if declaration:sub(1, 6) == 'static' then
         static = static .. declaration

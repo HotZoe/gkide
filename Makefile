@@ -371,5 +371,5 @@ help:
 	@echo "  CMAKE_PROG=...            Where is cmake program,   the default is: 'cmake'"
 	@echo "  MAKE_PROG=...             Where is make program,    the default is: '\$$(MAKE)'"
 	@echo ""
-	@echo "  Much more settings can be config using 'local.mk'"
+	@echo "  Much more settings can be done using 'local.mk', see 'contrib/local.mk.eg' for details."
 	@echo ""

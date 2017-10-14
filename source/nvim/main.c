@@ -1454,10 +1454,10 @@ static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
 }
 
 /// Get filename from command line, if any.
-static char_u *get_fname(mparm_T *parmp FUNC_ATTR_UNUSED, char_u *cwd FUNC_ATTR_UNUSED)
+static char_u *get_fname(mparm_T *FUNC_ARGS_UNUSED_MAYBE(parmp),
+                         char_u *FUNC_ARGS_UNUSED_MAYBE(cwd))
 {
 #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
-
     // Expand wildcards in file names.
     if(!parmp->literal)
     {
@@ -1480,7 +1480,6 @@ static char_u *get_fname(mparm_T *parmp FUNC_ATTR_UNUSED, char_u *cwd FUNC_ATTR_
             os_chdir((char *)cwd);
         }
     }
-
 #endif
     return alist_name(&GARGLIST[0]);
 }

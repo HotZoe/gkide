@@ -25,9 +25,9 @@ enum LogLevelType
     LOG_OFF   = 7, ///< highest rank and turn off all logging
 };
 
-void logging_nothing(QtMsgType type VARS_ATTR_UNUSED,
-                     const QMessageLogContext &ctx VARS_ATTR_UNUSED,
-                     const QString &msg VARS_ATTR_UNUSED)
+void logging_nothing(QtMsgType FUNC_FATTR_ARG_UNUSED_REALY(type),
+                     const QMessageLogContext &FUNC_FATTR_ARG_UNUSED_REALY(ctx),
+                     const QString &FUNC_FATTR_ARG_UNUSED_REALY(msg))
 {
     return; // ignore all Qt loggings when enable logging and not set environment log file
 }

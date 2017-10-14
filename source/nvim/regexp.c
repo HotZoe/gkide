@@ -9398,7 +9398,7 @@ static regengine_T bt_regengine =
 
 
 // XXX Do not allow headers generator to catch definitions from regexp_nfa.c
-#ifndef DO_NOT_DEFINE_EMPTY_ATTRIBUTES
+#ifndef DEFINE_KEEP_ATTRIBUTES
     #include "nvim/regexp_nfa.c"
 #endif
 

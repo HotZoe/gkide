@@ -3412,7 +3412,7 @@ bool F_ischar(int c)
     return c >= TEE_ && c <= YE_;
 }
 
-void farsi_f8(cmdarg_T *cap FUNC_ATTR_UNUSED)
+void farsi_f8(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
 {
     if (p_altkeymap)
     {
@@ -3433,7 +3433,7 @@ void farsi_f8(cmdarg_T *cap FUNC_ATTR_UNUSED)
     }
 }
 
-void farsi_f9(cmdarg_T *cap FUNC_ATTR_UNUSED)
+void farsi_f9(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
 {
     if (p_altkeymap && curwin->w_p_rl)
     {

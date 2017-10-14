@@ -84,11 +84,8 @@ void log_unlock(void)
     uv_mutex_unlock(&mutex);
 }
 
-bool do_log(int log_level,
-            const char *func_name,
-            int line_num,
-            bool eol,
-            const char *fmt, ...) FUNC_ATTR_UNUSED
+bool do_log(int log_level, const char *func_name, int line_num, bool eol, const char *fmt, ...)
+FUNC_ATTR_UNUSED
 {
     log_lock();
     bool ret = false;
