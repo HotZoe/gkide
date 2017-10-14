@@ -225,87 +225,81 @@ char_u *get_past_head(const char_u *path)
     return (char_u *)retval;
 }
 
-/*
- * Return TRUE if 'c' is a path separator.
- * Note that for MS-Windows this includes the colon.
- */
+/// Return TRUE if @b c is a path separator.
+/// Note that for MS-Windows this includes the colon.
 int vim_ispathsep(int c)
 {
 #ifdef UNIX
-    return c == '/';          // Unix has ':' inside file names
+    return c == '/'; // Unix has ':' inside file names
 #else
-# ifdef BACKSLASH_IN_FILENAME
+    #ifdef BACKSLASH_IN_FILENAME
     return c == ':' || c == '/' || c == '\\';
-# else
+    #else
     return c == ':' || c == '/';
-# endif
+    #endif
 #endif
 }
 
-/*
- * Like vim_ispathsep(c), but exclude the colon for MS-Windows.
- */
+/// Like vim_ispathsep(c), but exclude the colon for MS-Windows.
 int vim_ispathsep_nocolon(int c)
 {
-    return vim_ispathsep(c)
 #ifdef BACKSLASH_IN_FILENAME
-           && c != ':'
+    return vim_ispathsep(c) && c != ':';
+#else
+    return vim_ispathsep(c);
 #endif
-           ;
 }
 
-/*
- * return TRUE if 'c' is a path list separator.
- */
+/// return TRUE if 'c' is a path list separator.
 int vim_ispathlistsep(int c)
 {
 #ifdef UNIX
     return c == ':';
 #else
-    return c == ';';      /* might not be right for every system... */
+    // might not be right for every system
+    // but it works fine for now
+    return c == ';';
 #endif
 }
 
-/*
- * Shorten the path of a file from "~/foo/../.bar/fname" to "~/f/../.b/fname"
- * It's done in-place.
- */
+/// Shorten the path of a file from @b ~/foo/../.bar/fname to @b ~/f/../.b/fname
+/// It's done in-place.
 char_u *shorten_dir(char_u *str)
 {
     char_u *tail = path_tail(str);
     char_u *d = str;
     bool skip = false;
 
-    for (char_u *s = str;; ++s)
+    for(char_u *s = str;; ++s)
     {
-        if (s >= tail)                  /* copy the whole tail */
+        if(s >= tail) // copy the whole tail
         {
             *d++ = *s;
 
-            if (*s == NUL)
+            if(*s == NUL)
             {
                 break;
             }
         }
-        else if (vim_ispathsep(*s))           /* copy '/' and next char */
+        else if(vim_ispathsep(*s)) // copy '/' and next char
         {
             *d++ = *s;
             skip = false;
         }
-        else if (!skip)
+        else if(!skip)
         {
-            *d++ = *s;                    /* copy next char */
+            *d++ = *s; // copy next char
 
-            if (*s != '~' && *s != '.')       /* and leading "~" and "." */
+            if(*s != '~' && *s != '.') // and leading "~" and "."
             {
                 skip = true;
             }
 
-            if (has_mbyte)
+            if(has_mbyte)
             {
                 int l = mb_ptr2len(s);
 
-                while (--l > 0)
+                while(--l > 0)
                 {
                     *d++ = *++s;
                 }
@@ -2090,7 +2084,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     return rv;
 }
 
-/// Get the full resolved path for `fname`
+/// Get the full resolved path for @b fname
 ///
 /// Even filenames that appear to be absolute based on starting from
 /// the root may have relative paths (like dir/../subdir) or symlinks
@@ -2105,22 +2099,24 @@ char *fix_fname(const char *fname)
 #ifdef UNIX
     return FullName_save(fname, true);
 #else
-
-    if (!vim_isAbsName((char_u *)fname)
-            || strstr(fname, "..") != NULL
-            || strstr(fname, "//") != NULL
-# ifdef BACKSLASH_IN_FILENAME
+    if(!vim_isAbsName((char_u *)fname)
+       || strstr(fname, "..") != NULL
+       || strstr(fname, "//") != NULL
+    #ifdef BACKSLASH_IN_FILENAME
             || strstr(fname, "\\\\") != NULL
-# endif
+    #endif
        )
     {
         return FullName_save(fname, false);
     }
 
     fname = xstrdup(fname);
-# ifdef USE_FNAME_CASE
-    path_fix_case((char_u *)fname);  // set correct case for file name
-# endif
+
+    #ifdef USE_FNAME_CASE
+    // set correct case for file name
+    path_fix_case((char_u *)fname);
+    #endif
+
     return fname;
 #endif
 }
@@ -2191,29 +2187,27 @@ FUNC_ATTR_NONNULL_ALL
     os_closedir(&dir);
 }
 
-/*
- * Return TRUE if "p" points to just after a path separator.
- * Takes care of multi-byte characters.
- * "b" must point to the start of the file name
- */
+/// Return TRUE if @b p points to just after a path separator.
+/// Takes care of multi-byte characters.
+/// @b b must point to the start of the file name
 int after_pathsep(const char *b, const char *p)
 {
-    return p > b && vim_ispathsep(p[-1])
-           && (!has_mbyte || (*mb_head_off)((char_u *)b, (char_u *)p - 1) == 0);
+    return p > b /* make sure 'p' is after 'b' */
+           && vim_ispathsep(p[-1]) /* check previous character */
+           /* make sure the multi-byte character is 1 byte long */
+           && (*mb_head_off)((char_u *)b, (char_u *)p - 1) == 0;
 }
 
-/*
- * Return TRUE if file names "f1" and "f2" are in the same directory.
- * "f1" may be a short name, "f2" must be a full path.
- */
+/// Return TRUE if file names @b f1 and @b f2 are in the same directory.
+/// @b f1 may be a short name, @b f2 must be a full path.
 bool same_directory(char_u *f1, char_u *f2)
 {
     char_u ffname[MAXPATHL];
-    char_u      *t1;
-    char_u      *t2;
+    char_u *t1;
+    char_u *t2;
 
-    /* safety check */
-    if (f1 == NULL || f2 == NULL)
+    // safety check
+    if(f1 == NULL || f2 == NULL)
     {
         return false;
     }
@@ -2221,30 +2215,30 @@ bool same_directory(char_u *f1, char_u *f2)
     (void)vim_FullName((char *)f1, (char *)ffname, MAXPATHL, FALSE);
     t1 = path_tail_with_sep(ffname);
     t2 = path_tail_with_sep(f2);
+
     return t1 - ffname == t2 - f2
            && pathcmp((char *)ffname, (char *)f2, (int)(t1 - ffname)) == 0;
 }
 
-/*
- * Compare path "p[]" to "q[]".
- * If "maxlen" >= 0 compare "p[maxlen]" to "q[maxlen]"
- * Return value like strcmp(p, q), but consider path separators.
- */
+/// Compare path @b p to @b q.
+/// If <b> maxlen >= 0 </b> compare <b>p[maxlen]</b> to <b>q[maxlen]</b>
+///
+/// Return value like strcmp(p, q), but consider path separators.
 int pathcmp(const char *p, const char *q, int maxlen)
 {
     int i, j;
     int c1, c2;
-    const char  *s = NULL;
+    const char *s = NULL;
 
-    for (i = 0, j = 0; maxlen < 0 || (i < maxlen && j < maxlen);)
+    for(i = 0, j = 0; maxlen < 0 || (i < maxlen && j < maxlen);)
     {
         c1 = PTR2CHAR((char_u *)p + i);
         c2 = PTR2CHAR((char_u *)q + j);
 
-        /* End of "p": check if "q" also ends or just has a slash. */
-        if (c1 == NUL)
+        // End of "p": check if "q" also ends or just has a slash.
+        if(c1 == NUL)
         {
-            if (c2 == NUL)        /* full match */
+            if(c2 == NUL) // full match
             {
                 return 0;
             }
@@ -2254,40 +2248,39 @@ int pathcmp(const char *p, const char *q, int maxlen)
             break;
         }
 
-        /* End of "q": check if "p" just has a slash. */
-        if (c2 == NUL)
+        // End of "q": check if "p" just has a slash.
+        if(c2 == NUL)
         {
             s = p;
             break;
         }
 
-        if ((p_fic ? mb_toupper(c1) != mb_toupper(c2) : c1 != c2)
-#ifdef BACKSLASH_IN_FILENAME
-                /* consider '/' and '\\' to be equal */
-                && !((c1 == '/' && c2 == '\\')
-                     || (c1 == '\\' && c2 == '/'))
-#endif
-           )
+        #ifdef BACKSLASH_IN_FILENAME
+        // consider '/' and '\\' to be equal
+        if((p_fic ? mb_toupper(c1) != mb_toupper(c2) : c1 != c2)
+           && !((c1 == '/' && c2 == '\\') || (c1 == '\\' && c2 == '/')))
+        #else
+        if(p_fic ? mb_toupper(c1) != mb_toupper(c2) : c1 != c2)
+        #endif
         {
-            if (vim_ispathsep(c1))
+            if(vim_ispathsep(c1))
             {
                 return -1;
             }
 
-            if (vim_ispathsep(c2))
+            if(vim_ispathsep(c2))
             {
                 return 1;
             }
 
-            return p_fic ? mb_toupper(c1) - mb_toupper(c2)
-                   : c1 - c2;  // no match
+            return p_fic ? mb_toupper(c1) - mb_toupper(c2) : c1 - c2; // no match
         }
 
         i += MB_PTR2LEN((char_u *)p + i);
         j += MB_PTR2LEN((char_u *)q + j);
     }
 
-    if (s == NULL)    // "i" or "j" ran into "maxlen"
+    if(s == NULL) // "i" or "j" ran into "maxlen"
     {
         return 0;
     }
@@ -2295,23 +2288,19 @@ int pathcmp(const char *p, const char *q, int maxlen)
     c1 = PTR2CHAR((char_u *)s + i);
     c2 = PTR2CHAR((char_u *)s + i + MB_PTR2LEN((char_u *)s + i));
 
-    /* ignore a trailing slash, but not "//" or ":/" */
-    if (c2 == NUL
-            && i > 0
-            && !after_pathsep((char *)s, (char *)s + i)
-#ifdef BACKSLASH_IN_FILENAME
-            && (c1 == '/' || c1 == '\\')
-#else
-            && c1 == '/'
-#endif
-       )
+    // ignore a trailing slash, but not "//" or ":/"
+    #ifdef BACKSLASH_IN_FILENAME
+    if(c2 == NUL && i > 0 && !after_pathsep((char *)s, (char *)s + i) && (c1 == '/' || c1 == '\\'))
+    #else
+    if(c2 == NUL && i > 0 && !after_pathsep((char *)s, (char *)s + i) && c1 == '/')
+    #endif
     {
-        return 0;    /* match with trailing slash */
+        return 0; // match with trailing slash
     }
 
     if (s == q)
     {
-        return -1;    /* no match */
+        return -1; // no match
     }
 
     return 1;

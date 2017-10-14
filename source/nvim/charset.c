@@ -969,7 +969,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
     return GET_CHARTAB(buf, *p) != 0;
 }
 
-/// Check that "c" is a valid file-name character.
+/// Check that **c** is a valid file-name character.
 /// Assume characters above 0x100 are valid (multi-byte).
 ///
 /// @param  c  character to check

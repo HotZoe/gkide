@@ -497,11 +497,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 /// strchr() version which handles multibyte strings
 ///
 /// @param[in]  string  String to search in.
-/// @param[in]  c  Character to search for.
+/// @param[in]  c       Character to search for.
 ///
 /// @return Pointer to the first byte of the found character in string or NULL
 ///         if it was not found or character is invalid. NUL character is never
-///         found, use `strlen()` instead.
+///         found, use strlen() instead.
 char_u *vim_strchr(const char_u *const string, const int c)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 {

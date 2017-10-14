@@ -1762,70 +1762,72 @@ void show_utf8(void)
     msg(IObuff);
 }
 
-/// Return offset from "p" to the first byte of the character it points into.
-/// If "p" points to the NUL at the end of the string return 0.
-/// Returns 0 when already at the first byte of a character.
+/// Return offset from @b p to the first byte of the character it points into.
+/// If @b p points to the NUL at the end of the string return 0.
+///
+/// @return 0 when already at the first byte of a character.
 int utf_head_off(const char_u *base, const char_u *p)
 {
     int c;
     int len;
 
-    if (*p < 0x80)                /* be quick for ASCII */
+    if(*p < 0x80) // be quick for ASCII
     {
         return 0;
     }
 
-    /* Skip backwards over trailing bytes: 10xx.xxxx
-     * Skip backwards again if on a composing char. */
+    // Skip backwards over trailing bytes: 10xx.xxxx
+    // Skip backwards again if on a composing char.
     const char_u *q;
 
-    for (q = p;; --q)
+    for(q = p;; --q)
     {
-        /* Move s to the last byte of this char. */
+        // Move s to the last byte of this char.
         const char_u *s;
 
-        for (s = q; (s[1] & 0xc0) == 0x80; ++s) {}
+        for(s = q; (s[1] & 0xc0) == 0x80; ++s)
+        { /* empty body */ }
 
-        /* Move q to the first byte of this char. */
-        while (q > base && (*q & 0xc0) == 0x80)
+        // Move q to the first byte of this char.
+        while(q > base && (*q & 0xc0) == 0x80)
         {
             --q;
         }
 
-        /* Check for illegal sequence. Do allow an illegal byte after where we
-         * started. */
+        // Check for illegal sequence.
+        // Do allow an illegal byte after where we started.
         len = utf8len_tab[*q];
 
-        if (len != (int)(s - q + 1) && len != (int)(p - q + 1))
+        if(len != (int)(s - q + 1) && len != (int)(p - q + 1))
         {
             return 0;
         }
 
-        if (q <= base)
+        if(q <= base)
         {
             break;
         }
 
         c = utf_ptr2char(q);
 
-        if (utf_iscomposing(c))
+        if(utf_iscomposing(c))
         {
             continue;
         }
 
-        if (arabic_maycombine(c))
+        if(arabic_maycombine(c))
         {
-            /* Advance to get a sneak-peak at the next char */
+            // Advance to get a sneak-peak at the next char
             const char_u *j = q;
             --j;
 
-            /* Move j to the first byte of this char. */
-            while (j > base && (*j & 0xc0) == 0x80)
+            // Move j to the first byte of this char.
+            while(j > base && (*j & 0xc0) == 0x80)
             {
                 --j;
             }
 
-            if (arabic_combine(utf_ptr2char(j), c))
+            if(arabic_combine(utf_ptr2char(j), c))
             {
                 continue;
             }
@@ -1837,9 +1839,7 @@ int utf_head_off(const char_u *base, const char_u *p)
     return (int)(p - q);
 }
 
-/*
- * Copy a character from "*fp" to "*tp" and advance the pointers.
- */
+/// Copy a character from <b>*fp</b> to <b>*tp</b> and advance the pointers.
 void mb_copy_char(const char_u **fp, char_u **tp)
 {
     int l = (*mb_ptr2len)(*fp);
@@ -1848,36 +1848,36 @@ void mb_copy_char(const char_u **fp, char_u **tp)
     *fp += l;
 }
 
-/*
- * Return the offset from "p" to the first byte of a character.  When "p" is
- * at the start of a character 0 is returned, otherwise the offset to the next
- * character.  Can start anywhere in a stream of bytes.
- */
+/// Return the offset from @b p to the first byte of a character.
+/// When @b p is at the start of a character 0 is returned, otherwise
+/// the offset to the next character.
+/// Can start anywhere in a stream of bytes.
 int mb_off_next(char_u *base, char_u *p)
 {
     int i;
     int j;
 
-    if (*p < 0x80)                // be quick for ASCII
+    if(*p < 0x80) // be quick for ASCII
     {
         return 0;
     }
 
     // Find the next character that isn't 10xx.xxxx
-    for (i = 0; (p[i] & 0xc0) == 0x80; i++) {}
+    for(i = 0; (p[i] & 0xc0) == 0x80; i++)
+    { /* empty-body */ }
 
-    if (i > 0)
+    if(i > 0)
     {
         // Check for illegal sequence.
-        for (j = 0; p - j > base; j++)
+        for(j = 0; p - j > base; j++)
         {
-            if ((p[-j] & 0xc0) != 0x80)
+            if((p[-j] & 0xc0) != 0x80)
             {
                 break;
             }
         }
 
-        if (utf8len_tab[p[-j]] != i + j)
+        if(utf8len_tab[p[-j]] != i + j)
         {
             return 0;
         }
@@ -1886,33 +1886,32 @@ int mb_off_next(char_u *base, char_u *p)
     return i;
 }
 
-/*
- * Return the offset from "p" to the last byte of the character it points
- * into.  Can start anywhere in a stream of bytes.
- */
+/// Return the offset from @b p to the last byte of the character it points into.
+/// Can start anywhere in a stream of bytes.
 int mb_tail_off(char_u *base, char_u *p)
 {
     int i;
     int j;
 
-    if (*p == NUL)
+    if(*p == NUL)
     {
         return 0;
     }
 
     // Find the last character that is 10xx.xxxx
-    for (i = 0; (p[i + 1] & 0xc0) == 0x80; i++) {}
+    for(i = 0; (p[i + 1] & 0xc0) == 0x80; i++)
+    { /* empty-body */ }
 
     // Check for illegal sequence.
-    for (j = 0; p - j > base; j++)
+    for(j = 0; p - j > base; j++)
     {
-        if ((p[-j] & 0xc0) != 0x80)
+        if((p[-j] & 0xc0) != 0x80)
         {
             break;
         }
     }
 
-    if (utf8len_tab[p[-j]] != i + j + 1)
+    if(utf8len_tab[p[-j]] != i + j + 1)
     {
         return 0;
     }
@@ -1920,19 +1919,17 @@ int mb_tail_off(char_u *base, char_u *p)
     return i;
 }
 
-/*
- * Find the next illegal byte sequence.
- */
+/// Find the next illegal byte sequence.
 void utf_find_illegal(void)
 {
     pos_T pos = curwin->w_cursor;
-    char_u      *p;
+    char_u *p;
     int len;
     vimconv_T vimconv;
-    char_u      *tofree = NULL;
+    char_u *tofree = NULL;
     vimconv.vc_type = CONV_NONE;
 
-    if (enc_canon_props(curbuf->b_p_fenc) & ENC_8BIT)
+    if(enc_canon_props(curbuf->b_p_fenc) & ENC_8BIT)
     {
         // 'encoding' is "utf-8" but we are editing a 8-bit encoded file,
         // possibly a utf-8 file with illegal bytes.  Setup for conversion
@@ -1942,16 +1939,14 @@ void utf_find_illegal(void)
 
     curwin->w_cursor.coladd = 0;
 
-    for (;; )
+    for(;;)
     {
         p = get_cursor_pos_ptr();
-
-        if (vimconv.vc_type != CONV_NONE)
+        if(vimconv.vc_type != CONV_NONE)
         {
             xfree(tofree);
             tofree = string_convert(&vimconv, p, NULL);
-
-            if (tofree == NULL)
+            if(tofree == NULL)
             {
                 break;
             }
@@ -1959,16 +1954,15 @@ void utf_find_illegal(void)
             p = tofree;
         }
 
-        while (*p != NUL)
+        while(*p != NUL)
         {
-            /* Illegal means that there are not enough trail bytes (checked by
-             * utf_ptr2len()) or too many of them (overlong sequence). */
+            // Illegal means that there are not enough trail bytes (checked by
+            // utf_ptr2len()) or too many of them (overlong sequence).
             len = utf_ptr2len(p);
 
-            if (*p >= 0x80 && (len == 1
-                               || utf_char2len(utf_ptr2char(p)) != len))
+            if(*p >= 0x80 && (len == 1 || utf_char2len(utf_ptr2char(p)) != len))
             {
-                if (vimconv.vc_type == CONV_NONE)
+                if(vimconv.vc_type == CONV_NONE)
                 {
                     curwin->w_cursor.col += (colnr_T)(p - get_cursor_pos_ptr());
                 }
@@ -1977,7 +1971,7 @@ void utf_find_illegal(void)
                     int l;
                     len = (int)(p - tofree);
 
-                    for (p = get_cursor_pos_ptr(); *p != NUL && len-- > 0; p += l)
+                    for(p = get_cursor_pos_ptr(); *p != NUL && len-- > 0; p += l)
                     {
                         l = utf_ptr2len(p);
                         curwin->w_cursor.col += l;
@@ -1990,7 +1984,7 @@ void utf_find_illegal(void)
             p += len;
         }
 
-        if (curwin->w_cursor.lnum == curbuf->b_ml.ml_line_count)
+        if(curwin->w_cursor.lnum == curbuf->b_ml.ml_line_count)
         {
             break;
         }
@@ -1999,7 +1993,7 @@ void utf_find_illegal(void)
         curwin->w_cursor.col = 0;
     }
 
-    /* didn't find it: don't move and beep */
+    // didn't find it: don't move and beep
     curwin->w_cursor = pos;
     beep_flush();
 theend:
@@ -2007,10 +2001,8 @@ theend:
     convert_setup(&vimconv, NULL, NULL);
 }
 
-/*
- * If the cursor moves on an trail byte, set the cursor on the lead byte.
- * Thus it moves left if necessary.
- */
+/// If the cursor moves on an trail byte, set the cursor on the lead byte.
+/// Thus it moves left if necessary.
 void mb_adjust_cursor(void)
 {
     mark_mb_adjustpos(curbuf, &curwin->w_cursor);

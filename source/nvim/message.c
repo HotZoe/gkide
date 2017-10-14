@@ -106,19 +106,15 @@ static int verbose_did_open = FALSE;
  *		    This is an allocated string or NULL when not used.
  */
 
-/*
- * msg(s) - displays the string 's' on the status line
- * When terminal not initialized (yet) mch_errmsg(..) is used.
- * return TRUE if wait_return not called
- */
+/// Displays the string @b s on the status line.
+/// When terminal not initialized (yet) mch_errmsg(..) is used.
+/// @return TRUE if wait_return not called
 int msg(char_u *s)
 {
     return msg_attr_keep(s, 0, FALSE);
 }
 
-/*
- * Like msg() but keep it silent when 'verbosefile' is set.
- */
+/// Like msg() but keep it silent when ::verbosefile is set.
 int verb_msg(char_u *s)
 {
     int n;
@@ -133,13 +129,8 @@ int msg_attr(const char *s, const int attr) FUNC_ATTR_NONNULL_ARG(1)
     return msg_attr_keep((char_u *)s, attr, false);
 }
 
-int
-msg_attr_keep (
-    char_u *s,
-    int attr,
-    int keep                   /* TRUE: set keep_msg if it doesn't scroll */
-)
-FUNC_ATTR_NONNULL_ARG(1)
+/// @param keep  TRUE: set keep_msg if it doesn't scroll
+int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
 {
     static int entered = 0;
     int retval;
@@ -147,51 +138,46 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     // Skip messages not match ":filter pattern".
     // Don't filter when there is an error.
-    if (!emsg_on_display && message_filtered(s))
+    if(!emsg_on_display && message_filtered(s))
     {
         return true;
     }
 
-    if (attr == 0)
+    if(attr == 0)
     {
         set_vim_var_string(VV_STATUSMSG, (char *) s, -1);
     }
 
-    /*
-     * It is possible that displaying a messages causes a problem (e.g.,
-     * when redrawing the window), which causes another message, etc..	To
-     * break this loop, limit the recursiveness to 3 levels.
-     */
-    if (entered >= 3)
+    // It is possible that displaying a messages causes a problem
+    // (e.g., when redrawing the window), which causes another message, etc..
+    // To break this loop, limit the recursiveness to 3 levels.
+    if(entered >= 3)
     {
         return TRUE;
     }
 
     ++entered;
 
-    /* Add message to history (unless it's a repeated kept message or a
-     * truncated message) */
-    if (s != keep_msg
-            || (*s != '<'
-                && last_msg_hist != NULL
-                && last_msg_hist->msg != NULL
-                && STRCMP(s, last_msg_hist->msg)))
+    // Add message to history (unless it's a repeated kept message or a truncated message)
+    if(s != keep_msg || (*s != '<'
+                         && last_msg_hist != NULL
+                         && last_msg_hist->msg != NULL
+                         && STRCMP(s, last_msg_hist->msg)))
     {
         add_msg_hist((const char *)s, -1, attr);
     }
 
-    /* When displaying keep_msg, don't let msg_start() free it, caller must do
-     * that. */
-    if (s == keep_msg)
+    // When displaying keep_msg, don't let msg_start() free it, caller must do that.
+    if(s == keep_msg)
     {
         keep_msg = NULL;
     }
 
-    /* Truncate the message if needed. */
+    // Truncate the message if needed.
     msg_start();
     buf = msg_strtrunc(s, FALSE);
 
-    if (buf != NULL)
+    if(buf != NULL)
     {
         s = buf;
     }
@@ -200,8 +186,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     msg_clr_eos();
     retval = msg_end();
 
-    if (keep && retval && vim_strsize(s) < (int)(Rows - cmdline_row - 1)
-            * Columns + sc_col)
+    if(keep && retval && vim_strsize(s) < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
     {
         set_keep_msg(s, 0);
     }
@@ -211,48 +196,45 @@ FUNC_ATTR_NONNULL_ARG(1)
     return retval;
 }
 
-/*
- * Truncate a string such that it can be printed without causing a scroll.
- * Returns an allocated string or NULL when no truncating is done.
- */
-char_u *
-msg_strtrunc (
-    char_u *s,
-    int force                  /* always truncate */
-)
+/// Truncate a string such that it can be printed without causing a scroll.
+///
+/// @param s
+/// @param force  always truncate
+///
+/// @return an allocated string or NULL when no truncating is done.
+char_u *msg_strtrunc(char_u *s, int force)
 {
-    char_u      *buf = NULL;
+    char_u *buf = NULL;
     int len;
     int room;
 
-    /* May truncate message to avoid a hit-return prompt */
-    if ((!msg_scroll && !need_wait_return && shortmess(SHM_TRUNCALL)
-            && !exmode_active && msg_silent == 0) || force)
+    // May truncate message to avoid a hit-return prompt
+    if((!msg_scroll
+        && !need_wait_return
+        && shortmess(SHM_TRUNCALL)
+        && !exmode_active && msg_silent == 0) || force)
     {
         len = vim_strsize(s);
 
-        if (msg_scrolled != 0)
-            /* Use all the columns. */
+        if(msg_scrolled != 0) // Use all the columns.
         {
             room = (int)(Rows - msg_row) * Columns - 1;
         }
-        else
-            /* Use up to 'showcmd' column. */
+        else // Use up to 'showcmd' column.
         {
             room = (int)(Rows - msg_row - 1) * Columns + sc_col - 1;
         }
 
-        if (len > room && room > 0)
+        if(len > room && room > 0)
         {
-            if (enc_utf8)
-                /* may have up to 18 bytes per cell (6 per char, up to two
-                 * composing chars) */
+            // may have up to 18 bytes per cell (6 per char, up to two composing chars)
+            if(enc_utf8)
             {
                 len = (room + 2) * 18;
             }
-            else if (enc_dbcs == DBCS_JPNU)
-                /* may have up to 2 bytes per cell for euc-jp */
+            else if(enc_dbcs == DBCS_JPNU)
             {
+                // may have up to 2 bytes per cell for euc-jp
                 len = (room + 2) * 2;
             }
             else
@@ -268,39 +250,37 @@ msg_strtrunc (
     return buf;
 }
 
-/*
- * Truncate a string "s" to "buf" with cell width "room".
- * "s" and "buf" may be equal.
- */
+/// Truncate a string @b s to @b buf with cell width "room".
+/// @b s and @b buf may be equal.
 void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
 {
-    size_t room = room_in - 3;  // "..." takes 3 chars
+    size_t room = room_in - 3; // "..." takes 3 chars
     size_t half;
     size_t len = 0;
     int e;
     int i;
     int n;
 
-    if (room_in < 3)
+    if(room_in < 3)
     {
         room = 0;
     }
 
     half = room / 2;
 
-    /* First part: Start of the string. */
-    for (e = 0; len < half && e < buflen; ++e)
+    // First part: Start of the string.
+    for(e = 0; len < half && e < buflen; ++e)
     {
-        if (s[e] == NUL)
+        if(s[e] == NUL)
         {
-            /* text fits without truncating! */
+            // text fits without truncating!
             buf[e] = NUL;
             return;
         }
 
         n = ptr2cells(s + e);
 
-        if (len + n > half)
+        if(len + n > half)
         {
             break;
         }
@@ -308,10 +288,10 @@ void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
         len += n;
         buf[e] = s[e];
 
-        if (has_mbyte)
-            for (n = (*mb_ptr2len)(s + e); --n > 0; )
+        if(has_mbyte)
+            for(n = (*mb_ptr2len)(s + e); --n > 0; )
             {
-                if (++e == buflen)
+                if(++e == buflen)
                 {
                     break;
                 }
@@ -323,16 +303,16 @@ void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
     // Last part: End of the string.
     half = i = (int)STRLEN(s);
 
-    for (;;)
+    for(;;)
     {
         do
         {
             half = half - (*mb_head_off)(s, s + half - 1) - 1;
-        } while (half > 0 && utf_iscomposing(utf_ptr2char(s + half)));
+        } while(half > 0 && utf_iscomposing(utf_ptr2char(s + half)));
 
         n = ptr2cells(s + half);
 
-        if (len + n > room || half == 0)
+        if(len + n > room || half == 0)
         {
             break;
         }
@@ -341,21 +321,20 @@ void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
         i = half;
     }
 
-    if (i <= e + 3)
+    if(i <= e + 3)
     {
-        // text fits without truncating
-        if (s != buf)
+        if(s != buf) // text fits without truncating
         {
             len = STRLEN(s);
 
-            if (len >= (size_t)buflen)
+            if(len >= (size_t)buflen)
             {
                 len = buflen - 1;
             }
 
             len = len - e + 1;
 
-            if (len < 1)
+            if(len < 1)
             {
                 buf[e - 1] = NUL;
             }
@@ -365,13 +344,13 @@ void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
             }
         }
     }
-    else if (e + 3 < buflen)
+    else if(e + 3 < buflen)
     {
         // set the middle and copy the last part
         memmove(buf + e, "...", (size_t)3);
         len = STRLEN(s + i) + 1;
 
-        if (len >= (size_t)buflen - e - 3)
+        if(len >= (size_t)buflen - e - 3)
         {
             len = buflen - e - 3 - 1;
         }
@@ -386,11 +365,8 @@ void trunc_string(char_u *s, char_u *buf, int room_in, int buflen)
     }
 }
 
-/*
- * Note: Caller of smgs() and smsg_attr() must check the resulting string is
- * shorter than IOSIZE!!!
- */
-
+/// Note: Caller of smgs() and smsg_attr() must check the resulting string is
+/// shorter than IOSIZE!!!
 int smsg(char *s, ...)
 {
     va_list arglist;

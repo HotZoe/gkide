@@ -3361,7 +3361,6 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     struct source_cookie cookie;
     char_u *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    char_u *fname_exp;
     char_u *firstline = NULL;
 
     scid_T save_current_SID;
@@ -3371,6 +3370,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     scriptitem_T *si = NULL;
 
     int retval = FAIL;
+    // expend the env-var if has, need to free()
     char_u *p = expand_env_save(fname);
 
     if(p == NULL)
@@ -3378,7 +3378,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         return retval;
     }
 
-    fname_exp = (char_u *)fix_fname((char *)p);
+    char_u *fname_exp = (char_u *)fix_fname((char *)p);
     xfree(p);
 
     if(fname_exp == NULL)

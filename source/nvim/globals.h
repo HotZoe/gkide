@@ -807,9 +807,11 @@ EXTERN int vr_lines_changed INIT(= 0);      /* #Lines changed by "gR" so far */
 # define DBCS_2BYTE     1       /* 2byte- */
 # define DBCS_DEBUG     -1
 
-// mbyte flags that used to depend on 'encoding'. These are now deprecated, as
-// 'encoding' is always "utf-8". Code that use them can be refactored to
-// remove dead code.
+/// mbyte flags that used to depend on @b encoding.
+/// These are now deprecated, as @b encoding is always "utf-8".
+/// Code that use them can be refactored to remove dead code.
+///
+/// @todo, remove the dead code, to make things simple
 #define enc_dbcs  false
 #define enc_utf8  true
 #define has_mbyte true

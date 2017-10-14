@@ -96,8 +96,6 @@ char *os_get_user_directory(const char *name)
         // save the string from the static passwd entry into malloced memory
         return xstrdup(pw->pw_dir);
     }
-
 #endif
     return NULL;
 }
-

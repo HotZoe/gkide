@@ -519,9 +519,10 @@ void expand_env_esc(char_u *restrict srcp,
                     }
 
             #endif
-                    *var = NUL; // set the 'dst' last char to NUL
+                    // set the 'dst' last char to NUL
+                    *var = NUL; // then get the env-var value
                     var = (char_u *)vim_getenv((char *)dst);
-                    mustfree = true;
+                    mustfree = true; // var point to new allocate memory
 
                     DEV_TRACE_MSG("env=%s", dst);
                     DEV_TRACE_MSG("val=%s", var);
@@ -529,28 +530,23 @@ void expand_env_esc(char_u *restrict srcp,
             #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 }
             #endif
-
             }
-            else if(src[1] == NUL // home directory
-                    || vim_ispathsep(src[1])
+            else if(src[1] == NUL // home directory, "~"
+                    || vim_ispathsep(src[1]) // "~/" or "~\"
                     || vim_strchr((char_u *)" ,\t\n", src[1]) != NULL)
             {
-                var = gkide_usr_home;
-                tail = src + 1;
+                var = gkide_usr_home; // ~
+                tail = src + 1; // the left
             }
-            else
+            else // user directory, like ~user etc.
             {
-                // user directory
             #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Copy ~user to dst[], so we can put a NUL after it.
                 tail = src;
                 var = dst;
                 int c = dstlen - 1;
 
-                while(c-- > 0
-                        && *tail
-                        && vim_isfilec(*tail)
-                        && !vim_ispathsep(*tail))
+                while(c-- > 0 && *tail && vim_isfilec(*tail) && !vim_ispathsep(*tail))
                 {
                     *var++ = *tail++;
                 }
@@ -568,16 +564,11 @@ void expand_env_esc(char_u *restrict srcp,
                     expand_T xpc;
                     ExpandInit(&xpc);
                     xpc.xp_context = EXPAND_FILES;
-                    var = ExpandOne(&xpc,
-                                    dst,
-                                    NULL,
-                                    WILD_ADD_SLASH|WILD_SILENT,
-                                    WILD_EXPAND_FREE);
+                    var = ExpandOne(&xpc, dst, NULL, WILD_ADD_SLASH | WILD_SILENT, WILD_EXPAND_FREE);
                     mustfree = true;
                 }
             #else
-                // cannot expand user's home directory, so don't try
-                var = NULL;
+                var = NULL; // cannot expand user's home directory, so don't try
                 tail = (char_u *)""; // for gcc
             #endif
             }
@@ -587,7 +578,7 @@ void expand_env_esc(char_u *restrict srcp,
             // Can't use slash_adjust(), p_ssl may be set temporarily.
             if(p_ssl && var != NULL && vim_strchr(var, '\\') != NULL)
             {
-                char_u  *p = vim_strsave(var);
+                char_u *p = vim_strsave(var);
 
                 if(mustfree)
                 {
@@ -604,7 +595,7 @@ void expand_env_esc(char_u *restrict srcp,
             // Required for ":e ~/tt" when $HOME includes a space.
             if(esc && var != NULL && vim_strpbrk(var, (char_u *)" \t") != NULL)
             {
-                char_u  *p = vim_strsave_escaped(var, (char_u *)" \t");
+                char_u *p = vim_strsave_escaped(var, (char_u *)" \t");
 
                 if(mustfree)
                 {
@@ -615,24 +606,26 @@ void expand_env_esc(char_u *restrict srcp,
                 mustfree = true;
             }
 
+            // copy the env-var value and the left to 'dst'
+            // if var != NULL && *var != NUL, then it is new mallocate env-var value
             if(var != NULL && *var != NUL && (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen))
             {
-                STRCPY(dst, var);
+                STRCPY(dst, var); // copy env-var value
                 dstlen -= (int)STRLEN(var);
-                int c = (int)STRLEN(var);
+                int c = (int)STRLEN(var); // next beginning index for 'dst'
 
                 // if var[] ends in a path separator and tail[] starts with it, skip a character
                 if(*var != NUL && after_pathsep((char *)dst, (char *)dst + c)
                 #if defined(BACKSLASH_IN_FILENAME)
-                        && dst[-1] != ':'
+                   && dst[-1] != ':'
                 #endif
-                        && vim_ispathsep(*tail))
+                   && vim_ispathsep(*tail))
                 {
                     ++tail;
                 }
 
-                dst += c;
-                src = tail;
+                dst += c; // the next beginning index
+                src = tail; // the left strings beginning
                 copy_char = false;
             }
 
@@ -675,15 +668,15 @@ void expand_env_esc(char_u *restrict srcp,
     *dst = NUL;
 }
 
-/// Check and return: **base_dir**/**fd_name**
+/// Check and return: @b base_dir/fd_name
 ///
 /// @param base_dir  basedir name, should be full path
 /// @param fd_name   file name or dir name
 /// @param flags     0: directory, 1: normal file 2: executable file
 ///
 /// @return
-/// - if the **fd_name** exist, then return allocated string, the caller need to call xfree()
-/// - if the **fd_name** not exist, just return NULL
+/// - if the @b fd_name exist, then return allocated string, the caller need to call xfree()
+/// - if the @b fd_name not exist, just return NULL
 static char *nvim_check_pathname(const char *base_dir, const char *fd_name, bool flags)
 {
     if(base_dir == NULL || *base_dir == NUL)
