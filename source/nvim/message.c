@@ -205,7 +205,6 @@ int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
 char_u *msg_strtrunc(char_u *s, int force)
 {
     char_u *buf = NULL;
-    int len;
     int room;
 
     // May truncate message to avoid a hit-return prompt
@@ -214,7 +213,7 @@ char_u *msg_strtrunc(char_u *s, int force)
         && shortmess(SHM_TRUNCALL)
         && !exmode_active && msg_silent == 0) || force)
     {
-        len = vim_strsize(s);
+        int len = vim_strsize(s);
 
         if(msg_scrolled != 0) // Use all the columns.
         {
@@ -227,20 +226,8 @@ char_u *msg_strtrunc(char_u *s, int force)
 
         if(len > room && room > 0)
         {
-            // may have up to 18 bytes per cell (6 per char, up to two composing chars)
-            if(enc_utf8)
-            {
-                len = (room + 2) * 18;
-            }
-            else if(enc_dbcs == DBCS_JPNU)
-            {
-                // may have up to 2 bytes per cell for euc-jp
-                len = (room + 2) * 2;
-            }
-            else
-            {
-                len = room + 2;
-            }
+            // utf-8 has up to 6 bytes per cell
+            len = (room + 2) * 18;
 
             buf = xmalloc(len);
             trunc_string(s, buf, room, len);
