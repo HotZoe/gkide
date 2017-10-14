@@ -4868,7 +4868,7 @@ static void syn_cmd_include(exarg_T *eap, int syncing)
     curwin->w_s->b_syn_topgrp = sgl_id;
 
     if(source
-       ? do_source(eap->arg, false, DOSO_NONE) == FAIL
+       ? do_source(eap->arg, false, kLoadSftAuto) == FAIL
        : source_runtime(eap->arg, DIP_ALL) == FAIL)
     {
         EMSG2(_(e_notopen), eap->arg);

@@ -1175,23 +1175,24 @@ static void store_loop_line(garray_T *gap, char_u *line)
     p->lnum = sourcing_lnum;
 }
 
-/*
- * If "fgetline" is get_loop_line(), return TRUE if the getline it uses equals
- * "func".  * Otherwise return TRUE when "fgetline" equals "func".
- */
-int getline_equal(LineGetter fgetline,
-                  void *cookie, /* argument for fgetline() */
-                  LineGetter func)
+/// If @b fgetline is get_loop_line(), return TRUE if the getline it uses equals @b func.
+/// Otherwise return TRUE when @b fgetline equals @b func.
+///
+/// @param fgetline
+/// @param cookie    argument for fgetline()
+/// @param func
+int getline_equal(LineGetter fgetline, void *cookie, LineGetter func)
 {
     LineGetter gp;
     struct loop_cookie *cp;
-    /* When "fgetline" is "get_loop_line()" use the "cookie" to find the
-     * function that's originally used to obtain the lines.  This may be
-     * nested several levels. */
+
+    // When "fgetline" is "get_loop_line()" use the "cookie" to find the
+    // function that's originally used to obtain the lines.
+    // This may be nested several levels.
     gp = fgetline;
     cp = (struct loop_cookie *)cookie;
 
-    while (gp == get_loop_line)
+    while(gp == get_loop_line)
     {
         gp = cp->getline;
         cp = cp->cookie;
@@ -12280,22 +12281,20 @@ static int ses_put_fname(FILE *fd, char_u *name, unsigned *flagp)
     // Escape special characters.
     p = (char_u *)vim_strsave_fnameescape((const char *)sname, false);
     xfree(sname);
-    /* write the result */
+    // write the result
     bool retval = fputs((char *)p, fd) < 0 ? FAIL : OK;
     xfree(p);
     return retval;
 }
 
-/*
- * ":loadview [nr]"
- */
+/// <b>:loadview [nr]</b>
 static void ex_loadview(exarg_T *eap)
 {
     char *fname = get_view_file(*eap->arg);
 
-    if (fname != NULL)
+    if(fname != NULL)
     {
-        if (do_source((char_u *)fname, FALSE, DOSO_NONE) == FAIL)
+        if(do_source((char_u *)fname, FALSE, kLoadSftAuto) == FAIL)
         {
             EMSG2(_(e_notopen), fname);
         }

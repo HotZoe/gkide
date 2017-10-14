@@ -2042,7 +2042,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     char_u *user_vimrc = (char_u *)stdpaths_user_conf_subpath("init.vim");
 
-    if (do_source(user_vimrc, true, DOSO_VIMRC) != FAIL)
+    if (do_source(user_vimrc, true, kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
     {
         do_exrc = p_exrc;
 
@@ -2082,7 +2082,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             vimrc[dir_len] = PATHSEP;
             memmove(vimrc + dir_len + 1, path_tail, sizeof(path_tail));
 
-            if (do_source((char_u *) vimrc, true, DOSO_VIMRC) != FAIL)
+            if (do_source((char_u *) vimrc, true, kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
             {
                 do_exrc = p_exrc;
 
@@ -2123,7 +2123,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         if(!(strcmp(parmp->use_vimrc, "NONE") == 0 || strcmp(parmp->use_vimrc, "NORC") == 0))
         {
-            if(do_source((char_u *)parmp->use_vimrc, FALSE, DOSO_NONE) != OK)
+            if(do_source((char_u *)parmp->use_vimrc, FALSE, kLoadSftNvimrc|kLoadSfsUsr) != OK)
             {
                 EMSG2(_("E282: Cannot read from \"%s\""), parmp->use_vimrc);
             }
@@ -2132,7 +2132,7 @@ FUNC_ATTR_NONNULL_ALL
     else if(!silent_mode)
     {
         // Get system wide defaults, if the file name is defined.
-        (void)do_source((char_u *)SYSINIT_NVIMRC, false, DOSO_NONE);
+        (void)do_source((char_u *)SYSINIT_NVIMRC, false, kLoadSftNvimrc|kLoadSfsSys);
 
         if(do_user_initialization())
         {
@@ -2145,11 +2145,11 @@ FUNC_ATTR_NONNULL_ALL
             // do_user_initialization.
             #if defined(UNIX)
             // If vimrc file is not owned by user, set 'secure' mode.
-            if (!file_owned(VIMRC_FILE))
+            if(!file_owned(VIMRC_FILE))
             #endif
                 secure = p_secure;
 
-            if(do_source((char_u *)VIMRC_FILE, true, DOSO_VIMRC) == FAIL)
+            if(do_source((char_u *)VIMRC_FILE, true, kLoadSftNvimrc|kLoadSfsUsr) == FAIL)
             {
                 #if defined(UNIX)
                 // if ".exrc" is not owned by user set 'secure' mode
@@ -2163,7 +2163,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
                 #endif
 
-                (void)do_source((char_u *)EXRC_FILE, false, DOSO_NONE);
+                (void)do_source((char_u *)EXRC_FILE, false, kLoadSftAuto);
             }
         }
 
@@ -2203,7 +2203,8 @@ static int process_env(char *env, bool is_viminit)
     {
         if(is_viminit)
         {
-            vimrc_found(NULL, NULL);
+            // check and set user configuration nvimrc env-var
+            check_and_set_usrnvimrc(NULL);
         }
 
         char_u *save_sourcing_name = sourcing_name;

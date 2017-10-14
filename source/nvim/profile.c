@@ -261,7 +261,7 @@ void time_start(const char *message)
 /// @warning don't forget to call time_start() once before calling this.
 ///
 /// @param mesg the message to display next to the timing information
-/// @param start only for do_source: start time
+/// @param start only for do_source(): start time
 void time_msg(const char *mesg, const proftime_T *start)
 {
     if(time_fd == NULL)

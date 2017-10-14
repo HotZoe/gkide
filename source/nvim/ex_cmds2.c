@@ -712,9 +712,8 @@ static int dbg_parsearg(char_u *arg, garray_T *gap)
     }
     else
     {
-        // Expand the file name in the same way as do_source().  This means
-        // doing it twice, so that $DIR/file gets expanded when $DIR is
-        // "~/dir".
+        // Expand the file name in the same way as do_source().
+        // This means doing it twice, so that $DIR/file gets expanded when $DIR is "~/dir".
         q = expand_env_save(p);
 
         if (q == NULL)
@@ -2883,7 +2882,7 @@ void ex_runtime(exarg_T *eap)
 
 static void source_callback(char_u *fname, void *cookie)
 {
-    (void)do_source(fname, false, DOSO_NONE);
+    (void)do_source(fname, false, kLoadSftAuto);
 }
 
 /// Source the file "name" from all directories in 'runtimepath'.
@@ -3062,7 +3061,7 @@ int do_in_runtimepath(char_u *name, int flags, DoInRuntimepathCB callback,
     return done;
 }
 
-// Expand wildcards in "pat" and invoke do_source() for each match.
+/// Expand wildcards in @b pat and invoke do_source() for each match.
 static void source_all_matches(char_u *pat)
 {
     int num_files;
@@ -3072,7 +3071,7 @@ static void source_all_matches(char_u *pat)
     {
         for (int i = 0; i < num_files; i++)
         {
-            (void)do_source(files[i], false, DOSO_NONE);
+            (void)do_source(files[i], false, kLoadSftAuto);
         }
 
         FreeWild(num_files, files);
@@ -3301,7 +3300,7 @@ static void cmd_source(char_u *fname, exarg_T *eap)
                    || eap->cstack->cs_idx >= 0);
         // ":source" read ex commands
     }
-    else if (do_source(fname, false, DOSO_NONE) == FAIL)
+    else if (do_source(fname, false, kLoadSftAuto) == FAIL)
     {
         EMSG2(_(e_notopen), fname);
     }
@@ -3347,20 +3346,19 @@ static FILE *fopen_noinh_readbin(char *filename)
 }
 
 
-/// Read the file **fname** and execute its lines as EX commands.
+/// Read the file @b fname and execute its lines as EX commands.
 ///
 /// This function may be called recursively!
 ///
 /// @param fname
 /// @param check_other  check for .nvimrc and _nvimrc
-/// @param is_vimrc     DOSO_ value
+/// @param is_vimrc     ::SourceFileType_T
 ///
-/// @return **FAIL** if file could not be opened, **OK** otherwise
+/// @return FAIL if file could not be opened, OK otherwise
 int do_source(char_u *fname, int check_other, int is_vimrc)
 {
     char_u *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    char_u *firstline = NULL;
 
     scid_T save_current_SID;
     static scid_T last_current_SID = 0;
@@ -3444,9 +3442,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     }
 
     // The file exists.
-    // - In verbose mode, give a message.
-    // - For a nvimrc file, may want to call vimrc_found().
-    if(p_verbose > 1)
+    if(p_verbose > 1) // In verbose mode, give a message.
     {
         verbose_enter();
 
@@ -3462,13 +3458,16 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
         verbose_leave();
     }
 
-    if(is_vimrc == DOSO_VIMRC)
+    // For a nvimrc file, check and set env-var
+    if(is_vimrc == (kLoadSftNvimrc|kLoadSfsUsr))
     {
-        vimrc_found(fname_exp, (char_u *)"MYVIMRC");
+        // check and set $USRNVIMRC
+        check_and_set_usrnvimrc(fname_exp);
     }
-    else if(is_vimrc == DOSO_GVIMRC)
+    else if(is_vimrc == (kLoadSftNvimrc|kLoadSfsDyn))
     {
-        vimrc_found(fname_exp, (char_u *)"MYGVIMRC");
+        // check and set $DYNNVIMRC
+        check_and_set_dynnvimrc(fname_exp);
     }
 
     #ifdef USE_CRNL
@@ -3501,7 +3500,7 @@ int do_source(char_u *fname, int check_other, int is_vimrc)
     cookie.conv.vc_type = CONV_NONE; // no conversion
 
     // Read the first line so we can check for a UTF-8 BOM.
-    firstline = getsourceline(0, (void *)&cookie, 0);
+    char_u *firstline = getsourceline(0, (void *)&cookie, 0);
 
     if(firstline != NULL
        && STRLEN(firstline) >= 3
@@ -3716,27 +3715,27 @@ void scriptnames_slash_adjust(void)
 /// Get a pointer to a script name.  Used for ":verbose set".
 char_u *get_scriptname(scid_T id)
 {
-    if (id == SID_MODELINE)
+    if(id == SID_MODELINE)
     {
         return (char_u *)_("modeline");
     }
 
-    if (id == SID_CMDARG)
+    if(id == SID_CMDARG)
     {
         return (char_u *)_("--cmd argument");
     }
 
-    if (id == SID_CARG)
+    if(id == SID_CARG)
     {
         return (char_u *)_("-c argument");
     }
 
-    if (id == SID_ENV)
+    if(id == SID_ENV)
     {
         return (char_u *)_("environment variable");
     }
 
-    if (id == SID_ERROR)
+    if(id == SID_ERROR)
     {
         return (char_u *)_("error handler");
     }
@@ -3744,45 +3743,44 @@ char_u *get_scriptname(scid_T id)
     return SCRIPT_ITEM(id).sn_name;
 }
 
-# if defined(EXITFREE)
+#if defined(EXITFREE)
+#define FREE_SCRIPTNAME(item) xfree((item)->sn_name)
+
 void free_scriptnames(void)
 {
-# define FREE_SCRIPTNAME(item) xfree((item)->sn_name)
     GA_DEEP_CLEAR(&script_items, scriptitem_T, FREE_SCRIPTNAME);
 }
-# endif
-
+#endif
 
 /// Get one full line from a sourced file.
 /// Called by do_cmdline() when it's called from do_source().
 ///
-/// @return pointer to the line in allocated memory, or NULL for end-of-file or
-///         some error.
+/// @return pointer to the line in allocated memory, or NULL for end-of-file or some error.
 char_u *getsourceline(int c, void *cookie, int indent)
 {
-    struct source_cookie *sp = (struct source_cookie *)cookie;
     char_u *line;
     char_u *p;
+    struct source_cookie *sp = (struct source_cookie *)cookie;
 
     // If breakpoints have been added/deleted need to check for it.
-    if (sp->dbg_tick < debug_tick)
+    if(sp->dbg_tick < debug_tick)
     {
         sp->breakpoint = dbg_find_breakpoint(true, sp->fname, sourcing_lnum);
         sp->dbg_tick = debug_tick;
     }
 
-    if (do_profiling == PROF_YES)
+    if(do_profiling == PROF_YES)
     {
         script_line_end();
     }
 
     // Get current line.  If there is a read-ahead line, use it, otherwise get
     // one now.
-    if (sp->finished)
+    if(sp->finished)
     {
         line = NULL;
     }
-    else if (sp->nextline == NULL)
+    else if(sp->nextline == NULL)
     {
         line = get_one_sourceline(sp);
     }
@@ -3793,69 +3791,69 @@ char_u *getsourceline(int c, void *cookie, int indent)
         sourcing_lnum++;
     }
 
-    if (line != NULL && do_profiling == PROF_YES)
+    if(line != NULL && do_profiling == PROF_YES)
     {
         script_line_start();
     }
 
     // Only concatenate lines starting with a \ when 'cpoptions' doesn't
     // contain the 'C' flag.
-    if (line != NULL && (vim_strchr(p_cpo, CPO_CONCAT) == NULL))
+    if(line != NULL && (vim_strchr(p_cpo, CPO_CONCAT) == NULL))
     {
         // compensate for the one line read-ahead
         sourcing_lnum--;
+
         // Get the next line and concatenate it when it starts with a
         // backslash. We always need to read the next line, keep it in
         // sp->nextline.
         sp->nextline = get_one_sourceline(sp);
 
-        if (sp->nextline != NULL && *(p = skipwhite(sp->nextline)) == '\\')
+        if(sp->nextline != NULL && *(p = skipwhite(sp->nextline)) == '\\')
         {
             garray_T ga;
             ga_init(&ga, (int)sizeof(char_u), 400);
             ga_concat(&ga, line);
             ga_concat(&ga, p + 1);
 
-            for (;; )
+            for(;;)
             {
                 xfree(sp->nextline);
                 sp->nextline = get_one_sourceline(sp);
 
-                if (sp->nextline == NULL)
+                if(sp->nextline == NULL)
                 {
                     break;
                 }
 
                 p = skipwhite(sp->nextline);
 
-                if (*p != '\\')
+                if(*p != '\\')
                 {
                     break;
                 }
 
                 // Adjust the growsize to the current length to speed up
                 // concatenating many lines.
-                if (ga.ga_len > 400)
+                if(ga.ga_len > 400)
                 {
                     ga_set_growsize(&ga, (ga.ga_len > 8000) ? 8000 : ga.ga_len);
                 }
 
                 ga_concat(&ga, p + 1);
             }
-
             ga_append(&ga, NUL);
             xfree(line);
             line = ga.ga_data;
         }
     }
 
-    if (line != NULL && sp->conv.vc_type != CONV_NONE)
+    if(line != NULL && sp->conv.vc_type != CONV_NONE)
     {
-        char_u  *s;
+        char_u *s;
         // Convert the encoding of the script line.
         s = string_convert(&sp->conv, line, NULL);
 
-        if (s != NULL)
+        if(s != NULL)
         {
             xfree(line);
             line = s;
@@ -3863,7 +3861,7 @@ char_u *getsourceline(int c, void *cookie, int indent)
     }
 
     // Did we encounter a breakpoint?
-    if (sp->breakpoint != 0 && sp->breakpoint <= sourcing_lnum)
+    if(sp->breakpoint != 0 && sp->breakpoint <= sourcing_lnum)
     {
         dbg_breakpoint(sp->fname, sourcing_lnum);
         // Find next breakpoint.
@@ -3879,59 +3877,58 @@ static char_u *get_one_sourceline(struct source_cookie *sp)
     garray_T ga;
     int len;
     int c;
-    char_u              *buf;
-#ifdef USE_CRNL
-    int has_cr;                           // CR-LF found
-#endif
-    bool have_read = false;
-    // use a growarray to store the sourced line
-    ga_init(&ga, 1, 250);
-    // Loop until there is a finished line (or end-of-file).
-    sourcing_lnum++;
+    char_u *buf;
 
-    for (;; )
+    #ifdef USE_CRNL
+    int has_cr; // CR-LF found
+    #endif
+
+    bool have_read = false;
+    ga_init(&ga, 1, 250); // use a growarray to store the sourced line
+    sourcing_lnum++; // Loop until there is a finished line (or end-of-file).
+
+    for(;;)
     {
         // make room to read at least 120 (more) characters
         ga_grow(&ga, 120);
         buf = (char_u *)ga.ga_data;
 
-        if (fgets((char *)buf + ga.ga_len, ga.ga_maxlen - ga.ga_len,
-                  sp->fp) == NULL)
+        if(fgets((char *)buf + ga.ga_len, ga.ga_maxlen - ga.ga_len, sp->fp) == NULL)
         {
             break;
         }
 
         len = ga.ga_len + (int)STRLEN(buf + ga.ga_len);
-#ifdef USE_CRNL
 
+        #ifdef USE_CRNL
         // Ignore a trailing CTRL-Z, when in Dos mode. Only recognize the
         // CTRL-Z by its own, or after a NL.
-        if ((len == 1 || (len >= 2 && buf[len - 2] == '\n'))
-                && sp->fileformat == EOL_DOS
-                && buf[len - 1] == Ctrl_Z)
+        if((len == 1 || (len >= 2 && buf[len - 2] == '\n'))
+           && sp->fileformat == EOL_DOS
+           && buf[len - 1] == Ctrl_Z)
         {
             buf[len - 1] = NUL;
             break;
         }
 
-#endif
+        #endif
+
         have_read = true;
         ga.ga_len = len;
 
         // If the line was longer than the buffer, read more.
-        if (ga.ga_maxlen - ga.ga_len == 1 && buf[len - 1] != '\n')
+        if(ga.ga_maxlen - ga.ga_len == 1 && buf[len - 1] != '\n')
         {
             continue;
         }
 
-        if (len >= 1 && buf[len - 1] == '\n')       // remove trailing NL
+        if(len >= 1 && buf[len - 1] == '\n') // remove trailing NL
         {
-#ifdef USE_CRNL
+            #ifdef USE_CRNL
             has_cr = (len >= 2 && buf[len - 2] == '\r');
-
-            if (sp->fileformat == EOL_UNKNOWN)
+            if(sp->fileformat == EOL_UNKNOWN)
             {
-                if (has_cr)
+                if(has_cr)
                 {
                     sp->fileformat = EOL_DOS;
                 }
@@ -3941,41 +3938,40 @@ static char_u *get_one_sourceline(struct source_cookie *sp)
                 }
             }
 
-            if (sp->fileformat == EOL_DOS)
+            if(sp->fileformat == EOL_DOS)
             {
-                if (has_cr)                 // replace trailing CR
+                if(has_cr) // replace trailing CR
                 {
                     buf[len - 2] = '\n';
                     len--;
                     ga.ga_len--;
                 }
-                else              // lines like ":map xx yy^M" will have failed
+                else // lines like ":map xx yy^M" will have failed
                 {
-                    if (!sp->error)
+                    if(!sp->error)
                     {
                         msg_source(hl_attr(HLF_W));
                         EMSG(_("W15: Warning: Wrong line separator, ^M may be missing"));
                     }
-
                     sp->error = true;
                     sp->fileformat = EOL_UNIX;
                 }
             }
-
-#endif
+            #endif
 
             // The '\n' is escaped if there is an odd number of ^V's just
             // before it, first set "c" just before the 'V's and then check
             // len&c parities (is faster than ((len-c)%2 == 0)) -- Acevedo
-            for (c = len - 2; c >= 0 && buf[c] == Ctrl_V; c--) {}
+            for(c = len - 2; c >= 0 && buf[c] == Ctrl_V; c--)
+            { /* empty-body */ }
 
-            if ((len & 1) != (c & 1))         // escaped NL, read more
+            if((len & 1) != (c & 1)) // escaped NL, read more
             {
                 sourcing_lnum++;
                 continue;
             }
 
-            buf[len - 1] = NUL;               // remove the NL
+            buf[len - 1] = NUL; // remove the NL
         }
 
         // Check for ^C here now and then, so recursive :so can be broken.
@@ -3983,7 +3979,7 @@ static char_u *get_one_sourceline(struct source_cookie *sp)
         break;
     }
 
-    if (have_read)
+    if(have_read)
     {
         return (char_u *)ga.ga_data;
     }
@@ -3998,8 +3994,8 @@ static char_u *get_one_sourceline(struct source_cookie *sp)
 /// until later and we need to store the time now.
 void script_line_start(void)
 {
-    scriptitem_T    *si;
-    sn_prl_T        *pp;
+    scriptitem_T *si;
+    sn_prl_T *pp;
 
     if (current_SID <= 0 || current_SID > script_items.ga_len)
     {

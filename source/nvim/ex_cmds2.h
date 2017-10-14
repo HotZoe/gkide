@@ -17,17 +17,20 @@ typedef void (*DoInRuntimepathCB)(char_u *, void *);
 #define CCGD_EXCMD      16      /// may suggest using
 
 /// The nvim source file type:  @b nvimrc type and @b cmdrc type
-enum SourceFileType_S
+/// last argument for do_source()
+enum SourceFileType_T
 {
-    kLoadFtNone   = 0,  ///< loading other type file
-    kLoadFtNvimrc = 1,  ///< loading nvimrc file
-    kLoadFtCmdrc  = 2,  ///< loading cmdrc file
-};
+    kLoadSftAuto   = 0,  ///< loading defaut auto type
 
-/* last argument for do_source() */
-#define DOSO_NONE       0
-#define DOSO_VIMRC      1       /* loading vimrc file */
-#define DOSO_GVIMRC     2       /* loading gvimrc file */
+    // Source File Type
+    kLoadSftNvimrc = 1,  ///< loading nvimrc file type
+    kLoadSftCmdrc  = 2,  ///< loading cmdrc  file type
+
+    // Source File Scope
+    kLoadSfsSys    = 4,  ///< loading system  scope
+    kLoadSfsUsr    = 8,  ///< loading user    scope
+    kLoadSfsDyn    = 16, ///< loading project scope
+};
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds2.h.generated.h"

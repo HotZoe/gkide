@@ -8692,33 +8692,64 @@ static void paste_option_changed(void)
     old_p_paste = p_paste;
 }
 
-/// Called when a vimrc or "VIMINIT" has been found.
-///
-/// Set the values for options that didn't get set yet to the Vim defaults.
-/// When @b fname is not NULL, use it to set @b $envname when it wasn't set yet.
-void vimrc_found(char_u *fname, char_u *envname)
+/// Check and set user current used configuration file environment variable.
+/// When set it is convenient for user to edit it, the form is:
+/// <b>:edit $USRNVIMRC</b>
+void check_and_set_usrnvimrc(char_u *fname)
 {
-    char_u *p;
-
-    if(fname != NULL)
+    if(fname == NULL)
     {
-        p = (char_u *)vim_getenv((char *)envname);
+        return;
+    }
 
-        if(p == NULL)
-        {
-            // Set $MYVIMRC to the first vimrc file found.
-            p = (char_u *)FullName_save((char *)fname, FALSE);
+    // get current user configuration nvimrc env-var value
+    char_u *env_val = (char_u *)vim_getenv("USRNVIMRC");
 
-            if(p != NULL)
-            {
-                vim_setenv((char *)envname, (char *)p);
-                xfree(p);
-            }
-        }
-        else
-        {
-            xfree(p);
-        }
+    if(env_val != NULL)
+    {
+        // $USRNVIMRC already set, free and skip
+        xfree(env_val);
+        return;
+    }
+
+    // not set, set $USRNVIMRC to the the given file.
+    // get the full path of the file first
+    env_val = (char_u *)FullName_save((char *)fname, FALSE);
+    if(env_val != NULL)
+    {
+        vim_setenv("USRNVIMRC", (char *)env_val);
+        xfree(env_val);
+    }
+}
+
+/// Check and set the current dynamic configuration file environment variable.
+/// This can be used to set project related configuration.
+/// When set it is convenient for user to edit it, the form is:
+/// <b>:edit $DYNNVIMRC</b>
+void check_and_set_dynnvimrc(char_u *fname)
+{
+    if(fname == NULL)
+    {
+        return;
+    }
+
+    // get current project configuration nvimrc env-var value
+    char_u *env_val = (char_u *)vim_getenv("DYNNVIMRC");
+
+    if(env_val != NULL)
+    {
+        // $DYNNVIMRC already set, free and skip
+        xfree(env_val);
+        return;
+    }
+
+    // not set, set $DYNNVIMRC to the the given file.
+    // get the full path of the file first
+    env_val = (char_u *)FullName_save((char *)fname, FALSE);
+    if(env_val != NULL)
+    {
+        vim_setenv("DYNNVIMRC", (char *)env_val);
+        xfree(env_val);
     }
 }
 
