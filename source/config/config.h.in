@@ -28,8 +28,8 @@
 // check dependency libraries
 #cmakedefine FOUND_WORKING_JEMALLOC
 
-#define GKIDE_NVIM   "nvim"
-#define GKIDE_SNAIL  "snail"
+#define GKIDE_NVIM   "gkidenvim"
+#define GKIDE_SNAIL  "gkidesnail"
 
 // Environment Variables
 #define ENV_GKIDE_SYS_HOME  "GKIDE_SYS_HOME"

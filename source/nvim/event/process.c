@@ -477,7 +477,7 @@ static void on_process_exit(Process *proc)
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }
 
-static void on_process_stream_close(Stream *stream, void *data)
+static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
 {
     Process *proc = data;
     decref(proc);

@@ -103,10 +103,8 @@ typedef kvec_t(MatchedLine) MatchedLineVec;
     #include "ex_cmds.c.generated.h"
 #endif
 
-/*
- * ":ascii" and "ga".
- */
-void do_ascii(exarg_T *eap)
+/// @b :ascii and ga
+void do_ascii(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int c;
     int cval;
@@ -118,7 +116,7 @@ void do_ascii(exarg_T *eap)
     int len;
     const bool l_enc_utf8 = enc_utf8;
 
-    if (l_enc_utf8)
+    if(l_enc_utf8)
     {
         c = utfc_ptr2char(get_cursor_pos_ptr(), cc);
     }
@@ -127,7 +125,7 @@ void do_ascii(exarg_T *eap)
         c = gchar_cursor();
     }
 
-    if (c == NUL)
+    if(c == NUL)
     {
         MSG("NUL");
         return;
@@ -135,25 +133,23 @@ void do_ascii(exarg_T *eap)
 
     IObuff[0] = NUL;
 
-    if (!has_mbyte || (enc_dbcs != 0 && c < 0x100) || c < 0x80)
+    if(!has_mbyte || (enc_dbcs != 0 && c < 0x100) || c < 0x80)
     {
-        if (c == NL)            /* NUL is stored as NL */
+        if(c == NL) // NUL is stored as NL
         {
             c = NUL;
         }
 
-        if (c == CAR && get_fileformat(curbuf) == EOL_MAC)
+        if(c == CAR && get_fileformat(curbuf) == EOL_MAC)
         {
-            cval = NL;    /* NL is stored as CR */
+            cval = NL; // NL is stored as CR
         }
         else
         {
             cval = c;
         }
 
-        if (vim_isprintc_strict(c) && (c < ' '
-                                       || c > '~'
-                                      ))
+        if(vim_isprintc_strict(c) && (c < ' ' || c > '~'))
         {
             transchar_nonprint(buf3, c);
             vim_snprintf(buf1, sizeof(buf1), "  <%s>", (char *)buf3);
@@ -163,9 +159,8 @@ void do_ascii(exarg_T *eap)
             buf1[0] = NUL;
         }
 
-        if (c >= 0x80)
-            vim_snprintf(buf2, sizeof(buf2), "  <M-%s>",
-                         (char *)transchar(c & 0x7f));
+        if(c >= 0x80)
+            vim_snprintf(buf2, sizeof(buf2), "  <M-%s>", (char *)transchar(c & 0x7f));
         else
         {
             buf2[0] = NUL;
@@ -175,7 +170,7 @@ void do_ascii(exarg_T *eap)
                      _("<%s>%s%s  %d,  Hex %02x,  Octal %03o"),
                      transchar(c), buf1, buf2, cval, cval, cval);
 
-        if (l_enc_utf8)
+        if(l_enc_utf8)
         {
             c = cc[ci++];
         }
@@ -6440,7 +6435,7 @@ void fix_help_buffer(void)
 /*
  * ":exusage"
  */
-void ex_exusage(exarg_T *eap)
+void ex_exusage(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     do_cmdline_cmd("help ex-cmd-index");
 }
@@ -6448,7 +6443,7 @@ void ex_exusage(exarg_T *eap)
 /*
  * ":viusage"
  */
-void ex_viusage(exarg_T *eap)
+void ex_viusage(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     do_cmdline_cmd("help normal-index");
 }
@@ -6461,18 +6456,21 @@ void ex_viusage(exarg_T *eap)
 /// @param tagname  Name of the tags file ("tags" for English, "tags-fr" for
 ///                 French)
 /// @param add_help_tags  Whether to add the "help-tags" tag
-static void helptags_one(char_u *dir, char_u *ext, char_u *tagfname,
+static void helptags_one(char_u *dir,
+                         char_u *ext,
+                         char_u *tagfname,
                          bool add_help_tags)
 {
-    FILE        *fd_tags;
-    FILE        *fd;
+    FILE *fd_tags;
+    FILE *fd;
     garray_T ga;
     int filecount;
-    char_u      **files;
-    char_u      *p1, *p2;
+    char_u **files;
+    char_u *p1;
+    char_u *p2;
     int fi;
-    char_u      *s;
-    char_u      *fname;
+    char_u *s;
+    char_u *fname;
     int utf8 = MAYBE;
     int this_utf8;
     int firstline;
@@ -6844,15 +6842,12 @@ static void do_helptags(char_u *dirname, bool add_help_tags)
     FreeWild(filecount, files);
 }
 
-static void
-helptags_cb(char_u *fname, void *cookie)
+static void helptags_cb(char_u *fname, void *cookie)
 {
     do_helptags(fname, *(bool *)cookie);
 }
 
-/*
- * ":helptags"
- */
+/// @b :helptags
 void ex_helptags(exarg_T *eap)
 {
     expand_T xpc;
@@ -6905,14 +6900,12 @@ struct sign
 static sign_T   *first_sign = NULL;
 static int      next_sign_typenr = 1;
 
-/*
- * ":helpclose": Close one help window
- */
-void ex_helpclose(exarg_T *eap)
+/// @b :helpclose Close one help window
+void ex_helpclose(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     FOR_ALL_WINDOWS_IN_TAB(win, curtab)
     {
-        if (win->w_buffer->b_help)
+        if(win->w_buffer->b_help)
         {
             win_close(win, FALSE);
             return;
@@ -7591,18 +7584,17 @@ void free_signs(void)
 
 static enum
 {
-    EXP_SUBCMD,		/* expand :sign sub-commands */
-    EXP_DEFINE,		/* expand :sign define {name} args */
-    EXP_PLACE,		/* expand :sign place {id} args */
-    EXP_UNPLACE,	/* expand :sign unplace" */
-    EXP_SIGN_NAMES	/* expand with name of placed signs */
+    EXP_SUBCMD,		///< expand :sign sub-commands
+    EXP_DEFINE,		///< expand :sign define {name} args
+    EXP_PLACE,		///< expand :sign place {id} args
+    EXP_UNPLACE,	///< expand :sign unplace"
+    EXP_SIGN_NAMES	///< expand with name of placed signs
 } expand_what;
 
-/// Function given to ExpandGeneric() to obtain the sign command
-/// expansion.
-char_u *get_sign_name(expand_T *xp, int idx)
+/// Function given to ExpandGeneric() to obtain the sign command expansion.
+char_u *get_sign_name(expand_T *FUNC_ARGS_UNUSED_REALY(x), int idx)
 {
-    switch (expand_what)
+    switch(expand_what)
     {
         case EXP_SUBCMD:
             return (char_u *)cmds[idx];

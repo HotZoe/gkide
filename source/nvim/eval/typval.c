@@ -2024,7 +2024,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(tv, dict)
 #define TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(tv, dict)
 
-static inline void _nothing_conv_dict_end(typval_T *const tv,
+static inline void _nothing_conv_dict_end(typval_T *const FUNC_ARGS_UNUSED_REALY(tv),
                                           dict_T **const dictp,
                                           const void *const nodictvar)
 FUNC_ATTR_ALWAYS_INLINE

@@ -46,7 +46,8 @@ static void signal_event(void **argv)
     watcher->cb(watcher, watcher->uv.signum, watcher->data);
 }
 
-static void signal_watcher_cb(uv_signal_t *handle, int signum)
+static void signal_watcher_cb(uv_signal_t *handle,
+                              int FUNC_ARGS_UNUSED_REALY(signum))
 {
     SignalWatcher *watcher = handle->data;
     CREATE_EVENT(watcher->events, signal_event, 1, watcher);

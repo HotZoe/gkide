@@ -385,14 +385,18 @@ uint64_t channel_create_internal(void)
     return channel->id;
 }
 
-void channel_process_exit(uint64_t id, int status)
+void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
 {
     Channel *channel = pmap_get(uint64_t)(channels, id);
     channel->closed = true;
     decref(channel);
 }
 
-static void receive_msgpack(Stream *stream, RBuffer *rbuf, size_t c, void *data, bool eof)
+static void receive_msgpack(Stream *stream,
+                            RBuffer *rbuf,
+                            size_t FUNC_ARGS_UNUSED_REALY(cnt),
+                            void *data,
+                            bool eof)
 {
     Channel *channel = data;
     incref(channel);
@@ -808,7 +812,7 @@ static void free_channel(Channel *channel)
     xfree(channel);
 }
 
-static void close_cb(Stream *stream, void *data)
+static void close_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
 {
     decref(data);
 }

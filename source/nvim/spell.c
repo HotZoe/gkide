@@ -3701,7 +3701,7 @@ static bool check_need_cap(linenr_T lnum, colnr_T col)
 
 
 /// ":spellrepall"
-void ex_spellrepall(exarg_T *eap)
+void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     pos_T pos = curwin->w_cursor;
     char_u *frompat;
@@ -9022,7 +9022,7 @@ pop:
 }
 
 // ":spellinfo"
-void ex_spellinfo(exarg_T *eap)
+void ex_spellinfo(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if (no_spell_checking(curwin))
     {
@@ -9619,11 +9619,13 @@ void spell_expand_check_cap(colnr_T col)
     spell_expand_need_cap = check_need_cap(curwin->w_cursor.lnum, col);
 }
 
-// Get list of spelling suggestions.
-// Used for Insert mode completion CTRL-X ?.
-// Returns the number of matches.  The matches are in "matchp[]", array of
-// allocated strings.
-int expand_spelling(linenr_T lnum, char_u *pat, char_u ***matchp)
+/// Get list of spelling suggestions.
+/// Used for Insert mode completion CTRL-X ?.
+/// Returns the number of matches.  The matches are in "matchp[]", array of
+/// allocated strings.
+int expand_spelling(linenr_T FUNC_ARGS_UNUSED_REALY(lnum),
+                    char_u *pat,
+                    char_u ***matchp)
 {
     garray_T ga;
     spell_suggest_list(&ga, pat, 100, spell_expand_need_cap, true);

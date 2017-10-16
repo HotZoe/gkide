@@ -79,7 +79,7 @@ void input_stop(void)
     stream_close(&read_stream, NULL, NULL);
 }
 
-static void cursorhold_event(void **argv)
+static void cursorhold_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 {
     event_T event = State & INSERT ? EVENT_CURSORHOLDI : EVENT_CURSORHOLD;
     apply_autocmds(event, NULL, NULL, false, curbuf);
@@ -457,7 +457,11 @@ static InbufPollResult inbuf_poll(int ms)
     return input_eof ? kInputEof : kInputNone;
 }
 
-static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data, bool at_eof)
+static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
+                    RBuffer *buf,
+                    size_t FUNC_ARGS_UNUSED_REALY(c),
+                    void *FUNC_ARGS_UNUSED_REALY(data),
+                    bool at_eof)
 {
     if(at_eof)
     {

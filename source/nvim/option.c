@@ -865,10 +865,10 @@ void set_init_1(void)
     }
 
     fenc_default = p;
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
     // GNU gettext 0.10.37 supports this feature: set the codeset used for
     // translated messages independently from the current locale.
-    (void)bind_textdomain_codeset(PROJECT_NAME, (char *)p_enc);
+    (void)bind_textdomain_codeset(GKIDE_NVIM, (char *)p_enc);
 #endif
     // Set the default for 'helplang'.
     set_helplang_default(get_mess_lang());
@@ -2364,18 +2364,15 @@ static char_u *check_cedit(void)
     return NULL;
 }
 
-/*
- * When changing 'title', 'titlestring', 'icon' or 'iconstring', call
- * maketitle() to create and display it.
- * When switching the title or icon off, call ui_set_{icon,title}(NULL) to get
- * the old value back.
- */
-static void
-did_set_title (
-    int icon                   /* Did set icon instead of title */
-)
+/// When changing 'title', 'titlestring', 'icon' or 'iconstring', call
+/// maketitle() to create and display it.
+/// When switching the title or icon off, call ui_set_{icon,title}(NULL) to get
+/// the old value back.
+///
+/// @param icon  Did set icon instead of title
+static void did_set_title(int FUNC_ARGS_UNUSED_REALY(icon))
 {
-    if (starting != NO_SCREEN)
+    if(starting != NO_SCREEN)
     {
         maketitle();
         resettitle();

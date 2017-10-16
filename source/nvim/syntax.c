@@ -3357,7 +3357,7 @@ static keyentry_T *match_keyword(char_u *keyword, hashtab_T *ht, stateitem_T *cu
 }
 
 /// Handle ":syntax conceal" command.
-static void syn_cmd_conceal(exarg_T *eap, int syncing)
+static void syn_cmd_conceal(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u *next;
@@ -3385,7 +3385,7 @@ static void syn_cmd_conceal(exarg_T *eap, int syncing)
 }
 
 /// Handle ":syntax case" command.
-static void syn_cmd_case(exarg_T *eap, int syncing)
+static void syn_cmd_case(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u *next;
@@ -3413,7 +3413,7 @@ static void syn_cmd_case(exarg_T *eap, int syncing)
 }
 
 /// Handle ":syntax spell" command.
-static void syn_cmd_spell(exarg_T *eap, int syncing)
+static void syn_cmd_spell(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u *next;
@@ -3449,7 +3449,7 @@ static void syn_cmd_spell(exarg_T *eap, int syncing)
 }
 
 /// Handle ":syntax iskeyword" command.
-static void syn_cmd_iskeyword(exarg_T *eap, int syncing)
+static void syn_cmd_iskeyword(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u save_chartab[32];
@@ -3736,13 +3736,13 @@ static void syn_clear_one(int id, int syncing)
 }
 
 /// Handle ":syntax on" command.
-static void syn_cmd_on(exarg_T *eap, int syncing)
+static void syn_cmd_on(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     syn_cmd_onoff(eap, "syntax");
 }
 
 /// Handle ":syntax enable" command.
-static void syn_cmd_enable(exarg_T *eap, int syncing)
+static void syn_cmd_enable(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     set_internal_string_var((char_u *)"syntax_cmd", (char_u *)"enable");
     syn_cmd_onoff(eap, "syntax");
@@ -3751,7 +3751,7 @@ static void syn_cmd_enable(exarg_T *eap, int syncing)
 
 /// Handle ":syntax reset" command.
 /// It actually resets highlighting, not syntax.
-static void syn_cmd_reset(exarg_T *eap, int syncing)
+static void syn_cmd_reset(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     eap->nextcmd = check_nextcmd(eap->arg);
 
@@ -3764,13 +3764,13 @@ static void syn_cmd_reset(exarg_T *eap, int syncing)
 }
 
 /// Handle ":syntax manual" command.
-static void syn_cmd_manual(exarg_T *eap, int syncing)
+static void syn_cmd_manual(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     syn_cmd_onoff(eap, "manual");
 }
 
 /// Handle ":syntax off" command.
-static void syn_cmd_off(exarg_T *eap, int syncing)
+static void syn_cmd_off(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     syn_cmd_onoff(eap, "nosyntax");
 }
@@ -4569,7 +4569,7 @@ static char_u *get_syn_options(char_u *arg, syn_opt_arg_T *opt, int *conceal_cha
     char_u *gname_start;
     char_u *gname;
     int syn_id;
-    int len;
+    int len = 0;
     char *p;
     int fidx;
 
@@ -4793,7 +4793,7 @@ static void syn_incl_toplevel(int id, int *flagsp)
 }
 
 /// Handle ":syntax include [@{group-name}] filename" command.
-static void syn_cmd_include(exarg_T *eap, int syncing)
+static void syn_cmd_include(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     int sgl_id = 1;
@@ -4879,7 +4879,7 @@ static void syn_cmd_include(exarg_T *eap, int syncing)
 }
 
 /// Handle ":syntax keyword {group-name} [{option}] keyword .." command.
-static void syn_cmd_keyword(exarg_T *eap, int syncing)
+static void syn_cmd_keyword(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u *group_name_end;
@@ -5647,7 +5647,7 @@ static int syn_add_cluster(char_u *name)
 
 /// Handle ":syntax cluster {cluster-name} [contains={groupname},..]
 ///		[add={groupname},..] [remove={groupname},..]".
-static void syn_cmd_cluster(exarg_T *eap, int syncing)
+static void syn_cmd_cluster(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg = eap->arg;
     char_u *group_name_end;
@@ -5856,7 +5856,7 @@ static char_u *get_syn_pattern(char_u *arg, synpat_T *ci)
 }
 
 /// Handle ":syntax sync .." command.
-static void syn_cmd_sync(exarg_T *eap, int syncing)
+static void syn_cmd_sync(exarg_T *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 {
     char_u *arg_start = eap->arg;
     char_u *arg_end;
@@ -6612,7 +6612,7 @@ void set_context_in_syntax_cmd(expand_T *xp, const char *arg)
 static char *(case_args[]) = {"match", "ignore", NULL};
 
 /// Function given to ExpandGeneric() to obtain the list syntax names for expansion.
-char_u *get_syntax_name(expand_T *xp, int idx)
+char_u *get_syntax_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(expand_what == EXP_SUBCMD)
     {
@@ -6791,7 +6791,7 @@ static void syntime_clear(void)
 
 /// Function given to ExpandGeneric() to obtain the possible arguments of the
 /// ":syntime {on,off,clear,report}" command.
-char_u *get_syntime_arg(expand_T *xp, int idx)
+char_u *get_syntime_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     switch(idx)
     {
@@ -8802,7 +8802,7 @@ static void highlight_list_two(int cnt, int attr)
 
 /// Function given to ExpandGeneric() to obtain the list of group names.
 /// Also used for synIDattr() function.
-const char *get_highlight_name(expand_T *const xp, const int idx)
+const char *get_highlight_name(expand_T *const FUNC_ARGS_UNUSED_REALY(xp), const int idx)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     /// @todo(justinmk): 'xp' is unused

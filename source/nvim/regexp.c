@@ -8570,7 +8570,9 @@ static int submatch_line_lbr;
 
 /// Put the submatches in "argv[0]" which is a list passed into call_func() by
 /// vim_regsub_both().
-static int fill_submatch_list(int argc, typval_T *argv, int argcount)
+static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
+                              typval_T *argv,
+                              int argcount)
 {
     listitem_T *li;
     int        i;

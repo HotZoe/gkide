@@ -3677,7 +3677,9 @@ static Ptrlist *append(Ptrlist *l1, Ptrlist *l2)
  */
 static Frag_T empty;
 
-static void st_error(int *postfix, int *end, int *p)
+static void st_error(int *FUNC_ARGS_UNUSED_MAYBE(postfix),
+                     int *FUNC_ARGS_UNUSED_MAYBE(end),
+                     int *FUNC_ARGS_UNUSED_MAYBE(p))
 {
 #ifdef NFA_REGEXP_ERROR_LOG
     FILE *df;

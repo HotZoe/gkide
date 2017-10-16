@@ -6078,23 +6078,22 @@ static int move_lines(buf_T *frombuf, buf_T *tobuf)
     return retval;
 }
 
-/*
- * Check if buffer "buf" has been changed.
- * Also check if the file for a new buffer unexpectedly appeared.
- * return 1 if a changed buffer was found.
- * return 2 if a message has been displayed.
- * return 0 otherwise.
- */
-int
-buf_check_timestamp (
-    buf_T *buf,
-    int focus               /* called for GUI focus event */
-)
+/// Check if buffer "buf" has been changed.
+/// Also check if the file for a new buffer unexpectedly appeared.
+///
+/// @param buf
+/// @param focus  called for GUI focus event
+///
+/// @return
+/// - 1 if a changed buffer was found.
+/// - 2 if a message has been displayed.
+/// - 0 otherwise.
+int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 {
     int retval = 0;
-    char_u      *path;
-    char        *mesg = NULL;
-    char        *mesg2 = "";
+    char_u *path;
+    char *mesg = NULL;
+    char *mesg2 = "";
     int helpmesg = FALSE;
     int reload = FALSE;
     int can_reload = FALSE;
@@ -6102,8 +6101,8 @@ buf_check_timestamp (
     int orig_mode = buf->b_orig_mode;
     static int busy = FALSE;
     int n;
-    char_u      *s;
-    char        *reason;
+    char_u *s;
+    char *reason;
     bufref_T bufref;
     set_bufref(&bufref, buf);
 
@@ -8881,7 +8880,9 @@ auto_next_pat (
  * Called by do_cmdline() to get the next line for ":if".
  * Returns allocated string, or NULL for end of autocommands.
  */
-char_u *getnextac(int c, void *cookie, int indent)
+char_u *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
+                  void *cookie,
+                  int FUNC_ARGS_UNUSED_REALY(indent))
 {
     AutoPatCmd      *acp = (AutoPatCmd *)cookie;
     char_u          *retval;
@@ -9009,7 +9010,7 @@ bool has_autocmd(event_T event, char_u *sfname, buf_T *buf) FUNC_ATTR_WARN_UNUSE
 }
 
 /// Function given to ExpandGeneric() to obtain the list of autocommand group names.
-char_u *get_augroup_name(expand_T *xp, int idx)
+char_u *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx == augroups.ga_len) // add "END" add the end
     {
@@ -9095,7 +9096,7 @@ char_u *set_context_in_autocmd(expand_T *xp, char_u *arg, int doautocmd)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of event names.
-char_u *get_event_name(expand_T *xp, int idx)
+char_u *get_event_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx < augroups.ga_len) // First list group names, if wanted
     {
@@ -9340,13 +9341,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 3)
 /// allow_dirs, otherwise FALSE is put there -- webb.
 /// Handle backslashes before special characters, like "\*" and "\ ".
 ///
+/// @param pat
+/// @param pat_end      first char after pattern or NULL
+/// @param allow_dirs   Result passed back out in here
+/// @param no_bslash    Don't use a backward slash as pathsep
+///
 /// Returns NULL on failure.
-char_u *file_pat_to_reg_pat(
-    const char_u *pat,
-    const char_u *pat_end,   // first char after pattern or NULL
-    char *allow_dirs,        // Result passed back out in here
-    int no_bslash            // Don't use a backward slash as pathsep
-)
+char_u *file_pat_to_reg_pat(const char_u *pat,
+                            const char_u *pat_end,
+                            char *allow_dirs,
+                            int FUNC_ARGS_UNUSED_REALY(no_bslash))
 FUNC_ATTR_NONNULL_ARG(1)
 {
     const char_u *endp;

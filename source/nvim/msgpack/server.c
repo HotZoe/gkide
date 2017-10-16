@@ -269,7 +269,7 @@ char **server_address_list(size_t *size) FUNC_ATTR_NONNULL_ALL
     return addrs;
 }
 
-static void connection_cb(SocketWatcher *watcher, int result, void *data)
+static void connection_cb(SocketWatcher *watcher, int result, void *FUNC_ARGS_UNUSED_REALY(data))
 {
     if(result)
     {
@@ -280,7 +280,7 @@ static void connection_cb(SocketWatcher *watcher, int result, void *data)
     channel_from_connection(watcher);
 }
 
-static void free_server(SocketWatcher *watcher, void *data)
+static void free_server(SocketWatcher *watcher, void *FUNC_ARGS_UNUSED_REALY(data))
 {
     xfree(watcher);
 }

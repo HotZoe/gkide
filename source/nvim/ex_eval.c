@@ -2519,7 +2519,7 @@ void rewind_conditionals(struct condstack *cstack, int idx, int cond_type, int *
 /*
  * ":endfunction" when not after a ":function"
  */
-void ex_endfunction(exarg_T *eap)
+void ex_endfunction(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     EMSG(_("E193: :endfunction not inside a function"));
 }

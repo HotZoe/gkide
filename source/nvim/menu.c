@@ -1179,14 +1179,11 @@ char_u *set_context_in_menu_cmd(expand_T *xp, char_u *cmd, char_u *arg, int forc
     return NULL;
 }
 
-/*
- * Function given to ExpandGeneric() to obtain the list of (sub)menus (not
- * entries).
- */
-char_u *get_menu_name(expand_T *xp, int idx)
+/// Function given to ExpandGeneric() to obtain the list of (sub)menus (not entries).
+char_u *get_menu_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
-    static vimmenu_T    *menu = NULL;
-    char_u              *str;
+    static vimmenu_T *menu = NULL;
+    char_u *str;
     static int should_advance = FALSE;
 
     if (idx == 0)             /* first call: start at first item */
@@ -1241,7 +1238,7 @@ char_u *get_menu_name(expand_T *xp, int idx)
  * Function given to ExpandGeneric() to obtain the list of menus and menu
  * entries.
  */
-char_u *get_menu_names(expand_T *xp, int idx)
+char_u *get_menu_names(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static vimmenu_T    *menu = NULL;
 #define TBUFFER_LEN 256

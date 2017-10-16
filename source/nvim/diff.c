@@ -1255,8 +1255,8 @@ void ex_diffsplit(exarg_T *eap)
     }
 }
 
-// Set options to show diffs for the current window.
-void ex_diffthis(exarg_T *eap)
+/// Set options to show diffs for the current window.
+void ex_diffthis(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     // Set 'diff', 'scrollbind' on and 'wrap' off.
     diff_win_options(curwin, TRUE);

@@ -341,7 +341,11 @@ static void dynamic_buffer_ensure(DynamicBuffer *buf, size_t desired)
     buf->data = xrealloc(buf->data, buf->cap);
 }
 
-static void system_data_cb(Stream *stream, RBuffer *buf, size_t count, void *data, bool eof)
+static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+                           RBuffer *buf,
+                           size_t FUNC_ARGS_UNUSED_REALY(count),
+                           void *data,
+                           bool FUNC_ARGS_UNUSED_REALY(eof))
 {
     DynamicBuffer *dbuf = data;
     size_t nread = buf->size;
@@ -546,7 +550,11 @@ static void out_data_append_to_screen(char *output, size_t remaining, bool new_l
     ui_flush();
 }
 
-static void out_data_cb(Stream *stream, RBuffer *buf, size_t count, void *data, bool eof)
+static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+                        RBuffer *buf,
+                        size_t FUNC_ARGS_UNUSED_REALY(count),
+                        void *FUNC_ARGS_UNUSED_REALY(data),
+                        bool eof)
 {
     // We always output the whole buffer, so the buffer can never wrap around.
     size_t cnt;
@@ -767,7 +775,9 @@ static size_t write_output(char *output, size_t remaining, bool to_buffer, bool 
     return (size_t)(output - start);
 }
 
-static void shell_write_cb(Stream *stream, void *data, int status)
+static void shell_write_cb(Stream *stream,
+                           void *FUNC_ARGS_UNUSED_REALY(data),
+                           int status)
 {
     if(status)
     {

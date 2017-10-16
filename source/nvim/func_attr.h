@@ -221,8 +221,8 @@
     #define FUNC_API_ASYNC
     #define FUNC_API_NOEXPORT
     #define FUNC_API_REMOTE_ONLY
-    #define FUNC_API_SINCE(X)
-    #define FUNC_API_DEPRECATED_SINCE(X)
+    #define FUNC_API_SINCE(x)
+    #define FUNC_API_DEPRECATED_SINCE(x)
 
     #define FUNC_ATTR_MALLOC                REAL_FATTR_MALLOC
     #define FUNC_ATTR_ALLOC_SIZE(x)         REAL_FATTR_ALLOC_SIZE(x)

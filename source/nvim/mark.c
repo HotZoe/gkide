@@ -1027,48 +1027,51 @@ void ex_delmarks(exarg_T *eap)
     }
 }
 
-/*
- * print the jumplist
- */
-void ex_jumps(exarg_T *eap)
+/// print the jumplist
+void ex_jumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
-    char_u      *name;
+    char_u *name;
     cleanup_jumplist();
-    /* Highlight title */
+
+    // Highlight title
     MSG_PUTS_TITLE(_("\n jump line  col file/text"));
 
-    for (i = 0; i < curwin->w_jumplistlen && !got_int; ++i)
+    for(i = 0; i < curwin->w_jumplistlen && !got_int; ++i)
     {
-        if (curwin->w_jumplist[i].fmark.mark.lnum != 0)
+        if(curwin->w_jumplist[i].fmark.mark.lnum != 0)
         {
-            if (curwin->w_jumplist[i].fmark.fnum == 0)
+            if(curwin->w_jumplist[i].fmark.fnum == 0)
             {
                 fname2fnum(&curwin->w_jumplist[i]);
             }
 
             name = fm_getname(&curwin->w_jumplist[i].fmark, 16);
 
-            if (name == NULL)             /* file name not available */
+            if(name == NULL) // file name not available
             {
                 continue;
             }
 
             msg_putchar('\n');
 
-            if (got_int)
+            if(got_int)
             {
                 xfree(name);
                 break;
             }
 
-            sprintf((char *)IObuff, "%c %2d %5ld %4d ",
+            sprintf((char *)IObuff,
+                    "%c %2d %5ld %4d ",
                     i == curwin->w_jumplistidx ? '>' : ' ',
-                    i > curwin->w_jumplistidx ? i - curwin->w_jumplistidx
+                    i > curwin->w_jumplistidx
+                    ? i - curwin->w_jumplistidx
                     : curwin->w_jumplistidx - i,
                     curwin->w_jumplist[i].fmark.mark.lnum,
                     curwin->w_jumplist[i].fmark.mark.col);
+
             msg_outtrans(IObuff);
+
             msg_outtrans_attr(name,
                               curwin->w_jumplist[i].fmark.fnum == curbuf->b_fnum
                               ? hl_attr(HLF_D) : 0);
@@ -1079,46 +1082,48 @@ void ex_jumps(exarg_T *eap)
         ui_flush();
     }
 
-    if (curwin->w_jumplistidx == curwin->w_jumplistlen)
+    if(curwin->w_jumplistidx == curwin->w_jumplistlen)
     {
         MSG_PUTS("\n>");
     }
 }
 
-void ex_clearjumps(exarg_T *eap)
+void ex_clearjumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     free_jumplist(curwin);
     curwin->w_jumplistlen = 0;
     curwin->w_jumplistidx = 0;
 }
 
-/*
- * print the changelist
- */
-void ex_changes(exarg_T *eap)
+/// print the changelist
+void ex_changes(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
-    char_u      *name;
-    /* Highlight title */
+    char_u *name;
+
+    // Highlight title
     MSG_PUTS_TITLE(_("\nchange line  col text"));
 
-    for (i = 0; i < curbuf->b_changelistlen && !got_int; ++i)
+    for(i = 0; i < curbuf->b_changelistlen && !got_int; ++i)
     {
-        if (curbuf->b_changelist[i].mark.lnum != 0)
+        if(curbuf->b_changelist[i].mark.lnum != 0)
         {
             msg_putchar('\n');
 
-            if (got_int)
+            if(got_int)
             {
                 break;
             }
 
-            sprintf((char *)IObuff, "%c %3d %5ld %4d ",
+            sprintf((char *)IObuff,
+                    "%c %3d %5ld %4d ",
                     i == curwin->w_changelistidx ? '>' : ' ',
-                    i > curwin->w_changelistidx ? i - curwin->w_changelistidx
+                    i > curwin->w_changelistidx
+                    ? i - curwin->w_changelistidx
                     : curwin->w_changelistidx - i,
                     (long)curbuf->b_changelist[i].mark.lnum,
                     curbuf->b_changelist[i].mark.col);
+
             msg_outtrans(IObuff);
             name = mark_line(&curbuf->b_changelist[i].mark, 17);
             msg_outtrans_attr(name, hl_attr(HLF_D));
@@ -1129,39 +1134,51 @@ void ex_changes(exarg_T *eap)
         ui_flush();
     }
 
-    if (curwin->w_changelistidx == curbuf->b_changelistlen)
+    if(curwin->w_changelistidx == curbuf->b_changelistlen)
     {
         MSG_PUTS("\n>");
     }
 }
 
-#define one_adjust(add) \
-    { \
-        lp = add; \
-        if (*lp >= line1 && *lp <= line2) \
-        { \
-            if (amount == MAXLNUM) \
-                *lp = 0; \
-            else \
-                *lp += amount; \
-        } \
-        else if (amount_after && *lp > line2) \
-            *lp += amount_after; \
+#define one_adjust(add)                      \
+    {                                        \
+        lp = add;                            \
+        if(*lp >= line1 && *lp <= line2)     \
+        {                                    \
+            if(amount == MAXLNUM)            \
+            {                                \
+                *lp = 0;                     \
+            }                                \
+            else                             \
+            {                                \
+                *lp += amount;               \
+            }                                \
+        }                                    \
+        else if(amount_after && *lp > line2) \
+        {                                    \
+            *lp += amount_after;             \
+        }                                    \
     }
 
-/* don't delete the line, just put at first deleted line */
-#define one_adjust_nodel(add) \
-    { \
-        lp = add; \
-        if (*lp >= line1 && *lp <= line2) \
-        { \
-            if (amount == MAXLNUM) \
-                *lp = line1; \
-            else \
-                *lp += amount; \
-        } \
-        else if (amount_after && *lp > line2) \
-            *lp += amount_after; \
+/// don't delete the line, just put at first deleted line
+#define one_adjust_nodel(add)                \
+    {                                        \
+        lp = add;                            \
+        if(*lp >= line1 && *lp <= line2)     \
+        {                                    \
+            if(amount == MAXLNUM)            \
+            {                                \
+                *lp = line1;                 \
+            }                                \
+            else                             \
+            {                                \
+                *lp += amount;               \
+            }                                \
+        }                                    \
+        else if(amount_after && *lp > line2) \
+        {                                    \
+            *lp += amount_after;             \
+        }                                    \
     }
 
 /*

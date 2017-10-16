@@ -144,7 +144,7 @@ struct dbg_stuff
     #include "ex_docmd.c.generated.h"
 #endif
 
-#ifndef HAVE_WORKING_LIBINTL
+#ifndef FOUND_WORKING_LIBINTL
     #define ex_language            ex_ni
 #endif
 
@@ -4410,7 +4410,7 @@ const char *set_one_cmd_context(
             xp->xp_context = EXPAND_PACKADD;
             xp->xp_pattern = (char_u *)arg;
             break;
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
 
         case CMD_language:
             p = (const char *)skiptowhite((const char_u *)arg);
@@ -6149,7 +6149,7 @@ check_more (
 /*
  * Function given to ExpandGeneric() to obtain the list of command names.
  */
-char_u *get_command_name(expand_T *xp, int idx)
+char_u *get_command_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if (idx >= (int)CMD_SIZE)
     {
@@ -6307,7 +6307,7 @@ static struct
     { EXPAND_HELP, "help" },
     { EXPAND_HIGHLIGHT, "highlight" },
     { EXPAND_HISTORY, "history" },
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
     { EXPAND_LOCALES, "locale" },
 #endif
     { EXPAND_MAPPINGS, "mapping" },
@@ -6763,11 +6763,9 @@ static void ex_command(exarg_T *eap)
                        addr_type_arg, eap->forceit);
 }
 
-/*
- * ":comclear"
- * Clear all user commands, global and for current buffer.
- */
-void ex_comclear(exarg_T *eap)
+/// @b :comclear
+/// - Clear all user commands, global and for current buffer.
+void ex_comclear(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     uc_clear(&ucmds);
     uc_clear(&curbuf->b_ucmds);
@@ -6791,25 +6789,25 @@ void uc_clear(garray_T *gap)
 static void ex_delcommand(exarg_T *eap)
 {
     int i = 0;
-    ucmd_T      *cmd = NULL;
+    ucmd_T *cmd = NULL;
     int cmp = -1;
-    garray_T    *gap;
+    garray_T *gap;
     gap = &curbuf->b_ucmds;
 
-    for (;; )
+    for(;;)
     {
-        for (i = 0; i < gap->ga_len; ++i)
+        for(i = 0; i < gap->ga_len; ++i)
         {
             cmd = USER_CMD_GA(gap, i);
             cmp = STRCMP(eap->arg, cmd->uc_name);
 
-            if (cmp <= 0)
+            if(cmp <= 0)
             {
                 break;
             }
         }
 
-        if (gap == &ucmds || cmp == 0)
+        if(gap == &ucmds || cmp == 0)
         {
             break;
         }
@@ -6817,7 +6815,7 @@ static void ex_delcommand(exarg_T *eap)
         gap = &ucmds;
     }
 
-    if (cmp != 0)
+    if(cmp != 0)
     {
         EMSG2(_("E184: No such user-defined command: %s"), eap->arg);
         return;
@@ -6828,7 +6826,7 @@ static void ex_delcommand(exarg_T *eap)
     xfree(cmd->uc_compl_arg);
     --gap->ga_len;
 
-    if (i < gap->ga_len)
+    if(i < gap->ga_len)
     {
         memmove(cmd, cmd + 1, (gap->ga_len - i) * sizeof(ucmd_T));
     }
@@ -7500,7 +7498,7 @@ static char_u *get_user_command_name(int idx)
 /*
  * Function given to ExpandGeneric() to obtain the list of user address type names.
  */
-char_u *get_user_cmd_addr_type(expand_T *xp, int idx)
+char_u *get_user_cmd_addr_type(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     return (char_u *)addr_type_complete[idx].name;
 }
@@ -7508,7 +7506,7 @@ char_u *get_user_cmd_addr_type(expand_T *xp, int idx)
 /*
  * Function given to ExpandGeneric() to obtain the list of user command names.
  */
-char_u *get_user_commands(expand_T *xp, int idx)
+char_u *get_user_commands(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if (idx < curbuf->b_ucmds.ga_len)
     {
@@ -7529,12 +7527,11 @@ char_u *get_user_commands(expand_T *xp, int idx)
  * Function given to ExpandGeneric() to obtain the list of user command
  * attributes.
  */
-char_u *get_user_cmd_flags(expand_T *xp, int idx)
+char_u *get_user_cmd_flags(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static char *user_cmd_flags[] = {"addr",   "bang",     "bar",
                                      "buffer", "complete", "count",
-                                     "nargs",  "range",    "register"
-                                    };
+                                     "nargs",  "range",    "register" };
 
     if (idx >= (int)ARRAY_SIZE(user_cmd_flags))
     {
@@ -7547,7 +7544,7 @@ char_u *get_user_cmd_flags(expand_T *xp, int idx)
 /*
  * Function given to ExpandGeneric() to obtain the list of values for -nargs.
  */
-char_u *get_user_cmd_nargs(expand_T *xp, int idx)
+char_u *get_user_cmd_nargs(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static char *user_cmd_nargs[] = {"0", "1", "*", "?", "+"};
 
@@ -7562,7 +7559,7 @@ char_u *get_user_cmd_nargs(expand_T *xp, int idx)
 /*
  * Function given to ExpandGeneric() to obtain the list of values for -complete.
  */
-char_u *get_user_cmd_complete(expand_T *xp, int idx)
+char_u *get_user_cmd_complete(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     return (char_u *)command_complete[idx].name;
 }
@@ -7570,24 +7567,26 @@ char_u *get_user_cmd_complete(expand_T *xp, int idx)
 /*
  * Parse address type argument
  */
-int parse_addr_type_arg(char_u *value, int vallen, uint32_t *argt,
+int parse_addr_type_arg(char_u *value,
+                        int vallen,
+                        uint32_t *argt,
                         int *addr_type_arg)
 {
     int i, a, b;
 
-    for (i = 0; addr_type_complete[i].expand != -1; i++)
+    for(i = 0; addr_type_complete[i].expand != -1; i++)
     {
         a = (int)STRLEN(addr_type_complete[i].name) == vallen;
         b = STRNCMP(value, addr_type_complete[i].name, vallen) == 0;
 
-        if (a && b)
+        if(a && b)
         {
             *addr_type_arg = addr_type_complete[i].expand;
             break;
         }
     }
 
-    if (addr_type_complete[i].expand == -1)
+    if(addr_type_complete[i].expand == -1)
     {
         char_u *err = value;
 
@@ -7598,7 +7597,7 @@ int parse_addr_type_arg(char_u *value, int vallen, uint32_t *argt,
         return FAIL;
     }
 
-    if (*addr_type_arg != ADDR_LINES)
+    if(*addr_type_arg != ADDR_LINES)
     {
         *argt |= NOTADR;
     }
@@ -7613,8 +7612,11 @@ int parse_addr_type_arg(char_u *value, int vallen, uint32_t *argt,
  * copied to allocated memory and stored in "*compl_arg".
  * Returns FAIL if something is wrong.
  */
-int parse_compl_arg(const char_u *value, int vallen, int *complp,
-                    uint32_t *argt, char_u **compl_arg)
+int parse_compl_arg(const char_u *value,
+                    int vallen,
+                    int *complp,
+                    uint32_t *argt,
+                    char_u **compl_arg)
 {
     const char_u *arg = NULL;
     size_t arglen = 0;
@@ -7827,7 +7829,7 @@ static void ex_quit(exarg_T *eap)
 /*
  * ":cquit".
  */
-static void ex_cquit(exarg_T *eap)
+static void ex_cquit(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     getout(1);
 }
@@ -8525,7 +8527,7 @@ void alist_slash_adjust(void)
 /*
  * ":preserve".
  */
-static void ex_preserve(exarg_T *eap)
+static void ex_preserve(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     curbuf->b_flags |= BF_PRESERVED;
     ml_preserve(curbuf, TRUE);
@@ -8747,7 +8749,7 @@ static void ex_tabmove(exarg_T *eap)
 /*
  * :tabs command: List tabs and their contents.
  */
-static void ex_tabs(exarg_T *eap)
+static void ex_tabs(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int tabcount = 1;
     msg_start();
@@ -9064,7 +9066,7 @@ static void ex_nogui(exarg_T *eap)
 
 
 
-static void ex_swapname(exarg_T *eap)
+static void ex_swapname(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if (curbuf->b_ml.ml_mfp == NULL || curbuf->b_ml.ml_mfp->mf_fname == NULL)
     {
@@ -9081,7 +9083,7 @@ static void ex_swapname(exarg_T *eap)
  * offset.
  * (1998-11-02 16:21:01  R. Edward Ralston <eralston@computer.org>)
  */
-static void ex_syncbind(exarg_T *eap)
+static void ex_syncbind(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     win_T       *save_curwin = curwin;
     buf_T       *save_curbuf = curbuf;
@@ -9316,8 +9318,8 @@ void post_chdir(CdScope scope)
 /// `:cd`, `:tcd`, `:lcd`, `:chdir`, `:tchdir` and `:lchdir`.
 void ex_cd(exarg_T *eap)
 {
-    char_u              *new_dir;
-    char_u              *tofree;
+    char_u *new_dir;
+    char_u *tofree;
     new_dir = eap->arg;
 #if !defined(UNIX)
 
@@ -9409,7 +9411,7 @@ void ex_cd(exarg_T *eap)
 /*
  * ":pwd".
  */
-static void ex_pwd(exarg_T *eap)
+static void ex_pwd(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if (os_dirname(NameBuff, MAXPATHL) == OK)
     {
@@ -9812,7 +9814,7 @@ static void ex_rundo(exarg_T *eap)
 /*
  * ":redo".
  */
-static void ex_redo(exarg_T *eap)
+static void ex_redo(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     u_redo(1);
 }
@@ -10596,7 +10598,7 @@ static void ex_startinsert(exarg_T *eap)
 /*
  * ":stopinsert"
  */
-static void ex_stopinsert(exarg_T *eap)
+static void ex_stopinsert(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     restart_edit = 0;
     stop_insert_mode = true;
@@ -12474,7 +12476,7 @@ static void ex_behave(exarg_T *eap)
  * Function given to ExpandGeneric() to obtain the possible arguments of the
  * ":behave {mswin,xterm}" command.
  */
-char_u *get_behave_arg(expand_T *xp, int idx)
+char_u *get_behave_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if (idx == 0)
     {
@@ -12650,10 +12652,8 @@ static void ex_set(exarg_T *eap)
     (void)do_set(eap->arg, flags);
 }
 
-/*
- * ":nohlsearch"
- */
-static void ex_nohlsearch(exarg_T *eap)
+/// @b :nohlsearch
+static void ex_nohlsearch(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     SET_NO_HLSEARCH(TRUE);
     redraw_all_later(SOME_VALID);

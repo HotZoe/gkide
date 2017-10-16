@@ -1197,7 +1197,7 @@ shortcut_end:
 }
 #endif
 
-int os_translate_sys_error(int sys_errno)
+int os_translate_sys_error(int FUNC_ARGS_UNUSED_MAYBE(sys_errno))
 {
 #ifdef HAVE_UV_TRANSLATE_SYS_ERROR
     return uv_translate_sys_error(sys_errno);

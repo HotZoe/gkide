@@ -1873,18 +1873,21 @@ int vim_chdirfile(char_u *fname)
 }
 
 /// Change directory to "new_dir". Search 'cdpath' for relative directory names.
-int vim_chdir(char_u *new_dir, CdScope scope)
+int vim_chdir(char_u *new_dir, CdScope FUNC_ARGS_UNUSED_REALY(scope))
 {
-    char_u *dir_name = find_directory_in_path(new_dir, STRLEN(new_dir),
-                                              FNAME_MESS, curbuf->b_ffname);
+    char_u *dir_name = find_directory_in_path(new_dir,
+                                              STRLEN(new_dir),
+                                              FNAME_MESS,
+                                              curbuf->b_ffname);
 
-    if (dir_name == NULL)
+    if(dir_name == NULL)
     {
         return -1;
     }
 
     int r = os_chdir((char *)dir_name);
     xfree(dir_name);
+
     return r;
 }
 

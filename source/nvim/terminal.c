@@ -675,7 +675,10 @@ static int term_moverect(VTermRect dest, VTermRect src, void *data)
     return 1;
 }
 
-static int term_movecursor(VTermPos new, VTermPos old, int visible, void *data)
+static int term_movecursor(VTermPos new,
+                           VTermPos old,
+                           int FUNC_ARGS_UNUSED_REALY(visible),
+                           void *data)
 {
     Terminal *term = data;
     term->cursor.row = new.row;
@@ -728,7 +731,7 @@ static int term_settermprop(VTermProp prop, VTermValue *val, void *data)
     return 1;
 }
 
-static int term_bell(void *data)
+static int term_bell(void *FUNC_ARGS_UNUSED_REALY(data))
 {
     ui_call_bell();
     return 1;
@@ -1154,7 +1157,8 @@ static void refresh_terminal(Terminal *term)
     adjust_topline(term, buf, ml_added);
 }
 /// Calls refresh_terminal() on all invalidated_terminals.
-static void refresh_timer_cb(TimeWatcher *watcher, void *data)
+static void refresh_timer_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
+                             void *FUNC_ARGS_UNUSED_REALY(data))
 {
     if(exiting) // Cannot redraw (requires event loop) during teardown/exit.
     {
@@ -1182,7 +1186,7 @@ end:
     refresh_pending = false;
 }
 
-static void refresh_size(Terminal *term, buf_T *buf)
+static void refresh_size(Terminal *term, buf_T *FUNC_ARGS_UNUSED_REALY(buf))
 {
     if(!term->pending_resize || term->closed)
     {
@@ -1198,7 +1202,7 @@ static void refresh_size(Terminal *term, buf_T *buf)
 }
 
 /// Adjusts scrollback storage after 'scrollback' option changed.
-static void on_scrollback_option_changed(Terminal *term, buf_T *buf)
+static void on_scrollback_option_changed(Terminal *term, buf_T *FUNC_ARGS_UNUSED_REALY(buf))
 {
     const size_t scbk = curbuf->b_p_scbk < 0 ? SB_MAX : (size_t)MAX(1, curbuf->b_p_scbk);
     assert(term->sb_current < SIZE_MAX);

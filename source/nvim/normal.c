@@ -634,7 +634,7 @@ static bool normal_need_redraw_mode_message(NormalState *s)
                && s->oa.op_type == OP_NOP);
 }
 
-static void normal_redraw_mode_message(NormalState *s)
+static void normal_redraw_mode_message(NormalState *FUNC_ARGS_UNUSED_REALY(s))
 {
     int save_State = State;
 
@@ -1327,7 +1327,7 @@ finish:
     return 1;
 }
 
-static void normal_check_stuff_buffer(NormalState *s)
+static void normal_check_stuff_buffer(NormalState *FUNC_ARGS_UNUSED_REALY(s))
 {
     if (stuff_empty())
     {
@@ -1413,7 +1413,7 @@ static void normal_check_cursor_moved(NormalState *s)
     }
 }
 
-static void normal_check_text_changed(NormalState *s)
+static void normal_check_text_changed(NormalState *FUNC_ARGS_UNUSED_REALY(s))
 {
     // Trigger TextChanged if b_changedtick differs.
     if (!finish_op && has_event(EVENT_TEXTCHANGED)
@@ -1429,7 +1429,7 @@ static void normal_check_text_changed(NormalState *s)
     }
 }
 
-static void normal_check_folds(NormalState *s)
+static void normal_check_folds(NormalState *FUNC_ARGS_UNUSED_REALY(s))
 {
     // Include a closed fold completely in the Visual area.
     foldAdjustVisual();
@@ -4488,7 +4488,7 @@ static void nv_ignore(cmdarg_T *cap)
  * Command character that doesn't do anything, but unlike nv_ignore() does
  * start edit().  Used for "startinsert" executed while starting up.
  */
-static void nv_nop(cmdarg_T *cap)
+static void nv_nop(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
 {
 }
 
@@ -10243,13 +10243,13 @@ static void nv_event(cmdarg_T *cap)
 }
 
 /// Trigger FocusGained event.
-static void nv_focusgained(cmdarg_T *cap)
+static void nv_focusgained(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
 {
     apply_autocmds(EVENT_FOCUSGAINED, NULL, NULL, false, curbuf);
 }
 
 /// Trigger FocusLost event.
-static void nv_focuslost(cmdarg_T *cap)
+static void nv_focuslost(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
 {
     apply_autocmds(EVENT_FOCUSLOST, NULL, NULL, false, curbuf);
 }

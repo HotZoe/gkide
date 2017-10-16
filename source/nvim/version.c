@@ -595,7 +595,7 @@ static void do_intro_line(long row, char_u *mesg, int attr)
 /// ":intro": clear screen, display intro screen and wait for return.
 ///
 /// @param eap
-void ex_intro(exarg_T *eap)
+void ex_intro(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     screenclear();
     intro_message(TRUE);

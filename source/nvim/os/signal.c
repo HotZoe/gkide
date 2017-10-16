@@ -146,7 +146,9 @@ static void deadly_signal(int signum)
     preserve_exit();
 }
 
-static void on_signal(SignalWatcher *handle, int signum, void *data)
+static void on_signal(SignalWatcher *FUNC_ARGS_UNUSED_REALY(handle),
+                      int signum,
+                      void *FUNC_ARGS_UNUSED_REALY(data))
 {
     assert(signum >= 0);
 

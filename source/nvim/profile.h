@@ -48,7 +48,7 @@ typedef uint64_t proftime_T;
         {                                           \
             char msg_buf[1024] = { 0 };             \
             snprintf(msg_buf, 1024, "<%s,%d> "fmt,  \
-                     __FUNCTION__, __LINE__,        \
+                     __func__, __LINE__,            \
                      ##__VA_ARGS__);                \
             time_msg(msg_buf, NULL);                \
         }                                           \

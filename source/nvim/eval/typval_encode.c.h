@@ -275,13 +275,13 @@ REAL_FATTR_NONNULL_ARG(2, 3, 4, 7) REAL_FATTR_WARN_UNUSED_RESULT REAL_FATTR_ALWA
 ///
 /// @return NOTDONE in case of success, what to return in case of failure.
 static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
-    void *const val,
+    TYPVAL_ENCODE_FIRST_ARG_TYPE FUNC_ARGS_UNUSED_MAYBE(TYPVAL_ENCODE_FIRST_ARG_NAME),
+    void *const FUNC_ARGS_UNUSED_MAYBE(val),
     int *const val_copyID,
-    const MPConvStack *const mpstack,
+    const MPConvStack *const FUNC_ARGS_UNUSED_MAYBE(mpstack),
     const int copyID,
-    const MPConvStackValType conv_type,
-    const char *const objname)
+    const MPConvStackValType FUNC_ARGS_UNUSED_MAYBE(conv_type),
+    const char *const FUNC_ARGS_UNUSED_MAYBE(objname))
 {
     if(*val_copyID == copyID)
     {
@@ -322,7 +322,7 @@ REAL_FATTR_NONNULL_ARG(2, 4, 6) REAL_FATTR_WARN_UNUSED_RESULT;
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     MPConvStack *const mpstack,
-    MPConvStackVal *const cur_mpsv,
+    MPConvStackVal *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
     typval_T *const tv,
     const int copyID,
     const char *const objname)

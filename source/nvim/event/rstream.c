@@ -79,12 +79,12 @@ void rstream_stop(Stream *stream) FUNC_ATTR_NONNULL_ALL
     }
 }
 
-static void on_rbuffer_full(RBuffer *buf, void *data)
+static void on_rbuffer_full(RBuffer *FUNC_ARGS_UNUSED_REALY(buf), void *data)
 {
     rstream_stop(data);
 }
 
-static void on_rbuffer_nonfull(RBuffer *buf, void *data)
+static void on_rbuffer_nonfull(RBuffer *FUNC_ARGS_UNUSED_REALY(buf), void *data)
 {
     Stream *stream = data;
     assert(stream->read_cb);
@@ -94,7 +94,9 @@ static void on_rbuffer_nonfull(RBuffer *buf, void *data)
 /// Callbacks used by libuv
 ///
 /// Called by libuv to allocate memory for reading.
-static void alloc_cb(uv_handle_t *handle, size_t suggested, uv_buf_t *buf)
+static void alloc_cb(uv_handle_t *handle,
+                     size_t FUNC_ARGS_UNUSED_REALY(suggested),
+                     uv_buf_t *buf)
 {
     Stream *stream = handle->data;
     // `uv_buf_t.len` happens to have different size on Windows.
@@ -105,7 +107,9 @@ static void alloc_cb(uv_handle_t *handle, size_t suggested, uv_buf_t *buf)
 
 /// Callback invoked by libuv after it copies the data into the buffer provided by `alloc_cb`.
 /// This is also called on EOF or when `alloc_cb` returns a 0-length buffer.
-static void read_cb(uv_stream_t *uvstream, ssize_t cnt, const uv_buf_t *buf)
+static void read_cb(uv_stream_t *uvstream,
+                    ssize_t cnt,
+                    const uv_buf_t *FUNC_ARGS_UNUSED_REALY(buf))
 {
     Stream *stream = uvstream->data;
 

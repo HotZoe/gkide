@@ -1152,7 +1152,7 @@ static void taglen_advance(int l)
 }
 
 /// Print the tag stack
-void do_tags(exarg_T *eap)
+void do_tags(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int i;
     char_u *name;
@@ -2477,7 +2477,8 @@ static garray_T tag_fnames = GA_EMPTY_INIT_VALUE;
 
 /// Callback function for finding all "tags" and "tags-??" files in
 /// 'runtimepath' doc directories.
-static void found_tagfile_cb(char_u *fname, void *cookie)
+static void found_tagfile_cb(char_u *fname,
+                             void *FUNC_ARGS_UNUSED_REALY(cookie))
 {
     GA_APPEND(char_u *, &tag_fnames, vim_strsave(fname));
 }

@@ -12,7 +12,7 @@
     #include "event/loop.c.generated.h"
 #endif
 
-void loop_init(main_loop_T *loop, void *data)
+void loop_init(main_loop_T *loop, void *FUNC_ARGS_UNUSED_REALY(data))
 {
     uv_loop_init(&loop->uv);
     loop->recursive = 0;
@@ -70,7 +70,8 @@ void loop_schedule(main_loop_T *loop, Event event)
     uv_mutex_unlock(&loop->mutex);
 }
 
-void loop_on_put(MultiQueue *queue, void *data)
+void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue),
+                 void *data)
 {
     main_loop_T *loop = data;
     // Sometimes libuv will run pending callbacks(timer for example) before
@@ -130,7 +131,7 @@ static void async_cb(uv_async_t *handle)
     uv_mutex_unlock(&l->mutex);
 }
 
-static void timer_cb(uv_timer_t *handle)
+static void timer_cb(uv_timer_t *FUNC_ARGS_UNUSED_REALY(handle))
 {
     // TODO
 }

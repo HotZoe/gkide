@@ -950,7 +950,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua value to boolean
 ///
 /// Always pops one value from the stack.
-Boolean nlua_pop_Boolean(lua_State *lstate, Error *err)
+Boolean nlua_pop_Boolean(lua_State *lstate, Error *FUNC_ARGS_UNUSED_REALY(err))
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const Boolean ret = lua_toboolean(lstate, -1);
@@ -1423,14 +1423,15 @@ Object nlua_pop_Object(lua_State *const lstate, Error *const err)
     return ret;
 }
 
-#define GENERATE_INDEX_FUNCTION(type)                   \
-    type nlua_pop_##type(lua_State *lstate, Error *err) \
-    FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT  \
-    {                                                   \
-        type ret;                                       \
-        ret = (type)lua_tonumber(lstate, -1);           \
-        lua_pop(lstate, 1);                             \
-        return ret;                                     \
+#define GENERATE_INDEX_FUNCTION(type)                        \
+    type nlua_pop_##type(lua_State *lstate,                  \
+                         Error *FUNC_ARGS_UNUSED_REALY(err)) \
+    FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT       \
+    {                                                        \
+        type ret;                                            \
+        ret = (type)lua_tonumber(lstate, -1);                \
+        lua_pop(lstate, 1);                                  \
+        return ret;                                          \
     }
 
 GENERATE_INDEX_FUNCTION(Buffer)
@@ -1445,10 +1446,10 @@ GENERATE_INDEX_FUNCTION(Tabpage)
 ///
 /// Recorded values:
 ///
-/// `vim.type_idx`: @see nlua_push_type_idx()
-/// `vim.val_idx`: @see nlua_push_val_idx()
-/// `vim.types`: table mapping possible values of `vim.type_idx` to string
-///              names (i.e. `array`, `float`, `dictionary`) and back.
+/// - @b vim.type_idx: @see nlua_push_type_idx()
+/// - @b vim.val_idx: @see nlua_push_val_idx()
+/// - @b vim.types: table mapping possible values of @b vim.type_idx to string
+///                 names (i.e. @b array, @b float, @b dictionary) and back.
 void nlua_init_types(lua_State *const lstate)
 {
     LUA_PUSH_STATIC_STRING(lstate, "type_idx");

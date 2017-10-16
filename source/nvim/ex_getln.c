@@ -362,7 +362,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     }
 }
 
-static int command_line_check(VimState *state)
+static int command_line_check(VimState *FUNC_ARGS_UNUSED_REALY(state))
 {
     redir_off = true;        // Don't redirect the typed command.
     // Repeated, because a ":redir" inside
@@ -1655,8 +1655,7 @@ static int command_line_handle_key(CommandLineState *s)
             if (s->hiscnt != s->i)
             {
                 // jumped to other entry
-                char_u      *p;
-                int len;
+                char_u *p;
                 int old_firstc;
                 xfree(ccline.cmdbuff);
                 s->xpc.xp_context = EXPAND_NOTHING;
@@ -1670,15 +1669,16 @@ static int command_line_handle_key(CommandLineState *s)
                     p = history[s->histype][s->hiscnt].hisstr;
                 }
 
-                if (s->histype == HIST_SEARCH
-                        && p != s->lookfor
-                        && (old_firstc = p[STRLEN(p) + 1]) != s->firstc)
+                if(s->histype == HIST_SEARCH
+                   && p != s->lookfor
+                   && (old_firstc = p[STRLEN(p) + 1]) != s->firstc)
                 {
                     // Correct for the separator character used when
                     // adding the history entry vs the one used now.
                     // First loop: count length.
                     // Second loop: copy the characters.
-                    for (s->i = 0; s->i <= 1; ++s->i)
+                    int len = 0;
+                    for(s->i = 0; s->i <= 1; ++s->i)
                     {
                         len = 0;
 
@@ -2254,7 +2254,7 @@ static void correct_cmdspos(int idx, int cells)
 char_u *
 getexline (
     int c,                          /* normally ':', NUL for ":append" */
-    void *cookie,
+    void *FUNC_ARGS_UNUSED_REALY(cookie),
     int indent                     /* indent for inside conditionals */
 )
 {
@@ -2277,7 +2277,7 @@ char_u *
 getexmodeline (
     int promptc,                    /* normally ':', NUL for ":append" and '?' for
                                    :s prompt */
-    void *cookie,
+    void *FUNC_ARGS_UNUSED_REALY(cookie),
     int indent                     /* indent for inside conditionals */
 )
 {
@@ -5039,7 +5039,7 @@ static int ExpandFromContext(expand_T *xp,
             { EXPAND_CSCOPE,         get_cscope_name,        true,    true },
             { EXPAND_SIGN,           get_sign_name,          true,    true },
             { EXPAND_PROFILE,        get_profile_name,       true,    true },
-            #ifdef HAVE_WORKING_LIBINTL
+            #ifdef FOUND_WORKING_LIBINTL
             { EXPAND_LANGUAGE,       get_lang_arg,           true,    false },
             { EXPAND_LOCALES,        get_locales,            true,    false },
             #endif
@@ -5721,7 +5721,7 @@ static char *(history_names[]) =
  * Function given to ExpandGeneric() to obtain the possible first
  * arguments of the ":history command.
  */
-static char_u *get_history_arg(expand_T *xp, int idx)
+static char_u *get_history_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static char_u compl[2] = { NUL, NUL };
     char *short_names = ":=@>?/";

@@ -279,7 +279,7 @@ error:
     return status;
 }
 
-static void chld_handler(uv_signal_t *handle, int signum)
+static void chld_handler(uv_signal_t *handle, int FUNC_ARGS_UNUSED_REALY(signum))
 {
     int stat = 0;
     int pid;

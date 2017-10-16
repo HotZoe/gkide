@@ -4086,8 +4086,8 @@ static void enter_tabpage(tabpage_T *tp,
 /// When "n" is 9999 go to the last tab page.
 void goto_tabpage(int n)
 {
-    tabpage_T *tp;
-    tabpage_T *ttp;
+    tabpage_T *tp = NULL;
+    tabpage_T *ttp = NULL;
     int i;
 
     if(text_locked())

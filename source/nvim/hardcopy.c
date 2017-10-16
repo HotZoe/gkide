@@ -2437,16 +2437,18 @@ static int prt_match_charset(char *p_charset, struct prt_ps_mbfont_S *p_cmap,
     return FALSE;
 }
 
-int mch_print_init(prt_settings_T *psettings, char_u *jobname, int forceit)
+int mch_print_init(prt_settings_T *psettings,
+                   char_u *jobname,
+                   int FUNC_ARGS_UNUSED_REALY(forceit))
 {
     int i;
-    char        *paper_name;
+    char *paper_name;
     int paper_strlen;
     int fontsize;
-    char_u      *p;
+    char_u *p;
     int props;
     int cmap = 0;
-    char_u      *p_encoding;
+    char_u *p_encoding;
     struct prt_ps_encoding_S *p_mbenc;
     struct prt_ps_encoding_S *p_mbenc_first;
     struct prt_ps_charset_S  *p_mbchar = NULL;
@@ -3358,7 +3360,7 @@ int mch_print_end_page(void)
     return !prt_file_error;
 }
 
-int mch_print_begin_page(char_u *str)
+int mch_print_begin_page(char_u *FUNC_ARGS_UNUSED_REALY(str))
 {
     int page_num[2];
     prt_page_num++;

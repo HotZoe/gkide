@@ -262,6 +262,7 @@ int ml_open(buf_T *buf)
     }
 
     // Open the memfile. No swap file is created yet.
+    bhdr_T *hp = NULL;
     memfile_T *mfp = mf_open(NULL, 0);
 
     if(mfp == NULL)
@@ -275,7 +276,6 @@ int ml_open(buf_T *buf)
     curwin->w_nrwidth_line_count = 0;
 
     // fill block0 struct and write page 0
-    bhdr_T *hp = NULL;
     hp = mf_new(mfp, false, 1);
 
     if(hp->bh_bnum != 0)
@@ -3683,7 +3683,10 @@ int resolve_symlink(const char_u *fname, char_u *buf)
  * Make swap file name out of the file name and a directory name.
  * Returns pointer to allocated memory or NULL.
  */
-char_u *makeswapname(char_u *fname, char_u *ffname, buf_T *buf, char_u *dir_name)
+char_u *makeswapname(char_u *fname,
+                     char_u *FUNC_ARGS_UNUSED_REALY(ffname),
+                     buf_T *FUNC_ARGS_UNUSED_REALY(buf),
+                     char_u *dir_name)
 {
     char_u      *r, *s;
     char_u      *fname_res = fname;

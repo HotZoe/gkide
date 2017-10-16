@@ -1,0 +1,20 @@
+Original C Sources ───> Preparation ───> Marked C Sources  ───╮
+                                                               │
+               ╭─────────<─── GNU gettext Library             │
+╭─── make <───┤                                               │
+│              ╰─────────<────────────────────┬──────────────╯
+│                                              │
+│   ╭─────<─── PACKAGE.pot <─── xgettext <───╯  ╭───<─── PO Compendium
+│   │                                             │              ↑
+│   │                                            ╰───╮         │
+│   ╰───╮                                            ├───> PO editor ───╮
+│         ├────> msgmerge ──────> LANG.po ────────────╯                  │
+│   ╭───╯                                                               │
+│   │                                                                     │
+│   ╰─────────────<───────────────╮                                     │
+│                                   ├─── New LANG.po <───────────────────╯
+│   ╭─── LANG.gmo <─── msgfmt <───╯
+│   │
+│   ╰───> install ───> /.../LANG/PACKAGE.mo ───╮
+│                                                ├───> "Hello world!"
+╰───────> install ───> /.../bin/PROGRAM ───────╯

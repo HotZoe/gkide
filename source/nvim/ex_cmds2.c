@@ -910,7 +910,7 @@ void ex_breakdel(exarg_T *eap)
 }
 
 /// ":breaklist".
-void ex_breaklist(exarg_T *eap)
+void ex_breaklist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     struct debuggy *bp;
 
@@ -1163,7 +1163,7 @@ static char *pexpand_cmds[] =
 
 /// Function given to ExpandGeneric() to obtain the profile command
 /// specific expansion.
-char_u *get_profile_name(expand_T *xp, int idx)
+char_u *get_profile_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     switch (pexpand_what)
     {
@@ -2880,7 +2880,7 @@ void ex_runtime(exarg_T *eap)
 }
 
 
-static void source_callback(char_u *fname, void *cookie)
+static void source_callback(char_u *fname, void *FUNC_ARGS_UNUSED_REALY(cookie))
 {
     (void)do_source(fname, false, kLoadSftAuto);
 }
@@ -3270,7 +3270,7 @@ void ex_packadd(exarg_T *eap)
 }
 
 /// ":options"
-void ex_options(exarg_T *eap)
+void ex_options(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     cmd_source((char_u *)SYS_OPTWIN_FILE, NULL);
 }
@@ -3684,7 +3684,7 @@ theend:
 
 
 /// ":scriptnames"
-void ex_scriptnames(exarg_T *eap)
+void ex_scriptnames(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     for (int i = 1; i <= script_items.ga_len && !got_int; i++)
     {
@@ -3756,7 +3756,9 @@ void free_scriptnames(void)
 /// Called by do_cmdline() when it's called from do_source().
 ///
 /// @return pointer to the line in allocated memory, or NULL for end-of-file or some error.
-char_u *getsourceline(int c, void *cookie, int indent)
+char_u *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
+                      void *cookie,
+                      int FUNC_ARGS_UNUSED_REALY(indent))
 {
     char_u *line;
     char_u *p;
@@ -4235,11 +4237,11 @@ char *get_mess_lang(void)
 }
 
 // Complicated #if; matches with where get_mess_env() is used below.
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
 /// Get the language used for messages from the environment.
 static char_u *get_mess_env(void)
 {
-    char_u      *p;
+    char_u *p;
     p = (char_u *)os_getenv("LC_ALL");
 
     if (p == NULL)
@@ -4286,7 +4288,7 @@ void set_lang_var(void)
     set_vim_var_string(VV_CTYPE, loc, -1);
     // When LC_MESSAGES isn't defined use the value from $LC_MESSAGES,
     // fall back to LC_CTYPE if it's empty.
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
     loc = (char *)get_mess_env();
 #elif defined(LC_MESSAGES)
     loc = get_locale_val(LC_MESSAGES);
@@ -4301,7 +4303,7 @@ void set_lang_var(void)
     set_vim_var_string(VV_LC_TIME, loc, -1);
 }
 
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
 ///
 /// ":language":  Set the language (locale).
 ///
@@ -4349,7 +4351,7 @@ void ex_language(exarg_T *eap)
 
     if (*name == NUL)
     {
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
 
         if (what == VIM_LC_MESSAGES)
         {
@@ -4359,7 +4361,7 @@ void ex_language(exarg_T *eap)
         {
 #endif
             p = (char_u *)setlocale(what, NULL);
-#ifdef HAVE_WORKING_LIBINTL
+#ifdef FOUND_WORKING_LIBINTL
         }
 
 #endif
@@ -4451,7 +4453,7 @@ static void init_locales(void)
 static char_u **find_locales(void)
 {
     garray_T locales_ga;
-    char_u      *loc;
+    char_u *loc;
     char *saveptr = NULL;
     // Find all available locales by running command "locale -a".  If this
     // doesn't work we won't have completion.
@@ -4503,7 +4505,7 @@ void free_locales(void)
 
 /// Function given to ExpandGeneric() to obtain the possible arguments of the
 /// ":language" command.
-char_u *get_lang_arg(expand_T *xp, int idx)
+char_u *get_lang_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if (idx == 0)
     {
@@ -4531,7 +4533,7 @@ char_u *get_lang_arg(expand_T *xp, int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the available locales.
-char_u *get_locales(expand_T *xp, int idx)
+char_u *get_locales(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     init_locales();
 

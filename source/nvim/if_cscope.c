@@ -93,7 +93,7 @@ static enum
  * Function given to ExpandGeneric() to obtain the cscope command
  * expansion.
  */
-char_u *get_cscope_name(expand_T *xp, int idx)
+char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     int current_idx;
 
@@ -507,7 +507,7 @@ int cs_connection(int num, char_u *dbpath, char_u *ppath)
  *
  * MAXPATHL 256
  */
-static int cs_add(exarg_T *eap)
+static int cs_add(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char *fname, *ppath, *flags = NULL;
 
@@ -1395,7 +1395,7 @@ static int cs_find_common(char *opt, char *pat, int forceit, int verbose,
  *
  * print help
  */
-static int cs_help(exarg_T *eap)
+static int cs_help(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     cscmd_T *cmdp = cs_cmds;
     (void)MSG_PUTS(_("cscope commands:\n"));
@@ -1575,7 +1575,7 @@ static cscmd_T *cs_lookup_cmd(exarg_T *eap)
  *
  * nuke em
  */
-static int cs_kill(exarg_T *eap)
+static int cs_kill(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char *stok;
     int num;
@@ -2272,7 +2272,7 @@ static int cs_read_prompt(size_t i)
 /*
  * Used to catch and ignore SIGALRM below.
  */
-static void sig_handler(int s)
+static void sig_handler(int FUNC_ARGS_UNUSED_REALY(sig))
 {
     /* do nothing */
     return;
@@ -2425,7 +2425,7 @@ static void cs_release_csp(size_t i, int freefnpp)
  *
  * calls cs_kill on all cscope connections then reinits
  */
-static int cs_reset(exarg_T *eap)
+static int cs_reset(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char        **dblist = NULL, **pplist = NULL, **fllist = NULL;
     char buf[25];  // for snprintf " (#%zu)"
@@ -2557,7 +2557,7 @@ static char *cs_resolve_file(size_t i, char *name)
  *
  * show all cscope connections
  */
-static int cs_show(exarg_T *eap)
+static int cs_show(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if (cs_cnt_connections() == 0)
     {

@@ -3,7 +3,9 @@
 #ifndef NVIM_GETTEXT_H
 #define NVIM_GETTEXT_H
 
-#ifdef HAVE_WORKING_LIBINTL
+#include "confignvim.h"
+
+#ifdef FOUND_WORKING_LIBINTL
     #include <libintl.h>
     #define _(x) gettext((char *)(x))
     // XXX do we actually need this?

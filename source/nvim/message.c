@@ -3282,40 +3282,41 @@ void msg_advance(int col)
     }
 }
 
-/*
- * Used for "confirm()" function, and the :confirm command prefix.
- * Versions which haven't got flexible dialogs yet, and console
- * versions, get this generic handler which uses the command line.
- *
- * type  = one of:
- *	   VIM_QUESTION, VIM_INFO, VIM_WARNING, VIM_ERROR or VIM_GENERIC
- * title = title string (can be NULL for default)
- * (neither used in console dialogs at the moment)
- *
- * Format of the "buttons" string:
- * "Button1Name\nButton2Name\nButton3Name"
- * The first button should normally be the default/accept
- * The second button should be the 'Cancel' button
- * Other buttons- use your imagination!
- * A '&' in a button name becomes a shortcut, so each '&' should be before a
- * different letter.
- */
-int
-do_dialog (
-    int type,
-    char_u *title,
-    char_u *message,
-    char_u *buttons,
-    int dfltbutton,
-    char_u *textfield,          /* IObuff for inputdialog(), NULL
-                                           otherwise */
-    int ex_cmd                 /* when TRUE pressing : accepts default and starts
-                               Ex command */
-)
+/// Used for "confirm()" function, and the :confirm command prefix.
+/// Versions which haven't got flexible dialogs yet, and console
+/// versions, get this generic handler which uses the command line.
+///
+/// type  = one of:
+///	   VIM_QUESTION, VIM_INFO, VIM_WARNING, VIM_ERROR or VIM_GENERIC
+/// title = title string (can be NULL for default)
+/// (neither used in console dialogs at the moment)
+///
+/// Format of the "buttons" string:
+/// "Button1Name\nButton2Name\nButton3Name"
+/// The first button should normally be the default/accept
+/// The second button should be the 'Cancel' button
+/// Other buttons- use your imagination!
+/// A '&' in a button name becomes a shortcut, so each '&' should be before a
+/// different letter.
+///
+/// @param title
+/// @param message
+/// @param buttons
+/// @param dfltbutton
+/// @param textfield     IObuff for inputdialog(), NULL otherwise
+/// @param ex_cmd        when TRUE pressing : accepts default and starts Ex command
+///
+int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
+              char_u *FUNC_ARGS_UNUSED_REALY(title),
+              char_u *message,
+              char_u *buttons,
+              int dfltbutton,
+              char_u *FUNC_ARGS_UNUSED_REALY(textfield),
+              int ex_cmd)
 {
     int oldState;
     int retval = 0;
-    char_u      *hotkeys;
+    char_u *hotkeys;
     int c;
     int i;
 

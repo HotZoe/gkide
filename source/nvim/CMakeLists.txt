@@ -132,8 +132,6 @@ else()
     message(STATUS "disable nvim language debug")
 endif()
 
-include(ConfigNvim) # generate configurations for nvim only
-
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCC)
     check_c_compiler_flag(-Og GNUCC_HAS_OG_FLAG)
@@ -242,7 +240,51 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
 
-# for config, hard code into source
+# libuv
+find_package(LibUV 1.9.1 REQUIRED)
+include_directories(SYSTEM ${LIBUV_INCLUDE_DIRS})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
+
+# libvterm
+find_package(LibVterm REQUIRED)
+include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
+
+# libintl
+find_package(LibIntl)
+if(LibIntl_FOUND)
+    include_directories(SYSTEM ${LibIntl_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LibIntl_LIBRARIES}) # exist separate libintl
+    message(STATUS "Found libintl(separate library)")
+else()
+    if(FOUND_WORKING_LIBINTL)
+        message(STATUS "Found libintl(built into glibc)")
+    else()
+        message(STATUS "NOT Found libintl")
+    endif()
+endif()
+
+# libiconv
+find_package(Iconv)
+if(Iconv_FOUND)
+    include_directories(SYSTEM ${Iconv_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
+    message(STATUS "Found libiconv")
+    set(FOUND_WORKING_ICONV  1)
+else()
+    message(STATUS "NOT Found libiconv")
+    set(FOUND_WORKING_ICONV  0)
+endif()
+
+# lua
+find_package(Lua REQUIRED)
+include_directories(SYSTEM ${LUA_INCLUDE_DIR})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
+
+# generate configurations for nvim only
+include(ConfigNvim)
+
+# for config compile flags, hard code into source
 set(NVIM_CONFIG_C_FLAGS ${CMAKE_C_FLAGS} PARENT_SCOPE)
 set(NVIM_CONFIG_C_FLAGS_${build_type} ${CMAKE_C_FLAGS_${build_type}} PARENT_SCOPE)
 
@@ -576,47 +618,6 @@ endif()
 
 add_executable(nvim ${NVIM_ALL_SOURCES})
 install_helper(TARGETS nvim)
-
-# libuv
-find_package(LibUV 1.9.1 REQUIRED)
-target_include_directories(nvim SYSTEM PUBLIC ${LIBUV_INCLUDE_DIRS})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
-
-# libvterm
-find_package(LibVterm REQUIRED)
-target_include_directories(nvim SYSTEM PUBLIC ${LIBVTERM_INCLUDE_DIRS})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
-
-# libintl
-find_package(LibIntl)
-if(LibIntl_FOUND)
-    target_include_directories(nvim SYSTEM PUBLIC ${LibIntl_INCLUDE_DIRS})
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LibIntl_LIBRARIES}) # exist separate libintl
-    message(STATUS "Found libintl(separate library)")
-else()
-    if(FOUND_WORKING_LIBINTL)
-        message(STATUS "Found libintl(built into glibc)")
-    else()
-        message(STATUS "NOT Found libintl")
-    endif()
-endif()
-
-# libiconv
-find_package(Iconv)
-if(Iconv_FOUND)
-    target_include_directories(nvim SYSTEM PUBLIC ${Iconv_INCLUDE_DIRS})
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${Iconv_LIBRARIES})
-    message(STATUS "Found libiconv")
-    set(FOUND_WORKING_ICONV  1)
-else()
-    message(STATUS "NOT Found libiconv")
-    set(FOUND_WORKING_ICONV  0)
-endif()
-
-# lua
-find_package(Lua REQUIRED)
-target_include_directories(nvim SYSTEM PUBLIC ${LUA_INCLUDE_DIR})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
 if(UNIX)
     # Add libraries for unix.

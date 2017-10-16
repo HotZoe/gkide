@@ -3308,7 +3308,7 @@ static void init_users(void)
 /*
  * Function given to ExpandGeneric() to obtain an user names.
  */
-char_u *get_users(expand_T *xp, int idx)
+char_u *get_users(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     init_users();
 

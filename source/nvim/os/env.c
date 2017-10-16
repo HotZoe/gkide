@@ -271,12 +271,12 @@ void init_gkide_usr_home(void)
     if(usr_home_reset)
     {
         // make '.gkide' directory first, then reset gkide usr home env
-        snprintf(NameBuff, MAXPATHL, "%s" OS_PATH_SEP_STR ".gkide", usr_home);
+        snprintf((char *)NameBuff, MAXPATHL, "%s" OS_PATH_SEP_STR ".gkide", usr_home);
     }
     else
     {
         // gkide usr home env already set, check if it exist, if not, try to create it.
-        snprintf(NameBuff, MAXPATHL, "%s", usr_home);
+        snprintf((char *)NameBuff, MAXPATHL, "%s", usr_home);
     }
 
     if(os_path_exists((char_u *)NameBuff))
@@ -321,7 +321,7 @@ void init_gkide_usr_home(void)
         gkide_usr_home = NULL;
     }
 
-    gkide_usr_home = vim_strsave((char_u *)usr_home);
+    gkide_usr_home = (char *)vim_strsave((char_u *)usr_home);
 
     if(usr_home_reset)
     {
@@ -367,7 +367,7 @@ void init_gkide_dyn_home(void)
         gkide_dyn_home = NULL;
     }
 
-    gkide_dyn_home = vim_strsave((char_u *)dyn_home);
+    gkide_dyn_home = (char *)vim_strsave((char_u *)dyn_home);
 
     INFO_MSG("GKIDE_DYN_HOME: %s", gkide_dyn_home);
 }
@@ -535,7 +535,7 @@ void expand_env_esc(char_u *restrict srcp,
                     || vim_ispathsep(src[1]) // "~/" or "~\"
                     || vim_strchr((char_u *)" ,\t\n", src[1]) != NULL)
             {
-                var = gkide_usr_home; // ~
+                var = (char_u *)gkide_usr_home; // ~
                 tail = src + 1; // the left
             }
             else // user directory, like ~user etc.
@@ -677,7 +677,7 @@ void expand_env_esc(char_u *restrict srcp,
 /// @return
 /// - if the @b fd_name exist, then return allocated string, the caller need to call xfree()
 /// - if the @b fd_name not exist, just return NULL
-static char *nvim_check_pathname(const char *base_dir, const char *fd_name, bool flags)
+static char *nvim_check_pathname(const char *base_dir, const char *fd_name, int flags)
 {
     if(base_dir == NULL || *base_dir == NUL)
     {
@@ -882,43 +882,6 @@ GKIDE_LAYOUT_CHECK_IMPL(loc) /* check: $GKIDE_XXX_HOME/loc */
 
 #undef GKIDE_LAYOUT_CHECK_IMPL
 
-/// If `dirname + "/"` precedes `pend` in the path, return the pointer to
-/// `dirname + "/" + pend`.  Otherwise return `pend`.
-///
-/// Examples (path = /usr/local/share/nvim/runtime/doc/help.txt):
-///
-///   pend    = help.txt
-///   dirname = doc
-///   -> doc/help.txt
-///
-///   pend    = doc/help.txt
-///   dirname = runtime
-///   -> runtime/doc/help.txt
-///
-///   pend    = runtime/doc/help.txt
-///   dirname = vim74
-///   -> runtime/doc/help.txt
-///
-/// @param path    Path to a file
-/// @param pend    A suffix of the path
-/// @param dirname The immediate path fragment before the pend
-///
-/// @return The new pend including dirname or just pend
-static char *remove_tail(char *path, char *pend, char *dirname)
-{
-    size_t len = STRLEN(dirname);
-    char *new_tail = pend - len - 1;
-
-    if(new_tail >= path
-            && fnamencmp((char_u *)new_tail, (char_u *)dirname, len) == 0
-            && (new_tail == path || after_pathsep(path, new_tail)))
-    {
-        return new_tail;
-    }
-
-    return pend;
-}
-
 /// Iterate over a delimited list.
 ///
 /// @note Environment variables must not be modified during iteration.
@@ -1093,7 +1056,7 @@ void home_replace(const buf_T *const buf, const char_u *src, char_u *dst, size_t
         // and the home directory is "/home/piet", the file does not end up
         // as "~er/bla" (which would seem to indicate the file "bla" in user
         // er's home directory)).
-        char_u *p = gkide_usr_home;
+        char_u *p = (char_u *)gkide_usr_home;
         len = dirlen;
 
         for(;;)
@@ -1178,7 +1141,7 @@ void vim_setenv(const char *name, const char *val)
 }
 
 /// Function given to ExpandGeneric() to obtain an environment variable name.
-char_u *get_env_name(expand_T *xp, int idx)
+char_u *get_env_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
 #define ENVNAMELEN  100
     // this static buffer is needed to avoid a memory leak in ExpandGeneric
