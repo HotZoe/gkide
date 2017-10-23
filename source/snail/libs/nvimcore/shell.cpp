@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QMimeData>
+#include "snail/app/attributes.h"
 #include "snail/libs/nvimcore/util.h"
 #include "snail/libs/nvimcore/input.h"
 #include "snail/libs/nvimcore/shell.h"
@@ -211,15 +212,15 @@ void Shell::init()
 
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
     // FIXME: this API will change
-    MsgpackRequest *req = m_nvim->attachUi(screenRect.width()*0.66/cellSize().width(),
-                                           screenRect.height()*0.66/cellSize().height());
+    MsgpackRequest *req = m_nvim->attachUi((int64_t)(screenRect.width()*0.66/cellSize().width()),
+                                           (int64_t)(screenRect.height()*0.66/cellSize().height()));
 
     connect(req, &MsgpackRequest::finished, this, &Shell::setAttached);
     // Subscribe to GUI events
     m_nvim->neovimObject()->vim_subscribe("Gui");
 }
 
-void Shell::neovimError(NvimConnector::NeovimError err)
+void Shell::neovimError(NvimConnector::NeovimError FUNC_ATTR_ARGS_UNUSED_REALY(err))
 {
     setAttached(false);
 }
@@ -242,8 +243,8 @@ void Shell::neovimExited(int status)
 void Shell::handleResize(uint64_t n_cols, uint64_t n_rows)
 {
     m_cursor_pos = QPoint(0,0);
-    resizeShell(n_rows, n_cols);
-    m_scroll_region = QRect(QPoint(0,0), QPoint(n_cols, n_rows));
+    resizeShell((int)n_rows, (int)n_cols);
+    m_scroll_region = QRect(QPoint(0,0), QPoint((int)n_cols, (int)n_rows));
 
     if(isWindow())
     {
@@ -343,13 +344,16 @@ void Shell::handleScroll(const QVariantList &args)
     if(m_scroll_region.contains(m_cursor_pos))
     {
         QPoint old_cursor_pos = m_cursor_pos;
-        old_cursor_pos.setY(old_cursor_pos.y()-count);
+        old_cursor_pos.setY((int)(old_cursor_pos.y()-count));
         QRect cr = neovimCursorRect(old_cursor_pos);
         update(cr);
     }
 
-    scrollShellRegion(m_scroll_region.top(), m_scroll_region.bottom(),
-                      m_scroll_region.left(), m_scroll_region.right(), count);
+    scrollShellRegion(m_scroll_region.top(),
+                      m_scroll_region.bottom(),
+                      m_scroll_region.left(),
+                      m_scroll_region.right(),
+                      (int)count);
 }
 
 void Shell::handleSetScrollRegion(const QVariantList &opargs)
@@ -360,12 +364,13 @@ void Shell::handleSetScrollRegion(const QVariantList &opargs)
         return;
     }
 
-    qint64 top, bot, left, right;
-    top = opargs.at(0).toULongLong();
-    bot = opargs.at(1).toULongLong();
-    left = opargs.at(2).toULongLong();
-    right = opargs.at(3).toULongLong();
-    m_scroll_region = QRect(QPoint(left, top), QPoint(right+1, bot+1));
+    qint64 top = opargs.at(0).toULongLong();
+    qint64 bot = opargs.at(1).toULongLong();
+    qint64 left = opargs.at(2).toULongLong();
+    qint64 right = opargs.at(3).toULongLong();
+
+    m_scroll_region = QRect(QPoint((int)left, (int)top),
+                            QPoint((int)(right+1), (int)(bot+1)));
 }
 
 void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
@@ -527,7 +532,7 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
 void Shell::setNeovimCursor(quint64 row, quint64 col)
 {
     update(neovimCursorRect());
-    m_cursor_pos = QPoint(col, row);
+    m_cursor_pos = QPoint((int)col, (int)row);
     update(neovimCursorRect());
 }
 
@@ -814,7 +819,7 @@ void Shell::mouseClickIncrement(Qt::MouseButton bt)
     }
     else
     {
-        m_mouseclick_count += 1;
+        m_mouseclick_count = (short)(m_mouseclick_count + 1);
     }
 }
 

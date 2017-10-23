@@ -129,7 +129,7 @@ int MsgpackIODevice::msgpack_write_to_stdout(void *data, const char *buf, unsign
         c->setError(InvalidDevice, tr("Error writing to device"));
     }
 
-    return bytes;
+    return (int)bytes;
 }
 
 int MsgpackIODevice::msgpack_write_to_dev(void *data, const char *buf, unsigned long int len)
@@ -142,7 +142,7 @@ int MsgpackIODevice::msgpack_write_to_dev(void *data, const char *buf, unsigned 
         c->setError(InvalidDevice, tr("Error writing to device"));
     }
 
-    return bytes;
+    return (int)bytes;
 }
 
 /// Process incoming data.
@@ -254,7 +254,7 @@ void MsgpackIODevice::sendError(uint64_t msgid, const QString &msg)
     // [type(1), msgid, error, result(nil)]
     msgpack_pack_array(&m_pk, 4);
     msgpack_pack_int(&m_pk, 1); // 1 = Response
-    msgpack_pack_int(&m_pk, msgid);
+    msgpack_pack_int(&m_pk, (int)msgid);
     QByteArray utf8 = msg.toUtf8();
     msgpack_pack_bin(&m_pk, utf8.size());
     msgpack_pack_bin_body(&m_pk, utf8.constData(), utf8.size());
@@ -358,13 +358,13 @@ void MsgpackIODevice::dispatchRequest(msgpack_object &req)
         goto err;
     }
 
-    m_reqHandler->handleRequest(this, msgid, method, params.toList());
+    m_reqHandler->handleRequest(this, (quint32)msgid, method, params.toList());
     return;
 err:
     // Send error reply [type(1), msgid, error, NIL]
     msgpack_pack_array(&m_pk, 4);
     msgpack_pack_int(&m_pk, 1);
-    msgpack_pack_int(&m_pk, msgid);
+    msgpack_pack_int(&m_pk, (int)msgid);
     msgpack_pack_bin(&m_pk, errmsg.size());
     msgpack_pack_bin_body(&m_pk, errmsg.constData(), errmsg.size());
     msgpack_pack_nil(&m_pk);
@@ -387,7 +387,7 @@ bool MsgpackIODevice::sendResponse(uint64_t msgid, const QVariant &err, const QV
 
     msgpack_pack_array(&m_pk, 4);
     msgpack_pack_int(&m_pk, 1);
-    msgpack_pack_int(&m_pk, msgid);
+    msgpack_pack_int(&m_pk, (int)msgid);
     send(err);
     send(res);
     return true;
@@ -416,13 +416,13 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
 {
     // [type(1), msgid, error, result]
     uint64_t msgid = resp.via.array.ptr[1].via.u64;
-    if(!m_requests.contains(msgid))
+    if(!m_requests.contains((unsigned int)msgid))
     {
         qWarning() << "Received response for unknown message" << msgid;
         return;
     }
 
-    MsgpackRequest *req = m_requests.take(msgid);
+    MsgpackRequest *req = m_requests.take((unsigned int)msgid);
     if(resp.via.array.ptr[2].type != MSGPACK_OBJECT_NIL)
     {
         // Error response
@@ -882,7 +882,7 @@ bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, QPoint &out)
     }
 
     // QPoint is (x,y)  neovim Position is (row, col)
-    out = QPoint(col, row);
+    out = QPoint((int)col, (int)row);
     return false;
 fail:
     qWarning() << "Attempting to decode as QPoint failed" << in.type << in;

@@ -18,8 +18,8 @@
     #define FUNC_ATTR_WARN_UNUSED_RESULT     __attribute__((__warn_unused_result__))
     #define FUNC_ATTR_NONNULL_ARGS(...)      __attribute__((__nonnull__(__VA_ARGS__)))
 
-    #define FUNC_FATTR_ARG_UNUSED_MAYBE(v)   v __attribute__((__unused__))
-    #define FUNC_FATTR_ARG_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
+    #define FUNC_ATTR_ARGS_UNUSED_MAYBE(v)   v __attribute__((__unused__))
+    #define FUNC_ATTR_ARGS_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
 #else
     #define FUNC_ATTR_PURE
     #define FUNC_ATTR_CONST
@@ -33,8 +33,8 @@
     #define FUNC_ATTR_WARN_UNUSED_RESULT
     #define FUNC_ATTR_NONNULL_ARGS(...)
 
-    #define FUNC_FATTR_ARG_UNUSED_MAYBE(v)   v
-    #define FUNC_FATTR_ARG_UNUSED_REALY(v)   UNUSED_##v
+    #define FUNC_ATTR_ARGS_UNUSED_MAYBE(v)   v
+    #define FUNC_ATTR_ARGS_UNUSED_REALY(v)   UNUSED_##v
 #endif
 
 #endif // SNAIL_APP_ATTRIBUTES_H

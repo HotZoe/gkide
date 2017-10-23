@@ -43,8 +43,8 @@ void StdinReader::run()
         qint64 bytes = read(0, buf, m_maxSize);
         if(bytes > 0 )
         {
-            qDebug() << "Reading data from Stdin" << bytes;
-            emit dataAvailable(QByteArray(buf, bytes));
+            qDebug() << "Reading data from stdin: " << bytes;
+            emit dataAvailable(QByteArray(buf, (int)bytes));
         }
     }
 

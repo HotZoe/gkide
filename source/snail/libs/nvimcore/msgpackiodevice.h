@@ -123,7 +123,9 @@ private:
 class MsgpackRequestHandler
 {
 public:
-    virtual void handleRequest(MsgpackIODevice *, quint32 msgid, const QByteArray &,
+    virtual void handleRequest(MsgpackIODevice *,
+                               quint32 msgid,
+                               const QByteArray &,
                                const QVariantList &)=0;
 };
 

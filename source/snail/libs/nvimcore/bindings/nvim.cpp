@@ -1,5 +1,6 @@
 // Auto generated {{date}}
 
+#include "snail/app/attributes.h"
 #include "snail/libs/nvimcore/util.h"
 #include "snail/libs/nvimcore/auto/nvim.h"
 #include "snail/libs/nvimcore/nvimconnector.h"
@@ -10,7 +11,9 @@ namespace SnailNvimQt {
 
 // Unpack Neovim EXT types: Window, Buffer Tabpage, which are all uint64_t
 // see Neovim:msgpack_rpc_to_
-QVariant unpackBuffer(MsgpackIODevice *dev, const char *in, quint32 size)
+QVariant unpackBuffer(MsgpackIODevice *FUNC_ATTR_ARGS_UNUSED_REALY(dev),
+                      const char *in,
+                      quint32 size)
 {
     msgpack_unpacked result;
     msgpack_unpacked_init(&result);
@@ -24,7 +27,8 @@ QVariant unpackBuffer(MsgpackIODevice *dev, const char *in, quint32 size)
 
     return QVariant((quint64)result.data.via.u64);
 }
-#define unpackWindow unpackBuffer
+
+#define unpackWindow  unpackBuffer
 #define unpackTabpage unpackBuffer
 
 Neovim::Neovim(NvimConnector *c) :m_c(c)
@@ -73,7 +77,9 @@ m_c->m_dev-> {{param.sendmethod}}({{param.name}});
 }
 
 // Handlers
-void Neovim::handleResponseError(quint32 msgid, Function::FunctionId fun, const QVariant &res)
+void Neovim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+                                 Function::FunctionId fun,
+                                 const QVariant &res)
 {
     // TODO: support Neovim error types Exception/Validation/etc
     QString errMsg;
@@ -111,7 +117,9 @@ void Neovim::handleResponseError(quint32 msgid, Function::FunctionId fun, const 
     }
 }
 
-void Neovim::handleResponse(quint32 msgid, Function::FunctionId fun, const QVariant &res)
+void Neovim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+                            Function::FunctionId fun,
+                            const QVariant &res)
 {
     switch(fun)
     {

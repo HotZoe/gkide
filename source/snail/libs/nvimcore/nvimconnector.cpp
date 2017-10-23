@@ -219,7 +219,7 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
     c->m_connPort = port;
     connect(s, SIGNAL(error(QAbstractSocket::SocketError)), c, SLOT(socketError()));
     connect(s, &QAbstractSocket::connected, c, &NvimConnector::discoverMetadata);
-    s->connectToHost(host, port);
+    s->connectToHost(host, (quint16)port);
     return c;
 }
 

@@ -1,6 +1,7 @@
 /// @file snail/libs/nvimcore/nvimconnectorhelper.cpp
 
 #include <QMap>
+#include "snail/app/attributes.h"
 #include "snail/libs/nvimcore/util.h"
 #include "snail/libs/nvimcore/nvimconnector.h"
 #include "snail/libs/nvimcore/msgpackrequest.h"
@@ -11,15 +12,14 @@ namespace SnailNvimQt {
 
 /// The helper deals with Neovim API internals, it handles
 /// msgpack responses on behalf of the connector.
-NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c)
-    :QObject(c), m_c(c)
+NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c) :QObject(c), m_c(c)
 {
 }
 
 /// Handle Msgpack-rpc errors when fetching the API metadata
-void NvimConnectorHelper::handleMetadataError(quint32 msgid,
+void NvimConnectorHelper::handleMetadataError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
                                               Function::FunctionId,
-                                              const QVariant &errobj)
+                                              const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
 {
     m_c->setError(NvimConnector::NoMetadata, tr("Unable to get Neovim api information"));
     return; /// @todo: better error message (from result?)
@@ -29,7 +29,7 @@ void NvimConnectorHelper::handleMetadataError(quint32 msgid,
 ///
 /// - Set channel_id
 /// - Check if all functions we need are available
-void NvimConnectorHelper::handleMetadata(quint32 msgid,
+void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
                                          Function::FunctionId,
                                          const QVariant &result)
 {
@@ -56,7 +56,8 @@ void NvimConnectorHelper::handleMetadata(quint32 msgid,
             if(!checkFunctions(it.value().toList()))
             {
                 m_c->setError(NvimConnector::APIMisMatch,
-                              tr("API methods mismatch: Cannot connect to this instance of Neovim, its version is likely too old, or the API has changed"));
+                              tr("API methods mismatch: Cannot connect to this instance of "
+                                 "Neovim, its version is likely too old, or the API has changed"));
                 return;
             }
         }
