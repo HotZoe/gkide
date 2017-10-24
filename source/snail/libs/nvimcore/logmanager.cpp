@@ -15,14 +15,13 @@ namespace SnailNvimQt {
 /// snail log level enum definations
 enum LogLevelType
 {
-    LOG_ALL   = 0, ///< lowest rank and turn on all logging
-    LOG_TRACE = 1, ///< application trace information
-    LOG_DEBUG = 2, ///< application debug information
-    LOG_STATE = 3, ///< application state information
-    LOG_ALERT = 4, ///< potentially harmful situations
-    LOG_ERROR = 5, ///< error events occurs, but continue
-    LOG_FATAL = 6, ///< core dump, abort immediately
-    LOG_OFF   = 7, ///< highest rank and turn off all logging
+    LOG_TRACE = 0, ///< application trace information
+    LOG_DEBUG = 1, ///< application debug information
+    LOG_STATE = 2, ///< application state information
+    LOG_ALERT = 3, ///< potentially harmful situations
+    LOG_ERROR = 4, ///< error events occurs, but continue
+    LOG_FATAL = 5, ///< core dump, abort immediately
+    LOG_OFF   = 6, ///< highest rank and turn off all logging
 };
 
 void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
@@ -38,26 +37,25 @@ void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
 /// get Qt's debug/warning messages.
 void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
 {
-#ifdef DISABLE_LOGGING
+#ifdef SNAIL_LOGGING_DISABLE
     return;
-#endif
-
+#else
     LogLevelType lglv;
     switch(type)
     {
-        case QtInfoMsg:     // qInfo(4) => TRACE(1)
+        case QtInfoMsg:     // qInfo(4) => TRACE(0)
             lglv = LOG_TRACE;
             break;
-        case QtDebugMsg:    // qDebug(0) => DEBUG(2), STATE(3)
+        case QtDebugMsg:    // qDebug(0) => DEBUG(1), STATE(2)
             lglv = LOG_DEBUG;
             break;
-        case QtWarningMsg:  // qWarning(1) => ALERT(4)
+        case QtWarningMsg:  // qWarning(1) => ALERT(3)
             lglv = LOG_ALERT;
             break;
-        case QtCriticalMsg: // qCritical(2) => ERROR(5)
+        case QtCriticalMsg: // qCritical(2) => ERROR(4)
             lglv = LOG_ERROR;
             break;
-        case QtFatalMsg:    // qFatal(3) => FATAL(6)
+        case QtFatalMsg:    // qFatal(3) => FATAL(5)
             ::abort();
             break;
         default:
@@ -66,7 +64,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
     };
 
     bool env_ok = false;
-    int env_level = LOG_LEVEL_MIN;
+    int env_level = SNAIL_LOG_LEVEL_MIN;
     if(!qgetenv(ENV_LOG_LEVEL).isEmpty())
     {
         env_level = qgetenv(ENV_LOG_LEVEL).toInt(&env_ok, 10);
@@ -77,7 +75,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         return;
     }
 
-    if(lglv < LOG_LEVEL_MIN || lglv >= LOG_OFF)
+    if(lglv < SNAIL_LOG_LEVEL_MIN || lglv >= LOG_OFF)
     {
         return;
     }
@@ -108,6 +106,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         QTextStream stream(&logFile);
         stream << log;
     }
+#endif
 }
 
 #ifdef Q_OS_MAC

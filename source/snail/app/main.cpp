@@ -5,8 +5,11 @@
 #include <QProcess>
 #include <QApplication>
 #include <QCommandLineParser>
+#include "versiondef.h"
 #include "snail/libs/nvimcore/app.h"
 #include "snail/libs/nvimcore/nvimconnector.h"
+
+#define SNAIL_APP_VERSION_STRING  "v" SNAIL_VERSION_BASIC "@" RELEASE_PACKAGE_NAME
 
 /// GUI Interface
 int gui_main(int argc, char **argv)
@@ -41,6 +44,8 @@ int cli_main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+    QCoreApplication::setApplicationVersion(SNAIL_APP_VERSION_STRING);
+
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // Do an early check for --nofork before creating a QApplication,
     // thus we have chance to parse the command line arguments by QCommandLineParser

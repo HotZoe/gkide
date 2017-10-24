@@ -140,18 +140,21 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     QCommandLineOption arg_geometry("geometry");
     arg_desc = QCoreApplication::translate("main", "Initial the window geometry.");
     arg_geometry.setDescription(arg_desc);
-    arg_server.setValueName("geometry");// TODO,
+    arg_server.setValueName("geometry");/// @todo
     parser.addOption(arg_geometry);
-    // --help
-    parser.addHelpOption();
-
 
     arg_desc = QCoreApplication::translate("main", "Edit specified file(s).");
     parser.addPositionalArgument("file", arg_desc, "[file...]");
 
     arg_desc = QCoreApplication::translate("main", "Additional arguments forwarded to nvim.");
     parser.addPositionalArgument("...", arg_desc, "[-- ...]");
-    parser.process(arguments);
+
+    // --version
+    parser.addVersionOption();
+    // --help
+    parser.addHelpOption();
+
+    parser.process(arguments); // processes the real command line arguments
 
     if(parser.isSet("help"))
     {

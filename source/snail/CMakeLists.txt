@@ -1,32 +1,32 @@
 # Logging Level:
-# LOGALL(0), TRACE(1), DEBUG(2), STATE(3), ALERT(4), ERROR(5), FATAL(6) or LOGOFF(7)
+# TRACE(0), DEBUG(1), STATE(2), ALERT(3), ERROR(4), FATAL(5), LOGOFF(6)
 #
-# TRACE(1) => qInfo()       QT_NO_INFO_OUTPUT     informational messages
-# DEBUG(2) => qDebug()      QT_NO_DEBUG_OUTPUT    custom debug message
-# STATE(3) => qDebug()      QT_NO_DEBUG_OUTPUT    custom debug message
-# ALERT(4) => qWarning()    QT_NO_WARNING_OUTPUT  writing warnings and recoverable errors messages
-# ERROR(5) => qCritical()                         writing critical/system errors messages
-# FATAL(6) => qFatal()                            writing fatal error messages before exiting
+# TRACE(0) => qInfo()       QT_NO_INFO_OUTPUT     informational messages
+# DEBUG(1) => qDebug()      QT_NO_DEBUG_OUTPUT    custom debug message
+# STATE(2) => qDebug()      QT_NO_DEBUG_OUTPUT    custom debug message
+# ALERT(3) => qWarning()    QT_NO_WARNING_OUTPUT  writing warnings and recoverable errors messages
+# ERROR(4) => qCritical()                         writing critical/system errors messages
+# FATAL(5) => qFatal()                            writing fatal error messages before exiting
 #
 if(NOT SNAIL_LOG_LEVEL_MIN)
     if(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
-        set(SNAIL_LOG_LEVEL_MIN  7) # LOGOFF(7)
+        set(SNAIL_LOG_LEVEL_MIN  6) # LOGOFF(6)
     elseif(CMAKE_BUILD_TYPE MATCHES "Release")
-        set(SNAIL_LOG_LEVEL_MIN  4) # ALERT(4)
+        set(SNAIL_LOG_LEVEL_MIN  3) # ALERT(3)
     elseif(CMAKE_BUILD_TYPE MATCHES "Debug")
-        set(SNAIL_LOG_LEVEL_MIN  2) # DEBUG(2)
+        set(SNAIL_LOG_LEVEL_MIN  1) # DEBUG(1)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "Debug build, not ready to release.")
         endif()
     elseif(CMAKE_BUILD_TYPE MATCHES "Dev")
-        set(SNAIL_LOG_LEVEL_MIN  1) # TRACE(1)
+        set(SNAIL_LOG_LEVEL_MIN  0) # TRACE(0)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "Dev build, not ready to release.")
         endif()
     else()
-        set(SNAIL_LOG_LEVEL_MIN  3) # STATE(3)
+        set(SNAIL_LOG_LEVEL_MIN  2) # STATE(2)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
             set(release_check_msg "${CMAKE_BUILD_TYPE} build, not ready to release.")
@@ -37,50 +37,61 @@ endif()
 set(SNAIL_TRACE_ENABLE false) # disable snail trace logging by default
 set(SNAIL_DEBUG_ENABLE false) # disable snail debug logging by default
 set(SNAIL_STATE_ENABLE false) # disable snail state logging by default
-set(SNAIL_ALERT_ENABLE true)  # enable  snail alert logging by default
-set(SNAIL_ERROR_ENABLE true)  # enable  snail error logging by default
-set(SNAIL_FATAL_ENABLE true)  # enable  snail fatal logging by default
+set(SNAIL_ALERT_ENABLE false) # disable snail alert logging by default
+set(SNAIL_ERROR_ENABLE false) # disable snail error logging by default
+set(SNAIL_FATAL_ENABLE false) # disable snail fatal logging by default
 
 # Checking logging level
-if(SNAIL_LOG_LEVEL_MIN MATCHES "^[0-7]$")
+if(SNAIL_LOG_LEVEL_MIN MATCHES "^[0-6]$")
     if(SNAIL_LOG_LEVEL_MIN EQUAL 0)
-        set(log_level_msg "LOGALL(0), enable loggings")
+        set(log_level_msg "TRACE(0)")
         set(SNAIL_TRACE_ENABLE true)
         set(SNAIL_DEBUG_ENABLE true)
         set(SNAIL_STATE_ENABLE true)
+        set(SNAIL_ALERT_ENABLE true)
+        set(SNAIL_ERROR_ENABLE true)
+        set(SNAIL_FATAL_ENABLE true)
     elseif(SNAIL_LOG_LEVEL_MIN EQUAL 1)
-        set(log_level_msg "TRACE(1)")
-        set(SNAIL_TRACE_ENABLE true)
+        set(log_level_msg "DEBUG(1)")
         set(SNAIL_DEBUG_ENABLE true)
         set(SNAIL_STATE_ENABLE true)
+        set(SNAIL_ALERT_ENABLE true)
+        set(SNAIL_ERROR_ENABLE true)
+        set(SNAIL_FATAL_ENABLE true)
     elseif(SNAIL_LOG_LEVEL_MIN EQUAL 2)
-        set(log_level_msg "DEBUG(2)")
-        set(SNAIL_DEBUG_ENABLE true)
+        set(log_level_msg "STATE(2)")
         set(SNAIL_STATE_ENABLE true)
+        set(SNAIL_ALERT_ENABLE true)
+        set(SNAIL_ERROR_ENABLE true)
+        set(SNAIL_FATAL_ENABLE true)
     elseif(SNAIL_LOG_LEVEL_MIN EQUAL 3)
-        set(log_level_msg "STATE(3)")
-        set(SNAIL_STATE_ENABLE true)
+        set(log_level_msg "ALERT(3)")
+        set(SNAIL_ALERT_ENABLE true)
+        set(SNAIL_ERROR_ENABLE true)
+        set(SNAIL_FATAL_ENABLE true)
     elseif(SNAIL_LOG_LEVEL_MIN EQUAL 4)
-        set(log_level_msg "ALERT(4)")
+        set(log_level_msg "ERROR(4)")
+        set(SNAIL_ERROR_ENABLE true)
+        set(SNAIL_FATAL_ENABLE true)
     elseif(SNAIL_LOG_LEVEL_MIN EQUAL 5)
-        set(log_level_msg "ERROR(5)")
-    elseif(SNAIL_LOG_LEVEL_MIN EQUAL 6)
-        set(log_level_msg "FATAL(6)")
+        set(log_level_msg "FATAL(5)")
+        set(SNAIL_FATAL_ENABLE true)
     else()
-        set(log_level_msg "LOGOFF(7), disable loggings")
-        set(DISABLE_LOGGING true)
-        set(SNAIL_ALERT_ENABLE false)
-        set(SNAIL_ERROR_ENABLE false)
-        set(SNAIL_FATAL_ENABLE false)
+        set(log_level_msg "LOGOFF(6)")
+        set(SNAIL_LOGGING_DISABLE true)
     endif()
     message(STATUS "snail logging level set to: ${log_level_msg}")
 else()
-    set(SNAIL_LOG_LEVEL_MIN 3) # illegal, reset to STATE(3)
+    set(SNAIL_LOG_LEVEL_MIN 2) # illegal, reset to STATE(2)
     set(SNAIL_STATE_ENABLE true)
-    message(STATUS "snail logging level reset to: STATE(3)")
+    set(SNAIL_ALERT_ENABLE true)
+    set(SNAIL_ERROR_ENABLE true)
+    set(SNAIL_FATAL_ENABLE true)
+    message(STATUS "snail logging level reset to: STATE(2)")
 endif()
 
-if(DISABLE_LOGGING)
+if(SNAIL_LOGGING_DISABLE)
+    add_definitions("-DSNAIL_LOGGING_DISABLE")
     add_definitions("-DQT_NO_MESSAGELOGCONTEXT")
 else()
     add_definitions("-DQT_MESSAGELOGCONTEXT")

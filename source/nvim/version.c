@@ -317,7 +317,7 @@ static void list_features(void)
 
 void list_version(void)
 {
-    MSG_PUTS("\n    Version: " NVIM_VERSION_LONG " @ " RELEASE_PACKAGE_NAME);
+    MSG_PUTS("\n    Version: " NVIM_VERSION_LONG "@" RELEASE_PACKAGE_NAME);
     MSG_PUTS("\n Build date: " BUILD_TIMESTAMP);
     MSG_PUTS("\n Build type: " NVIM_BUILD_TYPE);
     MSG_PUTS("\nModified at: " GIT_COMMIT_DATE " " GIT_COMMIT_TIME " " GIT_COMMIT_ZONE);
