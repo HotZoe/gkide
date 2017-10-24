@@ -127,9 +127,9 @@ endif()
 
 if(NVIM_LANGUAGE_DEBUG_ENABLE)
     add_definitions("-DNVIM_LANGUAGE_DEBUG_ENABLE")
-    message(STATUS "*enable nvim language debug")
+    message(STATUS "nvim *enable nvimLanguage debug")
 else()
-    message(STATUS "disable nvim language debug")
+    message(STATUS "nvim disable nvimLanguage debug")
 endif()
 
 # Build flags for Dev build type

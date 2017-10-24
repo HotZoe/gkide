@@ -31,7 +31,7 @@ void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
     return; // ignore all Qt loggings when enable logging and not set environment log file
 }
 
-/// A log handler for Qt messages, all messages are dumped into the file: @def ENV_LOG_FILE.
+/// A log handler for Qt messages, all messages are dumped into the file: @def ENV_GKIDE_SNAIL_LOGGINGS.
 ///
 /// In UNIX Qt prints messages to the console output, but in Windows this is the only way to
 /// get Qt's debug/warning messages.
@@ -65,9 +65,9 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
 
     bool env_ok = false;
     int env_level = SNAIL_LOG_LEVEL_MIN;
-    if(!qgetenv(ENV_LOG_LEVEL).isEmpty())
+    if(!qgetenv(ENV_GKIDE_SNAIL_LOGLEVEL).isEmpty())
     {
-        env_level = qgetenv(ENV_LOG_LEVEL).toInt(&env_ok, 10);
+        env_level = qgetenv(ENV_GKIDE_SNAIL_LOGLEVEL).toInt(&env_ok, 10);
     }
 
     if(env_ok && lglv < env_level)
@@ -80,7 +80,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         return;
     }
 
-    QFile logFile(qgetenv(ENV_LOG_FILE));
+    QFile logFile(qgetenv(ENV_GKIDE_SNAIL_LOGGINGS));
     QString log = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
 
     // cast to avoid gcc '-Wswitch'
@@ -100,7 +100,10 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
             break;
     };
 
-    log += QString(ctx.file) + "@" + QString::number(ctx.line) + QString("] %1\n").arg(msg);
+    QString file_name = QString(ctx.file); // full file path
+    file_name = QString(file_name.constData() + file_name.lastIndexOf("/") + 1);
+
+    log += file_name + "@" + QString::number(ctx.line) + QString("] %1\n").arg(msg);
     if(logFile.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream stream(&logFile);

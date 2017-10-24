@@ -25,7 +25,7 @@ App::App(int &argc, char **argv): QApplication(argc, argv)
     }
 #endif
 
-    if(!qgetenv(ENV_LOG_FILE).isEmpty())
+    if(!qgetenv(ENV_GKIDE_SNAIL_LOGGINGS).isEmpty())
     {
         qInstallMessageHandler(logging_handler);
     }
@@ -108,34 +108,40 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     arg_desc = QCoreApplication::translate("main", "nvim executable path.");
     arg_nvim.setDescription(arg_desc);
     arg_nvim.setValueName("nvim_exec");
-    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim");
+    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim"); // set default value
     parser.addOption(arg_nvim);
+
     // --server <address>
     QCommandLineOption arg_server("server");
     arg_desc = QCoreApplication::translate("main", "Connect to existing nvim instance.");
     arg_server.setDescription(arg_desc);
     arg_server.setValueName("server_addr");
     parser.addOption(arg_server);
+
     // --embed
     QCommandLineOption arg_embed("embed");
     arg_desc = QCoreApplication::translate("main", "Communicate with nvim over stdin/stdout/stderr.");
     arg_embed.setDescription(arg_desc);
     parser.addOption(arg_embed);
+
     // --spawn
     QCommandLineOption arg_spawn("spawn");
     arg_desc = QCoreApplication::translate("main", "Treat positional arguments as the nvim argv.");
     arg_spawn.setDescription(arg_desc);
     parser.addOption(arg_spawn);
+
     // --maximized
     QCommandLineOption arg_maximized("maximized");
     arg_desc = QCoreApplication::translate("main", "Maximize the window on startup");
     arg_maximized.setDescription(arg_desc);
     parser.addOption(arg_maximized);
+
     // --fullscreen
     QCommandLineOption arg_fullscreen("fullscreen");
     arg_desc = QCoreApplication::translate("main", "Fullscreen the window on startup.");
     arg_fullscreen.setDescription(arg_desc);
     parser.addOption(arg_fullscreen);
+
     // --geometry
     QCommandLineOption arg_geometry("geometry");
     arg_desc = QCoreApplication::translate("main", "Initial the window geometry.");
@@ -143,9 +149,9 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     arg_server.setValueName("geometry");/// @todo
     parser.addOption(arg_geometry);
 
+    // positional arguments
     arg_desc = QCoreApplication::translate("main", "Edit specified file(s).");
     parser.addPositionalArgument("file", arg_desc, "[file...]");
-
     arg_desc = QCoreApplication::translate("main", "Additional arguments forwarded to nvim.");
     parser.addPositionalArgument("...", arg_desc, "[-- ...]");
 
@@ -194,6 +200,10 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     else if(parser.isSet("server"))
     {
         QString server = parser.value("server");
+
+        Q_ASSERT(server.isEmpty() == false);
+        qDebug() << "server_addr=" << server;
+
         return SnailNvimQt::NvimConnector::connectToNeovim(server);
     }
     else if(parser.isSet("spawn") && !parser.positionalArguments().isEmpty())
@@ -203,50 +213,66 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     }
     else
     {
-        QStringList neovimArgs;
-        neovimArgs << "--cmd";
-        neovimArgs << "set termguicolors";
-        auto path = qgetenv("NVIM_QT_RUNTIME_PATH");
+        QStringList nvimArgs;
+        nvimArgs << "--cmd";
+        nvimArgs << "set termguicolors";
 
-        if(QFileInfo(path).isDir())
-        {
-            neovimArgs.insert(0, "--cmd");
-            neovimArgs.insert(1, QString("let &rtp.=',%1'").arg(QString::fromLocal8Bit(path)));
-        }
+        QString nvim_exec = parser.value("nvim");
 
-        #ifdef NVIM_QT_RUNTIME_PATH
-        else if(QFileInfo(NVIM_QT_RUNTIME_PATH).isDir())
+        if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_NVIMEXEC))
         {
-            neovimArgs.insert(0, "--cmd");
-            neovimArgs.insert(1, QString("let &rtp.=',%1'").arg(NVIM_QT_RUNTIME_PATH));
+            QString nvim_bin = qgetenv(ENV_GKIDE_SNAIL_NVIMEXEC);
+
+            qDebug() << "nvim_exec_env=" << nvim_bin;
+
+            if(QFileInfo(nvim_bin).isExecutable())
+            {
+                nvim_exec = nvim_bin;
+            }
         }
         else
-        #endif
         {
-            // Look for the runtime relative to the nvim-qt binary
-            QDir d = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+            // check the default plugin directory: gkide/plg
+            QDir gkide_dir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
 
             #ifdef Q_OS_MAC
-            // within the bundle at ../Resources/runtime
-            d.cd("Resources");
-            d.cd("runtime");
-            #else
-            // ../share/nvim-qt/runtime
-            d.cd("share");
-            d.cd("nvim-qt");
-            d.cd("runtime");
+            // within the bundle at: gkide/Resources/plg
+            gkide_dir.cd("Resources");
             #endif
 
-            if(d.exists())
+            gkide_dir.cd("plg");
+
+            if(gkide_dir.exists())
             {
-                neovimArgs.insert(0, "--cmd");
-                neovimArgs.insert(1, QString("let &rtp.=',%1'").arg(d.path()));
+                nvimArgs.insert(1, QString("let &rtp.=',%1'").arg(gkide_dir.path()));
+            }
+
+            if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_PLGSPATH))
+            {
+                QString plg_dir = qgetenv(ENV_GKIDE_SNAIL_PLGSPATH);
+
+                qDebug() << "plg_dir_env=" << plg_dir;
+
+                if(QFileInfo(plg_dir).isDir())
+                {
+                    nvimArgs.insert(1, QString("let &rtp.=',%1'").arg(plg_dir));
+                }
             }
         }
 
-        // Pass positional file arguments to Neovim
-        neovimArgs.append(parser.positionalArguments());
-        return SnailNvimQt::NvimConnector::spawn(neovimArgs, parser.value("nvim"));
+        // fall back to the gkide-nvim default path: gkide/bin/nvim
+        if(!QFileInfo(nvim_exec).isExecutable())
+        {
+            QDir gkide_dir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+            nvim_exec = QString("%1/bin/nvim").arg(gkide_dir.path());
+        }
+
+        qDebug() << "nvim_exec=" << nvim_exec;
+
+        // Pass positional file arguments to nvim
+        nvimArgs.append(parser.positionalArguments());
+
+        return SnailNvimQt::NvimConnector::spawn(nvimArgs, nvim_exec);
     }
 }
 

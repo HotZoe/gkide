@@ -46,3 +46,16 @@ on startup by:
   - the logfile will automatic create if not exist
   - the path directory contains the logfile must exist
 - if not set, then use the default value, which is **$GKIDE_USR_HOME/nvim.log**
+
+## GKIDE_SNAIL_LOGGINGS
+**snail** will write proper runtime logging messages to logfile.
+
+## GKIDE_SNAIL_LOGLEVEL
+if enable **snail** logging, the logging level can be set by this env-variable
+
+## GKIDE_SNAIL_NVIMEXEC
+The **nvim** executable file full path used by **snail**. The env-value overwrite '--nvim' command
+line arguments
+
+## GKIDE_SNAIL_PLGSPATH
+Extra runtime plugin directory used by **nvim**.

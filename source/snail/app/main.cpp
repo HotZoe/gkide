@@ -23,6 +23,7 @@ int gui_main(int argc, char **argv)
 }
 
 // Command Line Interface
+// parsing command line arguments of snail
 int cli_main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -31,6 +32,7 @@ int cli_main(int argc, char **argv)
     QStringList new_args = app.arguments().mid(1);
     new_args.insert(0, "--nofork");
 
+    // fork, re-run snail, no-fork
     if(QProcess::startDetached(app.applicationFilePath(), new_args))
     {
         return 0;
