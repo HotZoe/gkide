@@ -264,7 +264,11 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         if(!QFileInfo(nvim_exec).isExecutable())
         {
             QDir gkide_dir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+            #ifdef Q_OS_WIN
+            nvim_exec = QString("%1/bin/nvim.exe").arg(gkide_dir.path());
+            #else
             nvim_exec = QString("%1/bin/nvim").arg(gkide_dir.path());
+            #endif
         }
 
         qDebug() << "nvim_exec=" << nvim_exec;

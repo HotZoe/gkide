@@ -155,8 +155,8 @@ Neovim *NvimConnector::neovimObject()
 /// @see processExited
 NvimConnector *NvimConnector::spawn(const QStringList &params, const QString &exe)
 {
-    QProcess *p = new QProcess();
     QStringList args;
+    QProcess *p = new QProcess();
 
     if(params.indexOf("--") == -1)
     {
@@ -179,8 +179,10 @@ NvimConnector *NvimConnector::spawn(const QStringList &params, const QString &ex
 
     connect(p, SIGNAL(error(QProcess::ProcessError)),
             c, SLOT(processError(QProcess::ProcessError)));
+
     connect(p, SIGNAL(finished(int, QProcess::ExitStatus)),
             c, SIGNAL(processExited(int)));
+
     connect(p, &QProcess::started,
             c, &NvimConnector::discoverMetadata);
 

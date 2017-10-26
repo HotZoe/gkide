@@ -19,12 +19,14 @@ class NvimConnector: public QObject
 {
     friend class Neovim;
     friend class NvimConnectorHelper;
+
     Q_OBJECT
 
     /// True if the Neovim instance is ready
     /// @see neovimObject
     Q_PROPERTY(bool ready READ isReady NOTIFY ready)
     Q_ENUMS(NeovimError)
+
 public:
     enum NeovimError
     {
@@ -77,23 +79,22 @@ public:
 
 signals:
     /// Emitted when Neovim is ready
-    /// @see ready
-    void ready();
-    void error(NeovimError);
+    void ready(void);
+    void error(NeovimError err);
     void processExited(int exitCode);
 
 public slots:
-    void fatalTimeout();
+    void fatalTimeout(void);
 
 protected:
     void setError(NeovimError err, const QString &msg);
-    void clearError();
+    void clearError(void);
 
 protected slots:
-    void discoverMetadata();
+    void discoverMetadata(void);
     void processError(QProcess::ProcessError);
-    void socketError();
-    void msgpackError();
+    void socketError(void);
+    void msgpackError(void);
 
 private:
     MsgpackIODevice *m_dev;
