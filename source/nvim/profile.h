@@ -38,7 +38,7 @@ typedef uint64_t proftime_T;
 #ifndef DEV_TRACE_MSG
     /// For understanding and tracing the program execution in very details
     /// This will given very details startup log messages, slow down the execution
-    #define DEV_TRACE_MSG
+    #define DEV_TRACE_MSG(fmt, ...)
 #endif
 
 #define DO_DEV_TRACE_MSG(fmt, ...)                  \

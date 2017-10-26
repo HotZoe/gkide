@@ -35,8 +35,11 @@
 #define CHANNEL_BUFFER_SIZE 0xffff
 
 #if NVIM_LOG_LEVEL_MIN > DEBUG_LOG_LEVEL
-    #define log_client_msg(...)
-    #define log_server_msg(...)
+    #define CLIENT_MSG_LOG(...)
+    #define SERVER_MSG_LOG(...)
+#else
+    #define CLIENT_MSG_LOG(...)  log_client_msg(__VA_ARGS__)
+    #define SERVER_MSG_LOG(...)  log_server_msg(__VA_ARGS__)
 #endif
 
 typedef enum
@@ -392,7 +395,7 @@ void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
     decref(channel);
 }
 
-static void receive_msgpack(Stream *stream,
+static void receive_msgpack(Stream *FUNC_ARGS_UNUSED_MAYBE(stream),
                             RBuffer *rbuf,
                             size_t FUNC_ARGS_UNUSED_REALY(cnt),
                             void *data,
@@ -431,7 +434,7 @@ static void parse_msgpack(Channel *channel)
     while((result = msgpack_unpacker_next(channel->unpacker, &unpacked)) == MSGPACK_UNPACK_SUCCESS)
     {
         bool is_response = is_rpc_response(&unpacked.data);
-        log_client_msg(channel->id, !is_response, unpacked.data);
+        CLIENT_MSG_LOG(channel->id, !is_response, unpacked.data);
 
         if(is_response)
         {
@@ -884,7 +887,7 @@ static void call_set_error(Channel *channel, char *msg)
     close_channel(channel);
 }
 
-static WBuffer *serialize_request(uint64_t channel_id,
+static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
                                   uint64_t request_id,
                                   const String method,
                                   Array args,
@@ -894,7 +897,8 @@ static WBuffer *serialize_request(uint64_t channel_id,
     msgpack_packer pac;
     msgpack_packer_init(&pac, sbuffer, msgpack_sbuffer_write);
     msgpack_rpc_serialize_request(request_id, method, args, &pac);
-    log_server_msg(channel_id, sbuffer);
+    SERVER_MSG_LOG(channel_id, sbuffer);
+
     WBuffer *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
                                      sbuffer->size,
                                      refcount,
@@ -904,7 +908,7 @@ static WBuffer *serialize_request(uint64_t channel_id,
     return rv;
 }
 
-static WBuffer *serialize_response(uint64_t channel_id,
+static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
                                    uint64_t response_id,
                                    Error *err,
                                    Object arg,
@@ -913,7 +917,8 @@ static WBuffer *serialize_response(uint64_t channel_id,
     msgpack_packer pac;
     msgpack_packer_init(&pac, sbuffer, msgpack_sbuffer_write);
     msgpack_rpc_serialize_response(response_id, err, arg, &pac);
-    log_server_msg(channel_id, sbuffer);
+    SERVER_MSG_LOG(channel_id, sbuffer);
+
     WBuffer *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
                                      sbuffer->size,
                                      1,  // responses only go though 1 channel
@@ -965,7 +970,8 @@ static const char *const msgpack_error_messages[] =
     [MSGPACK_UNPACK_NOMEM_ERROR + MUR_OFF] = "not enough memory",
 };
 
-static void log_server_msg(uint64_t channel_id, msgpack_sbuffer *packed)
+static void log_server_msg(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
+                           msgpack_sbuffer *packed)
 {
     msgpack_unpacked unpacked;
     msgpack_unpacked_init(&unpacked);
@@ -1008,7 +1014,9 @@ static void log_server_msg(uint64_t channel_id, msgpack_sbuffer *packed)
     }
 }
 
-static void log_client_msg(uint64_t channel_id, bool is_request, msgpack_object msg)
+static void log_client_msg(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
+                           bool is_request,
+                           msgpack_object msg)
 {
     DEBUG_LOGN("RPC <-ch %" PRIu64 ": ", channel_id);
     log_lock();
