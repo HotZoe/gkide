@@ -52,22 +52,6 @@ bool App::event(QEvent *event)
 
 void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 {
-#ifdef NEOVIMQT_GUI_WIDGET
-    SnailNvimQt::Shell *win = new SnailNvimQt::Shell(c);
-    win->show();
-    if(parser.isSet("fullscreen"))
-    {
-        win->showFullScreen();
-    }
-    else if(parser.isSet("maximized"))
-    {
-        win->showMaximized();
-    }
-    else
-    {
-        win->show();
-    }
-#else
     SnailNvimQt::MainWindow *win = new SnailNvimQt::MainWindow(c);
 
     QObject::connect(instance(),   SIGNAL(openFilesTriggered(const QList<QUrl>)),
@@ -85,7 +69,6 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
     {
         win->delayedShow();
     }
-#endif
 }
 
 /// Initialize CLI parser with all the snail arguments, process the provided arguments and
