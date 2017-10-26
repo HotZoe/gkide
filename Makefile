@@ -12,6 +12,12 @@ export Q
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
+ifeq (, $(CPPCHECK_PROG))
+    CPPCHECK_PROG := cppcheck
+endif
+
+CPPCHECK_ARGS ?=
+
 ifeq (, $(DOXYGEN_PROG))
     DOXYGEN_PROG := doxygen
 endif
@@ -300,9 +306,17 @@ pdf-nvim:  build/generated/doxygen/.run-latex-nvim
 html-snail: build/generated/doxygen/.run-doxygen-snail
 pdf-snail:  build/generated/doxygen/.run-latex-snail
 
-.PHONY: env-check
-env-check:
+.PHONY: envcheck cppcheck
+envcheck:
 	$(Q)$(MSYS_SHELL_PATH) scripts/envcheck/env-check.sh $(QT5_INSTALL_PREFIX) $(MSYS_SHELL_PATH)
+
+# cppcheck-v1.8x has --project=..., cppcheck-v1.7x does not
+cppcheck:
+ifeq (1.8 ,$(shell $(CPPCHECK_PROG) --version | cut -b 10-12))
+	$(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) --project=build/compile_commands.json | tee cppcheck.log
+else
+	$(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) source | tee cppcheck.log
+endif
 
 # The output format of dot
 DOT_OUTPUT_FORMAT ?= svg
@@ -347,7 +361,8 @@ help:
 	@echo "  check-snail               equal to 'run-snail-*' targets."
 	@echo "  run-snail-libs-test       to run snail lib testing."
 	@echo ""
-	@echo "  env-check                 to check the building environment."
+	@echo "  cppcheck                  to check the building environment."
+	@echo "  envcheck                  to check the building environment."
 	@echo ""
 	@echo "  flowchart                 to generated the flow diagram by run 'dot'."
 	@echo ""

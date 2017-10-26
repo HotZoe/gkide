@@ -5,5 +5,6 @@ DistInfo
 mingw-w64
 build.log
 .DS_Store
+cppcheck.log
 gitcommitstyle
 CMakeLists.txt.user
