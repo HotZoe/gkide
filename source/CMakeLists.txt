@@ -85,6 +85,43 @@ if(NOT GPERF_PROG)
 endif()
 message(STATUS "gperf: ${GPERF_PROG}")
 
+# Default to -O3 on MinSizeRel build
+if(${build_type} STREQUAL "MINSIZEREL")
+    # -fdata-sections
+    # each global variable will be put into a single sections
+
+    if(NOT CMAKE_C_FLAGS_MINSIZEREL MATCHES "-fdata-sections")
+        message(STATUS "Add '-fdata-sections' for snail MinSizeRel build.")
+        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections")
+    endif()
+
+    if(NOT CMAKE_CXX_FLAGS_MINSIZEREL MATCHES "-fdata-sections")
+        message(STATUS "Add '-fdata-sections' for snail MinSizeRel build.")
+        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fdata-sections")
+    endif()
+
+    # -ffunction-sections
+    # each function will be put into a single sections
+
+    if(NOT CMAKE_C_FLAGS_MINSIZEREL MATCHES "-ffunction-sections")
+        message(STATUS "Add '-ffunction-sections' for nvim MinSizeRel build.")
+        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -ffunction-sections")
+    endif()
+
+    if(NOT CMAKE_CXX_FLAGS_MINSIZEREL MATCHES "-ffunction-sections")
+        message(STATUS "Add '-ffunction-sections' for snail MinSizeRel build.")
+        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -ffunction-sections")
+    endif()
+endif()
+
+add_compile_options("-Wall")
+add_compile_options("-Wextra")
+add_compile_options("-Wunused")
+add_compile_options("-Winit-self")
+add_compile_options("-Wconversion")
+add_compile_options("-Wfatal-errors")
+add_compile_options("-Wuninitialized")
+
 set(CMAKE_EXE_LINKER_FLAGS_DEV    "" CACHE STRING "CFlags used for development build." FORCE)
 set(CMAKE_SHARED_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
 set(CMAKE_MODULE_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
@@ -116,13 +153,11 @@ if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
     set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined")
 endif()
 
-add_compile_options("-Wall")
-add_compile_options("-Wextra")
-add_compile_options("-Wunused")
-add_compile_options("-Winit-self")
-add_compile_options("-Wconversion")
-add_compile_options("-Wfatal-errors")
-add_compile_options("-Wuninitialized")
+if(${build_type} STREQUAL "MINSIZEREL" AND CMAKE_COMPILER_IS_GNUCC)
+    set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--gc-sections")
+endif()
 
 # Checking assertion: C/C++
 if(ASSERTION_ENABLE)

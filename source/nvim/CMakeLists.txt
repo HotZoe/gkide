@@ -147,18 +147,6 @@ endif()
 
 mark_as_advanced(CMAKE_C_FLAGS_DEV)
 
-# Default to -O2 on release build
-if(${build_type} STREQUAL "RELEASE" AND CMAKE_C_FLAGS_RELEASE MATCHES "-O3")
-    message(STATUS "Replacing -O3 in CMAKE_C_FLAGS_RELEASE with -O2 for release build.")
-    string(REPLACE "-O3" "-O2" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
-endif()
-
-# Default to -O3 on MinSizeRel build
-if(${build_type} STREQUAL "MINSIZEREL" AND CMAKE_C_FLAGS_MINSIZEREL MATCHES "-O2")
-    message(STATUS "Replacing -O2 in CMAKE_C_FLAGS_MINSIZEREL with -O3 for MinSizeRel build.")
-    string(REPLACE "-O2" "-O3" CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL}")
-endif()
-
 # Fixing case-insensitive filenames for Windows and Mac
 if(HOST_OS_WINDOWS OR HOST_OS_MACOS)
     add_definitions("-DFIX_CASE_INSENSITIVE")
