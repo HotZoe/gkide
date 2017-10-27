@@ -37,9 +37,5 @@ See the [contrib/build/build.md](contrib/build/build.md) for details.
 
 # License
 
-- license/LICENSE.nvim: LICENSE from [neovim][neovim_url]
-- license/LICENSE.neovim-qt: LICENSE from [neovim-qt][neovim_qt_url]
-
-[neovim_url]: https://github.com/neovim/neovim
-[neovim_qt_url]: https://github.com/equalsraf/neovim-qt
+see [licenses/README](licenses/README.md) for details.
 
