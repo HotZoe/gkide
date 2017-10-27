@@ -12,6 +12,18 @@ export Q
 # copy 'contrib/local.mk.eg' to 'local.mk'
 -include local.mk
 
+ifeq (, $(STRIP_PROG))
+    STRIP_PROG := strip
+endif
+
+STRIP_ARGS ?= --strip-all
+
+ifeq (, $(EU_STRIP_PROG))
+    EU_STRIP_PROG := eu-strip
+endif
+
+EU_STRIP_ARGS ?=
+
 ifeq (, $(CPPCHECK_PROG))
     CPPCHECK_PROG := cppcheck
 endif
@@ -79,15 +91,31 @@ ifeq (OFF,$(windows_cmd_shell))
     endif
 endif
 
-# CMake build flags for deps, most time the build type should be 'Release'
-DEPS_CMAKE_BUILD_FLAGS  := -DCMAKE_BUILD_TYPE=Release
+# Auto strip for MinSizeRel build if 'strip' program exist, and then install
+MINSIZEREL_AUTO_STRIP :=
 
 # CMake build flags for GKIDE, if not set the build type, then it will be 'Release'
 ifeq (,$(GKIDE_CMAKE_BUILD_TYPE))
     GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=Release
 else
     GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(GKIDE_CMAKE_BUILD_TYPE)
+
+    ifeq (MinSizeRel, $(GKIDE_CMAKE_BUILD_TYPE))
+	    ifeq (, $(findstring strip, $(MAKECMDGOALS)))
+	        ifneq (, $(findstring install, $(MAKECMDGOALS)))
+		        MINSIZEREL_AUTO_STRIP := strip
+	        endif
+	    endif
+    endif
 endif
+
+ifeq (,$(shell strip --version))
+    # 'strip' program not find in $PATH, skip anyway
+    MINSIZEREL_AUTO_STRIP :=
+endif
+
+# CMake build flags for deps, most time the build type should be 'Release'
+DEPS_CMAKE_BUILD_FLAGS  := -DCMAKE_BUILD_TYPE=Release
 
 ifeq (ON,$(windows_cmd_shell))
     DEPS_CMAKE_BUILD_FLAGS += -DGIT_PROG=$(shell echo %GKIDE_PROG_GIT%)
@@ -181,7 +209,7 @@ endif
 
 all: nvim snail
 
-install: all
+install: all $(MINSIZEREL_AUTO_STRIP)
 	+$(BUILD_CMD) -C build install
 
 cmake:
@@ -344,6 +372,15 @@ endif
 	                                  DOT_OUTPUT_FORMAT=$(DOT_OUTPUT_FORMAT) \
 	                                  WINDOWS_CMD_SHELL=$(windows_cmd_shell)
 
+.PHONY: strip eustrip
+strip: nvim snail
+	$(Q)$(STRIP_PROG) $(STRIP_ARGS) build/bin/nvim
+	$(Q)$(STRIP_PROG) $(STRIP_ARGS) build/bin/snail
+
+eustrip: nvim snail
+	$(Q)$(EU_STRIP_PROG) $(EU_STRIP_ARGS) build/bin/nvim  -f build/bin/nvim.sym
+	$(Q)$(EU_STRIP_PROG) $(EU_STRIP_ARGS) build/bin/snail -f build/bin/snail.sym
+
 .PHONY: help
 help:
 	@echo "The <target> of the Makefile are as following:"
@@ -363,6 +400,9 @@ help:
 	@echo ""
 	@echo "  cppcheck                  to check the building environment."
 	@echo "  envcheck                  to check the building environment."
+	@echo ""
+	@echo "  strip                    to strip the nvim & snail, auto target for MinSizeRel build."
+	@echo "  eustrip                  to strip the nvim & snail, and save the removed sections."
 	@echo ""
 	@echo "  flowchart                 to generated the flow diagram by run 'dot'."
 	@echo ""
