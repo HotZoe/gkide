@@ -1027,7 +1027,6 @@ EXTERN int wild_menu_showing INIT(= 0);
 
 extern char *gkide_sys_home;
 extern char *gkide_usr_home;
-extern char *gkide_dyn_home;
 
 /* When a window has a local directory, the absolute path of the global
  * current directory is stored here (in allocated memory).  If the current

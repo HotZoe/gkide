@@ -1381,6 +1381,7 @@ static void check_and_set_isatty(mparm_T *paramp)
     TIME_MSG("check_and_set_isatty");
 }
 
+/// @todo, handle multi-char
 static void init_gkide_sys_home(const char *exepath)
 {
     if(exepath == NULL)
@@ -1389,10 +1390,10 @@ static void init_gkide_sys_home(const char *exepath)
         return;
     }
 
-    char path_buf[MAXPATHL] = { 0 };
-    snprintf(path_buf, MAXPATHL, "%s", exepath);
+    // also copy the NUL char
+    memcpy((char *)NameBuff, exepath, strlen(exepath)+1);
 
-    char *idx = path_buf;
+    char *idx = (char *)NameBuff;
     while(*idx != NUL)
     {
         idx++;
@@ -1401,16 +1402,22 @@ static void init_gkide_sys_home(const char *exepath)
     do
     {
         *idx = NUL;
-        idx--;
-    } while(vim_ispathsep(*idx) == 0);
+        idx--; // find the first last path separator
+    } while(vim_ispathsep(*idx) == FAIL);
 
-    // check if the current running 'nvim' or 'nvim.exe' is in directory named 'bin'
-    // .../bin/nvim or .../bin/nvim.exe, this is what we want, if not, then the directory layout
-    // is unknown and do not touch it, just use it as gkide system home directory.
+    // check if the current running 'nvim' in directory named 'bin'
+    // - if yes, what we want, default directory layout
+    // - if not, the directory layout is unknown, and just use it
     idx = idx -4;
     if(idx[0] == idx[4] && idx[1] == 'b' && idx[2] == 'i' && idx[3] == 'n')
     {
-        idx[0] = NUL; // default directory layout
+        // default GKIDE directory layout: bin, etc, plg, doc, loc
+        idx[0] = NUL; // no trailing path separator
+    }
+    else
+    {
+        // not default directory layout of GKIDE
+        idx[4] = NUL; // no trailing path separator
     }
 
     if(gkide_sys_home)
@@ -1420,14 +1427,12 @@ static void init_gkide_sys_home(const char *exepath)
         gkide_sys_home = NULL;
     }
 
-    gkide_sys_home = xstrdup(path_buf);
-
+    gkide_sys_home = xstrdup((char *)NameBuff);
     vim_setenv(ENV_GKIDE_SYS_HOME, gkide_sys_home);
-
     INFO_MSG("$GKIDE_SYS_HOME=%s", gkide_sys_home);
 }
 
-// Sets v:progname and v:progpath. Also modifies $PATH on Windows.
+// Sets v:progname and v:progpath.
 static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
 {
     char exepath[MAXPATHL] = { 0 };
@@ -1444,12 +1449,6 @@ static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
 
     set_vim_var_string(VV_PROGPATH, exepath, -1);
     set_vim_var_string(VV_PROGNAME, (char *)path_tail((char_u *)exename), -1);
-
-#ifdef HOST_OS_WINDOWS
-    // Append the process start directory to $PATH, so that ":!foo" finds tools
-    // shipped with Windows package. This also mimics SearchPath().
-    os_setenv_append_path(exepath);
-#endif
 }
 
 /// Get filename from command line, if any.
