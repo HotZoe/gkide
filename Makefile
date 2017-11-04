@@ -340,10 +340,14 @@ envcheck:
 
 # cppcheck-v1.8x has --project=..., cppcheck-v1.7x does not
 cppcheck:
-ifeq (1.8 ,$(shell $(CPPCHECK_PROG) --version | cut -b 10-12))
-	$(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) --project=build/compile_commands.json | tee cppcheck.log
+ifeq (OFF,$(windows_cmd_shell))
+    ifeq (1.8 ,$(shell $(CPPCHECK_PROG) --version | cut -b 10-12))
+	    $(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) --project=build/compile_commands.json | tee cppcheck.log
+    else
+	    $(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) source | tee cppcheck.log
+    endif
 else
-	$(Q)$(CPPCHECK_PROG) $(CPPCHECK_ARGS) source | tee cppcheck.log
+	@echo "skip command line cppcheck for windows"
 endif
 
 # The output format of dot
