@@ -1,7 +1,5 @@
 # $GKIDE_SYS_HOME/etc/*
-list(APPEND SYS_HOME_ETC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/config.nvimrc")
-list(APPEND SYS_HOME_ETC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/sysinit.nvimrc")
-
+list(APPEND SYS_HOME_ETC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/config.nvl")
 
 install_helper(FILES ${SYS_HOME_ETC_FILES}
                DESTINATION ${CMAKE_INSTALL_ETC_DIR})

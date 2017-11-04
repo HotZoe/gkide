@@ -368,9 +368,9 @@ void list_version(void)
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, loc\n");
 
-    version_msg("\n      System config: " ENV_GKIDE_SYS_CONFIG
+    version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG
                                         " ,then $GKIDE_SYS_HOME/etc/config.nvl");
-    version_msg("\n        User config: " ENV_GKIDE_USR_CONFIG
+    version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG
                                         " ,then $GKIDE_USR_HOME/etc/config.nvl");
 }
 
