@@ -4,9 +4,9 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QFileOpenEvent>
-#include "logmanager.h"
-#include "snail/app/envdefs.h"
+#include "envdefs.h"
 #include "snail/libs/nvimcore/app.h"
+#include "snail/libs/nvimcore/logmanager.h"
 #include "snail/libs/nvimcore/mainwindow.h"
 
 namespace SnailNvimQt {
@@ -230,9 +230,9 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
                 nvimArgs.insert(1, QString("let &rtp.=',%1'").arg(gkide_dir.path()));
             }
 
-            if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_PLGSPATH))
+            if(qEnvironmentVariableIsSet(ENV_GKIDE_NVIM_RTMPLG))
             {
-                QString plg_dir = qgetenv(ENV_GKIDE_SNAIL_PLGSPATH);
+                QString plg_dir = qgetenv(ENV_GKIDE_NVIM_RTMPLG);
 
                 qDebug() << "plg_dir_env=" << plg_dir;
 

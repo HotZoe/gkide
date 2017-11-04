@@ -17,6 +17,7 @@
 #include "nvim/os/os_defs.h"
 
 #include "config.h"
+#include "envdefs.h"
 
 #define GKIDE_SYS_HOME_ETC  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "etc"
 #define GKIDE_USR_HOME_ETC  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "etc"

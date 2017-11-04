@@ -13,9 +13,10 @@
 #include "nvim/os/time.h"
 
 #include "config.h"
+#include "envdefs.h"
 
 /// First location of the log file used by log_path_init()
-#define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_LOGGINGS
+#define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_RTMLOG
 
 /// Fall back location of the log file used by log_path_init()
 #define USR_LOG_FILE_DEFAULT  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "nvim.log"

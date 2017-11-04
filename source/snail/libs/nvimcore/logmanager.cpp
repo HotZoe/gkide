@@ -5,8 +5,8 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QFileOpenEvent>
+#include "envdefs.h"
 #include "configsnail.h"
-#include "snail/app/envdefs.h"
 #include "snail/app/attributes.h"
 #include "snail/libs/nvimcore/logmanager.h"
 

@@ -35,9 +35,9 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/versiondef.h.in"
                 "${GEN_CONFIG_DIR}/versiondef.h")
 message(STATUS "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/versiondef.h")
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/pathdef.h.in"
-                "${GEN_CONFIG_DIR}/pathdef.h")
-message(STATUS "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/pathdef.h")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/envdefs.h.in"
+                "${GEN_CONFIG_DIR}/envdefs.h")
+message(STATUS "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/envdefs.h")
 
 # Generated doxygen configuration file
 set(DOXYGEN_MANUAL_NAME        "nvim")

@@ -70,7 +70,7 @@
 #include "nvim/api/private/dispatch.h"
 
 #include "config.h"
-#include "pathdef.h"
+#include "envdefs.h"
 
 #define WIN_HOR      1   ///< *-o* horizontally split windows for `window_layout`
 #define WIN_VER      2   ///< *-O* vertically split windows for `window_layout`
@@ -698,7 +698,7 @@ static void init_locale(void)
 
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
-    char_u *p = (char_u *)vim_getenv(ENV_GKIDE_NVIM_LANGUAGE);
+    char_u *p = (char_u *)vim_getenv(ENV_GKIDE_NVIM_LOCALE);
 
     if(p != NULL && *p != NUL)
     {
@@ -713,8 +713,8 @@ static void init_locale(void)
         TIME_MSG("nvim local directory not exists");
     }
 
-    bindtextdomain(GKIDE_NVIM, (char *)NameBuff);
-    textdomain(GKIDE_NVIM);
+    textdomain(GKIDE_NVIM_DOMAIN);
+    bindtextdomain(GKIDE_NVIM_DOMAIN, (char *)NameBuff);
 
     INFO_MSG("nvim local bind to %s", NameBuff);
 }
