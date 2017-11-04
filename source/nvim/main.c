@@ -1342,8 +1342,8 @@ scripterror:
     TIME_MSG("command_line_scan");
 }
 
-/// Many variables are in **paramp** so that we can pass it to invoked functions without a
-/// lot of arguments. **argc** and **argv** are also copied, so that they can be changed.
+/// Many variables are in @b paramp, so that we can pass
+/// it to invoked functions without a lot of arguments.
 static void init_params(mparm_T *paramp, int argc, char **argv)
 {
     memset(paramp, 0, sizeof(*paramp));
@@ -1355,7 +1355,8 @@ static void init_params(mparm_T *paramp, int argc, char **argv)
     paramp->window_count = -1;
 }
 
-/// Initialize global startuptime file if **--startuptime nvim.log** passed as an argument.
+/// Initialize global startuptime file if <b>--startuptime</b> passed with an argument,
+/// e.g. $ nvim --startuptime nvim.log
 static void init_startuptime(mparm_T *paramp)
 {
     for(int i = 1; i < paramp->argc; i++)

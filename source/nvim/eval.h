@@ -10,14 +10,15 @@
 #include "nvim/profile.h"
 #include "nvim/garray.h"
 
-#define COPYID_INC 2
-#define COPYID_MASK (~0x1)
+#define COPYID_INC   2
+#define COPYID_MASK  (~0x1)
 
 // All user-defined functions are found in this hashtable.
 extern hashtab_T func_hashtab;
 
 // From user function to hashitem and back.
 EXTERN ufunc_T dumuf;
+
 #define UF2HIKEY(fp) ((fp)->uf_name)
 #define HIKEY2UF(p)  ((ufunc_T *)(p - offsetof(ufunc_T, uf_name)))
 #define HI2UF(hi)    HIKEY2UF((hi)->hi_key)
@@ -109,6 +110,15 @@ typedef enum
     VV_TYPE_BOOL,
     VV_EXITING,
 } VimVarIndex;
+
+// Type values for type()
+#define VAR_TYPE_NUMBER     0
+#define VAR_TYPE_STRING     1
+#define VAR_TYPE_FUNC       2
+#define VAR_TYPE_LIST       3
+#define VAR_TYPE_DICT       4
+#define VAR_TYPE_FLOAT      5
+#define VAR_TYPE_BOOL       6
 
 /// All recognized msgpack types
 typedef enum

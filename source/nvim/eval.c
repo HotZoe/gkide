@@ -157,12 +157,10 @@ typedef struct lval_S
     char_u *ll_newkey;    ///< New key for Dict in allocated memory or NULL.
 } lval_T;
 
-
 static char *e_letunexp = N_("E18: Unexpected characters in :let");
 static char *e_missbrac = N_("E111: Missing ']'");
 static char *e_listarg = N_("E686: Argument of %s must be a List");
-static char *e_listdictarg = N_(
-                                 "E712: Argument of %s must be a List or Dictionary");
+static char *e_listdictarg = N_("E712: Argument of %s must be a List or Dictionary");
 static char *e_listreq = N_("E714: List required");
 static char *e_dictreq = N_("E715: Dictionary required");
 static char *e_stringreq = N_("E928: String required");
@@ -572,12 +570,14 @@ const list_T *eval_msgpack_type_lists[] =
     [kMPExt] = NULL,
 };
 
-/// Initialize the global and **v:** variables.
+/// Initialize the global and @b v: variables.
 void eval_init(void)
 {
     vimvars[VV_VERSION].vv_nr = NVIM_VERSION_INT32;
+
     jobs = pmap_new(uint64_t)();
     timers = pmap_new(uint64_t)();
+
     struct vimvar *p;
     init_var_dict(&globvardict, &globvars_var, VAR_DEF_SCOPE);
     init_var_dict(&vimvardict, &vimvars_var, VAR_SCOPE);
@@ -627,10 +627,8 @@ void eval_init(void)
         dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
         di->di_flags |= DI_FLAGS_RO|DI_FLAGS_FIX;
 
-        di->di_tv = (typval_T) {
-            .vval = { .v_list = type_list, },
-            .v_type = VAR_LIST,
-        };
+        di->di_tv.v_type = VAR_LIST;
+        di->di_tv.vval.v_list = type_list;
 
         eval_msgpack_type_lists[i] = type_list;
 
@@ -644,25 +642,29 @@ void eval_init(void)
     msgpack_types_dict->dv_lock = VAR_FIXED;
     set_vim_var_dict(VV_MSGPACK_TYPES, msgpack_types_dict);
     set_vim_var_dict(VV_COMPLETED_ITEM, tv_dict_alloc());
+
     dict_T *v_event = tv_dict_alloc();
     v_event->dv_lock = VAR_FIXED;
+
     set_vim_var_dict(VV_EVENT, v_event);
     set_vim_var_list(VV_ERRORS, tv_list_alloc());
+
     set_vim_var_nr(VV_SEARCHFORWARD, 1L);
     set_vim_var_nr(VV_HLSEARCH, 1L);
     set_vim_var_nr(VV_COUNT1, 1);
-    set_vim_var_nr(VV_TYPE_NUMBER, VAR_TYPE_NUMBER);
-    set_vim_var_nr(VV_TYPE_STRING, VAR_TYPE_STRING);
-    set_vim_var_nr(VV_TYPE_FUNC,   VAR_TYPE_FUNC);
-    set_vim_var_nr(VV_TYPE_LIST,   VAR_TYPE_LIST);
-    set_vim_var_nr(VV_TYPE_DICT,   VAR_TYPE_DICT);
-    set_vim_var_nr(VV_TYPE_FLOAT,  VAR_TYPE_FLOAT);
-    set_vim_var_nr(VV_TYPE_BOOL,   VAR_TYPE_BOOL);
-    set_vim_var_special(VV_FALSE, kSpecialVarFalse);
-    set_vim_var_special(VV_TRUE, kSpecialVarTrue);
-    set_vim_var_special(VV_NULL, kSpecialVarNull);
+    set_vim_var_nr(VV_TYPE_FUNC,    VAR_TYPE_FUNC);
+    set_vim_var_nr(VV_TYPE_LIST,    VAR_TYPE_LIST);
+    set_vim_var_nr(VV_TYPE_DICT,    VAR_TYPE_DICT);
+    set_vim_var_nr(VV_TYPE_BOOL,    VAR_TYPE_BOOL);
+    set_vim_var_nr(VV_TYPE_FLOAT,   VAR_TYPE_FLOAT);
+    set_vim_var_nr(VV_TYPE_NUMBER,  VAR_TYPE_NUMBER);
+    set_vim_var_nr(VV_TYPE_STRING,  VAR_TYPE_STRING);
+
+    set_vim_var_special(VV_FALSE,   kSpecialVarFalse);
+    set_vim_var_special(VV_TRUE,    kSpecialVarTrue);
+    set_vim_var_special(VV_NULL,    kSpecialVarNull);
     set_vim_var_special(VV_EXITING, kSpecialVarNull);
-    set_reg_var(0);  // default for v:register is not 0 but '"'
+    set_reg_var(0); // default for v:register is not 0 but '"'
 }
 
 #if defined(EXITFREE)
@@ -21634,45 +21636,36 @@ error:
     return;
 }
 
-/*
- * "type(expr)" function
- */
-static void f_type(typval_T *argvars,
-                   typval_T *rettv,
+/// "type(expr)" function
+static void f_type(typval_T *argvars, typval_T *rettv,
                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int n = -1;
 
-    switch (argvars[0].v_type)
+    switch(argvars[0].v_type)
     {
         case VAR_NUMBER:
             n = VAR_TYPE_NUMBER;
             break;
-
         case VAR_STRING:
             n = VAR_TYPE_STRING;
             break;
-
         case VAR_PARTIAL:
         case VAR_FUNC:
             n = VAR_TYPE_FUNC;
             break;
-
         case VAR_LIST:
             n = VAR_TYPE_LIST;
             break;
-
         case VAR_DICT:
             n = VAR_TYPE_DICT;
             break;
-
         case VAR_FLOAT:
             n = VAR_TYPE_FLOAT;
             break;
-
         case VAR_SPECIAL:
         {
-            switch (argvars[0].vval.v_special)
+            switch(argvars[0].vval.v_special)
             {
                 case kSpecialVarTrue:
                 case kSpecialVarFalse:
@@ -21680,17 +21673,14 @@ static void f_type(typval_T *argvars,
                     n = VAR_TYPE_BOOL;
                     break;
                 }
-
                 case kSpecialVarNull:
                 {
                     n = 7;
                     break;
                 }
             }
-
             break;
         }
-
         case VAR_UNKNOWN:
         {
             EMSG2(_(e_intern2), "f_type(UNKNOWN)");
@@ -21701,11 +21691,8 @@ static void f_type(typval_T *argvars,
     rettv->vval.v_number = n;
 }
 
-/*
- * "undofile(name)" function
- */
-static void f_undofile(typval_T *argvars,
-                       typval_T *rettv,
+/// "undofile(name)" function
+static void f_undofile(typval_T *argvars, typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = VAR_STRING;
@@ -23100,14 +23087,12 @@ void set_vim_var_dict(const VimVarIndex idx, dict_T *const val)
     }
 }
 
-/*
- * Set v:register if needed.
- */
+/// Set v:register if needed.
 void set_reg_var(int c)
 {
     char regname;
 
-    if (c == 0 || c == ' ')
+    if(c == 0 || c == ' ')
     {
         regname = '"';
     }
@@ -23117,7 +23102,7 @@ void set_reg_var(int c)
     }
 
     // Avoid free/alloc when the value is already right.
-    if (vimvars[VV_REG].vv_str == NULL || vimvars[VV_REG].vv_str[0] != c)
+    if(vimvars[VV_REG].vv_str == NULL || vimvars[VV_REG].vv_str[0] != c)
     {
         set_vim_var_string(VV_REG, &regname, 1);
     }

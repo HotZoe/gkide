@@ -104,15 +104,6 @@ typedef enum
 /// return values for functions: not OK or FAIL but skipped
 #define NOTDONE    2
 
-// Type values for type().
-#define VAR_TYPE_NUMBER     0
-#define VAR_TYPE_STRING     1
-#define VAR_TYPE_FUNC       2
-#define VAR_TYPE_LIST       3
-#define VAR_TYPE_DICT       4
-#define VAR_TYPE_FLOAT      5
-#define VAR_TYPE_BOOL       6
-
 /// values for xp_context when doing command line completion
 enum
 {
