@@ -15,8 +15,11 @@
 
 namespace SnailNvimQt {
 
-void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
+#ifdef SNAIL_LOGGING_DISABLE
 void logging_nothing(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
+#else
+void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg);
+#endif
 
 #ifdef Q_OS_MAC
 bool getLoginEnvironment(const QString &path);

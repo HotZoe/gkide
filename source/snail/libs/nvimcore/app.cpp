@@ -25,14 +25,11 @@ App::App(int &argc, char **argv): QApplication(argc, argv)
     }
 #endif
 
-    if(!qgetenv(ENV_GKIDE_SNAIL_LOGGINGS).isEmpty())
-    {
-        qInstallMessageHandler(logging_handler);
-    }
-    else
-    {
-        qInstallMessageHandler(logging_nothing);
-    }
+#ifdef SNAIL_LOGGING_DISABLE
+    qInstallMessageHandler(logging_nothing);
+#else
+    qInstallMessageHandler(logging_handler);
+#endif
 }
 
 bool App::event(QEvent *event)
