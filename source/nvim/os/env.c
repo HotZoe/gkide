@@ -202,43 +202,34 @@ typedef enum
     kNLC_FLG = 4  ///< if set, check sequence: SYS->USR, otherwise, the reverse
 } NvimLayoutCheck;
 
-char *gkide_sys_home = NULL; /// gkide system  home directory, runtime fixed
-char *gkide_usr_home = NULL; /// gkide user    home directory, runtime fixed
+char *gkide_usr_home = NULL; /// gkide user home directory, runtime fixed
+char *gkide_sys_home = NULL; /// gkide system home directory, runtime fixed
 
-/// To get the real user home directory: get value of $GKIDE_USR_HOME
-/// Here used this environment is because $HOME is used everywhere, so that we can changed its
-/// value which will affect others, now, use another one, if you need, then just do it!
+/// To get the user home directory: get the value of $GKIDE_USR_HOME
+/// Here used this environment is because $HOME is used everywhere, so that if change its
+/// value which will affect others, now, use another value, if you need, then just change it!
 ///
 /// For all:
 /// - check $GKIDE_USR_HOME, if not set, then
-/// - check $HOME, if set, then reset $GKIDE_USR_HOME to $HOME
+/// - check $HOME, if set, then set $GKIDE_USR_HOME to $HOME
 ///   This also works with mounts and links.
 ///
 /// For unix:
 /// - go to that directory
 /// - do os_dirname() to get the real name of that directory.
 ///   Don't do this for Windows, it will change the current directory for a drive.
-///
-/// For windows:
-/// - if $GKIDE_USR_HOME and $HOME both not set, then check $HOMEDRIVE and $HOMEPATH for
-///   Windows NT platforms, then reset $GKIDE_USR_HOME
-void init_gkide_usr_home(void)
+bool init_gkide_usr_home(void)
 {
-    bool usr_home_reset = false; // need to reset gkide usr home env ?
-    const char *usr_home = os_getenv(ENV_GKIDE_USR_HOME);
+    const char *std_home = NULL; // host system standard user home
 
-    if(usr_home == NULL)
-    {
-        // if GKIDE_USR_HOME not set, then check HOME
-        usr_home = os_getenv("HOME");
-        usr_home_reset = true;
-    }
+#if 0
+    std_home = os_getenv("HOME");
 
     #ifdef HOST_OS_WINDOWS
     // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
     // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
     // defined for each user. Try constructing $HOME from these.
-    if(usr_home == NULL)
+    if(std_home == NULL)
     {
         const char *homedrive = os_getenv("HOMEDRIVE");
         const char *homepath = os_getenv("HOMEPATH");
@@ -254,58 +245,121 @@ void init_gkide_usr_home(void)
 
             if(os_buf[0] != NUL)
             {
-                usr_home = os_buf;
+                std_home = os_buf;
             }
         }
     }
     #endif
+#else
+    size_t buf_len = MAXPATHL; // get host standard home directory
+    if(kLibuvSuccess == get_os_home_dir(os_buf, &buf_len))
+    {
+        std_home = os_buf;
+    }
+#endif
+
+    if(std_home == NULL)
+    {
+        // can not get host system user home, to be fixed
+        TIME_MSG("EXIT(0): can not get host system user home");
+        return false;
+    }
+
+    bool set_usr_home_env = false; // need to set $GKIDE_USR_HOME
+    const char *usr_home = os_getenv(ENV_GKIDE_USR_HOME);
 
     if(usr_home == NULL)
     {
-        TIME_MSG("GKIDE_USR_HOME is NULL, this should be fixed");
-        return;
+        set_usr_home_env = true;
     }
 
-    if(usr_home_reset)
+    if(usr_home && !path_is_absolute_path((char_u *)usr_home))
     {
-        // make '.gkide' directory first, then reset gkide usr home env
-        snprintf((char *)NameBuff, MAXPATHL, "%s" OS_PATH_SEP_STR ".gkide", usr_home);
+        // $GKIDE_USR_HOME should be set to absolute path
+        INFO_MSG("ignore relative path of $GKIDE_USR_HOME: %s", usr_home);
+        set_usr_home_env = true; // use the default value and reset it.
+    }
+
+    if(set_usr_home_env)
+    {
+        // Default value
+        #ifdef HOST_OS_WINDOWS
+        snprintf((char *)NameBuff, MAXPATHL, "%s\\gkide", std_home);
+        #else
+        snprintf((char *)NameBuff, MAXPATHL, "%s/.gkide", std_home);
+        #endif
     }
     else
     {
-        // gkide usr home env already set, check if it exist, if not, try to create it.
-        snprintf((char *)NameBuff, MAXPATHL, "%s", usr_home);
-    }
-
-    if(os_path_exists((char_u *)NameBuff))
-    {
-        // already exists, do not need to create
-        usr_home = (char *)NameBuff;
-    }
-    else
-    {
-        TIME_MSG("try to create $GKIDE_USR_HOME directory");
-        int ret = os_mkdir((char *)NameBuff, 0755);
-        if(ret == 0)
+        // $GKIDE_USR_HOME already set, check it
+        // take care of '~', because afterwards, its meaning changed
+        if(usr_home[0] == '~')
         {
-            // if can not created it, then just ignore
-            usr_home = (char *)NameBuff;
+            set_usr_home_env = true; // expend to absolute path
+            strcpy((char *)NameBuff, std_home);
+            size_t std_len = strlen((char *)NameBuff);
+
+            if(usr_home[1] == OS_PATH_SEP_CHAR)
+            {
+                // "~/..." also copy the terminating NUL char
+                memcpy((char *)NameBuff+std_len, usr_home+1, strlen(usr_home));
+            }
+            else
+            {
+                if(usr_home[1] != NUL)
+                {
+                    // $GKIDE_USR_HOME has illegal value, for example: "~foo"
+                    INFO_MSG("ignore illegal value of $GKIDE_USR_HOME: %s", usr_home);
+                }
+
+                // just "~", have same effect as not set, use default
+                #ifdef HOST_OS_WINDOWS
+                snprintf((char *)NameBuff+std_len, MAXPATHL, "\\gkide");
+                #else
+                snprintf((char *)NameBuff+std_len, MAXPATHL, "/.gkide");
+                #endif
+            }
         }
+        else
+        {
+            // a different gkide-usr-home from the default standard user home
+            snprintf((char *)NameBuff, MAXPATHL, "%s", usr_home);
+        }
+    }
+
+    // check if the home directory exist
+    if(!os_path_exists((char_u *)NameBuff))
+    {
+        char **failed_dir = NULL;
+        INFO_MSG("try to create user home: %s", (char *)NameBuff);
+        if(os_mkdir_recurse((char *)NameBuff, 0755, failed_dir) != kLibuvSuccess)
+        {
+            INFO_MSG("EXIT(0): can not create user home: %s", *failed_dir);
+            return false;
+        }
+    }
+
+    usr_home = (char *)NameBuff;
+
+    if(usr_home[strlen(usr_home)-1] == OS_PATH_SEP_CHAR)
+    {
+        char *ptr = (char *)usr_home + strlen(usr_home) - 1;
+        *ptr = NUL; // make sure no trailling path separator
     }
 
     #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
     // Change to the home directory and get the actual path.
-    // This resolves links. Don't do it when we can't return.
-    if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
+    // This resolves links. Do not do it when we can not return.
+    if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == kLibuvSuccess)
     {
-        // change to home directory
-        if(!os_chdir(usr_home) && os_dirname(IObuff, IOSIZE) == OK)
+        // change to home directory, resolves links.
+        if(os_chdir(usr_home) == kLibuvSuccess && os_dirname(IObuff, IOSIZE) == OK)
         {
             usr_home = (char *)IObuff;
         }
 
         // go back
-        if(os_chdir(os_buf) != 0)
+        if(os_chdir(os_buf) != kLibuvSuccess)
         {
             EMSG(_(e_prev_dir));
         }
@@ -321,12 +375,13 @@ void init_gkide_usr_home(void)
 
     gkide_usr_home = (char *)vim_strsave((char_u *)usr_home);
 
-    if(usr_home_reset)
+    if(set_usr_home_env)
     {
         vim_setenv(ENV_GKIDE_USR_HOME, gkide_usr_home);
     }
 
     INFO_MSG("$GKIDE_USR_HOME=%s", gkide_usr_home);
+    return true;
 }
 
 /// Call expand_env() and store the result in an allocated string.
@@ -899,7 +954,7 @@ FUNC_ATTR_NONNULL_ARG(2, 4, 5) FUNC_ATTR_WARN_UNUSED_RESULT
     }
 }
 
-/// nvim's version of getenv().
+/// nvim's version of getenv(), need to call xfree()
 ///
 /// @param name Environment variable to expand
 char *vim_getenv(const char *name)

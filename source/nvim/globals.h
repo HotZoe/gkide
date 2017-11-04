@@ -906,15 +906,14 @@ EXTERN int emsg_silent INIT(= 0);        // don't print error messages
 EXTERN bool emsg_noredir INIT(= false);  // don't redirect error messages
 EXTERN int cmd_silent INIT(= false);     // don't echo the command line
 
-/* Values for swap_exists_action: what to do when swap file already exists */
-#define SEA_NONE        0       /* don't use dialog */
-#define SEA_DIALOG      1       /* use dialog when possible */
-#define SEA_QUIT        2       /* quit editing the file */
-#define SEA_RECOVER     3       /* recover the file */
+// Values for swap_exists_action: what to do when swap file already exists
+#define SEA_NONE        0       ///< don't use dialog
+#define SEA_DIALOG      1       ///< use dialog when possible
+#define SEA_QUIT        2       ///< quit editing the file
+#define SEA_RECOVER     3       ///< recover the file
 
 EXTERN int swap_exists_action INIT(= SEA_NONE);
-/* For dialog when swap file already
- * exists. */
+/* For dialog when swap file already exists. */
 EXTERN int swap_exists_did_quit INIT(= FALSE);
 /* Selected "quit" at the dialog. */
 

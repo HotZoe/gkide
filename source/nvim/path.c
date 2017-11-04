@@ -2698,13 +2698,12 @@ static int path_get_absolute_path(const char_u *fname, char_u *buf,
 
 /// Check if the given file is absolute.
 ///
-/// @return `TRUE` if "fname" is absolute.
+/// @return true if @b fname is absolute.
 int path_is_absolute_path(const char_u *fname)
 {
 #ifdef HOST_OS_WINDOWS
-    // A name like "d:/foo" and "//server/share" is absolute
-    return ((isalpha(fname[0]) && fname[1] == ':'
-             && vim_ispathsep_nocolon(fname[2]))
+    // A name like "d:\foo" and "\\server\share" is absolute
+    return ((isalpha(fname[0]) && fname[1] == ':' && vim_ispathsep_nocolon(fname[2]))
             || (vim_ispathsep_nocolon(fname[0]) && fname[0] == fname[1]));
 #else
     // UNIX: This just checks if the file name starts with '/' or '~'.

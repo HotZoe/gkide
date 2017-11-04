@@ -199,8 +199,11 @@ static void early_init(void)
     alist_init(&global_alist); // Init the argument list to empty.
     global_alist.id = 0;
 
-    init_gkide_usr_home(); // Find out the gkide user home directory
-    assert(gkide_usr_home != NULL);
+    // Find out the gkide user home directory
+    if(!init_gkide_usr_home())
+    {
+        mch_exit(0);
+    }
 
     // Set the default values for the options.
     // NOTE: Non-latin1 translated messages are working only after this,
@@ -709,12 +712,13 @@ static void init_locale(void)
     if(!os_path_exists(NameBuff))
     {
         TIME_MSG("nvim local directory not exists");
+        return; // skip bind to none exist directory
     }
 
     textdomain(GKIDE_NVIM_DOMAIN);
     bindtextdomain(GKIDE_NVIM_DOMAIN, (char *)NameBuff);
 
-    INFO_MSG("nvim local bind to %s", NameBuff);
+    INFO_MSG("nvim local bind to: %s", NameBuff);
 }
 #endif
 

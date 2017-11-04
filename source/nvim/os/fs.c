@@ -56,8 +56,6 @@
         }                                        \
     } while(0)
 
-// Many fs functions from libuv return that value on success.
-static const int kLibuvSuccess = 0;
 static uv_loop_t fs_loop;
 
 /// Initialize the fs module
@@ -66,7 +64,33 @@ void fs_init(void)
     uv_loop_init(&fs_loop);
 }
 
-/// Changes the current directory to **path**.
+/// Gets the current user’s home directory.
+/// - On Windows, uv_os_homedir() first checks the USERPROFILE environment variable using
+///   GetEnvironmentVariableW(). If USERPROFILE is not set,  is called.
+///
+/// - On all other operating systems, uv_os_homedir() first checks the HOME environment variable
+///   using getenv(3). If HOME is not set, getpwuid_r(3) is called. The user’s home directory is
+///   stored in buffer.
+///
+/// @param buffer  user's home directory string to store in
+/// @param size    indicates the maximum size of the @b buffer
+///
+/// @return
+/// - if success, return 0, and @b size is set to the string length of @b buffer.
+/// - if failure, return uv error code, e.g., if return UV_ENOBUFS, then @b size is
+///   set to the required length for buffer, including the null byte.
+///
+/// @note
+/// - XP   : return "C:\Documents and Settings\Joe"
+/// - WIN7 : return "C:\Users\Joe"
+///
+/// @warning  uv_os_homedir() is not thread safe.
+int get_os_home_dir(char *buffer, size_t *size)
+{
+    return uv_os_homedir(buffer, size);
+}
+
+/// Changes the current directory to @b path.
 ///
 /// @return 0 on success, or negative error code.
 int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL
@@ -83,9 +107,9 @@ int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL
 
 /// Get the name of current directory.
 ///
-/// @param buf Buffer to store the directory name.
-/// @param len Length of `buf`.
-/// @return `OK` for success, `FAIL` for failure.
+/// @param buf  Buffer to store the directory name.
+/// @param len  Length of @b buf.
+/// @return OK for success, FAIL for failure.
 int os_dirname(char_u *buf, size_t len) FUNC_ATTR_NONNULL_ALL
 {
     int error_number;
@@ -816,7 +840,7 @@ int os_mkdir(const char *path, int32_t mode) FUNC_ATTR_NONNULL_ALL
 ///                          failed to create. I.e. it will contain dir or any
 ///                          of the higher level directories.
 ///
-/// @return `0` for success, libuv error code for failure.
+/// @return 0 for success, libuv error code for failure.
 int os_mkdir_recurse(const char *const dir, int32_t mode, char **const failed_dir)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {

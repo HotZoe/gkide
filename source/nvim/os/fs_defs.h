@@ -26,6 +26,11 @@ typedef struct
     uv_dirent_t ent;  ///< @private The entry information.
 } Directory;
 
+enum
+{
+    kLibuvSuccess = 0, ///< Many fs functions from libuv return this value on success.
+};
+
 /// Function to convert libuv error to char * error description
 ///
 /// negative libuv error codes are returned by a number of os functions.
