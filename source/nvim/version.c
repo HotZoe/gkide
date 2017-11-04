@@ -365,25 +365,13 @@ void list_version(void)
     }
     version_msg(msg_buf);
 
-    // gkide dynamic home
-    snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_DYN_HOME);
-    len = strlen(msg_buf);
-    if(gkide_dyn_home != NULL)
-    {
-        snprintf(msg_buf + len, MAXPATHL, "%s", gkide_dyn_home);
-    }
-    version_msg(msg_buf);
-
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, loc\n");
 
-    version_msg("\n      System nvimrc: $GKIDE_SYS_HOME/etc/config.nvimrc or $GKIDE_NVIM_SYS_CFG");
-    version_msg("\n        User nvimrc: $GKIDE_USR_HOME/etc/config.nvimrc or $GKIDE_NVIM_USR_CFG");
-    version_msg("\n     Project nvimrc: $GKIDE_DYN_HOME/etc/config.nvimrc or $GKIDE_NVIM_DYN_CFG\n");
-
-    version_msg("\n       System cmdrc: $GKIDE_SYS_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_SYS_CMD");
-    version_msg("\n         User cmdrc: $GKIDE_USR_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_USR_CMD");
-    version_msg("\n      Project cmdrc: $GKIDE_DYN_HOME/etc/autocmd.cmdrc or $GKIDE_NVIM_DYN_CMD\n");
+    version_msg("\n      System config: " ENV_GKIDE_SYS_CONFIG
+                                        " ,then $GKIDE_SYS_HOME/etc/config.nvl");
+    version_msg("\n        User config: " ENV_GKIDE_USR_CONFIG
+                                        " ,then $GKIDE_USR_HOME/etc/config.nvl");
 }
 
 /// Output a string for the version message.  If it's going to wrap, output a

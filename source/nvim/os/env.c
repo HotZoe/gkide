@@ -331,47 +331,6 @@ void init_gkide_usr_home(void)
     INFO_MSG("$GKIDE_USR_HOME=%s", gkide_usr_home);
 }
 
-void init_gkide_dyn_home(void)
-{
-    const char *dyn_home = os_getenv(ENV_GKIDE_DYN_HOME);
-
-    if(dyn_home == NULL)
-    {
-        // $GKIDE_DYN_HOME not set, just skip
-        return;
-    }
-
-    #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
-    // Change to the dynamic home directory and get the actual path.
-    // This resolves links. Don't do it when we can't return.
-    if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == 0)
-    {
-        // change to dynamic home directory
-        if(!os_chdir(dyn_home) && os_dirname(IObuff, IOSIZE) == OK)
-        {
-            dyn_home = (char *)IObuff;
-        }
-
-        // go back
-        if(os_chdir(os_buf) != 0)
-        {
-            EMSG(_(e_prev_dir));
-        }
-    }
-    #endif
-
-    if(gkide_dyn_home)
-    {
-        // In case we are called a second time.
-        xfree(gkide_dyn_home);
-        gkide_dyn_home = NULL;
-    }
-
-    gkide_dyn_home = (char *)vim_strsave((char_u *)dyn_home);
-
-    INFO_MSG("GKIDE_DYN_HOME: %s", gkide_dyn_home);
-}
-
 /// Call expand_env() and store the result in an allocated string.
 /// This is not very memory efficient, this expects the result to be freed again soon.
 ///

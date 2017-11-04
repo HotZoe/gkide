@@ -2169,10 +2169,6 @@ FUNC_ATTR_NONNULL_ARG(1, 2) FUNC_ATTR_WARN_UNUSED_RESULT
                     {
                         init_gkide_usr_home();
                     }
-                    else if(didset_vim && STRICMP(name, ENV_GKIDE_DYN_HOME) == 0)
-                    {
-                        init_gkide_dyn_home();
-                    }
                     else if(didset_vim && STRICMP(name, "VIM") == 0)
                     {
                         didset_vim = false;

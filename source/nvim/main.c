@@ -207,18 +207,16 @@ static void early_init(void)
     // because this is where "has_mbyte" will be set, which is used by
     // msg_outtrans_len_attr().
     set_init_1();
-    TIME_MSG("set_init_1");
-
-    init_gkide_dyn_home(); // Find out the dynamic home directory
 
     set_lang_var(); // set v:lang and v:ctype
+    TIME_MSG("early_init");
 }
 
 int main(int argc, char **argv)
 {
     argv0 = argv[0];
-    mparm_T params;       // various parameters passed between main() and other functions.
-    char_u *cwd = NULL;   // current workding dir on startup
+    mparm_T params; // various parameters passed between main() and other functions.
+    char_u *cwd = NULL; // current workding dir on startup
     char_u *fname = NULL; // file name from command line
 
     time_init();
