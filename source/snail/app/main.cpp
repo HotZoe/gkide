@@ -16,14 +16,30 @@ int gui_main(int argc, char **argv)
 {
     SnailNvimQt::App app(argc, argv);
     QCommandLineParser parser;
+
+#ifdef TRACE_LOG_ENABLE
+    // click and run, get the arguments to this file
+    QFile logFile(QCoreApplication::applicationDirPath()+"/debug.log");
+    if(logFile.open(QIODevice::Append | QIODevice::Text))
+    {
+        QTextStream stream(&logFile);
+        for(int i=1; i<argc; i++)
+        {
+            stream << argv[i] << "\n";
+        }
+        logFile.close();
+
+    }
+#endif
+
     SnailNvimQt::App::processCliOptions(parser, app.arguments());
     auto c = app.createConnector(parser);
     app.showUi(c, parser);
     return app.exec();
 }
 
-// Command Line Interface
-// parsing command line arguments of snail
+/// Command Line Interface
+/// Parsing command line arguments
 int cli_main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -32,10 +48,10 @@ int cli_main(int argc, char **argv)
     QStringList new_args = app.arguments().mid(1);
     new_args.insert(0, "--nofork");
 
-    // fork, re-run snail, no-fork
+    // detached from the command line, re-run snail, get a new GUI process
     if(QProcess::startDetached(app.applicationFilePath(), new_args))
     {
-        return 0;
+        return 0; // command line snail exit
     }
     else
     {
