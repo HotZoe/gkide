@@ -9350,7 +9350,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 3)
 char_u *file_pat_to_reg_pat(const char_u *pat,
                             const char_u *pat_end,
                             char *allow_dirs,
-                            int FUNC_ARGS_UNUSED_REALY(no_bslash))
+                            int FUNC_ARGS_UNUSED_MAYBE(no_bslash))
 FUNC_ATTR_NONNULL_ARG(1)
 {
     const char_u *endp;
