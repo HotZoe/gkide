@@ -101,11 +101,11 @@ static char *get_xdg_home(const XDGVarType idx) FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(dir)
     {
-#if defined(HOST_OS_WINDOWS)
+        #if defined(HOST_OS_WINDOWS)
         dir = concat_fnames_realloc(dir, (idx == kXDGDataHome ? "nvim-data" : "nvim"), true);
-#else
+        #else
         dir = concat_fnames_realloc(dir, "nvim", true);
-#endif
+        #endif
     }
 
     return dir;
@@ -146,9 +146,10 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
         {
             if(ret[i] == ',')
             {
+                // Shift a byte backward
                 memmove(ret + i + 1, ret + i, len - i + numcommas);
-                ret[i] = '\\';
-                i++;
+                ret[i] = '\\'; // add a backslash
+                i++; // skip new add backslash, point to the commas
             }
         }
 

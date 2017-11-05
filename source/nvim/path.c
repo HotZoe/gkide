@@ -419,7 +419,7 @@ static inline char *do_concat_fnames(char *fname1, const size_t len1,
                                      const bool sep)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
 {
-    if (sep && *fname1 && !after_pathsep(fname1, fname1 + len1))
+    if(sep && *fname1 && !after_pathsep(fname1, fname1 + len1))
     {
         fname1[len1] = PATHSEP;
         memmove(fname1 + len1 + 1, fname2, len2 + 1);
@@ -432,16 +432,16 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
     return fname1;
 }
 
-/// Concatenate file names **fname1** and **fname2** into allocated memory.
+/// Concatenate file names @b fname1 and @b fname2 into allocated memory.
 ///
-/// Only add a '/' or '\\' when **sep** is true and it is necessary.
+/// Only add a '/' or '\\' when @b sep is true and it is necessary.
 ///
 /// @param fname1  is the first part of the path or filename
 /// @param fname2  is the second half of the path or filename
 /// @param sep     is a flag to indicate a path separator should be added if necessary
 ///
 /// @return
-/// Concatenation of **fname1** and **fname2**, caller should call xfree()
+/// Concatenation of @b fname1 and @b fname2, caller should call xfree()
 char *concat_fnames(const char *fname1, const char *fname2, bool sep)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
 {
@@ -452,40 +452,39 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
     return do_concat_fnames(dest, len1, fname2, len2, sep);
 }
 
-/// Concatenate file names fname1 and fname2
+/// Concatenate file names @b fname1 and @b fname2
 ///
 /// Like concat_fnames(), but in place of allocating new memory it reallocates
-/// fname1. For this reason fname1 must be allocated with xmalloc, and can no
+/// @b fname1. For this reason @b fname1 must be allocated with xmalloc, and can no
 /// longer be used after running concat_fnames_realloc.
 ///
-/// @param fname1 is the first part of the path or filename
-/// @param fname2 is the second half of the path or filename
-/// @param sep    is a flag to indicate a path separator should be added
-///               if necessary
+/// @param fname1  is the first part of the path or filename
+/// @param fname2  is the second half of the path or filename
+/// @param sep     is a flag to indicate a path separator should be added if necessary
+///
 /// @return [allocated] Concatenation of fname1 and fname2.
 char *concat_fnames_realloc(char *fname1, const char *fname2, bool sep)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
 {
     const size_t len1 = strlen(fname1);
     const size_t len2 = strlen(fname2);
-    return do_concat_fnames(xrealloc(fname1, len1 + len2 + 3), len1,
-                            fname2, len2, sep);
+    return do_concat_fnames(xrealloc(fname1, len1 + len2 + 3), len1, fname2, len2, sep);
 }
 
 /// Adds a path separator to a filename, unless it already ends in one.
 ///
-/// @return `true` if the path separator was added or already existed.
-///         `false` if the filename is too long.
+/// @return true if the path separator was added or already existed.
+///         false if the filename is too long.
 bool add_pathsep(char *p)
 FUNC_ATTR_NONNULL_ALL
 {
     const size_t len = strlen(p);
 
-    if (*p != NUL && !after_pathsep(p, p + len))
+    if(*p != NUL && !after_pathsep(p, p + len))
     {
         const size_t pathsep_len = sizeof(PATHSEPSTR);
 
-        if (len > MAXPATHL - pathsep_len)
+        if(len > MAXPATHL - pathsep_len)
         {
             return false;
         }
@@ -498,8 +497,8 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Get an allocated copy of the full path to a file.
 ///
-/// @param fname   is the filename to save
-/// @param force   is a flag to expand @b fname even if it looks absolute
+/// @param fname  is the filename to save
+/// @param force  is a flag to expand @b fname even if it looks absolute
 ///
 /// @return
 /// - Copy of absolute path to @b fname or NULL when @b fname is NULL.

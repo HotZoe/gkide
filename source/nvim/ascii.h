@@ -98,9 +98,9 @@ static inline bool ascii_isspace(int)  REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE
 static inline bool ascii_isxdigit(int) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
 static inline bool ascii_isbdigit(int) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
 
-/// Checks if `c` is a space or tab character.
+/// Checks if @b c is a space or tab character.
 ///
-/// @see {ascii_isdigit}
+/// @see ascii_isdigit()
 static inline bool ascii_iswhite(int c)
 {
     return c == ' ' || c == '\t';

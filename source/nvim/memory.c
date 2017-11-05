@@ -321,22 +321,24 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
     return cnt;
 }
 
-/// Counts the number of occurrences of byte `c` in `data[len]`.
+/// Counts the number of occurrences of byte @b c in @b data[len].
 ///
-/// @param data Pointer to the data to search.
-/// @param c    The byte to search for.
-/// @param len  The length of `data`.
-/// @returns the number of occurrences of `c` in `data[len]`.
+/// @param data  Pointer to the data to search.
+/// @param c     The byte to search for.
+/// @param len   The length of @b data.
+///
+/// @returns the number of occurrences of @b c in @b data[len].
 size_t memcnt(const void *data, char c, size_t len)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
     size_t cnt = 0;
-    const char *ptr = data, *end = ptr + len;
+    const char *ptr = data;
+    const char *end = ptr + len;
 
-    while ((ptr = memchr(ptr, c, (size_t)(end - ptr))) != NULL)
+    while((ptr = memchr(ptr, c, (size_t)(end - ptr))) != NULL)
     {
         cnt++;
-        ptr++;  // Skip the instance of c.
+        ptr++; // Skip the instance of c.
     }
 
     return cnt;
