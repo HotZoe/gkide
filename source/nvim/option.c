@@ -78,147 +78,135 @@
 #include "config.h"
 #include "envdefs.h"
 
-/*
- * The options that are local to a window or buffer have "indir" set to one of
- * these values.  Special values:
- * PV_NONE: global option.
- * PV_WIN is added: window-local option
- * PV_BUF is added: buffer-local option
- * PV_BOTH is added: global option which also has a local value.
- */
-#define PV_BOTH 0x1000
-#define PV_WIN  0x2000
-#define PV_BUF  0x4000
-#define PV_MASK 0x0fff
+// The options that are local to a window or buffer have "indir" set to one of
+// these values.  Special values:
+// PV_NONE: global option.
+// PV_WIN is added: window-local option
+// PV_BUF is added: buffer-local option
+// PV_BOTH is added: global option which also has a local value.
+#define PV_BOTH     0x1000
+#define PV_WIN      0x2000
+#define PV_BUF      0x4000
+#define PV_MASK     0x0fff
 #define OPT_WIN(x)  (idopt_T)(PV_WIN + (int)(x))
 #define OPT_BUF(x)  (idopt_T)(PV_BUF + (int)(x))
 #define OPT_BOTH(x) (idopt_T)(PV_BOTH + (int)(x))
 
 
-/* WV_ and BV_ values get typecasted to this for the "indir" field */
+// WV_ and BV_ values get typecasted to this for the "indir" field
 typedef enum
 {
     PV_NONE = 0,
-    PV_MAXVAL = 0xffff      /* to avoid warnings for value out of range */
+    PV_MAXVAL = 0xffff ///< to avoid warnings for value out of range
 } idopt_T;
 
-/*
- * Options local to a window have a value local to a buffer and global to all
- * buffers.  Indicate this by setting "var" to VAR_WIN.
- */
-#define VAR_WIN ((char_u *)-1)
+/// Options local to a window have a value local to a buffer and global to all
+/// buffers. Indicate this by setting "var" to VAR_WIN.
+#define VAR_WIN   ((char_u *)-1)
 
-/*
- * These are the global values for options which are also local to a buffer.
- * Only to be used in option.c!
- */
-static int p_ai;
-static int p_bin;
-static int p_bomb;
-static char_u   *p_bh;
-static char_u   *p_bt;
-static int p_bl;
-static int p_ci;
-static int p_cin;
-static char_u   *p_cink;
-static char_u   *p_cino;
-static char_u   *p_cinw;
-static char_u   *p_com;
-static char_u   *p_cms;
-static char_u   *p_cpt;
-static char_u   *p_cfu;
-static char_u   *p_ofu;
-static int p_eol;
-static int p_fixeol;
-static int p_et;
-static char_u   *p_fenc;
-static char_u   *p_ff;
-static char_u   *p_fo;
-static char_u   *p_flp;
-static char_u   *p_ft;
-static long p_iminsert;
-static long p_imsearch;
-static char_u   *p_inex;
-static char_u   *p_inde;
-static char_u   *p_indk;
-static char_u   *p_fex;
-static int p_inf;
-static char_u   *p_isk;
-static int p_lisp;
-static int p_ml;
-static int p_ma;
-static int p_mod;
-static char_u   *p_mps;
-static char_u   *p_nf;
-static int p_pi;
-static char_u   *p_qe;
-static int p_ro;
-static int p_si;
-static long p_sts;
-static char_u   *p_sua;
-static long p_sw;
-static int p_swf;
-static long p_smc;
-static char_u   *p_syn;
-static char_u   *p_spc;
-static char_u   *p_spf;
-static char_u   *p_spl;
-static long p_ts;
-static long p_tw;
-static int p_udf;
-static long p_wm;
-static char_u   *p_keymap;
-
-/* Saved values for when 'bin' is set. */
-static int p_et_nobin;
-static int p_ml_nobin;
-static long p_tw_nobin;
-static long p_wm_nobin;
-
+// These are the global values for options which are also local to a buffer.
+static int      p_ai;
+static int      p_bin;
+static int      p_bomb;
+static char_u  *p_bh;
+static char_u  *p_bt;
+static int      p_bl;
+static int      p_ci;
+static int      p_cin;
+static char_u  *p_cink;
+static char_u  *p_cino;
+static char_u  *p_cinw;
+static char_u  *p_com;
+static char_u  *p_cms;
+static char_u  *p_cpt;
+static char_u  *p_cfu;
+static char_u  *p_ofu;
+static int      p_eol;
+static int      p_fixeol;
+static int      p_et;
+static char_u  *p_fenc;
+static char_u  *p_ff;
+static char_u  *p_fo;
+static char_u  *p_flp;
+static char_u  *p_ft;
+static long     p_iminsert;
+static long     p_imsearch;
+static char_u  *p_inex;
+static char_u  *p_inde;
+static char_u  *p_indk;
+static char_u  *p_fex;
+static int      p_inf;
+static char_u  *p_isk;
+static int      p_lisp;
+static int      p_ml;
+static int      p_ma;
+static int      p_mod;
+static char_u  *p_mps;
+static char_u  *p_nf;
+static int      p_pi;
+static char_u  *p_qe;
+static int      p_ro;
+static int      p_si;
+static long     p_sts;
+static char_u  *p_sua;
+static long     p_sw;
+static int      p_swf;
+static long     p_smc;
+static char_u  *p_syn;
+static char_u  *p_spc;
+static char_u  *p_spf;
+static char_u  *p_spl;
+static long     p_ts;
+static long     p_tw;
+static int      p_udf;
+static long     p_wm;
+static char_u  *p_keymap;
+// Saved values for when 'bin' is set.
+static int      p_et_nobin;
+static int      p_ml_nobin;
+static long     p_tw_nobin;
+static long     p_wm_nobin;
 // Saved values for when 'paste' is set.
-static int p_ai_nopaste;
-static int p_et_nopaste;
-static long p_sts_nopaste;
-static long p_tw_nopaste;
-static long p_wm_nopaste;
+static int      p_ai_nopaste;
+static int      p_et_nopaste;
+static long     p_sts_nopaste;
+static long     p_tw_nopaste;
+static long     p_wm_nopaste;
 
 typedef struct vimoption
 {
-    char        *fullname;        /* full option name */
-    char        *shortname;       /* permissible abbreviation */
-    uint32_t flags;               /* see below */
-    char_u      *var;             /* global option: pointer to variable;
-                                * window-local option: VAR_WIN;
-                                * buffer-local option: global value */
-    idopt_T indir;                /* global option: PV_NONE;
-                                 * local option: indirect option index */
-    char_u      *def_val[2];      /* default values for variable (vi and vim) */
-    scid_T scriptID;              /* script in which the option was last set */
-# define SCRIPTID_INIT , 0
+    char *fullname;        ///< full option name
+    char *shortname;       ///< permissible abbreviation
+    uint32_t flags;        ///< see below
+    char_u *var;           ///< global option: pointer to variable;
+                           ///< window-local option: VAR_WIN;
+                           ///< buffer-local option: global value
+    idopt_T indir;         ///< global option: PV_NONE;
+                           ///< local option: indirect option index
+    char_u *def_val[2];    ///< default values for variable (vi and vim)
+    scid_T scriptID;       ///< script in which the option was last set
+    #define SCRIPTID_INIT  , 0
 } vimoption_T;
 
-#define VI_DEFAULT  0       /* def_val[VI_DEFAULT] is Vi default value */
-#define VIM_DEFAULT 1       /* def_val[VIM_DEFAULT] is Vim default value */
+#define VI_DEFAULT      0        ///< def_val[VI_DEFAULT] is Vi default value
+#define VIM_DEFAULT     1        ///< def_val[VIM_DEFAULT] is Vim default value
 
-/*
- * Flags
- */
-#define P_BOOL          0x01U    /* the option is boolean */
-#define P_NUM           0x02U    /* the option is numeric */
-#define P_STRING        0x04U    /* the option is a string */
-#define P_ALLOCED       0x08U    /* the string option is in allocated memory,
-                                    must use free_string_option() when
-                                    assigning new value. Not set if default is
-                                    the same. */
-#define P_EXPAND        0x10U    /* environment expansion.  NOTE: P_EXPAND can
-                                    never be used for local or hidden options */
-#define P_NODEFAULT     0x40U    /* don't set to default value */
-#define P_DEF_ALLOCED   0x80U    /* default value is in allocated memory, must
-                                    use free() when assigning new value */
-#define P_WAS_SET       0x100U   /* option has been set/reset */
-#define P_NO_MKRC       0x200U   /* don't include in :mkvimrc output */
-#define P_VI_DEF        0x400U   /* Use Vi default for Vim */
-#define P_VIM           0x800U   /* Vim option */
+// options flags
+#define P_BOOL          0x01U    ///< the option is boolean
+#define P_NUM           0x02U    ///< the option is numeric
+#define P_STRING        0x04U    ///< the option is a string
+#define P_ALLOCED       0x08U    ///< the string option is in allocated memory,
+                                 ///< must use free_string_option() when
+                                 ///< assigning new value. Not set if default is the same.
+#define P_EXPAND        0x10U    ///< environment expansion. NOTE: P_EXPAND can
+                                 ///< never be used for local or hidden options
+#define P_NODEFAULT     0x40U    ///< don't set to default value
+#define P_DEF_ALLOCED   0x80U    ///< default value is in allocated memory, must
+                                 ///< use free() when assigning new value
+#define P_WAS_SET       0x100U   ///< option has been set/reset
+#define P_NO_MKRC       0x200U   ///< don't include in :mkvimrc output
+#define P_VI_DEF        0x400U   ///< Use Vi default for Vim
+#define P_VIM           0x800U   ///< Vim option
 
 // when option changed, what to display:
 #define P_RSTAT         0x1000U  ///< redraw status lines
@@ -247,64 +235,94 @@ typedef struct vimoption
 
 #define P_RWINONLY     0x10000000U  ///< only redraw current window
 
-#define HIGHLIGHT_INIT \
-    "8:SpecialKey,~:EndOfBuffer,z:TermCursor,Z:TermCursorNC,@:NonText," \
-    "d:Directory,e:ErrorMsg,i:IncSearch,l:Search,m:MoreMsg,M:ModeMsg,n:LineNr," \
-    "N:CursorLineNr,r:Question,s:StatusLine,S:StatusLineNC,c:VertSplit,t:Title," \
-    "v:Visual,V:VisualNOS,w:WarningMsg,W:WildMenu,f:Folded,F:FoldColumn," \
-    "A:DiffAdd,C:DiffChange,D:DiffDelete,T:DiffText,>:SignColumn,-:Conceal," \
-    "B:SpellBad,P:SpellCap,R:SpellRare,L:SpellLocal,+:Pmenu,=:PmenuSel," \
-    "x:PmenuSbar,X:PmenuThumb,*:TabLine,#:TabLineSel,_:TabLineFill," \
-    "!:CursorColumn,.:CursorLine,o:ColorColumn,q:QuickFixLine," \
-    "0:Whitespace,I:NormalNC"
+#define HIGHLIGHT_INIT   \
+    "8:SpecialKey,"      \
+    "~:EndOfBuffer,"     \
+    "z:TermCursor,"      \
+    "Z:TermCursorNC,"    \
+    "@:NonText,"         \
+    "d:Directory,"       \
+    "e:ErrorMsg,"        \
+    "i:IncSearch,"       \
+    "l:Search,"          \
+    "m:MoreMsg,"         \
+    "M:ModeMsg,"         \
+    "n:LineNr,"          \
+    "N:CursorLineNr,"    \
+    "r:Question,"        \
+    "s:StatusLine,"      \
+    "S:StatusLineNC,"    \
+    "c:VertSplit,"       \
+    "t:Title,"           \
+    "v:Visual,"          \
+    "V:VisualNOS,"       \
+    "w:WarningMsg,"      \
+    "W:WildMenu,"        \
+    "f:Folded,"          \
+    "F:FoldColumn,"      \
+    "A:DiffAdd,"         \
+    "C:DiffChange,"      \
+    "D:DiffDelete,"      \
+    "T:DiffText,"        \
+    ">:SignColumn,"      \
+    "-:Conceal,"         \
+    "B:SpellBad,"        \
+    "P:SpellCap,"        \
+    "R:SpellRare,"       \
+    "L:SpellLocal,"      \
+    "+:Pmenu,"           \
+    "=:PmenuSel,"        \
+    "x:PmenuSbar,"       \
+    "X:PmenuThumb,"      \
+    "*:TabLine,"         \
+    "#:TabLineSel,"      \
+    "_:TabLineFill,"     \
+    "!:CursorColumn,"    \
+    ".:CursorLine,"      \
+    "o:ColorColumn,"     \
+    "q:QuickFixLine,"    \
+    "0:Whitespace,"      \
+    "I:NormalNC"
 
-/*
- * options[] is initialized here.
- * The order of the options MUST be alphabetic for ":set all" and findoption().
- * All option names MUST start with a lowercase letter (for findoption()).
- * Exception: "t_" options are at the end.
- * The options with a NULL variable are 'hidden': a set command for them is
- * ignored and they are not printed.
- */
-
+/// @b options[] is initialized here.
+/// The order of the options MUST be alphabetic for ":set all" and findoption().
+/// All option names MUST start with a lowercase letter (for findoption()).
+/// Exception: "t_" options are at the end.
+/// The options with a NULL variable are 'hidden': a set command for them is
+/// ignored and they are not printed.
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "options.generated.h"
 #endif
 
 #define PARAM_COUNT ARRAY_SIZE(options)
 
-static char *(p_ambw_values[]) =      { "single", "double", NULL };
-static char *(p_bg_values[]) =        { "light", "dark", NULL };
-static char *(p_nf_values[]) =        { "bin", "octal", "hex", "alpha", NULL };
-static char *(p_ff_values[]) =        { FF_UNIX, FF_DOS, FF_MAC, NULL };
-static char *(p_wop_values[]) =       { "tagfile", NULL };
-static char *(p_wak_values[]) =       { "yes", "menu", "no", NULL };
-static char *(p_mousem_values[]) =    { "extend", "popup", "popup_setpos",
-                                        "mac", NULL
-                                      };
-static char *(p_sel_values[]) =       { "inclusive", "exclusive", "old", NULL };
-static char *(p_slm_values[]) =       { "mouse", "key", "cmd", NULL };
-static char *(p_km_values[]) =        { "startsel", "stopsel", NULL };
-static char *(p_scbopt_values[]) =    { "ver", "hor", "jump", NULL };
-static char *(p_debug_values[]) =     { "msg", "throw", "beep", NULL };
-static char *(p_ead_values[]) =       { "both", "ver", "hor", NULL };
-static char *(p_buftype_values[]) =   { "nofile", "nowrite", "quickfix",
-                                        "help", "acwrite", "terminal", NULL
-                                      };
+static char *(p_fcl_values[])    = { "all",       NULL };
+static char *(p_wop_values[])    = { "tagfile",   NULL };
+static char *(p_bg_values[])     = { "light",     "dark",      NULL };
+static char *(p_ambw_values[])   = { "single",    "double",    NULL };
+static char *(p_icm_values[])    = { "nosplit",   "split",     NULL };
+static char *(p_km_values[])     = { "startsel",  "stopsel",   NULL };
+static char *(p_scl_values[])    = { "yes",       "no",        "auto",   NULL };
+static char *(p_wak_values[])    = { "yes",       "menu",      "no",     NULL };
+static char *(p_ead_values[])    = { "both",      "ver",       "hor",    NULL };
+static char *(p_slm_values[])    = { "mouse",     "key",       "cmd",    NULL };
+static char *(p_scbopt_values[]) = { "ver",       "hor",       "jump",   NULL };
+static char *(p_ff_values[])     = { FF_UNIX,     FF_DOS,      FF_MAC,   NULL };
+static char *(p_debug_values[])  = { "msg",       "throw",     "beep",   NULL };
+static char *(p_bs_values[])     = { "indent",    "eol",       "start",  NULL };
+static char *(p_sel_values[])    = { "inclusive", "exclusive", "old",    NULL };
+static char *(p_nf_values[])     = { "bin",       "octal",     "hex",    "alpha", NULL };
 
-static char *(p_bufhidden_values[]) = { "hide", "unload", "delete",
-                                        "wipe", NULL
-                                      };
-static char *(p_bs_values[]) =        { "indent", "eol", "start", NULL };
-static char *(p_fdm_values[]) =       { "manual", "expr", "marker", "indent",
-                                        "syntax",  "diff", NULL
-                                      };
-static char *(p_fcl_values[]) =       { "all", NULL };
-static char *(p_cot_values[]) =       { "menu", "menuone", "longest", "preview",
-                                        "noinsert", "noselect", NULL
-                                      };
-static char *(p_icm_values[]) =       { "nosplit", "split", NULL };
-static char *(p_scl_values[]) =       { "yes", "no", "auto", NULL };
+static char *(p_bufhidden_values[]) = { "hide",   "unload",  "delete",       "wipe",  NULL };
+static char *(p_mousem_values[])    = { "extend", "popup",   "popup_setpos", "mac",   NULL };
+
+
+static char *(p_buftype_values[])   = { "nofile",   "nowrite",   "quickfix",  "help",
+                                         "acwrite", "terminal",  NULL };
+static char *(p_fdm_values[])       = { "manual",   "expr",      "marker",    "indent",
+                                        "syntax",   "diff",      NULL };
+static char *(p_cot_values[])       = { "menu",     "menuone",   "longest",   "preview",
+                                        "noinsert", "noselect",  NULL };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "option.c.generated.h"
@@ -789,18 +807,25 @@ void set_init_1(void)
     // Set all the options (except the terminal options) to their default value.
     // Also set the global value for local options.
     set_options_default(0);
+
     curbuf->b_p_initialized = true;
     curbuf->b_p_ar = -1; // no local 'autoread' value
     curbuf->b_p_ul = NO_LOCAL_UNDOLEVEL;
+
     check_buf_options(curbuf);
     check_win_options(curwin);
+
     check_options();
+
     // Set all options to their Vim default
     set_options_default(OPT_FREE);
+
     // set 'laststatus'
     last_status(false);
+
     // Must be before option_expand(), because that one needs vim_isIDc()
     didset_options();
+
     // Use the current chartab for the generic chartab.
     // This is not in didset_options() because it only depends on 'encoding'.
     init_spell_chartab();
@@ -851,20 +876,20 @@ void set_init_1(void)
     save_file_ff(curbuf); // Buffer is unchanged
 
     // Detect use of mlterm.
-    //
-    // Mlterm is a terminal emulator akin to xterm that has some special abilities (bidi namely).
+    // Mlterm is a terminal emulator akin to xterm that has some
+    // special abilities (bidi namely).
     //
     // NOTE:
-    // mlterm's author is being asked to 'set' a variable instead of an environment variable due
-    // to inheritance.
+    // mlterm's author is being asked to 'set' a variable
+    // instead of an environment variable due to inheritance.
     if(os_env_exists("MLTERM"))
     {
         set_option_value("tbidi", 1L, NULL, 0);
     }
 
     didset_options2();
+
     // enc_locale() will try to find the encoding of the current locale.
-    //
     // This will be used when 'default' is used as encoding specifier in 'fileencodings'
     char_u *p = enc_locale();
 
@@ -875,46 +900,51 @@ void set_init_1(void)
     }
 
     fenc_default = p;
+
 #ifdef FOUND_WORKING_LIBINTL
     // GNU gettext 0.10.37 supports this feature: set the codeset used for
     // translated messages independently from the current locale.
     (void)bind_textdomain_codeset(GKIDE_NVIM_DOMAIN, (char *)p_enc);
 #endif
+
     // Set the default for 'helplang'.
     set_helplang_default(get_mess_lang());
 }
 
-/*
- * Set an option to its default value.
- * This does not take care of side effects!
- */
-static void
-set_option_default (
-    int opt_idx,
-    int opt_flags,                  /* OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL */
-    int compatible                 /* use Vi default value */
-)
+/// Set an option to its default value.
+/// This does not take care of side effects!
+///
+/// @param opt_idx
+/// @param opt_flags    OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL
+/// @param compatible   use Vi default value
+static void set_option_default(int opt_idx, int opt_flags, int compatible)
 {
-    char_u      *varp;            /* pointer to variable for current option */
-    int dvi;                      /* index in def_val[] */
+    int dvi; // index in def_val[]
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
-    varp = get_varp_scope(&(options[opt_idx]), both ? OPT_LOCAL : opt_flags);
     uint32_t flags = options[opt_idx].flags;
 
-    if (varp != NULL)         /* skip hidden option, nothing to do for it */
+    // pointer to variable for current option
+    char_u *varp = get_varp_scope(&(options[opt_idx]), both ? OPT_LOCAL : opt_flags);
+
+    if(varp != NULL) // skip hidden option, nothing to do for it
     {
         dvi = ((flags & P_VI_DEF) || compatible) ? VI_DEFAULT : VIM_DEFAULT;
 
-        if (flags & P_STRING)
+        if(flags & P_STRING)
         {
-            /* Use set_string_option_direct() for local options to handle
-             * freeing and allocating the value. */
-            if (options[opt_idx].indir != PV_NONE)
-                set_string_option_direct(NULL, opt_idx,
-                                         options[opt_idx].def_val[dvi], opt_flags, 0);
+            // Use set_string_option_direct() for local options to handle
+            // freeing and allocating the value.
+            if(options[opt_idx].indir != PV_NONE)
+            {
+                set_string_option_direct(NULL,
+                                         opt_idx,
+                                         options[opt_idx].def_val[dvi],
+                                         opt_flags,
+                                         0);
+            }
             else
             {
-                if ((opt_flags & OPT_FREE) && (flags & P_ALLOCED))
+                if((opt_flags & OPT_FREE) && (flags & P_ALLOCED))
                 {
                     free_string_option(*(char_u **)(varp));
                 }
@@ -923,9 +953,9 @@ set_option_default (
                 options[opt_idx].flags &= ~P_ALLOCED;
             }
         }
-        else if (flags & P_NUM)
+        else if(flags & P_NUM)
         {
-            if (options[opt_idx].indir == PV_SCROLL)
+            if(options[opt_idx].indir == PV_SCROLL)
             {
                 win_comp_scroll(curwin);
             }
@@ -933,32 +963,32 @@ set_option_default (
             {
                 *(long *)varp = (long)options[opt_idx].def_val[dvi];
 
-                /* May also set global value for local option. */
-                if (both)
-                    *(long *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) =
-                        *(long *)varp;
+                // May also set global value for local option.
+                if(both)
+                {
+                    *(long *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = *(long *)varp;
+                }
             }
         }
-        else      /* P_BOOL */
+        else // P_BOOL
         {
             *(int *)varp = (int)(intptr_t)options[opt_idx].def_val[dvi];
-#ifdef UNIX
-
-            /* 'modeline' defaults to off for root */
-            if (options[opt_idx].indir == PV_ML && getuid() == ROOT_UID)
+            #ifdef UNIX
+            // 'modeline' defaults to off for root
+            if(options[opt_idx].indir == PV_ML && getuid() == ROOT_UID)
             {
                 *(int *)varp = FALSE;
             }
+            #endif
 
-#endif
-
-            /* May also set global value for local option. */
-            if (both)
-                *(int *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) =
-                    *(int *)varp;
+            // May also set global value for local option.
+            if(both)
+            {
+                *(int *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = *(int *)varp;
+            }
         }
 
-        /* The default value is not insecure. */
+        // The default value is not insecure.
         uint32_t *flagsp = insecure_flag(opt_idx, opt_flags);
         *flagsp = *flagsp & ~P_INSECURE;
     }
@@ -966,23 +996,20 @@ set_option_default (
     set_option_scriptID_idx(opt_idx, opt_flags, current_SID);
 }
 
-/*
- * Set all options (except terminal options) to their default value.
- */
-static void
-set_options_default (
-    int opt_flags                  /* OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL */
-)
+/// Set all options (except terminal options) to their default value.
+///
+/// @param opt_flags  OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL
+static void set_options_default(int opt_flags)
 {
-    for (int i = 0; options[i].fullname; i++)
+    for(int i = 0; options[i].fullname; i++)
     {
-        if (!(options[i].flags & P_NODEFAULT))
+        if(!(options[i].flags & P_NODEFAULT))
         {
             set_option_default(i, opt_flags, p_cp);
         }
     }
 
-    /* The 'scroll' option must be computed for all windows. */
+    // The 'scroll' option must be computed for all windows.
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
         win_comp_scroll(wp);

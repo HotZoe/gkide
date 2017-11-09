@@ -252,25 +252,25 @@ enum
     STL_FILENAME        = 't',  ///< Last part (tail) of file path.
     STL_COLUMN          = 'c',  ///< Column og cursor.
     STL_VIRTCOL         = 'v',  ///< Virtual column.
-    STL_VIRTCOL_ALT     = 'V',  ///< - with 'if different' display.
+    STL_VIRTCOL_ALT     = 'V',  ///< with 'if different' display.
     STL_LINE            = 'l',  ///< Line number of cursor.
     STL_NUMLINES        = 'L',  ///< Number of lines in buffer.
     STL_BUFNO           = 'n',  ///< Current buffer number.
     STL_KEYMAP          = 'k',  ///< 'keymap' when active.
     STL_OFFSET          = 'o',  ///< Offset of character under cursor.
-    STL_OFFSET_X        = 'O',  ///< - in hexadecimal.
+    STL_OFFSET_X        = 'O',  ///< in hexadecimal.
     STL_BYTEVAL         = 'b',  ///< Byte value of character.
-    STL_BYTEVAL_X       = 'B',  ///< - in hexadecimal.
+    STL_BYTEVAL_X       = 'B',  ///< in hexadecimal.
     STL_ROFLAG          = 'r',  ///< Readonly flag.
-    STL_ROFLAG_ALT      = 'R',  ///< - other display.
+    STL_ROFLAG_ALT      = 'R',  ///< other display.
     STL_HELPFLAG        = 'h',  ///< Window is showing a help file.
-    STL_HELPFLAG_ALT    = 'H',  ///< - other display.
+    STL_HELPFLAG_ALT    = 'H',  ///< other display.
     STL_FILETYPE        = 'y',  ///< 'filetype'.
-    STL_FILETYPE_ALT    = 'Y',  ///< - other display.
+    STL_FILETYPE_ALT    = 'Y',  ///< other display.
     STL_PREVIEWFLAG     = 'w',  ///< Window is showing the preview buf.
-    STL_PREVIEWFLAG_ALT = 'W',  ///< - other display.
+    STL_PREVIEWFLAG_ALT = 'W',  ///< other display.
     STL_MODIFIED        = 'm',  ///< Modified flag.
-    STL_MODIFIED_ALT    = 'M',  ///< - other display.
+    STL_MODIFIED_ALT    = 'M',  ///< other display.
     STL_QUICKFIX        = 'q',  ///< Quickfix window description.
     STL_PERCENTAGE      = 'p',  ///< Percentage through file.
     STL_ALTPERCENT      = 'P',  ///< Percentage as TOP BOT ALL or NN%.
@@ -403,52 +403,52 @@ EXTERN char_u *p_bo;            ///< 'belloff'
 EXTERN unsigned bo_flags;
 
 #ifdef IN_OPTION_C
-static char *(p_bo_values[]) = { "all",       "backspace",  "cursor",   "complete",
-                                 "copy",      "ctrlg",      "error",    "esc",      "ex",
-                                 "hangul",    "insertmode", "lang",     "mess",
-                                 "showmatch", "operator",   "register", "shell",
-                                 "spell",     "wildmode",   NULL };
+static char *(p_bo_values[]) = { "all",   "backspace",  "cursor",     "complete",
+                                 "copy",  "ctrlg",      "error",      "esc",
+                                 "ex",    "hangul",     "insertmode", "lang",
+                                 "mess",  "showmatch",  "operator",   "register",
+                                 "shell", "spell",      "wildmode",   NULL };
 #endif
 
 // values for the 'belloff' option
-#define BO_ALL    0x0001
-#define BO_BS     0x0002
-#define BO_CRSR   0x0004
-#define BO_COMPL  0x0008
-#define BO_COPY   0x0010
-#define BO_CTRLG  0x0020
-#define BO_ERROR  0x0040
-#define BO_ESC    0x0080
-#define BO_EX     0x0100
-#define BO_HANGUL 0x0200
-#define BO_IM     0x0400
-#define BO_LANG   0x0800
-#define BO_MESS   0x1000
-#define BO_MATCH  0x2000
-#define BO_OPER   0x4000
-#define BO_REG    0x8000
-#define BO_SH     0x10000
-#define BO_SPELL  0x20000
-#define BO_WILD   0x40000
+#define BO_ALL      0x0001
+#define BO_BS       0x0002
+#define BO_CRSR     0x0004
+#define BO_COMPL    0x0008
+#define BO_COPY     0x0010
+#define BO_CTRLG    0x0020
+#define BO_ERROR    0x0040
+#define BO_ESC      0x0080
+#define BO_EX       0x0100
+#define BO_HANGUL   0x0200
+#define BO_IM       0x0400
+#define BO_LANG     0x0800
+#define BO_MESS     0x1000
+#define BO_MATCH    0x2000
+#define BO_OPER     0x4000
+#define BO_REG      0x8000
+#define BO_SH       0x10000
+#define BO_SPELL    0x20000
+#define BO_WILD     0x40000
 
 EXTERN char_u *p_bsk;         ///< 'backupskip'
 EXTERN char_u *p_breakat;     ///< 'breakat'
 EXTERN char_u *p_cmp;         ///< 'casemap'
-EXTERN unsigned cmp_flags;
+EXTERN unsigned cmp_flags;    ///<
 
 #ifdef IN_OPTION_C
 static char *(p_cmp_values[]) = {"internal", "keepascii", NULL};
 #endif
 
-#define CMP_INTERNAL           0x001
-#define CMP_KEEPASCII          0x002
+#define CMP_INTERNAL    0x001
+#define CMP_KEEPASCII   0x002
 
-EXTERN char_u *p_enc;         ///< 'encoding'
-EXTERN int p_deco;            ///< 'delcombine'
-EXTERN char_u *p_ccv;         ///< 'charconvert'
-EXTERN char_u *p_cedit;       ///< 'cedit'
-EXTERN char_u *p_cb;          ///< 'clipboard'
-EXTERN unsigned cb_flags;
+EXTERN char_u *p_enc;      ///< 'encoding'
+EXTERN int p_deco;         ///< 'delcombine'
+EXTERN char_u *p_ccv;      ///< 'charconvert'
+EXTERN char_u *p_cedit;    ///< 'cedit'
+EXTERN char_u *p_cb;       ///< 'clipboard'
+EXTERN unsigned cb_flags;  ///<
 
 #ifdef IN_OPTION_C
 static char *(p_cb_values[]) = {"unnamed", "unnamedplus", NULL};
@@ -487,9 +487,11 @@ EXTERN char_u *p_dir;         ///< 'directory'
 
 EXTERN char_u *p_dy;          ///< 'display'
 EXTERN unsigned dy_flags;     ///< 'display' flags
+
 #define DY_LASTLINE   0x01    ///< display flags: last line
 #define DY_TRUNCATE   0x02    ///< display flags: truncate
 #define DY_UHEX       0x04    ///< display flags: uhex
+
 #ifdef IN_OPTION_C
 static char *(p_dy_values[]) = { "lastline", "truncate", "uhex", NULL };
 #endif
@@ -515,22 +517,22 @@ EXTERN char_u *p_fdo;           ///< 'foldopen'
 EXTERN unsigned fdo_flags;
 
 #ifdef IN_OPTION_C
-static char *(p_fdo_values[]) = {"all", "block", "hor", "mark", "percent",
-                                 "quickfix", "search", "tag", "insert",
-                                 "undo", "jump", NULL };
+static char *(p_fdo_values[]) = {"all",     "block",    "hor",    "mark",
+                                 "percent", "quickfix", "search", "tag",
+                                 "insert",  "undo",     "jump",   NULL };
 #endif
 
-#define FDO_ALL                 0x001
-#define FDO_BLOCK               0x002
-#define FDO_HOR                 0x004
-#define FDO_MARK                0x008
-#define FDO_PERCENT             0x010
-#define FDO_QUICKFIX            0x020
-#define FDO_SEARCH              0x040
-#define FDO_TAG                 0x080
-#define FDO_INSERT              0x100
-#define FDO_UNDO                0x200
-#define FDO_JUMP                0x400
+#define FDO_ALL           0x001
+#define FDO_BLOCK         0x002
+#define FDO_HOR           0x004
+#define FDO_MARK          0x008
+#define FDO_PERCENT       0x010
+#define FDO_QUICKFIX      0x020
+#define FDO_SEARCH        0x040
+#define FDO_TAG           0x080
+#define FDO_INSERT        0x100
+#define FDO_UNDO          0x200
+#define FDO_JUMP          0x400
 
 EXTERN char_u *p_fp;            ///< 'formatprg'
 EXTERN int p_fs;                ///< 'fsync'
@@ -634,11 +636,10 @@ EXTERN unsigned ssop_flags;
 
 #ifdef IN_OPTION_C
 /// Also used for 'viewoptions'!
-static char *(p_ssop_values[]) = {"buffers", "winpos", "resize", "winsize",
-                                  "localoptions", "options", "help", "blank",
-                                  "globals", "slash", "unix",
-                                  "sesdir", "curdir", "folds", "cursor",
-                                  "tabpages", NULL };
+static char *(p_ssop_values[]) = {"buffers",      "winpos",  "resize", "winsize",
+                                  "localoptions", "options", "help",   "blank",
+                                  "globals",      "slash",   "unix",   "sesdir",
+                                  "curdir",       "folds",   "cursor", "tabpages", NULL };
 #endif
 
 #define SSOP_BUFFERS            0x001
@@ -914,7 +915,7 @@ enum
     WV_WRAP,
     WV_SCL,
     WV_WINHL,
-    WV_COUNT,   ///< must be the last one
+    WV_COUNT, ///< must be the last one
 };
 
 /// Maximum 'scrollback' value.
