@@ -26,7 +26,7 @@
 #include "versiondef.h"
 
 // ":version", "$ nvim --version"
-#define NVIM_VERSION_LONG    "nvim v" NVIM_VERSION_BASIC
+#define NVIM_VERSION_LONG  "nvim v" NVIM_VERSION_BASIC
 
 char *nvim_gkide_version = "NVIM v" NVIM_VERSION_BASIC " (GKIDE v" GKIDE_VERSION_BASIC ")";
 

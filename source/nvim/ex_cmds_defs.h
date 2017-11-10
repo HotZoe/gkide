@@ -1,4 +1,28 @@
 /// @file nvim/ex_cmds_defs.h
+///
+/// When adding an Ex command:
+/// 1. Add an entry to the table in source/nvim/ex_cmds.lua. Keep it sorted on the
+///    shortest version of the command name that works. If it doesn't start with
+///    a lower case letter, add it at the end.
+///
+///    Each table entry is a table with the following keys:
+///
+///      Key     | Description
+///      ------- | -------------------------------------------------------------
+///      command | Name of the command. Required.
+///      enum    | Name of the enum entry. If not set defaults to CMD_{command}.
+///      flags   | A set of the flags from below list joined by bitwise or.
+///      func    | Name of the function containing the implementation.
+///
+///    Referenced function should be either non-static one or defined in
+///    ex_docmd.c and be coercible to ex_func_T type from below.
+///
+///    All keys not described in the above table are reserved for future use.
+///
+/// 2. Add a "case: CMD_xxx" in the big switch in ex_docmd.c.
+/// 3. Add an entry in the index for Ex commands at ":help ex-cmd-index".
+/// 4. Add documentation in ../doc/xxx.txt. Add a tag for both the short and
+///    long name of the command.
 
 #ifndef NVIM_EX_CMDS_DEFS_H
 #define NVIM_EX_CMDS_DEFS_H
@@ -6,7 +30,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "nvim/pos.h"      // for linenr_T
+#include "nvim/pos.h" // for linenr_T
 #include "nvim/normal.h"
 #include "nvim/regexp_defs.h"
 
@@ -14,59 +38,34 @@
     #include "ex_cmds_enum.generated.h"
 #endif
 
-/*
- * When adding an Ex command:
- * 1. Add an entry to the table in src/nvim/ex_cmds.lua.  Keep it sorted on the
- *    shortest version of the command name that works.  If it doesn't start with
- *    a lower case letter, add it at the end.
- *
- *    Each table entry is a table with the following keys:
- *
- *      Key     | Description
- *      ------- | -------------------------------------------------------------
- *      command | Name of the command. Required.
- *      enum    | Name of the enum entry. If not set defaults to CMD_{command}.
- *      flags   | A set of the flags from below list joined by bitwise or.
- *      func    | Name of the function containing the implementation.
- *
- *    Referenced function should be either non-static one or defined in
- *    ex_docmd.c and be coercible to ex_func_T type from below.
- *
- *    All keys not described in the above table are reserved for future use.
- *
- * 2. Add a "case: CMD_xxx" in the big switch in ex_docmd.c.
- * 3. Add an entry in the index for Ex commands at ":help ex-cmd-index".
- * 4. Add documentation in ../doc/xxx.txt.  Add a tag for both the short and
- *    long name of the command.
- */
+#define RANGE           0x001   ///< allow a line specifications
+#define BANG            0x002   ///< allow a ! after the command name
+#define EXTRA           0x004   ///< allow extra args after command name
+#define XFILE           0x008   ///< expand wildcards in extra part
+#define NOSPC           0x010   ///< no spaces allowed in the extra part
+#define DFLALL          0x020   ///< default file range is 1,$
+#define WHOLEFOLD       0x040   ///< extend range to include whole fold also
+                                ///< when less than two numbers given
+#define NEEDARG         0x080   ///< argument required
+#define TRLBAR          0x100   ///< check for trailing vertical bar
+#define REGSTR          0x200   ///< allow "x for register designation
+#define COUNT           0x400   ///< allow count in argument, after command
+#define NOTRLCOM        0x800   ///< no trailing comment allowed
+#define ZEROR          0x1000   ///< zero line number allowed
+#define USECTRLV       0x2000   ///< do not remove CTRL-V from argument
+#define NOTADR         0x4000   ///< number before command is not an address
+#define EDITCMD        0x8000   ///< allow "+command" argument
+#define BUFNAME       0x10000   ///< accepts buffer name
+#define BUFUNL        0x20000   ///< accepts unlisted buffer too
+#define ARGOPT        0x40000   ///< allow "++opt=val" argument
+#define SBOXOK        0x80000   ///< allowed in the sandbox
+#define CMDWIN       0x100000   ///< allowed in cmdline window
+#define MODIFY       0x200000   ///< forbidden in non-'modifiable' buffer
+#define EXFLAGS      0x400000   ///< allow flags after count in argument
 
-#define RANGE           0x001   /* allow a linespecs */
-#define BANG            0x002   /* allow a ! after the command name */
-#define EXTRA           0x004   /* allow extra args after command name */
-#define XFILE           0x008   /* expand wildcards in extra part */
-#define NOSPC           0x010   /* no spaces allowed in the extra part */
-#define DFLALL          0x020   /* default file range is 1,$ */
-#define WHOLEFOLD       0x040   /* extend range to include whole fold also
-                                   when less than two numbers given */
-#define NEEDARG         0x080   /* argument required */
-#define TRLBAR          0x100   /* check for trailing vertical bar */
-#define REGSTR          0x200   /* allow "x for register designation */
-#define COUNT           0x400   /* allow count in argument, after command */
-#define NOTRLCOM        0x800   /* no trailing comment allowed */
-#define ZEROR          0x1000   /* zero line number allowed */
-#define USECTRLV       0x2000   /* do not remove CTRL-V from argument */
-#define NOTADR         0x4000   /* number before command is not an address */
-#define EDITCMD        0x8000   /* allow "+command" argument */
-#define BUFNAME       0x10000   /* accepts buffer name */
-#define BUFUNL        0x20000   /* accepts unlisted buffer too */
-#define ARGOPT        0x40000   /* allow "++opt=val" argument */
-#define SBOXOK        0x80000   /* allowed in the sandbox */
-#define CMDWIN       0x100000   /* allowed in cmdline window */
-#define MODIFY       0x200000   /* forbidden in non-'modifiable' buffer */
-#define EXFLAGS      0x400000   /* allow flags after count in argument */
-#define FILES   (XFILE | EXTRA) /* multiple extra files allowed */
-#define WORD1   (EXTRA | NOSPC) /* one extra word allowed */
-#define FILE1   (FILES | NOSPC) /* 1 file allowed, defaults to current file */
+#define FILES   (XFILE | EXTRA) ///< multiple extra files allowed
+#define WORD1   (EXTRA | NOSPC) ///< one extra word allowed
+#define FILE1   (FILES | NOSPC) ///< 1 file allowed, defaults to current file
 
 // values for cmd_addr_type
 #define ADDR_LINES              0

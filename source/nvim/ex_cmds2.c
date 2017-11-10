@@ -4202,37 +4202,32 @@ static char *get_locale_val(int what)
 }
 #endif
 
-
-
-/// Obtain the current messages language.  Used to set the default for
-/// 'helplang'.  May return NULL or an empty string.
+/// Obtain the current messages language.
+/// Used to set the default for 'helplang'.
+/// May return NULL or an empty string.
 char *get_mess_lang(void)
 {
     char *p;
-# ifdef HAVE_GET_LOCALE_VAL
-#  if defined(LC_MESSAGES)
+#ifdef HAVE_GET_LOCALE_VAL
+    #if defined(LC_MESSAGES)
     p = get_locale_val(LC_MESSAGES);
-#  else
+    #else
     // This is necessary for Win32, where LC_MESSAGES is not defined and $LANG
     // may be set to the LCID number.  LC_COLLATE is the best guess, LC_TIME
-    // and LC_MONETARY may be set differently for a Japanese working in the
-    // US.
+    // and LC_MONETARY may be set differently for a Japanese working in the US.
     p = get_locale_val(LC_COLLATE);
-#  endif
-# else
+    #endif
+#else
     p = os_getenv("LC_ALL");
-
-    if (p == NULL)
+    if(p == NULL)
     {
         p = os_getenv("LC_MESSAGES");
-
-        if (p == NULL)
+        if(p == NULL)
         {
             p = os_getenv("LANG");
         }
     }
-
-# endif
+#endif
     return p;
 }
 
