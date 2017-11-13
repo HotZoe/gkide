@@ -104,10 +104,12 @@ FUNC_API_SINCE(1)
 /// @param name     Variable name
 /// @param value    Variable value
 /// @param[out] err Error details, if any
-/// @return Old value or nil if there was no previous value.
 ///
-///         @warning It may return nil if there was no previous value
-///                  or if previous value was `v:null`.
+/// @return
+/// Old value or nil if there was no previous value.
+///
+/// @warning
+/// It may return nil if there was no previous value or if previous value was `v:null`.
 Object tabpage_set_var(Tabpage tabpage, String name, Object value, Error *err)
 {
     tabpage_T *tab = find_tab_by_handle(tabpage, err);
@@ -127,6 +129,7 @@ Object tabpage_set_var(Tabpage tabpage, String name, Object value, Error *err)
 /// @param tabpage  Tabpage handle
 /// @param name     Variable name
 /// @param[out] err Error details, if any
+///
 /// @return Old value
 Object tabpage_del_var(Tabpage tabpage, String name, Error *err)
 {
@@ -144,6 +147,7 @@ Object tabpage_del_var(Tabpage tabpage, String name, Error *err)
 ///
 /// @param tabpage  Tabpage handle
 /// @param[out] err Error details, if any
+///
 /// @return Window handle
 Window nvim_tabpage_get_win(Tabpage tabpage, Error *err)
 FUNC_API_SINCE(1)
@@ -178,6 +182,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param tabpage  Tabpage handle
 /// @param[out] err Error details, if any
+///
 /// @return Tabpage number
 Integer nvim_tabpage_get_number(Tabpage tabpage, Error *err)
 FUNC_API_SINCE(1)
@@ -196,6 +201,7 @@ FUNC_API_SINCE(1)
 /// Checks if a tabpage is valid
 ///
 /// @param tabpage Tabpage handle
+///
 /// @return true if the tabpage is valid, false otherwise
 Boolean nvim_tabpage_is_valid(Tabpage tabpage)
 FUNC_API_SINCE(1)
@@ -205,4 +211,3 @@ FUNC_API_SINCE(1)
     api_clear_error(&stub);
     return ret;
 }
-

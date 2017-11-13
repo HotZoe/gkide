@@ -29,7 +29,9 @@ static void msgpack_rpc_add_method_handler(String method, MsgpackRpcRequestHandl
 
 MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name, size_t name_len)
 {
-    String m = { .data = (char *)name, .size = name_len };
+    String m = { 0 };
+    m.data = (char *)name;
+    m.size = name_len;
     MsgpackRpcRequestHandler rv = map_get(String, MsgpackRpcRequestHandler)(methods, m);
 
     if(!rv.fn)

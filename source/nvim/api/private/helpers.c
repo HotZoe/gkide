@@ -28,7 +28,7 @@
 /// Helper structure for vim_to_object
 typedef struct
 {
-    kvec_t(Object) stack;  ///< Object stack.
+    kvec_t(Object) stack; ///< Object stack.
 } EncodedData;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -68,10 +68,12 @@ bool try_end(Error *err)
     else if(msg_list != NULL && *msg_list != NULL)
     {
         int should_free;
+
         char *msg = (char *)get_exception_string(*msg_list,
                                                  ET_ERROR,
                                                  NULL,
                                                  &should_free);
+
         api_set_error(err, kErrorTypeException, "%s", msg);
         free_global_msglist();
 
@@ -387,8 +389,8 @@ void set_option_to(void *to, int type, String name, Object value, Error *err)
         assert(len_ == 0 || str_ != NULL);            \
         kv_push(edata->stack, STRING_OBJ(((String) {  \
             .data = xmemdupz((len_?str_:""), len_),   \
-                    .size = len_                              \
-        })));                                     \
+            .size = len_                              \
+        })));                                         \
     } while (0)
 
 #define TYPVAL_ENCODE_CONV_STR_STRING TYPVAL_ENCODE_CONV_STRING
@@ -762,8 +764,7 @@ bool object_to_vim(Object obj, typval_T *tv, Error *err)
                 if(key.size == 0)
                 {
                     api_set_error(err, kErrorTypeValidation, "Empty dictionary keys aren't allowed");
-                    // cleanup
-                    tv_dict_free(dict);
+                    tv_dict_free(dict); // cleanup
                     return false;
                 }
 
@@ -1030,8 +1031,11 @@ static void set_option_value_for(char *key,
     switch(opt_type)
     {
         case SREQ_WIN:
-            if(switch_win(&save_curwin,  &save_curtab, (win_T *)from,
-                          win_find_tabpage((win_T *)from), false) == FAIL)
+            if(switch_win(&save_curwin,
+                          &save_curtab,
+                          (win_T *)from,
+                          win_find_tabpage((win_T *)from),
+                          false) == FAIL)
             {
                 if(try_end(err))
                 {
@@ -1117,29 +1121,33 @@ ArrayOf(Dictionary) keymap_array(String mode, buf_T *buf)
 {
     Array mappings = ARRAY_DICT_INIT;
     dict_T *const dict = tv_dict_alloc();
+
     // Convert the string mode to the integer mode
     // that is stored within each mapblock
     char_u *p = (char_u *)mode.data;
     int int_mode = get_map_mode(&p, 0);
+
     // Determine the desired buffer value
     long buffer_value = (buf == NULL) ? 0 : buf->handle;
 
     for(int i = 0; i < MAX_MAPHASH; i++)
     {
         for(const mapblock_T *current_maphash = get_maphash(i, buf);
-                current_maphash;
-                current_maphash = current_maphash->m_next)
+            current_maphash;
+            current_maphash = current_maphash->m_next)
         {
             // Check for correct mode
             if(int_mode & current_maphash->m_mode)
             {
                 mapblock_fill_dict(dict, current_maphash, buffer_value, false);
+
                 ADD(mappings, vim_to_object( (typval_T[])
                 {
                     {
                         .v_type = VAR_DICT, .vval.v_dict = dict
                     }
                 }));
+
                 tv_dict_clear(dict);
             }
         }

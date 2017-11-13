@@ -68,9 +68,9 @@ FUNC_API_SINCE(1)
         return;
     }
 
-    if(pos.size != 2                           ||
-            pos.items[0].type != kObjectTypeInteger ||
-            pos.items[1].type != kObjectTypeInteger)
+    if(pos.size != 2
+       || pos.items[0].type != kObjectTypeInteger
+       || pos.items[1].type != kObjectTypeInteger)
     {
         api_set_error(err, kErrorTypeValidation, "Argument \"pos\" must be a [row, col] array");
         return;
@@ -94,10 +94,13 @@ FUNC_API_SINCE(1)
     win->w_cursor.lnum = (linenr_T)row;
     win->w_cursor.col = (colnr_T)col;
     win->w_cursor.coladd = 0;
+
     // When column is out of range silently correct it.
     check_cursor_col_win(win);
+
     // make sure cursor is in visible range even if win != curwin
     update_topline_win(win);
+
     update_screen(VALID);
 }
 
@@ -105,6 +108,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param window   Window handle
 /// @param[out] err Error details, if any
+///
 /// @return Height as a count of rows
 Integer nvim_win_get_height(Window window, Error *err)
 FUNC_API_SINCE(1)
@@ -153,6 +157,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param window   Window handle
 /// @param[out] err Error details, if any
+///
 /// @return Width as a count of columns
 Integer nvim_win_get_width(Window window, Error *err)
 FUNC_API_SINCE(1)
@@ -202,6 +207,7 @@ FUNC_API_SINCE(1)
 /// @param window   Window handle
 /// @param name     Variable name
 /// @param[out] err Error details, if any
+///
 /// @return Variable value
 Object nvim_win_get_var(Window window, String name, Error *err)
 FUNC_API_SINCE(1)
@@ -261,10 +267,12 @@ FUNC_API_SINCE(1)
 /// @param name     Variable name
 /// @param value    Variable value
 /// @param[out] err Error details, if any
-/// @return Old value or nil if there was no previous value.
 ///
-///         @warning It may return nil if there was no previous value
-///                  or if previous value was `v:null`.
+/// @return
+/// Old value or nil if there was no previous value.
+///
+/// @warning
+/// It may return nil if there was no previous value or if previous value was `v:null`.
 Object window_set_var(Window window, String name, Object value, Error *err)
 {
     win_T *win = find_window_by_handle(window, err);
@@ -284,6 +292,7 @@ Object window_set_var(Window window, String name, Object value, Error *err)
 /// @param window   Window handle
 /// @param name     variable name
 /// @param[out] err Error details, if any
+///
 /// @return Old value
 Object window_del_var(Window window, String name, Error *err)
 {
@@ -302,6 +311,7 @@ Object window_del_var(Window window, String name, Error *err)
 /// @param window   Window handle
 /// @param name     Option name
 /// @param[out] err Error details, if any
+///
 /// @return Option value
 Object nvim_win_get_option(Window window, String name, Error *err)
 FUNC_API_SINCE(1)
@@ -340,6 +350,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param window   Window handle
 /// @param[out] err Error details, if any
+///
 /// @return (row, col) tuple with the window position
 ArrayOf(Integer, 2) nvim_win_get_position(Window window, Error *err)
 FUNC_API_SINCE(1)
@@ -360,6 +371,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param window   Window handle
 /// @param[out] err Error details, if any
+///
 /// @return Tabpage that contains the window
 Tabpage nvim_win_get_tabpage(Window window, Error *err)
 FUNC_API_SINCE(1)
@@ -379,6 +391,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param window   Window handle
 /// @param[out] err Error details, if any
+///
 /// @return Window number
 Integer nvim_win_get_number(Window window, Error *err)
 FUNC_API_SINCE(1)
@@ -399,6 +412,7 @@ FUNC_API_SINCE(1)
 /// Checks if a window is valid
 ///
 /// @param window Window handle
+///
 /// @return true if the window is valid, false otherwise
 Boolean nvim_win_is_valid(Window window)
 FUNC_API_SINCE(1)

@@ -32,8 +32,7 @@
 /// @param buffer   Buffer handle
 /// @param[out] err Error details, if any
 /// @return Line count
-Integer nvim_buf_line_count(Buffer buffer, Error *err)
-FUNC_API_SINCE(1)
+Integer nvim_buf_line_count(Buffer buffer, Error *err) FUNC_API_SINCE(1)
 {
     buf_T *buf = find_buffer_by_handle(buffer, err);
 
@@ -276,7 +275,7 @@ void nvim_buf_set_lines(uint64_t channel_id,
                         Integer start,
                         Integer end,
                         Boolean strict_indexing,
-                        ArrayOf(String) replacement,  // NOLINT
+                        ArrayOf(String) replacement, // NOLINT
                         Error *err)
 FUNC_API_SINCE(1)
 {
@@ -336,8 +335,8 @@ FUNC_API_SINCE(1)
     for(size_t i = 0; i < new_len; i++)
     {
         const String l = replacement.items[i].data.string;
-        // Fill lines[i] with l's contents. Convert NULs to newlines as required by
-        // NL-used-for-NUL.
+        // Fill lines[i] with l's contents.
+        // Convert NULs to newlines as required by NL-used-for-NUL.
         lines[i] = xmemdupz(l.data, l.size);
         memchrsub(lines[i], NUL, NL, l.size);
     }
@@ -392,8 +391,8 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        // Mark lines that haven't been passed to the buffer as they need
-        // to be freed later
+        // Mark lines that haven't been passed
+        // to the buffer as they need to be freed later
         lines[i] = NULL;
     }
 
@@ -774,6 +773,7 @@ FUNC_API_SINCE(1)
 
     ADD(rv, INTEGER_OBJ(posp->lnum));
     ADD(rv, INTEGER_OBJ(posp->col));
+
     return rv;
 }
 
@@ -841,6 +841,7 @@ FUNC_API_SINCE(1)
     }
 
     int hlg_id = syn_name2id((char_u *)(hl_group.data ? hl_group.data : ""));
+
     src_id = bufhl_add_hl(buf,
                           (int)src_id, hlg_id,
                           (linenr_T)line+1,

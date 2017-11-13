@@ -182,11 +182,13 @@ FUNC_API_SINCE(1)
     {
         return (String)
         {
-            .data = NULL, .size = 0
+            .data = NULL,
+            .size = 0
         }; // Empty string
     }
 
     char *ptr = NULL;
+
     // Set 'cpoptions' the way we want it.
     //    FLAG_CPO_BSLASH  set - backslashes are *not* treated specially
     //    FLAG_CPO_KEYCODE set - keycodes are *not* reverse-engineered
@@ -200,6 +202,7 @@ FUNC_API_SINCE(1)
                       do_lt,
                       special,
                       CPO_TO_CPO_FLAGS);
+
     return cstr_as_string(ptr);
 }
 
@@ -389,11 +392,13 @@ FUNC_API_SINCE(1)
     {
         rv.items[i].type = kObjectTypeString;
         rv.items[i].data.string.data = xmalloc(MAXPATHL);
+
         // Copy the path from 'runtimepath' to rv.items[i]
         size_t length = copy_option_part(&rtp,
                                          (char_u *)rv.items[i].data.string.data,
                                          MAXPATHL,
                                          ",");
+
         rv.items[i].data.string.size = length;
     }
 
@@ -594,12 +599,14 @@ ArrayOf(Buffer) nvim_list_bufs(void)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
+
     FOR_ALL_BUFFERS(b)
     {
         rv.size++;
     }
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
+
     FOR_ALL_BUFFERS(b)
     {
         rv.items[i++] = BUFFER_OBJ(b->handle);
@@ -635,8 +642,7 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && result == FAIL)
     {
-        api_set_error(err, kErrorTypeException,
-                      "Failed to switch to buffer %d", buffer);
+        api_set_error(err, kErrorTypeException, "Failed to switch to buffer %d", buffer);
     }
 }
 
@@ -647,12 +653,15 @@ ArrayOf(Window) nvim_list_wins(void)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
+
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
         rv.size++;
     }
+
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
+
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
         rv.items[i++] = WINDOW_OBJ(wp->handle);
@@ -687,8 +696,7 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && win != curwin)
     {
-        api_set_error(err, kErrorTypeException,
-                      "Failed to switch to window %d", window);
+        api_set_error(err, kErrorTypeException, "Failed to switch to window %d", window);
     }
 }
 
@@ -699,12 +707,14 @@ ArrayOf(Tabpage) nvim_list_tabpages(void)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
+
     FOR_ALL_TABS(tp)
     {
         rv.size++;
     }
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
+
     FOR_ALL_TABS(tp)
     {
         rv.items[i++] = TABPAGE_OBJ(tp->handle);
@@ -740,8 +750,7 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && tp != curtab)
     {
-        api_set_error(err, kErrorTypeException,
-                      "Failed to switch to tabpage %d", tabpage);
+        api_set_error(err, kErrorTypeException, "Failed to switch to tabpage %d", tabpage);
     }
 }
 
@@ -934,14 +943,6 @@ theend:
     return rv;
 }
 
-
-/// Writes a message to vim output or error buffer. The string is split
-/// and flushed after each newline. Incomplete lines are kept for writing later.
-///
-/// @param message  Message to write
-/// @param to_err   true: message is an error (uses `emsg` instead of `msg`)
-static void write_msg(String message, bool to_err)
-{
 #define PUSH_CHAR(i, pos, line_buf, msg)                     \
     if(message.data[i] == NL || pos == LINE_BUFFER_SIZE - 1) \
     {                                                        \
@@ -950,8 +951,16 @@ static void write_msg(String message, bool to_err)
         pos = 0;                                             \
         continue;                                            \
     }                                                        \
-    \
+                                                             \
     line_buf[pos++] = message.data[i];
+
+/// Writes a message to vim output or error buffer. The string is split
+/// and flushed after each newline. Incomplete lines are kept for writing later.
+///
+/// @param message  Message to write
+/// @param to_err   true: message is an error (uses `emsg` instead of `msg`)
+static void write_msg(String message, bool to_err)
+{
     static size_t out_pos = 0, err_pos = 0;
     static char out_line_buf[LINE_BUFFER_SIZE], err_line_buf[LINE_BUFFER_SIZE];
     ++no_wait_return;
@@ -971,6 +980,7 @@ static void write_msg(String message, bool to_err)
     --no_wait_return;
     msg_end();
 }
+#undef PUSH_CHAR
 
 // Functions used for testing purposes
 

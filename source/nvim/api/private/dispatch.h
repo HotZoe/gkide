@@ -12,8 +12,10 @@ typedef Object (*ApiDispatchWrapper)(uint64_t channel_id, Array args, Error *err
 typedef struct
 {
     ApiDispatchWrapper fn;
-    bool async; ///< function is always safe to run immediately instead of being
-                ///< put in a request queue for handling when nvim waits for input.
+
+    /// function is always safe to run immediately instead of being
+    /// put in a request queue for handling when nvim waits for input.
+    bool async;
 } MsgpackRpcRequestHandler;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
