@@ -302,9 +302,7 @@ typedef struct argentry
 #define ARGCOUNT        (ALIST(curwin)->al_ga.ga_len)
 #define WARGCOUNT(wp)   (ALIST(wp)->al_ga.ga_len)
 
-/*
- * Used for the typeahead buffer: typebuf.
- */
+/// Used for the typeahead buffer: typebuf.
 typedef struct
 {
     char_u *tb_buf;          ///< buffer for typed characters
@@ -318,11 +316,11 @@ typedef struct
     int tb_change_cnt;       ///< nr of time tb_buf was changed; never zero
 } typebuf_T;
 
-/* Struct to hold the saved typeahead for save_typeahead(). */
+/// Struct to hold the saved typeahead for save_typeahead().
 typedef struct
 {
     typebuf_T save_typebuf;
-    int typebuf_valid;                        /* TRUE when save_typebuf valid */
+    int typebuf_valid;           ///< TRUE when save_typebuf valid
     int old_char;
     int old_mod_mask;
     buffheader_T save_readbuf1;
@@ -330,41 +328,37 @@ typedef struct
     String save_inputbuf;
 } tasave_T;
 
-/*
- * Structure used for mappings and abbreviations.
- */
+/// Structure used for mappings and abbreviations.
 typedef struct mapblock mapblock_T;
 struct mapblock
 {
-    mapblock_T  *m_next;          /* next mapblock in list */
-    char_u      *m_keys;          /* mapped from, lhs */
-    char_u      *m_str;           /* mapped to, rhs */
-    char_u      *m_orig_str;      /* rhs as entered by the user */
-    int m_keylen;                 /* strlen(m_keys) */
-    int m_mode;                   /* valid mode */
-    int m_noremap;                /* if non-zero no re-mapping for m_str */
-    char m_silent;                /* <silent> used, don't echo commands */
-    char m_nowait;                /* <nowait> used */
-    char m_expr;                  /* <expr> used, m_str is an expression */
-    scid_T m_script_ID;           /* ID of script where map was defined */
+    mapblock_T *m_next;      ///< next mapblock in list
+    char_u *m_keys;          ///< mapped from, lhs
+    char_u *m_str;           ///< mapped to, rhs
+    char_u *m_orig_str;      ///< rhs as entered by the user
+    int m_keylen;            ///< strlen(m_keys)
+    int m_mode;              ///< valid mode
+    int m_noremap;           ///< if non-zero no re-mapping for m_str
+    char m_silent;           ///< <silent> used, don't echo commands
+    char m_nowait;           ///< <nowait> used
+    char m_expr;             ///< <expr> used, m_str is an expression
+    scid_T m_script_ID;      ///< ID of script where map was defined
 };
 
-/*
- * Used for highlighting in the status line.
- */
+/// Used for highlighting in the status line.
 struct stl_hlrec
 {
-    char_u      *start;
-    int userhl;                   /* 0: no HL, 1-9: User HL, < 0 for syn ID */
+    char_u *start;
+    int userhl;     ///< 0: no HL, 1-9: User HL, < 0 for syn ID
 };
 
-/* values for b_syn_spell: what to do with toplevel text */
-#define SYNSPL_DEFAULT  0       /* spell check if @Spell not defined */
-#define SYNSPL_TOP      1       /* spell check toplevel text */
-#define SYNSPL_NOTOP    2       /* don't spell check toplevel text */
+// values for b_syn_spell: what to do with toplevel text
+#define SYNSPL_DEFAULT  0     ///< spell check if @Spell not defined
+#define SYNSPL_TOP      1     ///< spell check toplevel text
+#define SYNSPL_NOTOP    2     ///< don't spell check toplevel text
 
-/* avoid #ifdefs for when b_spell is not available */
-# define B_SPELL(buf)  ((buf)->b_spell)
+// avoid #ifdefs for when b_spell is not available
+#define B_SPELL(buf)  ((buf)->b_spell)
 
 typedef struct qf_info_S qf_info_T;
 

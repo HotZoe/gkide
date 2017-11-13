@@ -446,7 +446,7 @@ bool input_available(void)
     return rbuffer_size(input_buffer) != 0;
 }
 
-// This is a replacement for the old `WaitForChar` function in os_unix.c
+/// This is a replacement for the old WaitForChar() function in os_unix.c
 static InbufPollResult inbuf_poll(int ms)
 {
     if(input_ready() || input_poll(ms))
