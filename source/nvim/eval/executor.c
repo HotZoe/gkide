@@ -111,7 +111,8 @@ FUNC_ATTR_NONNULL_ALL
                     const char *tvs = tv_get_string(tv1);
                     char numbuf[NUMBUFLEN];
                     char *const s = (char *)concat_str((const char_u *)tvs,
-                                                       (const char_u *)tv_get_string_buf(tv2, numbuf));
+                                                       (const char_u *)tv_get_string_buf(tv2,
+                                                                                         numbuf));
                     tv_clear(tv1);
                     tv1->v_type = VAR_STRING;
                     tv1->vval.v_string = (char_u *)s;
@@ -122,16 +123,17 @@ FUNC_ATTR_NONNULL_ALL
 
             case VAR_FLOAT:
             {
-                bool flag = tv2->v_type != VAR_FLOAT  &&
-                            tv2->v_type != VAR_NUMBER &&
-                            tv2->v_type != VAR_STRING;
+                bool flag = tv2->v_type != VAR_FLOAT
+                            && tv2->v_type != VAR_NUMBER
+                            && tv2->v_type != VAR_STRING;
 
                 if(*op == '.' || flag)
                 {
                     break;
                 }
 
-                const float_T f = (tv2->v_type == VAR_FLOAT ? tv2->vval.v_float : tv_get_number(tv2));
+                const float_T f = (tv2->v_type == VAR_FLOAT
+                                   ? tv2->vval.v_float : tv_get_number(tv2));
 
                 if(*op == '+')
                 {
@@ -153,5 +155,6 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     EMSG2(_(e_letwrong), op);
+
     return FAIL;
 }

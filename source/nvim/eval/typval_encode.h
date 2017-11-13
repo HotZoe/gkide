@@ -45,8 +45,8 @@ typedef struct
         {
             dict_T *dict;     ///< Currently converted dictionary.
             dict_T **dictp;   ///< Location where that dictionary is stored.
-            ///< Normally it is &.tv->vval.v_dict, but not when
-            ///< converting partials.
+                              ///< Normally it is &.tv->vval.v_dict, but not when
+                              ///< converting partials.
             hashitem_T *hi;   ///< Currently converted dictionary item.
             size_t todo;      ///< Amount of items left to process.
         } d;                  ///< State of dictionary conversion.
@@ -112,13 +112,13 @@ static inline size_t tv_strlen(const typval_T *const tv)
     do                                                                              \
     {                                                                               \
         const int te_csr_ret = _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(                 \
-                                                                                    TYPVAL_ENCODE_FIRST_ARG_NAME,                       \
-                                                                                    (val),                                              \
-                                                                                    &(val)->copyID_attr,                                \
-                                                                                    mpstack,                                            \
-                                                                                    copyID,                                             \
-                                                                                    conv_type,                                          \
-                                                                                    objname);                                           \
+                                TYPVAL_ENCODE_FIRST_ARG_NAME,                       \
+                                (val),                                              \
+                                &(val)->copyID_attr,                                \
+                                mpstack,                                            \
+                                copyID,                                             \
+                                conv_type,                                          \
+                                objname);                                           \
         if(te_csr_ret != NOTDONE)                                                   \
         {                                                                           \
             return te_csr_ret;                                                      \

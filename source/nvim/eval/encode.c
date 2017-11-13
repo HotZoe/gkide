@@ -18,10 +18,10 @@
 #include "nvim/mbyte.h"
 #include "nvim/message.h"
 #include "nvim/memory.h"
-#include "nvim/charset.h"  // vim_isprintc()
+#include "nvim/charset.h" // vim_isprintc()
 #include "nvim/macros.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"     // For _()
+#include "nvim/vim.h" // For _()
 #include "nvim/lib/kvec.h"
 #include "nvim/eval/typval_encode.h"
 
@@ -144,9 +144,9 @@ FUNC_ATTR_NONNULL_ALL
                 typval_T key_tv = { .v_type = VAR_STRING,
                                     .vval = { .v_string = (v.data.d.hi == NULL
                                                            ? v.data.d.dict->dv_hashtab.ht_array
-                                                           : (v.data.d.hi - 1))->hi_key
-                                            },
+                                                           : (v.data.d.hi - 1))->hi_key },
                                   };
+
                 char *const key = encode_tv2string(&key_tv, NULL);
                 vim_snprintf((char *) IObuff, IOSIZE, key_msg, key);
                 xfree(key);
@@ -161,25 +161,28 @@ FUNC_ATTR_NONNULL_ALL
                 const listitem_T *li;
 
                 for(li = v.data.l.list->lv_first;
-                        li != NULL && li->li_next != v.data.l.li;
-                        li = li->li_next)
+                    li != NULL && li->li_next != v.data.l.li;
+                    li = li->li_next)
                 {
                     idx++;
                 }
 
-                if(v.type == kMPConvList ||
-                        li == NULL            ||
-                        (li->li_tv.v_type != VAR_LIST && li->li_tv.vval.v_list->lv_len <= 0))
+                if(v.type == kMPConvList
+                   || li == NULL
+                   || (li->li_tv.v_type != VAR_LIST && li->li_tv.vval.v_list->lv_len <= 0))
                 {
                     vim_snprintf((char *) IObuff, IOSIZE, idx_msg, idx);
+
                     ga_concat(&msg_ga, IObuff);
                 }
                 else
                 {
                     typval_T key_tv = li->li_tv.vval.v_list->lv_first->li_tv;
                     char *const key = encode_tv2echo(&key_tv, NULL);
+
                     vim_snprintf((char *) IObuff, IOSIZE, key_pair_msg, key, idx);
                     xfree(key);
+
                     ga_concat(&msg_ga, IObuff);
                 }
 
@@ -216,13 +219,18 @@ FUNC_ATTR_NONNULL_ALL
             {
                 const int idx = (int)(v.data.a.arg - v.data.a.argv) - 1;
                 vim_snprintf((char *)IObuff, IOSIZE, partial_arg_i_msg, idx);
+
                 ga_concat(&msg_ga, IObuff);
+
                 break;
             }
         }
     }
 
-    emsgf(msg, _(objname), (kv_size(*mpstack) == 0 ? _("itself") : (char *)msg_ga.ga_data));
+    emsgf(msg,
+          _(objname),
+          (kv_size(*mpstack) == 0 ? _("itself") : (char *)msg_ga.ga_data));
+
     ga_clear(&msg_ga);
 
     return FAIL;
@@ -292,7 +300,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 ///                        reading should start. Is updated to reflect position
 ///                        at which reading ended.
 /// @param[out]  buf  Buffer to write to.
-/// @param[in]  nbuf  Buffer length.
+/// @param[in]   nbuf Buffer length.
 /// @param[out]  read_bytes  Is set to amount of bytes read.
 ///
 /// @return OK when reading was finished, FAIL in case of error (i.e. list item
@@ -314,6 +322,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         for(size_t i = state->offset; i < state->li_length && p < buf_end; i++)
         {
             assert(state->li->li_tv.vval.v_string != NULL);
+
             const char ch = (char)state->li->li_tv.vval.v_string[state->offset++];
             *p++ = (char)((char)ch == (char)NL ? (char)NUL : (char)ch);
         }
@@ -343,7 +352,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     }
 
     *read_bytes = nbuf;
-    return (state->offset < state->li_length || state->li->li_next != NULL ? NOTDONE : OK);
+    return (state->offset < state->li_length
+            || state->li->li_next != NULL ? NOTDONE : OK);
 }
 
 #define TYPVAL_ENCODE_CONV_STRING(tv, buf, len)                        \
@@ -383,12 +393,12 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         ga_concat(gap, numbuf);                                                \
     } while(0)
 
-#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                         \
-    do                                                            \
-    {                                                             \
-        const float_T flt_ = (flt);                               \
-        switch(fpclassify(flt_))                                  \
-        {                                                         \
+#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                             \
+    do                                                                \
+    {                                                                 \
+        const float_T flt_ = (flt);                                   \
+        switch(fpclassify(flt_))                                      \
+        {                                                             \
             case FP_NAN:                                              \
             {                                                         \
                 ga_concat(gap, (char_u *) "str2float('nan')");        \
@@ -409,7 +419,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_); \
                 ga_concat(gap, (char_u *) numbuf);                    \
             }                                                         \
-        }                                                         \
+        }                                                             \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_FUNC_START(tv, fun)                   \
@@ -608,12 +618,12 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     } while(0)
 
 #undef  TYPVAL_ENCODE_CONV_FLOAT
-#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                           \
-    do                                                              \
-    {                                                               \
-        const float_T flt_ = (flt);                                 \
-        switch(fpclassify(flt_))                                    \
-        {                                                           \
+#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                               \
+    do                                                                  \
+    {                                                                   \
+        const float_T flt_ = (flt);                                     \
+        switch(fpclassify(flt_))                                        \
+        {                                                               \
             case FP_NAN:                                                \
             {                                                           \
                 EMSG(_("E474: Unable to represent NaN value in JSON")); \
@@ -631,19 +641,19 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 ga_concat(gap, (char_u *) numbuf);                      \
                 break;                                                  \
             }                                                           \
-        }                                                           \
+        }                                                               \
     } while(0)
 
 /// Escape sequences used in JSON
 static const char escapes[][3] =
 {
-    [BS] = "\\b",
-    [TAB] = "\\t",
-    [NL] = "\\n",
-    [CAR] = "\\r",
-    ['"'] = "\\\"",
+    [BS]   = "\\b",
+    [TAB]  = "\\t",
+    [NL]   = "\\n",
+    [CAR]  = "\\r",
+    ['"']  = "\\\"",
     ['\\'] = "\\\\",
-    [FF] = "\\f",
+    [FF]   = "\\f",
 };
 
 static const char xdigits[] = "0123456789ABCDEF";
@@ -671,6 +681,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
         size_t utf_len = len;
         char *tofree = NULL;
         size_t str_len = 0;
+
         // Encode character as \uNNNN if
         // 1. It is an ASCII control character (0x0 .. 0x1F; 0x7F not
         //    utf_printable and thus not checked specially).
@@ -678,7 +689,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
         //
         // This is done to make resulting values displayable on screen also not from
         // Neovim.
-#define ENCODE_RAW(ch) (ch >= 0x20 && utf_printable(ch))
+#define ENCODE_RAW(ch)  (ch >= 0x20 && utf_printable(ch))
 
         for(size_t i = 0; i < utf_len;)
         {
@@ -708,6 +719,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                         emsgf(_("E474: String \"%.*s\" contains byte that does not start "
                                 "any UTF-8 character"),
                               utf_len - (i - shift), utf_buf + i - shift);
+
                         xfree(tofree);
                         return FAIL;
                     }
@@ -717,6 +729,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                         emsgf(_("E474: UTF-8 string contains code point which belongs "
                                 "to a surrogate pair: %.*s"),
                               utf_len - (i - shift), utf_buf + i - shift);
+
                         xfree(tofree);
                         return FAIL;
                     }
@@ -726,7 +739,8 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                     }
                     else
                     {
-                        str_len += ((sizeof("\\u1234") - 1) * (size_t) (1 + (ch >= SURROGATE_FIRST_CHAR)));
+                        str_len += ((sizeof("\\u1234") - 1)
+                                    * (size_t) (1 + (ch >= SURROGATE_FIRST_CHAR)));
                     }
 
                     break;
@@ -741,6 +755,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
         {
             const int ch = utf_ptr2char(utf_buf + i);
             const size_t shift = (ch == 0 ? 1 : utf_char2len(ch));
+
             assert(shift > 0);
             // Is false on invalid unicode, but this should already be handled.
             assert(ch == 0 || shift == utf_ptr2len(utf_buf + i));
@@ -767,35 +782,31 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                     }
                     else if(ch < SURROGATE_FIRST_CHAR)
                     {
-                        ga_concat_len(gap,
-                                      ((const char[])
-                        { '\\', 'u',
-                            xdigits[(ch >> (4 * 3)) & 0xF],
-                            xdigits[(ch >> (4 * 2)) & 0xF],
-                            xdigits[(ch >> (4 * 1)) & 0xF],
-                            xdigits[(ch >> (4 * 0)) & 0xF],
-                        }),
-                        sizeof("\\u1234") - 1);
+                        ga_concat_len(gap, ((const char[]) { '\\', 'u',
+                                             xdigits[(ch >> (4 * 3)) & 0xF],
+                                             xdigits[(ch >> (4 * 2)) & 0xF],
+                                             xdigits[(ch >> (4 * 1)) & 0xF],
+                                             xdigits[(ch >> (4 * 0)) & 0xF], }),
+                                      sizeof("\\u1234") - 1);
+
                     }
                     else
                     {
                         const int tmp = ch - SURROGATE_FIRST_CHAR;
                         const int hi = SURROGATE_HI_START + ((tmp >> 10) & ((1 << 10) - 1));
                         const int lo = SURROGATE_LO_END + ((tmp >>  0) & ((1 << 10) - 1));
-                        ga_concat_len(gap,
-                                      ((const char[])
-                        { '\\', 'u',
-                            xdigits[(hi >> (4 * 3)) & 0xF],
-                            xdigits[(hi >> (4 * 2)) & 0xF],
-                            xdigits[(hi >> (4 * 1)) & 0xF],
-                            xdigits[(hi >> (4 * 0)) & 0xF],
-                            '\\', 'u',
-                            xdigits[(lo >> (4 * 3)) & 0xF],
-                            xdigits[(lo >> (4 * 2)) & 0xF],
-                            xdigits[(lo >> (4 * 1)) & 0xF],
-                            xdigits[(lo >> (4 * 0)) & 0xF],
-                        }),
-                        (sizeof("\\u1234") - 1) * 2);
+
+                        ga_concat_len(gap, ((const char[]) { '\\', 'u',
+                                            xdigits[(hi >> (4 * 3)) & 0xF],
+                                            xdigits[(hi >> (4 * 2)) & 0xF],
+                                            xdigits[(hi >> (4 * 1)) & 0xF],
+                                            xdigits[(hi >> (4 * 0)) & 0xF],
+                                            '\\', 'u',
+                                            xdigits[(lo >> (4 * 3)) & 0xF],
+                                            xdigits[(lo >> (4 * 2)) & 0xF],
+                                            xdigits[(lo >> (4 * 1)) & 0xF],
+                                            xdigits[(lo >> (4 * 0)) & 0xF], }),
+                                      (sizeof("\\u1234") - 1) * 2);
                     }
 
                     break;
@@ -863,12 +874,12 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
     const dictitem_T *type_di;
     const dictitem_T *val_di;
 
-    if((type_di = tv_dict_find(spdict, S_LEN("_TYPE"))) == NULL               ||
-            type_di->di_tv.v_type != VAR_LIST                                     ||
-            (type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPString]
-             && type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPBinary]) ||
-            (val_di = tv_dict_find(spdict, S_LEN("_VAL"))) == NULL                ||
-            val_di->di_tv.v_type != VAR_LIST)
+    if((type_di = tv_dict_find(spdict, S_LEN("_TYPE"))) == NULL
+       || type_di->di_tv.v_type != VAR_LIST
+       || (type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPString]
+           && type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPBinary])
+       || (val_di = tv_dict_find(spdict, S_LEN("_VAL"))) == NULL
+       || val_di->di_tv.v_type != VAR_LIST)
     {
         return false;
     }
@@ -878,7 +889,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
         return true;
     }
 
-    for(const listitem_T *li = val_di->di_tv.vval.v_list->lv_first; li != NULL; li = li->li_next)
+    for(const listitem_T *li = val_di->di_tv.vval.v_list->lv_first;
+        li != NULL;
+        li = li->li_next)
     {
         if(li->li_tv.v_type != VAR_STRING)
         {
@@ -950,6 +963,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
     garray_T ga;
     ga_init(&ga, (int)sizeof(char), 80);
+
     const int evs_ret = encode_vim_to_string(&ga, tv, N_("encode_tv2string() argument"));
     (void)evs_ret;
 
@@ -1015,6 +1029,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
     garray_T ga;
     ga_init(&ga, (int)sizeof(char), 80);
+
     const int evj_ret = encode_vim_to_json(&ga, tv, N_("encode_tv2json() argument"));
 
     if(!evj_ret)

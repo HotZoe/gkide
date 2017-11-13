@@ -29,7 +29,7 @@
 #include "nvim/message.h"
 
 /// @todo (ZyX-I): Move line_breakcheck out of misc1
-#include "nvim/misc1.h"  // For line_breakcheck
+#include "nvim/misc1.h" // For line_breakcheck
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval/typval.c.generated.h"
@@ -450,7 +450,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(copyID != 0)
     {
-        // Do this before adding the items, because one of the items may refer back to this list.
+        // Do this before adding the items,
+        // because one of the items may refer back to this list.
         orig->lv_copyID = copyID;
         orig->lv_copylist = copy;
     }
@@ -503,8 +504,8 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     // We also quit the loop when we have inserted the original item count of
     // the list, avoid a hang when we extend a list with itself.
     for(listitem_T *item = l2->lv_first;
-            item != NULL && --todo >= 0;
-            item = (item == befbef ? saved_next : item->li_next))
+        item != NULL && --todo >= 0;
+        item = (item == befbef ? saved_next : item->li_next))
     {
         tv_list_insert_tv(l1, &item->li_tv, bef);
     }
@@ -962,9 +963,9 @@ FUNC_ATTR_NONNULL_ARG(2)
     {
         watcher = tv_dict_watcher_node_data(w);
 
-        if(tv_callback_equal(&watcher->callback, &callback) &&
-                watcher->key_pattern_len == key_pattern_len      &&
-                memcmp(watcher->key_pattern, key_pattern, key_pattern_len) == 0)
+        if(tv_callback_equal(&watcher->callback, &callback)
+           && watcher->key_pattern_len == key_pattern_len
+           && memcmp(watcher->key_pattern, key_pattern, key_pattern_len) == 0)
         {
             matched = true;
             break;
@@ -1044,6 +1045,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 
     typval_T rettv;
     QUEUE *w;
+
     QUEUE_FOREACH(w, &dict->watchers)
     {
         DictWatcher *watcher = tv_dict_watcher_node_data(w);
@@ -1076,9 +1078,11 @@ dictitem_T *tv_dict_item_alloc_len(const char *const key, const size_t key_len)
 FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
 {
     dictitem_T *const di = xmalloc(offsetof(dictitem_T, di_key) + key_len + 1);
+
     memcpy(di->di_key, key, key_len);
     di->di_key[key_len] = NUL;
     di->di_flags = DI_FLAGS_ALLOC;
+
     return di;
 }
 
@@ -1585,8 +1589,8 @@ FUNC_ATTR_NONNULL_ALL
         {
             // Disallow replacing a builtin function in l: and g:.
             // Check the key to be valid when adding to any scope.
-            if(d1->dv_scope == VAR_DEF_SCOPE && tv_is_func(di2->di_tv) &&
-                    !var_check_func_name((const char *)di2->di_key, di1 == NULL))
+            if(d1->dv_scope == VAR_DEF_SCOPE && tv_is_func(di2->di_tv)
+               && !var_check_func_name((const char *)di2->di_key, di1 == NULL))
             {
                 break;
             }
@@ -1619,8 +1623,8 @@ FUNC_ATTR_NONNULL_ALL
         {
             typval_T oldtv;
 
-            if(tv_check_lock(di1->di_tv.v_lock, arg_errmsg, arg_errmsg_len) ||
-                    var_check_ro(di1->di_flags, arg_errmsg, arg_errmsg_len))
+            if(tv_check_lock(di1->di_tv.v_lock, arg_errmsg, arg_errmsg_len)
+               || var_check_ro(di1->di_flags, arg_errmsg, arg_errmsg_len))
             {
                 break;
             }
@@ -1710,8 +1714,7 @@ dict_T *tv_dict_copy(const vimconv_T *const conv,
         orig->dv_copydict = copy;
     }
 
-    TV_DICT_ITER(orig, di,
-    {
+    TV_DICT_ITER(orig, di, {
         if(got_int)
         {
             break;
@@ -1758,6 +1761,7 @@ dict_T *tv_dict_copy(const vimconv_T *const conv,
             break;
         }
     });
+
     copy->dv_refcount++;
 
     if(got_int)
@@ -1789,6 +1793,7 @@ void tv_dict_set_keys_readonly(dict_T *const dict) FUNC_ATTR_NONNULL_ALL
 list_T *tv_list_alloc_ret(typval_T *const ret_tv) FUNC_ATTR_NONNULL_ALL
 {
     list_T *const l = tv_list_alloc();
+
     ret_tv->vval.v_list = l;
     ret_tv->v_type = VAR_LIST;
     ret_tv->v_lock = VAR_UNLOCKED;
@@ -1908,12 +1913,15 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
         // Dictionary should already be freed by the time.
         // If it was not freed then it is a part of the reference cycle.
         assert(pt->pt_dict == NULL || pt->pt_dict->dv_copyID == copyID);
+
         pt->pt_dict = NULL;
         // As well as all arguments.
         pt->pt_argc = 0;
+
         assert(pt->pt_refcount <= 1);
         partial_unref(pt);
         tv->vval.v_partial = NULL;
+
         assert(tv->v_lock == VAR_UNLOCKED);
     }
 }
@@ -2230,6 +2238,17 @@ void tv_copy(typval_T *const from, typval_T *const to)
     }
 }
 
+// lock/unlock the item itself
+#define CHANGE_LOCK(lock, var)                                   \
+    do                                                           \
+    {                                                            \
+        var = ((VarLockStatus[]) {                               \
+            [VAR_UNLOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED), \
+            [VAR_LOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED),   \
+            [VAR_FIXED] = VAR_FIXED,                             \
+        })[var];                                                 \
+    } while(0)
+
 /// Lock or unlock an item
 ///
 /// @param[out] tv    Item to (un)lock.
@@ -2252,16 +2271,6 @@ void tv_item_lock(typval_T *const tv, const int deep, const bool lock) FUNC_ATTR
     }
 
     recurse++;
-
-// lock/unlock the item itself
-#define CHANGE_LOCK(lock, var)                                                          \
-    do                                                                                  \
-    {                                                                                   \
-        var = ((VarLockStatus[]) { [VAR_UNLOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED), \
-            [VAR_LOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED),   \
-            [VAR_FIXED] = VAR_FIXED,                             \
-        })[var];                                               \
-    } while(0)
 
     CHANGE_LOCK(lock, tv->v_lock);
 
@@ -2322,10 +2331,9 @@ void tv_item_lock(typval_T *const tv, const int deep, const bool lock) FUNC_ATTR
         }
     }
 
-#undef CHANGE_LOCK
-
     recurse--;
 }
+#undef CHANGE_LOCK
 
 /// Check whether VimL value is locked itself or refers to a locked container
 ///
@@ -2340,16 +2348,16 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
         return true;
     }
 
-    if(tv->v_type == VAR_LIST   &&
-            tv->vval.v_list != NULL  &&
-            tv->vval.v_list->lv_lock == VAR_LOCKED)
+    if(tv->v_type == VAR_LIST
+       && tv->vval.v_list != NULL
+       && tv->vval.v_list->lv_lock == VAR_LOCKED)
     {
         return true;
     }
 
-    if(tv->v_type == VAR_DICT   &&
-            tv->vval.v_dict != NULL  &&
-            tv->vval.v_dict->dv_lock == VAR_LOCKED)
+    if(tv->v_type == VAR_DICT
+       && tv->vval.v_dict != NULL
+       && tv->vval.v_dict->dv_lock == VAR_LOCKED)
     {
         return true;
     }
@@ -2438,7 +2446,7 @@ bool tv_equal(typval_T *const tv1, typval_T *const tv2, const bool ic, const boo
 FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     // TODO(ZyX-I): Make this not recursive
-    static int recursive_cnt = 0;  // Catch recursive loops.
+    static int recursive_cnt = 0; // Catch recursive loops.
 
     if(!(tv_is_func(*tv1) && tv_is_func(*tv2)) && tv1->v_type != tv2->v_type)
     {
@@ -2483,8 +2491,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
         case VAR_PARTIAL:
         case VAR_FUNC:
         {
-            if((tv1->v_type == VAR_PARTIAL && tv1->vval.v_partial == NULL) ||
-                    (tv2->v_type == VAR_PARTIAL && tv2->vval.v_partial == NULL))
+            if((tv1->v_type == VAR_PARTIAL && tv1->vval.v_partial == NULL)
+               || (tv2->v_type == VAR_PARTIAL && tv2->vval.v_partial == NULL))
             {
                 return false;
             }
@@ -2718,7 +2726,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[out]  ret_error  If type error occurred then `true` will be written
 ///                         to this location. Otherwise it is not touched.
 ///
-///                         @note Needs to be initialized to `false` to be useful.
+/// @note Needs to be initialized to `false` to be useful.
 ///
 /// @return Number value: vim_str2nr() output for VAR_STRING objects, value
 ///         for VAR_NUMBER objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
@@ -2758,7 +2766,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1)
 
         case VAR_SPECIAL:
         {
-            switch (tv->vval.v_special)
+            switch(tv->vval.v_special)
             {
                 case kSpecialVarTrue:
                 {
@@ -2826,7 +2834,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 float_T tv_get_float(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    switch (tv->v_type)
+    switch(tv->v_type)
     {
         case VAR_NUMBER:
         {

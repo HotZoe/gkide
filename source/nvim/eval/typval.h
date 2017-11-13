@@ -15,8 +15,8 @@
 #include "nvim/mbyte.h"
 #include "nvim/func_attr.h"
 #include "nvim/lib/queue.h"
-#include "nvim/profile.h"  // for proftime_T
-#include "nvim/pos.h"      // for linenr_T
+#include "nvim/profile.h" // for proftime_T
+#include "nvim/pos.h" // for linenr_T
 #include "nvim/gettext.h"
 #include "nvim/message.h"
 #include "nvim/macros.h"
@@ -68,7 +68,7 @@ typedef struct dict_watcher
     char *key_pattern;
     size_t key_pattern_len;
     QUEUE node;
-    bool busy;  // prevent recursion if the dict is changed in the callback
+    bool busy;  ///< prevent recursion if the dict is changed in the callback
 } DictWatcher;
 
 /// Special variable values
@@ -122,8 +122,8 @@ typedef struct
 typedef enum
 {
     VAR_NO_SCOPE = 0,  ///< Not a scope dictionary.
-    VAR_SCOPE = 1,     ///< Scope dictionary which requires prefix (**a:**, **v:**, ...).
-    VAR_DEF_SCOPE = 2, ///< Scope dictionary which may be accessed without prefix (**l:**, **g:**).
+    VAR_SCOPE = 1,     ///< Scope dictionary which requires prefix (a:, v:, ...).
+    VAR_DEF_SCOPE = 2, ///< Scope dictionary which may be accessed without prefix (l:, g:).
 } ScopeType;
 
 /// Structure to hold an item of a list
@@ -166,7 +166,7 @@ struct listvar_S
 /// Use init_static_list"()" to initialize.
 typedef struct
 {
-    list_T sl_list;  // must be first
+    list_T sl_list; // must be first
     listitem_T sl_items[10];
 } staticList10_T;
 
@@ -218,7 +218,7 @@ struct dictvar_S
 {
     VarLockStatus dv_lock;  ///< Whole dictionary lock status.
     ScopeType dv_scope;     ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
-                            ///< dictionary represents a scope (i.e. **g:**, **l:** ...).
+                            ///< dictionary represents a scope (i.e. g:, l: ...).
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
     hashtab_T dv_hashtab;   ///< Hashtab containing all items.
@@ -264,9 +264,9 @@ struct ufunc
     int          uf_tml_idx;       ///< index of line being timed; -1 if none
     int          uf_tml_execed;    ///< line being timed was executed
     scid_T       uf_script_ID;     ///< ID of script where function was defined,
-                                   ///< used for **s:** variables
+                                   ///< used for s: variables
     int          uf_refcount;      ///< reference count, see func_name_refcount()
-    funccall_T   *uf_scoped;       ///< **l:** local variables for closure
+    funccall_T   *uf_scoped;       ///< l: local variables for closure
     char_u       uf_name[1];       ///< name of function (actually longer); can start with
                                    ///< <SNR>123_ (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
 };
@@ -278,10 +278,9 @@ struct partial_S
 {
     int pt_refcount;   ///< Reference count.
     char_u *pt_name;   ///< Function name; when NULL use pt_func->name.
-    ufunc_T *pt_func;  ///< Function pointer; when NULL lookup function with
-    ///< pt_name.
+    ufunc_T *pt_func;  ///< Function pointer; when NULL lookup function with pt_name.
     bool pt_auto;      ///< When true the partial was created by using dict.member
-    ///< in handle_subscript().
+                       ///< in handle_subscript().
     int pt_argc;       ///< Number of arguments.
     typval_T *pt_argv; ///< Arguments in allocated array.
     dict_T *pt_dict;   ///< Dict for "self".
@@ -383,13 +382,13 @@ extern bool tv_in_free_unref_items;
 /// @param     code  Cycle body.
 #define TV_DICT_ITER(d, di, code)                          \
     HASHTAB_ITER(&(d)->dv_hashtab, di##hi_, {              \
-                                                           {                                                  \
-                                                                   dictitem_T *const di = TV_DICT_HI2DI(di##hi_); \
-    {                                              \
-        code                                       \
-    }                                              \
-                                                           }                                                  \
-                                            })
+        {                                                  \
+            dictitem_T *const di = TV_DICT_HI2DI(di##hi_); \
+            {                                              \
+                code                                       \
+            }                                              \
+        }                                                  \
+    })
 
 static inline bool tv_get_float_chk(const typval_T *const tv, float_T *const ret_f)
 REAL_FATTR_NONNULL_ALL REAL_FATTR_WARN_UNUSED_RESULT;

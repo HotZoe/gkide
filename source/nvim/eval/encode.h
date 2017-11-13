@@ -9,7 +9,7 @@
 
 #include "nvim/eval.h"
 #include "nvim/garray.h"
-#include "nvim/vim.h"    // For STRLEN
+#include "nvim/vim.h" // For STRLEN
 
 /// Convert VimL value to msgpack string
 ///
@@ -45,8 +45,7 @@ typedef struct
 static inline ListReaderState encode_init_lrstate(const list_T *const list)
 FUNC_ATTR_NONNULL_ALL
 {
-    return (ListReaderState)
-    {
+    return (ListReaderState) {
         .li = list->lv_first,
         .offset = 0,
         .li_length = (list->lv_first->li_tv.vval.v_string == NULL
