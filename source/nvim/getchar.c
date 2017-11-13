@@ -1901,10 +1901,8 @@ int vpeekc_any(void)
     return c;
 }
 
-/*
- * Call vpeekc() without causing anything to be mapped.
- * Return TRUE if a character is available, FALSE otherwise.
- */
+/// Call vpeekc() without causing anything to be mapped.
+/// Return TRUE if a character is available, FALSE otherwise.
 int char_avail(void)
 {
     int retval;
@@ -1914,10 +1912,8 @@ int char_avail(void)
     return retval != NUL;
 }
 
-void
-vungetc ( /* unget one character (can only be done once!) */
-    int c
-)
+/// @param c unget one character (can only be done once!)
+void vungetc(int c)
 {
     old_char = c;
     old_mod_mask = mod_mask;

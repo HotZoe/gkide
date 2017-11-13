@@ -1092,7 +1092,7 @@ void free_all_options(void)
 #endif
 
 
-/// Initialize the options, part two: After getting **Rows** and **Columns**.
+/// Initialize the options, part two: After getting @b Rows and @b Columns.
 void set_init_2(bool headless)
 {
     // 'scroll' defaults to half the window height. Note that this default is
@@ -1121,8 +1121,8 @@ void set_init_2(bool headless)
         set_string_option_direct((char_u *)"guicursor", -1, (char_u *)"", OPT_GLOBAL, SID_NONE);
     }
 
-    parse_shape_opt(SHAPE_CURSOR);  // set cursor shapes from 'guicursor'
-    (void)parse_printoptions();     // parse 'printoptions' default value
+    parse_shape_opt(SHAPE_CURSOR); // set cursor shapes from 'guicursor'
+    (void)parse_printoptions(); // parse 'printoptions' default value
 }
 
 /// Initialize the options, part three: After reading the *.nvimrc
