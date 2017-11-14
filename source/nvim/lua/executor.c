@@ -183,6 +183,7 @@ static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
 #define DOSTART "return function(line, linenr) "
 #define DOEND   " end"
+
     const size_t lcmd_len = (str->size + (sizeof(DOSTART) - 1) + (sizeof(DOEND) - 1));
     char *lcmd;
 
@@ -198,6 +199,7 @@ static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
     memcpy(lcmd, DOSTART, sizeof(DOSTART) - 1);
     memcpy(lcmd + sizeof(DOSTART) - 1, str->data, str->size);
     memcpy(lcmd + sizeof(DOSTART) - 1 + str->size, DOEND, sizeof(DOEND) - 1);
+
 #undef DOSTART
 #undef DOEND
 
@@ -385,6 +387,7 @@ static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
     ga_init(&str_ga, 1, 80);
 
 #define EVALHEADER "local _A=select(1,...) return ("
+
     const size_t lcmd_len = sizeof(EVALHEADER) - 1 + str->size + 1;
     char *lcmd;
 
@@ -400,6 +403,7 @@ static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
     memcpy(lcmd, EVALHEADER, sizeof(EVALHEADER) - 1);
     memcpy(lcmd + sizeof(EVALHEADER) - 1, str->data, str->size);
     lcmd[lcmd_len - 1] = ')';
+
 #undef EVALHEADER
 
     if(luaL_loadbuffer(lstate, lcmd, lcmd_len, NLUA_EVAL_NAME))
@@ -487,7 +491,7 @@ static int nlua_exec_lua_string_api(lua_State *const lstate) FUNC_ATTR_NONNULL_A
 /// @param  lstate  Lua interpreter state.
 static int nlua_print(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 {
-#define PRINT_ERROR(msg)          \
+#define PRINT_ERROR(msg)              \
     do                                \
     {                                 \
         errmsg = msg;                 \
@@ -583,9 +587,11 @@ static int nlua_print(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
     }
 
     ga_clear(&msg_ga);
+
     return 0;
 
 nlua_print_error:
+
     emsgf(_("E5114: Error while converting print argument #%i: %.*s"),
           curargidx,
           errmsg_len,
@@ -603,7 +609,8 @@ nlua_print_error:
 /// @param  lstate  Lua interpreter state.
 int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
 {
-    const typval_T input_args[] = { {
+    const typval_T input_args[] = {
+        {
             .v_lock = VAR_FIXED,
             .v_type = VAR_STRING,
             .vval.v_string = (char_u *)"lua_debug> ",
@@ -616,12 +623,12 @@ int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
         lua_settop(lstate, 0);
         typval_T input;
         get_user_input(input_args, &input, false);
-        msg_putchar('\n');  // Avoid outputting on input line.
+        msg_putchar('\n'); // Avoid outputting on input line.
 
-        if(input.v_type != VAR_STRING  ||
-                input.vval.v_string == NULL ||
-                *input.vval.v_string == NUL ||
-                STRCMP(input.vval.v_string, "cont") == 0)
+        if(input.v_type != VAR_STRING
+           || input.vval.v_string == NULL
+           || *input.vval.v_string == NUL
+           || STRCMP(input.vval.v_string, "cont") == 0)
         {
             tv_clear(&input);
             return 0;
@@ -711,10 +718,9 @@ void ex_lua(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
     }
 
     typval_T tv = { .v_type = VAR_UNKNOWN };
-    executor_exec_lua((String)
-    {
-        .data = code, .size = len
-    }, &tv);
+
+    executor_exec_lua((String) { .data = code, .size = len }, &tv);
+
     tv_clear(&tv);
     xfree(code);
 }
