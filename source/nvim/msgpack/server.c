@@ -70,8 +70,7 @@ static void close_socket_watcher(SocketWatcher **watcher)
 /// servers are known.
 static void set_vservername(garray_T *srvs)
 {
-    char *default_server = (srvs->ga_len > 0)
-                           ? ((SocketWatcher **)srvs->ga_data)[0]->addr : NULL;
+    char *default_server = (srvs->ga_len > 0) ? ((SocketWatcher **)srvs->ga_data)[0]->addr : NULL;
     set_vim_var_string(VV_SEND_SERVER, default_server, -1);
 }
 
@@ -204,6 +203,7 @@ void server_stop(char *endpoint)
 {
     SocketWatcher *watcher;
     char addr[ADDRESS_MAX_SIZE];
+
     // Trim to 'ADDRESS_MAX_SIZE'
     xstrlcpy(addr, endpoint, sizeof(addr));
     int i = 0;  // Index of the server whose address equals addr.
@@ -238,7 +238,7 @@ void server_stop(char *endpoint)
     if(i != watchers.ga_len - 1)
     {
         ((SocketWatcher **)watchers.ga_data)[i] =
-            ((SocketWatcher **)watchers.ga_data)[watchers.ga_len - 1];
+                ((SocketWatcher **)watchers.ga_data)[watchers.ga_len - 1];
     }
 
     watchers.ga_len--;

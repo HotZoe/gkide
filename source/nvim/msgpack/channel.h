@@ -13,9 +13,10 @@
 
 #define METHOD_MAXLEN 512
 
-/// HACK: os/input.c drains this queue immediately before blocking for input.
-///       Events on this queue are async-safe, but they need the resolved state
-///       of os_inchar(), so they are processed "just-in-time".
+/// HACK:
+/// os/input.c drains this queue immediately before blocking for input.
+/// Events on this queue are async-safe, but they need the resolved state
+/// of os_inchar(), so they are processed "just-in-time".
 MultiQueue *ch_before_blocking_events;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
