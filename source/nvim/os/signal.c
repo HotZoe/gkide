@@ -8,7 +8,7 @@
 #include "config.h"
 
 #ifndef HOST_OS_WINDOWS
-    #include <signal.h>  // for sigset_t
+    #include <signal.h> // for sigset_t
 #endif
 
 #include "nvim/ascii.h"
@@ -23,7 +23,10 @@
 #include "nvim/os/signal.h"
 #include "nvim/event/loop.h"
 
-static SignalWatcher spipe, shup, squit, sterm;
+static SignalWatcher shup;
+static SignalWatcher spipe;
+static SignalWatcher squit;
+static SignalWatcher sterm;
 
 #ifdef SIGPWR
     static SignalWatcher spwr;
@@ -47,20 +50,25 @@ void signal_init(void)
     {
         ERROR_LOG("Could not unblock signals, nvim might behave strangely.");
     }
-
 #endif
+
     signal_watcher_init(&main_loop, &spipe, NULL);
     signal_watcher_init(&main_loop, &shup,  NULL);
     signal_watcher_init(&main_loop, &squit, NULL);
     signal_watcher_init(&main_loop, &sterm, NULL);
+
 #ifdef SIGPIPE
     signal_watcher_start(&spipe, on_signal, SIGPIPE);
 #endif
+
     signal_watcher_start(&shup, on_signal, SIGHUP);
+
 #ifdef SIGQUIT
     signal_watcher_start(&squit, on_signal, SIGQUIT);
 #endif
+
     signal_watcher_start(&sterm, on_signal, SIGTERM);
+
 #ifdef SIGPWR
     signal_watcher_init(&main_loop, &spwr, NULL);
     signal_watcher_start(&spwr, on_signal, SIGPWR);
@@ -74,6 +82,7 @@ void signal_teardown(void)
     signal_watcher_close(&shup,  NULL);
     signal_watcher_close(&squit, NULL);
     signal_watcher_close(&sterm, NULL);
+
 #ifdef SIGPWR
     signal_watcher_close(&spwr, NULL);
 #endif
@@ -85,6 +94,7 @@ void signal_stop(void)
     signal_watcher_stop(&shup);
     signal_watcher_stop(&squit);
     signal_watcher_stop(&sterm);
+
 #ifdef SIGPWR
     signal_watcher_stop(&spwr);
 #endif
@@ -105,20 +115,19 @@ static char *signal_name(int signum)
     switch (signum)
     {
 #ifdef SIGPWR
-
         case SIGPWR:
             return "SIGPWR";
 #endif
-#ifdef SIGPIPE
 
+#ifdef SIGPIPE
         case SIGPIPE:
             return "SIGPIPE";
 #endif
 
         case SIGTERM:
             return "SIGTERM";
-#ifdef SIGQUIT
 
+#ifdef SIGQUIT
         case SIGQUIT:
             return "SIGQUIT";
 #endif
@@ -138,10 +147,12 @@ static void deadly_signal(int signum)
 {
     // Set the v:dying variable.
     set_vim_var_nr(VV_DYING, 1);
+
     snprintf((char *)IObuff,
              sizeof(IObuff),
              "Vim: Caught deadly signal '%s'\n",
              signal_name(signum));
+
     // Preserve files and exit.
     preserve_exit();
 }
@@ -155,14 +166,13 @@ static void on_signal(SignalWatcher *FUNC_ARGS_UNUSED_REALY(handle),
     switch (signum)
     {
 #ifdef SIGPWR
-
         case SIGPWR:
             // Signal of a power failure(eg batteries low), flush the swap files to be safe
             ml_sync_all(false, false);
             break;
 #endif
-#ifdef SIGPIPE
 
+#ifdef SIGPIPE
         case SIGPIPE:
             // Ignore
             break;

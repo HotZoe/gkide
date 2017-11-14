@@ -283,7 +283,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             assert(rbuffer_size(rv) == 0);
             rbuffer_reset(rv);
-#ifdef HAVE_FUN_READV
+
+        #ifdef HAVE_FUN_READV
             // If there is readv() syscall, then take an opportunity to populate
             // both target buffer and RBuffer at once
             size_t write_count;
@@ -313,9 +314,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 return r_ret;
             }
-
-#else
-
+        #else
             if(read_remaining >= kRWBufferSize)
             {
                 // otherwise leave RBuffer empty and populate only target buffer,
@@ -350,8 +349,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                     return r_ret;
                 }
             }
-
-#endif
+    #endif
         }
     }
 
@@ -400,9 +398,8 @@ ptrdiff_t file_skip(FileDescriptor *const fp, const size_t size) FUNC_ATTR_NONNU
 
     do
     {
-        const ptrdiff_t new_read_bytes = file_read(fp,
-                                                   skipbuf,
-                                                   MIN(size - read_bytes, sizeof(skipbuf)));
+        const ptrdiff_t new_read_bytes =
+                file_read(fp, skipbuf, MIN(size - read_bytes, sizeof(skipbuf)));
 
         if(new_read_bytes < 0)
         {

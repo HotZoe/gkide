@@ -67,6 +67,7 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
 {
     uint64_t elapsed = 0u;
     uint64_t base = uv_hrtime();
+
     // Convert microseconds to nanoseconds, or UINT64_MAX on overflow.
     const uint64_t ns = (ms < UINT64_MAX / 1000u) ? ms * 1000u : UINT64_MAX;
     uv_mutex_lock(&delay_mutex);
@@ -75,17 +76,18 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
     {
         // If ignoring input, we simply wait the full delay.
         // Else we check for input in ~100ms intervals.
-        const uint64_t ns_delta = ignoreinput
-                                  ? ns - elapsed
-                                  : MIN(ns - elapsed, 100000000u);  // 100ms
+        const uint64_t ns_delta = ignoreinput // 100ms
+                                  ? ns - elapsed : MIN(ns - elapsed, 100000000u);
+
         const int rv = uv_cond_timedwait(&delay_cond, &delay_mutex, ns_delta);
 
         if(0 != rv && UV_ETIMEDOUT != rv)
         {
             assert(false);
             break;
-        }  // Else: Timeout proceeded normally.
+        }
 
+        // Else: Timeout proceeded normally.
         if(!ignoreinput && os_char_avail())
         {
             break;
@@ -107,7 +109,7 @@ FUNC_ATTR_NONNULL_ALL
 {
 #ifdef UNIX
     // POSIX provides localtime_r() as a thread-safe version of localtime().
-    return localtime_r(clock, result);  // NOLINT(runtime/threadsafe_fn)
+    return localtime_r(clock, result); // NOLINT(runtime/threadsafe_fn)
 #else
     // Windows version of localtime() is thread-safe.
     // See http://msdn.microsoft.com/en-us/library/bf12f0hc%28VS.80%29.aspx

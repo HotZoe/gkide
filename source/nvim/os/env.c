@@ -21,7 +21,7 @@
 #include "config.h"
 
 #ifdef HOST_OS_WINDOWS
-    #include "nvim/mbyte.h"  // for utf8_to_utf16, utf16_to_utf8
+    #include "nvim/mbyte.h" // for utf8_to_utf16, utf16_to_utf8
 #endif
 
 #ifdef HAVE__NSGETENVIRON
@@ -972,7 +972,7 @@ char *vim_getenv(const char *name)
     return NULL;
 }
 
-/// Replace home directory by **~** in each space or comma separated file name in **src**
+/// Replace home directory by ~ in each space or comma separated file name in @b src
 /// If anything fails (except when out of space) dst equals src.
 ///
 /// @param buf    When not NULL, check for help files
@@ -980,7 +980,11 @@ char *vim_getenv(const char *name)
 /// @param dst    Where to put the result
 /// @param dstlen Maximum length of the result
 /// @param one    If true, only replace one file name, including spaces and commas in the file name
-void home_replace(const buf_T *const buf, const char_u *src, char_u *dst, size_t dstlen, bool one)
+void home_replace(const buf_T *const buf,
+                  const char_u *src,
+                  char_u *dst,
+                  size_t dstlen,
+                  bool one)
 {
     size_t dirlen = 0, envlen = 0;
     size_t len;
@@ -1047,10 +1051,11 @@ void home_replace(const buf_T *const buf, const char_u *src, char_u *dst, size_t
 
         for(;;)
         {
-            if(len && fnamencmp(src, p, len) == 0
-                    && (vim_ispathsep(src[len])
-                        || (!one && (src[len] == ',' || src[len] == ' '))
-                        || src[len] == NUL))
+            if(len
+               && fnamencmp(src, p, len) == 0
+               && (vim_ispathsep(src[len])
+                   || (!one && (src[len] == ',' || src[len] == ' '))
+                   || src[len] == NUL))
             {
                 src += len;
 
@@ -1166,7 +1171,9 @@ bool os_setenv_append_path(const char *fname) FUNC_ATTR_NONNULL_ALL
 
     const char *tail = (char *)path_tail_with_sep((char_u *)fname);
     size_t dirlen = (size_t)(tail - fname);
+
     assert(tail >= fname &&dirlen + 1 < sizeof(os_buf));
+
     xstrlcpy(os_buf, fname, dirlen + 1);
 
     const char *path = os_getenv("PATH");
@@ -1206,8 +1213,8 @@ bool os_term_is_nice(void)
     const char *vte_version = os_getenv("VTE_VERSION");
 
     if((vte_version && atoi(vte_version) >= 3900)
-            || os_getenv("KONSOLE_PROFILE_NAME")
-            || os_getenv("KONSOLE_DBUS_SESSION"))
+       || os_getenv("KONSOLE_PROFILE_NAME")
+       || os_getenv("KONSOLE_DBUS_SESSION"))
     {
         return true;
     }

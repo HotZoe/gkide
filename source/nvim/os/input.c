@@ -221,7 +221,8 @@ size_t input_enqueue(String keys)
         {
             char *old_ptr = ptr;
 
-            // Invalid or incomplete key sequence, skip until the next '>' or *end.
+            // Invalid or incomplete key sequence,
+            // skip until the next '>' or *end.
             do
             {
                 ptr++;
@@ -229,7 +230,8 @@ size_t input_enqueue(String keys)
 
             if(*ptr != '>')
             {
-                // Incomplete key sequence, return without consuming.
+                // Incomplete key sequence,
+                // return without consuming.
                 ptr = old_ptr;
                 break;
             }
@@ -241,33 +243,15 @@ size_t input_enqueue(String keys)
         // copy the character, escaping CSI and K_SPECIAL
         if((uint8_t)*ptr == CSI)
         {
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                K_SPECIAL
-            }, 1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KS_EXTRA
-            },  1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KE_CSI
-            },    1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { K_SPECIAL }, 1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KS_EXTRA },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KE_CSI },    1);
         }
         else if((uint8_t)*ptr == K_SPECIAL)
         {
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                K_SPECIAL
-            },  1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KS_SPECIAL
-            }, 1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KE_FILLER
-            },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { K_SPECIAL },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KS_SPECIAL }, 1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KE_FILLER },  1);
         }
         else
         {
@@ -301,8 +285,8 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
     }
 
     if(type != KS_EXTRA
-            || !((mouse_code >= KE_LEFTMOUSE && mouse_code <= KE_RIGHTRELEASE)
-                 || (mouse_code >= KE_MOUSEDOWN && mouse_code <= KE_MOUSERIGHT)))
+       || !((mouse_code >= KE_LEFTMOUSE && mouse_code <= KE_RIGHTRELEASE)
+            || (mouse_code >= KE_MOUSEDOWN && mouse_code <= KE_MOUSERIGHT)))
     {
         return bufsize;
     }
@@ -316,7 +300,8 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
     {
         if(col >= 0 && row >= 0)
         {
-            // Make sure the mouse position is valid.  Some terminals may return weird values.
+            // Make sure the mouse position is valid.
+            // Some terminals may return weird values.
             if(col >= Columns)
             {
                 col = (int)Columns - 1;
@@ -337,24 +322,25 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
     static int orig_num_clicks = 0;
 
     if(mouse_code != KE_LEFTRELEASE
-            && mouse_code != KE_RIGHTRELEASE
-            && mouse_code != KE_MIDDLERELEASE)
+       && mouse_code != KE_RIGHTRELEASE
+       && mouse_code != KE_MIDDLERELEASE)
     {
         static int orig_mouse_code = 0;
         static int orig_mouse_col = 0;
         static int orig_mouse_row = 0;
-        static uint64_t orig_mouse_time = 0;  // time of previous mouse click
-        uint64_t mouse_time = os_hrtime();    // time of current mouse click (ns)
+        static uint64_t orig_mouse_time = 0; // time of previous mouse click
+        uint64_t mouse_time = os_hrtime(); // time of current mouse click (ns)
+
         // compute the time elapsed since the previous mouse click and
         // convert p_mouse from ms to ns
         uint64_t timediff = mouse_time - orig_mouse_time;
         uint64_t mouset = (uint64_t)p_mouset * 1000000;
 
         if(mouse_code == orig_mouse_code
-                && timediff < mouset
-                && orig_num_clicks != 4
-                && orig_mouse_col == mouse_col
-                && orig_mouse_row == mouse_row)
+           && timediff < mouset
+           && orig_num_clicks != 4
+           && orig_mouse_col == mouse_col
+           && orig_mouse_row == mouse_row)
         {
             orig_num_clicks++;
         }
@@ -390,6 +376,7 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
         {
             // no modifiers in the buffer yet, shift the bytes 3 positions
             memcpy(buf + 3, buf, 3);
+
             // add the modifier sequence
             buf[0] = K_SPECIAL;
             buf[1] = KS_MODIFIER;
@@ -420,7 +407,8 @@ static bool input_poll(int ms)
 
     if((ms == - 1 || ms > 0) && !events_enabled && !input_eof)
     {
-        // The pending input provoked a blocking wait. Do special events now. #6247
+        // The pending input provoked a blocking wait.
+        // Do special events now. #6247
         blocking = true;
         multiqueue_process_events(ch_before_blocking_events);
     }
@@ -469,6 +457,7 @@ static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
     }
 
     assert(rbuffer_space(input_buffer) >= rbuffer_size(buf));
+
     RBUFFER_UNTIL_EMPTY(buf, ptr, len)
     {
         (void)rbuffer_write(input_buffer, ptr, len);
@@ -484,6 +473,7 @@ static void process_interrupts(void)
     }
 
     size_t consume_count = 0;
+
     RBUFFER_EACH_REVERSE(input_buffer, c, i)
     {
         if((uint8_t)c == 3)
@@ -501,8 +491,8 @@ static void process_interrupts(void)
     }
 }
 
-// Helper function used to push bytes from the 'event' key sequence partially
-// between calls to os_inchar when maxlen < 3
+/// Helper function used to push bytes from the 'event' key sequence partially
+/// between calls to os_inchar when maxlen < 3
 static int push_event_key(uint8_t *buf, int maxlen)
 {
     static const uint8_t key[3] = { K_SPECIAL, KS_EXTRA, KE_EVENT };
@@ -518,7 +508,7 @@ static int push_event_key(uint8_t *buf, int maxlen)
     return buf_idx;
 }
 
-// Check if there's pending input
+/// Check if there's pending input
 static bool input_ready(void)
 {
     return (typebuf_was_filled             // API call filled typeahead
@@ -526,7 +516,7 @@ static bool input_ready(void)
             || pending_events());          // Events must be processed
 }
 
-// Exit because of an input read error.
+/// Exit because of an input read error.
 static void read_error_exit(void)
 {
     if(silent_mode)

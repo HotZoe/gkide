@@ -101,11 +101,11 @@ static char *get_xdg_home(const XDGVarType idx) FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(dir)
     {
-        #if defined(HOST_OS_WINDOWS)
+#if defined(HOST_OS_WINDOWS)
         dir = concat_fnames_realloc(dir, (idx == kXDGDataHome ? "nvim-data" : "nvim"), true);
-        #else
+#else
         dir = concat_fnames_realloc(dir, "nvim", true);
-        #endif
+#endif
     }
 
     return dir;

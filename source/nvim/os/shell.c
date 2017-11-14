@@ -28,8 +28,8 @@
 #include "nvim/strings.h"
 
 #define DYNAMIC_BUFFER_INIT { NULL, 0, 0 }
-#define NS_1_SECOND         1000000000U     // 1 second, in nanoseconds
-#define OUT_DATA_THRESHOLD  1024 * 10U      // 10KB, "a few screenfuls" of data.
+#define NS_1_SECOND         1000000000U     ///< 1 second, in nanoseconds
+#define OUT_DATA_THRESHOLD  1024 * 10U      ///< 10KB, "a few screenfuls" of data.
 
 typedef struct
 {
@@ -67,8 +67,8 @@ char **shell_build_argv(const char *cmd, const char *extra_args) FUNC_ATTR_NONNU
 
     if(cmd)
     {
-        i += tokenize(p_shcf, rv + i);        // Split 'shellcmdflag'
-        rv[i++] = shell_xescape_xquote(cmd);  // Copy (and escape) `cmd`.
+        i += tokenize(p_shcf, rv + i); // Split 'shellcmdflag'
+        rv[i++] = shell_xescape_xquote(cmd); // Copy (and escape) `cmd`.
     }
 
     rv[i] = NULL;
@@ -112,6 +112,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     char *output = NULL, **output_ptr = NULL;
     int current_state = State;
     bool forward_output = true;
+
     // While the child is running, ignore terminating signals
     signal_reject_deadly();
 
@@ -197,8 +198,9 @@ static int do_os_system(char **argv,
                         bool silent,
                         bool forward_output)
 {
-    out_data_decide_throttle(0);  // Initialize throttle decider.
-    out_data_ring(NULL, 0);       // Initialize output ring-buffer.
+    out_data_decide_throttle(0); // Initialize throttle decider.
+    out_data_ring(NULL, 0); // Initialize output ring-buffer.
+
     // the output buffer
     DynamicBuffer buf = DYNAMIC_BUFFER_INIT;
     stream_read_cb data_cb = system_data_cb;
@@ -220,17 +222,21 @@ static int do_os_system(char **argv,
     // Copy the program name in case we need to report an error.
     char prog[MAXPATHL];
     xstrlcpy(prog, argv[0], MAXPATHL);
+
     LibuvProcess uvproc = libuv_process_init(&main_loop, &buf);
     Process *proc = &uvproc.process;
     MultiQueue *events = multiqueue_new_child(main_loop.events);
+
     Stream in;
     Stream out;
     Stream err;
+
     proc->events = events;
     proc->argv = argv;
     proc->in = input != NULL ? &in : NULL;
     proc->out = &out;
     proc->err = &err;
+
     int status = process_spawn(proc);
 
     if(status)
@@ -284,10 +290,11 @@ static int do_os_system(char **argv,
         wstream_set_write_cb(&in, shell_write_cb, NULL);
     }
 
-    // Invoke busy_start here so LOOP_PROCESS_EVENTS_UNTIL will not change the
-    // busy state.
+    // Invoke busy_start here so LOOP_PROCESS_EVENTS_UNTIL
+    // will not change the busy state.
     ui_busy_start();
     ui_flush();
+
     int exitcode = process_wait(proc, -1, NULL);
 
     if(!got_int && out_data_decide_throttle(0))
@@ -377,10 +384,10 @@ static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
 ///          Returns the previous decision if size=0.
 static bool out_data_decide_throttle(size_t size)
 {
-    static uint64_t started     = 0;  // Start time of the current throttle.
-    static size_t   received    = 0;  // Bytes observed since last throttle.
-    static size_t   visit       = 0;  // "Pulse" count of the current throttle.
-    static char     pulse_msg[] = { ' ', ' ', ' ', '\0' };
+    static uint64_t started = 0; // Start time of the current throttle.
+    static size_t received = 0; // Bytes observed since last throttle.
+    static size_t visit = 0; // "Pulse" count of the current throttle.
+    static char pulse_msg[] = { ' ', ' ', ' ', '\0' };
 
     if(!size)
     {
@@ -416,6 +423,7 @@ static bool out_data_decide_throttle(size_t size)
     size_t tick = (visit % 20 == 0)
                   ? 3  // Force all dots "..." on last visit.
                   : (visit % 4);
+
     pulse_msg[0] = (tick == 0) ? ' ' : '.';
     pulse_msg[1] = (tick == 0 || 1 == tick) ? ' ' : '.';
     pulse_msg[2] = (tick == 0 || 1 == tick || 2 == tick) ? ' ' : '.';
@@ -446,8 +454,10 @@ static bool out_data_decide_throttle(size_t size)
 static void out_data_ring(char *output, size_t size)
 {
 #define MAX_CHUNK_SIZE  (OUT_DATA_THRESHOLD / 2)
-    static char    last_skipped[MAX_CHUNK_SIZE];  // Saved output.
+
+    static char    last_skipped[MAX_CHUNK_SIZE]; // Saved output.
     static size_t  last_skipped_len = 0;
+
     assert(output != NULL || (size == 0 || size == SIZE_MAX));
 
     if(output == NULL && size == 0)
@@ -522,7 +532,8 @@ static void out_data_append_to_screen(char *output, size_t remaining, bool new_l
             continue;
         }
 
-        // TODO(bfredl): using msg_puts would be better until terminal emulation is implemented.
+        // TODO(bfredl): using msg_puts would be better
+        // until terminal emulation is implemented.
         if(output[off] < 0x20)
         {
             output[off] = ' ';
@@ -556,14 +567,15 @@ static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                         void *FUNC_ARGS_UNUSED_REALY(data),
                         bool eof)
 {
-    // We always output the whole buffer, so the buffer can never wrap around.
+    // We always output the whole buffer,
+    // so the buffer can never wrap around.
     size_t cnt;
     char *ptr = rbuffer_read_ptr(buf, &cnt);
 
     if(ptr != NULL && cnt > 0 && out_data_decide_throttle(cnt))
     {
-        // Skip output above a threshold.
-        // Save the skipped output. If it is the final chunk, we display it later.
+        // Skip output above a threshold. Save the skipped output. 
+        // If it is the final chunk, we display it later.
         out_data_ring(ptr, cnt);
     }
     else
@@ -677,9 +689,9 @@ static void read_input(DynamicBuffer *buf)
             // Finished a line, add a NL, unless this line should not have one.
             // FIXME need to make this more readable
             if(lnum != curbuf->b_op_end.lnum
-                    || (!curbuf->b_p_bin && curbuf->b_p_fixeol)
-                    || (lnum != curbuf->b_no_eol_lnum
-                        && (lnum != curbuf->b_ml.ml_line_count || curbuf->b_p_eol)))
+               || (!curbuf->b_p_bin && curbuf->b_p_fixeol)
+               || (lnum != curbuf->b_no_eol_lnum
+                   && (lnum != curbuf->b_ml.ml_line_count || curbuf->b_p_eol)))
             {
                 dynamic_buffer_ensure(buf, buf->len + 1);
                 buf->data[buf->len++] = NL;
@@ -754,6 +766,7 @@ static size_t write_output(char *output, size_t remaining, bool to_buffer, bool 
             {
                 // append unfinished line
                 ml_append(curwin->w_cursor.lnum++, (char_u *)output, 0, false);
+
                 // remember that the NL was missing
                 curbuf->b_no_eol_lnum = curwin->w_cursor.lnum;
             }

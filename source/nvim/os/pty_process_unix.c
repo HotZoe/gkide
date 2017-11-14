@@ -45,16 +45,15 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
         init_termios(&termios);
     }
 
-    int status = 0;  // zero or negative error code (libuv convention)
+    int status = 0; // zero or negative error code (libuv convention)
     Process *proc = (Process *)ptyproc;
 
     assert(!proc->err);
 
     uv_signal_start(&proc->loop->children_watcher, chld_handler, SIGCHLD);
-    ptyproc->winsize = (struct winsize)
-    {
-        ptyproc->height, ptyproc->width, 0, 0
-    };
+
+    ptyproc->winsize = (struct winsize) { ptyproc->height, ptyproc->width, 0, 0 };
+
     uv_disable_stdio_inheritance();
     int master;
     int pid = forkpty(&master, NULL, &termios, &ptyproc->winsize);
@@ -117,12 +116,13 @@ error:
     return status;
 }
 
-void pty_process_resize(PtyProcess *ptyproc, uint16_t width, uint16_t height) FUNC_ATTR_NONNULL_ALL
+void pty_process_resize(PtyProcess *ptyproc,
+                        uint16_t width,
+                        uint16_t height)
+FUNC_ATTR_NONNULL_ALL
 {
-    ptyproc->winsize = (struct winsize)
-    {
-        height, width, 0, 0
-    };
+    ptyproc->winsize = (struct winsize) { height, width, 0, 0 };
+
     ioctl(ptyproc->tty_fd, TIOCSWINSZ, &ptyproc->winsize);
 }
 

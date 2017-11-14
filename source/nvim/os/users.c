@@ -14,8 +14,8 @@
     #include <pwd.h>
 #endif
 
-// Initialize users garray and fill it with os usernames.
-// Return Ok for success, FAIL for failure.
+/// Initialize users garray and fill it with os usernames.
+/// Return Ok for success, FAIL for failure.
 int os_get_usernames(garray_T *users)
 {
     if(users == NULL)
@@ -24,6 +24,7 @@ int os_get_usernames(garray_T *users)
     }
 
     ga_init(users, sizeof(char *), 20);
+
 #if defined(HAVE_FUN_GETPWENT) && defined(HAVE_HDR_PWD_H)
     struct passwd *pw;
     setpwent();
@@ -39,11 +40,12 @@ int os_get_usernames(garray_T *users)
 
     endpwent();
 #endif
+
     return OK;
 }
 
-// Insert user name in s[len].
-// Return OK if a name found.
+/// Insert user name in s[len].
+/// Return OK if a name found.
 int os_get_user_name(char *s, size_t len)
 {
 #ifdef UNIX
@@ -54,23 +56,23 @@ int os_get_user_name(char *s, size_t len)
 #endif
 }
 
-// Insert user name for "uid" in s[len].
-// Return OK if a name found.
-// If the name is not found, write the uid into s[len] and return FAIL.
+/// Insert user name for "uid" in s[len].
+/// Return OK if a name found.
+/// If the name is not found, write the uid into s[len] and return FAIL.
 int os_get_uname(uv_uid_t uid, char *s, size_t len)
 {
 #if defined(HAVE_HDR_PWD_H) && defined(HAVE_FUN_GETPWUID)
     struct passwd *pw;
 
-    if((pw = getpwuid(uid)) != NULL  // NOLINT(runtime/threadsafe_fn)
-            && pw->pw_name != NULL
-            && *(pw->pw_name) != NUL)
+    if((pw = getpwuid(uid)) != NULL // NOLINT(runtime/threadsafe_fn)
+       && pw->pw_name != NULL
+       && *(pw->pw_name) != NUL)
     {
         STRLCPY(s, pw->pw_name, len);
         return OK;
     }
-
 #endif
+
     // a number is not a name
     snprintf(s, len, "%d", (int)uid);
     return FAIL;
@@ -93,9 +95,11 @@ char *os_get_user_directory(const char *name)
 
     if(pw != NULL)
     {
-        // save the string from the static passwd entry into malloced memory
+        // save the string from the static
+        // passwd entry into malloced memory
         return xstrdup(pw->pw_dir);
     }
 #endif
+
     return NULL;
 }
