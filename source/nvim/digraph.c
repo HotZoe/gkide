@@ -43,9 +43,7 @@ static garray_T user_digraphs = {0, 0, (int)sizeof(digr_T), 10, NULL};
 /// Note: Characters marked with XX are not included literally, because some
 /// compilers cannot handle them (Amiga SAS/C is the most picky one).
 static digr_T digraphdefault[] =
-
-// digraphs for Unicode from RFC1345
-// (also work for ISO-8859-1 aka latin1)
+// digraphs for Unicode from RFC1345 (also work for ISO-8859-1 aka latin1)
 {
     { 'N', 'U', 0x0a }, // LF for NUL
     { 'S', 'H', 0x01 },
@@ -1421,22 +1419,23 @@ static digr_T digraphdefault[] =
 int do_digraph(int c)
 {
     static int backspaced; // character before K_BS
-    static int lastchar;   // last typed character
+    static int lastchar; // last typed character
 
-    if (c == -1)           // init values
+    if(c == -1)
     {
+        // init values
         backspaced = -1;
     }
-    else if (p_dg)
+    else if(p_dg)
     {
-        if (backspaced >= 0)
+        if(backspaced >= 0)
         {
             c = getdigraph(backspaced, c, FALSE);
         }
 
         backspaced = -1;
 
-        if (((c == K_BS) || (c == Ctrl_H)) && (lastchar >= 0))
+        if(((c == K_BS) || (c == Ctrl_H)) && (lastchar >= 0))
         {
             backspaced = lastchar;
         }
@@ -1459,18 +1458,18 @@ int get_digraph(int cmdline)
     int c = plain_vgetc();
     no_mapping--;
 
-    if (c != ESC)
+    if(c != ESC)
     {
         // ESC cancels CTRL-K
-        if (IS_SPECIAL(c))
+        if(IS_SPECIAL(c))
         {
             // insert special key code
             return c;
         }
 
-        if (cmdline)
+        if(cmdline)
         {
-            if ((char2cells(c) == 1) && (cmdline_star == 0))
+            if((char2cells(c) == 1) && (cmdline_star == 0))
             {
                 putcmdline(c, TRUE);
             }
@@ -1484,7 +1483,7 @@ int get_digraph(int cmdline)
         cc = plain_vgetc();
         no_mapping--;
 
-        if (cc != ESC)
+        if(cc != ESC)
         {
             // ESC cancels CTRL-K
             return getdigraph(c, cc, TRUE);
@@ -1506,7 +1505,7 @@ static int getexactdigraph(int char1, int char2, int meta_char)
 {
     int retval = 0;
 
-    if (IS_SPECIAL(char1) || IS_SPECIAL(char2))
+    if(IS_SPECIAL(char1) || IS_SPECIAL(char2))
     {
         return char2;
     }
@@ -1514,9 +1513,9 @@ static int getexactdigraph(int char1, int char2, int meta_char)
     // Search user digraphs first.
     digr_T *dp = (digr_T *)user_digraphs.ga_data;
 
-    for (int i = 0; i < user_digraphs.ga_len; ++i)
+    for(int i = 0; i < user_digraphs.ga_len; ++i)
     {
-        if (((int) dp->char1 == char1) && ((int) dp->char2 == char2))
+        if(((int) dp->char1 == char1) && ((int) dp->char2 == char2))
         {
             retval = dp->result;
             break;
@@ -1526,13 +1525,13 @@ static int getexactdigraph(int char1, int char2, int meta_char)
     }
 
     // Search default digraphs.
-    if (retval == 0)
+    if(retval == 0)
     {
         dp = digraphdefault;
 
-        for (int i = 0; dp->char1 != 0; ++i)
+        for(int i = 0; dp->char1 != 0; ++i)
         {
-            if (((int) dp->char1 == char1) && ((int) dp->char2 == char2))
+            if(((int) dp->char1 == char1) && ((int) dp->char2 == char2))
             {
                 retval = dp->result;
                 break;
@@ -1542,7 +1541,7 @@ static int getexactdigraph(int char1, int char2, int meta_char)
         }
     }
 
-    if ((retval != 0) && !enc_utf8)
+    if((retval != 0) && !enc_utf8)
     {
         char_u buf[6], *to;
         vimconv_T vc;
@@ -1551,14 +1550,14 @@ static int getexactdigraph(int char1, int char2, int meta_char)
         retval = 0;
         vc.vc_type = CONV_NONE;
 
-        if (convert_setup(&vc, (char_u *)"utf-8", p_enc) == OK)
+        if(convert_setup(&vc, (char_u *)"utf-8", p_enc) == OK)
         {
             vc.vc_fail = true;
             assert(i >= 0);
             size_t len = (size_t)i;
             to = string_convert(&vc, buf, &len);
 
-            if (to != NULL)
+            if(to != NULL)
             {
                 retval = (*mb_ptr2char)(to);
                 xfree(to);
@@ -1569,15 +1568,15 @@ static int getexactdigraph(int char1, int char2, int meta_char)
     }
 
     // Ignore multi-byte characters when not in multi-byte mode.
-    if (!has_mbyte && (retval > 0xff))
+    if(!has_mbyte && (retval > 0xff))
     {
         retval = 0;
     }
 
-    if (retval == 0)
+    if(retval == 0)
     {
         // digraph deleted or not found
-        if ((char1 == ' ') && meta_char)
+        if((char1 == ' ') && meta_char)
         {
             // <space> <char> --> meta-char
             return char2 | 0x80;
@@ -1601,10 +1600,9 @@ int getdigraph(int char1, int char2, int meta_char)
 {
     int retval;
 
-    if (((retval = getexactdigraph(char1, char2, meta_char)) == char2)
-            && (char1 != char2)
-            && ((retval = getexactdigraph(char2, char1, meta_char))  // -V764
-                == char1))
+    if(((retval = getexactdigraph(char1, char2, meta_char)) == char2)
+       && (char1 != char2)
+       && ((retval = getexactdigraph(char2, char1, meta_char)) == char1))
     {
         return char2;
     }
@@ -1621,11 +1619,11 @@ void putdigraph(char_u *str)
     char_u char1, char2;
     digr_T *dp;
 
-    while (*str != NUL)
+    while(*str != NUL)
     {
         str = skipwhite(str);
 
-        if (*str == NUL)
+        if(*str == NUL)
         {
             return;
         }
@@ -1633,13 +1631,13 @@ void putdigraph(char_u *str)
         char1 = *str++;
         char2 = *str++;
 
-        if (char2 == 0)
+        if(char2 == 0)
         {
             EMSG(_(e_invarg));
             return;
         }
 
-        if ((char1 == ESC) || (char2 == ESC))
+        if((char1 == ESC) || (char2 == ESC))
         {
             EMSG(_("E104: Escape not allowed in digraph"));
             return;
@@ -1647,20 +1645,21 @@ void putdigraph(char_u *str)
 
         str = skipwhite(str);
 
-        if (!ascii_isdigit(*str))
+        if(!ascii_isdigit(*str))
         {
             EMSG(_(e_number_exp));
             return;
         }
 
         int n = getdigits_int(&str);
+
         // If the digraph already exists, replace the result.
         dp = (digr_T *)user_digraphs.ga_data;
-        int i;
 
-        for (i = 0; i < user_digraphs.ga_len; ++i)
+        int i;
+        for(i = 0; i < user_digraphs.ga_len; ++i)
         {
-            if (((int)dp->char1 == char1) && ((int)dp->char2 == char2))
+            if(((int)dp->char1 == char1) && ((int)dp->char2 == char2))
             {
                 dp->result = n;
                 break;
@@ -1670,7 +1669,7 @@ void putdigraph(char_u *str)
         }
 
         // Add a new digraph to the table.
-        if (i == user_digraphs.ga_len)
+        if(i == user_digraphs.ga_len)
         {
             dp = GA_APPEND_VIA_PTR(digr_T, &user_digraphs);
             dp->char1 = char1;
@@ -1686,17 +1685,18 @@ void listdigraphs(void)
     msg_putchar('\n');
     dp = digraphdefault;
 
-    for (int i = 0; dp->char1 != NUL && !got_int; ++i)
+    for(int i = 0; dp->char1 != NUL && !got_int; ++i)
     {
         digr_T tmp;
+
         // May need to convert the result to 'encoding'.
         tmp.char1 = dp->char1;
         tmp.char2 = dp->char2;
         tmp.result = getexactdigraph(tmp.char1, tmp.char2, FALSE);
 
-        if ((tmp.result != 0)
-                && (tmp.result != tmp.char2)
-                && (has_mbyte || (tmp.result <= 255)))
+        if((tmp.result != 0)
+           && (tmp.result != tmp.char2)
+           && (has_mbyte || (tmp.result <= 255)))
         {
             printdigraph(&tmp);
         }
@@ -1707,15 +1707,15 @@ void listdigraphs(void)
 
     dp = (digr_T *)user_digraphs.ga_data;
 
-    for (int i = 0; i < user_digraphs.ga_len && !got_int; ++i)
+    for(int i = 0; i < user_digraphs.ga_len && !got_int; ++i)
     {
         printdigraph(dp);
         os_breakcheck();
         dp++;
     }
 
-    // clear screen, because some digraphs may be wrong, in which case we messed
-    // up ScreenLines
+    // clear screen, because some digraphs may be
+    // wrong, in which case we messed up ScreenLines
     must_redraw = CLEAR;
 }
 
@@ -1726,19 +1726,19 @@ static void printdigraph(digr_T *dp)
     int list_width;
     list_width = 13;
 
-    if (dp->result != 0)
+    if(dp->result != 0)
     {
-        if (msg_col > Columns - list_width)
+        if(msg_col > Columns - list_width)
         {
             msg_putchar('\n');
         }
 
         // Make msg_col a multiple of list_width by using spaces.
-        if (msg_col % list_width != 0)
+        if(msg_col % list_width != 0)
         {
             int spaces = (msg_col / list_width + 1) * list_width - msg_col;
 
-            while (spaces--)
+            while(spaces--)
             {
                 msg_putchar(' ');
             }
@@ -1750,19 +1750,20 @@ static void printdigraph(digr_T *dp)
         *p++ = ' ';
 
         // add a space to draw a composing char on
-        if (utf_iscomposing(dp->result))
+        if(utf_iscomposing(dp->result))
         {
             *p++ = ' ';
         }
 
         p += (*mb_char2bytes)(dp->result, p);
 
-        if (char2cells(dp->result) == 1)
+        if(char2cells(dp->result) == 1)
         {
             *p++ = ' ';
         }
 
         assert(p >= buf);
+
         vim_snprintf((char *)p, sizeof(buf) - (size_t)(p - buf), " %3d", dp->result);
         msg_outtrans(buf);
     }
@@ -1775,19 +1776,19 @@ typedef struct
     char_u *to;
 } kmap_T;
 
-#define KMAP_MAXLEN 20  // maximum length of "from" or "to"
+#define KMAP_MAXLEN 20  ///< maximum length of "from" or "to"
 
 
 /// Set up key mapping tables for the 'keymap' option.
 ///
-/// @return NULL if OK, an error message for failure.  This only needs to be
+/// @return NULL if OK, an error message for failure. This only needs to be
 ///         used when setting the option, not later when the value has already
 ///         been checked.
 char_u *keymap_init(void)
 {
     curbuf->b_kmap_state &= ~KEYMAP_INIT;
 
-    if (*curbuf->b_p_keymap == NUL)
+    if(*curbuf->b_p_keymap == NUL)
     {
         // Stop any active keymap and clear the table.  Also remove
         // b:keymap_name, as no keymap is active now.
@@ -1798,21 +1799,21 @@ char_u *keymap_init(void)
     {
         char *buf;
         size_t buflen;
+
         // Source the keymap file.  It will contain a ":loadkeymap" command
         // which will call ex_loadkeymap() below.
         buflen = STRLEN(curbuf->b_p_keymap) + STRLEN(p_enc) + 14;
         buf = xmalloc(buflen);
-        // try finding "keymap/'keymap'_'encoding'.vim"  in 'runtimepath'
-        vim_snprintf(buf, buflen, "keymap/%s_%s.vim",
-                     curbuf->b_p_keymap, p_enc);
 
-        if (source_runtime((char_u *)buf, 0) == FAIL)
+        // try finding "keymap/'keymap'_'encoding'.vim"  in 'runtimepath'
+        vim_snprintf(buf, buflen, "keymap/%s_%s.vim", curbuf->b_p_keymap, p_enc);
+
+        if(source_runtime((char_u *)buf, 0) == FAIL)
         {
             // try finding "keymap/'keymap'.vim" in 'runtimepath'
-            vim_snprintf(buf, buflen, "keymap/%s.vim",
-                         curbuf->b_p_keymap);
+            vim_snprintf(buf, buflen, "keymap/%s.vim", curbuf->b_p_keymap);
 
-            if (source_runtime((char_u *)buf, 0) == FAIL)
+            if(source_runtime((char_u *)buf, 0) == FAIL)
             {
                 xfree(buf);
                 return (char_u *)N_("E544: Keymap file not found");
@@ -1833,11 +1834,14 @@ void ex_loadkeymap(exarg_T *eap)
     char_u *line;
     char_u *p;
     char_u *s;
-#define KMAP_LLEN 200  // max length of "to" and "from" together
+
+    // max length of "to" and "from" together
+    #define KMAP_LLEN  200
+
     char_u buf[KMAP_LLEN + 11];
     char_u *save_cpo = p_cpo;
 
-    if (!getline_equal(eap->getline, eap->cookie, getsourceline))
+    if(!getline_equal(eap->getline, eap->cookie, getsourceline))
     {
         EMSG(_("E105: Using :loadkeymap not in a sourced file"));
         return;
@@ -1847,22 +1851,23 @@ void ex_loadkeymap(exarg_T *eap)
     keymap_unload();
     curbuf->b_kmap_state = 0;
     ga_init(&curbuf->b_kmap_ga, (int)sizeof(kmap_T), 20);
+
     // Set 'cpoptions' to "C" to avoid line continuation.
     p_cpo = (char_u *)"C";
 
     // Get each line of the sourced file, break at the end.
-    for (;;)
+    for(;;)
     {
         line = eap->getline(0, eap->cookie, 0);
 
-        if (line == NULL)
+        if(line == NULL)
         {
             break;
         }
 
         p = skipwhite(line);
 
-        if ((*p != '"') && (*p != NUL))
+        if((*p != '"') && (*p != NUL))
         {
             kmap_T *kp = GA_APPEND_VIA_PTR(kmap_T, &curbuf->b_kmap_ga);
             s = skiptowhite(p);
@@ -1871,11 +1876,11 @@ void ex_loadkeymap(exarg_T *eap)
             s = skiptowhite(p);
             kp->to = vim_strnsave(p, (size_t)(s - p));
 
-            if ((STRLEN(kp->from) + STRLEN(kp->to) >= KMAP_LLEN)
-                    || (*kp->from == NUL)
-                    || (*kp->to == NUL))
+            if((STRLEN(kp->from) + STRLEN(kp->to) >= KMAP_LLEN)
+               || (*kp->from == NUL)
+               || (*kp->to == NUL))
             {
-                if (*kp->to == NUL)
+                if(*kp->to == NUL)
                 {
                     EMSG(_("E791: Empty keymap entry"));
                 }
@@ -1890,11 +1895,12 @@ void ex_loadkeymap(exarg_T *eap)
     }
 
     // setup ":lnoremap" to map the keys
-    for (int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
+    for(int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
     {
         vim_snprintf((char *)buf, sizeof(buf), "<buffer> %s %s",
                      ((kmap_T *)curbuf->b_kmap_ga.ga_data)[i].from,
                      ((kmap_T *)curbuf->b_kmap_ga.ga_data)[i].to);
+
         (void)do_map(2, buf, LANGMAP, FALSE);
     }
 
@@ -1910,17 +1916,18 @@ static void keymap_unload(void)
     char_u *save_cpo = p_cpo;
     kmap_T *kp;
 
-    if (!(curbuf->b_kmap_state & KEYMAP_LOADED))
+    if(!(curbuf->b_kmap_state & KEYMAP_LOADED))
     {
         return;
     }
 
     // Set 'cpoptions' to "C" to avoid line continuation.
     p_cpo = (char_u *)"C";
+
     // clear the ":lmap"s
     kp = (kmap_T *)curbuf->b_kmap_ga.ga_data;
 
-    for (int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
+    for(int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
     {
         vim_snprintf((char *)buf, sizeof(buf), "<buffer> %s", kp[i].from);
         (void)do_map(1, buf, LANGMAP, FALSE);
