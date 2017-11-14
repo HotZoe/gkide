@@ -38,10 +38,7 @@ FUNC_ATTR_NONNULL_ALL
         *host_end = '\0';
         char *port = host_end + 1;
         intmax_t iport;
-        int ret = getdigits_safe(&(char_u *)
-        {
-            (char_u *)port
-        }, &iport);
+        int ret = getdigits_safe(&(char_u *) { (char_u *)port }, &iport);
 
         if(ret == FAIL || iport < 0 || iport > UINT16_MAX)
         {
@@ -62,12 +59,10 @@ FUNC_ATTR_NONNULL_ALL
                                     NULL,
                                     addr,
                                     port,
-                                    &(struct addrinfo)
-        {
-            .ai_family = AF_UNSPEC,
-             .ai_socktype = SOCK_STREAM,
-        }
-                                   );
+                                    &(struct addrinfo) {
+                                        .ai_family = AF_UNSPEC,
+                                        .ai_socktype = SOCK_STREAM,
+                                    });
 
         if(retval != 0)
         {
@@ -123,14 +118,13 @@ FUNC_ATTR_NONNULL_ALL
                 // contain 0 in this case, unless uv_tcp_getsockname() is used first.
                 uv_tcp_getsockname(&watcher->uv.tcp.handle,
                                    (struct sockaddr *)&sas,
-                                   &(int)
-                {
-                    sizeof(sas)
-                }
-                                  );
+                                   &(int) { sizeof(sas) }
+                                   );
+
                 uint16_t port = (uint16_t)((sas.ss_family == AF_INET)
                                            ? ((struct sockaddr_in *)&sas)->sin_port
                                            : ((struct sockaddr_in6 *)&sas)->sin6_port);
+
                 // v:servername uses the string from watcher->addr
                 size_t len = strlen(watcher->addr);
                 snprintf(watcher->addr+len, sizeof(watcher->addr)-len, ":%" PRIu16, ntohs(port));
@@ -150,7 +144,7 @@ FUNC_ATTR_NONNULL_ALL
         }
     }
 
-    assert(result <= 0);  // libuv should return negative error code or zero.
+    assert(result <= 0); // libuv should return negative error code or zero.
 
     if(result < 0)
     {
@@ -272,9 +266,10 @@ bool socket_connect(main_loop_T *loop,
 
         *host_end = NUL;
         const struct addrinfo hints = { .ai_family = AF_UNSPEC,
-                  .ai_socktype = SOCK_STREAM,
-                   .ai_flags  = AI_NUMERICSERV
-        };
+                                        .ai_socktype = SOCK_STREAM,
+                                        .ai_flags  = AI_NUMERICSERV
+                                      };
+
         int retval = uv_getaddrinfo(&loop->uv, &addr_req, NULL, addr, host_end+1, &hints);
 
         if(retval != 0)
@@ -298,6 +293,7 @@ tcp_retry:
     }
 
     status = 1;
+
     LOOP_PROCESS_EVENTS_UNTIL(&main_loop, NULL, timeout, status != 1);
 
     if(status == 0)

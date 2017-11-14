@@ -54,7 +54,8 @@ FUNC_ATTR_NONNULL_ALL
 
     if(watcher->blockable && !multiqueue_empty(watcher->events))
     {
-        // the timer blocked and there already is an unprocessed event waiting
+        // the timer blocked and there already
+        // is an unprocessed event waiting
         return;
     }
 

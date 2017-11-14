@@ -20,7 +20,7 @@
 int stream_set_blocking(int fd, bool blocking)
 {
     // Private loop to avoid conflict with existing watcher(s):
-    //    uv__io_stop: Assertion `loop->watchers[w->fd] == w' failed.
+    // uv__io_stop: Assertion `loop->watchers[w->fd] == w' failed.
     uv_loop_t loop;
     uv_pipe_t stream;
     uv_loop_init(&loop);
@@ -28,7 +28,7 @@ int stream_set_blocking(int fd, bool blocking)
     uv_pipe_open(&stream, fd);
     int retval = uv_stream_set_blocking(STRUCT_CAST(uv_stream_t, &stream), blocking);
     uv_close(STRUCT_CAST(uv_handle_t, &stream), NULL);
-    uv_run(&loop, UV_RUN_NOWAIT);  // not necessary, but couldn't hurt.
+    uv_run(&loop, UV_RUN_NOWAIT); // not necessary, but couldn't hurt.
     uv_loop_close(&loop);
     return retval;
 }

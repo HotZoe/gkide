@@ -131,6 +131,7 @@ static void read_cb(uv_stream_t *uvstream,
                       stream,
                       uv_err_name((int)cnt),
                       os_strerror((int)cnt));
+
             // Read error or EOF, either way stop the stream and invoke the callback
             // with eof == true
             uv_read_stop(uvstream);
@@ -142,6 +143,7 @@ static void read_cb(uv_stream_t *uvstream,
 
     // at this point we're sure that cnt is positive, no error occurred
     size_t nread = (size_t)cnt;
+
     // Data was already written, so all we need is to update 'wpos' to reflect
     // the space actually used in the buffer.
     rbuffer_produced(stream->buffer, nread);
@@ -153,10 +155,12 @@ static void fread_idle_cb(uv_idle_t *handle)
 {
     uv_fs_t req;
     Stream *stream = handle->data;
+
     // 'uv_buf_t.len' happens to have different size on Windows.
     size_t write_count;
     stream->uvbuf.base = rbuffer_write_ptr(stream->buffer, &write_count);
     stream->uvbuf.len = write_count;
+
     // the offset argument to uv_fs_read is int64_t, could someone really try
     // to read more than 9 quintillion (9e18) bytes?
     // upcast is meant to avoid tautological condition warning on 32 bits
@@ -176,6 +180,7 @@ static void fread_idle_cb(uv_idle_t *handle)
                1,
                (int64_t) stream->fpos,
                NULL);
+
     uv_fs_req_cleanup(&req);
 
     if(req.result <= 0)

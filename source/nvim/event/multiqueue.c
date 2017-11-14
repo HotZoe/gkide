@@ -68,7 +68,7 @@ struct multiqueue_item
             MultiQueueItem *parent_item;
         } item;
     } data;
-    bool link;  ///< true: current item is just a link to a node in a child queue
+    bool link; ///< true: current item is just a link to a node in a child queue
     QUEUE node;
 };
 
@@ -241,8 +241,10 @@ static Event multiqueue_remove(MultiQueue *this)
     QUEUE *h = QUEUE_HEAD(&this->headtail);
     QUEUE_REMOVE(h);
     MultiQueueItem *item = multiqueue_node_data(h);
+
     // Only a parent queue has link-nodes
     assert(!item->link || !this->parent);
+
     Event ev = multiqueueitem_get_event(item, true);
     this->size--;
     xfree(item);

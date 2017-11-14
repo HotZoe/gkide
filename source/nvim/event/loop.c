@@ -33,7 +33,7 @@ void loop_poll_events(main_loop_T *loop, int ms)
 {
     if(loop->recursive++)
     {
-        abort();  // Should not re-enter uv_run
+        abort(); // Should not re-enter uv_run
     }
 
     uv_run_mode mode = UV_RUN_ONCE;
@@ -57,7 +57,7 @@ void loop_poll_events(main_loop_T *loop, int ms)
         uv_timer_stop(&loop->poll_timer);
     }
 
-    loop->recursive--;  // Can re-enter uv_run now
+    loop->recursive--; // Can re-enter uv_run now
     multiqueue_process_events(loop->fast_events);
 }
 
@@ -70,8 +70,7 @@ void loop_schedule(main_loop_T *loop, Event event)
     uv_mutex_unlock(&loop->mutex);
 }
 
-void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue),
-                 void *data)
+void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue), void *data)
 {
     main_loop_T *loop = data;
     // Sometimes libuv will run pending callbacks(timer for example) before

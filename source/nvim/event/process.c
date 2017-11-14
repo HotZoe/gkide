@@ -161,7 +161,7 @@ void process_teardown(main_loop_T *loop) FUNC_ATTR_NONNULL_ALL
     LOOP_PROCESS_EVENTS_UNTIL(loop,
                               loop->events,
                               -1,
-                              kl_empty(loop->children) &&multiqueue_empty(loop->events));
+                              kl_empty(loop->children) && multiqueue_empty(loop->events));
 
     pty_process_teardown(loop);
 }
@@ -194,9 +194,10 @@ void process_close_err(Process *proc) FUNC_ATTR_NONNULL_ALL
 /// @param process  Process instance
 /// @param ms       Time in milliseconds to wait for the process.
 ///                 0 for no wait. -1 to wait until the process quits.
-/// @return Exit code of the process.
-///         -1 if the timeout expired while the process is still running.
-///         -2 if the user interruped the wait.
+/// @return
+/// Exit code of the process.
+/// - -1 if the timeout expired while the process is still running.
+/// - -2 if the user interruped the wait.
 int process_wait(Process *proc, int ms, MultiQueue *events) FUNC_ATTR_NONNULL_ARG(1)
 {
     int status = -1;
@@ -308,6 +309,7 @@ static void children_kill_cb(uv_timer_t *handle)
 {
     main_loop_T *loop = handle->loop->data;
     uint64_t now = os_hrtime();
+
     kl_iter(WatcherPtr, loop->children, current)
     {
         Process *proc = (*current)->data;
@@ -358,6 +360,7 @@ static void decref(Process *proc)
 
     main_loop_T *loop = proc->loop;
     kliter_t(WatcherPtr) **node = NULL;
+
     kl_iter(WatcherPtr, loop->children, current)
     {
         if((*current)->data == proc)
@@ -366,16 +369,22 @@ static void decref(Process *proc)
             break;
         }
     }
+
     assert(node);
+
     kl_shift_at(WatcherPtr, loop->children, node);
+
     CREATE_EVENT(proc->events, process_close_event, 1, proc);
 }
 
 static void process_close(Process *proc) FUNC_ATTR_NONNULL_ARG(1)
 {
-    if(process_is_tearing_down && (proc->detach || proc->type == kProcessTypePty) && proc->closed)
+    if(process_is_tearing_down
+       && (proc->detach || proc->type == kProcessTypePty)
+       && proc->closed)
     {
-        // If a detached/pty process dies while tearing down it might get closed twice.
+        // If a detached/pty process dies while
+        // tearing down it might get closed twice.
         return;
     }
 
@@ -427,6 +436,7 @@ static void flush_stream(Process *proc, Stream *stream) FUNC_ATTR_NONNULL_ARG(1)
     {
         // Remember number of bytes before polling
         size_t num_bytes = stream->num_bytes;
+
         // Poll for data and process the generated events.
         loop_poll_events(proc->loop, 0);
 
@@ -482,4 +492,3 @@ static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), 
     Process *proc = data;
     decref(proc);
 }
-
