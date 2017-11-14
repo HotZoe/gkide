@@ -6,8 +6,8 @@
 #include "nvim/types.h"
 #include "nvim/api/private/defs.h"
 
-/// struct to store values from 'guicursor' and 'mouseshape'
-/// Indexes in shape_table[]
+/// struct to store values from 'guicursor'
+/// and 'mouseshape' Indexes in shape_table[]
 typedef enum
 {
     SHAPE_IDX_N      = 0,       ///< Normal mode
@@ -37,11 +37,11 @@ typedef enum
     SHAPE_VER       = 2        ///< vertical bar cursor
 } CursorShape;
 
-#define MSHAPE_NUMBERED 1000    /* offset for shapes identified by number */
-#define MSHAPE_HIDE     1       /* hide mouse pointer */
+#define MSHAPE_NUMBERED 1000   ///< offset for shapes identified by number
+#define MSHAPE_HIDE     1      ///< hide mouse pointer
 
-#define SHAPE_MOUSE     1       /* used for mouse pointer shape */
-#define SHAPE_CURSOR    2       /* used for text cursor shape */
+#define SHAPE_MOUSE     1      ///< used for mouse pointer shape
+#define SHAPE_CURSOR    2      ///< used for text cursor shape
 
 typedef struct cursor_entry
 {

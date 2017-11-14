@@ -20,9 +20,7 @@
     #include "cursor.c.generated.h"
 #endif
 
-/*
- * Get the screen position of the cursor.
- */
+/// Get the screen position of the cursor.
 int getviscol(void)
 {
     colnr_T x;
@@ -30,9 +28,7 @@ int getviscol(void)
     return (int)x;
 }
 
-/*
- * Get the screen position of character col with a coladd in the cursor line.
- */
+/// Get the screen position of character col with a coladd in the cursor line.
 int getviscol2(colnr_T col, colnr_T coladd)
 {
     colnr_T x;
@@ -44,22 +40,20 @@ int getviscol2(colnr_T col, colnr_T coladd)
     return (int)x;
 }
 
-/*
- * Go to column "wcol", and add/insert white space as necessary to get the
- * cursor in that column.
- * The caller must have saved the cursor line for undo!
- */
+/// Go to column "wcol", and add/insert white space as necessary to get the
+/// cursor in that column.
+/// The caller must have saved the cursor line for undo!
 int coladvance_force(colnr_T wcol)
 {
     int rc = coladvance2(&curwin->w_cursor, true, false, wcol);
 
-    if (wcol == MAXCOL)
+    if(wcol == MAXCOL)
     {
         curwin->w_valid &= ~VALID_VIRTCOL;
     }
     else
     {
-        /* Virtcol is valid */
+        // Virtcol is valid
         curwin->w_valid |= VALID_VIRTCOL;
         curwin->w_virtcol = wcol;
     }
@@ -67,26 +61,24 @@ int coladvance_force(colnr_T wcol)
     return rc;
 }
 
-/*
- * Try to advance the Cursor to the specified screen column.
- * If virtual editing: fine tune the cursor position.
- * Note that all virtual positions off the end of a line should share
- * a curwin->w_cursor.col value (n.b. this is equal to STRLEN(line)),
- * beginning at coladd 0.
- *
- * return OK if desired column is reached, FAIL if not
- */
+/// Try to advance the Cursor to the specified screen column.
+/// If virtual editing: fine tune the cursor position.
+/// Note that all virtual positions off the end of a line should share
+/// a curwin->w_cursor.col value (n.b. this is equal to STRLEN(line)),
+/// beginning at coladd 0.
+///
+/// return OK if desired column is reached, FAIL if not
 int coladvance(colnr_T wcol)
 {
     int rc = getvpos(&curwin->w_cursor, wcol);
 
-    if (wcol == MAXCOL || rc == FAIL)
+    if(wcol == MAXCOL || rc == FAIL)
     {
         curwin->w_valid &= ~VALID_VIRTCOL;
     }
-    else if (*get_cursor_pos_ptr() != TAB)
+    else if(*get_cursor_pos_ptr() != TAB)
     {
-        /* Virtcol is valid when not on a TAB */
+        // Virtcol is valid when not on a TAB
         curwin->w_valid |= VALID_VIRTCOL;
         curwin->w_virtcol = wcol;
     }
@@ -94,36 +86,39 @@ int coladvance(colnr_T wcol)
     return rc;
 }
 
-static int coladvance2(
-    pos_T *pos,
-    bool addspaces,                /* change the text to achieve our goal? */
-    bool finetune,                 /* change char offset for the exact column */
-    colnr_T wcol                   /* column to move to */
-)
+///
+///
+/// @param pos
+/// @param addspaces    change the text to achieve our goal?
+/// @param finetune     change char offset for the exact column
+/// @param wcol         column to move to
+static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
 {
     int idx;
-    char_u      *ptr;
-    char_u      *line;
+    char_u *ptr;
+    char_u *line;
     colnr_T col = 0;
     int csize = 0;
     int one_more;
     int head = 0;
+
     one_more = (State & INSERT)
                || restart_edit != NUL
                || (VIsual_active && *p_sel != 'o')
                || ((ve_flags & VE_ONEMORE) && wcol < MAXCOL);
+
     line = ml_get_buf(curbuf, pos->lnum, false);
 
-    if (wcol >= MAXCOL)
+    if(wcol >= MAXCOL)
     {
         idx = (int)STRLEN(line) - 1 + one_more;
         col = wcol;
 
-        if ((addspaces || finetune) && !VIsual_active)
+        if((addspaces || finetune) && !VIsual_active)
         {
             curwin->w_curswant = linetabsize(line) + one_more;
 
-            if (curwin->w_curswant > 0)
+            if(curwin->w_curswant > 0)
             {
                 --curwin->w_curswant;
             }
@@ -133,34 +128,34 @@ static int coladvance2(
     {
         int width = curwin->w_width - win_col_off(curwin);
 
-        if (finetune
-                && curwin->w_p_wrap
-                && curwin->w_width != 0
-                && wcol >= (colnr_T)width)
+        if(finetune
+           && curwin->w_p_wrap
+           && curwin->w_width != 0
+           && wcol >= (colnr_T)width)
         {
             csize = linetabsize(line);
 
-            if (csize > 0)
+            if(csize > 0)
             {
                 csize--;
             }
 
-            if (wcol / width > (colnr_T)csize / width
-                    && ((State & INSERT) == 0 || (int)wcol > csize + 1))
+            if(wcol / width > (colnr_T)csize / width
+               && ((State & INSERT) == 0 || (int)wcol > csize + 1))
             {
-                /* In case of line wrapping don't move the cursor beyond the
-                 * right screen edge.  In Insert mode allow going just beyond
-                 * the last character (like what happens when typing and
-                 * reaching the right window edge). */
+                // In case of line wrapping don't move the cursor beyond the
+                // right screen edge.  In Insert mode allow going just beyond
+                // the last character (like what happens when typing and
+                // reaching the right window edge).
                 wcol = (csize / width + 1) * width - 1;
             }
         }
 
         ptr = line;
 
-        while (col <= wcol && *ptr != NUL)
+        while(col <= wcol && *ptr != NUL)
         {
-            /* Count a tab for what it's worth (if list mode not on) */
+            // Count a tab for what it's worth (if list mode not on)
             csize = win_lbr_chartabsize(curwin, line, ptr, col, &head);
             mb_ptr_adv(ptr);
             col += csize;
@@ -168,31 +163,31 @@ static int coladvance2(
 
         idx = (int)(ptr - line);
 
-        /*
-         * Handle all the special cases.  The virtual_active() check
-         * is needed to ensure that a virtual position off the end of
-         * a line has the correct indexing.  The one_more comparison
-         * replaces an explicit add of one_more later on.
-         */
-        if (col > wcol || (!virtual_active() && one_more == 0))
+        // Handle all the special cases.  The virtual_active() check
+        // is needed to ensure that a virtual position off the end of
+        // a line has the correct indexing.  The one_more comparison
+        // replaces an explicit add of one_more later on.
+        if(col > wcol || (!virtual_active() && one_more == 0))
         {
             idx -= 1;
-            /* Don't count the chars from 'showbreak'. */
+
+            // Don't count the chars from 'showbreak'.
             csize -= head;
             col -= csize;
         }
 
-        if (virtual_active()
-                && addspaces
-                && ((col != wcol && col != wcol + 1) || csize > 1))
+        if(virtual_active()
+           && addspaces
+           && ((col != wcol && col != wcol + 1) || csize > 1))
         {
-            /* 'virtualedit' is set: The difference between wcol and col is
-             * filled with spaces. */
-            if (line[idx] == NUL)
+            // 'virtualedit' is set: The difference between
+            // wcol and col is filled with spaces.
+            if(line[idx] == NUL)
             {
-                /* Append spaces */
+                // Append spaces
                 int correct = wcol - col;
                 char_u *newline = xmallocz((size_t)(idx + correct));
+
                 memcpy(newline, line, (size_t)idx);
                 memset(newline + idx, ' ', (size_t)correct);
                 ml_replace(pos->lnum, newline, false);
@@ -202,24 +197,27 @@ static int coladvance2(
             }
             else
             {
-                /* Break a tab */
+                // Break a tab
                 int linelen = (int)STRLEN(line);
-                int correct = wcol - col - csize + 1;             /* negative!! */
-                char_u  *newline;
+                int correct = wcol - col - csize + 1; // negative!!
+                char_u *newline;
 
-                if (-correct > csize)
+                if(-correct > csize)
                 {
                     return FAIL;
                 }
 
                 newline = xmallocz((size_t)(linelen - 1 + csize));
+
                 // Copy first idx chars
                 memcpy(newline, line, (size_t)idx);
+
                 // Replace idx'th char with csize spaces
                 memset(newline + idx, ' ', (size_t)csize);
+
                 // Copy the rest of the line
-                memcpy(newline + idx + csize, line + idx + 1,
-                       (size_t)(linelen - idx - 1));
+                memcpy(newline + idx + csize, line + idx + 1, (size_t)(linelen - idx - 1));
+
                 ml_replace(pos->lnum, newline, false);
                 changed_bytes(pos->lnum, idx);
                 idx += (csize - 1 + correct);
@@ -228,7 +226,7 @@ static int coladvance2(
         }
     }
 
-    if (idx < 0)
+    if(idx < 0)
     {
         pos->col = 0;
     }
@@ -239,12 +237,12 @@ static int coladvance2(
 
     pos->coladd = 0;
 
-    if (finetune)
+    if(finetune)
     {
-        if (wcol == MAXCOL)
+        if(wcol == MAXCOL)
         {
-            /* The width of the last character is used to set coladd. */
-            if (!one_more)
+            // The width of the last character is used to set coladd.
+            if(!one_more)
             {
                 colnr_T scol, ecol;
                 getvcol(curwin, pos, &scol, NULL, &ecol);
@@ -255,8 +253,8 @@ static int coladvance2(
         {
             int b = (int)wcol - (int)col;
 
-            /* The difference between wcol and col is used to set coladd. */
-            if (b > 0 && b < (MAXCOL - 2 * curwin->w_width))
+            // The difference between wcol and col is used to set coladd.
+            if(b > 0 && b < (MAXCOL - 2 * curwin->w_width))
             {
                 pos->coladd = b;
             }
@@ -266,12 +264,12 @@ static int coladvance2(
     }
 
     // Prevent from moving onto a trail byte.
-    if (has_mbyte)
+    if(has_mbyte)
     {
         mark_mb_adjustpos(curbuf, pos);
     }
 
-    if (col < wcol)
+    if(col < wcol)
     {
         return FAIL;
     }
@@ -279,29 +277,23 @@ static int coladvance2(
     return OK;
 }
 
-/*
- * Return in "pos" the position of the cursor advanced to screen column "wcol".
- * return OK if desired column is reached, FAIL if not
- */
+/// Return in "pos" the position of the cursor advanced to screen column "wcol".
+/// return OK if desired column is reached, FAIL if not
 int getvpos(pos_T *pos, colnr_T wcol)
 {
     return coladvance2(pos, false, virtual_active(), wcol);
 }
 
-/*
- * Increment the cursor position.  See inc() for return values.
- */
+/// Increment the cursor position.  See inc() for return values.
 int inc_cursor(void)
 {
     return inc(&curwin->w_cursor);
 }
 
-/*
- * dec(p)
- *
- * Decrement the line pointer 'p' crossing line boundaries as necessary.
- * Return 1 when crossing a line, -1 when at start of file, 0 otherwise.
- */
+/// dec(p)
+///
+/// Decrement the line pointer 'p' crossing line boundaries as necessary.
+/// Return 1 when crossing a line, -1 when at start of file, 0 otherwise.
 int dec_cursor(void)
 {
     return dec(&curwin->w_cursor);
@@ -316,7 +308,7 @@ linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
 {
     linenr_T cursor = wp->w_cursor.lnum;
 
-    if (lnum == cursor || !hasAnyFolding(wp))
+    if(lnum == cursor || !hasAnyFolding(wp))
     {
         return lnum - cursor;
     }
@@ -326,14 +318,14 @@ linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
     linenr_T retval = 0;
 
     // Loop until we reach to_line, skipping folds.
-    for (; from_line < to_line; from_line++, retval++)
+    for(; from_line < to_line; from_line++, retval++)
     {
         // If from_line is in a fold, set it to the last line of that fold.
         (void)hasFoldingWin(wp, from_line, NULL, &from_line, true, NULL);
     }
 
     // If to_line is in a closed fold, the line count is off by +1. Correct it.
-    if (from_line > to_line)
+    if(from_line > to_line)
     {
         retval--;
     }
@@ -348,48 +340,43 @@ void check_pos(buf_T *buf, pos_T *pos)
     char_u *line;
     colnr_T len;
 
-    if (pos->lnum > buf->b_ml.ml_line_count)
+    if(pos->lnum > buf->b_ml.ml_line_count)
     {
         pos->lnum = buf->b_ml.ml_line_count;
     }
 
-    if (pos->col > 0)
+    if(pos->col > 0)
     {
         line = ml_get_buf(buf, pos->lnum, false);
         len = (colnr_T)STRLEN(line);
 
-        if (pos->col > len)
+        if(pos->col > len)
         {
             pos->col = len;
         }
     }
 }
 
-/*
- * Make sure curwin->w_cursor.lnum is valid.
- */
+/// Make sure curwin->w_cursor.lnum is valid.
 void check_cursor_lnum(void)
 {
-    if (curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
+    if(curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
     {
-        /* If there is a closed fold at the end of the file, put the cursor in
-         * its first line.  Otherwise in the last line. */
-        if (!hasFolding(curbuf->b_ml.ml_line_count,
-                        &curwin->w_cursor.lnum, NULL))
+        // If there is a closed fold at the end of the file, put the cursor in
+        // its first line.  Otherwise in the last line. */
+        if(!hasFolding(curbuf->b_ml.ml_line_count, &curwin->w_cursor.lnum, NULL))
         {
             curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
         }
     }
 
-    if (curwin->w_cursor.lnum <= 0)
+    if(curwin->w_cursor.lnum <= 0)
     {
         curwin->w_cursor.lnum = 1;
     }
 }
 
-/*
- * Make sure curwin->w_cursor.col is valid.
- */
+/// Make sure curwin->w_cursor.col is valid.
 void check_cursor_col(void)
 {
     check_cursor_col_win(curwin);
@@ -404,20 +391,20 @@ void check_cursor_col_win(win_T *win)
     colnr_T oldcoladd = win->w_cursor.col + win->w_cursor.coladd;
     len = (colnr_T)STRLEN(ml_get_buf(win->w_buffer, win->w_cursor.lnum, false));
 
-    if (len == 0)
+    if(len == 0)
     {
         win->w_cursor.col = 0;
     }
-    else if (win->w_cursor.col >= len)
+    else if(win->w_cursor.col >= len)
     {
-        /* Allow cursor past end-of-line when:
-         * - in Insert mode or restarting Insert mode
-         * - in Visual mode and 'selection' isn't "old"
-         * - 'virtualedit' is set */
-        if ((State & INSERT) || restart_edit
-                || (VIsual_active && *p_sel != 'o')
-                || (ve_flags & VE_ONEMORE)
-                || virtual_active())
+        // Allow cursor past end-of-line when:
+        // - in Insert mode or restarting Insert mode
+        // - in Visual mode and 'selection' isn't "old"
+        // - 'virtualedit' is set
+        if((State & INSERT) || restart_edit
+           || (VIsual_active && *p_sel != 'o')
+           || (ve_flags & VE_ONEMORE)
+           || virtual_active())
         {
             win->w_cursor.col = len;
         }
@@ -426,65 +413,58 @@ void check_cursor_col_win(win_T *win)
             win->w_cursor.col = len - 1;
 
             // Move the cursor to the head byte.
-            if (has_mbyte)
+            if(has_mbyte)
             {
                 mark_mb_adjustpos(win->w_buffer, &win->w_cursor);
             }
         }
     }
-    else if (win->w_cursor.col < 0)
+    else if(win->w_cursor.col < 0)
     {
         win->w_cursor.col = 0;
     }
 
-    /* If virtual editing is on, we can leave the cursor on the old position,
-     * only we must set it to virtual.  But don't do it when at the end of the
-     * line. */
-    if (oldcol == MAXCOL)
+    // If virtual editing is on, we can leave the cursor on the old position,
+    // only we must set it to virtual.  But don't do it when at the end of the line.
+    if(oldcol == MAXCOL)
     {
         win->w_cursor.coladd = 0;
     }
-    else if (ve_flags == VE_ALL)
+    else if(ve_flags == VE_ALL)
     {
-        if (oldcoladd > win->w_cursor.col)
+        if(oldcoladd > win->w_cursor.col)
         {
             win->w_cursor.coladd = oldcoladd - win->w_cursor.col;
         }
         else
-            /* avoid weird number when there is a miscalculation or overflow */
         {
+            // avoid weird number when there is a miscalculation or overflow
             win->w_cursor.coladd = 0;
         }
     }
 }
 
-/*
- * make sure curwin->w_cursor in on a valid character
- */
+/// make sure curwin->w_cursor in on a valid character
 void check_cursor(void)
 {
     check_cursor_lnum();
     check_cursor_col();
 }
 
-/*
- * Make sure curwin->w_cursor is not on the NUL at the end of the line.
- * Allow it when in Visual mode and 'selection' is not "old".
- */
+/// Make sure curwin->w_cursor is not on the NUL at the end of the line.
+/// Allow it when in Visual mode and 'selection' is not "old".
 void adjust_cursor_col(void)
 {
-    if (curwin->w_cursor.col > 0
-            && (!VIsual_active || *p_sel == 'o')
-            && gchar_cursor() == NUL)
+    if(curwin->w_cursor.col > 0
+       && (!VIsual_active || *p_sel == 'o')
+       && gchar_cursor() == NUL)
     {
         --curwin->w_cursor.col;
     }
 }
 
-/*
- * When curwin->w_leftcol has changed, adjust the cursor position.
- * Return true if the cursor was moved.
- */
+/// When curwin->w_leftcol has changed, adjust the cursor position.
+/// Return true if the cursor was moved.
 bool leftcol_changed(void)
 {
     // TODO(hinidu): I think it should be colnr_T or int, but p_siso is long.
@@ -496,45 +476,42 @@ bool leftcol_changed(void)
     lastcol = curwin->w_leftcol + curwin->w_width - curwin_col_off() - 1;
     validate_virtcol();
 
-    /*
-     * If the cursor is right or left of the screen, move it to last or first
-     * character.
-     */
-    if (curwin->w_virtcol > (colnr_T)(lastcol - p_siso))
+    // If the cursor is right or left of the screen,
+    // move it to last or first character.
+    if(curwin->w_virtcol > (colnr_T)(lastcol - p_siso))
     {
         retval = true;
         coladvance((colnr_T)(lastcol - p_siso));
     }
-    else if (curwin->w_virtcol < curwin->w_leftcol + p_siso)
+    else if(curwin->w_virtcol < curwin->w_leftcol + p_siso)
     {
         retval = true;
         coladvance((colnr_T)(curwin->w_leftcol + p_siso));
     }
 
-    /*
-     * If the start of the character under the cursor is not on the screen,
-     * advance the cursor one more char.  If this fails (last char of the
-     * line) adjust the scrolling.
-     */
+    // If the start of the character under the cursor is not on the screen,
+    // advance the cursor one more char.
+    // If this fails (last char of the line) adjust the scrolling.
     getvvcol(curwin, &curwin->w_cursor, &s, NULL, &e);
 
-    if (e > (colnr_T)lastcol)
+    if(e > (colnr_T)lastcol)
     {
         retval = true;
         coladvance(s - 1);
     }
-    else if (s < curwin->w_leftcol)
+    else if(s < curwin->w_leftcol)
     {
         retval = true;
 
-        if (coladvance(e + 1) == FAIL)      /* there isn't another character */
+        // there isn't another character
+        if(coladvance(e + 1) == FAIL)
         {
-            curwin->w_leftcol = s;            /* adjust w_leftcol instead */
+            curwin->w_leftcol = s; // adjust w_leftcol instead
             changed_cline_bef_curs();
         }
     }
 
-    if (retval)
+    if(retval)
     {
         curwin->w_set_curswant = true;
     }
@@ -545,7 +522,7 @@ bool leftcol_changed(void)
 
 int gchar_cursor(void)
 {
-    if (has_mbyte)
+    if(has_mbyte)
     {
         return (*mb_ptr2char)(get_cursor_pos_ptr());
     }
@@ -553,30 +530,21 @@ int gchar_cursor(void)
     return (int)*get_cursor_pos_ptr();
 }
 
-/*
- * Write a character at the current cursor position.
- * It is directly written into the block.
- */
+/// Write a character at the current cursor position.
+/// It is directly written into the block.
 void pchar_cursor(char_u c)
 {
-    *(ml_get_buf(curbuf, curwin->w_cursor.lnum, true)
-      + curwin->w_cursor.col) = c;
+    *(ml_get_buf(curbuf, curwin->w_cursor.lnum, true) + curwin->w_cursor.col) = c;
 }
 
-/*
- * Return pointer to cursor line.
- */
+/// Return pointer to cursor line.
 char_u *get_cursor_line_ptr(void)
 {
     return ml_get_buf(curbuf, curwin->w_cursor.lnum, false);
 }
 
-/*
- * Return pointer to cursor position.
- */
+/// Return pointer to cursor position.
 char_u *get_cursor_pos_ptr(void)
 {
-    return ml_get_buf(curbuf, curwin->w_cursor.lnum, false) +
-           curwin->w_cursor.col;
+    return ml_get_buf(curbuf, curwin->w_cursor.lnum, false) + curwin->w_cursor.col;
 }
-
