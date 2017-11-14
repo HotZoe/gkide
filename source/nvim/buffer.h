@@ -5,9 +5,9 @@
 
 #include "nvim/vim.h"
 #include "nvim/window.h"
-#include "nvim/pos.h"           // for linenr_T
-#include "nvim/ex_cmds_defs.h"  // for exarg_T
-#include "nvim/screen.h"        // for StlClickRecord
+#include "nvim/pos.h" // for linenr_T
+#include "nvim/ex_cmds_defs.h" // for exarg_T
+#include "nvim/screen.h" // for StlClickRecord
 #include "nvim/func_attr.h"
 #include "nvim/eval.h"
 #include "nvim/macros.h"
@@ -74,7 +74,7 @@ static inline void switch_to_win_for_buf(buf_T *buf,
     tabpage_T *tp;
 
     if(!find_win_for_buf(buf, &wp, &tp)
-            || switch_win(save_curwinp, save_curtabp, wp, tp, true) == FAIL)
+       || switch_win(save_curwinp, save_curtabp, wp, tp, true) == FAIL)
     {
         switch_buffer(save_curbuf, buf);
     }
@@ -108,13 +108,16 @@ static inline void buf_set_changedtick(buf_T *const buf, const int changedtick)
     assert(changedtick_di != NULL);
     assert(changedtick_di->di_tv.v_type == VAR_NUMBER);
     assert(changedtick_di->di_tv.v_lock == VAR_FIXED);
+
     // For some reason formatc does not like the below.
-#ifndef UNIT_TESTING_LUA_PREPROCESSING
+    #ifndef UNIT_TESTING_LUA_PREPROCESSING
     assert(changedtick_di->di_flags == (DI_FLAGS_RO|DI_FLAGS_FIX));
-#endif
+    #endif
+
     assert(changedtick_di == (dictitem_T *)&buf->changedtick_di);
     assert(&buf->b_changedtick == &buf->changedtick_di.di_tv.vval.v_number);
 #endif
+
     buf->b_changedtick = changedtick;
 }
 
@@ -128,6 +131,5 @@ static inline void buf_set_changedtick(buf_T *const buf, const int changedtick)
         code;                                                               \
         restore_win_for_buf(save_curwin, save_curtab, &save_curbuf);        \
     } while(0)
-
 
 #endif // NVIM_BUFFER_H

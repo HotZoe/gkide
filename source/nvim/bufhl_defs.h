@@ -5,14 +5,14 @@
 
 #include "nvim/pos.h"
 #include "nvim/lib/kvec.h"
-// bufhl: buffer specific highlighting
 
+/// buffer specific highlighting
 struct bufhl_hl_item
 {
     int src_id;
-    int hl_id;  // highlight group
-    colnr_T start;  // first column to highlight
-    colnr_T stop;  // last column to highlight
+    int hl_id;      ///< highlight group
+    colnr_T start;  ///< first column to highlight
+    colnr_T stop;   ///< last column to highlight
 };
 typedef struct bufhl_hl_item bufhl_hl_item_T;
 
