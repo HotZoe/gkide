@@ -3,9 +3,9 @@
 #ifndef NVIM_EVAL_H
 #define NVIM_EVAL_H
 
-#include "nvim/hashtab.h"  // For hashtab_T
+#include "nvim/hashtab.h" // For hashtab_T
 #include "nvim/buffer_defs.h"
-#include "nvim/ex_cmds_defs.h"  // For exarg_T
+#include "nvim/ex_cmds_defs.h" // For exarg_T
 #include "nvim/eval/typval.h"
 #include "nvim/profile.h"
 #include "nvim/garray.h"
@@ -13,10 +13,10 @@
 #define COPYID_INC   2
 #define COPYID_MASK  (~0x1)
 
-// All user-defined functions are found in this hashtable.
+/// All user-defined functions are found in this hashtable.
 extern hashtab_T func_hashtab;
 
-// From user function to hashitem and back.
+/// From user function to hashitem and back.
 EXTERN ufunc_T dumuf;
 
 #define UF2HIKEY(fp) ((fp)->uf_name)
@@ -137,7 +137,6 @@ typedef enum
 
 /// Array mapping values from MessagePackType to corresponding list pointers
 extern const list_T *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
-
 #undef LAST_MSGPACK_TYPE
 
 typedef int (*ArgvFunc)(int current_argcount, typval_T *argv, int called_func_argcount);
