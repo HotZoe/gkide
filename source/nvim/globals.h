@@ -587,10 +587,8 @@ EXTERN buf_T *lastbuf INIT(= NULL);   ///< last buffer
 EXTERN buf_T *curbuf INIT(= NULL);    ///< currently active buffer
 
 // Iterates over all buffers in the buffer list.
-#define FOR_ALL_BUFFERS(buf) \
-    for (buf_T *buf = firstbuf; buf != NULL; buf = buf->b_next)
-#define FOR_ALL_BUFFERS_BACKWARDS(buf) \
-    for (buf_T *buf = lastbuf; buf != NULL; buf = buf->b_prev)
+#define FOR_ALL_BUFFERS(buf)            for(buf_T *buf = firstbuf; buf != NULL; buf = buf->b_next)
+#define FOR_ALL_BUFFERS_BACKWARDS(buf)  for(buf_T *buf = lastbuf;  buf != NULL; buf = buf->b_prev)
 
 // Flag that is set when switching off 'swapfile'.
 // It means that all blocks are to be loaded into memory.

@@ -74,7 +74,7 @@
 #define ADDR_LOADED_BUFFERS     3
 #define ADDR_BUFFERS            4
 #define ADDR_TABS               5
-#define ADDR_TABS_RELATIVE      6   // Tab page that only relative
+#define ADDR_TABS_RELATIVE      6   ///< Tab page that only relative
 #define ADDR_QUICKFIX           7
 #define ADDR_OTHER              99
 
@@ -132,14 +132,14 @@ struct exarg
     struct condstack *cstack;  ///< condition stack for ":if" etc.
 };
 
-#define FORCE_BIN    1         ///< ":edit ++bin file"
-#define FORCE_NOBIN  2         ///< ":edit ++nobin file"
+#define FORCE_BIN       1      ///< ":edit ++bin file"
+#define FORCE_NOBIN     2      ///< ":edit ++nobin file"
 
 #define EXFLAG_LIST     0x01   ///< 'l': list
 #define EXFLAG_NR       0x02   ///< '#': number
 #define EXFLAG_PRINT    0x04   ///< 'p': print
 
-// used for completion on the command line
+/// used for completion on the command line
 struct expand
 {
     int xp_context;          ///< type of expansion
@@ -150,9 +150,10 @@ struct expand
     int xp_backslash;        ///< one of the XP_BS_ values
 
     #ifndef BACKSLASH_IN_FILENAME
-    int xp_shell;            ///< TRUE for a shell command, more
-                             ///< characters need to be escaped
+    ///< TRUE for a shell command, more characters need to be escaped
+    int xp_shell;
     #endif
+
     int xp_numfiles;         ///< number of files found by file name completion
     char_u **xp_files;       ///< list of files
     char_u *xp_line;         ///< text being completed
