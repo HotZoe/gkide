@@ -27,6 +27,7 @@ bool ShellContents::fromFile(const QString &path)
     }
 
     int row = 0;
+
     while(!f.atEnd())
     {
         QString line = f.readLine();
@@ -164,6 +165,7 @@ void ShellContents::scrollRegion(int row0, int row1, int col0, int col1, int cou
     }
 
     int start, stop, inc;
+
     if(count > 0)
     {
         start = row0;
@@ -180,18 +182,19 @@ void ShellContents::scrollRegion(int row0, int row1, int col0, int col1, int cou
     for(int i=start; i!=stop; i+=inc)
     {
         int dst = i-count;
+
         if(dst >= row0 && dst < row1)
         {
             // Copy line
             memcpy(&_data[dst*_columns + col0],
-                    &_data[i*_columns + col0],
-                    (col1-col0)*sizeof(Cell));
+                   &_data[i*_columns + col0],
+                   (col1-col0)*sizeof(Cell));
         }
 
         // Clear src line
         for(int j=col0; j<col1; j++)
         {
-            new (&_data[i*_columns + j]) Cell();
+            new(&_data[i*_columns + j]) Cell();
         }
     }
 }
@@ -270,6 +273,7 @@ int ShellContents::put(const QString &str, int row, int column,
     }
 
     int pos = column;
+
     foreach(const QChar chr, str)
     {
         Cell &c = value(row, pos);

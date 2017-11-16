@@ -43,31 +43,31 @@
 
 /*
  * NUL cannot be in the input string, therefore it is replaced by
- *	K_SPECIAL   KS_ZERO	KE_FILLER
+ *  K_SPECIAL   KS_ZERO KE_FILLER
  */
 #define KS_ZERO                 255
 
 /*
  * K_SPECIAL cannot be in the input string, therefore it is replaced by
- *	K_SPECIAL   KS_SPECIAL	KE_FILLER
+ *  K_SPECIAL   KS_SPECIAL  KE_FILLER
  */
 #define KS_SPECIAL              254
 
 /*
  * KS_EXTRA is used for keys that have no termcap name
- *	K_SPECIAL   KS_EXTRA	KE_xxx
+ *  K_SPECIAL   KS_EXTRA    KE_xxx
  */
 #define KS_EXTRA                253
 
 /*
  * KS_MODIFIER is used when a modifier is given for a (special) key
- *	K_SPECIAL   KS_MODIFIER	bitmask
+ *  K_SPECIAL   KS_MODIFIER bitmask
  */
 #define KS_MODIFIER             252
 
 /*
  * These are used for the GUI
- *	K_SPECIAL   KS_xxx	KE_FILLER
+ *  K_SPECIAL   KS_xxx  KE_FILLER
  */
 #define KS_MOUSE                251
 #define KS_MENU                 250

@@ -59,7 +59,7 @@ const char *profile_msg(proftime_T tm) FUNC_ATTR_WARN_UNUSED_RESULT
 ///         the zero time.
 proftime_T profile_setlimit(int64_t msec) FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if (msec <= 0)
+    if(msec <= 0)
     {
         // no limit
         return profile_zero();
@@ -77,7 +77,7 @@ proftime_T profile_setlimit(int64_t msec) FUNC_ATTR_WARN_UNUSED_RESULT
 ///         timer was not set.
 bool profile_passed_limit(proftime_T tm) FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if (tm == 0)
+    if(tm == 0)
     {
         // timer was not set
         return false;
@@ -99,7 +99,7 @@ proftime_T profile_zero(void) FUNC_ATTR_CONST
 /// @return 0 if count <= 0, otherwise tm / count
 proftime_T profile_divide(proftime_T tm, int count) FUNC_ATTR_CONST
 {
-    if (count <= 0)
+    if(count <= 0)
     {
         return profile_zero();
     }
@@ -133,7 +133,7 @@ FUNC_ATTR_CONST
 {
     // check that the result won't be negative, which can happen with
     // recursive calls.
-    if (total <= children)
+    if(total <= children)
     {
         return self;
     }
@@ -178,7 +178,7 @@ bool profile_equal(proftime_T tm1, proftime_T tm2) FUNC_ATTR_CONST
 /// @return -1, 0, or +1
 static inline int sgn64(int64_t x) FUNC_ATTR_CONST
 {
-    return (int) ((x > 0) - (x < 0));
+    return (int)((x > 0) - (x < 0));
 }
 
 /// profile_cmp - compare profiling times
@@ -207,11 +207,9 @@ static proftime_T g_prev_time;
 void time_push(proftime_T *rel, proftime_T *start)
 {
     proftime_T now = profile_start();
-
     // subtract the previous time from now, store it in 'rel'
     *rel = profile_sub(now, g_prev_time);
     *start = now;
-
     // reset global 'g_prev_time' for the next call
     g_prev_time = now;
 }
@@ -284,7 +282,6 @@ void time_msg(const char *mesg, const proftime_T *start)
     // print the difference between the global 'g_prev_time' and 'now'
     fprintf(time_fd, "  ");
     time_diff(g_prev_time, now);
-
     // reset 'g_prev_time' and print the message
     g_prev_time = now;
     fprintf(time_fd, ": %s\n", mesg);

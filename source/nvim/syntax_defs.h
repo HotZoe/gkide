@@ -64,10 +64,10 @@ struct syn_state
     int sst_next_flags;         ///< flags for sst_next_list
     int sst_stacksize;          ///< number of states on the stack
     short *sst_next_list;       ///< "nextgroup" list in this state
-                                ///< (this is a copy, don't free it!
+    ///< (this is a copy, don't free it!
     disptick_T sst_tick;        ///< tick when last displayed
     linenr_T sst_change_lnum;   ///< when non-zero, change in this line
-                                ///< may have made the state invalid
+    ///< may have made the state invalid
 };
 
 /// Structure shared between syntax.c, screen.c

@@ -75,19 +75,19 @@ void ga_set_growsize(garray_T *gap, int growsize)
 /// @param n
 void ga_grow(garray_T *gap, int n)
 {
-    if (gap->ga_maxlen - gap->ga_len >= n)
+    if(gap->ga_maxlen - gap->ga_len >= n)
     {
         // the garray still has enough space, do nothing
         return;
     }
 
-    if (gap->ga_growsize < 1)
+    if(gap->ga_growsize < 1)
     {
         ALERT_LOG("ga_growsize(%d) is less than 1", gap->ga_growsize);
     }
 
     // the garray grows by at least growsize
-    if (n < gap->ga_growsize)
+    if(n < gap->ga_growsize)
     {
         n = gap->ga_growsize;
     }
@@ -113,14 +113,14 @@ void ga_remove_duplicate_strings(garray_T *gap)
     sort_strings(fnames, gap->ga_len);
 
     // loop over the growing array in reverse
-    for (int i = gap->ga_len - 1; i > 0; i--)
+    for(int i = gap->ga_len - 1; i > 0; i--)
     {
-        if (fnamecmp(fnames[i - 1], fnames[i]) == 0)
+        if(fnamecmp(fnames[i - 1], fnames[i]) == 0)
         {
             xfree(fnames[i]);
 
             // close the gap (move all strings one slot lower)
-            for (int j = i + 1; j < gap->ga_len; j++)
+            for(int j = i + 1; j < gap->ga_len; j++)
             {
                 fnames[j - 1] = fnames[j];
             }
@@ -143,14 +143,14 @@ FUNC_ATTR_NONNULL_RET
     const size_t nelem = (size_t) gap->ga_len;
     const char **strings = gap->ga_data;
 
-    if (nelem == 0)
+    if(nelem == 0)
     {
         return (char_u *) xstrdup("");
     }
 
     size_t len = 0;
 
-    for (size_t i = 0; i < nelem; i++)
+    for(size_t i = 0; i < nelem; i++)
     {
         len += strlen(strings[i]);
     }
@@ -161,7 +161,7 @@ FUNC_ATTR_NONNULL_RET
 
     char *s = ret;
 
-    for (size_t i = 0; i < nelem - 1; i++)
+    for(size_t i = 0; i < nelem - 1; i++)
     {
         s = xstpcpy(s, strings[i]);
         s = xstpcpy(s, sep);
@@ -194,7 +194,7 @@ char_u *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
 /// @param s
 void ga_concat(garray_T *gap, const char_u *restrict s)
 {
-    if (s == NULL)
+    if(s == NULL)
     {
         return;
     }
@@ -211,7 +211,7 @@ void ga_concat_len(garray_T *const gap, const char *restrict s,
                    const size_t len)
 FUNC_ATTR_NONNULL_ALL
 {
-    if (len)
+    if(len)
     {
         ga_grow(gap, (int) len);
         char *data = gap->ga_data;

@@ -38,10 +38,12 @@ StdinReader::StdinReader(qint64 maxSize, QObject *parent)
 void StdinReader::run()
 {
     char *buf = new char[m_maxSize];
+
     while(true)
     {
         qint64 bytes = read(0, buf, m_maxSize);
-        if(bytes > 0 )
+
+        if(bytes > 0)
         {
             qDebug() << "Reading data from stdin: " << bytes;
             emit dataAvailable(QByteArray(buf, (int)bytes));

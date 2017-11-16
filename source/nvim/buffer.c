@@ -6,8 +6,8 @@
 /// Each buffer can be in one of these states:
 /// - never loaded: BF_NEVERLOADED is set, only the file name is valid
 /// -   not loaded: b_ml.ml_mfp == NULL, no memfile allocated
-///	-       hidden: b_nwindows == 0, loaded but not displayed in a window
-///	-       normal: loaded and displayed in a window
+/// -       hidden: b_nwindows == 0, loaded but not displayed in a window
+/// -       normal: loaded and displayed in a window
 ///
 /// Instead of storing file names all over the place, each file name is
 /// stored in the buffer list. It can be referenced by a number.
@@ -291,7 +291,7 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
 
     // The autocommands may have changed the current buffer.  Apply the
     // modelines to the correct buffer, if it still exists and is loaded.
-    if (bufref_valid(&old_curbuf) && old_curbuf.br_buf->b_ml.ml_mfp != NULL)
+    if(bufref_valid(&old_curbuf) && old_curbuf.br_buf->b_ml.ml_mfp != NULL)
     {
         aco_save_T aco;
 
@@ -1180,16 +1180,16 @@ static int empty_curbuf(int close_others, int forceit, int action)
 
 /// Implementation of the commands for the buffer list.
 ///
-/// action == DOBUF_GOTO	 go to specified buffer
+/// action == DOBUF_GOTO     go to specified buffer
 /// action == DOBUF_SPLIT    split window and go to specified buffer
 /// action == DOBUF_UNLOAD   unload specified buffer(s)
-/// action == DOBUF_DEL	     delete specified buffer(s) from buffer list
-/// action == DOBUF_WIPE	 delete specified buffer(s) really
+/// action == DOBUF_DEL      delete specified buffer(s) from buffer list
+/// action == DOBUF_WIPE     delete specified buffer(s) really
 ///
 /// start == DOBUF_CURRENT   go to "count" buffer from current buffer
-/// start == DOBUF_FIRST	 go to "count" buffer from first buffer
-/// start == DOBUF_LAST	     go to "count" buffer from last buffer
-/// start == DOBUF_MOD	     go to "count" modified buffer from current buffer
+/// start == DOBUF_FIRST     go to "count" buffer from first buffer
+/// start == DOBUF_LAST      go to "count" buffer from last buffer
+/// start == DOBUF_MOD       go to "count" modified buffer from current buffer
 ///
 /// @param action
 /// @param start
@@ -1198,7 +1198,7 @@ static int empty_curbuf(int close_others, int forceit, int action)
 /// @param forceit  TRUE for :...!
 ///
 /// @return return `FAIL` or `OK`
-int do_buffer( int action, int start, int dir, int count, int forceit)
+int do_buffer(int action, int start, int dir, int count, int forceit)
 {
     buf_T *bp;
     buf_T *buf;
@@ -1643,8 +1643,8 @@ int do_buffer( int action, int start, int dir, int count, int forceit)
 /// `action` tells how to close the current buffer:
 /// - DOBUF_GOTO    free or hide it
 /// - DOBUF_SPLIT   nothing
-/// - DOBUF_UNLOAD	unload it
-/// - DOBUF_DEL	    delete it
+/// - DOBUF_UNLOAD  unload it
+/// - DOBUF_DEL     delete it
 /// - DOBUF_WIPE    wipe it out
 void set_curbuf(buf_T *buf, int action)
 {
@@ -2190,7 +2190,7 @@ void free_buf_options(buf_T *buf, int free_p_ff)
 
 /// get alternate file n
 /// set linenr to lnum or altfpos.lnum if lnum == 0
-///	also set cursor column to altfpos.col if 'startofline' is not set.
+/// also set cursor column to altfpos.col if 'startofline' is not set.
 ///
 /// - if(options & GETF_SETMARK) call setpcmark()
 /// - if(options & GETF_ALT)     jumping to an alternate file.
@@ -2656,7 +2656,7 @@ static char_u *buflist_match(regmatch_T *rmp, buf_T *buf, bool ignore_case)
     // First try the short file name, then the long file name.
     char_u *match = fname_match(rmp, buf->b_sfname, ignore_case);
 
-    if (match == NULL)
+    if(match == NULL)
     {
         match = fname_match(rmp, buf->b_ffname, ignore_case);
     }
@@ -3038,7 +3038,7 @@ int buflist_name_nr(int fnum, char_u **fname, linenr_T *lnum)
 /// @param message  give message when buffer already exists
 ///
 /// Returns `FAIL` for failure (file name already in use by other buffer)
-///	`OK` otherwise.
+/// OK otherwise.
 int setfname(buf_T *buf, char_u *ffname, char_u *sfname, int message)
 {
     buf_T *obuf = NULL;
@@ -4102,7 +4102,7 @@ int build_stl_str_hl(win_T *wp,
                 {
                     min_group_width = 0 - min_group_width;
 
-                    while (group_len++ < min_group_width && out_p < out_end_p)
+                    while(group_len++ < min_group_width && out_p < out_end_p)
                     {
                         *out_p++ = fillchar;
                     }
@@ -4604,8 +4604,8 @@ int build_stl_str_hl(win_T *wp,
                 itemisflag = true;
 
                 switch((opt == STL_MODIFIED_ALT)
-                        + bufIsChanged(wp->w_buffer) * 2
-                        + (!MODIFIABLE(wp->w_buffer)) * 4)
+                       + bufIsChanged(wp->w_buffer) * 2
+                       + (!MODIFIABLE(wp->w_buffer)) * 4)
                 {
                     case 2:
                         str = (char_u *)"[+]";
@@ -5080,7 +5080,7 @@ int build_stl_str_hl(win_T *wp,
     {
         struct stl_hlrec *sp = hltab;
 
-        for (long l = 0; l < itemcnt; l++)
+        for(long l = 0; l < itemcnt; l++)
         {
             if(items[l].type == Highlight)
             {
@@ -5624,7 +5624,7 @@ void ex_buffer_all(exarg_T *eap)
     int had_tab = cmdmod.tab;
     tabpage_T   *tpnext;
 
-    if (eap->addr_count == 0) // make as many windows as possible
+    if(eap->addr_count == 0)  // make as many windows as possible
     {
         count = 9999;
     }
@@ -5813,7 +5813,7 @@ void ex_buffer_all(exarg_T *eap)
     --autocmd_no_leave;
 
     // Close superfluous windows.
-    for(wp = lastwin; open_wins > count; )
+    for(wp = lastwin; open_wins > count;)
     {
         r = (P_HID(wp->w_buffer) || !bufIsChanged(wp->w_buffer)
             || autowrite(wp->w_buffer, FALSE) == OK);
@@ -5844,8 +5844,8 @@ void ex_buffer_all(exarg_T *eap)
 /// do_modelines() - process mode lines for the current file
 ///
 /// "flags" can be:
-/// OPT_WINONLY	    only set options local to window
-/// OPT_NOWIN	    don't set options local to window
+/// OPT_WINONLY     only set options local to window
+/// OPT_NOWIN       don't set options local to window
 ///
 /// Returns immediately if the "ml" option isn't set.
 void do_modelines(int flags)
@@ -5960,7 +5960,7 @@ static int chk_modeline(linenr_T lnum, int flags)
     do // skip over "ex:", "vi:" or "vim:"
     {
         ++s;
-    } while (s[-1] != ':');
+    } while(s[-1] != ':');
 
     s = linecopy = vim_strsave(s); // copy the line, it will change
     save_sourcing_lnum = sourcing_lnum;
@@ -6018,7 +6018,7 @@ static int chk_modeline(linenr_T lnum, int flags)
             retval = do_set(s, OPT_MODELINE | OPT_LOCAL | flags);
             current_SID = save_SID;
 
-            if (retval == FAIL) // stop if error found
+            if(retval == FAIL)  // stop if error found
             {
                 break;
             }
@@ -6200,7 +6200,7 @@ linenr_T buf_change_sign_type(buf_T *buf, int markId, int typenr)
 /// @param type one of: SIGN_ICON, SIGN_TEXT, SIGN_ANY, SIGN_LINEHL
 int buf_getsigntype(buf_T *buf, linenr_T lnum, int type)
 {
-    signlist_T	*sign; // a sign in a b_signlist
+    signlist_T *sign; // a sign in a b_signlist
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
     {

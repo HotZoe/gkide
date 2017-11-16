@@ -69,7 +69,7 @@ public:
     void setRequestHandler(MsgpackRequestHandler *);
 
     /// Typedef for msgpack-to-Qvariant decoder @see registerExtType
-    typedef QVariant (*msgpackExtDecoder)(MsgpackIODevice *, const char *data, quint32 size);
+    typedef QVariant(*msgpackExtDecoder)(MsgpackIODevice *, const char *data, quint32 size);
     void registerExtType(int8_t type, msgpackExtDecoder);
 
     QList<quint32> pendingRequests() const;

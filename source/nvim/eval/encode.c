@@ -78,7 +78,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     while(line_end < end)
     {
         const char *line_start = line_end;
-        line_end = xmemscan(line_start, NL, (size_t) (end - line_start));
+        line_end = xmemscan(line_start, NL, (size_t)(end - line_start));
         char *str = NULL;
 
         if(line_end != line_start)
@@ -333,7 +333,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             if(state->li == NULL)
             {
-                *read_bytes = (size_t) (p - buf);
+                *read_bytes = (size_t)(p - buf);
                 return OK;
             }
 
@@ -341,7 +341,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             if(state->li->li_tv.v_type != VAR_STRING)
             {
-                *read_bytes = (size_t) (p - buf);
+                *read_bytes = (size_t)(p - buf);
                 return FAIL;
             }
 
@@ -740,7 +740,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                     else
                     {
                         str_len += ((sizeof("\\u1234") - 1)
-                                    * (size_t) (1 + (ch >= SURROGATE_FIRST_CHAR)));
+                                    * (size_t)(1 + (ch >= SURROGATE_FIRST_CHAR)));
                     }
 
                     break;

@@ -44,10 +44,10 @@ typedef struct
 // functions that set or reset the flags.
 //
 // VALID_BOTLINE    VALID_BOTLINE_AP
-//  on		on		w_botline valid
-//  off		on		w_botline approximated
-//  off		off		w_botline not valid
-//  on		off		not possible
+//  on      on      w_botline valid
+//  off     on      w_botline approximated
+//  off     off     w_botline not valid
+//  on      off     not possible
 
 #define VALID_WROW       0x01    ///< w_wrow (window row) is valid
 #define VALID_WCOL       0x02    ///< w_wcol (window col) is valid
@@ -849,8 +849,8 @@ typedef struct
 /// Same as lpos_T, but with additional field len.
 typedef struct
 {
-    linenr_T  lnum;	///< line number
-    colnr_T col;	///< column number
+    linenr_T  lnum; ///< line number
+    colnr_T col;    ///< column number
     int len;        ///< length: 0 - to the end of line
 } llpos_T;
 
@@ -860,9 +860,9 @@ typedef struct posmatch posmatch_T;
 struct posmatch
 {
     llpos_T pos[MAXPOSMATCH]; ///< array of positions
-    int cur;			      ///< internal position counter
-    linenr_T toplnum;		  ///< top buffer line
-    linenr_T botlnum;		  ///< bottom buffer line
+    int cur;                  ///< internal position counter
+    linenr_T toplnum;         ///< top buffer line
+    linenr_T botlnum;         ///< bottom buffer line
 };
 
 /// matchitem_T provides a linked list for storing

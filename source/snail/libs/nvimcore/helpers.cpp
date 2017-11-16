@@ -22,11 +22,13 @@ bool saveShellContents(const ShellContents &s, const QString &filename)
         // Draw guide
         p.setPen(Qt::red);
         p.drawLine(0, i*h, img.width(), i*h);
+
         for(int j=0; j<s.columns(); j++)
         {
             QRect r(j*w, i*h, w, h);
             const Cell &cell = s.constValue(i,j);
             p.setPen(cell.foregroundColor);
+
             if(cell.backgroundColor.isValid())
             {
                 p.fillRect(r, cell.backgroundColor);

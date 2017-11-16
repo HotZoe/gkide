@@ -12,12 +12,12 @@
 
 #define MAP_DECLS(T, U)                                        \
     KHASH_DECLARE(T##_##U##_map, T, U)                         \
-                                                               \
+    \
     typedef struct                                             \
     {                                                          \
         khash_t(T##_##U##_map) *table;                         \
     } Map(T, U);                                               \
-                                                               \
+    \
     Map(T, U) *map_##T##_##U##_new(void);                      \
     void map_##T##_##U##_free(Map(T, U) *map);                 \
     U    map_##T##_##U##_get(Map(T, U) *map, T key);           \

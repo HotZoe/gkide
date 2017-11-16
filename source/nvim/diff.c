@@ -323,14 +323,14 @@ static void diff_mark_adjust_tp(tabpage_T *tp,
 
         //
         // Check for these situations:
-        //	     1  2  3
-        //	     1  2  3
-        // line1 2	3  4  5
-        //	     2	3  4  5
-        //	     2	3  4  5
-        // line2 2	3  4  5
-        //		 3     5  6
-        //		 3     5  6
+        //       1  2  3
+        //       1  2  3
+        // line1 2  3  4  5
+        //       2  3  4  5
+        //       2  3  4  5
+        // line2 2  3  4  5
+        //       3     5  6
+        //       3     5  6
         // compute last line of this change
         last = dp->df_lnum[idx] + dp->df_count[idx] - 1;
 
@@ -571,7 +571,7 @@ static void diff_check_unchanged(tabpage_T *tp, diff_T *dp)
 
     for(i_org = 0; i_org < DB_COUNT; ++i_org)
     {
-        if (tp->tp_diffbuf[i_org] != NULL)
+        if(tp->tp_diffbuf[i_org] != NULL)
         {
             break;
         }
@@ -1069,7 +1069,7 @@ void ex_diffpatch(exarg_T *eap)
                  NULL,
                  (linenr_T)1,
                  curbuf->b_ml.ml_line_count,
-                  NULL,
+                 NULL,
                  FALSE,
                  FALSE,
                  FALSE,
@@ -2756,8 +2756,8 @@ void ex_diffgetput(exarg_T *eap)
                 }
 
                 end_skip = dp->df_lnum[idx_cur]
-                          + dp->df_count[idx_cur] - 1
-                          - (eap->line2 + off);
+                           + dp->df_count[idx_cur] - 1
+                           - (eap->line2 + off);
 
                 if(end_skip > 0)
                 {

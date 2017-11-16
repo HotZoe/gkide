@@ -18,9 +18,9 @@ struct signlist
 };
 
 /* type argument for buf_getsigntype() */
-#define SIGN_ANY	0
-#define SIGN_LINEHL	1
-#define SIGN_ICON	2
-#define SIGN_TEXT	3
+#define SIGN_ANY    0
+#define SIGN_LINEHL 1
+#define SIGN_ICON   2
+#define SIGN_TEXT   3
 
 #endif // NVIM_SIGN_DEFS_H

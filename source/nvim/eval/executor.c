@@ -28,7 +28,7 @@ FUNC_ATTR_NONNULL_ALL
     // Can't do anything with a Funcref, a Dict or special value on the right.
     if(tv2->v_type != VAR_FUNC && tv2->v_type != VAR_DICT)
     {
-        switch (tv1->v_type)
+        switch(tv1->v_type)
         {
             case VAR_DICT:
             case VAR_FUNC:

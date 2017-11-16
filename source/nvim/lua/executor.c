@@ -551,7 +551,7 @@ static int nlua_print(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
         while(i < len)
         {
-            switch (str[i])
+            switch(str[i])
             {
                 case NUL:
                 {
@@ -618,7 +618,7 @@ int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
         { .v_type = VAR_UNKNOWN, },
     };
 
-    for (;;)
+    for(;;)
     {
         lua_settop(lstate, 0);
         typval_T input;
@@ -719,7 +719,10 @@ void ex_lua(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
 
     typval_T tv = { .v_type = VAR_UNKNOWN };
 
-    executor_exec_lua((String) { .data = code, .size = len }, &tv);
+    executor_exec_lua((String)
+    {
+        .data = code, .size = len
+    }, &tv);
 
     tv_clear(&tv);
     xfree(code);

@@ -31,23 +31,23 @@ static msgpack_sbuffer sbuffer;
         {                                                                                \
             return false;                                                                \
         }                                                                                \
-                                                                                         \
+        \
         msgpack_object data;                                                             \
         msgpack_unpack_return ret = msgpack_unpack(obj->via.ext.ptr,                     \
                                                    obj->via.ext.size,                    \
                                                    NULL,                                 \
                                                    &zone,                                \
                                                    &data);                               \
-                                                                                         \
+        \
         if(ret != MSGPACK_UNPACK_SUCCESS)                                                \
         {                                                                                \
             return false;                                                                \
         }                                                                                \
-                                                                                         \
+        \
         *arg = (handle_T)data.via.i64;                                                   \
         return true;                                                                     \
     }                                                                                    \
-                                                                                         \
+    \
     static void msgpack_rpc_from_##lt(Integer o, msgpack_packer *res)                    \
     FUNC_ATTR_NONNULL_ARG(2)                                                             \
     {                                                                                    \
@@ -90,7 +90,10 @@ FUNC_ATTR_NONNULL_ALL
 
     kvec_t(MPToAPIObjectStackItem) stack = KV_INITIAL_VALUE;
 
-    kv_push(stack, ((MPToAPIObjectStackItem) { obj, arg, false, 0 }));
+    kv_push(stack, ((MPToAPIObjectStackItem)
+    {
+        obj, arg, false, 0
+    }));
 
     while(ret && kv_size(stack))
     {
@@ -118,7 +121,6 @@ FUNC_ATTR_NONNULL_ALL
             {
                 STATIC_ASSERT(sizeof(Integer) == sizeof(cur.mobj->via.i64),
                               "Msgpack integer size does not match API integer");
-
                 *cur.aobj = INTEGER_OBJ(cur.mobj->via.i64);
                 break;
             }
@@ -140,28 +142,28 @@ FUNC_ATTR_NONNULL_ALL
                 break;
             }
 
-            #ifdef NVIM_MSGPACK_HAS_FLOAT32
+#ifdef NVIM_MSGPACK_HAS_FLOAT32
+
             case MSGPACK_OBJECT_FLOAT32:
             case MSGPACK_OBJECT_FLOAT64:
-            #else
+#else
             case MSGPACK_OBJECT_FLOAT:
-            #endif
-            {
-                STATIC_ASSERT(sizeof(Float) == sizeof(cur.mobj->via.f64),
-                              "Msgpack floating-point size does not match API integer");
-
-                *cur.aobj = FLOAT_OBJ(cur.mobj->via.f64);
-                break;
-            }
+#endif
+                {
+                    STATIC_ASSERT(sizeof(Float) == sizeof(cur.mobj->via.f64),
+                                  "Msgpack floating-point size does not match API integer");
+                    *cur.aobj = FLOAT_OBJ(cur.mobj->via.f64);
+                    break;
+                }
 
 #define STR_CASE(type, attr, obj, dest, conv)                                                      \
 case type:                                                                                         \
 {                                                                                                  \
     dest = conv(((String) { .size = obj->via.attr.size,                                            \
-                            .data = (obj->via.attr.ptr == NULL                                     \
-                                     ||  obj->via.attr.size == 0                                   \
-                                         ? xmemdupz("", 0)                                         \
-                                         : xmemdupz(obj->via.attr.ptr, obj->via.attr.size)), }));  \
+                                        .data = (obj->via.attr.ptr == NULL                                     \
+                                                 ||  obj->via.attr.size == 0                                   \
+                                                 ? xmemdupz("", 0)                                         \
+                                                 : xmemdupz(obj->via.attr.ptr, obj->via.attr.size)), }));  \
     break;                                                                                         \
 }
             STR_CASE(MSGPACK_OBJECT_STR, str, cur.mobj, *cur.aobj, STRING_OBJ)
@@ -182,22 +184,23 @@ case type:                                                                      
                         const size_t idx = cur.idx;
                         cur.idx++;
                         kv_last(stack) = cur;
-
-                        kv_push(stack, ((MPToAPIObjectStackItem) {
+                        kv_push(stack, ((MPToAPIObjectStackItem)
+                        {
                             .mobj = &cur.mobj->via.array.ptr[idx],
-                            .aobj = &cur.aobj->data.array.items[idx],
-                            .container = false, }));
+                             .aobj = &cur.aobj->data.array.items[idx],
+                              .container = false,
+                        }));
                     }
                 }
                 else
                 {
-                    *cur.aobj = ARRAY_OBJ(((Array) {
+                    *cur.aobj = ARRAY_OBJ(((Array)
+                    {
                         .size = size,
-                        .capacity = size,
-                        .items = (size > 0
-                                  ? xcalloc(size, sizeof(*cur.aobj->data.array.items)) : NULL),
+                         .capacity = size,
+                          .items = (size > 0
+                                    ? xcalloc(size, sizeof(*cur.aobj->data.array.items)) : NULL),
                     }));
-
                     cur.container = true;
                     kv_last(stack) = cur;
                 }
@@ -219,37 +222,34 @@ case type:                                                                      
                     {
                         const size_t idx = cur.idx;
                         cur.idx++;
-
                         kv_last(stack) = cur;
-
                         const msgpack_object *const key = &cur.mobj->via.map.ptr[idx].key;
 
                         switch(key->type)
                         {
-                    #define ID(x) x
-                            STR_CASE(MSGPACK_OBJECT_STR,
-                                     str,
-                                     key,
-                                     cur.aobj->data.dictionary.items[idx].key,
-                                     ID)
-
-                            STR_CASE(MSGPACK_OBJECT_BIN,
-                                     bin,
-                                     key,
-                                     cur.aobj->data.dictionary.items[idx].key,
-                                     ID)
-                    #undef ID
+#define ID(x) x
+                                STR_CASE(MSGPACK_OBJECT_STR,
+                                         str,
+                                         key,
+                                         cur.aobj->data.dictionary.items[idx].key,
+                                         ID)
+                                STR_CASE(MSGPACK_OBJECT_BIN,
+                                         bin,
+                                         key,
+                                         cur.aobj->data.dictionary.items[idx].key,
+                                         ID)
+#undef ID
 
                             case MSGPACK_OBJECT_NIL:
                             case MSGPACK_OBJECT_BOOLEAN:
                             case MSGPACK_OBJECT_POSITIVE_INTEGER:
                             case MSGPACK_OBJECT_NEGATIVE_INTEGER:
-                    #ifdef NVIM_MSGPACK_HAS_FLOAT32
+#ifdef NVIM_MSGPACK_HAS_FLOAT32
                             case MSGPACK_OBJECT_FLOAT32:
                             case MSGPACK_OBJECT_FLOAT64:
-                    #else
+#else
                             case MSGPACK_OBJECT_FLOAT:
-                    #endif
+#endif
                             case MSGPACK_OBJECT_EXT:
                             case MSGPACK_OBJECT_MAP:
                             case MSGPACK_OBJECT_ARRAY:
@@ -261,22 +261,25 @@ case type:                                                                      
 
                         if(ret)
                         {
-                            kv_push(stack, ((MPToAPIObjectStackItem) {
+                            kv_push(stack, ((MPToAPIObjectStackItem)
+                            {
                                 .mobj = &cur.mobj->via.map.ptr[idx].val,
-                                .aobj = &cur.aobj->data.dictionary.items[idx].value,
-                                .container = false, }));
+                                 .aobj = &cur.aobj->data.dictionary.items[idx].value,
+                                  .container = false,
+                            }));
                         }
                     }
                 }
                 else
                 {
-                    *cur.aobj = DICTIONARY_OBJ(((Dictionary) {
+                    *cur.aobj = DICTIONARY_OBJ(((Dictionary)
+                    {
                         .size = size,
-                        .capacity = size,
-                        .items = (size > 0
-                                  ? xcalloc(size, sizeof(*cur.aobj->data.dictionary.items))
-                                  : NULL), }));
-
+                         .capacity = size,
+                          .items = (size > 0
+                                    ? xcalloc(size, sizeof(*cur.aobj->data.dictionary.items))
+                                    : NULL),
+                    }));
                     cur.container = true;
                     kv_last(stack) = cur;
                 }
@@ -323,6 +326,7 @@ case type:                                                                      
 
                 break;
             }
+
 #undef STR_CASE
         }
 
@@ -343,8 +347,7 @@ FUNC_ATTR_NONNULL_ALL
     if(obj->type == MSGPACK_OBJECT_BIN || obj->type == MSGPACK_OBJECT_STR)
     {
         arg->data = obj->via.bin.ptr != NULL
-                    ? xmemdupz(obj->via.bin.ptr, obj->via.bin.size) : NULL;
-
+        ? xmemdupz(obj->via.bin.ptr, obj->via.bin.size) : NULL;
         arg->size = obj->via.bin.size;
         return true;
     }
@@ -450,13 +453,14 @@ void msgpack_rpc_from_object(const Object result, msgpack_packer *const res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     kvec_t(APIToMPObjectStackItem) stack = KV_INITIAL_VALUE;
-
-    kv_push(stack, ((APIToMPObjectStackItem) { &result, false, 0 }));
+    kv_push(stack, ((APIToMPObjectStackItem)
+    {
+        &result, false, 0
+    }));
 
     while(kv_size(stack))
     {
         APIToMPObjectStackItem cur = kv_last(stack);
-
         STATIC_ASSERT(kObjectTypeWindow == kObjectTypeBuffer + 1
                       && kObjectTypeTabpage == kObjectTypeWindow + 1,
                       "Buffer, window and tabpage enum items are in order");
@@ -526,10 +530,11 @@ FUNC_ATTR_NONNULL_ARG(2)
                         const size_t idx = cur.idx;
                         cur.idx++;
                         kv_last(stack) = cur;
-
-                        kv_push(stack, ((APIToMPObjectStackItem) {
+                        kv_push(stack, ((APIToMPObjectStackItem)
+                        {
                             .aobj = &cur.aobj->data.array.items[idx],
-                            .container = false, }));
+                             .container = false,
+                        }));
                     }
                 }
                 else
@@ -557,12 +562,12 @@ FUNC_ATTR_NONNULL_ARG(2)
                         const size_t idx = cur.idx;
                         cur.idx++;
                         kv_last(stack) = cur;
-
                         msgpack_rpc_from_string(cur.aobj->data.dictionary.items[idx].key, res);
-
-                        kv_push(stack, ((APIToMPObjectStackItem) {
+                        kv_push(stack, ((APIToMPObjectStackItem)
+                        {
                             .aobj = &cur.aobj->data.dictionary.items[idx].value,
-                            .container = false, }));
+                             .container = false,
+                        }));
                     }
                 }
                 else

@@ -57,18 +57,18 @@
 // Iteration
 #define RBUFFER_EACH(buf, c, i) \
     for (size_t i = 0;  /* NOLINT(readability/braces) */ \
-            i < buf->size; \
-            i = buf->size) \
+         i < buf->size; \
+         i = buf->size) \
         for (char c = 0;  /* NOLINT(readability/braces) */ \
-                i < buf->size ? ((int)(c = *rbuffer_get(buf, i))) || 1 : 0; \
-                i++)
+             i < buf->size ? ((int)(c = *rbuffer_get(buf, i))) || 1 : 0; \
+             i++)
 
 #define RBUFFER_EACH_REVERSE(buf, c, i) \
     for (size_t i = buf->size;  /* NOLINT(readability/braces) */ \
-            i != SIZE_MAX; \
-            i = SIZE_MAX) \
+         i != SIZE_MAX; \
+         i = SIZE_MAX) \
         for (char c = 0;  /* NOLINT(readability/braces) */ \
-                i-- > 0 ? ((int)(c = *rbuffer_get(buf, i))) || 1 : 0; \
+             i-- > 0 ? ((int)(c = *rbuffer_get(buf, i))) || 1 : 0; \
             )
 
 typedef struct rbuffer RBuffer;

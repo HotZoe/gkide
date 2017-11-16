@@ -168,7 +168,7 @@ static void sha256_process(context_sha256_T *ctx,
 
 void sha256_update(context_sha256_T *ctx, const char_u *input, size_t length)
 {
-    if (length == 0)
+    if(length == 0)
     {
         return;
     }
@@ -177,14 +177,14 @@ void sha256_update(context_sha256_T *ctx, const char_u *input, size_t length)
     ctx->total[0] += (uint32_t) length;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < length)
+    if(ctx->total[0] < length)
     {
         ctx->total[1]++;
     }
 
     size_t fill = SHA256_BUFFER_SIZE - left;
 
-    if (left && (length >= fill))
+    if(left && (length >= fill))
     {
         memcpy((void *)(ctx->buffer + left), (void *)input, fill);
         sha256_process(ctx, ctx->buffer);
@@ -193,14 +193,14 @@ void sha256_update(context_sha256_T *ctx, const char_u *input, size_t length)
         left = 0;
     }
 
-    while (length >= SHA256_BUFFER_SIZE)
+    while(length >= SHA256_BUFFER_SIZE)
     {
         sha256_process(ctx, input);
         length -= SHA256_BUFFER_SIZE;
         input  += SHA256_BUFFER_SIZE;
     }
 
-    if (length)
+    if(length)
     {
         memcpy((void *)(ctx->buffer + left), (void *)input, length);
     }
@@ -258,14 +258,14 @@ const char *sha256_bytes(const uint8_t *restrict buf,  size_t buf_len,
     sha256_start(&ctx);
     sha256_update(&ctx, buf, buf_len);
 
-    if (salt != NULL)
+    if(salt != NULL)
     {
         sha256_update(&ctx, salt, salt_len);
     }
 
     sha256_finish(&ctx, sha256sum);
 
-    for (size_t j = 0; j < SHA256_SUM_SIZE; j++)
+    for(size_t j = 0; j < SHA256_SUM_SIZE; j++)
     {
         snprintf(hexit + j * SHA_STEP, SHA_STEP + 1, "%02x", sha256sum[j]);
     }
@@ -305,16 +305,16 @@ bool sha256_self_test(void)
     static bool sha256_self_tested = false;
     static bool failures = false;
 
-    if (sha256_self_tested)
+    if(sha256_self_tested)
     {
         return failures == false;
     }
 
     sha256_self_tested = true;
 
-    for (size_t i = 0; i < 3; i++)
+    for(size_t i = 0; i < 3; i++)
     {
-        if (i < 2)
+        if(i < 2)
         {
             hexit = sha256_bytes((uint8_t *)sha_self_test_msg[i],
                                  strlen(sha_self_test_msg[i]),
@@ -326,20 +326,20 @@ bool sha256_self_test(void)
             sha256_start(&ctx);
             memset(buf, 'a', 1000);
 
-            for (size_t j = 0; j < 1000; j++)
+            for(size_t j = 0; j < 1000; j++)
             {
                 sha256_update(&ctx, buf, 1000);
             }
 
             sha256_finish(&ctx, sha256sum);
 
-            for (size_t j = 0; j < SHA256_SUM_SIZE; j++)
+            for(size_t j = 0; j < SHA256_SUM_SIZE; j++)
             {
                 snprintf(output + j * SHA_STEP, SHA_STEP+1, "%02x", sha256sum[j]);
             }
         }
 
-        if (memcmp(output, sha_self_test_vector[i], SHA256_BUFFER_SIZE))
+        if(memcmp(output, sha_self_test_vector[i], SHA256_BUFFER_SIZE))
         {
             failures = true;
             output[sizeof(output) - 1] = '\0';

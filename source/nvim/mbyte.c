@@ -378,6 +378,7 @@ int bomb_size(void)
 void remove_bom(char_u *s)
 {
     char *p = (char *)s;
+
     while((p = strchr(p, 0xef)) != NULL)
     {
         if((uint8_t)p[1] == 0xbb && (uint8_t)p[2] == 0xbf)
@@ -403,14 +404,14 @@ int mb_get_class(const char_u *p)
 
 int mb_get_class_tab(const char_u *p, const uint64_t *const chartab)
 {
-    if (MB_BYTE2LEN(p[0]) == 1)
+    if(MB_BYTE2LEN(p[0]) == 1)
     {
-        if (p[0] == NUL || ascii_iswhite(p[0]))
+        if(p[0] == NUL || ascii_iswhite(p[0]))
         {
             return 0;
         }
 
-        if (vim_iswordc_tab(p[0], chartab))
+        if(vim_iswordc_tab(p[0], chartab))
         {
             return 2;
         }
@@ -466,7 +467,7 @@ int utf_char2cells(int c)
 {
     if(c >= 0x100)
     {
-        #ifdef USE_WCHAR_FUNCTIONS
+#ifdef USE_WCHAR_FUNCTIONS
         // Assume the library function wcwidth() works better than our own
         // stuff. It should return 1 for ambiguous width chars!
         int n = wcwidth(c);
@@ -480,8 +481,10 @@ int utf_char2cells(int c)
         {
             return n;
         }
-        #else
-        if (!utf_printable(c))
+
+#else
+
+        if(!utf_printable(c))
         {
             return 6; // unprintable, displays <xxxx>
         }
@@ -490,7 +493,8 @@ int utf_char2cells(int c)
         {
             return 2;
         }
-        #endif
+
+#endif
 
         if(p_emoji && intable(emoji_width, ARRAY_SIZE(emoji_width), c))
         {
@@ -583,7 +587,7 @@ size_t mb_string2cells(const char_u *str)
 {
     size_t clen = 0;
 
-    for (const char_u *p = str; *p != NUL; p += (*mb_ptr2len)(p))
+    for(const char_u *p = str; *p != NUL; p += (*mb_ptr2len)(p))
     {
         clen += (*mb_ptr2cells)(p);
     }
@@ -708,7 +712,7 @@ static int utf_safe_read_char_adv(const char_u **s, size_t *n)
         // which equals the first byte of its own UTF-8 representation is
         // U+00C3 (UTF-8: 0xC3 0x83), so need to check that special case too.
         // It's safe even if n=1, else we would have k=2 > n.
-        if (c != (int)(**s) || (c == 0xC3 && (*s)[1] == 0x83))
+        if(c != (int)(**s) || (c == 0xC3 && (*s)[1] == 0x83))
         {
             // byte sequence was successfully decoded
             *s += k;
@@ -921,12 +925,12 @@ int utf_ptr2len_len(const char_u *p, int size)
     int m;
     len = utf8len_tab[*p];
 
-    if (len == 1)
+    if(len == 1)
     {
         return 1; // NUL, ascii or illegal lead byte
     }
 
-    if (len > size)
+    if(len > size)
     {
         m = size; // incomplete byte sequence.
     }
@@ -954,7 +958,7 @@ int utfc_ptr2len(const char_u *p)
     int b0 = *p;
     int prevlen;
 
-    if (b0 == NUL)
+    if(b0 == NUL)
     {
         return 0;
     }
@@ -1025,6 +1029,7 @@ int utfc_ptr2len_len(const char_u *p, int size)
     while(len < size)
     {
         int len_next_char;
+
         if(p[len] < 0x80)
         {
             break;
@@ -1033,6 +1038,7 @@ int utfc_ptr2len_len(const char_u *p, int size)
         // Next character length should not go beyond size to ensure that
         // UTF_COMPOSINGLIKE(...) does not read beyond size.
         len_next_char = utf_ptr2len_len(p + len, size - len);
+
         if(len_next_char > size - len)
         {
             break;
@@ -1135,7 +1141,6 @@ int utf_char2bytes(int c, char_u *buf)
     buf[3] = 0x80 + (((unsigned)c >> 12) & 0x3f);
     buf[4] = 0x80 + (((unsigned)c >> 6) & 0x3f);
     buf[5] = 0x80 + (c & 0x3f);
-
     return 6;
 }
 
@@ -1249,7 +1254,6 @@ int utf_class(int c)
         {0x2b740, 0x2b81f, 0x4e00},         // CJK Ideographs
         {0x2f800, 0x2fa1f, 0x4e00},         // CJK Ideographs
     };
-
     int mid;
     int bot = 0;
     int top = ARRAY_SIZE(classes) - 1;
@@ -1371,11 +1375,13 @@ int mb_toupper(int a)
     }
 
 #if defined(__STDC_ISO_10646__)
+
     // If towupper() is available and handles Unicode, use it.
     if(!(cmp_flags & CMP_INTERNAL))
     {
         return towupper(a);
     }
+
 #endif
 
     // For characters below 128 use locale sensitive toupper().
@@ -1405,11 +1411,13 @@ int mb_tolower(int a)
     }
 
 #if defined(__STDC_ISO_10646__)
+
     // If towlower() is available and handles Unicode, use it.
     if(!(cmp_flags & CMP_INTERNAL))
     {
         return towlower(a);
     }
+
 #endif
 
     // For characters below 128 use locale sensitive tolower().
@@ -1649,7 +1657,6 @@ void show_utf8(void)
     int clen;
     int rlen = 0;
     char_u *line;
-
     // Get the byte length of the char under the cursor,
     // including composing characters.
     line = get_cursor_pos_ptr();
@@ -1678,8 +1685,7 @@ void show_utf8(void)
         }
 
         // NUL is stored as NL
-        sprintf((char *)IObuff + rlen, "%02x ", (line[i] == NL) ? NUL : line[i]);          
-
+        sprintf((char *)IObuff + rlen, "%02x ", (line[i] == NL) ? NUL : line[i]);
         --clen;
         rlen += (int)STRLEN(IObuff + rlen);
 
@@ -1872,10 +1878,12 @@ void utf_find_illegal(void)
     for(;;)
     {
         p = get_cursor_pos_ptr();
+
         if(vimconv.vc_type != CONV_NONE)
         {
             xfree(tofree);
             tofree = string_convert(&vimconv, p, NULL);
+
             if(tofree == NULL)
             {
                 break;
@@ -1926,7 +1934,6 @@ void utf_find_illegal(void)
     // didn't find it: don't move and beep
     curwin->w_cursor = pos;
     beep_flush();
-
 theend:
     xfree(tofree);
     convert_setup(&vimconv, NULL, NULL);
@@ -2180,14 +2187,14 @@ char_u *enc_canonize(char_u *enc) FUNC_ATTR_NONNULL_RET
     }
 
     // "iso-8859n" -> "iso-8859-n"
-    if (STRNCMP(p, "iso-8859", 8) == 0 && p[8] != '-')
+    if(STRNCMP(p, "iso-8859", 8) == 0 && p[8] != '-')
     {
         STRMOVE(p + 9, p + 8);
         p[8] = '-';
     }
 
     // "latin-N" -> "latinN"
-    if (STRNCMP(p, "latin-", 6) == 0)
+    if(STRNCMP(p, "latin-", 6) == 0)
     {
         STRMOVE(p + 5, p + 6);
     }
@@ -2238,14 +2245,15 @@ char_u *enc_locale(void)
     int i;
     char buf[50];
     const char *s;
+#ifdef HAVE_NL_LANGINFO_CODESET
 
-    #ifdef HAVE_NL_LANGINFO_CODESET
     if(!(s = nl_langinfo(CODESET)) || *s == NUL)
-    #endif
+#endif
     {
-        #if defined(HAVE_HDR_LOCALE_H)
+#if defined(HAVE_HDR_LOCALE_H)
+
         if(!(s = setlocale(LC_CTYPE, NULL)) || *s == NUL)
-        #endif
+#endif
         {
             if((s = os_getenv("LC_ALL")))
             {
@@ -2322,7 +2330,7 @@ void *my_iconv_open(char_u *to, char_u *from)
     char *p;
     iconv_t fd;
     size_t tolen;
-    #define ICONV_TESTLEN 400
+#define ICONV_TESTLEN 400
     char_u tobuf[ICONV_TESTLEN];
     static WorkingStatus iconv_working = kUnknown;
 
@@ -2331,15 +2339,17 @@ void *my_iconv_open(char_u *to, char_u *from)
         return (void *)-1; // detected a broken iconv() previously
     }
 
-    #ifdef DYNAMIC_ICONV
+#ifdef DYNAMIC_ICONV
+
     // Check if the iconv.dll can be found.
     if(!iconv_enabled(true))
     {
         return (void *)-1;
     }
-    #endif
 
+#endif
     fd = iconv_open((char *)enc_skip(to), (char *)enc_skip(from));
+
     if(fd != (iconv_t)-1 && iconv_working == kUnknown)
     {
         /*
@@ -2423,8 +2433,8 @@ static char_u *iconv_string(const vimconv_T *const vcp,
 
         // Check both ICONV_EINVAL and EINVAL, because the dynamically loaded
         // iconv library may use one of them
-        if (!vcp->vc_fail && unconvlenp != NULL
-                && (ICONV_ERRNO == ICONV_EINVAL || ICONV_ERRNO == EINVAL))
+        if(!vcp->vc_fail && unconvlenp != NULL
+           && (ICONV_ERRNO == ICONV_EINVAL || ICONV_ERRNO == EINVAL))
         {
             // Handle an incomplete sequence at the end.
             *to = NUL;
@@ -2659,15 +2669,15 @@ int convert_setup_ext(vimconv_T *vcp,
     int to_prop;
     int from_is_utf8;
     int to_is_utf8;
-
     // Reset to no conversion.
-    #ifdef USE_ICONV
+#ifdef USE_ICONV
+
     if(vcp->vc_type == CONV_ICONV && vcp->vc_fd != (iconv_t)-1)
     {
         iconv_close(vcp->vc_fd);
     }
-    #endif
 
+#endif
     vcp->vc_type = CONV_NONE;
     vcp->vc_factor = 1;
     vcp->vc_fail = false;
@@ -2705,22 +2715,23 @@ int convert_setup_ext(vimconv_T *vcp,
         vcp->vc_type = CONV_TO_UTF8;
         vcp->vc_factor = 2; // up to twice as long
     }
-    else if ((from_prop & ENC_LATIN9) && to_is_utf8)
+    else if((from_prop & ENC_LATIN9) && to_is_utf8)
     {
         // Internal latin9 -> utf-8 conversion.
         vcp->vc_type = CONV_9_TO_UTF8;
         vcp->vc_factor = 3; // up to three as long (euro sign)
     }
-    else if (from_is_utf8 && (to_prop & ENC_LATIN1))
+    else if(from_is_utf8 && (to_prop & ENC_LATIN1))
     {
         // Internal utf-8 -> latin1 conversion.
         vcp->vc_type = CONV_TO_LATIN1;
     }
-    else if (from_is_utf8 && (to_prop & ENC_LATIN9))
+    else if(from_is_utf8 && (to_prop & ENC_LATIN9))
     {
         // Internal utf-8 -> latin9 conversion.
         vcp->vc_type = CONV_TO_LATIN9;
     }
+
 #ifdef USE_ICONV
     else
     {
@@ -2734,6 +2745,7 @@ int convert_setup_ext(vimconv_T *vcp,
             vcp->vc_factor = 4; // could be longer too...
         }
     }
+
 #endif
 
     if(vcp->vc_type == CONV_NONE)
@@ -2825,24 +2837,31 @@ char_u *string_convert_ext(const vimconv_T *const vcp,
                     case 0xa4:
                         c = 0x20ac;
                         break; // euro
+
                     case 0xa6:
                         c = 0x0160;
                         break; // S hat
+
                     case 0xa8:
                         c = 0x0161;
                         break; // S -hat
+
                     case 0xb4:
                         c = 0x017d;
                         break; // Z hat
+
                     case 0xb8:
                         c = 0x017e;
                         break; // Z -hat
+
                     case 0xbc:
                         c = 0x0152;
                         break; // OE
+
                     case 0xbd:
                         c = 0x0153;
                         break; // oe
+
                     case 0xbe:
                         c = 0x0178;
                         break; // Y
@@ -2898,32 +2917,40 @@ char_u *string_convert_ext(const vimconv_T *const vcp,
                     c = utf_ptr2char(ptr + i);
 
                     if(vcp->vc_type == CONV_TO_LATIN9)
-                        switch (c)
+                        switch(c)
                         {
                             case 0x20ac:
                                 c = 0xa4;
                                 break; // euro
+
                             case 0x0160:
                                 c = 0xa6;
                                 break; // S hat
+
                             case 0x0161:
                                 c = 0xa8;
                                 break; // S -hat
+
                             case 0x017d:
                                 c = 0xb4;
                                 break; //Z hat
+
                             case 0x017e:
                                 c = 0xb8;
                                 break; // Z -hat
+
                             case 0x0152:
                                 c = 0xbc;
                                 break; // OE
+
                             case 0x0153:
                                 c = 0xbd;
                                 break; // oe
+
                             case 0x0178:
                                 c = 0xbe;
                                 break; // Y
+
                             case 0xa4:
                             case 0xa6:
                             case 0xa8:
@@ -2970,11 +2997,12 @@ char_u *string_convert_ext(const vimconv_T *const vcp,
             }
 
             break;
-        #ifdef USE_ICONV
+#ifdef USE_ICONV
+
         case CONV_ICONV: // conversion with vcp->vc_fd
             retval = iconv_string(vcp, ptr, len, unconvlenp, lenp);
             break;
-        #endif
+#endif
     }
 
     return retval;

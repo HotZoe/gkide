@@ -18,9 +18,9 @@ class Function
     Q_ENUMS(FunctionId)
 public:
 
-    #ifndef NEOVIMQT_NO_AUTO
-    #include "snail/libs/nvimcore/auto/func_idx.h" // Bring in auto-generated enum
-    #endif
+#ifndef NEOVIMQT_NO_AUTO
+#include "snail/libs/nvimcore/auto/func_idx.h" // Bring in auto-generated enum
+#endif
 
     Function();
 

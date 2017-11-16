@@ -2386,7 +2386,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *error_message = NULL;
 
-    switch (lock)
+    switch(lock)
     {
         case VAR_UNLOCKED:
         {

@@ -83,7 +83,7 @@ memfile_T *mf_open(char_u *fname, int flags)
 {
     memfile_T *mfp = xmalloc(sizeof(memfile_T));
 
-    if (fname == NULL)                 // no file, use memory only
+    if(fname == NULL)                  // no file, use memory only
     {
         mfp->mf_fname = NULL;
         mfp->mf_ffname = NULL;
@@ -91,7 +91,7 @@ memfile_T *mf_open(char_u *fname, int flags)
     }
     else                               // try to open the file
     {
-        if (!mf_do_open(mfp, fname, flags))
+        if(!mf_do_open(mfp, fname, flags))
         {
             xfree(mfp);
             return NULL;                   // fail if file could not be opened
@@ -109,11 +109,11 @@ memfile_T *mf_open(char_u *fname, int flags)
     // Try to set the page size equal to device's block size. Speeds up I/O a lot.
     FileInfo file_info;
 
-    if (mfp->mf_fd >= 0 && os_fileinfo_fd(mfp->mf_fd, &file_info))
+    if(mfp->mf_fd >= 0 && os_fileinfo_fd(mfp->mf_fd, &file_info))
     {
         uint64_t blocksize = os_fileinfo_blocksize(&file_info);
 
-        if (blocksize >= MIN_SWAP_PAGE_SIZE && blocksize <= MAX_SWAP_PAGE_SIZE)
+        if(blocksize >= MIN_SWAP_PAGE_SIZE && blocksize <= MAX_SWAP_PAGE_SIZE)
         {
             STATIC_ASSERT(MAX_SWAP_PAGE_SIZE <= UINT_MAX,
                           "MAX_SWAP_PAGE_SIZE must fit into an unsigned");
@@ -126,9 +126,9 @@ memfile_T *mf_open(char_u *fname, int flags)
     // When recovering, the actual block size will be retrieved from block 0
     // in ml_recover(). The size used here may be wrong, therefore mf_blocknr_max
     // must be rounded up.
-    if (mfp->mf_fd < 0
-            || (flags & (O_TRUNC|O_EXCL))
-            || (size = lseek(mfp->mf_fd, (off_t)0L, SEEK_END)) <= 0)
+    if(mfp->mf_fd < 0
+       || (flags & (O_TRUNC|O_EXCL))
+       || (size = lseek(mfp->mf_fd, (off_t)0L, SEEK_END)) <= 0)
     {
         // no file or empty file
         mfp->mf_blocknr_max = 0;
@@ -152,7 +152,7 @@ memfile_T *mf_open(char_u *fname, int flags)
         int shift = 10;
         unsigned page_size = mfp->mf_page_size;
 
-        while (shift > 0 && (page_size & 1) == 0)
+        while(shift > 0 && (page_size & 1) == 0)
         {
             page_size /= 2;
             --shift;
@@ -162,7 +162,7 @@ memfile_T *mf_open(char_u *fname, int flags)
         assert((uintmax_t)(p_mm << shift) <= UINT_MAX);  // check we can cast safely
         mfp->mf_used_count_max = (unsigned)(p_mm << shift) / page_size;
 
-        if (mfp->mf_used_count_max < 10)
+        if(mfp->mf_used_count_max < 10)
         {
             mfp->mf_used_count_max = 10;
         }
@@ -185,7 +185,7 @@ memfile_T *mf_open(char_u *fname, int flags)
 ///         FAIL  If file could not be opened.
 int mf_open_file(memfile_T *mfp, char_u *fname)
 {
-    if (mf_do_open(mfp, fname, O_RDWR | O_CREAT | O_EXCL))
+    if(mf_do_open(mfp, fname, O_RDWR | O_CREAT | O_EXCL))
     {
         mfp->mf_dirty = true;
         return OK;
@@ -199,30 +199,30 @@ int mf_open_file(memfile_T *mfp, char_u *fname)
 /// @param del_file  Whether to delete associated file.
 void mf_close(memfile_T *mfp, bool del_file)
 {
-    if (mfp == NULL)                      // safety check
+    if(mfp == NULL)                       // safety check
     {
         return;
     }
 
-    if (mfp->mf_fd >= 0 && close(mfp->mf_fd) < 0)
+    if(mfp->mf_fd >= 0 && close(mfp->mf_fd) < 0)
     {
         EMSG(_(e_swapclose));
     }
 
-    if (del_file && mfp->mf_fname != NULL)
+    if(del_file && mfp->mf_fname != NULL)
     {
         os_remove((char *)mfp->mf_fname);
     }
 
     // free entries in used list
-    for (bhdr_T *hp = mfp->mf_used_first, *nextp; hp != NULL; hp = nextp)
+    for(bhdr_T *hp = mfp->mf_used_first, *nextp; hp != NULL; hp = nextp)
     {
         total_mem_used -= hp->bh_page_count * mfp->mf_page_size;
         nextp = hp->bh_next;
         mf_free_bhdr(hp);
     }
 
-    while (mfp->mf_free_first != NULL)    // free entries in free list
+    while(mfp->mf_free_first != NULL)     // free entries in free list
     {
         xfree(mf_rem_free(mfp));
     }
@@ -240,17 +240,17 @@ void mf_close_file(buf_T *buf, bool getlines)
 {
     memfile_T *mfp = buf->b_ml.ml_mfp;
 
-    if (mfp == NULL || mfp->mf_fd < 0)     // nothing to close
+    if(mfp == NULL || mfp->mf_fd < 0)      // nothing to close
     {
         return;
     }
 
-    if (getlines)
+    if(getlines)
     {
         // get all blocks in memory by accessing all lines (clumsy!)
         mf_dont_release = true;
 
-        for (linenr_T lnum = 1; lnum <= buf->b_ml.ml_line_count; ++lnum)
+        for(linenr_T lnum = 1; lnum <= buf->b_ml.ml_line_count; ++lnum)
         {
             (void)ml_get_buf(buf, lnum, false);
         }
@@ -259,14 +259,14 @@ void mf_close_file(buf_T *buf, bool getlines)
         // TODO(elmart): should check if all blocks are really in core
     }
 
-    if (close(mfp->mf_fd) < 0)             // close the file
+    if(close(mfp->mf_fd) < 0)              // close the file
     {
         EMSG(_(e_swapclose));
     }
 
     mfp->mf_fd = -1;
 
-    if (mfp->mf_fname != NULL)
+    if(mfp->mf_fname != NULL)
     {
         os_remove((char *)mfp->mf_fname);    // delete the swap file
         mf_free_fnames(mfp);
@@ -279,7 +279,7 @@ void mf_new_page_size(memfile_T *mfp, unsigned new_size)
 {
     // Correct the memory used for block 0 to the new size, because it will be
     // freed with that size later on.
-    if (new_size >= mfp->mf_page_size)
+    if(new_size >= mfp->mf_page_size)
     {
         total_mem_used += new_size - mfp->mf_page_size;
     }
@@ -307,7 +307,7 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
     // a positive number.
     bhdr_T *freep = mfp->mf_free_first;        // first free block
 
-    if (!negative && freep != NULL && freep->bh_page_count >= page_count)
+    if(!negative && freep != NULL && freep->bh_page_count >= page_count)
     {
         // If the block in the free list has more pages, take only the number
         // of pages needed and allocate a new bhdr_T with data.
@@ -317,9 +317,9 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
         //
         // If the number of pages matches and mf_release() returned a bhdr_T,
         // just use the number and free the bhdr_T from the free list
-        if (freep->bh_page_count > page_count)
+        if(freep->bh_page_count > page_count)
         {
-            if (hp == NULL)
+            if(hp == NULL)
             {
                 hp = mf_alloc_bhdr(mfp, page_count);
             }
@@ -328,7 +328,7 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
             freep->bh_bnum += page_count;
             freep->bh_page_count -= page_count;
         }
-        else if (hp == NULL)        // need to allocate memory for this block
+        else if(hp == NULL)         // need to allocate memory for this block
         {
             void *p = xmalloc(mfp->mf_page_size * page_count);
             hp = mf_rem_free(mfp);
@@ -343,12 +343,12 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
     }
     else                          // get a new number
     {
-        if (hp == NULL)
+        if(hp == NULL)
         {
             hp = mf_alloc_bhdr(mfp, page_count);
         }
 
-        if (negative)
+        if(negative)
         {
             hp->bh_bnum = mfp->mf_blocknr_min--;
             mfp->mf_neg_count++;
@@ -379,7 +379,7 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
 bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
 {
     // check block number exists
-    if (nr >= mfp->mf_blocknr_max || nr <= mfp->mf_blocknr_min)
+    if(nr >= mfp->mf_blocknr_max || nr <= mfp->mf_blocknr_min)
     {
         return NULL;
     }
@@ -387,9 +387,9 @@ bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
     // see if it is in the cache
     bhdr_T *hp = mf_find_hash(mfp, nr);
 
-    if (hp == NULL)                               // not in the hash list
+    if(hp == NULL)                                // not in the hash list
     {
-        if (nr < 0 || nr >= mfp->mf_infile_count)   // can't be in the file
+        if(nr < 0 || nr >= mfp->mf_infile_count)    // can't be in the file
         {
             return NULL;
         }
@@ -400,7 +400,7 @@ bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
         // If not, allocate a new block.
         hp = mf_release(mfp, page_count);
 
-        if (hp == NULL)
+        if(hp == NULL)
         {
             hp = mf_alloc_bhdr(mfp, page_count);
         }
@@ -409,7 +409,7 @@ bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
         hp->bh_flags = 0;
         hp->bh_page_count = page_count;
 
-        if (mf_read(mfp, hp) == FAIL)               // cannot read the block
+        if(mf_read(mfp, hp) == FAIL)                // cannot read the block
         {
             mf_free_bhdr(hp);
             return NULL;
@@ -435,14 +435,14 @@ void mf_put(memfile_T *mfp, bhdr_T *hp, bool dirty, bool infile)
 {
     unsigned flags = hp->bh_flags;
 
-    if ((flags & BH_LOCKED) == 0)
+    if((flags & BH_LOCKED) == 0)
     {
         EMSG(_("E293: block was not locked"));
     }
 
     flags &= ~BH_LOCKED;
 
-    if (dirty)
+    if(dirty)
     {
         flags |= BH_DIRTY;
         mfp->mf_dirty = true;
@@ -450,7 +450,7 @@ void mf_put(memfile_T *mfp, bhdr_T *hp, bool dirty, bool infile)
 
     hp->bh_flags = flags;
 
-    if (infile)
+    if(infile)
     {
         mf_trans_add(mfp, hp);    // may translate negative in positive nr
     }
@@ -463,7 +463,7 @@ void mf_free(memfile_T *mfp, bhdr_T *hp)
     mf_rem_hash(mfp, hp);         // get *hp out of the hash list
     mf_rem_used(mfp, hp);         // get *hp out of the used list
 
-    if (hp->bh_bnum < 0)
+    if(hp->bh_bnum < 0)
     {
         xfree(hp);                  // don't want negative numbers in free list
         mfp->mf_neg_count--;
@@ -492,7 +492,7 @@ int mf_sync(memfile_T *mfp, int flags)
 {
     int got_int_save = got_int;
 
-    if (mfp->mf_fd < 0)           // there is no file, nothing to do
+    if(mfp->mf_fd < 0)            // there is no file, nothing to do
     {
         mfp->mf_dirty = false;
         return FAIL;
@@ -507,20 +507,20 @@ int mf_sync(memfile_T *mfp, int flags)
     int status = OK;
     bhdr_T *hp;
 
-    for (hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
-        if (((flags & MFS_ALL) || hp->bh_bnum >= 0)
-                && (hp->bh_flags & BH_DIRTY)
-                && (status == OK || (hp->bh_bnum >= 0
-                                     && hp->bh_bnum < mfp->mf_infile_count)))
+    for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
+        if(((flags & MFS_ALL) || hp->bh_bnum >= 0)
+           && (hp->bh_flags & BH_DIRTY)
+           && (status == OK || (hp->bh_bnum >= 0
+                                && hp->bh_bnum < mfp->mf_infile_count)))
         {
-            if ((flags & MFS_ZERO) && hp->bh_bnum != 0)
+            if((flags & MFS_ZERO) && hp->bh_bnum != 0)
             {
                 continue;
             }
 
-            if (mf_write(mfp, hp) == FAIL)
+            if(mf_write(mfp, hp) == FAIL)
             {
-                if (status == FAIL)     // double error: quit syncing
+                if(status == FAIL)      // double error: quit syncing
                 {
                     break;
                 }
@@ -528,9 +528,9 @@ int mf_sync(memfile_T *mfp, int flags)
                 status = FAIL;
             }
 
-            if (flags & MFS_STOP)     // Stop when char available now.
+            if(flags & MFS_STOP)      // Stop when char available now.
             {
-                if (os_char_avail())
+                if(os_char_avail())
                 {
                     break;
                 }
@@ -540,7 +540,7 @@ int mf_sync(memfile_T *mfp, int flags)
                 os_breakcheck();
             }
 
-            if (got_int)
+            if(got_int)
             {
                 break;
             }
@@ -548,14 +548,14 @@ int mf_sync(memfile_T *mfp, int flags)
 
     // If the whole list is flushed, the memfile is not dirty anymore.
     // In case of an error, dirty flag is also set, to avoid trying all the time.
-    if (hp == NULL || status == FAIL)
+    if(hp == NULL || status == FAIL)
     {
         mfp->mf_dirty = false;
     }
 
-    if (flags & MFS_FLUSH)
+    if(flags & MFS_FLUSH)
     {
-        if (os_fsync(mfp->mf_fd))
+        if(os_fsync(mfp->mf_fd))
         {
             status = FAIL;
         }
@@ -569,9 +569,9 @@ int mf_sync(memfile_T *mfp, int flags)
 /// These are blocks that need to be written to a newly created swapfile.
 void mf_set_dirty(memfile_T *mfp)
 {
-    for (bhdr_T *hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
+    for(bhdr_T *hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     {
-        if (hp->bh_bnum > 0)
+        if(hp->bh_bnum > 0)
         {
             hp->bh_flags |= BH_DIRTY;
         }
@@ -605,7 +605,7 @@ static void mf_ins_used(memfile_T *mfp, bhdr_T *hp)
     mfp->mf_used_first = hp;
     hp->bh_prev = NULL;
 
-    if (hp->bh_next == NULL)      // list was empty, adjust last pointer
+    if(hp->bh_next == NULL)       // list was empty, adjust last pointer
     {
         mfp->mf_used_last = hp;
     }
@@ -621,7 +621,7 @@ static void mf_ins_used(memfile_T *mfp, bhdr_T *hp)
 /// Remove block from memfile's used list.
 static void mf_rem_used(memfile_T *mfp, bhdr_T *hp)
 {
-    if (hp->bh_next == NULL)                 // last block in used list
+    if(hp->bh_next == NULL)                  // last block in used list
     {
         mfp->mf_used_last = hp->bh_prev;
     }
@@ -630,7 +630,7 @@ static void mf_rem_used(memfile_T *mfp, bhdr_T *hp)
         hp->bh_next->bh_prev = hp->bh_prev;
     }
 
-    if (hp->bh_prev == NULL)                 // first block in used list
+    if(hp->bh_prev == NULL)                  // first block in used list
     {
         mfp->mf_used_first = hp->bh_next;
     }
@@ -660,7 +660,7 @@ static void mf_rem_used(memfile_T *mfp, bhdr_T *hp)
 static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
 {
     // don't release while in mf_close_file()
-    if (mf_dont_release)
+    if(mf_dont_release)
     {
         return NULL;
     }
@@ -671,20 +671,20 @@ static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
                          || (total_mem_used >> 10) >= (size_t)p_mmt);
 
     /// Try to create swap file if the amount of memory used is getting too high.
-    if (mfp->mf_fd < 0 && need_release && p_uc)
+    if(mfp->mf_fd < 0 && need_release && p_uc)
     {
         // find for which buffer this memfile is
         buf_T *buf = NULL;
         FOR_ALL_BUFFERS(bp)
         {
-            if (bp->b_ml.ml_mfp == mfp)
+            if(bp->b_ml.ml_mfp == mfp)
             {
                 buf = bp;
                 break;
             }
         }
 
-        if (buf != NULL && buf->b_may_swap)
+        if(buf != NULL && buf->b_may_swap)
         {
             ml_open_file(buf);
         }
@@ -696,27 +696,27 @@ static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
     ///         the number of blocks for this memfile is lower than the maximum
     ///         and
     ///         total memory used is not up to 'maxmemtot'
-    if (mfp->mf_fd < 0 || !need_release)
+    if(mfp->mf_fd < 0 || !need_release)
     {
         return NULL;
     }
 
     bhdr_T *hp;
 
-    for (hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
-        if (!(hp->bh_flags & BH_LOCKED))
+    for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
+        if(!(hp->bh_flags & BH_LOCKED))
         {
             break;
         }
 
-    if (hp == NULL)       // not a single one that can be released
+    if(hp == NULL)        // not a single one that can be released
     {
         return NULL;
     }
 
     // If the block is dirty, write it.
     // If the write fails we don't free it.
-    if ((hp->bh_flags & BH_DIRTY) && mf_write(mfp, hp) == FAIL)
+    if((hp->bh_flags & BH_DIRTY) && mf_write(mfp, hp) == FAIL)
     {
         return NULL;
     }
@@ -725,7 +725,7 @@ static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
     mf_rem_hash(mfp, hp);
 
     /// Make sure page_count of bh_data is right.
-    if (hp->bh_page_count != page_count)
+    if(hp->bh_page_count != page_count)
     {
         xfree(hp->bh_data);
         hp->bh_data = xmalloc(mfp->mf_page_size * page_count);
@@ -747,22 +747,22 @@ bool mf_release_all(void)
     {
         memfile_T *mfp = buf->b_ml.ml_mfp;
 
-        if (mfp != NULL)
+        if(mfp != NULL)
         {
             // If no swap file yet, try to open one.
-            if (mfp->mf_fd < 0 && buf->b_may_swap)
+            if(mfp->mf_fd < 0 && buf->b_may_swap)
             {
                 ml_open_file(buf);
             }
 
             // Flush as many blocks as possible, only if there is a swapfile.
-            if (mfp->mf_fd >= 0)
+            if(mfp->mf_fd >= 0)
             {
-                for (bhdr_T *hp = mfp->mf_used_last; hp != NULL; )
+                for(bhdr_T *hp = mfp->mf_used_last; hp != NULL;)
                 {
-                    if (!(hp->bh_flags & BH_LOCKED)
-                            && (!(hp->bh_flags & BH_DIRTY)
-                                || mf_write(mfp, hp) != FAIL))
+                    if(!(hp->bh_flags & BH_LOCKED)
+                       && (!(hp->bh_flags & BH_DIRTY)
+                           || mf_write(mfp, hp) != FAIL))
                     {
                         mf_rem_used(mfp, hp);
                         mf_rem_hash(mfp, hp);
@@ -822,7 +822,7 @@ static bhdr_T *mf_rem_free(memfile_T *mfp)
 ///                - Error reading file.
 static int mf_read(memfile_T *mfp, bhdr_T *hp)
 {
-    if (mfp->mf_fd < 0)       // there is no file, can't read
+    if(mfp->mf_fd < 0)        // there is no file, can't read
     {
         return FAIL;
     }
@@ -831,7 +831,7 @@ static int mf_read(memfile_T *mfp, bhdr_T *hp)
     // TODO(elmart): Check (page_size * hp->bh_bnum) within off_t bounds.
     off_t offset = (off_t)(page_size * hp->bh_bnum);
 
-    if (lseek(mfp->mf_fd, offset, SEEK_SET) != offset)
+    if(lseek(mfp->mf_fd, offset, SEEK_SET) != offset)
     {
         PERROR(_("E294: Seek error in swap file read"));
         return FAIL;
@@ -841,7 +841,7 @@ static int mf_read(memfile_T *mfp, bhdr_T *hp)
     assert(hp->bh_page_count <= UINT_MAX / page_size);
     unsigned size = page_size * hp->bh_page_count;
 
-    if ((unsigned)read_eintr(mfp->mf_fd, hp->bh_data, size) != size)
+    if((unsigned)read_eintr(mfp->mf_fd, hp->bh_data, size) != size)
     {
         PERROR(_("E295: Read error in swap file"));
         return FAIL;
@@ -867,13 +867,13 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
     unsigned page_count;      // number of pages written
     unsigned size;            // number of bytes written
 
-    if (mfp->mf_fd < 0)       // there is no file, can't write
+    if(mfp->mf_fd < 0)        // there is no file, can't write
     {
         return FAIL;
     }
 
-    if (hp->bh_bnum < 0)      // must assign file block number
-        if (mf_trans_add(mfp, hp) == FAIL)
+    if(hp->bh_bnum < 0)       // must assign file block number
+        if(mf_trans_add(mfp, hp) == FAIL)
         {
             return FAIL;
         }
@@ -884,11 +884,11 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
     /// to extend the file.
     /// If block 'mf_infile_count' is not in the hash list, it has been
     /// freed. Fill the space in the file with data from the current block.
-    for (;;)
+    for(;;)
     {
         nr = hp->bh_bnum;
 
-        if (nr > mfp->mf_infile_count)              // beyond end of file
+        if(nr > mfp->mf_infile_count)               // beyond end of file
         {
             nr = mfp->mf_infile_count;
             hp2 = mf_find_hash(mfp, nr);              // NULL caught below
@@ -901,13 +901,13 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
         // TODO(elmart): Check (page_size * nr) within off_t bounds.
         offset = (off_t)(page_size * nr);
 
-        if (lseek(mfp->mf_fd, offset, SEEK_SET) != offset)
+        if(lseek(mfp->mf_fd, offset, SEEK_SET) != offset)
         {
             PERROR(_("E296: Seek error in swap file write"));
             return FAIL;
         }
 
-        if (hp2 == NULL)                // freed block, fill with dummy data
+        if(hp2 == NULL)                 // freed block, fill with dummy data
         {
             page_count = 1;
         }
@@ -919,13 +919,13 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
         size = page_size * page_count;
         void *data = (hp2 == NULL) ? hp->bh_data : hp2->bh_data;
 
-        if ((unsigned)write_eintr(mfp->mf_fd, data, size) != size)
+        if((unsigned)write_eintr(mfp->mf_fd, data, size) != size)
         {
             /// Avoid repeating the error message, this mostly happens when the
             /// disk is full. We give the message again only after a successful
             /// write or when hitting a key. We keep on trying, in case some
             /// space becomes available.
-            if (!did_swapwrite_msg)
+            if(!did_swapwrite_msg)
             {
                 EMSG(_("E297: Write error in swap file"));
             }
@@ -936,17 +936,17 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
 
         did_swapwrite_msg = false;
 
-        if (hp2 != NULL)                               // written a non-dummy block
+        if(hp2 != NULL)                                // written a non-dummy block
         {
             hp2->bh_flags &= ~BH_DIRTY;
         }
 
-        if (nr + (blocknr_T)page_count > mfp->mf_infile_count)  // appended to file
+        if(nr + (blocknr_T)page_count > mfp->mf_infile_count)   // appended to file
         {
             mfp->mf_infile_count = nr + page_count;
         }
 
-        if (nr == hp->bh_bnum)                         // written the desired block
+        if(nr == hp->bh_bnum)                          // written the desired block
         {
             break;
         }
@@ -961,7 +961,7 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
 ///          FAIL  On failure.
 static int mf_trans_add(memfile_T *mfp, bhdr_T *hp)
 {
-    if (hp->bh_bnum >= 0)                     // it's already positive
+    if(hp->bh_bnum >= 0)                      // it's already positive
     {
         return OK;
     }
@@ -974,13 +974,13 @@ static int mf_trans_add(memfile_T *mfp, bhdr_T *hp)
     bhdr_T *freep = mfp->mf_free_first;
     unsigned page_count = hp->bh_page_count;
 
-    if (freep != NULL && freep->bh_page_count >= page_count)
+    if(freep != NULL && freep->bh_page_count >= page_count)
     {
         new_bnum = freep->bh_bnum;
 
         // If the page count of the free block was larger, reduce it.
         // If the page count matches, remove the block from the free list.
-        if (freep->bh_page_count > page_count)
+        if(freep->bh_page_count > page_count)
         {
             freep->bh_bnum += page_count;
             freep->bh_page_count -= page_count;
@@ -1016,7 +1016,7 @@ blocknr_T mf_trans_del(memfile_T *mfp, blocknr_T old_nr)
     mf_blocknr_trans_item_T *np =
         (mf_blocknr_trans_item_T *)mf_hash_find(&mfp->mf_trans, old_nr);
 
-    if (np == NULL)    // not found
+    if(np == NULL)     // not found
     {
         return old_nr;
     }
@@ -1054,7 +1054,7 @@ void mf_set_fnames(memfile_T *mfp, char_u *fname)
 /// Used before doing a :cd
 void mf_fullname(memfile_T *mfp)
 {
-    if (mfp != NULL && mfp->mf_fname != NULL && mfp->mf_ffname != NULL)
+    if(mfp != NULL && mfp->mf_fname != NULL && mfp->mf_ffname != NULL)
     {
         xfree(mfp->mf_fname);
         mfp->mf_fname = mfp->mf_ffname;
@@ -1082,8 +1082,8 @@ static bool mf_do_open(memfile_T *mfp, char_u *fname, int flags)
     /// exist yet. If there is a symbolic link, this is most likely an attack.
     FileInfo file_info;
 
-    if ((flags & O_CREAT)
-            && os_fileinfo_link((char *)mfp->mf_fname, &file_info))
+    if((flags & O_CREAT)
+       && os_fileinfo_link((char *)mfp->mf_fname, &file_info))
     {
         mfp->mf_fd = -1;
         EMSG(_("E300: Swap file already exists (symlink attack?)"));
@@ -1095,7 +1095,7 @@ static bool mf_do_open(memfile_T *mfp, char_u *fname, int flags)
     }
 
     // If the file cannot be opened, use memory only
-    if (mfp->mf_fd < 0)
+    if(mfp->mf_fd < 0)
     {
         mf_free_fnames(mfp);
         return false;
@@ -1130,7 +1130,7 @@ static void mf_hash_init(mf_hashtab_T *mht)
 /// The hash table must not be used again without another mf_hash_init() call.
 static void mf_hash_free(mf_hashtab_T *mht)
 {
-    if (mht->mht_buckets != mht->mht_small_buckets)
+    if(mht->mht_buckets != mht->mht_small_buckets)
     {
         xfree(mht->mht_buckets);
     }
@@ -1139,11 +1139,11 @@ static void mf_hash_free(mf_hashtab_T *mht)
 /// Free the array of a hash table and all the items it contains.
 static void mf_hash_free_all(mf_hashtab_T *mht)
 {
-    for (size_t idx = 0; idx <= mht->mht_mask; idx++)
+    for(size_t idx = 0; idx <= mht->mht_mask; idx++)
     {
         mf_hashitem_T *next;
 
-        for (mf_hashitem_T *mhi = mht->mht_buckets[idx]; mhi != NULL; mhi = next)
+        for(mf_hashitem_T *mhi = mht->mht_buckets[idx]; mhi != NULL; mhi = next)
         {
             next = mhi->mhi_next;
             xfree(mhi);
@@ -1160,7 +1160,7 @@ static mf_hashitem_T *mf_hash_find(mf_hashtab_T *mht, blocknr_T key)
 {
     mf_hashitem_T *mhi = mht->mht_buckets[(size_t)key & mht->mht_mask];
 
-    while (mhi != NULL && mhi->mhi_key != key)
+    while(mhi != NULL && mhi->mhi_key != key)
     {
         mhi = mhi->mhi_next;
     }
@@ -1175,7 +1175,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
     mhi->mhi_next = mht->mht_buckets[idx];
     mhi->mhi_prev = NULL;
 
-    if (mhi->mhi_next != NULL)
+    if(mhi->mhi_next != NULL)
     {
         mhi->mhi_next->mhi_prev = mhi;
     }
@@ -1185,7 +1185,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
 
     /// Grow hashtable when we have more thank 2^MHT_LOG_LOAD_FACTOR
     /// items per bucket on average.
-    if ((mht->mht_count >> MHT_LOG_LOAD_FACTOR) > mht->mht_mask)
+    if((mht->mht_count >> MHT_LOG_LOAD_FACTOR) > mht->mht_mask)
     {
         mf_hash_grow(mht);
     }
@@ -1194,7 +1194,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
 /// Remove item from hashtable. Item must be non NULL and within hashtable.
 static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
 {
-    if (mhi->mhi_prev == NULL)
+    if(mhi->mhi_prev == NULL)
         mht->mht_buckets[(size_t)mhi->mhi_key & mht->mht_mask] =
             mhi->mhi_next;
     else
@@ -1202,7 +1202,7 @@ static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
         mhi->mhi_prev->mhi_next = mhi->mhi_next;
     }
 
-    if (mhi->mhi_next != NULL)
+    if(mhi->mhi_next != NULL)
     {
         mhi->mhi_next->mhi_prev = mhi->mhi_prev;
     }
@@ -1220,12 +1220,12 @@ static void mf_hash_grow(mf_hashtab_T *mht)
     mf_hashitem_T **buckets = xcalloc(1, size);
     int shift = 0;
 
-    while ((mht->mht_mask >> shift) != 0)
+    while((mht->mht_mask >> shift) != 0)
     {
         shift++;
     }
 
-    for (size_t i = 0; i <= mht->mht_mask; i++)
+    for(size_t i = 0; i <= mht->mht_mask; i++)
     {
         /// Traverse the items in the i-th original bucket and move them into
         /// MHT_GROWTH_FACTOR new buckets, preserving their relative order
@@ -1238,12 +1238,12 @@ static void mf_hash_grow(mf_hashtab_T *mht)
         mf_hashitem_T *tails[MHT_GROWTH_FACTOR];
         memset(tails, 0, sizeof(tails));
 
-        for (mf_hashitem_T *mhi = mht->mht_buckets[i];
-                mhi != NULL; mhi = mhi->mhi_next)
+        for(mf_hashitem_T *mhi = mht->mht_buckets[i];
+            mhi != NULL; mhi = mhi->mhi_next)
         {
             size_t j = (mhi->mhi_key >> shift) & (MHT_GROWTH_FACTOR - 1);
 
-            if (tails[j] == NULL)
+            if(tails[j] == NULL)
             {
                 buckets[i + (j << shift)] = mhi;
                 tails[j] = mhi;
@@ -1257,14 +1257,14 @@ static void mf_hash_grow(mf_hashtab_T *mht)
             }
         }
 
-        for (size_t j = 0; j < MHT_GROWTH_FACTOR; j++)
-            if (tails[j] != NULL)
+        for(size_t j = 0; j < MHT_GROWTH_FACTOR; j++)
+            if(tails[j] != NULL)
             {
                 tails[j]->mhi_next = NULL;
             }
     }
 
-    if (mht->mht_buckets != mht->mht_small_buckets)
+    if(mht->mht_buckets != mht->mht_small_buckets)
     {
         xfree(mht->mht_buckets);
     }

@@ -68,27 +68,27 @@ static int old_mode_idx = -1;
 ///
 /// See http://stackoverflow.com/a/11172679 for how it works.
 #ifdef _MSC_VER
-    #define UI_CALL(funname, ...)                   \
-        do                                          \
-        {                                           \
-            flush_cursor_update();                  \
-            for(size_t i = 0; i < ui_count; i++)    \
-            {                                       \
-                UI *ui = uis[i];                    \
-                UI_CALL_MORE(funname, __VA_ARGS__); \
-            }                                       \
-        } while(0)
+#define UI_CALL(funname, ...)                   \
+    do                                          \
+    {                                           \
+        flush_cursor_update();                  \
+        for(size_t i = 0; i < ui_count; i++)    \
+        {                                       \
+            UI *ui = uis[i];                    \
+            UI_CALL_MORE(funname, __VA_ARGS__); \
+        }                                       \
+    } while(0)
 #else
-    #define UI_CALL(...)                                       \
-        do                                                     \
-        {                                                      \
-            flush_cursor_update();                             \
-            for(size_t i = 0; i < ui_count; i++)               \
-            {                                                  \
-                UI *ui = uis[i];                               \
-                UI_CALL_HELPER(CNT(__VA_ARGS__), __VA_ARGS__); \
-            }                                                  \
-        } while(0)
+#define UI_CALL(...)                                       \
+    do                                                     \
+    {                                                      \
+        flush_cursor_update();                             \
+        for(size_t i = 0; i < ui_count; i++)               \
+        {                                                  \
+            UI *ui = uis[i];                               \
+            UI_CALL_HELPER(CNT(__VA_ARGS__), __VA_ARGS__); \
+        }                                                  \
+    } while(0)
 #endif
 
 #define CNT(...)                   SELECT_NTH(__VA_ARGS__, MORE, MORE, MORE, MORE, ZERO, ignore)
@@ -111,15 +111,19 @@ void ui_builtin_start(void)
     fprintf(stderr, "Nvim headless-mode started.\n");
     size_t len;
     char **addrs = server_address_list(&len);
+
     if(addrs != NULL)
     {
         fprintf(stderr, "Listening on:\n");
+
         for(size_t i = 0; i < len; i++)
         {
             fprintf(stderr, "\t%s\n", addrs[i]);
         }
+
         xfree(addrs);
     }
+
     fprintf(stderr, "Press CTRL+C to exit.\n");
 #endif
 }
@@ -138,6 +142,7 @@ bool ui_rgb_attached(void)
             return true;
         }
     }
+
     return false;
 }
 
@@ -150,6 +155,7 @@ void ui_event(char *name, Array args)
 {
     bool args_consumed = false;
     UI_CALL(event, name, args, &args_consumed);
+
     if(!args_consumed)
     {
         api_free_array(args);
@@ -352,7 +358,10 @@ void ui_puts(uint8_t *str)
         }
 
         size_t clen = (size_t)mb_ptr2len(p);
-        ui_call_put((String) {.data = (char *)p, .size = clen });
+        ui_call_put((String)
+        {
+            .data = (char *)p, .size = clen
+        });
         col++;
 
         if(mb_ptr2cells(p) > 1)

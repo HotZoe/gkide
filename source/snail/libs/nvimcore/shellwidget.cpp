@@ -113,6 +113,7 @@ QSize ShellWidget::cellSize() const
 void ShellWidget::paintEvent(QPaintEvent *ev)
 {
     QPainter p(this);
+
     foreach(QRect rect, ev->region().rects())
     {
         int start_row = rect.top() / m_cellSize.height();
@@ -187,6 +188,7 @@ void ShellWidget::paintEvent(QPaintEvent *ev)
                 if(cell.underline || cell.undercurl)
                 {
                     QPen pen = QPen();
+
                     if(cell.undercurl)
                     {
                         if(cell.specialColor.isValid())
@@ -240,7 +242,7 @@ void ShellWidget::paintEvent(QPaintEvent *ev)
         p.fillRect(margin, m_bgColor);
     }
 
-    #if 0
+#if 0
     // Draw DEBUG rulers
     for(int i=m_cellSize.width(); i<width(); i+=m_cellSize.width())
     {
@@ -252,7 +254,7 @@ void ShellWidget::paintEvent(QPaintEvent *ev)
         p.setPen(QPen(Qt::red, 1,  Qt::DashLine));
         p.drawLine(0, i, width(), i);
     }
-    #endif
+#endif
 }
 
 void ShellWidget::resizeEvent(QResizeEvent *ev)

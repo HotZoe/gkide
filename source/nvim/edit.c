@@ -906,7 +906,7 @@ static int insert_handle_key(InsertState *s)
                 break;
             }
 
-            // FALLTHROUGH
+        // FALLTHROUGH
 
         case Ctrl_C: // End input mode
             if(s->c == Ctrl_C && cmdwin_type != 0)
@@ -996,7 +996,8 @@ static int insert_handle_key(InsertState *s)
             {
                 goto normalchar;
             }
-            // FALLTHROUGH
+
+        // FALLTHROUGH
 
         case K_ZERO: // Insert the previously inserted text.
         case NUL:
@@ -1041,7 +1042,8 @@ static int insert_handle_key(InsertState *s)
                 insert_do_complete(s);
                 break;
             }
-            // FALLTHROUGH
+
+        // FALLTHROUGH
 
         case Ctrl_T: // Make indent one shiftwidth greater.
             if(s->c == Ctrl_T && ctrl_x_mode == CTRL_X_THESAURUS)
@@ -1077,6 +1079,7 @@ static int insert_handle_key(InsertState *s)
             break;
 
         case Ctrl_U: // delete all inserted text in current line
+
             // CTRL-X CTRL-U completes with 'completefunc'.
             if(ctrl_x_mode == CTRL_X_FUNCTION)
             {
@@ -1252,7 +1255,8 @@ static int insert_handle_key(InsertState *s)
 
         case K_S_TAB: // When not mapped, use like a normal TAB
             s->c = TAB;
-            // FALLTHROUGH
+
+        // FALLTHROUGH
 
         case TAB: // TAB or Complete patterns along path
             if(ctrl_x_mode == CTRL_X_PATH_PATTERNS)
@@ -1273,10 +1277,12 @@ static int insert_handle_key(InsertState *s)
 
         case K_KENTER: // <Enter>
             s->c = CAR;
-            // FALLTHROUGH
+
+        // FALLTHROUGH
 
         case CAR:
         case NL:
+
             // In a quickfix window a <CR> jumps to
             // the error under the cursor.
             if(bt_quickfix(curbuf) && s->c == CAR)
@@ -1388,10 +1394,12 @@ static int insert_handle_key(InsertState *s)
 
                 goto normalchar;
             }
-            // FALLTHROUGH
+
+        // FALLTHROUGH
 
         case Ctrl_P: // Do previous/next pattern completion
         case Ctrl_N:
+
             // if 'complete' is empty then plain ^P is no longer special,
             // but it is under other ^X modes
             if(*curbuf->b_p_cpt == NUL
@@ -1412,6 +1420,7 @@ static int insert_handle_key(InsertState *s)
         default:
         {
 normalchar:
+
             // Insert a normal character.
             if(!p_paste)
             {
@@ -2167,7 +2176,7 @@ void backspace_until_column(int col)
 /// @return true when something was deleted.
 static bool del_char_after_col(int limit_col)
 {
-    if (enc_utf8 && limit_col >= 0)
+    if(enc_utf8 && limit_col >= 0)
     {
         colnr_T ecol = curwin->w_cursor.col + 1;
         // Make sure the cursor is at the start of a character, but
@@ -2635,7 +2644,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             }
 
             match = match->cp_next;
-        } while (match != NULL && match != compl_first_match);
+        } while(match != NULL && match != compl_first_match);
     }
 
     // Remove any popup menu before changing the list of matches.
@@ -3099,7 +3108,7 @@ void ins_compl_show_pum(void)
             compl_leader = NULL;
         }
 
-        if (compl_leader != NULL)
+        if(compl_leader != NULL)
         {
             lead_len = (int)STRLEN(compl_leader);
         }
@@ -3116,7 +3125,7 @@ void ins_compl_show_pum(void)
             compl = compl->cp_next;
         } while(compl != NULL && compl != compl_first_match);
 
-        if (compl_match_arraysize == 0)
+        if(compl_match_arraysize == 0)
         {
             return;
         }
@@ -4001,7 +4010,7 @@ static bool ins_compl_prep(int c)
                     compl_cont_status &= ~CONT_LOCAL;
                 }
 
-                // FALLTHROUGH
+            // FALLTHROUGH
 
             default:
                 // If we have typed at least 2 ^X's... for modes != 0, we set
@@ -4093,7 +4102,7 @@ static bool ins_compl_prep(int c)
             if(compl_cont_mode == CTRL_X_WHOLE_LINE)
             {
                 // re-indent the current line
-                if (want_cindent)
+                if(want_cindent)
                 {
                     do_c_expr_indent();
                     want_cindent = FALSE; // don't do it again
@@ -4251,7 +4260,7 @@ static void ins_compl_fixRedoBufForLeader(char_u *ptr_arg)
 
 /// Loops through the list of windows, loaded-buffers or non-loaded-buffers
 /// (depending on flag) starting from buf and looking for a non-scanned
-/// buffer (other than curbuf).	curbuf is special, if it is called with
+/// buffer (other than curbuf). curbuf is special, if it is called with
 /// buf=curbuf then it has to be the first call for a given flag/expansion.
 ///
 /// Returns the buffer to scan, if any, otherwise returns curbuf -- Acevedo
@@ -5704,7 +5713,7 @@ static int ins_complete(int c, bool enable_pum)
                 }
                 else
                 {
-                    while (--startcol >= 0 && vim_iswordc(line[startcol]))
+                    while(--startcol >= 0 && vim_iswordc(line[startcol]))
                     { /* empty body */ }
                 }
 
@@ -6218,16 +6227,17 @@ static unsigned quote_meta(char_u *dest, char_u *src, int len)
                     break;
                 }
 
-                // fallthrough
+            // fallthrough
 
             case '~':
+
                 // quote these only if magic is set
                 if(!p_magic)
                 {
                     break;
                 }
 
-                // fallthrough
+            // fallthrough
 
             case '\\':
                 if(ctrl_x_mode == CTRL_X_DICTIONARY || ctrl_x_mode == CTRL_X_THESAURUS)
@@ -6235,7 +6245,7 @@ static unsigned quote_meta(char_u *dest, char_u *src, int len)
                     break;
                 }
 
-                // fallthrough
+            // fallthrough
 
             case '^': // currently it's not needed.
             case '$':
@@ -6490,8 +6500,8 @@ static void insert_special(int c, int allow_modmask, int ctrlv)
 /// @param c              character to insert or NUL
 /// @param flags          INSCHAR_FORMAT, etc.
 ///                       - INSCHAR_FORMAT - force formatting
-///	                      - INSCHAR_CTRLV  - char typed just after CTRL-V
-///	                      - INSCHAR_NO_FEX - don't use 'formatexpr'
+///                       - INSCHAR_CTRLV  - char typed just after CTRL-V
+///                       - INSCHAR_NO_FEX - don't use 'formatexpr'
 /// @param second_indent  indent for second line if >= 0
 ///
 /// @note
@@ -6513,14 +6523,14 @@ void insertchar(int c,  int flags, int second_indent)
     // - Always do this when 'formatoptions' has the 'a' flag and the line
     //   ends in white space.
     // - Otherwise:
-    //	 - Don't do this if inserting a blank
-    //	 - Don't do this if an existing character is being replaced, unless
-    //	   we're in VREPLACE mode.
-    //	 - Do this if the cursor is not on the line where insert started
-    //	 or - 'formatoptions' doesn't have 'l' or the line was not too long
-    //	       before the insert.
-    //	    - 'formatoptions' doesn't have 'b' or a blank was inserted at or
-    //	      before 'textwidth'
+    //   - Don't do this if inserting a blank
+    //   - Don't do this if an existing character is being replaced, unless
+    //     we're in VREPLACE mode.
+    //   - Do this if the cursor is not on the line where insert started
+    //   or - 'formatoptions' doesn't have 'l' or the line was not too long
+    //         before the insert.
+    //      - 'formatoptions' doesn't have 'b' or a blank was inserted at or
+    //        before 'textwidth'
     if(textwidth > 0
        && (force_format
            || (!ascii_iswhite(c)
@@ -6640,7 +6650,6 @@ void insertchar(int c,  int flags, int second_indent)
        && !has_event(EVENT_INSERTCHARPRE))
     {
 #define INPUT_BUFLEN 100
-
         int i = 1;
         char_u buf[INPUT_BUFLEN + 1];
         colnr_T virtcol = 0;
@@ -6860,7 +6869,7 @@ static void internal_format(int textwidth,
                 end_col = curwin->w_cursor.col;
 
                 // find start of sequence of blanks
-                while (curwin->w_cursor.col > 0 && WHITECHAR(cc))
+                while(curwin->w_cursor.col > 0 && WHITECHAR(cc))
                 {
                     dec_cursor();
                     cc = gchar_cursor();
@@ -7047,7 +7056,7 @@ static void internal_format(int textwidth,
                   OPENLINE_DELSPACES + OPENLINE_MARKFIX
                   + (fo_white_par ? OPENLINE_KEEPTRAIL : 0)
                   + (do_comments ? OPENLINE_DO_COM : 0)
-                  + ((flags & INSCHAR_COM_LIST) ? OPENLINE_COM_LIST : 0), 
+                  + ((flags & INSCHAR_COM_LIST) ? OPENLINE_COM_LIST : 0),
                   ((flags & INSCHAR_COM_LIST) ? second_indent : old_indent));
 
         if(!(flags & INSCHAR_COM_LIST))
@@ -7319,10 +7328,10 @@ static void check_auto_format(int end_insert)
 }
 
 /// Find out textwidth to be used for formatting:
-///	if 'textwidth' option is set, use it
-///	else if 'wrapmargin' option is set, use curwin->w_width - 'wrapmargin'
-///	if invalid value, use 0.
-///	Set default to window width (maximum 79) for "gq" operator.
+/// if 'textwidth' option is set, use it
+/// else if 'wrapmargin' option is set, use curwin->w_width - 'wrapmargin'
+/// if invalid value, use 0.
+/// Set default to window width (maximum 79) for "gq" operator.
 ///
 /// @param ff  force formatting (for "gq" command)
 int comp_textwidth(int ff)
@@ -7893,7 +7902,7 @@ int cursor_up(long n, int upd_topline)
             return FAIL;
         }
 
-        if (n >= lnum)
+        if(n >= lnum)
         {
             lnum = 1;
         }
@@ -8232,7 +8241,7 @@ static void replace_join(int off)
 {
     int i;
 
-    for(i = replace_stack_nr; --i >= 0; )
+    for(i = replace_stack_nr; --i >= 0;)
     {
         if(replace_stack[i] == NUL && off-- <= 0)
         {
@@ -8885,7 +8894,7 @@ int hkmap(int c)
 
 
             case ',':
-            // Hebrew letters - set offset from 'a'
+                // Hebrew letters - set offset from 'a'
                 c = '{';
                 break;
 
@@ -9302,7 +9311,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 break;
             }
 
-            // FALLTHROUGH
+        // FALLTHROUGH
 
         case K_S_LEFT:
         case K_S_RIGHT:
@@ -9313,7 +9322,6 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             // Start selection right away, the cursor can move with
             // CTRL-O when beyond the end of the line.
             start_selection();
-
             // Execute the key in (insert) Select mode.
             stuffcharReadbuff(Ctrl_O);
 
@@ -9390,7 +9398,7 @@ static void ins_ctrl_o(void)
 }
 
 /// If the cursor is on an indent, ^T/^D insert/delete one
-/// shiftwidth.	Otherwise ^T/^D behave like a "<<" or ">>".
+/// shiftwidth. Otherwise ^T/^D behave like a "<<" or ">>".
 /// Always round the indent to 'shiftwidth', this is compatible
 /// with vi. But vi only supports ^T and ^D after an
 /// autoindent, we support it everywhere.
@@ -9462,7 +9470,7 @@ static void ins_del(void)
             curwin->w_cursor.col = temp;
         }
     }
-    else if (del_char(false) == FAIL)
+    else if(del_char(false) == FAIL)
     {
         // delete char under cursor
         vim_beep(BO_BS);
@@ -9588,7 +9596,7 @@ FUNC_ATTR_NONNULL_ARG(3)
         if(curwin->w_cursor.lnum == lnum || revins_on)
         {
             if(u_save((linenr_T)(curwin->w_cursor.lnum - 2),
-                       (linenr_T)(curwin->w_cursor.lnum + 1)) == FAIL)
+                      (linenr_T)(curwin->w_cursor.lnum + 1)) == FAIL)
             {
                 return false;
             }
@@ -9897,9 +9905,9 @@ FUNC_ATTR_NONNULL_ARG(3)
     }
 
     // vi behaviour: the cursor moves backward but the character that
-    //		     was there remains visible
+    //           was there remains visible
     // Vim behaviour: the cursor moves backward and the character that
-    //		      was there is erased from the screen.
+    //            was there is erased from the screen.
     // We can emulate the vi behaviour by pretending there is a dollar
     // displayed even when there isn't.
     // --pkv Sun Jan 19 01:56:40 EST 2003
@@ -10408,7 +10416,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     temp -= get_nolist_virtcol() % temp;
 
-    // Insert the first space with ins_char().	It will delete one char in
+    // Insert the first space with ins_char().  It will delete one char in
     // replace mode.  Insert the rest with ins_str(); it will not delete any
     // chars. For VREPLACE mode, we use ins_char() for all characters.
     ins_char(' ');
@@ -10552,7 +10560,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 // correct replace stack.
                 if((State & REPLACE_FLAG) && !(State & VREPLACE_FLAG))
                 {
-                    for(temp = i; --temp >= 0; )
+                    for(temp = i; --temp >= 0;)
                     {
                         replace_join(repl_off);
                     }

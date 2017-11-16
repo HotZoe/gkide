@@ -112,7 +112,6 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     char *output = NULL, **output_ptr = NULL;
     int current_state = State;
     bool forward_output = true;
-
     // While the child is running, ignore terminating signals
     signal_reject_deadly();
 
@@ -200,7 +199,6 @@ static int do_os_system(char **argv,
 {
     out_data_decide_throttle(0); // Initialize throttle decider.
     out_data_ring(NULL, 0); // Initialize output ring-buffer.
-
     // the output buffer
     DynamicBuffer buf = DYNAMIC_BUFFER_INIT;
     stream_read_cb data_cb = system_data_cb;
@@ -222,21 +220,17 @@ static int do_os_system(char **argv,
     // Copy the program name in case we need to report an error.
     char prog[MAXPATHL];
     xstrlcpy(prog, argv[0], MAXPATHL);
-
     LibuvProcess uvproc = libuv_process_init(&main_loop, &buf);
     Process *proc = &uvproc.process;
     MultiQueue *events = multiqueue_new_child(main_loop.events);
-
     Stream in;
     Stream out;
     Stream err;
-
     proc->events = events;
     proc->argv = argv;
     proc->in = input != NULL ? &in : NULL;
     proc->out = &out;
     proc->err = &err;
-
     int status = process_spawn(proc);
 
     if(status)
@@ -294,7 +288,6 @@ static int do_os_system(char **argv,
     // will not change the busy state.
     ui_busy_start();
     ui_flush();
-
     int exitcode = process_wait(proc, -1, NULL);
 
     if(!got_int && out_data_decide_throttle(0))
@@ -403,7 +396,7 @@ static bool out_data_decide_throttle(size_t size)
     {
         return false;
     }
-    else if (!visit)
+    else if(!visit)
     {
         started = os_hrtime();
     }
@@ -423,7 +416,6 @@ static bool out_data_decide_throttle(size_t size)
     size_t tick = (visit % 20 == 0)
                   ? 3  // Force all dots "..." on last visit.
                   : (visit % 4);
-
     pulse_msg[0] = (tick == 0) ? ' ' : '.';
     pulse_msg[1] = (tick == 0 || 1 == tick) ? ' ' : '.';
     pulse_msg[2] = (tick == 0 || 1 == tick || 2 == tick) ? ' ' : '.';
@@ -454,10 +446,8 @@ static bool out_data_decide_throttle(size_t size)
 static void out_data_ring(char *output, size_t size)
 {
 #define MAX_CHUNK_SIZE  (OUT_DATA_THRESHOLD / 2)
-
     static char    last_skipped[MAX_CHUNK_SIZE]; // Saved output.
     static size_t  last_skipped_len = 0;
-
     assert(output != NULL || (size == 0 || size == SIZE_MAX));
 
     if(output == NULL && size == 0)
@@ -574,7 +564,7 @@ static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
 
     if(ptr != NULL && cnt > 0 && out_data_decide_throttle(cnt))
     {
-        // Skip output above a threshold. Save the skipped output. 
+        // Skip output above a threshold. Save the skipped output.
         // If it is the final chunk, we display it later.
         out_data_ring(ptr, cnt);
     }
@@ -611,7 +601,7 @@ static size_t tokenize(const char_u *const str, char **const argv) FUNC_ATTR_NON
         }
 
         argc++;
-        p = (const char *) skipwhite((char_u *) (p + len));
+        p = (const char *) skipwhite((char_u *)(p + len));
     }
 
     return argc;
@@ -766,7 +756,6 @@ static size_t write_output(char *output, size_t remaining, bool to_buffer, bool 
             {
                 // append unfinished line
                 ml_append(curwin->w_cursor.lnum++, (char_u *)output, 0, false);
-
                 // remember that the NL was missing
                 curbuf->b_no_eol_lnum = curwin->w_cursor.lnum;
             }

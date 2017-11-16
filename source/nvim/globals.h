@@ -196,14 +196,14 @@ EXTERN int compl_cont_status INIT(= 0);
 
 #define CONT_ADDING    1       ///< "normal" or "adding" expansion
 #define CONT_INTRPT    (2 + 4) ///< a ^X interrupted the current expansion
-                               ///< it's set only iff N_ADDS is set
+///< it's set only iff N_ADDS is set
 #define CONT_N_ADDS    4       ///< next ^X<> will add-new or expand-current
 #define CONT_S_IPOS    8       ///< next ^X<> will set initial_pos?
-                               ///< if so, word-wise-expansion will set SOL
+///< if so, word-wise-expansion will set SOL
 #define CONT_SOL       16      ///< pattern includes start of line, just for
-                               ///< word-wise expansion, not set for ^X^L
+///< word-wise expansion, not set for ^X^L
 #define CONT_LOCAL     32      ///< for ctrl_x_mode 0, ^X^P/^X^N do a local
-                               ///< expansion, (eg use complete=.)
+///< expansion, (eg use complete=.)
 
 // Functions for putting characters in the command
 // line, while keeping ScreenLines[] updated.
@@ -265,7 +265,7 @@ EXTERN int didset_vimruntime INIT(= FALSE); ///< idem for $VIMRUNTIME
 EXTERN int lines_left INIT(= -1);      ///< lines left for listing
 EXTERN int msg_no_more INIT(= FALSE);  ///< don't use more prompt, truncate messages
 
-EXTERN char_u *sourcing_name INIT( = NULL);   ///< name of error message source
+EXTERN char_u *sourcing_name INIT(= NULL);    ///< name of error message source
 EXTERN linenr_T sourcing_lnum INIT(= 0);      ///< line number of the source file
 
 EXTERN int ex_nesting_level INIT(= 0);        ///< nesting level
@@ -390,12 +390,12 @@ EXTERN int no_check_timestamps INIT(= 0);       ///< Don't check timestamps
 typedef enum
 {
     HLF_8 = 0,       ///< Meta & special keys listed with ":map", text that is
-                     ///< displayed different from what it is
+    ///< displayed different from what it is
     HLF_EOB,         ///< after the last line in the buffer
     HLF_TERM,        ///< terminal cursor focused
     HLF_TERMNC,      ///< terminal cursor unfocused
     HLF_AT,          ///< @ characters at end of screen, characters that
-                     ///< don't really exist in the text
+    ///< don't really exist in the text
     HLF_D,           ///< directories in CTRL-D listing
     HLF_E,           ///< error messages
     HLF_I,           ///< incremental search
@@ -798,8 +798,8 @@ EXTERN int *(*iconv_errno)(void);
 // "State" is the main state of Vim.
 // There are other variables that modify the state:
 // "Visual_mode"    When State is NORMAL or INSERT.
-// "finish_op"	    When State is NORMAL, after typing the operator and before
-//		    typing the motion command.
+// "finish_op"      When State is NORMAL, after typing the operator and before
+//          typing the motion command.
 
 /// This is the current state of the command interpreter.
 EXTERN int State INIT(= NORMAL);
@@ -940,7 +940,7 @@ EXTERN int postponed_split INIT(= 0);       ///< for CTRL-W CTRL-] command
 EXTERN int postponed_split_flags INIT(= 0); ///< args for win_split()
 EXTERN int postponed_split_tab INIT(= 0);   ///< cmdmod.tab
 EXTERN int g_do_tagpreview INIT(= 0);       ///< for tag preview commands:
-                                            ///< height of preview window
+///< height of preview window
 EXTERN int replace_offset INIT(= 0);        ///< offset for replace_push()
 
 /// need backslash in cmd line
@@ -1058,8 +1058,10 @@ EXTERN char_u e_afterinit[] INIT(= N_("E905: Cannot set this option after startu
 EXTERN char_u e_api_spawn_failed[] INIT(= N_("E903: Could not spawn API job"));
 EXTERN char_u e_argreq[] INIT(= N_("E471: Argument required"));
 EXTERN char_u e_backslash[] INIT(= N_("E10: \\ should be followed by /, ? or &"));
-EXTERN char_u e_cmdwin[] INIT(= N_("E11: Invalid in command-line window; <CR> executes, CTRL-C quits"));
-EXTERN char_u e_curdir[] INIT(= N_("E12: Command not allowed from exrc/vimrc in current dir or tag search"));
+EXTERN char_u e_cmdwin[] INIT(=
+                                  N_("E11: Invalid in command-line window; <CR> executes, CTRL-C quits"));
+EXTERN char_u e_curdir[] INIT(=
+                                  N_("E12: Command not allowed from exrc/vimrc in current dir or tag search"));
 EXTERN char_u e_endif[] INIT(= N_("E171: Missing :endif"));
 EXTERN char_u e_endtry[] INIT(= N_("E600: Missing :endtry"));
 EXTERN char_u e_endwhile[] INIT(= N_("E170: Missing :endwhile"));

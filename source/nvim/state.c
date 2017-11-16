@@ -23,6 +23,7 @@ void state_enter(VimState *s)
     for(;;)
     {
         int check_result = s->check ? s->check(s) : 1;
+
         if(!check_result)
         {
             break;
@@ -34,6 +35,7 @@ void state_enter(VimState *s)
 
         int key;
 getkey:
+
         if(char_avail() || using_script() || input_available())
         {
             // Don't block for events if there's a character already available for
@@ -50,7 +52,6 @@ getkey:
         {
             input_enable_events();
             ui_flush(); // Flush screen updates before blocking
-
             // Call `os_inchar` directly to block for events or user input without
             // consuming anything from `input_buffer`(os/input.c) or calling the
             // mapping engine. If an event was put into the queue, we send K_EVENT
@@ -66,6 +67,7 @@ getkey:
         }
 
         int execute_result = s->execute(s, key);
+
         if(!execute_result)
         {
             break;
@@ -121,6 +123,7 @@ int get_real_state(void)
 char *get_mode(void)
 {
     char *buf = xcalloc(3, sizeof(char));
+
     if(VIsual_active)
     {
         if(VIsual_select)
@@ -135,6 +138,7 @@ char *get_mode(void)
     else if(State == HITRETURN || State == ASKMORE || State == SETWSIZE || State == CONFIRM)
     {
         buf[0] = 'r';
+
         if(State == ASKMORE)
         {
             buf[1] = 'm';
@@ -186,7 +190,7 @@ char *get_mode(void)
     {
         buf[0] = 'n';
 
-        if (finish_op)
+        if(finish_op)
         {
             buf[1] = 'o';
         }

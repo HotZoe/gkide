@@ -46,11 +46,11 @@ static char *features[] =
 #endif
 
 #if (defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)) || defined(DYNAMIC_ICONV)
-    #ifdef DYNAMIC_ICONV
+#ifdef DYNAMIC_ICONV
     "+iconv/dyn",
-    #else
+#else
     "+iconv",
-    #endif
+#endif
 #else
     "-iconv",
 #endif
@@ -214,14 +214,12 @@ bool has_nvim_patch(int n)
 Dictionary version_dict(void)
 {
     Dictionary d = ARRAY_DICT_INIT;
-
     PUT(d, "major", INTEGER_OBJ(NVIM_VERSION_MAJOR));
     PUT(d, "minor", INTEGER_OBJ(NVIM_VERSION_MINOR));
     PUT(d, "patch", INTEGER_OBJ(NVIM_VERSION_PATCH));
     PUT(d, "api_level", INTEGER_OBJ(NVIM_API_VERSION));
     PUT(d, "api_compatible", INTEGER_OBJ(NVIM_API_COMPATV));
     PUT(d, "api_prerelease", BOOLEAN_OBJ(NVIM_API_PRERELEASE));
-
     return d;
 }
 
@@ -240,11 +238,12 @@ static void list_features(void)
 {
     int nfeat = 0;
     int width = 0;
-
     int i; // Find the length of the longest feature name, use that + 1 as the column width
+
     for(i = 0; features[i] != NULL; ++i)
     {
         int l = (int)STRLEN(features[i]);
+
         if(l > width)
         {
             width = l;
@@ -280,10 +279,12 @@ static void list_features(void)
     for(i = 0; !got_int && i < nrow * ncol; ++i)
     {
         int idx = (i / ncol) + (i % ncol) * nrow;
+
         if(idx < nfeat)
         {
             int last_col = (i + 1) % ncol == 0;
             msg_puts(features[idx]);
+
             if(last_col)
             {
                 if(msg_col > 0)
@@ -343,35 +344,34 @@ void list_version(void)
 
     version_msg("\n\nOptional features included (+) or excluded (-):\n");
     list_features();
-
     size_t len;
     char msg_buf[MAXPATHL] = { 0 };
-
     // gkide system home
     snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_SYS_HOME);
     len = strlen(msg_buf);
+
     if(gkide_sys_home != NULL)
     {
         snprintf(msg_buf + len, MAXPATHL, "%s", gkide_sys_home);
     }
-    version_msg(msg_buf);
 
+    version_msg(msg_buf);
     // gkide user home
     snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_USR_HOME);
     len = strlen(msg_buf);
+
     if(gkide_usr_home != NULL)
     {
         snprintf(msg_buf + len, MAXPATHL, "%s", gkide_usr_home);
     }
-    version_msg(msg_buf);
 
+    version_msg(msg_buf);
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, loc\n");
-
     version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG
-                                        " ,then $GKIDE_SYS_HOME/etc/config.nvl");
+                " ,then $GKIDE_SYS_HOME/etc/config.nvl");
     version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG
-                                        " ,then $GKIDE_USR_HOME/etc/config.nvl");
+                " ,then $GKIDE_USR_HOME/etc/config.nvl");
 }
 
 /// Output a string for the version message.  If it's going to wrap, output a
@@ -432,11 +432,9 @@ void intro_message(int colon)
         N_("Help poor children in Uganda!"),
         N_("type :help iccf<Enter>       for information "),
     };
-
     // blanklines = screen height - # message lines
     size_t lines_size = ARRAY_SIZE(lines);
     assert(lines_size <= LONG_MAX);
-
     long blanklines = Rows - ((long)lines_size - 1l);
 
     // Don't overwrite a statusline. Depends on 'cmdheight'.
@@ -452,7 +450,6 @@ void intro_message(int colon)
 
     // start displaying the message lines after half of the blank lines
     long row_num = blanklines / 2;
-
     // Show the empty message, 4/8
     // Show the uganda message, 2/8
     // Show the sponsor message, 1/8
@@ -462,6 +459,7 @@ void intro_message(int colon)
     if(((row_num >= 2) && (Columns >= 50)) || colon)
     {
         char *p = NULL;
+
         for(int i=0, replace=0; i < (int)lines_size; ++i, replace=0)
         {
             p = lines[i];
@@ -548,7 +546,6 @@ static void do_intro_line(long row, char_u *mesg, int attr)
     char_u *p;
     int l;
     int clen;
-
     col = vim_strsize(mesg); // Center the message horizontally.
     col = (Columns - col) / 2;
 
@@ -561,6 +558,7 @@ static void do_intro_line(long row, char_u *mesg, int attr)
     for(p = mesg; *p != NUL; p += l)
     {
         clen = 0;
+
         for(l = 0; p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>')); ++l)
         {
             if(has_mbyte)

@@ -16,7 +16,7 @@
 RBuffer *rbuffer_new(size_t capacity)
 FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
 {
-    if (!capacity)
+    if(!capacity)
     {
         capacity = 0x10000;
     }
@@ -60,13 +60,13 @@ size_t rbuffer_space(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
 /// used. See RBUFFER_UNTIL_FULL for a macro that simplifies this task.
 char *rbuffer_write_ptr(RBuffer *buf, size_t *write_count) FUNC_ATTR_NONNULL_ALL
 {
-    if (buf->size == rbuffer_capacity(buf))
+    if(buf->size == rbuffer_capacity(buf))
     {
         *write_count = 0;
         return NULL;
     }
 
-    if (buf->write_ptr >= buf->read_ptr)
+    if(buf->write_ptr >= buf->read_ptr)
     {
         *write_count = (size_t)(buf->end_ptr - buf->write_ptr);
     }
@@ -84,9 +84,9 @@ void rbuffer_reset(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
 {
     size_t temp_size;
 
-    if ((temp_size = rbuffer_size(buf)))
+    if((temp_size = rbuffer_size(buf)))
     {
-        if (buf->temp == NULL)
+        if(buf->temp == NULL)
         {
             buf->temp = xcalloc(1, rbuffer_capacity(buf));
         }
@@ -96,7 +96,7 @@ void rbuffer_reset(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
 
     buf->read_ptr = buf->write_ptr = buf->start_ptr;
 
-    if (temp_size)
+    if(temp_size)
     {
         rbuffer_write(buf, buf->temp, temp_size);
     }
@@ -112,7 +112,7 @@ void rbuffer_produced(RBuffer *buf, size_t count) FUNC_ATTR_NONNULL_ALL
 
     buf->write_ptr += count;
 
-    if (buf->write_ptr >= buf->end_ptr)
+    if(buf->write_ptr >= buf->end_ptr)
     {
         // wrap around
         buf->write_ptr -= rbuffer_capacity(buf);
@@ -120,7 +120,7 @@ void rbuffer_produced(RBuffer *buf, size_t count) FUNC_ATTR_NONNULL_ALL
 
     buf->size += count;
 
-    if (buf->full_cb && !rbuffer_space(buf))
+    if(buf->full_cb && !rbuffer_space(buf))
     {
         buf->full_cb(buf, buf->data);
     }
@@ -134,13 +134,13 @@ void rbuffer_produced(RBuffer *buf, size_t count) FUNC_ATTR_NONNULL_ALL
 /// were read. See RBUFFER_UNTIL_EMPTY for a macro that simplifies this task.
 char *rbuffer_read_ptr(RBuffer *buf, size_t *read_count) FUNC_ATTR_NONNULL_ALL
 {
-    if (!buf->size)
+    if(!buf->size)
     {
         *read_count = 0;
         return NULL;
     }
 
-    if (buf->read_ptr < buf->write_ptr)
+    if(buf->read_ptr < buf->write_ptr)
     {
         *read_count = (size_t)(buf->write_ptr - buf->read_ptr);
     }
@@ -163,7 +163,7 @@ FUNC_ATTR_NONNULL_ALL
 
     buf->read_ptr += count;
 
-    if (buf->read_ptr >= buf->end_ptr)
+    if(buf->read_ptr >= buf->end_ptr)
     {
         buf->read_ptr -= rbuffer_capacity(buf);
     }
@@ -171,7 +171,7 @@ FUNC_ATTR_NONNULL_ALL
     bool was_full = buf->size == rbuffer_capacity(buf);
     buf->size -= count;
 
-    if (buf->nonfull_cb && was_full)
+    if(buf->nonfull_cb && was_full)
     {
         buf->nonfull_cb(buf, buf->data);
     }
@@ -190,7 +190,7 @@ FUNC_ATTR_NONNULL_ALL
         memcpy(wptr, src, copy_count);
         rbuffer_produced(buf, copy_count);
 
-        if (!(src_size -= copy_count))
+        if(!(src_size -= copy_count))
         {
             return size;
         }
@@ -212,7 +212,7 @@ FUNC_ATTR_NONNULL_ALL
         memcpy(dst, rptr, copy_count);
         rbuffer_consumed(buf, copy_count);
 
-        if (!(dst_size -= copy_count))
+        if(!(dst_size -= copy_count))
         {
             return size;
         }
@@ -229,7 +229,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
     assert(index < buf->size);
     char *rptr = buf->read_ptr + index;
 
-    if (rptr >= buf->end_ptr)
+    if(rptr >= buf->end_ptr)
     {
         rptr -= rbuffer_capacity(buf);
     }
@@ -248,7 +248,7 @@ FUNC_ATTR_NONNULL_ALL
     count -= n;
     size_t remaining = buf->size - rcnt;
 
-    if (rv || !count || !remaining)
+    if(rv || !count || !remaining)
     {
         return rv;
     }

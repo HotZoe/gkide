@@ -42,9 +42,9 @@
     do                                           \
     {                                            \
         bool did_try_to_free = false;            \
-                                                 \
+        \
     uv_call_start: {}                            \
-                                                 \
+        \
         uv_fs_t req;                             \
         ret = func(&fs_loop, &req, __VA_ARGS__); \
         uv_fs_req_cleanup(&req);                 \
@@ -172,6 +172,7 @@ bool os_isdir(const char_u *name) FUNC_ATTR_NONNULL_ALL
 int os_nodetype(const char *name)
 {
 #ifdef HOST_OS_WINDOWS
+
     // Edge case from Vim os_win32.c:
     // We can't open a file with a name "\\.\con" or "\\.\prn", trying to read
     // from it later will cause Vim to hang. Thus return NODE_WRITABLE here.
@@ -179,6 +180,7 @@ int os_nodetype(const char *name)
     {
         return NODE_WRITABLE;
     }
+
 #endif
     uv_stat_t statbuf;
 
@@ -186,6 +188,7 @@ int os_nodetype(const char *name)
     {
         return NODE_NORMAL; // File doesn't exist.
     }
+
 #ifndef HOST_OS_WINDOWS
 
     // libuv does not handle BLK and DIR in uv_handle_type.
@@ -210,7 +213,6 @@ int os_nodetype(const char *name)
     // give it. uv_fs_open calls fs__capture_path which does a similar dance and
     // saves us the hassle.
     int nodetype = NODE_WRITABLE;
-
 #ifdef O_NONBLOCK
     int fd = os_open(name, O_RDONLY | O_NONBLOCK, 0);
 #else
@@ -232,11 +234,11 @@ int os_nodetype(const char *name)
         case UV_TCP: // unix only
         case UV_UNKNOWN_HANDLE:
         default:
-            #ifdef HOST_OS_WINDOWS
+#ifdef HOST_OS_WINDOWS
             nodetype = NODE_NORMAL;
-            #else
+#else
             nodetype = NODE_WRITABLE; // Everything else is writable?
-            #endif
+#endif
             break;
     }
 
@@ -274,7 +276,6 @@ int os_exepath(char *buffer, size_t *size) FUNC_ATTR_NONNULL_ALL
 bool os_can_exe(const char_u *name, char_u **abspath, bool use_path) FUNC_ATTR_NONNULL_ARG(1)
 {
     bool no_path = !use_path || path_is_absolute_path(name);
-
 #ifndef HOST_OS_WINDOWS
     // If the filename is "qualified" (relative or absolute) do not check $PATH.
     no_path |= (name[0] == '.' && (name[1] == '/' || (name[1] == '.' && name[2] == '/')));
@@ -391,9 +392,7 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
 #else
     char *path = xstrdup(path_env);
 #endif
-
     size_t buf_len = STRLEN(name) + strlen(path) + 2;
-
 #ifdef HOST_OS_WINDOWS
     const char *pathext = os_getenv("PATHEXT");
 
@@ -415,7 +414,6 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
         // Combine the $PATH segment with `name`.
         STRLCPY(buf, p, e - p + 1);
         append_path(buf, (char *)name, buf_len);
-
 #ifdef HOST_OS_WINDOWS
         bool ok = is_executable(buf) || is_executable_ext(buf, pathext);
 #else
@@ -495,7 +493,6 @@ int os_set_cloexec(const int fd)
 
     return 0;
 #endif
-
     // No FD_CLOEXEC flag.  On Windows, the file
     // should have been opened with O_NOINHERIT anyway.
     return -1;
@@ -1184,7 +1181,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
                 goto shortcut_errorw;
             }
 
-            #if 0
+#if 0
             // This makes Vim wait a long time if the target does not exist.
             hr = pslw->lpVtbl->Resolve(pslw, NULL, SLR_NO_UI);
 
@@ -1192,8 +1189,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
             {
                 goto shortcut_errorw;
             }
-            #endif
 
+#endif
             // Get the path to the link target.
             ZeroMemory(wsz, MAX_PATH * sizeof(WCHAR));
             hr = pslw->lpVtbl->GetPath(pslw, wsz, MAX_PATH, &ffdw, 0);
@@ -1209,7 +1206,6 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
             }
 
 shortcut_errorw:
-
             xfree(p);
             goto shortcut_end;
         }
@@ -1238,19 +1234,19 @@ int os_translate_sys_error(int FUNC_ARGS_UNUSED_MAYBE(sys_errno))
 #ifdef HAVE_UV_TRANSLATE_SYS_ERROR
     return uv_translate_sys_error(sys_errno);
 #elif defined(HOST_OS_WINDOWS)
-    #ifndef ERROR_SYMLINK_NOT_SUPPORTED
+#ifndef ERROR_SYMLINK_NOT_SUPPORTED
     // TODO(equalsraf): libuv does not yet expose uv_translate_sys_error()
     // in its public API, include a version here until it can be used.
     // See https://github.com/libuv/libuv/issues/79
-    #define ERROR_SYMLINK_NOT_SUPPORTED 1464
-    #endif
+#define ERROR_SYMLINK_NOT_SUPPORTED 1464
+#endif
 
     if(sys_errno <= 0)
     {
         return sys_errno; // If < 0 then it's already a libuv error
     }
 
-    switch (sys_errno)
+    switch(sys_errno)
     {
         case ERROR_NOACCESS:
             return UV_EACCES;
@@ -1546,11 +1542,9 @@ int os_translate_sys_error(int FUNC_ARGS_UNUSED_MAYBE(sys_errno))
 
 #else
     const int error = -errno;
-
     STATIC_ASSERT(-EINTR == UV_EINTR,   "Need to translate error codes");
     STATIC_ASSERT(-EAGAIN == UV_EAGAIN, "Need to translate error codes");
     STATIC_ASSERT(-ENOMEM == UV_ENOMEM, "Need to translate error codes");
-
     return error;
 #endif
 }

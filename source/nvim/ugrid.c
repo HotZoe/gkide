@@ -132,7 +132,8 @@ static void clear_region(UGrid *grid, int top, int bot, int left, int right)
     HlAttrs clear_attrs = EMPTY_ATTRS;
     clear_attrs.foreground = grid->fg;
     clear_attrs.background = grid->bg;
-    UGRID_FOREACH_CELL(grid, top, bot, left, right, {
+    UGRID_FOREACH_CELL(grid, top, bot, left, right,
+    {
         cell->data[0] = ' ';
         cell->data[1] = 0;
         cell->attrs = clear_attrs;

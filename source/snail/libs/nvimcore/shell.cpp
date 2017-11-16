@@ -87,6 +87,7 @@ QString Shell::fontDesc()
 bool Shell::setGuiFont(const QString &fdesc, bool force)
 {
     QStringList attrs = fdesc.split(':');
+
     if(attrs.size() < 1)
     {
         m_nvim->neovimObject()->vim_report_error("Invalid font");
@@ -103,6 +104,7 @@ bool Shell::setGuiFont(const QString &fdesc, bool force)
         {
             bool ok = false;
             int height = attr.mid(1).toInt(&ok);
+
             if(!ok)
             {
                 m_nvim->neovimObject()->vim_report_error("Invalid font height");
@@ -147,10 +149,12 @@ Shell::~Shell()
 void Shell::setAttached(bool attached)
 {
     m_attached = attached;
+
     if(attached)
     {
         updateWindowId();
         m_nvim->neovimObject()->vim_set_var("GuiFont", fontDesc());
+
         if(isWindow())
         {
             updateGuiWindowState(windowState());
@@ -209,7 +213,6 @@ void Shell::init()
             this, &Shell::handleNeovimNotification);
     connect(m_nvim->neovimObject(), &Neovim::on_ui_try_resize,
             this, &Shell::neovimResizeFinished);
-
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
     // FIXME: this API will change
     MsgpackRequest *req = m_nvim->attachUi((int64_t)(screenRect.width()*0.66/cellSize().width()),
@@ -308,6 +311,7 @@ void Shell::handlePut(const QVariantList &args)
     }
 
     QString text = m_nvim->decode(args.at(0).toByteArray());
+
     if(!text.isEmpty())
     {
         int cols = put(text, m_cursor_pos.y(), m_cursor_pos.x(),
@@ -384,6 +388,7 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
         }
 
         qint64 val = opargs.at(0).toLongLong();
+
         if(val != -1)
         {
             setForeground(QRgb(val));
@@ -400,6 +405,7 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
         }
 
         qint64 val = opargs.at(0).toLongLong();
+
         if(val != -1)
         {
             setBackground(QRgb(val));
@@ -417,6 +423,7 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
         }
 
         qint64 val = opargs.at(0).toLongLong();
+
         if(val != -1)
         {
             setSpecial(QRgb(val));
@@ -472,7 +479,7 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     }
     else if(name == "put")
     {
-        handlePut(opargs );
+        handlePut(opargs);
     }
     else if(name == "scroll")
     {
@@ -663,6 +670,7 @@ void Shell::handleNeovimNotification(const QByteArray &name, const QVariantList 
         }
 
         const QVariantList &redrawupdate = update_item.toList();
+
         if(redrawupdate.size() < 2)
         {
             qWarning() << "Received unexpected redraw operation" << update_item;
@@ -703,6 +711,7 @@ void Shell::paintEvent(QPaintEvent *ev)
     {
         bool wide = contents().constValue(m_cursor_pos.y(), m_cursor_pos.x()).doubleWidth;
         QRect cursorRect(neovimCursorTopLeft(), cellSize());
+
         if(m_insertMode)
         {
             cursorRect.setWidth(2);
@@ -752,6 +761,7 @@ void Shell::neovimMouseEvent(QMouseEvent *ev)
     if(ev->type() == QEvent::MouseMove)
     {
         Qt::MouseButton bt;
+
         if(ev->buttons() & Qt::LeftButton)
         {
             bt = Qt::LeftButton;
@@ -961,6 +971,7 @@ void Shell::resizeEvent(QResizeEvent *ev)
 void Shell::neovimResizeFinished()
 {
     m_resizing = false;
+
     if(m_resize_neovim_pending.isValid())
     {
         resizeNeovim(m_resize_neovim_pending.width(), m_resize_neovim_pending.height());
@@ -968,7 +979,7 @@ void Shell::neovimResizeFinished()
     }
 }
 
-void Shell::changeEvent( QEvent *ev)
+void Shell::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::WindowStateChange && isWindow())
     {
@@ -1052,6 +1063,7 @@ QColor Shell::color(qint64 color, const QColor &fallback)
 void Shell::tooltip(const QString &text)
 {
     m_tooltip->setText(text);
+
     if(text.isEmpty())
     {
         m_tooltip->hide();
@@ -1061,12 +1073,12 @@ void Shell::tooltip(const QString &text)
     if(!m_tooltip->isVisible())
     {
         m_tooltip->setMinimumHeight(cellSize().height());
-        m_tooltip->move(neovimCursorTopLeft() );
+        m_tooltip->move(neovimCursorTopLeft());
         m_tooltip->show();
     }
 
-    m_tooltip->setMinimumWidth( QFontMetrics(m_tooltip->font()).width(text) );
-    m_tooltip->setMaximumWidth( QFontMetrics(m_tooltip->font()).width(text) );
+    m_tooltip->setMinimumWidth(QFontMetrics(m_tooltip->font()).width(text));
+    m_tooltip->setMaximumWidth(QFontMetrics(m_tooltip->font()).width(text));
     m_tooltip->update();
 }
 
@@ -1225,6 +1237,7 @@ void Shell::openFiles(QList<QUrl> urls)
     if(m_nvim && m_attached)
     {
         QVariantList args;
+
         foreach(QUrl u, urls)
         {
             if(u.scheme() == "file")
@@ -1236,6 +1249,7 @@ void Shell::openFiles(QList<QUrl> urls)
                 args.append(u.toString());
             }
         }
+
         m_nvim->neovimObject()->vim_call_function("GuiDrop", args);
     }
     else

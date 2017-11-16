@@ -200,6 +200,7 @@ QList<QPair<QString,QString>> Function::parseParameters(const QVariantList &obj)
     foreach(const QVariant &val, obj)
     {
         const QVariantList &params = val.toList();
+
         if(params.size() % 2 != 0)
         {
             return fail;

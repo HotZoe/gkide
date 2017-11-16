@@ -18,6 +18,7 @@ template <class T>
 bool decode(const QVariant &in, QList<T> &out)
 {
     out.clear();
+
     if((QMetaType::Type)in.type() != QMetaType::QVariantList)
     {
         qWarning() << "Attempting to decode as QList<...> when type is" << in.type() << in;

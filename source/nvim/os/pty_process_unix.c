@@ -52,7 +52,10 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
 
     uv_signal_start(&proc->loop->children_watcher, chld_handler, SIGCHLD);
 
-    ptyproc->winsize = (struct winsize) { ptyproc->height, ptyproc->width, 0, 0 };
+    ptyproc->winsize = (struct winsize)
+    {
+        ptyproc->height, ptyproc->width, 0, 0
+    };
 
     uv_disable_stdio_inheritance();
     int master;
@@ -121,7 +124,10 @@ void pty_process_resize(PtyProcess *ptyproc,
                         uint16_t height)
 FUNC_ATTR_NONNULL_ALL
 {
-    ptyproc->winsize = (struct winsize) { height, width, 0, 0 };
+    ptyproc->winsize = (struct winsize)
+    {
+        height, width, 0, 0
+    };
 
     ioctl(ptyproc->tty_fd, TIOCSWINSZ, &ptyproc->winsize);
 }

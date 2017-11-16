@@ -41,9 +41,9 @@
 #define RINGBUF_FORALL(rb, RBType, varname) \
     size_t varname##_length_fa_ = _RINGBUF_LENGTH(rb); \
     for (RBType *varname = ((rb)->first == NULL ? (rb)->next : (rb)->first); \
-            varname##_length_fa_; \
-            (varname = _RINGBUF_NEXT(rb, varname)), \
-            varname##_length_fa_--)
+         varname##_length_fa_; \
+         (varname = _RINGBUF_NEXT(rb, varname)), \
+         varname##_length_fa_--)
 
 /// Iterate over all ringbuf values, from end to the beginning
 ///
@@ -56,9 +56,9 @@
 #define RINGBUF_ITER_BACK(rb, RBType, varname) \
     size_t varname##_length_ib_ = _RINGBUF_LENGTH(rb); \
     for (varname = ((rb)->next == (rb)->buf ? (rb)->buf_end : (rb)->next - 1); \
-            varname##_length_ib_; \
-            (varname = _RINGBUF_PREV(rb, varname)), \
-            varname##_length_ib_--)
+         varname##_length_ib_; \
+         (varname = _RINGBUF_PREV(rb, varname)), \
+         varname##_length_ib_--)
 
 /// Define a ring buffer structure
 ///

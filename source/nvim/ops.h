@@ -100,27 +100,27 @@ typedef struct yankreg
 static inline int op_reg_index(const int regname)
 FUNC_ATTR_CONST
 {
-    if (ascii_isdigit(regname))
+    if(ascii_isdigit(regname))
     {
         return regname - '0';
     }
-    else if (ASCII_ISLOWER(regname))
+    else if(ASCII_ISLOWER(regname))
     {
         return CharOrdLow(regname) + 10;
     }
-    else if (ASCII_ISUPPER(regname))
+    else if(ASCII_ISUPPER(regname))
     {
         return CharOrdUp(regname) + 10;
     }
-    else if (regname == '-')
+    else if(regname == '-')
     {
         return DELETION_REGISTER;
     }
-    else if (regname == '*')
+    else if(regname == '*')
     {
         return STAR_REGISTER;
     }
-    else if (regname == '+')
+    else if(regname == '+')
     {
         return PLUS_REGISTER;
     }

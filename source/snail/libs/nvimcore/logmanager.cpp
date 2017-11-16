@@ -39,30 +39,38 @@ void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
 void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
 {
     LogLevelType lglv;
+
     switch(type)
     {
         case QtInfoMsg:     // qInfo(4) => TRACE(0)
             lglv = LOG_TRACE;
             break;
+
         case QtDebugMsg:    // qDebug(0) => DEBUG(1), STATE(2)
             lglv = LOG_DEBUG;
             break;
+
         case QtWarningMsg:  // qWarning(1) => ALERT(3)
             lglv = LOG_ALERT;
             break;
+
         case QtCriticalMsg: // qCritical(2) => ERROR(4)
             lglv = LOG_ERROR;
             break;
+
         case QtFatalMsg:    // qFatal(3) => FATAL(5)
             ::abort();
             break;
+
         default:
             lglv = LOG_TRACE;
             break;
     };
 
     bool env_ok = false;
+
     int env_level = SNAIL_LOG_LEVEL_MIN;
+
     if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_LOGLEVEL)
        && !qEnvironmentVariableIsEmpty(ENV_GKIDE_SNAIL_LOGLEVEL))
     {
@@ -80,6 +88,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
     }
 
     QFile logFile;
+
     if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_LOGGINGS)
        && !qEnvironmentVariableIsEmpty(ENV_GKIDE_SNAIL_LOGGINGS))
     {
@@ -98,12 +107,14 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
                     return; // can not create, skip
                 }
             }
+
             logFile.setFileName(env_val+"snail.log");
         }
         else
         {
             // the env value not ending in slash
             QDir log_dir = fi.dir(); // get the file's parent directory
+
             if(!log_dir.exists())
             {
                 // not exist, try to create it with parents directories if needed.
@@ -112,6 +123,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
                     return; // can not create, skip
                 }
             }
+
             logFile.setFileName(env_val); // a file, just use it
         }
     }
@@ -152,6 +164,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         QString gkide_usr_home = QDir::homePath() + "/.gkide";
         #endif
         QDir home_dir = QDir(gkide_usr_home);
+
         if(!home_dir.exists())
         {
             // not exist, try to create it, just one level is enough
@@ -160,6 +173,7 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
                 return; // can not create, this should be fixed
             }
         }
+
         logFile.setFileName(gkide_usr_home + "/snail.log");
     }
 
@@ -171,21 +185,26 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         case LOG_TRACE:
             log_msg += QString("TRACE [");
             break;
+
         case LOG_DEBUG:
             log_msg += QString("DEBUG [");
             break;
+
         case LOG_ALERT:
             log_msg += QString("ALERT [");
             break;
+
         case LOG_ERROR:
             log_msg += QString("ERROR [");
             break;
     };
 
     QString file_name = QString(ctx.file); // full file path
+
     file_name = QString(file_name.constData() + file_name.lastIndexOf("/") + 1);
 
     log_msg += file_name + "@" + QString::number(ctx.line) + QString("] %1\n").arg(msg);
+
     if(logFile.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream stream(&logFile);
@@ -199,6 +218,7 @@ bool getLoginEnvironment(const QString &path)
 {
     QProcess proc;
     proc.start(path, {"-l", "-c", "env", "-i"});
+
     if(!proc.waitForFinished())
     {
         //qDebug() << "Failed to execute shell to get environemnt: " << path;
@@ -206,15 +226,18 @@ bool getLoginEnvironment(const QString &path)
     }
 
     QByteArray out = proc.readAllStandardOutput();
+
     foreach(const QByteArray &item, out.split('\n'))
     {
         int index = item.indexOf('=');
+
         if(index > 0)
         {
             qputenv(item.mid(0, index), item.mid(index+1));
             //qDebug() << item.mid(0, index) << item.mid(index+1);
         }
     }
+
     return true;
 }
 #endif

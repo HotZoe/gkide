@@ -132,7 +132,7 @@ struct slang_S
     int sl_compoptions;           ///< COMP_* flags
     garray_T sl_comppat;          ///< CHECKCOMPOUNDPATTERN items
     regprog_T *sl_compprog;       ///< COMPOUNDRULE turned into a regexp progrm
-                                  ///< (NULL when no compounding)
+    ///< (NULL when no compounding)
     char_u *sl_comprules;         ///< all COMPOUNDRULE concatenated (or NULL)
     char_u *sl_compstartflags;    ///< flags for first compound word
     char_u *sl_compallflags;      ///< all flags for compound words
@@ -151,8 +151,8 @@ struct slang_S
     bool sl_collapse;             ///< SAL collapse_result
     bool sl_rem_accents;          ///< SAL remove_accents
     bool sl_sofo;                 ///< SOFOFROM and SOFOTO instead of SAL items:
-                                  ///< "sl_sal_first" maps chars, when has_mbyte
-                                  ///< "sl_sal" is a list of wide char lists.
+    ///< "sl_sal_first" maps chars, when has_mbyte
+    ///< "sl_sal" is a list of wide char lists.
     garray_T sl_repsal;           ///< list of fromto_T entries from REPSAL lines
     int16_t sl_repsal_first[256]; ///< sl_rep_first for REPSAL lines
     bool sl_nosplitsugs;          ///< don't suggest splitting a word
@@ -169,7 +169,7 @@ struct slang_S
     hashtab_T sl_map_hash;        ///< MAP for multi-byte chars
     int sl_map_array[256];        ///< MAP for first 256 chars
     hashtab_T sl_sounddone;       ///< table with soundfolded words that have handled,
-                                  ///< see add_sound_suggest()
+    ///< see add_sound_suggest()
 };
 
 // Structure used in "b_langp", filled from 'spelllang'.
@@ -203,7 +203,7 @@ typedef struct
 typedef enum
 {
     STATE_START = 0,   ///< At start of node check for NUL bytes (goodword ends);
-                       ///< if badword ends there is a match, otherwise try splitting word.
+    ///< if badword ends there is a match, otherwise try splitting word.
     STATE_NOPREFIX,    ///< try without prefix
     STATE_SPLITUNDO,   ///< Undo splitting.
     STATE_ENDNUL,      ///< Past NUL bytes at start of the node.
@@ -234,7 +234,7 @@ typedef struct trystate_S
     char_u ts_fidxtry;         ///< ts_fidx at which bytes may be changed
     char_u ts_twordlen;        ///< valid length of tword[]
     char_u ts_prefixdepth;     ///< stack depth for end of prefix or
-                               ///< PFD_PREFIXTREE or PFD_NOPREFIX
+    ///< PFD_PREFIXTREE or PFD_NOPREFIX
     char_u ts_flags;           ///< TSF_ flags
     char_u ts_tcharlen;        ///< number of bytes in tword character
     char_u ts_tcharidx;        ///< current byte index in tword character
@@ -247,7 +247,7 @@ typedef struct trystate_S
     char_u ts_compsplit;       ///< index for "compflags" where word was spit
     char_u ts_save_badflags;   ///< su_badflags saved here
     char_u ts_delidx;          ///< index in fword for char that was deleted,
-                               ///< valid when "ts_flags" has TSF_DIDDEL
+    ///< valid when "ts_flags" has TSF_DIDDEL
 } trystate_T;
 
 // Use our own character-case definitions, because the current locale may
@@ -268,7 +268,7 @@ typedef struct trystate_S
 
 #define SPELL_ISUPPER(c)    \
     (enc_utf8 && (c) >= 128 \
-    ? mb_isupper(c) : (c) < 256 ? spelltab.st_isu[c] : iswupper(c))
+     ? mb_isupper(c) : (c) < 256 ? spelltab.st_isu[c] : iswupper(c))
 
 /// First language that is loaded, start of the linked list of loaded languages.
 extern slang_T *first_lang;

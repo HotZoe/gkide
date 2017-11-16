@@ -42,7 +42,7 @@ struct ui_t
     void *data;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-    #include "ui_events.generated.h"
+#include "ui_events.generated.h"
 #endif
 
     void (*event)(UI *ui, char *name, Array args, bool *args_consumed);

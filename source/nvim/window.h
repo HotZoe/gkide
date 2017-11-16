@@ -13,7 +13,7 @@
 #define FNAME_HYP       4       ///< check for hypertext link
 #define FNAME_INCL      8       ///< apply 'includeexpr'
 #define FNAME_REL       16      ///< ".." and "./" are relative to the (current)
-                                ///<  file instead of the current directory
+///<  file instead of the current directory
 #define FNAME_UNESC     32      ///< remove backslashes used for escaping
 
 // arguments for win_split()

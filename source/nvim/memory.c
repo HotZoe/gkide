@@ -61,7 +61,7 @@ void try_to_free_memory(void)
     static bool trying_to_free = false;
 
     // avoid recursive calls
-    if (trying_to_free)
+    if(trying_to_free)
     {
         return;
     }
@@ -87,7 +87,7 @@ void *try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
     size_t allocated_size = size ? size : 1;
     void *ret = malloc(allocated_size);
 
-    if (!ret)
+    if(!ret)
     {
         try_to_free_memory();
         ret = malloc(allocated_size);
@@ -106,7 +106,7 @@ void *verbose_try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 {
     void *ret = try_malloc(size);
 
-    if (!ret)
+    if(!ret)
     {
         do_outofmem_msg(size);
     }
@@ -127,7 +127,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1) FUNC_ATTR_NONNULL_RET
 {
     void *ret = try_malloc(size);
 
-    if (!ret)
+    if(!ret)
     {
         mch_errmsg(e_outofmem);
         mch_errmsg("\n");
@@ -156,12 +156,12 @@ FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE_PROD(1, 2) FUNC_ATTR_NONNULL_RET
     size_t allocated_size = count && size ? size : 1;
     void *ret = calloc(allocated_count, allocated_size);
 
-    if (!ret)
+    if(!ret)
     {
         try_to_free_memory();
         ret = calloc(allocated_count, allocated_size);
 
-        if (!ret)
+        if(!ret)
         {
             mch_errmsg(e_outofmem);
             mch_errmsg("\n");
@@ -183,12 +183,12 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
     size_t allocated_size = size ? size : 1;
     void *ret = realloc(ptr, allocated_size);
 
-    if (!ret)
+    if(!ret)
     {
         try_to_free_memory();
         ret = realloc(ptr, allocated_size);
 
-        if (!ret)
+        if(!ret)
         {
             mch_errmsg(e_outofmem);
             mch_errmsg("\n");
@@ -209,7 +209,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t total_size = size + 1;
 
-    if (total_size < size)
+    if(total_size < size)
     {
         mch_errmsg(_("Vim: Data too large to fit into virtual memory space\n"));
         preserve_exit();
@@ -276,7 +276,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     assert(c != '\0');
 
-    while ((str = strchr(str, c)))
+    while((str = strchr(str, c)))
     {
         *str++ = x;
     }
@@ -293,7 +293,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     char *p = data, *end = (char *)data + len;
 
-    while ((p = memchr(p, c, (size_t)(end - p))))
+    while((p = memchr(p, c, (size_t)(end - p))))
     {
         *p++ = x;
     }
@@ -312,7 +312,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
     assert(c != 0);
     size_t cnt = 0;
 
-    while ((str = strchr(str, c)))
+    while((str = strchr(str, c)))
     {
         cnt++;
         str++;  // Skip the instance of c.
@@ -386,7 +386,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     const char *p = memchr(src, '\0', maxlen);
 
-    if (p)
+    if(p)
     {
         size_t srclen = (size_t)(p - src);
         memcpy(dst, src, srclen);
@@ -415,7 +415,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     size_t slen = strlen(src);
 
-    if (dsize)
+    if(dsize)
     {
         size_t len = MIN(slen, dsize - 1);
         memcpy(dst, src, len);
@@ -445,7 +445,7 @@ FUNC_ATTR_NONNULL_ALL
     assert(dlen < dsize);
     const size_t slen = strlen(src);
 
-    if (slen > dsize - dlen - 1)
+    if(slen > dsize - dlen - 1)
     {
         memmove(dst + dlen, src, dsize - dlen - 1);
         dst[dsize - 1] = '\0';
@@ -475,7 +475,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NO
 char *xstrdupnul(const char *const str)
 FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
 {
-    if (str == NULL)
+    if(str == NULL)
     {
         return xmallocz(0);
     }
@@ -496,9 +496,9 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
 void *xmemrchr(const void *src, uint8_t c, size_t len)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
-    while (len--)
+    while(len--)
     {
-        if (((uint8_t *)src)[len] == c)
+        if(((uint8_t *)src)[len] == c)
         {
             return (uint8_t *) src + len;
         }
@@ -553,7 +553,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
  */
 void do_outofmem_msg(size_t size)
 {
-    if (!did_outofmem_msg)
+    if(!did_outofmem_msg)
     {
         /* Don't hide this message */
         emsg_silent = 0;
@@ -569,7 +569,7 @@ void time_to_bytes(time_t time_, uint8_t buf[8])
 {
     // time_t can be up to 8 bytes in size, more than uintmax_t in 32 bits
     // systems, thus we can't use put_bytes() here.
-    for (size_t i = 7, bufi = 0; bufi < 8; i--, bufi++)
+    for(size_t i = 7, bufi = 0; bufi < 8; i--, bufi++)
     {
         buf[bufi] = (uint8_t)((uint64_t)time_ >> (i * 8));
     }
@@ -619,7 +619,7 @@ void free_all_mem(void)
 
     // When we cause a crash here it is caught and Vim tries to exit cleanly.
     // Don't try freeing everything again.
-    if (entered_free_all_mem)
+    if(entered_free_all_mem)
     {
         return;
     }
@@ -630,12 +630,12 @@ void free_all_mem(void)
     /* Close all tabs and windows.  Reset 'equalalways' to avoid redraws. */
     p_ea = false;
 
-    if (first_tabpage->tp_next != NULL)
+    if(first_tabpage->tp_next != NULL)
     {
         do_cmdline_cmd("tabonly!");
     }
 
-    if (firstwin != lastwin)
+    if(firstwin != lastwin)
     {
         do_cmdline_cmd("only!");
     }
@@ -705,8 +705,8 @@ void free_all_mem(void)
     first_tabpage = NULL;
 
     /* message history */
-    for (;; )
-        if (delete_first_msg() == FAIL)
+    for(;;)
+        if(delete_first_msg() == FAIL)
         {
             break;
         }
@@ -718,7 +718,7 @@ void free_all_mem(void)
     // freeing it.
     p_acd = false;
 
-    for (buf = firstbuf; buf != NULL; )
+    for(buf = firstbuf; buf != NULL;)
     {
         bufref_T bufref;
         set_bufref(&bufref, buf);

@@ -24,7 +24,6 @@ int os_get_usernames(garray_T *users)
     }
 
     ga_init(users, sizeof(char *), 20);
-
 #if defined(HAVE_FUN_GETPWENT) && defined(HAVE_HDR_PWD_H)
     struct passwd *pw;
     setpwent();
@@ -40,7 +39,6 @@ int os_get_usernames(garray_T *users)
 
     endpwent();
 #endif
-
     return OK;
 }
 
@@ -71,8 +69,8 @@ int os_get_uname(uv_uid_t uid, char *s, size_t len)
         STRLCPY(s, pw->pw_name, len);
         return OK;
     }
-#endif
 
+#endif
     // a number is not a name
     snprintf(s, len, "%d", (int)uid);
     return FAIL;
@@ -99,7 +97,7 @@ char *os_get_user_directory(const char *name)
         // passwd entry into malloced memory
         return xstrdup(pw->pw_dir);
     }
-#endif
 
+#endif
     return NULL;
 }

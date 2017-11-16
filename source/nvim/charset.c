@@ -166,20 +166,24 @@ int buf_init_chartab(buf_T *buf, int global)
 
         switch(i)
         {
-        case 0: // 'isident'
-            p = p_isi;
-            break;
-        case 1: // 'isprint'
-            p = p_isp;
-            break;
-        case 2: // 'isfname'
-            p = p_isf;
-            break;
-        case 3: // 'iskeyword'
-            p = buf->b_p_isk;
-            break;
-        default:
-            break;
+            case 0: // 'isident'
+                p = p_isi;
+                break;
+
+            case 1: // 'isprint'
+                p = p_isp;
+                break;
+
+            case 2: // 'isfname'
+                p = p_isf;
+                break;
+
+            case 3: // 'iskeyword'
+                p = buf->b_p_isk;
+                break;
+
+            default:
+                break;
         }
 
         while(p && *p)
@@ -256,58 +260,67 @@ int buf_init_chartab(buf_T *buf, int global)
                 {
                     switch(i)
                     {
-                    case 0: // (re)set ID flag
-                        if(tilde)
-                        {
-                            g_chartab[c] &= (uint8_t)~kCT_CharID;
-                        }
-                        else
-                        {
-                            g_chartab[c] |= kCT_CharID;
-                        }
-                        break;
-                    case 1: // (re)set printable
-                        // For double-byte we keep the cell width, so
-                        // that we can detect it from the first byte.
-                        if(((c < ' ')
-                           || (c > '~')
-                           || (p_altkeymap && (F_isalpha(c) || F_isdigit(c)))))
-                        {
+                        case 0: // (re)set ID flag
                             if(tilde)
                             {
-                                g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask)
-                                                         + ((dy_flags & DY_UHEX) ? 4 : 2));
-                                g_chartab[c] &= (uint8_t)~kCT_CharPrint;
+                                g_chartab[c] &= (uint8_t)~kCT_CharID;
                             }
                             else
                             {
-                                g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask) + 1);
-                                g_chartab[c] |= kCT_CharPrint;
+                                g_chartab[c] |= kCT_CharID;
                             }
-                        }
-                        break;
-                    case 2: // (re)set fname flag
-                        if(tilde)
-                        {
-                            g_chartab[c] &= (uint8_t)~kCT_CharFName;
-                        }
-                        else
-                        {
-                            g_chartab[c] |= kCT_CharFName;
-                        }
-                        break;
-                    case 3: // (re)set keyword flag
-                        if(tilde)
-                        {
-                            RESET_CHARTAB(buf, c);
-                        }
-                        else
-                        {
-                            SET_CHARTAB(buf, c);
-                        }
-                        break;
-                    default:
-                        break;
+
+                            break;
+
+                        case 1: // (re)set printable
+
+                            // For double-byte we keep the cell width, so
+                            // that we can detect it from the first byte.
+                            if(((c < ' ')
+                                || (c > '~')
+                                || (p_altkeymap && (F_isalpha(c) || F_isdigit(c)))))
+                            {
+                                if(tilde)
+                                {
+                                    g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask)
+                                                             + ((dy_flags & DY_UHEX) ? 4 : 2));
+                                    g_chartab[c] &= (uint8_t)~kCT_CharPrint;
+                                }
+                                else
+                                {
+                                    g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask) + 1);
+                                    g_chartab[c] |= kCT_CharPrint;
+                                }
+                            }
+
+                            break;
+
+                        case 2: // (re)set fname flag
+                            if(tilde)
+                            {
+                                g_chartab[c] &= (uint8_t)~kCT_CharFName;
+                            }
+                            else
+                            {
+                                g_chartab[c] |= kCT_CharFName;
+                            }
+
+                            break;
+
+                        case 3: // (re)set keyword flag
+                            if(tilde)
+                            {
+                                RESET_CHARTAB(buf, c);
+                            }
+                            else
+                            {
+                                SET_CHARTAB(buf, c);
+                            }
+
+                            break;
+
+                        default:
+                            break;
                     }
                 }
 
@@ -1132,7 +1145,7 @@ int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *he
             }
         }
 
-        for (;;)
+        for(;;)
         {
             ps = s;
             mb_ptr_adv(s);
@@ -1384,7 +1397,7 @@ void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *en
     if((!wp->w_p_list || (lcs_tab1 != NUL))
        && !wp->w_p_lbr
        && (*p_sbr == NUL)
-       && !wp->w_p_bri )
+       && !wp->w_p_bri)
     {
         for(;;)
         {
@@ -1966,7 +1979,7 @@ void vim_str2nr(const char_u *const start,
                         pre = '0';
                     }
 
-                    if (n == maxlen)
+                    if(n == maxlen)
                     {
                         break;
                     }
@@ -2024,7 +2037,7 @@ void vim_str2nr(const char_u *const start,
             un = 16 * un + (unsigned long)hex2nr(*ptr);
             ptr++;
 
-            if (n++ == maxlen)
+            if(n++ == maxlen)
             {
                 break;
             }

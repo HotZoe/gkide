@@ -148,7 +148,7 @@
 #define CPO_SPECI       '<'     ///< don't recognize <> in mappings
 #define CPO_REGAPPEND   '>'     ///< insert NL when appending to a register
 #define CPO_SCOLON      ';'     ///< using "," and ";" will skip over char if
-                                ///< cursor would not move
+///< cursor would not move
 #define CPO_CHANGEW     '_'     ///< "cw" special-case
 
 // default values for Vim and Vi
@@ -198,14 +198,14 @@ enum
 
 /// Represented by 'a' flag.
 #define SHM_ALL_ABBREVIATIONS ((char_u[]) { \
-    SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, 0, })
+        SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, 0, })
 
 /// All possible flags for 'shm'.
 #define SHM_ALL ((char_u[]) {                                                   \
-    SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
-    SHM_ABBREVIATIONS, SHM_WRITE, SHM_TRUNC, SHM_TRUNCALL, SHM_OVER,            \
-    SHM_OVERALL, SHM_SEARCH, SHM_ATTENTION, SHM_INTRO, SHM_COMPLETIONMENU,      \
-    SHM_RECORDING, SHM_FILEINFO, 0, })
+        SHM_RO, SHM_MOD, SHM_FILE, SHM_LAST, SHM_TEXT, SHM_LINES, SHM_NEW, SHM_WRI, \
+        SHM_ABBREVIATIONS, SHM_WRITE, SHM_TRUNC, SHM_TRUNCALL, SHM_OVER,            \
+        SHM_OVERALL, SHM_SEARCH, SHM_ATTENTION, SHM_INTRO, SHM_COMPLETIONMENU,      \
+        SHM_RECORDING, SHM_FILEINFO, 0, })
 
 // characters for p_go:
 #define GO_ASEL         'a'                 ///< autoselect
@@ -288,14 +288,14 @@ enum
 
 /// C string containing all 'statusline' option flags
 #define STL_ALL ((char_u[]) {                                                   \
-    STL_FILEPATH, STL_FULLPATH, STL_FILENAME, STL_COLUMN, STL_VIRTCOL,          \
-    STL_VIRTCOL_ALT, STL_LINE, STL_NUMLINES, STL_BUFNO, STL_KEYMAP, STL_OFFSET, \
-    STL_OFFSET_X, STL_BYTEVAL, STL_BYTEVAL_X, STL_ROFLAG, STL_ROFLAG_ALT,       \
-    STL_HELPFLAG, STL_HELPFLAG_ALT, STL_FILETYPE, STL_FILETYPE_ALT,             \
-    STL_PREVIEWFLAG, STL_PREVIEWFLAG_ALT, STL_MODIFIED, STL_MODIFIED_ALT,       \
-    STL_QUICKFIX, STL_PERCENTAGE, STL_ALTPERCENT, STL_ARGLISTSTAT, STL_PAGENUM, \
-    STL_VIM_EXPR, STL_SEPARATE, STL_TRUNCMARK, STL_USER_HL, STL_HIGHLIGHT,      \
-    STL_TABPAGENR, STL_TABCLOSENR, STL_CLICK_FUNC, 0, })
+        STL_FILEPATH, STL_FULLPATH, STL_FILENAME, STL_COLUMN, STL_VIRTCOL,          \
+        STL_VIRTCOL_ALT, STL_LINE, STL_NUMLINES, STL_BUFNO, STL_KEYMAP, STL_OFFSET, \
+        STL_OFFSET_X, STL_BYTEVAL, STL_BYTEVAL_X, STL_ROFLAG, STL_ROFLAG_ALT,       \
+        STL_HELPFLAG, STL_HELPFLAG_ALT, STL_FILETYPE, STL_FILETYPE_ALT,             \
+        STL_PREVIEWFLAG, STL_PREVIEWFLAG_ALT, STL_MODIFIED, STL_MODIFIED_ALT,       \
+        STL_QUICKFIX, STL_PERCENTAGE, STL_ALTPERCENT, STL_ARGLISTSTAT, STL_PAGENUM, \
+        STL_VIM_EXPR, STL_SEPARATE, STL_TRUNCMARK, STL_USER_HL, STL_HIGHLIGHT,      \
+        STL_TABPAGENR, STL_TABCLOSENR, STL_CLICK_FUNC, 0, })
 
 // flags used for parsed 'wildmode'
 #define WIM_FULL        1
@@ -407,7 +407,8 @@ static char *(p_bo_values[]) = { "all",   "backspace",  "cursor",     "complete"
                                  "copy",  "ctrlg",      "error",      "esc",
                                  "ex",    "hangul",     "insertmode", "lang",
                                  "mess",  "showmatch",  "operator",   "register",
-                                 "shell", "spell",      "wildmode",   NULL };
+                                 "shell", "spell",      "wildmode",   NULL
+                               };
 #endif
 
 // values for the 'belloff' option
@@ -519,7 +520,8 @@ EXTERN unsigned fdo_flags;
 #ifdef IN_OPTION_C
 static char *(p_fdo_values[]) = {"all",     "block",    "hor",    "mark",
                                  "percent", "quickfix", "search", "tag",
-                                 "insert",  "undo",     "jump",   NULL };
+                                 "insert",  "undo",     "jump",   NULL
+                                };
 #endif
 
 #define FDO_ALL           0x001
@@ -639,7 +641,8 @@ EXTERN unsigned ssop_flags;
 static char *(p_ssop_values[]) = {"buffers",      "winpos",  "resize", "winsize",
                                   "localoptions", "options", "help",   "blank",
                                   "globals",      "slash",   "unix",   "sesdir",
-                                  "curdir",       "folds",   "cursor", "tabpages", NULL };
+                                  "curdir",       "folds",   "cursor", "tabpages", NULL
+                                 };
 #endif
 
 #define SSOP_BUFFERS            0x001
@@ -761,9 +764,9 @@ static char *(p_ve_values[]) = {"block", "insert", "all", "onemore", NULL};
 EXTERN long p_verbose;          ///< 'verbose'
 
 #ifdef IN_OPTION_C
-char_u *p_vfile = (char_u *)""; ///< used before options are initialized
+    char_u *p_vfile = (char_u *)""; ///< used before options are initialized
 #else
-extern char_u *p_vfile;         ///< 'verbosefile'
+    extern char_u *p_vfile;         ///< 'verbosefile'
 #endif
 
 EXTERN int p_warn;              ///< 'warn'

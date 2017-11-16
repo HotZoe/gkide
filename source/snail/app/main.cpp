@@ -23,12 +23,13 @@ int gui_main(int argc, char **argv)
     if(logFile.open(QIODevice::Append | QIODevice::Text))
     {
         QTextStream stream(&logFile);
+
         for(int i=1; i<argc; i++)
         {
             stream << argv[i] << "\n";
         }
-        logFile.close();
 
+        logFile.close();
     }
 #endif
 

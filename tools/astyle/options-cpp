@@ -15,7 +15,7 @@
 --indent-switches
 --indent-preproc-block
 --indent-preproc-define
---min-conditional-indent=2
+--min-conditional-indent=0
 --max-continuation-indent=100
 --break-blocks
 --delete-empty-lines
@@ -23,6 +23,9 @@
 --add-braces
 --max-code-length=100
 --lineend=linux
+--break-blocks
+--convert-tabs
+--unpad-paren
 
 # if you can easily restore the original file, just comment the following line
 # to auto backup the original file with '.ogir' suffix

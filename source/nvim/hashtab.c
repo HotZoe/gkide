@@ -52,7 +52,7 @@ void hash_init(hashtab_T *ht)
 /// right next!
 void hash_clear(hashtab_T *ht)
 {
-    if (ht->ht_array != ht->ht_smallarray)
+    if(ht->ht_array != ht->ht_smallarray)
     {
         xfree(ht->ht_array);
     }
@@ -65,9 +65,9 @@ void hash_clear_all(hashtab_T *ht, unsigned int off)
 {
     size_t todo = ht->ht_used;
 
-    for (hashitem_T *hi = ht->ht_array; todo > 0; ++hi)
+    for(hashitem_T *hi = ht->ht_array; todo > 0; ++hi)
     {
-        if (!HASHITEM_EMPTY(hi))
+        if(!HASHITEM_EMPTY(hi))
         {
             xfree(hi->hi_key - off);
             todo--;
@@ -134,20 +134,20 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     hash_T idx = hash & ht->ht_mask;
     hashitem_T *hi = &ht->ht_array[idx];
 
-    if (hi->hi_key == NULL)
+    if(hi->hi_key == NULL)
     {
         return hi;
     }
 
     hashitem_T *freeitem = NULL;
 
-    if (hi->hi_key == HI_KEY_REMOVED)
+    if(hi->hi_key == HI_KEY_REMOVED)
     {
         freeitem = hi;
     }
-    else if ((hi->hi_hash == hash)
-             && (STRNCMP(hi->hi_key, key, key_len) == 0)
-             && hi->hi_key[key_len] == NUL)
+    else if((hi->hi_hash == hash)
+            && (STRNCMP(hi->hi_key, key, key_len) == 0)
+            && hi->hi_key[key_len] == NUL)
     {
         return hi;
     }
@@ -159,7 +159,7 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     // When we run into a NULL key it's clear that the key isn't there.
     // Return the first available slot found (can be a slot of a removed
     // item).
-    for (hash_T perturb = hash;; perturb >>= PERTURB_SHIFT)
+    for(hash_T perturb = hash;; perturb >>= PERTURB_SHIFT)
     {
 #ifdef HT_DEBUG
         // count a "miss" for hashtab lookup
@@ -168,20 +168,20 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
         idx = 5 * idx + perturb + 1;
         hi = &ht->ht_array[idx & ht->ht_mask];
 
-        if (hi->hi_key == NULL)
+        if(hi->hi_key == NULL)
         {
             return freeitem == NULL ? hi : freeitem;
         }
 
-        if ((hi->hi_hash == hash)
-                && (hi->hi_key != HI_KEY_REMOVED)
-                && (STRNCMP(hi->hi_key, key, key_len) == 0)
-                && hi->hi_key[key_len] == NUL)
+        if((hi->hi_hash == hash)
+           && (hi->hi_key != HI_KEY_REMOVED)
+           && (STRNCMP(hi->hi_key, key, key_len) == 0)
+           && hi->hi_key[key_len] == NUL)
         {
             return hi;
         }
 
-        if ((hi->hi_key == HI_KEY_REMOVED) && (freeitem == NULL))
+        if((hi->hi_key == HI_KEY_REMOVED) && (freeitem == NULL))
         {
             freeitem = hi;
         }
@@ -217,7 +217,7 @@ int hash_add(hashtab_T *ht, char_u *key)
     hash_T hash = hash_hash(key);
     hashitem_T *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
 
-    if (!HASHITEM_EMPTY(hi))
+    if(!HASHITEM_EMPTY(hi))
     {
         EMSG2(_(e_intern2), "hash_add()");
         return FAIL;
@@ -238,7 +238,7 @@ void hash_add_item(hashtab_T *ht, hashitem_T *hi, char_u *key, hash_T hash)
 {
     ht->ht_used++;
 
-    if (hi->hi_key == NULL)
+    if(hi->hi_key == NULL)
     {
         ht->ht_filled++;
     }
@@ -291,19 +291,19 @@ void hash_unlock(hashtab_T *ht)
 static void hash_may_resize(hashtab_T *ht, size_t minitems)
 {
     // Don't resize a locked table.
-    if (ht->ht_locked > 0)
+    if(ht->ht_locked > 0)
     {
         return;
     }
 
 #ifdef HT_DEBUG
 
-    if (ht->ht_used > ht->ht_filled)
+    if(ht->ht_used > ht->ht_filled)
     {
         EMSG("hash_may_resize(): more used than filled");
     }
 
-    if (ht->ht_filled >= ht->ht_mask + 1)
+    if(ht->ht_filled >= ht->ht_mask + 1)
     {
         EMSG("hash_may_resize(): table completely filled");
     }
@@ -311,12 +311,12 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 #endif  // ifdef HT_DEBUG
     size_t minsize;
 
-    if (minitems == 0)
+    if(minitems == 0)
     {
         // Return quickly for small tables with at least two NULL items.
         // items are required for the lookup to decide a key isn't there.
-        if ((ht->ht_filled < HT_INIT_SIZE - 1)
-                && (ht->ht_array == ht->ht_smallarray))
+        if((ht->ht_filled < HT_INIT_SIZE - 1)
+           && (ht->ht_array == ht->ht_smallarray))
         {
             return;
         }
@@ -327,12 +327,12 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
         // at least 1/4 full (avoids repeated grow-shrink operations)
         size_t oldsize = ht->ht_mask + 1;
 
-        if ((ht->ht_filled * 3 < oldsize * 2) && (ht->ht_used > oldsize / 5))
+        if((ht->ht_filled * 3 < oldsize * 2) && (ht->ht_used > oldsize / 5))
         {
             return;
         }
 
-        if (ht->ht_used > 1000)
+        if(ht->ht_used > 1000)
         {
             // it's big, don't make too much room
             minsize = ht->ht_used * 2;
@@ -346,7 +346,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     else
     {
         // Use specified size.
-        if (minitems < ht->ht_used)
+        if(minitems < ht->ht_used)
         {
             // just in case...
             minitems = ht->ht_used;
@@ -358,7 +358,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 
     size_t newsize = HT_INIT_SIZE;
 
-    while (newsize < minsize)
+    while(newsize < minsize)
     {
         // make sure it's always a power of 2
         newsize <<= 1;
@@ -385,9 +385,9 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     hash_T newmask = newsize - 1;
     size_t todo = ht->ht_used;
 
-    for (hashitem_T *olditem = oldarray; todo > 0; ++olditem)
+    for(hashitem_T *olditem = oldarray; todo > 0; ++olditem)
     {
-        if (HASHITEM_EMPTY(olditem))
+        if(HASHITEM_EMPTY(olditem))
         {
             continue;
         }
@@ -398,14 +398,14 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
         hash_T newi = olditem->hi_hash & newmask;
         hashitem_T *newitem = &newarray[newi];
 
-        if (newitem->hi_key != NULL)
+        if(newitem->hi_key != NULL)
         {
-            for (hash_T perturb = olditem->hi_hash;; perturb >>= PERTURB_SHIFT)
+            for(hash_T perturb = olditem->hi_hash;; perturb >>= PERTURB_SHIFT)
             {
                 newi = 5 * newi + perturb + 1;
                 newitem = &newarray[newi & newmask];
 
-                if (newitem->hi_key == NULL)
+                if(newitem->hi_key == NULL)
                 {
                     break;
                 }
@@ -416,7 +416,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
         todo--;
     }
 
-    if (ht->ht_array != ht->ht_smallarray)
+    if(ht->ht_array != ht->ht_smallarray)
     {
         xfree(ht->ht_array);
     }
@@ -439,7 +439,7 @@ hash_T hash_hash(const char_u *key)
 {
     hash_T hash = *key;
 
-    if (hash == 0)
+    if(hash == 0)
     {
         return (hash_T)0;
     }
@@ -448,7 +448,7 @@ hash_T hash_hash(const char_u *key)
     // Suggested by George Reilly.
     const uint8_t *p = key + 1;
 
-    while (*p != NUL)
+    while(*p != NUL)
     {
         HASH_CYCLE_BODY(hash, p);
     }
@@ -468,7 +468,7 @@ hash_T hash_hash(const char_u *key)
 hash_T hash_hash_len(const char *key, const size_t len)
 FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if (len == 0)
+    if(len == 0)
     {
         return 0;
     }
@@ -478,7 +478,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 
     const uint8_t *p = (const uint8_t *)key + 1;
 
-    while (p < end)
+    while(p < end)
     {
         HASH_CYCLE_BODY(hash, p);
     }

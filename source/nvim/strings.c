@@ -113,7 +113,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
     {
         size_t l;
 
-        if (has_mbyte && (l = (size_t)(*mb_ptr2len)(p)) > 1)
+        if(has_mbyte && (l = (size_t)(*mb_ptr2len)(p)) > 1)
         {
             memcpy(p2, p, l);
             p2 += l;
@@ -121,7 +121,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
             continue;
         }
 
-        if (vim_strchr(esc_chars, *p) != NULL || (bsl && rem_backslash(p)))
+        if(vim_strchr(esc_chars, *p) != NULL || (bsl && rem_backslash(p)))
         {
             *p2++ = cc;
         }
@@ -149,8 +149,8 @@ char *vim_strnsave_unquoted(const char *const string, const size_t length)
 FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
 {
 
-    #define ESCAPE_COND(p, inquote, string_end) \
-        (*p == '\\' && inquote && p + 1 < string_end && (p[1] == '\\' || p[1] == '"'))
+#define ESCAPE_COND(p, inquote, string_end) \
+    (*p == '\\' && inquote && p + 1 < string_end && (p[1] == '\\' || p[1] == '"'))
 
     size_t ret_length = 0;
     bool inquote = false;
@@ -193,7 +193,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NO
         }
     }
 
-    #undef ESCAPE_COND
+#undef ESCAPE_COND
 
     return ret;
 }
@@ -225,7 +225,8 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
 
     for(const char_u *p = string; *p != NUL; mb_ptr_adv(p))
     {
-        #ifdef HOST_OS_WINDOWS
+#ifdef HOST_OS_WINDOWS
+
         if(!p_ssl)
         {
             if(*p == '"')
@@ -234,11 +235,11 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
             }
         }
         else
-        #endif
+#endif
         {
             if(*p == '\'')
             {
-                    length += 3; // ' => '\''
+                length += 3; // ' => '\''
             }
         }
 
@@ -264,20 +265,22 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
     d = escaped_string;
 
     // add opening quote
-    #ifdef HOST_OS_WINDOWS
+#ifdef HOST_OS_WINDOWS
+
     if(!p_ssl)
     {
         *d++ = '"';
     }
     else
-    #endif
+#endif
     {
         *d++ = '\'';
     }
 
-    for(const char_u *p = string; *p != NUL; )
+    for(const char_u *p = string; *p != NUL;)
     {
-        #ifdef HOST_OS_WINDOWS
+#ifdef HOST_OS_WINDOWS
+
         if(!p_ssl)
         {
             if(*p == '"')
@@ -289,7 +292,7 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
             }
         }
         else
-        #endif
+#endif
         {
             if(*p == '\'')
             {
@@ -331,13 +334,14 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_ALL
     }
 
     // add terminating quote and finish with a NUL
-    #ifdef HOST_OS_WINDOWS
-    if (!p_ssl)
+#ifdef HOST_OS_WINDOWS
+
+    if(!p_ssl)
     {
         *d++ = '"';
     }
     else
-    #endif
+#endif
     {
         *d++ = '\'';
     }
@@ -373,6 +377,7 @@ void vim_strup(char_u *p)
 FUNC_ATTR_NONNULL_ALL
 {
     char_u c;
+
     while((c = *p) != NUL)
     {
         *p++ = (char_u)(c < 'a' || c > 'z' ? c : c - 0x20);
@@ -428,6 +433,7 @@ FUNC_ATTR_NONNULL_ALL
     char_u *q;
 
     q = ptr + STRLEN(ptr);
+
     while(--q > ptr && ascii_iswhite(q[0]) && q[-1] != '\\' && q[-1] != Ctrl_V)
     {
         *q = NUL;
@@ -442,9 +448,11 @@ int vim_stricmp(const char *s1, const char *s2)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
     int i;
+
     for(;;)
     {
         i = (int)TOLOWER_LOC(*s1) - (int)TOLOWER_LOC(*s2);
+
         if(i != 0)
         {
             return i; // this character different
@@ -471,6 +479,7 @@ int vim_strnicmp(const char *s1, const char *s2, size_t len)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 {
     int i;
+
     while(len > 0)
     {
         i = (int)TOLOWER_LOC(*s1) - (int)TOLOWER_LOC(*s2);
@@ -480,7 +489,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
             return i; // this character different
         }
 
-        if (*s1 == NUL)
+        if(*s1 == NUL)
         {
             break; // strings match until NUL
         }
@@ -567,6 +576,7 @@ bool has_non_ascii(const char_u *s)
 FUNC_ATTR_PURE
 {
     const char_u *p;
+
     if(s != NULL)
     {
         for(p = s; *p != NUL; ++p)
@@ -700,7 +710,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 static const void *tv_ptr(const typval_T *const tvs, int *const idxp)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    #define OFF(attr) offsetof(union typval_vval_union, attr)
+#define OFF(attr) offsetof(union typval_vval_union, attr)
 
     STATIC_ASSERT(OFF(v_string) == OFF(v_list)
                   &&OFF(v_string) == OFF(v_dict)
@@ -711,7 +721,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                   "Strings, dictionaries, lists and partials are expected to be pointers, "
                   "so that all three of them can be accessed via v_string");
 
-    #undef OFF
+#undef OFF
 
     const int idx = *idxp - 1;
 
@@ -854,7 +864,6 @@ static const char *infinity_str(bool positive, char fmt_spec,
         "-inf", "inf", "+inf", " inf",
         "-INF", "INF", "+INF", " INF"
     };
-
     int idx = positive * (1 + force_sign + force_sign * space_for_positive);
 
     if(ASCII_ISUPPER(fmt_spec))
@@ -912,29 +921,22 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
             size_t min_field_width = 0, precision = 0;
             int zero_padding = 0, precision_specified = 0, justify_left = 0;
             int alternate_form = 0, force_sign = 0;
-
             // if both ' ' and '+' flags appear, ' ' flag should be ignored
             int space_for_positive = 1;
-
             // allowed values: \0, h, l, 2 (for ll), z, L
             char length_modifier = '\0';
-
             // temporary buffer for simple numeric->string conversion
-            #define TMP_LEN 350  // 1e308 seems reasonable as the maximum printable
-
+#define TMP_LEN 350  // 1e308 seems reasonable as the maximum printable
             char tmp[TMP_LEN];
             const char *str_arg = NULL; // string address in case of string argument
             size_t str_arg_l; // natural field width of arg without padding and sign
-
             // unsigned char argument value (only defined for c conversion);
             // standard explicitly states the char argument for the c conversion is
             // unsigned
             unsigned char uchar_arg;
-
             // number of zeros to be inserted for numeric conversions as
             // required by the precision or minimal field width
             size_t number_of_zeros_to_pad = 0;
-
             // index into tmp where zero padding is to be inserted
             size_t zero_padding_insertion_ind = 0;
             char fmt_spec = '\0'; // current conversion specifier character
@@ -949,37 +951,44 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                         zero_padding = 1;
                         p++;
                         continue;
+
                     case '-':
                         justify_left = 1;
                         p++;
                         continue;
+
                     case '+': // if both '0' and '-' flags appear, '0' should be ignored
                         force_sign = 1;
                         space_for_positive = 0;
                         p++;
                         continue;
+
                     case ' ':
                         force_sign = 1;
                         p++;
                         continue;
+
                     case '#': // if both ' ' and '+' flags appear, ' ' should be ignored
                         alternate_form = 1;
                         p++;
                         continue;
+
                     case '\'':
                         p++;
                         continue;
+
                     default:
                         break;
                 }
+
                 break;
             }
-
 
             if(*p == '*') // parse field width
             {
                 p++;
                 const int j = tvs ? (int)tv_nr(tvs, &arg_idx) : va_arg(ap, int);
+
                 if(j >= 0)
                 {
                     min_field_width = (size_t)j;
@@ -1059,18 +1068,22 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                 case 'i':
                     fmt_spec = 'd';
                     break;
+
                 case 'D':
                     fmt_spec = 'd';
                     length_modifier = 'l';
                     break;
+
                 case 'U':
                     fmt_spec = 'u';
                     length_modifier = 'l';
                     break;
+
                 case 'O':
                     fmt_spec = 'o';
                     length_modifier = 'l';
                     break;
+
                 default:
                     break;
             }
@@ -1084,11 +1097,13 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                 case 's':
                 case 'S':
                     str_arg_l = 1;
+
                     switch(fmt_spec)
                     {
                         case '%':
                             str_arg = p;
                             break;
+
                         case 'c':
                         {
                             const int j = tvs ? (int)tv_nr(tvs, &arg_idx) : va_arg(ap, int);
@@ -1096,6 +1111,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                             str_arg = (char *)&uchar_arg;
                             break;
                         }
+
                         case 's':
                         case 'S':
                             str_arg = tvs
@@ -1148,11 +1164,15 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                     str_arg_l = precision = (size_t)(p1 - str_arg);
                                 }
                             }
+
                             break;
+
                         default:
                             break;
                     }
+
                     break;
+
                 case 'd':
                 case 'u':
                 case 'b':
@@ -1171,15 +1191,17 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                     intmax_t arg = 0;
                     uintmax_t uarg = 0;
                     const void *ptr_arg = NULL; // only defined for p conversion
+
                     if(fmt_spec == 'p')
                     {
                         ptr_arg = tvs ? tv_ptr(tvs, &arg_idx) : va_arg(ap, void *);
+
                         if(ptr_arg)
                         {
                             arg_sign = 1;
                         }
                     }
-                    else if (fmt_spec == 'd')
+                    else if(fmt_spec == 'd')
                     {
                         switch(length_modifier) // signed
                         {
@@ -1190,11 +1212,13 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                 arg = (tvs ? (int)tv_nr(tvs, &arg_idx) : va_arg(ap, int));
                                 break;
                             }
+
                             case 'l':
                             {
                                 arg = (tvs ? (long)tv_nr(tvs, &arg_idx) : va_arg(ap, long));
                                 break;
                             }
+
                             case '2':
                             {
                                 arg = (tvs
@@ -1202,6 +1226,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                        : va_arg(ap, long long)); // NOLINT (runtime/int)
                                 break;
                             }
+
                             case 'z':
                             {
                                 arg = (tvs
@@ -1210,11 +1235,12 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                 break;
                             }
                         }
-                        if (arg > 0)
+
+                        if(arg > 0)
                         {
                             arg_sign =  1;
                         }
-                        else if (arg < 0)
+                        else if(arg < 0)
                         {
                             arg_sign = -1;
                         }
@@ -1231,6 +1257,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                         : va_arg(ap, unsigned));
                                 break;
                             }
+
                             case 'l':
                             {
                                 uarg = (tvs
@@ -1238,6 +1265,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                         : va_arg(ap, unsigned long));
                                 break;
                             }
+
                             case '2':
                             {
                                 uarg = (uintmax_t)(unsigned long long)( // NOLINT (runtime/int)
@@ -1247,12 +1275,14 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                            : va_arg(ap, unsigned long long)); // NOLINT (runtime/int)
                                 break;
                             }
+
                             case 'z':
                             {
                                 uarg = (tvs ? (size_t)tv_nr(tvs, &arg_idx) : va_arg(ap, size_t));
                                 break;
                             }
                         }
+
                         arg_sign = (uarg != 0);
                     }
 
@@ -1266,12 +1296,14 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                     {
                         zero_padding = 0;
                     }
+
                     if(fmt_spec == 'd')
                     {
                         if(force_sign && arg_sign >= 0)
                         {
                             tmp[str_arg_l++] = space_for_positive ? ' ' : '+';
                         }
+
                         // leave negative numbers for snprintf to handle, to
                         // avoid handling tricky cases like (short int)-32768
                     }
@@ -1286,6 +1318,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                             tmp[str_arg_l++] = '0';
                             tmp[str_arg_l++] = fmt_spec;
                         }
+
                         // alternate form should have no effect for p * conversion, but ...
                     }
 
@@ -1296,7 +1329,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                         precision = 1; // default precision is 1
                     }
 
-                    if (precision == 0 && arg_sign == 0)
+                    if(precision == 0 && arg_sign == 0)
                     {
                         // when zero value is formatted with an explicit precision 0,
                         // resulting formatted string is empty (d, i, u, b, B, o, x, X, p)
@@ -1348,7 +1381,6 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                 char f[] = "%" PRIuMAX;
                                 f[sizeof("%" PRIuMAX) - 1 - 1] = fmt_spec;
                                 assert(PRIuMAX[sizeof(PRIuMAX) - 1 - 1] == 'u');
-
                                 str_arg_l += (size_t)snprintf(tmp + str_arg_l,
                                                               sizeof(tmp) - str_arg_l,
                                                               f,
@@ -1412,8 +1444,10 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                             number_of_zeros_to_pad += (size_t)n;
                         }
                     }
+
                     break;
                 }
+
                 case 'f':
                 case 'F':
                 case 'e':
@@ -1441,6 +1475,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
 
                         remove_trailing_zeroes = true;
                     }
+
                     if(isinf(f) || (strchr("fF", fmt_spec) != NULL && abs_f > 1.0e307))
                     {
                         xstrlcpy(tmp, infinity_str(f > 0.0,
@@ -1448,7 +1483,6 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                                                    force_sign,
                                                    space_for_positive),
                                  sizeof(tmp));
-
                         str_arg_l = strlen(tmp);
                         zero_padding = 0;
                     }
@@ -1493,11 +1527,8 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                         // Cast to char to avoid a conversion warning on Ubuntu 12.04.
                         format[l] = (char)(fmt_spec == 'F' ? 'f' : fmt_spec);
                         format[l + 1] = NUL;
-
                         assert(l + 1 < sizeof(format)); // Regular float number
-
                         str_arg_l = (size_t)snprintf(tmp, sizeof(tmp), format, f);
-
                         assert(str_arg_l < sizeof(tmp));
 
                         if(remove_trailing_zeroes)
@@ -1564,6 +1595,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                             }
                         }
                     }
+
                     if(zero_padding && min_field_width > str_arg_l
                        && (tmp[0] == '-' || force_sign))
                     {
@@ -1575,12 +1607,12 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                     str_arg = tmp;
                     break;
                 }
+
                 default:
                     // unrecognized conversion specifier, keep format string as-is
                     zero_padding = 0; // turn zero padding off for non-numeric conversion
                     justify_left = 1;
                     min_field_width = 0; // reset flags
-
                     // discard the unrecognized conversion, just keep
                     // the unrecognized conversion character
                     str_arg = p;
@@ -1590,6 +1622,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                     {
                         str_arg_l++; // include invalid conversion specifier
                     }
+
                     break; // unchanged if not at end-of-string
             }
 
@@ -1603,10 +1636,12 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
             if(!justify_left)
             {
                 assert(str_arg_l <= SIZE_MAX - number_of_zeros_to_pad);
+
                 if(min_field_width > str_arg_l + number_of_zeros_to_pad)
                 {
                     // left padding with blank or zero
                     size_t pn = min_field_width - (str_arg_l + number_of_zeros_to_pad);
+
                     if(str_avail)
                     {
                         size_t avail = str_m - str_l;
@@ -1633,6 +1668,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                 if(zero_padding_insertion_ind > 0)
                 {
                     size_t zn = zero_padding_insertion_ind;
+
                     if(str_avail)
                     {
                         size_t avail = str_m - str_l;
@@ -1648,6 +1684,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
                 if(number_of_zeros_to_pad > 0)
                 {
                     size_t zn = number_of_zeros_to_pad;
+
                     if(str_avail)
                     {
                         size_t avail = str_m - str_l;
@@ -1665,6 +1702,7 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
             if(str_arg_l > zero_padding_insertion_ind)
             {
                 size_t sn = str_arg_l - zero_padding_insertion_ind;
+
                 if(str_avail)
                 {
                     size_t avail = str_m - str_l;
@@ -1680,10 +1718,12 @@ int vim_vsnprintf(char *str, size_t str_m, const char *fmt, va_list ap, typval_T
             if(justify_left)
             {
                 assert(str_arg_l <= SIZE_MAX - number_of_zeros_to_pad);
+
                 if(min_field_width > str_arg_l + number_of_zeros_to_pad)
                 {
                     // right blank padding to the field width
                     size_t pn = min_field_width - (str_arg_l + number_of_zeros_to_pad);
+
                     if(str_avail)
                     {
                         size_t avail = str_m - str_l;

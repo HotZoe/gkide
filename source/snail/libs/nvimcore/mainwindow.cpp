@@ -91,6 +91,7 @@ void MainWindow::neovimError(NvimConnector::NeovimError err)
         case NvimConnector::FailedToStart:
             m_errorWidget->setText("Unable to start nvim: " + m_nvim->errorString());
             break;
+
         default:
             m_errorWidget->setText(m_nvim->errorString());
     }
@@ -167,7 +168,7 @@ void MainWindow::closeEvent(QCloseEvent *ev)
         ev->ignore();
     }
 }
-void MainWindow::changeEvent( QEvent *ev)
+void MainWindow::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::WindowStateChange && isWindow())
     {

@@ -203,7 +203,6 @@ void server_stop(char *endpoint)
 {
     SocketWatcher *watcher;
     char addr[ADDRESS_MAX_SIZE];
-
     // Trim to 'ADDRESS_MAX_SIZE'
     xstrlcpy(addr, endpoint, sizeof(addr));
     int i = 0;  // Index of the server whose address equals addr.
@@ -238,7 +237,7 @@ void server_stop(char *endpoint)
     if(i != watchers.ga_len - 1)
     {
         ((SocketWatcher **)watchers.ga_data)[i] =
-                ((SocketWatcher **)watchers.ga_data)[watchers.ga_len - 1];
+            ((SocketWatcher **)watchers.ga_data)[watchers.ga_len - 1];
     }
 
     watchers.ga_len--;

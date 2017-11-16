@@ -65,27 +65,27 @@
 // Copy security info from "from_file" to "to_file".
 void mch_copy_sec(char_u *from_file, char_u *to_file)
 {
-    if (from_file == NULL)
+    if(from_file == NULL)
     {
         return;
     }
 
-    if (selinux_enabled == -1)
+    if(selinux_enabled == -1)
     {
         selinux_enabled = is_selinux_enabled();
     }
 
-    if (selinux_enabled > 0)
+    if(selinux_enabled > 0)
     {
         security_context_t from_context = NULL;
         security_context_t to_context = NULL;
 
-        if (getfilecon((char *)from_file, &from_context) < 0)
+        if(getfilecon((char *)from_file, &from_context) < 0)
         {
             // If the filesystem doesn't support extended attributes,
             // the original had no special security context and the
             // target cannot have one either.
-            if (errno == EOPNOTSUPP)
+            if(errno == EOPNOTSUPP)
             {
                 return;
             }
@@ -96,18 +96,18 @@ void mch_copy_sec(char_u *from_file, char_u *to_file)
             return;
         }
 
-        if (getfilecon((char *)to_file, &to_context) < 0)
+        if(getfilecon((char *)to_file, &to_context) < 0)
         {
             MSG_PUTS(_("\nCould not get security context for "));
             msg_outtrans(to_file);
             msg_putchar('\n');
-            freecon (from_context);
+            freecon(from_context);
             return;
         }
 
-        if (strcmp(from_context, to_context) != 0)
+        if(strcmp(from_context, to_context) != 0)
         {
-            if (setfilecon((char *)to_file, from_context) < 0)
+            if(setfilecon((char *)to_file, from_context) < 0)
             {
                 MSG_PUTS(_("\nCould not set security context for "));
                 msg_outtrans(to_file);
@@ -133,7 +133,7 @@ vim_acl_T mch_get_acl(const char_u *FUNC_ARGS_UNUSED_REALY(fname))
 void mch_set_acl(const char_u *FUNC_ARGS_UNUSED_REALY(fname),
                  vim_acl_T aclent)
 {
-    if (aclent == NULL)
+    if(aclent == NULL)
     {
         return;
     }
@@ -225,25 +225,25 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     // If there are no wildcards, just copy the names to allocated memory.
     // Saves a lot of time, because we don't have to start a new shell.
-    if (!have_wildcard(num_pat, pat))
+    if(!have_wildcard(num_pat, pat))
     {
         save_patterns(num_pat, pat, num_file, file);
         return OK;
     }
 
     // Don't allow any shell command in the sandbox.
-    if (sandbox != 0 && check_secure())
+    if(sandbox != 0 && check_secure())
     {
         return FAIL;
     }
 
     // Don't allow the use of backticks in secure and restricted mode.
-    if (secure || restricted)
+    if(secure || restricted)
     {
-        for (i = 0; i < num_pat; i++)
+        for(i = 0; i < num_pat; i++)
         {
-            if (vim_strchr(pat[i], '`') != NULL
-                    && (check_restricted() || check_secure()))
+            if(vim_strchr(pat[i], '`') != NULL
+               && (check_restricted() || check_secure()))
             {
                 return FAIL;
             }
@@ -251,7 +251,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
 
     // get a name for the temp file
-    if ((tempname = vim_tempname()) == NULL)
+    if((tempname = vim_tempname()) == NULL)
     {
         EMSG(_(e_notmp));
         return FAIL;
@@ -269,26 +269,26 @@ FUNC_ATTR_NONNULL_ARG(4)
     //       If we use *sh*, we define "vimglob()".
     // STYLE_ECHO:       space separated.
     //       A shell we don't know, stay safe and use "echo".
-    if (num_pat == 1 && *pat[0] == '`'
-            && (len = STRLEN(pat[0])) > 2
-            && *(pat[0] + len - 1) == '`')
+    if(num_pat == 1 && *pat[0] == '`'
+       && (len = STRLEN(pat[0])) > 2
+       && *(pat[0] + len - 1) == '`')
     {
         shell_style = STYLE_BT;
     }
-    else if ((len = STRLEN(p_sh)) >= 3)
+    else if((len = STRLEN(p_sh)) >= 3)
     {
-        if (STRCMP(p_sh + len - 3, "csh") == 0)
+        if(STRCMP(p_sh + len - 3, "csh") == 0)
         {
             shell_style = STYLE_GLOB;
         }
-        else if (STRCMP(p_sh + len - 3, "zsh") == 0)
+        else if(STRCMP(p_sh + len - 3, "zsh") == 0)
         {
             shell_style = STYLE_PRINT;
         }
     }
 
-    if (shell_style == STYLE_ECHO && strstr((char *)path_tail(p_sh),
-                                            "sh") != NULL)
+    if(shell_style == STYLE_ECHO && strstr((char *)path_tail(p_sh),
+                                           "sh") != NULL)
     {
         shell_style = STYLE_VIMGLOB;
     }
@@ -298,20 +298,20 @@ FUNC_ATTR_NONNULL_ARG(4)
     // Worst case: "unset nonomatch; print -N >" plus two is 29
     len = STRLEN(tempname) + 29;
 
-    if (shell_style == STYLE_VIMGLOB)
+    if(shell_style == STYLE_VIMGLOB)
     {
         len += STRLEN(sh_vimglob_func);
     }
 
-    for (i = 0; i < num_pat; i++)
+    for(i = 0; i < num_pat; i++)
     {
         // Count the length of the patterns in the same way as they are put in
         // "command" below.
         len++;                              // add space
 
-        for (j = 0; pat[i][j] != NUL; j++)
+        for(j = 0; pat[i][j] != NUL; j++)
         {
-            if (vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
+            if(vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
             {
                 len++;                  // may add a backslash
             }
@@ -320,7 +320,7 @@ FUNC_ATTR_NONNULL_ARG(4)
         }
     }
 
-    if (is_fish_shell)
+    if(is_fish_shell)
     {
         len += sizeof("egin;"" end") - 1;
     }
@@ -333,10 +333,10 @@ FUNC_ATTR_NONNULL_ARG(4)
     // - Add the shell command to print the expanded names.
     // - Add the temp file name.
     // - Add the file name patterns.
-    if (shell_style == STYLE_BT)
+    if(shell_style == STYLE_BT)
     {
         // change `command; command& ` to (command; command )
-        if (is_fish_shell)
+        if(is_fish_shell)
         {
             STRCPY(command, "begin; ");
         }
@@ -348,7 +348,7 @@ FUNC_ATTR_NONNULL_ARG(4)
         STRCAT(command, pat[0] + 1);                // exclude first backtick
         p = command + STRLEN(command) - 1;
 
-        if (is_fish_shell)
+        if(is_fish_shell)
         {
             *p-- = ';';
             STRCAT(command, " end");
@@ -358,12 +358,12 @@ FUNC_ATTR_NONNULL_ARG(4)
             *p-- = ')';                                 // remove last backtick
         }
 
-        while (p > command && ascii_iswhite(*p))
+        while(p > command && ascii_iswhite(*p))
         {
             p--;
         }
 
-        if (*p == '&')                              // remove trailing '&'
+        if(*p == '&')                               // remove trailing '&'
         {
             ampersent = true;
             *p = ' ';
@@ -373,7 +373,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
     else
     {
-        if (flags & EW_NOTFOUND)
+        if(flags & EW_NOTFOUND)
         {
             STRCPY(command, "set nonomatch; ");
         }
@@ -382,15 +382,15 @@ FUNC_ATTR_NONNULL_ARG(4)
             STRCPY(command, "unset nonomatch; ");
         }
 
-        if (shell_style == STYLE_GLOB)
+        if(shell_style == STYLE_GLOB)
         {
             STRCAT(command, "glob >");
         }
-        else if (shell_style == STYLE_PRINT)
+        else if(shell_style == STYLE_PRINT)
         {
             STRCAT(command, "print -N >");
         }
-        else if (shell_style == STYLE_VIMGLOB)
+        else if(shell_style == STYLE_VIMGLOB)
         {
             STRCAT(command, sh_vimglob_func);
         }
@@ -402,9 +402,9 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     STRCAT(command, tempname);
 
-    if (shell_style != STYLE_BT)
+    if(shell_style != STYLE_BT)
     {
-        for (i = 0; i < num_pat; i++)
+        for(i = 0; i < num_pat; i++)
         {
             // Put a backslash before special
             // characters, except inside ``.
@@ -412,29 +412,29 @@ FUNC_ATTR_NONNULL_ARG(4)
             p = command + STRLEN(command);
             *p++ = ' ';
 
-            for (j = 0; pat[i][j] != NUL; j++)
+            for(j = 0; pat[i][j] != NUL; j++)
             {
-                if (pat[i][j] == '`')
+                if(pat[i][j] == '`')
                 {
                     intick = !intick;
                 }
-                else if (pat[i][j] == '\\' && pat[i][j + 1] != NUL)
+                else if(pat[i][j] == '\\' && pat[i][j + 1] != NUL)
                 {
                     // Remove a backslash, take char literally.  But keep
                     // backslash inside backticks, before a special character
                     // and before a backtick.
-                    if (intick
-                            || vim_strchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL
-                            || pat[i][j + 1] == '`')
+                    if(intick
+                       || vim_strchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL
+                       || pat[i][j + 1] == '`')
                     {
                         *p++ = '\\';
                     }
 
                     j++;
                 }
-                else if (!intick
-                         && ((flags & EW_KEEPDOLLAR) == 0 || pat[i][j] != '$')
-                         && vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
+                else if(!intick
+                        && ((flags & EW_KEEPDOLLAR) == 0 || pat[i][j] != '$')
+                        && vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
                 {
                     // Put a backslash before a special character, but not
                     // when inside ``. And not for $var when EW_KEEPDOLLAR is
@@ -450,12 +450,12 @@ FUNC_ATTR_NONNULL_ARG(4)
         }
     }
 
-    if (flags & EW_SILENT)
+    if(flags & EW_SILENT)
     {
         shellopts |= kShellOptHideMess;
     }
 
-    if (ampersent)
+    if(ampersent)
     {
         STRCAT(command, "&");               // put the '&' after the redirection
     }
@@ -463,14 +463,14 @@ FUNC_ATTR_NONNULL_ARG(4)
     // Using zsh -G: If a pattern has no matches, it is just deleted from
     // the argument list, otherwise zsh gives an error message and doesn't
     // expand any other pattern.
-    if (shell_style == STYLE_PRINT)
+    if(shell_style == STYLE_PRINT)
     {
         extra_shell_arg = (char_u *)"-G";       // Use zsh NULL_GLOB option
         // If we use -f then shell variables set in .cshrc won't get expanded.
         // vi can do it, so we will too, but it is only necessary if there is a "$"
         // in one of the patterns, otherwise we can still use the fast option.
     }
-    else if (shell_style == STYLE_GLOB && !have_dollars(num_pat, pat))
+    else if(shell_style == STYLE_GLOB && !have_dollars(num_pat, pat))
     {
         extra_shell_arg = (char_u *)"-f";           // Use csh fast option
     }
@@ -484,20 +484,20 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     // When running in the background, give it some time to create the temp
     // file, but don't wait for it to finish.
-    if (ampersent)
+    if(ampersent)
     {
         os_delay(10L, true);
     }
 
     xfree(command);
 
-    if (i)                           // os_call_shell() failed
+    if(i)                            // os_call_shell() failed
     {
         os_remove((char *)tempname);
         xfree(tempname);
 
         // With interactive completion, the error message is not printed.
-        if (!(flags & EW_SILENT))
+        if(!(flags & EW_SILENT))
         {
             redraw_later_clear();             // probably messed up screen
             msg_putchar('\n');                // clear bottom line quickly
@@ -511,7 +511,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
         // If a `cmd` expansion failed, don't list `cmd` as a match, even when
         // EW_NOTFOUND is given
-        if (shell_style == STYLE_BT)
+        if(shell_style == STYLE_BT)
         {
             return FAIL;
         }
@@ -522,10 +522,10 @@ FUNC_ATTR_NONNULL_ARG(4)
     // read the names from the file into memory
     fd = fopen((char *)tempname, READBIN);
 
-    if (fd == NULL)
+    if(fd == NULL)
     {
         // Something went wrong, perhaps a file name with a special char.
-        if (!(flags & EW_SILENT))
+        if(!(flags & EW_SILENT))
         {
             MSG(_(e_wildexpand));
             msg_start();                      // don't overwrite this message
@@ -537,7 +537,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     int fseek_res = fseek(fd, 0L, SEEK_END);
 
-    if (fseek_res < 0)
+    if(fseek_res < 0)
     {
         xfree(tempname);
         fclose(fd);
@@ -546,7 +546,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     int64_t templen = ftell(fd);        // get size of temp file
 
-    if (templen < 0)
+    if(templen < 0)
     {
         xfree(tempname);
         fclose(fd);
@@ -565,7 +565,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     fclose(fd);
     os_remove((char *)tempname);
 
-    if (readlen != len)
+    if(readlen != len)
     {
         // unexpected read error
         EMSG2(_(e_notread), tempname);
@@ -577,14 +577,14 @@ FUNC_ATTR_NONNULL_ARG(4)
     xfree(tempname);
 
     // file names are separated with Space
-    if (shell_style == STYLE_ECHO)
+    if(shell_style == STYLE_ECHO)
     {
         buffer[len] = '\n';                 // make sure the buffer ends in NL
         p = buffer;
 
-        for (i = 0; *p != '\n'; i++)        // count number of entries
+        for(i = 0; *p != '\n'; i++)         // count number of entries
         {
-            while (*p != ' ' && *p != '\n')
+            while(*p != ' ' && *p != '\n')
             {
                 p++;
             }
@@ -594,19 +594,19 @@ FUNC_ATTR_NONNULL_ARG(4)
 
         // file names are separated with NL
     }
-    else if (shell_style == STYLE_BT || shell_style == STYLE_VIMGLOB)
+    else if(shell_style == STYLE_BT || shell_style == STYLE_VIMGLOB)
     {
         buffer[len] = NUL;                  // make sure the buffer ends in NUL
         p = buffer;
 
-        for (i = 0; *p != NUL; i++)         // count number of entries
+        for(i = 0; *p != NUL; i++)          // count number of entries
         {
-            while (*p != '\n' && *p != NUL)
+            while(*p != '\n' && *p != NUL)
             {
                 p++;
             }
 
-            if (*p != NUL)
+            if(*p != NUL)
             {
                 p++;
             }
@@ -626,12 +626,12 @@ FUNC_ATTR_NONNULL_ARG(4)
         // don't check for spaces again.
         check_spaces = false;
 
-        if (shell_style == STYLE_PRINT && !did_find_nul)
+        if(shell_style == STYLE_PRINT && !did_find_nul)
         {
             // If there is a NUL, set did_find_nul, else set check_spaces
             buffer[len] = NUL;
 
-            if (len && (int)STRLEN(buffer) < (int)len)
+            if(len && (int)STRLEN(buffer) < (int)len)
             {
                 did_find_nul = true;
             }
@@ -643,7 +643,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
         // Make sure the buffer ends with a NUL.  For STYLE_PRINT there
         // already is one, for STYLE_GLOB it needs to be added.
-        if (len && buffer[len - 1] == NUL)
+        if(len && buffer[len - 1] == NUL)
         {
             len--;
         }
@@ -654,16 +654,16 @@ FUNC_ATTR_NONNULL_ARG(4)
 
         i = 0;
 
-        for (p = buffer; p < buffer + len; p++)
+        for(p = buffer; p < buffer + len; p++)
         {
-            if (*p == NUL || (*p == ' ' && check_spaces))         // count entry
+            if(*p == NUL || (*p == ' ' && check_spaces))          // count entry
             {
                 i++;
                 *p = NUL;
             }
         }
 
-        if (len)
+        if(len)
         {
             i++;                              // count last entry
         }
@@ -671,7 +671,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     assert(buffer[len] == NUL || buffer[len] == '\n');
 
-    if (i == 0)
+    if(i == 0)
     {
         // Can happen when using /bin/sh and typing ":e $NO_SUCH_VAR^I".
         // /bin/sh will happily expand it to nothing rather than returning an
@@ -685,21 +685,21 @@ FUNC_ATTR_NONNULL_ARG(4)
     // Isolate the individual file names.
     p = buffer;
 
-    for (i = 0; i < *num_file; ++i)
+    for(i = 0; i < *num_file; ++i)
     {
         (*file)[i] = p;
 
         // Space or NL separates
-        if (shell_style == STYLE_ECHO || shell_style == STYLE_BT
-                || shell_style == STYLE_VIMGLOB)
+        if(shell_style == STYLE_ECHO || shell_style == STYLE_BT
+           || shell_style == STYLE_VIMGLOB)
         {
-            while (!(shell_style == STYLE_ECHO && *p == ' ')
-                    && *p != '\n' && *p != NUL)
+            while(!(shell_style == STYLE_ECHO && *p == ' ')
+                  && *p != '\n' && *p != NUL)
             {
                 p++;
             }
 
-            if (p == buffer + len)                    // last entry
+            if(p == buffer + len)                     // last entry
             {
                 *p = NUL;
             }
@@ -711,7 +711,7 @@ FUNC_ATTR_NONNULL_ARG(4)
         }
         else              // NUL separates
         {
-            while (*p && p < buffer + len)            // skip entry
+            while(*p && p < buffer + len)             // skip entry
             {
                 p++;
             }
@@ -721,10 +721,10 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
 
     // Move the file names to allocated memory.
-    for (j = 0, i = 0; i < *num_file; i++)
+    for(j = 0, i = 0; i < *num_file; i++)
     {
         // Require the files to exist. Helps when using /bin/sh
-        if (!(flags & EW_NOTFOUND) && !os_path_exists((*file)[i]))
+        if(!(flags & EW_NOTFOUND) && !os_path_exists((*file)[i]))
         {
             continue;
         }
@@ -732,14 +732,14 @@ FUNC_ATTR_NONNULL_ARG(4)
         // check if this entry should be included
         dir = (os_isdir((*file)[i]));
 
-        if ((dir && !(flags & EW_DIR)) || (!dir && !(flags & EW_FILE)))
+        if((dir && !(flags & EW_DIR)) || (!dir && !(flags & EW_FILE)))
         {
             continue;
         }
 
         // Skip files that are not executable if we check for that.
-        if (!dir && (flags & EW_EXEC)
-                && !os_can_exe((*file)[i], NULL, !(flags & EW_SHELLCMD)))
+        if(!dir && (flags & EW_EXEC)
+           && !os_can_exe((*file)[i], NULL, !(flags & EW_SHELLCMD)))
         {
             continue;
         }
@@ -747,7 +747,7 @@ FUNC_ATTR_NONNULL_ARG(4)
         p = xmalloc(STRLEN((*file)[i]) + 1 + dir);
         STRCPY(p, (*file)[i]);
 
-        if (dir)
+        if(dir)
         {
             add_pathsep((char *)p);             // add '/' to a directory name
         }
@@ -758,7 +758,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     xfree(buffer);
     *num_file = j;
 
-    if (*num_file == 0)       // rejected all entries
+    if(*num_file == 0)        // rejected all entries
     {
         xfree(*file);
         *file = NULL;
@@ -768,7 +768,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     return OK;
 notfound:
 
-    if (flags & EW_NOTFOUND)
+    if(flags & EW_NOTFOUND)
     {
         save_patterns(num_pat, pat, num_file, file);
         return OK;
@@ -785,7 +785,7 @@ static void save_patterns(int num_pat, char_u **pat, int *num_file,
     char_u      *s;
     *file = xmalloc((size_t)num_pat * sizeof(char_u *));
 
-    for (i = 0; i < num_pat; i++)
+    for(i = 0; i < num_pat; i++)
     {
         s = vim_strsave(pat[i]);
         // Be compatible with expand_filename(): halve the number of
@@ -801,8 +801,8 @@ static bool have_wildcard(int num, char_u **file)
 {
     int i;
 
-    for (i = 0; i < num; i++)
-        if (path_has_wildcard(file[i]))
+    for(i = 0; i < num; i++)
+        if(path_has_wildcard(file[i]))
         {
             return true;
         }
@@ -814,8 +814,8 @@ static bool have_dollars(int num, char_u **file)
 {
     int i;
 
-    for (i = 0; i < num; i++)
-        if (vim_strchr(file[i], '$') != NULL)
+    for(i = 0; i < num; i++)
+        if(vim_strchr(file[i], '$') != NULL)
         {
             return true;
         }

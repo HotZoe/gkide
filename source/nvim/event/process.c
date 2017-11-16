@@ -55,7 +55,7 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
 
     int status;
 
-    switch (proc->type)
+    switch(proc->type)
     {
         case kProcessTypeUv:
             status = libuv_process_spawn((LibuvProcess *)proc);

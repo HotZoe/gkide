@@ -202,7 +202,7 @@ char_u *parse_shape_opt(int what)
                 }
 
                 // Parse the part after the colon
-                for(p = colonp + 1; *p && *p != ','; )
+                for(p = colonp + 1; *p && *p != ',';)
                 {
                     //if(what != SHAPE_MOUSE)
                     {
@@ -341,7 +341,7 @@ char_u *parse_shape_opt(int what)
 
             modep = p;
 
-            if (*modep == ',')
+            if(*modep == ',')
             {
                 ++modep;
             }

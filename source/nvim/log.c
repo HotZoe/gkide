@@ -53,7 +53,6 @@ static bool log_path_init(void)
     if(strcmp(USR_LOG_FILE, expanded_log_file_path) == 0)
     {
         memset(expanded_log_file_path, 0, sizeof(expanded_log_file_path));
-
         expand_env((char_u *)USR_LOG_FILE_DEFAULT,
                    (char_u *)expanded_log_file_path,
                    sizeof(expanded_log_file_path) - 1);
@@ -66,7 +65,6 @@ static bool log_path_init(void)
     }
 
     INFO_MSG("nvim runtime logfile is %s", expanded_log_file_path);
-
     return true;
 }
 
@@ -181,9 +179,7 @@ static bool v_do_log_to_file(FILE *log_file,
         [ERROR_LOG_LEVEL] = "ERROR",
         [FATAL_LOG_LEVEL] = "FATAL"
     };
-
     assert(log_level >= TRACE_LOG_LEVEL && log_level <= FATAL_LOG_LEVEL);
-
     struct tm local_time; // format current timestamp in local time
 
     if(os_get_localtime(&local_time) == NULL)

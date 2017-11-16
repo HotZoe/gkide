@@ -88,11 +88,11 @@ static inline void clearpos(pos_T *) REAL_FATTR_ALWAYS_INLINE;
 /// Return true if position a is before (less than) position b.
 static inline bool lt(pos_T a, pos_T b)
 {
-    if (a.lnum != b.lnum)
+    if(a.lnum != b.lnum)
     {
         return a.lnum < b.lnum;
     }
-    else if (a.col != b.col)
+    else if(a.col != b.col)
     {
         return a.col < b.col;
     }

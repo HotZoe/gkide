@@ -92,7 +92,7 @@ void loop_close(main_loop_T *loop, bool wait)
     do
     {
         uv_run(&loop->uv, wait ? UV_RUN_DEFAULT : UV_RUN_NOWAIT);
-    } while (uv_loop_close(&loop->uv) && wait);
+    } while(uv_loop_close(&loop->uv) && wait);
 
     multiqueue_free(loop->fast_events);
     multiqueue_free(loop->thread_events);

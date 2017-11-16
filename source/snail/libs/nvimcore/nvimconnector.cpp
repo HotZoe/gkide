@@ -40,6 +40,7 @@ NvimConnector::NvimConnector(MsgpackIODevice *dev)
 void NvimConnector::setError(NeovimError err, const QString &msg)
 {
     m_ready = false;
+
     if(m_error == NoError && err != NoError)
     {
         m_error = err;
@@ -246,10 +247,12 @@ NvimConnector *NvimConnector::connectToNeovim(const QString &server)
     }
 
     int colon_pos = addr.lastIndexOf(':');
+
     if(colon_pos != -1 && colon_pos != 0 && addr[colon_pos-1] != ':')
     {
         bool ok;
         int port = addr.mid(colon_pos+1).toInt(&ok);
+
         if(ok)
         {
             QString host = addr.mid(0, colon_pos);
@@ -273,9 +276,11 @@ void NvimConnector::processError(QProcess::ProcessError err)
         case QProcess::FailedToStart:
             setError(FailedToStart, m_dev->errorString());
             break;
+
         case QProcess::Crashed:
             setError(Crashed, "The Neovim process has crashed");
             break;
+
         default:
             // In practice we should be able to catch other types of
             // errors from the QIODevice
@@ -331,13 +336,17 @@ NvimConnector *NvimConnector::reconnect()
     {
         case SpawnedConnection:
             return NvimConnector::spawn(m_spawnArgs, m_spawnExe);
+
         case HostConnection:
             return NvimConnector::connectToHost(m_connHost, m_connPort);
+
         case SocketConnection:
             return NvimConnector::connectToSocket(m_connSocket);
+
         default:
             return NULL;
     }
+
     return NULL; // NOT-REACHED
 }
 

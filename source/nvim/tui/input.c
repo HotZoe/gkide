@@ -31,7 +31,7 @@ void term_input_init(TermInput *input, Loop *loop)
     uv_cond_init(&input->key_buffer_cond);
     const char *term = os_getenv("TERM");
 
-    if (!term)
+    if(!term)
     {
         term = "";  // termkey_new_abstract assumes non-null (#2745)
     }
@@ -94,14 +94,14 @@ static void wait_input_enqueue(void **argv)
             .data = buf, .size = len
         });
 
-        if (consumed)
+        if(consumed)
         {
             rbuffer_consumed(input->key_buffer, consumed);
         }
 
         rbuffer_reset(input->key_buffer);
 
-        if (consumed < len)
+        if(consumed < len)
         {
             break;
         }
@@ -122,19 +122,19 @@ static void flush_input(TermInput *input, bool wait_until_empty)
         loop_schedule(&main_loop, event_create(wait_input_enqueue, 1, input));
         input->waiting = true;
 
-        while (input->waiting)
+        while(input->waiting)
         {
             uv_cond_wait(&input->key_buffer_cond, &input->key_buffer_mutex);
         }
 
         uv_mutex_unlock(&input->key_buffer_mutex);
-    } while (rbuffer_size(input->key_buffer) > drain_boundary);
+    } while(rbuffer_size(input->key_buffer) > drain_boundary);
 }
 
 static void enqueue_input(TermInput *input, char *buf, size_t size)
 {
-    if (rbuffer_size(input->key_buffer) >
-            rbuffer_capacity(input->key_buffer) - 0xff)
+    if(rbuffer_size(input->key_buffer) >
+       rbuffer_capacity(input->key_buffer) - 0xff)
     {
         // don't ever let the buffer get too full or we risk putting incomplete keys
         // into it
@@ -150,9 +150,9 @@ static void forward_simple_utf8(TermInput *input, TermKeyKey *key)
     char buf[64];
     char *ptr = key->utf8;
 
-    while (*ptr)
+    while(*ptr)
     {
-        if (*ptr == '<')
+        if(*ptr == '<')
         {
             len += (size_t)snprintf(buf + len, sizeof(buf) - len, "<lt>");
         }
@@ -172,13 +172,13 @@ static void forward_modified_utf8(TermInput *input, TermKeyKey *key)
     size_t len;
     char buf[64];
 
-    if (key->type == TERMKEY_TYPE_KEYSYM
-            && key->code.sym == TERMKEY_SYM_ESCAPE)
+    if(key->type == TERMKEY_TYPE_KEYSYM
+       && key->code.sym == TERMKEY_SYM_ESCAPE)
     {
         len = (size_t)snprintf(buf, sizeof(buf), "<Esc>");
     }
-    else if (key->type == TERMKEY_TYPE_KEYSYM
-             && key->code.sym == TERMKEY_SYM_SUSPEND)
+    else if(key->type == TERMKEY_TYPE_KEYSYM
+            && key->code.sym == TERMKEY_SYM_SUSPEND)
     {
         len = (size_t)snprintf(buf, sizeof(buf), "<C-Z>");
     }
@@ -198,8 +198,8 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     TermKeyMouseEvent ev;
     termkey_interpret_mouse(input->tk, key, &ev, &button, &row, &col);
 
-    if (ev != TERMKEY_MOUSE_PRESS && ev != TERMKEY_MOUSE_DRAG
-            && ev != TERMKEY_MOUSE_RELEASE)
+    if(ev != TERMKEY_MOUSE_PRESS && ev != TERMKEY_MOUSE_DRAG
+       && ev != TERMKEY_MOUSE_RELEASE)
     {
         return;
     }
@@ -208,41 +208,41 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     col--;  // Termkey uses 1-based coordinates
     buf[len++] = '<';
 
-    if (key->modifiers & TERMKEY_KEYMOD_SHIFT)
+    if(key->modifiers & TERMKEY_KEYMOD_SHIFT)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "S-");
     }
 
-    if (key->modifiers & TERMKEY_KEYMOD_CTRL)
+    if(key->modifiers & TERMKEY_KEYMOD_CTRL)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "C-");
     }
 
-    if (key->modifiers & TERMKEY_KEYMOD_ALT)
+    if(key->modifiers & TERMKEY_KEYMOD_ALT)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "A-");
     }
 
-    if (button == 1)
+    if(button == 1)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Left");
     }
-    else if (button == 2)
+    else if(button == 2)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Middle");
     }
-    else if (button == 3)
+    else if(button == 3)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Right");
     }
 
-    if (ev == TERMKEY_MOUSE_PRESS)
+    if(ev == TERMKEY_MOUSE_PRESS)
     {
-        if (button == 4)
+        if(button == 4)
         {
             len += (size_t)snprintf(buf + len, sizeof(buf) - len, "ScrollWheelUp");
         }
-        else if (button == 5)
+        else if(button == 5)
         {
             len += (size_t)snprintf(buf + len, sizeof(buf) - len, "ScrollWheelDown");
         }
@@ -251,11 +251,11 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
             len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Mouse");
         }
     }
-    else if (ev == TERMKEY_MOUSE_DRAG)
+    else if(ev == TERMKEY_MOUSE_DRAG)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Drag");
     }
-    else if (ev == TERMKEY_MOUSE_RELEASE)
+    else if(ev == TERMKEY_MOUSE_RELEASE)
     {
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Release");
     }
@@ -277,11 +277,11 @@ static int get_key_code_timeout(void)
     // Check 'ttimeout' to determine if we should send ESC after 'ttimeoutlen'.
     Error err = ERROR_INIT;
 
-    if (nvim_get_option(cstr_as_string("ttimeout"), &err).data.boolean)
+    if(nvim_get_option(cstr_as_string("ttimeout"), &err).data.boolean)
     {
         Object rv = nvim_get_option(cstr_as_string("ttimeoutlen"), &err);
 
-        if (!ERROR_SET(&err))
+        if(!ERROR_SET(&err))
         {
             ms = rv.data.integer;
         }
@@ -296,32 +296,32 @@ static void tk_getkeys(TermInput *input, bool force)
     TermKeyKey key;
     TermKeyResult result;
 
-    while ((result = tk_getkey(input->tk, &key, force)) == TERMKEY_RES_KEY)
+    while((result = tk_getkey(input->tk, &key, force)) == TERMKEY_RES_KEY)
     {
-        if (key.type == TERMKEY_TYPE_UNICODE && !key.modifiers)
+        if(key.type == TERMKEY_TYPE_UNICODE && !key.modifiers)
         {
             forward_simple_utf8(input, &key);
         }
-        else if (key.type == TERMKEY_TYPE_UNICODE
-                 || key.type == TERMKEY_TYPE_FUNCTION
-                 || key.type == TERMKEY_TYPE_KEYSYM)
+        else if(key.type == TERMKEY_TYPE_UNICODE
+                || key.type == TERMKEY_TYPE_FUNCTION
+                || key.type == TERMKEY_TYPE_KEYSYM)
         {
             forward_modified_utf8(input, &key);
         }
-        else if (key.type == TERMKEY_TYPE_MOUSE)
+        else if(key.type == TERMKEY_TYPE_MOUSE)
         {
             forward_mouse_event(input, &key);
         }
     }
 
-    if (result != TERMKEY_RES_AGAIN || input->paste_enabled)
+    if(result != TERMKEY_RES_AGAIN || input->paste_enabled)
     {
         return;
     }
 
     int ms  = get_key_code_timeout();
 
-    if (ms > 0)
+    if(ms > 0)
     {
         // Stop the current timer if already running
         time_watcher_stop(&input->timer_handle);
@@ -349,15 +349,15 @@ static void timer_cb(TimeWatcher *watcher, void *data)
 /// @return true iff handle_focus_event consumed some input
 static bool handle_focus_event(TermInput *input)
 {
-    if (rbuffer_size(input->read_stream.buffer) > 2
-            && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[I", 3)
-                || !rbuffer_cmp(input->read_stream.buffer, "\x1b[O", 3)))
+    if(rbuffer_size(input->read_stream.buffer) > 2
+       && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[I", 3)
+           || !rbuffer_cmp(input->read_stream.buffer, "\x1b[O", 3)))
     {
         // Advance past the sequence
         bool focus_gained = *rbuffer_get(input->read_stream.buffer, 2) == 'I';
         rbuffer_consumed(input->read_stream.buffer, 3);
 
-        if (focus_gained)
+        if(focus_gained)
         {
             enqueue_input(input, FOCUSGAINED_KEY, sizeof(FOCUSGAINED_KEY) - 1);
         }
@@ -374,15 +374,15 @@ static bool handle_focus_event(TermInput *input)
 
 static bool handle_bracketed_paste(TermInput *input)
 {
-    if (rbuffer_size(input->read_stream.buffer) > 5
-            && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[200~", 6)
-                || !rbuffer_cmp(input->read_stream.buffer, "\x1b[201~", 6)))
+    if(rbuffer_size(input->read_stream.buffer) > 5
+       && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[200~", 6)
+           || !rbuffer_cmp(input->read_stream.buffer, "\x1b[201~", 6)))
     {
         bool enable = *rbuffer_get(input->read_stream.buffer, 4) == '0';
         // Advance past the sequence
         rbuffer_consumed(input->read_stream.buffer, 6);
 
-        if (input->paste_enabled == enable)
+        if(input->paste_enabled == enable)
         {
             return true;
         }
@@ -397,8 +397,8 @@ static bool handle_bracketed_paste(TermInput *input)
 
 static bool handle_forced_escape(TermInput *input)
 {
-    if (rbuffer_size(input->read_stream.buffer) > 1
-            && !rbuffer_cmp(input->read_stream.buffer, "\x1b\x00", 2))
+    if(rbuffer_size(input->read_stream.buffer) > 1
+       && !rbuffer_cmp(input->read_stream.buffer, "\x1b\x00", 2))
     {
         // skip the ESC and NUL and push one <esc> to the input buffer
         size_t rcnt;
@@ -417,9 +417,9 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
 {
     TermInput *input = data;
 
-    if (eof)
+    if(eof)
     {
-        if (input->in_fd == 0 && !os_isatty(0) && os_isatty(2))
+        if(input->in_fd == 0 && !os_isatty(0) && os_isatty(2))
         {
             // Started reading from stdin which is not a pty but failed. Switch to
             // stderr since it is a pty.
@@ -445,9 +445,9 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
 
     do
     {
-        if (handle_focus_event(input)
-                || handle_bracketed_paste(input)
-                || handle_forced_escape(input))
+        if(handle_focus_event(input)
+           || handle_bracketed_paste(input)
+           || handle_forced_escape(input))
         {
             continue;
         }
@@ -460,7 +460,7 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
         {
             count = i + 1;
 
-            if (c == '\x1b' && count > 1)
+            if(c == '\x1b' && count > 1)
             {
                 count--;
                 break;
@@ -478,12 +478,12 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
             // fit into libtermkey's input buffer.
             tk_getkeys(input, false);
 
-            if (!(count -= consumed))
+            if(!(count -= consumed))
             {
                 break;
             }
         }
-    } while (rbuffer_size(input->read_stream.buffer));
+    } while(rbuffer_size(input->read_stream.buffer));
 
     flush_input(input, true);
     // Make sure the next input escape sequence fits into the ring buffer

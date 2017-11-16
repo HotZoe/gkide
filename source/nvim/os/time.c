@@ -67,7 +67,6 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
 {
     uint64_t elapsed = 0u;
     uint64_t base = uv_hrtime();
-
     // Convert microseconds to nanoseconds, or UINT64_MAX on overflow.
     const uint64_t ns = (ms < UINT64_MAX / 1000u) ? ms * 1000u : UINT64_MAX;
     uv_mutex_lock(&delay_mutex);
@@ -78,7 +77,6 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
         // Else we check for input in ~100ms intervals.
         const uint64_t ns_delta = ignoreinput // 100ms
                                   ? ns - elapsed : MIN(ns - elapsed, 100000000u);
-
         const int rv = uv_cond_timedwait(&delay_cond, &delay_mutex, ns_delta);
 
         if(0 != rv && UV_ETIMEDOUT != rv)

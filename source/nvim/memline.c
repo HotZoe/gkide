@@ -103,7 +103,7 @@ struct pointer_block
     uint16_t pb_count;         ///< number of pointers in this block
     uint16_t pb_count_max;     ///< maximum value for pb_count
     PTR_EN pb_pointer[1];      ///< list of pointers to blocks (actually longer)
-                               ///< followed by empty space until end of page
+    ///< followed by empty space until end of page
 };
 
 /// A data block is a leaf in the tree.
@@ -119,8 +119,8 @@ struct data_block
     unsigned db_txt_end;      ///< byte just after data block
     linenr_T db_line_count;   ///< number of lines in this block
     unsigned db_index[1];     ///< index for start of line (actually bigger) followed
-                              ///< by empty space upto db_txt_start followed by the text
-                              ///< in the lines until end of page
+    ///< by empty space upto db_txt_start followed by the text
+    ///< in the lines until end of page
 };
 
 // The low bits of db_index hold the actual index.
@@ -274,7 +274,6 @@ int ml_open(buf_T *buf)
     buf->b_ml.ml_flags = ML_EMPTY;
     buf->b_ml.ml_line_count = 1;
     curwin->w_nrwidth_line_count = 0;
-
     // fill block0 struct and write page 0
     hp = mf_new(mfp, false, 1);
 
@@ -337,7 +336,6 @@ int ml_open(buf_T *buf)
     pp->pb_pointer[0].pe_old_lnum = 1;
     pp->pb_pointer[0].pe_line_count = 1; // line count after insertion
     mf_put(mfp, hp, true, false);
-
     // Allocate first data block and create an empty line 1.
     hp = ml_new_data(mfp, FALSE, 1);
 
@@ -353,7 +351,6 @@ int ml_open(buf_T *buf)
     dp->db_line_count = 1;
     *((char_u *)dp + dp->db_txt_start) = NUL; // empty line
     return OK;
-
 error:
 
     if(mfp != NULL)
@@ -388,6 +385,7 @@ void ml_setname(buf_T *buf)
         {
             ml_open_file(buf); // create a swap file
         }
+
         return;
     }
 
@@ -554,14 +552,12 @@ void ml_open_file(buf_T *buf)
         }
     }
 
-    if (mfp->mf_fname == NULL) // Failed !
+    if(mfp->mf_fname == NULL)  // Failed !
     {
         need_wait_return = TRUE; // call wait_return later
         ++no_wait_return;
-
         (void)EMSG2(_("E303: Unable to open swap file for \"%s\", recovery impossible"),
                     buf_spname(buf) != NULL ? buf_spname(buf) : buf->b_fname);
-
         --no_wait_return;
     }
 
@@ -704,7 +700,6 @@ static void set_b0_fname(ZERO_BL *b0p, buf_T *buf)
     else
     {
         char uname[B0_UNAME_SIZE];
-
         // For a file under the home directory of the current user, we try to
         // replace the home directory path with "~user". This helps when
         // editing the same file on different machines over a network.
@@ -827,7 +822,6 @@ void ml_recover(void)
     recoverymode = TRUE;
     called_from_main = (curbuf->b_ml.ml_mfp == NULL);
     attr = hl_attr(HLF_E);
-
     // If the file name ends in ".s[uvw][a-z]" we assume this is the swap file.
     // Otherwise a search is done to find the swap file(s).
     fname = curbuf->b_fname;
@@ -895,7 +889,6 @@ void ml_recover(void)
     // Allocate a buffer structure for the swap file that is used for recovery.
     // Only the memline in it is really used.
     buf = xmalloc(sizeof(buf_T));
-
     // init fields in memline struct
     buf->b_ml.ml_stack_size = 0;  // no stack yet
     buf->b_ml.ml_stack = NULL;    // no stack yet
@@ -903,12 +896,10 @@ void ml_recover(void)
     buf->b_ml.ml_line_lnum = 0;   // no cached line
     buf->b_ml.ml_locked = NULL;   // no locked block
     buf->b_ml.ml_flags = 0;
-
     // open the memfile from the old swap file
     // save "fname_used" for the message:
     // mf_open() will consume "fname_used"!
     p = vim_strsave(fname_used);
-
     mfp = mf_open(fname_used, O_RDONLY);
     fname_used = p;
 
@@ -923,7 +914,6 @@ void ml_recover(void)
     }
 
     buf->b_ml.ml_mfp = mfp;
-
     // The page size set in mf_open() might be different from the page size
     // used in the swap file, we must get it from block 0.  But to read block
     // 0 we need a page size.  Use the minimal size for block 0 here, it will
@@ -936,10 +926,8 @@ void ml_recover(void)
         msg_start();
         MSG_PUTS_ATTR(_("Unable to read block 0 from "), attr | MSG_HIST);
         msg_outtrans_attr(mfp->mf_fname, attr | MSG_HIST);
-
         MSG_PUTS_ATTR(_("\nMaybe no changes were made or Vim did not update the swap file."),
                       attr | MSG_HIST);
-
         msg_end();
         goto theend;
     }
@@ -987,10 +975,8 @@ void ml_recover(void)
         {
             msg_start();
             msg_outtrans_attr(mfp->mf_fname, attr | MSG_HIST);
-
             MSG_PUTS_ATTR(_(" has been damaged (page size is smaller than minimum value).\n"),
                           attr | MSG_HIST);
-
             msg_end();
             goto theend;
         }
@@ -1017,6 +1003,7 @@ void ml_recover(void)
     if(directly)
     {
         expand_env(b0p->b0_fname, NameBuff, MAXPATHL);
+
         if(setfname(curbuf, NameBuff, NULL, TRUE) == FAIL)
         {
             goto theend;
@@ -1037,7 +1024,6 @@ void ml_recover(void)
 
     smsg(_("Original file \"%s\""), NameBuff);
     msg_putchar('\n');
-
     // check date of swap file and original file
     FileInfo org_file_info;
     FileInfo swp_file_info;
@@ -1247,7 +1233,6 @@ void ml_recover(void)
                                   (char_u *)_("??? from here until ???END lines may be messed up"),
                                   (colnr_T)0,
                                   TRUE);
-
                         ++error;
                         has_error = TRUE;
                         dp->db_txt_end = page_count * mfp->mf_page_size;
@@ -1263,7 +1248,6 @@ void ml_recover(void)
                         ml_append(lnum++,
                                   (char_u *)_("??? from here until ???END lines may have been inserted/deleted"),
                                   (colnr_T)0, TRUE);
-
                         ++error;
                         has_error = TRUE;
                     }
@@ -1322,14 +1306,14 @@ void ml_recover(void)
     }
     else
     {
-        for (idx = 1; idx <= lnum; ++idx)
+        for(idx = 1; idx <= lnum; ++idx)
         {
             /* Need to copy one line, fetching the other one may flush it. */
             p = vim_strsave(ml_get(idx));
             i = STRCMP(p, ml_get(idx + lnum));
             xfree(p);
 
-            if (i != 0)
+            if(i != 0)
             {
                 changed_int();
                 buf_set_changedtick(curbuf, curbuf->b_changedtick + 1);
@@ -1342,8 +1326,8 @@ void ml_recover(void)
      * Delete the lines from the original file and the dummy line from the
      * empty buffer.  These will now be after the last line in the buffer.
      */
-    while (curbuf->b_ml.ml_line_count > lnum
-            && !(curbuf->b_ml.ml_flags & ML_EMPTY))
+    while(curbuf->b_ml.ml_line_count > lnum
+          && !(curbuf->b_ml.ml_flags & ML_EMPTY))
     {
         ml_delete(curbuf->b_ml.ml_line_count, FALSE);
     }
@@ -1351,11 +1335,11 @@ void ml_recover(void)
     curbuf->b_flags |= BF_RECOVERED;
     recoverymode = FALSE;
 
-    if (got_int)
+    if(got_int)
     {
         EMSG(_("E311: Recovery Interrupted"));
     }
-    else if (error)
+    else if(error)
     {
         ++no_wait_return;
         MSG(">>>>>>>>>>>>>");
@@ -1367,7 +1351,7 @@ void ml_recover(void)
     }
     else
     {
-        if (curbuf->b_changed)
+        if(curbuf->b_changed)
         {
             MSG(_("Recovery completed. You should check if everything is OK."));
             MSG_PUTS(_(
@@ -1388,9 +1372,9 @@ theend:
     xfree(fname_used);
     recoverymode = FALSE;
 
-    if (mfp != NULL)
+    if(mfp != NULL)
     {
-        if (hp != NULL)
+        if(hp != NULL)
         {
             mf_put(mfp, hp, false, false);
         }
@@ -1398,13 +1382,13 @@ theend:
         mf_close(mfp, false);           /* will also xfree(mfp->mf_fname) */
     }
 
-    if (buf != NULL)    //may be NULL if swap file not found.
+    if(buf != NULL)     //may be NULL if swap file not found.
     {
         xfree(buf->b_ml.ml_stack);
         xfree(buf);
     }
 
-    if (serious_error && called_from_main)
+    if(serious_error && called_from_main)
     {
         ml_close(curbuf, TRUE);
     }
@@ -1428,7 +1412,7 @@ theend:
  * - find the name of the n'th swap file when recovering
  */
 int
-recover_names (
+recover_names(
     char_u *fname,             /* base for swap file name */
     int list,                       /* when TRUE, list the swap file names */
     int nr,                         /* when non-zero, return nr'th swap file name */
@@ -1449,13 +1433,13 @@ recover_names (
     char_u fname_buf[MAXPATHL];
 #endif
 
-    if (fname != NULL)
+    if(fname != NULL)
     {
 #ifdef HAVE_FUN_READLINK
 
         /* Expand symlink in the file name, because the swap file is created
          * with the actual file instead of with the symlink. */
-        if (resolve_symlink(fname, fname_buf) == OK)
+        if(resolve_symlink(fname, fname_buf) == OK)
         {
             fname_res = fname_buf;
         }
@@ -1464,7 +1448,7 @@ recover_names (
             fname_res = fname;
     }
 
-    if (list)
+    if(list)
     {
         /* use msg() to start the scrolling properly */
         msg((char_u *)_("Swap files found:"));
@@ -1478,7 +1462,7 @@ recover_names (
     dir_name = xmalloc(STRLEN(p_dir) + 1);
     dirp = p_dir;
 
-    while (dir_name != NULL && *dirp)
+    while(dir_name != NULL && *dirp)
     {
         /*
          * Isolate a directory name from *dirp and put it in dir_name (we know
@@ -1487,9 +1471,9 @@ recover_names (
          */
         (void)copy_option_part(&dirp, dir_name, 31000, ",");
 
-        if (dir_name[0] == '.' && dir_name[1] == NUL)       /* check current dir */
+        if(dir_name[0] == '.' && dir_name[1] == NUL)        /* check current dir */
         {
-            if (fname == NULL)
+            if(fname == NULL)
             {
                 names[0] = vim_strsave((char_u *)"*.sw?");
                 /* For Unix names starting with a dot are special.  MS-Windows
@@ -1505,7 +1489,7 @@ recover_names (
         }
         else                          /* check directory dir_name */
         {
-            if (fname == NULL)
+            if(fname == NULL)
             {
                 names[0] = (char_u *)concat_fnames((char *)dir_name, "*.sw?", TRUE);
                 /* For Unix names starting with a dot are special.  MS-Windows
@@ -1518,7 +1502,7 @@ recover_names (
             {
                 p = dir_name + STRLEN(dir_name);
 
-                if (after_pathsep((char *)dir_name, (char *)p) && p[-1] == p[-2])
+                if(after_pathsep((char *)dir_name, (char *)p) && p[-1] == p[-2])
                 {
                     /* Ends with '//', Use Full path for swap name */
                     tail = (char_u *)make_percent_swname((char *)dir_name, (char *)fname_res);
@@ -1534,12 +1518,12 @@ recover_names (
             }
         }
 
-        if (num_names == 0)
+        if(num_names == 0)
         {
             num_files = 0;
         }
-        else if (expand_wildcards(num_names, names, &num_files, &files,
-                                  EW_KEEPALL|EW_FILE|EW_SILENT) == FAIL)
+        else if(expand_wildcards(num_names, names, &num_files, &files,
+                                 EW_KEEPALL|EW_FILE|EW_SILENT) == FAIL)
         {
             num_files = 0;
         }
@@ -1549,13 +1533,13 @@ recover_names (
          * not able to execute the shell).
          * Try finding a swap file by simply adding ".swp" to the file name.
          */
-        if (*dirp == NUL && file_count + num_files == 0 && fname != NULL)
+        if(*dirp == NUL && file_count + num_files == 0 && fname != NULL)
         {
             char_u *swapname = (char_u *)modname((char *)fname_res, ".swp", TRUE);
 
-            if (swapname != NULL)
+            if(swapname != NULL)
             {
-                if (os_path_exists(swapname))
+                if(os_path_exists(swapname))
                 {
                     files = xmalloc(sizeof(char_u *));
                     files[0] = swapname;
@@ -1570,45 +1554,45 @@ recover_names (
         /*
          * remove swapfile name of the current buffer, it must be ignored
          */
-        if (curbuf->b_ml.ml_mfp != NULL
-                && (p = curbuf->b_ml.ml_mfp->mf_fname) != NULL)
+        if(curbuf->b_ml.ml_mfp != NULL
+           && (p = curbuf->b_ml.ml_mfp->mf_fname) != NULL)
         {
-            for (int i = 0; i < num_files; ++i)
-                if (path_full_compare(p, files[i], TRUE) & kEqualFiles)
+            for(int i = 0; i < num_files; ++i)
+                if(path_full_compare(p, files[i], TRUE) & kEqualFiles)
                 {
                     /* Remove the name from files[i].  Move further entries
                      * down.  When the array becomes empty free it here, since
                      * FreeWild() won't be called below. */
                     xfree(files[i]);
 
-                    if (--num_files == 0)
+                    if(--num_files == 0)
                     {
                         xfree(files);
                     }
                     else
-                        for (; i < num_files; ++i)
+                        for(; i < num_files; ++i)
                         {
                             files[i] = files[i + 1];
                         }
                 }
         }
 
-        if (nr > 0)
+        if(nr > 0)
         {
             file_count += num_files;
 
-            if (nr <= file_count)
+            if(nr <= file_count)
             {
                 *fname_out = vim_strsave(
                                  files[nr - 1 + num_files - file_count]);
                 dirp = (char_u *)"";                        /* stop searching */
             }
         }
-        else if (list)
+        else if(list)
         {
-            if (dir_name[0] == '.' && dir_name[1] == NUL)
+            if(dir_name[0] == '.' && dir_name[1] == NUL)
             {
-                if (fname == NULL)
+                if(fname == NULL)
                 {
                     MSG_PUTS(_("   In current directory:\n"));
                 }
@@ -1624,9 +1608,9 @@ recover_names (
                 MSG_PUTS(":\n");
             }
 
-            if (num_files)
+            if(num_files)
             {
-                for (int i = 0; i < num_files; ++i)
+                for(int i = 0; i < num_files; ++i)
                 {
                     /* print the swap file name */
                     msg_outnum((long)++file_count);
@@ -1648,12 +1632,12 @@ recover_names (
             file_count += num_files;
         }
 
-        for (int i = 0; i < num_names; ++i)
+        for(int i = 0; i < num_names; ++i)
         {
             xfree(names[i]);
         }
 
-        if (num_files > 0)
+        if(num_files > 0)
         {
             FreeWild(num_files, files);
         }
@@ -1673,13 +1657,13 @@ FUNC_ATTR_NONNULL_ARG(1)
     char *d = NULL;
     char *f = fix_fname(name != NULL ? name : "");
 
-    if (f != NULL)
+    if(f != NULL)
     {
         char *s = xstrdup(f);
 
-        for (d = s; *d != NUL; mb_ptr_adv(d))
+        for(d = s; *d != NUL; mb_ptr_adv(d))
         {
-            if (vim_ispathsep(*d))
+            if(vim_ispathsep(*d))
             {
                 *d = '%';
             }
@@ -1713,12 +1697,12 @@ static time_t swapfile_info(char_u *fname)
     /* print the swap file date */
     FileInfo file_info;
 
-    if (os_fileinfo((char *)fname, &file_info))
+    if(os_fileinfo((char *)fname, &file_info))
     {
 #ifdef UNIX
 
         /* print name of owner of the file */
-        if (os_get_uname(file_info.stat.st_uid, uname, B0_UNAME_SIZE) == OK)
+        if(os_get_uname(file_info.stat.st_uid, uname, B0_UNAME_SIZE) == OK)
         {
             MSG_PUTS(_("          owned by: "));
             msg_outtrans((char_u *)uname);
@@ -1731,7 +1715,7 @@ static time_t swapfile_info(char_u *fname)
         x = file_info.stat.st_mtim.tv_sec;
         p = ctime(&x);  // includes '\n'
 
-        if (p == NULL)
+        if(p == NULL)
         {
             MSG_PUTS("(invalid)\n");
         }
@@ -1746,19 +1730,19 @@ static time_t swapfile_info(char_u *fname)
      */
     fd = os_open((char *)fname, O_RDONLY, 0);
 
-    if (fd >= 0)
+    if(fd >= 0)
     {
-        if (read_eintr(fd, &b0, sizeof(b0)) == sizeof(b0))
+        if(read_eintr(fd, &b0, sizeof(b0)) == sizeof(b0))
         {
-            if (STRNCMP(b0.b0_version, "VIM 3.0", 7) == 0)
+            if(STRNCMP(b0.b0_version, "VIM 3.0", 7) == 0)
             {
                 MSG_PUTS(_("         [from Vim version 3.0]"));
             }
-            else if (ml_check_b0_id(&b0) == FAIL)
+            else if(ml_check_b0_id(&b0) == FAIL)
             {
                 MSG_PUTS(_("         [does not look like a Vim swap file]"));
             }
-            else if (!ml_check_b0_strings(&b0))
+            else if(!ml_check_b0_strings(&b0))
             {
                 MSG_PUTS(_("         [garbled strings (not nul terminated)]"));
             }
@@ -1766,7 +1750,7 @@ static time_t swapfile_info(char_u *fname)
             {
                 MSG_PUTS(_("         file name: "));
 
-                if (b0.b0_fname[0] == NUL)
+                if(b0.b0_fname[0] == NUL)
                 {
                     MSG_PUTS(_("[No Name]"));
                 }
@@ -1778,15 +1762,15 @@ static time_t swapfile_info(char_u *fname)
                 MSG_PUTS(_("\n          modified: "));
                 MSG_PUTS(b0.b0_dirty ? _("YES") : _("no"));
 
-                if (*(b0.b0_uname) != NUL)
+                if(*(b0.b0_uname) != NUL)
                 {
                     MSG_PUTS(_("\n         user name: "));
                     msg_outtrans(b0.b0_uname);
                 }
 
-                if (*(b0.b0_hname) != NUL)
+                if(*(b0.b0_hname) != NUL)
                 {
-                    if (*(b0.b0_uname) != NUL)
+                    if(*(b0.b0_uname) != NUL)
                     {
                         MSG_PUTS(_("   host name: "));
                     }
@@ -1798,13 +1782,13 @@ static time_t swapfile_info(char_u *fname)
                     msg_outtrans(b0.b0_hname);
                 }
 
-                if (char_to_long(b0.b0_pid) != 0L)
+                if(char_to_long(b0.b0_pid) != 0L)
                 {
                     MSG_PUTS(_("\n        process ID: "));
                     msg_outnum(char_to_long(b0.b0_pid));
 #if defined(UNIX)
 
-                    if (kill((pid_t)char_to_long(b0.b0_pid), 0) == 0)
+                    if(kill((pid_t)char_to_long(b0.b0_pid), 0) == 0)
                     {
                         MSG_PUTS(_(" (still running)"));
                         process_still_running = TRUE;
@@ -1813,7 +1797,7 @@ static time_t swapfile_info(char_u *fname)
 #endif
                 }
 
-                if (b0_magic_wrong(&b0))
+                if(b0_magic_wrong(&b0))
                 {
                     MSG_PUTS(_("\n         [not usable on this computer]"));
                 }
@@ -1842,11 +1826,11 @@ FUNC_ATTR_NONNULL_ALL
 
     // May also add the file name with a dot prepended, for swap file in same
     // dir as original file.
-    if (prepend_dot)
+    if(prepend_dot)
     {
         names[num_names] = (char_u *)modname((char *)path, ".sw?", TRUE);
 
-        if (names[num_names] == NULL)
+        if(names[num_names] == NULL)
         {
             return num_names;
         }
@@ -1857,17 +1841,17 @@ FUNC_ATTR_NONNULL_ALL
     // Form the normal swap file name pattern by appending ".sw?".
     names[num_names] = (char_u *)concat_fnames((char *)path, ".sw?", FALSE);
 
-    if (num_names >= 1)       /* check if we have the same name twice */
+    if(num_names >= 1)        /* check if we have the same name twice */
     {
         char_u *p = names[num_names - 1];
         int i = (int)STRLEN(names[num_names - 1]) - (int)STRLEN(names[num_names]);
 
-        if (i > 0)
+        if(i > 0)
         {
             p += i;    /* file name has been expanded to full path */
         }
 
-        if (STRCMP(p, names[num_names]) != 0)
+        if(STRCMP(p, names[num_names]) != 0)
         {
             ++num_names;
         }
@@ -1895,7 +1879,7 @@ void ml_sync_all(int check_file, int check_char)
 {
     FOR_ALL_BUFFERS(buf)
     {
-        if (buf->b_ml.ml_mfp == NULL || buf->b_ml.ml_mfp->mf_fname == NULL)
+        if(buf->b_ml.ml_mfp == NULL || buf->b_ml.ml_mfp->mf_fname == NULL)
         {
             continue;    /* no file */
         }
@@ -1904,8 +1888,8 @@ void ml_sync_all(int check_file, int check_char)
         /* flush locked block */
         (void)ml_find_line(buf, (linenr_T)0, ML_FLUSH);
 
-        if (bufIsChanged(buf) && check_file && mf_need_trans(buf->b_ml.ml_mfp)
-                && buf->b_ffname != NULL)
+        if(bufIsChanged(buf) && check_file && mf_need_trans(buf->b_ml.ml_mfp)
+           && buf->b_ffname != NULL)
         {
             /*
              * If the original file does not exist anymore or has been changed
@@ -1913,9 +1897,9 @@ void ml_sync_all(int check_file, int check_char)
              */
             FileInfo file_info;
 
-            if (!os_fileinfo((char *)buf->b_ffname, &file_info)
-                    || file_info.stat.st_mtim.tv_sec != buf->b_mtime_read
-                    || os_fileinfo_size(&file_info) != buf->b_orig_size)
+            if(!os_fileinfo((char *)buf->b_ffname, &file_info)
+               || file_info.stat.st_mtim.tv_sec != buf->b_mtime_read
+               || os_fileinfo_size(&file_info) != buf->b_orig_size)
             {
                 ml_preserve(buf, FALSE);
                 did_check_timestamps = FALSE;
@@ -1923,12 +1907,12 @@ void ml_sync_all(int check_file, int check_char)
             }
         }
 
-        if (buf->b_ml.ml_mfp->mf_dirty)
+        if(buf->b_ml.ml_mfp->mf_dirty)
         {
             (void)mf_sync(buf->b_ml.ml_mfp, (check_char ? MFS_STOP : 0)
                           | (bufIsChanged(buf) ? MFS_FLUSH : 0));
 
-            if (check_char && os_char_avail())        /* character available now */
+            if(check_char && os_char_avail())         /* character available now */
             {
                 break;
             }
@@ -1954,9 +1938,9 @@ void ml_preserve(buf_T *buf, int message)
     int status;
     int got_int_save = got_int;
 
-    if (mfp == NULL || mfp->mf_fname == NULL)
+    if(mfp == NULL || mfp->mf_fname == NULL)
     {
-        if (message)
+        if(message)
         {
             EMSG(_("E313: Cannot preserve, there is no swap file"));
         }
@@ -1985,15 +1969,15 @@ void ml_preserve(buf_T *buf, int message)
      * ml_find_line() does the work by translating the negative block numbers
      * when getting the first line of each data block.
      */
-    if (mf_need_trans(mfp) && !got_int)
+    if(mf_need_trans(mfp) && !got_int)
     {
         lnum = 1;
 
-        while (mf_need_trans(mfp) && lnum <= buf->b_ml.ml_line_count)
+        while(mf_need_trans(mfp) && lnum <= buf->b_ml.ml_line_count)
         {
             hp = ml_find_line(buf, lnum, ML_FIND);
 
-            if (hp == NULL)
+            if(hp == NULL)
             {
                 status = FAIL;
                 goto theend;
@@ -2006,7 +1990,7 @@ void ml_preserve(buf_T *buf, int message)
         (void)ml_find_line(buf, (linenr_T)0, ML_FLUSH);     /* flush locked block */
 
         /* sync the updated pointer blocks */
-        if (mf_sync(mfp, MFS_ALL | MFS_FLUSH) == FAIL)
+        if(mf_sync(mfp, MFS_ALL | MFS_FLUSH) == FAIL)
         {
             status = FAIL;
         }
@@ -2017,9 +2001,9 @@ void ml_preserve(buf_T *buf, int message)
 theend:
     got_int |= got_int_save;
 
-    if (message)
+    if(message)
     {
-        if (status == OK)
+        if(status == OK)
         {
             MSG(_("File preserved"));
         }
@@ -2034,7 +2018,7 @@ theend:
  * NOTE: The pointer returned by the ml_get_*() functions only remains valid
  * until the next call!
  *  line1 = ml_get(1);
- *  line2 = ml_get(2);	// line1 is now invalid!
+ *  line2 = ml_get(2);  // line1 is now invalid!
  * Make a copy of the line if necessary.
  */
 /*
@@ -2063,7 +2047,7 @@ char_u *ml_get_pos(pos_T *pos)
  * changed)
  */
 char_u *
-ml_get_buf (
+ml_get_buf(
     buf_T *buf,
     linenr_T lnum,
     int will_change                        /* line will be changed */
@@ -2074,9 +2058,9 @@ ml_get_buf (
     char_u      *ptr;
     static int recursive = 0;
 
-    if (lnum > buf->b_ml.ml_line_count)   /* invalid line number */
+    if(lnum > buf->b_ml.ml_line_count)    /* invalid line number */
     {
-        if (recursive == 0)
+        if(recursive == 0)
         {
             /* Avoid giving this message for a recursive call, may happen when
              * the GUI redraws part of the text. */
@@ -2090,12 +2074,12 @@ errorret:
         return IObuff;
     }
 
-    if (lnum <= 0)                        /* pretend line 0 is line 1 */
+    if(lnum <= 0)                         /* pretend line 0 is line 1 */
     {
         lnum = 1;
     }
 
-    if (buf->b_ml.ml_mfp == NULL)         /* there are no lines */
+    if(buf->b_ml.ml_mfp == NULL)          /* there are no lines */
     {
         return (char_u *)"";
     }
@@ -2106,7 +2090,7 @@ errorret:
      * Don't use the last used line when 'swapfile' is reset, need to load all
      * blocks.
      */
-    if (buf->b_ml.ml_line_lnum != lnum || mf_dont_release)
+    if(buf->b_ml.ml_line_lnum != lnum || mf_dont_release)
     {
         ml_flush_line(buf);
 
@@ -2115,9 +2099,9 @@ errorret:
          * This also fills the stack with the blocks from the root to the data
          * block and releases any locked block.
          */
-        if ((hp = ml_find_line(buf, lnum, ML_FIND)) == NULL)
+        if((hp = ml_find_line(buf, lnum, ML_FIND)) == NULL)
         {
-            if (recursive == 0)
+            if(recursive == 0)
             {
                 /* Avoid giving this message for a recursive call, may happen
                  * when the GUI redraws part of the text. */
@@ -2137,7 +2121,7 @@ errorret:
         buf->b_ml.ml_flags &= ~ML_LINE_DIRTY;
     }
 
-    if (will_change)
+    if(will_change)
     {
         buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
     }
@@ -2160,14 +2144,14 @@ int ml_line_alloced(void)
  * buffer, unlocking may make it invalid.
  *
  *   newfile: TRUE when starting to edit a new file, meaning that pe_old_lnum
- *		will be set for recovery
+ *      will be set for recovery
  * Check: The caller of this function should probably also call
  * appended_lines().
  *
  * return FAIL for failure, OK otherwise
  */
 int
-ml_append (
+ml_append(
     linenr_T lnum,                  /* append after this line (can be 0) */
     char_u *line,              /* text of the new line */
     colnr_T len,                    /* length of new line, including NUL, or 0 */
@@ -2175,12 +2159,12 @@ ml_append (
 )
 {
     /* When starting up, we might still need to create the memfile */
-    if (curbuf->b_ml.ml_mfp == NULL && open_buffer(FALSE, NULL, 0) == FAIL)
+    if(curbuf->b_ml.ml_mfp == NULL && open_buffer(FALSE, NULL, 0) == FAIL)
     {
         return FAIL;
     }
 
-    if (curbuf->b_ml.ml_line_lnum != 0)
+    if(curbuf->b_ml.ml_line_lnum != 0)
     {
         ml_flush_line(curbuf);
     }
@@ -2193,7 +2177,7 @@ ml_append (
  * a memline.
  */
 int
-ml_append_buf (
+ml_append_buf(
     buf_T *buf,
     linenr_T lnum,                  /* append after this line (can be 0) */
     char_u *line,              /* text of the new line */
@@ -2201,12 +2185,12 @@ ml_append_buf (
     int newfile                    /* flag, see above */
 )
 {
-    if (buf->b_ml.ml_mfp == NULL)
+    if(buf->b_ml.ml_mfp == NULL)
     {
         return FAIL;
     }
 
-    if (buf->b_ml.ml_line_lnum != 0)
+    if(buf->b_ml.ml_line_lnum != 0)
     {
         ml_flush_line(buf);
     }
@@ -2215,7 +2199,7 @@ ml_append_buf (
 }
 
 static int
-ml_append_int (
+ml_append_int(
     buf_T *buf,
     linenr_T lnum,                  /* append after this line (can be 0) */
     char_u *line,              /* text of the new line */
@@ -2239,17 +2223,17 @@ ml_append_int (
     infoptr_T   *ip;
 
     /* lnum out of range */
-    if (lnum > buf->b_ml.ml_line_count || buf->b_ml.ml_mfp == NULL)
+    if(lnum > buf->b_ml.ml_line_count || buf->b_ml.ml_mfp == NULL)
     {
         return FAIL;
     }
 
-    if (lowest_marked && lowest_marked > lnum)
+    if(lowest_marked && lowest_marked > lnum)
     {
         lowest_marked = lnum + 1;
     }
 
-    if (len == 0)
+    if(len == 0)
     {
         len = (colnr_T)STRLEN(line) + 1;    /* space needed for the text */
     }
@@ -2263,15 +2247,15 @@ ml_append_int (
      * This also fills the stack with the blocks from the root to the data block
      * This also releases any locked block.
      */
-    if ((hp = ml_find_line(buf, lnum == 0 ? (linenr_T)1 : lnum,
-                           ML_INSERT)) == NULL)
+    if((hp = ml_find_line(buf, lnum == 0 ? (linenr_T)1 : lnum,
+                          ML_INSERT)) == NULL)
     {
         return FAIL;
     }
 
     buf->b_ml.ml_flags &= ~ML_EMPTY;
 
-    if (lnum == 0)                /* got line one instead, correct db_idx */
+    if(lnum == 0)                 /* got line one instead, correct db_idx */
     {
         db_idx = -1;    /* careful, it is negative! */
     }
@@ -2291,8 +2275,8 @@ ml_append_int (
      * - not appending to the last line in the file
      * insert in front of the next block.
      */
-    if ((int)dp->db_free < space_needed && db_idx == line_count - 1
-            && lnum < buf->b_ml.ml_line_count)
+    if((int)dp->db_free < space_needed && db_idx == line_count - 1
+       && lnum < buf->b_ml.ml_line_count)
     {
         /*
          * Now that the line is not going to be inserted in the block that we
@@ -2302,7 +2286,7 @@ ml_append_int (
         --(buf->b_ml.ml_locked_lineadd);
         --(buf->b_ml.ml_locked_high);
 
-        if ((hp = ml_find_line(buf, lnum + 1, ML_INSERT)) == NULL)
+        if((hp = ml_find_line(buf, lnum + 1, ML_INSERT)) == NULL)
         {
             return FAIL;
         }
@@ -2316,7 +2300,7 @@ ml_append_int (
 
     ++buf->b_ml.ml_line_count;
 
-    if ((int)dp->db_free >= space_needed)         /* enough room in data block */
+    if((int)dp->db_free >= space_needed)          /* enough room in data block */
     {
         /*
          * Insert new line in existing data block, or in data block allocated above.
@@ -2329,13 +2313,13 @@ ml_append_int (
          * move the text of the lines that follow to the front
          * adjust the indexes of the lines that follow
          */
-        if (line_count > db_idx + 1)            /* if there are following lines */
+        if(line_count > db_idx + 1)             /* if there are following lines */
         {
             /*
              * Offset is the start of the previous line.
              * This will become the character just after the new line.
              */
-            if (db_idx < 0)
+            if(db_idx < 0)
             {
                 offset = dp->db_txt_end;
             }
@@ -2348,7 +2332,7 @@ ml_append_int (
                     (char *)dp + dp->db_txt_start + len,
                     (size_t)(offset - (dp->db_txt_start + len)));
 
-            for (i = line_count - 1; i > db_idx; --i)
+            for(i = line_count - 1; i > db_idx; --i)
             {
                 dp->db_index[i + 1] = dp->db_index[i] - len;
             }
@@ -2365,7 +2349,7 @@ ml_append_int (
          */
         memmove((char *)dp + dp->db_index[db_idx + 1], line, (size_t)len);
 
-        if (mark)
+        if(mark)
         {
             dp->db_index[db_idx + 1] |= DB_MARKED;
         }
@@ -2375,7 +2359,7 @@ ml_append_int (
          */
         buf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
 
-        if (!newfile)
+        if(!newfile)
         {
             buf->b_ml.ml_flags |= ML_LOCKED_POS;
         }
@@ -2416,7 +2400,7 @@ ml_append_int (
          * also put in the right block. This method is more efficient when
          * inserting a lot of lines at one place.
          */
-        if (db_idx < 0)             /* left block is new, right block is existing */
+        if(db_idx < 0)              /* left block is new, right block is existing */
         {
             lines_moved = 0;
             in_left = TRUE;
@@ -2426,7 +2410,7 @@ ml_append_int (
         {
             lines_moved = line_count - db_idx - 1;
 
-            if (lines_moved == 0)
+            if(lines_moved == 0)
             {
                 in_left = FALSE;    /* put new line in right block */
             }
@@ -2437,7 +2421,7 @@ ml_append_int (
                              dp->db_txt_start;
                 total_moved = data_moved + lines_moved * INDEX_SIZE;
 
-                if ((int)dp->db_free + total_moved >= space_needed)
+                if((int)dp->db_free + total_moved >= space_needed)
                 {
                     in_left = TRUE;               /* put new line in left block */
                     space_needed = total_moved;
@@ -2453,7 +2437,7 @@ ml_append_int (
         page_count = ((space_needed + HEADER_SIZE) + page_size - 1) / page_size;
         hp_new = ml_new_data(mfp, newfile, page_count);
 
-        if (db_idx < 0)             /* left block is new */
+        if(db_idx < 0)              /* left block is new */
         {
             hp_left = hp_new;
             hp_right = hp;
@@ -2478,13 +2462,13 @@ ml_append_int (
         /*
          * May move the new line into the right/new block.
          */
-        if (!in_left)
+        if(!in_left)
         {
             dp_right->db_txt_start -= len;
             dp_right->db_free -= len + INDEX_SIZE;
             dp_right->db_index[0] = dp_right->db_txt_start;
 
-            if (mark)
+            if(mark)
             {
                 dp_right->db_index[0] |= DB_MARKED;
             }
@@ -2497,7 +2481,7 @@ ml_append_int (
         /*
          * may move lines from the left/old block to the right/new one.
          */
-        if (lines_moved)
+        if(lines_moved)
         {
             /*
              */
@@ -2513,8 +2497,8 @@ ml_append_int (
             /*
              * update indexes in the new block
              */
-            for (to = line_count_right, from = db_idx + 1;
-                    from < line_count_left; ++from, ++to)
+            for(to = line_count_right, from = db_idx + 1;
+                from < line_count_left; ++from, ++to)
             {
                 dp_right->db_index[to] = dp->db_index[from] + offset;
             }
@@ -2526,13 +2510,13 @@ ml_append_int (
         /*
          * May move the new line into the left (old or new) block.
          */
-        if (in_left)
+        if(in_left)
         {
             dp_left->db_txt_start -= len;
             dp_left->db_free -= len + INDEX_SIZE;
             dp_left->db_index[line_count_left] = dp_left->db_txt_start;
 
-            if (mark)
+            if(mark)
             {
                 dp_left->db_index[line_count_left] |= DB_MARKED;
             }
@@ -2542,7 +2526,7 @@ ml_append_int (
             ++line_count_left;
         }
 
-        if (db_idx < 0)             /* left block is new */
+        if(db_idx < 0)              /* left block is new */
         {
             lnum_left = lnum + 1;
             lnum_right = 0;
@@ -2551,7 +2535,7 @@ ml_append_int (
         {
             lnum_left = 0;
 
-            if (in_left)
+            if(in_left)
             {
                 lnum_right = lnum + 2;
             }
@@ -2570,12 +2554,12 @@ ml_append_int (
          * The old one (hp, in ml_locked) gets a positive blocknumber if
          * we changed it and we are not editing a new file.
          */
-        if (lines_moved || in_left)
+        if(lines_moved || in_left)
         {
             buf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
         }
 
-        if (!newfile && db_idx >= 0 && in_left)
+        if(!newfile && db_idx >= 0 && in_left)
         {
             buf->b_ml.ml_flags |= ML_LOCKED_POS;
         }
@@ -2593,20 +2577,20 @@ ml_append_int (
         /*
          * update pointer blocks for the new data block
          */
-        for (stack_idx = buf->b_ml.ml_stack_top - 1; stack_idx >= 0;
-                --stack_idx)
+        for(stack_idx = buf->b_ml.ml_stack_top - 1; stack_idx >= 0;
+            --stack_idx)
         {
             ip = &(buf->b_ml.ml_stack[stack_idx]);
             pb_idx = ip->ip_index;
 
-            if ((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
+            if((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
             {
                 return FAIL;
             }
 
             pp = hp->bh_data;         /* must be pointer block */
 
-            if (pp->pb_id != PTR_ID)
+            if(pp->pb_id != PTR_ID)
             {
                 EMSG(_("E317: pointer block id wrong 3"));
                 mf_put(mfp, hp, false, false);
@@ -2618,9 +2602,9 @@ ml_append_int (
              * try to insert in front of the next block
              */
             /* block not full, add one entry */
-            if (pp->pb_count < pp->pb_count_max)
+            if(pp->pb_count < pp->pb_count_max)
             {
-                if (pb_idx + 1 < (int)pp->pb_count)
+                if(pb_idx + 1 < (int)pp->pb_count)
                     memmove(&pp->pb_pointer[pb_idx + 2],
                             &pp->pb_pointer[pb_idx + 1],
                             (size_t)(pp->pb_count - pb_idx - 1) * sizeof(PTR_EN));
@@ -2633,12 +2617,12 @@ ml_append_int (
                 pp->pb_pointer[pb_idx + 1].pe_bnum = bnum_right;
                 pp->pb_pointer[pb_idx + 1].pe_page_count = page_count_right;
 
-                if (lnum_left != 0)
+                if(lnum_left != 0)
                 {
                     pp->pb_pointer[pb_idx].pe_old_lnum = lnum_left;
                 }
 
-                if (lnum_right != 0)
+                if(lnum_right != 0)
                 {
                     pp->pb_pointer[pb_idx + 1].pe_old_lnum = lnum_right;
                 }
@@ -2646,7 +2630,7 @@ ml_append_int (
                 mf_put(mfp, hp, true, false);
                 buf->b_ml.ml_stack_top = stack_idx + 1;             /* truncate stack */
 
-                if (lineadd)
+                if(lineadd)
                 {
                     --(buf->b_ml.ml_stack_top);
                     /* fix line count for rest of blocks in the stack */
@@ -2670,18 +2654,18 @@ ml_append_int (
                  * move some of the pointer into the new block
                  * prepare for updating the parent block
                  */
-                for (;; )               /* do this twice when splitting block 1 */
+                for(;;)                 /* do this twice when splitting block 1 */
                 {
                     hp_new = ml_new_ptr(mfp);
 
-                    if (hp_new == NULL)               /* TODO: try to fix tree */
+                    if(hp_new == NULL)                /* TODO: try to fix tree */
                     {
                         return FAIL;
                     }
 
                     pp_new = hp_new->bh_data;
 
-                    if (hp->bh_bnum != 1)
+                    if(hp->bh_bnum != 1)
                     {
                         break;
                     }
@@ -2712,7 +2696,7 @@ ml_append_int (
                  */
                 total_moved = pp->pb_count - pb_idx - 1;
 
-                if (total_moved)
+                if(total_moved)
                 {
                     memmove(&pp_new->pb_pointer[0],
                             &pp->pb_pointer[pb_idx + 1],
@@ -2723,7 +2707,7 @@ ml_append_int (
                     pp->pb_pointer[pb_idx + 1].pe_line_count = line_count_right;
                     pp->pb_pointer[pb_idx + 1].pe_page_count = page_count_right;
 
-                    if (lnum_right)
+                    if(lnum_right)
                     {
                         pp->pb_pointer[pb_idx + 1].pe_old_lnum = lnum_right;
                     }
@@ -2741,7 +2725,7 @@ ml_append_int (
                 pp->pb_pointer[pb_idx].pe_line_count = line_count_left;
                 pp->pb_pointer[pb_idx].pe_page_count = page_count_left;
 
-                if (lnum_left)
+                if(lnum_left)
                 {
                     pp->pb_pointer[pb_idx].pe_old_lnum = lnum_left;
                 }
@@ -2753,14 +2737,14 @@ ml_append_int (
                  */
                 line_count_right = 0;
 
-                for (i = 0; i < (int)pp_new->pb_count; ++i)
+                for(i = 0; i < (int)pp_new->pb_count; ++i)
                 {
                     line_count_right += pp_new->pb_pointer[i].pe_line_count;
                 }
 
                 line_count_left = 0;
 
-                for (i = 0; i < (int)pp->pb_count; ++i)
+                for(i = 0; i < (int)pp->pb_count; ++i)
                 {
                     line_count_left += pp->pb_pointer[i].pe_line_count;
                 }
@@ -2777,7 +2761,7 @@ ml_append_int (
         /*
          * Safety check: fallen out of for loop?
          */
-        if (stack_idx < 0)
+        if(stack_idx < 0)
         {
             EMSG(_("E318: Updated too many blocks?"));
             buf->b_ml.ml_stack_top = 0;       /* invalidate stack */
@@ -2802,27 +2786,27 @@ ml_append_int (
  */
 int ml_replace(linenr_T lnum, char_u *line, bool copy)
 {
-    if (line == NULL)             /* just checking... */
+    if(line == NULL)              /* just checking... */
     {
         return FAIL;
     }
 
     /* When starting up, we might still need to create the memfile */
-    if (curbuf->b_ml.ml_mfp == NULL && open_buffer(FALSE, NULL, 0) == FAIL)
+    if(curbuf->b_ml.ml_mfp == NULL && open_buffer(FALSE, NULL, 0) == FAIL)
     {
         return FAIL;
     }
 
-    if (copy)
+    if(copy)
     {
         line = vim_strsave(line);
     }
 
-    if (curbuf->b_ml.ml_line_lnum != lnum)            /* other line buffered */
+    if(curbuf->b_ml.ml_line_lnum != lnum)             /* other line buffered */
     {
         ml_flush_line(curbuf);    /* flush it */
     }
-    else if (curbuf->b_ml.ml_flags & ML_LINE_DIRTY)   /* same line allocated */
+    else if(curbuf->b_ml.ml_flags & ML_LINE_DIRTY)    /* same line allocated */
     {
         xfree(curbuf->b_ml.ml_line_ptr);    /* free it */
     }
@@ -2861,12 +2845,12 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
     long line_size;
     int i;
 
-    if (lnum < 1 || lnum > buf->b_ml.ml_line_count)
+    if(lnum < 1 || lnum > buf->b_ml.ml_line_count)
     {
         return FAIL;
     }
 
-    if (lowest_marked && lowest_marked > lnum)
+    if(lowest_marked && lowest_marked > lnum)
     {
         lowest_marked--;
     }
@@ -2874,10 +2858,10 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
     /*
      * If the file becomes empty the last line is replaced by an empty line.
      */
-    if (buf->b_ml.ml_line_count == 1)         /* file becomes empty */
+    if(buf->b_ml.ml_line_count == 1)          /* file becomes empty */
     {
-        if (message
-           )
+        if(message
+          )
         {
             set_keep_msg((char_u *)_(no_lines_msg), 0);
         }
@@ -2894,12 +2878,12 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
      */
     mfp = buf->b_ml.ml_mfp;
 
-    if (mfp == NULL)
+    if(mfp == NULL)
     {
         return FAIL;
     }
 
-    if ((hp = ml_find_line(buf, lnum, ML_DELETE)) == NULL)
+    if((hp = ml_find_line(buf, lnum, ML_DELETE)) == NULL)
     {
         return FAIL;
     }
@@ -2912,7 +2896,7 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
     --buf->b_ml.ml_line_count;
     line_start = ((dp->db_index[idx]) & DB_INDEX_MASK);
 
-    if (idx == 0)                 /* first line in block, text at the end */
+    if(idx == 0)                  /* first line in block, text at the end */
     {
         line_size = dp->db_txt_end - line_start;
     }
@@ -2929,26 +2913,26 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
      * The line counts in the pointer blocks have already been adjusted by
      * ml_find_line().
      */
-    if (count == 1)
+    if(count == 1)
     {
         mf_free(mfp, hp);           /* free the data block */
         buf->b_ml.ml_locked = NULL;
 
-        for (stack_idx = buf->b_ml.ml_stack_top - 1; stack_idx >= 0;
-                --stack_idx)
+        for(stack_idx = buf->b_ml.ml_stack_top - 1; stack_idx >= 0;
+            --stack_idx)
         {
             buf->b_ml.ml_stack_top = 0;           /* stack is invalid when failing */
             ip = &(buf->b_ml.ml_stack[stack_idx]);
             idx = ip->ip_index;
 
-            if ((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
+            if((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
             {
                 return FAIL;
             }
 
             pp = hp->bh_data;         /* must be pointer block */
 
-            if (pp->pb_id != PTR_ID)
+            if(pp->pb_id != PTR_ID)
             {
                 EMSG(_("E317: pointer block id wrong 4"));
                 mf_put(mfp, hp, false, false);
@@ -2957,13 +2941,13 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
 
             count = --(pp->pb_count);
 
-            if (count == 0)               /* the pointer block becomes empty! */
+            if(count == 0)                /* the pointer block becomes empty! */
             {
                 mf_free(mfp, hp);
             }
             else
             {
-                if (count != idx)               /* move entries after the deleted one */
+                if(count != idx)                /* move entries after the deleted one */
                     memmove(&pp->pb_pointer[idx], &pp->pb_pointer[idx + 1],
                             (size_t)(count - idx) * sizeof(PTR_EN));
 
@@ -2971,7 +2955,7 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
                 buf->b_ml.ml_stack_top = stack_idx;             /* truncate stack */
 
                 /* fix line count for rest of blocks in the stack */
-                if (buf->b_ml.ml_locked_lineadd != 0)
+                if(buf->b_ml.ml_locked_lineadd != 0)
                 {
                     ml_lineadd(buf, buf->b_ml.ml_locked_lineadd);
                     buf->b_ml.ml_stack[buf->b_ml.ml_stack_top].ip_high +=
@@ -2998,7 +2982,7 @@ static int ml_delete_int(buf_T *buf, linenr_T lnum, int message)
          * delete the index by moving the next indexes backwards
          * Adjust the indexes for the text movement.
          */
-        for (i = idx; i < count - 1; ++i)
+        for(i = idx; i < count - 1; ++i)
         {
             dp->db_index[i] = dp->db_index[i + 1] + line_size;
         }
@@ -3025,13 +3009,13 @@ void ml_setmarked(linenr_T lnum)
     DATA_BL *dp;
 
     /* invalid line number */
-    if (lnum < 1 || lnum > curbuf->b_ml.ml_line_count
-            || curbuf->b_ml.ml_mfp == NULL)
+    if(lnum < 1 || lnum > curbuf->b_ml.ml_line_count
+       || curbuf->b_ml.ml_mfp == NULL)
     {
         return;    /* give error message? */
     }
 
-    if (lowest_marked == 0 || lowest_marked > lnum)
+    if(lowest_marked == 0 || lowest_marked > lnum)
     {
         lowest_marked = lnum;
     }
@@ -3041,7 +3025,7 @@ void ml_setmarked(linenr_T lnum)
      * This also fills the stack with the blocks from the root to the data block
      * This also releases any locked block.
      */
-    if ((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
+    if((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
     {
         return;    /* give error message? */
     }
@@ -3061,7 +3045,7 @@ linenr_T ml_firstmarked(void)
     linenr_T lnum;
     int i;
 
-    if (curbuf->b_ml.ml_mfp == NULL)
+    if(curbuf->b_ml.ml_mfp == NULL)
     {
         return (linenr_T) 0;
     }
@@ -3070,23 +3054,23 @@ linenr_T ml_firstmarked(void)
      * The search starts with lowest_marked line. This is the last line where
      * a mark was found, adjusted by inserting/deleting lines.
      */
-    for (lnum = lowest_marked; lnum <= curbuf->b_ml.ml_line_count; )
+    for(lnum = lowest_marked; lnum <= curbuf->b_ml.ml_line_count;)
     {
         /*
          * Find the data block containing the line.
          * This also fills the stack with the blocks from the root to the data
          * block This also releases any locked block.
          */
-        if ((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
+        if((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
         {
             return (linenr_T)0;    /* give error message? */
         }
 
         dp = hp->bh_data;
 
-        for (i = lnum - curbuf->b_ml.ml_locked_low;
-                lnum <= curbuf->b_ml.ml_locked_high; ++i, ++lnum)
-            if ((dp->db_index[i]) & DB_MARKED)
+        for(i = lnum - curbuf->b_ml.ml_locked_low;
+            lnum <= curbuf->b_ml.ml_locked_high; ++i, ++lnum)
+            if((dp->db_index[i]) & DB_MARKED)
             {
                 (dp->db_index[i]) &= DB_INDEX_MASK;
                 curbuf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
@@ -3108,7 +3092,7 @@ void ml_clearmarked(void)
     linenr_T lnum;
     int i;
 
-    if (curbuf->b_ml.ml_mfp == NULL)          /* nothing to do */
+    if(curbuf->b_ml.ml_mfp == NULL)           /* nothing to do */
     {
         return;
     }
@@ -3116,23 +3100,23 @@ void ml_clearmarked(void)
     /*
      * The search starts with line lowest_marked.
      */
-    for (lnum = lowest_marked; lnum <= curbuf->b_ml.ml_line_count; )
+    for(lnum = lowest_marked; lnum <= curbuf->b_ml.ml_line_count;)
     {
         /*
          * Find the data block containing the line.
          * This also fills the stack with the blocks from the root to the data
          * block and releases any locked block.
          */
-        if ((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
+        if((hp = ml_find_line(curbuf, lnum, ML_FIND)) == NULL)
         {
             return;    /* give error message? */
         }
 
         dp = hp->bh_data;
 
-        for (i = lnum - curbuf->b_ml.ml_locked_low;
-                lnum <= curbuf->b_ml.ml_locked_high; ++i, ++lnum)
-            if ((dp->db_index[i]) & DB_MARKED)
+        for(i = lnum - curbuf->b_ml.ml_locked_low;
+            lnum <= curbuf->b_ml.ml_locked_high; ++i, ++lnum)
+            if((dp->db_index[i]) & DB_MARKED)
             {
                 (dp->db_index[i]) &= DB_INDEX_MASK;
                 curbuf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
@@ -3162,15 +3146,15 @@ static void ml_flush_line(buf_T *buf)
     int i;
     static int entered = FALSE;
 
-    if (buf->b_ml.ml_line_lnum == 0 || buf->b_ml.ml_mfp == NULL)
+    if(buf->b_ml.ml_line_lnum == 0 || buf->b_ml.ml_mfp == NULL)
     {
         return;    /* nothing to do */
     }
 
-    if (buf->b_ml.ml_flags & ML_LINE_DIRTY)
+    if(buf->b_ml.ml_flags & ML_LINE_DIRTY)
     {
         /* This code doesn't work recursively. */
-        if (entered)
+        if(entered)
         {
             return;
         }
@@ -3180,7 +3164,7 @@ static void ml_flush_line(buf_T *buf)
         new_line = buf->b_ml.ml_line_ptr;
         hp = ml_find_line(buf, lnum, ML_FIND);
 
-        if (hp == NULL)
+        if(hp == NULL)
         {
             EMSGN(_("E320: Cannot find line %" PRId64), lnum);
         }
@@ -3191,7 +3175,7 @@ static void ml_flush_line(buf_T *buf)
             start = ((dp->db_index[idx]) & DB_INDEX_MASK);
             old_line = (char_u *)dp + start;
 
-            if (idx == 0)             /* line is last in block */
+            if(idx == 0)              /* line is last in block */
             {
                 old_len = dp->db_txt_end - start;
             }
@@ -3206,12 +3190,12 @@ static void ml_flush_line(buf_T *buf)
             /*
              * if new line fits in data block, replace directly
              */
-            if ((int)dp->db_free >= extra)
+            if((int)dp->db_free >= extra)
             {
                 /* if the length changes and there are following lines */
                 count = buf->b_ml.ml_locked_high - buf->b_ml.ml_locked_low + 1;
 
-                if (extra != 0 && idx < count - 1)
+                if(extra != 0 && idx < count - 1)
                 {
                     /* move text of following lines */
                     memmove((char *)dp + dp->db_txt_start - extra,
@@ -3219,7 +3203,7 @@ static void ml_flush_line(buf_T *buf)
                             (size_t)(start - dp->db_txt_start));
 
                     /* adjust pointers of this and following lines */
-                    for (i = idx + 1; i < count; ++i)
+                    for(i = idx + 1; i < count; ++i)
                     {
                         dp->db_index[i] -= extra;
                     }
@@ -3290,8 +3274,8 @@ static bhdr_T *ml_new_ptr(memfile_T *mfp)
  * lookup line 'lnum' in a memline
  *
  *   action: if ML_DELETE or ML_INSERT the line count is updated while searching
- *	     if ML_FLUSH only flush a locked block
- *	     if ML_FIND just find the line
+ *       if ML_FLUSH only flush a locked block
+ *       if ML_FIND just find the line
  *
  * If the block was found it is locked and put in ml_locked.
  * The stack is updated to lead to the locked block. The ip_high field in
@@ -3324,20 +3308,20 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
      * Don't do this for ML_FLUSH, because we want to flush the locked block.
      * Don't do this when 'swapfile' is reset, we want to load all the blocks.
      */
-    if (buf->b_ml.ml_locked)
+    if(buf->b_ml.ml_locked)
     {
-        if (ML_SIMPLE(action)
-                && buf->b_ml.ml_locked_low <= lnum
-                && buf->b_ml.ml_locked_high >= lnum
-                && !mf_dont_release)
+        if(ML_SIMPLE(action)
+           && buf->b_ml.ml_locked_low <= lnum
+           && buf->b_ml.ml_locked_high >= lnum
+           && !mf_dont_release)
         {
             /* remember to update pointer blocks and stack later */
-            if (action == ML_INSERT)
+            if(action == ML_INSERT)
             {
                 ++(buf->b_ml.ml_locked_lineadd);
                 ++(buf->b_ml.ml_locked_high);
             }
-            else if (action == ML_DELETE)
+            else if(action == ML_DELETE)
             {
                 --(buf->b_ml.ml_locked_lineadd);
                 --(buf->b_ml.ml_locked_high);
@@ -3354,13 +3338,13 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
          * If lines have been added or deleted in the locked block, need to
          * update the line count in pointer blocks.
          */
-        if (buf->b_ml.ml_locked_lineadd != 0)
+        if(buf->b_ml.ml_locked_lineadd != 0)
         {
             ml_lineadd(buf, buf->b_ml.ml_locked_lineadd);
         }
     }
 
-    if (action == ML_FLUSH)           /* nothing else to do */
+    if(action == ML_FLUSH)            /* nothing else to do */
     {
         return NULL;
     }
@@ -3370,13 +3354,13 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
     low = 1;
     high = buf->b_ml.ml_line_count;
 
-    if (action == ML_FIND)        /* first try stack entries */
+    if(action == ML_FIND)         /* first try stack entries */
     {
-        for (top = buf->b_ml.ml_stack_top - 1; top >= 0; --top)
+        for(top = buf->b_ml.ml_stack_top - 1; top >= 0; --top)
         {
             ip = &(buf->b_ml.ml_stack[top]);
 
-            if (ip->ip_low <= lnum && ip->ip_high >= lnum)
+            if(ip->ip_low <= lnum && ip->ip_high >= lnum)
             {
                 bnum = ip->ip_bnum;
                 low = ip->ip_low;
@@ -3386,7 +3370,7 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
             }
         }
 
-        if (top < 0)
+        if(top < 0)
         {
             buf->b_ml.ml_stack_top = 0;    /* not found, start at the root */
         }
@@ -3399,9 +3383,9 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
     /*
      * search downwards in the tree until a data block is found
      */
-    for (;; )
+    for(;;)
     {
-        if ((hp = mf_get(mfp, bnum, page_count)) == NULL)
+        if((hp = mf_get(mfp, bnum, page_count)) == NULL)
         {
             goto error_noblock;
         }
@@ -3409,18 +3393,18 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
         /*
          * update high for insert/delete
          */
-        if (action == ML_INSERT)
+        if(action == ML_INSERT)
         {
             ++high;
         }
-        else if (action == ML_DELETE)
+        else if(action == ML_DELETE)
         {
             --high;
         }
 
         dp = hp->bh_data;
 
-        if (dp->db_id == DATA_ID)           /* data block */
+        if(dp->db_id == DATA_ID)            /* data block */
         {
             buf->b_ml.ml_locked = hp;
             buf->b_ml.ml_locked_low = low;
@@ -3432,7 +3416,7 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
 
         pp = (PTR_BL *)(dp);                /* must be pointer block */
 
-        if (pp->pb_id != PTR_ID)
+        if(pp->pb_id != PTR_ID)
         {
             EMSG(_("E317: pointer block id wrong"));
             goto error_block;
@@ -3446,12 +3430,12 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
         ip->ip_index = -1;                  /* index not known yet */
         dirty = FALSE;
 
-        for (idx = 0; idx < (int)pp->pb_count; ++idx)
+        for(idx = 0; idx < (int)pp->pb_count; ++idx)
         {
             t = pp->pb_pointer[idx].pe_line_count;
             CHECK(t == 0, _("pe_line_count is zero"));
 
-            if ((low += t) > lnum)
+            if((low += t) > lnum)
             {
                 ip->ip_index = idx;
                 bnum = pp->pb_pointer[idx].pe_bnum;
@@ -3462,11 +3446,11 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
                 /*
                  * a negative block number may have been changed
                  */
-                if (bnum < 0)
+                if(bnum < 0)
                 {
                     bnum2 = mf_trans_del(mfp, bnum);
 
-                    if (bnum != bnum2)
+                    if(bnum != bnum2)
                     {
                         bnum = bnum2;
                         pp->pb_pointer[idx].pe_bnum = bnum;
@@ -3478,9 +3462,9 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
             }
         }
 
-        if (idx >= (int)pp->pb_count)           /* past the end: something wrong! */
+        if(idx >= (int)pp->pb_count)            /* past the end: something wrong! */
         {
-            if (lnum > buf->b_ml.ml_line_count)
+            if(lnum > buf->b_ml.ml_line_count)
                 EMSGN(_("E322: line number out of range: %" PRId64 " past the end"),
                       lnum - buf->b_ml.ml_line_count);
             else
@@ -3491,12 +3475,12 @@ static bhdr_T *ml_find_line(buf_T *buf, linenr_T lnum, int action)
             goto error_block;
         }
 
-        if (action == ML_DELETE)
+        if(action == ML_DELETE)
         {
             pp->pb_pointer[idx].pe_line_count--;
             dirty = TRUE;
         }
-        else if (action == ML_INSERT)
+        else if(action == ML_INSERT)
         {
             pp->pb_pointer[idx].pe_line_count++;
             dirty = TRUE;
@@ -3514,11 +3498,11 @@ error_noblock:
      * the incremented/decremented line counts, because there won't be a line
      * inserted/deleted after all.
      */
-    if (action == ML_DELETE)
+    if(action == ML_DELETE)
     {
         ml_lineadd(buf, 1);
     }
-    else if (action == ML_INSERT)
+    else if(action == ML_INSERT)
     {
         ml_lineadd(buf, -1);
     }
@@ -3537,7 +3521,7 @@ static int ml_add_stack(buf_T *buf)
     int top = buf->b_ml.ml_stack_top;
 
     /* may have to increase the stack size */
-    if (top == buf->b_ml.ml_stack_size)
+    if(top == buf->b_ml.ml_stack_size)
     {
         CHECK(top > 0, _("Stack size increases"));     /* more than 5 levels??? */
         buf->b_ml.ml_stack_size += STACK_INCR;
@@ -3567,18 +3551,18 @@ static void ml_lineadd(buf_T *buf, int count)
     memfile_T   *mfp = buf->b_ml.ml_mfp;
     bhdr_T      *hp;
 
-    for (idx = buf->b_ml.ml_stack_top - 1; idx >= 0; --idx)
+    for(idx = buf->b_ml.ml_stack_top - 1; idx >= 0; --idx)
     {
         ip = &(buf->b_ml.ml_stack[idx]);
 
-        if ((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
+        if((hp = mf_get(mfp, ip->ip_bnum, 1)) == NULL)
         {
             break;
         }
 
         pp = hp->bh_data;       /* must be pointer block */
 
-        if (pp->pb_id != PTR_ID)
+        if(pp->pb_id != PTR_ID)
         {
             mf_put(mfp, hp, false, false);
             EMSG(_("E317: pointer block id wrong 2"));
@@ -3605,7 +3589,7 @@ int resolve_symlink(const char_u *fname, char_u *buf)
     int ret;
     int depth = 0;
 
-    if (fname == NULL)
+    if(fname == NULL)
     {
         return FAIL;
     }
@@ -3613,10 +3597,10 @@ int resolve_symlink(const char_u *fname, char_u *buf)
     /* Put the result so far in tmp[], starting with the original name. */
     STRLCPY(tmp, fname, MAXPATHL);
 
-    for (;; )
+    for(;;)
     {
         /* Limit symlink depth to 100, catch recursive loops. */
-        if (++depth == 100)
+        if(++depth == 100)
         {
             EMSG2(_("E773: Symlink loop for \"%s\""), fname);
             return FAIL;
@@ -3624,14 +3608,14 @@ int resolve_symlink(const char_u *fname, char_u *buf)
 
         ret = readlink((char *)tmp, (char *)buf, MAXPATHL - 1);
 
-        if (ret <= 0)
+        if(ret <= 0)
         {
-            if (errno == EINVAL || errno == ENOENT)
+            if(errno == EINVAL || errno == ENOENT)
             {
                 /* Found non-symlink or not existing file, stop here.
                  * When at the first level use the unmodified name, skip the
                  * call to vim_FullName(). */
-                if (depth == 1)
+                if(depth == 1)
                 {
                     return FAIL;
                 }
@@ -3652,7 +3636,7 @@ int resolve_symlink(const char_u *fname, char_u *buf)
          * portion of the filename (if any) and the path the symlink
          * points to.
          */
-        if (path_is_absolute_path(buf))
+        if(path_is_absolute_path(buf))
         {
             STRCPY(tmp, buf);
         }
@@ -3661,7 +3645,7 @@ int resolve_symlink(const char_u *fname, char_u *buf)
             char_u *tail;
             tail = path_tail(tmp);
 
-            if (STRLEN(tail) + STRLEN(buf) >= MAXPATHL)
+            if(STRLEN(tail) + STRLEN(buf) >= MAXPATHL)
             {
                 return FAIL;
             }
@@ -3695,12 +3679,12 @@ char_u *makeswapname(char_u *fname,
 #endif
     s = dir_name + STRLEN(dir_name);
 
-    if (after_pathsep((char *)dir_name, (char *)s)
-            && s[-1] == s[-2])   /* Ends with '//', Use Full path */
+    if(after_pathsep((char *)dir_name, (char *)s)
+       && s[-1] == s[-2])   /* Ends with '//', Use Full path */
     {
         r = NULL;
 
-        if ((s = (char_u *)make_percent_swname((char *)dir_name, (char *)fname)) != NULL)
+        if((s = (char_u *)make_percent_swname((char *)dir_name, (char *)fname)) != NULL)
         {
             r = (char_u *)modname((char *)s, ".swp", FALSE);
             xfree(s);
@@ -3713,7 +3697,7 @@ char_u *makeswapname(char_u *fname,
 
     /* Expand symlink in the file name, so that we put the swap file with the
      * actual file instead of with the symlink. */
-    if (resolve_symlink(fname, fname_buf) == OK)
+    if(resolve_symlink(fname, fname_buf) == OK)
     {
         fname_res = fname_buf;
     }
@@ -3723,7 +3707,7 @@ char_u *makeswapname(char_u *fname,
     r = (char_u *)modname((char *)fname_res, ".swp",
                           dir_name[0] == '.' && dir_name[1] == NUL);
 
-    if (r == NULL)            /* out of memory */
+    if(r == NULL)             /* out of memory */
     {
         return NULL;
     }
@@ -3746,7 +3730,7 @@ char_u *makeswapname(char_u *fname,
  * The return value is an allocated string and can be NULL.
  */
 char_u *
-get_file_in_dir (
+get_file_in_dir(
     char_u *fname,
     char_u *dname         /* don't use "dirname", it is a global for Alpha */
 )
@@ -3757,13 +3741,13 @@ get_file_in_dir (
     int save_char;
     tail = path_tail(fname);
 
-    if (dname[0] == '.' && dname[1] == NUL)
+    if(dname[0] == '.' && dname[1] == NUL)
     {
         retval = vim_strsave(fname);
     }
-    else if (dname[0] == '.' && vim_ispathsep(dname[1]))
+    else if(dname[0] == '.' && vim_ispathsep(dname[1]))
     {
-        if (tail == fname)              /* no path before file name */
+        if(tail == fname)               /* no path before file name */
         {
             retval = (char_u *)concat_fnames((char *)dname + 2, (char *)tail, TRUE);
         }
@@ -3790,7 +3774,7 @@ get_file_in_dir (
  * Print the ATTENTION message: info about an existing swap file.
  */
 static void
-attention_message (
+attention_message(
     buf_T *buf,           /* buffer being edited */
     char_u *fname         /* swap file name */
 )
@@ -3808,13 +3792,13 @@ attention_message (
     MSG_PUTS("\"\n");
     FileInfo file_info;
 
-    if (os_fileinfo((char *)buf->b_fname, &file_info))
+    if(os_fileinfo((char *)buf->b_fname, &file_info))
     {
         MSG_PUTS(_("             dated: "));
         x = file_info.stat.st_mtim.tv_sec;
         p = ctime(&x);  // includes '\n'
 
-        if (p == NULL)
+        if(p == NULL)
         {
             MSG_PUTS("(invalid)\n");
         }
@@ -3823,7 +3807,7 @@ attention_message (
             MSG_PUTS(p);
         }
 
-        if (sx != 0 && x > sx)
+        if(sx != 0 && x > sx)
         {
             MSG_PUTS(_("      NEWER than swap file!\n"));
         }
@@ -3869,7 +3853,7 @@ static int do_swapexists(buf_T *buf, char_u *fname)
     --allbuf_lock;
     set_vim_var_string(VV_SWAPNAME, NULL, -1);
 
-    switch (*get_vim_var_str(VV_SWAPCHOICE))
+    switch(*get_vim_var_str(VV_SWAPCHOICE))
     {
         case 'o':
             return 1;
@@ -3937,14 +3921,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
     fname = (char *)makeswapname((char_u *)buf_fname, buf->b_ffname, buf,
                                  (char_u *)dir_name);
 
-    for (;; )
+    for(;;)
     {
-        if (fname == NULL)          /* must be out of memory */
+        if(fname == NULL)           /* must be out of memory */
         {
             break;
         }
 
-        if ((n = strlen(fname)) == 0)          /* safety check */
+        if((n = strlen(fname)) == 0)           /* safety check */
         {
             xfree(fname);
             fname = NULL;
@@ -3957,7 +3941,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
         FileInfo file_info;
         bool file_or_link_found = os_fileinfo_link(fname, &file_info);
 
-        if (!file_or_link_found)
+        if(!file_or_link_found)
         {
             break;
         }
@@ -3965,7 +3949,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
         /*
          * A file name equal to old_fname is OK to use.
          */
-        if (old_fname != NULL && fnamecmp(fname, old_fname) == 0)
+        if(old_fname != NULL && fnamecmp(fname, old_fname) == 0)
         {
             break;
         }
@@ -3973,7 +3957,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
         /*
          * get here when file already exists
          */
-        if (fname[n - 2] == 'w' && fname[n - 1] == 'p')     /* first try */
+        if(fname[n - 2] == 'w' && fname[n - 1] == 'p')      /* first try */
         {
             /*
              * If we get here the ".swp" file really exists.
@@ -3981,8 +3965,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
              * viewing a help file or when the path of the file is different
              * (happens when all .swp files are in one directory).
              */
-            if (!recoverymode && buf_fname != NULL
-                    && !buf->b_help && !(buf->b_flags & BF_DUMMY))
+            if(!recoverymode && buf_fname != NULL
+               && !buf->b_help && !(buf->b_flags & BF_DUMMY))
             {
                 int fd;
                 struct block0 b0;
@@ -3993,28 +3977,28 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                  */
                 fd = os_open(fname, O_RDONLY, 0);
 
-                if (fd >= 0)
+                if(fd >= 0)
                 {
-                    if (read_eintr(fd, &b0, sizeof(b0)) == sizeof(b0))
+                    if(read_eintr(fd, &b0, sizeof(b0)) == sizeof(b0))
                     {
                         /*
                          * If the swapfile has the same directory as the
                          * buffer don't compare the directory names, they can
                          * have a different mountpoint.
                          */
-                        if (b0.b0_flags & B0_SAME_DIR)
+                        if(b0.b0_flags & B0_SAME_DIR)
                         {
-                            if (fnamecmp(path_tail(buf->b_ffname),
-                                         path_tail(b0.b0_fname)) != 0
-                                    || !same_directory((char_u *) fname, buf->b_ffname))
+                            if(fnamecmp(path_tail(buf->b_ffname),
+                                        path_tail(b0.b0_fname)) != 0
+                               || !same_directory((char_u *) fname, buf->b_ffname))
                             {
                                 /* Symlinks may point to the same file even
                                  * when the name differs, need to check the
                                  * inode too. */
                                 expand_env(b0.b0_fname, NameBuff, MAXPATHL);
 
-                                if (fnamecmp_ino(buf->b_ffname, NameBuff,
-                                                 char_to_long(b0.b0_ino)))
+                                if(fnamecmp_ino(buf->b_ffname, NameBuff,
+                                                char_to_long(b0.b0_ino)))
                                 {
                                     differ = TRUE;
                                 }
@@ -4028,8 +4012,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                              */
                             expand_env(b0.b0_fname, NameBuff, MAXPATHL);
 
-                            if (fnamecmp_ino(buf->b_ffname, NameBuff,
-                                             char_to_long(b0.b0_ino)))
+                            if(fnamecmp_ino(buf->b_ffname, NameBuff,
+                                            char_to_long(b0.b0_ino)))
                             {
                                 differ = TRUE;
                             }
@@ -4041,8 +4025,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
 
                 /* give the ATTENTION message when there is an old swap file
                 * for the current file, and the buffer was not recovered. */
-                if (differ == FALSE && !(curbuf->b_flags & BF_RECOVERED)
-                        && vim_strchr(p_shm, SHM_ATTENTION) == NULL)
+                if(differ == FALSE && !(curbuf->b_flags & BF_RECOVERED)
+                   && vim_strchr(p_shm, SHM_ATTENTION) == NULL)
                 {
                     int choice = 0;
 #ifdef UNIX
@@ -4054,13 +4038,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                      * the response, trigger it.  It may return 0 to ask the
                      * user anyway.
                      */
-                    if (swap_exists_action != SEA_NONE
-                            && has_autocmd(EVENT_SWAPEXISTS, (char_u *) buf_fname, buf))
+                    if(swap_exists_action != SEA_NONE
+                       && has_autocmd(EVENT_SWAPEXISTS, (char_u *) buf_fname, buf))
                     {
                         choice = do_swapexists(buf, (char_u *) fname);
                     }
 
-                    if (choice == 0)
+                    if(choice == 0)
                     {
                         /* Show info about the existing swap file. */
                         attention_message(buf, (char_u *) fname);
@@ -4069,7 +4053,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                         got_int = FALSE;
                     }
 
-                    if (swap_exists_action != SEA_NONE && choice == 0)
+                    if(swap_exists_action != SEA_NONE && choice == 0)
                     {
                         const char *const sw_msg_1 = _("Swap file \"");
                         const char *const sw_msg_2 = _("\" already exists!");
@@ -4096,7 +4080,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                                            1, NULL, false);
 # if defined(UNIX)
 
-                        if (process_still_running && choice >= 4)
+                        if(process_still_running && choice >= 4)
                         {
                             choice++;    /* Skip missing "Delete it" button */
                         }
@@ -4108,9 +4092,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                         redraw_all_later(NOT_VALID);
                     }
 
-                    if (choice > 0)
+                    if(choice > 0)
                     {
-                        switch (choice)
+                        switch(choice)
                         {
                             case 1:
                                 buf->b_p_ro = TRUE;
@@ -4138,7 +4122,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                         }
 
                         // If the file was deleted this fname can be used.
-                        if (!os_path_exists((char_u *)fname))
+                        if(!os_path_exists((char_u *)fname))
                         {
                             break;
                         }
@@ -4147,7 +4131,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                     {
                         MSG_PUTS("\n");
 
-                        if (msg_silent == 0)
+                        if(msg_silent == 0)
                             /* call wait_return() later */
                         {
                             need_wait_return = TRUE;
@@ -4163,9 +4147,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
          * If that still isn't enough decrement the last but one char: ".svz"
          * Can happen when editing many "No Name" buffers.
          */
-        if (fname[n - 1] == 'a')            /* ".s?a" */
+        if(fname[n - 1] == 'a')             /* ".s?a" */
         {
-            if (fname[n - 2] == 'a')          /* ".saa": tried enough, give up */
+            if(fname[n - 2] == 'a')           /* ".saa": tried enough, give up */
             {
                 EMSG(_("E326: Too many swap files found"));
                 xfree(fname);
@@ -4180,16 +4164,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1, 2, 4)
         --fname[n - 1];                     /* ".swo", ".swn", etc. */
     }
 
-    if (os_isdir((char_u *) dir_name))
+    if(os_isdir((char_u *) dir_name))
     {
         *found_existing_dir = true;
     }
-    else if (!*found_existing_dir && **dirp == NUL)
+    else if(!*found_existing_dir && **dirp == NUL)
     {
         int ret;
         char *failed_dir;
 
-        if ((ret = os_mkdir_recurse(dir_name, 0755, &failed_dir)) != 0)
+        if((ret = os_mkdir_recurse(dir_name, 0755, &failed_dir)) != 0)
         {
             EMSG3(_("E303: Unable to create directory \"%s\" for swap file, "
                     "recovery impossible: %s"),
@@ -4226,40 +4210,40 @@ static int b0_magic_wrong(ZERO_BL *b0p)
  *
  * This is getting complicated, let's make a table:
  *
- *		ino_c  ino_s  fname_c  fname_s	differ =
+ *      ino_c  ino_s  fname_c  fname_s  differ =
  *
  * both files exist -> compare inode numbers:
- *		!= 0   != 0	X	 X	ino_c != ino_s
+ *      != 0   != 0 X    X  ino_c != ino_s
  *
  * inode number(s) unknown, file names available -> compare file names
- *		== 0	X	OK	 OK	fname_c != fname_s
- *		 X     == 0	OK	 OK	fname_c != fname_s
+ *      == 0    X   OK   OK fname_c != fname_s
+ *       X     == 0 OK   OK fname_c != fname_s
  *
  * current file doesn't exist, file for swap file exist, file name(s) not
  * available -> probably different
- *		== 0   != 0    FAIL	 X	TRUE
- *		== 0   != 0	X	FAIL	TRUE
+ *      == 0   != 0    FAIL  X  TRUE
+ *      == 0   != 0 X   FAIL    TRUE
  *
  * current file exists, inode for swap unknown, file name(s) not
  * available -> probably different
- *		!= 0   == 0    FAIL	 X	TRUE
- *		!= 0   == 0	X	FAIL	TRUE
+ *      != 0   == 0    FAIL  X  TRUE
+ *      != 0   == 0 X   FAIL    TRUE
  *
  * current file doesn't exist, inode for swap unknown, one file name not
  * available -> probably different
- *		== 0   == 0    FAIL	 OK	TRUE
- *		== 0   == 0	OK	FAIL	TRUE
+ *      == 0   == 0    FAIL  OK TRUE
+ *      == 0   == 0 OK  FAIL    TRUE
  *
  * current file doesn't exist, inode for swap unknown, both file names not
  * available -> probably same file
- *		== 0   == 0    FAIL	FAIL	FALSE
+ *      == 0   == 0    FAIL FAIL    FALSE
  *
  * Only the last 32 bits of the inode will be used. This can't be changed
  * without making the block 0 incompatible with 32 bit versions.
  */
 
 static int
-fnamecmp_ino (
+fnamecmp_ino(
     char_u *fname_c,               /* current file name */
     char_u *fname_s,               /* file name from swap file */
     long ino_block0
@@ -4273,7 +4257,7 @@ fnamecmp_ino (
     int retval_s;                     /* flag: buf_s valid */
     FileInfo file_info;
 
-    if (os_fileinfo((char *)fname_c, &file_info))
+    if(os_fileinfo((char *)fname_c, &file_info))
     {
         ino_c = os_fileinfo_inode(&file_info);
     }
@@ -4283,7 +4267,7 @@ fnamecmp_ino (
      * the swap file may be outdated.  If that fails (e.g. this path is not
      * valid on this machine), use the inode from block 0.
      */
-    if (os_fileinfo((char *)fname_s, &file_info))
+    if(os_fileinfo((char *)fname_s, &file_info))
     {
         ino_s = os_fileinfo_inode(&file_info);
     }
@@ -4292,7 +4276,7 @@ fnamecmp_ino (
         ino_s = (uint64_t)ino_block0;
     }
 
-    if (ino_c && ino_s)
+    if(ino_c && ino_s)
     {
         return ino_c != ino_s;
     }
@@ -4304,7 +4288,7 @@ fnamecmp_ino (
     retval_c = vim_FullName((char *)fname_c, (char *)buf_c, MAXPATHL, TRUE);
     retval_s = vim_FullName((char *)fname_s, (char *)buf_s, MAXPATHL, TRUE);
 
-    if (retval_c == OK && retval_s == OK)
+    if(retval_c == OK && retval_s == OK)
     {
         return STRCMP(buf_c, buf_s) != 0;
     }
@@ -4313,7 +4297,7 @@ fnamecmp_ino (
      * Can't compare inodes or file names, guess that the files are different,
      * unless both appear not to exist at all.
      */
-    if (ino_s == 0 && ino_c == 0 && retval_c == FAIL && retval_s == FAIL)
+    if(ino_s == 0 && ino_c == 0 && retval_c == FAIL && retval_s == FAIL)
     {
         return FALSE;
     }
@@ -4360,14 +4344,14 @@ void ml_setflags(buf_T *buf)
     bhdr_T      *hp;
     ZERO_BL     *b0p;
 
-    if (!buf->b_ml.ml_mfp)
+    if(!buf->b_ml.ml_mfp)
     {
         return;
     }
 
-    for (hp = buf->b_ml.ml_mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
+    for(hp = buf->b_ml.ml_mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     {
-        if (hp->bh_bnum == 0)
+        if(hp->bh_bnum == 0)
         {
             b0p = hp->bh_data;
             b0p->b0_dirty = buf->b_changed ? B0_DIRTY : 0;
@@ -4387,7 +4371,7 @@ void ml_setflags(buf_T *buf)
 /*
  * Keep information for finding byte offset of a line, updtype may be one of:
  * ML_CHNK_ADDLINE: Add len to parent chunk, possibly splitting it
- *	   Careful: ML_CHNK_ADDLINE may cause ml_find_line() to be called.
+ *     Careful: ML_CHNK_ADDLINE may cause ml_find_line() to be called.
  * ML_CHNK_DELLINE: Subtract len from parent chunk, possibly deleting it
  * ML_CHNK_UPDLINE: Add len to parent chunk, as a signed entity.
  */
@@ -4405,12 +4389,12 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
     bhdr_T              *hp;
     DATA_BL             *dp;
 
-    if (buf->b_ml.ml_usedchunks == -1 || len == 0)
+    if(buf->b_ml.ml_usedchunks == -1 || len == 0)
     {
         return;
     }
 
-    if (buf->b_ml.ml_chunksize == NULL)
+    if(buf->b_ml.ml_chunksize == NULL)
     {
         buf->b_ml.ml_chunksize = xmalloc(sizeof(chunksize_T) * 100);
         buf->b_ml.ml_numchunks = 100;
@@ -4419,7 +4403,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
         buf->b_ml.ml_chunksize[0].mlcs_totalsize = 1;
     }
 
-    if (updtype == ML_CHNK_UPDLINE && buf->b_ml.ml_line_count == 1)
+    if(updtype == ML_CHNK_UPDLINE && buf->b_ml.ml_line_count == 1)
     {
         /*
          * First line in empty buffer from ml_flush_line() -- reset
@@ -4435,20 +4419,20 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
      * Find chunk that our line belongs to, curline will be at start of the
      * chunk.
      */
-    if (buf != ml_upd_lastbuf || line != ml_upd_lastline + 1
-            || updtype != ML_CHNK_ADDLINE)
+    if(buf != ml_upd_lastbuf || line != ml_upd_lastline + 1
+       || updtype != ML_CHNK_ADDLINE)
     {
-        for (curline = 1, curix = 0;
-                curix < buf->b_ml.ml_usedchunks - 1
-                && line >= curline +
-                buf->b_ml.ml_chunksize[curix].mlcs_numlines;
-                curix++)
+        for(curline = 1, curix = 0;
+            curix < buf->b_ml.ml_usedchunks - 1
+            && line >= curline +
+            buf->b_ml.ml_chunksize[curix].mlcs_numlines;
+            curix++)
         {
             curline += buf->b_ml.ml_chunksize[curix].mlcs_numlines;
         }
     }
-    else if (line >= curline + buf->b_ml.ml_chunksize[curix].mlcs_numlines
-             && curix < buf->b_ml.ml_usedchunks - 1)
+    else if(line >= curline + buf->b_ml.ml_chunksize[curix].mlcs_numlines
+            && curix < buf->b_ml.ml_usedchunks - 1)
     {
         /* Adjust cached curix & curline */
         curline += buf->b_ml.ml_chunksize[curix].mlcs_numlines;
@@ -4457,19 +4441,19 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
 
     curchnk = buf->b_ml.ml_chunksize + curix;
 
-    if (updtype == ML_CHNK_DELLINE)
+    if(updtype == ML_CHNK_DELLINE)
     {
         len = -len;
     }
 
     curchnk->mlcs_totalsize += len;
 
-    if (updtype == ML_CHNK_ADDLINE)
+    if(updtype == ML_CHNK_ADDLINE)
     {
         curchnk->mlcs_numlines++;
 
         /* May resize here so we don't have to do it in both cases below */
-        if (buf->b_ml.ml_usedchunks + 1 >= buf->b_ml.ml_numchunks)
+        if(buf->b_ml.ml_usedchunks + 1 >= buf->b_ml.ml_numchunks)
         {
             buf->b_ml.ml_numchunks = buf->b_ml.ml_numchunks * 3 / 2;
             buf->b_ml.ml_chunksize = (chunksize_T *)
@@ -4477,7 +4461,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
                                               sizeof(chunksize_T) * buf->b_ml.ml_numchunks);
         }
 
-        if (buf->b_ml.ml_chunksize[curix].mlcs_numlines >= MLCS_MAXL)
+        if(buf->b_ml.ml_chunksize[curix].mlcs_numlines >= MLCS_MAXL)
         {
             int count;                    /* number of entries in block */
             int idx;
@@ -4491,10 +4475,10 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
             size = 0;
             linecnt = 0;
 
-            while (curline < buf->b_ml.ml_line_count
-                    && linecnt < MLCS_MINL)
+            while(curline < buf->b_ml.ml_line_count
+                  && linecnt < MLCS_MINL)
             {
-                if ((hp = ml_find_line(buf, curline, ML_FIND)) == NULL)
+                if((hp = ml_find_line(buf, curline, ML_FIND)) == NULL)
                 {
                     buf->b_ml.ml_usedchunks = -1;
                     return;
@@ -4506,7 +4490,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
                 idx = curline - buf->b_ml.ml_locked_low;
                 curline = buf->b_ml.ml_locked_high + 1;
 
-                if (idx == 0)        /* first line in block, text at the end */
+                if(idx == 0)         /* first line in block, text at the end */
                 {
                     text_end = dp->db_txt_end;
                 }
@@ -4518,7 +4502,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
                 /* Compute index of last line to use in this MEMLINE */
                 rest = count - idx;
 
-                if (linecnt + rest > MLCS_MINL)
+                if(linecnt + rest > MLCS_MINL)
                 {
                     idx += MLCS_MINL - linecnt - 1;
                     linecnt = MLCS_MINL;
@@ -4540,9 +4524,9 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
             ml_upd_lastbuf = NULL;         /* Force recalc of curix & curline */
             return;
         }
-        else if (buf->b_ml.ml_chunksize[curix].mlcs_numlines >= MLCS_MINL
-                 && curix == buf->b_ml.ml_usedchunks - 1
-                 && buf->b_ml.ml_line_count - line <= 1)
+        else if(buf->b_ml.ml_chunksize[curix].mlcs_numlines >= MLCS_MINL
+                && curix == buf->b_ml.ml_usedchunks - 1
+                && buf->b_ml.ml_line_count - line <= 1)
         {
             /*
              * We are in the last chunk and it is cheap to crate a new one
@@ -4551,7 +4535,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
             curchnk = buf->b_ml.ml_chunksize + curix + 1;
             buf->b_ml.ml_usedchunks++;
 
-            if (line == buf->b_ml.ml_line_count)
+            if(line == buf->b_ml.ml_line_count)
             {
                 curchnk->mlcs_numlines = 0;
                 curchnk->mlcs_totalsize = 0;
@@ -4564,7 +4548,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
                  */
                 hp = ml_find_line(buf, buf->b_ml.ml_line_count, ML_FIND);
 
-                if (hp == NULL)
+                if(hp == NULL)
                 {
                     buf->b_ml.ml_usedchunks = -1;
                     return;
@@ -4572,7 +4556,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
 
                 dp = hp->bh_data;
 
-                if (dp->db_line_count == 1)
+                if(dp->db_line_count == 1)
                 {
                     rest = dp->db_txt_end - dp->db_txt_start;
                 }
@@ -4588,29 +4572,29 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
             }
         }
     }
-    else if (updtype == ML_CHNK_DELLINE)
+    else if(updtype == ML_CHNK_DELLINE)
     {
         curchnk->mlcs_numlines--;
         ml_upd_lastbuf = NULL;       /* Force recalc of curix & curline */
 
-        if (curix < (buf->b_ml.ml_usedchunks - 1)
-                && (curchnk->mlcs_numlines + curchnk[1].mlcs_numlines)
-                <= MLCS_MINL)
+        if(curix < (buf->b_ml.ml_usedchunks - 1)
+           && (curchnk->mlcs_numlines + curchnk[1].mlcs_numlines)
+           <= MLCS_MINL)
         {
             curix++;
             curchnk = buf->b_ml.ml_chunksize + curix;
         }
-        else if (curix == 0 && curchnk->mlcs_numlines <= 0)
+        else if(curix == 0 && curchnk->mlcs_numlines <= 0)
         {
             buf->b_ml.ml_usedchunks--;
             memmove(buf->b_ml.ml_chunksize, buf->b_ml.ml_chunksize + 1,
                     buf->b_ml.ml_usedchunks * sizeof(chunksize_T));
             return;
         }
-        else if (curix == 0 || (curchnk->mlcs_numlines > 10
-                                && (curchnk->mlcs_numlines +
-                                    curchnk[-1].mlcs_numlines)
-                                > MLCS_MINL))
+        else if(curix == 0 || (curchnk->mlcs_numlines > 10
+                               && (curchnk->mlcs_numlines +
+                                   curchnk[-1].mlcs_numlines)
+                               > MLCS_MINL))
         {
             return;
         }
@@ -4620,7 +4604,7 @@ static void ml_updatechunk(buf_T *buf, linenr_T line, long len, int updtype)
         curchnk[-1].mlcs_totalsize += curchnk->mlcs_totalsize;
         buf->b_ml.ml_usedchunks--;
 
-        if (curix < buf->b_ml.ml_usedchunks)
+        if(curix < buf->b_ml.ml_usedchunks)
         {
             memmove(buf->b_ml.ml_chunksize + curix,
                     buf->b_ml.ml_chunksize + curix + 1,
@@ -4661,14 +4645,14 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
     /* take care of cached line first */
     ml_flush_line(curbuf);
 
-    if (buf->b_ml.ml_usedchunks == -1
-            || buf->b_ml.ml_chunksize == NULL
-            || lnum < 0)
+    if(buf->b_ml.ml_usedchunks == -1
+       || buf->b_ml.ml_chunksize == NULL
+       || lnum < 0)
     {
         return -1;
     }
 
-    if (offp == NULL)
+    if(offp == NULL)
     {
         offset = 0;
     }
@@ -4677,7 +4661,7 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         offset = *offp;
     }
 
-    if (lnum == 0 && offset <= 0)
+    if(lnum == 0 && offset <= 0)
     {
         return 1;    /* Not a "find offset" and offset 0 _must_ be in line 1 */
     }
@@ -4689,18 +4673,18 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
     curline = 1;
     curix = size = 0;
 
-    while (curix < buf->b_ml.ml_usedchunks - 1
-            && ((lnum != 0
-                 && lnum >= curline + buf->b_ml.ml_chunksize[curix].mlcs_numlines)
-                || (offset != 0
-                    && offset > size +
-                    buf->b_ml.ml_chunksize[curix].mlcs_totalsize
-                    + ffdos * buf->b_ml.ml_chunksize[curix].mlcs_numlines)))
+    while(curix < buf->b_ml.ml_usedchunks - 1
+          && ((lnum != 0
+               && lnum >= curline + buf->b_ml.ml_chunksize[curix].mlcs_numlines)
+              || (offset != 0
+                  && offset > size +
+                  buf->b_ml.ml_chunksize[curix].mlcs_totalsize
+                  + ffdos * buf->b_ml.ml_chunksize[curix].mlcs_numlines)))
     {
         curline += buf->b_ml.ml_chunksize[curix].mlcs_numlines;
         size += buf->b_ml.ml_chunksize[curix].mlcs_totalsize;
 
-        if (offset && ffdos)
+        if(offset && ffdos)
         {
             size += buf->b_ml.ml_chunksize[curix].mlcs_numlines;
         }
@@ -4708,10 +4692,10 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         curix++;
     }
 
-    while ((lnum != 0 && curline < lnum) || (offset != 0 && size < offset))
+    while((lnum != 0 && curline < lnum) || (offset != 0 && size < offset))
     {
-        if (curline > buf->b_ml.ml_line_count
-                || (hp = ml_find_line(buf, curline, ML_FIND)) == NULL)
+        if(curline > buf->b_ml.ml_line_count
+           || (hp = ml_find_line(buf, curline, ML_FIND)) == NULL)
         {
             return -1;
         }
@@ -4721,7 +4705,7 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
                 (long)(buf->b_ml.ml_locked_low) + 1;
         start_idx = idx = curline - buf->b_ml.ml_locked_low;
 
-        if (idx == 0)    /* first line in block, text at the end */
+        if(idx == 0)     /* first line in block, text at the end */
         {
             text_end = dp->db_txt_end;
         }
@@ -4731,9 +4715,9 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         }
 
         /* Compute index of last line to use in this MEMLINE */
-        if (lnum != 0)
+        if(lnum != 0)
         {
-            if (curline + (count - idx) >= lnum)
+            if(curline + (count - idx) >= lnum)
             {
                 idx += lnum - curline - 1;
             }
@@ -4746,16 +4730,16 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         {
             extra = 0;
 
-            while (offset >= size
-                    + text_end - (int)((dp->db_index[idx]) & DB_INDEX_MASK)
-                    + ffdos)
+            while(offset >= size
+                  + text_end - (int)((dp->db_index[idx]) & DB_INDEX_MASK)
+                  + ffdos)
             {
-                if (ffdos)
+                if(ffdos)
                 {
                     size++;
                 }
 
-                if (idx == count - 1)
+                if(idx == count - 1)
                 {
                     extra = 1;
                     break;
@@ -4768,13 +4752,13 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         len = text_end - ((dp->db_index[idx]) & DB_INDEX_MASK);
         size += len;
 
-        if (offset != 0 && size >= offset)
+        if(offset != 0 && size >= offset)
         {
-            if (size + ffdos == offset)
+            if(size + ffdos == offset)
             {
                 *offp = 0;
             }
-            else if (idx == start_idx)
+            else if(idx == start_idx)
             {
                 *offp = offset - size + len;
             }
@@ -4784,7 +4768,7 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
 
             curline += idx - start_idx + extra;
 
-            if (curline > buf->b_ml.ml_line_count)
+            if(curline > buf->b_ml.ml_line_count)
             {
                 return -1;    /* exactly one byte beyond the end */
             }
@@ -4795,18 +4779,18 @@ long ml_find_line_or_offset(buf_T *buf, linenr_T lnum, long *offp)
         curline = buf->b_ml.ml_locked_high + 1;
     }
 
-    if (lnum != 0)
+    if(lnum != 0)
     {
         /* Count extra CR characters. */
-        if (ffdos)
+        if(ffdos)
         {
             size += lnum - 1;
         }
 
         /* Don't count the last line break if 'noeol' and ('bin' or
          * 'nofixeol'). */
-        if ((!buf->b_p_fixeol || buf->b_p_bin) && !buf->b_p_eol
-                && buf->b_ml.ml_line_count == lnum)
+        if((!buf->b_p_fixeol || buf->b_p_bin) && !buf->b_p_eol
+           && buf->b_ml.ml_line_count == lnum)
         {
             size -= ffdos + 1;
         }
@@ -4823,14 +4807,14 @@ void goto_byte(long cnt)
     ml_flush_line(curbuf);  // cached line may be dirty
     setpcmark();
 
-    if (boff)
+    if(boff)
     {
         boff--;
     }
 
     lnum = ml_find_line_or_offset(curbuf, (linenr_T)0, &boff);
 
-    if (lnum < 1)           // past the end
+    if(lnum < 1)            // past the end
     {
         curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
         curwin->w_curswant = MAXCOL;
@@ -4847,7 +4831,7 @@ void goto_byte(long cnt)
     check_cursor();
 
     // Make sure the cursor is on the first byte of a multi-byte char.
-    if (has_mbyte)
+    if(has_mbyte)
     {
         mb_adjust_cursor();
     }
@@ -4862,9 +4846,9 @@ int inc(pos_T *lp)
 {
     char_u  *p = ml_get_pos(lp);
 
-    if (*p != NUL)        // still within line, move to next char (may be NUL)
+    if(*p != NUL)         // still within line, move to next char (may be NUL)
     {
-        if (has_mbyte)
+        if(has_mbyte)
         {
             int l = (*mb_ptr2len)(p);
             lp->col += l;
@@ -4876,7 +4860,7 @@ int inc(pos_T *lp)
         return (p[1] != NUL) ? 0 : 2;
     }
 
-    if (lp->lnum != curbuf->b_ml.ml_line_count)       // there is a next line
+    if(lp->lnum != curbuf->b_ml.ml_line_count)        // there is a next line
     {
         lp->col = 0;
         lp->lnum++;
@@ -4892,7 +4876,7 @@ int incl(pos_T *lp)
 {
     int r;
 
-    if ((r = inc(lp)) >= 1 && lp->col)
+    if((r = inc(lp)) >= 1 && lp->col)
     {
         r = inc(lp);
     }
@@ -4905,11 +4889,11 @@ int dec(pos_T *lp)
     char_u      *p;
     lp->coladd = 0;
 
-    if (lp->col > 0)              // still within line
+    if(lp->col > 0)               // still within line
     {
         lp->col--;
 
-        if (has_mbyte)
+        if(has_mbyte)
         {
             p = ml_get(lp->lnum);
             lp->col -= (*mb_head_off)(p, p + lp->col);
@@ -4918,13 +4902,13 @@ int dec(pos_T *lp)
         return 0;
     }
 
-    if (lp->lnum > 1)             // there is a prior line
+    if(lp->lnum > 1)              // there is a prior line
     {
         lp->lnum--;
         p = ml_get(lp->lnum);
         lp->col = (colnr_T)STRLEN(p);
 
-        if (has_mbyte)
+        if(has_mbyte)
         {
             lp->col -= (*mb_head_off)(p, p + lp->col);
         }
@@ -4940,7 +4924,7 @@ int decl(pos_T *lp)
 {
     int r;
 
-    if ((r = dec(lp)) == 1 && lp->col)
+    if((r = dec(lp)) == 1 && lp->col)
     {
         r = dec(lp);
     }

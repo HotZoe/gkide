@@ -24,18 +24,18 @@ typedef enum
 {
     kFileReadOnly = 1,     ///< Open file read-only. Default.
     kFileCreate = 2,       ///< Create file if it does not exist yet.
-                           ///< Implies kFileWriteOnly.
+    ///< Implies kFileWriteOnly.
     kFileWriteOnly = 4,    ///< Open file for writing only.
-                           ///< Cannot be used with kFileReadOnly.
+    ///< Cannot be used with kFileReadOnly.
     kFileNoSymlink = 8,    ///< Do not allow symbolic links.
     kFileCreateOnly = 16,  ///< Only create the file, failing if it already
-                           ///< exists. Implies kFileWriteOnly. Cannot be used
-                           ///< with kFileCreate.
+    ///< exists. Implies kFileWriteOnly. Cannot be used
+    ///< with kFileCreate.
     kFileTruncate = 32,    ///< Truncate the file if it exists.
-                           ///< Implies kFileWriteOnly. Cannot be used with
-                           ///< kFileCreateOnly.
+    ///< Implies kFileWriteOnly. Cannot be used with
+    ///< kFileCreateOnly.
     kFileAppend = 64,      ///< Append to the file. Implies kFileWriteOnly. Cannot
-                           ///< be used with kFileCreateOnly.
+    ///< be used with kFileCreateOnly.
 } FileOpenFlags;
 
 static inline bool file_eof(const FileDescriptor *const fp)

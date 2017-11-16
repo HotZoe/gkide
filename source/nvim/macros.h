@@ -158,9 +158,9 @@
     ((sizeof(arr)/sizeof((arr)[0])) / ((size_t)(!(sizeof(arr) % sizeof((arr)[0])))))
 
 #ifdef RGB
-// avoid RGB redefined warnings when build under windows using Msys2
-// "wingdi.h" also defined RGB macro
-#undef RGB
+    // avoid RGB redefined warnings when build under windows using Msys2
+    // "wingdi.h" also defined RGB macro
+    #undef RGB
 #endif
 
 #define RGB(r, g, b) ((r << 16) | (g << 8) | b)
@@ -170,8 +170,8 @@
 #ifndef __has_attribute
     #define NVIM_HAS_ATTRIBUTE(x) 0
 #elif defined(__clang__) \
-      && __clang__ == 1  \
-      && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 5))
+    && __clang__ == 1  \
+    && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 5))
     // Starting in Clang 3.6, __has_attribute was fixed to only report true for
     // GNU-style attributes.  Prior to that, it reported true if _any_ backend
     // supported the attribute.

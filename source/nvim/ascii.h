@@ -27,7 +27,7 @@
 #define ESC             '\033'  ///< ^[  \\e  Escape
 #define ESC_STR         "\033"
 
-#define DEL              0x7F   ///< ^?		  Delete
+#define DEL              0x7F   ///< ^?	      Delete
 #define DEL_STR         "\177"
 
 #define CSI              0x9B   ///< Control Sequence Introducer

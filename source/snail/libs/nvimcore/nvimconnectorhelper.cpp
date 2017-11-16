@@ -104,9 +104,11 @@ void NvimConnectorHelper::encodingChanged(const QVariant  &obj)
 bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
 {
     QList<Function::FunctionId> supported;
+
     foreach(const QVariant &val, ftable)
     {
         Function::FunctionId fid = Function::functionId(Function::fromVariant(val));
+
         if(fid != Function::NEOVIM_FN_NULL)
         {
             supported.append(fid);
