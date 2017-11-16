@@ -34,7 +34,7 @@ typedef enum
     kInputEof
 } InbufPollResult;
 
-static Stream read_stream = {.closed = true};
+static Stream read_stream = { .closed = true };
 static RBuffer *input_buffer = NULL;
 static bool input_eof = false;
 static int global_fd = 0;
@@ -93,6 +93,7 @@ static void create_cursorhold_event(void)
     // TODO(tarruda): Cursorhold should be implemented as a timer set during the
     // `state_check` callback for the states where it can be triggered.
     assert(!events_enabled || multiqueue_empty(main_loop.events));
+
     multiqueue_put(main_loop.events, cursorhold_event, 0);
 }
 
@@ -243,33 +244,16 @@ size_t input_enqueue(String keys)
         // copy the character, escaping CSI and K_SPECIAL
         if((uint8_t)*ptr == CSI)
         {
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                K_SPECIAL
-            }, 1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KS_EXTRA
-            },  1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KE_CSI
-            },    1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { K_SPECIAL }, 1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KS_EXTRA },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KE_CSI  },   1);
+
         }
         else if((uint8_t)*ptr == K_SPECIAL)
         {
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                K_SPECIAL
-            },  1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KS_SPECIAL
-            }, 1);
-            rbuffer_write(input_buffer, (char *)&(uint8_t)
-            {
-                KE_FILLER
-            },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { K_SPECIAL },  1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KS_SPECIAL }, 1);
+            rbuffer_write(input_buffer, (char *)&(uint8_t) { KE_FILLER },  1);
         }
         else
         {
@@ -348,6 +332,7 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
         static int orig_mouse_row = 0;
         static uint64_t orig_mouse_time = 0; // time of previous mouse click
         uint64_t mouse_time = os_hrtime(); // time of current mouse click (ns)
+
         // compute the time elapsed since the previous mouse click and
         // convert p_mouse from ms to ns
         uint64_t timediff = mouse_time - orig_mouse_time;
@@ -393,6 +378,7 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
         {
             // no modifiers in the buffer yet, shift the bytes 3 positions
             memcpy(buf + 3, buf, 3);
+
             // add the modifier sequence
             buf[0] = K_SPECIAL;
             buf[1] = KS_MODIFIER;
@@ -525,9 +511,9 @@ static int push_event_key(uint8_t *buf, int maxlen)
 /// Check if there's pending input
 static bool input_ready(void)
 {
-    return (typebuf_was_filled             // API call filled typeahead
-            || rbuffer_size(input_buffer)  // Input buffer filled
-            || pending_events());          // Events must be processed
+    return (typebuf_was_filled // API call filled typeahead
+            || rbuffer_size(input_buffer) // Input buffer filled
+            || pending_events()); // Events must be processed
 }
 
 /// Exit because of an input read error.

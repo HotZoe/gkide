@@ -67,12 +67,10 @@ char *stdpaths_get_xdg_var(const XDGVarType idx) FUNC_ATTR_WARN_UNUSED_RESULT
     const char *env_val = os_getenv(env);
 
 #ifdef HOST_OS_WINDOWS
-
     if(env_val == NULL)
     {
         env_val = os_getenv(xdg_defaults_env_vars[idx]);
     }
-
 #endif
 
     char *ret = NULL;

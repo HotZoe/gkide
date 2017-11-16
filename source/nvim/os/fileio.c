@@ -283,16 +283,19 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             assert(rbuffer_size(rv) == 0);
             rbuffer_reset(rv);
+
 #ifdef HAVE_FUN_READV
             // If there is readv() syscall, then take an opportunity to populate
             // both target buffer and RBuffer at once
             size_t write_count;
+
             struct iovec iov[] = { { .iov_base = buf, .iov_len = read_remaining },
                 {
                     .iov_base = rbuffer_write_ptr(rv, &write_count),
                     .iov_len = kRWBufferSize
                 },
             };
+
             assert(write_count == kRWBufferSize);
             const ptrdiff_t r_ret = os_readv(fp->fd, &fp->eof, iov, ARRAY_SIZE(iov));
 
@@ -313,9 +316,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 return r_ret;
             }
-
 #else
-
             if(read_remaining >= kRWBufferSize)
             {
                 // otherwise leave RBuffer empty and populate only target buffer,
@@ -350,7 +351,6 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                     return r_ret;
                 }
             }
-
 #endif
         }
     }

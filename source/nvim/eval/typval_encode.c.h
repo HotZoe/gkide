@@ -1026,5 +1026,5 @@ encode_vim_to__error_ret:
     return FAIL;
 
     // Prevent “unused label” warnings.
-    goto typval_encode_stop_converting_one_item; // -V779
+    goto typval_encode_stop_converting_one_item;
 }

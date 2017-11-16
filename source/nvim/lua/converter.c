@@ -35,8 +35,8 @@ typedef struct
     size_t string_keys_num;   ///< Number of string keys.
     bool has_string_with_nul; ///< True if there is string key with NUL byte.
     ObjectType type;          ///< If has_type_key is true then attached value. Otherwise
-    ///< either kObjectTypeNil, kObjectTypeDictionary or
-    ///< kObjectTypeArray, depending on other properties.
+                              ///< either kObjectTypeNil, kObjectTypeDictionary or
+                              ///< kObjectTypeArray, depending on other properties.
     lua_Number val;           ///< If has_val_key and val_type == LUA_TNUMBER: value.
     bool has_type_key;        ///< True if type key is present.
 } LuaTableProps;
@@ -1373,6 +1373,7 @@ Object nlua_pop_Object(lua_State *const lstate, Error *const err)
                             cur.obj->data.dictionary.items =
                                 xcalloc(table_props.string_keys_num,
                                         sizeof(cur.obj->data.dictionary.items[0]));
+
                             cur.obj->data.dictionary.capacity = table_props.string_keys_num;
                             cur.container = true;
                             kv_push(stack, cur);
@@ -1461,27 +1462,35 @@ void nlua_init_types(lua_State *const lstate)
     LUA_PUSH_STATIC_STRING(lstate, "type_idx");
     nlua_push_type_idx(lstate);
     lua_rawset(lstate, -3);
+
     LUA_PUSH_STATIC_STRING(lstate, "val_idx");
     nlua_push_val_idx(lstate);
     lua_rawset(lstate, -3);
+
     LUA_PUSH_STATIC_STRING(lstate, "types");
     lua_createtable(lstate, 0, 3);
+
     LUA_PUSH_STATIC_STRING(lstate, "float");
     lua_pushnumber(lstate, (lua_Number)kObjectTypeFloat);
     lua_rawset(lstate, -3);
+
     lua_pushnumber(lstate, (lua_Number)kObjectTypeFloat);
     LUA_PUSH_STATIC_STRING(lstate, "float");
     lua_rawset(lstate, -3);
+
     LUA_PUSH_STATIC_STRING(lstate, "array");
     lua_pushnumber(lstate, (lua_Number)kObjectTypeArray);
     lua_rawset(lstate, -3);
     lua_pushnumber(lstate, (lua_Number)kObjectTypeArray);
+
     LUA_PUSH_STATIC_STRING(lstate, "array");
     lua_rawset(lstate, -3);
+
     LUA_PUSH_STATIC_STRING(lstate, "dictionary");
     lua_pushnumber(lstate, (lua_Number)kObjectTypeDictionary);
     lua_rawset(lstate, -3);
     lua_pushnumber(lstate, (lua_Number)kObjectTypeDictionary);
+
     LUA_PUSH_STATIC_STRING(lstate, "dictionary");
     lua_rawset(lstate, -3);
     lua_rawset(lstate, -3);

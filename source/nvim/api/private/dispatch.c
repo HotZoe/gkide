@@ -22,17 +22,23 @@
 
 static Map(String, MsgpackRpcRequestHandler) *methods = NULL;
 
-static void msgpack_rpc_add_method_handler(String method, MsgpackRpcRequestHandler handler)
+static void msgpack_rpc_add_method_handler(String method,
+                                           MsgpackRpcRequestHandler handler)
 {
-    map_put(String, MsgpackRpcRequestHandler)(methods, method, handler);
+    map_put(String, MsgpackRpcRequestHandler)(methods,
+                                              method,
+                                              handler);
 }
 
-MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name, size_t name_len)
+MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name,
+                                                     size_t name_len)
 {
     String m = { 0 };
     m.data = (char *)name;
     m.size = name_len;
-    MsgpackRpcRequestHandler rv = map_get(String, MsgpackRpcRequestHandler)(methods, m);
+
+    MsgpackRpcRequestHandler rv =
+        map_get(String, MsgpackRpcRequestHandler)(methods, m);
 
     if(!rv.fn)
     {

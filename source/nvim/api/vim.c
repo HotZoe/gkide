@@ -180,8 +180,7 @@ FUNC_API_SINCE(1)
 {
     if(str.size == 0)
     {
-        return (String)
-        {
+        return (String) {
             .data = NULL,
             .size = 0
         }; // Empty string
@@ -712,6 +711,7 @@ FUNC_API_SINCE(1)
     {
         rv.size++;
     }
+
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
 
@@ -719,6 +719,7 @@ FUNC_API_SINCE(1)
     {
         rv.items[i++] = TABPAGE_OBJ(tp->handle);
     }
+
     return rv;
 }
 
@@ -923,6 +924,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
     if(ERROR_SET(&nested_error))
     {
         Array errval = ARRAY_DICT_INIT;
+
         ADD(errval, INTEGER_OBJ((Integer)i));
         ADD(errval, INTEGER_OBJ(nested_error.type));
         ADD(errval, STRING_OBJ(cstr_to_string(nested_error.msg)));

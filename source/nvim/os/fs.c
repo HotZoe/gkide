@@ -42,9 +42,9 @@
     do                                           \
     {                                            \
         bool did_try_to_free = false;            \
-        \
+                                                 \
     uv_call_start: {}                            \
-        \
+                                                 \
         uv_fs_t req;                             \
         ret = func(&fs_loop, &req, __VA_ARGS__); \
         uv_fs_req_cleanup(&req);                 \
@@ -1117,7 +1117,6 @@ FUNC_ATTR_NONNULL_ALL
 
 #ifdef HOST_OS_WINDOWS
 # include <shlobj.h>
-
 /// When "fname" is the name of a shortcut (*.lnk) resolve the file it points
 /// to and return that name in allocated memory. Otherwise NULL is returned.
 char *os_resolve_shortcut(const char *fname)
@@ -1181,7 +1180,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
                 goto shortcut_errorw;
             }
 
-#if 0
+            #if 0
             // This makes Vim wait a long time if the target does not exist.
             hr = pslw->lpVtbl->Resolve(pslw, NULL, SLR_NO_UI);
 
@@ -1190,7 +1189,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
                 goto shortcut_errorw;
             }
 
-#endif
+            #endif
+
             // Get the path to the link target.
             ZeroMemory(wsz, MAX_PATH * sizeof(WCHAR));
             hr = pslw->lpVtbl->GetPath(pslw, wsz, MAX_PATH, &ffdw, 0);
@@ -1234,12 +1234,12 @@ int os_translate_sys_error(int FUNC_ARGS_UNUSED_MAYBE(sys_errno))
 #ifdef HAVE_UV_TRANSLATE_SYS_ERROR
     return uv_translate_sys_error(sys_errno);
 #elif defined(HOST_OS_WINDOWS)
-#ifndef ERROR_SYMLINK_NOT_SUPPORTED
-    // TODO(equalsraf): libuv does not yet expose uv_translate_sys_error()
-    // in its public API, include a version here until it can be used.
-    // See https://github.com/libuv/libuv/issues/79
-#define ERROR_SYMLINK_NOT_SUPPORTED 1464
-#endif
+    #ifndef ERROR_SYMLINK_NOT_SUPPORTED
+        // TODO(equalsraf): libuv does not yet expose uv_translate_sys_error()
+        // in its public API, include a version here until it can be used.
+        // See https://github.com/libuv/libuv/issues/79
+        #define ERROR_SYMLINK_NOT_SUPPORTED 1464
+    #endif
 
     if(sys_errno <= 0)
     {
@@ -1539,7 +1539,6 @@ int os_translate_sys_error(int FUNC_ARGS_UNUSED_MAYBE(sys_errno))
         default:
             return UV_UNKNOWN;
     }
-
 #else
     const int error = -errno;
     STATIC_ASSERT(-EINTR == UV_EINTR,   "Need to translate error codes");

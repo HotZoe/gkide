@@ -87,6 +87,7 @@ void buffer_set_line(Buffer buffer, Integer index, String line, Error *err)
 {
     Object l = STRING_OBJ(line);
     Array array = { .items = &l, .size = 1 };
+
     index = convert_index(index);
     nvim_buf_set_lines(0, buffer, index, index+1, true,  array, err);
 }
@@ -131,6 +132,7 @@ ArrayOf(String) buffer_get_line_slice(Buffer buffer,
 {
     start = convert_index(start) + !include_start;
     end = convert_index(end) + include_end;
+
     return nvim_buf_get_lines(0, buffer, start, end, false, err);
 }
 

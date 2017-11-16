@@ -40,7 +40,6 @@ int libuv_process_spawn(LibuvProcess *uvproc) FUNC_ATTR_NONNULL_ALL
     {
         uvproc->uvopts.flags |= UV_PROCESS_WINDOWS_VERBATIM_ARGUMENTS;
     }
-
 #endif
 
     uvproc->uvopts.exit_cb = exit_cb;

@@ -2132,7 +2132,6 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
                    && str[1] != '*'
                    && str[1] != '?'
                    && !vim_isfilec(str[1])));
-
 #else
     return str[0] == '\\' && str[1] != NUL;
 #endif

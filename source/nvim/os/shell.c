@@ -112,6 +112,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     char *output = NULL, **output_ptr = NULL;
     int current_state = State;
     bool forward_output = true;
+
     // While the child is running, ignore terminating signals
     signal_reject_deadly();
 
@@ -325,9 +326,9 @@ static int do_os_system(char **argv,
     return exitcode;
 }
 
-///  - ensures at least `desired` bytes in buffer
+/// ensures at least `desired` bytes in buffer
 ///
-/// TODO(aktau): fold with kvec/garray
+/// @todo fold with kvec/garray
 static void dynamic_buffer_ensure(DynamicBuffer *buf, size_t desired)
 {
     if(buf->cap >= desired)

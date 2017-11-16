@@ -52,10 +52,7 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
 
     uv_signal_start(&proc->loop->children_watcher, chld_handler, SIGCHLD);
 
-    ptyproc->winsize = (struct winsize)
-    {
-        ptyproc->height, ptyproc->width, 0, 0
-    };
+    ptyproc->winsize = (struct winsize) { ptyproc->height, ptyproc->width, 0, 0 };
 
     uv_disable_stdio_inheritance();
     int master;
@@ -113,9 +110,11 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     return 0;
 
 error:
+
     close(master);
     kill(pid, SIGKILL);
     waitpid(pid, NULL, 0);
+
     return status;
 }
 
@@ -124,10 +123,7 @@ void pty_process_resize(PtyProcess *ptyproc,
                         uint16_t height)
 FUNC_ATTR_NONNULL_ALL
 {
-    ptyproc->winsize = (struct winsize)
-    {
-        height, width, 0, 0
-    };
+    ptyproc->winsize = (struct winsize) { height, width, 0, 0 };
 
     ioctl(ptyproc->tty_fd, TIOCSWINSZ, &ptyproc->winsize);
 }
@@ -281,6 +277,7 @@ static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe) FUNC_ATTR_NONNULL
     return status;
 
 error:
+
     close(fd_dup);
     return status;
 }

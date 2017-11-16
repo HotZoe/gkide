@@ -73,6 +73,7 @@ void loop_schedule(main_loop_T *loop, Event event)
 void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue), void *data)
 {
     main_loop_T *loop = data;
+
     // Sometimes libuv will run pending callbacks(timer for example) before
     // blocking for a poll. If this happens and the callback pushes a event to one
     // of the queues, the event would only be processed after the poll

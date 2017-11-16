@@ -33,6 +33,7 @@ FUNC_API_SINCE(1)
     }
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
+
     FOR_ALL_WINDOWS_IN_TAB(wp, tab)
     {
         rv.items[i++] = WINDOW_OBJ(wp->handle);

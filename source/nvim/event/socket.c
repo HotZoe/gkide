@@ -267,8 +267,7 @@ bool socket_connect(main_loop_T *loop,
         *host_end = NUL;
         const struct addrinfo hints = { .ai_family = AF_UNSPEC,
                                         .ai_socktype = SOCK_STREAM,
-                                        .ai_flags  = AI_NUMERICSERV
-                                      };
+                                        .ai_flags  = AI_NUMERICSERV };
 
         int retval = uv_getaddrinfo(&loop->uv, &addr_req, NULL, addr, host_end+1, &hints);
 
@@ -279,7 +278,9 @@ bool socket_connect(main_loop_T *loop,
         }
 
         addrinfo = addr_req.addrinfo;
+
 tcp_retry:
+
         uv_tcp_init(&loop->uv, tcp);
         uv_tcp_connect(&req,  tcp, addrinfo->ai_addr, connect_cb);
         uv_stream = (uv_stream_t *)tcp;
@@ -312,7 +313,9 @@ tcp_retry:
     }
 
 cleanup:
+
     xfree(addr);
     uv_freeaddrinfo(addr_req.addrinfo);
+
     return success;
 }

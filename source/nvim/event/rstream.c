@@ -220,6 +220,7 @@ static void invoke_read_cb(Stream *stream, size_t count, bool eof)
 {
     // Don't let the stream be closed before the event is processed.
     stream->pending_reqs++;
+
     CREATE_EVENT(stream->events,
                  read_event,
                  3,

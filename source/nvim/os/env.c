@@ -69,7 +69,6 @@ int os_setenv(const char *name, const char *value, int overwrite) FUNC_ATTR_NONN
 #elif defined(HAVE_FUN_SETENV)
     return setenv(name, value, overwrite);
 #elif defined(HAVE_FUN_PUTENV_S)
-
     if(!overwrite && os_getenv(name) != NULL)
     {
         return 0;
@@ -82,7 +81,7 @@ int os_setenv(const char *name, const char *value, int overwrite) FUNC_ATTR_NONN
 
     return -1;
 #else
-#error "This system has no implementation available for os_setenv()"
+    #error "This system has no implementation available for os_setenv()"
 #endif
 }
 
@@ -164,7 +163,6 @@ void os_get_hostname(char *hostname, size_t size)
     {
         xstrlcpy(hostname, vutsname.nodename, size);
     }
-
 #elif defined(HOST_OS_WINDOWS)
     WCHAR host_utf16[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD host_wsize = sizeof(host_utf16) / sizeof(host_utf16[0]);
@@ -203,8 +201,8 @@ typedef enum
     kNLC_FLG = 4  ///< if set, check sequence: SYS->USR, otherwise, the reverse
 } NvimLayoutCheck;
 
-char *gkide_usr_home = NULL; /// gkide user home directory, runtime fixed
-char *gkide_sys_home = NULL; /// gkide system home directory, runtime fixed
+char *gkide_usr_home = NULL; ///< gkide user home directory, runtime fixed
+char *gkide_sys_home = NULL; ///< gkide system home directory, runtime fixed
 
 /// To get the user home directory: get the value of $GKIDE_USR_HOME
 /// Here used this environment is because $HOME is used everywhere, so that if change its
@@ -225,7 +223,6 @@ bool init_gkide_usr_home(void)
 #if 0
     std_home = os_getenv("HOME");
 #ifdef HOST_OS_WINDOWS
-
     // Typically, $HOME is not defined on Windows, unless the user has specifically defined it
     // for Vim's sake. However, on Windows NT platforms, $HOMEDRIVE and $HOMEPATH are automatically
     // defined for each user. Try constructing $HOME from these.
@@ -249,7 +246,6 @@ bool init_gkide_usr_home(void)
             }
         }
     }
-
 #endif
 #else
     size_t buf_len = MAXPATHL; // get host standard home directory
@@ -258,7 +254,6 @@ bool init_gkide_usr_home(void)
     {
         std_home = os_buf;
     }
-
 #endif
 
     if(std_home == NULL)
@@ -352,7 +347,6 @@ bool init_gkide_usr_home(void)
     }
 
 #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
-
     // Change to the home directory and get the actual path.
     // This resolves links. Do not do it when we can not return.
     if(os_dirname((char_u *)os_buf, MAXPATHL) == OK && os_chdir(os_buf) == kLibuvSuccess)
@@ -369,7 +363,6 @@ bool init_gkide_usr_home(void)
             EMSG(_(e_prev_dir));
         }
     }
-
 #endif
 
     if(gkide_usr_home)
@@ -449,6 +442,7 @@ void expand_env_esc(char_u *restrict srcp,
     bool mustfree; // var was allocated, need to free it later
     bool at_start = true; // at start of a name
     int prefix_len = (prefix == NULL) ? 0 : (int)STRLEN(prefix);
+
     // should leave one char space for comma at the end, which is ','
     dstlen--; // now turn to index
     DEV_TRACE_MSG("srcp=%s", srcp);
@@ -495,8 +489,8 @@ void expand_env_esc(char_u *restrict srcp,
                 tail = src + 1; // begin of the env-var name
                 var = dst;
                 int c = dstlen - 1; // index for comma
-#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
 
+#if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Unix has ${var-name} type environment vars
                 if(*tail == '{' && !vim_isIDc('{'))
                 {
@@ -520,7 +514,6 @@ void expand_env_esc(char_u *restrict srcp,
                 }
 
 #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
-
                 // Verify that we have found the end of a Unix ${VAR} style variable
                 if(src[1] == '{' && *tail != '}')
                 {
@@ -532,7 +525,6 @@ void expand_env_esc(char_u *restrict srcp,
                     {
                         ++tail;
                     }
-
 #endif
                     // set the 'dst' last char to NUL
                     *var = NUL; // then get the env-var value
@@ -540,9 +532,9 @@ void expand_env_esc(char_u *restrict srcp,
                     mustfree = true; // var point to new allocate memory
                     DEV_TRACE_MSG("env=%s", dst);
                     DEV_TRACE_MSG("val=%s", var);
+
 #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 }
-
 #endif
             }
             else if(src[1] == NUL // home directory, "~"
@@ -589,7 +581,6 @@ void expand_env_esc(char_u *restrict srcp,
             }
 
 #ifdef BACKSLASH_IN_FILENAME
-
             // If 'shellslash' is set change backslashes to forward slashes.
             // Can't use slash_adjust(), p_ssl may be set temporarily.
             if(p_ssl && var != NULL && vim_strchr(var, '\\') != NULL)
@@ -605,7 +596,6 @@ void expand_env_esc(char_u *restrict srcp,
                 mustfree = true;
                 forward_slash(var);
             }
-
 #endif
 
             // If "var" contains white space, escape it with a backslash.
@@ -788,19 +778,19 @@ static char *nvim_check_pathname(const char *base_dir, const char *fd_name, int 
         {                                                                          \
             return NULL;                                                           \
         }                                                                          \
-        \
+                                                                                   \
         chkflg = chkflg & 0xF; /* get the lower flag bits */                       \
-        \
+                                                                                   \
         if(chkflg == 0 || chkflg == kNLC_FLG)                                      \
         {                                                                          \
             /* use none of sys/usr/dyn, so do nothing */                           \
             return NULL;                                                           \
         }                                                                          \
-        \
+                                                                                   \
         char *retval = NULL;                                                       \
         char *base_dir = NULL;                                                     \
         bool sys_first = chkflg & kNLC_FLG;                                        \
-        \
+                                                                                   \
         if(sys_first)                                                              \
         {                                                                          \
             /* check SYS, if not then */                                           \
@@ -811,57 +801,57 @@ static char *nvim_check_pathname(const char *base_dir, const char *fd_name, int 
                 base_dir = concat_fnames(gkide_sys_home, #layoutdir, true);        \
                 retval = nvim_check_pathname(base_dir, chkname, chktype);          \
                 xfree(base_dir);                                                   \
-                \
+                                                                                   \
                 if(retval)                                                         \
                 {                                                                  \
                     return retval;                                                 \
                 }                                                                  \
             }                                                                      \
-            \
+                                                                                   \
             if(gkide_usr_home && (chkflg & kNLC_USR))                              \
             {                                                                      \
                 base_dir = concat_fnames(gkide_usr_home, #layoutdir, true);        \
                 retval = nvim_check_pathname(base_dir, chkname, chktype);          \
                 xfree(base_dir);                                                   \
-                \
+                                                                                   \
                 if(retval)                                                         \
                 {                                                                  \
                     return retval;                                                 \
                 }                                                                  \
             }                                                                      \
-            \
+                                                                                   \
         }                                                                          \
         else                                                                       \
         {                                                                          \
             /* check USR, if not then */                                           \
             /* check SYS, if not then */                                           \
             /* return NULL            */                                           \
-            \
+                                                                                   \
             if(gkide_usr_home && (chkflg & kNLC_USR))                              \
             {                                                                      \
                 base_dir = concat_fnames(gkide_usr_home, #layoutdir, true);        \
                 retval = nvim_check_pathname(base_dir, chkname, chktype);          \
                 xfree(base_dir);                                                   \
-                \
+                                                                                   \
                 if(retval)                                                         \
                 {                                                                  \
                     return retval;                                                 \
                 }                                                                  \
             }                                                                      \
-            \
+                                                                                   \
             if(gkide_sys_home && (chkflg & kNLC_SYS))                              \
             {                                                                      \
                 base_dir = concat_fnames(gkide_sys_home, #layoutdir, true);        \
                 retval = nvim_check_pathname(base_dir, chkname, chktype);          \
                 xfree(base_dir);                                                   \
-                \
+                                                                                   \
                 if(retval)                                                         \
                 {                                                                  \
                     return retval;                                                 \
                 }                                                                  \
             }                                                                      \
         }                                                                          \
-        \
+                                                                                   \
         return NULL;                                                               \
     }
 
@@ -1162,9 +1152,9 @@ char_u *get_env_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 bool os_setenv_append_path(const char *fname) FUNC_ATTR_NONNULL_ALL
 {
 #ifdef HOST_OS_WINDOWS
-#   define MAX_ENVPATHLEN  8192     ///< 8191 plus NUL is considered the practical maximum.
+    #define MAX_ENVPATHLEN  8192     ///< 8191 plus NUL is considered the practical maximum.
 #else
-#   define MAX_ENVPATHLEN  INT_MAX  ///< No prescribed maximum on unix.
+    #define MAX_ENVPATHLEN  INT_MAX  ///< No prescribed maximum on unix.
 #endif
 
     if(!path_is_absolute_path((char_u *)fname))

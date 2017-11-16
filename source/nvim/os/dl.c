@@ -78,6 +78,7 @@ bool os_libcall(const char *libname,
         str_str_fn sfn = (str_str_fn) fn;
         int_str_fn ifn = (int_str_fn) fn;
         const char *res = argv ? sfn(argv) : ifn(argi);
+
         // assume that ptr values of NULL, 1 or -1 are illegal
         *str_out = (res && (intptr_t) res != 1 && (intptr_t) res != -1) ? xstrdup(res) : NULL;
     }
