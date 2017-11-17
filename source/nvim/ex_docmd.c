@@ -95,6 +95,7 @@ static garray_T ucmds = {0, 0, sizeof(ucmd_T), 4, NULL};
 
 #define USER_CMD(i)          (&((ucmd_T *)(ucmds.ga_data))[i])
 #define USER_CMD_GA(gap, i)  (&((ucmd_T *)((gap)->ga_data))[i])
+
 /// Wether a command index indicates a user command.
 #define IS_USER_CMDIDX(idx)  ((int)(idx) < 0)
 
@@ -112,11 +113,11 @@ typedef struct
 /// reads more lines that may come from the while/for loop.
 struct loop_cookie
 {
-    garray_T *lines_gap;     ///< growarray with line info
-    int current_line;        ///< last read line from growarray
+    garray_T *lines_gap;  ///< growarray with line info
+    int current_line;     ///< last read line from growarray
 
     /// TRUE when looping a second time.
-    /// When "repeating" is FALSE use "getline"  and "cookie" to get lines
+    /// When "repeating" is FALSE use @b getline  and @b cookie to get lines
     int repeating;
     char_u *(*getline)(int, void *, int);
     void *cookie;
@@ -562,7 +563,7 @@ int do_cmdline(char_u *cmdline,
             // Inside a while/for loop we need to store the lines and use them
             // again. Pass a different "fgetline" function to do_one_cmd()
             // below, so that it stores lines in or reads them from
-            // "lines_ga".  Makes it possible to define a function inside a
+            // "lines_ga". Makes it possible to define a function inside a
             // while/for loop.
             cmd_getline = get_loop_line;
             cmd_cookie = (void *)&cmd_loop_cookie;
@@ -861,8 +862,10 @@ int do_cmdline(char_u *cmdline,
         // If a sourced file or executed function ran to its end,
         // report the unclosed conditional.
         if(!got_int && !did_throw
-           && ((getline_equal(fgetline, cookie, getsourceline) && !source_finished(fgetline, cookie))
-               || (getline_equal(fgetline, cookie, get_func_line) && !func_has_ended(real_cookie))))
+           && ((getline_equal(fgetline, cookie, getsourceline)
+                && !source_finished(fgetline, cookie))
+               || (getline_equal(fgetline, cookie, get_func_line)
+                   && !func_has_ended(real_cookie))))
         {
             if(cstack.cs_flags[cstack.cs_idx] & CSF_TRY)
             {
@@ -1260,10 +1263,10 @@ static int current_tab_nr(tabpage_T *tab)
     return nr;
 }
 
-#define CURRENT_WIN_NR current_win_nr(curwin)
-#define LAST_WIN_NR current_win_nr(NULL)
-#define CURRENT_TAB_NR current_tab_nr(curtab)
-#define LAST_TAB_NR current_tab_nr(NULL)
+#define CURRENT_WIN_NR  current_win_nr(curwin)
+#define LAST_WIN_NR     current_win_nr(NULL)
+#define CURRENT_TAB_NR  current_tab_nr(curtab)
+#define LAST_TAB_NR     current_tab_nr(NULL)
 
 /// Figure out the address type for ":wincmd".
 static void get_wincmd_addr_type(char_u *arg, exarg_T *eap)
@@ -1576,7 +1579,10 @@ static char_u *do_one_cmd(char_u **cmdlinep,
             case 'h':
             {
                 // ":hide" and ":hide | cmd" are not modifiers
-                if(p != ea.cmd || !checkforcmd(&p, "hide", 3) || *p == NUL || ends_excmd(*p))
+                if(p != ea.cmd
+                   || !checkforcmd(&p, "hide", 3)
+                   || *p == NUL
+                   || ends_excmd(*p))
                 {
                     break;
                 }
@@ -1764,10 +1770,12 @@ static char_u *do_one_cmd(char_u **cmdlinep,
     }
 
     char_u *after_modifier = ea.cmd;
+
     ea.skip = did_emsg
               || got_int
               || did_throw
-              || (cstack->cs_idx >= 0 && !(cstack->cs_flags[cstack->cs_idx] & CSF_ACTIVE));
+              || (cstack->cs_idx >= 0
+                  && !(cstack->cs_flags[cstack->cs_idx] & CSF_ACTIVE));
 
     // Count this line for profiling if ea.skip is FALSE.
     if(do_profiling == PROF_YES && !ea.skip)
@@ -1885,6 +1893,7 @@ static char_u *do_one_cmd(char_u **cmdlinep,
         }
 
         ea.cmd = skipwhite(ea.cmd);
+
         lnum = get_address(&ea,
                            &ea.cmd,
                            ea.addr_type,
@@ -2059,6 +2068,7 @@ static char_u *do_one_cmd(char_u **cmdlinep,
 
     // Don't leave the cursor on an illegal line (caused by ';')
     check_cursor_lnum();
+
     // 5. Parse the command.
     // Skip ':' and any white space
     ea.cmd = skipwhite(ea.cmd);
@@ -2164,7 +2174,8 @@ static char_u *do_one_cmd(char_u **cmdlinep,
 
             if(!(flags & DOCMD_VERBOSE))
             {
-                // If the modifier was parsed OK the error must be in the following command
+                // If the modifier was parsed OK the error
+                // must be in the following command
                 if(after_modifier != NULL)
                 {
                     append_command(after_modifier);
@@ -2955,7 +2966,8 @@ static char_u *find_command(exarg_T *eap, int *full)
     else if(p[0] == 's'
             && ((p[1] == 'c'
                  && (p[2] == NUL
-                     || (p[2] != 's' && p[2] != 'r'
+                     || (p[2] != 's'
+                         && p[2] != 'r'
                          && (p[3] == NUL || (p[3] != 'i' && p[4] != 'p')))))
                 || p[1] == 'g'
                 || (p[1] == 'i' && p[2] != 'm' && p[2] != 'l' && p[2] != 'g')
@@ -3533,7 +3545,7 @@ const char *set_one_cmd_context(expand_T *xp, const char *buff)
     {
         usefilter = forceit; // :r! filter if forced
 
-        if(*arg == '!')      // :r !filter
+        if(*arg == '!') // :r !filter
         {
             ++arg;
             usefilter = TRUE;
@@ -3961,7 +3973,7 @@ const char *set_one_cmd_context(expand_T *xp, const char *buff)
 
             if(delim)
             {
-                arg++;  // Skip delimiter if there is one.
+                arg++; // Skip delimiter if there is one.
             }
 
             while(arg[0] != NUL && (uint8_t)arg[0] != delim)
