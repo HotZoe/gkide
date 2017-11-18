@@ -6,13 +6,13 @@
 ///
 /// Exception handling terms:
 ///
-///  - :try      ":try" command      \
+///  - :try      ":try" command      |
 ///  - ...       try block           |
 ///  - :catch RE ":catch" command    |
 ///  -     ...   catch clause        |- try conditional
 ///  - :finally  ":finally" command  |
 ///  -     ...   finally clause      |
-///  - :endtry   ":endtry" command   /
+///  - :endtry   ":endtry" command   |
 ///
 /// The try conditional may have any number of catch clauses and at most one
 /// finally clause. A ":throw" command can be inside the try block, a catch

@@ -27,10 +27,13 @@
 
 /// file I/O and sprintf buffer size
 #define IOSIZE         (1024+1)
+
 /// maximum value for 'maxcombine'
 #define MAX_MCO        (6)
+
 /// length of buffer for small messages
 #define MSG_BUF_LEN    (480)
+
 /// cell length, worst case: utf-8 takes 6 bytes for one cell
 #define MSG_BUF_CLEN   (MSG_BUF_LEN / 6)
 
