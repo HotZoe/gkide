@@ -28,28 +28,30 @@
 #include "nvim/message.h"
 #include "nvim/memory.h"
 
-// Magic value for algorithm that walks through the array.
-#define PERTURB_SHIFT 5
-
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "hashtab.c.generated.h"
 #endif
+
+/// Magic value for algorithm that walks through the array.
+#define PERTURB_SHIFT    5
 
 char hash_removed;
 
 /// Initialize an empty hash table.
 void hash_init(hashtab_T *ht)
 {
-    // This zeroes all "ht_" entries and all the "hi_key" in "ht_smallarray".
+    // This zeroes all "ht_*" entries and
+    // all the "hi_key" in "ht_smallarray".
     memset(ht, 0, sizeof(hashtab_T));
+
     ht->ht_array = ht->ht_smallarray;
     ht->ht_mask = HT_INIT_SIZE - 1;
 }
 
 /// Free the array of a hash table without freeing contained values.
 ///
-/// If "ht" is not freed (after calling this) then you should call hash_init()
-/// right next!
+/// If "ht" is not freed (after calling this) then you should call
+/// hash_init() right next!
 void hash_clear(hashtab_T *ht)
 {
     if(ht->ht_array != ht->ht_smallarray)
@@ -93,7 +95,7 @@ hashitem_T *hash_find(const hashtab_T *const ht, const char_u *const key)
 
 /// Like hash_find, but key is not NUL-terminated
 ///
-/// @param[in]  ht  Hashtab to look in.
+/// @param[in]  ht   Hashtab to look in.
 /// @param[in]  key  Key of the looked-for item. Must not be NULL.
 /// @param[in]  len  Key length.
 ///
@@ -103,7 +105,8 @@ hashitem_T *hash_find(const hashtab_T *const ht, const char_u *const key)
 ///
 ///         @warning Returned pointer becomes invalid as soon as the hash table
 ///                  is changed in any way.
-hashitem_T *hash_find_len(const hashtab_T *const ht, const char *const key,
+hashitem_T *hash_find_len(const hashtab_T *const ht,
+                          const char *const key,
                           const size_t len)
 {
     return hash_lookup(ht, key, len, hash_hash_len(key, len));
@@ -121,12 +124,13 @@ hashitem_T *hash_find_len(const hashtab_T *const ht, const char *const key,
 ///         WARNING: Returned pointer becomes invalid as soon as the hash table
 ///                  is changed in any way.
 hashitem_T *hash_lookup(const hashtab_T *const ht,
-                        const char *const key, const size_t key_len,
+                        const char *const key,
+                        const size_t key_len,
                         const hash_T hash)
 {
 #ifdef HT_DEBUG
     hash_count_lookup++;
-#endif  // ifdef HT_DEBUG
+#endif
     // Quickly handle the most common situations:
     // - return if there is no item at all
     // - skip over a removed item
@@ -157,14 +161,13 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     // smaller down to (1/4 table size + 1). This means it goes through all
     // table entries in the end.
     // When we run into a NULL key it's clear that the key isn't there.
-    // Return the first available slot found (can be a slot of a removed
-    // item).
+    // Return the first available slot found (can be a slot of a removed item).
     for(hash_T perturb = hash;; perturb >>= PERTURB_SHIFT)
     {
 #ifdef HT_DEBUG
         // count a "miss" for hashtab lookup
         hash_count_perturb++;
-#endif  // ifdef HT_DEBUG
+#endif
         idx = 5 * idx + perturb + 1;
         hi = &ht->ht_array[idx & ht->ht_mask];
 
@@ -202,7 +205,7 @@ void hash_debug_results(void)
             (int64_t)hash_count_perturb);
     fprintf(stderr, "Percentage of perturb loops: %" PRId64 "%%\r\n",
             (int64_t)(hash_count_perturb * 100 / hash_count_lookup));
-#endif  // ifdef HT_DEBUG
+#endif
 }
 
 /// Add item for key "key" to hashtable "ht".
@@ -210,8 +213,9 @@ void hash_debug_results(void)
 /// @param key Pointer to the key for the new item. The key has to be contained
 ///            in the new item (@see hashitem_T). Must not be NULL.
 ///
-/// @return OK   if success.
-///         FAIL if key already present
+/// @return
+/// - OK, if success.
+/// - FAIL, if key already present
 int hash_add(hashtab_T *ht, char_u *key)
 {
     hash_T hash = hash_hash(key);
@@ -245,6 +249,7 @@ void hash_add_item(hashtab_T *ht, hashitem_T *hi, char_u *key, hash_T hash)
 
     hi->hi_key = key;
     hi->hi_hash = hash;
+
     // When the space gets low may resize the array.
     hash_may_resize(ht, 0);
 }
@@ -297,7 +302,6 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     }
 
 #ifdef HT_DEBUG
-
     if(ht->ht_used > ht->ht_filled)
     {
         EMSG("hash_may_resize(): more used than filled");
@@ -307,8 +311,8 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     {
         EMSG("hash_may_resize(): table completely filled");
     }
+#endif
 
-#endif  // ifdef HT_DEBUG
     size_t minsize;
 
     if(minitems == 0)
@@ -367,18 +371,22 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     }
 
     bool newarray_is_small = newsize == HT_INIT_SIZE;
-    bool keep_smallarray = newarray_is_small
-                           && ht->ht_array == ht->ht_smallarray;
+    bool keep_smallarray = newarray_is_small && ht->ht_array == ht->ht_smallarray;
+
     // Make sure that oldarray and newarray do not overlap,
     // so that copying is possible.
     hashitem_T temparray[HT_INIT_SIZE];
+
     hashitem_T *oldarray = keep_smallarray
                            ? memcpy(temparray, ht->ht_smallarray, sizeof(temparray))
                            : ht->ht_array;
+
     hashitem_T *newarray = newarray_is_small
                            ? ht->ht_smallarray
                            : xmalloc(sizeof(hashitem_T) * newsize);
+
     memset(newarray, 0, sizeof(hashitem_T) * newsize);
+
     // Move all the items from the old array to the new one, placing them in
     // the right spot. The new array won't have any removed items, thus this
     // is also a cleanup action.
@@ -426,8 +434,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     ht->ht_filled = ht->ht_used;
 }
 
-#define HASH_CYCLE_BODY(hash, p) \
-    hash = hash * 101 + *p++
+#define HASH_CYCLE_BODY(hash, p)    hash = hash * 101 + *p++
 
 /// Get the hash number for a key.
 ///
