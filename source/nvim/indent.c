@@ -26,31 +26,29 @@
     #include "indent.c.generated.h"
 #endif
 
-// Count the size (in window cells) of the indent in the current line.
+/// Count the size (in window cells) of the indent in the current line.
 int get_indent(void)
 {
     return get_indent_str(get_cursor_line_ptr(), (int)curbuf->b_p_ts, false);
 }
 
 
-// Count the size (in window cells) of the indent in line "lnum".
+/// Count the size (in window cells) of the indent in line "lnum".
 int get_indent_lnum(linenr_T lnum)
 {
     return get_indent_str(ml_get(lnum), (int)curbuf->b_p_ts, false);
 }
 
 
-// Count the size (in window cells) of the indent in line "lnum" of buffer
-// "buf".
+/// Count the size (in window cells) of the indent in line "lnum" of buffer "buf".
 int get_indent_buf(buf_T *buf, linenr_T lnum)
 {
     return get_indent_str(ml_get_buf(buf, lnum, false), (int)buf->b_p_ts, false);
 }
 
 
-// Count the size (in window cells) of the indent in line "ptr", with
-// 'tabstop' at "ts".
-// If @param list is TRUE, count only screen size for tabs.
+/// Count the size (in window cells) of the indent in line "ptr", with
+/// 'tabstop' at "ts". If @b list is TRUE, count only screen size for tabs.
 int get_indent_str(char_u *ptr, int ts, int list)
 {
     int count = 0;
@@ -60,7 +58,7 @@ int get_indent_str(char_u *ptr, int ts, int list)
         // Count a tab for what it is worth.
         if(*ptr == TAB)
         {
-            if(!list || lcs_tab1)     // count a tab for what it is worth
+            if(!list || lcs_tab1) // count a tab for what it is worth
             {
                 count += ts - (count % ts);
             }
@@ -86,15 +84,17 @@ int get_indent_str(char_u *ptr, int ts, int list)
 }
 
 
-// Set the indent of the current line.
-// Leaves the cursor on the first non-blank in the line.
-// Caller must take care of undo.
-// "flags":
-//  SIN_CHANGED:    call changed_bytes() if the line was changed.
-//  SIN_INSERT: insert the indent in front of the line.
-//  SIN_UNDO:   save line for undo before changing it.
-//  @param size measured in spaces
-// Returns true if the line was changed.
+/// Set the indent of the current line.
+///
+/// Leaves the cursor on the first non-blank in the line.
+/// Caller must take care of undo. "flags":
+///  - SIN_CHANGED: call changed_bytes() if the line was changed.
+///  - SIN_INSERT: insert the indent in front of the line.
+///  - SIN_UNDO: save line for undo before changing it.
+///
+///  @param size measured in spaces
+///
+/// @return Returns true if the line was changed.
 int set_indent(int size, int flags)
 {
     char_u *p;
@@ -102,14 +102,16 @@ int set_indent(int size, int flags)
     char_u *oldline;
     char_u *s;
     int todo;
-    int ind_len;  // Measured in characters.
+    int ind_len; // Measured in characters.
     int line_len;
     int doit = false;
-    int ind_done = 0;  // Measured in spaces.
+    int ind_done = 0; // Measured in spaces.
     int tab_pad;
     int retval = false;
+
     // Number of initial whitespace chars when 'et' and 'pi' are both set.
     int orig_char_len = -1;
+
     // First check if there is anything to do and compute the number of
     // characters needed for the indent.
     todo = size;
@@ -229,13 +231,14 @@ int set_indent(int size, int flags)
     line_len = (int)STRLEN(p) + 1;
 
     // If 'preserveindent' and 'expandtab' are both set keep the original
-    // characters and allocate accordingly.  We will fill the rest with spaces
+    // characters and allocate accordingly. We will fill the rest with spaces
     // after the if (!curbuf->b_p_et) below.
     if(orig_char_len != -1)
     {
         assert(orig_char_len + size - ind_done + line_len >= 0);
         newline = xmalloc((size_t)(orig_char_len + size - ind_done + line_len));
         todo = size - ind_done;
+
         // Set total length of indent in characters, which may have been
         // undercounted until now.
         ind_len = orig_char_len + todo;
@@ -248,8 +251,8 @@ int set_indent(int size, int flags)
             orig_char_len--;
         }
 
-        // Skip over any additional white space (useful when newindent is less
-        // than old).
+        // Skip over any additional white space
+        // (useful when newindent is less than old).
         while(ascii_iswhite(*p))
         {
             p++;
@@ -364,9 +367,9 @@ int set_indent(int size, int flags)
 }
 
 
-// Copy the indent from ptr to the current line (and fill to size).
-// Leaves the cursor on the first non-blank in the line.
-// @return true if the line was changed.
+/// Copy the indent from ptr to the current line (and fill to size).
+/// Leaves the cursor on the first non-blank in the line.
+/// @return true if the line was changed.
 int copy_indent(int size, char_u *src)
 {
     char_u *p = NULL;
@@ -393,8 +396,7 @@ int copy_indent(int size, char_u *src)
         {
             if(*s == TAB)
             {
-                tab_pad = (int)curbuf->b_p_ts
-                          - (ind_done % (int)curbuf->b_p_ts);
+                tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
 
                 // Stop if this tab will overshoot the target.
                 if(todo < tab_pad)
@@ -472,23 +474,26 @@ int copy_indent(int size, char_u *src)
 
     // Append the original line
     memmove(p, get_cursor_line_ptr(), (size_t)line_len);
+
     // Replace the line
     ml_replace(curwin->w_cursor.lnum, line, false);
+
     // Put the cursor after the indent.
     curwin->w_cursor.col = ind_len;
+
     return true;
 }
 
 
-// Return the indent of the current line after a number.  Return -1 if no
-// number was found.  Used for 'n' in 'formatoptions': numbered list.
-// Since a pattern is used it can actually handle more than numbers.
+/// Return the indent of the current line after a number.  Return -1 if no
+/// number was found. Used for 'n' in 'formatoptions': numbered list.
+/// Since a pattern is used it can actually handle more than numbers.
 int get_number_indent(linenr_T lnum)
 {
     colnr_T col;
     pos_T pos;
     regmatch_T regmatch;
-    int lead_len = 0;  // Length of comment leader.
+    int lead_len = 0; // Length of comment leader.
 
     if(lnum > curbuf->b_ml.ml_line_count)
     {
@@ -530,67 +535,66 @@ int get_number_indent(linenr_T lnum)
     return (int)col;
 }
 
-/*
- * Return appropriate space number for breakindent, taking influencing
- * parameters into account. Window must be specified, since it is not
- * necessarily always the current one.
- */
+/// Return appropriate space number for breakindent, taking influencing
+/// parameters into account. Window must be specified, since it is not
+/// necessarily always the current one.
 int get_breakindent_win(win_T *wp, char_u *line)
 {
-    static int prev_indent = 0;  /* cached indent value */
-    static long prev_ts = 0; /* cached tabstop value */
-    static char_u *prev_line = NULL; /* cached pointer to line */
-    static int prev_tick = 0;  // changedtick of cached value
+    static int prev_indent = 0; // cached indent value
+    static long prev_ts = 0; // cached tabstop value
+    static char_u *prev_line = NULL; // cached pointer to line
+    static int prev_tick = 0; // changedtick of cached value
     int bri = 0;
-    /* window width minus window margin space, i.e. what rests for text */
+
+    // window width minus window margin space, i.e. what rests for text
     const int eff_wwidth = wp->w_width
                            - ((wp->w_p_nu || wp->w_p_rnu)
                               && (vim_strchr(p_cpo, CPO_NUMCOL) == NULL)
                               ? number_width(wp) + 1 : 0);
 
-    /* used cached indent, unless pointer or 'tabstop' changed */
+    // used cached indent, unless pointer or 'tabstop' changed
     if(prev_line != line || prev_ts != wp->w_buffer->b_p_ts
        || prev_tick != wp->w_buffer->b_changedtick)
     {
         prev_line = line;
         prev_ts = wp->w_buffer->b_p_ts;
         prev_tick = wp->w_buffer->b_changedtick;
-        prev_indent = get_indent_str(line,
-                                     (int)wp->w_buffer->b_p_ts, wp->w_p_list);
+        prev_indent = get_indent_str(line, (int)wp->w_buffer->b_p_ts, wp->w_p_list);
     }
 
     bri = prev_indent + wp->w_p_brishift;
 
-    /* indent minus the length of the showbreak string */
+    // indent minus the length of the showbreak string
     if(wp->w_p_brisbr)
     {
         bri -= vim_strsize(p_sbr);
     }
 
-    /* Add offset for number column, if 'n' is in 'cpoptions' */
+    // Add offset for number column, if 'n' is in 'cpoptions'
     bri += win_col_off2(wp);
 
-    /* never indent past left window margin */
+    // never indent past left window margin
     if(bri < 0)
     {
         bri = 0;
     }
-    /* always leave at least bri_min characters on the left,
-     * if text width is sufficient */
     else if(bri > eff_wwidth - wp->w_p_brimin)
-        bri = (eff_wwidth - wp->w_p_brimin < 0)
-              ? 0 : eff_wwidth - wp->w_p_brimin;
+    {
+        // always leave at least bri_min characters on the left,
+        // if text width is sufficient
+        bri = (eff_wwidth - wp->w_p_brimin < 0) ? 0 : eff_wwidth - wp->w_p_brimin;
+    }
 
     return bri;
 }
 
-// When extra == 0: Return true if the cursor is before or on the first
-// non-blank in the line.
-// When extra == 1: Return true if the cursor is before the first non-blank in
-// the line.
+/// When extra == 0: Return true if the cursor is before or on the first
+/// non-blank in the line.
+/// When extra == 1: Return true if the cursor is before the first non-blank in
+/// the line.
 int inindent(int extra)
 {
-    char_u      *ptr;
+    char_u *ptr;
     colnr_T col;
 
     for(col = 0, ptr = get_cursor_line_ptr(); ascii_iswhite(*ptr); ++col)
@@ -609,7 +613,7 @@ int inindent(int extra)
 }
 
 
-// Get indent level from 'indentexpr'.
+/// Get indent level from 'indentexpr'.
 int get_expr_indent(void)
 {
     int indent;
@@ -618,6 +622,7 @@ int get_expr_indent(void)
     int save_set_curswant;
     int save_State;
     int use_sandbox = was_set_insecurely((char_u *)"indentexpr", OPT_LOCAL);
+
     // Save and restore cursor position and curswant, in case it was changed
     // * via :normal commands.
     save_pos = curwin->w_cursor;
@@ -639,6 +644,7 @@ int get_expr_indent(void)
     }
 
     textlock--;
+
     // Restore the cursor position so that 'indentexpr' doesn't need to.
     // Pretend to be in Insert mode, allow cursor past end of line for "o"
     // command.
@@ -664,7 +670,7 @@ int get_expr_indent(void)
 // The incompatible newer method is quite a bit better at indenting
 // code in lisp-like languages than the traditional one; it's still
 // mostly heuristics however -- Dirk van Deun, dirk@rave.org
-
+//
 // TODO(unknown):
 // Findmatch() should be adapted for lisp, also to make showmatch
 // work correctly: now (v5.3) it seems all C/C++ oriented:
@@ -674,6 +680,7 @@ int get_expr_indent(void)
 // All this messes up get_lisp_indent in some rare cases.
 // Update from Sergey Khorev:
 // I tried to fix the first two issues.
+
 int get_lisp_indent(void)
 {
     pos_T *pos, realpos, paren;
@@ -684,6 +691,7 @@ int get_lisp_indent(void)
     int parencount;
     int quotecount;
     int vi_lisp;
+
     // Set vi_lisp to use the vi-compatible method.
     vi_lisp = (vim_strchr(p_cpo, CPO_LISP) != NULL);
     realpos = curwin->w_cursor;
@@ -706,8 +714,9 @@ int get_lisp_indent(void)
 
     if(pos != NULL)
     {
-        // Extra trick: Take the indent of the first previous non-white
-        // line that is at the same () level.
+        // Extra trick:
+        // Take the indent of the first previous
+        // non-white line that is at the same () level.
         amount = -1;
         parencount = 0;
 
@@ -803,7 +812,7 @@ int get_lisp_indent(void)
                 // Some keywords require "body" indenting rules (the
                 // non-standard-lisp ones are Scheme special forms):
                 // (let ((a 1))    instead    (let ((a 1))
-                //   (...))       of       (...))
+                // (...))          of         (...))
                 if(!vi_lisp && ((*that == '(') || (*that == '['))
                    && lisp_match(that + 1))
                 {
@@ -883,7 +892,7 @@ int get_lisp_indent(void)
     }
     else
     {
-        amount = 0;  // No matching '(' or '[' found, use zero indent.
+        amount = 0; // No matching '(' or '[' found, use zero indent.
     }
 
     curwin->w_cursor = realpos;
