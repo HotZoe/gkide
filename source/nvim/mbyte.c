@@ -33,9 +33,11 @@
 
 #include "nvim/vim.h"
 #include "nvim/ascii.h"
+
 #ifdef HAVE_HDR_LOCALE_H
     #include <locale.h>
 #endif
+
 #include "nvim/iconv.h"
 #include "nvim/mbyte.h"
 #include "nvim/charset.h"
@@ -246,10 +248,10 @@ enc_alias_table[] =
     {"greek",           IDX_ISO_7},
     {"hebrew",          IDX_ISO_8},
     {"latin5",          IDX_ISO_9},
-    {"turkish",         IDX_ISO_9},    /* ? */
+    {"turkish",         IDX_ISO_9},
     {"latin6",          IDX_ISO_10},
-    {"nordic",          IDX_ISO_10},   /* ? */
-    {"thai",            IDX_ISO_11},   /* ? */
+    {"nordic",          IDX_ISO_10},
+    {"thai",            IDX_ISO_11},
     {"latin7",          IDX_ISO_13},
     {"latin8",          IDX_ISO_14},
     {"latin9",          IDX_ISO_15},
@@ -481,9 +483,7 @@ int utf_char2cells(int c)
         {
             return n;
         }
-
 #else
-
         if(!utf_printable(c))
         {
             return 6; // unprintable, displays <xxxx>
@@ -493,7 +493,6 @@ int utf_char2cells(int c)
         {
             return 2;
         }
-
 #endif
 
         if(p_emoji && intable(emoji_width, ARRAY_SIZE(emoji_width), c))
@@ -580,8 +579,7 @@ int utf_ptr2cells_len(const char_u *p, int size)
 
 /// Calculate the number of cells occupied by string `str`.
 ///
-/// @param str The source string, may not be NULL, must be a NUL-terminated
-///            string.
+/// @param str The source string, may not be NULL, must be a NUL-terminated string.
 /// @return The number of cells occupied by string `str`
 size_t mb_string2cells(const char_u *str)
 {
@@ -819,6 +817,7 @@ int utfc_ptr2char(const char_u *p, int *pcc)
 int utfc_ptr2char_len(const char_u *p, int *pcc, int maxlen)
 {
     assert(maxlen > 0);
+
     int i = 0;
     int len = utf_ptr2len_len(p, maxlen);
     // Is it safe to use utf_ptr2char()?
@@ -1375,13 +1374,11 @@ int mb_toupper(int a)
     }
 
 #if defined(__STDC_ISO_10646__)
-
     // If towupper() is available and handles Unicode, use it.
     if(!(cmp_flags & CMP_INTERNAL))
     {
         return towupper(a);
     }
-
 #endif
 
     // For characters below 128 use locale sensitive toupper().
@@ -1411,13 +1408,11 @@ int mb_tolower(int a)
     }
 
 #if defined(__STDC_ISO_10646__)
-
     // If towlower() is available and handles Unicode, use it.
     if(!(cmp_flags & CMP_INTERNAL))
     {
         return towlower(a);
     }
-
 #endif
 
     // For characters below 128 use locale sensitive tolower().
@@ -1526,7 +1521,6 @@ static int utf_strnicmp(const char_u *s1, const char_u *s2, size_t n1, size_t n2
 }
 
 #ifdef HOST_OS_WINDOWS
-
 #ifndef CP_UTF8
     #define CP_UTF8 65001  ///< magic number from winnls.h
 #endif
@@ -1657,6 +1651,7 @@ void show_utf8(void)
     int clen;
     int rlen = 0;
     char_u *line;
+
     // Get the byte length of the char under the cursor,
     // including composing characters.
     line = get_cursor_pos_ptr();
@@ -1934,7 +1929,9 @@ void utf_find_illegal(void)
     // didn't find it: don't move and beep
     curwin->w_cursor = pos;
     beep_flush();
+
 theend:
+
     xfree(tofree);
     convert_setup(&vimconv, NULL, NULL);
 }
@@ -2055,12 +2052,16 @@ char_u *mb_unescape(char_u **pp)
     // Maximum length of a utf-8 character is 4 bytes.
     for(n = 0; str[n] != NUL && m < 4; ++n)
     {
-        if(str[n] == K_SPECIAL && str[n + 1] == KS_SPECIAL && str[n + 2] == KE_FILLER)
+        if(str[n] == K_SPECIAL
+           && str[n + 1] == KS_SPECIAL
+           && str[n + 2] == KE_FILLER)
         {
             buf[m++] = K_SPECIAL;
             n += 2;
         }
-        else if((str[n] == K_SPECIAL) && str[n + 1] == KS_EXTRA && str[n + 2] == (int)KE_CSI)
+        else if((str[n] == K_SPECIAL)
+                && str[n + 1] == KS_EXTRA
+                && str[n + 2] == (int)KE_CSI)
         {
             buf[m++] = CSI;
             n += 2;
@@ -2076,8 +2077,8 @@ char_u *mb_unescape(char_u **pp)
 
         buf[m] = NUL;
 
-        // Return a multi-byte character if it's found.  An illegal sequence
-        // will result in a 1 here.
+        // Return a multi-byte character if it's found.
+        // An illegal sequence will result in a 1 here.
         if((*mb_ptr2len)(buf) > 1)
         {
             *pp = str + n + 1;
@@ -2110,7 +2111,9 @@ int mb_fix_col(int col, int row)
     col = check_col(col);
     row = check_row(row);
 
-    if(ScreenLines != NULL && col > 0 && ScreenLines[LineOffset[row] + col] == 0)
+    if(ScreenLines != NULL
+       && col > 0
+       && ScreenLines[LineOffset[row] + col] == 0)
     {
         return col - 1;
     }
@@ -2153,6 +2156,7 @@ char_u *enc_canonize(char_u *enc) FUNC_ATTR_NONNULL_RET
 
     // copy "enc" to allocated memory, with room for two '-'
     char_u *r = xmalloc(STRLEN(enc) + 3);
+
     // Make it all lower case and replace '_' with '-'.
     p = r;
 
@@ -2245,15 +2249,14 @@ char_u *enc_locale(void)
     int i;
     char buf[50];
     const char *s;
-#ifdef HAVE_NL_LANGINFO_CODESET
 
+#ifdef HAVE_NL_LANGINFO_CODESET
     if(!(s = nl_langinfo(CODESET)) || *s == NUL)
 #endif
     {
-#if defined(HAVE_HDR_LOCALE_H)
-
+        #if defined(HAVE_HDR_LOCALE_H)
         if(!(s = setlocale(LC_CTYPE, NULL)) || *s == NUL)
-#endif
+        #endif
         {
             if((s = os_getenv("LC_ALL")))
             {
@@ -2282,8 +2285,11 @@ char_u *enc_locale(void)
 
     if(p != NULL)
     {
-        if(p > s + 2 && !STRNICMP(p + 1, "EUC", 3)
-           && !isalnum((int)p[4]) && p[4] != '-' && p[-3] == '_')
+        if(p > s + 2
+           && !STRNICMP(p + 1, "EUC", 3)
+           && !isalnum((int)p[4])
+           && p[4] != '-'
+           && p[-3] == '_')
         {
             // copy "XY.EUC" to "euc-XY" to buf[10]
             strcpy(buf + 10, "euc-");
@@ -2330,7 +2336,9 @@ void *my_iconv_open(char_u *to, char_u *from)
     char *p;
     iconv_t fd;
     size_t tolen;
+
 #define ICONV_TESTLEN 400
+
     char_u tobuf[ICONV_TESTLEN];
     static WorkingStatus iconv_working = kUnknown;
 
@@ -2340,25 +2348,22 @@ void *my_iconv_open(char_u *to, char_u *from)
     }
 
 #ifdef DYNAMIC_ICONV
-
     // Check if the iconv.dll can be found.
     if(!iconv_enabled(true))
     {
         return (void *)-1;
     }
-
 #endif
+
     fd = iconv_open((char *)enc_skip(to), (char *)enc_skip(from));
 
     if(fd != (iconv_t)-1 && iconv_working == kUnknown)
     {
-        /*
-         * Do a dummy iconv() call to check if it actually works.  There is a
-         * version of iconv() on Linux that is broken.  We can't ignore it,
-         * because it's wide-spread.  The symptoms are that after outputting
-         * the initial shift state the "to" pointer is NULL and conversion
-         * stops for no apparent reason after about 8160 characters.
-         */
+        // Do a dummy iconv() call to check if it actually works. There is a
+        // version of iconv() on Linux that is broken. We can't ignore it,
+        // because it's wide-spread. The symptoms are that after outputting
+        // the initial shift state the "to" pointer is NULL and conversion
+        // stops for no apparent reason after about 8160 characters.
         p = (char *)tobuf;
         tolen = ICONV_TESTLEN;
         (void)iconv(fd, NULL, NULL, &p, &tolen);
@@ -2524,10 +2529,10 @@ static void *get_iconv_import_func(HINSTANCE hInst, const char *funcname)
         return NULL;
     }
 
-    pImpDesc = (PIMAGE_IMPORT_DESCRIPTOR)(pImage
-                                          + pPE->OptionalHeader.DataDirectory[
-                                           IMAGE_DIRECTORY_ENTRY_IMPORT]
-                                          .VirtualAddress);
+    pImpDesc = (PIMAGE_IMPORT_DESCRIPTOR) (pImage
+                                          + pPE->OptionalHeader
+                                                 .DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]
+                                                 .VirtualAddress);
 
     for(; pImpDesc->FirstThunk; ++pImpDesc)
     {
@@ -2581,7 +2586,7 @@ bool iconv_enabled(bool verbose)
     if(hIconvDLL == 0 || hMsvcrtDLL == 0)
     {
         // Only give the message when 'verbose' is set, otherwise it might be
-        // done whenever a conversion is attempted. */
+        // done whenever a conversion is attempted.
         if(verbose && p_verbose > 0)
         {
             verbose_enter();
@@ -2669,21 +2674,25 @@ int convert_setup_ext(vimconv_T *vcp,
     int to_prop;
     int from_is_utf8;
     int to_is_utf8;
+
     // Reset to no conversion.
 #ifdef USE_ICONV
-
     if(vcp->vc_type == CONV_ICONV && vcp->vc_fd != (iconv_t)-1)
     {
         iconv_close(vcp->vc_fd);
     }
-
 #endif
+
     vcp->vc_type = CONV_NONE;
     vcp->vc_factor = 1;
     vcp->vc_fail = false;
 
     // No conversion when one of the names is empty or they are equal.
-    if(from == NULL || *from == NUL || to == NULL || *to == NUL || STRCMP(from, to) == 0)
+    if(from == NULL
+       || *from == NUL
+       || to == NULL
+       || *to == NUL
+       || STRCMP(from, to) == 0)
     {
         return OK;
     }
@@ -2745,7 +2754,6 @@ int convert_setup_ext(vimconv_T *vcp,
             vcp->vc_factor = 4; // could be longer too...
         }
     }
-
 #endif
 
     if(vcp->vc_type == CONV_NONE)
@@ -2997,8 +3005,8 @@ char_u *string_convert_ext(const vimconv_T *const vcp,
             }
 
             break;
-#ifdef USE_ICONV
 
+#ifdef USE_ICONV
         case CONV_ICONV: // conversion with vcp->vc_fd
             retval = iconv_string(vcp, ptr, len, unconvlenp, lenp);
             break;
