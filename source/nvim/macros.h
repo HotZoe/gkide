@@ -30,13 +30,14 @@
 ///
 /// @param[in]  s  Static string.
 ///
-/// @return `s, sizeof(s) - 1`
-#define S_LEN(s) (s), (sizeof(s) - 1)
+/// @return
+/// - s, sizeof(s) - 1
+#define S_LEN(s)     (s), (sizeof(s) - 1)
 
-/// lineempty() - return TRUE if the line is empty
+/// return TRUE if the line is empty
 #define lineempty(p) (*ml_get(p) == NUL)
 
-/// bufempty() - return TRUE if the current buffer is empty
+/// return TRUE if the current buffer is empty
 #define bufempty()   (curbuf->b_ml.ml_line_count == 1 && *ml_get((linenr_T)1) == NUL)
 
 /// toupper() and tolower() that use the current locale.
@@ -57,13 +58,13 @@
 
 // Like isalpha() but reject non-ASCII characters.
 // Can't be used with a special key (negative value).
-#define ASCII_ISLOWER(c) ((unsigned)(c) >= 'a' && (unsigned)(c) <= 'z')
-#define ASCII_ISUPPER(c) ((unsigned)(c) >= 'A' && (unsigned)(c) <= 'Z')
-#define ASCII_ISALPHA(c) (ASCII_ISUPPER(c) || ASCII_ISLOWER(c))
-#define ASCII_ISALNUM(c) (ASCII_ISALPHA(c) || ascii_isdigit(c))
+#define ASCII_ISLOWER(c)   ((unsigned)(c) >= 'a' && (unsigned)(c) <= 'z')
+#define ASCII_ISUPPER(c)   ((unsigned)(c) >= 'A' && (unsigned)(c) <= 'Z')
+#define ASCII_ISALPHA(c)   (ASCII_ISUPPER(c) || ASCII_ISLOWER(c))
+#define ASCII_ISALNUM(c)   (ASCII_ISALPHA(c) || ascii_isdigit(c))
 
 /// Returns empty string if it is NULL.
-#define EMPTY_IF_NULL(x) ((x) ? (x) : (char_u *)"")
+#define EMPTY_IF_NULL(x)   ((x) ? (x) : (char_u *)"")
 
 /// Adjust chars in a language according to 'langmap' option.
 /// NOTE that there is no noticeable overhead if 'langmap' is not set.
@@ -92,7 +93,7 @@
     } while(0)
 
 /// vim_isbreak() is used very often if 'linebreak' is set, use a macro to make it work fast.
-#define vim_isbreak(c) (breakat_flags[(char_u)(c)])
+#define vim_isbreak(c)    (breakat_flags[(char_u)(c)])
 
 // no CR-LF translation
 #define WRITEBIN    "wb"
@@ -115,8 +116,8 @@
 
 #define UTF_COMPOSINGLIKE(p1, p2)  utf_composinglike((p1), (p2))
 
-// Whether to draw the vertical bar on the right side of the cell.
-# define CURSOR_BAR_RIGHT          (curwin->w_p_rl && (!(State & CMDLINE) || cmdmsg_rl))
+/// Whether to draw the vertical bar on the right side of the cell.
+#define CURSOR_BAR_RIGHT           (curwin->w_p_rl && (!(State & CMDLINE) || cmdmsg_rl))
 
 // mb_ptr_adv(): advance a pointer to the next character, taking care of
 // multi-byte characters if needed.
@@ -158,8 +159,8 @@
     ((sizeof(arr)/sizeof((arr)[0])) / ((size_t)(!(sizeof(arr) % sizeof((arr)[0])))))
 
 #ifdef RGB
-    // avoid RGB redefined warnings when build under windows using Msys2
-    // "wingdi.h" also defined RGB macro
+    // avoid RGB redefined warnings when build under
+    // windows using Msys2 "wingdi.h" also defined RGB macro
     #undef RGB
 #endif
 
@@ -170,7 +171,7 @@
 #ifndef __has_attribute
     #define NVIM_HAS_ATTRIBUTE(x) 0
 #elif defined(__clang__) \
-    && __clang__ == 1  \
+    && __clang__ == 1    \
     && (__clang_major__ < 3 || (__clang_major__ == 3 && __clang_minor__ <= 5))
     // Starting in Clang 3.6, __has_attribute was fixed to only report true for
     // GNU-style attributes.  Prior to that, it reported true if _any_ backend
@@ -181,7 +182,7 @@
 #endif
 
 #if NVIM_HAS_ATTRIBUTE(fallthrough)
-    #define FALLTHROUGH __attribute__((fallthrough))
+    #define FALLTHROUGH    __attribute__((fallthrough))
 #else
     #define FALLTHROUGH
 #endif
