@@ -35,7 +35,7 @@ static uv_mutex_t mutex;
 /// Tries to use USR_LOG_FILE, then falls back USR_LOG_FILE_DEFAULT.
 /// Path to log file is cached, so only the first call has effect, unless first call was not
 /// successful. To make initialization not succeed either a bug in expand_env()
-/// is needed or both **$NVIM_LOG_FILE** and **$HOME** environment variables undefined.
+/// is needed or both @b $NVIM_LOG_FILE and @b $HOME environment variables undefined.
 ///
 /// @return true if path was initialized, false otherwise.
 static bool log_path_init(void)
@@ -53,6 +53,7 @@ static bool log_path_init(void)
     if(strcmp(USR_LOG_FILE, expanded_log_file_path) == 0)
     {
         memset(expanded_log_file_path, 0, sizeof(expanded_log_file_path));
+
         expand_env((char_u *)USR_LOG_FILE_DEFAULT,
                    (char_u *)expanded_log_file_path,
                    sizeof(expanded_log_file_path) - 1);
@@ -83,7 +84,11 @@ void log_unlock(void)
     uv_mutex_unlock(&mutex);
 }
 
-bool do_log(int log_level, const char *func_name, int line_num, bool eol, const char *fmt, ...)
+bool do_log(int log_level,
+            const char *func_name,
+            int line_num,
+            bool eol,
+            const char *fmt, ...)
 FUNC_ATTR_UNUSED
 {
     log_lock();
@@ -106,7 +111,9 @@ FUNC_ATTR_UNUSED
     }
 
 do_log_exit:
+
     log_unlock();
+
     return ret;
 }
 
@@ -122,6 +129,7 @@ FILE *open_log_file(void)
     {
         do_log_to_file(stderr, ERROR_LOG_LEVEL, __func__, __LINE__, true,
                        "Trying to do logging recursively! Please fix it.");
+
         return stderr;
     }
 
@@ -142,9 +150,9 @@ FILE *open_log_file(void)
     }
 
     do_log_to_file(stderr, ERROR_LOG_LEVEL, __func__, __LINE__, true,
-                   "Couldn't open $GKIDE_NVIM_LOG_FILE or $HOME/.gkide/nvim.log, logging to stderr! "
-                   "This may be caused by attempting to do logging before the initialization "
-                   "functions are called (e.g. init_gkide_usr_home()).");
+                   "Couldn't open $GKIDE_NVIM_LOG_FILE or $HOME/.gkide/nvim.log, "
+                   "logging to stderr! This may be caused by attempting to do logging "
+                   "before the initialization functions are called (e.g. init_gkide_usr_home()).");
     return stderr;
 }
 
@@ -179,6 +187,7 @@ static bool v_do_log_to_file(FILE *log_file,
         [ERROR_LOG_LEVEL] = "ERROR",
         [FATAL_LOG_LEVEL] = "FATAL"
     };
+
     assert(log_level >= TRACE_LOG_LEVEL && log_level <= FATAL_LOG_LEVEL);
     struct tm local_time; // format current timestamp in local time
 
