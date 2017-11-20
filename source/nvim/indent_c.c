@@ -841,9 +841,6 @@ static int cin_first_id_amount(void)
 ///   char *foo = "here";
 /// - Return zero if no (useful) equal sign found.
 /// - Return -1 if the line above "lnum" ends in a backslash.
-///   foo = "asdf\
-///         asdf\
-///         here";
 static int cin_get_equal_amount(linenr_T lnum)
 {
     char_u *line;
@@ -1112,8 +1109,6 @@ static int cin_isfuncdecl(char_u **sp, linenr_T first_lnum, linenr_T min_lnum)
         {
             // ')' at the end: may have found a match
             // Check for he previous line not to end in a backslash:
-            //       #if defined(x) && \
-            //       defined(y)
             lnum = first_lnum - 1;
             s = ml_get(lnum);
 
@@ -3597,10 +3592,7 @@ int get_c_indent(void)
                         }
 
                         // Skip over continuation lines to find the one to get the
-                        // indent from
-                        // char *usethis = "bla\
-                        //       bla",
-                        //      here;
+                        // indent from, line ending with backslash
                         if(terminated == ',')
                         {
                             while(curwin->w_cursor.lnum > 1)
@@ -4211,9 +4203,6 @@ term_again:
 
             // For a line ending in ',' that is a continuation line go
             // back to the first line with a backslash:
-            // char *foo = "bla\
-            //       bla",
-            //      here;
             while(n == 0 && curwin->w_cursor.lnum > 1)
             {
                 l = ml_get(curwin->w_cursor.lnum - 1);
@@ -4353,10 +4342,6 @@ term_again:
     }
 
     // add extra indent if the previous line ended in a backslash:
-    //        "asdfasdf\
-    //        here";
-    //      char *foo = "asdf\
-    //           here";
     if(cur_curpos.lnum > 1)
     {
         l = ml_get(cur_curpos.lnum - 1);
