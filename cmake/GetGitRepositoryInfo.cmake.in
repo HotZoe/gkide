@@ -24,8 +24,10 @@ set(HEAD_HASH)
 set(HEAD_BRANCH_NAME)
 
 file(READ "@HEAD_FILE@" HEAD_CONTENTS LIMIT 1024)
+
 # string(STRIP <string> <output variable>)
-# Store in an output variable a substring of a given string with leading and trailing spaces removed
+# Store in an output variable a substring of a
+# given string with leading and trailing spaces removed
 string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
 
 if(HEAD_CONTENTS MATCHES "ref")
@@ -47,7 +49,9 @@ else()
 endif()
 
 if(_is_good_git_repo)
-    file(READ "@CUSTOM_CMAKE_MODULES_DIR@/${_current_branch_name}" HEAD_CONTENTS LIMIT 1024)
+    file(READ "@CUSTOM_CMAKE_MODULES_DIR@/${_current_branch_name}"
+         HEAD_CONTENTS LIMIT 1024)
+
     string(STRIP "${HEAD_CONTENTS}" HEAD_CONTENTS)
     set(HEAD_HASH "${HEAD_CONTENTS}")
 elseif(_is_detached_head)
@@ -59,8 +63,9 @@ endif()
 #
 # string(SUBSTRING <string> <begin> <length> <output variable>)
 #     Store in an output variable a substring of a given string.
-#     If length is -1 the remainder of the string starting at begin will be returned.
-#     If string is shorter than length then end of string is used instead.
+#     If length is -1 the remainder of the string starting at begin
+#     will be returned. If string is shorter than length then end of
+#     string is used instead.
 # Note
 # CMake 3.1 and below reported an error if length pointed past the end of string.
 

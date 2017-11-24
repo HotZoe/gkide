@@ -1,7 +1,8 @@
 # Individual entries must be uncommented to take effect.
 
 # You should set the Qt5 install perfix by uncomment the following line.
-# This is the location directory which contains: bin/, lib/, include/, share/, etc.
+# This is the location directory which contains: 
+# bin/, lib/, include/, share/, etc.
 #
 # my Qt5 install perfix(for linux dynamic)   is: /opt/Qt5.5.1/5.5/gcc_64
 # my Qt5 install perfix(for windows dynamic) is: D:/App/Msys2/mingw64
@@ -19,7 +20,8 @@
 
 # By default, the architecture will automatically detect if not cross compiling
 # If do cross compiling, select one explicitly by uncomment the following entries.
-# 'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive, please just select one!
+# 'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive, please just 
+# select one!
 #
 # Uncomment the following for 32-bit target build
 # TARGET_ARCH_32 := ON
@@ -27,7 +29,8 @@
 # Uncomment the following for 64-bit target build
 # TARGET_ARCH_64 := ON
 
-# By default, enable testing for nvim & snail, but you can make your choice if you want.
+# By default, enable testing for nvim & snail, 
+# but you can make your choice if you want.
 #
 # Uncomment the following to disable all testing
 # TESTING_ENABLE := OFF
@@ -57,7 +60,8 @@
 
 # Sets the build type: defaults to 'Release'. Valid values:
 #
-# - Dev:            => Enable all optimizations, -Og if available, -O2 and -g if not
+# - Dev:            => Enable all optimizations
+#                      -Og if available, -O2 and -g if not
 #                   => Enable TRACE logging
 #                   => Enable assertion
 #
@@ -69,8 +73,10 @@
 #                   => Enable ALERT logging
 #                   => Enable assertion
 #
-# - MinSizeRel:     => Enables all -O2 optimization that do not typically increase code size,
-#                      and performs further optimizations designed to reduce code size (-Os).
+# - MinSizeRel:     => Enables all -O2 optimization that do 
+#                      not typically increase code size, and 
+#                      performs further optimizations designed
+#                      to reduce code size (-Os).
 #                   => Disable logging
 #                   => Disable assertion
 #
@@ -79,7 +85,8 @@
 
 # Valid values for logging level is:
 # TRACE(0), DEBUG(1), STATE(2), ALERT(3), ERROR(4), FATAL(5), LOGOFF(6)
-# By default, enable for Dev/Debug/Release and other type build, disable for MinSizeRel.
+# By default, enable for Dev/Debug/Release and other type build, disable
+# for MinSizeRel.
 #
 # Uncomment the following to set log level: STATE(2)
 # GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=2
@@ -98,13 +105,15 @@
 # Uncomment the following to enable gcov support
 # GKIDE_CMAKE_EXTRA_FLAGS += -DGCOV_ENABLE=ON
 
-# By default, the required dependencies will auto download, extract, build and install. The bundled
-# libraries are statically linked to nvim. If you download the correctly required dependencies source
-# tarball by hand, and put the tarball to the proper place with proper name, then just use them and
-# skip download. You can find the details information will auto download, just stop it and do it by
-# hand if you want.
+# By default, the required dependencies will auto download, extract, build and
+# install. The bundled libraries are statically linked to nvim. If you download
+# the correctly required dependencies source tarball by hand, and put the 
+# tarball to the proper place with proper name, then just use them and skip 
+# download. You can find the details information will auto download, just stop
+# it and do it by hand if you want.
 #
-# By default, the jemalloc family of memory allocation functions are used for linux like system.
+# By default, the jemalloc family of memory allocation functions are used for
+# linux like system.
 #
 # Uncomment the following to use libc memory allocation functions instead.
 # GKIDE_CMAKE_EXTRA_FLAGS += -DJEMALLOC_ENABLE=OFF

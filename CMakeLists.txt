@@ -3,7 +3,7 @@ project(gkide)
 
 set(GKIDE_LOGO "${PROJECT_SOURCE_DIR}/gkide.png")
 set(GKIDE_HOME "https://github.com/gkide/gkide")
-set(GKIDE_DESC "GKIDE is an elegant and sophisticated code editor&viewer based on vim/nvim.")
+set(GKIDE_DESC "GKIDE is an elegant code editor of the natural vim way.")
 
 # Enable output of compile commands during generation
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # generates compile_commands.json
@@ -14,14 +14,16 @@ option(TRAVIS_CI_ENABLE "Enable Travis CI build." OFF)
 
 set(release_check_msg  "") # release check message
 set(PACKAGE_RELEASE_READY true)
-set(PACKAGE_VERSION_TRAIL beta) # dev -> alpha -> beta -> rc -> release -> stable
 
-option(NVIM_TESTING_ENABLE "Enable nvim testing." ON)
-option(NVIM_LOGGING_ENABLE "Enable nvim logging." ON)
+# dev -> alpha -> beta -> rc -> release -> stable
+set(PACKAGE_VERSION_TRAIL beta)
+
+option(NVIM_TESTING_ENABLE   "Enable nvim testing." ON)
+option(NVIM_LOGGING_ENABLE   "Enable nvim logging." ON)
 option(NVIM_DEBUGGING_ENABLE "Enable nvim debugging." ON)
 
-option(SNAIL_TESTING_ENABLE "Enable snail testing." ON)
-option(SNAIL_LOGGING_ENABLE "Enable snail logging." ON)
+option(SNAIL_TESTING_ENABLE   "Enable snail testing." ON)
+option(SNAIL_LOGGING_ENABLE   "Enable snail logging." ON)
 option(SNAIL_DEBUGGING_ENABLE "Enable snail debugging." ON)
 
 set(GKIDE_VERSION_MAJOR   1) # bump when snail/nvim major changing
@@ -29,17 +31,18 @@ set(GKIDE_VERSION_MINOR   0) # bump when snail/nvim minor changing
 set(GKIDE_VERSION_PATCH   0) # bump when snail/nvim patch changing
 
 # package release version
-set(PACKAGE_VERSION_BASIC "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
+set(PACKAGE_VERSION_BASIC
+    "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
 
 # snail full version: Major.Minor.Patch-Trail-GitShortHash-GitDateTime
-set(SNAIL_VERSION_MAJOR   0) # bump for big version
-set(SNAIL_VERSION_MINOR   2) # bump when: feature, plugin, etc.
-set(SNAIL_VERSION_PATCH   7) # bump when: bug fix, none user perception changing, etc.
+set(SNAIL_VERSION_MAJOR   0) # bump: for big version
+set(SNAIL_VERSION_MINOR   2) # bump: feature, plugin, etc.
+set(SNAIL_VERSION_PATCH   7) # bump: bug fix, none user perception changing ...
 
 # nvim version
-set(NVIM_VERSION_MAJOR    0) # bump for big version
-set(NVIM_VERSION_MINOR    2) # bump when: feature, api, plugin, etc.
-set(NVIM_VERSION_PATCH    1) # bump when: bug fix, none user perception changing, etc.
+set(NVIM_VERSION_MAJOR    0) # bump: for big version
+set(NVIM_VERSION_MINOR    2) # bump: feature, api, plugin, etc.
+set(NVIM_VERSION_PATCH    1) # bump: bug fix, none user perception changing ...
 
 # nvim API version
 set(NVIM_API_VERSION      1) # nvim API version
@@ -47,22 +50,35 @@ set(NVIM_API_COMPATV      1) # nvim compat API version
 set(NVIM_API_PRERELEASE   true)
 
 # gkide basic version
-set(GKIDE_VERSION_BASIC "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
+set(GKIDE_VERSION_BASIC
+    "${GKIDE_VERSION_MAJOR}.${GKIDE_VERSION_MINOR}.${GKIDE_VERSION_PATCH}")
+
 math(EXPR GKIDE_VERSION_INT32
-          "(${GKIDE_VERSION_MAJOR}<<16) + (${GKIDE_VERSION_MINOR}<<8) + ${GKIDE_VERSION_PATCH}")
+          "(${GKIDE_VERSION_MAJOR}<<16)
+          + (${GKIDE_VERSION_MINOR}<<8)
+          + ${GKIDE_VERSION_PATCH}")
 
 # snail basic version
-set(SNAIL_VERSION_BASIC "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")
+set(SNAIL_VERSION_BASIC
+    "${SNAIL_VERSION_MAJOR}.${SNAIL_VERSION_MINOR}.${SNAIL_VERSION_PATCH}")
+
 math(EXPR SNAIL_VERSION_INT32
-          "(${SNAIL_VERSION_MAJOR}<<16) + (${SNAIL_VERSION_MINOR}<<8) + ${SNAIL_VERSION_PATCH}")
+          "(${SNAIL_VERSION_MAJOR}<<16)
+           + (${SNAIL_VERSION_MINOR}<<8)
+           + ${SNAIL_VERSION_PATCH}")
 
 # nvim basic version
-set(NVIM_VERSION_BASIC "${NVIM_VERSION_MAJOR}.${NVIM_VERSION_MINOR}.${NVIM_VERSION_PATCH}")
+set(NVIM_VERSION_BASIC
+    "${NVIM_VERSION_MAJOR}.${NVIM_VERSION_MINOR}.${NVIM_VERSION_PATCH}")
+
 math(EXPR NVIM_VERSION_INT32
-          "(${NVIM_VERSION_MAJOR}<<16) + (${NVIM_VERSION_MINOR}<<8) + ${NVIM_VERSION_PATCH}")
+          "(${NVIM_VERSION_MAJOR}<<16)
+           + (${NVIM_VERSION_MINOR}<<8)
+           + ${NVIM_VERSION_PATCH}")
 
 # Set available build types for CMake GUIs.
-set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Dev"  "Debug"  "Release"  "MinSizeRel")
+set_property(CACHE CMAKE_BUILD_TYPE
+             PROPERTY STRINGS "Dev"  "Debug"  "Release"  "MinSizeRel")
 
 # Set default build type, in case of not given
 if(NOT CMAKE_BUILD_TYPE)
@@ -73,12 +89,18 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
 
 # Check release type
 if(PACKAGE_RELEASE_TYPE)
-    if(PACKAGE_RELEASE_TYPE STREQUAL "dev"  OR PACKAGE_RELEASE_TYPE STREQUAL "alpha"   OR
-       PACKAGE_RELEASE_TYPE STREQUAL "rc"   OR PACKAGE_RELEASE_TYPE STREQUAL "release" OR
-       PACKAGE_RELEASE_TYPE STREQUAL "beta" OR PACKAGE_RELEASE_TYPE STREQUAL "stable")
+    if(PACKAGE_RELEASE_TYPE STREQUAL    "dev"
+       OR PACKAGE_RELEASE_TYPE STREQUAL "alpha"
+       OR PACKAGE_RELEASE_TYPE STREQUAL "rc"
+       OR PACKAGE_RELEASE_TYPE STREQUAL "release"
+       OR PACKAGE_RELEASE_TYPE STREQUAL "beta"
+       OR PACKAGE_RELEASE_TYPE STREQUAL "stable")
         set(PACKAGE_VERSION_TRAIL  "${PACKAGE_RELEASE_TYPE}")
     else()
-        set(warning_msg "PACKAGE_RELEASE_TYPE = ${PACKAGE_RELEASE_TYPE}, it must one of followings:")
+        set(warning_msg
+            "PACKAGE_RELEASE_TYPE = ${PACKAGE_RELEASE_TYPE}, "
+            "it must one of followings:")
+
         set(warning_msg "${warning_msg}\ndev, alpha, beta, rc, release, stable")
         set(warning_msg "${warning_msg}\nset to default: beta")
         message(WARNING "${warning_msg}")
@@ -91,7 +113,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # do NOT want building in source-tree
 include(PreventInTreeBuilds)
 
-# If git in the env-var 'PATH', it will auto find by cmake; if not given it by hand.
+# If git in the env-var 'PATH', it will auto find by
+# cmake; if not given it by hand.
 if(GIT_PROG)
     file(TO_CMAKE_PATH "${GIT_PROG}" GIT_PROG)
 endif()
@@ -112,7 +135,7 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
         # The release version must be the 'master' branch of git repo
         set(PACKAGE_RELEASE_READY  false)
         if(NOT release_check_msg)
-            set(release_check_msg "Release version must be the 'master' branch.")
+            set(release_check_msg "Release version must be the master branch.")
         endif()
     endif()
 
@@ -120,15 +143,21 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
         # no release tag set for current commit
         set(GIT_COMMIT_TAG  "Not Set")
         set(PACKAGE_RELEASE_READY  false)
+
         if(NOT release_check_msg)
-            set(release_check_msg "Release tag should be: v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(release_check_msg
+                "Release tag should be: "
+                "v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
         endif()
     elseif(NOT ${GIT_COMMIT_TAG} MATCHES "^v[0-9]+\.[0-9]+\.[0-9]+[-]*[a-z]*$")
         # if the current commit is ready to release, must set a tag
         # tag format like:  v1.0.0-dev
         set(PACKAGE_RELEASE_READY  false)
+
         if(NOT release_check_msg)
-            set(release_check_msg "Release tag should be: ${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(release_check_msg
+                "Release tag should be: "
+                "${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
         endif()
     endif()
 
@@ -151,11 +180,20 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
     message(STATUS "Git commit branch : ${GIT_BRANCH_NAME}")
 else()
     if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/DistInfo)
-        file(STRINGS  ${CMAKE_CURRENT_LIST_DIR}/DistInfo dist_info NEWLINE_CONSUME)
-        string(REGEX REPLACE ".*GITHASH[ \t]?=[ \t]?([0-9a-f]+).*"  "\\1" GIT_COMMIT_HASH_FULL "${dist_info}")
-        string(REGEX REPLACE ".*GITTIME[ \t]?=[ \t]?([0-9+-: ]+).*" "\\1" GIT_COMMIT_TIMESTAMP "${dist_info}")
+        file(STRINGS
+             ${CMAKE_CURRENT_LIST_DIR}/DistInfo dist_info NEWLINE_CONSUME)
+
+        string(REGEX REPLACE
+                     ".*GITHASH[ \t]?=[ \t]?([0-9a-f]+).*"
+                     "\\1" GIT_COMMIT_HASH_FULL "${dist_info}")
+
+        string(REGEX REPLACE
+                     ".*GITTIME[ \t]?=[ \t]?([0-9+-: ]+).*"
+                     "\\1" GIT_COMMIT_TIMESTAMP "${dist_info}")
     else()
-        message(WARNING "DistInfo file missing. You can ignore this and continue.")
+        message(WARNING "DistInfo file missing. "
+                        "You can ignore this and continue.")
+
         set(GIT_COMMIT_HASH_FULL "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
         set(GIT_COMMIT_TIMESTAMP "yyyy-mm-dd hh:mm:ss +xxxx")
     endif()
@@ -212,12 +250,12 @@ message(STATUS "GKIDE Default User Home: ~/.gkide or \$GKIDE_USR_HOME")
 message(STATUS "GKIDE TmpInstall Prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if(PACKAGE_RELEASE_READY)
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
     message(STATUS "Release Package: ${RELEASE_PACKAGE_NAME}")
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
     include(ReleasePackage)
 else()
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
     message(STATUS "${release_check_msg}")
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
 endif()

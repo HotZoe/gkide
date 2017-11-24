@@ -25,7 +25,8 @@ find_path(JEMALLOC_INCLUDE_DIR jemalloc/jemalloc.h
 
 # If we're asked to use static linkage, add libjemalloc.a as a preferred library name.
 if(JEMALLOC_USE_STATIC)
-    list(APPEND JEMALLOC_NAMES "${CMAKE_STATIC_LIBRARY_PREFIX}jemalloc${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    list(APPEND JEMALLOC_NAMES
+         "${CMAKE_STATIC_LIBRARY_PREFIX}jemalloc${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 list(APPEND JEMALLOC_NAMES jemalloc)

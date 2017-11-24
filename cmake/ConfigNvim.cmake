@@ -49,11 +49,13 @@ check_function_exists("strcasecmp"  HAVE_FUN_STRCASECMP)
 check_function_exists("strncasecmp" HAVE_FUN_STRNCASECMP)
 
 if(WIN32 AND NOT HAVE_FUN_PUTENV_S)
-    message(SEND_ERROR "_putenv_s() function is required for Windows, but not found!")
+    message(SEND_ERROR
+            "_putenv_s() function is required for Windows, but not found!")
 endif()
 
 if(UNIX AND NOT HAVE_FUN_SETENV)
-    message(SEND_ERROR "setenv() function is required for Unix, but not found!")
+    message(SEND_ERROR
+            "setenv() function is required for Unix, but not found!")
 endif()
 
 if(HAVE_HDR_SYS_UIO_H AND NOT HAVE_FUN_READV)
@@ -95,12 +97,13 @@ endif()
 
 if(NOT "${HAVE_BSD_BE64TOH}")
     # It is safe to make ORDER_BIG_ENDIAN not defined if:
-    # - *HAVE_BSD_BE64TOH* is true. In this case *be64toh* will be used unconditionally in
-    #   any case and *ORDER_BIG_ENDIAN* will not be examined.
+    # - *HAVE_BSD_BE64TOH* is true. In this case *be64toh* will
+    #   be used unconditionally in any case and *ORDER_BIG_ENDIAN*
+    #   will not be examined.
     #
-    # - *HAVE_BSD_BE64TOH* is false. In this case *be64toh* function which uses cycle and
-    #   arithmetic operations is used which will work regardless of endianess, this is
-    #   sub-optimal though.
+    # - *HAVE_BSD_BE64TOH* is false. In this case *be64toh* function
+    #   which uses cycle and arithmetic operations is used which will
+    #   work regardless of endianess, this is sub-optimal though.
     check_c_source_runs(
     "
     #include <stdint.h>
@@ -125,4 +128,3 @@ endif()
 
 configure_file("${PROJECT_SOURCE_DIR}/source/config/confignvim.h.in"
                "${GEN_CONFIG_DIR}/confignvim.h")
-

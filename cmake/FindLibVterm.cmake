@@ -25,7 +25,8 @@ find_path(LIBVTERM_INCLUDE_DIR vterm.h
 
 # If we're asked to use static linkage, add libuv.a as a preferred library name.
 if(LIBVTERM_USE_STATIC)
-    list(APPEND LIBVTERM_NAMES "${CMAKE_STATIC_LIBRARY_PREFIX}vterm${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    list(APPEND LIBVTERM_NAMES
+         "${CMAKE_STATIC_LIBRARY_PREFIX}vterm${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 list(APPEND LIBVTERM_NAMES vterm)

@@ -18,9 +18,14 @@ set(QT_LIB_PREFIX_DIR ${CMAKE_PREFIX_PATH})
 message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
 
 # Dependency libraries search path
-set(BUNDLED_DEPS_PREFIX "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps libs search prefix.")
+set(BUNDLED_DEPS_PREFIX
+    "${CMAKE_SOURCE_DIR}/deps/build/usr" CACHE PATH "Deps libs search prefix.")
+
 list(INSERT CMAKE_PREFIX_PATH 0 ${BUNDLED_DEPS_PREFIX})
-set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:${BUNDLED_DEPS_PREFIX}/lib/pkgconfig")
+
+set(ENV{PKG_CONFIG_PATH}
+    "$ENV{PKG_CONFIG_PATH}:${BUNDLED_DEPS_PREFIX}/lib/pkgconfig")
+
 message(STATUS "Pkg Config Path   : $ENV{PKG_CONFIG_PATH}")
 message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 
@@ -47,12 +52,13 @@ endif()
 
 # threads
 # see 'FindThreads.cmake' for details
-# This module determines the thread library of the system. The following variables are set:
-#     CMAKE_THREAD_LIBS_INIT       - the thread library
-#     CMAKE_USE_SPROC_INIT         - are we using sproc?
-#     CMAKE_USE_WIN32_THREADS_INIT - using WIN32 threads?
-#     CMAKE_USE_PTHREADS_INIT      - are we using pthreads
-#     CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
+# This module determines the thread library of the system.
+# The following variables are set:
+# - CMAKE_THREAD_LIBS_INIT       - the thread library
+# - CMAKE_USE_SPROC_INIT         - are we using sproc?
+# - CMAKE_USE_WIN32_THREADS_INIT - using WIN32 threads?
+# - CMAKE_USE_PTHREADS_INIT      - are we using pthreads
+# - CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
 find_package(Threads REQUIRED)
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
@@ -92,12 +98,16 @@ if(${build_type} STREQUAL "MINSIZEREL")
 
     if(NOT CMAKE_C_FLAGS_MINSIZEREL MATCHES "-fdata-sections")
         message(STATUS "Add '-fdata-sections' for snail MinSizeRel build.")
-        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections")
+
+        set(CMAKE_C_FLAGS_MINSIZEREL
+            "${CMAKE_C_FLAGS_MINSIZEREL} -fdata-sections")
     endif()
 
     if(NOT CMAKE_CXX_FLAGS_MINSIZEREL MATCHES "-fdata-sections")
         message(STATUS "Add '-fdata-sections' for snail MinSizeRel build.")
-        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -fdata-sections")
+
+        set(CMAKE_CXX_FLAGS_MINSIZEREL
+            "${CMAKE_CXX_FLAGS_MINSIZEREL} -fdata-sections")
     endif()
 
     # -ffunction-sections
@@ -105,12 +115,16 @@ if(${build_type} STREQUAL "MINSIZEREL")
 
     if(NOT CMAKE_C_FLAGS_MINSIZEREL MATCHES "-ffunction-sections")
         message(STATUS "Add '-ffunction-sections' for nvim MinSizeRel build.")
-        set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -ffunction-sections")
+
+        set(CMAKE_C_FLAGS_MINSIZEREL
+            "${CMAKE_C_FLAGS_MINSIZEREL} -ffunction-sections")
     endif()
 
     if(NOT CMAKE_CXX_FLAGS_MINSIZEREL MATCHES "-ffunction-sections")
         message(STATUS "Add '-ffunction-sections' for snail MinSizeRel build.")
-        set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} -ffunction-sections")
+
+        set(CMAKE_CXX_FLAGS_MINSIZEREL
+            "${CMAKE_CXX_FLAGS_MINSIZEREL} -ffunction-sections")
     endif()
 endif()
 
@@ -122,9 +136,14 @@ add_compile_options("-Wconversion")
 add_compile_options("-Wfatal-errors")
 add_compile_options("-Wuninitialized")
 
-set(CMAKE_EXE_LINKER_FLAGS_DEV    "" CACHE STRING "CFlags used for development build." FORCE)
-set(CMAKE_SHARED_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
-set(CMAKE_MODULE_LINKER_FLAGS_DEV "" CACHE STRING "CFlags used for development build." FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_DEV
+    "" CACHE STRING "CFlags used for development build." FORCE)
+
+set(CMAKE_SHARED_LINKER_FLAGS_DEV
+    "" CACHE STRING "CFlags used for development build." FORCE)
+
+set(CMAKE_MODULE_LINKER_FLAGS_DEV
+    "" CACHE STRING "CFlags used for development build." FORCE)
 
 mark_as_advanced(CMAKE_EXE_LINKER_FLAGS_DEV)
 mark_as_advanced(CMAKE_SHARED_LINKER_FLAGS_DEV)
@@ -135,46 +154,76 @@ if(CMAKE_EXE_LINKER_FLAGS    MATCHES "--sort-common" OR
    CMAKE_SHARED_LINKER_FLAGS MATCHES "--sort-common" OR
    CMAKE_MODULE_LINKER_FLAGS MATCHES "--sort-common")
     message(STATUS "Removing --sort-common from linker flags")
-    string(REGEX REPLACE ",--sort-common(=[^,]+)?" "" CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}")
-    string(REGEX REPLACE ",--sort-common(=[^,]+)?" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
-    string(REGEX REPLACE ",--sort-common(=[^,]+)?" "" CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}")
+
+    string(REGEX REPLACE
+                 ",--sort-common(=[^,]+)?"
+                 "" CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}")
+
+    string(REGEX REPLACE
+                 ",--sort-common(=[^,]+)?"
+                 "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+
+    string(REGEX REPLACE
+                 ",--sort-common(=[^,]+)?"
+                 "" CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}")
 
     # If no linker flags remain for a -Wl argument, remove it.
     # '-Wl$' will match LDFLAGS="-Wl,--sort-common"
     # '-Wl ' will match LDFLAGS="-Wl,--sort-common -Wl,..."
-    string(REGEX REPLACE "-Wl($| )" "" CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}")
-    string(REGEX REPLACE "-Wl($| )" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
-    string(REGEX REPLACE "-Wl($| )" "" CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}")
+    string(REGEX REPLACE
+                 "-Wl($| )"
+                 "" CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS}")
+
+    string(REGEX REPLACE
+                 "-Wl($| )"
+                 "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+
+    string(REGEX REPLACE
+                 "-Wl($| )"
+                 "" CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS}")
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined")
+    set(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} -Wl,--no-undefined")
+
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
+
+    set(CMAKE_MODULE_LINKER_FLAGS
+        "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--no-undefined")
 endif()
 
 if(${build_type} STREQUAL "MINSIZEREL" AND CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_EXE_LINKER_FLAGS    "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--gc-sections")
+    set(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-sections")
+
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--gc-sections")
+
+    set(CMAKE_MODULE_LINKER_FLAGS
+        "${CMAKE_MODULE_LINKER_FLAGS} -Wl,--gc-sections")
 endif()
 
 # Checking assertion: C/C++
 if(ASSERTION_ENABLE)
     # enable assertion, for nvim
     if(CMAKE_C_FLAGS_${build_type} MATCHES DNDEBUG)
-        string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_${build_type} "${CMAKE_C_FLAGS_${build_type}}")
+        string(REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_${build_type}
+                       "${CMAKE_C_FLAGS_${build_type}}")
     endif()
     # enable assertion, for snail
     if(CMAKE_CXX_FLAGS_${build_type} MATCHES DNDEBUG)
-        string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_${build_type} "${CMAKE_CXX_FLAGS_${build_type}}")
+        string(REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_${build_type}
+                       "${CMAKE_CXX_FLAGS_${build_type}}")
     endif()
     message(STATUS "Enable assertion")
 else()
     # disable assertion, for nvim
     if(NOT CMAKE_C_FLAGS_${build_type} MATCHES DNDEBUG)
         if(CMAKE_C_FLAGS_${build_type})
-            set(CMAKE_C_FLAGS_${build_type}  "${CMAKE_C_FLAGS_${build_type}} -DNDEBUG")
+            set(CMAKE_C_FLAGS_${build_type}
+                "${CMAKE_C_FLAGS_${build_type}} -DNDEBUG")
         else()
             set(CMAKE_C_FLAGS_${build_type}  "-DNDEBUG")
         endif()
@@ -182,7 +231,8 @@ else()
     # disable assertion, for snail
     if(NOT CMAKE_CXX_FLAGS_${build_type} MATCHES DNDEBUG)
         if(CMAKE_CXX_FLAGS_${build_type})
-            set(CMAKE_CXX_FLAGS_${build_type}  "${CMAKE_CXX_FLAGS_${build_type}} -DNDEBUG")
+            set(CMAKE_CXX_FLAGS_${build_type}
+            "${CMAKE_CXX_FLAGS_${build_type}} -DNDEBUG")
         else()
             set(CMAKE_CXX_FLAGS_${build_type}  "-DNDEBUG")
         endif()

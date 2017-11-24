@@ -16,17 +16,18 @@ if(NOT LIBUV_USE_BUNDLED)
     endif()
 else()
     # see 'pkg_check_modules' for details
-    set(PC_LIBUV_INCLUDEDIR)            # include-dir of the module
-    set(PC_LIBUV_INCLUDE_DIRS)          # the '-I' preprocessor flags (w/o the '-I')
-    set(PC_LIBUV_LIBDIR)                # lib-dir of the module
-    set(PC_LIBUV_LIBRARY_DIRS)          # the paths of the libraries (w/o the '-L')
-    set(LIMIT_SEARCH NO_DEFAULT_PATH)   # only the libraries (w/o the '-l')
+    set(PC_LIBUV_INCLUDEDIR) # include-dir of the module
+    set(PC_LIBUV_INCLUDE_DIRS) # the '-I' preprocessor flags (w/o the '-I')
+    set(PC_LIBUV_LIBDIR) # lib-dir of the module
+    set(PC_LIBUV_LIBRARY_DIRS) # the paths of the libraries (w/o the '-L')
+    set(LIMIT_SEARCH NO_DEFAULT_PATH) # only the libraries (w/o the '-l')
 endif()
 
 # This command is used to find a directory containing the named file
 # If nothing is found, the result will be 'LIBUV_INCLUDE_DIR-NOTFOUND'
-# and the search will be attempted again the next time find_path is invoked with the same variable
-# If 'NO_DEFAULT_PATH' is specified, then no additional paths are added to the search.
+# and the search will be attempted again the next time find_path is
+# invoked with the same variable If 'NO_DEFAULT_PATH' is specified,
+# then no additional paths are added to the search.
 find_path(LIBUV_INCLUDE_DIR uv.h
           HINTS ${PC_LIBUV_INCLUDEDIR} ${PC_LIBUV_INCLUDE_DIRS} ${LIMIT_SEARCH})
 
@@ -35,10 +36,14 @@ find_path(LIBUV_VERSION_DIR uv-version.h
 
 if(LIBUV_VERSION_DIR)
     file(READ ${LIBUV_VERSION_DIR}/uv-version.h uv_version_h)
-    string(REGEX REPLACE ".*UV_VERSION_MAJOR +([0-9]+).*" "\\1" LIBUV_VERSION_MAJOR "${uv_version_h}")
-    string(REGEX REPLACE ".*UV_VERSION_MINOR +([0-9]+).*" "\\1" LIBUV_VERSION_MINOR "${uv_version_h}")
-    string(REGEX REPLACE ".*UV_VERSION_PATCH +([0-9]+).*" "\\1" LIBUV_VERSION_PATCH "${uv_version_h}")
-    set(LIBUV_VERSION_STRING "${LIBUV_VERSION_MAJOR}.${LIBUV_VERSION_MINOR}.${LIBUV_VERSION_PATCH}")
+    string(REGEX REPLACE ".*UV_VERSION_MAJOR +([0-9]+).*"
+                         "\\1" LIBUV_VERSION_MAJOR "${uv_version_h}")
+    string(REGEX REPLACE ".*UV_VERSION_MINOR +([0-9]+).*"
+                         "\\1" LIBUV_VERSION_MINOR "${uv_version_h}")
+    string(REGEX REPLACE ".*UV_VERSION_PATCH +([0-9]+).*"
+                         "\\1" LIBUV_VERSION_PATCH "${uv_version_h}")
+    set(LIBUV_VERSION_STRING
+        "${LIBUV_VERSION_MAJOR}.${LIBUV_VERSION_MINOR}.${LIBUV_VERSION_PATCH}")
 else()
     set(LIBUV_VERSION_STRING)
 endif()
@@ -55,7 +60,8 @@ endif()
 #
 # If we're asked to use static linkage, add libuv.a as a preferred library name.
 if(LIBUV_USE_STATIC)
-    list(APPEND LIBUV_NAMES "${CMAKE_STATIC_LIBRARY_PREFIX}uv${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    list(APPEND LIBUV_NAMES
+         "${CMAKE_STATIC_LIBRARY_PREFIX}uv${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 if(MSVC)
@@ -123,8 +129,8 @@ if(HAVE_LIBSENDFILE)
 endif()
 
 if(WIN32)
-    # check_library_exists() does not work for Win32 API calls in X86 due to name
-    # mangling calling conventions
+    # check_library_exists() does not work for Win32 API
+    # calls in X86 due to name mangling calling conventions
     list(APPEND LIBUV_LIBRARIES iphlpapi)
     list(APPEND LIBUV_LIBRARIES psapi)
     list(APPEND LIBUV_LIBRARIES userenv)
@@ -135,9 +141,10 @@ include(FindPackageHandleStandardArgs)
 
 # handle the QUIETLY and REQUIRED arguments and set LIBUV_FOUND to TRUE
 # if all listed variables are TRUE
-# Specifies either <PackageName>_FOUND or <PACKAGENAME>_FOUND as the result variable.
-# This exists only for compatibility with older versions of CMake and is now ignored.
-# Result variables of both names are always set for compatibility.
+# Specifies either <PackageName>_FOUND or <PACKAGENAME>_FOUND as the result
+# variable. This exists only for compatibility with older versions of CMake
+# and is now ignored. Result variables of both names are always set for
+# compatibility.
 #
 # see 'find_package_handle_standard_args' for details
 find_package_handle_standard_args(LibUV

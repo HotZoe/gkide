@@ -1,8 +1,9 @@
 # CMake is painful here.
 #
-# It will create the destination using the user's current umask, and we don't want that.
-# So we try to create it with given permissions, if it's preexisting, leave it alone.
-# For now, this seems like the best compromise. If we create it, then everyone can see it.
+# It will create the destination using the user's current umask,
+# and we don't want that. So we try to create it with given permissions,
+# if it's preexisting, leave it alone. For now, this seems like the best
+# compromise. If we create it, then everyone can see it.
 
 function(create_install_dir_with_perms)
     cmake_parse_arguments(_install_dir
@@ -55,7 +56,8 @@ function(create_install_dir_with_perms)
     # Create any missing folders with the properly permissions.
     foreach(_current_dir \${_parent_dirs})
         if(NOT IS_DIRECTORY \${_current_dir})
-            # file(INSTALL ...) implicitly respects DESTDIR, so there's no need to prepend it here.
+            # file(INSTALL ...) implicitly respects DESTDIR,
+            # so there's no need to prepend it here.
             file(INSTALL
                  DESTINATION      \${_current_dir}
                  TYPE             DIRECTORY
@@ -88,7 +90,8 @@ function(install_helper)
         NOT _install_helper_DIRECTORY  AND
         NOT _install_helper_PROGRAMS   AND
         NOT _install_helper_TARGETS)
-        message(FATAL_ERROR "Must specify FILES, PROGRAMS, TARGETS, or a DIRECTORY to install")
+        message(FATAL_ERROR
+                "Must specify FILES, PROGRAMS, TARGETS, or a DIRECTORY to install")
     endif()
 
     if( NOT _install_helper_DIRECTORY_PERMISSIONS)
@@ -127,7 +130,8 @@ function(install_helper)
         install(TARGETS ${_install_helper_TARGETS}
                 RUNTIME DESTINATION ${CMAKE_INSTALL_BIN_DIR}) # bin
     else()
-        create_install_dir_with_perms(DESTINATION ${_install_helper_DESTINATION})
+        create_install_dir_with_perms(DESTINATION
+                                      ${_install_helper_DESTINATION})
     endif()
 
     # install directory

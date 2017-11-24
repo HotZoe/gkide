@@ -50,7 +50,8 @@ include(CheckBuildArch)
 #
 # If not do cross compiling, target just following the host
 if(TARGET_ARCH_32 AND TARGET_ARCH_64)
-    message(FATAL_ERROR "'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive!")
+    message(FATAL_ERROR
+            "'TARGET_ARCH_32' and 'TARGET_ARCH_64' are mutually exclusive!")
 elseif(TARGET_ARCH_32 AND NOT TARGET_ARCH_64)
     option(HOST_OS_ARCH_32 "Target GKIDE will running on 32-bits OS." ON)
 elseif(NOT TARGET_ARCH_32 AND TARGET_ARCH_64)
@@ -102,4 +103,6 @@ set(RELEASE_PACKAGE_SYS "${target_system}-${host_os_arch}")
 set(RELEASE_PACKAGE_VER "${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
 
 set(RELEASE_PACKAGE_NAME "${RELEASE_PACKAGE_VER}-${GIT_COMMIT_HASH_SHORT}")
-set(RELEASE_PACKAGE_NAME "gkide-v${RELEASE_PACKAGE_NAME}-${RELEASE_PACKAGE_SYS}-${RELEASE_BUILD_TIMESTAMP}")
+
+set(RELEASE_PACKAGE_NAME
+    "gkide-v${RELEASE_PACKAGE_NAME}-${RELEASE_PACKAGE_SYS}-${RELEASE_BUILD_TIMESTAMP}")

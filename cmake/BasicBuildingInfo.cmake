@@ -14,8 +14,9 @@ function(get_host_name_user_name_linux _un _hn)
 
     # get user name
     if(EXISTS ${WHOAMI_PROG})
-        execute_process(COMMAND ${WHOAMI_PROG} OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE        COMPILER_NAME)
+        execute_process(COMMAND ${WHOAMI_PROG}
+                        OUTPUT_STRIP_TRAILING_WHITESPACE
+                        OUTPUT_VARIABLE    COMPILER_NAME)
 
         set(${_un} "${COMPILER_NAME}" PARENT_SCOPE)
     else()
@@ -24,8 +25,9 @@ function(get_host_name_user_name_linux _un _hn)
 
     # get host name
     if(EXISTS ${HOSTNAME_PROG})
-        execute_process(COMMAND ${HOSTNAME_PROG} OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE          HOST_NAME)
+        execute_process(COMMAND ${HOSTNAME_PROG}
+                        OUTPUT_STRIP_TRAILING_WHITESPACE
+                        OUTPUT_VARIABLE    HOST_NAME)
 
         set(${_hn} "${HOST_NAME}" PARENT_SCOPE)
     else()
@@ -44,8 +46,9 @@ function(get_host_name_user_name_macosx _un _hn)
 
     # get user name
     if(EXISTS ${WHOAMI_PROG})
-        execute_process(COMMAND ${WHOAMI_PROG} OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE        COMPILER_NAME)
+        execute_process(COMMAND ${WHOAMI_PROG}
+                        OUTPUT_STRIP_TRAILING_WHITESPACE
+                        OUTPUT_VARIABLE     COMPILER_NAME)
 
         set(${_un} "${COMPILER_NAME}" PARENT_SCOPE)
     else()
@@ -54,8 +57,9 @@ function(get_host_name_user_name_macosx _un _hn)
 
     # get host name
     if(EXISTS ${HOSTNAME_PROG})
-        execute_process(COMMAND ${HOSTNAME_PROG} -s OUTPUT_STRIP_TRAILING_WHITESPACE
-                        OUTPUT_VARIABLE             HOST_NAME)
+        execute_process(COMMAND ${HOSTNAME_PROG} -s
+                        OUTPUT_STRIP_TRAILING_WHITESPACE
+                        OUTPUT_VARIABLE     HOST_NAME)
 
         set(${_hn} "${HOST_NAME}" PARENT_SCOPE)
     else()
@@ -73,8 +77,11 @@ function(get_host_system_info_linux os_name os_version)
                         OUTPUT_STRIP_TRAILING_WHITESPACE
                         OUTPUT_VARIABLE  release_version)
 
-        string(REGEX REPLACE "^Release:[ \t]*([0-9.]*)$" "\\1" release_version "${release_version}")
-        string(REGEX REPLACE "^Distributor ID:[ \t]*([^ ]*)$" "\\1" distributor_id "${distributor_id}")
+        string(REGEX REPLACE "^Release:[ \t]*([0-9.]*)$"
+                             "\\1" release_version "${release_version}")
+
+        string(REGEX REPLACE "^Distributor ID:[ \t]*([^ ]*)$"
+                             "\\1" distributor_id "${distributor_id}")
 
         set(${os_name} "${distributor_id}" PARENT_SCOPE)
         set(${os_version} "${release_version}" PARENT_SCOPE)
@@ -87,10 +94,11 @@ function(get_host_system_info_linux os_name os_version)
                     RESULT_VARIABLE  read_status
                     OUTPUT_VARIABLE  issue_txt)
     if(read_status EQUAL 0)
-        string(REGEX REPLACE "^[ \t]*([^0-9. ]*)[ \t]*[0-9].*" "\\1"
-                             distributor_id "${issue_txt}")
-        string(REGEX REPLACE "^[ \t]*[a-zA-Z]*[^0-9.]*[ \t]*([0-9.]+)[ \t]*.*" "\\1"
-                             release_version "${issue_txt}")
+        string(REGEX REPLACE "^[ \t]*([^0-9. ]*)[ \t]*[0-9].*"
+                             "\\1" distributor_id "${issue_txt}")
+
+        string(REGEX REPLACE "^[ \t]*[a-zA-Z]*[^0-9.]*[ \t]*([0-9.]+)[ \t]*.*"
+                             "\\1" release_version "${issue_txt}")
 
         set(${os_name} "${distributor_id}" PARENT_SCOPE)
         set(${os_version} "${release_version}" PARENT_SCOPE)
@@ -117,7 +125,8 @@ function(get_host_system_info_windows os_name os_version)
         return()
     endif()
 
-    if(windows_major_version STREQUAL "6.2" OR windows_major_version STREQUAL "6.3")
+    if(windows_major_version STREQUAL "6.2"
+       OR windows_major_version STREQUAL "6.3")
         set(${os_name} "Windows 8" PARENT_SCOPE)
         return()
     endif()
@@ -140,7 +149,9 @@ function(get_host_system_info_macosx os_name os_version)
                         OUTPUT_VARIABLE  _mac_build_version)
 
         set(${os_name} "${_mac_pro_name}" PARENT_SCOPE)
-        set(${os_version} "${_mac_pro_version}-${_mac_build_version}" PARENT_SCOPE)
+
+        set(${os_version}
+            "${_mac_pro_version}-${_mac_build_version}" PARENT_SCOPE)
     else()
         message(WARNING "[Macos] => current Macos system has no 'sw_vers' found.")
         set(${os_name} "Macos" PARENT_SCOPE)

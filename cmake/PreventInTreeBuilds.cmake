@@ -16,8 +16,8 @@
 # another solation
 # CMake has two undocumented options
 # Add this options before PROJECT()/project() keyword, like following
-# this solation is not good, becouse it will recursely creat CMakeCache.txt file
-# and CMakeFiles directory
+# this solation is not good, becouse it will recursely creat CMakeCache.txt
+# file and CMakeFiles directory
 #
 # cmake_minimum_required(VERSION 3.4)
 # set(CMAKE_DISABLE_SOURCE_CHANGES  ON)
@@ -41,4 +41,5 @@ function(PreventInTreeBuilds)
         message(FATAL_ERROR "${err_msg}")
     endif()
 endfunction()
+
 PreventInTreeBuilds()

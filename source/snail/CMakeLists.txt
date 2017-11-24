@@ -29,7 +29,8 @@ if(NOT SNAIL_LOG_LEVEL_MIN)
         set(SNAIL_LOG_LEVEL_MIN  2) # STATE(2)
         set(PACKAGE_RELEASE_READY false)
         if(NOT release_check_msg)
-            set(release_check_msg "${CMAKE_BUILD_TYPE} build, not ready to release.")
+            set(release_check_msg
+                "${CMAKE_BUILD_TYPE} build, not ready to release.")
         endif()
     endif()
 endif()
@@ -162,9 +163,11 @@ else()
 endif()
 
 if(GNUCXX_HAS_OG_FLAG)
-    set(CMAKE_CXX_FLAGS_DEV "-Og -g" CACHE STRING "CXXFlags used for development build." FORCE)
+    set(CMAKE_CXX_FLAGS_DEV
+        "-Og -g" CACHE STRING "CXXFlags used for development build." FORCE)
 else()
-    set(CMAKE_CXX_FLAGS_DEV "-O2 -g" CACHE STRING "CXXFlags used for development build." FORCE)
+    set(CMAKE_CXX_FLAGS_DEV
+        "-O2 -g" CACHE STRING "CXXFlags used for development build." FORCE)
 endif()
 
 if(SNAIL_USE_STATIC_QT5)
@@ -174,8 +177,10 @@ endif()
 add_compile_options("-std=c++11")
 
 # for config, hard code into source
-set(SNAIL_CONFIG_CXX_FLAGS ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
-set(SNAIL_CONFIG_CXX_FLAGS_${build_type} ${CMAKE_CXX_FLAGS_${build_type}} PARENT_SCOPE)
+set(SNAIL_CONFIG_CXX_FLAGS
+    ${CMAKE_CXX_FLAGS} PARENT_SCOPE)
+set(SNAIL_CONFIG_CXX_FLAGS_${build_type}
+    ${CMAKE_CXX_FLAGS_${build_type}} PARENT_SCOPE)
 
 add_subdirectory(app)
 add_subdirectory(libs)

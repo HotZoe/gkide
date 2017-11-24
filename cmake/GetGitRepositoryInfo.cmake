@@ -76,7 +76,8 @@ set(GetGitRepositoryInfo_Flag TRUE)
 #   GIT_EXECUTABLE           Path to Git command-line client.
 #   Git_FOUND, GIT_FOUND     True if the Git command-line client was found.
 #   GIT_VERSION_STRING       The version of Git found.
-# If git is not in the env-var 'PATH', then we can also given it by hand using 'GIT_PROG'
+# If git is not in the env-var 'PATH', then we can also
+# given it by hand using 'GIT_PROG'
 if(NOT GIT_FOUND AND GIT_PROG)
     set(Git_FOUND true)
     set(GIT_FOUND true)
@@ -118,9 +119,13 @@ function(GetGitRepoDir git_repo_dir)
         # file(READ <filename> <variable>)
         #     Read content from a file called <filename> and store it in a <variable>
         file(READ ${GIT_DIR} submodule)
-        string(REGEX REPLACE "gitdir: (.*)\n$" "\\1" GIT_DIR_RELATIVE ${submodule})
+        string(REGEX REPLACE "gitdir: (.*)\n$"
+                             "\\1" GIT_DIR_RELATIVE ${submodule})
+
         get_filename_component(SUBMODULE_DIR ${GIT_DIR} PATH)
-        get_filename_component(GIT_DIR ${SUBMODULE_DIR}/${GIT_DIR_RELATIVE} ABSOLUTE)
+
+        get_filename_component(GIT_DIR
+                               ${SUBMODULE_DIR}/${GIT_DIR_RELATIVE} ABSOLUTE)
     endif()
 
     set(${git_repo_dir} ${GIT_DIR} PARENT_SCOPE)
@@ -133,7 +138,9 @@ function(GetGitCurrentBranchInfo _branch_name _hash_num)
         return()
     endif()
 
-    set(CUSTOM_CMAKE_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomModules)
+    set(CUSTOM_CMAKE_MODULES_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomModules)
+
     if(NOT EXISTS ${CUSTOM_CMAKE_MODULES_DIR})
         file(MAKE_DIRECTORY ${CUSTOM_CMAKE_MODULES_DIR})
     endif()

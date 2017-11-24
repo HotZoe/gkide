@@ -43,11 +43,12 @@ else()
     set(MSGPACK_VERSION_STRING)
 endif()
 
-# If we're asked to use static linkage, add libmsgpack{,c}.a as a preferred library name.
+# If we're asked to use static linkage, add
+# libmsgpack{,c}.a as a preferred library name.
 if(MSGPACK_USE_STATIC)
     list(APPEND MSGPACK_NAMES
-                "${CMAKE_STATIC_LIBRARY_PREFIX}msgpackc${CMAKE_STATIC_LIBRARY_SUFFIX}"
-                "${CMAKE_STATIC_LIBRARY_PREFIX}msgpack${CMAKE_STATIC_LIBRARY_SUFFIX}")
+         "${CMAKE_STATIC_LIBRARY_PREFIX}msgpackc${CMAKE_STATIC_LIBRARY_SUFFIX}"
+         "${CMAKE_STATIC_LIBRARY_PREFIX}msgpack${CMAKE_STATIC_LIBRARY_SUFFIX}")
 endif()
 
 if(MSVC)
@@ -57,7 +58,8 @@ else()
     list(APPEND MSGPACK_NAMES msgpackc msgpack)
 endif()
 
-# Check each directory for all names to avoid using headers/libraries from different places.
+# Check each directory for all names to avoid
+# using headers/libraries from different places.
 find_library(MSGPACK_LIBRARY
              NAMES ${MSGPACK_NAMES}
              NAMES_PER_DIR

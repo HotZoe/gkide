@@ -73,15 +73,16 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(DEPS_BUILD_DIR    "${CMAKE_BINARY_DIR}"           CACHE PATH "Deps build perfix directory.")
+set(DEPS_BUILD_DIR "${CMAKE_BINARY_DIR}" CACHE PATH "Deps build perfix directory.")
 set(DEPS_DOWNLOAD_DIR "${CMAKE_SOURCE_DIR}/downloads" CACHE PATH "Deps download root directory.")
 
 # Dependencies built for the TARGET system
 set(DEPS_C_COMPILER   "${CMAKE_C_COMPILER}")
 set(DEPS_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
-set(DEPS_INSTALL_DIR  "${CMAKE_BINARY_DIR}/usr"       CACHE PATH "Deps install perfix directory.")
-set(DEPS_BIN_DIR      "${DEPS_INSTALL_DIR}/bin"       CACHE PATH "Deps binary install directory.")
-set(DEPS_LIB_DIR      "${DEPS_INSTALL_DIR}/lib"       CACHE PATH "Deps library install directory.")
+
+set(DEPS_INSTALL_DIR "${CMAKE_BINARY_DIR}/usr" CACHE PATH "Deps install perfix directory.")
+set(DEPS_BIN_DIR     "${DEPS_INSTALL_DIR}/bin" CACHE PATH "Deps binary install directory.")
+set(DEPS_LIB_DIR     "${DEPS_INSTALL_DIR}/lib" CACHE PATH "Deps library install directory.")
 
 # Cross Compiling:
 # Dependencies built for the HOST system, when not crosscompiling these should be the same as DEPS_*.
@@ -104,18 +105,18 @@ option(NVIM_TESTING_ENABLE      "Enable nvim testing."         ON)
 option(SNAIL_TESTING_ENABLE     "Enable snail testing."        ON)
 option(SKIP_DOWNLOAD_DEPS       "Skip download dependencies."  OFF)
 
-option(SKIP_DOWNLOAD_LUV        "Skip download : luv"         ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LUA        "Skip download : lua"         ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"       ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"       ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LUAJIT     "Skip download : luajit"      ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"     ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LUAROCKS   "Skip download : luarocks"    ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_JEMALLOC   "Skip download : jemalloc"    ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LIBICONV   "Skip download : libiconv"    ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LIBVTERM   "Skip download : libvterm"    ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_UNIBILIUM  "Skip download : unibilium"   ${SKIP_DOWNLOAD_DEPS})
-option(SKIP_DOWNLOAD_LIBTERMKEY "Skip download : libtermkey"  ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUV        "Skip download : luv"        ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUA        "Skip download : lua"        ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"      ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"      ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUAJIT     "Skip download : luajit"     ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"    ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LUAROCKS   "Skip download : luarocks"   ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_JEMALLOC   "Skip download : jemalloc"   ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBICONV   "Skip download : libiconv"   ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBVTERM   "Skip download : libvterm"   ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_UNIBILIUM  "Skip download : unibilium"  ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBTERMKEY "Skip download : libtermkey" ${SKIP_DOWNLOAD_DEPS})
 
 # create custom targets to build external projects
 include(ExternalProject)

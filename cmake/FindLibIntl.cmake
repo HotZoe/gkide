@@ -41,8 +41,9 @@ if(LibIntl_INCLUDE_DIR)
     set(CMAKE_REQUIRED_INCLUDES "${LibIntl_INCLUDE_DIR}")
 endif()
 
-# This is required because some operating systems don't have a separate libintl, 
-# it is built into glibc. So we only need to specify the library if one was actually found.
+# This is required because some operating systems don't have a
+# separate libintl, it is built into glibc. So we only need to
+# specify the library if one was actually found.
 if(LibIntl_LIBRARY)
     set(CMAKE_REQUIRED_LIBRARIES "${LibIntl_LIBRARY}")
 endif()

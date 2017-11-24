@@ -8,10 +8,13 @@ set(CONFIG_LUA_PATH_ENV)
 set(CONFIG_LUA_CPATH_ENV)
 
 if(NOT HOST_OS_WINDOWS)
-    set(LUA_PATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/share/lua") # for LUA_PATH
-    set(LUA_CPATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/lib/lua") # for LUA_CPATH
+    # for LUA_PATH
+    set(LUA_PATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/share/lua")
+    # for LUA_CPATH
+    set(LUA_CPATH_SEARCH_DIR_PERFIX "${BUNDLED_DEPS_PREFIX}/lib/lua")
 
-    if(EXISTS "${LUA_PATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_PATH_SEARCH_DIR_PERFIX}")
+    if(EXISTS "${LUA_PATH_SEARCH_DIR_PERFIX}"
+       AND IS_DIRECTORY "${LUA_PATH_SEARCH_DIR_PERFIX}")
         file(GLOB lua_version_dirs "${LUA_PATH_SEARCH_DIR_PERFIX}/*")
         foreach(lvd ${lua_version_dirs})
             set(ENV{LUA_PATH} "${lvd}/?/init.lua;$ENV{LUA_PATH}")
@@ -23,7 +26,8 @@ if(NOT HOST_OS_WINDOWS)
         endforeach()
     endif()
 
-    if(EXISTS "${LUA_CPATH_SEARCH_DIR_PERFIX}" AND IS_DIRECTORY "${LUA_CPATH_SEARCH_DIR_PERFIX}")
+    if(EXISTS "${LUA_CPATH_SEARCH_DIR_PERFIX}"
+       AND IS_DIRECTORY "${LUA_CPATH_SEARCH_DIR_PERFIX}")
         file(GLOB lua_version_dirs "${LUA_CPATH_SEARCH_DIR_PERFIX}/*")
         foreach(lvd ${lua_version_dirs})
             list(APPEND CONFIG_LUA_CPATH "${lvd}/?.so")
@@ -49,7 +53,8 @@ endfunction()
 
 # Check Lua interpreter for dependencies
 function(check_lua_deps LUA_PRG_PATH MODULES RESULT_VAR)
-    # Check if the lua interpreter at the given path satisfies all nvim dependencies
+    # Check if the lua interpreter at the
+    # given path satisfies all nvim dependencies
     message(STATUS "Lua interpreter: ${LUA_PRG_PATH}")
     if(NOT EXISTS ${LUA_PRG_PATH})
         message(STATUS "[${LUA_PRG_PATH}] not found")

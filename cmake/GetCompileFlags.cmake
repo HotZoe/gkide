@@ -3,14 +3,18 @@ function(GetCompileFlags _compile_flags _target)
         message(FATAL_ERROR "GetCompileFlags target error!")
     endif()
 
-    # Create template akin to 'CMAKE_C_COMPILE_OBJECT' <= 'CMAKE_<LANG>_COMPILE_OBJECT'
+    # Create template akin to
+    # 'CMAKE_C_COMPILE_OBJECT' <= 'CMAKE_<LANG>_COMPILE_OBJECT'
     set(compile_flags "<DEFINITIONS> <INCLUDES> <CFLAGS>")
 
     # Get Macros set by add_definitions()
     set(out_msg false)
     set(code_msg false)
-    get_directory_property(tgt_definitions DIRECTORY "${CMAKE_SOURCE_DIR}/source/${_target}"
-                                           COMPILE_DEFINITIONS)
+    get_directory_property(tgt_definitions
+                           DIRECTORY
+                           "${CMAKE_SOURCE_DIR}/source/${_target}"
+                           COMPILE_DEFINITIONS)
+
     foreach(defs_item ${tgt_definitions})
         if(code_msg)
             set(code_msg "${code_msg} -D${defs_item}")
@@ -35,7 +39,8 @@ function(GetCompileFlags _compile_flags _target)
     foreach(inc_dir ${include_dirs})
         string(FIND ${code_msg} ${inc_dir} inc_dir_${index})
         if(NOT inc_dir_${index} EQUAL -1)
-            # just skip duplicated include directory, do not show them, make message simple
+            # just skip duplicated include directory,
+            # do not show them, make message simple
             continue()
         endif()
         if(code_msg)
@@ -58,8 +63,10 @@ function(GetCompileFlags _compile_flags _target)
     # Get compile flags
     set(out_msg false)
     set(code_msg false)
-    get_directory_property(tgt_flags DIRECTORY "${CMAKE_SOURCE_DIR}/source/${_target}"
-                                     COMPILE_OPTIONS)
+    get_directory_property(tgt_flags
+                           DIRECTORY
+                           "${CMAKE_SOURCE_DIR}/source/${_target}"
+                           COMPILE_OPTIONS)
 
     if(_target STREQUAL nvim)
         set(tgt_build_flags ${NVIM_CONFIG_C_FLAGS_${build_type}})
@@ -166,17 +173,17 @@ function(GetCompileFlags _compile_flags _target)
 endfunction()
 
 function(GetNvimCompileFlags nvim_compile_flags)
-    message(STATUS "==================================================================")
-    message(STATUS "                         nvim build flags")
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
+    message(STATUS "                   nvim build flags")
+    message(STATUS "==========================================================")
     GetCompileFlags(_compile_flags nvim)
     set(${nvim_compile_flags} "${_compile_flags}" PARENT_SCOPE)
 endfunction()
 
 function(GetSnailCompileFlags snail_compile_flags)
-    message(STATUS "==================================================================")
-    message(STATUS "                         snail build flags")
-    message(STATUS "==================================================================")
+    message(STATUS "==========================================================")
+    message(STATUS "                   snail build flags")
+    message(STATUS "==========================================================")
     GetCompileFlags(_compile_flags snail)
     set(${snail_compile_flags} "${_compile_flags}" PARENT_SCOPE)
 endfunction()

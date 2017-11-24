@@ -1,5 +1,5 @@
 # cmake-source-tree/Modules/TestBigEndian.cmake
-# -----------------------------------------------------------------------------
+#
 # Define macro to determine endian type
 # Check if the system is big endian or little endian
 #
@@ -7,7 +7,7 @@
 #   VARIABLE - variable to store the result to
 #
 # Copyright 2002-2009 Kitware, Inc.
-#=============================================================================
+# =============================================================================
 # macro
 #      When it is invoked, the commands recorded in the macro are first
 #      modified by replacing formal parameters (${arg1}) with the arguments
@@ -23,7 +23,7 @@
 # When used in a function, could return
 #
 # Example:
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #   set(var "ABC")
 #   macro(Moo arg)
 #       message("arg = ${arg}")
@@ -42,7 +42,7 @@
 #   endfunction()
 #   message("=== Call function ===")
 #   Foo(${var})
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Output:
 #   === Call macro ===
 #   arg = ABC
@@ -52,13 +52,13 @@
 #   arg = ABC
 #   After change the value of arg.
 #   arg = abc
-#------------------------------------------------------------------------------
-# So it seems arg is assigned the value of var when call Foo and ${arg} are just
-# string replaced with ${var} when call Moo.
-# They are string replacements much like the C preprocessor would do with a macro.
-# If you want true CMake variables and/or better CMake scope control you should
-# look at the function command.
-#------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# So it seems arg is assigned the value of var when call Foo and ${arg}
+# are just string replaced with ${var} when call Moo.
+# They are string replacements much like the C preprocessor would do with
+# a macro. If you want true CMake variables and/or better CMake scope control
+# you should look at the function command.
+# -----------------------------------------------------------------------------
 #
 get_filename_component(CheckHostEndianType_Dir ${CMAKE_CURRENT_LIST_FILE} PATH)
 
@@ -87,7 +87,8 @@ function(CheckHostEndianType endian_type)
         endif()
     endif()
 
-    set(CUSTOM_CMAKE_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomModules)
+    set(CUSTOM_CMAKE_MODULES_DIR
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/CustomModules)
     configure_file("${CheckHostEndianType_Dir}/CheckHostEndianType.c.in"
                    "${CUSTOM_CMAKE_MODULES_DIR}/CheckHostEndianType.c"
                    @ONLY)
@@ -122,27 +123,30 @@ function(CheckHostEndianType endian_type)
                 set(CMAKE_TEST_ENDIANESS_STRINGS_BE FALSE)
                 set(CMAKE_TEST_ENDIANESS_STRINGS_LE TRUE)
             endif()
+
             message(STATUS "CheckHostEndianType found different results")
-            message(STATUS "consider setting CMAKE_OSX_ARCHITECTURES or CMAKE_TRY_COMPILE_OSX_ARCHITECTURES")
+            message(STATUS "consider setting CMAKE_OSX_ARCHITECTURES or "
+                           "CMAKE_TRY_COMPILE_OSX_ARCHITECTURES")
             message(STATUS "to one or no architecture !")
         endif()
 
         if(CMAKE_TEST_ENDIANESS_STRINGS_LE)
-            set(${endian_type} "little endian" CACHE INTERNAL "Result of CheckHostEndianType" FORCE)
+            set(${endian_type} "little endian"
+                CACHE INTERNAL "Result of CheckHostEndianType" FORCE)
             #message(STATUS "check the system endian type - little endian")
         endif()
 
         if(CMAKE_TEST_ENDIANESS_STRINGS_BE)
-            set(${endian_type} "big endian" CACHE INTERNAL "Result of CheckHostEndianType" FORCE)
+            set(${endian_type} "big endian"
+                CACHE INTERNAL "Result of CheckHostEndianType" FORCE)
             #message(STATUS "check the system endian type - big endian")
         endif()
 
-        if(NOT CMAKE_TEST_ENDIANESS_STRINGS_BE  AND  NOT CMAKE_TEST_ENDIANESS_STRINGS_LE)
+        if(NOT CMAKE_TEST_ENDIANESS_STRINGS_BE
+           AND NOT CMAKE_TEST_ENDIANESS_STRINGS_LE)
             message(FATAL_ERROR "CheckHostEndianType found no result!")
         endif()
     else()
         message(FATAL_ERROR "check the system endian - failed!")
     endif()
 endfunction()
-
-

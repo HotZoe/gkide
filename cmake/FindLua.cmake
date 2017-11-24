@@ -1,4 +1,4 @@
-# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# Distributed under the OSI-approved BSD 3-Clause License. See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
 # Locate Lua library, and this module defines
@@ -19,23 +19,26 @@
 #
 #   #include <lua/lua.h>
 #
-# This is because, the lua location is not standardized and may exist in locations
-# other than "lua/"
+# This is because, the lua location is not
+# standardized and may exist in locations other than "lua/"
 
 unset(_lua_include_subdirs)
 unset(_lua_library_names)
 unset(_lua_append_versions)
 
-# this is a function only to have all the variables inside go away automatically
+# this is a function only to have all
+# the variables inside go away automatically
 function(_lua_set_version_vars)
     set(LUA_VERSIONS5 5.3 5.2 5.1 5.0)
 
     if(Lua_FIND_VERSION_EXACT)
         if(Lua_FIND_VERSION_COUNT GREATER 1)
-            set(_lua_append_versions ${Lua_FIND_VERSION_MAJOR}.${Lua_FIND_VERSION_MINOR})
+            set(_lua_append_versions
+                ${Lua_FIND_VERSION_MAJOR}.${Lua_FIND_VERSION_MINOR})
         endif()
     elseif(Lua_FIND_VERSION)
-        # once there is a different major version supported this should become a loop
+        # once there is a different major version
+        # supported this should become a loop
         if(NOT Lua_FIND_VERSION_MAJOR GREATER 5)
             if(Lua_FIND_VERSION_COUNT EQUAL 1)
                 set(_lua_append_versions ${LUA_VERSIONS5})
@@ -48,7 +51,8 @@ function(_lua_set_version_vars)
             endif()
         endif()
     else()
-        # once there is a different major version supported this should become a loop
+        # once there is a different major version
+        # supported this should become a loop
         set(_lua_append_versions ${LUA_VERSIONS5})
     endif()
 
@@ -56,9 +60,13 @@ function(_lua_set_version_vars)
 
     foreach(ver IN LISTS _lua_append_versions)
         string(REGEX MATCH "^([0-9]+)\\.([0-9]+)$" _ver "${ver}")
-        list(APPEND _lua_include_subdirs "include/lua${CMAKE_MATCH_1}${CMAKE_MATCH_2}")
-        list(APPEND _lua_include_subdirs "include/lua${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
-        list(APPEND _lua_include_subdirs "include/lua-${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
+
+        list(APPEND _lua_include_subdirs
+             "include/lua${CMAKE_MATCH_1}${CMAKE_MATCH_2}")
+        list(APPEND _lua_include_subdirs
+             "include/lua${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
+        list(APPEND _lua_include_subdirs
+             "include/lua-${CMAKE_MATCH_1}.${CMAKE_MATCH_2}")
     endforeach()
 
     set(_lua_include_subdirs "${_lua_include_subdirs}" PARENT_SCOPE)
@@ -72,28 +80,38 @@ function(_lua_check_header_version _hdr_file)
     file(STRINGS "${_hdr_file}" lua_version_strings
          REGEX "^#define[ \t]+LUA_(RELEASE[ \t]+\"Lua [0-9]|VERSION([ \t]+\"Lua [0-9]|_[MR])).*")
 
-    string(REGEX REPLACE ".*;#define[ \t]+LUA_VERSION_MAJOR[ \t]+\"([0-9])\"[ \t]*;.*" "\\1"
-                         LUA_VERSION_MAJOR ";${lua_version_strings};")
+    string(REGEX REPLACE
+           ".*;#define[ \t]+LUA_VERSION_MAJOR[ \t]+\"([0-9])\"[ \t]*;.*"
+           "\\1" LUA_VERSION_MAJOR ";${lua_version_strings};")
 
     if(LUA_VERSION_MAJOR MATCHES "^[0-9]+$")
-        string(REGEX REPLACE ".*;#define[ \t]+LUA_VERSION_MINOR[ \t]+\"([0-9])\"[ \t]*;.*" "\\1"
-                             LUA_VERSION_MINOR ";${lua_version_strings};")
-        string(REGEX REPLACE ".*;#define[ \t]+LUA_VERSION_RELEASE[ \t]+\"([0-9])\"[ \t]*;.*" "\\1"
-                             LUA_VERSION_PATCH ";${lua_version_strings};")
-        set(LUA_VERSION_STRING "${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}.${LUA_VERSION_PATCH}")
+        string(REGEX REPLACE
+               ".*;#define[ \t]+LUA_VERSION_MINOR[ \t]+\"([0-9])\"[ \t]*;.*"
+               "\\1" LUA_VERSION_MINOR ";${lua_version_strings};")
+
+        string(REGEX REPLACE
+               ".*;#define[ \t]+LUA_VERSION_RELEASE[ \t]+\"([0-9])\"[ \t]*;.*"
+               "\\1" LUA_VERSION_PATCH ";${lua_version_strings};")
+
+        set(LUA_VERSION_STRING
+            "${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}.${LUA_VERSION_PATCH}")
     else()
-        string(REGEX REPLACE ".*;#define[ \t]+LUA_RELEASE[ \t]+\"Lua ([0-9.]+)\"[ \t]*;.*" "\\1"
-                             LUA_VERSION_STRING ";${lua_version_strings};")
+        string(REGEX REPLACE
+               ".*;#define[ \t]+LUA_RELEASE[ \t]+\"Lua ([0-9.]+)\"[ \t]*;.*"
+               "\\1" LUA_VERSION_STRING ";${lua_version_strings};")
+
         if(NOT LUA_VERSION_STRING MATCHES "^[0-9.]+$")
-            string(REGEX REPLACE ".*;#define[ \t]+LUA_VERSION[ \t]+\"Lua ([0-9.]+)\"[ \t]*;.*" "\\1" LUA_VERSION_STRING ";${lua_version_strings};")
+            string(REGEX REPLACE
+                   ".*;#define[ \t]+LUA_VERSION[ \t]+\"Lua ([0-9.]+)\"[ \t]*;.*"
+                   "\\1" LUA_VERSION_STRING ";${lua_version_strings};")
         endif()
 
-        string(REGEX REPLACE "^([0-9]+)\\.[0-9.]*$" "\\1"
-                             LUA_VERSION_MAJOR "${LUA_VERSION_STRING}")
-        string(REGEX REPLACE "^[0-9]+\\.([0-9]+)[0-9.]*$" "\\1"
-                             LUA_VERSION_MINOR "${LUA_VERSION_STRING}")
-        string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]).*" "\\1"
-                             LUA_VERSION_PATCH "${LUA_VERSION_STRING}")
+        string(REGEX REPLACE "^([0-9]+)\\.[0-9.]*$"
+                             "\\1" LUA_VERSION_MAJOR "${LUA_VERSION_STRING}")
+        string(REGEX REPLACE "^[0-9]+\\.([0-9]+)[0-9.]*$"
+                             "\\1" LUA_VERSION_MINOR "${LUA_VERSION_STRING}")
+        string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]).*"
+                             "\\1" LUA_VERSION_PATCH "${LUA_VERSION_STRING}")
     endif()
     foreach(ver IN LISTS _lua_append_versions)
         if(ver STREQUAL "${LUA_VERSION_MAJOR}.${LUA_VERSION_MINOR}")
