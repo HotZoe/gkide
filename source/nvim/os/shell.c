@@ -28,8 +28,12 @@
 #include "nvim/strings.h"
 
 #define DYNAMIC_BUFFER_INIT { NULL, 0, 0 }
-#define NS_1_SECOND         1000000000U     ///< 1 second, in nanoseconds
-#define OUT_DATA_THRESHOLD  1024 * 10U      ///< 10KB, "a few screenfuls" of data.
+
+/// 1 second, in nanoseconds
+#define NS_1_SECOND         1000000000U
+
+/// 10KB, "a few screenfuls" of data.
+#define OUT_DATA_THRESHOLD  1024 * 10U
 
 typedef struct
 {
@@ -51,7 +55,8 @@ typedef struct
 /// @param extra_args Extra arguments to the shell, or NULL.
 ///
 /// @return Newly allocated argument vector. Must be freed with shell_free_argv.
-char **shell_build_argv(const char *cmd, const char *extra_args) FUNC_ATTR_NONNULL_RET
+char **shell_build_argv(const char *cmd, const char *extra_args)
+FUNC_ATTR_NONNULL_RET
 {
     size_t argc = tokenize(p_sh, NULL) + (cmd ? tokenize(p_shcf, NULL) : 0);
     char **rv = xmalloc((argc + 4) * sizeof(*rv));
@@ -101,7 +106,8 @@ void shell_free_argv(char **argv)
     xfree(argv);
 }
 
-/// Calls the user-configured 'shell' (p_sh) for running a command or wildcard expansion.
+/// Calls the user-configured 'shell' (p_sh) for running a command
+/// or wildcard expansion.
 ///
 /// @param cmd The command to execute, or NULL to run an interactive shell.
 /// @param opts Options that control how the shell will work.
@@ -137,13 +143,16 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     }
 
     size_t nread;
-    int exitcode = do_os_system(shell_build_argv((char *)cmd, (char *)extra_args),
-                                input.data,
-                                input.len,
-                                output_ptr,
-                                &nread,
-                                emsg_silent,
-                                forward_output);
+
+    int exitcode =
+        do_os_system(shell_build_argv((char *)cmd, (char *)extra_args),
+                     input.data,
+                     input.len,
+                     output_ptr,
+                     &nread,
+                     emsg_silent,
+                     forward_output);
+
     xfree(input.data);
 
     if(output)
@@ -172,19 +181,34 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
 ///   char *argv[] = {"ls", "-la", NULL};
 ///   int exitcode = os_sytem(argv, NULL, 0, &output, &nread);
 ///
-/// @param argv        The commandline arguments to be passed to the shell. `argv` will be consumed.
-/// @param input       The input to the shell (NULL for no input), passed to the stdin
-///                    of the resulting process.
-/// @param len         The length of the input buffer (not used if `input` == NULL)
-/// @param[out] output Pointer to a location where the output will be
-///                    allocated and stored. Will point to NULL if the shell
-///                    command did not output anything. If NULL is passed,
-///                    the shell output will be ignored.
-/// @param[out] nread  the number of bytes in the returned buffer (if the returned
-///                    buffer is not NULL)
+/// @param argv
+/// The commandline arguments to be passed to the shell.
+/// `argv` will be consumed.
 ///
-/// @return the return code of the process, -1 if the process couldn't be started properly
-int os_system(char **argv, const char *input, size_t len, char **output, size_t *nread)
+/// @param input
+/// The input to the shell (NULL for no input), passed to
+/// the stdin of the resulting process.
+///
+/// @param len
+/// The length of the input buffer (not used if `input` == NULL)
+///
+/// @param[out] output
+/// Pointer to a location where the output will be allocated and stored.
+/// Will point to NULL if the shell command did not output anything.
+/// If NULL is passed, the shell output will be ignored.
+///
+/// @param[out] nread
+/// the number of bytes in the returned buffer
+/// (if the returned buffer is not NULL)
+///
+/// @return
+/// the return code of the process,
+/// -1 if the process couldn't be started properly
+int os_system(char **argv,
+              const char *input,
+              size_t len,
+              char **output,
+              size_t *nread)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     return do_os_system(argv, input, len, output, nread, true, false);
@@ -221,17 +245,20 @@ static int do_os_system(char **argv,
     // Copy the program name in case we need to report an error.
     char prog[MAXPATHL];
     xstrlcpy(prog, argv[0], MAXPATHL);
+
     LibuvProcess uvproc = libuv_process_init(&main_loop, &buf);
     Process *proc = &uvproc.process;
     MultiQueue *events = multiqueue_new_child(main_loop.events);
     Stream in;
     Stream out;
     Stream err;
+
     proc->events = events;
     proc->argv = argv;
     proc->in = input != NULL ? &in : NULL;
     proc->out = &out;
     proc->err = &err;
+
     int status = process_spawn(proc);
 
     if(status)
@@ -272,7 +299,8 @@ static int do_os_system(char **argv,
     // write the input, if any
     if(input)
     {
-        WBuffer *input_buffer = wstream_new_buffer((char *) input, len, 1, NULL);
+        WBuffer *input_buffer =
+            wstream_new_buffer((char *) input, len, 1, NULL);
 
         if(!wstream_write(&in, input_buffer))
         {
@@ -289,6 +317,7 @@ static int do_os_system(char **argv,
     // will not change the busy state.
     ui_busy_start();
     ui_flush();
+
     int exitcode = process_wait(proc, -1, NULL);
 
     if(!got_int && out_data_decide_throttle(0))
@@ -370,12 +399,14 @@ static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
 ///   2. :! in terminal-Vim uses a tty (Nvim uses pipes), so commands
 ///      (e.g. `git grep`) may page themselves.
 ///
-/// @param size Length of data, used with internal state to decide whether
-///             output should be skipped. size=0 resets the internal state and
-///             returns the previous decision.
+/// @param size
+/// Length of data, used with internal state to decide whether
+/// output should be skipped. size=0 resets the internal state and
+/// returns the previous decision.
 ///
-/// @returns true if output should be skipped and pulse was displayed.
-///          Returns the previous decision if size=0.
+/// @returns
+/// true if output should be skipped and pulse was displayed.
+/// Returns the previous decision if size=0.
 static bool out_data_decide_throttle(size_t size)
 {
     static uint64_t started = 0; // Start time of the current throttle.
@@ -393,7 +424,8 @@ static bool out_data_decide_throttle(size_t size)
     received += size;
 
     // Display at least the first chunk of output even if it is big.
-    if(received < OUT_DATA_THRESHOLD || (!started && received < size + 1000))
+    if(received < OUT_DATA_THRESHOLD
+       || (!started && received < size + 1000))
     {
         return false;
     }
@@ -417,6 +449,7 @@ static bool out_data_decide_throttle(size_t size)
     size_t tick = (visit % 20 == 0)
                   ? 3  // Force all dots "..." on last visit.
                   : (visit % 4);
+
     pulse_msg[0] = (tick == 0) ? ' ' : '.';
     pulse_msg[1] = (tick == 0 || 1 == tick) ? ' ' : '.';
     pulse_msg[2] = (tick == 0 || 1 == tick || 2 == tick) ? ' ' : '.';
@@ -427,8 +460,12 @@ static bool out_data_decide_throttle(size_t size)
     }
 
     int lastrow = (int)Rows - 1;
-    screen_puts_len((char_u *)pulse_msg, ARRAY_SIZE(pulse_msg), lastrow, 0, 0);
+
+    screen_puts_len((char_u *)pulse_msg,
+                    ARRAY_SIZE(pulse_msg), lastrow, 0, 0);
+
     ui_flush();
+
     return true;
 }
 
@@ -446,9 +483,11 @@ static bool out_data_decide_throttle(size_t size)
 /// @param  size    Length of `output`.
 static void out_data_ring(char *output, size_t size)
 {
-#define MAX_CHUNK_SIZE  (OUT_DATA_THRESHOLD / 2)
-    static char    last_skipped[MAX_CHUNK_SIZE]; // Saved output.
-    static size_t  last_skipped_len = 0;
+    #define MAX_CHUNK_SIZE  (OUT_DATA_THRESHOLD / 2)
+
+    static char last_skipped[MAX_CHUNK_SIZE]; // Saved output.
+    static size_t last_skipped_len = 0;
+
     assert(output != NULL || (size == 0 || size == SIZE_MAX));
 
     if(output == NULL && size == 0)
@@ -496,7 +535,9 @@ static void out_data_ring(char *output, size_t size)
 /// @param output       Data to append to screen lines.
 /// @param remaining    Size of data.
 /// @param new_line     If true, next data output will be on a new line.
-static void out_data_append_to_screen(char *output, size_t remaining, bool new_line)
+static void out_data_append_to_screen(char *output,
+                                      size_t remaining,
+                                      bool new_line)
 {
     // Column of last row to append to.
     static colnr_T last_col = 0;
@@ -508,13 +549,16 @@ static void out_data_append_to_screen(char *output, size_t remaining, bool new_l
         // Found end of line?
         if(output[off] == NL)
         {
-            // Can we start a new line or do we need to continue the last one?
+            // Can we start a new line or do
+            // we need to continue the last one?
             if(last_col == 0)
             {
                 screen_del_lines(0, 0, 1, (int)Rows, NULL);
             }
 
-            screen_puts_len((char_u *)output, (int)off, last_row, last_col, 0);
+            screen_puts_len((char_u *)output,
+                            (int)off, last_row, last_col, 0);
+
             last_col = 0;
             size_t skip = off + 1;
             output += skip;
@@ -540,7 +584,9 @@ static void out_data_append_to_screen(char *output, size_t remaining, bool new_l
             screen_del_lines(0, 0, 1, (int)Rows, NULL);
         }
 
-        screen_puts_len((char_u *)output, (int)remaining, last_row, last_col, 0);
+        screen_puts_len((char_u *)output,
+                        (int)remaining, last_row, last_col, 0);
+
         last_col += (colnr_T)remaining;
     }
 
@@ -580,14 +626,19 @@ static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
     }
 }
 
-/// Parses a command string into a sequence of words, taking quotes into consideration.
+/// Parses a command string into a sequence of words,
+/// taking quotes into consideration.
 ///
-/// @param str   The command string to be parsed
-/// @param argv  The vector that will be filled with copies of the parsed
-///              words. It can be NULL if the caller only needs to count words.
+/// @param str
+/// The command string to be parsed
+///
+/// @param argv
+/// The vector that will be filled with copies of the parsed
+/// words. It can be NULL if the caller only needs to count words.
 ///
 /// @return The number of words parsed.
-static size_t tokenize(const char_u *const str, char **const argv) FUNC_ATTR_NONNULL_ARG(1)
+static size_t tokenize(const char_u *const str, char **const argv)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     size_t argc = 0;
     const char *p = (const char *) str;
@@ -705,7 +756,10 @@ static void read_input(DynamicBuffer *buf)
     }
 }
 
-static size_t write_output(char *output, size_t remaining, bool to_buffer, bool eof)
+static size_t write_output(char *output,
+                           size_t remaining,
+                           bool to_buffer,
+                           bool eof)
 {
     if(!output)
     {
@@ -725,7 +779,9 @@ static size_t write_output(char *output, size_t remaining, bool to_buffer, bool 
             if(to_buffer)
             {
                 output[off] = NUL;
-                ml_append(curwin->w_cursor.lnum++, (char_u *)output, (int)off + 1, false);
+
+                ml_append(curwin->w_cursor.lnum++,
+                          (char_u *)output, (int)off + 1, false);
             }
             else
             {
@@ -756,14 +812,18 @@ static size_t write_output(char *output, size_t remaining, bool to_buffer, bool 
             if(to_buffer)
             {
                 // append unfinished line
-                ml_append(curwin->w_cursor.lnum++, (char_u *)output, 0, false);
+                ml_append(curwin->w_cursor.lnum++,
+                          (char_u *)output, 0, false);
+
                 // remember that the NL was missing
                 curbuf->b_no_eol_lnum = curwin->w_cursor.lnum;
             }
             else
             {
                 screen_del_lines(0, 0, 1, (int)Rows, NULL);
-                screen_puts_len((char_u *)output, (int)remaining, lastrow, 0, 0);
+
+                screen_puts_len((char_u *)output,
+                                (int)remaining, lastrow, 0, 0);
             }
 
             output += remaining;
@@ -784,8 +844,9 @@ static void shell_write_cb(Stream *stream,
 {
     if(status)
     {
-        // Can happen if system() tries to send input to a shell command that was
-        // backgrounded (:call system("cat - &", "foo")). #3529 #5241
+        // Can happen if system() tries to send input to a shell command
+        // that was backgrounded (:call system("cat - &", "foo")).
+        // see: #3529 #5241
         msg_schedule_emsgf(_("E5677: Error writing input to shell-command: %s"),
                            uv_err_name(status));
     }
@@ -806,7 +867,9 @@ static void shell_write_cb(Stream *stream,
 ///
 /// @return    Escaped/quoted command string (allocated).
 static char *shell_xescape_xquote(const char *cmd)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(*p_sxq == NUL)
     {
@@ -817,7 +880,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(*p_sxe != NUL && STRCMP(p_sxq, "(") == 0)
     {
-        ecmd = (char *)vim_strsave_escaped_ext((char_u *)cmd, p_sxe, '^', false);
+        ecmd =
+            (char *)vim_strsave_escaped_ext((char_u *)cmd, p_sxe, '^', false);
     }
 
     size_t ncmd_size = strlen(ecmd) + STRLEN(p_sxq) * 2 + 1;

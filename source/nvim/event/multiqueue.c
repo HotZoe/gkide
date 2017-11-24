@@ -4,12 +4,12 @@
 /// Not threadsafe; access must be synchronized externally.
 ///
 /// Multiqueue supports a parent-child relationship with these properties:
-/// - pushing a node to a child queue will push a corresponding link node to the
-///   parent queue
+/// - pushing a node to a child queue will push a corresponding link node
+///   to the parent queue
 /// - removing a link node from a parent queue will remove the next node
 ///   in the linked child queue
-/// - removing a node from a child queue will remove the corresponding link node
-///   in the parent queue
+/// - removing a node from a child queue will remove the corresponding
+///   link node in the parent queue
 ///
 /// These properties allow Nvim to organize and process events from different
 /// sources with a certain degree of control. How the multiqueue is used:
@@ -33,16 +33,16 @@
 ///
 /// When idle, the main loop spins the event loop which queues events from many
 /// sources (channels, jobs, user...). Each event emitter pushes events to its
-/// private queue which is propagated to the event loop queue. When the main loop
-/// consumes an event, the corresponding event is removed from the emitter's
-/// queue.
+/// private queue which is propagated to the event loop queue. When the main
+/// loop consumes an event, the corresponding event is removed from the
+/// emitter's queue.
 ///
 /// The main reason for this queue hierarchy is to allow focusing on a single
 /// event emitter while blocking the main loop. For example, if the `jobwait`
-/// VimL function is called on job1, the main loop will temporarily stop polling
-/// the event loop queue and poll job1 queue instead. Same with channels, when
-/// calling `rpcrequest` we want to temporarily stop processing events from
-/// other sources and focus on a specific channel.
+/// VimL function is called on job1, the main loop will temporarily stop
+/// polling the event loop queue and poll job1 queue instead. Same with
+/// channels, when calling `rpcrequest` we want to temporarily stop processing
+/// events from other sources and focus on a specific channel.
 
 #include <assert.h>
 #include <stdarg.h>
@@ -68,7 +68,8 @@ struct multiqueue_item
             MultiQueueItem *parent_item;
         } item;
     } data;
-    bool link; ///< true: current item is just a link to a node in a child queue
+    /// true: current item is just a link to a node in a child queue
+    bool link;
     QUEUE node;
 };
 
@@ -102,7 +103,9 @@ MultiQueue *multiqueue_new_child(MultiQueue *parent) FUNC_ATTR_NONNULL_ALL
     return multiqueue_new(parent, NULL, NULL);
 }
 
-static MultiQueue *multiqueue_new(MultiQueue *parent, put_callback put_cb, void *data)
+static MultiQueue *multiqueue_new(MultiQueue *parent,
+                                  put_callback put_cb,
+                                  void *data)
 {
     MultiQueue *rv = xmalloc(sizeof(MultiQueue));
     QUEUE_INIT(&rv->headtail);
@@ -209,7 +212,10 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
         // get the next node in the linked queue
         MultiQueue *linked = item->data.queue;
         assert(!multiqueue_empty(linked));
-        MultiQueueItem *child = multiqueue_node_data(QUEUE_HEAD(&linked->headtail));
+
+        MultiQueueItem *child =
+            multiqueue_node_data(QUEUE_HEAD(&linked->headtail));
+
         ev = child->data.item.event;
 
         // remove the child node
@@ -265,7 +271,9 @@ static void multiqueue_push(MultiQueue *this, Event event)
         item->data.item.parent_item = xmalloc(sizeof(MultiQueueItem));
         item->data.item.parent_item->link = true;
         item->data.item.parent_item->data.queue = this;
-        QUEUE_INSERT_TAIL(&this->parent->headtail, &item->data.item.parent_item->node);
+
+        QUEUE_INSERT_TAIL(&this->parent->headtail,
+                          &item->data.item.parent_item->node);
     }
 
     this->size++;

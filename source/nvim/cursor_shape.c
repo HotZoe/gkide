@@ -172,7 +172,8 @@ char_u *parse_shape_opt(int what)
                             }
                         }
 
-                        if(idx == SHAPE_IDX_COUNT || (shape_table[idx].used_for & what) == 0)
+                        if(idx == SHAPE_IDX_COUNT
+                           || (shape_table[idx].used_for & what) == 0)
                         {
                             return (char_u *)N_("E546: Illegal mode");
                         }
@@ -318,8 +319,9 @@ char_u *parse_shape_opt(int what)
 
                             if(round == 2)
                             {
-                                shape_table[idx].id = syn_check_group(p,
-                                                                      (int)(endp - p));
+                                shape_table[idx].id =
+                                    syn_check_group(p, (int)(endp - p));
+
                                 shape_table[idx].id_lm = shape_table[idx].id;
 
                                 if(slashp != NULL && slashp < endp)
@@ -351,13 +353,13 @@ char_u *parse_shape_opt(int what)
     // If the 's' flag is not given, use the 'v' cursor for 's'
     if(!found_ve)
     {
-        shape_table[SHAPE_IDX_VE].shape      = shape_table[SHAPE_IDX_V].shape;
+        shape_table[SHAPE_IDX_VE].shape = shape_table[SHAPE_IDX_V].shape;
         shape_table[SHAPE_IDX_VE].percentage = shape_table[SHAPE_IDX_V].percentage;
-        shape_table[SHAPE_IDX_VE].blinkwait  = shape_table[SHAPE_IDX_V].blinkwait;
-        shape_table[SHAPE_IDX_VE].blinkon    = shape_table[SHAPE_IDX_V].blinkon;
-        shape_table[SHAPE_IDX_VE].blinkoff   = shape_table[SHAPE_IDX_V].blinkoff;
-        shape_table[SHAPE_IDX_VE].id         = shape_table[SHAPE_IDX_V].id;
-        shape_table[SHAPE_IDX_VE].id_lm      = shape_table[SHAPE_IDX_V].id_lm;
+        shape_table[SHAPE_IDX_VE].blinkwait = shape_table[SHAPE_IDX_V].blinkwait;
+        shape_table[SHAPE_IDX_VE].blinkon = shape_table[SHAPE_IDX_V].blinkon;
+        shape_table[SHAPE_IDX_VE].blinkoff = shape_table[SHAPE_IDX_V].blinkoff;
+        shape_table[SHAPE_IDX_VE].id = shape_table[SHAPE_IDX_V].id;
+        shape_table[SHAPE_IDX_VE].id_lm = shape_table[SHAPE_IDX_V].id_lm;
     }
 
     ui_mode_info_set();

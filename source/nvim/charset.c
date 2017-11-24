@@ -34,17 +34,28 @@
 #endif
 
 // b_chartab[] is an array with 256 bits, each bit representing one of the characters 0-255.
-#define SET_CHARTAB(buf, c)          (buf)->b_chartab[(unsigned)(c) >> 6] |= (1ull << ((c) & 0x3f))
-#define RESET_CHARTAB(buf, c)        (buf)->b_chartab[(unsigned)(c) >> 6] &= ~(1ull << ((c) & 0x3f))
-#define GET_CHARTAB_TAB(chartab, c)  ((chartab)[(unsigned)(c) >> 6] & (1ull << ((c) & 0x3f)))
-#define GET_CHARTAB(buf, c)          GET_CHARTAB_TAB((buf)->b_chartab, c)
+#define SET_CHARTAB(buf, c) \
+    (buf)->b_chartab[(unsigned)(c) >> 6] |= (1ull << ((c) & 0x3f))
+
+#define RESET_CHARTAB(buf, c) \
+    (buf)->b_chartab[(unsigned)(c) >> 6] &= ~(1ull << ((c) & 0x3f))
+
+#define GET_CHARTAB_TAB(chartab, c) \
+    ((chartab)[(unsigned)(c) >> 6] & (1ull << ((c) & 0x3f)))
+
+#define GET_CHARTAB(buf, c) \
+    GET_CHARTAB_TAB((buf)->b_chartab, c)
 
 enum CharTableVarFlags
 {
-    kCT_CellMask = 0x07, ///< ::g_chartab flags: mask, nr of display cells (1, 2 or 4)
-    kCT_CharPrint= 0x10, ///< ::g_chartab flags: set for printable chars
-    kCT_CharID   = 0x20, ///< ::g_chartab flags: set for ID chars
-    kCT_CharFName= 0x40, ///< ::g_chartab flags: set for file name chars
+    /// ::g_chartab flags: mask, nr of display cells (1, 2 or 4)
+    kCT_CellMask = 0x07,
+     /// ::g_chartab flags: set for printable chars
+    kCT_CharPrint= 0x10,
+    /// ::g_chartab flags: set for ID chars
+    kCT_CharID   = 0x20,
+    /// ::g_chartab flags: set for file name chars
+    kCT_CharFName= 0x40,
 };
 
 /// Table used below, see init_chartab() for an explanation
@@ -52,7 +63,8 @@ static char_u g_chartab[256];
 static bool chartab_initialized = false;
 
 /// Fill ::g_chartab.
-/// Also fills @b curbuf->b_chartab with flags for keyword characters for current buffer.
+/// Also fills @b curbuf->b_chartab with flags
+/// for keyword characters for current buffer.
 ///
 /// Depends on the option settings:
 /// - iskeyword
@@ -77,7 +89,8 @@ static bool chartab_initialized = false;
 /// - kCT_CharID bit is set when the character can be in an identifier.
 ///
 /// @return
-/// FAIL if 'iskeyword', 'isident', 'isfname' or 'isprint' option has an error, OK otherwise.
+/// FAIL if 'iskeyword', 'isident', 'isfname'
+/// or 'isprint' option has an error, OK otherwise.
 int init_chartab(void)
 {
     return buf_init_chartab(curbuf, true);
@@ -88,7 +101,8 @@ int init_chartab(void)
 /// @param global false: only set @b buf->b_chartab
 ///
 /// @return
-/// FAIL if 'iskeyword', 'isident', 'isfname' or 'isprint' option has an error, OK otherwise.
+/// FAIL if 'iskeyword', 'isident', 'isfname'
+/// or 'isprint' option has an error, OK otherwise.
 int buf_init_chartab(buf_T *buf, int global)
 {
     int c;
@@ -156,10 +170,11 @@ int buf_init_chartab(buf_T *buf, int global)
         SET_CHARTAB(buf, '-');
     }
 
-    // Walk through the 'isident', 'iskeyword', 'isfname' and 'isprint' options.
+    // Walk through the 'isident', 'iskeyword', 'isfname'
+    // and 'isprint' options.
     //
-    // Each option is a list of characters, character numbers or ranges, separated
-    // by commas, e.g.: "200-210,x,#-178,-"
+    // Each option is a list of characters, character numbers
+    // or ranges, separated by commas, e.g.: "200-210,x,#-178,-"
     for(int i = global ? 0 : 3; i <= 3; i++)
     {
         const char_u *p = NULL;
@@ -251,8 +266,9 @@ int buf_init_chartab(buf_T *buf, int global)
 
             while(c <= c2)
             {
-                // Use the MB_ functions here, because isalpha() doesn't
-                // work properly when 'encoding' is "latin1" and the locale is "C".
+                // Use the MB_ functions here, because isalpha()
+                // doesn't work properly when 'encoding' is "latin1"
+                // and the locale is "C".
                 if(!do_isalpha
                    || mb_islower(c)
                    || mb_isupper(c)
@@ -278,12 +294,14 @@ int buf_init_chartab(buf_T *buf, int global)
                             // that we can detect it from the first byte.
                             if(((c < ' ')
                                 || (c > '~')
-                                || (p_altkeymap && (F_isalpha(c) || F_isdigit(c)))))
+                                || (p_altkeymap
+                                    && (F_isalpha(c) || F_isdigit(c)))))
                             {
                                 if(tilde)
                                 {
                                     g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask)
                                                              + ((dy_flags & DY_UHEX) ? 4 : 2));
+
                                     g_chartab[c] &= (uint8_t)~kCT_CharPrint;
                                 }
                                 else
@@ -344,8 +362,8 @@ int buf_init_chartab(buf_T *buf, int global)
 
 /// Translate any special characters in buf[bufsize] in-place.
 ///
-/// The result is a string with only printable characters, but if there is not
-/// enough room, not all characters will be translated.
+/// The result is a string with only printable characters, but if
+/// there is not enough room, not all characters will be translated.
 ///
 /// @param buf
 /// @param bufsize
@@ -390,13 +408,14 @@ void trans_characters(char_u *buf, int bufsize)
     }
 }
 
-/// Translate a string into allocated memory, replacing special chars with
-/// printable chars.
+/// Translate a string into allocated memory,
+/// replacing special chars with printable chars.
 ///
 /// @param s
 ///
 /// @return translated string
-char_u *transstr(char_u *s) FUNC_ATTR_NONNULL_RET
+char_u *transstr(char_u *s)
+FUNC_ATTR_NONNULL_RET
 {
     int c;
     char_u *res;
@@ -486,10 +505,10 @@ FUNC_ATTR_NONNULL_RET
     garray_T ga;
     int len = orglen;
 
-#define GA_CHAR(i)    ((char_u *)ga.ga_data)[i]
-#define GA_PTR(i)     ((char_u *)ga.ga_data + i)
-#define STR_CHAR(i)   (buf == NULL ? GA_CHAR(i) : buf[i])
-#define STR_PTR(i)    (buf == NULL ? GA_PTR(i) : buf + i)
+    #define GA_CHAR(i)    ((char_u *)ga.ga_data)[i]
+    #define GA_PTR(i)     ((char_u *)ga.ga_data + i)
+    #define STR_CHAR(i)   (buf == NULL ? GA_CHAR(i) : buf[i])
+    #define STR_PTR(i)    (buf == NULL ? GA_PTR(i) : buf + i)
 
     // Copy "str" into "buf" or allocated memory, unmodified.
     if(buf == NULL)
@@ -591,7 +610,8 @@ FUNC_ATTR_NONNULL_RET
 /// initialized, and initializing options may cause transchar() to be called!
 /// When chartab_initialized == false don't use g_chartab[].
 /// Does NOT work for multi-byte characters, c must be <= 255.
-/// Also doesn't work for the first byte of a multi-byte, "c" must be a character!
+/// Also doesn't work for the first byte of a multi-byte,
+/// "c" must be a character!
 static char_u transchar_buf[7];
 
 /// Translates a character
@@ -628,8 +648,8 @@ char_u *transchar(int c)
     return transchar_buf;
 }
 
-/// Like transchar(), but called with a byte instead of a character.  Checks
-/// for an illegal UTF-8 byte.
+/// Like transchar(), but called with a byte instead of a character.
+/// Checks for an illegal UTF-8 byte.
 ///
 /// @param c
 ///
@@ -706,8 +726,8 @@ void transchar_hex(char_u *buf, int c)
 }
 
 /// Convert the lower 4 bits of byte "c" to its hex character.
-/// Lower case letters are used to avoid the confusion of <F1> being 0xf1 or
-/// function key 1.
+/// Lower case letters are used to avoid the confusion of <F1>
+/// being 0xf1 or function key 1.
 ///
 /// @param c
 ///
@@ -745,8 +765,8 @@ int byte2cells(int b)
 
 /// Return number of display cells occupied by character "c".
 ///
-/// "c" can be a special key (negative number) in which case 3 or 4 is returned.
-/// A TAB is counted as two cells: "^I" or four: "<09>".
+/// "c" can be a special key (negative number) in which case 3 or
+/// 4 is returned. A TAB is counted as two cells: "^I" or four: "<09>".
 ///
 /// @param c
 ///
@@ -894,7 +914,9 @@ unsigned int win_linetabsize(win_T *wp, char_u *line, colnr_T len)
 {
     colnr_T col = 0;
 
-    for(char_u *s = line; *s != NUL && (len == MAXCOL || s < line + len); mb_ptr_adv(s))
+    for(char_u *s = line;
+        *s != NUL && (len == MAXCOL || s < line + len);
+        mb_ptr_adv(s))
     {
         col += win_lbr_chartabsize(wp, line, s, col, NULL);
     }
@@ -933,7 +955,8 @@ bool vim_iswordc_tab(const int c, const uint64_t *const chartab)
 FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     return (c >= 0x100
-            ? (utf_class(c) >= 2) : (c > 0 && GET_CHARTAB_TAB(chartab, c) != 0));
+            ? (utf_class(c) >= 2)
+            : (c > 0 && GET_CHARTAB_TAB(chartab, c) != 0));
 }
 
 /// Check that "c" is a keyword character:
@@ -1089,7 +1112,11 @@ int lbr_chartabsize_adv(char_u *line, char_u **s, colnr_T col)
 /// @param headp
 ///
 /// @return The number of characters taken up on the screen.
-int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *headp)
+int win_lbr_chartabsize(win_T *wp,
+                        char_u *line,
+                        char_u *s,
+                        colnr_T col,
+                        int *headp)
 {
     int n;
     int added;
@@ -1153,7 +1180,8 @@ int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *he
 
             if(!((c != NUL)
                  && (vim_isbreak(c)
-                     || (!vim_isbreak(c) && ((col2 == col) || !vim_isbreak(*ps))))))
+                     || (!vim_isbreak(c) && ((col2 == col)
+                     || !vim_isbreak(*ps))))))
             {
                 break;
             }
@@ -1168,7 +1196,10 @@ int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *he
             }
         }
     }
-    else if((size == 2) && (MB_BYTE2LEN(*s) > 1) && wp->w_p_wrap && in_win_border(wp, col))
+    else if((size == 2)
+            && (MB_BYTE2LEN(*s) > 1)
+            && wp->w_p_wrap
+            && in_win_border(wp, col))
     {
         // Count the ">" in the last column.
         ++size;
@@ -1229,7 +1260,9 @@ int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *he
                 {
                     // Calculate effective window width.
                     int width = (colnr_T)wp->w_width - sbrlen - numberwidth;
-                    int prev_width = col ? ((colnr_T)wp->w_width - (sbrlen + col)) : 0;
+
+                    int prev_width =
+                        col ? ((colnr_T)wp->w_width - (sbrlen + col)) : 0;
 
                     if(width == 0)
                     {
@@ -1273,8 +1306,8 @@ int win_lbr_chartabsize(win_T *wp, char_u *line, char_u *s, colnr_T col, int *he
 }
 
 /// Like win_lbr_chartabsize(), except that we know 'linebreak' is off and
-/// 'wrap' is on.  This means we need to check for a double-byte character that
-/// doesn't fit at the end of the screen line.
+/// 'wrap' is on. This means we need to check for a double-byte character
+/// that doesn't fit at the end of the screen line.
 ///
 /// @param wp
 /// @param s
@@ -1314,7 +1347,9 @@ static int win_nolbr_chartabsize(win_T *wp, char_u *s, colnr_T col, int *headp)
 /// @param  wp    window
 /// @param  vcol  column number
 bool in_win_border(win_T *wp, colnr_T vcol)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(1)
 {
     int width1; // width of first line (after line number)
     int width2; // width of further lines
@@ -1359,7 +1394,11 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1)
 /// @param start
 /// @param cursor
 /// @param end
-void getvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end)
+void getvcol(win_T *wp,
+             pos_T *pos,
+             colnr_T *start,
+             colnr_T *cursor,
+             colnr_T *end)
 {
     colnr_T vcol;
     char_u *ptr; // points to current char
@@ -1533,7 +1572,11 @@ colnr_T getvcol_nolist(pos_T *posp)
 /// @param start
 /// @param cursor
 /// @param end
-void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *end)
+void getvvcol(win_T *wp,
+              pos_T *pos,
+              colnr_T *start,
+              colnr_T *cursor,
+              colnr_T *end)
 {
     colnr_T col;
     colnr_T coladd;
@@ -1601,7 +1644,11 @@ void getvvcol(win_T *wp, pos_T *pos, colnr_T *start, colnr_T *cursor, colnr_T *e
 /// @param pos2
 /// @param left
 /// @param right
-void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left, colnr_T *right)
+void getvcols(win_T *wp,
+              pos_T *pos1,
+              pos_T *pos2,
+              colnr_T *left,
+              colnr_T *right)
 {
     colnr_T from1;
     colnr_T from2;
@@ -1651,8 +1698,10 @@ void getvcols(win_T *wp, pos_T *pos1, pos_T *pos2, colnr_T *left, colnr_T *right
 ///
 /// @return Pointer to character after the skipped whitespace.
 char_u *skipwhite(const char_u *q)
-FUNC_ATTR_PURE         FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_ALL  FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET
 {
     const char_u *p = q;
 
@@ -1670,7 +1719,9 @@ FUNC_ATTR_NONNULL_ALL  FUNC_ATTR_NONNULL_RET
 ///
 /// @return Pointer to the character after the skipped digits.
 char_u *skipdigits(const char_u *q)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
 {
     const char_u *p = q;
@@ -1865,7 +1916,8 @@ int getdigits_int(char_u **pp)
     return (int)number;
 }
 
-/// Get a long number from a string. Like getdigits(), but restricted to `long`.
+/// Get a long number from a string.
+/// Like getdigits(), but restricted to `long`.
 long getdigits_long(char_u **pp)
 {
     intmax_t number = getdigits(pp);
@@ -2122,7 +2174,9 @@ int hex2nr(int c)
 ///
 /// @param  str  file path string to check
 bool rem_backslash(const char_u *str)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
 #ifdef BACKSLASH_IN_FILENAME
     return str[0] == '\\'

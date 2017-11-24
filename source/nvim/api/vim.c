@@ -58,7 +58,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param keys         to be typed
 /// @param mode         mapping options
-/// @param escape_csi   If true, escape K_SPECIAL/CSI bytes in `keys`
+/// @param escape_csi   If true, escape K_SPECIAL/CSI bytes in @b keys
 /// @see feedkeys()
 /// @see vim_strsave_escape_csi
 void nvim_feedkeys(String keys, String mode, Boolean escape_csi)
@@ -175,7 +175,10 @@ FUNC_API_SINCE(1) FUNC_API_ASYNC
 ///
 /// @see replace_termcodes
 /// @see cpoptions
-String nvim_replace_termcodes(String str, Boolean from_part, Boolean do_lt, Boolean special)
+String nvim_replace_termcodes(String str,
+                              Boolean from_part,
+                              Boolean do_lt,
+                              Boolean special)
 FUNC_API_SINCE(1)
 {
     if(str.size == 0)
@@ -189,11 +192,11 @@ FUNC_API_SINCE(1)
     char *ptr = NULL;
 
     // Set 'cpoptions' the way we want it.
-    //    FLAG_CPO_BSLASH  set - backslashes are *not* treated specially
-    //    FLAG_CPO_KEYCODE set - keycodes are *not* reverse-engineered
-    //    FLAG_CPO_SPECI unset - <Key> sequences *are* interpreted
-    //  The third from end parameter of replace_termcodes() is true so that the
-    //  <lt> sequence is recognised - needed for a real backslash.
+    // - FLAG_CPO_BSLASH  set - backslashes are *not* treated specially
+    // - FLAG_CPO_KEYCODE set - keycodes are *not* reverse-engineered
+    // - FLAG_CPO_SPECI unset - <Key> sequences *are* interpreted
+    // The third from end parameter of replace_termcodes() is true so that the
+    // <lt> sequence is recognised - needed for a real backslash.
     replace_termcodes((char_u *)str.data,
                       str.size,
                       (char_u **)&ptr,
@@ -237,7 +240,8 @@ FUNC_API_SINCE(1)
 
     if(eval_lev_0((char_u *)expr.data, &rettv, NULL, true) == FAIL)
     {
-        api_set_error(err, kErrorTypeException, "Failed to evaluate expression");
+        api_set_error(err, kErrorTypeException,
+                      "Failed to evaluate expression");
     }
 
     if(!try_end(err))
@@ -266,7 +270,8 @@ FUNC_API_SINCE(1)
 
     if(args.size > MAX_FUNC_ARGS)
     {
-        api_set_error(err, kErrorTypeValidation, "Function called with too many arguments.");
+        api_set_error(err, kErrorTypeValidation,
+                      "Function called with too many arguments.");
         return rv;
     }
 
@@ -413,7 +418,8 @@ FUNC_API_SINCE(1)
 {
     if(dir.size >= MAXPATHL)
     {
-        api_set_error(err, kErrorTypeValidation, "Directory string is too long");
+        api_set_error(err, kErrorTypeValidation,
+                      "Directory string is too long");
         return;
     }
 
@@ -426,7 +432,8 @@ FUNC_API_SINCE(1)
     {
         if(!try_end(err))
         {
-            api_set_error(err, kErrorTypeException, "Failed to change directory");
+            api_set_error(err, kErrorTypeException,
+                          "Failed to change directory");
         }
 
         return;
@@ -641,7 +648,8 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && result == FAIL)
     {
-        api_set_error(err, kErrorTypeException, "Failed to switch to buffer %d", buffer);
+        api_set_error(err, kErrorTypeException,
+                      "Failed to switch to buffer %d", buffer);
     }
 }
 
@@ -695,7 +703,8 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && win != curwin)
     {
-        api_set_error(err, kErrorTypeException, "Failed to switch to window %d", window);
+        api_set_error(err, kErrorTypeException,
+                      "Failed to switch to window %d", window);
     }
 }
 
@@ -751,7 +760,8 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err) && tp != curtab)
     {
-        api_set_error(err, kErrorTypeException, "Failed to switch to tabpage %d", tabpage);
+        api_set_error(err, kErrorTypeException,
+                      "Failed to switch to tabpage %d", tabpage);
     }
 }
 
@@ -796,7 +806,8 @@ FUNC_API_SINCE(1)
 
     for(int i = 0; color_name_table[i].name != NULL; i++)
     {
-        PUT(colors, color_name_table[i].name, INTEGER_OBJ(color_name_table[i].color));
+        PUT(colors, color_name_table[i].name,
+            INTEGER_OBJ(color_name_table[i].color));
     }
 
     return colors;
@@ -908,7 +919,10 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
         }
 
         Array args = call.items[1].data.array;
-        MsgpackRpcRequestHandler handler = msgpack_rpc_get_handler_for(name.data, name.size);
+
+        MsgpackRpcRequestHandler handler =
+            msgpack_rpc_get_handler_for(name.data, name.size);
+
         Object result = handler.fn(channel_id, args, &nested_error);
 
         if(ERROR_SET(&nested_error))
@@ -988,7 +1002,8 @@ static void write_msg(String message, bool to_err)
 
 /// Returns object given as argument
 ///
-/// This API function is used for testing. One should not rely on its presence in plugins.
+/// This API function is used for testing.
+/// One should not rely on its presence in plugins.
 ///
 /// @param[in]  obj  Object to return.
 ///
@@ -1000,7 +1015,8 @@ Object nvim__id(Object obj)
 
 /// Returns array given as argument
 ///
-/// This API function is used for testing. One should not rely on its presence in plugins.
+/// This API function is used for testing.
+/// One should not rely on its presence in plugins.
 ///
 /// @param[in]  arr  Array to return.
 ///
@@ -1012,7 +1028,8 @@ Array nvim__id_array(Array arr)
 
 /// Returns dictionary given as argument
 ///
-/// This API function is used for testing. One should not rely on its presence in plugins.
+/// This API function is used for testing.
+/// One should not rely on its presence in plugins.
 ///
 /// @param[in]  dct  Dictionary to return.
 ///
@@ -1024,7 +1041,8 @@ Dictionary nvim__id_dictionary(Dictionary dct)
 
 /// Returns floating-point value given as argument
 ///
-/// This API function is used for testing. One should not rely on its presence in plugins.
+/// This API function is used for testing.
+/// One should not rely on its presence in plugins.
 ///
 /// @param[in]  flt  Value to return.
 ///

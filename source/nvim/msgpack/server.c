@@ -66,12 +66,13 @@ static void close_socket_watcher(SocketWatcher **watcher)
     socket_watcher_close(*watcher, free_server);
 }
 
-/// Set v:servername to the first server in the server list, or unset it if no
-/// servers are known.
+/// Set v:servername to the first server in the server
+/// list, or unset it if no servers are known.
 static void set_vservername(garray_T *srvs)
 {
     char *default_server = (srvs->ga_len > 0)
-                           ? ((SocketWatcher **)srvs->ga_data)[0]->addr : NULL;
+                           ? ((SocketWatcher **)srvs->ga_data)[0]->addr
+                           : NULL;
 
     set_vim_var_string(VV_SEND_SERVER, default_server, -1);
 }
@@ -154,7 +155,8 @@ int server_start(const char *endpoint)
     // Check if a watcher for the endpoint already exists
     for(int i = 0; i < watchers.ga_len; i++)
     {
-        if(!strcmp(watcher->addr, ((SocketWatcher **)watchers.ga_data)[i]->addr))
+        if(!strcmp(watcher->addr,
+                   ((SocketWatcher **)watchers.ga_data)[i]->addr))
         {
             ERROR_LOG("Already listening on %s", watcher->addr);
 
@@ -271,7 +273,9 @@ char **server_address_list(size_t *size) FUNC_ATTR_NONNULL_ALL
     return addrs;
 }
 
-static void connection_cb(SocketWatcher *watcher, int result, void *FUNC_ARGS_UNUSED_REALY(data))
+static void connection_cb(SocketWatcher *watcher,
+                          int result,
+                          void *FUNC_ARGS_UNUSED_REALY(data))
 {
     if(result)
     {
@@ -282,7 +286,8 @@ static void connection_cb(SocketWatcher *watcher, int result, void *FUNC_ARGS_UN
     channel_from_connection(watcher);
 }
 
-static void free_server(SocketWatcher *watcher, void *FUNC_ARGS_UNUSED_REALY(data))
+static void free_server(SocketWatcher *watcher,
+                        void *FUNC_ARGS_UNUSED_REALY(data))
 {
     xfree(watcher);
 }

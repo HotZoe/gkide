@@ -5,7 +5,8 @@
 
 #include <stdbool.h>
 
-/// Whether c belongs to the range of Arabic characters that might be shaped.
+/// Whether c belongs to the range of
+/// Arabic characters that might be shaped.
 static inline bool arabic_char(int c)
 {
     // return c >= a_HAMZA && c <= a_MINI_ALEF;

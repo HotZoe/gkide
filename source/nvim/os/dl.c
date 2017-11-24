@@ -20,24 +20,35 @@ typedef int64_t (*int_int_fn)(int64_t i);
 ///
 /// an example of calling a function that takes a string and returns an int:
 ///
-///   int64_t int_out = 0;
-///   os_libcall("mylib.so", "somefn", "string-argument", 0, NULL, &int_out);
+/// int64_t int_out = 0;
+/// os_libcall("mylib.so", "somefn", "string-argument", 0, NULL, &int_out);
 ///
-/// @param libname      the name of the library to load (e.g.: libsomething.so)
-/// @param funcname     the name of the library function (e.g.: myfunc)
-/// @param argv         the input string, NULL when using `argi`
-/// @param argi         the input integer, not used when using `argv` != NULL
-/// @param[out] str_out an allocated output string, caller must free if not NULL.
-///                     NULL when using `int_out`.
-/// @param[out] int_out the output integer param
+/// @param libname
+/// the name of the library to load (e.g.: libsomething.so)
+///
+/// @param funcname
+/// the name of the library function (e.g.: myfunc)
+///
+/// @param argv
+/// the input string, NULL when using `argi`
+///
+/// @param argi
+/// the input integer, not used when using `argv` != NULL
+///
+/// @param[out] str_out
+/// an allocated output string, caller must free if not NULL.
+/// NULL when using `int_out`.
+///
+/// @param[out] int_out
+/// the output integer param
 ///
 /// @return true on success, false on failure
 ///
 /// possible function prototypes that can be called by os_libcall()
-///    int -> int
-///    int -> string
-/// string -> string
-/// string -> int
+/// -    int -> int
+/// -    int -> string
+/// - string -> string
+/// - string -> int
 bool os_libcall(const char *libname,
                 const char *funcname,
                 const char *argv,
@@ -80,7 +91,9 @@ bool os_libcall(const char *libname,
         const char *res = argv ? sfn(argv) : ifn(argi);
 
         // assume that ptr values of NULL, 1 or -1 are illegal
-        *str_out = (res && (intptr_t) res != 1 && (intptr_t) res != -1) ? xstrdup(res) : NULL;
+        *str_out = (res
+                    && (intptr_t) res != 1
+                    && (intptr_t) res != -1) ? xstrdup(res) : NULL;
     }
     else
     {

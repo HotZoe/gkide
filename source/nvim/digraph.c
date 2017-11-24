@@ -1764,7 +1764,9 @@ static void printdigraph(digr_T *dp)
 
         assert(p >= buf);
 
-        vim_snprintf((char *)p, sizeof(buf) - (size_t)(p - buf), " %3d", dp->result);
+        vim_snprintf((char *)p,
+                     sizeof(buf) - (size_t)(p - buf), " %3d", dp->result);
+
         msg_outtrans(buf);
     }
 }
@@ -1781,16 +1783,17 @@ typedef struct
 
 /// Set up key mapping tables for the 'keymap' option.
 ///
-/// @return NULL if OK, an error message for failure. This only needs to be
-///         used when setting the option, not later when the value has already
-///         been checked.
+/// @return
+/// NULL if OK, an error message for failure.
+/// This only needs to be used when setting the option,
+/// not later when the value has already been checked.
 char_u *keymap_init(void)
 {
     curbuf->b_kmap_state &= ~KEYMAP_INIT;
 
     if(*curbuf->b_p_keymap == NUL)
     {
-        // Stop any active keymap and clear the table.  Also remove
+        // Stop any active keymap and clear the table. Also remove
         // b:keymap_name, as no keymap is active now.
         keymap_unload();
         do_cmdline_cmd("unlet! b:keymap_name");
@@ -1806,7 +1809,8 @@ char_u *keymap_init(void)
         buf = xmalloc(buflen);
 
         // try finding "keymap/'keymap'_'encoding'.vim"  in 'runtimepath'
-        vim_snprintf(buf, buflen, "keymap/%s_%s.vim", curbuf->b_p_keymap, p_enc);
+        vim_snprintf(buf, buflen, "keymap/%s_%s.vim",
+                     curbuf->b_p_keymap, p_enc);
 
         if(source_runtime((char_u *)buf, 0) == FAIL)
         {

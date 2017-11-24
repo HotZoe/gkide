@@ -88,8 +88,8 @@ static void cursorhold_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 
 static void create_cursorhold_event(void)
 {
-    // If events are enabled and the queue has any items, this function should not
-    // have been called(inbuf_poll would return kInputAvail)
+    // If events are enabled and the queue has any items, this function should
+    // not have been called(inbuf_poll would return kInputAvail)
     // TODO(tarruda): Cursorhold should be implemented as a timer set during the
     // `state_check` callback for the states where it can be triggered.
     assert(!events_enabled || multiqueue_empty(main_loop.events));
@@ -138,8 +138,8 @@ int os_inchar(uint8_t *buf, int maxlen, int ms, int tb_change_cnt)
 
     if(maxlen && rbuffer_size(input_buffer))
     {
-        // Safe to convert rbuffer_read to int, it will never overflow since we use
-        // relatively small buffers.
+        // Safe to convert rbuffer_read to int, it will never
+        // overflow since we use relatively small buffers.
         return (int)rbuffer_read(input_buffer, (char *)buf, (size_t)maxlen);
     }
 
@@ -268,8 +268,11 @@ size_t input_enqueue(String keys)
     return rv;
 }
 
-// Mouse event handling code(Extract row/col if available and detect multiple clicks)
-static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bufsize)
+/// Mouse event handling code(Extract row/col if
+/// available and detect multiple clicks)
+static unsigned int handle_mouse_event(char **ptr,
+                                       uint8_t *buf,
+                                       unsigned int bufsize)
 {
     int mouse_code = 0;
     int type = 0;
@@ -293,9 +296,10 @@ static unsigned int handle_mouse_event(char **ptr, uint8_t *buf, unsigned int bu
         return bufsize;
     }
 
-    // a <[COL],[ROW]> sequence can follow and will set the mouse_row/mouse_col
-    // global variables. This is ugly but its how the rest of the code expects to
-    // find mouse coordinates, and it would be too expensive to refactor this now.
+    // a <[COL],[ROW]> sequence can follow and will set the
+    // mouse_row/mouse_col global variables. This is ugly but
+    // its how the rest of the code expects to find mouse
+    // coordinates, and it would be too expensive to refactor this now.
     int col, row, advance;
 
     if(sscanf(*ptr, "<%d,%d>%n", &col, &row, &advance) != EOF && advance)
@@ -415,7 +419,9 @@ static bool input_poll(int ms)
         multiqueue_process_events(ch_before_blocking_events);
     }
 
-    LOOP_PROCESS_EVENTS_UNTIL(&main_loop, NULL, ms, input_ready() || input_eof);
+    LOOP_PROCESS_EVENTS_UNTIL(&main_loop, NULL, ms,
+                              input_ready() || input_eof);
+
     blocking = false;
 
     if(do_profiling == PROF_YES && ms)
@@ -459,6 +465,7 @@ static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
     }
 
     assert(rbuffer_space(input_buffer) >= rbuffer_size(buf));
+
     RBUFFER_UNTIL_EMPTY(buf, ptr, len)
     {
         (void)rbuffer_write(input_buffer, ptr, len);
@@ -491,8 +498,8 @@ static void process_interrupts(void)
     }
 }
 
-/// Helper function used to push bytes from the 'event' key sequence partially
-/// between calls to os_inchar when maxlen < 3
+/// Helper function used to push bytes from the 'event' key
+/// sequence partially between calls to os_inchar when maxlen < 3
 static int push_event_key(uint8_t *buf, int maxlen)
 {
     static const uint8_t key[3] = { K_SPECIAL, KS_EXTRA, KE_EVENT };

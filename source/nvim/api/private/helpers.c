@@ -43,7 +43,8 @@ void try_start(void)
     ++trylevel;
 }
 
-/// End try block, set the error message if any and return true if an error occurred.
+/// End try block, set the error message if any and return
+/// true if an error occurred.
 ///
 /// @param err Pointer to the stack-allocated error object
 /// @return true if an error occurred
@@ -115,29 +116,41 @@ Object dict_get_value(dict_T *dict, String key, Error *err)
 /// @param dict     The vimscript dict
 /// @param key      The key
 /// @param value    The new value
-/// @param del      Delete key in place of setting it. Argument `value` is ignored in this case.
+/// @param del      Delete key in place of setting it.
+///                 Argument @b value is ignored in this case.
 /// @param retval   If true the old value will be converted and returned.
 /// @param[out] err Details of an error that may have occurred
-/// @return The old value if `retval` is true and the key was present, else NIL
-Object dict_set_var(dict_T *dict, String key, Object value, bool del, bool retval, Error *err)
+/// @return The old value if @b retval is true and the key was present, else NIL
+Object dict_set_var(dict_T *dict,
+                    String key,
+                    Object value,
+                    bool del,
+                    bool retval,
+                    Error *err)
 {
     Object rv = OBJECT_INIT;
 
     if(dict->dv_lock)
     {
-        api_set_error(err, kErrorTypeException, "Dictionary is locked");
+        api_set_error(err,
+                      kErrorTypeException,
+                      "Dictionary is locked");
         return rv;
     }
 
     if(key.size == 0)
     {
-        api_set_error(err, kErrorTypeValidation, "Empty variable names aren't allowed");
+        api_set_error(err,
+                      kErrorTypeValidation,
+                      "Empty variable names aren't allowed");
         return rv;
     }
 
     if(key.size > INT_MAX)
     {
-        api_set_error(err, kErrorTypeValidation, "Key length is too high");
+        api_set_error(err,
+                      kErrorTypeValidation,
+                      "Key length is too high");
         return rv;
     }
 
@@ -147,17 +160,23 @@ Object dict_set_var(dict_T *dict, String key, Object value, bool del, bool retva
     {
         if(di->di_flags & DI_FLAGS_RO)
         {
-            api_set_error(err, kErrorTypeException, "Key is read-only: %s", key.data);
+            api_set_error(err,
+                          kErrorTypeException,
+                          "Key is read-only: %s", key.data);
             return rv;
         }
         else if(di->di_flags & DI_FLAGS_FIX)
         {
-            api_set_error(err, kErrorTypeException, "Key is fixed: %s", key.data);
+            api_set_error(err,
+                          kErrorTypeException,
+                          "Key is fixed: %s", key.data);
             return rv;
         }
         else if(di->di_flags & DI_FLAGS_LOCK)
         {
-            api_set_error(err, kErrorTypeException, "Key is locked: %s", key.data);
+            api_set_error(err,
+                          kErrorTypeException,
+                          "Key is locked: %s", key.data);
             return rv;
         }
     }
@@ -168,7 +187,9 @@ Object dict_set_var(dict_T *dict, String key, Object value, bool del, bool retva
         if(di == NULL)
         {
             // Doesn't exist, fail
-            api_set_error(err, kErrorTypeValidation, "Key does not exist: %s", key.data);
+            api_set_error(err,
+                          kErrorTypeValidation,
+                          "Key does not exist: %s", key.data);
         }
         else
         {
@@ -187,7 +208,8 @@ Object dict_set_var(dict_T *dict, String key, Object value, bool del, bool retva
         // Update the key
         typval_T tv;
 
-        // Convert the object to a vimscript type in the temporary variable
+        // Convert the object to a vimscript
+        // type in the temporary variable
         if(!object_to_vim(value, &tv, err))
         {
             return rv;
@@ -221,9 +243,9 @@ Object dict_set_var(dict_T *dict, String key, Object value, bool del, bool retva
 
 /// Gets the value of a global or local(buffer, window) option.
 ///
-/// @param from     If `type` is `SREQ_WIN` or `SREQ_BUF`, this must
+/// @param from     If @b type is @b SREQ_WIN or @b SREQ_BUF, this must
 ///                 be a pointer to the window or buffer.
-/// @param type     One of `SREQ_GLOBAL`, `SREQ_WIN` or `SREQ_BUF`
+/// @param type     One of @b SREQ_GLOBAL, @b SREQ_WIN or @b SREQ_BUF
 /// @param name     The option name
 /// @param[out] err Details of an error that may have occurred
 /// @return the option value
@@ -240,7 +262,8 @@ Object get_option_from(void *from, int type, String name, Error *err)
     // Return values
     int64_t numval;
     char *stringval = NULL;
-    int flags = get_option_value_strict(name.data, &numval, &stringval, type, from);
+    int flags = get_option_value_strict(name.data, &numval,
+                                        &stringval, type, from);
 
     if(!flags)
     {
@@ -284,9 +307,9 @@ Object get_option_from(void *from, int type, String name, Error *err)
 
 /// Sets the value of a global or local(buffer, window) option.
 ///
-/// @param to       If `type` is `SREQ_WIN` or `SREQ_BUF`, this must
+/// @param to       If @b type is @b SREQ_WIN or @b SREQ_BUF, this must
 ///                 be a pointer to the window or buffer.
-/// @param type     One of `SREQ_GLOBAL`, `SREQ_WIN` or `SREQ_BUF`
+/// @param type     One of @b SREQ_GLOBAL, @b SREQ_WIN or @b SREQ_BUF
 /// @param name     The option name
 /// @param[out] err Details of an error that may have occurred
 void set_option_to(void *to, int type, String name, Object value, Error *err)
@@ -370,17 +393,27 @@ void set_option_to(void *to, int type, String name, Object value, Error *err)
             return;
         }
 
-        set_option_value_for(name.data, 0, value.data.string.data, opt_flags, type, to, err);
+        set_option_value_for(name.data, 0, value.data.string.data,
+                             opt_flags, type, to, err);
     }
 }
 
 #define TYPVAL_ENCODE_ALLOW_SPECIALS false
 
-#define TYPVAL_ENCODE_CONV_NIL(tv)         kv_push(edata->stack, NIL)
-#define TYPVAL_ENCODE_CONV_BOOL(tv, num)   kv_push(edata->stack, BOOLEAN_OBJ((Boolean)(num)))
-#define TYPVAL_ENCODE_CONV_NUMBER(tv, num) kv_push(edata->stack, INTEGER_OBJ((Integer)(num)))
-#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER TYPVAL_ENCODE_CONV_NUMBER
-#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)  kv_push(edata->stack, FLOAT_OBJ((Float)(flt)))
+#define TYPVAL_ENCODE_CONV_NIL(tv)         \
+    kv_push(edata->stack, NIL)
+
+#define TYPVAL_ENCODE_CONV_BOOL(tv, num)   \
+    kv_push(edata->stack, BOOLEAN_OBJ((Boolean)(num)))
+
+#define TYPVAL_ENCODE_CONV_NUMBER(tv, num) \
+    kv_push(edata->stack, INTEGER_OBJ((Integer)(num)))
+
+#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER \
+    TYPVAL_ENCODE_CONV_NUMBER
+
+#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)  \
+    kv_push(edata->stack, FLOAT_OBJ((Float)(flt)))
 
 #define TYPVAL_ENCODE_CONV_STRING(tv, str, len)       \
     do {                                              \
@@ -393,9 +426,11 @@ void set_option_to(void *to, int type, String name, Object value, Error *err)
         })));                                         \
     } while (0)
 
-#define TYPVAL_ENCODE_CONV_STR_STRING TYPVAL_ENCODE_CONV_STRING
+#define TYPVAL_ENCODE_CONV_STR_STRING \
+    TYPVAL_ENCODE_CONV_STRING
 
-#define TYPVAL_ENCODE_CONV_EXT_STRING(tv, str, len, type) TYPVAL_ENCODE_CONV_NIL(tv)
+#define TYPVAL_ENCODE_CONV_EXT_STRING(tv, str, len, type) \
+    TYPVAL_ENCODE_CONV_NIL(tv)
 
 #define TYPVAL_ENCODE_CONV_FUNC_START(tv, fun)       \
     do {                                             \
@@ -408,12 +443,15 @@ void set_option_to(void *to, int type, String name, Object value, Error *err)
 #define TYPVAL_ENCODE_CONV_FUNC_END(tv)
 
 #define TYPVAL_ENCODE_CONV_EMPTY_LIST(tv) \
-    kv_push(edata->stack, ARRAY_OBJ(((Array) { .capacity = 0, .size = 0 })))
+    kv_push(edata->stack,                 \
+            ARRAY_OBJ(((Array) { .capacity = 0, .size = 0 })))
 
 #define TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, dict) \
-    kv_push(edata->stack, DICTIONARY_OBJ(((Dictionary) { .capacity = 0, .size = 0 })))
+    kv_push(edata->stack,                       \
+            DICTIONARY_OBJ(((Dictionary) { .capacity = 0, .size = 0 })))
 
-static inline void typval_encode_list_start(EncodedData *const edata, const size_t len)
+static inline void typval_encode_list_start(EncodedData *const edata,
+                                            const size_t len)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     kv_push(edata->stack, ARRAY_OBJ(((Array)
@@ -455,7 +493,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_CONV_LIST_END(tv)  typval_encode_list_end(edata)
 
-static inline void typval_encode_dict_start(EncodedData *const edata, const size_t len)
+static inline void typval_encode_dict_start(EncodedData *const edata,
+                                            const size_t len)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     kv_push(edata->stack, DICTIONARY_OBJ(((Dictionary)
@@ -572,7 +611,9 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 Object vim_to_object(typval_T *obj)
 {
     EncodedData edata = { .stack = KV_INITIAL_VALUE };
-    const int evo_ret = encode_vim_to_object(&edata, obj, "vim_to_object argument");
+
+    const int evo_ret = encode_vim_to_object(&edata, obj,
+                                             "vim_to_object argument");
     (void)evo_ret;
     assert(evo_ret == OK);
     Object ret = kv_A(edata.stack, 0);
@@ -637,7 +678,10 @@ tabpage_T *find_tab_by_handle(Tabpage tabpage, Error *err)
 /// with code using C strings.
 ///
 /// @param str the C string to copy
-/// @return the resulting String, if the input string was NULL, an empty String is returned
+///
+/// @return
+/// the resulting String, if the input string was NULL,
+/// an empty String is returned
 String cstr_to_string(const char *str)
 {
     if(str == NULL)
@@ -690,16 +734,20 @@ bool object_to_vim(Object obj, typval_T *tv, Error *err)
 
         case kObjectTypeBoolean:
             tv->v_type = VAR_SPECIAL;
-            tv->vval.v_special = obj.data.boolean? kSpecialVarTrue: kSpecialVarFalse;
+
+            tv->vval.v_special = obj.data.boolean
+                                 ? kSpecialVarTrue: kSpecialVarFalse;
             break;
 
         case kObjectTypeBuffer:
         case kObjectTypeWindow:
         case kObjectTypeTabpage:
         case kObjectTypeInteger:
-            if(obj.data.integer > VARNUMBER_MAX || obj.data.integer < VARNUMBER_MIN)
+            if(obj.data.integer > VARNUMBER_MAX
+               || obj.data.integer < VARNUMBER_MIN)
             {
-                api_set_error(err, kErrorTypeValidation, "Integer value outside range");
+                api_set_error(err, kErrorTypeValidation,
+                              "Integer value outside range");
                 return false;
             }
 
@@ -721,7 +769,8 @@ bool object_to_vim(Object obj, typval_T *tv, Error *err)
             }
             else
             {
-                tv->vval.v_string = xmemdupz(obj.data.string.data, obj.data.string.size);
+                tv->vval.v_string = xmemdupz(obj.data.string.data,
+                                             obj.data.string.size);
             }
 
             break;
@@ -763,7 +812,9 @@ bool object_to_vim(Object obj, typval_T *tv, Error *err)
 
                 if(key.size == 0)
                 {
-                    api_set_error(err, kErrorTypeValidation, "Empty dictionary keys aren't allowed");
+                    api_set_error(err, kErrorTypeValidation,
+                                  "Empty dictionary keys aren't allowed");
+
                     tv_dict_free(dict); // cleanup
                     return false;
                 }
@@ -938,15 +989,31 @@ static void init_error_type_metadata(Dictionary *metadata)
 static void init_type_metadata(Dictionary *metadata)
 {
     Dictionary types = ARRAY_DICT_INIT;
+
     Dictionary buffer_metadata = ARRAY_DICT_INIT;
-    PUT(buffer_metadata, "id", INTEGER_OBJ(kObjectTypeBuffer - EXT_OBJECT_TYPE_SHIFT));
-    PUT(buffer_metadata, "prefix", STRING_OBJ(cstr_to_string("nvim_buf_")));
+
+    PUT(buffer_metadata, "id",
+        INTEGER_OBJ(kObjectTypeBuffer - EXT_OBJECT_TYPE_SHIFT));
+
+    PUT(buffer_metadata, "prefix",
+        STRING_OBJ(cstr_to_string("nvim_buf_")));
+
     Dictionary window_metadata = ARRAY_DICT_INIT;
-    PUT(window_metadata, "id", INTEGER_OBJ(kObjectTypeWindow - EXT_OBJECT_TYPE_SHIFT));
-    PUT(window_metadata, "prefix", STRING_OBJ(cstr_to_string("nvim_win_")));
+
+    PUT(window_metadata, "id",
+        INTEGER_OBJ(kObjectTypeWindow - EXT_OBJECT_TYPE_SHIFT));
+
+    PUT(window_metadata, "prefix",
+        STRING_OBJ(cstr_to_string("nvim_win_")));
+
     Dictionary tabpage_metadata = ARRAY_DICT_INIT;
-    PUT(tabpage_metadata, "id", INTEGER_OBJ(kObjectTypeTabpage - EXT_OBJECT_TYPE_SHIFT));
-    PUT(tabpage_metadata, "prefix", STRING_OBJ(cstr_to_string("nvim_tabpage_")));
+
+    PUT(tabpage_metadata, "id",
+        INTEGER_OBJ(kObjectTypeTabpage - EXT_OBJECT_TYPE_SHIFT));
+
+    PUT(tabpage_metadata, "prefix",
+        STRING_OBJ(cstr_to_string("nvim_tabpage_")));
+
     PUT(types, "Buffer", DICTIONARY_OBJ(buffer_metadata));
     PUT(types, "Window", DICTIONARY_OBJ(window_metadata));
     PUT(types, "Tabpage", DICTIONARY_OBJ(tabpage_metadata));
@@ -1042,7 +1109,8 @@ static void set_option_value_for(char *key,
                     return;
                 }
 
-                api_set_error(err, kErrorTypeException, "Problem while switching windows");
+                api_set_error(err, kErrorTypeException,
+                              "Problem while switching windows");
                 return;
             }
 
@@ -1112,7 +1180,8 @@ FUNC_ATTR_NONNULL_ALL
     err->type = errType;
 }
 
-/// Get an array containing dictionaries describing mappings based on mode and buffer id
+/// Get an array containing dictionaries describing mappings based
+/// on mode and buffer id
 ///
 /// @param  mode  The abbreviation for the mode
 /// @param  buf   The buffer to get the mapping array. NULL for global

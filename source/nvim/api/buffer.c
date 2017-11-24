@@ -1,6 +1,7 @@
 /// @file nvim/api/buffer.c
 
-// Much of this code was adapted from 'if_py_both.h' from the original vim source
+// Much of this code was adapted from
+// 'if_py_both.h' from the original vim source
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -32,7 +33,8 @@
 /// @param buffer   Buffer handle
 /// @param[out] err Error details, if any
 /// @return Line count
-Integer nvim_buf_line_count(Buffer buffer, Error *err) FUNC_API_SINCE(1)
+Integer nvim_buf_line_count(Buffer buffer, Error *err)
+FUNC_API_SINCE(1)
 {
     buf_T *buf = find_buffer_by_handle(buffer, err);
 
@@ -119,8 +121,8 @@ void buffer_del_line(Buffer buffer, Integer index, Error *err)
 /// @param buffer         Buffer handle
 /// @param start          First line index
 /// @param end            Last line index
-/// @param include_start  True if the slice includes the `start` parameter
-/// @param include_end    True if the slice includes the `end` parameter
+/// @param include_start  True if the slice includes the @b start parameter
+/// @param include_end    True if the slice includes the @b end parameter
 /// @param[out] err       Error details, if any
 /// @return Array of lines
 ArrayOf(String) buffer_get_line_slice(Buffer buffer,
@@ -143,7 +145,7 @@ ArrayOf(String) buffer_get_line_slice(Buffer buffer,
 /// last element set start=-2 and end=-1.
 ///
 /// Out-of-bounds indices are clamped to the nearest valid value, unless
-/// `strict_indexing` is set.
+/// @b strict_indexing is set.
 ///
 /// @param buffer           Buffer handle
 /// @param start            First line index
@@ -235,8 +237,8 @@ end:
 /// @param buffer         Buffer handle
 /// @param start          First line index
 /// @param end            Last line index
-/// @param include_start  True if the slice includes the `start` parameter
-/// @param include_end    True if the slice includes the `end` parameter
+/// @param include_start  True if the slice includes the @b start parameter
+/// @param include_end    True if the slice includes the @b end parameter
 /// @param replacement    Array of lines to use as replacement (0-length
 //                        array will delete the line range)
 /// @param[out] err       Error details, if any
@@ -245,7 +247,7 @@ void buffer_set_line_slice(Buffer buffer,
                            Integer end,
                            Boolean include_start,
                            Boolean include_end,
-                           ArrayOf(String) replacement,  // NOLINT
+                           ArrayOf(String) replacement, // NOLINT
                            Error *err)
 {
     start = convert_index(start) + !include_start;
@@ -321,7 +323,8 @@ FUNC_API_SINCE(1)
 
             if(memchr(l.data, NL, l.size))
             {
-                api_set_error(err, kErrorTypeValidation, "String cannot contain newlines");
+                api_set_error(err, kErrorTypeValidation,
+                              "String cannot contain newlines");
                 return;
             }
         }
@@ -349,7 +352,8 @@ FUNC_API_SINCE(1)
 
     if(u_save((linenr_T)(start - 1), (linenr_T)end) == FAIL)
     {
-        api_set_error(err, kErrorTypeException, "Failed to save undo information");
+        api_set_error(err, kErrorTypeException,
+                      "Failed to save undo information");
         goto end;
     }
 
@@ -608,8 +612,8 @@ FUNC_API_SINCE(1)
     return get_option_from(buf, SREQ_BUF, name, err);
 }
 
-/// Sets a buffer option value. Passing 'nil' as value deletes the option (only
-/// works if there's a global fallback)
+/// Sets a buffer option value. Passing 'nil' as value
+/// deletes the option (only works if there's a global fallback)
 ///
 /// @param buffer     Buffer handle
 /// @param name       Option name
@@ -720,11 +724,14 @@ FUNC_API_SINCE(1)
 /// @deprecated use nvim_buf_set_lines(buffer, lnum, lnum, true, lines)
 ///
 /// @param buffer     Buffer handle
-/// @param lnum       Insert the lines after `lnum`. If negative, appends to
+/// @param lnum       Insert the lines after @b lnum. If negative, appends to
 ///                   the end of the buffer.
 /// @param lines      Array of lines
 /// @param[out] err   Error details, if any
-void buffer_insert(Buffer buffer, Integer lnum, ArrayOf(String) lines, Error *err)
+void buffer_insert(Buffer buffer,
+                   Integer lnum,
+                   ArrayOf(String) lines,
+                   Error *err)
 {
     // "lnum" will be the index of the line after inserting,
     // no matter if it is negative or not
@@ -750,7 +757,8 @@ FUNC_API_SINCE(1)
 
     if(name.size != 1)
     {
-        api_set_error(err, kErrorTypeValidation, "Mark name must be a single character");
+        api_set_error(err, kErrorTypeValidation,
+                      "Mark name must be a single character");
         return rv;
     }
 

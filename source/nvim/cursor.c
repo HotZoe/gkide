@@ -89,9 +89,9 @@ int coladvance(colnr_T wcol)
 ///
 ///
 /// @param pos
-/// @param addspaces    change the text to achieve our goal?
-/// @param finetune     change char offset for the exact column
-/// @param wcol         column to move to
+/// @param addspaces  change the text to achieve our goal?
+/// @param finetune   change char offset for the exact column
+/// @param wcol       column to move to
 static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
 {
     int idx;
@@ -144,7 +144,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
                && ((State & INSERT) == 0 || (int)wcol > csize + 1))
             {
                 // In case of line wrapping don't move the cursor beyond the
-                // right screen edge.  In Insert mode allow going just beyond
+                // right screen edge. In Insert mode allow going just beyond
                 // the last character (like what happens when typing and
                 // reaching the right window edge).
                 wcol = (csize / width + 1) * width - 1;
@@ -216,7 +216,9 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
                 memset(newline + idx, ' ', (size_t)csize);
 
                 // Copy the rest of the line
-                memcpy(newline + idx + csize, line + idx + 1, (size_t)(linelen - idx - 1));
+                memcpy(newline + idx + csize,
+                       line + idx + 1,
+                       (size_t)(linelen - idx - 1));
 
                 ml_replace(pos->lnum, newline, false);
                 changed_bytes(pos->lnum, idx);
@@ -290,8 +292,6 @@ int inc_cursor(void)
     return inc(&curwin->w_cursor);
 }
 
-/// dec(p)
-///
 /// Decrement the line pointer 'p' crossing line boundaries as necessary.
 /// Return 1 when crossing a line, -1 when at start of file, 0 otherwise.
 int dec_cursor(void)
@@ -299,9 +299,9 @@ int dec_cursor(void)
     return dec(&curwin->w_cursor);
 }
 
-/// Get the line number relative to the current cursor position, i.e. the
-/// difference between line number and cursor position. Only look for lines that
-/// can be visible, folded lines don't count.
+/// Get the line number relative to the current cursor position,
+/// i.e. the difference between line number and cursor position.
+/// Only look for lines that can be visible, folded lines don't count.
 ///
 /// @param lnum line number to get the result for
 linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
@@ -324,7 +324,8 @@ linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
         (void)hasFoldingWin(wp, from_line, NULL, &from_line, true, NULL);
     }
 
-    // If to_line is in a closed fold, the line count is off by +1. Correct it.
+    // If to_line is in a closed fold,
+    // the line count is off by +1. Correct it.
     if(from_line > to_line)
     {
         retval--;
@@ -334,6 +335,7 @@ linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
 }
 
 // Make sure "pos.lnum" and "pos.col" are valid in "buf".
+
 // This allows for the col to be on the NUL byte.
 void check_pos(buf_T *buf, pos_T *pos)
 {
@@ -362,9 +364,10 @@ void check_cursor_lnum(void)
 {
     if(curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
     {
-        // If there is a closed fold at the end of the file, put the cursor in
-        // its first line.  Otherwise in the last line. */
-        if(!hasFolding(curbuf->b_ml.ml_line_count, &curwin->w_cursor.lnum, NULL))
+        // If there is a closed fold at the end of the file, put the
+        // cursor in its first line. Otherwise in the last line.
+        if(!hasFolding(curbuf->b_ml.ml_line_count,
+                       &curwin->w_cursor.lnum, NULL))
         {
             curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
         }
@@ -389,7 +392,9 @@ void check_cursor_col_win(win_T *win)
     colnr_T len;
     colnr_T oldcol = win->w_cursor.col;
     colnr_T oldcoladd = win->w_cursor.col + win->w_cursor.coladd;
-    len = (colnr_T)STRLEN(ml_get_buf(win->w_buffer, win->w_cursor.lnum, false));
+
+    len = (colnr_T)STRLEN(ml_get_buf(win->w_buffer,
+                                     win->w_cursor.lnum, false));
 
     if(len == 0)
     {
@@ -424,8 +429,9 @@ void check_cursor_col_win(win_T *win)
         win->w_cursor.col = 0;
     }
 
-    // If virtual editing is on, we can leave the cursor on the old position,
-    // only we must set it to virtual.  But don't do it when at the end of the line.
+    // If virtual editing is on, we can leave the
+    // cursor on the old position, only we must set
+    // it to virtual. But don't do it when at the end of the line.
     if(oldcol == MAXCOL)
     {
         win->w_cursor.coladd = 0;
@@ -438,7 +444,8 @@ void check_cursor_col_win(win_T *win)
         }
         else
         {
-            // avoid weird number when there is a miscalculation or overflow
+            // avoid weird number when
+            // there is a miscalculation or overflow
             win->w_cursor.coladd = 0;
         }
     }
@@ -464,10 +471,12 @@ void adjust_cursor_col(void)
 }
 
 /// When curwin->w_leftcol has changed, adjust the cursor position.
-/// Return true if the cursor was moved.
+///
+/// @return true if the cursor was moved.
 bool leftcol_changed(void)
 {
-    // TODO(hinidu): I think it should be colnr_T or int, but p_siso is long.
+    // TODO(hinidu):
+    // I think it should be colnr_T or int, but p_siso is long.
     // Perhaps we can change p_siso to int.
     int64_t lastcol;
     colnr_T s, e;
@@ -489,8 +498,8 @@ bool leftcol_changed(void)
         coladvance((colnr_T)(curwin->w_leftcol + p_siso));
     }
 
-    // If the start of the character under the cursor is not on the screen,
-    // advance the cursor one more char.
+    // If the start of the character under the cursor is not on
+    // the screen, advance the cursor one more char.
     // If this fails (last char of the line) adjust the scrolling.
     getvvcol(curwin, &curwin->w_cursor, &s, NULL, &e);
 
@@ -534,7 +543,8 @@ int gchar_cursor(void)
 /// It is directly written into the block.
 void pchar_cursor(char_u c)
 {
-    *(ml_get_buf(curbuf, curwin->w_cursor.lnum, true) + curwin->w_cursor.col) = c;
+    *(ml_get_buf(curbuf,
+                 curwin->w_cursor.lnum, true) + curwin->w_cursor.col) = c;
 }
 
 /// Return pointer to cursor line.
@@ -546,5 +556,6 @@ char_u *get_cursor_line_ptr(void)
 /// Return pointer to cursor position.
 char_u *get_cursor_pos_ptr(void)
 {
-    return ml_get_buf(curbuf, curwin->w_cursor.lnum, false) + curwin->w_cursor.col;
+    return ml_get_buf(curbuf,
+                      curwin->w_cursor.lnum, false) + curwin->w_cursor.col;
 }

@@ -23,8 +23,9 @@
 
 #define NAME_MAX               _MAX_PATH
 #define TEMP_FILE_PATH_MAXLEN  _MAX_PATH
-#define FNAME_ILLEGAL          "\"*?><|"
-#define TEMP_DIR_NAMES         { "$TMPDIR", "$TMP", "$TEMP", "$USERPROFILE", "" }
+
+#define FNAME_ILLEGAL    "\"*?><|"
+#define TEMP_DIR_NAMES   { "$TMPDIR", "$TMP", "$TEMP", "$USERPROFILE", "" }
 
 // Character that separates entries in $PATH.
 #define ENV_SEPCHAR  ';'

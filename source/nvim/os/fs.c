@@ -31,7 +31,8 @@
 #include "config.h"
 
 #ifdef HOST_OS_WINDOWS
-    #include "nvim/mbyte.h"  // for utf8_to_utf16, utf16_to_utf8
+    // for utf8_to_utf16, utf16_to_utf8
+    #include "nvim/mbyte.h"
 #endif
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -65,20 +66,21 @@ void fs_init(void)
 }
 
 /// Gets the current user’s home directory.
-/// - On Windows, uv_os_homedir() first checks the USERPROFILE environment variable using
-///   GetEnvironmentVariableW(). If USERPROFILE is not set,  is called.
+/// - On Windows, uv_os_homedir() first checks the USERPROFILE environment
+///   variable using GetEnvironmentVariableW(). If USERPROFILE is not set,
+///   is called.
 ///
-/// - On all other operating systems, uv_os_homedir() first checks the HOME environment variable
-///   using getenv(3). If HOME is not set, getpwuid_r(3) is called. The user’s home directory is
-///   stored in buffer.
+/// - On all other operating systems, uv_os_homedir() first checks the HOME
+///   environment variable using getenv(3). If HOME is not set, getpwuid_r(3)
+///   is called. The user’s home directory is stored in buffer.
 ///
 /// @param buffer  user's home directory string to store in
 /// @param size    indicates the maximum size of the @b buffer
 ///
 /// @return
 /// - if success, return 0, and @b size is set to the string length of @b buffer.
-/// - if failure, return uv error code, e.g., if return UV_ENOBUFS, then @b size is
-///   set to the required length for buffer, including the null byte.
+/// - if failure, return uv error code, e.g., if return UV_ENOBUFS, then @b size
+///   is set to the required length for buffer, including the null byte.
 ///
 /// @note
 /// - XP   : return "C:\Documents and Settings\Joe"
@@ -93,7 +95,8 @@ int get_os_home_dir(char *buffer, size_t *size)
 /// Changes the current directory to @b path.
 ///
 /// @return 0 on success, or negative error code.
-int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL
+int os_chdir(const char *path)
+FUNC_ATTR_NONNULL_ALL
 {
     if(p_verbose >= 5)
     {
@@ -109,8 +112,10 @@ int os_chdir(const char *path) FUNC_ATTR_NONNULL_ALL
 ///
 /// @param buf  Buffer to store the directory name.
 /// @param len  Length of @b buf.
+///
 /// @return OK for success, FAIL for failure.
-int os_dirname(char_u *buf, size_t len) FUNC_ATTR_NONNULL_ALL
+int os_dirname(char_u *buf, size_t len)
+FUNC_ATTR_NONNULL_ALL
 {
     int error_number;
 
@@ -124,9 +129,12 @@ int os_dirname(char_u *buf, size_t len) FUNC_ATTR_NONNULL_ALL
 }
 
 /// Check if the given path is a directory and not a symlink to a directory.
-/// @return `true` if `name` is a directory and NOT a symlink to a directory.
-///         `false` if `name` is not a directory or if an error occurred.
-bool os_isrealdir(const char *name) FUNC_ATTR_NONNULL_ALL
+///
+/// @return
+/// - true if @b name is a directory and NOT a symlink to a directory.
+/// - false if @b name is not a directory or if an error occurred.
+bool os_isrealdir(const char *name)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
 
@@ -148,7 +156,8 @@ bool os_isrealdir(const char *name) FUNC_ATTR_NONNULL_ALL
 /// Check if the given path is a directory or not.
 ///
 /// @return @b true if @b fname is a directory.
-bool os_isdir(const char_u *name) FUNC_ATTR_NONNULL_ALL
+bool os_isdir(const char_u *name)
+FUNC_ATTR_NONNULL_ALL
 {
     int32_t mode = os_getperm((const char *)name);
 
@@ -166,13 +175,13 @@ bool os_isdir(const char_u *name) FUNC_ATTR_NONNULL_ALL
 }
 
 /// Check what @b name is:
-/// @return NODE_NORMAL: file or directory (or doesn't exist)
-///         NODE_WRITABLE: writable device, socket, fifo, etc.
-///         NODE_OTHER: non-writable things
+/// @return
+/// - NODE_NORMAL: file or directory (or doesn't exist)
+/// - NODE_WRITABLE: writable device, socket, fifo, etc.
+/// - NODE_OTHER: non-writable things
 int os_nodetype(const char *name)
 {
 #ifdef HOST_OS_WINDOWS
-
     // Edge case from Vim os_win32.c:
     // We can't open a file with a name "\\.\con" or "\\.\prn", trying to read
     // from it later will cause Vim to hang. Thus return NODE_WRITABLE here.
@@ -180,8 +189,8 @@ int os_nodetype(const char *name)
     {
         return NODE_WRITABLE;
     }
-
 #endif
+
     uv_stat_t statbuf;
 
     if(0 != os_stat(name, &statbuf))
@@ -190,7 +199,6 @@ int os_nodetype(const char *name)
     }
 
 #ifndef HOST_OS_WINDOWS
-
     // libuv does not handle BLK and DIR in uv_handle_type.
     // Related: https://github.com/joyent/libuv/pull/1421
     if(S_ISREG(statbuf.st_mode) || S_ISDIR(statbuf.st_mode))
@@ -202,8 +210,8 @@ int os_nodetype(const char *name)
     {
         return NODE_OTHER; // block device isn't writable
     }
-
 #endif
+
     // Vim os_win32.c:mch_nodetype does this (since patch 7.4.015):
     //    if(enc_codepage >= 0 && (int)GetACP() != enc_codepage)
     //    {
@@ -213,6 +221,7 @@ int os_nodetype(const char *name)
     // give it. uv_fs_open calls fs__capture_path which does a similar dance and
     // saves us the hassle.
     int nodetype = NODE_WRITABLE;
+
 #ifdef O_NONBLOCK
     int fd = os_open(name, O_RDONLY | O_NONBLOCK, 0);
 #else
@@ -256,7 +265,8 @@ int os_nodetype(const char *name)
 /// @param[in]  size     Size of @b buffer.
 ///
 /// @return 0 on success, or libuv error code.
-int os_exepath(char *buffer, size_t *size) FUNC_ATTR_NONNULL_ALL
+int os_exepath(char *buffer, size_t *size)
+FUNC_ATTR_NONNULL_ALL
 {
     return uv_exepath(buffer, size);
 }
@@ -264,26 +274,29 @@ int os_exepath(char *buffer, size_t *size) FUNC_ATTR_NONNULL_ALL
 /// Checks if the given path represents an executable file.
 ///
 /// @param[in]  name     Name of the executable.
-/// @param[out] abspath  Path of the executable, if found and not `NULL`.
-/// @param[in] use_path  If 'false', only check if "name" is executable
+/// @param[out] abspath  Path of the executable, if found and not NULL.
+/// @param[in] use_path  If false, only check if @b name is executable
 ///
-/// @return `true` if `name` is executable and
-///   - can be found in $PATH,
-///   - is relative to current dir or
-///   - is absolute.
+/// @return true if @b name is executable and
+/// - can be found in $PATH,
+/// - is relative to current dir or
+/// - is absolute.
 ///
 /// @return `false` otherwise.
-bool os_can_exe(const char_u *name, char_u **abspath, bool use_path) FUNC_ATTR_NONNULL_ARG(1)
+bool os_can_exe(const char_u *name, char_u **abspath, bool use_path)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     bool no_path = !use_path || path_is_absolute_path(name);
+
 #ifndef HOST_OS_WINDOWS
     // If the filename is "qualified" (relative or absolute) do not check $PATH.
-    no_path |= (name[0] == '.' && (name[1] == '/' || (name[1] == '.' && name[2] == '/')));
+    no_path |= (name[0] == '.'
+                && (name[1] == '/' || (name[1] == '.' && name[2] == '/')));
 #endif
 
     if(no_path)
     {
-#ifdef HOST_OS_WINDOWS
+    #ifdef HOST_OS_WINDOWS
         const char *pathext = os_getenv("PATHEXT");
 
         if(!pathext)
@@ -292,11 +305,11 @@ bool os_can_exe(const char_u *name, char_u **abspath, bool use_path) FUNC_ATTR_N
         }
 
         bool ok = is_executable((char *)name) || is_executable_ext((char *)name, pathext);
-#else
+    #else
         // Must have path separator, cannot execute files in the current directory.
         const bool ok = ((const char_u *)gettail_dir((const char *)name) != name
                          && is_executable((char *)name));
-#endif
+    #endif
 
         if(ok)
         {
@@ -315,7 +328,8 @@ bool os_can_exe(const char_u *name, char_u **abspath, bool use_path) FUNC_ATTR_N
 }
 
 /// Returns true if `name` is an executable file.
-static bool is_executable(const char *name) FUNC_ATTR_NONNULL_ALL
+static bool is_executable(const char *name)
+FUNC_ATTR_NONNULL_ALL
 {
     int32_t mode = os_getperm((const char *)name);
 
@@ -325,7 +339,8 @@ static bool is_executable(const char *name) FUNC_ATTR_NONNULL_ALL
     }
 
 #ifdef HOST_OS_WINDOWS
-    // Windows does not have exec bit; just check if the file exists and is not a directory.
+    // Windows does not have exec bit;
+    // just check if the file exists and is not a directory.
     return (S_ISREG(mode));
 #else
     return (S_ISREG(mode) && (S_IXUSR & mode));
@@ -333,9 +348,10 @@ static bool is_executable(const char *name) FUNC_ATTR_NONNULL_ALL
 }
 
 #ifdef HOST_OS_WINDOWS
-/// Appends file extensions from `pathext` to `name` and returns true if any
-/// such combination is executable.
-static bool is_executable_ext(char *name, const char *pathext) FUNC_ATTR_NONNULL_ALL
+/// Appends file extensions from @b pathext to @b name and
+/// returns true if any such combination is executable.
+static bool is_executable_ext(char *name, const char *pathext)
+FUNC_ATTR_NONNULL_ALL
 {
     xstrlcpy(os_buf, name, sizeof(os_buf));
     char *buf_end = xstrchrnul(os_buf, '\0');
@@ -369,13 +385,14 @@ static bool is_executable_ext(char *name, const char *pathext) FUNC_ATTR_NONNULL
 }
 #endif
 
-/// Checks if a file is inside the `$PATH` and is executable.
+/// Checks if a file is inside the @b $PATH and is executable.
 ///
 /// @param[in]  name     The name of the executable.
-/// @param[out] abspath  Path of the executable, if found and not `NULL`.
+/// @param[out] abspath  Path of the executable, if found and not NULL.
 ///
-/// @return `true` if `name` is an executable inside `$PATH`.
-static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATTR_NONNULL_ARG(1)
+/// @return true if @b name is an executable inside @b $PATH.
+static bool is_executable_in_path(const char_u *name, char_u **abspath)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     const char *path_env = os_getenv("PATH");
 
@@ -392,7 +409,9 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
 #else
     char *path = xstrdup(path_env);
 #endif
+
     size_t buf_len = STRLEN(name) + strlen(path) + 2;
+
 #ifdef HOST_OS_WINDOWS
     const char *pathext = os_getenv("PATHEXT");
 
@@ -403,8 +422,11 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
 
     buf_len += strlen(pathext);
 #endif
+
     char *buf = xmalloc(buf_len);
-    // Walk through all entries in $PATH to check if "name" exists there and is an executable file.
+
+    // Walk through all entries in $PATH to check if
+    // "name" exists there and is an executable file.
     char *p = path;
     bool rv = false;
 
@@ -414,11 +436,12 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
         // Combine the $PATH segment with `name`.
         STRLCPY(buf, p, e - p + 1);
         append_path(buf, (char *)name, buf_len);
-#ifdef HOST_OS_WINDOWS
+
+    #ifdef HOST_OS_WINDOWS
         bool ok = is_executable(buf) || is_executable_ext(buf, pathext);
-#else
+    #else
         bool ok = is_executable(buf);
-#endif
+    #endif
 
         if(ok)
         {
@@ -434,7 +457,8 @@ static bool is_executable_in_path(const char_u *name, char_u **abspath) FUNC_ATT
 
         if(*e != ENV_SEPCHAR)
         {
-            // End of $PATH without finding any executable called name.
+            // End of $PATH without finding
+            // any executable called name.
             goto end;
         }
 
@@ -457,7 +481,8 @@ end:
 ///              not `O_CREAT` or `O_TMPFILE`), subject to the current umask
 ///
 /// @return file descriptor, or libuv error code on failure
-int os_open(const char *path, int flags, int mode) FUNC_ATTR_NONNULL_ALL
+int os_open(const char *path, int flags, int mode)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
 
@@ -483,7 +508,8 @@ int os_set_cloexec(const int fd)
         return -1;
     }
 
-    if((fdflags & FD_CLOEXEC) == 0 && fcntl(fd, F_SETFD, fdflags | FD_CLOEXEC) == -1)
+    if((fdflags & FD_CLOEXEC) == 0
+       && fcntl(fd, F_SETFD, fdflags | FD_CLOEXEC) == -1)
     {
         e = errno;
         ERROR_LOG("Failed to set CLOEXEC on descriptor %d: %s", fd, strerror(e));
@@ -493,6 +519,7 @@ int os_set_cloexec(const int fd)
 
     return 0;
 #endif
+
     // No FD_CLOEXEC flag.  On Windows, the file
     // should have been opened with O_NOINHERIT anyway.
     return -1;
@@ -519,7 +546,9 @@ int os_close(const int fd)
 /// @param[in]  size      Amount of bytes to read.
 ///
 /// @return Number of bytes read or libuv error code (< 0).
-ptrdiff_t os_read(const int fd, bool *ret_eof, char *const ret_buf, const size_t size)
+ptrdiff_t os_read(const int fd, bool *ret_eof,
+                  char *const ret_buf,
+                  const size_t size)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *ret_eof = false;
@@ -536,7 +565,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     while(read_bytes != size)
     {
         assert(size >= read_bytes);
-        const ptrdiff_t cur_read_bytes = read(fd, ret_buf + read_bytes, size - read_bytes);
+
+        const ptrdiff_t cur_read_bytes =
+            read(fd, ret_buf + read_bytes, size - read_bytes);
 
         if(cur_read_bytes > 0)
         {
@@ -579,13 +610,25 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// Wrapper for readv().
 ///
-/// @param[in]  fd       File descriptor to read from.
-/// @param[out] ret_eof  Is set to true if EOF was encountered, otherwise set
-///                      to false. Initial value is ignored.
-/// @param[out]  iov     Description of buffers to write to. Note: this description
-///                      may change, it is incorrect to use data it points to after os_readv().
-/// @param[in]  iov_size Number of buffers in iov.
-ptrdiff_t os_readv(int fd, bool *ret_eof, struct iovec *iov, size_t iov_size) FUNC_ATTR_NONNULL_ALL
+/// @param[in]  fd
+/// File descriptor to read from.
+///
+/// @param[out] ret_eof
+/// Is set to true if EOF was encountered, otherwise set to false.
+/// Initial value is ignored.
+///
+/// @param[out]  iov
+/// Description of buffers to write to.
+/// Note: this description may change, it is incorrect to use data
+/// it points to after os_readv().
+///
+/// @param[in]  iov_size
+/// Number of buffers in iov.
+ptrdiff_t os_readv(int fd,
+                   bool *ret_eof,
+                   struct iovec *iov,
+                   size_t iov_size)
+FUNC_ATTR_NONNULL_ALL
 {
     *ret_eof = false;
     size_t read_bytes = 0;
@@ -675,7 +718,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     while(written_bytes != size)
     {
         assert(size >= written_bytes);
-        const ptrdiff_t cur_written_bytes = write(fd, buf + written_bytes, size - written_bytes);
+
+        const ptrdiff_t cur_written_bytes =
+            write(fd, buf + written_bytes, size - written_bytes);
 
         if(cur_written_bytes > 0)
         {
@@ -721,7 +766,8 @@ int os_fsync(int fd)
 /// Get stat information for a file.
 ///
 /// @return libuv return code.
-static int os_stat(const char *name, uv_stat_t *statbuf) FUNC_ATTR_NONNULL_ALL
+static int os_stat(const char *name, uv_stat_t *statbuf)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
     int result = uv_fs_stat(&fs_loop, &request, name, NULL);
@@ -735,7 +781,8 @@ static int os_stat(const char *name, uv_stat_t *statbuf) FUNC_ATTR_NONNULL_ALL
 /// Get the file permissions for a given file.
 ///
 /// @return libuv error code on error.
-int32_t os_getperm(const char *name) FUNC_ATTR_NONNULL_ALL
+int32_t os_getperm(const char *name)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
     int stat_result = os_stat(name, &statbuf);
@@ -753,7 +800,8 @@ int32_t os_getperm(const char *name) FUNC_ATTR_NONNULL_ALL
 /// Set the permission of a file.
 ///
 /// @return `OK` for success, `FAIL` for failure.
-int os_setperm(const char *const name, int perm) FUNC_ATTR_NONNULL_ALL
+int os_setperm(const char *const name, int perm)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
     RUN_UV_FS_FUNC(r, uv_fs_chmod, name, perm, NULL);
@@ -762,9 +810,11 @@ int os_setperm(const char *const name, int perm) FUNC_ATTR_NONNULL_ALL
 
 /// Changes the ownership of the file referred to by the open file descriptor.
 ///
-/// @return `0` on success, a libuv error code on failure.
+/// @return
+/// 0 on success, a libuv error code on failure.
 ///
-/// @note If the `owner` or `group` is specified as `-1`, then that ID is not changed.
+/// @note
+/// If the @b owner or @b group is specified as -1, then that ID is not changed.
 int os_fchown(int fd, uv_uid_t owner, uv_gid_t group)
 {
     int r;
@@ -774,8 +824,9 @@ int os_fchown(int fd, uv_uid_t owner, uv_gid_t group)
 
 /// Check if a path exists.
 ///
-/// @return **true** if **path** exists
-bool os_path_exists(const char_u *path) FUNC_ATTR_NONNULL_ALL
+/// @return true if @b path exists
+bool os_path_exists(const char_u *path)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
     return os_stat((char *)path, &statbuf) == kLibuvSuccess;
@@ -783,8 +834,10 @@ bool os_path_exists(const char_u *path) FUNC_ATTR_NONNULL_ALL
 
 /// Check if a file is readable.
 ///
-/// @return true if `name` is readable, otherwise false.
-bool os_file_is_readable(const char *name) FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+/// @return true if @b name is readable, otherwise false.
+bool os_file_is_readable(const char *name)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int r;
     RUN_UV_FS_FUNC(r, uv_fs_access, name, R_OK, NULL);
@@ -793,10 +846,13 @@ bool os_file_is_readable(const char *name) FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_
 
 /// Check if a file is writable.
 ///
-/// @return `0` if `name` is not writable,
-/// @return `1` if `name` is writable,
-/// @return `2` for a directory which we have rights to write into.
-int os_file_is_writable(const char *name) FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+/// @return
+/// - 0 if @b name is not writable,
+/// - 1 if @b name is writable,
+/// - 2 for a directory which we have rights to write into.
+int os_file_is_writable(const char *name)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int r;
 
@@ -812,18 +868,23 @@ int os_file_is_writable(const char *name) FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_U
 
 /// Rename a file or directory.
 ///
-/// @return `OK` for success, `FAIL` for failure.
-int os_rename(const char_u *path, const char_u *new_path) FUNC_ATTR_NONNULL_ALL
+/// @return OK for success, FAIL for failure.
+int os_rename(const char_u *path, const char_u *new_path)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
-    RUN_UV_FS_FUNC(r, uv_fs_rename, (const char *)path, (const char *)new_path, NULL);
+
+    RUN_UV_FS_FUNC(r, uv_fs_rename, (const char *)path,
+                   (const char *)new_path, NULL);
+
     return (r == kLibuvSuccess ? OK : FAIL);
 }
 
 /// Make a directory.
 ///
 /// @return 0 for success, libuv error code for failure.
-int os_mkdir(const char *path, int32_t mode) FUNC_ATTR_NONNULL_ALL
+int os_mkdir(const char *path, int32_t mode)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
     RUN_UV_FS_FUNC(r, uv_fs_mkdir, path, mode, NULL);
@@ -841,8 +902,11 @@ int os_mkdir(const char *path, int32_t mode) FUNC_ATTR_NONNULL_ALL
 ///                          of the higher level directories.
 ///
 /// @return 0 for success, libuv error code for failure.
-int os_mkdir_recurse(const char *const dir, int32_t mode, char **const failed_dir)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+int os_mkdir_recurse(const char *const dir,
+                     int32_t mode,
+                     char **const failed_dir)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // Get end of directory name in "dir".
     // We're done when it's "/" or "c:/".
@@ -880,7 +944,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         const size_t component_len = strlen(e);
         e += component_len;
 
-        if(e == real_end && memcnt(e - component_len, PATHSEP, component_len) == component_len)
+        if(e == real_end
+           && memcnt(e - component_len, PATHSEP, component_len)
+              == component_len)
         {
             break; // Path ends with something like "////". Ignore this.
         }
@@ -904,8 +970,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///                     which would be replaced by random chars.
 /// @param[out] path    Path to created directory for success, undefined for failure.
 ///
-/// @return `0` for success, non-zero for failure.
-int os_mkdtemp(const char *example, char *path) FUNC_ATTR_NONNULL_ALL
+/// @return 0 for success, non-zero for failure.
+int os_mkdtemp(const char *example, char *path)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
     int result = uv_fs_mkdtemp(&fs_loop, &request, example, NULL);
@@ -922,8 +989,9 @@ int os_mkdtemp(const char *example, char *path) FUNC_ATTR_NONNULL_ALL
 
 /// Remove a directory.
 ///
-/// @return `0` for success, non-zero for failure.
-int os_rmdir(const char *path) FUNC_ATTR_NONNULL_ALL
+/// @return 0 for success, non-zero for failure.
+int os_rmdir(const char *path)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
     RUN_UV_FS_FUNC(r, uv_fs_rmdir, path, NULL);
@@ -935,8 +1003,11 @@ int os_rmdir(const char *path) FUNC_ATTR_NONNULL_ALL
 /// @param[out] dir   The Directory object.
 /// @param      path  Path to the directory.
 ///
-/// @returns true if dir contains one or more items, false if not or an error occurred.
-bool os_scandir(Directory *dir, const char *path) FUNC_ATTR_NONNULL_ALL
+/// @returns
+/// true if dir contains one or more items,
+/// false if not or an error occurred.
+bool os_scandir(Directory *dir, const char *path)
+FUNC_ATTR_NONNULL_ALL
 {
     int r = uv_fs_scandir(&fs_loop, &dir->request, path, 0, NULL);
 
@@ -950,24 +1021,29 @@ bool os_scandir(Directory *dir, const char *path) FUNC_ATTR_NONNULL_ALL
 
 /// Increments the directory pointer.
 /// @param dir  The Directory object.
-/// @returns a pointer to the next path in `dir` or `NULL`.
-const char *os_scandir_next(Directory *dir) FUNC_ATTR_NONNULL_ALL
+///
+/// @returns a pointer to the next path in @b dir or NULL.
+const char *os_scandir_next(Directory *dir)
+FUNC_ATTR_NONNULL_ALL
 {
     int err = uv_fs_scandir_next(&dir->request, &dir->ent);
     return err != UV_EOF ? dir->ent.name : NULL;
 }
 
-/// Frees memory associated with `os_scandir()`.
+/// Frees memory associated with os_scandir().
+///
 /// @param dir  The directory.
-void os_closedir(Directory *dir) FUNC_ATTR_NONNULL_ALL
+void os_closedir(Directory *dir)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_req_cleanup(&dir->request);
 }
 
 /// Remove a file.
 ///
-/// @return `0` for success, non-zero for failure.
-int os_remove(const char *path) FUNC_ATTR_NONNULL_ALL
+/// @return 0 for success, non-zero for failure.
+int os_remove(const char *path)
+FUNC_ATTR_NONNULL_ALL
 {
     int r;
     RUN_UV_FS_FUNC(r, uv_fs_unlink, path, NULL);
@@ -979,8 +1055,9 @@ int os_remove(const char *path) FUNC_ATTR_NONNULL_ALL
 /// @param path Path to the file.
 /// @param[out] file_info Pointer to a FileInfo to put the information in.
 ///
-/// @return `true` on success, `false` for failure.
-bool os_fileinfo(const char *path, FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+/// @return true on success, false for failure.
+bool os_fileinfo(const char *path, FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     return os_stat(path, &(file_info->stat)) == kLibuvSuccess;
 }
@@ -990,8 +1067,9 @@ bool os_fileinfo(const char *path, FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
 /// @param path Path to the file.
 /// @param[out] file_info Pointer to a FileInfo to put the information in.
 ///
-/// @return `true` on success, `false` for failure.
-bool os_fileinfo_link(const char *path, FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+/// @return true on success, false for failure.
+bool os_fileinfo_link(const char *path, FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
     int result = uv_fs_lstat(&fs_loop, &request, path, NULL);
@@ -1006,8 +1084,9 @@ bool os_fileinfo_link(const char *path, FileInfo *file_info) FUNC_ATTR_NONNULL_A
 /// @param file_descriptor File descriptor of the file.
 /// @param[out] file_info Pointer to a FileInfo to put the information in.
 ///
-/// @return `true` on success, `false` for failure.
-bool os_fileinfo_fd(int file_descriptor, FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+/// @return true on success, false for failure.
+bool os_fileinfo_fd(int file_descriptor, FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
     int result = uv_fs_fstat(&fs_loop, &request, file_descriptor, NULL);
@@ -1020,7 +1099,8 @@ bool os_fileinfo_fd(int file_descriptor, FileInfo *file_info) FUNC_ATTR_NONNULL_
 /// Compare the inodes of two FileInfos
 ///
 /// @return `true` if the two FileInfos represent the same file.
-bool os_fileinfo_id_equal(const FileInfo *file_info_1, const FileInfo *file_info_2)
+bool os_fileinfo_id_equal(const FileInfo *file_info_1,
+                          const FileInfo *file_info_2)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info_1->stat.st_ino == file_info_2->stat.st_ino
@@ -1031,7 +1111,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param file_info Pointer to the `FileInfo`
 /// @param[out] file_id Pointer to a `FileID`
-void os_fileinfo_id(const FileInfo *file_info, FileID *file_id) FUNC_ATTR_NONNULL_ALL
+void os_fileinfo_id(const FileInfo *file_info, FileID *file_id)
+FUNC_ATTR_NONNULL_ALL
 {
     file_id->inode = file_info->stat.st_ino;
     file_id->device_id = file_info->stat.st_dev;
@@ -1039,11 +1120,15 @@ void os_fileinfo_id(const FileInfo *file_info, FileID *file_id) FUNC_ATTR_NONNUL
 
 /// Get the inode of a `FileInfo`
 ///
-/// @deprecated Use `FileID` instead, this function is only needed in memline.c
-/// @param file_info Pointer to the `FileInfo`
+/// @deprecated Use
+/// `FileID` instead, this function is only needed in memline.c
+///
+/// @param file_info
+/// Pointer to the `FileInfo`
 ///
 /// @return the inode number
-uint64_t os_fileinfo_inode(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+uint64_t os_fileinfo_inode(const FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_ino;
 }
@@ -1051,7 +1136,8 @@ uint64_t os_fileinfo_inode(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
 /// Get the size of a file from a `FileInfo`.
 ///
 /// @return filesize in bytes.
-uint64_t os_fileinfo_size(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+uint64_t os_fileinfo_size(const FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_size;
 }
@@ -1059,7 +1145,8 @@ uint64_t os_fileinfo_size(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
 /// Get the number of hardlinks from a `FileInfo`.
 ///
 /// @return number of hardlinks.
-uint64_t os_fileinfo_hardlinks(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+uint64_t os_fileinfo_hardlinks(const FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_nlink;
 }
@@ -1067,7 +1154,8 @@ uint64_t os_fileinfo_hardlinks(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
 /// Get the blocksize from a `FileInfo`.
 ///
 /// @return blocksize in bytes.
-uint64_t os_fileinfo_blocksize(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
+uint64_t os_fileinfo_blocksize(const FileInfo *file_info)
+FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_blksize;
 }
@@ -1078,7 +1166,8 @@ uint64_t os_fileinfo_blocksize(const FileInfo *file_info) FUNC_ATTR_NONNULL_ALL
 /// @param[out] file_info Pointer to a `FileID` to fill in.
 ///
 /// @return `true` on sucess, `false` for failure.
-bool os_fileid(const char *path, FileID *file_id) FUNC_ATTR_NONNULL_ALL
+bool os_fileid(const char *path, FileID *file_id)
+FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
 
@@ -1096,8 +1185,10 @@ bool os_fileid(const char *path, FileID *file_id) FUNC_ATTR_NONNULL_ALL
 ///
 /// @param file_id_1 Pointer to first `FileID`
 /// @param file_id_2 Pointer to second `FileID`
+///
 /// @return `true` if the two `FileID`s represent te same file.
-bool os_fileid_equal(const FileID *file_id_1, const FileID *file_id_2) FUNC_ATTR_NONNULL_ALL
+bool os_fileid_equal(const FileID *file_id_1, const FileID *file_id_2)
+FUNC_ATTR_NONNULL_ALL
 {
     return file_id_1->inode == file_id_2->inode
     && file_id_1->device_id == file_id_2->device_id;
@@ -1105,8 +1196,9 @@ bool os_fileid_equal(const FileID *file_id_1, const FileID *file_id_2) FUNC_ATTR
 
 /// Check if a `FileID` is equal to a `FileInfo`
 ///
-/// @param file_id Pointer to a `FileID`
+/// @param file_id   Pointer to a `FileID`
 /// @param file_info Pointer to a `FileInfo`
+///
 /// @return `true` if the `FileID` and the `FileInfo` represent te same file.
 bool os_fileid_equal_fileinfo(const FileID *file_id, const FileInfo *file_info)
 FUNC_ATTR_NONNULL_ALL
@@ -1120,7 +1212,9 @@ FUNC_ATTR_NONNULL_ALL
 /// When "fname" is the name of a shortcut (*.lnk) resolve the file it points
 /// to and return that name in allocated memory. Otherwise NULL is returned.
 char *os_resolve_shortcut(const char *fname)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_MALLOC
 {
     HRESULT hr;
     IPersistFile *ppf = NULL;
@@ -1165,7 +1259,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
         if(p != NULL)
         {
             // Get a pointer to the IPersistFile interface.
-            hr = pslw->lpVtbl->QueryInterface(pslw, &IID_IPersistFile, (void **)&ppf);
+            hr = pslw->lpVtbl->QueryInterface(pslw, &IID_IPersistFile,
+                                              (void **)&ppf);
 
             if(hr != S_OK)
             {
@@ -1201,7 +1296,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_MALLOC
 
                 if(conversion_result != 0)
                 {
-                    EMSG2("utf16_to_utf8 failed: %s", uv_strerror(conversion_result));
+                    EMSG2("utf16_to_utf8 failed: %s",
+                          uv_strerror(conversion_result));
                 }
             }
 

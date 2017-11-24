@@ -68,7 +68,8 @@ typedef struct dict_watcher
     char *key_pattern;
     size_t key_pattern_len;
     QUEUE node;
-    bool busy;  ///< prevent recursion if the dict is changed in the callback
+    /// prevent recursion if the dict is changed in the callback
+    bool busy;
 } DictWatcher;
 
 /// Special variable values
@@ -93,37 +94,42 @@ typedef enum
     VAR_UNKNOWN = 0,  ///< Unknown (unspecified) value.
     VAR_NUMBER,       ///< Number, .v_number is used.
     VAR_STRING,       ///< String, .v_string is used.
-    VAR_FUNC,         ///< Function reference, .v_string is used as function name.
+    VAR_FUNC,         ///< Function reference,
+                      ///< .v_string is used as function name.
     VAR_LIST,         ///< List, .v_list is used.
     VAR_DICT,         ///< Dictionary, .v_dict is used.
     VAR_FLOAT,        ///< Floating-point value, .v_float is used.
-    VAR_SPECIAL,      ///< Special value (true, false, null), .v_special is used.
+    VAR_SPECIAL,      ///< Special value (true, false, null),
+                      ///< .v_special is used.
     VAR_PARTIAL,      ///< Partial, .v_partial is used.
 } VarType;
 
 /// Structure that holds an internal variable value
 typedef struct
 {
-    VarType v_type;                 ///< Variable type.
-    VarLockStatus v_lock;           ///< Variable lock status.
+    VarType v_type;       ///< Variable type.
+    VarLockStatus v_lock; ///< Variable lock status.
     union typval_vval_union
     {
-        varnumber_T v_number;       ///< Number, for VAR_NUMBER.
-        SpecialVarValue v_special;  ///< Special value, for VAR_SPECIAL.
-        float_T v_float;            ///< Floating-point number, for VAR_FLOAT.
-        char_u *v_string;           ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
-        list_T *v_list;             ///< List for VAR_LIST, can be NULL.
-        dict_T *v_dict;             ///< Dictionary for VAR_DICT, can be NULL.
-        partial_T *v_partial;       ///< Closure: function with args.
-    } vval;                         ///< Actual value.
+        varnumber_T v_number;      ///< Number, for VAR_NUMBER.
+        SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
+        float_T v_float;  ///< Floating-point number, for VAR_FLOAT.
+        char_u *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
+        list_T *v_list;   ///< List for VAR_LIST, can be NULL.
+        dict_T *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
+        partial_T *v_partial;      ///< Closure: function with args.
+    } vval;               ///< Actual value.
 } typval_T;
 
 /// Values for (struct dictvar_S).dv_scope
 typedef enum
 {
-    VAR_NO_SCOPE = 0,  ///< Not a scope dictionary.
-    VAR_SCOPE = 1,     ///< Scope dictionary which requires prefix (a:, v:, ...).
-    VAR_DEF_SCOPE = 2, ///< Scope dictionary which may be accessed without prefix (l:, g:).
+    /// Not a scope dictionary.
+    VAR_NO_SCOPE = 0,
+    /// Scope dictionary which requires prefix (a:, v:, ...).
+    VAR_SCOPE = 1,
+    /// Scope dictionary which may be accessed without prefix (l:, g:).
+    VAR_DEF_SCOPE = 2,
 } ScopeType;
 
 /// Structure to hold an item of a list
@@ -153,7 +159,8 @@ struct listvar_S
     int lv_refcount;          ///< Reference count.
     int lv_len;               ///< Number of items.
     listwatch_T *lv_watch;    ///< First watcher, NULL if none.
-    int lv_idx;               ///< Index of a cached item, used for optimising repeated l[idx].
+    int lv_idx;               ///< Index of a cached item, used for
+                              ///< optimising repeated l[idx].
     listitem_T *lv_idx_item;  ///< When not NULL item at index "lv_idx".
     int lv_copyID;            ///< ID used by deepcopy().
     list_T *lv_copylist;      ///< Copied list used by deepcopy().
@@ -192,8 +199,8 @@ struct dictitem_S
 ///
 /// @warning Must be compatible with dictitem_T.
 ///
-/// For use in find_var_in_ht to pretend that it found dictionary item when it
-/// finds scope dictionary.
+/// For use in find_var_in_ht to pretend that it found
+/// dictionary item when it finds scope dictionary.
 typedef TV_DICTITEM_STRUCT(1) ScopeDictDictItem;
 
 /// Structure to hold an item of a Dictionary
@@ -267,8 +274,9 @@ struct ufunc
                                    ///< used for s: variables
     int          uf_refcount;      ///< reference count, see func_name_refcount()
     funccall_T   *uf_scoped;       ///< l: local variables for closure
-    char_u       uf_name[1];       ///< name of function (actually longer); can start with
-                                   ///< <SNR>123_ (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
+    char_u       uf_name[1];       ///< name of function (actually longer);
+                                   ///< can start with <SNR>123_
+                                   ///< (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
 };
 
 /// Maximum number of function arguments
@@ -304,10 +312,12 @@ typedef struct list_stack_S
 // This avoids adding a pointer to the hashtab item.
 
 /// Convert a hashitem pointer to a dictitem pointer
-#define TV_DICT_HI2DI(hi) ((dictitem_T *)((hi)->hi_key - offsetof(dictitem_T, di_key)))
+#define TV_DICT_HI2DI(hi) \
+    ((dictitem_T *)((hi)->hi_key - offsetof(dictitem_T, di_key)))
 
 static inline long tv_list_len(const list_T *const l)
-REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Get the number of items in a list
 ///
@@ -323,7 +333,8 @@ static inline long tv_list_len(const list_T *const l)
 }
 
 static inline long tv_dict_len(const dict_T *const d)
-REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Get the number of items in a Dictionary
 ///
@@ -339,7 +350,8 @@ static inline long tv_dict_len(const dict_T *const d)
 }
 
 static inline bool tv_dict_is_watched(const dict_T *const d)
-REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Check if dictionary is watched
 ///
@@ -364,7 +376,8 @@ static inline void tv_init(typval_T *const tv)
     }
 }
 
-#define TV_INITIAL_VALUE  ((typval_T) { .v_type = VAR_UNKNOWN, .v_lock = VAR_UNLOCKED, })
+#define TV_INITIAL_VALUE  \
+    ((typval_T) { .v_type = VAR_UNKNOWN, .v_lock = VAR_UNLOCKED, })
 
 /// Empty string
 ///
@@ -390,8 +403,10 @@ extern bool tv_in_free_unref_items;
         }                                                  \
     })
 
-static inline bool tv_get_float_chk(const typval_T *const tv, float_T *const ret_f)
-REAL_FATTR_NONNULL_ALL REAL_FATTR_WARN_UNUSED_RESULT;
+static inline bool tv_get_float_chk(const typval_T *const tv,
+                                    float_T *const ret_f)
+REAL_FATTR_NONNULL_ALL
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// FIXME circular dependency, cannot import message.h.
 bool emsgf(const char *const fmt, ...);
@@ -404,7 +419,8 @@ bool emsgf(const char *const fmt, ...);
 /// @param[out]  ret_f  Location where resulting float is stored.
 ///
 /// @return true in case of success, false if tv is not a number or float.
-static inline bool tv_get_float_chk(const typval_T *const tv, float_T *const ret_f)
+static inline bool tv_get_float_chk(const typval_T *const tv,
+                                    float_T *const ret_f)
 {
     if(tv->v_type == VAR_FLOAT)
     {
@@ -423,19 +439,24 @@ static inline bool tv_get_float_chk(const typval_T *const tv, float_T *const ret
 }
 
 static inline DictWatcher *tv_dict_watcher_node_data(QUEUE *q)
-REAL_FATTR_NONNULL_ALL REAL_FATTR_NONNULL_RET REAL_FATTR_PURE
-REAL_FATTR_WARN_UNUSED_RESULT REAL_FATTR_ALWAYS_INLINE;
+REAL_FATTR_NONNULL_ALL
+REAL_FATTR_NONNULL_RET
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT
+REAL_FATTR_ALWAYS_INLINE;
 
 /// Compute the `DictWatcher` address from a QUEUE node.
 ///
-/// This only exists for .asan-blacklist (ASAN doesn't handle QUEUE_DATA pointer arithmetic).
+/// This only exists for .asan-blacklist
+/// (ASAN doesn't handle QUEUE_DATA pointer arithmetic).
 static inline DictWatcher *tv_dict_watcher_node_data(QUEUE *q)
 {
     return QUEUE_DATA(q, DictWatcher, node);
 }
 
 static inline bool tv_is_func(const typval_T tv)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_CONST;
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_CONST;
 
 /// Check whether given typval_T contains a function
 ///
@@ -451,13 +472,14 @@ static inline bool tv_is_func(const typval_T tv)
 
 /// Specify that argument needs to be translated
 ///
-/// Used for size_t length arguments to avoid calling gettext() and strlen() unless needed.
+/// Used for size_t length arguments to avoid calling
+/// gettext() and strlen() unless needed.
 #define TV_TRANSLATE (SIZE_MAX)
 
 /// Specify that argument is a NUL-terminated C string
 ///
 /// Used for size_t length arguments to avoid calling strlen() unless needed.
-#define TV_CSTRING (SIZE_MAX - 1)
+#define TV_CSTRING    (SIZE_MAX - 1)
 
 #ifdef UNIT_TESTING
     // Do not use enum constants, see commit message.

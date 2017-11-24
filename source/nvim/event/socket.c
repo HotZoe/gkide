@@ -24,7 +24,9 @@
     #include "event/socket.c.generated.h"
 #endif
 
-int socket_watcher_init(main_loop_T *loop, SocketWatcher *watcher, const char *endpoint)
+int socket_watcher_init(main_loop_T *loop,
+                        SocketWatcher *watcher,
+                        const char *endpoint)
 FUNC_ATTR_NONNULL_ALL
 {
     xstrlcpy(watcher->addr, endpoint, sizeof(watcher->addr));
@@ -33,8 +35,9 @@ FUNC_ATTR_NONNULL_ALL
 
     if(host_end && addr != host_end)
     {
-        // Split user specified address into two strings, addr(hostname) and port.
-        // The port part in watcher->addr will be updated later.
+        // Split user specified address into two strings,
+        // addr(hostname) and port. The port part in
+        // watcher->addr will be updated later.
         *host_end = '\0';
         char *port = host_end + 1;
         intmax_t iport;
@@ -48,8 +51,9 @@ FUNC_ATTR_NONNULL_ALL
 
         if(*port == NUL)
         {
-            // When no port is given, (uv_)getaddrinfo expects NULL otherwise the
-            // implementation may attempt to lookup the service by name (and fail)
+            // When no port is given, (uv_)getaddrinfo
+            // expects NULL otherwise the implementation
+            // may attempt to lookup the service by name (and fail)
             port = NULL;
         }
 
@@ -113,21 +117,26 @@ FUNC_ATTR_NONNULL_ALL
             if(result == 0)
             {
                 struct sockaddr_storage sas;
-                // When the endpoint in socket_watcher_init() didn't specify a port
-                // number, a free random port number will be assigned. sin_port will
-                // contain 0 in this case, unless uv_tcp_getsockname() is used first.
+                // When the endpoint in socket_watcher_init() didn't
+                // specify a port number, a free random port number will
+                // be assigned. sin_port will contain 0 in this case, unless
+                // uv_tcp_getsockname() is used first.
                 uv_tcp_getsockname(&watcher->uv.tcp.handle,
                                    (struct sockaddr *)&sas,
                                    &(int) { sizeof(sas) }
                                    );
 
-                uint16_t port = (uint16_t)((sas.ss_family == AF_INET)
-                                           ? ((struct sockaddr_in *)&sas)->sin_port
-                                           : ((struct sockaddr_in6 *)&sas)->sin6_port);
+                uint16_t port =
+                    (uint16_t)((sas.ss_family == AF_INET)
+                               ? ((struct sockaddr_in *)&sas)->sin_port
+                               : ((struct sockaddr_in6 *)&sas)->sin6_port);
 
                 // v:servername uses the string from watcher->addr
                 size_t len = strlen(watcher->addr);
-                snprintf(watcher->addr+len, sizeof(watcher->addr)-len, ":%" PRIu16, ntohs(port));
+
+                snprintf(watcher->addr+len,
+                         sizeof(watcher->addr)-len,
+                         ":%" PRIu16, ntohs(port));
                 break;
             }
         }
@@ -150,8 +159,9 @@ FUNC_ATTR_NONNULL_ALL
     {
         if(result == UV_EACCES)
         {
-            // Libuv converts ENOENT to EACCES for Windows compatibility, but if
-            // the parent directory does not exist, ENOENT would be more accurate.
+            // Libuv converts ENOENT to EACCES for Windows
+            // compatibility, but if the parent directory does
+            // not exist, ENOENT would be more accurate.
             *path_tail((char_u *)watcher->addr) = NUL;
 
             if(!os_path_exists((char_u *)watcher->addr))
@@ -167,7 +177,8 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 int socket_watcher_accept(SocketWatcher *watcher, Stream *stream)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_NONNULL_ARG(2)
+FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     uv_stream_t *client;
 
@@ -211,7 +222,9 @@ static void connection_event(void **argv)
 static void connection_cb(uv_stream_t *handle, int status)
 {
     SocketWatcher *watcher = handle->data;
-    CREATE_EVENT(watcher->events, connection_event, 2, watcher, (void *)(uintptr_t)status);
+
+    CREATE_EVENT(watcher->events, connection_event,
+                 2, watcher, (void *)(uintptr_t)status);
 }
 
 static void close_cb(uv_handle_t *handle)
@@ -269,7 +282,8 @@ bool socket_connect(main_loop_T *loop,
                                         .ai_socktype = SOCK_STREAM,
                                         .ai_flags  = AI_NUMERICSERV };
 
-        int retval = uv_getaddrinfo(&loop->uv, &addr_req, NULL, addr, host_end+1, &hints);
+        int retval = uv_getaddrinfo(&loop->uv, &addr_req,
+                                    NULL, addr, host_end+1, &hints);
 
         if(retval != 0)
         {

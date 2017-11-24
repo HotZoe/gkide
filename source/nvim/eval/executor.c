@@ -22,7 +22,9 @@ char *e_listidx = N_("E684: list index out of range: %" PRId64);
 /// @param[in] op       Used operator.
 ///
 /// @return OK or FAIL.
-int eexe_mod_op(typval_T *const tv1, const typval_T *const tv2, const char *const op)
+int eexe_mod_op(typval_T *const tv1,
+                const typval_T *const tv2,
+                const char *const op)
 FUNC_ATTR_NONNULL_ALL
 {
     // Can't do anything with a Funcref, a Dict or special value on the right.
@@ -110,9 +112,11 @@ FUNC_ATTR_NONNULL_ALL
 
                     const char *tvs = tv_get_string(tv1);
                     char numbuf[NUMBUFLEN];
-                    char *const s = (char *)concat_str((const char_u *)tvs,
-                                                       (const char_u *)tv_get_string_buf(tv2,
-                                                                                         numbuf));
+
+                    char *const s =
+                        (char *)concat_str((const char_u *)tvs,
+                                           (const char_u *)tv_get_string_buf(tv2,
+                                                                             numbuf));
                     tv_clear(tv1);
                     tv1->v_type = VAR_STRING;
                     tv1->vval.v_string = (char_u *)s;

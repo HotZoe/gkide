@@ -102,7 +102,9 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
 
     if(proc->in)
     {
-        stream_init(NULL, proc->in, -1, STRUCT_CAST(uv_stream_t, &proc->in->uv.pipe));
+        stream_init(NULL, proc->in, -1, STRUCT_CAST(uv_stream_t,
+                                                    &proc->in->uv.pipe));
+
         proc->in->events = proc->events;
         proc->in->internal_data = proc;
         proc->in->internal_close_cb = on_process_stream_close;
@@ -111,7 +113,9 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
 
     if(proc->out)
     {
-        stream_init(NULL, proc->out, -1, STRUCT_CAST(uv_stream_t, &proc->out->uv.pipe));
+        stream_init(NULL, proc->out, -1, STRUCT_CAST(uv_stream_t,
+                                                     &proc->out->uv.pipe));
+
         proc->out->events = proc->events;
         proc->out->internal_data = proc;
         proc->out->internal_close_cb = on_process_stream_close;
@@ -120,7 +124,9 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
 
     if(proc->err)
     {
-        stream_init(NULL, proc->err, -1, STRUCT_CAST(uv_stream_t, &proc->err->uv.pipe));
+        stream_init(NULL, proc->err, -1, STRUCT_CAST(uv_stream_t,
+                                                     &proc->err->uv.pipe));
+
         proc->err->events = proc->events;
         proc->err->internal_data = proc;
         proc->err->internal_close_cb = on_process_stream_close;
@@ -161,30 +167,35 @@ void process_teardown(main_loop_T *loop) FUNC_ATTR_NONNULL_ALL
     LOOP_PROCESS_EVENTS_UNTIL(loop,
                               loop->events,
                               -1,
-                              kl_empty(loop->children) && multiqueue_empty(loop->events));
+                              kl_empty(loop->children)
+                              && multiqueue_empty(loop->events));
 
     pty_process_teardown(loop);
 }
 
 // Wrappers around `stream_close` that protect against double-closing.
-void process_close_streams(Process *proc) FUNC_ATTR_NONNULL_ALL
+void process_close_streams(Process *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     process_close_in(proc);
     process_close_out(proc);
     process_close_err(proc);
 }
 
-void process_close_in(Process *proc) FUNC_ATTR_NONNULL_ALL
+void process_close_in(Process *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, in);
 }
 
-void process_close_out(Process *proc) FUNC_ATTR_NONNULL_ALL
+void process_close_out(Process *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, out);
 }
 
-void process_close_err(Process *proc) FUNC_ATTR_NONNULL_ALL
+void process_close_err(Process *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, err);
 }
@@ -198,7 +209,8 @@ void process_close_err(Process *proc) FUNC_ATTR_NONNULL_ALL
 /// Exit code of the process.
 /// - -1 if the timeout expired while the process is still running.
 /// - -2 if the user interruped the wait.
-int process_wait(Process *proc, int ms, MultiQueue *events) FUNC_ATTR_NONNULL_ARG(1)
+int process_wait(Process *proc, int ms, MultiQueue *events)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     int status = -1;
     bool interrupted = false;
@@ -215,8 +227,8 @@ int process_wait(Process *proc, int ms, MultiQueue *events) FUNC_ATTR_NONNULL_AR
         events = proc->events;
     }
 
-    // Increase refcount to stop the exit callback from being called (and possibly
-    // freed) before we have a chance to get the status.
+    // Increase refcount to stop the exit callback from being called
+    // (and possibly freed) before we have a chance to get the status.
     proc->refcount++;
     LOOP_PROCESS_EVENTS_UNTIL(proc->loop,
                               events,
@@ -234,8 +246,10 @@ int process_wait(Process *proc, int ms, MultiQueue *events) FUNC_ATTR_NONNULL_AR
 
         if(ms == -1)
         {
-            // We can only return if all streams/handles are closed and the job exited.
-            LOOP_PROCESS_EVENTS_UNTIL(proc->loop, events, -1, proc->refcount == 1);
+            // We can only return if all streams/handles
+            // are closed and the job exited.
+            LOOP_PROCESS_EVENTS_UNTIL(proc->loop, events,
+                                      -1, proc->refcount == 1);
         }
         else
         {
@@ -245,7 +259,8 @@ int process_wait(Process *proc, int ms, MultiQueue *events) FUNC_ATTR_NONNULL_AR
 
     if(proc->refcount == 1)
     {
-        // Job exited, collect status and manually invoke close_cb to free the job resources
+        // Job exited, collect status and manually
+        // invoke close_cb to free the job resources
         status = interrupted ? -2 : proc->status;
         decref(proc);
 
@@ -276,14 +291,16 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
     switch(proc->type)
     {
         case kProcessTypeUv:
-            // Close the process's stdin. If the process doesn't close its own
-            // stdout/stderr, they will be closed when it exits(possibly due to being
-            // terminated after a timeout)
+            // Close the process's stdin. If the process
+            // doesn't close its own stdout/stderr, they
+            // will be closed when it exits(possibly due
+            // to being terminated after a timeout)
             process_close_in(proc);
             break;
 
         case kProcessTypePty:
-            // close all streams for pty processes to send SIGHUP to the process
+            // close all streams for pty processes
+            // to send SIGHUP to the process
             process_close_streams(proc);
             pty_process_close_master((PtyProcess *)proc);
             break;
@@ -422,7 +439,8 @@ static void flush_stream(Process *proc, Stream *stream) FUNC_ATTR_NONNULL_ARG(1)
     // keeps sending data, we only accept as much data as the system buffer size.
     // Otherwise this would block cleanup/teardown.
     int system_buffer_size = 0;
-    int err = uv_recv_buffer_size((uv_handle_t *)&stream->uv.pipe, &system_buffer_size);
+    int err = uv_recv_buffer_size((uv_handle_t *)&stream->uv.pipe,
+                                  &system_buffer_size);
 
     if(err)
     {
@@ -450,8 +468,10 @@ static void flush_stream(Process *proc, Stream *stream) FUNC_ATTR_NONNULL_ARG(1)
         {
             if(stream->read_cb)
             {
-                // Stream callback could miss EOF handling if a child keeps the stream open.
-                stream->read_cb(stream, stream->buffer, 0, stream->cb_data, true);
+                // Stream callback could miss EOF handling
+                // if a child keeps the stream open.
+                stream->read_cb(stream, stream->buffer,
+                                0, stream->cb_data, true);
             }
 
             break;
@@ -472,7 +492,9 @@ static void on_process_exit(Process *proc)
 {
     main_loop_T *loop = proc->loop;
 
-    if(proc->stopped_time && loop->children_stop_requests && !--loop->children_stop_requests)
+    if(proc->stopped_time
+       && loop->children_stop_requests
+       && !--loop->children_stop_requests)
     {
         // Stop the timer if no more stop requests are pending
         DEBUG_LOG("Stopping process kill timer");
@@ -487,7 +509,8 @@ static void on_process_exit(Process *proc)
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }
 
-static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
+static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+                                    void *data)
 {
     Process *proc = data;
     decref(proc);

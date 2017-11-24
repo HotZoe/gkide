@@ -44,7 +44,9 @@ struct process
     MultiQueue *events;
 };
 
-static inline Process process_init(main_loop_T *loop, ProcessType type, void *data)
+static inline Process process_init(main_loop_T *loop,
+                                   ProcessType type,
+                                   void *data)
 {
     return (Process) {
         .type = type,

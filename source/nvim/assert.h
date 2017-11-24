@@ -26,8 +26,11 @@
 ///
 ///     STATIC_ASSERT(sizeof(void *) == 8, "Expected 64-bit mode");
 ///
-/// @param[in]  condition  Condition to check, should be an integer constant expression.
-/// @param[in]  message    Message which will be given if check fails.
+/// @param[in] condition
+/// Condition to check, should be an integer constant expression.
+///
+/// @param[in] message
+/// Message which will be given if check fails.
 
 /// @def   STATIC_ASSERT_EXPR
 /// @brief Like #STATIC_ASSERT, but can be used where expressions are used.
@@ -60,7 +63,8 @@
     // the easiest case, when the mode is C11 (generic compiler) or Clang
     // advertises explicit support for c_static_assert, meaning it won't warn.
     #define STATIC_ASSERT_STATEMENT(cond, msg) _Static_assert(cond, msg)
-#elif (!defined(__clang__) && !defined(__INTEL_COMPILER)) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
+#elif (!defined(__clang__) && !defined(__INTEL_COMPILER)) \
+      && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
     // if we're dealing with gcc >= 4.6 in C99 mode, we can still use
     // _Static_assert but we need to suppress warnings, this is pretty ugly.
     #define STATIC_ASSERT_STATEMENT(cond, msg) _Static_assert(cond, msg)
@@ -98,8 +102,9 @@
     // TODO(aktau): verify that this works, don't have MSVC on hand.
     #define STATIC_ASSERT_STATEMENT(cond, msg) static_assert(cond, msg)
 #else
-    // fallback for compilers that don't support _Static_assert or static_assert
-    // not as pretty but gets the job done. Credit goes to Pádraig Brady and contributors.
+    // fallback for compilers that don't support _Static_assert
+    // or static_assert not as pretty but gets the job done. Credit
+    // goes to Pádraig Brady and contributors.
     #define STATIC_ASSERT_STATEMENT STATIC_ASSERT_EXPR
 #endif
 

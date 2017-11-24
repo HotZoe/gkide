@@ -42,7 +42,8 @@ void loop_poll_events(main_loop_T *loop, int ms)
     {
         // Use a repeating timeout of ms milliseconds to make sure
         // we do not block indefinitely for I/O.
-        uv_timer_start(&loop->poll_timer, timer_cb, (uint64_t)ms, (uint64_t)ms);
+        uv_timer_start(&loop->poll_timer, timer_cb,
+                       (uint64_t)ms, (uint64_t)ms);
     }
     else if(ms == 0)
     {
@@ -75,8 +76,8 @@ void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue), void *data)
     main_loop_T *loop = data;
 
     // Sometimes libuv will run pending callbacks(timer for example) before
-    // blocking for a poll. If this happens and the callback pushes a event to one
-    // of the queues, the event would only be processed after the poll
+    // blocking for a poll. If this happens and the callback pushes a event
+    // to one of the queues, the event would only be processed after the poll
     // returns(user hits a key for example). To avoid this scenario, we call
     // uv_stop when a event is enqueued.
     uv_stop(&loop->uv);
@@ -135,4 +136,3 @@ static void timer_cb(uv_timer_t *FUNC_ARGS_UNUSED_REALY(handle))
 {
     // TODO
 }
-

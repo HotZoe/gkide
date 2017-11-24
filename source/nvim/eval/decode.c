@@ -18,12 +18,12 @@
 /// Helper structure for container_struct
 typedef struct
 {
-    size_t stack_index;   ///< Index of current container in stack.
-    list_T *special_val;  ///< _VAL key contents for special maps.
-                          ///< When container is not a special dictionary it is NULL.
-    const char *s;        ///< Location where container starts.
-    typval_T container;   ///< Container. Either VAR_LIST, VAR_DICT or VAR_LIST
-                          ///< which is _VAL from special dictionary.
+    size_t stack_index;  ///< Index of current container in stack.
+    list_T *special_val; ///< _VAL key contents for special maps.
+                         ///< When container is not a special dictionary it is NULL.
+    const char *s;       ///< Location where container starts.
+    typval_T container;  ///< Container. Either VAR_LIST, VAR_DICT or VAR_LIST
+                         ///< which is _VAL from special dictionary.
 } ContainerStackItem;
 
 /// Helper structure for values struct
@@ -82,22 +82,32 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Helper function used for working with stack vectors used by JSON decoder
 ///
-/// @param[in,out]  obj            New object. Will either be put into the stack (and,
-///                                probably, also inside container) or freed.
-/// @param[out] stack              Object stack.
-/// @param[out] container_stack    Container objects stack.
-/// @param[in,out]  pp             Position in string which is currently being parsed. Used
-///                                for error reporting and is also set when decoding is
-///                                restarted due to the necessity of converting regular
-///                                dictionary to a special map.
-/// @param[out]  next_map_special  Is set to true when dictionary needs to be
-///                                converted to a special map, otherwise not
-///                                touched. Indicates that decoding has been
-///                                restarted.
-/// @param[out]  didcomma          True if previous token was comma. Is set to recorded
-///                                value when decoder is restarted, otherwise unused.
-/// @param[out]  didcolon          True if previous token was colon. Is set to recorded
-///                                value when decoder is restarted, otherwise unused.
+/// @param[in,out] obj
+/// New object. Will either be put into the stack (and, probably, also inside
+/// container) or freed.
+///
+/// @param[out] stack
+/// Object stack.
+///
+/// @param[out] container_stack
+/// Container objects stack.
+///
+/// @param[in,out]  pp
+/// Position in string which is currently being parsed. Used for error
+/// reporting and is also set when decoding is restarted due to the
+/// necessity of converting regular dictionary to a special map.
+///
+/// @param[out]  next_map_special
+/// Is set to true when dictionary needs to be converted to a special map,
+///  otherwise not touched. Indicates that decoding has been restarted.
+///
+/// @param[out]  didcomma
+/// True if previous token was comma. Is set to recorded value when decoder
+/// is restarted, otherwise unused.
+///
+/// @param[out]  didcolon
+/// True if previous token was colon. Is set to recorded value when decoder
+/// is restarted, otherwise unused.
 ///
 /// @return OK in case of success, FAIL in case of error.
 static inline int json_decoder_pop(ValuesStackItem obj,
@@ -120,7 +130,8 @@ FUNC_ATTR_NONNULL_ALL
 
     // vval.v_list and vval.v_dict should have the same size and offset
     if(obj.val.v_type == last_container.container.v_type
-       && ((void *) obj.val.vval.v_list == (void *) last_container.container.vval.v_list))
+       && ((void *)obj.val.vval.v_list
+           == (void *)last_container.container.vval.v_list))
     {
         (void) kv_pop(*container_stack);
         val_location = last_container.s;
@@ -146,7 +157,9 @@ FUNC_ATTR_NONNULL_ALL
     {
         if(!obj.didcolon)
         {
-            EMSG2(_("E474: Expected colon before dictionary value: %s"), val_location);
+            EMSG2(_("E474: Expected colon before dictionary value: %s"),
+                  val_location);
+
             tv_clear(&obj.val);
             return FAIL;
         }
@@ -160,7 +173,9 @@ FUNC_ATTR_NONNULL_ALL
                    || key.val.vval.v_string == NULL
                    || *key.val.vval.v_string == NUL));
 
-            dictitem_T *const obj_di = tv_dict_item_alloc((const char *)key.val.vval.v_string);
+            dictitem_T *const obj_di =
+                tv_dict_item_alloc((const char *)key.val.vval.v_string);
+
             tv_clear(&key.val);
 
             if(tv_dict_add(last_container.container.vval.v_dict, obj_di) == FAIL)
@@ -197,7 +212,9 @@ FUNC_ATTR_NONNULL_ALL
                 && (last_container.special_val == NULL
                 && (DICT_LEN(last_container.container.vval.v_dict) != 0)))
         {
-            EMSG2(_("E474: Expected comma before dictionary key: %s"), val_location);
+            EMSG2(_("E474: Expected comma before dictionary key: %s"),
+                  val_location);
+
             tv_clear(&obj.val);
             return FAIL;
         }
@@ -213,7 +230,9 @@ FUNC_ATTR_NONNULL_ALL
             tv_clear(&obj.val);
             // Restart
             (void) kv_pop(*container_stack);
-            ValuesStackItem last_container_val = kv_A(*stack, last_container.stack_index);
+
+            ValuesStackItem last_container_val =
+                kv_A(*stack, last_container.stack_index);
 
             while(kv_size(*stack) > last_container.stack_index)
             {
@@ -291,12 +310,21 @@ FUNC_ATTR_NONNULL_ALL
 /// Depending on whether string has (no) NUL bytes, it may use a special
 /// dictionary or decode string to VAR_STRING.
 ///
-/// @param[in]  s            String to decode.
-/// @param[in]  len          String length.
-/// @param[in]  hasnul       Whether string has NUL byte, not or it was not yet determined.
-/// @param[in]  binary       If true, save special string type as kMPBinary, otherwise kMPString.
-/// @param[in]  s_allocated  If true, then `s` was allocated and can be saved in a returned
-///                          structure. If it is not saved there, it will be freed.
+/// @param[in]  s
+/// String to decode.
+///
+/// @param[in]  len
+/// String length.
+///
+/// @param[in]  hasnul
+/// Whether string has NUL byte, not or it was not yet determined.
+///
+/// @param[in]  binary
+/// If true, save special string type as kMPBinary, otherwise kMPString.
+///
+/// @param[in]  s_allocated
+/// If true, then @b s was allocated and can be saved in a returned structure.
+/// If it is not saved there, it will be freed.
 ///
 /// @return Decoded string.
 typval_T decode_string(const char *const s,
@@ -308,7 +336,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     assert(s != NULL || len == 0);
 
-    const bool really_hasnul = (hasnul == kNone ? memchr(s, NUL, len) != NULL : (bool)hasnul);
+    const bool really_hasnul =
+        (hasnul == kNone ? memchr(s, NUL, len) != NULL : (bool)hasnul);
 
     if(really_hasnul)
     {
@@ -316,11 +345,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         list->lv_refcount++;
         typval_T tv;
 
-        create_special_dict(&tv, binary ? kMPBinary : kMPString, ((typval_T) {
-            .v_type = VAR_LIST,
-            .v_lock = VAR_UNLOCKED,
-            .vval = { .v_list = list },
-        }));
+        create_special_dict(&tv,
+                            binary ? kMPBinary : kMPString,
+                            ((typval_T) {
+                                .v_type = VAR_LIST,
+                                .v_lock = VAR_UNLOCKED,
+                                .vval = { .v_list = list },
+                            }));
 
         const int elw_ret = encode_list_write((void *)list, s, len);
 
@@ -345,27 +376,44 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return (typval_T) {
             .v_type = VAR_STRING,
             .v_lock = VAR_UNLOCKED,
-            .vval = { .v_string = (char_u *)( s_allocated ? (char *)s : xmemdupz(s, len)) },
+            .vval = {
+                .v_string =
+                    (char_u *)( s_allocated ? (char *)s : xmemdupz(s, len)) },
         };
     }
 }
 
 /// Parse JSON double-quoted string
 ///
-/// @param[in]  buf      Buffer being converted.
-/// @param[in]  buf_len  Length of the buffer.
-/// @param[in,out]  pp   Pointer to the start of the string. Must point to '"'.
-///                      Is advanced to the closing '"'. Also see
-///                      json_decoder_pop(), it may set pp to another location
-///                      and alter next_map_special, didcomma and didcolon.
-/// @param[out]  stack   Object stack.
-/// @param[out]  container_stack   Container objects stack.
-/// @param[out]  next_map_special  Is set to true when dictionary is converted
-///                                to a special map, otherwise not touched.
-/// @param[out]  didcomma  True if previous token was comma. Is set to recorded
-///                        value when decoder is restarted, otherwise unused.
-/// @param[out]  didcolon  True if previous token was colon. Is set to recorded
-///                        value when decoder is restarted, otherwise unused.
+/// @param[in]  buf
+/// Buffer being converted.
+///
+/// @param[in]  buf_len
+/// Length of the buffer.
+///
+/// @param[in,out]  pp
+/// Pointer to the start of the string. Must point to '"'.
+/// Is advanced to the closing '"'. Also see json_decoder_pop(),
+/// it may set pp to another location and alter next_map_special,
+/// didcomma and didcolon.
+///
+/// @param[out]  stack
+/// Object stack.
+///
+/// @param[out]  container_stack
+/// Container objects stack.
+///
+/// @param[out]  next_map_special
+/// Is set to true when dictionary is converted to a special map,
+/// otherwise not touched.
+///
+/// @param[out]  didcomma
+/// True if previous token was comma. Is set to recorded value when
+/// decoder is restarted, otherwise unused.
+///
+/// @param[out]  didcolon
+/// True if previous token was colon. Is set to recorded value when
+/// decoder is restarted, otherwise unused.
 ///
 /// @return OK in case of success, FAIL in case of error.
 static inline int parse_json_string(const char *const buf,
@@ -376,7 +424,9 @@ static inline int parse_json_string(const char *const buf,
                                     bool *const next_map_special,
                                     bool *const didcomma,
                                     bool *const didcolon)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_ALWAYS_INLINE
 {
     const char *const e = buf + buf_len;
     const char *p = *pp;
@@ -392,7 +442,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
 
             if(p == e)
             {
-                emsgf(_("E474: Unfinished escape sequence: %.*s"), (int) buf_len, buf);
+                emsgf(_("E474: Unfinished escape sequence: %.*s"),
+                      (int) buf_len, buf);
+
                 goto parse_json_string_fail;
             }
 
@@ -412,7 +464,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
                             || !ascii_isxdigit(p[3])
                             || !ascii_isxdigit(p[4]))
                     {
-                        emsgf(_("E474: Expected four hex digits after \\u: %.*s"), LENP(p - 1, e));
+                        emsgf(_("E474: Expected four hex digits after \\u: %.*s"),
+                              LENP(p - 1, e));
+
                         goto parse_json_string_fail;
                     }
 
@@ -439,7 +493,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
 
                 default:
                 {
-                    emsgf(_("E474: Unknown escape sequence: %.*s"), LENP(p - 1, e));
+                    emsgf(_("E474: Unknown escape sequence: %.*s"),
+                          LENP(p - 1, e));
+
                     goto parse_json_string_fail;
                 }
             }
@@ -464,7 +520,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
             // code point at all.
             //
             // The only exception is U+00C3 which is represented as 0xC3 0x83.
-            if(ch >= 0x80 && p_byte == ch && !(ch == 0xC3 && p + 1 < e && (uint8_t) p[1] == 0x83))
+            if(ch >= 0x80
+               && p_byte == ch
+               && !(ch == 0xC3 && p + 1 < e && (uint8_t) p[1] == 0x83))
             {
                 emsgf(_("E474: Only UTF-8 strings allowed: %.*s"), LENP(p, e));
                 goto parse_json_string_fail;
@@ -473,11 +531,14 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
             {
                 emsgf(_("E474: Only UTF-8 code points up to U+10FFFF "
                         "are allowed to appear unescaped: %.*s"), LENP(p, e));
+
                 goto parse_json_string_fail;
             }
 
             const size_t ch_len = (size_t) utf_char2len(ch);
+
             assert(ch_len == (size_t) (ch ? utf_ptr2len((char_u *) p) : 1));
+
             len += ch_len;
             p += ch_len;
         }
@@ -550,11 +611,13 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
                         PUT_FST_IN_PAIR(fst_in_pair, str_end);
                         fst_in_pair = (int) ch;
                     }
-                    else if(SURROGATE_LO_START <= ch && ch <= SURROGATE_LO_END && fst_in_pair != 0)
+                    else if(SURROGATE_LO_START <= ch
+                            && ch <= SURROGATE_LO_END && fst_in_pair != 0)
                     {
-                        const int full_char = ((int) (ch - SURROGATE_LO_START)
-                                               + ((fst_in_pair - SURROGATE_HI_START) << 10)
-                                               + SURROGATE_FIRST_CHAR);
+                        const int full_char =
+                            ((int) (ch - SURROGATE_LO_START)
+                                    + ((fst_in_pair - SURROGATE_HI_START) << 10)
+                                    + SURROGATE_FIRST_CHAR);
 
                         str_end += utf_char2bytes(full_char, (char_u *) str_end);
                         fst_in_pair = 0;
@@ -640,21 +703,35 @@ parse_json_string_ret:
 ///
 /// Number format: `-?\d+(?:.\d+)?(?:[eE][+-]?\d+)?`.
 ///
-/// @param[in]  buf      Buffer being converted.
-/// @param[in]  buf_len  Length of the buffer.
-/// @param[in,out]  pp   Pointer to the start of the number. Must point to
-///                      a digit or a minus sign. Is advanced to the last
-///                      character of the number. Also see json_decoder_pop(), it
-///                      may set pp to another location and alter
-///                      next_map_special, didcomma and didcolon.
-/// @param[out]  stack   Object stack.
-/// @param[out]  container_stack   Container objects stack.
-/// @param[out]  next_map_special  Is set to true when dictionary is converted
-///                                to a special map, otherwise not touched.
-/// @param[out]  didcomma  True if previous token was comma. Is set to recorded
-///                        value when decoder is restarted, otherwise unused.
-/// @param[out]  didcolon  True if previous token was colon. Is set to recorded
-///                        value when decoder is restarted, otherwise unused.
+/// @param[in]  buf
+/// Buffer being converted.
+///
+/// @param[in]  buf_len
+/// Length of the buffer.
+///
+/// @param[in,out]  pp
+/// Pointer to the start of the number. Must point to a digit or
+/// a minus sign. Is advanced to the last character of the number.
+/// Also see json_decoder_pop(), it may set pp to another location
+/// and alter next_map_special, didcomma and didcolon.
+///
+/// @param[out]  stack
+/// Object stack.
+///
+/// @param[out]  container_stack
+/// Container objects stack.
+///
+/// @param[out]  next_map_special
+/// Is set to true when dictionary is converted to a special map,
+/// otherwise not touched.
+///
+/// @param[out]  didcomma
+/// True if previous token was comma. Is set to recorded value when
+/// decoder is restarted, otherwise unused.
+///
+/// @param[out]  didcolon
+/// True if previous token was colon. Is set to recorded value when
+/// decoder is restarted, otherwise unused.
 ///
 /// @return OK in case of success, FAIL in case of error.
 static inline int parse_json_number(const char *const buf,
@@ -665,7 +742,9 @@ static inline int parse_json_number(const char *const buf,
                                     bool *const next_map_special,
                                     bool *const didcomma,
                                     bool *const didcolon)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_ALWAYS_INLINE
 {
     int ret = OK;
     const char *const e = buf + buf_len;
@@ -844,8 +923,11 @@ parse_json_number_ret:
 /// @param[out]  rettv   Location where to save results.
 ///
 /// @return OK in case of success, FAIL otherwise.
-int json_decode_string(const char *const buf, const size_t buf_len, typval_T *const rettv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+int json_decode_string(const char *const buf,
+                       const size_t buf_len,
+                       typval_T *const rettv)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *p = buf;
     const char *const e = buf + buf_len;
@@ -892,12 +974,16 @@ json_decode_string_cycle_start:
 
                 if(*p == '}' && last_container.container.v_type != VAR_DICT)
                 {
-                    emsgf(_("E474: Closing list with curly bracket: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Closing list with curly bracket: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
                 else if(*p == ']' && last_container.container.v_type != VAR_LIST)
                 {
-                    emsgf(_("E474: Closing dictionary with square bracket: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Closing dictionary with square bracket: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
                 else if(didcomma)
@@ -907,12 +993,15 @@ json_decode_string_cycle_start:
                 }
                 else if(didcolon)
                 {
-                    emsgf(_("E474: Expected value after colon: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Expected value after colon: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
                 else if(last_container.stack_index != kv_size(stack) - 1)
                 {
                     assert(last_container.stack_index < kv_size(stack) - 1);
+
                     emsgf(_("E474: Expected value: %.*s"), LENP(p, e));
                     goto json_decode_string_fail;
                 }
@@ -945,7 +1034,9 @@ json_decode_string_cycle_start:
             {
                 if(kv_size(container_stack) == 0)
                 {
-                    emsgf(_("E474: Comma not inside container: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Comma not inside container: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
 
@@ -964,7 +1055,9 @@ json_decode_string_cycle_start:
                 else if(last_container.container.v_type == VAR_DICT &&
                         last_container.stack_index != kv_size(stack) - 1)
                 {
-                    emsgf(_("E474: Using comma in place of colon: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Using comma in place of colon: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
                 else if(last_container.special_val == NULL
@@ -985,7 +1078,9 @@ json_decode_string_cycle_start:
             {
                 if(kv_size(container_stack) == 0)
                 {
-                    emsgf(_("E474: Colon not inside container: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Colon not inside container: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
 
@@ -993,7 +1088,9 @@ json_decode_string_cycle_start:
 
                 if(last_container.container.v_type != VAR_DICT)
                 {
-                    emsgf(_("E474: Using colon not in dictionary: %.*s"), LENP(p, e));
+                    emsgf(_("E474: Using colon not in dictionary: %.*s"),
+                          LENP(p, e));
+
                     goto json_decode_string_fail;
                 }
                 else if(last_container.stack_index != kv_size(stack) - 2)
@@ -1284,7 +1381,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             *rettv = (typval_T) {
                 .v_type = VAR_SPECIAL,
                 .v_lock = VAR_UNLOCKED,
-                .vval = { .v_special = mobj.via.boolean ? kSpecialVarTrue : kSpecialVarFalse },
+                .vval = { .v_special = mobj.via.boolean
+                                       ? kSpecialVarTrue : kSpecialVarFalse },
             };
 
             break;
@@ -1369,7 +1467,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         }
         case MSGPACK_OBJECT_STR:
         {
-            *rettv = decode_string(mobj.via.bin.ptr, mobj.via.bin.size, kTrue, false, false);
+            *rettv = decode_string(mobj.via.bin.ptr,
+                                   mobj.via.bin.size,
+                                   kTrue, false, false);
 
             if(rettv->v_type == VAR_UNKNOWN)
             {
@@ -1381,7 +1481,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
         case MSGPACK_OBJECT_BIN:
         {
-            *rettv = decode_string(mobj.via.bin.ptr, mobj.via.bin.size, kNone, true, false);
+            *rettv = decode_string(mobj.via.bin.ptr,
+                                   mobj.via.bin.size,
+                                   kNone, true, false);
 
             if(rettv->v_type == VAR_UNKNOWN)
             {
@@ -1442,8 +1544,10 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             for(size_t i = 0; i < mobj.via.map.size; i++)
             {
-                dictitem_T *const di = xmallocz(offsetof(dictitem_T, di_key)
-                                                + mobj.via.map.ptr[i].key.via.str.size);
+                dictitem_T *const di =
+                    xmallocz(offsetof(dictitem_T, di_key)
+                             + mobj.via.map.ptr[i].key.via.str.size);
+
                 memcpy(&di->di_key[0],
                        mobj.via.map.ptr[i].key.via.str.ptr,
                        mobj.via.map.ptr[i].key.via.str.size);
@@ -1484,12 +1588,14 @@ msgpack_to_vim_generic_map:
                 val_li->li_tv.v_type = VAR_UNKNOWN;
                 tv_list_append(kv_pair, val_li);
 
-                if(msgpack_to_vim(mobj.via.map.ptr[i].key, &key_li->li_tv) == FAIL)
+                if(msgpack_to_vim(mobj.via.map.ptr[i].key,
+                                  &key_li->li_tv) == FAIL)
                 {
                     return FAIL;
                 }
 
-                if(msgpack_to_vim(mobj.via.map.ptr[i].val, &val_li->li_tv) == FAIL)
+                if(msgpack_to_vim(mobj.via.map.ptr[i].val,
+                                  &val_li->li_tv) == FAIL)
                 {
                     return FAIL;
                 }
@@ -1512,7 +1618,9 @@ msgpack_to_vim_generic_map:
                 .vval = { .v_list = list },
             }));
 
-            if(encode_list_write((void *) ext_val_list, mobj.via.ext.ptr, mobj.via.ext.size) == -1)
+            if(encode_list_write((void *) ext_val_list,
+                                 mobj.via.ext.ptr,
+                                 mobj.via.ext.size) == -1)
             {
                 return FAIL;
             }

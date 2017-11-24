@@ -41,8 +41,9 @@ static bool rejecting_deadly;
 void signal_init(void)
 {
 #ifndef HOST_OS_WINDOWS
-    // Ensure a clean slate by unblocking all signals. For example, if SIGCHLD is
-    // blocked, libuv may hang after spawning a subprocess on Linux. #5230
+    // Ensure a clean slate by unblocking all signals.
+    // For example, if SIGCHLD is blocked, libuv may hang
+    // after spawning a subprocess on Linux. #5230
     sigset_t mask;
     sigemptyset(&mask);
 
@@ -50,7 +51,6 @@ void signal_init(void)
     {
         ERROR_LOG("Could not unblock signals, nvim might behave strangely.");
     }
-
 #endif
 
     signal_watcher_init(&main_loop, &spipe, NULL);
@@ -138,9 +138,10 @@ static char *signal_name(int signum)
     }
 }
 
-// This function handles deadly signals.
-// It tries to preserve any swap files and exit properly. (partly from Elvis).
-// NOTE: Avoid unsafe functions, such as allocating memory, they can result in a deadlock.
+/// This function handles deadly signals.
+/// It tries to preserve any swap files and exit properly.
+/// (partly from Elvis). NOTE: Avoid unsafe functions, such
+/// as allocating memory, they can result in a deadlock.
 static void deadly_signal(int signum)
 {
     // Set the v:dying variable.
@@ -165,7 +166,8 @@ static void on_signal(SignalWatcher *FUNC_ARGS_UNUSED_REALY(handle),
     {
 #ifdef SIGPWR
         case SIGPWR:
-            // Signal of a power failure(eg batteries low), flush the swap files to be safe
+            // Signal of a power failure(eg batteries low),
+            // flush the swap files to be safe
             ml_sync_all(false, false);
             break;
 #endif

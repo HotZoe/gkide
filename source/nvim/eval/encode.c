@@ -42,7 +42,9 @@ const char *const encode_special_var_names[] =
 #endif
 
 /// Msgpack callback for writing to readfile()-style list
-int encode_list_write(void *const data, const char *const buf, const size_t len)
+int encode_list_write(void *const data,
+                      const char *const buf,
+                      const size_t len)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(len == 0)
@@ -141,11 +143,12 @@ FUNC_ATTR_NONNULL_ALL
         {
             case kMPConvDict:
             {
-                typval_T key_tv = { .v_type = VAR_STRING,
-                                    .vval = { .v_string = (v.data.d.hi == NULL
-                                                           ? v.data.d.dict->dv_hashtab.ht_array
-                                                           : (v.data.d.hi - 1))->hi_key },
-                                  };
+                typval_T key_tv = {
+                    .v_type = VAR_STRING,
+                    .vval = { .v_string = (v.data.d.hi == NULL
+                                           ? v.data.d.dict->dv_hashtab.ht_array
+                                           : (v.data.d.hi - 1))->hi_key },
+                };
 
                 char *const key = encode_tv2string(&key_tv, NULL);
                 vim_snprintf((char *) IObuff, IOSIZE, key_msg, key);
@@ -169,7 +172,8 @@ FUNC_ATTR_NONNULL_ALL
 
                 if(v.type == kMPConvList
                    || li == NULL
-                   || (li->li_tv.v_type != VAR_LIST && li->li_tv.vval.v_list->lv_len <= 0))
+                   || (li->li_tv.v_type != VAR_LIST
+                       && li->li_tv.vval.v_list->lv_len <= 0))
                 {
                     vim_snprintf((char *) IObuff, IOSIZE, idx_msg, idx);
 
@@ -180,7 +184,9 @@ FUNC_ATTR_NONNULL_ALL
                     typval_T key_tv = li->li_tv.vval.v_list->lv_first->li_tv;
                     char *const key = encode_tv2echo(&key_tv, NULL);
 
-                    vim_snprintf((char *) IObuff, IOSIZE, key_pair_msg, key, idx);
+                    vim_snprintf((char *) IObuff, IOSIZE,
+                                 key_pair_msg, key, idx);
+
                     xfree(key);
 
                     ga_concat(&msg_ga, IObuff);
@@ -240,17 +246,22 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[in]  list     Converted list.
 /// @param[out] ret_len  Resulting buffer length.
-/// @param[out] ret_buf  Allocated buffer with the result or NULL if ret_len is zero.
+/// @param[out] ret_buf  Allocated buffer with the result or
+///                      NULL if ret_len is zero.
 ///
 /// @return true in case of success, false in case of failure.
-bool encode_vim_list_to_buf(const list_T *const list, size_t *const ret_len, char **const ret_buf)
+bool encode_vim_list_to_buf(const list_T *const list,
+                            size_t *const ret_len,
+                            char **const ret_buf)
 FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t len = 0;
 
     if(list != NULL)
     {
-        for(const listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+        for(const listitem_T *li = list->lv_first;
+            li != NULL;
+            li = li->li_next)
         {
             if(li->li_tv.v_type != VAR_STRING)
             {
@@ -296,16 +307,23 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Read bytes from list
 ///
-/// @param[in,out]  state  Structure describing position in list from which
-///                        reading should start. Is updated to reflect position
-///                        at which reading ended.
-/// @param[out]  buf  Buffer to write to.
-/// @param[in]   nbuf Buffer length.
-/// @param[out]  read_bytes  Is set to amount of bytes read.
+/// @param[in,out]  state
+/// Structure describing position in list from which reading should start.
+/// Is updated to reflect position at which reading ended.
 ///
-/// @return OK when reading was finished, FAIL in case of error (i.e. list item
-///         was not a string), NOTDONE if reading was successfull, but there are
-///         more bytes to read.
+/// @param[out]
+/// buf  Buffer to write to.
+///
+/// @param[in]
+/// nbuf Buffer length.
+///
+/// @param[out]
+/// read_bytes  Is set to amount of bytes read.
+///
+/// @return
+/// OK when reading was finished, FAIL in case of error
+/// (i.e. list item was not a string), NOTDONE if reading
+/// was successfull, but there are more bytes to read.
 int encode_read_from_list(ListReaderState *const state,
                           char *const buf,
                           const size_t nbuf,
@@ -323,7 +341,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             assert(state->li->li_tv.vval.v_string != NULL);
 
-            const char ch = (char)state->li->li_tv.vval.v_string[state->offset++];
+            const char ch =
+                (char)state->li->li_tv.vval.v_string[state->offset++];
+
             *p++ = (char)((char)ch == (char)NL ? (char)NUL : (char)ch);
         }
 
@@ -381,16 +401,18 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         }                                                              \
     } while(0)
 
-#define TYPVAL_ENCODE_CONV_STR_STRING(tv, buf, len)  TYPVAL_ENCODE_CONV_STRING(tv, buf, len)
+#define TYPVAL_ENCODE_CONV_STR_STRING(tv, buf, len)  \
+    TYPVAL_ENCODE_CONV_STRING(tv, buf, len)
 
 #define TYPVAL_ENCODE_CONV_EXT_STRING(tv, buf, len, type)
 
-#define TYPVAL_ENCODE_CONV_NUMBER(tv, num)                                     \
-    do                                                                         \
-    {                                                                          \
-        char numbuf[NUMBUFLEN];                                                \
-        vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%" PRId64, (int64_t) (num)); \
-        ga_concat(gap, numbuf);                                                \
+#define TYPVAL_ENCODE_CONV_NUMBER(tv, num)           \
+    do                                               \
+    {                                                \
+        char numbuf[NUMBUFLEN];                      \
+        vim_snprintf(numbuf, ARRAY_SIZE(numbuf),     \
+                     "%" PRId64, (int64_t) (num));   \
+        ga_concat(gap, numbuf);                      \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                             \
@@ -464,7 +486,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, dict) ga_concat(gap, "{}")
 #define TYPVAL_ENCODE_CONV_NIL(tv)              ga_concat(gap, "v:null")
-#define TYPVAL_ENCODE_CONV_BOOL(tv, num)        ga_concat(gap, ((num)? "v:true": "v:false"))
+
+#define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
+    ga_concat(gap, ((num) ? "v:true": "v:false"))
 
 #define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)
 
@@ -606,7 +630,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_NIL(tv) ga_concat(gap, "null")
 
 #undef  TYPVAL_ENCODE_CONV_BOOL
-#define TYPVAL_ENCODE_CONV_BOOL(tv, num) ga_concat(gap, ((num)? "true": "false"))
+#define TYPVAL_ENCODE_CONV_BOOL(tv, num) \
+    ga_concat(gap, ((num)? "true": "false"))
 
 #undef  TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER
 #define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)                  \
@@ -687,9 +712,9 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
         //    utf_printable and thus not checked specially).
         // 2. Code point is not printable according to utf_printable().
         //
-        // This is done to make resulting values displayable on screen also not from
-        // Neovim.
-#define ENCODE_RAW(ch)  (ch >= 0x20 && utf_printable(ch))
+        // This is done to make resulting values displayable on screen
+        // also not from Neovim.
+        #define ENCODE_RAW(ch)  (ch >= 0x20 && utf_printable(ch))
 
         for(size_t i = 0; i < utf_len;)
         {
@@ -716,18 +741,18 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                 {
                     if(ch > 0x7F && shift == 1)
                     {
-                        emsgf(_("E474: String \"%.*s\" contains byte that does not start "
-                                "any UTF-8 character"),
+                        emsgf(_("E474: String \"%.*s\" contains byte that does "
+                                "not start any UTF-8 character"),
                               utf_len - (i - shift), utf_buf + i - shift);
 
                         xfree(tofree);
                         return FAIL;
                     }
-                    else if((SURROGATE_HI_START <= ch && ch <= SURROGATE_HI_END) ||
-                            (SURROGATE_LO_START <= ch && ch <= SURROGATE_LO_END))
+                    else if((SURROGATE_HI_START <= ch && ch <= SURROGATE_HI_END)
+                            || (SURROGATE_LO_START <= ch  && ch <= SURROGATE_LO_END))
                     {
-                        emsgf(_("E474: UTF-8 string contains code point which belongs "
-                                "to a surrogate pair: %.*s"),
+                        emsgf(_("E474: UTF-8 string contains code point which "
+                                "belongs to a surrogate pair: %.*s"),
                               utf_len - (i - shift), utf_buf + i - shift);
 
                         xfree(tofree);
@@ -757,6 +782,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
             const size_t shift = (ch == 0 ? 1 : utf_char2len(ch));
 
             assert(shift > 0);
+
             // Is false on invalid unicode, but this should already be handled.
             assert(ch == 0 || shift == utf_ptr2len(utf_buf + i));
 
@@ -793,8 +819,14 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
                     else
                     {
                         const int tmp = ch - SURROGATE_FIRST_CHAR;
-                        const int hi = SURROGATE_HI_START + ((tmp >> 10) & ((1 << 10) - 1));
-                        const int lo = SURROGATE_LO_END + ((tmp >>  0) & ((1 << 10) - 1));
+
+                        const int hi =
+                            SURROGATE_HI_START
+                            + ((tmp >> 10) & ((1 << 10) - 1));
+
+                        const int lo =
+                            SURROGATE_LO_END
+                            + ((tmp >>  0) & ((1 << 10) - 1));
 
                         ga_concat_len(gap, ((const char[]) { '\\', 'u',
                                             xdigits[(hi >> (4 * 3)) & 0xF],
@@ -964,7 +996,9 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
     garray_T ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
-    const int evs_ret = encode_vim_to_string(&ga, tv, N_("encode_tv2string() argument"));
+    const int evs_ret =
+        encode_vim_to_string(&ga, tv, N_("encode_tv2string() argument"));
+
     (void)evs_ret;
 
     assert(evs_ret == OK);
@@ -1030,7 +1064,8 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
     garray_T ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
-    const int evj_ret = encode_vim_to_json(&ga, tv, N_("encode_tv2json() argument"));
+    const int evj_ret =
+        encode_vim_to_json(&ga, tv, N_("encode_tv2json() argument"));
 
     if(!evj_ret)
     {
@@ -1093,8 +1128,11 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
         }                                                  \
     } while(0)
 
-#define TYPVAL_ENCODE_CONV_NUMBER(tv, num)  msgpack_pack_int64(packer, (int64_t)(num))
-#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)   msgpack_pack_double(packer, (double)(flt))
+#define TYPVAL_ENCODE_CONV_NUMBER(tv, num) \
+    msgpack_pack_int64(packer, (int64_t)(num))
+
+#define TYPVAL_ENCODE_CONV_FLOAT(tv, flt) \
+    msgpack_pack_double(packer, (double)(flt))
 
 #define TYPVAL_ENCODE_CONV_FUNC_START(tv, fun)                 \
     return conv_error(_("E5004: Error while dumping %s, %s: "  \
@@ -1105,8 +1143,11 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_SELF(tv, len)
 #define TYPVAL_ENCODE_CONV_FUNC_END(tv)
 
-#define TYPVAL_ENCODE_CONV_EMPTY_LIST(tv)      msgpack_pack_array(packer, 0)
-#define TYPVAL_ENCODE_CONV_LIST_START(tv, len) msgpack_pack_array(packer, (size_t)(len))
+#define TYPVAL_ENCODE_CONV_EMPTY_LIST(tv) \
+    msgpack_pack_array(packer, 0)
+
+#define TYPVAL_ENCODE_CONV_LIST_START(tv, len) \
+    msgpack_pack_array(packer, (size_t)(len))
 
 #define TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START(tv, mpsv)
 
@@ -1126,8 +1167,11 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
         }                                \
     } while(0)
 
-#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)  msgpack_pack_uint64(packer, (num))
-#define TYPVAL_ENCODE_CONV_DICT_START(tv, dict, len) msgpack_pack_map(packer, (size_t)(len))
+#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num) \
+    msgpack_pack_uint64(packer, (num))
+
+#define TYPVAL_ENCODE_CONV_DICT_START(tv, dict, len) \
+    msgpack_pack_map(packer, (size_t)(len))
 
 #define TYPVAL_ENCODE_CONV_REAL_DICT_AFTER_START(tv, dict, mpsv)
 #define TYPVAL_ENCODE_CONV_DICT_END(tv, dict)

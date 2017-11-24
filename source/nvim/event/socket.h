@@ -23,14 +23,14 @@ struct socket_watcher
     {
         struct
         {
-            uv_tcp_t handle;            ///<
-            struct addrinfo *addrinfo;  ///<
-        } tcp;                          ///<
+            uv_tcp_t handle; ///<
+            struct addrinfo *addrinfo; ///<
+        } tcp; ///<
         struct
         {
-            uv_pipe_t handle;           ///<
-        } pipe;                         ///<
-    } uv;                               ///< TCP server or unix socket (named pipe on Windows)
+            uv_pipe_t handle; ///<
+        } pipe; ///<
+    } uv; ///< TCP server or unix socket (named pipe on Windows)
 
     uv_stream_t *stream;
     void *data;

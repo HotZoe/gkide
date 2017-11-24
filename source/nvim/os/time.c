@@ -30,8 +30,10 @@ void time_init(void)
 
 /// Obtain a high-resolution timer value
 ///
-/// @return a timer value, not related to the time of day and not subject to clock drift.
-///         The value is expressed in nanoseconds.
+/// @return
+/// a timer value, not related to the time of
+/// day and not subject to clock drift. The value
+/// is expressed in nanoseconds.
 uint64_t os_hrtime(void)
 {
     return uv_hrtime();
@@ -50,7 +52,8 @@ void os_delay(uint64_t milliseconds, bool ignoreinput)
             milliseconds = INT_MAX;
         }
 
-        LOOP_PROCESS_EVENTS_UNTIL(&main_loop, NULL, (int)milliseconds, got_int);
+        LOOP_PROCESS_EVENTS_UNTIL(&main_loop, NULL,
+                                  (int)milliseconds, got_int);
     }
     else
     {
@@ -67,6 +70,7 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
 {
     uint64_t elapsed = 0u;
     uint64_t base = uv_hrtime();
+
     // Convert microseconds to nanoseconds, or UINT64_MAX on overflow.
     const uint64_t ns = (ms < UINT64_MAX / 1000u) ? ms * 1000u : UINT64_MAX;
     uv_mutex_lock(&delay_mutex);
@@ -76,7 +80,9 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
         // If ignoring input, we simply wait the full delay.
         // Else we check for input in ~100ms intervals.
         const uint64_t ns_delta = ignoreinput // 100ms
-                                  ? ns - elapsed : MIN(ns - elapsed, 100000000u);
+                                  ? ns - elapsed
+                                  : MIN(ns - elapsed, 100000000u);
+
         const int rv = uv_cond_timedwait(&delay_cond, &delay_mutex, ns_delta);
 
         if(0 != rv && UV_ETIMEDOUT != rv)
@@ -102,7 +108,8 @@ void os_microdelay(uint64_t ms, bool ignoreinput)
 /// Portable version of POSIX localtime_r()
 ///
 /// @return NULL in case of error
-struct tm *os_localtime_r(const time_t *restrict clock, struct tm *restrict result)
+struct tm *os_localtime_r(const time_t *restrict clock,
+                          struct tm *restrict result)
 FUNC_ATTR_NONNULL_ALL
 {
 #ifdef UNIX
@@ -130,7 +137,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return A pointer to a 'struct tm' in the current time zone (the 'result'
 ///         argument) or NULL in case of error
-struct tm *os_get_localtime(struct tm *result) FUNC_ATTR_NONNULL_ALL
+struct tm *os_get_localtime(struct tm *result)
+FUNC_ATTR_NONNULL_ALL
 {
     time_t rawtime = time(NULL);
     return os_localtime_r(&rawtime, result);
@@ -139,7 +147,8 @@ struct tm *os_get_localtime(struct tm *result) FUNC_ATTR_NONNULL_ALL
 /// Obtains the current Unix timestamp.
 ///
 /// @return Seconds since epoch.
-Timestamp os_time(void) FUNC_ATTR_WARN_UNUSED_RESULT
+Timestamp os_time(void)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (Timestamp) time(NULL);
 }

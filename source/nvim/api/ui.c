@@ -63,13 +63,15 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(pmap_has(uint64_t)(connected_uis, channel_id))
     {
-        api_set_error(err, kErrorTypeException, "UI already attached for channel");
+        api_set_error(err, kErrorTypeException,
+                      "UI already attached for channel");
         return;
     }
 
     if(width <= 0 || height <= 0)
     {
-        api_set_error(err, kErrorTypeValidation, "Expected width > 0 and height > 0");
+        api_set_error(err, kErrorTypeValidation,
+                      "Expected width > 0 and height > 0");
         return;
     }
 
@@ -107,7 +109,8 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 
     for(size_t i = 0; i < options.size; i++)
     {
-        ui_set_option(ui, options.items[i].key, options.items[i].value, err);
+        ui_set_option(ui, options.items[i].key,
+                      options.items[i].value, err);
 
         if(ERROR_SET(err))
         {
@@ -126,7 +129,11 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 }
 
 /// @deprecated
-void ui_attach(uint64_t channel_id, Integer width, Integer height, Boolean enable_rgb, Error *err)
+void ui_attach(uint64_t channel_id,
+               Integer width,
+               Integer height,
+               Boolean enable_rgb,
+               Error *err)
 {
     Dictionary opts = ARRAY_DICT_INIT;
     PUT(opts, "rgb", BOOLEAN_OBJ(enable_rgb));
@@ -139,7 +146,8 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
     {
-        api_set_error(err, kErrorTypeException, "UI is not attached for channel");
+        api_set_error(err, kErrorTypeException,
+                      "UI is not attached for channel");
         return;
     }
 
@@ -147,18 +155,23 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 }
 
 
-void nvim_ui_try_resize(uint64_t channel_id, Integer width, Integer height, Error *err)
+void nvim_ui_try_resize(uint64_t channel_id,
+                        Integer width,
+                        Integer height,
+                        Error *err)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
     {
-        api_set_error(err, kErrorTypeException, "UI is not attached for channel");
+        api_set_error(err, kErrorTypeException,
+                      "UI is not attached for channel");
         return;
     }
 
     if(width <= 0 || height <= 0)
     {
-        api_set_error(err, kErrorTypeValidation, "Expected width > 0 and height > 0");
+        api_set_error(err, kErrorTypeValidation,
+                      "Expected width > 0 and height > 0");
         return;
     }
 
@@ -168,12 +181,16 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
     ui_refresh();
 }
 
-void nvim_ui_set_option(uint64_t channel_id, String name, Object value, Error *error)
+void nvim_ui_set_option(uint64_t channel_id,
+                        String name,
+                        Object value,
+                        Error *error)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
     {
-        api_set_error(error, kErrorTypeException, "UI is not attached for channel");
+        api_set_error(error, kErrorTypeException,
+                      "UI is not attached for channel");
         return;
     }
 
@@ -187,21 +204,25 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
     }
 }
 
-static void ui_set_option(UI *ui, String name, Object value, Error *error)
+static void ui_set_option(UI *ui,
+                          String name,
+                          Object value,
+                          Error *error)
 {
-#define UI_EXT_OPTION(o, e)                                                           \
-    do                                                                                \
-    {                                                                                 \
-        if(strequal(name.data, #o))                                                   \
-        {                                                                             \
-            if(value.type != kObjectTypeBoolean)                                      \
-            {                                                                         \
-                api_set_error(error, kErrorTypeValidation, #o " must be a Boolean");  \
-                return;                                                               \
-            }                                                                         \
-            ui->ui_ext[(e)] = value.data.boolean;                                     \
-            return;                                                                   \
-        }                                                                             \
+#define UI_EXT_OPTION(o, e)                                                   \
+    do                                                                        \
+    {                                                                         \
+        if(strequal(name.data, #o))                                           \
+        {                                                                     \
+            if(value.type != kObjectTypeBoolean)                              \
+            {                                                                 \
+                api_set_error(error,                                          \
+                              kErrorTypeValidation, #o " must be a Boolean"); \
+                return;                                                       \
+            }                                                                 \
+            ui->ui_ext[(e)] = value.data.boolean;                             \
+            return;                                                           \
+        }                                                                     \
     } while (0)
 
     if(strequal(name.data, "rgb"))
@@ -226,7 +247,8 @@ static void ui_set_option(UI *ui, String name, Object value, Error *error)
         // LEGACY: Deprecated option, use `ui_ext` instead.
         if(value.type != kObjectTypeBoolean)
         {
-            api_set_error(error, kErrorTypeValidation, "popupmenu_external must be a Boolean");
+            api_set_error(error, kErrorTypeValidation,
+                          "popupmenu_external must be a Boolean");
             return;
         }
 

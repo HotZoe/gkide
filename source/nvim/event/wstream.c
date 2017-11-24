@@ -26,14 +26,16 @@ typedef struct
 #endif
 
 void wstream_init_fd(main_loop_T *loop, Stream *stream, int fd, size_t maxmem)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_NONNULL_ARG(2)
+FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     stream_init(loop, stream, fd, NULL);
     wstream_init(stream, maxmem);
 }
 
 void wstream_init_stream(Stream *stream, uv_stream_t *uvstream, size_t maxmem)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_NONNULL_ARG(2)
+FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     stream_init(NULL, stream, -1, uvstream);
     wstream_init(stream, maxmem);
@@ -62,14 +64,16 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     stream->cb_data = data;
 }
 
-/// Queues data for writing to the backing file descriptor of a `Stream` instance.
-/// This will fail if the write would cause the Stream use more memory than specified by `maxmem`.
+/// Queues data for writing to the backing file descriptor of
+/// a @b Stream instance. This will fail if the write would cause
+/// the Stream use more memory than specified by @b maxmem.
 ///
-/// @param stream  The `Stream` instance
+/// @param stream  The @b Stream instance
 /// @param buffer  The buffer which contains data to be written
 ///
 /// @return false if the write failed
-bool wstream_write(Stream *stream, WBuffer *buffer) FUNC_ATTR_NONNULL_ALL
+bool wstream_write(Stream *stream, WBuffer *buffer)
+FUNC_ATTR_NONNULL_ALL
 {
     // This should not be called after a stream was freed
     assert(stream->maxmem);
@@ -107,14 +111,22 @@ err:
 
 /// Creates a WBuffer object for holding output data. Instances of this
 /// object can be reused across Stream instances, and the memory is freed
-/// automatically when no longer needed(it tracks the number of references internally)
+/// automatically when no longer needed(it tracks the number of references
+/// internally)
 ///
-/// @param data     Data stored by the WBuffer
-/// @param size     The size of the data array
-/// @param refcount The number of references for the WBuffer. This will be used by Stream
-///                 instances to decide when a WBuffer should be freed.
-/// @param cb       Pointer to function that will be responsible for freeing the buffer
-///                 data(passing 'free' will work as expected).
+/// @param data
+/// Data stored by the WBuffer
+///
+/// @param size
+/// The size of the data array
+///
+/// @param refcount
+/// The number of references for the WBuffer. This will be used by Stream
+/// instances to decide when a WBuffer should be freed.
+///
+/// @param cb
+/// Pointer to function that will be responsible for freeing the buffer
+/// data(passing 'free' will work as expected).
 ///
 /// @return The allocated WBuffer instance
 WBuffer *wstream_new_buffer(char *data,
@@ -146,13 +158,15 @@ static void write_cb(uv_write_t *req, int status)
 
     if(data->stream->closed && data->stream->pending_reqs == 0)
     {
-        stream_close_handle(data->stream); // Last pending write, free the stream
+        // Last pending write, free the stream
+        stream_close_handle(data->stream);
     }
 
     xfree(data);
 }
 
-void wstream_release_wbuffer(WBuffer *buffer) FUNC_ATTR_NONNULL_ALL
+void wstream_release_wbuffer(WBuffer *buffer)
+FUNC_ATTR_NONNULL_ALL
 {
     if(!--buffer->refcount)
     {

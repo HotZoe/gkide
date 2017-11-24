@@ -128,8 +128,10 @@ FUNC_ATTR_NONNULL_ALL
 /// Expects two values on the stack: compared strings. Returns one of the
 /// following numbers: 0, -1 or 1.
 ///
-/// Does no error handling: never call it with non-string or with some arguments omitted.
-static int nlua_stricmp(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+/// Does no error handling:
+/// never call it with non-string or with some arguments omitted.
+static int nlua_stricmp(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const char *s1 = luaL_checklstring(lstate, 1, NULL);
     const char *s2 = luaL_checklstring(lstate, 2, NULL);
@@ -142,9 +144,12 @@ static int nlua_stricmp(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
 /// Evaluate lua string
 ///
-/// Expects two values on the stack: string to evaluate, pointer to the
-/// location where result is saved. Always returns nothing (from the lua point of view).
-static int nlua_exec_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+/// Expects two values on the stack:
+/// string to evaluate, pointer to the
+/// location where result is saved.
+/// Always returns nothing (from the lua point of view).
+static int nlua_exec_lua_string(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
     typval_T *const ret_tv = (typval_T *)lua_touserdata(lstate, 2);
@@ -174,7 +179,8 @@ static int nlua_exec_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 ///
 /// Expects two values on the stack: string to evaluate and pointer to integer
 /// array with line range. Always returns nothing (from the lua point of view).
-static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+static int nlua_exec_luado_string(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
     const linenr_T *const range = (const linenr_T *)lua_touserdata(lstate, 2);
@@ -184,7 +190,9 @@ static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 #define DOSTART "return function(line, linenr) "
 #define DOEND   " end"
 
-    const size_t lcmd_len = (str->size + (sizeof(DOSTART) - 1) + (sizeof(DOEND) - 1));
+    const size_t lcmd_len =
+        (str->size + (sizeof(DOSTART) - 1) + (sizeof(DOEND) - 1));
+
     char *lcmd;
 
     if(lcmd_len < IOSIZE)
@@ -246,8 +254,11 @@ static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
         if(lua_isstring(lstate, -1))
         {
             size_t new_line_len;
-            const char *const new_line = lua_tolstring(lstate, -1, &new_line_len);
-            char *const new_line_transformed = xmemdupz(new_line, new_line_len);
+            const char *const new_line =
+                lua_tolstring(lstate, -1, &new_line_len);
+
+            char *const new_line_transformed =
+                xmemdupz(new_line, new_line_len);
 
             for(size_t i = 0; i < new_line_len; i++)
             {
@@ -272,9 +283,10 @@ static int nlua_exec_luado_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
 /// Evaluate lua file
 ///
-/// Expects one value on the stack: file to evaluate. Always returns nothing
-/// (from the lua point of view).
-static int nlua_exec_lua_file(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+/// Expects one value on the stack: file to evaluate.
+/// Always returns nothing (from the lua point of view).
+static int nlua_exec_lua_file(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const char *const filename = (const char *)lua_touserdata(lstate, 1);
     lua_pop(lstate, 1);
@@ -297,7 +309,8 @@ static int nlua_exec_lua_file(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 /// Initialize lua interpreter state
 ///
 /// Called by lua interpreter itself to initialize state.
-static int nlua_state_init(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+static int nlua_state_init(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     // stricmp
     lua_pushcfunction(lstate, &nlua_stricmp);
@@ -330,8 +343,11 @@ static int nlua_state_init(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
 /// Initialize lua interpreter
 ///
-/// Crashes NeoVim if initialization fails. Should be called once per lua interpreter instance.
-static lua_State *init_lua(void) FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
+/// Crashes NeoVim if initialization fails.
+/// Should be called once per lua interpreter instance.
+static lua_State *init_lua(void)
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     lua_State *lstate = luaL_newstate();
 
@@ -356,14 +372,16 @@ static lua_State *global_lstate = NULL;
 /// @param[out] ret_tv  Location where result will be saved.
 ///
 /// @return Result of the execution.
-void executor_exec_lua(const String str, typval_T *const ret_tv) FUNC_ATTR_NONNULL_ALL
+void executor_exec_lua(const String str, typval_T *const ret_tv)
+FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
     {
         global_lstate = init_lua();
     }
 
-    NLUA_CALL_C_FUNCTION_2(global_lstate, nlua_exec_lua_string, 0, (void *)&str, ret_tv);
+    NLUA_CALL_C_FUNCTION_2(global_lstate, nlua_exec_lua_string,
+                           0, (void *)&str, ret_tv);
 }
 
 /// Evaluate lua string
@@ -375,7 +393,8 @@ void executor_exec_lua(const String str, typval_T *const ret_tv) FUNC_ATTR_NONNU
 /// 3. Pointer to location where result is saved.
 ///
 /// @param[in,out]  lstate  Lua interpreter state.
-static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+static int nlua_eval_lua_string(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
     typval_T *const arg = (typval_T *)lua_touserdata(lstate, 2);
@@ -408,7 +427,8 @@ static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
     if(luaL_loadbuffer(lstate, lcmd, lcmd_len, NLUA_EVAL_NAME))
     {
-        nlua_error(lstate, _("E5107: Error while creating lua chunk for luaeval(): %.*s"));
+        nlua_error(lstate, _("E5107: Error while creating lua "
+                             "chunk for luaeval(): %.*s"));
 
         if(lcmd != (char *)IObuff)
         {
@@ -434,7 +454,8 @@ static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
     if(lua_pcall(lstate, 1, 1, 0))
     {
-        nlua_error(lstate, _("E5108: Error while calling lua chunk for luaeval(): %.*s"));
+        nlua_error(lstate, _("E5108: Error while calling lua "
+                             "chunk for luaeval(): %.*s"));
         return 0;
     }
 
@@ -448,10 +469,12 @@ static int nlua_eval_lua_string(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
 /// Evaluate lua string
 ///
-/// Expects four values on the stack: string to evaluate, pointer to args array,
-/// and locations where result and error are saved, respectively. Always
-/// returns nothing (from the lua point of view).
-static int nlua_exec_lua_string_api(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+/// Expects four values on the stack: string to evaluate,
+/// pointer to args array, and locations where result and error
+/// are saved, respectively. Always returns nothing (from the
+/// lua point of view).
+static int nlua_exec_lua_string_api(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const String *str = (const String *)lua_touserdata(lstate, 1);
     const Array *args = (const Array *)lua_touserdata(lstate, 2);
@@ -464,7 +487,9 @@ static int nlua_exec_lua_string_api(lua_State *const lstate) FUNC_ATTR_NONNULL_A
     {
         size_t len;
         const char *str = lua_tolstring(lstate, -1, &len);
-        api_set_error(err, kErrorTypeValidation, "Error loading lua: %.*s", (int)len, str);
+
+        api_set_error(err, kErrorTypeValidation,
+                      "Error loading lua: %.*s", (int)len, str);
         return 0;
     }
 
@@ -477,7 +502,9 @@ static int nlua_exec_lua_string_api(lua_State *const lstate) FUNC_ATTR_NONNULL_A
     {
         size_t len;
         const char *str = lua_tolstring(lstate, -1, &len);
-        api_set_error(err, kErrorTypeException, "Error executing lua: %.*s", (int)len, str);
+
+        api_set_error(err, kErrorTypeException,
+                      "Error executing lua: %.*s", (int)len, str);
         return 0;
     }
 
@@ -489,7 +516,8 @@ static int nlua_exec_lua_string_api(lua_State *const lstate) FUNC_ATTR_NONNULL_A
 /// Print as a Vim message
 ///
 /// @param  lstate  Lua interpreter state.
-static int nlua_print(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
+static int nlua_print(lua_State *const lstate)
+FUNC_ATTR_NONNULL_ALL
 {
 #define PRINT_ERROR(msg)              \
     do                                \
@@ -523,7 +551,8 @@ static int nlua_print(lua_State *const lstate) FUNC_ATTR_NONNULL_ALL
 
         if(s == NULL)
         {
-            PRINT_ERROR("<Unknown error: lua_tolstring returned NULL for tostring result>");
+            PRINT_ERROR("<Unknown error: lua_tolstring "
+                        "returned NULL for tostring result>");
         }
 
         ga_concat_len(&msg_ga, s, len);
@@ -607,7 +636,8 @@ nlua_print_error:
 /// debug.debug implementation: interaction with user while debugging
 ///
 /// @param  lstate  Lua interpreter state.
-int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
+int nlua_debug(lua_State *lstate)
+FUNC_ATTR_NONNULL_ALL
 {
     const typval_T input_args[] = {
         {
@@ -639,14 +669,16 @@ int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
                            STRLEN(input.vval.v_string),
                            "=(debug command)"))
         {
-            nlua_error(lstate, _("E5115: Error while loading debug string: %.*s"));
+            nlua_error(lstate,
+                       _("E5115: Error while loading debug string: %.*s"));
         }
 
         tv_clear(&input);
 
         if(lua_pcall(lstate, 0, 0, 0))
         {
-            nlua_error(lstate, _("E5116: Error while calling debug string: %.*s"));
+            nlua_error(lstate,
+                       _("E5116: Error while calling debug string: %.*s"));
         }
     }
 
@@ -662,7 +694,9 @@ int nlua_debug(lua_State *lstate) FUNC_ATTR_NONNULL_ALL
 /// @param[out] ret_tv  Location where result will be saved.
 ///
 /// @return Result of the execution.
-void executor_eval_lua(const String str, typval_T *const arg, typval_T *const ret_tv)
+void executor_eval_lua(const String str,
+                       typval_T *const arg,
+                       typval_T *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
@@ -670,7 +704,9 @@ FUNC_ATTR_NONNULL_ALL
         global_lstate = init_lua();
     }
 
-    NLUA_CALL_C_FUNCTION_3(global_lstate, nlua_eval_lua_string, 0, (void *)&str, arg, ret_tv);
+    NLUA_CALL_C_FUNCTION_3(global_lstate,
+                           nlua_eval_lua_string,
+                           0, (void *)&str, arg, ret_tv);
 }
 
 /// Execute lua string
@@ -706,7 +742,8 @@ Object executor_exec_lua_api(const String str, const Array args, Error *err)
 /// Used for :lua.
 ///
 /// @param  eap  VimL command being run.
-void ex_lua(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
+void ex_lua(exarg_T *const eap)
+FUNC_ATTR_NONNULL_ALL
 {
     size_t len;
     char *const code = script_get(eap, &len);
@@ -733,7 +770,8 @@ void ex_lua(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
 /// Used for :luado.
 ///
 /// @param  eap  VimL command being run.
-void ex_luado(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
+void ex_luado(exarg_T *const eap)
+FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
     {
@@ -762,7 +800,8 @@ void ex_luado(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
 /// Used for :luafile.
 ///
 /// @param  eap  VimL command being run.
-void ex_luafile(exarg_T *const eap) FUNC_ATTR_NONNULL_ALL
+void ex_luafile(exarg_T *const eap)
+FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
     {

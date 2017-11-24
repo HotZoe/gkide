@@ -26,14 +26,20 @@ int stream_set_blocking(int fd, bool blocking)
     uv_loop_init(&loop);
     uv_pipe_init(&loop, &stream, 0);
     uv_pipe_open(&stream, fd);
-    int retval = uv_stream_set_blocking(STRUCT_CAST(uv_stream_t, &stream), blocking);
+
+    int retval =
+        uv_stream_set_blocking(STRUCT_CAST(uv_stream_t, &stream), blocking);
+
     uv_close(STRUCT_CAST(uv_handle_t, &stream), NULL);
     uv_run(&loop, UV_RUN_NOWAIT); // not necessary, but couldn't hurt.
     uv_loop_close(&loop);
     return retval;
 }
 
-void stream_init(main_loop_T *loop, Stream *stream, int fd, uv_stream_t *uvstream)
+void stream_init(main_loop_T *loop,
+                 Stream *stream,
+                 int fd,
+                 uv_stream_t *uvstream)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     stream->uvstream = uvstream;
@@ -45,9 +51,10 @@ FUNC_ATTR_NONNULL_ARG(2)
 
         if(type == UV_FILE)
         {
-            // Non-blocking file reads are simulated with an idle handle that reads in
-            // chunks of the ring buffer size, giving time for other events to be
-            // processed between reads.
+            // Non-blocking file reads are simulated with
+            // an idle handle that reads in chunks of the
+            // ring buffer size, giving time for other events
+            // to be processed between reads.
             uv_idle_init(&loop->uv, &stream->uv.idle);
             stream->uv.idle.data = stream;
         }

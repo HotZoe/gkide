@@ -105,8 +105,9 @@ static void alloc_cb(uv_handle_t *handle,
     buf->len = write_count;
 }
 
-/// Callback invoked by libuv after it copies the data into the buffer provided by `alloc_cb`.
-/// This is also called on EOF or when `alloc_cb` returns a 0-length buffer.
+/// Callback invoked by libuv after it copies the data into the buffer
+/// provided by `alloc_cb`. This is also called on EOF or when `alloc_cb`
+/// returns a 0-length buffer.
 static void read_cb(uv_stream_t *uvstream,
                     ssize_t cnt,
                     const uv_buf_t *FUNC_ARGS_UNUSED_REALY(buf))
@@ -124,7 +125,8 @@ static void read_cb(uv_stream_t *uvstream,
         // http://docs.libuv.org/en/latest/stream.html#c.uv_read_start.
         //
         // We don't need to do anything with the RBuffer because the next call
-        // to `alloc_cb` will return the same unused pointer(`rbuffer_produced` won't be called)
+        // to `alloc_cb` will return the same unused pointer(`rbuffer_produced`
+        // won't be called)
         if(cnt != UV_ENOBUFS && cnt != 0)
         {
             DEBUG_LOG("Closing Stream (%p): %s (%s)",
@@ -132,8 +134,8 @@ static void read_cb(uv_stream_t *uvstream,
                       uv_err_name((int)cnt),
                       os_strerror((int)cnt));
 
-            // Read error or EOF, either way stop the stream and invoke the callback
-            // with eof == true
+            // Read error or EOF, either way stop the stream
+            // and invoke the callback with eof == true
             uv_read_stop(uvstream);
             invoke_read_cb(stream, 0, true);
         }

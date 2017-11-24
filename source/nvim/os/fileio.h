@@ -45,14 +45,17 @@ REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT REAL_FATTR_NONNULL_ALL;
 ///
 /// @param[in]  fp  File to check.
 ///
-/// @return true if it was, false if it was not or read operation was never performed.
+/// @return
+/// true if it was, false if it was not or read operation was never performed.
 static inline bool file_eof(const FileDescriptor *const fp)
 {
     return fp->eof && rbuffer_size(fp->rv) == 0;
 }
 
 static inline int file_fd(const FileDescriptor *const fp)
-REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT REAL_FATTR_NONNULL_ALL;
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT
+REAL_FATTR_NONNULL_ALL;
 
 /// Return the file descriptor associated with the FileDescriptor structure
 ///
@@ -66,7 +69,8 @@ static inline int file_fd(const FileDescriptor *const fp)
 
 /// Read or write buffer size
 ///
-/// Currently equal to (IOSIZE - 1), but they do not need to be connected.
+/// Currently equal to (IOSIZE - 1),
+/// but they do not need to be connected.
 enum
 {
     kRWBufferSize = 1024

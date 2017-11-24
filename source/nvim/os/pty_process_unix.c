@@ -52,7 +52,12 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
 
     uv_signal_start(&proc->loop->children_watcher, chld_handler, SIGCHLD);
 
-    ptyproc->winsize = (struct winsize) { ptyproc->height, ptyproc->width, 0, 0 };
+    ptyproc->winsize = (struct winsize) {
+        ptyproc->height,
+        ptyproc->width,
+        0,
+        0
+    };
 
     uv_disable_stdio_inheritance();
     int master;
@@ -76,14 +81,20 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     if(master_status_flags == -1)
     {
         status = -errno;
-        ERROR_LOG("Failed to get master descriptor status flags: %s", strerror(errno));
+
+        ERROR_LOG("Failed to get master descriptor status flags: %s",
+                  strerror(errno));
+
         goto error;
     }
 
     if(fcntl(master, F_SETFL, master_status_flags | O_NONBLOCK) == -1)
     {
         status = -errno;
-        ERROR_LOG("Failed to make master descriptor non-blocking: %s", strerror(errno));
+
+        ERROR_LOG("Failed to make master descriptor non-blocking: %s",
+                  strerror(errno));
+
         goto error;
     }
 
@@ -95,12 +106,14 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
         goto error;
     }
 
-    if(proc->in && (status = set_duplicating_descriptor(master, &proc->in->uv.pipe)))
+    if(proc->in && (status = set_duplicating_descriptor(master,
+                                                        &proc->in->uv.pipe)))
     {
         goto error;
     }
 
-    if(proc->out && (status = set_duplicating_descriptor(master, &proc->out->uv.pipe)))
+    if(proc->out && (status = set_duplicating_descriptor(master,
+                                                         &proc->out->uv.pipe)))
     {
         goto error;
     }
@@ -128,7 +141,8 @@ FUNC_ATTR_NONNULL_ALL
     ioctl(ptyproc->tty_fd, TIOCSWINSZ, &ptyproc->winsize);
 }
 
-void pty_process_close(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
+void pty_process_close(PtyProcess *ptyproc)
+FUNC_ATTR_NONNULL_ALL
 {
     pty_process_close_master(ptyproc);
     Process *proc = (Process *)ptyproc;
@@ -139,7 +153,8 @@ void pty_process_close(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     }
 }
 
-void pty_process_close_master(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
+void pty_process_close_master(PtyProcess *ptyproc)
+FUNC_ATTR_NONNULL_ALL
 {
     if(ptyproc->tty_fd >= 0)
     {
@@ -153,7 +168,8 @@ void pty_process_teardown(main_loop_T *loop)
     uv_signal_stop(&loop->children_watcher);
 }
 
-static void init_child(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
+static void init_child(PtyProcess *ptyproc)
+FUNC_ATTR_NONNULL_ALL
 {
     unsetenv("COLUMNS");
     unsetenv("LINES");
@@ -177,12 +193,16 @@ static void init_child(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     }
 
     char *prog = ptyproc->process.argv[0];
+
     setenv("TERM", ptyproc->term_name ? ptyproc->term_name : "ansi", 1);
+
     execvp(prog, ptyproc->process.argv);
+
     fprintf(stderr, "execvp failed: %s: %s\n", strerror(errno), prog);
 }
 
-static void init_termios(struct termios *termios) FUNC_ATTR_NONNULL_ALL
+static void init_termios(struct termios *termios)
+FUNC_ATTR_NONNULL_ALL
 {
     // Taken from pangoterm
     termios->c_iflag = ICRNL|IXON;
@@ -246,7 +266,8 @@ static void init_termios(struct termios *termios) FUNC_ATTR_NONNULL_ALL
     termios->c_cc[VTIME]    = 0;
 }
 
-static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe) FUNC_ATTR_NONNULL_ALL
+static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe)
+FUNC_ATTR_NONNULL_ALL
 {
     // zero or negative error code (libuv convention)
     int status = 0;
@@ -270,7 +291,8 @@ static int set_duplicating_descriptor(int fd, uv_pipe_t *pipe) FUNC_ATTR_NONNULL
 
     if(status)
     {
-        ERROR_LOG("Failed to set pipe to descriptor %d: %s", fd_dup, uv_strerror(status));
+        ERROR_LOG("Failed to set pipe to descriptor %d: %s",
+                  fd_dup, uv_strerror(status));
         goto error;
     }
 
@@ -282,7 +304,8 @@ error:
     return status;
 }
 
-static void chld_handler(uv_signal_t *handle, int FUNC_ARGS_UNUSED_REALY(signum))
+static void chld_handler(uv_signal_t *handle,
+                         int FUNC_ARGS_UNUSED_REALY(signum))
 {
     int stat = 0;
     int pid;
@@ -298,6 +321,7 @@ static void chld_handler(uv_signal_t *handle, int FUNC_ARGS_UNUSED_REALY(signum)
     }
 
     main_loop_T *loop = handle->loop->data;
+
     kl_iter(WatcherPtr, loop->children, current)
     {
         Process *proc = (*current)->data;

@@ -67,9 +67,16 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
     FLAG(flags, kFileWriteOnly, O_WRONLY, kTrue, true);
     FLAG(flags, kFileCreateOnly, O_CREAT|O_EXCL|O_WRONLY, kTrue, true);
-    FLAG(flags, kFileCreate, O_CREAT|O_WRONLY, kTrue, !(flags & kFileCreateOnly));
-    FLAG(flags, kFileTruncate, O_TRUNC|O_WRONLY, kTrue, !(flags & kFileCreateOnly));
-    FLAG(flags, kFileAppend, O_APPEND|O_WRONLY, kTrue, !(flags & kFileCreateOnly));
+
+    FLAG(flags, kFileCreate, O_CREAT|O_WRONLY,
+         kTrue, !(flags & kFileCreateOnly));
+
+    FLAG(flags, kFileTruncate, O_TRUNC|O_WRONLY,
+         kTrue, !(flags & kFileCreateOnly));
+
+    FLAG(flags, kFileAppend, O_APPEND|O_WRONLY,
+         kTrue, !(flags & kFileCreateOnly));
+
     FLAG(flags, kFileReadOnly, O_RDONLY, kFalse, wr != kTrue);
 
 #ifdef O_NOFOLLOW
@@ -94,7 +101,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     if(ret_fp->wr)
     {
         ret_fp->rv->data = ret_fp;
-        ret_fp->rv->full_cb = (rbuffer_callback)&file_rb_write_full_cb;
+        ret_fp->rv->full_cb = (rbuffer_callback) & file_rb_write_full_cb;
     }
 
     return 0;
@@ -102,18 +109,26 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Like file_open(), but allocate and return ret_fp
 ///
-/// @param[out] error   Error code, @see os_strerror(). Is set to zero on success.
-/// @param[in]  fname   File name to open.
-/// @param[in]  flags   Flags, @see FileOpenFlags.
-/// @param[in]  mode    Permissions for the newly created file (ignored if flags
-///                     does not have FILE_CREATE\*).
+/// @param[out] error
+/// Error code, @see os_strerror(). Is set to zero on success.
+///
+/// @param[in]  fname
+/// File name to open.
+///
+/// @param[in]  flags
+/// Flags, @see FileOpenFlags.
+///
+/// @param[in]  mode
+/// Permissions for the newly created file (ignored if flags does
+/// not have FILE_CREATE\*).
 ///
 /// @return [allocated] Opened file or NULL in case of error.
 FileDescriptor *file_open_new(int *const error,
                               const char *const fname,
                               const int flags,
                               const int mode)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     FileDescriptor *const fp = xmalloc(sizeof(*fp));
 
@@ -132,7 +147,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  do_fsync  If true, use fsync() to write changes to disk.
 ///
 /// @return 0 or error code.
-int file_close(FileDescriptor *const fp, const bool do_fsync) FUNC_ATTR_NONNULL_ALL
+int file_close(FileDescriptor *const fp, const bool do_fsync)
+FUNC_ATTR_NONNULL_ALL
 {
     const int flush_error = (do_fsync ? file_fsync(fp) : file_flush(fp));
     const int close_error = os_close(fp->fd);
@@ -152,7 +168,8 @@ int file_close(FileDescriptor *const fp, const bool do_fsync) FUNC_ATTR_NONNULL_
 /// @param[in]  do_fsync  If true, use fsync() to write changes to disk.
 ///
 /// @return 0 or error code.
-int file_free(FileDescriptor *const fp, const bool do_fsync) FUNC_ATTR_NONNULL_ALL
+int file_free(FileDescriptor *const fp, const bool do_fsync)
+FUNC_ATTR_NONNULL_ALL
 {
     const int ret = file_close(fp, do_fsync);
 
@@ -166,7 +183,8 @@ int file_free(FileDescriptor *const fp, const bool do_fsync) FUNC_ATTR_NONNULL_A
 /// @param[in,out]  fp  File to work with.
 ///
 /// @return 0 or error code.
-int file_flush(FileDescriptor *const fp) FUNC_ATTR_NONNULL_ALL
+int file_flush(FileDescriptor *const fp)
+FUNC_ATTR_NONNULL_ALL
 {
     if(!fp->wr)
     {
@@ -185,7 +203,8 @@ int file_flush(FileDescriptor *const fp) FUNC_ATTR_NONNULL_ALL
 /// @param[in,out]  fp  File to work with.
 ///
 /// @return 0 or error code.
-int file_fsync(FileDescriptor *const fp) FUNC_ATTR_NONNULL_ALL
+int file_fsync(FileDescriptor *const fp)
+FUNC_ATTR_NONNULL_ALL
 {
     if(!fp->wr)
     {
@@ -249,13 +268,21 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Read from file
 ///
-/// @param[in,out]  fp    File to work with.
-/// @param[out]  ret_buf  Buffer to read to. Must not be NULL.
-/// @param[in]  size      Number of bytes to read. Buffer must have at least ret_buf bytes.
+/// @param[in,out]  fp
+/// File to work with.
+///
+/// @param[out]  ret_buf
+/// Buffer to read to. Must not be NULL.
+///
+/// @param[in]  size
+/// Number of bytes to read. Buffer must have at least ret_buf bytes.
 ///
 /// @return error_code (< 0) or number of bytes read.
-ptrdiff_t file_read(FileDescriptor *const fp, char *const ret_buf, const size_t size)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+ptrdiff_t file_read(FileDescriptor *const fp,
+                    char *const ret_buf,
+                    const size_t size)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     assert(!fp->wr);
 
@@ -269,7 +296,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
         if(rv_size > 0)
         {
-            const size_t rsize = rbuffer_read(rv, buf, MIN(rv_size, read_remaining));
+            const size_t rsize =
+                rbuffer_read(rv, buf, MIN(rv_size, read_remaining));
+
             buf += rsize;
             read_remaining -= rsize;
         }
@@ -284,20 +313,22 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             assert(rbuffer_size(rv) == 0);
             rbuffer_reset(rv);
 
-#ifdef HAVE_FUN_READV
+        #ifdef HAVE_FUN_READV
             // If there is readv() syscall, then take an opportunity to populate
             // both target buffer and RBuffer at once
             size_t write_count;
 
-            struct iovec iov[] = { { .iov_base = buf, .iov_len = read_remaining },
+            struct iovec iov[] = {
+                { .iov_base = buf, .iov_len = read_remaining },
                 {
                     .iov_base = rbuffer_write_ptr(rv, &write_count),
-                    .iov_len = kRWBufferSize
-                },
+                    .iov_len = kRWBufferSize },
             };
 
             assert(write_count == kRWBufferSize);
-            const ptrdiff_t r_ret = os_readv(fp->fd, &fp->eof, iov, ARRAY_SIZE(iov));
+
+            const ptrdiff_t r_ret =
+                os_readv(fp->fd, &fp->eof, iov, ARRAY_SIZE(iov));
 
             if(r_ret > 0)
             {
@@ -316,12 +347,14 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 return r_ret;
             }
-#else
+        #else
             if(read_remaining >= kRWBufferSize)
             {
-                // otherwise leave RBuffer empty and populate only target buffer,
-                // because filtering information through rbuffer will be more syscalls.
-                const ptrdiff_t r_ret = os_read(fp->fd, &fp->eof, buf, read_remaining);
+                // otherwise leave RBuffer empty and populate only target
+                // buffer, because filtering information through rbuffer will
+                // be more syscalls.
+                const ptrdiff_t r_ret = os_read(fp->fd, &fp->eof,
+                                                buf, read_remaining);
 
                 if(r_ret >= 0)
                 {
@@ -338,7 +371,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 size_t write_count;
                 const ptrdiff_t r_ret = os_read(fp->fd,
                                                 &fp->eof,
-                                                rbuffer_write_ptr(rv, &write_count),
+                                                rbuffer_write_ptr(rv,
+                                                                  &write_count),
                                                 kRWBufferSize);
                 assert(write_count == kRWBufferSize);
 
@@ -351,7 +385,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                     return r_ret;
                 }
             }
-#endif
+        #endif
         }
     }
 
@@ -365,8 +399,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  size  Amount of bytes to write.
 ///
 /// @return Number of bytes written or libuv error code (< 0).
-ptrdiff_t file_write(FileDescriptor *const fp, const char *const buf, const size_t size)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1)
+ptrdiff_t file_write(FileDescriptor *const fp,
+                     const char *const buf,
+                     const size_t size)
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(1)
 {
     assert(fp->wr);
     const size_t written = rbuffer_write(fp->rv, buf, size);
@@ -385,14 +422,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(1)
     return (ptrdiff_t)written;
 }
 
-/// Buffer used for skipping. Its contents is undefined and should never be used.
+/// Buffer used for skipping.
+/// Its contents is undefined and should never be used.
 static char skipbuf[kRWBufferSize];
 
 /// Skip some bytes
 ///
-/// This is like `fseek(fp, size, SEEK_CUR)`, but actual implementation simply
-/// reads to a buffer and discards the result.
-ptrdiff_t file_skip(FileDescriptor *const fp, const size_t size) FUNC_ATTR_NONNULL_ALL
+/// This is like `fseek(fp, size, SEEK_CUR)`,
+/// but actual implementation simply reads to a buffer and discards the result.
+ptrdiff_t file_skip(FileDescriptor *const fp, const size_t size)
+FUNC_ATTR_NONNULL_ALL
 {
     assert(!fp->wr);
 

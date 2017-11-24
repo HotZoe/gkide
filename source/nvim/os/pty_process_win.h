@@ -26,10 +26,12 @@ typedef struct pty_process
 static inline PtyProcess pty_process_init(main_loop_T *loop, void *data)
 {
     PtyProcess rv;
+
     rv.process = process_init(loop, kProcessTypePty, data);
     rv.term_name = NULL;
     rv.width = 80;
     rv.height = 24;
+
     return rv;
 }
 

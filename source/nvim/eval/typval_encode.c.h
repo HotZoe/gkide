@@ -1,7 +1,7 @@
 /// @file nvim/eval/typval_encode.c.h
 ///
-/// Contains set of macros used to convert (possibly recursive) typval_T into something else.
-/// For these macros to work the following macros must be defined:
+/// Contains set of macros used to convert (possibly recursive) typval_T into
+/// something else. For these macros to work the following macros must be defined:
 
 /// @def TYPVAL_ENCODE_CONV_NIL
 /// @brief Macros used to convert NIL value
@@ -36,8 +36,8 @@
 /// Not used if #TYPVAL_ENCODE_ALLOW_SPECIALS is false, but still must be
 /// defined.
 ///
-/// @param  tv  Pointer to typval where value is stored. May not be NULL. Points
-///             to a special dictionary.
+/// @param  tv  Pointer to typval where value is stored. May not be NULL.
+///             Points to a special dictionary.
 /// @param  num  Integer to convert, must accept uint64_t.
 
 /// @def TYPVAL_ENCODE_CONV_FLOAT
@@ -257,7 +257,9 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     const int copyID,
     const MPConvStackValType conv_type,
     const char *const objname)
-REAL_FATTR_NONNULL_ARG(2, 3, 4, 7) REAL_FATTR_WARN_UNUSED_RESULT REAL_FATTR_ALWAYS_INLINE;
+REAL_FATTR_NONNULL_ARG(2, 3, 4, 7)
+REAL_FATTR_WARN_UNUSED_RESULT
+REAL_FATTR_ALWAYS_INLINE;
 
 /// Function for checking whether container references itself
 ///
@@ -300,23 +302,33 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     typval_T *const tv,
     const int copyID,
     const char *const objname)
-REAL_FATTR_NONNULL_ARG(2, 4, 6) REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_NONNULL_ARG(2, 4, 6)
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Convert single value
 ///
-/// Only scalar values are converted immediately, everything else is pushed onto
-/// the stack.
+/// Only scalar values are converted immediately,
+/// everything else is pushed onto the stack.
 ///
-/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME  First argument, defined by the
-///                                       includer. Only meaningful to macros
-///                                       defined by the includer.
-/// @param  mpstack  Stack with values to convert. Values which are not
-///                  converted completely by this function (i.e.
-///                  non-scalars) are pushed here.
-/// @param  cur_mpsv  Currently converted value from stack.
-/// @param  tv  Converted value.
-/// @param[in]  copyID  CopyID.
-/// @param[in]  objname  Object name, used for error reporting.
+/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME
+/// First argument, defined by the includer.
+/// Only meaningful to macros  defined by the includer.
+///
+/// @param  mpstack
+/// Stack with values to convert. Values which are not
+/// converted completely by this function (i.e. non-scalars)
+/// are pushed here.
+///
+/// @param  cur_mpsv
+/// Currently converted value from stack.
+///
+/// @param  tv
+/// Converted value.
+/// @param[in]  copyID
+/// CopyID.
+///
+/// @param[in]  objname
+/// Object name, used for error reporting.
 ///
 /// @return OK in case of success, FAIL in case of failure.
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
@@ -360,7 +372,10 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
         {
             partial_T *const pt = tv->vval.v_partial;
             (void)pt;
-            TYPVAL_ENCODE_CONV_FUNC_START(tv, (pt == NULL ? NULL : partial_name(pt)));
+
+            TYPVAL_ENCODE_CONV_FUNC_START(tv,
+                                          (pt == NULL
+                                           ? NULL : partial_name(pt)));
 
             _mp_push(*mpstack, ((MPConvStackVal) {
                 .type = kMPConvPartial,
@@ -422,7 +437,9 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                 case kSpecialVarTrue:
                 case kSpecialVarFalse:
                 {
-                    TYPVAL_ENCODE_CONV_BOOL(tv, tv->vval.v_special == kSpecialVarTrue);
+                    TYPVAL_ENCODE_CONV_BOOL(tv,
+                                            tv->vval.v_special
+                                            == kSpecialVarTrue);
                     break;
                 }
             }
@@ -432,7 +449,8 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
         case VAR_DICT:
         {
-            if(tv->vval.v_dict == NULL || tv->vval.v_dict->dv_hashtab.ht_used == 0)
+            if(tv->vval.v_dict == NULL
+               || tv->vval.v_dict->dv_hashtab.ht_used == 0)
             {
                 TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, tv->vval.v_dict);
                 break;
@@ -443,9 +461,11 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
             if(TYPVAL_ENCODE_ALLOW_SPECIALS
                && tv->vval.v_dict->dv_hashtab.ht_used == 2
-               && (type_di = tv_dict_find((dict_T *)tv->vval.v_dict, S_LEN("_TYPE"))) != NULL
+               && (type_di = tv_dict_find((dict_T *)tv->vval.v_dict,
+                                          S_LEN("_TYPE"))) != NULL
                && type_di->di_tv.v_type == VAR_LIST
-               && (val_di = tv_dict_find((dict_T *)tv->vval.v_dict, S_LEN("_VAL"))) != NULL)
+               && (val_di = tv_dict_find((dict_T *)tv->vval.v_dict,
+                                         S_LEN("_VAL"))) != NULL)
             {
                 size_t i;
 
@@ -489,11 +509,12 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                         varnumber_T high_bits;
                         varnumber_T low_bits;
 
-                        // List of 4 integers; first is signed (should be 1 or -1, but
-                        // this is not checked), second is unsigned and have at most
-                        // one (sign is -1) or two (sign is 1) non-zero bits (number of
-                        // bits is not checked), other unsigned and have at most 31
-                        // non-zero bits (number of bits is not checked).
+                        // List of 4 integers; first is signed (should be 1 or
+                        // -1, but this is not checked), second is unsigned and
+                        // have at most one (sign is -1) or two (sign is 1)
+                        // non-zero bits (number of bits is not checked), other
+                        // unsigned and have at most 31 non-zero bits (number
+                        // of bits is not checked).
                         if((val_di->di_tv.v_type != VAR_LIST)
                            || (val_list = val_di->di_tv.vval.v_list) == NULL
                            || (val_list->lv_len != 4)
@@ -614,9 +635,12 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                             break;
                         }
 
-                        for(const listitem_T *li = val_list->lv_first; li != NULL; li = li->li_next)
+                        for(const listitem_T *li = val_list->lv_first;
+                            li != NULL;
+                            li = li->li_next)
                         {
-                            if(li->li_tv.v_type != VAR_LIST || li->li_tv.vval.v_list->lv_len != 2)
+                            if(li->li_tv.v_type != VAR_LIST
+                               || li->li_tv.vval.v_list->lv_len != 2)
                             {
                                 goto _convert_one_value_regular_dict;
                             }
@@ -727,23 +751,31 @@ _convert_one_value_regular_dict:
     }
 
 typval_encode_stop_converting_one_item:
+
     return OK;
+
     // Prevent “unused label” warnings.
-    goto typval_encode_stop_converting_one_item; // -V779
+    goto typval_encode_stop_converting_one_item;
 }
 
 TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     typval_T *const tv,
     const char *const objname)
-REAL_FATTR_NONNULL_ARG(2, 3) REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_NONNULL_ARG(2, 3)
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Convert the whole typval
 ///
-/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME  First argument, defined by the includer.
-///                                       Only meaningful to macros defined by the includer.
-/// @param  top_tv  Converted value.
-/// @param[in]  objname  Object name, used for error reporting.
+/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME
+/// First argument, defined by the includer.
+/// Only meaningful to macros defined by the includer.
+///
+/// @param  top_tv
+/// Converted value.
+///
+/// @param[in]  objname
+/// Object name, used for error reporting.
 ///
 /// @return OK in case of success, FAIL in case of failure.
 TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
@@ -765,8 +797,8 @@ TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
         goto encode_vim_to__error_ret;
     }
 
-/// Label common for this and convert_one_value functions, used for escaping
-/// from macros like TYPVAL_ENCODE_CONV_DICT_START.
+/// Label common for this and convert_one_value functions,
+/// used for escaping from macros like TYPVAL_ENCODE_CONV_DICT_START.
 typval_encode_stop_converting_one_item:
 
     while(_mp_size(mpstack))
@@ -782,15 +814,19 @@ typval_encode_stop_converting_one_item:
                 {
                     (void)_mp_pop(mpstack);
 
-                    cur_mpsv->data.d.dict->dv_copyID = cur_mpsv->saved_copyID;
+                    cur_mpsv->data.d.dict->dv_copyID
+                        = cur_mpsv->saved_copyID;
 
-                    TYPVAL_ENCODE_CONV_DICT_END(cur_mpsv->tv, *cur_mpsv->data.d.dictp);
+                    TYPVAL_ENCODE_CONV_DICT_END(cur_mpsv->tv,
+                                                *cur_mpsv->data.d.dictp);
 
                     continue;
                 }
-                else if(cur_mpsv->data.d.todo != cur_mpsv->data.d.dict->dv_hashtab.ht_used)
+                else if(cur_mpsv->data.d.todo
+                        != cur_mpsv->data.d.dict->dv_hashtab.ht_used)
                 {
-                    TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(cur_mpsv->tv, *cur_mpsv->data.d.dictp);
+                    TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(cur_mpsv->tv,
+                                                          *cur_mpsv->data.d.dictp);
                 }
 
                 while(HASHITEM_EMPTY(cur_mpsv->data.d.hi))
@@ -806,7 +842,8 @@ typval_encode_stop_converting_one_item:
                                               &di->di_key[0],
                                               strlen((char *)&di->di_key[0]));
 
-                TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(cur_mpsv->tv, *cur_mpsv->data.d.dictp);
+                TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(cur_mpsv->tv,
+                                                  *cur_mpsv->data.d.dictp);
 
                 tv = &di->di_tv;
                 break;
@@ -840,16 +877,20 @@ typval_encode_stop_converting_one_item:
                     (void)_mp_pop(mpstack);
 
                     cur_mpsv->data.l.list->lv_copyID = cur_mpsv->saved_copyID;
-                    TYPVAL_ENCODE_CONV_DICT_END(cur_mpsv->tv, TYPVAL_ENCODE_NODICT_VAR);
+
+                    TYPVAL_ENCODE_CONV_DICT_END(cur_mpsv->tv,
+                                                TYPVAL_ENCODE_NODICT_VAR);
 
                     continue;
                 }
                 else if(cur_mpsv->data.l.li != cur_mpsv->data.l.list->lv_first)
                 {
-                    TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(cur_mpsv->tv, TYPVAL_ENCODE_NODICT_VAR);
+                    TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(cur_mpsv->tv,
+                                                          TYPVAL_ENCODE_NODICT_VAR);
                 }
 
-                const list_T *const kv_pair = cur_mpsv->data.l.li->li_tv.vval.v_list;
+                const list_T *const kv_pair =
+                    cur_mpsv->data.l.li->li_tv.vval.v_list;
 
                 TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(encode_vim_to__error_ret,
                                                      kv_pair->lv_first->li_tv);
@@ -864,7 +905,8 @@ typval_encode_stop_converting_one_item:
                     goto encode_vim_to__error_ret;
                 }
 
-                TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(cur_mpsv->tv, TYPVAL_ENCODE_NODICT_VAR);
+                TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(cur_mpsv->tv,
+                                                  TYPVAL_ENCODE_NODICT_VAR);
 
                 tv = &kv_pair->lv_last->li_tv;
                 cur_mpsv->data.l.li = cur_mpsv->data.l.li->li_next;

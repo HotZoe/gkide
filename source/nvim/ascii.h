@@ -92,11 +92,25 @@
     #define PATHSEPSTR     "/"
 #endif
 
-static inline bool ascii_iswhite(int)  REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool ascii_isdigit(int)  REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool ascii_isspace(int)  REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool ascii_isxdigit(int) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool ascii_isbdigit(int) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
+static inline bool ascii_iswhite(int)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool ascii_isdigit(int)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool ascii_isspace(int)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool ascii_isxdigit(int)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool ascii_isbdigit(int)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
 
 /// Checks if @b c is a space or tab character.
 ///
@@ -113,18 +127,22 @@ static inline bool ascii_iswhite(int c)
 /// contains it in lower 8 bits. Also avoids crashes in case c is below
 /// 0 or above 255: library functions are officially defined as accepting
 /// only EOF and unsigned char values (otherwise it is undefined behaviour)
-/// what may be used for some optimizations (e.g. simple `return isdigit_table[c];`).
+/// what may be used for some optimizations
+/// (e.g. simple `return isdigit_table[c];`).
 static inline bool ascii_isdigit(int c)
 {
     return c >= '0' && c <= '9';
 }
 
-/// Checks if `c` is a hexadecimal digit, that is, one of 0-9, a-f, A-F.
+/// Checks if `c` is a hexadecimal digit,
+/// that is, one of 0-9, a-f, A-F.
 ///
 /// @see {ascii_isdigit}
 static inline bool ascii_isxdigit(int c)
 {
-    return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+    return (c >= '0' && c <= '9')
+            || (c >= 'a' && c <= 'f')
+            || (c >= 'A' && c <= 'F');
 }
 
 /// Checks if `c` is a binary digit, that is, 0-1.
@@ -135,7 +153,8 @@ static inline bool ascii_isbdigit(int c)
     return (c == '0' || c == '1');
 }
 
-/// Checks if `c` is a white-space character, that is, one of \f, \n, \r, \t, \v.
+/// Checks if `c` is a white-space character,
+/// that is, one of \f, \n, \r, \t, \v.
 ///
 /// @see {ascii_isdigit}
 static inline bool ascii_isspace(int c)

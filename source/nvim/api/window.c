@@ -72,7 +72,8 @@ FUNC_API_SINCE(1)
        || pos.items[0].type != kObjectTypeInteger
        || pos.items[1].type != kObjectTypeInteger)
     {
-        api_set_error(err, kErrorTypeValidation, "Argument \"pos\" must be a [row, col] array");
+        api_set_error(err, kErrorTypeValidation,
+                      "Argument \"pos\" must be a [row, col] array");
         return;
     }
 
@@ -81,13 +82,15 @@ FUNC_API_SINCE(1)
 
     if(row <= 0 || row > win->w_buffer->b_ml.ml_line_count)
     {
-        api_set_error(err, kErrorTypeValidation, "Cursor position outside buffer");
+        api_set_error(err, kErrorTypeValidation,
+                      "Cursor position outside buffer");
         return;
     }
 
     if(col > MAXCOL || col < 0)
     {
-        api_set_error(err, kErrorTypeValidation, "Column value outside range");
+        api_set_error(err, kErrorTypeValidation,
+                      "Column value outside range");
         return;
     }
 
@@ -272,7 +275,8 @@ FUNC_API_SINCE(1)
 /// Old value or nil if there was no previous value.
 ///
 /// @warning
-/// It may return nil if there was no previous value or if previous value was `v:null`.
+/// It may return nil if there was no previous value
+/// or if previous value was `v:null`.
 Object window_set_var(Window window, String name, Object value, Error *err)
 {
     win_T *win = find_window_by_handle(window, err);

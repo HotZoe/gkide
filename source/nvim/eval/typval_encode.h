@@ -91,9 +91,11 @@ REAL_FATTR_NONNULL_ALL;
 
 /// Length of the string stored in typval_T
 ///
-/// @param[in]  tv  String for which to compute length for. Must be typval_T with VAR_STRING.
+/// @param[in]  tv
+/// String for which to compute length for. Must be typval_T with VAR_STRING.
 ///
-/// @return Length of the string stored in typval_T, including 0 for NULL string.
+/// @return
+/// Length of the string stored in typval_T, including 0 for NULL string.
 static inline size_t tv_strlen(const typval_T *const tv)
 {
     assert(tv->v_type == VAR_STRING);

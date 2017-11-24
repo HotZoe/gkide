@@ -66,7 +66,10 @@ FUNC_API_SINCE(1)
 /// @param name     Variable name
 /// @param value    Variable value
 /// @param[out] err Error details, if any
-void nvim_tabpage_set_var(Tabpage tabpage, String name, Object value, Error *err)
+void nvim_tabpage_set_var(Tabpage tabpage,
+                          String name,
+                          Object value,
+                          Error *err)
 FUNC_API_SINCE(1)
 {
     tabpage_T *tab = find_tab_by_handle(tabpage, err);
@@ -110,7 +113,8 @@ FUNC_API_SINCE(1)
 /// Old value or nil if there was no previous value.
 ///
 /// @warning
-/// It may return nil if there was no previous value or if previous value was `v:null`.
+/// It may return nil if there was no previous value
+/// or if previous value was `v:null`.
 Object tabpage_set_var(Tabpage tabpage, String name, Object value, Error *err)
 {
     tabpage_T *tab = find_tab_by_handle(tabpage, err);

@@ -22,41 +22,44 @@
 static msgpack_zone zone;
 static msgpack_sbuffer sbuffer;
 
-#define HANDLE_TYPE_CONVERSION_IMPL(t, lt)                                               \
-    static bool msgpack_rpc_to_##lt(const msgpack_object *const obj, Integer *const arg) \
-    FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT                                   \
-    {                                                                                    \
-        if(obj->type != MSGPACK_OBJECT_EXT                                               \
-           || obj->via.ext.type + EXT_OBJECT_TYPE_SHIFT != kObjectType##t)               \
-        {                                                                                \
-            return false;                                                                \
-        }                                                                                \
-                                                                                         \
-        msgpack_object data;                                                             \
-        msgpack_unpack_return ret = msgpack_unpack(obj->via.ext.ptr,                     \
-                                                   obj->via.ext.size,                    \
-                                                   NULL,                                 \
-                                                   &zone,                                \
-                                                   &data);                               \
-                                                                                         \
-        if(ret != MSGPACK_UNPACK_SUCCESS)                                                \
-        {                                                                                \
-            return false;                                                                \
-        }                                                                                \
-                                                                                         \
-        *arg = (handle_T)data.via.i64;                                                   \
-        return true;                                                                     \
-    }                                                                                    \
-                                                                                         \
-    static void msgpack_rpc_from_##lt(Integer o, msgpack_packer *res)                    \
-    FUNC_ATTR_NONNULL_ARG(2)                                                             \
-    {                                                                                    \
-        msgpack_packer pac;                                                              \
-        msgpack_packer_init(&pac, &sbuffer, msgpack_sbuffer_write);                      \
-        msgpack_pack_int64(&pac, (handle_T)o);                                           \
-        msgpack_pack_ext(res, sbuffer.size, kObjectType##t - EXT_OBJECT_TYPE_SHIFT);     \
-        msgpack_pack_ext_body(res, sbuffer.data, sbuffer.size);                          \
-        msgpack_sbuffer_clear(&sbuffer);                                                 \
+#define HANDLE_TYPE_CONVERSION_IMPL(t, lt)                                  \
+    static bool msgpack_rpc_to_##lt(const msgpack_object *const obj,        \
+                                    Integer *const arg)                     \
+    FUNC_ATTR_NONNULL_ALL                                                   \
+    FUNC_ATTR_WARN_UNUSED_RESULT                                            \
+    {                                                                       \
+        if(obj->type != MSGPACK_OBJECT_EXT                                  \
+           || obj->via.ext.type + EXT_OBJECT_TYPE_SHIFT != kObjectType##t)  \
+        {                                                                   \
+            return false;                                                   \
+        }                                                                   \
+                                                                            \
+        msgpack_object data;                                                \
+        msgpack_unpack_return ret = msgpack_unpack(obj->via.ext.ptr,        \
+                                                   obj->via.ext.size,       \
+                                                   NULL,                    \
+                                                   &zone,                   \
+                                                   &data);                  \
+                                                                            \
+        if(ret != MSGPACK_UNPACK_SUCCESS)                                   \
+        {                                                                   \
+            return false;                                                   \
+        }                                                                   \
+                                                                            \
+        *arg = (handle_T)data.via.i64;                                      \
+        return true;                                                        \
+    }                                                                       \
+                                                                            \
+    static void msgpack_rpc_from_##lt(Integer o, msgpack_packer *res)       \
+    FUNC_ATTR_NONNULL_ARG(2)                                                \
+    {                                                                       \
+        msgpack_packer pac;                                                 \
+        msgpack_packer_init(&pac, &sbuffer, msgpack_sbuffer_write);         \
+        msgpack_pack_int64(&pac, (handle_T)o);                              \
+        msgpack_pack_ext(res, sbuffer.size,                                 \
+                         kObjectType##t - EXT_OBJECT_TYPE_SHIFT);           \
+        msgpack_pack_ext_body(res, sbuffer.data, sbuffer.size);             \
+        msgpack_sbuffer_clear(&sbuffer);                                    \
     }
 
 void msgpack_rpc_helpers_init(void)
@@ -159,15 +162,16 @@ FUNC_ATTR_NONNULL_ALL
                     break;
                 }
 
-#define STR_CASE(type, attr, obj, dest, conv)                                                      \
-case type:                                                                                         \
-{                                                                                                  \
-    dest = conv(((String) { .size = obj->via.attr.size,                                            \
-                            .data = (obj->via.attr.ptr == NULL                                     \
-                                     ||  obj->via.attr.size == 0                                   \
-                                         ? xmemdupz("", 0)                                         \
-                                         : xmemdupz(obj->via.attr.ptr, obj->via.attr.size)), }));  \
-    break;                                                                                         \
+#define STR_CASE(type, attr, obj, dest, conv)                                 \
+case type:                                                                    \
+{                                                                             \
+    dest = conv(((String) {                                                   \
+        .size = obj->via.attr.size,                                           \
+        .data = (obj->via.attr.ptr == NULL                                    \
+                 ||  obj->via.attr.size == 0                                  \
+                     ? xmemdupz("", 0)                                        \
+                     : xmemdupz(obj->via.attr.ptr, obj->via.attr.size)), })); \
+    break;                                                                    \
 }
             STR_CASE(MSGPACK_OBJECT_STR, str, cur.mobj, *cur.aobj, STRING_OBJ)
             STR_CASE(MSGPACK_OBJECT_BIN, bin, cur.mobj, *cur.aobj, STRING_OBJ)
@@ -190,8 +194,8 @@ case type:                                                                      
 
                         kv_push(stack, ((MPToAPIObjectStackItem) {
                             .mobj = &cur.mobj->via.array.ptr[idx],
-                             .aobj = &cur.aobj->data.array.items[idx],
-                              .container = false,
+                            .aobj = &cur.aobj->data.array.items[idx],
+                            .container = false,
                         }));
                     }
                 }
@@ -199,9 +203,11 @@ case type:                                                                      
                 {
                     *cur.aobj = ARRAY_OBJ(((Array) {
                         .size = size,
-                         .capacity = size,
-                          .items = (size > 0
-                                    ? xcalloc(size, sizeof(*cur.aobj->data.array.items)) : NULL),
+                        .capacity = size,
+                        .items = (size > 0
+                                  ? xcalloc(size,
+                                            sizeof(*cur.aobj->data.array.items))
+                                  : NULL),
                     }));
 
                     cur.container = true;
@@ -226,23 +232,26 @@ case type:                                                                      
                         const size_t idx = cur.idx;
                         cur.idx++;
                         kv_last(stack) = cur;
-                        const msgpack_object *const key = &cur.mobj->via.map.ptr[idx].key;
+                        const msgpack_object *const key =
+                            &cur.mobj->via.map.ptr[idx].key;
 
                         switch(key->type)
                         {
-                        #define ID(x) x
-                                STR_CASE(MSGPACK_OBJECT_STR,
-                                         str,
-                                         key,
-                                         cur.aobj->data.dictionary.items[idx].key,
-                                         ID)
+                            #define ID(x) x
 
-                                STR_CASE(MSGPACK_OBJECT_BIN,
-                                         bin,
-                                         key,
-                                         cur.aobj->data.dictionary.items[idx].key,
-                                         ID)
-                        #undef ID
+                            STR_CASE(MSGPACK_OBJECT_STR,
+                                     str,
+                                     key,
+                                     cur.aobj->data.dictionary.items[idx].key,
+                                     ID)
+
+                            STR_CASE(MSGPACK_OBJECT_BIN,
+                                     bin,
+                                     key,
+                                     cur.aobj->data.dictionary.items[idx].key,
+                                     ID)
+
+                            #undef ID
 
                             case MSGPACK_OBJECT_NIL:
                             case MSGPACK_OBJECT_BOOLEAN:
@@ -279,7 +288,9 @@ case type:                                                                      
                         .size = size,
                         .capacity = size,
                         .items = (size > 0
-                                  ? xcalloc(size, sizeof(*cur.aobj->data.dictionary.items)) : NULL),
+                                  ? xcalloc(size,
+                                            sizeof(*cur.aobj->data.dictionary.items))
+                                  : NULL),
                     }));
 
                     cur.container = true;
@@ -296,21 +307,24 @@ case type:                                                                      
                     case kObjectTypeBuffer:
                     {
                         cur.aobj->type = kObjectTypeBuffer;
-                        ret = msgpack_rpc_to_buffer(cur.mobj, &cur.aobj->data.integer);
+                        ret = msgpack_rpc_to_buffer(cur.mobj,
+                                                    &cur.aobj->data.integer);
                         break;
                     }
 
                     case kObjectTypeWindow:
                     {
                         cur.aobj->type = kObjectTypeWindow;
-                        ret = msgpack_rpc_to_window(cur.mobj, &cur.aobj->data.integer);
+                        ret = msgpack_rpc_to_window(cur.mobj,
+                                                    &cur.aobj->data.integer);
                         break;
                     }
 
                     case kObjectTypeTabpage:
                     {
                         cur.aobj->type = kObjectTypeTabpage;
-                        ret = msgpack_rpc_to_tabpage(cur.mobj, &cur.aobj->data.integer);
+                        ret = msgpack_rpc_to_tabpage(cur.mobj,
+                                                     &cur.aobj->data.integer);
                         break;
                     }
 
@@ -342,7 +356,8 @@ case type:                                                                      
     return ret;
 }
 
-static bool msgpack_rpc_to_string(const msgpack_object *const obj, String *const arg)
+static bool msgpack_rpc_to_string(const msgpack_object *const obj,
+                                  String *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     if(obj->type == MSGPACK_OBJECT_BIN || obj->type == MSGPACK_OBJECT_STR)
@@ -379,7 +394,8 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-bool msgpack_rpc_to_dictionary(const msgpack_object *const obj, Dictionary *const arg)
+bool msgpack_rpc_to_dictionary(const msgpack_object *const obj,
+                               Dictionary *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     if(obj->type != MSGPACK_OBJECT_MAP)
@@ -397,7 +413,8 @@ FUNC_ATTR_NONNULL_ALL
             return false;
         }
 
-        if(!msgpack_rpc_to_object(&obj->via.map.ptr[i].val, &arg->items[i].value))
+        if(!msgpack_rpc_to_object(&obj->via.map.ptr[i].val,
+                                  &arg->items[i].value))
         {
             return false;
         }
@@ -406,7 +423,8 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-void msgpack_rpc_from_boolean(Boolean result, msgpack_packer *res) FUNC_ATTR_NONNULL_ARG(2)
+void msgpack_rpc_from_boolean(Boolean result, msgpack_packer *res)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     if(result)
     {
@@ -418,17 +436,20 @@ void msgpack_rpc_from_boolean(Boolean result, msgpack_packer *res) FUNC_ATTR_NON
     }
 }
 
-void msgpack_rpc_from_integer(Integer result, msgpack_packer *res) FUNC_ATTR_NONNULL_ARG(2)
+void msgpack_rpc_from_integer(Integer result, msgpack_packer *res)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_int64(res, result);
 }
 
-void msgpack_rpc_from_float(Float result, msgpack_packer *res) FUNC_ATTR_NONNULL_ARG(2)
+void msgpack_rpc_from_float(Float result, msgpack_packer *res)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_double(res, result);
 }
 
-void msgpack_rpc_from_string(const String result, msgpack_packer *res) FUNC_ATTR_NONNULL_ARG(2)
+void msgpack_rpc_from_string(const String result, msgpack_packer *res)
+FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_str(res, result.size);
 
@@ -447,8 +468,11 @@ typedef struct
 
 /// Convert type used by Neovim API to msgpack
 ///
-/// @param[in]  result  Object to convert.
-/// @param[out] res     Structure that defines where conversion results are saved.
+/// @param[in]  result
+/// Object to convert.
+///
+/// @param[out] res
+/// Structure that defines where conversion results are saved.
 ///
 /// @return true in case of success, false otherwise.
 void msgpack_rpc_from_object(const Object result, msgpack_packer *const res)
@@ -564,7 +588,9 @@ FUNC_ATTR_NONNULL_ARG(2)
                     {
                         const size_t idx = cur.idx;
                         cur.idx++;
+
                         kv_last(stack) = cur;
+
                         msgpack_rpc_from_string(cur.aobj->data.dictionary.items[idx].key, res);
 
                         kv_push(stack, ((APIToMPObjectStackItem) {
@@ -686,13 +712,18 @@ static bool msgpack_rpc_is_notification(msgpack_object *req)
 
 msgpack_object *msgpack_rpc_method(msgpack_object *req)
 {
-    msgpack_object *obj = req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 1 : 2);
-    return (obj->type == MSGPACK_OBJECT_STR || obj->type == MSGPACK_OBJECT_BIN) ? obj : NULL;
+    msgpack_object *obj =
+        req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 1 : 2);
+
+    return (obj->type == MSGPACK_OBJECT_STR
+            || obj->type == MSGPACK_OBJECT_BIN) ? obj : NULL;
 }
 
 msgpack_object *msgpack_rpc_args(msgpack_object *req)
 {
-    msgpack_object *obj = req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 2 : 3);
+    msgpack_object *obj =
+        req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 2 : 3);
+
     return (obj->type == MSGPACK_OBJECT_ARRAY) ? obj : NULL;
 }
 
@@ -707,26 +738,31 @@ static msgpack_object *msgpack_rpc_msg_id(msgpack_object *req)
     return (obj->type == MSGPACK_OBJECT_POSITIVE_INTEGER) ? obj : NULL;
 }
 
-void msgpack_rpc_validate(uint64_t *response_id, msgpack_object *req, Error *err)
+void msgpack_rpc_validate(uint64_t *response_id,
+                          msgpack_object *req,
+                          Error *err)
 {
     *response_id = NO_RESPONSE; // response id not known yet
 
     // Validate the basic structure of the msgpack-rpc payload
     if(req->type != MSGPACK_OBJECT_ARRAY)
     {
-        api_set_error(err, kErrorTypeValidation, "Message is not an array");
+        api_set_error(err, kErrorTypeValidation,
+                      "Message is not an array");
         return;
     }
 
     if(req->via.array.size == 0)
     {
-        api_set_error(err, kErrorTypeValidation, "Message is empty");
+        api_set_error(err, kErrorTypeValidation,
+                      "Message is empty");
         return;
     }
 
     if(req->via.array.ptr[0].type != MSGPACK_OBJECT_POSITIVE_INTEGER)
     {
-        api_set_error(err, kErrorTypeValidation, "Message type must be an integer");
+        api_set_error(err, kErrorTypeValidation,
+                      "Message type must be an integer");
         return;
     }
 
@@ -734,7 +770,8 @@ void msgpack_rpc_validate(uint64_t *response_id, msgpack_object *req, Error *err
 
     if(type != kMessageTypeRequest && type != kMessageTypeNotification)
     {
-        api_set_error(err, kErrorTypeValidation, "Unknown message type");
+        api_set_error(err, kErrorTypeValidation,
+                      "Unknown message type");
         return;
     }
 
@@ -752,7 +789,8 @@ void msgpack_rpc_validate(uint64_t *response_id, msgpack_object *req, Error *err
 
         if(!id_obj)
         {
-            api_set_error(err, kErrorTypeValidation, "ID must be a positive integer");
+            api_set_error(err, kErrorTypeValidation,
+                          "ID must be a positive integer");
             return;
         }
 
@@ -761,13 +799,15 @@ void msgpack_rpc_validate(uint64_t *response_id, msgpack_object *req, Error *err
 
     if(!msgpack_rpc_method(req))
     {
-        api_set_error(err, kErrorTypeValidation, "Method must be a string");
+        api_set_error(err, kErrorTypeValidation,
+                      "Method must be a string");
         return;
     }
 
     if(!msgpack_rpc_args(req))
     {
-        api_set_error(err, kErrorTypeValidation, "Parameters must be an array");
+        api_set_error(err, kErrorTypeValidation,
+                      "Parameters must be an array");
         return;
     }
 }

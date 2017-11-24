@@ -28,7 +28,8 @@ typedef struct
 
 enum
 {
-    kLibuvSuccess = 0, ///< Many fs functions from libuv return this value on success.
+    /// Many fs functions from libuv return this value on success.
+    kLibuvSuccess = 0,
 };
 
 /// Function to convert libuv error to char * error description
@@ -37,8 +38,12 @@ enum
 #define os_strerror uv_strerror
 
 // Values returned by os_nodetype()
-#define NODE_NORMAL     0  ///< file or directory, check with os_isdir()
-#define NODE_WRITABLE   1  ///< something we can write to (character device, fifo, socket, ..)
-#define NODE_OTHER      2  ///< non-writable thing (e.g., block device)
+//
+/// file or directory, check with os_isdir()
+#define NODE_NORMAL     0
+/// something we can write to (character device, fifo, socket, ..)
+#define NODE_WRITABLE   1
+/// non-writable thing (e.g., block device)
+#define NODE_OTHER      2
 
 #endif // NVIM_OS_FS_DEFS_H
