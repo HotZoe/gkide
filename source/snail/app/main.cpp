@@ -95,7 +95,6 @@ int main(int argc, char **argv)
     {
         return cli_main(argc, argv);
     }
-
 #else
     return gui_main(argc, argv);
 #endif
