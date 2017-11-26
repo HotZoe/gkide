@@ -482,7 +482,9 @@ static void prt_set_font(int bold, int italic, int underline)
 }
 
 /// Print the line number in the left margin.
-static void prt_line_number(prt_settings_T *psettings, int page_line, linenr_T lnum)
+static void prt_line_number(prt_settings_T *psettings,
+                            int page_line,
+                            linenr_T lnum)
 {
     int i;
     char_u tbuf[20];
@@ -703,7 +705,8 @@ void ex_hardcopy(exarg_T *eap)
     // Initialise for printing.
     // Ask the user for settings, unless forceit is set.
     // The mch_print_init() code should set up margins if applicable.
-    // (It may not be a real printer - for example the engine might generate HTML or PS.)
+    // (It may not be a real printer -
+    // for example the engine might generate HTML or PS.)
     if(mch_print_init(&settings,
                       curbuf->b_fname == NULL
                       ? (char_u *)buf_spname(curbuf)
@@ -1121,7 +1124,8 @@ static colnr_T hardcopy_line(prt_settings_T *psettings,
 #define PRT_PS_DEFAULT_FONTSIZE     (10)
 #define PRT_PS_DEFAULT_BUFFER_SIZE  (80)
 
-#define PRT_MEDIASIZE_LEN           (sizeof(prt_mediasize) / sizeof(struct prt_mediasize_S))
+#define PRT_MEDIASIZE_LEN \
+    (sizeof(prt_mediasize) / sizeof(struct prt_mediasize_S))
 
 static struct prt_mediasize_S prt_mediasize[] =
 {
@@ -1423,7 +1427,7 @@ static struct prt_ps_mbfont_S prt_ps_mbfonts[] =
 #define PRT_RESOURCE_TYPE_CMAP      (2)
 
 // The PS prolog file version number has to match - if the prolog file is
-// updated, increment the number in the file and here.  Version checking was
+// updated, increment the number in the file and here. Version checking was
 // added as of VIM 6.2.
 // The CID prolog file version number behaves as per PS prolog.
 // Table of VIM and prolog versions:
@@ -1660,7 +1664,10 @@ static void prt_dup_cidfont(char *original_name, char *new_name)
 /// Convert a real value into an integer and fractional part as integers, with
 /// the fractional part being in the range [0,10^precision). The fractional part
 /// is also rounded based on the precision + 1'th fractional digit.
-static void prt_real_bits(double real, int precision, int *pinteger, int *pfraction)
+static void prt_real_bits(double real,
+                          int precision,
+                          int *pinteger,
+                          int *pfraction)
 {
     int integer = (int)real;
     double fraction = real - integer;
@@ -1788,7 +1795,9 @@ static void prt_flush_buffer(void)
         }
 
         assert(prt_ps_buffer.ga_len >= 0);
-        prt_write_file_raw_len(prt_ps_buffer.ga_data, (size_t)prt_ps_buffer.ga_len);
+
+        prt_write_file_raw_len(prt_ps_buffer.ga_data,
+                               (size_t)prt_ps_buffer.ga_len);
 
         if(prt_out_mbyte)
         {
@@ -2142,7 +2151,8 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
                 break;
 
             case PRT_DSC_ENDCOMMENTS_TYPE:
-                // Wont find title or resource after this comment, stop searching
+                // Wont find title or resource after
+                // this comment, stop searching
                 seen_all = TRUE;
                 break;
 
@@ -2163,7 +2173,8 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
     return TRUE;
 }
 
-static int prt_check_resource(struct prt_ps_resource_S *resource, char_u *version)
+static int prt_check_resource(struct prt_ps_resource_S *resource,
+                              char_u *version)
 {
     // Version number m.n should match, the revision number does not matter
     if(STRNCMP(resource->version, version, STRLEN(version)))
@@ -2267,12 +2278,12 @@ static void prt_dsc_resources(char *comment, char *type, char *string)
     prt_write_file(prt_line_buffer);
 }
 
-static void prt_dsc_font_resource(char *resource, struct prt_ps_font_S *ps_font)
+static void prt_dsc_font_resource(char *resource,
+                                  struct prt_ps_font_S *ps_font)
 {
     int i;
 
-    prt_dsc_resources(resource,
-                      "font",
+    prt_dsc_resources(resource, "font",
                       ps_font->ps_fontname[PRT_PS_FONT_ROMAN]);
 
     for(i = PRT_PS_FONT_BOLD; i <= PRT_PS_FONT_BOLDOBLIQUE; i++)
@@ -2380,8 +2391,8 @@ void mch_print_cleanup(void)
         int i;
 
         // Free off all CID font names created, but first clear duplicate
-        // pointers to the same string (when the same font is used for more than
-        // one style).
+        // pointers to the same string (when the same font is used for
+        // more than one style).
         for(i = PRT_PS_FONT_ROMAN; i <= PRT_PS_FONT_BOLDOBLIQUE; i++)
         {
             if(prt_ps_mb_font.ps_fontname[i] != NULL)
@@ -2510,13 +2521,15 @@ static int prt_get_lpp(void)
     // Calculate offset to lower left corner of background rect based on actual
     // font height (based on its bounding box) and the line height, handling the
     // case where the font height can exceed the line height.
-    prt_bgcol_offset = PRT_PS_FONT_TO_USER(prt_line_height, prt_ps_font->bbox_min_y);
+    prt_bgcol_offset =
+        PRT_PS_FONT_TO_USER(prt_line_height, prt_ps_font->bbox_min_y);
 
     if((prt_ps_font->bbox_max_y - prt_ps_font->bbox_min_y) < 1000.0)
     {
-        prt_bgcol_offset -= PRT_PS_FONT_TO_USER(prt_line_height,
-                                                (1000.0 - (prt_ps_font->bbox_max_y -
-                                                           prt_ps_font->bbox_min_y)) / 2);
+        prt_bgcol_offset -=
+            PRT_PS_FONT_TO_USER(prt_line_height,
+                                (1000.0 - (prt_ps_font->bbox_max_y
+                                           - prt_ps_font->bbox_min_y)) / 2);
     }
 
     // Get height for topmost line based on background rect offset.
@@ -2615,8 +2628,8 @@ int mch_print_init(prt_settings_T *psettings,
 
     // Look for a multi-byte font that matches the encoding and character set.
     // Only look if multi-byte character set is defined, or using multi-byte
-    // encoding other than Unicode.  This is because a Unicode encoding does not
-    // uniquely identify a CJK character set to use.
+    // encoding other than Unicode. This is because a Unicode encoding does
+    // not uniquely identify a CJK character set to use.
     p_mbenc = NULL;
     props = enc_canon_props(p_encoding);
 
@@ -2627,7 +2640,9 @@ int mch_print_init(prt_settings_T *psettings,
 
         for(cmap = 0; cmap < (int)ARRAY_SIZE(prt_ps_mbfonts); cmap++)
         {
-            if(prt_match_encoding((char *)p_encoding, &prt_ps_mbfonts[cmap], &p_mbenc))
+            if(prt_match_encoding((char *)p_encoding,
+                                  &prt_ps_mbfonts[cmap],
+                                  &p_mbenc))
             {
                 if(p_mbenc_first == NULL)
                 {
@@ -2635,7 +2650,9 @@ int mch_print_init(prt_settings_T *psettings,
                     effective_cmap = cmap;
                 }
 
-                if(prt_match_charset((char *)p_pmcs, &prt_ps_mbfonts[cmap], &p_mbchar))
+                if(prt_match_charset((char *)p_pmcs,
+                                     &prt_ps_mbfonts[cmap],
+                                     &p_mbchar))
                 {
                     break;
                 }
@@ -2805,10 +2822,17 @@ int mch_print_init(prt_settings_T *psettings,
         prt_page_height = prt_mediasize[i].width;
     }
 
-    // Set PS page margins based on the PS pagesize, not the mediasize - this
-    // needs to be done before the cpl and lpp are calculated.
+    // Set PS page margins based on the PS pagesize, not the mediasize
+    // this needs to be done before the cpl and lpp are calculated.
     double left, right, top, bottom;
-    prt_page_margins(prt_page_width, prt_page_height, &left, &right, &top, &bottom);
+
+    prt_page_margins(prt_page_width,
+                     prt_page_height,
+                     &left,
+                     &right,
+                     &top,
+                     &bottom);
+
     prt_left_margin = left;
     prt_right_margin = right;
     prt_top_margin = top;
@@ -2964,7 +2988,9 @@ static int prt_add_resource(struct prt_ps_resource_S *resource)
 
         if(ferror(fd_resource))
         {
-            EMSG2(_("E457: Can't read PostScript resource file \"%s\""), resource->filename);
+            EMSG2(_("E457: Can't read PostScript resource file \"%s\""),
+                  resource->filename);
+
             fclose(fd_resource);
             return FALSE;
         }
@@ -3055,7 +3081,9 @@ int mch_print_begin(prt_settings_T *psettings)
         // In portrait printing the fixed point is the top left corner so we
         // derive the bbox from that point. We have the expected cpl chars
         // across the media and lpp lines down the media.
-        bbox[1] = (int)(top - (psettings->lines_per_page + prt_header_height()) * prt_line_height);
+        bbox[1] = (int)(top - (psettings->lines_per_page
+                               + prt_header_height()) * prt_line_height);
+
         bbox[2] = (int)(left + psettings->chars_per_line * prt_char_width + 0.5);
         bbox[3] = (int)(top + 0.5);
     }
@@ -3067,7 +3095,8 @@ int mch_print_begin(prt_settings_T *psettings)
         bbox[1] = (int)bottom;
 
         bbox[2] = (int)(left
-                        + ((psettings->lines_per_page + prt_header_height()) * prt_line_height)
+                        + ((psettings->lines_per_page
+                            + prt_header_height()) * prt_line_height)
                         + 0.5);
 
         bbox[3] = (int)(bottom + psettings->chars_per_line * prt_char_width + 0.5);
@@ -3145,7 +3174,8 @@ int mch_print_begin(prt_settings_T *psettings)
     {
         p_encoding = enc_skip(p_penc);
 
-        if(*p_encoding == NUL || !prt_find_resource((char *)p_encoding, &res_encoding))
+        if(*p_encoding == NUL
+           || !prt_find_resource((char *)p_encoding, &res_encoding))
         {
             // 'printencoding' not set or not supported - find alternate
             int props;
@@ -3161,7 +3191,9 @@ int mch_print_begin(prt_settings_T *psettings)
 
                 if(!prt_find_resource((char *)p_encoding, &res_encoding))
                 {
-                    EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""), p_encoding);
+                    EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""),
+                          p_encoding);
+
                     return FALSE;
                 }
             }
@@ -3172,7 +3204,8 @@ int mch_print_begin(prt_settings_T *psettings)
             return FALSE;
         }
 
-        // For the moment there are no checks on encoding resource files to perform
+        // For the moment there are no checks
+        // on encoding resource files to perform
     }
     else
     {
@@ -3188,7 +3221,9 @@ int mch_print_begin(prt_settings_T *psettings)
             // Include ASCII range encoding vector
             if(!prt_find_resource(prt_ascii_encoding, &res_encoding))
             {
-                EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""), prt_ascii_encoding);
+                EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""),
+                      prt_ascii_encoding);
+
                 return FALSE;
             }
 
@@ -3197,7 +3232,8 @@ int mch_print_begin(prt_settings_T *psettings)
                 return FALSE;
             }
 
-            // For the moment there are no checks on encoding resource files to perform
+            // For the moment there are no checks
+            // on encoding resource files to perform
         }
     }
 
@@ -3208,7 +3244,9 @@ int mch_print_begin(prt_settings_T *psettings)
         // Set up encoding conversion if required
         if(convert_setup(&prt_conv, p_enc, p_encoding) == FAIL)
         {
-            emsgf(_("E620: Unable to convert to print encoding \"%s\""), p_encoding);
+            emsgf(_("E620: Unable to convert to print encoding \"%s\""),
+                  p_encoding);
+
             return false;
         }
     }
@@ -3220,7 +3258,9 @@ int mch_print_begin(prt_settings_T *psettings)
         // Find user supplied CMap
         if(!prt_find_resource(prt_cmap, &res_cmap))
         {
-            EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""), prt_cmap);
+            EMSG2(_("E456: Can't find PostScript resource file \"%s.ps\""),
+                  prt_cmap);
+
             return FALSE;
         }
 
@@ -3283,7 +3323,8 @@ int mch_print_begin(prt_settings_T *psettings)
 
     if(prt_out_mbyte)
     {
-        prt_dsc_font_resource((prt_use_courier ? NULL : "PageResources"), &prt_ps_mb_font);
+        prt_dsc_font_resource((prt_use_courier ? NULL : "PageResources"),
+                              &prt_ps_mb_font);
 
         if(!prt_custom_cmap)
         {

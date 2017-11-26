@@ -97,8 +97,8 @@ typedef enum
     VV_FALSE,
     VV_TRUE,
     VV_NULL,
-    VV__NULL_LIST,  // List with NULL value. For test purposes only.
-    VV__NULL_DICT,  // Dictionary with NULL value. For test purposes only.
+    VV__NULL_LIST, // List with NULL value. For test purposes only.
+    VV__NULL_DICT, // Dictionary with NULL value. For test purposes only.
     VV_VIM_DID_ENTER,
     VV_TESTING,
     VV_TYPE_NUMBER,
@@ -139,7 +139,9 @@ typedef enum
 extern const list_T *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
 #undef LAST_MSGPACK_TYPE
 
-typedef int (*ArgvFunc)(int current_argcount, typval_T *argv, int called_func_argcount);
+typedef int (*ArgvFunc)(int current_argcount,
+                        typval_T *argv,
+                        int called_func_argcount);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval.h.generated.h"

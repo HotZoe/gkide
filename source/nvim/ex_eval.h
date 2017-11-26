@@ -6,9 +6,9 @@
 #include "nvim/pos.h" // for linenr_T
 #include "nvim/ex_cmds_defs.h" // for exarg_T
 
-/// A list used for saving values of "emsg_silent". Used by ex_try() to save the
-/// value of "emsg_silent" if it was non-zero. When this is done, the CSF_SILENT
-/// flag below is set.
+/// A list used for saving values of "emsg_silent".
+/// Used by ex_try() to save the value of "emsg_silent" if
+/// it was non-zero. When this is done, the CSF_SILENT flag below is set.
 typedef struct eslist_elem eslist_T;
 
 struct eslist_elem
@@ -23,30 +23,31 @@ struct eslist_elem
 
 struct condstack
 {
-    int cs_flags[CSTACK_LEN];          ///< CSF_ flags
-    char cs_pending[CSTACK_LEN];       ///< CSTP_: what's pending in ":finally"
+    int cs_flags[CSTACK_LEN];     ///< CSF_ flags
+    char cs_pending[CSTACK_LEN];  ///< CSTP_: what's pending in ":finally"
 
     union
     {
-        void *csp_rv[CSTACK_LEN];      ///< return typeval for pending return
-        void *csp_ex[CSTACK_LEN];      ///< exception for pending throw
+        void *csp_rv[CSTACK_LEN]; ///< return typeval for pending return
+        void *csp_ex[CSTACK_LEN]; ///< exception for pending throw
     } cs_pend;
 
-    void  *cs_forinfo[CSTACK_LEN];     ///< info used by ":for"
-    int cs_line[CSTACK_LEN];           ///< line nr of ":while"/":for" line
-    int cs_idx;                        ///< current entry, or -1 if none
-    int cs_looplevel;                  ///< nr of nested ":while"s and ":for"s
-    int cs_trylevel;                   ///< nr of nested ":try"s
-    eslist_T *cs_emsg_silent_list;     ///< saved values of "emsg_silent"
-    int cs_lflags;                     ///< loop flags: CSL_ flags
+    void  *cs_forinfo[CSTACK_LEN];  ///< info used by ":for"
+    int cs_line[CSTACK_LEN];        ///< line nr of ":while"/":for" line
+    int cs_idx;                     ///< current entry, or -1 if none
+    int cs_looplevel;               ///< nr of nested ":while"s and ":for"s
+    int cs_trylevel;                ///< nr of nested ":try"s
+    eslist_T *cs_emsg_silent_list;  ///< saved values of "emsg_silent"
+    int cs_lflags;                  ///< loop flags: CSL_ flags
 };
 
 #define cs_rettv       cs_pend.csp_rv
 #define cs_exception   cs_pend.csp_ex
 
-// There is no CSF_IF, the lack of CSF_WHILE, CSF_FOR and CSF_TRY means ":if" was used.
-// Note that CSF_ELSE is only used when CSF_TRY and CSF_WHILE are unset
-// (an ":if"), and CSF_SILENT is only used when CSF_TRY is set.
+// There is no CSF_IF, the lack of CSF_WHILE, CSF_FOR and CSF_TRY means
+// ":if" was used. Note that CSF_ELSE is only used when CSF_TRY and
+// CSF_WHILE are unset (an ":if"), and CSF_SILENT is only used when
+// CSF_TRY is set.
 #define CSF_TRUE       0x0001  ///< condition was TRUE
 #define CSF_ACTIVE     0x0002  ///< current state is active
 #define CSF_ELSE       0x0004  ///< ":else" has been passed

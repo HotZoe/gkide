@@ -14,8 +14,9 @@
 /// The mechanism has been partly based on how Python Dictionaries are
 /// implemented. The algorithm is from Knuth Vol. 3, Sec. 6.4.
 ///
-/// The hashtable grows to accommodate more entries when needed. At least 1/3
-/// of the entries is empty to keep the lookup efficient (at the cost of extra memory).
+/// The hashtable grows to accommodate more entries when needed.
+/// At least 1/3 of the entries is empty to keep the lookup efficient
+/// (at the cost of extra memory).
 
 #include <assert.h>
 #include <stdbool.h>
@@ -62,7 +63,8 @@ void hash_clear(hashtab_T *ht)
 
 /// Free the array of a hash table and all contained values.
 ///
-/// @param off the offset from start of value to start of key (@see hashitem_T).
+/// @param off
+/// the offset from start of value to start of key (@see hashitem_T).
 void hash_clear_all(hashtab_T *ht, unsigned int off)
 {
     size_t todo = ht->ht_used;
@@ -79,15 +81,18 @@ void hash_clear_all(hashtab_T *ht, unsigned int off)
     hash_clear(ht);
 }
 
-/// Find item for given "key" in hashtable "ht".
+/// Find item for given @b key in hashtable @b ht.
 ///
 /// @param key The key of the looked-for item. Must not be NULL.
 ///
-/// @return Pointer to the hash item corresponding to the given key.
-///         If not found, then return pointer to the empty item that would be
-///         used for that key.
-///         WARNING: Returned pointer becomes invalid as soon as the hash table
-///                  is changed in any way.
+/// @return
+/// Pointer to the hash item corresponding to the given key.
+/// If not found, then return pointer to the empty item that would be
+/// used for that key.
+///
+/// @warning
+/// Returned pointer becomes invalid as soon as the hash table is
+/// changed in any way.
 hashitem_T *hash_find(const hashtab_T *const ht, const char_u *const key)
 {
     return hash_lookup(ht, (const char *)key, STRLEN(key), hash_hash(key));
@@ -99,12 +104,14 @@ hashitem_T *hash_find(const hashtab_T *const ht, const char_u *const key)
 /// @param[in]  key  Key of the looked-for item. Must not be NULL.
 /// @param[in]  len  Key length.
 ///
-/// @return Pointer to the hash item corresponding to the given key.
-///         If not found, then return pointer to the empty item that would be
-///         used for that key.
+/// @return
+/// Pointer to the hash item corresponding to the given key.
+/// If not found, then return pointer to the empty item that would be
+/// used for that key.
 ///
-///         @warning Returned pointer becomes invalid as soon as the hash table
-///                  is changed in any way.
+/// @warning
+/// Returned pointer becomes invalid as soon as the hash table
+/// is changed in any way.
 hashitem_T *hash_find_len(const hashtab_T *const ht,
                           const char *const key,
                           const size_t len)
@@ -118,11 +125,14 @@ hashitem_T *hash_find_len(const hashtab_T *const ht,
 /// @param[in]  key_len  Key length.
 /// @param[in]  hash  The precomputed hash for the key.
 ///
-/// @return Pointer to the hashitem corresponding to the given key.
-///         If not found, then return pointer to the empty item that would be
-///         used for that key.
-///         WARNING: Returned pointer becomes invalid as soon as the hash table
-///                  is changed in any way.
+/// @return
+/// Pointer to the hashitem corresponding to the given key.
+/// If not found, then return pointer to the empty item that would be
+/// used for that key.
+///
+/// @warning
+/// Returned pointer becomes invalid as soon as the hash table
+/// is changed in any way.
 hashitem_T *hash_lookup(const hashtab_T *const ht,
                         const char *const key,
                         const size_t key_len,
@@ -210,8 +220,9 @@ void hash_debug_results(void)
 
 /// Add item for key "key" to hashtable "ht".
 ///
-/// @param key Pointer to the key for the new item. The key has to be contained
-///            in the new item (@see hashitem_T). Must not be NULL.
+/// @param key
+/// Pointer to the key for the new item. The key has to be contained
+/// in the new item (@see hashitem_T). Must not be NULL.
 ///
 /// @return
 /// - OK, if success.
@@ -233,11 +244,16 @@ int hash_add(hashtab_T *ht, char_u *key)
 
 /// Add item "hi" for key "key" to hashtable "ht".
 ///
-/// @param hi   The hash item to be used. Must have been obtained through
-///             hash_lookup() and point to an empty item.
-/// @param key  Pointer to the key for the new item. The key has to be contained
-///             in the new item (@see hashitem_T). Must not be NULL.
-/// @param hash The precomputed hash value for the key.
+/// @param hi
+/// The hash item to be used. Must have been obtained through
+/// hash_lookup() and point to an empty item.
+///
+/// @param key
+/// Pointer to the key for the new item. The key has to be contained
+/// in the new item (@see hashitem_T). Must not be NULL.
+///
+/// @param hash
+/// The precomputed hash value for the key.
 void hash_add_item(hashtab_T *ht, hashitem_T *hi, char_u *key, hash_T hash)
 {
     ht->ht_used++;
@@ -288,11 +304,12 @@ void hash_unlock(hashtab_T *ht)
 
 /// Resize hastable (new size can be given or automatically computed).
 ///
-/// @param minitems Minimum number of items the new table should hold.
-///                 If zero, new size will depend on currently used items:
-///                 - Shrink when too much empty space.
-///                 - Grow when not enough empty space.
-///                 If non-zero, passed minitems will be used.
+/// @param minitems
+/// Minimum number of items the new table should hold.
+/// - If zero, new size will depend on currently used items:
+///   * Shrink when too much empty space.
+///   * Grow when not enough empty space.
+/// - If non-zero, passed minitems will be used.
 static void hash_may_resize(hashtab_T *ht, size_t minitems)
 {
     // Don't resize a locked table.
@@ -371,7 +388,9 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     }
 
     bool newarray_is_small = newsize == HT_INIT_SIZE;
-    bool keep_smallarray = newarray_is_small && ht->ht_array == ht->ht_smallarray;
+
+    bool keep_smallarray = newarray_is_small
+                           && ht->ht_array == ht->ht_smallarray;
 
     // Make sure that oldarray and newarray do not overlap,
     // so that copying is possible.
@@ -438,10 +457,10 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 
 /// Get the hash number for a key.
 ///
-/// If you think you know a better hash function: Compile with HT_DEBUG set and
-/// run a script that uses hashtables a lot. Vim will then print statistics
-/// when exiting. Try that with the current hash algorithm and yours. The
-/// lower the percentage the better.
+/// If you think you know a better hash function:
+/// Compile with HT_DEBUG set and run a script that uses hashtables a lot.
+/// Vim will then print statistics when exiting. Try that with the current
+/// hash algorithm and yours. The lower the percentage the better.
 hash_T hash_hash(const char_u *key)
 {
     hash_T hash = *key;
@@ -465,15 +484,17 @@ hash_T hash_hash(const char_u *key)
 
 /// Get the hash number for a key that is not a NUL-terminated string
 ///
-/// @warning Function does not check whether key contains NUL. But you will not
-///          be able to get hash entry in this case.
+/// @warning
+/// Function does not check whether key contains NUL.
+/// But you will not be able to get hash entry in this case.
 ///
 /// @param[in]  key  Key.
 /// @param[in]  len  Key length.
 ///
 /// @return Key hash.
 hash_T hash_hash_len(const char *key, const size_t len)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(len == 0)
     {
@@ -497,10 +518,11 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Function to get HI_KEY_REMOVED value
 ///
-/// Used for testing because luajit ffi does not allow getting addresses of
-/// globals.
+/// Used for testing because luajit ffi does not
+/// allow getting addresses of globals.
 const char_u *_hash_key_removed(void)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return HI_KEY_REMOVED;
 }

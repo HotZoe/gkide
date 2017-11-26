@@ -34,7 +34,8 @@ typedef struct growarray
         ((item_type *)(gap)->ga_data)[(gap)->ga_len++] = (item); \
     }while(0)
 
-#define GA_APPEND_VIA_PTR(item_type, gap) ga_append_via_ptr(gap, sizeof(item_type))
+#define GA_APPEND_VIA_PTR(item_type, gap) \
+    ga_append_via_ptr(gap, sizeof(item_type))
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "garray.h.generated.h"

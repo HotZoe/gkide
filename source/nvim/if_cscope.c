@@ -3,8 +3,8 @@
 /// CSCOPE support for Vim added by Andy Kahn <kahn@zk3.dec.com>
 /// Ported to Win32 by Sergey Khorev <sergey.khorev@gmail.com>
 ///
-/// The basic idea/structure of cscope for Vim was borrowed from Nvi.  There
-/// might be a few lines of code that look similar to what Nvi has.
+/// The basic idea/structure of cscope for Vim was borrowed from Nvi.
+/// There might be a few lines of code that look similar to what Nvi has.
 
 #include <stdbool.h>
 
@@ -255,7 +255,8 @@ static void do_cscope_general(exarg_T *eap, int make_split)
     {
         if(!cmdp->cansplit)
         {
-            (void)MSG_PUTS(_("This cscope command does not support splitting the window.\n"));
+            (void)MSG_PUTS(_("This cscope command does not "
+                             "support splitting the window.\n"));
             return;
         }
 
@@ -313,7 +314,8 @@ void do_cstag(exarg_T *eap)
 
                     if(cs_check_for_tags())
                     {
-                        ret = do_tag(eap->arg, DT_JUMP, 0, eap->forceit, FALSE);
+                        ret = do_tag(eap->arg, DT_JUMP, 0,
+                                     eap->forceit, FALSE);
                     }
                 }
             }
@@ -413,19 +415,20 @@ void cs_print_tags(void)
 ///  Checks for the existence of a |cscope| connection. If no
 ///  parameters are specified, then the function returns:
 ///
-///  0, if cscope was not available (not compiled in), or if there
-///  are no cscope connections; or 1, if there is at least one cscope connection.
+///  0, if cscope was not available (not compiled in),
+///  or if there are no cscope connections; or 1, if
+///  there is at least one cscope connection.
 ///
 ///  If parameters are specified, then the value of {num}
 ///  determines how existence of a cscope connection is checked:
 ///
 ///  {num}   Description of existence check
 ///  -----   ------------------------------
-///  0   Same as no parameters (e.g., "cscope_connection()").
-///  1   Ignore {prepend}, and use partial string matches for {dbpath}.
-///  2   Ignore {prepend}, and use exact string matches for {dbpath}.
-///  3   Use {prepend}, use partial string matches for both {dbpath} and {prepend}.
-///  4   Use {prepend}, use exact string matches for both {dbpath} and {prepend}.
+///  0  Same as no parameters (e.g., "cscope_connection()").
+///  1  Ignore {prepend}, and use partial string matches for {dbpath}.
+///  2  Ignore {prepend}, and use exact string matches for {dbpath}.
+///  3  Use {prepend}, use partial string matches for both {dbpath} and {prepend}.
+///  4  Use {prepend}, use exact string matches for both {dbpath} and {prepend}.
 ///
 ///  Note: All string comparisons are case sensitive!
 int cs_connection(int num, char_u *dbpath, char_u *ppath)
@@ -494,8 +497,8 @@ int cs_connection(int num, char_u *dbpath, char_u *ppath)
     return FALSE;
 }
 
-/// add cscope database or a directory name (to look for cscope.out)
-/// to the cscope connection list
+/// add cscope database or a directory name
+/// (to look for cscope.out) to the cscope connection list
 ///
 /// MAXPATHL 256
 static int cs_add(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
@@ -547,7 +550,9 @@ static int cs_add_common(char *arg1, char *arg2, char *flags)
     expand_env((char_u *)arg1, (char_u *)fname, MAXPATHL);
     size_t len = STRLEN(fname);
     fbuf = (char_u *)fname;
-    (void)modify_fname((char_u *)":p", &usedlen, (char_u **)&fname, &fbuf, &len);
+
+    (void)modify_fname((char_u *)":p", &usedlen,
+                       (char_u **)&fname, &fbuf, &len);
 
     if(fname == NULL)
     {
@@ -1017,13 +1022,16 @@ err_closing:
                 PERROR(_("cs_create_connection exec failed"));
             }
 
-            stream_set_blocking(input_global_fd(), true);  // normalize stream (#2598)
+            // normalize stream (#2598)
+            stream_set_blocking(input_global_fd(), true);
+
             exit(127);
 
         // NOTREACHED
         default: // parent.
 
-            // Save the file descriptors for later duplication, and reopen as streams.
+            // Save the file descriptors for
+            // later duplication, and reopen as streams.
             if((csinfo[i].to_fp = fdopen(to_cs[1], "w")) == NULL)
             {
                 PERROR(_("cs_create_connection: fdopen for to_fp failed"));
@@ -1074,7 +1082,8 @@ err_closing:
             csinfo[i].hProc = pi.hProcess;
             CloseHandle(pi.hThread);
 
-            // TODO(neovim): tidy up after failure to create files on pipe handles.
+            // TODO(neovim):
+            // tidy up after failure to create files on pipe handles.
             if(((fd = _open_osfhandle((intptr_t)stdin_wr, _O_TEXT|_O_APPEND)) < 0)
                || ((csinfo[i].to_fp = _fdopen(fd, "w")) == NULL))
             {
@@ -1087,7 +1096,8 @@ err_closing:
                 PERROR(_("cs_create_connection: fdopen for fr_fp failed"));
             }
 
-            // Close handles for file descriptors inherited by the cscope process.
+            // Close handles for file descriptors
+            // inherited by the cscope process.
             CloseHandle(stdin_rd);
             CloseHandle(stdout_wr);
 #endif
@@ -1095,8 +1105,9 @@ err_closing:
     return CSCOPE_SUCCESS;
 }
 
-/// query cscope using command line interface. parse the output and use tselect
-/// to allow choices. like Nvi, creates a pipe to send to/from query/cscope.
+/// query cscope using command line interface.
+/// parse the output and use tselect to allow choices.
+/// like Nvi, creates a pipe to send to/from query/cscope.
 ///
 /// returns TRUE if we jump to a tag or abort, FALSE if not.
 static int cs_find(exarg_T *eap)
@@ -1958,7 +1969,7 @@ static void cs_fill_results(char *tagstr,
             }
 
             matches[totsofar] =
-                    cs_make_vim_style_matches(fullname, slno, search, tagstr);
+                cs_make_vim_style_matches(fullname, slno, search, tagstr);
 
             xfree(fullname);
 
@@ -2032,7 +2043,8 @@ static char *cs_pathcomponents(char *path)
 /// @param num_matches Number of entries in matches/cntxts, always greater 0.
 static void cs_print_tags_priv(char **matches,
                                char **cntxts,
-                               size_t num_matches) FUNC_ATTR_NONNULL_ALL
+                               size_t num_matches)
+FUNC_ATTR_NONNULL_ALL
 {
     char *globalcntx = "GLOBAL";
     char *cstag_msg = _("Cscope tag: %s");
@@ -2047,8 +2059,8 @@ static void cs_print_tags_priv(char **matches,
     // NUL terminate tag string in matches[0].
     *ptag_end = NUL;
 
-    // The "%s" in cstag_msg won't appear in the result string, so we don't need
-    // extra memory for terminating NUL.
+    // The "%s" in cstag_msg won't appear in the result string,
+    // so we don't need extra memory for terminating NUL.
     size_t newsize = strlen(cstag_msg) + (size_t)(ptag_end - ptag);
     char *buf = xmalloc(newsize);
 
@@ -2263,7 +2275,8 @@ static void sig_handler(int FUNC_ARGS_UNUSED_REALY(sig))
 /// or not to free the filename. Called by cs_kill and cs_reset.
 static void cs_release_csp(size_t i, int freefnpp)
 {
-    // Trying to exit normally (not sure whether it is fit to Unix cscope)
+    // Trying to exit normally
+    // (not sure whether it is fit to Unix cscope)
     if(csinfo[i].to_fp != NULL)
     {
         (void)fputs("q\n", csinfo[i].to_fp);
@@ -2480,8 +2493,10 @@ static char *cs_resolve_file(size_t i, char *name)
         // If 'cscoperelative' is set and ppath is not set,
         // use cscope.out path in path resolution.
         csdir = xmalloc(MAXPATHL);
+
         STRLCPY(csdir, csinfo[i].fname,
                 path_tail((char_u *)csinfo[i].fname) - (char_u *)csinfo[i].fname + 1);
+
         len += STRLEN(csdir);
     }
 
@@ -2533,17 +2548,21 @@ static int cs_show(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
             if(csinfo[i].ppath != NULL)
             {
                 (void)smsg("%2zu %-5" PRId64 "  %-34s  %-32s", i,
-                           (int64_t)csinfo[i].pid, csinfo[i].fname, csinfo[i].ppath);
+                           (int64_t)csinfo[i].pid,
+                           csinfo[i].fname,
+                           csinfo[i].ppath);
             }
             else
             {
                 (void)smsg("%2zu %-5" PRId64 "  %-34s  <none>", i,
-                           (int64_t)csinfo[i].pid, csinfo[i].fname);
+                           (int64_t)csinfo[i].pid,
+                           csinfo[i].fname);
             }
         }
     }
 
     wait_return(TRUE);
+
     return CSCOPE_SUCCESS;
 }
 

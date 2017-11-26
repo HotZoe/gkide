@@ -1,7 +1,8 @@
 /// @file nvim/func_attr.h
 ///
-/// - Keep <b>FUNC_ATTR_*</b> macros untouched, are used by the C preprocessor to generate
-///   the *.i files, which are used by <b>source/nvim/generators/gen_header.lua</b>:
+/// - Keep <b>FUNC_ATTR_*</b> macros untouched, are used by the C preprocessor
+///   to generate the *.i files, which are used by
+///   <b>source/nvim/generators/gen_header.lua</b>:
 ///   - undefined @b DEFINE_FUNC_ATTRIBUTES
 ///   -   defined @b DEFINE_KEEP_ATTRIBUTES
 ///
@@ -98,8 +99,8 @@
     #define DEFINE_REAL_FUNC_ATTRIBUTES
     #ifdef __GNUC__
         // For all gnulikes: gcc, clang, intel.
-        // place these after the argument list of the function declaration, not definition, like:
-        // void myfunc(void) REAL_FATTR_ALWAYS_INLINE;
+        // place these after the argument list of the function declaration,
+        // not definition, like: void myfunc(void) REAL_FATTR_ALWAYS_INLINE;
         #define REAL_FATTR_MALLOC                __attribute__((__malloc__))
         #define REAL_FATTR_ALLOC_ALIGN(x)        __attribute__((__alloc_align__(x)))
         #define REAL_FATTR_PURE                  __attribute__((__pure__))

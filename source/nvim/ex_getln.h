@@ -9,8 +9,7 @@
 #include "nvim/os/time.h"
 #include "nvim/regexp_defs.h"
 
-// Values for nextwild() and ExpandOne().
-// See ExpandOne() for meaning.
+// Values for nextwild() and ExpandOne(). See ExpandOne() for meaning.
 #define WILD_FREE               1
 #define WILD_EXPAND_FREE        2
 #define WILD_EXPAND_KEEP        3
@@ -51,10 +50,10 @@ typedef char_u *(*CompleteListItemGetter)(expand_T *, int);
 /// History entry definition
 typedef struct hist_entry
 {
-    int hisnum;                   ///< Entry identifier number.
-    char_u *hisstr;               ///< Actual entry, separator char after the NUL.
-    Timestamp timestamp;          ///< Time when entry was added.
-    list_T *additional_elements;  ///< Additional entries from ShaDa file.
+    int hisnum; ///< Entry identifier number.
+    char_u *hisstr; ///< Actual entry, separator char after the NUL.
+    Timestamp timestamp; ///< Time when entry was added.
+    list_T *additional_elements; ///< Additional entries from ShaDa file.
 } histentry_T;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

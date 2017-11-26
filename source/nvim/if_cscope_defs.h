@@ -32,22 +32,23 @@ typedef struct
     int (*func)(exarg_T *eap);
     char *help;
     char *usage;
-    int cansplit;               ///< if supports splitting window
+    /// if supports splitting window
+    int cansplit;
 } cscmd_T;
 
 typedef struct csi
 {
-    char *fname;   ///< cscope db name
-    char *ppath;   ///< path to prepend (the -P option)
-    char *flags;   ///< additional cscope flags/options (e.g, -p2)
+    char *fname;  ///< cscope db name
+    char *ppath;  ///< path to prepend (the -P option)
+    char *flags;  ///< additional cscope flags/options (e.g, -p2)
 
 #if defined(UNIX)
-    pid_t pid;     ///< PID of the connected cscope process
+    pid_t pid;    ///< PID of the connected cscope process
 #else
-    DWORD   pid;          ///< PID of the connected cscope process
-    HANDLE  hProc;        ///< cscope process handle
-    DWORD   nVolume;      ///< Volume serial number, instead of st_dev
-    DWORD   nIndexHigh;   ///< st_ino has no meaning on Windows
+    DWORD   pid;         ///< PID of the connected cscope process
+    HANDLE  hProc;       ///< cscope process handle
+    DWORD   nVolume;     ///< Volume serial number, instead of st_dev
+    DWORD   nIndexHigh;  ///< st_ino has no meaning on Windows
     DWORD   nIndexLow;
 #endif
 
