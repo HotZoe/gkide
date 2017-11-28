@@ -460,11 +460,10 @@ static bool intable(const struct interval *table, size_t n_items, int c)
     return false;
 }
 
-/// For UTF-8 character "c" return 2 for a double-width character, 1 for others.
-/// Returns 4 or 6 for an unprintable character.
-/// Is only correct for characters >= 0x80.
-/// When p_ambw is "double", return 2 for a character with East Asian Width
-/// class 'A'(mbiguous).
+/// For UTF-8 character "c" return 2 for a double-width character,
+/// 1 for others. Returns 4 or 6 for an unprintable character.
+/// Is only correct for characters >= 0x80. When p_ambw is "double",
+/// return 2 for a character with East Asian Width class 'A'(mbiguous).
 int utf_char2cells(int c)
 {
     if(c >= 0x100)
@@ -506,7 +505,9 @@ int utf_char2cells(int c)
         return 4; // unprintable, displays <xx>
     }
 
-    if(c >= 0x80 && *p_ambw == 'd' && intable(ambiguous, ARRAY_SIZE(ambiguous), c))
+    if(c >= 0x80
+       && *p_ambw == 'd'
+       && intable(ambiguous, ARRAY_SIZE(ambiguous), c))
     {
         return 2;
     }
@@ -577,10 +578,12 @@ int utf_ptr2cells_len(const char_u *p, int size)
     return 1;
 }
 
-/// Calculate the number of cells occupied by string `str`.
+/// Calculate the number of cells occupied by string @b str.
 ///
-/// @param str The source string, may not be NULL, must be a NUL-terminated string.
-/// @return The number of cells occupied by string `str`
+/// @param str
+/// The source string, may not be NULL, must be a NUL-terminated string.
+///
+/// @return The number of cells occupied by string @bstr
 size_t mb_string2cells(const char_u *str)
 {
     size_t clen = 0;
@@ -601,8 +604,9 @@ int utf_off2cells(unsigned off, unsigned max_off)
 }
 
 /// Convert a UTF-8 byte sequence to a wide character.
-/// If the sequence is illegal or truncated by a NUL the first byte is returned.
-/// Does not include composing characters, of course.
+/// If the sequence is illegal or truncated by a NUL the
+/// first byte is returned. Does not include composing
+/// characters, of course.
 int utf_ptr2char(const char_u *p)
 {
     uint8_t len;
@@ -678,8 +682,10 @@ int utf_ptr2char(const char_u *p)
 ///
 /// On success, returns decoded codepoint, advances "s" to the beginning of
 /// next character and decreases "n" accordingly.
-/// - If end of string was reached, returns 0 and, if "n" > 0, advances "s" past NUL byte.
-/// - If byte sequence is illegal or incomplete, returns -1 and does not advance "s".
+/// - If end of string was reached, returns 0 and, if "n" > 0,
+///   advances "s" past NUL byte.
+/// - If byte sequence is illegal or incomplete, returns -1 and
+///   does not advance "s".
 static int utf_safe_read_char_adv(const char_u **s, size_t *n)
 {
     int c;
@@ -778,7 +784,9 @@ int utfc_ptr2char(const char_u *p, int *pcc)
     len = utf_ptr2len(p);
 
     // Only accept a composing char when the first char isn't illegal.
-    if((len > 1 || *p < 0x80) && p[len] >= 0x80 && UTF_COMPOSINGLIKE(p, p + len))
+    if((len > 1 || *p < 0x80)
+       && p[len] >= 0x80
+       && UTF_COMPOSINGLIKE(p, p + len))
     {
         cc = utf_ptr2char(p + len);
 
@@ -793,7 +801,8 @@ int utfc_ptr2char(const char_u *p, int *pcc)
 
             len += utf_ptr2len(p + len);
 
-            if(p[len] < 0x80 || !utf_iscomposing(cc = utf_ptr2char(p + len)))
+            if(p[len] < 0x80
+               || !utf_iscomposing(cc = utf_ptr2char(p + len)))
             {
                 break;
             }
@@ -810,8 +819,9 @@ int utfc_ptr2char(const char_u *p, int *pcc)
 
 #define IS_COMPOSING(s1, s2, s3) \
     (i == 0 ? UTF_COMPOSINGLIKE((s1), (s2)) : utf_iscomposing((s3)))
-/// Convert a UTF-8 byte string to a wide character.  Also get up to MAX_MCO
-/// composing characters.  Use no more than p[maxlen].
+
+/// Convert a UTF-8 byte string to a wide character. Also get up to MAX_MCO
+/// composing characters. Use no more than p[maxlen].
 ///
 /// @param [out] pcc: composing chars, last one is 0
 int utfc_ptr2char_len(const char_u *p, int *pcc, int maxlen)
@@ -820,6 +830,7 @@ int utfc_ptr2char_len(const char_u *p, int *pcc, int maxlen)
 
     int i = 0;
     int len = utf_ptr2len_len(p, maxlen);
+
     // Is it safe to use utf_ptr2char()?
     bool safe = len > 1 && len <= maxlen;
     int c = safe ? utf_ptr2char(p) : *p;
@@ -877,7 +888,8 @@ int utfc_char2bytes(int off, char_u *buf)
     return len;
 }
 
-/// Get the length of a UTF-8 byte sequence, not including any following composing characters.
+/// Get the length of a UTF-8 byte sequence, not
+/// including any following composing characters.
 /// - Returns 0 for "".
 /// - Returns 1 for an illegal byte sequence.
 int utf_ptr2len(const char_u *p)
@@ -911,7 +923,7 @@ int utf_byte2len(int b)
     return utf8len_tab[b];
 }
 
-/// Get the length of UTF-8 byte sequence "p[size]".  Does not include any
+/// Get the length of UTF-8 byte sequence "p[size]". Does not include any
 /// following composing characters.
 /// - Returns 1 for "".
 /// - Returns 1 for an illegal byte sequence (also in incomplete byte seq.).
@@ -949,8 +961,8 @@ int utf_ptr2len_len(const char_u *p, int size)
     return len;
 }
 
-/// Return the number of bytes the UTF-8 encoding of the character at "p" takes.
-/// This includes following composing characters.
+/// Return the number of bytes the UTF-8 encoding of the
+/// character at "p" takes. This includes following composing characters.
 int utfc_ptr2len(const char_u *p)
 {
     int len;
@@ -976,7 +988,7 @@ int utfc_ptr2len(const char_u *p)
         return 1;
     }
 
-    // Check for composing characters.  We can handle only the first six, but
+    // Check for composing characters. We can handle only the first six, but
     // skip all of them (otherwise the cursor would get stuck).
     prevlen = 0;
 
@@ -1021,7 +1033,7 @@ int utfc_ptr2len_len(const char_u *p, int size)
         return 1;
     }
 
-    // Check for composing characters.  We can handle only the first six, but
+    // Check for composing characters. We can handle only the first six, but
     // skip all of them (otherwise the cursor would get stuck).
     prevlen = 0;
 
@@ -1161,8 +1173,7 @@ bool utf_printable(int c)
 #else
     // Sorted list of non-overlapping intervals.
     // 0xd800-0xdfff is reserved for UTF-16, actually illegal.
-    static struct interval nonprint[] =
-    {
+    static struct interval nonprint[] = {
         {0x070f, 0x070f}, {0x180b, 0x180e}, {0x200b, 0x200f}, {0x202a, 0x202e},
         {0x206a, 0x206f}, {0xd800, 0xdfff}, {0xfeff, 0xfeff}, {0xfff9, 0xfffb},
         {0xfffe, 0xffff}
@@ -1309,8 +1320,8 @@ bool utf_ambiguous_width(int c)
 }
 
 /// Generic conversion function for case operations.
-/// Return the converted equivalent of "a", which is a UCS-4 character.  Use
-/// the given conversion "table".  Uses binary search on "table".
+/// Return the converted equivalent of "a", which is a UCS-4 character. Use
+/// the given conversion "table". Uses binary search on "table".
 static int utf_convert(int a, const convertStruct *const table, size_t n_items)
 {
     size_t start, mid, end; // indices into table
@@ -1358,7 +1369,7 @@ int utf_fold(int a)
     return utf_convert(a, foldCase, ARRAY_SIZE(foldCase));
 }
 
-// Vim's own character class functions.  These exist because many library
+// Vim's own character class functions. These exist because many library
 // islower()/toupper() etc. do not work properly: they crash when used with
 // invalid values or can't handle latin1 when the locale is C.
 // Speed is most important here.
@@ -1430,7 +1441,10 @@ bool mb_isupper(int a)
     return mb_tolower(a) != a;
 }
 
-static int utf_strnicmp(const char_u *s1, const char_u *s2, size_t n1, size_t n2)
+static int utf_strnicmp(const char_u *s1,
+                        const char_u *s2,
+                        size_t n1,
+                        size_t n2)
 {
     int c1, c2, cdiff;
     char_u buffer[6];
@@ -1526,17 +1540,18 @@ static int utf_strnicmp(const char_u *s1, const char_u *s2, size_t n1, size_t n2
 #endif
 
 /// Reassigns @b strw to a new, allocated pointer to a UTF16 string.
-int utf8_to_utf16(const char *str, WCHAR **strw) FUNC_ATTR_NONNULL_ALL
+int utf8_to_utf16(const char *str, WCHAR **strw)
+FUNC_ATTR_NONNULL_ALL
 {
     ssize_t wchar_len = 0;
 
     // Compute the length needed to store the converted widechar string.
     wchar_len = MultiByteToWideChar(CP_UTF8,
-                                    0,     // dwFlags: must be 0 for utf8
-                                    str,   // lpMultiByteStr: string to convert
-                                    -1,    // -1 => process up to NUL
-                                    NULL,  // lpWideCharStr: converted string
-                                    0);    // 0  => return length, don't convert
+                                    0,    // dwFlags: must be 0 for utf8
+                                    str,  // lpMultiByteStr: string to convert
+                                    -1,   // -1 => process up to NUL
+                                    NULL, // lpWideCharStr: converted string
+                                    0);   // 0  => return length, don't convert
 
     if(wchar_len == 0)
     {
@@ -1616,10 +1631,10 @@ int utf16_to_utf8(const WCHAR *strw, char **str) FUNC_ATTR_NONNULL_ALL
 #endif
 
 /// Version of strnicmp() that handles multi-byte characters.
-/// Needed for Big5, Shift-JIS and UTF-8 encoding.  Other DBCS encodings can
-/// probably use strnicmp(), because there are no ASCII characters in the second byte.
-/// Returns zero if s1 and s2 are equal (ignoring case), the difference between
-/// two characters otherwise.
+/// Needed for Big5, Shift-JIS and UTF-8 encoding. Other DBCS encodings can
+/// probably use strnicmp(), because there are no ASCII characters in the
+/// second byte. Returns zero if s1 and s2 are equal (ignoring case), the
+/// difference between two characters otherwise.
 int mb_strnicmp(const char_u *s1, const char_u *s2, const size_t nn)
 {
     return utf_strnicmp(s1, s2, nn, nn);
@@ -1627,14 +1642,15 @@ int mb_strnicmp(const char_u *s1, const char_u *s2, const size_t nn)
 
 /// Compare strings case-insensitively
 ///
-/// @note We need to call mb_stricmp() even when we aren't dealing with
-///       a multi-byte encoding because mb_stricmp() takes care of all ASCII and
-///       non-ascii encodings, including characters with umlauts in latin1,
-///       etc., while STRICMP() only handles the system locale version, which
-///       often does not handle non-ascii properly.
+/// @note
+/// We need to call mb_stricmp() even when we aren't dealing with
+/// a multi-byte encoding because mb_stricmp() takes care of all ASCII and
+/// non-ascii encodings, including characters with umlauts in latin1,
+/// etc., while STRICMP() only handles the system locale version, which
+/// often does not handle non-ascii properly.
 ///
-/// @param[in]  s1  First string to compare, not more then #MAXCOL characters.
-/// @param[in]  s2  Second string to compare, not more then #MAXCOL characters.
+/// @param[in] s1  First string to compare, not more then #MAXCOL characters.
+/// @param[in] s2  Second string to compare, not more then #MAXCOL characters.
 ///
 /// @return 0 if strings are equal, <0 if s1 < s2, >0 if s1 > s2.
 int mb_stricmp(const char *s1, const char *s2)
@@ -1680,7 +1696,9 @@ void show_utf8(void)
         }
 
         // NUL is stored as NL
-        sprintf((char *)IObuff + rlen, "%02x ", (line[i] == NL) ? NUL : line[i]);
+        sprintf((char *)IObuff + rlen, "%02x ",
+                (line[i] == NL) ? NUL : line[i]);
+
         --clen;
         rlen += (int)STRLEN(IObuff + rlen);
 
@@ -1817,8 +1835,8 @@ int mb_off_next(char_u *base, char_u *p)
     return i;
 }
 
-/// Return the offset from @b p to the last byte of the character it points into.
-/// Can start anywhere in a stream of bytes.
+/// Return the offset from @b p to the last byte of the
+/// character it points into. Can start anywhere in a stream of bytes.
 int mb_tail_off(char_u *base, char_u *p)
 {
     int i;
@@ -1863,7 +1881,7 @@ void utf_find_illegal(void)
     if(enc_canon_props(curbuf->b_p_fenc) & ENC_8BIT)
     {
         // 'encoding' is "utf-8" but we are editing a 8-bit encoded file,
-        // possibly a utf-8 file with illegal bytes.  Setup for conversion
+        // possibly a utf-8 file with illegal bytes. Setup for conversion
         // from utf-8 to 'fileencoding'.
         convert_setup(&vimconv, p_enc, curbuf->b_p_fenc);
     }
@@ -1893,7 +1911,8 @@ void utf_find_illegal(void)
             // utf_ptr2len()) or too many of them (overlong sequence).
             len = utf_ptr2len(p);
 
-            if(*p >= 0x80 && (len == 1 || utf_char2len(utf_ptr2char(p)) != len))
+            if(*p >= 0x80
+               && (len == 1 || utf_char2len(utf_ptr2char(p)) != len))
             {
                 if(vimconv.vc_type == CONV_NONE)
                 {
@@ -1943,10 +1962,13 @@ void mb_adjust_cursor(void)
     mark_mb_adjustpos(curbuf, &curwin->w_cursor);
 }
 
-/// Checks and adjusts cursor column. Not mode-dependent.
+/// Checks and adjusts cursor column.
+/// Not mode-dependent.
+///
 /// @see check_cursor_col_win
 ///
-/// @param  win_  Places cursor on a valid column for this window.
+/// @param  win_
+/// Places cursor on a valid column for this window.
 void mb_check_adjust_col(void *win_)
 {
     win_T *win = (win_T *)win_;
@@ -1975,8 +1997,8 @@ void mb_check_adjust_col(void *win_)
             win->w_cursor.col -= (*mb_head_off)(p, p + win->w_cursor.col);
         }
 
-        // Reset `coladd` when the cursor would be on the right half of a
-        // double-wide character.
+        // Reset 'coladd' when the cursor would be on
+        // the right half of a double-wide character.
         if(win->w_cursor.coladd == 1
            && p[win->w_cursor.col] != TAB
            && vim_isprintc((*mb_ptr2char)(p + win->w_cursor.col))
@@ -2001,8 +2023,9 @@ char_u *mb_prevptr(char_u *line, char_u *p)
     return p;
 }
 
-/// Return the character length of "str".  Each multi-byte character (with
-/// following composing characters) counts as one.
+/// Return the character length of "str".
+/// Each multi-byte character (with following
+/// composing characters) counts as one.
 int mb_charlen(char_u *str)
 {
     char_u *p = str;
@@ -2037,9 +2060,9 @@ int mb_charlen_len(char_u *str, int len)
 
 /// Try to un-escape a multi-byte character.
 /// Used for the "to" and "from" part of a mapping.
-/// Return the un-escaped string if it is a multi-byte character, and advance
-/// "pp" to just after the bytes that formed it.
-/// Return NULL if no multi-byte char was found.
+/// Return the un-escaped string if it is a multi-byte
+/// character, and advance "pp" to just after the bytes
+/// that formed it. Return NULL if no multi-byte char was found.
 char_u *mb_unescape(char_u **pp)
 {
     int n;
@@ -2047,8 +2070,8 @@ char_u *mb_unescape(char_u **pp)
     char_u *str = *pp;
     static char_u buf[6];
 
-    // Must translate K_SPECIAL KS_SPECIAL KE_FILLER to K_SPECIAL and CSI
-    // KS_EXTRA KE_CSI to CSI.
+    // Must translate K_SPECIAL KS_SPECIAL KE_FILLER to
+    // K_SPECIAL and CSI KS_EXTRA KE_CSI to CSI.
     // Maximum length of a utf-8 character is 4 bytes.
     for(n = 0; str[n] != NUL && m < 4; ++n)
     {
@@ -2095,8 +2118,8 @@ char_u *mb_unescape(char_u **pp)
     return NULL;
 }
 
-/// Return true if the character at "row"/"col" on the screen is the left side
-/// of a double-width character.
+/// Return true if the character at "row"/"col" on the screen
+/// is the left side of a double-width character.
 /// Caller must make sure "row" and "col" are not invalid!
 bool mb_lefthalve(int row, int col)
 {
@@ -2142,7 +2165,8 @@ char_u *enc_skip(char_u *p)
 /// When the name isn't recognized, returns "enc" itself, but with all lower
 /// case characters and '_' replaced with '-'.
 /// Returns an allocated string.
-char_u *enc_canonize(char_u *enc) FUNC_ATTR_NONNULL_RET
+char_u *enc_canonize(char_u *enc)
+FUNC_ATTR_NONNULL_RET
 {
     int i;
     char_u *p;
@@ -2280,7 +2304,8 @@ char_u *enc_locale(void)
     // - if there is a '.' remove the part before it.
     // - if there is something after the codeset, remove it.
     // - make the name lowercase and replace '_' with '-'.
-    // - exception: "ja_JP.EUC" == "euc-jp", "zh_CN.EUC" = "euc-cn", "ko_KR.EUC" == "euc-kr"
+    // - exception: "ja_JP.EUC" == "euc-jp", "zh_CN.EUC" = "euc-cn",
+    //              "ko_KR.EUC" == "euc-kr"
     const char *p = (char *)vim_strchr((char_u *)s, '.');
 
     if(p != NULL)
@@ -2325,7 +2350,8 @@ char_u *enc_locale(void)
 }
 
 #ifdef USE_ICONV
-/// Call iconv_open() with a check if iconv() works properly (there are broken versions).
+/// Call iconv_open() with a check if iconv()
+/// works properly (there are broken versions).
 ///
 /// Returns (void *)-1 if failed.
 ///
@@ -2386,7 +2412,7 @@ void *my_iconv_open(char_u *to, char_u *from)
 /// Convert the string "str[slen]" with iconv().
 /// If "unconvlenp" is not NULL handle the string ending in an incomplete
 /// sequence and set "*unconvlenp" to the length of it.
-/// Returns the converted string in allocated memory.  NULL for an error.
+/// Returns the converted string in allocated memory. NULL for an error.
 /// If resultlenp is not NULL, sets it to the result length in bytes.
 static char_u *iconv_string(const vimconv_T *const vcp,
                             char_u *str,
@@ -2427,8 +2453,8 @@ static char_u *iconv_string(const vimconv_T *const vcp,
         to = (char *)result + done;
         tolen = len - done - 2;
 
-        // Avoid a warning for systems with a wrong iconv() prototype by
-        // casting the second argument to void *
+        // Avoid a warning for systems with a wrong iconv()
+        // prototype by casting the second argument to void *
         if(iconv(vcp->vc_fd, (void *)&from, &fromlen, &to, &tolen) != SIZE_MAX)
         {
             // Finished, append a NUL.
@@ -2436,8 +2462,8 @@ static char_u *iconv_string(const vimconv_T *const vcp,
             break;
         }
 
-        // Check both ICONV_EINVAL and EINVAL, because the dynamically loaded
-        // iconv library may use one of them
+        // Check both ICONV_EINVAL and EINVAL, because the dynamically
+        // loaded iconv library may use one of them
         if(!vcp->vc_fail && unconvlenp != NULL
            && (ICONV_ERRNO == ICONV_EINVAL || ICONV_ERRNO == EINVAL))
         {
@@ -2530,7 +2556,7 @@ static void *get_iconv_import_func(HINSTANCE hInst, const char *funcname)
     }
 
     pImpDesc = (PIMAGE_IMPORT_DESCRIPTOR) (pImage
-                                          + pPE->OptionalHeader
+                                           + pPE->OptionalHeader
                                                  .DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT]
                                                  .VirtualAddress);
 
@@ -2590,7 +2616,10 @@ bool iconv_enabled(bool verbose)
         if(verbose && p_verbose > 0)
         {
             verbose_enter();
-            EMSG2(_(e_loadlib), hIconvDLL == 0 ? DYNAMIC_ICONV_DLL : DYNAMIC_MSVCRT_DLL);
+
+            EMSG2(_(e_loadlib),
+                  hIconvDLL == 0 ? DYNAMIC_ICONV_DLL : DYNAMIC_MSVCRT_DLL);
+
             verbose_leave();
         }
 
@@ -2653,7 +2682,8 @@ void iconv_end(void)
 /// vcp->vc_type must have been initialized to CONV_NONE.
 ///
 /// @note
-/// cannot be used for conversion from/to ucs-2 and ucs-4 (will use utf-8 instead).
+/// cannot be used for conversion from/to ucs-2 and ucs-4
+/// (will use utf-8 instead).
 ///
 /// Afterwards invoke with "from" and "to" equal to NULL to cleanup.
 /// Return FAIL when conversion is not supported, OK otherwise.
@@ -2663,7 +2693,7 @@ int convert_setup(vimconv_T *vcp, char_u *from, char_u *to)
 }
 
 /// As convert_setup(), but only when from_unicode_is_utf8 is TRUE will all
-/// "from" unicode charsets be considered utf-8.  Same for "to".
+/// "from" unicode charsets be considered utf-8. Same for "to".
 int convert_setup_ext(vimconv_T *vcp,
                       char_u *from,
                       bool from_unicode_is_utf8,
@@ -2745,8 +2775,9 @@ int convert_setup_ext(vimconv_T *vcp,
     else
     {
         // Use iconv() for conversion.
-        vcp->vc_fd = (iconv_t)my_iconv_open(to_is_utf8 ? (char_u *)"utf-8" : to,
-                                            from_is_utf8 ? (char_u *)"utf-8" : from);
+        vcp->vc_fd =
+            (iconv_t)my_iconv_open(to_is_utf8 ? (char_u *)"utf-8" : to,
+                                   from_is_utf8 ? (char_u *)"utf-8" : from);
 
         if(vcp->vc_fd != (iconv_t)-1)
         {

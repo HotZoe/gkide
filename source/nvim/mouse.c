@@ -35,22 +35,20 @@ static linenr_T orig_topline = 0;
 /// The MOUSE_FOLD_CLOSE bit is set when clicked on the '-' in a fold column.
 /// The MOUSE_FOLD_OPEN bit is set when clicked on the '+' in a fold column.
 ///
-/// If flags has MOUSE_FOCUS, then the current window will not be changed, and
-/// if the mouse is outside the window then the text will scroll, or if the
-/// mouse was previously on a status line, then the status line may be dragged.
-///
-/// If flags has MOUSE_MAY_VIS, then VIsual mode will be started before the
-/// cursor is moved unless the cursor was on a status line.
-/// This function returns one of IN_UNKNOWN, IN_BUFFER, IN_STATUS_LINE or
-/// IN_SEP_LINE depending on where the cursor was clicked.
-///
-/// If flags has MOUSE_MAY_STOP_VIS, then Visual mode will be stopped, unless
-/// the mouse is on the status line of the same window.
-///
-/// If flags has MOUSE_DID_MOVE, nothing is done if the mouse didn't move since
-/// the last call.
-///
-/// If flags has MOUSE_SETPOS, nothing is done, only the current position is remembered.
+/// - If flags has MOUSE_FOCUS, then the current window will not be changed,
+///   and if the mouse is outside the window then the text will scroll, or if
+///   the mouse was previously on a status line, then the status line may be
+///   dragged.
+/// - If flags has MOUSE_MAY_VIS, then VIsual mode will be started before the
+///   cursor is moved unless the cursor was on a status line.
+///   This function returns one of IN_UNKNOWN, IN_BUFFER, IN_STATUS_LINE or
+///   IN_SEP_LINE depending on where the cursor was clicked.
+/// - If flags has MOUSE_MAY_STOP_VIS, then Visual mode will be stopped,
+///   unless the mouse is on the status line of the same window.
+/// - If flags has MOUSE_DID_MOVE, nothing is done if the mouse didn't
+///   move since the last call.
+/// - If flags has MOUSE_SETPOS, nothing is done, only the current
+///   position is remembered.
 ///
 /// @param flags
 /// @param inclusive      used for inclusive operator, can be NULL
@@ -480,8 +478,10 @@ retnomove:
     return count;
 }
 
-/// Compute the position in the buffer line from the posn on the screen in window "win".
-/// Returns true if the position is below the last line.
+/// Compute the position in the buffer line
+/// from the posn on the screen in window "win".
+///
+/// @returns true if the position is below the last line.
 bool mouse_comp_pos(win_T *win, int *rowp, int *colp, linenr_T *lnump)
 {
     int col = *colp;
@@ -571,8 +571,8 @@ bool mouse_comp_pos(win_T *win, int *rowp, int *colp, linenr_T *lnump)
     return retval;
 }
 
-// Find the window at screen position "*rowp" and "*colp". The positions are
-// updated to become relative to the top-left of the window.
+/// Find the window at screen position "*rowp" and "*colp".
+/// The positions areupdated to become relative to the top-left of the window.
 win_T *mouse_find_win(int *rowp, int *colp)
 {
     frame_T *fp;
@@ -665,8 +665,9 @@ void setmouse(void)
 /// @return true if
 /// - "c" is in 'mouse', or
 /// - 'a' is in 'mouse' and "c" is in MOUSE_A, or
-/// - the current buffer is a help file and 'h' is in 'mouse' and we are in a
-///   normal editing mode (not at hit-return message).
+/// - the current buffer is a help file and 'h' is
+///   in 'mouse' and we are in a normal editing mode
+///   (not at hit-return message).
 int mouse_has(int c)
 {
     for(char_u *p = p_mouse; *p; ++p)
@@ -703,7 +704,8 @@ int mouse_has(int c)
 }
 
 /// Set orig_topline.
-/// Used when jumping to another window, so that a double click still works.
+/// Used when jumping to another window,
+/// so that a double click still works.
 void set_mouse_topline(win_T *wp)
 {
     orig_topline = wp->w_topline;
@@ -740,16 +742,18 @@ static linenr_T find_longest_lnum(void)
 {
     linenr_T ret = 0;
 
-    // Calculate maximum for horizontal scrollbar. Check for reasonable
-    // line numbers, topline and botline can be invalid when displaying is postponed.
+    // Calculate maximum for horizontal scrollbar.
+    // Check for reasonable line numbers, topline and
+    // botline can be invalid when displaying is postponed.
     if(curwin->w_topline <= curwin->w_cursor.lnum
        && curwin->w_botline > curwin->w_cursor.lnum
        && curwin->w_botline <= curbuf->b_ml.ml_line_count + 1)
     {
         long max = 0;
 
-        // Use maximum of all visible lines. Remember the lnum of the
-        // longest line, closest to the cursor line. Used when scrolling below.
+        // Use maximum of all visible lines.
+        // Remember the lnum of the longest line,
+        // closest to the cursor line. Used when scrolling below.
         for(linenr_T lnum = curwin->w_topline; lnum < curwin->w_botline; lnum++)
         {
             colnr_T len = scroll_line_len(lnum);
@@ -865,9 +869,10 @@ static int mouse_adjust_click(win_T *wp, int row, int col)
             {
                 if(row > 0 && i == start_col)
                 {
-                    // Check if the current concealed character is actually part of
-                    // the previous wrapped row's conceal group.
-                    last_matchid = syn_get_concealed_id(wp, wp->w_cursor.lnum, i - 1);
+                    // Check if the current concealed character is actually
+                    // part of the previous wrapped row's conceal group.
+                    last_matchid =
+                        syn_get_concealed_id(wp, wp->w_cursor.lnum, i - 1);
 
                     if(last_matchid == matchid)
                     {
@@ -885,7 +890,8 @@ static int mouse_adjust_click(win_T *wp, int row, int col)
 
                 last_matchid = matchid;
 
-                // Adjust for concealed text that spans more than one character.
+                // Adjust for concealed text that
+                // spans more than one character.
                 do
                 {
                     i++;

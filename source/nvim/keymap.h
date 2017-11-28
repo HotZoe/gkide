@@ -8,14 +8,16 @@
 
 #include "nvim/strings.h"
 
-/// For MSDOS some keys produce codes larger than 0xff.
-/// They are split into two chars, the first one is K_NUL.
-#define K_NUL                   (0xce) ///< for MSDOS: special key follows
+// For MSDOS some keys produce codes larger than 0xff.
+// They are split into two chars, the first one is K_NUL.
 
-/// K_SPECIAL is the first byte of a special key code and is always followed by
-/// two bytes. The second byte can have any value. ASCII is used for normal termcap
-/// entries, 0x80 and higher for special keys, see below. The third byte is
-/// guaranteed to be between 0x02 and 0x7f.
+/// for MSDOS: special key follows
+#define K_NUL                   (0xce)
+
+/// K_SPECIAL is the first byte of a special key code and is
+/// always followed by two bytes. The second byte can have any value.
+/// ASCII is used for normal termcap entries, 0x80 and higher for special
+/// keys, see below. The third byte is guaranteed to be between 0x02 and 0x7f.
 #define K_SPECIAL               (0x80)
 
 /// Positive characters are "normal" characters.
@@ -55,13 +57,13 @@
 #define KS_SELECT               245
 #define K_SELECT_STRING         (char_u *)"\200\365X"
 
-// Used a termcap entry that produces a normal character.
+/// Used a termcap entry that produces a normal character.
 #define KS_KEY                  242
 
-// Used for click in a tab pages label.
+/// Used for click in a tab pages label.
 #define KS_TABLINE              240
 
-// Used for menu in a tab pages line.
+/// Used for menu in a tab pages line.
 #define KS_TABMENU              239
 
 /// Filler used after KS_SPECIAL and others
@@ -72,7 +74,7 @@
 #define KEY2TERMCAP0(x)         ((-(x)) & 0xff)
 #define KEY2TERMCAP1(x)         (((unsigned)(-(x)) >> 8) & 0xff)
 
-// get second or third byte when translating special key code into three bytes
+/// get second or third byte when translating special key code into three bytes
 #define K_SECOND(c)     ((c) == K_SPECIAL             \
                          ? KS_SPECIAL : (c) == NUL    \
                          ? KS_ZERO : KEY2TERMCAP0(c))
@@ -138,9 +140,10 @@ enum key_extra
     KE_S_F36,
     KE_S_F37,
 
-    KE_MOUSE,            ///< mouse event start
+    KE_MOUSE, ///< mouse event start
 
-    // Symbols for pseudo keys which are translated from the real key symbols above.
+    // Symbols for pseudo keys which are
+    // translated from the real key symbols above.
     KE_LEFTMOUSE,        ///< Left mouse button click
     KE_LEFTDRAG,         ///< Drag with left mouse button down
     KE_LEFTRELEASE,      ///< Left mouse button release
@@ -210,7 +213,8 @@ enum key_extra
     KE_FOCUSGAINED,      ///< focus gained
     KE_FOCUSLOST,        ///< focus lost
     KE_EVENT,            ///< event
-    KE_PASTE,            ///< special key to toggle the 'paste' option. sent only by UIs
+    KE_PASTE,            ///< special key to toggle the 'paste' option.
+                         ///< sent only by UIs
 };
 
 /// the three byte codes are replaced with the following int when using vgetc()
@@ -320,35 +324,35 @@ enum key_extra
 #define K_DEL           TERMCAP2KEY('k', 'D')
 #define K_KDEL          TERMCAP2KEY(KS_EXTRA, KE_KDEL)
 #define K_HOME          TERMCAP2KEY('k', 'h')
-#define K_KHOME         TERMCAP2KEY('K', '1')            // keypad home (upper left)
+#define K_KHOME         TERMCAP2KEY('K', '1') // keypad home (upper left)
 #define K_XHOME         TERMCAP2KEY(KS_EXTRA, KE_XHOME)
 #define K_ZHOME         TERMCAP2KEY(KS_EXTRA, KE_ZHOME)
 #define K_END           TERMCAP2KEY('@', '7')
-#define K_KEND          TERMCAP2KEY('K', '4')            // keypad end (lower left)
+#define K_KEND          TERMCAP2KEY('K', '4') // keypad end (lower left)
 #define K_XEND          TERMCAP2KEY(KS_EXTRA, KE_XEND)
 #define K_ZEND          TERMCAP2KEY(KS_EXTRA, KE_ZEND)
 #define K_PAGEUP        TERMCAP2KEY('k', 'P')
 #define K_PAGEDOWN      TERMCAP2KEY('k', 'N')
-#define K_KPAGEUP       TERMCAP2KEY('K', '3')   ///< keypad pageup (upper R.)
-#define K_KPAGEDOWN     TERMCAP2KEY('K', '5')   ///< keypad pagedown (lower R.)
+#define K_KPAGEUP       TERMCAP2KEY('K', '3') ///< keypad pageup (upper R.)
+#define K_KPAGEDOWN     TERMCAP2KEY('K', '5') ///< keypad pagedown (lower R.)
 
-#define K_KPLUS         TERMCAP2KEY('K', '6')   ///< keypad plus
-#define K_KMINUS        TERMCAP2KEY('K', '7')   ///< keypad minus
-#define K_KDIVIDE       TERMCAP2KEY('K', '8')   ///< keypad /
-#define K_KMULTIPLY     TERMCAP2KEY('K', '9')   ///< keypad *
-#define K_KENTER        TERMCAP2KEY('K', 'A')   ///< keypad Enter
-#define K_KPOINT        TERMCAP2KEY('K', 'B')   ///< keypad . or ,
+#define K_KPLUS         TERMCAP2KEY('K', '6') ///< keypad plus
+#define K_KMINUS        TERMCAP2KEY('K', '7') ///< keypad minus
+#define K_KDIVIDE       TERMCAP2KEY('K', '8') ///< keypad /
+#define K_KMULTIPLY     TERMCAP2KEY('K', '9') ///< keypad *
+#define K_KENTER        TERMCAP2KEY('K', 'A') ///< keypad Enter
+#define K_KPOINT        TERMCAP2KEY('K', 'B') ///< keypad . or ,
 
-#define K_K0            TERMCAP2KEY('K', 'C')   ///< keypad 0
-#define K_K1            TERMCAP2KEY('K', 'D')   ///< keypad 1
-#define K_K2            TERMCAP2KEY('K', 'E')   ///< keypad 2
-#define K_K3            TERMCAP2KEY('K', 'F')   ///< keypad 3
-#define K_K4            TERMCAP2KEY('K', 'G')   ///< keypad 4
-#define K_K5            TERMCAP2KEY('K', 'H')   ///< keypad 5
-#define K_K6            TERMCAP2KEY('K', 'I')   ///< keypad 6
-#define K_K7            TERMCAP2KEY('K', 'J')   ///< keypad 7
-#define K_K8            TERMCAP2KEY('K', 'K')   ///< keypad 8
-#define K_K9            TERMCAP2KEY('K', 'L')   ///< keypad 9
+#define K_K0            TERMCAP2KEY('K', 'C') ///< keypad 0
+#define K_K1            TERMCAP2KEY('K', 'D') ///< keypad 1
+#define K_K2            TERMCAP2KEY('K', 'E') ///< keypad 2
+#define K_K3            TERMCAP2KEY('K', 'F') ///< keypad 3
+#define K_K4            TERMCAP2KEY('K', 'G') ///< keypad 4
+#define K_K5            TERMCAP2KEY('K', 'H') ///< keypad 5
+#define K_K6            TERMCAP2KEY('K', 'I') ///< keypad 6
+#define K_K7            TERMCAP2KEY('K', 'J') ///< keypad 7
+#define K_K8            TERMCAP2KEY('K', 'K') ///< keypad 8
+#define K_K9            TERMCAP2KEY('K', 'L') ///< keypad 9
 
 #define K_MOUSE         TERMCAP2KEY(KS_MOUSE, KE_FILLER)
 #define K_MENU          TERMCAP2KEY(KS_MENU, KE_FILLER)
@@ -360,8 +364,8 @@ enum key_extra
 #define K_TABLINE       TERMCAP2KEY(KS_TABLINE, KE_FILLER)
 #define K_TABMENU       TERMCAP2KEY(KS_TABMENU, KE_FILLER)
 
-// Symbols for pseudo keys which are translated from
-// the real key symbols above.
+// Symbols for pseudo keys which are
+// translated from the real key symbols above.
 #define K_LEFTMOUSE       TERMCAP2KEY(KS_EXTRA, KE_LEFTMOUSE)
 #define K_LEFTMOUSE_NM    TERMCAP2KEY(KS_EXTRA, KE_LEFTMOUSE_NM)
 #define K_LEFTDRAG        TERMCAP2KEY(KS_EXTRA, KE_LEFTDRAG)
@@ -405,20 +409,20 @@ enum key_extra
 // 0x01 cannot be used, because the modifier must be 0x02 or higher
 #define MOD_MASK_SHIFT      0x02
 #define MOD_MASK_CTRL       0x04
-#define MOD_MASK_ALT        0x08    ///< aka META
-#define MOD_MASK_META       0x10    ///< META when it's different from ALT
-#define MOD_MASK_2CLICK     0x20    ///< use MOD_MASK_MULTI_CLICK
-#define MOD_MASK_3CLICK     0x40    ///< use MOD_MASK_MULTI_CLICK
-#define MOD_MASK_4CLICK     0x60    ///< use MOD_MASK_MULTI_CLICK
-#define MOD_MASK_CMD        0x80    ///< "super" key (OSX/Mac: command-key)
+#define MOD_MASK_ALT        0x08  ///< aka META
+#define MOD_MASK_META       0x10  ///< META when it's different from ALT
+#define MOD_MASK_2CLICK     0x20  ///< use MOD_MASK_MULTI_CLICK
+#define MOD_MASK_3CLICK     0x40  ///< use MOD_MASK_MULTI_CLICK
+#define MOD_MASK_4CLICK     0x60  ///< use MOD_MASK_MULTI_CLICK
+#define MOD_MASK_CMD        0x80  ///< "super" key (OSX/Mac: command-key)
 
-#define MOD_MASK_MULTI_CLICK    (MOD_MASK_2CLICK|MOD_MASK_3CLICK|MOD_MASK_4CLICK)
+#define MOD_MASK_MULTI_CLICK  (MOD_MASK_2CLICK|MOD_MASK_3CLICK|MOD_MASK_4CLICK)
 
 /// The length of the longest special key name, including modifiers.
 /// Current longest is <M-C-S-T-4-MiddleRelease> (length includes '<' and '>').
 #define MAX_KEY_NAME_LEN    25
 
-/// Maximum length of a special key event as tokens.  This includes modifiers.
+/// Maximum length of a special key event as tokens. This includes modifiers.
 /// The longest event is something like <M-C-S-T-4-LeftDrag> which would be the
 /// following string of tokens:
 ///

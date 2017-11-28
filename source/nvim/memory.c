@@ -58,7 +58,7 @@ bool entered_free_all_mem = false;
 /// Try to free memory.
 /// Used when trying to recover from out of memory errors.
 ///
-/// @see {xmalloc}
+/// @see xmalloc()
 void try_to_free_memory(void)
 {
     static bool trying_to_free = false;
@@ -87,7 +87,9 @@ void try_to_free_memory(void)
 /// @return pointer to allocated space. NULL if out of memory
 ///
 /// @see try_to_free_memory()
-void *try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
+void *try_malloc(size_t size)
+FUNC_ATTR_MALLOC
+FUNC_ATTR_ALLOC_SIZE(1)
 {
     size_t allocated_size = size ? size : 1;
     void *ret = malloc(allocated_size);
@@ -108,7 +110,9 @@ void *try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 /// @return pointer to allocated space. NULL if out of memory
 ///
 /// @see try_malloc()
-void *verbose_try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
+void *verbose_try_malloc(size_t size)
+FUNC_ATTR_MALLOC
+FUNC_ATTR_ALLOC_SIZE(1)
 {
     void *ret = try_malloc(size);
 
@@ -130,7 +134,9 @@ void *verbose_try_malloc(size_t size) FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1)
 ///
 /// @see try_to_free_memory()
 void *xmalloc(size_t size)
-FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_ALLOC_SIZE(1)
+FUNC_ATTR_NONNULL_RET
 {
     void *ret = try_malloc(size);
 
@@ -144,7 +150,8 @@ FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(1) FUNC_ATTR_NONNULL_RET
     return ret;
 }
 
-/// free wrapper that returns delegates to the backing memory manager
+/// free wrapper that returns
+/// delegates to the backing memory manager
 void xfree(void *ptr)
 {
     free(ptr);
@@ -159,7 +166,9 @@ void xfree(void *ptr)
 ///
 /// @see xmalloc()
 void *xcalloc(size_t count, size_t size)
-FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE_PROD(1, 2) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_ALLOC_SIZE_PROD(1, 2)
+FUNC_ATTR_NONNULL_RET
 {
     size_t allocated_count = count && size ? count : 1;
     size_t allocated_size = count && size ? size : 1;
@@ -188,7 +197,9 @@ FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE_PROD(1, 2) FUNC_ATTR_NONNULL_RET
 ///
 /// @see xmalloc()
 void *xrealloc(void *ptr, size_t size)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_ALLOC_SIZE(2)
+FUNC_ATTR_NONNULL_RET
 {
     size_t allocated_size = size ? size : 1;
     void *ret = realloc(ptr, allocated_size);
@@ -209,14 +220,17 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
     return ret;
 }
 
-/// xmalloc() wrapper that allocates size + 1 bytes and zeroes the last byte
+/// xmalloc() wrapper that allocates
+/// size + 1 bytes and zeroes the last byte
 ///
 /// @param size
 /// @return pointer to allocated space. Never NULL
 ///
 /// @see xmalloc()
 void *xmallocz(size_t size)
-FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t total_size = size + 1;
 
@@ -242,38 +256,47 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @see xmalloc()
 void *xmemdupz(const void *data, size_t len)
-FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     return memcpy(xmallocz(len), data, len);
 }
 
-/// A version of strchr() that returns a pointer to the terminating NUL if it
-/// doesn't find @b c.
+/// A version of strchr() that returns a pointer
+/// to the terminating NUL if it doesn't find @b c.
 ///
 /// @param str The string to search.
 /// @param c   The char to look for.
 ///
 /// @returns
-/// a pointer to the first instance of @b c, or to the NUL terminator if not found.
+/// a pointer to the first instance of @b c,
+/// or to the NUL terminator if not found.
 char *xstrchrnul(const char *str, char c)
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
 {
     char *p = strchr(str, c);
 
     return p ? p : (char *)(str + strlen(str));
 }
 
-/// A version of memchr() that returns a pointer one past the end
-/// if it doesn't find @b c.
+/// A version of memchr() that returns a pointer
+/// one past the end if it doesn't find @b c.
 ///
 /// @param addr The address of the memory object.
 /// @param c    The char to look for.
 /// @param size The size of the memory object.
 ///
 /// @returns
-/// a pointer to the first instance of @b c, or one past the end if not found.
+/// a pointer to the first instance of @b c,
+/// or one past the end if not found.
 void *xmemscan(const void *addr, char c, size_t size)
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
 {
     char *p = memchr(addr, c, size);
 
@@ -282,11 +305,12 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 
 /// Replaces every instance of @b c with @b x.
 ///
-/// @warning Will read past 'str + strlen(str)' if 'c == NUL'.
+/// @warning
+/// Will read past 'str + strlen(str)' if 'c == NUL'.
 ///
-/// @param str A NUL-terminated string.
-/// @param c   The unwanted byte.
-/// @param x   The replacement.
+/// @param str  A NUL-terminated string.
+/// @param c    The unwanted byte.
+/// @param x    The replacement.
 void strchrsub(char *str, char c, char x)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -300,10 +324,10 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Replaces every instance of @b c with @b x.
 ///
-/// @param data An object in memory. May contain NULs.
-/// @param c    The unwanted byte.
-/// @param x    The replacement.
-/// @param len  The length of data.
+/// @param data  An object in memory. May contain NULs.
+/// @param c     The unwanted byte.
+/// @param x     The replacement.
+/// @param len   The length of data.
 void memchrsub(void *data, char c, char x, size_t len)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -324,7 +348,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @returns the number of occurrences of @b c in @b str.
 size_t strcnt(const char *str, char c)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
 {
     assert(c != 0);
     size_t cnt = 0;
@@ -346,7 +371,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 ///
 /// @returns the number of occurrences of @b c in @b data[len].
 size_t memcnt(const void *data, char c, size_t len)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
 {
     size_t cnt = 0;
     const char *ptr = data;
@@ -361,22 +387,26 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
     return cnt;
 }
 
-/// Copies the string pointed to by src (including the terminating NUL
-/// character) into the array pointed to by dst.
+/// Copies the string pointed to by src (including the
+/// terminating NUL character) into the array pointed to by dst.
 ///
-/// @returns pointer to the terminating NUL char copied into the dst buffer.
-///          This is the only difference with strcpy(), which returns dst.
+/// @warning
+/// If copying takes place between objects that overlap,
+/// the behavior is undefined.
 ///
-/// @warning If copying takes place between objects that overlap, the behavior
-///          is undefined.
-///
-/// Nvim version of POSIX 2008 stpcpy(3). We do not require POSIX 2008, so
-/// implement our own version.
+/// Nvim version of POSIX 2008 stpcpy(3).
+/// We do not require POSIX 2008, so implement our own version.
 ///
 /// @param dst
 /// @param src
+///
+/// @returns
+/// pointer to the terminating NUL char copied into the dst buffer.
+/// This is the only difference with strcpy(), which returns dst.
 char *xstpcpy(char *restrict dst, const char *restrict src)
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     const size_t len = strlen(src);
 
@@ -391,16 +421,20 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 /// &dst[maxlen].
 ///
 /// @warning
-/// If copying takes place between objects that overlap, the behavior is undefined.
+/// If copying takes place between objects that overlap,
+/// the behavior is undefined.
 ///
-/// WARNING: xstpncpy will ALWAYS write maxlen bytes. If src is shorter than
-/// maxlen, zeroes will be written to the remaining bytes.
+/// WARNING: xstpncpy will ALWAYS write maxlen bytes.
+/// If src is shorter than maxlen, zeroes will be written
+/// to the remaining bytes.
 ///
 /// @param dst
 /// @param src
 /// @param maxlen
 char *xstpncpy(char *restrict dst, const char *restrict src, size_t maxlen)
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     const char *p = memchr(src, '\0', maxlen);
 
@@ -418,11 +452,12 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
     }
 }
 
-/// xstrlcpy - Copy a NUL-terminated string into a sized buffer
+/// Copy a NUL-terminated string into a sized buffer
 ///
-/// Compatible with *BSD strlcpy: the result is always a valid NUL-terminated
-/// string that fits in the buffer (unless, of course, the buffer size is
-/// zero). It does not pad out the result like strncpy() does.
+/// Compatible with *BSD strlcpy:
+/// the result is always a valid NUL-terminated string
+/// that fits in the buffer (unless, of course, the buffer
+/// size is zero). It does not pad out the result like strncpy() does.
 ///
 /// @param dst    Buffer to store the result
 /// @param src    String to be copied
@@ -444,9 +479,10 @@ FUNC_ATTR_NONNULL_ALL
     return slen; // Does not include NUL.
 }
 
-/// Appends @b src to string @b dst of size @b dsize (unlike strncat, dsize is the
-/// full size of @b dst, not space left). At most dsize-1 characters
-/// will be copied. Always NUL terminates. @b src and @b dst may overlap.
+/// Appends @b src to string @b dst of size @b dsize (unlike strncat,
+/// dsize is the full size of @b dst, not space left). At most dsize-1
+/// characters will be copied. Always NUL terminates. @b src and @b dst
+/// may overlap.
 ///
 /// @see vim_strcat from Vim.
 /// @see strlcat from OpenBSD.
@@ -487,8 +523,10 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @see xmalloc()
 char *xstrdup(const char *str)
-FUNC_ATTR_MALLOC      FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ALL
 {
     return xmemdupz(str, strlen(str));
 }
@@ -497,7 +535,9 @@ FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ALL
 ///
 /// Unlike xstrdup() allocates a new empty string if it receives NULL.
 char *xstrdupnul(const char *const str)
-FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_RET
 {
     if(str == NULL)
     {
@@ -519,7 +559,8 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
 ///
 /// @returns a pointer to the found byte in src[len], or NULL.
 void *xmemrchr(const void *src, uint8_t c, size_t len)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
 {
     while(len--)
     {
@@ -540,7 +581,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE
 ///
 /// @see xmalloc()
 char *xstrndup(const char *str, size_t len)
-FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
 {
     char *p = memchr(str, '\0', len);
@@ -556,8 +599,11 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @see xmalloc()
 void *xmemdup(const void *data, size_t len)
-FUNC_ATTR_MALLOC FUNC_ATTR_ALLOC_SIZE(2) FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_MALLOC
+FUNC_ATTR_ALLOC_SIZE(2)
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     return memcpy(xmalloc(len), data, len);
 }
@@ -565,14 +611,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 /// Returns true if strings @b a and @b b are equal.
 /// Arguments may be NULL.
 bool strequal(const char *a, const char *b)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (a == NULL && b == NULL) || (a && b && strcmp(a, b) == 0);
 }
 
 /// Case-insensitive string-equal.
 bool striequal(const char *a, const char *b)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (a == NULL && b == NULL) || (a && b && STRICMP(a, b) == 0);
 }
@@ -586,8 +634,8 @@ void do_outofmem_msg(size_t size)
         // Don't hide this message
         emsg_silent = 0;
 
-        // Must come first to avoid coming back here when printing the error
-        // message fails, e.g. when setting v:errmsg.
+        // Must come first to avoid coming back here when
+        // printing the error message fails, e.g. when setting v:errmsg.
         did_outofmem_msg = true;
 
         EMSGU(_("E342: Out of memory!  (allocating %" PRIu64 " bytes)"), size);
@@ -597,8 +645,8 @@ void do_outofmem_msg(size_t size)
 /// Writes @b time_var to @b buf[8].
 void time_to_bytes(time_t time_var, uint8_t buf[8])
 {
-    // time_t can be up to 8 bytes in size, more than uintmax_t in 32 bits
-    // systems, thus we can't use put_bytes() here.
+    // time_t can be up to 8 bytes in size, more than uintmax_t
+    // in 32 bits systems, thus we can't use put_bytes() here.
     for(size_t i = 7, bufi = 0; bufi < 8; i--, bufi++)
     {
         buf[bufi] = (uint8_t)((uint64_t)time_var >> (i * 8));

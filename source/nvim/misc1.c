@@ -69,12 +69,16 @@ static garray_T ga_users = GA_EMPTY_INIT_VALUE;
 /// lines however, it may call u_save_cursor() again when starting to change a
 /// new line.
 ///
-/// @param dir   FORWARD or BACKWARD
-/// @param flags - OPENLINE_DELSPACES  delete spaces after cursor
-///              - OPENLINE_DO_COM     format comments
-///              - OPENLINE_KEEPTRAIL  keep trailing spaces
-///              - OPENLINE_MARKFIX    adjust mark positions after the line break
-///              - OPENLINE_COM_LIST   format comments with list or 2nd line indent
+/// @param dir
+/// FORWARD or BACKWARD
+///
+/// @param flags
+/// - OPENLINE_DELSPACES  delete spaces after cursor
+/// - OPENLINE_DO_COM     format comments
+/// - OPENLINE_KEEPTRAIL  keep trailing spaces
+/// - OPENLINE_MARKFIX    adjust mark positions after the line break
+/// - OPENLINE_COM_LIST   format comments with list or 2nd line indent
+///
 /// @param second_line_indent
 /// indent for after ^^D in Insert mode or if flag OPENLINE_COM_LIST
 ///
@@ -116,7 +120,7 @@ int open_line(int dir, int flags, int second_line_indent)
         // we grab what it ended up putting on the new line, put back the
         // original line, and call ins_char() to put each new character onto
         // the line, replacing what was there before and pushing the right
-        // stuff onto the replace stack.  -- webb.
+        // stuff onto the replace stack.
         if(curwin->w_cursor.lnum < orig_line_count)
         {
             next_line = vim_strsave(ml_get(curwin->w_cursor.lnum + 1));
@@ -195,7 +199,7 @@ int open_line(int dir, int flags, int second_line_indent)
         // In insert/replace mode (only when dir == FORWARD)
         // we may move some text to the next line. If it starts with '{'
         // don't add an indent. Fixes inserting a NL before '{' in line
-        //  "if (condition) {"
+        // "if (condition) {"
         if(!trunc_line && do_si && *saved_line != NUL
            && (p_extra == NULL || first_char != '{'))
         {
@@ -396,7 +400,10 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(flags & OPENLINE_DO_COM)
     {
-        lead_len = get_leader_len(saved_line, &lead_flags, dir == BACKWARD, TRUE);
+        lead_len = get_leader_len(saved_line,
+                                  &lead_flags,
+                                  dir == BACKWARD,
+                                  TRUE);
     }
     else
     {
@@ -431,7 +438,8 @@ int open_line(int dir, int flags, int second_line_indent)
 
                 if(*p == COM_START)
                 {
-                    // Doing "O" on a start of comment does not insert leader.
+                    // Doing "O" on a start of
+                    // comment does not insert leader.
                     if(dir == BACKWARD)
                     {
                         lead_len = 0;
@@ -648,7 +656,8 @@ int open_line(int dir, int flags, int second_line_indent)
 
                         if(l != 0)
                         {
-                            memmove(endp + l, endp, (size_t)((leader + lead_len) - endp));
+                            memmove(endp + l, endp,
+                                    (size_t)((leader + lead_len) - endp));
                         }
 
                         lead_len += l;
@@ -675,8 +684,10 @@ int open_line(int dir, int flags, int second_line_indent)
                                 --l;
                             }
 
-                            memmove(p + 1, p + l + 1,
+                            memmove(p + 1,
+                                    p + l + 1,
                                     (size_t)((leader + lead_len) - (p + l + 1)));
+
                             lead_len -= l;
                             *p = ' ';
                         }
@@ -720,7 +731,7 @@ int open_line(int dir, int flags, int second_line_indent)
                     memmove(p, lead_repl, (size_t)lead_repl_len);
 
                     // Replace any remaining non-white chars in the old
-                    // leader by spaces.  Keep Tabs, the indent must
+                    // leader by spaces. Keep Tabs, the indent must
                     // remain the same.
                     for(p += lead_repl_len; p < leader + lead_len; ++p)
                     {
@@ -730,7 +741,9 @@ int open_line(int dir, int flags, int second_line_indent)
                             if(p + 1 < leader + lead_len && p[1] == TAB)
                             {
                                 lead_len--;
-                                memmove(p, p + 1, (size_t)(leader + lead_len - p));
+
+                                memmove(p, p + 1,
+                                        (size_t)(leader + lead_len - p));
                             }
                             else
                             {
@@ -740,12 +753,15 @@ int open_line(int dir, int flags, int second_line_indent)
                                 {
                                     if(ptr2cells(p) > 1)
                                     {
-                                        // Replace a double-wide char with two spaces
+                                        // Replace a double-wide
+                                        // char with two spaces
                                         --l;
                                         *p++ = ' ';
                                     }
 
-                                    memmove(p + 1, p + l, (size_t)(leader + lead_len - p));
+                                    memmove(p + 1, p + l,
+                                            (size_t)(leader + lead_len - p));
+
                                     lead_len -= l - 1;
                                 }
 
@@ -760,7 +776,8 @@ int open_line(int dir, int flags, int second_line_indent)
                 // Recompute the indent, it may have changed.
                 if(curbuf->b_p_ai || do_si)
                 {
-                    newindent = get_indent_str(leader, (int)curbuf->b_p_ts, false);
+                    newindent = get_indent_str(leader,
+                                               (int)curbuf->b_p_ts, false);
                 }
 
                 // Add the indent offset
@@ -824,7 +841,9 @@ int open_line(int dir, int flags, int second_line_indent)
             // We have finished a comment, so we don't use the leader.
             // If this was a C-comment and 'ai' or 'si' is set do a normal
             // indent to align with the line containing the start of the comment.
-            if(comment_end[0] == '*' && comment_end[1] == '/' && (curbuf->b_p_ai || do_si))
+            if(comment_end[0] == '*'
+               && comment_end[1] == '/'
+               && (curbuf->b_p_ai || do_si))
             {
                 old_cursor = curwin->w_cursor;
                 curwin->w_cursor.col = (colnr_T)(comment_end - saved_line);
@@ -927,10 +946,10 @@ int open_line(int dir, int flags, int second_line_indent)
             goto theend;
         }
 
-        // Postpone calling changed_lines(), because it would mess up folding
-        // with markers.
-        // Skip mark_adjust when adding a line after the last one, there can't
-        // be marks there.
+        // Postpone calling changed_lines(), because
+        // it would mess up folding with markers.
+        // Skip mark_adjust when adding a line after the
+        // last one, there can't be marks there.
         if(curwin->w_cursor.lnum + 1 < curbuf->b_ml.ml_line_count)
         {
             mark_adjust(curwin->w_cursor.lnum + 1, (linenr_T)MAXLNUM, 1L, 0L);
@@ -1145,11 +1164,18 @@ theend:
 /// get_leader_len() returns the length in bytes of the prefix of the given
 /// string which introduces a comment. If this string is not a comment then
 /// 0 is returned.
-/// When "flags" is not NULL, it is set to point to the flags of the recognized
-/// comment leader.
-/// "backward" must be true for the "O" command.
-/// If "include_space" is set, include trailing whitespace while calculating the length.
-int get_leader_len(char_u *line, char_u **flags, int backward, int include_space)
+///
+/// When @b flags is not NULL, it is set to point to the flags of the
+/// recognized comment leader.
+///
+/// @b backward must be true for the "O" command.
+///
+/// If @b include_space is set, include trailing
+/// whitespace while calculating the length.
+int get_leader_len(char_u *line,
+                   char_u **flags,
+                   int backward,
+                   int include_space)
 {
     int i, j;
     int result;
@@ -1325,11 +1351,11 @@ int get_leader_len(char_u *line, char_u **flags, int backward, int include_space
     return result;
 }
 
-/// Return the offset at which the last comment in line starts. If there is no
-/// comment in the whole line, -1 is returned.
+/// Return the offset at which the last comment in line starts.
+/// If there is no comment in the whole line, -1 is returned.
 ///
-/// When "flags" is not null, it is set to point to the flags describing the
-/// recognized comment leader.
+/// When "flags" is not null, it is set to point to the flags
+/// describing the recognized comment leader.
 int get_last_leader_offset(char_u *line, char_u **flags)
 {
     int result = -1;
@@ -1616,7 +1642,7 @@ int plines_win_col(win_T *wp, linenr_T lnum, long column)
 
     // If *s is a TAB, and the TAB is not displayed as ^I, and we're not in
     // INSERT mode, then col must be adjusted so that it represents the last
-    // screen position of the TAB.  This only fixes an error when the TAB wraps
+    // screen position of the TAB. This only fixes an error when the TAB wraps
     // from one screen line to the next (when 'columns' is not a multiple of
     // 'ts') -- webb.
     if(*s == TAB && (State & NORMAL) && (!wp->w_p_list || lcs_tab1))
@@ -1766,9 +1792,9 @@ void ins_char_bytes(char_u *buf, size_t charlen)
             }
 
             // In virtual replace mode each character may replace one or more
-            // characters (zero if it's a TAB).  Count the number of bytes to
+            // characters (zero if it's a TAB). Count the number of bytes to
             // be deleted to make room for the new character, counting screen
-            // cells.  May result in adding spaces to fill a gap.
+            // cells. May result in adding spaces to fill a gap.
             colnr_T vcol;
             getvcol(curwin, &curwin->w_cursor, NULL, &vcol, NULL);
             colnr_T new_vcol = vcol + chartabsize(buf, vcol);
@@ -1896,8 +1922,8 @@ void ins_str(char_u *s)
     curwin->w_cursor.col += newlen;
 }
 
-/// Delete one character under the cursor.
-/// If "fixpos" is TRUE, don't leave the cursor on the NUL after the line.
+/// Delete one character under the cursor. If @b fixpos is TRUE,
+/// don't leave the cursor on the NUL after the line.
 /// Caller must have prepared for undo.
 ///
 /// @return FAIL for failure, OK otherwise
@@ -1962,7 +1988,7 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
     }
 
     // If 'delcombine' is set and deleting (less than) one
-    // character,  only delete the last combining character.
+    // character, only delete the last combining character.
     if(p_deco && use_delcombine && enc_utf8
        && utfc_ptr2len(oldp + col) >= count)
     {
@@ -1972,7 +1998,8 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
 
         if(cc[0] != NUL)
         {
-            // Find the last composing char, there can be several.
+            // Find the last composing
+            // char, there can be several.
             n = col;
 
             do
@@ -1994,7 +2021,10 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
         // If we just took off the last character of a non-blank line, and
         // fixpos is TRUE, we don't want to end up positioned at the NUL,
         // unless "restart_edit" is set or 'virtualedit' contains "onemore".
-        if(col > 0 && fixpos && restart_edit == 0 && (ve_flags & VE_ONEMORE) == 0)
+        if(col > 0
+           && fixpos
+           && restart_edit == 0
+           && (ve_flags & VE_ONEMORE) == 0)
         {
             --curwin->w_cursor.col;
             curwin->w_cursor.coladd = 0;
@@ -2130,8 +2160,8 @@ int gchar_pos(pos_T *pos)
 
 /// Call this function when something in the current buffer is changed.
 ///
-/// Most often called through changed_bytes() and changed_lines(), which also
-/// mark the area of the display to be redrawn.
+/// Most often called through changed_bytes() and changed_lines(),
+/// which also mark the area of the display to be redrawn.
 ///
 /// Careful: may trigger autocommands that reload the buffer.
 void changed(void)
@@ -2271,8 +2301,8 @@ void deleted_lines(linenr_T lnum, long count)
 }
 
 /// Like deleted_lines(), but adjust marks first.
-/// Make sure the cursor is on a valid line before calling, a GUI callback may
-/// be triggered to display the cursor.
+/// Make sure the cursor is on a valid line before calling,
+/// a GUI callback may be triggered to display the cursor.
 void deleted_lines_mark(linenr_T lnum, long count)
 {
     mark_adjust(lnum, (linenr_T)(lnum + count - 1), (long)MAXLNUM, -count);
@@ -2313,7 +2343,8 @@ void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
 
                 if(wlnum > 0)
                 {
-                    changed_lines_buf(wp->w_buffer, wlnum, lnume - lnum + wlnum, 0L);
+                    changed_lines_buf(wp->w_buffer, wlnum,
+                                      lnume - lnum + wlnum, 0L);
                 }
             }
         }
@@ -2370,7 +2401,10 @@ void changed_lines_buf(buf_T *buf, linenr_T lnum, linenr_T lnume, long xtra)
 /// See changed_lines() for the arguments.
 ///
 /// @note may trigger autocommands that reload the buffer.
-static void changed_common(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
+static void changed_common(linenr_T lnum,
+                           colnr_T col,
+                           linenr_T lnume,
+                           long xtra)
 {
     int i;
     int cols;
@@ -2695,14 +2729,17 @@ void change_warning(int col)
 /// No other characters are accepted, the message is repeated until a valid
 /// reply is entered or <C-c> is hit.
 ///
-/// @param[in]  str  Prompt: question to ask user. Is always followed by
-///                  " (y/n)?".
-/// @param[in]  direct  Determines what function to use to get user input. If
-///                     true then ui_inchar() will be used, otherwise vgetc().
-///                     I.e. when direct is true then characters are obtained
-///                     directly from the user without buffers involved.
+/// @param[in]  str
+/// Prompt: question to ask user. Is always followed by " (y/n)?".
 ///
-/// @return 'y' or 'n'. Last is also what will be returned in case of interrupt.
+/// @param[in]  direct
+/// Determines what function to use to get user input. If true then
+/// ui_inchar() will be used, otherwise vgetc(). I.e. when direct is
+/// true then characters are obtained directly from the user without
+/// buffers involved.
+///
+/// @return
+/// 'y' or 'n'. Last is also what will be returned in case of interrupt.
 int ask_yesno(const char *const str, const bool direct)
 {
     const int save_State = State;
@@ -3190,8 +3227,10 @@ int match_user(char_u *name)
 
 /// Preserve files and exit.
 /// When called IObuff must contain a message.
-/// NOTE: This may be called from deathtrap() in a signal handler, avoid unsafe
-/// functions, such as allocating memory.
+///
+/// @note
+/// This may be called from deathtrap() in a signal
+/// handler, avoid unsafe functions, such as allocating memory.
 void preserve_exit(void)
 {
     // 'true' when we are sure to exit, e.g., after a deadly signal
@@ -3254,7 +3293,8 @@ void fast_breakcheck(void)
     }
 }
 
-/// os_call_shell wrapper. Handles 'verbose', :profile, and v:shell_error.
+/// os_call_shell wrapper.
+/// Handles 'verbose', :profile, and v:shell_error.
 /// Invalidates cached tags.
 int call_shell(char_u *cmd, ShellOpts opts, char_u *extra_shell_arg)
 {
@@ -3296,9 +3336,9 @@ int call_shell(char_u *cmd, ShellOpts opts, char_u *extra_shell_arg)
     return retval;
 }
 
-/// Get the stdout of an external command.
-/// If @b ret_len is NULL replace NUL characters with NL. When @b ret_len is not
-/// NULL store the length there.
+/// Get the stdout of an external command. If @b ret_len is NULL
+/// replace NUL characters with NL. When @b ret_len is not NULL
+/// store the length there.
 ///
 /// @param  cmd      command to execute
 /// @param  infile   optional input file name

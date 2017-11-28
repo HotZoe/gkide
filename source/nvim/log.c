@@ -33,9 +33,10 @@ static uv_mutex_t mutex;
 /// Initialize path to log file
 ///
 /// Tries to use USR_LOG_FILE, then falls back USR_LOG_FILE_DEFAULT.
-/// Path to log file is cached, so only the first call has effect, unless first call was not
-/// successful. To make initialization not succeed either a bug in expand_env()
-/// is needed or both @b $NVIM_LOG_FILE and @b $HOME environment variables undefined.
+/// Path to log file is cached, so only the first call has effect,
+/// unless first call was not successful. To make initialization not
+/// succeed either a bug in expand_env() is needed or both
+/// @b $NVIM_LOG_FILE and @b $HOME environment variables undefined.
 ///
 /// @return true if path was initialized, false otherwise.
 static bool log_path_init(void)
@@ -102,7 +103,15 @@ FUNC_ATTR_UNUSED
 
     va_list args;
     va_start(args, fmt);
-    ret = v_do_log_to_file(log_file, log_level, func_name, line_num, eol, fmt, args);
+
+    ret = v_do_log_to_file(log_file,
+                           log_level,
+                           func_name,
+                           line_num,
+                           eol,
+                           fmt,
+                           args);
+
     va_end(args);
 
     if(log_file != stderr && log_file != stdout)
@@ -119,7 +128,8 @@ do_log_exit:
 
 /// Open the log file for appending.
 ///
-/// @return The FILE* specified by the USR_LOG_FILE path or stderr in case of error
+/// @return
+/// The FILE* specified by the USR_LOG_FILE path or stderr in case of error
 FILE *open_log_file(void)
 {
     static bool opening_log_file = false;
@@ -165,7 +175,15 @@ static bool do_log_to_file(FILE *log_file,
 {
     va_list args;
     va_start(args, fmt);
-    bool ret = v_do_log_to_file(log_file, log_level, func_name, line_num, eol, fmt, args);
+
+    bool ret = v_do_log_to_file(log_file,
+                                log_level,
+                                func_name,
+                                line_num,
+                                eol,
+                                fmt,
+                                args);
+
     va_end(args);
     return ret;
 }
@@ -198,7 +216,8 @@ static bool v_do_log_to_file(FILE *log_file,
 
     char date_time[20];
 
-    if(strftime(date_time, sizeof(date_time), "%Y/%m/%d %H:%M:%S", &local_time) == 0)
+    if(strftime(date_time, sizeof(date_time),
+                "%Y/%m/%d %H:%M:%S", &local_time) == 0)
     {
         return false;
     }
@@ -207,8 +226,8 @@ static bool v_do_log_to_file(FILE *log_file,
     int64_t pid = os_get_pid();
 
     // pid, date time, log level, function name, line number, message
-    if(fprintf(log_file, "%" PRId64 "  %s  %s  %s@%d: ",
-               pid, date_time, log_levels[log_level], func_name, line_num) < 0)
+    if(fprintf(log_file, "%" PRId64 "  %s  %s  %s@%d: ", pid,
+               date_time, log_levels[log_level], func_name, line_num) < 0)
     {
         return false;
     }

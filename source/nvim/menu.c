@@ -1,7 +1,8 @@
 /// @file nvim/menu.c
 ///
-/// Code for menus.
-/// Used for the GUI and 'wildmenu'. GUI/Motif support by Robert Webb
+/// Code for menus:
+/// - Used for the GUI and 'wildmenu'.
+/// - GUI/Motif support by Robert Webb
 
 #include <assert.h>
 #include <inttypes.h>
@@ -300,8 +301,12 @@ void ex_menu(exarg_T *eap)
 /// Add the menu with the given name to the menu hierarchy
 ///
 /// @param menu_path
-/// @param menuarg    passes modes, iconfile, iconidx, icon_builtin, silent[0], noremap[0]
+///
+/// @param menuarg
+/// passes modes, iconfile, iconidx, icon_builtin, silent[0], noremap[0]
+///
 /// @param pri_tab
+///
 /// @param call_data
 static int add_menu_path(char_u *menu_path,
                          vimmenu_T *menuarg,
@@ -336,8 +341,8 @@ static int add_menu_path(char_u *menu_path,
 
     while(*name)
     {
-        // Get name of this element in the menu hierarchy, and the simplified
-        // name (without mnemonic and accelerator text).
+        // Get name of this element in the menu hierarchy,
+        // and the simplified name (without mnemonic and accelerator text).
         next_name = menu_name_skip(name);
         map_to = menutrans_lookup(name, (int)STRLEN(name));
 
@@ -591,9 +596,12 @@ erret:
     return FAIL;
 }
 
-/// Set the (sub)menu with the given name to enabled or disabled.
-/// Called recursively.
-static int menu_nable_recurse(vimmenu_T *menu, char_u *name, int modes, int enable)
+/// Set the (sub)menu with the given name
+/// to enabled or disabled. Called recursively.
+static int menu_nable_recurse(vimmenu_T *menu,
+                              char_u *name,
+                              int modes,
+                              int enable)
 {
     char_u *p;
 
@@ -1014,8 +1022,12 @@ static int expand_modes = 0x0;
 /// TRUE for ":emenu" command
 static int expand_emenu;
 
-/// Work out what to complete when doing command line completion of menu names.
-char_u *set_context_in_menu_cmd(expand_T *xp, char_u *cmd, char_u *arg, int forceit)
+/// Work out what to complete when doing
+/// command line completion of menu names.
+char_u *set_context_in_menu_cmd(expand_T *xp,
+                                char_u *cmd,
+                                char_u *arg,
+                                int forceit)
 {
     char_u *after_dot;
     char_u *p;
@@ -1153,7 +1165,8 @@ char_u *set_context_in_menu_cmd(expand_T *xp, char_u *cmd, char_u *arg, int forc
     return NULL;
 }
 
-/// Function given to ExpandGeneric() to obtain the list of (sub)menus (not entries).
+/// Function given to ExpandGeneric() to
+/// obtain the list of (sub)menus (not entries).
 char_u *get_menu_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static vimmenu_T *menu = NULL;
@@ -1260,8 +1273,8 @@ char_u *get_menu_names(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
                 }
             }
 
-            // hack on menu separators:  use a 'magic' char for the separator
-            // so that '.' in names gets escaped properly
+            // hack on menu separators:  use a 'magic' char for the
+            // separator so that '.' in names gets escaped properly
             STRCAT(tbuffer, "\001");
             str = tbuffer;
         }
@@ -1364,10 +1377,10 @@ static int menu_namecmp(char_u *name, char_u *mname)
 /// @param noremap
 /// @param unmenu
 ///
-/// - If "noremap" is not NULL, then the flag it points to is set according to
-///   whether the command is a "nore" command.
-/// - If "unmenu" is not NULL, then the flag it points to is set according to
-///   whether the command is an "unmenu" command.
+/// - If "noremap" is not NULL, then the flag it points to is
+///   set according to whether the command is a "nore" command.
+/// - If "unmenu" is not NULL, then the flag it points to is
+///   set according to whether the command is an "unmenu" command.
 static int get_menu_cmd_modes(char_u *cmd,
                               int forceit,
                               int *noremap,
@@ -1406,8 +1419,11 @@ static int get_menu_cmd_modes(char_u *cmd,
             break;
 
         case 'a': // amenu
-            modes = MENU_INSERT_MODE | MENU_CMDLINE_MODE | MENU_NORMAL_MODE
-                    | MENU_VISUAL_MODE | MENU_SELECT_MODE
+            modes = MENU_INSERT_MODE
+                    | MENU_CMDLINE_MODE
+                    | MENU_NORMAL_MODE
+                    | MENU_VISUAL_MODE
+                    | MENU_SELECT_MODE
                     | MENU_OP_PENDING_MODE;
             break;
 
@@ -1464,20 +1480,27 @@ static char_u *popup_mode_name(char_u *name, int idx)
 }
 
 
-/// Duplicate the menu item text and then process to see if a mnemonic key
-/// and/or accelerator text has been identified.
+/// Duplicate the menu item text and then process to see
+/// if a mnemonic key and/or accelerator text has been identified.
 ///
-/// @param str  The menu item text.
-/// @param[out] mnemonic If non-NULL, *mnemonic is set to the character after
-///             the first '&'.
-/// @param[out] actext If non-NULL, *actext is set to the text after the first
-///             TAB, but only if a TAB was found. Memory pointed to is newly
-///             allocated.
+/// @param str
+/// The menu item text.
+///
+/// @param[out]
+/// mnemonic If non-NULL, *mnemonic is set
+/// to the character after the first '&'.
+///
+/// @param[out]
+/// actext If non-NULL, *actext is set to the
+/// text after the first TAB, but only if a TAB
+/// was found. Memory pointed to is newly allocated.
 ///
 /// @return a pointer to allocated memory.
 static char_u *menu_text(const char_u *str, int *mnemonic, char_u **actext)
-FUNC_ATTR_NONNULL_RET         FUNC_ATTR_MALLOC
-FUNC_ATTR_WARN_UNUSED_RESULT  FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(1)
 {
     char_u *p;
     char_u *text;
@@ -1546,7 +1569,8 @@ int menu_is_toolbar(char_u *name)
     return STRNCMP(name, "ToolBar", 7) == 0;
 }
 
-/// Return TRUE if the name is a menu separator identifier: Starts and ends with '-'
+/// Return TRUE if the name is a menu
+/// separator identifier: Starts and ends with '-'
 int menu_is_separator(char_u *name)
 {
     return name[0] == '-' && name[STRLEN(name) - 1] == '-';
@@ -1729,8 +1753,8 @@ static garray_T menutrans_ga = GA_EMPTY_INIT_VALUE;
     xfree(_mt->to)
 
 /// ":menutrans".
-/// This function is also defined without the +multi_lang feature, in which
-/// case the commands are ignored.
+/// This function is also defined without the +multi_lang feature,
+/// in which case the commands are ignored.
 void ex_menutranslate(exarg_T *eap)
 {
     char_u *arg = eap->arg;

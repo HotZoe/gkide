@@ -273,7 +273,8 @@ pos_T *movemark(int count)
                 continue;
             }
 
-            if(buflist_getfile(jmp->fmark.fnum, jmp->fmark.mark.lnum, 0, FALSE) == FAIL)
+            if(buflist_getfile(jmp->fmark.fnum,
+                               jmp->fmark.mark.lnum, 0, FALSE) == FAIL)
             {
                 return (pos_T *)NULL;
             }
@@ -331,8 +332,9 @@ pos_T *movechangelist(int count)
 }
 
 /// Find mark "c" in buffer pointed to by "buf".
-/// If "changefile" is TRUE it's allowed to edit another file for '0, 'A, etc.
-/// If "fnum" is not NULL store the fnum there for '0, 'A etc., don't edit another file.
+/// If "changefile" is TRUE it's allowed to edit
+/// another file for '0, 'A, etc. If "fnum" is not
+/// NULL store the fnum there for '0, 'A etc., don't edit another file.
 ///
 /// @return
 /// - pointer to pos_T if found.  lnum is 0 when mark not set, -1 when mark is
@@ -513,9 +515,9 @@ pos_T *getmark_buf_fnum(buf_T *buf, int c, int changefile, int *fnum)
 
 /// Search for the next named mark in the current file.
 ///
-/// \param startpos    where to start
-/// \param dir         direction for search
-/// \param begin_line
+/// @param startpos    where to start
+/// @param dir         direction for search
+/// @param begin_line
 ///
 /// @return
 /// Returns pointer to pos_T of the next mark or NULL if no mark is found.
@@ -566,7 +568,7 @@ pos_T *getnextmark(pos_T *startpos, int dir, int begin_line)
 }
 
 /// For an xtended filemark: set the fnum from the fname.
-/// This is used for marks obtained from the .shada file.  It's postponed
+/// This is used for marks obtained from the .shada file. It's postponed
 /// until the mark is used to avoid a long startup delay.
 static void fname2fnum(xfmark_T *fm)
 {
@@ -576,11 +578,11 @@ static void fname2fnum(xfmark_T *fm)
     {
         // First expand "~/" in the file name to the home directory.
         // Don't expand the whole name, it may contain other '~' chars.
-#ifdef BACKSLASH_IN_FILENAME
+    #ifdef BACKSLASH_IN_FILENAME
         if(fm->fname[0] == '~' && (fm->fname[1] == '/' || fm->fname[1] == '\\'))
-#else
+    #else
         if(fm->fname[0] == '~' && (fm->fname[1] == '/'))
-#endif
+    #endif
         {
             int len;
             expand_env((char_u *)"~/", NameBuff, MAXPATHL);
@@ -676,7 +678,8 @@ int check_mark(pos_T *pos)
 /// Used mainly when trashing the entire buffer during ":e" type commands.
 ///
 /// @param[out]  buf  Buffer to clear marks in.
-void clrallmarks(buf_T *const buf) FUNC_ATTR_NONNULL_ALL
+void clrallmarks(buf_T *const buf)
+FUNC_ATTR_NONNULL_ALL
 {
     for(size_t i = 0; i < NMARKS; i++)
     {
@@ -1388,9 +1391,13 @@ static void mark_adjust_internal(linenr_T line1,
         }                                                           \
     }
 
-/// Adjust marks in line "lnum" at column "mincol" and further: add
-/// "lnum_amount" to the line number and add "col_amount" to the column position.
-void mark_col_adjust(linenr_T lnum, colnr_T mincol, long lnum_amount, long col_amount)
+/// Adjust marks in line "lnum" at column "mincol" and further:
+/// add "lnum_amount" to the line number and add "col_amount" to
+/// the column position.
+void mark_col_adjust(linenr_T lnum,
+                     colnr_T mincol,
+                     long lnum_amount,
+                     long col_amount)
 {
     int i;
     int fnum = curbuf->b_fnum;
@@ -1508,9 +1515,10 @@ void cleanup_jumplist(void)
         {
             if(to != from)
             {
-                // Not using curwin->w_jumplist[to++] = curwin->w_jumplist[from] because
-                // this way valgrind complains about overlapping source and destination
-                // in memcpy() call. (clang-3.6.0, debug build with -DEXITFREE).
+                // Not using curwin->w_jumplist[to++] = curwin->w_jumplist[from]
+                // because this way valgrind complains about overlapping source
+                // and destination in memcpy() call. (clang-3.6.0, debug build
+                // with -DEXITFREE).
                 curwin->w_jumplist[to] = curwin->w_jumplist[from];
             }
 
@@ -1551,19 +1559,22 @@ void copy_jumplist(win_T *from, win_T *to)
 
 /// Iterate over jumplist items
 ///
-/// @warning No jumplist-editing functions must be run while
-///          iteration is in progress.
+/// @warning
+/// No jumplist-editing functions must be
+/// run while iteration is in progress.
 ///
-/// @param[in]   iter  Iterator. Pass NULL to start iteration.
-/// @param[in]   win   Window for which jump list is processed.
-/// @param[out]  fm    Item definition.
+/// @param[in]  iter  Iterator. Pass NULL to start iteration.
+/// @param[in]  win   Window for which jump list is processed.
+/// @param[out] fm    Item definition.
 ///
-/// @return Pointer that needs to be passed to next 'mark_jumplist_iter'
-///         call or NULL if iteration is over.
+/// @return
+/// Pointer that needs to be passed to next
+/// 'mark_jumplist_iter' call or NULL if iteration is over.
 const void *mark_jumplist_iter(const void *const iter,
                                const win_T *const win,
                                xfmark_T *const fm)
-FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(iter == NULL && win->w_jumplistlen == 0)
     {
@@ -1589,19 +1600,22 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Iterate over global marks
 ///
-/// @warning No mark-editing functions must be run while
-///          iteration is in progress.
+/// @warning
+/// No mark-editing functions must be run while
+/// iteration is in progress.
 ///
 /// @param[in]   iter  Iterator. Pass NULL to start iteration.
 /// @param[out]  name  Mark name.
 /// @param[out]  fm    Mark definition.
 ///
-/// @return Pointer that needs to be passed to next 'mark_global_iter'
-///         call or NULL if iteration is over.
+/// @return
+/// Pointer that needs to be passed to next
+/// 'mark_global_iter' call or NULL if iteration is over.
 const void *mark_global_iter(const void *const iter,
                              char *const name,
                              xfmark_T *const fm)
-FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *name = NUL;
     const xfmark_T *iter_mark = (iter == NULL
@@ -1641,18 +1655,22 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Get next mark and its name
 ///
-/// @param[in]      buf        Buffer for which next mark is taken.
-/// @param[in,out]  mark_name  Pointer to the current mark name. Next mark name
-///                            will be saved at this address as well.
+/// @param[in] buf
+/// Buffer for which next mark is taken.
 ///
-///                            Current mark name must either be NUL, '"', '^',
-///                            '.' or 'a' .. 'z'. If it is neither of these
-///                            behaviour is undefined.
+/// @param[in,out] mark_name
+/// Pointer to the current mark name. Next mark name
+/// will be saved at this address as well.
+///
+/// Current mark name must either be NUL, '"', '^',
+/// '.' or 'a' .. 'z'. If it is neither of these
+/// behaviour is undefined.
 ///
 /// @return Pointer to the next mark or NULL.
 static inline const fmark_T *next_buffer_mark(const buf_T *const buf,
                                               char *const mark_name)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(*mark_name)
     {
@@ -1695,21 +1713,23 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Iterate over buffer marks
 ///
-/// @warning No mark-editing functions must be run while iteration is in
-///          progress.
+/// @warning
+/// No mark-editing functions must be run while iteration is in progress.
 ///
 /// @param[in]   iter  Iterator. Pass NULL to start iteration.
 /// @param[in]   buf   Buffer.
 /// @param[out]  name  Mark name.
 /// @param[out]  fm    Mark definition.
 ///
-/// @return Pointer that needs to be passed to next 'mark_buffer_iter'
-///         call or NULL if iteration is over.
+/// @return
+/// Pointer that needs to be passed to next
+/// 'mark_buffer_iter' call or NULL if iteration is over.
 const void *mark_buffer_iter(const void *const iter,
                              const buf_T *const buf,
                              char *const name,
                              fmark_T *const fm)
-FUNC_ATTR_NONNULL_ARG(2, 3, 4) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3, 4)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *name = NUL;
 
@@ -1753,10 +1773,15 @@ FUNC_ATTR_NONNULL_ARG(2, 3, 4) FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Set global mark
 ///
-/// @param[in]  name    Mark name.
-/// @param[in]  fm      Mark to be set.
-/// @param[in]  update  If true then only set global mark if it was created
-///                     later then existing one.
+/// @param[in] name
+/// Mark name.
+///
+/// @param[in] fm
+/// Mark to be set.
+///
+/// @param[in] update
+/// If true then only set global mark if
+/// it was created later then existing one.
 ///
 /// @return true on success, false on failure.
 bool mark_set_global(const char name, const xfmark_T fm, const bool update)
@@ -1786,11 +1811,18 @@ bool mark_set_global(const char name, const xfmark_T fm, const bool update)
 
 /// Set local mark
 ///
-/// @param[in]  name    Mark name.
-/// @param[in]  buf     Pointer to the buffer to set mark in.
-/// @param[in]  fm      Mark to be set.
-/// @param[in]  update  If true then only set global mark if it was created
-///                     later then existing one.
+/// @param[in] name
+/// Mark name.
+///
+/// @param[in] buf
+/// Pointer to the buffer to set mark in.
+///
+/// @param[in] fm
+/// Mark to be set.
+///
+/// @param[in] update
+/// If true then only set global mark if it
+/// was created later then existing one.
 ///
 /// @return true on success, false on failure.
 bool mark_set_local(const char name,

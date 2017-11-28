@@ -67,7 +67,8 @@ typedef struct
     iconv_t vc_fd; ///< Value for CONV_ICONV.
 #endif
 
-    bool vc_fail;  ///< What to do with invalid characters: if true, fail, otherwise use '?'.
+    bool vc_fail;  ///< What to do with invalid characters:
+                   ///< if true, fail, otherwise use '?'.
 } vimconv_T;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -75,7 +76,9 @@ typedef struct
 #endif
 
 static inline int mb_strcmp_ic(bool ic, const char *s1, const char *s2)
-REAL_FATTR_NONNULL_ALL REAL_FATTR_PURE REAL_FATTR_WARN_UNUSED_RESULT;
+REAL_FATTR_NONNULL_ALL
+REAL_FATTR_PURE
+REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Compare strings
 ///

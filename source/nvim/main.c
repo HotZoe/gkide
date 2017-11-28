@@ -72,11 +72,12 @@
 #include "config.h"
 #include "envdefs.h"
 
-#define WIN_HOR      1   ///< @b -o horizontally split windows for 'window_layout'
-#define WIN_VER      2   ///< @b -O vertically split windows for 'window_layout'
-#define WIN_TABS     3   ///< @b -p windows on tab pages for 'window_layout'
+#define WIN_HOR   1  ///< @b -o horizontally split windows for 'window_layout'
+#define WIN_VER   2  ///< @b -O vertically split windows for 'window_layout'
+#define WIN_TABS  3  ///< @b -p windows on tab pages for 'window_layout'
 
-#define MAX_ARG_CMDS 10  ///< Maximum number of commands from + or -c arguments
+/// Maximum number of commands from + or -c arguments
+#define MAX_ARG_CMDS 10
 
 /// Struct for various parameters passed between main() and other functions.
 typedef struct
@@ -223,7 +224,10 @@ static void early_init(void)
 int main(int argc, char **argv)
 {
     argv0 = argv[0];
-    mparm_T params; // various parameters passed between main() and other functions.
+
+    // various parameters passed between main() and other functions.
+    mparm_T params;
+
     char_u *cwd = NULL; // current workding dir on startup
     char_u *fname = NULL; // file name from command line
 
@@ -299,8 +303,8 @@ int main(int argc, char **argv)
 
     if(reading_input)
     {
-        // One of the startup commands (arguments, sourced scripts or plugins) may
-        // prompt the user, so start reading from a tty now.
+        // One of the startup commands (arguments, sourced scripts or
+        // plugins) may prompt the user, so start reading from a tty now.
         int fd = fileno(stdin);
 
         if(!params.input_isatty || params.edit_type == EDIT_STDIN)
@@ -359,8 +363,8 @@ int main(int argc, char **argv)
     // Decide about window layout for diff mode after reading vimrc.
     set_window_layout(&params);
 
-    // Recovery mode without a file name: List swap files.
-    // This uses the 'dir' option, therefore it must be after the initializations.
+    // Recovery mode without a file name: List swap files. This uses
+    // the 'dir' option, therefore it must be after the initializations.
     if(recoverymode && fname == NULL)
     {
         recover_names(NULL, TRUE, 0, NULL);
@@ -427,10 +431,11 @@ int main(int argc, char **argv)
 
     if(reading_input && (need_wait_return || msg_didany))
     {
-        // Since at this point there's no UI instance running yet, error messages
-        // would have been printed to stdout. Before starting (which can result in
-        // a alternate screen buffer being shown) we need confirmation that the
-        // user has seen the messages and that is done with a call to wait_return.
+        // Since at this point there's no UI instance running yet, error
+        // messages would have been printed to stdout. Before starting
+        // (which can result in a alternate screen buffer being shown) we
+        // need confirmation that the user has seen the messages and that
+        // is done with a call to wait_return.
         TIME_MSG("waiting for return");
         wait_return(TRUE);
     }
@@ -446,7 +451,8 @@ int main(int argc, char **argv)
     setmouse(); // may start using the mouse
     ui_reset_scroll_region(); // In case Rows changed
 
-    // Don't clear the screen when starting in Ex mode, unless using the GUI.
+    // Don't clear the screen when
+    // starting in Ex mode, unless using the GUI.
     if(exmode_active)
     {
         must_redraw = CLEAR;
@@ -574,8 +580,9 @@ void getout(int exitval)
     tabpage_T *next_tp;
     exiting = TRUE;
 
-    // When running in Ex mode an error causes us to exit with a non-zero exit
-    // code. POSIX requires this, although it's not 100% clear from the standard.
+    // When running in Ex mode an error causes us
+    // to exit with a non-zero exit code. POSIX requires
+    // this, although it's not 100% clear from the standard.
     if(exmode_active)
     {
         exitval += ex_exitval;
@@ -613,7 +620,8 @@ void getout(int exitval)
                                    false,
                                    buf);
 
-                    buf_set_changedtick(buf, -1); // note that we did it already
+                    // note that we did it already
+                    buf_set_changedtick(buf, -1);
 
                     // start all over, autocommands may mess up the lists
                     next_tp = first_tabpage;
@@ -683,7 +691,8 @@ void getout(int exitval)
     mch_exit(exitval);
 }
 
-/// Gets the integer value of a numeric command line argument if given, such as '-o10'.
+/// Gets the integer value of a numeric command
+/// line argument if given, such as '-o10'.
 ///
 /// @param[in]      p    pointer to argument
 /// @param[in, out] idx  pointer to index in argument, is incremented
@@ -695,7 +704,8 @@ void getout(int exitval)
 ///
 /// @return argument's numeric value otherwise
 static int get_number_arg(const char *p, int *idx, int def)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(ascii_isdigit(p[*idx]))
     {
@@ -837,7 +847,10 @@ static void command_line_scan(mparm_T *parmp)
                     else if(STRICMP(argv[0] + argv_idx, "api-info") == 0)
                     {
                         msgpack_sbuffer *b = msgpack_sbuffer_new();
-                        msgpack_packer *p = msgpack_packer_new(b, msgpack_sbuffer_write);
+
+                        msgpack_packer *p =
+                            msgpack_packer_new(b, msgpack_sbuffer_write);
+
                         Object md = DICTIONARY_OBJ(api_metadata());
 
                         msgpack_rpc_from_object(md, p);
@@ -904,9 +917,9 @@ static void command_line_scan(mparm_T *parmp)
 
                 case 'b':
                     // "-b" binary mode.
-                    // Needs to be effective before expanding file names, because
-                    // for Win32 this makes us edit a shortcut file itself,
-                    // instead of the file it links to.
+                    // Needs to be effective before expanding file names,
+                    // because for Win32 this makes us edit a shortcut file
+                    // itself, instead of the file it links to.
                     set_options_bin(curbuf->b_p_bin, 1, 0);
                     curbuf->b_p_bin = 1; // Binary file I/O.
                     break;
@@ -1102,7 +1115,9 @@ static void command_line_scan(mparm_T *parmp)
 
                     if(argv[0][argv_idx] != NUL)
                     {
-                        set_option_value("verbosefile", 0L, argv[0] + argv_idx, 0);
+                        set_option_value("verbosefile", 0L,
+                                         argv[0] + argv_idx, 0);
+
                         argv_idx = (int)STRLEN(argv[0]);
                     }
 
@@ -1138,6 +1153,7 @@ static void command_line_scan(mparm_T *parmp)
                         }
 
                         parmp->commands[parmp->n_commands++] = argv[0] + argv_idx;
+
                         argv_idx = -1;
                         break;
                     }
@@ -1308,7 +1324,9 @@ static void command_line_scan(mparm_T *parmp)
                         }
 
                         if((scriptout = mch_fopen(argv[0],
-                                                  c == 'w' ? APPENDBIN : WRITEBIN)) == NULL)
+                                                  c == 'w'
+                                                  ? APPENDBIN
+                                                  : WRITEBIN)) == NULL)
                         {
                             mch_errmsg(_("Cannot open for script output: \""));
                             mch_errmsg(argv[0]);
@@ -1361,8 +1379,9 @@ static void command_line_scan(mparm_T *parmp)
             alist_add(&global_alist, p, buf_nr);
         }
 
-        // If there are no more letters after the current "-", go to next argument.
-        // argv_idx is set to -1 when the current argument is to be skipped.
+        // If there are no more letters after the current "-",
+        // go to next argument. argv_idx is set to -1 when the
+        // current argument is to be skipped.
         if(argv_idx <= 0 || argv[0][argv_idx] == NUL)
         {
             --argc;
@@ -1371,7 +1390,8 @@ static void command_line_scan(mparm_T *parmp)
         }
     }
 
-    // If there is a "+123" or "-c" command, set v:swapcommand to the first one.
+    // If there is a "+123" or "-c" command,
+    // set v:swapcommand to the first one.
     if(parmp->n_commands > 0)
     {
         const size_t swcmd_len = STRLEN(parmp->commands[0]) + 3;
@@ -1403,7 +1423,8 @@ static void init_startuptime(mparm_T *paramp)
 {
     for(int i = 1; i < paramp->argc; i++)
     {
-        if(STRICMP(paramp->argv[i], "--startuptime") == 0 && i + 1 < paramp->argc)
+        if(STRICMP(paramp->argv[i], "--startuptime") == 0
+           && i + 1 < paramp->argc)
         {
             time_fd = mch_fopen(paramp->argv[i + 1], "a");
             time_start("--- NVIM STARTING ---");
@@ -1477,7 +1498,8 @@ static void init_gkide_sys_home(const char *exepath)
 }
 
 // Sets v:progname and v:progpath.
-static void init_path(const char *exename) FUNC_ATTR_NONNULL_ALL
+static void init_path(const char *exename)
+FUNC_ATTR_NONNULL_ALL
 {
     char exepath[MAXPATHL] = { 0 };
     size_t exepathlen = MAXPATHL;
@@ -1511,7 +1533,7 @@ static char_u *get_fname(mparm_T *FUNC_ARGS_UNUSED_MAYBE(parmp),
             os_dirname(cwd, MAXPATHL);
         }
 
-        // Temporarily add '(' and ')' to 'isfname'.  These are valid
+        // Temporarily add '(' and ')' to 'isfname'. These are valid
         // filename characters but are excluded from 'isfname' to make
         // "gf" work on a file name in parenthesis (e.g.: see vim.h).
         do_cmdline_cmd(":set isf+=(,)");
@@ -1549,7 +1571,7 @@ static void load_plugins(void)
 {
     if(p_lpl)
     {
-        source_runtime((char_u *)"plugin/**/*.vim", DIP_ALL | DIP_NOAFTER); // NOLINT
+        source_runtime((char_u *)"plugin/**/*.vim", DIP_ALL | DIP_NOAFTER);
         TIME_MSG("loading plugins");
 
         ex_packloadall(NULL);
@@ -1711,8 +1733,10 @@ static void create_windows(mparm_T *parmp)
         }
         else if(firstwin->w_next == NULL)
         {
-            parmp->window_count = make_windows(parmp->window_count,
-                                               parmp->window_layout == WIN_VER);
+            parmp->window_count =
+                make_windows(parmp->window_count,
+                             parmp->window_layout == WIN_VER);
+
             TIME_MSG("making windows");
         }
         else
@@ -1741,8 +1765,8 @@ static void create_windows(mparm_T *parmp)
     else
     {
         // Open a buffer for windows that don't have one yet.
-        // Commands in the vimrc might have loaded a file or split the window.
-        // Watch out for autocommands that delete a window.
+        // Commands in the vimrc might have loaded a file or split
+        // the window. Watch out for autocommands that delete a window.
         //
         // Don't execute Win/Buf Enter/Leave autocommands here
         ++autocmd_no_enter;
@@ -1809,7 +1833,7 @@ static void create_windows(mparm_T *parmp)
                     }
 
                     // We can't close the window, it would disturb what
-                    // happens next.  Clear the file name and set the arg
+                    // happens next. Clear the file name and set the arg
                     // index to -1 to delete it later.
                     setfname(curbuf, NULL, NULL, FALSE);
                     curwin->w_arg_idx = -1;
@@ -1922,7 +1946,8 @@ static void edit_buffers(mparm_T *parmp, char_u *cwd)
             swap_exists_did_quit = FALSE;
 
             (void)do_ecmd(0,
-                          arg_idx < GARGCOUNT ? alist_name(&GARGLIST[arg_idx]) : NULL,
+                          arg_idx < GARGCOUNT
+                          ? alist_name(&GARGLIST[arg_idx]) : NULL,
                           NULL,
                           NULL,
                           ECMD_LASTL,
@@ -1955,7 +1980,9 @@ static void edit_buffers(mparm_T *parmp, char_u *cwd)
 
         if(got_int)
         {
-            (void)vgetc(); // only break the file loading, not the rest
+            // only break the file
+            // loading, not the rest
+            (void)vgetc();
             break;
         }
     }
@@ -2023,7 +2050,7 @@ static void exe_commands(mparm_T *parmp)
     int i;
 
     // We start commands on line 0, make "vim +/pat file" match a
-    // pattern on line 1.  But don't move the cursor when an autocommand
+    // pattern on line 1. But don't move the cursor when an autocommand
     // with g`" was used.
     msg_scroll = TRUE;
 
@@ -2076,9 +2103,11 @@ static void exe_commands(mparm_T *parmp)
 /// 3. Sourcing other vimrc files ($XDG_CONFIG_DIRS[1]/nvim/init.vim, …).
 /// 4. Execution of EXINIT environment variable.
 ///
-/// @return True if it is needed to attempt to source exrc file according to
-///         'exrc' option definition.
-static bool do_user_initialization(void) FUNC_ATTR_WARN_UNUSED_RESULT
+/// @return
+/// True if it is needed to attempt to source exrc file according to
+/// 'exrc' option definition.
+static bool do_user_initialization(void)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool do_exrc = p_exrc;
 
@@ -2123,15 +2152,18 @@ static bool do_user_initialization(void) FUNC_ATTR_WARN_UNUSED_RESULT
                 break;
             }
 
-            const char path_tail[] = { 'n', 'v', 'i', 'm', PATHSEP,
-                                       'i', 'n', 'i', 't', '.', 'v', 'i', 'm', NUL };
+            const char path_tail[] = {
+                'n', 'v', 'i', 'm', PATHSEP,
+                'i', 'n', 'i', 't', '.', 'v', 'i', 'm', NUL
+            };
 
             char *vimrc = xmalloc(dir_len + sizeof(path_tail) + 1);
             memmove(vimrc, dir, dir_len);
             vimrc[dir_len] = PATHSEP;
             memmove(vimrc + dir_len + 1, path_tail, sizeof(path_tail));
 
-            if(do_source((char_u *) vimrc, true, kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
+            if(do_source((char_u *) vimrc, true,
+                         kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
             {
                 do_exrc = p_exrc;
 
@@ -2163,16 +2195,20 @@ static bool do_user_initialization(void) FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Source startup scripts
-static void source_startup_scripts(const mparm_T *const parmp) FUNC_ATTR_NONNULL_ALL
+static void source_startup_scripts(const mparm_T *const parmp)
+FUNC_ATTR_NONNULL_ALL
 {
     TIME_MSG("============ startup sourcing beginning ============");
 
-    // If -u argument given, use only the initializations from that file and nothing else.
+    // If -u argument given, use only the
+    // initializations from that file and nothing else.
     if(parmp->use_vimrc != NULL)
     {
-        if(!(strcmp(parmp->use_vimrc, "NONE") == 0 || strcmp(parmp->use_vimrc, "NORC") == 0))
+        if(!(strcmp(parmp->use_vimrc, "NONE") == 0
+             || strcmp(parmp->use_vimrc, "NORC") == 0))
         {
-            if(do_source((char_u *)parmp->use_vimrc, FALSE, kLoadSftNvimrc|kLoadSfsUsr) != OK)
+            if(do_source((char_u *)parmp->use_vimrc,
+                         FALSE, kLoadSftNvimrc|kLoadSfsUsr) != OK)
             {
                 EMSG2(_("E282: Cannot read from \"%s\""), parmp->use_vimrc);
             }
@@ -2181,17 +2217,18 @@ static void source_startup_scripts(const mparm_T *const parmp) FUNC_ATTR_NONNULL
     else if(!silent_mode)
     {
         // Get system wide defaults, if the file name is defined.
-        (void)do_source((char_u *)SYSINIT_NVIMRC, false, kLoadSftNvimrc|kLoadSfsSys);
+        (void)do_source((char_u *)SYSINIT_NVIMRC,
+                        false, kLoadSftNvimrc|kLoadSfsSys);
 
         if(do_user_initialization())
         {
-            // Read initialization commands from ".vimrc" or ".exrc" in current
-            // directory.  This is only done if the 'exrc' option is set.
+            // Read initialization commands from ".vimrc" or ".exrc" in
+            // current directory. This is only done if the 'exrc' option is set.
             // Because of security reasons we disallow shell and write commands
             // now, except for unix if the file is owned by the user or 'secure'
             // option has been reset in environment of global "exrc" or "vimrc".
-            // Only do this if VIMRC_FILE is not the same as vimrc file sourced in
-            // do_user_initialization.
+            // Only do this if VIMRC_FILE is not the same as vimrc file sourced
+            // in do_user_initialization.
 
         #if defined(UNIX)
             // If vimrc file is not owned by user, set 'secure' mode.
@@ -2199,7 +2236,8 @@ static void source_startup_scripts(const mparm_T *const parmp) FUNC_ATTR_NONNULL
         #endif
                 secure = p_secure;
 
-            if(do_source((char_u *)VIMRC_FILE, true, kLoadSftNvimrc|kLoadSfsUsr) == FAIL)
+            if(do_source((char_u *)VIMRC_FILE, true,
+                         kLoadSftNvimrc|kLoadSfsUsr) == FAIL)
             {
             #if defined(UNIX)
                 // if ".exrc" is not owned by user set 'secure' mode
@@ -2322,7 +2360,8 @@ static void mainerr(const char *errstr, const char *str)
     mch_exit(1);
 }
 
-/// Prints version information for <b>$ nvim -v</b> or <b>$ nvim --version</b>
+/// Prints version information for
+/// <b>$ nvim -v</b> or <b>$ nvim --version</b>
 static void version(void)
 {
     info_message = TRUE; // use mch_msg(), not mch_errmsg()

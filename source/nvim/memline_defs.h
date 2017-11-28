@@ -6,7 +6,7 @@
 #include "nvim/memfile_defs.h"
 
 /// When searching for a specific line, we remember what blocks in the tree
-/// are the branches leading to that block. This is stored in ml_stack.  Each
+/// are the branches leading to that block. This is stored in ml_stack. Each
 /// entry is a pointer to info in a block (may be data block or pointer block)
 typedef struct info_pointer
 {

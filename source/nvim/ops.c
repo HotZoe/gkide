@@ -60,8 +60,8 @@ static int batch_change_count = 0;           ///< inside a script
 static bool clipboard_delay_update = false;  ///< delay clipboard update
 static bool clipboard_needs_update = false;  ///< clipboard was updated
 
-/// structure used by block_prep, op_delete and op_yank for blockwise operators
-/// also op_change, op_shift, op_insert, op_replace - AKelly
+/// structure used by block_prep, op_delete and op_yank for blockwise
+/// operators also op_change, op_shift, op_insert, op_replace
 struct block_def
 {
     int startspaces;          ///< 'extra' cols before first char
@@ -717,8 +717,8 @@ void op_reindent(oparg_T *oap, Indenter how)
 
     for(i = oap->line_count - 1; i >= 0 && !got_int; i--)
     {
-        // it's a slow thing to do, so give feedback so there's no worry that
-        // the computer's just hung.
+        // it's a slow thing to do, so give feedback so there's
+        // no worry that the computer's just hung.
         if(i > 1
            && (i % 50 == 0 || i == oap->line_count - 1)
            && oap->line_count > p_report)
@@ -762,7 +762,7 @@ void op_reindent(oparg_T *oap, Indenter how)
     curwin->w_cursor.lnum = start_lnum;
     beginline(BL_SOL | BL_FIX);
 
-    // Mark changed lines so that they will be redrawn.  When Visual
+    // Mark changed lines so that they will be redrawn. When Visual
     // highlighting was present, need to continue until the last line. When
     // there is no change still need to remove the Visual highlighting.
     if(last_changed != 0)
@@ -1450,9 +1450,9 @@ static void stuffescaped(const char *arg, int literally)
 {
     while(*arg != NUL)
     {
-        // Stuff a sequence of normal ASCII characters, that's fast. Also
-        // stuff K_SPECIAL to get the effect of a special key when "literally"
-        // is TRUE.
+        // Stuff a sequence of normal ASCII characters, that's fast.
+        // Also stuff K_SPECIAL to get the effect of a special key
+        // when "literally" is TRUE.
         const char *const start = arg;
 
         while((*arg >= ' ' && *arg < DEL)
@@ -1823,7 +1823,7 @@ int op_delete(oparg_T *oap)
         if(oap->op_type == OP_CHANGE)
         {
             // Delete the lines except the first one. Temporarily move the
-            // cursor to the next line.  Save the current line number, if the
+            // cursor to the next line. Save the current line number, if the
             // last line is deleted it may be changed.
             if(oap->line_count > 1)
             {
@@ -1883,7 +1883,9 @@ int op_delete(oparg_T *oap)
                     endcol = getviscol2(oap->end.col, oap->end.coladd);
                 }
 
-                coladvance_force(getviscol2(oap->start.col, oap->start.coladd));
+                coladvance_force(getviscol2(oap->start.col,
+                                            oap->start.coladd));
+
                 oap->start = curwin->w_cursor;
 
                 if(oap->line_count == 1)
@@ -2067,7 +2069,9 @@ int op_replace(oparg_T *oap, int c)
     {
         bd.is_MAX = (curwin->w_curswant == MAXCOL);
 
-        for(; curwin->w_cursor.lnum <= oap->end.lnum; ++curwin->w_cursor.lnum)
+        for(/* nothing */;
+            curwin->w_cursor.lnum <= oap->end.lnum;
+            ++curwin->w_cursor.lnum)
         {
             curwin->w_cursor.col = 0; // make sure cursor position is valid
             block_prep(oap, &bd, curwin->w_cursor.lnum, TRUE);
@@ -2303,7 +2307,8 @@ int op_replace(oparg_T *oap, int c)
                 }
             }
 
-            // Advance to next character, stop at the end of the file.
+            // Advance to next character,
+            // stop at the end of the file.
             if(inc_cursor() == -1)
             {
                 break;
@@ -2651,7 +2656,7 @@ void op_insert(oparg_T *oap, long count1)
 
     // When a tab was inserted, and the characters in front of the tab
     // have been converted to a tab as well, the column of the cursor
-    // might have actually been reduced, so need to adjust here. */
+    // might have actually been reduced, so need to adjust here.
     if(t1.lnum == curbuf->b_op_start_orig.lnum
        && lt(curbuf->b_op_start_orig, t1))
     {
@@ -2675,7 +2680,8 @@ void op_insert(oparg_T *oap, long count1)
         {
             if(oap->op_type == OP_INSERT
                && oap->start.col + oap->start.coladd
-               != curbuf->b_op_start_orig.col + curbuf->b_op_start_orig.coladd)
+                  != curbuf->b_op_start_orig.col
+                     + curbuf->b_op_start_orig.coladd)
             {
                 int t = getviscol2(curbuf->b_op_start_orig.col,
                                    curbuf->b_op_start_orig.coladd);
@@ -2925,7 +2931,8 @@ FUNC_ATTR_NONNULL_ALL
 
     if(reg->y_array != NULL)
     {
-        for(size_t i = reg->y_size; i-- > 0;) // from y_size - 1 to 0 included
+        // from y_size - 1 to 0 included
+        for(size_t i = reg->y_size; i-- > 0;)
         {
             xfree(reg->y_array[i]);
         }
@@ -3058,9 +3065,10 @@ static void op_yank_reg(oparg_T *oap,
 
                         if(ce != cs && oap->start.coladd > 0)
                         {
-                            // Part of a tab selected -- but don't
-                            // double-count it.
-                            bd.startspaces = (ce - cs + 1) - oap->start.coladd;
+                            // Part of a tab selected
+                            // but don't double-count it.
+                            bd.startspaces = (ce - cs + 1)
+                                             - oap->start.coladd;
                             startcol++;
                         }
                     }
@@ -3421,7 +3429,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
                 // the readbuffer with "l" if:
                 // 1) 'virtualedit' is "all" or "onemore"
                 // 2) We are not at the end of the line
-                // 3) We are not  (one past the end of the line && on
+                // 3) We are not (one past the end of the line && on
                 //    the last line) This allows a visual put over a
                 //    selection one past the end of the line joining
                 //    the current line with the one below.
@@ -3440,7 +3448,8 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
                     eol = (*(cursor_pos + mb_ptr2len(cursor_pos)) == NUL);
                 }
 
-                bool ve_allows = (ve_flags == VE_ALL || ve_flags == VE_ONEMORE);
+                bool ve_allows = (ve_flags == VE_ALL
+                                  || ve_flags == VE_ONEMORE);
 
                 bool eof = curbuf->b_ml.ml_line_count
                            == curwin->w_cursor.lnum && one_past_line;
@@ -4477,12 +4486,18 @@ static void dis_msg(char_u *p, int skip_esc)
 /// Put a boolean value indicating whether the line ends with an unclosed
 /// comment in @b is_comment.
 ///
-/// @param line             line to be processed
-/// @param process          if false, will only check whether the line ends
-///                         with an unclosed comment,
-/// @param include_space    whether to skip space following the comment leader
-/// @param[out] is_comment  whether the current line ends with an unclosed
-///  comment.
+/// @param line
+/// line to be processed
+///
+/// @param process
+/// if false, will only check whether the line ends
+/// with an unclosed comment
+///
+/// @param include_space
+/// whether to skip space following the comment leader
+///
+/// @param[out] is_comment
+/// whether the current line ends with an unclosed comment.
 char_u *skip_comment(char_u *line,
                      bool process,
                      bool include_space,
@@ -6513,17 +6528,27 @@ void write_reg_contents_lst(int name,
 /// when @b name is '/', @b len and @b must_append are ignored.
 /// This means that @b str MUST be NUL-terminated.
 ///
-/// @param name  The name of the register
-/// @param str   The contents to write
-/// @param len   If >= 0, write @b len bytes of @b str. Otherwise, write
-///              `strlen(str)` bytes. If @b len is larger than the
-///              allocated size of @b src, the behaviour is undefined.
-/// @param must_append If true, append the contents of @b str to the current
-///                    contents of the register. Note that regardless of
-///                    @b must_append, this function will append when @b name
-///                    is an uppercase letter.
-/// @param yank_type   The motion type (kMTUnknown to auto detect)
-/// @param block_len   width of visual block
+/// @param name
+/// The name of the register
+///
+/// @param str
+/// The contents to write
+///
+/// @param len
+/// If >= 0, write @b len bytes of @b str. Otherwise, write
+/// `strlen(str)` bytes. If @b len is larger than the
+/// allocated size of @b src, the behaviour is undefined.
+///
+/// @param must_append
+/// If true, append the contents of @b str to the current
+/// contents of the register. Note that regardless of @b must_append,
+/// this function will append when @b name is an uppercase letter.
+///
+/// @param yank_type
+/// The motion type (kMTUnknown to auto detect)
+///
+/// @param block_len
+/// width of visual block
 void write_reg_contents_ex(int name,
                            const char_u *str,
                            ssize_t len,
@@ -6761,7 +6786,7 @@ void clear_oparg(oparg_T *oap)
 /// Count the number of bytes, characters and "words" in a line.
 ///
 /// "Words" are counted by looking for boundaries between non-space and
-/// space characters.  (it seems to produce results that match 'wc'.)
+/// space characters. (it seems to produce results that match 'wc'.)
 ///
 /// Return value is byte count; word count for the line is added to "*wc".
 /// Char count is added to "*cc".
@@ -7527,7 +7552,8 @@ FUNC_ATTR_PURE
 const void *op_register_iter(const void *const iter,
                              char *const name,
                              yankreg_T *const reg)
-FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *name = NUL;
     const yankreg_T *iter_reg = (iter == NULL

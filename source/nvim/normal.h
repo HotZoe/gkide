@@ -8,9 +8,9 @@
 #include "nvim/buffer_defs.h" // for win_T
 
 // Values for find_ident_under_cursor()
-#define FIND_IDENT      1  ///< find identifier (word)
-#define FIND_STRING     2  ///< find any string (WORD)
-#define FIND_EVAL       4  ///< include "->", "[]" and "."
+#define FIND_IDENT    1  ///< find identifier (word)
+#define FIND_STRING   2  ///< find any string (WORD)
+#define FIND_EVAL     4  ///< include "->", "[]" and "."
 
 /// Motion types, used for operators and for yank/delete registers.
 ///
@@ -27,25 +27,25 @@ typedef enum
 /// Arguments for operators.
 typedef struct oparg_S
 {
-    int op_type;             ///< current pending operator type
-    int regname;             ///< register to use for the operator
-    MotionType motion_type;  ///< type of the current cursor motion
-    int motion_force;        ///< force motion type: 'v', 'V' or CTRL-V
-    bool use_reg_one;        ///< true if delete uses reg 1 even when not linewise
-    bool inclusive;          ///< true if char motion is inclusive (only
-                             ///< valid when motion_type is kMTCharWise)
-    bool end_adjusted;       ///< backuped b_op_end one char (only used by do_format())
-    pos_T start;             ///< start of the operator
-    pos_T end;               ///< end of the operator
-    pos_T cursor_start;      ///< cursor position before motion for "gw"
+    int op_type;            ///< current pending operator type
+    int regname;            ///< register to use for the operator
+    MotionType motion_type; ///< type of the current cursor motion
+    int motion_force;       ///< force motion type: 'v', 'V' or CTRL-V
+    bool use_reg_one;  ///< true if delete uses reg 1 even when not linewise
+    bool inclusive;    ///< true if char motion is inclusive (only
+                       ///< valid when motion_type is kMTCharWise)
+    bool end_adjusted; ///< backuped b_op_end one char (only used by do_format())
+    pos_T start;       ///< start of the operator
+    pos_T end;         ///< end of the operator
+    pos_T cursor_start;///< cursor position before motion for "gw"
 
-    long line_count;         ///< number of lines from op_start to op_end (inclusive)
-    bool empty;              ///< op_start and op_end the same (only used by op_change())
-    bool is_VIsual;          ///< operator on Visual area
-    colnr_T start_vcol;      ///< start col for block mode operator
-    colnr_T end_vcol;        ///< end col for block mode operator
-    long prev_opcount;       ///< ca.opcount saved for K_EVENT
-    long prev_count0;        ///< ca.count0 saved for K_EVENT
+    long line_count;   ///< number of lines from op_start to op_end (inclusive)
+    bool empty;        ///< op_start and op_end the same (only used by op_change())
+    bool is_VIsual;    ///< operator on Visual area
+    colnr_T start_vcol;///< start col for block mode operator
+    colnr_T end_vcol;  ///< end col for block mode operator
+    long prev_opcount; ///< ca.opcount saved for K_EVENT
+    long prev_count0;  ///< ca.count0 saved for K_EVENT
 } oparg_T;
 
 /// Arguments for Normal mode commands.

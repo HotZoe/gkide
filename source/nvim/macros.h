@@ -38,13 +38,14 @@
 #define lineempty(p) (*ml_get(p) == NUL)
 
 /// return TRUE if the current buffer is empty
-#define bufempty()   (curbuf->b_ml.ml_line_count == 1 && *ml_get((linenr_T)1) == NUL)
+#define bufempty()   (curbuf->b_ml.ml_line_count == 1 \
+                      && *ml_get((linenr_T)1) == NUL)
 
 /// toupper() and tolower() that use the current locale.
 ///
 /// @warning
-/// Only call TOUPPER_LOC() and TOLOWER_LOC() with a character in the range 0 - 255.
-/// toupper()/tolower() on some systems can't handle others.
+/// Only call TOUPPER_LOC() and TOLOWER_LOC() with a character in
+/// the range 0 - 255. toupper()/tolower() on some systems can't handle others.
 ///
 /// @note
 /// It is often better to use mb_tolower() and mb_toupper(), because many
@@ -69,8 +70,8 @@
 /// Adjust chars in a language according to 'langmap' option.
 /// NOTE that there is no noticeable overhead if 'langmap' is not set.
 /// When set the overhead for characters < 256 is small.
-/// Don't apply 'langmap' if the character comes from the Stuff buffer or from a
-/// mapping and the langnoremap option was set.
+/// Don't apply 'langmap' if the character comes from the Stuff buffer
+/// or from a mapping and the langnoremap option was set.
 /// The do-while is just to ignore a ';' after the macro.
 #define LANGMAP_ADJUST(c, condition)      \
     do                                    \
@@ -92,7 +93,8 @@
         }                                 \
     } while(0)
 
-/// vim_isbreak() is used very often if 'linebreak' is set, use a macro to make it work fast.
+/// vim_isbreak() is used very often if 'linebreak' is set,
+/// use a macro to make it work fast.
 #define vim_isbreak(c)    (breakat_flags[(char_u)(c)])
 
 // no CR-LF translation
@@ -110,21 +112,20 @@
     #define mch_open_rw(n, f)      os_open((n), (f), 0)
 #endif
 
-#define     mch_fopen(n, p)        fopen((n), (p))
-
-#define REPLACE_NORMAL(s)          (((s) & REPLACE_FLAG) && !((s) & VREPLACE_FLAG))
+#define mch_fopen(n, p)      fopen((n), (p))
+#define REPLACE_NORMAL(s)    (((s) & REPLACE_FLAG) && !((s) & VREPLACE_FLAG))
 
 #define UTF_COMPOSINGLIKE(p1, p2)  utf_composinglike((p1), (p2))
 
 /// Whether to draw the vertical bar on the right side of the cell.
-#define CURSOR_BAR_RIGHT           (curwin->w_p_rl && (!(State & CMDLINE) || cmdmsg_rl))
+#define CURSOR_BAR_RIGHT  (curwin->w_p_rl && (!(State & CMDLINE) || cmdmsg_rl))
 
-// mb_ptr_adv(): advance a pointer to the next character, taking care of
-// multi-byte characters if needed.
-// mb_ptr_back(): backup a pointer to the previous character, taking care of
-// multi-byte characters if needed.
-// MB_COPY_CHAR(f, t): copy one char from "f" to "t" and advance the pointers.
-// PTR2CHAR(): get character from pointer.
+// mb_ptr_adv(): advance a pointer to the next character,
+// taking care of multi-byte characters if needed.
+// mb_ptr_back(): backup a pointer to the previous character,
+// taking care of multi-byte characters if needed.
+// MB_COPY_CHAR(f, t): copy one char from "f" to "t" and
+// advance the pointers. PTR2CHAR(): get character from pointer.
 
 /// Get the length of the character p points to
 #define MB_PTR2LEN(p)      mb_ptr2len(p)
@@ -151,10 +152,10 @@
 
 /// Calculate the length of a C array.
 ///
-/// This should be called with a real array. Calling this with a pointer is an
-/// error. A mechanism to detect many (though not all) of those errors at compile
-/// time is implemented. It works by the second division producing a division by
-/// zero in those cases (-Wdiv-by-zero in GCC).
+/// This should be called with a real array. Calling this with a pointer
+/// is an error. A mechanism to detect many (though not all) of those errors
+/// at compile time is implemented. It works by the second division producing
+/// a division by zero in those cases (-Wdiv-by-zero in GCC).
 #define ARRAY_SIZE(arr) \
     ((sizeof(arr)/sizeof((arr)[0])) / ((size_t)(!(sizeof(arr) % sizeof((arr)[0])))))
 
@@ -164,9 +165,9 @@
     #undef RGB
 #endif
 
-#define RGB(r, g, b) ((r << 16) | (g << 8) | b)
-#define STR_(x)      #x
-#define STR(x)       STR_(x)
+#define RGB(r, g, b)   ((r << 16) | (g << 8) | b)
+#define STR_(x)        #x
+#define STR(x)         STR_(x)
 
 #ifndef __has_attribute
     #define NVIM_HAS_ATTRIBUTE(x) 0

@@ -41,49 +41,53 @@
 // A number of variables is used to remember the current state:
 //
 // - msg_didany
-// TRUE when messages were written since the last time the user reacted to a prompt.
-// Reset: After hitting a key for the hit-return prompt, hitting <CR> for the command
-// line or input().
-// Set: When any message is written to the screen.
+//   TRUE   when messages were written since the last
+//          time the user reacted to a prompt.
+//   Reset: After hitting a key for the hit-return prompt,
+//          hitting <CR> for the command line or input().
+//   Set:   When any message is written to the screen.
 //
 // -msg_didout
-// TRUE when something was written to the current line.
-// Reset: When advancing to the next line, when the current text can be overwritten.
-// Set: When any message is written to the screen.
+//  TRUE   when something was written to the current line.
+//  Reset: When advancing to the next line, when the current
+//         text can be overwritten.
+//  Set:   When any message is written to the screen.
 //
 // - msg_nowait
-// No extra delay for the last drawn message.
-// Used in normal_cmd() before the mode message is drawn.
+//   No extra delay for the last drawn message.
+//   Used in normal_cmd() before the mode message is drawn.
 //
 // - emsg_on_display
-// There was an error message recently.
-// Indicates that there should be a delay before redrawing.
+//   There was an error message recently.
+//   Indicates that there should be a delay before redrawing.
 //
 // - msg_scroll
-// The next message should not overwrite the current one.
+//   The next message should not overwrite the current one.
 
 // - msg_scrolled
-// How many lines the screen has been scrolled (because of messages).
-// Used in update_screen() to scroll the screen back. Incremented each
-// time the screen scrolls a line.
+//   How many lines the screen has been scrolled (because of messages).
+//   Used in update_screen() to scroll the screen back. Incremented each
+//   time the screen scrolls a line.
 //
 // - msg_scrolled_ign
-// TRUE when msg_scrolled is non-zero and msg_puts_attr() writes something
-// without scrolling should not make need_wait_return to be set. This is a
-// hack to make ":ts" work without an extra prompt.
+//   TRUE when msg_scrolled is non-zero and msg_puts_attr() writes something
+//   without scrolling should not make need_wait_return to be set. This is a
+//   hack to make ":ts" work without an extra prompt.
 //
 // - lines_left
-// Number of lines available for messages before the more-prompt is to be given.
-// -1 when not set.
+//   Number of lines available for messages before the more-prompt
+//   is to be given. -1 when not set.
 //
 // - need_wait_return
-// TRUE when the hit-return prompt is needed.
-// Reset: After giving the hit-return prompt, when the user has answered some other prompt.
-// Set: When the ruler or typeahead display is overwritten, scrolling the screen for some message.
+//   TRUE   when the hit-return prompt is needed.
+//   Reset: After giving the hit-return prompt, when the user has
+//          answered some other prompt.
+//   Set:   When the ruler or typeahead display is overwritten,
+//          scrolling the screen for some message.
 //
 // - keep_msg
-// Message to be displayed after redrawing the screen, in main_loop().
-// This is an allocated string or NULL when not used.
+//   Message to be displayed after redrawing the screen, in main_loop().
+//   This is an allocated string or NULL when not used.
 
 // Magic chars used in confirm dialog strings
 #define DLG_BUTTON_SEP    '\n'
@@ -95,8 +99,8 @@ typedef struct msgchunk_S msgchunk_T;
     #include "message.c.generated.h"
 #endif
 
-/// To be able to scroll back at the "more" and "hit-enter" prompts we need to
-/// store the displayed text and remember where screen lines start.
+/// To be able to scroll back at the "more" and "hit-enter" prompts we
+/// need to store the displayed text and remember where screen lines start.
 struct msgchunk_S
 {
     msgchunk_T *sb_next;
@@ -121,6 +125,7 @@ MessageHistoryEntry *last_msg_hist = NULL;
 
 /// Displays the string @b s on the status line.
 /// When terminal not initialized (yet) mch_errmsg(..) is used.
+///
 /// @return TRUE if wait_return not called
 int msg(char_u *s)
 {
@@ -137,13 +142,15 @@ int verb_msg(char_u *s)
     return n;
 }
 
-int msg_attr(const char *s, const int attr) FUNC_ATTR_NONNULL_ARG(1)
+int msg_attr(const char *s, const int attr)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     return msg_attr_keep((char_u *)s, attr, false);
 }
 
 /// @param keep  TRUE: set keep_msg if it doesn't scroll
-int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
+int msg_attr_keep(char_u *s, int attr, int keep)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     static int entered = 0;
     int retval;
@@ -171,7 +178,8 @@ int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
 
     ++entered;
 
-    // Add message to history (unless it's a repeated kept message or a truncated message)
+    // Add message to history (unless it's a
+    // repeated kept message or a truncated message)
     if(s != keep_msg || (*s != '<'
                          && last_msg_hist != NULL
                          && last_msg_hist->msg != NULL
@@ -180,7 +188,8 @@ int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
         add_msg_hist((const char *)s, -1, attr);
     }
 
-    // When displaying keep_msg, don't let msg_start() free it, caller must do that.
+    // When displaying keep_msg, don't
+    // let msg_start() free it, caller must do that.
     if(s == keep_msg)
     {
         keep_msg = NULL;
@@ -199,7 +208,9 @@ int msg_attr_keep(char_u *s, int attr, int keep) FUNC_ATTR_NONNULL_ARG(1)
     msg_clr_eos();
     retval = msg_end();
 
-    if(keep && retval && vim_strsize(s) < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
+    if(keep
+       && retval
+       && vim_strsize(s) < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
     {
         set_keep_msg(s, 0);
     }
@@ -418,10 +429,12 @@ static int other_sourcing_name(void)
 
 /// Get the message about the source, as used for an error message
 ///
-/// @return [allocated] String with room for one more character. NULL when no
-///                     message is to be given.
+/// @return [allocated]
+/// String with room for one more character.
+/// NULL when no message is to be given.
 static char *get_emsg_source(void)
-FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(sourcing_name != NULL && other_sourcing_name())
     {
@@ -439,10 +452,12 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Get the message about the source lnum, as used for an error message.
 ///
-/// @return [allocated] String with room for one more character. NULL when no
-///                     message is to be given.
+/// @return [allocated]
+///  String with room for one more character.
+/// NULL when no message is to be given.
 static char *get_emsg_lnum(void)
-FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_MALLOC
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // lnum is 0 when executing a command from the command line
     // argument, we don't want a line number then
@@ -462,8 +477,8 @@ FUNC_ATTR_MALLOC FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Display name and line number for the source of an error.
-/// Remember the file name and line number, so that for the next error the info
-/// is only displayed if it changed.
+/// Remember the file name and line number, so that for the
+/// next error the info is only displayed if it changed.
 void msg_source(int attr)
 {
     no_wait_return++;
@@ -523,7 +538,7 @@ int emsg_not_now(void)
 /// Rings the bell, if appropriate, and calls message() to do the real work
 /// When terminal not initialized (yet) mch_errmsg(..) is used.
 ///
-/// return TRUE if wait_return not called
+/// @return TRUE if wait_return not called
 int emsg(const char_u *s_)
 {
     int attr;
@@ -602,7 +617,8 @@ int emsg(const char_u *s_)
             return true;
         }
 
-        // Reset msg_silent, an error causes messages to be switched back on.
+        // Reset msg_silent, an error causes
+        // messages to be switched back on.
         msg_silent = 0;
         cmd_silent = FALSE;
 
@@ -687,9 +703,13 @@ void msg_schedule_emsgf(const char *const fmt, ...)
 }
 
 /// Like msg(), but truncate to a single line if p_shm contains 't', or when
-/// "force" is TRUE.  This truncates in another way as for normal messages.
-/// Careful: The string may be changed by msg_may_trunc()!
-/// Returns a pointer to the printed message, if wait_return() not called.
+/// "force" is TRUE. This truncates in another way as for normal messages.
+///
+/// @warning
+/// The string may be changed by msg_may_trunc()!
+///
+/// @returns
+/// a pointer to the printed message, if wait_return() not called.
 char_u *msg_trunc_attr(char_u *s, int force, int attr)
 {
     int n;
@@ -1003,9 +1023,9 @@ void wait_return(int redraw)
             Recording = save_Recording;
             scriptout = save_scriptout;
 
-            // Allow scrolling back in the messages.
-            // Also accept scroll-down commands when messages fill the screen,
-            // to avoid that typing one 'j' too many makes the messages disappear.
+            // Allow scrolling back in the messages. Also accept scroll-down
+            // commands when messages fill the screen, to avoid that typing
+            // one 'j' too many makes the messages disappear.
             if(p_more)
             {
                 if(c == 'b' || c == 'k' || c == 'u' || c == 'g'
@@ -1036,7 +1056,11 @@ void wait_return(int redraw)
                     }
                 }
                 else if(msg_scrolled > Rows - 2
-                        && (c == 'j' || c == 'd' || c == 'f' || c == K_DOWN || c == K_PAGEDOWN))
+                        && (c == 'j'
+                            || c == 'd'
+                            || c == 'f'
+                            || c == K_DOWN
+                            || c == K_PAGEDOWN))
                 {
                     c = K_IGNORE;
                 }
@@ -1119,7 +1143,8 @@ void wait_return(int redraw)
     {
         ui_refresh();
     }
-    else if(!skip_redraw && (redraw == TRUE || (msg_scrolled != 0 && redraw != -1)))
+    else if(!skip_redraw
+            && (redraw == TRUE || (msg_scrolled != 0 && redraw != -1)))
     {
         redraw_later(VALID);
     }
@@ -1151,7 +1176,8 @@ static void hit_return_msg(void)
     p_more = save_p_more;
 }
 
-/// Set "keep_msg" to "s". Free the old value and check for NULL pointer.
+/// Set "keep_msg" to "s".
+/// Free the old value and check for NULL pointer.
 void set_keep_msg(char_u *s, int attr)
 {
     xfree(keep_msg);
@@ -1277,10 +1303,10 @@ static void msg_home_replace_attr(char_u *fname, int attr)
     xfree(name);
 }
 
-/// Output 'len' characters in 'str' (including NULs) with translation
-/// if 'len' is -1, output upto a NUL character.
-/// Use attributes 'attr'.
-/// Return the number of characters it takes on the screen.
+/// Output 'len' characters in @b str (including NULs) with translation
+/// if 'len' is -1, output upto a NUL character. Use attributes 'attr'.
+///
+/// @return the number of characters it takes on the screen.
 int msg_outtrans(char_u *str)
 {
     return msg_outtrans_attr(str, 0);
@@ -1329,15 +1355,15 @@ int msg_outtrans_len_attr(char_u *msgstr, int len, int attr)
         attr &= ~MSG_HIST;
     }
 
-    // If the string starts with a composing character first draw a space on
-    // which the composing char can be drawn.
+    // If the string starts with a composing character first
+    // draw a space on which the composing char can be drawn.
     if(enc_utf8 && utf_iscomposing(utf_ptr2char(msgstr)))
     {
         msg_puts_attr(" ", attr);
     }
 
-    // Go over the string. Special characters are translated and printed.
-    // Normal characters are printed several at a time.
+    // Go over the string. Special characters are translated and
+    // printed. Normal characters are printed several at a time.
     while(--len >= 0)
     {
         // Don't include composing chars after the end.
@@ -1354,8 +1380,8 @@ int msg_outtrans_len_attr(char_u *msgstr, int len, int attr)
             }
             else
             {
-                // Unprintable multi-byte char: print the printable chars so
-                // far and the translation of the unprintable char.
+                // Unprintable multi-byte char: print the printable chars
+                // so far and the translation of the unprintable char.
                 if(str > plain_start)
                 {
                     msg_puts_attr_len(plain_start, str - plain_start, attr);
@@ -1378,15 +1404,18 @@ int msg_outtrans_len_attr(char_u *msgstr, int len, int attr)
 
             if(s[1] != NUL)
             {
-                // Unprintable char: print the printable chars so far and the
-                // translation of the unprintable char.
+                // Unprintable char: print the printable chars so far
+                // and the translation of the unprintable char.
                 if(str > plain_start)
                 {
                     msg_puts_attr_len(plain_start, str - plain_start, attr);
                 }
 
                 plain_start = str + 1;
-                msg_puts_attr((const char *)s, attr == 0 ? hl_attr(HLF_8) : attr);
+
+                msg_puts_attr((const char *)s,
+                              attr == 0 ? hl_attr(HLF_8) : attr);
+
                 retval += (int)STRLEN(s);
             }
             else
@@ -1410,7 +1439,9 @@ int msg_outtrans_len_attr(char_u *msgstr, int len, int attr)
 void msg_make(char_u *arg)
 {
     int i;
+
     static char_u *str = (char_u *)"eeffoc", *rs = (char_u *)"Plon#dqg#vxjduB";
+
     arg = skipwhite(arg);
 
     for(i = 5; *arg && i >= 0; --i)
@@ -1437,11 +1468,10 @@ void msg_make(char_u *arg)
 ///
 /// If K_SPECIAL is encountered, then it is taken in conjunction with the
 /// following character and shown as <F1>, <S-Up> etc.  Any other character
-/// which is not printable shown in <> form.
-/// If 'from' is TRUE (lhs of a mapping), a space is shown as <Space>.
-/// If a character is displayed in one of these special ways, is also
-/// highlighted (its highlight name is '8' in the p_hl variable).
-/// Otherwise characters are not highlighted.
+/// which is not printable shown in <> form. If 'from' is TRUE (lhs of a
+/// mapping), a space is shown as <Space>. If a character is displayed in
+/// one of these special ways, is also highlighted (its highlight name is
+/// '8' in the p_hl variable). Otherwise characters are not highlighted.
 /// This function is used to show mappings, where we want to see how to type
 /// the character/string
 ///
@@ -1473,7 +1503,8 @@ int msg_outtrans_special(char_u *strstart, int from)
 
         // Highlight special keys
         msg_puts_attr(string,
-                      (len > 1 && (*mb_ptr2len)((char_u *)string) <= 1 ? attr : 0));
+                      (len > 1 && (*mb_ptr2len)((char_u *)string) <= 1
+                                  ? attr : 0));
 
         retval += len;
     }
@@ -1503,7 +1534,7 @@ char_u *str2special_save(char_u *str, int is_lhs)
 
 /// Return the printable string for the key codes at "*sp".
 /// Used for translating the lhs or rhs of a mapping to printable chars.
-/// Advances "sp" to the next code.
+/// Advances @b sp to the next code.
 ///
 /// @param sp
 /// @param from TRUE for lhs of mapping
@@ -1518,8 +1549,8 @@ char_u *str2special(char_u **sp, int from)
     if(has_mbyte)
     {
         char_u  *p;
-        // Try to un-escape a multi-byte character.
-        // Return the un-escaped string if it is a multi-byte character.
+        // Try to un-escape a multi-byte character. Return the
+        // un-escaped string if it is a multi-byte character.
         p = mb_unescape(sp);
 
         if(p != NULL)
@@ -1803,7 +1834,7 @@ void msg_puts_title(const char *s)
     msg_puts_attr(s, hl_attr(HLF_T));
 }
 
-/// Show a message in such a way that it always fits in the line.  Cut out a
+/// Show a message in such a way that it always fits in the line. Cut out a
 /// part in the middle and replace it with "..." when necessary.
 /// Does not handle multi-byte characters!
 void msg_puts_long_attr(char_u *longstr, int attr)
@@ -1970,7 +2001,8 @@ static void msg_puts_display(const char_u *str,
             if(p_more)
             {
                 // Store text for scrolling back.
-                store_sb_text((char_u **)&sb_str, (char_u *)s, attr, &sb_col, true);
+                store_sb_text((char_u **)&sb_str,
+                              (char_u *)s, attr, &sb_col, true);
             }
 
             inc_msg_scrolled();
@@ -2033,7 +2065,8 @@ static void msg_puts_display(const char_u *str,
         if(wrap && p_more && !recurse)
         {
             // Store text for scrolling back.
-            store_sb_text((char_u **)&sb_str, (char_u *)s, attr, &sb_col, true);
+            store_sb_text((char_u **)&sb_str,
+                          (char_u *)s, attr, &sb_col, true);
         }
 
         if(*s == '\n') // go to next line
@@ -2136,13 +2169,15 @@ static void msg_puts_display(const char_u *str,
 
     if(p_more && !recurse)
     {
-        store_sb_text((char_u **)&sb_str, (char_u *)s, attr, &sb_col, false);
+        store_sb_text((char_u **)&sb_str,
+                      (char_u *)s, attr, &sb_col, false);
     }
 
     msg_check();
 }
 
-/// Return true when ":filter pattern" was used and "msg" does not match "pattern".
+/// Return true when ":filter pattern" was
+/// used and "msg" does not match "pattern".
 bool message_filtered(char_u *msg)
 {
     if(cmdmod.filter_regmatch.regprog == NULL)
@@ -2195,6 +2230,7 @@ static void inc_msg_scrolled(void)
 
 /// last displayed text
 static msgchunk_T *last_msgchunk = NULL;
+
 /// clear text on next msg
 static int do_clear_sb_text = FALSE;
 
@@ -2251,7 +2287,8 @@ static void store_sb_text( char_u **sb_str,
     *sb_col = 0;
 }
 
-/// Finished showing messages, clear the scroll-back text on the next message.
+/// Finished showing messages, clear the
+/// scroll-back text on the next message.
 void may_clear_sb_text(void)
 {
     do_clear_sb_text = TRUE;
@@ -2547,8 +2584,8 @@ static int do_more_prompt(int typed_char)
             case ':': // start new command line
                 if(!confirm_msg_used)
                 {
-                    // Since got_int is set all typeahead will be flushed, but we
-                    // want to keep this ':', remember that in a special way.
+                    // Since got_int is set all typeahead will be flushed, but
+                    // we want to keep this ':', remember that in a special way.
                     typeahead_noflush(':');
                     cmdline_row = Rows - 1; // put ':' on this line
                     skip_redraw = TRUE; // skip redraw once
@@ -2771,6 +2808,7 @@ void mch_errmsg(char *str)
         }
     }
 #endif
+
     --len; // don't count the NUL at the end
     error_ga.ga_len += len;
 }
@@ -2790,14 +2828,14 @@ void mch_msg(char *str)
         printf("%s", str);
         return;
     }
-# endif
+#endif
 
     mch_errmsg(str);
 }
 #endif
 
-/// Put a character on the screen at the current message position and advance
-/// to the next position. Only for printable ASCII!
+/// Put a character on the screen at the current message position
+/// and advance to the next position. Only for printable ASCII!
 static void msg_screen_putchar(int c, int attr)
 {
     msg_didout = TRUE; // remember that line is not empty
@@ -2881,7 +2919,8 @@ void msg_clr_eos(void)
 }
 
 /// Clear from current message position to end of screen.
-/// Note: msg_col is not updated, so we remember the end of the message for msg_check().
+/// Note: msg_col is not updated, so we remember the end
+/// of the message for msg_check().
 void msg_clr_eos_force(void)
 {
     if(cmdmsg_rl)
@@ -2911,8 +2950,8 @@ int msg_end(void)
 {
     // If the string is larger than the window,
     // or the ruler option is set and we run into it,
-    // we have to redraw the window.
-    // Do not do this if we are abandoning the file or editing the command line.
+    // we have to redraw the window. Do not do this if
+    // we are abandoning the file or editing the command line.
     if(!exiting && need_wait_return && !(State & CMDLINE))
     {
         wait_return(FALSE);
@@ -2935,7 +2974,8 @@ void msg_check(void)
 }
 
 /// May write a string to the redirection file.
-/// When "maxlen" is -1 write the whole string, otherwise up to "maxlen" bytes.
+/// When "maxlen" is -1 write the whole string,
+/// otherwise up to "maxlen" bytes.
 static void redir_write(const char *const str, const ptrdiff_t maxlen)
 {
     const char_u *s = (char_u *)str;
@@ -3010,7 +3050,8 @@ static void redir_write(const char *const str, const ptrdiff_t maxlen)
         }
 
         // Write and adjust the current column.
-        while(*s != NUL && (maxlen < 0 || (int)(s - (const char_u *)str) < maxlen))
+        while(*s != NUL
+              && (maxlen < 0 || (int)(s - (const char_u *)str) < maxlen))
         {
             if(!redir_reg && !redir_vname && !capture_ga)
             {
@@ -3144,7 +3185,8 @@ int verbose_open(void)
 
 /// Give a warning message (for searching).
 /// Use 'w' highlighting and may repeat the message after redrawing
-void give_warning(char_u *message, bool hl) FUNC_ATTR_NONNULL_ARG(1)
+void give_warning(char_u *message, bool hl)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     // Don't do this for ":silent".
     if(msg_silent != 0)
@@ -3213,25 +3255,30 @@ void msg_advance(int col)
 /// Versions which haven't got flexible dialogs yet, and console
 /// versions, get this generic handler which uses the command line.
 ///
-/// type  = one of:
-///    VIM_QUESTION, VIM_INFO, VIM_WARNING, VIM_ERROR or VIM_GENERIC
+/// type is one of:
+/// VIM_QUESTION, VIM_INFO, VIM_WARNING, VIM_ERROR or VIM_GENERIC
+///
 /// title = title string (can be NULL for default)
 /// (neither used in console dialogs at the moment)
-///
-/// Format of the "buttons" string:
-/// "Button1Name\nButton2Name\nButton3Name"
-/// The first button should normally be the default/accept
-/// The second button should be the 'Cancel' button
-/// Other buttons- use your imagination!
-/// A '&' in a button name becomes a shortcut, so each '&' should be before a
-/// different letter.
 ///
 /// @param title
 /// @param message
 /// @param buttons
+/// - Format of the @b buttons string:
+///   "Button1Name\nButton2Name\nButton3Name"
+/// - The first button should normally be the default/accept
+/// - The second button should be the 'Cancel' button
+/// - Other buttons- use your imagination!
+/// A '&' in a button name becomes a shortcut, so each '&' should
+/// be before a different letter.
+///
 /// @param dfltbutton
-/// @param textfield    IObuff for inputdialog(), NULL otherwise
-/// @param ex_cmd       when TRUE pressing : accepts default and starts Ex command
+///
+/// @param textfield
+/// IObuff for inputdialog(), NULL otherwise
+///
+/// @param ex_cmd
+/// when TRUE pressing : accepts default and starts Ex command
 ///
 int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
               char_u *FUNC_ARGS_UNUSED_REALY(title),
@@ -3292,7 +3339,8 @@ int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
                     break;
                 }
 
-                // Make the character lowercase, as chars in "hotkeys" are.
+                // Make the character lowercase,
+                // as chars in "hotkeys" are.
                 c = mb_tolower(c);
                 retval = 1;
 
@@ -3381,16 +3429,22 @@ static int copy_char(char_u *from, char_u *to, int lowercase)
 
 /// Allocates memory for dialog string & for storing hotkeys
 ///
-/// Finds the size of memory required for the confirm_msg & for storing hotkeys
-/// and then allocates the memory for them.
+/// Finds the size of memory required for the confirm_msg &
+/// for storing hotkeys and then allocates the memory for them.
 /// has_hotkey array is also filled-up.
 ///
-/// @param message Message which will be part of the confirm_msg
-/// @param buttons String containing button names
-/// @param[out] has_hotkey An element in this array is set to true if
-///                        corresponding button has a hotkey
+/// @param message
+/// Message which will be part of the confirm_msg
 ///
-/// @return Pointer to memory allocated for storing hotkeys
+/// @param buttons
+/// String containing button names
+///
+/// @param[out] has_hotkey
+/// An element in this array is set to true if
+/// corresponding button has a hotkey
+///
+/// @return
+/// Pointer to memory allocated for storing hotkeys
 static char_u *console_dialog_alloc(const char_u *message,
                                     char_u *buttons,
                                     bool has_hotkey[])
@@ -3453,12 +3507,14 @@ static char_u *console_dialog_alloc(const char_u *message,
 
 /// Format the dialog string, and display it at the bottom of
 /// the screen. Return a string of hotkey chars (if defined) for
-/// each 'button'. If a button has no hotkey defined, the first character of
-/// the button is used.
-/// The hotkeys can be multi-byte characters, but without combining chars.
+/// each 'button'. If a button has no hotkey defined, the first
+/// character of the button is used. The hotkeys can be multi-byte
+/// characters, but without combining chars.
 ///
-/// Returns an allocated string with hotkeys.
-static char_u *msg_show_console_dialog(char_u *message, char_u *buttons, int dfltbutton)
+/// @returns an allocated string with hotkeys.
+static char_u *msg_show_console_dialog(char_u *message,
+                                       char_u *buttons,
+                                       int dfltbutton)
 FUNC_ATTR_NONNULL_RET
 {
     bool has_hotkey[HAS_HOTKEY_LEN] = {false};
@@ -3478,7 +3534,8 @@ FUNC_ATTR_NONNULL_RET
 /// @param default_button_idx Number of default button
 /// @param has_hotkey         An element in this array is true if
 ///                           corresponding button has a hotkey
-/// @param[out] hotkeys_ptr Pointer to the memory location where hotkeys will be copied
+/// @param[out] hotkeys_ptr   Pointer to the memory location where hotkeys
+///                           will be copied
 static void copy_hotkeys_and_msg(const char_u *message,
                                  char_u *buttons,
                                  int default_button_idx,
@@ -3568,10 +3625,12 @@ static void copy_hotkeys_and_msg(const char_u *message,
     *msgp = NUL;
 }
 
-/// Display the ":confirm" message. Also called when screen resized.
+/// Display the ":confirm" message.
+/// Also called when screen resized.
 void display_confirm_msg(void)
 {
-    // Avoid that 'q' at the more prompt truncates the message here.
+    // Avoid that 'q' at the more
+    // prompt truncates the message here.
     confirm_msg_used++;
 
     if(confirm_msg != NULL)
@@ -3600,8 +3659,9 @@ int vim_dialog_yesno(int type, char_u *title, char_u *message, int dflt)
 
 int vim_dialog_yesnocancel(int type, char_u *title, char_u *message, int dflt)
 {
-    switch(do_dialog(type, title == NULL ? (char_u *)_("Question") : title,
-                     message, (char_u *)_("&Yes\n&No\n&Cancel"), dflt, NULL, FALSE))
+    switch(do_dialog(type, title == NULL ? (char_u *)_("Question") :
+                     title, message, (char_u *)_("&Yes\n&No\n&Cancel"),
+                     dflt, NULL, FALSE))
     {
         case 1:
             return VIM_YES;
@@ -3613,12 +3673,19 @@ int vim_dialog_yesnocancel(int type, char_u *title, char_u *message, int dflt)
     return VIM_CANCEL;
 }
 
-int vim_dialog_yesnoallcancel(int type, char_u *title, char_u *message, int dflt)
+int vim_dialog_yesnoallcancel(int type,
+                              char_u *title,
+                              char_u *message,
+                              int dflt)
 {
     switch(do_dialog(type,
                      title == NULL ? (char_u *)"Question" : title,
                      message,
-                     (char_u *)_("&Yes\n&No\nSave &All\n&Discard All\n&Cancel"),
+                     (char_u *)_("&Yes\n"
+                                 "&No\nSave "
+                                 "&All\n"
+                                 "&Discard All\n"
+                                 "&Cancel"),
                      dflt,
                      NULL,
                      FALSE))

@@ -34,7 +34,7 @@
     } while(0)
 
 /// Clear given fmark
-#define CLEAR_FMARK(fmarkp_)                \
+#define CLEAR_FMARK(fmarkp_) \
     RESET_FMARK(fmarkp_, ((pos_T) { 0, 0, 0 }), 0)
 
 /// Set given extended mark (regular mark + file name)
@@ -82,10 +82,20 @@ FUNC_ATTR_CONST
                      : -1))));
 }
 
-static inline bool lt(pos_T, pos_T) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool equalpos(pos_T, pos_T) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline bool ltoreq(pos_T, pos_T) REAL_FATTR_CONST REAL_FATTR_ALWAYS_INLINE;
-static inline void clearpos(pos_T *) REAL_FATTR_ALWAYS_INLINE;
+static inline bool lt(pos_T, pos_T)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool equalpos(pos_T, pos_T)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline bool ltoreq(pos_T, pos_T)
+REAL_FATTR_CONST
+REAL_FATTR_ALWAYS_INLINE;
+
+static inline void clearpos(pos_T *)
+REAL_FATTR_ALWAYS_INLINE;
 
 /// Return true if position a is before (less than) position b.
 static inline bool lt(pos_T a, pos_T b)
@@ -107,7 +117,9 @@ static inline bool lt(pos_T a, pos_T b)
 /// Return true if position a and b are equal.
 static inline bool equalpos(pos_T a, pos_T b)
 {
-    return (a.lnum == b.lnum) && (a.col == b.col) && (a.coladd == b.coladd);
+    return (a.lnum == b.lnum)
+            && (a.col == b.col)
+            && (a.coladd == b.coladd);
 }
 
 /// Return true if position a is less than or equal to b.

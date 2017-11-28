@@ -40,10 +40,13 @@ int get_indent_lnum(linenr_T lnum)
 }
 
 
-/// Count the size (in window cells) of the indent in line "lnum" of buffer "buf".
+/// Count the size (in window cells) of the
+/// indent in line "lnum" of buffer "buf".
 int get_indent_buf(buf_T *buf, linenr_T lnum)
 {
-    return get_indent_str(ml_get_buf(buf, lnum, false), (int)buf->b_p_ts, false);
+    return get_indent_str(ml_get_buf(buf, lnum, false),
+                          (int)buf->b_p_ts,
+                          false);
 }
 
 
@@ -64,8 +67,8 @@ int get_indent_str(char_u *ptr, int ts, int list)
             }
             else
             {
-                // In list mode, when tab is not set, count screen char width
-                // for Tab, displays: ^I
+                // In list mode, when tab is not set,
+                // count screen char width for Tab, displays: ^I
                 count += ptr2cells(ptr);
             }
         }
@@ -136,7 +139,8 @@ int set_indent(int size, int flags)
             {
                 if(*p == TAB)
                 {
-                    tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
+                    tab_pad = (int)curbuf->b_p_ts
+                              - (ind_done % (int)curbuf->b_p_ts);
 
                     // Stop if this tab will overshoot the target.
                     if(todo < tab_pad)
@@ -281,7 +285,8 @@ int set_indent(int size, int flags)
             {
                 if(*p == TAB)
                 {
-                    tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
+                    tab_pad = (int)curbuf->b_p_ts
+                              - (ind_done % (int)curbuf->b_p_ts);
 
                     // Stop if this tab will overshoot the target.
                     if(todo < tab_pad)
@@ -396,7 +401,8 @@ int copy_indent(int size, char_u *src)
         {
             if(*s == TAB)
             {
-                tab_pad = (int)curbuf->b_p_ts - (ind_done % (int)curbuf->b_p_ts);
+                tab_pad = (int)curbuf->b_p_ts
+                          - (ind_done % (int)curbuf->b_p_ts);
 
                 // Stop if this tab will overshoot the target.
                 if(todo < tab_pad)
@@ -463,10 +469,12 @@ int copy_indent(int size, char_u *src)
 
         if(p == NULL)
         {
-            // Allocate memory for the result: the copied indent, new indent
-            // and the rest of the line.
+            // Allocate memory for the result:
+            // the copied indent, new indent and the rest of the line.
             line_len = (int)STRLEN(get_cursor_line_ptr()) + 1;
+
             assert(ind_len + line_len >= 0);
+
             line = xmalloc((size_t)(ind_len + line_len));
             p = line;
         }
@@ -485,7 +493,7 @@ int copy_indent(int size, char_u *src)
 }
 
 
-/// Return the indent of the current line after a number.  Return -1 if no
+/// Return the indent of the current line after a number. Return -1 if no
 /// number was found. Used for 'n' in 'formatoptions': numbered list.
 /// Since a pattern is used it can actually handle more than numbers.
 int get_number_indent(linenr_T lnum)
@@ -514,7 +522,7 @@ int get_number_indent(linenr_T lnum)
     {
         regmatch.rm_ic = false;
 
-        // vim_regexec() expects a pointer to a line.  This lets us
+        // vim_regexec() expects a pointer to a line. This lets us
         // start matching for the flp beyond any comment leader...
         if(vim_regexec(&regmatch, ml_get(lnum) + lead_len, (colnr_T)0))
         {
@@ -559,7 +567,9 @@ int get_breakindent_win(win_T *wp, char_u *line)
         prev_line = line;
         prev_ts = wp->w_buffer->b_p_ts;
         prev_tick = wp->w_buffer->b_changedtick;
-        prev_indent = get_indent_str(line, (int)wp->w_buffer->b_p_ts, wp->w_p_list);
+
+        prev_indent =
+            get_indent_str(line, (int)wp->w_buffer->b_p_ts, wp->w_p_list);
     }
 
     bri = prev_indent + wp->w_p_brishift;
@@ -582,16 +592,17 @@ int get_breakindent_win(win_T *wp, char_u *line)
     {
         // always leave at least bri_min characters on the left,
         // if text width is sufficient
-        bri = (eff_wwidth - wp->w_p_brimin < 0) ? 0 : eff_wwidth - wp->w_p_brimin;
+        bri = (eff_wwidth - wp->w_p_brimin < 0)
+              ? 0 : eff_wwidth - wp->w_p_brimin;
     }
 
     return bri;
 }
 
-/// When extra == 0: Return true if the cursor is before or on the first
-/// non-blank in the line.
-/// When extra == 1: Return true if the cursor is before the first non-blank in
-/// the line.
+/// - When extra == 0: Return true if the cursor is before or
+///   on the first non-blank in the line.
+/// - When extra == 1: Return true if the cursor is before
+///   the first non-blank in the line.
 int inindent(int extra)
 {
     char_u *ptr;
@@ -623,8 +634,8 @@ int get_expr_indent(void)
     int save_State;
     int use_sandbox = was_set_insecurely((char_u *)"indentexpr", OPT_LOCAL);
 
-    // Save and restore cursor position and curswant, in case it was changed
-    // * via :normal commands.
+    // Save and restore cursor position and curswant,
+    // in case it was changed * via :normal commands.
     save_pos = curwin->w_cursor;
     save_curswant = curwin->w_curswant;
     save_set_curswant = curwin->w_set_curswant;
@@ -805,7 +816,9 @@ int get_lisp_indent(void)
 
                 while(*that && col)
                 {
-                    amount += lbr_chartabsize_adv(line, &that, (colnr_T)amount);
+                    amount += lbr_chartabsize_adv(line,
+                                                  &that,
+                                                  (colnr_T)amount);
                     col--;
                 }
 
@@ -826,7 +839,9 @@ int get_lisp_indent(void)
 
                     while(ascii_iswhite(*that))
                     {
-                        amount += lbr_chartabsize(line, that, (colnr_T)amount);
+                        amount += lbr_chartabsize(line,
+                                                  that,
+                                                  (colnr_T)amount);
                         that++;
                     }
 
@@ -843,41 +858,54 @@ int get_lisp_indent(void)
                         parencount = 0;
                         quotecount = 0;
 
-                        if(vi_lisp || ((*that != '"') && (*that != '\'')
-                                       && (*that != '#') && ((*that < '0') || (*that > '9'))))
+                        if(vi_lisp
+                           || ((*that != '"')
+                               && (*that != '\'')
+                               && (*that != '#')
+                               && ((*that < '0') || (*that > '9'))))
                         {
                             while(*that
                                   && (!ascii_iswhite(*that) || quotecount || parencount)
                                   && (!((*that == '(' || *that == '[')
-                                        && !quotecount && !parencount && vi_lisp)))
+                                        && !quotecount
+                                        && !parencount
+                                        && vi_lisp)))
                             {
                                 if(*that == '"')
                                 {
                                     quotecount = !quotecount;
                                 }
 
-                                if(((*that == '(') || (*that == '[')) && !quotecount)
+                                if(((*that == '(') || (*that == '['))
+                                   && !quotecount)
                                 {
                                     parencount++;
                                 }
 
-                                if(((*that == ')') || (*that == ']')) && !quotecount)
+                                if(((*that == ')') || (*that == ']'))
+                                   && !quotecount)
                                 {
                                     parencount--;
                                 }
 
                                 if((*that == '\\') && (*(that + 1) != NUL))
                                 {
-                                    amount += lbr_chartabsize_adv(line, &that, (colnr_T)amount);
+                                    amount += lbr_chartabsize_adv(line,
+                                                                  &that,
+                                                                  (colnr_T)amount);
                                 }
 
-                                amount += lbr_chartabsize_adv(line, &that, (colnr_T)amount);
+                                amount += lbr_chartabsize_adv(line,
+                                                              &that,
+                                                              (colnr_T)amount);
                             }
                         }
 
                         while(ascii_iswhite(*that))
                         {
-                            amount += lbr_chartabsize(line, that, (colnr_T)amount);
+                            amount += lbr_chartabsize(line,
+                                                      that,
+                                                      (colnr_T)amount);
                             that++;
                         }
 
@@ -892,7 +920,9 @@ int get_lisp_indent(void)
     }
     else
     {
-        amount = 0; // No matching '(' or '[' found, use zero indent.
+        // No matching '(' or '['
+        // found, use zero indent.
+        amount = 0;
     }
 
     curwin->w_cursor = realpos;

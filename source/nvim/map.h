@@ -52,7 +52,10 @@ MAP_DECLS(String,   MsgpackRpcRequestHandler)
 #define pmap_del(T)   map_del(T, ptr_t)
 #define pmap_clear(T) map_clear(T, ptr_t)
 
-#define map_foreach(map, key, value, block)   kh_foreach(map->table, key, value, block)
-#define map_foreach_value(map, value, block)  kh_foreach_value(map->table, value, block)
+#define map_foreach(map, key, value, block) \
+    kh_foreach(map->table, key, value, block)
+
+#define map_foreach_value(map, value, block) \
+    kh_foreach_value(map->table, value, block)
 
 #endif // NVIM_MAP_H
