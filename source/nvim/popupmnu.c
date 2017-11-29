@@ -23,19 +23,20 @@
 #include "nvim/edit.h"
 #include "nvim/ui.h"
 
-static pumitem_T *pum_array = NULL; // items of displayed pum
-static int pum_size;                // nr of items in "pum_array"
-static int pum_selected;            // index of selected item or -1
-static int pum_first = 0;           // index of top item
+/// items of displayed pum
+static pumitem_T *pum_array = NULL;
+static int pum_size;        ///< nr of items in "pum_array"
+static int pum_selected;    ///< index of selected item or -1
+static int pum_first = 0;   ///< index of top item
 
-static int pum_height;              // nr of displayed pum items
-static int pum_width;               // width of displayed pum items
-static int pum_base_width;          // width of pum items base
-static int pum_kind_width;          // width of pum items kind column
-static int pum_scrollbar;           // TRUE when scrollbar present
+static int pum_height;      ///< nr of displayed pum items
+static int pum_width;       ///< width of displayed pum items
+static int pum_base_width;  ///< width of pum items base
+static int pum_kind_width;  ///< width of pum items kind column
+static int pum_scrollbar;   ///< TRUE when scrollbar present
 
-static int pum_row;                 // top row of pum
-static int pum_col;                 // left column of pum
+static int pum_row;         ///< top row of pum
+static int pum_col;         ///< left column of pum
 
 static bool pum_is_visible = false;
 static bool pum_external = false;
@@ -53,11 +54,16 @@ static bool pum_external = false;
 ///
 /// @param array
 /// @param size
-/// @param selected index of initially selected item, none if out of range
-/// @param array_changed if true, array contains different items since last call
-///                      if false, a new item is selected, but the array
-///                      is the same
-void pum_display(pumitem_T *array, int size, int selected, bool array_changed)
+/// @param selected
+/// index of initially selected item, none if out of range
+///
+/// @param array_changed
+/// if true, array contains different items since last call
+/// if false, a new item is selected, but the array is the same
+void pum_display(pumitem_T *array,
+                 int size,
+                 int selected,
+                 bool array_changed)
 {
     int w;
     int def_width;
@@ -107,6 +113,7 @@ redo:
             for(i = 0; i < size; i++)
             {
                 Array item = ARRAY_DICT_INIT;
+
                 ADD(item, STRING_OBJ(cstr_to_string((char *)array[i].pum_text)));
                 ADD(item, STRING_OBJ(cstr_to_string((char *)array[i].pum_kind)));
                 ADD(item, STRING_OBJ(cstr_to_string((char *)array[i].pum_extra)));
@@ -129,6 +136,7 @@ redo:
     kind_width = 0;
     extra_width = 0;
     win_T *pvwin = NULL;
+
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
         if(wp->w_p_pvw)
@@ -165,8 +173,9 @@ redo:
         pum_height = (int)p_ph;
     }
 
-    // Put the pum below "row" if possible.  If there are few lines decide on
-    // where there is more room.
+    // Put the pum below "row" if possible.
+    // If there are few lines decide on where
+    // there is more room.
     if(row + 2 >= below_row - pum_height
        && row - above_row > (below_row - above_row) / 2)
     {
@@ -353,7 +362,9 @@ redo:
         }
         else
         {
-            assert(Columns - max_width >= INT_MIN && Columns - max_width <= INT_MAX);
+            assert(Columns - max_width >= INT_MIN
+                   && Columns - max_width <= INT_MAX);
+
             pum_col = (int)(Columns - max_width);
         }
 
@@ -363,8 +374,8 @@ redo:
     pum_array = array;
     pum_size = size;
 
-    // Set selected item and redraw.  If the window size changed need to redo
-    // the positioning.  Limit this to two times, when there is not much
+    // Set selected item and redraw. If the window size changed need to redo
+    // the positioning. Limit this to two times, when there is not much
     // room the window size will keep changing.
     if(pum_set_selected(selected, redo_count) && (++redo_count <= 2))
     {
@@ -466,7 +477,9 @@ void pum_redraw(void)
 
                     w = ptr2cells(p);
 
-                    if((*p == NUL) || (*p == TAB) || (totwidth + w > pum_width))
+                    if((*p == NUL)
+                       || (*p == TAB)
+                       || (totwidth + w > pum_width))
                     {
                         // Display the text that fits or comes before a Tab.
                         // First convert it to printable characters.
@@ -492,22 +505,31 @@ void pum_redraw(void)
 
                                 if(size < pum_width)
                                 {
-                                    // Most left character requires 2-cells but only 1 cell
-                                    // is available on screen.  Put a '<' on the left of the
-                                    // pum item
+                                    // Most left character requires 2-cells
+                                    // but only 1 cell is available on screen.
+                                    // Put a '<' on the left of the pum item
                                     *(--rt) = '<';
                                     size++;
                                 }
                             }
 
-                            screen_puts_len(rt, (int)STRLEN(rt), row, col - size + 1, attr);
+                            screen_puts_len(rt,
+                                            (int)STRLEN(rt),
+                                            row,
+                                            col - size + 1,
+                                            attr);
+
                             xfree(rt_start);
                             xfree(st);
                             col -= width;
                         }
                         else
                         {
-                            screen_puts_len(st, (int)STRLEN(st), row, col, attr);
+                            screen_puts_len(st,
+                                            (int)STRLEN(st),
+                                            row,
+                                            col,
+                                            attr);
                             xfree(st);
                             col += width;
                         }
@@ -520,12 +542,20 @@ void pum_redraw(void)
                         // Display two spaces for a Tab.
                         if(curwin->w_p_rl)
                         {
-                            screen_puts_len((char_u *)"  ", 2, row, col - 1, attr);
+                            screen_puts_len((char_u *)"  ",
+                                            2,
+                                            row,
+                                            col - 1,
+                                            attr);
                             col -= 2;
                         }
                         else
                         {
-                            screen_puts_len((char_u *)"  ", 2, row, col, attr);
+                            screen_puts_len((char_u *)"  ",
+                                            2,
+                                            row,
+                                            col,
+                                            attr);
                             col += 2;
                         }
 
@@ -580,25 +610,39 @@ void pum_redraw(void)
 
         if(curwin->w_p_rl)
         {
-            screen_fill(row, row + 1, pum_col - pum_width + 1, col + 1, ' ', ' ',
+            screen_fill(row, row + 1,
+                        pum_col - pum_width + 1,
+                        col + 1,
+                        ' ',
+                        ' ',
                         attr);
         }
         else
         {
-            screen_fill(row, row + 1, col, pum_col + pum_width, ' ', ' ', attr);
+            screen_fill(row,
+                        row + 1,
+                        col,
+                        pum_col + pum_width,
+                        ' ',
+                        ' ',
+                        attr);
         }
 
         if(pum_scrollbar > 0)
         {
             if(curwin->w_p_rl)
             {
-                screen_putchar(' ', row, pum_col - pum_width,
+                screen_putchar(' ',
+                               row,
+                               pum_col - pum_width,
                                i >= thumb_pos && i < thumb_pos + thumb_heigth
                                ? attr_thumb : attr_scroll);
             }
             else
             {
-                screen_putchar(' ', row, pum_col + pum_width,
+                screen_putchar(' ',
+                               row,
+                               pum_col + pum_width,
                                i >= thumb_pos && i < thumb_pos + thumb_heigth
                                ? attr_thumb : attr_scroll);
             }
@@ -608,17 +652,15 @@ void pum_redraw(void)
     }
 }
 
-/// Set the index of the currently selected item.  The menu will scroll when
-/// necessary.  When "n" is out of range don't scroll.
+/// Set the index of the currently selected item. The menu will scroll when
+/// necessary. When @b n is out of range don't scroll.
 /// This may be repeated when the preview window is used:
-/// "repeat" == 0: open preview window normally
-/// "repeat" == 1: open preview window but don't set the size
-/// "repeat" == 2: don't open preview window
+/// - @b repeat == 0: open preview window normally
+/// - @b repeat == 1: open preview window but don't set the size
+/// - @b repeat == 2: don't open preview window
 ///
-/// @param n
-/// @param repeat
-///
-/// @returns TRUE when the window was resized and the location of the popup
+/// @returns
+/// TRUE when the window was resized and the location of the popup
 /// menu must be recomputed.
 static int pum_set_selected(int n, int repeat)
 {
@@ -630,8 +672,8 @@ static int pum_set_selected(int n, int repeat)
     {
         if(pum_first > pum_selected - 4)
         {
-            // scroll down; when we did a jump it's probably a PageUp then
-            // scroll a whole page
+            // scroll down; when we did a jump it's probably
+            // a PageUp then scroll a whole page
             if(pum_first > pum_selected - 2)
             {
                 pum_first -= pum_height - 2;
@@ -652,8 +694,8 @@ static int pum_set_selected(int n, int repeat)
         }
         else if(pum_first < pum_selected - pum_height + 5)
         {
-            // scroll up; when we did a jump it's probably a PageDown then
-            // scroll a whole page
+            // scroll up; when we did a jump it's probably a
+            // PageDown then scroll a whole page
             if(pum_first < pum_selected - pum_height + 1 + 2)
             {
                 pum_first += pum_height - 2;
@@ -706,7 +748,7 @@ static int pum_set_selected(int n, int repeat)
         {
             win_T *curwin_save = curwin;
             int res = OK;
-            // Open a preview window.  3 lines by default.  Prefer
+            // Open a preview window. 3 lines by default. Prefer
             // 'previewheight' if set and smaller.
             g_do_tagpreview = 3;
 
@@ -748,8 +790,8 @@ static int pum_set_selected(int n, int repeat)
 
                     if(res == OK)
                     {
-                        // Edit a new, empty buffer. Set options for a "wipeout"
-                        // buffer.
+                        // Edit a new, empty buffer.
+                        // Set options for a "wipeout" buffer.
                         set_option_value("swf", 0L, NULL, OPT_LOCAL);
                         set_option_value("bt", 0L, "nofile", OPT_LOCAL);
                         set_option_value("bh", 0L, "wipe", OPT_LOCAL);
@@ -816,7 +858,7 @@ static int pum_set_selected(int n, int repeat)
                         redraw_later(SOME_VALID);
 
                         // When the preview window was resized we need to
-                        // update the view on the buffer.  Only go back to
+                        // update the view on the buffer. Only go back to
                         // the window when needed, otherwise it will always be
                         // redraw.
                         if(resized)
@@ -877,8 +919,8 @@ void pum_undisplay(void)
     }
 }
 
-/// Clear the popup menu.  Currently only resets the offset to the first
-/// displayed item.
+/// Clear the popup menu.
+/// Currently only resets the offset to the first displayed item.
 void pum_clear(void)
 {
     pum_first = 0;

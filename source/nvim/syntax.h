@@ -46,6 +46,7 @@ typedef struct
     char *name;
     RgbValue color;
 } color_name_table_T;
+
 extern color_name_table_T color_name_table[];
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

@@ -78,20 +78,17 @@
 #include "config.h"
 #include "envdefs.h"
 
-// The options that are local to a window or buffer have "indir" set to one of
-// these values.  Special values:
+// The options that are local to a window or buffer have
+// "indir" set to one of these values. Special values
 // PV_NONE: global option.
-// PV_WIN is added: window-local option
-// PV_BUF is added: buffer-local option
-// PV_BOTH is added: global option which also has a local value.
-#define PV_BOTH     0x1000
-#define PV_WIN      0x2000
-#define PV_BUF      0x4000
-#define PV_MASK     0x0fff
-#define OPT_WIN(x)  (idopt_T)(PV_WIN + (int)(x))
-#define OPT_BUF(x)  (idopt_T)(PV_BUF + (int)(x))
-#define OPT_BOTH(x) (idopt_T)(PV_BOTH + (int)(x))
+#define PV_BOTH      0x1000
+#define PV_WIN       0x2000  ///< window-local option
+#define PV_BUF       0x4000  ///< buffer-local option
+#define PV_MASK      0x0fff  ///< global option which also has a local value.
 
+#define OPT_WIN(x)   (idopt_T)(PV_WIN + (int)(x))
+#define OPT_BUF(x)   (idopt_T)(PV_BUF + (int)(x))
+#define OPT_BOTH(x)  (idopt_T)(PV_BOTH + (int)(x))
 
 // WV_ and BV_ values get typecasted to this for the "indir" field
 typedef enum
@@ -100,8 +97,8 @@ typedef enum
     PV_MAXVAL = 0xffff ///< to avoid warnings for value out of range
 } idopt_T;
 
-/// Options local to a window have a value local to a buffer and global to all
-/// buffers. Indicate this by setting "var" to VAR_WIN.
+/// Options local to a window have a value local to a buffer and
+/// global to all buffers. Indicate this by setting "var" to VAR_WIN.
 #define VAR_WIN   ((char_u *)-1)
 
 // These are the global values for options which are also local to a buffer.
@@ -175,34 +172,36 @@ static long     p_wm_nopaste;
 
 typedef struct vimoption
 {
-    char *fullname;        ///< full option name
-    char *shortname;       ///< permissible abbreviation
-    uint32_t flags;        ///< see below
-    char_u *var;           ///< global option: pointer to variable;
-    ///< window-local option: VAR_WIN;
-    ///< buffer-local option: global value
-    idopt_T indir;         ///< global option: PV_NONE;
-    ///< local option: indirect option index
-    char_u *def_val[2];    ///< default values for variable (vi and vim)
-    scid_T scriptID;       ///< script in which the option was last set
-#define SCRIPTID_INIT  , 0
+    char *fullname;     ///< full option name
+    char *shortname;    ///< permissible abbreviation
+    uint32_t flags;     ///< see below
+    char_u *var;        ///< global option: pointer to variable;
+                        ///< window-local option: VAR_WIN;
+                        ///< buffer-local option: global value
+    idopt_T indir;      ///< global option: PV_NONE;
+                        ///< local option: indirect option index
+    char_u *def_val[2]; ///< default values for variable (vi and vim)
+    scid_T scriptID;    ///< script in which the option was last set
+
+    #define SCRIPTID_INIT  , 0
 } vimoption_T;
 
-#define VI_DEFAULT      0        ///< def_val[VI_DEFAULT] is Vi default value
-#define VIM_DEFAULT     1        ///< def_val[VIM_DEFAULT] is Vim default value
+#define VI_DEFAULT    0  ///< def_val[VI_DEFAULT] is Vi default value
+#define VIM_DEFAULT   1  ///< def_val[VIM_DEFAULT] is Vim default value
 
 // options flags
-#define P_BOOL          0x01U    ///< the option is boolean
-#define P_NUM           0x02U    ///< the option is numeric
-#define P_STRING        0x04U    ///< the option is a string
-#define P_ALLOCED       0x08U    ///< the string option is in allocated memory,
-///< must use free_string_option() when
-///< assigning new value. Not set if default is the same.
+#define P_BOOL      0x01U  ///< the option is boolean
+#define P_NUM       0x02U  ///< the option is numeric
+#define P_STRING    0x04U  ///< the option is a string
+#define P_ALLOCED   0x08U  ///< the string option is in allocated memory, must
+                           ///< use free_string_option() when assigning new
+                           ///< value. Not set if default is the same.
+
 #define P_EXPAND        0x10U    ///< environment expansion. NOTE: P_EXPAND can
-///< never be used for local or hidden options
+                                 ///< never be used for local or hidden options
 #define P_NODEFAULT     0x40U    ///< don't set to default value
 #define P_DEF_ALLOCED   0x80U    ///< default value is in allocated memory, must
-///< use free() when assigning new value
+                                 ///< use free() when assigning new value
 #define P_WAS_SET       0x100U   ///< option has been set/reset
 #define P_NO_MKRC       0x200U   ///< don't include in :mkvimrc output
 #define P_VI_DEF        0x400U   ///< Use Vi default for Vim
@@ -227,13 +226,12 @@ typedef struct vimoption
 #define P_NFNAME        0x400000U  ///< only normal file name chars allowed
 #define P_INSECURE      0x800000U  ///< option was set from a modeline
 #define P_PRI_MKRC     0x1000000U  ///< priority for :mkvimrc (setting option
-///< has side effects)
+                                   ///< has side effects)
 #define P_NO_ML        0x2000000U  ///< not allowed in modeline
 #define P_CURSWANT     0x4000000U  ///< update curswant required; not needed
-///< when there is a redraw flag
+                                   ///< when there is a redraw flag
 #define P_NO_DEF_EXP   0x8000000U  ///< Do not expand default value.
-
-#define P_RWINONLY     0x10000000U  ///< only redraw current window
+#define P_RWINONLY     0x10000000U ///< only redraw current window
 
 #define HIGHLIGHT_INIT   \
     "8:SpecialKey,"      \
@@ -296,44 +294,49 @@ typedef struct vimoption
 
 #define PARAM_COUNT ARRAY_SIZE(options)
 
-static char *(p_fcl_values[])    = { "all",       NULL };
-static char *(p_wop_values[])    = { "tagfile",   NULL };
-static char *(p_bg_values[])     = { "light",     "dark",      NULL };
-static char *(p_ambw_values[])   = { "single",    "double",    NULL };
-static char *(p_icm_values[])    = { "nosplit",   "split",     NULL };
-static char *(p_km_values[])     = { "startsel",  "stopsel",   NULL };
-static char *(p_scl_values[])    = { "yes",       "no",        "auto",   NULL };
-static char *(p_wak_values[])    = { "yes",       "menu",      "no",     NULL };
-static char *(p_ead_values[])    = { "both",      "ver",       "hor",    NULL };
-static char *(p_slm_values[])    = { "mouse",     "key",       "cmd",    NULL };
-static char *(p_scbopt_values[]) = { "ver",       "hor",       "jump",   NULL };
-static char *(p_ff_values[])     = { FF_UNIX,     FF_DOS,      FF_MAC,   NULL };
-static char *(p_debug_values[])  = { "msg",       "throw",     "beep",   NULL };
-static char *(p_bs_values[])     = { "indent",    "eol",       "start",  NULL };
-static char *(p_sel_values[])    = { "inclusive", "exclusive", "old",    NULL };
-static char *(p_nf_values[])     = { "bin",       "octal",     "hex",    "alpha", NULL };
+static char *(p_fcl_values[]) = { "all", NULL };
+static char *(p_wop_values[]) = { "tagfile", NULL };
+static char *(p_bg_values[]) = { "light", "dark", NULL };
+static char *(p_km_values[]) = { "startsel", "stopsel", NULL };
+static char *(p_bs_values[]) = { "indent", "eol", "start", NULL };
+static char *(p_nf_values[]) = { "bin", "octal", "hex", "alpha", NULL };
+static char *(p_ff_values[]) = { FF_UNIX, FF_DOS, FF_MAC, NULL };
+static char *(p_icm_values[]) = { "nosplit", "split", NULL };
+static char *(p_scl_values[]) = { "yes", "no", "auto", NULL };
+static char *(p_wak_values[]) = { "yes", "menu", "no", NULL };
+static char *(p_ead_values[]) = { "both", "ver", "hor", NULL };
+static char *(p_slm_values[]) = { "mouse", "key", "cmd", NULL };
+static char *(p_sel_values[]) = { "inclusive", "exclusive", "old", NULL };
+static char *(p_ambw_values[]) = { "single", "double", NULL };
+static char *(p_debug_values[]) = { "msg", "throw", "beep", NULL };
+static char *(p_scbopt_values[]) = { "ver", "hor", "jump", NULL };
 
-static char *(p_bufhidden_values[]) = { "hide",   "unload",  "delete",       "wipe",  NULL };
-static char *(p_mousem_values[])    = { "extend", "popup",   "popup_setpos", "mac",   NULL };
-
-
-static char *(p_buftype_values[])   = { "nofile",   "nowrite",   "quickfix",  "help",
-                                        "acwrite", "terminal",  NULL
-                                      };
-static char *(p_fdm_values[])       = { "manual",   "expr",      "marker",    "indent",
-                                        "syntax",   "diff",      NULL
-                                      };
-static char *(p_cot_values[])       = { "menu",     "menuone",   "longest",   "preview",
-                                        "noinsert", "noselect",  NULL
-                                      };
+static char *(p_bufhidden_values[]) = {
+    "hide", "unload", "delete", "wipe", NULL
+};
+static char *(p_mousem_values[]) = {
+    "extend", "popup", "popup_setpos", "mac", NULL
+};
+static char *(p_buftype_values[]) = {
+    "nofile", "nowrite", "quickfix", "help", "acwrite", "terminal", NULL
+};
+static char *(p_fdm_values[]) = {
+    "manual", "expr", "marker", "indent", "syntax", "diff", NULL
+};
+static char *(p_cot_values[]) = {
+    "menu", "menuone", "longest", "preview", "noinsert", "noselect",  NULL
+};
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "option.c.generated.h"
 #endif
 
 /// Append string with escaped commas
-static char *strcpy_comma_escaped(char *dest, const char *src, const size_t len)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+static char *strcpy_comma_escaped(char *dest,
+                                  const char *src,
+                                  const size_t len)
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t shift = 0;
 
@@ -350,23 +353,31 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     return &dest[len + shift];
 }
 
-/// Compute length of a colon-separated value, doubled and with some suffixes
+/// Compute length of a colon-separated value,
+/// doubled and with some suffixes
 ///
-/// @param[in]  val             Colon-separated array value.
-/// @param[in]  common_suf_len  Length of the common suffix which is appended to
-///                             each item in the array, twice.
-/// @param[in]  single_suf_len  Length of the suffix which is appended to each
-///                             item in the array once.
+/// @param[in] val
+/// Colon-separated array value.
 ///
-/// @return Length of the comma-separated string array that contains each item
-///         in the original array twice with suffixes with given length
-///         (common_suf is present after each new item, single_suf is present
-///         after half of the new items) and with commas after each item, commas
-///         inside the values are escaped.
+/// @param[in] common_suf_len
+/// Length of the common suffix which is appended to
+/// each item in the array, twice.
+///
+/// @param[in] single_suf_len
+/// Length of the suffix which is appended to each
+/// item in the array once.
+///
+/// @return
+/// Length of the comma-separated string array that contains each item
+/// in the original array twice with suffixes with given length
+/// (common_suf is present after each new item, single_suf is present
+/// after half of the new items) and with commas after each item, commas
+/// inside the values are escaped.
 static inline size_t compute_double_colon_len(const char *const val,
                                               const size_t common_suf_len,
                                               const size_t single_suf_len)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
 {
     if(val == NULL || *val == NUL)
     {
@@ -401,25 +412,40 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 /// Commas are escaped in process. To each item PATHSEP "nvim" is appended in
 /// addition to suf1 and suf2.
 ///
-/// @param[in,out]  dest  Destination comma-separated array.
-/// @param[in]  val  Source colon-separated array.
-/// @param[in]  suf1  If not NULL, suffix appended to destination. Prior to it
-///                   directory separator is appended. Suffix must not contain
-///                   commas.
-/// @param[in]  len1  Length of the suf1.
-/// @param[in]  suf2  If not NULL, another suffix appended to destination. Again
-///                   with directory separator behind. Suffix must not contain
-///                   commas.
-/// @param[in]  len2  Length of the suf2.
-/// @param[in]  forward  If true, iterate over val in forward direction.
-///                      Otherwise in reverse.
+/// @param[in,out] dest
+/// Destination comma-separated array.
+///
+/// @param[in] val
+/// Source colon-separated array.
+///
+/// @param[in] suf1
+/// If not NULL, suffix appended to destination. Prior to it
+/// directory separator is appended. Suffix must not contain commas.
+///
+/// @param[in] len1
+/// Length of the suf1.
+///
+/// @param[in] suf2
+/// If not NULL, another suffix appended to destination. Again
+/// with directory separator behind. Suffix must not contain commas.
+/// @param[in] len2
+/// Length of the suf2.
+///
+/// @param[in] forward
+/// If true, iterate over val in forward direction.
+/// Otherwise in reverse.
 ///
 /// @return (dest + appended_characters_length)
-static inline char *add_colon_dirs(char *dest, const char *const val,
-                                   const char *const suf1, const size_t len1,
-                                   const char *const suf2, const size_t len2,
+static inline char *add_colon_dirs(char *dest,
+                                   const char *const val,
+                                   const char *const suf1,
+                                   const size_t len1,
+                                   const char *const suf2,
+                                   const size_t len2,
                                    const bool forward)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ARG(1)
 {
     if(val == NULL || *val == NUL)
     {
@@ -432,8 +458,10 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1)
     {
         size_t dir_len;
         const char *dir;
-        iter = (forward ? vim_env_iter : vim_env_iter_rev)(':', val, iter, &dir,
-                                                           &dir_len);
+
+        iter = (forward
+                ? vim_env_iter
+                : vim_env_iter_rev)(':', val, iter, &dir, &dir_len);
 
         if(dir != NULL && dir_len > 0)
         {
@@ -472,23 +500,44 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// In the added directory comma is escaped.
 ///
-/// @param[in,out]  dest     Destination comma-separated array.
-/// @param[in]      dir      Directory to append.
-/// @param[in]  dir_len      the length of @b dir.
-/// @param[in]  append_nvim  If true, append "nvim" as the very first suffix.
-/// @param[in]  suf1         If not NULL, suffix appended to destination. Prior to it
-///                          directory separator is appended. Suffix must not contain commas.
-/// @param[in]  len1         Length of the suf1.
-/// @param[in]  suf2         If not NULL, another suffix appended to destination. Again
-///                          with directory separator behind. Suffix must not contain commas.
-/// @param[in]  len2         Length of the suf2.
+/// @param[in,out] dest
+/// Destination comma-separated array.
+///
+/// @param[in] dir
+/// Directory to append.
+///
+/// @param[in] dir_len
+/// the length of @b dir.
+///
+/// @param[in] append_nvim
+/// If true, append "nvim" as the very first suffix.
+///
+/// @param[in] suf1
+/// If not NULL, suffix appended to destination. Prior to it
+/// directory separator is appended. Suffix must not contain commas.
+///
+/// @param[in] len1
+/// Length of the suf1.
+///
+/// @param[in] suf2
+/// If not NULL, another suffix appended to destination. Again
+/// with directory separator behind. Suffix must not contain commas.
+///
+/// @param[in] len2
+/// Length of the suf2.
 ///
 /// @return (dest + appended_characters_length)
-static inline char *add_dir(char *dest, const char *const dir,
-                            const size_t dir_len, const bool append_nvim,
-                            const char *const suf1, const size_t len1,
-                            const char *const suf2, const size_t len2)
-FUNC_ATTR_NONNULL_RET FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_WARN_UNUSED_RESULT
+static inline char *add_dir(char *dest,
+                            const char *const dir,
+                            const size_t dir_len,
+                            const bool append_nvim,
+                            const char *const suf1,
+                            const size_t len1,
+                            const char *const suf2,
+                            const size_t len2)
+FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(dir == NULL || dir_len == 0)
     {
@@ -534,8 +583,10 @@ static void set_runtimepath_default(void)
     char *const data_dirs = stdpaths_get_xdg_var(kXDGDataDirs);
     char *const config_home = stdpaths_get_xdg_var(kXDGConfigHome);
     char *const config_dirs = stdpaths_get_xdg_var(kXDGConfigDirs);
+
 #define SITE_SIZE  (sizeof("site") - 1)
 #define AFTER_SIZE (sizeof("after") - 1)
+
     size_t rtp_size = 0;
     size_t data_len = 0;
     size_t config_len = 0;
@@ -547,9 +598,11 @@ static void set_runtimepath_default(void)
 
         if(data_len != 0)
         {
-            rtp_size += ((data_len + memcnt(data_home, ',', data_len)
+            rtp_size += ((data_len
+                          + memcnt(data_home, ',', data_len)
                           + NVIM_SIZE + 1 + SITE_SIZE + 1
-                          + !after_pathsep(data_home, data_home + data_len)) * 2
+                          + !after_pathsep(data_home,
+                                           data_home + data_len)) * 2
                          + AFTER_SIZE + 1);
         }
     }
@@ -560,9 +613,11 @@ static void set_runtimepath_default(void)
 
         if(config_len != 0)
         {
-            rtp_size += ((config_len + memcnt(config_home, ',', config_len)
+            rtp_size += ((config_len
+                          + memcnt(config_home, ',', config_len)
                           + NVIM_SIZE + 1
-                          + !after_pathsep(config_home, config_home + config_len)) * 2
+                          + !after_pathsep(config_home,
+                                           config_home + config_len)) * 2
                          + AFTER_SIZE + 1);
         }
     }
@@ -573,12 +628,19 @@ static void set_runtimepath_default(void)
 
         if(vimruntime_len != 0)
         {
-            rtp_size += vimruntime_len + memcnt(vimruntime, ',', vimruntime_len) + 1;
+            rtp_size += vimruntime_len
+                        + memcnt(vimruntime, ',', vimruntime_len)
+                        + 1;
         }
     }
 
-    rtp_size += compute_double_colon_len(data_dirs, NVIM_SIZE + 1 + SITE_SIZE + 1, AFTER_SIZE + 1);
-    rtp_size += compute_double_colon_len(config_dirs, NVIM_SIZE + 1, AFTER_SIZE + 1);
+    rtp_size += compute_double_colon_len(data_dirs,
+                                         NVIM_SIZE + 1 + SITE_SIZE + 1,
+                                         AFTER_SIZE + 1);
+
+    rtp_size += compute_double_colon_len(config_dirs,
+                                         NVIM_SIZE + 1,
+                                         AFTER_SIZE + 1);
 
     if(rtp_size == 0)
     {
@@ -587,22 +649,46 @@ static void set_runtimepath_default(void)
 
     char *const rtp = xmalloc(rtp_size);
     char *rtp_cur = rtp;
-    rtp_cur = add_dir(rtp_cur, config_home, config_len, true, NULL, 0, NULL, 0);
-    rtp_cur = add_colon_dirs(rtp_cur, config_dirs, NULL, 0, NULL, 0, true);
-    rtp_cur = add_dir(rtp_cur, data_home, data_len, true, "site", SITE_SIZE, NULL, 0);
-    rtp_cur = add_colon_dirs(rtp_cur, data_dirs, "site", SITE_SIZE, NULL, 0, true);
-    rtp_cur = add_dir(rtp_cur, vimruntime, vimruntime_len, false, NULL, 0, NULL, 0);
-    rtp_cur = add_colon_dirs(rtp_cur, data_dirs, "site", SITE_SIZE, "after", AFTER_SIZE, false);
-    rtp_cur = add_dir(rtp_cur, data_home, data_len, true, "site", SITE_SIZE, "after", AFTER_SIZE);
-    rtp_cur = add_colon_dirs(rtp_cur, config_dirs, "after", AFTER_SIZE, NULL, 0, false);
-    rtp_cur = add_dir(rtp_cur, config_home, config_len, true, "after", AFTER_SIZE, NULL, 0);
+
+    rtp_cur = add_dir(rtp_cur, config_home,
+                      config_len, true, NULL, 0, NULL, 0);
+
+    rtp_cur = add_colon_dirs(rtp_cur, config_dirs,
+                             NULL, 0, NULL, 0, true);
+
+    rtp_cur = add_dir(rtp_cur, data_home, data_len,
+                      true, "site", SITE_SIZE, NULL, 0);
+
+    rtp_cur = add_colon_dirs(rtp_cur, data_dirs,
+                             "site", SITE_SIZE, NULL, 0, true);
+
+    rtp_cur = add_dir(rtp_cur, vimruntime,
+                      vimruntime_len, false, NULL, 0, NULL, 0);
+
+    rtp_cur = add_colon_dirs(rtp_cur, data_dirs, "site",
+                             SITE_SIZE, "after", AFTER_SIZE, false);
+
+    rtp_cur = add_dir(rtp_cur, data_home, data_len, true,
+                      "site", SITE_SIZE, "after", AFTER_SIZE);
+
+    rtp_cur = add_colon_dirs(rtp_cur, config_dirs,
+                             "after", AFTER_SIZE, NULL, 0, false);
+
+    rtp_cur = add_dir(rtp_cur, config_home, config_len,
+                      true, "after", AFTER_SIZE, NULL, 0);
+
     rtp_cur[-1] = NUL; // Strip trailing comma.
     assert((size_t)(rtp_cur - rtp) == rtp_size);
+
 #undef SITE_SIZE
 #undef AFTER_SIZE
+
     DEV_TRACE_MSG("RunTimePath: %s", rtp);
+
     set_string_default("runtimepath", rtp, true);
-    set_string_default("packpath", rtp, false); // Make a copy of 'rtp' for 'packpath'
+    // Make a copy of 'rtp' for 'packpath'
+    set_string_default("packpath", rtp, false);
+
     xfree(data_dirs);
     xfree(config_dirs);
     xfree(data_home);
@@ -612,38 +698,42 @@ static void set_runtimepath_default(void)
 
 #undef NVIM_SIZE
 
-/// Set the default for @b backupskip to include environment variables for temp files.
+/// Set the default for @b backupskip to
+/// include environment variables for temp files.
 static void set_init_1_tmp_dir(void)
 {
     int len;
     garray_T ga;
+
 #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
     static char *(names[4]) = {"", "TMPDIR", "TEMP", "TMP"};
 #else
     static char *(names[3]) = {"TMPDIR", "TEMP", "TMP"};
 #endif
+
     ga_init(&ga, 1, 100);
 
     for(size_t n = 0; n < ARRAY_SIZE(names); ++n)
     {
-        bool mustfree = true;
         char *p;
-#if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
+        bool mustfree = true;
 
+    #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
         if(*names[n] == NUL)
         {
             p = "/tmp";
             mustfree = false;
         }
         else
-#endif
+    #endif
         {
             p = vim_getenv(names[n]);
         }
 
         if(p != NULL && *p != NUL)
         {
-            // First time count the NUL, otherwise count the ','.
+            // First time count the NUL,
+            // otherwise count the ','.
             len = (int)strlen(p) + 3;
             ga_grow(&ga, len);
 
@@ -670,7 +760,8 @@ static void set_init_1_tmp_dir(void)
     }
 }
 
-/// 'maxmemtot' and 'maxmem' may have to be adjusted for available memory
+/// 'maxmemtot' and 'maxmem' may have
+/// to be adjusted for available memory
 static void set_init_1_adj_mem(void)
 {
     int opt_idx = findoption("maxmemtot");
@@ -680,7 +771,10 @@ static void set_init_1_adj_mem(void)
         // Use half of amount of memory available to Vim.
         // If too much to fit in uintptr_t, get uintptr_t max
         uint64_t available_kib = os_get_total_mem_kib();
-        uintptr_t n = (available_kib / 2 > UINTPTR_MAX) ? UINTPTR_MAX:(uintptr_t)(available_kib /2);
+
+        uintptr_t n = (available_kib / 2 > UINTPTR_MAX)
+                      ? UINTPTR_MAX : (uintptr_t)(available_kib /2);
+
         options[opt_idx].def_val[VI_DEFAULT] = (char_u *)n;
         opt_idx = findoption("maxmem");
 
@@ -744,7 +838,9 @@ void set_init_1(void)
     int opt_idx;
     langmap_init();
     p_cp = FALSE; // Be nocompatible
-    // Find default value for 'shell' option. Don't use it if it is empty.
+
+    // Find default value for 'shell' option.
+    // Don't use it if it is empty.
     const char *shell = os_getenv("SHELL");
 
     if(shell != NULL)
@@ -755,10 +851,12 @@ void set_init_1(void)
     set_init_1_tmp_dir();
     set_init_1_adj_mem();
     set_init_1_opt_cdpath();
+
 #if defined(HOST_OS_WINDOWS) || defined(HOST_OS_MACOS)
     // Set print encoding on platforms that don't default to latin1
     set_string_default("printencoding", "hp-roman8", false);
 #endif
+
     // 'printexpr' must be allocated to be able to evaluate it.
     set_string_default("printexpr",
 #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
@@ -775,20 +873,25 @@ void set_init_1(void)
                        "",
 #endif
                        false);
+
     char *backupdir = stdpaths_user_data_subpath("backup", 0, true);
     const size_t backupdir_len = strlen(backupdir);
     backupdir = xrealloc(backupdir, backupdir_len + 3);
+
     memmove(backupdir + 2, backupdir, backupdir_len + 1);
-    memmove(backupdir, ".,", 2); // insert ".,", add current directory
+    memmove(backupdir, ".,", 2); // insert ".,", current directory
+
     set_string_default("backupdir", backupdir, true);
     set_string_default("viewdir",   stdpaths_user_data_subpath("view", 0, true), true);
     set_string_default("directory", stdpaths_user_data_subpath("swap", 2, true), true);
     set_string_default("undodir",   stdpaths_user_data_subpath("undo", 0, true), true);
+
     // Set default for &runtimepath.
     // All necessary expansions are performed in this function.
     set_runtimepath_default();
-    // Set all the options (except the terminal options) to their default value.
-    // Also set the global value for local options.
+
+    // Set all the options (except the terminal options) to their
+    // default value. Also set the global value for local options.
     set_options_default(0);
     curbuf->b_p_initialized = true;
     curbuf->b_p_ar = -1; // no local 'autoread' value
@@ -796,14 +899,20 @@ void set_init_1(void)
     check_buf_options(curbuf);
     check_win_options(curwin);
     check_options();
+
     // Set all options to their Vim default
     set_options_default(OPT_FREE);
+
     // set 'laststatus'
     last_status(false);
-    // Must be before option_expand(), because that one needs vim_isIDc()
+
+    // Must be before option_expand(),
+    // because that one needs vim_isIDc()
     didset_options();
+
     // Use the current chartab for the generic chartab.
-    // This is not in didset_options() because it only depends on 'encoding'.
+    // This is not in didset_options() because it only
+    // depends on 'encoding'.
     init_spell_chartab();
 
     // Expand environment variables and things like "~" for the defaults.
@@ -822,7 +931,8 @@ void set_init_1(void)
 
         char *p;
 
-        if((options[opt_idx].flags & P_GETTEXT) && options[opt_idx].var != NULL)
+        if((options[opt_idx].flags & P_GETTEXT)
+           && options[opt_idx].var != NULL)
         {
             p = _(*(char **)options[opt_idx].var);
         }
@@ -837,8 +947,9 @@ void set_init_1(void)
             *(char **)options[opt_idx].var = p;
 
             // VIMEXP
-            // Defaults for all expanded options are currently the same for Vi and Vim.
-            // When this changes, add some code here!  Also need to split P_DEF_ALLOCED in two.
+            // Defaults for all expanded options are currently
+            // the same for Vi and Vim. When this changes, add
+            // some code here!  Also need to split P_DEF_ALLOCED in two.
             if(options[opt_idx].flags & P_DEF_ALLOCED)
             {
                 xfree(options[opt_idx].def_val[VI_DEFAULT]);
@@ -864,8 +975,10 @@ void set_init_1(void)
     }
 
     didset_options2();
-    // enc_locale() will try to find the encoding of the current locale.
-    // This will be used when 'default' is used as encoding specifier in 'fileencodings'
+
+    // enc_locale() will try to find the encoding
+    // of the current locale. This will be used when
+    // 'default' is used as encoding specifier in 'fileencodings'
     char_u *p = enc_locale();
 
     if(p == NULL)
@@ -875,11 +988,13 @@ void set_init_1(void)
     }
 
     fenc_default = p;
+
 #ifdef FOUND_WORKING_LIBINTL
     // GNU gettext 0.10.37 supports this feature: set the codeset used for
     // translated messages independently from the current locale.
     (void)bind_textdomain_codeset(GKIDE_NVIM_DOMAIN, (char *)p_enc);
 #endif
+
     // Set the default for 'helplang'.
     set_helplang_default(get_mess_lang());
 }
@@ -895,17 +1010,22 @@ static void set_option_default(int opt_idx, int opt_flags, int compatible)
     int dvi; // index in def_val[]
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
     uint32_t flags = options[opt_idx].flags;
-    // pointer to variable for current option
-    char_u *varp = get_varp_scope(&(options[opt_idx]), both ? OPT_LOCAL : opt_flags);
 
-    if(varp != NULL) // skip hidden option, nothing to do for it
+    // pointer to variable for current option
+    char_u *varp =
+        get_varp_scope(&(options[opt_idx]),
+                       both ? OPT_LOCAL : opt_flags);
+
+    // skip hidden option, nothing to do for it
+    if(varp != NULL)
     {
-        dvi = ((flags & P_VI_DEF) || compatible) ? VI_DEFAULT : VIM_DEFAULT;
+        dvi = ((flags & P_VI_DEF) || compatible)
+              ? VI_DEFAULT : VIM_DEFAULT;
 
         if(flags & P_STRING)
         {
-            // Use set_string_option_direct() for local options to handle
-            // freeing and allocating the value.
+            // Use set_string_option_direct() for local options
+            // to handle freeing and allocating the value.
             if(options[opt_idx].indir != PV_NONE)
             {
                 set_string_option_direct(NULL,
@@ -938,27 +1058,28 @@ static void set_option_default(int opt_idx, int opt_flags, int compatible)
                 // May also set global value for local option.
                 if(both)
                 {
-                    *(long *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = *(long *)varp;
+                    *(long *)get_varp_scope(&(options[opt_idx]),
+                                            OPT_GLOBAL) = *(long *)varp;
                 }
             }
         }
         else // P_BOOL
         {
             *(int *)varp = (int)(intptr_t)options[opt_idx].def_val[dvi];
-#ifdef UNIX
 
+        #ifdef UNIX
             // 'modeline' defaults to off for root
             if(options[opt_idx].indir == PV_ML && getuid() == ROOT_UID)
             {
                 *(int *)varp = FALSE;
             }
-
-#endif
+        #endif
 
             // May also set global value for local option.
             if(both)
             {
-                *(int *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = *(int *)varp;
+                *(int *)get_varp_scope(&(options[opt_idx]),
+                                       OPT_GLOBAL) = *(int *)varp;
             }
         }
 
@@ -994,10 +1115,18 @@ static void set_options_default(int opt_flags)
 /// Set the Vi-default value of a string option.
 /// Used for 'sh', 'backupskip' and 'term'.
 ///
-/// @param name The name of the option
-/// @param val The value of the option
-/// @param allocated If true, do not copy default as it was already allocated.
-static void set_string_default(const char *name, char *val, bool allocated) FUNC_ATTR_NONNULL_ALL
+/// @param name
+/// The name of the option
+///
+/// @param val
+/// The value of the option
+///
+/// @param allocated
+/// If true, do not copy default as it was already allocated.
+static void set_string_default(const char *name,
+                               char *val,
+                               bool allocated)
+FUNC_ATTR_NONNULL_ALL
 {
     int opt_idx = findoption(name);
 
@@ -1008,18 +1137,15 @@ static void set_string_default(const char *name, char *val, bool allocated) FUNC
             xfree(options[opt_idx].def_val[VI_DEFAULT]);
         }
 
-        options[opt_idx].def_val[VI_DEFAULT] = (char_u *)(allocated ?
-                                                          (char_u *)val :
-                                                          (char_u *)xstrdup(val)
-                                                         );
+        options[opt_idx].def_val[VI_DEFAULT] =
+            (char_u *)(allocated ? (char_u *)val : (char_u *)xstrdup(val));
+
         options[opt_idx].flags |= P_DEF_ALLOCED;
     }
 }
 
-/*
- * Set the Vi-default value of a number option.
- * Used for 'lines' and 'columns'.
- */
+/// Set the Vi-default value of a number option.
+/// Used for 'lines' and 'columns'.
 void set_number_default(char *name, long val)
 {
     int opt_idx;
@@ -1032,9 +1158,7 @@ void set_number_default(char *name, long val)
 }
 
 #if defined(EXITFREE)
-/*
- * Free all options.
- */
+/// Free all options.
 void free_all_options(void)
 {
     int i;
@@ -1043,7 +1167,7 @@ void free_all_options(void)
     {
         if(options[i].indir == PV_NONE)
         {
-            /* global option: free value and default value. */
+            // global option: free value and default value.
             if(options[i].flags & P_ALLOCED && options[i].var != NULL)
             {
                 free_string_option(*(char_u **)options[i].var);
@@ -1056,21 +1180,21 @@ void free_all_options(void)
         }
         else if(options[i].var != VAR_WIN
                 && (options[i].flags & P_STRING))
-            /* buffer-local option: free global value */
         {
+            // buffer-local option: free global value
             free_string_option(*(char_u **)options[i].var);
         }
     }
 }
-
 #endif
 
 
-/// Initialize the options, part two: After getting @b Rows and @b Columns.
+/// Initialize the options, part two:
+/// After getting @b Rows and @b Columns.
 void set_init_2(bool headless)
 {
-    // 'scroll' defaults to half the window height. Note that this default is
-    // wrong when the window height changes.
+    // 'scroll' defaults to half the window height.
+    // Note that this default is wrong when the window height changes.
     set_number_default("scroll", Rows / 2);
     int idx = findoption("scroll");
 
@@ -1092,18 +1216,24 @@ void set_init_2(bool headless)
 
     if(!headless && !os_term_is_nice())
     {
-        set_string_option_direct((char_u *)"guicursor", -1, (char_u *)"", OPT_GLOBAL, SID_NONE);
+        set_string_option_direct((char_u *)"guicursor",
+                                 -1,
+                                 (char_u *)"",
+                                 OPT_GLOBAL,
+                                 SID_NONE);
     }
 
     parse_shape_opt(SHAPE_CURSOR); // set cursor shapes from 'guicursor'
     (void)parse_printoptions(); // parse 'printoptions' default value
 }
 
-/// Initialize the options, part three: After reading the *.nvimrc
+/// Initialize the options, part three:
+/// After reading the *.nvimrc
 void set_init_3(void)
 {
-    // Set 'shellpipe' and 'shellredir', depending on the 'shell' option.
-    // This is done after other initializations, where 'shell' might have been
+    // Set 'shellpipe' and 'shellredir', depending
+    // on the 'shell' option. This is done after other
+    // initializations, where 'shell' might have been
     // set, but only if they have not been set before.
     int idx_srr;
     int do_srr;
@@ -1134,14 +1264,11 @@ void set_init_3(void)
     size_t len = 0;
     char_u *p = (char_u *)invocation_path_tail(p_sh, &len);
     p = vim_strnsave(p, len);
+
     {
-        /*
-         * Default for p_sp is "| tee", for p_srr is ">".
-         * For known shells it is changed here to include stderr.
-         */
-        if(fnamecmp(p, "csh") == 0
-           || fnamecmp(p, "tcsh") == 0
-          )
+        // Default for p_sp is "| tee", for p_srr is ">".
+        // For known shells it is changed here to include stderr.
+        if(fnamecmp(p, "csh") == 0 || fnamecmp(p, "tcsh") == 0)
         {
             if(do_sp)
             {
@@ -1162,8 +1289,7 @@ void set_init_3(void)
                 || fnamecmp(p, "zsh") == 0
                 || fnamecmp(p, "zsh-beta") == 0
                 || fnamecmp(p, "bash") == 0
-                || fnamecmp(p, "fish") == 0
-               )
+                || fnamecmp(p, "fish") == 0)
         {
             if(do_sp)
             {
@@ -1195,10 +1321,8 @@ void set_init_3(void)
     set_title_defaults();
 }
 
-/*
- * When 'helplang' is still at its default value, set it to "lang".
- * Only the first two characters of "lang" are used.
- */
+/// When 'helplang' is still at its default value, set it to "lang".
+/// Only the first two characters of "lang" are used.
 void set_helplang_default(const char *lang)
 {
     if(lang == NULL)
@@ -1208,7 +1332,7 @@ void set_helplang_default(const char *lang)
 
     const size_t lang_len = strlen(lang);
 
-    if(lang_len < 2)     // safety check
+    if(lang_len < 2) // safety check
     {
         return;
     }
@@ -1236,23 +1360,17 @@ void set_helplang_default(const char *lang)
     }
 }
 
-
-/*
- * 'title' and 'icon' only default to true if they have not been set or reset
- * in .vimrc and we can read the old value.
- * When 'title' and 'icon' have been reset in .vimrc, we won't even check if
- * they can be reset.  This reduces startup time when using X on a remote
- * machine.
- */
+/// 'title' and 'icon' only default to true if they have not
+/// been set or reset in .vimrc and we can read the old value.
+/// When 'title' and 'icon' have been reset in .vimrc, we won't
+/// even check if they can be reset. This reduces startup time
+/// when using X on a remote machine.
 void set_title_defaults(void)
 {
-    int idx1;
-    /*
-     * If GUI is (going to be) used, we can always set the window title and
-     * icon name.  Saves a bit of time, because the X11 display server does
-     * not need to be contacted.
-     */
-    idx1 = findoption("title");
+    // If GUI is (going to be) used, we can always set the window title and
+    // icon name.  Saves a bit of time, because the X11 display server does
+    // not need to be contacted.
+    int idx1 = findoption("title");
 
     if(idx1 >= 0 && !(options[idx1].flags & P_WAS_SET))
     {
@@ -1269,44 +1387,40 @@ void set_title_defaults(void)
     }
 }
 
-/*
- * Parse 'arg' for option settings.
- *
- * 'arg' may be IObuff, but only when no errors can be present and option
- * does not need to be expanded with option_expand().
- * "opt_flags":
- * 0 for ":set"
- * OPT_GLOBAL   for ":setglobal"
- * OPT_LOCAL    for ":setlocal" and a modeline
- * OPT_MODELINE for a modeline
- * OPT_WINONLY  to only set window-local options
- * OPT_NOWIN    to skip setting window-local options
- *
- * returns FAIL if an error is detected, OK otherwise
- */
-int
-do_set(
-    char_u *arg,               /* option string (may be written to!) */
-    int opt_flags
-)
+/// Parse @b arg for option settings.
+///
+/// @b arg may be IObuff, but only when no errors can be present
+/// and option does not need to be expanded with option_expand().
+///
+/// @b opt_flags
+/// option string (may be written to!)
+/// - 0 for ":set"
+/// - OPT_GLOBAL   for ":setglobal"
+/// - OPT_LOCAL    for ":setlocal" and a modeline
+/// - OPT_MODELINE for a modeline
+/// - OPT_WINONLY  to only set window-local options
+/// - OPT_NOWIN    to skip setting window-local options
+///
+/// @returns FAIL if an error is detected, OK otherwise
+int do_set(char_u *arg,  int opt_flags)
 {
     int opt_idx;
-    char_u      *errmsg;
+    char_u *errmsg;
     char_u errbuf[80];
-    char_u      *startarg;
-    int prefix;           /* 1: nothing, 0: "no", 2: "inv" in front of name */
-    char_u nextchar;                  /* next non-white char after option name */
-    int afterchar;                    /* character just after option name */
+    char_u *startarg;
+    int prefix; // 1: nothing, 0: "no", 2: "inv" in front of name
+    char_u nextchar; // next non-white char after option name
+    int afterchar; // character just after option name
     int len;
     int i;
     long value;
     int key;
-    uint32_t flags;                   /* flags for current option */
-    char_u      *varp = NULL;         /* pointer to variable for current option */
-    int did_show = FALSE;             /* already showed one value */
-    int adding;                       /* "opt+=arg" */
-    int prepending;                   /* "opt^=arg" */
-    int removing;                     /* "opt-=arg" */
+    uint32_t flags; // flags for current option
+    char_u *varp = NULL; // pointer to variable for current option
+    int did_show = FALSE; // already showed one value
+    int adding; // "opt+=arg"
+    int prepending; // "opt^=arg"
+    int removing; // "opt-=arg"
     int cp_val = 0;
 
     if(*arg == NUL)
@@ -1316,27 +1430,29 @@ do_set(
         goto theend;
     }
 
-    while(*arg != NUL)            /* loop to process all options */
+    // loop to process all options
+    while(*arg != NUL)
     {
         errmsg = NULL;
-        startarg = arg;             /* remember for error message */
+        startarg = arg; // remember for error message
 
         if(STRNCMP(arg, "all", 3) == 0 && !isalpha(arg[3])
            && !(opt_flags & OPT_MODELINE))
         {
-            /*
-             * ":set all"  show all options.
-             * ":set all&" set all options to their default value.
-             */
+            // ":set all"  show all options.
+            // ":set all&" set all options to their default value.
             arg += 3;
 
             if(*arg == '&')
             {
                 arg++;
+
                 // Only for :set command set global value of local options.
                 set_options_default(OPT_FREE | opt_flags);
+
                 didset_options();
                 didset_options2();
+
                 redraw_all_later(CLEAR);
             }
             else
@@ -1345,8 +1461,8 @@ do_set(
                 did_show = TRUE;
             }
         }
-        else if(STRNCMP(arg, "termcap",
-                        7) == 0 && !(opt_flags & OPT_MODELINE))
+        else if(STRNCMP(arg, "termcap", 7) == 0
+                && !(opt_flags & OPT_MODELINE))
         {
             did_show = TRUE;
             arg += 7;
@@ -1366,15 +1482,18 @@ do_set(
                 arg += 3;
             }
 
-            /* find end of name */
+            // find end of name
             key = 0;
 
             if(*arg == '<')
             {
                 opt_idx = -1;
 
-                /* look out for <t_>;> */
-                if(arg[1] == 't' && arg[2] == '_' && arg[3] && arg[4])
+                // look out for <t_>;>
+                if(arg[1] == 't'
+                   && arg[2] == '_'
+                   && arg[3]
+                   && arg[4])
                 {
                     len = 5;
                 }
@@ -1382,7 +1501,8 @@ do_set(
                 {
                     len = 1;
 
-                    while(arg[len] != NUL && arg[len] != '>')
+                    while(arg[len] != NUL
+                          && arg[len] != '>')
                     {
                         ++len;
                     }
@@ -1394,9 +1514,11 @@ do_set(
                     goto skip;
                 }
 
-                if(arg[1] == 't' && arg[2] == '_')     // could be term code
+                if(arg[1] == 't'
+                   && arg[2] == '_') // could be term code
                 {
-                    opt_idx = findoption_len((const char *)arg + 1, (size_t)(len - 1));
+                    opt_idx = findoption_len((const char *)arg + 1,
+                                             (size_t)(len - 1));
                 }
 
                 len++;
@@ -1431,10 +1553,10 @@ do_set(
                 }
             }
 
-            /* remember character after option name */
+            // remember character after option name
             afterchar = arg[len];
 
-            /* skip white space, allow ":set ai  ?" */
+            // skip white space, allow ":set ai  ?"
             while(ascii_iswhite(arg[len]))
             {
                 ++len;
@@ -1448,24 +1570,24 @@ do_set(
             {
                 if(arg[len] == '+')
                 {
-                    adding = TRUE;                        /* "+=" */
+                    adding = TRUE; // "+="
                     ++len;
                 }
                 else if(arg[len] == '^')
                 {
-                    prepending = TRUE;                    /* "^=" */
+                    prepending = TRUE; // "^="
                     ++len;
                 }
                 else if(arg[len] == '-')
                 {
-                    removing = TRUE;                      /* "-=" */
+                    removing = TRUE; // "-="
                     ++len;
                 }
             }
 
             nextchar = arg[len];
 
-            if(opt_idx == -1 && key == 0)             /* found a mismatch: skip */
+            if(opt_idx == -1 && key == 0) // found a mismatch: skip
             {
                 errmsg = (char_u *)N_("E518: Unknown option");
                 goto skip;
@@ -1473,10 +1595,10 @@ do_set(
 
             if(opt_idx >= 0)
             {
-                if(options[opt_idx].var == NULL)            /* hidden option: skip */
+                if(options[opt_idx].var == NULL) // hidden option: skip
                 {
-                    /* Only give an error message when requesting the value of
-                     * a hidden option, ignore setting it. */
+                    // Only give an error message when requesting the
+                    // value of a hidden option, ignore setting it.
                     if(vim_strchr((char_u *)"=:!&<", nextchar) == NULL
                        && (!(options[opt_idx].flags & P_BOOL)
                            || nextchar == '?'))
@@ -1495,22 +1617,23 @@ do_set(
                 flags = P_STRING;
             }
 
-            /* Skip all options that are not window-local (used when showing
-             * an already loaded buffer in a window). */
+            // Skip all options that are not window-local (used when
+            // showing an already loaded buffer in a window).
             if((opt_flags & OPT_WINONLY)
                && (opt_idx < 0 || options[opt_idx].var != VAR_WIN))
             {
                 goto skip;
             }
 
-            /* Skip all options that are window-local (used for :vimgrep). */
-            if((opt_flags & OPT_NOWIN) && opt_idx >= 0
+            // Skip all options that are window-local (used for :vimgrep).
+            if((opt_flags & OPT_NOWIN)
+               && opt_idx >= 0
                && options[opt_idx].var == VAR_WIN)
             {
                 goto skip;
             }
 
-            /* Disallow changing some options from modelines. */
+            // Disallow changing some options from modelines.
             if(opt_flags & OPT_MODELINE)
             {
                 if(flags & (P_SECURE | P_NO_ML))
@@ -1519,11 +1642,11 @@ do_set(
                     goto skip;
                 }
 
-                /* In diff mode some options are overruled.  This avoids that
-                 * 'foldmethod' becomes "marker" instead of "diff" and that
-                 * "wrap" gets set. */
+                // In diff mode some options are overruled. This avoids that
+                // 'foldmethod' becomes "marker" instead of "diff" and that
+                // "wrap" gets set.
                 if(curwin->w_p_diff
-                   && opt_idx >= 0              /* shut up coverity warning */
+                   && opt_idx >= 0 // shut up coverity warning
                    && (options[opt_idx].indir == PV_FDM
                        || options[opt_idx].indir == PV_WRAP))
                 {
@@ -1531,7 +1654,7 @@ do_set(
                 }
             }
 
-            /* Disallow changing some options in the sandbox */
+            // Disallow changing some options in the sandbox
             if(sandbox != 0 && (flags & P_SECURE))
             {
                 errmsg = (char_u *)_(e_sandbox);
@@ -1545,12 +1668,12 @@ do_set(
 
                 if(nextchar == '&' && arg[1] == 'v' && arg[2] == 'i')
                 {
-                    if(arg[3] == 'm')             /* "opt&vim": set to Vim default */
+                    if(arg[3] == 'm') // "opt&vim": set to Vim default
                     {
                         cp_val = FALSE;
                         arg += 3;
                     }
-                    else                        /* "opt&vi": set to Vi default */
+                    else // "opt&vi": set to Vi default
                     {
                         cp_val = TRUE;
                         arg += 2;
@@ -1565,26 +1688,22 @@ do_set(
                 }
             }
 
-            /*
-             * allow '=' and ':' as MSDOS command.com allows only one
-             * '=' character per "set" command line. grrr. (jw)
-             */
+            // allow '=' and ':' as MSDOS command.com allows only one
+            // '=' character per "set" command line. grrr. (jw)
             if(nextchar == '?'
                || (prefix == 1
                    && vim_strchr((char_u *)"=:&<", nextchar) == NULL
                    && !(flags & P_BOOL)))
             {
-                /*
-                 * print value
-                 */
+                // print value
                 if(did_show)
                 {
-                    msg_putchar('\n');    /* cursor below last one */
+                    msg_putchar('\n'); // cursor below last one
                 }
                 else
                 {
-                    gotocmdline(TRUE);                /* cursor at status line */
-                    did_show = TRUE;                  /* remember that we did a line */
+                    gotocmdline(TRUE); // cursor at status line
+                    did_show = TRUE; // remember that we did a line
                 }
 
                 if(opt_idx >= 0)
@@ -1593,17 +1712,21 @@ do_set(
 
                     if(p_verbose > 0)
                     {
-                        /* Mention where the option was last set. */
+                        // Mention where the option was last set.
                         if(varp == options[opt_idx].var)
                         {
                             last_set_msg(options[opt_idx].scriptID);
                         }
                         else if((int)options[opt_idx].indir & PV_WIN)
+                        {
                             last_set_msg(curwin->w_p_scriptID[
-                                             (int)options[opt_idx].indir & PV_MASK]);
+                                (int)options[opt_idx].indir & PV_MASK]);
+                        }
                         else if((int)options[opt_idx].indir & PV_BUF)
+                        {
                             last_set_msg(curbuf->b_p_scriptID[
-                                             (int)options[opt_idx].indir & PV_MASK]);
+                                (int)options[opt_idx].indir & PV_MASK]);
+                        }
                     }
                 }
                 else
@@ -1620,7 +1743,7 @@ do_set(
             }
             else
             {
-                if(flags & P_BOOL)                          /* boolean */
+                if(flags & P_BOOL) // boolean
                 {
                     if(nextchar == '=' || nextchar == ':')
                     {
@@ -1628,44 +1751,44 @@ do_set(
                         goto skip;
                     }
 
-                    /*
-                     * ":set opt!": invert
-                     * ":set opt&": reset to default value
-                     * ":set opt<": reset to global value
-                     */
+                    // ":set opt!": invert
+                    // ":set opt&": reset to default value
+                    // ":set opt<": reset to global value
                     if(nextchar == '!')
                     {
                         value = *(int *)(varp) ^ 1;
                     }
                     else if(nextchar == '&')
+                    {
                         value = (int)(intptr_t)options[opt_idx].def_val[
                                     ((flags & P_VI_DEF) || cp_val)
-                                    ?  VI_DEFAULT : VIM_DEFAULT];
+                                    ? VI_DEFAULT : VIM_DEFAULT];
+                    }
                     else if(nextchar == '<')
                     {
-                        /* For 'autoread' -1 means to use global value. */
+                        // For 'autoread' -1 means to use global value.
                         if((int *)varp == &curbuf->b_p_ar
                            && opt_flags == OPT_LOCAL)
                         {
                             value = -1;
                         }
                         else
+                        {
                             value = *(int *)get_varp_scope(&(options[opt_idx]),
                                                            OPT_GLOBAL);
+                        }
                     }
                     else
                     {
-                        /*
-                         * ":set invopt": invert
-                         * ":set opt" or ":set noopt": set or reset
-                         */
+                        // ":set invopt": invert
+                        // ":set opt" or ":set noopt": set or reset
                         if(nextchar != NUL && !ascii_iswhite(afterchar))
                         {
                             errmsg = e_trailing;
                             goto skip;
                         }
 
-                        if(prefix == 2)                     /* inv */
+                        if(prefix == 2) // inv
                         {
                             value = *(int *)(varp) ^ 1;
                         }
@@ -1675,10 +1798,12 @@ do_set(
                         }
                     }
 
-                    errmsg = (char_u *)set_bool_option(opt_idx, varp, (int)value,
+                    errmsg = (char_u *)set_bool_option(opt_idx,
+                                                       varp,
+                                                       (int)value,
                                                        opt_flags);
                 }
-                else      // Numeric or string.
+                else // Numeric or string.
                 {
                     if(vim_strchr((const char_u *)"=:&<", nextchar) == NULL
                        || prefix != 1)
@@ -1687,35 +1812,38 @@ do_set(
                         goto skip;
                     }
 
-                    if(flags & P_NUM)                         /* numeric */
+                    if(flags & P_NUM) // numeric
                     {
-                        /*
-                         * Different ways to set a number option:
-                         * &        set to default value
-                         * <        set to global value
-                         * <xx>     accept special key codes for 'wildchar'
-                         * c        accept any non-digit for 'wildchar'
-                         * [-]0-9   set number
-                         * other    error
-                         */
+                        // Different ways to set a number option:
+                        // &        set to default value
+                        // <        set to global value
+                        // <xx>     accept special key codes for 'wildchar'
+                        // c        accept any non-digit for 'wildchar'
+                        // [-]0-9   set number
+                        // other    error
                         ++arg;
 
                         if(nextchar == '&')
+                        {
                             value = (long)options[opt_idx].def_val[
                                         ((flags & P_VI_DEF) || cp_val)
                                         ?  VI_DEFAULT : VIM_DEFAULT];
+                        }
                         else if(nextchar == '<')
                         {
-                            /* For 'undolevels' NO_LOCAL_UNDOLEVEL means to
-                             * use the global value. */
+                            // For 'undolevels' NO_LOCAL_UNDOLEVEL
+                            // means to use the global value.
                             if((long *)varp == &curbuf->b_p_ul
                                && opt_flags == OPT_LOCAL)
                             {
                                 value = NO_LOCAL_UNDOLEVEL;
                             }
                             else
+                            {
                                 value = *(long *)get_varp_scope(
-                                            &(options[opt_idx]), OPT_GLOBAL);
+                                            &(options[opt_idx]),
+                                            OPT_GLOBAL);
+                            }
                         }
                         else if(((long *)varp == &p_wc
                                  || (long *)varp == &p_wcm)
@@ -1734,8 +1862,8 @@ do_set(
                         }
                         else if(*arg == '-' || ascii_isdigit(*arg))
                         {
-                            // Allow negative (for 'undolevels'), octal and
-                            // hex numbers.
+                            // Allow negative (for 'undolevels'),
+                            // octal and hex numbers.
                             vim_str2nr(arg, NULL, &i, STR2NR_ALL, &value, NULL, 0);
 
                             if(arg[i] != NUL && !ascii_iswhite(arg[i]))
@@ -1765,46 +1893,50 @@ do_set(
                             value = *(long *)varp - value;
                         }
 
-                        errmsg = (char_u *)set_num_option(opt_idx, varp, value,
-                                                          errbuf, sizeof(errbuf),
+                        errmsg = (char_u *)set_num_option(opt_idx,
+                                                          varp,
+                                                          value,
+                                                          errbuf,
+                                                          sizeof(errbuf),
                                                           opt_flags);
                     }
-                    else if(opt_idx >= 0)       // String.
+                    else if(opt_idx >= 0) // String.
                     {
-                        char_u      *save_arg = NULL;
-                        char_u      *s = NULL;
-                        char_u      *oldval = NULL;         // previous value if *varp
-                        char_u      *newval;
-                        char_u      *origval = NULL;
+                        char_u *save_arg = NULL;
+                        char_u *s = NULL;
+                        char_u *oldval = NULL; // previous value if *varp
+                        char_u *newval;
+                        char_u *origval = NULL;
                         char *saved_origval = NULL;
                         unsigned newlen;
                         int comma;
                         int bs;
-                        int new_value_alloced;                      /* new string option
-                                                           was allocated */
+                        // new string option was allocated
+                        int new_value_alloced;
 
-                        /* When using ":set opt=val" for a global option
-                         * with a local value the local value will be
-                         * reset, use the global value here. */
+                        // When using ":set opt=val" for a global option
+                        // with a local value the local value will be
+                        // reset, use the global value here.
                         if((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0
                            && ((int)options[opt_idx].indir & PV_BOTH))
                         {
                             varp = options[opt_idx].var;
                         }
 
-                        /* The old value is kept until we are sure that the
-                         * new value is valid. */
+                        // The old value is kept until we are
+                        // sure that the new value is valid.
                         oldval = *(char_u **)varp;
 
-                        if(nextchar == '&')                 /* set to default val */
+                        if(nextchar == '&') // set to default val
                         {
                             newval = options[opt_idx].def_val[
                                          ((flags & P_VI_DEF) || cp_val)
                                          ?  VI_DEFAULT : VIM_DEFAULT];
-                            /* expand environment variables and ~ (since the
-                             * default value was already expanded, only
-                             * required when an environment variable was set
-                             * later */
+
+                            // expand environment variables and ~ (since the
+                            // default value was already expanded, only
+                            // required when an environment variable was set
+                            // later
                             new_value_alloced = true;
 
                             if(newval == NULL)
@@ -1827,63 +1959,58 @@ do_set(
                                 newval = (char_u *)xstrdup((char *)newval);
                             }
                         }
-                        else if(nextchar == '<')       // set to global val
+                        else if(nextchar == '<') // set to global val
                         {
                             newval = vim_strsave(*(char_u **)get_varp_scope(
-                                                     &(options[opt_idx]), OPT_GLOBAL));
+                                                            &(options[opt_idx]),
+                                                            OPT_GLOBAL));
                             new_value_alloced = TRUE;
                         }
                         else
                         {
-                            ++arg;                    /* jump to after the '=' or ':' */
+                            ++arg; // jump to after the '=' or ':'
 
-                            /*
-                             * Set 'keywordprg' to ":help" if an empty
-                             * value was passed to :set by the user.
-                             * Misuse errbuf[] for the resulting string.
-                             */
-                            if(varp == (char_u *)&p_kp
+                            // Set 'keywordprg' to ":help" if an empty
+                            // value was passed to :set by the user.
+                            // Misuse errbuf[] for the resulting string.
+                            if(varp == (char_u *) & p_kp
                                && (*arg == NUL || *arg == ' '))
                             {
                                 STRCPY(errbuf, ":help");
                                 save_arg = arg;
                                 arg = errbuf;
                             }
-                            /*
-                             * Convert 'backspace' number to string, for
-                             * adding, prepending and removing string.
-                             */
-                            else if(varp == (char_u *)&p_bs
+                            // Convert 'backspace' number to string, for
+                            // adding, prepending and removing string.
+                            else if(varp == (char_u *) & p_bs
                                     && ascii_isdigit(**(char_u **)varp))
                             {
                                 i = getdigits_int((char_u **)varp);
 
                                 switch(i)
                                 {
-                                    case 0:
-                                        *(char_u **)varp = empty_option;
-                                        break;
+                                case 0:
+                                    *(char_u **)varp = empty_option;
+                                    break;
 
-                                    case 1:
-                                        *(char_u **)varp = vim_strsave(
-                                                               (char_u *)"indent,eol");
-                                        break;
+                                case 1:
+                                    *(char_u **)varp =
+                                        vim_strsave((char_u *)"indent,eol");
+                                    break;
 
-                                    case 2:
-                                        *(char_u **)varp = vim_strsave(
-                                                               (char_u *)"indent,eol,start");
-                                        break;
+                                case 2:
+                                    *(char_u **)varp =
+                                        vim_strsave((char_u *)"indent,eol,start");
+                                    break;
                                 }
 
                                 xfree(oldval);
                                 oldval = *(char_u **)varp;
                             }
-                            /*
-                             * Convert 'whichwrap' number to string, for
-                             * backwards compatibility with Vim 3.0.
-                             * Misuse errbuf[] for the resulting string.
-                             */
-                            else if(varp == (char_u *)&p_ww
+                            // Convert 'whichwrap' number to string, for
+                            // backwards compatibility with Vim 3.0.
+                            // Misuse errbuf[] for the resulting string.
+                            else if(varp == (char_u *) & p_ww
                                     && ascii_isdigit(*arg))
                             {
                                 *errbuf = NUL;
@@ -1914,7 +2041,7 @@ do_set(
                                     STRCAT(errbuf, "[,],");
                                 }
 
-                                if(*errbuf != NUL)                      /* remove trailing , */
+                                if(*errbuf != NUL) // remove trailing ,
                                 {
                                     errbuf[STRLEN(errbuf) - 1] = NUL;
                                 }
@@ -1922,10 +2049,8 @@ do_set(
                                 save_arg = arg;
                                 arg = errbuf;
                             }
-                            /*
-                             * Remove '>' before 'dir' and 'bdir', for
-                             * backwards compatibility with version 3.0
-                             */
+                            // Remove '>' before 'dir' and 'bdir', for
+                            // backwards compatibility with version 3.0
                             else if(*arg == '>'
                                     && (varp == (char_u *)&p_dir
                                         || varp == (char_u *)&p_bdir))
@@ -1933,23 +2058,23 @@ do_set(
                                 ++arg;
                             }
 
-                            /* When setting the local value of a global
-                             * option, the old value may be the global value. */
+                            // When setting the local value of a global
+                            // option, the old value may be the global value.
                             if(((int)options[opt_idx].indir & PV_BOTH)
                                && (opt_flags & OPT_LOCAL))
-                                origval = *(char_u **)get_varp(
-                                              &options[opt_idx]);
+                            {
+                                origval =
+                                    *(char_u **)get_varp(&options[opt_idx]);
+                            }
                             else
                             {
                                 origval = oldval;
                             }
 
-                            /*
-                             * Copy the new string into allocated memory.
-                             * Can't use set_string_option_direct(), because
-                             * we need to remove the backslashes.
-                             */
-                            /* get a bit too much */
+                            // Copy the new string into allocated memory.
+                            // Can't use set_string_option_direct(), because
+                            // we need to remove the backslashes.
+                            // get a bit too much
                             newlen = (unsigned)STRLEN(arg) + 1;
 
                             if(adding || prepending || removing)
@@ -1960,33 +2085,32 @@ do_set(
                             newval = xmalloc(newlen);
                             s = newval;
 
-                            /*
-                             * Copy the string, skip over escaped chars.
-                             * For WIN32 backslashes before normal
-                             * file name characters are not removed, and keep
-                             * backslash at start, for "\\machine\path", but
-                             * do remove it for "\\\\machine\\path".
-                             * The reverse is found in ExpandOldSetting().
-                             */
+                            // Copy the string, skip over escaped chars.
+                            // For WIN32 backslashes before normal
+                            // file name characters are not removed, and keep
+                            // backslash at start, for "\\machine\path", but
+                            // do remove it for "\\\\machine\\path".
+                            // The reverse is found in ExpandOldSetting().
                             while(*arg && !ascii_iswhite(*arg))
                             {
-                                if(*arg == '\\' && arg[1] != NUL
-#ifdef BACKSLASH_IN_FILENAME
+                                if(*arg == '\\'
+                                   && arg[1] != NUL
+                            #ifdef BACKSLASH_IN_FILENAME
                                    && !((flags & P_EXPAND)
                                         && vim_isfilec(arg[1])
                                         && (arg[1] != '\\'
                                             || (s == newval
                                                 && arg[2] != '\\')))
-#endif
+                            #endif
                                   )
                                 {
-                                    ++arg;    /* remove backslash */
+                                    ++arg; // remove backslash
                                 }
 
                                 if(has_mbyte
                                    && (i = (*mb_ptr2len)(arg)) > 1)
                                 {
-                                    /* copy multibyte char */
+                                    // copy multibyte char
                                     memmove(s, arg, (size_t)i);
                                     arg += i;
                                     s += i;
@@ -1999,11 +2123,8 @@ do_set(
 
                             *s = NUL;
 
-                            /*
-                             * Expand environment variables and ~.
-                             * Don't do it when adding without inserting a
-                             * comma.
-                             */
+                            // Expand environment variables and ~. Don't
+                            // do it when adding without inserting a comma.
                             if(!(adding || prepending || removing)
                                || (flags & P_COMMA))
                             {
@@ -2016,7 +2137,8 @@ do_set(
 
                                     if(adding || prepending || removing)
                                     {
-                                        newlen += (unsigned)STRLEN(origval) + 1;
+                                        newlen += (unsigned)STRLEN(origval)
+                                                  + 1;
                                     }
 
                                     newval = xmalloc(newlen);
@@ -2024,9 +2146,9 @@ do_set(
                                 }
                             }
 
-                            /* locate newval[] in origval[] when removing it
-                             * and when adding to avoid duplicates */
-                            i = 0;                    /* init for GCC */
+                            // locate newval[] in origval[] when removing it
+                            // and when adding to avoid duplicates
+                            i = 0; // init for GCC
 
                             if(removing || (flags & P_NODUP))
                             {
@@ -2046,11 +2168,15 @@ do_set(
                                         break;
                                     }
 
-                                    // Count backslashes.  Only a comma with an even number of
-                                    // backslashes or a single backslash preceded by a comma
-                                    // before it is recognized as a separator
-                                    if((s > origval + 1 && s[-1] == '\\' && s[-2] != ',')
-                                       || (s == origval + 1 && s[-1] == '\\'))
+                                    // Count backslashes. Only a comma with an
+                                    // even number of backslashes or a single
+                                    // backslash preceded by a comma before it
+                                    // is recognized as a separator
+                                    if((s > origval + 1
+                                        && s[-1] == '\\'
+                                        && s[-2] != ',')
+                                       || (s == origval + 1
+                                           && s[-1] == '\\'))
                                     {
                                         bs++;
                                     }
@@ -2069,11 +2195,12 @@ do_set(
                                 }
                             }
 
-                            /* concatenate the two strings; add a ',' if
-                             * needed */
+                            // concatenate the two strings;
+                            // add a ',' if needed
                             if(adding || prepending)
                             {
-                                comma = ((flags & P_COMMA) && *origval != NUL
+                                comma = ((flags & P_COMMA)
+                                         && *origval != NUL
                                          && *newval != NUL);
 
                                 if(adding)
@@ -2089,8 +2216,10 @@ do_set(
                                         i--;
                                     }
 
-                                    memmove(newval + i + comma, newval,
+                                    memmove(newval + i + comma,
+                                            newval,
                                             STRLEN(newval) + 1);
+
                                     memmove(newval, origval, (size_t)i);
                                 }
                                 else
@@ -2105,20 +2234,20 @@ do_set(
                                 }
                             }
 
-                            /* Remove newval[] from origval[]. (Note: "i" has
-                             * been set above and is used here). */
+                            // Remove newval[] from origval[].
+                            // (Note: "i" has been set above and is used here).
                             if(removing)
                             {
                                 STRCPY(newval, origval);
 
                                 if(*s)
                                 {
-                                    /* may need to remove a comma */
+                                    // may need to remove a comma
                                     if(flags & P_COMMA)
                                     {
                                         if(s == origval)
                                         {
-                                            /* include comma after string */
+                                            // include comma after string
                                             if(s[i] == ',')
                                             {
                                                 ++i;
@@ -2126,7 +2255,7 @@ do_set(
                                         }
                                         else
                                         {
-                                            /* include comma before string */
+                                            // include comma before string
                                             --s;
                                             ++i;
                                         }
@@ -2141,14 +2270,15 @@ do_set(
                                 // Remove flags that appear twice.
                                 for(s = newval; *s; s++)
                                 {
-                                    // if options have P_FLAGLIST and P_ONECOMMA such as
-                                    // 'whichwrap'
+                                    // if options have P_FLAGLIST and
+                                    // P_ONECOMMA such as 'whichwrap'
                                     if(flags & P_ONECOMMA)
                                     {
                                         if(*s != ',' && *(s + 1) == ','
                                            && vim_strchr(s + 2, *s) != NULL)
                                         {
-                                            // Remove the duplicated value and the next comma.
+                                            // Remove the duplicated value
+                                            // and the next comma.
                                             STRMOVE(s, s + 2);
                                             s -= 2;
                                         }
@@ -2165,7 +2295,8 @@ do_set(
                                 }
                             }
 
-                            if(save_arg != NULL)                  /* number for 'whichwrap' */
+                            // number for 'whichwrap'
+                            if(save_arg != NULL)
                             {
                                 arg = save_arg;
                             }
@@ -2173,7 +2304,7 @@ do_set(
                             new_value_alloced = TRUE;
                         }
 
-                        /* Set the new value. */
+                        // Set the new value.
                         *(char_u **)(varp) = newval;
 
                         if(!starting && origval != NULL)
@@ -2183,10 +2314,14 @@ do_set(
                             saved_origval = xstrdup((char *) origval);
                         }
 
-                        /* Handle side effects, and set the global value for
-                         * ":set" on local options. */
-                        errmsg = did_set_string_option(opt_idx, (char_u **)varp,
-                                                       new_value_alloced, oldval, errbuf, opt_flags);
+                        // Handle side effects, and set the global
+                        // value for ":set" on local options.
+                        errmsg = did_set_string_option(opt_idx,
+                                                       (char_u **)varp,
+                                                       new_value_alloced,
+                                                       oldval,
+                                                       errbuf,
+                                                       opt_flags);
 
                         // If error detected, print the error message.
                         if(errmsg != NULL)
@@ -2198,45 +2333,55 @@ do_set(
                         if(saved_origval != NULL)
                         {
                             char buf_type[7];
-                            vim_snprintf(buf_type, ARRAY_SIZE(buf_type), "%s",
-                                         (opt_flags & OPT_LOCAL) ? "local" : "global");
+
+                            vim_snprintf(buf_type,
+                                         ARRAY_SIZE(buf_type),
+                                         "%s",
+                                         (opt_flags & OPT_LOCAL)
+                                         ? "local" : "global");
+
                             set_vim_var_string(VV_OPTION_NEW, *(char **) varp, -1);
                             set_vim_var_string(VV_OPTION_OLD, saved_origval, -1);
                             set_vim_var_string(VV_OPTION_TYPE, buf_type, -1);
+
                             apply_autocmds(EVENT_OPTIONSET,
                                            (char_u *)options[opt_idx].fullname,
                                            NULL, false, NULL);
+
                             reset_v_option_vars();
                             xfree(saved_origval);
                         }
                     }
                     else
                     {
-                        // key code option(FIXME(tarruda): Show a warning or something
-                        // similar)
+                        // key code option(FIXME(tarruda):
+                        // Show a warning or something similar)
                     }
                 }
 
                 if(opt_idx >= 0)
-                    did_set_option(opt_idx, opt_flags,
+                {
+                    did_set_option(opt_idx,
+                                   opt_flags,
                                    !prepending && !adding && !removing);
+                }
             }
 
 skip:
 
-            /*
-             * Advance to next argument.
-             * - skip until a blank found, taking care of backslashes
-             * - skip blanks
-             * - skip one "=val" argument (for hidden options ":set gfn =xx")
-             */
+            // Advance to next argument.
+            // - skip until a blank found, taking care of backslashes
+            // - skip blanks
+            // - skip one "=val" argument (for hidden options ":set gfn =xx")
             for(i = 0; i < 2; ++i)
             {
                 while(*arg != NUL && !ascii_iswhite(*arg))
+                {
                     if(*arg++ == '\\' && *arg != NUL)
                     {
                         ++arg;
                     }
+                }
 
                 arg = skipwhite(arg);
 
@@ -2254,18 +2399,19 @@ skip:
 
             if(i + (arg - startarg) < IOSIZE)
             {
-                /* append the argument with the error */
+                // append the argument with the error
                 STRCAT(IObuff, ": ");
                 assert(arg >= startarg);
                 memmove(IObuff + i, startarg, (size_t)(arg - startarg));
                 IObuff[i + (arg - startarg)] = NUL;
             }
 
-            /* make sure all characters are printable */
+            // make sure all characters are printable
             trans_characters(IObuff, IOSIZE);
-            ++no_wait_return;         /* wait_return done later */
-            emsg(IObuff);             /* show error highlighted */
+            ++no_wait_return; // wait_return done later
+            emsg(IObuff); // show error highlighted
             --no_wait_return;
+
             return FAIL;
         }
 
@@ -2276,33 +2422,32 @@ theend:
 
     if(silent_mode && did_show)
     {
-        /* After displaying option values in silent mode. */
+        // After displaying option values in silent mode.
         silent_mode = FALSE;
-        info_message = TRUE;        /* use mch_msg(), not mch_errmsg() */
+        info_message = TRUE; // use mch_msg(), not mch_errmsg()
         msg_putchar('\n');
         ui_flush();
         silent_mode = TRUE;
-        info_message = FALSE;       /* use mch_msg(), not mch_errmsg() */
+        info_message = FALSE; // use mch_msg(), not mch_errmsg()
     }
 
     return OK;
 }
 
-/*
- * Call this when an option has been given a new value through a user command.
- * Sets the P_WAS_SET flag and takes care of the P_INSECURE flag.
- */
-static void
-did_set_option(
-    int opt_idx,
-    int opt_flags,              /* possibly with OPT_MODELINE */
-    int new_value              /* value was replaced completely */
-)
+/// Call this when an option has been given a new value
+/// through a user command. Sets the P_WAS_SET flag and
+/// takes care of the P_INSECURE flag.
+///
+/// @param opt_idx
+/// @param opt_flags  possibly with OPT_MODELINE
+/// @param new_value  value was replaced completely
+static void did_set_option(int opt_idx, int opt_flags, int new_value)
 {
     options[opt_idx].flags |= P_WAS_SET;
-    /* When an option is set in the sandbox, from a modeline or in secure mode
-     * set the P_INSECURE flag.  Otherwise, if a new value is stored reset the
-     * flag. */
+
+    // When an option is set in the sandbox, from a
+    // modeline or in secure mode set the P_INSECURE flag.
+    // Otherwise, if a new value is stored reset the flag.
     uint32_t *p = insecure_flag(opt_idx, opt_flags);
 
     if(secure
@@ -2324,15 +2469,15 @@ static char_u *illegal_char(char_u *errbuf, int c)
         return (char_u *)"";
     }
 
-    sprintf((char *)errbuf, _("E539: Illegal character <%s>"),
+    sprintf((char *)errbuf,
+            _("E539: Illegal character <%s>"),
             (char *)transchar(c));
+
     return errbuf;
 }
 
-/*
- * Convert a key name or string into a key value.
- * Used for 'wildchar' and 'cedit' options.
- */
+/// Convert a key name or string into a key value.
+/// Used for 'wildchar' and 'cedit' options.
 static int string_to_key(char_u *arg)
 {
     if(*arg == '<')
@@ -2348,10 +2493,8 @@ static int string_to_key(char_u *arg)
     return *arg;
 }
 
-/*
- * Check value of 'cedit' and set cedit_key.
- * Returns NULL if value is OK, error message otherwise.
- */
+/// Check value of 'cedit' and set cedit_key.
+/// Returns NULL if value is OK, error message otherwise.
 static char_u *check_cedit(void)
 {
     int n;
@@ -2390,23 +2533,18 @@ static void did_set_title(int FUNC_ARGS_UNUSED_REALY(icon))
     }
 }
 
-/*
- * set_options_bin -  called when 'bin' changes value.
- */
-void
-set_options_bin(
-    int oldval,
-    int newval,
-    int opt_flags                  /* OPT_LOCAL and/or OPT_GLOBAL */
-)
+///called when 'bin' changes value.
+///
+/// @param oldval
+/// @param newval
+/// @param opt_flags  OPT_LOCAL and/or OPT_GLOBAL
+void set_options_bin(int oldval, int newval, int opt_flags)
 {
-    /*
-     * The option values that are changed when 'bin' changes are
-     * copied when 'bin is set and restored when 'bin' is reset.
-     */
+    // The option values that are changed when 'bin' changes are
+    // copied when 'bin is set and restored when 'bin' is reset.
     if(newval)
     {
-        if(!oldval)                 /* switched on */
+        if(!oldval) // switched on
         {
             if(!(opt_flags & OPT_GLOBAL))
             {
@@ -2427,10 +2565,10 @@ set_options_bin(
 
         if(!(opt_flags & OPT_GLOBAL))
         {
-            curbuf->b_p_tw = 0;       /* no automatic line wrap */
-            curbuf->b_p_wm = 0;       /* no automatic line wrap */
-            curbuf->b_p_ml = 0;       /* no modelines */
-            curbuf->b_p_et = 0;       /* no expandtab */
+            curbuf->b_p_tw = 0;  // no automatic line wrap
+            curbuf->b_p_wm = 0;  // no automatic line wrap
+            curbuf->b_p_ml = 0;  // no modelines
+            curbuf->b_p_et = 0;  // no expandtab
         }
 
         if(!(opt_flags & OPT_LOCAL))
@@ -2439,10 +2577,10 @@ set_options_bin(
             p_wm = 0;
             p_ml = FALSE;
             p_et = FALSE;
-            p_bin = TRUE;             /* needed when called for the "-b" argument */
+            p_bin = TRUE; // needed when called for the "-b" argument
         }
     }
-    else if(oldval)             /* switched off */
+    else if(oldval) // switched off
     {
         if(!(opt_flags & OPT_GLOBAL))
         {
@@ -2462,13 +2600,13 @@ set_options_bin(
     }
 }
 
-/*
- * Find the parameter represented by the given character (eg ', :, ", or /),
- * and return its associated value in the 'shada' string.
- * Only works for number parameters, not for 'r' or 'n'.
- * If the parameter is not specified in the string or there is no following
- * number, return -1.
- */
+/// Find the parameter represented by the given character
+/// (eg ', :, ", or /), and return its associated value in
+/// the 'shada' string. Only works for number parameters,
+/// not for 'r' or 'n'.
+///
+/// If the parameter is not specified in the string or there
+/// is no following number, return -1.
 int get_shada_parameter(int type)
 {
     char_u  *p;
@@ -2482,11 +2620,10 @@ int get_shada_parameter(int type)
     return -1;
 }
 
-/*
- * Find the parameter represented by the given character (eg ''', ':', '"', or
- * '/') in the 'shada' option and return a pointer to the string after it.
- * Return NULL if the parameter is not specified in the string.
- */
+/// Find the parameter represented by the given character (eg ''', ':', '"',
+/// or '/') in the 'shada' option and return a pointer to the string after it.
+///
+/// @return NULL if the parameter is not specified in the string.
 char_u *find_shada_parameter(int type)
 {
     char_u  *p;
@@ -2498,14 +2635,14 @@ char_u *find_shada_parameter(int type)
             return p + 1;
         }
 
-        if(*p == 'n')                   /* 'n' is always the last one */
+        if(*p == 'n') // 'n' is always the last one
         {
             break;
         }
 
-        p = vim_strchr(p, ',');         /* skip until next ',' */
+        p = vim_strchr(p, ','); // skip until next ','
 
-        if(p == NULL)                   /* hit the end without finding parameter */
+        if(p == NULL) // hit the end without finding parameter
         {
             break;
         }
@@ -2514,15 +2651,13 @@ char_u *find_shada_parameter(int type)
     return NULL;
 }
 
-/*
- * Expand environment variables for some string options.
- * These string options cannot be indirect!
- * If "val" is NULL expand the current value of the option.
- * Return pointer to NameBuff, or NULL when not expanded.
- */
+/// Expand environment variables for some string options.
+/// These string options cannot be indirect!
+/// If "val" is NULL expand the current value of the option.
+/// Return pointer to NameBuff, or NULL when not expanded.
 static char_u *option_expand(int opt_idx, char_u *val)
 {
-    /* if option doesn't need expansion nothing to do */
+    // if option doesn't need expansion nothing to do
     if(!(options[opt_idx].flags & P_EXPAND) || options[opt_idx].var == NULL)
     {
         return NULL;
@@ -2533,25 +2668,23 @@ static char_u *option_expand(int opt_idx, char_u *val)
         val = *(char_u **)options[opt_idx].var;
     }
 
-    // If val is longer than MAXPATHL no meaningful expansion can be done,
-    // expand_env() would truncate the string.
+    // If val is longer than MAXPATHL no meaningful expansion
+    // can be done, expand_env() would truncate the string.
     if(val == NULL || STRLEN(val) > MAXPATHL)
     {
         return NULL;
     }
 
-    /*
-     * Expanding this with NameBuff, expand_env() must not be passed IObuff.
-     * Escape spaces when expanding 'tags', they are used to separate file
-     * names.
-     * For 'spellsuggest' expand after "file:".
-     */
+    // Expanding this with NameBuff, expand_env() must not be passed IObuff.
+    // Escape spaces when expanding 'tags', they are used to separate file
+    // names. For 'spellsuggest' expand after "file:".
     expand_env_esc(val, NameBuff, MAXPATHL,
-                   (char_u **)options[opt_idx].var == &p_tags, FALSE,
-                   (char_u **)options[opt_idx].var == &p_sps ? (char_u *)"file:" :
-                   NULL);
+                   (char_u **)options[opt_idx].var == &p_tags,
+                   FALSE,
+                   (char_u **)options[opt_idx].var == &p_sps
+                   ? (char_u *)"file:" : NULL);
 
-    if(STRCMP(NameBuff, val) == 0)      /* they are the same */
+    if(STRCMP(NameBuff, val) == 0) // they are the same
     {
         return NULL;
     }
@@ -2588,33 +2721,36 @@ static void didset_options2(void)
 {
     // Initialize the highlight_attr[] table.
     highlight_changed();
+
     // Parse default for 'clipboard'.
     (void)opt_strings_flags(p_cb, p_cb_values, &cb_flags, true);
+
     // Parse default for 'fillchars'.
     (void)set_chars_option(&p_fcs);
+
     // Parse default for 'listchars'.
     (void)set_chars_option(&p_lcs);
+
     // Parse default for 'wildmode'.
     check_opt_wim();
 }
 
-/*
- * Check for string options that are NULL (normally only termcap options).
- */
+/// Check for string options that are NULL (normally only termcap options).
 void check_options(void)
 {
     int opt_idx;
 
     for(opt_idx = 0; options[opt_idx].fullname != NULL; opt_idx++)
-        if((options[opt_idx].flags & P_STRING) && options[opt_idx].var != NULL)
+    {
+        if((options[opt_idx].flags & P_STRING)
+           && options[opt_idx].var != NULL)
         {
             check_string_option((char_u **)get_varp(&(options[opt_idx])));
         }
+    }
 }
 
-/*
- * Check string options in a buffer for NULL value.
- */
+/// Check string options in a buffer for NULL value.
 void check_buf_options(buf_T *buf)
 {
     check_string_option(&buf->b_p_bh);
@@ -2645,7 +2781,9 @@ void check_buf_options(buf_T *buf)
     check_string_option(&buf->b_p_sua);
     check_string_option(&buf->b_p_cink);
     check_string_option(&buf->b_p_cino);
+
     parse_cino(buf);
+
     check_string_option(&buf->b_p_ft);
     check_string_option(&buf->b_p_cinw);
     check_string_option(&buf->b_p_cpt);
@@ -2665,13 +2803,11 @@ void check_buf_options(buf_T *buf)
     check_string_option(&buf->b_p_bkc);
 }
 
-/*
- * Free the string allocated for an option.
- * Checks for the string being empty_option. This may happen if we're out of
- * memory, vim_strsave() returned NULL, which was replaced by empty_option by
- * check_options().
- * Does NOT check for P_ALLOCED flag!
- */
+/// Free the string allocated for an option.
+/// Checks for the string being empty_option.
+/// This may happen if we're out of memory, vim_strsave()
+/// returned NULL, which was replaced by empty_option by
+/// check_options(). Does NOT check for P_ALLOCED flag!
 void free_string_option(char_u *p)
 {
     if(p != empty_option)
@@ -2698,11 +2834,9 @@ static void check_string_option(char_u **pp)
     }
 }
 
-/*
- * Return TRUE when option "opt" was set from a modeline or in secure mode.
- * Return FALSE when it wasn't.
- * Return -1 for an unknown option.
- */
+/// - Return TRUE when option "opt" was set from a modeline or in secure mode.
+/// - Return FALSE when it wasn't.
+/// - Return -1 for an unknown option.
 int was_set_insecurely(char_u *opt, int opt_flags)
 {
     int idx = findoption((const char *)opt);
@@ -2717,13 +2851,12 @@ int was_set_insecurely(char_u *opt, int opt_flags)
     return -1;
 }
 
-/*
- * Get a pointer to the flags used for the P_INSECURE flag of option
- * "opt_idx".  For some local options a local flags field is used.
- */
+/// Get a pointer to the flags used for the P_INSECURE flag of option
+/// "opt_idx". For some local options a local flags field is used.
 static uint32_t *insecure_flag(int opt_idx, int opt_flags)
 {
     if(opt_flags & OPT_LOCAL)
+    {
         switch((int)options[opt_idx].indir)
         {
             case PV_STL:
@@ -2744,15 +2877,13 @@ static uint32_t *insecure_flag(int opt_idx, int opt_flags)
             case PV_INEX:
                 return &curbuf->b_p_inex_flags;
         }
+    }
 
-    /* Nothing special, return global flags field. */
+    // Nothing special, return global flags field.
     return &options[opt_idx].flags;
 }
 
-
-/*
- * Redraw the window title and/or tab page text later.
- */
+/// Redraw the window title and/or tab page text later.
 static void redraw_titles(void)
 {
     need_maketitle = TRUE;
@@ -2761,45 +2892,52 @@ static void redraw_titles(void)
 
 static int shada_idx = -1;
 
-/*
- * Set a string option to a new value (without checking the effect).
- * The string is copied into allocated memory.
- * if ("opt_idx" == -1) "name" is used, otherwise "opt_idx" is used.
- * When "set_sid" is zero set the scriptID to current_SID.  When "set_sid" is
- * SID_NONE don't set the scriptID.  Otherwise set the scriptID to "set_sid".
- */
-void
-set_string_option_direct(
-    char_u *name,
-    int opt_idx,
-    char_u *val,
-    int opt_flags,                  /* OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL */
-    int set_sid
-)
+/// Set a string option to a new value (without checking the effect).
+/// The string is copied into allocated memory.
+///
+/// if @b opt_idx == -1), @b name is used, otherwise @b opt_idx is used.
+///
+/// When @b set_sid is zero set the scriptID to current_SID.
+///
+/// When @b set_sid is SID_NONE don't set the scriptID.
+/// Otherwise set the scriptID to "set_sid".
+///
+/// @param name
+/// @param opt_idx
+/// @param val
+/// @param opt_flags OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL
+/// @param set_sid
+void set_string_option_direct(char_u *name,
+                              int opt_idx,
+                              char_u *val,
+                              int opt_flags,
+                              int set_sid)
 {
-    char_u      *s;
-    char_u      **varp;
+    char_u *s;
+    char_u **varp;
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
     int idx = opt_idx;
 
-    if(idx == -1)     // Use name.
+    if(idx == -1) // Use name.
     {
         idx = findoption((const char *)name);
 
-        if(idx < 0)     // Not found (should not happen).
+        if(idx < 0) // Not found (should not happen).
         {
             EMSG2(_(e_intern2), "set_string_option_direct()");
             EMSG2(_("For option %s"), name);
+
             return;
         }
     }
 
-    if(options[idx].var == NULL)          /* can't set hidden option */
+    if(options[idx].var == NULL) // can't set hidden option
     {
         return;
     }
 
     assert((void *) options[idx].var != (void *) &p_shada);
+
     s = vim_strsave(val);
     {
         varp = (char_u **)get_varp_scope(&(options[idx]),
@@ -2812,7 +2950,8 @@ set_string_option_direct(
 
         *varp = s;
 
-        /* For buffer/window local option may also set the global value. */
+        // For buffer/window local option
+        // may also set the global value.
         if(both)
         {
             set_string_option_global(idx, varp);
@@ -2820,8 +2959,8 @@ set_string_option_direct(
 
         options[idx].flags |= P_ALLOCED;
 
-        /* When setting both values of a global option with a local value,
-        * make the local value empty, so that the global value is used. */
+        // When setting both values of a global option with a local value,
+        // make the local value empty, so that the global value is used.
         if(((int)options[idx].indir & PV_BOTH) && both)
         {
             free_string_option(*varp);
@@ -2829,23 +2968,23 @@ set_string_option_direct(
         }
 
         if(set_sid != SID_NONE)
-            set_option_scriptID_idx(idx, opt_flags,
+        {
+            set_option_scriptID_idx(idx,
+                                    opt_flags,
                                     set_sid == 0 ? current_SID : set_sid);
+        }
     }
 }
 
-/*
- * Set global value for string option when it's a local option.
- */
-static void
-set_string_option_global(
-    int opt_idx,                    /* option index */
-    char_u **varp             /* pointer to option variable */
-)
+/// Set global value for string option when it's a local option.
+///
+/// @param opt_idx  option index
+/// @param varp     pointer to option variable
+static void set_string_option_global(int opt_idx, char_u **varp)
 {
-    char_u      **p, *s;
+    char_u **p, *s;
 
-    /* the global value is always allocated */
+    // the global value is always allocated
     if(options[opt_idx].var == VAR_WIN)
     {
         p = (char_u **)GLOBAL_WO(varp);
@@ -2865,35 +3004,49 @@ set_string_option_global(
 
 /// Set a string option to a new value, handling the effects
 ///
-/// @param[in]  opt_idx  Option to set.
-/// @param[in]  value  New value.
-/// @param[in]  opt_flags  Option flags: expected to contain #OPT_LOCAL and/or
-///                        #OPT_GLOBAL.
+/// @param[in] opt_idx
+/// Option to set.
+///
+/// @param[in] value
+/// New value.
+///
+/// @param[in] opt_flags
+/// Option flags: expected to contain #OPT_LOCAL and/or #OPT_GLOBAL.
 ///
 /// @return NULL on success, error message on error.
-static char *set_string_option(const int opt_idx, const char *const value,
+static char *set_string_option(const int opt_idx,
+                               const char *const value,
                                const int opt_flags)
-FUNC_ATTR_NONNULL_ARG(2) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if(options[opt_idx].var == NULL)     // don't set hidden option
+    // don't set hidden option
+    if(options[opt_idx].var == NULL)
     {
         return NULL;
     }
 
     char *const s = xstrdup(value);
-    char **const varp = (char **)get_varp_scope(
-        &(options[opt_idx]),
-        ((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0
-         ? (((int)options[opt_idx].indir & PV_BOTH)
-            ? OPT_GLOBAL : OPT_LOCAL)
-         : opt_flags));
+
+    char **const varp =
+        (char **)get_varp_scope(&(options[opt_idx]),
+                                ((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0
+                                ? (((int)options[opt_idx].indir & PV_BOTH)
+                                   ? OPT_GLOBAL : OPT_LOCAL)
+                                : opt_flags));
+
     char *const oldval = *varp;
     *varp = s;
 
     char *const saved_oldval = (starting ? NULL : xstrdup(oldval));
 
-    char *const r = (char *)did_set_string_option(
-        opt_idx, (char_u **)varp, (int)true, (char_u *)oldval, NULL, opt_flags);
+    char *const r =
+        (char *)did_set_string_option(opt_idx,
+                                      (char_u **)varp,
+                                      (int)true,
+                                      (char_u *)oldval,
+                                      NULL,
+                                      opt_flags);
 
     if(r == NULL)
     {
@@ -2904,14 +3057,22 @@ FUNC_ATTR_NONNULL_ARG(2) FUNC_ATTR_WARN_UNUSED_RESULT
     if(saved_oldval != NULL)
     {
         char buf_type[7];
-        vim_snprintf(buf_type, ARRAY_SIZE(buf_type), "%s",
+
+        vim_snprintf(buf_type,
+                     ARRAY_SIZE(buf_type),
+                     "%s",
                      (opt_flags & OPT_LOCAL) ? "local" : "global");
+
         set_vim_var_string(VV_OPTION_NEW, (char *)(*varp), -1);
         set_vim_var_string(VV_OPTION_OLD, saved_oldval, -1);
         set_vim_var_string(VV_OPTION_TYPE, buf_type, -1);
+
         apply_autocmds(EVENT_OPTIONSET,
                        (char_u *)options[opt_idx].fullname,
-                       NULL, false, NULL);
+                       NULL,
+                       false,
+                       NULL);
+
         reset_v_option_vars();
         xfree(saved_oldval);
     }
@@ -2925,7 +3086,8 @@ static bool valid_filetype(char_u *val)
 {
     for(char_u *s = val; *s != NUL; s++)
     {
-        if(!ASCII_ISALNUM(*s) && vim_strchr((char_u *)".-_", *s) == NULL)
+        if(!ASCII_ISALNUM(*s)
+           && vim_strchr((char_u *)".-_", *s) == NULL)
         {
             return false;
         }
@@ -2934,58 +3096,65 @@ static bool valid_filetype(char_u *val)
     return true;
 }
 
-/*
- * Handle string options that need some action to perform when changed.
- * Returns NULL for success, or an error message for an error.
- */
-static char_u *
-did_set_string_option(
-    int opt_idx,                            /* index in options[] table */
-    char_u **varp,                     /* pointer to the option variable */
-    int new_value_alloced,                  /* new value was allocated */
-    char_u *oldval,                    /* previous value of the option */
-    char_u *errbuf,                    /* buffer for errors, or NULL */
-    int opt_flags                          /* OPT_LOCAL and/or OPT_GLOBAL */
-)
+/// Handle string options that need some action to perform when changed.
+///
+/// @param opt_idx              index in options[] table
+/// @param varp                 pointer to the option variable
+/// @param new_value_alloced    new value was allocated
+/// @param oldval               previous value of the option
+/// @param errbuf               buffer for errors, or NULL
+/// @param opt_flags            OPT_LOCAL and/or OPT_GLOBAL
+///
+/// @return
+/// Returns NULL for success, or an error message for an error.
+static char_u *did_set_string_option(int opt_idx,
+                                     char_u **varp,
+                                     int new_value_alloced,
+                                     char_u *oldval,
+                                     char_u *errbuf,
+                                     int opt_flags)
 {
-    char_u      *errmsg = NULL;
-    char_u      *s, *p;
+    char_u *errmsg = NULL;
+    char_u *s, *p;
     int did_chartab = FALSE;
-    char_u      **gvarp;
+    char_u **gvarp;
     bool free_oldval = (options[opt_idx].flags & P_ALLOCED);
-    /* Get the global option to compare with, otherwise we would have to check
-     * two values for all local options. */
+
+    // Get the global option to compare with, otherwise we
+    // would have to check two values for all local options.
     gvarp = (char_u **)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL);
 
-    /* Disallow changing some options from secure mode */
+    // Disallow changing some options from secure mode
     if((secure || sandbox != 0)
        && (options[opt_idx].flags & P_SECURE))
     {
         errmsg = e_secure;
     }
-    /* Check for a "normal" file name in some options.  Disallow a path
-     * separator (slash and/or backslash), wildcards and characters that are
-     * often illegal in a file name. */
+
+    // Check for a "normal" file name in some options.
+    // Disallow a path separator (slash and/or backslash),
+    // wildcards and characters that are often illegal in a file name.
     else if((options[opt_idx].flags & P_NFNAME)
             && vim_strpbrk(*varp, (char_u *)"/\\*?[|<>") != NULL)
     {
         errmsg = e_invarg;
     }
-    /* 'backupcopy' */
+    // 'backupcopy'
     else if(gvarp == &p_bkc)
     {
-        char_u       *bkc   = p_bkc;
+        char_u *bkc = p_bkc;
         unsigned int *flags = &bkc_flags;
 
         if(opt_flags & OPT_LOCAL)
         {
-            bkc   = curbuf->b_p_bkc;
+            bkc = curbuf->b_p_bkc;
             flags = &curbuf->b_bkc_flags;
         }
 
         if((opt_flags & OPT_LOCAL) && *bkc == NUL)
         {
-            // make the local value empty: use the global value
+            // make the local value empty:
+            // use the global value
             *flags = 0;
         }
         else
@@ -3005,7 +3174,7 @@ did_set_string_option(
             }
         }
     }
-    /* 'backupext' and 'patchmode' */
+    // 'backupext' and 'patchmode'
     else if(varp == &p_bex || varp == &p_pm)
     {
         if(STRCMP(*p_bex == '.' ? p_bex + 1 : p_bex,
@@ -3014,7 +3183,7 @@ did_set_string_option(
             errmsg = (char_u *)N_("E589: 'backupext' and 'patchmode' are equal");
         }
     }
-    /* 'breakindentopt' */
+    // 'breakindentopt'
     else if(varp == &curwin->w_p_briopt)
     {
         if(briopt_check(curwin) == FAIL)
@@ -3027,19 +3196,19 @@ did_set_string_option(
             || varp == &p_isp
             || varp == &p_isf)
     {
-        // 'isident', 'iskeyword', 'isprint or 'isfname' option: refill g_chartab[]
-        // If the new option is invalid, use old value.  'lisp' option: refill
-        // g_chartab[] for '-' char
+        // 'isident', 'iskeyword', 'isprint or 'isfname' option:
+        // refill g_chartab[] If the new option is invalid, use
+        // old value.  'lisp' option: refill g_chartab[] for '-' char
         if(init_chartab() == FAIL)
         {
-            did_chartab = TRUE;           /* need to restore it below */
-            errmsg = e_invarg;            /* error in value */
+            did_chartab = TRUE; // need to restore it below
+            errmsg = e_invarg; // error in value
         }
     }
-    /* 'helpfile' */
+    // 'helpfile'
     else if(varp == &p_hf)
     {
-        /* May compute new values for $VIM and $VIMRUNTIME */
+        // May compute new values for $VIM and $VIMRUNTIME
         if(didset_vim)
         {
             vim_setenv("VIM", "");
@@ -3052,18 +3221,19 @@ did_set_string_option(
             didset_vimruntime = FALSE;
         }
     }
-    /* 'colorcolumn' */
+    // 'colorcolumn'
     else if(varp == &curwin->w_p_cc)
     {
         errmsg = check_colorcolumn(curwin);
     }
-    /* 'helplang' */
+    // 'helplang'
     else if(varp == &p_hlg)
     {
-        /* Check for "", "ab", "ab,cd", etc. */
+        // Check for "", "ab", "ab,cd", etc.
         for(s = p_hlg; *s != NUL; s += 3)
         {
-            if(s[1] == NUL || ((s[2] != ',' || s[3] == NUL) && s[2] != NUL))
+            if(s[1] == NUL
+               || ((s[2] != ',' || s[3] == NUL) && s[2] != NUL))
             {
                 errmsg = e_invarg;
                 break;
@@ -3083,7 +3253,7 @@ did_set_string_option(
             errmsg = e_unsupportedoption;
         }
     }
-    /* 'nrformats' */
+    // 'nrformats'
     else if(gvarp == &p_nf)
     {
         if(check_opt_strings(*varp, p_nf_values, TRUE) != OK)
@@ -3091,28 +3261,31 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_ssop)       // 'sessionoptions'
+    // 'sessionoptions'
+    else if(varp == &p_ssop)
     {
         if(opt_strings_flags(p_ssop, p_ssop_values, &ssop_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
 
-        if((ssop_flags & SSOP_CURDIR) && (ssop_flags & SSOP_SESDIR))
+        if((ssop_flags & SSOP_CURDIR)
+           && (ssop_flags & SSOP_SESDIR))
         {
-            /* Don't allow both "sesdir" and "curdir". */
+            // Don't allow both "sesdir" and "curdir".
             (void)opt_strings_flags(oldval, p_ssop_values, &ssop_flags, true);
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_vop)       // 'viewoptions'
+    // 'viewoptions'
+    else if(varp == &p_vop)
     {
         if(opt_strings_flags(p_vop, p_ssop_values, &vop_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
     }
-    /* 'scrollopt' */
+    // 'scrollopt'
     else if(varp == &p_sbo)
     {
         if(check_opt_strings(p_sbo, p_scbopt_values, TRUE) != OK)
@@ -3120,9 +3293,9 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
+    // 'ambiwidth'
     else if(varp == &p_ambw || (int *)varp == &p_emoji)
     {
-        // 'ambiwidth'
         if(check_opt_strings(p_ambw, p_ambw_values, false) != OK)
         {
             errmsg = e_invarg;
@@ -3136,7 +3309,7 @@ did_set_string_option(
             errmsg = (char_u *)_("E835: Conflicts with value of 'fillchars'");
         }
     }
-    /* 'background' */
+    // 'background'
     else if(varp == &p_bg)
     {
         if(check_opt_strings(p_bg, p_bg_values, FALSE) == OK)
@@ -3144,10 +3317,11 @@ did_set_string_option(
             int dark = (*p_bg == 'd');
             init_highlight(FALSE, FALSE);
 
-            if(dark != (*p_bg == 'd') && get_var_value("g:colors_name") != NULL)
+            if(dark != (*p_bg == 'd')
+               && get_var_value("g:colors_name") != NULL)
             {
                 // The color scheme must have set 'background' back to another
-                // value, that's not what we want here.  Disable the color
+                // value, that's not what we want here. Disable the color
                 // scheme and set the colors again.
                 do_unlet(S_LEN("g:colors_name"), true);
                 free_string_option(p_bg);
@@ -3161,7 +3335,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'wildmode' */
+    // 'wildmode'
     else if(varp == &p_wim)
     {
         if(check_opt_wim() == FAIL)
@@ -3169,7 +3343,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'wildoptions' */
+    // 'wildoptions'
     else if(varp == &p_wop)
     {
         if(check_opt_strings(p_wop, p_wop_values, TRUE) != OK)
@@ -3177,7 +3351,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'winaltkeys' */
+    // 'winaltkeys'
     else if(varp == &p_wak)
     {
         if(*p_wak == NUL
@@ -3186,7 +3360,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'eventignore' */
+    // 'eventignore'
     else if(varp == &p_ei)
     {
         if(check_ei() == FAIL)
@@ -3194,7 +3368,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
 
-        /* 'encoding' and 'fileencoding' */
+        // 'encoding' and 'fileencoding'
     }
     else if(varp == &p_enc || gvarp == &p_fenc)
     {
@@ -3206,14 +3380,15 @@ did_set_string_option(
             }
             else if(vim_strchr(*varp, ',') != NULL)
             {
-                // No comma allowed in 'fileencoding'; catches confusing it
-                // with 'fileencodings'.
+                // No comma allowed in 'fileencoding';
+                // catches confusing it with 'fileencodings'.
                 errmsg = e_invarg;
             }
             else
             {
                 // May show a "+" in the title now.
                 redraw_titles();
+
                 // Add 'fileencoding' to the swap file.
                 ml_setflags(curbuf);
             }
@@ -3221,7 +3396,8 @@ did_set_string_option(
 
         if(errmsg == NULL)
         {
-            /* canonize the value, so that STRCMP() can be used on it */
+            // canonize the value, so that
+            // STRCMP() can be used on it
             p = enc_canonize(*varp);
             xfree(*varp);
             *varp = p;
@@ -3238,7 +3414,7 @@ did_set_string_option(
     }
     else if(varp == &p_penc)
     {
-        /* Canonize printencoding if VIM standard one */
+        // Canonize printencoding if VIM standard one
         p = enc_canonize(p_penc);
         xfree(p_penc);
         p_penc = p;
@@ -3259,7 +3435,7 @@ did_set_string_option(
         {
             if(*curbuf->b_p_keymap != NUL)
             {
-                /* Installed a new keymap, switch on using it. */
+                // Installed a new keymap, switch on using it.
                 curbuf->b_p_iminsert = B_IMODE_LMAP;
 
                 if(curbuf->b_p_imsearch != B_IMODE_USE_INSERT)
@@ -3269,7 +3445,7 @@ did_set_string_option(
             }
             else
             {
-                /* Cleared the keymap, may reset 'iminsert' and 'imsearch'. */
+                // Cleared the keymap, may reset 'iminsert' and 'imsearch'.
                 if(curbuf->b_p_iminsert == B_IMODE_LMAP)
                 {
                     curbuf->b_p_iminsert = B_IMODE_NONE;
@@ -3290,7 +3466,7 @@ did_set_string_option(
             status_redraw_curbuf();
         }
     }
-    /* 'fileformat' */
+    // 'fileformat'
     else if(gvarp == &p_ff)
     {
         if(!MODIFIABLE(curbuf) && !(opt_flags & OPT_GLOBAL))
@@ -3304,18 +3480,19 @@ did_set_string_option(
         else
         {
             redraw_titles();
-            /* update flag in swap file */
+
+            // update flag in swap file
             ml_setflags(curbuf);
 
-            /* Redraw needed when switching to/from "mac": a CR in the text
-             * will be displayed differently. */
+            // Redraw needed when switching to/from "mac":
+            // a CR in the text will be displayed differently.
             if(get_fileformat(curbuf) == EOL_MAC || *oldval == 'm')
             {
                 redraw_curbuf_later(NOT_VALID);
             }
         }
     }
-    /* 'fileformats' */
+    // 'fileformats'
     else if(varp == &p_ffs)
     {
         if(check_opt_strings(p_ffs, p_ff_values, TRUE) != OK)
@@ -3323,7 +3500,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'matchpairs' */
+    // 'matchpairs'
     else if(gvarp == &p_mps)
     {
         if(has_mbyte)
@@ -3363,10 +3540,12 @@ did_set_string_option(
         }
         else
         {
-            /* Check for "x:y,x:y" */
+            // Check for "x:y,x:y"
             for(p = *varp; *p != NUL; p += 4)
             {
-                if(p[1] != ':' || p[2] == NUL || (p[3] != NUL && p[3] != ','))
+                if(p[1] != ':'
+                   || p[2] == NUL
+                   || (p[3] != NUL && p[3] != ','))
                 {
                     errmsg = e_invarg;
                     break;
@@ -3379,7 +3558,7 @@ did_set_string_option(
             }
         }
     }
-    /* 'comments' */
+    // 'comments'
     else if(gvarp == &p_com)
     {
         for(s = *varp; *s;)
@@ -3423,22 +3602,22 @@ did_set_string_option(
             s = skip_to_option_part(s);
         }
     }
-    /* 'listchars' */
+    // 'listchars'
     else if(varp == &p_lcs)
     {
         errmsg = set_chars_option(varp);
     }
-    /* 'fillchars' */
+    // 'fillchars'
     else if(varp == &p_fcs)
     {
         errmsg = set_chars_option(varp);
     }
-    /* 'cedit' */
+    // 'cedit'
     else if(varp == &p_cedit)
     {
         errmsg = check_cedit();
     }
-    /* 'verbosefile' */
+    // 'verbosefile'
     else if(varp == &p_vfile)
     {
         verbose_stop();
@@ -3448,54 +3627,56 @@ did_set_string_option(
             errmsg = e_invarg;
         }
 
-        /* 'shada' */
+        // 'shada'
     }
     else if(varp == &p_shada)
     {
-        // TODO(ZyX-I): Remove this code in the future, alongside with &viminfo
-        //              option.
+        // TODO(ZyX-I):
+        // Remove this code in the future,
+        // alongside with &viminfo option.
         opt_idx = ((options[opt_idx].fullname[0] == 'v')
                    ? (shada_idx == -1
                       ? ((shada_idx = findoption("shada")))
-                      : shada_idx)
-                   : opt_idx);
-        // Update free_oldval now that we have the opt_idx for 'shada', otherwise
-        // there would be a disconnect between the check for P_ALLOCED at the start
-        // of the function and the set of P_ALLOCED at the end of the fuction.
+                      : shada_idx) : opt_idx);
+
+        // Update free_oldval now that we have the opt_idx for 'shada',
+        // otherwise there would be a disconnect between the check for
+        // P_ALLOCED at the start of the function and the set of P_ALLOCED
+        // at the end of the fuction.
         free_oldval = (options[opt_idx].flags & P_ALLOCED);
 
         for(s = p_shada; *s;)
         {
-            /* Check it's a valid character */
+            // Check it's a valid character
             if(vim_strchr((char_u *)"!\"%'/:<@cfhnrs", *s) == NULL)
             {
                 errmsg = illegal_char(errbuf, *s);
                 break;
             }
 
-            if(*s == 'n')             /* name is always last one */
+            if(*s == 'n') // name is always last one
             {
                 break;
             }
-            else if(*s == 'r')      /* skip until next ',' */
+            else if(*s == 'r') // skip until next ','
             {
                 while(*++s && *s != ',')
                     ;
             }
             else if(*s == '%')
             {
-                /* optional number */
+                // optional number
                 while(ascii_isdigit(*++s))
-                    ;
+                { /* empty body */ }
             }
             else if(*s == '!' || *s == 'h' || *s == 'c')
             {
-                ++s;    /* no extra chars */
+                ++s; // no extra chars
             }
-            else                      /* must have a number */
+            else // must have a number
             {
                 while(ascii_isdigit(*++s))
-                    ;
+                { /* empty body */ }
 
                 if(!ascii_isdigit(*(s - 1)))
                 {
@@ -3504,6 +3685,7 @@ did_set_string_option(
                         sprintf((char *)errbuf,
                                 _("E526: Missing number after <%s>"),
                                 transchar_byte(*(s - 1)));
+
                         errmsg = errbuf;
                     }
                     else
@@ -3539,14 +3721,15 @@ did_set_string_option(
             errmsg = (char_u *)N_("E528: Must specify a ' value");
         }
     }
-    /* 'showbreak' */
+    // 'showbreak'
     else if(varp == &p_sbr)
     {
         for(s = p_sbr; *s;)
         {
             if(ptr2cells(s) != 1)
             {
-                errmsg = (char_u *)N_("E595: contains unprintable or wide character");
+                errmsg = (char_u *)N_("E595: contains unprintable "
+                                      "or wide character");
             }
 
             mb_ptr_adv(s);
@@ -3565,22 +3748,22 @@ did_set_string_option(
     {
         errmsg = parse_printmbfont();
     }
-    /* 'langmap' */
+    // 'langmap'
     else if(varp == &p_langmap)
     {
         langmap_set();
     }
-    /* 'breakat' */
+    // 'breakat'
     else if(varp == &p_breakat)
     {
         fill_breakat_flags();
     }
-    /* 'titlestring' and 'iconstring' */
+    // 'titlestring' and 'iconstring'
     else if(varp == &p_titlestring || varp == &p_iconstring)
     {
         int flagval = (varp == &p_titlestring) ? STL_IN_TITLE : STL_IN_ICON;
 
-        /* NULL => statusline syntax */
+        // NULL => statusline syntax
         if(vim_strchr(*varp, '%') && check_stl_option(*varp) == NULL)
         {
             stl_syntax |= flagval;
@@ -3592,7 +3775,7 @@ did_set_string_option(
 
         did_set_title(varp == &p_iconstring);
     }
-    /* 'selection' */
+    // 'selection'
     else if(varp == &p_sel)
     {
         if(*p_sel == NUL
@@ -3601,7 +3784,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'selectmode' */
+    // 'selectmode'
     else if(varp == &p_slm)
     {
         if(check_opt_strings(p_slm, p_slm_values, TRUE) != OK)
@@ -3609,7 +3792,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'keymodel' */
+    // 'keymodel'
     else if(varp == &p_km)
     {
         if(check_opt_strings(p_km, p_km_values, TRUE) != OK)
@@ -3622,7 +3805,7 @@ did_set_string_option(
             km_startsel = (vim_strchr(p_km, 'a') != NULL);
         }
     }
-    /* 'mousemodel' */
+    // 'mousemodel'
     else if(varp == &p_mousem)
     {
         if(check_opt_strings(p_mousem, p_mousem_values, FALSE) != OK)
@@ -3630,14 +3813,14 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_swb)       // 'switchbuf'
+    else if(varp == &p_swb) // 'switchbuf'
     {
         if(opt_strings_flags(p_swb, p_swb_values, &swb_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
     }
-    /* 'debug' */
+    // 'debug'
     else if(varp == &p_debug)
     {
         if(check_opt_strings(p_debug, p_debug_values, TRUE) != OK)
@@ -3645,7 +3828,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_dy)       // 'display'
+    else if(varp == &p_dy) // 'display'
     {
         if(opt_strings_flags(p_dy, p_dy_values, &dy_flags, true) != OK)
         {
@@ -3656,7 +3839,7 @@ did_set_string_option(
             (void)init_chartab();
         }
     }
-    /* 'eadirection' */
+    // 'eadirection'
     else if(varp == &p_ead)
     {
         if(check_opt_strings(p_ead, p_ead_values, FALSE) != OK)
@@ -3664,26 +3847,26 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_cb)       // 'clipboard'
+    else if(varp == &p_cb) // 'clipboard'
     {
         if(opt_strings_flags(p_cb, p_cb_values, &cb_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
     }
-    else if(varp == &(curwin->w_s->b_p_spl)     // 'spell'
+    else if(varp == &(curwin->w_s->b_p_spl) // 'spell'
             || varp == &(curwin->w_s->b_p_spf))
     {
-        // When 'spelllang' or 'spellfile' is set and there is a window for this
-        // buffer in which 'spell' is set load the wordlists.
+        // When 'spelllang' or 'spellfile' is set and there is a window
+        // for this buffer in which 'spell' is set load the wordlists.
         errmsg = did_set_spell_option(varp == &(curwin->w_s->b_p_spf));
     }
-    /* When 'spellcapcheck' is set compile the regexp program. */
+    // When 'spellcapcheck' is set compile the regexp program.
     else if(varp == &(curwin->w_s->b_p_spc))
     {
         errmsg = compile_cap_prog(curwin->w_s);
     }
-    /* 'spellsuggest' */
+    // 'spellsuggest'
     else if(varp == &p_sps)
     {
         if(spell_check_sps() != OK)
@@ -3691,7 +3874,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'mkspellmem' */
+    // 'mkspellmem'
     else if(varp == &p_msm)
     {
         if(spell_check_msm() != OK)
@@ -3699,7 +3882,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* When 'bufhidden' is set, check for valid value. */
+    // When 'bufhidden' is set, check for valid value.
     else if(gvarp == &p_bh)
     {
         if(check_opt_strings(curbuf->b_p_bh, p_bufhidden_values, FALSE) != OK)
@@ -3707,7 +3890,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* When 'buftype' is set, check for valid value. */
+    // When 'buftype' is set, check for valid value.
     else if(gvarp == &p_bt)
     {
         if((curbuf->terminal && curbuf->b_p_bt[0] != 't')
@@ -3728,12 +3911,10 @@ did_set_string_option(
             redraw_titles();
         }
     }
-    /* 'statusline' or 'rulerformat' */
+    // 'statusline' or 'rulerformat'
     else if(gvarp == &p_stl || varp == &p_ruf)
     {
-        int wid;
-
-        if(varp == &p_ruf)          /* reset ru_wid first */
+        if(varp == &p_ruf) // reset ru_wid first
         {
             ru_wid = 0;
         }
@@ -3742,15 +3923,17 @@ did_set_string_option(
 
         if(varp == &p_ruf && *s == '%')
         {
-            /* set ru_wid if 'ruf' starts with "%99(" */
-            if(*++s == '-')           /* ignore a '-' */
+            // set ru_wid if 'ruf' starts with "%99("
+            if(*++s == '-') // ignore a '-'
             {
                 s++;
             }
 
-            wid = getdigits_int(&s);
+            int wid = getdigits_int(&s);
 
-            if(wid && *s == '(' && (errmsg = check_stl_option(p_ruf)) == NULL)
+            if(wid
+               && *s == '('
+               && (errmsg = check_stl_option(p_ruf)) == NULL)
             {
                 ru_wid = wid;
             }
@@ -3759,7 +3942,7 @@ did_set_string_option(
                 errmsg = check_stl_option(p_ruf);
             }
         }
-        /* check 'statusline' only if it doesn't start with "%!" */
+        // check 'statusline' only if it doesn't start with "%!"
         else if(varp == &p_ruf || s[0] != '%' || s[1] != '!')
         {
             errmsg = check_stl_option(s);
@@ -3770,7 +3953,7 @@ did_set_string_option(
             comp_col();
         }
     }
-    /* check if it is a valid value for 'complete' -- Acevedo */
+    // check if it is a valid value for 'complete'
     else if(gvarp == &p_cpt)
     {
         for(s = *varp; *s;)
@@ -3795,7 +3978,7 @@ did_set_string_option(
             {
                 if(s[-1] == 'k' || s[-1] == 's')
                 {
-                    /* skip optional filename after 'k' and 's' */
+                    // skip optional filename after 'k' and 's'
                     while(*s && *s != ',' && *s != ' ')
                     {
                         if(*s == '\\')
@@ -3813,6 +3996,7 @@ did_set_string_option(
                         sprintf((char *)errbuf,
                                 _("E535: Illegal character after <%c>"),
                                 *--s);
+
                         errmsg = errbuf;
                     }
                     else
@@ -3825,7 +4009,7 @@ did_set_string_option(
             }
         }
     }
-    /* 'completeopt' */
+    // 'completeopt'
     else if(varp == &p_cot)
     {
         if(check_opt_strings(p_cot, p_cot_values, true) != OK)
@@ -3845,13 +4029,13 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'pastetoggle': translate key codes like in a mapping */
+    // 'pastetoggle': translate key codes like in a mapping
     else if(varp == &p_pt)
     {
         if(*p_pt)
         {
-            (void)replace_termcodes(p_pt, STRLEN(p_pt), &p, true, true, false,
-                                    CPO_TO_CPO_FLAGS);
+            (void)replace_termcodes(p_pt, STRLEN(p_pt), &p,
+                                    true, true, false, CPO_TO_CPO_FLAGS);
 
             if(p != NULL)
             {
@@ -3865,7 +4049,7 @@ did_set_string_option(
             }
         }
     }
-    /* 'backspace' */
+    // 'backspace'
     else if(varp == &p_bs)
     {
         if(ascii_isdigit(*p_bs))
@@ -3887,7 +4071,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(gvarp == &p_tc)       // 'tagcase'
+    else if(gvarp == &p_tc) // 'tagcase'
     {
         unsigned int *flags;
 
@@ -3904,7 +4088,8 @@ did_set_string_option(
 
         if((opt_flags & OPT_LOCAL) && *p == NUL)
         {
-            // make the local value empty: use the global value
+            // make the local value empty:
+            // use the global value
             *flags = 0;
         }
         else if(*p == NUL
@@ -3913,14 +4098,14 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    else if(varp == &p_cmp)       // 'casemap'
+    else if(varp == &p_cmp) // 'casemap'
     {
         if(opt_strings_flags(p_cmp, p_cmp_values, &cmp_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
     }
-    /* 'diffopt' */
+    // 'diffopt'
     else if(varp == &p_dip)
     {
         if(diffopt_changed() == FAIL)
@@ -3928,7 +4113,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'foldmethod' */
+    // 'foldmethod'
     else if(gvarp == &curwin->w_allbuf_opt.wo_fdm)
     {
         if(check_opt_strings(*varp, p_fdm_values, FALSE) != OK
@@ -3946,7 +4131,7 @@ did_set_string_option(
             }
         }
     }
-    /* 'foldexpr' */
+    // 'foldexpr'
     else if(varp == &curwin->w_p_fde)
     {
         if(foldmethodIsExpr(curwin))
@@ -3954,7 +4139,7 @@ did_set_string_option(
             foldUpdateAll(curwin);
         }
     }
-    /* 'foldmarker' */
+    // 'foldmarker'
     else if(gvarp == &curwin->w_allbuf_opt.wo_fmr)
     {
         p = vim_strchr(*varp, ',');
@@ -3972,21 +4157,23 @@ did_set_string_option(
             foldUpdateAll(curwin);
         }
     }
-    /* 'commentstring' */
+    // 'commentstring'
     else if(gvarp == &p_cms)
     {
         if(**varp != NUL && strstr((char *)*varp, "%s") == NULL)
-            errmsg = (char_u *)N_(
-                         "E537: 'commentstring' must be empty or contain %s");
+        {
+            errmsg = (char_u *)N_("E537: 'commentstring' must be "
+                                  "empty or contain %s");
+        }
     }
-    else if(varp == &p_fdo)       // 'foldopen'
+    else if(varp == &p_fdo) // 'foldopen'
     {
         if(opt_strings_flags(p_fdo, p_fdo_values, &fdo_flags, true) != OK)
         {
             errmsg = e_invarg;
         }
     }
-    /* 'foldclose' */
+    // 'foldclose'
     else if(varp == &p_fcl)
     {
         if(check_opt_strings(p_fcl, p_fcl_values, TRUE) != OK)
@@ -3994,7 +4181,7 @@ did_set_string_option(
             errmsg = e_invarg;
         }
     }
-    /* 'foldignore' */
+    // 'foldignore'
     else if(gvarp == &curwin->w_allbuf_opt.wo_fdi)
     {
         if(foldmethodIsIndent(curwin))
@@ -4002,7 +4189,7 @@ did_set_string_option(
             foldUpdateAll(curwin);
         }
     }
-    else if(varp == &p_ve)       // 'virtualedit'
+    else if(varp == &p_ve) // 'virtualedit'
     {
         if(opt_strings_flags(p_ve, p_ve_values, &ve_flags, true) != OK)
         {
@@ -4010,8 +4197,8 @@ did_set_string_option(
         }
         else if(STRCMP(p_ve, oldval) != 0)
         {
-            /* Recompute cursor position in case the new 've' setting
-             * changes something. */
+            // Recompute cursor position in case the
+            // new 've' setting changes something.
             validate_virtcol();
             coladvance(curwin->w_virtcol);
         }
@@ -4043,11 +4230,12 @@ did_set_string_option(
             }
         }
     }
-    /* 'cinoptions' */
+    // 'cinoptions'
     else if(gvarp == &p_cino)
     {
-        /* TODO: recognize errors */
+        // TODO: recognize errors
         parse_cino(curbuf);
+
         // inccommand
     }
     else if(varp == &p_icm)
@@ -4112,17 +4300,17 @@ did_set_string_option(
         if(p != NULL)
         {
             for(s = *varp; *s; ++s)
+            {
                 if(vim_strchr(p, *s) == NULL)
                 {
                     errmsg = illegal_char(errbuf, *s);
                     break;
                 }
+            }
         }
     }
 
-    /*
-     * If error detected, restore the previous value.
-     */
+    // If error detected, restore the previous value.
     if(errmsg != NULL)
     {
         if(new_value_alloced)
@@ -4132,9 +4320,7 @@ did_set_string_option(
 
         *varp = oldval;
 
-        /*
-         * When resetting some values, need to act on it.
-         */
+        // When resetting some values, need to act on it.
         if(did_chartab)
         {
             (void)init_chartab();
@@ -4142,14 +4328,12 @@ did_set_string_option(
     }
     else
     {
-        /* Remember where the option was set. */
+        // Remember where the option was set.
         set_option_scriptID_idx(opt_idx, opt_flags, current_SID);
 
-        /*
-         * Free string options that are in allocated memory.
-         * Use "free_oldval", because recursiveness may change the flags under
-         * our fingers (esp. init_highlight()).
-         */
+        // Free string options that are in allocated memory.
+        // Use "free_oldval", because recursiveness may change
+        // the flags under our fingers (esp. init_highlight()).
         if(free_oldval)
         {
             free_string_option(oldval);
@@ -4167,22 +4351,20 @@ did_set_string_option(
         if((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0
            && ((int)options[opt_idx].indir & PV_BOTH))
         {
-            /* global option with local value set to use global value; free
-             * the local value and make it empty */
+            // global option with local value set to use global value;
+            // free the local value and make it empty
             p = get_varp_scope(&(options[opt_idx]), OPT_LOCAL);
             free_string_option(*(char_u **)p);
             *(char_u **)p = empty_option;
         }
-        /* May set global value for local option. */
+        // May set global value for local option.
         else if(!(opt_flags & OPT_LOCAL) && opt_flags != OPT_GLOBAL)
         {
             set_string_option_global(opt_idx, varp);
         }
 
-        /*
-         * Trigger the autocommand only after setting the flags.
-         */
-        /* When 'syntax' is set, load the syntax of that name */
+        // Trigger the autocommand only after setting the flags.
+        // When 'syntax' is set, load the syntax of that name
         if(varp == &(curbuf->b_p_syn))
         {
             apply_autocmds(EVENT_SYNTAX, curbuf->b_p_syn,
@@ -4190,7 +4372,7 @@ did_set_string_option(
         }
         else if(varp == &(curbuf->b_p_ft))
         {
-            /* 'filetype' is set, trigger the FileType autocommand */
+            // 'filetype' is set, trigger the FileType autocommand
             did_filetype = TRUE;
             apply_autocmds(EVENT_FILETYPE, curbuf->b_p_ft,
                            curbuf->b_fname, TRUE, curbuf);
@@ -4199,28 +4381,32 @@ did_set_string_option(
         if(varp == &(curwin->w_s->b_p_spl))
         {
             char_u fname[200];
-            char_u      *q = curwin->w_s->b_p_spl;
+            char_u *q = curwin->w_s->b_p_spl;
 
-            /* Skip the first name if it is "cjk". */
+            // Skip the first name if it is "cjk".
             if(STRNCMP(q, "cjk,", 4) == 0)
             {
                 q += 4;
             }
 
-            /*
-             * Source the spell/LANG.vim in 'runtimepath'.
-             * They could set 'spellcapcheck' depending on the language.
-             * Use the first name in 'spelllang' up to '_region' or
-             * '.encoding'.
-             */
+            // Source the spell/LANG.vim in 'runtimepath'.
+            // They could set 'spellcapcheck' depending on
+            // the language. Use the first name in 'spelllang'
+            // up to '_region' or '.encoding'.
             for(p = q; *p != NUL; ++p)
+            {
                 if(vim_strchr((char_u *)"_.,", *p) != NULL)
                 {
                     break;
                 }
+            }
 
-            vim_snprintf((char *)fname, sizeof(fname), "spell/%.*s.vim",
-                         (int)(p - q), q);
+            vim_snprintf((char *)fname,
+                         sizeof(fname),
+                         "spell/%.*s.vim",
+                         (int)(p - q),
+                         q);
+
             source_runtime(fname, DIP_ALL);
         }
     }
@@ -4233,7 +4419,7 @@ did_set_string_option(
         }
         else
         {
-            setmouse();  // in case 'mouse' changed
+            setmouse(); // in case 'mouse' changed
         }
     }
 
@@ -4247,21 +4433,17 @@ did_set_string_option(
     return errmsg;
 }
 
-/*
- * Simple int comparison function for use with qsort()
- */
+/// Simple int comparison function for use with qsort()
 static int int_cmp(const void *a, const void *b)
 {
     return *(const int *)a - *(const int *)b;
 }
 
-/*
- * Handle setting 'colorcolumn' or 'textwidth' in window "wp".
- * Returns error message, NULL if it's OK.
- */
+/// Handle setting 'colorcolumn' or 'textwidth' in window "wp".
+/// Returns error message, NULL if it's OK.
 char_u *check_colorcolumn(win_T *wp)
 {
-    char_u      *s;
+    char_u *s;
     int col;
     unsigned int count = 0;
     int color_cols[256];
@@ -4269,14 +4451,14 @@ char_u *check_colorcolumn(win_T *wp)
 
     if(wp->w_buffer == NULL)
     {
-        return NULL;    /* buffer was closed */
+        return NULL; // buffer was closed
     }
 
     for(s = wp->w_p_cc; *s != NUL && count < 255;)
     {
         if(*s == '-' || *s == '+')
         {
-            /* -N and +N: add to 'textwidth' */
+            // -N and +N: add to 'textwidth'
             col = (*s == '-') ? -1 : 1;
             ++s;
 
@@ -4289,7 +4471,8 @@ char_u *check_colorcolumn(win_T *wp)
 
             if(wp->w_buffer->b_p_tw == 0)
             {
-                goto skip;    /* 'textwidth' not set, skip this item */
+                // 'textwidth' not set, skip this item
+                goto skip;
             }
 
             assert((col >= 0
@@ -4298,6 +4481,7 @@ char_u *check_colorcolumn(win_T *wp)
                    || (col < 0
                        && wp->w_buffer->b_p_tw >= INT_MIN - col
                        && wp->w_buffer->b_p_tw + col <= INT_MAX));
+
             col += (int)wp->w_buffer->b_p_tw;
 
             if(col < 0)
@@ -4314,7 +4498,8 @@ char_u *check_colorcolumn(win_T *wp)
             return e_invarg;
         }
 
-        color_cols[count++] = col - 1;      /* 1-based to 0-based */
+        color_cols[count++] = col - 1; // 1-based to 0-based
+
 skip:
 
         if(*s == NUL)
@@ -4329,7 +4514,8 @@ skip:
 
         if(*++s == NUL)
         {
-            return e_invarg;    /* illegal trailing comma as in "set cc=80," */
+            // illegal trailing comma as in "set cc=80,"
+            return e_invarg;
         }
     }
 
@@ -4342,38 +4528,40 @@ skip:
     else
     {
         wp->w_p_cc_cols = xmalloc(sizeof(int) * (count + 1));
-        /* sort the columns for faster usage on screen redraw inside
-         * win_line() */
+
+        // sort the columns for faster usage
+        // on screen redraw inside win_line()
         qsort(color_cols, count, sizeof(int), int_cmp);
 
         for(unsigned int i = 0; i < count; ++i)
-
-            /* skip duplicates */
+        {
+            // skip duplicates
             if(j == 0 || wp->w_p_cc_cols[j - 1] != color_cols[i])
             {
                 wp->w_p_cc_cols[j++] = color_cols[i];
             }
+        }
 
-        wp->w_p_cc_cols[j] = -1;        /* end marker */
+        wp->w_p_cc_cols[j] = -1; // end marker
     }
 
-    return NULL;    /* no error */
+    return NULL; // no error
 }
 
-/*
- * Handle setting 'listchars' or 'fillchars'.
- * Returns error message, NULL if it's OK.
- */
+/// Handle setting 'listchars' or 'fillchars'.
+/// Returns error message, NULL if it's OK.
 static char_u *set_chars_option(char_u **varp)
 {
-    int round, i, len, entries;
-    char_u      *p, *s;
+    char_u *p, *s;
     int c1, c2 = 0;
+    int round, i, len, entries;
+
     struct charstab
     {
-        int     *cp;
-        char    *name;
+        int *cp;
+        char *name;
     };
+
     static struct charstab filltab[] =
     {
         {&fill_stl,     "stl"},
@@ -4382,6 +4570,7 @@ static char_u *set_chars_option(char_u **varp)
         {&fill_fold,    "fold"},
         {&fill_diff,    "diff"},
     };
+
     static struct charstab lcstab[] =
     {
         {&lcs_eol,      "eol"},
@@ -4393,6 +4582,7 @@ static char_u *set_chars_option(char_u **varp)
         {&lcs_trail,    "trail"},
         {&lcs_conceal,  "conceal"},
     };
+
     struct charstab *tab;
 
     if(varp == &p_lcs)
@@ -4406,18 +4596,21 @@ static char_u *set_chars_option(char_u **varp)
         entries = ARRAY_SIZE(filltab);
     }
 
-    /* first round: check for valid value, second round: assign values */
+    // first round: check for valid value,
+    // second round: assign values
     for(round = 0; round <= 1; ++round)
     {
         if(round > 0)
         {
-            /* After checking that the value is valid: set defaults: space for
-             * 'fillchars', NUL for 'listchars' */
+            // After checking that the value is valid:
+            // set defaults: space for 'fillchars', NUL for 'listchars'
             for(i = 0; i < entries; ++i)
+            {
                 if(tab[i].cp != NULL)
                 {
                     *(tab[i].cp) = (varp == &p_lcs ? NUL : ' ');
                 }
+            }
 
             if(varp == &p_lcs)
             {
@@ -4497,13 +4690,11 @@ static char_u *set_chars_option(char_u **varp)
         }
     }
 
-    return NULL;          /* no error */
+    return NULL; // no error
 }
 
-/*
- * Check validity of options with the 'statusline' format.
- * Return error message or NULL.
- */
+/// Check validity of options with the 'statusline' format.
+/// Return error message or NULL.
 char_u *check_stl_option(char_u *s)
 {
     int itemcnt = 0;
@@ -4512,7 +4703,7 @@ char_u *check_stl_option(char_u *s)
 
     while(*s && itemcnt < STL_MAX_ITEM)
     {
-        /* Check for valid keys after % sequences */
+        // Check for valid keys after % sequences
         while(*s && *s != '%')
         {
             s++;
@@ -4530,7 +4721,9 @@ char_u *check_stl_option(char_u *s)
             itemcnt++;
         }
 
-        if(*s == '%' || *s == STL_TRUNCMARK || *s == STL_SEPARATE)
+        if(*s == '%'
+           || *s == STL_TRUNCMARK
+           || *s == STL_SEPARATE)
         {
             s++;
             continue;
@@ -4643,14 +4836,12 @@ static char_u *did_set_spell_option(bool is_spellfile)
     return errmsg;
 }
 
-/*
- * Set curbuf->b_cap_prog to the regexp program for 'spellcapcheck'.
- * Return error message when failed, NULL when OK.
- */
+/// Set curbuf->b_cap_prog to the regexp program for 'spellcapcheck'.
+/// Return error message when failed, NULL when OK.
 static char_u *compile_cap_prog(synblock_T *synblock)
 {
-    regprog_T   *rp = synblock->b_cap_prog;
-    char_u      *re;
+    regprog_T *rp = synblock->b_cap_prog;
+    char_u *re;
 
     if(*synblock->b_p_spc == NUL)
     {
@@ -4658,19 +4849,23 @@ static char_u *compile_cap_prog(synblock_T *synblock)
     }
     else
     {
-        /* Prepend a ^ so that we only match at one column */
+        // Prepend a ^ so that we only match at one column
         re = concat_str((char_u *)"^", synblock->b_p_spc);
         synblock->b_cap_prog = vim_regcomp(re, RE_MAGIC);
+
         xfree(re);
 
         if(synblock->b_cap_prog == NULL)
         {
-            synblock->b_cap_prog = rp;         /* restore the previous program */
+            // restore the previous program
+            synblock->b_cap_prog = rp;
+
             return e_invarg;
         }
     }
 
     vim_regfree(rp);
+
     return NULL;
 }
 
@@ -4712,21 +4907,23 @@ static bool parse_winhl_opt(win_T *wp)
 
     wp->w_hl_id = w_hl_id;
     wp->w_hl_id_inactive = w_hl_id_inactive;
+
     return true;
 }
 
-/*
- * Set the scriptID for an option, taking care of setting the buffer- or
- * window-local value.
- */
+/// Set the scriptID for an option, taking
+/// care of setting the buffer- or window-local value.
 static void set_option_scriptID_idx(int opt_idx, int opt_flags, int id)
 {
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
     int indir = (int)options[opt_idx].indir;
 
-    /* Remember where the option was set.  For local options need to do that
-     * in the buffer or window structure. */
-    if(both || (opt_flags & OPT_GLOBAL) || (indir & (PV_BUF|PV_WIN)) == 0)
+    // Remember where the option was set.
+    // For local options need to do that
+    // in the buffer or window structure.
+    if(both
+       || (opt_flags & OPT_GLOBAL)
+       || (indir & (PV_BUF|PV_WIN)) == 0)
     {
         options[opt_idx].scriptID = id;
     }
@@ -4746,30 +4943,31 @@ static void set_option_scriptID_idx(int opt_idx, int opt_flags, int id)
 
 /// Set the value of a boolean option, taking care of side effects
 ///
-/// @param[in]  opt_idx  Option index in options[] table.
-/// @param[out]  varp  Pointer to the option variable.
-/// @param[in]  value  New value.
-/// @param[in]  opt_flags  OPT_LOCAL and/or OPT_GLOBAL.
+/// @param[in] opt_idx    Option index in options[] table.
+/// @param[out] varp      Pointer to the option variable.
+/// @param[in] value      New value.
+/// @param[in] opt_flags  OPT_LOCAL and/or OPT_GLOBAL.
 ///
 /// @return NULL on success, error message on error.
-static char *set_bool_option(const int opt_idx, char_u *const varp,
+static char *set_bool_option(const int opt_idx,
+                             char_u *const varp,
                              const int value,
                              const int opt_flags)
 {
     int old_value = *(int *)varp;
 
-    /* Disallow changing some options from secure mode */
+    // Disallow changing some options from secure mode
     if((secure || sandbox != 0)
        && (options[opt_idx].flags & P_SECURE))
     {
         return (char *)e_secure;
     }
 
-    *(int *)varp = value;             /* set the new value */
-    /* Remember where the option was set. */
+    *(int *)varp = value; // set the new value
+    // Remember where the option was set.
     set_option_scriptID_idx(opt_idx, opt_flags, current_SID);
 
-    /* May set global value for local option. */
+    // May set global value for local option.
     if((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0)
     {
         *(int *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = value;
@@ -4811,10 +5009,10 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
             {
                 curbuf = bp;
 
-                // When 'undofile' is set globally: for every buffer, otherwise
-                // only for the current buffer: Try to read in the undofile,
-                // if one exists, the buffer wasn't changed and the buffer was
-                // loaded
+                // When 'undofile' is set globally: for every buffer,
+                // otherwise only for the current buffer: Try to read
+                // in the undofile, if one exists, the buffer wasn't
+                // changed and the buffer was loaded
                 if((curbuf == save_curbuf
                     || (opt_flags & OPT_GLOBAL) || opt_flags == 0)
                    && !curbufIsChanged() && curbuf->b_ml.ml_mfp != NULL)
@@ -4828,13 +5026,13 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
     }
     else if((int *)varp == &curbuf->b_p_ro)
     {
-        /* when 'readonly' is reset globally, also reset readonlymode */
+        // when 'readonly' is reset globally, also reset readonlymode
         if(!curbuf->b_p_ro && (opt_flags & OPT_LOCAL) == 0)
         {
             readonlymode = FALSE;
         }
 
-        /* when 'readonly' is set may give W10 again */
+        // when 'readonly' is set may give W10 again
         if(curbuf->b_p_ro)
         {
             curbuf->b_did_warn = false;
@@ -4842,77 +5040,85 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
 
         redraw_titles();
     }
-    /* when 'modifiable' is changed, redraw the window title */
+    // when 'modifiable' is changed, redraw the window title
     else if((int *)varp == &curbuf->b_p_ma)
     {
         redraw_titles();
     }
-    /* when 'endofline' is changed, redraw the window title */
+    // when 'endofline' is changed, redraw the window title
     else if((int *)varp == &curbuf->b_p_eol)
     {
         redraw_titles();
     }
     else if((int *)varp == &curbuf->b_p_fixeol)
     {
-        // when 'fixeol' is changed, redraw the window title
+        // when 'fixeol' is changed,
+        // redraw the window title
         redraw_titles();
     }
-    /* when 'bomb' is changed, redraw the window title and tab page text */
+    // when 'bomb' is changed, redraw the
+    // window title and tab page text
     else if((int *)varp == &curbuf->b_p_bomb)
     {
         redraw_titles();
     }
-    /* when 'bin' is set also set some other options */
+    // when 'bin' is set also set some other options
     else if((int *)varp == &curbuf->b_p_bin)
     {
         set_options_bin(old_value, curbuf->b_p_bin, opt_flags);
         redraw_titles();
     }
-    /* when 'buflisted' changes, trigger autocommands */
-    else if((int *)varp == &curbuf->b_p_bl && old_value != curbuf->b_p_bl)
+    // when 'buflisted' changes, trigger autocommands
+    else if((int *)varp == &curbuf->b_p_bl
+            && old_value != curbuf->b_p_bl)
     {
         apply_autocmds(curbuf->b_p_bl ? EVENT_BUFADD : EVENT_BUFDELETE,
                        NULL, NULL, TRUE, curbuf);
     }
-    /* when 'swf' is set, create swapfile, when reset remove swapfile */
+    // when 'swf' is set, create swapfile, when reset remove swapfile
     else if((int *)varp == (int *)&curbuf->b_p_swf)
     {
         if(curbuf->b_p_swf && p_uc)
         {
-            ml_open_file(curbuf);    /* create the swap file */
+            ml_open_file(curbuf); // create the swap file
         }
         else
-            /* no need to reset curbuf->b_may_swap, ml_open_file() will check
-             * buf->b_p_swf */
         {
-            mf_close_file(curbuf, true);    /* remove the swap file */
+            // no need to reset curbuf->b_may_swap,
+            // ml_open_file() will check buf->b_p_swf
+            mf_close_file(curbuf, true); // remove the swap file
         }
     }
-    /* when 'terse' is set change 'shortmess' */
+    // when 'terse' is set change 'shortmess'
     else if((int *)varp == &p_terse)
     {
         char_u  *p;
         p = vim_strchr(p_shm, SHM_SEARCH);
 
-        /* insert 's' in p_shm */
+        // insert 's' in p_shm
         if(p_terse && p == NULL)
         {
             STRCPY(IObuff, p_shm);
             STRCAT(IObuff, "s");
-            set_string_option_direct((char_u *)"shm", -1, IObuff, OPT_FREE, 0);
+
+            set_string_option_direct((char_u *)"shm",
+                                     -1,
+                                     IObuff,
+                                     OPT_FREE,
+                                     0);
         }
-        /* remove 's' from p_shm */
+        // remove 's' from p_shm
         else if(!p_terse && p != NULL)
         {
             STRMOVE(p, p + 1);
         }
     }
-    /* when 'paste' is set or reset also change other options */
+    // when 'paste' is set or reset also change other options
     else if((int *)varp == &p_paste)
     {
         paste_option_changed();
     }
-    /* when 'insertmode' is set from an autocommand need to do work here */
+    // when 'insertmode' is set from an autocommand need to do work here
     else if((int *)varp == &p_im)
     {
         if(p_im)
@@ -4924,31 +5130,31 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
 
             stop_insert_mode = false;
         }
-        else if(old_value)       // only reset if it was set previously
+        else if(old_value) // only reset if it was set previously
         {
             need_start_insertmode = false;
             stop_insert_mode = true;
 
             if(restart_edit != 0 && mode_displayed)
             {
-                clear_cmdline = true;  // remove "(insert)"
+                clear_cmdline = true; // remove "(insert)"
             }
 
             restart_edit = 0;
         }
     }
-    /* when 'ignorecase' is set or reset and 'hlsearch' is set, redraw */
+    // when 'ignorecase' is set or reset and 'hlsearch' is set, redraw
     else if((int *)varp == &p_ic && p_hls)
     {
         redraw_all_later(SOME_VALID);
     }
-    /* when 'hlsearch' is set or reset: reset no_hlsearch */
+    // when 'hlsearch' is set or reset: reset no_hlsearch
     else if((int *)varp == &p_hls)
     {
         SET_NO_HLSEARCH(FALSE);
     }
-    /* when 'scrollbind' is set: snapshot the current position to avoid a jump
-     * at the end of normal_cmd() */
+    // when 'scrollbind' is set: snapshot the current position
+    // to avoid a jump at the end of normal_cmd()
     else if((int *)varp == &curwin->w_p_scb)
     {
         if(curwin->w_p_scb)
@@ -4957,7 +5163,7 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
             curwin->w_scbind_pos = curwin->w_topline;
         }
     }
-    /* There can be only one window with 'previewwindow' set. */
+    // There can be only one window with 'previewwindow' set.
     else if((int *)varp == &curwin->w_p_pvw)
     {
         if(curwin->w_p_pvw)
@@ -4976,11 +5182,12 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
     {
         // When 'lisp' option changes include/exclude '-' in
         // keyword characters.
-        (void)buf_init_chartab(curbuf, false);          // ignore errors
+        (void)buf_init_chartab(curbuf, false); // ignore errors
     }
     else if((int *)varp == &p_title)
     {
-        // when 'title' changed, may need to change the title; same for 'icon'
+        // when 'title' changed, may need to
+        // change the title; same for 'icon'
         did_set_title(false);
     }
     else if((int *)varp == &p_icon)
@@ -4991,7 +5198,8 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
     {
         if(!value)
         {
-            save_file_ff(curbuf);             // Buffer is unchanged
+            // Buffer is unchanged
+            save_file_ff(curbuf);
         }
 
         redraw_titles();
@@ -5014,14 +5222,14 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
             pseps[0] = '\\';
         }
 
-        /* need to adjust the file name arguments and buffer names. */
+        // need to adjust the file name arguments and buffer names.
         buflist_slash_adjust();
         alist_slash_adjust();
         scriptnames_slash_adjust();
     }
-
 #endif
-    /* If 'wrap' is set, set w_leftcol to zero. */
+
+    // If 'wrap' is set, set w_leftcol to zero.
     else if((int *)varp == &curwin->w_p_wrap)
     {
         if(curwin->w_p_wrap)
@@ -5038,13 +5246,15 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
     }
     else if((int *)varp == &p_acd)
     {
-        // Change directories when the 'acd' option is set now.
+        // Change directories when
+        // the 'acd' option is set now.
         do_autochdir();
     }
-    /* 'diff' */
+    // 'diff'
     else if((int *)varp == &curwin->w_p_diff)
     {
-        /* May add or remove the buffer from the list of diff buffers. */
+        // May add or remove the buffer
+        // from the list of diff buffers.
         diff_buf_adjust(curwin);
 
         if(foldmethodIsDiff(curwin))
@@ -5052,12 +5262,12 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
             foldUpdateAll(curwin);
         }
     }
-    /* 'spell' */
+    // 'spell'
     else if((int *)varp == &curwin->w_p_spell)
     {
         if(curwin->w_p_spell)
         {
-            char_u      *errmsg = did_set_spelllang(curwin);
+            char_u *errmsg = did_set_spelllang(curwin);
 
             if(errmsg != NULL)
             {
@@ -5084,14 +5294,10 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
         }
     }
 
-    /*
-     * In case some second language keymapping options have changed, check
-     * and correct the setting in a consistent way.
-     */
+    // In case some second language keymapping options have
+    // changed, check and correct the setting in a consistent way.
 
-    /*
-     * If hkmap or fkmap are set, reset Arabic keymapping.
-     */
+    // If hkmap or fkmap are set, reset Arabic keymapping.
     if((p_hkmap || p_fkmap) && p_altkeymap)
     {
         p_altkeymap = p_fkmap;
@@ -5099,9 +5305,7 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
         (void)init_chartab();
     }
 
-    /*
-     * If hkmap set, reset Farsi keymapping.
-     */
+    // If hkmap set, reset Farsi keymapping.
     if(p_hkmap && p_altkeymap)
     {
         p_altkeymap = 0;
@@ -5110,9 +5314,7 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
         (void)init_chartab();
     }
 
-    /*
-     * If fkmap set, reset Hebrew keymapping.
-     */
+    // If fkmap set, reset Hebrew keymapping.
     if(p_fkmap && !p_altkeymap)
     {
         p_altkeymap = 1;
@@ -5125,19 +5327,18 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
     {
         if(curwin->w_p_arab)
         {
-            /*
-             * 'arabic' is set, handle various sub-settings.
-             */
+            // 'arabic' is set, handle various sub-settings.
             if(!p_tbidi)
             {
-                /* set rightleft mode */
+                // set rightleft mode
                 if(!curwin->w_p_rl)
                 {
                     curwin->w_p_rl = TRUE;
                     changed_window_setting();
                 }
 
-                /* Enable Arabic shaping (major part of what Arabic requires) */
+                // Enable Arabic shaping
+                // (major part of what Arabic requires)
                 if(!p_arshape)
                 {
                     p_arshape = TRUE;
@@ -5145,55 +5346,56 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
                 }
             }
 
-            /* Arabic requires a utf-8 encoding, inform the user if its not
-             * set. */
+            // Arabic requires a utf-8 encoding,
+            // inform the user if its not set.
             if(STRCMP(p_enc, "utf-8") != 0)
             {
-                static char *w_arabic = N_(
-                                            "W17: Arabic requires UTF-8, do ':set encoding=utf-8'");
+                static char *w_arabic = N_("W17: Arabic requires UTF-8, "
+                                           "do ':set encoding=utf-8'");
+
                 msg_source(hl_attr(HLF_W));
                 msg_attr(_(w_arabic), hl_attr(HLF_W));
                 set_vim_var_string(VV_WARNINGMSG, _(w_arabic), -1);
             }
 
-            /* set 'delcombine' */
+            // set 'delcombine'
             p_deco = TRUE;
+
             // Force-set the necessary keymap for arabic.
             set_option_value("keymap", 0L, "arabic", OPT_LOCAL);
+
             p_altkeymap = 0;
             p_hkmap = 0;
             p_fkmap = 0;
+
             (void)init_chartab();
         }
         else
         {
-            /*
-             * 'arabic' is reset, handle various sub-settings.
-             */
+            // 'arabic' is reset, handle various sub-settings.
             if(!p_tbidi)
             {
-                /* reset rightleft mode */
+                // reset rightleft mode
                 if(curwin->w_p_rl)
                 {
                     curwin->w_p_rl = FALSE;
                     changed_window_setting();
                 }
 
-                /* 'arabicshape' isn't reset, it is a global option and
-                 * another window may still need it "on". */
+                // 'arabicshape' isn't reset, it is a global
+                // option and another window may still need it "on".
             }
 
-            /* 'delcombine' isn't reset, it is a global option and another
-             * window may still want it "on". */
-            /* Revert to the default keymap */
+            // 'delcombine' isn't reset, it is a global option
+            // and another window may still want it "on".
+            // Revert to the default keymap
             curbuf->b_p_iminsert = B_IMODE_NONE;
             curbuf->b_p_imsearch = B_IMODE_USE_INSERT;
         }
     }
 
-    /*
-     * End of handling side effects for bool options.
-     */
+    // End of handling side effects for bool options.
+    //
     // after handling side effects, call autocommand
     options[opt_idx].flags |= P_WAS_SET;
 
@@ -5202,22 +5404,28 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
         char buf_old[2];
         char buf_new[2];
         char buf_type[7];
+
         vim_snprintf(buf_old, ARRAY_SIZE(buf_old), "%d",
                      old_value ? true: false);
+
         vim_snprintf(buf_new, ARRAY_SIZE(buf_new), "%d",
                      value ? true: false);
+
         vim_snprintf(buf_type, ARRAY_SIZE(buf_type), "%s",
                      (opt_flags & OPT_LOCAL) ? "local" : "global");
+
         set_vim_var_string(VV_OPTION_NEW, buf_new, -1);
         set_vim_var_string(VV_OPTION_OLD, buf_old, -1);
         set_vim_var_string(VV_OPTION_TYPE, buf_type, -1);
+
         apply_autocmds(EVENT_OPTIONSET,
                        (char_u *) options[opt_idx].fullname,
                        NULL, false, NULL);
+
         reset_v_option_vars();
     }
 
-    comp_col();                       /* in case 'ruler' or 'showcmd' changed */
+    comp_col(); // in case 'ruler' or 'showcmd' changed
 
     if(curwin->w_curswant != MAXCOL
        && (options[opt_idx].flags & (P_CURSWANT | P_RALL)) != 0)
@@ -5231,24 +5439,28 @@ static char *set_bool_option(const int opt_idx, char_u *const varp,
 
 /// Set the value of a number option, taking care of side effects
 ///
-/// @param[in]  opt_idx  Option index in options[] table.
-/// @param[out]  varp  Pointer to the option variable.
-/// @param[in]  value  New value.
-/// @param  errbuf  Buffer for error messages.
-/// @param[in]  errbuflen  Length of `errbuf`.
-/// @param[in]  opt_flags  OPT_LOCAL, OPT_GLOBAL or OPT_MODELINE.
+/// @param[in] opt_idx    Option index in options[] table.
+/// @param[out] varp      Pointer to the option variable.
+/// @param[in] value      New value.
+/// @param errbuf         Buffer for error messages.
+/// @param[in] errbuflen  Length of `errbuf`.
+/// @param[in] opt_flags  OPT_LOCAL, OPT_GLOBAL or OPT_MODELINE.
 ///
 /// @return NULL on success, error message on error.
-static char *set_num_option(int opt_idx, char_u *varp, long value,
-                            char_u *errbuf, size_t errbuflen, int opt_flags)
+static char *set_num_option(int opt_idx,
+                            char_u *varp,
+                            long value,
+                            char_u *errbuf,
+                            size_t errbuflen,
+                            int opt_flags)
 {
-    char_u      *errmsg = NULL;
+    char_u *errmsg = NULL;
     long old_value = *(long *)varp;
-    long old_Rows = Rows;                 /* remember old Rows */
-    long old_Columns = Columns;           /* remember old Columns */
-    long        *pp = (long *)varp;
+    long old_Rows = Rows; // remember old Rows
+    long old_Columns = Columns; // remember old Columns
+    long *pp = (long *)varp;
 
-    /* Disallow changing some options from secure mode. */
+    // Disallow changing some options from secure mode.
     if((secure || sandbox != 0)
        && (options[opt_idx].flags & P_SECURE))
     {
@@ -5256,7 +5468,8 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
     }
 
     *pp = value;
-    /* Remember where the option was set. */
+
+    // Remember where the option was set.
     set_option_scriptID_idx(opt_idx, opt_flags, current_SID);
 
     if(curbuf->b_p_sw < 0)
@@ -5265,9 +5478,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
         curbuf->b_p_sw = curbuf->b_p_ts;
     }
 
-    /*
-     * Number options that need some action when changed
-     */
+    // Number options that need some action when changed
     if(pp == &p_wh || pp == &p_hh)
     {
         if(p_wh < 1)
@@ -5288,7 +5499,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             p_hh = 0;
         }
 
-        /* Change window height NOW */
+        // Change window height NOW
         if(lastwin != firstwin)
         {
             if(pp == &p_wh && curwin->w_height < p_wh)
@@ -5302,7 +5513,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             }
         }
     }
-    /* 'winminheight' */
+    // 'winminheight'
     else if(pp == &p_wmh)
     {
         if(p_wmh < 0)
@@ -5333,13 +5544,13 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             p_wiw = p_wmw;
         }
 
-        /* Change window width NOW */
+        // Change window width NOW
         if(lastwin != firstwin && curwin->w_width < p_wiw)
         {
             win_setwidth((int)p_wiw);
         }
     }
-    /* 'winminwidth' */
+    // 'winminwidth'
     else if(pp == &p_wmw)
     {
         if(p_wmw < 0)
@@ -5358,15 +5569,16 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
     }
     else if(pp == &p_ls)
     {
-        /* (re)set last window status line */
+        // (re)set last window status line
         last_status(false);
     }
-    /* (re)set tab page line */
+    // (re)set tab page line
     else if(pp == &p_stal)
     {
-        shell_new_rows();           /* recompute window positions and heights */
+        // recompute window positions and heights
+        shell_new_rows();
     }
-    /* 'foldlevel' */
+    // 'foldlevel'
     else if(pp == &curwin->w_p_fdl)
     {
         if(curwin->w_p_fdl < 0)
@@ -5376,12 +5588,12 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
         newFoldLevel();
     }
-    /* 'foldminlines' */
+    // 'foldminlines'
     else if(pp == &curwin->w_p_fml)
     {
         foldUpdateAll(curwin);
     }
-    /* 'foldnestmax' */
+    // 'foldnestmax'
     else if(pp == &curwin->w_p_fdn)
     {
         if(foldmethodIsSyntax(curwin) || foldmethodIsIndent(curwin))
@@ -5389,7 +5601,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             foldUpdateAll(curwin);
         }
     }
-    /* 'foldcolumn' */
+    // 'foldcolumn'
     else if(pp == &curwin->w_p_fdc)
     {
         if(curwin->w_p_fdc < 0)
@@ -5419,7 +5631,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             parse_cino(curbuf);
         }
     }
-    /* 'maxcombine' */
+    // 'maxcombine'
     else if(pp == &p_mco)
     {
         if(p_mco > MAX_MCO)
@@ -5431,7 +5643,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             p_mco = 0;
         }
 
-        screenclear();          /* will re-allocate the screen */
+        screenclear(); // will re-allocate the screen
     }
     else if(pp == &curbuf->b_p_iminsert)
     {
@@ -5443,7 +5655,8 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
         p_iminsert = curbuf->b_p_iminsert;
         showmode();
-        /* Show/unshow value of 'keymap' in status lines. */
+
+        // Show/unshow value of 'keymap' in status lines.
         status_redraw_curbuf();
     }
     else if(pp == &p_window)
@@ -5467,7 +5680,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
         p_imsearch = curbuf->b_p_imsearch;
     }
-    /* if 'titlelen' has changed, redraw the title */
+    // if 'titlelen' has changed, redraw the title
     else if(pp == &p_titlelen)
     {
         if(p_titlelen < 0)
@@ -5481,7 +5694,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             need_maketitle = TRUE;
         }
     }
-    /* if p_ch changed value, change the command line height */
+    // if p_ch changed value, change the command line height
     else if(pp == &p_ch)
     {
         if(p_ch < 1)
@@ -5495,15 +5708,16 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             p_ch = Rows - min_rows() + 1;
         }
 
-        /* Only compute the new window layout when startup has been
-         * completed. Otherwise the frame sizes may be wrong. */
+        // Only compute the new window layout when startup has been
+        // completed. Otherwise the frame sizes may be wrong.
         if(p_ch != old_value && full_screen
           )
         {
             command_height();
         }
     }
-    /* when 'updatecount' changes from zero to non-zero, open swap files */
+    // when 'updatecount' changes from
+    // zero to non-zero, open swap files
     else if(pp == &p_uc)
     {
         if(p_uc < 0)
@@ -5530,22 +5744,24 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
             curwin->w_p_cole = 3;
         }
     }
-    /* sync undo before 'undolevels' changes */
+    // sync undo before 'undolevels' changes
     else if(pp == &p_ul)
     {
-        /* use the old value, otherwise u_sync() may not work properly */
+        // use the old value, otherwise
+        // u_sync() may not work properly
         p_ul = old_value;
         u_sync(TRUE);
         p_ul = value;
     }
     else if(pp == &curbuf->b_p_ul)
     {
-        /* use the old value, otherwise u_sync() may not work properly */
+        // use the old value, otherwise
+        // u_sync() may not work properly
         curbuf->b_p_ul = old_value;
         u_sync(TRUE);
         curbuf->b_p_ul = value;
     }
-    /* 'numberwidth' must be positive */
+    // 'numberwidth' must be positive
     else if(pp == &curwin->w_p_nuw)
     {
         if(curwin->w_p_nuw < 1)
@@ -5578,8 +5794,11 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
     else if(pp == &curbuf->b_p_scbk || pp == &p_scbk)
     {
         // 'scrollback'
-        if(*pp < -1 || *pp > SB_MAX
-           || (*pp != -1 && opt_flags == OPT_LOCAL && !curbuf->terminal))
+        if(*pp < -1
+           || *pp > SB_MAX
+           || (*pp != -1
+               && opt_flags == OPT_LOCAL
+               && !curbuf->terminal))
         {
             errmsg = e_invarg;
             *pp = old_value;
@@ -5591,15 +5810,16 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
         }
     }
 
-    /*
-     * Check the bounds for numeric options here
-     */
+    // Check the bounds for numeric options here
     if(Rows < min_rows() && full_screen)
     {
         if(errbuf != NULL)
         {
-            vim_snprintf((char *)errbuf, errbuflen,
-                         _("E593: Need at least %d lines"), min_rows());
+            vim_snprintf((char *)errbuf,
+                         errbuflen,
+                         _("E593: Need at least %d lines"),
+                         min_rows());
+
             errmsg = errbuf;
         }
 
@@ -5610,8 +5830,11 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
     {
         if(errbuf != NULL)
         {
-            vim_snprintf((char *)errbuf, errbuflen,
-                         _("E594: Need at least %d columns"), MIN_COLUMNS);
+            vim_snprintf((char *)errbuf,
+                         errbuflen,
+                         _("E594: Need at least %d columns"),
+                         MIN_COLUMNS);
+
             errmsg = errbuf;
         }
 
@@ -5620,13 +5843,12 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
     limit_screen_size();
 
-    /*
-     * If the screen (shell) height has been changed, assume it is the
-     * physical screenheight.
-     */
+    // If the screen (shell) height has been changed,
+    // assume it is the physical screenheight.
     if(old_Rows != Rows || old_Columns != Columns)
     {
-        /* Changing the screen size is not allowed while updating the screen. */
+        // Changing the screen size is not
+        // allowed while updating the screen.
         if(updating_screen)
         {
             *pp = old_value;
@@ -5637,8 +5859,8 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
         }
         else
         {
-            /* Postpone the resizing; check the size and cmdline position for
-             * messages. */
+            // Postpone the resizing; check the size
+            // and cmdline position for messages.
             check_shellsize();
 
             if(cmdline_row > Rows - p_ch && Rows > p_ch)
@@ -5680,14 +5902,15 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
             win_comp_scroll(curwin);
         }
-        /* If 'scroll' became invalid because of a side effect silently adjust
-         * it. */
+        // If 'scroll' became invalid because
+        // of a side effect silently adjust it.
         else if(curwin->w_p_scr <= 0)
         {
             curwin->w_p_scr = 1;
         }
-        else     /* curwin->w_p_scr > curwin->w_height */
+        else
         {
+            // curwin->w_p_scr > curwin->w_height
             curwin->w_p_scr = curwin->w_height;
         }
     }
@@ -5717,7 +5940,8 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
     if((p_sj < -100 || p_sj >= Rows) && full_screen)
     {
-        if(Rows != old_Rows)        /* Rows changed, just adjust p_sj */
+        // Rows changed, just adjust p_sj
+        if(Rows != old_Rows)
         {
             p_sj = Rows / 2;
         }
@@ -5758,7 +5982,7 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
         p_ss = 0;
     }
 
-    /* May set global value for local option. */
+    // May set global value for local option.
     if((opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0)
     {
         *(long *)get_varp_scope(&(options[opt_idx]), OPT_GLOBAL) = *pp;
@@ -5766,7 +5990,8 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
 
     if(pp == &curbuf->b_p_scbk && !curbuf->terminal)
     {
-        // Normal buffer: reset local 'scrollback' after updating the global value.
+        // Normal buffer: reset local
+        // 'scrollback' after updating the global value.
         curbuf->b_p_scbk = -1;
     }
 
@@ -5777,20 +6002,25 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
         char buf_old[NUMBUFLEN];
         char buf_new[NUMBUFLEN];
         char buf_type[7];
+
         vim_snprintf(buf_old, ARRAY_SIZE(buf_old), "%ld", old_value);
         vim_snprintf(buf_new, ARRAY_SIZE(buf_new), "%ld", value);
+
         vim_snprintf(buf_type, ARRAY_SIZE(buf_type), "%s",
                      (opt_flags & OPT_LOCAL) ? "local" : "global");
+
         set_vim_var_string(VV_OPTION_NEW, buf_new, -1);
         set_vim_var_string(VV_OPTION_OLD, buf_old, -1);
         set_vim_var_string(VV_OPTION_TYPE, buf_type, -1);
+
         apply_autocmds(EVENT_OPTIONSET,
                        (char_u *) options[opt_idx].fullname,
                        NULL, false, NULL);
+
         reset_v_option_vars();
     }
 
-    comp_col();                       /* in case 'columns' or 'ls' changed */
+    comp_col(); // in case 'columns' or 'ls' changed
 
     if(curwin->w_curswant != MAXCOL
        && (options[opt_idx].flags & (P_CURSWANT | P_RALL)) != 0)
@@ -5802,16 +6032,15 @@ static char *set_num_option(int opt_idx, char_u *varp, long value,
     return (char *)errmsg;
 }
 
-/*
- * Called after an option changed: check if something needs to be redrawn.
- */
+/// Called after an option changed:
+/// check if something needs to be redrawn.
 static void check_redraw(uint32_t flags)
 {
-    /* Careful: P_RCLR and P_RALL are a combination of other P_ flags */
+    // Careful: P_RCLR and P_RALL are a combination of other P_ flags
     bool doclear = (flags & P_RCLR) == P_RCLR;
     bool all = ((flags & P_RALL) == P_RALL || doclear);
 
-    if((flags & P_RSTAT) || all)     // mark all status lines dirty
+    if((flags & P_RSTAT) || all) // mark all status lines dirty
     {
         status_redraw_all();
     }
@@ -5851,7 +6080,7 @@ int findoption_len(const char *const arg, const size_t len)
 {
     const char *s;
     const char *p;
-    static int quick_tab[27] = { 0, 0 };  // quick access table
+    static int quick_tab[27] = { 0, 0 }; // quick access table
 
     // For first call: Initialize the quick-access table.
     // It contains the index for the first option that starts with a certain
@@ -5932,7 +6161,9 @@ int findoption_len(const char *const arg, const size_t len)
 }
 
 bool is_tty_option(const char *name)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (name[0] == 't' && name[1] == '_') || strcmp(name, "term") == 0;
 }
@@ -6015,23 +6246,21 @@ static int findoption(const char *const arg)
     return findoption_len(arg, strlen(arg));
 }
 
-/*
- * Get the value for an option.
- *
- * Returns:
- * Number or Toggle option: 1, *numval gets value.
- *       String option: 0, *stringval gets allocated string.
- * Hidden Number or Toggle option: -1.
- *       hidden String option: -2.
- *         unknown option: -3.
- */
-int
-get_option_value(
-    char_u *name,
-    long *numval,
-    char_u **stringval,            /* NULL when only checking existence */
-    int opt_flags
-)
+/// Get the value for an option.
+///
+/// @param stringval
+/// NULL when only checking existence
+///
+/// @return
+/// - Number or Toggle option: 1, *numval gets value.
+/// - String option: 0, *stringval gets allocated string.
+/// - Hidden Number or Toggle option: -1.
+/// - hidden String option: -2.
+/// - unknown option: -3.
+int get_option_value(char_u *name,
+                     long *numval,
+                     char_u **stringval,
+                     int opt_flags)
 {
     if(get_tty_option((char *)name, (char **)stringval))
     {
@@ -6039,10 +6268,10 @@ get_option_value(
     }
 
     int opt_idx;
-    char_u      *varp;
+    char_u *varp;
     opt_idx = findoption((const char *)name);
 
-    if(opt_idx < 0)     // Unknown option.
+    if(opt_idx < 0) // Unknown option.
     {
         return -3;
     }
@@ -6051,7 +6280,7 @@ get_option_value(
 
     if(options[opt_idx].flags & P_STRING)
     {
-        if(varp == NULL)                        /* hidden option */
+        if(varp == NULL) // hidden option
         {
             return -2;
         }
@@ -6064,7 +6293,7 @@ get_option_value(
         return 0;
     }
 
-    if(varp == NULL)                  /* hidden option */
+    if(varp == NULL) // hidden option
     {
         return -1;
     }
@@ -6075,8 +6304,8 @@ get_option_value(
     }
     else
     {
-        /* Special case: 'modified' is b_changed, but we also want to consider
-         * it set when 'ff' or 'fenc' changed. */
+        // Special case: 'modified' is b_changed, but we also
+        // want to consider it set when 'ff' or 'fenc' changed.
         if((int *)varp == &curbuf->b_changed)
         {
             *numval = curbufIsChanged();
@@ -6090,22 +6319,24 @@ get_option_value(
     return 1;
 }
 
-// Returns the option attributes and its value. Unlike the above function it
-// will return either global value or local value of the option depending on
-// what was requested, but it will never return global value if it was
-// requested to return local one and vice versa. Neither it will return
-// buffer-local value if it was requested to return window-local one.
-//
-// Pretends that option is absent if it is not present in the requested scope
-// (i.e. has no global, window-local or buffer-local value depending on
-// opt_type).
-//
-// Returned flags:
-//       0 hidden or unknown option, also option that does not have requested
-//         type (see SREQ_* in option_defs.h)
-//  see SOPT_* in option_defs.h for other flags
-//
-// Possible opt_type values: see SREQ_* in option_defs.h
+/// Returns the option attributes and its value.
+/// Unlike the above function it will return either global
+/// value or local value of the option depending on what was requested,
+/// but it will never return global value if it was requested to return
+/// local one and vice versa. Neither it will return buffer-local value
+/// if it was requested to return window-local one.
+///
+/// Pretends that option is absent if it is not present in the requested
+/// scope (i.e. has no global, window-local or buffer-local value depending
+/// on opt_type).
+///
+/// @return
+/// - flags
+///   0 hidden or unknown option, also option that does not have requested
+///   type (see SREQ_* in option_defs.h)
+///   see SOPT_* in option_defs.h for other flags
+///
+/// Possible opt_type values: @see SREQ_* in option_defs.h
 int get_option_value_strict(char *name,
                             int64_t *numval,
                             char **stringval,
@@ -6155,7 +6386,8 @@ int get_option_value_strict(char *name,
         }
         else
         {
-            return 0;  // Did not request global-only option
+            // Did not request global-only option
+            return 0;
         }
     }
     else
@@ -6169,7 +6401,9 @@ int get_option_value_strict(char *name,
         {
             if(opt_type == SREQ_BUF)
             {
-                return 0;  // Requested buffer-local, not window-local option
+                // Requested buffer-local,
+                // not window-local option
+                return 0;
             }
             else
             {
@@ -6180,7 +6414,9 @@ int get_option_value_strict(char *name,
         {
             if(opt_type == SREQ_WIN)
             {
-                return 0;  // Requested window-local, not buffer-local option
+                // Requested window-local,
+                // not buffer-local option
+                return 0;
             }
             else
             {
@@ -6209,8 +6445,9 @@ int get_option_value_strict(char *name,
     {
         if(opt_type == SREQ_BUF)
         {
-            // Special case: 'modified' is b_changed, but we also want to
-            // consider it set when 'ff' or 'fenc' changed.
+            // Special case: 'modified' is b_changed,
+            // but we also want to consider it set when
+            // 'ff' or 'fenc' changed.
             if(p->indir == PV_MOD)
             {
                 *numval = bufIsChanged((buf_T *) from);
@@ -6262,14 +6499,16 @@ int get_option_value_strict(char *name,
 
 /// Set the value of an option
 ///
-/// @param[in]  name  Option name.
-/// @param[in]  number  New value for the number or boolean option.
-/// @param[in]  string  New value for string option.
+/// @param[in]  name       Option name.
+/// @param[in]  number     New value for the number or boolean option.
+/// @param[in]  string     New value for string option.
 /// @param[in]  opt_flags  Flags: OPT_LOCAL, OPT_GLOBAL, or 0 (both).
 ///
 /// @return NULL on success, error message on error.
-char *set_option_value(const char *const name, const long number,
-                       const char *const string, const int opt_flags)
+char *set_option_value(const char *const name,
+                       const long number,
+                       const char *const string,
+                       const int opt_flags)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(set_tty_option(name, string))
@@ -6311,34 +6550,38 @@ FUNC_ATTR_NONNULL_ARG(1)
         {
             varp = get_varp_scope(&(options[opt_idx]), opt_flags);
 
-            if(varp != NULL)          /* hidden option is not changed */
+            if(varp != NULL) // hidden option is not changed
             {
                 if(number == 0 && string != NULL)
                 {
                     int idx;
 
-                    // Either we are given a string or we are setting option
-                    // to zero.
-                    for(idx = 0; string[idx] == '0'; idx++) {}
+                    // Either we are given a string or we
+                    // are setting option to zero.
+                    for(idx = 0; string[idx] == '0'; idx++)
+                    { /* empty body */ }
 
                     if(string[idx] != NUL || idx == 0)
                     {
                         // There's another character after zeros or the string
-                        // is empty.  In both cases, we are trying to set a
+                        // is empty. In both cases, we are trying to set a
                         // num option using a string.
                         EMSG3(_("E521: Number required: &%s = '%s'"),
                               name, string);
-                        return NULL;  // do nothing as we hit an error
+
+                        return NULL; // do nothing as we hit an error
                     }
                 }
 
                 if(flags & P_NUM)
                 {
-                    return set_num_option(opt_idx, varp, number, NULL, 0, opt_flags);
+                    return set_num_option(opt_idx, varp,
+                                          number, NULL, 0, opt_flags);
                 }
                 else
                 {
-                    return set_bool_option(opt_idx, varp, (int)number, opt_flags);
+                    return set_bool_option(opt_idx, varp,
+                                           (int)number, opt_flags);
                 }
             }
         }
@@ -6347,27 +6590,27 @@ FUNC_ATTR_NONNULL_ARG(1)
     return NULL;
 }
 
-/*
- * Translate a string like "t_xx", "<t_xx>" or "<S-Tab>" to a key number.
- */
+/// Translate a string like "t_xx", "<t_xx>" or "<S-Tab>" to a key number.
 int find_key_option_len(const char_u *arg, size_t len)
 {
     int key;
     int modifiers;
 
-    // Don't use get_special_key_code() for t_xx, we don't want it to call
-    // add_termcap_entry().
+    // Don't use get_special_key_code() for t_xx,
+    // we don't want it to call add_termcap_entry().
     if(len >= 4 && arg[0] == 't' && arg[1] == '_')
     {
         key = TERMCAP2KEY(arg[2], arg[3]);
     }
     else
     {
-        arg--;  // put arg at the '<'
+        arg--; // put arg at the '<'
         modifiers = 0;
-        key = find_special_key(&arg, len + 1, &modifiers, true, true, false);
 
-        if(modifiers)     // can't handle modifiers here
+        key = find_special_key(&arg, len + 1,
+                               &modifiers, true, true, false);
+
+        if(modifiers) // can't handle modifiers here
         {
             key = 0;
         }
@@ -6381,30 +6624,30 @@ static int find_key_option(const char_u *arg)
     return find_key_option_len(arg, STRLEN(arg));
 }
 
-/*
- * if 'all' == 0: show changed options
- * if 'all' == 1: show all normal options
- */
-static void
-showoptions(
-    int all,
-    int opt_flags                  /* OPT_LOCAL and/or OPT_GLOBAL */
-)
+/// @param all
+/// - if @b all == 0: show changed options
+/// - if @b all == 1: show all normal options
+///
+/// @param opt_flags
+/// OPT_LOCAL and/or OPT_GLOBAL
+static void showoptions(int all, int opt_flags)
 {
-    vimoption_T    *p;
+    vimoption_T *p;
     int col;
-    char_u              *varp;
+    char_u *varp;
     int item_count;
     int run;
     int row, rows;
     int cols;
     int i;
     int len;
-#define INC 20
-#define GAP 3
+
+#define INC  20
+#define GAP  3
+
     vimoption_T **items = xmalloc(sizeof(vimoption_T *) * PARAM_COUNT);
 
-    /* Highlight title */
+    // Highlight title
     if(all == 2)
     {
         MSG_PUTS_TITLE(_("\n--- Terminal codes ---"));
@@ -6422,16 +6665,12 @@ showoptions(
         MSG_PUTS_TITLE(_("\n--- Options ---"));
     }
 
-    /*
-     * do the loop two times:
-     * 1. display the short items
-     * 2. display the long items (only strings and numbers)
-     */
+    // do the loop two times:
+    // 1. display the short items
+    // 2. display the long items (only strings and numbers)
     for(run = 1; run <= 2 && !got_int; ++run)
     {
-        /*
-         * collect the items in items[]
-         */
+        // collect the items in items[]
         item_count = 0;
 
         for(p = &options[0]; p->fullname != NULL; p++)
@@ -6455,7 +6694,7 @@ showoptions(
             {
                 if(p->flags & P_BOOL)
                 {
-                    len = 1;    /* a toggle option fits always */
+                    len = 1; // a toggle option fits always
                 }
                 else
                 {
@@ -6471,15 +6710,14 @@ showoptions(
             }
         }
 
-        /*
-         * display the items
-         */
+        // display the items
         if(run == 1)
         {
             assert(Columns <= LONG_MAX - GAP
                    && Columns + GAP >= LONG_MIN + 3
                    && (Columns + GAP - 3) / INC >= INT_MIN
                    && (Columns + GAP - 3) / INC <= INT_MAX);
+
             cols = (int)((Columns + GAP - 3) / INC);
 
             if(cols == 0)
@@ -6489,16 +6727,16 @@ showoptions(
 
             rows = (item_count + cols - 1) / cols;
         }
-        else        /* run == 2 */
+        else // run == 2
         {
             rows = item_count;
         }
 
         for(row = 0; row < rows && !got_int; ++row)
         {
-            msg_putchar('\n');                        /* go to next line */
+            msg_putchar('\n'); // go to next line
 
-            if(got_int)                               /* 'q' typed in more */
+            if(got_int) // 'q' typed in more
             {
                 break;
             }
@@ -6507,7 +6745,7 @@ showoptions(
 
             for(i = row; i < item_count; i += rows)
             {
-                msg_col = col;                          /* make columns */
+                msg_col = col; // make columns
                 showoneopt(items[i], opt_flags);
                 col += INC;
             }
@@ -6520,16 +6758,14 @@ showoptions(
     xfree(items);
 }
 
-/*
- * Return TRUE if option "p" has its default value.
- */
+/// Return TRUE if option "p" has its default value.
 static int optval_default(vimoption_T *p, char_u *varp)
 {
     int dvi;
 
     if(varp == NULL)
     {
-        return TRUE;    /* hidden option is always at default */
+        return TRUE; // hidden option is always at default
     }
 
     dvi = ((p->flags & P_VI_DEF) || p_cp) ? VI_DEFAULT : VIM_DEFAULT;
@@ -6544,29 +6780,27 @@ static int optval_default(vimoption_T *p, char_u *varp)
         return *(int *)varp == (int)(intptr_t)p->def_val[dvi];
     }
 
-    /* P_STRING */
+    // P_STRING
     return STRCMP(*(char_u **)varp, p->def_val[dvi]) == 0;
 }
 
-/*
- * showoneopt: show the value of one option
- * must not be called with a hidden option!
- */
-static void
-showoneopt(
-    vimoption_T *p,
-    int opt_flags                          /* OPT_LOCAL or OPT_GLOBAL */
-)
+/// showoneopt: show the value of one option
+/// must not be called with a hidden option!
+///
+/// @param p
+/// @param opt_flags   OPT_LOCAL or OPT_GLOBAL
+static void showoneopt(vimoption_T *p, int opt_flags)
 {
-    char_u      *varp;
+    char_u *varp;
     int save_silent = silent_mode;
     silent_mode = FALSE;
-    info_message = TRUE;          /* use mch_msg(), not mch_errmsg() */
+    info_message = TRUE; // use mch_msg(), not mch_errmsg()
     varp = get_varp_scope(p, opt_flags);
 
     // for 'modified' we also need to check if 'ff' or 'fenc' changed.
-    if((p->flags & P_BOOL) && ((int *)varp == &curbuf->b_changed
-                               ? !curbufIsChanged() : !*(int *)varp))
+    if((p->flags & P_BOOL)
+       && ((int *)varp == &curbuf->b_changed
+           ? !curbufIsChanged() : !*(int *)varp))
     {
         MSG_PUTS("no");
     }
@@ -6584,8 +6818,10 @@ showoneopt(
     if(!(p->flags & P_BOOL))
     {
         msg_putchar('=');
-        /* put value string in NameBuff */
+
+        // put value string in NameBuff
         option_value2string(p, opt_flags);
+
         msg_outtrans(NameBuff);
     }
 
@@ -6593,61 +6829,58 @@ showoneopt(
     info_message = FALSE;
 }
 
-/*
- * Write modified options as ":set" commands to a file.
- *
- * There are three values for "opt_flags":
- * OPT_GLOBAL:         Write global option values and fresh values of
- *             buffer-local options (used for start of a session
- *             file).
- * OPT_GLOBAL + OPT_LOCAL: Idem, add fresh values of window-local options for
- *             curwin (used for a vimrc file).
- * OPT_LOCAL:          Write buffer-local option values for curbuf, fresh
- *             and local values for window-local options of
- *             curwin.  Local values are also written when at the
- *             default value, because a modeline or autocommand
- *             may have set them when doing ":edit file" and the
- *             user has set them back at the default or fresh
- *             value.
- *             When "local_only" is TRUE, don't write fresh
- *             values, only local values (for ":mkview").
- * (fresh value = value used for a new buffer or window for a local option).
- *
- * Return FAIL on error, OK otherwise.
- */
+/// Write modified options as ":set" commands to a file.
+///
+/// There are three values for "opt_flags":
+/// - OPT_GLOBAL
+///   Write global option values and fresh values of buffer-local
+///   options (used for start of a session file).
+/// - OPT_GLOBAL + OPT_LOCAL:
+///   Idem, add fresh values of window-local options for curwin
+///   (used for a vimrc file).
+/// - OPT_LOCAL:
+///   Write buffer-local option values for curbuf, fresh and local
+///   values for window-local options of curwin. Local values are
+///   also written when at the default value, because a modeline or
+///   autocommand may have set them when doing ":edit file" and the
+///   user has set them back at the default or fresh value. When
+///   "local_only" is TRUE, don't write fresh values, only local
+///   values (for ":mkview"). (fresh value = value used for a new
+///   buffer or window for a local option).
+///
+/// @return FAIL on error, OK otherwise.
 int makeset(FILE *fd, int opt_flags, int local_only)
 {
-    vimoption_T    *p;
-    char_u              *varp;                    /* currently used value */
-    char_u              *varp_fresh;              /* local value */
-    char_u              *varp_local = NULL;       /* fresh value */
-    char                *cmd;
+    vimoption_T *p;
+    char_u *varp; // currently used value
+    char_u *varp_fresh; // local value
+    char_u *varp_local = NULL; // fresh value
+    char *cmd;
     int round;
     int pri;
 
-    /*
-     * Some options are never written:
-     * - Options that don't have a default (terminal name, columns, lines).
-     * - Terminal options.
-     * - Hidden options.
-     *
-     * Do the loop over "options[]" twice: once for options with the
-     * P_PRI_MKRC flag and once without.
-     */
+    // Some options are never written:
+    // - Options that don't have a default (terminal name, columns, lines).
+    // - Terminal options.
+    // - Hidden options.
+    //
+    // Do the loop over "options[]" twice: once for options with the
+    // P_PRI_MKRC flag and once without.
     for(pri = 1; pri >= 0; --pri)
     {
         for(p = &options[0]; p->fullname; p++)
+        {
             if(!(p->flags & P_NO_MKRC)
                && ((pri == 1) == ((p->flags & P_PRI_MKRC) != 0)))
             {
-                /* skip global option when only doing locals */
+                // skip global option when only doing locals
                 if(p->indir == PV_NONE && !(opt_flags & OPT_GLOBAL))
                 {
                     continue;
                 }
 
-                /* Do not store options like 'bufhidden' and 'syntax' in a vimrc
-                 * file, they are always buffer-specific. */
+                // Do not store options like 'bufhidden' and 'syntax'
+                // in a vimrc file, they are always buffer-specific.
                 if((opt_flags & OPT_GLOBAL) && (p->flags & P_NOGLOB))
                 {
                     continue;
@@ -6655,13 +6888,14 @@ int makeset(FILE *fd, int opt_flags, int local_only)
 
                 varp = get_varp_scope(p, opt_flags);
 
-                /* Hidden options are never written. */
+                // Hidden options are never written.
                 if(!varp)
                 {
                     continue;
                 }
 
-                /* Global values are only written when not at the default value. */
+                // Global values are only written
+                // when not at the default value.
                 if((opt_flags & OPT_GLOBAL) && optval_default(p, varp))
                 {
                     continue;
@@ -6673,14 +6907,15 @@ int makeset(FILE *fd, int opt_flags, int local_only)
                 {
                     if(p->var == VAR_WIN)
                     {
-                        /* skip window-local option when only doing globals */
+                        // skip window-local option
+                        // when only doing globals
                         if(!(opt_flags & OPT_LOCAL))
                         {
                             continue;
                         }
 
-                        /* When fresh value of window-local option is not at the
-                         * default, need to write it too. */
+                        // When fresh value of window-local option
+                        // is not at the default, need to write it too.
                         if(!(opt_flags & OPT_GLOBAL) && !local_only)
                         {
                             varp_fresh = get_varp_scope(p, OPT_GLOBAL);
@@ -6695,8 +6930,8 @@ int makeset(FILE *fd, int opt_flags, int local_only)
                     }
                 }
 
-                /* Round 1: fresh value for window-local options.
-                 * Round 2: other values */
+                // Round 1: fresh value for window-local options.
+                // Round 2: other values
                 for(; round <= 2; varp = varp_local, ++round)
                 {
                     if(round == 1 || (opt_flags & OPT_GLOBAL))
@@ -6710,27 +6945,30 @@ int makeset(FILE *fd, int opt_flags, int local_only)
 
                     if(p->flags & P_BOOL)
                     {
-                        if(put_setbool(fd, cmd, p->fullname, *(int *)varp) == FAIL)
+                        if(put_setbool(fd, cmd, p->fullname,
+                                       *(int *)varp) == FAIL)
                         {
                             return FAIL;
                         }
                     }
                     else if(p->flags & P_NUM)
                     {
-                        if(put_setnum(fd, cmd, p->fullname, (long *)varp) == FAIL)
+                        if(put_setnum(fd, cmd, p->fullname,
+                                      (long *)varp) == FAIL)
                         {
                             return FAIL;
                         }
                     }
-                    else        /* P_STRING */
+                    else // P_STRING
                     {
                         int do_endif = FALSE;
 
-                        // Don't set 'syntax' and 'filetype' again if the value is
-                        // already right, avoids reloading the syntax file.
+                        // Don't set 'syntax' and 'filetype' again if the value
+                        // is already right, avoids reloading the syntax file.
                         if(p->indir == PV_SYN || p->indir == PV_FT)
                         {
-                            if(fprintf(fd, "if &%s != '%s'", p->fullname,
+                            if(fprintf(fd, "if &%s != '%s'",
+                                       p->fullname,
                                        *(char_u **)(varp)) < 0
                                || put_eol(fd) < 0)
                             {
@@ -6740,7 +6978,10 @@ int makeset(FILE *fd, int opt_flags, int local_only)
                             do_endif = true;
                         }
 
-                        if(put_setstring(fd, cmd, p->fullname, (char_u **)varp,
+                        if(put_setstring(fd,
+                                         cmd,
+                                         p->fullname,
+                                         (char_u **)varp,
                                          (p->flags & P_EXPAND) != 0) == FAIL)
                         {
                             return FAIL;
@@ -6754,26 +6995,24 @@ int makeset(FILE *fd, int opt_flags, int local_only)
                             }
                         }
                     }
-                }
-            }
+                } /* for */
+            } /* if */
+        }/* for */
     }
 
     return OK;
 }
 
-/*
- * Generate set commands for the local fold options only.  Used when
- * 'sessionoptions' or 'viewoptions' contains "folds" but not "options".
- */
+/// Generate set commands for the local fold options only.
+///
+/// Used when 'sessionoptions' or 'viewoptions' contains
+/// "folds" but not "options".
 int makefoldset(FILE *fd)
 {
     if(put_setstring(fd, "setlocal", "fdm", &curwin->w_p_fdm, FALSE) == FAIL
-       || put_setstring(fd, "setlocal", "fde", &curwin->w_p_fde, FALSE)
-       == FAIL
-       || put_setstring(fd, "setlocal", "fmr", &curwin->w_p_fmr, FALSE)
-       == FAIL
-       || put_setstring(fd, "setlocal", "fdi", &curwin->w_p_fdi, FALSE)
-       == FAIL
+       || put_setstring(fd, "setlocal", "fde", &curwin->w_p_fde, FALSE) == FAIL
+       || put_setstring(fd, "setlocal", "fmr", &curwin->w_p_fmr, FALSE) == FAIL
+       || put_setstring(fd, "setlocal", "fdi", &curwin->w_p_fdi, FALSE) == FAIL
        || put_setnum(fd, "setlocal", "fdl", &curwin->w_p_fdl) == FAIL
        || put_setnum(fd, "setlocal", "fml", &curwin->w_p_fml) == FAIL
        || put_setnum(fd, "setlocal", "fdn", &curwin->w_p_fdn) == FAIL
@@ -6786,10 +7025,14 @@ int makefoldset(FILE *fd)
     return OK;
 }
 
-static int put_setstring(FILE *fd, char *cmd, char *name, char_u **valuep, int expand)
+static int put_setstring(FILE *fd,
+                         char *cmd,
+                         char *name,
+                         char_u **valuep,
+                         int expand)
 {
-    char_u      *s;
-    char_u      *buf;
+    char_u *s;
+    char_u *buf;
 
     if(fprintf(fd, "%s %s=", cmd, name) < 0)
     {
@@ -6798,18 +7041,20 @@ static int put_setstring(FILE *fd, char *cmd, char *name, char_u **valuep, int e
 
     if(*valuep != NULL)
     {
-        /* Output 'pastetoggle' as key names.  For other
-         * options some characters have to be escaped with
-         * CTRL-V or backslash */
+        // Output 'pastetoggle' as key names. For other
+        // options some characters have to be escaped with
+        // CTRL-V or backslash
         if(valuep == &p_pt)
         {
             s = *valuep;
 
             while(*s != NUL)
+            {
                 if(put_escstr(fd, str2special(&s, FALSE), 2) == FAIL)
                 {
                     return FAIL;
                 }
+            }
         }
         else if(expand)
         {
@@ -6849,7 +7094,7 @@ static int put_setnum(FILE *fd, char *cmd, char *name, long *valuep)
 
     if(wc_use_keyname((char_u *)valuep, &wc))
     {
-        /* print 'wildchar' and 'wildcharm' as a key name */
+        // print 'wildchar' and 'wildcharm' as a key name
         if(fputs((char *)get_special_key_name((int)wc, 0), fd) < 0)
         {
             return FAIL;
@@ -6870,7 +7115,8 @@ static int put_setnum(FILE *fd, char *cmd, char *name, long *valuep)
 
 static int put_setbool(FILE *fd, char *cmd, char *name, int value)
 {
-    if(value < 0)         /* global/local option using global value */
+    // global/local option using global value
+    if(value < 0)
     {
         return OK;
     }
@@ -6884,18 +7130,18 @@ static int put_setbool(FILE *fd, char *cmd, char *name, int value)
     return OK;
 }
 
-/*
- * Compute columns for ruler and shown command. 'sc_col' is also used to
- * decide what the maximum length of a message on the status line can be.
- * If there is a status line for the last window, 'sc_col' is independent
- * of 'ru_col'.
- */
+// Compute columns for ruler and shown command. 'sc_col' is also used to
+// decide what the maximum length of a message on the status line can be.
+// If there is a status line for the last window, 'sc_col' is independent
+// of 'ru_col'.
 
-#define COL_RULER 17        /* columns needed by standard ruler */
+/// columns needed by standard ruler
+#define COL_RULER    17
 
 void comp_col(void)
 {
     int last_has_status = (p_ls == 2 || (p_ls == 1 && firstwin != lastwin));
+
     sc_col = 0;
     ru_col = 0;
 
@@ -6903,7 +7149,7 @@ void comp_col(void)
     {
         ru_col = (ru_wid ? ru_wid : COL_RULER) + 1;
 
-        /* no last status line, adjust sc_col */
+        // no last status line, adjust sc_col
         if(!last_has_status)
         {
             sc_col = ru_col;
@@ -6914,7 +7160,8 @@ void comp_col(void)
     {
         sc_col += SHOWCMD_COLS;
 
-        if(!p_ru || last_has_status)            /* no need for separating space */
+        // no need for separating space
+        if(!p_ru || last_has_status)
         {
             ++sc_col;
         }
@@ -6923,13 +7170,17 @@ void comp_col(void)
     assert(sc_col >= 0
            && INT_MIN + sc_col <= Columns
            && Columns - sc_col <= INT_MAX);
+
     sc_col = (int)(Columns - sc_col);
+
     assert(ru_col >= 0
            && INT_MIN + ru_col <= Columns
            && Columns - ru_col <= INT_MAX);
+
     ru_col = (int)(Columns - ru_col);
 
-    if(sc_col <= 0)               /* screen too narrow, will become a mess */
+    // screen too narrow, will become a mess
+    if(sc_col <= 0)
     {
         sc_col = 1;
     }
@@ -6940,7 +7191,7 @@ void comp_col(void)
     }
 }
 
-// Unset local option value, similar to ":set opt<".
+/// Unset local option value, similar to ":set opt<".
 void unset_global_local_option(char *name, void *from)
 {
     vimoption_T *p;
@@ -6957,7 +7208,8 @@ void unset_global_local_option(char *name, void *from)
 
     switch((int)p->indir)
     {
-        // global option with local value: use local value if it's been set
+        // global option with local value:
+        // use local value if it's been set
         case PV_EP:
             clear_string_option(&buf->b_p_ep);
             break;
@@ -7034,9 +7286,7 @@ void unset_global_local_option(char *name, void *from)
     }
 }
 
-/*
- * Get pointer to option variable, depending on local or global scope.
- */
+/// Get pointer to option variable, depending on local or global scope.
 static char_u *get_varp_scope(vimoption_T *p, int opt_flags)
 {
     if((opt_flags & OPT_GLOBAL) && p->indir != PV_NONE)
@@ -7108,18 +7358,17 @@ static char_u *get_varp_scope(vimoption_T *p, int opt_flags)
                 return (char_u *)&(curbuf->b_p_bkc);
         }
 
-        return NULL;     /* "cannot happen" */
+        // "cannot happen"
+        return NULL;
     }
 
     return get_varp(p);
 }
 
-/*
- * Get pointer to option variable.
- */
+/// Get pointer to option variable.
 static char_u *get_varp(vimoption_T *p)
 {
-    /* hidden option, always return NULL */
+    // hidden option, always return NULL
     if(p->var == NULL)
     {
         return NULL;
@@ -7130,7 +7379,8 @@ static char_u *get_varp(vimoption_T *p)
         case PV_NONE:
             return p->var;
 
-        /* global option with local value: use local value if it's been set */
+        // global option with local value:
+        // use local value if it's been set
         case PV_EP:
             return *curbuf->b_p_ep != NUL
                    ? (char_u *)&curbuf->b_p_ep : p->var;
@@ -7486,13 +7736,12 @@ static char_u *get_varp(vimoption_T *p)
             EMSG(_("E356: get_varp ERROR"));
     }
 
-    /* always return a valid pointer to avoid a crash! */
+    // always return a valid pointer to avoid a crash!
     return (char_u *)&(curbuf->b_p_wm);
 }
 
-/*
- * Get the value of 'equalprg', either the buffer-local one or the global one.
- */
+/// Get the value of 'equalprg', either the
+/// buffer-local one or the global one.
 char_u *get_equalprg(void)
 {
     if(*curbuf->b_p_ep == NUL)
@@ -7503,24 +7752,19 @@ char_u *get_equalprg(void)
     return curbuf->b_p_ep;
 }
 
-/*
- * Copy options from one window to another.
- * Used when splitting a window.
- */
+/// Copy options from one window to another.
+/// Used when splitting a window.
 void win_copy_options(win_T *wp_from, win_T *wp_to)
 {
     copy_winopt(&wp_from->w_onebuf_opt, &wp_to->w_onebuf_opt);
     copy_winopt(&wp_from->w_allbuf_opt, &wp_to->w_allbuf_opt);
-    /* Is this right? */
-    wp_to->w_farsi = wp_from->w_farsi;
+    wp_to->w_farsi = wp_from->w_farsi; // Is this right?
 }
 
-/*
- * Copy the options from one winopt_T to another.
- * Doesn't free the old option values in "to", use clear_winopt() for that.
- * The 'scroll' option is not copied, because it depends on the window height.
- * The 'previewwindow' option is reset, there can be only one preview window.
- */
+/// Copy the options from one winopt_T to another.
+/// Doesn't free the old option values in "to", use clear_winopt() for that.
+/// The 'scroll' option is not copied, because it depends on the window height.
+/// The 'previewwindow' option is reset, there can be only one preview window.
 void copy_winopt(winopt_T *from, winopt_T *to)
 {
     to->wo_arab = from->wo_arab;
@@ -7557,29 +7801,30 @@ void copy_winopt(winopt_T *from, winopt_T *to)
     to->wo_fdl = from->wo_fdl;
     to->wo_fdl_save = from->wo_fdl_save;
     to->wo_fdm = vim_strsave(from->wo_fdm);
+
     to->wo_fdm_save = from->wo_diff_saved
-                      ? vim_strsave(from->wo_fdm_save) : empty_option;
+                      ? vim_strsave(from->wo_fdm_save)
+                      : empty_option;
+
     to->wo_fdn = from->wo_fdn;
     to->wo_fde = vim_strsave(from->wo_fde);
     to->wo_fdt = vim_strsave(from->wo_fdt);
     to->wo_fmr = vim_strsave(from->wo_fmr);
     to->wo_scl = vim_strsave(from->wo_scl);
     to->wo_winhl = vim_strsave(from->wo_winhl);
-    check_winopt(to);             // don't want NULL pointers
+
+    check_winopt(to); // don't want NULL pointers
 }
 
-/*
- * Check string options in a window for a NULL value.
- */
+/// Check string options in a window for a NULL value.
 void check_win_options(win_T *win)
 {
     check_winopt(&win->w_onebuf_opt);
     check_winopt(&win->w_allbuf_opt);
 }
 
-/*
- * Check for NULL pointers in a winopt_T and replace them with empty_option.
- */
+/// Check for NULL pointers in a winopt_T
+/// and replace them with empty_option.
 static void check_winopt(winopt_T *wop)
 {
     check_string_option(&wop->wo_fdi);
@@ -7597,9 +7842,7 @@ static void check_winopt(winopt_T *wop)
     check_string_option(&wop->wo_winhl);
 }
 
-/*
- * Free the allocated memory inside a winopt_T.
- */
+/// Free the allocated memory inside a winopt_T.
 void clear_winopt(winopt_T *wop)
 {
     clear_string_option(&wop->wo_fdi);
@@ -7624,41 +7867,37 @@ void didset_window_options(win_T *wp)
     parse_winhl_opt(wp);
 }
 
-
-/*
- * Copy global option values to local options for one buffer.
- * Used when creating a new buffer and sometimes when entering a buffer.
- * flags:
- * BCO_ENTER    We will enter the buf buffer.
- * BCO_ALWAYS   Always copy the options, but only set b_p_initialized when
- *      appropriate.
- * BCO_NOHELP   Don't copy the values to a help buffer.
- */
+/// Copy global option values to local options for one buffer.
+/// Used when creating a new buffer and sometimes when entering a buffer.
+///
+/// @param buf
+///
+/// @param flags
+/// - BCO_ENTER    We will enter the buf buffer.
+/// - BCO_ALWAYS   Always copy the options, but only
+///                set b_p_initialized when appropriate.
+/// - BCO_NOHELP   Don't copy the values to a help buffer.
 void buf_copy_options(buf_T *buf, int flags)
 {
     int should_copy = TRUE;
-    char_u      *save_p_isk = NULL;           /* init for GCC */
+    char_u *save_p_isk = NULL; // init for GCC
     int dont_do_help;
     int did_isk = FALSE;
 
-    /*
-     * Skip this when the option defaults have not been set yet.  Happens when
-     * main() allocates the first buffer.
-     */
+    // Skip this when the option defaults have not been set yet.
+    // Happens when main() allocates the first buffer.
     if(p_cpo != NULL)
     {
-        /*
-         * Always copy when entering and 'cpo' contains 'S'.
-         * Don't copy when already initialized.
-         * Don't copy when 'cpo' contains 's' and not entering.
-         * 'S'  BCO_ENTER  initialized  's'  should_copy
-         * yes    yes          X     X  TRUE
-         * yes    no          yes    X  FALSE
-         * no      X          yes    X  FALSE
-         *  X     no          no    yes FALSE
-         *  X     no          no    no  TRUE
-         * no     yes         no     X  TRUE
-         */
+        // Always copy when entering and 'cpo' contains 'S'.
+        // Don't copy when already initialized.
+        // Don't copy when 'cpo' contains 's' and not entering.
+        // 'S'  BCO_ENTER  initialized  's'  should_copy
+        // yes    yes          X     X  TRUE
+        // yes    no          yes    X  FALSE
+        // no      X          yes    X  FALSE
+        //  X     no          no    yes FALSE
+        //  X     no          no    no  TRUE
+        // no     yes         no     X  TRUE
         if((vim_strchr(p_cpo, CPO_BUFOPTGLOB) == NULL || !(flags & BCO_ENTER))
            && (buf->b_p_initialized
                || (!(flags & BCO_ENTER)
@@ -7669,26 +7908,25 @@ void buf_copy_options(buf_T *buf, int flags)
 
         if(should_copy || (flags & BCO_ALWAYS))
         {
-            /* Don't copy the options specific to a help buffer when
-            * BCO_NOHELP is given or the options were initialized already
-            * (jumping back to a help file with CTRL-T or CTRL-O) */
+            // Don't copy the options specific to a help buffer when
+            // BCO_NOHELP is given or the options were initialized already
+            // (jumping back to a help file with CTRL-T or CTRL-O)
             dont_do_help = ((flags & BCO_NOHELP) && buf->b_help)
                            || buf->b_p_initialized;
 
-            if(dont_do_help)                  /* don't free b_p_isk */
+            if(dont_do_help) // don't free b_p_isk
             {
                 save_p_isk = buf->b_p_isk;
                 buf->b_p_isk = NULL;
             }
 
-            /*
-             * Always free the allocated strings.
-             * If not already initialized, set 'readonly' and copy 'fileformat'.
-             */
+            // Always free the allocated strings.
+            // If not already initialized, set 'readonly'
+            // and copy 'fileformat'.
             if(!buf->b_p_initialized)
             {
                 free_buf_options(buf, TRUE);
-                buf->b_p_ro = FALSE;                    /* don't copy readonly */
+                buf->b_p_ro = FALSE; // don't copy readonly
                 buf->b_p_fenc = vim_strsave(p_fenc);
                 buf->b_p_ff = vim_strsave(p_ff);
                 buf->b_p_bh = empty_option;
@@ -7735,17 +7973,21 @@ void buf_copy_options(buf_T *buf, int flags)
             buf->b_p_cin = p_cin;
             buf->b_p_cink = vim_strsave(p_cink);
             buf->b_p_cino = vim_strsave(p_cino);
-            /* Don't copy 'filetype', it must be detected */
+
+            // Don't copy 'filetype', it must be detected
             buf->b_p_ft = empty_option;
             buf->b_p_pi = p_pi;
             buf->b_p_cinw = vim_strsave(p_cinw);
             buf->b_p_lisp = p_lisp;
-            /* Don't copy 'syntax', it must be set */
+
+            // Don't copy 'syntax', it must be set
             buf->b_p_syn = empty_option;
             buf->b_p_smc = p_smc;
             buf->b_s.b_syn_isk = empty_option;
             buf->b_s.b_p_spc = vim_strsave(p_spc);
+
             (void)compile_cap_prog(&buf->b_s);
+
             buf->b_s.b_p_spf = vim_strsave(p_spf);
             buf->b_s.b_p_spl = vim_strsave(p_spl);
             buf->b_p_inde = vim_strsave(p_inde);
@@ -7755,12 +7997,14 @@ void buf_copy_options(buf_T *buf, int flags)
             buf->b_p_sua = vim_strsave(p_sua);
             buf->b_p_keymap = vim_strsave(p_keymap);
             buf->b_kmap_state |= KEYMAP_INIT;
-            /* This isn't really an option, but copying the langmap and IME
-            * state from the current buffer is better than resetting it. */
+
+            // This isn't really an option, but copying the langmap and IME
+            // state from the current buffer is better than resetting it.
             buf->b_p_iminsert = p_iminsert;
             buf->b_p_imsearch = p_imsearch;
-            /* options that are normally global but also have a local value
-             * are not copied, start using the global value */
+
+            // options that are normally global but also have a local value
+            // are not copied, start using the global value
             buf->b_p_ar = -1;
             buf->b_p_ul = NO_LOCAL_UNDOLEVEL;
             buf->b_p_bkc = empty_option;
@@ -7783,12 +8027,10 @@ void buf_copy_options(buf_T *buf, int flags)
             buf->b_p_udf = p_udf;
             buf->b_p_lw = empty_option;
 
-            /*
-             * Don't copy the options set by ex_help(), use the saved values,
-             * when going from a help buffer to a non-help buffer.
-             * Don't touch these at all when BCO_NOHELP is used and going from
-             * or to a help buffer.
-             */
+            // Don't copy the options set by ex_help(), use the saved
+            // values, when going from a help buffer to a non-help buffer.
+            // Don't touch these at all when BCO_NOHELP is used and going
+            // from or to a help buffer.
             if(dont_do_help)
             {
                 buf->b_p_isk = save_p_isk;
@@ -7809,17 +8051,15 @@ void buf_copy_options(buf_T *buf, int flags)
             }
         }
 
-        /*
-         * When the options should be copied (ignoring BCO_ALWAYS), set the
-         * flag that indicates that the options have been initialized.
-         */
+        // When the options should be copied (ignoring BCO_ALWAYS),
+        // set the flag that indicates that the options have been initialized.
         if(should_copy)
         {
             buf->b_p_initialized = true;
         }
     }
 
-    check_buf_options(buf);           /* make sure we don't have NULLs */
+    check_buf_options(buf); // make sure we don't have NULLs
 
     if(did_isk)
     {
@@ -7827,12 +8067,11 @@ void buf_copy_options(buf_T *buf, int flags)
     }
 }
 
-/*
- * Reset the 'modifiable' option and its default value.
- */
+/// Reset the 'modifiable' option and its default value.
 void reset_modifiable(void)
 {
     int opt_idx;
+
     curbuf->b_p_ma = false;
     p_ma = false;
     opt_idx = findoption("ma");
@@ -7843,38 +8082,33 @@ void reset_modifiable(void)
     }
 }
 
-/*
- * Set the global value for 'iminsert' to the local value.
- */
+/// Set the global value for 'iminsert' to the local value.
 void set_iminsert_global(void)
 {
     p_iminsert = curbuf->b_p_iminsert;
 }
 
-/*
- * Set the global value for 'imsearch' to the local value.
- */
+/// Set the global value for 'imsearch' to the local value.
 void set_imsearch_global(void)
 {
     p_imsearch = curbuf->b_p_imsearch;
 }
 
 static int expand_option_idx = -1;
-static char_u expand_option_name[5] = {'t', '_', NUL, NUL, NUL};
 static int expand_option_flags = 0;
+static char_u expand_option_name[5] = {'t', '_', NUL, NUL, NUL};
 
-void
-set_context_in_set_cmd(
-    expand_T *xp,
-    char_u *arg,
-    int opt_flags                  /* OPT_GLOBAL and/or OPT_LOCAL */
-)
+
+/// @param xp
+/// @param arg
+/// @param otp_flags  OPT_GLOBAL and/or OPT_LOCAL
+void set_context_in_set_cmd(expand_T *xp, char_u *arg, int opt_flags)
 {
     char_u nextchar;
-    uint32_t flags = 0;           /* init for GCC */
-    int opt_idx = 0;              /* init for GCC */
-    char_u      *p;
-    char_u      *s;
+    uint32_t flags = 0; // init for GCC
+    int opt_idx = 0; // init for GCC
+    char_u *p;
+    char_u *s;
     int is_term_option = FALSE;
     int key;
     expand_option_flags = opt_flags;
@@ -7898,7 +8132,7 @@ set_context_in_set_cmd(
     {
         s = p;
 
-        /* count number of backslashes before ' ' or ',' */
+        // count number of backslashes before ' ' or ','
         if(*p == ' ' || *p == ',')
         {
             while(s > arg && *(s - 1) == '\\')
@@ -7907,7 +8141,7 @@ set_context_in_set_cmd(
             }
         }
 
-        /* break at a space with an even number of backslashes */
+        // break at a space with an even number of backslashes
         if(*p == ' ' && ((p - s) & 1) == 0)
         {
             ++p;
@@ -7934,14 +8168,17 @@ set_context_in_set_cmd(
     if(*arg == '<')
     {
         while(*p != '>')
-            if(*p++ == NUL)               /* expand terminal option name */
+        {
+            // expand terminal option name
+            if(*p++ == NUL)
             {
                 return;
             }
+        }
 
         key = get_special_key_code(arg + 1);
 
-        if(key == 0)                    /* unknown name */
+        if(key == 0) // unknown name
         {
             xp->xp_context = EXPAND_NOTHING;
             return;
@@ -7965,7 +8202,8 @@ set_context_in_set_cmd(
 
             if(*p == NUL)
             {
-                return;    /* expand option name */
+                // expand option name
+                return;
             }
 
             nextchar = *++p;
@@ -8005,8 +8243,9 @@ set_context_in_set_cmd(
         }
     }
 
-    /* handle "-=" and "+=" */
-    if((nextchar == '-' || nextchar == '+' || nextchar == '^') && p[1] == '=')
+    // handle "-=" and "+="
+    if((nextchar == '-' || nextchar == '+' || nextchar == '^')
+       && p[1] == '=')
     {
         ++p;
         nextchar = '=';
@@ -8055,14 +8294,11 @@ set_context_in_set_cmd(
            || p == (char_u *)&p_pp
            || p == (char_u *)&p_rtp
            || p == (char_u *)&p_cdpath
-           || p == (char_u *)&p_vdir
-          )
+           || p == (char_u *)&p_vdir)
         {
             xp->xp_context = EXPAND_DIRECTORIES;
 
-            if(p == (char_u *)&p_path
-               || p == (char_u *)&p_cdpath
-              )
+            if(p == (char_u *)&p_path || p == (char_u *)&p_cdpath)
             {
                 xp->xp_backslash = XP_BS_THREE;
             }
@@ -8075,7 +8311,7 @@ set_context_in_set_cmd(
         {
             xp->xp_context = EXPAND_FILES;
 
-            /* for 'tags' need three backslashes for a space */
+            // for 'tags' need three backslashes for a space
             if(p == (char_u *)&p_tags)
             {
                 xp->xp_backslash = XP_BS_THREE;
@@ -8087,11 +8323,11 @@ set_context_in_set_cmd(
         }
     }
 
-    /* For an option that is a list of file names, find the start of the
-     * last file name. */
+    // For an option that is a list of file names,
+    // find the start of the last file name.
     for(p = arg + STRLEN(arg) - 1; p > xp->xp_pattern; --p)
     {
-        /* count number of backslashes before ' ' or ',' */
+        // count number of backslashes before ' ' or ','
         if(*p == ' ' || *p == ',')
         {
             s = p;
@@ -8101,15 +8337,17 @@ set_context_in_set_cmd(
                 --s;
             }
 
-            if((*p == ' ' && (xp->xp_backslash == XP_BS_THREE && (p - s) < 3))
-               || (*p == ',' && (flags & P_COMMA) && ((p - s) & 1) == 0))
+            if((*p == ' '
+                && (xp->xp_backslash == XP_BS_THREE && (p - s) < 3))
+               || (*p == ','
+                   && (flags & P_COMMA) && ((p - s) & 1) == 0))
             {
                 xp->xp_pattern = p + 1;
                 break;
             }
         }
 
-        /* for 'spellsuggest' start at "file:" */
+        // for 'spellsuggest' start at "file:"
         if(options[opt_idx].var == (char_u *)&p_sps
            && STRNCMP(p, "file:", 5) == 0)
         {
@@ -8121,28 +8359,29 @@ set_context_in_set_cmd(
     return;
 }
 
-int ExpandSettings(expand_T *xp, regmatch_T *regmatch, int *num_file, char_u ***file)
+int ExpandSettings(expand_T *xp,
+                   regmatch_T *regmatch,
+                   int *num_file,
+                   char_u ***file)
 {
-    int num_normal = 0;  // Nr of matching non-term-code settings
+    int num_normal = 0; // Nr of matching non-term-code settings
     int match;
     int count = 0;
-    char_u      *str;
+    char_u *str;
     int loop;
     static char *(names[]) = {"all", "termcap"};
-    int ic = regmatch->rm_ic;             /* remember the ignore-case flag */
+    int ic = regmatch->rm_ic; // remember the ignore-case flag
 
-    /* do this loop twice:
-     * loop == 0: count the number of matching options
-     * loop == 1: copy the matching options into allocated memory
-     */
+    // do this loop twice:
+    // loop == 0: count the number of matching options
+    // loop == 1: copy the matching options into allocated memory
     for(loop = 0; loop <= 1; ++loop)
     {
         regmatch->rm_ic = ic;
 
         if(xp->xp_context != EXPAND_BOOL_SETTINGS)
         {
-            for(match = 0; match < (int)ARRAY_SIZE(names);
-                ++match)
+            for(match = 0; match < (int)ARRAY_SIZE(names); ++match)
                 if(vim_regexec(regmatch, (char_u *)names[match], (colnr_T)0))
                 {
                     if(loop == 0)
@@ -8151,12 +8390,14 @@ int ExpandSettings(expand_T *xp, regmatch_T *regmatch, int *num_file, char_u ***
                     }
                     else
                     {
-                        (*file)[count++] = vim_strsave((char_u *)names[match]);
+                        (*file)[count++] =
+                            vim_strsave((char_u *)names[match]);
                     }
                 }
         }
 
-        for(size_t opt_idx = 0; (str = (char_u *)options[opt_idx].fullname) != NULL;
+        for(size_t opt_idx = 0;
+            (str = (char_u *)options[opt_idx].fullname) != NULL;
             opt_idx++)
         {
             if(options[opt_idx].var == NULL)
@@ -8175,7 +8416,8 @@ int ExpandSettings(expand_T *xp, regmatch_T *regmatch, int *num_file, char_u ***
             if(vim_regexec(regmatch, str, (colnr_T)0)
                || (options[opt_idx].shortname != NULL
                    && vim_regexec(regmatch,
-                                  (char_u *)options[opt_idx].shortname, (colnr_T)0)))
+                                  (char_u *)options[opt_idx].shortname,
+                                  (colnr_T)0)))
             {
                 match = TRUE;
             }
@@ -8217,9 +8459,7 @@ void ExpandOldSetting(int *num_file, char_u ***file)
     *num_file = 0;
     *file = (char_u **)xmalloc(sizeof(char_u *));
 
-    /*
-     * For a terminal key code expand_option_idx is < 0.
-     */
+    // For a terminal key code expand_option_idx is < 0.
     if(expand_option_idx < 0)
     {
         expand_option_idx = findoption((const char *)expand_option_name);
@@ -8227,8 +8467,10 @@ void ExpandOldSetting(int *num_file, char_u ***file)
 
     if(expand_option_idx >= 0)
     {
-        /* put string of option value in NameBuff */
-        option_value2string(&options[expand_option_idx], expand_option_flags);
+        // put string of option value in NameBuff
+        option_value2string(&options[expand_option_idx],
+                            expand_option_flags);
+
         var = NameBuff;
     }
     else if(var == NULL)
@@ -8236,14 +8478,15 @@ void ExpandOldSetting(int *num_file, char_u ***file)
         var = (char_u *)"";
     }
 
-    /* A backslash is required before some characters.  This is the reverse of
-     * what happens in do_set(). */
+    // A backslash is required before some characters.
+    // This is the reverse of what happens in do_set().
     char_u *buf = vim_strsave_escaped(var, escape_chars);
-#ifdef BACKSLASH_IN_FILENAME
 
-    /* For MS-Windows et al. we don't double backslashes at the start and
-     * before a file name character. */
+#ifdef BACKSLASH_IN_FILENAME
+    // For MS-Windows et al. we don't double backslashes
+    // at the start and before a file name character.
     for(var = buf; *var != NUL; mb_ptr_adv(var))
+    {
         if(var[0] == '\\' && var[1] == '\\'
            && expand_option_idx >= 0
            && (options[expand_option_idx].flags & P_EXPAND)
@@ -8252,23 +8495,21 @@ void ExpandOldSetting(int *num_file, char_u ***file)
         {
             STRMOVE(var, var + 1);
         }
-
+    }
 #endif
+
     *file[0] = buf;
     *num_file = 1;
 }
 
-/*
- * Get the value for the numeric or string option *opp in a nice format into
- * NameBuff[].  Must not be called with a hidden option!
- */
-static void
-option_value2string(
-    vimoption_T *opp,
-    int opt_flags                          /* OPT_GLOBAL and/or OPT_LOCAL */
-)
+/// Get the value for the numeric or string option *opp in a nice
+/// format into NameBuff[]. Must not be called with a hidden option!
+///
+/// @param opp
+/// @param opt_flags  OPT_GLOBAL and/or OPT_LOCAL
+static void option_value2string(vimoption_T *opp, int opt_flags)
 {
-    char_u      *varp;
+    char_u *varp;
     varp = get_varp_scope(opp, opt_flags);
 
     if(opp->flags & P_NUM)
@@ -8277,7 +8518,9 @@ option_value2string(
 
         if(wc_use_keyname(varp, &wc))
         {
-            STRLCPY(NameBuff, get_special_key_name((int)wc, 0), sizeof(NameBuff));
+            STRLCPY(NameBuff,
+                    get_special_key_name((int)wc, 0),
+                    sizeof(NameBuff));
         }
         else if(wc != 0)
         {
@@ -8291,11 +8534,11 @@ option_value2string(
                      (int64_t)*(long *)varp);
         }
     }
-    else      // P_STRING
+    else  // P_STRING
     {
         varp = *(char_u **)(varp);
 
-        if(varp == NULL)                        /* just in case */
+        if(varp == NULL) // just in case
         {
             NameBuff[0] = NUL;
         }
@@ -8303,7 +8546,7 @@ option_value2string(
         {
             home_replace(NULL, varp, NameBuff, MAXPATHL, FALSE);
         }
-        /* Translate 'pastetoggle' into special key names */
+        // Translate 'pastetoggle' into special key names
         else if((char_u **)opp->var == &p_pt)
         {
             str2specialbuf(p_pt, NameBuff, MAXPATHL);
@@ -8315,11 +8558,11 @@ option_value2string(
     }
 }
 
-/*
- * Return TRUE if "varp" points to 'wildchar' or 'wildcharm' and it can be
- * printed as a keyname.
- * "*wcp" is set to the value of the option if it's 'wildchar' or 'wildcharm'.
- */
+/// Return TRUE if "varp" points to 'wildchar' or 'wildcharm'
+/// and it can be printed as a keyname.
+///
+/// "*wcp" is set to the value of the option if it's 'wildchar'
+/// or 'wildcharm'.
 static int wc_use_keyname(char_u *varp, long *wcp)
 {
     if(((long *)varp == &p_wc) || ((long *)varp == &p_wcm))
@@ -8335,21 +8578,19 @@ static int wc_use_keyname(char_u *varp, long *wcp)
     return FALSE;
 }
 
-/*
- * Any character has an equivalent 'langmap' character.  This is used for
- * keyboards that have a special language mode that sends characters above
- * 128 (although other characters can be translated too).  The "to" field is a
- * Vim command character.  This avoids having to switch the keyboard back to
- * ASCII mode when leaving Insert mode.
- *
- * langmap_mapchar[] maps any of 256 chars to an ASCII char used for Vim
- * commands.
- * langmap_mapga.ga_data is a sorted table of langmap_entry_T.
- * This does the same as langmap_mapchar[] for characters >= 256.
- */
-/*
- * With multi-byte support use growarray for 'langmap' chars >= 256
- */
+// Any character has an equivalent 'langmap' character.
+// This is used for keyboards that have a special language
+// mode that sends characters above 128 (although other characters
+// can be translated too). The "to" field is a Vim command character.
+// This avoids having to switch the keyboard back to ASCII mode when
+// leaving Insert mode.
+//
+// langmap_mapchar[] maps any of 256 chars to an ASCII char used for
+// Vim commands.
+// langmap_mapga.ga_data is a sorted table of langmap_entry_T.
+// This does the same as langmap_mapchar[] for characters >= 256.
+
+/// With multi-byte support use growarray for 'langmap' chars >= 256
 typedef struct
 {
     int from;
@@ -8358,18 +8599,19 @@ typedef struct
 
 static garray_T langmap_mapga = GA_EMPTY_INIT_VALUE;
 
-/*
- * Search for an entry in "langmap_mapga" for "from".  If found set the "to"
- * field.  If not found insert a new entry at the appropriate location.
- */
+/// Search for an entry in @b langmap_mapga for @b from.
+/// If found set the @b to field.
+/// If not found insert a new entry at the appropriate location.
 static void langmap_set_entry(int from, int to)
 {
     langmap_entry_T *entries = (langmap_entry_T *)(langmap_mapga.ga_data);
     unsigned int a = 0;
+
     assert(langmap_mapga.ga_len >= 0);
+
     unsigned int b = (unsigned int)langmap_mapga.ga_len;
 
-    /* Do a binary search for an existing entry. */
+    // Do a binary search for an existing entry.
     while(a != b)
     {
         unsigned int i = (a + b) / 2;
@@ -8392,23 +8634,25 @@ static void langmap_set_entry(int from, int to)
     }
 
     ga_grow(&langmap_mapga, 1);
-    /* insert new entry at position "a" */
+
+    // insert new entry at position "a"
     entries = (langmap_entry_T *)(langmap_mapga.ga_data) + a;
-    memmove(entries + 1, entries,
+
+    memmove(entries + 1,
+            entries,
             ((unsigned int)langmap_mapga.ga_len - a) * sizeof(langmap_entry_T));
+
     ++langmap_mapga.ga_len;
     entries[0].from = from;
     entries[0].to = to;
 }
 
-/*
- * Apply 'langmap' to multi-byte character "c" and return the result.
- */
+/// Apply 'langmap' to multi-byte character "c" and return the result.
 int langmap_adjust_mb(int c)
 {
-    langmap_entry_T *entries = (langmap_entry_T *)(langmap_mapga.ga_data);
     int a = 0;
     int b = langmap_mapga.ga_len;
+    langmap_entry_T *entries = (langmap_entry_T *)(langmap_mapga.ga_data);
 
     while(a != b)
     {
@@ -8417,7 +8661,8 @@ int langmap_adjust_mb(int c)
 
         if(d == 0)
         {
-            return entries[i].to;    /* found matching entry */
+            // found matching entry
+            return entries[i].to;
         }
 
         if(d < 0)
@@ -8430,34 +8675,37 @@ int langmap_adjust_mb(int c)
         }
     }
 
-    return c;    /* no entry found, return "c" unmodified */
+    // no entry found,
+    // return "c" unmodified
+    return c;
 }
 
 static void langmap_init(void)
 {
     for(int i = 0; i < 256; i++)
     {
-        langmap_mapchar[i] = (char_u)i; // init with a one-to-one map
+        // init with a one-to-one map
+        langmap_mapchar[i] = (char_u)i;
     }
 
-    ga_init(&langmap_mapga, sizeof(langmap_entry_T), 8); // init size 8 enough
+    // init size 8 enough
+    ga_init(&langmap_mapga, sizeof(langmap_entry_T), 8);
 }
 
-/*
- * Called when langmap option is set; the language map can be
- * changed at any time!
- */
+/// Called when langmap option is set;
+/// the language map can be changed at any time!
 static void langmap_set(void)
 {
-    char_u  *p;
-    char_u  *p2;
+    char_u *p;
+    char_u *p2;
     int from, to;
-    ga_clear(&langmap_mapga);                 /* clear the previous map first */
-    langmap_init();                           /* back to one-to-one map */
+    ga_clear(&langmap_mapga); // clear the previous map first
+    langmap_init(); // back to one-to-one map
 
     for(p = p_langmap; p[0] != NUL;)
     {
-        for(p2 = p; p2[0] != NUL && p2[0] != ',' && p2[0] != ';';
+        for(p2 = p;
+            p2[0] != NUL && p2[0] != ',' && p2[0] != ';';
             mb_ptr_adv(p2))
         {
             if(p2[0] == '\\' && p2[1] != NUL)
@@ -8468,11 +8716,11 @@ static void langmap_set(void)
 
         if(p2[0] == ';')
         {
-            ++p2;    /* abcd;ABCD form, p2 points to A */
+            ++p2; // abcd;ABCD form, p2 points to A
         }
         else
         {
-            p2 = NULL;    /* aAbBcCdD form, p2 is NULL */
+            p2 = NULL; // aAbBcCdD form, p2 is NULL
         }
 
         while(p[0])
@@ -8520,8 +8768,9 @@ static void langmap_set(void)
 
             if(to == NUL)
             {
-                EMSG2(_("E357: 'langmap': Matching character missing for %s"),
-                      transchar(from));
+                EMSG2(_("E357: 'langmap': Matching "
+                        "character missing for %s"), transchar(from));
+
                 return;
             }
 
@@ -8535,7 +8784,7 @@ static void langmap_set(void)
                 langmap_mapchar[from & 255] = (char_u)to;
             }
 
-            /* Advance to next pair */
+            // Advance to next pair
             mb_ptr_adv(p);
 
             if(p2 != NULL)
@@ -8550,9 +8799,9 @@ static void langmap_set(void)
                     {
                         if(p[0] != ',')
                         {
-                            EMSG2(_(
-                                      "E358: 'langmap': Extra characters after semicolon: %s"),
-                                  p);
+                            EMSG2(_("E358: 'langmap': Extra "
+                                    "characters after semicolon: %s"), p);
+
                             return;
                         }
 
@@ -8566,10 +8815,8 @@ static void langmap_set(void)
     }
 }
 
-/*
- * Return TRUE if format option 'x' is in effect.
- * Take care of no formatting when 'paste' is set.
- */
+/// Return TRUE if format option 'x' is in effect.
+/// Take care of no formatting when 'paste' is set.
 int has_format_option(int x)
 {
     if(p_paste)
@@ -8590,9 +8837,7 @@ bool shortmess(int x)
                     && vim_strchr((char_u *)SHM_ALL_ABBREVIATIONS, x) != NULL)));
 }
 
-/*
- * paste_option_changed() - Called after p_paste was set or reset.
- */
+/// Called after p_paste was set or reset.
 static void paste_option_changed(void)
 {
     static int old_p_paste = FALSE;
@@ -8604,13 +8849,11 @@ static void paste_option_changed(void)
 
     if(p_paste)
     {
-        /*
-         * Paste switched from off to on.
-         * Save the current values, so they can be restored later.
-         */
+        // Paste switched from off to on.
+        // Save the current values, so they can be restored later.
         if(!old_p_paste)
         {
-            /* save options for each buffer */
+            // save options for each buffer
             FOR_ALL_BUFFERS(buf)
             {
                 buf->b_p_tw_nopaste = buf->b_p_tw;
@@ -8619,12 +8862,14 @@ static void paste_option_changed(void)
                 buf->b_p_ai_nopaste = buf->b_p_ai;
                 buf->b_p_et_nopaste = buf->b_p_et;
             }
+
             // save global options
             save_sm = p_sm;
             save_sta = p_sta;
             save_ru = p_ru;
             save_ri = p_ri;
             save_hkmap = p_hkmap;
+
             // save global values for local buffer options
             p_ai_nopaste = p_ai;
             p_et_nopaste = p_et;
@@ -8633,41 +8878,41 @@ static void paste_option_changed(void)
             p_wm_nopaste = p_wm;
         }
 
-        // Always set the option values, also when 'paste' is set when it is
-        // already on.
+        // Always set the option values, also
+        // when 'paste' is set when it is already on.
         // set options for each buffer
         FOR_ALL_BUFFERS(buf)
         {
-            buf->b_p_tw = 0;              // textwidth is 0
-            buf->b_p_wm = 0;              // wrapmargin is 0
-            buf->b_p_sts = 0;             // softtabstop is 0
-            buf->b_p_ai = 0;              // no auto-indent
-            buf->b_p_et = 0;              // no expandtab
+            buf->b_p_tw = 0; // textwidth is 0
+            buf->b_p_wm = 0; // wrapmargin is 0
+            buf->b_p_sts = 0; // softtabstop is 0
+            buf->b_p_ai = 0; // no auto-indent
+            buf->b_p_et = 0; // no expandtab
         }
+
         // set global options
-        p_sm = 0;                       // no showmatch
-        p_sta = 0;                      // no smarttab
+        p_sm = 0; // no showmatch
+        p_sta = 0; // no smarttab
 
         if(p_ru)
         {
-            status_redraw_all();          // redraw to remove the ruler
+            status_redraw_all(); // redraw to remove the ruler
         }
 
-        p_ru = 0;                       // no ruler
-        p_ri = 0;                       // no reverse insert
-        p_hkmap = 0;                    // no Hebrew keyboard
+        p_ru = 0; // no ruler
+        p_ri = 0; // no reverse insert
+        p_hkmap = 0; // no Hebrew keyboard
+
         // set global values for local buffer options
         p_tw = 0;
         p_wm = 0;
         p_sts = 0;
         p_ai = 0;
     }
-    /*
-     * Paste switched from on to off: Restore saved values.
-     */
+    // Paste switched from on to off: Restore saved values.
     else if(old_p_paste)
     {
-        /* restore options for each buffer */
+        // restore options for each buffer
         FOR_ALL_BUFFERS(buf)
         {
             buf->b_p_tw = buf->b_p_tw_nopaste;
@@ -8676,18 +8921,20 @@ static void paste_option_changed(void)
             buf->b_p_ai = buf->b_p_ai_nopaste;
             buf->b_p_et = buf->b_p_et_nopaste;
         }
-        /* restore global options */
+
+        // restore global options
         p_sm = save_sm;
         p_sta = save_sta;
 
         if(p_ru != save_ru)
         {
-            status_redraw_all();          // redraw to draw the ruler
+            status_redraw_all(); // redraw to draw the ruler
         }
 
         p_ru = save_ru;
         p_ri = save_ri;
         p_hkmap = save_hkmap;
+
         // set global values for local buffer options
         p_ai = p_ai_nopaste;
         p_et = p_et_nopaste;
@@ -8699,9 +8946,9 @@ static void paste_option_changed(void)
     old_p_paste = p_paste;
 }
 
-/// Check and set user current used configuration file environment variable.
-/// When set it is convenient for user to edit it, the form is:
-/// <b>:edit $USRNVIMRC</b>
+/// Check and set user current used configuration file
+/// environment variable. When set it is convenient for
+/// user to edit it, the form is: <b>:edit $USRNVIMRC</b>
 void check_and_set_usrnvimrc(char_u *fname)
 {
     if(fname == NULL)
@@ -8730,10 +8977,10 @@ void check_and_set_usrnvimrc(char_u *fname)
     }
 }
 
-/// Check and set the current dynamic configuration file environment variable.
-/// This can be used to set project related configuration.
-/// When set it is convenient for user to edit it, the form is:
-/// <b>:edit $DYNNVIMRC</b>
+/// Check and set the current dynamic configuration file
+/// environment variable. This can be used to set project
+/// related configuration. When set it is convenient for
+/// user to edit it, the form is: <b>:edit $DYNNVIMRC</b>
 void check_and_set_dynnvimrc(char_u *fname)
 {
     if(fname == NULL)
@@ -8772,7 +9019,7 @@ static bool option_was_set(const char *name)
     int idx;
     idx = findoption(name);
 
-    if(idx < 0)     // Unknown option.
+    if(idx < 0) // Unknown option.
     {
         return false;
     }
@@ -8784,13 +9031,11 @@ static bool option_was_set(const char *name)
     return false;
 }
 
-/*
- * fill_breakat_flags() -- called when 'breakat' changes value.
- */
+/// called when 'breakat' changes value.
 static void fill_breakat_flags(void)
 {
-    char_u      *p;
     int i;
+    char_u *p;
 
     for(i = 0; i < 256; i++)
     {
@@ -8798,40 +9043,43 @@ static void fill_breakat_flags(void)
     }
 
     if(p_breakat != NULL)
+    {
         for(p = p_breakat; *p; p++)
         {
             breakat_flags[*p] = TRUE;
         }
+    }
 }
 
-/*
- * Check an option that can be a range of string values.
- *
- * Return OK for correct value, FAIL otherwise.
- * Empty is always OK.
- */
-static int check_opt_strings(
-    char_u *val,
-    char **values,
-    int list                   /* when TRUE: accept a list of values */
-)
+/// Check an option that can be a range of string values.
+///
+/// @param val
+/// @param values
+/// @param list    when TRUE: accept a list of values
+///
+/// @return
+/// - OK for correct value, FAIL otherwise.
+/// - Empty is always OK.
+static int check_opt_strings(char_u *val, char **values, int list)
 {
     return opt_strings_flags(val, values, NULL, list);
 }
 
-/*
- * Handle an option that can be a range of string values.
- * Set a flag in "*flagp" for each string present.
- *
- * Return OK for correct value, FAIL otherwise.
- * Empty is always OK.
- */
-static int opt_strings_flags(
-    char_u *val,             /* new value */
-    char **values,           /* array of valid string values */
-    unsigned *flagp,
-    bool list                /* when TRUE: accept a list of values */
-)
+/// Handle an option that can be a range of string values.
+/// Set a flag in "*flagp" for each string present.
+///
+/// @param val     new value
+/// @param values  array of valid string values
+/// @param flagp
+/// @param list    when TRUE: accept a list of values
+///
+/// @return
+/// - OK for correct value, FAIL otherwise.
+/// - Empty is always OK.
+static int opt_strings_flags(char_u *val,
+                             char **values,
+                             unsigned *flagp,
+                             bool list)
 {
     unsigned int new_flags = 0;
 
@@ -8839,7 +9087,8 @@ static int opt_strings_flags(
     {
         for(unsigned int i = 0;; ++i)
         {
-            if(values[i] == NULL)             /* val not found in values[] */
+            // val not found in values[]
+            if(values[i] == NULL)
             {
                 return FAIL;
             }
@@ -8852,7 +9101,7 @@ static int opt_strings_flags(
                 val += len + (val[len] == ',');
                 assert(i < sizeof(1U) * 8);
                 new_flags |= (1U << i);
-                break;                  /* check next item in val list */
+                break; // check next item in val list
             }
         }
     }
@@ -8865,15 +9114,13 @@ static int opt_strings_flags(
     return OK;
 }
 
-/*
- * Read the 'wildmode' option, fill wim_flags[].
- */
+/// Read the 'wildmode' option, fill wim_flags[].
 static int check_opt_wim(void)
 {
-    char_u new_wim_flags[4];
-    char_u      *p;
     int i;
     int idx = 0;
+    char_u *p;
+    char_u new_wim_flags[4];
 
     for(i = 0; i < 4; ++i)
     {
@@ -8883,7 +9130,7 @@ static int check_opt_wim(void)
     for(p = p_wim; *p; ++p)
     {
         for(i = 0; ASCII_ISALPHA(p[i]); ++i)
-            ;
+        { /* empty body */ }
 
         if(p[i] != NUL && p[i] != ',' && p[i] != ':')
         {
@@ -8925,14 +9172,14 @@ static int check_opt_wim(void)
         }
     }
 
-    /* fill remaining entries with last flag */
+    // fill remaining entries with last flag
     while(idx < 3)
     {
         new_wim_flags[idx + 1] = new_wim_flags[idx];
         ++idx;
     }
 
-    /* only when there are no errors, wim_flags[] is changed */
+    // only when there are no errors, wim_flags[] is changed
     for(i = 0; i < 4; ++i)
     {
         wim_flags[i] = new_wim_flags[i];
@@ -8941,11 +9188,9 @@ static int check_opt_wim(void)
     return OK;
 }
 
-/*
- * Check if backspacing over something is allowed.
- * The parameter what is one of the following: whatBS_INDENT, BS_EOL
- * or BS_START
- */
+/// Check if backspacing over something is allowed.
+/// The parameter what is one of the following:
+/// whatBS_INDENT, BS_EOL or BS_START
 bool can_bs(int what)
 {
     switch(*p_bs)
@@ -8963,17 +9208,16 @@ bool can_bs(int what)
     return vim_strchr(p_bs, what) != NULL;
 }
 
-/*
- * Save the current values of 'fileformat' and 'fileencoding', so that we know
- * the file must be considered changed when the value is different.
- */
+/// Save the current values of 'fileformat' and 'fileencoding',
+/// so that we know the file must be considered changed when
+/// the value is different.
 void save_file_ff(buf_T *buf)
 {
     buf->b_start_ffc = *buf->b_p_ff;
     buf->b_start_eol = buf->b_p_eol;
     buf->b_start_bomb = buf->b_p_bomb;
 
-    /* Only use free/alloc when necessary, they take time. */
+    // Only use free/alloc when necessary, they take time.
     if(buf->b_start_fenc == NULL
        || STRCMP(buf->b_start_fenc, buf->b_p_fenc) != 0)
     {
@@ -8982,18 +9226,14 @@ void save_file_ff(buf_T *buf)
     }
 }
 
-/*
- * Return TRUE if 'fileformat' and/or 'fileencoding' has a different value
- * from when editing started (save_file_ff() called).
- * Also when 'endofline' was changed and 'binary' is set, or when 'bomb' was
- * changed and 'binary' is not set.
- * Also when 'endofline' was changed and 'fixeol' is not set.
- * When "ignore_empty" is true don't consider a new, empty buffer to be
- * changed.
- */
+/// Return TRUE if 'fileformat' and/or 'fileencoding' has a different value
+/// from when editing started (save_file_ff() called). Also when 'endofline'
+/// was changed and 'binary' is set, or when 'bomb' was changed and 'binary'
+/// is not set. Also when 'endofline' was changed and 'fixeol' is not set.
+/// When "ignore_empty" is true don't consider a new, empty buffer to be changed.
 bool file_ff_differs(buf_T *buf, bool ignore_empty)
 {
-    /* In a buffer that was never loaded the options are not valid. */
+    // In a buffer that was never loaded the options are not valid.
     if(buf->b_flags & BF_NEVERLOADED)
     {
         return FALSE;
@@ -9012,12 +9252,14 @@ bool file_ff_differs(buf_T *buf, bool ignore_empty)
         return true;
     }
 
-    if((buf->b_p_bin || !buf->b_p_fixeol) && buf->b_start_eol != buf->b_p_eol)
+    if((buf->b_p_bin || !buf->b_p_fixeol)
+       && buf->b_start_eol != buf->b_p_eol)
     {
         return true;
     }
 
-    if(!buf->b_p_bin && buf->b_start_bomb != buf->b_p_bomb)
+    if(!buf->b_p_bin
+       && buf->b_start_bomb != buf->b_p_bomb)
     {
         return TRUE;
     }
@@ -9030,18 +9272,14 @@ bool file_ff_differs(buf_T *buf, bool ignore_empty)
     return STRCMP(buf->b_start_fenc, buf->b_p_fenc) != 0;
 }
 
-/*
- * return OK if "p" is a valid fileformat name, FAIL otherwise.
- */
+/// return OK if @b p is a valid fileformat name, FAIL otherwise.
 int check_ff_value(char_u *p)
 {
     return check_opt_strings(p, p_ff_values, FALSE);
 }
 
-/*
- * Return the effective shiftwidth value for current buffer, using the
- * 'tabstop' value when 'shiftwidth' is zero.
- */
+/// Return the effective shiftwidth value for current buffer,
+/// using the 'tabstop' value when 'shiftwidth' is zero.
 int get_sw_value(buf_T *buf)
 {
     long result = buf->b_p_sw ? buf->b_p_sw : buf->b_p_ts;
@@ -9049,8 +9287,8 @@ int get_sw_value(buf_T *buf)
     return (int)result;
 }
 
-// Return the effective softtabstop value for the current buffer,
-// using the effective shiftwidth  value when 'softtabstop' is negative.
+/// Return the effective softtabstop value for the current buffer,
+/// using the effective shiftwidth value when 'softtabstop' is negative.
 int get_sts_value(void)
 {
     long result = curbuf->b_p_sts < 0 ? get_sw_value(curbuf) : curbuf->b_p_sts;
@@ -9058,15 +9296,14 @@ int get_sts_value(void)
     return (int)result;
 }
 
-/*
- * Check matchpairs option for "*initc".
- * If there is a match set "*initc" to the matching character and "*findc" to
- * the opposite character.  Set "*backwards" to the direction.
- * When "switchit" is TRUE swap the direction.
- */
+/// Check matchpairs option for "*initc".
+///
+/// If there is a match set "*initc" to the matching character and
+/// "*findc" to the opposite character. Set "*backwards" to the direction.
+/// When "switchit" is TRUE swap the direction.
 void find_mps_values(int *initc, int *findc, int *backwards, int switchit)
 {
-    char_u      *ptr;
+    char_u *ptr;
     ptr = curbuf->b_p_mps;
 
     while(*ptr != NUL)
@@ -9202,8 +9439,9 @@ static bool briopt_check(win_T *wp)
     }
 
     wp->w_p_brishift = bri_shift;
-    wp->w_p_brimin   = bri_min;
-    wp->w_p_brisbr   = bri_sbr;
+    wp->w_p_brimin = bri_min;
+    wp->w_p_brisbr = bri_sbr;
+
     return true;
 }
 
@@ -9215,7 +9453,8 @@ unsigned int get_bkc_value(buf_T *buf)
     return buf->b_bkc_flags ? buf->b_bkc_flags : bkc_flags;
 }
 
-/// Return the current end-of-line type: EOL_DOS, EOL_UNIX or EOL_MAC.
+/// Return the current end-of-line type:
+/// EOL_DOS, EOL_UNIX or EOL_MAC.
 int get_fileformat(buf_T *buf)
 {
     int c = *buf->b_p_ff;
@@ -9233,8 +9472,8 @@ int get_fileformat(buf_T *buf)
     return EOL_DOS;
 }
 
-/// Like get_fileformat(), but override 'fileformat' with "p" for "++opt=val"
-/// argument.
+/// Like get_fileformat(), but override 'fileformat'
+/// with "p" for "++opt=val" argument.
 ///
 /// @param eap  can be NULL!
 int get_fileformat_force(buf_T *buf, exarg_T *eap)
@@ -9288,8 +9527,8 @@ int default_fileformat(void)
 ///
 /// Sets 'fileformat'.
 ///
-/// @param eol_style End-of-line style.
-/// @param opt_flags OPT_LOCAL and/or OPT_GLOBAL
+/// @param eol_style  End-of-line style.
+/// @param opt_flags  OPT_LOCAL and/or OPT_GLOBAL
 void set_fileformat(int eol_style, int opt_flags)
 {
     char *p = NULL;
@@ -9322,7 +9561,7 @@ void set_fileformat(int eol_style, int opt_flags)
     // This may cause the buffer to become (un)modified.
     check_status(curbuf);
     redraw_tabline = true;
-    need_maketitle = true;  // Set window title later.
+    need_maketitle = true; // Set window title later.
 }
 
 /// Skip to next part of an option argument: skip space and comma
@@ -9341,15 +9580,17 @@ char_u *skip_to_option_part(const char_u *p)
     return (char_u *)p;
 }
 
-/// Isolate one part of a string option separated by `sep_chars`.
+/// Isolate one part of a string option separated by @b sep_chars.
 ///
 /// @param[in,out]  option    advanced to the next part
 /// @param[in,out]  buf       copy of the isolated part
 /// @param[in]      maxlen    length of `buf`
 /// @param[in]      sep_chars chars that separate the option parts
 ///
-/// @return length of `*option`
-size_t copy_option_part(char_u **option, char_u *buf, size_t maxlen,
+/// @return length of *option
+size_t copy_option_part(char_u **option,
+                        char_u *buf,
+                        size_t maxlen,
                         char *sep_chars)
 {
     size_t len = 0;
@@ -9379,13 +9620,16 @@ size_t copy_option_part(char_u **option, char_u *buf, size_t maxlen,
 
     buf[len] = NUL;
 
-    if(*p != NUL && *p != ',')     // skip non-standard separator
+    // skip non-standard separator
+    if(*p != NUL && *p != ',')
     {
         p++;
     }
 
-    p = skip_to_option_part(p);    // p points to next file name
+    // p points to next file name
+    p = skip_to_option_part(p);
     *option = p;
+
     return len;
 }
 
@@ -9395,7 +9639,7 @@ int csh_like_shell(void)
     return strstr((char *)path_tail(p_sh), "csh") != NULL;
 }
 
-/// Return true when window "wp" has a column to draw signs in.
+/// Return true when window @b wp has a column to draw signs in.
 bool signcolumn_on(win_T *wp)
 {
     if(*wp->w_p_scl == 'n')
@@ -9430,12 +9674,17 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 if(opt->flags & P_STRING)
                 {
-                    tv_dict_add_str(d, opt->fullname, strlen(opt->fullname),
+                    tv_dict_add_str(d,
+                                    opt->fullname,
+                                    strlen(opt->fullname),
                                     *(const char **)varp);
                 }
                 else
                 {
-                    tv_dict_add_nr(d, opt->fullname, strlen(opt->fullname), *varp);
+                    tv_dict_add_nr(d,
+                                   opt->fullname,
+                                   strlen(opt->fullname),
+                                   *varp);
                 }
             }
         }

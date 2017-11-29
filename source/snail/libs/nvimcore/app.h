@@ -18,7 +18,8 @@ class App: public QApplication
     Q_OBJECT
 public:
     static NvimConnector *createConnector(const QCommandLineParser &p);
-    static void processCliOptions(QCommandLineParser &p, const QStringList &arguments);
+    static void processCliOptions(QCommandLineParser &p,
+                                  const QStringList &arguments);
 
     App(int &argc, char **argv);
     bool event(QEvent *event);
@@ -28,6 +29,6 @@ signals:
     void openFilesTriggered(const QList<QUrl>);
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
 #endif // SNAIL_LIBS_NVIMCORE_APP_H

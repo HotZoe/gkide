@@ -4,7 +4,7 @@
 #define NVIM_VIM_H
 
 #include "nvim/types.h"
-#include "nvim/pos.h"   // for linenr_T, MAXCOL, etc...
+#include "nvim/pos.h"
 
 // Some defines from the old feature.h
 #define MAX_MSG_HIST_LEN  200
@@ -23,9 +23,11 @@
     #error "Configure did not run properly."
 #endif
 
-#include "nvim/os/os_defs.h" // bring lots of system header files
+// bring lots of system header files
+#include "nvim/os/os_defs.h"
 
-/// length of a buffer to store a number in ASCII (64 bits binary + NUL)
+/// length of a buffer to store a
+/// number in ASCII (64 bits binary + NUL)
 enum
 {
     NUMBUFLEN = 65
@@ -54,43 +56,47 @@ enum
 // and cmdline/insert+replace mode. This is used for mapping. If none of
 // these bits are set, no mapping is done.
 // The upper bits are used to distinguish between other states.
-#define NORMAL          0x01  ///< Normal mode, command expected
-#define VISUAL          0x02  ///< Visual mode - use get_real_state()
-#define OP_PENDING      0x04  ///< Normal mode, operator is pending - use get_real_state()
-#define CMDLINE         0x08  ///< Editing command line
-#define INSERT          0x10  ///< Insert mode
-#define LANGMAP         0x20  ///< Language mapping, can be combined with INSERT and CMDLINE
-#define REPLACE_FLAG    0x40  ///< Replace mode flag
+#define NORMAL        0x01  ///< Normal mode, command expected
+#define VISUAL        0x02  ///< Visual mode - use get_real_state()
+#define OP_PENDING    0x04  ///< Normal mode, operator is pending
+                            ///< use get_real_state()
+#define CMDLINE       0x08  ///< Editing command line
+#define INSERT        0x10  ///< Insert mode
+#define LANGMAP       0x20  ///< Language mapping, can be combined
+                            ///< with INSERT and CMDLINE
+#define REPLACE_FLAG  0x40  ///< Replace mode flag
 
 #define REPLACE         (REPLACE_FLAG + INSERT)
 #define VREPLACE_FLAG   0x80  ///< Virtual-replace mode flag
 
-#define VREPLACE        (REPLACE_FLAG + VREPLACE_FLAG + INSERT)
-#define LREPLACE        (REPLACE_FLAG + LANGMAP)
+#define VREPLACE      (REPLACE_FLAG + VREPLACE_FLAG + INSERT)
+#define LREPLACE      (REPLACE_FLAG + LANGMAP)
 
-#define NORMAL_BUSY     (0x100 + NORMAL) ///< Normal mode, busy with a command
-#define HITRETURN       (0x200 + NORMAL) ///< waiting for return or command
-#define ASKMORE          0x300           ///< Asking if you want --more--
-#define SETWSIZE         0x400           ///< window size has changed
-#define ABBREV           0x500           ///< abbreviation instead of mapping
-#define EXTERNCMD        0x600           ///< executing an external command
-#define SHOWMATCH       (0x700 + INSERT) ///< show matching paren
-#define CONFIRM          0x800           ///< ":confirm" prompt
-#define SELECTMODE       0x1000          ///< Select mode, only for mappings
-#define TERM_FOCUS       0x2000          ///< Terminal focus mode
-#define CMDPREVIEW       0x4000          ///< Showing 'inccommand' command "live" preview.
+#define NORMAL_BUSY   (0x100 + NORMAL) ///< Normal mode, busy with a command
+#define HITRETURN     (0x200 + NORMAL) ///< waiting for return or command
+#define SHOWMATCH     (0x700 + INSERT) ///< show matching paren
+
+#define ASKMORE        0x300   ///< Asking if you want --more--
+#define SETWSIZE       0x400   ///< window size has changed
+#define ABBREV         0x500   ///< abbreviation instead of mapping
+#define EXTERNCMD      0x600   ///< executing an external command
+#define CONFIRM        0x800   ///< ":confirm" prompt
+#define SELECTMODE     0x1000  ///< Select mode, only for mappings
+#define TERM_FOCUS     0x2000  ///< Terminal focus mode
+#define CMDPREVIEW     0x4000  ///< Showing 'inccommand' command "live" preview.
 
 /// all mode bits used for mapping
-#define MAP_ALL_MODES   (0x3f | SELECTMODE | TERM_FOCUS)
+#define MAP_ALL_MODES  (0x3f | SELECTMODE | TERM_FOCUS)
 
 /// Directions
 typedef enum
 {
+    BACKWARD_FILE = (-3),
+    BACKWARD = (-1),
     kDirectionNotSet = 0,
     FORWARD = 1,
-    BACKWARD = (-1),
     FORWARD_FILE = 3,
-    BACKWARD_FILE = (-3),
+
 } Direction;
 
 #undef OK
@@ -161,8 +167,8 @@ enum
 // NOTE: This depends on size of struct block0! It's not done with a sizeof(),
 // because struct block0 is defined in memline.c (Sorry).
 // The maximal block size is arbitrary.
-#define MIN_SWAP_PAGE_SIZE 1048
-#define MAX_SWAP_PAGE_SIZE 50000
+#define MIN_SWAP_PAGE_SIZE    1048
+#define MAX_SWAP_PAGE_SIZE    50000
 
 // note: this is an int, not a long!
 #if !defined(TRUE) && !defined(FALSE)
@@ -171,18 +177,18 @@ enum
 #endif
 
 /// sometimes used for a variant on TRUE
-#define MAYBE     2
+#define MAYBE   2
 
-#define STATUS_HEIGHT   1    ///< height of a status line under a window
-#define QF_WINHEIGHT    10   ///< default height for quickfix window
+#define STATUS_HEIGHT   1   ///< height of a status line under a window
+#define QF_WINHEIGHT    10  ///< default height for quickfix window
 
 // Buffer sizes
 #ifndef CMDBUFFSIZE
-    #define CMDBUFFSIZE    256    ///< size of the command processing buffer
+    #define CMDBUFFSIZE   256    ///< size of the command processing buffer
 #endif
 
-#define LSIZE              512    ///< max. size of a line in the tags file
-#define DIALOG_MSG_SIZE    1000   ///< buffer size for dialog_msg()
+#define LSIZE             512    ///< max. size of a line in the tags file
+#define DIALOG_MSG_SIZE   1000   ///< buffer size for dialog_msg()
 
 enum
 {
@@ -191,31 +197,31 @@ enum
 
 /// Maximum length of key sequence to be mapped.
 /// Must be able to hold an Amiga resize report.
-#define MAXMAPLEN        50
+#define MAXMAPLEN    50
 
 /// Size in bytes of the hash used in the undo file.
 #define UNDO_HASH_SIZE   32
 
 // defines to avoid typecasts from (char_u *) to (char *) and back
-#define STRLEN(s)           strlen((char *)(s))
-#define STRCPY(d, s)        strcpy((char *)(d), (char *)(s))
-#define STRNCPY(d, s, n)    strncpy((char *)(d), (char *)(s), (size_t)(n))
-#define STRLCPY(d, s, n)    xstrlcpy((char *)(d), (char *)(s), (size_t)(n))
-#define STRCMP(d, s)        strcmp((char *)(d), (char *)(s))
-#define STRNCMP(d, s, n)    strncmp((char *)(d), (char *)(s), (size_t)(n))
+#define STRLEN(s)          strlen((char *)(s))
+#define STRCPY(d, s)       strcpy((char *)(d), (char *)(s))
+#define STRNCPY(d, s, n)   strncpy((char *)(d), (char *)(s), (size_t)(n))
+#define STRLCPY(d, s, n)   xstrlcpy((char *)(d), (char *)(s), (size_t)(n))
+#define STRCMP(d, s)       strcmp((char *)(d), (char *)(s))
+#define STRNCMP(d, s, n)   strncmp((char *)(d), (char *)(s), (size_t)(n))
 
 #ifdef HAVE_FUN_STRCASECMP
-    #define STRICMP(d, s)   strcasecmp((char *)(d), (char *)(s))
+    #define STRICMP(d, s)  strcasecmp((char *)(d), (char *)(s))
 #else
     #ifdef HAVE_STRICMP
-        #define STRICMP(d, s)   stricmp((char *)(d), (char *)(s))
+        #define STRICMP(d, s)  stricmp((char *)(d), (char *)(s))
     #else
-        #define STRICMP(d, s)   vim_stricmp((char *)(d), (char *)(s))
+        #define STRICMP(d, s)  vim_stricmp((char *)(d), (char *)(s))
     #endif
 #endif
 
 /// Like strcpy() but allows overlapped source and destination.
-#define STRMOVE(d, s)          memmove((d), (s), STRLEN(s) + 1)
+#define STRMOVE(d, s)  memmove((d), (s), STRLEN(s) + 1)
 
 #ifdef HAVE_FUN_STRNCASECMP
     #define STRNICMP(d, s, n)  strncasecmp((char *)(d), (char *)(s), (size_t)(n))
@@ -227,9 +233,9 @@ enum
     #endif
 #endif
 
-#define STRCAT(d, s)        strcat((char *)(d), (char *)(s))
-#define STRNCAT(d, s, n)    strncat((char *)(d), (char *)(s), (size_t)(n))
-#define STRLCAT(d, s, n)    xstrlcat((char *)(d), (char *)(s), (size_t)(n))
+#define STRCAT(d, s)       strcat((char *)(d), (char *)(s))
+#define STRNCAT(d, s, n)   strncat((char *)(d), (char *)(s), (size_t)(n))
+#define STRLCAT(d, s, n)   xstrlcat((char *)(d), (char *)(s), (size_t)(n))
 
 #define vim_strpbrk(s, cs) (char_u *)strpbrk((char *)(s), (char *)(cs))
 
@@ -237,7 +243,7 @@ enum
 
 // Prefer using emsgf(), because perror() may send the output to the wrong
 // destination and mess up the screen.
-#define PERROR(msg) (void) emsgf("%s: %s", msg, strerror(errno))
+#define PERROR(msg)    (void)emsgf("%s: %s", msg, strerror(errno))
 
 #define SHOWCMD_COLS   10  ///< columns needed by shown command
 #define STL_MAX_ITEM   80  ///< max nr of %<flag> in statusline
@@ -246,9 +252,10 @@ enum
 ///
 /// On some systems case in a file name does not matter, on others it does.
 ///
-/// @note Does not account for maximum name lengths and things like "../dir",
-///       thus it is not 100% accurate. OS may also use different algorythm for
-///       case-insensitive comparison.
+/// @note
+/// Does not account for maximum name lengths and things like "../dir",
+/// thus it is not 100% accurate. OS may also use different algorythm for
+/// case-insensitive comparison.
 ///
 /// @param[in]  x  First file name to compare.
 /// @param[in]  y  Second file name to compare.
@@ -266,9 +273,10 @@ enum
 /// plus six following composing characters of three bytes each.
 #define MB_MAXBYTES    21
 
-// This has to go after the include of proto.h, as proto/gui.pro declares functions of these names.
-// The declarations would break if the defines had been seen at that stage.
-// But it must be before globals.h, where error_ga is declared.
+// This has to go after the include of proto.h, as proto/gui.pro declares
+// functions of these names. The declarations would break if the defines
+// had been seen at that stage. But it must be before globals.h, where
+// error_ga is declared.
 #define mch_errmsg(str)    fprintf(stderr, "%s", (str))
 #define display_errors()   fflush(stderr)
 #define mch_msg(str)       printf("%s", (str))
@@ -277,21 +285,22 @@ enum
 #include "nvim/buffer_defs.h"    // buffer and windows
 #include "nvim/ex_cmds_defs.h"   // Ex command defines
 
-#define SET_NO_HLSEARCH(flag)                          \
-    no_hlsearch = (flag);                              \
+#define SET_NO_HLSEARCH(flag)  \
+    no_hlsearch = (flag);      \
     set_vim_var_nr(VV_HLSEARCH, !no_hlsearch && p_hls)
 
 // Used for flags in do_in_path()
-#define DIP_ALL         0x01  ///< all matches, not just the first one
-#define DIP_DIR         0x02  ///< find directories instead of files
-#define DIP_ERR         0x04  ///< give an error message when none found
-#define DIP_START       0x08  ///< also use "start" directory in 'packpath'
-#define DIP_OPT         0x10  ///< also use "opt" directory in 'packpath'
-#define DIP_NORTP       0x20  ///< do not use 'runtimepath'
-#define DIP_NOAFTER     0x40  ///< skip "after" directories
-#define DIP_AFTER       0x80  ///< only use "after" directories
+#define DIP_ALL       0x01  ///< all matches, not just the first one
+#define DIP_DIR       0x02  ///< find directories instead of files
+#define DIP_ERR       0x04  ///< give an error message when none found
+#define DIP_START     0x08  ///< also use "start" directory in 'packpath'
+#define DIP_OPT       0x10  ///< also use "opt" directory in 'packpath'
+#define DIP_NORTP     0x20  ///< do not use 'runtimepath'
+#define DIP_NOAFTER   0x40  ///< skip "after" directories
+#define DIP_AFTER     0x80  ///< only use "after" directories
 
-/// Lowest number used for window ID. Cannot have this many windows per tab.
+/// Lowest number used for window ID.
+/// Cannot have this many windows per tab.
 #define LOWEST_WIN_ID   1000
 
 #endif // NVIM_VIM_H

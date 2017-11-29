@@ -37,13 +37,15 @@ typedef struct ui_t UI;
 struct ui_t
 {
     bool rgb;
-    bool ui_ext[UI_WIDGETS];  ///< Externalized widgets
+    /// Externalized widgets
+    bool ui_ext[UI_WIDGETS];
     int width, height;
     void *data;
 
-#ifdef INCLUDE_GENERATED_DECLARATIONS
-#include "ui_events.generated.h"
-#endif
+    #ifdef INCLUDE_GENERATED_DECLARATIONS
+    // automatic generated function pointer definations
+    #include "ui_events.generated.h"
+    #endif
 
     void (*event)(UI *ui, char *name, Array args, bool *args_consumed);
     void (*stop)(UI *ui);

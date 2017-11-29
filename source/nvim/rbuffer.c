@@ -12,9 +12,10 @@
     #include "rbuffer.c.generated.h"
 #endif
 
-/// Creates a new `RBuffer` instance.
+/// Creates a new @b RBuffer instance.
 RBuffer *rbuffer_new(size_t capacity)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_RET
 {
     if(!capacity)
     {
@@ -22,12 +23,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_RET
     }
 
     RBuffer *rv = xcalloc(1, sizeof(RBuffer) + capacity);
+
     rv->full_cb = rv->nonfull_cb = NULL;
     rv->data = NULL;
     rv->size = 0;
     rv->write_ptr = rv->read_ptr = rv->start_ptr;
     rv->end_ptr = rv->start_ptr + capacity;
     rv->temp = NULL;
+
     return rv;
 }
 
@@ -37,17 +40,20 @@ void rbuffer_free(RBuffer *buf)
     xfree(buf);
 }
 
-size_t rbuffer_size(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
+size_t rbuffer_size(RBuffer *buf)
+FUNC_ATTR_NONNULL_ALL
 {
     return buf->size;
 }
 
-size_t rbuffer_capacity(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
+size_t rbuffer_capacity(RBuffer *buf)
+FUNC_ATTR_NONNULL_ALL
 {
     return (size_t)(buf->end_ptr - buf->start_ptr);
 }
 
-size_t rbuffer_space(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
+size_t rbuffer_space(RBuffer *buf)
+FUNC_ATTR_NONNULL_ALL
 {
     return rbuffer_capacity(buf) - buf->size;
 }
@@ -58,7 +64,8 @@ size_t rbuffer_space(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
 ///
 /// It is necessary to call this function twice to ensure all empty space was
 /// used. See RBUFFER_UNTIL_FULL for a macro that simplifies this task.
-char *rbuffer_write_ptr(RBuffer *buf, size_t *write_count) FUNC_ATTR_NONNULL_ALL
+char *rbuffer_write_ptr(RBuffer *buf, size_t *write_count)
+FUNC_ATTR_NONNULL_ALL
 {
     if(buf->size == rbuffer_capacity(buf))
     {
@@ -78,9 +85,10 @@ char *rbuffer_write_ptr(RBuffer *buf, size_t *write_count) FUNC_ATTR_NONNULL_ALL
     return buf->write_ptr;
 }
 
-// Reset an RBuffer so read_ptr is at the beginning of the memory. If
-// necessary, this moves existing data by allocating temporary memory.
-void rbuffer_reset(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
+/// Reset an RBuffer so read_ptr is at the beginning of the memory. If
+/// necessary, this moves existing data by allocating temporary memory.
+void rbuffer_reset(RBuffer *buf)
+FUNC_ATTR_NONNULL_ALL
 {
     size_t temp_size;
 
@@ -102,11 +110,12 @@ void rbuffer_reset(RBuffer *buf) FUNC_ATTR_NONNULL_ALL
     }
 }
 
-/// Adjust `rbuffer` write pointer to reflect produced data. This is called
-/// automatically by `rbuffer_write`, but when using `rbuffer_write_ptr`
+/// Adjust rbuffer write pointer to reflect produced data. This is called
+/// automatically by rbuffer_write, but when using rbuffer_write_ptr
 /// directly, this needs to called after the data was copied to the internal
 /// buffer. The write pointer will be wrapped if required.
-void rbuffer_produced(RBuffer *buf, size_t count) FUNC_ATTR_NONNULL_ALL
+void rbuffer_produced(RBuffer *buf, size_t count)
+FUNC_ATTR_NONNULL_ALL
 {
     assert(count &&count <= rbuffer_space(buf));
 
@@ -132,7 +141,8 @@ void rbuffer_produced(RBuffer *buf, size_t count) FUNC_ATTR_NONNULL_ALL
 ///
 /// It is necessary to call this function twice to ensure all available bytes
 /// were read. See RBUFFER_UNTIL_EMPTY for a macro that simplifies this task.
-char *rbuffer_read_ptr(RBuffer *buf, size_t *read_count) FUNC_ATTR_NONNULL_ALL
+char *rbuffer_read_ptr(RBuffer *buf, size_t *read_count)
+FUNC_ATTR_NONNULL_ALL
 {
     if(!buf->size)
     {
@@ -152,8 +162,8 @@ char *rbuffer_read_ptr(RBuffer *buf, size_t *read_count) FUNC_ATTR_NONNULL_ALL
     return buf->read_ptr;
 }
 
-/// Adjust `rbuffer` read pointer to reflect consumed data. This is called
-/// automatically by `rbuffer_read`, but when using `rbuffer_read_ptr`
+/// Adjust rbuffer read pointer to reflect consumed data. This is called
+/// automatically by rbuffer_read, but when using rbuffer_read_ptr
 /// directly, this needs to called after the data was copied from the internal
 /// buffer. The read pointer will be wrapped if required.
 void rbuffer_consumed(RBuffer *buf, size_t count)
@@ -177,8 +187,8 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-// Higher level functions for copying from/to RBuffer instances and data
-// pointers
+/// Higher level functions for copying from/to RBuffer
+/// instances and data pointers
 size_t rbuffer_write(RBuffer *buf, const char *src, size_t src_size)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -224,9 +234,11 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 char *rbuffer_get(RBuffer *buf, size_t index)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RET
 {
     assert(index < buf->size);
+
     char *rptr = buf->read_ptr + index;
 
     if(rptr >= buf->end_ptr)
@@ -241,6 +253,7 @@ int rbuffer_cmp(RBuffer *buf, const char *str, size_t count)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(count <= buf->size);
+
     size_t rcnt;
     (void)rbuffer_read_ptr(buf, &rcnt);
     size_t n = MIN(count, rcnt);
@@ -255,4 +268,3 @@ FUNC_ATTR_NONNULL_ALL
 
     return memcmp(str + n, buf->start_ptr, count);
 }
-
