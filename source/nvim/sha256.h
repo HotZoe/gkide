@@ -8,8 +8,8 @@
 
 #include "nvim/types.h"
 
-#define SHA256_BUFFER_SIZE  64
 #define SHA256_SUM_SIZE     32
+#define SHA256_BUFFER_SIZE  64
 
 typedef struct
 {
