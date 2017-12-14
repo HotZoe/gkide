@@ -160,13 +160,16 @@ struct slang_S
     bool sl_followup;     ///< SAL followup
     bool sl_collapse;     ///< SAL collapse_result
     bool sl_rem_accents;  ///< SAL remove_accents
-    bool sl_sofo;         ///< SOFOFROM and SOFOTO instead of SAL items:
-                          ///< "sl_sal_first" maps chars, when has_mbyte
-                          ///< "sl_sal" is a list of wide char lists.
-    garray_T sl_repsal;           ///< list of fromto_T entries from REPSAL lines
+
+    /// SOFOFROM and SOFOTO instead of SAL items:
+    /// - @b sl_sal_first maps chars, when has_mbyte
+    /// - @b sl_sal is a list of wide char lists.
+    bool sl_sofo;
+
+    garray_T sl_repsal; ///< list of fromto_T entries from REPSAL lines
     int16_t sl_repsal_first[256]; ///< sl_rep_first for REPSAL lines
-    bool sl_nosplitsugs;          ///< don't suggest splitting a word
-    bool sl_nocompoundsugs;       ///< don't suggest compounding
+    bool sl_nosplitsugs; ///< don't suggest splitting a word
+    bool sl_nocompoundsugs; ///< don't suggest compounding
 
     // Info from the .sug file. Loaded on demand.
     time_t sl_sugtime;  ///< timestamp for .sug file
@@ -216,10 +219,10 @@ typedef struct
 /// At each node in the tree these states are tried:
 typedef enum
 {
-    STATE_START = 0,   ///< At start of node check for NUL
-                       ///< bytes (goodword ends); if badword
-                       ///< ends there is a match, otherwise try
-                       ///< splitting word.
+    /// At start of node check for NUL bytes (goodword ends);
+    /// if badword ends there is a match, otherwise try splitting word.
+    STATE_START = 0,
+
     STATE_NOPREFIX,    ///< try without prefix
     STATE_SPLITUNDO,   ///< Undo splitting.
     STATE_ENDNUL,      ///< Past NUL bytes at start of the node.
