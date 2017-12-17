@@ -38,24 +38,27 @@ getkey:
 
         if(char_avail() || using_script() || input_available())
         {
-            // Don't block for events if there's a character already available for
-            // processing. Characters can come from mappings, scripts and other
-            // sources, so this scenario is very common.
+            // Don't block for events if there's a character already
+            // available for processing. Characters can come from mappings,
+            // scripts and other sources, so this scenario is very common.
             key = safe_vgetc();
         }
         else if(!multiqueue_empty(main_loop.events))
         {
-            // Event was made available after the last multiqueue_process_events call
+            // Event was made available after the last
+            // multiqueue_process_events call
             key = K_EVENT;
         }
         else
         {
             input_enable_events();
             ui_flush(); // Flush screen updates before blocking
-            // Call `os_inchar` directly to block for events or user input without
-            // consuming anything from `input_buffer`(os/input.c) or calling the
-            // mapping engine. If an event was put into the queue, we send K_EVENT
-            // directly.
+
+            // Call `os_inchar` directly to block for events or
+            // user input without consuming anything from
+            // `input_buffer`(os/input.c) or calling the mapping
+            // engine. If an event was put into the queue, we send
+            // K_EVENT directly.
             (void)os_inchar(NULL, 0, -1, 0);
             input_disable_events();
             key = !multiqueue_empty(main_loop.events) ? K_EVENT : safe_vgetc();
@@ -96,7 +99,7 @@ int virtual_active(void)
 }
 
 /// VISUAL, SELECTMODE and OP_PENDING State are never set, they are equal to
-/// NORMAL State with a condition.  This function returns the real State.
+/// NORMAL State with a condition. This function returns the real State.
 int get_real_state(void)
 {
     if(State & NORMAL)
@@ -135,7 +138,10 @@ char *get_mode(void)
             buf[0] = (char)VIsual_mode;
         }
     }
-    else if(State == HITRETURN || State == ASKMORE || State == SETWSIZE || State == CONFIRM)
+    else if(State == HITRETURN
+            || State == ASKMORE
+            || State == SETWSIZE
+            || State == CONFIRM)
     {
         buf[0] = 'r';
 

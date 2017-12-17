@@ -5,8 +5,6 @@
 
 #include "nvim/regexp_defs.h"
 
-typedef int32_t RgbValue;
-
 #define SST_MIN_ENTRIES  150    ///< minimal size for state stack array
 #define SST_MAX_ENTRIES  1000   ///< maximal size for state stack array
 #define SST_FIX_STATES   7      ///< size of sst_stack[].
@@ -14,6 +12,8 @@ typedef int32_t RgbValue;
 
 /// invalid syn_state pointer
 #define SST_INVALID     (synstate_T *)-1
+
+typedef int32_t RgbValue;
 
 /// display tick type
 typedef unsigned short disptick_T;
@@ -46,6 +46,7 @@ typedef struct buf_state
     int bs_flags;  ///< flags for pattern
     int bs_seqnr;  ///< stores si_seqnr
     int bs_cchar;  ///< stores si_cchar
+
     /// external matches from start pattern
     reg_extmatch_T *bs_extmatch;
 } bufstate_T;
@@ -67,13 +68,16 @@ struct syn_state
         /// growarray for long state stack
         garray_T sst_ga;
     } sst_union;
-    int sst_next_flags;        ///< flags for sst_next_list
-    int sst_stacksize;         ///< number of states on the stack
-    short *sst_next_list;      ///< "nextgroup" list in this state
-                               ///< (this is a copy, don't free it!
-    disptick_T sst_tick;       ///< tick when last displayed
-    linenr_T sst_change_lnum;  ///< when non-zero, change in this line
-                               ///< may have made the state invalid
+    /// flags for sst_next_list
+    int sst_next_flags;
+    /// number of states on the stack
+    int sst_stacksize;
+    /// "nextgroup" list in this state (this is a copy, don't free it!)
+    short *sst_next_list;
+    /// tick when last displayed
+    disptick_T sst_tick;
+    /// when non-zero, change in this line may have made the state invalid
+    linenr_T sst_change_lnum;
 };
 
 /// Structure shared between syntax.c, screen.c
