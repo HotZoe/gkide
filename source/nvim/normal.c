@@ -1575,7 +1575,7 @@ static int normal_check(VimState *state)
     }
 
     // May perform garbage collection when waiting for a character, but
-    // only at the very toplevel.  Otherwise we may be using a List or
+    // only at the very toplevel. Otherwise we may be using a List or
     // Dict internally somewhere.
     // "may_garbage_collect" is reset in vgetc() which is invoked through
     // do_exmode() and normal_cmd().
@@ -1603,6 +1603,7 @@ static int normal_check(VimState *state)
     }
 
     normal_prepare(s);
+
     return 1;
 }
 

@@ -24,12 +24,16 @@ FUNC_ATTR_NONNULL_RET
 
     RBuffer *rv = xcalloc(1, sizeof(RBuffer) + capacity);
 
-    rv->full_cb = rv->nonfull_cb = NULL;
-    rv->data = NULL;
     rv->size = 0;
-    rv->write_ptr = rv->read_ptr = rv->start_ptr;
-    rv->end_ptr = rv->start_ptr + capacity;
+    rv->data = NULL;
     rv->temp = NULL;
+    rv->full_cb = NULL;
+    rv->nonfull_cb = NULL;
+
+    rv->read_ptr = rv->start_ptr;
+    rv->write_ptr = rv->start_ptr;
+
+    rv->end_ptr = rv->start_ptr + capacity;
 
     return rv;
 }

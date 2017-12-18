@@ -24,7 +24,7 @@
 /// Cached location of the log file set by log_path_init()
 static char expanded_log_file_path[MAXPATHL + 1] = { 0 };
 
-static uv_mutex_t mutex;
+static uv_mutex_t log_mutex;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "log.c.generated.h"
@@ -72,17 +72,17 @@ static bool log_path_init(void)
 
 void log_init(void)
 {
-    uv_mutex_init(&mutex);
+    uv_mutex_init(&log_mutex);
 }
 
 void log_lock(void)
 {
-    uv_mutex_lock(&mutex);
+    uv_mutex_lock(&log_mutex);
 }
 
 void log_unlock(void)
 {
-    uv_mutex_unlock(&mutex);
+    uv_mutex_unlock(&log_mutex);
 }
 
 bool do_log(int log_level,
