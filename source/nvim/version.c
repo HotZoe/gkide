@@ -46,11 +46,11 @@ static char *features[] =
 #endif
 
 #if (defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)) || defined(DYNAMIC_ICONV)
-#ifdef DYNAMIC_ICONV
+    #ifdef DYNAMIC_ICONV
     "+iconv/dyn",
-#else
+    #else
     "+iconv",
-#endif
+    #endif
 #else
     "-iconv",
 #endif
@@ -78,9 +78,9 @@ static const int included_patches[] =
 
 /// Place to put a short description when adding a feature with a patch.
 /// Keep it short, e.g.,: "relative numbers", "persistent undo".
-/// Also add a comment marker to separate the lines.
-/// See the official Vim patches for the diff format: It must use a context of
-/// one line only.  Create it by hand or use "diff -C2" and edit the patch.
+/// Also add a comment marker to separate the lines. See the official Vim
+/// patches for the diff format: It must use a context of one line only.
+/// Create it by hand or use "diff -C2" and edit the patch.
 static char *(extra_patches[]) =
 {
     // Add your patch description below this line
@@ -93,7 +93,9 @@ static char *(extra_patches[]) =
 ///
 /// @return true if GKIDE is at or above the version.
 bool has_gkide_version(const char *const version_str)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     const char *p = version_str;
     int gkide_major = 0;
@@ -146,7 +148,9 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 ///
 /// @return true if Nvim is at or above the version.
 bool has_nvim_version(const char *const version_str)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     const char *p = version_str;
     int nvim_major = 0;
@@ -214,12 +218,14 @@ bool has_nvim_patch(int n)
 Dictionary version_dict(void)
 {
     Dictionary d = ARRAY_DICT_INIT;
+
     PUT(d, "major", INTEGER_OBJ(NVIM_VERSION_MAJOR));
     PUT(d, "minor", INTEGER_OBJ(NVIM_VERSION_MINOR));
     PUT(d, "patch", INTEGER_OBJ(NVIM_VERSION_PATCH));
     PUT(d, "api_level", INTEGER_OBJ(NVIM_API_VERSION));
     PUT(d, "api_compatible", INTEGER_OBJ(NVIM_API_COMPATV));
     PUT(d, "api_prerelease", BOOLEAN_OBJ(NVIM_API_PRERELEASE));
+
     return d;
 }
 
@@ -238,7 +244,10 @@ static void list_features(void)
 {
     int nfeat = 0;
     int width = 0;
-    int i; // Find the length of the longest feature name, use that + 1 as the column width
+
+    // Find the length of the longest feature
+    // name, use that + 1 as the column width
+    int i;
 
     for(i = 0; features[i] != NULL; ++i)
     {
@@ -275,7 +284,7 @@ static void list_features(void)
     int ncol = (int)(Columns + 1) / width;
     int nrow = nfeat / ncol + (nfeat % ncol ? 1 : 0);
 
-    // i counts columns then rows.  idx counts rows then columns.
+    // i counts columns then rows. idx counts rows then columns.
     for(i = 0; !got_int && i < nrow * ncol; ++i)
     {
         int idx = (i / ncol) + (i % ncol) * nrow;
@@ -327,8 +336,9 @@ void list_version(void)
     MSG_PUTS("@");
     MSG_PUTS(compiled_sys);
 
-    // When adding features here, don't forget to update the list of internal variables
-    // in 'eval.c'. Print the list of extra patch descriptions if there is at least one.
+    // When adding features here, don't forget to update the list of internal
+    // variables in 'eval.c'. Print the list of extra patch descriptions if
+    // there is at least one.
     if(extra_patches[0] != NULL)
     {
         MSG_PUTS("\n\nExtra patches:\n");
@@ -344,28 +354,28 @@ void list_version(void)
 
     version_msg("\n\nOptional features included (+) or excluded (-):\n");
     list_features();
+
     size_t len;
     char msg_buf[MAXPATHL] = { 0 };
+
     // gkide system home
     snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_SYS_HOME);
     len = strlen(msg_buf);
-
     if(gkide_sys_home != NULL)
     {
         snprintf(msg_buf + len, MAXPATHL, "%s", gkide_sys_home);
     }
-
     version_msg(msg_buf);
+
     // gkide user home
     snprintf(msg_buf, MAXPATHL, "\n    $%s: ", ENV_GKIDE_USR_HOME);
     len = strlen(msg_buf);
-
     if(gkide_usr_home != NULL)
     {
         snprintf(msg_buf + len, MAXPATHL, "%s", gkide_usr_home);
     }
-
     version_msg(msg_buf);
+
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, loc\n");
     version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG
@@ -374,8 +384,9 @@ void list_version(void)
                 " ,then $GKIDE_USR_HOME/etc/config.nvl");
 }
 
-/// Output a string for the version message.  If it's going to wrap, output a
-/// newline, unless the message is too long to fit on the screen anyway.
+/// Output a string for the version message. If it's going to wrap,
+/// output a newline, unless the message is too long to fit on the
+/// screen anyway.
 ///
 /// @param s
 static void version_msg(char *s)
@@ -416,8 +427,7 @@ void maybe_intro_message(void)
 /// @param colon TRUE for ":intro"
 void intro_message(int colon)
 {
-    static char *(lines[]) =
-    {
+    static char *(lines[]) = {
         N_("NVIM v" NVIM_VERSION_BASIC),
         "",
         N_("by Charlie WONG et al."),
@@ -432,6 +442,7 @@ void intro_message(int colon)
         N_("Help poor children in Uganda!"),
         N_("type :help iccf<Enter>       for information "),
     };
+
     // blanklines = screen height - # message lines
     size_t lines_size = ARRAY_SIZE(lines);
     assert(lines_size <= LONG_MAX);
@@ -450,6 +461,7 @@ void intro_message(int colon)
 
     // start displaying the message lines after half of the blank lines
     long row_num = blanklines / 2;
+
     // Show the empty message, 4/8
     // Show the uganda message, 2/8
     // Show the sponsor message, 1/8
@@ -546,7 +558,9 @@ static void do_intro_line(long row, char_u *mesg, int attr)
     char_u *p;
     int l;
     int clen;
-    col = vim_strsize(mesg); // Center the message horizontally.
+
+    // Center the message horizontally.
+    col = vim_strsize(mesg);
     col = (Columns - col) / 2;
 
     if(col < 0)
@@ -559,7 +573,9 @@ static void do_intro_line(long row, char_u *mesg, int attr)
     {
         clen = 0;
 
-        for(l = 0; p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>')); ++l)
+        for(l = 0;
+            p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>'));
+            ++l)
         {
             if(has_mbyte)
             {
@@ -573,7 +589,9 @@ static void do_intro_line(long row, char_u *mesg, int attr)
         }
 
         assert(row <= INT_MAX && col <= INT_MAX);
-        screen_puts_len(p, l, (int)row, (int)col, *p == '<' ? hl_attr(HLF_8) : attr);
+
+        screen_puts_len(p, l, (int)row, (int)col,
+                        *p == '<' ? hl_attr(HLF_8) : attr);
         col += clen;
     }
 }

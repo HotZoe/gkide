@@ -73,7 +73,6 @@ struct u_header
     time_t uh_time;             ///< timestamp when the change was made
     long uh_save_nr;            ///< set when the file was saved after
                                 ///< the changes in this block
-
 #ifdef U_DEBUG
     int uh_magic;               ///< magic number to check allocation
 #endif

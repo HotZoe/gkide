@@ -16,7 +16,8 @@
 void ugrid_init(UGrid *grid)
 {
     grid->attrs = EMPTY_ATTRS;
-    grid->fg = grid->bg = -1;
+    grid->fg = -1;
+    grid->bg = -1;
     grid->cells = NULL;
 }
 
@@ -60,7 +61,11 @@ void ugrid_goto(UGrid *grid, int row, int col)
     grid->col = col;
 }
 
-void ugrid_set_scroll_region(UGrid *grid, int top, int bot, int left, int right)
+void ugrid_set_scroll_region(UGrid *grid,
+                             int top,
+                             int bot,
+                             int left,
+                             int right)
 {
     grid->top = top;
     grid->bot = bot;
@@ -68,7 +73,10 @@ void ugrid_set_scroll_region(UGrid *grid, int top, int bot, int left, int right)
     grid->right = right;
 }
 
-void ugrid_scroll(UGrid *grid, int count, int *clear_top, int *clear_bot)
+void ugrid_scroll(UGrid *grid,
+                  int count,
+                  int *clear_top,
+                  int *clear_bot)
 {
     // Compute start/stop/step for the loop below
     int start, stop, step;
@@ -93,7 +101,9 @@ void ugrid_scroll(UGrid *grid, int count, int *clear_top, int *clear_bot)
     {
         UCell *target_row = grid->cells[i] + grid->left;
         UCell *source_row = grid->cells[i + count] + grid->left;
-        memcpy(target_row, source_row,
+
+        memcpy(target_row,
+               source_row,
                sizeof(UCell) * (size_t)(grid->right - grid->left + 1));
     }
 
@@ -115,6 +125,7 @@ void ugrid_scroll(UGrid *grid, int count, int *clear_top, int *clear_bot)
 UCell *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
 {
     UCell *cell = grid->cells[grid->row] + grid->col;
+
     cell->data[size] = 0;
     cell->attrs = grid->attrs;
 
@@ -127,13 +138,18 @@ UCell *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
     return cell;
 }
 
-static void clear_region(UGrid *grid, int top, int bot, int left, int right)
+static void clear_region(UGrid *grid,
+                         int top,
+                         int bot,
+                         int left,
+                         int right)
 {
     HlAttrs clear_attrs = EMPTY_ATTRS;
+
     clear_attrs.foreground = grid->fg;
     clear_attrs.background = grid->bg;
-    UGRID_FOREACH_CELL(grid, top, bot, left, right,
-    {
+
+    UGRID_FOREACH_CELL(grid, top, bot, left, right, {
         cell->data[0] = ' ';
         cell->data[1] = 0;
         cell->attrs = clear_attrs;

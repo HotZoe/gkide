@@ -44,6 +44,7 @@ static argv_callback uilog_event = NULL;
             uilog_seen = 0;                                                    \
             uilog_event = ui_bridge_##name##_event;                            \
         }                                                                      \
+                                                                               \
         ((UIBridgeData *)ui)->scheduler(event_create(ui_bridge_##name##_event, \
                                                      argc,                     \
                                                      __VA_ARGS__),             \
@@ -68,6 +69,7 @@ static argv_callback uilog_event = NULL;
 UI *ui_bridge_attach(UI *ui, ui_main_fn ui_main, event_scheduler scheduler)
 {
     UIBridgeData *rv = xcalloc(1, sizeof(UIBridgeData));
+
     rv->ui = ui;
     rv->bridge.rgb = ui->rgb;
     rv->bridge.stop = ui_bridge_stop;
@@ -188,7 +190,8 @@ static void ui_bridge_suspend(UI *b)
     UI_CALL(b, suspend, 1, b);
     data->ready = false;
 
-    // suspend the main thread until CONTINUE is called by the UI thread
+    // suspend the main thread until
+    // CONTINUE is called by the UI thread
     while(!data->ready)
     {
         uv_cond_wait(&data->cond, &data->mutex);

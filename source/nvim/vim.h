@@ -224,12 +224,15 @@ enum
 #define STRMOVE(d, s)  memmove((d), (s), STRLEN(s) + 1)
 
 #ifdef HAVE_FUN_STRNCASECMP
-    #define STRNICMP(d, s, n)  strncasecmp((char *)(d), (char *)(s), (size_t)(n))
+    #define STRNICMP(d, s, n) \
+        strncasecmp((char *)(d), (char *)(s), (size_t)(n))
 #else
     #ifdef HAVE_STRNICMP
-        #define STRNICMP(d, s, n)  strnicmp((char *)(d), (char *)(s), (size_t)(n))
+        #define STRNICMP(d, s, n) \
+            strnicmp((char *)(d), (char *)(s), (size_t)(n))
     #else
-        #define STRNICMP(d, s, n)  vim_strnicmp((char *)(d), (char *)(s), (size_t)(n))
+        #define STRNICMP(d, s, n) \
+            vim_strnicmp((char *)(d), (char *)(s), (size_t)(n))
     #endif
 #endif
 
@@ -241,8 +244,8 @@ enum
 
 #include "nvim/message.h"
 
-// Prefer using emsgf(), because perror() may send the output to the wrong
-// destination and mess up the screen.
+/// Prefer using emsgf(), because perror() may send the output
+/// to the wrong destination and mess up the screen.
 #define PERROR(msg)    (void)emsgf("%s: %s", msg, strerror(errno))
 
 #define SHOWCMD_COLS   10  ///< columns needed by shown command
@@ -261,8 +264,11 @@ enum
 /// @param[in]  y  Second file name to compare.
 ///
 /// @return 0 for equal file names, non-zero otherwise.
-#define fnamecmp(x, y)     path_fnamecmp((const char *)(x), (const char *)(y))
-#define fnamencmp(x, y, n) path_fnamencmp((const char *)(x), (const char *)(y), (size_t)(n))
+#define fnamecmp(x, y) \
+    path_fnamecmp((const char *)(x), (const char *)(y))
+
+#define fnamencmp(x, y, n) \
+    path_fnamencmp((const char *)(x), (const char *)(y), (size_t)(n))
 
 // Enums need a typecast to be used as array index (for Ultrix).
 #define hl_attr(n)    highlight_attr[(int)(n)]

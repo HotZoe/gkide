@@ -63,8 +63,8 @@ static int busy = 0;
 static int height, width;
 static int old_mode_idx = -1;
 
-/// UI_CALL invokes a function on all registered UI instances. The functions can
-/// have 0-5 arguments (configurable by SELECT_NTH).
+/// UI_CALL invokes a function on all registered UI instances.
+/// The functions can have 0-5 arguments (configurable by SELECT_NTH).
 ///
 /// See http://stackoverflow.com/a/11172679 for how it works.
 #ifdef _MSC_VER
@@ -91,7 +91,9 @@ static int old_mode_idx = -1;
     } while(0)
 #endif
 
-#define CNT(...)                   SELECT_NTH(__VA_ARGS__, MORE, MORE, MORE, MORE, ZERO, ignore)
+#define CNT(...) \
+    SELECT_NTH(__VA_ARGS__, MORE, MORE, MORE, MORE, ZERO, ignore)
+
 #define UI_CALL_HELPER(c, ...)     UI_CALL_HELPER2(c, __VA_ARGS__)
 #define UI_CALL_HELPER2(c, ...)    UI_CALL_##c(__VA_ARGS__)
 #define UI_CALL_MORE(method, ...)  if(ui->method) ui->method(ui, __VA_ARGS__)
@@ -222,9 +224,11 @@ void ui_resize(int new_width, int new_height)
 {
     width = new_width;
     height = new_height;
+
     UI_CALL(update_fg, (ui->rgb ? normal_fg : cterm_normal_fg_color - 1));
     UI_CALL(update_bg, (ui->rgb ? normal_bg : cterm_normal_bg_color - 1));
     UI_CALL(update_sp, (ui->rgb ? normal_sp : -1));
+
     sr.top = 0;
     sr.bot = height - 1;
     sr.left = 0;
@@ -295,8 +299,8 @@ void ui_detach_impl(UI *ui)
 
 /// Set scrolling region for window 'wp'.
 /// The region starts 'off' lines from the start of the window.
-/// Also set the vertical scroll region for a vertically split window.  Always
-/// the full width of the window, excluding the vertical separator.
+/// Also set the vertical scroll region for a vertically split window.
+/// Always the full width of the window, excluding the vertical separator.
 void ui_set_scroll_region(win_T *wp, int off)
 {
     sr.top = wp->w_winrow + off;
@@ -318,6 +322,7 @@ void ui_reset_scroll_region(void)
     sr.bot = (int)Rows - 1;
     sr.left = 0;
     sr.right = (int)Columns - 1;
+
     ui_call_set_scroll_region(sr.top, sr.bot, sr.left, sr.right);
 }
 
@@ -358,10 +363,9 @@ void ui_puts(uint8_t *str)
         }
 
         size_t clen = (size_t)mb_ptr2len(p);
-        ui_call_put((String)
-        {
-            .data = (char *)p, .size = clen
-        });
+
+        ui_call_put((String) { .data = (char *)p, .size = clen });
+
         col++;
 
         if(mb_ptr2cells(p) > 1)
@@ -534,15 +538,16 @@ void ui_cursor_shape(void)
     conceal_check_cursur_line();
 }
 
-/// Returns true if `widget` is externalized.
+/// Returns true if @b widget is externalized.
 bool ui_is_external(UIWidget widget)
 {
     return ui_ext[widget];
 }
 
-/// Sets `widget` as "external".
-/// Such widgets are not drawn by Nvim; external UIs are expected to handle
-/// higher-level UI events and present the data.
+/// Sets @b widget as @b external.
+/// Such widgets are not drawn by Nvim;
+/// external UIs are expected to handle higher-level
+/// UI events and present the data.
 void ui_set_external(UIWidget widget, bool external)
 {
     ui_ext[widget] = external;
