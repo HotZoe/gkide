@@ -290,6 +290,17 @@ find_package(Lua REQUIRED)
 include_directories(SYSTEM ${LUA_INCLUDE_DIR})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
+# terminal UI for nvim
+if(NVIM_FEAT_TUI)
+    find_package(Unibilium REQUIRED)
+    include_directories(SYSTEM ${UNIBILIUM_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${UNIBILIUM_LIBRARIES})
+
+    find_package(LibTermkey REQUIRED)
+    include_directories(SYSTEM ${LIBTERMKEY_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBTERMKEY_LIBRARIES})
+endif()
+
 # generate configurations for nvim only
 include(ConfigNvim)
 
@@ -309,6 +320,7 @@ list(REMOVE_ITEM
      NVIM_API_HEADERS ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
 
 list(APPEND subdir_set "os")
+list(APPEND subdir_set "tui")
 list(APPEND subdir_set "api")
 list(APPEND subdir_set "lua")
 list(APPEND subdir_set "eval")
@@ -320,6 +332,10 @@ set(NVIM_AUTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/auto)
 set(NVIM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 foreach(subdir ${subdir_set})
+    if(${subdir} MATCHES "tui" AND NOT NVIM_FEAT_TUI)
+        continue()
+    endif()
+
     file(MAKE_DIRECTORY ${NVIM_AUTO_DIR}/${subdir})
     file(MAKE_DIRECTORY ${NVIM_INCLUDE_DIR}/${subdir})
 

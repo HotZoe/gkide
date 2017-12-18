@@ -33,7 +33,7 @@
 #include "nvim/window.h"
 #include "nvim/cursor_shape.h"
 
-#ifdef FEAT_TUI
+#ifdef NVIM_FEAT_TUI
     #include "nvim/tui/tui.h"
 #else
     #include "nvim/msgpack/server.h"
@@ -107,7 +107,7 @@ static int old_mode_idx = -1;
 
 void ui_builtin_start(void)
 {
-#ifdef FEAT_TUI
+#ifdef NVIM_FEAT_TUI
     tui_start();
 #else
     fprintf(stderr, "Nvim headless-mode started.\n");

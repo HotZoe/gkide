@@ -12,16 +12,16 @@
 
 #include "config.h"
 
-#define PASTETOGGLE_KEY "<Paste>"
-#define FOCUSGAINED_KEY "<FocusGained>"
-#define FOCUSLOST_KEY   "<FocusLost>"
-#define KEY_BUFFER_SIZE 0xfff
+#define PASTETOGGLE_KEY  "<Paste>"
+#define FOCUSGAINED_KEY  "<FocusGained>"
+#define FOCUSLOST_KEY    "<FocusLost>"
+#define KEY_BUFFER_SIZE  0xfff
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "tui/input.c.generated.h"
 #endif
 
-void term_input_init(TermInput *input, Loop *loop)
+void term_input_init(TermInput *input, main_loop_T *loop)
 {
     input->loop = loop;
     input->paste_enabled = false;
@@ -33,19 +33,20 @@ void term_input_init(TermInput *input, Loop *loop)
 
     if(!term)
     {
-        term = "";  // termkey_new_abstract assumes non-null (#2745)
+        term = ""; // termkey_new_abstract assumes non-null (#2745)
     }
 
 #if TERMKEY_VERSION_MAJOR > 0 || TERMKEY_VERSION_MINOR > 18
-    input->tk = termkey_new_abstract(term,
-                                     TERMKEY_FLAG_UTF8 | TERMKEY_FLAG_NOSTART);
+    input->tk = termkey_new_abstract(term, TERMKEY_FLAG_UTF8 | TERMKEY_FLAG_NOSTART);
     termkey_hook_terminfo_getstr(input->tk, input->tk_ti_hook_fn, NULL);
     termkey_start(input->tk);
 #else
     input->tk = termkey_new_abstract(term, TERMKEY_FLAG_UTF8);
 #endif
+
     int curflags = termkey_get_canonflags(input->tk);
     termkey_set_canonflags(input->tk, curflags | TERMKEY_CANON_DELBS);
+
     // setup input handle
 #ifdef HOST_OS_WINDOWS
     uv_tty_init(loop, &input->tty_in, 0, 1);
@@ -54,6 +55,7 @@ void term_input_init(TermInput *input, Loop *loop)
 #else
     rstream_init_fd(loop, &input->read_stream, input->in_fd, 0xfff);
 #endif
+
     // initialize a timer handle for handling ESC with libtermkey
     time_watcher_init(loop, &input->timer_handle, input);
 }
@@ -79,7 +81,7 @@ void term_input_stop(TermInput *input)
     time_watcher_stop(&input->timer_handle);
 }
 
-static void input_done_event(void **argv)
+static void input_done_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 {
     input_done();
 }
@@ -87,11 +89,12 @@ static void input_done_event(void **argv)
 static void wait_input_enqueue(void **argv)
 {
     TermInput *input = argv[0];
+
     RBUFFER_UNTIL_EMPTY(input->key_buffer, buf, len)
     {
-        size_t consumed = input_enqueue((String)
-        {
-            .data = buf, .size = len
+        size_t consumed = input_enqueue((String) {
+            .data = buf,
+            .size = len
         });
 
         if(consumed)
@@ -106,6 +109,7 @@ static void wait_input_enqueue(void **argv)
             break;
         }
     }
+
     uv_mutex_lock(&input->key_buffer_mutex);
     input->waiting = false;
     uv_cond_signal(&input->key_buffer_cond);
@@ -133,11 +137,11 @@ static void flush_input(TermInput *input, bool wait_until_empty)
 
 static void enqueue_input(TermInput *input, char *buf, size_t size)
 {
-    if(rbuffer_size(input->key_buffer) >
-       rbuffer_capacity(input->key_buffer) - 0xff)
+    if(rbuffer_size(input->key_buffer)
+       > rbuffer_capacity(input->key_buffer) - 0xff)
     {
-        // don't ever let the buffer get too full or we risk putting incomplete keys
-        // into it
+        // don't ever let the buffer get too full or
+        // we risk putting incomplete keys into it
         flush_input(input, false);
     }
 
@@ -184,7 +188,11 @@ static void forward_modified_utf8(TermInput *input, TermKeyKey *key)
     }
     else
     {
-        len = termkey_strfkey(input->tk, buf, sizeof(buf), key, TERMKEY_FORMAT_VIM);
+        len = termkey_strfkey(input->tk,
+                              buf,
+                              sizeof(buf),
+                              key,
+                              TERMKEY_FORMAT_VIM);
     }
 
     enqueue_input(input, buf, len);
@@ -196,6 +204,7 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     size_t len = 0;
     int button, row, col;
     TermKeyMouseEvent ev;
+
     termkey_interpret_mouse(input->tk, key, &ev, &button, &row, &col);
 
     if(ev != TERMKEY_MOUSE_PRESS && ev != TERMKEY_MOUSE_DRAG
@@ -205,7 +214,7 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     }
 
     row--;
-    col--;  // Termkey uses 1-based coordinates
+    col--; // Termkey uses 1-based coordinates
     buf[len++] = '<';
 
     if(key->modifiers & TERMKEY_KEYMOD_SHIFT)
@@ -240,11 +249,15 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
     {
         if(button == 4)
         {
-            len += (size_t)snprintf(buf + len, sizeof(buf) - len, "ScrollWheelUp");
+            len += (size_t)snprintf(buf + len,
+                                    sizeof(buf) - len,
+                                    "ScrollWheelUp");
         }
         else if(button == 5)
         {
-            len += (size_t)snprintf(buf + len, sizeof(buf) - len, "ScrollWheelDown");
+            len += (size_t)snprintf(buf + len,
+                                    sizeof(buf) - len,
+                                    "ScrollWheelDown");
         }
         else
         {
@@ -260,7 +273,12 @@ static void forward_mouse_event(TermInput *input, TermKeyKey *key)
         len += (size_t)snprintf(buf + len, sizeof(buf) - len, "Release");
     }
 
-    len += (size_t)snprintf(buf + len, sizeof(buf) - len, "><%d,%d>", col, row);
+    len += (size_t)snprintf(buf + len,
+                            sizeof(buf) - len,
+                            "><%d,%d>",
+                            col,
+                            row);
+
     enqueue_input(input, buf, len);
 }
 
@@ -274,7 +292,9 @@ static void timer_cb(TimeWatcher *watcher, void *data);
 static int get_key_code_timeout(void)
 {
     Integer ms = -1;
-    // Check 'ttimeout' to determine if we should send ESC after 'ttimeoutlen'.
+
+    // Check 'ttimeout' to determine if
+    // we should send ESC after 'ttimeoutlen'.
     Error err = ERROR_INIT;
 
     if(nvim_get_option(cstr_as_string("ttimeout"), &err).data.boolean)
@@ -288,6 +308,7 @@ static int get_key_code_timeout(void)
     }
 
     api_clear_error(&err);
+
     return (int)ms;
 }
 
@@ -333,7 +354,7 @@ static void tk_getkeys(TermInput *input, bool force)
     }
 }
 
-static void timer_cb(TimeWatcher *watcher, void *data)
+static void timer_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(watcher), void *data)
 {
     tk_getkeys(data, true);
     flush_input(data, true);
@@ -346,6 +367,7 @@ static void timer_cb(TimeWatcher *watcher, void *data)
 /// that sequence and push the appropriate event into the input queue
 ///
 /// @param input the input stream
+///
 /// @return true iff handle_focus_event consumed some input
 static bool handle_focus_event(TermInput *input)
 {
@@ -389,6 +411,7 @@ static bool handle_bracketed_paste(TermInput *input)
 
         enqueue_input(input, PASTETOGGLE_KEY, sizeof(PASTETOGGLE_KEY) - 1);
         input->paste_enabled = enable;
+
         return true;
     }
 
@@ -402,17 +425,24 @@ static bool handle_forced_escape(TermInput *input)
     {
         // skip the ESC and NUL and push one <esc> to the input buffer
         size_t rcnt;
-        termkey_push_bytes(input->tk, rbuffer_read_ptr(input->read_stream.buffer,
-                                                       &rcnt), 1);
+
+        termkey_push_bytes(input->tk,
+                           rbuffer_read_ptr(input->read_stream.buffer, &rcnt),
+                           1);
+
         rbuffer_consumed(input->read_stream.buffer, 2);
         tk_getkeys(input, true);
+
         return true;
     }
 
     return false;
 }
 
-static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
+static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
+                    RBuffer *FUNC_ARGS_UNUSED_REALY(buf),
+                    size_t FUNC_ARGS_UNUSED_REALY(c),
+                    void *data,
                     bool eof)
 {
     TermInput *input = data;
@@ -421,8 +451,8 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
     {
         if(input->in_fd == 0 && !os_isatty(0) && os_isatty(2))
         {
-            // Started reading from stdin which is not a pty but failed. Switch to
-            // stderr since it is a pty.
+            // Started reading from stdin which is not a pty
+            // but failed. Switch to stderr since it is a pty.
             //
             // This is how we support commands like:
             //
@@ -433,7 +463,9 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
             // ls *.md | xargs nvim
             input->in_fd = 2;
             stream_close(&input->read_stream, NULL, NULL);
-            multiqueue_put(input->loop->fast_events, restart_reading, 1, input);
+
+            multiqueue_put(input->loop->fast_events,
+                           restart_reading, 1, input);
         }
         else
         {
@@ -452,10 +484,11 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
             continue;
         }
 
-        // Find the next 'esc' and push everything up to it(excluding). This is done
-        // so the `handle_bracketed_paste`/`handle_forced_escape` calls above work
-        // as expected.
+        // Find the next 'esc' and push everything up to it(excluding).
+        // This is done so the `handle_bracketed_paste`/`handle_forced_escape`
+        // calls above work as expected.
         size_t count = 0;
+
         RBUFFER_EACH(input->read_stream.buffer, c, i)
         {
             count = i + 1;
@@ -466,16 +499,21 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
                 break;
             }
         }
+
         RBUFFER_UNTIL_EMPTY(input->read_stream.buffer, ptr, len)
         {
-            size_t consumed = termkey_push_bytes(input->tk, ptr, MIN(count, len));
-            // termkey_push_bytes can return (size_t)-1, so it is possible that
-            // `consumed > input->read_stream.buffer->size`, but since tk_getkeys is
-            // called soon, it shouldn't happen
+            size_t consumed =
+                termkey_push_bytes(input->tk, ptr, MIN(count, len));
+
+            // termkey_push_bytes can return (size_t)-1, so it is possible
+            // that `consumed > input->read_stream.buffer->size`, but since
+            // tk_getkeys is called soon, it shouldn't happen
             assert(consumed <= input->read_stream.buffer->size);
+
             rbuffer_consumed(input->read_stream.buffer, consumed);
-            // Need to process the keys now since there's no guarantee "count" will
-            // fit into libtermkey's input buffer.
+
+            // Need to process the keys now since there's no guarantee "count"
+            // will fit into libtermkey's input buffer.
             tk_getkeys(input, false);
 
             if(!(count -= consumed))
@@ -486,6 +524,7 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
     } while(rbuffer_size(input->read_stream.buffer));
 
     flush_input(input, true);
+
     // Make sure the next input escape sequence fits into the ring buffer
     // without wrap around, otherwise it could be misinterpreted.
     rbuffer_reset(input->read_stream.buffer);
@@ -494,6 +533,7 @@ static void read_cb(Stream *stream, RBuffer *buf, size_t c, void *data,
 static void restart_reading(void **argv)
 {
     TermInput *input = argv[0];
+
     rstream_init_fd(input->loop, &input->read_stream, input->in_fd, 0xfff);
     rstream_start(&input->read_stream, read_cb, input);
 }

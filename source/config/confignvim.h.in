@@ -46,6 +46,8 @@
 
 #cmakedefine ORDER_BIG_ENDIAN
 
+#cmakedefine NVIM_FEAT_TUI
+
 #define SYSHDR_ENDIAN_H     <${INCLUDE_FILE_ENDIAN_H}>
 
 #endif // GKIDE_GENERATED_CONFIG_CONFIGNVIM_H

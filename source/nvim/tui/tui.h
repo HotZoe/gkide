@@ -1,3 +1,5 @@
+/// @file nvim/tui.h
+
 #ifndef NVIM_TUI_TUI_H
 #define NVIM_TUI_TUI_H
 
