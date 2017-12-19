@@ -1791,7 +1791,8 @@ int vpeekc_any(void)
 }
 
 /// Call vpeekc() without causing anything to be mapped.
-/// Return TRUE if a character is available, FALSE otherwise.
+///
+/// @return TRUE if a character is available, FALSE otherwise.
 int char_avail(void)
 {
     int retval;

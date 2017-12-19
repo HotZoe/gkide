@@ -365,7 +365,7 @@ static int nv_compare(const void *s1, const void *s2)
     return c1 - c2;
 }
 
-/// Initialize the `nv_cmd_idx` table.
+/// Initialize the @b nv_cmd_idx table.
 void init_normal_cmds(void)
 {
     assert(NV_CMDS_SIZE <= SHRT_MAX);
