@@ -3459,11 +3459,11 @@ void ex_append(exarg_T *eap)
         lnum = 0;
     }
 
-    curmod = INSERT; // behave like in Insert mode
+    curmod = kInsertMode; // behave like in Insert mode
 
     if(curbuf->b_p_iminsert == B_IMODE_LMAP)
     {
-        curmod |= LANGMAP;
+        curmod |= kModFlgLangMap;
     }
 
     for(;;)
@@ -3514,9 +3514,9 @@ void ex_append(exarg_T *eap)
         else
         {
             // Set curmod to avoid the cursor shape to be
-            // set to INSERT mode when getline() returns.
+            // set to 'kInsertMode' mode when getline() returns.
             int save_State = curmod;
-            curmod = CMDLINE;
+            curmod = kCmdLineMode;
 
             theline = eap->getline(eap->cstack->cs_looplevel > 0 ? -1 :
                                    NUL,
@@ -3585,7 +3585,7 @@ void ex_append(exarg_T *eap)
         }
     }
 
-    curmod = NORMAL;
+    curmod = kNormalMode;
 
     if(eap->forceit)
     {

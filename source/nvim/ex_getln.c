@@ -250,7 +250,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     // Avoid scrolling when called by a recursive do_cmdline(), e.g. when
     // doing ":@0" when register 0 doesn't contain a CR.
     msg_scroll = false;
-    curmod = CMDLINE;
+    curmod = kCmdLineMode;
 
     if(s->firstc == '/' || s->firstc == '?' || s->firstc == '@')
     {
@@ -266,7 +266,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
 
         if(*s->b_im_ptr == B_IMODE_LMAP)
         {
-            curmod |= LANGMAP;
+            curmod |= kModFlgLangMap;
         }
     }
 
@@ -1193,14 +1193,14 @@ static int command_line_handle_key(CommandLineState *s)
             return command_line_not_changed(s);
 
         case Ctrl_HAT:
-            if(map_to_exists_mode("", LANGMAP, false))
+            if(map_to_exists_mode("", kModFlgLangMap, false))
             {
                 // ":lmap" mappings exists, toggle use of mappings.
-                curmod ^= LANGMAP;
+                curmod ^= kModFlgLangMap;
 
                 if(s->b_im_ptr != NULL)
                 {
-                    if(curmod & LANGMAP)
+                    if(curmod & kModFlgLangMap)
                     {
                         *s->b_im_ptr = B_IMODE_LMAP;
                     }
@@ -6142,7 +6142,7 @@ int get_history_idx(int histype)
 /// ccline and put the previous value in prev_ccline.
 static struct cmdline_info *get_ccline_ptr(void)
 {
-    if((curmod & CMDLINE) == 0)
+    if((curmod & kCmdLineMode) == 0)
     {
         return NULL;
     }
@@ -6751,8 +6751,8 @@ static int ex_window(void)
     {
         if(p_wc == TAB)
         {
-            add_map((char_u *)"<buffer> <Tab> <C-X><C-V>", INSERT);
-            add_map((char_u *)"<buffer> <Tab> a<C-X><C-V>", NORMAL);
+            add_map((char_u *)"<buffer> <Tab> <C-X><C-V>", kInsertMode);
+            add_map((char_u *)"<buffer> <Tab> a<C-X><C-V>", kNormalMode);
         }
 
         set_option_value("ft", 0L, "vim", OPT_LOCAL);
@@ -6804,7 +6804,7 @@ static int ex_window(void)
 
     // No Ex mode here!
     exmode_active = 0;
-    curmod = NORMAL;
+    curmod = kNormalMode;
     setmouse();
 
     // Trigger CmdwinEnter autocommands.

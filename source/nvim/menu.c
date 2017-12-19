@@ -1642,17 +1642,17 @@ void ex_emenu(exarg_T *eap)
 
     // Found the menu, so execute.
     // Use the Insert mode entry when returning to Insert mode.
-    if(((curmod & INSERT) || restart_edit) && !current_SID)
+    if(((curmod & kInsertMode) || restart_edit) && !current_SID)
     {
         mode = (char_u *)"Insert";
         idx = MENU_INDEX_INSERT;
     }
-    else if(curmod & CMDLINE)
+    else if(curmod & kCmdLineMode)
     {
         mode = (char_u *)"Command";
         idx = MENU_INDEX_CMDLINE;
     }
-    else if(get_real_state() & VISUAL)
+    else if(get_real_state() & kVisualMode)
     {
         // Detect real visual mode -- if we are really in visual mode we
         // don't need to do any guesswork to figure out what the selection

@@ -378,7 +378,7 @@ static void shift_block(oparg_T *oap, int amount)
     int len;
     int old_p_ri = p_ri;
     p_ri = 0; // don't want revins in indent
-    curmod = INSERT; // don't want REPLACE for 'curmod'
+    curmod = kInsertMode; // don't want REPLACE for 'curmod'
     block_prep(oap, &bd, curwin->w_cursor.lnum, TRUE);
 
     if(bd.is_short)
@@ -579,7 +579,7 @@ static void block_insert(oparg_T *oap,
     char_u *newp, *oldp; // new, old lines
     linenr_T lnum; // loop var
     int oldstate = curmod;
-    curmod = INSERT; // don't want REPLACE for 'curmod'
+    curmod = kInsertMode; // don't want REPLACE for 'curmod'
 
     for(lnum = oap->start.lnum + 1; lnum <= oap->end.lnum; lnum++)
     {
@@ -4252,7 +4252,7 @@ void adjust_cursor_eol(void)
     if(curwin->w_cursor.col > 0
        && gchar_cursor() == NUL
        && (ve_flags & VE_ONEMORE) == 0
-       && !(restart_edit || (curmod & INSERT)))
+       && !(restart_edit || (curmod & kInsertMode)))
     {
         // Put the cursor on the last character in the line.
         dec_cursor();
@@ -5231,7 +5231,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
                 }
 
                 // put cursor on last non-space
-                curmod = NORMAL; // don't go past end-of-line
+                curmod = kNormalMode; // don't go past end-of-line
                 coladvance((colnr_T)MAXCOL);
 
                 while(curwin->w_cursor.col && ascii_isspace(gchar_cursor()))
@@ -5240,7 +5240,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
                 }
 
                 // do the formatting, without 'showmode'
-                curmod = INSERT; // for open_line()
+                curmod = kInsertMode; // for open_line()
                 smd_save = p_smd;
                 p_smd = FALSE;
 

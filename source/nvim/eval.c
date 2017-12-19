@@ -9615,7 +9615,7 @@ static void f_complete(typval_T *argvars,
                        typval_T *FUNC_ARGS_UNUSED_REALY(rettv),
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if((curmod & INSERT) == 0)
+    if((curmod & kInsertMode) == 0)
     {
         EMSG(_("E785: complete() can only be used in Insert mode"));
         return;

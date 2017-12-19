@@ -50,31 +50,43 @@ enum
 /// special attribute addition: Put message in history
 #define MSG_HIST   0x1000
 
-/// values for curmod
+/// nvim working mode defination
 ///
-/// The lower bits up to 0x20 are used to distinguish normal/visual/op_pending
-/// and cmdline/insert+replace mode. This is used for mapping. If none of
-/// these bits are set, no mapping is done.
+/// most usual mode: insert, normal, cmdline, visual, etc.
+///
+/// The lower bits up to 0x20 are used to distinguish
+/// normal/visual/op_pending and cmdline/insert+replace mode.
+/// This is used for mapping. If none of these bits are set,
+/// no mapping is done.
+///
 /// The upper bits are used to distinguish between other states.
-#define NORMAL        0x01  ///< Normal mode, command expected
-#define VISUAL        0x02  ///< Visual mode - use get_real_state()
-#define OP_PENDING    0x04  ///< Normal mode, operator is pending
-                            ///< use get_real_state()
-#define CMDLINE       0x08  ///< Editing command line
-#define INSERT        0x10  ///< Insert mode
-#define LANGMAP       0x20  ///< Language mapping, can be combined
-                            ///< with INSERT and CMDLINE
-#define REPLACE_FLAG  0x40  ///< Replace mode flag
+///
+/// @see ::curmod
+enum NvimWorkingMode
+{
+    kNormalMode = 0x01,  ///< Normal mode, command expected
+    kVisualMode = 0x02,  ///< Visual mode, use get_real_state()
+    kOpPendMode = 0x04,  ///< Normal mode, but operator is pending, use
+                         ///< get_real_state() to get the real current mode
+    kCmdLineMode = 0x08, ///< Command line mode
+    kInsertMode  = 0x10, ///< Insert mode
 
-#define REPLACE         (REPLACE_FLAG + INSERT)
-#define VREPLACE_FLAG   0x80  ///< Virtual-replace mode flag
+    kModFlgLangMap = 0x20, ///< Language mapping flag can be combined
+                           ///< with @b kInsertMode and @b kCmdLineMode
+    kModFlgReplace = 0x40,
+    kModFlgVReplace= 0x80,
 
-#define VREPLACE      (REPLACE_FLAG + VREPLACE_FLAG + INSERT)
-#define LREPLACE      (REPLACE_FLAG + LANGMAP)
+    REPLACE_FLAG = 0x40,  ///< Replace mode flag
+    VREPLACE_FLAG = 0x80,  ///< Virtual-replace mode flag
+};
 
-#define NORMAL_BUSY   (0x100 + NORMAL) ///< Normal mode, busy with a command
-#define HITRETURN     (0x200 + NORMAL) ///< waiting for return or command
-#define SHOWMATCH     (0x700 + INSERT) ///< show matching paren
+#define REPLACE       (REPLACE_FLAG + kInsertMode)
+#define VREPLACE      (REPLACE_FLAG + VREPLACE_FLAG + kInsertMode)
+#define LREPLACE      (REPLACE_FLAG + kModFlgLangMap)
+
+#define NORMAL_BUSY   (0x100 + kNormalMode) ///< Normal mode, busy with a command
+#define HITRETURN     (0x200 + kNormalMode) ///< waiting for return or command
+#define SHOWMATCH     (0x700 + kInsertMode) ///< show matching paren
 
 #define ASKMORE        0x300   ///< Asking if you want --more--
 #define SETWSIZE       0x400   ///< window size has changed

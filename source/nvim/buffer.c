@@ -4537,7 +4537,7 @@ int build_stl_str_hl(win_T *wp,
                 break;
 
             case STL_COLUMN:
-                num = !(curmod & INSERT)
+                num = !(curmod & kInsertMode)
                       && empty_line ? 0 : (int)wp->w_cursor.col + 1;
                 break;
 
@@ -4558,10 +4558,8 @@ int build_stl_str_hl(win_T *wp,
 
                 // Don't display %V if it's the same as %c.
                 if(opt == STL_VIRTCOL_ALT
-                   && (virtcol == (colnr_T)(!(curmod & INSERT)
-                                            && empty_line
-                                               ? 0
-                                               : (int)wp->w_cursor.col + 1)))
+                   && ((colnr_T)((!(curmod & kInsertMode) && empty_line)
+                                 ? 0 : (int)wp->w_cursor.col + 1)) == virtcol)
                 {
                     break;
                 }
@@ -4628,15 +4626,16 @@ int build_stl_str_hl(win_T *wp,
             case STL_OFFSET:
             {
                 long l = ml_find_line_or_offset(wp->w_buffer,
-                                                wp->w_cursor.lnum, NULL);
+                                                wp->w_cursor.lnum,
+                                                NULL);
 
                 num = (wp->w_buffer->b_ml.ml_flags & ML_EMPTY)
                       || l < 0
                          ? 0L
-                         : l + 1 + (!(curmod & INSERT)
-                                    && empty_line
-                                       ? 0
-                                       : (int)wp->w_cursor.col);
+                         : l
+                           + 1
+                           + ((!(curmod & kInsertMode) && empty_line)
+                              ? 0 : (int)wp->w_cursor.col);
 
                 break;
             }

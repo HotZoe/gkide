@@ -402,11 +402,11 @@ int cursor_get_mode_idx(void)
     {
         return SHAPE_IDX_R;
     }
-    else if(curmod & INSERT)
+    else if(curmod & kInsertMode)
     {
         return SHAPE_IDX_I;
     }
-    else if(curmod & CMDLINE)
+    else if(curmod & kCmdLineMode)
     {
         if(cmdline_at_end())
         {

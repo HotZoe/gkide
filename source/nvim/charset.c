@@ -1532,7 +1532,7 @@ void getvcol(win_T *wp,
     if(cursor != NULL)
     {
         if((*ptr == TAB)
-           && (curmod & NORMAL)
+           && (curmod & kNormalMode)
            && !wp->w_p_list
            && !virtual_active()
            && !(VIsual_active && ((*p_sel == 'e') || ltoreq(*pos, VIsual))))

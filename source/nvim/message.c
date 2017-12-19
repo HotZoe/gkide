@@ -2952,7 +2952,9 @@ int msg_end(void)
     // or the ruler option is set and we run into it,
     // we have to redraw the window. Do not do this if
     // we are abandoning the file or editing the command line.
-    if(!exiting && need_wait_return && !(curmod & CMDLINE))
+    if(!exiting 
+	   && need_wait_return 
+	   && !(curmod & kCmdLineMode))
     {
         wait_return(FALSE);
         return FALSE;

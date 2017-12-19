@@ -447,7 +447,7 @@ typedef enum
     HLF_I,           ///< incremental search
     HLF_L,           ///< last search string
     HLF_M,           ///< "--More--" message
-    HLF_CM,          ///< Mode (e.g., "-- INSERT --")
+    HLF_CM,          ///< Mode (e.g., "-- INSERT --"), see @b kInsertMode
     HLF_N,           ///< line number for ":number" and ":#" commands
     HLF_CLN,         ///< current line number
     HLF_R,           ///< return to continue message and yes/no questions
@@ -861,10 +861,10 @@ EXTERN int *(*iconv_errno)(void);
 /// @b curmod is the main state of Vim.
 ///
 /// There are other variables that modify the state:
-/// - "Visual_mode"    When @b curmod is NORMAL or INSERT.
-/// - "finish_op"      When @b curmod is NORMAL, after typing
+/// - "Visual_mode"    When @b curmod is ::kNormalMode or ::kInsertMode.
+/// - "finish_op"      When @b curmod is ::kNormalMode, after typing
 ///                    the operator and before typing the motion command.
-EXTERN int curmod INIT(= NORMAL);
+EXTERN int curmod INIT(= kNormalMode);
 
 EXTERN bool finish_op INIT(= false);    ///< true while an operator is pending
 EXTERN long opcount INIT(= 0);          ///< count for pending operator

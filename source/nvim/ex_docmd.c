@@ -218,7 +218,7 @@ void do_exmode(int improved)
         exmode_active = EXMODE_NORMAL;
     }
 
-    curmod = NORMAL;
+    curmod = kNormalMode;
 
     // When using ":global /pat/ visual" and then "Q" we return
     // to continue the :global command.
@@ -10552,7 +10552,7 @@ static void ex_startinsert(exarg_T *eap)
 
     // Ignore the command when already in Insert mode.
     // Inserting an expression register that invokes a function can do this.
-    if(curmod & INSERT)
+    if(curmod & kInsertMode)
     {
         return;
     }

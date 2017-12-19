@@ -635,11 +635,11 @@ void setmouse(void)
     {
         checkfor = MOUSE_RETURN;
     }
-    else if(curmod & INSERT)
+    else if(curmod & kInsertMode)
     {
         checkfor = MOUSE_INSERT;
     }
-    else if(curmod & CMDLINE)
+    else if(curmod & kCmdLineMode)
     {
         checkfor = MOUSE_COMMAND;
     }

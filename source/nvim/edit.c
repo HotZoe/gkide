@@ -305,7 +305,7 @@ static void insert_enter(InsertState *s)
         {
             int save_state = curmod;
             curwin->w_cursor = save_cursor;
-            curmod = INSERT;
+            curmod = kInsertMode;
             check_cursor_col();
             curmod = save_state;
         }
@@ -373,7 +373,7 @@ static void insert_enter(InsertState *s)
         {
             beep_flush();
             EMSG(farsi_text_3); // encoded in Farsi
-            curmod = INSERT;
+            curmod = kInsertMode;
         }
         else
         {
@@ -389,7 +389,7 @@ static void insert_enter(InsertState *s)
     }
     else
     {
-        curmod = INSERT;
+        curmod = kInsertMode;
     }
 
     stop_insert_mode = false;
@@ -405,14 +405,14 @@ static void insert_enter(InsertState *s)
     // when hitting <Esc>.
     if(curbuf->b_p_iminsert == B_IMODE_LMAP)
     {
-        curmod |= LANGMAP;
+        curmod |= kModFlgLangMap;
     }
 
     setmouse();
     clear_showcmd();
 
     // there is no reverse replace mode
-    revins_on = (curmod == INSERT && p_ri);
+    revins_on = (curmod == kInsertMode && p_ri);
 
     if(revins_on)
     {
@@ -1998,7 +1998,7 @@ void change_indent(int type,
         // Avoid being called recursively.
         if(curmod & VREPLACE_FLAG)
         {
-            curmod = INSERT;
+            curmod = kInsertMode;
         }
 
         shift_line(type == INDENT_DEC, round, 1, call_changed_bytes);
@@ -2025,7 +2025,7 @@ void change_indent(int type,
 
         new_cursor_col += curwin->w_cursor.col;
     }
-    else if(!(curmod & INSERT))
+    else if(!(curmod & kInsertMode))
     {
         new_cursor_col = curwin->w_cursor.col;
     }
@@ -2091,7 +2091,7 @@ void change_indent(int type,
     changed_cline_bef_curs();
 
     // May have to adjust the start of the insert.
-    if(curmod & INSERT)
+    if(curmod & kInsertMode)
     {
         if(curwin->w_cursor.lnum == Insstart.lnum && Insstart.col != 0)
         {
@@ -6444,7 +6444,7 @@ int get_literal(void)
     {
         nc = plain_vgetc();
 
-        if(!(curmod & CMDLINE) && MB_BYTE2LEN_CHECK(nc) == 1)
+        if(!(curmod & kCmdLineMode) && MB_BYTE2LEN_CHECK(nc) == 1)
         {
             add_to_showcmd(nc);
         }
@@ -8069,7 +8069,9 @@ int cursor_up(long n, int upd_topline)
                 // If we entered a fold, move to the beginning, unless in
                 // Insert mode or when 'foldopen' contains "all": it will open
                 // in a moment.
-                if(n > 0 || !((curmod & INSERT) || (fdo_flags & FDO_ALL)))
+                if(n > 0 
+				   || !((curmod & kInsertMode) 
+				   || (fdo_flags & FDO_ALL)))
                 {
                     (void)hasFolding(lnum, &lnum, NULL);
                 }
@@ -8408,7 +8410,7 @@ static void replace_pop_ins(void)
 {
     int cc;
     int oldState = curmod;
-    curmod = NORMAL; // don't want REPLACE here
+    curmod = kNormalMode; // don't want REPLACE here
 
     while((cc = replace_pop()) > 0)
     {
@@ -9238,18 +9240,18 @@ static void ins_ctrl_g(void)
 /// CTRL-^ in Insert mode.
 static void ins_ctrl_hat(void)
 {
-    if(map_to_exists_mode("", LANGMAP, false))
+    if(map_to_exists_mode("", kModFlgLangMap, false))
     {
         // ":lmap" mappings exists, Toggle use of ":lmap" mappings.
-        if(curmod & LANGMAP)
+        if(curmod & kModFlgLangMap)
         {
             curbuf->b_p_iminsert = B_IMODE_NONE;
-            curmod &= ~LANGMAP;
+            curmod &= ~kModFlgLangMap;
         }
         else
         {
             curbuf->b_p_iminsert = B_IMODE_LMAP;
-            curmod |= LANGMAP;
+            curmod |= kModFlgLangMap;
         }
     }
 
@@ -9367,7 +9369,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         }
     }
 
-    curmod = NORMAL;
+    curmod = kNormalMode;
 
     // need to position cursor again (e.g. when on a TAB )
     changed_cline_bef_curs();
@@ -9402,7 +9404,7 @@ static void ins_ctrl_(void)
     }
 
     p_ri = !p_ri;
-    revins_on = (curmod == INSERT && p_ri);
+    revins_on = (curmod == kInsertMode && p_ri);
 
     if(revins_on)
     {
@@ -9427,7 +9429,7 @@ static void ins_ctrl_(void)
 
         if(p_fkmap && p_ri)
         {
-            curmod = INSERT;
+            curmod = kInsertMode;
         }
     }
     else
@@ -9515,11 +9517,11 @@ static void ins_insert(int replaceState)
 
     if(curmod & REPLACE_FLAG)
     {
-        curmod = INSERT | (curmod & LANGMAP);
+        curmod = kInsertMode | (curmod & kModFlgLangMap);
     }
     else
     {
-        curmod = replaceState | (curmod & LANGMAP);
+        curmod = replaceState | (curmod & kModFlgLangMap);
     }
 
     AppendCharToRedobuff(K_INS);
@@ -9822,11 +9824,11 @@ FUNC_ATTR_NONNULL_ARG(3)
             // characters that NL replaced.
             if(curmod & REPLACE_FLAG)
             {
-                // Do the next ins_char() in NORMAL state, to
+                // Do the next ins_char() in 'kNormalMode' state, to
                 // prevent ins_char() from replacing characters and
                 // avoiding showmatch().
                 oldState = curmod;
-                curmod = NORMAL;
+                curmod = kNormalMode;
 
                 // restore characters (blanks) deleted after cursor
                 while(cc > 0)

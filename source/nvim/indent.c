@@ -511,7 +511,7 @@ int get_number_indent(linenr_T lnum)
     pos.lnum = 0;
 
     // In format_lines() (i.e. not insert mode), fo+=q is needed too...
-    if((curmod & INSERT) || has_format_option(FO_Q_COMS))
+    if((curmod & kInsertMode) || has_format_option(FO_Q_COMS))
     {
         lead_len = get_leader_len(ml_get(lnum), NULL, false, true);
     }
@@ -660,7 +660,7 @@ int get_expr_indent(void)
     // Pretend to be in Insert mode, allow cursor past end of line for "o"
     // command.
     save_State = curmod;
-    curmod = INSERT;
+    curmod = kInsertMode;
     curwin->w_cursor = save_pos;
     curwin->w_curswant = save_curswant;
     curwin->w_set_curswant = save_set_curswant;

@@ -90,7 +90,7 @@ static int block_redo = FALSE;
 /// Returns a value between 0 and 255, index in maphash.
 /// Put Normal/Visual mode mappings mostly separately from Insert/Cmdline mode.
 #define MAP_HASH(mode, c1) \
-    (((mode) & (NORMAL + VISUAL + SELECTMODE + OP_PENDING)) ? (c1) : ((c1) ^ 0x80))
+    (((mode) & (kNormalMode + kVisualMode + SELECTMODE + kOpPendMode)) ? (c1) : ((c1) ^ 0x80))
 
 /// Each mapping is put in one of the MAX_MAPHASH hash lists,
 /// to speed up finding it.
@@ -1253,7 +1253,7 @@ static void gotchars(char_u *chars, size_t len)
 /// - When no_u_sync is non-zero.
 void may_sync_undo(void)
 {
-    if((!(curmod & (INSERT + CMDLINE)) || arrow_used)
+    if((!(curmod & (kInsertMode + kCmdLineMode)) || arrow_used)
        && scriptin[curscript] == NULL)
     {
         u_sync(FALSE);
@@ -1407,7 +1407,7 @@ void openscript(char_u *name, int directly)
         int save_insertmode = p_im;
         int save_finish_op = finish_op;
         int save_msg_scroll = msg_scroll;
-        curmod = NORMAL;
+        curmod = kNormalMode;
         msg_scroll = FALSE; // no msg scrolling in Normal mode
         restart_edit = 0; // don't go to Insert mode
         p_im = FALSE; // don't use 'insertmode'
@@ -1953,7 +1953,8 @@ static int vgetorpeek(int advance)
                     // Otherwise we behave like having gotten a CTRL-C.
                     // As a result typing CTRL-C in insert mode will
                     // really insert a CTRL-C.
-                    if((c || typebuf.tb_maplen) && (curmod & (INSERT + CMDLINE)))
+                    if((c || typebuf.tb_maplen) 
+                       && (curmod & (kInsertMode + kCmdLineMode)))
                     {
                         c = ESC;
                     }
@@ -1998,8 +1999,9 @@ static int vgetorpeek(int advance)
                        && (no_zero_mapping == 0 || c1 != '0')
                        && (typebuf.tb_maplen == 0
                            || (p_remap
-                               && (typebuf.tb_noremap[typebuf.tb_off] & (RM_NONE|RM_ABBR)) == 0))
-                       && !(p_paste && (curmod & (INSERT + CMDLINE)))
+                               && (typebuf.tb_noremap[typebuf.tb_off] 
+							       & (RM_NONE|RM_ABBR)) == 0))
+                       && !(p_paste && (curmod & (kInsertMode + kCmdLineMode)))
                        && !(curmod == HITRETURN && (c1 == CAR || c1 == ' '))
                        && curmod != ASKMORE
                        && curmod != CONFIRM
@@ -2014,7 +2016,8 @@ static int vgetorpeek(int advance)
                         else
                         {
                             LANGMAP_ADJUST(c1,
-                                           (curmod & (CMDLINE | INSERT)) == 0
+                                           (curmod & (kCmdLineMode
+                                                      | kInsertMode)) == 0
                                            && get_real_state() != SELECTMODE);
                             nolmaplen = 0;
                         }
@@ -2046,7 +2049,8 @@ static int vgetorpeek(int advance)
                             // Skip ":lmap" mappings if keys were mapped.
                             if(mp->m_keys[0] == c1
                                && (mp->m_mode & local_State)
-                               && ((mp->m_mode & LANGMAP) == 0 || typebuf.tb_maplen == 0))
+                               && ((mp->m_mode & kModFlgLangMap) == 0 
+							       || typebuf.tb_maplen == 0))
                             {
                                 int nomap = nolmaplen;
                                 int c2;
@@ -2165,7 +2169,7 @@ static int vgetorpeek(int advance)
                     }
 
                     // Check for a key that can toggle the 'paste' option
-                    if(mp == NULL && (curmod & (INSERT|NORMAL)))
+                    if(mp == NULL && (curmod & (kInsertMode | kNormalMode)))
                     {
                         bool match = typebuf_match_len(ui_toggle, &mlen);
 
@@ -2190,7 +2194,7 @@ static int vgetorpeek(int advance)
                             del_typebuf(mlen, 0); // Remove the chars.
                             set_option_value("paste", !p_paste, NULL, 0);
 
-                            if(!(curmod & INSERT))
+                            if(!(curmod & kInsertMode))
                             {
                                 msg_col = 0;
                                 msg_row = (int)Rows - 1;
@@ -2289,7 +2293,7 @@ static int vgetorpeek(int advance)
                         {
                             EMSG(_("E223: recursive mapping"));
 
-                            if(curmod & CMDLINE)
+                            if(curmod & kCmdLineMode)
                             {
                                 redrawcmdline();
                             }
@@ -2309,7 +2313,7 @@ static int vgetorpeek(int advance)
                         // to switch back to Select mode.
                         if(VIsual_active
                            && VIsual_select
-                           && (mp->m_mode & VISUAL))
+                           && (mp->m_mode & kVisualMode))
                         {
                             VIsual_select = FALSE;
 
@@ -2418,7 +2422,7 @@ static int vgetorpeek(int advance)
                    && !no_mapping
                    && ex_normal_busy == 0
                    && typebuf.tb_maplen == 0
-                   && (curmod & INSERT)
+                   && (curmod & kInsertMode)
                    && (p_timeout || (keylen == KEYLEN_PART_KEY && p_ttimeout))
                    && (c = inchar(typebuf.tb_buf  + typebuf.tb_off + typebuf.tb_len,
                                   3,
@@ -2554,11 +2558,12 @@ static int vgetorpeek(int advance)
                     // For the cmdline window: Alternate between ESC and
                     // CTRL-C: ESC for most situations and CTRL-C to close the
                     // cmdline window.
-                    if(p_im && (curmod & INSERT))
+                    if(p_im && (curmod & kInsertMode))
                     {
                         c = Ctrl_L;
                     }
-                    else if((curmod & CMDLINE) || (cmdwin_type > 0 && tc == ESC))
+                    else if((curmod & kCmdLineMode) 
+					        || (cmdwin_type > 0 && tc == ESC))
                     {
                         c = Ctrl_C;
                     }
@@ -2579,8 +2584,8 @@ static int vgetorpeek(int advance)
                 // changed text so far. Also for when 'lazyredraw' is set and
                 // redrawing was postponed because there was something in the
                 // input buffer (e.g., termresponse).
-                if(((curmod & INSERT) != 0 || p_lz)
-                   && (curmod & CMDLINE) == 0
+                if(((curmod & kInsertMode) != 0 || p_lz)
+                   && (curmod & kCmdLineMode) == 0
                    && advance
                    && must_redraw != 0
                    && !need_wait_return)
@@ -2597,14 +2602,22 @@ static int vgetorpeek(int advance)
 
                 if(typebuf.tb_len > 0 && advance && !exmode_active)
                 {
-                    if(((curmod & (NORMAL | INSERT)) || curmod == LANGMAP)
+                    if(((curmod & (kNormalMode | kInsertMode))
+                        || curmod == kModFlgLangMap)
                        && curmod != HITRETURN)
                     {
                         // this looks nice when typing a dead character map
-                        if(curmod & INSERT
-                           && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)
+                        if(curmod & kInsertMode
+                           && ptr2cells(typebuf.tb_buf
+                                        + typebuf.tb_off
+                                        + typebuf.tb_len
+                                        - 1) == 1)
                         {
-                            edit_putchar(typebuf.tb_buf[typebuf.tb_off + typebuf.tb_len - 1], FALSE);
+                            edit_putchar(typebuf.tb_buf[typebuf.tb_off
+                                                        + typebuf.tb_len
+                                                        - 1],
+                                         FALSE);
+
                             setcursor(); // put cursor back where it belongs
                             c1 = 1;
                         }
@@ -2631,7 +2644,7 @@ static int vgetorpeek(int advance)
                     }
 
                     // this looks nice when typing a dead character map
-                    if((curmod & CMDLINE)
+                    if((curmod & kCmdLineMode)
                        && cmdline_star == 0
                        && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)
                     {
@@ -2659,12 +2672,12 @@ static int vgetorpeek(int advance)
 
                 if(c1 == 1)
                 {
-                    if(curmod & INSERT)
+                    if(curmod & kInsertMode)
                     {
                         edit_unputchar();
                     }
 
-                    if(curmod & CMDLINE)
+                    if(curmod & kCmdLineMode)
                     {
                         unputcmdline();
                     }
@@ -2708,10 +2721,13 @@ static int vgetorpeek(int advance)
         // if advance is FALSE don't loop on NULs
     } while(c < 0 || (advance && c == NUL));
 
-    // The "INSERT" message is taken care of here:
+    // The "kInsertMode" message is taken care of here:
     // - if we return an ESC to exit insert mode, the message is deleted
     // - if we don't return an ESC but deleted the message before, redisplay it
-    if(advance && p_smd && msg_silent == 0 && (curmod & INSERT))
+    if(advance 
+	   && p_smd 
+	   && msg_silent == 0 
+	   && (curmod & kInsertMode))
     {
         if(c == ESC && !mode_deleted && !no_mapping && mode_displayed)
         {
@@ -2919,20 +2935,20 @@ int fix_input_buffer(char_u *buf, int len)
 /// @param maptype 0 for :map, 1 for :unmap, 2 for noremap.
 /// @param arg     pointer to any arguments.
 ///                @note arg cannot be a read-only string, it will be modified.
-/// @param mode    - for :map   mode is NORMAL + VISUAL + SELECTMODE + OP_PENDING
-///                - for :map!  mode is INSERT + CMDLINE
-///                - for :cmap  mode is CMDLINE
-///                - for :imap  mode is INSERT
-///                - for :lmap  mode is LANGMAP
-///                - for :nmap  mode is NORMAL
-///                - for :vmap  mode is VISUAL + SELECTMODE
-///                - for :xmap  mode is VISUAL
+/// @param mode    - for :map   mode is kNormalMode + kVisualMode + SELECTMODE + kOpPendMode
+///                - for :map!  mode is kInsertMode + kCmdLineMode
+///                - for :cmap  mode is kCmdLineMode
+///                - for :imap  mode is kInsertMode
+///                - for :lmap  mode is kModFlgLangMap
+///                - for :nmap  mode is kNormalMode
+///                - for :vmap  mode is kVisualMode + SELECTMODE
+///                - for :xmap  mode is kVisualMode
 ///                - for :smap  mode is SELECTMODE
-///                - for :omap  mode is OP_PENDING
+///                - for :omap  mode is kOpPendMode
 ///                - for :tmap  mode is TERM_FOCUS
-///                - for :abbr  mode is INSERT + CMDLINE
-///                - for :iabbr mode is INSERT
-///                - for :cabbr mode is CMDLINE
+///                - for :abbr  mode is kInsertMode + kCmdLineMode
+///                - for :iabbr mode is kInsertMode
+///                - for :cabbr mode is kCmdLineMode
 /// @param abbrev  not a mapping but an abbreviation
 ///
 /// @return
@@ -3565,27 +3581,27 @@ int get_map_mode(char_u **cmdp, int forceit)
 
     if(modec == 'i')
     {
-        mode = INSERT; // :imap
+        mode = kInsertMode; // :imap
     }
     else if(modec == 'l')
     {
-        mode = LANGMAP; // :lmap
+        mode = kModFlgLangMap; // :lmap
     }
     else if(modec == 'c')
     {
-        mode = CMDLINE; // :cmap
+        mode = kCmdLineMode; // :cmap
     }
     else if(modec == 'n' && *p != 'o') // avoid :noremap
     {
-        mode = NORMAL; // :nmap
+        mode = kNormalMode; // :nmap
     }
     else if(modec == 'v')
     {
-        mode = VISUAL + SELECTMODE;// :vmap
+        mode = kVisualMode + SELECTMODE;// :vmap
     }
     else if(modec == 'x')
     {
-        mode = VISUAL; // :xmap
+        mode = kVisualMode; // :xmap
     }
     else if(modec == 's')
     {
@@ -3593,7 +3609,7 @@ int get_map_mode(char_u **cmdp, int forceit)
     }
     else if(modec == 'o')
     {
-        mode = OP_PENDING; // :omap
+        mode = kOpPendMode; // :omap
     }
     else if(modec == 't')
     {
@@ -3605,11 +3621,14 @@ int get_map_mode(char_u **cmdp, int forceit)
 
         if(forceit)
         {
-            mode = INSERT + CMDLINE; // :map !
+            mode = kInsertMode + kCmdLineMode; // :map !
         }
         else
         {
-            mode = VISUAL + SELECTMODE + NORMAL + OP_PENDING; // :map
+            mode = kVisualMode 
+			       + SELECTMODE 
+				   + kNormalMode 
+				   + kOpPendMode; // :map
         }
     }
 
@@ -3730,46 +3749,46 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
 
     ga_init(&mapmode, 1, 7);
 
-    if((mode & (INSERT + CMDLINE)) == INSERT + CMDLINE)
+    if((mode & (kInsertMode + kCmdLineMode)) == kInsertMode + kCmdLineMode)
     {
         ga_append(&mapmode, '!'); // :map!
     }
-    else if(mode & INSERT)
+    else if(mode & kInsertMode)
     {
         ga_append(&mapmode, 'i'); // :imap
     }
-    else if(mode & LANGMAP)
+    else if(mode & kModFlgLangMap)
     {
         ga_append(&mapmode, 'l'); // :lmap
     }
-    else if(mode & CMDLINE)
+    else if(mode & kCmdLineMode)
     {
         ga_append(&mapmode, 'c'); // :cmap
     }
-    else if((mode & (NORMAL + VISUAL + SELECTMODE + OP_PENDING))
-            == NORMAL + VISUAL + SELECTMODE + OP_PENDING)
+    else if((mode & (kNormalMode + kVisualMode + SELECTMODE + kOpPendMode))
+            == kNormalMode + kVisualMode + SELECTMODE + kOpPendMode)
     {
         ga_append(&mapmode, ' '); // :map
     }
     else
     {
-        if(mode & NORMAL)
+        if(mode & kNormalMode)
         {
             ga_append(&mapmode, 'n'); // :nmap
         }
 
-        if(mode & OP_PENDING)
+        if(mode & kOpPendMode)
         {
             ga_append(&mapmode, 'o'); // :omap
         }
 
-        if((mode & (VISUAL + SELECTMODE)) == VISUAL + SELECTMODE)
+        if((mode & (kVisualMode + SELECTMODE)) == kVisualMode + SELECTMODE)
         {
             ga_append(&mapmode, 'v'); // :vmap
         }
         else
         {
-            if(mode & VISUAL)
+            if(mode & kVisualMode)
             {
                 ga_append(&mapmode, 'x'); // :xmap
             }
@@ -3912,14 +3931,14 @@ FUNC_ATTR_PURE
         }                                           \
     } while(0)
 
-    MAPMODE(mode, modechars, 'n', NORMAL);
-    MAPMODE(mode, modechars, 'v', VISUAL|SELECTMODE);
-    MAPMODE(mode, modechars, 'x', VISUAL);
+    MAPMODE(mode, modechars, 'n', kNormalMode);
+    MAPMODE(mode, modechars, 'v', kVisualMode | SELECTMODE);
+    MAPMODE(mode, modechars, 'x', kVisualMode);
     MAPMODE(mode, modechars, 's', SELECTMODE);
-    MAPMODE(mode, modechars, 'o', OP_PENDING);
-    MAPMODE(mode, modechars, 'i', INSERT);
-    MAPMODE(mode, modechars, 'l', LANGMAP);
-    MAPMODE(mode, modechars, 'c', CMDLINE);
+    MAPMODE(mode, modechars, 'o', kOpPendMode);
+    MAPMODE(mode, modechars, 'i', kInsertMode);
+    MAPMODE(mode, modechars, 'l', kModFlgLangMap);
+    MAPMODE(mode, modechars, 'c', kCmdLineMode);
 
 #undef MAPMODE
 
@@ -4034,11 +4053,14 @@ char_u *set_context_in_map_cmd(expand_T *xp,
         }
         else
         {
-            expand_mapmodes = INSERT + CMDLINE;
+            expand_mapmodes = kInsertMode + kCmdLineMode;
 
             if(!isabbrev)
             {
-                expand_mapmodes += VISUAL + SELECTMODE + NORMAL + OP_PENDING;
+                expand_mapmodes += kVisualMode 
+				                   + SELECTMODE 
+								   + kNormalMode 
+								   + kOpPendMode;
             }
         }
 
@@ -4705,14 +4727,14 @@ int makemap(FILE *fd, buf_T *buf)
 
                 switch(mp->m_mode)
                 {
-                    case NORMAL + VISUAL + SELECTMODE + OP_PENDING:
+                    case kNormalMode + kVisualMode + SELECTMODE + kOpPendMode:
                         break;
 
-                    case NORMAL:
+                    case kNormalMode:
                         c1 = 'n';
                         break;
 
-                    case VISUAL:
+                    case kVisualMode:
                         c1 = 'x';
                         break;
 
@@ -4720,62 +4742,62 @@ int makemap(FILE *fd, buf_T *buf)
                         c1 = 's';
                         break;
 
-                    case OP_PENDING:
+                    case kOpPendMode:
                         c1 = 'o';
                         break;
 
-                    case NORMAL + VISUAL:
+                    case kNormalMode + kVisualMode:
                         c1 = 'n';
                         c2 = 'x';
                         break;
 
-                    case NORMAL + SELECTMODE:
+                    case kNormalMode + SELECTMODE:
                         c1 = 'n';
                         c2 = 's';
                         break;
 
-                    case NORMAL + OP_PENDING:
+                    case kNormalMode + kOpPendMode:
                         c1 = 'n';
                         c2 = 'o';
                         break;
 
-                    case VISUAL + SELECTMODE:
+                    case kVisualMode + SELECTMODE:
                         c1 = 'v';
                         break;
 
-                    case VISUAL + OP_PENDING:
+                    case kVisualMode + kOpPendMode:
                         c1 = 'x';
                         c2 = 'o';
                         break;
 
-                    case SELECTMODE + OP_PENDING:
+                    case SELECTMODE + kOpPendMode:
                         c1 = 's';
                         c2 = 'o';
                         break;
 
-                    case NORMAL + VISUAL + SELECTMODE:
+                    case kNormalMode + kVisualMode + SELECTMODE:
                         c1 = 'n';
                         c2 = 'v';
                         break;
 
-                    case NORMAL + VISUAL + OP_PENDING:
+                    case kNormalMode + kVisualMode + kOpPendMode:
                         c1 = 'n';
                         c2 = 'x';
                         c3 = 'o';
                         break;
 
-                    case NORMAL + SELECTMODE + OP_PENDING:
+                    case kNormalMode + SELECTMODE + kOpPendMode:
                         c1 = 'n';
                         c2 = 's';
                         c3 = 'o';
                         break;
 
-                    case VISUAL + SELECTMODE + OP_PENDING:
+                    case kVisualMode + SELECTMODE + kOpPendMode:
                         c1 = 'v';
                         c2 = 'o';
                         break;
 
-                    case CMDLINE + INSERT:
+                    case kCmdLineMode + kInsertMode:
                         if(!abbr)
                         {
                             cmd = "map!";
@@ -4783,15 +4805,15 @@ int makemap(FILE *fd, buf_T *buf)
 
                         break;
 
-                    case CMDLINE:
+                    case kCmdLineMode:
                         c1 = 'c';
                         break;
 
-                    case INSERT:
+                    case kInsertMode:
                         c1 = 'i';
                         break;
 
-                    case LANGMAP:
+                    case kModFlgLangMap:
                         c1 = 'l';
                         break;
 

@@ -2444,7 +2444,7 @@ parse_line:
                             STRLCPY(mfp, tagp.tagname, len + 1);
 
                             // if wanted, re-read line to get long form too
-                            if(curmod & INSERT)
+                            if(curmod & kInsertMode)
                             {
                                 get_it_again = p_sft;
                             }

@@ -154,7 +154,7 @@ int open_line(int dir, int flags, int second_line_indent)
         saved_line[curwin->w_cursor.col] = NUL;
     }
 
-    if((curmod & INSERT)
+    if((curmod & kInsertMode)
        && !(curmod & VREPLACE_FLAG)
       )
     {
@@ -859,7 +859,7 @@ int open_line(int dir, int flags, int second_line_indent)
         }
     }
 
-    // (curmod == INSERT || curmod == REPLACE), only when dir == FORWARD
+    // (curmod == kInsertMode || curmod == REPLACE), only when dir == FORWARD
     if(p_extra != NULL)
     {
         *p_extra = saved_char; // restore char that NUL replaced
@@ -1042,7 +1042,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(dir == FORWARD)
     {
-        if(trunc_line || (curmod & INSERT))
+        if(trunc_line || (curmod & kInsertMode))
         {
             // truncate current line at cursor
             saved_line[curwin->w_cursor.col] = NUL;
@@ -1091,12 +1091,12 @@ int open_line(int dir, int flags, int second_line_indent)
     curwin->w_cursor.coladd = 0;
 
     // In VREPLACE mode, we are handling the replace stack ourselves, so stop
-    // fixthisline() from doing it (via change_indent()) by telling it we're in
-    // normal INSERT mode.
+    // fixthisline() from doing it (via change_indent()) by telling it we're 
+	// in normal 'kInsertMode' mode.
     if(curmod & VREPLACE_FLAG)
     {
         vreplace_mode = curmod; // So we know to put things right later
-        curmod = INSERT;
+        curmod = kInsertMode;
     }
     else
     {
@@ -1641,11 +1641,11 @@ int plines_win_col(win_T *wp, linenr_T lnum, long column)
     }
 
     // If *s is a TAB, and the TAB is not displayed as ^I, and we're not in
-    // INSERT mode, then col must be adjusted so that it represents the last
-    // screen position of the TAB. This only fixes an error when the TAB wraps
-    // from one screen line to the next (when 'columns' is not a multiple of
-    // 'ts') -- webb.
-    if(*s == TAB && (curmod & NORMAL) && (!wp->w_p_list || lcs_tab1))
+    // kInsertMode mode, then col must be adjusted so that it represents the 
+	// last screen position of the TAB. This only fixes an error when the TAB
+	// wraps from one screen line to the next (when 'columns' is not a 
+	// multiple of 'ts')
+    if(*s == TAB && (curmod & kNormalMode) && (!wp->w_p_list || lcs_tab1))
     {
         col += win_lbr_chartabsize(wp, line, s, col, NULL) - 1;
     }
@@ -1875,7 +1875,10 @@ void ins_char_bytes(char_u *buf, size_t charlen)
 
     // If we're in Insert or Replace mode and 'showmatch' is set,
     // then briefly show the match for right parens and braces.
-    if(p_sm && (curmod & INSERT) && msg_silent == 0 && !ins_compl_active())
+    if(p_sm 
+	   && (curmod & kInsertMode) 
+	   && msg_silent == 0 
+	   && !ins_compl_active())
     {
         showmatch(mb_ptr2char(buf));
     }
@@ -2863,7 +2866,9 @@ int get_keystroke(void)
 
         if(n == KEYLEN_REMOVED) // key code removed
         {
-            if(must_redraw != 0 && !need_wait_return && (curmod & CMDLINE) == 0)
+            if(must_redraw != 0 
+			   && !need_wait_return 
+			   && (curmod & kCmdLineMode) == 0)
             {
                 // Redrawing was postponed, do it now.
                 update_screen(0);
@@ -3038,7 +3043,7 @@ int prompt_for_number(int *mouse_used)
     save_cmdline_row = cmdline_row;
     cmdline_row = 0;
     save_State = curmod;
-    curmod = CMDLINE;
+    curmod = kCmdLineMode;
     i = get_number(TRUE, mouse_used);
 
     if(KeyTyped)

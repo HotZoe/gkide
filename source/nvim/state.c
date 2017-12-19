@@ -93,15 +93,21 @@ int virtual_active(void)
     }
 
     return ve_flags == VE_ALL
-           || ((ve_flags & VE_BLOCK) && VIsual_active && VIsual_mode == Ctrl_V)
-           || ((ve_flags & VE_INSERT) && (curmod & INSERT));
+           || ((ve_flags & VE_BLOCK) 
+		       && VIsual_active 
+			   && VIsual_mode == Ctrl_V)
+           || ((ve_flags & VE_INSERT) 
+		       && (curmod & kInsertMode));
 }
 
-/// VISUAL, SELECTMODE and OP_PENDING ::curmod are never set, they are equal to
-/// NORMAL ::curmod with a condition. This function returns the real ::curmod.
+/// kVisualMode, SELECTMODE and kOpPendMode, @b curmod are never set,
+/// they are equal to @b curmod (kNormalMode) with a condition.
+///
+/// @return
+/// This function returns the real @b curmod.
 int get_real_state(void)
 {
-    if(curmod & NORMAL)
+    if(curmod & kNormalMode)
     {
         if(VIsual_active)
         {
@@ -110,11 +116,11 @@ int get_real_state(void)
                 return SELECTMODE;
             }
 
-            return VISUAL;
+            return kVisualMode;
         }
         else if(finish_op)
         {
-            return OP_PENDING;
+            return kOpPendMode;
         }
     }
 
@@ -157,7 +163,7 @@ char *get_mode(void)
     {
         buf[0] = '!';
     }
-    else if(curmod & INSERT)
+    else if(curmod & kInsertMode)
     {
         if(curmod & VREPLACE_FLAG)
         {
@@ -173,7 +179,7 @@ char *get_mode(void)
             buf[0] = 'i';
         }
     }
-    else if(curmod & CMDLINE)
+    else if(curmod & kCmdLineMode)
     {
         buf[0] = 'c';
 

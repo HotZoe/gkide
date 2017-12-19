@@ -102,7 +102,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
     int one_more;
     int head = 0;
 
-    one_more = (curmod & INSERT)
+    one_more = (curmod & kInsertMode)
                || restart_edit != NUL
                || (VIsual_active && *p_sel != 'o')
                || ((ve_flags & VE_ONEMORE) && wcol < MAXCOL);
@@ -141,7 +141,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
             }
 
             if(wcol / width > (colnr_T)csize / width
-               && ((curmod & INSERT) == 0 || (int)wcol > csize + 1))
+               && ((curmod & kInsertMode) == 0 || (int)wcol > csize + 1))
             {
                 // In case of line wrapping don't move the cursor beyond the
                 // right screen edge. In Insert mode allow going just beyond
@@ -406,7 +406,8 @@ void check_cursor_col_win(win_T *win)
         // - in Insert mode or restarting Insert mode
         // - in Visual mode and 'selection' isn't "old"
         // - 'virtualedit' is set
-        if((curmod & INSERT) || restart_edit
+        if((curmod & kInsertMode) 
+		   || restart_edit
            || (VIsual_active && *p_sel != 'o')
            || (ve_flags & VE_ONEMORE)
            || virtual_active())

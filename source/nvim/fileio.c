@@ -6375,7 +6375,9 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
                 reload = true;
             }
         }
-        else if(curmod > NORMAL_BUSY || (curmod & CMDLINE) || already_warned)
+        else if(curmod > NORMAL_BUSY 
+		        || (curmod & kCmdLineMode) 
+				|| already_warned)
         {
             if(*mesg2 != NUL)
             {
@@ -8429,7 +8431,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         state = get_real_state();
 
-        if(state == NORMAL_BUSY || (state & INSERT) != 0)
+        if(state == NORMAL_BUSY || (state & kInsertMode) != 0)
         {
             return true;
         }

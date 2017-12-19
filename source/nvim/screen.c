@@ -534,19 +534,19 @@ int conceal_cursor_line(win_T *wp)
         return FALSE;
     }
 
-    if(get_real_state() & VISUAL)
+    if(get_real_state() & kVisualMode)
     {
         c = 'v';
     }
-    else if(curmod & INSERT)
+    else if(curmod & kInsertMode)
     {
         c = 'i';
     }
-    else if(curmod & NORMAL)
+    else if(curmod & kNormalMode)
     {
         c = 'n';
     }
-    else if(curmod & CMDLINE)
+    else if(curmod & kCmdLineMode)
     {
         c = 'c';
     }
@@ -3451,7 +3451,7 @@ static int win_line(win_T *wp,
        && !(wp == curwin && VIsual_active))
     {
         if(line_attr != 0
-           && !(curmod & INSERT)
+           && !(curmod & kInsertMode)
            && bt_quickfix(wp->w_buffer)
            && qf_current_entry(wp) == lnum)
         {
@@ -4453,7 +4453,7 @@ static int win_line(win_T *wp,
                         // In Insert mode only highlight a word that
                         // doesn't touch the cursor.
                         if(spell_hlf != HLF_COUNT
-                           && (curmod & INSERT) != 0
+                           && (curmod & kInsertMode) != 0
                            && wp->w_cursor.lnum == lnum
                            && wp->w_cursor.col >=
                            (colnr_T)(prev_ptr - line)
@@ -8893,12 +8893,12 @@ int showmode(void)
     int attr;
     int nwr_save;
     int sub_attr;
+	
     do_mode = ((p_smd && msg_silent == 0)
                && ((curmod & TERM_FOCUS)
-                   || (curmod & INSERT)
+                   || (curmod & kInsertMode)
                    || restart_edit
-                   || VIsual_active
-                  ));
+                   || VIsual_active));
 
     if(do_mode || Recording)
     {
@@ -8994,7 +8994,7 @@ int showmode(void)
                 {
                     MSG_PUTS_ATTR(_(" REPLACE"), attr);
                 }
-                else if(curmod & INSERT)
+                else if(curmod & kInsertMode)
                 {
                     if(p_ri)
                     {
@@ -9026,7 +9026,7 @@ int showmode(void)
                     MSG_PUTS_ATTR(farsi_text_5, attr);
                 }
 
-                if(curmod & LANGMAP)
+                if(curmod & kModFlgLangMap)
                 {
                     if(curwin->w_p_arab)
                     {
@@ -9039,7 +9039,7 @@ int showmode(void)
                     }
                 }
 
-                if((curmod & INSERT) && p_paste)
+                if((curmod & kInsertMode) && p_paste)
                 {
                     MSG_PUTS_ATTR(_(" (paste)"), attr);
                 }
@@ -9605,7 +9605,7 @@ static void win_redr_ruler(win_T *wp, int always)
     // the line is empty (will show "0-1").
     int empty_line = FALSE;
 
-    if(!(curmod & INSERT)
+    if(!(curmod & kInsertMode)
        && *ml_get_buf(wp->w_buffer, wp->w_cursor.lnum, FALSE) == NUL)
     {
         empty_line = TRUE;
@@ -9886,7 +9886,7 @@ void screen_resize(int width, int height)
                 do_check_scrollbind(TRUE);
             }
 
-            if(curmod & CMDLINE)
+            if(curmod & kCmdLineMode)
             {
                 update_screen(NOT_VALID);
                 redrawcmdline();

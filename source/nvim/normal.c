@@ -632,7 +632,7 @@ static void normal_redraw_mode_message(NormalState *FUNC_ARGS_UNUSED_REALY(s))
     // Draw the cursor with the right shape here
     if(restart_edit != 0)
     {
-        curmod = INSERT;
+        curmod = kInsertMode;
     }
 
     // If need to redraw, and there is a "keep_msg", redraw before the delay
@@ -740,7 +740,7 @@ static void normal_get_additional_char(NormalState *s)
             }
             else
             {
-                curmod = LANGMAP;
+                curmod = kModFlgLangMap;
             }
 
             langmap_active = true;
@@ -1275,7 +1275,7 @@ static int normal_execute(VimState *state, int key)
         did_cursorhold = false;
     }
 
-    curmod = NORMAL;
+    curmod = kNormalMode;
 
     if(s->ca.nchar == ESC)
     {
@@ -1370,7 +1370,7 @@ static void normal_check_interrupt(NormalState *s)
             // Typed two CTRL-C in a row: go back to ex mode as if "Q" was
             // used and keep "got_int" set, so that it aborts ":g".
             exmode_active = EXMODE_NORMAL;
-            curmod = NORMAL;
+            curmod = kNormalMode;
         }
         else if(!global_busy || !exmode_active)
         {
@@ -2715,7 +2715,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
        && (mod_mask & MOD_MASK_CTRL)
        && which_button == MOUSE_RIGHT)
     {
-        if(curmod & INSERT)
+        if(curmod & kInsertMode)
         {
             stuffcharReadbuff(Ctrl_O);
         }
@@ -2772,7 +2772,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     // Middle mouse button does a 'put' of the selected text
     if(which_button == MOUSE_MIDDLE)
     {
-        if(curmod == NORMAL)
+        if(curmod == kNormalMode)
         {
             // If an operator was pending, we don't know what the user wanted
             // to do. Go back to normal mode: Clear the operator and beep().
@@ -2803,7 +2803,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
 
             // The rest is below jump_to_mouse()
         }
-        else if((curmod & INSERT) == 0)
+        else if((curmod & kInsertMode) == 0)
         {
             return false;
         }
@@ -2813,7 +2813,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
         // with do_put().
         // Also paste at the cursor if the current mode isn't in 'mouse' (only
         // happens for the GUI).
-        if((curmod & INSERT) || !mouse_has(MOUSE_NORMAL))
+        if((curmod & kInsertMode) || !mouse_has(MOUSE_NORMAL))
         {
             if(regname == '.')
             {
@@ -3026,7 +3026,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
         }
     }
 
-    if((curmod & (NORMAL | INSERT))
+    if((curmod & (kNormalMode | kInsertMode))
        && !(mod_mask & (MOD_MASK_SHIFT | MOD_MASK_CTRL)))
     {
         if(which_button == MOUSE_LEFT)
@@ -3242,7 +3242,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
             }
         }
     }
-    else if((curmod & INSERT) && VIsual_active)
+    else if((curmod & kInsertMode) && VIsual_active)
     {
         // If Visual mode started in insert mode, execute "CTRL-O"
         stuffcharReadbuff(Ctrl_O);
@@ -3314,7 +3314,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     {
         // Ctrl-Mouse click (or double click in a help window)
         // jumps to the tag under the mouse pointer.
-        if(curmod & INSERT)
+        if(curmod & kInsertMode)
         {
             stuffcharReadbuff(Ctrl_O);
         }
@@ -3326,7 +3326,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     {
         // Shift-Mouse click searches for the next
         // occurrence of the word under the mouse pointer
-        if(curmod & INSERT || (VIsual_active && VIsual_select))
+        if(curmod & kInsertMode || (VIsual_active && VIsual_select))
         {
             stuffcharReadbuff(Ctrl_O);
         }
@@ -3349,7 +3349,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     {
     }
     else if((mod_mask & MOD_MASK_MULTI_CLICK)
-            && (curmod & (NORMAL | INSERT))
+            && (curmod & (kNormalMode | kInsertMode))
             && mouse_has(MOUSE_VISUAL))
     {
         if(is_click || !VIsual_active)
@@ -9473,7 +9473,7 @@ static void nv_edit(cmdarg_T *cap)
                     int save_State = curmod;
                     // Pretend Insert mode here to allow the cursor
                     // on the character past the end of the line
-                    curmod = INSERT;
+                    curmod = kInsertMode;
                     coladvance((colnr_T)MAXCOL);
                     curmod = save_State;
                 }
@@ -9514,7 +9514,7 @@ static void nv_edit(cmdarg_T *cap)
 
             // Pretend Insert mode here to allow the cursor on the
             // character past the end of the line
-            curmod = INSERT;
+            curmod = kInsertMode;
             coladvance(getviscol());
             curmod = save_State;
         }

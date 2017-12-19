@@ -160,7 +160,7 @@ void do_debug(char_u *cmd)
     msg_silent = false;     // display messages
     emsg_silent = false;    // display error messages
     redir_off = true;       // don't redirect debug commands
-    curmod = NORMAL;
+    curmod = kNormalMode;
 
     if(!debug_did_msg)
     {
