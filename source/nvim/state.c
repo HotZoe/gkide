@@ -94,14 +94,14 @@ int virtual_active(void)
 
     return ve_flags == VE_ALL
            || ((ve_flags & VE_BLOCK) && VIsual_active && VIsual_mode == Ctrl_V)
-           || ((ve_flags & VE_INSERT) && (State & INSERT));
+           || ((ve_flags & VE_INSERT) && (curmod & INSERT));
 }
 
-/// VISUAL, SELECTMODE and OP_PENDING State are never set, they are equal to
-/// NORMAL State with a condition. This function returns the real State.
+/// VISUAL, SELECTMODE and OP_PENDING ::curmod are never set, they are equal to
+/// NORMAL ::curmod with a condition. This function returns the real ::curmod.
 int get_real_state(void)
 {
-    if(State & NORMAL)
+    if(curmod & NORMAL)
     {
         if(VIsual_active)
         {
@@ -118,7 +118,7 @@ int get_real_state(void)
         }
     }
 
-    return State;
+    return curmod;
 }
 
 /// @returns[allocated] mode string
@@ -137,34 +137,34 @@ char *get_mode(void)
             buf[0] = (char)VIsual_mode;
         }
     }
-    else if(State == HITRETURN
-            || State == ASKMORE
-            || State == SETWSIZE
-            || State == CONFIRM)
+    else if(curmod == HITRETURN
+            || curmod == ASKMORE
+            || curmod == SETWSIZE
+            || curmod == CONFIRM)
     {
         buf[0] = 'r';
 
-        if(State == ASKMORE)
+        if(curmod == ASKMORE)
         {
             buf[1] = 'm';
         }
-        else if(State == CONFIRM)
+        else if(curmod == CONFIRM)
         {
             buf[1] = '?';
         }
     }
-    else if(State == EXTERNCMD)
+    else if(curmod == EXTERNCMD)
     {
         buf[0] = '!';
     }
-    else if(State & INSERT)
+    else if(curmod & INSERT)
     {
-        if(State & VREPLACE_FLAG)
+        if(curmod & VREPLACE_FLAG)
         {
             buf[0] = 'R';
             buf[1] = 'v';
         }
-        else if(State & REPLACE_FLAG)
+        else if(curmod & REPLACE_FLAG)
         {
             buf[0] = 'R';
         }
@@ -173,7 +173,7 @@ char *get_mode(void)
             buf[0] = 'i';
         }
     }
-    else if(State & CMDLINE)
+    else if(curmod & CMDLINE)
     {
         buf[0] = 'c';
 
@@ -187,7 +187,7 @@ char *get_mode(void)
         buf[0] = 'c';
         buf[1] = 'e';
     }
-    else if(State & TERM_FOCUS)
+    else if(curmod & TERM_FOCUS)
     {
         buf[0] = 't';
     }

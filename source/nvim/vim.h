@@ -50,12 +50,12 @@ enum
 /// special attribute addition: Put message in history
 #define MSG_HIST   0x1000
 
-// values for State
-//
-// The lower bits up to 0x20 are used to distinguish normal/visual/op_pending
-// and cmdline/insert+replace mode. This is used for mapping. If none of
-// these bits are set, no mapping is done.
-// The upper bits are used to distinguish between other states.
+/// values for curmod
+///
+/// The lower bits up to 0x20 are used to distinguish normal/visual/op_pending
+/// and cmdline/insert+replace mode. This is used for mapping. If none of
+/// these bits are set, no mapping is done.
+/// The upper bits are used to distinguish between other states.
 #define NORMAL        0x01  ///< Normal mode, command expected
 #define VISUAL        0x02  ///< Visual mode - use get_real_state()
 #define OP_PENDING    0x04  ///< Normal mode, operator is pending

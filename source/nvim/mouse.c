@@ -631,19 +631,19 @@ void setmouse(void)
     {
         checkfor = MOUSE_VISUAL;
     }
-    else if(State == HITRETURN || State == ASKMORE || State == SETWSIZE)
+    else if(curmod == HITRETURN || curmod == ASKMORE || curmod == SETWSIZE)
     {
         checkfor = MOUSE_RETURN;
     }
-    else if(State & INSERT)
+    else if(curmod & INSERT)
     {
         checkfor = MOUSE_INSERT;
     }
-    else if(State & CMDLINE)
+    else if(curmod & CMDLINE)
     {
         checkfor = MOUSE_COMMAND;
     }
-    else if(State == CONFIRM || State == EXTERNCMD)
+    else if(curmod == CONFIRM || curmod == EXTERNCMD)
     {
         checkfor = ' '; // don't use mouse for ":confirm" or ":!cmd"
     }

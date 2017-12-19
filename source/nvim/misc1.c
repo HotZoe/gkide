@@ -112,7 +112,7 @@ int open_line(int dir, int flags, int second_line_indent)
     // make a copy of the current line so we can mess with it
     char_u *saved_line = vim_strsave(get_cursor_line_ptr());
 
-    if(State & VREPLACE_FLAG)
+    if(curmod & VREPLACE_FLAG)
     {
         // With VREPLACE we make a copy of the next line, which we will be
         // starting to replace. First make the new line empty and let vim play
@@ -154,8 +154,8 @@ int open_line(int dir, int flags, int second_line_indent)
         saved_line[curwin->w_cursor.col] = NUL;
     }
 
-    if((State & INSERT)
-       && !(State & VREPLACE_FLAG)
+    if((curmod & INSERT)
+       && !(curmod & VREPLACE_FLAG)
       )
     {
         p_extra = saved_line + curwin->w_cursor.col;
@@ -859,7 +859,7 @@ int open_line(int dir, int flags, int second_line_indent)
         }
     }
 
-    // (State == INSERT || State == REPLACE), only when dir == FORWARD
+    // (curmod == INSERT || curmod == REPLACE), only when dir == FORWARD
     if(p_extra != NULL)
     {
         *p_extra = saved_char; // restore char that NUL replaced
@@ -869,7 +869,7 @@ int open_line(int dir, int flags, int second_line_indent)
         //
         // When in REPLACE mode, put the deleted blanks on the replace stack,
         // preceded by a NUL, so they can be put back when a BS is entered.
-        if(REPLACE_NORMAL(State))
+        if(REPLACE_NORMAL(curmod))
         {
             replace_push(NUL); // end of extra blanks
         }
@@ -879,7 +879,7 @@ int open_line(int dir, int flags, int second_line_indent)
             while((*p_extra == ' ' || *p_extra == '\t')
                   && (!enc_utf8 || !utf_iscomposing(utf_ptr2char(p_extra + 1))))
             {
-                if(REPLACE_NORMAL(State))
+                if(REPLACE_NORMAL(curmod))
                 {
                     replace_push(*p_extra);
                 }
@@ -939,7 +939,7 @@ int open_line(int dir, int flags, int second_line_indent)
         --curwin->w_cursor.lnum;
     }
 
-    if(!(State & VREPLACE_FLAG) || old_cursor.lnum >= orig_line_count)
+    if(!(curmod & VREPLACE_FLAG) || old_cursor.lnum >= orig_line_count)
     {
         if(ml_append(curwin->w_cursor.lnum, p_extra, (colnr_T)0, FALSE) == FAIL)
         {
@@ -1012,7 +1012,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
         // In REPLACE mode, for each character in the new indent, there must
         // be a NUL on the replace stack, for when it is deleted with BS
-        if(REPLACE_NORMAL(State))
+        if(REPLACE_NORMAL(curmod))
         {
             for(colnr_T n = 0; n < curwin->w_cursor.col; n++)
             {
@@ -1030,7 +1030,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
     // In REPLACE mode, for each character in the extra leader, there must be
     // a NUL on the replace stack, for when it is deleted with BS.
-    if(REPLACE_NORMAL(State))
+    if(REPLACE_NORMAL(curmod))
     {
         while(lead_len-- > 0)
         {
@@ -1042,7 +1042,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(dir == FORWARD)
     {
-        if(trunc_line || (State & INSERT))
+        if(trunc_line || (curmod & INSERT))
         {
             // truncate current line at cursor
             saved_line[curwin->w_cursor.col] = NUL;
@@ -1093,10 +1093,10 @@ int open_line(int dir, int flags, int second_line_indent)
     // In VREPLACE mode, we are handling the replace stack ourselves, so stop
     // fixthisline() from doing it (via change_indent()) by telling it we're in
     // normal INSERT mode.
-    if(State & VREPLACE_FLAG)
+    if(curmod & VREPLACE_FLAG)
     {
-        vreplace_mode = State; // So we know to put things right later
-        State = INSERT;
+        vreplace_mode = curmod; // So we know to put things right later
+        curmod = INSERT;
     }
     else
     {
@@ -1127,13 +1127,13 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(vreplace_mode != 0)
     {
-        State = vreplace_mode;
+        curmod = vreplace_mode;
     }
 
     // Finally, VREPLACE gets the stuff on the new line, then puts back the
     // original line, and inserts the new stuff char by char, pushing old stuff
     // onto the replace stack (via ins_char()).
-    if(State & VREPLACE_FLAG)
+    if(curmod & VREPLACE_FLAG)
     {
         // Put new line in p_extra
         p_extra = vim_strsave(get_cursor_line_ptr());
@@ -1645,7 +1645,7 @@ int plines_win_col(win_T *wp, linenr_T lnum, long column)
     // screen position of the TAB. This only fixes an error when the TAB wraps
     // from one screen line to the next (when 'columns' is not a multiple of
     // 'ts') -- webb.
-    if(*s == TAB && (State & NORMAL) && (!wp->w_p_list || lcs_tab1))
+    if(*s == TAB && (curmod & NORMAL) && (!wp->w_p_list || lcs_tab1))
     {
         col += win_lbr_chartabsize(wp, line, s, col, NULL) - 1;
     }
@@ -1777,9 +1777,9 @@ void ins_char_bytes(char_u *buf, size_t charlen)
     size_t oldlen = 0; // nr of bytes inserted
     size_t newlen = charlen; // nr of bytes deleted (0 when not replacing)
 
-    if(State & REPLACE_FLAG)
+    if(curmod & REPLACE_FLAG)
     {
-        if(State & VREPLACE_FLAG)
+        if(curmod & VREPLACE_FLAG)
         {
             // Disable 'list' temporarily, unless 'cpo' contains the 'L' flag.
             // Returns the old value of list, so when finished,
@@ -1875,12 +1875,12 @@ void ins_char_bytes(char_u *buf, size_t charlen)
 
     // If we're in Insert or Replace mode and 'showmatch' is set,
     // then briefly show the match for right parens and braces.
-    if(p_sm && (State & INSERT) && msg_silent == 0 && !ins_compl_active())
+    if(p_sm && (curmod & INSERT) && msg_silent == 0 && !ins_compl_active())
     {
         showmatch(mb_ptr2char(buf));
     }
 
-    if(!p_ri || (State & REPLACE_FLAG))
+    if(!p_ri || (curmod & REPLACE_FLAG))
     {
         // Normal insert: move cursor right
         curwin->w_cursor.col += (int)charlen;
@@ -2742,9 +2742,9 @@ void change_warning(int col)
 /// 'y' or 'n'. Last is also what will be returned in case of interrupt.
 int ask_yesno(const char *const str, const bool direct)
 {
-    const int save_State = State;
+    const int save_State = curmod;
     no_wait_return++;
-    State = CONFIRM; // Mouse behaves like with :confirm.
+    curmod = CONFIRM; // Mouse behaves like with :confirm.
     setmouse(); // Disable mouse in xterm.
     no_mapping++;
     int r = ' ';
@@ -2773,7 +2773,7 @@ int ask_yesno(const char *const str, const bool direct)
     }
 
     no_wait_return--;
-    State = save_State;
+    curmod = save_State;
     setmouse();
     no_mapping--;
     return r;
@@ -2863,7 +2863,7 @@ int get_keystroke(void)
 
         if(n == KEYLEN_REMOVED) // key code removed
         {
-            if(must_redraw != 0 && !need_wait_return && (State & CMDLINE) == 0)
+            if(must_redraw != 0 && !need_wait_return && (curmod & CMDLINE) == 0)
             {
                 // Redrawing was postponed, do it now.
                 update_screen(0);
@@ -3037,8 +3037,8 @@ int prompt_for_number(int *mouse_used)
     // and we still get mouse events.
     save_cmdline_row = cmdline_row;
     cmdline_row = 0;
-    save_State = State;
-    State = CMDLINE;
+    save_State = curmod;
+    curmod = CMDLINE;
     i = get_number(TRUE, mouse_used);
 
     if(KeyTyped)
@@ -3055,7 +3055,7 @@ int prompt_for_number(int *mouse_used)
         cmdline_row = save_cmdline_row;
     }
 
-    State = save_State;
+    curmod = save_State;
     return i;
 }
 

@@ -4537,7 +4537,7 @@ int build_stl_str_hl(win_T *wp,
                 break;
 
             case STL_COLUMN:
-                num = !(State & INSERT)
+                num = !(curmod & INSERT)
                       && empty_line ? 0 : (int)wp->w_cursor.col + 1;
                 break;
 
@@ -4558,7 +4558,7 @@ int build_stl_str_hl(win_T *wp,
 
                 // Don't display %V if it's the same as %c.
                 if(opt == STL_VIRTCOL_ALT
-                   && (virtcol == (colnr_T)(!(State & INSERT)
+                   && (virtcol == (colnr_T)(!(curmod & INSERT)
                                             && empty_line
                                                ? 0
                                                : (int)wp->w_cursor.col + 1)))
@@ -4633,7 +4633,7 @@ int build_stl_str_hl(win_T *wp,
                 num = (wp->w_buffer->b_ml.ml_flags & ML_EMPTY)
                       || l < 0
                          ? 0L
-                         : l + 1 + (!(State & INSERT)
+                         : l + 1 + (!(curmod & INSERT)
                                     && empty_line
                                        ? 0
                                        : (int)wp->w_cursor.col);

@@ -538,15 +538,15 @@ int conceal_cursor_line(win_T *wp)
     {
         c = 'v';
     }
-    else if(State & INSERT)
+    else if(curmod & INSERT)
     {
         c = 'i';
     }
-    else if(State & NORMAL)
+    else if(curmod & NORMAL)
     {
         c = 'n';
     }
-    else if(State & CMDLINE)
+    else if(curmod & CMDLINE)
     {
         c = 'c';
     }
@@ -3451,7 +3451,7 @@ static int win_line(win_T *wp,
        && !(wp == curwin && VIsual_active))
     {
         if(line_attr != 0
-           && !(State & INSERT)
+           && !(curmod & INSERT)
            && bt_quickfix(wp->w_buffer)
            && qf_current_entry(wp) == lnum)
         {
@@ -4453,7 +4453,7 @@ static int win_line(win_T *wp,
                         // In Insert mode only highlight a word that
                         // doesn't touch the cursor.
                         if(spell_hlf != HLF_COUNT
-                           && (State & INSERT) != 0
+                           && (curmod & INSERT) != 0
                            && wp->w_cursor.lnum == lnum
                            && wp->w_cursor.col >=
                            (colnr_T)(prev_ptr - line)
@@ -8894,8 +8894,8 @@ int showmode(void)
     int nwr_save;
     int sub_attr;
     do_mode = ((p_smd && msg_silent == 0)
-               && ((State & TERM_FOCUS)
-                   || (State & INSERT)
+               && ((curmod & TERM_FOCUS)
+                   || (curmod & INSERT)
                    || restart_edit
                    || VIsual_active
                   ));
@@ -8982,19 +8982,19 @@ int showmode(void)
             }
             else
             {
-                if(State & TERM_FOCUS)
+                if(curmod & TERM_FOCUS)
                 {
                     MSG_PUTS_ATTR(_(" TERMINAL"), attr);
                 }
-                else if(State & VREPLACE_FLAG)
+                else if(curmod & VREPLACE_FLAG)
                 {
                     MSG_PUTS_ATTR(_(" VREPLACE"), attr);
                 }
-                else if(State & REPLACE_FLAG)
+                else if(curmod & REPLACE_FLAG)
                 {
                     MSG_PUTS_ATTR(_(" REPLACE"), attr);
                 }
-                else if(State & INSERT)
+                else if(curmod & INSERT)
                 {
                     if(p_ri)
                     {
@@ -9026,7 +9026,7 @@ int showmode(void)
                     MSG_PUTS_ATTR(farsi_text_5, attr);
                 }
 
-                if(State & LANGMAP)
+                if(curmod & LANGMAP)
                 {
                     if(curwin->w_p_arab)
                     {
@@ -9039,7 +9039,7 @@ int showmode(void)
                     }
                 }
 
-                if((State & INSERT) && p_paste)
+                if((curmod & INSERT) && p_paste)
                 {
                     MSG_PUTS_ATTR(_(" (paste)"), attr);
                 }
@@ -9605,7 +9605,7 @@ static void win_redr_ruler(win_T *wp, int always)
     // the line is empty (will show "0-1").
     int empty_line = FALSE;
 
-    if(!(State & INSERT)
+    if(!(curmod & INSERT)
        && *ml_get_buf(wp->w_buffer, wp->w_cursor.lnum, FALSE) == NUL)
     {
         empty_line = TRUE;
@@ -9826,10 +9826,10 @@ void screen_resize(int width, int height)
         return;
     }
 
-    if(State == HITRETURN || State == SETWSIZE)
+    if(curmod == HITRETURN || curmod == SETWSIZE)
     {
         // postpone the resizing
-        State = SETWSIZE;
+        curmod = SETWSIZE;
         return;
     }
 
@@ -9852,7 +9852,7 @@ void screen_resize(int width, int height)
     // The window layout used to be adjusted here, but it now happens in
     // screenalloc() (also invoked from screenclear()). That is because the
     // "busy" check above may skip this, but not screenalloc().
-    if(State != ASKMORE && State != EXTERNCMD && State != CONFIRM)
+    if(curmod != ASKMORE && curmod != EXTERNCMD && curmod != CONFIRM)
     {
         screenclear();
     }
@@ -9871,9 +9871,9 @@ void screen_resize(int width, int height)
         // - Otherwise, redraw right now, and position the cursor.
         // Always need to call update_screen() or screenalloc(), to make
         // sure Rows/Columns and the size of ScreenLines[] is correct!
-        if(State == ASKMORE
-           || State == EXTERNCMD
-           || State == CONFIRM
+        if(curmod == ASKMORE
+           || curmod == EXTERNCMD
+           || curmod == CONFIRM
            || exmode_active)
         {
             screenalloc(false);
@@ -9886,7 +9886,7 @@ void screen_resize(int width, int height)
                 do_check_scrollbind(TRUE);
             }
 
-            if(State & CMDLINE)
+            if(curmod & CMDLINE)
             {
                 update_screen(NOT_VALID);
                 redrawcmdline();

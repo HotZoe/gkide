@@ -2304,7 +2304,7 @@ int get_c_indent(void)
     // inserting new stuff.
     // For unknown reasons the cursor might be past the end of the line, thus
     // check for that.
-    if((State & INSERT)
+    if((curmod & INSERT)
        && curwin->w_cursor.col < (colnr_T)STRLEN(linecopy)
        && linecopy[curwin->w_cursor.col] == ')')
     {

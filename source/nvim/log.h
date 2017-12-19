@@ -13,27 +13,27 @@
 #define ERROR_LOG_LEVEL    4
 #define FATAL_LOG_LEVEL    5
 
-// Trace
+// Trace Log
 #define TRACE_LOG(...)
 #define TRACE_LOGN(...)
 
-// Debug
+// Debug Log
 #define DEBUG_LOG(...)
 #define DEBUG_LOGN(...)
 
-// State
+// State Log
 #define STATE_LOG(...)
 #define STATE_LOGN(...)
 
-// Alert
+// Alert Log
 #define ALERT_LOG(...)
 #define ALERT_LOGN(...)
 
-// Error
+// Error Log
 #define ERROR_LOG(...)
 #define ERROR_LOGN(...)
 
-// Fatal
+// Fatal Log
 #define FATAL_LOG(...)
 #define FATAL_LOGN(...)
 

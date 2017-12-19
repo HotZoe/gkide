@@ -56,7 +56,7 @@ Most code can be found in a file with an obvious name (incomplete list):
 
 ## Important variables
 
-The current mode is stored in `State`. The values it can have are `NORMAL`,
+The current mode is stored in `curmod`. The values it can have are `NORMAL`,
 `INSERT`, `CMDLINE`, and a few others.
 
 The current window is `curwin`. The current buffer is `curbuf`. These point

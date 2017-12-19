@@ -2889,8 +2889,8 @@ void showmatch(int c)
             ++curwin->w_virtcol; // do display ')' just before "$"
             update_screen(VALID); // show the new char first
             save_dollar_vcol = dollar_vcol;
-            save_state = State;
-            State = SHOWMATCH;
+            save_state = curmod;
+            curmod = SHOWMATCH;
             ui_cursor_shape(); // may show different cursor shape
             curwin->w_cursor = mpos; // move to matching char
             p_so = 0; // don't use 'scrolloff' here
@@ -2918,7 +2918,7 @@ void showmatch(int c)
             curwin->w_cursor = save_cursor; // restore cursor position
             p_so = save_so;
             p_siso = save_siso;
-            State = save_state;
+            curmod = save_state;
             ui_cursor_shape(); // may show different cursor shape
         }
     }

@@ -963,7 +963,7 @@ void wait_return(int redraw)
     }
 
     redir_off = TRUE; // don't redirect this message
-    oldState = State;
+    oldState = curmod;
 
     if(quit_more)
     {
@@ -982,7 +982,7 @@ void wait_return(int redraw)
         // Make sure the hit-return prompt is on screen
         // when 'guioptions' was just changed.
         screenalloc(false);
-        State = HITRETURN;
+        curmod = HITRETURN;
         setmouse();
         cmdline_row = msg_row;
 
@@ -1122,8 +1122,8 @@ void wait_return(int redraw)
 
     // If the window size changed set_shellsize() will redraw the screen.
     // Otherwise the screen is only redrawn if 'redraw' is set and no ':' typed.
-    tmpState = State;
-    State = oldState; // restore State before set_shellsize
+    tmpState = curmod;
+    curmod = oldState; // restore 'curmod' before set_shellsize
     setmouse();
     msg_check();
     need_wait_return = FALSE;
@@ -2027,7 +2027,7 @@ static void msg_puts_display(const char_u *str,
                 --lines_left;
             }
 
-            if(p_more && lines_left == 0 && State != HITRETURN
+            if(p_more && lines_left == 0 && curmod != HITRETURN
                && !msg_no_more && !exmode_active)
             {
                 if(do_more_prompt(NUL))
@@ -2483,7 +2483,7 @@ static int do_more_prompt(int typed_char)
 {
     static bool entered = false;
     int used_typed_char = typed_char;
-    int oldState = State;
+    int oldState = curmod;
     int c;
     int retval = FALSE;
     int toscroll;
@@ -2494,7 +2494,7 @@ static int do_more_prompt(int typed_char)
     // We get called recursively when a timer callback outputs a message. In
     // that case don't show another prompt. Also when at the hit-Enter prompt
     // and nothing was typed.
-    if(entered || (State == HITRETURN && typed_char == 0))
+    if(entered || (curmod == HITRETURN && typed_char == 0))
     {
         return false;
     }
@@ -2513,7 +2513,7 @@ static int do_more_prompt(int typed_char)
         }
     }
 
-    State = ASKMORE;
+    curmod = ASKMORE;
     setmouse();
 
     if(typed_char == NUL)
@@ -2731,7 +2731,7 @@ static int do_more_prompt(int typed_char)
 
     // clear the --more-- message
     screen_fill((int)Rows - 1, (int)Rows, 0, (int)Columns, ' ', ' ', 0);
-    State = oldState;
+    curmod = oldState;
     setmouse();
 
     if(quit_more)
@@ -2877,21 +2877,21 @@ void msg_moremsg(int full)
 /// ASKMORE, EXTERNCMD, CONFIRM or exmode_active.
 void repeat_message(void)
 {
-    if(State == ASKMORE)
+    if(curmod == ASKMORE)
     {
         msg_moremsg(TRUE); // display --more-- message again
         msg_row = Rows - 1;
     }
-    else if(State == CONFIRM)
+    else if(curmod == CONFIRM)
     {
         display_confirm_msg(); // display ":confirm" message again
         msg_row = Rows - 1;
     }
-    else if(State == EXTERNCMD)
+    else if(curmod == EXTERNCMD)
     {
         ui_cursor_goto(msg_row, msg_col); // put cursor back
     }
-    else if(State == HITRETURN || State == SETWSIZE)
+    else if(curmod == HITRETURN || curmod == SETWSIZE)
     {
         if(msg_row == Rows - 1)
         {
@@ -2952,7 +2952,7 @@ int msg_end(void)
     // or the ruler option is set and we run into it,
     // we have to redraw the window. Do not do this if
     // we are abandoning the file or editing the command line.
-    if(!exiting && need_wait_return && !(State & CMDLINE))
+    if(!exiting && need_wait_return && !(curmod & CMDLINE))
     {
         wait_return(FALSE);
         return FALSE;
@@ -3300,8 +3300,8 @@ int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
         return dfltbutton; // return default option
     }
 
-    oldState = State;
-    State = CONFIRM;
+    oldState = curmod;
+    curmod = CONFIRM;
     setmouse();
 
     // Since we wait for a keypress, don't make the
@@ -3376,7 +3376,7 @@ int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
     }
 
     xfree(hotkeys);
-    State = oldState;
+    curmod = oldState;
     setmouse();
     --no_wait_return;
     msg_end_prompt();

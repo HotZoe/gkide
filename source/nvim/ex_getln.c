@@ -112,7 +112,7 @@ typedef struct command_line_state
 
     int res;
     int save_msg_scroll;
-    int save_State;      ///< remember State when called
+    int save_State;      ///< remember ::curmod when called
     char_u *save_p_icm;
     int some_key_typed;  ///< one of the keys was typed
 
@@ -165,7 +165,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     s->count = count;
     s->indent = indent;
     s->save_msg_scroll = msg_scroll;
-    s->save_State = State;
+    s->save_State = curmod;
     s->save_p_icm = vim_strsave(p_icm);
     s->ignore_drag_release = true;
 
@@ -250,7 +250,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     // Avoid scrolling when called by a recursive do_cmdline(), e.g. when
     // doing ":@0" when register 0 doesn't contain a CR.
     msg_scroll = false;
-    State = CMDLINE;
+    curmod = CMDLINE;
 
     if(s->firstc == '/' || s->firstc == '?' || s->firstc == '@')
     {
@@ -266,7 +266,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
 
         if(*s->b_im_ptr == B_IMODE_LMAP)
         {
-            State |= LANGMAP;
+            curmod |= LANGMAP;
         }
     }
 
@@ -355,7 +355,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
 
     set_string_option_direct((char_u *)"icm", -1, s->save_p_icm, OPT_FREE,
                              SID_NONE);
-    State = s->save_State;
+    curmod = s->save_State;
     setmouse();
     ui_cursor_shape(); // may show different cursor shape
     xfree(s->save_p_icm);
@@ -1196,11 +1196,11 @@ static int command_line_handle_key(CommandLineState *s)
             if(map_to_exists_mode("", LANGMAP, false))
             {
                 // ":lmap" mappings exists, toggle use of mappings.
-                State ^= LANGMAP;
+                curmod ^= LANGMAP;
 
                 if(s->b_im_ptr != NULL)
                 {
-                    if(State & LANGMAP)
+                    if(curmod & LANGMAP)
                     {
                         *s->b_im_ptr = B_IMODE_LMAP;
                     }
@@ -2025,7 +2025,7 @@ static int command_line_changed(CommandLineState *s)
         //    - Update the screen while the effects are in place.
         //    - Immediately undo the effects.
 
-        State |= CMDPREVIEW;
+        curmod |= CMDPREVIEW;
 
         // Block error reporting as the command may be incomplete
         emsg_silent++;
@@ -2043,9 +2043,9 @@ static int command_line_changed(CommandLineState *s)
         update_topline();
         redrawcmdline();
     }
-    else if(State & CMDPREVIEW)
+    else if(curmod & CMDPREVIEW)
     {
-        State = (State & ~CMDPREVIEW);
+        curmod = (curmod & ~CMDPREVIEW);
         update_screen(SOME_VALID); // Clear 'inccommand' preview.
     }
 
@@ -6142,7 +6142,7 @@ int get_history_idx(int histype)
 /// ccline and put the previous value in prev_ccline.
 static struct cmdline_info *get_ccline_ptr(void)
 {
-    if((State & CMDLINE) == 0)
+    if((curmod & CMDLINE) == 0)
     {
         return NULL;
     }
@@ -6697,7 +6697,7 @@ static int ex_window(void)
     garray_T winsizes;
     char_u typestr[2];
     int save_restart_edit = restart_edit;
-    int save_State = State;
+    int save_State = curmod;
     int save_exmode = exmode_active;
     int save_cmdmsg_rl = cmdmsg_rl;
 
@@ -6804,7 +6804,7 @@ static int ex_window(void)
 
     // No Ex mode here!
     exmode_active = 0;
-    State = NORMAL;
+    curmod = NORMAL;
     setmouse();
 
     // Trigger CmdwinEnter autocommands.
@@ -6937,7 +6937,7 @@ static int ex_window(void)
     ga_clear(&winsizes);
     restart_edit = save_restart_edit;
     cmdmsg_rl = save_cmdmsg_rl;
-    State = save_State;
+    curmod = save_State;
     setmouse();
     return cmdwin_result;
 }

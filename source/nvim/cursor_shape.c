@@ -390,23 +390,23 @@ int cursor_mode_str2int(const char *mode)
 /// Return the index into shape_table[] for the current mode.
 int cursor_get_mode_idx(void)
 {
-    if(State == SHOWMATCH)
+    if(curmod == SHOWMATCH)
     {
         return SHAPE_IDX_SM;
     }
-    else if(State & VREPLACE_FLAG)
+    else if(curmod & VREPLACE_FLAG)
     {
         return SHAPE_IDX_R;
     }
-    else if(State & REPLACE_FLAG)
+    else if(curmod & REPLACE_FLAG)
     {
         return SHAPE_IDX_R;
     }
-    else if(State & INSERT)
+    else if(curmod & INSERT)
     {
         return SHAPE_IDX_I;
     }
-    else if(State & CMDLINE)
+    else if(curmod & CMDLINE)
     {
         if(cmdline_at_end())
         {

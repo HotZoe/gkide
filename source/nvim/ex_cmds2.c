@@ -126,7 +126,7 @@ static bool debug_greedy = false;
 void do_debug(char_u *cmd)
 {
     int save_msg_scroll = msg_scroll;
-    int save_State = State;
+    int save_State = curmod;
     int save_did_emsg = did_emsg;
     int save_cmd_silent = cmd_silent;
     int save_msg_silent = msg_silent;
@@ -160,7 +160,7 @@ void do_debug(char_u *cmd)
     msg_silent = false;     // display messages
     emsg_silent = false;    // display error messages
     redir_off = true;       // don't redirect debug commands
-    State = NORMAL;
+    curmod = NORMAL;
 
     if(!debug_did_msg)
     {
@@ -406,7 +406,7 @@ void do_debug(char_u *cmd)
     need_wait_return = false;
     msg_scroll = save_msg_scroll;
     lines_left = (int)(Rows - 1);
-    State = save_State;
+    curmod = save_State;
     did_emsg = save_did_emsg;
     cmd_silent = save_cmd_silent;
     msg_silent = save_msg_silent;

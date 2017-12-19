@@ -116,7 +116,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
 {
     DynamicBuffer input = DYNAMIC_BUFFER_INIT;
     char *output = NULL, **output_ptr = NULL;
-    int current_state = State;
+    int current_state = curmod;
     bool forward_output = true;
 
     // While the child is running, ignore terminating signals
@@ -128,7 +128,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     }
     else
     {
-        State = EXTERNCMD;
+        curmod = EXTERNCMD;
 
         if(opts & kShellOptWrite)
         {
@@ -168,7 +168,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
         msg_putchar('\n');
     }
 
-    State = current_state;
+    curmod = current_state;
     signal_accept_deadly();
     return exitcode;
 }

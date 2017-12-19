@@ -1642,12 +1642,12 @@ void ex_emenu(exarg_T *eap)
 
     // Found the menu, so execute.
     // Use the Insert mode entry when returning to Insert mode.
-    if(((State & INSERT) || restart_edit) && !current_SID)
+    if(((curmod & INSERT) || restart_edit) && !current_SID)
     {
         mode = (char_u *)"Insert";
         idx = MENU_INDEX_INSERT;
     }
-    else if(State & CMDLINE)
+    else if(curmod & CMDLINE)
     {
         mode = (char_u *)"Command";
         idx = MENU_INDEX_CMDLINE;

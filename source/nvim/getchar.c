@@ -85,7 +85,7 @@ static int typeahead_char = 0;
 static int block_redo = FALSE;
 
 /// Make a hash value for a mapping.
-/// "mode" is the lower 4 bits of the State for the mapping.
+/// "mode" is the lower 4 bits of the ::curmod for the mapping.
 /// "c1" is the first character of the "lhs".
 /// Returns a value between 0 and 255, index in maphash.
 /// Put Normal/Visual mode mappings mostly separately from Insert/Cmdline mode.
@@ -1253,7 +1253,7 @@ static void gotchars(char_u *chars, size_t len)
 /// - When no_u_sync is non-zero.
 void may_sync_undo(void)
 {
-    if((!(State & (INSERT + CMDLINE)) || arrow_used)
+    if((!(curmod & (INSERT + CMDLINE)) || arrow_used)
        && scriptin[curscript] == NULL)
     {
         u_sync(FALSE);
@@ -1402,12 +1402,12 @@ void openscript(char_u *name, int directly)
     {
         oparg_T oa;
         int oldcurscript;
-        int save_State = State;
+        int save_State = curmod;
         int save_restart_edit = restart_edit;
         int save_insertmode = p_im;
         int save_finish_op = finish_op;
         int save_msg_scroll = msg_scroll;
-        State = NORMAL;
+        curmod = NORMAL;
         msg_scroll = FALSE; // no msg scrolling in Normal mode
         restart_edit = 0; // don't go to Insert mode
         p_im = FALSE; // don't use 'insertmode'
@@ -1422,7 +1422,7 @@ void openscript(char_u *name, int directly)
             vpeekc(); // check for end of file
         } while(scriptin[oldcurscript] != NULL);
 
-        State = save_State;
+        curmod = save_State;
         msg_scroll = save_msg_scroll;
         restart_edit = save_restart_edit;
         p_im = save_insertmode;
@@ -1953,7 +1953,7 @@ static int vgetorpeek(int advance)
                     // Otherwise we behave like having gotten a CTRL-C.
                     // As a result typing CTRL-C in insert mode will
                     // really insert a CTRL-C.
-                    if((c || typebuf.tb_maplen) && (State & (INSERT + CMDLINE)))
+                    if((c || typebuf.tb_maplen) && (curmod & (INSERT + CMDLINE)))
                     {
                         c = ESC;
                     }
@@ -1999,10 +1999,10 @@ static int vgetorpeek(int advance)
                        && (typebuf.tb_maplen == 0
                            || (p_remap
                                && (typebuf.tb_noremap[typebuf.tb_off] & (RM_NONE|RM_ABBR)) == 0))
-                       && !(p_paste && (State & (INSERT + CMDLINE)))
-                       && !(State == HITRETURN && (c1 == CAR || c1 == ' '))
-                       && State != ASKMORE
-                       && State != CONFIRM
+                       && !(p_paste && (curmod & (INSERT + CMDLINE)))
+                       && !(curmod == HITRETURN && (c1 == CAR || c1 == ' '))
+                       && curmod != ASKMORE
+                       && curmod != CONFIRM
                        && !((ctrl_x_mode != 0 && vim_is_ctrl_x_key(c1))
                             || ((compl_cont_status & CONT_LOCAL)
                                 && (c1 == Ctrl_N || c1 == Ctrl_P))))
@@ -2014,7 +2014,7 @@ static int vgetorpeek(int advance)
                         else
                         {
                             LANGMAP_ADJUST(c1,
-                                           (State & (CMDLINE | INSERT)) == 0
+                                           (curmod & (CMDLINE | INSERT)) == 0
                                            && get_real_state() != SELECTMODE);
                             nolmaplen = 0;
                         }
@@ -2165,7 +2165,7 @@ static int vgetorpeek(int advance)
                     }
 
                     // Check for a key that can toggle the 'paste' option
-                    if(mp == NULL && (State & (INSERT|NORMAL)))
+                    if(mp == NULL && (curmod & (INSERT|NORMAL)))
                     {
                         bool match = typebuf_match_len(ui_toggle, &mlen);
 
@@ -2190,7 +2190,7 @@ static int vgetorpeek(int advance)
                             del_typebuf(mlen, 0); // Remove the chars.
                             set_option_value("paste", !p_paste, NULL, 0);
 
-                            if(!(State & INSERT))
+                            if(!(curmod & INSERT))
                             {
                                 msg_col = 0;
                                 msg_row = (int)Rows - 1;
@@ -2289,7 +2289,7 @@ static int vgetorpeek(int advance)
                         {
                             EMSG(_("E223: recursive mapping"));
 
-                            if(State & CMDLINE)
+                            if(curmod & CMDLINE)
                             {
                                 redrawcmdline();
                             }
@@ -2418,7 +2418,7 @@ static int vgetorpeek(int advance)
                    && !no_mapping
                    && ex_normal_busy == 0
                    && typebuf.tb_maplen == 0
-                   && (State & INSERT)
+                   && (curmod & INSERT)
                    && (p_timeout || (keylen == KEYLEN_PART_KEY && p_ttimeout))
                    && (c = inchar(typebuf.tb_buf  + typebuf.tb_off + typebuf.tb_len,
                                   3,
@@ -2554,11 +2554,11 @@ static int vgetorpeek(int advance)
                     // For the cmdline window: Alternate between ESC and
                     // CTRL-C: ESC for most situations and CTRL-C to close the
                     // cmdline window.
-                    if(p_im && (State & INSERT))
+                    if(p_im && (curmod & INSERT))
                     {
                         c = Ctrl_L;
                     }
-                    else if((State & CMDLINE) || (cmdwin_type > 0 && tc == ESC))
+                    else if((curmod & CMDLINE) || (cmdwin_type > 0 && tc == ESC))
                     {
                         c = Ctrl_C;
                     }
@@ -2579,8 +2579,8 @@ static int vgetorpeek(int advance)
                 // changed text so far. Also for when 'lazyredraw' is set and
                 // redrawing was postponed because there was something in the
                 // input buffer (e.g., termresponse).
-                if(((State & INSERT) != 0 || p_lz)
-                   && (State & CMDLINE) == 0
+                if(((curmod & INSERT) != 0 || p_lz)
+                   && (curmod & CMDLINE) == 0
                    && advance
                    && must_redraw != 0
                    && !need_wait_return)
@@ -2597,11 +2597,11 @@ static int vgetorpeek(int advance)
 
                 if(typebuf.tb_len > 0 && advance && !exmode_active)
                 {
-                    if(((State & (NORMAL | INSERT)) || State == LANGMAP)
-                       && State != HITRETURN)
+                    if(((curmod & (NORMAL | INSERT)) || curmod == LANGMAP)
+                       && curmod != HITRETURN)
                     {
                         // this looks nice when typing a dead character map
-                        if(State & INSERT
+                        if(curmod & INSERT
                            && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)
                         {
                             edit_putchar(typebuf.tb_buf[typebuf.tb_off + typebuf.tb_len - 1], FALSE);
@@ -2631,7 +2631,7 @@ static int vgetorpeek(int advance)
                     }
 
                     // this looks nice when typing a dead character map
-                    if((State & CMDLINE)
+                    if((curmod & CMDLINE)
                        && cmdline_star == 0
                        && ptr2cells(typebuf.tb_buf + typebuf.tb_off + typebuf.tb_len - 1) == 1)
                     {
@@ -2659,12 +2659,12 @@ static int vgetorpeek(int advance)
 
                 if(c1 == 1)
                 {
-                    if(State & INSERT)
+                    if(curmod & INSERT)
                     {
                         edit_unputchar();
                     }
 
-                    if(State & CMDLINE)
+                    if(curmod & CMDLINE)
                     {
                         unputcmdline();
                     }
@@ -2711,7 +2711,7 @@ static int vgetorpeek(int advance)
     // The "INSERT" message is taken care of here:
     // - if we return an ESC to exit insert mode, the message is deleted
     // - if we don't return an ESC but deleted the message before, redisplay it
-    if(advance && p_smd && msg_silent == 0 && (State & INSERT))
+    if(advance && p_smd && msg_silent == 0 && (curmod & INSERT))
     {
         if(c == ESC && !mode_deleted && !no_mapping && mode_displayed)
         {
@@ -2784,7 +2784,7 @@ int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
     // Don't reset these when at the hit-return prompt, otherwise an endless
     // recursive loop may result (write error in swapfile, hit-return, timeout
     // on char wait, flush swapfile, write error....).
-    if(State != HITRETURN)
+    if(curmod != HITRETURN)
     {
         did_outofmem_msg = FALSE; // display out of memory message (again)
         did_swapwrite_msg = FALSE; // display swap file write error again
@@ -4387,7 +4387,7 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
             }
 
             // find entries with right mode and keys
-            match = (mp->m_mode & State)
+            match = (mp->m_mode & curmod)
                     && qlen == len
                     && !STRNCMP(q, ptr, (size_t)len);
 

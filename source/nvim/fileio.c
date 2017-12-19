@@ -6375,7 +6375,7 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
                 reload = true;
             }
         }
-        else if(State > NORMAL_BUSY || (State & CMDLINE) || already_warned)
+        else if(curmod > NORMAL_BUSY || (curmod & CMDLINE) || already_warned)
         {
             if(*mesg2 != NUL)
             {

@@ -350,7 +350,7 @@ void shift_line(int left, int round, int amount, int call_changed_bytes)
     }
 
     // Set new indent
-    if(State & VREPLACE_FLAG)
+    if(curmod & VREPLACE_FLAG)
     {
         change_indent(INDENT_SET, count, FALSE, NUL, call_changed_bytes);
     }
@@ -365,7 +365,7 @@ void shift_line(int left, int round, int amount, int call_changed_bytes)
 static void shift_block(oparg_T *oap, int amount)
 {
     int left = (oap->op_type == OP_LSHIFT);
-    int oldstate = State;
+    int oldstate = curmod;
     int total;
     char_u *newp, *oldp;
     int oldcol = curwin->w_cursor.col;
@@ -378,7 +378,7 @@ static void shift_block(oparg_T *oap, int amount)
     int len;
     int old_p_ri = p_ri;
     p_ri = 0; // don't want revins in indent
-    State = INSERT; // don't want REPLACE for State
+    curmod = INSERT; // don't want REPLACE for 'curmod'
     block_prep(oap, &bd, curwin->w_cursor.lnum, TRUE);
 
     if(bd.is_short)
@@ -559,7 +559,7 @@ static void shift_block(oparg_T *oap, int amount)
     // replace the line
     ml_replace(curwin->w_cursor.lnum, newp, FALSE);
     changed_bytes(curwin->w_cursor.lnum, (colnr_T)bd.textcol);
-    State = oldstate;
+    curmod = oldstate;
     curwin->w_cursor.col = oldcol;
     p_ri = old_p_ri;
 }
@@ -578,8 +578,8 @@ static void block_insert(oparg_T *oap,
     size_t s_len = STRLEN(s);
     char_u *newp, *oldp; // new, old lines
     linenr_T lnum; // loop var
-    int oldstate = State;
-    State = INSERT; // don't want REPLACE for State
+    int oldstate = curmod;
+    curmod = INSERT; // don't want REPLACE for 'curmod'
 
     for(lnum = oap->start.lnum + 1; lnum <= oap->end.lnum; lnum++)
     {
@@ -695,7 +695,7 @@ static void block_insert(oparg_T *oap,
     }
 
     changed_lines(oap->start.lnum + 1, 0, oap->end.lnum + 1, 0L);
-    State = oldstate;
+    curmod = oldstate;
 }
 
 /// handle reindenting a block of lines.
@@ -2245,10 +2245,10 @@ int op_replace(oparg_T *oap, int c)
                         oap->end.col += (*mb_char2len)(c) - (*mb_char2len)(n);
                     }
 
-                    n = State;
-                    State = REPLACE;
+                    n = curmod;
+                    curmod = REPLACE;
                     ins_char(c);
-                    State = n;
+                    curmod = n;
 
                     // Backup to the replaced character.
                     dec_cursor();
@@ -4252,7 +4252,7 @@ void adjust_cursor_eol(void)
     if(curwin->w_cursor.col > 0
        && gchar_cursor() == NUL
        && (ve_flags & VE_ONEMORE) == 0
-       && !(restart_edit || (State & INSERT)))
+       && !(restart_edit || (curmod & INSERT)))
     {
         // Put the cursor on the last character in the line.
         dec_cursor();
@@ -5079,7 +5079,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
     long count;
     int need_set_indent = TRUE; // set indent of next paragraph
     int force_format = FALSE;
-    int old_State = State;
+    int old_State = curmod;
 
     // length of a line to force formatting: 3 * 'tw'
     max_len = comp_textwidth(TRUE) * 3;
@@ -5231,7 +5231,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
                 }
 
                 // put cursor on last non-space
-                State = NORMAL; // don't go past end-of-line
+                curmod = NORMAL; // don't go past end-of-line
                 coladvance((colnr_T)MAXCOL);
 
                 while(curwin->w_cursor.col && ascii_isspace(gchar_cursor()))
@@ -5240,7 +5240,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
                 }
 
                 // do the formatting, without 'showmode'
-                State = INSERT; // for open_line()
+                curmod = INSERT; // for open_line()
                 smd_save = p_smd;
                 p_smd = FALSE;
 
@@ -5250,7 +5250,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
                               ? INSCHAR_COM_LIST : 0)
                            + (avoid_fex ? INSCHAR_NO_FEX : 0), second_indent);
 
-                State = old_State;
+                curmod = old_State;
                 p_smd = smd_save;
                 second_indent = -1;
 

@@ -218,7 +218,7 @@ void do_exmode(int improved)
         exmode_active = EXMODE_NORMAL;
     }
 
-    State = NORMAL;
+    curmod = NORMAL;
 
     // When using ":global /pat/ visual" and then "Q" we return
     // to continue the :global command.
@@ -10400,7 +10400,7 @@ void update_topline_cursor(void)
 /// ":normal[!] {commands}": Execute normal mode commands.
 static void ex_normal(exarg_T *eap)
 {
-    if(curbuf->terminal && State & TERM_FOCUS)
+    if(curbuf->terminal && curmod & TERM_FOCUS)
     {
         EMSG("Can't re-enter normal mode from terminal mode");
         return;
@@ -10409,7 +10409,7 @@ static void ex_normal(exarg_T *eap)
     int save_msg_scroll = msg_scroll;
     int save_restart_edit = restart_edit;
     int save_msg_didout = msg_didout;
-    int save_State = State;
+    int save_State = curmod;
     tasave_T tabuf;
     int save_insertmode = p_im;
     int save_finish_op = finish_op;
@@ -10534,7 +10534,7 @@ static void ex_normal(exarg_T *eap)
 
     // Restore the state (needed when called from a function executed for
     // 'indentexpr'). Update the mouse and cursor, they may have changed.
-    State = save_State;
+    curmod = save_State;
     setmouse();
     ui_cursor_shape(); // may show different cursor shape
     xfree(arg);
@@ -10552,7 +10552,7 @@ static void ex_startinsert(exarg_T *eap)
 
     // Ignore the command when already in Insert mode.
     // Inserting an expression register that invokes a function can do this.
-    if(State & INSERT)
+    if(curmod & INSERT)
     {
         return;
     }

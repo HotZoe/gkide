@@ -434,9 +434,9 @@ void terminal_enter(void)
     terminal_resize(s->term, 0, 0);
     checkpcmark();
     setpcmark();
-    int save_state = State;
+    int save_state = curmod;
     s->save_rd = RedrawingDisabled;
-    State = TERM_FOCUS;
+    curmod = TERM_FOCUS;
     mapped_ctrl_c |= TERM_FOCUS; // Always map CTRL-C to avoid interrupt.
     RedrawingDisabled = false;
 
@@ -462,7 +462,7 @@ void terminal_enter(void)
     s->state.execute = terminal_execute;
     state_enter(&s->state);
     restart_edit = 0;
-    State = save_state;
+    curmod = save_state;
     RedrawingDisabled = s->save_rd;
 
     // save_curwin may be invalid (window closed)!
@@ -1561,7 +1561,7 @@ static int linenr_to_row(Terminal *term, int linenr)
 
 static bool is_focused(Terminal *term)
 {
-    return State & TERM_FOCUS && curbuf->terminal == term;
+    return curmod & TERM_FOCUS && curbuf->terminal == term;
 }
 
 #define GET_CONFIG_VALUE(k, o)                                          \

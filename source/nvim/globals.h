@@ -857,15 +857,14 @@ EXTERN int (*iconvctl)(iconv_t cd, int request, void *argument);
 EXTERN int *(*iconv_errno)(void);
 #endif
 
-// "State" is the main state of Vim.
-//
-// There are other variables that modify the state:
-// - "Visual_mode"    When State is NORMAL or INSERT.
-// - "finish_op"      When State is NORMAL, after typing
-//                    the operator and before typing the motion command.
-
-/// This is the current state of the command interpreter.
-EXTERN int State INIT(= NORMAL);
+/// This is the current state(mode) of the command interpreter.
+/// @b curmod is the main state of Vim.
+///
+/// There are other variables that modify the state:
+/// - "Visual_mode"    When @b curmod is NORMAL or INSERT.
+/// - "finish_op"      When @b curmod is NORMAL, after typing
+///                    the operator and before typing the motion command.
+EXTERN int curmod INIT(= NORMAL);
 
 EXTERN bool finish_op INIT(= false);    ///< true while an operator is pending
 EXTERN long opcount INIT(= 0);          ///< count for pending operator

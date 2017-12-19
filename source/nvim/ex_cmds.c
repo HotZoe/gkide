@@ -3459,11 +3459,11 @@ void ex_append(exarg_T *eap)
         lnum = 0;
     }
 
-    State = INSERT; // behave like in Insert mode
+    curmod = INSERT; // behave like in Insert mode
 
     if(curbuf->b_p_iminsert == B_IMODE_LMAP)
     {
-        State |= LANGMAP;
+        curmod |= LANGMAP;
     }
 
     for(;;)
@@ -3513,17 +3513,17 @@ void ex_append(exarg_T *eap)
         }
         else
         {
-            // Set State to avoid the cursor shape to be
+            // Set curmod to avoid the cursor shape to be
             // set to INSERT mode when getline() returns.
-            int save_State = State;
-            State = CMDLINE;
+            int save_State = curmod;
+            curmod = CMDLINE;
 
             theline = eap->getline(eap->cstack->cs_looplevel > 0 ? -1 :
                                    NUL,
                                    eap->cookie,
                                    indent);
 
-            State = save_State;
+            curmod = save_State;
         }
 
         lines_left = Rows - 1;
@@ -3585,7 +3585,7 @@ void ex_append(exarg_T *eap)
         }
     }
 
-    State = NORMAL;
+    curmod = NORMAL;
 
     if(eap->forceit)
     {
@@ -4150,7 +4150,7 @@ static buf_T *do_sub(exarg_T *eap, proftime_T timeout)
     int start_nsubs;
     int save_ma = 0;
     int save_b_changed = curbuf->b_changed;
-    bool preview = (State & CMDPREVIEW);
+    bool preview = (curmod & CMDPREVIEW);
 
     if(!global_busy)
     {
@@ -4543,10 +4543,10 @@ static buf_T *do_sub(exarg_T *eap, proftime_T timeout)
                 {
                     int typed = 0;
 
-                    // change State to CONFIRM, so that
+                    // change curmod to CONFIRM, so that
                     // the mouse works properly
-                    int save_State = State;
-                    State = CONFIRM;
+                    int save_State = curmod;
+                    curmod = CONFIRM;
 
                     setmouse(); // disable mouse in xterm
                     curwin->w_cursor.col = regmatch.startpos[0].col;
@@ -4737,7 +4737,7 @@ static buf_T *do_sub(exarg_T *eap, proftime_T timeout)
                         }
                     }
 
-                    State = save_State;
+                    curmod = save_State;
                     setmouse();
 
                     if(vim_strchr(p_cpo, CPO_UNDO) != NULL)
@@ -8011,7 +8011,7 @@ FUNC_ATTR_NONNULL_ALL
 ///   then removes the changes. from undo history.
 void ex_substitute(exarg_T *eap)
 {
-    bool preview = (State & CMDPREVIEW);
+    bool preview = (curmod & CMDPREVIEW);
 
     if(*p_icm == NUL || !preview) // 'inccommand' is disabled
     {

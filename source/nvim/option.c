@@ -5123,7 +5123,7 @@ static char *set_bool_option(const int opt_idx,
     {
         if(p_im)
         {
-            if((State & INSERT) == 0)
+            if((curmod & INSERT) == 0)
             {
                 need_start_insertmode = true;
             }
