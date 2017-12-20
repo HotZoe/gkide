@@ -100,8 +100,8 @@ int virtual_active(void)
 		       && (curmod & kInsertMode));
 }
 
-/// kVisualMode, SELECTMODE and kOpPendMode, @b curmod are never set,
-/// they are equal to @b curmod (kNormalMode) with a condition.
+/// @b kVisualMode, @b kMapSelectMode and @b kOpPendMode, @b curmod are never
+/// set, they are equal to @b curmod (@b kNormalMode) with a condition.
 ///
 /// @return
 /// This function returns the real @b curmod.
@@ -113,7 +113,7 @@ int get_real_state(void)
         {
             if(VIsual_select)
             {
-                return SELECTMODE;
+                return kMapSelectMode;
             }
 
             return kVisualMode;
@@ -143,34 +143,34 @@ char *get_mode(void)
             buf[0] = (char)VIsual_mode;
         }
     }
-    else if(curmod == HITRETURN
-            || curmod == ASKMORE
-            || curmod == SETWSIZE
-            || curmod == CONFIRM)
+    else if(curmod == kNormalWaitMode
+            || curmod == kAskMoreMode
+            || curmod == kSetWinSizeMode
+            || curmod == kConfirmMode)
     {
         buf[0] = 'r';
 
-        if(curmod == ASKMORE)
+        if(curmod == kAskMoreMode)
         {
             buf[1] = 'm';
         }
-        else if(curmod == CONFIRM)
+        else if(curmod == kConfirmMode)
         {
             buf[1] = '?';
         }
     }
-    else if(curmod == EXTERNCMD)
+    else if(curmod == kExecExtCmdMode)
     {
         buf[0] = '!';
     }
     else if(curmod & kInsertMode)
     {
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             buf[0] = 'R';
             buf[1] = 'v';
         }
-        else if(curmod & REPLACE_FLAG)
+        else if(curmod & kModFlgReplace)
         {
             buf[0] = 'R';
         }
@@ -193,7 +193,7 @@ char *get_mode(void)
         buf[0] = 'c';
         buf[1] = 'e';
     }
-    else if(curmod & TERM_FOCUS)
+    else if(curmod & kTermFocusMode)
     {
         buf[0] = 't';
     }

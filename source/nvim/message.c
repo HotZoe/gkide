@@ -982,7 +982,7 @@ void wait_return(int redraw)
         // Make sure the hit-return prompt is on screen
         // when 'guioptions' was just changed.
         screenalloc(false);
-        curmod = HITRETURN;
+        curmod = kNormalWaitMode;
         setmouse();
         cmdline_row = msg_row;
 
@@ -1139,7 +1139,7 @@ void wait_return(int redraw)
         keep_msg = NULL; // don't redisplay message, it's too long
     }
 
-    if(tmpState == SETWSIZE) // got resize event while in vgetc()
+    if(tmpState == kSetWinSizeMode) // got resize event while in vgetc()
     {
         ui_refresh();
     }
@@ -2027,7 +2027,9 @@ static void msg_puts_display(const char_u *str,
                 --lines_left;
             }
 
-            if(p_more && lines_left == 0 && curmod != HITRETURN
+            if(p_more 
+			   && lines_left == 0 
+			   && curmod != kNormalWaitMode
                && !msg_no_more && !exmode_active)
             {
                 if(do_more_prompt(NUL))
@@ -2494,7 +2496,7 @@ static int do_more_prompt(int typed_char)
     // We get called recursively when a timer callback outputs a message. In
     // that case don't show another prompt. Also when at the hit-Enter prompt
     // and nothing was typed.
-    if(entered || (curmod == HITRETURN && typed_char == 0))
+    if(entered || (curmod == kNormalWaitMode && typed_char == 0))
     {
         return false;
     }
@@ -2513,7 +2515,7 @@ static int do_more_prompt(int typed_char)
         }
     }
 
-    curmod = ASKMORE;
+    curmod = kAskMoreMode;
     setmouse();
 
     if(typed_char == NUL)
@@ -2874,24 +2876,24 @@ void msg_moremsg(int full)
 }
 
 /// Repeat the message for the current mode:
-/// ASKMORE, EXTERNCMD, CONFIRM or exmode_active.
+/// @b kAskMoreMode, @b kExecExtCmdMode, @b kConfirmMode or exmode_active.
 void repeat_message(void)
 {
-    if(curmod == ASKMORE)
+    if(curmod == kAskMoreMode)
     {
         msg_moremsg(TRUE); // display --more-- message again
         msg_row = Rows - 1;
     }
-    else if(curmod == CONFIRM)
+    else if(curmod == kConfirmMode)
     {
         display_confirm_msg(); // display ":confirm" message again
         msg_row = Rows - 1;
     }
-    else if(curmod == EXTERNCMD)
+    else if(curmod == kExecExtCmdMode)
     {
         ui_cursor_goto(msg_row, msg_col); // put cursor back
     }
-    else if(curmod == HITRETURN || curmod == SETWSIZE)
+    else if(curmod == kNormalWaitMode || curmod == kSetWinSizeMode)
     {
         if(msg_row == Rows - 1)
         {
@@ -3303,7 +3305,7 @@ int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
     }
 
     oldState = curmod;
-    curmod = CONFIRM;
+    curmod = kConfirmMode;
     setmouse();
 
     // Since we wait for a keypress, don't make the

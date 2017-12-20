@@ -64,41 +64,49 @@ enum
 /// @see ::curmod
 enum NvimWorkingMode
 {
-    kNormalMode = 0x01,  ///< Normal mode, command expected
-    kVisualMode = 0x02,  ///< Visual mode, use get_real_state()
-    kOpPendMode = 0x04,  ///< Normal mode, but operator is pending, use
-                         ///< get_real_state() to get the real current mode
-    kCmdLineMode = 0x08, ///< Command line mode
-    kInsertMode  = 0x10, ///< Insert mode
+    kNormalMode    = 0x01, ///< mode: Normal mode, command expected
+    kVisualMode    = 0x02, ///< mode: Visual mode, use get_real_state()
+    kOpPendMode    = 0x04, ///< mode: Normal mode, but operator is pending, to
+                           ///<       get the current mode use get_real_state()
+    kCmdLineMode   = 0x08, ///< mode: Command line mode
+    kInsertMode    = 0x10, ///< mode: Insert mode
+    kModFlgLangMap = 0x20, ///< flag: Language mapping flag can be combined
+                           ///<       with @b kInsertMode and @b kCmdLineMode
+    kModFlgReplace = 0x40, ///< flag: Replace mode flag
+    kModFlgVReplace= 0x80, ///< flag: Virtual-replace mode flag
 
-    kModFlgLangMap = 0x20, ///< Language mapping flag can be combined
-                           ///< with @b kInsertMode and @b kCmdLineMode
-    kModFlgReplace = 0x40,
-    kModFlgVReplace= 0x80,
+    /// Derive mode: Replace mode
+    kReplaceMode    = kModFlgReplace + kInsertMode,
+    /// Derive mode: Virtual-replace mode
+    kVReplaceMode   = kModFlgReplace + kModFlgVReplace + kInsertMode,
+    /// Derive mode: Line-replace mode
+    kLReplaceMode   = kModFlgReplace + kModFlgLangMap,
 
-    REPLACE_FLAG = 0x40,  ///< Replace mode flag
-    VREPLACE_FLAG = 0x80,  ///< Virtual-replace mode flag
+    /// Normal mode, busy with a command
+    kNormalBusyMode      = 0x100 + kNormalMode,
+    /// waiting for return or command
+    kNormalWaitMode      = 0x200 + kNormalMode,
+    /// Asking if you want --more--
+    kAskMoreMode         = 0x300,
+    /// window size has changed
+    kSetWinSizeMode      = 0x400,
+    /* not used for now  = 0x500 */
+    /// executing an external command
+    kExecExtCmdMode      = 0x600,
+    /// show matching paren
+    kInsertShowMatchMode = 0x700 + kInsertMode,
+    /// ":confirm" prompt
+    kConfirmMode         = 0x800,
+    /// Select mode, only for mappings
+    kMapSelectMode       = 0x1000,
+    /// Terminal focus mode
+    kTermFocusMode       = 0x2000,
+    /// live preview incomplete command mode
+    kPreviewCmdMode      = 0x4000,
+
+    /// all mode bits used for mapping
+    kModFlgAllMapFlg = (0x3f | kMapSelectMode | kTermFocusMode),
 };
-
-#define REPLACE       (REPLACE_FLAG + kInsertMode)
-#define VREPLACE      (REPLACE_FLAG + VREPLACE_FLAG + kInsertMode)
-#define LREPLACE      (REPLACE_FLAG + kModFlgLangMap)
-
-#define NORMAL_BUSY   (0x100 + kNormalMode) ///< Normal mode, busy with a command
-#define HITRETURN     (0x200 + kNormalMode) ///< waiting for return or command
-#define SHOWMATCH     (0x700 + kInsertMode) ///< show matching paren
-
-#define ASKMORE        0x300   ///< Asking if you want --more--
-#define SETWSIZE       0x400   ///< window size has changed
-#define ABBREV         0x500   ///< abbreviation instead of mapping
-#define EXTERNCMD      0x600   ///< executing an external command
-#define CONFIRM        0x800   ///< ":confirm" prompt
-#define SELECTMODE     0x1000  ///< Select mode, only for mappings
-#define TERM_FOCUS     0x2000  ///< Terminal focus mode
-#define CMDPREVIEW     0x4000  ///< Showing 'inccommand' command "live" preview.
-
-/// all mode bits used for mapping
-#define MAP_ALL_MODES  (0x3f | SELECTMODE | TERM_FOCUS)
 
 /// Directions
 typedef enum

@@ -65,17 +65,17 @@
 /// minimal size for @b b_str
 #define MINIMAL_SIZE 20
 
-static buffheader_T redobuff = { { NULL, { NUL } }, NULL, 0, 0};
-static buffheader_T recordbuff = { { NULL, { NUL } }, NULL, 0, 0};
-static buffheader_T old_redobuff = { { NULL, { NUL } }, NULL, 0, 0};
-static buffheader_T save_redobuff = { { NULL, { NUL } }, NULL, 0, 0};
-static buffheader_T save_old_redobuff = { { NULL, {NUL} }, NULL, 0, 0};
+static buffheader_T redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_T recordbuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_T old_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_T save_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_T save_old_redobuff = { { NULL, {NUL} }, NULL, 0, 0 };
 
 /// First read ahead buffer. Used for translated commands.
-static buffheader_T readbuf1 = { { NULL, { NUL } }, NULL, 0, 0};
+static buffheader_T readbuf1 = { { NULL, { NUL } }, NULL, 0, 0 };
 
 /// Second read ahead buffer. Used for redo.
-static buffheader_T readbuf2 = { { NULL, { NUL } }, NULL, 0, 0};
+static buffheader_T readbuf2 = { { NULL, { NUL } }, NULL, 0, 0 };
 
 /// typeahead char that's not flushed
 static int typeahead_char = 0;
@@ -85,12 +85,16 @@ static int typeahead_char = 0;
 static int block_redo = FALSE;
 
 /// Make a hash value for a mapping.
-/// "mode" is the lower 4 bits of the ::curmod for the mapping.
-/// "c1" is the first character of the "lhs".
-/// Returns a value between 0 and 255, index in maphash.
-/// Put Normal/Visual mode mappings mostly separately from Insert/Cmdline mode.
+///
+/// @b mode is the lower 4 bits of the ::curmod for the mapping.
+/// @b c1 is the first character of the "lhs".
+///
+/// @return
+/// A value between 0 and 255, index in maphash. Put Normal/Visual
+/// mode mappings mostly separately from Insert/Cmdline mode.
 #define MAP_HASH(mode, c1) \
-    (((mode) & (kNormalMode + kVisualMode + SELECTMODE + kOpPendMode)) ? (c1) : ((c1) ^ 0x80))
+    (((mode) & (kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode)) \
+     ? (c1) : ((c1) ^ 0x80))
 
 /// Each mapping is put in one of the MAX_MAPHASH hash lists,
 /// to speed up finding it.
@@ -2002,9 +2006,9 @@ static int vgetorpeek(int advance)
                                && (typebuf.tb_noremap[typebuf.tb_off] 
 							       & (RM_NONE|RM_ABBR)) == 0))
                        && !(p_paste && (curmod & (kInsertMode + kCmdLineMode)))
-                       && !(curmod == HITRETURN && (c1 == CAR || c1 == ' '))
-                       && curmod != ASKMORE
-                       && curmod != CONFIRM
+                       && !(curmod == kNormalWaitMode && (c1 == CAR || c1 == ' '))
+                       && curmod != kAskMoreMode
+                       && curmod != kConfirmMode
                        && !((ctrl_x_mode != 0 && vim_is_ctrl_x_key(c1))
                             || ((compl_cont_status & CONT_LOCAL)
                                 && (c1 == Ctrl_N || c1 == Ctrl_P))))
@@ -2016,9 +2020,9 @@ static int vgetorpeek(int advance)
                         else
                         {
                             LANGMAP_ADJUST(c1,
-                                           (curmod & (kCmdLineMode
-                                                      | kInsertMode)) == 0
-                                           && get_real_state() != SELECTMODE);
+                                           (curmod
+                                            & (kCmdLineMode | kInsertMode)) == 0
+                                           && get_real_state() != kMapSelectMode);
                             nolmaplen = 0;
                         }
 
@@ -2041,8 +2045,11 @@ static int vgetorpeek(int advance)
                         mp_match = NULL;
                         mp_match_len = 0;
 
-                        for(; mp != NULL;
-                            mp->m_next == NULL ? (mp = mp2, mp2 = NULL) : (mp = mp->m_next))
+                        for(/* nothing */;
+                            mp != NULL;
+                            mp->m_next == NULL
+                            ? (mp = mp2, mp2 = NULL)
+                            : (mp = mp->m_next))
                         {
                             // Only consider an entry if the first character
                             // matches and it is for the current state.
@@ -2604,7 +2611,7 @@ static int vgetorpeek(int advance)
                 {
                     if(((curmod & (kNormalMode | kInsertMode))
                         || curmod == kModFlgLangMap)
-                       && curmod != HITRETURN)
+                       && curmod != kNormalWaitMode)
                     {
                         // this looks nice when typing a dead character map
                         if(curmod & kInsertMode
@@ -2800,7 +2807,7 @@ int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
     // Don't reset these when at the hit-return prompt, otherwise an endless
     // recursive loop may result (write error in swapfile, hit-return, timeout
     // on char wait, flush swapfile, write error....).
-    if(curmod != HITRETURN)
+    if(curmod != kNormalWaitMode)
     {
         did_outofmem_msg = FALSE; // display out of memory message (again)
         did_swapwrite_msg = FALSE; // display swap file write error again
@@ -2932,24 +2939,33 @@ int fix_input_buffer(char_u *buf, int len)
 /// - noreabbr {lhs} {rhs}     : same, but no remapping for {rhs}
 /// - unabbr {lhs}             : remove abbreviation for {lhs}
 ///
-/// @param maptype 0 for :map, 1 for :unmap, 2 for noremap.
-/// @param arg     pointer to any arguments.
-///                @note arg cannot be a read-only string, it will be modified.
-/// @param mode    - for :map   mode is kNormalMode + kVisualMode + SELECTMODE + kOpPendMode
-///                - for :map!  mode is kInsertMode + kCmdLineMode
-///                - for :cmap  mode is kCmdLineMode
-///                - for :imap  mode is kInsertMode
-///                - for :lmap  mode is kModFlgLangMap
-///                - for :nmap  mode is kNormalMode
-///                - for :vmap  mode is kVisualMode + SELECTMODE
-///                - for :xmap  mode is kVisualMode
-///                - for :smap  mode is SELECTMODE
-///                - for :omap  mode is kOpPendMode
-///                - for :tmap  mode is TERM_FOCUS
-///                - for :abbr  mode is kInsertMode + kCmdLineMode
-///                - for :iabbr mode is kInsertMode
-///                - for :cabbr mode is kCmdLineMode
-/// @param abbrev  not a mapping but an abbreviation
+/// @param maptype
+/// 0 for :map, 1 for :unmap, 2 for noremap.
+///
+/// @param arg
+/// pointer to any arguments.
+///
+/// @note arg
+/// cannot be a read-only string, it will be modified.
+///
+/// @param mode    
+/// - for :map   mode is kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode
+/// - for :map!  mode is kInsertMode + kCmdLineMode
+/// - for :cmap  mode is kCmdLineMode
+/// - for :imap  mode is kInsertMode
+/// - for :lmap  mode is kModFlgLangMap
+/// - for :nmap  mode is kNormalMode
+/// - for :vmap  mode is kVisualMode + kMapSelectMode
+/// - for :xmap  mode is kVisualMode
+/// - for :smap  mode is kMapSelectMode
+/// - for :omap  mode is kOpPendMode
+/// - for :tmap  mode is kTermFocusMode
+/// - for :abbr  mode is kInsertMode + kCmdLineMode
+/// - for :iabbr mode is kInsertMode
+/// - for :cabbr mode is kCmdLineMode
+///
+/// @param abbrev
+/// not a mapping but an abbreviation
 ///
 /// @return
 /// - 0 for success
@@ -3597,7 +3613,7 @@ int get_map_mode(char_u **cmdp, int forceit)
     }
     else if(modec == 'v')
     {
-        mode = kVisualMode + SELECTMODE;// :vmap
+        mode = kVisualMode + kMapSelectMode;// :vmap
     }
     else if(modec == 'x')
     {
@@ -3605,7 +3621,7 @@ int get_map_mode(char_u **cmdp, int forceit)
     }
     else if(modec == 's')
     {
-        mode = SELECTMODE; // :smap
+        mode = kMapSelectMode; // :smap
     }
     else if(modec == 'o')
     {
@@ -3613,7 +3629,7 @@ int get_map_mode(char_u **cmdp, int forceit)
     }
     else if(modec == 't')
     {
-        mode = TERM_FOCUS; // :tmap
+        mode = kTermFocusMode; // :tmap
     }
     else
     {
@@ -3626,7 +3642,7 @@ int get_map_mode(char_u **cmdp, int forceit)
         else
         {
             mode = kVisualMode 
-			       + SELECTMODE 
+			       + kMapSelectMode 
 				   + kNormalMode 
 				   + kOpPendMode; // :map
         }
@@ -3765,8 +3781,8 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
     {
         ga_append(&mapmode, 'c'); // :cmap
     }
-    else if((mode & (kNormalMode + kVisualMode + SELECTMODE + kOpPendMode))
-            == kNormalMode + kVisualMode + SELECTMODE + kOpPendMode)
+    else if((mode & (kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode))
+            == kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode)
     {
         ga_append(&mapmode, ' '); // :map
     }
@@ -3782,7 +3798,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
             ga_append(&mapmode, 'o'); // :omap
         }
 
-        if((mode & (kVisualMode + SELECTMODE)) == kVisualMode + SELECTMODE)
+        if((mode & (kVisualMode + kMapSelectMode)) == kVisualMode + kMapSelectMode)
         {
             ga_append(&mapmode, 'v'); // :vmap
         }
@@ -3793,7 +3809,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
                 ga_append(&mapmode, 'x'); // :xmap
             }
 
-            if(mode & SELECTMODE)
+            if(mode & kMapSelectMode)
             {
                 ga_append(&mapmode, 's'); // :smap
             }
@@ -3932,9 +3948,9 @@ FUNC_ATTR_PURE
     } while(0)
 
     MAPMODE(mode, modechars, 'n', kNormalMode);
-    MAPMODE(mode, modechars, 'v', kVisualMode | SELECTMODE);
+    MAPMODE(mode, modechars, 'v', kVisualMode | kMapSelectMode);
     MAPMODE(mode, modechars, 'x', kVisualMode);
-    MAPMODE(mode, modechars, 's', SELECTMODE);
+    MAPMODE(mode, modechars, 's', kMapSelectMode);
     MAPMODE(mode, modechars, 'o', kOpPendMode);
     MAPMODE(mode, modechars, 'i', kInsertMode);
     MAPMODE(mode, modechars, 'l', kModFlgLangMap);
@@ -4058,7 +4074,7 @@ char_u *set_context_in_map_cmd(expand_T *xp,
             if(!isabbrev)
             {
                 expand_mapmodes += kVisualMode 
-				                   + SELECTMODE 
+				                   + kMapSelectMode 
 								   + kNormalMode 
 								   + kOpPendMode;
             }
@@ -4727,7 +4743,7 @@ int makemap(FILE *fd, buf_T *buf)
 
                 switch(mp->m_mode)
                 {
-                    case kNormalMode + kVisualMode + SELECTMODE + kOpPendMode:
+                    case kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode:
                         break;
 
                     case kNormalMode:
@@ -4738,7 +4754,7 @@ int makemap(FILE *fd, buf_T *buf)
                         c1 = 'x';
                         break;
 
-                    case SELECTMODE:
+                    case kMapSelectMode:
                         c1 = 's';
                         break;
 
@@ -4751,7 +4767,7 @@ int makemap(FILE *fd, buf_T *buf)
                         c2 = 'x';
                         break;
 
-                    case kNormalMode + SELECTMODE:
+                    case kNormalMode + kMapSelectMode:
                         c1 = 'n';
                         c2 = 's';
                         break;
@@ -4761,7 +4777,7 @@ int makemap(FILE *fd, buf_T *buf)
                         c2 = 'o';
                         break;
 
-                    case kVisualMode + SELECTMODE:
+                    case kVisualMode + kMapSelectMode:
                         c1 = 'v';
                         break;
 
@@ -4770,12 +4786,12 @@ int makemap(FILE *fd, buf_T *buf)
                         c2 = 'o';
                         break;
 
-                    case SELECTMODE + kOpPendMode:
+                    case kMapSelectMode + kOpPendMode:
                         c1 = 's';
                         c2 = 'o';
                         break;
 
-                    case kNormalMode + kVisualMode + SELECTMODE:
+                    case kNormalMode + kVisualMode + kMapSelectMode:
                         c1 = 'n';
                         c2 = 'v';
                         break;
@@ -4786,13 +4802,13 @@ int makemap(FILE *fd, buf_T *buf)
                         c3 = 'o';
                         break;
 
-                    case kNormalMode + SELECTMODE + kOpPendMode:
+                    case kNormalMode + kMapSelectMode + kOpPendMode:
                         c1 = 'n';
                         c2 = 's';
                         c3 = 'o';
                         break;
 
-                    case kVisualMode + SELECTMODE + kOpPendMode:
+                    case kVisualMode + kMapSelectMode + kOpPendMode:
                         c1 = 'v';
                         c2 = 'o';
                         break;
@@ -4817,7 +4833,7 @@ int makemap(FILE *fd, buf_T *buf)
                         c1 = 'l';
                         break;
 
-                    case TERM_FOCUS:
+                    case kTermFocusMode:
                         c1 = 't';
                         break;
 

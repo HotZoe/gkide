@@ -788,7 +788,7 @@ EXTERN pos_T Insstart;
 /// op_insert(), to detect correctly where inserting by the user started.
 EXTERN pos_T Insstart_orig;
 
-// Stuff for VREPLACE mode.
+// Stuff for 'kVReplaceMode' mode.
 
 EXTERN int orig_line_count INIT(= 0);  ///< Line count when "gR" started
 EXTERN int vr_lines_changed INIT(= 0); ///< #Lines changed by "gR" so far

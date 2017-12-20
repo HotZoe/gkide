@@ -62,10 +62,10 @@ static garray_T ga_users = GA_EMPTY_INIT_VALUE;
 
 /// Add a new line below or above the current line.
 ///
-/// For VREPLACE mode, we only add a new line when we get to the end of the
-/// file, otherwise we just start replacing the next line.
+/// For @b kVReplaceMode mode, we only add a new line when we get to the end of 
+/// the file, otherwise we just start replacing the next line.
 ///
-/// Caller must take care of undo. Since VREPLACE may affect any number of
+/// Caller must take care of undo. Since @b kVReplaceMode may affect any number of
 /// lines however, it may call u_save_cursor() again when starting to change a
 /// new line.
 ///
@@ -112,9 +112,9 @@ int open_line(int dir, int flags, int second_line_indent)
     // make a copy of the current line so we can mess with it
     char_u *saved_line = vim_strsave(get_cursor_line_ptr());
 
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
-        // With VREPLACE we make a copy of the next line, which we will be
+        // With 'kVReplaceMode' we make a copy of the next line, which we will be
         // starting to replace. First make the new line empty and let vim play
         // with the indenting and comment leader to its heart's content. Then
         // we grab what it ended up putting on the new line, put back the
@@ -130,7 +130,7 @@ int open_line(int dir, int flags, int second_line_indent)
             next_line = vim_strsave((char_u *)"");
         }
 
-        // In VREPLACE mode, a NL replaces the rest of the line, and starts
+        // In 'kVReplaceMode' mode, a NL replaces the rest of the line, and starts
         // replacing the next line, so push all of the characters left on the
         // line onto the replace stack.  We'll push any other characters that
         // might be replaced at the start of the next line (due to autoindent
@@ -155,7 +155,7 @@ int open_line(int dir, int flags, int second_line_indent)
     }
 
     if((curmod & kInsertMode)
-       && !(curmod & VREPLACE_FLAG)
+       && !(curmod & kModFlgVReplace)
       )
     {
         p_extra = saved_line + curwin->w_cursor.col;
@@ -859,7 +859,8 @@ int open_line(int dir, int flags, int second_line_indent)
         }
     }
 
-    // (curmod == kInsertMode || curmod == REPLACE), only when dir == FORWARD
+    // (curmod == kInsertMode || curmod == kReplaceMode)
+	//  only when dir == FORWARD
     if(p_extra != NULL)
     {
         *p_extra = saved_char; // restore char that NUL replaced
@@ -867,7 +868,7 @@ int open_line(int dir, int flags, int second_line_indent)
         // When 'ai' set or "flags" has OPENLINE_DELSPACES,
         // skip to the first non-blank.
         //
-        // When in REPLACE mode, put the deleted blanks on the replace stack,
+        // When in 'kReplaceMode' mode, put the deleted blanks on the replace stack,
         // preceded by a NUL, so they can be put back when a BS is entered.
         if(REPLACE_NORMAL(curmod))
         {
@@ -939,7 +940,7 @@ int open_line(int dir, int flags, int second_line_indent)
         --curwin->w_cursor.lnum;
     }
 
-    if(!(curmod & VREPLACE_FLAG) || old_cursor.lnum >= orig_line_count)
+    if(!(curmod & kModFlgVReplace) || old_cursor.lnum >= orig_line_count)
     {
         if(ml_append(curwin->w_cursor.lnum, p_extra, (colnr_T)0, FALSE) == FAIL)
         {
@@ -959,7 +960,7 @@ int open_line(int dir, int flags, int second_line_indent)
     }
     else
     {
-        // In VREPLACE mode we are starting to replace the next line.
+        // In 'kVReplaceMode' mode we are starting to replace the next line.
         curwin->w_cursor.lnum++;
 
         if(curwin->w_cursor.lnum >= Insstart.lnum + vr_lines_changed)
@@ -1010,7 +1011,7 @@ int open_line(int dir, int flags, int second_line_indent)
         less_cols -= curwin->w_cursor.col;
         ai_col = curwin->w_cursor.col;
 
-        // In REPLACE mode, for each character in the new indent, there must
+        // In 'kReplaceMode' mode, for each character in the new indent, there must
         // be a NUL on the replace stack, for when it is deleted with BS
         if(REPLACE_NORMAL(curmod))
         {
@@ -1028,8 +1029,8 @@ int open_line(int dir, int flags, int second_line_indent)
         }
     }
 
-    // In REPLACE mode, for each character in the extra leader, there must be
-    // a NUL on the replace stack, for when it is deleted with BS.
+    // In 'kReplaceMode' mode, for each character in the extra leader, there 
+	// must be a NUL on the replace stack, for when it is deleted with BS.
     if(REPLACE_NORMAL(curmod))
     {
         while(lead_len-- > 0)
@@ -1090,10 +1091,10 @@ int open_line(int dir, int flags, int second_line_indent)
     curwin->w_cursor.col = newcol;
     curwin->w_cursor.coladd = 0;
 
-    // In VREPLACE mode, we are handling the replace stack ourselves, so stop
+    // In 'kVReplaceMode' mode, we are handling the replace stack ourselves, so stop
     // fixthisline() from doing it (via change_indent()) by telling it we're 
 	// in normal 'kInsertMode' mode.
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
         vreplace_mode = curmod; // So we know to put things right later
         curmod = kInsertMode;
@@ -1130,10 +1131,10 @@ int open_line(int dir, int flags, int second_line_indent)
         curmod = vreplace_mode;
     }
 
-    // Finally, VREPLACE gets the stuff on the new line, then puts back the
+    // Finally, 'kVReplaceMode' gets the stuff on the new line, then puts back the
     // original line, and inserts the new stuff char by char, pushing old stuff
     // onto the replace stack (via ins_char()).
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
         // Put new line in p_extra
         p_extra = vim_strsave(get_cursor_line_ptr());
@@ -1740,8 +1741,8 @@ void ins_bytes_len(char_u *p, size_t len)
     }
 }
 
-/// Insert or replace a single character at the cursor position.
-/// When in REPLACE or VREPLACE mode, replace any existing character.
+/// Insert or replace a single character at the cursor position. When in 
+/// @b kReplaceMode or @b kVReplaceMode mode, replace any existing character.
 /// Caller must have prepared for undo.
 /// For multi-byte characters we get the whole character, the caller must
 /// convert bytes to a character.
@@ -1777,9 +1778,9 @@ void ins_char_bytes(char_u *buf, size_t charlen)
     size_t oldlen = 0; // nr of bytes inserted
     size_t newlen = charlen; // nr of bytes deleted (0 when not replacing)
 
-    if(curmod & REPLACE_FLAG)
+    if(curmod & kModFlgReplace)
     {
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             // Disable 'list' temporarily, unless 'cpo' contains the 'L' flag.
             // Returns the old value of list, so when finished,
@@ -1883,7 +1884,7 @@ void ins_char_bytes(char_u *buf, size_t charlen)
         showmatch(mb_ptr2char(buf));
     }
 
-    if(!p_ri || (curmod & REPLACE_FLAG))
+    if(!p_ri || (curmod & kModFlgReplace))
     {
         // Normal insert: move cursor right
         curwin->w_cursor.col += (int)charlen;
@@ -2747,7 +2748,7 @@ int ask_yesno(const char *const str, const bool direct)
 {
     const int save_State = curmod;
     no_wait_return++;
-    curmod = CONFIRM; // Mouse behaves like with :confirm.
+    curmod = kConfirmMode; // Mouse behaves like with :confirm.
     setmouse(); // Disable mouse in xterm.
     no_mapping++;
     int r = ' ';

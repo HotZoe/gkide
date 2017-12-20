@@ -2890,7 +2890,7 @@ void showmatch(int c)
             update_screen(VALID); // show the new char first
             save_dollar_vcol = dollar_vcol;
             save_state = curmod;
-            curmod = SHOWMATCH;
+            curmod = kInsertShowMatchMode;
             ui_cursor_shape(); // may show different cursor shape
             curwin->w_cursor = mpos; // move to matching char
             p_so = 0; // don't use 'scrolloff' here

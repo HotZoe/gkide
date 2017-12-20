@@ -350,7 +350,7 @@ void shift_line(int left, int round, int amount, int call_changed_bytes)
     }
 
     // Set new indent
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
         change_indent(INDENT_SET, count, FALSE, NUL, call_changed_bytes);
     }
@@ -378,7 +378,7 @@ static void shift_block(oparg_T *oap, int amount)
     int len;
     int old_p_ri = p_ri;
     p_ri = 0; // don't want revins in indent
-    curmod = kInsertMode; // don't want REPLACE for 'curmod'
+    curmod = kInsertMode; // don't want 'kReplaceMode' for 'curmod'
     block_prep(oap, &bd, curwin->w_cursor.lnum, TRUE);
 
     if(bd.is_short)
@@ -579,7 +579,7 @@ static void block_insert(oparg_T *oap,
     char_u *newp, *oldp; // new, old lines
     linenr_T lnum; // loop var
     int oldstate = curmod;
-    curmod = kInsertMode; // don't want REPLACE for 'curmod'
+    curmod = kInsertMode; // don't want 'kReplaceMode' for 'curmod'
 
     for(lnum = oap->start.lnum + 1; lnum <= oap->end.lnum; lnum++)
     {
@@ -2246,7 +2246,7 @@ int op_replace(oparg_T *oap, int c)
                     }
 
                     n = curmod;
-                    curmod = REPLACE;
+                    curmod = kReplaceMode;
                     ins_char(c);
                     curmod = n;
 

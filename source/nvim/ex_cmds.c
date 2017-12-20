@@ -4150,7 +4150,7 @@ static buf_T *do_sub(exarg_T *eap, proftime_T timeout)
     int start_nsubs;
     int save_ma = 0;
     int save_b_changed = curbuf->b_changed;
-    bool preview = (curmod & CMDPREVIEW);
+    bool preview = (curmod & kPreviewCmdMode);
 
     if(!global_busy)
     {
@@ -4543,10 +4543,10 @@ static buf_T *do_sub(exarg_T *eap, proftime_T timeout)
                 {
                     int typed = 0;
 
-                    // change curmod to CONFIRM, so that
+                    // change 'curmod' to 'kConfirmMode', so that
                     // the mouse works properly
                     int save_State = curmod;
-                    curmod = CONFIRM;
+                    curmod = kConfirmMode;
 
                     setmouse(); // disable mouse in xterm
                     curwin->w_cursor.col = regmatch.startpos[0].col;
@@ -8011,7 +8011,7 @@ FUNC_ATTR_NONNULL_ALL
 ///   then removes the changes. from undo history.
 void ex_substitute(exarg_T *eap)
 {
-    bool preview = (curmod & CMDPREVIEW);
+    bool preview = (curmod & kPreviewCmdMode);
 
     if(*p_icm == NUL || !preview) // 'inccommand' is disabled
     {

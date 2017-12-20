@@ -849,8 +849,8 @@ static void free_buffer_stuff(buf_T *buf, int free_options)
     buf_delete_signs(buf); // delete any signs
     bufhl_clear_all(buf); // delete any highligts
 
-    map_clear_int(buf, MAP_ALL_MODES, true, false); // clear local mappings
-    map_clear_int(buf, MAP_ALL_MODES, true, true); // clear local abbrevs
+    map_clear_int(buf, kModFlgAllMapFlg, true, false); // clear local mappings
+    map_clear_int(buf, kModFlgAllMapFlg, true, true); // clear local abbrevs
 
     xfree(buf->b_start_fenc);
     buf->b_start_fenc = NULL;

@@ -631,7 +631,9 @@ void setmouse(void)
     {
         checkfor = MOUSE_VISUAL;
     }
-    else if(curmod == HITRETURN || curmod == ASKMORE || curmod == SETWSIZE)
+    else if(curmod == kNormalWaitMode 
+	        || curmod == kAskMoreMode 
+			|| curmod == kSetWinSizeMode)
     {
         checkfor = MOUSE_RETURN;
     }
@@ -643,7 +645,7 @@ void setmouse(void)
     {
         checkfor = MOUSE_COMMAND;
     }
-    else if(curmod == CONFIRM || curmod == EXTERNCMD)
+    else if(curmod == kConfirmMode || curmod == kExecExtCmdMode)
     {
         checkfor = ' '; // don't use mouse for ":confirm" or ":!cmd"
     }

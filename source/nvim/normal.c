@@ -519,7 +519,7 @@ static void normal_prepare(NormalState *s)
     }
 
     s->mapped_len = typebuf_maplen();
-    curmod = NORMAL_BUSY;
+    curmod = kNormalBusyMode;
 
     // Set v:count here, when called from main() and not a stuffed command, so
     // that v:count can be used in an expression mapping when there is no count.
@@ -725,7 +725,7 @@ static void normal_get_additional_char(NormalState *s)
     {
         if(repl)
         {
-            curmod = REPLACE; // pretend Replace mode
+            curmod = kReplaceMode; // pretend Replace mode
             ui_cursor_shape(); // show different cursor shape
         }
 
@@ -736,7 +736,7 @@ static void normal_get_additional_char(NormalState *s)
 
             if(repl)
             {
-                curmod = LREPLACE;
+                curmod = kLReplaceMode;
             }
             else
             {
@@ -754,7 +754,7 @@ static void normal_get_additional_char(NormalState *s)
             no_mapping++;
         }
 
-        curmod = NORMAL_BUSY;
+        curmod = kNormalBusyMode;
         s->need_flushbuf |= add_to_showcmd(*cp);
 
         if(!lit)
@@ -1110,7 +1110,8 @@ static int normal_execute(VimState *state, int key)
     s->ctrl_w = false; // got CTRL-W command
     s->old_col = curwin->w_curswant;
     s->c = key;
-    LANGMAP_ADJUST(s->c, get_real_state() != SELECTMODE);
+
+    LANGMAP_ADJUST(s->c, get_real_state() != kMapSelectMode);
 
     // If a mapping was started in Visual or Select mode, remember the length
     // of the mapping. This is used below to not return to Insert mode for as
@@ -2826,7 +2827,8 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                     regname = '*';
                 }
 
-                if((curmod & REPLACE_FLAG) && !yank_register_mline(regname))
+                if((curmod & kModFlgReplace) 
+				   && !yank_register_mline(regname))
                 {
                     insert_reg(regname, true);
                 }
@@ -7483,7 +7485,7 @@ static void nv_replace(cmdarg_T *cap)
             // composing characters for utf-8.
             for(n = cap->count1; n > 0; --n)
             {
-                curmod = REPLACE;
+                curmod = kReplaceMode;
 
                 if(cap->nchar == Ctrl_E || cap->nchar == Ctrl_Y)
                 {

@@ -10400,7 +10400,7 @@ void update_topline_cursor(void)
 /// ":normal[!] {commands}": Execute normal mode commands.
 static void ex_normal(exarg_T *eap)
 {
-    if(curbuf->terminal && curmod & TERM_FOCUS)
+    if(curbuf->terminal && curmod & kTermFocusMode)
     {
         EMSG("Can't re-enter normal mode from terminal mode");
         return;

@@ -113,7 +113,7 @@
 #endif
 
 #define mch_fopen(n, p)      fopen((n), (p))
-#define REPLACE_NORMAL(s)    (((s) & REPLACE_FLAG) && !((s) & VREPLACE_FLAG))
+#define REPLACE_NORMAL(s)    (((s) & kModFlgReplace) && !((s) & kModFlgVReplace))
 
 #define UTF_COMPOSINGLIKE(p1, p2)  utf_composinglike((p1), (p2))
 

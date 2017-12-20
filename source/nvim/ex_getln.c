@@ -2021,11 +2021,11 @@ static int command_line_changed(CommandLineState *s)
     {
         // Show 'inccommand' preview. It works like this:
         // 1. Do the command.
-        // 2. Command implementation detects CMDPREVIEW state, then:
+        // 2. Command implementation detects 'kPreviewCmdMode' state, then:
         //    - Update the screen while the effects are in place.
         //    - Immediately undo the effects.
 
-        curmod |= CMDPREVIEW;
+        curmod |= kPreviewCmdMode;
 
         // Block error reporting as the command may be incomplete
         emsg_silent++;
@@ -2043,9 +2043,9 @@ static int command_line_changed(CommandLineState *s)
         update_topline();
         redrawcmdline();
     }
-    else if(curmod & CMDPREVIEW)
+    else if(curmod & kPreviewCmdMode)
     {
-        curmod = (curmod & ~CMDPREVIEW);
+        curmod = (curmod & ~kPreviewCmdMode);
         update_screen(SOME_VALID); // Clear 'inccommand' preview.
     }
 

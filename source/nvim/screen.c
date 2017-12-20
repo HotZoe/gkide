@@ -8895,7 +8895,7 @@ int showmode(void)
     int sub_attr;
 	
     do_mode = ((p_smd && msg_silent == 0)
-               && ((curmod & TERM_FOCUS)
+               && ((curmod & kTermFocusMode)
                    || (curmod & kInsertMode)
                    || restart_edit
                    || VIsual_active));
@@ -8982,15 +8982,15 @@ int showmode(void)
             }
             else
             {
-                if(curmod & TERM_FOCUS)
+                if(curmod & kTermFocusMode)
                 {
                     MSG_PUTS_ATTR(_(" TERMINAL"), attr);
                 }
-                else if(curmod & VREPLACE_FLAG)
+                else if(curmod & kModFlgVReplace)
                 {
-                    MSG_PUTS_ATTR(_(" VREPLACE"), attr);
+                    MSG_PUTS_ATTR(_(" VISUAL REPLACE"), attr);
                 }
-                else if(curmod & REPLACE_FLAG)
+                else if(curmod & kModFlgReplace)
                 {
                     MSG_PUTS_ATTR(_(" REPLACE"), attr);
                 }
@@ -9826,10 +9826,10 @@ void screen_resize(int width, int height)
         return;
     }
 
-    if(curmod == HITRETURN || curmod == SETWSIZE)
+    if(curmod == kNormalWaitMode || curmod == kSetWinSizeMode)
     {
         // postpone the resizing
-        curmod = SETWSIZE;
+        curmod = kSetWinSizeMode;
         return;
     }
 
@@ -9852,7 +9852,9 @@ void screen_resize(int width, int height)
     // The window layout used to be adjusted here, but it now happens in
     // screenalloc() (also invoked from screenclear()). That is because the
     // "busy" check above may skip this, but not screenalloc().
-    if(curmod != ASKMORE && curmod != EXTERNCMD && curmod != CONFIRM)
+    if(curmod != kAskMoreMode 
+	   && curmod != kExecExtCmdMode 
+	   && curmod != kConfirmMode)
     {
         screenclear();
     }
@@ -9871,9 +9873,9 @@ void screen_resize(int width, int height)
         // - Otherwise, redraw right now, and position the cursor.
         // Always need to call update_screen() or screenalloc(), to make
         // sure Rows/Columns and the size of ScreenLines[] is correct!
-        if(curmod == ASKMORE
-           || curmod == EXTERNCMD
-           || curmod == CONFIRM
+        if(curmod == kAskMoreMode
+           || curmod == kExecExtCmdMode
+           || curmod == kConfirmMode
            || exmode_active)
         {
             screenalloc(false);

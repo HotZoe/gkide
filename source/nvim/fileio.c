@@ -6375,7 +6375,7 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
                 reload = true;
             }
         }
-        else if(curmod > NORMAL_BUSY 
+        else if(curmod > kNormalBusyMode 
 		        || (curmod & kCmdLineMode) 
 				|| already_warned)
         {
@@ -8412,8 +8412,10 @@ bool has_cursorhold(void)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    return first_autopat[(int)(get_real_state()
-           == NORMAL_BUSY ? EVENT_CURSORHOLD : EVENT_CURSORHOLDI)] != NULL;
+    int idx = get_real_state() == kNormalBusyMode
+              ? EVENT_CURSORHOLD : EVENT_CURSORHOLDI;
+
+    return first_autopat[idx] != NULL;
 }
 
 /// Return true if the CursorHold/CursorHoldI event can be triggered.
@@ -8431,7 +8433,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         state = get_real_state();
 
-        if(state == NORMAL_BUSY || (state & kInsertMode) != 0)
+        if(state == kNormalBusyMode || (state & kInsertMode) != 0)
         {
             return true;
         }

@@ -56,9 +56,9 @@ Most code can be found in a file with an obvious name (incomplete list):
 
 ## Important variables
 
-The current mode is stored in `curmod`. 
-The values it can have are `kNormalMode`, `kInsertMode`, 
-`kCmdLineMode`, `kVisualMode` and a few others.
+The current mode is stored in `curmod`. The values it can have are:
+`kNormalMode` for **NORMAL**, `kInsertMode` for **INSERT**, `kVisualMode`
+for **VISUAL**, `kReplaceMode` for **REPLACE**, `kCmdLineMode`, etc.
 
 The current window is `curwin`. The current buffer is `curbuf`. These point
 to structures with the cursor position in the window, option values, the file
@@ -66,7 +66,6 @@ name, etc.
 
 All the global variables are declared in
 [globals.h](../../source/nvim/globals.h).
-
 
 ## The main loop
 

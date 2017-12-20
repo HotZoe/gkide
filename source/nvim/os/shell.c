@@ -128,7 +128,7 @@ int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
     }
     else
     {
-        curmod = EXTERNCMD;
+        curmod = kExecExtCmdMode;
 
         if(opts & kShellOptWrite)
         {

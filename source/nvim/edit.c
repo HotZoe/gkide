@@ -257,7 +257,7 @@ static void insert_enter(InsertState *s)
 {
     s->did_backspace = true;
     s->old_topfill = -1;
-    s->replaceState = REPLACE;
+    s->replaceState = kReplaceMode;
 
     // Remember whether editing was restarted after CTRL-O
     did_restart_edit = restart_edit;
@@ -377,13 +377,13 @@ static void insert_enter(InsertState *s)
         }
         else
         {
-            curmod = REPLACE;
+            curmod = kReplaceMode;
         }
     }
     else if(s->cmdchar == 'V' || s->cmdchar == 'v')
     {
-        curmod = VREPLACE;
-        s->replaceState = VREPLACE;
+        curmod = kVReplaceMode;
+        s->replaceState = kVReplaceMode;
         orig_line_count = curbuf->b_ml.ml_line_count;
         vr_lines_changed = 1;
     }
@@ -1946,9 +1946,9 @@ void change_indent(int type,
     char_u *new_line;
     char_u *orig_line = NULL; // init for GCC
 
-    // VREPLACE mode needs to know what
+    // 'kVReplaceMode' mode needs to know what
     // the line was like before changing
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
         // Deal with NULL below
         orig_line = vim_strsave(get_cursor_line_ptr());
@@ -1996,7 +1996,7 @@ void change_indent(int type,
         int save_State = curmod;
 
         // Avoid being called recursively.
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             curmod = kInsertMode;
         }
@@ -2115,7 +2115,7 @@ void change_indent(int type,
         }
     }
 
-    // For REPLACE mode, may have to fix the replace stack, if it's possible.
+    // For 'kReplaceMode' mode, may have to fix the replace stack, if it's possible.
     // If the number of characters before the cursor decreased, need to pop a
     // few characters from the replace stack.
     // If the number of characters before the cursor increased, need to push a
@@ -2142,10 +2142,10 @@ void change_indent(int type,
         }
     }
 
-    // For VREPLACE mode, we also have to fix the replace stack. In this case
-    // it is always possible because we backspace over the whole line and then
-    // put it back again the way we wanted it.
-    if(curmod & VREPLACE_FLAG)
+    // For 'kVReplaceMode' mode, we also have to fix the replace stack. In 
+	// this case it is always possible because we backspace over the whole 
+	// line and then put it back again the way we wanted it.
+    if(curmod & kModFlgVReplace)
     {
         // Save new line
         new_line = vim_strsave(get_cursor_line_ptr());
@@ -2168,7 +2168,7 @@ void change_indent(int type,
 
 /// Truncate the space at the end of a line.
 /// This is to be used only in an insert mode.
-/// It handles fixing the replace stack for REPLACE and VREPLACE modes.
+/// It handles fixing the replace stack for @b kReplaceMode and @b kVReplaceMode modes.
 void truncate_spaces(char_u *line)
 {
     int i;
@@ -2176,7 +2176,7 @@ void truncate_spaces(char_u *line)
     // find start of trailing white space
     for(i = (int)STRLEN(line) - 1; i >= 0 && ascii_iswhite(line[i]); i--)
     {
-        if(curmod & REPLACE_FLAG)
+        if(curmod & kModFlgReplace)
         {
             replace_join(0); // remove a NUL from the replace stack
         }
@@ -2186,7 +2186,7 @@ void truncate_spaces(char_u *line)
 }
 
 /// Backspace the cursor until the given column.
-/// Handles REPLACE and VREPLACE modes correctly.
+/// Handles @b kReplaceMode and @b kVReplaceMode modes correctly.
 /// May also be used when not in insert mode at all.
 /// Will attempt not to go before "col" even when there
 /// is a composing character.
@@ -2196,7 +2196,7 @@ void backspace_until_column(int col)
     {
         curwin->w_cursor.col--;
 
-        if(curmod & REPLACE_FLAG)
+        if(curmod & kModFlgReplace)
         {
             replace_do_bs(col);
         }
@@ -3996,7 +3996,7 @@ static bool ins_compl_prep(int c)
             case Ctrl_Y:
                 ctrl_x_mode = CTRL_X_SCROLL;
 
-                if(!(curmod & REPLACE_FLAG))
+                if(!(curmod & kModFlgReplace))
                 {
                     edit_submode = (char_u *)_(" (insert) Scroll (^E/^Y)");
                 }
@@ -6651,7 +6651,7 @@ void insertchar(int c,  int flags, int second_indent)
     // - Otherwise:
     //   - Don't do this if inserting a blank
     //   - Don't do this if an existing character is being replaced, unless
-    //     we're in VREPLACE mode.
+    //     we're in 'kVReplaceMode' mode.
     //   - Do this if the cursor is not on the line where insert started
     //   or - 'formatoptions' doesn't have 'l' or the line was not too long
     //         before the insert.
@@ -6660,8 +6660,8 @@ void insertchar(int c,  int flags, int second_indent)
     if(textwidth > 0
        && (force_format
            || (!ascii_iswhite(c)
-               && !((curmod & REPLACE_FLAG)
-                     && !(curmod & VREPLACE_FLAG)
+               && !((curmod & kModFlgReplace)
+                     && !(curmod & kModFlgVReplace)
                      && *get_cursor_pos_ptr() != NUL)
                && (curwin->w_cursor.lnum != Insstart.lnum
                    || ((!has_format_option(FO_INS_LONG)
@@ -6774,7 +6774,7 @@ void insertchar(int c,  int flags, int second_indent)
     if(!ISSPECIAL(c)
        && (!has_mbyte || (*mb_char2len)(c) == 1)
        && vpeekc() != NUL
-       && !(curmod & REPLACE_FLAG)
+       && !(curmod & kModFlgReplace)
        && !cindent_on()
        && !p_ri
        && !has_event(EVENT_INSERTCHARPRE))
@@ -6901,7 +6901,7 @@ static void internal_format(int textwidth,
 
     // When 'ai' is off we don't want a space under the cursor to be
     // deleted. Replace it with an 'x' temporarily.
-    if(!curbuf->b_p_ai && !(curmod & VREPLACE_FLAG))
+    if(!curbuf->b_p_ai && !(curmod & kModFlgVReplace))
     {
         cc = gchar_cursor();
 
@@ -7133,9 +7133,9 @@ static void internal_format(int textwidth,
         undisplay_dollar();
 
         // Offset between cursor position and line break is used by replace
-        // stack functions.  VREPLACE does not use this, and backspaces
+        // stack functions. 'kVReplaceMode' does not use this, and backspaces
         // over the text instead.
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             orig_col = startcol; // Will start backspacing from here
         }
@@ -7161,9 +7161,9 @@ static void internal_format(int textwidth,
             startcol = 0;
         }
 
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
-            // In VREPLACE mode, we will backspace over the text to be
+            // In 'kVReplaceMode' mode, we will backspace over the text to be
             // wrapped, so save a copy now to put on the next line.
             saved_text = vim_strsave(get_cursor_pos_ptr());
             curwin->w_cursor.col = orig_col;
@@ -7217,7 +7217,7 @@ static void internal_format(int textwidth,
 
                 if(second_indent >= 0)
                 {
-                    if(curmod & VREPLACE_FLAG)
+                    if(curmod & kModFlgVReplace)
                     {
                         change_indent(INDENT_SET,
                                       second_indent, FALSE, NUL, TRUE);
@@ -7250,9 +7250,9 @@ static void internal_format(int textwidth,
             first_line = FALSE;
         }
 
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
-            // In VREPLACE mode we have backspaced over the text to be
+            // In 'kVReplaceMode' mode we have backspaced over the text to be
             // moved, now we re-insert it into the new line.
             ins_bytes(saved_text);
             xfree(saved_text);
@@ -7628,7 +7628,7 @@ int stop_arrow(void)
 
         ai_col = 0;
 
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             orig_line_count = curbuf->b_ml.ml_line_count;
             vr_lines_changed = 1;
@@ -8405,12 +8405,12 @@ static void replace_join(int off)
 }
 
 /// Pop bytes from the replace stack until a NUL is found, and insert them
-/// before the cursor. Can only be used in REPLACE or VREPLACE mode.
+/// before the cursor. Can only be used in @b kReplaceMode or @b kVReplaceMode mode.
 static void replace_pop_ins(void)
 {
     int cc;
     int oldState = curmod;
-    curmod = kNormalMode; // don't want REPLACE here
+    curmod = kNormalMode; // don't want 'kReplaceMode' here
 
     while((cc = replace_pop()) > 0)
     {
@@ -8526,7 +8526,7 @@ static void replace_do_bs(int limit_col)
 
     if(cc > 0)
     {
-        if(l_State & VREPLACE_FLAG)
+        if(l_State & kModFlgVReplace)
         {
             // Get the number of screen cells used by
             // the character we are going to delete.
@@ -8538,7 +8538,7 @@ static void replace_do_bs(int limit_col)
         {
             (void)del_char_after_col(limit_col);
 
-            if(l_State & VREPLACE_FLAG)
+            if(l_State & kModFlgVReplace)
             {
                 orig_len = (int)STRLEN(get_cursor_pos_ptr());
             }
@@ -8549,7 +8549,7 @@ static void replace_do_bs(int limit_col)
         {
             pchar_cursor(cc);
 
-            if(l_State & VREPLACE_FLAG)
+            if(l_State & kModFlgVReplace)
             {
                 orig_len = (int)STRLEN(get_cursor_pos_ptr()) - 1;
             }
@@ -8557,7 +8557,7 @@ static void replace_do_bs(int limit_col)
 
         replace_pop_ins();
 
-        if(l_State & VREPLACE_FLAG)
+        if(l_State & kModFlgVReplace)
         {
             // Get the number of screen cells used by the inserted characters
             p = get_cursor_pos_ptr();
@@ -9310,7 +9310,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             // Vi repeats the insert without replacing characters.
             if(vim_strchr(p_cpo, CPO_REPLCNT) != NULL)
             {
-                curmod &= ~REPLACE_FLAG;
+                curmod &= ~kModFlgReplace;
             }
 
             (void)start_redo_ins();
@@ -9508,14 +9508,14 @@ static void ins_insert(int replaceState)
     }
 
     set_vim_var_string(VV_INSERTMODE,
-                       ((curmod & REPLACE_FLAG)
-                        ? "i" : replaceState == VREPLACE
+                       ((curmod & kModFlgReplace)
+                        ? "i" : replaceState == kVReplaceMode
                         ? "v" : "r"),
                        1);
 
     apply_autocmds(EVENT_INSERTCHANGE, NULL, NULL, false, curbuf);
 
-    if(curmod & REPLACE_FLAG)
+    if(curmod & kModFlgReplace)
     {
         curmod = kInsertMode | (curmod & kModFlgLangMap);
     }
@@ -9532,11 +9532,11 @@ static void ins_insert(int replaceState)
 /// Pressed CTRL-O in Insert mode.
 static void ins_ctrl_o(void)
 {
-    if(curmod & VREPLACE_FLAG)
+    if(curmod & kModFlgVReplace)
     {
         restart_edit = 'V';
     }
-    else if(curmod & REPLACE_FLAG)
+    else if(curmod & kModFlgReplace)
     {
         restart_edit = 'R';
     }
@@ -9578,7 +9578,7 @@ static void ins_shift(int c, int lastc)
         (void)del_char(FALSE); // delete the '^' or '0'
 
         // In Replace mode, restore the characters that '^' or '0' replaced.
-        if(curmod & REPLACE_FLAG)
+        if(curmod & kModFlgReplace)
         {
             replace_pop_ins();
         }
@@ -9650,7 +9650,7 @@ static void ins_bs_one(colnr_T *vcolp)
     dec_cursor();
     getvcol(curwin, &curwin->w_cursor, vcolp, NULL, NULL);
 
-    if(curmod & REPLACE_FLAG)
+    if(curmod & kModFlgReplace)
     {
         // Don't delete characters before the insert
         // point when in Replace mode
@@ -9770,20 +9770,21 @@ FUNC_ATTR_NONNULL_ARG(3)
         // - cc >= 0: NL was replaced, put original characters back
         cc = -1;
 
-        if(curmod & REPLACE_FLAG)
+        if(curmod & kModFlgReplace)
         {
             cc = replace_pop();// returns -1 if NL was inserted
         }
 
         // In replace mode, in the line we started replacing,
         // we only move the cursor.
-        if((curmod & REPLACE_FLAG) && curwin->w_cursor.lnum <= lnum)
+        if((curmod & kModFlgReplace) 
+		   && curwin->w_cursor.lnum <= lnum)
         {
             dec_cursor();
         }
         else
         {
-            if(!(curmod & VREPLACE_FLAG)
+            if(!(curmod & kModFlgVReplace)
                || curwin->w_cursor.lnum > orig_line_count)
             {
                 temp = gchar_cursor(); // remember current char
@@ -9818,11 +9819,11 @@ FUNC_ATTR_NONNULL_ARG(3)
                 dec_cursor();
             }
 
-            // In REPLACE mode we have to put back the text that was replaced
+            // In 'kReplaceMode' mode we have to put back the text that was replaced
             // by the NL. On the replace stack is first a NUL-terminated
             // sequence of characters that were deleted and then the
             // characters that NL replaced.
-            if(curmod & REPLACE_FLAG)
+            if(curmod & kModFlgReplace)
             {
                 // Do the next ins_char() in 'kNormalMode' state, to
                 // prevent ins_char() from replacing characters and
@@ -9925,7 +9926,7 @@ FUNC_ATTR_NONNULL_ARG(3)
                     Insstart_orig.col = curwin->w_cursor.col;
                 }
 
-                if(curmod & VREPLACE_FLAG)
+                if(curmod & kModFlgVReplace)
                 {
                     ins_char(' ');
                 }
@@ -9933,7 +9934,7 @@ FUNC_ATTR_NONNULL_ARG(3)
                 {
                     ins_str((char_u *)" ");
 
-                    if((curmod & REPLACE_FLAG))
+                    if((curmod & kModFlgReplace))
                     {
                         replace_push(NUL);
                     }
@@ -9991,7 +9992,7 @@ FUNC_ATTR_NONNULL_ARG(3)
                     {
                         inc_cursor();
                     }
-                    else if(curmod & REPLACE_FLAG)
+                    else if(curmod & kModFlgReplace)
                     {
                         dec_cursor();
                     }
@@ -9999,7 +10000,7 @@ FUNC_ATTR_NONNULL_ARG(3)
                     break;
                 }
 
-                if(curmod & REPLACE_FLAG)
+                if(curmod & kModFlgReplace)
                 {
                     replace_do_bs(-1);
                 }
@@ -10583,12 +10584,12 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     // Insert the first space with ins_char(). It will delete one char in
     // replace mode. Insert the rest with ins_str(); it will not delete any
-    // chars. For VREPLACE mode, we use ins_char() for all characters.
+    // chars. For 'kVReplaceMode' mode, we use ins_char() for all characters.
     ins_char(' ');
 
     while(--temp > 0)
     {
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             ins_char(' ');
         }
@@ -10596,7 +10597,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         {
             ins_str((char_u *)" ");
 
-            if(curmod & REPLACE_FLAG)
+            if(curmod & kModFlgReplace)
             {
                 // no char replaced
                 replace_push(NUL);
@@ -10617,9 +10618,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         int save_list = curwin->w_p_list;
 
         // Get the current line.
-        // For VREPLACE mode, don't make real changes
+        // For 'kVReplaceMode' mode, don't make real changes
         // yet, just work on a copy of the line.
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             pos = curwin->w_cursor;
             cursor = &pos;
@@ -10648,7 +10649,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         }
 
         // In Replace mode, don't change characters before the insert point.
-        if((curmod & REPLACE_FLAG)
+        if((curmod & kModFlgReplace)
            && fpos.lnum == Insstart.lnum
            && fpos.col < Insstart.col)
         {
@@ -10723,7 +10724,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 STRMOVE(ptr, ptr + i);
 
                 // correct replace stack.
-                if((curmod & REPLACE_FLAG) && !(curmod & VREPLACE_FLAG))
+                if((curmod & kModFlgReplace) 
+				   && !(curmod & kModFlgVReplace))
                 {
                     for(temp = i; --temp >= 0;)
                     {
@@ -10734,10 +10736,10 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
             cursor->col -= i;
 
-            // In VREPLACE mode, we haven't changed anything yet.
+            // In 'kVReplaceMode' mode, we haven't changed anything yet.
             // Do it now by backspacing over the changed spacing
             // and then inserting the new spacing.
-            if(curmod & VREPLACE_FLAG)
+            if(curmod & kModFlgVReplace)
             {
                 // Backspace from real cursor to change_col
                 backspace_until_column(change_col);
@@ -10748,7 +10750,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             }
         }
 
-        if(curmod & VREPLACE_FLAG)
+        if(curmod & kModFlgVReplace)
         {
             xfree(saved_line);
         }
@@ -10779,12 +10781,12 @@ static bool ins_eol(int c)
     // Strange Vi behaviour: In Replace mode, typing a NL will not delete the
     // character under the cursor.  Only push a NUL on the replace stack,
     // nothing to put back when the NL is deleted.
-    if((curmod & REPLACE_FLAG) && !(curmod & VREPLACE_FLAG))
+    if((curmod & kModFlgReplace) && !(curmod & kModFlgVReplace))
     {
         replace_push(NUL);
     }
 
-    // In VREPLACE mode, a NL replaces the rest of the line, and starts
+    // In 'kVReplaceMode' mode, a NL replaces the rest of the line, and starts
     // replacing the next line, so we push all of the characters left on the
     // line onto the replace stack. This is not done here though, it is done
     // in open_line().
@@ -11043,7 +11045,7 @@ static void ins_try_si(int c)
             i = get_indent();
             curwin->w_cursor = old_pos;
 
-            if(curmod & VREPLACE_FLAG)
+            if(curmod & kModFlgVReplace)
             {
                 change_indent(INDENT_SET, i, FALSE, NUL, TRUE);
             }

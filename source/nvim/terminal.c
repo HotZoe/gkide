@@ -436,8 +436,8 @@ void terminal_enter(void)
     setpcmark();
     int save_state = curmod;
     s->save_rd = RedrawingDisabled;
-    curmod = TERM_FOCUS;
-    mapped_ctrl_c |= TERM_FOCUS; // Always map CTRL-C to avoid interrupt.
+    curmod = kTermFocusMode;
+    mapped_ctrl_c |= kTermFocusMode; // Always map CTRL-C to avoid interrupt.
     RedrawingDisabled = false;
 
     // Disable these options in terminal-mode. They are nonsense
@@ -1561,7 +1561,7 @@ static int linenr_to_row(Terminal *term, int linenr)
 
 static bool is_focused(Terminal *term)
 {
-    return curmod & TERM_FOCUS && curbuf->terminal == term;
+    return curmod & kTermFocusMode && curbuf->terminal == term;
 }
 
 #define GET_CONFIG_VALUE(k, o)                                          \
