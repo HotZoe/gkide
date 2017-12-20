@@ -1593,7 +1593,7 @@ bool edit(int cmdchar, bool startln, long count)
             // Do not enter terminal mode from ex_normal(), which would cause
             // havoc (such as terminal-mode recursiveness).
             // Instead set a flag to force-set the value of `restart_edit`
-            // before `ex_normal` returns.
+            // before ex_normal() returns.
             restart_edit = 'i';
             force_restart_edit = true;
         }

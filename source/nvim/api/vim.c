@@ -41,8 +41,11 @@
 /// Executes an ex-command.
 /// On VimL error: Returns the VimL error; v:errmsg is not updated.
 ///
-/// @param command  Ex-command string
-/// @param[out] err Error details (including actual VimL error), if any
+/// @param command
+/// Ex-command string
+///
+/// @param[out] err
+/// Error details (including actual VimL error), if any
 void nvim_command(String command, Error *err)
 FUNC_API_SINCE(1)
 {
@@ -59,6 +62,7 @@ FUNC_API_SINCE(1)
 /// @param keys         to be typed
 /// @param mode         mapping options
 /// @param escape_csi   If true, escape K_SPECIAL/CSI bytes in @b keys
+///
 /// @see feedkeys()
 /// @see vim_strsave_escape_csi
 void nvim_feedkeys(String keys, String mode, Boolean escape_csi)
@@ -109,8 +113,8 @@ FUNC_API_SINCE(1)
 
     if(escape_csi)
     {
-        // Need to escape K_SPECIAL and CSI before putting the string in the
-        // typeahead buffer.
+        // Need to escape K_SPECIAL and CSI before
+        // putting the string in the typeahead buffer.
         keys_esc = (char *)vim_strsave_escape_csi((char_u *)keys.data);
     }
     else
@@ -136,7 +140,9 @@ FUNC_API_SINCE(1)
     if(execute)
     {
         int save_msg_scroll = msg_scroll;
-        /* Avoid a 1 second delay when the keys start Insert mode. */
+
+        // Avoid a 1 second delay when
+        // the keys start Insert mode.
         msg_scroll = false;
 
         if(!dangerous)
@@ -158,20 +164,23 @@ FUNC_API_SINCE(1)
 /// Passes keys to Nvim as raw user-input.
 /// On VimL error: Does not fail, but updates v:errmsg.
 ///
-/// Unlike `nvim_feedkeys`, this uses a lower-level input buffer and the call
+/// Unlike nvim_feedkeys(), this uses a lower-level input buffer and the call
 /// is not deferred. This is the most reliable way to emulate real user input.
 ///
 /// @param keys to be typed
-/// @return Number of bytes actually written (can be fewer than
-///         requested if the buffer becomes full).
+///
+/// @return
+/// Number of bytes actually written (can be
+/// fewer than requested if the buffer becomes full).
 Integer nvim_input(String keys)
-FUNC_API_SINCE(1) FUNC_API_ASYNC
+FUNC_API_SINCE(1)
+FUNC_API_ASYNC
 {
     return (Integer)input_enqueue(keys);
 }
 
-/// Replaces terminal codes and key codes (<CR>, <Esc>, ...) in a string with
-/// the internal representation.
+/// Replaces terminal codes and key codes (<CR>, <Esc>, ...)
+/// in a string with the internal representation.
 ///
 /// @see replace_termcodes
 /// @see cpoptions
@@ -195,8 +204,8 @@ FUNC_API_SINCE(1)
     // - FLAG_CPO_BSLASH  set - backslashes are *not* treated specially
     // - FLAG_CPO_KEYCODE set - keycodes are *not* reverse-engineered
     // - FLAG_CPO_SPECI unset - <Key> sequences *are* interpreted
-    // The third from end parameter of replace_termcodes() is true so that the
-    // <lt> sequence is recognised - needed for a real backslash.
+    // The third from end parameter of replace_termcodes() is true so
+    // that the <lt> sequence is recognised - needed for a real backslash.
     replace_termcodes((char_u *)str.data,
                       str.size,
                       (char_u **)&ptr,
@@ -262,6 +271,7 @@ FUNC_API_SINCE(1)
 /// @param fname    Function to call
 /// @param args     Function arguments packed in an Array
 /// @param[out] err Error details, if any
+///
 /// @return Result of the function call
 Object nvim_call_function(String fname, Array args, Error *err)
 FUNC_API_SINCE(1)
@@ -314,6 +324,7 @@ FUNC_API_SINCE(1)
     }
 
     tv_clear(&rettv);
+
 free_vim_args:
 
     while(i > 0)
@@ -324,21 +335,28 @@ free_vim_args:
     return rv;
 }
 
-/// Execute lua code. Parameters might be passed, they are available inside
-/// the chunk as `...`. The chunk can return a value.
+/// Execute lua code. Parameters might be passed, they are
+/// available inside the chunk as `...`. The chunk can return a value.
 ///
 /// To evaluate an expression, it must be prefixed with "return ". For
 /// instance, to call a lua function with arguments sent in and get its
 /// return value back, use the code "return my_function(...)".
 ///
-/// @param code       lua code to execute
-/// @param args       Arguments to the code
-/// @param[out] err   Details of an error encountered while parsing
-///                   or executing the lua code.
+/// @param code
+/// lua code to execute
 ///
-/// @return           Return value of lua code if present or NIL.
+/// @param args
+/// Arguments to the code
+///
+/// @param[out] err
+/// Details of an error encountered while
+/// parsing or executing the lua code.
+///
+/// @return
+/// Return value of lua code if present or NIL.
 Object nvim_execute_lua(String code, Array args, Error *err)
-FUNC_API_SINCE(3) FUNC_API_REMOTE_ONLY
+FUNC_API_SINCE(3)
+FUNC_API_REMOTE_ONLY
 {
     return executor_exec_lua_api(code, args, err);
 }
@@ -367,8 +385,8 @@ FUNC_API_SINCE(1)
 ArrayOf(String) nvim_list_runtime_paths(void)
 FUNC_API_SINCE(1)
 {
-    Array rv = ARRAY_DICT_INIT;
     uint8_t *rtp = p_rtp;
+    Array rv = ARRAY_DICT_INIT;
 
     if(*rtp == NUL)
     {
@@ -388,6 +406,7 @@ FUNC_API_SINCE(1)
 
     // Allocate memory for the copies
     rv.items = xmalloc(sizeof(Object) * rv.size);
+
     // Reset the position
     rtp = p_rtp;
 
@@ -476,6 +495,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param name     Variable name
 /// @param[out] err Error details, if any
+///
 /// @return Variable value
 Object nvim_get_var(String name, Error *err)
 FUNC_API_SINCE(1)
@@ -536,6 +556,7 @@ Object vim_del_var(String name, Error *err)
 ///
 /// @param name     Variable name
 /// @param[out] err Error details, if any
+///
 /// @return         Variable value
 Object nvim_get_vvar(String name, Error *err)
 FUNC_API_SINCE(1)
@@ -547,6 +568,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param name     Option name
 /// @param[out] err Error details, if any
+///
 /// @return         Option value (global)
 Object nvim_get_option(String name, Error *err)
 FUNC_API_SINCE(1)
@@ -583,10 +605,11 @@ FUNC_API_SINCE(1)
     write_msg(str, true);
 }
 
-/// Writes a message to vim error buffer. Appends a linefeed to ensure all
-/// contents are written.
+/// Writes a message to vim error buffer.
+/// Appends a linefeed to ensure all contents are written.
 ///
 /// @param str Message
+///
 /// @see nvim_err_write()
 void nvim_err_writeln(String str)
 FUNC_API_SINCE(1)
@@ -610,6 +633,7 @@ FUNC_API_SINCE(1)
     {
         rv.size++;
     }
+
     rv.items = xmalloc(sizeof(Object) * rv.size);
     size_t i = 0;
 
@@ -617,6 +641,7 @@ FUNC_API_SINCE(1)
     {
         rv.items[i++] = BUFFER_OBJ(b->handle);
     }
+
     return rv;
 }
 
@@ -644,6 +669,7 @@ FUNC_API_SINCE(1)
     }
 
     try_start();
+
     int result = do_buffer(DOBUF_GOTO, DOBUF_FIRST, FORWARD, buf->b_fnum, 0);
 
     if(!try_end(err) && result == FAIL)
@@ -667,6 +693,7 @@ FUNC_API_SINCE(1)
     }
 
     rv.items = xmalloc(sizeof(Object) * rv.size);
+
     size_t i = 0;
 
     FOR_ALL_TAB_WINDOWS(tp, wp)
@@ -722,6 +749,7 @@ FUNC_API_SINCE(1)
     }
 
     rv.items = xmalloc(sizeof(Object) * rv.size);
+
     size_t i = 0;
 
     FOR_ALL_TABS(tp)
@@ -770,10 +798,12 @@ FUNC_API_SINCE(1)
 /// @param channel_id Channel id (passed automatically by the dispatcher)
 /// @param event      Event type string
 void nvim_subscribe(uint64_t channel_id, String event)
-FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
+FUNC_API_SINCE(1)
+FUNC_API_REMOTE_ONLY
 {
     size_t length = (event.size < METHOD_MAXLEN ? event.size : METHOD_MAXLEN);
     char e[METHOD_MAXLEN + 1];
+
     memcpy(e, event.data, length);
     e[length] = NUL;
     channel_subscribe(channel_id, e);
@@ -784,10 +814,12 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 /// @param channel_id Channel id (passed automatically by the dispatcher)
 /// @param event      Event type string
 void nvim_unsubscribe(uint64_t channel_id, String event)
-FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
+FUNC_API_SINCE(1)
+FUNC_API_REMOTE_ONLY
 {
     size_t length = (event.size < METHOD_MAXLEN ? event.size : METHOD_MAXLEN);
     char e[METHOD_MAXLEN + 1];
+
     memcpy(e, event.data, length);
     e[length] = NUL;
     channel_unsubscribe(channel_id, e);
@@ -813,14 +845,14 @@ FUNC_API_SINCE(1)
     return colors;
 }
 
-
 /// Gets the current mode.
-/// mode:     Mode string. |mode()|
-/// blocking: true if Nvim is waiting for input.
+/// - mode:     Mode string. |mode()|
+/// - blocking: true if Nvim is waiting for input.
 ///
 /// @returns Dictionary { "mode": String, "blocking": Boolean }
 Dictionary nvim_get_mode(void)
-FUNC_API_SINCE(2) FUNC_API_ASYNC
+FUNC_API_SINCE(2)
+FUNC_API_ASYNC
 {
     Dictionary rv = ARRAY_DICT_INIT;
     char *modestr = get_mode();
@@ -832,11 +864,11 @@ FUNC_API_SINCE(2) FUNC_API_ASYNC
     return rv;
 }
 
-/// Get a list of dictionaries describing global (i.e. non-buffer) mappings
-/// Note that the "buffer" key will be 0 to represent false.
+/// Get a list of dictionaries describing global (i.e. non-buffer)
+/// mappings. Note that the "buffer" key will be 0 to represent false.
 ///
 /// @param  mode  The abbreviation for the mode
-/// @returns  An array of maparg() like dictionaries describing mappings
+/// @returns  An  array of maparg() like dictionaries describing mappings
 ArrayOf(Dictionary) nvim_get_keymap(String mode)
 FUNC_API_SINCE(3)
 {
@@ -844,7 +876,9 @@ FUNC_API_SINCE(3)
 }
 
 Array nvim_get_api_info(uint64_t channel_id)
-FUNC_API_SINCE(1) FUNC_API_ASYNC FUNC_API_REMOTE_ONLY
+FUNC_API_SINCE(1)
+FUNC_API_ASYNC
+FUNC_API_REMOTE_ONLY
 {
     Array rv = ARRAY_DICT_INIT;
 
@@ -866,25 +900,31 @@ FUNC_API_SINCE(1) FUNC_API_ASYNC FUNC_API_REMOTE_ONLY
 /// Secondly, it can be used to reduce rpc overhead (roundtrips) when doing
 /// many requests in sequence.
 ///
-/// @param calls an array of calls, where each call is described by an array
+/// @param calls
+/// an array of calls, where each call is described by an array
 /// with two elements: the request name, and an array of arguments.
-/// @param[out] err Details of a validation error of the nvim_multi_request call
-/// itself, i e malformatted `calls` parameter. Errors from called methods will
-/// be indicated in the return value, see below.
 ///
-/// @return an array with two elements. The first is an array of return
-/// values. The second is NIL if all calls succeeded. If a call resulted in
-/// an error, it is a three-element array with the zero-based index of the call
-/// which resulted in an error, the error type and the error message. If an
-/// error ocurred, the values from all preceding calls will still be returned.
+/// @param[out] err
+/// Details of a validation error of the nvim_multi_request call
+/// itself, i e malformatted `calls` parameter. Errors from called
+/// methods will be indicated in the return value, see below.
+///
+/// @return
+/// an array with two elements. The first is an array of return
+/// values. The second is NIL if all calls succeeded. If a call
+/// resulted in an error, it is a three-element array with the
+/// zero-based index of the call which resulted in an error, the
+/// error type and the error message. If an error ocurred, the
+/// values from all preceding calls will still be returned.
 Array nvim_call_atomic(uint64_t channel_id, Array calls, Error *err)
-FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
+FUNC_API_SINCE(1)
+FUNC_API_REMOTE_ONLY
 {
     Array rv = ARRAY_DICT_INIT;
     Array results = ARRAY_DICT_INIT;
     Error nested_error = ERROR_INIT;
 
-    size_t i;  // also used for freeing the variables
+    size_t i; // also used for freeing the variables
 
     for(i = 0; i < calls.size; i++)
     {
@@ -952,10 +992,13 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
     goto theend;
 
 validation_error:
+
     api_free_array(results);
 
 theend:
+
     api_clear_error(&nested_error);
+
     return rv;
 }
 
@@ -970,8 +1013,9 @@ theend:
                                                              \
     line_buf[pos++] = message.data[i];
 
-/// Writes a message to vim output or error buffer. The string is split
-/// and flushed after each newline. Incomplete lines are kept for writing later.
+/// Writes a message to vim output or error buffer.
+/// The string is split and flushed after each newline.
+/// Incomplete lines are kept for writing later.
 ///
 /// @param message  Message to write
 /// @param to_err   true: message is an error (uses `emsg` instead of `msg`)

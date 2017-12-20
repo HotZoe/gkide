@@ -10769,7 +10769,7 @@ static void f_feedkeys(typval_T *argvars,
                        typval_T *FUNC_ARGS_UNUSED_REALY(rettv),
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    // This is not allowed in the sandbox.  If the commands would still be
+    // This is not allowed in the sandbox. If the commands would still be
     // executed in the sandbox it would be OK, but it probably happens later,
     // when "sandbox" is no longer set.
     if(check_secure())
