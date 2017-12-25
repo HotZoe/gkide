@@ -3940,7 +3940,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         char buf[100];
         memcpy(buf, "so ", 4);
-        vim_snprintf(buf + 3, sizeof(buf) - 3, SYNTAX_FNAME, name);
+        vim_snprintf(buf + 3, sizeof(buf) - 3, SYS_SYNTAX_FNS_NVL, name);
         do_cmdline_cmd(buf);
     }
 }

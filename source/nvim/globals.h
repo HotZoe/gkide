@@ -19,7 +19,15 @@
 #include "config.h"
 #include "envdefs.h"
 
+#define GKIDE_SYS_HOME_BIN  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "bin"
 #define GKIDE_SYS_HOME_ETC  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "etc"
+#define GKIDE_SYS_HOME_DOC  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "doc"
+#define GKIDE_SYS_HOME_PLG  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "plg"
+#define GKIDE_SYS_HOME_LOC  "$" ENV_GKIDE_SYS_HOME OS_PATH_SEP_STR "loc"
+
+#define SYS_PLG_SYNTAX_DIR  GKIDE_SYS_HOME_PLG OS_PATH_SEP_STR "syntax"
+#define SYS_SYNTAX_FNS_NVL  SYS_PLG_SYNTAX_DIR OS_PATH_SEP_STR "%s.nvl"
+
 #define GKIDE_USR_HOME_ETC  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "etc"
 
 #define SYSINIT_NVIMRC  GKIDE_SYS_HOME_ETC OS_PATH_SEP_STR "sysinit.nvimrc"
@@ -65,10 +73,6 @@
 
 #ifndef DFLT_HELPFILE
     #define DFLT_HELPFILE  "$VIMRUNTIME" OS_PATH_SEP_STR "doc" OS_PATH_SEP_STR "help.txt"
-#endif
-
-#ifndef SYNTAX_FNAME
-    #define SYNTAX_FNAME   "$VIMRUNTIME" OS_PATH_SEP_STR "syntax" OS_PATH_SEP_STR "%s.vim"
 #endif
 
 #ifndef EXRC_FILE
