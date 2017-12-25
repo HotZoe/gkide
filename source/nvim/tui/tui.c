@@ -296,7 +296,7 @@ static void tui_stop(UI *ui)
     data->stop = true;
 }
 
-// Main function of the TUI thread
+/// Main function of the TUI thread
 static void tui_main(UIBridgeData *bridge, UI *ui)
 {
     main_loop_T tui_loop;

@@ -132,6 +132,7 @@ void ui_bridge_stopped(UIBridgeData *bridge)
     uv_mutex_unlock(&bridge->mutex);
 }
 
+/// The UI thread entry point function
 static void ui_thread_run(void *data)
 {
     UIBridgeData *bridge = data;

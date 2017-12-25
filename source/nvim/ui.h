@@ -39,7 +39,8 @@ struct ui_t
     bool rgb;
     /// Externalized widgets
     bool ui_ext[UI_WIDGETS];
-    int width, height;
+    int width;
+    int height;
     void *data;
 
     #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -47,8 +48,8 @@ struct ui_t
     #include "ui_events.generated.h"
     #endif
 
-    void (*event)(UI *ui, char *name, Array args, bool *args_consumed);
     void (*stop)(UI *ui);
+    void (*event)(UI *ui, char *name, Array args, bool *args_consumed);
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

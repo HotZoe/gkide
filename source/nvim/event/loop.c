@@ -62,7 +62,7 @@ void loop_poll_events(main_loop_T *loop, int ms)
     multiqueue_process_events(loop->fast_events);
 }
 
-// Schedule an event from another thread
+/// Schedule an event from another thread
 void loop_schedule(main_loop_T *loop, Event event)
 {
     uv_mutex_lock(&loop->mutex);
