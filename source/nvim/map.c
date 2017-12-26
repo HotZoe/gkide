@@ -39,9 +39,9 @@
 
 #define MAP_IMPL(T, U, ...)                                                    \
     INITIALIZER_DECLARE(T, U, __VA_ARGS__);                                    \
-    __KHASH_IMPL(T##_##U##_map,, T, U, 1, T##_hash, T##_eq)                    \
+    __KHASH_IMPL(T##_##U##_map, /* skip */, T, U, 1, T##_hash, T##_eq)         \
                                                                                \
-    Map(T, U) *map_##T##_##U##_new()                                           \
+    Map(T, U) *map_##T##_##U##_new(void)                                       \
     {                                                                          \
         Map(T, U) *rv = xmalloc(sizeof(Map(T, U)));                            \
         rv->table = kh_init(T##_##U##_map);                                    \
