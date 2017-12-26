@@ -1,21 +1,12 @@
-// Queue implemented by circularly-linked list.
-//
-// Adapted from libuv. Simpler and more efficient than klist.h for implementing
-// queues that support arbitrary insertion/removal.
-//
-// Copyright (c) 2013, Ben Noordhuis <info@bnoordhuis.nl>
-//
-// Permission to use, copy, modify, and/or distribute this software for any
-// purpose with or without fee is hereby granted, provided that the above
-// copyright notice and this permission notice appear in all copies.
-//
-// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-// WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-// MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-// ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-// ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-// OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+/// @file nvim/lib/queue.h
+///
+/// Generic Queue library.
+///
+/// Queue implemented by circularly-linked list.
+///
+/// Adapted from libuv. Simpler and more efficient
+/// than klist.h for implementing queues that support
+/// arbitrary insertion/removal.
 
 #ifndef NVIM_LIB_QUEUE_H
 #define NVIM_LIB_QUEUE_H
@@ -30,26 +21,29 @@ typedef struct _queue
     struct _queue *prev;
 } QUEUE;
 
-// Public macros.
+/// Public macros.
 #define QUEUE_DATA(ptr, type, field) \
     ((type *)((char *)(ptr) - offsetof(type, field)))
 
-// Important note: mutating the list while QUEUE_FOREACH is
-// iterating over its elements results in undefined behavior.
+/// @note:
+/// mutating the list while QUEUE_FOREACH is iterating
+/// over its elements results in undefined behavior.
 #define QUEUE_FOREACH(q, h) \
-    for (  /* NOLINT(readability/braces) */ \
-                                            (q) = (h)->next; (q) != (h); (q) = (q)->next)
+    for((q) = (h)->next; (q) != (h); (q) = (q)->next)
 
-// ffi.cdef is unable to swallow `bool` in place of `int` here.
+/// ffi.cdef is unable to swallow @b bool in place of @b int here.
 static inline int QUEUE_EMPTY(const QUEUE *const q)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return q == q->next;
 }
 
-#define QUEUE_HEAD(q) (q)->next
+#define QUEUE_HEAD(q)   (q)->next
 
-static inline void QUEUE_INIT(QUEUE *const q) FUNC_ATTR_ALWAYS_INLINE
+static inline void QUEUE_INIT(QUEUE *const q)
+FUNC_ATTR_ALWAYS_INLINE
 {
     q->next = q;
     q->prev = q;
@@ -82,10 +76,11 @@ FUNC_ATTR_ALWAYS_INLINE
     h->prev = q;
 }
 
-static inline void QUEUE_REMOVE(QUEUE *const q) FUNC_ATTR_ALWAYS_INLINE
+static inline void QUEUE_REMOVE(QUEUE *const q)
+FUNC_ATTR_ALWAYS_INLINE
 {
     q->prev->next = q->next;
     q->next->prev = q->prev;
 }
 
-#endif  // NVIM_LIB_QUEUE_H
+#endif // NVIM_LIB_QUEUE_H

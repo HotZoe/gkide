@@ -1,38 +1,23 @@
-// The MIT License
-//
-// Copyright (c) 2008, by Attractive Chaos <attractor@live.co.uk>
-//
-// Permission is hereby granted, free of charge, to any person obtaining
-// a copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to
-// permit persons to whom the Software is furnished to do so, subject to
-// the following conditions:
-//
-// The above copyright notice and this permission notice shall be
-// included in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
+/// @file nvim/lib/kvec.h
+///
+/// Generic vector library.
 
-// An example:
-//
-//     #include "kvec.h"
-//     int main() {
-//       kvec_t(int) array = KV_INITIAL_VALUE;
-//       kv_push(array, 10); // append
-//       kv_a(array, 20) = 5; // dynamic
-//       kv_A(array, 20) = 4; // static
-//       kv_destroy(array);
-//       return 0;
-//     }
+/*
+An example:
+-----------------------------------------------------------
+#include "kvec.h"
+
+int main()
+{
+    kvec_t(int) array = KV_INITIAL_VALUE;
+    kv_push(array, 10); // append
+    kv_a(array, 20) = 5; // dynamic
+    kv_A(array, 20) = 4; // static
+    kv_destroy(array);
+    return 0;
+}
+-----------------------------------------------------------
+*/
 
 #ifndef NVIM_LIB_KVEC_H
 #define NVIM_LIB_KVEC_H
@@ -62,16 +47,16 @@
     }
 
 #define kv_init(v)    ((v).size = (v).capacity = 0, (v).items = 0)
-#define kv_destroy(v) xfree((v).items)
 #define kv_A(v, i)    ((v).items[(i)])
 #define kv_pop(v)     ((v).items[--(v).size])
 #define kv_size(v)    ((v).size)
 #define kv_max(v)     ((v).capacity)
+#define kv_destroy(v) xfree((v).items)
 #define kv_last(v)    kv_A(v, kv_size(v) - 1)
 
-#define kv_resize(v, s)              \
-    ((v).capacity = (s),             \
-     (v).items = xrealloc((v).items, \
+#define kv_resize(v, s)                     \
+    ((v).capacity = (s),                    \
+     (v).items = xrealloc((v).items,        \
      sizeof((v).items[0]) * (v).capacity))
 
 #define kv_resize_full(v) \
@@ -96,7 +81,7 @@
     ((((v).size == (v).capacity) ? (kv_resize_full(v), 0) : 0), \
      ((v).items + ((v).size++)))
 
-#define kv_push(v, x)    (*kv_pushp(v) = (x))
+#define kv_push(v, x)  (*kv_pushp(v) = (x))
 
 #define kv_a(v, i)                          \
     (((v).capacity <= (size_t) (i)          \
@@ -113,7 +98,7 @@
 /// Is not compatible with #kv_resize, #kv_resize_full, #kv_copy, #kv_push,
 /// #kv_pushp, #kv_a, #kv_destroy.
 ///
-/// @param[in]  type  Type of vector elements.
+/// @param[in]  type       Type of vector elements.
 /// @param[in]  init_size  Number of the elements in the initial array.
 #define kvec_withinit_t(type, INIT_SIZE) \
     struct                               \
@@ -180,8 +165,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// capacity is not guaranteed to have size that is a power of 2, it is
 /// hard to fix this here and is not very necessary if users will use
 /// 2^x initial array size.
-#define kvi_resize_full(v) \
-    kvi_resize(v, (v).capacity << 1)
+#define kvi_resize_full(v)  kvi_resize(v, (v).capacity << 1)
 
 /// Get location where to store new
 /// element to a vector with preallocated array
@@ -198,8 +182,7 @@ FUNC_ATTR_ALWAYS_INLINE
 ///
 /// @param[out] v  Vector to push to.
 /// @param[in]  x  Value to push.
-#define kvi_push(v, x) \
-    (*kvi_pushp(v) = (x))
+#define kvi_push(v, x)  (*kvi_pushp(v) = (x))
 
 /// Free array of elements of a vector
 /// with preallocated array if needed
