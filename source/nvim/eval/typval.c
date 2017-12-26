@@ -943,10 +943,10 @@ FUNC_ATTR_PURE
     return idx;
 }
 
-/// Perform all necessary cleanup for a `DictWatcher` instance
+/// Perform all necessary cleanup for a dict_watcher_T instance
 ///
 /// @param  watcher  Watcher to free.
-static void tv_dict_watcher_free(DictWatcher *watcher)
+static void tv_dict_watcher_free(dict_watcher_T *watcher)
 FUNC_ATTR_NONNULL_ALL
 {
     callback_free(&watcher->callback);
@@ -971,12 +971,12 @@ FUNC_ATTR_NONNULL_ARG(2)
         return;
     }
 
-    DictWatcher *const watcher = xmalloc(sizeof(DictWatcher));
+    dict_watcher_T *const watcher = xmalloc(sizeof(dict_watcher_T));
     watcher->key_pattern = xmemdupz(key_pattern, key_pattern_len);
     watcher->key_pattern_len = key_pattern_len;
     watcher->callback = callback;
     watcher->busy = false;
-    QUEUE_INSERT_TAIL(&dict->watchers, &watcher->node);
+    queue_insert_tail(&dict->watchers, &watcher->node);
 }
 
 /// Check whether two callbacks are equal
@@ -1039,8 +1039,8 @@ FUNC_ATTR_NONNULL_ARG(2)
         return false;
     }
 
-    QUEUE *w = NULL;
-    DictWatcher *watcher = NULL;
+    queue_T *w = NULL;
+    dict_watcher_T *watcher = NULL;
     bool matched = false;
     QUEUE_FOREACH(w, &dict->watchers)
     {
@@ -1060,7 +1060,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         return false;
     }
 
-    QUEUE_REMOVE(w);
+    queue_remove(w);
     tv_dict_watcher_free(watcher);
     return true;
 }
@@ -1071,7 +1071,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @param[in]  key      Key to check.
 ///
 /// @return true if key matches, false otherwise.
-static bool tv_dict_watcher_matches(DictWatcher *watcher,
+static bool tv_dict_watcher_matches(dict_watcher_T *watcher,
                                     const char *const key)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1131,11 +1131,11 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     }
 
     typval_T rettv;
-    QUEUE *w;
+    queue_T *w;
 
     QUEUE_FOREACH(w, &dict->watchers)
     {
-        DictWatcher *watcher = tv_dict_watcher_node_data(w);
+        dict_watcher_T *watcher = tv_dict_watcher_node_data(w);
 
         if(!watcher->busy && tv_dict_watcher_matches(watcher, key))
         {
@@ -1266,7 +1266,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     d->dv_scope = VAR_NO_SCOPE;
     d->dv_refcount = 0;
     d->dv_copyID = 0;
-    QUEUE_INIT(&d->watchers);
+    queue_init(&d->watchers);
 
     return d;
 }
@@ -1290,11 +1290,11 @@ FUNC_ATTR_NONNULL_ALL
         tv_dict_item_free(di);
     });
 
-    while(!QUEUE_EMPTY(&d->watchers))
+    while(!queue_empty(&d->watchers))
     {
-        QUEUE *w = QUEUE_HEAD(&d->watchers);
-        QUEUE_REMOVE(w);
-        DictWatcher *watcher = tv_dict_watcher_node_data(w);
+        queue_T *w = QUEUE_HEAD(&d->watchers);
+        queue_remove(w);
+        dict_watcher_T *watcher = tv_dict_watcher_node_data(w);
         tv_dict_watcher_free(watcher);
     }
 

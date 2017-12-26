@@ -67,10 +67,10 @@ typedef struct dict_watcher
     Callback callback;
     char *key_pattern;
     size_t key_pattern_len;
-    QUEUE node;
+    queue_T node;
     /// prevent recursion if the dict is changed in the callback
     bool busy;
-} DictWatcher;
+} dict_watcher_T;
 
 /// Special variable values
 typedef enum
@@ -80,7 +80,7 @@ typedef enum
     kSpecialVarNull,   ///< v:null
 } SpecialVarValue;
 
-/// Variable lock status for typval_T.v_lock
+/// Variable lock status for typval_T::v_lock
 typedef enum
 {
     VAR_UNLOCKED = 0,  ///< Not locked.
@@ -88,20 +88,20 @@ typedef enum
     VAR_FIXED = 2,     ///< Locked forever.
 } VarLockStatus;
 
-/// VimL variable types, for use in typval_T.v_type
+/// VimL variable types, for use in typval_T::v_type
 typedef enum
 {
     VAR_UNKNOWN = 0,  ///< Unknown (unspecified) value.
-    VAR_NUMBER,       ///< Number, .v_number is used.
-    VAR_STRING,       ///< String, .v_string is used.
-    VAR_FUNC,         ///< Function reference,
-                      ///< .v_string is used as function name.
-    VAR_LIST,         ///< List, .v_list is used.
-    VAR_DICT,         ///< Dictionary, .v_dict is used.
-    VAR_FLOAT,        ///< Floating-point value, .v_float is used.
-    VAR_SPECIAL,      ///< Special value (true, false, null),
-                      ///< .v_special is used.
-    VAR_PARTIAL,      ///< Partial, .v_partial is used.
+    VAR_NUMBER,       ///< typval_T: Number, @b v_number is used.
+    VAR_STRING,       ///< typval_T: String, @b v_string is used.
+    VAR_FUNC,         ///< typval_T: Function reference, @b v_string
+                      ///<           is used as function name.
+    VAR_LIST,         ///< typval_T: List, @b v_list is used.
+    VAR_DICT,         ///< typval_T: Dictionary, @b v_dict is used.
+    VAR_FLOAT,        ///< typval_T: Floating-point value, @b v_float is used.
+    VAR_SPECIAL,      ///< typval_T: Special value (true, false, null),
+                      ///<           @b v_special is used.
+    VAR_PARTIAL,      ///< typval_T: Partial, @b v_partial is used.
 } VarType;
 
 /// Structure that holds an internal variable value
@@ -121,7 +121,7 @@ typedef struct
     } vval;               ///< Actual value.
 } typval_T;
 
-/// Values for (struct dictvar_S).dv_scope
+/// Values for dict_T::dv_scope
 typedef enum
 {
     /// Not a scope dictionary.
@@ -201,16 +201,16 @@ struct dictitem_S
 ///
 /// For use in find_var_in_ht to pretend that it found
 /// dictionary item when it finds scope dictionary.
-typedef TV_DICTITEM_STRUCT(1) ScopeDictDictItem;
+typedef TV_DICTITEM_STRUCT(1) scope_dict_T;
 
 /// Structure to hold an item of a Dictionary
 ///
-/// @warning Must be compatible with ScopeDictDictItem.
+/// @warning Must be compatible with #scope_dict_T.
 ///
 /// Also used for a variable.
 typedef TV_DICTITEM_STRUCT() dictitem_T;
 
-/// Flags for dictitem_T.di_flags
+/// Flags for dictitem_T::di_flags
 typedef enum
 {
     DI_FLAGS_RO = 1,      ///< Read-only value
@@ -232,7 +232,7 @@ struct dictvar_S
     dict_T *dv_copydict;    ///< Copied dict used by deepcopy().
     dict_T *dv_used_next;   ///< Next dictionary in used dictionaries list.
     dict_T *dv_used_prev;   ///< Previous dictionary in used dictionaries list.
-    QUEUE watchers;         ///< Dictionary key watchers set by user code.
+    queue_T watchers;       ///< Dictionary key watchers set by user code.
 };
 
 /// Type used for script ID
@@ -360,7 +360,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// @return true if there is at least one watcher.
 static inline bool tv_dict_is_watched(const dict_T *const d)
 {
-    return d && !QUEUE_EMPTY(&d->watchers);
+    return d && !queue_empty(&d->watchers);
 }
 
 /// Initialize VimL object
@@ -438,25 +438,26 @@ static inline bool tv_get_float_chk(const typval_T *const tv,
     return false;
 }
 
-static inline DictWatcher *tv_dict_watcher_node_data(QUEUE *q)
+static inline dict_watcher_T *tv_dict_watcher_node_data(queue_T *q)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_NONNULL_RET
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT
 REAL_FATTR_ALWAYS_INLINE;
 
-/// Compute the `DictWatcher` address from a QUEUE node.
+/// Compute the dict_watcher_T address from a queue_T node.
 ///
 /// This only exists for .asan-blacklist
 /// (ASAN doesn't handle QUEUE_DATA pointer arithmetic).
-static inline DictWatcher *tv_dict_watcher_node_data(QUEUE *q)
+static inline dict_watcher_T *tv_dict_watcher_node_data(queue_T *q)
 {
-    return QUEUE_DATA(q, DictWatcher, node);
+    return QUEUE_DATA(q, dict_watcher_T, node);
 }
 
 static inline bool tv_is_func(const typval_T tv)
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_CONST;
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_CONST;
 
 /// Check whether given typval_T contains a function
 ///

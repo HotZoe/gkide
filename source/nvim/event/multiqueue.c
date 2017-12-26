@@ -70,13 +70,13 @@ struct multiqueue_item
     } data;
     /// true: current item is just a link to a node in a child queue
     bool link;
-    QUEUE node;
+    queue_T node;
 };
 
 struct multiqueue
 {
     MultiQueue *parent;  ///<
-    QUEUE headtail;      ///< circularly-linked
+    queue_T headtail;    ///< circularly-linked
     put_callback put_cb; ///<
     void *data;          ///<
     size_t size;         ///<
@@ -108,7 +108,7 @@ static MultiQueue *multiqueue_new(MultiQueue *parent,
                                   void *data)
 {
     MultiQueue *rv = xmalloc(sizeof(MultiQueue));
-    QUEUE_INIT(&rv->headtail);
+    queue_init(&rv->headtail);
     rv->size = 0;
     rv->parent = parent;
     rv->put_cb = put_cb;
@@ -120,18 +120,18 @@ void multiqueue_free(MultiQueue *this)
 {
     assert(this);
 
-    while(!QUEUE_EMPTY(&this->headtail))
+    while(!queue_empty(&this->headtail))
     {
-        QUEUE *q = QUEUE_HEAD(&this->headtail);
+        queue_T *q = QUEUE_HEAD(&this->headtail);
         MultiQueueItem *item = multiqueue_node_data(q);
 
         if(this->parent)
         {
-            QUEUE_REMOVE(&item->data.item.parent_item->node);
+            queue_remove(&item->data.item.parent_item->node);
             xfree(item->data.item.parent_item);
         }
 
-        QUEUE_REMOVE(q);
+        queue_remove(q);
         xfree(item);
     }
 
@@ -184,7 +184,7 @@ void multiqueue_purge_events(MultiQueue *this)
 bool multiqueue_empty(MultiQueue *this)
 {
     assert(this);
-    return QUEUE_EMPTY(&this->headtail);
+    return queue_empty(&this->headtail);
 }
 
 void multiqueue_replace_parent(MultiQueue *this, MultiQueue *new_parent)
@@ -221,7 +221,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
         // remove the child node
         if(remove)
         {
-            QUEUE_REMOVE(&child->node);
+            queue_remove(&child->node);
             xfree(child);
         }
     }
@@ -230,7 +230,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
         // remove the corresponding link node in the parent queue
         if(remove && item->data.item.parent_item)
         {
-            QUEUE_REMOVE(&item->data.item.parent_item->node);
+            queue_remove(&item->data.item.parent_item->node);
             xfree(item->data.item.parent_item);
             item->data.item.parent_item = NULL;
         }
@@ -244,8 +244,8 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
 static Event multiqueue_remove(MultiQueue *this)
 {
     assert(!multiqueue_empty(this));
-    QUEUE *h = QUEUE_HEAD(&this->headtail);
-    QUEUE_REMOVE(h);
+    queue_T *h = QUEUE_HEAD(&this->headtail);
+    queue_remove(h);
     MultiQueueItem *item = multiqueue_node_data(h);
 
     // Only a parent queue has link-nodes
@@ -263,7 +263,7 @@ static void multiqueue_push(MultiQueue *this, Event event)
     item->link = false;
     item->data.item.event = event;
     item->data.item.parent_item = NULL;
-    QUEUE_INSERT_TAIL(&this->headtail, &item->node);
+    queue_insert_tail(&this->headtail, &item->node);
 
     if(this->parent)
     {
@@ -272,14 +272,14 @@ static void multiqueue_push(MultiQueue *this, Event event)
         item->data.item.parent_item->link = true;
         item->data.item.parent_item->data.queue = this;
 
-        QUEUE_INSERT_TAIL(&this->parent->headtail,
+        queue_insert_tail(&this->parent->headtail,
                           &item->data.item.parent_item->node);
     }
 
     this->size++;
 }
 
-static MultiQueueItem *multiqueue_node_data(QUEUE *q)
+static MultiQueueItem *multiqueue_node_data(queue_T *q)
 {
     return QUEUE_DATA(q, MultiQueueItem, node);
 }

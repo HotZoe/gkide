@@ -180,7 +180,7 @@ static char *e_letwrong = N_("E734: Wrong variable type for %s=");
 static char_u *const namespace_char = (char_u *)"abglstvw";
 
 /// Variable used for g:
-static ScopeDictDictItem globvars_var;
+static scope_dict_T globvars_var;
 
 /// g: value
 #define globvarht globvardict.dv_hashtab
@@ -198,7 +198,7 @@ static int *eval_lavars_used = NULL;
 /// Each item holds a variable (nameless) that points to the dict_T.
 typedef struct
 {
-    ScopeDictDictItem sv_var;
+    scope_dict_T sv_var;
     dict_T sv_dict;
 } scriptvar_T;
 
@@ -266,9 +266,9 @@ struct funccall_S
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
 
     dict_T l_vars;                         ///< @b l: local function variables.
-    ScopeDictDictItem l_vars_var;          ///< Variable for @b l: scope.
+    scope_dict_T l_vars_var;               ///< Variable for @b l: scope.
     dict_T l_avars;                        ///< @b a: argument variables.
-    ScopeDictDictItem l_avars_var;         ///< Variable for @b a: scope.
+    scope_dict_T l_avars_var;              ///< Variable for @b a: scope.
     list_T l_varlist;                      ///< List for @b a:000
     listitem_T l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
 
@@ -460,7 +460,7 @@ static struct vimvar
 #define vimvarht        vimvardict.dv_hashtab
 
 /// Variable used for @b v:
-static ScopeDictDictItem vimvars_var;
+static scope_dict_T vimvars_var;
 
 typedef struct
 {
@@ -7018,8 +7018,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     }
                 }
 
-                QUEUE *w = NULL;
-                DictWatcher *watcher = NULL;
+                queue_T *w = NULL;
+                dict_watcher_T *watcher = NULL;
 
                 QUEUE_FOREACH(w, &dd->watchers)
                 {
@@ -24575,9 +24575,9 @@ void new_script_vars(scid_T id)
     }
 }
 
-/// Initialize dictionary "dict" as a scope and
-/// set variable "dict_var" to point to it.
-void init_var_dict(dict_T *dict, ScopeDictDictItem *dict_var, int scope)
+/// Initialize dictionary @b dict as a scope and
+/// set variable @b dict_var to point to it.
+void init_var_dict(dict_T *dict, scope_dict_T *dict_var, int scope)
 {
     hash_init(&dict->dv_hashtab);
 
@@ -24591,7 +24591,7 @@ void init_var_dict(dict_T *dict, ScopeDictDictItem *dict_var, int scope)
     dict_var->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     dict_var->di_key[0] = NUL;
 
-    QUEUE_INIT(&dict->watchers);
+    queue_init(&dict->watchers);
 }
 
 /// Unreference a dictionary initialized by init_var_dict().

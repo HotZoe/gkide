@@ -714,8 +714,8 @@ struct file_buffer
     int b_bad_char;           ///< "++bad=" argument when edit started or 0
     int b_start_bomb;         ///< 'bomb' when it was read */
 
-    ScopeDictDictItem b_bufvar;  ///< Variable for "b:" Dictionary.
-    dict_T *b_vars;              ///< b: scope dictionary.
+    scope_dict_T b_bufvar;    ///< Variable for "b:" Dictionary.
+    dict_T *b_vars;           ///< b: scope dictionary.
 
     // When a buffer is created, it starts without a swap file. b_may_swap is
     // then set to indicate that a swap file may be opened later. It is reset
@@ -793,7 +793,7 @@ struct tabpage_S
     buf_T *(tp_diffbuf[DB_COUNT]);
     int tp_diff_invalid;                ///< list of diffs is outdated
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
-    ScopeDictDictItem tp_winvar;        ///< Variable for "t:" Dictionary.
+    scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
     dict_T *tp_vars;                    ///< Internal variables, local to tab page.
     char_u *tp_localdir;                ///< Absolute path of local cwd or NULL.
 };
@@ -1053,9 +1053,13 @@ struct window_S
     long w_scbind_pos;
 
     /// Variable for "w:" dictionary.
-    ScopeDictDictItem w_winvar;
-    dict_T *w_vars; ///< Dictionary with w: variables.
-    int w_farsi;    ///< for the window dependent Farsi functions
+    scope_dict_T w_winvar;
+
+    /// Dictionary with w: variables.
+    dict_T *w_vars;
+
+    /// for the window dependent Farsi functions
+    int w_farsi;
 
     // The w_prev_pcmark field is used to check whether we really did jump to
     // a new line after setting the w_pcmark. If not, then we revert to
