@@ -8,9 +8,9 @@
 #include "nvim/buffer_defs.h"
 #include "nvim/ex_cmds_defs.h"
 
+/// @addtogroup HL_ATTRIBUTES Highlighting Attribute Flags
 /// Terminal highlighting attribute bits.
 /// Attributes above HL_ALL are used for syntax highlighting.
-/// @addtogroup HL_ATTRIBUTES
 /// @{
 #define HL_NORMAL      0x00
 #define HL_INVERSE     0x01

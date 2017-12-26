@@ -248,43 +248,61 @@ EXTERN int msg_nowait INIT(= FALSE);     ///< don't wait for this msg
 
 /// don't display errors for now, unless 'debug' is set
 EXTERN int emsg_off INIT(= 0);
+
 /// printing informative message
 EXTERN int info_message INIT(= FALSE);
+
 /// don't add messages to history
 EXTERN int msg_hist_off INIT(= FALSE);
+
 /// need to clear text before displaying a message
 EXTERN int need_clr_eos INIT(= FALSE);
+
 /// don't display errors for expression that is skipped
 EXTERN int emsg_skip INIT(= 0);
+
 /// use message of next of several emsg() calls for throw
 EXTERN int emsg_severe INIT(= FALSE);
+
 /// just had ":endif"
 EXTERN int did_endif INIT(= FALSE);
+
 /// Dictionary with v: variables
 EXTERN dict_T vimvardict;
+
 /// Dictionary with g: variables
 EXTERN dict_T globvardict;
+
 /// set by emsg() when the message is displayed or thrown
 EXTERN int did_emsg;
+
 /// did_emsg set because of a syntax error
 EXTERN int did_emsg_syntax;
+
 /// always set by emsg()
 EXTERN int called_emsg;
+
 /// exit value for ex mode
 EXTERN int ex_exitval INIT(= 0);
+
 /// there is an error message
 EXTERN int emsg_on_display INIT(= FALSE);
+
 /// vim_regcomp() called emsg()
 EXTERN int rc_did_emsg INIT(= FALSE);
 
 /// don't wait for return for now
 EXTERN int no_wait_return INIT(= 0);
+
 /// need to wait for return later
 EXTERN int need_wait_return INIT(= 0);
+
 /// wait_return() was used and nothing written since then
 EXTERN int did_wait_return INIT(= FALSE);
+
 /// call maketitle() soon
 EXTERN int need_maketitle INIT(= TRUE);
+
 /// 'q' hit at "--more--" msg
 EXTERN int quit_more INIT(= FALSE);
 

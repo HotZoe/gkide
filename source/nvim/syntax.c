@@ -51,7 +51,7 @@ struct hl_group
     char_u *sg_name_u;       ///< uppercase of sg_name
     int sg_attr;             ///< Screen attr @see ATTR_ENTRY
     int sg_link;             ///< link to this highlight group ID
-    int sg_set;              ///< combination of flags in \ref SG_SET
+    int sg_set;              ///< combination of flags in @ref SG_SET
     scid_T sg_scriptID;      ///< script in which the group was last set
     // for terminal UIs
     int sg_cterm;            ///< "cterm=" highlighting attr
@@ -60,7 +60,7 @@ struct hl_group
     int sg_cterm_bold;       ///< bold attr was set for light color
     // for RGB UIs
     int sg_gui;              ///< "gui=" highlighting attributes
-    ///< (combination of \ref HL_ATTRIBUTES)
+                             ///< (combination of @ref HL_ATTRIBUTES)
     RgbValue sg_rgb_fg;      ///< RGB foreground color
     RgbValue sg_rgb_bg;      ///< RGB background color
     RgbValue sg_rgb_sp;      ///< RGB special color
@@ -69,7 +69,7 @@ struct hl_group
     uint8_t *sg_rgb_sp_name; ///< RGB special color name
 };
 
-/// @addtogroup SG_SET
+/// @addtogroup SG_SET Syntax Group
 /// @{
 #define SG_CTERM    2    ///< cterm has been set
 #define SG_GUI      4    ///< gui has been set

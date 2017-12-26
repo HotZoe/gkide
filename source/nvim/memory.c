@@ -157,7 +157,7 @@ void xfree(void *ptr)
     free(ptr);
 }
 
-/// calloc() wrapper
+/// calloc() wrapper, the memory is set to zero.
 ///
 /// @param count
 /// @param size
