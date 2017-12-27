@@ -64,6 +64,7 @@ FOUND_WORKING_LIBINTL)
 if(FOUND_WORKING_LIBINTL)
     check_variable_exists(_nl_msg_cat_cntr HAVE_VARIABLE__NL_MSG_CAT_CNTR)
 endif()
+
 set(LibIntl_FIND_QUIETLY      TRUE)
 set(LibIntl_PROCESS_INCLUDES  LibIntl_INCLUDE_DIR)
 set(LibIntl_PROCESS_LIBS      LibIntl_LIBRARY)
