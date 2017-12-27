@@ -1468,7 +1468,7 @@ static void init_gkide_sys_home(const char *exepath)
         idx--; // find the first last path separator
     } while(vim_ispathsep(*idx) == FAIL);
 
-    // check if the current running 'nvim' in directory named 'bin'
+    // check if the current running 'nvim' is in directory named 'bin'
     // - if yes, what we want, default directory layout
     // - if not, the directory layout is unknown, and just use it
     idx = idx -4;

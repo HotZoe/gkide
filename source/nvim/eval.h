@@ -121,6 +121,8 @@ typedef enum
 #define VAR_TYPE_BOOL       6
 
 /// All recognized msgpack types
+///
+/// @see msgpack_type_names
 typedef enum
 {
     kMPNil,

@@ -312,13 +312,13 @@ typedef enum
 /// @{
 
 /// for vimvar::vv_flags, compatible, also used without 'v:'
-#define VV_COMPAT       1
+#define VV_COMPAT       0x01
 
 /// for vimvar::vv_flags, read-only
-#define VV_RO           2
+#define VV_RO           0x02
 
 /// for vimvar::vv_flags, read-only in the sandbox
-#define VV_RO_SBX       4
+#define VV_RO_SBX       0x04
 
 /// for init ::vimvars only
 #define VV(idx, name, type, flags)       \
@@ -342,7 +342,9 @@ typedef enum
 /// access to the variables with the @b VV_* defines.
 static struct vimvar
 {
-    char *vv_name;            ///< Name of the variable, without @b v:
+    ///< Name of the variable, without @b v:
+    /// the length is <= 16
+    char *vv_name;
     struct
     {
         typval_T di_tv;       ///< scope dictionary
@@ -564,6 +566,7 @@ static uint64_t last_timer_id = 0;
 /// - using va_start() to initialize it gives "function with fixed args" error
 static va_list dummy_ap;
 
+/// @see MessagePackType
 static const char *const msgpack_type_names[] =
 {
     [kMPNil] = "nil",
@@ -576,6 +579,7 @@ static const char *const msgpack_type_names[] =
     [kMPMap] = "map",
     [kMPExt] = "ext",
 };
+
 const list_T *eval_msgpack_type_lists[] =
 {
     [kMPNil] = NULL,
@@ -607,6 +611,7 @@ void eval_init(void)
     for(size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
     {
         p = &vimvars[i];
+
         assert(STRLEN(p->vv_name) <= 16);
         STRCPY(p->vv_di.di_key, p->vv_name);
 
@@ -643,9 +648,9 @@ void eval_init(void)
         list_T *const type_list = tv_list_alloc();
         type_list->lv_lock = VAR_FIXED;
         type_list->lv_refcount = 1;
-        dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
-        di->di_flags |= DI_FLAGS_RO|DI_FLAGS_FIX;
 
+        dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
+        di->di_flags |= DI_FLAGS_RO | DI_FLAGS_FIX;
         di->di_tv.v_type = VAR_LIST;
         di->di_tv.vval.v_list = type_list;
 
