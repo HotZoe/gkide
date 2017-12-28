@@ -81,7 +81,7 @@ int os_get_uname(uv_uid_t uid, char *s, size_t len)
 // Returns the user directory for the given username.
 // The caller has to free() the returned string.
 // If the username is not found, NULL is returned.
-char *os_get_user_directory(const char *name)
+char *os_get_user_directory(const char *FUNC_ARGS_UNUSED_MAYBE(name))
 {
 #if defined(HAVE_FUN_GETPWNAM) && defined(HAVE_HDR_PWD_H)
     struct passwd *pw;

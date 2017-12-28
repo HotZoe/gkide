@@ -935,7 +935,7 @@ static int insert_handle_key(InsertState *s)
                 break;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case Ctrl_C: // End input mode
             if(s->c == Ctrl_C && cmdwin_type != 0)
@@ -1026,7 +1026,7 @@ static int insert_handle_key(InsertState *s)
                 goto normalchar;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case K_ZERO: // Insert the previously inserted text.
         case NUL:
@@ -1072,7 +1072,7 @@ static int insert_handle_key(InsertState *s)
                 break;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case Ctrl_T: // Make indent one shiftwidth greater.
             if(s->c == Ctrl_T && ctrl_x_mode == CTRL_X_THESAURUS)
@@ -1287,7 +1287,7 @@ static int insert_handle_key(InsertState *s)
         case K_S_TAB: // When not mapped, use like a normal TAB
             s->c = TAB;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case TAB: // TAB or Complete patterns along path
             if(ctrl_x_mode == CTRL_X_PATH_PATTERNS)
@@ -1309,7 +1309,7 @@ static int insert_handle_key(InsertState *s)
         case K_KENTER: // <Enter>
             s->c = CAR;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case CAR:
         case NL:
@@ -1426,7 +1426,7 @@ static int insert_handle_key(InsertState *s)
                 goto normalchar;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case Ctrl_P: // Do previous/next pattern completion
         case Ctrl_N:
@@ -4081,7 +4081,7 @@ static bool ins_compl_prep(int c)
                     compl_cont_status &= ~CONT_LOCAL;
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             default:
                 // If we have typed at least 2 ^X's... for modes != 0, we set
@@ -9466,7 +9466,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 break;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case K_S_LEFT:
         case K_S_RIGHT:

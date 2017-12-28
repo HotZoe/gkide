@@ -419,7 +419,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     do                                                                \
     {                                                                 \
         const float_T flt_ = (flt);                                   \
-        switch(fpclassify(flt_))                                      \
+        switch(fpclassify((float) flt_))                              \
         {                                                             \
             case FP_NAN:                                              \
             {                                                         \
@@ -647,7 +647,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     do                                                                  \
     {                                                                   \
         const float_T flt_ = (flt);                                     \
-        switch(fpclassify(flt_))                                        \
+        switch(fpclassify((float) flt_))                                \
         {                                                               \
             case FP_NAN:                                                \
             {                                                           \

@@ -2349,14 +2349,14 @@ static char_u *regatom(int *flagp)
             extra = ADD_NL;
             *flagp |= HASNL;
 
-            /* "\_[" is character range plus newline */
+            // "\_[" is character range plus newline
             if(c == '[')
             {
                 goto collection;
             }
 
-        /* "\_x" is character class plus newline */
-        /*FALLTHROUGH*/
+            // "\_x" is character class plus newline
+            FALL_THROUGH_ATTRIBUTE;
 
         /*
          * Character classes.
@@ -3257,7 +3257,7 @@ collection:
                 }
             }
 
-        /* FALLTHROUGH */
+            FALL_THROUGH_ATTRIBUTE;
 
         default:
         {
@@ -6830,7 +6830,8 @@ regrepeat(
         case IDENT + ADD_NL:
             testval = TRUE;
 
-        /*FALLTHROUGH*/
+            FALL_THROUGH_ATTRIBUTE;
+
         case SIDENT:
         case SIDENT + ADD_NL:
             while(count < maxcount)
@@ -6873,7 +6874,8 @@ regrepeat(
         case KWORD + ADD_NL:
             testval = TRUE;
 
-        /*FALLTHROUGH*/
+            FALL_THROUGH_ATTRIBUTE;
+
         case SKWORD:
         case SKWORD + ADD_NL:
             while(count < maxcount)
@@ -6917,7 +6919,8 @@ regrepeat(
         case FNAME + ADD_NL:
             testval = TRUE;
 
-        /*FALLTHROUGH*/
+            FALL_THROUGH_ATTRIBUTE;
+
         case SFNAME:
         case SFNAME + ADD_NL:
             while(count < maxcount)
@@ -6960,7 +6963,8 @@ regrepeat(
         case PRINT + ADD_NL:
             testval = TRUE;
 
-        /*FALLTHROUGH*/
+            FALL_THROUGH_ATTRIBUTE;
+
         case SPRINT:
         case SPRINT + ADD_NL:
             while(count < maxcount)
@@ -7209,7 +7213,7 @@ do_class:
         case ANYOF + ADD_NL:
             testval = TRUE;
 
-        /*FALLTHROUGH*/
+            FALL_THROUGH_ATTRIBUTE;
 
         case ANYBUT:
         case ANYBUT + ADD_NL:

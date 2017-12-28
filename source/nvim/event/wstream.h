@@ -16,7 +16,8 @@ typedef void (*wbuffer_data_finalizer)(void *data);
 
 struct wbuffer
 {
-    size_t size, refcount;
+    size_t size;
+    size_t refcount;
     char *data;
     wbuffer_data_finalizer cb;
 };

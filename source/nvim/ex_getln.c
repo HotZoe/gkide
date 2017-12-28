@@ -684,7 +684,8 @@ static int command_line_execute(VimState *state, int key)
 
             #ifdef BACKSLASH_IN_FILENAME
                 if(vim_ispathsep(ccline.cmdbuff[s->j])
-                   && vim_strchr(" *?[{`$%#", ccline.cmdbuff[s->j + 1]) == NULL)
+                   && vim_strchr((const char_u *)" *?[{`$%#",
+                                 ccline.cmdbuff[s->j + 1]) == NULL)
             #else
                 if(vim_ispathsep(ccline.cmdbuff[s->j]))
             #endif
@@ -1435,7 +1436,7 @@ static int command_line_handle_key(CommandLineState *s)
                 return command_line_not_changed(s);
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case K_LEFTMOUSE:
         case K_RIGHTMOUSE:
@@ -4053,7 +4054,8 @@ void ExpandEscape(expand_T *xp,
 /// if true then it escapes for a shell command.
 ///
 /// @return [allocated] escaped file name.
-char *vim_strsave_fnameescape(const char *const fname, const bool shell)
+char *vim_strsave_fnameescape(const char *const fname,
+                                       const bool FUNC_ARGS_UNUSED_MAYBE(shell))
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL

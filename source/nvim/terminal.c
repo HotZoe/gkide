@@ -549,7 +549,8 @@ static int terminal_execute(VimState *state, int key)
                 return 0;
             }
 
-            // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
+
         default:
             if(key == Ctrl_BSL && !s->got_bsl)
             {
@@ -1078,7 +1079,8 @@ static bool send_mouse_event(Terminal *term, int c)
             case K_LEFTDRAG:
                 drag = true;
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
+
             case K_LEFTMOUSE:
                 button = 1;
                 break;
@@ -1086,7 +1088,8 @@ static bool send_mouse_event(Terminal *term, int c)
             case K_MIDDLEDRAG:
                 drag = true;
 
-            // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
+
             case K_MIDDLEMOUSE:
                 button = 2;
                 break;
@@ -1094,7 +1097,8 @@ static bool send_mouse_event(Terminal *term, int c)
             case K_RIGHTDRAG:
                 drag = true;
 
-            // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
+
             case K_RIGHTMOUSE:
                 button = 3;
                 break;

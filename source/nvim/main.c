@@ -970,7 +970,7 @@ static void command_line_scan(mparm_T *parmp)
                     // "-M"  no changes or writing of files
                     reset_modifiable();
 
-                // FallThrough
+                    FALL_THROUGH_ATTRIBUTE;
 
                 case 'm':
                     // "-m"  no writing of files
@@ -1158,7 +1158,7 @@ static void command_line_scan(mparm_T *parmp)
                         break;
                     }
 
-                // FallThrouth
+                    FALL_THROUGH_ATTRIBUTE;
 
                 case 'S': // "-S {file}" execute Vim script
                 case 'i': // "-i {shada}" use for ShaDa file
@@ -1313,7 +1313,7 @@ static void command_line_scan(mparm_T *parmp)
                             break;
                         }
 
-                    // FallThrough
+                        FALL_THROUGH_ATTRIBUTE;
 
                     case 'W':
 

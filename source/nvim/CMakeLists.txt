@@ -136,12 +136,12 @@ endif()
 
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCC)
-    check_c_compiler_flag(-Og GNUCC_HAS_OG_FLAG)
+    check_c_compiler_flag(-Og CC_HAS_OG_FLAG)
 else()
-    set(GNUCC_HAS_OG_FLAG false)
+    set(CC_HAS_OG_FLAG false)
 endif()
 
-if(GNUCC_HAS_OG_FLAG)
+if(CC_HAS_OG_FLAG)
     set(CMAKE_C_FLAGS_DEV "-Og -g"
         CACHE STRING "CFlags used for development build." FORCE)
 else()
@@ -183,9 +183,9 @@ int main(void)
     return 0;
 }
 "
-GNUCC_HAS_ACCEPTABLE_FORTIFY)
+CC_HAS_ACCEPTABLE_FORTIFY)
 
-if(NOT GNUCC_HAS_ACCEPTABLE_FORTIFY)
+if(NOT CC_HAS_ACCEPTABLE_FORTIFY)
     message(STATUS
             "Unsupported _FORTIFY_SOURCE found, force set _FORTIFY_SOURCE=1")
 
@@ -216,29 +216,29 @@ if(MINGW)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_WIN32_WINNT=0x0600")
 endif()
 
-check_c_compiler_flag(-Wvla GNUCC_HAS_WVLA_FLAG)
-if(GNUCC_HAS_WVLA_FLAG)
+check_c_compiler_flag(-Wvla CC_HAS_WVLA_FLAG)
+if(CC_HAS_WVLA_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wvla")
 endif()
 
 if(UNIX)
     # -fstack-protector breaks non Unix builds even in Mingw-w64
     check_c_compiler_flag(-fstack-protector
-                          GNUCC_HAS_FSTACK_PROTECTOR_FLAG)
+                          CC_HAS_FSTACK_PROTECTOR_FLAG)
 
     check_c_compiler_flag(-fstack-protector-strong
-                          GNUCC_HAS_FSTACK_PROTECTOR_STRONG_FLAG)
+                          CC_HAS_FSTACK_PROTECTOR_STRONG_FLAG)
 
-    if(GNUCC_HAS_FSTACK_PROTECTOR_STRONG_FLAG)
+    if(CC_HAS_FSTACK_PROTECTOR_STRONG_FLAG)
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong")
-    elseif(GNUCC_HAS_FSTACK_PROTECTOR_FLAG)
+    elseif(CC_HAS_FSTACK_PROTECTOR_FLAG)
         set(CMAKE_C_FLAGS
             "${CMAKE_C_FLAGS} -fstack-protector --param ssp-buffer-size=4")
     endif()
 endif()
 
-check_c_compiler_flag(-fdiagnostics-color=auto GNUCC_HAS_DIAG_COLOR_FLAG)
-if(GNUCC_HAS_DIAG_COLOR_FLAG)
+check_c_compiler_flag(-fdiagnostics-color=auto CC_HAS_DIAG_COLOR_FLAG)
+if(CC_HAS_DIAG_COLOR_FLAG)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fdiagnostics-color=auto")
 endif()
 
@@ -494,19 +494,28 @@ foreach(hfile ${NVIM_GEN_FOR_HEADER})
     endif()
 endforeach()
 
-set_source_files_properties(${CONV_SOURCES} PROPERTIES COMPILE_FLAGS
-                            "${NVIM_COMPILE_FLAGS} -Wno-conversion")
+set_source_files_properties(${CONV_SOURCES} PROPERTIES
+                            COMPILE_FLAGS "-Wno-conversion")
 
 check_c_compiler_flag(-Wno-static-in-inline
-                      GNUCC_HAS_WNO_STATIC_IN_INLINE_FLAG)
+                      CC_HAS_WNO_STATIC_IN_INLINE_FLAG)
 
-if(GNUCC_HAS_WNO_STATIC_IN_INLINE_FLAG)
-    set_source_files_properties(eval.c PROPERTIES COMPILE_FLAGS
-                                "${NVIM_COMPILE_FLAGS} -Wno-static-in-inline")
+if(CC_HAS_WNO_STATIC_IN_INLINE_FLAG)
+    set_source_files_properties(eval.c PROPERTIES
+                                COMPILE_FLAGS "-Wno-static-in-inline")
 endif()
 
-set_source_files_properties(eval.c PROPERTIES COMPILE_FLAGS
-                            "${NVIM_COMPILE_FLAGS} -Wno-conversion")
+set_source_files_properties(eval.c PROPERTIES
+                            COMPILE_FLAGS "-Wno-conversion")
+
+check_c_compiler_flag(-Wno-nonnull-compare
+                      CC_HAS_WNO_NONNULL_COMPARE_FLAG)
+
+if(CC_HAS_WNO_NONNULL_COMPARE_FLAG)
+    set_source_files_properties(eval/typval.c
+                                os/fs.c PROPERTIES
+                                COMPILE_FLAGS "-Wno-nonnull-compare")
+endif()
 
 # get the related flags for pre-processing,
 # generating the *.i files for lua generator to use

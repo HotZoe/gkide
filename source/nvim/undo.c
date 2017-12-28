@@ -1559,7 +1559,9 @@ theend:
 ///
 /// Otherwise use curbuf->b_ffname to generate the undo file name.
 /// "hash[UNDO_HASH_SIZE]" must be the hash value of the buffer text.
-void u_read_undo(char *name, char_u *hash, char_u *orig_name)
+void u_read_undo(char *name,
+                 char_u *hash,
+                 char_u *FUNC_ARGS_UNUSED_MAYBE(orig_name))
 FUNC_ATTR_NONNULL_ARG(2)
 {
     u_header_T **uhp_table = NULL;

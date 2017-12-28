@@ -49,7 +49,9 @@ FUNC_ATTR_NONNULL_ALL
     return getenv(name) != NULL;
 }
 
-int os_setenv(const char *name, const char *value, int overwrite)
+int os_setenv(const char *name,
+              const char *value,
+              int FUNC_ARGS_UNUSED_MAYBE(overwrite))
 FUNC_ATTR_NONNULL_ALL
 {
 #ifdef HOST_OS_WINDOWS
@@ -337,12 +339,12 @@ bool init_gkide_usr_home(void)
     // check if the home directory exist
     if(!os_path_exists((char_u *)NameBuff))
     {
-        char **failed_dir = NULL;
+        char *failed_dir = NULL;
         INFO_MSG("try to create user home: %s", (char *)NameBuff);
 
-        if(os_mkdir_recurse((char *)NameBuff, 0755, failed_dir) != kLibuvSuccess)
+        if(os_mkdir_recurse((char *)NameBuff, 0755, &failed_dir) != kLibuvSuccess)
         {
-            INFO_MSG("EXIT(0): can not create user home: %s", *failed_dir);
+            INFO_MSG("EXIT(0): can not create user home: %s", failed_dir);
             return false;
         }
     }

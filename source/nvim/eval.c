@@ -102,6 +102,13 @@
 
 #include "config.h"
 
+#if (defined(HOST_OS_WINDOWS) && !defined(FOUND_WORKING_LIBINTL))
+// for separate library: libintl.a
+extern char *ngettext(const char *__msgid1,
+                      const char *__msgid2,
+                      unsigned long int __n);
+#endif
+
 /// @todo: Remove DICT_MAXNEST, make users be non-recursive instead
 
 /// maximum nesting of lists and dicts
@@ -6232,7 +6239,7 @@ static int get_string_tv(char_u **arg, typval_T *rettv, int evaluate)
                         break;
                     }
 
-                // FALLTHROUGH
+                    FALL_THROUGH_ATTRIBUTE;
 
                 default:
                     MB_COPY_CHAR(p, name);

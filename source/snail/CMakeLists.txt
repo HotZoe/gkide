@@ -157,12 +157,12 @@ include(ConfigSnail) # generate configurations for snail only
 
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCXX)
-    check_cxx_compiler_flag(-Og GNUCXX_HAS_OG_FLAG)
+    check_cxx_compiler_flag(-Og CX_HAS_OG_FLAG)
 else()
-    set(GNUCXX_HAS_OG_FLAG false)
+    set(CX_HAS_OG_FLAG false)
 endif()
 
-if(GNUCXX_HAS_OG_FLAG)
+if(CX_HAS_OG_FLAG)
     set(CMAKE_CXX_FLAGS_DEV
         "-Og -g" CACHE STRING "CXXFlags used for development build." FORCE)
 else()

@@ -4224,7 +4224,7 @@ const char *set_one_cmd_context(expand_T *xp, const char *buff)
                 arg = (const char *)xp->xp_pattern + 1;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case CMD_buffer:
         case CMD_sbuffer:

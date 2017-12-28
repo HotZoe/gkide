@@ -1494,12 +1494,10 @@ static int nfa_regatom(void)
                 goto collection;
             }
 
-        /* "\_x" is character class plus newline */
-        /*FALLTHROUGH*/
+            // "\_x" is character class plus newline
+            FALL_THROUGH_ATTRIBUTE;
 
-        /*
-         * Character classes.
-         */
+        // Character classes.
         case Magic('.'):
         case Magic('i'):
         case Magic('I'):
@@ -2261,7 +2259,7 @@ collection:
                 EMSG_RET_FAIL(_(e_missingbracket));
             }
 
-        /* FALLTHROUGH */
+            FALL_THROUGH_ATTRIBUTE;
 
         default:
         {
@@ -4379,7 +4377,8 @@ static nfa_state_T *post2nfa(int *postfix, int *end, int nfa_calc_size)
 
             case NFA_COMPOSING:         /* char with composing char */
 
-            /* FALLTHROUGH */
+                FALL_THROUGH_ATTRIBUTE;
+
             case NFA_MOPEN:     /* \( \) Submatch */
             case NFA_MOPEN1:
             case NFA_MOPEN2:
@@ -5324,7 +5323,7 @@ addstate(
                 goto skip_add;
             }
 
-        /* FALLTHROUGH */
+            FALL_THROUGH_ATTRIBUTE;
 
         case NFA_MOPEN1:
         case NFA_MOPEN2:

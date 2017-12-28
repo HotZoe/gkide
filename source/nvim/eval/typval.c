@@ -2085,8 +2085,10 @@ FUNC_ATTR_NONNULL_ALL
     do                                                              \
     {                                                               \
         assert((void *)&dict != (void *)&TYPVAL_ENCODE_NODICT_VAR); \
+                                                                    \
         tv_dict_unref((dict_T *)dict);                              \
         *((dict_T **)&dict) = NULL;                                 \
+                                                                    \
         if(tv != NULL)                                              \
         {                                                           \
             ((typval_T *)tv)->v_lock = VAR_UNLOCKED;                \
@@ -2278,7 +2280,7 @@ void tv_free(typval_T *tv)
             case VAR_FUNC:
             {
                 func_unref(tv->vval.v_string);
-                FALLTHROUGH;
+                FALL_THROUGH_ATTRIBUTE;
             }
 
             case VAR_STRING:

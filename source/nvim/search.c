@@ -2678,7 +2678,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                     }
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             default:
                 // For Lisp skip over backslashed (), {} and [].

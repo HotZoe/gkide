@@ -2594,7 +2594,7 @@ static int do_more_prompt(int typed_char)
                     need_wait_return = FALSE; // don't wait in main()
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case 'q': // quit
             case Ctrl_C:

@@ -210,17 +210,15 @@ enum
 #define LSIZE             512    ///< max. size of a line in the tags file
 #define DIALOG_MSG_SIZE   1000   ///< buffer size for dialog_msg()
 
-enum
-{
-    FOLD_TEXT_LEN = 51, ///< buffer size for get_foldtext()
-};
+/// buffer size for get_foldtext()
+#define FOLD_TEXT_LEN     51
 
 /// Maximum length of key sequence to be mapped.
 /// Must be able to hold an Amiga resize report.
-#define MAXMAPLEN    50
+#define MAXMAPLEN         50
 
 /// Size in bytes of the hash used in the undo file.
-#define UNDO_HASH_SIZE   32
+#define UNDO_HASH_SIZE    32
 
 // defines to avoid typecasts from (char_u *) to (char *) and back
 #define STRLEN(s)          strlen((char *)(s))

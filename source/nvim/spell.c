@@ -5509,7 +5509,7 @@ static void suggest_trie_walk(suginfo_T *su,
                 PROF_STORE(sp->ts_state)
                 sp->ts_state = STATE_PLAIN;
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_PLAIN:
                 // Go over all possible bytes at this node, add each
@@ -5777,7 +5777,7 @@ static void suggest_trie_walk(suginfo_T *su,
                     break;
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_INS_PREP:
                 if(sp->ts_flags & TSF_DIDDEL)
@@ -5815,7 +5815,7 @@ static void suggest_trie_walk(suginfo_T *su,
 
                 break;
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_INS:
                 // Insert one byte.
@@ -6026,7 +6026,7 @@ static void suggest_trie_walk(suginfo_T *su,
                     p[1] = c;
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_SWAP3:
                 // Swap two bytes, skipping one: "123" -> "321". We change
@@ -6279,7 +6279,7 @@ static void suggest_trie_walk(suginfo_T *su,
                     p[2] = c;
                 }
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_REP_INI:
 
@@ -6320,7 +6320,7 @@ static void suggest_trie_walk(suginfo_T *su,
                 PROF_STORE(sp->ts_state)
                 sp->ts_state = STATE_REP;
 
-            // FALLTHROUGH
+                FALL_THROUGH_ATTRIBUTE;
 
             case STATE_REP:
                 // Try matching with REP items from the .aff file.

@@ -9665,7 +9665,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 else
                 {
                     #ifdef BACKSLASH_IN_FILENAME
-                    if(allow_dirs != NULL && vim_ispathsep(*p) && (!no_bslash || *p != '\\')
+                    if(allow_dirs != NULL && vim_ispathsep(*p) && (!no_bslash || *p != '\\'))
                     #else
                     if(allow_dirs != NULL && vim_ispathsep(*p))
                     #endif

@@ -93,7 +93,12 @@ FUNC_ATTR_NONNULL_ALL
 
     uv_buf_t uvbuf;
     uvbuf.base = buffer->data;
+
+#ifdef HOST_OS_WINDOWS
+    uvbuf.len = (ULONG) buffer->size;
+#else
     uvbuf.len = buffer->size;
+#endif
 
     if(uv_write(&data->uv_req, stream->uvstream, &uvbuf, 1, write_cb))
     {

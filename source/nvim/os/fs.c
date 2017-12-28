@@ -491,10 +491,10 @@ FUNC_ATTR_NONNULL_ALL
     return r;
 }
 
-/// Sets file descriptor `fd` to close-on-exec.
+/// Sets file descriptor @b fd to close-on-exec.
 //
 // @return -1 if failed to set, 0 otherwise.
-int os_set_cloexec(const int fd)
+int os_set_cloexec(const int FUNC_ARGS_UNUSED_MAYBE(fd))
 {
 #ifdef HAVE_SYM_FD_CLOEXEC
     int e;

@@ -5080,14 +5080,14 @@ dozet:
                 }
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case NL:
         case CAR:
         case K_KENTER:
             beginline(BL_WHITE | BL_FIX);
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 't':
             scroll_cursor_top(0, true);
@@ -5098,7 +5098,7 @@ dozet:
         case '.': // "z." and "zz": put cursor in middle of screen
             beginline(BL_WHITE | BL_FIX);
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'z':
             scroll_cursor_halfway(true);
@@ -5124,12 +5124,12 @@ dozet:
                 curwin->w_cursor.lnum = curwin->w_topline - 1;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case '-':
             beginline(BL_WHITE | BL_FIX);
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'b':
             scroll_cursor_bot(0, true);
@@ -5140,7 +5140,7 @@ dozet:
         case 'H': // "zH" - scroll screen right half-page
             cap->count1 *= curwin->w_width / 2;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'h': // "zh" - scroll screen to the right
         case K_LEFT:
@@ -5163,7 +5163,7 @@ dozet:
         case 'L': // "zL" - scroll screen left half-page
             cap->count1 *= curwin->w_width / 2;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'l': // "zl" - scroll screen to the left
         case K_RIGHT:
@@ -5464,7 +5464,7 @@ dozet:
 
             undo = true;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'g': // "zg": add good word to word list
         case 'w': // "zw": add wrong word to word list
@@ -8396,7 +8396,7 @@ static void nv_g_cmd(cmdarg_T *cap)
         case K_BS:
             cap->nchar = Ctrl_H;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case 'h':
         case 'H':
@@ -8476,7 +8476,7 @@ static void nv_g_cmd(cmdarg_T *cap)
         case '^':
             flag = true;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case '0':
         case 'm':
@@ -8693,7 +8693,7 @@ static void nv_g_cmd(cmdarg_T *cap)
         case '\'':
             cap->arg = true;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case '`':
             nv_gomark(cap);
@@ -8748,7 +8748,7 @@ static void nv_g_cmd(cmdarg_T *cap)
         case 'w':
             oap->cursor_start = curwin->w_cursor;
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         case '~':
         case 'u':

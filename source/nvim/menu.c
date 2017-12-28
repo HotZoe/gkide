@@ -1434,7 +1434,7 @@ static int get_menu_cmd_modes(char_u *cmd,
                 break;
             }
 
-        // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
 
         default: // menu !!
             --cmd;

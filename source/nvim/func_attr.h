@@ -113,12 +113,12 @@
         #define REAL_FATTR_NORETURN              __attribute__((__noreturn__))
 
         #if NVIM_HAS_ATTRIBUTE(returns_nonnull)
-            #define REAL_FATTR_NONNULL_RET           __attribute__((__returns_nonnull__))
+        #define REAL_FATTR_NONNULL_RET           __attribute__((__returns_nonnull__))
         #endif
 
         #if NVIM_HAS_ATTRIBUTE(alloc_size)
-            #define REAL_FATTR_ALLOC_SIZE(x)         __attribute__((__alloc_size__(x)))
-            #define REAL_FATTR_ALLOC_SIZE_PROD(x, y) __attribute__((__alloc_size__(x, y)))
+        #define REAL_FATTR_ALLOC_SIZE(x)         __attribute__((__alloc_size__(x)))
+        #define REAL_FATTR_ALLOC_SIZE_PROD(x, y) __attribute__((__alloc_size__(x, y)))
         #endif
 
         /// the arguments not always used, e.g: used for windows build, but not for linux

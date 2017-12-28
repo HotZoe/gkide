@@ -432,7 +432,8 @@ newwindow:
                 g_do_tagpreview = p_pvh;
             }
 
-            // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
+
         case ']':
         case Ctrl_RSB:
             CHECK_CMDWIN
@@ -502,7 +503,8 @@ wingotofile:
         case Ctrl_I:
             type = FIND_ANY;
 
-            // FALLTHROUGH
+            FALL_THROUGH_ATTRIBUTE;
+
         case 'd': // Go to definition, using 'define'
         case Ctrl_D:
             CHECK_CMDWIN
@@ -569,7 +571,8 @@ wingotofile:
                         g_do_tagpreview = p_pvh;
                     }
 
-                /*FALLTHROUGH*/
+                    FALL_THROUGH_ATTRIBUTE;
+
                 case ']':
                 case Ctrl_RSB:
 

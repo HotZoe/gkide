@@ -1005,16 +1005,17 @@ void set_init_1(void)
 /// @param opt_idx
 /// @param opt_flags    OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL
 /// @param compatible   use Vi default value
-static void set_option_default(int opt_idx, int opt_flags, int compatible)
+static void set_option_default(int opt_idx,
+                                      int opt_flags,
+                                      int compatible)
 {
     int dvi; // index in def_val[]
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
     uint32_t flags = options[opt_idx].flags;
 
     // pointer to variable for current option
-    char_u *varp =
-        get_varp_scope(&(options[opt_idx]),
-                       both ? OPT_LOCAL : opt_flags);
+    char_u *varp = get_varp_scope(&(options[opt_idx]),
+                                  both ? OPT_LOCAL : opt_flags);
 
     // skip hidden option, nothing to do for it
     if(varp != NULL)

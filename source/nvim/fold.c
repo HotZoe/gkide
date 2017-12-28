@@ -29,6 +29,13 @@
 #include "nvim/undo.h"
 #include "nvim/ops.h"
 
+#if (defined(HOST_OS_WINDOWS) && !defined(FOUND_WORKING_LIBINTL))
+// for separate library: libintl.a
+extern char *ngettext(const char *__msgid1,
+                      const char *__msgid2,
+                      unsigned long int __n);
+#endif
+
 /// The toplevel folds for each window are stored in the w_folds growarray.
 /// Each toplevel fold can contain an array of second level folds in the
 /// fd_nested growarray.

@@ -169,7 +169,16 @@
 #define STR_(x)        #x
 #define STR(x)         STR_(x)
 
+// __has_attribute
+//
+// This function-like macro takes a single identifier argument that is
+// the name of a GNU-style attribute. It evaluates to 1  if the attribute
+// is supported by the current compilation target, or 0 if not.
+//
+// for details, see: http://clang.llvm.org/docs/LanguageExtensions.html
+
 #ifndef __has_attribute
+    // Compatibility with non-clang compilers.
     #define NVIM_HAS_ATTRIBUTE(x) 0
 #elif defined(__clang__) \
     && __clang__ == 1    \
@@ -183,9 +192,11 @@
 #endif
 
 #if NVIM_HAS_ATTRIBUTE(fallthrough)
-    #define FALLTHROUGH    __attribute__((fallthrough))
+    // details see:
+    // https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#Warning-Options
+    #define FALL_THROUGH_ATTRIBUTE    __attribute__((fallthrough))
 #else
-    #define FALLTHROUGH
+    #define FALL_THROUGH_ATTRIBUTE
 #endif
 
 /// Change type of structure pointers: cast `struct a *` to `struct b *`

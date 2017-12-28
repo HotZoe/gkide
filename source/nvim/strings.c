@@ -1611,7 +1611,7 @@ int vim_vsnprintf(char *str,
                         remove_trailing_zeroes = true;
                     }
 
-                    if(isinf(f)
+                    if(isinf((float) f)
                        || (strchr("fF", fmt_spec) != NULL && abs_f > 1.0e307))
                     {
                         xstrlcpy(tmp,
@@ -1624,7 +1624,7 @@ int vim_vsnprintf(char *str,
                         str_arg_l = strlen(tmp);
                         zero_padding = 0;
                     }
-                    else if(isnan(f))
+                    else if(isnan((float) f))
                     {
                         // Not a number: nan or NAN
                         memmove(tmp,

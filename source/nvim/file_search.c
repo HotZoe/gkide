@@ -1898,7 +1898,7 @@ int vim_chdirfile(char_u *fname)
     }
 
 #ifdef BACKSLASH_IN_FILENAME
-    slash_adjust(dir);
+    slash_adjust((char_u *) dir);
 #endif
 
     if(!strequal(dir, (char *)NameBuff))

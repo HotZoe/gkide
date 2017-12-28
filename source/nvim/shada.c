@@ -2692,7 +2692,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             case kSDReadStatusNotShaDa:
             {
                 ret = kSDWriteReadNotShada;
-                FALLTHROUGH;
+                FALL_THROUGH_ATTRIBUTE;
             }
 
             case kSDReadStatusReadError:

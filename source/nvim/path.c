@@ -416,7 +416,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             break;
         }
 
-        len -= MB_PTR2LEN((const char_u *)p1);
+        len -= (size_t) MB_PTR2LEN((const char_u *)p1);
         p1 += MB_PTR2LEN((const char_u *)p1);
         p2 += MB_PTR2LEN((const char_u *)p2);
     }
@@ -2196,7 +2196,7 @@ char *fix_fname(const char *fname)
     // set correct case for file name
     path_fix_case((char_u *)fname);
 #endif
-    return fname;
+    return (char *)fname;
 #endif
 }
 
