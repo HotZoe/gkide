@@ -41,7 +41,7 @@ void StdinReader::run()
 
     while(true)
     {
-        qint64 bytes = read(0, buf, m_maxSize);
+        qint64 bytes = read(0, buf, (unsigned int)m_maxSize);
 
         if(bytes > 0)
         {

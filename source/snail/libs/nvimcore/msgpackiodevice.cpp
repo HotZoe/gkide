@@ -186,7 +186,7 @@ void MsgpackIODevice::dataAvailableFd(int fd)
     }
 
     qint64 bytes = read(fd, msgpack_unpacker_buffer(&m_uk),
-                        msgpack_unpacker_buffer_capacity(&m_uk));
+                        (unsigned int)msgpack_unpacker_buffer_capacity(&m_uk));
 
     if(bytes > 0)
     {
