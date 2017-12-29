@@ -14,7 +14,7 @@
 
   $ pacman -S mingw-w64-i686-gcc mingw-w64-i686-libtool mingw-w64-i686-make \
               mingw-w64-i686-pkg-config mingw-w64-i686-unibilium mingw-w64-i686-cmake \
-              mingw-w64-i686-perl mingw-w64-i686-python2
+              mingw-w64-i686-perl mingw-w64-i686-python2 mingw-w64-i686-jasper
 
   #######################################################################################
   # for 64-bit build
@@ -25,7 +25,7 @@
 
   $ pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-libtool mingw-w64-x86_64-make \
               mingw-w64-x86_64-pkg-config mingw-w64-x86_64-unibilium mingw-w64-x86_64-cmake \
-              mingw-w64-x86_64-perl mingw-w64-x86_64-python2
+              mingw-w64-x86_64-perl mingw-w64-x86_64-python2 mingw-w64-x86_64-jasper
   ```
 - do local configuration:
   - `contrib/local.mk.eg` => `local.mk`
