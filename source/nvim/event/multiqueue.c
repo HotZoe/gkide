@@ -86,14 +86,15 @@ struct multiqueue
     #include "event/multiqueue.c.generated.h"
 #endif
 
-static Event NILEVENT = { .handler = NULL, .argv = {NULL} };
+static Event nil_event = { 0 }; // { .handler = NULL, .argv = {NULL} }
 
 MultiQueue *multiqueue_new_parent(put_callback put_cb, void *data)
 {
     return multiqueue_new(NULL, put_cb, data);
 }
 
-MultiQueue *multiqueue_new_child(MultiQueue *parent) FUNC_ATTR_NONNULL_ALL
+MultiQueue *multiqueue_new_child(MultiQueue *parent)
+FUNC_ATTR_NONNULL_ALL
 {
     // parent cannot have a parent, more like a "root"
     assert(!parent->parent);
@@ -141,7 +142,7 @@ void multiqueue_free(MultiQueue *ptr)
 /// Removes the next item and returns its Event.
 Event multiqueue_get(MultiQueue *ptr)
 {
-    return multiqueue_empty(ptr) ? NILEVENT : multiqueue_remove(ptr);
+    return multiqueue_empty(ptr) ? nil_event : multiqueue_remove(ptr);
 }
 
 void multiqueue_put_event(MultiQueue *ptr, Event event)
