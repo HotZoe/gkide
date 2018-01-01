@@ -779,7 +779,7 @@ static char *nvim_check_pathname(const char *base_dir,
 /// @param chktype    0: directory, 1: file, 2: programme
 /// @param chkname    directory, file or programme to check
 ///
-/// - check the layout directory: bin, etc, plg, doc, loc
+/// - check the layout directory: bin, etc, plg, doc, mis
 ///   - @b GKIDE_XXX_HOME depends on @b chkflg:
 ///     - if set NvimLayoutCheck::kNLC_SYS,
 ///       then check $GKIDE_SYS_HOME, otherwise skip
@@ -880,7 +880,7 @@ GKIDE_LAYOUT_CHECK_IMPL(bin) /* check: $GKIDE_XXX_HOME/bin */
 GKIDE_LAYOUT_CHECK_IMPL(plg) /* check: $GKIDE_XXX_HOME/plg */
 GKIDE_LAYOUT_CHECK_IMPL(etc) /* check: $GKIDE_XXX_HOME/etc */
 GKIDE_LAYOUT_CHECK_IMPL(doc) /* check: $GKIDE_XXX_HOME/doc */
-GKIDE_LAYOUT_CHECK_IMPL(loc) /* check: $GKIDE_XXX_HOME/loc */
+GKIDE_LAYOUT_CHECK_IMPL(mis) /* check: $GKIDE_XXX_HOME/mis */
 
 #undef GKIDE_LAYOUT_CHECK_IMPL
 

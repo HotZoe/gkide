@@ -734,9 +734,9 @@ static void init_locale(void)
 #endif
 
     // the default local root directory for nvim, which is
-    // $GKIDE_SYS_HOME/loc/language
+    // $GKIDE_SYS_HOME/mis/language
     vim_snprintf((char *)NameBuff, MAXPATHL,
-                 "%s" OS_PATH_SEP_STR "loc" OS_PATH_SEP_STR "language",
+                 "%s" OS_PATH_SEP_STR "mis" OS_PATH_SEP_STR "language",
                  gkide_sys_home);
 
     // expand_env() doesn't work yet, because g_chartab[] is not
@@ -1475,7 +1475,7 @@ static void init_gkide_sys_home(const char *exepath)
 
     if(idx[0] == idx[4] && idx[1] == 'b' && idx[2] == 'i' && idx[3] == 'n')
     {
-        // default GKIDE directory layout: bin, etc, plg, doc, loc
+        // default GKIDE directory layout: bin, etc, plg, doc, mis
         idx[0] = NUL; // no trailing path separator
     }
     else
