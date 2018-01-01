@@ -1,42 +1,44 @@
 /// @file nvim/regexp.c
 ///
-/// Handling of regular expressions: vim_regcomp(), vim_regexec(), vim_regsub()
+/// Handling of regular expressions:
+/// vim_regcomp(), vim_regexec(), vim_regsub()
 ///
 /// @note:
 /// This is NOT the original regular expression code as written by Henry
-/// Spencer.  This code has been modified specifically for use with the VIM
-/// editor, and should not be used separately from Vim.  If you want a good
-/// regular expression library, get the original code.  The copyright notice
+/// Spencer. This code has been modified specifically for use with the VIM
+/// editor, and should not be used separately from Vim. If you want a good
+/// regular expression library, get the original code. The copyright notice
 /// that follows is from the original.
 ///
 /// Copyright (c) 1986 by University of Toronto.
-/// Written by Henry Spencer.  Not derived from licensed software.
+/// Written by Henry Spencer. Not derived from licensed software.
 ///
 /// Permission is granted to anyone to use this software for any
 /// purpose on any computer system, and to redistribute it freely,
 /// subject to the following restrictions:
 ///
 /// 1. The author is not responsible for the consequences of use of
-///     this software, no matter how awful, even if they arise
-///     from defects in it.
+///    this software, no matter how awful, even if they arise
+///    from defects in it.
 ///
 /// 2. The origin of this software must not be misrepresented, either
-///     by explicit claim or by omission.
+///    by explicit claim or by omission.
 ///
 /// 3. Altered versions must be plainly marked as such, and must not
-///     be misrepresented as being the original software.
+///    be misrepresented as being the original software.
 ///
 /// Beware that some of this code is subtly aware of the way operator
-/// precedence is structured in regular expressions.  Serious changes in
+/// precedence is structured in regular expressions. Serious changes in
 /// regular-expression syntax might require a total rethink.
 ///
 /// Changes have been made by Tony Andrews, Olaf 'Rhialto' Seibert, Robert
-/// Webb, Ciaran McCreesh and Bram Moolenaar.
-/// Named character class support added by Walter Briscoe (1998 Jul 01)
+/// Webb, Ciaran McCreesh and Bram Moolenaar. Named character class support
+/// added by Walter Briscoe (1998 Jul 01)
 
 // Uncomment the first if you do not want to see debugging logs or files
 // related to regular expressions, even when compiling with -DDEBUG.
 // Uncomment the second to get the regexp debugging.
+//
 // #undef  REGEXP_DEBUG
 // #define REGEXP_DEBUG
 
@@ -60,223 +62,212 @@
 #include "nvim/strings.h"
 
 #ifdef REGEXP_DEBUG
-    /* show/save debugging data when BT engine is used */
+    // show/save debugging data when BT engine is used
     #define BT_REGEXP_DUMP
-    /* save the debugging data to a file instead of displaying it */
+
+    // save the debugging data to a file instead of displaying it
     #define BT_REGEXP_LOG
     #define BT_REGEXP_DEBUG_LOG
-    #define BT_REGEXP_DEBUG_LOG_NAME       "bt_regexp_debug.log"
+    #define BT_REGEXP_DEBUG_LOG_NAME    "bt_regexp_debug.log"
 #endif
 
-/*
- * The "internal use only" fields in regexp_defs.h are present to pass info from
- * compile to execute that permits the execute phase to run lots faster on
- * simple cases.  They are:
- *
- * regstart char that must begin a match; NUL if none obvious; Can be a
- *      multi-byte character.
- * reganch  is the match anchored (at beginning-of-line only)?
- * regmust  string (pointer into program) that match must include, or NULL
- * regmlen  length of regmust string
- * regflags RF_ values or'ed together
- *
- * Regstart and reganch permit very fast decisions on suitable starting points
- * for a match, cutting down the work a lot.  Regmust permits fast rejection
- * of lines that cannot possibly match.  The regmust tests are costly enough
- * that vim_regcomp() supplies a regmust only if the r.e. contains something
- * potentially expensive (at present, the only such thing detected is * or +
- * at the start of the r.e., which can involve a lot of backup).  Regmlen is
- * supplied because the test in vim_regexec() needs it and vim_regcomp() is
- * computing it anyway.
- */
+// The "internal use only" fields in regexp_defs.h are present to pass info
+// from compile to execute that permits the execute phase to run lots faster
+// on simple cases. They are:
+//
+// regstart char that must begin a match;
+// NUL if none obvious;
+// Can be a multi-byte character.
+//
+// - reganch  is the match anchored (at beginning-of-line only)?
+// - regmust  string (pointer into program) that match must include, or NULL
+// - regmlen  length of regmust string
+// - regflags RF_ values or'ed together
+//
+// Regstart and reganch permit very fast decisions on suitable starting points
+// for a match, cutting down the work a lot. Regmust permits fast rejection
+// of lines that cannot possibly match. The regmust tests are costly enough
+// that vim_regcomp() supplies a regmust only if the r.e. contains something
+// potentially expensive (at present, the only such thing detected is * or +
+// at the start of the r.e., which can involve a lot of backup). Regmlen is
+// supplied because the test in vim_regexec() needs it and vim_regcomp() is
+// computing it anyway.
 
-/*
- * Structure for regexp "program".  This is essentially a linear encoding
- * of a nondeterministic finite-state machine (aka syntax charts or
- * "railroad normal form" in parsing technology).  Each node is an opcode
- * plus a "next" pointer, possibly plus an operand.  "Next" pointers of
- * all nodes except BRANCH and BRACES_COMPLEX implement concatenation; a "next"
- * pointer with a BRANCH on both ends of it is connecting two alternatives.
- * (Here we have one of the subtle syntax dependencies: an individual BRANCH
- * (as opposed to a collection of them) is never concatenated with anything
- * because of operator precedence).  The "next" pointer of a BRACES_COMPLEX
- * node points to the node after the stuff to be repeated.
- * The operand of some types of node is a literal string; for others, it is a
- * node leading into a sub-FSM.  In particular, the operand of a BRANCH node
- * is the first node of the branch.
- * (NB this is *not* a tree structure: the tail of the branch connects to the
- * thing following the set of BRANCHes.)
- *
- * pattern  is coded like:
- *
- *            +-----------------+
- *            |         V
- * <aa>\|<bb>   BRANCH <aa> BRANCH <bb> --> END
- *           |      ^    |      ^
- *           +------+    +----------+
- *
- *
- *             +------------------+
- *             V          |
- * <aa>*    BRANCH BRANCH <aa> --> BACK BRANCH --> NOTHING --> END
- *           |      |           ^              ^
- *           |      +---------------+              |
- *           +---------------------------------------------+
- *
- *
- *             +----------------------+
- *             V              |
- * <aa>\+   BRANCH <aa> --> BRANCH --> BACK  BRANCH --> NOTHING --> END
- *           |           |       ^          ^
- *           |           +-----------+          |
- *           +--------------------------------------------------+
- *
- *
- *                  +-------------------------+
- *                  V             |
- * <aa>\{}  BRANCH BRACE_LIMITS --> BRACE_COMPLEX <aa> --> BACK  END
- *           |                  |            ^
- *           |                  +----------------+
- *           +-----------------------------------------------+
- *
- *
- * <aa>\@!<bb>  BRANCH NOMATCH <aa> --> END  <bb> --> END
- *           |       |            ^       ^
- *           |       +----------------+       |
- *           +--------------------------------+
- *
- *                            +---------+
- *                            |     V
- * \z[abc]  BRANCH BRANCH  a  BRANCH  b  BRANCH  c  BRANCH  NOTHING --> END
- *           |      |          |      | ^           ^
- *           |      |          |      +-----+           |
- *           |      |          +----------------+           |
- *           |      +---------------------------+           |
- *           +------------------------------------------------------+
- *
- * They all start with a BRANCH for "\|" alternatives, even when there is only
- * one alternative.
- */
+// Structure for regexp "program".  This is essentially a linear encoding
+// of a nondeterministic finite-state machine (aka syntax charts or
+// "railroad normal form" in parsing technology). Each node is an opcode
+// plus a "next" pointer, possibly plus an operand. "Next" pointers of
+// all nodes except BRANCH and BRACES_COMPLEX implement concatenation; a "next"
+// pointer with a BRANCH on both ends of it is connecting two alternatives.
+// (Here we have one of the subtle syntax dependencies: an individual BRANCH
+// (as opposed to a collection of them) is never concatenated with anything
+// because of operator precedence). The "next" pointer of a BRACES_COMPLEX
+// node points to the node after the stuff to be repeated.
+// The operand of some types of node is a literal string; for others, it is a
+// node leading into a sub-FSM. In particular, the operand of a BRANCH node
+// is the first node of the branch.
+// (NB this is *not* a tree structure: the tail of the branch connects to the
+// thing following the set of BRANCHes.)
+//
+// pattern  is coded like:
+//
+//            +-----------------+
+//            |         V
+// <aa>\|<bb>   BRANCH <aa> BRANCH <bb> --> END
+//           |      ^    |      ^
+//           +------+    +----------+
+//
+//
+//             +------------------+
+//             V          |
+// <aa>*    BRANCH BRANCH <aa> --> BACK BRANCH --> NOTHING --> END
+//           |      |           ^              ^
+//           |      +---------------+              |
+//           +---------------------------------------------+
+//
+//
+//             +----------------------+
+//             V              |
+// <aa>\+   BRANCH <aa> --> BRANCH --> BACK  BRANCH --> NOTHING --> END
+//           |           |       ^          ^
+//           |           +-----------+          |
+//           +--------------------------------------------------+
+//
+//
+//                  +-------------------------+
+//                  V             |
+// <aa>\{}  BRANCH BRACE_LIMITS --> BRACE_COMPLEX <aa> --> BACK  END
+//           |                  |            ^
+//           |                  +----------------+
+//           +-----------------------------------------------+
+//
+//
+// <aa>\@!<bb>  BRANCH NOMATCH <aa> --> END  <bb> --> END
+//           |       |            ^       ^
+//           |       +----------------+       |
+//           +--------------------------------+
+//
+//                            +---------+
+//                            |     V
+// \z[abc]  BRANCH BRANCH  a  BRANCH  b  BRANCH  c  BRANCH  NOTHING --> END
+//           |      |          |      | ^           ^
+//           |      |          |      +-----+           |
+//           |      |          +----------------+           |
+//           |      +---------------------------+           |
+//           +------------------------------------------------------+
+//
+// They all start with a BRANCH for "\|" alternatives, even when there is only
+// one alternative.
 
-/*
- * The opcodes are:
- */
+// The opcodes are:
 
-/* definition   number         opnd?    meaning */
-#define END             0       /*  End of program or NOMATCH operand. */
-#define BOL             1       /*  Match "" at beginning of line. */
-#define EOL             2       /*  Match "" at end of line. */
-#define BRANCH          3       /* node Match this alternative, or the
-                                 *  next... */
-#define BACK            4       /*  Match "", "next" ptr points backward. */
-#define EXACTLY         5       /* str  Match this string. */
-#define NOTHING         6       /*  Match empty string. */
-#define STAR            7       /* node Match this (simple) thing 0 or more
-                                 *  times. */
-#define PLUS            8       /* node Match this (simple) thing 1 or more
-                                 *  times. */
-#define MATCH           9       /* node match the operand zero-width */
-#define NOMATCH         10      /* node check for no match with operand */
-#define BEHIND          11      /* node look behind for a match with operand */
-#define NOBEHIND        12      /* node look behind for no match with operand */
-#define SUBPAT          13      /* node match the operand here */
-#define BRACE_SIMPLE    14      /* node Match this (simple) thing between m and
-                                 *  n times (\{m,n\}). */
-#define BOW             15      /*  Match "" after [^a-zA-Z0-9_] */
-#define EOW             16      /*  Match "" at    [^a-zA-Z0-9_] */
-#define BRACE_LIMITS    17      /* nr nr  define the min & max for BRACE_SIMPLE
-                                 *  and BRACE_COMPLEX. */
-#define NEWL            18      /*  Match line-break */
-#define BHPOS           19      /*  End position for BEHIND or NOBEHIND */
+//      definition    number  meaning
+#define END           0       ///< End of program or NOMATCH operand.
+#define BOL           1       ///< Match "" at beginning of line.
+#define EOL           2       ///< Match "" at end of line.
+#define BRANCH        3       ///< node Match this alternative, or the
+                              ///< next...
+#define BACK          4       ///< Match "", "next" ptr points backward.
+#define EXACTLY       5       ///< str  Match this string.
+#define NOTHING       6       ///< Match empty string.
+#define STAR          7       ///< node Match this (simple) thing 0 or more
+                              ///< times.
+#define PLUS          8       ///< node Match this (simple) thing 1 or more
+                              ///<  times.
+#define MATCH         9       ///< node match the operand zero-width
+#define NOMATCH       10      ///< node check for no match with operand
+#define BEHIND        11      ///< node look behind for a match with operand
+#define NOBEHIND      12      ///< node look behind for no match with operand
+#define SUBPAT        13      ///< node match the operand here
+#define BRACE_SIMPLE  14      ///< node Match this (simple) thing between m and
+                              ///<  n times (\{m,n\}).
+#define BOW           15      ///< Match "" after [^a-zA-Z0-9_]
+#define EOW           16      ///< Match "" at    [^a-zA-Z0-9_]
+#define BRACE_LIMITS  17      ///< nr nr  define the min & max for BRACE_SIMPLE
+                              ///< and BRACE_COMPLEX.
+#define NEWL          18      ///< Match line-break
+#define BHPOS         19      ///< End position for BEHIND or NOBEHIND
 
-
-/* character classes: 20-48 normal, 50-78 include a line-break */
+// character classes:
+// 20-48 normal, 50-78 include a line-break
 #define ADD_NL          30
 #define FIRST_NL        ANY + ADD_NL
-#define ANY             20      /*  Match any one character. */
-#define ANYOF           21      /* str  Match any character in this string. */
-#define ANYBUT          22      /* str  Match any character not in this
-                                 *  string. */
-#define IDENT           23      /*  Match identifier char */
-#define SIDENT          24      /*  Match identifier char but no digit */
-#define KWORD           25      /*  Match keyword char */
-#define SKWORD          26      /*  Match word char but no digit */
-#define FNAME           27      /*  Match file name char */
-#define SFNAME          28      /*  Match file name char but no digit */
-#define PRINT           29      /*  Match printable char */
-#define SPRINT          30      /*  Match printable char but no digit */
-#define WHITE           31      /*  Match whitespace char */
-#define NWHITE          32      /*  Match non-whitespace char */
-#define DIGIT           33      /*  Match digit char */
-#define NDIGIT          34      /*  Match non-digit char */
-#define HEX             35      /*  Match hex char */
-#define NHEX            36      /*  Match non-hex char */
-#define OCTAL           37      /*  Match octal char */
-#define NOCTAL          38      /*  Match non-octal char */
-#define WORD            39      /*  Match word char */
-#define NWORD           40      /*  Match non-word char */
-#define HEAD            41      /*  Match head char */
-#define NHEAD           42      /*  Match non-head char */
-#define ALPHA           43      /*  Match alpha char */
-#define NALPHA          44      /*  Match non-alpha char */
-#define LOWER           45      /*  Match lowercase char */
-#define NLOWER          46      /*  Match non-lowercase char */
-#define UPPER           47      /*  Match uppercase char */
-#define NUPPER          48      /*  Match non-uppercase char */
+#define ANY             20   ///< Match any one character.
+#define ANYOF           21   ///< Match any character in this string.
+#define ANYBUT          22   ///< Match any character not in this string.
+#define IDENT           23   ///< Match identifier char
+#define SIDENT          24   ///< Match identifier char but no digit
+#define KWORD           25   ///< Match keyword char
+#define SKWORD          26   ///< Match word char but no digit
+#define FNAME           27   ///< Match file name char
+#define SFNAME          28   ///< Match file name char but no digit
+#define PRINT           29   ///< Match printable char
+#define SPRINT          30   ///< Match printable char but no digit
+#define WHITE           31   ///< Match whitespace char
+#define NWHITE          32   ///< Match non-whitespace char
+#define DIGIT           33   ///< Match digit char
+#define NDIGIT          34   ///< Match non-digit char
+#define HEX             35   ///< Match hex char
+#define NHEX            36   ///< Match non-hex char
+#define OCTAL           37   ///< Match octal char
+#define NOCTAL          38   ///< Match non-octal char
+#define WORD            39   ///< Match word char
+#define NWORD           40   ///< Match non-word char
+#define HEAD            41   ///< Match head char
+#define NHEAD           42   ///< Match non-head char
+#define ALPHA           43   ///< Match alpha char
+#define NALPHA          44   ///< Match non-alpha char
+#define LOWER           45   ///< Match lowercase char
+#define NLOWER          46   ///< Match non-lowercase char
+#define UPPER           47   ///< Match uppercase char
+#define NUPPER          48   ///< Match non-uppercase char
 #define LAST_NL         NUPPER + ADD_NL
 #define WITH_NL(op)     ((op) >= FIRST_NL && (op) <= LAST_NL)
 
-#define MOPEN           80  /* -89   Mark this point in input as start of
-                             *   \( subexpr.  MOPEN + 0 marks start of
-                             *   match. */
-#define MCLOSE          90  /* -99   Analogous to MOPEN.  MCLOSE + 0 marks
-                             *   end of match. */
-#define BACKREF         100 /* -109 node Match same string again \1-\9 */
+#define MOPEN           80   ///< -89  Mark this point in input as start of
+                             ///<      \( subexpr. MOPEN + 0 marks start of
+                             ///<      match.
+#define MCLOSE          90   ///< -99  Analogous to MOPEN. MCLOSE + 0 marks
+                             ///<      end of match.
+#define BACKREF         100  ///< -109 node Match same string again \1-\9
+#define ZOPEN          110   ///< -119 Mark this point in input as start of
+                             ///<      \z( subexpr.
+#define ZCLOSE         120   ///< -129 Analogous to ZOPEN.
+#define ZREF           130   ///< -139 node Match external submatch \z1-\z9
+#define BRACE_COMPLEX   140  ///< -149 node Match nodes between m & n times
+#define NOPEN           150  ///<      Mark this point in input as start of
+                             ///<      \%( subexpr.
+#define NCLOSE          151  ///<  Analogous to NOPEN.
 
-# define ZOPEN          110 /* -119  Mark this point in input as start of
-                             *   \z( subexpr. */
-# define ZCLOSE         120 /* -129  Analogous to ZOPEN. */
-# define ZREF           130 /* -139 node Match external submatch \z1-\z9 */
+#define MULTIBYTECODE   200  ///< mbc  Match one multi-byte character
+#define RE_BOF          201  ///< Match "" at beginning of file.
+#define RE_EOF          202  ///< Match "" at end of file.
+#define CURSOR          203  ///< Match location of cursor.
 
-#define BRACE_COMPLEX   140 /* -149 node Match nodes between m & n times */
+#define RE_LNUM         204  ///< nr cmp Match line number
+#define RE_COL          205  ///< nr cmp Match column number
+#define RE_VCOL         206  ///< nr cmp Match virtual column number
 
-#define NOPEN           150     /*  Mark this point in input as start of
-                                 \%( subexpr. */
-#define NCLOSE          151     /*  Analogous to NOPEN. */
+#define RE_MARK         207  ///< mark cmp Match mark position
+#define RE_VISUAL       208  ///< Match Visual area
+#define RE_COMPOSING    209  ///< any composing characters
 
-#define MULTIBYTECODE   200     /* mbc  Match one multi-byte character */
-#define RE_BOF          201     /*  Match "" at beginning of file. */
-#define RE_EOF          202     /*  Match "" at end of file. */
-#define CURSOR          203     /*  Match location of cursor. */
-
-#define RE_LNUM         204     /* nr cmp  Match line number */
-#define RE_COL          205     /* nr cmp  Match column number */
-#define RE_VCOL         206     /* nr cmp  Match virtual column number */
-
-#define RE_MARK         207     /* mark cmp  Match mark position */
-#define RE_VISUAL       208     /*  Match Visual area */
-#define RE_COMPOSING    209     // any composing characters
-
-/*
- * Magic characters have a special meaning, they don't match literally.
- * Magic characters are negative.  This separates them from literal characters
- * (possibly multi-byte).  Only ASCII characters can be Magic.
- */
+// Magic characters have a special meaning, they don't match literally.
+// Magic characters are negative. This separates them from literal
+// characters (possibly multi-byte). Only ASCII characters can be Magic.
 #define Magic(x)        ((int)(x) - 256)
 #define un_Magic(x)     ((x) + 256)
 #define is_Magic(x)     ((x) < 0)
 
-/*
- * We should define ftpr as a pointer to a function returning a pointer to
- * a function returning a pointer to a function ...
- * This is impossible, so we declare a pointer to a function returning a
- * pointer to a function returning void. This should work for all compilers.
- */
+/// We should define ftpr as a pointer to a function returning a pointer to
+/// a function returning a pointer to a function ...
+/// This is impossible, so we declare a pointer to a function returning a
+/// pointer to a function returning void. This should work for all compilers.
 typedef void (*(*fptr_T)(int *, int))(void);
 
 typedef struct
 {
-    uchar_kt     *regparse;
+    uchar_kt *regparse;
     int prevchr_len;
     int curchr;
     int prevchr;
@@ -287,32 +278,30 @@ typedef struct
     int regnpar;
 } parse_state_T;
 
-/*
- * Structure used to save the current input state, when it needs to be
- * restored after trying a match.  Used by reg_save() and reg_restore().
- * Also stores the length of "backpos".
- */
+/// Structure used to save the current input state, when it needs to be
+/// restored after trying a match. Used by reg_save() and reg_restore().
+/// Also stores the length of "backpos".
 typedef struct
 {
     union
     {
-        uchar_kt  *ptr;       /* reginput pointer, for single-line regexp */
-        lpos_T pos;         /* reginput pos, for multi-line regexp */
+        uchar_kt *ptr; ///< reginput pointer, for single-line regexp
+        lpos_T pos;    ///< reginput pos, for multi-line regexp
     } rs_u;
     int rs_len;
 } regsave_T;
 
-/* struct to save start/end pointer/position in for \(\) */
+/// struct to save start/end pointer/position in for \(\)
 typedef struct
 {
     union
     {
-        uchar_kt  *ptr;
+        uchar_kt *ptr;
         lpos_T pos;
     } se_u;
 } save_se_T;
 
-/* used for BEHIND and NOBEHIND matching */
+/// used for BEHIND and NOBEHIND matching
 typedef struct regbehind_S
 {
     regsave_T save_after;
@@ -322,71 +311,72 @@ typedef struct regbehind_S
     save_se_T save_end[NSUBEXP];
 } regbehind_T;
 
-/* Values for rs_state in regitem_T. */
+// Values for rs_state in regitem_T.
 typedef enum regstate_E
 {
-    RS_NOPEN = 0          /* NOPEN and NCLOSE */
-    , RS_MOPEN            /* MOPEN + [0-9] */
-    , RS_MCLOSE           /* MCLOSE + [0-9] */
-    , RS_ZOPEN            /* ZOPEN + [0-9] */
-    , RS_ZCLOSE           /* ZCLOSE + [0-9] */
-    , RS_BRANCH           /* BRANCH */
-    , RS_BRCPLX_MORE      /* BRACE_COMPLEX and trying one more match */
-    , RS_BRCPLX_LONG      /* BRACE_COMPLEX and trying longest match */
-    , RS_BRCPLX_SHORT     /* BRACE_COMPLEX and trying shortest match */
-    , RS_NOMATCH          /* NOMATCH */
-    , RS_BEHIND1          /* BEHIND / NOBEHIND matching rest */
-    , RS_BEHIND2          /* BEHIND / NOBEHIND matching behind part */
-    , RS_STAR_LONG        /* STAR/PLUS/BRACE_SIMPLE longest match */
-    , RS_STAR_SHORT       /* STAR/PLUS/BRACE_SIMPLE shortest match */
+    RS_NOPEN = 0,      ///< NOPEN and NCLOSE
+    RS_MOPEN,          ///< MOPEN + [0-9]
+    RS_MCLOSE,         ///< MCLOSE + [0-9]
+    RS_ZOPEN,          ///< ZOPEN + [0-9]
+    RS_ZCLOSE,         ///< ZCLOSE + [0-9]
+    RS_BRANCH,         ///< BRANCH
+    RS_BRCPLX_MORE,    ///< BRACE_COMPLEX and trying one more match
+    RS_BRCPLX_LONG,    ///< BRACE_COMPLEX and trying longest match
+    RS_BRCPLX_SHORT,   ///< BRACE_COMPLEX and trying shortest match
+    RS_NOMATCH,        ///< NOMATCH
+    RS_BEHIND1,        ///< BEHIND / NOBEHIND matching rest
+    RS_BEHIND2,        ///< BEHIND / NOBEHIND matching behind part
+    RS_STAR_LONG,      ///< STAR/PLUS/BRACE_SIMPLE longest match
+    RS_STAR_SHORT,     ///< STAR/PLUS/BRACE_SIMPLE shortest match
 } regstate_T;
 
-/*
- * When there are alternatives a regstate_T is put on the regstack to remember
- * what we are doing.
- * Before it may be another type of item, depending on rs_state, to remember
- * more things.
- */
+/// When there are alternatives a regstate_T is put on the regstack
+/// to remember what we are doing.
+///
+/// Before it may be another type of item, depending on rs_state,
+/// to remember more things.
 typedef struct regitem_S
 {
-    regstate_T rs_state;          /* what we are doing, one of RS_ above */
-    uchar_kt      *rs_scan;         /* current node in program */
+    regstate_T rs_state; ///< what we are doing, one of RS_ above
+    uchar_kt *rs_scan;   ///< current node in program
     union
     {
         save_se_T sesave;
         regsave_T regsave;
-    } rs_un;                      /* room for saving reginput */
-    short rs_no;                  /* submatch nr or BEHIND/NOBEHIND */
+    } rs_un;     ///< room for saving reginput
+    short rs_no; ///< submatch nr or BEHIND/NOBEHIND
 } regitem_T;
 
 
-/* used for STAR, PLUS and BRACE_SIMPLE matching */
+/// used for STAR, PLUS and BRACE_SIMPLE matching
 typedef struct regstar_S
 {
-    int nextb;                    /* next byte */
-    int nextb_ic;                 /* next byte reverse case */
+    int nextb;    ///< next byte
+    int nextb_ic; ///< next byte reverse case
     long count;
     long minval;
     long maxval;
 } regstar_T;
 
-/* used to store input position when a BACK was encountered, so that we now if
- * we made any progress since the last time. */
+/// used to store input position when a BACK was encountered,
+/// so that we now if we made any progress since the last time.
 typedef struct backpos_S
 {
-    uchar_kt      *bp_scan;         /* "scan" where BACK was encountered */
-    regsave_T bp_pos;             /* last input position */
+    uchar_kt *bp_scan; ///< "scan" where BACK was encountered
+    regsave_T bp_pos;  ///< last input position
 } backpos_T;
 
 typedef struct
 {
-    int a, b, c;
+    int a;
+    int b;
+    int c;
 } decomp_T;
-
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "regexp.c.generated.h"
 #endif
+
 static int no_Magic(int x)
 {
     if(is_Magic(x))
@@ -407,90 +397,91 @@ static int toggle_Magic(int x)
     return Magic(x);
 }
 
-/*
- * The first byte of the regexp internal "program" is actually this magic
- * number; the start node begins in the second byte.  It's used to catch the
- * most severe mutilation of the program by the caller.
- */
-
+/// The first byte of the regexp internal "program" is actually this magic
+/// number; the start node begins in the second byte. It's used to catch the
+/// most severe mutilation of the program by the caller.
 #define REGMAGIC        0234
 
-/*
- * Opcode notes:
- *
- * BRANCH   The set of branches constituting a single choice are hooked
- *      together with their "next" pointers, since precedence prevents
- *      anything being concatenated to any individual branch.  The
- *      "next" pointer of the last BRANCH in a choice points to the
- *      thing following the whole choice.  This is also where the
- *      final "next" pointer of each individual branch points; each
- *      branch starts with the operand node of a BRANCH node.
- *
- * BACK     Normal "next" pointers all implicitly point forward; BACK
- *      exists to make loop structures possible.
- *
- * STAR,PLUS    '=', and complex '*' and '+', are implemented as circular
- *      BRANCH structures using BACK.  Simple cases (one character
- *      per match) are implemented with STAR and PLUS for speed
- *      and to minimize recursive plunges.
- *
- * BRACE_LIMITS This is always followed by a BRACE_SIMPLE or BRACE_COMPLEX
- *      node, and defines the min and max limits to be used for that
- *      node.
- *
- * MOPEN,MCLOSE ...are numbered at compile time.
- * ZOPEN,ZCLOSE ...ditto
- */
+// Opcode notes:
+//
+// BRANCH
+// The set of branches constituting a single choice are hooked
+// together with their "next" pointers, since precedence prevents
+// anything being concatenated to any individual branch.  The
+// "next" pointer of the last BRANCH in a choice points to the
+// thing following the whole choice.  This is also where the
+// final "next" pointer of each individual branch points; each
+// branch starts with the operand node of a BRANCH node.
+//
+// BACK
+// Normal "next" pointers all implicitly point forward; BACK
+// exists to make loop structures possible.
+//
+// STAR,PLUS
+// '=', and complex '*' and '+', are implemented as circular
+// BRANCH structures using BACK.  Simple cases (one character
+// per match) are implemented with STAR and PLUS for speed
+// and to minimize recursive plunges.
+//
+// BRACE_LIMITS
+// This is always followed by a BRACE_SIMPLE or BRACE_COMPLEX
+// node, and defines the min and max limits to be used for that
+// node.
+//
+// MOPEN,MCLOSE
+// ...are numbered at compile time.
+//
+// ZOPEN,ZCLOSE
+// ...ditto
 
-/*
- * A node is one char of opcode followed by two chars of "next" pointer.
- * "Next" pointers are stored as two 8-bit bytes, high order first.  The
- * value is a positive offset from the opcode of the node containing it.
- * An operand, if any, simply follows the node.  (Note that much of the
- * code generation knows about this implicit relationship.)
- *
- * Using two bytes for the "next" pointer is vast overkill for most things,
- * but allows patterns to get big without disasters.
- */
+// A node is one char of opcode followed by two chars of "next" pointer.
+// "Next" pointers are stored as two 8-bit bytes, high order first. The
+// value is a positive offset from the opcode of the node containing it.
+// An operand, if any, simply follows the node. (Note that much of the
+// code generation knows about this implicit relationship.)
+//
+// Using two bytes for the "next" pointer is vast overkill for most things,
+// but allows patterns to get big without disasters.
 #define OP(p)           ((int)*(p))
 #define NEXT(p)         (((*((p) + 1) & 0377) << 8) + (*((p) + 2) & 0377))
 #define OPERAND(p)      ((p) + 3)
-/* Obtain an operand that was stored as four bytes, MSB first. */
-#define OPERAND_MIN(p)  (((long)(p)[3] << 24) + ((long)(p)[4] << 16) \
-                         + ((long)(p)[5] << 8) + (long)(p)[6])
-/* Obtain a second operand stored as four bytes. */
+
+/// Obtain an operand that was stored as four bytes, MSB first.
+#define OPERAND_MIN(p)  (((long)(p)[3] << 24)   \
+                         + ((long)(p)[4] << 16) \
+                         + ((long)(p)[5] << 8)  \
+                         + ((long)(p)[6]))
+
+/// Obtain a second operand stored as four bytes.
 #define OPERAND_MAX(p)  OPERAND_MIN((p) + 4)
-/* Obtain a second single-byte operand stored after a four bytes operand. */
+
+/// Obtain a second single-byte operand stored after a four bytes operand.
 #define OPERAND_CMP(p)  (p)[7]
 
-/*
- * Utility definitions.
- */
+/// Utility definitions.
 #define UCHARAT(p)      ((int)*(uchar_kt *)(p))
 
-/* Used for an error (down from) vim_regcomp(): give the error message, set
- * rc_did_emsg and return NULL */
-#define EMSG_RET_NULL(m) return (EMSG(m), rc_did_emsg = TRUE, (void *)NULL)
-#define EMSG_RET_FAIL(m) return (EMSG(m), rc_did_emsg = TRUE, FAIL)
-#define EMSG2_RET_NULL(m, \
-                       c) return (EMSG2((m), \
-                                        (c) ? "" : "\\"), rc_did_emsg = TRUE, \
-                                  (void *)NULL)
-#define EMSG2_RET_FAIL(m, \
-                       c) return (EMSG2((m), \
-                                        (c) ? "" : "\\"), rc_did_emsg = TRUE, \
-                                  FAIL)
-#define EMSG_ONE_RET_NULL EMSG2_RET_NULL(_( \
-                                            "E369: invalid item in %s%%[]"), reg_magic == MAGIC_ALL)
+// Used for an error (down from) vim_regcomp():
+// give the error message, set rc_did_emsg and return NULL
+#define EMSG_RET_NULL(m)     return (EMSG(m), rc_did_emsg = TRUE, (void *)NULL)
+#define EMSG_RET_FAIL(m)     return (EMSG(m), rc_did_emsg = TRUE, FAIL)
+#define EMSG2_RET_NULL(m, c) return (EMSG2((m), (c) ? "" : "\\"), \
+                                     rc_did_emsg = TRUE,          \
+                                     (void *)NULL)
+#define EMSG2_RET_FAIL(m, c) return (EMSG2((m), (c) ? "" : "\\"), \
+                                     rc_did_emsg = TRUE,          \
+                                     FAIL)
+#define EMSG_ONE_RET_NULL    EMSG2_RET_NULL(_("E369: invalid item in %s%%[]"), \
+                                            reg_magic == MAGIC_ALL)
 
-#define MAX_LIMIT       (32767L << 16L)
-
+#define MAX_LIMIT            (32767L << 16L)
 
 #ifdef BT_REGEXP_DUMP
     static void regdump(uchar_kt *, bt_regprog_T *);
 #endif
+
 #ifdef REGEXP_DEBUG
-    static uchar_kt   *regprop(uchar_kt *);
+    static uchar_kt *regprop(uchar_kt *);
 #endif
 
 static uchar_kt e_missingbracket[] = N_("E769: Missing ] after %s[");
@@ -501,14 +492,15 @@ static uchar_kt e_z_not_allowed[] = N_("E66: \\z( not allowed here");
 static uchar_kt e_z1_not_allowed[] = N_("E67: \\z1 et al. not allowed here");
 static uchar_kt e_missing_sb[] = N_("E69: Missing ] after %s%%[");
 static uchar_kt e_empty_sb[]  = N_("E70: Empty %s%%[]");
-#define NOT_MULTI       0
-#define MULTI_ONE       1
-#define MULTI_MULT      2
-/*
- * Return NOT_MULTI if c is not a "multi" operator.
- * Return MULTI_ONE if c is a single "multi" operator.
- * Return MULTI_MULT if c is a multi "multi" operator.
- */
+
+#define NOT_MULTI     0
+#define MULTI_ONE     1
+#define MULTI_MULT    2
+
+/// @return
+/// - NOT_MULTI if c is not a "multi" operator.
+/// - MULTI_ONE if c is a single "multi" operator.
+/// - MULTI_MULT if c is a multi "multi" operator.
 static int re_multi_type(int c)
 {
     if(c == Magic('@') || c == Magic('=') || c == Magic('?'))
@@ -524,47 +516,49 @@ static int re_multi_type(int c)
     return NOT_MULTI;
 }
 
-/*
- * Flags to be passed up and down.
- */
-#define HASWIDTH        0x1     /* Known never to match null string. */
-#define SIMPLE          0x2     /* Simple enough to be STAR/PLUS operand. */
-#define SPSTART         0x4     /* Starts with * or +. */
-#define HASNL           0x8     /* Contains some \n. */
-#define HASLOOKBH       0x10    /* Contains "\@<=" or "\@<!". */
-#define WORST           0       /* Worst case. */
+// Flags to be passed up and down.
+#define HASWIDTH      0x01   ///< Known never to match null string.
+#define SIMPLE        0x02   ///< Simple enough to be STAR/PLUS operand.
+#define SPSTART       0x04   ///< Starts with * or +.
+#define HASNL         0x08   ///< Contains some \n.
+#define HASLOOKBH     0x10   ///< Contains "\@<=" or "\@<!".
+#define WORST         0x00   ///< Worst case.
 
-/*
- * When regcode is set to this value, code is not emitted and size is computed
- * instead.
- */
+/// When regcode is set to this value, code is
+/// not emitted and size is computed instead.
 #define JUST_CALC_SIZE  ((uchar_kt *) -1)
 
-static uchar_kt           *reg_prev_sub = NULL;
+static uchar_kt *reg_prev_sub = NULL;
 
-/*
- * REGEXP_INRANGE contains all characters which are always special in a []
- * range after '\'.
- * REGEXP_ABBR contains all characters which act as abbreviations after '\'.
- * These are:
- *  \n  - New line (NL).
- *  \r  - Carriage Return (CR).
- *  \t  - Tab (TAB).
- *  \e  - Escape (ESC).
- *  \b  - Backspace (Ctrl_H).
- *  \d  - Character code in decimal, eg \d123
- *  \o  - Character code in octal, eg \o80
- *  \x  - Character code in hex, eg \x4a
- *  \u  - Multibyte character code, eg \u20ac
- *  \U  - Long multibyte character code, eg \U12345678
- */
+/// contains all characters which are always special in a [] range after '\'.
+///
+/// - \\n: New line (NL).
+/// - \\r: Carriage Return (CR).
+/// - \\t: Tab (TAB).
+/// - \\e: Escape (ESC).
+/// - \\b: Backspace (Ctrl_H).
+/// - \\d: Character code in decimal, eg \d123
+/// - \\o: Character code in octal, eg \o80
+/// - \\x: Character code in hex, eg \x4a
+/// - \\u: Multibyte character code, eg \u20ac
+/// - \\U: Long multibyte character code, eg \U12345678
 static uchar_kt REGEXP_INRANGE[] = "]^-n\\";
+
+/// contains all characters which act as abbreviations after '\'.
+///
+/// - \\n: New line (NL).
+/// - \\r: Carriage Return (CR).
+/// - \\t: Tab (TAB).
+/// - \\e: Escape (ESC).
+/// - \\b: Backspace (Ctrl_H).
+/// - \\d: Character code in decimal, eg \d123
+/// - \\o: Character code in octal, eg \o80
+/// - \\x: Character code in hex, eg \x4a
+/// - \\u: Multibyte character code, eg \u20ac
+/// - \\U: Long multibyte character code, eg \U12345678
 static uchar_kt REGEXP_ABBR[] = "nrtebdoxuU";
 
-
-/*
- * Translate '\x' to its control character, except "\n", which is Magic.
- */
+/// Translate '\\x' to its control character, except "\\n", which is Magic.
 static int backslash_trans(int c)
 {
     switch(c)
@@ -585,79 +579,77 @@ static int backslash_trans(int c)
     return c;
 }
 
-/*
- * Check for a character class name "[:name:]".  "pp" points to the '['.
- * Returns one of the CLASS_ items. CLASS_NONE means that no item was
- * recognized.  Otherwise "pp" is advanced to after the item.
- */
+/// Check for a character class name "[:name:]". "pp" points to the '['.
+/// Returns one of the CLASS_ items. CLASS_NONE means that no item was
+/// recognized. Otherwise "pp" is advanced to after the item.
 static int get_char_class(uchar_kt **pp)
 {
-    static const char *(class_names[]) =
-    {
+    static const char *(class_names[]) = {
         "alnum:]",
-#define CLASS_ALNUM 0
+    #define CLASS_ALNUM     0
         "alpha:]",
-#define CLASS_ALPHA 1
+    #define CLASS_ALPHA     1
         "blank:]",
-#define CLASS_BLANK 2
+    #define CLASS_BLANK     2
         "cntrl:]",
-#define CLASS_CNTRL 3
+    #define CLASS_CNTRL     3
         "digit:]",
-#define CLASS_DIGIT 4
+    #define CLASS_DIGIT     4
         "graph:]",
-#define CLASS_GRAPH 5
+    #define CLASS_GRAPH     5
         "lower:]",
-#define CLASS_LOWER 6
+    #define CLASS_LOWER     6
         "print:]",
-#define CLASS_PRINT 7
+    #define CLASS_PRINT     7
         "punct:]",
-#define CLASS_PUNCT 8
+    #define CLASS_PUNCT     8
         "space:]",
-#define CLASS_SPACE 9
+    #define CLASS_SPACE     9
         "upper:]",
-#define CLASS_UPPER 10
+    #define CLASS_UPPER     10
         "xdigit:]",
-#define CLASS_XDIGIT 11
+    #define CLASS_XDIGIT    11
         "tab:]",
-#define CLASS_TAB 12
+    #define CLASS_TAB       12
         "return:]",
-#define CLASS_RETURN 13
+    #define CLASS_RETURN    13
         "backspace:]",
-#define CLASS_BACKSPACE 14
+    #define CLASS_BACKSPACE 14
         "escape:]",
-#define CLASS_ESCAPE 15
+    #define CLASS_ESCAPE    15
     };
-#define CLASS_NONE 99
+    #define CLASS_NONE      99
+
     int i;
 
     if((*pp)[1] == ':')
     {
         for(i = 0; i < (int)ARRAY_SIZE(class_names); ++i)
+        {
             if(STRNCMP(*pp + 2, class_names[i], STRLEN(class_names[i])) == 0)
             {
                 *pp += STRLEN(class_names[i]) + 2;
                 return i;
             }
+        }
     }
 
     return CLASS_NONE;
 }
 
-/*
- * Specific version of character class functions.
- * Using a table to keep this fast.
- */
+/// Specific version of character class functions.
+/// Using a table to keep this fast.
 static short class_tab[256];
 
-#define     RI_DIGIT    0x01
-#define     RI_HEX      0x02
-#define     RI_OCTAL    0x04
-#define     RI_WORD     0x08
-#define     RI_HEAD     0x10
-#define     RI_ALPHA    0x20
-#define     RI_LOWER    0x40
-#define     RI_UPPER    0x80
-#define     RI_WHITE    0x100
+#define RI_DIGIT    0x01
+#define RI_HEX      0x02
+#define RI_OCTAL    0x04
+#define RI_WORD     0x08
+#define RI_HEAD     0x10
+#define RI_ALPHA    0x20
+#define RI_LOWER    0x40
+#define RI_UPPER    0x80
+#define RI_WHITE    0x100
 
 static void init_class_tab(void)
 {
@@ -710,118 +702,113 @@ static void init_class_tab(void)
     done = TRUE;
 }
 
-# define ri_digit(c)    (c < 0x100 && (class_tab[c] & RI_DIGIT))
-# define ri_hex(c)      (c < 0x100 && (class_tab[c] & RI_HEX))
-# define ri_octal(c)    (c < 0x100 && (class_tab[c] & RI_OCTAL))
-# define ri_word(c)     (c < 0x100 && (class_tab[c] & RI_WORD))
-# define ri_head(c)     (c < 0x100 && (class_tab[c] & RI_HEAD))
-# define ri_alpha(c)    (c < 0x100 && (class_tab[c] & RI_ALPHA))
-# define ri_lower(c)    (c < 0x100 && (class_tab[c] & RI_LOWER))
-# define ri_upper(c)    (c < 0x100 && (class_tab[c] & RI_UPPER))
-# define ri_white(c)    (c < 0x100 && (class_tab[c] & RI_WHITE))
+#define ri_digit(c)    (c < 0x100 && (class_tab[c] & RI_DIGIT))
+#define ri_hex(c)      (c < 0x100 && (class_tab[c] & RI_HEX))
+#define ri_octal(c)    (c < 0x100 && (class_tab[c] & RI_OCTAL))
+#define ri_word(c)     (c < 0x100 && (class_tab[c] & RI_WORD))
+#define ri_head(c)     (c < 0x100 && (class_tab[c] & RI_HEAD))
+#define ri_alpha(c)    (c < 0x100 && (class_tab[c] & RI_ALPHA))
+#define ri_lower(c)    (c < 0x100 && (class_tab[c] & RI_LOWER))
+#define ri_upper(c)    (c < 0x100 && (class_tab[c] & RI_UPPER))
+#define ri_white(c)    (c < 0x100 && (class_tab[c] & RI_WHITE))
 
-/* flags for regflags */
-#define RF_ICASE    1   /* ignore case */
-#define RF_NOICASE  2   /* don't ignore case */
-#define RF_HASNL    4   /* can match a NL */
-#define RF_ICOMBINE 8   /* ignore combining characters */
-#define RF_LOOKBH   16  /* uses "\@<=" or "\@<!" */
+// flags for regflags
+#define RF_ICASE     1   ///< ignore case
+#define RF_NOICASE   2   ///< don't ignore case
+#define RF_HASNL     4   ///< can match a NL
+#define RF_ICOMBINE  8   ///< ignore combining characters
+#define RF_LOOKBH    16  ///< uses "\@<=" or "\@<!"
 
-/*
- * Global work variables for vim_regcomp().
- */
+// Global work variables for vim_regcomp().
 
-static uchar_kt   *regparse;      /* Input-scan pointer. */
-static int prevchr_len;         /* byte length of previous char */
-static int num_complex_braces;      /* Complex \{...} count */
-static int regnpar;             /* () count. */
-static int regnzpar;            /* \z() count. */
-static int re_has_z;            /* \z item detected */
-static uchar_kt   *regcode;       /* Code-emit pointer, or JUST_CALC_SIZE */
-static long regsize;            /* Code size. */
-static int reg_toolong;         /* TRUE when offset out of range */
-static uchar_kt had_endbrace[NSUBEXP];    /* flags, TRUE if end of () found */
-static unsigned regflags;       /* RF_ flags for prog */
-static long brace_min[10];      /* Minimums for complex brace repeats */
-static long brace_max[10];      /* Maximums for complex brace repeats */
-static int brace_count[10];      /* Current counts for complex brace repeats */
-static int had_eol;             /* TRUE when EOL found by vim_regcomp() */
-static int one_exactly = FALSE;         /* only do one char for EXACTLY */
+static uchar_kt *regparse;      ///< Input-scan pointer.
+static int prevchr_len;         ///< byte length of previous char
+static int num_complex_braces;  ///< Complex \{...} count
+static int regnpar;             ///< () count.
+static int regnzpar;            ///< \z() count.
+static int re_has_z;            ///< \z item detected
+static uchar_kt *regcode;       ///< Code-emit pointer, or JUST_CALC_SIZE
+static long regsize;            ///< Code size.
+static int reg_toolong;         ///< TRUE when offset out of range
+static uchar_kt had_endbrace[NSUBEXP]; ///< flags, TRUE if end of () found
+static unsigned regflags;       ///< RF_ flags for prog
+static long brace_min[10];      ///< Minimums for complex brace repeats
+static long brace_max[10];      ///< Maximums for complex brace repeats
+static int brace_count[10];     ///< Current counts for complex brace repeats
+static int had_eol;             ///< TRUE when EOL found by vim_regcomp()
+static int one_exactly = FALSE; ///< only do one char for EXACTLY
 
-static int reg_magic;           /* magicness of the pattern: */
-#define MAGIC_NONE      1       /* "\V" very unmagic */
-#define MAGIC_OFF       2       /* "\M" or 'magic' off */
-#define MAGIC_ON        3       /* "\m" or 'magic' */
-#define MAGIC_ALL       4       /* "\v" very magic */
+#define MAGIC_NONE     1  ///< "\V" very unmagic
+#define MAGIC_OFF      2  ///< "\M" or 'magic' off
+#define MAGIC_ON       3  ///< "\m" or 'magic'
+#define MAGIC_ALL      4  ///< "\v" very magic
+static int reg_magic;     ///< magicness of the pattern
 
-static int reg_string;          /* matching with a string instead of a buffer
-                                   line */
-static int reg_strict;          /* "[abc" is illegal */
+static int reg_strict; ///< "[abc" is illegal
+static int reg_string; ///< matching with a string instead of a buffer line
 
-/*
- * META contains all characters that may be magic, except '^' and '$'.
- */
-
-/* META[] is used often enough to justify turning it into a table. */
+/// META contains all characters that may be magic, except '^' and '$'.
+///
+/// META[] is used often enough to justify turning it into a table.
 static uchar_kt META_flags[] =
 {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    /*         %  &     (  )  *  +        .    */
+
+    // %  & (  )  *  +  .
     0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0,
-    /*     1  2  3  4  5  6  7  8  9    <  =  >  ? */
+
+    // 1  2  3  4  5  6  7  8  9    <  =  >  ?
     0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1,
-    /*  @  A     C  D     F     H  I     K  L  M     O */
+
+    // @  A C  D  F H  I K  L  M  O
     1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1,
-    /*  P        S     U  V  W  X     Z  [       _ */
+
+    // P  S  U  V  W  X  Z  [       _
     1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1,
-    /*     a     c  d     f     h  i     k  l  m  n  o */
+
+    // a  c  d  f  h  i  k  l  m  n  o
     0, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
-    /*  p        s     u  v  w  x     z  {  |     ~    */
+
+    // p  s  u  v  w  x  z  {  |  ~
     1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1
 };
 
-static int curchr;              /* currently parsed character */
-/* Previous character.  Note: prevchr is sometimes -1 when we are not at the
- * start, eg in /[ ^I]^ the pattern was never found even if it existed,
- * because ^ was taken to be magic -- webb */
+static int curchr;  ///< currently parsed character
+
+// Previous character. Note:
+// prevchr is sometimes -1 when we are not at the start,
+// eg in /[ ^I]^ the pattern was never found even if it existed,
+// because ^ was taken to be magic
+
 static int prevchr;
-static int prevprevchr;         /* previous-previous character */
-static int nextchr;             /* used for ungetchr() */
+static int prevprevchr;  ///< previous-previous character
+static int nextchr;      ///< used for ungetchr()
 
-/* arguments for reg() */
-#define REG_NOPAREN     0       /* toplevel reg() */
-#define REG_PAREN       1       /* \(\) */
-#define REG_ZPAREN      2       /* \z(\) */
-#define REG_NPAREN      3       /* \%(\) */
-
-/*
- * Forward declarations for vim_regcomp()'s friends.
- */
-# define REGMBC(x) regmbc(x);
-# define CASEMBC(x) case x:
+// arguments for reg()
+#define REG_NOPAREN     0  ///< toplevel reg()
+#define REG_PAREN       1  ///< \(\)
+#define REG_ZPAREN      2  ///< \z(\)
+#define REG_NPAREN      3  ///< \%(\)
 
 static regengine_T bt_regengine;
 static regengine_T nfa_regengine;
 
-/*
- * Return TRUE if compiled regular expression "prog" can match a line break.
- */
+/// @return
+/// TRUE if compiled regular expression "prog" can match a line break.
 int re_multiline(regprog_T *prog)
 {
     return prog->regflags & RF_HASNL;
 }
 
-/*
- * Check for an equivalence class name "[=a=]".  "pp" points to the '['.
- * Returns a character representing the class. Zero means that no item was
- * recognized.  Otherwise "pp" is advanced to after the item.
- */
+/// Check for an equivalence class name "[=a=]". "pp" points to the '['.
+/// Returns a character representing the class. Zero means that no item was
+/// recognized. Otherwise "pp" is advanced to after the item.
 static int get_equi_class(uchar_kt **pp)
 {
     int c;
     int l = 1;
-    uchar_kt      *p = *pp;
+    uchar_kt *p = *pp;
 
     if(p[1] == '=')
     {
@@ -849,20 +836,24 @@ static int get_equi_class(uchar_kt **pp)
     return 0;
 }
 
+// Forward declarations for vim_regcomp()'s friends.
+#define CASEMBC(x) case x:
 
-/*
- * Produce the bytes for equivalence class "c".
- * Currently only handles latin1, latin9 and utf-8.
- * NOTE: When changing this function, also change nfa_emit_equi_class()
- */
+/// Produce the bytes for equivalence class "c".
+/// Currently only handles latin1, latin9 and utf-8.
+///
+/// @note
+/// When changing this function, also change nfa_emit_equi_class()
 static void reg_equi_class(int c)
 {
-    if(enc_utf8 || STRCMP(p_enc, "latin1") == 0
+    if(enc_utf8
+       || STRCMP(p_enc, "latin1") == 0
        || STRCMP(p_enc, "iso-8859-15") == 0)
     {
         switch(c)
         {
-            // Do not use '\300' style, it results in a negative number.
+            // multi-byte char case. Do not use '\300'
+            // style, it results in a negative number.
             case 'A':
             case 0xc0:
             case 0xc1:
@@ -870,8 +861,13 @@ static void reg_equi_class(int c)
             case 0xc3:
             case 0xc4:
             case 0xc5:
-                CASEMBC(0x100) CASEMBC(0x102) CASEMBC(0x104) CASEMBC(0x1cd)
-                CASEMBC(0x1de) CASEMBC(0x1e0) CASEMBC(0x1ea2)
+            case 0x100:
+            case 0x102:
+            case 0x104:
+            case 0x1cd:
+            case 0x1de:
+            case 0x1e0:
+            case 0x1ea2:
                 regmbc('A');
                 regmbc(0xc0);
                 regmbc(0xc1);
@@ -879,32 +875,49 @@ static void reg_equi_class(int c)
                 regmbc(0xc3);
                 regmbc(0xc4);
                 regmbc(0xc5);
-                REGMBC(0x100) REGMBC(0x102) REGMBC(0x104)
-                REGMBC(0x1cd) REGMBC(0x1de) REGMBC(0x1e0)
-                REGMBC(0x1ea2)
+                regmbc(0x100);
+                regmbc(0x102);
+                regmbc(0x104);
+                regmbc(0x1cd);
+                regmbc(0x1de);
+                regmbc(0x1e0);
+                regmbc(0x1ea2);
                 return;
 
             case 'B':
-                CASEMBC(0x1e02) CASEMBC(0x1e06)
+            case 0x1e02:
+            case 0x1e06:
                 regmbc('B');
-                REGMBC(0x1e02) REGMBC(0x1e06)
+                regmbc(0x1e02);
+                regmbc(0x1e06);
                 return;
 
             case 'C':
             case 0xc7:
-                CASEMBC(0x106) CASEMBC(0x108) CASEMBC(0x10a) CASEMBC(0x10c)
+            case 0x106:
+            case 0x108:
+            case 0x10a:
+            case 0x10c:
                 regmbc('C');
                 regmbc(0xc7);
-                REGMBC(0x106) REGMBC(0x108) REGMBC(0x10a)
-                REGMBC(0x10c)
+                regmbc(0x106);
+                regmbc(0x108);
+                regmbc(0x10a);
+                regmbc(0x10c);
                 return;
 
             case 'D':
-                CASEMBC(0x10e) CASEMBC(0x110) CASEMBC(0x1e0a)
-                CASEMBC(0x1e0e) CASEMBC(0x1e10)
+            case 0x10e:
+            case 0x110:
+            case 0x1e0a:
+            case 0x1e0e:
+            case 0x1e10:
                 regmbc('D');
-                REGMBC(0x10e) REGMBC(0x110)
-                REGMBC(0x1e0a) REGMBC(0x1e0e) REGMBC(0x1e10)
+                regmbc(0x10e);
+                regmbc(0x110);
+                regmbc(0x1e0a);
+                regmbc(0x1e0e);
+                regmbc(0x1e10);
                 return;
 
             case 'E':
@@ -912,40 +925,65 @@ static void reg_equi_class(int c)
             case 0xc9:
             case 0xca:
             case 0xcb:
-                CASEMBC(0x112) CASEMBC(0x114) CASEMBC(0x116) CASEMBC(0x118)
-                CASEMBC(0x11a) CASEMBC(0x1eba) CASEMBC(0x1ebc)
+            case 0x112:
+            case 0x114:
+            case 0x116:
+            case 0x118:
+            case 0x11a:
+            case 0x1eba:
+            case 0x1ebc:
                 regmbc('E');
                 regmbc(0xc8);
                 regmbc(0xc9);
                 regmbc(0xca);
                 regmbc(0xcb);
-                REGMBC(0x112) REGMBC(0x114) REGMBC(0x116)
-                REGMBC(0x118) REGMBC(0x11a) REGMBC(0x1eba)
-                REGMBC(0x1ebc)
+                regmbc(0x112);
+                regmbc(0x114);
+                regmbc(0x116);
+                regmbc(0x118);
+                regmbc(0x11a);
+                regmbc(0x1eba);
+                regmbc(0x1ebc);
                 return;
 
             case 'F':
-                CASEMBC(0x1e1e)
+            case 0x1e1e:
                 regmbc('F');
-                REGMBC(0x1e1e)
+                regmbc(0x1e1e);
                 return;
 
             case 'G':
-                CASEMBC(0x11c) CASEMBC(0x11e) CASEMBC(0x120)
-                CASEMBC(0x122) CASEMBC(0x1e4) CASEMBC(0x1e6) CASEMBC(0x1f4)
-                CASEMBC(0x1e20)
+            case 0x11c:
+            case 0x11e:
+            case 0x120:
+            case 0x122:
+            case 0x1e4:
+            case 0x1e6:
+            case 0x1f4:
+            case 0x1e20:
                 regmbc('G');
-                REGMBC(0x11c) REGMBC(0x11e)
-                REGMBC(0x120) REGMBC(0x122) REGMBC(0x1e4)
-                REGMBC(0x1e6) REGMBC(0x1f4) REGMBC(0x1e20)
+                regmbc(0x11c);
+                regmbc(0x11e);
+                regmbc(0x120);
+                regmbc(0x122);
+                regmbc(0x1e4);
+                regmbc(0x1e6);
+                regmbc(0x1f4);
+                regmbc(0x1e20);
                 return;
 
             case 'H':
-                CASEMBC(0x124) CASEMBC(0x126) CASEMBC(0x1e22)
-                CASEMBC(0x1e26) CASEMBC(0x1e28)
+            case 0x124:
+            case 0x126:
+            case 0x1e22:
+            case 0x1e26:
+            case 0x1e28:
                 regmbc('H');
-                REGMBC(0x124) REGMBC(0x126)
-                REGMBC(0x1e22) REGMBC(0x1e26) REGMBC(0x1e28)
+                regmbc(0x124);
+                regmbc(0x126);
+                regmbc(0x1e22);
+                regmbc(0x1e26);
+                regmbc(0x1e28);
                 return;
 
             case 'I':
@@ -953,55 +991,83 @@ static void reg_equi_class(int c)
             case 0xcd:
             case 0xce:
             case 0xcf:
-                CASEMBC(0x128) CASEMBC(0x12a) CASEMBC(0x12c) CASEMBC(0x12e)
-                CASEMBC(0x130) CASEMBC(0x1cf) CASEMBC(0x1ec8)
+            case 0x128:
+            case 0x12a:
+            case 0x12c:
+            case 0x12e:
+            case 0x130:
+            case 0x1cf:
+            case 0x1ec8:
                 regmbc('I');
                 regmbc(0xcc);
                 regmbc(0xcd);
                 regmbc(0xce);
                 regmbc(0xcf);
-                REGMBC(0x128) REGMBC(0x12a) REGMBC(0x12c)
-                REGMBC(0x12e) REGMBC(0x130) REGMBC(0x1cf)
-                REGMBC(0x1ec8)
+                regmbc(0x128);
+                regmbc(0x12a);
+                regmbc(0x12c);
+                regmbc(0x12e);
+                regmbc(0x130);
+                regmbc(0x1cf);
+                regmbc(0x1ec8);
                 return;
 
             case 'J':
-                CASEMBC(0x134)
+            case 0x134:
                 regmbc('J');
-                REGMBC(0x134)
+                regmbc(0x134);
                 return;
 
             case 'K':
-                CASEMBC(0x136) CASEMBC(0x1e8) CASEMBC(0x1e30)
-                CASEMBC(0x1e34)
+            case 0x136:
+            case 0x1e8:
+            case 0x1e30:
+            case 0x1e34:
                 regmbc('K');
-                REGMBC(0x136) REGMBC(0x1e8)
-                REGMBC(0x1e30) REGMBC(0x1e34)
+                regmbc(0x136);
+                regmbc(0x1e8);
+                regmbc(0x1e30);
+                regmbc(0x1e34);
                 return;
 
             case 'L':
-                CASEMBC(0x139) CASEMBC(0x13b) CASEMBC(0x13d)
-                CASEMBC(0x13f) CASEMBC(0x141) CASEMBC(0x1e3a)
+            case 0x139:
+            case 0x13b:
+            case 0x13d:
+            case 0x13f:
+            case 0x141:
+            case 0x1e3a:
                 regmbc('L');
-                REGMBC(0x139) REGMBC(0x13b)
-                REGMBC(0x13d) REGMBC(0x13f) REGMBC(0x141)
-                REGMBC(0x1e3a)
+                regmbc(0x139);
+                regmbc(0x13b);
+                regmbc(0x13d);
+                regmbc(0x13f);
+                regmbc(0x141);
+                regmbc(0x1e3a);
                 return;
 
             case 'M':
-                CASEMBC(0x1e3e) CASEMBC(0x1e40)
+            case 0x1e3e:
+            case 0x1e40:
                 regmbc('M');
-                REGMBC(0x1e3e) REGMBC(0x1e40)
+                regmbc(0x1e3e);
+                regmbc(0x1e40);
                 return;
 
             case 'N':
             case 0xd1:
-                CASEMBC(0x143) CASEMBC(0x145) CASEMBC(0x147) CASEMBC(0x1e44)
-                CASEMBC(0x1e48)
+            case 0x143:
+            case 0x145:
+            case 0x147:
+            case 0x1e44:
+            case 0x1e48:
                 regmbc('N');
                 regmbc(0xd1);
-                REGMBC(0x143) REGMBC(0x145) REGMBC(0x147)
-                REGMBC(0x1e44) REGMBC(0x1e48)
+                regmbc(0x143);
+                regmbc(0x145);
+                regmbc(0x147);
+                regmbc(0x1e44);
+                regmbc(0x1e48);
                 return;
 
             case 'O':
@@ -1011,8 +1077,14 @@ static void reg_equi_class(int c)
             case 0xd5:
             case 0xd6:
             case 0xd8:
-                CASEMBC(0x14c) CASEMBC(0x14e) CASEMBC(0x150) CASEMBC(0x1a0)
-                CASEMBC(0x1d1) CASEMBC(0x1ea) CASEMBC(0x1ec) CASEMBC(0x1ece)
+            case 0x14c:
+            case 0x14e:
+            case 0x150:
+            case 0x1a0:
+            case 0x1d1:
+            case 0x1ea:
+            case 0x1ec:
+            case 0x1ece:
                 regmbc('O');
                 regmbc(0xd2);
                 regmbc(0xd3);
@@ -1020,40 +1092,64 @@ static void reg_equi_class(int c)
                 regmbc(0xd5);
                 regmbc(0xd6);
                 regmbc(0xd8);
-                REGMBC(0x14c) REGMBC(0x14e) REGMBC(0x150)
-                REGMBC(0x1a0) REGMBC(0x1d1) REGMBC(0x1ea)
-                REGMBC(0x1ec) REGMBC(0x1ece)
+                regmbc(0x14c);
+                regmbc(0x14e);
+                regmbc(0x150);
+                regmbc(0x1a0);
+                regmbc(0x1d1);
+                regmbc(0x1ea);
+                regmbc(0x1ec);
+                regmbc(0x1ece);
                 return;
 
             case 'P':
             case 0x1e54:
             case 0x1e56:
                 regmbc('P');
-                REGMBC(0x1e54) REGMBC(0x1e56)
+                regmbc(0x1e54);
+                regmbc(0x1e56);
                 return;
 
             case 'R':
-                CASEMBC(0x154) CASEMBC(0x156) CASEMBC(0x158)
-                CASEMBC(0x1e58) CASEMBC(0x1e5e)
+            case 0x154:
+            case 0x156:
+            case 0x158:
+            case 0x1e58:
+            case 0x1e5e:
                 regmbc('R');
-                REGMBC(0x154) REGMBC(0x156) REGMBC(0x158)
-                REGMBC(0x1e58) REGMBC(0x1e5e)
+                regmbc(0x154);
+                regmbc(0x156);
+                regmbc(0x158);
+                regmbc(0x1e58);
+                regmbc(0x1e5e);
                 return;
 
             case 'S':
-                CASEMBC(0x15a) CASEMBC(0x15c) CASEMBC(0x15e)
-                CASEMBC(0x160) CASEMBC(0x1e60)
+            case 0x15a:
+            case 0x15c:
+            case 0x15e:
+            case 0x160:
+            case 0x1e60:
                 regmbc('S');
-                REGMBC(0x15a) REGMBC(0x15c)
-                REGMBC(0x15e) REGMBC(0x160) REGMBC(0x1e60)
+                regmbc(0x15a);
+                regmbc(0x15c);
+                regmbc(0x15e);
+                regmbc(0x160);
+                regmbc(0x1e60);
                 return;
 
             case 'T':
-                CASEMBC(0x162) CASEMBC(0x164) CASEMBC(0x166)
-                CASEMBC(0x1e6a) CASEMBC(0x1e6e)
+            case 0x162:
+            case 0x164:
+            case 0x166:
+            case 0x1e6a:
+            case 0x1e6e:
                 regmbc('T');
-                REGMBC(0x162) REGMBC(0x164)
-                REGMBC(0x166) REGMBC(0x1e6a) REGMBC(0x1e6e)
+                regmbc(0x162);
+                regmbc(0x164);
+                regmbc(0x166);
+                regmbc(0x1e6a);
+                regmbc(0x1e6e);
                 return;
 
             case 'U':
@@ -1061,56 +1157,91 @@ static void reg_equi_class(int c)
             case 0xda:
             case 0xdb:
             case 0xdc:
-                CASEMBC(0x168) CASEMBC(0x16a) CASEMBC(0x16c) CASEMBC(0x16e)
-                CASEMBC(0x170) CASEMBC(0x172) CASEMBC(0x1af) CASEMBC(0x1d3)
-                CASEMBC(0x1ee6)
+            case 0x168:
+            case 0x16a:
+            case 0x16c:
+            case 0x16e:
+            case 0x170:
+            case 0x172:
+            case 0x1af:
+            case 0x1d3:
+            case 0x1ee6:
                 regmbc('U');
                 regmbc(0xd9);
                 regmbc(0xda);
                 regmbc(0xdb);
                 regmbc(0xdc);
-                REGMBC(0x168) REGMBC(0x16a) REGMBC(0x16c)
-                REGMBC(0x16e) REGMBC(0x170) REGMBC(0x172)
-                REGMBC(0x1af) REGMBC(0x1d3) REGMBC(0x1ee6)
+                regmbc(0x168);
+                regmbc(0x16a);
+                regmbc(0x16c);
+                regmbc(0x16e);
+                regmbc(0x170);
+                regmbc(0x172);
+                regmbc(0x1af);
+                regmbc(0x1d3);
+                regmbc(0x1ee6);
                 return;
 
             case 'V':
-                CASEMBC(0x1e7c)
+            case 0x1e7c:
                 regmbc('V');
-                REGMBC(0x1e7c)
+                regmbc(0x1e7c);
                 return;
 
             case 'W':
-                CASEMBC(0x174) CASEMBC(0x1e80) CASEMBC(0x1e82)
-                CASEMBC(0x1e84) CASEMBC(0x1e86)
+            case 0x174:
+            case 0x1e80:
+            case 0x1e82:
+            case 0x1e84:
+            case 0x1e86:
                 regmbc('W');
-                REGMBC(0x174) REGMBC(0x1e80)
-                REGMBC(0x1e82) REGMBC(0x1e84) REGMBC(0x1e86)
+                regmbc(0x174);
+                regmbc(0x1e80);
+                regmbc(0x1e82);
+                regmbc(0x1e84);
+                regmbc(0x1e86);
                 return;
 
             case 'X':
-                CASEMBC(0x1e8a) CASEMBC(0x1e8c)
+            case 0x1e8a:
+            case 0x1e8c:
                 regmbc('X');
-                REGMBC(0x1e8a) REGMBC(0x1e8c)
+                regmbc(0x1e8a);
+                regmbc(0x1e8c);
                 return;
 
             case 'Y':
             case 0xdd:
-                CASEMBC(0x176) CASEMBC(0x178) CASEMBC(0x1e8e) CASEMBC(0x1ef2)
-                CASEMBC(0x1ef6) CASEMBC(0x1ef8)
+            case 0x176:
+            case 0x178:
+            case 0x1e8e:
+            case 0x1ef2:
+            case 0x1ef6:
+            case 0x1ef8:
                 regmbc('Y');
                 regmbc(0xdd);
-                REGMBC(0x176) REGMBC(0x178) REGMBC(0x1e8e)
-                REGMBC(0x1ef2) REGMBC(0x1ef6) REGMBC(0x1ef8)
+                regmbc(0x176);
+                regmbc(0x178);
+                regmbc(0x1e8e);
+                regmbc(0x1ef2);
+                regmbc(0x1ef6);
+                regmbc(0x1ef8);
                 return;
 
             case 'Z':
-                CASEMBC(0x179) CASEMBC(0x17b) CASEMBC(0x17d)
-                CASEMBC(0x1b5) CASEMBC(0x1e90) CASEMBC(0x1e94)
+            case 0x179:
+            case 0x17b:
+            case 0x17d:
+            case 0x1b5:
+            case 0x1e90:
+            case 0x1e94:
                 regmbc('Z');
-                REGMBC(0x179) REGMBC(0x17b)
-                REGMBC(0x17d) REGMBC(0x1b5) REGMBC(0x1e90)
-                REGMBC(0x1e94)
+                regmbc(0x179);
+                regmbc(0x17b);
+                regmbc(0x17d);
+                regmbc(0x1b5);
+                regmbc(0x1e90);
+                regmbc(0x1e94);
                 return;
 
             case 'a':
@@ -1120,8 +1251,13 @@ static void reg_equi_class(int c)
             case 0xe3:
             case 0xe4:
             case 0xe5:
-                CASEMBC(0x101) CASEMBC(0x103) CASEMBC(0x105) CASEMBC(0x1ce)
-                CASEMBC(0x1df) CASEMBC(0x1e1) CASEMBC(0x1ea3)
+            case 0x101:
+            case 0x103:
+            case 0x105:
+            case 0x1ce:
+            case 0x1df:
+            case 0x1e1:
+            case 0x1ea3:
                 regmbc('a');
                 regmbc(0xe0);
                 regmbc(0xe1);
@@ -1129,32 +1265,49 @@ static void reg_equi_class(int c)
                 regmbc(0xe3);
                 regmbc(0xe4);
                 regmbc(0xe5);
-                REGMBC(0x101) REGMBC(0x103) REGMBC(0x105)
-                REGMBC(0x1ce) REGMBC(0x1df) REGMBC(0x1e1)
-                REGMBC(0x1ea3)
+                regmbc(0x101);
+                regmbc(0x103);
+                regmbc(0x105);
+                regmbc(0x1ce);
+                regmbc(0x1df);
+                regmbc(0x1e1);
+                regmbc(0x1ea3);
                 return;
 
             case 'b':
-                CASEMBC(0x1e03) CASEMBC(0x1e07)
+            case 0x1e03:
+            case 0x1e07:
                 regmbc('b');
-                REGMBC(0x1e03) REGMBC(0x1e07)
+                regmbc(0x1e03);
+                regmbc(0x1e07);
                 return;
 
             case 'c':
             case 0xe7:
-                CASEMBC(0x107) CASEMBC(0x109) CASEMBC(0x10b) CASEMBC(0x10d)
+            case 0x107:
+            case 0x109:
+            case 0x10b:
+            case 0x10d:
                 regmbc('c');
                 regmbc(0xe7);
-                REGMBC(0x107) REGMBC(0x109) REGMBC(0x10b)
-                REGMBC(0x10d)
+                regmbc(0x107);
+                regmbc(0x109);
+                regmbc(0x10b);
+                regmbc(0x10d);
                 return;
 
             case 'd':
-                CASEMBC(0x10f) CASEMBC(0x111) CASEMBC(0x1e0b)
-                CASEMBC(0x1e0f) CASEMBC(0x1e11)
+            case 0x10f:
+            case 0x111:
+            case 0x1e0b:
+            case 0x1e0f:
+            case 0x1e11:
                 regmbc('d');
-                REGMBC(0x10f) REGMBC(0x111)
-                REGMBC(0x1e0b) REGMBC(0x1e0f) REGMBC(0x1e11)
+                regmbc(0x10f);
+                regmbc(0x111);
+                regmbc(0x1e0b);
+                regmbc(0x1e0f);
+                regmbc(0x1e11);
                 return;
 
             case 'e':
@@ -1162,41 +1315,67 @@ static void reg_equi_class(int c)
             case 0xe9:
             case 0xea:
             case 0xeb:
-                CASEMBC(0x113) CASEMBC(0x115) CASEMBC(0x117) CASEMBC(0x119)
-                CASEMBC(0x11b) CASEMBC(0x1ebb) CASEMBC(0x1ebd)
+            case 0x113:
+            case 0x115:
+            case 0x117:
+            case 0x119:
+            case 0x11b:
+            case 0x1ebb:
+            case 0x1ebd:
                 regmbc('e');
                 regmbc(0xe8);
                 regmbc(0xe9);
                 regmbc(0xea);
                 regmbc(0xeb);
-                REGMBC(0x113) REGMBC(0x115) REGMBC(0x117)
-                REGMBC(0x119) REGMBC(0x11b) REGMBC(0x1ebb)
-                REGMBC(0x1ebd)
+                regmbc(0x113);
+                regmbc(0x115);
+                regmbc(0x117);
+                regmbc(0x119);
+                regmbc(0x11b);
+                regmbc(0x1ebb);
+                regmbc(0x1ebd);
                 return;
 
             case 'f':
-                CASEMBC(0x1e1f)
+            case 0x1e1f:
                 regmbc('f');
-                REGMBC(0x1e1f)
+                regmbc(0x1e1f);
                 return;
 
             case 'g':
-                CASEMBC(0x11d) CASEMBC(0x11f) CASEMBC(0x121)
-                CASEMBC(0x123) CASEMBC(0x1e5) CASEMBC(0x1e7) CASEMBC(0x1f5)
-                CASEMBC(0x1e21)
+            case 0x11d:
+            case 0x11f:
+            case 0x121:
+            case 0x123:
+            case 0x1e5:
+            case 0x1e7:
+            case 0x1f5:
+            case 0x1e21:
                 regmbc('g');
-                REGMBC(0x11d) REGMBC(0x11f)
-                REGMBC(0x121) REGMBC(0x123) REGMBC(0x1e5)
-                REGMBC(0x1e7) REGMBC(0x1f5) REGMBC(0x1e21)
+                regmbc(0x11d);
+                regmbc(0x11f);
+                regmbc(0x121);
+                regmbc(0x123);
+                regmbc(0x1e5);
+                regmbc(0x1e7);
+                regmbc(0x1f5);
+                regmbc(0x1e21);
                 return;
 
             case 'h':
-                CASEMBC(0x125) CASEMBC(0x127) CASEMBC(0x1e23)
-                CASEMBC(0x1e27) CASEMBC(0x1e29) CASEMBC(0x1e96)
+            case 0x125:
+            case 0x127:
+            case 0x1e23:
+            case 0x1e27:
+            case 0x1e29:
+            case 0x1e96:
                 regmbc('h');
-                REGMBC(0x125) REGMBC(0x127)
-                REGMBC(0x1e23) REGMBC(0x1e27) REGMBC(0x1e29)
-                REGMBC(0x1e96)
+                regmbc(0x125);
+                regmbc(0x127);
+                regmbc(0x1e23);
+                regmbc(0x1e27);
+                regmbc(0x1e29);
+                regmbc(0x1e96);
                 return;
 
             case 'i':
@@ -1204,54 +1383,85 @@ static void reg_equi_class(int c)
             case 0xed:
             case 0xee:
             case 0xef:
-                CASEMBC(0x129) CASEMBC(0x12b) CASEMBC(0x12d) CASEMBC(0x12f)
-                CASEMBC(0x1d0) CASEMBC(0x1ec9)
+            case 0x129:
+            case 0x12b:
+            case 0x12d:
+            case 0x12f:
+            case 0x1d0:
+            case 0x1ec9:
                 regmbc('i');
                 regmbc(0xec);
                 regmbc(0xed);
                 regmbc(0xee);
                 regmbc(0xef);
-                REGMBC(0x129) REGMBC(0x12b) REGMBC(0x12d)
-                REGMBC(0x12f) REGMBC(0x1d0) REGMBC(0x1ec9)
+                regmbc(0x129);
+                regmbc(0x12b);
+                regmbc(0x12d);
+                regmbc(0x12f);
+                regmbc(0x1d0);
+                regmbc(0x1ec9);
                 return;
 
             case 'j':
-                CASEMBC(0x135) CASEMBC(0x1f0)
+            case 0x135:
+            case 0x1f0:
                 regmbc('j');
-                REGMBC(0x135) REGMBC(0x1f0)
+                regmbc(0x135);
+                regmbc(0x1f0);
                 return;
 
             case 'k':
-                CASEMBC(0x137) CASEMBC(0x1e9) CASEMBC(0x1e31)
-                CASEMBC(0x1e35)
+            case 0x137:
+            case 0x1e9:
+            case 0x1e31:
+            case 0x1e35:
                 regmbc('k');
-                REGMBC(0x137) REGMBC(0x1e9)
-                REGMBC(0x1e31) REGMBC(0x1e35)
+                regmbc(0x137);
+                regmbc(0x1e9);
+                regmbc(0x1e31);
+                regmbc(0x1e35);
                 return;
 
             case 'l':
-                CASEMBC(0x13a) CASEMBC(0x13c) CASEMBC(0x13e)
-                CASEMBC(0x140) CASEMBC(0x142) CASEMBC(0x1e3b)
+            case 0x13a:
+            case 0x13c:
+            case 0x13e:
+            case 0x140:
+            case 0x142:
+            case 0x1e3b:
                 regmbc('l');
-                REGMBC(0x13a) REGMBC(0x13c)
-                REGMBC(0x13e) REGMBC(0x140) REGMBC(0x142)
-                REGMBC(0x1e3b)
+                regmbc(0x13a);
+                regmbc(0x13c);
+                regmbc(0x13e);
+                regmbc(0x140);
+                regmbc(0x142);
+                regmbc(0x1e3b);
                 return;
 
             case 'm':
-                CASEMBC(0x1e3f) CASEMBC(0x1e41)
+            case 0x1e3f:
+            case 0x1e41:
                 regmbc('m');
-                REGMBC(0x1e3f) REGMBC(0x1e41)
+                regmbc(0x1e3f);
+                regmbc(0x1e41);
                 return;
 
             case 'n':
             case 0xf1:
-                CASEMBC(0x144) CASEMBC(0x146) CASEMBC(0x148) CASEMBC(0x149)
-                CASEMBC(0x1e45) CASEMBC(0x1e49)
+            case 0x144:
+            case 0x146:
+            case 0x148:
+            case 0x149:
+            case 0x1e45:
+            case 0x1e49:
                 regmbc('n');
                 regmbc(0xf1);
-                REGMBC(0x144) REGMBC(0x146) REGMBC(0x148)
-                REGMBC(0x149) REGMBC(0x1e45) REGMBC(0x1e49)
+                regmbc(0x144);
+                regmbc(0x146);
+                regmbc(0x148);
+                regmbc(0x149);
+                regmbc(0x1e45);
+                regmbc(0x1e49);
                 return;
 
             case 'o':
@@ -1261,8 +1471,14 @@ static void reg_equi_class(int c)
             case 0xf5:
             case 0xf6:
             case 0xf8:
-                CASEMBC(0x14d) CASEMBC(0x14f) CASEMBC(0x151) CASEMBC(0x1a1)
-                CASEMBC(0x1d2) CASEMBC(0x1eb) CASEMBC(0x1ed) CASEMBC(0x1ecf)
+            case 0x14d:
+            case 0x14f:
+            case 0x151:
+            case 0x1a1:
+            case 0x1d2:
+            case 0x1eb:
+            case 0x1ed:
+            case 0x1ecf:
                 regmbc('o');
                 regmbc(0xf2);
                 regmbc(0xf3);
@@ -1270,39 +1486,66 @@ static void reg_equi_class(int c)
                 regmbc(0xf5);
                 regmbc(0xf6);
                 regmbc(0xf8);
-                REGMBC(0x14d) REGMBC(0x14f) REGMBC(0x151)
-                REGMBC(0x1a1) REGMBC(0x1d2) REGMBC(0x1eb)
-                REGMBC(0x1ed) REGMBC(0x1ecf)
+                regmbc(0x14d);
+                regmbc(0x14f);
+                regmbc(0x151);
+                regmbc(0x1a1);
+                regmbc(0x1d2);
+                regmbc(0x1eb);
+                regmbc(0x1ed);
+                regmbc(0x1ecf);
                 return;
 
             case 'p':
-                CASEMBC(0x1e55) CASEMBC(0x1e57)
+            case 0x1e55:
+            case 0x1e57:
                 regmbc('p');
-                REGMBC(0x1e55) REGMBC(0x1e57)
+                regmbc(0x1e55);
+                regmbc(0x1e57);
                 return;
 
             case 'r':
-                CASEMBC(0x155) CASEMBC(0x157) CASEMBC(0x159)
-                CASEMBC(0x1e59) CASEMBC(0x1e5f)
+            case 0x155:
+            case 0x157:
+            case 0x159:
+            case 0x1e59:
+            case 0x1e5f:
                 regmbc('r');
-                REGMBC(0x155) REGMBC(0x157) REGMBC(0x159)
-                REGMBC(0x1e59) REGMBC(0x1e5f)
+                regmbc(0x155);
+                regmbc(0x157);
+                regmbc(0x159);
+                regmbc(0x1e59);
+                regmbc(0x1e5f);
                 return;
 
             case 's':
-                CASEMBC(0x15b) CASEMBC(0x15d) CASEMBC(0x15f)
-                CASEMBC(0x161) CASEMBC(0x1e61)
+            case 0x15b:
+            case 0x15d:
+            case 0x15f:
+            case 0x161:
+            case 0x1e61:
                 regmbc('s');
-                REGMBC(0x15b) REGMBC(0x15d)
-                REGMBC(0x15f) REGMBC(0x161) REGMBC(0x1e61)
+                regmbc(0x15b);
+                regmbc(0x15d);
+                regmbc(0x15f);
+                regmbc(0x161);
+                regmbc(0x1e61);
                 return;
 
             case 't':
-                CASEMBC(0x163) CASEMBC(0x165) CASEMBC(0x167)
-                CASEMBC(0x1e6b) CASEMBC(0x1e6f) CASEMBC(0x1e97)
+            case 0x163:
+            case 0x165:
+            case 0x167:
+            case 0x1e6b:
+            case 0x1e6f:
+            case 0x1e97:
                 regmbc('t');
-                REGMBC(0x163) REGMBC(0x165) REGMBC(0x167)
-                REGMBC(0x1e6b) REGMBC(0x1e6f) REGMBC(0x1e97)
+                regmbc(0x163);
+                regmbc(0x165);
+                regmbc(0x167);
+                regmbc(0x1e6b);
+                regmbc(0x1e6f);
+                regmbc(0x1e97);
                 return;
 
             case 'u':
@@ -1310,59 +1553,95 @@ static void reg_equi_class(int c)
             case 0xfa:
             case 0xfb:
             case 0xfc:
-                CASEMBC(0x169) CASEMBC(0x16b) CASEMBC(0x16d) CASEMBC(0x16f)
-                CASEMBC(0x171) CASEMBC(0x173) CASEMBC(0x1b0) CASEMBC(0x1d4)
-                CASEMBC(0x1ee7)
+            case 0x169:
+            case 0x16b:
+            case 0x16d:
+            case 0x16f:
+            case 0x171:
+            case 0x173:
+            case 0x1b0:
+            case 0x1d4:
+            case 0x1ee7:
                 regmbc('u');
                 regmbc(0xf9);
                 regmbc(0xfa);
                 regmbc(0xfb);
                 regmbc(0xfc);
-                REGMBC(0x169) REGMBC(0x16b) REGMBC(0x16d)
-                REGMBC(0x16f) REGMBC(0x171) REGMBC(0x173)
-                REGMBC(0x1b0) REGMBC(0x1d4) REGMBC(0x1ee7)
+                regmbc(0x169);
+                regmbc(0x16b);
+                regmbc(0x16d);
+                regmbc(0x16f);
+                regmbc(0x171);
+                regmbc(0x173);
+                regmbc(0x1b0);
+                regmbc(0x1d4);
+                regmbc(0x1ee7);
                 return;
 
             case 'v':
-                CASEMBC(0x1e7d)
+            case 0x1e7d:
                 regmbc('v');
-                REGMBC(0x1e7d)
+                regmbc(0x1e7d);
                 return;
 
             case 'w':
-                CASEMBC(0x175) CASEMBC(0x1e81) CASEMBC(0x1e83)
-                CASEMBC(0x1e85) CASEMBC(0x1e87) CASEMBC(0x1e98)
+            case 0x175:
+            case 0x1e81:
+            case 0x1e83:
+            case 0x1e85:
+            case 0x1e87:
+            case 0x1e98:
                 regmbc('w');
-                REGMBC(0x175) REGMBC(0x1e81)
-                REGMBC(0x1e83) REGMBC(0x1e85) REGMBC(0x1e87)
-                REGMBC(0x1e98)
+                regmbc(0x175);
+                regmbc(0x1e81);
+                regmbc(0x1e83);
+                regmbc(0x1e85);
+                regmbc(0x1e87);
+                regmbc(0x1e98);
                 return;
 
             case 'x':
-                CASEMBC(0x1e8b) CASEMBC(0x1e8d)
+            case 0x1e8b:
+            case 0x1e8d:
                 regmbc('x');
-                REGMBC(0x1e8b) REGMBC(0x1e8d)
+                regmbc(0x1e8b);
+                regmbc(0x1e8d);
                 return;
 
             case 'y':
             case 0xfd:
             case 0xff:
-                CASEMBC(0x177) CASEMBC(0x1e8f) CASEMBC(0x1e99)
-                CASEMBC(0x1ef3) CASEMBC(0x1ef7) CASEMBC(0x1ef9)
+            case 0x177:
+            case 0x1e8f:
+            case 0x1e99:
+            case 0x1ef3:
+            case 0x1ef7:
+            case 0x1ef9:
                 regmbc('y');
                 regmbc(0xfd);
                 regmbc(0xff);
-                REGMBC(0x177) REGMBC(0x1e8f) REGMBC(0x1e99)
-                REGMBC(0x1ef3) REGMBC(0x1ef7) REGMBC(0x1ef9)
+                regmbc(0x177);
+                regmbc(0x1e8f);
+                regmbc(0x1e99);
+                regmbc(0x1ef3);
+                regmbc(0x1ef7);
+                regmbc(0x1ef9);
                 return;
 
             case 'z':
-                CASEMBC(0x17a) CASEMBC(0x17c) CASEMBC(0x17e)
-                CASEMBC(0x1b6) CASEMBC(0x1e91) CASEMBC(0x1e95)
+            case 0x17a:
+            case 0x17c:
+            case 0x17e:
+            case 0x1b6:
+            case 0x1e91:
+            case 0x1e95:
                 regmbc('z');
-                REGMBC(0x17a) REGMBC(0x17c)
-                REGMBC(0x17e) REGMBC(0x1b6) REGMBC(0x1e91)
-                REGMBC(0x1e95)
+                regmbc(0x17a);
+                regmbc(0x17c);
+                regmbc(0x17e);
+                regmbc(0x1b6);
+                regmbc(0x1e91);
+                regmbc(0x1e95);
                 return;
         }
     }
@@ -1370,17 +1649,15 @@ static void reg_equi_class(int c)
     regmbc(c);
 }
 
-/*
- * Check for a collating element "[.a.]".  "pp" points to the '['.
- * Returns a character. Zero means that no item was recognized.  Otherwise
- * "pp" is advanced to after the item.
- * Currently only single characters are recognized!
- */
+/// Check for a collating element "[.a.]". "pp" points to the '['.
+/// Returns a character. Zero means that no item was recognized.
+/// Otherwise "pp" is advanced to after the item.
+/// Currently only single characters are recognized!
 static int get_coll_element(uchar_kt **pp)
 {
     int c;
     int l = 1;
-    uchar_kt      *p = *pp;
+    uchar_kt *p = *pp;
 
     if(p[0] != NUL && p[1] == '.')
     {
@@ -1408,23 +1685,24 @@ static int get_coll_element(uchar_kt **pp)
     return 0;
 }
 
-static int reg_cpo_lit; /* 'cpoptions' contains 'l' flag */
+/// 'cpoptions' contains 'l' flag
+static int reg_cpo_lit;
 
 static void get_cpo_flags(void)
 {
     reg_cpo_lit = vim_strchr(p_cpo, CPO_LITERAL) != NULL;
 }
 
-/*
- * Skip over a "[]" range.
- * "p" must point to the character after the '['.
- * The returned pointer is on the matching ']', or the terminating NUL.
- */
+/// Skip over a "[]" range.
+///
+/// "p" must point to the character after the '['.
+/// The returned pointer is on the matching ']', or the terminating NUL.
 static uchar_kt *skip_anyof(uchar_kt *p)
 {
     int l;
 
-    if(*p == '^')         /* Complement of range. */
+    // Complement of range.
+    if(*p == '^')
     {
         ++p;
     }
@@ -1451,7 +1729,8 @@ static uchar_kt *skip_anyof(uchar_kt *p)
         }
         else if(*p == '\\'
                 && (vim_strchr(REGEXP_INRANGE, p[1]) != NULL
-                    || (!reg_cpo_lit && vim_strchr(REGEXP_ABBR, p[1]) != NULL)))
+                    || (!reg_cpo_lit
+                        && vim_strchr(REGEXP_ABBR, p[1]) != NULL)))
         {
             p += 2;
         }
@@ -1462,7 +1741,7 @@ static uchar_kt *skip_anyof(uchar_kt *p)
                && get_coll_element(&p) == 0
                && *p != NUL)
             {
-                ++p;    /* It is not a class name and not NUL */
+                ++p; // It is not a class name and not NUL
             }
         }
         else
@@ -1474,19 +1753,18 @@ static uchar_kt *skip_anyof(uchar_kt *p)
     return p;
 }
 
-/*
- * Skip past regular expression.
- * Stop at end of "startp" or where "dirc" is found ('/', '?', etc).
- * Take care of characters with a backslash in front of it.
- * Skip strings inside [ and ].
- * When "newp" is not NULL and "dirc" is '?', make an allocated copy of the
- * expression and change "\?" to "?".  If "*newp" is not NULL the expression
- * is changed in-place.
- */
+/// Skip past regular expression.
+///
+/// Stop at end of "startp" or where "dirc" is found ('/', '?', etc).
+/// Take care of characters with a backslash in front of it.
+/// Skip strings inside [ and ].
+/// When "newp" is not NULL and "dirc" is '?', make an allocated copy of the
+/// expression and change "\?" to "?".  If "*newp" is not NULL the expression
+/// is changed in-place.
 uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
 {
     int mymagic;
-    uchar_kt      *p = startp;
+    uchar_kt *p = startp;
 
     if(magic)
     {
@@ -1501,7 +1779,8 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
 
     for(; p[0] != NUL; mb_ptr_adv(p))
     {
-        if(p[0] == dirc)            /* found end of regexp */
+        // found end of regexp
+        if(p[0] == dirc)
         {
             break;
         }
@@ -1520,7 +1799,7 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
         {
             if(dirc == '?' && newp != NULL && p[1] == '?')
             {
-                /* change "\?" to "?", make a copy first. */
+                // change "\?" to "?", make a copy first.
                 if(*newp == NULL)
                 {
                     *newp = vim_strsave(startp);
@@ -1531,7 +1810,7 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
             }
             else
             {
-                ++p;    /* skip next character */
+                ++p; // skip next character
             }
 
             if(*p == 'v')
@@ -1548,34 +1827,34 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
     return p;
 }
 
-
-/*
- * bt_regcomp() - compile a regular expression into internal code for the
- * traditional back track matcher.
- * Returns the program in allocated space.  Returns NULL for an error.
- *
- * We can't allocate space until we know how big the compiled form will be,
- * but we can't compile it (and thus know how big it is) until we've got a
- * place to put the code.  So we cheat:  we compile it twice, once with code
- * generation turned off and size counting turned on, and once "for real".
- * This also means that we don't allocate space until we are sure that the
- * thing really will compile successfully, and we never have to move the
- * code and thus invalidate pointers into it.  (Note that it has to be in
- * one piece because free() must be able to free it all.)
- *
- * Whether upper/lower case is to be ignored is decided when executing the
- * program, it does not matter here.
- *
- * Beware that the optimization-preparation code in here knows about some
- * of the structure of the compiled regexp.
- * "re_flags": RE_MAGIC and/or RE_STRING.
- */
+/// compile a regular expression into internal code for the
+/// traditional back track matcher.
+/// @return
+/// - the program in allocated space.
+/// - NULL for an error.
+///
+/// @note
+/// We can't allocate space until we know how big the compiled form will be,
+/// but we can't compile it (and thus know how big it is) until we've got a
+/// place to put the code. So we cheat:  we compile it twice, once with code
+/// generation turned off and size counting turned on, and once "for real".
+/// This also means that we don't allocate space until we are sure that the
+/// thing really will compile successfully, and we never have to move the
+/// code and thus invalidate pointers into it. (Note that it has to be in
+/// one piece because free() must be able to free it all.)
+///
+/// Whether upper/lower case is to be ignored is decided when executing the
+/// program, it does not matter here.
+///
+/// Beware that the optimization-preparation code in here knows about some
+/// of the structure of the compiled regexp.
+/// "re_flags": RE_MAGIC and/or RE_STRING.
 static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
 {
-    uchar_kt      *scan;
-    uchar_kt      *longest;
     int len;
     int flags;
+    uchar_kt *scan;
+    uchar_kt *longest;
 
     if(expr == NULL)
     {
@@ -1583,9 +1862,8 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
     }
 
     init_class_tab();
-    /*
-     * First pass: determine size, legality.
-     */
+
+    // First pass: determine size, legality.
     regcomp_start(expr, re_flags);
     regcode = JUST_CALC_SIZE;
     regc(REGMAGIC);
@@ -1595,11 +1873,10 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
         return NULL;
     }
 
-    /* Allocate space. */
+    // Allocate space.
     bt_regprog_T *r = xmalloc(sizeof(bt_regprog_T) + regsize);
-    /*
-     * Second pass: emit code.
-     */
+
+    // Second pass: emit code.
     regcomp_start(expr, re_flags);
     regcode = r->program;
     regc(REGMAGIC);
@@ -1616,8 +1893,8 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
         return NULL;
     }
 
-    /* Dig out information for optimizations. */
-    r->regstart = NUL;            /* Worst-case defaults. */
+    // Dig out information for optimizations.
+    r->regstart = NUL; // Worst-case defaults.
     r->reganch = 0;
     r->regmust = NULL;
     r->regmlen = 0;
@@ -1633,15 +1910,16 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
         r->regflags |= RF_LOOKBH;
     }
 
-    /* Remember whether this pattern has any \z specials in it. */
+    // Remember whether this pattern has any \z specials in it.
     r->reghasz = re_has_z;
-    scan = r->program + 1;        /* First BRANCH. */
+    scan = r->program + 1; // First BRANCH.
 
-    if(OP(regnext(scan)) == END)      /* Only one top-level choice. */
+    // Only one top-level choice.
+    if(OP(regnext(scan)) == END)
     {
         scan = OPERAND(scan);
 
-        /* Starting-point info. */
+        // Starting-point info.
         if(OP(scan) == BOL || OP(scan) == RE_BOF)
         {
             r->reganch++;
@@ -1662,8 +1940,10 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
         else if(OP(scan) == BOW
                 || OP(scan) == EOW
                 || OP(scan) == NOTHING
-                || OP(scan) == MOPEN  + 0 || OP(scan) == NOPEN
-                || OP(scan) == MCLOSE + 0 || OP(scan) == NCLOSE)
+                || OP(scan) == MOPEN  + 0
+                || OP(scan) == NOPEN
+                || OP(scan) == MCLOSE + 0
+                || OP(scan) == NCLOSE)
         {
             uchar_kt *regnext_scan = regnext(scan);
 
@@ -1680,18 +1960,15 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
             }
         }
 
-        /*
-         * If there's something expensive in the r.e., find the longest
-         * literal string that must appear and make it the regmust.  Resolve
-         * ties in favor of later strings, since the regstart check works
-         * with the beginning of the r.e. and avoiding duplication
-         * strengthens checking.  Not a strong reason, but sufficient in the
-         * absence of others.
-         */
-        /*
-         * When the r.e. starts with BOW, it is faster to look for a regmust
-         * first. Used a lot for "#" and "*" commands. (Added by mool).
-         */
+        // If there's something expensive in the r.e., find the longest
+        // literal string that must appear and make it the regmust.  Resolve
+        // ties in favor of later strings, since the regstart check works
+        // with the beginning of the r.e. and avoiding duplication
+        // strengthens checking. Not a strong reason, but sufficient in the
+        // absence of others.
+        //
+        // When the r.e. starts with BOW, it is faster to look for a regmust
+        // first. Used a lot for "#" and "*" commands. (Added by mool).
         if((flags & SPSTART || OP(scan) == BOW || OP(scan) == EOW)
            && !(flags & HASNL))
         {
@@ -1699,11 +1976,14 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
             len = 0;
 
             for(; scan != NULL; scan = regnext(scan))
-                if(OP(scan) == EXACTLY && STRLEN(OPERAND(scan)) >= (size_t)len)
+            {
+                if(OP(scan) == EXACTLY
+                   && STRLEN(OPERAND(scan)) >= (size_t)len)
                 {
                     longest = OPERAND(scan);
                     len = (int)STRLEN(OPERAND(scan));
                 }
+            }
 
             r->regmust = longest;
             r->regmlen = len;
@@ -1713,26 +1993,23 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
 #ifdef BT_REGEXP_DUMP
     regdump(expr, r);
 #endif
+
     r->engine = &bt_regengine;
     return (regprog_T *)r;
 }
 
-/*
- * Free a compiled regexp program, returned by bt_regcomp().
- */
+/// Free a compiled regexp program, returned by bt_regcomp().
 static void bt_regfree(regprog_T *prog)
 {
     xfree(prog);
 }
 
-/*
- * Setup to parse the regexp.  Used once to get the length and once to do it.
- */
-static void
-regcomp_start(
-    uchar_kt *expr,
-    int re_flags                       /* see vim_regcomp() */
-)
+/// Setup to parse the regexp.
+/// Used once to get the length and once to do it.
+///
+/// @param expr
+/// @param re_flags  see vim_regcomp()
+static void regcomp_start(uchar_kt *expr, int re_flags)
 {
     initchr(expr);
 
@@ -1759,44 +2036,40 @@ regcomp_start(
     had_eol = FALSE;
 }
 
-/*
- * Check if during the previous call to vim_regcomp the EOL item "$" has been
- * found.  This is messy, but it works fine.
- */
+/// Check if during the previous call to vim_regcomp the EOL
+/// item "$" has been found. This is messy, but it works fine.
 int vim_regcomp_had_eol(void)
 {
     return had_eol;
 }
 
 // variables for parsing reginput
-static int at_start;       // True when on the first character
-static int prev_at_start;  // True when on the second character
+static int at_start;      ///< True when on the first character
+static int prev_at_start; ///< True when on the second character
 
-/*
- * Parse regular expression, i.e. main body or parenthesized thing.
- *
- * Caller must absorb opening parenthesis.
- *
- * Combining parenthesis handling with the base level of regular expression
- * is a trifle forced, but the need to tie the tails of the branches to what
- * follows makes it hard to avoid.
- */
-static uchar_kt *
-reg(
-    int paren,              /* REG_NOPAREN, REG_PAREN, REG_NPAREN or REG_ZPAREN */
-    int *flagp
-)
+/// Parse regular expression, i.e. main body or parenthesized thing.
+///
+/// Caller must absorb opening parenthesis.
+///
+/// Combining parenthesis handling with the base level of regular expression
+/// is a trifle forced, but the need to tie the tails of the branches to what
+/// follows makes it hard to avoid.
+///
+/// @param paren
+/// @param flagp  REG_NOPAREN, REG_PAREN, REG_NPAREN or REG_ZPAREN
+static uchar_kt *reg(int paren, int *flagp)
 {
-    uchar_kt      *ret;
-    uchar_kt      *br;
-    uchar_kt      *ender;
-    int parno = 0;
     int flags;
-    *flagp = HASWIDTH;            /* Tentatively. */
+    int parno = 0;
+    uchar_kt *ret;
+    uchar_kt *br;
+    uchar_kt *ender;
+
+    *flagp = HASWIDTH; // Tentatively.
 
     if(paren == REG_ZPAREN)
     {
-        /* Make a ZOPEN node. */
+        // Make a ZOPEN node.
         if(regnzpar >= NSUBEXP)
         {
             EMSG_RET_NULL(_("E50: Too many \\z("));
@@ -1808,7 +2081,7 @@ reg(
     }
     else if(paren == REG_PAREN)
     {
-        /* Make a MOPEN node. */
+        // Make a MOPEN node.
         if(regnpar >= NSUBEXP)
         {
             EMSG2_RET_NULL(_("E51: Too many %s("), reg_magic == MAGIC_ALL);
@@ -1820,7 +2093,7 @@ reg(
     }
     else if(paren == REG_NPAREN)
     {
-        /* Make a NOPEN node. */
+        // Make a NOPEN node.
         ret = regnode(NOPEN);
     }
     else
@@ -1828,7 +2101,7 @@ reg(
         ret = NULL;
     }
 
-    /* Pick up the branches, linking them together. */
+    // Pick up the branches, linking them together.
     br = regbranch(&flags);
 
     if(br == NULL)
@@ -1838,16 +2111,16 @@ reg(
 
     if(ret != NULL)
     {
-        regtail(ret, br);    /* [MZ]OPEN -> first. */
+        regtail(ret, br); // [MZ]OPEN -> first.
     }
     else
     {
         ret = br;
     }
 
-    /* If one of the branches can be zero-width, the whole thing can.
-     * If one of the branches has * at start or matches a line-break, the
-     * whole thing can. */
+    // If one of the branches can be zero-width, the whole thing can.
+    // If one of the branches has * at start or matches a line-break,
+    // the whole thing can.
     if(!(flags & HASWIDTH))
     {
         *flagp &= ~HASWIDTH;
@@ -1865,7 +2138,7 @@ reg(
             return NULL;
         }
 
-        regtail(ret, br);           /* BRANCH -> BRANCH. */
+        regtail(ret, br); // BRANCH -> BRANCH.
 
         if(!(flags & HASWIDTH))
         {
@@ -1875,20 +2148,22 @@ reg(
         *flagp |= flags & (SPSTART | HASNL | HASLOOKBH);
     }
 
-    /* Make a closing node, and hook it on the end. */
-    ender = regnode(
-                paren == REG_ZPAREN ? ZCLOSE + parno :
-                paren == REG_PAREN ? MCLOSE + parno :
-                paren == REG_NPAREN ? NCLOSE : END);
+    // Make a closing node, and hook it on the end.
+    ender = regnode(paren == REG_ZPAREN
+                    ? ZCLOSE + parno
+                    : paren == REG_PAREN
+                      ? MCLOSE + parno :
+                        paren == REG_NPAREN
+                        ? NCLOSE : END);
     regtail(ret, ender);
 
-    /* Hook the tails of the branches to the closing node. */
+    // Hook the tails of the branches to the closing node.
     for(br = ret; br != NULL; br = regnext(br))
     {
         regoptail(br, ender);
     }
 
-    /* Check for proper termination. */
+    // Check for proper termination.
     if(paren != REG_NOPAREN && getchr() != Magic(')'))
     {
         if(paren == REG_ZPAREN)
@@ -1912,35 +2187,32 @@ reg(
         }
         else
         {
-            EMSG_RET_NULL(_(e_trailing));    /* "Can't happen". */
+            EMSG_RET_NULL(_(e_trailing)); // "Can't happen".
         }
 
-        /* NOTREACHED */
+        // NOTREACHED
     }
 
-    /*
-     * Here we set the flag allowing back references to this set of
-     * parentheses.
-     */
+    // Here we set the flag allowing back
+    // references to this set of parentheses.
     if(paren == REG_PAREN)
     {
-        had_endbrace[parno] = TRUE;    /* have seen the close paren */
+        had_endbrace[parno] = TRUE; // have seen the close paren
     }
 
     return ret;
 }
 
-/*
- * Parse one alternative of an | operator.
- * Implements the & operator.
- */
+/// Parse one alternative of an | operator.
+/// Implements the & operator.
 static uchar_kt *regbranch(int *flagp)
 {
-    uchar_kt      *ret;
-    uchar_kt      *chain = NULL;
-    uchar_kt      *latest;
+    uchar_kt *ret;
+    uchar_kt *chain = NULL;
+    uchar_kt *latest;
     int flags;
-    *flagp = WORST | HASNL;               /* Tentatively. */
+
+    *flagp = WORST | HASNL; // Tentatively.
     ret = regnode(BRANCH);
 
     for(;;)
@@ -1952,12 +2224,14 @@ static uchar_kt *regbranch(int *flagp)
             return NULL;
         }
 
-        /* If one of the branches has width, the whole thing has.  If one of
-         * the branches anchors at start-of-line, the whole thing does.
-         * If one of the branches uses look-behind, the whole thing does. */
+        // If one of the branches has width, the whole thing has.
+        // If one of the branches anchors at start-of-line, the whole
+        // thing does. If one of the branches uses look-behind, the
+        // whole thing does.
         *flagp |= flags & (HASWIDTH | SPSTART | HASLOOKBH);
-        /* If one of the branches doesn't match a line-break, the whole thing
-         * doesn't. */
+
+        // If one of the branches doesn't match a line-break,
+        // the whole thing doesn't.
         *flagp &= ~HASNL | (flags & HASNL);
 
         if(chain != NULL)
@@ -1971,7 +2245,7 @@ static uchar_kt *regbranch(int *flagp)
         }
 
         skipchr();
-        regtail(latest, regnode(END));     /* operand ends */
+        regtail(latest, regnode(END)); // operand ends
 
         if(reg_toolong)
         {
@@ -1985,18 +2259,17 @@ static uchar_kt *regbranch(int *flagp)
     return ret;
 }
 
-/*
- * Parse one alternative of an | or & operator.
- * Implements the concatenation operator.
- */
+/// Parse one alternative of an | or & operator.
+/// Implements the concatenation operator.
 static uchar_kt *regconcat(int *flagp)
 {
-    uchar_kt      *first = NULL;
-    uchar_kt      *chain = NULL;
-    uchar_kt      *latest;
+    uchar_kt *first = NULL;
+    uchar_kt *chain = NULL;
+    uchar_kt *latest;
     int flags;
     int cont = TRUE;
-    *flagp = WORST;               /* Tentatively. */
+
+    *flagp = WORST; // Tentatively.
 
     while(cont)
     {
@@ -2058,7 +2331,7 @@ static uchar_kt *regconcat(int *flagp)
 
                 *flagp |= flags & (HASWIDTH | HASNL | HASLOOKBH);
 
-                if(chain == NULL)                         /* First piece. */
+                if(chain == NULL) // First piece.
                 {
                     *flagp |= flags & SPSTART;
                 }
@@ -2078,7 +2351,7 @@ static uchar_kt *regconcat(int *flagp)
         }
     }
 
-    if(first == NULL)  // Loop ran zero times.
+    if(first == NULL) // Loop ran zero times.
     {
         first = regnode(NOTHING);
     }
@@ -2086,20 +2359,18 @@ static uchar_kt *regconcat(int *flagp)
     return first;
 }
 
-/*
- * Parse something followed by possible [*+=].
- *
- * Note that the branching code sequences used for = and the general cases
- * of * and + are somewhat optimized:  they use the same NOTHING node as
- * both the endmarker for their branch list and the body of the last branch.
- * It might seem that this node could be dispensed with entirely, but the
- * endmarker role is not redundant.
- */
+/// Parse something followed by possible [*+=].
+///
+/// Note that the branching code sequences used for = and the general cases
+/// of * and + are somewhat optimized: they use the same NOTHING node as
+/// both the endmarker for their branch list and the body of the last branch.
+/// It might seem that this node could be dispensed with entirely, but the
+/// endmarker role is not redundant.
 static uchar_kt *regpiece(int *flagp)
 {
-    uchar_kt          *ret;
+    uchar_kt *ret;
     int op;
-    uchar_kt          *next;
+    uchar_kt *next;
     int flags;
     long minval;
     long maxval;
@@ -2118,7 +2389,7 @@ static uchar_kt *regpiece(int *flagp)
         return ret;
     }
 
-    /* default flags */
+    // default flags
     *flagp = (WORST | SPSTART | (flags & (HASNL | HASLOOKBH)));
     skipchr();
 
@@ -2131,12 +2402,14 @@ static uchar_kt *regpiece(int *flagp)
             }
             else
             {
-                /* Emit x* as (x&|), where & means "self". */
-                reginsert(BRANCH, ret);           /* Either x */
-                regoptail(ret, regnode(BACK));            /* and loop */
-                regoptail(ret, ret);              /* back */
-                regtail(ret, regnode(BRANCH));            /* or */
-                regtail(ret, regnode(NOTHING));           /* null. */
+                // Emit x* as (x&|), where & means "self".
+                reginsert(BRANCH, ret); // either x
+
+                regoptail(ret, regnode(BACK)); // and loop
+                regoptail(ret, ret); // back
+
+                regtail(ret, regnode(BRANCH)); // or
+                regtail(ret, regnode(NOTHING)); // null
             }
 
             break;
@@ -2148,12 +2421,12 @@ static uchar_kt *regpiece(int *flagp)
             }
             else
             {
-                /* Emit x+ as x(&|), where & means "self". */
-                next = regnode(BRANCH);           /* Either */
+                // Emit x+ as x(&|), where & means "self".
+                next = regnode(BRANCH); // Either
                 regtail(ret, next);
-                regtail(regnode(BACK), ret);              /* loop back */
-                regtail(next, regnode(BRANCH));           /* or */
-                regtail(ret, regnode(NOTHING));           /* null. */
+                regtail(regnode(BACK), ret); // loop back
+                regtail(next, regnode(BRANCH)); // or
+                regtail(ret, regnode(NOTHING)); // null.
             }
 
             *flagp = (WORST | HASWIDTH | (flags & (HASNL | HASLOOKBH)));
@@ -2169,47 +2442,49 @@ static uchar_kt *regpiece(int *flagp)
             {
                 case '=':
                     lop = MATCH;
-                    break;                                 /* \@= */
+                    break; // \@=
 
                 case '!':
                     lop = NOMATCH;
-                    break;                               /* \@! */
+                    break; // \@!
 
                 case '>':
                     lop = SUBPAT;
-                    break;                                /* \@> */
+                    break; // \@>
 
                 case '<':
                     switch(no_Magic(getchr()))
                     {
                         case '=':
                             lop = BEHIND;
-                            break;                               /* \@<= */
+                            break; // \@<=
 
                         case '!':
                             lop = NOBEHIND;
-                            break;                             /* \@<! */
+                            break; // \@<!
                     }
             }
 
             if(lop == END)
+            {
                 EMSG2_RET_NULL(_("E59: invalid character after %s@"),
                                reg_magic == MAGIC_ALL);
+            }
 
-            /* Look behind must match with behind_pos. */
+            // Look behind must match with behind_pos.
             if(lop == BEHIND || lop == NOBEHIND)
             {
                 regtail(ret, regnode(BHPOS));
                 *flagp |= HASLOOKBH;
             }
 
-            regtail(ret, regnode(END));             /* operand ends */
+            regtail(ret, regnode(END)); // operand ends
 
             if(lop == BEHIND || lop == NOBEHIND)
             {
                 if(nr < 0)
                 {
-                    nr = 0;    /* no limit is same as zero limit */
+                    nr = 0; // no limit is same as zero limit
                 }
 
                 reginsert_nr(lop, (uint32_t)nr, ret);
@@ -2224,10 +2499,10 @@ static uchar_kt *regpiece(int *flagp)
 
         case Magic('?'):
         case Magic('='):
-            /* Emit x= as (x|) */
-            reginsert(BRANCH, ret);                     /* Either x */
-            regtail(ret, regnode(BRANCH));              /* or */
-            next = regnode(NOTHING);                    /* null. */
+            // Emit x= as (x|)
+            reginsert(BRANCH, ret); // Either x
+            regtail(ret, regnode(BRANCH)); // or
+            next = regnode(NOTHING); // null.
             regtail(ret, next);
             regoptail(ret, next);
             break;
@@ -2246,8 +2521,10 @@ static uchar_kt *regpiece(int *flagp)
             else
             {
                 if(num_complex_braces >= 10)
+                {
                     EMSG2_RET_NULL(_("E60: Too many complex %s{...}s"),
                                    reg_magic == MAGIC_ALL);
+                }
 
                 reginsert(BRACE_COMPLEX + num_complex_braces, ret);
                 regoptail(ret, regnode(BACK));
@@ -2266,13 +2543,19 @@ static uchar_kt *regpiece(int *flagp)
 
     if(re_multi_type(peekchr()) != NOT_MULTI)
     {
-        /* Can't have a multi follow a multi. */
+        // Can't have a multi follow a multi.
         if(peekchr() == Magic('*'))
+        {
             sprintf((char *)IObuff, _("E61: Nested %s*"),
                     reg_magic >= MAGIC_ON ? "" : "\\");
+        }
         else
-            sprintf((char *)IObuff, _("E62: Nested %s%c"),
-                    reg_magic == MAGIC_ALL ? "" : "\\", no_Magic(peekchr()));
+        {
+            sprintf((char *)IObuff,
+                    _("E62: Nested %s%c"),
+                    reg_magic == MAGIC_ALL ? "" : "\\",
+                    no_Magic(peekchr()));
+        }
 
         EMSG_RET_NULL(IObuff);
     }
@@ -2280,35 +2563,34 @@ static uchar_kt *regpiece(int *flagp)
     return ret;
 }
 
-/* When making changes to classchars also change nfa_classcodes. */
-static uchar_kt   *classchars = (uchar_kt *)".iIkKfFpPsSdDxXoOwWhHaAlLuU";
-static int classcodes[] =
-{
-    ANY, IDENT, SIDENT, KWORD, SKWORD,
-    FNAME, SFNAME, PRINT, SPRINT,
-    WHITE, NWHITE, DIGIT, NDIGIT,
-    HEX, NHEX, OCTAL, NOCTAL,
-    WORD, NWORD, HEAD, NHEAD,
-    ALPHA, NALPHA, LOWER, NLOWER,
-    UPPER, NUPPER
+/// When making changes to classchars also change nfa_classcodes.
+static uchar_kt *classchars = (uchar_kt *)".iIkKfFpPsSdDxXoOwWhHaAlLuU";
+
+static int classcodes[] = {
+    ANY,    IDENT,  SIDENT, KWORD,  SKWORD,
+    FNAME,  SFNAME, PRINT,  SPRINT,
+    WHITE,  NWHITE, DIGIT,  NDIGIT,
+    HEX,    NHEX,   OCTAL,  NOCTAL,
+    WORD,   NWORD,  HEAD,   NHEAD,
+    ALPHA,  NALPHA, LOWER,  NLOWER,
+    UPPER,  NUPPER
 };
 
-/*
- * Parse the lowest level.
- *
- * Optimization:  gobbles an entire sequence of ordinary characters so that
- * it can turn them into a single node, which is smaller to store and
- * faster to run.  Don't do this when one_exactly is set.
- */
+/// Parse the lowest level.
+///
+/// Optimization:
+/// gobbles an entire sequence of ordinary characters so that
+/// it can turn them into a single node, which is smaller to store and
+/// faster to run. Don't do this when one_exactly is set.
 static uchar_kt *regatom(int *flagp)
 {
-    uchar_kt          *ret;
+    uchar_kt *ret;
     int flags;
     int c;
-    uchar_kt          *p;
+    uchar_kt *p;
     int extra = 0;
     int save_prev_at_start = prev_at_start;
-    *flagp = WORST;               /* Tentatively. */
+    *flagp = WORST; // Tentatively.
     c = getchr();
 
     switch(c)
@@ -2333,13 +2615,13 @@ static uchar_kt *regatom(int *flagp)
         case Magic('_'):
             c = no_Magic(getchr());
 
-            if(c == '^')                /* "\_^" is start-of-line */
+            if(c == '^') // "\_^" is start-of-line
             {
                 ret = regnode(BOL);
                 break;
             }
 
-            if(c == '$')                /* "\_$" is end-of-line */
+            if(c == '$') // "\_$" is end-of-line
             {
                 ret = regnode(EOL);
                 had_eol = TRUE;
@@ -2358,9 +2640,7 @@ static uchar_kt *regatom(int *flagp)
             // "\_x" is character class plus newline
             FALL_THROUGH_ATTRIBUTE;
 
-        /*
-         * Character classes.
-         */
+        // Character classes.
         case Magic('.'):
         case Magic('i'):
         case Magic('I'):
@@ -2395,8 +2675,8 @@ static uchar_kt *regatom(int *flagp)
                 EMSG_RET_NULL(_("E63: invalid use of \\_"));
             }
 
-            /* When '.' is followed by a composing char ignore the dot, so that
-             * the composing char is matched here. */
+            // When '.' is followed by a composing char ignore the dot,
+            // so that the composing char is matched here.
             if(enc_utf8 && c == Magic('.') && utf_iscomposing(peekchr()))
             {
                 c = getchr();
@@ -2410,7 +2690,7 @@ static uchar_kt *regatom(int *flagp)
         case Magic('n'):
             if(reg_string)
             {
-                /* In a string "\n" matches a newline character. */
+                // In a string "\n" matches a newline character.
                 ret = regnode(EXACTLY);
                 regc(NL);
                 regc(NUL);
@@ -2418,7 +2698,7 @@ static uchar_kt *regatom(int *flagp)
             }
             else
             {
-                /* In buffer text "\n" matches the end of a line. */
+                // In buffer text "\n" matches the end of a line.
                 ret = regnode(NEWL);
                 *flagp |= HASWIDTH | HASNL;
             }
@@ -2450,9 +2730,10 @@ static uchar_kt *regatom(int *flagp)
                 EMSG_ONE_RET_NULL;
             }
 
-            EMSG_RET_NULL(_(e_internal));       /* Supposed to be caught earlier. */
+            // Supposed to be caught earlier.
+            EMSG_RET_NULL(_(e_internal));
 
-        /* NOTREACHED */
+            // NOTREACHED
 
         case Magic('='):
         case Magic('?'):
@@ -2461,14 +2742,17 @@ static uchar_kt *regatom(int *flagp)
         case Magic('{'):
         case Magic('*'):
             c = no_Magic(c);
-            sprintf((char *)IObuff, _("E64: %s%c follows nothing"),
-                    (c == '*' ? reg_magic >= MAGIC_ON : reg_magic == MAGIC_ALL)
-                    ? "" : "\\", c);
+            sprintf((char *)IObuff,
+                    _("E64: %s%c follows nothing"),
+                    (c == '*'
+                     ? reg_magic >= MAGIC_ON
+                     : reg_magic == MAGIC_ALL) ? "" : "\\",
+                    c);
             EMSG_RET_NULL(IObuff);
 
-        /* NOTREACHED */
+            // NOTREACHED
 
-        case Magic('~'):              /* previous substitute pattern */
+        case Magic('~'): // previous substitute pattern
             if(reg_prev_sub != NULL)
             {
                 uchar_kt      *lp;
@@ -2512,23 +2796,24 @@ static uchar_kt *regatom(int *flagp)
             int refnum;
             refnum = c - Magic('0');
 
-            /*
-             * Check if the back reference is legal. We must have seen the
-             * close brace.
-             * TODO: Should also check that we don't refer to something
-             * that is repeated (+*=): what instance of the repetition
-             * should we match?
-             */
+            // Check if the back reference is legal.
+            // We must have seen the close brace.
+            // TODO: Should also check that we don't refer to something
+            // that is repeated (+*=): what instance of the repetition
+            // should we match?
             if(!had_endbrace[refnum])
             {
-                /* Trick: check if "@<=" or "@<!" follows, in which case
-                 * the \1 can appear before the referenced match. */
+                // Trick: check if "@<=" or "@<!" follows, in which case
+                // the \1 can appear before the referenced match.
                 for(p = regparse; *p != NUL; ++p)
-                    if(p[0] == '@' && p[1] == '<'
+                {
+                    if(p[0] == '@'
+                       && p[1] == '<'
                        && (p[2] == '!' || p[2] == '='))
                     {
                         break;
                     }
+                }
 
                 if(*p == NUL)
                 {
@@ -2618,7 +2903,7 @@ static uchar_kt *regatom(int *flagp)
 
             switch(c)
             {
-                /* () without a back reference */
+                // () without a back reference
                 case '(':
                     if(one_exactly)
                     {
@@ -2635,8 +2920,8 @@ static uchar_kt *regatom(int *flagp)
                     *flagp |= flags & (HASWIDTH | SPSTART | HASNL | HASLOOKBH);
                     break;
 
-                /* Catch \%^ and \%$ regardless of where they appear in the
-                 * pattern -- regardless of whether or not it makes sense. */
+                // Catch \%^ and \%$ regardless of where they appear in the
+                // pattern -- regardless of whether or not it makes sense.
                 case '^':
                     ret = regnode(RE_BOF);
                     break;
@@ -2657,25 +2942,27 @@ static uchar_kt *regatom(int *flagp)
                     ret = regnode(RE_COMPOSING);
                     break;
 
-                /* \%[abc]: Emit as a list of branches, all ending at the last
-                 * branch which matches nothing. */
+                // \%[abc]: Emit as a list of branches, all ending
+                // at the last branch which matches nothing.
                 case '[':
-                    if(one_exactly)                           /* doesn't nest */
+                    if(one_exactly) // doesn't nest
                     {
                         EMSG_ONE_RET_NULL;
                     }
 
                     {
-                        uchar_kt    *lastbranch;
-                        uchar_kt    *lastnode = NULL;
-                        uchar_kt    *br;
+                        uchar_kt *lastbranch;
+                        uchar_kt *lastnode = NULL;
+                        uchar_kt *br;
                         ret = NULL;
 
                         while((c = getchr()) != ']')
                         {
                             if(c == NUL)
+                            {
                                 EMSG2_RET_NULL(_(e_missing_sb),
                                                reg_magic == MAGIC_ALL);
+                            }
 
                             br = regnode(BRANCH);
 
@@ -2700,8 +2987,10 @@ static uchar_kt *regatom(int *flagp)
                         }
 
                         if(ret == NULL)
+                        {
                             EMSG2_RET_NULL(_(e_empty_sb),
                                            reg_magic == MAGIC_ALL);
+                        }
 
                         lastbranch = regnode(BRANCH);
                         br = regnode(NOTHING);
@@ -2711,8 +3000,8 @@ static uchar_kt *regatom(int *flagp)
                             regtail(lastnode, br);
                             regtail(lastbranch, br);
 
-                            /* connect all branches to the NOTHING
-                             * branch at the end */
+                            // connect all branches to the
+                            // NOTHING branch at the end
                             for(br = ret; br != lastnode;)
                             {
                                 if(OP(br) == BRANCH)
@@ -2731,11 +3020,11 @@ static uchar_kt *regatom(int *flagp)
                         break;
                     }
 
-                case 'd':               /* %d123 decimal */
-                case 'o':               /* %o123 octal */
-                case 'x':               /* %xab hex 2 */
-                case 'u':               /* %uabcd hex 4 */
-                case 'U':               /* %U1234abcd hex 8 */
+                case 'd': // %d123 decimal
+                case 'o': // %o123 octal
+                case 'x': // %xab hex 2
+                case 'u': // %uabcd hex 4
+                case 'U': // %U1234abcd hex 8
                 {
                     int i;
 
@@ -2767,9 +3056,11 @@ static uchar_kt *regatom(int *flagp)
                     }
 
                     if(i < 0)
-                        EMSG2_RET_NULL(
-                            _("E678: Invalid character after %s%%[dxouU]"),
-                            reg_magic == MAGIC_ALL);
+                    {
+                        EMSG2_RET_NULL(_("E678: Invalid "
+                                         "character after %s%%[dxouU]"),
+                                       reg_magic == MAGIC_ALL);
+                    }
 
                     if(use_multibytecode(i))
                     {
@@ -2795,7 +3086,9 @@ static uchar_kt *regatom(int *flagp)
                 }
 
                 default:
-                    if(ascii_isdigit(c) || c == '<' || c == '>'
+                    if(ascii_isdigit(c)
+                       || c == '<'
+                       || c == '>'
                        || c == '\'')
                     {
                         uint32_t n = 0;
@@ -2815,7 +3108,7 @@ static uchar_kt *regatom(int *flagp)
 
                         if(c == '\'' && n == 0)
                         {
-                            /* "\%'m", "\%<'m" and "\%>'m": Mark */
+                            // "\%'m", "\%<'m" and "\%>'m": Mark
                             c = getchr();
                             ret = regnode(RE_MARK);
 
@@ -2876,23 +3169,20 @@ static uchar_kt *regatom(int *flagp)
         case Magic('['):
 collection:
             {
-                uchar_kt      *lp;
-                /*
-                 * If there is no matching ']', we assume the '[' is a normal
-                 * character.  This makes 'incsearch' and ":help [" work.
-                 */
+                uchar_kt *lp;
+
+                // If there is no matching ']', we assume the '[' is a normal
+                // character.  This makes 'incsearch' and ":help [" work.
                 lp = skip_anyof(regparse);
 
-                if(*lp == ']')            /* there is a matching ']' */
+                if(*lp == ']') // there is a matching ']'
                 {
-                    int startc = -1;                /* > 0 when next '-' is a range */
+                    int startc = -1; // > 0 when next '-' is a range
                     int endc;
 
-                    /*
-                     * In a character class, different parsing rules apply.
-                     * Not even \ is special anymore, nothing is.
-                     */
-                    if(*regparse == '^')                /* Complement of range. */
+                    // In a character class, different parsing rules apply.
+                    // Not even \ is special anymore, nothing is.
+                    if(*regparse == '^') // Complement of range.
                     {
                         ret = regnode(ANYBUT + extra);
                         regparse++;
@@ -2902,7 +3192,7 @@ collection:
                         ret = regnode(ANYOF + extra);
                     }
 
-                    /* At the start ']' and '-' mean the literal character. */
+                    // At the start ']' and '-' mean the literal character.
                     if(*regparse == ']' || *regparse == '-')
                     {
                         startc = *regparse;
@@ -2915,18 +3205,19 @@ collection:
                         {
                             ++regparse;
 
-                            /* The '-' is not used for a range at the end and
-                             * after or before a '\n'. */
-                            if(*regparse == ']' || *regparse == NUL
+                            // The '-' is not used for a range at
+                            // the end and after or before a '\n'.
+                            if(*regparse == ']'
+                               || *regparse == NUL
                                || startc == -1
                                || (regparse[0] == '\\' && regparse[1] == 'n'))
                             {
                                 regc('-');
-                                startc = '-';                     /* [--x] is a range */
+                                startc = '-'; // [--x] is a range
                             }
                             else
                             {
-                                /* Also accept "a-[.z.]" */
+                                // Also accept "a-[.z.]"
                                 endc = 0;
 
                                 if(*regparse == '[')
@@ -2946,7 +3237,7 @@ collection:
                                     }
                                 }
 
-                                /* Handle \o40, \x20 and \u20AC style sequences */
+                                // Handle \o40, \x20 and \u20AC style sequences
                                 if(endc == '\\' && !reg_cpo_lit)
                                 {
                                     endc = coll_get_char();
@@ -2957,10 +3248,11 @@ collection:
                                     EMSG_RET_NULL(_(e_invrange));
                                 }
 
-                                if(has_mbyte && ((*mb_char2len)(startc) > 1
-                                                 || (*mb_char2len)(endc) > 1))
+                                if(has_mbyte
+                                   && ((*mb_char2len)(startc) > 1
+                                       || (*mb_char2len)(endc) > 1))
                                 {
-                                    /* Limit to a range of 256 chars */
+                                    // Limit to a range of 256 chars
                                     if(endc > startc + 256)
                                     {
                                         EMSG_RET_NULL(_(e_invrange));
@@ -2982,13 +3274,12 @@ collection:
                                 startc = -1;
                             }
                         }
-                        /*
-                         * Only "\]", "\^", "\]" and "\\" are special in Vi.  Vim
-                         * accepts "\t", "\e", etc., but only when the 'l' flag in
-                         * 'cpoptions' is not included.
-                         */
+                        // Only "\]", "\^", "\]" and "\\" are special in Vi.
+                        // Vim accepts "\t", "\e", etc., but only when the 'l'
+                        // flag in 'cpoptions' is not included.
                         else if(*regparse == '\\'
-                                && (vim_strchr(REGEXP_INRANGE, regparse[1]) != NULL
+                                && (vim_strchr(REGEXP_INRANGE,
+                                               regparse[1]) != NULL
                                     || (!reg_cpo_lit
                                         && vim_strchr(REGEXP_ABBR,
                                                       regparse[1]) != NULL)))
@@ -2997,18 +3288,18 @@ collection:
 
                             if(*regparse == 'n')
                             {
-                                /* '\n' in range: also match NL */
+                                // '\n' in range: also match NL
                                 if(ret != JUST_CALC_SIZE)
                                 {
-                                    /* Using \n inside [^] does not change what
-                                     * matches. "[^\n]" is the same as ".". */
+                                    // Using \n inside [^] does not change
+                                    // what matches. "[^\n]" is the same as "."
                                     if(*ret == ANYOF)
                                     {
                                         *ret = ANYOF + ADD_NL;
                                         *flagp |= HASNL;
                                     }
 
-                                    /* else: must have had a \n already */
+                                    // else: must have had a \n already
                                 }
 
                                 regparse++;
@@ -3044,7 +3335,7 @@ collection:
                             c_class = get_char_class(&regparse);
                             startc = -1;
 
-                            /* Characters assumed to be 8 bits! */
+                            // Characters assumed to be 8 bits!
                             switch(c_class)
                             {
                                 case CLASS_NONE:
@@ -3052,18 +3343,17 @@ collection:
 
                                     if(c_class != 0)
                                     {
-                                        /* produce equivalence class */
+                                        // produce equivalence class
                                         reg_equi_class(c_class);
                                     }
-                                    else if((c_class =
-                                                 get_coll_element(&regparse)) != 0)
+                                    else if((c_class = get_coll_element(&regparse)) != 0)
                                     {
-                                        /* produce a collating element */
+                                        // produce a collating element
                                         regmbc(c_class);
                                     }
                                     else
                                     {
-                                        /* literal '[', allow [[-x] as a range */
+                                        // literal '[', allow [[-x] as a range
                                         startc = *regparse++;
                                         regc(startc);
                                     }
@@ -3133,7 +3423,9 @@ collection:
                                 case CLASS_LOWER:
                                     for(cu = 1; cu <= 255; cu++)
                                     {
-                                        if(mb_islower(cu) && cu != 170 && cu != 186)
+                                        if(mb_islower(cu)
+                                           && cu != 170
+                                           && cu != 186)
                                         {
                                             regmbc(cu);
                                         }
@@ -3216,14 +3508,15 @@ collection:
                             if(has_mbyte)
                             {
                                 int len;
-                                /* produce a multibyte character, including any
-                                 * following composing characters */
+
+                                // produce a multibyte character, including
+                                // any following composing characters
                                 startc = mb_ptr2char(regparse);
                                 len = (*mb_ptr2len)(regparse);
 
                                 if(enc_utf8 && utf_char2len(startc) != len)
                                 {
-                                    startc = -1;    /* composing chars */
+                                    startc = -1; // composing chars
                                 }
 
                                 while(--len >= 0)
@@ -3240,14 +3533,14 @@ collection:
                     }
 
                     regc(NUL);
-                    prevchr_len = 1;                /* last char was the ']' */
+                    prevchr_len = 1; // last char was the ']'
 
                     if(*regparse != ']')
                     {
-                        EMSG_RET_NULL(_(e_toomsbra));    /* Cannot happen? */
+                        EMSG_RET_NULL(_(e_toomsbra)); // Cannot happen ?
                     }
 
-                    skipchr();                  /* let's be friends with the lexer again */
+                    skipchr(); // let's be friends with the lexer again
                     *flagp |= HASWIDTH | SIMPLE;
                     break;
                 }
@@ -3263,8 +3556,8 @@ collection:
         {
             int len;
 
-            /* A multi-byte character is handled as a separate atom if it's
-             * before a multi and when it's a composing char. */
+            // A multi-byte character is handled as a separate atom
+            // if it's before a multi and when it's a composing char.
             if(use_multibytecode(c))
             {
 do_multibyte:
@@ -3276,19 +3569,20 @@ do_multibyte:
 
             ret = regnode(EXACTLY);
 
-            /*
-             * Append characters as long as:
-             * - there is no following multi, we then need the character in
-             *   front of it as a single character operand
-             * - not running into a Magic character
-             * - "one_exactly" is not set
-             * But always emit at least one character.  Might be a Multi,
-             * e.g., a "[" without matching "]".
-             */
-            for(len = 0; c != NUL && (len == 0
-                                      || (re_multi_type(peekchr()) == NOT_MULTI
-                                          && !one_exactly
-                                          && !is_Magic(c))); ++len)
+            // Append characters as long as:
+            // - there is no following multi, we then need the character in
+            //   front of it as a single character operand
+            // - not running into a Magic character
+            // - "one_exactly" is not set
+            //
+            // But always emit at least one character. Might be a Multi,
+            // e.g., a "[" without matching "]".
+            for(len = 0;
+                c != NUL
+                && (len == 0 || (re_multi_type(peekchr()) == NOT_MULTI
+                                 && !one_exactly
+                                 && !is_Magic(c)));
+                ++len)
             {
                 c = no_Magic(c);
 
@@ -3300,7 +3594,7 @@ do_multibyte:
                     {
                         int l;
 
-                        /* Need to get composing character too. */
+                        // Need to get composing character too.
                         for(;;)
                         {
                             l = utf_ptr2len(regparse);
@@ -3349,24 +3643,23 @@ static bool re_mult_next(char *what)
     return true;
 }
 
-/*
- * Return TRUE if MULTIBYTECODE should be used instead of EXACTLY for
- * character "c".
- */
+/// @return
+/// TRUE if MULTIBYTECODE should be
+/// used instead of EXACTLY for character "c".
 static int use_multibytecode(int c)
 {
-    return has_mbyte && (*mb_char2len)(c) > 1
+    return has_mbyte
+           && (*mb_char2len)(c) > 1
            && (re_multi_type(peekchr()) != NOT_MULTI
                || (enc_utf8 && utf_iscomposing(c)));
 }
 
-/*
- * Emit a node.
- * Return pointer to generated code.
- */
+/// Emit a node.
+///
+/// @return pointer to generated code.
 static uchar_kt *regnode(int op)
 {
-    uchar_kt  *ret;
+    uchar_kt *ret;
     ret = regcode;
 
     if(ret == JUST_CALC_SIZE)
@@ -3376,16 +3669,14 @@ static uchar_kt *regnode(int op)
     else
     {
         *regcode++ = op;
-        *regcode++ = NUL;                   /* Null "next" pointer. */
+        *regcode++ = NUL; // Null "next" pointer.
         *regcode++ = NUL;
     }
 
     return ret;
 }
 
-/*
- * Emit (if appropriate) a byte of code
- */
+/// Emit (if appropriate) a byte of code
 static void regc(int b)
 {
     if(regcode == JUST_CALC_SIZE)
@@ -3398,9 +3689,7 @@ static void regc(int b)
     }
 }
 
-/*
- * Emit (if appropriate) a multi-byte character of code
- */
+/// Emit (if appropriate) a multi-byte character of code
 static void regmbc(int c)
 {
     if(!has_mbyte && c > 0xff)
@@ -3418,16 +3707,14 @@ static void regmbc(int c)
     }
 }
 
-/*
- * Insert an operator in front of already-emitted operand
- *
- * Means relocating the operand.
- */
+/// Insert an operator in front of already-emitted operand
+///
+/// Means relocating the operand.
 static void reginsert(int op, uchar_kt *opnd)
 {
-    uchar_kt      *src;
-    uchar_kt      *dst;
-    uchar_kt      *place;
+    uchar_kt *src;
+    uchar_kt *dst;
+    uchar_kt *place;
 
     if(regcode == JUST_CALC_SIZE)
     {
@@ -3444,21 +3731,19 @@ static void reginsert(int op, uchar_kt *opnd)
         *--dst = *--src;
     }
 
-    place = opnd;                 /* Op node, where operand used to be. */
+    place = opnd; // Op node, where operand used to be.
     *place++ = op;
     *place++ = NUL;
     *place = NUL;
 }
 
-/*
- * Insert an operator in front of already-emitted operand.
- * Add a number to the operator.
- */
+/// Insert an operator in front of already-emitted operand.
+/// Add a number to the operator.
 static void reginsert_nr(int op, long val, uchar_kt *opnd)
 {
-    uchar_kt      *src;
-    uchar_kt      *dst;
-    uchar_kt      *place;
+    uchar_kt *src;
+    uchar_kt *dst;
+    uchar_kt *place;
 
     if(regcode == JUST_CALC_SIZE)
     {
@@ -3475,7 +3760,7 @@ static void reginsert_nr(int op, long val, uchar_kt *opnd)
         *--dst = *--src;
     }
 
-    place = opnd;                 /* Op node, where operand used to be. */
+    place = opnd; // Op node, where operand used to be.
     *place++ = op;
     *place++ = NUL;
     *place++ = NUL;
@@ -3483,17 +3768,16 @@ static void reginsert_nr(int op, long val, uchar_kt *opnd)
     re_put_uint32(place, (uint32_t)val);
 }
 
-/*
- * Insert an operator in front of already-emitted operand.
- * The operator has the given limit values as operands.  Also set next pointer.
- *
- * Means relocating the operand.
- */
+/// Insert an operator in front of already-emitted operand.
+/// The operator has the given limit values as operands.
+/// Also set next pointer.
+///
+/// Means relocating the operand.
 static void reginsert_limits(int op, long minval, long maxval, uchar_kt *opnd)
 {
-    uchar_kt      *src;
-    uchar_kt      *dst;
-    uchar_kt      *place;
+    uchar_kt *src;
+    uchar_kt *dst;
+    uchar_kt *place;
 
     if(regcode == JUST_CALC_SIZE)
     {
@@ -3510,7 +3794,7 @@ static void reginsert_limits(int op, long minval, long maxval, uchar_kt *opnd)
         *--dst = *--src;
     }
 
-    place = opnd;                 /* Op node, where operand used to be. */
+    place = opnd; // Op node, where operand used to be.
     *place++ = op;
     *place++ = NUL;
     *place++ = NUL;
@@ -3521,25 +3805,22 @@ static void reginsert_limits(int op, long minval, long maxval, uchar_kt *opnd)
     regtail(opnd, place);
 }
 
-/*
- * Write a four bytes number at "p" and return pointer to the next char.
- */
+/// Write a four bytes number at "p" and return pointer to the next char.
 static uchar_kt *re_put_uint32(uchar_kt *p, uint32_t val)
 {
     *p++ = (uchar_kt)((val >> 24) & 0377);
     *p++ = (uchar_kt)((val >> 16) & 0377);
     *p++ = (uchar_kt)((val >> 8) & 0377);
     *p++ = (uchar_kt)(val & 0377);
+
     return p;
 }
 
-/*
- * Set the next-pointer at the end of a node chain.
- */
+/// Set the next-pointer at the end of a node chain.
 static void regtail(uchar_kt *p, uchar_kt *val)
 {
-    uchar_kt      *scan;
-    uchar_kt      *temp;
+    uchar_kt *scan;
+    uchar_kt *temp;
     int offset;
 
     if(p == JUST_CALC_SIZE)
@@ -3547,7 +3828,7 @@ static void regtail(uchar_kt *p, uchar_kt *val)
         return;
     }
 
-    /* Find last node. */
+    // Find last node.
     scan = p;
 
     for(;;)
@@ -3571,9 +3852,9 @@ static void regtail(uchar_kt *p, uchar_kt *val)
         offset = (int)(val - scan);
     }
 
-    /* When the offset uses more than 16 bits it can no longer fit in the two
-     * bytes available.  Use a global flag to avoid having to check return
-     * values in too many places. */
+    // When the offset uses more than 16 bits it can no longer fit in the two
+    // bytes available. Use a global flag to avoid having to check return
+    // values in too many places.
     if(offset > 0xffff)
     {
         reg_toolong = TRUE;
@@ -3585,13 +3866,12 @@ static void regtail(uchar_kt *p, uchar_kt *val)
     }
 }
 
-/*
- * Like regtail, on item after a BRANCH; nop if none.
- */
+/// Like regtail, on item after a BRANCH; nop if none.
 static void regoptail(uchar_kt *p, uchar_kt *val)
 {
-    /* When op is neither BRANCH nor BRACE_COMPLEX0-9, it is "operandless" */
-    if(p == NULL || p == JUST_CALC_SIZE
+    // When op is neither BRANCH nor BRACE_COMPLEX0-9, it is "operandless"
+    if(p == NULL
+       || p == JUST_CALC_SIZE
        || (OP(p) != BRANCH
            && (OP(p) < BRACE_COMPLEX || OP(p) > BRACE_COMPLEX + 9)))
     {
@@ -3601,13 +3881,9 @@ static void regoptail(uchar_kt *p, uchar_kt *val)
     regtail(OPERAND(p), val);
 }
 
-/*
- * Functions for getting characters from the regexp input.
- */
+// Functions for getting characters from the regexp input.
 
-/*
- * Start parsing at "str".
- */
+/// Start parsing at "str".
 static void initchr(uchar_kt *str)
 {
     regparse = str;
@@ -3617,10 +3893,8 @@ static void initchr(uchar_kt *str)
     prev_at_start = FALSE;
 }
 
-/*
- * Save the current parse state, so that it can be restored and parsing
- * starts in the same state again.
- */
+/// Save the current parse state, so that it can be
+/// restored and parsing starts in the same state again.
 static void save_parse_state(parse_state_T *ps)
 {
     ps->regparse = regparse;
@@ -3634,9 +3908,7 @@ static void save_parse_state(parse_state_T *ps)
     ps->regnpar = regnpar;
 }
 
-/*
- * Restore a previously saved parse state.
- */
+/// Restore a previously saved parse state.
 static void restore_parse_state(parse_state_T *ps)
 {
     regparse = ps->regparse;
@@ -3651,9 +3923,7 @@ static void restore_parse_state(parse_state_T *ps)
 }
 
 
-/*
- * Get the next character without advancing.
- */
+/// Get the next character without advancing.
 static int peekchr(void)
 {
     static int after_slash = FALSE;
@@ -3669,7 +3939,7 @@ static int peekchr(void)
         case '[':
         case '~':
 
-            /* magic when 'magic' is on */
+            // magic when 'magic' is on
             if(reg_magic >= MAGIC_ON)
             {
                 curchr = Magic(curchr);
@@ -3690,17 +3960,16 @@ static int peekchr(void)
         case '|':
         case '<':
         case '>':
-        case '#':           /* future ext. */
-        case '"':           /* future ext. */
-        case '\'':          /* future ext. */
-        case ',':           /* future ext. */
-        case '-':           /* future ext. */
-        case ':':           /* future ext. */
-        case ';':           /* future ext. */
-        case '`':           /* future ext. */
-        case '/':           /* Can't be used in / command */
-
-            /* magic only after "\v" */
+        case '#':     // future ext.
+        case '"':     // future ext.
+        case '\'':    // future ext.
+        case ',':     // future ext.
+        case '-':     // future ext.
+        case ':':     // future ext.
+        case ';':     // future ext.
+        case '`':     // future ext.
+        case '/':     // Can't be used in / command
+            // magic only after "\v"
             if(reg_magic == MAGIC_ALL)
             {
                 curchr = Magic(curchr);
@@ -3710,9 +3979,9 @@ static int peekchr(void)
 
         case '*':
 
-            /* * is not magic as the very first character, eg "?*ptr", when
-             * after '^', eg "/^*ptr" and when after "\(", "\|", "\&".  But
-             * "\(\*" is not magic, thus must be magic if "after_slash" */
+            // * is not magic as the very first character, eg "?*ptr", when
+            // after '^', eg "/^*ptr" and when after "\(", "\|", "\&". But
+            // "\(\*" is not magic, thus must be magic if "after_slash"
             if(reg_magic >= MAGIC_ON
                && !at_start
                && !(prev_at_start && prevchr == Magic('^'))
@@ -3728,8 +3997,8 @@ static int peekchr(void)
 
         case '^':
 
-            /* '^' is only magic as the very first character and if it's after
-             * "\(", "\|", "\&' or "\n" */
+            // '^' is only magic as the very first character
+            // and if it's after "\(", "\|", "\&' or "\n"
             if(reg_magic >= MAGIC_OFF
                && (at_start
                    || reg_magic == MAGIC_ALL
@@ -3749,18 +4018,22 @@ static int peekchr(void)
 
         case '$':
 
-            /* '$' is only magic as the very last char and if it's in front of
-             * either "\|", "\)", "\&", or "\n" */
+            // '$' is only magic as the very last char and
+            // if it's in front of either "\|", "\)", "\&", or "\n"
             if(reg_magic >= MAGIC_OFF)
             {
                 uchar_kt *p = regparse + 1;
                 bool is_magic_all = (reg_magic == MAGIC_ALL);
 
                 // ignore \c \C \m \M \v \V and \Z after '$'
-                while(p[0] == '\\' && (p[1] == 'c' || p[1] == 'C'
-                                       || p[1] == 'm' || p[1] == 'M'
-                                       || p[1] == 'v' || p[1] == 'V'
-                                       || p[1] == 'Z'))
+                while(p[0] == '\\'
+                      && (p[1] == 'c'
+                          || p[1] == 'C'
+                          || p[1] == 'm'
+                          || p[1] == 'M'
+                          || p[1] == 'v'
+                          || p[1] == 'V'
+                          || p[1] == 'Z'))
                 {
                     if(p[1] == 'v')
                     {
@@ -3776,10 +4049,14 @@ static int peekchr(void)
 
                 if(p[0] == NUL
                    || (p[0] == '\\'
-                       && (p[1] == '|' || p[1] == '&' || p[1] == ')'
+                       && (p[1] == '|'
+                           || p[1] == '&'
+                           || p[1] == ')'
                            || p[1] == 'n'))
                    || (is_magic_all
-                       && (p[0] == '|' || p[0] == '&' || p[0] == ')'))
+                       && (p[0] == '|'
+                           || p[0] == '&'
+                           || p[0] == ')'))
                    || reg_magic == MAGIC_ALL)
                 {
                     curchr = Magic('$');
@@ -3794,22 +4071,20 @@ static int peekchr(void)
 
             if(c == NUL)
             {
-                curchr = '\\';    /* trailing '\' */
+                curchr = '\\'; // trailing '\'
             }
             else if(
                 c <= '~' && META_flags[c]
             )
             {
-                /*
-                 * META contains everything that may be magic sometimes,
-                 * except ^ and $ ("\^" and "\$" are only magic after
-                 * "\V").  We now fetch the next character and toggle its
-                 * magicness.  Therefore, \ is so meta-magic that it is
-                 * not in META.
-                 */
+                // META contains everything that may be magic sometimes,
+                // except ^ and $ ("\^" and "\$" are only magic after
+                // "\V"). We now fetch the next character and toggle its
+                // magicness. Therefore, \ is so meta-magic that it is
+                // not in META.
                 curchr = -1;
                 prev_at_start = at_start;
-                at_start = FALSE;               /* be able to say "/\*ptr" */
+                at_start = FALSE; // be able to say "/\*ptr"
                 ++regparse;
                 ++after_slash;
                 peekchr();
@@ -3819,9 +4094,7 @@ static int peekchr(void)
             }
             else if(vim_strchr(REGEXP_ABBR, c))
             {
-                /*
-                 * Handle abbreviations, like "\t" for TAB -- webb
-                 */
+                // Handle abbreviations, like "\t" for TAB
                 curchr = backslash_trans(c);
             }
             else if(reg_magic == MAGIC_NONE && (c == '$' || c == '^'))
@@ -3830,10 +4103,8 @@ static int peekchr(void)
             }
             else
             {
-                /*
-                 * Next character can never be (made) magic?
-                 * Then backslashing it won't do anything.
-                 */
+                // Next character can never be (made) magic?
+                // Then backslashing it won't do anything.
                 if(has_mbyte)
                 {
                     curchr = (*mb_ptr2char)(regparse + 1);
@@ -3857,12 +4128,11 @@ static int peekchr(void)
     return curchr;
 }
 
-/*
- * Eat one lexed character.  Do this in a way that we can undo it.
- */
+/// Eat one lexed character.
+/// Do this in a way that we can undo it.
 static void skipchr(void)
 {
-    /* peekchr() eats a backslash, do the same here */
+    // peekchr() eats a backslash, do the same here
     if(*regparse == '\\')
     {
         prevchr_len = 1;
@@ -3883,29 +4153,26 @@ static void skipchr(void)
     at_start = FALSE;
     prevprevchr = prevchr;
     prevchr = curchr;
-    curchr = nextchr;         /* use previously unget char, or -1 */
+    curchr = nextchr; // use previously unget char, or -1
     nextchr = -1;
 }
 
-/*
- * Skip a character while keeping the value of prev_at_start for at_start.
- * prevchr and prevprevchr are also kept.
- */
+/// Skip a character while keeping the value of prev_at_start for at_start.
+/// prevchr and prevprevchr are also kept.
 static void skipchr_keepstart(void)
 {
     int as = prev_at_start;
     int pr = prevchr;
     int prpr = prevprevchr;
+
     skipchr();
     at_start = as;
     prevchr = pr;
     prevprevchr = prpr;
 }
 
-/*
- * Get the next character from the pattern. We know about magic and such, so
- * therefore we need a lexical analyzer.
- */
+/// Get the next character from the pattern. We know about
+/// magic and such, so therefore we need a lexical analyzer.
 static int getchr(void)
 {
     int chr = peekchr();
@@ -3913,9 +4180,8 @@ static int getchr(void)
     return chr;
 }
 
-/*
- * put character back.  Works only once!
- */
+/// put character back.
+/// Works only once!
 static void ungetchr(void)
 {
     nextchr = curchr;
@@ -3923,20 +4189,24 @@ static void ungetchr(void)
     prevchr = prevprevchr;
     at_start = prev_at_start;
     prev_at_start = FALSE;
-    /* Backup regparse, so that it's at the same position as before the
-     * getchr(). */
+
+    // Backup regparse, so that it's at the
+    // same position as before the getchr().
     regparse -= prevchr_len;
 }
 
-/*
- * Get and return the value of the hex string at the current position.
- * Return -1 if there is no valid hex number.
- * The position is updated:
- *     blahblah\%x20asdf
- *     before-^ ^-after
- * The parameter controls the maximum number of input characters. This will be
- * 2 when reading a \%x20 sequence and 4 when reading a \%u20AC sequence.
- */
+/// Get and return the value of the hex string at the current position.
+///
+/// @return
+/// -1 if there is no valid hex number.
+///
+/// The position is updated:
+///    blahblah\%x20asdf
+///    before-^ ^-after
+///
+/// The parameter controls the maximum number of input characters.
+/// This will be 2 when reading a \%x20 sequence and 4 when
+/// reading a \%u20AC sequence.
 static int gethexchrs(int maxinputlen)
 {
     int nr = 0;
@@ -3965,10 +4235,11 @@ static int gethexchrs(int maxinputlen)
     return nr;
 }
 
-/*
- * Get and return the value of the decimal string immediately after the
- * current position. Return -1 for invalid.  Consumes all digits.
- */
+/// Get and return the value of the decimal string
+/// immediately after the current position.
+///
+/// @return
+/// -1 for invalid. Consumes all digits.
 static int getdecchrs(void)
 {
     int nr = 0;
@@ -3987,7 +4258,7 @@ static int getdecchrs(void)
         nr *= 10;
         nr += c - '0';
         ++regparse;
-        curchr = -1;     /* no longer valid */
+        curchr = -1; // no longer valid
     }
 
     if(i == 0)
@@ -3998,21 +4269,19 @@ static int getdecchrs(void)
     return nr;
 }
 
-/*
- * get and return the value of the octal string immediately after the current
- * position. Return -1 for invalid, or 0-255 for valid. Smart enough to handle
- * numbers > 377 correctly (for example, 400 is treated as 40) and doesn't
- * treat 8 or 9 as recognised characters. Position is updated:
- *     blahblah\%o210asdf
- *     before-^  ^-after
- */
+/// get and return the value of the octal string immediately after the current
+/// position. Return -1 for invalid, or 0-255 for valid. Smart enough to handle
+/// numbers > 377 correctly (for example, 400 is treated as 40) and doesn't
+/// treat 8 or 9 as recognised characters. Position is updated:
+///     blahblah\%o210asdf
+///     before-^  ^-after
 static int getoctchrs(void)
 {
     int nr = 0;
     int c;
     int i;
 
-    for(i = 0; i < 3 && nr < 040; i++)     // -V536
+    for(i = 0; i < 3 && nr < 040; i++)
     {
         c = regparse[0];
 
@@ -4034,10 +4303,8 @@ static int getoctchrs(void)
     return nr;
 }
 
-/*
- * Get a number after a backslash that is inside [].
- * When nothing is recognized return a backslash.
- */
+/// Get a number after a backslash that is inside [].
+/// When nothing is recognized return a backslash.
 static int coll_get_char(void)
 {
     int nr = -1;
@@ -4067,8 +4334,8 @@ static int coll_get_char(void)
 
     if(nr < 0)
     {
-        /* If getting the number fails be backwards compatible: the character
-         * is a backslash. */
+        // If getting the number fails be backwards compatible:
+        // the character is a backslash.
         --regparse;
         nr = '\\';
     }
@@ -4076,21 +4343,19 @@ static int coll_get_char(void)
     return nr;
 }
 
-/*
- * read_limits - Read two integers to be taken as a minimum and maximum.
- * If the first character is '-', then the range is reversed.
- * Should end with 'end'.  If minval is missing, zero is default, if maxval is
- * missing, a very big number is the default.
- */
+/// read_limits - Read two integers to be taken as a minimum and maximum.
+/// If the first character is '-', then the range is reversed.
+/// Should end with 'end'. If minval is missing, zero is default, if maxval
+/// is missing, a very big number is the default.
 static int read_limits(long *minval, long *maxval)
 {
     int reverse = FALSE;
-    uchar_kt      *first_char;
+    uchar_kt *first_char;
     long tmp;
 
     if(*regparse == '-')
     {
-        /* Starts with '-', so reverse the range later */
+        // Starts with '-', so reverse the range later
         regparse++;
         reverse = TRUE;
     }
@@ -4098,7 +4363,7 @@ static int read_limits(long *minval, long *maxval)
     first_char = regparse;
     *minval = getdigits_long(&regparse);
 
-    if(*regparse == ',')              /* There is a comma */
+    if(*regparse == ',') // There is a comma
     {
         if(ascii_isdigit(*++regparse))
         {
@@ -4112,28 +4377,32 @@ static int read_limits(long *minval, long *maxval)
     else if(ascii_isdigit(*first_char))
     {
         *maxval = *minval;
-    }              /* It was \{n} or \{-n} */
+    }
     else
     {
+        //  It was \{n} or \{-n}
         *maxval = MAX_LIMIT;
-    }            /* It was \{} or \{-} */
+    }
+
+    // It was \{} or \{-}
 
     if(*regparse == '\\')
     {
         regparse++;
-    }         /* Allow either \{...} or \{...\} */
+    }
+
+    // Allow either \{...} or \{...\}
 
     if(*regparse != '}')
     {
-        sprintf((char *)IObuff, _("E554: Syntax error in %s{...}"),
+        sprintf((char *)IObuff,
+                _("E554: Syntax error in %s{...}"),
                 reg_magic == MAGIC_ALL ? "" : "\\");
         EMSG_RET_FAIL(IObuff);
     }
 
-    /*
-     * Reverse the range if there was a '-', or make sure it is in the right
-     * order otherwise.
-     */
+    // Reverse the range if there was a '-', or make
+    // sure it is in the right order otherwise.
     if((!reverse && *minval > *maxval) || (reverse && *minval < *maxval))
     {
         tmp = *minval;
@@ -4141,124 +4410,115 @@ static int read_limits(long *minval, long *maxval)
         *maxval = tmp;
     }
 
-    skipchr();            /* let's be friends with the lexer again */
+    skipchr(); // let's be friends with the lexer again
+
     return OK;
 }
 
-/*
- * vim_regexec and friends
- */
+// vim_regexec and friends
+//
+// Global work variables for vim_regexec().
 
-/*
- * Global work variables for vim_regexec().
- */
+// The current match-position is remembered with these variables:
+static linenr_T reglnum;   ///< line number, relative to first line
+static uchar_kt *regline;  ///< start of current line
+static uchar_kt *reginput; ///< current input, points into "regline"
 
-/* The current match-position is remembered with these variables: */
-static linenr_T reglnum;        /* line number, relative to first line */
-static uchar_kt   *regline;       /* start of current line */
-static uchar_kt   *reginput;      /* current input, points into "regline" */
+/// subexpressions still need to be cleared
+static int need_clear_subexpr;
 
-static int need_clear_subexpr;          /* subexpressions still need to be
-                                         * cleared */
-static int need_clear_zsubexpr = FALSE;         /* extmatch subexpressions
-                                                 * still need to be cleared */
+/// extmatch subexpressions still need to be cleared
+static int need_clear_zsubexpr = FALSE;
 
-
-/* Save the sub-expressions before attempting a match. */
+/// Save the sub-expressions before attempting a match.
 #define save_se(savep, posp, pp) \
     REG_MULTI ? save_se_multi((savep), (posp)) : save_se_one((savep), (pp))
 
-/* After a failed match restore the sub-expressions. */
-#define restore_se(savep, posp, pp) { \
-        if (REG_MULTI) \
+/// After a failed match restore the sub-expressions.
+#define restore_se(savep, posp, pp)      \
+    {                                    \
+        if(REG_MULTI)                    \
+        {                                \
             *(posp) = (savep)->se_u.pos; \
-        else \
-            *(pp) = (savep)->se_u.ptr; }
+        }                                \
+        else                             \
+        {                                \
+            *(pp) = (savep)->se_u.ptr;   \
+        }                                \
+    }
 
 
 #ifdef REGEXP_DEBUG
     int regnarrate = 0;
 #endif
 
-/*
- * Internal copy of 'ignorecase'.  It is set at each call to vim_regexec().
- * Normally it gets the value of "rm_ic" or "rmm_ic", but when the pattern
- * contains '\c' or '\C' the value is overruled.
- */
+/// Internal copy of 'ignorecase'. It is set at each call to vim_regexec().
+/// Normally it gets the value of "rm_ic" or "rmm_ic", but when the pattern
+/// contains '\c' or '\C' the value is overruled.
 static int ireg_ic;
 
-/*
- * Similar to ireg_ic, but only for 'combining' characters.  Set with \Z flag
- * in the regexp.  Defaults to false, always.
- */
+/// Similar to ireg_ic, but only for 'combining' characters.
+/// Set with \Z flag in the regexp. Defaults to false, always.
 static int ireg_icombine;
 
-/*
- * Copy of "rmm_maxcol": maximum column to search for a match.  Zero when
- * there is no maximum.
- */
+/// Copy of "rmm_maxcol": maximum column to search for a match.
+/// Zero when there is no maximum.
 static colnr_T ireg_maxcol;
 
-/*
- * Sometimes need to save a copy of a line.  Since alloc()/free() is very
- * slow, we keep one allocated piece of memory and only re-allocate it when
- * it's too small.  It's freed in bt_regexec_both() when finished.
- */
-static uchar_kt   *reg_tofree = NULL;
+// Sometimes need to save a copy of a line. Since alloc()/free() is very
+// slow, we keep one allocated piece of memory and only re-allocate it when
+// it's too small. It's freed in bt_regexec_both() when finished.
+static uchar_kt  *reg_tofree = NULL;
 static unsigned reg_tofreelen;
 
-/*
- * These variables are set when executing a regexp to speed up the execution.
- * Which ones are set depends on whether a single-line or multi-line match is
- * done:
- *          single-line     multi-line
- * reg_match        &regmatch_T     NULL
- * reg_mmatch       NULL            &regmmatch_T
- * reg_startp       reg_match->startp   <invalid>
- * reg_endp     reg_match->endp     <invalid>
- * reg_startpos     <invalid>       reg_mmatch->startpos
- * reg_endpos       <invalid>       reg_mmatch->endpos
- * reg_win      NULL            window in which to search
- * reg_buf      curbuf          buffer in which to search
- * reg_firstlnum    <invalid>       first line in which to search
- * reg_maxline      0           last line nr
- * reg_line_lbr     FALSE or TRUE       FALSE
- */
-static regmatch_T       *reg_match;
-static regmmatch_T      *reg_mmatch;
-static uchar_kt           **reg_startp = NULL;
-static uchar_kt           **reg_endp = NULL;
-static lpos_T           *reg_startpos = NULL;
-static lpos_T           *reg_endpos = NULL;
-static win_T            *reg_win;
-static buf_T            *reg_buf;
+// These variables are set when executing a regexp to speed up the execution.
+// Which ones are set depends on whether a single-line or multi-line match is
+// done:
+//                  single-line         multi-line
+// reg_match        &regmatch_T         NULL
+// reg_mmatch       NULL                &regmmatch_T
+// reg_startp       reg_match->startp   <invalid>
+// reg_endp         reg_match->endp     <invalid>
+// reg_startpos     <invalid>           reg_mmatch->startpos
+// reg_endpos       <invalid>           reg_mmatch->endpos
+// reg_win          NULL                window in which to search
+// reg_buf          curbuf              buffer in which to search
+// reg_firstlnum    <invalid>           first line in which to search
+// reg_maxline      0                   last line nr
+// reg_line_lbr     FALSE or TRUE       FALSE
+
+static regmatch_T *reg_match;
+static regmmatch_T *reg_mmatch;
+static uchar_kt **reg_startp = NULL;
+static uchar_kt **reg_endp = NULL;
+static lpos_T *reg_startpos = NULL;
+static lpos_T *reg_endpos = NULL;
+static win_T *reg_win;
+static buf_T *reg_buf;
 static linenr_T reg_firstlnum;
 static linenr_T reg_maxline;
-static int reg_line_lbr;                    /* "\n" in string is line break */
+static int reg_line_lbr; ///< "\n" in string is line break
 
-/*
- * "regstack" and "backpos" are used by regmatch().  They are kept over calls
- * to avoid invoking malloc() and free() often.
- * "regstack" is a stack with regitem_T items, sometimes preceded by regstar_T
- * or regbehind_T.
- * "backpos_T" is a table with backpos_T for BACK
- */
+// "regstack" and "backpos" are used by regmatch().
+// They are kept over calls to avoid invoking malloc()
+// and free() often. "regstack" is a stack with regitem_T items,
+// sometimes preceded by regstar_T or regbehind_T.
+// "backpos_T" is a table with backpos_T for BACK
 static garray_T regstack = GA_EMPTY_INIT_VALUE;
 static garray_T backpos = GA_EMPTY_INIT_VALUE;
 
-/*
- * Both for regstack and backpos tables we use the following strategy of
- * allocation (to reduce malloc/free calls):
- * - Initial size is fairly small.
- * - When needed, the tables are grown bigger (8 times at first, double after
- *   that).
- * - After executing the match we free the memory only if the array has grown.
- *   Thus the memory is kept allocated when it's at the initial size.
- * This makes it fast while not keeping a lot of memory allocated.
- * A three times speed increase was observed when using many simple patterns.
- */
-#define REGSTACK_INITIAL        2048
-#define BACKPOS_INITIAL         64
+// Both for regstack and backpos tables we use the following strategy of
+// allocation (to reduce malloc/free calls):
+// - Initial size is fairly small.
+// - When needed, the tables are grown bigger
+//   (8 times at first, double after that).
+// - After executing the match we free the memory only if the array has grown.
+//   Thus the memory is kept allocated when it's at the initial size.
+//
+// This makes it fast while not keeping a lot of memory allocated.
+// A three times speed increase was observed when using many simple patterns.
+#define REGSTACK_INITIAL    2048
+#define BACKPOS_INITIAL     64
 
 #if defined(EXITFREE)
 void free_regexp_stuff(void)
@@ -4268,23 +4528,20 @@ void free_regexp_stuff(void)
     xfree(reg_tofree);
     xfree(reg_prev_sub);
 }
-
 #endif
 
-/*
- * Get pointer to the line "lnum", which is relative to "reg_firstlnum".
- */
+/// Get pointer to the line "lnum", which is relative to "reg_firstlnum".
 static uchar_kt *reg_getline(linenr_T lnum)
 {
-    /* when looking behind for a match/no-match lnum is negative.  But we
-     * can't go before line 1 */
+    // when looking behind for a match/no-match
+    // lnum is negative. But we can't go before line 1
     if(reg_firstlnum + lnum < 1)
     {
         return NULL;
     }
 
+    // Must have matched the "\n" in the last line.
     if(lnum > reg_maxline)
-        /* Must have matched the "\n" in the last line. */
     {
         return (uchar_kt *)"";
     }
@@ -4294,30 +4551,29 @@ static uchar_kt *reg_getline(linenr_T lnum)
 
 static regsave_T behind_pos;
 
-static uchar_kt   *reg_startzp[NSUBEXP];  /* Workspace to mark beginning */
-static uchar_kt   *reg_endzp[NSUBEXP];    /*   and end of \z(...\) matches */
-static lpos_T reg_startzpos[NSUBEXP];   /* idem, beginning pos */
-static lpos_T reg_endzpos[NSUBEXP];     /* idem, end pos */
+static uchar_kt *reg_startzp[NSUBEXP];  ///< Workspace to mark beginning
+static uchar_kt *reg_endzp[NSUBEXP];    ///< and end of \z(...\) matches
+static lpos_T reg_startzpos[NSUBEXP];   ///< idem, beginning pos
+static lpos_T reg_endzpos[NSUBEXP];     ///< idem, end pos
 
-/* TRUE if using multi-line regexp. */
-#define REG_MULTI       (reg_match == NULL)
+/// TRUE if using multi-line regexp.
+#define REG_MULTI   (reg_match == NULL)
 
-
-/*
- * Match a regexp against a string.
- * "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
- * Uses curbuf for line count and 'iskeyword'.
- * If "line_lbr" is true, consider a "\n" in "line" to be a line break.
- *
- * Returns 0 for failure, number of lines contained in the match otherwise.
- */
-static int
-bt_regexec_nl(
-    regmatch_T *rmp,
-    uchar_kt *line,      /* string to match against */
-    colnr_T col,       /* column to start looking for match */
-    bool line_lbr
-)
+/// Match a regexp against a string. "rmp->regprog" is a compiled regexp
+/// as returned by vim_regcomp(). Uses curbuf for line count and 'iskeyword'.
+/// If "line_lbr" is true, consider a "\n" in "line" to be a line break.
+///
+/// @param rmp
+/// @param line      string to match against
+/// @param col       column to start looking for match
+/// @param line_lbr
+///
+/// @return
+/// 0 for failure, number of lines contained in the match otherwise.
+static int bt_regexec_nl(regmatch_T *rmp,
+                         uchar_kt *line,
+                         colnr_T col,
+                         bool line_lbr)
 {
     reg_match = rmp;
     reg_mmatch = NULL;
@@ -4328,8 +4584,11 @@ bt_regexec_nl(
     ireg_ic = rmp->rm_ic;
     ireg_icombine = FALSE;
     ireg_maxcol = 0;
+
     long r = bt_regexec_both(line, col, NULL);
+
     assert(r <= INT_MAX);
+
     return (int)r;
 }
 
@@ -4338,16 +4597,21 @@ bt_regexec_nl(
 /// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
 /// Uses curbuf for line count and 'iskeyword'.
 ///
-/// @param win Window in which to search or NULL
-/// @param buf Buffer in which to search
-/// @param lnum Number of line to start looking for match
-/// @param col Column to start looking for match
-/// @param tm Timeout limit or NULL
+/// @param win    Window in which to search or NULL
+/// @param buf    Buffer in which to search
+/// @param lnum   Number of line to start looking for match
+/// @param col    Column to start looking for match
+/// @param tm     Timeout limit or NULL
 ///
-/// @return zero if there is no match and number of lines contained in the match
-///         otherwise.
-static long bt_regexec_multi(regmmatch_T *rmp, win_T *win, buf_T *buf,
-                             linenr_T lnum, colnr_T col, proftime_T *tm)
+/// @return
+/// zero if there is no match and number of lines
+/// contained in the match otherwise.
+static long bt_regexec_multi(regmmatch_T *rmp,
+                             win_T *win,
+                             buf_T *buf,
+                             linenr_T lnum,
+                             colnr_T col,
+                             proftime_T *tm)
 {
     reg_match = NULL;
     reg_mmatch = rmp;
@@ -4359,31 +4623,33 @@ static long bt_regexec_multi(regmmatch_T *rmp, win_T *win, buf_T *buf,
     ireg_ic = rmp->rmm_ic;
     ireg_icombine = FALSE;
     ireg_maxcol = rmp->rmm_maxcol;
+
     return bt_regexec_both(NULL, col, tm);
 }
 
-/*
- * Match a regexp against a string ("line" points to the string) or multiple
- * lines ("line" is NULL, use reg_getline()).
- * Returns 0 for failure, number of lines contained in the match otherwise.
- */
-static long bt_regexec_both(uchar_kt *line,
-                            colnr_T col, /* column to start looking for match */
-                            proftime_T *tm /* timeout limit or NULL */
-                           )
+/// Match a regexp against a string ("line" points to the string)
+/// or multiple lines ("line" is NULL, use reg_getline()).
+///
+/// @param line
+/// @param col   column to start looking for match
+/// @param tm    timeout limit or NULL
+///
+/// @return
+/// 0 for failure, number of lines contained in the match otherwise.
+static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_T *tm)
 {
-    bt_regprog_T        *prog;
-    uchar_kt      *s;
+    uchar_kt *s;
     long retval = 0L;
+    bt_regprog_T *prog;
 
-    /* Create "regstack" and "backpos" if they are not allocated yet.
-     * We allocate *_INITIAL amount of bytes first and then set the grow size
-     * to much bigger value to avoid many malloc calls in case of deep regular
-     * expressions.  */
+    // Create "regstack" and "backpos" if they are not allocated yet.
+    // We allocate *_INITIAL amount of bytes first and then set the grow size
+    // to much bigger value to avoid many malloc calls in case of deep regular
+    // expressions.
     if(regstack.ga_data == NULL)
     {
-        /* Use an item size of 1 byte, since we push different things
-         * onto the regstack. */
+        // Use an item size of 1 byte, since we push
+        // different things onto the regstack.
         ga_init(&regstack, 1, REGSTACK_INITIAL);
         ga_grow(&regstack, REGSTACK_INITIAL);
         ga_set_growsize(&regstack, REGSTACK_INITIAL * 8);
@@ -4410,26 +4676,26 @@ static long bt_regexec_both(uchar_kt *line,
         reg_endp = reg_match->endp;
     }
 
-    /* Be paranoid... */
+    // Be paranoid...
     if(prog == NULL || line == NULL)
     {
         EMSG(_(e_null));
         goto theend;
     }
 
-    /* Check validity of program. */
+    // Check validity of program.
     if(prog_magic_wrong())
     {
         goto theend;
     }
 
-    /* If the start column is past the maximum column: no need to try. */
+    // If the start column is past the maximum column: no need to try.
     if(ireg_maxcol > 0 && col >= ireg_maxcol)
     {
         goto theend;
     }
 
-    /* If pattern contains "\c" or "\C": overrule value of ireg_ic */
+    // If pattern contains "\c" or "\C": overrule value of ireg_ic
     if(prog->regflags & RF_ICASE)
     {
         ireg_ic = TRUE;
@@ -4439,13 +4705,13 @@ static long bt_regexec_both(uchar_kt *line,
         ireg_ic = FALSE;
     }
 
-    /* If pattern contains "\Z" overrule value of ireg_icombine */
+    // If pattern contains "\Z" overrule value of ireg_icombine
     if(prog->regflags & RF_ICOMBINE)
     {
         ireg_icombine = TRUE;
     }
 
-    /* If there is a "must appear" string, look for it. */
+    // If there is a "must appear" string, look for it.
     if(prog->regmust != NULL)
     {
         int c;
@@ -4461,15 +4727,15 @@ static long bt_regexec_both(uchar_kt *line,
 
         s = line + col;
 
-        // This is used very often, esp. for ":global".  Use two versions of
-        // the loop to avoid overhead of conditions.
+        // This is used very often, esp. for ":global".
+        // Use two versions of the loop to avoid overhead of conditions.
         if(!ireg_ic)
         {
             while((s = vim_strchr(s, c)) != NULL)
             {
                 if(cstrncmp(s, prog->regmust, &prog->regmlen) == 0)
                 {
-                    break;  // Found it.
+                    break; // Found it.
                 }
 
                 mb_ptr_adv(s);
@@ -4481,14 +4747,14 @@ static long bt_regexec_both(uchar_kt *line,
             {
                 if(cstrncmp(s, prog->regmust, &prog->regmlen) == 0)
                 {
-                    break;  // Found it.
+                    break; // Found it.
                 }
 
                 mb_ptr_adv(s);
             }
         }
 
-        if(s == NULL)     // Not present.
+        if(s == NULL) // Not present.
         {
             goto theend;
         }
@@ -4498,7 +4764,7 @@ static long bt_regexec_both(uchar_kt *line,
     reglnum = 0;
     reg_toolong = FALSE;
 
-    /* Simplest case: Anchored match need be tried only once. */
+    // Simplest case: Anchored match need be tried only once.
     if(prog->reganch)
     {
         int c;
@@ -4515,8 +4781,9 @@ static long bt_regexec_both(uchar_kt *line,
         if(prog->regstart == NUL
            || prog->regstart == c
            || (ireg_ic
-               && (((enc_utf8 && utf_fold(prog->regstart) == utf_fold(c)))
-                   || (c < 255 && prog->regstart < 255
+               && ((enc_utf8 && utf_fold(prog->regstart) == utf_fold(c))
+                   || (c < 255
+                       && prog->regstart < 255
                        && mb_tolower(prog->regstart) == mb_tolower(c)))))
         {
             retval = regtry(prog, col);
@@ -4530,7 +4797,7 @@ static long bt_regexec_both(uchar_kt *line,
     {
         int tm_count = 0;
 
-        /* Messy cases:  unanchored match. */
+        // Messy cases: unanchored match.
         while(!got_int)
         {
             if(prog->regstart != NUL)
@@ -4547,7 +4814,7 @@ static long bt_regexec_both(uchar_kt *line,
                 col = (int)(s - regline);
             }
 
-            /* Check for maximum column to try. */
+            // Check for maximum column to try.
             if(ireg_maxcol > 0 && col >= ireg_maxcol)
             {
                 retval = 0;
@@ -4561,7 +4828,7 @@ static long bt_regexec_both(uchar_kt *line,
                 break;
             }
 
-            /* if not currently on the first line, get it again */
+            // if not currently on the first line, get it again
             if(reglnum != 0)
             {
                 reglnum = 0;
@@ -4582,7 +4849,8 @@ static long bt_regexec_both(uchar_kt *line,
                 ++col;
             }
 
-            /* Check for timeout once in a twenty times to avoid overhead. */
+            // Check for timeout once in a
+            // twenty times to avoid overhead.
             if(tm != NULL && ++tm_count == 20)
             {
                 tm_count = 0;
@@ -4597,8 +4865,9 @@ static long bt_regexec_both(uchar_kt *line,
 
 theend:
 
-    /* Free "reg_tofree" when it's a bit big.
-     * Free regstack and backpos if they are bigger than their initial size. */
+    // Free "reg_tofree" when it's a bit big.
+    // Free regstack and backpos if they are
+    // bigger than their initial size.
     if(reg_tofreelen > 400)
     {
         xfree(reg_tofree);
@@ -4618,10 +4887,7 @@ theend:
     return retval;
 }
 
-
-/*
- * Create a new extmatch and mark it as referenced once.
- */
+/// Create a new extmatch and mark it as referenced once.
 static reg_extmatch_T *make_extmatch(void)
 {
     reg_extmatch_T *em = xcalloc(1, sizeof(reg_extmatch_T));
@@ -4629,9 +4895,7 @@ static reg_extmatch_T *make_extmatch(void)
     return em;
 }
 
-/*
- * Add a reference to an extmatch.
- */
+/// Add a reference to an extmatch.
 reg_extmatch_T *ref_extmatch(reg_extmatch_T *em)
 {
     if(em != NULL)
@@ -4642,10 +4906,8 @@ reg_extmatch_T *ref_extmatch(reg_extmatch_T *em)
     return em;
 }
 
-/*
- * Remove a reference to an extmatch.  If there are no references left, free
- * the info.
- */
+/// Remove a reference to an extmatch.
+/// If there are no references left, free the info.
 void unref_extmatch(reg_extmatch_T *em)
 {
     int i;
@@ -4661,16 +4923,14 @@ void unref_extmatch(reg_extmatch_T *em)
     }
 }
 
-/*
- * regtry - try match of "prog" with at regline["col"].
- * Returns 0 for failure, number of lines contained in the match otherwise.
- */
+/// try match of "prog" with at regline["col"].
+/// Returns 0 for failure, number of lines contained in the match otherwise.
 static long regtry(bt_regprog_T *prog, colnr_T col)
 {
     reginput = regline + col;
     need_clear_subexpr = TRUE;
 
-    /* Clear the external match subpointers if necessary. */
+    // Clear the external match subpointers if necessary.
     if(prog->reghasz == REX_SET)
     {
         need_clear_zsubexpr = TRUE;
@@ -4697,8 +4957,8 @@ static long regtry(bt_regprog_T *prog, colnr_T col)
             reg_endpos[0].col = (int)(reginput - regline);
         }
         else
-            /* Use line number of "\ze". */
         {
+            // Use line number of "\ze".
             reglnum = reg_endpos[0].lnum;
         }
     }
@@ -4715,7 +4975,8 @@ static long regtry(bt_regprog_T *prog, colnr_T col)
         }
     }
 
-    /* Package any found \z(...\) matches for export. Default is none. */
+    // Package any found \z(...\) matches
+    // for export. Default is none.
     unref_extmatch(re_extmatch_out);
     re_extmatch_out = NULL;
 
@@ -4729,7 +4990,7 @@ static long regtry(bt_regprog_T *prog, colnr_T col)
         {
             if(REG_MULTI)
             {
-                /* Only accept single line matches. */
+                // Only accept single line matches.
                 if(reg_startzpos[i].lnum >= 0
                    && reg_endzpos[i].lnum == reg_startzpos[i].lnum
                    && reg_endzpos[i].col >= reg_startzpos[i].col)
@@ -4737,16 +4998,17 @@ static long regtry(bt_regprog_T *prog, colnr_T col)
                     re_extmatch_out->matches[i] =
                         vim_strnsave(reg_getline(reg_startzpos[i].lnum)
                                      + reg_startzpos[i].col,
-                                     reg_endzpos[i].col
-                                     - reg_startzpos[i].col);
+                                     reg_endzpos[i].col - reg_startzpos[i].col);
                 }
             }
             else
             {
                 if(reg_startzp[i] != NULL && reg_endzp[i] != NULL)
+                {
                     re_extmatch_out->matches[i] =
                         vim_strnsave(reg_startzp[i],
                                      (int)(reg_endzp[i] - reg_startzp[i]));
+                }
             }
         }
     }
@@ -4755,36 +5017,36 @@ static long regtry(bt_regprog_T *prog, colnr_T col)
 }
 
 
-/*
- * Get class of previous character.
- */
+/// Get class of previous character.
 static int reg_prev_class(void)
 {
     if(reginput > regline)
     {
-        return mb_get_class_tab(reginput - 1 - (*mb_head_off)(regline,
-                                                              reginput - 1),
+        return mb_get_class_tab(reginput
+                                - 1
+                                - (*mb_head_off)(regline, reginput - 1),
                                 reg_buf->b_chartab);
     }
 
     return -1;
 }
 
-
-/*
- * Return TRUE if the current reginput position matches the Visual area.
- */
+/// @return
+/// TRUE if the current reginput position matches the Visual area.
 static int reg_match_visual(void)
 {
-    pos_T top, bot;
+    pos_T top;
+    pos_T bot;
     linenr_T lnum;
     colnr_T col;
-    win_T       *wp = reg_win == NULL ? curwin : reg_win;
+    win_T *wp = reg_win == NULL ? curwin : reg_win;
     int mode;
-    colnr_T start, end;
-    colnr_T start2, end2;
+    colnr_T start;
+    colnr_T end;
+    colnr_T start2;
+    colnr_T end2;
 
-    /* Check if the buffer is the current buffer. */
+    // Check if the buffer is the current buffer.
     if(reg_buf != curbuf || VIsual.lnum == 0)
     {
         return FALSE;
@@ -4858,9 +5120,11 @@ static int reg_match_visual(void)
             end = MAXCOL;
         }
 
-        unsigned int cols_u = win_linetabsize(wp, regline,
-                                              (colnr_T)(reginput - regline));
+        unsigned int cols_u =
+            win_linetabsize(wp, regline, (colnr_T)(reginput - regline));
+
         assert(cols_u <= MAXCOL);
+
         colnr_T cols = (colnr_T)cols_u;
 
         if(cols < start || cols > end - (*p_sel == 'e'))
@@ -4874,72 +5138,66 @@ static int reg_match_visual(void)
 
 #define ADVANCE_REGINPUT() mb_ptr_adv(reginput)
 
-/*
- * The arguments from BRACE_LIMITS are stored here.  They are actually local
- * to regmatch(), but they are here to reduce the amount of stack space used
- * (it can be called recursively many times).
- */
+// The arguments from BRACE_LIMITS are stored here.
+// They are actually local to regmatch(), but they are
+// here to reduce the amount of stack space used (it can
+// be called recursively many times).
 static long bl_minval;
 static long bl_maxval;
 
-/*
- * regmatch - main matching routine
- *
- * Conceptually the strategy is simple: Check to see whether the current node
- * matches, push an item onto the regstack and loop to see whether the rest
- * matches, and then act accordingly.  In practice we make some effort to
- * avoid using the regstack, in particular by going through "ordinary" nodes
- * (that don't need to know whether the rest of the match failed) by a nested
- * loop.
- *
- * Returns TRUE when there is a match.  Leaves reginput and reglnum just after
- * the last matched character.
- * Returns FALSE when there is no match.  Leaves reginput and reglnum in an
- * undefined state!
- */
-static int
-regmatch(
-    uchar_kt *scan              /* Current node. */
-)
+/// main matching routine
+///
+/// Conceptually the strategy is simple:
+/// Check to see whether the current node matches, push an item onto the
+/// regstack and loop to see whether the rest matches, and then act
+/// accordingly. In practice we make some effort to avoid using the regstack,
+/// in particular by going through "ordinary" nodes (that don't need to know
+/// whether the rest of the match failed) by a nested loop.
+///
+/// @param scan   Current node.
+///
+/// @return
+/// - TRUE when there is a match. Leaves reginput and reglnum
+///   just after the last matched character.
+/// - FALSE when there is no match. Leaves reginput and reglnum
+///   in an undefined state!
+static int regmatch(uchar_kt *scan)
 {
-    uchar_kt        *next;          /* Next node. */
+    uchar_kt *next; // Next node.
     int op;
     int c;
-    regitem_T     *rp;
+    regitem_T *rp;
     int no;
-    int status;                   /* one of the RA_ values: */
-#define RA_FAIL         1       /* something failed, abort */
-#define RA_CONT         2       /* continue in inner loop */
-#define RA_BREAK        3       /* break inner loop */
-#define RA_MATCH        4       /* successful match */
-#define RA_NOMATCH      5       /* didn't match */
-    /* Make "regstack" and "backpos" empty.  They are allocated and freed in
-     * bt_regexec_both() to reduce malloc()/free() calls. */
+
+    #define RA_FAIL      1   // something failed, abort
+    #define RA_CONT      2   // continue in inner loop
+    #define RA_BREAK     3   // break inner loop
+    #define RA_MATCH     4   // successful match
+    #define RA_NOMATCH   5   // didn't match
+    int status;              // one of the RA_ values:
+
+    // Make "regstack" and "backpos" empty. They are allocated
+    // and freed in bt_regexec_both() to reduce malloc()/free() calls.
     regstack.ga_len = 0;
     backpos.ga_len = 0;
 
-    /*
-     * Repeat until "regstack" is empty.
-     */
+    // Repeat until "regstack" is empty.
     for(;;)
     {
-        /* Some patterns may take a long time to match, e.g., "\([a-z]\+\)\+Q".
-         * Allow interrupting them with CTRL-C. */
+        // Some patterns may take a long time to match,
+        // e.g., "\([a-z]\+\)\+Q". Allow interrupting them with CTRL-C.
         fast_breakcheck();
-#ifdef REGEXP_DEBUG
 
+    #ifdef REGEXP_DEBUG
         if(scan != NULL && regnarrate)
         {
             mch_errmsg((char *)regprop(scan));
             mch_errmsg("(\n");
         }
+    #endif
 
-#endif
-
-        /*
-         * Repeat for items that can be matched sequentially, without using the
-         * regstack.
-         */
+        // Repeat for items that can be matched
+        // sequentially, without using the regstack.
         for(;;)
         {
             if(got_int || scan == NULL)
@@ -4949,8 +5207,8 @@ regmatch(
             }
 
             status = RA_CONT;
-#ifdef REGEXP_DEBUG
 
+        #ifdef REGEXP_DEBUG
             if(regnarrate)
             {
                 mch_errmsg((char *)regprop(scan));
@@ -4974,18 +5232,23 @@ regmatch(
                     }
                 }
             }
+        #endif
 
-#endif
             next = regnext(scan);
             op = OP(scan);
 
-            /* Check for character class with NL added. */
-            if(!reg_line_lbr && WITH_NL(op) && REG_MULTI
-               && *reginput == NUL && reglnum <= reg_maxline)
+            // Check for character class with NL added.
+            if(!reg_line_lbr
+               && WITH_NL(op)
+               && REG_MULTI
+               && *reginput == NUL
+               && reglnum <= reg_maxline)
             {
                 reg_nextline();
             }
-            else if(reg_line_lbr && WITH_NL(op) && *reginput == '\n')
+            else if(reg_line_lbr
+                    && WITH_NL(op)
+                    && *reginput == '\n')
             {
                 ADVANCE_REGINPUT();
             }
@@ -5025,10 +5288,12 @@ regmatch(
 
                     case RE_BOF:
 
-                        /* We're not at the beginning of the file when below the first
-                         * line where we started, not at the start of the line or we
-                         * didn't start at the first line of the buffer. */
-                        if(reglnum != 0 || reginput != regline
+                        // We're not at the beginning of the file
+                        // when below the first line where we started,
+                        // not at the start of the line or we didn't
+                        // start at the first line of the buffer.
+                        if(reglnum != 0
+                           || reginput != regline
                            || (REG_MULTI && reg_firstlnum > 1))
                         {
                             status = RA_NOMATCH;
@@ -5046,27 +5311,29 @@ regmatch(
 
                     case CURSOR:
 
-                        /* Check if the buffer is in a window and compare the
-                         * reg_win->w_cursor position to the match position. */
+                        // Check if the buffer is in a window and compare the
+                        // reg_win->w_cursor position to the match position.
                         if(reg_win == NULL
-                           || (reglnum + reg_firstlnum != reg_win->w_cursor.lnum)
-                           || ((colnr_T)(reginput - regline) != reg_win->w_cursor.col))
+                           || (reglnum + reg_firstlnum
+                               != reg_win->w_cursor.lnum)
+                           || ((colnr_T)(reginput - regline)
+                               != reg_win->w_cursor.col))
                         {
                             status = RA_NOMATCH;
                         }
 
                         break;
 
+                    // Compare the mark position to the match position.
                     case RE_MARK:
-                        /* Compare the mark position to the match position. */
                     {
                         int mark = OPERAND(scan)[0];
                         int cmp = OPERAND(scan)[1];
-                        pos_T   *pos;
+                        pos_T *pos;
                         pos = getmark_buf(reg_buf, mark, FALSE);
 
-                        if(pos == NULL                     /* mark doesn't exist */
-                           || pos->lnum <= 0              /* mark isn't set in reg_buf */
+                        if(pos == NULL       // mark doesn't exist
+                           || pos->lnum <= 0 // mark isn't set in reg_buf
                            || (pos->lnum == reglnum + reg_firstlnum
                                ? (pos->col == (colnr_T)(reginput - regline)
                                   ? (cmp == '<' || cmp == '>')
@@ -5092,9 +5359,11 @@ regmatch(
 
                     case RE_LNUM:
                         assert(reglnum + reg_firstlnum >= 0
-                               && (uintmax_t)(reglnum + reg_firstlnum) <= UINT32_MAX);
+                               && (uintmax_t)(reglnum + reg_firstlnum)
+                                  <= UINT32_MAX);
 
-                        if(!REG_MULTI || !re_num_cmp((uint32_t)(reglnum + reg_firstlnum),
+                        if(!REG_MULTI
+                           || !re_num_cmp((uint32_t)(reglnum + reg_firstlnum),
                                                      scan))
                         {
                             status = RA_NOMATCH;
@@ -5104,7 +5373,8 @@ regmatch(
 
                     case RE_COL:
                         assert(reginput - regline + 1 >= 0
-                               && (uintmax_t)(reginput - regline + 1) <= UINT32_MAX);
+                               && (uintmax_t)(reginput - regline + 1)
+                                  <= UINT32_MAX);
 
                         if(!re_num_cmp((uint32_t)(reginput - regline + 1), scan))
                         {
@@ -5114,9 +5384,11 @@ regmatch(
                         break;
 
                     case RE_VCOL:
-                        if(!re_num_cmp(win_linetabsize(reg_win == NULL ? curwin : reg_win,
+                        if(!re_num_cmp(win_linetabsize(reg_win == NULL
+                                                       ? curwin : reg_win,
                                                        regline,
-                                                       (colnr_T)(reginput - regline)) + 1,
+                                                       (colnr_T)(reginput
+                                                                 - regline)) + 1,
                                        scan))
                         {
                             status = RA_NOMATCH;
@@ -5124,31 +5396,37 @@ regmatch(
 
                         break;
 
-                    case BOW:       /* \<word; reginput points to w */
-                        if(c == NUL)          /* Can't match at end of line */
+                    case BOW: // \<word; reginput points to w
+                        if(c == NUL)
                         {
+                            // Can't match at end of line
                             status = RA_NOMATCH;
                         }
                         else if(has_mbyte)
                         {
                             int this_class;
-                            // Get class of current and previous char (if it exists).
-                            this_class = mb_get_class_tab(reginput, reg_buf->b_chartab);
+
+                            // Get class of current and
+                            // previous char (if it exists).
+                            this_class =
+                                mb_get_class_tab(reginput, reg_buf->b_chartab);
 
                             if(this_class <= 1)
                             {
-                                status = RA_NOMATCH;  // Not on a word at all.
+                                // Not on a word at all.
+                                status = RA_NOMATCH;
                             }
                             else if(reg_prev_class() == this_class)
                             {
-                                status = RA_NOMATCH;  // Previous char is in same word.
+                                // Previous char is in same word.
+                                status = RA_NOMATCH;
                             }
                         }
                         else
                         {
-                            if(!vim_iswordc_buf(c, reg_buf) || (reginput > regline
-                                                                && vim_iswordc_buf(reginput[-1
-                                                                                           ], reg_buf)))
+                            if(!vim_iswordc_buf(c, reg_buf)
+                               || (reginput > regline
+                                   && vim_iswordc_buf(reginput[-1], reg_buf)))
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5156,20 +5434,26 @@ regmatch(
 
                         break;
 
-                    case EOW:       /* word\>; reginput points after d */
-                        if(reginput == regline)       /* Can't match at start of line */
+                    case EOW: // word\>; reginput points after d
+                        if(reginput == regline)
                         {
+                            // Can't match at start of line
                             status = RA_NOMATCH;
                         }
                         else if(has_mbyte)
                         {
                             int this_class, prev_class;
-                            // Get class of current and previous char (if it exists).
-                            this_class = mb_get_class_tab(reginput, reg_buf->b_chartab);
+
+                            // Get class of current and
+                            // previous char (if it exists).
+                            this_class =
+                                mb_get_class_tab(reginput, reg_buf->b_chartab);
+
                             prev_class = reg_prev_class();
 
                             if(this_class == prev_class
-                               || prev_class == 0 || prev_class == 1)
+                               || prev_class == 0
+                               || prev_class == 1)
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5177,17 +5461,18 @@ regmatch(
                         else
                         {
                             if(!vim_iswordc_buf(reginput[-1], reg_buf)
-                               || (reginput[0] != NUL && vim_iswordc_buf(c, reg_buf)))
+                               || (reginput[0] != NUL
+                                   && vim_iswordc_buf(c, reg_buf)))
                             {
                                 status = RA_NOMATCH;
                             }
                         }
 
-                        break;   /* Matched with EOW */
+                        break; // Matched with EOW
 
                     case ANY:
 
-                        /* ANY does not match new lines. */
+                        // ANY does not match new lines.
                         if(c == NUL)
                         {
                             status = RA_NOMATCH;
@@ -5236,7 +5521,8 @@ regmatch(
                         break;
 
                     case SKWORD:
-                        if(ascii_isdigit(*reginput) || !vim_iswordp_buf(reginput, reg_buf))
+                        if(ascii_isdigit(*reginput)
+                           || !vim_iswordp_buf(reginput, reg_buf))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5284,7 +5570,8 @@ regmatch(
                         break;
 
                     case SPRINT:
-                        if(ascii_isdigit(*reginput) || !vim_isprintc(PTR2CHAR(reginput)))
+                        if(ascii_isdigit(*reginput)
+                           || !vim_isprintc(PTR2CHAR(reginput)))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5521,20 +5808,21 @@ regmatch(
                         if(*opnd != *reginput
                            && (!ireg_ic
                                || (!enc_utf8
-                                   && mb_tolower(*opnd) != mb_tolower(*reginput))))
+                                   && mb_tolower(*opnd)
+                                      != mb_tolower(*reginput))))
                         {
                             status = RA_NOMATCH;
                         }
                         else if(*opnd == NUL)
                         {
-                            // match empty string always works; happens when "~" is
-                            // empty.
+                            // match empty string always works;
+                            // happens when "~" is empty.
                         }
                         else
                         {
                             if(opnd[1] == NUL && !(enc_utf8 && ireg_ic))
                             {
-                                len = 1; /* matched a single byte above */
+                                len = 1; // matched a single byte above
                             }
                             else
                             {
@@ -5547,16 +5835,17 @@ regmatch(
                                 }
                             }
 
-                            // Check for following composing character, unless %C
-                            // follows (skips over all composing chars).
+                            // Check for following composing character, unless
+                            // %C follows (skips over all composing chars).
                             if(status != RA_NOMATCH && enc_utf8
                                && UTF_COMPOSINGLIKE(reginput, reginput + len)
                                && !ireg_icombine
                                && OP(next) != RE_COMPOSING)
                             {
-                                // raaron: This code makes a composing character get
-                                // ignored, which is the correct behavior (sometimes)
-                                // for voweled Hebrew texts.
+                                // raaron:
+                                // This code makes a composing character get
+                                // ignored, which is the correct behavior
+                                // (sometimes) for voweled Hebrew texts.
                                 status = RA_NOMATCH;
                             }
 
@@ -5574,7 +5863,8 @@ regmatch(
                         {
                             status = RA_NOMATCH;
                         }
-                        else if((cstrchr(OPERAND(scan), c) == NULL) == (op == ANYOF))
+                        else if((cstrchr(OPERAND(scan), c) == NULL)
+                                == (op == ANYOF))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5593,8 +5883,8 @@ regmatch(
                             int opndc = 0, inpc;
                             opnd = OPERAND(scan);
 
-                            /* Safety check (just in case 'encoding' was changed since
-                             * compiling the program). */
+                            // Safety check (just in case 'encoding'
+                            // was changed since compiling the program).
                             if((len = (*mb_ptr2len)(opnd)) < 2)
                             {
                                 status = RA_NOMATCH;
@@ -5608,11 +5898,14 @@ regmatch(
 
                             if(enc_utf8 && utf_iscomposing(opndc))
                             {
-                                /* When only a composing char is given match at any
-                                 * position where that composing char appears. */
+                                // When only a composing char is given
+                                // match at any position where that composing
+                                //  char appears.
                                 status = RA_NOMATCH;
 
-                                for(i = 0; reginput[i] != NUL; i += utf_ptr2len(reginput + i))
+                                for(i = 0;
+                                    reginput[i] != NUL;
+                                    i += utf_ptr2len(reginput + i))
                                 {
                                     inpc = mb_ptr2char(reginput + i);
 
@@ -5625,7 +5918,7 @@ regmatch(
                                     }
                                     else if(opndc == inpc)
                                     {
-                                        /* Include all following composing chars. */
+                                        // Include all following composing chars.
                                         len = i + mb_ptr2len(reginput + i);
                                         status = RA_MATCH;
                                         break;
@@ -5634,11 +5927,13 @@ regmatch(
                             }
                             else
                                 for(i = 0; i < len; ++i)
+                                {
                                     if(opnd[i] != reginput[i])
                                     {
                                         status = RA_NOMATCH;
                                         break;
                                     }
+                                }
 
                             reginput += len;
                         }
@@ -5667,30 +5962,33 @@ regmatch(
                     case BACK:
                     {
                         int i;
-                        /*
-                         * When we run into BACK we need to check if we don't keep
-                         * looping without matching any input.  The second and later
-                         * times a BACK is encountered it fails if the input is still
-                         * at the same position as the previous time.
-                         * The positions are stored in "backpos" and found by the
-                         * current value of "scan", the position in the RE program.
-                         */
+
+                        // When we run into BACK we need to check if
+                        // we don't keep looping without matching any input.
+                        // The second and later times a BACK is encountered
+                        // it fails if the input is still at the same position
+                        // as the previous time. The positions are stored in
+                        // "backpos" and found by the current value of "scan",
+                        // the position in the RE program.
                         backpos_T *bp = (backpos_T *)backpos.ga_data;
 
                         for(i = 0; i < backpos.ga_len; ++i)
+                        {
                             if(bp[i].bp_scan == scan)
                             {
                                 break;
                             }
+                        }
 
                         if(i == backpos.ga_len)
                         {
-                            backpos_T *p = GA_APPEND_VIA_PTR(backpos_T, &backpos);
+                            backpos_T *p =
+                                GA_APPEND_VIA_PTR(backpos_T, &backpos);
                             p->bp_scan = scan;
                         }
                         else if(reg_save_equal(&bp[i].bp_pos))
-                            /* Still at same position as last time, fail. */
                         {
+                            // Still at same position as last time, fail.
                             status = RA_NOMATCH;
                         }
 
@@ -5701,8 +5999,8 @@ regmatch(
                     }
                     break;
 
-                    case MOPEN + 0:     /* Match start: \zs */
-                    case MOPEN + 1:     /* \( */
+                    case MOPEN + 0: // Match start: \zs
+                    case MOPEN + 1: // \(
                     case MOPEN + 2:
                     case MOPEN + 3:
                     case MOPEN + 4:
@@ -5723,21 +6021,24 @@ regmatch(
                         else
                         {
                             rp->rs_no = no;
-                            save_se(&rp->rs_un.sesave, &reg_startpos[no],
+                            save_se(&rp->rs_un.sesave,
+                                    &reg_startpos[no],
                                     &reg_startp[no]);
-                            /* We simply continue and handle the result when done. */
+                            // We simply continue and
+                            // handle the result when done.
                         }
                     }
                     break;
 
-                    case NOPEN:         /* \%( */
-                    case NCLOSE:        /* \) after \%( */
+                    case NOPEN:   // \%(
+                    case NCLOSE:  // \) after \%(
                         if(regstack_push(RS_NOPEN, scan) == NULL)
                         {
                             status = RA_FAIL;
                         }
 
-                        /* We simply continue and handle the result when done. */
+                        // We simply continue and
+                        // handle the result when done.
                         break;
 
                     case ZOPEN + 1:
@@ -5761,15 +6062,17 @@ regmatch(
                         else
                         {
                             rp->rs_no = no;
-                            save_se(&rp->rs_un.sesave, &reg_startzpos[no],
+                            save_se(&rp->rs_un.sesave,
+                                    &reg_startzpos[no],
                                     &reg_startzp[no]);
-                            /* We simply continue and handle the result when done. */
+                            // We simply continue and
+                            // handle the result when done.
                         }
                     }
                     break;
 
-                    case MCLOSE + 0:    /* Match end: \ze */
-                    case MCLOSE + 1:    /* \) */
+                    case MCLOSE + 0: // Match end: \ze
+                    case MCLOSE + 1: // \)
                     case MCLOSE + 2:
                     case MCLOSE + 3:
                     case MCLOSE + 4:
@@ -5790,13 +6093,16 @@ regmatch(
                         else
                         {
                             rp->rs_no = no;
-                            save_se(&rp->rs_un.sesave, &reg_endpos[no], &reg_endp[no]);
-                            /* We simply continue and handle the result when done. */
+                            save_se(&rp->rs_un.sesave,
+                                    &reg_endpos[no],
+                                    &reg_endp[no]);
+                            // We simply continue and
+                            // handle the result when done.
                         }
                     }
                     break;
 
-                    case ZCLOSE + 1:    /* \) after \z( */
+                    case ZCLOSE + 1: // \) after \z(
                     case ZCLOSE + 2:
                     case ZCLOSE + 3:
                     case ZCLOSE + 4:
@@ -5817,9 +6123,11 @@ regmatch(
                         else
                         {
                             rp->rs_no = no;
-                            save_se(&rp->rs_un.sesave, &reg_endzpos[no],
+                            save_se(&rp->rs_un.sesave,
+                                    &reg_endzpos[no],
                                     &reg_endzp[no]);
-                            /* We simply continue and handle the result when done. */
+                            // We simply continue and
+                            // handle the result when done.
                         }
                     }
                     break;
@@ -5838,17 +6146,18 @@ regmatch(
                         no = op - BACKREF;
                         cleanup_subexpr();
 
-                        if(!REG_MULTI)                /* Single-line regexp */
+                        if(!REG_MULTI) // Single-line regexp
                         {
                             if(reg_startp[no] == NULL || reg_endp[no] == NULL)
                             {
-                                /* Backref was not set: Match an empty string. */
+                                // Backref was not set:
+                                // Match an empty string.
                                 len = 0;
                             }
                             else
                             {
-                                /* Compare current input with back-ref in the same
-                                 * line. */
+                                // Compare current input with
+                                // back-ref in the same line.
                                 len = (int)(reg_endp[no] - reg_startp[no]);
 
                                 if(cstrncmp(reg_startp[no], reginput, &len) != 0)
@@ -5857,11 +6166,13 @@ regmatch(
                                 }
                             }
                         }
-                        else                                /* Multi-line regexp */
+                        else // Multi-line regexp
                         {
-                            if(reg_startpos[no].lnum < 0 || reg_endpos[no].lnum < 0)
+                            if(reg_startpos[no].lnum < 0
+                               || reg_endpos[no].lnum < 0)
                             {
-                                /* Backref was not set: Match an empty string. */
+                                // Backref was not set:
+                                // Match an empty string.
                                 len = 0;
                             }
                             else
@@ -5869,25 +6180,26 @@ regmatch(
                                 if(reg_startpos[no].lnum == reglnum
                                    && reg_endpos[no].lnum == reglnum)
                                 {
-                                    /* Compare back-ref within the current line. */
-                                    len = reg_endpos[no].col - reg_startpos[no].col;
+                                    // Compare back-ref within the current line.
+                                    len = reg_endpos[no].col
+                                          - reg_startpos[no].col;
 
                                     if(cstrncmp(regline + reg_startpos[no].col,
-                                                reginput, &len) != 0)
+                                                reginput,
+                                                &len) != 0)
                                     {
                                         status = RA_NOMATCH;
                                     }
                                 }
                                 else
                                 {
-                                    /* Messy situation: Need to compare between two
-                                     * lines. */
-                                    int r = match_with_backref(
-                                                reg_startpos[no].lnum,
-                                                reg_startpos[no].col,
-                                                reg_endpos[no].lnum,
-                                                reg_endpos[no].col,
-                                                &len);
+                                    // Messy situation:
+                                    // Need to compare between two lines.
+                                    int r = match_with_backref(reg_startpos[no].lnum,
+                                                               reg_startpos[no].col,
+                                                               reg_endpos[no].lnum,
+                                                               reg_endpos[no].col,
+                                                               &len);
 
                                     if(r != RA_MATCH)
                                     {
@@ -5897,7 +6209,7 @@ regmatch(
                             }
                         }
 
-                        /* Matched the backref, skip over it. */
+                        // Matched the backref, skip over it.
                         reginput += len;
                     }
                     break;
@@ -5922,7 +6234,8 @@ regmatch(
                             len = (int)STRLEN(re_extmatch_in->matches[no]);
 
                             if(cstrncmp(re_extmatch_in->matches[no],
-                                        reginput, &len) != 0)
+                                        reginput,
+                                        &len) != 0)
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5933,16 +6246,17 @@ regmatch(
                         }
                         else
                         {
-                            /* Backref was not set: Match an empty string. */
+                            // Backref was not set:
+                            // Match an empty string.
                         }
                     }
                     break;
 
                     case BRANCH:
                     {
-                        if(OP(next) != BRANCH)        /* No choice. */
+                        if(OP(next) != BRANCH) // No choice.
                         {
-                            next = OPERAND(scan);    /* Avoid recursion. */
+                            next = OPERAND(scan); // Avoid recursion.
                         }
                         else
                         {
@@ -5954,7 +6268,7 @@ regmatch(
                             }
                             else
                             {
-                                status = RA_BREAK;    /* rest is below */
+                                status = RA_BREAK; // rest is below
                             }
                         }
                     }
@@ -5977,7 +6291,7 @@ regmatch(
                         }
                         else
                         {
-                            EMSG(_(e_internal));                    /* Shouldn't happen */
+                            EMSG(_(e_internal)); // Shouldn't happen
                             status = RA_FAIL;
                         }
                     }
@@ -5997,9 +6311,10 @@ regmatch(
                         no = op - BRACE_COMPLEX;
                         ++brace_count[no];
 
-                        /* If not matched enough times yet, try one more */
-                        if(brace_count[no] <= (brace_min[no] <= brace_max[no]
-                                               ? brace_min[no] : brace_max[no]))
+                        // If not matched enough times yet, try one more
+                        if(brace_count[no]
+                           <= (brace_min[no] <= brace_max[no]
+                               ? brace_min[no] : brace_max[no]))
                         {
                             rp = regstack_push(RS_BRCPLX_MORE, scan);
 
@@ -6012,16 +6327,18 @@ regmatch(
                                 rp->rs_no = no;
                                 reg_save(&rp->rs_un.regsave, &backpos);
                                 next = OPERAND(scan);
-                                /* We continue and handle the result when done. */
+                                // We continue and handle the result when done.
                             }
 
                             break;
                         }
 
-                        /* If matched enough times, may try matching some more */
+                        // If matched enough times,
+                        // may try matching some more
                         if(brace_min[no] <= brace_max[no])
                         {
-                            /* Range is the normal way around, use longest match */
+                            // Range is the normal way
+                            // around, use longest match
                             if(brace_count[no] <= brace_max[no])
                             {
                                 rp = regstack_push(RS_BRCPLX_LONG, scan);
@@ -6035,13 +6352,15 @@ regmatch(
                                     rp->rs_no = no;
                                     reg_save(&rp->rs_un.regsave, &backpos);
                                     next = OPERAND(scan);
-                                    /* We continue and handle the result when done. */
+                                    // We continue and handle
+                                    // the result when done.
                                 }
                             }
                         }
                         else
                         {
-                            /* Range is backwards, use shortest match first */
+                            // Range is backwards,
+                            // use shortest match first
                             if(brace_count[no] <= brace_min[no])
                             {
                                 rp = regstack_push(RS_BRCPLX_SHORT, scan);
@@ -6053,7 +6372,8 @@ regmatch(
                                 else
                                 {
                                     reg_save(&rp->rs_un.regsave, &backpos);
-                                    /* We continue and handle the result when done. */
+                                    // We continue and handle
+                                    // the result when done.
                                 }
                             }
                         }
@@ -6066,10 +6386,8 @@ regmatch(
                     {
                         regstar_T rst;
 
-                        /*
-                         * Lookahead to avoid useless match attempts when we know
-                         * what character comes next.
-                         */
+                        // Lookahead to avoid useless match attempts
+                        // when we know what character comes next.
                         if(OP(next) == EXACTLY)
                         {
                             rst.nextb = *OPERAND(next);
@@ -6107,12 +6425,10 @@ regmatch(
                             rst.maxval = bl_maxval;
                         }
 
-                        /*
-                         * When maxval > minval, try matching as much as possible, up
-                         * to maxval.  When maxval < minval, try matching at least the
-                         * minimal number (since the range is backwards, that's also
-                         * maxval!).
-                         */
+                        // When maxval > minval, try matching as much as
+                        // possible, up to maxval. When maxval < minval,
+                        // try matching at least the minimal number (since
+                        // the range is backwards, that's also maxval!).
                         rst.count = regrepeat(OPERAND(scan), rst.maxval);
 
                         if(got_int)
@@ -6124,9 +6440,9 @@ regmatch(
                         if(rst.minval <= rst.maxval
                            ? rst.count >= rst.minval : rst.count >= rst.maxval)
                         {
-                            /* It could match.  Prepare for trying to match what
-                             * follows.  The code is below.  Parameters are stored in
-                             * a regstar_T on the regstack. */
+                            // It could match. Prepare for trying to match
+                            // what follows. The code is below. Parameters
+                            // are stored in a regstar_T on the regstack.
                             if((long)((unsigned)regstack.ga_len >> 10) >= p_mmp)
                             {
                                 EMSG(_(e_maxmempat));
@@ -6136,8 +6452,10 @@ regmatch(
                             {
                                 ga_grow(&regstack, sizeof(regstar_T));
                                 regstack.ga_len += sizeof(regstar_T);
+
                                 rp = regstack_push(rst.minval <= rst.maxval
-                                                   ? RS_STAR_LONG : RS_STAR_SHORT, scan);
+                                                   ? RS_STAR_LONG
+                                                   : RS_STAR_SHORT, scan);
 
                                 if(rp == NULL)
                                 {
@@ -6146,7 +6464,7 @@ regmatch(
                                 else
                                 {
                                     *(((regstar_T *)rp) - 1) = rst;
-                                    status = RA_BREAK;                  /* skip the restore bits */
+                                    status = RA_BREAK; // skip the restore bits
                                 }
                             }
                         }
@@ -6171,7 +6489,9 @@ regmatch(
                             rp->rs_no = op;
                             reg_save(&rp->rs_un.regsave, &backpos);
                             next = OPERAND(scan);
-                            /* We continue and handle the result when done. */
+
+                            // We continue and handle
+                            // the result when done.
                         }
 
                         break;
@@ -6179,7 +6499,7 @@ regmatch(
                     case BEHIND:
                     case NOBEHIND:
 
-                        /* Need a bit of room to store extra positions. */
+                        // Need a bit of room to store extra positions.
                         if((long)((unsigned)regstack.ga_len >> 10) >= p_mmp)
                         {
                             EMSG(_(e_maxmempat));
@@ -6197,13 +6517,16 @@ regmatch(
                             }
                             else
                             {
-                                /* Need to save the subexpr to be able to restore them
-                                 * when there is a match but we don't use it. */
+                                // Need to save the subexpr to be able to
+                                // restore them when there is a match but
+                                // we don't use it.
                                 save_subexpr(((regbehind_T *)rp) - 1);
                                 rp->rs_no = op;
                                 reg_save(&rp->rs_un.regsave, &backpos);
-                                /* First try if what follows matches.  If it does then we
-                                 * check the behind match by looping. */
+
+                                // First try if what follows matches.
+                                // If it does then we check the behind
+                                // match by looping.
                             }
                         }
 
@@ -6212,7 +6535,8 @@ regmatch(
                     case BHPOS:
                         if(REG_MULTI)
                         {
-                            if(behind_pos.rs_u.pos.col != (colnr_T)(reginput - regline)
+                            if((behind_pos.rs_u.pos.col
+                                != (colnr_T)(reginput - regline))
                                || behind_pos.rs_u.pos.lnum != reglnum)
                             {
                                 status = RA_NOMATCH;
@@ -6226,8 +6550,11 @@ regmatch(
                         break;
 
                     case NEWL:
-                        if((c != NUL || !REG_MULTI || reglnum > reg_maxline
-                            || reg_line_lbr) && (c != '\n' || !reg_line_lbr))
+                        if((c != NUL
+                            || !REG_MULTI
+                            || reglnum > reg_maxline
+                            || reg_line_lbr)
+                           && (c != '\n' || !reg_line_lbr))
                         {
                             status = RA_NOMATCH;
                         }
@@ -6243,33 +6570,33 @@ regmatch(
                         break;
 
                     case END:
-                        status = RA_MATCH;    /* Success! */
+                        status = RA_MATCH; // Success!
                         break;
 
                     default:
                         EMSG(_(e_re_corr));
-#ifdef REGEXP_DEBUG
+
+                        #ifdef REGEXP_DEBUG
                         printf("Illegal op code %d\n", op);
-#endif
+                        #endif
+
                         status = RA_FAIL;
                         break;
                 }
             }
 
-            /* If we can't continue sequentially, break the inner loop. */
+            // If we can't continue sequentially, break the inner loop.
             if(status != RA_CONT)
             {
                 break;
             }
 
-            /* Continue in inner loop, advance to next item. */
+            // Continue in inner loop, advance to next item.
             scan = next;
-        } /* end of inner loop */
+        } // end of inner loop
 
-        /*
-         * If there is something on the regstack execute the code for the state.
-         * If the state is popped then loop and use the older state.
-         */
+        // If there is something on the regstack execute the code for
+        // the state. If the state is popped then loop and use the older state.
         while(!GA_EMPTY(&regstack) && status != RA_FAIL)
         {
             rp = (regitem_T *)((char *)regstack.ga_data + regstack.ga_len) - 1;
@@ -6277,74 +6604,86 @@ regmatch(
             switch(rp->rs_state)
             {
                 case RS_NOPEN:
-                    /* Result is passed on as-is, simply pop the state. */
+                    // Result is passed on as-is, simply pop the state.
                     regstack_pop(&scan);
                     break;
 
                 case RS_MOPEN:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
-                        restore_se(&rp->rs_un.sesave, &reg_startpos[rp->rs_no],
+                    {
+                        restore_se(&rp->rs_un.sesave,
+                                   &reg_startpos[rp->rs_no],
                                    &reg_startp[rp->rs_no]);
+                    }
 
                     regstack_pop(&scan);
                     break;
 
                 case RS_ZOPEN:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
-                        restore_se(&rp->rs_un.sesave, &reg_startzpos[rp->rs_no],
+                    {
+                        restore_se(&rp->rs_un.sesave,
+                                   &reg_startzpos[rp->rs_no],
                                    &reg_startzp[rp->rs_no]);
+                    }
 
                     regstack_pop(&scan);
                     break;
 
                 case RS_MCLOSE:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
-                        restore_se(&rp->rs_un.sesave, &reg_endpos[rp->rs_no],
+                    {
+                        restore_se(&rp->rs_un.sesave,
+                                   &reg_endpos[rp->rs_no],
                                    &reg_endp[rp->rs_no]);
+                    }
 
                     regstack_pop(&scan);
                     break;
 
                 case RS_ZCLOSE:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
-                        restore_se(&rp->rs_un.sesave, &reg_endzpos[rp->rs_no],
+                    {
+                        restore_se(&rp->rs_un.sesave,
+                                   &reg_endzpos[rp->rs_no],
                                    &reg_endzp[rp->rs_no]);
+                    }
 
                     regstack_pop(&scan);
                     break;
 
                 case RS_BRANCH:
                     if(status == RA_MATCH)
-                        /* this branch matched, use it */
                     {
+                        // this branch matched, use it
                         regstack_pop(&scan);
                     }
                     else
                     {
                         if(status != RA_BREAK)
                         {
-                            /* After a non-matching branch: try next one. */
+                            // After a non-matching branch: try next one.
                             reg_restore(&rp->rs_un.regsave, &backpos);
                             scan = rp->rs_scan;
                         }
 
                         if(scan == NULL || OP(scan) != BRANCH)
                         {
-                            /* no more branches, didn't find a match */
+                            // no more branches, didn't find a match
                             status = RA_NOMATCH;
                             regstack_pop(&scan);
                         }
                         else
                         {
-                            /* Prepare to try a branch. */
+                            // Prepare to try a branch.
                             rp->rs_scan = regnext(scan);
                             reg_save(&rp->rs_un.regsave, &backpos);
                             scan = OPERAND(scan);
@@ -6354,26 +6693,27 @@ regmatch(
                     break;
 
                 case RS_BRCPLX_MORE:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
                     {
                         reg_restore(&rp->rs_un.regsave, &backpos);
-                        --brace_count[rp->rs_no];             /* decrement match count */
+                        --brace_count[rp->rs_no]; // decrement match count
                     }
 
                     regstack_pop(&scan);
                     break;
 
                 case RS_BRCPLX_LONG:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
                     {
-                        /* There was no match, but we did find enough matches. */
+                        // There was no match, but we did find enough matches.
                         reg_restore(&rp->rs_un.regsave, &backpos);
                         --brace_count[rp->rs_no];
-                        /* continue with the items after "\{}" */
+
+                        // continue with the items after "\{}"
                         status = RA_CONT;
                     }
 
@@ -6387,11 +6727,11 @@ regmatch(
                     break;
 
                 case RS_BRCPLX_SHORT:
-
-                    /* Pop the state.  Restore pointers when there is no match. */
+                    // Pop the state.
+                    // Restore pointers when there is no match.
                     if(status == RA_NOMATCH)
-                        /* There was no match, try to match one more item. */
                     {
+                        // There was no match, try to match one more item.
                         reg_restore(&rp->rs_un.regsave, &backpos);
                     }
 
@@ -6406,10 +6746,10 @@ regmatch(
                     break;
 
                 case RS_NOMATCH:
-
-                    /* Pop the state.  If the operand matches for NOMATCH or
-                    * doesn't match for MATCH/SUBPAT, we fail.  Otherwise backup,
-                    * except for SUBPAT, and continue with the next item. */
+                    // Pop the state.
+                    // If the operand matches for NOMATCH or doesn't match
+                    // for MATCH/SUBPAT, we fail. Otherwise backup, except
+                    // for SUBPAT, and continue with the next item.
                     if(status == (rp->rs_no == NOMATCH ? RA_MATCH : RA_NOMATCH))
                     {
                         status = RA_NOMATCH;
@@ -6418,7 +6758,7 @@ regmatch(
                     {
                         status = RA_CONT;
 
-                        if(rp->rs_no != SUBPAT)               /* zero-width */
+                        if(rp->rs_no != SUBPAT) // zero-width
                         {
                             reg_restore(&rp->rs_un.regsave, &backpos);
                         }
@@ -6441,19 +6781,22 @@ regmatch(
                     }
                     else
                     {
-                        /* The stuff after BEHIND/NOBEHIND matches.  Now try if
-                         * the behind part does (not) match before the current
-                         * position in the input.  This must be done at every
-                         * position in the input and checking if the match ends at
-                         * the current position. */
-                        /* save the position after the found match for next */
+                        // The stuff after BEHIND/NOBEHIND matches.
+                        // Now try if the behind part does (not) match
+                        // before the current position in the input.
+                        // This must be done at every position in the
+                        // input and checking if the match ends at the
+                        // current position.
+                        //
+                        // save the position after the found match for next
                         reg_save(&(((regbehind_T *)rp) - 1)->save_after, &backpos);
-                        /* Start looking for a match with operand at the current
-                         * position.  Go back one character until we find the
-                         * result, hitting the start of the line or the previous
-                         * line (for multi-line matching).
-                         * Set behind_pos to where the match should end, BHPOS
-                         * will match it.  Save the current value. */
+
+                        // Start looking for a match with operand at the
+                        // current position. Go back one character until
+                        // we find the result, hitting the start of the
+                        // line or the previous line (for multi-line matching).
+                        // Set behind_pos to where the match should end, BHPOS
+                        // will match it. Save the current value.
                         (((regbehind_T *)rp) - 1)->save_behind = behind_pos;
                         behind_pos = rp->rs_un.regsave;
                         rp->rs_state = RS_BEHIND2;
@@ -6464,23 +6807,23 @@ regmatch(
                     break;
 
                 case RS_BEHIND2:
-
-                    /*
-                     * Looping for BEHIND / NOBEHIND match.
-                     */
+                    // Looping for BEHIND / NOBEHIND match.
                     if(status == RA_MATCH && reg_save_equal(&behind_pos))
                     {
-                        /* found a match that ends where "next" started */
+                        // found a match that ends where "next" started
                         behind_pos = (((regbehind_T *)rp) - 1)->save_behind;
 
                         if(rp->rs_no == BEHIND)
+                        {
                             reg_restore(&(((regbehind_T *)rp) - 1)->save_after,
                                         &backpos);
+                        }
                         else
                         {
-                            /* But we didn't want a match.  Need to restore the
-                             * subexpr, because what follows matched, so they have
-                             * been set. */
+                            // But we didn't want a match.
+                            // Need to restore the subexpr,
+                            // because what follows matched,
+                            // so they have been set.
                             status = RA_NOMATCH;
                             restore_subexpr(((regbehind_T *)rp) - 1);
                         }
@@ -6491,8 +6834,10 @@ regmatch(
                     else
                     {
                         long limit;
-                        /* No match or a match that doesn't end where we want it: Go
-                         * back one character.  May go to previous line once. */
+
+                        // No match or a match that doesn't end
+                        // where we want it: Go back one character.
+                        // May go to previous line once.
                         no = OK;
                         limit = OPERAND_MIN(rp->rs_scan);
 
@@ -6509,11 +6854,8 @@ regmatch(
                             }
                             else if(rp->rs_un.regsave.rs_u.pos.col == 0)
                             {
-                                if(rp->rs_un.regsave.rs_u.pos.lnum
-                                   < behind_pos.rs_u.pos.lnum
-                                   || reg_getline(
-                                       --rp->rs_un.regsave.rs_u.pos.lnum)
-                                   == NULL)
+                                if(rp->rs_un.regsave.rs_u.pos.lnum < behind_pos.rs_u.pos.lnum
+                                   || reg_getline(--rp->rs_un.regsave.rs_u.pos.lnum) == NULL)
                                 {
                                     no = FAIL;
                                 }
@@ -6527,9 +6869,14 @@ regmatch(
                             else
                             {
                                 if(has_mbyte)
+                                {
                                     rp->rs_un.regsave.rs_u.pos.col -=
-                                        (*mb_head_off)(regline, regline
-                                                       + rp->rs_un.regsave.rs_u.pos.col - 1) + 1;
+                                        (*mb_head_off)(regline,
+                                                       regline
+                                                       + rp->rs_un.regsave.rs_u.pos.col
+                                                       - 1)
+                                        + 1;
+                                }
                                 else
                                 {
                                     --rp->rs_un.regsave.rs_u.pos.col;
@@ -6544,10 +6891,13 @@ regmatch(
                             }
                             else
                             {
-                                mb_ptr_back(regline, rp->rs_un.regsave.rs_u.ptr);
+                                mb_ptr_back(regline,
+                                            rp->rs_un.regsave.rs_u.ptr);
 
-                                if(limit > 0 && (long)(behind_pos.rs_u.ptr
-                                                       - rp->rs_un.regsave.rs_u.ptr) > limit)
+                                if(limit > 0
+                                   && (long)(behind_pos.rs_u.ptr
+                                             - rp->rs_un.regsave.rs_u.ptr)
+                                      > limit)
                                 {
                                     no = FAIL;
                                 }
@@ -6556,21 +6906,23 @@ regmatch(
 
                         if(no == OK)
                         {
-                            /* Advanced, prepare for finding match again. */
+                            // Advanced, prepare for finding match again.
                             reg_restore(&rp->rs_un.regsave, &backpos);
                             scan = OPERAND(rp->rs_scan) + 4;
 
                             if(status == RA_MATCH)
                             {
-                                /* We did match, so subexpr may have been changed,
-                                 * need to restore them for the next try. */
+                                // We did match, so subexpr may have
+                                // been  changed, need to restore them
+                                // for the next try.
                                 status = RA_NOMATCH;
                                 restore_subexpr(((regbehind_T *)rp) - 1);
                             }
                         }
                         else
                         {
-                            /* Can't advance.  For NOBEHIND that's a match. */
+                            // Can't advance.
+                            // For NOBEHIND that's a match.
                             behind_pos = (((regbehind_T *)rp) - 1)->save_behind;
 
                             if(rp->rs_no == NOBEHIND)
@@ -6581,9 +6933,9 @@ regmatch(
                             }
                             else
                             {
-                                /* We do want a proper match.  Need to restore the
-                                 * subexpr if we had a match, because they may have
-                                 * been set. */
+                                // We do want a proper match.
+                                // Need to restore the subexpr if we had
+                                // a match, because they may have been set.
                                 if(status == RA_MATCH)
                                 {
                                     status = RA_NOMATCH;
@@ -6601,7 +6953,7 @@ regmatch(
                 case RS_STAR_LONG:
                 case RS_STAR_SHORT:
                 {
-                    regstar_T           *rst = ((regstar_T *)rp) - 1;
+                    regstar_T *rst = ((regstar_T *)rp) - 1;
 
                     if(status == RA_MATCH)
                     {
@@ -6610,22 +6962,23 @@ regmatch(
                         break;
                     }
 
-                    /* Tried once already, restore input pointers. */
+                    // Tried once already, restore input pointers.
                     if(status != RA_BREAK)
                     {
                         reg_restore(&rp->rs_un.regsave, &backpos);
                     }
 
-                    /* Repeat until we found a position where it could match. */
+                    // Repeat until we found a
+                    // position where it could match.
                     for(;;)
                     {
                         if(status != RA_BREAK)
                         {
-                            /* Tried first position already, advance. */
+                            // Tried first position already, advance.
                             if(rp->rs_state == RS_STAR_LONG)
                             {
-                                /* Trying for longest match, but couldn't or
-                                 * didn't match -- back up one char. */
+                                // Trying for longest match, but couldn't
+                                // or didn't match -- back up one char.
                                 if(--rst->count < rst->minval)
                                 {
                                     break;
@@ -6633,12 +6986,12 @@ regmatch(
 
                                 if(reginput == regline)
                                 {
-                                    /* backup to last char of previous line */
+                                    // backup to last char of previous line
                                     --reglnum;
                                     regline = reg_getline(reglnum);
 
-                                    /* Just in case regrepeat() didn't count
-                                     * right. */
+                                    // Just in case regrepeat()
+                                    // didn't count right.
                                     if(regline == NULL)
                                     {
                                         break;
@@ -6654,10 +7007,10 @@ regmatch(
                             }
                             else
                             {
-                                /* Range is backwards, use shortest match first.
-                                 * Careful: maxval and minval are exchanged!
-                                 * Couldn't or didn't match: try advancing one
-                                 * char. */
+                                // Range is backwards, use shortest match
+                                // first. Careful: maxval and minval are
+                                // exchanged! Couldn't or didn't match:
+                                // try advancing one char.
                                 if(rst->count == rst->minval
                                    || regrepeat(OPERAND(rp->rs_scan), 1L) == 0)
                                 {
@@ -6677,8 +7030,9 @@ regmatch(
                             status = RA_NOMATCH;
                         }
 
-                        /* If it could match, try it. */
-                        if(rst->nextb == NUL || *reginput == rst->nextb
+                        // If it could match, try it.
+                        if(rst->nextb == NUL
+                           || *reginput == rst->nextb
                            || *reginput == rst->nextb_ic)
                         {
                             reg_save(&rp->rs_un.regsave, &backpos);
@@ -6690,7 +7044,7 @@ regmatch(
 
                     if(status != RA_CONT)
                     {
-                        /* Failed. */
+                        // Failed.
                         regstack_pop(&scan);
                         regstack.ga_len -= sizeof(regstar_T);
                         status = RA_NOMATCH;
@@ -6699,8 +7053,8 @@ regmatch(
                 break;
             }
 
-            /* If we want to continue the inner loop or didn't pop a state
-             * continue matching loop */
+            // If we want to continue the inner loop or
+            // didn't pop a state continue matching loop
             if(status == RA_CONT || rp == (regitem_T *)
                ((char *)regstack.ga_data + regstack.ga_len) - 1)
             {
@@ -6708,27 +7062,25 @@ regmatch(
             }
         }
 
-        /* May need to continue with the inner loop, starting at "scan". */
+        // May need to continue with the
+        // inner loop, starting at "scan".
         if(status == RA_CONT)
         {
             continue;
         }
 
-        /*
-         * If the regstack is empty or something failed we are done.
-         */
+        // If the regstack is empty or something failed we are done.
         if(GA_EMPTY(&regstack) || status == RA_FAIL)
         {
             if(scan == NULL)
             {
-                /*
-                 * We get here only if there's trouble -- normally "case END" is
-                 * the terminating point.
-                 */
+                // We get here only if there's trouble,
+                // normally "case END" is the terminating point.
                 EMSG(_(e_re_corr));
-#ifdef REGEXP_DEBUG
+
+                #ifdef REGEXP_DEBUG
                 printf("Premature EOL\n");
-#endif
+                #endif
             }
 
             if(status == RA_FAIL)
@@ -6738,18 +7090,19 @@ regmatch(
 
             return status == RA_MATCH;
         }
-    } /* End of loop until the regstack is empty. */
+    } // End of loop until the regstack is empty.
 
-    /* NOTREACHED */
+    // NOTREACHED
 }
 
-/*
- * Push an item onto the regstack.
- * Returns pointer to new item.  Returns NULL when out of memory.
- */
+/// Push an item onto the regstack.
+///
+/// @return
+/// - pointer to new item.
+/// - NULL when out of memory.
 static regitem_T *regstack_push(regstate_T state, uchar_kt *scan)
 {
-    regitem_T   *rp;
+    regitem_T *rp;
 
     if((long)((unsigned)regstack.ga_len >> 10) >= p_mmp)
     {
@@ -6762,36 +7115,32 @@ static regitem_T *regstack_push(regstate_T state, uchar_kt *scan)
     rp->rs_state = state;
     rp->rs_scan = scan;
     regstack.ga_len += sizeof(regitem_T);
+
     return rp;
 }
 
-/*
- * Pop an item from the regstack.
- */
+/// Pop an item from the regstack.
 static void regstack_pop(uchar_kt **scan)
 {
-    regitem_T   *rp;
+    regitem_T *rp;
     rp = (regitem_T *)((char *)regstack.ga_data + regstack.ga_len) - 1;
     *scan = rp->rs_scan;
     regstack.ga_len -= sizeof(regitem_T);
 }
 
-/*
- * regrepeat - repeatedly match something simple, return how many.
- * Advances reginput (and reglnum) to just after the matched chars.
- */
-static int
-regrepeat(
-    uchar_kt *p,
-    long maxcount              /* maximum number of matches allowed */
-)
+///repeatedly match something simple, return how many.
+/// Advances reginput (and reglnum) to just after the matched chars.
+///
+/// @param p
+/// @param maxcount  maximum number of matches allowed
+static int regrepeat(uchar_kt *p, long maxcount)
 {
     long count = 0;
-    uchar_kt      *scan;
-    uchar_kt      *opnd;
+    uchar_kt *scan;
+    uchar_kt *opnd;
     int mask;
     int testval = 0;
-    scan = reginput;          /* Make local copy of reginput for speed. */
+    scan = reginput; // Make local copy of reginput for speed.
     opnd = OPERAND(p);
 
     switch(OP(p))
@@ -6800,21 +7149,25 @@ regrepeat(
         case ANY + ADD_NL:
             while(count < maxcount)
             {
-                /* Matching anything means we continue until end-of-line (or
-                 * end-of-file for ANY + ADD_NL), only limited by maxcount. */
+                // Matching anything means we continue until
+                // end-of-line (or end-of-file for ANY + ADD_NL),
+                // only limited by maxcount.
                 while(*scan != NUL && count < maxcount)
                 {
                     ++count;
                     mb_ptr_adv(scan);
                 }
 
-                if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
-                   || reg_line_lbr || count == maxcount)
+                if(!REG_MULTI
+                   || !WITH_NL(OP(p))
+                   || reglnum > reg_maxline
+                   || reg_line_lbr
+                   || count == maxcount)
                 {
                     break;
                 }
 
-                ++count;                  /* count the line-break */
+                ++count; // count the line-break
                 reg_nextline();
                 scan = reginput;
 
@@ -6836,13 +7189,16 @@ regrepeat(
         case SIDENT + ADD_NL:
             while(count < maxcount)
             {
-                if(vim_isIDc(PTR2CHAR(scan)) && (testval || !ascii_isdigit(*scan)))
+                if(vim_isIDc(PTR2CHAR(scan))
+                   && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
                 }
                 else if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -6856,7 +7212,9 @@ regrepeat(
                         break;
                     }
                 }
-                else if(reg_line_lbr && *scan == '\n' && WITH_NL(OP(p)))
+                else if(reg_line_lbr
+                        && *scan == '\n'
+                        && WITH_NL(OP(p)))
                 {
                     ++scan;
                 }
@@ -6887,7 +7245,9 @@ regrepeat(
                 }
                 else if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -6901,7 +7261,9 @@ regrepeat(
                         break;
                     }
                 }
-                else if(reg_line_lbr && *scan == '\n' && WITH_NL(OP(p)))
+                else if(reg_line_lbr
+                        && *scan == '\n'
+                        && WITH_NL(OP(p)))
                 {
                     ++scan;
                 }
@@ -6925,13 +7287,16 @@ regrepeat(
         case SFNAME + ADD_NL:
             while(count < maxcount)
             {
-                if(vim_isfilec(PTR2CHAR(scan)) && (testval || !ascii_isdigit(*scan)))
+                if(vim_isfilec(PTR2CHAR(scan))
+                   && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
                 }
                 else if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -6945,7 +7310,9 @@ regrepeat(
                         break;
                     }
                 }
-                else if(reg_line_lbr && *scan == '\n' && WITH_NL(OP(p)))
+                else if(reg_line_lbr
+                        && *scan == '\n'
+                        && WITH_NL(OP(p)))
                 {
                     ++scan;
                 }
@@ -6971,7 +7338,9 @@ regrepeat(
             {
                 if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -6990,7 +7359,9 @@ regrepeat(
                 {
                     mb_ptr_adv(scan);
                 }
-                else if(reg_line_lbr && *scan == '\n' && WITH_NL(OP(p)))
+                else if(reg_line_lbr
+                        && *scan == '\n'
+                        && WITH_NL(OP(p)))
                 {
                     ++scan;
                 }
@@ -7015,7 +7386,9 @@ do_class:
 
                 if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -7042,7 +7415,9 @@ do_class:
                 {
                     ++scan;
                 }
-                else if(reg_line_lbr && *scan == '\n' && WITH_NL(OP(p)))
+                else if(reg_line_lbr
+                        && *scan == '\n'
+                        && WITH_NL(OP(p)))
                 {
                     ++scan;
                 }
@@ -7145,9 +7520,10 @@ do_class:
         {
             int cu, cl;
 
-            /* This doesn't do a multi-byte character, because a MULTIBYTECODE
-             * would have been used for it.  It does handle single-byte
-             * characters, such as latin1. */
+            // This doesn't do a multi-byte character,
+            // because a MULTIBYTECODE would have been
+            // used for it. It does handle single-byte
+            // characters, such as latin1.
             if(ireg_ic)
             {
                 cu = mb_toupper(*opnd);
@@ -7177,8 +7553,8 @@ do_class:
         {
             int i, len, cf = 0;
 
-            /* Safety check (just in case 'encoding' was changed since
-             * compiling the program). */
+            // Safety check (just in case 'encoding'
+            // was changed since compiling the program).
             if((len = (*mb_ptr2len)(opnd)) > 1)
             {
                 if(ireg_ic && enc_utf8)
@@ -7196,8 +7572,10 @@ do_class:
                         }
                     }
 
-                    if(i < len && (!ireg_ic || !enc_utf8
-                                   || utf_fold(utf_ptr2char(scan)) != cf))
+                    if(i < len
+                       && (!ireg_ic
+                           || !enc_utf8
+                           || utf_fold(utf_ptr2char(scan)) != cf))
                     {
                         break;
                     }
@@ -7223,7 +7601,9 @@ do_class:
 
                 if(*scan == NUL)
                 {
-                    if(!REG_MULTI || !WITH_NL(OP(p)) || reglnum > reg_maxline
+                    if(!REG_MULTI
+                       || !WITH_NL(OP(p))
+                       || reglnum > reg_maxline
                        || reg_line_lbr)
                     {
                         break;
@@ -7267,7 +7647,9 @@ do_class:
 
         case NEWL:
             while(count < maxcount
-                  && ((*scan == NUL && reglnum <= reg_maxline && !reg_line_lbr
+                  && ((*scan == NUL
+                       && reglnum <= reg_maxline
+                       && !reg_line_lbr
                        && REG_MULTI) || (*scan == '\n' && reg_line_lbr)))
             {
                 count++;
@@ -7291,11 +7673,13 @@ do_class:
 
             break;
 
-        default:                      /* Oh dear.  Called inappropriately. */
+        default: // Oh dear. Called inappropriately.
             EMSG(_(e_re_corr));
-#ifdef REGEXP_DEBUG
+
+            #ifdef REGEXP_DEBUG
             printf("Called regrepeat with op code %d\n", OP(p));
-#endif
+            #endif
+
             break;
     }
 
@@ -7303,11 +7687,11 @@ do_class:
     return (int)count;
 }
 
-/*
- * regnext - dig the "next" pointer out of a node
- * Returns NULL when calculating size, when there is no next item and when
- * there is an error.
- */
+/// dig the "next" pointer out of a node
+///
+/// @return
+/// NULL when calculating size, when there
+/// is no next item and when there is an error.
 static uchar_kt *regnext(uchar_kt *p)
 {
     int offset;
@@ -7334,17 +7718,16 @@ static uchar_kt *regnext(uchar_kt *p)
     }
 }
 
-/*
- * Check the regexp program for its magic number.
- * Return TRUE if it's wrong.
- */
+/// Check the regexp program for its magic number.
+///
+/// @return TRUE if it's wrong.
 static int prog_magic_wrong(void)
 {
-    regprog_T   *prog;
+    regprog_T *prog;
     prog = REG_MULTI ? reg_mmatch->regprog : reg_match->regprog;
 
+    // For NFA matcher we don't check the magic
     if(prog->engine == &nfa_regengine)
-        /* For NFA matcher we don't check the magic */
     {
         return FALSE;
     }
@@ -7358,18 +7741,16 @@ static int prog_magic_wrong(void)
     return FALSE;
 }
 
-/*
- * Cleanup the subexpressions, if this wasn't done yet.
- * This construction is used to clear the subexpressions only when they are
- * used (to increase speed).
- */
+/// Cleanup the subexpressions, if this wasn't done yet.
+/// This construction is used to clear the subexpressions
+/// only when they are used (to increase speed).
 static void cleanup_subexpr(void)
 {
     if(need_clear_subexpr)
     {
         if(REG_MULTI)
         {
-            /* Use 0xff to set lnum to -1 */
+            // Use 0xff to set lnum to -1
             memset(reg_startpos, 0xff, sizeof(lpos_T) * NSUBEXP);
             memset(reg_endpos, 0xff, sizeof(lpos_T) * NSUBEXP);
         }
@@ -7389,7 +7770,7 @@ static void cleanup_zsubexpr(void)
     {
         if(REG_MULTI)
         {
-            /* Use 0xff to set lnum to -1 */
+            // Use 0xff to set lnum to -1
             memset(reg_startzpos, 0xff, sizeof(lpos_T) * NSUBEXP);
             memset(reg_endzpos, 0xff, sizeof(lpos_T) * NSUBEXP);
         }
@@ -7403,15 +7784,15 @@ static void cleanup_zsubexpr(void)
     }
 }
 
-/*
- * Save the current subexpr to "bp", so that they can be restored
- * later by restore_subexpr().
- */
+/// Save the current subexpr to "bp", so
+/// that they can be restored later by restore_subexpr().
 static void save_subexpr(regbehind_T *bp)
 {
     int i;
-    /* When "need_clear_subexpr" is set we don't need to save the values, only
-     * remember that this flag needs to be set again when restoring. */
+
+    // When "need_clear_subexpr" is set we don't need
+    // to save the values, only remember that this flag
+    // needs to be set again when restoring.
     bp->save_need_clear_subexpr = need_clear_subexpr;
 
     if(!need_clear_subexpr)
@@ -7432,13 +7813,13 @@ static void save_subexpr(regbehind_T *bp)
     }
 }
 
-/*
- * Restore the subexpr from "bp".
- */
+/// Restore the subexpr from @b bp.
 static void restore_subexpr(regbehind_T *bp)
 {
     int i;
-    /* Only need to restore saved values when they are not to be cleared. */
+
+    // Only need to restore saved values
+    // when they are not to be cleared.
     need_clear_subexpr = bp->save_need_clear_subexpr;
 
     if(!need_clear_subexpr)
@@ -7459,9 +7840,7 @@ static void restore_subexpr(regbehind_T *bp)
     }
 }
 
-/*
- * Advance reglnum, regline and reginput to the next line.
- */
+/// Advance reglnum, regline and reginput to the next line.
 static void reg_nextline(void)
 {
     regline = reg_getline(++reglnum);
@@ -7469,9 +7848,7 @@ static void reg_nextline(void)
     fast_breakcheck();
 }
 
-/*
- * Save the input line and position in a regsave_T.
- */
+/// Save the input line and position in a regsave_T.
 static void reg_save(regsave_T *save, garray_T *gap)
 {
     if(REG_MULTI)
@@ -7487,17 +7864,15 @@ static void reg_save(regsave_T *save, garray_T *gap)
     save->rs_len = gap->ga_len;
 }
 
-/*
- * Restore the input line and position from a regsave_T.
- */
+/// Restore the input line and position from a regsave_T.
 static void reg_restore(regsave_T *save, garray_T *gap)
 {
     if(REG_MULTI)
     {
         if(reglnum != save->rs_u.pos.lnum)
         {
-            /* only call reg_getline() when the line number changed to save
-             * a bit of time */
+            // only call reg_getline() when the line
+            // number changed to save a bit of time
             reglnum = save->rs_u.pos.lnum;
             regline = reg_getline(reglnum);
         }
@@ -7512,25 +7887,25 @@ static void reg_restore(regsave_T *save, garray_T *gap)
     gap->ga_len = save->rs_len;
 }
 
-/*
- * Return TRUE if current position is equal to saved position.
- */
+/// @return
+/// TRUE if current position is equal to saved position.
 static int reg_save_equal(regsave_T *save)
 {
     if(REG_MULTI)
+    {
         return reglnum == save->rs_u.pos.lnum
                && reginput == regline + save->rs_u.pos.col;
+    }
 
     return reginput == save->rs_u.ptr;
 }
 
-/*
- * Tentatively set the sub-expression start to the current position (after
- * calling regmatch() they will have changed).  Need to save the existing
- * values for when there is no match.
- * Use se_save() to use pointer (save_se_multi()) or position (save_se_one()),
- * depending on REG_MULTI.
- */
+/// Tentatively set the sub-expression start to the current position
+/// (after calling regmatch() they will have changed). Need to save
+/// the existing values for when there is no match.
+///
+/// Use se_save() to use pointer (save_se_multi()) or position
+/// (save_se_one()), depending on REG_MULTI.
 static void save_se_multi(save_se_T *savep, lpos_T *posp)
 {
     savep->se_u.pos = *posp;
@@ -7544,9 +7919,7 @@ static void save_se_one(save_se_T *savep, uchar_kt **pp)
     *pp = reginput;
 }
 
-/*
- * Compare a number with the operand of RE_LNUM, RE_COL or RE_VCOL.
- */
+/// Compare a number with the operand of RE_LNUM, RE_COL or RE_VCOL.
 static int re_num_cmp(uint32_t val, uchar_kt *scan)
 {
     uint32_t n = (uint32_t)OPERAND_MIN(scan);
@@ -7564,19 +7937,24 @@ static int re_num_cmp(uint32_t val, uchar_kt *scan)
     return val == n;
 }
 
-/*
- * Check whether a backreference matches.
- * Returns RA_FAIL, RA_NOMATCH or RA_MATCH.
- * If "bytelen" is not NULL, it is set to the byte length of the match in the
- * last line.
- */
-static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T end_lnum,
-                              colnr_T end_col, int *bytelen)
+/// Check whether a backreference matches.
+///
+/// @return
+/// RA_FAIL, RA_NOMATCH or RA_MATCH.
+///
+/// @note
+/// If @b bytelen is not NULL, it is set to the
+/// byte length of the match in the last line.
+static int match_with_backref(linenr_T start_lnum,
+                              colnr_T start_col,
+                              linenr_T end_lnum,
+                              colnr_T end_col,
+                              int *bytelen)
 {
+    int len;
+    uchar_kt *p;
     linenr_T clnum = start_lnum;
     colnr_T ccol = start_col;
-    int len;
-    uchar_kt      *p;
 
     if(bytelen != NULL)
     {
@@ -7585,15 +7963,15 @@ static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T e
 
     for(;;)
     {
-        /* Since getting one line may invalidate the other, need to make copy.
-         * Slow! */
+        // Since getting one line may invalidate
+        // the other, need to make copy. Slow!
         if(regline != reg_tofree)
         {
             len = (int)STRLEN(regline);
 
             if(reg_tofree == NULL || len >= (int)reg_tofreelen)
             {
-                len += 50;              /* get some extra */
+                len += 50; // get some extra
                 xfree(reg_tofree);
                 reg_tofree = xmalloc(len);
                 reg_tofreelen = len;
@@ -7604,7 +7982,7 @@ static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T e
             regline = reg_tofree;
         }
 
-        /* Get the line to compare with. */
+        // Get the line to compare with.
         p = reg_getline(clnum);
         assert(p);
 
@@ -7619,7 +7997,7 @@ static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T e
 
         if(cstrncmp(p + ccol, reginput, &len) != 0)
         {
-            return RA_NOMATCH;    /* doesn't match */
+            return RA_NOMATCH; // doesn't match
         }
 
         if(bytelen != NULL)
@@ -7629,15 +8007,15 @@ static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T e
 
         if(clnum == end_lnum)
         {
-            break;    /* match and at end! */
+            break; // match and at end!
         }
 
         if(reglnum >= reg_maxline)
         {
-            return RA_NOMATCH;    /* text too short */
+            return RA_NOMATCH; // text too short
         }
 
-        /* Advance to next line. */
+        // Advance to next line.
         reg_nextline();
 
         if(bytelen != NULL)
@@ -7654,23 +8032,21 @@ static int match_with_backref(linenr_T start_lnum, colnr_T start_col, linenr_T e
         }
     }
 
-    /* found a match!  Note that regline may now point to a copy of the line,
-     * that should not matter. */
+    // found a match!  Note that regline may now
+    // point to a copy of the line, that should not matter.
     return RA_MATCH;
 }
 
 #ifdef BT_REGEXP_DUMP
-
-/*
- * regdump - dump a regexp onto stdout in vaguely comprehensible form
- */
+/// dump a regexp onto stdout in vaguely comprehensible form
 static void regdump(uchar_kt *pattern, bt_regprog_T *r)
 {
-    uchar_kt  *s;
-    int op = EXACTLY;             /* Arbitrary non-END op. */
-    uchar_kt  *next;
-    uchar_kt  *end = NULL;
-    FILE    *f;
+    uchar_kt *s;
+    int op = EXACTLY; // Arbitrary non-END op.
+    uchar_kt *next;
+    uchar_kt *end = NULL;
+    FILE *f;
+
 #ifdef BT_REGEXP_LOG
     f = fopen("bt_regexp_log.log", "a");
 #else
@@ -7682,21 +8058,22 @@ static void regdump(uchar_kt *pattern, bt_regprog_T *r)
         return;
     }
 
-    fprintf(f, "-------------------------------------\n\r\nregcomp(%s):\r\n",
+    fprintf(f,
+            "-------------------------------------\n\r\nregcomp(%s):\r\n",
             pattern);
+
     s = r->program + 1;
 
-    /*
-     * Loop until we find the END that isn't before a referred next (an END
-     * can also appear in a NOMATCH operand).
-     */
+    // Loop until we find the END that isn't
+    // before a referred next (an END can also
+    // appear in a NOMATCH operand).
     while(op != END || s <= end)
     {
         op = OP(s);
-        fprintf(f, "%2d%s", (int)(s - r->program), regprop(s));     /* Where, what. */
+        fprintf(f, "%2d%s", (int)(s - r->program), regprop(s)); // Where, what.
         next = regnext(s);
 
-        if(next == NULL)            /* Next ptr. */
+        if(next == NULL) // Next ptr.
         {
             fprintf(f, "(0)");
         }
@@ -7712,31 +8089,33 @@ static void regdump(uchar_kt *pattern, bt_regprog_T *r)
 
         if(op == BRACE_LIMITS)
         {
-            /* Two ints */
+            // Two ints
             fprintf(f, " minval %" PRId64 ", maxval %" PRId64,
                     (int64_t)OPERAND_MIN(s), (int64_t)OPERAND_MAX(s));
             s += 8;
         }
         else if(op == BEHIND || op == NOBEHIND)
         {
-            /* one int */
+            // one int
             fprintf(f, " count %" PRId64, (int64_t)OPERAND_MIN(s));
             s += 4;
         }
         else if(op == RE_LNUM || op == RE_COL || op == RE_VCOL)
         {
-            /* one int plus comperator */
+            // one int plus comperator
             fprintf(f, " count %" PRId64, (int64_t)OPERAND_MIN(s));
             s += 5;
         }
 
         s += 3;
 
-        if(op == ANYOF || op == ANYOF + ADD_NL
-           || op == ANYBUT || op == ANYBUT + ADD_NL
+        if(op == ANYOF
+           || op == ANYOF + ADD_NL
+           || op == ANYBUT
+           || op == ANYBUT + ADD_NL
            || op == EXACTLY)
         {
-            /* Literal string, where present. */
+            // Literal string, where present.
             fprintf(f, "\nxxxxxxxxx\n");
 
             while(*s != NUL)
@@ -7751,11 +8130,13 @@ static void regdump(uchar_kt *pattern, bt_regprog_T *r)
         fprintf(f, "\r\n");
     }
 
-    /* Header fields of interest. */
+    // Header fields of interest.
     if(r->regstart != NUL)
+    {
         fprintf(f, "start `%s' 0x%x; ", r->regstart < 256
                 ? (char *)transchar(r->regstart)
                 : "multibyte", r->regstart);
+    }
 
     if(r->reganch)
     {
@@ -7768,19 +8149,18 @@ static void regdump(uchar_kt *pattern, bt_regprog_T *r)
     }
 
     fprintf(f, "\r\n");
+
 #ifdef BT_REGEXP_LOG
     fclose(f);
 #endif
 }
-#endif      /* BT_REGEXP_DUMP */
+#endif // BT_REGEXP_DUMP
 
 #ifdef REGEXP_DEBUG
-/*
- * regprop - printable representation of opcode
- */
+/// printable representation of opcode
 static uchar_kt *regprop(uchar_kt *op)
 {
-    char            *p;
+    char *p;
     static char buf[50];
     STRCPY(buf, ":");
 
@@ -8226,7 +8606,9 @@ static uchar_kt *regprop(uchar_kt *op)
         case BRACE_COMPLEX + 7:
         case BRACE_COMPLEX + 8:
         case BRACE_COMPLEX + 9:
-            sprintf(buf + STRLEN(buf), "BRACE_COMPLEX%d", OP(op) - BRACE_COMPLEX);
+            sprintf(buf + STRLEN(buf),
+                    "BRACE_COMPLEX%d",
+                    OP(op) - BRACE_COMPLEX);
             p = NULL;
             break;
 
@@ -8251,61 +8633,59 @@ static uchar_kt *regprop(uchar_kt *op)
 
     return (uchar_kt *)buf;
 }
-#endif      /* REGEXP_DEBUG */
+#endif // REGEXP_DEBUG
 
-
-
-/* 0xfb20 - 0xfb4f */
+/// 0xfb20 - 0xfb4f
 static decomp_T decomp_table[0xfb4f-0xfb20+1] =
 {
-    {0x5e2,0,0},                  /* 0xfb20 alt ayin */
-    {0x5d0,0,0},                  /* 0xfb21 alt alef */
-    {0x5d3,0,0},                  /* 0xfb22 alt dalet */
-    {0x5d4,0,0},                  /* 0xfb23 alt he */
-    {0x5db,0,0},                  /* 0xfb24 alt kaf */
-    {0x5dc,0,0},                  /* 0xfb25 alt lamed */
-    {0x5dd,0,0},                  /* 0xfb26 alt mem-sofit */
-    {0x5e8,0,0},                  /* 0xfb27 alt resh */
-    {0x5ea,0,0},                  /* 0xfb28 alt tav */
-    {'+', 0, 0},                  /* 0xfb29 alt plus */
-    {0x5e9, 0x5c1, 0},            /* 0xfb2a shin+shin-dot */
-    {0x5e9, 0x5c2, 0},            /* 0xfb2b shin+sin-dot */
-    {0x5e9, 0x5c1, 0x5bc},        /* 0xfb2c shin+shin-dot+dagesh */
-    {0x5e9, 0x5c2, 0x5bc},        /* 0xfb2d shin+sin-dot+dagesh */
-    {0x5d0, 0x5b7, 0},            /* 0xfb2e alef+patah */
-    {0x5d0, 0x5b8, 0},            /* 0xfb2f alef+qamats */
-    {0x5d0, 0x5b4, 0},            /* 0xfb30 alef+hiriq */
-    {0x5d1, 0x5bc, 0},            /* 0xfb31 bet+dagesh */
-    {0x5d2, 0x5bc, 0},            /* 0xfb32 gimel+dagesh */
-    {0x5d3, 0x5bc, 0},            /* 0xfb33 dalet+dagesh */
-    {0x5d4, 0x5bc, 0},            /* 0xfb34 he+dagesh */
-    {0x5d5, 0x5bc, 0},            /* 0xfb35 vav+dagesh */
-    {0x5d6, 0x5bc, 0},            /* 0xfb36 zayin+dagesh */
-    {0xfb37, 0, 0},               /* 0xfb37 -- */
-    {0x5d8, 0x5bc, 0},            /* 0xfb38 tet+dagesh */
-    {0x5d9, 0x5bc, 0},            /* 0xfb39 yud+dagesh */
-    {0x5da, 0x5bc, 0},            /* 0xfb3a kaf sofit+dagesh */
-    {0x5db, 0x5bc, 0},            /* 0xfb3b kaf+dagesh */
-    {0x5dc, 0x5bc, 0},            /* 0xfb3c lamed+dagesh */
-    {0xfb3d, 0, 0},               /* 0xfb3d -- */
-    {0x5de, 0x5bc, 0},            /* 0xfb3e mem+dagesh */
-    {0xfb3f, 0, 0},               /* 0xfb3f -- */
-    {0x5e0, 0x5bc, 0},            /* 0xfb40 nun+dagesh */
-    {0x5e1, 0x5bc, 0},            /* 0xfb41 samech+dagesh */
-    {0xfb42, 0, 0},               /* 0xfb42 -- */
-    {0x5e3, 0x5bc, 0},            /* 0xfb43 pe sofit+dagesh */
-    {0x5e4, 0x5bc,0},             /* 0xfb44 pe+dagesh */
-    {0xfb45, 0, 0},               /* 0xfb45 -- */
-    {0x5e6, 0x5bc, 0},            /* 0xfb46 tsadi+dagesh */
-    {0x5e7, 0x5bc, 0},            /* 0xfb47 qof+dagesh */
-    {0x5e8, 0x5bc, 0},            /* 0xfb48 resh+dagesh */
-    {0x5e9, 0x5bc, 0},            /* 0xfb49 shin+dagesh */
-    {0x5ea, 0x5bc, 0},            /* 0xfb4a tav+dagesh */
-    {0x5d5, 0x5b9, 0},            /* 0xfb4b vav+holam */
-    {0x5d1, 0x5bf, 0},            /* 0xfb4c bet+rafe */
-    {0x5db, 0x5bf, 0},            /* 0xfb4d kaf+rafe */
-    {0x5e4, 0x5bf, 0},            /* 0xfb4e pe+rafe */
-    {0x5d0, 0x5dc, 0}             /* 0xfb4f alef-lamed */
+    {0x5e2,  0,     0},        ///< 0xfb20 alt ayin
+    {0x5d0,  0,     0},        ///< 0xfb21 alt alef
+    {0x5d3,  0,     0},        ///< 0xfb22 alt dalet
+    {0x5d4,  0,     0},        ///< 0xfb23 alt he
+    {0x5db,  0,     0},        ///< 0xfb24 alt kaf
+    {0x5dc,  0,     0},        ///< 0xfb25 alt lamed
+    {0x5dd,  0,     0},        ///< 0xfb26 alt mem-sofit
+    {0x5e8,  0,     0},        ///< 0xfb27 alt resh
+    {0x5ea,  0,     0},        ///< 0xfb28 alt tav
+    {'+',    0,     0},        ///< 0xfb29 alt plus
+    {0x5e9,  0x5c1, 0},        ///< 0xfb2a shin+shin-dot
+    {0x5e9,  0x5c2, 0},        ///< 0xfb2b shin+sin-dot
+    {0x5e9,  0x5c1, 0x5bc},    ///< 0xfb2c shin+shin-dot+dagesh
+    {0x5e9,  0x5c2, 0x5bc},    ///< 0xfb2d shin+sin-dot+dagesh
+    {0x5d0,  0x5b7, 0},        ///< 0xfb2e alef+patah
+    {0x5d0,  0x5b8, 0},        ///< 0xfb2f alef+qamats
+    {0x5d0,  0x5b4, 0},        ///< 0xfb30 alef+hiriq
+    {0x5d1,  0x5bc, 0},        ///< 0xfb31 bet+dagesh
+    {0x5d2,  0x5bc, 0},        ///< 0xfb32 gimel+dagesh
+    {0x5d3,  0x5bc, 0},        ///< 0xfb33 dalet+dagesh
+    {0x5d4,  0x5bc, 0},        ///< 0xfb34 he+dagesh
+    {0x5d5,  0x5bc, 0},        ///< 0xfb35 vav+dagesh
+    {0x5d6,  0x5bc, 0},        ///< 0xfb36 zayin+dagesh
+    {0xfb37, 0,     0},        ///< 0xfb37 --
+    {0x5d8,  0x5bc, 0},        ///< 0xfb38 tet+dagesh
+    {0x5d9,  0x5bc, 0},        ///< 0xfb39 yud+dagesh
+    {0x5da,  0x5bc, 0},        ///< 0xfb3a kaf sofit+dagesh
+    {0x5db,  0x5bc, 0},        ///< 0xfb3b kaf+dagesh
+    {0x5dc,  0x5bc, 0},        ///< 0xfb3c lamed+dagesh
+    {0xfb3d, 0,     0},        ///< 0xfb3d --
+    {0x5de,  0x5bc, 0},        ///< 0xfb3e mem+dagesh
+    {0xfb3f, 0,     0},        ///< 0xfb3f --
+    {0x5e0,  0x5bc, 0},        ///< 0xfb40 nun+dagesh
+    {0x5e1,  0x5bc, 0},        ///< 0xfb41 samech+dagesh
+    {0xfb42, 0,     0},        ///< 0xfb42 --
+    {0x5e3,  0x5bc, 0},        ///< 0xfb43 pe sofit+dagesh
+    {0x5e4,  0x5bc,0},         ///< 0xfb44 pe+dagesh
+    {0xfb45, 0,     0},        ///< 0xfb45 --
+    {0x5e6,  0x5bc, 0},        ///< 0xfb46 tsadi+dagesh
+    {0x5e7,  0x5bc, 0},        ///< 0xfb47 qof+dagesh
+    {0x5e8,  0x5bc, 0},        ///< 0xfb48 resh+dagesh
+    {0x5e9,  0x5bc, 0},        ///< 0xfb49 shin+dagesh
+    {0x5ea,  0x5bc, 0},        ///< 0xfb4a tav+dagesh
+    {0x5d5,  0x5b9, 0},        ///< 0xfb4b vav+holam
+    {0x5d1,  0x5bf, 0},        ///< 0xfb4c bet+rafe
+    {0x5db,  0x5bf, 0},        ///< 0xfb4d kaf+rafe
+    {0x5e4,  0x5bf, 0},        ///< 0xfb4e pe+rafe
+    {0x5d0,  0x5dc, 0}         ///< 0xfb4f alef-lamed
 };
 
 static void mb_decompose(int c, int *c1, int *c2, int *c3)
@@ -8326,11 +8706,11 @@ static void mb_decompose(int c, int *c1, int *c2, int *c3)
     }
 }
 
-/*
- * Compare two strings, ignore case if ireg_ic set.
- * Return 0 if strings match, non-zero otherwise.
- * Correct the length "*n" when composing characters are ignored.
- */
+/// Compare two strings, ignore case if ireg_ic set.
+///
+/// @return
+/// 0 if strings match, non-zero otherwise.
+/// Correct the length "*n" when composing characters are ignored.
 static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
 {
     int result;
@@ -8345,14 +8725,20 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
         result = mb_strnicmp(s1, s2, (size_t)*n);
     }
 
-    /* if it failed and it's utf8 and we want to combineignore: */
+    // if it failed and it's utf8 and we want to combineignore:
     if(result != 0 && enc_utf8 && ireg_icombine)
     {
-        uchar_kt  *str1, *str2;
-        int c1, c2, c11, c12;
+        int c1;
+        int c2;
+        int c11;
+        int c12;
         int junk;
-        /* we have to handle the strcmp ourselves, since it is necessary to
-         * deal with the composing characters by ignoring them: */
+        uchar_kt *str1;
+        uchar_kt *str2;
+
+        // we have to handle the strcmp ourselves,
+        // since it is necessary to deal with the
+        // composing characters by ignoring them:
         str1 = s1;
         str2 = s2;
         c1 = c2 = 0;
@@ -8362,12 +8748,13 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
             c1 = mb_ptr2char_adv((const uchar_kt **)&str1);
             c2 = mb_ptr2char_adv((const uchar_kt **)&str2);
 
-            /* decompose the character if necessary, into 'base' characters
-             * because I don't care about Arabic, I will hard-code the Hebrew
-             * which I *do* care about!  So sue me... */
+            // decompose the character if necessary,
+            // into 'base' characters because I don't
+            // care about Arabic, I will hard-code the Hebrew
+            // which I *do* care about!  So sue me...
             if(c1 != c2 && (!ireg_ic || utf_fold(c1) != utf_fold(c2)))
             {
-                /* decomposition necessary? */
+                // decomposition necessary?
                 mb_decompose(c1, &c11, &junk, &junk);
                 mb_decompose(c2, &c12, &junk, &junk);
                 c1 = c11;
@@ -8391,11 +8778,11 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
     return result;
 }
 
-/*
- * cstrchr: This function is used a lot for simple searches, keep it fast!
- */
+/// This function is used a lot for simple searches, keep it fast!
 static inline uchar_kt *cstrchr(const uchar_kt *const s, const int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_ALWAYS_INLINE
 {
     if(!ireg_ic)
@@ -8403,7 +8790,8 @@ FUNC_ATTR_ALWAYS_INLINE
         return vim_strchr(s, c);
     }
 
-    // Use folded case for UTF-8, slow! For ASCII use libc strpbrk which is
+    // Use folded case for UTF-8, slow!
+    // For ASCII use libc strpbrk which is
     // expected to be highly optimized.
     if(c > 0x80)
     {
@@ -8439,14 +8827,11 @@ FUNC_ATTR_ALWAYS_INLINE
     return (uchar_kt *)strpbrk((const char *)s, tofind);
 }
 
-/***************************************************************
-*             regsub stuff                 *
-***************************************************************/
+// ----------------------------------------
+//             regsub stuff
+// ----------------------------------------
 
-/* This stuff below really confuses cc on an SGI -- webb */
-
-
-
+/// This stuff below really confuses cc on an SGI
 static fptr_T do_upper(int *d, int c)
 {
     *d = mb_toupper(c);
@@ -8471,25 +8856,23 @@ static fptr_T do_Lower(int *d, int c)
     return (fptr_T)do_Lower;
 }
 
-/*
- * regtilde(): Replace tildes in the pattern by the old pattern.
- *
- * Short explanation of the tilde: It stands for the previous replacement
- * pattern.  If that previous pattern also contains a ~ we should go back a
- * step further...  But we insert the previous pattern into the current one
- * and remember that.
- * This still does not handle the case where "magic" changes.  So require the
- * user to keep his hands off of "magic".
- *
- * The tildes are parsed once before the first call to vim_regsub().
- */
+/// Replace tildes in the pattern by the old pattern.
+///
+/// Short explanation of the tilde: It stands for the previous replacement
+/// pattern. If that previous pattern also contains a ~ we should go back a
+/// step further... But we insert the previous pattern into the current one
+/// and remember that.
+/// This still does not handle the case where "magic" changes. So require the
+/// user to keep his hands off of "magic".
+///
+/// The tildes are parsed once before the first call to vim_regsub().
 uchar_kt *regtilde(uchar_kt *source, int magic)
 {
-    uchar_kt      *newsub = source;
-    uchar_kt      *tmpsub;
-    uchar_kt      *p;
     int len;
     int prevlen;
+    uchar_kt *p;
+    uchar_kt *newsub = source;
+    uchar_kt *tmpsub;
 
     for(p = newsub; *p; ++p)
     {
@@ -8497,24 +8880,27 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
         {
             if(reg_prev_sub != NULL)
             {
-                /* length = len(newsub) - 1 + len(prev_sub) + 1 */
+                // length = len(newsub) - 1 + len(prev_sub) + 1
                 prevlen = (int)STRLEN(reg_prev_sub);
                 tmpsub = xmalloc(STRLEN(newsub) + prevlen);
-                /* copy prefix */
-                len = (int)(p - newsub);              /* not including ~ */
+
+                // copy prefix
+                len = (int)(p - newsub); // not including ~
                 memmove(tmpsub, newsub, (size_t)len);
-                /* interpret tilde */
+
+                // interpret tilde
                 memmove(tmpsub + len, reg_prev_sub, (size_t)prevlen);
 
-                /* copy postfix */
+                // copy postfix
                 if(!magic)
                 {
-                    ++p;    /* back off \ */
+                    ++p; // back off to backslash
                 }
 
                 STRCPY(tmpsub + len + prevlen, p + 1);
 
-                if(newsub != source)                  /* already allocated newsub */
+                // already allocated newsub
+                if(newsub != source)
                 {
                     xfree(newsub);
                 }
@@ -8524,18 +8910,19 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
             }
             else if(magic)
             {
-                STRMOVE(p, p + 1);    /* remove '~' */
+                STRMOVE(p, p + 1); // remove '~'
             }
             else
             {
-                STRMOVE(p, p + 2);    /* remove '\~' */
+                STRMOVE(p, p + 2); // remove '\~'
             }
 
             --p;
         }
         else
         {
-            if(*p == '\\' && p[1])                    /* skip escaped characters */
+            // skip escaped characters
+            if(*p == '\\' && p[1])
             {
                 ++p;
             }
@@ -8549,38 +8936,42 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
 
     xfree(reg_prev_sub);
 
-    if(newsub != source)          /* newsub was allocated, just keep it */
+    // newsub was allocated, just keep it
+    if(newsub != source)
     {
         reg_prev_sub = newsub;
     }
-    else                          /* no ~ found, need to save newsub  */
+    else
     {
+        // no ~ found, need to save newsub
         reg_prev_sub = vim_strsave(newsub);
     }
 
     return newsub;
 }
 
-static int can_f_submatch = FALSE;      /* TRUE when submatch() can be used */
+/// TRUE when submatch() can be used
+static int can_f_submatch = FALSE;
 
-/* These pointers are used instead of reg_match and reg_mmatch for
- * reg_submatch().  Needed for when the substitution string is an expression
- * that contains a call to substitute() and submatch(). */
-static regmatch_T       *submatch_match;
-static regmmatch_T      *submatch_mmatch;
+// These pointers are used instead of reg_match and
+// reg_mmatch for reg_submatch(). Needed for when the
+// substitution string is an expression that contains
+// a call to substitute() and submatch().
+static regmatch_T *submatch_match;
+static regmmatch_T *submatch_mmatch;
 static linenr_T submatch_firstlnum;
 static linenr_T submatch_maxline;
 static int submatch_line_lbr;
 
-/// Put the submatches in "argv[0]" which is a list passed into call_func() by
-/// vim_regsub_both().
+/// Put the submatches in "argv[0]" which is a
+/// list passed into call_func() by vim_regsub_both().
 static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
                               typval_T *argv,
                               int argcount)
 {
+    int i;
+    uchar_kt *s;
     listitem_T *li;
-    int        i;
-    uchar_kt     *s;
 
     if(argcount == 0)
     {
@@ -8590,6 +8981,7 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
 
     // Relies on sl_list to be the first item in staticList10_T.
     init_static_list((staticList10_T *)(argv->vval.v_list));
+
     // There are always 10 list items in staticList10_T.
     li = argv->vval.v_list->lv_first;
 
@@ -8624,61 +9016,77 @@ static void clear_submatch_list(staticList10_T *sl)
     }
 }
 
-/// vim_regsub() - perform substitutions after a vim_regexec() or
-/// vim_regexec_multi() match.
+/// perform substitutions after a vim_regexec() or vim_regexec_multi() match.
 ///
-/// If "copy" is TRUE really copy into "dest".
-/// If "copy" is FALSE nothing is copied, this is just to find out the length
-/// of the result.
+/// If @b copy is TRUE really copy into @b dest. If @b copy is FALSE nothing
+/// is copied, this is just to find out the length of the result.
 ///
-/// If "backslash" is TRUE, a backslash will be removed later, need to double
+/// If @b backslash is TRUE, a backslash will be removed later, need to double
 /// them to keep them, and insert a backslash before a CR to avoid it being
 /// replaced with a line break later.
 ///
-/// Note: The matched text must not change between the call of
-/// vim_regexec()/vim_regexec_multi() and vim_regsub()!  It would make the back
-/// references invalid!
+/// @note
+/// The matched text must not change between the call of
+/// vim_regexec()/vim_regexec_multi() and vim_regsub()!
+/// It would make the back references invalid!
 ///
-/// Returns the size of the replacement, including terminating NUL.
-int vim_regsub(regmatch_T *rmp, uchar_kt *source, typval_T *expr, uchar_kt *dest,
-               int copy, int magic, int backslash)
+/// @return
+/// the size of the replacement, including terminating NUL.
+int vim_regsub(regmatch_T *rmp,
+               uchar_kt *source,
+               typval_T *expr,
+               uchar_kt *dest,
+               int copy,
+               int magic,
+               int backslash)
 {
     reg_match = rmp;
     reg_mmatch = NULL;
     reg_maxline = 0;
     reg_buf = curbuf;
     reg_line_lbr = true;
+
     return vim_regsub_both(source, expr, dest, copy, magic, backslash);
 }
 
-int vim_regsub_multi(regmmatch_T *rmp, linenr_T lnum, uchar_kt *source, uchar_kt *dest, int copy,
-                     int magic, int backslash)
+int vim_regsub_multi(regmmatch_T *rmp,
+                     linenr_T lnum,
+                     uchar_kt *source,
+                     uchar_kt *dest,
+                     int copy,
+                     int magic,
+                     int backslash)
 {
     reg_match = NULL;
     reg_mmatch = rmp;
-    reg_buf = curbuf;             /* always works on the current buffer! */
+    reg_buf = curbuf; // always works on the current buffer!
     reg_firstlnum = lnum;
     reg_maxline = curbuf->b_ml.ml_line_count - lnum;
     reg_line_lbr = false;
+
     return vim_regsub_both(source, NULL, dest, copy, magic, backslash);
 }
 
-static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
-                           int copy, int magic, int backslash)
+static int vim_regsub_both(uchar_kt *source,
+                           typval_T *expr,
+                           uchar_kt *dest,
+                           int copy,
+                           int magic,
+                           int backslash)
 {
-    uchar_kt      *src;
-    uchar_kt      *dst;
-    uchar_kt      *s;
     int c;
     int cc;
     int no = -1;
+    uchar_kt *src;
+    uchar_kt *dst;
+    uchar_kt *s;
     fptr_T func_all = (fptr_T)NULL;
     fptr_T func_one = (fptr_T)NULL;
-    linenr_T clnum = 0;           /* init for GCC */
-    int len = 0;                  /* init for GCC */
+    linenr_T clnum = 0; // init for GCC
+    int len = 0; // init for GCC
     static uchar_kt *eval_result = NULL;
 
-    // Be paranoid...
+    // Be paranoid ...
     if((source == NULL && expr == NULL) || dest == NULL)
     {
         EMSG(_(e_null));
@@ -8693,14 +9101,19 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
     src = source;
     dst = dest;
 
-    // When the substitute part starts with "\=" evaluate it as an expression.
-    if(expr != NULL || (source[0] == '\\' && source[1] == '='
-                        && !can_f_submatch))         // can't do this recursively
+    // When the substitute part starts
+    // with "\=" evaluate it as an expression.
+    if(expr != NULL
+       // can't do this recursively
+       || (source[0] == '\\'
+           && source[1] == '='
+           && !can_f_submatch))
     {
-        // To make sure that the length doesn't change between checking the
-        // length and copying the string, and to speed up things, the
-        // resulting string is saved from the call with "copy" == FALSE to the
-        // call with "copy" == TRUE.
+        // To make sure that the length doesn't
+        // change between checking the length and
+        // copying the string, and to speed up things,
+        // the resulting string is saved from the call
+        // with "copy" == FALSE to the call with "copy" == TRUE.
         if(copy)
         {
             if(eval_result != NULL)
@@ -8713,14 +9126,16 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
         }
         else
         {
-            win_T       *save_reg_win;
+            win_T *save_reg_win;
             int save_ireg_ic;
             bool prev_can_f_submatch = can_f_submatch;
             xfree(eval_result);
-            /* The expression may contain substitute(), which calls us
-             * recursively.  Make sure submatch() gets the text from the first
-             * level.  Don't need to save "reg_buf", because
-             * vim_regexec_multi() can't be called recursively. */
+
+            // The expression may contain substitute(),
+            // which calls us recursively. Make sure submatch()
+            // gets the text from the first level. Don't need to
+            // save "reg_buf", because vim_regexec_multi() can't
+            // be called recursively.
             submatch_match = reg_match;
             submatch_mmatch = reg_mmatch;
             submatch_firstlnum = reg_firstlnum;
@@ -8752,17 +9167,37 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                     if(expr->v_type == VAR_FUNC)
                     {
                         s = expr->vval.v_string;
-                        call_func(s, (int)STRLEN(s), &rettv, 1, argv,
-                                  fill_submatch_list, 0L, 0L, &dummy,
-                                  true, NULL, NULL);
+
+                        call_func(s,
+                                  (int)STRLEN(s),
+                                  &rettv,
+                                  1,
+                                  argv,
+                                  fill_submatch_list,
+                                  0L,
+                                  0L,
+                                  &dummy,
+                                  true,
+                                  NULL,
+                                  NULL);
                     }
                     else if(expr->v_type == VAR_PARTIAL)
                     {
                         partial_T *partial = expr->vval.v_partial;
                         s = partial_name(partial);
-                        call_func(s, (int)STRLEN(s), &rettv, 1, argv,
-                                  fill_submatch_list, 0L, 0L, &dummy,
-                                  true, partial, NULL);
+
+                        call_func(s,
+                                  (int)STRLEN(s),
+                                  &rettv,
+                                  1,
+                                  argv,
+                                  fill_submatch_list,
+                                  0L,
+                                  0L,
+                                  &dummy,
+                                  true,
+                                  partial,
+                                  NULL);
                     }
 
                     if(matchList.sl_list.lv_len > 0)
@@ -8793,9 +9228,9 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
 
                 for(s = eval_result; *s != NUL; mb_ptr_adv(s))
                 {
-                    /* Change NL to CR, so that it becomes a line break,
-                     * unless called from vim_regexec_nl().
-                     * Skip over a backslashed character. */
+                    // Change NL to CR, so that it becomes a line break,
+                    // unless called from vim_regexec_nl(). Skip over a
+                    // backslashed character.
                     if(*s == NL && !submatch_line_lbr)
                     {
                         *s = CAR;
@@ -8804,12 +9239,8 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                     {
                         ++s;
 
-                        /* Change NL to CR here too, so that this works:
-                         * :s/abc\\\ndef/\="aaa\\\nbbb"/  on text:
-                         *   abc\
-                         *   def
-                         * Not when called from vim_regexec_nl().
-                         */
+                        // Change NL to CR here too, so that this works:
+                        // Not when called from vim_regexec_nl().
                         if(*s == NL && !submatch_line_lbr)
                         {
                             *s = CAR;
@@ -8821,7 +9252,7 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
 
                 if(had_backslash && backslash)
                 {
-                    /* Backslashes will be consumed, need to double them. */
+                    // Backslashes will be consumed, need to double them.
                     s = vim_strsave_escaped(eval_result, (uchar_kt *)"\\");
                     xfree(eval_result);
                     eval_result = s;
@@ -8886,11 +9317,11 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                 }
             }
 
-            if(no < 0)              /* Ordinary character. */
+            if(no < 0) // Ordinary character.
             {
                 if(c == K_SPECIAL && src[0] != NUL && src[1] != NUL)
                 {
-                    /* Copy a special key as-is. */
+                    // Copy a special key as-is.
                     if(copy)
                     {
                         *dst++ = c;
@@ -8908,7 +9339,7 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
 
                 if(c == '\\' && *src != NUL)
                 {
-                    /* Check for abbreviations -- webb */
+                    // Check for abbreviations
                     switch(*src)
                     {
                         case 'r':
@@ -8926,15 +9357,15 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                             ++src;
                             break;
 
-                        /* Oh no!  \e already has meaning in subst pat :-( */
-                        /* case 'e':   c = ESC; ++src;  break; */
+                        // Oh no!  \e already has meaning in subst pat :-(
+                        // case 'e':   c = ESC; ++src;  break;
                         case 'b':
                             c = Ctrl_H;
                             ++src;
                             break;
 
-                        /* If "backslash" is TRUE the backslash will be removed
-                         * later.  Used to insert a literal CR. */
+                        // If "backslash" is TRUE the backslash will be
+                        // removed later. Used to insert a literal CR.
                         default:
                             if(backslash)
                             {
@@ -8954,18 +9385,18 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                     c = mb_ptr2char(src - 1);
                 }
 
-                /* Write to buffer, if copy is set. */
+                // Write to buffer, if copy is set.
                 if(func_one != (fptr_T)NULL)
-                    /* Turbo C complains without the typecast */
                 {
+                    // Turbo C complains without the typecast
                     func_one = (fptr_T)(func_one(&cc, c));
                 }
                 else if(func_all != (fptr_T)NULL)
-                    /* Turbo C complains without the typecast */
                 {
+                    // Turbo C complains without the typecast
                     func_all = (fptr_T)(func_all(&cc, c));
                 }
-                else     /* just copy */
+                else // just copy
                 {
                     cc = c;
                 }
@@ -8985,13 +9416,16 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                     {
                         int clen = utf_ptr2len(src - 1);
 
-                        /* If the character length is shorter than "totlen", there
-                         * are composing characters; copy them as-is. */
+                        // If the character length is shorter than
+                        // "totlen", there are composing characters;
+                        // copy them as-is.
                         if(clen < totlen)
                         {
                             if(copy)
+                            {
                                 memmove(dst + 1, src - 1 + clen,
                                         (size_t)(totlen - clen));
+                            }
 
                             dst += totlen - clen;
                         }
@@ -9021,8 +9455,10 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                         s = reg_getline(clnum) + reg_mmatch->startpos[no].col;
 
                         if(reg_mmatch->endpos[no].lnum == clnum)
+                        {
                             len = reg_mmatch->endpos[no].col
                                   - reg_mmatch->startpos[no].col;
+                        }
                         else
                         {
                             len = (int)STRLEN(s);
@@ -9078,7 +9514,7 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                                 break;
                             }
                         }
-                        else if(*s == NUL)        /* we hit NUL. */
+                        else if(*s == NUL) // we hit NUL.
                         {
                             if(copy)
                             {
@@ -9091,12 +9527,10 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                         {
                             if(backslash && (*s == CAR || *s == '\\'))
                             {
-                                /*
-                                 * Insert a backslash in front of a CR, otherwise
-                                 * it will be replaced by a line break.
-                                 * Number of backslashes will be halved later,
-                                 * double them here.
-                                 */
+                                // Insert a backslash in front of a CR,
+                                // otherwise it will be replaced by a line
+                                // break. Number of backslashes will be
+                                // halved later, double them here.
                                 if(copy)
                                 {
                                     dst[0] = '\\';
@@ -9117,16 +9551,16 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                                 }
 
                                 if(func_one != (fptr_T)NULL)
-                                    /* Turbo C complains without the typecast */
                                 {
+                                    // Turbo C complains without the typecast
                                     func_one = (fptr_T)(func_one(&cc, c));
                                 }
                                 else if(func_all != (fptr_T)NULL)
-                                    /* Turbo C complains without the typecast */
                                 {
+                                    // Turbo C complains without the typecast
                                     func_all = (fptr_T)(func_all(&cc, c));
                                 }
-                                else             /* just copy */
+                                else // just copy
                                 {
                                     cc = c;
                                 }
@@ -9135,8 +9569,8 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
                                 {
                                     int l;
 
-                                    /* Copy composing characters separately, one
-                                     * at a time. */
+                                    // Copy composing characters
+                                    // separately, one at a time.
                                     if(enc_utf8)
                                     {
                                         l = utf_ptr2len(s) - 1;
@@ -9180,39 +9614,39 @@ static int vim_regsub_both(uchar_kt *source, typval_T *expr, uchar_kt *dest,
     }
 
 exit:
+
     return (int)((dst - dest) + 1);
 }
 
-
-/*
- * Call reg_getline() with the line numbers from the submatch.  If a
- * substitute() was used the reg_maxline and other values have been
- * overwritten.
- */
+/// Call reg_getline() with the line numbers from the submatch.
+/// If a substitute() was used the reg_maxline and other values
+/// have been overwritten.
 static uchar_kt *reg_getline_submatch(linenr_T lnum)
 {
     uchar_kt *s;
     linenr_T save_first = reg_firstlnum;
     linenr_T save_max = reg_maxline;
+
     reg_firstlnum = submatch_firstlnum;
     reg_maxline = submatch_maxline;
     s = reg_getline(lnum);
     reg_firstlnum = save_first;
     reg_maxline = save_max;
+
     return s;
 }
 
-/*
- * Used for the submatch() function: get the string from the n'th submatch in
- * allocated memory.
- * Returns NULL when not in a ":s" command and for a non-existing submatch.
- */
+/// Used for the submatch() function:
+/// get the string from the n'th submatch in allocated memory.
+///
+/// @return
+/// NULL when not in a ":s" command and for a non-existing submatch.
 uchar_kt *reg_submatch(int no)
 {
-    uchar_kt      *retval = NULL;
-    uchar_kt      *s;
     int round;
     linenr_T lnum;
+    uchar_kt *s;
+    uchar_kt *retval = NULL;
 
     if(!can_f_submatch || no < 0)
     {
@@ -9223,10 +9657,8 @@ uchar_kt *reg_submatch(int no)
     {
         ssize_t len;
 
-        /*
-         * First round: compute the length and allocate memory.
-         * Second round: copy the text.
-         */
+        // First round: compute the length and allocate memory.
+        // Second round: copy the text.
         for(round = 1; round <= 2; ++round)
         {
             lnum = submatch_mmatch->startpos[no].lnum;
@@ -9236,16 +9668,18 @@ uchar_kt *reg_submatch(int no)
                 return NULL;
             }
 
-            s = reg_getline_submatch(lnum) + submatch_mmatch->startpos[no].col;
+            s = reg_getline_submatch(lnum)
+                + submatch_mmatch->startpos[no].col;
 
-            if(s == NULL)         /* anti-crash check, cannot happen? */
+            // anti-crash check, cannot happen ?
+            if(s == NULL)
             {
                 break;
             }
 
             if(submatch_mmatch->endpos[no].lnum == lnum)
             {
-                /* Within one line: take form start to end col. */
+                // Within one line: take form start to end col.
                 len = submatch_mmatch->endpos[no].col
                       - submatch_mmatch->startpos[no].col;
 
@@ -9258,8 +9692,9 @@ uchar_kt *reg_submatch(int no)
             }
             else
             {
-                /* Multiple lines: take start line from start col, middle
-                 * lines completely and end line up to end col. */
+                // Multiple lines:
+                // take start line from start col, middle
+                // lines completely and end line up to end col.
                 len = STRLEN(s);
 
                 if(round == 2)
@@ -9291,8 +9726,11 @@ uchar_kt *reg_submatch(int no)
                 }
 
                 if(round == 2)
-                    STRNCPY(retval + len, reg_getline_submatch(lnum),
+                {
+                    STRNCPY(retval + len,
+                            reg_getline_submatch(lnum),
                             submatch_mmatch->endpos[no].col);
+                }
 
                 len += submatch_mmatch->endpos[no].col;
 
@@ -9327,11 +9765,14 @@ uchar_kt *reg_submatch(int no)
     return retval;
 }
 
-// Used for the submatch() function with the optional non-zero argument: get
-// the list of strings from the n'th submatch in allocated memory with NULs
-// represented in NLs.
-// Returns a list of allocated strings.  Returns NULL when not in a ":s"
-// command, for a non-existing submatch and for any error.
+/// Used for the submatch() function with the optional non-zero argument:
+/// get the list of strings from the n'th submatch in allocated memory
+/// with NULs represented in NLs.
+///
+/// @return
+/// - a list of allocated strings.
+/// - NULL when not in a ":s" command, for a
+///   non-existing submatch and for any error.
 list_T *reg_submatch_list(int no)
 {
     if(!can_f_submatch || no < 0)
@@ -9387,7 +9828,9 @@ list_T *reg_submatch_list(int no)
         }
 
         list = tv_list_alloc();
-        tv_list_append_string(list, s, (const char *)submatch_match->endp[no] - s);
+
+        tv_list_append_string(list, s,
+                              (const char *)submatch_match->endp[no] - s);
     }
 
     return list;
@@ -9402,8 +9845,7 @@ static regengine_T bt_regengine =
     (uchar_kt *)""
 };
 
-
-// XXX Do not allow headers generator to catch definitions from regexp_nfa.c
+// Do not allow headers generator to catch definitions from regexp_nfa.c
 #ifndef DEFINE_KEEP_ATTRIBUTES
     #include "nvim/regexp_nfa.c"
 #endif
@@ -9417,8 +9859,8 @@ static regengine_T nfa_regengine =
     (uchar_kt *)""
 };
 
-/* Which regexp engine to use? Needed for vim_regcomp().
- * Must match with 'regexpengine'. */
+/// Which regexp engine to use ?
+/// Needed for vim_regcomp(). Must match with 'regexpengine'.
 static int regexp_engine = 0;
 
 #ifdef REGEXP_DEBUG
@@ -9430,19 +9872,19 @@ static uchar_kt regname[][30] =
 };
 #endif
 
-/*
- * Compile a regular expression into internal code.
- * Returns the program in allocated memory.
- * Use vim_regfree() to free the memory.
- * Returns NULL for an error.
- */
+/// Compile a regular expression into internal code.
+///
+/// @return
+/// - the program in allocated memory.
+///   Use vim_regfree() to free the memory.
+/// - NULL for an error.
 regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
 {
-    regprog_T   *prog = NULL;
-    uchar_kt      *expr = expr_arg;
+    regprog_T *prog = NULL;
+    uchar_kt *expr = expr_arg;
     regexp_engine = p_re;
 
-    /* Check for prefix "\%#=", that sets the regexp engine */
+    // Check for prefix "\%#=", that sets the regexp engine
     if(STRNCMP(expr, "\\%#=", 4) == 0)
     {
         int newengine = expr[4] - '0';
@@ -9453,16 +9895,17 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
         {
             regexp_engine = expr[4] - '0';
             expr += 5;
-#ifdef REGEXP_DEBUG
+
+            #ifdef REGEXP_DEBUG
             smsg("New regexp mode selected (%d): %s",
                  regexp_engine,
                  regname[newengine]);
-#endif
+            #endif
         }
         else
         {
-            EMSG(_(
-                     "E864: \\%#= can only be followed by 0, 1, or 2. The automatic engine will be used "));
+            EMSG(_("E864: \\%#= can only be followed by "
+                   "0, 1, or 2. The automatic engine will be used "));
             regexp_engine = AUTOMATIC_ENGINE;
         }
     }
@@ -9470,13 +9913,13 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
     bt_regengine.expr = expr;
     nfa_regengine.expr = expr;
 
-    /*
-     * First try the NFA engine, unless backtracking was requested.
-     */
+    // First try the NFA engine, unless backtracking was requested.
     if(regexp_engine != BACKTRACKING_ENGINE)
     {
         prog = nfa_regengine.regcomp(expr,
-                                     re_flags + (regexp_engine == AUTOMATIC_ENGINE ? RE_AUTO : 0));
+                                     re_flags
+                                     + (regexp_engine == AUTOMATIC_ENGINE
+                                        ? RE_AUTO : 0));
     }
     else
     {
@@ -9486,8 +9929,7 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
     // Check for error compiling regexp with initial engine.
     if(prog == NULL)
     {
-#ifdef BT_REGEXP_DEBUG_LOG
-
+    #ifdef BT_REGEXP_DEBUG_LOG
         // Debugging log for NFA.
         if(regexp_engine != BACKTRACKING_ENGINE)
         {
@@ -9502,12 +9944,11 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
                 EMSG2("(NFA) Could not open \"%s\" to write !!!",
                       BT_REGEXP_DEBUG_LOG_NAME);
         }
+    #endif
 
-#endif
-
-        // If the NFA engine failed, try the backtracking engine. The NFA engine
-        // also fails for patterns that it can't handle well but are still valid
-        // patterns, thus a retry should work.
+        // If the NFA engine failed, try the backtracking engine.
+        // The NFA engine also fails for patterns that it can't
+        // handle well but are still valid patterns, thus a retry should work.
         if(regexp_engine == AUTOMATIC_ENGINE)
         {
             regexp_engine = BACKTRACKING_ENGINE;
@@ -9517,8 +9958,8 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
 
     if(prog != NULL)
     {
-        // Store the info needed to call regcomp() again when the engine turns out
-        // to be very slow when executing it.
+        // Store the info needed to call regcomp() again when
+        // the engine turns out to be very slow when executing it.
         prog->re_engine = regexp_engine;
         prog->re_flags = re_flags;
     }
@@ -9526,9 +9967,7 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
     return prog;
 }
 
-/*
- * Free a compiled regexp program, returned by vim_regcomp().
- */
+/// Free a compiled regexp program, returned by vim_regcomp().
 void vim_regfree(regprog_T *prog)
 {
     if(prog != NULL)
@@ -9560,16 +9999,20 @@ static void report_re_switch(uchar_kt *pat)
 /// @param nl
 ///
 /// @return TRUE if there is a match, FALSE if not.
-static int vim_regexec_both(regmatch_T *rmp, uchar_kt *line, colnr_T col, bool nl)
+static int vim_regexec_both(regmatch_T *rmp,
+                            uchar_kt *line,
+                            colnr_T col, bool nl)
 {
     int result = rmp->regprog->engine->regexec_nl(rmp, line, col, nl);
 
-    // NFA engine aborted because it's very slow, use backtracking engine instead.
+    // NFA engine aborted because it's very slow,
+    // use backtracking engine instead.
     if(rmp->regprog->re_engine == AUTOMATIC_ENGINE
        && result == NFA_TOO_EXPENSIVE)
     {
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
+
         uchar_kt *pat = vim_strsave(((nfa_regprog_T *)rmp->regprog)->pattern);
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
@@ -9588,60 +10031,83 @@ static int vim_regexec_both(regmatch_T *rmp, uchar_kt *line, colnr_T col, bool n
     return result > 0;
 }
 
-// Note: "*prog" may be freed and changed.
-// Return TRUE if there is a match, FALSE if not.
-int vim_regexec_prog(regprog_T **prog, bool ignore_case, uchar_kt *line,
+///
+/// @return
+/// TRUE if there is a match, FALSE if not.
+///
+/// @note
+/// "*prog" may be freed and changed.
+int vim_regexec_prog(regprog_T **prog,
+                     bool ignore_case,
+                     uchar_kt *line,
                      colnr_T col)
 {
-    regmatch_T regmatch = {.regprog = *prog, .rm_ic = ignore_case};
+    regmatch_T regmatch = { .regprog = *prog, .rm_ic = ignore_case };
     int r = vim_regexec_both(&regmatch, line, col, false);
+
     *prog = regmatch.regprog;
+
     return r;
 }
 
-// Note: "rmp->regprog" may be freed and changed.
-// Return TRUE if there is a match, FALSE if not.
+/// @return
+/// TRUE if there is a match, FALSE if not.
+///
+/// @note
+/// "rmp->regprog" may be freed and changed.
 int vim_regexec(regmatch_T *rmp, uchar_kt *line, colnr_T col)
 {
     return vim_regexec_both(rmp, line, col, false);
 }
 
-// Like vim_regexec(), but consider a "\n" in "line" to be a line break.
-// Note: "rmp->regprog" may be freed and changed.
-// Return TRUE if there is a match, FALSE if not.
+/// Like vim_regexec(), but consider a "\n" in "line" to be a line break.
+///
+/// @return
+/// TRUE if there is a match, FALSE if not.
+///
+/// @note
+/// "rmp->regprog" may be freed and changed.
 int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, colnr_T col)
 {
     return vim_regexec_both(rmp, line, col, true);
 }
 
-/*
- * Match a regexp against multiple lines.
- * "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
- * Note: "rmp->regprog" may be freed and changed.
- * Uses curbuf for line count and 'iskeyword'.
- *
- * Return zero if there is no match.  Return number of lines contained in the
- * match otherwise.
- */
-long vim_regexec_multi(
-    regmmatch_T *rmp,
-    win_T       *win,               /* window in which to search or NULL */
-    buf_T       *buf,               /* buffer in which to search */
-    linenr_T lnum,                  /* nr of line to start looking for match */
-    colnr_T col,                    /* column to start looking for match */
-    proftime_T  *tm                 /* timeout limit or NULL */
-)
+/// Match a regexp against multiple lines.
+/// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
+///
+/// @param rmp
+/// @param win     window in which to search or NULL
+/// @param buf     buffer in which to search
+/// @param lnum    nr of line to start looking for match
+/// @param col     column to start looking for match
+/// @param tm      timeout limit or NULL
+///
+/// @return
+/// - zero if there is no match.
+/// - number of lines contained in the match otherwise.
+///
+/// @note
+/// - "rmp->regprog" may be freed and changed.
+/// - Uses curbuf for line count and 'iskeyword'.
+long vim_regexec_multi(regmmatch_T *rmp,
+                       win_T *win,
+                       buf_T *buf,
+                       linenr_T lnum,
+                       colnr_T col,
+                       proftime_T *tm)
 {
-    int result = rmp->regprog->engine->regexec_multi(rmp, win, buf, lnum, col,
-                                                     tm);
+    int result =
+        rmp->regprog->engine->regexec_multi(rmp, win, buf, lnum, col, tm);
 
-    // NFA engine aborted because it's very slow, use backtracking engine instead.
+    // NFA engine aborted because it's very slow,
+    // use backtracking engine instead.
     if(rmp->regprog->re_engine == AUTOMATIC_ENGINE
        && result == NFA_TOO_EXPENSIVE)
     {
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
         uchar_kt *pat = vim_strsave(((nfa_regprog_T *)rmp->regprog)->pattern);
+
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
         report_re_switch(pat);
@@ -9649,8 +10115,8 @@ long vim_regexec_multi(
 
         if(rmp->regprog != NULL)
         {
-            result = rmp->regprog->engine->regexec_multi(rmp, win, buf, lnum, col,
-                                                         tm);
+            result =
+                rmp->regprog->engine->regexec_multi(rmp, win, buf, lnum, col, tm);
         }
 
         xfree(pat);
