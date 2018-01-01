@@ -1,28 +1,35 @@
 # Note:
-# - The number sign must be the first char for a comment line following by a space
-# - If the directory name contains space, the whole path should be surrounded by
-#   double quotation marks, like "C:\Program Files\mingw64"
+# - The number sign must be the first char for a comment 
+#   line following by a space
+# - If the directory name contains space, the whole path
+#   should be surrounded by double quotation marks, 
+#   like "C:\Program Files\mingw64"
 # - Make sure no trailing space for configuration line
-# - Change the command to old style for windows 10, reboot then continue
+# - Change the command to old style for windows 10, reboot 
+#   then continue
 # - Required: MUST config the correct one for building
 #   Optional: should just given a fake one
+# - The path separator used following can be \ or /, all
+#   will be ok. But if you used \, then it maybe conflict 
+#   with the escape-sequence, so if have some problem, change
+#   to / for a try.
 
-# Required
-# Mingw Root Dir of MSYS2, which should be '...\mingw64' or '...\mingw32'
-GKIDE_MINGW_TOOLCHAIN_DIR=D:\App\Msys2\mingw64
+# Required, Mingw Root Dir of MSYS2
+# should be '...\mingw64' or '...\mingw32'
+GKIDE_MINGW_TOOLCHAIN_DIR=D:/App/Msys2/mingw64
 
-# Required
-# Path to the dir of MSYS2's usr/bin
-GKIDE_MSYS2_USR_BIN_DIR=D:\App\Msys2\usr\bin
+# Required, MSYS2's usr/bin
+GKIDE_MSYS2_USR_BIN_DIR=D:/App/Msys2/usr/bin
 
 # Required
 # Path to the dir which contains 'git.exe'
-GKIDE_MSYS2_GIT_BIN_DIR=D:\App\Git\bin
+GKIDE_MSYS2_GIT_BIN_DIR=D:/App/Git/bin
 
 # Optional
 # Path to the dir which contains 'nodejs.exe'
-GKIDE_NODEJS_INSTALL_DIR=D:\App\nodejs
+GKIDE_NODEJS_INSTALL_DIR=D:/App/nodejs
 
-# Optional
-# Path to the graphviz install 'bin' dir, which contains 'dot.exe', 'gvedit.exe'
-GKIDE_GRAPHVIZ_BIN_DIR=D:\AppData\graphviz-2.38\bin
+# Optional, Path to the graphviz install 'bin' dir, 
+# which contains 'dot.exe', 'gvedit.exe', if not set
+# just remove the value(empty value is ok)
+GKIDE_GRAPHVIZ_BIN_DIR=D:/AppData/graphviz-2.38/bin
