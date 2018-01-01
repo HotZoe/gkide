@@ -30,8 +30,8 @@
 
 char *nvim_gkide_version = "NVIM v" NVIM_VERSION_BASIC " (GKIDE v" GKIDE_VERSION_BASIC ")";
 
-static char_u *compiled_sys = (char_u *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
-static char_u *compiled_usr = (char_u *)BUILD_BY_USER;
+static uchar_kt *compiled_sys = (uchar_kt *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
+static uchar_kt *compiled_usr = (uchar_kt *)BUILD_BY_USER;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "version.c.generated.h"
@@ -531,7 +531,7 @@ void intro_message(int colon)
 
             if(*p != NUL)
             {
-                do_intro_line(row_num, (char_u *)p, 0);
+                do_intro_line(row_num, (uchar_kt *)p, 0);
             }
 
             row_num++;
@@ -540,7 +540,7 @@ void intro_message(int colon)
 
     for(int i=0; i < blanklines/2; ++i)
     {
-        do_intro_line(row_num, (char_u *)"", 0);
+        do_intro_line(row_num, (uchar_kt *)"", 0);
         row_num++;
     }
 
@@ -552,10 +552,10 @@ void intro_message(int colon)
     }
 }
 
-static void do_intro_line(long row, char_u *mesg, int attr)
+static void do_intro_line(long row, uchar_kt *mesg, int attr)
 {
     long col;
-    char_u *p;
+    uchar_kt *p;
     int l;
     int clen;
 

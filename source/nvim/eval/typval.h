@@ -53,7 +53,7 @@ typedef struct
 {
     union
     {
-        char_u *funcref;
+        uchar_kt *funcref;
         partial_T *partial;
     } data;
     CallbackType type;
@@ -114,7 +114,7 @@ typedef struct
         varnumber_T v_number;      ///< Number, for VAR_NUMBER.
         SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
         float_T v_float;  ///< Floating-point number, for VAR_FLOAT.
-        char_u *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
+        uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
         list_T *v_list;   ///< List for VAR_LIST, can be NULL.
         dict_T *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
         partial_T *v_partial;      ///< Closure: function with args.
@@ -183,8 +183,8 @@ typedef struct
 struct dictitem_S
 {
     typval_T di_tv;   ///< type and value of the variable
-    char_u di_flags;  ///< flags (only used for variable)
-    char_u di_key[1]; ///< key (actually longer!)
+    uchar_kt di_flags;  ///< flags (only used for variable)
+    uchar_kt di_key[1]; ///< key (actually longer!)
 };
 
 #define TV_DICTITEM_STRUCT(KEY_LEN)                      \
@@ -192,7 +192,7 @@ struct dictitem_S
     {                                                    \
         typval_T di_tv;           /* scope dictionary */ \
         uint8_t  di_flags;        /* Flags.           */ \
-        char_u   di_key[KEY_LEN]; /* Key value.       */ \
+        uchar_kt   di_key[KEY_LEN]; /* Key value.       */ \
     }
 
 /// Structure to hold a scope dictionary
@@ -274,7 +274,7 @@ struct ufunc
                                    ///< used for s: variables
     int          uf_refcount;      ///< reference count, see func_name_refcount()
     funccall_T   *uf_scoped;       ///< l: local variables for closure
-    char_u       uf_name[1];       ///< name of function (actually longer);
+    uchar_kt       uf_name[1];       ///< name of function (actually longer);
                                    ///< can start with <SNR>123_
                                    ///< (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
 };
@@ -285,7 +285,7 @@ struct ufunc
 struct partial_S
 {
     int pt_refcount;   ///< Reference count.
-    char_u *pt_name;   ///< Function name; when NULL use pt_func->name.
+    uchar_kt *pt_name;   ///< Function name; when NULL use pt_func->name.
     ufunc_T *pt_func;  ///< Function pointer; when NULL lookup function with pt_name.
     bool pt_auto;      ///< When true the partial was created by using dict.member
                        ///< in handle_subscript().

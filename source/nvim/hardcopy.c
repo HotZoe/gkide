@@ -4,7 +4,7 @@
 ///
 /// To implement printing on a platform, the following functions must be defined:
 ///
-/// int mch_print_init(prt_settings_T *psettings, char_u *jobname, int forceit)
+/// int mch_print_init(prt_settings_T *psettings, uchar_kt *jobname, int forceit)
 /// Called once. Code should display printer dialogue (if appropriate) and
 /// determine printer font and margin settings. Reset has_color if the printer
 /// doesn't support colors at all.
@@ -14,7 +14,7 @@
 ///   Called to start the print job.
 ///   Return FALSE to abort.
 ///
-/// - int mch_print_begin_page(char_u *msg)
+/// - int mch_print_begin_page(uchar_kt *msg)
 ///   Called at the start of each page.
 ///   @b msg indicates the progress of the print job, can be NULL.
 ///   Return FALSE to abort.
@@ -50,7 +50,7 @@
 ///   Sets the current position at the start of line "page_line".
 ///   If margin is TRUE start in the left margin (for header and line number).
 ///
-/// - int mch_print_text_out(char_u *p, size_t len);
+/// - int mch_print_text_out(uchar_kt *p, size_t len);
 ///   Output one character of text p[len] at the current position.
 ///   Return TRUE if there is no room for another character in the same line.
 ///
@@ -231,11 +231,11 @@ struct prt_ps_mbfont_S
 
 struct prt_ps_resource_S
 {
-    char_u name[64];
-    char_u filename[MAXPATHL + 1];
+    uchar_kt name[64];
+    uchar_kt filename[MAXPATHL + 1];
     int type;
-    char_u title[256];
-    char_u version[256];
+    uchar_kt title[256];
+    uchar_kt version[256];
 };
 
 struct prt_dsc_comment_S
@@ -248,7 +248,7 @@ struct prt_dsc_comment_S
 struct prt_dsc_line_S
 {
     int type;
-    char_u *string;
+    uchar_kt *string;
     int len;
 };
 
@@ -258,7 +258,7 @@ struct prt_dsc_line_S
 
 struct prt_resfile_buffer_S
 {
-    char_u buffer[PRT_FILE_BUFFER_LEN];
+    uchar_kt buffer[PRT_FILE_BUFFER_LEN];
     int len;
     int line_start;
     int line_end;
@@ -270,14 +270,14 @@ struct prt_resfile_buffer_S
 
 /// Parse 'printoptions' and set the flags in "printer_opts".
 /// Returns an error message or NULL;
-char_u *parse_printoptions(void)
+uchar_kt *parse_printoptions(void)
 {
     return parse_list_options(p_popt, printer_opts, OPT_PRINT_NUM_OPTIONS);
 }
 
 /// Parse 'printoptions' and set the flags in "printer_opts".
 /// Returns an error message or NULL;
-char_u *parse_printmbfont(void)
+uchar_kt *parse_printmbfont(void)
 {
     return parse_list_options(p_pmfn, mbfont_opts, OPT_MBFONT_NUM_OPTIONS);
 }
@@ -289,16 +289,16 @@ char_u *parse_printmbfont(void)
 ///
 /// Returns an error message for an illegal option, NULL otherwise.
 /// Only used for the printer at the moment...
-static char_u *parse_list_options(char_u *option_str,
+static uchar_kt *parse_list_options(uchar_kt *option_str,
                                   option_table_T *table,
                                   size_t table_size)
 {
     option_table_T *old_opts;
-    char_u *ret = NULL;
-    char_u *stringp;
-    char_u *colonp;
-    char_u *commap;
-    char_u *p;
+    uchar_kt *ret = NULL;
+    uchar_kt *stringp;
+    uchar_kt *colonp;
+    uchar_kt *commap;
+    uchar_kt *p;
     size_t idx = 0; // init for GCC
     int len;
 
@@ -320,7 +320,7 @@ static char_u *parse_list_options(char_u *option_str,
 
         if(colonp == NULL)
         {
-            ret = (char_u *)N_("E550: Missing colon");
+            ret = (uchar_kt *)N_("E550: Missing colon");
             break;
         }
 
@@ -343,7 +343,7 @@ static char_u *parse_list_options(char_u *option_str,
 
         if(idx == table_size)
         {
-            ret = (char_u *)N_("E551: Illegal component");
+            ret = (uchar_kt *)N_("E551: Illegal component");
             break;
         }
 
@@ -354,7 +354,7 @@ static char_u *parse_list_options(char_u *option_str,
         {
             if(!ascii_isdigit(*p))
             {
-                ret = (char_u *)N_("E552: digit expected");
+                ret = (uchar_kt *)N_("E552: digit expected");
                 break;
             }
 
@@ -487,7 +487,7 @@ static void prt_line_number(prt_settings_T *psettings,
                             linenr_T lnum)
 {
     int i;
-    char_u tbuf[20];
+    uchar_kt tbuf[20];
     prt_set_fg(psettings->number.fg_color);
     prt_set_bg(psettings->number.bg_color);
 
@@ -566,8 +566,8 @@ static void prt_header(prt_settings_T *psettings, int pagenum, linenr_T lnum)
 {
     int width = psettings->chars_per_line;
     int page_line;
-    char_u *tbuf;
-    char_u *p;
+    uchar_kt *tbuf;
+    uchar_kt *p;
 
     // Also use the space for the line number.
     if(prt_use_number())
@@ -594,7 +594,7 @@ static void prt_header(prt_settings_T *psettings, int pagenum, linenr_T lnum)
         curwin->w_topline = lnum;
         curwin->w_botline = lnum + 63;
         printer_page_num = pagenum;
-        use_sandbox = was_set_insecurely((char_u *)"printheader", 0);
+        use_sandbox = was_set_insecurely((uchar_kt *)"printheader", 0);
 
         build_stl_str_hl(curwin,
                          tbuf,
@@ -662,7 +662,7 @@ static void prt_header(prt_settings_T *psettings, int pagenum, linenr_T lnum)
 }
 
 /// Display a print status message.
-static void prt_message(char_u *s)
+static void prt_message(uchar_kt *s)
 {
     screen_fill((int)Rows - 1, (int)Rows, 0, (int)Columns, ' ', ' ', 0);
     screen_puts(s, (int)Rows - 1, 0, hl_attr(HLF_R));
@@ -682,7 +682,7 @@ void ex_hardcopy(exarg_T *eap)
 
     if(*eap->arg == '>')
     {
-        char_u  *errormsg = NULL;
+        uchar_kt  *errormsg = NULL;
 
         // Expand things like "%.ps".
         if(expand_filename(eap, eap->cmdlinep, &errormsg) == FAIL)
@@ -709,7 +709,7 @@ void ex_hardcopy(exarg_T *eap)
     // for example the engine might generate HTML or PS.)
     if(mch_print_init(&settings,
                       curbuf->b_fname == NULL
-                      ? (char_u *)buf_spname(curbuf)
+                      ? (uchar_kt *)buf_spname(curbuf)
                       : curbuf->b_sfname == NULL
                       ? curbuf->b_fname
                       : curbuf->b_sfname,
@@ -746,7 +746,7 @@ void ex_hardcopy(exarg_T *eap)
     if(prt_use_number() && settings.do_syntax)
     {
         int id;
-        id = syn_name2id((char_u *)"LineNr");
+        id = syn_name2id((uchar_kt *)"LineNr");
 
         if(id > 0)
         {
@@ -963,7 +963,7 @@ static colnr_T hardcopy_line(prt_settings_T *psettings,
                              prt_pos_T *ppos)
 {
     colnr_T col;
-    char_u *line;
+    uchar_kt *line;
     int need_break = FALSE;
     int outputlen;
     int tab_spaces;
@@ -1038,7 +1038,7 @@ static colnr_T hardcopy_line(prt_settings_T *psettings,
 
             while(tab_spaces > 0)
             {
-                need_break = mch_print_text_out((char_u *)" ", 1);
+                need_break = mch_print_text_out((uchar_kt *)" ", 1);
                 print_pos++;
                 tab_spaces--;
 
@@ -1435,8 +1435,8 @@ static struct prt_ps_mbfont_S prt_ps_mbfonts[] =
 // VIM      Prolog  CIDProlog
 // 6.2      1.3
 // 7.0      1.4     1.0
-#define PRT_PROLOG_VERSION      ((char_u *)"1.4")
-#define PRT_CID_PROLOG_VERSION  ((char_u *)"1.0")
+#define PRT_PROLOG_VERSION      ((uchar_kt *)"1.4")
+#define PRT_CID_PROLOG_VERSION  ((uchar_kt *)"1.0")
 
 /// String versions of PS resource types,
 /// indexed by constants above so don't re-order!
@@ -1490,7 +1490,7 @@ static struct prt_dsc_comment_S prt_dsc_table[] =
 // Variables for the output PostScript file.
 static FILE *prt_ps_fd;
 static int prt_file_error;
-static char_u *prt_ps_file_name = NULL;
+static uchar_kt *prt_ps_file_name = NULL;
 
 // Various offsets and dimensions in default PostScript
 // user space (points). Used for text positioning calculations
@@ -1537,7 +1537,7 @@ static int prt_tumble;
 static int prt_collate;
 
 // Buffers used when generating PostScript output
-static char_u prt_line_buffer[257];
+static uchar_kt prt_line_buffer[257];
 static garray_T prt_ps_buffer = GA_EMPTY_INIT_VALUE;
 
 static int prt_do_conv;
@@ -1551,23 +1551,23 @@ static int prt_in_ascii;
 static int prt_half_width;
 static char *prt_ascii_encoding;
 
-static char_u prt_hexchar[] = "0123456789abcdef";
+static uchar_kt prt_hexchar[] = "0123456789abcdef";
 
-static void prt_write_file_raw_len(char_u *buffer, size_t bytes)
+static void prt_write_file_raw_len(uchar_kt *buffer, size_t bytes)
 {
-    if(!prt_file_error && fwrite(buffer, sizeof(char_u), bytes, prt_ps_fd) != bytes)
+    if(!prt_file_error && fwrite(buffer, sizeof(uchar_kt), bytes, prt_ps_fd) != bytes)
     {
         EMSG(_("E455: Error writing to PostScript output file"));
         prt_file_error = TRUE;
     }
 }
 
-static void prt_write_file(char_u *buffer)
+static void prt_write_file(uchar_kt *buffer)
 {
     prt_write_file_len(buffer, STRLEN(buffer));
 }
 
-static void prt_write_file_len(char_u *buffer, size_t bytes)
+static void prt_write_file_len(uchar_kt *buffer, size_t bytes)
 {
     prt_write_file_raw_len(buffer, bytes);
 }
@@ -1829,9 +1829,9 @@ static void prt_flush_buffer(void)
     }
 }
 
-static void prt_resource_name(char_u *filename, void *cookie)
+static void prt_resource_name(uchar_kt *filename, void *cookie)
 {
-    char_u *resource_filename = cookie;
+    uchar_kt *resource_filename = cookie;
 
     if(STRLEN(filename) >= MAXPATHL)
     {
@@ -1845,7 +1845,7 @@ static void prt_resource_name(char_u *filename, void *cookie)
 
 static int prt_find_resource(char *name, struct prt_ps_resource_S *resource)
 {
-    char_u *buffer;
+    uchar_kt *buffer;
     int retval;
     buffer = xmallocz(MAXPATHL);
     STRLCPY(resource->name, name, 64);
@@ -2031,7 +2031,7 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
 
     // Parse first line to ensure valid resource file
     prt_resfile.len = (int)fread((char *)prt_resfile.buffer,
-                                 sizeof(char_u),
+                                 sizeof(uchar_kt),
                                  PRT_FILE_BUFFER_LEN,
                                  fd_resource);
 
@@ -2174,7 +2174,7 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
 }
 
 static int prt_check_resource(struct prt_ps_resource_S *resource,
-                              char_u *version)
+                              uchar_kt *version)
 {
     // Version number m.n should match, the revision number does not matter
     if(STRNCMP(resource->version, version, STRLEN(version)))
@@ -2507,7 +2507,7 @@ static int prt_get_cpl(void)
     return (int)((prt_right_margin - prt_left_margin) / prt_char_width);
 }
 
-static void prt_build_cid_fontname(int font, char_u *name, int name_len)
+static void prt_build_cid_fontname(int font, uchar_kt *name, int name_len)
 {
     assert(name_len >= 0);
     char *fontname = xstrndup((char *)name, (size_t)name_len);
@@ -2603,17 +2603,17 @@ static int prt_match_charset(char *p_charset,
 }
 
 int mch_print_init(prt_settings_T *psettings,
-                   char_u *jobname,
+                   uchar_kt *jobname,
                    int FUNC_ARGS_UNUSED_REALY(forceit))
 {
     int i;
     char *paper_name;
     int paper_strlen;
     int fontsize;
-    char_u *p;
+    uchar_kt *p;
     int props;
     int cmap = 0;
-    char_u *p_encoding;
+    uchar_kt *p_encoding;
     struct prt_ps_encoding_S *p_mbenc;
     struct prt_ps_encoding_S *p_mbenc_first;
     struct prt_ps_charset_S  *p_mbchar = NULL;
@@ -2963,7 +2963,7 @@ int mch_print_init(prt_settings_T *psettings,
 static int prt_add_resource(struct prt_ps_resource_S *resource)
 {
     FILE *fd_resource;
-    char_u resource_buffer[512];
+    uchar_kt resource_buffer[512];
     size_t bytes_read;
     fd_resource = mch_fopen((char *)resource->filename, READBIN);
 
@@ -2982,7 +2982,7 @@ static int prt_add_resource(struct prt_ps_resource_S *resource)
     for(;;)
     {
         bytes_read = fread((char *)resource_buffer,
-                           sizeof(char_u),
+                           sizeof(uchar_kt),
                            sizeof(resource_buffer),
                            fd_resource);
 
@@ -3028,8 +3028,8 @@ int mch_print_begin(prt_settings_T *psettings)
     struct prt_ps_resource_S res_prolog;
     struct prt_ps_resource_S res_encoding;
     char buffer[256];
-    char_u *p_encoding;
-    char_u *p;
+    uchar_kt *p_encoding;
+    uchar_kt *p;
     struct prt_ps_resource_S res_cidfont;
     struct prt_ps_resource_S res_cmap;
     int retval = FALSE;
@@ -3051,7 +3051,7 @@ int mch_print_begin(prt_settings_T *psettings)
     p_time = ctime(&now);
 
     // Note: ctime() adds a \n so we have to remove it :-(
-    p = vim_strchr((char_u *)p_time, '\n');
+    p = vim_strchr((uchar_kt *)p_time, '\n');
 
     if(p != NULL)
     {
@@ -3187,7 +3187,7 @@ int mch_print_begin(prt_settings_T *psettings)
             {
                 // 8-bit 'encoding' is not supported
                 // Use latin1 as default printing encoding
-                p_encoding = (char_u *)"latin1";
+                p_encoding = (uchar_kt *)"latin1";
 
                 if(!prt_find_resource((char *)p_encoding, &res_encoding))
                 {
@@ -3393,7 +3393,7 @@ int mch_print_begin(prt_settings_T *psettings)
         // multi-byte, need to pick up ASCII encoding to use with it.
         if(prt_use_courier)
         {
-            p_encoding = (char_u *)prt_ascii_encoding;
+            p_encoding = (uchar_kt *)prt_ascii_encoding;
         }
 
         prt_dsc_resources("IncludeResource",
@@ -3542,7 +3542,7 @@ void mch_print_end(prt_settings_T *psettings)
 
     // Write CTRL-D to close serial communication link if used.
     // NOTHING MUST BE WRITTEN AFTER THIS !
-    prt_write_file((char_u *)"\004");
+    prt_write_file((uchar_kt *)"\004");
 
     if(!prt_file_error && psettings->outfile == NULL
        && !got_int && !psettings->user_abort)
@@ -3554,7 +3554,7 @@ void mch_print_end(prt_settings_T *psettings)
             prt_ps_fd = NULL;
         }
 
-        prt_message((char_u *)_("Sending to printer..."));
+        prt_message((uchar_kt *)_("Sending to printer..."));
 
         // Not printing to a file: use 'printexpr' to print the file.
         if(eval_printexpr((char *) prt_ps_file_name,
@@ -3564,7 +3564,7 @@ void mch_print_end(prt_settings_T *psettings)
         }
         else
         {
-            prt_message((char_u *)_("Print job sent."));
+            prt_message((uchar_kt *)_("Print job sent."));
         }
     }
 
@@ -3579,7 +3579,7 @@ int mch_print_end_page(void)
     return !prt_file_error;
 }
 
-int mch_print_begin_page(char_u *FUNC_ARGS_UNUSED_REALY(str))
+int mch_print_begin_page(uchar_kt *FUNC_ARGS_UNUSED_REALY(str))
 {
     int page_num[2];
     prt_page_num++;
@@ -3646,11 +3646,11 @@ void mch_print_start_line(int margin, int page_line)
     prt_half_width = FALSE;
 }
 
-int mch_print_text_out(char_u *p, size_t len)
+int mch_print_text_out(uchar_kt *p, size_t len)
 {
     int need_break;
-    char_u ch;
-    char_u ch_buff[8];
+    uchar_kt ch;
+    uchar_kt ch_buff[8];
     double char_width;
     double next_pos;
     int in_ascii;
@@ -3801,7 +3801,7 @@ int mch_print_text_out(char_u *p, size_t len)
 
         if(p == NULL)
         {
-            p = (char_u *)xstrdup("");
+            p = (uchar_kt *)xstrdup("");
         }
     }
 

@@ -112,7 +112,7 @@ void shell_free_argv(char **argv)
 /// @param cmd The command to execute, or NULL to run an interactive shell.
 /// @param opts Options that control how the shell will work.
 /// @param extra_args Extra arguments to the shell, or NULL.
-int os_call_shell(char_u *cmd, ShellOpts opts, char_u *extra_args)
+int os_call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_args)
 {
     DynamicBuffer input = DYNAMIC_BUFFER_INIT;
     char *output = NULL, **output_ptr = NULL;
@@ -269,9 +269,9 @@ static int do_os_system(char **argv,
         if(!silent)
         {
             MSG_PUTS(_("\nshell failed to start: "));
-            msg_outtrans((char_u *)os_strerror(status));
+            msg_outtrans((uchar_kt *)os_strerror(status));
             MSG_PUTS(": ");
-            msg_outtrans((char_u *)prog);
+            msg_outtrans((uchar_kt *)prog);
             msg_putchar('\n');
         }
 
@@ -461,7 +461,7 @@ static bool out_data_decide_throttle(size_t size)
 
     int lastrow = (int)Rows - 1;
 
-    screen_puts_len((char_u *)pulse_msg,
+    screen_puts_len((uchar_kt *)pulse_msg,
                     ARRAY_SIZE(pulse_msg), lastrow, 0, 0);
 
     ui_flush();
@@ -556,7 +556,7 @@ static void out_data_append_to_screen(char *output,
                 screen_del_lines(0, 0, 1, (int)Rows, NULL);
             }
 
-            screen_puts_len((char_u *)output,
+            screen_puts_len((uchar_kt *)output,
                             (int)off, last_row, last_col, 0);
 
             last_col = 0;
@@ -584,7 +584,7 @@ static void out_data_append_to_screen(char *output,
             screen_del_lines(0, 0, 1, (int)Rows, NULL);
         }
 
-        screen_puts_len((char_u *)output,
+        screen_puts_len((uchar_kt *)output,
                         (int)remaining, last_row, last_col, 0);
 
         last_col += (colnr_T)remaining;
@@ -637,7 +637,7 @@ static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
 /// words. It can be NULL if the caller only needs to count words.
 ///
 /// @return The number of words parsed.
-static size_t tokenize(const char_u *const str, char **const argv)
+static size_t tokenize(const uchar_kt *const str, char **const argv)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     size_t argc = 0;
@@ -645,7 +645,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     while(*p != NUL)
     {
-        const size_t len = word_length((const char_u *) p);
+        const size_t len = word_length((const uchar_kt *) p);
 
         if(argv != NULL)
         {
@@ -653,7 +653,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         }
 
         argc++;
-        p = (const char *) skipwhite((char_u *)(p + len));
+        p = (const char *) skipwhite((uchar_kt *)(p + len));
     }
 
     return argc;
@@ -663,9 +663,9 @@ FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// @param str A pointer to the first character of the word
 /// @return The offset from `str` at which the word ends.
-static size_t word_length(const char_u *str)
+static size_t word_length(const uchar_kt *str)
 {
-    const char_u *p = str;
+    const uchar_kt *p = str;
     bool inquote = false;
     size_t length = 0;
 
@@ -700,7 +700,7 @@ static void read_input(DynamicBuffer *buf)
 {
     size_t written = 0, l = 0, len = 0;
     linenr_T lnum = curbuf->b_op_start.lnum;
-    char_u *lp = ml_get(lnum);
+    uchar_kt *lp = ml_get(lnum);
 
     for(;;)
     {
@@ -719,7 +719,7 @@ static void read_input(DynamicBuffer *buf)
         }
         else
         {
-            char_u  *s = vim_strchr(lp + written, NL);
+            uchar_kt  *s = vim_strchr(lp + written, NL);
             len = s == NULL ? l : (size_t)(s - (lp + written));
             dynamic_buffer_ensure(buf, buf->len + len);
             memcpy(buf->data + buf->len, lp + written, len);
@@ -781,12 +781,12 @@ static size_t write_output(char *output,
                 output[off] = NUL;
 
                 ml_append(curwin->w_cursor.lnum++,
-                          (char_u *)output, (int)off + 1, false);
+                          (uchar_kt *)output, (int)off + 1, false);
             }
             else
             {
                 screen_del_lines(0, 0, 1, (int)Rows, NULL);
-                screen_puts_len((char_u *)output, (int)off, lastrow, 0, 0);
+                screen_puts_len((uchar_kt *)output, (int)off, lastrow, 0, 0);
             }
 
             size_t skip = off + 1;
@@ -813,7 +813,7 @@ static size_t write_output(char *output,
             {
                 // append unfinished line
                 ml_append(curwin->w_cursor.lnum++,
-                          (char_u *)output, 0, false);
+                          (uchar_kt *)output, 0, false);
 
                 // remember that the NL was missing
                 curbuf->b_no_eol_lnum = curwin->w_cursor.lnum;
@@ -822,7 +822,7 @@ static size_t write_output(char *output,
             {
                 screen_del_lines(0, 0, 1, (int)Rows, NULL);
 
-                screen_puts_len((char_u *)output,
+                screen_puts_len((uchar_kt *)output,
                                 (int)remaining, lastrow, 0, 0);
             }
 
@@ -881,7 +881,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(*p_sxe != NUL && STRCMP(p_sxq, "(") == 0)
     {
         ecmd =
-            (char *)vim_strsave_escaped_ext((char_u *)cmd, p_sxe, '^', false);
+            (char *)vim_strsave_escaped_ext((uchar_kt *)cmd, p_sxe, '^', false);
     }
 
     size_t ncmd_size = strlen(ecmd) + STRLEN(p_sxq) * 2 + 1;

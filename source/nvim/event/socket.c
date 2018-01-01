@@ -41,7 +41,7 @@ FUNC_ATTR_NONNULL_ALL
         *host_end = '\0';
         char *port = host_end + 1;
         intmax_t iport;
-        int ret = getdigits_safe(&(char_u *) { (char_u *)port }, &iport);
+        int ret = getdigits_safe(&(uchar_kt *) { (uchar_kt *)port }, &iport);
 
         if(ret == FAIL || iport < 0 || iport > UINT16_MAX)
         {
@@ -162,9 +162,9 @@ FUNC_ATTR_NONNULL_ALL
             // Libuv converts ENOENT to EACCES for Windows
             // compatibility, but if the parent directory does
             // not exist, ENOENT would be more accurate.
-            *path_tail((char_u *)watcher->addr) = NUL;
+            *path_tail((uchar_kt *)watcher->addr) = NUL;
 
-            if(!os_path_exists((char_u *)watcher->addr))
+            if(!os_path_exists((uchar_kt *)watcher->addr))
             {
                 result = UV_ENOENT;
             }

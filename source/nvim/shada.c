@@ -66,32 +66,32 @@ KHASH_SET_INIT_STR(strset)
 KHASH_MAP_INIT_STR(fnamebufs, buf_T *)
 
 #define copy_option_part(src, dest, ...) \
-    ((char *)copy_option_part((char_u **) src, (char_u *) dest, __VA_ARGS__))
+    ((char *)copy_option_part((uchar_kt **) src, (uchar_kt *) dest, __VA_ARGS__))
 
 #define find_shada_parameter(...) \
     ((const char *)find_shada_parameter(__VA_ARGS__))
 
 #define home_replace_save(a, b) \
-    ((char *)home_replace_save(a, (char_u *)b))
+    ((char *)home_replace_save(a, (uchar_kt *)b))
 
 #define home_replace(a, b, c, d, e) \
-    home_replace(a, (char_u *)b, (char_u *)c, d, e)
+    home_replace(a, (uchar_kt *)b, (uchar_kt *)c, d, e)
 
 #define vim_rename(a, b) \
-    (vim_rename((char_u *)a, (char_u *)b))
+    (vim_rename((uchar_kt *)a, (uchar_kt *)b))
 
 #define mb_strnicmp(a, b, c) \
-    (mb_strnicmp((char_u *)a, (char_u *)b, c))
+    (mb_strnicmp((uchar_kt *)a, (uchar_kt *)b, c))
 
 #define path_shorten_fname_if_possible(b) \
-    ((char *)path_shorten_fname_if_possible((char_u *)b))
+    ((char *)path_shorten_fname_if_possible((uchar_kt *)b))
 
 #define buflist_new(ffname, sfname, ...) \
-    (buflist_new((char_u *)ffname, (char_u *)sfname, __VA_ARGS__))
+    (buflist_new((uchar_kt *)ffname, (uchar_kt *)sfname, __VA_ARGS__))
 
-#define os_isdir(f)           (os_isdir((char_u *) f))
-#define regtilde(s, m)        ((char *) regtilde((char_u *) s, m))
-#define path_tail_with_sep(f) ((char *) path_tail_with_sep((char_u *)f))
+#define os_isdir(f)           (os_isdir((uchar_kt *) f))
+#define regtilde(s, m)        ((char *) regtilde((uchar_kt *) s, m))
+#define path_tail_with_sep(f) ((char *) path_tail_with_sep((uchar_kt *)f))
 
 #define SEARCH_KEY_MAGIC                 "sm"
 #define SEARCH_KEY_SMARTCASE             "sc"
@@ -1288,7 +1288,7 @@ FUNC_ATTR_NONNULL_ALL
     HMLL_FORALL(&hms_p->hmll, cur_entry,  {
         hist->timestamp = cur_entry->data.timestamp;
         hist->hisnum = (int)(hist - hist_array) + 1;
-        hist->hisstr = (char_u *) cur_entry->data.data.history_item.string;
+        hist->hisstr = (uchar_kt *) cur_entry->data.data.history_item.string;
         hist->additional_elements =
         cur_entry->data.data.history_item.additional_elements;
         hist++;
@@ -1578,7 +1578,7 @@ FUNC_ATTR_NONNULL_ALL
                         .end = cur_entry.data.search_pattern.place_cursor_at_end,
                         .off = cur_entry.data.search_pattern.offset,
                     },
-                    .pat = (char_u *) cur_entry.data.search_pattern.pat,
+                    .pat = (uchar_kt *) cur_entry.data.search_pattern.pat,
                     .additional_data = cur_entry.data.search_pattern.additional_data,
                     .timestamp = cur_entry.timestamp,
                 });
@@ -1666,7 +1666,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
 
                 if(!op_register_set(cur_entry.data.reg.name, (yankreg_T) {
-                    .y_array = (char_u **)cur_entry.data.reg.contents,
+                    .y_array = (uchar_kt **)cur_entry.data.reg.contents,
                     .y_size = cur_entry.data.reg.contents_size,
                     .y_type = cur_entry.data.reg.type,
                     .y_width = (colnr_T) cur_entry.data.reg.width,
@@ -1705,7 +1705,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
 
                 xfmark_T fm = (xfmark_T) {
-                    .fname = (char_u *)(buf == NULL
+                    .fname = (uchar_kt *)(buf == NULL
                                         ? cur_entry.data.filemark.fname
                                         : NULL),
                     .fmark = {
@@ -1986,7 +1986,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             // because various expansions must have already be done by the shell.
             // If shell is not performing them then they should be done in main.c
             // where arguments are parsed, *not here*.
-            expand_env((char_u *)file, &(NameBuff[0]), MAXPATHL);
+            expand_env((uchar_kt *)file, &(NameBuff[0]), MAXPATHL);
             file = (const char *) &(NameBuff[0]);
         }
     }

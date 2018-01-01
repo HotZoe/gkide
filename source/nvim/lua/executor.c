@@ -268,7 +268,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
             }
 
-            ml_replace(l, (char_u *)new_line_transformed, false);
+            ml_replace(l, (uchar_kt *)new_line_transformed, false);
             changed_bytes(l, 0);
         }
 
@@ -606,13 +606,13 @@ FUNC_ATTR_NONNULL_ALL
             break;
         }
 
-        msg((char_u *)str + start);
+        msg((uchar_kt *)str + start);
     }
 
     // Last was newline
     if(str[len - 1] == NUL)
     {
-        msg((char_u *)"");
+        msg((uchar_kt *)"");
     }
 
     ga_clear(&msg_ga);
@@ -643,7 +643,7 @@ FUNC_ATTR_NONNULL_ALL
         {
             .v_lock = VAR_FIXED,
             .v_type = VAR_STRING,
-            .vval.v_string = (char_u *)"lua_debug> ",
+            .vval.v_string = (uchar_kt *)"lua_debug> ",
         },
         { .v_type = VAR_UNKNOWN, },
     };

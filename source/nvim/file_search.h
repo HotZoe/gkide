@@ -5,7 +5,7 @@
 
 #include <stdlib.h> // for size_t
 
-#include "nvim/types.h" // for char_u
+#include "nvim/types.h" // for uchar_kt
 #include "nvim/globals.h" // for CdScope
 
 // Flags for find_file_*() functions.

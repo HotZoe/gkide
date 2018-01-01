@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h> // for size_t
 
-#include "nvim/types.h" // for char_u
+#include "nvim/types.h" // for uchar_kt
 #include "nvim/ex_cmds_defs.h" // for exarg_T
 
 /// Structure to hold printing color and font attributes.
@@ -33,9 +33,9 @@ typedef struct
     int modec;
     int do_syntax;
     int user_abort;
-    char_u *jobname;
-    char_u *outfile;
-    char_u *arguments;
+    uchar_kt *jobname;
+    uchar_kt *outfile;
+    uchar_kt *arguments;
 } prt_settings_T;
 
 /// Generic option table item, only used for printer at the moment.
@@ -44,7 +44,7 @@ typedef struct
     const char *name;
     int hasnum;
     int number;
-    char_u *string;     ///< points into option string
+    uchar_kt *string;     ///< points into option string
     int strlen;
     int present;
 } option_table_T;

@@ -46,8 +46,8 @@ static bool log_path_init(void)
         return true;
     }
 
-    expand_env((char_u *)USR_LOG_FILE,
-               (char_u *)expanded_log_file_path,
+    expand_env((uchar_kt *)USR_LOG_FILE,
+               (uchar_kt *)expanded_log_file_path,
                sizeof(expanded_log_file_path) - 1);
 
     // if the log file path expansion failed then fall back to stderr
@@ -55,8 +55,8 @@ static bool log_path_init(void)
     {
         memset(expanded_log_file_path, 0, sizeof(expanded_log_file_path));
 
-        expand_env((char_u *)USR_LOG_FILE_DEFAULT,
-                   (char_u *)expanded_log_file_path,
+        expand_env((uchar_kt *)USR_LOG_FILE_DEFAULT,
+                   (uchar_kt *)expanded_log_file_path,
                    sizeof(expanded_log_file_path) - 1);
 
         if(strcmp(USR_LOG_FILE_DEFAULT, expanded_log_file_path) == 0)

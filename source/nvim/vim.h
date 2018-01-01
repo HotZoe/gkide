@@ -220,7 +220,7 @@ enum
 /// Size in bytes of the hash used in the undo file.
 #define UNDO_HASH_SIZE    32
 
-// defines to avoid typecasts from (char_u *) to (char *) and back
+// defines to avoid typecasts from (uchar_kt *) to (char *) and back
 #define STRLEN(s)          strlen((char *)(s))
 #define STRCPY(d, s)       strcpy((char *)(d), (char *)(s))
 #define STRNCPY(d, s, n)   strncpy((char *)(d), (char *)(s), (size_t)(n))
@@ -258,7 +258,7 @@ enum
 #define STRNCAT(d, s, n)   strncat((char *)(d), (char *)(s), (size_t)(n))
 #define STRLCAT(d, s, n)   xstrlcat((char *)(d), (char *)(s), (size_t)(n))
 
-#define vim_strpbrk(s, cs) (char_u *)strpbrk((char *)(s), (char *)(cs))
+#define vim_strpbrk(s, cs) (uchar_kt *)strpbrk((char *)(s), (char *)(cs))
 
 #include "nvim/message.h"
 

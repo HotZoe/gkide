@@ -17,10 +17,10 @@ typedef size_t hash_T;
 
 /// The address of "hash_removed" is used as a magic number
 /// for hi_key to indicate a removed item.
-#define HI_KEY_REMOVED     ((char_u *)&hash_removed)
+#define HI_KEY_REMOVED     ((uchar_kt *)&hash_removed)
 
 #define HASHITEM_EMPTY(hi) \
-    ((hi)->hi_key == NULL || (hi)->hi_key == (char_u *)&hash_removed)
+    ((hi)->hi_key == NULL || (hi)->hi_key == (uchar_kt *)&hash_removed)
 
 /// A hastable item.
 ///
@@ -48,7 +48,7 @@ typedef struct hashitem_S
     /// NULL                      : Item was never used.
     /// HI_KEY_REMOVED            : Item was removed.
     /// (Any other pointer value) : Item is currently being used.
-    char_u *hi_key;
+    uchar_kt *hi_key;
 } hashitem_T;
 
 /// Initial size for a hashtable.

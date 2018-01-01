@@ -45,13 +45,13 @@ typedef enum
 /// Number of history tables
 #define HIST_COUNT      (HIST_DEBUG + 1)
 
-typedef char_u *(*CompleteListItemGetter)(expand_T *, int);
+typedef uchar_kt *(*CompleteListItemGetter)(expand_T *, int);
 
 /// History entry definition
 typedef struct hist_entry
 {
     int hisnum; ///< Entry identifier number.
-    char_u *hisstr; ///< Actual entry, separator char after the NUL.
+    uchar_kt *hisstr; ///< Actual entry, separator char after the NUL.
     Timestamp timestamp; ///< Time when entry was added.
     list_T *additional_elements; ///< Additional entries from ShaDa file.
 } histentry_T;

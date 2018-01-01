@@ -9,7 +9,7 @@
 #include "nvim/iconv.h"
 #include "nvim/func_attr.h"
 #include "nvim/os/os_defs.h" // For WCHAR, indirect
-#include "nvim/types.h" // for char_u
+#include "nvim/types.h" // for uchar_kt
 
 // Return byte length of character that starts with byte "b".
 // Returns 1 for a single-byte character.

@@ -38,18 +38,18 @@ struct VimMenu
 {
     int modes;      ///< Which modes is this menu visible for?
     int enabled;    ///< for which modes the menu is enabled
-    char_u *name;   ///< Name of menu, possibly translated
-    char_u *dname;  ///< Displayed Name ("name" without '&')
+    uchar_kt *name;   ///< Name of menu, possibly translated
+    uchar_kt *dname;  ///< Displayed Name ("name" without '&')
 
     /// @b name untranslated, NULL when @b name was not translated
-    char_u *en_name;
+    uchar_kt *en_name;
     /// @b dname untranslated, NULL when @b dname was not translated
-    char_u *en_dname;
+    uchar_kt *en_dname;
 
     int mnemonic;                ///< mnemonic key (after '&')
-    char_u *actext;              ///< accelerator text (after TAB)
+    uchar_kt *actext;              ///< accelerator text (after TAB)
     long priority;               ///< Menu order priority
-    char_u *strings[MENU_MODES]; ///< Mapped string for each mode
+    uchar_kt *strings[MENU_MODES]; ///< Mapped string for each mode
     int noremap[MENU_MODES];     ///< A REMAP_ flag for each mode
     bool silent[MENU_MODES];     ///< A silent flag for each mode
     vimmenu_T *children;         ///< Children of sub-menu

@@ -28,8 +28,8 @@ typedef int result_T;
 
 typedef struct digraph
 {
-    char_u char1;
-    char_u char2;
+    uchar_kt char1;
+    uchar_kt char2;
     result_T result;
 } digr_T;
 
@@ -1549,8 +1549,8 @@ static int getexactdigraph(int char1, int char2, int meta_char)
 
     if((retval != 0) && !enc_utf8)
     {
-        char_u *to;
-        char_u buf[6];
+        uchar_kt *to;
+        uchar_kt buf[6];
         vimconv_T vc;
 
         // Convert the Unicode digraph to 'encoding'.
@@ -1558,7 +1558,7 @@ static int getexactdigraph(int char1, int char2, int meta_char)
         retval = 0;
         vc.vc_type = CONV_NONE;
 
-        if(convert_setup(&vc, (char_u *)"utf-8", p_enc) == OK)
+        if(convert_setup(&vc, (uchar_kt *)"utf-8", p_enc) == OK)
         {
             vc.vc_fail = true;
 
@@ -1625,11 +1625,11 @@ int getdigraph(int char1, int char2, int meta_char)
 /// format: {c1}{c2} char {c1}{c2} char ...
 ///
 /// @param str
-void putdigraph(char_u *str)
+void putdigraph(uchar_kt *str)
 {
     digr_T *dp;
-    char_u char1;
-    char_u char2;
+    uchar_kt char1;
+    uchar_kt char2;
 
     while(*str != NUL)
     {
@@ -1738,8 +1738,8 @@ void listdigraphs(void)
 
 static void printdigraph(digr_T *dp)
 {
-    char_u *p;
-    char_u buf[30];
+    uchar_kt *p;
+    uchar_kt buf[30];
     int list_width = 13;
 
     if(dp->result != 0)
@@ -1793,8 +1793,8 @@ static void printdigraph(digr_T *dp)
 /// structure used for b_kmap_ga.ga_data
 typedef struct
 {
-    char_u *from;
-    char_u *to;
+    uchar_kt *from;
+    uchar_kt *to;
 } kmap_T;
 
 /// maximum length of @b from or @b to
@@ -1806,7 +1806,7 @@ typedef struct
 /// NULL if OK, an error message for failure.
 /// This only needs to be used when setting the option,
 /// not later when the value has already been checked.
-char_u *keymap_init(void)
+uchar_kt *keymap_init(void)
 {
     curbuf->b_kmap_state &= ~KEYMAP_INIT;
 
@@ -1837,7 +1837,7 @@ char_u *keymap_init(void)
                      curbuf->b_p_keymap,
                      p_enc);
 
-        if(source_runtime((char_u *)buf, 0) == FAIL)
+        if(source_runtime((uchar_kt *)buf, 0) == FAIL)
         {
             // try finding "keymap/'keymap'.vim" in 'runtimepath'
             vim_snprintf(buf,
@@ -1845,11 +1845,11 @@ char_u *keymap_init(void)
                          "keymap/%s.vim",
                          curbuf->b_p_keymap);
 
-            if(source_runtime((char_u *)buf, 0) == FAIL)
+            if(source_runtime((uchar_kt *)buf, 0) == FAIL)
             {
                 xfree(buf);
 
-                return (char_u *)N_("E544: Keymap file not found");
+                return (uchar_kt *)N_("E544: Keymap file not found");
             }
         }
 
@@ -1865,15 +1865,15 @@ char_u *keymap_init(void)
 /// @param eap
 void ex_loadkeymap(exarg_T *eap)
 {
-    char_u *p;
-    char_u *s;
-    char_u *line;
+    uchar_kt *p;
+    uchar_kt *s;
+    uchar_kt *line;
 
     // max length of "to" and "from" together
     #define KMAP_LLEN  200
 
-    char_u buf[KMAP_LLEN + 11];
-    char_u *save_cpo = p_cpo;
+    uchar_kt buf[KMAP_LLEN + 11];
+    uchar_kt *save_cpo = p_cpo;
 
     if(!getline_equal(eap->getline, eap->cookie, getsourceline))
     {
@@ -1889,7 +1889,7 @@ void ex_loadkeymap(exarg_T *eap)
     ga_init(&curbuf->b_kmap_ga, (int)sizeof(kmap_T), 20);
 
     // Set 'cpoptions' to "C" to avoid line continuation.
-    p_cpo = (char_u *)"C";
+    p_cpo = (uchar_kt *)"C";
 
     // Get each line of the sourced file, break at the end.
     for(;;)
@@ -1954,8 +1954,8 @@ void ex_loadkeymap(exarg_T *eap)
 static void keymap_unload(void)
 {
     kmap_T *kp;
-    char_u *save_cpo = p_cpo;
-    char_u buf[KMAP_MAXLEN + 10];
+    uchar_kt *save_cpo = p_cpo;
+    uchar_kt buf[KMAP_MAXLEN + 10];
 
     if(!(curbuf->b_kmap_state & KEYMAP_LOADED))
     {
@@ -1963,7 +1963,7 @@ static void keymap_unload(void)
     }
 
     // Set 'cpoptions' to "C" to avoid line continuation.
-    p_cpo = (char_u *)"C";
+    p_cpo = (uchar_kt *)"C";
 
     // clear the ":lmap"s
     kp = (kmap_T *)curbuf->b_kmap_ga.ga_data;

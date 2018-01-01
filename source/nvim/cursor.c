@@ -95,8 +95,8 @@ int coladvance(colnr_T wcol)
 static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
 {
     int idx;
-    char_u *ptr;
-    char_u *line;
+    uchar_kt *ptr;
+    uchar_kt *line;
     colnr_T col = 0;
     int csize = 0;
     int one_more;
@@ -186,7 +186,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
             {
                 // Append spaces
                 int correct = wcol - col;
-                char_u *newline = xmallocz((size_t)(idx + correct));
+                uchar_kt *newline = xmallocz((size_t)(idx + correct));
 
                 memcpy(newline, line, (size_t)idx);
                 memset(newline + idx, ' ', (size_t)correct);
@@ -200,7 +200,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
                 // Break a tab
                 int linelen = (int)STRLEN(line);
                 int correct = wcol - col - csize + 1; // negative!!
-                char_u *newline;
+                uchar_kt *newline;
 
                 if(-correct > csize)
                 {
@@ -339,7 +339,7 @@ linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
 // This allows for the col to be on the NUL byte.
 void check_pos(buf_T *buf, pos_T *pos)
 {
-    char_u *line;
+    uchar_kt *line;
     colnr_T len;
 
     if(pos->lnum > buf->b_ml.ml_line_count)
@@ -542,20 +542,20 @@ int gchar_cursor(void)
 
 /// Write a character at the current cursor position.
 /// It is directly written into the block.
-void pchar_cursor(char_u c)
+void pchar_cursor(uchar_kt c)
 {
     *(ml_get_buf(curbuf,
                  curwin->w_cursor.lnum, true) + curwin->w_cursor.col) = c;
 }
 
 /// Return pointer to cursor line.
-char_u *get_cursor_line_ptr(void)
+uchar_kt *get_cursor_line_ptr(void)
 {
     return ml_get_buf(curbuf, curwin->w_cursor.lnum, false);
 }
 
 /// Return pointer to cursor position.
-char_u *get_cursor_pos_ptr(void)
+uchar_kt *get_cursor_pos_ptr(void)
 {
     return ml_get_buf(curbuf,
                       curwin->w_cursor.lnum, false) + curwin->w_cursor.col;

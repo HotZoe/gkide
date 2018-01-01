@@ -93,7 +93,7 @@
 
 typedef struct AutoCmd
 {
-    char_u *cmd;          ///< The command to be executed
+    uchar_kt *cmd;          ///< The command to be executed
                           ///< (NULL when command has been removed)
     char nested;          ///< If autocommands nest here
     char last;            ///< last command in list
@@ -103,7 +103,7 @@ typedef struct AutoCmd
 
 typedef struct AutoPat
 {
-    char_u *pat;          ///< pattern as typed
+    uchar_kt *pat;          ///< pattern as typed
                           ///< (NULL when command has been removed)
     regprog_T *reg_prog;  ///< compiled regprog for pattern
     AutoCmd *cmds;        ///< list of commands to do
@@ -121,9 +121,9 @@ typedef struct AutoPatCmd
     AutoPat *curpat;         ///< next AutoPat to examine
     AutoCmd *nextcmd;        ///< next AutoCmd to execute
     int group;               ///< group being used
-    char_u *fname;           ///< fname to match with
-    char_u *sfname;          ///< sfname to match with
-    char_u *tail;            ///< tail of fname
+    uchar_kt *fname;           ///< fname to match with
+    uchar_kt *sfname;          ///< sfname to match with
+    uchar_kt *tail;            ///< tail of fname
     event_T event;           ///< current event
     int arg_bufnr;           ///< initially equal to <abuf>,
                              ///< set to zero when buf is deleted
@@ -157,15 +157,15 @@ typedef struct AutoPatCmd
 struct bw_info
 {
     int bw_fd;                    ///< file descriptor
-    char_u *bw_buf;               ///< buffer with data to be written
+    uchar_kt *bw_buf;               ///< buffer with data to be written
     int bw_len;                   ///< length of data
 #ifdef HAS_BW_FLAGS
     int bw_flags;                 ///< FIO_ flags
 #endif
-    char_u bw_rest[CONV_RESTLEN]; ///< not converted bytes
+    uchar_kt bw_rest[CONV_RESTLEN]; ///< not converted bytes
     int bw_restlen;               ///< nr of bytes in bw_rest[]
     int bw_first;                 ///< first write call
-    char_u *bw_conv_buf;          ///< buffer for writing converted chars
+    uchar_kt *bw_conv_buf;          ///< buffer for writing converted chars
     int bw_conv_buflen;           ///< size of bw_conv_buf
     int bw_conv_error;            ///< set for conversion error
     linenr_T bw_conv_error_lnum;  ///< first line with error or zero
@@ -192,7 +192,7 @@ static char *e_auchangedbuf = N_("E812: Autocommands changed buffer or buffer na
 /// it prior calling apply_autocmds_group.
 static bool au_did_filetype INIT(= false);
 
-void filemess(buf_T *buf, char_u *name, char_u *s, int attr)
+void filemess(buf_T *buf, uchar_kt *name, uchar_kt *s, int attr)
 {
     int msg_scroll_save;
 
@@ -252,8 +252,8 @@ void filemess(buf_T *buf, char_u *name, char_u *s, int attr)
 /// - READ_KEEP_UNDO  don't clear undo info or read it from a file
 ///
 /// return FAIL for failure, NOTDONE for directory (failure), or OK
-int readfile(char_u *fname,
-             char_u *sfname,
+int readfile(uchar_kt *fname,
+             uchar_kt *sfname,
              linenr_T from,
              linenr_T lines_to_skip,
              linenr_T lines_to_read,
@@ -273,16 +273,16 @@ int readfile(char_u *fname,
 
     linenr_T read_buf_lnum = 1; // next line to read from curbuf
     colnr_T read_buf_col = 0; // next char to read from this line
-    char_u c;
+    uchar_kt c;
     linenr_T lnum = from;
-    char_u *ptr = NULL; // pointer into read buffer
-    char_u *buffer = NULL; // read buffer
-    char_u *new_buffer = NULL; // init to shut up gcc
-    char_u *line_start = NULL; // init to shut up gcc
+    uchar_kt *ptr = NULL; // pointer into read buffer
+    uchar_kt *buffer = NULL; // read buffer
+    uchar_kt *new_buffer = NULL; // init to shut up gcc
+    uchar_kt *line_start = NULL; // init to shut up gcc
     int wasempty; // buffer was empty before reading
     colnr_T len;
     long size = 0;
-    char_u *p = NULL;
+    uchar_kt *p = NULL;
     off_t filesize = 0;
     int skip_read = FALSE;
     context_sha256_T sha_ctx;
@@ -319,11 +319,11 @@ int readfile(char_u *fname,
     // BAD_KEEP, BAD_DROP or character to replace with
     int bad_char_behavior = BAD_REPLACE;
 
-    char_u *tmpname = NULL; // name of 'charconvert' output file
+    uchar_kt *tmpname = NULL; // name of 'charconvert' output file
     int fio_flags = 0;
-    char_u *fenc; // fileencoding to use
+    uchar_kt *fenc; // fileencoding to use
     int fenc_alloced; // fenc_next is in allocated memory
-    char_u *fenc_next = NULL; // next item in 'fencs' or NULL
+    uchar_kt *fenc_next = NULL; // next item in 'fencs' or NULL
     int advance_fenc = FALSE;
     long real_size = 0;
 
@@ -339,11 +339,11 @@ int readfile(char_u *fname,
     // TRUE if conversion wanted but it wasn't possible
     int notconverted = FALSE;
 
-    char_u conv_rest[CONV_RESTLEN];
+    uchar_kt conv_rest[CONV_RESTLEN];
     int conv_restlen = 0; // nr of bytes in conv_rest[]
     buf_T *old_curbuf;
-    char_u *old_b_ffname;
-    char_u *old_b_fname;
+    uchar_kt *old_b_ffname;
+    uchar_kt *old_b_fname;
     int using_b_ffname;
     int using_b_fname;
     au_did_filetype = false; // reset before triggering any autocommands
@@ -449,7 +449,7 @@ int readfile(char_u *fname,
     {
         if(STRLEN(fname) >= MAXPATHL)
         {
-            filemess(curbuf, fname, (char_u *)_("Illegal file name"), 0);
+            filemess(curbuf, fname, (uchar_kt *)_("Illegal file name"), 0);
             msg_end();
             msg_scroll = msg_save;
 
@@ -481,11 +481,11 @@ int readfile(char_u *fname,
         {
             if(S_ISDIR(perm))
             {
-                filemess(curbuf, fname, (char_u *)_("is a directory"), 0);
+                filemess(curbuf, fname, (uchar_kt *)_("is a directory"), 0);
             }
             else
             {
-                filemess(curbuf, fname, (char_u *)_("is not a file"), 0);
+                filemess(curbuf, fname, (uchar_kt *)_("is not a file"), 0);
             }
 
             msg_end();
@@ -566,7 +566,7 @@ int readfile(char_u *fname,
         // On non-unix systems we can't open a directory, check here.
         if(os_isdir(fname))
         {
-            filemess(curbuf, sfname, (char_u *)_("is a directory"), 0);
+            filemess(curbuf, sfname, (uchar_kt *)_("is a directory"), 0);
             curbuf->b_p_ro = true; // must use "w!" now
         }
         else
@@ -604,11 +604,11 @@ int readfile(char_u *fname,
 
                 if(dir_of_file_exists(fname))
                 {
-                    filemess(curbuf, sfname, (char_u *)_("[New File]"), 0);
+                    filemess(curbuf, sfname, (uchar_kt *)_("[New File]"), 0);
                 }
                 else
                 {
-                    filemess(curbuf, sfname, (char_u *)_("[New DIRECTORY]"), 0);
+                    filemess(curbuf, sfname, (uchar_kt *)_("[New DIRECTORY]"), 0);
                 }
 
                 // Even though this is a new file, it might have been
@@ -641,7 +641,7 @@ int readfile(char_u *fname,
             {
                 filemess(curbuf,
                          sfname,
-                         (char_u *)((fd == UV_EFBIG)
+                         (uchar_kt *)((fd == UV_EFBIG)
                          ? _("[File too big]") :
                 #if defined(UNIX) && defined(EOVERFLOW)
                          // libuv only returns
@@ -817,7 +817,7 @@ int readfile(char_u *fname,
     {
         if(!read_stdin && !read_buffer)
         {
-            filemess(curbuf, sfname, (char_u *)"", 0);
+            filemess(curbuf, sfname, (uchar_kt *)"", 0);
         }
     }
 
@@ -851,7 +851,7 @@ int readfile(char_u *fname,
     }
     else if(curbuf->b_p_bin)
     {
-        fenc = (char_u *)""; // binary: don't convert
+        fenc = (uchar_kt *)""; // binary: don't convert
         fenc_alloced = FALSE;
     }
     else if(curbuf->b_help)
@@ -860,8 +860,8 @@ int readfile(char_u *fname,
         // fails it must be latin1.
         // It is needed when the first line contains non-ASCII characters.
         // That is only in *.??x files.
-        fenc_next = (char_u *)"latin1";
-        fenc = (char_u *)"utf-8";
+        fenc_next = (uchar_kt *)"latin1";
+        fenc = (uchar_kt *)"utf-8";
         fenc_alloced = false;
         c = 1;
     }
@@ -980,7 +980,7 @@ retry:
                 xfree(fenc);
             }
 
-            fenc = (char_u *)"";
+            fenc = (uchar_kt *)"";
             fenc_alloced = FALSE;
         }
         else
@@ -997,7 +997,7 @@ retry:
             }
             else
             {
-                fenc = (char_u *)"";
+                fenc = (uchar_kt *)"";
                 fenc_alloced = FALSE;
             }
         }
@@ -1040,7 +1040,7 @@ retry:
         if(fio_flags == 0 && !did_iconv)
         {
             iconv_fd = (iconv_t)my_iconv_open(enc_utf8
-                                              ? (char_u *)"utf-8"
+                                              ? (uchar_kt *)"utf-8"
                                               : p_enc, fenc);
         }
     #endif
@@ -1375,7 +1375,7 @@ retry:
                        && tmpname == NULL
                        && (*fenc == 'u' || (*fenc == NUL && enc_utf8)))))
             {
-                char_u *ccname;
+                uchar_kt *ccname;
                 int blen;
 
                 // no BOM detection in a short file or in binary mode
@@ -1473,7 +1473,7 @@ retry:
                     {
                         conv_error = readfile_linenr(linecnt,
                                                      ptr,
-                                                     (char_u *)top);
+                                                     (uchar_kt *)top);
                     }
 
                     // Deal with a bad byte and continue with the next.
@@ -1495,22 +1495,22 @@ retry:
                 if(from_size > 0)
                 {
                     // Some remaining characters, keep them for the next round.
-                    memmove(conv_rest, (char_u *)fromp, from_size);
+                    memmove(conv_rest, (uchar_kt *)fromp, from_size);
                     conv_restlen = (int)from_size;
                 }
 
                 // move the linerest to before the converted characters
                 line_start = ptr - linerest;
                 memmove(line_start, buffer, (size_t)linerest);
-                size = (long)((char_u *)top - ptr);
+                size = (long)((uchar_kt *)top - ptr);
             }
         #endif
 
             if(fio_flags != 0)
             {
                 int u8c;
-                char_u *dest;
-                char_u *tail = NULL;
+                uchar_kt *dest;
+                uchar_kt *tail = NULL;
 
                 // "enc_utf8" set: Convert Unicode or Latin1 to UTF-8.
                 // "enc_utf8" not set: Convert Unicode to Latin1.
@@ -2205,7 +2205,7 @@ failed:
 
         // If editing a new file: set 'fenc' for the current buffer.
         // Also for ":read ++edit file".
-        set_string_option_direct((char_u *)"fenc",
+        set_string_option_direct((uchar_kt *)"fenc",
                                  -1,
                                  fenc,
                                  OPT_FREE | OPT_LOCAL,
@@ -2301,7 +2301,7 @@ failed:
         {
             if(!(flags & READ_DUMMY))
             {
-                filemess(curbuf, sfname, (char_u *)_(e_interr), 0);
+                filemess(curbuf, sfname, (uchar_kt *)_(e_interr), 0);
 
                 if(newfile)
                 {
@@ -2499,7 +2499,7 @@ failed:
     // When opening a new file locate undo info and read it.
     if(read_undo_file)
     {
-        char_u hash[UNDO_HASH_SIZE];
+        uchar_kt hash[UNDO_HASH_SIZE];
         sha256_finish(&sha_ctx, hash);
         u_read_undo(NULL, hash, fname);
     }
@@ -2574,7 +2574,7 @@ failed:
 /// Do not accept "/dev/fd/[012]", opening these may hang Vim.
 ///
 /// @param fname file name to check
-static bool is_dev_fd_file(char_u *fname)
+static bool is_dev_fd_file(uchar_kt *fname)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return STRNCMP(fname, "/dev/fd/", 8) == 0
@@ -2593,9 +2593,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param p         start of more bytes read
 /// @param endp      end of more bytes read
 ///
-static linenr_T readfile_linenr(linenr_T linecnt, char_u *p, char_u *endp)
+static linenr_T readfile_linenr(linenr_T linecnt, uchar_kt *p, uchar_kt *endp)
 {
-    char_u *s;
+    uchar_kt *s;
     linenr_T lnum;
     lnum = curbuf->b_ml.ml_line_count - linecnt + 1;
 
@@ -2654,9 +2654,9 @@ void set_forced_fenc(exarg_T *eap)
 {
     if(eap->force_enc != 0)
     {
-        char_u *fenc = enc_canonize(eap->cmd + eap->force_enc);
+        uchar_kt *fenc = enc_canonize(eap->cmd + eap->force_enc);
 
-        set_string_option_direct((char_u *)"fenc", -1,
+        set_string_option_direct((uchar_kt *)"fenc", -1,
                                  fenc, OPT_FREE | OPT_LOCAL, 0);
 
         xfree(fenc);
@@ -2668,17 +2668,17 @@ void set_forced_fenc(exarg_T *eap)
 /// When there are no more items, an empty string is returned
 /// and *pp is set to NULL. When *pp is not set to NULL, the
 /// result is in allocated memory.
-static char_u *next_fenc(char_u **pp)
+static uchar_kt *next_fenc(uchar_kt **pp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
 {
-    char_u *p;
-    char_u *r;
+    uchar_kt *p;
+    uchar_kt *r;
 
     if(**pp == NUL)
     {
         *pp = NULL;
-        return (char_u *)"";
+        return (uchar_kt *)"";
     }
 
     p = vim_strchr(*pp, ',');
@@ -2711,15 +2711,15 @@ FUNC_ATTR_NONNULL_RET
 /// @param fdp    in/out: file descriptor of file
 ///
 /// @return Returns NULL if the conversion failed ("*fdp" is not set) .
-static char_u *readfile_charconvert(char_u *fname, char_u *fenc, int *fdp)
+static uchar_kt *readfile_charconvert(uchar_kt *fname, uchar_kt *fenc, int *fdp)
 {
-    char_u *tmpname;
-    char_u *errmsg = NULL;
+    uchar_kt *tmpname;
+    uchar_kt *errmsg = NULL;
     tmpname = vim_tempname();
 
     if(tmpname == NULL)
     {
-        errmsg = (char_u *)_("Can't find temp file for conversion");
+        errmsg = (uchar_kt *)_("Can't find temp file for conversion");
     }
     else
     {
@@ -2731,13 +2731,13 @@ static char_u *readfile_charconvert(char_u *fname, char_u *fenc, int *fdp)
                             (char *) fname,
                             (char *) tmpname) == FAIL)
         {
-            errmsg = (char_u *)_("Conversion with 'charconvert' failed");
+            errmsg = (uchar_kt *)_("Conversion with 'charconvert' failed");
         }
 
         if(errmsg == NULL
            && (*fdp = os_open((char *)tmpname, O_RDONLY, 0)) < 0)
         {
-            errmsg = (char_u *)_("can't read output of 'charconvert'");
+            errmsg = (uchar_kt *)_("can't read output of 'charconvert'");
         }
     }
 
@@ -2785,7 +2785,7 @@ static void check_marks_read(void)
 /// @param fname
 /// @param atime  access time
 /// @param mtime  modification time
-static void set_file_time(char_u *fname, time_t atime, time_t mtime)
+static void set_file_time(uchar_kt *fname, time_t atime, time_t mtime)
 {
 #if defined(HAVE_FUN_UTIME) && defined(HAVE_HDR_UTIME_H)
     struct utimbuf buf;
@@ -2831,8 +2831,8 @@ static void set_file_time(char_u *fname, time_t atime, time_t mtime)
 ///
 /// @return FAIL for failure, OK otherwise
 int buf_write(buf_T *buf,
-              char_u *fname,
-              char_u *sfname,
+              uchar_kt *fname,
+              uchar_kt *sfname,
               linenr_T start,
               linenr_T end,
               exarg_T *eap,
@@ -2842,14 +2842,14 @@ int buf_write(buf_T *buf,
               int filtering)
 {
     int fd;
-    char_u *backup = NULL;
+    uchar_kt *backup = NULL;
     int backup_copy = FALSE; // copy the original file?
     int dobackup;
-    char_u *ffname;
-    char_u *wfname = NULL; // name of file to write to
-    char_u *s;
-    char_u *ptr;
-    char_u c;
+    uchar_kt *ffname;
+    uchar_kt *wfname = NULL; // name of file to write to
+    uchar_kt *s;
+    uchar_kt *ptr;
+    uchar_kt c;
     int len;
     linenr_T lnum;
     long nchars;
@@ -2862,9 +2862,9 @@ int buf_write(buf_T *buf,
     char *errmsg = NULL;
     int errmsgarg = 0;
     bool errmsg_allocated = false;
-    char_u *buffer;
-    char_u smallbuf[SMBUFSIZE];
-    char_u *backup_ext;
+    uchar_kt *buffer;
+    uchar_kt smallbuf[SMBUFSIZE];
+    uchar_kt *backup_ext;
     int bufsize;
     long perm; // file permissions
     int retval = OK;
@@ -2889,8 +2889,8 @@ int buf_write(buf_T *buf,
     struct bw_info write_info; // info for buf_write_bytes()
     int converted = FALSE;
     int notconverted = FALSE;
-    char_u *fenc; // effective 'fileencoding'
-    char_u *fenc_tofree = NULL; // allocated "fenc"
+    uchar_kt *fenc; // effective 'fileencoding'
+    uchar_kt *fenc_tofree = NULL; // allocated "fenc"
 
 #ifdef HAS_BW_FLAGS
     int wb_flags = 0;
@@ -3249,7 +3249,7 @@ int buf_write(buf_T *buf,
         #else
                  fname,
         #endif
-                 (char_u *)"",
+                 (uchar_kt *)"",
                  0); // show that we are busy
     }
 
@@ -3504,7 +3504,7 @@ int buf_write(buf_T *buf,
         // make sure we have a valid backup extension to use
         if(*p_bex == NUL)
         {
-            backup_ext = (char_u *)".bak";
+            backup_ext = (uchar_kt *)".bak";
         }
         else
         {
@@ -3514,10 +3514,10 @@ int buf_write(buf_T *buf,
         if(backup_copy && (fd = os_open((char *)fname, O_RDONLY, 0)) >= 0)
         {
             int bfd;
-            char_u *copybuf, *wp;
+            uchar_kt *copybuf, *wp;
             int some_error = FALSE;
-            char_u *dirp;
-            char_u *rootname;
+            uchar_kt *dirp;
+            uchar_kt *rootname;
             copybuf = verbose_try_malloc(BUFSIZE + 1);
 
             if(copybuf == NULL)
@@ -3554,7 +3554,7 @@ int buf_write(buf_T *buf,
                 FileInfo file_info_new;
                 {
                     // Make backup file name.
-                    backup = (char_u *)modname((char *)rootname,
+                    backup = (uchar_kt *)modname((char *)rootname,
                                                (char *)backup_ext,
                                                FALSE);
 
@@ -3730,9 +3730,9 @@ nobackup:
         }
         else
         {
-            char_u *dirp;
-            char_u *p;
-            char_u *rootname;
+            uchar_kt *dirp;
+            uchar_kt *p;
+            uchar_kt *rootname;
 
             // Make a backup by renaming the original file.
             //
@@ -3762,7 +3762,7 @@ nobackup:
                 }
                 else
                 {
-                    backup = (char_u *)modname((char *)rootname,
+                    backup = (uchar_kt *)modname((char *)rootname,
                                                (char *)backup_ext,
                                                FALSE);
                     xfree(rootname);
@@ -3927,7 +3927,7 @@ nobackup:
         // Use iconv() conversion when
         // conversion is needed and it's not done internally.
         write_info.bw_iconv_fd =
-                (iconv_t)my_iconv_open(fenc, enc_utf8 ? (char_u *)"utf-8" : p_enc);
+                (iconv_t)my_iconv_open(fenc, enc_utf8 ? (uchar_kt *)"utf-8" : p_enc);
 
         if(write_info.bw_iconv_fd != (iconv_t)-1)
         {
@@ -4590,14 +4590,14 @@ restore_backup:
             {
                 EMSG(_("E205: Patchmode: can't save original file"));
             }
-            else if(!os_path_exists((char_u *)org))
+            else if(!os_path_exists((uchar_kt *)org))
             {
-                vim_rename(backup, (char_u *)org);
+                vim_rename(backup, (uchar_kt *)org);
                 xfree(backup); // don't delete the file
                 backup = NULL;
 
             #ifdef UNIX
-                set_file_time((char_u *)org,
+                set_file_time((uchar_kt *)org,
                               file_info_old.stat.st_atim.tv_sec,
                               file_info_old.stat.st_mtim.tv_sec);
             #endif
@@ -4729,7 +4729,7 @@ nofail:
     // also write the undo file.
     if(retval == OK && write_undo_file)
     {
-        char_u hash[UNDO_HASH_SIZE];
+        uchar_kt hash[UNDO_HASH_SIZE];
         sha256_finish(&sha_ctx, hash);
         u_write_undo(NULL, FALSE, buf, hash);
     }
@@ -4783,7 +4783,7 @@ nofail:
 
 /// Set the name of the current buffer. Use when the buffer doesn't have a
 /// name and a ":r" or ":w" command with a file name is used.
-static int set_rw_fname(char_u *fname, char_u *sfname)
+static int set_rw_fname(uchar_kt *fname, uchar_kt *sfname)
 {
     buf_T *buf = curbuf;
 
@@ -4828,9 +4828,9 @@ static int set_rw_fname(char_u *fname, char_u *sfname)
     // Do filetype detection now if 'filetype' is empty.
     if(*curbuf->b_p_ft == NUL)
     {
-        if(au_has_group((char_u *)"filetypedetect"))
+        if(au_has_group((uchar_kt *)"filetypedetect"))
         {
-            (void)do_doautocmd((char_u *)"filetypedetect BufRead", false, NULL);
+            (void)do_doautocmd((uchar_kt *)"filetypedetect BufRead", false, NULL);
         }
 
         do_modelines(0);
@@ -4861,8 +4861,8 @@ FUNC_ATTR_NONNULL_ARG(1)
     ret_buf[0] = '"';
 
     home_replace(buf,
-                 (const char_u *)fname,
-                 (char_u *)ret_buf + 1,
+                 (const uchar_kt *)fname,
+                 (uchar_kt *)ret_buf + 1,
                  (int)buf_len - 4,
                  true);
 
@@ -4904,7 +4904,7 @@ static bool msg_add_fileformat(int eol_type)
 /// Append line and character count to IObuff.
 void msg_add_lines(int insert_space, long lnum, off_t nchars)
 {
-    char_u *p;
+    uchar_kt *p;
     p = IObuff + STRLEN(IObuff);
 
     if(insert_space)
@@ -4999,7 +4999,7 @@ static bool time_differs(long t1, long t2) FUNC_ATTR_CONST
 static int buf_write_bytes(struct bw_info *ip)
 {
     int wlen;
-    char_u *buf = ip->bw_buf; // data to write
+    uchar_kt *buf = ip->bw_buf; // data to write
     int len = ip->bw_len; // length of data
 
 #ifdef HAS_BW_FLAGS
@@ -5009,7 +5009,7 @@ static int buf_write_bytes(struct bw_info *ip)
     // Skip conversion when writing the BOM.
     if(!(flags & FIO_NOCONVERT))
     {
-        char_u *p;
+        uchar_kt *p;
         unsigned c;
         int n;
 
@@ -5217,7 +5217,7 @@ static int buf_write_bytes(struct bw_info *ip)
 
             ip->bw_restlen = (int)fromlen;
             buf = ip->bw_conv_buf;
-            len = (int)((char_u *)to - ip->bw_conv_buf);
+            len = (int)((uchar_kt *)to - ip->bw_conv_buf);
         }
         #endif
     }
@@ -5233,10 +5233,10 @@ static int buf_write_bytes(struct bw_info *ip)
 /// @param flags FIO_ flags that specify which encoding to use
 ///
 /// @return true for an error, false when it's OK.
-static bool ucs2bytes(unsigned c, char_u **pp, int flags)
+static bool ucs2bytes(unsigned c, uchar_kt **pp, int flags)
 FUNC_ATTR_NONNULL_ALL
 {
-    char_u *p = *pp;
+    uchar_kt *p = *pp;
     bool error = false;
     int cc;
 
@@ -5328,7 +5328,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param fenc file encoding to check
 ///
 /// @return true if conversion is required
-static bool need_conversion(const char_u *fenc)
+static bool need_conversion(const uchar_kt *fenc)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int same_encoding;
@@ -5365,7 +5365,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// empty string, use 'encoding'.
 ///
 /// @param name string to check for encoding
-static int get_fio_flags(const char_u *name)
+static int get_fio_flags(const uchar_kt *name)
 {
     int prop;
 
@@ -5426,7 +5426,7 @@ static int get_fio_flags(const char_u *name)
 /// @return
 /// - the name of the encoding and set "*lenp" to the length.
 /// - NULL when no BOM found.
-static char_u *check_for_bom(char_u *p, long size, int *lenp, int flags)
+static uchar_kt *check_for_bom(uchar_kt *p, long size, int *lenp, int flags)
 {
     char *name = NULL;
     int len = 2;
@@ -5484,15 +5484,15 @@ static char_u *check_for_bom(char_u *p, long size, int *lenp, int flags)
     }
 
     *lenp = len;
-    return (char_u *)name;
+    return (uchar_kt *)name;
 }
 
 /// Generate a BOM in "buf[4]" for encoding "name".
 /// Return the length of the BOM (zero when no BOM).
-static int make_bom(char_u *buf, char_u *name)
+static int make_bom(uchar_kt *buf, uchar_kt *name)
 {
     int flags;
-    char_u *p;
+    uchar_kt *p;
     flags = get_fio_flags(name);
 
     // Can't put a BOM in a non-Unicode file.
@@ -5523,8 +5523,8 @@ static int make_bom(char_u *buf, char_u *name)
 /// that have buftype "nofile" or "scratch": never change the file name.
 void shorten_fnames(int force)
 {
-    char_u dirname[MAXPATHL];
-    char_u *p;
+    uchar_kt dirname[MAXPATHL];
+    uchar_kt *p;
     os_dirname(dirname, MAXPATHL);
     FOR_ALL_BUFFERS(buf)
     {
@@ -5602,7 +5602,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         // +3 for PATHSEP, "_" (Win), NUL
         retval = xmalloc(MAXPATHL + extlen + 3);
 
-        if(os_dirname((char_u *)retval, MAXPATHL) == FAIL
+        if(os_dirname((uchar_kt *)retval, MAXPATHL) == FAIL
            || (fnamelen = strlen(retval)) == 0)
         {
             xfree(retval);
@@ -5649,7 +5649,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     char *e;
 
     // Prepend the dot if needed.
-    if(prepend_dot && *(e = (char *)path_tail((char_u *)retval)) != '.')
+    if(prepend_dot && *(e = (char *)path_tail((uchar_kt *)retval)) != '.')
     {
         STRMOVE(e + 1, e);
         *e = '.';
@@ -5687,7 +5687,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @param fp    file to read from
 ///
 /// @return true for end-of-file.
-bool vim_fgets(char_u *buf, int size, FILE *fp)
+bool vim_fgets(uchar_kt *buf, int size, FILE *fp)
 FUNC_ATTR_NONNULL_ALL
 {
 #define FGETS_SIZE 200
@@ -5813,7 +5813,7 @@ int put_time(FILE *fd, time_t time_)
 /// function will (attempts to?) copy the file across if rename fails
 ///
 /// @return -1 for failure, 0 for success
-int vim_rename(const char_u *from, const char_u *to)
+int vim_rename(const uchar_kt *from, const uchar_kt *to)
 {
     int fd_in;
     int fd_out;
@@ -5833,7 +5833,7 @@ int vim_rename(const char_u *from, const char_u *to)
     // the file name differs we need to go through a temp file.
     if(fnamecmp(from, to) == 0)
     {
-        if(p_fic && (STRCMP(path_tail((char_u *)from), path_tail((char_u *)to))
+        if(p_fic && (STRCMP(path_tail((uchar_kt *)from), path_tail((uchar_kt *)to))
                      != 0))
         {
             use_tmp_file = true;
@@ -5865,7 +5865,7 @@ int vim_rename(const char_u *from, const char_u *to)
 
     if(use_tmp_file)
     {
-        char_u tempname[MAXPATHL + 1];
+        uchar_kt tempname[MAXPATHL + 1];
 
         // Find a name that doesn't exist and is in the same directory.
         // Rename "from" to "tempname" and then rename "tempname" to "to".
@@ -6108,7 +6108,7 @@ static int move_lines(buf_T *frombuf, buf_T *tobuf)
     buf_T *tbuf = curbuf;
     int retval = OK;
     linenr_T lnum;
-    char_u *p;
+    uchar_kt *p;
 
     // Copy the lines in "frombuf" to "tobuf".
     curbuf = tobuf;
@@ -6161,7 +6161,7 @@ static int move_lines(buf_T *frombuf, buf_T *tobuf)
 int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 {
     int retval = 0;
-    char_u *path;
+    uchar_kt *path;
     char *mesg = NULL;
     char *mesg2 = "";
     int helpmesg = FALSE;
@@ -6171,7 +6171,7 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
     int orig_mode = buf->b_orig_mode;
     static int busy = FALSE;
     int n;
-    char_u *s;
+    uchar_kt *s;
     char *reason;
     bufref_T bufref;
     set_bufref(&bufref, buf);
@@ -6365,9 +6365,9 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
             }
 
             if(do_dialog(VIM_WARNING,
-                         (char_u *) _("Warning"),
-                         (char_u *) tbuf,
-                         (char_u *) _("&OK\n&Load File"),
+                         (uchar_kt *) _("Warning"),
+                         (uchar_kt *) tbuf,
+                         (uchar_kt *) _("&OK\n&Load File"),
                          1,
                          NULL,
                          true) == 2)
@@ -6429,7 +6429,7 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 
         if(buf->b_p_udf && buf->b_ffname != NULL)
         {
-            char_u hash[UNDO_HASH_SIZE];
+            uchar_kt hash[UNDO_HASH_SIZE];
             buf_T *save_curbuf = curbuf;
 
             // Any existing undo file is unusable, write it now.
@@ -6651,9 +6651,9 @@ void write_lnum_adjust(linenr_T offset)
 #if defined(BACKSLASH_IN_FILENAME)
 /// Convert all backslashes in fname to forward slashes in-place,
 /// unless when it looks like a URL.
-void forward_slash(char_u *fname)
+void forward_slash(uchar_kt *fname)
 {
-    char_u *p;
+    uchar_kt *p;
 
     if(path_with_url((const char *)fname))
     {
@@ -6676,7 +6676,7 @@ void forward_slash(char_u *fname)
 #endif
 
 /// Name of Vim's own temp dir. Ends in a slash.
-static char_u *vim_tempdir = NULL;
+static uchar_kt *vim_tempdir = NULL;
 
 /// Create a directory for private use by this instance of Neovim.
 /// This is done once, and the same directory is used for all temp files.
@@ -6688,8 +6688,8 @@ static void vim_maketempdir(void)
     static const char *temp_dirs[] = TEMP_DIR_NAMES;
 
     // Try the entries in `TEMP_DIR_NAMES` to create the temp directory.
-    char_u template_buf[TEMP_FILE_PATH_MAXLEN];
-    char_u path[TEMP_FILE_PATH_MAXLEN];
+    uchar_kt template_buf[TEMP_FILE_PATH_MAXLEN];
+    uchar_kt path[TEMP_FILE_PATH_MAXLEN];
 
     // Make sure the umask doesn't remove the executable bit.
     // "repl" has been reported to use "0177".
@@ -6699,7 +6699,7 @@ static void vim_maketempdir(void)
     {
         // Expand environment variables,
         // leave room for "/nvimXXXXXX/999999999"
-        expand_env((char_u *)temp_dirs[i],
+        expand_env((uchar_kt *)temp_dirs[i],
                    template_buf,
                    TEMP_FILE_PATH_MAXLEN - 22);
 
@@ -6745,9 +6745,9 @@ int delete_recursive(const char *name)
     if(os_isrealdir(name))
     {
         snprintf((char *)NameBuff, MAXPATHL, "%s/*", name); // NOLINT
-        char_u **files;
+        uchar_kt **files;
         int file_count;
-        char_u *exp = vim_strsave(NameBuff);
+        uchar_kt *exp = vim_strsave(NameBuff);
 
         if(gen_expand_wildcards(1,
                                 &exp,
@@ -6801,7 +6801,7 @@ void vim_deltempdir(void)
 
 /// Get the name of temp directory.
 /// This directory would be created on the first call to this function.
-char_u *vim_gettempdir(void)
+uchar_kt *vim_gettempdir(void)
 {
     if(vim_tempdir == NULL)
     {
@@ -6829,7 +6829,7 @@ static bool vim_settempdir(char *tempdir)
 
     vim_FullName(tempdir, buf, MAXPATHL, false);
     add_pathsep(buf);
-    vim_tempdir = (char_u *)xstrdup(buf);
+    vim_tempdir = (uchar_kt *)xstrdup(buf);
     xfree(buf);
 
     return true;
@@ -6842,11 +6842,11 @@ static bool vim_settempdir(char *tempdir)
 /// @return
 /// pointer to the temp file name or NULL if Neovim can't create
 /// temporary directory for its own temporary files.
-char_u *vim_tempname(void)
+uchar_kt *vim_tempname(void)
 {
     // Temp filename counter.
     static uint32_t temp_count;
-    char_u *tempdir = vim_gettempdir();
+    uchar_kt *tempdir = vim_gettempdir();
 
     if(!tempdir)
     {
@@ -6855,7 +6855,7 @@ char_u *vim_tempname(void)
 
     // There is no need to check if the file exists,
     // because we own the directory and nobody else creates a file in it.
-    char_u template_buf[TEMP_FILE_PATH_MAXLEN];
+    uchar_kt template_buf[TEMP_FILE_PATH_MAXLEN];
 
     snprintf((char *)template_buf, TEMP_FILE_PATH_MAXLEN,
              "%s%" PRIu32, tempdir, temp_count++);
@@ -6872,7 +6872,7 @@ char_u *vim_tempname(void)
 static AutoPatCmd *active_apc_list = NULL;
 
 /// List of autocmd group names
-static garray_T augroups = { 0, 0, sizeof(char_u *), 10, NULL };
+static garray_T augroups = { 0, 0, sizeof(uchar_kt *), 10, NULL };
 
 ///
 #define AUGROUP_NAME(i)    (((char **)augroups.ga_data)[i])
@@ -7128,7 +7128,7 @@ void aubuflocal_remove(buf_T *buf)
 
 /// Add an autocmd group name.
 /// Return it's ID.  Returns AUGROUP_ERROR (< 0) for error.
-static int au_new_group(char_u *name)
+static int au_new_group(uchar_kt *name)
 {
     int i = au_find_group(name);
 
@@ -7159,7 +7159,7 @@ static int au_new_group(char_u *name)
     return i;
 }
 
-static void au_del_group(char_u *name)
+static void au_del_group(uchar_kt *name)
 {
     int i;
     i = au_find_group(name);
@@ -7186,7 +7186,7 @@ static void au_del_group(char_u *name)
             {
                 if(ap->group == i && ap->pat != NULL)
                 {
-                    give_warning((char_u *)_("W19: Deleting augroup that "
+                    give_warning((uchar_kt *)_("W19: Deleting augroup that "
                                              "is still in use"), true);
                     in_use = true;
                     event = NUM_EVENTS;
@@ -7213,7 +7213,7 @@ static void au_del_group(char_u *name)
 /// @param name augroup name
 ///
 /// @return the ID or AUGROUP_ERROR (< 0) for error.
-static int au_find_group(const char_u *name)
+static int au_find_group(const uchar_kt *name)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -7233,7 +7233,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Return true if augroup "name" exists.
 ///
 /// @param name augroup name
-bool au_has_group(const char_u *name)
+bool au_has_group(const uchar_kt *name)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -7241,7 +7241,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// ":augroup {name}".
-void do_augroup(char_u *arg, int del_group)
+void do_augroup(uchar_kt *arg, int del_group)
 {
     if(del_group)
     {
@@ -7291,7 +7291,7 @@ void free_all_autocmds(void)
     for(current_augroup = -1; current_augroup < augroups.ga_len;
         current_augroup++)
     {
-        do_autocmd((char_u *)"", true);
+        do_autocmd((uchar_kt *)"", true);
     }
 
     for(int i = 0; i < augroups.ga_len; i++)
@@ -7311,9 +7311,9 @@ void free_all_autocmds(void)
 /// - Return the event number for event name "start".
 /// - Return NUM_EVENTS if the event name was not found.
 /// - Return a pointer to the next event name in "end".
-static event_T event_name2nr(const char_u *start, char_u **end)
+static event_T event_name2nr(const uchar_kt *start, uchar_kt **end)
 {
-    const char_u *p;
+    const uchar_kt *p;
     int i;
     int len;
 
@@ -7336,7 +7336,7 @@ static event_T event_name2nr(const char_u *start, char_u **end)
         p++;
     }
 
-    *end = (char_u *)p;
+    *end = (uchar_kt *)p;
 
     if(event_names[i].name == NULL)
     {
@@ -7371,10 +7371,10 @@ FUNC_ATTR_CONST
 ///
 /// @param arg
 /// @param have_group  TRUE when group name was found
-static char_u *find_end_event(char_u *arg, int have_group)
+static uchar_kt *find_end_event(uchar_kt *arg, int have_group)
 {
-    char_u *pat;
-    char_u *p;
+    uchar_kt *pat;
+    uchar_kt *p;
 
     if(*arg == '*')
     {
@@ -7415,7 +7415,7 @@ static char_u *find_end_event(char_u *arg, int have_group)
 static bool event_ignored(event_T event)
 FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    char_u *p = p_ei;
+    uchar_kt *p = p_ei;
 
     while(*p != NUL)
     {
@@ -7436,7 +7436,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 /// Return OK when the contents of p_ei is valid, FAIL otherwise.
 int check_ei(void)
 {
-    char_u *p = p_ei;
+    uchar_kt *p = p_ei;
 
     while(*p)
     {
@@ -7461,10 +7461,10 @@ int check_ei(void)
 /// Add "what" to 'eventignore' to skip loading syntax highlighting for every
 /// buffer loaded into the window. "what" must start with a comma.
 /// Returns the old value of 'eventignore' in allocated memory.
-char_u *au_event_disable(char *what)
+uchar_kt *au_event_disable(char *what)
 {
-    char_u *new_ei;
-    char_u *save_ei;
+    uchar_kt *new_ei;
+    uchar_kt *save_ei;
     save_ei = vim_strsave(p_ei);
     new_ei = vim_strnsave(p_ei, (int)(STRLEN(p_ei) + STRLEN(what)));
 
@@ -7477,7 +7477,7 @@ char_u *au_event_disable(char *what)
         STRCAT(new_ei, what);
     }
 
-    set_string_option_direct((char_u *)"ei",
+    set_string_option_direct((uchar_kt *)"ei",
                              -1,
                              new_ei,
                              OPT_FREE,
@@ -7487,11 +7487,11 @@ char_u *au_event_disable(char *what)
     return save_ei;
 }
 
-void au_event_restore(char_u *old_ei)
+void au_event_restore(uchar_kt *old_ei)
 {
     if(old_ei != NULL)
     {
-        set_string_option_direct((char_u *)"ei",
+        set_string_option_direct((uchar_kt *)"ei",
                                  -1,
                                  old_ei,
                                  OPT_FREE,
@@ -7540,12 +7540,12 @@ void au_event_restore(char_u *old_ei)
 /// show all autocommands for *.c files.
 ///
 /// - Mostly a {group} argument can optionally appear before <event>.
-void do_autocmd(char_u *arg_in, int forceit)
+void do_autocmd(uchar_kt *arg_in, int forceit)
 {
-    char_u *arg = arg_in;
-    char_u *pat;
-    char_u *envpat = NULL;
-    char_u *cmd;
+    uchar_kt *arg = arg_in;
+    uchar_kt *pat;
+    uchar_kt *envpat = NULL;
+    uchar_kt *cmd;
     event_T event;
     int need_free = FALSE;
     int nested = FALSE;
@@ -7553,7 +7553,7 @@ void do_autocmd(char_u *arg_in, int forceit)
 
     if(*arg == '|')
     {
-        arg = (char_u *)"";
+        arg = (uchar_kt *)"";
         group = AUGROUP_ALL; // no argument, use all groups
     }
     else
@@ -7575,8 +7575,8 @@ void do_autocmd(char_u *arg_in, int forceit)
 
     if(*pat == '|')
     {
-        pat = (char_u *)"";
-        cmd = (char_u *)"";
+        pat = (uchar_kt *)"";
+        cmd = (uchar_kt *)"";
     }
     else
     {
@@ -7689,11 +7689,11 @@ void do_autocmd(char_u *arg_in, int forceit)
 /// The "argp" argument is advanced to the following argument.
 ///
 /// Returns the group ID or AUGROUP_ALL.
-static int au_get_grouparg(char_u **argp)
+static int au_get_grouparg(uchar_kt **argp)
 {
-    char_u *group_name;
-    char_u *p;
-    char_u *arg = *argp;
+    uchar_kt *group_name;
+    uchar_kt *p;
+    uchar_kt *arg = *argp;
     int group = AUGROUP_ALL;
 
     for(p = arg; *p && !ascii_iswhite(*p) && *p != '|'; p++)
@@ -7726,9 +7726,9 @@ static int au_get_grouparg(char_u **argp)
 /// - If forceit == TRUE delete entries.
 /// - If group is not AUGROUP_ALL, only use this group.
 static int do_autocmd_event(event_T event,
-                            char_u *pat,
+                            uchar_kt *pat,
                             int nested,
-                            char_u *cmd,
+                            uchar_kt *cmd,
                             int forceit,
                             int group)
 {
@@ -7737,13 +7737,13 @@ static int do_autocmd_event(event_T event,
     AutoCmd *ac;
     AutoCmd **prev_ac;
     int brace_level;
-    char_u *endpat;
+    uchar_kt *endpat;
     int findgroup;
     int allgroups;
     int patlen;
     int is_buflocal;
     int buflocal_nr;
-    char_u buflocal_pat[25]; // for "<buffer=X>"
+    uchar_kt buflocal_pat[25]; // for "<buffer=X>"
 
     if(group == AUGROUP_ALL)
     {
@@ -7924,7 +7924,7 @@ static int do_autocmd_event(event_T event,
                 }
                 else
                 {
-                    char_u *reg_pat;
+                    uchar_kt *reg_pat;
                     ap->buflocal_nr = 0;
 
                     reg_pat = file_pat_to_reg_pat(pat,
@@ -7988,9 +7988,9 @@ static int do_autocmd_event(event_T event,
 /// @param arg
 /// @param do_msg         give message for no matching autocmds?
 /// @param did_something
-int do_doautocmd(char_u *arg, int do_msg, bool *did_something)
+int do_doautocmd(uchar_kt *arg, int do_msg, bool *did_something)
 {
-    char_u *fname;
+    uchar_kt *fname;
     int nothing_done = TRUE;
     int group;
 
@@ -8047,7 +8047,7 @@ void ex_doautoall(exarg_T *eap)
 {
     int retval;
     aco_save_T aco;
-    char_u *arg = eap->arg;
+    uchar_kt *arg = eap->arg;
     int call_do_modelines = check_nomodeline(&arg);
     bufref_T bufref;
 
@@ -8095,7 +8095,7 @@ void ex_doautoall(exarg_T *eap)
 /// called when true is returned.
 ///
 /// @param[in,out] argp argument string
-bool check_nomodeline(char_u **argp)
+bool check_nomodeline(uchar_kt **argp)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(STRNCMP(*argp, "<nomodeline>", 12) == 0)
@@ -8324,8 +8324,8 @@ static int autocmd_nested = FALSE;
 ///
 /// @return true if some commands were executed.
 bool apply_autocmds(event_T event,
-                    char_u *fname,
-                    char_u *fname_io,
+                    uchar_kt *fname,
+                    uchar_kt *fname_io,
                     bool force,
                     buf_T *buf)
 {
@@ -8350,8 +8350,8 @@ bool apply_autocmds(event_T event,
 ///
 /// @return true if some commands were executed.
 static bool apply_autocmds_exarg(event_T event,
-                                 char_u *fname,
-                                 char_u *fname_io,
+                                 uchar_kt *fname,
+                                 uchar_kt *fname_io,
                                  bool force,
                                  buf_T *buf,
                                  exarg_T *eap)
@@ -8379,8 +8379,8 @@ static bool apply_autocmds_exarg(event_T event,
 ///
 /// @return true if some autocommands were executed
 bool apply_autocmds_retval(event_T event,
-                           char_u *fname,
-                           char_u *fname_io,
+                           uchar_kt *fname,
+                           uchar_kt *fname_io,
                            bool force,
                            buf_T *buf,
                            int *retval)
@@ -8477,24 +8477,24 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return true if some commands were executed.
 static bool apply_autocmds_group(event_T event,
-                                 char_u *fname,
-                                 char_u *fname_io,
+                                 uchar_kt *fname,
+                                 uchar_kt *fname_io,
                                  bool force,
                                  int group,
                                  buf_T *buf,
                                  exarg_T *eap)
 {
-    char_u *sfname = NULL; // short file name
-    char_u *tail;
+    uchar_kt *sfname = NULL; // short file name
+    uchar_kt *tail;
     bool save_changed;
     buf_T *old_curbuf;
     bool retval = false;
-    char_u *save_sourcing_name;
+    uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    char_u *save_autocmd_fname;
+    uchar_kt *save_autocmd_fname;
     int save_autocmd_fname_full;
     int save_autocmd_bufnr;
-    char_u *save_autocmd_match;
+    uchar_kt *save_autocmd_match;
     int save_autocmd_busy;
     int save_autocmd_nested;
     static int nesting = 0;
@@ -8502,7 +8502,7 @@ static bool apply_autocmds_group(event_T event,
     AutoPat *ap;
     scid_T save_current_SID;
     void *save_funccalp;
-    char_u *save_cmdarg;
+    uchar_kt *save_cmdarg;
     long save_cmdbang;
     static int filechangeshell_busy = FALSE;
     proftime_T wait_time;
@@ -8646,7 +8646,7 @@ static bool apply_autocmds_group(event_T event,
 
         if(fname == NULL)
         {
-            fname = (char_u *)"";
+            fname = (uchar_kt *)"";
         }
 
         fname = vim_strsave(fname); // make a copy, so we can change it
@@ -8672,7 +8672,7 @@ static bool apply_autocmds_group(event_T event,
         }
         else
         {
-            fname = (char_u *)FullName_save((char *)fname, false);
+            fname = (uchar_kt *)FullName_save((char *)fname, false);
         }
     }
 
@@ -8894,7 +8894,7 @@ BYPASS_AU:
     return retval;
 }
 
-static char_u *old_termresponse = NULL;
+static uchar_kt *old_termresponse = NULL;
 
 /// Block triggering autocommands until unblock_autocmd() is called.
 /// Can be used recursively, so long as it's symmetric.
@@ -9007,12 +9007,12 @@ static void auto_next_pat(AutoPatCmd *apc, int stop_at_last)
 /// Get next autocommand command.
 /// Called by do_cmdline() to get the next line for ":if".
 /// Returns allocated string, or NULL for end of autocommands.
-char_u *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
+uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
                   void *cookie,
                   int FUNC_ARGS_UNUSED_REALY(indent))
 {
     AutoPatCmd *acp = (AutoPatCmd *)cookie;
-    char_u *retval;
+    uchar_kt *retval;
     AutoCmd *ac;
 
     // Can be called again after returning the last line.
@@ -9094,18 +9094,18 @@ char_u *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
 /// @param event  event that occured.
 /// @param sfname filename the event occured in.
 /// @param buf    buffer the file is open in
-bool has_autocmd(event_T event, char_u *sfname, buf_T *buf)
+bool has_autocmd(event_T event, uchar_kt *sfname, buf_T *buf)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool retval = false;
-    char_u *fname = (char_u *)FullName_save((char *)sfname, false);
+    uchar_kt *fname = (uchar_kt *)FullName_save((char *)sfname, false);
 
     if(fname == NULL)
     {
         return false;
     }
 
-    char_u *tail = path_tail(sfname); // get the file name
+    uchar_kt *tail = path_tail(sfname); // get the file name
 
 #ifdef BACKSLASH_IN_FILENAME
     // Replace all backslashes with forward slashes.
@@ -9139,11 +9139,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Function given to ExpandGeneric() to
 /// obtain the list of autocommand group names.
-char_u *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx == augroups.ga_len) // add "END" add the end
     {
-        return (char_u *)"END";
+        return (uchar_kt *)"END";
     }
 
     if(idx >= augroups.ga_len) // end of list
@@ -9153,18 +9153,18 @@ char_u *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
     if(AUGROUP_NAME(idx) == NULL || AUGROUP_NAME(idx) == get_deleted_augroup())
     {
-        return (char_u *)""; // skip deleted entries
+        return (uchar_kt *)""; // skip deleted entries
     }
 
-    return (char_u *)AUGROUP_NAME(idx);
+    return (uchar_kt *)AUGROUP_NAME(idx);
 }
 
 static int include_groups = FALSE;
 
 /// @param doautocmd  TRUE for :doauto*, FALSE for :autocmd
-char_u *set_context_in_autocmd(expand_T *xp, char_u *arg, int doautocmd)
+uchar_kt *set_context_in_autocmd(expand_T *xp, uchar_kt *arg, int doautocmd)
 {
-    char_u *p;
+    uchar_kt *p;
     int group;
 
     // check for a group name, skip it if present
@@ -9226,7 +9226,7 @@ char_u *set_context_in_autocmd(expand_T *xp, char_u *arg, int doautocmd)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of event names.
-char_u *get_event_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_event_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx < augroups.ga_len) // First list group names, if wanted
     {
@@ -9234,13 +9234,13 @@ char_u *get_event_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
            || AUGROUP_NAME(idx) == NULL
            || AUGROUP_NAME(idx) == get_deleted_augroup())
         {
-            return (char_u *)""; // skip deleted entries
+            return (uchar_kt *)""; // skip deleted entries
         }
 
-        return (char_u *)AUGROUP_NAME(idx);
+        return (uchar_kt *)AUGROUP_NAME(idx);
     }
 
-    return (char_u *)event_names[idx - augroups.ga_len].name;
+    return (uchar_kt *)event_names[idx - augroups.ga_len].name;
 }
 
 
@@ -9253,8 +9253,8 @@ bool autocmd_supported(const char *const event)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    char_u *p;
-    return event_name2nr((const char_u *)event, &p) != NUM_EVENTS;
+    uchar_kt *p;
+    return event_name2nr((const uchar_kt *)event, &p) != NUM_EVENTS;
 }
 
 /// Return true if an autocommand is defined for a group, event and
@@ -9288,7 +9288,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
 
     // First, look for an autocmd group name.
-    group = au_find_group((char_u *)arg_save);
+    group = au_find_group((uchar_kt *)arg_save);
     char *event_name;
 
     if(group == AUGROUP_ERROR)
@@ -9320,7 +9320,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     char *pattern = p; // "pattern" is NULL when there is no pattern.
 
     // Find the index (enum) for the event name.
-    event = event_name2nr((char_u *)event_name, (char_u **)&p);
+    event = event_name2nr((uchar_kt *)event_name, (uchar_kt **)&p);
 
     // return FALSE if the event name is not recognized
     if(event == NUM_EVENTS)
@@ -9354,7 +9354,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
            && (group == AUGROUP_ALL || ap->group == group)
            && (pattern == NULL
                || (buflocal_buf == NULL
-                   ? fnamecmp(ap->pat, (char_u *)pattern) == 0
+                   ? fnamecmp(ap->pat, (uchar_kt *)pattern) == 0
                    : ap->buflocal_nr == buflocal_buf->b_fnum)))
         {
             retval = true;
@@ -9382,11 +9382,11 @@ theend:
 /// @param allow_dirs Allow matching with dir
 ///
 /// @return true if there is a match, false otherwise
-static bool match_file_pat(char_u *pattern,
+static bool match_file_pat(uchar_kt *pattern,
                            regprog_T **prog,
-                           char_u *fname,
-                           char_u *sfname,
-                           char_u *tail,
+                           uchar_kt *fname,
+                           uchar_kt *sfname,
+                           uchar_kt *tail,
                            int allow_dirs)
 {
     regmatch_T regmatch;
@@ -9437,16 +9437,16 @@ static bool match_file_pat(char_u *pattern,
 /// @param ffname full file name
 ///
 /// @return true if there was a match
-bool match_file_list(char_u *list, char_u *sfname, char_u *ffname)
+bool match_file_list(uchar_kt *list, uchar_kt *sfname, uchar_kt *ffname)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1, 3)
 {
-    char_u buf[100];
-    char_u *tail;
-    char_u *regpat;
+    uchar_kt buf[100];
+    uchar_kt *tail;
+    uchar_kt *regpat;
     char allow_dirs;
     bool match;
-    char_u *p;
+    uchar_kt *p;
     tail = path_tail(sfname);
     p = list; // try all patterns in 'wildignore'
 
@@ -9486,15 +9486,15 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
 /// @param no_bslash    Don't use a backward slash as pathsep
 ///
 /// Returns NULL on failure.
-char_u *file_pat_to_reg_pat(const char_u *pat,
-                            const char_u *pat_end,
+uchar_kt *file_pat_to_reg_pat(const uchar_kt *pat,
+                            const uchar_kt *pat_end,
                             char *allow_dirs,
                             int FUNC_ARGS_UNUSED_MAYBE(no_bslash))
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    const char_u *endp;
-    char_u *reg_pat;
-    const char_u *p;
+    const uchar_kt *endp;
+    uchar_kt *reg_pat;
+    const uchar_kt *p;
     int nested = 0;
     int add_dollar = TRUE;
 
@@ -9510,7 +9510,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     if(pat_end == pat)
     {
-        return (char_u *)xstrdup("^$");
+        return (uchar_kt *)xstrdup("^$");
     }
 
     size_t size = 2; // '^' at start, '$' at end.

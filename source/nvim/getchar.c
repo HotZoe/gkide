@@ -133,8 +133,8 @@ static int KeyNoremap = 0; ///< remapping flags
 /// MAXMAPLEN) for the Amiga).
 #define TYPELEN_INIT    (5 * (MAXMAPLEN + 3))
 
-static char_u typebuf_init[TYPELEN_INIT]; ///< initial typebuf.tb_buf
-static char_u noremapbuf_init[TYPELEN_INIT]; ///< initial typebuf.tb_noremap
+static uchar_kt typebuf_init[TYPELEN_INIT]; ///< initial typebuf.tb_buf
+static uchar_kt noremapbuf_init[TYPELEN_INIT]; ///< initial typebuf.tb_noremap
 
 static size_t last_recorded_len = 0; ///< number of last recorded chars
 static const uint8_t ui_toggle[] = { K_SPECIAL, KS_EXTRA, KE_PASTE, 0 };
@@ -162,12 +162,12 @@ void free_buff(buffheader_T *buf)
 ///
 /// @param buffer
 /// @param dozero  count == zero is not an error
-static char_u *get_buffcont(buffheader_T *buffer, int dozero)
+static uchar_kt *get_buffcont(buffheader_T *buffer, int dozero)
 {
     size_t count = 0;
-    char_u *p = NULL;
-    char_u *p2;
-    char_u  *str;
+    uchar_kt *p = NULL;
+    uchar_kt *p2;
+    uchar_kt  *str;
 
     // compute the total length of the string
     for(buffblock_T *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
@@ -197,9 +197,9 @@ static char_u *get_buffcont(buffheader_T *buffer, int dozero)
 /// Return the contents of the record buffer as a single string
 /// and clear the record buffer.
 /// K_SPECIAL and CSI in the returned string are escaped.
-char_u *get_recorded(void)
+uchar_kt *get_recorded(void)
 {
-    char_u *p;
+    uchar_kt *p;
     size_t len;
     p = get_buffcont(&recordbuff, TRUE);
     free_buff(&recordbuff);
@@ -226,7 +226,7 @@ char_u *get_recorded(void)
 
 /// Return the contents of the redo buffer as a single string.
 /// K_SPECIAL and CSI in the returned string are escaped.
-char_u *get_inserted(void)
+uchar_kt *get_inserted(void)
 {
     return get_buffcont(&redobuff, FALSE);
 }
@@ -371,7 +371,7 @@ static int read_readbuffers(int advance)
 
 static int read_readbuf(buffheader_T *buf, int advance)
 {
-    char_u c;
+    uchar_kt c;
     buffblock_T *curr;
 
     if(buf->bh_first.b_next == NULL) // buffer is empty
@@ -550,7 +550,7 @@ void AppendToRedobuff(const char *s)
 ///
 /// @param str
 /// @param len  length of @b str or -1 for up to the NUL
-void AppendToRedobuffLit(char_u *str, int len)
+void AppendToRedobuffLit(uchar_kt *str, int len)
 {
     if(block_redo)
     {
@@ -590,7 +590,7 @@ void AppendToRedobuffLit(char_u *str, int len)
         // Handle a special or multibyte character.
         // Composing chars separately are handled separately.
         const int c = (has_mbyte
-                       ? mb_cptr2char_adv((const char_u **)&s)
+                       ? mb_cptr2char_adv((const uchar_kt **)&s)
                        : (uint8_t)(*s++));
 
         if(c < ' ' || c == DEL || (*s == NUL && (c == '0' || c == '^')))
@@ -663,7 +663,7 @@ void stuffReadbuffSpec(const char *s)
         }
         else
         {
-            int c = mb_ptr2char_adv((const char_u **)&s);
+            int c = mb_ptr2char_adv((const uchar_kt **)&s);
 
             if(c == CAR || c == NL || c == ESC)
             {
@@ -696,10 +696,10 @@ void stuffnumReadbuff(long n)
 static int read_redo(int init, int old_redo)
 {
     static buffblock_T *bp;
-    static char_u *p;
+    static uchar_kt *p;
     int c;
     int n;
-    char_u buf[MB_MAXBYTES + 1];
+    uchar_kt buf[MB_MAXBYTES + 1];
     int i;
 
     if(init)
@@ -753,7 +753,7 @@ static int read_redo(int init, int old_redo)
             p = bp->b_str;
         }
 
-        buf[i] = (char_u)c;
+        buf[i] = (uchar_kt)c;
 
         if(i == n - 1) // last byte of a character
         {
@@ -870,7 +870,7 @@ int start_redo_ins(void)
     // skip the count and the command character
     while((c = read_redo(FALSE, FALSE)) != NUL)
     {
-        if(vim_strchr((char_u *)"AaIiRrOo", c) != NULL)
+        if(vim_strchr((uchar_kt *)"AaIiRrOo", c) != NULL)
         {
             if(c == 'O' || c == 'o')
             {
@@ -924,9 +924,9 @@ static void init_typebuf(void)
 /// - If silent is true, cmd_silent is set when the characters are obtained.
 ///
 /// @return FAIL for failure, OK otherwise
-int ins_typebuf(char_u *str, int noremap, int offset, int nottyped, bool silent)
+int ins_typebuf(uchar_kt *str, int noremap, int offset, int nottyped, bool silent)
 {
-    char_u *s1, *s2;
+    uchar_kt *s1, *s2;
     int newlen;
     int addlen;
     int i;
@@ -1041,7 +1041,7 @@ int ins_typebuf(char_u *str, int noremap, int offset, int nottyped, bool silent)
     for(i = 0; i < addlen; ++i)
     {
         typebuf.tb_noremap[typebuf.tb_off + i + offset] =
-            (char_u)((--nrm >= 0) ? val : RM_YES);
+            (uchar_kt)((--nrm >= 0) ? val : RM_YES);
     }
 
     // tb_maplen and tb_silent only remember the length of mapped and/or
@@ -1072,13 +1072,13 @@ int ins_typebuf(char_u *str, int noremap, int offset, int nottyped, bool silent)
 /// KeyNoremap to restore the flags belonging to the char.
 void ins_char_typebuf(int c)
 {
-    char_u buf[MB_MAXBYTES + 1];
+    uchar_kt buf[MB_MAXBYTES + 1];
 
     if(IS_SPECIAL(c))
     {
         buf[0] = K_SPECIAL;
-        buf[1] = (char_u)K_SECOND(c);
-        buf[2] = (char_u)K_THIRD(c);
+        buf[1] = (uchar_kt)K_SECOND(c);
+        buf[2] = (uchar_kt)K_THIRD(c);
         buf[3] = NUL;
     }
     else
@@ -1214,10 +1214,10 @@ void del_typebuf(int len, int offset)
 
 /// Write typed characters to script file.
 /// If recording is on put the character in the recordbuffer.
-static void gotchars(char_u *chars, size_t len)
+static void gotchars(uchar_kt *chars, size_t len)
 {
     int c;
-    char_u *s = chars;
+    uchar_kt *s = chars;
 
     // remember how many chars were last recorded
     if(Recording)
@@ -1360,7 +1360,7 @@ void restore_typeahead(tasave_T *tp)
 ///
 /// @param name
 /// @param directly  when TRUE execute directly
-void openscript(char_u *name, int directly)
+void openscript(uchar_kt *name, int directly)
 {
     if(curscript + 1 == NSCRIPT)
     {
@@ -1510,7 +1510,7 @@ int vgetc(void)
     int c;
     int n;
     int c2;
-    char_u buf[MB_MAXBYTES + 1];
+    uchar_kt buf[MB_MAXBYTES + 1];
 
     // Do garbage collection when garbagecollect() was called previously and
     // we are now at the toplevel.
@@ -1699,11 +1699,11 @@ int vgetc(void)
             if(has_mbyte && (n = MB_BYTE2LEN_CHECK(c)) > 1)
             {
                 no_mapping++;
-                buf[0] = (char_u)c;
+                buf[0] = (uchar_kt)c;
 
                 for(i = 1; i < n; i++)
                 {
-                    buf[i] = (char_u)vgetorpeek(true);
+                    buf[i] = (uchar_kt)vgetorpeek(true);
 
                     if(buf[i] == K_SPECIAL)
                     {
@@ -1841,7 +1841,7 @@ static int vgetorpeek(int advance)
     int c;
     int c1;
     int keylen;
-    char_u *s;
+    uchar_kt *s;
     mapblock_T *mp;
     mapblock_T *mp2;
     mapblock_T *mp_match;
@@ -1973,7 +1973,7 @@ static int vgetorpeek(int advance)
                     {
                         // Also record this character, it might be needed to
                         // get out of Insert mode.
-                        *typebuf.tb_buf = (char_u)c;
+                        *typebuf.tb_buf = (uchar_kt)c;
                         gotchars(typebuf.tb_buf, 1);
                     }
 
@@ -2090,8 +2090,8 @@ static int vgetorpeek(int advance)
                                 // multi-byte char.  Happens when mapping
                                 // <M-a> and then changing 'encoding'. Beware
                                 // that 0x80 is escaped.
-                                char_u *p1 = mp->m_keys;
-                                char_u *p2 = mb_unescape(&p1);
+                                uchar_kt *p1 = mp->m_keys;
+                                uchar_kt *p2 = mb_unescape(&p1);
 
                                 if(has_mbyte
                                    && p2 != NULL
@@ -2279,8 +2279,8 @@ static int vgetorpeek(int advance)
                         int save_m_expr;
                         int save_m_noremap;
                         int save_m_silent;
-                        char_u *save_m_keys;
-                        char_u *save_m_str;
+                        uchar_kt *save_m_keys;
+                        uchar_kt *save_m_str;
 
                         // write chars to script file(s)
                         if(keylen > typebuf.tb_maplen)
@@ -2436,7 +2436,7 @@ static int vgetorpeek(int advance)
                                   25L,
                                   typebuf.tb_change_cnt)) == 0)
                 {
-                    char_u *ptr;
+                    uchar_kt *ptr;
                     colnr_T col = 0, vcol;
 
                     if(mode_displayed)
@@ -2792,7 +2792,7 @@ static int vgetorpeek(int advance)
 /// @return
 /// - Return the number of obtained characters.
 /// - Return -1 when end of input script reached.
-int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
+int inchar(uchar_kt *buf, int maxlen, long wait_time, int tb_change_cnt)
 {
     int len = 0; // init for GCC
     int retesc = FALSE; // return ESC with gotint
@@ -2842,7 +2842,7 @@ int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
         }
         else
         {
-            buf[0] = (char_u)script_char;
+            buf[0] = (uchar_kt)script_char;
             len = 1;
         }
     }
@@ -2858,7 +2858,7 @@ int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
         if(got_int)
         {
 #define DUM_LEN MAXMAPLEN    * 3 + 3
-            char_u dum[DUM_LEN + 1];
+            uchar_kt dum[DUM_LEN + 1];
 
             for(;;)
             {
@@ -2893,7 +2893,7 @@ int inchar(char_u *buf, int maxlen, long wait_time, int tb_change_cnt)
 /// Fix typed characters for use by vgetc() and check_termcode().
 /// buf[] must have room to triple the number of bytes!
 /// Returns the new length.
-int fix_input_buffer(char_u *buf, int len)
+int fix_input_buffer(uchar_kt *buf, int len)
 {
     if(!using_script())
     {
@@ -2905,7 +2905,7 @@ int fix_input_buffer(char_u *buf, int len)
 
     // Reading from script, need to process special bytes
     int i;
-    char_u *p = buf;
+    uchar_kt *p = buf;
 
     // Two characters are special: NUL and K_SPECIAL.
     // Replace       NUL by K_SPECIAL KS_ZERO    KE_FILLER
@@ -2916,8 +2916,8 @@ int fix_input_buffer(char_u *buf, int len)
         if(p[0] == NUL || (p[0] == K_SPECIAL && (i < 2 || p[1] != KS_EXTRA)))
         {
             memmove(p + 3, p + 1, (size_t)i);
-            p[2] = (char_u)K_THIRD(p[0]);
-            p[1] = (char_u)K_SECOND(p[0]);
+            p[2] = (uchar_kt)K_THIRD(p[0]);
+            p[1] = (uchar_kt)K_SECOND(p[0]);
             p[0] = K_SPECIAL;
             p += 2;
             len += 2;
@@ -2973,12 +2973,12 @@ int fix_input_buffer(char_u *buf, int len)
 /// - 2 for no match
 /// - 4 for out of mem (deprecated, WON'T HAPPEN)
 /// - 5 for entry not unique
-int do_map(int maptype, char_u *arg, int mode, int abbrev)
+int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
 {
-    char_u *keys;
+    uchar_kt *keys;
     mapblock_T *mp, **mpp;
-    char_u *rhs;
-    char_u *p;
+    uchar_kt *rhs;
+    uchar_kt *p;
     int n;
     int len = 0; // init for GCC
     int hasarg;
@@ -2986,8 +2986,8 @@ int do_map(int maptype, char_u *arg, int mode, int abbrev)
     int did_it = FALSE;
     int did_local = FALSE;
     int round;
-    char_u *keys_buf = NULL;
-    char_u *arg_buf = NULL;
+    uchar_kt *keys_buf = NULL;
+    uchar_kt *arg_buf = NULL;
     int retval = 0;
     int do_backslash;
     int hash;
@@ -3000,7 +3000,7 @@ int do_map(int maptype, char_u *arg, int mode, int abbrev)
     bool special = false;
     bool expr = false;
     int noremap;
-    char_u *orig_rhs;
+    uchar_kt *orig_rhs;
     keys = arg;
     map_table = maphash;
     abbr_table = &first_abbr;
@@ -3137,7 +3137,7 @@ int do_map(int maptype, char_u *arg, int mode, int abbrev)
     {
         if(STRICMP(rhs, "<nop>") == 0) // "<Nop>" means nothing
         {
-            rhs = (char_u *)"";
+            rhs = (uchar_kt *)"";
         }
         else
         {
@@ -3587,9 +3587,9 @@ static void validate_maphash(void)
 }
 
 /// Get the mapping mode from the command name.
-int get_map_mode(char_u **cmdp, int forceit)
+int get_map_mode(uchar_kt **cmdp, int forceit)
 {
-    char_u *p;
+    uchar_kt *p;
     int modec;
     int mode;
     p = *cmdp;
@@ -3654,7 +3654,7 @@ int get_map_mode(char_u **cmdp, int forceit)
 
 /// Clear all mappings or abbreviations.
 /// 'abbr' should be FALSE for mappings, TRUE for abbreviations.
-void map_clear_mode(char_u *cmdp, char_u *arg, int forceit, int abbr)
+void map_clear_mode(uchar_kt *cmdp, uchar_kt *arg, int forceit, int abbr)
 {
     int mode;
     int local;
@@ -3895,7 +3895,7 @@ static void showmap(mapblock_T *mp, int local)
     {
         // Remove escaping of CSI, because "m_str" is
         // in a format to be used as typeahead.
-        char_u *s = vim_strsave(mp->m_str);
+        uchar_kt *s = vim_strsave(mp->m_str);
         vim_unescape_csi(s);
         msg_outtrans_special(s, FALSE);
         xfree(s);
@@ -3929,8 +3929,8 @@ FUNC_ATTR_PURE
     int mode = 0;
     int retval;
 
-    char_u *buf;
-    char_u *const rhs = replace_termcodes((const char_u *)str,
+    uchar_kt *buf;
+    uchar_kt *const rhs = replace_termcodes((const uchar_kt *)str,
                                           strlen(str),
                                           &buf,
                                           false,
@@ -4049,9 +4049,9 @@ static int expand_buffer = FALSE;
 /// @param cmdidx
 ///
 /// @return
-char_u *set_context_in_map_cmd(expand_T *xp,
-                               char_u *cmd,
-                               char_u *arg,
+uchar_kt *set_context_in_map_cmd(expand_T *xp,
+                               uchar_kt *cmd,
+                               uchar_kt *arg,
                                int forceit,
                                int isabbrev,
                                int isunmap,
@@ -4135,13 +4135,13 @@ char_u *set_context_in_map_cmd(expand_T *xp,
 /// Find all mapping/abbreviation names that match regexp 'prog'.
 /// For command line expansion of ":[un]map" and ":[un]abbrev" in all modes.
 /// Return OK if matches found, FAIL otherwise.
-int ExpandMappings(regmatch_T *regmatch, int *num_file, char_u ***file)
+int ExpandMappings(regmatch_T *regmatch, int *num_file, uchar_kt ***file)
 {
     mapblock_T *mp;
     int hash;
     int count;
     int round;
-    char_u *p;
+    uchar_kt *p;
     int i;
     validate_maphash();
     *num_file = 0; // return values in case of FAIL
@@ -4157,27 +4157,27 @@ int ExpandMappings(regmatch_T *regmatch, int *num_file, char_u ***file)
         {
             if(i == 0)
             {
-                p = (char_u *)"<silent>";
+                p = (uchar_kt *)"<silent>";
             }
             else if(i == 1)
             {
-                p = (char_u *)"<unique>";
+                p = (uchar_kt *)"<unique>";
             }
             else if(i == 2)
             {
-                p = (char_u *)"<script>";
+                p = (uchar_kt *)"<script>";
             }
             else if(i == 3)
             {
-                p = (char_u *)"<expr>";
+                p = (uchar_kt *)"<expr>";
             }
             else if(i == 4 && !expand_buffer)
             {
-                p = (char_u *)"<buffer>";
+                p = (uchar_kt *)"<buffer>";
             }
             else if(i == 5)
             {
-                p = (char_u *)"<nowait>";
+                p = (uchar_kt *)"<nowait>";
             }
             else
             {
@@ -4248,15 +4248,15 @@ int ExpandMappings(regmatch_T *regmatch, int *num_file, char_u ***file)
 
         if(round == 1)
         {
-            *file = (char_u **)xmalloc((size_t)count * sizeof(char_u *));
+            *file = (uchar_kt **)xmalloc((size_t)count * sizeof(uchar_kt *));
         }
     }
 
     if(count > 1)
     {
-        char_u  **ptr1;
-        char_u  **ptr2;
-        char_u  **ptr3;
+        uchar_kt  **ptr1;
+        uchar_kt  **ptr2;
+        uchar_kt  **ptr3;
 
         // Sort the matches
         sort_strings(*file, count);
@@ -4298,13 +4298,13 @@ int ExpandMappings(regmatch_T *regmatch, int *num_file, char_u ***file)
 /// Then there must be white space before the abbr.
 ///
 /// @return TRUE if there is an abbreviation, FALSE if not
-int check_abbr(int c, char_u *ptr, int col, int mincol)
+int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
 {
     int len;
     int scol; // starting column of the abbr.
     int j;
-    char_u *s;
-    char_u tb[MB_MAXBYTES + 4];
+    uchar_kt *s;
+    uchar_kt tb[MB_MAXBYTES + 4];
     mapblock_T *mp;
     mapblock_T *mp2;
     int clen = 0; // length in characters
@@ -4333,7 +4333,7 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
 
     if(has_mbyte)
     {
-        char_u *p;
+        uchar_kt *p;
         p = mb_prevptr(ptr, ptr + col);
 
         if(!vim_iswordp(p))
@@ -4413,7 +4413,7 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
             mp->m_next == NULL ? (mp = mp2, mp2 = NULL) : (mp = mp->m_next))
         {
             int qlen = mp->m_keylen;
-            char_u *q = mp->m_keys;
+            uchar_kt *q = mp->m_keys;
             int match;
 
             if(strchr((const char *)mp->m_keys, K_SPECIAL) != NULL)
@@ -4461,8 +4461,8 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
                 if(IS_SPECIAL(c) || c == K_SPECIAL)
                 {
                     tb[j++] = K_SPECIAL;
-                    tb[j++] = (char_u)K_SECOND(c);
-                    tb[j++] = (char_u)K_THIRD(c);
+                    tb[j++] = (uchar_kt)K_SECOND(c);
+                    tb[j++] = (uchar_kt)K_THIRD(c);
                 }
                 else
                 {
@@ -4483,7 +4483,7 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
                     }
                     else
                     {
-                        tb[j++] = (char_u)c;
+                        tb[j++] = (uchar_kt)c;
                     }
                 }
 
@@ -4541,12 +4541,12 @@ int check_abbr(int c, char_u *ptr, int col, int mincol)
 ///
 /// @param str
 /// @param c    NUL or typed character for abbreviation
-static char_u *eval_map_expr(char_u *str, int c)
+static uchar_kt *eval_map_expr(uchar_kt *str, int c)
 {
-    char_u *res;
-    char_u *p;
-    char_u *expr;
-    char_u *save_cmd;
+    uchar_kt *res;
+    uchar_kt *p;
+    uchar_kt *expr;
+    uchar_kt *save_cmd;
     pos_T save_cursor;
     int save_msg_col;
     int save_msg_row;
@@ -4588,15 +4588,15 @@ static char_u *eval_map_expr(char_u *str, int c)
 
 /// Copy "p" to allocated memory, escaping K_SPECIAL and CSI
 /// so that the result can be put in the typeahead buffer.
-char_u *vim_strsave_escape_csi(char_u *p)
+uchar_kt *vim_strsave_escape_csi(uchar_kt *p)
 {
     // Need a buffer to hold up to three times as much.
     // Four in case of an illegal utf-8 byte:
     // 0xc0 -> 0xc3 - 0x80 -> 0xc3 K_SPECIAL KS_SPECIAL KE_FILLER
-    char_u *res = xmalloc(STRLEN(p) * 4 + 1);
-    char_u *d = res;
+    uchar_kt *res = xmalloc(STRLEN(p) * 4 + 1);
+    uchar_kt *d = res;
 
-    for(char_u *s = p; *s != NUL;)
+    for(uchar_kt *s = p; *s != NUL;)
     {
         if(s[0] == K_SPECIAL && s[1] != NUL && s[2] != NUL)
         {
@@ -4620,9 +4620,9 @@ char_u *vim_strsave_escape_csi(char_u *p)
 
 /// Remove escaping from CSI and K_SPECIAL characters. Reverse of
 /// vim_strsave_escape_csi(). Works in-place.
-void vim_unescape_csi(char_u *p)
+void vim_unescape_csi(uchar_kt *p)
 {
-    char_u *s = p, *d = p;
+    uchar_kt *s = p, *d = p;
 
     while(*s != NUL)
     {
@@ -4658,8 +4658,8 @@ void vim_unescape_csi(char_u *p)
 int makemap(FILE *fd, buf_T *buf)
 {
     mapblock_T *mp;
-    char_u c1, c2, c3;
-    char_u *p;
+    uchar_kt c1, c2, c3;
+    uchar_kt *p;
     char *cmd;
     int abbr;
     int hash;
@@ -4953,9 +4953,9 @@ int makemap(FILE *fd, buf_T *buf)
 /// "what": 0 for :map lhs, 1 for :map rhs, 2 for :set
 ///
 /// @return FAIL for failure, OK otherwise
-int put_escstr(FILE *fd, char_u *strstart, int what)
+int put_escstr(FILE *fd, uchar_kt *strstart, int what)
 {
-    char_u *str = strstart;
+    uchar_kt *str = strstart;
     int c;
     int modifiers;
 
@@ -4972,7 +4972,7 @@ int put_escstr(FILE *fd, char_u *strstart, int what)
 
     for(; *str != NUL; ++str)
     {
-        char_u *p;
+        uchar_kt *p;
 
         // Check for a multi-byte character, which
         // may contain escaped K_SPECIAL and CSI bytes
@@ -5097,7 +5097,7 @@ int put_escstr(FILE *fd, char_u *strstart, int what)
 /// @return
 /// Return pointer to rhs of mapping (mapblock->m_str).
 /// NULL when no mapping found.
-char_u *check_map(char_u *keys,
+uchar_kt *check_map(uchar_kt *keys,
                   int mode,
                   int exact,
                   int ign_mod,
@@ -5149,7 +5149,7 @@ char_u *check_map(char_u *keys,
                 // wrong length and not matching ones
                 if((mp->m_mode & mode) && (!exact || mp->m_keylen == len))
                 {
-                    char_u *s = mp->m_keys;
+                    uchar_kt *s = mp->m_keys;
                     int keylen = mp->m_keylen;
 
                     if(ign_mod
@@ -5188,11 +5188,11 @@ char_u *check_map(char_u *keys,
 /// Add a mapping "map" for mode "mode".
 /// Need to put string in allocated memory,
 /// because do_map() will modify it.
-void add_map(char_u *map, int mode)
+void add_map(uchar_kt *map, int mode)
 {
-    char_u *s;
-    char_u *cpo_save = p_cpo;
-    p_cpo = (char_u *)""; // Allow <> notation
+    uchar_kt *s;
+    uchar_kt *cpo_save = p_cpo;
+    p_cpo = (uchar_kt *)""; // Allow <> notation
     s = vim_strsave(map);
     (void)do_map(0, s, mode, FALSE);
     xfree(s);
@@ -5215,7 +5215,7 @@ void add_map(char_u *map, int mode)
 /// @param cpo_flags  Value of various flags present in &cpo
 ///
 /// @return NULL when there is a problem.
-static char_u *translate_mapping(char_u *str, int expmap, int cpo_flags)
+static uchar_kt *translate_mapping(uchar_kt *str, int expmap, int cpo_flags)
 {
     garray_T ga;
     ga_init(&ga, 1, 40);
@@ -5286,7 +5286,7 @@ static char_u *translate_mapping(char_u *str, int expmap, int cpo_flags)
     }
 
     ga_append(&ga, NUL);
-    return (char_u *)(ga.ga_data);
+    return (uchar_kt *)(ga.ga_data);
 }
 
 static bool typebuf_match_len(const uint8_t *str, int *mlen)

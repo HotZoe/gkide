@@ -94,7 +94,7 @@ typedef Map(linenr_T, bufhl_vec_T) bufhl_info_T;
 /// The taggy struct is used to store the information about a :tag command.
 typedef struct taggy
 {
-    char_u *tagname;    ///< tag name
+    uchar_kt *tagname;    ///< tag name
     fmark_T fmark;      ///< cursor position BEFORE ":tag"
     int cur_match;      ///< match number
     int cur_fnum;       ///< buffer number used for cur_match
@@ -107,7 +107,7 @@ typedef struct buffheader buffheader_T;
 struct buffblock
 {
     buffblock_T *b_next;  ///< pointer to next buffblock
-    char_u b_str[1];      ///< contents (actually longer)
+    uchar_kt b_str[1];      ///< contents (actually longer)
 };
 
 /// header used for the stuff buffer and the redo buffer
@@ -130,7 +130,7 @@ typedef struct
     int wo_bri;                 ///< 'breakindent'
 #define w_p_bri                 w_onebuf_opt.wo_bri
 
-    char_u *wo_briopt;          ///< 'breakindentopt'
+    uchar_kt *wo_briopt;          ///< 'breakindentopt'
 #define w_p_briopt              w_onebuf_opt.wo_briopt
 
     int wo_diff;                ///< 'diff'
@@ -148,7 +148,7 @@ typedef struct
     int wo_fen_save;            ///< 'foldenable' saved for diff mode
 #define w_p_fen_save            w_onebuf_opt.wo_fen_save
 
-    char_u *wo_fdi;             ///< 'foldignore'
+    uchar_kt *wo_fdi;             ///< 'foldignore'
 #define w_p_fdi                 w_onebuf_opt.wo_fdi
 
     long wo_fdl;                ///< 'foldlevel'
@@ -157,10 +157,10 @@ typedef struct
     int wo_fdl_save;            ///< 'foldlevel' state saved for diff mode
 #define w_p_fdl_save            w_onebuf_opt.wo_fdl_save
 
-    char_u *wo_fdm;             ///< 'foldmethod'
+    uchar_kt *wo_fdm;             ///< 'foldmethod'
 #define w_p_fdm                 w_onebuf_opt.wo_fdm
 
-    char_u *wo_fdm_save;        ///< 'fdm' saved for diff mode
+    uchar_kt *wo_fdm_save;        ///< 'fdm' saved for diff mode
 #define w_p_fdm_save            w_onebuf_opt.wo_fdm_save
 
     long wo_fml;                ///< 'foldminlines'
@@ -169,13 +169,13 @@ typedef struct
     long wo_fdn;                ///< 'foldnestmax'
 #define w_p_fdn                 w_onebuf_opt.wo_fdn
 
-    char_u *wo_fde;             ///< 'foldexpr'
+    uchar_kt *wo_fde;             ///< 'foldexpr'
 #define w_p_fde                 w_onebuf_opt.wo_fde
 
-    char_u *wo_fdt;             ///< 'foldtext'
+    uchar_kt *wo_fdt;             ///< 'foldtext'
 #define w_p_fdt                 w_onebuf_opt.wo_fdt
 
-    char_u *wo_fmr;             ///< 'foldmarker'
+    uchar_kt *wo_fmr;             ///< 'foldmarker'
 #define w_p_fmr                 w_onebuf_opt.wo_fmr
 
     int wo_lbr;                 ///< 'linebreak'
@@ -205,7 +205,7 @@ typedef struct
     int wo_rl;                  ///< 'rightleft'
 #define w_p_rl                  w_onebuf_opt.wo_rl
 
-    char_u *wo_rlc;             ///< 'rightleftcmd'
+    uchar_kt *wo_rlc;             ///< 'rightleftcmd'
 #define w_p_rlc                 w_onebuf_opt.wo_rlc
 
     long wo_scr;                ///< 'scroll'
@@ -220,10 +220,10 @@ typedef struct
     int wo_cul;                 ///< 'cursorline'
 #define w_p_cul                 w_onebuf_opt.wo_cul
 
-    char_u *wo_cc;              ///< 'colorcolumn'
+    uchar_kt *wo_cc;              ///< 'colorcolumn'
 #define w_p_cc                  w_onebuf_opt.wo_cc
 
-    char_u *wo_stl;             ///< 'statusline'
+    uchar_kt *wo_stl;             ///< 'statusline'
 #define w_p_stl                 w_onebuf_opt.wo_stl
 
     int wo_scb;                 ///< 'scrollbind'
@@ -241,7 +241,7 @@ typedef struct
     int wo_wrap_save;           ///< 'wrap' state saved for diff mode
 #define w_p_wrap_save           w_onebuf_opt.wo_wrap_save
 
-    char_u *wo_cocu;            ///< 'concealcursor'
+    uchar_kt *wo_cocu;            ///< 'concealcursor'
 #define w_p_cocu                w_onebuf_opt.wo_cocu
 
     long wo_cole;               ///< 'conceallevel'
@@ -253,10 +253,10 @@ typedef struct
     int wo_crb_save;            ///< 'cursorbind' state saved for diff mode
 #define w_p_crb_save            w_onebuf_opt.wo_crb_save
 
-    char_u *wo_scl;             ///< 'signcolumn'
+    uchar_kt *wo_scl;             ///< 'signcolumn'
 #define w_p_scl                 w_onebuf_opt.wo_scl
 
-    char_u *wo_winhl;           ///< 'winhighlight'
+    uchar_kt *wo_winhl;           ///< 'winhighlight'
 #define w_p_winhl               w_onebuf_opt.wo_winhl
 
     int wo_scriptID[WV_COUNT];  ///< SIDs for window-local options
@@ -301,7 +301,7 @@ typedef struct arglist
 /// @todo: move aentry_T to another header
 typedef struct argentry
 {
-    char_u *ae_fname; ///< file name as specified
+    uchar_kt *ae_fname; ///< file name as specified
     int ae_fnum;      ///< buffer number with expanded file name
 } aentry_T;
 
@@ -317,8 +317,8 @@ typedef struct argentry
 /// Used for the typeahead buffer: typebuf.
 typedef struct
 {
-    char_u *tb_buf;       ///< buffer for typed characters
-    char_u *tb_noremap;   ///< mapping flags for characters in tb_buf[]
+    uchar_kt *tb_buf;       ///< buffer for typed characters
+    uchar_kt *tb_noremap;   ///< mapping flags for characters in tb_buf[]
     int tb_buflen;        ///< size of tb_buf[]
     int tb_off;           ///< current position in tb_buf[]
     int tb_len;           ///< number of valid bytes in tb_buf[]
@@ -345,9 +345,9 @@ typedef struct mapblock mapblock_T;
 struct mapblock
 {
     mapblock_T *m_next;  ///< next mapblock in list
-    char_u *m_keys;      ///< mapped from, lhs
-    char_u *m_str;       ///< mapped to, rhs
-    char_u *m_orig_str;  ///< rhs as entered by the user
+    uchar_kt *m_keys;      ///< mapped from, lhs
+    uchar_kt *m_str;       ///< mapped to, rhs
+    uchar_kt *m_orig_str;  ///< rhs as entered by the user
     int m_keylen;        ///< strlen(m_keys)
     int m_mode;          ///< valid mode
     int m_noremap;       ///< if non-zero no re-mapping for m_str
@@ -360,7 +360,7 @@ struct mapblock
 /// Used for highlighting in the status line.
 struct stl_hlrec
 {
-    char_u *start;
+    uchar_kt *start;
     int userhl;     ///< 0: no HL, 1-9: User HL, < 0 for syn ID
 };
 
@@ -403,7 +403,7 @@ typedef struct
     long b_syn_sync_minlines;        ///< minimal sync lines offset
     long b_syn_sync_maxlines;        ///< maximal sync lines offset
     long b_syn_sync_linebreaks;      ///< offset for multi-line pattern
-    char_u *b_syn_linecont_pat;      ///< line continuation pattern
+    uchar_kt *b_syn_linecont_pat;      ///< line continuation pattern
     regprog_T *b_syn_linecont_prog;  ///< line continuation program
     syn_time_T b_syn_linecont_time;  ///<
     int b_syn_linecont_ic;           ///< ignore-case flag for above
@@ -428,14 +428,14 @@ typedef struct
     // for spell checking
     garray_T b_langp;         ///< list of pointers to slang_T, see spell.c
     bool b_spell_ismw[256];   ///< flags: is midword char
-    char_u *b_spell_ismw_mb;  ///< multi-byte midword chars
-    char_u *b_p_spc;          ///< 'spellcapcheck'
+    uchar_kt *b_spell_ismw_mb;  ///< multi-byte midword chars
+    uchar_kt *b_p_spc;          ///< 'spellcapcheck'
     regprog_T *b_cap_prog;    ///< program for 'spellcapcheck'
-    char_u *b_p_spf;          ///< 'spellfile'
-    char_u *b_p_spl;          ///< 'spelllang'
+    uchar_kt *b_p_spf;          ///< 'spellfile'
+    uchar_kt *b_p_spl;          ///< 'spelllang'
     int b_cjk;                ///< all CJK letters as OK
-    char_u b_syn_chartab[32]; ///< syntax iskeyword option
-    char_u *b_syn_isk;        ///< iskeyword option
+    uchar_kt b_syn_chartab[32]; ///< syntax iskeyword option
+    uchar_kt *b_syn_isk;        ///< iskeyword option
 } synblock_T;
 
 /// Type used for changedtick_di member in buf_T
@@ -471,9 +471,9 @@ struct file_buffer
     // b_sfname is the name as the user typed it (or NULL).
     // b_fname is the same as b_sfname, unless ":cd" has been done,
     // then it is the same as b_ffname (NULL for no name).
-    char_u *b_ffname; ///< full path file name
-    char_u *b_sfname; ///< short file name
-    char_u *b_fname;  ///< current file name
+    uchar_kt *b_ffname; ///< full path file name
+    uchar_kt *b_sfname; ///< short file name
+    uchar_kt *b_fname;  ///< current file name
 
     bool file_id_valid;
     FileID file_id;
@@ -553,7 +553,7 @@ struct file_buffer
     long b_u_save_nr_cur;    ///< file write nr after which we are now
 
     // variables for "U" command in undo.c
-    char_u *b_u_line_ptr;    ///< saved line for "U" command
+    uchar_kt *b_u_line_ptr;    ///< saved line for "U" command
     linenr_T b_u_line_lnum;  ///< line number of line in u_line
     colnr_T b_u_line_colnr;  ///< optional column number
 
@@ -583,65 +583,65 @@ struct file_buffer
 
     int b_p_ai;                   ///< 'autoindent'
     int b_p_ai_nopaste;           ///< b_p_ai saved for paste mode
-    char_u *b_p_bkc;              ///< 'backupco
+    uchar_kt *b_p_bkc;              ///< 'backupco
     unsigned int b_bkc_flags;     ///< flags for 'backupco
     int b_p_ci;                   ///< 'copyindent'
     int b_p_bin;                  ///< 'binary'
     int b_p_bomb;                 ///< 'bomb'
-    char_u *b_p_bh;               ///< 'bufhidden'
-    char_u *b_p_bt;               ///< 'buftype'
+    uchar_kt *b_p_bh;               ///< 'bufhidden'
+    uchar_kt *b_p_bt;               ///< 'buftype'
     int b_has_qf_entry;           ///< quickfix exists for buffer
     int b_p_bl;                   ///< 'buflisted'
     int b_p_cin;                  ///< 'cindent'
-    char_u *b_p_cino;             ///< 'cinoptions'
-    char_u *b_p_cink;             ///< 'cinkeys'
-    char_u *b_p_cinw;             ///< 'cinwords'
-    char_u *b_p_com;              ///< 'comments'
-    char_u *b_p_cms;              ///< 'commentstring'
-    char_u *b_p_cpt;              ///< 'complete'
-    char_u *b_p_cfu;              ///< 'completefunc'
-    char_u *b_p_ofu;              ///< 'omnifunc'
+    uchar_kt *b_p_cino;             ///< 'cinoptions'
+    uchar_kt *b_p_cink;             ///< 'cinkeys'
+    uchar_kt *b_p_cinw;             ///< 'cinwords'
+    uchar_kt *b_p_com;              ///< 'comments'
+    uchar_kt *b_p_cms;              ///< 'commentstring'
+    uchar_kt *b_p_cpt;              ///< 'complete'
+    uchar_kt *b_p_cfu;              ///< 'completefunc'
+    uchar_kt *b_p_ofu;              ///< 'omnifunc'
     int b_p_eol;                  ///< 'endofline'
     int b_p_fixeol;               ///< 'fixendofline'
     int b_p_et;                   ///< 'expandtab'
     int b_p_et_nobin;             ///< 'b_p_et' saved for binary mode
     int b_p_et_nopaste;           ///< 'b_p_et' saved for paste mode
-    char_u *b_p_fenc;             ///< 'fileencoding'
-    char_u *b_p_ff;               ///< 'fileformat'
-    char_u *b_p_ft;               ///< 'filetype'
-    char_u *b_p_fo;               ///< 'formatoptions'
-    char_u *b_p_flp;              ///< 'formatlistpat'
+    uchar_kt *b_p_fenc;             ///< 'fileencoding'
+    uchar_kt *b_p_ff;               ///< 'fileformat'
+    uchar_kt *b_p_ft;               ///< 'filetype'
+    uchar_kt *b_p_fo;               ///< 'formatoptions'
+    uchar_kt *b_p_flp;              ///< 'formatlistpat'
     int b_p_inf;                  ///< 'infercase'
-    char_u *b_p_isk;              ///< 'iskeyword'
-    char_u *b_p_def;              ///< 'define' local value
-    char_u *b_p_inc;              ///< 'include'
-    char_u *b_p_inex;             ///< 'includeexpr'
+    uchar_kt *b_p_isk;              ///< 'iskeyword'
+    uchar_kt *b_p_def;              ///< 'define' local value
+    uchar_kt *b_p_inc;              ///< 'include'
+    uchar_kt *b_p_inex;             ///< 'includeexpr'
     uint32_t b_p_inex_flags;      ///< flags for 'includeexpr'
-    char_u *b_p_inde;             ///< 'indentexpr'
+    uchar_kt *b_p_inde;             ///< 'indentexpr'
     uint32_t b_p_inde_flags;      ///< flags for 'indentexpr'
-    char_u *b_p_indk;             ///< 'indentkeys'
-    char_u *b_p_fp;               ///< 'formatprg'
-    char_u *b_p_fex;              ///< 'formatexpr'
+    uchar_kt *b_p_indk;             ///< 'indentkeys'
+    uchar_kt *b_p_fp;               ///< 'formatprg'
+    uchar_kt *b_p_fex;              ///< 'formatexpr'
     uint32_t b_p_fex_flags;       ///< flags for 'formatexpr'
-    char_u *b_p_kp;               ///< 'keywordprg'
+    uchar_kt *b_p_kp;               ///< 'keywordprg'
     int b_p_lisp;                 ///< 'lisp'
-    char_u *b_p_mps;              ///< 'matchpairs'
+    uchar_kt *b_p_mps;              ///< 'matchpairs'
     int b_p_ml;                   ///< 'modeline'
     int b_p_ml_nobin;             ///< 'b_p_ml' saved for binary mode
     int b_p_ma;                   ///< 'modifiable'
-    char_u *b_p_nf;               ///< 'nrformats'
+    uchar_kt *b_p_nf;               ///< 'nrformats'
     int b_p_pi;                   ///< 'preserveindent'
-    char_u *b_p_qe;               ///< 'quoteescape'
+    uchar_kt *b_p_qe;               ///< 'quoteescape'
     int b_p_ro;                   ///< 'readonly'
     long b_p_sw;                  ///< 'shiftwidth'
     long b_p_scbk;                ///< 'scrollback'
     int b_p_si;                   ///< 'smartindent'
     long b_p_sts;                 ///< 'softtabstop'
     long b_p_sts_nopaste;         ///< 'b_p_sts' saved for paste mode
-    char_u *b_p_sua;              ///< 'suffixesadd'
+    uchar_kt *b_p_sua;              ///< 'suffixesadd'
     int b_p_swf;                  ///< 'swapfile'
     long b_p_smc;                 ///< 'synmaxcol'
-    char_u *b_p_syn;              ///< 'syntax'
+    uchar_kt *b_p_syn;              ///< 'syntax'
     long b_p_ts;                  ///< 'tabstop'
     long b_p_tw;                  ///< 'textwidth'
     long b_p_tw_nobin;            ///< 'b_p_tw' saved for binary mode
@@ -649,23 +649,23 @@ struct file_buffer
     long b_p_wm;                  ///< 'wrapma'rgin'
     long b_p_wm_nobin;            ///< 'b_p_wm' saved for binary mode
     long b_p_wm_nopaste;          ///< 'b_p_wm' saved for paste mode
-    char_u *b_p_keymap;           ///< 'keymap'
+    uchar_kt *b_p_keymap;           ///< 'keymap'
 
     // local values for options which are normally global
-    char_u *b_p_gp;               ///< 'grepprg' local value
-    char_u *b_p_mp;               ///< 'makeprg' local value
-    char_u *b_p_efm;              ///< 'errorformat' local value
-    char_u *b_p_ep;               ///< 'equalprg' local value
-    char_u *b_p_path;             ///< 'path' local value
+    uchar_kt *b_p_gp;               ///< 'grepprg' local value
+    uchar_kt *b_p_mp;               ///< 'makeprg' local value
+    uchar_kt *b_p_efm;              ///< 'errorformat' local value
+    uchar_kt *b_p_ep;               ///< 'equalprg' local value
+    uchar_kt *b_p_path;             ///< 'path' local value
     int b_p_ar;                   ///< 'autoread' local value
-    char_u *b_p_tags;             ///< 'tags' local value
-    char_u *b_p_tc;               ///< 'tagcase' local value
+    uchar_kt *b_p_tags;             ///< 'tags' local value
+    uchar_kt *b_p_tc;               ///< 'tagcase' local value
     unsigned b_tc_flags;          ///< flags for 'tagcase'
-    char_u *b_p_dict;             ///< 'dictionary' local value
-    char_u *b_p_tsr;              ///< 'thesaurus' local value
+    uchar_kt *b_p_dict;             ///< 'dictionary' local value
+    uchar_kt *b_p_tsr;              ///< 'thesaurus' local value
     long b_p_ul;                  ///< 'undolevels' local value
     int b_p_udf;                  ///< 'undofile'
-    char_u *b_p_lw;               ///< 'lispwords' local value
+    uchar_kt *b_p_lw;               ///< 'lispwords' local value
     // end of buffer options
     //////////////////////////////////////////////////////////////
 
@@ -710,7 +710,7 @@ struct file_buffer
                               ///< write should not have an end-of-line
     int b_start_eol;          ///< last line had eol when it was read
     int b_start_ffc;          ///< first char of 'ff' when edit started
-    char_u *b_start_fenc;     ///< 'fileencoding' when edit started or NULL
+    uchar_kt *b_start_fenc;     ///< 'fileencoding' when edit started or NULL
     int b_bad_char;           ///< "++bad=" argument when edit started or 0
     int b_start_bomb;         ///< 'bomb' when it was read */
 
@@ -795,7 +795,7 @@ struct tabpage_S
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
     scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
     dict_T *tp_vars;                    ///< Internal variables, local to tab page.
-    char_u *tp_localdir;                ///< Absolute path of local cwd or NULL.
+    uchar_kt *tp_localdir;                ///< Absolute path of local cwd or NULL.
 };
 
 /// Structure to cache info for displayed lines in w_lines[].
@@ -887,7 +887,7 @@ struct matchitem
     matchitem_T *next;
     int id;             ///< match ID
     int priority;       ///< match priority
-    char_u *pattern;    ///< pattern to highlight
+    uchar_kt *pattern;    ///< pattern to highlight
     int hlg_id;         ///< highlight group ID
     regmmatch_T match;  ///< regexp program for pattern
     posmatch_T pos;     ///< position matches
@@ -1027,7 +1027,7 @@ struct window_S
     alist_T *w_alist;      ///< pointer to arglist for this window
     int w_arg_idx;         ///< current index in argument list (can be out of range!)
     int w_arg_idx_invalid; ///< editing another file than w_arg_idx
-    char_u *w_localdir;    ///< absolute path of local directory or NULL
+    uchar_kt *w_localdir;    ///< absolute path of local directory or NULL
 
     // Options local to a window.
     // They are local because they influence the layout of the window or

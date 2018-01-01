@@ -1442,7 +1442,7 @@ int arabic_shape(int c,
 
     if((curr_c != c) && (ccp != NULL))
     {
-        char_u buf[MB_MAXBYTES + 1];
+        uchar_kt buf[MB_MAXBYTES + 1];
         // Update the first byte of the character
         (*mb_char2bytes)(curr_c, buf);
         *ccp = buf[0];

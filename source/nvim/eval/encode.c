@@ -25,9 +25,9 @@
 #include "nvim/lib/kvec.h"
 #include "nvim/eval/typval_encode.h"
 
-#define ga_concat(a, b) ga_concat(a, (char_u *)b)
-#define utf_ptr2char(b) utf_ptr2char((char_u *)b)
-#define utf_ptr2len(b)  ((size_t)utf_ptr2len((char_u *)b))
+#define ga_concat(a, b) ga_concat(a, (uchar_kt *)b)
+#define utf_ptr2char(b) utf_ptr2char((uchar_kt *)b)
+#define utf_ptr2len(b)  ((size_t)utf_ptr2len((uchar_kt *)b))
 #define utf_char2len(b) ((size_t)utf_char2len(b))
 
 const char *const encode_special_var_names[] =
@@ -423,7 +423,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {                                                             \
             case FP_NAN:                                              \
             {                                                         \
-                ga_concat(gap, (char_u *) "str2float('nan')");        \
+                ga_concat(gap, (uchar_kt *) "str2float('nan')");        \
                 break;                                                \
             }                                                         \
             case FP_INFINITE:                                         \
@@ -432,14 +432,14 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 {                                                     \
                     ga_append(gap, '-');                              \
                 }                                                     \
-                ga_concat(gap, (char_u *) "str2float('inf')");        \
+                ga_concat(gap, (uchar_kt *) "str2float('inf')");        \
                 break;                                                \
             }                                                         \
             default:                                                  \
             {                                                         \
                 char numbuf[NUMBUFLEN];                               \
                 vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_); \
-                ga_concat(gap, (char_u *) numbuf);                    \
+                ga_concat(gap, (uchar_kt *) numbuf);                    \
             }                                                         \
         }                                                             \
     } while(0)
@@ -663,7 +663,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {                                                           \
                 char numbuf[NUMBUFLEN];                                 \
                 vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_);   \
-                ga_concat(gap, (char_u *) numbuf);                      \
+                ga_concat(gap, (uchar_kt *) numbuf);                      \
                 break;                                                  \
             }                                                           \
         }                                                               \

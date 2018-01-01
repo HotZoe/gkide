@@ -672,12 +672,12 @@ void setmouse(void)
 ///   (not at hit-return message).
 int mouse_has(int c)
 {
-    for(char_u *p = p_mouse; *p; ++p)
+    for(uchar_kt *p = p_mouse; *p; ++p)
     {
         switch(*p)
         {
             case 'a':
-                if(vim_strchr((char_u *)MOUSE_A, c) != NULL)
+                if(vim_strchr((uchar_kt *)MOUSE_A, c) != NULL)
                 {
                     return true;
                 }
@@ -718,7 +718,7 @@ void set_mouse_topline(win_T *wp)
 static colnr_T scroll_line_len(linenr_T lnum)
 {
     colnr_T col = 0;
-    char_u *line = ml_get(lnum);
+    uchar_kt *line = ml_get(lnum);
 
     if(*line != NUL)
     {

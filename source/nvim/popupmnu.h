@@ -8,10 +8,10 @@
 /// Used for popup menu items.
 typedef struct
 {
-    char_u *pum_text;   ///< main menu text
-    char_u *pum_kind;   ///< extra kind text (may be truncated)
-    char_u *pum_extra;  ///< extra menu text (may be truncated)
-    char_u *pum_info;   ///< extra info
+    uchar_kt *pum_text;   ///< main menu text
+    uchar_kt *pum_kind;   ///< extra kind text (may be truncated)
+    uchar_kt *pum_extra;  ///< extra menu text (may be truncated)
+    uchar_kt *pum_info;   ///< extra info
 } pumitem_T;
 
 

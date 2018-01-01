@@ -1193,7 +1193,7 @@ ArrayOf(Dictionary) keymap_array(String mode, buf_T *buf)
 
     // Convert the string mode to the integer mode
     // that is stored within each mapblock
-    char_u *p = (char_u *)mode.data;
+    uchar_kt *p = (uchar_kt *)mode.data;
     int int_mode = get_map_mode(&p, 0);
 
     // Determine the desired buffer value

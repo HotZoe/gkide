@@ -161,10 +161,10 @@
 #define W_R_L           0x2
 
 // special Farsi text messages
-extern const char_u farsi_text_1[];
-extern const char_u farsi_text_2[];
-extern const char_u farsi_text_3[];
-extern const char_u farsi_text_5[];
+extern const uchar_kt farsi_text_1[];
+extern const uchar_kt farsi_text_2[];
+extern const uchar_kt farsi_text_3[];
+extern const uchar_kt farsi_text_5[];
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "farsi.h.generated.h"

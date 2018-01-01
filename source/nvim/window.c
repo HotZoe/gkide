@@ -69,7 +69,7 @@ void do_window(int nchar, long Prenum, int xchar)
 {
     long Prenum1;
     win_T *wp;
-    char_u *ptr;
+    uchar_kt *ptr;
     linenr_T lnum = -1;
     int type = FIND_DEFINE;
     size_t len;
@@ -124,7 +124,7 @@ void do_window(int nchar, long Prenum, int xchar)
         case Ctrl_HAT:
         case '^':
             CHECK_CMDWIN reset_VIsual_and_resel(); // stop Visual mode
-            cmd_with_count("split #", (char_u *)cbuf, sizeof(cbuf), Prenum);
+            cmd_with_count("split #", (uchar_kt *)cbuf, sizeof(cbuf), Prenum);
             do_cmdline_cmd(cbuf);
             break;
 
@@ -157,7 +157,7 @@ newwindow:
         case Ctrl_Q:
         case 'q':
             reset_VIsual_and_resel(); // stop Visual mode
-            cmd_with_count("quit", (char_u *)cbuf, sizeof(cbuf), Prenum);
+            cmd_with_count("quit", (uchar_kt *)cbuf, sizeof(cbuf), Prenum);
             do_cmdline_cmd(cbuf);
             break;
 
@@ -165,7 +165,7 @@ newwindow:
         case Ctrl_C:
         case 'c':
             reset_VIsual_and_resel(); // stop Visual mode
-            cmd_with_count("close", (char_u *)cbuf, sizeof(cbuf), Prenum);
+            cmd_with_count("close", (uchar_kt *)cbuf, sizeof(cbuf), Prenum);
             do_cmdline_cmd(cbuf);
             break;
 
@@ -203,7 +203,7 @@ newwindow:
         case Ctrl_O:
         case 'o':
             CHECK_CMDWIN reset_VIsual_and_resel(); // stop Visual mode
-            cmd_with_count("only", (char_u *)cbuf, sizeof(cbuf), Prenum);
+            cmd_with_count("only", (uchar_kt *)cbuf, sizeof(cbuf), Prenum);
             do_cmdline_cmd(cbuf);
             break;
 
@@ -611,7 +611,7 @@ wingotofile:
 }
 
 static void cmd_with_count(char *cmd,
-                           char_u *bufp,
+                           uchar_kt *bufp,
                            size_t bufsize,
                            int64_t Prenum)
 {
@@ -2416,7 +2416,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     // values, so do that below.
     goto_tabpage_tp(alt_tabpage(), FALSE, TRUE);
     redraw_tabline = TRUE;
-    char_u prev_idx[NUMBUFLEN]; // save index for tabclosed event
+    uchar_kt prev_idx[NUMBUFLEN]; // save index for tabclosed event
     sprintf((char *)prev_idx, "%i", tabpage_index(prev_curtab));
 
     // Safety check:  Autocommands may have closed
@@ -3956,7 +3956,7 @@ void free_tabpage(tabpage_T *tp)
 ///
 /// @return
 /// Was the new tabpage created successfully? FAIL or OK.
-int win_new_tabpage(int after, char_u *filename)
+int win_new_tabpage(int after, uchar_kt *filename)
 {
     tabpage_T *tp = curtab;
     tabpage_T *newtp;
@@ -4794,7 +4794,7 @@ static void win_enter_ext(win_T *wp,
 
     char cwd[MAXPATHL];
 
-    if(os_dirname((char_u *)cwd, MAXPATHL) != OK)
+    if(os_dirname((uchar_kt *)cwd, MAXPATHL) != OK)
     {
         cwd[0] = NUL;
     }
@@ -4807,7 +4807,7 @@ static void win_enter_ext(win_T *wp,
         {
             if(cwd[0] != NUL)
             {
-                globaldir = (char_u *)xstrdup(cwd);
+                globaldir = (uchar_kt *)xstrdup(cwd);
             }
         }
 
@@ -6548,14 +6548,14 @@ static void frame_add_height(frame_T *frp, int n)
 /// Get the file name at the cursor.
 /// If Visual mode is active, use the selected text if it's in one line.
 /// Returns the name in allocated memory, NULL for failure.
-char_u *grab_file_name(long count, linenr_T *file_lnum)
+uchar_kt *grab_file_name(long count, linenr_T *file_lnum)
 {
     int options = FNAME_MESS | FNAME_EXP | FNAME_REL | FNAME_UNESC;
 
     if(VIsual_active)
     {
         size_t len;
-        char_u *ptr;
+        uchar_kt *ptr;
 
         if(get_visual_text(NULL, &ptr, &len) == FAIL)
         {
@@ -6583,7 +6583,7 @@ char_u *grab_file_name(long count, linenr_T *file_lnum)
 /// FNAME_EXP       expand to path
 /// FNAME_HYP       check for hypertext link
 /// FNAME_INCL      apply "includeexpr"
-char_u *file_name_at_cursor(int options, long count, linenr_T *file_lnum)
+uchar_kt *file_name_at_cursor(int options, long count, linenr_T *file_lnum)
 {
     return file_name_in_line(get_cursor_line_ptr(),
                              curwin->w_cursor.col,
@@ -6602,14 +6602,14 @@ char_u *file_name_at_cursor(int options, long count, linenr_T *file_lnum)
 /// @param count,
 /// @param rel_fname  file we are searching relative to
 /// @param file_lnum  line number after the file name
-char_u *file_name_in_line(char_u *line,
+uchar_kt *file_name_in_line(uchar_kt *line,
                           int col,
                           int options,
                           long count,
-                          char_u *rel_fname,
+                          uchar_kt *rel_fname,
                           linenr_T *file_lnum)
 {
-    char_u *ptr;
+    uchar_kt *ptr;
     size_t len;
 
     // search forward for what could
@@ -6676,7 +6676,7 @@ char_u *file_name_in_line(char_u *line,
     // If there is trailing punctuation, remove it.
     // But don't remove "..", could be a directory name.
     if(len > 2
-       && vim_strchr((char_u *)".,:;!", ptr[len - 1]) != NULL
+       && vim_strchr((uchar_kt *)".,:;!", ptr[len - 1]) != NULL
        && ptr[len - 2] != '.')
     {
         --len;
@@ -6684,7 +6684,7 @@ char_u *file_name_in_line(char_u *line,
 
     if(file_lnum != NULL)
     {
-        char_u *p;
+        uchar_kt *p;
 
         // Get the number after the file
         // name and a separator character
@@ -7183,14 +7183,14 @@ int match_add(win_T *wp,
         }
     }
 
-    if((hlg_id = syn_name2id((const char_u *)grp)) == 0)
+    if((hlg_id = syn_name2id((const uchar_kt *)grp)) == 0)
     {
         EMSG2(_(e_nogroup), grp);
         return -1;
     }
 
     if(pat != NULL
-       && (regprog = vim_regcomp((char_u *)pat, RE_MAGIC)) == NULL)
+       && (regprog = vim_regcomp((uchar_kt *)pat, RE_MAGIC)) == NULL)
     {
         EMSG2(_(e_invarg2), pat);
         return -1;
@@ -7218,7 +7218,7 @@ int match_add(win_T *wp,
     m = xcalloc(1, sizeof(matchitem_T));
     m->id = id;
     m->priority = prio;
-    m->pattern = pat == NULL ? NULL: (char_u *)xstrdup(pat);
+    m->pattern = pat == NULL ? NULL: (uchar_kt *)xstrdup(pat);
     m->hlg_id = hlg_id;
     m->match.regprog = regprog;
     m->match.rmm_ic = FALSE;
@@ -7227,7 +7227,7 @@ int match_add(win_T *wp,
 
     if(conceal_char != NULL)
     {
-        m->conceal_char = (*mb_ptr2char)((const char_u *)conceal_char);
+        m->conceal_char = (*mb_ptr2char)((const uchar_kt *)conceal_char);
     }
 
     // Set up position matches

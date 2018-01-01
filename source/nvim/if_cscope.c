@@ -117,7 +117,7 @@ static enum
 
 /// Function given to ExpandGeneric() to obtain
 /// the cscope command expansion.
-char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     int current_idx;
 
@@ -126,7 +126,7 @@ char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
         case EXP_CSCOPE_SUBCMD:
             // Complete with sub-commands of ":cscope":
             // add, find, help, kill, reset, show
-            return (char_u *)cs_cmds[idx].name;
+            return (uchar_kt *)cs_cmds[idx].name;
 
         case EXP_SCSCOPE_SUBCMD:
         {
@@ -145,7 +145,7 @@ char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
                 }
             }
 
-            return (char_u *)cs_cmds[i].name;
+            return (uchar_kt *)cs_cmds[i].name;
         }
 
         case EXP_CSCOPE_FIND:
@@ -159,7 +159,7 @@ char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
             // {query_type} can be letters (c, d, ... a) or numbers (0, 1,
             // ..., 9) but only complete with letters, since numbers are
             // redundant.
-            return (char_u *)query_type[idx];
+            return (uchar_kt *)query_type[idx];
         }
 
         case EXP_CSCOPE_KILL:
@@ -181,11 +181,11 @@ char_u *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
                 if(current_idx++ == idx)
                 {
                     vim_snprintf(connection, sizeof(connection), "%zu", i);
-                    return (char_u *)connection;
+                    return (uchar_kt *)connection;
                 }
             }
 
-            return (current_idx == idx && idx > 0) ? (char_u *)"-1" : NULL;
+            return (current_idx == idx && idx > 0) ? (uchar_kt *)"-1" : NULL;
         }
 
         default:
@@ -198,7 +198,7 @@ void set_context_in_cscope_cmd(expand_T *xp, const char *arg, cmdidx_T cmdidx)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_CSCOPE;
-    xp->xp_pattern = (char_u *)arg;
+    xp->xp_pattern = (uchar_kt *)arg;
 
     expand_what = ((cmdidx == CMD_scscope)
                    ? EXP_SCSCOPE_SUBCMD : EXP_CSCOPE_SUBCMD);
@@ -206,11 +206,11 @@ void set_context_in_cscope_cmd(expand_T *xp, const char *arg, cmdidx_T cmdidx)
     // (part of) subcommand already typed
     if(*arg != NUL)
     {
-        const char *p = (const char *)skiptowhite((const char_u *)arg);
+        const char *p = (const char *)skiptowhite((const uchar_kt *)arg);
 
         if(*p != NUL) // Past first word.
         {
-            xp->xp_pattern = skipwhite((const char_u *)p);
+            xp->xp_pattern = skipwhite((const uchar_kt *)p);
 
             if(*skiptowhite(xp->xp_pattern) != NUL)
             {
@@ -386,7 +386,7 @@ void do_cstag(exarg_T *eap)
 /// from the cscope output. should only be called from find_tags()
 ///
 /// returns TRUE if eof, FALSE otherwise
-int cs_fgets(char_u *buf, int size)
+int cs_fgets(uchar_kt *buf, int size)
 {
     char *p;
 
@@ -431,7 +431,7 @@ void cs_print_tags(void)
 ///  4  Use {prepend}, use exact string matches for both {dbpath} and {prepend}.
 ///
 ///  Note: All string comparisons are case sensitive!
-int cs_connection(int num, char_u *dbpath, char_u *ppath)
+int cs_connection(int num, uchar_kt *dbpath, uchar_kt *ppath)
 {
     if(num < 0 || num > 4 || (num > 0 && !dbpath))
     {
@@ -543,23 +543,23 @@ static int cs_add_common(char *arg1, char *arg2, char *flags)
     char *fname2 = NULL;
     char *ppath = NULL;
     size_t usedlen = 0;
-    char_u *fbuf = NULL;
+    uchar_kt *fbuf = NULL;
 
     // get the filename (arg1), expand it, and try to stat it
     fname = xmalloc(MAXPATHL + 1);
-    expand_env((char_u *)arg1, (char_u *)fname, MAXPATHL);
+    expand_env((uchar_kt *)arg1, (uchar_kt *)fname, MAXPATHL);
     size_t len = STRLEN(fname);
-    fbuf = (char_u *)fname;
+    fbuf = (uchar_kt *)fname;
 
-    (void)modify_fname((char_u *)":p", &usedlen,
-                       (char_u **)&fname, &fbuf, &len);
+    (void)modify_fname((uchar_kt *)":p", &usedlen,
+                       (uchar_kt **)&fname, &fbuf, &len);
 
     if(fname == NULL)
     {
         goto add_err;
     }
 
-    fname = (char *)vim_strnsave((char_u *)fname, len);
+    fname = (char *)vim_strnsave((uchar_kt *)fname, len);
     xfree(fbuf);
     FileInfo file_info;
     bool file_info_ok  = os_fileinfo(fname, &file_info);
@@ -579,9 +579,9 @@ staterr:
     if(arg2 != NULL)
     {
         ppath = xmalloc(MAXPATHL + 1);
-        expand_env((char_u *)arg2, (char_u *)ppath, MAXPATHL);
+        expand_env((uchar_kt *)arg2, (uchar_kt *)ppath, MAXPATHL);
 
-        if(!os_path_exists((char_u *)ppath))
+        if(!os_path_exists((uchar_kt *)ppath))
         {
             goto staterr;
         }
@@ -957,7 +957,7 @@ err_closing:
             //
             // expand the cscope exec for env var's
             prog = xmalloc(MAXPATHL + 1);
-            expand_env(p_csprg, (char_u *)prog, MAXPATHL);
+            expand_env(p_csprg, (uchar_kt *)prog, MAXPATHL);
             // alloc space to hold the cscope command
             size_t len = strlen(prog) + strlen(csinfo[i].fname) + 32;
 
@@ -965,7 +965,7 @@ err_closing:
             {
                 // expand the prepend path for env var's
                 ppath = xmalloc(MAXPATHL + 1);
-                expand_env((char_u *)csinfo[i].ppath, (char_u *)ppath, MAXPATHL);
+                expand_env((uchar_kt *)csinfo[i].ppath, (uchar_kt *)ppath, MAXPATHL);
                 len += strlen(ppath);
             }
 
@@ -1158,7 +1158,7 @@ static int cs_find_common(char *opt,
                           int forceit,
                           int verbose,
                           int use_ll,
-                          char_u *cmdline)
+                          uchar_kt *cmdline)
 {
     char *cmd;
     int *nummatches;
@@ -1230,7 +1230,7 @@ static int cs_find_common(char *opt,
 
         if(*qfpos != '0'
            && apply_autocmds(EVENT_QUICKFIXCMDPRE,
-                             (char_u *)"cscope",
+                             (uchar_kt *)"cscope",
                              curbuf->b_fname,
                              true,
                              curbuf))
@@ -1309,7 +1309,7 @@ static int cs_find_common(char *opt,
     {
         // fill error list
         FILE *f;
-        char_u *tmp = vim_tempname();
+        uchar_kt *tmp = vim_tempname();
         qf_info_T *qi = NULL;
         win_T *wp = NULL;
         f = mch_fopen((char *)tmp, "w");
@@ -1329,7 +1329,7 @@ static int cs_find_common(char *opt,
             }
 
             // '-' starts a new error list
-            if(qf_init(wp, tmp, (char_u *)"%f%*\\t%l%*\\t%m", *qfpos == '-', cmdline) > 0)
+            if(qf_init(wp, tmp, (uchar_kt *)"%f%*\\t%l%*\\t%m", *qfpos == '-', cmdline) > 0)
             {
                 if(postponed_split != 0)
                 {
@@ -1341,7 +1341,7 @@ static int cs_find_common(char *opt,
                 }
 
                 apply_autocmds(EVENT_QUICKFIXCMDPOST,
-                               (char_u *)"cscope",
+                               (uchar_kt *)"cscope",
                                curbuf->b_fname,
                                TRUE,
                                curbuf);
@@ -1385,7 +1385,7 @@ static int cs_find_common(char *opt,
 
         (void)cs_manage_matches(matches, contexts, matched, Store);
 
-        return do_tag((char_u *)pat, DT_CSCOPE, 0, forceit, verbose);
+        return do_tag((uchar_kt *)pat, DT_CSCOPE, 0, forceit, verbose);
     }
 }
 
@@ -1398,7 +1398,7 @@ static int cs_help(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
     while(cmdp->name != NULL)
     {
         char *help = _(cmdp->help);
-        int space_cnt = 30 - vim_strsize((char_u *)help);
+        int space_cnt = 30 - vim_strsize((uchar_kt *)help);
 
         // Use %*s rather than %30s to ensure proper alignment in utf-8
         if(space_cnt < 0)
@@ -2477,7 +2477,7 @@ static int cs_reset(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 static char *cs_resolve_file(size_t i, char *name)
 {
     char *fullname;
-    char_u *csdir = NULL;
+    uchar_kt *csdir = NULL;
 
     // Ppath is freed when we destroy the cscope connection.
     // Fullname is freed after cs_make_vim_style_matches, after it's been
@@ -2495,7 +2495,7 @@ static char *cs_resolve_file(size_t i, char *name)
         csdir = xmalloc(MAXPATHL);
 
         STRLCPY(csdir, csinfo[i].fname,
-                path_tail((char_u *)csinfo[i].fname) - (char_u *)csinfo[i].fname + 1);
+                path_tail((uchar_kt *)csinfo[i].fname) - (uchar_kt *)csinfo[i].fname + 1);
 
         len += STRLEN(csdir);
     }

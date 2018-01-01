@@ -45,7 +45,7 @@ typedef struct memline
     int ml_stack_size;          ///< total number of entries in ml_stack
 
     linenr_T ml_line_lnum;      ///< line number of cached line, 0 if not valid
-    char_u *ml_line_ptr;        ///< pointer to cached line
+    uchar_kt *ml_line_ptr;        ///< pointer to cached line
 
     bhdr_T *ml_locked;          ///< block used by last ml_get
     linenr_T ml_locked_low;     ///< first line in ml_locked

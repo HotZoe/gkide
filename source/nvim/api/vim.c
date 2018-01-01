@@ -115,14 +115,14 @@ FUNC_API_SINCE(1)
     {
         // Need to escape K_SPECIAL and CSI before
         // putting the string in the typeahead buffer.
-        keys_esc = (char *)vim_strsave_escape_csi((char_u *)keys.data);
+        keys_esc = (char *)vim_strsave_escape_csi((uchar_kt *)keys.data);
     }
     else
     {
         keys_esc = keys.data;
     }
 
-    ins_typebuf((char_u *)keys_esc,
+    ins_typebuf((uchar_kt *)keys_esc,
                 (remap ? REMAP_YES : REMAP_NONE),
                 insert ? 0 : typebuf.tb_len,
                 !typed, false);
@@ -206,9 +206,9 @@ FUNC_API_SINCE(1)
     // - FLAG_CPO_SPECI unset - <Key> sequences *are* interpreted
     // The third from end parameter of replace_termcodes() is true so
     // that the <lt> sequence is recognised - needed for a real backslash.
-    replace_termcodes((char_u *)str.data,
+    replace_termcodes((uchar_kt *)str.data,
                       str.size,
-                      (char_u **)&ptr,
+                      (uchar_kt **)&ptr,
                       from_part,
                       do_lt,
                       special,
@@ -247,7 +247,7 @@ FUNC_API_SINCE(1)
     try_start();
     typval_T rettv;
 
-    if(eval_lev_0((char_u *)expr.data, &rettv, NULL, true) == FAIL)
+    if(eval_lev_0((uchar_kt *)expr.data, &rettv, NULL, true) == FAIL)
     {
         api_set_error(err, kErrorTypeException,
                       "Failed to evaluate expression");
@@ -301,7 +301,7 @@ FUNC_API_SINCE(1)
     typval_T rettv;
     int dummy;
     // Call the function
-    int r = call_func((char_u *)fname.data,
+    int r = call_func((uchar_kt *)fname.data,
                       (int)fname.size,
                       &rettv,
                       (int)args.size,
@@ -376,7 +376,7 @@ FUNC_API_SINCE(1)
         return 0;
     }
 
-    return (Integer) mb_string2cells((char_u *) str.data);
+    return (Integer) mb_string2cells((uchar_kt *) str.data);
 }
 
 /// Gets the paths contained in 'runtimepath'.
@@ -418,7 +418,7 @@ FUNC_API_SINCE(1)
 
         // Copy the path from 'runtimepath' to rv.items[i]
         size_t length = copy_option_part(&rtp,
-                                         (char_u *)rv.items[i].data.string.data,
+                                         (uchar_kt *)rv.items[i].data.string.data,
                                          MAXPATHL,
                                          ",");
 
@@ -447,7 +447,7 @@ FUNC_API_SINCE(1)
     string[dir.size] = NUL;
     try_start();
 
-    if(vim_chdir((char_u *)string, kCdScopeGlobal))
+    if(vim_chdir((uchar_kt *)string, kCdScopeGlobal))
     {
         if(!try_end(err))
         {

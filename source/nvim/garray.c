@@ -110,7 +110,7 @@ void ga_grow(garray_T *gap, int n)
 /// @param gap
 void ga_remove_duplicate_strings(garray_T *gap)
 {
-    char_u **fnames = gap->ga_data;
+    uchar_kt **fnames = gap->ga_data;
     // sort the growing array, which puts duplicates next to each other
     sort_strings(fnames, gap->ga_len);
 
@@ -139,7 +139,7 @@ void ga_remove_duplicate_strings(garray_T *gap)
 /// @param sep
 ///
 /// @returns the concatenated strings
-char_u *ga_concat_strings_sep(const garray_T *gap, const char *sep)
+uchar_kt *ga_concat_strings_sep(const garray_T *gap, const char *sep)
 FUNC_ATTR_NONNULL_RET
 {
     const size_t nelem = (size_t) gap->ga_len;
@@ -147,7 +147,7 @@ FUNC_ATTR_NONNULL_RET
 
     if(nelem == 0)
     {
-        return (char_u *) xstrdup("");
+        return (uchar_kt *) xstrdup("");
     }
 
     size_t len = 0;
@@ -171,7 +171,7 @@ FUNC_ATTR_NONNULL_RET
 
     strcpy(s, strings[nelem - 1]);
 
-    return (char_u *) ret;
+    return (uchar_kt *) ret;
 }
 
 /// For a growing array that contains a list of strings: concatenate all the
@@ -180,7 +180,7 @@ FUNC_ATTR_NONNULL_RET
 /// @param gap
 ///
 /// @returns the concatenated strings
-char_u *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
+uchar_kt *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
 {
     return ga_concat_strings_sep(gap, ",");
 }
@@ -194,7 +194,7 @@ char_u *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
 ///
 /// @param gap
 /// @param s
-void ga_concat(garray_T *gap, const char_u *restrict s)
+void ga_concat(garray_T *gap, const uchar_kt *restrict s)
 {
     if(s == NULL)
     {

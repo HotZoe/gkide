@@ -62,7 +62,7 @@
 
 #if defined(HAVE_SELINUX)
 /// Copy security info from @b from_file to @b to_file.
-void mch_copy_sec(char_u *from_file, char_u *to_file)
+void mch_copy_sec(uchar_kt *from_file, uchar_kt *to_file)
 {
     if(from_file == NULL)
     {
@@ -122,14 +122,14 @@ void mch_copy_sec(char_u *from_file, char_u *to_file)
 
 // Return a pointer to the ACL of file @b fname in allocated memory.
 // Return NULL if the ACL is not available for whatever reason.
-vim_acl_T mch_get_acl(const char_u *FUNC_ARGS_UNUSED_REALY(fname))
+vim_acl_T mch_get_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname))
 {
     vim_acl_T ret = NULL;
     return ret;
 }
 
 // Set the ACL of file @b fname to @b acl (unless it's NULL).
-void mch_set_acl(const char_u *FUNC_ARGS_UNUSED_REALY(fname),
+void mch_set_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname),
                  vim_acl_T aclent)
 {
     if(aclent == NULL)
@@ -167,7 +167,7 @@ void mch_exit(int r) FUNC_ATTR_NORETURN
     exit(r);
 }
 
-#define SHELL_SPECIAL (char_u *)"\t \"&'$;<>()\\|"
+#define SHELL_SPECIAL (uchar_kt *)"\t \"&'$;<>()\\|"
 
 /// Does wildcard pattern matching using the shell.
 ///
@@ -193,24 +193,24 @@ void mch_exit(int r) FUNC_ATTR_NORETURN
 /// @returns
 /// OK for success or FAIL for error.
 int mch_expand_wildcards(int num_pat,
-                         char_u **pat,
+                         uchar_kt **pat,
                          int *num_file,
-                         char_u ***file,
+                         uchar_kt ***file,
                          int flags)
 FUNC_ATTR_NONNULL_ARG(3)
 FUNC_ATTR_NONNULL_ARG(4)
 {
     int i;
     size_t len;
-    char_u *p;
+    uchar_kt *p;
     bool dir;
-    char_u *extra_shell_arg = NULL;
+    uchar_kt *extra_shell_arg = NULL;
     ShellOpts shellopts = kShellOptExpand | kShellOptSilent;
     int j;
-    char_u *tempname;
-    char_u *command;
+    uchar_kt *tempname;
+    uchar_kt *command;
     FILE *fd;
-    char_u *buffer;
+    uchar_kt *buffer;
 
 #define STYLE_ECHO      0  // use "echo", the default
 #define STYLE_GLOB      1  // use "glob", for csh
@@ -484,7 +484,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     // expand any other pattern.
     if(shell_style == STYLE_PRINT)
     {
-        extra_shell_arg = (char_u *)"-G"; // Use zsh NULL_GLOB option
+        extra_shell_arg = (uchar_kt *)"-G"; // Use zsh NULL_GLOB option
 
         // If we use -f then shell variables set in .cshrc won't get
         // expanded. vi can do it, so we will too, but it is only
@@ -493,7 +493,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
     else if(shell_style == STYLE_GLOB && !have_dollars(num_pat, pat))
     {
-        extra_shell_arg = (char_u *)"-f"; // Use csh fast option
+        extra_shell_arg = (uchar_kt *)"-f"; // Use csh fast option
     }
 
     // execute the shell command
@@ -703,7 +703,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
 
     *num_file = i;
-    *file = xmalloc(sizeof(char_u *) * (size_t)i);
+    *file = xmalloc(sizeof(uchar_kt *) * (size_t)i);
 
     // Isolate the individual file names.
     p = buffer;
@@ -805,13 +805,13 @@ notfound:
 
 
 static void save_patterns(int num_pat,
-                          char_u **pat,
+                          uchar_kt **pat,
                           int *num_file,
-                          char_u ***file)
+                          uchar_kt ***file)
 {
     int i;
-    char_u *s;
-    *file = xmalloc((size_t)num_pat * sizeof(char_u *));
+    uchar_kt *s;
+    *file = xmalloc((size_t)num_pat * sizeof(uchar_kt *));
 
     for(i = 0; i < num_pat; i++)
     {
@@ -827,7 +827,7 @@ static void save_patterns(int num_pat,
     *num_file = num_pat;
 }
 
-static bool have_wildcard(int num, char_u **file)
+static bool have_wildcard(int num, uchar_kt **file)
 {
     int i;
 
@@ -842,7 +842,7 @@ static bool have_wildcard(int num, char_u **file)
     return false;
 }
 
-static bool have_dollars(int num, char_u **file)
+static bool have_dollars(int num, uchar_kt **file)
 {
     int i;
 

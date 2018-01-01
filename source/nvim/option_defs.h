@@ -198,12 +198,12 @@ enum
 };
 
 /// Represented by 'a' flag.
-#define SHM_ALL_ABBREVIATIONS ((char_u[]) {   \
+#define SHM_ALL_ABBREVIATIONS ((uchar_kt[]) {   \
     SHM_RO,   SHM_MOD,   SHM_FILE, SHM_LAST,  \
     SHM_TEXT, SHM_LINES, SHM_NEW,  SHM_WRI, 0, })
 
 /// All possible flags for 'shm'.
-#define SHM_ALL ((char_u[]) {                                            \
+#define SHM_ALL ((uchar_kt[]) {                                            \
     SHM_RO,            SHM_MOD,            SHM_FILE,      SHM_LAST,      \
     SHM_TEXT,          SHM_LINES,          SHM_NEW,       SHM_WRI,       \
     SHM_ABBREVIATIONS, SHM_WRITE,          SHM_TRUNC,     SHM_TRUNCALL,  \
@@ -292,7 +292,7 @@ enum
 };
 
 /// C string containing all 'statusline' option flags
-#define STL_ALL ((char_u[]) {                                               \
+#define STL_ALL ((uchar_kt[]) {                                               \
     STL_FILEPATH,    STL_FULLPATH,        STL_FILENAME,   STL_COLUMN,       \
     STL_VIRTCOL,     STL_VIRTCOL_ALT,     STL_LINE,       STL_NUMLINES,     \
     STL_BUFNO,       STL_KEYMAP,          STL_OFFSET,     STL_OFFSET_X,     \
@@ -384,14 +384,14 @@ enum
 // The following are actual variables for the options
 EXTERN long p_aleph;            ///< 'aleph'
 EXTERN int p_acd;               ///< 'autochdir'
-EXTERN char_u *p_ambw;          ///< 'ambiwidth'
+EXTERN uchar_kt *p_ambw;          ///< 'ambiwidth'
 EXTERN int p_ar;                ///< 'autoread'
 EXTERN int p_aw;                ///< 'autowrite'
 EXTERN int p_awa;               ///< 'autowriteall'
-EXTERN char_u *p_bs;            ///< 'backspace'
-EXTERN char_u *p_bg;            ///< 'background'
+EXTERN uchar_kt *p_bs;            ///< 'backspace'
+EXTERN uchar_kt *p_bg;            ///< 'background'
 EXTERN int p_bk;                ///< 'backup'
-EXTERN char_u *p_bkc;           ///< 'backupcopy'
+EXTERN uchar_kt *p_bkc;           ///< 'backupcopy'
 EXTERN unsigned int bkc_flags;  ///< flags from 'backupcopy'
 
 #ifdef IN_OPTION_C
@@ -406,9 +406,9 @@ static char *(p_bkc_values[]) = {
 #define BKC_BREAKSYMLINK    0x008
 #define BKC_BREAKHARDLINK   0x010
 
-EXTERN char_u *p_bdir;     ///< 'backupdir'
-EXTERN char_u *p_bex;      ///< 'backupext'
-EXTERN char_u *p_bo;       ///< 'belloff'
+EXTERN uchar_kt *p_bdir;     ///< 'backupdir'
+EXTERN uchar_kt *p_bex;      ///< 'backupext'
+EXTERN uchar_kt *p_bo;       ///< 'belloff'
 EXTERN unsigned bo_flags;
 
 #ifdef IN_OPTION_C
@@ -442,9 +442,9 @@ static char *(p_bo_values[]) = {
 #define BO_SPELL    0x20000
 #define BO_WILD     0x40000
 
-EXTERN char_u *p_bsk;       ///< 'backupskip'
-EXTERN char_u *p_breakat;   ///< 'breakat'
-EXTERN char_u *p_cmp;       ///< 'casemap'
+EXTERN uchar_kt *p_bsk;       ///< 'backupskip'
+EXTERN uchar_kt *p_breakat;   ///< 'breakat'
+EXTERN uchar_kt *p_cmp;       ///< 'casemap'
 EXTERN unsigned cmp_flags;  ///<
 
 #ifdef IN_OPTION_C
@@ -454,11 +454,11 @@ static char *(p_cmp_values[]) = { "internal", "keepascii", NULL };
 #define CMP_INTERNAL    0x001
 #define CMP_KEEPASCII   0x002
 
-EXTERN char_u *p_enc;      ///< 'encoding'
+EXTERN uchar_kt *p_enc;      ///< 'encoding'
 EXTERN int p_deco;         ///< 'delcombine'
-EXTERN char_u *p_ccv;      ///< 'charconvert'
-EXTERN char_u *p_cedit;    ///< 'cedit'
-EXTERN char_u *p_cb;       ///< 'clipboard'
+EXTERN uchar_kt *p_ccv;      ///< 'charconvert'
+EXTERN uchar_kt *p_cedit;    ///< 'cedit'
+EXTERN uchar_kt *p_cb;       ///< 'clipboard'
 EXTERN unsigned cb_flags;  ///<
 
 #ifdef IN_OPTION_C
@@ -473,12 +473,12 @@ EXTERN long p_cwh;        ///< 'cmdwinheight'
 EXTERN long p_ch;         ///< 'cmdheight'
 EXTERN int p_confirm;     ///< 'confirm'
 EXTERN int p_cp;          ///< 'compatible'
-EXTERN char_u *p_cot;     ///< 'completeopt'
+EXTERN uchar_kt *p_cot;     ///< 'completeopt'
 EXTERN long p_ph;         ///< 'pumheight'
-EXTERN char_u *p_cpo;     ///< 'cpoptions'
-EXTERN char_u *p_csprg;   ///< 'cscopeprg'
+EXTERN uchar_kt *p_cpo;     ///< 'cpoptions'
+EXTERN uchar_kt *p_csprg;   ///< 'cscopeprg'
 EXTERN int p_csre;        ///< 'cscoperelative'
-EXTERN char_u *p_csqf;    ///< 'cscopequickfix'
+EXTERN uchar_kt *p_csqf;    ///< 'cscopequickfix'
 
 #define CSQF_CMDS    "sgdctefia"
 #define CSQF_FLAGS   "+-0"
@@ -487,16 +487,16 @@ EXTERN int p_cst;         ///< 'cscopetag'
 EXTERN long p_csto;       ///< 'cscopetagorder'
 EXTERN long p_cspc;       ///< 'cscopepathcomp'
 EXTERN int p_csverbose;   ///< 'cscopeverbose'
-EXTERN char_u *p_debug;   ///< 'debug'
-EXTERN char_u *p_def;     ///< 'define'
-EXTERN char_u *p_inc;
-EXTERN char_u *p_dip;     ///< 'diffopt'
-EXTERN char_u *p_dex;     ///< 'diffexpr'
-EXTERN char_u *p_dict;    ///< 'dictionary'
+EXTERN uchar_kt *p_debug;   ///< 'debug'
+EXTERN uchar_kt *p_def;     ///< 'define'
+EXTERN uchar_kt *p_inc;
+EXTERN uchar_kt *p_dip;     ///< 'diffopt'
+EXTERN uchar_kt *p_dex;     ///< 'diffexpr'
+EXTERN uchar_kt *p_dict;    ///< 'dictionary'
 EXTERN int p_dg;          ///< 'digraph'
-EXTERN char_u *p_dir;     ///< 'directory'
+EXTERN uchar_kt *p_dir;     ///< 'directory'
 
-EXTERN char_u *p_dy;      ///< 'display'
+EXTERN uchar_kt *p_dy;      ///< 'display'
 EXTERN unsigned dy_flags; ///< 'display' flags
 
 #define DY_LASTLINE   0x01  ///< display flags: last line
@@ -509,22 +509,22 @@ static char *(p_dy_values[]) = { "lastline", "truncate", "uhex", NULL };
 
 EXTERN int p_ed;           ///< 'edcompatible'
 EXTERN int p_emoji;        ///< 'emoji'
-EXTERN char_u *p_ead;      ///< 'eadirection'
+EXTERN uchar_kt *p_ead;      ///< 'eadirection'
 EXTERN int p_ea;           ///< 'equalalways'
-EXTERN char_u *p_ep;       ///< 'equalprg'
+EXTERN uchar_kt *p_ep;       ///< 'equalprg'
 EXTERN int p_eb;           ///< 'errorbells'
-EXTERN char_u *p_ef;       ///< 'errorfile'
-EXTERN char_u *p_efm;      ///< 'errorformat'
-EXTERN char_u *p_gefm;     ///< 'grepformat'
-EXTERN char_u *p_gp;       ///< 'grepprg'
-EXTERN char_u *p_ei;       ///< 'eventignore'
+EXTERN uchar_kt *p_ef;       ///< 'errorfile'
+EXTERN uchar_kt *p_efm;      ///< 'errorformat'
+EXTERN uchar_kt *p_gefm;     ///< 'grepformat'
+EXTERN uchar_kt *p_gp;       ///< 'grepprg'
+EXTERN uchar_kt *p_ei;       ///< 'eventignore'
 EXTERN int p_exrc;         ///< 'exrc'
-EXTERN char_u *p_fencs;    ///< 'fileencodings'
-EXTERN char_u *p_ffs;      ///< 'fileformats'
+EXTERN uchar_kt *p_fencs;    ///< 'fileencodings'
+EXTERN uchar_kt *p_ffs;      ///< 'fileformats'
 EXTERN int p_fic;          ///< 'fileignorecase'
-EXTERN char_u *p_fcl;      ///< 'foldclose'
+EXTERN uchar_kt *p_fcl;      ///< 'foldclose'
 EXTERN long p_fdls;        ///< 'foldlevelstart'
-EXTERN char_u *p_fdo;      ///< 'foldopen'
+EXTERN uchar_kt *p_fdo;      ///< 'foldopen'
 EXTERN unsigned fdo_flags;
 
 #ifdef IN_OPTION_C
@@ -547,29 +547,29 @@ static char *(p_fdo_values[]) = {
 #define FDO_UNDO       0x200
 #define FDO_JUMP       0x400
 
-EXTERN char_u *p_fp;         ///< 'formatprg'
+EXTERN uchar_kt *p_fp;         ///< 'formatprg'
 EXTERN int p_fs;             ///< 'fsync'
 EXTERN int p_gd;             ///< 'gdefault'
-EXTERN char_u *p_pdev;       ///< 'printdevice'
-EXTERN char_u *p_penc;       ///< 'printencoding'
-EXTERN char_u *p_pexpr;      ///< 'printexpr'
-EXTERN char_u *p_pmfn;       ///< 'printmbfont'
-EXTERN char_u *p_pmcs;       ///< 'printmbcharset'
-EXTERN char_u *p_pfn;        ///< 'printfont'
-EXTERN char_u *p_popt;       ///< 'printoptions'
-EXTERN char_u *p_header;     ///< 'printheader'
+EXTERN uchar_kt *p_pdev;       ///< 'printdevice'
+EXTERN uchar_kt *p_penc;       ///< 'printencoding'
+EXTERN uchar_kt *p_pexpr;      ///< 'printexpr'
+EXTERN uchar_kt *p_pmfn;       ///< 'printmbfont'
+EXTERN uchar_kt *p_pmcs;       ///< 'printmbcharset'
+EXTERN uchar_kt *p_pfn;        ///< 'printfont'
+EXTERN uchar_kt *p_popt;       ///< 'printoptions'
+EXTERN uchar_kt *p_header;     ///< 'printheader'
 EXTERN int p_prompt;         ///< 'prompt'
-EXTERN char_u *p_guicursor;  ///< 'guicursor'
-EXTERN char_u *p_hf;         ///< 'helpfile'
+EXTERN uchar_kt *p_guicursor;  ///< 'guicursor'
+EXTERN uchar_kt *p_hf;         ///< 'helpfile'
 EXTERN long p_hh;            ///< 'helpheight'
-EXTERN char_u *p_hlg;        ///< 'helplang'
+EXTERN uchar_kt *p_hlg;        ///< 'helplang'
 EXTERN int p_hid;            ///< 'hidden'
 
 /// Use P_HID to check if a buffer is to be hidden
 /// when it is no longer visible in a window.
 #define P_HID(buf)           (buf_hide(buf))
 
-EXTERN char_u *p_hl;         ///< 'highlight'
+EXTERN uchar_kt *p_hl;         ///< 'highlight'
 EXTERN int p_hls;            ///< 'hlsearch'
 EXTERN long p_hi;            ///< 'history'
 EXTERN int p_hkmap;          ///< 'hkmap'
@@ -578,31 +578,31 @@ EXTERN int p_fkmap;          ///< 'fkmap'
 EXTERN int p_altkeymap;      ///< 'altkeymap'
 EXTERN int p_arshape;        ///< 'arabicshape'
 EXTERN int p_icon;           ///< 'icon'
-EXTERN char_u *p_iconstring; ///< 'iconstring'
+EXTERN uchar_kt *p_iconstring; ///< 'iconstring'
 EXTERN int p_ic;             ///< 'ignorecase'
 EXTERN int p_is;             ///< 'incsearch'
-EXTERN char_u *p_icm;        ///< 'inccommand'
+EXTERN uchar_kt *p_icm;        ///< 'inccommand'
 EXTERN int p_im;             ///< 'insertmode'
-EXTERN char_u *p_isf;        ///< 'isfname'
-EXTERN char_u *p_isi;        ///< 'isident'
-EXTERN char_u *p_isp;        ///< 'isprint'
+EXTERN uchar_kt *p_isf;        ///< 'isfname'
+EXTERN uchar_kt *p_isi;        ///< 'isident'
+EXTERN uchar_kt *p_isp;        ///< 'isprint'
 EXTERN int p_js;             ///< 'joinspaces'
-EXTERN char_u *p_kp;         ///< 'keywordprg'
-EXTERN char_u *p_km;         ///< 'keymodel'
-EXTERN char_u *p_langmap;    ///< 'langmap'
+EXTERN uchar_kt *p_kp;         ///< 'keywordprg'
+EXTERN uchar_kt *p_km;         ///< 'keymodel'
+EXTERN uchar_kt *p_langmap;    ///< 'langmap'
 EXTERN int p_lnr;            ///< 'langnoremap'
 EXTERN int p_lrm;            ///< 'langremap'
-EXTERN char_u *p_lm;         ///< 'langmenu'
-EXTERN char_u *p_lispwords;  ///< 'lispwords'
+EXTERN uchar_kt *p_lm;         ///< 'langmenu'
+EXTERN uchar_kt *p_lispwords;  ///< 'lispwords'
 EXTERN long p_ls;            ///< 'laststatus'
 EXTERN long p_stal;          ///< 'showtabline'
-EXTERN char_u *p_lcs;        ///< 'listchars'
+EXTERN uchar_kt *p_lcs;        ///< 'listchars'
 EXTERN int p_lz;             ///< 'lazyredraw'
 EXTERN int p_lpl;            ///< 'loadplugins'
 EXTERN int p_magic;          ///< 'magic'
-EXTERN char_u *p_mef;        ///< 'makeef'
-EXTERN char_u *p_mp;         ///< 'makeprg'
-EXTERN char_u *p_cc;         ///< 'colorcolumn'
+EXTERN uchar_kt *p_mef;        ///< 'makeef'
+EXTERN uchar_kt *p_mp;         ///< 'makeprg'
+EXTERN uchar_kt *p_cc;         ///< 'colorcolumn'
 EXTERN int p_cc_cols[256];   ///< array for 'colorcolumn' columns
 EXTERN long p_mat;           ///< 'matchtime'
 EXTERN long p_mco;           ///< 'maxcombine'
@@ -612,20 +612,20 @@ EXTERN long p_mm;            ///< 'maxmem'
 EXTERN long p_mmp;           ///< 'maxmempattern'
 EXTERN long p_mmt;           ///< 'maxmemtot'
 EXTERN long p_mis;           ///< 'menuitems'
-EXTERN char_u *p_msm;        ///< 'mkspellmem'
+EXTERN uchar_kt *p_msm;        ///< 'mkspellmem'
 EXTERN long p_mls;           ///< 'modelines'
-EXTERN char_u *p_mouse;      ///< 'mouse'
-EXTERN char_u *p_mousem;     ///< 'mousemodel'
+EXTERN uchar_kt *p_mouse;      ///< 'mouse'
+EXTERN uchar_kt *p_mousem;     ///< 'mousemodel'
 EXTERN long p_mouset;        ///< 'mousetime'
 EXTERN int p_more;           ///< 'more'
-EXTERN char_u *p_opfunc;     ///< 'operatorfunc'
-EXTERN char_u *p_para;       ///< 'paragraphs'
+EXTERN uchar_kt *p_opfunc;     ///< 'operatorfunc'
+EXTERN uchar_kt *p_para;       ///< 'paragraphs'
 EXTERN int p_paste;          ///< 'paste'
-EXTERN char_u *p_pt;         ///< 'pastetoggle'
-EXTERN char_u *p_pex;        ///< 'patchexpr'
-EXTERN char_u *p_pm;         ///< 'patchmode'
-EXTERN char_u *p_path;       ///< 'path'
-EXTERN char_u *p_cdpath;     ///< 'cdpath'
+EXTERN uchar_kt *p_pt;         ///< 'pastetoggle'
+EXTERN uchar_kt *p_pex;        ///< 'patchexpr'
+EXTERN uchar_kt *p_pm;         ///< 'patchmode'
+EXTERN uchar_kt *p_path;       ///< 'path'
+EXTERN uchar_kt *p_cdpath;     ///< 'cdpath'
 EXTERN long p_rdt;           ///< 'redrawtime'
 EXTERN int p_remap;          ///< 'remap'
 EXTERN long p_re;            ///< 'regexpengine'
@@ -634,18 +634,18 @@ EXTERN long p_pvh;           ///< 'previewheight'
 EXTERN int p_ari;            ///< 'allowrevins'
 EXTERN int p_ri;             ///< 'revins'
 EXTERN int p_ru;             ///< 'ruler'
-EXTERN char_u *p_ruf;        ///< 'rulerformat'
-EXTERN char_u *p_pp;         ///< 'packpath'
-EXTERN char_u *p_rtp;        ///< 'runtimepath'
+EXTERN uchar_kt *p_ruf;        ///< 'rulerformat'
+EXTERN uchar_kt *p_pp;         ///< 'packpath'
+EXTERN uchar_kt *p_rtp;        ///< 'runtimepath'
 EXTERN long p_scbk;          ///< 'scrollback'
 EXTERN long p_sj;            ///< 'scrolljump'
 EXTERN long p_so;            ///< 'scrolloff'
-EXTERN char_u *p_sbo;        ///< 'scrollopt'
-EXTERN char_u *p_sections;   ///< 'sections'
+EXTERN uchar_kt *p_sbo;        ///< 'scrollopt'
+EXTERN uchar_kt *p_sections;   ///< 'sections'
 EXTERN int p_secure;         ///< 'secure'
-EXTERN char_u *p_sel;        ///< 'selection'
-EXTERN char_u *p_slm;        ///< 'selectmode'
-EXTERN char_u *p_ssop;       ///< 'sessionoptions'
+EXTERN uchar_kt *p_sel;        ///< 'selection'
+EXTERN uchar_kt *p_slm;        ///< 'selectmode'
+EXTERN uchar_kt *p_ssop;       ///< 'sessionoptions'
 EXTERN unsigned ssop_flags;
 
 #ifdef IN_OPTION_C
@@ -675,23 +675,23 @@ static char *(p_ssop_values[]) = {
 #define SSOP_CURSOR         0x4000
 #define SSOP_TABPAGES       0x8000
 
-EXTERN char_u *p_sh;     ///< 'shell'
-EXTERN char_u *p_shcf;   ///< 'shellcmdflag'
-EXTERN char_u *p_sp;     ///< 'shellpipe'
-EXTERN char_u *p_shq;    ///< 'shellquote'
-EXTERN char_u *p_sxq;    ///< 'shellxquote'
-EXTERN char_u *p_sxe;    ///< 'shellxescape'
-EXTERN char_u *p_srr;    ///< 'shellredir'
+EXTERN uchar_kt *p_sh;     ///< 'shell'
+EXTERN uchar_kt *p_shcf;   ///< 'shellcmdflag'
+EXTERN uchar_kt *p_sp;     ///< 'shellpipe'
+EXTERN uchar_kt *p_shq;    ///< 'shellquote'
+EXTERN uchar_kt *p_sxq;    ///< 'shellxquote'
+EXTERN uchar_kt *p_sxe;    ///< 'shellxescape'
+EXTERN uchar_kt *p_srr;    ///< 'shellredir'
 EXTERN int p_stmp;       ///< 'shelltemp'
 
 #ifdef BACKSLASH_IN_FILENAME
     EXTERN int p_ssl;    ///< 'shellslash'
 #endif
 
-EXTERN char_u *p_stl;        ///< 'statusline'
+EXTERN uchar_kt *p_stl;        ///< 'statusline'
 EXTERN int p_sr;             ///< 'shiftround'
-EXTERN char_u *p_shm;        ///< 'shortmess'
-EXTERN char_u *p_sbr;        ///< 'showbreak'
+EXTERN uchar_kt *p_shm;        ///< 'shortmess'
+EXTERN uchar_kt *p_sbr;        ///< 'showbreak'
 EXTERN int p_sc;             ///< 'showcmd'
 EXTERN int p_sft;            ///< 'showfulltag'
 EXTERN int p_sm;             ///< 'showmatch'
@@ -702,12 +702,12 @@ EXTERN int p_scs;            ///< 'smartcase'
 EXTERN int p_sta;            ///< 'smarttab'
 EXTERN int p_sb;             ///< 'splitbelow'
 EXTERN long p_tpm;           ///< 'tabpagemax'
-EXTERN char_u *p_tal;        ///< 'tabline'
-EXTERN char_u *p_sps;        ///< 'spellsuggest'
+EXTERN uchar_kt *p_tal;        ///< 'tabline'
+EXTERN uchar_kt *p_sps;        ///< 'spellsuggest'
 EXTERN int p_spr;            ///< 'splitright'
 EXTERN int p_sol;            ///< 'startofline'
-EXTERN char_u *p_su;         ///< 'suffixes'
-EXTERN char_u *p_swb;        ///< 'switchbuf'
+EXTERN uchar_kt *p_su;         ///< 'suffixes'
+EXTERN uchar_kt *p_swb;        ///< 'switchbuf'
 EXTERN unsigned swb_flags;
 
 #ifdef IN_OPTION_C
@@ -723,7 +723,7 @@ static char *(p_swb_values[]) = {
 #define SWB_VSPLIT     0x010
 
 EXTERN int p_tbs;          ///< 'tagbsearch'
-EXTERN char_u *p_tc;       ///< 'tagcase'
+EXTERN uchar_kt *p_tc;       ///< 'tagcase'
 EXTERN unsigned tc_flags;  ///< flags from 'tagcase'
 
 #ifdef IN_OPTION_C
@@ -740,7 +740,7 @@ static char *(p_tc_values[]) = {
 
 EXTERN long p_tl;               ///< 'taglength'
 EXTERN int p_tr;                ///< 'tagrelative'
-EXTERN char_u *p_tags;          ///< 'tags'
+EXTERN uchar_kt *p_tags;          ///< 'tags'
 EXTERN int p_tgst;              ///< 'tagstack'
 EXTERN int p_tbidi;             ///< 'termbidi'
 EXTERN int p_terse;             ///< 'terse'
@@ -749,24 +749,24 @@ EXTERN int p_timeout;           ///< 'timeout'
 EXTERN long p_tm;               ///< 'timeoutlen'
 EXTERN int p_title;             ///< 'title'
 EXTERN long p_titlelen;         ///< 'titlelen'
-EXTERN char_u *p_titleold;      ///< 'titleold'
-EXTERN char_u *p_titlestring;   ///< 'titlestring'
-EXTERN char_u *p_tsr;           ///< 'thesaurus'
+EXTERN uchar_kt *p_titleold;      ///< 'titleold'
+EXTERN uchar_kt *p_titlestring;   ///< 'titlestring'
+EXTERN uchar_kt *p_tsr;           ///< 'thesaurus'
 EXTERN int p_tgc;               ///< 'termguicolors'
 EXTERN int p_ttimeout;          ///< 'ttimeout'
 EXTERN long p_ttm;              ///< 'ttimeoutlen'
-EXTERN char_u *p_udir;          ///< 'undodir'
+EXTERN uchar_kt *p_udir;          ///< 'undodir'
 EXTERN long p_ul;               ///< 'undolevels'
 EXTERN long p_ur;               ///< 'undoreload'
 EXTERN long p_uc;               ///< 'updatecount'
 EXTERN long p_ut;               ///< 'updatetime'
-EXTERN char_u *p_fcs;           ///< 'fillchar'
-EXTERN char_u *p_shada;         ///< 'shada'
-EXTERN char_u *p_vdir;          ///< 'viewdir'
-EXTERN char_u *p_vop;           ///< 'viewoptions'
+EXTERN uchar_kt *p_fcs;           ///< 'fillchar'
+EXTERN uchar_kt *p_shada;         ///< 'shada'
+EXTERN uchar_kt *p_vdir;          ///< 'viewdir'
+EXTERN uchar_kt *p_vop;           ///< 'viewoptions'
 EXTERN unsigned vop_flags;      ///< uses SSOP_ flags
 EXTERN int p_vb;                ///< 'visualbell'
-EXTERN char_u *p_ve;            ///< 'virtualedit'
+EXTERN uchar_kt *p_ve;            ///< 'virtualedit'
 EXTERN unsigned ve_flags;
 
 #ifdef IN_OPTION_C
@@ -784,22 +784,22 @@ EXTERN long p_verbose;  ///< 'verbose'
 
 #ifdef IN_OPTION_C
 /// used before options are initialized
-char_u *p_vfile = (char_u *)"";
+uchar_kt *p_vfile = (uchar_kt *)"";
 #else
 /// 'verbosefile'
-extern char_u *p_vfile;
+extern uchar_kt *p_vfile;
 #endif
 
 EXTERN int p_warn;       ///< 'warn'
-EXTERN char_u *p_wop;    ///< 'wildoptions'
+EXTERN uchar_kt *p_wop;    ///< 'wildoptions'
 EXTERN long p_window;    ///< 'window'
-EXTERN char_u *p_wak;    ///< 'winaltkeys'
-EXTERN char_u *p_wig;    ///< 'wildignore'
-EXTERN char_u *p_ww;     ///< 'whichwrap'
+EXTERN uchar_kt *p_wak;    ///< 'winaltkeys'
+EXTERN uchar_kt *p_wig;    ///< 'wildignore'
+EXTERN uchar_kt *p_ww;     ///< 'whichwrap'
 EXTERN long p_wc;        ///< 'wildchar'
 EXTERN long p_wcm;       ///< 'wildcharm'
 EXTERN int p_wic;        ///< 'wildignorecase'
-EXTERN char_u *p_wim;    ///< 'wildmode'
+EXTERN uchar_kt *p_wim;    ///< 'wildmode'
 EXTERN int p_wmnu;       ///< 'wildmenu'
 EXTERN long p_wh;        ///< 'winheight'
 EXTERN long p_wmh;       ///< 'winminheight'

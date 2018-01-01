@@ -5,7 +5,7 @@
 
 #include <stddef.h> // for size_t
 
-#include "nvim/types.h" // for char_u
+#include "nvim/types.h" // for uchar_kt
 #include "nvim/log.h"
 
 /// Structure used for growing arrays.

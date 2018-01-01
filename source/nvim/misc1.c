@@ -85,8 +85,8 @@ static garray_T ga_users = GA_EMPTY_INIT_VALUE;
 /// Return TRUE for success, FALSE for failure
 int open_line(int dir, int flags, int second_line_indent)
 {
-    char_u *next_line = NULL; // copy of the next line
-    char_u *p_extra = NULL; // what goes to next line
+    uchar_kt *next_line = NULL; // copy of the next line
+    uchar_kt *p_extra = NULL; // what goes to next line
     colnr_T less_cols = 0; // less columns for mark in new line
     colnr_T less_cols_off = 0; // columns to skip for mark adjust
     pos_T old_cursor; // old cursor position
@@ -96,11 +96,11 @@ int open_line(int dir, int flags, int second_line_indent)
     bool retval = false; // return value, default is false
     int extra_len = 0; // length of p_extra string
     int lead_len; // length of comment leader
-    char_u *lead_flags; // position in 'comments' for comment leader
-    char_u *leader = NULL; // copy of comment leader
-    char_u *allocated = NULL; // allocated memory
-    char_u *p;
-    char_u saved_char = NUL; // init for GCC
+    uchar_kt *lead_flags; // position in 'comments' for comment leader
+    uchar_kt *leader = NULL; // copy of comment leader
+    uchar_kt *allocated = NULL; // allocated memory
+    uchar_kt *p;
+    uchar_kt saved_char = NUL; // init for GCC
     pos_T *pos;
     bool do_si = (!p_paste && curbuf->b_p_si && !curbuf->b_p_cin);
     bool no_si = false; // reset did_si afterwards
@@ -110,7 +110,7 @@ int open_line(int dir, int flags, int second_line_indent)
     int saved_pi = curbuf->b_p_pi;  // copy of preserveindent setting
 
     // make a copy of the current line so we can mess with it
-    char_u *saved_line = vim_strsave(get_cursor_line_ptr());
+    uchar_kt *saved_line = vim_strsave(get_cursor_line_ptr());
 
     if(curmod & kModFlgVReplace)
     {
@@ -127,7 +127,7 @@ int open_line(int dir, int flags, int second_line_indent)
         }
         else
         {
-            next_line = vim_strsave((char_u *)"");
+            next_line = vim_strsave((uchar_kt *)"");
         }
 
         // In 'kVReplaceMode' mode, a NL replaces the rest of the line, and starts
@@ -203,8 +203,8 @@ int open_line(int dir, int flags, int second_line_indent)
         if(!trunc_line && do_si && *saved_line != NUL
            && (p_extra == NULL || first_char != '{'))
         {
-            char_u  *ptr;
-            char_u last_char;
+            uchar_kt  *ptr;
+            uchar_kt last_char;
             pos_T old_cursor = curwin->w_cursor;
             ptr = saved_line;
 
@@ -412,15 +412,15 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(lead_len > 0)
     {
-        char_u  *lead_repl = NULL; // replaces comment leader
+        uchar_kt  *lead_repl = NULL; // replaces comment leader
         int lead_repl_len = 0; // length of *lead_repl
-        char_u lead_middle[COM_MAX_LEN]; // middle-comment string
-        char_u lead_end[COM_MAX_LEN]; // end-comment string
-        char_u  *comment_end = NULL; // where lead_end has been found
+        uchar_kt lead_middle[COM_MAX_LEN]; // middle-comment string
+        uchar_kt lead_end[COM_MAX_LEN]; // end-comment string
+        uchar_kt  *comment_end = NULL; // where lead_end has been found
         int extra_space = FALSE; // append extra space
         int current_flag;
         int require_blank = FALSE; // requires blank after middle
-        char_u  *p2;
+        uchar_kt  *p2;
 
         // If the comment leader has the start, middle or end flag,
         // it may not be used or may be replaced with the middle leader.
@@ -584,7 +584,7 @@ int open_line(int dir, int flags, int second_line_indent)
                 }
                 else
                 {
-                    lead_repl = (char_u *)"";
+                    lead_repl = (uchar_kt *)"";
                     lead_repl_len = 0;
                 }
 
@@ -643,7 +643,7 @@ int open_line(int dir, int flags, int second_line_indent)
                     {
                         int repl_size = vim_strnsize(lead_repl, lead_repl_len);
                         int old_size = 0;
-                        char_u  *endp = p;
+                        uchar_kt  *endp = p;
                         int l;
 
                         while(old_size < repl_size && p > leader)
@@ -901,7 +901,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(p_extra == NULL)
     {
-        p_extra = (char_u *)""; // append empty line
+        p_extra = (uchar_kt *)""; // append empty line
     }
 
     // concatenate leader and p_extra, if there is a leader
@@ -1173,8 +1173,8 @@ theend:
 ///
 /// If @b include_space is set, include trailing
 /// whitespace while calculating the length.
-int get_leader_len(char_u *line,
-                   char_u **flags,
+int get_leader_len(uchar_kt *line,
+                   uchar_kt **flags,
                    int backward,
                    int include_space)
 {
@@ -1182,12 +1182,12 @@ int get_leader_len(char_u *line,
     int result;
     int got_com = FALSE;
     int found_one;
-    char_u part_buf[COM_MAX_LEN]; // buffer for one option part
-    char_u *string; // pointer to comment string
-    char_u *list;
+    uchar_kt part_buf[COM_MAX_LEN]; // buffer for one option part
+    uchar_kt *string; // pointer to comment string
+    uchar_kt *list;
     int middle_match_len = 0;
-    char_u *prev_list;
-    char_u *saved_flags = NULL;
+    uchar_kt *prev_list;
+    uchar_kt *saved_flags = NULL;
     result = i = 0;
 
     while(ascii_iswhite(line[i])) // leading white space is ignored
@@ -1357,17 +1357,17 @@ int get_leader_len(char_u *line,
 ///
 /// When "flags" is not null, it is set to point to the flags
 /// describing the recognized comment leader.
-int get_last_leader_offset(char_u *line, char_u **flags)
+int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
 {
     int result = -1;
     int i, j;
     int lower_check_bound = 0;
-    char_u *string;
-    char_u *com_leader;
-    char_u *com_flags;
-    char_u *list;
+    uchar_kt *string;
+    uchar_kt *com_leader;
+    uchar_kt *com_flags;
+    uchar_kt *list;
     int found_one;
-    char_u part_buf[COM_MAX_LEN]; // buffer for one option part
+    uchar_kt part_buf[COM_MAX_LEN]; // buffer for one option part
 
     // Repeat to match several nested comment strings.
     i = (int)STRLEN(line);
@@ -1379,7 +1379,7 @@ int get_last_leader_offset(char_u *line, char_u **flags)
 
         for(list = curbuf->b_p_com; *list;)
         {
-            char_u *flags_save = list;
+            uchar_kt *flags_save = list;
             // Get one option part into part_buf[].
             // Advance list to next one. put string at start of string.
             (void)copy_option_part(&list, part_buf, COM_MAX_LEN, ",");
@@ -1441,7 +1441,7 @@ int get_last_leader_offset(char_u *line, char_u **flags)
 
         if(found_one)
         {
-            char_u part_buf2[COM_MAX_LEN]; // buffer for one option part
+            uchar_kt part_buf2[COM_MAX_LEN]; // buffer for one option part
             int len1, len2, off;
             result = i;
 
@@ -1467,7 +1467,7 @@ int get_last_leader_offset(char_u *line, char_u **flags)
 
             for(list = curbuf->b_p_com; *list;)
             {
-                char_u *flags_save = list;
+                uchar_kt *flags_save = list;
                 (void)copy_option_part(&list, part_buf2, COM_MAX_LEN, ",");
 
                 if(flags_save == com_flags)
@@ -1574,7 +1574,7 @@ int plines_win_nofill(win_T *wp, linenr_T lnum, int winheight)
 /// "wp". Does not care about folding, 'wrap' or 'diff'.
 int plines_win_nofold(win_T *wp, linenr_T lnum)
 {
-    char_u *s;
+    uchar_kt *s;
     unsigned int col;
     int width;
     s = ml_get_buf(wp->w_buffer, lnum, FALSE);
@@ -1631,8 +1631,8 @@ int plines_win_col(win_T *wp, linenr_T lnum, long column)
         return lines + 1;
     }
 
-    char_u *line = ml_get_buf(wp->w_buffer, lnum, false);
-    char_u *s = line;
+    uchar_kt *line = ml_get_buf(wp->w_buffer, lnum, false);
+    uchar_kt *s = line;
     colnr_T col = 0;
 
     while(*s != NUL && --column >= 0)
@@ -1704,14 +1704,14 @@ int plines_m_win(win_T *wp, linenr_T first, linenr_T last)
 
 /// Insert string "p" at the cursor position. Stops at a NUL byte.
 /// Handles Replace mode and multi-byte characters.
-void ins_bytes(char_u *p)
+void ins_bytes(uchar_kt *p)
 {
     ins_bytes_len(p, STRLEN(p));
 }
 
 /// Insert string "p" with length "len" at the cursor position.
 /// Handles Replace mode and multi-byte characters.
-void ins_bytes_len(char_u *p, size_t len)
+void ins_bytes_len(uchar_kt *p, size_t len)
 {
     if(has_mbyte)
     {
@@ -1748,7 +1748,7 @@ void ins_bytes_len(char_u *p, size_t len)
 /// convert bytes to a character.
 void ins_char(int c)
 {
-    char_u buf[MB_MAXBYTES + 1];
+    uchar_kt buf[MB_MAXBYTES + 1];
     size_t n = (size_t)(*mb_char2bytes)(c, buf);
 
     // When "c" is 0x100, 0x200, etc. we don't want
@@ -1761,7 +1761,7 @@ void ins_char(int c)
     ins_char_bytes(buf, n);
 }
 
-void ins_char_bytes(char_u *buf, size_t charlen)
+void ins_char_bytes(uchar_kt *buf, size_t charlen)
 {
     // Break tabs if needed.
     if(virtual_active() && curwin->w_cursor.coladd > 0)
@@ -1771,7 +1771,7 @@ void ins_char_bytes(char_u *buf, size_t charlen)
 
     size_t col = (size_t)curwin->w_cursor.col;
     linenr_T lnum = curwin->w_cursor.lnum;
-    char_u *oldp = ml_get(lnum);
+    uchar_kt *oldp = ml_get(lnum);
     size_t linelen = STRLEN(oldp) + 1; // length of old line including NUL
 
     // The lengths default to the values for when not replacing.
@@ -1847,7 +1847,7 @@ void ins_char_bytes(char_u *buf, size_t charlen)
         }
     }
 
-    char_u *newp = (char_u *) xmalloc((size_t)(linelen + newlen - oldlen));
+    uchar_kt *newp = (uchar_kt *) xmalloc((size_t)(linelen + newlen - oldlen));
 
     // Copy bytes before the cursor.
     if(col > 0)
@@ -1856,7 +1856,7 @@ void ins_char_bytes(char_u *buf, size_t charlen)
     }
 
     // Copy bytes after the changed character(s).
-    char_u *p = newp + col;
+    uchar_kt *p = newp + col;
     memmove(p + newlen, oldp + col + oldlen, (size_t)(linelen - col - oldlen));
 
     // Insert or overwrite the new character.
@@ -1896,9 +1896,9 @@ void ins_char_bytes(char_u *buf, size_t charlen)
 /// Insert a string at the cursor position.
 /// Note: Does NOT handle Replace mode.
 /// Caller must have prepared for undo.
-void ins_str(char_u *s)
+void ins_str(uchar_kt *s)
 {
-    char_u *oldp, *newp;
+    uchar_kt *oldp, *newp;
     int newlen = (int)STRLEN(s);
     int oldlen;
     colnr_T col;
@@ -1912,7 +1912,7 @@ void ins_str(char_u *s)
     col = curwin->w_cursor.col;
     oldp = ml_get(lnum);
     oldlen = (int)STRLEN(oldp);
-    newp = (char_u *) xmalloc((size_t)(oldlen + newlen + 1));
+    newp = (uchar_kt *) xmalloc((size_t)(oldlen + newlen + 1));
 
     if(col > 0)
     {
@@ -1954,7 +1954,7 @@ int del_chars(long count, int fixpos)
 {
     int bytes = 0;
     long i;
-    char_u *p;
+    uchar_kt *p;
     int l;
     p = get_cursor_pos_ptr();
 
@@ -1982,7 +1982,7 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
     linenr_T lnum = curwin->w_cursor.lnum;
     colnr_T col = curwin->w_cursor.col;
     bool fixpos = fixpos_arg;
-    char_u *oldp = ml_get(lnum);
+    uchar_kt *oldp = ml_get(lnum);
     colnr_T oldlen = (colnr_T)STRLEN(oldp);
 
     // Can't do anything when the cursor is on the NUL after the line.
@@ -2047,7 +2047,7 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
     // If the old line has been allocated the deletion can be done in the
     // existing line. Otherwise a new line has to be allocated.
     bool was_alloced = ml_line_alloced(); // check if oldp was allocated
-    char_u *newp;
+    uchar_kt *newp;
 
     if(was_alloced)
     {
@@ -2078,13 +2078,13 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
 /// @param fixpos  if TRUE fix the cursor position when done
 void truncate_line(int fixpos)
 {
-    char_u *newp;
+    uchar_kt *newp;
     linenr_T lnum = curwin->w_cursor.lnum;
     colnr_T col = curwin->w_cursor.col;
 
     if(col == 0)
     {
-        newp = vim_strsave((char_u *)"");
+        newp = vim_strsave((uchar_kt *)"");
     }
     else
     {
@@ -2152,7 +2152,7 @@ void del_lines(long nlines, int undo)
 
 int gchar_pos(pos_T *pos)
 {
-    char_u *ptr = ml_get_pos(pos);
+    uchar_kt *ptr = ml_get_pos(pos);
 
     if(has_mbyte)
     {
@@ -2817,7 +2817,7 @@ int is_mouse_key(int c)
 /// Translates the interrupt character for unix to ESC.
 int get_keystroke(void)
 {
-    char_u *buf = NULL;
+    uchar_kt *buf = NULL;
     int buflen = 150;
     int maxlen;
     int len = 0;
@@ -3193,13 +3193,13 @@ static void init_users(void)
 }
 
 /// Function given to ExpandGeneric() to obtain an user names.
-char_u *get_users(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_users(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     init_users();
 
     if(idx < ga_users.ga_len)
     {
-        return ((char_u **)ga_users.ga_data)[idx];
+        return ((uchar_kt **)ga_users.ga_data)[idx];
     }
 
     return NULL;
@@ -3209,7 +3209,7 @@ char_u *get_users(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 /// - 0 if name does not match any user name.
 /// - 1 if name partially matches the beginning of a user name.
 /// - 2 is name fully matches a user name.
-int match_user(char_u *name)
+int match_user(uchar_kt *name)
 {
     int n = (int)STRLEN(name);
     int result = 0;
@@ -3217,12 +3217,12 @@ int match_user(char_u *name)
 
     for(int i = 0; i < ga_users.ga_len; i++)
     {
-        if(STRCMP(((char_u **)ga_users.ga_data)[i], name) == 0)
+        if(STRCMP(((uchar_kt **)ga_users.ga_data)[i], name) == 0)
         {
             return 2; // full match
         }
 
-        if(STRNCMP(((char_u **)ga_users.ga_data)[i], name, n) == 0)
+        if(STRNCMP(((uchar_kt **)ga_users.ga_data)[i], name, n) == 0)
         {
             result = 1; // partial match
         }
@@ -3302,7 +3302,7 @@ void fast_breakcheck(void)
 /// os_call_shell wrapper.
 /// Handles 'verbose', :profile, and v:shell_error.
 /// Invalidates cached tags.
-int call_shell(char_u *cmd, ShellOpts opts, char_u *extra_shell_arg)
+int call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_shell_arg)
 {
     int retval;
     proftime_T wait_time;
@@ -3352,12 +3352,12 @@ int call_shell(char_u *cmd, ShellOpts opts, char_u *extra_shell_arg)
 /// @param  ret_len  length of the stdout
 ///
 /// @return an allocated string, or NULL for error.
-char_u *get_cmd_output(char_u *cmd,
-                       char_u *infile,
+uchar_kt *get_cmd_output(uchar_kt *cmd,
+                       uchar_kt *infile,
                        ShellOpts flags,
                        size_t *ret_len)
 {
-    char_u *buffer = NULL;
+    uchar_kt *buffer = NULL;
 
     if(check_restricted() || check_secure())
     {
@@ -3365,7 +3365,7 @@ char_u *get_cmd_output(char_u *cmd,
     }
 
     // get a name for the temp file
-    char_u *tempname = vim_tempname();
+    uchar_kt *tempname = vim_tempname();
 
     if(tempname == NULL)
     {
@@ -3374,7 +3374,7 @@ char_u *get_cmd_output(char_u *cmd,
     }
 
     // Add the redirection stuff
-    char_u *command = make_filter_cmd(cmd, infile, tempname);
+    uchar_kt *command = make_filter_cmd(cmd, infile, tempname);
 
     // Call the shell to execute the command (errors are ignored).
     // Don't check timestamps here.
@@ -3432,7 +3432,7 @@ done:
 
 /// Free the list of files returned by expand_wildcards()
 /// or other expansion functions.
-void FreeWild(int count, char_u **files)
+void FreeWild(int count, uchar_kt **files)
 {
     if(count <= 0 || files == NULL)
     {

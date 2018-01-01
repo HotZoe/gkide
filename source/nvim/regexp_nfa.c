@@ -247,10 +247,10 @@ static int nfa_classcodes[] =
     NFA_UPPER, NFA_NUPPER
 };
 
-static char_u e_nul_found[] = N_(
+static uchar_kt e_nul_found[] = N_(
                                   "E865: (NFA) Regexp end encountered prematurely");
-static char_u e_misplaced[] = N_("E866: (NFA regexp) Misplaced %c");
-static char_u e_ill_char_class[] = N_(
+static uchar_kt e_misplaced[] = N_("E866: (NFA regexp) Misplaced %c");
+static uchar_kt e_ill_char_class[] = N_(
                                        "E877: (NFA regexp) Invalid character class: %" PRId64);
 
 /* Since the out pointers in the list are always
@@ -286,8 +286,8 @@ typedef struct
         } multi[NSUBEXP];
         struct linepos
         {
-            char_u      *start;
-            char_u      *end;
+            uchar_kt      *start;
+            uchar_kt      *end;
         } line[NSUBEXP];
     } list;
 } regsub_T;
@@ -308,7 +308,7 @@ struct nfa_pim_S
     union
     {
         lpos_T pos;
-        char_u  *ptr;
+        uchar_kt  *ptr;
     } end;                        /* where the match must end */
 };
 
@@ -386,7 +386,7 @@ static int nfa_ll_index = 0;
  */
 static void
 nfa_regcomp_start(
-    char_u *expr,
+    uchar_kt *expr,
     int re_flags                       /* see vim_regcomp() */
 )
 {
@@ -564,12 +564,12 @@ static int nfa_get_regstart(nfa_state_T *start, int depth)
  * else.  If so return a string in allocated memory with what must match after
  * regstart.  Otherwise return NULL.
  */
-static char_u *nfa_get_match_text(nfa_state_T *start)
+static uchar_kt *nfa_get_match_text(nfa_state_T *start)
 {
     nfa_state_T *p = start;
     int len = 0;
-    char_u      *ret;
-    char_u      *s;
+    uchar_kt      *ret;
+    uchar_kt      *s;
 
     if(p->c != NFA_MOPEN)
     {
@@ -634,7 +634,7 @@ static void realloc_post_list(void)
  * Keep in mind that 'ignorecase' applies at execution time, thus [a-z] may
  * need to be interpreted as [a-zA-Z].
  */
-static int nfa_recognize_char_class(char_u *start, char_u *end, int extra_newl)
+static int nfa_recognize_char_class(uchar_kt *start, uchar_kt *end, int extra_newl)
 {
 #   define CLASS_not            0x80
 #   define CLASS_af             0x40
@@ -645,7 +645,7 @@ static int nfa_recognize_char_class(char_u *start, char_u *end, int extra_newl)
 #   define CLASS_o9             0x02
 #   define CLASS_underscore     0x01
     int newl = FALSE;
-    char_u      *p;
+    uchar_kt      *p;
     int config = 0;
 
     if(extra_newl == TRUE)
@@ -1431,9 +1431,9 @@ static int nfa_regatom(void)
     int equiclass;
     int collclass;
     int got_coll_char;
-    char_u      *p;
-    char_u      *endp;
-    char_u      *old_regparse = regparse;
+    uchar_kt      *p;
+    uchar_kt      *endp;
+    uchar_kt      *old_regparse = regparse;
     int extra = 0;
     int emit_range;
     int negated;
@@ -1601,7 +1601,7 @@ static int nfa_regatom(void)
 
         case Magic('~'):
         {
-            char_u      *lp;
+            uchar_kt      *lp;
 
             /* Previous substitute pattern.
              * Generated as "\%(pattern\)". */
@@ -2814,7 +2814,7 @@ nfa_reg(
 }
 
 #ifdef REGEXP_DEBUG
-static char_u code[50];
+static uchar_kt code[50];
 
 static void nfa_set_code(int c)
 {
@@ -3414,7 +3414,7 @@ static FILE *log_fd;
 /*
  * Print the postfix notation of the current regexp.
  */
-static void nfa_postfix_dump(char_u *expr, int retval)
+static void nfa_postfix_dump(uchar_kt *expr, int retval)
 {
     int *p;
     FILE *f;
@@ -3467,7 +3467,7 @@ static void nfa_print_state(FILE *debugf, nfa_state_T *state)
 
 static void nfa_print_state2(FILE *debugf, nfa_state_T *state, garray_T *indent)
 {
-    char_u  *p;
+    uchar_kt  *p;
 
     if(state == NULL)
     {
@@ -3476,12 +3476,12 @@ static void nfa_print_state2(FILE *debugf, nfa_state_T *state, garray_T *indent)
 
     fprintf(debugf, "(%2d)", abs(state->id));
     /* Output indent */
-    p = (char_u *)indent->ga_data;
+    p = (uchar_kt *)indent->ga_data;
 
     if(indent->ga_len >= 3)
     {
         int last = indent->ga_len - 3;
-        char_u save[2];
+        uchar_kt save[2];
         STRNCPY(save, &p[last], 2);
         STRNCPY(&p[last], "+-", 2);
         fprintf(debugf, " %s", p);
@@ -3510,18 +3510,18 @@ static void nfa_print_state2(FILE *debugf, nfa_state_T *state, garray_T *indent)
 
     if(state->out1)
     {
-        ga_concat(indent, (char_u *)"| ");
+        ga_concat(indent, (uchar_kt *)"| ");
     }
     else
     {
-        ga_concat(indent, (char_u *)"  ");
+        ga_concat(indent, (uchar_kt *)"  ");
     }
 
     ga_append(indent, '\0');
     nfa_print_state2(debugf, state->out, indent);
     /* replace last part of indent for state->out1 */
     indent->ga_len -= 3;
-    ga_concat(indent, (char_u *)"  ");
+    ga_concat(indent, (uchar_kt *)"  ");
     ga_append(indent, '\0');
     nfa_print_state2(debugf, state->out1, indent);
     /* shrink indent */
@@ -4895,8 +4895,8 @@ static int sub_equal(regsub_T *sub1, regsub_T *sub2)
     int todo;
     linenr_T s1;
     linenr_T s2;
-    char_u      *sp1;
-    char_u      *sp2;
+    uchar_kt      *sp1;
+    uchar_kt      *sp2;
     todo = sub1->in_use > sub2->in_use ? sub1->in_use : sub2->in_use;
 
     if(REG_MULTI)
@@ -5261,7 +5261,7 @@ addstate(
     nfa_thread_T        *thread;
     lpos_T save_lpos;
     int save_in_use;
-    char_u              *save_ptr;
+    uchar_kt              *save_ptr;
     int i;
     regsub_T            *sub;
     regsubs_T           *subs = subs_arg;
@@ -6484,7 +6484,7 @@ static int failure_chance(nfa_state_T *state, int depth)
  */
 static int skip_to_start(int c, colnr_T *colp)
 {
-    const char_u *const s = cstrchr(regline + *colp, c);
+    const uchar_kt *const s = cstrchr(regline + *colp, c);
 
     if(s == NULL)
     {
@@ -6500,7 +6500,7 @@ static int skip_to_start(int c, colnr_T *colp)
  * Called after skip_to_start() has found regstart.
  * Returns zero for no match, 1 for a match.
  */
-static long find_match_text(colnr_T startcol, int regstart, char_u *match_text)
+static long find_match_text(colnr_T startcol, int regstart, uchar_kt *match_text)
 {
 #define PTR2LEN(x) enc_utf8 ? utf_ptr2len(x) : MB_PTR2LEN(x)
     colnr_T col = startcol;
@@ -6509,8 +6509,8 @@ static long find_match_text(colnr_T startcol, int regstart, char_u *match_text)
     for(;;)
     {
         bool match = true;
-        char_u *s1 = match_text;
-        char_u *s2 = regline + col + regstart_len;  // skip regstart
+        uchar_kt *s1 = match_text;
+        uchar_kt *s2 = regline + col + regstart_len;  // skip regstart
 
         while(*s1)
         {
@@ -8313,7 +8313,7 @@ static long nfa_regtry(nfa_regprog_T *prog, colnr_T col, proftime_T *tm)
 ///
 /// @return <= 0 if there is no match and number of lines contained in the
 /// match otherwise.
-static long nfa_regexec_both(char_u *line, colnr_T startcol, proftime_T *tm)
+static long nfa_regexec_both(uchar_kt *line, colnr_T startcol, proftime_T *tm)
 {
     nfa_regprog_T   *prog;
     long retval = 0L;
@@ -8428,7 +8428,7 @@ theend:
  * Compile a regular expression into internal code for the NFA matcher.
  * Returns the program in allocated space.  Returns NULL for an error.
  */
-static regprog_T *nfa_regcomp(char_u *expr, int re_flags)
+static regprog_T *nfa_regcomp(uchar_kt *expr, int re_flags)
 {
     nfa_regprog_T       *prog = NULL;
     int                 *postfix;
@@ -8553,7 +8553,7 @@ static void nfa_regfree(regprog_T *prog)
 static int
 nfa_regexec_nl(
     regmatch_T *rmp,
-    char_u *line,      /* string to match against */
+    uchar_kt *line,      /* string to match against */
     colnr_T col,       /* column to start looking for match */
     bool line_lbr
 )

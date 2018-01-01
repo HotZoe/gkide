@@ -1907,7 +1907,7 @@ static void win_update(win_T *wp)
             int scr_row = wp->w_winrow + wp->w_height - 1;
 
             // Last line isn't finished: Display "@@@" in the last screen line.
-            screen_puts_len((char_u *)"@@", 2, scr_row,
+            screen_puts_len((uchar_kt *)"@@", 2, scr_row,
                             wp->w_wincol, hl_attr(HLF_AT));
 
             screen_fill(scr_row, scr_row + 1, (int)wp->w_wincol + 2,
@@ -2178,11 +2178,11 @@ static void fold_line(win_T *wp,
                       linenr_T lnum,
                       int row)
 {
-    char_u buf[FOLD_TEXT_LEN];
+    uchar_kt buf[FOLD_TEXT_LEN];
     pos_T *top, *bot;
     linenr_T lnume = lnum + fold_count - 1;
     int len;
-    char_u *text;
+    uchar_kt *text;
     int fdc;
     int col;
     int txtcol;
@@ -2274,7 +2274,7 @@ static void fold_line(win_T *wp,
             }
 
             copy_text_attr(off + col,
-                           (char_u *)"  ",
+                           (uchar_kt *)"  ",
                            len,
                            hl_attr(HLF_FL));
 
@@ -2348,7 +2348,7 @@ static void fold_line(win_T *wp,
         int i;
         int idx;
         int c_len;
-        char_u *p;
+        uchar_kt *p;
         int prev_c = 0; // previous Arabic character
         int prev_c1 = 0; // first composing char for prev_c
 
@@ -2637,7 +2637,7 @@ static void fold_line(win_T *wp,
 }
 
 /// Copy "buf[len]" to ScreenLines["off"] and set attributes to "attr".
-static void copy_text_attr(int off, char_u *buf, int len, int attr)
+static void copy_text_attr(int off, uchar_kt *buf, int len, int attr)
 {
     int i;
     memmove(ScreenLines + off, buf, (size_t)len);
@@ -2660,7 +2660,7 @@ static void copy_text_attr(int off, char_u *buf, int len, int attr)
 /// @param wp
 /// @param closed  TRUE of FALSE
 /// @param lnum    current line number
-static void fill_foldcolumn(char_u *p, win_T *wp, int closed, linenr_T lnum)
+static void fill_foldcolumn(uchar_kt *p, win_T *wp, int closed, linenr_T lnum)
 {
     int i = 0;
     int level;
@@ -2744,19 +2744,19 @@ static int win_line(win_T *wp,
     long vcol = 0; // virtual column (for tabs)
     long vcol_sbr = -1; // virtual column after showbreak
     long vcol_prev = -1; // "vcol" of previous character
-    char_u *line; // current line
-    char_u *ptr; // current position in "line"
+    uchar_kt *line; // current line
+    uchar_kt *ptr; // current position in "line"
     int row; // row in the window, excl w_winrow
     int screen_row; // row on the screen, incl w_winrow
-    char_u extra[18]; // line number and 'fdc' must fit in here
+    uchar_kt extra[18]; // line number and 'fdc' must fit in here
     int n_extra = 0; // number of extra chars
-    char_u *p_extra = NULL; // string of extra chars, plus NUL
-    char_u *p_extra_free = NULL; // p_extra needs to be freed
+    uchar_kt *p_extra = NULL; // string of extra chars, plus NUL
+    uchar_kt *p_extra_free = NULL; // p_extra needs to be freed
     int c_extra = NUL; // extra chars, all the same
     int extra_attr = 0; // attributes when n_extra != 0
 
     // used for p_extra when displaying lcs_eol at end-of-line
-    static char_u *at_end_str = (char_u *)"";
+    static uchar_kt *at_end_str = (uchar_kt *)"";
 
     int lcs_eol_one = lcs_eol; // lcs_eol until it's been used
 
@@ -2765,7 +2765,7 @@ static int win_line(win_T *wp,
     int lcs_prec_todo = lcs_prec;
 
     int saved_n_extra = 0;
-    char_u *saved_p_extra = NULL;
+    uchar_kt *saved_p_extra = NULL;
     int saved_c_extra = 0;
     int saved_char_attr = 0;
     int n_attr = 0; // chars with special attr
@@ -2797,7 +2797,7 @@ static int win_line(win_T *wp,
     bool has_spell = false; // this buffer has spell checking
 
     #define SPWORDLEN    150
-    char_u nextline[SPWORDLEN * 2]; // text with start of the next line
+    uchar_kt nextline[SPWORDLEN * 2]; // text with start of the next line
     int nextlinecol = 0; // column where nextline[] starts
     int nextline_idx = 0; // index in nextline[] where next line starts
     int spell_attr = 0; // attributes desired by spelling
@@ -3235,7 +3235,7 @@ static int win_line(win_T *wp,
 
     if(v > 0)
     {
-        char_u  *prev_ptr = ptr;
+        uchar_kt  *prev_ptr = ptr;
 
         while(vcol < v && *ptr != NUL)
         {
@@ -3863,7 +3863,7 @@ static int win_line(win_T *wp,
                             shl->attr_cur = shl->attr;
 
                             if(cur != NULL
-                               && syn_name2id((char_u *)"Conceal")
+                               && syn_name2id((uchar_kt *)"Conceal")
                                   == cur->hlg_id)
                             {
                                 has_match_conc = v == (long)shl->startcol
@@ -4197,7 +4197,7 @@ static int win_line(win_T *wp,
 
                         p_extra = extra;
                         c = *p_extra;
-                        mb_c = mb_ptr2char_adv((const char_u **)&p_extra);
+                        mb_c = mb_ptr2char_adv((const uchar_kt **)&p_extra);
                         mb_utf8 = (c >= 0x80);
                         n_extra = (int)STRLEN(p_extra);
                         c_extra = NUL;
@@ -4415,8 +4415,8 @@ static int win_line(win_T *wp,
 
                     if(c != 0 && (!has_syntax || can_spell))
                     {
-                        char_u *prev_ptr;
-                        char_u *p;
+                        uchar_kt *prev_ptr;
+                        uchar_kt *p;
                         int len;
                         hlf_T spell_hlf = HLF_COUNT;
 
@@ -4536,7 +4536,7 @@ static int win_line(win_T *wp,
                 if(wp->w_p_lbr && vim_isbreak(c) && !vim_isbreak(*ptr))
                 {
                     int mb_off = has_mbyte ? (*mb_head_off)(line, ptr - 1) : 0;
-                    char_u *p = ptr - (mb_off + 1);
+                    uchar_kt *p = ptr - (mb_off + 1);
 
                     // TODO: is passing p for start of the line OK?
                     n_extra = win_lbr_chartabsize(wp, line, p,
@@ -4639,7 +4639,7 @@ static int win_line(win_T *wp,
                     }
                     else
                     {
-                        char_u *p;
+                        uchar_kt *p;
                         int i;
                         int saved_nextra = n_extra;
 
@@ -4827,7 +4827,7 @@ static int win_line(win_T *wp,
 
                     if(wp->w_p_lbr)
                     {
-                        char_u *p;
+                        uchar_kt *p;
                         c = *p_extra;
                         p = xmalloc(n_extra + 1);
                         memset(p, ' ', n_extra);
@@ -6087,9 +6087,9 @@ static void screen_line(int row,
 
 /// Mirror text "str" for right-left displaying.
 /// Only works for single-byte characters (e.g., numbers).
-void rl_mirror(char_u *str)
+void rl_mirror(uchar_kt *str)
 {
-    char_u *p1, *p2;
+    uchar_kt *p1, *p2;
     int t;
 
     for(p1 = str, p2 = str + STRLEN(str) - 1; p1 < p2; ++p1, --p2)
@@ -6192,7 +6192,7 @@ static void draw_vsep_win(win_T *wp, int row)
 }
 
 /// Get the length of an item as it will be shown in the status line.
-static int status_match_len(expand_T *xp, char_u *s)
+static int status_match_len(expand_T *xp, uchar_kt *s)
 {
     int len = 0;
     int emenu = (xp->xp_context == EXPAND_MENUS
@@ -6216,7 +6216,7 @@ static int status_match_len(expand_T *xp, char_u *s)
 
 /// Return the number of characters that should be skipped in a status match.
 /// These are backslashes used for escaping. Do show backslashes in help tags.
-static int skip_status_match_char(expand_T *xp, char_u *s)
+static int skip_status_match_char(expand_T *xp, uchar_kt *s)
 {
     if((rem_backslash(s) && xp->xp_context != EXPAND_HELP)
        || ((xp->xp_context == EXPAND_MENUS
@@ -6248,26 +6248,26 @@ static int skip_status_match_char(expand_T *xp, char_u *s)
 /// @param showtail
 void win_redr_status_matches(expand_T *xp,
                              int num_matches,
-                             char_u **matches,
+                             uchar_kt **matches,
                              int match,
                              int showtail)
 {
     #define L_MATCH(m)  (showtail ? sm_gettail(matches[m]) : matches[m])
 
     int row;
-    char_u *buf;
+    uchar_kt *buf;
     int len;
     int clen; // length in screen cells
     int fillchar;
     int attr;
     int i;
     int highlight = TRUE;
-    char_u *selstart = NULL;
+    uchar_kt *selstart = NULL;
     int selstart_col = 0;
-    char_u *selend = NULL;
+    uchar_kt *selend = NULL;
     static int first_match = 0;
     int add_left = FALSE;
-    char_u *s;
+    uchar_kt *s;
     int emenu;
     int l;
 
@@ -6495,7 +6495,7 @@ void win_redr_status_matches(expand_T *xp,
 void win_redr_status(win_T *wp)
 {
     int row;
-    char_u *p;
+    uchar_kt *p;
     int len;
     int fillchar;
     int attr;
@@ -6576,7 +6576,7 @@ void win_redr_status(win_T *wp)
 
         if(this_ru_col <= 1)
         {
-            p = (char_u *)"<"; // No room for file name!
+            p = (uchar_kt *)"<"; // No room for file name!
             len = 1;
         }
         else
@@ -6613,7 +6613,7 @@ void win_redr_status(win_T *wp)
                     fillchar,
                     attr);
 
-        if(get_keymap_str(wp, (char_u *)"<%s>", NameBuff, MAXPATHL)
+        if(get_keymap_str(wp, (uchar_kt *)"<%s>", NameBuff, MAXPATHL)
            && this_ru_col - len > (int)(STRLEN(NameBuff) + 1))
         {
             screen_puts(NameBuff,
@@ -6672,8 +6672,8 @@ static void redraw_custom_statusline(win_T *wp)
         // When there is an error disable the statusline, otherwise the
         // display is messed up with errors and a redraw triggers the problem
         // again and again.
-        set_string_option_direct((char_u *)"statusline", -1,
-                                 (char_u *)"",
+        set_string_option_direct((uchar_kt *)"statusline", -1,
+                                 (uchar_kt *)"",
                                  OPT_FREE
                                  | (*wp->w_p_stl != NUL
                                     ? OPT_LOCAL : OPT_GLOBAL), SID_ERROR);
@@ -6722,9 +6722,9 @@ int stl_connected(win_T *wp)
 /// @param len  length of buffer
 ///
 /// @return
-int get_keymap_str(win_T *wp, char_u *fmt, char_u *buf, int len)
+int get_keymap_str(win_T *wp, uchar_kt *fmt, uchar_kt *buf, int len)
 {
-    char_u *p;
+    uchar_kt *p;
 
     if(wp->w_buffer->b_p_iminsert != B_IMODE_LMAP)
     {
@@ -6733,7 +6733,7 @@ int get_keymap_str(win_T *wp, char_u *fmt, char_u *buf, int len)
 
     buf_T *old_curbuf = curbuf;
     win_T *old_curwin = curwin;
-    char_u *s;
+    uchar_kt *s;
     curbuf = wp->w_buffer;
     curwin = wp;
     STRCPY(buf, "b:keymap_name"); // must be writable
@@ -6751,7 +6751,7 @@ int get_keymap_str(win_T *wp, char_u *fmt, char_u *buf, int len)
         }
         else
         {
-            p = (char_u *)"lang";
+            p = (uchar_kt *)"lang";
         }
     }
 
@@ -6782,9 +6782,9 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
     int n;
     int len;
     int fillchar;
-    char_u buf[MAXPATHL];
-    char_u *stl;
-    char_u *p;
+    uchar_kt buf[MAXPATHL];
+    uchar_kt *stl;
+    uchar_kt *p;
     struct stl_hlrec hltab[STL_MAX_ITEM];
     StlClickRecord tabtab[STL_MAX_ITEM];
     int use_sandbox = false;
@@ -6811,7 +6811,7 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
         fillchar = ' ';
         attr = hl_attr(HLF_TPF);
         maxwidth = Columns;
-        use_sandbox = was_set_insecurely((char_u *)"tabline", 0);
+        use_sandbox = was_set_insecurely((uchar_kt *)"tabline", 0);
     }
     else
     {
@@ -6864,7 +6864,7 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
                 attr = 0;
             }
 
-            use_sandbox = was_set_insecurely((char_u *)"rulerformat", 0);
+            use_sandbox = was_set_insecurely((uchar_kt *)"rulerformat", 0);
         }
         else
         {
@@ -6877,7 +6877,7 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
                 stl = p_stl;
             }
 
-            use_sandbox = was_set_insecurely((char_u *)"statusline",
+            use_sandbox = was_set_insecurely((uchar_kt *)"statusline",
                                              *wp->w_p_stl == NUL
                                              ? 0 : OPT_LOCAL);
         }
@@ -6957,7 +6957,7 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
     }
 
     // Make sure to use an empty string instead of p, if p is beyond buf + len.
-    screen_puts(p >= buf + len ? (char_u *)"" : p, row, col, curattr);
+    screen_puts(p >= buf + len ? (uchar_kt *)"" : p, row, col, curattr);
 
     if(wp == NULL)
     {
@@ -6980,7 +6980,7 @@ static void win_redr_custom(win_T *wp, int draw_ruler)
                 tab_page_click_defs[col++] = cur_click_def;
             }
 
-            p = (char_u *) tabtab[n].start;
+            p = (uchar_kt *) tabtab[n].start;
             cur_click_def = tabtab[n].def;
         }
 
@@ -6997,7 +6997,7 @@ theend:
 /// Output a single character directly to the screen and update ScreenLines.
 void screen_putchar(int c, int row, int col, int attr)
 {
-    char_u buf[MB_MAXBYTES + 1];
+    uchar_kt buf[MB_MAXBYTES + 1];
 
     if(has_mbyte)
     {
@@ -7014,7 +7014,7 @@ void screen_putchar(int c, int row, int col, int attr)
 
 /// Get a single character directly from ScreenLines into "bytes[]".
 /// Also return its attribute in *attrp;
-void screen_getbytes(int row, int col, char_u *bytes, int *attrp)
+void screen_getbytes(int row, int col, uchar_kt *bytes, int *attrp)
 {
     unsigned off;
 
@@ -7072,17 +7072,17 @@ static int screen_comp_differs(int off, int *u8cc)
 /// @note
 /// - only outputs within one row, message is truncated at screen boundary!
 /// - if ScreenLines[], row and/or col is invalid, nothing is done.
-void screen_puts(char_u *text, int row, int col, int attr)
+void screen_puts(uchar_kt *text, int row, int col, int attr)
 {
     screen_puts_len(text, -1, row, col, attr);
 }
 
 /// Like screen_puts(), but output "text[len]".
 /// When "len" is -1 output up to a NUL.
-void screen_puts_len(char_u *text, int textlen, int row, int col, int attr)
+void screen_puts_len(uchar_kt *text, int textlen, int row, int col, int attr)
 {
     unsigned off;
-    char_u *ptr = text;
+    uchar_kt *ptr = text;
     int len = textlen;
     int c;
     unsigned max_off;
@@ -7306,7 +7306,7 @@ void screen_puts_len(char_u *text, int textlen, int row, int col, int attr)
             {
                 // This only happens at the end,
                 // display one space next.
-                ptr = (char_u *)" ";
+                ptr = (uchar_kt *)" ";
                 len = -1;
             }
         }
@@ -7561,7 +7561,7 @@ static void next_search_hl(win_T *win,
                 || (shl->rm.endpos[0].lnum == 0
                     && shl->rm.endpos[0].col <= shl->rm.startpos[0].col))
         {
-            char_u *ml;
+            uchar_kt *ml;
             matchcol = shl->rm.startpos[0].col;
             ml = ml_get_buf(shl->buf, lnum, FALSE) + matchcol;
 
@@ -7771,7 +7771,7 @@ static void screen_char(unsigned off, int row, int col)
 
     if(enc_utf8 && ScreenLinesUC[off] != 0)
     {
-        char_u buf[MB_MAXBYTES + 1];
+        uchar_kt buf[MB_MAXBYTES + 1];
 
         // Convert UTF-8 character to bytes and write it.
         buf[utfc_char2bytes(off, buf)] = NUL;
@@ -7861,12 +7861,12 @@ void screen_fill(int start_row,
             // terminal.
             if(start_col > 0 && mb_fix_col(start_col, row) != start_col)
             {
-                screen_puts_len((char_u *)" ", 1, row, start_col - 1, 0);
+                screen_puts_len((uchar_kt *)" ", 1, row, start_col - 1, 0);
             }
 
             if(end_col < screen_Columns && mb_fix_col(end_col, row) != end_col)
             {
-                screen_puts_len((char_u *)" ", 1, row, end_col, 0);
+                screen_puts_len((uchar_kt *)" ", 1, row, end_col, 0);
             }
         }
 
@@ -8058,7 +8058,7 @@ void screenalloc(bool doclear)
     int i;
     sattr_T *new_ScreenAttrs;
     unsigned *new_LineOffset;
-    char_u *new_LineWraps;
+    uchar_kt *new_LineWraps;
     StlClickDefinition *new_tab_page_click_defs;
     static bool entered = false; // avoid recursiveness
     static bool done_outofmem_msg = false;
@@ -8148,7 +8148,7 @@ retry:
         xmalloc((size_t)(Rows * sizeof(unsigned)));
 
     new_LineWraps =
-        xmalloc((size_t)(Rows * sizeof(char_u)));
+        xmalloc((size_t)(Rows * sizeof(uchar_kt)));
 
     new_tab_page_click_defs =
         xcalloc((size_t) Columns, sizeof(*new_tab_page_click_defs));
@@ -9032,7 +9032,7 @@ int showmode(void)
                     {
                         MSG_PUTS_ATTR(_(" Arabic"), attr);
                     }
-                    else if(get_keymap_str(curwin, (char_u *)" (%s)",
+                    else if(get_keymap_str(curwin, (uchar_kt *)" (%s)",
                                            NameBuff, MAXPATHL))
                     {
                         MSG_PUTS_ATTR(NameBuff, attr);
@@ -9175,7 +9175,7 @@ static void recording_mode(int attr)
 
     if(!shortmess(SHM_RECORDING))
     {
-        char_u s[4];
+        uchar_kt s[4];
         vim_snprintf((char *)s, ARRAY_SIZE(s), " @%c", Recording);
         MSG_PUTS_ATTR(s, attr);
     }
@@ -9198,7 +9198,7 @@ static void draw_tabline(void)
     int attr_sel = hl_attr(HLF_TPS);
     int attr_nosel = hl_attr(HLF_TP);
     int attr_fill = hl_attr(HLF_TPF);
-    char_u *p;
+    uchar_kt *p;
     int room;
     int use_sep_chars = (t_colors < 8);
 
@@ -9238,8 +9238,8 @@ static void draw_tabline(void)
 
         if(did_emsg)
         {
-            set_string_option_direct((char_u *)"tabline", -1,
-                                     (char_u *)"", OPT_FREE, SID_ERROR);
+            set_string_option_direct((uchar_kt *)"tabline", -1,
+                                     (uchar_kt *)"", OPT_FREE, SID_ERROR);
         }
 
         did_emsg |= saved_did_emsg;
@@ -9330,7 +9330,7 @@ static void draw_tabline(void)
 
                 if(modified)
                 {
-                    screen_puts_len((char_u *)"+", 1, 0, col++, attr);
+                    screen_puts_len((uchar_kt *)"+", 1, 0, col++, attr);
                 }
 
                 screen_putchar(' ', 0, col++, attr);
@@ -9593,8 +9593,8 @@ static void win_redr_ruler(win_T *wp, int always)
 
         if(called_emsg)
         {
-            set_string_option_direct((char_u *)"rulerformat", -1,
-                                     (char_u *)"", OPT_FREE, SID_ERROR);
+            set_string_option_direct((uchar_kt *)"rulerformat", -1,
+                                     (uchar_kt *)"", OPT_FREE, SID_ERROR);
         }
 
         called_emsg |= save_called_emsg;
@@ -9659,7 +9659,7 @@ static void win_redr_ruler(win_T *wp, int always)
 
 #define RULER_BUF_LEN     70
 
-        char_u buffer[RULER_BUF_LEN];
+        uchar_kt buffer[RULER_BUF_LEN];
 
         // Some sprintfs return the length, some return a pointer.
         // To avoid portability problems we use strlen() here.

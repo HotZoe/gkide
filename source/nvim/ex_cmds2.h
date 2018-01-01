@@ -7,7 +7,7 @@
 
 #include "nvim/ex_docmd.h"
 
-typedef void (*DoInRuntimepathCB)(char_u *, void *);
+typedef void (*DoInRuntimepathCB)(uchar_kt *, void *);
 
 // flags for check_changed()
 #define CCGD_AW         1    ///< do autowrite if buffer was changed

@@ -391,7 +391,7 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        if(ml_replace((linenr_T)lnum, (char_u *)lines[i], false) == FAIL)
+        if(ml_replace((linenr_T)lnum, (uchar_kt *)lines[i], false) == FAIL)
         {
             api_set_error(err, kErrorTypeException, "Failed to replace line");
             goto end;
@@ -413,7 +413,7 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        if(ml_append((linenr_T)lnum, (char_u *)lines[i], 0, false) == FAIL)
+        if(ml_append((linenr_T)lnum, (uchar_kt *)lines[i], 0, false) == FAIL)
         {
             api_set_error(err, kErrorTypeException, "Failed to insert line");
             goto end;
@@ -692,7 +692,7 @@ FUNC_API_SINCE(1)
     // Using aucmd_*: autocommands will be executed by rename_buffer
     aco_save_T aco;
     aucmd_prepbuf(&aco, buf);
-    int ren_ret = rename_buffer((char_u *) name.data);
+    int ren_ret = rename_buffer((uchar_kt *) name.data);
     aucmd_restbuf(&aco);
 
     if(try_end(err))
@@ -850,7 +850,7 @@ FUNC_API_SINCE(1)
         col_end = MAXCOL;
     }
 
-    int hlg_id = syn_name2id((char_u *)(hl_group.data ? hl_group.data : ""));
+    int hlg_id = syn_name2id((uchar_kt *)(hl_group.data ? hl_group.data : ""));
 
     src_id = bufhl_add_hl(buf,
                           (int)src_id, hlg_id,

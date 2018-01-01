@@ -27,7 +27,7 @@
 
 // Special Farsi text messages
 
-const char_u farsi_text_1[] =
+const uchar_kt farsi_text_1[] =
 {
     YE_,
     _SIN,
@@ -55,7 +55,7 @@ const char_u farsi_text_1[] =
     '\0'
 };
 
-const char_u farsi_text_2[] =
+const uchar_kt farsi_text_2[] =
 {
     YE_,
     _SIN,
@@ -94,7 +94,7 @@ const char_u farsi_text_2[] =
     '\0'
 };
 
-const char_u farsi_text_3[] =
+const uchar_kt farsi_text_3[] =
 {
     DAL,
     WAW,
@@ -171,7 +171,7 @@ const char_u farsi_text_3[] =
     '\0'
 };
 
-const char_u farsi_text_5[] =
+const uchar_kt farsi_text_5[] =
 {
     ' ', YE_, _SIN, RE, ALEF_, _FE, '\0'
 };
@@ -185,9 +185,9 @@ const char_u farsi_text_5[] =
 /// @param c The character to convert.
 ///
 /// @return Farsi character converted to a _X or _X_ type.
-static char_u toF_Xor_X_(int c)
+static uchar_kt toF_Xor_X_(int c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -341,9 +341,9 @@ static char_u toF_Xor_X_(int c)
 /// @param c The character to convert.
 ///
 /// @return Character converted to the Farsi capital leter.
-static char_u toF_TyA(char_u c)
+static uchar_kt toF_TyA(uchar_kt c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -590,9 +590,9 @@ static bool F_is_TyC_TyD(int c)
 /// @param c The character to convert.
 ///
 /// @return The character converted into a leading type.
-static char_u toF_TyB(int c)
+static uchar_kt toF_TyB(int c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -642,7 +642,7 @@ static char_u toF_TyB(int c)
 
         default:
             assert(c >= 0 && c <= UCHAR_MAX);
-            tempc = (char_u)c;
+            tempc = (uchar_kt)c;
     }
 
     return tempc;
@@ -651,7 +651,7 @@ static char_u toF_TyB(int c)
 /// Overwrite the current redo and cursor characters + left adjust
 ///
 /// @param c
-static void put_curr_and_l_to_X(char_u c)
+static void put_curr_and_l_to_X(uchar_kt c)
 {
     int tempc;
 
@@ -694,7 +694,7 @@ static void put_curr_and_l_to_X(char_u c)
     put_and_redo(c);
 }
 
-static void put_and_redo(char_u c)
+static void put_and_redo(uchar_kt c)
 {
     pchar_cursor(c);
     AppendCharToRedobuff(K_BS);
@@ -705,7 +705,7 @@ static void put_and_redo(char_u c)
 static void chg_c_toX_orX(void)
 {
     int curc;
-    char_u tempc;
+    uchar_kt tempc;
 
     switch((curc = gchar_cursor()))
     {
@@ -868,7 +868,7 @@ static void chg_c_toX_orX(void)
 /// Change the char. under the cursor to a _X_ or X_ type
 static void chg_c_to_X_orX_(void)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(gchar_cursor())
     {
@@ -940,7 +940,7 @@ static void chg_c_to_X_or_X(void)
         {
             tempc = _HE_;
             dec_cursor();
-            put_and_redo((char_u)tempc);
+            put_and_redo((uchar_kt)tempc);
             return;
         }
 
@@ -949,7 +949,7 @@ static void chg_c_to_X_or_X(void)
 
     if((tempc = toF_Xor_X_(tempc)) != 0)
     {
-        put_and_redo((char_u)tempc);
+        put_and_redo((uchar_kt)tempc);
     }
 }
 
@@ -1030,7 +1030,7 @@ static void chg_l_to_X_orX_(void)
 
     if(tempc)
     {
-        put_and_redo((char_u)tempc);
+        put_and_redo((uchar_kt)tempc);
     }
 
     if(p_ri)
@@ -1046,7 +1046,7 @@ static void chg_l_to_X_orX_(void)
 /// Change the character left to the cursor to a X or _X type
 static void chg_l_toXor_X(void)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     if((curwin->w_cursor.col != 0)
        && (curwin->w_cursor.col + 1 == (colnr_T)STRLEN(get_cursor_line_ptr())))
@@ -1137,7 +1137,7 @@ static void chg_l_toXor_X(void)
 static void chg_r_to_Xor_X_(void)
 {
     int tempc;
-    char_u c;
+    uchar_kt c;
 
     if(curwin->w_cursor.col)
     {
@@ -1557,7 +1557,7 @@ int fkmap(int c)
                 case _HE_:
                 case _TA:
                 case _ZA:
-                    put_curr_and_l_to_X(toF_TyA((char_u)tempc));
+                    put_curr_and_l_to_X(toF_TyA((uchar_kt)tempc));
                     break;
 
                 case _AYN:
@@ -1598,7 +1598,7 @@ int fkmap(int c)
                         inc_cursor();
                     }
 
-                    put_curr_and_l_to_X((char_u)tempc);
+                    put_curr_and_l_to_X((uchar_kt)tempc);
                     break;
 
                 case _GHAYN:
@@ -1639,7 +1639,7 @@ int fkmap(int c)
                         inc_cursor();
                     }
 
-                    put_curr_and_l_to_X((char_u)tempc);
+                    put_curr_and_l_to_X((uchar_kt)tempc);
                     break;
 
                 case _YE:
@@ -1682,7 +1682,7 @@ int fkmap(int c)
                         inc_cursor();
                     }
 
-                    put_curr_and_l_to_X((char_u)tempc);
+                    put_curr_and_l_to_X((uchar_kt)tempc);
                     break;
             }
 
@@ -2288,9 +2288,9 @@ int fkmap(int c)
 /// @param c The character to convert.
 ///
 /// @return The non-leading Farsi character converted to a leading type.
-static char_u toF_leading(char_u c)
+static uchar_kt toF_leading(uchar_kt c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -2422,9 +2422,9 @@ static char_u toF_leading(char_u c)
 /// @param c The character to convert.
 ///
 /// @return The Farsi character converted into a right joining type
-static char_u toF_Rjoin(char_u c)
+static uchar_kt toF_Rjoin(uchar_kt c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -2560,7 +2560,7 @@ static char_u toF_Rjoin(char_u c)
 /// @param c The character to check.
 ///
 /// @return true if the character can join via its left edj.
-static bool canF_Ljoin(char_u c)
+static bool canF_Ljoin(uchar_kt c)
 {
     switch(c)
     {
@@ -2636,7 +2636,7 @@ static bool canF_Ljoin(char_u c)
 /// @param c
 ///
 /// @return true if the character can join via its right edj.
-static bool canF_Rjoin(char_u c)
+static bool canF_Rjoin(uchar_kt c)
 {
     switch(c)
     {
@@ -2664,7 +2664,7 @@ static bool canF_Rjoin(char_u c)
 /// @param c
 ///
 /// @return true if the character is a terminating type.
-static bool F_isterm(char_u c)
+static bool F_isterm(uchar_kt c)
 {
     switch(c)
     {
@@ -2692,9 +2692,9 @@ static bool F_isterm(char_u c)
 /// @param c The character to convert.
 ///
 /// @return The character converted into an ending type.
-static char_u toF_ending(char_u c)
+static uchar_kt toF_ending(uchar_kt c)
 {
-    char_u tempc;
+    uchar_kt tempc;
 
     switch(c)
     {
@@ -2834,7 +2834,7 @@ static char_u toF_ending(char_u c)
 /// Convert the Farsi 3342 standard into Farsi VIM.
 static void conv_to_pvim(void)
 {
-    char_u *ptr;
+    uchar_kt *ptr;
     int lnum, llen, i;
 
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
@@ -2884,7 +2884,7 @@ static void conv_to_pvim(void)
 /// Convert the Farsi VIM into Farsi 3342 standard.
 static void conv_to_pstd(void)
 {
-    char_u *ptr;
+    uchar_kt *ptr;
     int lnum, llen, i;
     // Following line contains Farsi encoded character.
     do_cmdline_cmd("%s/\232/\202\231/ge");
@@ -2909,10 +2909,10 @@ static void conv_to_pstd(void)
 ///
 /// @param buf
 /// @param len
-static void lrswapbuf(char_u *buf, int len)
+static void lrswapbuf(uchar_kt *buf, int len)
 {
-    char_u *s, *e;
-    char_u c;
+    uchar_kt *s, *e;
+    uchar_kt c;
     s = buf;
     e = buf + len - 1;
 
@@ -2931,7 +2931,7 @@ static void lrswapbuf(char_u *buf, int len)
 /// @param ibuf
 ///
 /// @return The buffer with the characters swapped.
-char_u *lrswap(char_u *ibuf)
+uchar_kt *lrswap(uchar_kt *ibuf)
 {
     if((ibuf != NULL) && (*ibuf != NUL))
     {
@@ -2947,7 +2947,7 @@ char_u *lrswap(char_u *ibuf)
 /// @param .
 ///
 /// @return The buffer with all Farsi characters swapped.
-char_u *lrFswap(char_u *cmdbuf, int len)
+uchar_kt *lrFswap(uchar_kt *cmdbuf, int len)
 {
     int i, cnt;
 
@@ -2985,9 +2985,9 @@ char_u *lrFswap(char_u *cmdbuf, int len)
 ///
 /// @return The buffer with the characters in the search path and substitute
 ///         section reversed.
-char_u *lrF_sub(char_u *ibuf)
+uchar_kt *lrF_sub(uchar_kt *ibuf)
 {
-    char_u *p, *ep;
+    uchar_kt *p, *ep;
     int i, cnt;
     p = ibuf;
 
@@ -3006,7 +3006,7 @@ char_u *lrF_sub(char_u *ibuf)
     lrFswap(ibuf, (int)(p - ibuf));
 
     // Now find the boundary of the substitute section
-    if((ep = (char_u *)strrchr((char *)++p, '/')) != NULL)
+    if((ep = (uchar_kt *)strrchr((char *)++p, '/')) != NULL)
     {
         cnt = (int)(ep - p);
     }
@@ -3121,7 +3121,7 @@ int cmdl_fkmap(int c)
                 case _NOON:
                 case _HE:
                 case _HE_:
-                    cmd_pchar(toF_TyA((char_u)tempc), AT_CURSOR);
+                    cmd_pchar(toF_TyA((uchar_kt)tempc), AT_CURSOR);
                     break;
 
                 case _AYN_:

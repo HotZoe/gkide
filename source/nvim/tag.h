@@ -36,8 +36,8 @@
 typedef struct
 {
 
-    char_u *tn_tags;          ///< value of 'tags' when starting
-    char_u *tn_np;            ///< current position in tn_tags
+    uchar_kt *tn_tags;          ///< value of 'tags' when starting
+    uchar_kt *tn_np;            ///< current position in tn_tags
     int tn_did_filefind_init;
     int tn_hf_idx;
     void *tn_search_ctx;

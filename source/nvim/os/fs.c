@@ -114,7 +114,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param len  Length of @b buf.
 ///
 /// @return OK for success, FAIL for failure.
-int os_dirname(char_u *buf, size_t len)
+int os_dirname(uchar_kt *buf, size_t len)
 FUNC_ATTR_NONNULL_ALL
 {
     int error_number;
@@ -156,7 +156,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Check if the given path is a directory or not.
 ///
 /// @return @b true if @b fname is a directory.
-bool os_isdir(const char_u *name)
+bool os_isdir(const uchar_kt *name)
 FUNC_ATTR_NONNULL_ALL
 {
     int32_t mode = os_getperm((const char *)name);
@@ -283,7 +283,7 @@ FUNC_ATTR_NONNULL_ALL
 /// - is absolute.
 ///
 /// @return `false` otherwise.
-bool os_can_exe(const char_u *name, char_u **abspath, bool use_path)
+bool os_can_exe(const uchar_kt *name, uchar_kt **abspath, bool use_path)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     bool no_path = !use_path || path_is_absolute_path(name);
@@ -307,7 +307,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         bool ok = is_executable((char *)name) || is_executable_ext((char *)name, pathext);
     #else
         // Must have path separator, cannot execute files in the current directory.
-        const bool ok = ((const char_u *)gettail_dir((const char *)name) != name
+        const bool ok = ((const uchar_kt *)gettail_dir((const char *)name) != name
                          && is_executable((char *)name));
     #endif
 
@@ -391,7 +391,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out] abspath  Path of the executable, if found and not NULL.
 ///
 /// @return true if @b name is an executable inside @b $PATH.
-static bool is_executable_in_path(const char_u *name, char_u **abspath)
+static bool is_executable_in_path(const uchar_kt *name, uchar_kt **abspath)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     const char *path_env = os_getenv("PATH");
@@ -448,7 +448,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             if(abspath != NULL)
             {
                 // Caller asked for a copy of the path.
-                *abspath = save_absolute_path((char_u *)buf);
+                *abspath = save_absolute_path((uchar_kt *)buf);
             }
 
             rv = true;
@@ -825,7 +825,7 @@ int os_fchown(int fd, uv_uid_t owner, uv_gid_t group)
 /// Check if a path exists.
 ///
 /// @return true if @b path exists
-bool os_path_exists(const char_u *path)
+bool os_path_exists(const uchar_kt *path)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
@@ -860,7 +860,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(r == 0)
     {
-        return os_isdir((char_u *)name) ? 2 : 1;
+        return os_isdir((uchar_kt *)name) ? 2 : 1;
     }
 
     return 0;
@@ -869,7 +869,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Rename a file or directory.
 ///
 /// @return OK for success, FAIL for failure.
-int os_rename(const char_u *path, const char_u *new_path)
+int os_rename(const uchar_kt *path, const uchar_kt *new_path)
 FUNC_ATTR_NONNULL_ALL
 {
     int r;
@@ -912,14 +912,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     // We're done when it's "/" or "c:/".
     const size_t dirlen = strlen(dir);
     char *const curdir = xmemdupz(dir, dirlen);
-    char *const past_head = (char *) get_past_head((char_u *) curdir);
+    char *const past_head = (char *) get_past_head((uchar_kt *) curdir);
     char *e = curdir + dirlen;
     const char *const real_end = e;
     const char past_head_save = *past_head;
 
-    while(!os_isdir((char_u *) curdir))
+    while(!os_isdir((uchar_kt *) curdir))
     {
-        e = (char *) path_tail_with_sep((char_u *) curdir);
+        e = (char *) path_tail_with_sep((uchar_kt *) curdir);
 
         if(e <= past_head)
         {

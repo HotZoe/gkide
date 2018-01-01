@@ -69,8 +69,8 @@ typedef int idx_T;
 /// Not for sl_sal! One replacement: from "ft_from" to "ft_to".
 typedef struct fromto_S
 {
-    char_u  *ft_from;
-    char_u  *ft_to;
+    uchar_kt  *ft_from;
+    uchar_kt  *ft_to;
 } fromto_T;
 
 /// Info from "SAL" entries in ".aff" file used in sl_sal.
@@ -78,11 +78,11 @@ typedef struct fromto_S
 /// Note that "sm_oneof" and "sm_rules" point into sm_lead.
 typedef struct salitem_S
 {
-    char_u *sm_lead;    ///< leading letters
+    uchar_kt *sm_lead;    ///< leading letters
     int sm_leadlen;     ///< length of "sm_lead"
-    char_u *sm_oneof;   ///< letters from () or NULL
-    char_u *sm_rules;   ///< rules like ^, $, priority
-    char_u *sm_to;      ///< replacement.
+    uchar_kt *sm_oneof;   ///< letters from () or NULL
+    uchar_kt *sm_rules;   ///< rules like ^, $, priority
+    uchar_kt *sm_to;      ///< replacement.
     int *sm_lead_w;     ///< wide character copy of "sm_lead"
     int *sm_oneof_w;    ///< wide character copy of "sm_oneof"
     int *sm_to_w;       ///< wide character copy of "sm_to"
@@ -115,20 +115,20 @@ typedef struct slang_S slang_T;
 struct slang_S
 {
     slang_T *sl_next;  ///< next language
-    char_u *sl_name;   ///< language name "en", "en.rare", "nl", etc.
-    char_u *sl_fname;  ///< name of .spl file
+    uchar_kt *sl_name;   ///< language name "en", "en.rare", "nl", etc.
+    uchar_kt *sl_fname;  ///< name of .spl file
     bool sl_add;       ///< true if it's a .add file.
 
-    char_u *sl_fbyts;  ///< case-folded word bytes
+    uchar_kt *sl_fbyts;  ///< case-folded word bytes
     idx_T *sl_fidxs;   ///< case-folded word indexes
-    char_u *sl_kbyts;  ///< keep-case word bytes
+    uchar_kt *sl_kbyts;  ///< keep-case word bytes
     idx_T *sl_kidxs;   ///< keep-case word indexes
-    char_u *sl_pbyts;  ///< prefix tree word bytes
+    uchar_kt *sl_pbyts;  ///< prefix tree word bytes
     idx_T *sl_pidxs;   ///< prefix tree word indexes
 
-    char_u *sl_info;         ///< infotext string or NULL
-    char_u sl_regions[17];   ///< table with up to 8 region names plus NUL
-    char_u *sl_midword;      ///< MIDWORD string or NULL
+    uchar_kt *sl_info;         ///< infotext string or NULL
+    uchar_kt sl_regions[17];   ///< table with up to 8 region names plus NUL
+    uchar_kt *sl_midword;      ///< MIDWORD string or NULL
     hashtab_T sl_wordcount;  ///< hashtable with word count, wordcount_T
 
     int sl_compmax;          ///< COMPOUNDWORDMAX (default: MAXWLEN)
@@ -138,11 +138,11 @@ struct slang_S
     garray_T sl_comppat;     ///< CHECKCOMPOUNDPATTERN items
     regprog_T *sl_compprog;  ///< COMPOUNDRULE turned into a regexp progrm
                              ///< (NULL when no compounding)
-    char_u *sl_comprules;      ///< all COMPOUNDRULE concatenated (or NULL)
-    char_u *sl_compstartflags; ///< flags for first compound word
-    char_u *sl_compallflags;   ///< all flags for compound words
+    uchar_kt *sl_comprules;      ///< all COMPOUNDRULE concatenated (or NULL)
+    uchar_kt *sl_compstartflags; ///< flags for first compound word
+    uchar_kt *sl_compallflags;   ///< all flags for compound words
     bool sl_nobreak;           ///< When true: no spaces between words
-    char_u *sl_syllable;       ///< SYLLABLE repeatable chars or NULL
+    uchar_kt *sl_syllable;       ///< SYLLABLE repeatable chars or NULL
     garray_T sl_syl_items;     ///< syllable items
 
     int sl_prefixcnt;          ///< number of items in "sl_prefprog"
@@ -173,7 +173,7 @@ struct slang_S
 
     // Info from the .sug file. Loaded on demand.
     time_t sl_sugtime;  ///< timestamp for .sug file
-    char_u *sl_sbyts;   ///< soundfolded word bytes
+    uchar_kt *sl_sbyts;   ///< soundfolded word bytes
     idx_T *sl_sidxs;    ///< soundfolded word indexes
     buf_T *sl_sugbuf;   ///< buffer with word number table
     bool sl_sugloaded;  ///< true when .sug file was loaded or failed to load
@@ -211,8 +211,8 @@ typedef struct
 {
     bool st_isw[256];      ///< flags: is word char
     bool st_isu[256];      ///< flags: is uppercase char
-    char_u st_fold[256];   ///< chars: folded case
-    char_u st_upper[256];  ///< chars: upper case
+    uchar_kt st_fold[256];   ///< chars: folded case
+    uchar_kt st_upper[256];  ///< chars: upper case
 } spelltab_T;
 
 /// For finding suggestions:
@@ -249,23 +249,23 @@ typedef struct trystate_S
     int ts_score;            ///< score
     idx_T ts_arridx;         ///< index in tree array, start of node
     short ts_curi;           ///< index in list of child nodes
-    char_u ts_fidx;          ///< index in fword[], case-folded bad word
-    char_u ts_fidxtry;       ///< ts_fidx at which bytes may be changed
-    char_u ts_twordlen;      ///< valid length of tword[]
-    char_u ts_prefixdepth;   ///< stack depth for end of prefix or
+    uchar_kt ts_fidx;          ///< index in fword[], case-folded bad word
+    uchar_kt ts_fidxtry;       ///< ts_fidx at which bytes may be changed
+    uchar_kt ts_twordlen;      ///< valid length of tword[]
+    uchar_kt ts_prefixdepth;   ///< stack depth for end of prefix or
                              ///< PFD_PREFIXTREE or PFD_NOPREFIX
-    char_u ts_flags;         ///< TSF_ flags
-    char_u ts_tcharlen;      ///< number of bytes in tword character
-    char_u ts_tcharidx;      ///< current byte index in tword character
-    char_u ts_isdiff;        ///< DIFF_ values
-    char_u ts_fcharstart;    ///< index in fword where badword char started
-    char_u ts_prewordlen;    ///< length of word in "preword[]"
-    char_u ts_splitoff;      ///< index in "tword" after last split
-    char_u ts_splitfidx;     ///< "ts_fidx" at word split
-    char_u ts_complen;       ///< nr of compound words used
-    char_u ts_compsplit;     ///< index for "compflags" where word was spit
-    char_u ts_save_badflags; ///< su_badflags saved here
-    char_u ts_delidx;        ///< index in fword for char that was deleted,
+    uchar_kt ts_flags;         ///< TSF_ flags
+    uchar_kt ts_tcharlen;      ///< number of bytes in tword character
+    uchar_kt ts_tcharidx;      ///< current byte index in tword character
+    uchar_kt ts_isdiff;        ///< DIFF_ values
+    uchar_kt ts_fcharstart;    ///< index in fword where badword char started
+    uchar_kt ts_prewordlen;    ///< length of word in "preword[]"
+    uchar_kt ts_splitoff;      ///< index in "tword" after last split
+    uchar_kt ts_splitfidx;     ///< "ts_fidx" at word split
+    uchar_kt ts_complen;       ///< nr of compound words used
+    uchar_kt ts_compsplit;     ///< index for "compflags" where word was spit
+    uchar_kt ts_save_badflags; ///< su_badflags saved here
+    uchar_kt ts_delidx;        ///< index in fword for char that was deleted,
                              ///< valid when "ts_flags" has TSF_DIDDEL
 } trystate_T;
 
@@ -297,7 +297,7 @@ typedef struct trystate_S
 extern slang_T *first_lang;
 
 /// file used for "zG" and "zW"
-extern char_u *int_wordlist;
+extern uchar_kt *int_wordlist;
 
 extern spelltab_T spelltab;
 extern int did_set_spelltab;

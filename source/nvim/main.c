@@ -88,13 +88,13 @@ typedef struct
     char *use_vimrc;                  ///< vimrc from -u argument
     int n_commands;                   ///< number of commands from + or -c
     char *commands[MAX_ARG_CMDS];     ///< commands from + or -c arg
-    char_u cmds_tofree[MAX_ARG_CMDS]; ///< commands that need free()
+    uchar_kt cmds_tofree[MAX_ARG_CMDS]; ///< commands that need free()
     int n_pre_commands;               ///< number of commands from --cmd
     char *pre_commands[MAX_ARG_CMDS]; ///< commands from --cmd argument
 
     int edit_type;              ///< type of editing to do
-    char_u *tagname;            ///< tag from -t argument
-    char_u *use_ef;             ///< 'errorfile' from -q argument
+    uchar_kt *tagname;            ///< tag from -t argument
+    uchar_kt *use_ef;             ///< 'errorfile' from -q argument
 
     int want_full_screen;       ///< full screen on startup
     bool input_isatty;          ///< stdin is a terminal
@@ -229,8 +229,8 @@ int main(int argc, char **argv)
     // various parameters passed between main() and other functions.
     main_args_st params;
 
-    char_u *cwd = NULL; // current workding dir on startup
-    char_u *fname = NULL; // file name from command line
+    uchar_kt *cwd = NULL; // current workding dir on startup
+    uchar_kt *fname = NULL; // file name from command line
 
     time_init();
     init_params(&params, argc, argv);
@@ -742,7 +742,7 @@ static void init_locale(void)
 
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
-    char_u *p = (char_u *)vim_getenv(ENV_GKIDE_NVIM_LOCALE);
+    uchar_kt *p = (uchar_kt *)vim_getenv(ENV_GKIDE_NVIM_LOCALE);
 
     if(p != NULL && *p != NUL)
     {
@@ -775,7 +775,7 @@ static void command_line_scan(main_args_st *parmp)
     int had_minmin = FALSE; // found "--" argument
     int c;
     long n;
-    char_u *p = NULL;
+    uchar_kt *p = NULL;
 
     while(argc > 0)
     {
@@ -1034,7 +1034,7 @@ static void command_line_scan(main_args_st *parmp)
                     if(argv[0][argv_idx])
                     {
                         // "-q{errorfile}"
-                        parmp->use_ef = (char_u *)argv[0] + argv_idx;
+                        parmp->use_ef = (uchar_kt *)argv[0] + argv_idx;
                         argv_idx = -1;
                     }
                     else if(argc > 1)
@@ -1084,7 +1084,7 @@ static void command_line_scan(main_args_st *parmp)
                     if(argv[0][argv_idx])
                     {
                         // "-t{tag}"
-                        parmp->tagname = (char_u *)argv[0] + argv_idx;
+                        parmp->tagname = (uchar_kt *)argv[0] + argv_idx;
                         argv_idx = -1;
                     }
                     else
@@ -1128,7 +1128,7 @@ static void command_line_scan(main_args_st *parmp)
 
                     // "-w{number}" set window height
                     // "-w {scriptout}" write to script
-                    if(ascii_isdigit(((char_u *)argv[0])[argv_idx]))
+                    if(ascii_isdigit(((uchar_kt *)argv[0])[argv_idx]))
                     {
                         n = get_number_arg(argv[0], &argv_idx, 10);
                         set_option_value("window", n, NULL, 0);
@@ -1254,7 +1254,7 @@ static void command_line_scan(main_args_st *parmp)
 
                     case 'q':
                         // "-q {errorfile}" QuickFix mode
-                        parmp->use_ef = (char_u *)argv[0];
+                        parmp->use_ef = (uchar_kt *)argv[0];
                         break;
 
                     case 'i':
@@ -1289,7 +1289,7 @@ static void command_line_scan(main_args_st *parmp)
 
                     case 't':
                         //"-t {tag}"
-                        parmp->tagname = (char_u *)argv[0];
+                        parmp->tagname = (uchar_kt *)argv[0];
                         break;
 
                     case 'u':
@@ -1305,7 +1305,7 @@ static void command_line_scan(main_args_st *parmp)
 
                         // "-w {nr}" 'window' value
                         // "-w {scriptout}" append to script file
-                        if(ascii_isdigit(*((char_u *)argv[0])))
+                        if(ascii_isdigit(*((uchar_kt *)argv[0])))
                         {
                             argv_idx = 0;
                             n = get_number_arg(argv[0], &argv_idx, 10);
@@ -1353,7 +1353,7 @@ static void command_line_scan(main_args_st *parmp)
             parmp->edit_type = EDIT_FILE;
             // Add the file to the global argument list.
             ga_grow(&global_alist.al_ga, 1);
-            p = vim_strsave((char_u *)argv[0]);
+            p = vim_strsave((uchar_kt *)argv[0]);
 
             if(parmp->diff_mode
                && os_isdir(p)
@@ -1361,7 +1361,7 @@ static void command_line_scan(main_args_st *parmp)
                && !os_isdir(alist_name(&GARGLIST[0])))
             {
                 char *fn = (char *)path_tail(alist_name(&GARGLIST[0]));
-                char_u *r = (char_u *)concat_fnames((char *)p, fn, TRUE);
+                uchar_kt *r = (uchar_kt *)concat_fnames((char *)p, fn, TRUE);
                 xfree(p);
                 p = r;
             }
@@ -1516,12 +1516,12 @@ FUNC_ATTR_NONNULL_ALL
     assert(gkide_sys_home != NULL);
 
     set_vim_var_string(VV_PROGPATH, exepath, -1);
-    set_vim_var_string(VV_PROGNAME, (char *)path_tail((char_u *)exename), -1);
+    set_vim_var_string(VV_PROGNAME, (char *)path_tail((uchar_kt *)exename), -1);
 }
 
 /// Get filename from command line, if any.
-static char_u *get_fname(main_args_st *FUNC_ARGS_UNUSED_MAYBE(parmp),
-                         char_u *FUNC_ARGS_UNUSED_MAYBE(cwd))
+static uchar_kt *get_fname(main_args_st *FUNC_ARGS_UNUSED_MAYBE(parmp),
+                         uchar_kt *FUNC_ARGS_UNUSED_MAYBE(cwd))
 {
 #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
     // Expand wildcards in file names.
@@ -1572,13 +1572,13 @@ static void load_plugins(void)
 {
     if(p_lpl)
     {
-        source_runtime((char_u *)"plugin/**/*.vim", DIP_ALL | DIP_NOAFTER);
+        source_runtime((uchar_kt *)"plugin/**/*.vim", DIP_ALL | DIP_NOAFTER);
         TIME_MSG("loading plugins");
 
         ex_packloadall(NULL);
         TIME_MSG("loading packages");
 
-        source_runtime((char_u *)"plugin/**/*.vim", DIP_ALL | DIP_AFTER);
+        source_runtime((uchar_kt *)"plugin/**/*.vim", DIP_ALL | DIP_AFTER);
         TIME_MSG("loading after plugins");
     }
 }
@@ -1591,7 +1591,7 @@ static void handle_quickfix(main_args_st *paramp)
     {
         if(paramp->use_ef != NULL)
         {
-            set_string_option_direct((char_u *)"ef",
+            set_string_option_direct((uchar_kt *)"ef",
                                      -1,
                                      paramp->use_ef,
                                      OPT_FREE,
@@ -1612,7 +1612,7 @@ static void handle_quickfix(main_args_st *paramp)
 
 /// Need to jump to the tag before executing the '-c command'.
 /// Makes "vim -c '/return' -t main" work.
-static void handle_tag(char_u *tagname)
+static void handle_tag(uchar_kt *tagname)
 {
     if(tagname != NULL)
     {
@@ -1875,7 +1875,7 @@ static void create_windows(main_args_st *parmp)
 
 /// If opened more than one window, start editing files in the other
 /// windows. make_windows() has already opened the windows.
-static void edit_buffers(main_args_st *parmp, char_u *cwd)
+static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
 {
     int i;
     int arg_idx; // index in argument list
@@ -2031,7 +2031,7 @@ static void exe_pre_commands(main_args_st *parmp)
     if(cnt > 0)
     {
         curwin->w_cursor.lnum = 0; // just in case..
-        sourcing_name = (char_u *)_("pre-vimrc command line");
+        sourcing_name = (uchar_kt *)_("pre-vimrc command line");
         current_SID = SID_CMDARG;
 
         for(i = 0; i < cnt; ++i)
@@ -2060,7 +2060,7 @@ static void exe_commands(main_args_st *parmp)
         curwin->w_cursor.lnum = 0;
     }
 
-    sourcing_name = (char_u *)"command line";
+    sourcing_name = (uchar_kt *)"command line";
     current_SID = SID_CARG;
 
     for(i = 0; i < parmp->n_commands; ++i)
@@ -2118,7 +2118,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return do_exrc;
     }
 
-    char_u *user_vimrc = (char_u *)stdpaths_user_conf_subpath("init.vim");
+    uchar_kt *user_vimrc = (uchar_kt *)stdpaths_user_conf_subpath("init.vim");
 
     if(do_source(user_vimrc, true, kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
     {
@@ -2126,7 +2126,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         if(do_exrc)
         {
-            do_exrc = (path_full_compare((char_u *)VIMRC_FILE,
+            do_exrc = (path_full_compare((uchar_kt *)VIMRC_FILE,
                                          user_vimrc,
                                          false) != kEqualFiles);
         }
@@ -2163,15 +2163,15 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             vimrc[dir_len] = PATHSEP;
             memmove(vimrc + dir_len + 1, path_tail, sizeof(path_tail));
 
-            if(do_source((char_u *) vimrc, true,
+            if(do_source((uchar_kt *) vimrc, true,
                          kLoadSftNvimrc|kLoadSfsUsr) != FAIL)
             {
                 do_exrc = p_exrc;
 
                 if(do_exrc)
                 {
-                    do_exrc = (path_full_compare((char_u *)VIMRC_FILE,
-                                                 (char_u *)vimrc,
+                    do_exrc = (path_full_compare((uchar_kt *)VIMRC_FILE,
+                                                 (uchar_kt *)vimrc,
                                                  false) != kEqualFiles);
                 }
 
@@ -2208,7 +2208,7 @@ FUNC_ATTR_NONNULL_ALL
         if(!(strcmp(parmp->use_vimrc, "NONE") == 0
              || strcmp(parmp->use_vimrc, "NORC") == 0))
         {
-            if(do_source((char_u *)parmp->use_vimrc,
+            if(do_source((uchar_kt *)parmp->use_vimrc,
                          FALSE, kLoadSftNvimrc|kLoadSfsUsr) != OK)
             {
                 EMSG2(_("E282: Cannot read from \"%s\""), parmp->use_vimrc);
@@ -2218,7 +2218,7 @@ FUNC_ATTR_NONNULL_ALL
     else if(!silent_mode)
     {
         // Get system wide defaults, if the file name is defined.
-        (void)do_source((char_u *)SYSINIT_NVIMRC,
+        (void)do_source((uchar_kt *)SYSINIT_NVIMRC,
                         false, kLoadSftNvimrc|kLoadSfsSys);
 
         if(do_user_initialization())
@@ -2237,7 +2237,7 @@ FUNC_ATTR_NONNULL_ALL
         #endif
                 secure = p_secure;
 
-            if(do_source((char_u *)VIMRC_FILE, true,
+            if(do_source((uchar_kt *)VIMRC_FILE, true,
                          kLoadSftNvimrc|kLoadSfsUsr) == FAIL)
             {
             #if defined(UNIX)
@@ -2251,7 +2251,7 @@ FUNC_ATTR_NONNULL_ALL
                     secure = 0;
                 }
             #endif
-                (void)do_source((char_u *)EXRC_FILE, false, kLoadSftAuto);
+                (void)do_source((uchar_kt *)EXRC_FILE, false, kLoadSftAuto);
             }
         }
 
@@ -2295,9 +2295,9 @@ static int process_env(char *env, bool is_viminit)
             check_and_set_usrnvimrc(NULL);
         }
 
-        char_u *save_sourcing_name = sourcing_name;
+        uchar_kt *save_sourcing_name = sourcing_name;
         linenr_T save_sourcing_lnum = sourcing_lnum;
-        sourcing_name = (char_u *)env;
+        sourcing_name = (uchar_kt *)env;
         sourcing_lnum = 0;
 
         scid_T save_sid = current_SID;
@@ -2340,7 +2340,7 @@ static bool file_owned(const char *fname)
 /// @param str     string to append to the primary error message, or NULL
 static void mainerr(const char *errstr, const char *str)
 {
-    char *prgname = (char *)path_tail((char_u *)argv0);
+    char *prgname = (char *)path_tail((uchar_kt *)argv0);
     signal_stop(); // kill us with CTRL-C here, if you like
 
     mch_errmsg(prgname);

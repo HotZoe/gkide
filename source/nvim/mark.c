@@ -572,7 +572,7 @@ pos_T *getnextmark(pos_T *startpos, int dir, int begin_line)
 /// until the mark is used to avoid a long startup delay.
 static void fname2fnum(xfmark_T *fm)
 {
-    char_u *p;
+    uchar_kt *p;
 
     if(fm->fname != NULL)
     {
@@ -585,7 +585,7 @@ static void fname2fnum(xfmark_T *fm)
     #endif
         {
             int len;
-            expand_env((char_u *)"~/", NameBuff, MAXPATHL);
+            expand_env((uchar_kt *)"~/", NameBuff, MAXPATHL);
             len = (int)STRLEN(NameBuff);
             STRLCPY(NameBuff + len, fm->fname + 2, MAXPATHL - len);
         }
@@ -609,7 +609,7 @@ static void fname2fnum(xfmark_T *fm)
 void fmarks_check_names(buf_T *buf)
 {
     int i;
-    char_u *name = buf->b_ffname;
+    uchar_kt *name = buf->b_ffname;
 
     if(buf->b_ffname == NULL)
     {
@@ -630,7 +630,7 @@ void fmarks_check_names(buf_T *buf)
     }
 }
 
-static void fmarks_check_one(xfmark_T *fm, char_u *name, buf_T *buf)
+static void fmarks_check_one(xfmark_T *fm, uchar_kt *name, buf_T *buf)
 {
     if(fm->fmark.fnum == 0
        && fm->fname != NULL
@@ -705,7 +705,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Get name of file from a filemark.
 /// When it's in the current buffer, return the text at the mark.
 /// Returns an allocated string.
-char_u *fm_getname(fmark_T *fmark, int lead_len)
+uchar_kt *fm_getname(fmark_T *fmark, int lead_len)
 {
     if(fmark->fnum == curbuf->b_fnum) // current buffer
     {
@@ -717,14 +717,14 @@ char_u *fm_getname(fmark_T *fmark, int lead_len)
 
 /// Return the line at mark "mp".  Truncate to fit in window.
 /// The returned string has been allocated.
-static char_u *mark_line(pos_T *mp, int lead_len)
+static uchar_kt *mark_line(pos_T *mp, int lead_len)
 {
-    char_u *s, *p;
+    uchar_kt *s, *p;
     int len;
 
     if(mp->lnum == 0 || mp->lnum > curbuf->b_ml.ml_line_count)
     {
-        return vim_strsave((char_u *)"-invalid-");
+        return vim_strsave((uchar_kt *)"-invalid-");
     }
 
     assert(Columns >= 0 && (size_t)Columns <= SIZE_MAX);
@@ -751,8 +751,8 @@ static char_u *mark_line(pos_T *mp, int lead_len)
 void do_marks(exarg_T *eap)
 {
     int i;
-    char_u *name;
-    char_u *arg = eap->arg;
+    uchar_kt *name;
+    uchar_kt *arg = eap->arg;
 
     if(arg != NULL && *arg == NUL)
     {
@@ -808,9 +808,9 @@ void do_marks(exarg_T *eap)
 /// @param name
 /// @param current  in current file
 static void show_one_mark(int c,
-                          char_u *arg,
+                          uchar_kt *arg,
                           pos_T *p,
-                          char_u *name,
+                          uchar_kt *name,
                           int current)
 {
     static int did_title = FALSE;
@@ -877,7 +877,7 @@ static void show_one_mark(int c,
 /// ":delmarks[!] [marks]"
 void ex_delmarks(exarg_T *eap)
 {
-    char_u *p;
+    uchar_kt *p;
     int from, to;
     int i;
     int lower;
@@ -1000,7 +1000,7 @@ void ex_delmarks(exarg_T *eap)
 void ex_jumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
-    char_u *name;
+    uchar_kt *name;
     cleanup_jumplist();
 
     // Highlight title
@@ -1068,7 +1068,7 @@ void ex_clearjumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 void ex_changes(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
-    char_u *name;
+    uchar_kt *name;
 
     // Highlight title
     MSG_PUTS_TITLE(_("\nchange line  col text"));
@@ -1917,7 +1917,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     if(lp->col > 0 || lp->coladd > 1)
     {
-        const char_u *const p = ml_get_buf(buf, lp->lnum, false);
+        const uchar_kt *const p = ml_get_buf(buf, lp->lnum, false);
         lp->col -= (*mb_head_off)(p, p + lp->col);
 
         // Reset "coladd" when the cursor would be

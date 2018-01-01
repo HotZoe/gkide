@@ -97,14 +97,14 @@ Array mode_style_array(void)
 /// @param what SHAPE_CURSOR or SHAPE_MOUSE ('mouseshape')
 ///
 /// @returns error message for an illegal option, NULL otherwise.
-char_u *parse_shape_opt(int what)
+uchar_kt *parse_shape_opt(int what)
 {
-    char_u *modep;
-    char_u *colonp;
-    char_u *commap;
-    char_u *slashp;
-    char_u *p;
-    char_u *endp;
+    uchar_kt *modep;
+    uchar_kt *colonp;
+    uchar_kt *commap;
+    uchar_kt *slashp;
+    uchar_kt *p;
+    uchar_kt *endp;
     int idx = 0; // init for GCC
     int all_idx;
     int len;
@@ -120,7 +120,7 @@ char_u *parse_shape_opt(int what)
 
         if(*p_guicursor == NUL)
         {
-            modep = (char_u *)"a:block-blinkon0";
+            modep = (uchar_kt *)"a:block-blinkon0";
         }
 
         while(*modep != NUL)
@@ -129,12 +129,12 @@ char_u *parse_shape_opt(int what)
 
             if(colonp == NULL)
             {
-                return (char_u *)N_("E545: Missing colon");
+                return (uchar_kt *)N_("E545: Missing colon");
             }
 
             if(colonp == modep)
             {
-                return (char_u *)N_("E546: Illegal mode");
+                return (uchar_kt *)N_("E546: Illegal mode");
             }
 
             commap = vim_strchr(modep, ',');
@@ -175,7 +175,7 @@ char_u *parse_shape_opt(int what)
                         if(idx == SHAPE_IDX_COUNT
                            || (shape_table[idx].used_for & what) == 0)
                         {
-                            return (char_u *)N_("E546: Illegal mode");
+                            return (uchar_kt *)N_("E546: Illegal mode");
                         }
 
                         if(len == 2 && modep[0] == 'v' && modep[1] == 'e')
@@ -238,7 +238,7 @@ char_u *parse_shape_opt(int what)
 
                             if(!ascii_isdigit(*p))
                             {
-                                return (char_u *)N_("E548: digit expected");
+                                return (uchar_kt *)N_("E548: digit expected");
                             }
 
                             int n = getdigits_int(&p);
@@ -248,7 +248,7 @@ char_u *parse_shape_opt(int what)
                             {
                                 if(n == 0)
                                 {
-                                    return (char_u *)N_("E549: Illegal percentage");
+                                    return (uchar_kt *)N_("E549: Illegal percentage");
                                 }
 
                                 if(round == 2)

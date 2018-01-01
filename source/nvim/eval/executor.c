@@ -114,12 +114,12 @@ FUNC_ATTR_NONNULL_ALL
                     char numbuf[NUMBUFLEN];
 
                     char *const s =
-                        (char *)concat_str((const char_u *)tvs,
-                                           (const char_u *)tv_get_string_buf(tv2,
+                        (char *)concat_str((const uchar_kt *)tvs,
+                                           (const uchar_kt *)tv_get_string_buf(tv2,
                                                                              numbuf));
                     tv_clear(tv1);
                     tv1->v_type = VAR_STRING;
-                    tv1->vval.v_string = (char_u *)s;
+                    tv1->vval.v_string = (uchar_kt *)s;
                 }
 
                 return OK;

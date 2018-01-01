@@ -65,7 +65,7 @@
 #define ASCII_ISALNUM(c)   (ASCII_ISALPHA(c) || ascii_isdigit(c))
 
 /// Returns empty string if it is NULL.
-#define EMPTY_IF_NULL(x)   ((x) ? (x) : (char_u *)"")
+#define EMPTY_IF_NULL(x)   ((x) ? (x) : (uchar_kt *)"")
 
 /// Adjust chars in a language according to 'langmap' option.
 /// NOTE that there is no noticeable overhead if 'langmap' is not set.
@@ -95,7 +95,7 @@
 
 /// vim_isbreak() is used very often if 'linebreak' is set,
 /// use a macro to make it work fast.
-#define vim_isbreak(c)    (breakat_flags[(char_u)(c)])
+#define vim_isbreak(c)    (breakat_flags[(uchar_kt)(c)])
 
 // no CR-LF translation
 #define WRITEBIN    "wb"
@@ -131,18 +131,18 @@
 #define MB_PTR2LEN(p)      mb_ptr2len(p)
 
 /// Advance multi-byte pointer, skip over composing chars.
-#define mb_ptr_adv(p)      (p += mb_ptr2len((char_u *)p))
+#define mb_ptr_adv(p)      (p += mb_ptr2len((uchar_kt *)p))
 
 /// Advance multi-byte pointer, do not skip over composing chars.
 #define mb_cptr_adv(p)     (p += utf_ptr2len(p))
 
 /// Backup multi-byte pointer. Only use with "p" > "s" !
-#define mb_ptr_back(s, p)  (p -= mb_head_off((char_u *)s, (char_u *)p - 1) + 1)
+#define mb_ptr_back(s, p)  (p -= mb_head_off((uchar_kt *)s, (uchar_kt *)p - 1) + 1)
 
 /// get length of multi-byte char, not including composing chars
 #define MB_CPTR2LEN(p)     utf_ptr2len(p)
 
-#define MB_COPY_CHAR(f, t) mb_copy_char((const char_u **)(&f), &t);
+#define MB_COPY_CHAR(f, t) mb_copy_char((const uchar_kt **)(&f), &t);
 
 #define MB_CHARLEN(p)      mb_charlen(p)
 #define MB_CHAR2LEN(c)     mb_char2len(c)

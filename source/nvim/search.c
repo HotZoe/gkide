@@ -78,8 +78,8 @@ static struct spat spats[2] = {
 };
 
 /// last character searched for
-static char_u lastc[2] = {NUL, NUL};
-static char_u lastc_bytes[MB_MAXBYTES + 1];
+static uchar_kt lastc[2] = {NUL, NUL};
+static uchar_kt lastc_bytes[MB_MAXBYTES + 1];
 
 static int last_idx = 0;        ///< index in spats[] for RE_LAST
 static int lastcdir = FORWARD;  ///< last direction of character search
@@ -91,7 +91,7 @@ static struct spat saved_spats[2];
 static int saved_last_idx = 0;
 static int saved_no_hlsearch = 0;
 
-static char_u *mr_pattern = NULL;      ///< pattern used by search_regcomp()
+static uchar_kt *mr_pattern = NULL;      ///< pattern used by search_regcomp()
 static int mr_pattern_alloced = FALSE; ///< mr_pattern was allocated
 
 /// Type used by find_pattern_in_path() to remember
@@ -99,7 +99,7 @@ static int mr_pattern_alloced = FALSE; ///< mr_pattern was allocated
 typedef struct SearchedFile
 {
     FILE *fp;        ///< File pointer
-    char_u *name;    ///< Full name of file
+    uchar_kt *name;    ///< Full name of file
     linenr_T lnum;   ///< Line we were up to in file
     int matched;     ///< Found a match in this file
 } SearchedFile;
@@ -120,7 +120,7 @@ typedef struct SearchedFile
 /// - options & SEARCH_KEEP: keep previous search pattern
 ///
 /// @returns FAIL if failed, OK otherwise.
-int search_regcomp(char_u *pat,
+int search_regcomp(uchar_kt *pat,
                    int pat_save,
                    int pat_use,
                    int options,
@@ -215,7 +215,7 @@ int search_regcomp(char_u *pat,
 }
 
 /// Get search pattern used by search_regcomp().
-char_u *get_search_pat(void)
+uchar_kt *get_search_pat(void)
 {
     return mr_pattern;
 }
@@ -225,12 +225,12 @@ char_u *get_search_pat(void)
 ///
 /// @todo
 /// move reverse_text() to strings.c
-char_u *reverse_text(char_u *s)
+uchar_kt *reverse_text(uchar_kt *s)
 FUNC_ATTR_NONNULL_RET
 {
     // Reverse the pattern.
     size_t len = STRLEN(s);
-    char_u *rev = xmalloc(len + 1);
+    uchar_kt *rev = xmalloc(len + 1);
     size_t rev_i = len;
 
     for(size_t s_i = 0; s_i < len; ++s_i)
@@ -253,7 +253,7 @@ FUNC_ATTR_NONNULL_RET
     return rev;
 }
 
-void save_re_pat(int idx, char_u *pat, int magic)
+void save_re_pat(int idx, uchar_kt *pat, int magic)
 {
     if(spats[idx].pat != pat)
     {
@@ -341,13 +341,13 @@ void free_search_patterns(void)
 
 /// Return TRUE when case should be ignored for search pattern "pat".
 /// Uses the 'ignorecase' and 'smartcase' options.
-int ignorecase(char_u *pat)
+int ignorecase(uchar_kt *pat)
 {
     return ignorecase_opt(pat, p_ic, p_scs);
 }
 
 /// As ignorecase() put pass the "ic" and "scs" flags.
-int ignorecase_opt(char_u *pat, int ic_in, int scs)
+int ignorecase_opt(uchar_kt *pat, int ic_in, int scs)
 {
     int ic = ic_in;
 
@@ -365,9 +365,9 @@ int ignorecase_opt(char_u *pat, int ic_in, int scs)
 }
 
 /// Return TRUE if pattern @b pat has an uppercase character.
-int pat_has_uppercase(char_u *pat)
+int pat_has_uppercase(uchar_kt *pat)
 {
-    char_u *p = pat;
+    uchar_kt *p = pat;
 
     while(*p != NUL)
     {
@@ -431,7 +431,7 @@ int last_csearch_until(void)
     return last_t_cmd == TRUE;
 }
 
-void set_last_csearch(int c, char_u *s, int len)
+void set_last_csearch(int c, uchar_kt *s, int len)
 {
     *lastc = c;
     lastc_bytelen = len;
@@ -456,7 +456,7 @@ void set_csearch_until(int t_cmd)
     last_t_cmd = t_cmd;
 }
 
-char_u *last_search_pat(void)
+uchar_kt *last_search_pat(void)
 {
     return spats[last_idx].pat;
 }
@@ -471,7 +471,7 @@ void reset_search_dir(void)
 
 /// Set the last search pattern. For ":let @/ =" and ShaDa file.
 /// Also set the saved search pattern, so that this works in an autocommand.
-void set_last_search_pat(const char_u *s, int idx, int magic, int setlast)
+void set_last_search_pat(const uchar_kt *s, int idx, int magic, int setlast)
 {
     free_spat(&spats[idx]);
 
@@ -482,7 +482,7 @@ void set_last_search_pat(const char_u *s, int idx, int magic, int setlast)
     }
     else
     {
-        spats[idx].pat = (char_u *) xstrdup((char *) s);
+        spats[idx].pat = (uchar_kt *) xstrdup((char *) s);
     }
 
     spats[idx].timestamp = os_time();
@@ -538,7 +538,7 @@ void last_pat_prog(regmmatch_T *regmatch)
     }
 
     ++emsg_off; // So it doesn't beep if bad expr
-    (void)search_regcomp((char_u *)"", 0, last_idx, SEARCH_KEEP, regmatch);
+    (void)search_regcomp((uchar_kt *)"", 0, last_idx, SEARCH_KEEP, regmatch);
     --emsg_off;
 }
 
@@ -584,7 +584,7 @@ int searchit(win_T *win,
              buf_T *buf,
              pos_T *pos,
              int dir,
-             char_u *pat,
+             uchar_kt *pat,
              long count,
              int options,
              int pat_use,
@@ -594,7 +594,7 @@ int searchit(win_T *win,
     int found;
     linenr_T lnum; // no init to shut up Apollo cc
     regmmatch_T regmatch;
-    char_u *ptr;
+    uchar_kt *ptr;
     colnr_T matchcol;
     lpos_T endpos;
     lpos_T matchpos;
@@ -731,7 +731,7 @@ int searchit(win_T *win,
                     // "lnum" may be past end of buffer for "\n\zs".
                     if(lnum + matchpos.lnum > buf->b_ml.ml_line_count)
                     {
-                        ptr = (char_u *)"";
+                        ptr = (uchar_kt *)"";
                     }
                     else
                     {
@@ -1044,7 +1044,7 @@ int searchit(win_T *win,
 
             if(!shortmess(SHM_SEARCH) && (options & SEARCH_MSG))
             {
-                give_warning((char_u *)_(dir == BACKWARD
+                give_warning((uchar_kt *)_(dir == BACKWARD
                                          ? top_bot_msg : bot_top_msg),
                              true);
             }
@@ -1162,20 +1162,20 @@ static int first_submatch(regmmatch_T *rp)
 /// 0 for failure, 1 for found, 2 for found and line offset added.
 int do_search(oparg_T *oap,
               int dirc,
-              char_u *pat,
+              uchar_kt *pat,
               long count,
               int options,
               proftime_T *tm)
 {
     pos_T pos; // position of the last match
-    char_u *searchstr;
+    uchar_kt *searchstr;
     struct soffset old_off;
     int retval; // Return value
-    char_u *p;
+    uchar_kt *p;
     long c;
-    char_u *dircp;
-    char_u *strcopy = NULL;
-    char_u *ps;
+    uchar_kt *dircp;
+    uchar_kt *strcopy = NULL;
+    uchar_kt *ps;
 
     // A line offset is not remembered, this is vi compatible.
     if(spats[0].off.line && vim_strchr(p_cpo, CPO_LINEOFF) != NULL)
@@ -1261,7 +1261,7 @@ int do_search(oparg_T *oap,
             else
             {
                 // make search_regcomp() use spats[RE_SEARCH].pat
-                searchstr = (char_u *)"";
+                searchstr = (uchar_kt *)"";
             }
         }
 
@@ -1343,8 +1343,8 @@ int do_search(oparg_T *oap,
            && !cmd_silent
            && msg_silent == 0)
         {
-            char_u *msgbuf;
-            char_u *trunc;
+            uchar_kt *msgbuf;
+            uchar_kt *trunc;
 
             if(*searchstr == NUL)
             {
@@ -1408,7 +1408,7 @@ int do_search(oparg_T *oap,
                 // left, but do reverse the text.
                 if(curwin->w_p_rl && *curwin->w_p_rlc == 's')
                 {
-                    char_u *r = reverse_text(trunc != NULL ? trunc : msgbuf);
+                    uchar_kt *r = reverse_text(trunc != NULL ? trunc : msgbuf);
                     xfree(trunc);
                     trunc = r;
                 }
@@ -1615,11 +1615,11 @@ end_do_search:
 ///
 /// @return
 /// OK for success, or FAIL if no line found.
-int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, char_u *pat)
+int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, uchar_kt *pat)
 {
     linenr_T start = 0;
-    char_u *ptr;
-    char_u *p;
+    uchar_kt *ptr;
+    uchar_kt *p;
 
     if(buf->b_ml.ml_line_count == 0)
     {
@@ -1638,7 +1638,7 @@ int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, char_u *pat)
 
                 if(!shortmess(SHM_SEARCH))
                 {
-                    give_warning((char_u *)_(top_bot_msg), true);
+                    give_warning((uchar_kt *)_(top_bot_msg), true);
                 }
             }
             else
@@ -1655,7 +1655,7 @@ int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, char_u *pat)
 
                 if(!shortmess(SHM_SEARCH))
                 {
-                    give_warning((char_u *)_(bot_top_msg), true);
+                    give_warning((uchar_kt *)_(bot_top_msg), true);
                 }
             }
             else
@@ -1722,7 +1722,7 @@ int searchc(cmdarg_T *cap, int t_cmd)
     int dir = cap->arg; // TRUE for searching forward
     long count = cap->count1; // repeat count
     int col;
-    char_u *p;
+    uchar_kt *p;
     int len;
     int stop = TRUE;
 
@@ -1892,7 +1892,7 @@ pos_T *findmatch(oparg_T *oap, int initc)
 /// Return FALSE if "col" is zero. Update "*prevcol" to the column
 /// of the previous character, unless "prevcol" is NULL.
 /// Handles multibyte string correctly.
-static int check_prevcol(char_u *linep, int col, int ch, int *prevcol)
+static int check_prevcol(uchar_kt *linep, int col, int ch, int *prevcol)
 {
     --col;
 
@@ -1911,10 +1911,10 @@ static int check_prevcol(char_u *linep, int col, int ch, int *prevcol)
 
 /// Raw string start is found at linep[startpos.col - 1].
 /// Return true if the matching end can be found between startpos and endpos.
-static int find_rawstring_end(char_u *linep, pos_T *startpos, pos_T *endpos)
+static int find_rawstring_end(uchar_kt *linep, pos_T *startpos, pos_T *endpos)
 {
-    char_u *p;
-    char_u *delim_copy;
+    uchar_kt *p;
+    uchar_kt *delim_copy;
     size_t delim_len;
     linenr_T lnum;
     int found = false;
@@ -1931,7 +1931,7 @@ static int find_rawstring_end(char_u *linep, pos_T *startpos, pos_T *endpos)
 
     for(lnum = startpos->lnum; lnum <= endpos->lnum; ++lnum)
     {
-        char_u *line = ml_get(lnum);
+        uchar_kt *line = ml_get(lnum);
 
         for(p = line + (lnum == startpos->lnum
                         ? startpos->col + 1 : 0); *p; ++p)
@@ -1991,8 +1991,8 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
     int backwards = false; // init for gcc
     int raw_string = false; // search for raw string
     int inquote = false; // true when inside quotes
-    char_u *linep; // pointer to current line
-    char_u *ptr;
+    uchar_kt *linep; // pointer to current line
+    uchar_kt *ptr;
     int do_quotes; // check for quotes in current line
     int at_start; // do_quotes value at start position
     int hash_dir = 0; // Direction searched for # things
@@ -2284,7 +2284,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
 
     // This is just guessing: when 'rightleft' is set, search for a matching
     // paren/brace in the other direction.
-    if(curwin->w_p_rl && vim_strchr((char_u *)"()[]{}<>", initc) != NULL)
+    if(curwin->w_p_rl && vim_strchr((uchar_kt *)"()[]{}<>", initc) != NULL)
     {
         backwards = !backwards;
     }
@@ -2684,7 +2684,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                 // For Lisp skip over backslashed (), {} and [].
                 // (actually, we skip #\( et al)
                 if(curbuf->b_p_lisp
-                   && vim_strchr((char_u *)"(){}[]", c) != NULL
+                   && vim_strchr((uchar_kt *)"(){}[]", c) != NULL
                    && pos.col > 1
                    && check_prevcol(linep, pos.col, '\\', NULL)
                    && check_prevcol(linep, pos.col - 1, '#', NULL))
@@ -2745,9 +2745,9 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
 ///
 /// @todo
 /// skip strings.
-static int check_linecomment(char_u *line)
+static int check_linecomment(uchar_kt *line)
 {
-    char_u  *p;
+    uchar_kt  *p;
     p = line;
 
     // skip Lispish one-line comments
@@ -2758,7 +2758,7 @@ static int check_linecomment(char_u *line)
             int in_str = FALSE; // inside of string
             p = line; // scan from start
 
-            while((p = vim_strpbrk(p, (char_u *)"\";")) != NULL)
+            while((p = vim_strpbrk(p, (uchar_kt *)"\";")) != NULL)
             {
                 if(*p == '"')
                 {
@@ -2829,7 +2829,7 @@ void showmatch(int c)
     long save_siso;
     int save_state;
     colnr_T save_dollar_vcol;
-    char_u *p;
+    uchar_kt *p;
 
     // Only show match for chars in the 'matchpairs' option.
 
@@ -2993,9 +2993,9 @@ int findsent(int dir, long count)
 
         while((c = gchar_pos(&pos)) == ' ' || c == '\t'
               || (dir == BACKWARD
-                  && vim_strchr((char_u *)".!?)]\"'", c) != NULL))
+                  && vim_strchr((uchar_kt *)".!?)]\"'", c) != NULL))
         {
-            if(vim_strchr((char_u *)".!?", c) != NULL)
+            if(vim_strchr((uchar_kt *)".!?", c) != NULL)
             {
                 // Only skip over a '.', '!' and '?' once.
                 if(found_dot)
@@ -3048,7 +3048,7 @@ int findsent(int dir, long count)
                         break;
                     }
                 }
-                while(vim_strchr((char_u *)")]\"'",
+                while(vim_strchr((uchar_kt *)")]\"'",
                                  c = gchar_pos(&tpos)) != NULL);
 
                 if(c == -1
@@ -3199,9 +3199,9 @@ bool findpar(bool *pincl,
 }
 
 /// check if the string 's' is a nroff macro that is in option 'opt'
-static int inmacro(char_u *opt, char_u *s)
+static int inmacro(uchar_kt *opt, uchar_kt *s)
 {
-    char_u *macro;
+    uchar_kt *macro;
 
     for(macro = opt; macro[0]; ++macro)
     {
@@ -3234,7 +3234,7 @@ static int inmacro(char_u *opt, char_u *s)
 /// - If 'both' is TRUE also stop at '}'
 int startPS(linenr_T lnum, int para, int both)
 {
-    char_u *s;
+    uchar_kt *s;
     s = ml_get(lnum);
 
     if(*s == para || *s == '\f' || (both && *s == '}'))
@@ -4126,7 +4126,7 @@ int current_block(oparg_T *oap,
     pos_T start_pos;
     pos_T *end_pos;
     pos_T old_start, old_end;
-    char_u *save_cpo;
+    uchar_kt *save_cpo;
     int sol = FALSE; // '{' at start of line
     old_pos = curwin->w_cursor;
     old_end = curwin->w_cursor; // remember where we started
@@ -4169,7 +4169,7 @@ int current_block(oparg_T *oap,
     // Ignore quotes here.  Keep the "M" flag in 'cpo', as that is what the
     // user wants.
     save_cpo = p_cpo;
-    p_cpo = (char_u *)(vim_strchr(p_cpo, CPO_MATCHBSL) != NULL ? "%M" : "%");
+    p_cpo = (uchar_kt *)(vim_strchr(p_cpo, CPO_MATCHBSL) != NULL ? "%M" : "%");
 
     while(count-- > 0)
     {
@@ -4293,15 +4293,15 @@ int current_block(oparg_T *oap,
 /// When "end_tag" is TRUE return TRUE if the cursor is on "</aaa>".
 static int in_html_tag(int end_tag)
 {
-    char_u *line = get_cursor_line_ptr();
-    char_u *p;
+    uchar_kt *line = get_cursor_line_ptr();
+    uchar_kt *p;
     int c;
     int lc = NUL;
     pos_T pos;
 
     if(enc_dbcs)
     {
-        char_u  *lp = NULL;
+        uchar_kt  *lp = NULL;
 
         // We search forward until the cursor, because
         // searching backwards is very slow for DBCS encodings.
@@ -4398,9 +4398,9 @@ int current_tagblock(oparg_T *oap,long count_arg, int include)
     pos_T start_pos;
     pos_T end_pos;
     pos_T old_start, old_end;
-    char_u *spat, *epat;
-    char_u *p;
-    char_u *cp;
+    uchar_kt *spat, *epat;
+    uchar_kt *p;
+    uchar_kt *cp;
     int len;
     int r;
     int do_include = include;
@@ -4473,12 +4473,12 @@ again:
     // Put this position in start_pos.
     for(n = 0; n < count; ++n)
     {
-        if(do_searchpair((char_u *)
+        if(do_searchpair((uchar_kt *)
                          "<[^ \t>/!]\\+\\%(\\_s\\_[^>]\\{-}[^/]>\\|$\\|\\_s\\=>\\)",
-                         (char_u *)"",
-                         (char_u *)"</[^>]*>",
+                         (uchar_kt *)"",
+                         (uchar_kt *)"</[^>]*>",
                          BACKWARD,
-                         (char_u *)"", 0,
+                         (uchar_kt *)"", 0,
                          NULL,
                          (linenr_T)0, 0L) <= 0)
         {
@@ -4513,8 +4513,8 @@ again:
     sprintf((char *)spat, "<%.*s\\>\\%%(\\s\\_[^>]\\{-}[^/]>\\|>\\)\\c", len, p);
     sprintf((char *)epat, "</%.*s>\\c", len, p);
 
-    r = do_searchpair(spat, (char_u *)"", epat, FORWARD,
-                      (char_u *)"", 0, NULL, (linenr_T)0, 0L);
+    r = do_searchpair(spat, (uchar_kt *)"", epat, FORWARD,
+                      (uchar_kt *)"", 0, NULL, (linenr_T)0, 0L);
 
     xfree(spat);
     xfree(epat);
@@ -4543,7 +4543,7 @@ again:
     }
     else
     {
-        char_u *c = get_cursor_pos_ptr();
+        uchar_kt *c = get_cursor_pos_ptr();
 
         // Exclude the '<' of the end tag.
         // If the closing tag is on new line, do not decrement cursor,
@@ -4860,10 +4860,10 @@ extend:
 ///
 /// @return
 /// column number of "quotechar" or -1 when not found.
-static int find_next_quote(char_u *line,
+static int find_next_quote(uchar_kt *line,
                            int col,
                            int quotechar,
-                           char_u *escape)
+                           uchar_kt *escape)
 {
     int c;
 
@@ -4908,10 +4908,10 @@ static int find_next_quote(char_u *line,
 ///
 /// @return
 /// the found column or zero.
-static int find_prev_quote(char_u *line,
+static int find_prev_quote(uchar_kt *line,
                            int col_start,
                            int quotechar,
-                           char_u *escape)
+                           uchar_kt *escape)
 {
     int n;
 
@@ -4954,7 +4954,7 @@ static int find_prev_quote(char_u *line,
 /// TRUE if found, else FALSE.
 int current_quote(oparg_T *oap, long count, int include, int quotechar)
 {
-    char_u *line = get_cursor_line_ptr();
+    uchar_kt *line = get_cursor_line_ptr();
     int col_end;
     int col_start = curwin->w_cursor.col;
     bool inclusive = false;
@@ -5416,7 +5416,7 @@ int current_search(long count, int forward)
 /// If move is true, check from the beginning of the buffer,
 /// else from the current cursor position.
 /// Returns TRUE, FALSE or -1 for failure.
-static int is_one_char(char_u *pattern, bool move)
+static int is_one_char(uchar_kt *pattern, bool move)
 {
     regmmatch_T regmatch;
     int nmatched = 0;
@@ -5497,7 +5497,7 @@ static int is_one_char(char_u *pattern, bool move)
 /// return TRUE if line 'lnum' is empty or has white chars only.
 int linewhite(linenr_T lnum)
 {
-    char_u  *p;
+    uchar_kt  *p;
 
     p = skipwhite(ml_get(lnum));
 
@@ -5518,7 +5518,7 @@ int linewhite(linenr_T lnum)
 /// @param start_lnum     first line to start searching
 /// @param end_lnum       last line for searching
 ///
-void find_pattern_in_path(char_u *ptr,
+void find_pattern_in_path(uchar_kt *ptr,
                           int dir,
                           size_t len,
                           int whole,
@@ -5533,19 +5533,19 @@ void find_pattern_in_path(char_u *ptr,
     SearchedFile *bigger; // When we need more space
     int max_path_depth = 50;
     long match_count = 1;
-    char_u *pat;
-    char_u *new_fname;
-    char_u *curr_fname = curbuf->b_fname;
-    char_u *prev_fname = NULL;
+    uchar_kt *pat;
+    uchar_kt *new_fname;
+    uchar_kt *curr_fname = curbuf->b_fname;
+    uchar_kt *prev_fname = NULL;
     linenr_T lnum;
     int depth;
     int depth_displayed; // For type==CHECK_PATH
     int old_files;
     int already_searched;
-    char_u *file_line;
-    char_u *line;
-    char_u *p;
-    char_u save_char;
+    uchar_kt *file_line;
+    uchar_kt *line;
+    uchar_kt *p;
+    uchar_kt save_char;
     int define_matched;
     regmatch_T regmatch;
     regmatch_T incl_regmatch;
@@ -5554,9 +5554,9 @@ void find_pattern_in_path(char_u *ptr,
     int did_show = FALSE;
     int found = FALSE;
     int i;
-    char_u *already = NULL;
-    char_u *startp = NULL;
-    char_u *inc_opt = NULL;
+    uchar_kt *already = NULL;
+    uchar_kt *startp = NULL;
+    uchar_kt *inc_opt = NULL;
     win_T *curwin_save = NULL;
     const int l_g_do_tagpreview = g_do_tagpreview;
 
@@ -5640,7 +5640,7 @@ void find_pattern_in_path(char_u *ptr,
         if(incl_regmatch.regprog != NULL
            && vim_regexec(&incl_regmatch, line, (colnr_T)0))
         {
-            char_u *p_fname = (curr_fname == curbuf->b_fname)
+            uchar_kt *p_fname = (curr_fname == curbuf->b_fname)
                               ? curbuf->b_ffname : curr_fname;
 
             if(inc_opt != NULL && strstr((char *)inc_opt, "\\zs") != NULL)
@@ -6009,7 +6009,7 @@ search_line:
             {
                 int reuse = 0;
                 int add_r;
-                char_u *aux;
+                uchar_kt *aux;
 
                 if(depth == -1 && lnum == curwin->w_cursor.lnum)
                 {
@@ -6388,7 +6388,7 @@ fpip_end:
     vim_regfree(def_regmatch.regprog);
 }
 
-static void show_pat_in_path(char_u *line,
+static void show_pat_in_path(uchar_kt *line,
                              int type,
                              int did_show,
                              int action,
@@ -6396,7 +6396,7 @@ static void show_pat_in_path(char_u *line,
                              linenr_T *lnum,
                              long count)
 {
-    char_u *p;
+    uchar_kt *p;
 
     if(did_show)
     {

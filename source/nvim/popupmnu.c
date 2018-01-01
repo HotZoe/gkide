@@ -395,8 +395,8 @@ void pum_redraw(void)
     int attr;
     int i;
     int idx;
-    char_u *s;
-    char_u *p = NULL;
+    uchar_kt *s;
+    uchar_kt *p = NULL;
     int totwidth, width, w;
     int thumb_pos = 0;
     int thumb_heigth = 1;
@@ -483,16 +483,16 @@ void pum_redraw(void)
                     {
                         // Display the text that fits or comes before a Tab.
                         // First convert it to printable characters.
-                        char_u *st;
-                        char_u saved = *p;
+                        uchar_kt *st;
+                        uchar_kt saved = *p;
                         *p = NUL;
                         st = transstr(s);
                         *p = saved;
 
                         if(curwin->w_p_rl)
                         {
-                            char_u *rt = reverse_text(st);
-                            char_u *rt_start = rt;
+                            uchar_kt *rt = reverse_text(st);
+                            uchar_kt *rt_start = rt;
                             int size = vim_strsize(rt);
 
                             if(size > pum_width)
@@ -542,7 +542,7 @@ void pum_redraw(void)
                         // Display two spaces for a Tab.
                         if(curwin->w_p_rl)
                         {
-                            screen_puts_len((char_u *)"  ",
+                            screen_puts_len((uchar_kt *)"  ",
                                             2,
                                             row,
                                             col - 1,
@@ -551,7 +551,7 @@ void pum_redraw(void)
                         }
                         else
                         {
-                            screen_puts_len((char_u *)"  ",
+                            screen_puts_len((uchar_kt *)"  ",
                                             2,
                                             row,
                                             col,
@@ -801,7 +801,7 @@ static int pum_set_selected(int n, int repeat)
 
                 if(res == OK)
                 {
-                    char_u *p, *e;
+                    uchar_kt *p, *e;
                     linenr_T lnum = 0;
 
                     for(p = pum_array[pum_selected].pum_info; *p != NUL;)

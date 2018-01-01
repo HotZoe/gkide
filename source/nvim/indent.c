@@ -52,7 +52,7 @@ int get_indent_buf(buf_T *buf, linenr_T lnum)
 
 /// Count the size (in window cells) of the indent in line "ptr", with
 /// 'tabstop' at "ts". If @b list is TRUE, count only screen size for tabs.
-int get_indent_str(char_u *ptr, int ts, int list)
+int get_indent_str(uchar_kt *ptr, int ts, int list)
 {
     int count = 0;
 
@@ -100,10 +100,10 @@ int get_indent_str(char_u *ptr, int ts, int list)
 /// @return Returns true if the line was changed.
 int set_indent(int size, int flags)
 {
-    char_u *p;
-    char_u *newline;
-    char_u *oldline;
-    char_u *s;
+    uchar_kt *p;
+    uchar_kt *newline;
+    uchar_kt *oldline;
+    uchar_kt *s;
     int todo;
     int ind_len; // Measured in characters.
     int line_len;
@@ -375,11 +375,11 @@ int set_indent(int size, int flags)
 /// Copy the indent from ptr to the current line (and fill to size).
 /// Leaves the cursor on the first non-blank in the line.
 /// @return true if the line was changed.
-int copy_indent(int size, char_u *src)
+int copy_indent(int size, uchar_kt *src)
 {
-    char_u *p = NULL;
-    char_u *line = NULL;
-    char_u *s;
+    uchar_kt *p = NULL;
+    uchar_kt *line = NULL;
+    uchar_kt *s;
     int todo;
     int ind_len;
     int line_len = 0;
@@ -546,11 +546,11 @@ int get_number_indent(linenr_T lnum)
 /// Return appropriate space number for breakindent, taking influencing
 /// parameters into account. Window must be specified, since it is not
 /// necessarily always the current one.
-int get_breakindent_win(win_T *wp, char_u *line)
+int get_breakindent_win(win_T *wp, uchar_kt *line)
 {
     static int prev_indent = 0; // cached indent value
     static long prev_ts = 0; // cached tabstop value
-    static char_u *prev_line = NULL; // cached pointer to line
+    static uchar_kt *prev_line = NULL; // cached pointer to line
     static int prev_tick = 0; // changedtick of cached value
     int bri = 0;
 
@@ -605,7 +605,7 @@ int get_breakindent_win(win_T *wp, char_u *line)
 ///   the first non-blank in the line.
 int inindent(int extra)
 {
-    char_u *ptr;
+    uchar_kt *ptr;
     colnr_T col;
 
     for(col = 0, ptr = get_cursor_line_ptr(); ascii_iswhite(*ptr); ++col)
@@ -632,7 +632,7 @@ int get_expr_indent(void)
     colnr_T save_curswant;
     int save_set_curswant;
     int save_State;
-    int use_sandbox = was_set_insecurely((char_u *)"indentexpr", OPT_LOCAL);
+    int use_sandbox = was_set_insecurely((uchar_kt *)"indentexpr", OPT_LOCAL);
 
     // Save and restore cursor position and curswant,
     // in case it was changed * via :normal commands.
@@ -696,7 +696,7 @@ int get_lisp_indent(void)
 {
     pos_T *pos, realpos, paren;
     int amount;
-    char_u *that;
+    uchar_kt *that;
     colnr_T col;
     colnr_T firsttry;
     int parencount;
@@ -811,7 +811,7 @@ int get_lisp_indent(void)
             }
             else
             {
-                char_u *line = that;
+                uchar_kt *line = that;
                 amount = 0;
 
                 while(*that && col)
@@ -930,11 +930,11 @@ int get_lisp_indent(void)
 }
 
 
-static int lisp_match(char_u *p)
+static int lisp_match(uchar_kt *p)
 {
-    char_u buf[LSIZE];
+    uchar_kt buf[LSIZE];
     int len;
-    char_u *word = *curbuf->b_p_lw != NUL ? curbuf->b_p_lw : p_lispwords;
+    uchar_kt *word = *curbuf->b_p_lw != NUL ? curbuf->b_p_lw : p_lispwords;
 
     while(*word != NUL)
     {

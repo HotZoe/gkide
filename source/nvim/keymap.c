@@ -24,18 +24,18 @@ static struct modmasktable
 {
     short mod_mask;   ///< Bit-mask for particular key modifier
     short mod_flag;   ///< Bit(s) for particular key modifier
-    char_u name;      ///< Single letter name of modifier
+    uchar_kt name;      ///< Single letter name of modifier
 } mod_mask_table[] =
 {
-    {MOD_MASK_ALT,            MOD_MASK_ALT,    (char_u)'M'},
-    {MOD_MASK_META,           MOD_MASK_META,   (char_u)'T'},
-    {MOD_MASK_CTRL,           MOD_MASK_CTRL,   (char_u)'C'},
-    {MOD_MASK_SHIFT,          MOD_MASK_SHIFT,  (char_u)'S'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_2CLICK, (char_u)'2'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_3CLICK, (char_u)'3'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_4CLICK, (char_u)'4'},
-    {MOD_MASK_CMD,            MOD_MASK_CMD,    (char_u)'D'},
-    {MOD_MASK_ALT,            MOD_MASK_ALT,    (char_u)'A'},
+    {MOD_MASK_ALT,            MOD_MASK_ALT,    (uchar_kt)'M'},
+    {MOD_MASK_META,           MOD_MASK_META,   (uchar_kt)'T'},
+    {MOD_MASK_CTRL,           MOD_MASK_CTRL,   (uchar_kt)'C'},
+    {MOD_MASK_SHIFT,          MOD_MASK_SHIFT,  (uchar_kt)'S'},
+    {MOD_MASK_MULTI_CLICK,    MOD_MASK_2CLICK, (uchar_kt)'2'},
+    {MOD_MASK_MULTI_CLICK,    MOD_MASK_3CLICK, (uchar_kt)'3'},
+    {MOD_MASK_MULTI_CLICK,    MOD_MASK_4CLICK, (uchar_kt)'4'},
+    {MOD_MASK_CMD,            MOD_MASK_CMD,    (uchar_kt)'D'},
+    {MOD_MASK_ALT,            MOD_MASK_ALT,    (uchar_kt)'A'},
     {0, 0, NUL} // 'A' must be the last one; NUL for the end
 };
 
@@ -43,7 +43,7 @@ static struct modmasktable
 /// Don't add mouse codes here, they are handled separately!
 #define MOD_KEYS_ENTRY_SIZE    5
 
-static char_u modifier_keys_table[] =
+static uchar_kt modifier_keys_table[] =
 {
     // mod mask     with modifier               without modifier
     MOD_MASK_SHIFT, '&', '9',                   '@', '1',    // begin
@@ -137,153 +137,153 @@ static char_u modifier_keys_table[] =
 static struct key_name_entry
 {
     int key;        ///< Special key code or ascii value
-    char_u  *name;  ///< Name of key
+    uchar_kt  *name;  ///< Name of key
 } key_names_table[] =
 {
-    {' ',      (char_u *)"Space"},
-    {TAB,      (char_u *)"Tab"},
-    {K_TAB,    (char_u *)"Tab"},
-    {NL,       (char_u *)"NL"},
-    {NL,       (char_u *)"NewLine"},      // Alternative name
-    {NL,       (char_u *)"LineFeed"},     // Alternative name
-    {NL,       (char_u *)"LF"},           // Alternative name
-    {CAR,      (char_u *)"CR"},
-    {CAR,      (char_u *)"Return"},       // Alternative name
-    {CAR,      (char_u *)"Enter"},        // Alternative name
-    {K_BS,     (char_u *)"BS"},
-    {K_BS,     (char_u *)"BackSpace"},    // Alternative name
-    {ESC,      (char_u *)"Esc"},
-    {CSI,      (char_u *)"CSI"},
-    {K_CSI,    (char_u *)"xCSI"},
-    {'|',      (char_u *)"Bar"},
-    {'\\',     (char_u *)"Bslash"},
-    {K_DEL,    (char_u *)"Del"},
-    {K_DEL,    (char_u *)"Delete"},       // Alternative name
-    {K_KDEL,   (char_u *)"kDel"},
-    {K_UP,     (char_u *)"Up"},
-    {K_DOWN,   (char_u *)"Down"},
-    {K_LEFT,   (char_u *)"Left"},
-    {K_RIGHT,  (char_u *)"Right"},
-    {K_XUP,    (char_u *)"xUp"},
-    {K_XDOWN,  (char_u *)"xDown"},
-    {K_XLEFT,  (char_u *)"xLeft"},
-    {K_XRIGHT, (char_u *)"xRight"},
+    {' ',      (uchar_kt *)"Space"},
+    {TAB,      (uchar_kt *)"Tab"},
+    {K_TAB,    (uchar_kt *)"Tab"},
+    {NL,       (uchar_kt *)"NL"},
+    {NL,       (uchar_kt *)"NewLine"},      // Alternative name
+    {NL,       (uchar_kt *)"LineFeed"},     // Alternative name
+    {NL,       (uchar_kt *)"LF"},           // Alternative name
+    {CAR,      (uchar_kt *)"CR"},
+    {CAR,      (uchar_kt *)"Return"},       // Alternative name
+    {CAR,      (uchar_kt *)"Enter"},        // Alternative name
+    {K_BS,     (uchar_kt *)"BS"},
+    {K_BS,     (uchar_kt *)"BackSpace"},    // Alternative name
+    {ESC,      (uchar_kt *)"Esc"},
+    {CSI,      (uchar_kt *)"CSI"},
+    {K_CSI,    (uchar_kt *)"xCSI"},
+    {'|',      (uchar_kt *)"Bar"},
+    {'\\',     (uchar_kt *)"Bslash"},
+    {K_DEL,    (uchar_kt *)"Del"},
+    {K_DEL,    (uchar_kt *)"Delete"},       // Alternative name
+    {K_KDEL,   (uchar_kt *)"kDel"},
+    {K_UP,     (uchar_kt *)"Up"},
+    {K_DOWN,   (uchar_kt *)"Down"},
+    {K_LEFT,   (uchar_kt *)"Left"},
+    {K_RIGHT,  (uchar_kt *)"Right"},
+    {K_XUP,    (uchar_kt *)"xUp"},
+    {K_XDOWN,  (uchar_kt *)"xDown"},
+    {K_XLEFT,  (uchar_kt *)"xLeft"},
+    {K_XRIGHT, (uchar_kt *)"xRight"},
 
-    {K_F1,  (char_u *)"F1"},
-    {K_F2,  (char_u *)"F2"},
-    {K_F3,  (char_u *)"F3"},
-    {K_F4,  (char_u *)"F4"},
-    {K_F5,  (char_u *)"F5"},
-    {K_F6,  (char_u *)"F6"},
-    {K_F7,  (char_u *)"F7"},
-    {K_F8,  (char_u *)"F8"},
-    {K_F9,  (char_u *)"F9"},
-    {K_F10, (char_u *)"F10"},
+    {K_F1,  (uchar_kt *)"F1"},
+    {K_F2,  (uchar_kt *)"F2"},
+    {K_F3,  (uchar_kt *)"F3"},
+    {K_F4,  (uchar_kt *)"F4"},
+    {K_F5,  (uchar_kt *)"F5"},
+    {K_F6,  (uchar_kt *)"F6"},
+    {K_F7,  (uchar_kt *)"F7"},
+    {K_F8,  (uchar_kt *)"F8"},
+    {K_F9,  (uchar_kt *)"F9"},
+    {K_F10, (uchar_kt *)"F10"},
 
-    {K_F11, (char_u *)"F11"},
-    {K_F12, (char_u *)"F12"},
-    {K_F13, (char_u *)"F13"},
-    {K_F14, (char_u *)"F14"},
-    {K_F15, (char_u *)"F15"},
-    {K_F16, (char_u *)"F16"},
-    {K_F17, (char_u *)"F17"},
-    {K_F18, (char_u *)"F18"},
-    {K_F19, (char_u *)"F19"},
-    {K_F20, (char_u *)"F20"},
+    {K_F11, (uchar_kt *)"F11"},
+    {K_F12, (uchar_kt *)"F12"},
+    {K_F13, (uchar_kt *)"F13"},
+    {K_F14, (uchar_kt *)"F14"},
+    {K_F15, (uchar_kt *)"F15"},
+    {K_F16, (uchar_kt *)"F16"},
+    {K_F17, (uchar_kt *)"F17"},
+    {K_F18, (uchar_kt *)"F18"},
+    {K_F19, (uchar_kt *)"F19"},
+    {K_F20, (uchar_kt *)"F20"},
 
-    {K_F21, (char_u *)"F21"},
-    {K_F22, (char_u *)"F22"},
-    {K_F23, (char_u *)"F23"},
-    {K_F24, (char_u *)"F24"},
-    {K_F25, (char_u *)"F25"},
-    {K_F26, (char_u *)"F26"},
-    {K_F27, (char_u *)"F27"},
-    {K_F28, (char_u *)"F28"},
-    {K_F29, (char_u *)"F29"},
-    {K_F30, (char_u *)"F30"},
+    {K_F21, (uchar_kt *)"F21"},
+    {K_F22, (uchar_kt *)"F22"},
+    {K_F23, (uchar_kt *)"F23"},
+    {K_F24, (uchar_kt *)"F24"},
+    {K_F25, (uchar_kt *)"F25"},
+    {K_F26, (uchar_kt *)"F26"},
+    {K_F27, (uchar_kt *)"F27"},
+    {K_F28, (uchar_kt *)"F28"},
+    {K_F29, (uchar_kt *)"F29"},
+    {K_F30, (uchar_kt *)"F30"},
 
-    {K_F31, (char_u *)"F31"},
-    {K_F32, (char_u *)"F32"},
-    {K_F33, (char_u *)"F33"},
-    {K_F34, (char_u *)"F34"},
-    {K_F35, (char_u *)"F35"},
-    {K_F36, (char_u *)"F36"},
-    {K_F37, (char_u *)"F37"},
+    {K_F31, (uchar_kt *)"F31"},
+    {K_F32, (uchar_kt *)"F32"},
+    {K_F33, (uchar_kt *)"F33"},
+    {K_F34, (uchar_kt *)"F34"},
+    {K_F35, (uchar_kt *)"F35"},
+    {K_F36, (uchar_kt *)"F36"},
+    {K_F37, (uchar_kt *)"F37"},
 
-    {K_XF1, (char_u *)"xF1"},
-    {K_XF2, (char_u *)"xF2"},
-    {K_XF3, (char_u *)"xF3"},
-    {K_XF4, (char_u *)"xF4"},
+    {K_XF1, (uchar_kt *)"xF1"},
+    {K_XF2, (uchar_kt *)"xF2"},
+    {K_XF3, (uchar_kt *)"xF3"},
+    {K_XF4, (uchar_kt *)"xF4"},
 
-    {K_HELP,      (char_u *)"Help"},
-    {K_UNDO,      (char_u *)"Undo"},
-    {K_INS,       (char_u *)"Insert"},
-    {K_INS,       (char_u *)"Ins"},          // Alternative name
-    {K_KINS,      (char_u *)"kInsert"},
-    {K_HOME,      (char_u *)"Home"},
-    {K_KHOME,     (char_u *)"kHome"},
-    {K_XHOME,     (char_u *)"xHome"},
-    {K_ZHOME,     (char_u *)"zHome"},
-    {K_END,       (char_u *)"End"},
-    {K_KEND,      (char_u *)"kEnd"},
-    {K_XEND,      (char_u *)"xEnd"},
-    {K_ZEND,      (char_u *)"zEnd"},
-    {K_PAGEUP,    (char_u *)"PageUp"},
-    {K_PAGEDOWN,  (char_u *)"PageDown"},
-    {K_KPAGEUP,   (char_u *)"kPageUp"},
-    {K_KPAGEDOWN, (char_u *)"kPageDown"},
+    {K_HELP,      (uchar_kt *)"Help"},
+    {K_UNDO,      (uchar_kt *)"Undo"},
+    {K_INS,       (uchar_kt *)"Insert"},
+    {K_INS,       (uchar_kt *)"Ins"},          // Alternative name
+    {K_KINS,      (uchar_kt *)"kInsert"},
+    {K_HOME,      (uchar_kt *)"Home"},
+    {K_KHOME,     (uchar_kt *)"kHome"},
+    {K_XHOME,     (uchar_kt *)"xHome"},
+    {K_ZHOME,     (uchar_kt *)"zHome"},
+    {K_END,       (uchar_kt *)"End"},
+    {K_KEND,      (uchar_kt *)"kEnd"},
+    {K_XEND,      (uchar_kt *)"xEnd"},
+    {K_ZEND,      (uchar_kt *)"zEnd"},
+    {K_PAGEUP,    (uchar_kt *)"PageUp"},
+    {K_PAGEDOWN,  (uchar_kt *)"PageDown"},
+    {K_KPAGEUP,   (uchar_kt *)"kPageUp"},
+    {K_KPAGEDOWN, (uchar_kt *)"kPageDown"},
 
-    {K_KPLUS,     (char_u *)"kPlus"},
-    {K_KMINUS,    (char_u *)"kMinus"},
-    {K_KDIVIDE,   (char_u *)"kDivide"},
-    {K_KMULTIPLY, (char_u *)"kMultiply"},
-    {K_KENTER,    (char_u *)"kEnter"},
-    {K_KPOINT,    (char_u *)"kPoint"},
+    {K_KPLUS,     (uchar_kt *)"kPlus"},
+    {K_KMINUS,    (uchar_kt *)"kMinus"},
+    {K_KDIVIDE,   (uchar_kt *)"kDivide"},
+    {K_KMULTIPLY, (uchar_kt *)"kMultiply"},
+    {K_KENTER,    (uchar_kt *)"kEnter"},
+    {K_KPOINT,    (uchar_kt *)"kPoint"},
 
-    {K_K0, (char_u *)"k0"},
-    {K_K1, (char_u *)"k1"},
-    {K_K2, (char_u *)"k2"},
-    {K_K3, (char_u *)"k3"},
-    {K_K4, (char_u *)"k4"},
-    {K_K5, (char_u *)"k5"},
-    {K_K6, (char_u *)"k6"},
-    {K_K7, (char_u *)"k7"},
-    {K_K8, (char_u *)"k8"},
-    {K_K9, (char_u *)"k9"},
+    {K_K0, (uchar_kt *)"k0"},
+    {K_K1, (uchar_kt *)"k1"},
+    {K_K2, (uchar_kt *)"k2"},
+    {K_K3, (uchar_kt *)"k3"},
+    {K_K4, (uchar_kt *)"k4"},
+    {K_K5, (uchar_kt *)"k5"},
+    {K_K6, (uchar_kt *)"k6"},
+    {K_K7, (uchar_kt *)"k7"},
+    {K_K8, (uchar_kt *)"k8"},
+    {K_K9, (uchar_kt *)"k9"},
 
-    {'<',  (char_u *)"lt"},
+    {'<',  (uchar_kt *)"lt"},
 
-    {K_MOUSE,          (char_u *)"Mouse"},
-    {K_LEFTMOUSE,      (char_u *)"LeftMouse"},
-    {K_LEFTMOUSE_NM,   (char_u *)"LeftMouseNM"},
-    {K_LEFTDRAG,       (char_u *)"LeftDrag"},
-    {K_LEFTRELEASE,    (char_u *)"LeftRelease"},
-    {K_LEFTRELEASE_NM, (char_u *)"LeftReleaseNM"},
-    {K_MIDDLEMOUSE,    (char_u *)"MiddleMouse"},
-    {K_MIDDLEDRAG,     (char_u *)"MiddleDrag"},
-    {K_MIDDLERELEASE,  (char_u *)"MiddleRelease"},
-    {K_RIGHTMOUSE,     (char_u *)"RightMouse"},
-    {K_RIGHTDRAG,      (char_u *)"RightDrag"},
-    {K_RIGHTRELEASE,   (char_u *)"RightRelease"},
-    {K_MOUSEDOWN,      (char_u *)"ScrollWheelUp"},
-    {K_MOUSEUP,        (char_u *)"ScrollWheelDown"},
-    {K_MOUSELEFT,      (char_u *)"ScrollWheelRight"},
-    {K_MOUSERIGHT,     (char_u *)"ScrollWheelLeft"},
-    {K_MOUSEDOWN,      (char_u *)"MouseDown"}, // OBSOLETE: Use
-    {K_MOUSEUP,        (char_u *)"MouseUp"},   // ScrollWheelXXX instead
-    {K_X1MOUSE,        (char_u *)"X1Mouse"},
-    {K_X1DRAG,         (char_u *)"X1Drag"},
-    {K_X1RELEASE,      (char_u *)"X1Release"},
-    {K_X2MOUSE,        (char_u *)"X2Mouse"},
-    {K_X2DRAG,         (char_u *)"X2Drag"},
-    {K_X2RELEASE,      (char_u *)"X2Release"},
-    {K_DROP,           (char_u *)"Drop"},
-    {K_ZERO,           (char_u *)"Nul"},
-    {K_SNR,            (char_u *)"SNR"},
-    {K_PLUG,           (char_u *)"Plug"},
-    {K_PASTE,          (char_u *)"Paste"},
-    {K_FOCUSGAINED,    (char_u *)"FocusGained"},
-    {K_FOCUSLOST,      (char_u *)"FocusLost"},
+    {K_MOUSE,          (uchar_kt *)"Mouse"},
+    {K_LEFTMOUSE,      (uchar_kt *)"LeftMouse"},
+    {K_LEFTMOUSE_NM,   (uchar_kt *)"LeftMouseNM"},
+    {K_LEFTDRAG,       (uchar_kt *)"LeftDrag"},
+    {K_LEFTRELEASE,    (uchar_kt *)"LeftRelease"},
+    {K_LEFTRELEASE_NM, (uchar_kt *)"LeftReleaseNM"},
+    {K_MIDDLEMOUSE,    (uchar_kt *)"MiddleMouse"},
+    {K_MIDDLEDRAG,     (uchar_kt *)"MiddleDrag"},
+    {K_MIDDLERELEASE,  (uchar_kt *)"MiddleRelease"},
+    {K_RIGHTMOUSE,     (uchar_kt *)"RightMouse"},
+    {K_RIGHTDRAG,      (uchar_kt *)"RightDrag"},
+    {K_RIGHTRELEASE,   (uchar_kt *)"RightRelease"},
+    {K_MOUSEDOWN,      (uchar_kt *)"ScrollWheelUp"},
+    {K_MOUSEUP,        (uchar_kt *)"ScrollWheelDown"},
+    {K_MOUSELEFT,      (uchar_kt *)"ScrollWheelRight"},
+    {K_MOUSERIGHT,     (uchar_kt *)"ScrollWheelLeft"},
+    {K_MOUSEDOWN,      (uchar_kt *)"MouseDown"}, // OBSOLETE: Use
+    {K_MOUSEUP,        (uchar_kt *)"MouseUp"},   // ScrollWheelXXX instead
+    {K_X1MOUSE,        (uchar_kt *)"X1Mouse"},
+    {K_X1DRAG,         (uchar_kt *)"X1Drag"},
+    {K_X1RELEASE,      (uchar_kt *)"X1Release"},
+    {K_X2MOUSE,        (uchar_kt *)"X2Mouse"},
+    {K_X2DRAG,         (uchar_kt *)"X2Drag"},
+    {K_X2RELEASE,      (uchar_kt *)"X2Release"},
+    {K_DROP,           (uchar_kt *)"Drop"},
+    {K_ZERO,           (uchar_kt *)"Nul"},
+    {K_SNR,            (uchar_kt *)"SNR"},
+    {K_PLUG,           (uchar_kt *)"Plug"},
+    {K_PASTE,          (uchar_kt *)"Paste"},
+    {K_FOCUSGAINED,    (uchar_kt *)"FocusGained"},
+    {K_FOCUSLOST,      (uchar_kt *)"FocusLost"},
     {0,                NULL}
 };
 
@@ -431,12 +431,12 @@ int handle_x_keys(int key)
 
 /// Return a string which contains the name of the given key when the given
 /// modifiers are down.
-char_u *get_special_key_name(int c, int modifiers)
+uchar_kt *get_special_key_name(int c, int modifiers)
 {
-    static char_u string[MAX_KEY_NAME_LEN + 1];
+    static uchar_kt string[MAX_KEY_NAME_LEN + 1];
     int i, idx;
     int table_idx;
-    char_u  *s;
+    uchar_kt  *s;
     string[0] = '<';
     idx = 1;
 
@@ -496,7 +496,7 @@ char_u *get_special_key_name(int c, int modifiers)
            == mod_mask_table[i].mod_flag)
         {
             string[idx++] = mod_mask_table[i].name;
-            string[idx++] = (char_u)'-';
+            string[idx++] = (uchar_kt)'-';
         }
     }
 
@@ -506,7 +506,7 @@ char_u *get_special_key_name(int c, int modifiers)
         {
             string[idx++] = 't';
             string[idx++] = '_';
-            string[idx++] = (char_u)KEY2TERMCAP0(c);
+            string[idx++] = (uchar_kt)KEY2TERMCAP0(c);
             string[idx++] = KEY2TERMCAP1(c);
         }
         else
@@ -518,7 +518,7 @@ char_u *get_special_key_name(int c, int modifiers)
             }
             else if(vim_isprintc(c))
             {
-                string[idx++] = (char_u)c;
+                string[idx++] = (uchar_kt)c;
             }
             else
             {
@@ -563,9 +563,9 @@ char_u *get_special_key_name(int c, int modifiers)
 /// Inside a double quoted string
 ///
 /// @return Number of characters added to dst, zero for no match.
-unsigned int trans_special(const char_u **srcp,
+unsigned int trans_special(const uchar_kt **srcp,
                            const size_t src_len,
-                           char_u *const dst,
+                           uchar_kt *const dst,
                            const bool keycode,
                            const bool in_string)
 FUNC_ATTR_NONNULL_ALL
@@ -588,13 +588,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         dst[dlen++] = K_SPECIAL;
         dst[dlen++] = KS_MODIFIER;
-        dst[dlen++] = (char_u)modifiers;
+        dst[dlen++] = (uchar_kt)modifiers;
     }
 
     if(IS_SPECIAL(key))
     {
         dst[dlen++] = K_SPECIAL;
-        dst[dlen++] = (char_u)KEY2TERMCAP0(key);
+        dst[dlen++] = (uchar_kt)KEY2TERMCAP0(key);
         dst[dlen++] = KEY2TERMCAP1(key);
     }
     else if(has_mbyte && !keycode)
@@ -603,13 +603,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
     else if(keycode)
     {
-        char_u *after = add_char2buf(key, dst + dlen);
+        uchar_kt *after = add_char2buf(key, dst + dlen);
         assert(after >= dst && (uintmax_t)(after - dst) <= UINT_MAX);
         dlen = (unsigned int)(after - dst);
     }
     else
     {
-        dst[dlen++] = (char_u)key;
+        dst[dlen++] = (uchar_kt)key;
     }
 
     return dlen;
@@ -636,7 +636,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// In string, double quote is escaped
 ///
 /// @return Key and modifiers or 0 if there is no match.
-int find_special_key(const char_u **srcp,
+int find_special_key(const uchar_kt **srcp,
                      const size_t src_len,
                      int *const modp,
                      const bool keycode,
@@ -645,11 +645,11 @@ int find_special_key(const char_u **srcp,
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
-    const char_u *last_dash;
-    const char_u *end_of_name;
-    const char_u *src;
-    const char_u *bp;
-    const char_u *const end = *srcp + src_len - 1;
+    const uchar_kt *last_dash;
+    const uchar_kt *end_of_name;
+    const uchar_kt *src;
+    const uchar_kt *bp;
+    const uchar_kt *const end = *srcp + src_len - 1;
     int modifiers;
     int bit;
     int key;
@@ -876,9 +876,9 @@ int find_special_key_in_table(int c)
 /// If the name starts with "t_" the next two characters are interpreted as a
 /// termcap name.
 /// Return the key code, or 0 if not found.
-int get_special_key_code(const char_u *name)
+int get_special_key_code(const uchar_kt *name)
 {
-    char_u  *table_name;
+    uchar_kt  *table_name;
     int i, j;
 
     for(i = 0; key_names_table[i].name != NULL; i++)
@@ -957,9 +957,9 @@ int get_mouse_button(int code, bool *is_click, bool *is_drag)
 /// Pointer to an allocated memory in case of success, "from" in
 /// case of failure. In case of success returned pointer is also
 /// saved to "bufp".
-char_u *replace_termcodes(const char_u *from,
+uchar_kt *replace_termcodes(const uchar_kt *from,
                           const size_t from_len,
-                          char_u **bufp,
+                          uchar_kt **bufp,
                           const bool from_part,
                           const bool do_lt,
                           const bool special,
@@ -968,13 +968,13 @@ FUNC_ATTR_NONNULL_ALL
 {
     ssize_t i;
     size_t slen;
-    char_u key;
+    uchar_kt key;
     size_t dlen = 0;
-    const char_u *src;
-    const char_u *const end = from + from_len - 1;
+    const uchar_kt *src;
+    const uchar_kt *const end = from + from_len - 1;
     int do_backslash; // backslash is a special character
     int do_special; // recognize <> key codes
-    char_u *result; // buffer for resulting string
+    uchar_kt *result; // buffer for resulting string
 
     do_backslash = !(cpo_flags&FLAG_CPO_BSLASH);
     do_special = !(cpo_flags&FLAG_CPO_SPECI) || special;
@@ -1048,7 +1048,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(do_special)
         {
-            char_u  *p, *s, len;
+            uchar_kt  *p, *s, len;
 
             // Replace <Leader> by the value of "mapleader".
             // Replace <LocalLeader> by the value of "maplocalleader".
@@ -1074,7 +1074,7 @@ FUNC_ATTR_NONNULL_ALL
                 // Allow up to 8 * 6 characters for "mapleader".
                 if(p == NULL || *p == NUL || STRLEN(p) > 8 * 6)
                 {
-                    s = (char_u *)"\\";
+                    s = (uchar_kt *)"\\";
                 }
                 else
                 {

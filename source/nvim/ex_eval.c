@@ -127,7 +127,7 @@ int aborted_in_try(void)
 /// When several messages appear in the same command, the first is usually the
 /// most specific one and used as the exception value. The "severe" flag can be
 /// set to TRUE, if a later but severer message should be used instead.
-int cause_errthrow(char_u *mesg, int severe, int *ignore)
+int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
 {
     struct msglist *elem;
     struct msglist **plist;
@@ -170,7 +170,7 @@ int cause_errthrow(char_u *mesg, int severe, int *ignore)
     // throw has been detected previously. This is important in order that an
     // interrupt exception is catchable by the innermost try conditional and
     // not replaced by an interrupt message error exception.
-    if(mesg == (char_u *)_(e_interr))
+    if(mesg == (uchar_kt *)_(e_interr))
     {
         *ignore = TRUE;
         return TRUE;
@@ -237,7 +237,7 @@ int cause_errthrow(char_u *mesg, int severe, int *ignore)
 
             if(plist == msg_list || severe)
             {
-                char_u *tmsg;
+                uchar_kt *tmsg;
                 // Skip the extra "Vim " prefix for message "E458".
                 tmsg = elem->msg;
 
@@ -287,7 +287,7 @@ void free_global_msglist(void)
 /// Throw the message specified in the call to cause_errthrow() above as an
 /// error exception.  If cstack is NULL, postpone the throw until do_cmdline()
 /// has returned (see do_one_cmd()).
-void do_errthrow(struct condstack *cstack, char_u *cmdname)
+void do_errthrow(struct condstack *cstack, uchar_kt *cmdname)
 {
     // Ensure that all commands in nested function
     // calls and sourced files are aborted immediately.
@@ -376,13 +376,13 @@ int do_intthrow(struct condstack *cstack)
 }
 
 /// Get an exception message that is to be stored in current_exception->value.
-char_u *get_exception_string(void *value,
+uchar_kt *get_exception_string(void *value,
                              int type,
-                             char_u *cmdname,
+                             uchar_kt *cmdname,
                              int *should_free)
 {
-    char_u *ret, *mesg;
-    char_u *p, *val;
+    uchar_kt *ret, *mesg;
+    uchar_kt *p, *val;
 
     if(type == ET_ERROR)
     {
@@ -393,7 +393,7 @@ char_u *get_exception_string(void *value,
         {
             size_t cmdlen = STRLEN(cmdname);
 
-            ret = vim_strnsave((char_u *)"Vim(",
+            ret = vim_strnsave((uchar_kt *)"Vim(",
                                4
                                + cmdlen
                                + 2
@@ -405,7 +405,7 @@ char_u *get_exception_string(void *value,
         }
         else
         {
-            ret = vim_strnsave((char_u *)"Vim:", 4 + STRLEN(mesg));
+            ret = vim_strnsave((uchar_kt *)"Vim:", 4 + STRLEN(mesg));
             val = ret + 4;
         }
 
@@ -450,7 +450,7 @@ char_u *get_exception_string(void *value,
     else
     {
         *should_free = FALSE;
-        ret = (char_u *) value;
+        ret = (uchar_kt *) value;
     }
 
     return ret;
@@ -461,7 +461,7 @@ char_u *get_exception_string(void *value,
 /// throw an illegal user exception. "value" is the exception string for a
 /// user or interrupt exception, or points to a message list in case of an
 /// error exception.
-static int throw_exception(void *value, int type, char_u *cmdname)
+static int throw_exception(void *value, int type, uchar_kt *cmdname)
 {
     except_T *excp;
     int should_free;
@@ -471,9 +471,9 @@ static int throw_exception(void *value, int type, char_u *cmdname)
     // when no active try block is found, see do_cmdline().
     if(type == ET_USER)
     {
-        if(STRNCMP((char_u *)value, "Vim", 3) == 0
-           && (((char_u *)value)[3] == NUL || ((char_u *)value)[3] == ':'
-               || ((char_u *)value)[3] == '('))
+        if(STRNCMP((uchar_kt *)value, "Vim", 3) == 0
+           && (((uchar_kt *)value)[3] == NUL || ((uchar_kt *)value)[3] == ':'
+               || ((uchar_kt *)value)[3] == '('))
         {
             EMSG(_("E608: Cannot :throw exceptions with 'Vim' prefix"));
             goto fail;
@@ -498,7 +498,7 @@ static int throw_exception(void *value, int type, char_u *cmdname)
 
     excp->type = type;
     excp->throw_name = vim_strsave(sourcing_name == NULL
-                                   ? (char_u *)"" : sourcing_name);
+                                   ? (uchar_kt *)"" : sourcing_name);
     excp->throw_lnum = sourcing_lnum;
 
     if(p_verbose >= 13 || debug_break_level > 0)
@@ -562,7 +562,7 @@ fail:
 /// caught and the catch clause has been ended normally.
 static void discard_exception(except_T *excp, int was_finished)
 {
-    char_u *saved_IObuff;
+    uchar_kt *saved_IObuff;
 
     if(excp == NULL)
     {
@@ -813,7 +813,7 @@ static void report_pending(int action, int pending, void *value)
             if(pending & CSTP_THROW)
             {
                 vim_snprintf((char *)IObuff, IOSIZE, mesg, _("Exception"));
-                mesg = (char *)concat_str(IObuff, (char_u *)": %s");
+                mesg = (char *)concat_str(IObuff, (uchar_kt *)": %s");
                 s = (char *)((except_T *)value)->value;
             }
             else if((pending & CSTP_ERROR) && (pending & CSTP_INTERRUPT))
@@ -929,7 +929,7 @@ void ex_if(exarg_T *eap)
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
-        eap->errmsg = (char_u *)N_("E579: :if nesting too deep");
+        eap->errmsg = (uchar_kt *)N_("E579: :if nesting too deep");
     }
     else
     {
@@ -971,7 +971,7 @@ void ex_endif(exarg_T *eap)
        || (eap->cstack->cs_flags[eap->cstack->cs_idx]
            & (CSF_WHILE | CSF_FOR | CSF_TRY)))
     {
-        eap->errmsg = (char_u *)N_("E580: :endif without :if");
+        eap->errmsg = (uchar_kt *)N_("E580: :endif without :if");
     }
     else
     {
@@ -1014,22 +1014,22 @@ void ex_else(exarg_T *eap)
     {
         if(eap->cmdidx == CMD_else)
         {
-            eap->errmsg = (char_u *)N_("E581: :else without :if");
+            eap->errmsg = (uchar_kt *)N_("E581: :else without :if");
             return;
         }
 
-        eap->errmsg = (char_u *)N_("E582: :elseif without :if");
+        eap->errmsg = (uchar_kt *)N_("E582: :elseif without :if");
         skip = TRUE;
     }
     else if(cstack->cs_flags[cstack->cs_idx] & CSF_ELSE)
     {
         if(eap->cmdidx == CMD_else)
         {
-            eap->errmsg = (char_u *)N_("E583: multiple :else");
+            eap->errmsg = (uchar_kt *)N_("E583: multiple :else");
             return;
         }
 
-        eap->errmsg = (char_u *)N_("E584: :elseif after :else");
+        eap->errmsg = (uchar_kt *)N_("E584: :elseif after :else");
         skip = TRUE;
     }
 
@@ -1106,7 +1106,7 @@ void ex_while(exarg_T *eap)
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
-        eap->errmsg = (char_u *)N_("E585: :while/:for nesting too deep");
+        eap->errmsg = (uchar_kt *)N_("E585: :while/:for nesting too deep");
     }
     else
     {
@@ -1203,7 +1203,7 @@ void ex_continue(exarg_T *eap)
 
     if(cstack->cs_looplevel <= 0 || cstack->cs_idx < 0)
     {
-        eap->errmsg = (char_u *)N_("E586: :continue without :while or :for");
+        eap->errmsg = (uchar_kt *)N_("E586: :continue without :while or :for");
     }
     else
     {
@@ -1240,7 +1240,7 @@ void ex_break(exarg_T *eap)
 
     if(cstack->cs_looplevel <= 0 || cstack->cs_idx < 0)
     {
-        eap->errmsg = (char_u *)N_("E587: :break without :while or :for");
+        eap->errmsg = (uchar_kt *)N_("E587: :break without :while or :for");
     }
     else
     {
@@ -1263,7 +1263,7 @@ void ex_endwhile(exarg_T *eap)
 {
     struct condstack *cstack = eap->cstack;
     int idx;
-    char_u *err;
+    uchar_kt *err;
     int csf;
     int fl;
 
@@ -1292,11 +1292,11 @@ void ex_endwhile(exarg_T *eap)
             // command, do not rewind to the next enclosing ":for"/":while".
             if(fl & CSF_WHILE)
             {
-                eap->errmsg = (char_u *)_("E732: Using :endfor with :while");
+                eap->errmsg = (uchar_kt *)_("E732: Using :endfor with :while");
             }
             else if(fl & CSF_FOR)
             {
-                eap->errmsg = (char_u *)_("E733: Using :endwhile with :for");
+                eap->errmsg = (uchar_kt *)_("E733: Using :endwhile with :for");
             }
         }
 
@@ -1379,7 +1379,7 @@ void ex_throw(exarg_T *eap)
     // during argument evaluation, do not throw.
     if(!eap->skip && value != NULL)
     {
-        if(throw_exception((char_u *)value, ET_USER, NULL) == FAIL)
+        if(throw_exception((uchar_kt *)value, ET_USER, NULL) == FAIL)
         {
             xfree(value);
         }
@@ -1467,7 +1467,7 @@ void ex_try(exarg_T *eap)
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
-        eap->errmsg = (char_u *)N_("E601: :try nesting too deep");
+        eap->errmsg = (uchar_kt *)N_("E601: :try nesting too deep");
     }
     else
     {
@@ -1525,17 +1525,17 @@ void ex_catch(exarg_T *eap)
     int give_up = FALSE;
     int skip = FALSE;
     int caught = FALSE;
-    char_u *end;
-    char_u save_char = 0;
-    char_u *save_cpo;
+    uchar_kt *end;
+    uchar_kt save_char = 0;
+    uchar_kt *save_cpo;
     regmatch_T regmatch;
     int prev_got_int;
     struct condstack *cstack = eap->cstack;
-    char_u *pat;
+    uchar_kt *pat;
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
     {
-        eap->errmsg = (char_u *)N_("E603: :catch without :try");
+        eap->errmsg = (uchar_kt *)N_("E603: :catch without :try");
         give_up = TRUE;
     }
     else
@@ -1558,7 +1558,7 @@ void ex_catch(exarg_T *eap)
         {
             // Give up for a ":catch" after ":finally" and ignore it.
             // Just parse.
-            eap->errmsg = (char_u *)N_("E604: :catch after :finally");
+            eap->errmsg = (uchar_kt *)N_("E604: :catch after :finally");
             give_up = TRUE;
         }
         else
@@ -1573,7 +1573,7 @@ void ex_catch(exarg_T *eap)
     // no argument, catch all errors
     if(ends_excmd(*eap->arg))
     {
-        pat = (char_u *)".*";
+        pat = (uchar_kt *)".*";
         end = NULL;
         eap->nextcmd = find_nextcmd(eap->arg);
     }
@@ -1623,7 +1623,7 @@ void ex_catch(exarg_T *eap)
                 }
 
                 save_cpo  = p_cpo;
-                p_cpo = (char_u *)"";
+                p_cpo = (uchar_kt *)"";
 
                 // Disable error messages, it will
                 // make current exception invalid
@@ -1706,7 +1706,7 @@ void ex_finally(exarg_T *eap)
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
     {
-        eap->errmsg = (char_u *)N_("E606: :finally without :try");
+        eap->errmsg = (uchar_kt *)N_("E606: :finally without :try");
     }
     else
     {
@@ -1733,7 +1733,7 @@ void ex_finally(exarg_T *eap)
         if(cstack->cs_flags[idx] & CSF_FINALLY)
         {
             // Give up for a multiple ":finally" and ignore it.
-            eap->errmsg = (char_u *)N_("E607: multiple :finally");
+            eap->errmsg = (uchar_kt *)N_("E607: multiple :finally");
             return;
         }
 
@@ -1844,7 +1844,7 @@ void ex_endtry(exarg_T *eap)
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
     {
-        eap->errmsg = (char_u *)N_("E602: :endtry without :try");
+        eap->errmsg = (uchar_kt *)N_("E602: :endtry without :try");
     }
     else
     {
@@ -2333,7 +2333,7 @@ int cleanup_conditionals(struct condstack *cstack,
 }
 
 /// Return an appropriate error message for a missing endwhile/endfor/endif.
-static char_u *get_end_emsg(struct condstack *cstack)
+static uchar_kt *get_end_emsg(struct condstack *cstack)
 {
     if(cstack->cs_flags[cstack->cs_idx] & CSF_WHILE)
     {
@@ -2382,7 +2382,7 @@ void ex_endfunction(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 }
 
 /// Return TRUE if the string "p" looks like a ":while" or ":for" command.
-int has_loop_cmd(char_u *p)
+int has_loop_cmd(uchar_kt *p)
 {
     int len;
 

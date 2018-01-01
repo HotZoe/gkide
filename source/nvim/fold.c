@@ -104,7 +104,7 @@ static int prev_lnum_lvl = -1;
 #define DONE_FOLD       2    ///< did find a fold
 
 static size_t foldstartmarkerlen;
-static char_u *foldendmarker;
+static uchar_kt *foldendmarker;
 static size_t foldendmarkerlen;
 
 /// Copy that folding state from window "wp_from" to window "wp_to".
@@ -1114,7 +1114,7 @@ int find_wl_entry(win_T *win, linenr_T lnum)
 void foldAdjustVisual(void)
 {
     pos_T *start, *end;
-    char_u *ptr;
+    uchar_kt *ptr;
 
     if(!VIsual_active || !hasAnyFolding(curwin))
     {
@@ -1875,13 +1875,13 @@ static void foldCreateMarkers(linenr_T start, linenr_T end)
 
 /// Add "marker[markerlen]" in 'commentstring' to line "lnum".
 static void foldAddMarker(linenr_T lnum,
-                          const char_u *marker,
+                          const uchar_kt *marker,
                           size_t markerlen)
 {
-    char_u *cms = curbuf->b_p_cms;
-    char_u *line;
-    char_u *newline;
-    char_u *p = (char_u *)strstr((char *)curbuf->b_p_cms, "%s");
+    uchar_kt *cms = curbuf->b_p_cms;
+    uchar_kt *line;
+    uchar_kt *newline;
+    uchar_kt *p = (uchar_kt *)strstr((char *)curbuf->b_p_cms, "%s");
     bool line_is_comment = false;
 
     // Allocate a new line: old-line + 'cms'-start + marker + 'cms'-end
@@ -1937,14 +1937,14 @@ static void deleteFoldMarkers(fold_T *fp, int recursive, linenr_T lnum_off)
 /// Delete 'commentstring' if it matches.
 /// If the marker is not found, there is no error message. Could a missing
 /// close-marker.
-static void foldDelMarker(linenr_T lnum, char_u *marker, size_t markerlen)
+static void foldDelMarker(linenr_T lnum, uchar_kt *marker, size_t markerlen)
 {
-    char_u *newline;
-    char_u *cms = curbuf->b_p_cms;
-    char_u *cms2;
-    char_u *line = ml_get(lnum);
+    uchar_kt *newline;
+    uchar_kt *cms = curbuf->b_p_cms;
+    uchar_kt *cms2;
+    uchar_kt *line = ml_get(lnum);
 
-    for(char_u *p = line; *p != NUL; ++p)
+    for(uchar_kt *p = line; *p != NUL; ++p)
     {
         if(STRNCMP(p, marker, markerlen) != 0)
         {
@@ -1962,7 +1962,7 @@ static void foldDelMarker(linenr_T lnum, char_u *marker, size_t markerlen)
         if(*cms != NUL)
         {
             // Also delete 'commentstring' if it matches.
-            cms2 = (char_u *)strstr((char *)cms, "%s");
+            cms2 = (uchar_kt *)strstr((char *)cms, "%s");
 
             if(p - line >= cms2 - cms
                && STRNCMP(p - (cms2 - cms), cms, cms2 - cms) == 0
@@ -1990,14 +1990,14 @@ static void foldDelMarker(linenr_T lnum, char_u *marker, size_t markerlen)
 /// Return the text for a closed fold at line "lnum", with last line "lnume".
 /// When 'foldtext' isn't set puts the result in "buf[FOLD_TEXT_LEN]".
 /// Otherwise the result is in allocated memory.
-char_u *get_foldtext(win_T *wp,
+uchar_kt *get_foldtext(win_T *wp,
                      linenr_T lnum,
                      linenr_T lnume,
                      foldinfo_T *foldinfo,
-                     char_u *buf)
+                     uchar_kt *buf)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    char_u *text = NULL;
+    uchar_kt *text = NULL;
 
     // an error occurred when evaluating 'fdt' setting
     static int got_fdt_error = FALSE;
@@ -2025,7 +2025,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         char dashes[MAX_LEVEL + 2];
         win_T *save_curwin;
         int level;
-        char_u  *p;
+        uchar_kt  *p;
 
         // Set "v:foldstart" and "v:foldend".
         set_vim_var_nr(VV_FOLDSTART, (varnumber_T) lnum);
@@ -2055,7 +2055,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             text = eval_to_string_safe(wp->w_p_fdt,
                                        NULL,
-                                       was_set_insecurely((char_u *)"foldtext",
+                                       was_set_insecurely((uchar_kt *)"foldtext",
                                                           OPT_LOCAL));
             --emsg_silent;
 
@@ -2129,15 +2129,15 @@ FUNC_ATTR_NONNULL_ARG(1)
 }
 
 /// Remove 'foldmarker' and 'commentstring' from "str" (in-place).
-void foldtext_cleanup(char_u *str)
+void foldtext_cleanup(uchar_kt *str)
 {
-    char_u *s;
-    char_u *p;
+    uchar_kt *s;
+    uchar_kt *p;
     int did1 = FALSE;
     int did2 = FALSE;
 
     // Ignore leading and trailing white space in 'commentstring'.
-    char_u *cms_start = skipwhite(curbuf->b_p_cms);
+    uchar_kt *cms_start = skipwhite(curbuf->b_p_cms);
     size_t cms_slen = STRLEN(cms_start);
 
     while(cms_slen > 0 && ascii_iswhite(cms_start[cms_slen - 1]))
@@ -2146,7 +2146,7 @@ void foldtext_cleanup(char_u *str)
     }
 
     // locate "%s" in 'commentstring', use the part before and after it.
-    char_u *cms_end = (char_u *)strstr((char *)cms_start, "%s");
+    uchar_kt *cms_end = (uchar_kt *)strstr((char *)cms_start, "%s");
     size_t cms_elen = 0;
 
     if(cms_end != NULL)
@@ -3445,7 +3445,7 @@ static void foldMerge(fold_T *fp1, garray_T *gap, fold_T *fp2)
 /// Returns a level of -1 if the foldlevel depends on surrounding lines.
 static void foldlevelIndent(fline_T *flp)
 {
-    char_u *s;
+    uchar_kt *s;
     buf_T *buf;
     linenr_T lnum = flp->lnum + flp->off;
     buf = flp->wp->w_buffer;
@@ -3624,11 +3624,11 @@ static void parseMarker(win_T *wp)
 /// Sets flp->start when a start marker was found.
 static void foldlevelMarker(fline_T *flp)
 {
-    char_u *startmarker;
+    uchar_kt *startmarker;
     int cstart;
     int cend;
     int start_lvl = flp->lvl;
-    char_u *s;
+    uchar_kt *s;
     int n;
 
     // cache a few values for speed

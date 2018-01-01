@@ -617,7 +617,7 @@ static void diff_check_unchanged(tabpage_T *tp, diff_T *dp)
                 off_org = dp->df_count[i_org] - 1;
             }
 
-            char_u *line_org =
+            uchar_kt *line_org =
                 vim_strsave(ml_get_buf(tp->tp_diffbuf[i_org],
                                        dp->df_lnum[i_org] + off_org,
                                        FALSE));
@@ -755,10 +755,10 @@ static void diff_redraw(int dofold)
 /// @param fname
 ///
 /// @return FAIL for failure
-static int diff_write(buf_T *buf, char_u *fname)
+static int diff_write(buf_T *buf, uchar_kt *fname)
 {
-    char_u *save_ff = buf->b_p_ff;
-    buf->b_p_ff = vim_strsave((char_u *)FF_UNIX);
+    uchar_kt *save_ff = buf->b_p_ff;
+    buf->b_p_ff = vim_strsave((uchar_kt *)FF_UNIX);
 
     int r = buf_write(buf,
                       fname,
@@ -877,7 +877,7 @@ void ex_diffupdate(exarg_T *eap)
                 }
                 else
                 {
-                    char_u linebuf[LBUFLEN];
+                    uchar_kt linebuf[LBUFLEN];
 
                     for(;;)
                     {
@@ -954,7 +954,7 @@ void ex_diffupdate(exarg_T *eap)
     // Write the first buffer to a tempfile.
     buf_T *buf = curtab->tp_diffbuf[idx_orig];
 
-    if(diff_write(buf, (char_u *) tmp_orig) == FAIL)
+    if(diff_write(buf, (uchar_kt *) tmp_orig) == FAIL)
     {
         goto theend;
     }
@@ -969,7 +969,7 @@ void ex_diffupdate(exarg_T *eap)
             continue; // skip buffer that isn't loaded
         }
 
-        if(diff_write(buf, (char_u *) tmp_new) == FAIL)
+        if(diff_write(buf, (uchar_kt *) tmp_new) == FAIL)
         {
             continue;
         }
@@ -977,7 +977,7 @@ void ex_diffupdate(exarg_T *eap)
         diff_file(tmp_orig, tmp_new, tmp_diff);
 
         // Read the diff output and add each entry to the diff list.
-        diff_read(idx_orig, idx_new, (char_u *) tmp_diff);
+        diff_read(idx_orig, idx_new, (uchar_kt *) tmp_diff);
 
         os_remove(tmp_diff);
         os_remove(tmp_new);
@@ -1038,7 +1038,7 @@ static void diff_file(const char *const tmp_orig,
         append_redir(cmd, len, (char *) p_srr, tmp_diff);
         block_autocmds(); // Avoid ShellCmdPost stuff
 
-        (void)call_shell((char_u *) cmd,
+        (void)call_shell((uchar_kt *) cmd,
                          kShellOptFilter | kShellOptSilent | kShellOptDoOut,
                          NULL);
 
@@ -1055,21 +1055,21 @@ static void diff_file(const char *const tmp_orig,
 /// @param eap
 void ex_diffpatch(exarg_T *eap)
 {
-    char_u *buf = NULL;
+    uchar_kt *buf = NULL;
     win_T *old_curwin = curwin;
-    char_u *newname = NULL; // name of patched file buffer
+    uchar_kt *newname = NULL; // name of patched file buffer
 
 #ifdef UNIX
-    char_u dirbuf[MAXPATHL];
-    char_u *fullname = NULL;
+    uchar_kt dirbuf[MAXPATHL];
+    uchar_kt *fullname = NULL;
 #endif
 
     // We need two temp file names.
     // Name of original temp file.
-    char_u *tmp_orig = vim_tempname();
+    uchar_kt *tmp_orig = vim_tempname();
 
     // Name of patched temp file.
-    char_u *tmp_new = vim_tempname();
+    uchar_kt *tmp_new = vim_tempname();
 
     if((tmp_orig == NULL) || (tmp_new == NULL))
     {
@@ -1093,7 +1093,7 @@ void ex_diffpatch(exarg_T *eap)
 
 #ifdef UNIX
     // Get the absolute path of the patchfile, changing directory below.
-    fullname = (char_u *)FullName_save((char *)eap->arg, FALSE);
+    fullname = (uchar_kt *)FullName_save((char *)eap->arg, FALSE);
 #endif
 
 #ifdef UNIX
@@ -1234,7 +1234,7 @@ void ex_diffpatch(exarg_T *eap)
                     ex_file(eap);
 
                     // Do filetype detection with the new name.
-                    if(au_has_group((char_u *)"filetypedetect"))
+                    if(au_has_group((uchar_kt *)"filetypedetect"))
                     {
                         do_cmdline_cmd(":doau filetypedetect BufRead");
                     }
@@ -1370,8 +1370,8 @@ void diff_win_options(win_T *wp, int addbuf)
         wp->w_p_fdm_save = vim_strsave(wp->w_p_fdm);
     }
 
-    set_string_option_direct((char_u *)"fdm", -1,
-                             (char_u *)"diff", OPT_LOCAL | OPT_FREE, 0);
+    set_string_option_direct((uchar_kt *)"fdm", -1,
+                             (uchar_kt *)"diff", OPT_LOCAL | OPT_FREE, 0);
 
     curwin = old_curwin;
     curbuf = curwin->w_buffer;
@@ -1492,7 +1492,7 @@ void ex_diffoff(exarg_T *eap)
 /// @param idx_orig idx of original file
 /// @param idx_new idx of new file
 /// @param fname name of diff output file
-static void diff_read(int idx_orig, int idx_new, char_u *fname)
+static void diff_read(int idx_orig, int idx_new, uchar_kt *fname)
 {
     FILE *fd;
     diff_T *dprev = NULL;
@@ -1503,9 +1503,9 @@ static void diff_read(int idx_orig, int idx_new, char_u *fname)
     long l1;
     long f2;
     long l2;
-    char_u linebuf[LBUFLEN]; // only need to hold the diff line
+    uchar_kt linebuf[LBUFLEN]; // only need to hold the diff line
     int difftype;
-    char_u *p;
+    uchar_kt *p;
     long off;
     int i;
     linenr_T lnum_orig;
@@ -1956,7 +1956,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     for(int i = 0; i < dp->df_count[idx1]; i++)
     {
-        char_u *line =
+        uchar_kt *line =
             vim_strsave(ml_get_buf(curtab->tp_diffbuf[idx1],
                                    dp->df_lnum[idx1] + i, false));
 
@@ -1982,7 +1982,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param s2 The second string
 ///
 /// @return on-zero if the two strings are different.
-static int diff_cmp(char_u *s1, char_u *s2)
+static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
 {
     if((diff_flags & (DIFF_ICASE | DIFF_IWHITE)) == 0)
     {
@@ -1995,8 +1995,8 @@ static int diff_cmp(char_u *s1, char_u *s2)
     }
 
     // Ignore white space changes and possibly ignore case.
-    char_u *p1 = s1;
-    char_u *p2 = s2;
+    uchar_kt *p1 = s1;
+    uchar_kt *p2 = s2;
 
     while(*p1 != NUL && *p2 != NUL)
     {
@@ -2236,7 +2236,7 @@ int diffopt_changed(void)
     int diff_context_new = 6;
     int diff_flags_new = 0;
     int diff_foldcolumn_new = 2;
-    char_u *p = p_dip;
+    uchar_kt *p = p_dip;
 
     while(*p != NUL)
     {
@@ -2334,7 +2334,7 @@ bool diff_find_change(win_T *wp, linenr_T lnum, int *startp, int *endp)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
-    char_u *line_new;
+    uchar_kt *line_new;
     int si_org;
     int si_new;
     int ei_org;
@@ -2342,7 +2342,7 @@ FUNC_ATTR_NONNULL_ALL
     bool added = true;
 
     // Make a copy of the line, the next ml_get() will invalidate it.
-    char_u *line_org = vim_strsave(ml_get_buf(wp->w_buffer, lnum, FALSE));
+    uchar_kt *line_org = vim_strsave(ml_get_buf(wp->w_buffer, lnum, FALSE));
 
     int idx = diff_buf_idx(wp->w_buffer);
 
@@ -2556,12 +2556,12 @@ void nv_diffgetput(bool put, size_t count)
 
     if(count == 0)
     {
-        ea.arg = (char_u *)"";
+        ea.arg = (uchar_kt *)"";
     }
     else
     {
         vim_snprintf(buf, 30, "%zu", count);
-        ea.arg = (char_u *)buf;
+        ea.arg = (uchar_kt *)buf;
     }
 
     if(put)
@@ -2592,7 +2592,7 @@ void ex_diffgetput(exarg_T *eap)
     diff_T *dfree;
     int i;
     int added;
-    char_u *p;
+    uchar_kt *p;
     aco_save_T aco;
     buf_T *buf;
     int start_skip, end_skip;

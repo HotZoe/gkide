@@ -678,7 +678,7 @@ int u_savecommon(linenr_T top, linenr_T bot, linenr_T newbot, int reload)
 
     if(size > 0)
     {
-        uep->ue_array = xmalloc(sizeof(char_u *) * (size_t)size);
+        uep->ue_array = xmalloc(sizeof(uchar_kt *) * (size_t)size);
 
         for(i = 0, lnum = top + 1; i < size; ++i)
         {
@@ -722,14 +722,14 @@ int u_savecommon(linenr_T top, linenr_T bot, linenr_T newbot, int reload)
 #define UF_LAST_SAVE_NR        1       ///< extra fields for header
 #define UHP_SAVE_NR            1       ///< extra fields for uhp
 
-static char_u e_not_open[] = N_("E828: Cannot open undo file for writing: %s");
+static uchar_kt e_not_open[] = N_("E828: Cannot open undo file for writing: %s");
 
 /// Compute the hash for the current buffer text into hash[UNDO_HASH_SIZE].
-void u_compute_hash(char_u *hash)
+void u_compute_hash(uchar_kt *hash)
 {
     context_sha256_T ctx;
     linenr_T lnum;
-    char_u *p;
+    uchar_kt *p;
     sha256_start(&ctx);
 
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
@@ -774,7 +774,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #ifdef HAVE_FUN_READLINK
     // Expand symlink in the file name, so that we put the undo
     // file with the actual file instead of with the symlink.
-    if(resolve_symlink((const char_u *)ffname, (char_u *)fname_buf) == OK)
+    if(resolve_symlink((const uchar_kt *)ffname, (uchar_kt *)fname_buf) == OK)
     {
         ffname = fname_buf;
     }
@@ -786,8 +786,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     while(*dirp != NUL)
     {
-        size_t dir_len = copy_option_part((char_u **)&dirp,
-                                          (char_u *)dir_name,
+        size_t dir_len = copy_option_part((uchar_kt **)&dirp,
+                                          (uchar_kt *)dir_name,
                                           MAXPATHL,
                                           ",");
 
@@ -798,7 +798,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             undo_file_name = xmalloc(ffname_len + 6);
             memmove(undo_file_name, ffname, ffname_len + 1);
 
-            char *const tail = (char *) path_tail((char_u *) undo_file_name);
+            char *const tail = (char *) path_tail((uchar_kt *) undo_file_name);
             const size_t tail_len = strlen(tail);
             memmove(tail + 1, tail, tail_len + 1);
             *tail = '.';
@@ -807,7 +807,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         else
         {
             dir_name[dir_len] = NUL;
-            bool has_directory = os_isdir((char_u *)dir_name);
+            bool has_directory = os_isdir((uchar_kt *)dir_name);
 
             if(!has_directory && *dirp == NUL && !reading)
             {
@@ -849,7 +849,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         // When reading check if the file exists.
         if(undo_file_name != NULL
-           && (!reading || os_path_exists((char_u *)undo_file_name)))
+           && (!reading || os_path_exists((uchar_kt *)undo_file_name)))
         {
             break;
         }
@@ -895,7 +895,7 @@ static void u_free_uhp(u_header_T *uhp)
 /// @param hash The hash of the buffer contents
 //
 /// @returns false in case of an error.
-static bool serialize_header(bufinfo_T *bi, char_u *hash)
+static bool serialize_header(bufinfo_T *bi, uchar_kt *hash)
 FUNC_ATTR_NONNULL_ALL
 {
     buf_T *buf = bi->bi_buf;
@@ -1156,14 +1156,14 @@ static u_entry_T *unserialize_uep(bufinfo_T *bi,
     uep->ue_bot = undo_read_4c(bi);
     uep->ue_lcount = undo_read_4c(bi);
     uep->ue_size = undo_read_4c(bi);
-    char_u **array = NULL;
+    uchar_kt **array = NULL;
 
     if(uep->ue_size > 0)
     {
-        if((size_t)uep->ue_size < SIZE_MAX / sizeof(char_u *))
+        if((size_t)uep->ue_size < SIZE_MAX / sizeof(uchar_kt *))
         {
-            array = xmalloc(sizeof(char_u *) * (size_t)uep->ue_size);
-            memset(array, 0, sizeof(char_u *) * (size_t)uep->ue_size);
+            array = xmalloc(sizeof(uchar_kt *) * (size_t)uep->ue_size);
+            memset(array, 0, sizeof(uchar_kt *) * (size_t)uep->ue_size);
         }
     }
 
@@ -1172,7 +1172,7 @@ static u_entry_T *unserialize_uep(bufinfo_T *bi,
     for(size_t i = 0; i < (size_t)uep->ue_size; i++)
     {
         int line_len = undo_read_4c(bi);
-        char_u *line;
+        uchar_kt *line;
 
         if(line_len >= 0)
         {
@@ -1264,7 +1264,7 @@ static void unserialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
 void u_write_undo(const char *const name,
                   const bool forceit,
                   buf_T *const buf,
-                  char_u *const hash)
+                  uchar_kt *const hash)
 FUNC_ATTR_NONNULL_ARG(3, 4)
 {
     u_header_T *uhp;
@@ -1322,7 +1322,7 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
 
     // If the undo file already exists, verify that
     // it actually is an undo file, and delete it.
-    if(os_path_exists((char_u *)file_name))
+    if(os_path_exists((uchar_kt *)file_name))
     {
         if(name == NULL || !forceit)
         {
@@ -1351,7 +1351,7 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
             }
             else
             {
-                char_u mbuf[UF_START_MAGIC_LEN];
+                uchar_kt mbuf[UF_START_MAGIC_LEN];
                 ssize_t len = read_eintr(fd, mbuf, UF_START_MAGIC_LEN);
                 close(fd);
 
@@ -1388,7 +1388,7 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
     {
         if(p_verbose > 0)
         {
-            verb_msg((char_u *)_("Skipping undo file write, nothing to undo"));
+            verb_msg((uchar_kt *)_("Skipping undo file write, nothing to undo"));
         }
 
         goto theend;
@@ -1540,7 +1540,7 @@ write_error:
         // For systems that support ACL:
         // get the ACL from the original file.
         acl = mch_get_acl(buf->b_ffname);
-        mch_set_acl((char_u *)file_name, acl);
+        mch_set_acl((uchar_kt *)file_name, acl);
         mch_free_acl(acl);
     }
 #endif
@@ -1560,12 +1560,12 @@ theend:
 /// Otherwise use curbuf->b_ffname to generate the undo file name.
 /// "hash[UNDO_HASH_SIZE]" must be the hash value of the buffer text.
 void u_read_undo(char *name,
-                 char_u *hash,
-                 char_u *FUNC_ARGS_UNUSED_MAYBE(orig_name))
+                 uchar_kt *hash,
+                 uchar_kt *FUNC_ARGS_UNUSED_MAYBE(orig_name))
 FUNC_ATTR_NONNULL_ARG(2)
 {
     u_header_T **uhp_table = NULL;
-    char_u *line_ptr = NULL;
+    uchar_kt *line_ptr = NULL;
     char *file_name;
 
     if(name == NULL)
@@ -1628,7 +1628,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     bi.bi_fp = fp;
 
     // Read the undo file header.
-    char_u magic_buf[UF_START_MAGIC_LEN];
+    uchar_kt magic_buf[UF_START_MAGIC_LEN];
 
     if(fread(magic_buf, UF_START_MAGIC_LEN, 1, fp) != 1
        || memcmp(magic_buf, UF_START_MAGIC, UF_START_MAGIC_LEN) != 0)
@@ -1645,7 +1645,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         goto error;
     }
 
-    char_u read_hash[UNDO_HASH_SIZE];
+    uchar_kt read_hash[UNDO_HASH_SIZE];
 
     if(!undo_read(&bi, read_hash, UNDO_HASH_SIZE))
     {
@@ -1665,7 +1665,7 @@ FUNC_ATTR_NONNULL_ARG(2)
                 verbose_enter();
             }
 
-            give_warning((char_u *)_("File contents changed, "
+            give_warning((uchar_kt *)_("File contents changed, "
                                      "cannot use undo info"), true);
 
             if(name == NULL)
@@ -2688,7 +2688,7 @@ void undo_time(long step, int sec, int file, int absolute)
 /// When "undo" is TRUE we go up in the tree, when FALSE we go down.
 static void u_undoredo(int undo)
 {
-    char_u **newarray = NULL;
+    uchar_kt **newarray = NULL;
     linenr_T oldsize;
     linenr_T newsize;
     linenr_T top, bot;
@@ -2799,7 +2799,7 @@ static void u_undoredo(int undo)
         // bot and save them in newarray
         if(oldsize > 0)
         {
-            newarray = xmalloc(sizeof(char_u *) * (size_t)oldsize);
+            newarray = xmalloc(sizeof(uchar_kt *) * (size_t)oldsize);
 
             // delete backwards, it goes faster in most cases
             for(lnum = bot - 1, i = oldsize; --i >= 0; --lnum)
@@ -2841,7 +2841,7 @@ static void u_undoredo(int undo)
                 xfree(uep->ue_array[i]);
             }
 
-            xfree((char_u *)uep->ue_array);
+            xfree((uchar_kt *)uep->ue_array);
         }
 
         // adjust marks
@@ -3021,7 +3021,7 @@ static void u_undo_end(int did_undo, int absolute, bool quiet)
 {
     char *msgstr;
     u_header_T *uhp;
-    char_u msgbuf[80];
+    uchar_kt msgbuf[80];
 
     if((fdo_flags & FDO_UNDO) && KeyTyped)
     {
@@ -3183,7 +3183,7 @@ void ex_undolist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
                                  "  %3ld", uhp->uh_save_nr);
             }
 
-            GA_APPEND(char_u *, &ga, vim_strsave(IObuff));
+            GA_APPEND(uchar_kt *, &ga, vim_strsave(IObuff));
         }
 
         uhp->uh_walk = mark;
@@ -3236,7 +3236,7 @@ void ex_undolist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
     }
     else
     {
-        sort_strings((char_u **)ga.ga_data, ga.ga_len);
+        sort_strings((uchar_kt **)ga.ga_data, ga.ga_len);
         msg_start();
 
         msg_puts_attr(_("number changes  when               saved"),
@@ -3260,7 +3260,7 @@ void ex_undolist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 }
 
 /// Put the timestamp of an undo header in "buf[buflen]" in a nice format.
-static void u_add_time(char_u *buf, size_t buflen, time_t tt)
+static void u_add_time(uchar_kt *buf, size_t buflen, time_t tt)
 {
     struct tm curtime;
 
@@ -3578,7 +3578,7 @@ static void u_freeentries(buf_T *buf, u_header_T *uhp, u_header_T **uhpp)
     uhp->uh_magic = 0;
 #endif
 
-    xfree((char_u *)uhp);
+    xfree((uchar_kt *)uhp);
     --buf->b_u_numhead;
 }
 
@@ -3590,13 +3590,13 @@ static void u_freeentry(u_entry_T *uep, long n)
         xfree(uep->ue_array[--n]);
     }
 
-    xfree((char_u *)uep->ue_array);
+    xfree((uchar_kt *)uep->ue_array);
 
 #ifdef U_DEBUG
     uep->ue_magic = 0;
 #endif
 
-    xfree((char_u *)uep);
+    xfree((uchar_kt *)uep);
 }
 
 /// invalidate the undo buffer;
@@ -3657,7 +3657,7 @@ void u_clearline(void)
 void u_undoline(void)
 {
     colnr_T t;
-    char_u *oldp;
+    uchar_kt *oldp;
 
     if(undo_off)
     {
@@ -3713,7 +3713,7 @@ void u_blockfree(buf_T *buf)
 }
 
 /// u_save_line(): allocate memory and copy line 'lnum' into it.
-static char_u *u_save_line(linenr_T lnum)
+static uchar_kt *u_save_line(linenr_T lnum)
 {
     return vim_strsave(ml_get(lnum));
 }

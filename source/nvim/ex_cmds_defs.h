@@ -88,12 +88,12 @@ typedef struct exarg exarg_T;
 
 typedef void (*ex_func_T)(exarg_T *eap);
 
-typedef char_u *(*LineGetter)(int, void *, int);
+typedef uchar_kt *(*LineGetter)(int, void *, int);
 
 /// Structure for command definition.
 typedef struct cmdname
 {
-    char_u *cmd_name;    ///< Name of the command.
+    uchar_kt *cmd_name;    ///< Name of the command.
     ex_func_T cmd_func;  ///< Function with implementation of this command.
     uint32_t cmd_argt;   ///< Relevant flags from the declared above.
     int cmd_addr_type;   ///< Flag for address type
@@ -102,10 +102,10 @@ typedef struct cmdname
 /// Arguments used for Ex commands.
 struct exarg
 {
-    char_u *arg;               ///< argument of the command
-    char_u *nextcmd;           ///< next command (NULL if none)
-    char_u *cmd;               ///< the name of the command (except for :make)
-    char_u **cmdlinep;         ///< pointer to pointer of allocated cmdline
+    uchar_kt *arg;               ///< argument of the command
+    uchar_kt *nextcmd;           ///< next command (NULL if none)
+    uchar_kt *cmd;               ///< the name of the command (except for :make)
+    uchar_kt **cmdlinep;         ///< pointer to pointer of allocated cmdline
     cmdidx_T cmdidx;           ///< the index for the command
     uint32_t argt;             ///< flags for the command
     int skip;                  ///< don't execute the command, only parse it
@@ -115,7 +115,7 @@ struct exarg
     linenr_T line2;            ///< the second line number or count
     int addr_type;             ///< type of the count/range
     int flags;                 ///< extra flags after count: EXFLAG_
-    char_u *do_ecmd_cmd;       ///< +command arg to be used in edited file
+    uchar_kt *do_ecmd_cmd;       ///< +command arg to be used in edited file
     linenr_T do_ecmd_lnum;     ///< the line number in an edited file
     int append;                ///< TRUE with ":w >>file" command
     int usefilter;             ///< TRUE with ":w !command" and ":r!command"
@@ -127,7 +127,7 @@ struct exarg
     int force_enc;             ///< ++enc= argument (index in cmd[])
     int bad_char;              ///< BAD_KEEP, BAD_DROP or replacement byte
     int useridx;               ///< user command index
-    char_u *errmsg;            ///< returned error message
+    uchar_kt *errmsg;            ///< returned error message
     LineGetter getline;        ///< Function used to get the next line
     void *cookie;              ///< argument for getline()
     struct condstack *cstack;  ///< condition stack for ":if" etc.
@@ -144,9 +144,9 @@ struct exarg
 struct expand
 {
     int xp_context;          ///< type of expansion
-    char_u *xp_pattern;      ///< start of item to expand
+    uchar_kt *xp_pattern;      ///< start of item to expand
     int xp_pattern_len;      ///< bytes in xp_pattern before cursor
-    char_u *xp_arg;          ///< completion function
+    uchar_kt *xp_arg;          ///< completion function
     int xp_scriptID;         ///< SID for completion function
     int xp_backslash;        ///< one of the XP_BS_ values
 
@@ -156,8 +156,8 @@ struct expand
     #endif
 
     int xp_numfiles;         ///< number of files found by file name completion
-    char_u **xp_files;       ///< list of files
-    char_u *xp_line;         ///< text being completed
+    uchar_kt **xp_files;       ///< list of files
+    uchar_kt *xp_line;         ///< text being completed
     int xp_col;              ///< cursor position in line
 };
 
@@ -182,7 +182,7 @@ typedef struct
     bool keeppatterns;           ///< true when ":keeppatterns" was used
     bool lockmarks;              ///< true when ":lockmarks" was used
     bool noswapfile;             ///< true when ":noswapfile" was used
-    char_u *save_ei;             ///< saved value of 'eventignore'
+    uchar_kt *save_ei;             ///< saved value of 'eventignore'
     regmatch_T filter_regmatch;  ///< set by :filter /pat/
     bool filter_force;           ///< set for :filter!
 } cmdmod_T;

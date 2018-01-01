@@ -81,8 +81,8 @@ struct condstack
 /// message in the list. See cause_errthrow() below.
 struct msglist
 {
-    char_u *msg;             ///< original message
-    char_u *throw_msg;       ///< msg to throw: usually original one
+    uchar_kt *msg;             ///< original message
+    uchar_kt *throw_msg;       ///< msg to throw: usually original one
     struct msglist *next;    ///< next of several messages in a row
 };
 
@@ -92,9 +92,9 @@ typedef struct vim_exception except_T;
 struct vim_exception
 {
     int type;                  ///< exception type
-    char_u *value;             ///< exception value
+    uchar_kt *value;             ///< exception value
     struct msglist *messages;  ///< message(s) causing error exception
-    char_u *throw_name;        ///< name of the throw point
+    uchar_kt *throw_name;        ///< name of the throw point
     linenr_T throw_lnum;       ///< line number of the throw point
     except_T *caught;          ///< next exception on the caught stack
 };

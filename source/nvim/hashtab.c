@@ -93,7 +93,7 @@ void hash_clear_all(hashtab_T *ht, unsigned int off)
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table is
 /// changed in any way.
-hashitem_T *hash_find(const hashtab_T *const ht, const char_u *const key)
+hashitem_T *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
 {
     return hash_lookup(ht, (const char *)key, STRLEN(key), hash_hash(key));
 }
@@ -227,7 +227,7 @@ void hash_debug_results(void)
 /// @return
 /// - OK, if success.
 /// - FAIL, if key already present
-int hash_add(hashtab_T *ht, char_u *key)
+int hash_add(hashtab_T *ht, uchar_kt *key)
 {
     hash_T hash = hash_hash(key);
     hashitem_T *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
@@ -254,7 +254,7 @@ int hash_add(hashtab_T *ht, char_u *key)
 ///
 /// @param hash
 /// The precomputed hash value for the key.
-void hash_add_item(hashtab_T *ht, hashitem_T *hi, char_u *key, hash_T hash)
+void hash_add_item(hashtab_T *ht, hashitem_T *hi, uchar_kt *key, hash_T hash)
 {
     ht->ht_used++;
 
@@ -461,7 +461,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 /// Compile with HT_DEBUG set and run a script that uses hashtables a lot.
 /// Vim will then print statistics when exiting. Try that with the current
 /// hash algorithm and yours. The lower the percentage the better.
-hash_T hash_hash(const char_u *key)
+hash_T hash_hash(const uchar_kt *key)
 {
     hash_T hash = *key;
 
@@ -520,7 +520,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// Used for testing because luajit ffi does not
 /// allow getting addresses of globals.
-const char_u *_hash_key_removed(void)
+const uchar_kt *_hash_key_removed(void)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {

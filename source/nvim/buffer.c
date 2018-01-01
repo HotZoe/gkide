@@ -836,7 +836,7 @@ static void free_buffer_stuff(buf_T *buf, int free_options)
     // clearing variables implies using clear_tv() on
     // b:changedtick and that sets changedtick to zero.
     hashitem_T *const changedtick_hi = hash_find(&buf->b_vars->dv_hashtab,
-                                                 (const char_u *)"changedtick");
+                                                 (const uchar_kt *)"changedtick");
 
     assert(changedtick_hi != NULL);
 
@@ -1005,8 +1005,8 @@ void handle_swap_exists(bufref_T *old_curbuf)
 /// @param forceit
 ///
 /// @return returns error message or NULL
-char_u *do_bufdel(int command,
-                  char_u *arg,
+uchar_kt *do_bufdel(int command,
+                  uchar_kt *arg,
                   int addr_count,
                   int start_bnr,
                   int end_bnr,
@@ -1014,9 +1014,9 @@ char_u *do_bufdel(int command,
 {
     int do_current = 0; // delete current buffer?
     int deleted = 0; // number of buffers deleted
-    char_u *errormsg = NULL; // return value
+    uchar_kt *errormsg = NULL; // return value
     int bnr; // buffer number
-    char_u *p;
+    uchar_kt *p;
 
     if(addr_count == 0)
     {
@@ -1029,7 +1029,7 @@ char_u *do_bufdel(int command,
             if(*arg)
             {
                 // both range and argument is not allowed
-                return (char_u *)_(e_trailing);
+                return (uchar_kt *)_(e_trailing);
             }
 
             bnr = start_bnr;
@@ -1925,7 +1925,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 /// @param bufnr
 ///
 /// @return pointer to the buffer
-buf_T *buflist_new(char_u *ffname, char_u *sfname, linenr_T lnum, int flags)
+buf_T *buflist_new(uchar_kt *ffname, uchar_kt *sfname, linenr_T lnum, int flags)
 {
     buf_T *buf;
     fname_expand(curbuf, &ffname, &sfname); // will allocate ffname
@@ -2381,17 +2381,17 @@ void buflist_getfpos(void)
 
 /// Find file in buffer list by name (it has to be for the current window).
 /// Returns NULL if not found.
-buf_T *buflist_findname_exp(char_u *fname)
+buf_T *buflist_findname_exp(uchar_kt *fname)
 {
     // First make the name into a full path name
     buf_T *buf = NULL;
 
 #ifdef UNIX
     // force expansion, get rid of symbolic links
-    char_u *ffname = (char_u *)FullName_save((char *)fname, TRUE);
+    uchar_kt *ffname = (uchar_kt *)FullName_save((char *)fname, TRUE);
 #else
     // do not get rid of symbolic links
-    char_u *ffname = (char_u *)FullName_save((char *)fname, FALSE);
+    uchar_kt *ffname = (uchar_kt *)FullName_save((char *)fname, FALSE);
 #endif
 
     if(ffname != NULL)
@@ -2407,7 +2407,7 @@ buf_T *buflist_findname_exp(char_u *fname)
 /// "ffname" must have a full path.
 /// Skips dummy buffers.
 /// Returns NULL if not found.
-buf_T *buflist_findname(char_u *ffname)
+buf_T *buflist_findname(uchar_kt *ffname)
 {
     FileID file_id;
     bool file_id_valid = os_fileid((char *)ffname, &file_id);
@@ -2417,7 +2417,7 @@ buf_T *buflist_findname(char_u *ffname)
 /// Same as buflist_findname(), but pass the FileID structure to avoid
 /// getting it twice for the same file.
 /// Returns NULL if not found.
-static buf_T *buflist_findname_file_id(char_u *ffname,
+static buf_T *buflist_findname_file_id(uchar_kt *ffname,
                                        FileID *file_id,
                                        bool file_id_valid)
 {
@@ -2444,17 +2444,17 @@ static buf_T *buflist_findname_file_id(char_u *ffname,
 /// @return
 /// - Return fnum of the found buffer.
 /// - Return < 0 for error.
-int buflist_findpat(const char_u *pattern,
-                    const char_u *pattern_end,
+int buflist_findpat(const uchar_kt *pattern,
+                    const uchar_kt *pattern_end,
                     int unlisted,
                     int diffmode,
                     int curtab_only)
 {
     int match = -1;
     int find_listed;
-    char_u *pat;
-    char_u *patend;
-    char_u *p;
+    uchar_kt *pat;
+    uchar_kt *patend;
+    uchar_kt *p;
     int attempt;
     int toggledollar;
 
@@ -2596,13 +2596,13 @@ int buflist_findpat(const char_u *pattern,
 /// Find all buffer names that match.
 /// For command line expansion of ":buf" and ":sbuf".
 /// Return OK if matches found, FAIL otherwise.
-int ExpandBufnames(char_u *pat, int *num_file, char_u ***file, int options)
+int ExpandBufnames(uchar_kt *pat, int *num_file, uchar_kt ***file, int options)
 {
     int count = 0;
     int round;
-    char_u *p;
+    uchar_kt *p;
     int attempt;
-    char_u *patc;
+    uchar_kt *patc;
     *num_file = 0; // return values in case of FAIL
     *file = NULL;
 
@@ -2708,10 +2708,10 @@ int ExpandBufnames(char_u *pat, int *num_file, char_u ***file, int options)
 /// Check for a match on the file name for buffer "buf" with regprog "prog".
 ///
 /// @param ignore_case When TRUE, ignore case. Use 'fic' otherwise.
-static char_u *buflist_match(regmatch_T *rmp, buf_T *buf, bool ignore_case)
+static uchar_kt *buflist_match(regmatch_T *rmp, buf_T *buf, bool ignore_case)
 {
     // First try the short file name, then the long file name.
-    char_u *match = fname_match(rmp, buf->b_sfname, ignore_case);
+    uchar_kt *match = fname_match(rmp, buf->b_sfname, ignore_case);
 
     if(match == NULL)
     {
@@ -2725,10 +2725,10 @@ static char_u *buflist_match(regmatch_T *rmp, buf_T *buf, bool ignore_case)
 ///
 /// @param ignore_case When TRUE, ignore case. Use 'fileignorecase' otherwise.
 /// @return "name" when there is a match, NULL when not.
-static char_u *fname_match(regmatch_T *rmp, char_u *name, bool ignore_case)
+static uchar_kt *fname_match(regmatch_T *rmp, uchar_kt *name, bool ignore_case)
 {
-    char_u *match = NULL;
-    char_u *p;
+    uchar_kt *match = NULL;
+    uchar_kt *p;
 
     if(name != NULL)
     {
@@ -2776,7 +2776,7 @@ buf_T *buflist_findnr(int nr)
 /// When the file has no name an empty string is returned.
 /// home_replace() is used to shorten the file name (used for marks).
 /// Returns a pointer to allocated memory, of NULL when failed.
-char_u *buflist_nr2name(int n, int fullname, int helptail)
+uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
 {
     buf_T *buf = buflist_findnr(n);
 
@@ -3093,7 +3093,7 @@ void buflist_list(exarg_T *eap)
 /// Used by DoOneCmd() for translating '%' and '#'.
 /// Used by insert_reg() and cmdline_paste() for '#' register.
 /// Return FAIL if not found, OK for success.
-int buflist_name_nr(int fnum, char_u **fname, linenr_T *lnum)
+int buflist_name_nr(int fnum, uchar_kt **fname, linenr_T *lnum)
 {
     buf_T *buf;
     buf = buflist_findnr(fnum);
@@ -3119,7 +3119,7 @@ int buflist_name_nr(int fnum, char_u **fname, linenr_T *lnum)
 ///
 /// Returns `FAIL` for failure (file name already in use by other buffer)
 /// OK otherwise.
-int setfname(buf_T *buf, char_u *ffname, char_u *sfname, int message)
+int setfname(buf_T *buf, uchar_kt *ffname, uchar_kt *sfname, int message)
 {
     buf_T *obuf = NULL;
     FileID file_id;
@@ -3200,7 +3200,7 @@ int setfname(buf_T *buf, char_u *ffname, char_u *sfname, int message)
 
 /// Crude way of changing the name of a buffer.  Use with care!
 /// The name should be relative to the current directory.
-void buf_set_name(int fnum, char_u *name)
+void buf_set_name(int fnum, uchar_kt *name)
 {
     buf_T *buf;
     buf = buflist_findnr(fnum);
@@ -3246,7 +3246,7 @@ void buf_name_changed(buf_T *buf)
 /// Used by do_one_cmd(), do_write() and do_ecmd().
 ///
 /// @return the buffer.
-buf_T *setaltfname(char_u *ffname, char_u *sfname, linenr_T lnum)
+buf_T *setaltfname(uchar_kt *ffname, uchar_kt *sfname, linenr_T lnum)
 {
     buf_T *buf;
 
@@ -3263,9 +3263,9 @@ buf_T *setaltfname(char_u *ffname, char_u *sfname, linenr_T lnum)
 
 /// Get alternate file name for current window.
 // Return NULL if there isn't any, and give error message if requested.
-char_u *getaltfname(int errmsg)
+uchar_kt *getaltfname(int errmsg)
 {
-    char_u *fname;
+    uchar_kt *fname;
     linenr_T dummy;
 
     if(buflist_name_nr(0, &fname, &dummy) == FAIL)
@@ -3285,7 +3285,7 @@ char_u *getaltfname(int errmsg)
 /// Uses same flags as buflist_new(), except BLN_DUMMY.
 ///
 /// used by qf_init(), main() and doarglist()
-int buflist_add(char_u *fname, int flags)
+int buflist_add(uchar_kt *fname, int flags)
 {
     buf_T *buf;
     buf = buflist_new(fname, NULL, (linenr_T)0, flags);
@@ -3329,7 +3329,7 @@ void buflist_altfpos(win_T *win)
 /// Fname must have a full path (expanded by path_get_absolute_path()).
 ///
 /// @param  ffname  full path name to check
-bool otherfile(char_u *ffname)
+bool otherfile(uchar_kt *ffname)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
@@ -3345,7 +3345,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  file_id_p      information about the file at "ffname".
 /// @param  file_id_valid  whether a valid "file_id_p" was passed in.
 static bool otherfile_buf(buf_T *buf,
-                          char_u *ffname,
+                          uchar_kt *ffname,
                           FileID *file_id_p,
                           bool file_id_valid)
 FUNC_ATTR_PURE
@@ -3433,9 +3433,9 @@ FUNC_ATTR_NONNULL_ALL
 void fileinfo(int fullname, int shorthelp, int dont_truncate)
 {
     int n;
-    char_u *name;
-    char_u *p;
-    char_u *buffer;
+    uchar_kt *name;
+    uchar_kt *p;
+    uchar_kt *buffer;
     size_t len;
     buffer = xmalloc(IOSIZE);
 
@@ -3573,7 +3573,7 @@ void fileinfo(int fullname, int shorthelp, int dont_truncate)
     xfree(buffer);
 }
 
-void col_print(char_u *buf, size_t buflen, int col, int vcol)
+void col_print(uchar_kt *buf, size_t buflen, int col, int vcol)
 {
     if(col == vcol)
     {
@@ -3586,16 +3586,16 @@ void col_print(char_u *buf, size_t buflen, int col, int vcol)
 }
 
 // put file name in title bar of window and in icon title
-static char_u *lasttitle = NULL;
-static char_u *lasticon = NULL;
+static uchar_kt *lasttitle = NULL;
+static uchar_kt *lasticon = NULL;
 
 void maketitle(void)
 {
-    char_u *p;
-    char_u *t_str = NULL;
-    char_u *i_name;
-    char_u *i_str = NULL;
-    char_u buf[IOSIZE];
+    uchar_kt *p;
+    uchar_kt *t_str = NULL;
+    uchar_kt *i_name;
+    uchar_kt *i_str = NULL;
+    uchar_kt buf[IOSIZE];
     int maxlen = 0;
     int len;
     int mustset;
@@ -3634,7 +3634,7 @@ void maketitle(void)
             {
                 int use_sandbox = FALSE;
                 int save_called_emsg = called_emsg;
-                use_sandbox = was_set_insecurely((char_u *)"titlestring", 0);
+                use_sandbox = was_set_insecurely((uchar_kt *)"titlestring", 0);
                 called_emsg = FALSE;
 
                 build_stl_str_hl(curwin,
@@ -3649,9 +3649,9 @@ void maketitle(void)
 
                 if(called_emsg)
                 {
-                    set_string_option_direct((char_u *)"titlestring",
+                    set_string_option_direct((uchar_kt *)"titlestring",
                                              -1,
-                                             (char_u *)"",
+                                             (uchar_kt *)"",
                                              OPT_FREE,
                                              SID_ERROR);
                 }
@@ -3781,7 +3781,7 @@ void maketitle(void)
             {
                 int use_sandbox = FALSE;
                 int save_called_emsg = called_emsg;
-                use_sandbox = was_set_insecurely((char_u *)"iconstring", 0);
+                use_sandbox = was_set_insecurely((uchar_kt *)"iconstring", 0);
                 called_emsg = FALSE;
 
                 build_stl_str_hl(curwin,
@@ -3796,9 +3796,9 @@ void maketitle(void)
 
                 if(called_emsg)
                 {
-                    set_string_option_direct((char_u *)"iconstring",
+                    set_string_option_direct((uchar_kt *)"iconstring",
                                              -1,
-                                             (char_u *)"",
+                                             (uchar_kt *)"",
                                              OPT_FREE, SID_ERROR);
                 }
 
@@ -3857,7 +3857,7 @@ void maketitle(void)
 /// @param[in,out]  last  current title string
 //
 /// @return true when "*last" changed.
-static bool ti_change(char_u *str, char_u **last)
+static bool ti_change(uchar_kt *str, uchar_kt **last)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if((str == NULL) != (*last == NULL)
@@ -3933,18 +3933,18 @@ typedef enum
 ///
 /// @return The final width of the statusline
 int build_stl_str_hl(win_T *wp,
-                     char_u *out,
+                     uchar_kt *out,
                      size_t outlen,
-                     char_u *fmt,
+                     uchar_kt *fmt,
                      int use_sandbox,
-                     char_u fillchar,
+                     uchar_kt fillchar,
                      int maxwidth,
                      struct stl_hlrec *hltab,
                      StlClickRecord *tabtab)
 {
     struct stl_item
     {
-        char_u *start; // Where the item starts in the status line output buffer
+        uchar_kt *start; // Where the item starts in the status line output buffer
         char *cmd; // Function to run for ClickFunc items.
         int minwid; // The minimum width of the item
         int maxwid; // The maximum width of the item
@@ -3963,8 +3963,8 @@ int build_stl_str_hl(win_T *wp,
 
     #define TMPLEN    70
 
-    char_u tmp[TMPLEN];
-    char_u *usefmt = fmt;
+    uchar_kt tmp[TMPLEN];
+    uchar_kt *usefmt = fmt;
     int groupitems[STL_MAX_ITEM];
 
     // When the format starts with "%!" then evaluate it as an expression and
@@ -3989,7 +3989,7 @@ int build_stl_str_hl(win_T *wp,
     }
 
     // Get line & check if empty (cursorpos will show "0-1").
-    char_u *line_ptr = ml_get_buf(wp->w_buffer, wp->w_cursor.lnum, false);
+    uchar_kt *line_ptr = ml_get_buf(wp->w_buffer, wp->w_cursor.lnum, false);
     bool empty_line = (*line_ptr == NUL);
     // Get the byte value now, in case we need it below. This is more
     // efficient than making a copy of the line.
@@ -4008,18 +4008,18 @@ int build_stl_str_hl(win_T *wp,
     int curitem = 0;
     bool prevchar_isflag = true;
     bool prevchar_isitem = false;
-    char_u *out_p = out; // out_p is the current position in the output buffer
+    uchar_kt *out_p = out; // out_p is the current position in the output buffer
 
     // out_end_p is the last valid character in the output buffer
     //
     // Note:
     // The null termination character must occur here or earlier,
     // so any user-visible characters must occur before here.
-    char_u *out_end_p = (out + outlen) - 1;
+    uchar_kt *out_end_p = (out + outlen) - 1;
 
     // Proceed character by character through the statusline
     // format string fmt_p is the current positon in the input buffer
-    for(char_u *fmt_p = usefmt; *fmt_p; )
+    for(uchar_kt *fmt_p = usefmt; *fmt_p; )
     {
         if(curitem == STL_MAX_ITEM)
         {
@@ -4125,7 +4125,7 @@ int build_stl_str_hl(win_T *wp,
             // Determine how long the group is.
             // Note: We set the current output position to null
             //       so `vim_strsize` will work.
-            char_u *t = items[groupitems[groupdepth]].start;
+            uchar_kt *t = items[groupitems[groupdepth]].start;
             *out_p = NUL;
             long group_len = vim_strsize(t);
 
@@ -4424,13 +4424,13 @@ int build_stl_str_hl(win_T *wp,
             continue;
         }
 
-        char_u opt = *fmt_p++; // The status line item type
+        uchar_kt opt = *fmt_p++; // The status line item type
         // OK - now for the real work
         NumberBase base = kNumBaseDecimal;
         bool itemisflag = false;
         bool fillable = true;
         long num = -1;
-        char_u *str = NULL;
+        uchar_kt *str = NULL;
 
         switch(opt)
         {
@@ -4448,7 +4448,7 @@ int build_stl_str_hl(win_T *wp,
                 }
                 else
                 {
-                    char_u *t = (opt == STL_FULLPATH)
+                    uchar_kt *t = (opt == STL_FULLPATH)
                                 ? wp->w_buffer->b_ffname
                                 : wp->w_buffer->b_fname;
 
@@ -4475,7 +4475,7 @@ int build_stl_str_hl(win_T *wp,
 
                 // Attempt to copy the expression to evaluate into
                 // the output buffer as a null-terminated string.
-                char_u *t = out_p;
+                uchar_kt *t = out_p;
 
                 while(*fmt_p != '}' && *fmt_p != NUL && out_p < out_end_p)
                 {
@@ -4497,7 +4497,7 @@ int build_stl_str_hl(win_T *wp,
                 // Evaluate the expression
                 // Store the current buffer number as a string variable
                 vim_snprintf((char *)tmp, sizeof(tmp), "%d", curbuf->b_fnum);
-                set_internal_string_var((char_u *)"actual_curbuf", tmp);
+                set_internal_string_var((uchar_kt *)"actual_curbuf", tmp);
                 buf_T *o_curbuf = curbuf;
                 win_T *o_curwin = curwin;
                 curwin = wp;
@@ -4604,7 +4604,7 @@ int build_stl_str_hl(win_T *wp,
             case STL_KEYMAP:
                 fillable = false;
 
-                if(get_keymap_str(wp, (char_u *)"<%s>", tmp, TMPLEN))
+                if(get_keymap_str(wp, (uchar_kt *)"<%s>", tmp, TMPLEN))
                 {
                     str = tmp;
                 }
@@ -4665,7 +4665,7 @@ int build_stl_str_hl(win_T *wp,
 
                 if(wp->w_buffer->b_p_ro)
                 {
-                    str = (char_u *)((opt == STL_ROFLAG_ALT)
+                    str = (uchar_kt *)((opt == STL_ROFLAG_ALT)
                                      ? ",RO"
                                      : _("[RO]"));
                 }
@@ -4678,7 +4678,7 @@ int build_stl_str_hl(win_T *wp,
 
                 if(wp->w_buffer->b_help)
                 {
-                    str = (char_u *)((opt == STL_HELPFLAG_ALT)
+                    str = (uchar_kt *)((opt == STL_HELPFLAG_ALT)
                                      ? ",HLP"
                                      : _("[Help]"));
                 }
@@ -4714,9 +4714,9 @@ int build_stl_str_hl(win_T *wp,
                                  sizeof(tmp), ",%s", wp->w_buffer->b_p_ft);
 
                     // Uppercase the file extension
-                    for(char_u *t = tmp; *t != 0; t++)
+                    for(uchar_kt *t = tmp; *t != 0; t++)
                     {
-                        *t = (char_u)TOUPPER_LOC(*t);
+                        *t = (uchar_kt)TOUPPER_LOC(*t);
                     }
 
                     str = tmp;
@@ -4731,7 +4731,7 @@ int build_stl_str_hl(win_T *wp,
 
                 if(wp->w_p_pvw)
                 {
-                    str = (char_u *)((opt == STL_PREVIEWFLAG_ALT)
+                    str = (uchar_kt *)((opt == STL_PREVIEWFLAG_ALT)
                                      ? ",PRV" : _("[Preview]"));
                 }
 
@@ -4740,7 +4740,7 @@ int build_stl_str_hl(win_T *wp,
             case STL_QUICKFIX:
                 if(bt_quickfix(wp->w_buffer))
                 {
-                    str = (char_u *)(wp->w_llist_ref
+                    str = (uchar_kt *)(wp->w_llist_ref
                                      ? _(msg_loclist) : _(msg_qflist));
                 }
 
@@ -4755,27 +4755,27 @@ int build_stl_str_hl(win_T *wp,
                        + (!MODIFIABLE(wp->w_buffer)) * 4)
                 {
                     case 2:
-                        str = (char_u *)"[+]";
+                        str = (uchar_kt *)"[+]";
                         break;
 
                     case 3:
-                        str = (char_u *)",+";
+                        str = (uchar_kt *)",+";
                         break;
 
                     case 4:
-                        str = (char_u *)"[-]";
+                        str = (uchar_kt *)"[-]";
                         break;
 
                     case 5:
-                        str = (char_u *)",-";
+                        str = (uchar_kt *)",-";
                         break;
 
                     case 6:
-                        str = (char_u *)"[+-]";
+                        str = (uchar_kt *)"[+-]";
                         break;
 
                     case 7:
-                        str = (char_u *)",+-";
+                        str = (uchar_kt *)",+-";
                         break;
                 }
 
@@ -4784,7 +4784,7 @@ int build_stl_str_hl(win_T *wp,
             case STL_HIGHLIGHT:
             {
                 // The name of the highlight is surrounded by `#`
-                char_u *t = fmt_p;
+                uchar_kt *t = fmt_p;
 
                 while(*fmt_p != '#' && *fmt_p != NUL)
                 {
@@ -4816,7 +4816,7 @@ int build_stl_str_hl(win_T *wp,
         {
             // Skip the leading `,` or ` `
             // if the item is a flag and the proper conditions are met
-            char_u *t = str;
+            uchar_kt *t = str;
 
             if(itemisflag)
             {
@@ -4929,8 +4929,8 @@ int build_stl_str_hl(win_T *wp,
 
             prevchar_isitem = true;
             // Build the formatting string
-            char_u nstr[20];
-            char_u *t = nstr;
+            uchar_kt nstr[20];
+            uchar_kt *t = nstr;
 
             if(opt == STL_VIRTCOL_ALT)
             {
@@ -4947,7 +4947,7 @@ int build_stl_str_hl(win_T *wp,
 
             // Note: The `*` means we take the width as one of the arguments
             *t++ = '*';
-            *t++ = (char_u)(base == kNumBaseHexadecimal
+            *t++ = (uchar_kt)(base == kNumBaseHexadecimal
                             ? 'X':(base == kNumBaseOctal ? 'o' : 'd'));
             *t = 0;
             // Determine how many characters the number will
@@ -5051,7 +5051,7 @@ int build_stl_str_hl(win_T *wp,
     {
         // Result is too long, must truncate somewhere.
         int item_idx = 0;
-        char_u *trunc_p;
+        uchar_kt *trunc_p;
 
         if(itemcnt == 0) // If there are no items, truncate from beginning
         {
@@ -5143,7 +5143,7 @@ int build_stl_str_hl(win_T *wp,
             }
 
             // Truncate the string
-            char_u *trunc_end_p = trunc_p + trunc_len;
+            uchar_kt *trunc_end_p = trunc_p + trunc_len;
 
             STRMOVE(trunc_p + 1, trunc_end_p);
             *trunc_p = '<'; // Put a `<` to mark where we truncated at
@@ -5230,12 +5230,12 @@ int build_stl_str_hl(win_T *wp,
                 int dislocation = (i == (num_separators - 1))
                                   ? final_spaces : standard_spaces;
 
-                char_u *seploc =
+                uchar_kt *seploc =
                     items[separator_locations[i]].start + dislocation;
 
                 STRMOVE(seploc, items[separator_locations[i]].start);
 
-                for(char_u *s = items[separator_locations[i]].start;
+                for(uchar_kt *s = items[separator_locations[i]].start;
                     s < seploc;
                     s++)
                 {
@@ -5330,7 +5330,7 @@ int build_stl_str_hl(win_T *wp,
 
 /// Get relative cursor position in window into "buf[buflen]",
 /// in the form 99%, using "Top", "Bot" or "All" when appropriate.
-void get_rel_pos(win_T *wp, char_u *buf, int buflen)
+void get_rel_pos(win_T *wp, uchar_kt *buf, int buflen)
 {
     if(buflen < 3)
     {
@@ -5379,7 +5379,7 @@ void get_rel_pos(win_T *wp, char_u *buf, int buflen)
 ///
 /// @return true if it was appended.
 static bool append_arg_number(win_T *wp,
-                              char_u *buf,
+                              uchar_kt *buf,
                               int buflen,
                               bool add_file)
 FUNC_ATTR_NONNULL_ALL
@@ -5389,7 +5389,7 @@ FUNC_ATTR_NONNULL_ALL
         return false; // Nothing to do
     }
 
-    char_u *p = buf + STRLEN(buf); // go to the end of the buffer
+    uchar_kt *p = buf + STRLEN(buf); // go to the end of the buffer
 
     // Early out if the string is getting too long
     if(p - buf + 35 >= buflen)
@@ -5418,8 +5418,8 @@ FUNC_ATTR_NONNULL_ALL
 /// Make @b ffname a full file name, set @b sfname to @b ffname if not NULL.
 /// @b ffname becomes a pointer to allocated memory or NULL.
 void fname_expand(buf_T *FUNC_ARGS_UNUSED_MAYBE(buf),
-                  char_u **ffname,
-                  char_u **sfname)
+                  uchar_kt **ffname,
+                  uchar_kt **sfname)
 {
     if(*ffname == NULL) // if no file name given, nothing to do
     {
@@ -5431,7 +5431,7 @@ void fname_expand(buf_T *FUNC_ARGS_UNUSED_MAYBE(buf),
         *sfname = *ffname;
     }
 
-    *ffname =(char_u *)fix_fname((char *)*ffname); // expand to full path
+    *ffname =(uchar_kt *)fix_fname((char *)*ffname); // expand to full path
 
 #ifdef HOST_OS_WINDOWS
     if(!buf->b_p_bin)
@@ -5442,15 +5442,15 @@ void fname_expand(buf_T *FUNC_ARGS_UNUSED_MAYBE(buf),
         if(rfname != NULL)
         {
             xfree(*ffname);
-            *ffname = (char_u *)rfname;
-            *sfname = (char_u *)rfname;
+            *ffname = (uchar_kt *)rfname;
+            *sfname = (uchar_kt *)rfname;
         }
     }
 #endif
 }
 
 /// Get the file name for an argument list entry.
-char_u *alist_name(aentry_T *aep)
+uchar_kt *alist_name(aentry_T *aep)
 {
     // Use the name from the associated buffer if it exists.
     buf_T *bp = buflist_findnr(aep->ae_fnum);
@@ -5476,7 +5476,7 @@ void do_arg_all(int count, int forceit, int keep_tabs)
     //  1: opened in other tab
     //  2: opened in curtab
     //  3: opened in curtab and curwin
-    char_u *opened;
+    uchar_kt *opened;
     int opened_len; // length of opened[]
     int use_firstwin = FALSE; // use first window for arglist
     int split_ret = OK;
@@ -5561,7 +5561,7 @@ void do_arg_all(int count, int forceit, int keep_tabs)
 
                         if(weight > (int)opened[i])
                         {
-                            opened[i] = (char_u)weight;
+                            opened[i] = (uchar_kt)weight;
 
                             if(i == 0)
                             {
@@ -6094,14 +6094,14 @@ void do_modelines(int flags)
 /// Return FAIL if an error encountered.
 static int chk_modeline(linenr_T lnum, int flags)
 {
-    char_u *s;
-    char_u *e;
-    char_u *linecopy; // local copy of any modeline found
+    uchar_kt *s;
+    uchar_kt *e;
+    uchar_kt *linecopy; // local copy of any modeline found
     int prev;
     intmax_t vers;
     int end;
     int retval = OK;
-    char_u *save_sourcing_name;
+    uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
     scid_T save_SID;
     prev = -1;
@@ -6163,7 +6163,7 @@ static int chk_modeline(linenr_T lnum, int flags)
     save_sourcing_lnum = sourcing_lnum;
     save_sourcing_name = sourcing_name;
     sourcing_lnum = lnum; // prepare for emsg()
-    sourcing_name = (char_u *)"modelines";
+    sourcing_name = (uchar_kt *)"modelines";
     end = FALSE;
 
     while(end == FALSE)
@@ -6233,7 +6233,7 @@ static int chk_modeline(linenr_T lnum, int flags)
 
 /// Return special buffer name.
 /// Returns NULL when the buffer has a normal file name.
-char_u *buf_spname(buf_T *buf)
+uchar_kt *buf_spname(buf_T *buf)
 {
     if(bt_quickfix(buf))
     {
@@ -6244,11 +6244,11 @@ char_u *buf_spname(buf_T *buf)
         // For quickfix window, w_llist_ref is NULL.
         if(find_win_for_buf(buf, &win, &tp) && win->w_llist_ref != NULL)
         {
-            return (char_u *)_(msg_loclist);
+            return (uchar_kt *)_(msg_loclist);
         }
         else
         {
-            return (char_u *)_(msg_qflist);
+            return (uchar_kt *)_(msg_qflist);
         }
     }
 
@@ -6261,12 +6261,12 @@ char_u *buf_spname(buf_T *buf)
             return buf->b_sfname;
         }
 
-        return (char_u *)_("[Scratch]");
+        return (uchar_kt *)_("[Scratch]");
     }
 
     if(buf->b_fname == NULL)
     {
-        return (char_u *)_("[No Name]");
+        return (uchar_kt *)_("[No Name]");
     }
 
     return NULL;
@@ -7029,7 +7029,7 @@ void wipe_buffer(buf_T *buf, int aucmd)
 void buf_open_scratch(handle_T bufnr, char *bufname)
 {
     (void)do_ecmd((int)bufnr, NULL, NULL, NULL, ECMD_ONE, ECMD_HIDE, NULL);
-    (void)setfname(curbuf, (char_u *)bufname, NULL, true);
+    (void)setfname(curbuf, (uchar_kt *)bufname, NULL, true);
     set_option_value("bh", 0L, "hide", OPT_LOCAL);
     set_option_value("bt", 0L, "nofile", OPT_LOCAL);
     set_option_value("swf", 0L, NULL, OPT_LOCAL);

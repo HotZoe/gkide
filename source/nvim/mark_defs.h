@@ -44,7 +44,7 @@ typedef struct filemark
 typedef struct xfilemark
 {
     fmark_T fmark;  ///< Actual mark.
-    char_u *fname;  ///< File name, used when fnum == 0.
+    uchar_kt *fname;  ///< File name, used when fnum == 0.
 } xfmark_T;
 
 #endif // NVIM_MARK_DEFS_H

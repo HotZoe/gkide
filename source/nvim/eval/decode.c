@@ -378,7 +378,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             .v_lock = VAR_UNLOCKED,
             .vval = {
                 .v_string =
-                    (char_u *)( s_allocated ? (char *)s : xmemdupz(s, len)) },
+                    (uchar_kt *)( s_allocated ? (char *)s : xmemdupz(s, len)) },
         };
     }
 }
@@ -512,7 +512,7 @@ FUNC_ATTR_ALWAYS_INLINE
                 goto parse_json_string_fail;
             }
 
-            const int ch = utf_ptr2char((char_u *) p);
+            const int ch = utf_ptr2char((uchar_kt *) p);
 
             // All characters above U+007F are encoded using two or more bytes
             // and thus cannot possibly be equal to *p. But utf_ptr2char({0xFF,
@@ -537,7 +537,7 @@ FUNC_ATTR_ALWAYS_INLINE
 
             const size_t ch_len = (size_t) utf_char2len(ch);
 
-            assert(ch_len == (size_t) (ch ? utf_ptr2len((char_u *) p) : 1));
+            assert(ch_len == (size_t) (ch ? utf_ptr2len((uchar_kt *) p) : 1));
 
             len += ch_len;
             p += ch_len;
@@ -569,7 +569,7 @@ FUNC_ATTR_ALWAYS_INLINE
     {                                                                   \
         if(fst_in_pair != 0)                                            \
         {                                                               \
-            str_end += utf_char2bytes(fst_in_pair, (char_u *) str_end); \
+            str_end += utf_char2bytes(fst_in_pair, (uchar_kt *) str_end); \
             fst_in_pair = 0;                                            \
         }                                                               \
     } while(0)
@@ -593,7 +593,7 @@ FUNC_ATTR_ALWAYS_INLINE
                     t += 4;
                     unsigned long ch;
 
-                    vim_str2nr((char_u *) ubuf,
+                    vim_str2nr((uchar_kt *) ubuf,
                                NULL,
                                NULL,
                                STR2NR_HEX | STR2NR_FORCE,
@@ -619,14 +619,14 @@ FUNC_ATTR_ALWAYS_INLINE
                                     + ((fst_in_pair - SURROGATE_HI_START) << 10)
                                     + SURROGATE_FIRST_CHAR);
 
-                        str_end += utf_char2bytes(full_char, (char_u *) str_end);
+                        str_end += utf_char2bytes(full_char, (uchar_kt *) str_end);
                         fst_in_pair = 0;
                     }
                     else
                     {
                         PUT_FST_IN_PAIR(fst_in_pair, str_end);
 
-                        str_end += utf_char2bytes((int) ch, (char_u *) str_end);
+                        str_end += utf_char2bytes((int) ch, (uchar_kt *) str_end);
                     }
 
                     break;
@@ -857,7 +857,7 @@ parse_json_number_check:
         // Convert integer
         long nr;
         int num_len;
-        vim_str2nr((char_u *) s, NULL, &num_len, 0, &nr, NULL, (int) (p - s));
+        vim_str2nr((uchar_kt *) s, NULL, &num_len, 0, &nr, NULL, (int) (p - s));
 
         if((int) exp_num_len != num_len)
         {

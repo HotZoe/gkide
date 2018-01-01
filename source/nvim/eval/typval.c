@@ -460,7 +460,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     tv_list_append(l, li);
     li->li_tv.v_type = VAR_STRING;
     li->li_tv.v_lock = VAR_UNLOCKED;
-    li->li_tv.vval.v_string = (char_u *)str;
+    li->li_tv.vval.v_string = (uchar_kt *)str;
 }
 
 /// Append number to the list
@@ -617,8 +617,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 typedef struct
 {
-    char_u *s;
-    char_u *tofree;
+    uchar_kt *s;
+    uchar_kt *tofree;
 } Join;
 
 /// Join list into a string, helper function
@@ -653,7 +653,7 @@ FUNC_ATTR_NONNULL_ALL
 
         sumlen += len;
         Join *const p = GA_APPEND_VIA_PTR(Join, join_gap);
-        p->tofree = p->s = (char_u *)s;
+        p->tofree = p->s = (uchar_kt *)s;
         line_breakcheck();
     }
 
@@ -674,7 +674,7 @@ FUNC_ATTR_NONNULL_ALL
         }
         else
         {
-            ga_concat(gap, (const char_u *)sep);
+            ga_concat(gap, (const uchar_kt *)sep);
         }
 
         const Join *const p = ((const Join *)join_gap->ga_data) + i;
@@ -1110,7 +1110,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     argv[0].vval.v_dict = dict;
     argv[1].v_type = VAR_STRING;
     argv[1].v_lock = VAR_UNLOCKED;
-    argv[1].vval.v_string = (char_u *)xstrdup(key);
+    argv[1].vval.v_string = (uchar_kt *)xstrdup(key);
     argv[2].v_type = VAR_DICT;
     argv[2].v_lock = VAR_UNLOCKED;
     argv[2].vval.v_dict = tv_dict_alloc();
@@ -1379,7 +1379,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     hashitem_T *const hi
         = (len < 0
-           ? hash_find(&d->dv_hashtab, (const char_u *)key)
+           ? hash_find(&d->dv_hashtab, (const uchar_kt *)key)
            : hash_find_len(&d->dv_hashtab, key, (size_t)len));
 
     if(HASHITEM_EMPTY(hi))
@@ -1654,7 +1654,7 @@ FUNC_ATTR_NONNULL_ALL
 
     item->di_tv.v_lock = VAR_UNLOCKED;
     item->di_tv.v_type = VAR_STRING;
-    item->di_tv.vval.v_string = (char_u *)xstrdup(val);
+    item->di_tv.vval.v_string = (uchar_kt *)xstrdup(val);
 
     if(tv_dict_add(d, item) == FAIL)
     {
@@ -1999,7 +1999,7 @@ FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_EXT_STRING(tv, buf, len, type)
 
 static inline int _nothing_conv_func_start(typval_T *const tv,
-                                           char_u *const fun)
+                                           uchar_kt *const fun)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ARG(1)

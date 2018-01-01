@@ -82,7 +82,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
     else if(fallback)
     {
-        ret = (char *) expand_env_save((char_u *)fallback);
+        ret = (char *) expand_env_save((uchar_kt *)fallback);
     }
 
     return ret;
