@@ -112,7 +112,7 @@ typedef struct
 #endif
 
     int diff_mode;             ///< start with @b diff set
-} mparm_T;
+} main_args_st;
 
 // Values for edit_type
 #define EDIT_NONE   0   ///< no edit type yet
@@ -227,7 +227,7 @@ int main(int argc, char **argv)
     argv0 = argv[0];
 
     // various parameters passed between main() and other functions.
-    mparm_T params;
+    main_args_st params;
 
     char_u *cwd = NULL; // current workding dir on startup
     char_u *fname = NULL; // file name from command line
@@ -765,7 +765,7 @@ static void init_locale(void)
 #endif
 
 /// Scan the command line arguments.
-static void command_line_scan(mparm_T *parmp)
+static void command_line_scan(main_args_st *parmp)
 {
     // skip the programe name itself
     int argc = parmp->argc - 1;
@@ -1407,7 +1407,7 @@ static void command_line_scan(mparm_T *parmp)
 
 /// Many variables are in @b paramp, so that we can pass
 /// it to invoked functions without a lot of arguments.
-static void init_params(mparm_T *paramp, int argc, char **argv)
+static void init_params(main_args_st *paramp, int argc, char **argv)
 {
     memset(paramp, 0, sizeof(*paramp));
     paramp->argc = argc;
@@ -1420,7 +1420,7 @@ static void init_params(mparm_T *paramp, int argc, char **argv)
 
 /// Initialize global startuptime file if <b>--startuptime</b>
 /// passed with an argument, e.g. $ nvim --startuptime nvim.log
-static void init_startuptime(mparm_T *paramp)
+static void init_startuptime(main_args_st *paramp)
 {
     for(int i = 1; i < paramp->argc; i++)
     {
@@ -1437,7 +1437,7 @@ static void init_startuptime(mparm_T *paramp)
 }
 
 /// Check if we have an interactive window, if it does, set flags
-static void check_and_set_isatty(mparm_T *paramp)
+static void check_and_set_isatty(main_args_st *paramp)
 {
     paramp->input_isatty = os_isatty(fileno(stdin));
     paramp->output_isatty = os_isatty(fileno(stdout));
@@ -1520,7 +1520,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Get filename from command line, if any.
-static char_u *get_fname(mparm_T *FUNC_ARGS_UNUSED_MAYBE(parmp),
+static char_u *get_fname(main_args_st *FUNC_ARGS_UNUSED_MAYBE(parmp),
                          char_u *FUNC_ARGS_UNUSED_MAYBE(cwd))
 {
 #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
@@ -1551,7 +1551,7 @@ static char_u *get_fname(mparm_T *FUNC_ARGS_UNUSED_MAYBE(parmp),
 }
 
 /// Decide about window layout for diff mode after reading vimrc.
-static void set_window_layout(mparm_T *paramp)
+static void set_window_layout(main_args_st *paramp)
 {
     if(paramp->diff_mode && paramp->window_layout == 0)
     {
@@ -1585,7 +1585,7 @@ static void load_plugins(void)
 
 /// "-q errorfile": Load the error file now.
 /// If the error file can't be read, exit before doing anything else.
-static void handle_quickfix(mparm_T *paramp)
+static void handle_quickfix(main_args_st *paramp)
 {
     if(paramp->edit_type == EDIT_QF)
     {
@@ -1633,7 +1633,7 @@ static void handle_tag(char_u *tagname)
 /// Print a warning if stdout is not a terminal.
 ///
 /// When starting in Ex mode and commands come from a file, set Silent mode.
-static void check_tty(mparm_T *parmp)
+static void check_tty(main_args_st *parmp)
 {
     if(parmp->headless)
     {
@@ -1702,7 +1702,7 @@ static void read_stdin(void)
 
 /// Create the requested number of windows and edit buffers in them.
 /// Also does recovery if "recoverymode" set.
-static void create_windows(mparm_T *parmp)
+static void create_windows(main_args_st *parmp)
 {
     int dorewind;
     int done = 0;
@@ -1875,7 +1875,7 @@ static void create_windows(mparm_T *parmp)
 
 /// If opened more than one window, start editing files in the other
 /// windows. make_windows() has already opened the windows.
-static void edit_buffers(mparm_T *parmp, char_u *cwd)
+static void edit_buffers(main_args_st *parmp, char_u *cwd)
 {
     int i;
     int arg_idx; // index in argument list
@@ -2022,7 +2022,7 @@ static void edit_buffers(mparm_T *parmp, char_u *cwd)
 }
 
 /// Execute the commands from --cmd arguments "cmds[cnt]".
-static void exe_pre_commands(mparm_T *parmp)
+static void exe_pre_commands(main_args_st *parmp)
 {
     int i;
     char **cmds = parmp->pre_commands;
@@ -2046,7 +2046,7 @@ static void exe_pre_commands(mparm_T *parmp)
 }
 
 /// Execute "+", "-c" and "-S" arguments.
-static void exe_commands(mparm_T *parmp)
+static void exe_commands(main_args_st *parmp)
 {
     int i;
 
@@ -2196,7 +2196,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Source startup scripts
-static void source_startup_scripts(const mparm_T *const parmp)
+static void source_startup_scripts(const main_args_st *const parmp)
 FUNC_ATTR_NONNULL_ALL
 {
     TIME_MSG("============ startup sourcing beginning ============");
