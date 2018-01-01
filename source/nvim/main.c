@@ -125,6 +125,7 @@ typedef struct
     #include "main.c.generated.h"
 #endif
 
+/// the main libuv event-loop
 main_loop_T main_loop;
 
 static char *argv0 = NULL;
@@ -297,10 +298,10 @@ int main(int argc, char **argv)
 
     // Set the break level after the terminal is initialized.
     debug_break_level = params.use_debug_break_level;
-    bool reading_input = !params.headless && (params.input_isatty  ||
-                                              params.output_isatty ||
-                                              params.err_isatty);
 
+    bool reading_input = !params.headless && (params.input_isatty
+                                              || params.output_isatty
+                                              || params.err_isatty);
     if(reading_input)
     {
         // One of the startup commands (arguments, sourced scripts or

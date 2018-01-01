@@ -15,6 +15,7 @@
 void loop_init(main_loop_T *loop, void *FUNC_ARGS_UNUSED_REALY(data))
 {
     uv_loop_init(&loop->uv);
+
     loop->recursive = 0;
     loop->uv.data = loop;
     loop->children = kl_init(WatcherPtr);
@@ -22,6 +23,7 @@ void loop_init(main_loop_T *loop, void *FUNC_ARGS_UNUSED_REALY(data))
     loop->events = multiqueue_new_parent(loop_on_put, loop);
     loop->fast_events = multiqueue_new_child(loop->events);
     loop->thread_events = multiqueue_new_parent(NULL, NULL);
+
     uv_mutex_init(&loop->mutex);
     uv_async_init(&loop->uv, &loop->async, async_cb);
     uv_signal_init(&loop->uv, &loop->children_watcher);

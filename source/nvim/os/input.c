@@ -194,7 +194,7 @@ void input_disable_events(void)
 /// Test whether a file descriptor refers to a terminal.
 ///
 /// @param fd File descriptor.
-/// @return **true** if file descriptor refers to a terminal.
+/// @return true if file descriptor refers to a terminal.
 bool os_isatty(int fd)
 {
     return uv_guess_handle(fd) == UV_TTY;

@@ -14,9 +14,9 @@
     #include "event/stream.c.generated.h"
 #endif
 
-/// Sets the stream associated with `fd` to "blocking" mode.
+/// Sets the stream associated with @b fd to @b blocking mode.
 ///
-/// @return `0` on success, or libuv error code on failure.
+/// @return 0 on success, or libuv error code on failure.
 int stream_set_blocking(int fd, bool blocking)
 {
     // Private loop to avoid conflict with existing watcher(s):
