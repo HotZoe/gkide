@@ -230,10 +230,10 @@
 #define MCLOSE          90   ///< -99  Analogous to MOPEN. MCLOSE + 0 marks
                              ///<      end of match.
 #define BACKREF         100  ///< -109 node Match same string again \1-\9
-#define ZOPEN          110   ///< -119 Mark this point in input as start of
+#define ZOPEN           110  ///< -119 Mark this point in input as start of
                              ///<      \z( subexpr.
-#define ZCLOSE         120   ///< -129 Analogous to ZOPEN.
-#define ZREF           130   ///< -139 node Match external submatch \z1-\z9
+#define ZCLOSE          120  ///< -129 Analogous to ZOPEN.
+#define ZREF            130  ///< -139 node Match external submatch \z1-\z9
 #define BRACE_COMPLEX   140  ///< -149 node Match nodes between m & n times
 #define NOPEN           150  ///<      Mark this point in input as start of
                              ///<      \%( subexpr.
