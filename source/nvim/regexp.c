@@ -836,9 +836,6 @@ static int get_equi_class(uchar_kt **pp)
     return 0;
 }
 
-// Forward declarations for vim_regcomp()'s friends.
-#define CASEMBC(x) case x:
-
 /// Produce the bytes for equivalence class "c".
 /// Currently only handles latin1, latin9 and utf-8.
 ///
