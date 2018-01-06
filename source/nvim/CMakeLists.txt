@@ -350,19 +350,15 @@ endforeach()
 list(SORT NVIM_SOURCES)
 list(SORT NVIM_HEADERS)
 
-foreach(sfile ${NVIM_SOURCES})
-    get_filename_component(f ${sfile} NAME)
+if(CMAKE_HOST_WIN32)
+    foreach(sfile ${NVIM_SOURCES})
+        get_filename_component(f ${sfile} NAME)
 
-    if(${f} MATCHES "^(regexp_nfa.c)$")
-        list(APPEND to_remove ${sfile})
-    endif()
-
-    if(WIN32 AND ${f} MATCHES "^(pty_process_unix.c)$")
-        list(APPEND to_remove ${sfile})
-    endif()
-endforeach()
-
-list(REMOVE_ITEM NVIM_SOURCES ${to_remove})
+        if(${f} MATCHES "^(pty_process_unix.c)$")
+            list(REMOVE_ITEM NVIM_SOURCES ${sfile})
+        endif()
+    endforeach()
+endif()
 
 # Legacy files that do not yet pass -Wconversion
 list(APPEND CONV_SOURCES "tag.c")
@@ -547,7 +543,6 @@ set(gen_cflags ${gen_cflags} ${NVIM_CFLAGS_${build_type}} ${NVIM_CFLAGS})
 list(APPEND gen_cflags "-DDEFINE_KEEP_ATTRIBUTES")
 
 foreach(sfile ${NVIM_SOURCES}
-              ${CMAKE_CURRENT_LIST_DIR}/regexp_nfa.c
               ${NVIM_GEN_SRC_API_DISPATCH}
               ${NVIM_GEN_SRC_UI_EVENTS_CALL}
               ${NVIM_GEN_SRC_UI_EVENTS_REMOTE}
