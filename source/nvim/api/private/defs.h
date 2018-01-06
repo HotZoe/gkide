@@ -37,7 +37,7 @@ typedef enum
     kMessageTypeRequest,
     kMessageTypeResponse,
     kMessageTypeNotification
-} MessageType;
+} message_type_et;
 
 /// Used as the message ID of notifications.
 #define NO_RESPONSE UINT64_MAX
