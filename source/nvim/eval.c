@@ -8492,7 +8492,7 @@ static void float_op_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 
 static void api_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
-    ApiDispatchWrapper fn = (ApiDispatchWrapper)fptr;
+    api_dispatch_ft fn = (api_dispatch_ft)fptr;
     Array args = ARRAY_DICT_INIT;
 
     for(typval_T *tv = argvars; tv->v_type != VAR_UNKNOWN; tv++)
