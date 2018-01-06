@@ -581,7 +581,7 @@ void last_pat_prog(regmmatch_T *regmatch)
 /// the index of the first matching subpattern plus one;
 /// one if there was none.
 int searchit(win_T *win,
-             buf_T *buf,
+             fbuf_st *buf,
              pos_T *pos,
              int dir,
              uchar_kt *pat,
@@ -1615,7 +1615,7 @@ end_do_search:
 ///
 /// @return
 /// OK for success, or FAIL if no line found.
-int search_for_exact_line(buf_T *buf, pos_T *pos, int dir, uchar_kt *pat)
+int search_for_exact_line(fbuf_st *buf, pos_T *pos, int dir, uchar_kt *pat)
 {
     linenr_T start = 0;
     uchar_kt *ptr;

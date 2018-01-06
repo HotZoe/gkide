@@ -2810,7 +2810,7 @@ void do_check_cursorbind(void)
     colnr_T curswant = curwin->w_curswant;
     int set_curswant = curwin->w_set_curswant;
     win_T *old_curwin = curwin;
-    buf_T *old_curbuf = curbuf;
+    fbuf_st *old_curbuf = curbuf;
     int old_VIsual_select = VIsual_select;
     int old_VIsual_active = VIsual_active;
 

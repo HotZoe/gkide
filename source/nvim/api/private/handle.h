@@ -12,7 +12,7 @@
     void handle_register_##name(type *name);   \
     void handle_unregister_##name(type *name);
 
-HANDLE_DECLS(buf_T, buffer)
+HANDLE_DECLS(fbuf_st, buffer)
 HANDLE_DECLS(win_T, window)
 HANDLE_DECLS(tabpage_T, tabpage)
 

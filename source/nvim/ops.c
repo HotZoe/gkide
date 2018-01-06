@@ -6570,7 +6570,7 @@ void write_reg_contents_ex(int name,
 
     if(name == '#')
     {
-        buf_T *buf;
+        fbuf_st *buf;
 
         if(ascii_isdigit(*str))
         {

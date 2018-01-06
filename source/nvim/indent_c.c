@@ -1889,7 +1889,7 @@ static int find_last_paren(uchar_kt *l, int start, int end)
 
 /// Parse 'cinoptions' and set the values in "curbuf".
 /// Must be called when 'cinoptions', 'shiftwidth' and/or 'tabstop' changes.
-void parse_cino(buf_T *buf)
+void parse_cino(fbuf_st *buf)
 {
     uchar_kt *p;
     uchar_kt *l;

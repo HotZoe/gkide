@@ -7,13 +7,13 @@
 #include <stdint.h>
 #include <stdio.h> // for FILE
 
-typedef struct file_buffer buf_T;
+typedef struct file_buffer_s fbuf_st;
 
 /// Reference to a buffer that stores the value of buf_free_count.
 /// bufref_valid() only needs to check "buf" when the count differs.
 typedef struct
 {
-    buf_T *br_buf;
+    fbuf_st *br_buf;
     int    br_buf_free_count;
 } bufref_T;
 
@@ -437,7 +437,7 @@ typedef struct
     uchar_kt *b_syn_isk;        ///< iskeyword option
 } synblock_T;
 
-/// Type used for changedtick_di member in buf_T
+/// Type used for changedtick_di member in fbuf_st
 ///
 /// Primary exists so that literals of relevant type can be made.
 typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
@@ -453,13 +453,13 @@ typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
 /// Several windows can share a single Buffer
 /// A buffer is unallocated if there is no memfile for it.
 /// A buffer is new if the associated file has never been loaded yet.
-struct file_buffer
+struct file_buffer_s
 {
     #define b_fnum handle
     handle_kt handle;  ///< unique id for the buffer (buffer number)
     memline_T b_ml;    ///< associated memline (also contains line count
-    buf_T *b_next;     ///< links in list of buffers
-    buf_T *b_prev;
+    fbuf_st *b_next;     ///< links in list of buffers
+    fbuf_st *b_prev;
 
     int b_nwindows;   ///< nr of windows open on this buffer
     int b_flags;      ///< various BF_ flags
@@ -789,7 +789,7 @@ struct tabpage_S
     long tp_ch_used;        ///< value of 'cmdheight' when frame size was set
 
     diff_T *tp_first_diff;
-    buf_T *(tp_diffbuf[DB_COUNT]);
+    fbuf_st *(tp_diffbuf[DB_COUNT]);
     int tp_diff_invalid;                ///< list of diffs is outdated
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
     scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
@@ -845,7 +845,7 @@ typedef struct
 {
     regmmatch_T rm;       ///< points to the regexp program; contains last found
                           ///< match (may continue in next line)
-    buf_T *buf;           ///< the buffer to search for a match
+    fbuf_st *buf;           ///< the buffer to search for a match
     linenr_T lnum;        ///< the line to search for a match
     int attr;             ///< attributes to be used for a match
     int attr_cur;         ///< attributes currently active in win_line()
@@ -902,7 +902,7 @@ struct window_S
     handle_kt handle; ///< unique identifier for the window
 
     /// buffer we are a window into (used often, keep it the first item!)
-    buf_T *w_buffer;
+    fbuf_st *w_buffer;
 
     synblock_T  *w_s;     ///< for :ownsyntax
     int w_hl_id;          ///< 'winhighlight' id

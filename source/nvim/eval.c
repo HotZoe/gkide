@@ -9129,9 +9129,9 @@ static void f_browsedir(typval_T *argvars,
 
 
 /// Find a buffer by number or exact name.
-static buf_T *find_buffer(typval_T *avar)
+static fbuf_st *find_buffer(typval_T *avar)
 {
-    buf_T *buf = NULL;
+    fbuf_st *buf = NULL;
 
     if(avar->v_type == VAR_NUMBER)
     {
@@ -9174,7 +9174,7 @@ static void f_buflisted(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    buf_T *buf;
+    fbuf_st *buf;
     buf = find_buffer(&argvars[0]);
     rettv->vval.v_number = (buf != NULL && buf->b_p_bl);
 }
@@ -9184,18 +9184,18 @@ static void f_bufloaded(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    buf_T *buf;
+    fbuf_st *buf;
     buf = find_buffer(&argvars[0]);
     rettv->vval.v_number = (buf != NULL && buf->b_ml.ml_mfp != NULL);
 }
 
 /// Get buffer by number or pattern.
-static buf_T *get_buf_tv(typval_T *tv, int curtab_only)
+static fbuf_st *get_buf_tv(typval_T *tv, int curtab_only)
 {
     uchar_kt *name = tv->vval.v_string;
     int save_magic;
     uchar_kt *save_cpo;
-    buf_T *buf;
+    fbuf_st *buf;
 
     if(tv->v_type == VAR_NUMBER)
     {
@@ -9254,7 +9254,7 @@ static void f_bufname(typval_T *argvars,
     }
 
     emsg_off++;
-    const buf_T *const buf = get_buf_tv(&argvars[0], false);
+    const fbuf_st *const buf = get_buf_tv(&argvars[0], false);
     emsg_off--;
 
     if(buf != NULL && buf->b_fname != NULL)
@@ -9277,7 +9277,7 @@ static void f_bufnr(typval_T *argvars,
     }
 
     emsg_off++;
-    const buf_T *buf = get_buf_tv(&argvars[0], false);
+    const fbuf_st *buf = get_buf_tv(&argvars[0], false);
     emsg_off--;
 
     // If the buffer isn't found and the second
@@ -9309,7 +9309,7 @@ static void buf_win_common(typval_T *argvars, typval_T *rettv, bool get_nr)
     }
 
     emsg_off++;
-    buf_T *buf = get_buf_tv(&argvars[0], true);
+    fbuf_st *buf = get_buf_tv(&argvars[0], true);
 
     if(buf == NULL) // no need to search if buffer was not found
     {
@@ -11819,7 +11819,7 @@ static void f_get(typval_T *argvars,
 }
 
 /// Returns information about signs placed in a buffer as list of dicts.
-static void get_buffer_signs(buf_T *buf, list_T *l)
+static void get_buffer_signs(fbuf_st *buf, list_T *l)
 {
     for(signlist_T *sign = buf->b_signlist; sign; sign = sign->next)
     {
@@ -11836,7 +11836,7 @@ static void get_buffer_signs(buf_T *buf, list_T *l)
 }
 
 /// Returns buffer options, variables and other attributes in a dictionary.
-static dict_T *get_buffer_info(buf_T *buf)
+static dict_T *get_buffer_info(fbuf_st *buf)
 {
     dict_T *const dict = tv_dict_alloc();
     tv_dict_add_nr(dict, S_LEN("bufnr"), buf->b_fnum);
@@ -11888,7 +11888,7 @@ static void f_getbufinfo(typval_T *argvars,
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    buf_T *argbuf = NULL;
+    fbuf_st *argbuf = NULL;
     bool filtered = false;
     bool sel_buflisted = false;
     bool sel_bufloaded = false;
@@ -11967,7 +11967,7 @@ static void f_getbufinfo(typval_T *argvars,
 /// Return a range (from start to end) of lines in rettv from
 /// the specified buffer. If 'retlist' is TRUE, then the lines
 /// are returned as a Vim List.
-static void get_buffer_lines(buf_T *buf,
+static void get_buffer_lines(fbuf_st *buf,
                              linenr_T start,
                              linenr_T end,
                              int retlist,
@@ -12040,7 +12040,7 @@ static void get_buffer_lines(buf_T *buf,
 ///
 /// @return Line number or 0 in case of error.
 static linenr_T tv_get_lnum_buf(const typval_T *const tv,
-                                const buf_T *const buf)
+                                const fbuf_st *const buf)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -12060,7 +12060,7 @@ static void f_getbufline(typval_T *argvars,
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    buf_T *buf = NULL;
+    fbuf_st *buf = NULL;
 
     if(tv_check_str_or_nr(&argvars[0]))
     {
@@ -12094,11 +12094,11 @@ static void f_getbufvar(typval_T *argvars,
     const char *varname = tv_get_string_chk(&argvars[1]);
     emsg_off++;
 
-    buf_T *const buf = get_buf_tv(&argvars[0], false);
+    fbuf_st *const buf = get_buf_tv(&argvars[0], false);
     if(buf != NULL && varname != NULL)
     {
         // set curbuf to be our buf, temporarily
-        buf_T *const save_curbuf = curbuf;
+        fbuf_st *const save_curbuf = curbuf;
         curbuf = buf;
 
         if(*varname == '&') // buffer-local-option
@@ -18800,7 +18800,7 @@ static void f_setbufvar(typval_T *argvars,
     }
 
     const char *varname = tv_get_string_chk(&argvars[1]);
-    buf_T *const buf = get_buf_tv(&argvars[0], false);
+    fbuf_st *const buf = get_buf_tv(&argvars[0], false);
     typval_T *varp = &argvars[2];
 
     if(buf != NULL && varname != NULL)
@@ -18828,7 +18828,7 @@ static void f_setbufvar(typval_T *argvars,
         }
         else
         {
-            buf_T *save_curbuf = curbuf;
+            fbuf_st *save_curbuf = curbuf;
             const size_t varname_len = STRLEN(varname);
             char *const bufvarname = xmalloc(varname_len + 3);
 

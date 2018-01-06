@@ -4257,7 +4257,7 @@ void do_check_scrollbind(bool check)
     static win_T *old_curwin = NULL;
     static linenr_T old_topline = 0;
     static int old_topfill = 0;
-    static buf_T *old_buf = NULL;
+    static fbuf_st *old_buf = NULL;
     static colnr_T old_leftcol = 0;
 
     if(check && curwin->w_p_scb)
@@ -4317,7 +4317,7 @@ void check_scrollbind(linenr_T topline_diff, long leftcol_diff)
     bool want_ver;
     bool want_hor;
     win_T *old_curwin = curwin;
-    buf_T *old_curbuf = curbuf;
+    fbuf_st *old_curbuf = curbuf;
     int old_VIsual_select = VIsual_select;
     int old_VIsual_active = VIsual_active;
     colnr_T tgt_leftcol = curwin->w_leftcol;

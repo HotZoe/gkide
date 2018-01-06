@@ -1469,7 +1469,7 @@ bool prof_def_func(void)
 /// Careful: autocommands may make "buf" invalid!
 ///
 /// @return FAIL for failure, OK otherwise
-int autowrite(buf_T *buf, int forceit)
+int autowrite(fbuf_st *buf, int forceit)
 {
     int r;
     bufref_T bufref;
@@ -1523,7 +1523,7 @@ void autowrite_all(void)
 
 /// Return true if buffer was changed and cannot be abandoned.
 /// For flags use the CCGD_ values.
-bool check_changed(buf_T *buf, int flags)
+bool check_changed(fbuf_st *buf, int flags)
 {
     int forceit = (flags & CCGD_FORCEIT);
     bufref_T bufref;
@@ -1588,7 +1588,7 @@ bool check_changed(buf_T *buf, int flags)
 ///
 /// @param buf
 /// @param checkall may abandon all changed buffers
-void dialog_changed(buf_T *buf, int checkall)
+void dialog_changed(fbuf_st *buf, int checkall)
 {
     int ret;
     exarg_T ea;
@@ -1668,7 +1668,7 @@ void dialog_changed(buf_T *buf, int checkall)
 
 /// Return true if the buffer "buf" can be abandoned,
 /// either by making it hidden, autowriting it or unloading it.
-bool can_abandon(buf_T *buf, int forceit)
+bool can_abandon(fbuf_st *buf, int forceit)
 {
     return P_HID(buf)
            || !bufIsChanged(buf)
@@ -1755,7 +1755,7 @@ bool check_changed_any(bool hidden, bool unload)
         add_bufnum(bufnrs, &bufnum, buf->b_fnum);
     }
 
-    buf_T *buf = NULL;
+    fbuf_st *buf = NULL;
 
     for(i = 0; i < bufnum; i++)
     {
@@ -1868,10 +1868,10 @@ int check_fname(void)
 /// Flush the contents of a buffer, unless it has no file name.
 ///
 /// @return FAIL for failure, OK otherwise
-int buf_write_all(buf_T *buf, int forceit)
+int buf_write_all(fbuf_st *buf, int forceit)
 {
     int retval;
-    buf_T *old_curbuf = curbuf;
+    fbuf_st *old_curbuf = curbuf;
 
     retval = (buf_write(buf, buf->b_ffname, buf->b_fname,
                         (linenr_T)1, buf->b_ml.ml_line_count, NULL,
@@ -2561,7 +2561,7 @@ void ex_listdo(exarg_T *eap)
                 break;
         }
 
-        buf_T *buf = curbuf;
+        fbuf_st *buf = curbuf;
         size_t qf_size = 0;
 
         // set pcmark now
@@ -2679,7 +2679,7 @@ void ex_listdo(exarg_T *eap)
                 // ":bwipe" is used or autocommands do something strange.
                 next_fnum = -1;
 
-                for(buf_T *buf = curbuf->b_next; buf != NULL; buf = buf->b_next)
+                for(fbuf_st *buf = curbuf->b_next; buf != NULL; buf = buf->b_next)
                 {
                     if(buf->b_p_bl)
                     {
@@ -4323,7 +4323,7 @@ bool source_finished(LineGetter fgetline, void *cookie)
 /// ":checktime [buffer]"
 void ex_checktime(exarg_T *eap)
 {
-    buf_T *buf;
+    fbuf_st *buf;
     int save_no_check_timestamps = no_check_timestamps;
     no_check_timestamps = 0;
 
@@ -4761,7 +4761,7 @@ static void script_host_do_range(char *name, exarg_T *eap)
 void ex_drop(exarg_T *eap)
 {
     bool split = false;
-    buf_T *buf;
+    fbuf_st *buf;
 
     // Check if the first argument is already being edited in a window. If
     // so, jump to that window.

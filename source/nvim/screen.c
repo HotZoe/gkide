@@ -215,7 +215,7 @@ void redraw_curbuf_later(int type)
     redraw_buf_later(curbuf, type);
 }
 
-void redraw_buf_later(buf_T *buf, int type)
+void redraw_buf_later(fbuf_st *buf, int type)
 {
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
@@ -629,7 +629,7 @@ static void update_finish(void)
     updating_screen = FALSE;
 }
 
-void update_debug_sign(buf_T *buf, linenr_T lnum)
+void update_debug_sign(fbuf_st *buf, linenr_T lnum)
 {
     int  doit = FALSE;
     win_foldinfo.fi_level = 0;
@@ -723,7 +723,7 @@ void update_debug_sign(buf_T *buf, linenr_T lnum)
 static void win_update(win_T *wp)
 {
     int type;
-    buf_T *buf = wp->w_buffer;
+    fbuf_st *buf = wp->w_buffer;
 
     // Below last row of the top area that needs
     // updating.  0 when no top area updating.
@@ -6731,7 +6731,7 @@ int get_keymap_str(win_T *wp, uchar_kt *fmt, uchar_kt *buf, int len)
         return FALSE;
     }
 
-    buf_T *old_curbuf = curbuf;
+    fbuf_st *old_curbuf = curbuf;
     win_T *old_curwin = curwin;
     uchar_kt *s;
     curbuf = wp->w_buffer;
@@ -9433,7 +9433,7 @@ void ui_ext_tabline_update(void)
 
 /// Get buffer name for "buf" into NameBuff[].
 /// Takes care of special buffer names and translates special characters.
-void get_trans_bufname(buf_T *buf)
+void get_trans_bufname(fbuf_st *buf)
 {
     if(buf_spname(buf) != NULL)
     {

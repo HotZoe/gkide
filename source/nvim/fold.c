@@ -3446,7 +3446,7 @@ static void foldMerge(fold_T *fp1, garray_T *gap, fold_T *fp2)
 static void foldlevelIndent(fline_T *flp)
 {
     uchar_kt *s;
-    buf_T *buf;
+    fbuf_st *buf;
     linenr_T lnum = flp->lnum + flp->off;
     buf = flp->wp->w_buffer;
     s = skipwhite(ml_get_buf(buf, lnum, FALSE));

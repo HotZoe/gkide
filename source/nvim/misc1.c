@@ -2251,7 +2251,7 @@ void changed_bytes(linenr_T lnum, colnr_T col)
     }
 }
 
-static void changedOneline(buf_T *buf, linenr_T lnum)
+static void changedOneline(fbuf_st *buf, linenr_T lnum)
 {
     if(buf->b_mod_set)
     {
@@ -2363,7 +2363,7 @@ void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
 /// @param lnum  first line with change
 /// @param lnume line below last changed line
 /// @param xtra  number of extra lines (negative when deleting)
-void changed_lines_buf(buf_T *buf, linenr_T lnum, linenr_T lnume, long xtra)
+void changed_lines_buf(fbuf_st *buf, linenr_T lnum, linenr_T lnume, long xtra)
 {
     if(buf->b_mod_set)
     {
@@ -2632,7 +2632,7 @@ static void changed_common(linenr_T lnum,
 ///
 /// @param buf
 /// @param ff   also reset 'fileformat'
-void unchanged(buf_T *buf, int ff)
+void unchanged(fbuf_st *buf, int ff)
 {
     if(buf->b_changed || (ff && file_ff_differs(buf, false)))
     {
@@ -2654,7 +2654,7 @@ void unchanged(buf_T *buf, int ff)
 
 /// check_status: called when the status bars for the
 /// buffer 'buf'  need to be updated
-void check_status(buf_T *buf)
+void check_status(fbuf_st *buf)
 {
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {

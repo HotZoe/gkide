@@ -56,7 +56,7 @@ static int diff_a_works = MAYBE;
 /// No longer make a diff with it.
 ///
 /// @param buf
-void diff_buf_delete(buf_T *buf)
+void diff_buf_delete(fbuf_st *buf)
 {
     FOR_ALL_TABS(tp)
     {
@@ -124,7 +124,7 @@ void diff_buf_adjust(win_T *win)
 /// about the screen contents.
 ///
 /// @param buf The buffer to add.
-void diff_buf_add(buf_T *buf)
+void diff_buf_add(fbuf_st *buf)
 {
     if(diff_buf_idx(buf) != DB_COUNT)
     {
@@ -153,7 +153,7 @@ void diff_buf_add(buf_T *buf)
 /// @param buf The buffer to find.
 ///
 /// @return Its index or DB_COUNT if not found.
-static int diff_buf_idx(buf_T *buf)
+static int diff_buf_idx(fbuf_st *buf)
 {
     int idx;
 
@@ -174,7 +174,7 @@ static int diff_buf_idx(buf_T *buf)
 /// @param tp
 ///
 /// @return its index or DB_COUNT if not found.
-static int diff_buf_idx_tp(buf_T *buf, tabpage_T *tp)
+static int diff_buf_idx_tp(fbuf_st *buf, tabpage_T *tp)
 {
     int idx;
 
@@ -193,7 +193,7 @@ static int diff_buf_idx_tp(buf_T *buf, tabpage_T *tp)
 /// it will be updated when info is requested.
 ///
 /// @param buf
-void diff_invalidate(buf_T *buf)
+void diff_invalidate(fbuf_st *buf)
 {
     FOR_ALL_TABS(tp)
     {
@@ -755,7 +755,7 @@ static void diff_redraw(int dofold)
 /// @param fname
 ///
 /// @return FAIL for failure
-static int diff_write(buf_T *buf, uchar_kt *fname)
+static int diff_write(fbuf_st *buf, uchar_kt *fname)
 {
     uchar_kt *save_ff = buf->b_p_ff;
     buf->b_p_ff = vim_strsave((uchar_kt *)FF_UNIX);
@@ -942,7 +942,7 @@ void ex_diffupdate(exarg_T *eap)
     {
         for(idx_new = idx_orig; idx_new < DB_COUNT; ++idx_new)
         {
-            buf_T *buf = curtab->tp_diffbuf[idx_new];
+            fbuf_st *buf = curtab->tp_diffbuf[idx_new];
 
             if(buf_valid(buf))
             {
@@ -952,7 +952,7 @@ void ex_diffupdate(exarg_T *eap)
     }
 
     // Write the first buffer to a tempfile.
-    buf_T *buf = curtab->tp_diffbuf[idx_orig];
+    fbuf_st *buf = curtab->tp_diffbuf[idx_orig];
 
     if(diff_write(buf, (uchar_kt *) tmp_orig) == FAIL)
     {
@@ -962,7 +962,7 @@ void ex_diffupdate(exarg_T *eap)
     // Make a difference between the first buffer and every other.
     for(idx_new = idx_orig + 1; idx_new < DB_COUNT; ++idx_new)
     {
-        buf_T *buf = curtab->tp_diffbuf[idx_new];
+        fbuf_st *buf = curtab->tp_diffbuf[idx_new];
 
         if(buf == NULL || buf->b_ml.ml_mfp == NULL)
         {
@@ -1805,7 +1805,7 @@ int diff_check(win_T *wp, linenr_T lnum)
     diff_T *dp;
     int maxcount;
     int i;
-    buf_T *buf = wp->w_buffer;
+    fbuf_st *buf = wp->w_buffer;
     int cmp;
 
     if(curtab->tp_diff_invalid)
@@ -2089,7 +2089,7 @@ int diff_check_fill(win_T *wp, linenr_T lnum)
 /// @param towin
 void diff_set_topline(win_T *fromwin, win_T *towin)
 {
-    buf_T *frombuf = fromwin->w_buffer;
+    fbuf_st *frombuf = fromwin->w_buffer;
     linenr_T lnum = fromwin->w_topline;
     diff_T *dp;
     int max_count;
@@ -2597,7 +2597,7 @@ void ex_diffgetput(exarg_T *eap)
     int added;
     uchar_kt *p;
     aco_save_T aco;
-    buf_T *buf;
+    fbuf_st *buf;
     int start_skip, end_skip;
     int new_count;
     int buf_empty;
@@ -3016,7 +3016,7 @@ static void diff_fold_update(diff_T *dp, int skip_idx)
 /// Checks that the buffer is in diff-mode.
 ///
 /// @param  buf  buffer to check.
-bool diff_mode_buf(buf_T *buf)
+bool diff_mode_buf(fbuf_st *buf)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
@@ -3114,9 +3114,9 @@ int diff_move_to(int dir, long count)
 /// @param lnum3
 ///
 /// @return The corresponding line.
-linenr_T diff_get_corresponding_line(buf_T *buf1,
+linenr_T diff_get_corresponding_line(fbuf_st *buf1,
                                      linenr_T lnum1,
-                                     buf_T *buf2,
+                                     fbuf_st *buf2,
                                      linenr_T lnum3)
 {
     int idx1;

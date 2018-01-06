@@ -248,7 +248,7 @@ void mf_close(memfile_T *mfp, bool del_file)
 /// Close the swap file for a memfile. Used when 'swapfile' is reset.
 ///
 /// @param getlines  Whether to get all lines into memory.
-void mf_close_file(buf_T *buf, bool getlines)
+void mf_close_file(fbuf_st *buf, bool getlines)
 {
     memfile_T *mfp = buf->b_ml.ml_mfp;
 
@@ -698,7 +698,7 @@ static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
     if(mfp->mf_fd < 0 && need_release && p_uc)
     {
         // find for which buffer this memfile is
-        buf_T *buf = NULL;
+        fbuf_st *buf = NULL;
 
         FOR_ALL_BUFFERS(bp)
         {

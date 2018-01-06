@@ -192,7 +192,7 @@ static char *e_auchangedbuf = N_("E812: Autocommands changed buffer or buffer na
 /// it prior calling apply_autocmds_group.
 static bool au_did_filetype INIT(= false);
 
-void filemess(buf_T *buf, uchar_kt *name, uchar_kt *s, int attr)
+void filemess(fbuf_st *buf, uchar_kt *name, uchar_kt *s, int attr)
 {
     int msg_scroll_save;
 
@@ -341,7 +341,7 @@ int readfile(uchar_kt *fname,
 
     uchar_kt conv_rest[CONV_RESTLEN];
     int conv_restlen = 0; // nr of bytes in conv_rest[]
-    buf_T *old_curbuf;
+    fbuf_st *old_curbuf;
     uchar_kt *old_b_ffname;
     uchar_kt *old_b_fname;
     int using_b_ffname;
@@ -2612,7 +2612,7 @@ static linenr_T readfile_linenr(linenr_T linecnt, uchar_kt *p, uchar_kt *endp)
 
 /// Fill "*eap" to force the 'fileencoding', 'fileformat' and 'binary to be
 /// equal to the buffer "buf".  Used for calling readfile().
-void prep_exarg(exarg_T *eap, buf_T *buf)
+void prep_exarg(exarg_T *eap, fbuf_st *buf)
 {
     eap->cmd = xmalloc(STRLEN(buf->b_p_ff) + STRLEN(buf->b_p_fenc) + 15);
     sprintf((char *)eap->cmd, "e ++ff=%s ++enc=%s", buf->b_p_ff, buf->b_p_fenc);
@@ -2830,7 +2830,7 @@ static void set_file_time(uchar_kt *fname, time_t atime, time_t mtime)
 /// @param filtering
 ///
 /// @return FAIL for failure, OK otherwise
-int buf_write(buf_T *buf,
+int buf_write(fbuf_st *buf,
               uchar_kt *fname,
               uchar_kt *sfname,
               linenr_T start,
@@ -4785,7 +4785,7 @@ nofail:
 /// name and a ":r" or ":w" command with a file name is used.
 static int set_rw_fname(uchar_kt *fname, uchar_kt *sfname)
 {
-    buf_T *buf = curbuf;
+    fbuf_st *buf = curbuf;
 
     // It's like the unnamed buffer is deleted....
     if(curbuf->b_p_bl)
@@ -4845,11 +4845,11 @@ static int set_rw_fname(uchar_kt *fname, uchar_kt *sfname)
 ///
 /// @param[out]  ret_buf  Buffer to save results to.
 /// @param[in]  buf_len  ret_buf length.
-/// @param[in]  buf  buf_T file name is coming from.
+/// @param[in]  buf  fbuf_st file name is coming from.
 /// @param[in]  fname  File name to write.
 static void add_quoted_fname(char *const ret_buf,
                              const size_t buf_len,
-                             const buf_T *const buf,
+                             const fbuf_st *const buf,
                              const char *fname)
 FUNC_ATTR_NONNULL_ARG(1)
 {
@@ -4953,7 +4953,7 @@ static void msg_add_eol(void)
 /// Check modification time of file, before writing to it.
 /// The size isn't checked, because using a tool like "gzip" takes care of
 /// using the same timestamp but can't set the size.
-static int check_mtime(buf_T *buf, FileInfo *file_info)
+static int check_mtime(fbuf_st *buf, FileInfo *file_info)
 {
     if(buf->b_mtime_read != 0
        && time_differs(file_info->stat.st_mtim.tv_sec, buf->b_mtime_read))
@@ -6103,9 +6103,9 @@ int check_timestamps(int focus)
 /// Move all the lines from buffer "frombuf" to buffer "tobuf".
 /// Return OK or FAIL.  When FAIL "tobuf" is incomplete and/or
 /// "frombuf" is not empty.
-static int move_lines(buf_T *frombuf, buf_T *tobuf)
+static int move_lines(fbuf_st *frombuf, fbuf_st *tobuf)
 {
-    buf_T *tbuf = curbuf;
+    fbuf_st *tbuf = curbuf;
     int retval = OK;
     linenr_T lnum;
     uchar_kt *p;
@@ -6158,7 +6158,7 @@ static int move_lines(buf_T *frombuf, buf_T *tobuf)
 /// - 1 if a changed buffer was found.
 /// - 2 if a message has been displayed.
 /// - 0 otherwise.
-int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
+int buf_check_timestamp(fbuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 {
     int retval = 0;
     uchar_kt *path;
@@ -6430,7 +6430,7 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
         if(buf->b_p_udf && buf->b_ffname != NULL)
         {
             uchar_kt hash[UNDO_HASH_SIZE];
-            buf_T *save_curbuf = curbuf;
+            fbuf_st *save_curbuf = curbuf;
 
             // Any existing undo file is unusable, write it now.
             curbuf = buf;
@@ -6458,13 +6458,13 @@ int buf_check_timestamp(buf_T *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 /// "orig_mode" is buf->b_orig_mode before the need
 /// for reloading was detected.
 /// buf->b_orig_mode may have been reset already.
-void buf_reload(buf_T *buf, int orig_mode)
+void buf_reload(fbuf_st *buf, int orig_mode)
 {
     exarg_T ea;
     pos_T old_cursor;
     linenr_T old_topline;
     int old_ro = buf->b_p_ro;
-    buf_T *savebuf;
+    fbuf_st *savebuf;
     bufref_T bufref;
     int saved = OK;
     aco_save_T aco;
@@ -6630,7 +6630,7 @@ void buf_reload(buf_T *buf, int orig_mode)
     // Careful: autocommands may have made "buf" invalid!
 }
 
-void buf_store_file_info(buf_T *buf, FileInfo *file_info)
+void buf_store_file_info(fbuf_st *buf, FileInfo *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     buf->b_mtime = file_info->stat.st_mtim.tv_sec;
@@ -7082,7 +7082,7 @@ static void au_cleanup(void)
 
 /// Called when buffer is freed, to remove/invalidate
 /// related buffer-local autocmds.
-void aubuflocal_remove(buf_T *buf)
+void aubuflocal_remove(fbuf_st *buf)
 {
     AutoPat *ap;
     event_T event;
@@ -8113,7 +8113,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param aco  structure to save values in
 /// @param buf  new curbuf
-void aucmd_prepbuf(aco_save_T *aco, buf_T *buf)
+void aucmd_prepbuf(aco_save_T *aco, fbuf_st *buf)
 {
     win_T *win;
     int save_ea;
@@ -8327,7 +8327,7 @@ bool apply_autocmds(event_T event,
                     uchar_kt *fname,
                     uchar_kt *fname_io,
                     bool force,
-                    buf_T *buf)
+                    fbuf_st *buf)
 {
     return apply_autocmds_group(event,
                                 fname,
@@ -8353,7 +8353,7 @@ static bool apply_autocmds_exarg(event_T event,
                                  uchar_kt *fname,
                                  uchar_kt *fname_io,
                                  bool force,
-                                 buf_T *buf,
+                                 fbuf_st *buf,
                                  exarg_T *eap)
 {
     return apply_autocmds_group(event,
@@ -8382,7 +8382,7 @@ bool apply_autocmds_retval(event_T event,
                            uchar_kt *fname,
                            uchar_kt *fname_io,
                            bool force,
-                           buf_T *buf,
+                           fbuf_st *buf,
                            int *retval)
 {
     if(should_abort(*retval))
@@ -8481,13 +8481,13 @@ static bool apply_autocmds_group(event_T event,
                                  uchar_kt *fname_io,
                                  bool force,
                                  int group,
-                                 buf_T *buf,
+                                 fbuf_st *buf,
                                  exarg_T *eap)
 {
     uchar_kt *sfname = NULL; // short file name
     uchar_kt *tail;
     bool save_changed;
-    buf_T *old_curbuf;
+    fbuf_st *old_curbuf;
     bool retval = false;
     uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
@@ -8845,7 +8845,7 @@ static bool apply_autocmds_group(event_T event,
 
         while(au_pending_free_buf != NULL)
         {
-            buf_T *b = au_pending_free_buf->b_next;
+            fbuf_st *b = au_pending_free_buf->b_next;
             xfree(au_pending_free_buf);
             au_pending_free_buf = b;
         }
@@ -9094,7 +9094,7 @@ uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
 /// @param event  event that occured.
 /// @param sfname filename the event occured in.
 /// @param buf    buffer the file is open in
-bool has_autocmd(event_T event, uchar_kt *sfname, buf_T *buf)
+bool has_autocmd(event_T event, uchar_kt *sfname, fbuf_st *buf)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool retval = false;
@@ -9274,7 +9274,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     event_T event;
     AutoPat *ap;
-    buf_T *buflocal_buf = NULL;
+    fbuf_st *buflocal_buf = NULL;
     int group;
     bool retval = false;
 

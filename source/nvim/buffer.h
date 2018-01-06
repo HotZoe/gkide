@@ -65,7 +65,7 @@ enum bfa_values
 // If there is no such window, use the current window and change `curbuf`
 // Caller must initialize save_curbuf to NULL.
 // restore_win_for_buf() MUST be called later!
-static inline void switch_to_win_for_buf(buf_T *buf,
+static inline void switch_to_win_for_buf(fbuf_st *buf,
                                          win_T **save_curwinp,
                                          tabpage_T **save_curtabp,
                                          bufref_T *save_curbuf)
@@ -94,14 +94,14 @@ static inline void restore_win_for_buf(win_T *save_curwin,
     }
 }
 
-static inline void buf_set_changedtick(buf_T *const buf, const int changedtick)
+static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick)
 REAL_FATTR_NONNULL_ALL REAL_FATTR_ALWAYS_INLINE;
 
 /// Set b_changedtick and corresponding variable
 ///
 /// @param[out]  buf          Buffer to set changedtick in.
 /// @param[in]   changedtick  New value.
-static inline void buf_set_changedtick(buf_T *const buf, const int changedtick)
+static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick)
 {
 #ifndef NDEBUG
     dictitem_T *const changedtick_di = tv_dict_find(buf->b_vars, S_LEN("changedtick"));

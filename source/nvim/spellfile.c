@@ -485,7 +485,7 @@ typedef struct spellinfo_S
 #endif
 
     /// buffer used to store soundfold word table
-    buf_T *si_spellbuf;
+    fbuf_st *si_spellbuf;
 
     int si_ascii;          ///< handling only ASCII words
     int si_add;            ///< addition file
@@ -7077,7 +7077,7 @@ void ex_spell(exarg_T *eap)
 void spell_add_word(uchar_kt *word, int len, int bad, int idx,  bool undo)
 {
     FILE *fd = NULL;
-    buf_T *buf = NULL;
+    fbuf_st *buf = NULL;
     bool new_spf = false;
     uchar_kt *fname;
     uchar_kt *fnamebuf = NULL;

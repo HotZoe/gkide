@@ -36,7 +36,7 @@
 Integer nvim_buf_line_count(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -162,7 +162,7 @@ ArrayOf(String) nvim_buf_get_lines(uint64_t channel_id,
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -283,7 +283,7 @@ void nvim_buf_set_lines(uint64_t channel_id,
                         error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -462,7 +462,7 @@ end:
 Object nvim_buf_get_var(Buffer buffer, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -480,7 +480,7 @@ FUNC_API_SINCE(1)
 Integer nvim_buf_get_changedtick(Buffer buffer, error_st *err)
 FUNC_API_SINCE(2)
 {
-    const buf_T *const buf = find_buffer_by_handle(buffer, err);
+    const fbuf_st *const buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -503,7 +503,7 @@ ArrayOf(Dictionary) nvim_buf_get_keymap(Buffer buffer,
 										 error_st *err)
 FUNC_API_SINCE(3)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -522,7 +522,7 @@ FUNC_API_SINCE(3)
 void nvim_buf_set_var(Buffer buffer, String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -540,7 +540,7 @@ FUNC_API_SINCE(1)
 void nvim_buf_del_var(Buffer buffer, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -564,7 +564,7 @@ FUNC_API_SINCE(1)
 ///                  or if previous value was `v:null`.
 Object buffer_set_var(Buffer buffer, String name, Object value, error_st *err)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -584,7 +584,7 @@ Object buffer_set_var(Buffer buffer, String name, Object value, error_st *err)
 /// @return Old value
 Object buffer_del_var(Buffer buffer, String name, error_st *err)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -604,7 +604,7 @@ Object buffer_del_var(Buffer buffer, String name, error_st *err)
 Object nvim_buf_get_option(Buffer buffer, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -624,7 +624,7 @@ FUNC_API_SINCE(1)
 void nvim_buf_set_option(Buffer buffer, String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -646,7 +646,7 @@ Integer nvim_buf_get_number(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1) FUNC_API_DEPRECATED_SINCE(2)
 {
     Integer rv = 0;
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -665,7 +665,7 @@ String nvim_buf_get_name(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1)
 {
     String rv = STRING_INIT;
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf || buf->b_ffname == NULL)
     {
@@ -683,7 +683,7 @@ FUNC_API_SINCE(1)
 void nvim_buf_set_name(Buffer buffer, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -750,7 +750,7 @@ ArrayOf(Integer, 2) nvim_buf_get_mark(Buffer buffer, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -828,7 +828,7 @@ Integer nvim_buf_add_highlight(Buffer buffer,
                                error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -880,7 +880,7 @@ void nvim_buf_clear_highlight(Buffer buffer,
                               error_st *err)
 FUNC_API_SINCE(1)
 {
-    buf_T *buf = find_buffer_by_handle(buffer, err);
+    fbuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {
@@ -931,7 +931,7 @@ static void fix_cursor(linenr_T lo, linenr_T hi, linenr_T extra)
 }
 
 // Normalizes 0-based indexes to buffer line numbers
-static int64_t normalize_index(buf_T *buf, int64_t index, bool *oob)
+static int64_t normalize_index(fbuf_st *buf, int64_t index, bool *oob)
 {
     int64_t line_count = buf->b_ml.ml_line_count;
     // Fix if < 0

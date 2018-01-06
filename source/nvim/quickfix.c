@@ -165,7 +165,7 @@ typedef struct
     typval_T *tv;
     uchar_kt *p_str;
     listitem_T *p_li;
-    buf_T *buf;
+    fbuf_st *buf;
     linenr_T buflnum;
     linenr_T lnumlast;
 } qfstate_T;
@@ -1282,7 +1282,7 @@ restofline:
 /// @return -1 for error, number of errors for success.
 static int qf_init_ext(qf_info_T *qi,
                        uchar_kt *efile,
-                       buf_T *buf,
+                       fbuf_st *buf,
                        typval_T *tv,
                        uchar_kt *errorformat,
                        int newlist,
@@ -1626,7 +1626,7 @@ static int qf_add_entry(qf_info_T *qi,
 
     if(bufnum != 0)
     {
-        buf_T *buf = buflist_findnr(bufnum);
+        fbuf_st *buf = buflist_findnr(bufnum);
         qfp->qf_fnum = bufnum;
 
         if(buf != NULL)
@@ -1848,7 +1848,7 @@ static int qf_get_fnum(qf_info_T *qi, uchar_kt *directory, uchar_kt *fname)
 {
     uchar_kt *ptr = NULL;
     uchar_kt *bufname;
-    buf_T *buf;
+    fbuf_st *buf;
 
     if(fname == NULL || *fname == NUL) // no file name
     {
@@ -2147,7 +2147,7 @@ void qf_jump(qf_info_T *qi, int dir, int errornr, int forceit)
     static uchar_kt *e_no_more_items = (uchar_kt *)N_("E553: No more items");
     uchar_kt *err = e_no_more_items;
     linenr_T i;
-    buf_T *old_curbuf;
+    fbuf_st *old_curbuf;
     linenr_T old_lnum;
     colnr_T screen_col;
     colnr_T char_col;
@@ -2797,7 +2797,7 @@ theend:
 /// - ":llist": list all locations
 void qf_list(exarg_T *eap)
 {
-    buf_T *buf;
+    fbuf_st *buf;
     uchar_kt *fname;
     qfline_T *qfp;
     int i;
@@ -3352,7 +3352,7 @@ void ex_copen(exarg_T *eap)
     int height;
     win_T *win;
     tabpage_T *prevtab = curtab;
-    buf_T *qf_buf;
+    fbuf_st *qf_buf;
     win_T *oldwin = curwin;
 
     if(eap->cmdidx == CMD_lopen || eap->cmdidx == CMD_lwindow)
@@ -3627,7 +3627,7 @@ static win_T *qf_find_win(qf_info_T *qi)
 
 /// Find a quickfix buffer.
 /// Searches in windows opened in all the tabs.
-static buf_T *qf_find_buf(qf_info_T *qi)
+static fbuf_st *qf_find_buf(qf_info_T *qi)
 {
     FOR_ALL_TAB_WINDOWS(tp, win)
     {
@@ -3658,7 +3658,7 @@ static void qf_update_win_titlevar(qf_info_T *qi)
 /// If it exists, update the contents.
 static void qf_update_buffer(qf_info_T *qi, qfline_T *old_last)
 {
-    buf_T *buf;
+    fbuf_st *buf;
     win_T *win;
     aco_save_T aco;
 
@@ -3710,11 +3710,11 @@ static void qf_set_title_var(qf_info_T *qi)
 // If "old_last" is not NULL append the items after this one.
 // When "old_last" is NULL then "buf" must equal "curbuf"! Because ml_delete()
 // is used and autocommands will be triggered.
-static void qf_fill_buffer(qf_info_T *qi, buf_T *buf, qfline_T *old_last)
+static void qf_fill_buffer(qf_info_T *qi, fbuf_st *buf, qfline_T *old_last)
 {
     linenr_T lnum;
     qfline_T *qfp;
-    buf_T *errbuf;
+    fbuf_st *errbuf;
     int len;
     int old_KeyTyped = KeyTyped;
 
@@ -3870,14 +3870,14 @@ static void qf_fill_buffer(qf_info_T *qi, buf_T *buf, qfline_T *old_last)
 }
 
 /// Return TRUE if "buf" is the quickfix buffer.
-int bt_quickfix(buf_T *buf)
+int bt_quickfix(fbuf_st *buf)
 {
     return buf != NULL && buf->b_p_bt[0] == 'q';
 }
 
 /// Return TRUE if "buf" is a "nofile", "acwrite" or "terminal" buffer.
 /// This means the buffer name is not a file name.
-int bt_nofile(buf_T *buf)
+int bt_nofile(fbuf_st *buf)
 {
     return buf != NULL
            && ((buf->b_p_bt[0] == 'n' && buf->b_p_bt[2] == 'f')
@@ -3885,12 +3885,12 @@ int bt_nofile(buf_T *buf)
 }
 
 // Return TRUE if "buf" is a "nowrite", "nofile" or "terminal" buffer.
-int bt_dontwrite(buf_T *buf)
+int bt_dontwrite(fbuf_st *buf)
 {
     return buf != NULL && (buf->b_p_bt[0] == 'n' || buf->terminal);
 }
 
-int bt_dontwrite_msg(buf_T *buf)
+int bt_dontwrite_msg(fbuf_st *buf)
 {
     if(bt_dontwrite(buf))
     {
@@ -3903,7 +3903,7 @@ int bt_dontwrite_msg(buf_T *buf)
 
 /// Return TRUE if the buffer should be hidden,
 /// according to 'hidden', ":hide" and 'bufhidden'.
-int buf_hide(buf_T *buf)
+int buf_hide(fbuf_st *buf)
 {
     // 'bufhidden' overrules 'hidden' and ":hide", check it first
     switch(buf->b_p_bh[0])
@@ -4568,12 +4568,12 @@ void ex_vimgrep(exarg_T *eap)
     qf_info_T *qi = &ql_info;
     qfline_T *cur_qf_start;
     long lnum;
-    buf_T *buf;
+    fbuf_st *buf;
     int duplicate_name = FALSE;
     int using_dummy;
     int redraw_for_dummy = FALSE;
     int found_match;
-    buf_T *first_match_buf = NULL;
+    fbuf_st *first_match_buf = NULL;
     time_t seconds = 0;
     long save_mls;
     uchar_kt *save_ei = NULL;
@@ -5051,11 +5051,11 @@ static void restore_start_dir(uchar_kt *dirname_start)
 ///
 /// @return
 /// Returns NULL if it fails.
-static buf_T *load_dummy_buffer(uchar_kt *fname,
+static fbuf_st *load_dummy_buffer(uchar_kt *fname,
                                 uchar_kt *dirname_start,
                                 uchar_kt *resulting_dir)
 {
-    buf_T *newbuf;
+    fbuf_st *newbuf;
     bufref_T newbufref;
     bufref_T newbuf_to_wipe;
     int failed = true;
@@ -5145,7 +5145,7 @@ static buf_T *load_dummy_buffer(uchar_kt *fname,
 /// Wipe out the dummy buffer that load_dummy_buffer() created. Restores
 /// directory to "dirname_start" prior to returning, if autocmds or the
 /// 'autochdir' option have changed it.
-static void wipe_dummy_buffer(buf_T *buf, uchar_kt *dirname_start)
+static void wipe_dummy_buffer(fbuf_st *buf, uchar_kt *dirname_start)
 {
     // safety check
     if(curbuf != buf)
@@ -5170,7 +5170,7 @@ static void wipe_dummy_buffer(buf_T *buf, uchar_kt *dirname_start)
 /// Unload the dummy buffer that load_dummy_buffer() created. Restores
 /// directory to "dirname_start" prior to returning, if autocmds or the
 /// 'autochdir' option have changed it.
-static void unload_dummy_buffer(buf_T *buf, uchar_kt *dirname_start)
+static void unload_dummy_buffer(fbuf_st *buf, uchar_kt *dirname_start)
 {
     // safety check
     if(curbuf != buf)
@@ -5591,7 +5591,7 @@ int set_errorlist(win_T *wp,
 /// - ":[range]lgetbuffer [bufnr]" command.
 void ex_cbuffer(exarg_T *eap)
 {
-    buf_T *buf = NULL;
+    fbuf_st *buf = NULL;
     qf_info_T *qi = &ql_info;
     const char *au_name = NULL;
 

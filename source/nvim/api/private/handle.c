@@ -27,7 +27,7 @@
         pmap_del(handle_kt)(name##_handles, name->handle);       \
     }
 
-HANDLE_IMPL(buf_T, buffer)
+HANDLE_IMPL(fbuf_st, buffer)
 HANDLE_IMPL(win_T, window)
 HANDLE_IMPL(tabpage_T, tabpage)
 

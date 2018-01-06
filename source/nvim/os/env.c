@@ -996,7 +996,7 @@ char *vim_getenv(const char *name)
 /// @param dstlen Maximum length of the result
 /// @param one    If true, only replace one file name, including spaces and
 ///               commas in the file name
-void home_replace(const buf_T *const buf,
+void home_replace(const fbuf_st *const buf,
                   const uchar_kt *src,
                   uchar_kt *dst,
                   size_t dstlen,
@@ -1125,7 +1125,7 @@ void home_replace(const buf_T *const buf,
 ///
 /// @param buf When not NULL, check for help files
 /// @param src Input file name
-uchar_kt *home_replace_save(buf_T *buf, uchar_kt *src)
+uchar_kt *home_replace_save(fbuf_st *buf, uchar_kt *src)
 FUNC_ATTR_NONNULL_RET
 {
     // space for "~/" and trailing NUL

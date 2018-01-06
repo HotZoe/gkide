@@ -139,7 +139,7 @@ struct regengine
 
     long (*regexec_multi)(regmmatch_T *,
                           win_T *,
-                          buf_T *,
+                          fbuf_st *,
                           linenr_T,
                           colnr_T,
                           proftime_T *);

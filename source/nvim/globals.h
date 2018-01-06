@@ -591,7 +591,7 @@ EXTERN bufref_T au_new_curbuf INIT(= { NULL, 0 });
 // buffer/window. but link it in the list starting with
 // au_pending_free_buf/ap_pending_free_win, using b_next/w_next.
 // Free the buffer/window when autocmd_busy is being set to FALSE.
-EXTERN buf_T *au_pending_free_buf INIT(= NULL);
+EXTERN fbuf_st *au_pending_free_buf INIT(= NULL);
 EXTERN win_T *au_pending_free_win INIT(= NULL);
 
 // Mouse coordinates, set by check_termcode()
@@ -661,15 +661,15 @@ EXTERN int redraw_tabline INIT(= FALSE); ///< need to redraw tabline
 
 // All buffers are linked in a list. 'firstbuf' points to the first entry,
 // 'lastbuf' to the last entry and 'curbuf' to the currently active buffer.
-EXTERN buf_T *firstbuf INIT(= NULL);  ///< first buffer
-EXTERN buf_T *lastbuf INIT(= NULL);   ///< last buffer
-EXTERN buf_T *curbuf INIT(= NULL);    ///< currently active buffer
+EXTERN fbuf_st *firstbuf INIT(= NULL);  ///< first buffer
+EXTERN fbuf_st *lastbuf INIT(= NULL);   ///< last buffer
+EXTERN fbuf_st *curbuf INIT(= NULL);    ///< currently active buffer
 
 // Iterates over all buffers in the buffer list.
 #define FOR_ALL_BUFFERS(buf) \
-    for(buf_T *buf = firstbuf; buf != NULL; buf = buf->b_next)
+    for(fbuf_st *buf = firstbuf; buf != NULL; buf = buf->b_next)
 #define FOR_ALL_BUFFERS_BACKWARDS(buf)  \
-    for(buf_T *buf = lastbuf;  buf != NULL; buf = buf->b_prev)
+    for(fbuf_st *buf = lastbuf;  buf != NULL; buf = buf->b_prev)
 
 // Flag that is set when switching off 'swapfile'.
 // It means that all blocks are to be loaded into memory.
@@ -1026,7 +1026,7 @@ EXTERN int last_changedtick INIT(= 0);        ///< for TextChanged event
 
 /// for CursorMoved event
 EXTERN pos_T last_cursormoved INIT(= INIT_POS_T(0, 0, 0));
-EXTERN buf_T *last_changedtick_buf INIT(= NULL);
+EXTERN fbuf_st *last_changedtick_buf INIT(= NULL);
 
 EXTERN int postponed_split INIT(= 0);       ///< for CTRL-W CTRL-] command
 EXTERN int postponed_split_flags INIT(= 0); ///< args for win_split()

@@ -85,7 +85,7 @@ struct u_header
 /// Structure passed around between undofile functions.
 typedef struct
 {
-    buf_T *bi_buf;
+    fbuf_st *bi_buf;
     FILE *bi_fp;
 } bufinfo_T;
 

@@ -3676,7 +3676,7 @@ void map_clear_mode(uchar_kt *cmdp, uchar_kt *arg, int forceit, int abbr)
 /// @param mode   mode in which to delete
 /// @param local  TRUE for buffer-local mappings
 /// @param abbr   TRUE for abbreviations
-void map_clear_int(buf_T *buf, int mode, int local, int abbr)
+void map_clear_int(fbuf_st *buf, int mode, int local, int abbr)
 {
     mapblock_T *mp;
     mapblock_T **mpp;
@@ -4655,7 +4655,7 @@ void vim_unescape_csi(uchar_kt *p)
 /// @param buf   buffer for local mappings or NULL
 ///
 /// @return Return FAIL on error, OK otherwise.
-int makemap(FILE *fd, buf_T *buf)
+int makemap(FILE *fd, fbuf_st *buf)
 {
     mapblock_T *mp;
     uchar_kt c1, c2, c3;
@@ -5309,7 +5309,7 @@ static bool typebuf_match_len(const uint8_t *str, int *mlen)
 ///
 /// @param  index  The index in the maphash[]
 /// @param  buf  The buffer to get the maphash from. NULL for global
-mapblock_T *get_maphash(int index, buf_T *buf) FUNC_ATTR_PURE
+mapblock_T *get_maphash(int index, fbuf_st *buf) FUNC_ATTR_PURE
 {
     if(index > MAX_MAPHASH)
     {

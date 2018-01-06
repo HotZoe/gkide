@@ -4338,7 +4338,7 @@ static void ins_compl_fixRedoBufForLeader(uchar_kt *ptr_arg)
 /// buf=curbuf then it has to be the first call for a given flag/expansion.
 ///
 /// Returns the buffer to scan, if any, otherwise returns curbuf -- Acevedo
-static buf_T *ins_compl_next_buf(buf_T *buf, int flag)
+static fbuf_st *ins_compl_next_buf(fbuf_st *buf, int flag)
 {
     static win_T *wp;
 
@@ -4389,7 +4389,7 @@ static void expand_by_function(int type, uchar_kt *base)
     dict_T *matchdict = NULL;
     uchar_kt *funcname;
     win_T *curwin_save;
-    buf_T *curbuf_save;
+    fbuf_st *curbuf_save;
     typval_T rettv;
     funcname = (type == CTRL_X_FUNCTION) ? curbuf->b_p_cfu : curbuf->b_p_ofu;
 
@@ -4577,7 +4577,7 @@ static int ins_compl_get_exp(pos_T *ini)
     static pos_T last_match_pos;
     static uchar_kt *e_cpt = (uchar_kt *)""; // curr. entry in 'complete'
     static int found_all = FALSE; // Found all matches of a certain type.
-    static buf_T *ins_buf = NULL; // buffer being scanned
+    static fbuf_st *ins_buf = NULL; // buffer being scanned
 
     pos_T *pos;
     uchar_kt **matches;
@@ -5935,7 +5935,7 @@ static int ins_complete(int c, bool enable_pum)
             uchar_kt *funcname;
             pos_T pos;
             win_T *curwin_save;
-            buf_T *curbuf_save;
+            fbuf_st *curbuf_save;
 
             // Call 'completefunc' or 'omnifunc'
             // and get pattern length as a string

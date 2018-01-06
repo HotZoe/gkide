@@ -5,7 +5,7 @@
 
 #include "nvim/types.h"
 #include "nvim/pos.h" // for pos_T, linenr_T, colnr_T
-#include "nvim/buffer_defs.h" // for buf_T
+#include "nvim/buffer_defs.h" // for fbuf_st
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "memline.h.generated.h"

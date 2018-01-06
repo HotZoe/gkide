@@ -63,7 +63,7 @@
 #endif
 
 KHASH_SET_INIT_STR(strset)
-KHASH_MAP_INIT_STR(fnamebufs, buf_T *)
+KHASH_MAP_INIT_STR(fnamebufs, fbuf_st *)
 
 #define copy_option_part(src, dest, ...) \
     ((char *)copy_option_part((uchar_kt **) src, (uchar_kt *) dest, __VA_ARGS__))
@@ -971,7 +971,7 @@ static void close_file(void *cookie)
 ///
 /// @return true or false.
 static inline bool in_bufset(const khash_t(bufset) *const set,
-                             const buf_T *buf)
+                             const fbuf_st *buf)
 FUNC_ATTR_PURE
 {
     return kh_get(bufset, set, (uintptr_t) buf) != kh_end(set);
@@ -1323,7 +1323,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]      fname       File name to find.
 ///
 /// @return Pointer to the buffer or NULL.
-static buf_T *find_buffer(khash_t(fnamebufs) *const fname_bufs,
+static fbuf_st *find_buffer(khash_t(fnamebufs) *const fname_bufs,
                           const char *const fname)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
@@ -1695,7 +1695,7 @@ FUNC_ATTR_NONNULL_ALL
             case kSDItemJump:
             case kSDItemGlobalMark:
             {
-                buf_T *buf = find_buffer(&fname_bufs,
+                fbuf_st *buf = find_buffer(&fname_bufs,
                                          cur_entry.data.filemark.fname);
 
                 if(buf != NULL)
@@ -1770,7 +1770,7 @@ FUNC_ATTR_NONNULL_ALL
                     char *const sfname =
                         path_shorten_fname_if_possible(cur_entry.data.buffer_list.buffers[i].fname);
 
-                    buf_T *const buf =
+                    fbuf_st *const buf =
                         buflist_new(cur_entry.data.buffer_list.buffers[i].fname,
                                     sfname, 0, BLN_LISTED);
 
@@ -1829,7 +1829,7 @@ FUNC_ATTR_NONNULL_ALL
                     break;
                 }
 
-                buf_T *buf = find_buffer(&fname_bufs,
+                fbuf_st *buf = find_buffer(&fname_bufs,
                                          cur_entry.data.filemark.fname);
 
                 if(buf == NULL)
@@ -3345,7 +3345,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         xfmark_T fm;
         jump_iter = mark_jumplist_iter(jump_iter, curwin, &fm);
 
-        const buf_T *const buf = (fm.fmark.fnum == 0
+        const fbuf_st *const buf = (fm.fmark.fnum == 0
                                   ? NULL
                                   : buflist_findnr(fm.fmark.fnum));
 
@@ -3415,7 +3415,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             }
             else
             {
-                const buf_T *const buf = buflist_findnr(fm.fmark.fnum);
+                const fbuf_st *const buf = buflist_findnr(fm.fmark.fnum);
 
                 if(buf == NULL
                    || buf->b_ffname == NULL

@@ -125,7 +125,7 @@ struct terminal
     /// and must be deleted from the terminal buffer
     int sb_pending;
 
-    /// buf_T instance that acts as a "drawing surface" for libvterm
+    /// fbuf_st instance that acts as a "drawing surface" for libvterm
     /// we can't store a direct reference to the buffer because the
     /// refresh_timer_cb may be called after the buffer was freed,
     /// and there's no way to know if the memory was reused.
@@ -349,7 +349,7 @@ void terminal_close(Terminal *term, char *msg)
         unblock_autocmds();
     }
 
-    buf_T *buf = handle_get_buffer(term->buf_handle);
+    fbuf_st *buf = handle_get_buffer(term->buf_handle);
     term->closed = true;
 
     if(!msg || exiting)
@@ -422,7 +422,7 @@ void terminal_resize(Terminal *term, uint16_t width, uint16_t height)
 
 void terminal_enter(void)
 {
-    buf_T *buf = curbuf;
+    fbuf_st *buf = curbuf;
 
     // Should only be called when curbuf has a terminal.
     assert(buf->terminal);
@@ -573,7 +573,7 @@ static int terminal_execute(VimState *state, int key)
 
 void terminal_destroy(Terminal *term)
 {
-    buf_T *buf = handle_get_buffer(term->buf_handle);
+    fbuf_st *buf = handle_get_buffer(term->buf_handle);
 
     if(buf)
     {
@@ -743,7 +743,7 @@ static int term_movecursor(VTermPos new,
     return 1;
 }
 
-static void buf_set_term_title(buf_T *buf, char *title)
+static void buf_set_term_title(fbuf_st *buf, char *title)
 FUNC_ATTR_NONNULL_ALL
 {
     error_st err = ERROR_INIT;
@@ -774,7 +774,7 @@ static int term_settermprop(VTermProp prop, VTermValue *val, void *data)
 
         case VTERM_PROP_TITLE:
         {
-            buf_T *buf = handle_get_buffer(term->buf_handle);
+            fbuf_st *buf = handle_get_buffer(term->buf_handle);
             buf_set_term_title(buf, val->string);
             break;
         }
@@ -1255,7 +1255,7 @@ static void invalidate_terminal(Terminal *term, int start_row, int end_row)
 
 static void refresh_terminal(Terminal *term)
 {
-    buf_T *buf = handle_get_buffer(term->buf_handle);
+    fbuf_st *buf = handle_get_buffer(term->buf_handle);
     bool valid = true;
 
     if(!buf || !(valid = buf_valid(buf)))
@@ -1317,7 +1317,7 @@ end:
     refresh_pending = false;
 }
 
-static void refresh_size(Terminal *term, buf_T *FUNC_ARGS_UNUSED_REALY(buf))
+static void refresh_size(Terminal *term, fbuf_st *FUNC_ARGS_UNUSED_REALY(buf))
 {
     if(!term->pending_resize || term->closed)
     {
@@ -1334,7 +1334,7 @@ static void refresh_size(Terminal *term, buf_T *FUNC_ARGS_UNUSED_REALY(buf))
 
 /// Adjusts scrollback storage after 'scrollback' option changed.
 static void on_scrollback_option_changed(Terminal *term,
-                                         buf_T *FUNC_ARGS_UNUSED_REALY(buf))
+                                         fbuf_st *FUNC_ARGS_UNUSED_REALY(buf))
 {
     const size_t scbk = curbuf->b_p_scbk < 0
                         ? SB_MAX
@@ -1375,7 +1375,7 @@ static void on_scrollback_option_changed(Terminal *term,
 }
 
 /// Refresh the scrollback of an invalidated terminal.
-static void refresh_scrollback(Terminal *term, buf_T *buf)
+static void refresh_scrollback(Terminal *term, fbuf_st *buf)
 {
     int width, height;
     vterm_get_size(term->vt, &height, &width);
@@ -1414,7 +1414,7 @@ static void refresh_scrollback(Terminal *term, buf_T *buf)
 
 /// Refresh the screen (visible part of the buffer when
 /// the terminal is focused) of a invalidated terminal
-static void refresh_screen(Terminal *term, buf_T *buf)
+static void refresh_screen(Terminal *term, fbuf_st *buf)
 {
     int changed = 0;
     int added = 0;
@@ -1521,7 +1521,7 @@ static void redraw(bool restore_cursor)
     ui_flush();
 }
 
-static void adjust_topline(Terminal *term, buf_T *buf, long added)
+static void adjust_topline(Terminal *term, fbuf_st *buf, long added)
 {
     int height, width;
     vterm_get_size(term->vt, &height, &width);

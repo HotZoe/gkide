@@ -1193,9 +1193,9 @@ void *getline_cookie(LineGetter fgetline, void *cookie)
 /// Returns the buffer number.
 static int compute_buffer_local_count(int addr_type, int lnum, int offset)
 {
-    buf_T *nextbuf;
+    fbuf_st *nextbuf;
     int count = offset;
-    buf_T *buf = firstbuf;
+    fbuf_st *buf = firstbuf;
 
     while(buf->b_next != NULL && buf->b_fnum < lnum)
     {
@@ -1948,7 +1948,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
 
                     case ADDR_LOADED_BUFFERS:
                     {
-                        buf_T *buf = firstbuf;
+                        fbuf_st *buf = firstbuf;
 
                         while(buf->b_next != NULL && buf->b_ml.ml_mfp == NULL)
                         {
@@ -2479,7 +2479,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
 
     if((ea.argt & DFLALL) && ea.addr_count == 0)
     {
-        buf_T *buf;
+        fbuf_st *buf;
         ea.line1 = 1;
 
         switch(ea.addr_type)
@@ -4548,7 +4548,7 @@ static linenr_T get_address(exarg_T *eap,
     pos_T pos;
     pos_T *fp;
     linenr_T lnum;
-    buf_T *buf;
+    fbuf_st *buf;
     cmd = skipwhite(*ptr);
     lnum = MAXLNUM;
 
@@ -4979,7 +4979,7 @@ static void ex_script_ni(exarg_T *eap)
 /// Return NULL when valid, error message when invalid.
 static uchar_kt *invalid_range(exarg_T *eap)
 {
-    buf_T *buf;
+    fbuf_st *buf;
 
     if(eap->line1 < 0 || eap->line2 < 0 || eap->line1 > eap->line2)
     {
@@ -7979,7 +7979,7 @@ static void ex_pclose(exarg_T *eap)
 static void ex_win_close(int forceit, win_T *win, tabpage_T *tp)
 {
     int need_hide;
-    buf_T *buf = win->w_buffer;
+    fbuf_st *buf = win->w_buffer;
     need_hide = (bufIsChanged(buf) && buf->b_nwindows <= 1);
 
     if(need_hide && !P_HID(buf) && !forceit)
@@ -9097,7 +9097,7 @@ static void ex_syncbind(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
     long y;
     long topline;
     win_T *save_curwin = curwin;
-    buf_T *save_curbuf = curbuf;
+    fbuf_st *save_curbuf = curbuf;
     linenr_T old_linenr = curwin->w_cursor.lnum;
     setpcmark();
 
@@ -10908,7 +10908,7 @@ uchar_kt *eval_vars(uchar_kt *src,
 {
     int i;
     uchar_kt *s;
-    buf_T *buf;
+    fbuf_st *buf;
     uchar_kt *result;
     uchar_kt *resultbuf = NULL;
     size_t resultlen;
@@ -12190,7 +12190,7 @@ static int ses_arglist(FILE *fd,
 /// Write a buffer name to the session file.
 /// Also ends the line.
 /// Returns FAIL if writing fails.
-static int ses_fname(FILE *fd, buf_T *buf, unsigned *flagp)
+static int ses_fname(FILE *fd, fbuf_st *buf, unsigned *flagp)
 {
     uchar_kt *name;
 

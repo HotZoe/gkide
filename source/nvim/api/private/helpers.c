@@ -622,14 +622,14 @@ Object vim_to_object(typval_T *obj)
     return ret;
 }
 
-buf_T *find_buffer_by_handle(Buffer buffer, error_st *err)
+fbuf_st *find_buffer_by_handle(Buffer buffer, error_st *err)
 {
     if(buffer == 0)
     {
         return curbuf;
     }
 
-    buf_T *rv = handle_get_buffer(buffer);
+    fbuf_st *rv = handle_get_buffer(buffer);
 
     if(!rv)
     {
@@ -1121,7 +1121,7 @@ static void set_option_value_for(char *key,
             break;
 
         case SREQ_BUF:
-            switch_buffer(&save_curbuf, (buf_T *)from);
+            switch_buffer(&save_curbuf, (fbuf_st *)from);
             set_option_value_err(key, numval, stringval, opt_flags, err);
             restore_buffer(&save_curbuf);
             break;
@@ -1188,7 +1188,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  mode  The abbreviation for the mode
 /// @param  buf   The buffer to get the mapping array. NULL for global
 /// @returns An array of maparg() like dictionaries describing mappings
-ArrayOf(Dictionary) keymap_array(String mode, buf_T *buf)
+ArrayOf(Dictionary) keymap_array(String mode, fbuf_st *buf)
 {
     Array mappings = ARRAY_DICT_INIT;
     dict_T *const dict = tv_dict_alloc();

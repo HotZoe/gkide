@@ -332,7 +332,7 @@ static reg_extmatch_T *next_match_extmatch = NULL;
 // The current state (within the line) of the recognition engine.
 // When current_state.ga_itemsize is 0 the current state is invalid.
 static win_T *syn_win;             ///< current window for highlighting
-static buf_T *syn_buf;             ///< current buffer for highlighting
+static fbuf_st *syn_buf;             ///< current buffer for highlighting
 static synblock_T *syn_block;      ///< current buffer for highlighting
 static linenr_T current_lnum = 0;  ///< lnum of current state
 static colnr_T current_col = 0;    ///< column of current state
@@ -606,7 +606,7 @@ static void clear_current_state(void)
 /// 3. Simply start on a given number of lines above "lnum".
 static void syn_sync(win_T *wp, linenr_T start_lnum, synstate_T *last_valid)
 {
-    buf_T *curbuf_save;
+    fbuf_st *curbuf_save;
     win_T  *curwin_save;
     pos_T cursor_save;
     int idx;
@@ -1206,7 +1206,7 @@ static void syn_stack_alloc(void)
 /// Uses the b_mod_* fields.
 /// Called from update_screen(), before screen is being updated,
 /// once for each displayed buffer.
-void syn_stack_apply_changes(buf_T *buf)
+void syn_stack_apply_changes(fbuf_st *buf)
 {
     syn_stack_apply_changes_block(&buf->b_s, buf);
 
@@ -1219,7 +1219,7 @@ void syn_stack_apply_changes(buf_T *buf)
     }
 }
 
-static void syn_stack_apply_changes_block(synblock_T *block, buf_T *buf)
+static void syn_stack_apply_changes_block(synblock_T *block, fbuf_st *buf)
 {
     synstate_T *p, *prev, *np;
     linenr_T n;
