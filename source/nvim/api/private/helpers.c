@@ -807,7 +807,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 
             for(uint32_t i = 0; i < obj.data.dictionary.size; i++)
             {
-                KeyValuePair item = obj.data.dictionary.items[i];
+                key_value_pair_st item = obj.data.dictionary.items[i];
                 String key = item.key;
 
                 if(key.size == 0)
@@ -1070,7 +1070,7 @@ Object copy_object(Object obj)
 
             for(size_t i = 0; i < obj.data.dictionary.size; i++)
             {
-                KeyValuePair item = obj.data.dictionary.items[i];
+                key_value_pair_st item = obj.data.dictionary.items[i];
                 PUT(rv, item.key.data, copy_object(item.value));
             }
 

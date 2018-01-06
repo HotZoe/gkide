@@ -95,15 +95,17 @@ typedef struct object Object;
 typedef struct
 {
     Object *items;
-    size_t size, capacity;
+    size_t size;
+    size_t capacity;
 } Array;
 
-typedef struct key_value_pair KeyValuePair;
+typedef struct key_value_pair_s key_value_pair_st;
 
 typedef struct
 {
-    KeyValuePair *items;
-    size_t size, capacity;
+    key_value_pair_st *items;
+    size_t size;
+    size_t capacity;
 } Dictionary;
 
 typedef enum
@@ -135,7 +137,7 @@ struct object
     } data;
 };
 
-struct key_value_pair
+struct key_value_pair_s
 {
     String key;
     Object value;

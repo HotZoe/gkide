@@ -404,7 +404,7 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     arg->size = obj->via.array.size;
-    arg->items = xcalloc(obj->via.map.size, sizeof(KeyValuePair));
+    arg->items = xcalloc(obj->via.map.size, sizeof(key_value_pair_st));
 
     for(uint32_t i = 0; i < obj->via.map.size; i++)
     {

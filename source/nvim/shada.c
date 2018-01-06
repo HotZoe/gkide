@@ -3202,7 +3202,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 .header = {
                     .size = 5,
                     .capacity = 5,
-                    .items = ((KeyValuePair[]) {
+                    .items = ((key_value_pair_st[]) {
                         {
                             STATIC_CSTR_AS_STRING("generator"),
                             STRING_OBJ(STATIC_CSTR_AS_STRING("nvim"))
