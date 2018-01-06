@@ -14,7 +14,7 @@
 /// Value by which objects represented as EXT type are shifted
 ///
 /// Subtracted when packing, added when unpacking. Used to allow
-/// moving buffer/window/tabpage block inside ObjectType enum.
+/// moving buffer/window/tabpage block inside object_type_et enum.
 /// This block yet cannot be split or reordered.
 #define EXT_OBJECT_TYPE_SHIFT    kObjectTypeBuffer
 

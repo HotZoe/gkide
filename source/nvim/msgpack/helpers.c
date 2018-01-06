@@ -302,7 +302,7 @@ case type:                                                                    \
 
             case MSGPACK_OBJECT_EXT:
             {
-                switch((ObjectType)(cur.mobj->via.ext.type + EXT_OBJECT_TYPE_SHIFT))
+                switch((object_type_et)(cur.mobj->via.ext.type + EXT_OBJECT_TYPE_SHIFT))
                 {
                     case kObjectTypeBuffer:
                     {

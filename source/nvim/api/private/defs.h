@@ -121,11 +121,11 @@ typedef enum
     kObjectTypeBuffer,
     kObjectTypeWindow,
     kObjectTypeTabpage,
-} ObjectType;
+} object_type_et;
 
 struct object
 {
-    ObjectType type;
+    object_type_et type;
     union
     {
         Boolean boolean;

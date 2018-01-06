@@ -45,7 +45,7 @@ typedef struct
     /// If has_type_key is true then attached value. Otherwise
     /// either kObjectTypeNil, kObjectTypeDictionary or
     /// kObjectTypeArray, depending on other properties.
-    ObjectType type;
+    object_type_et type;
 
     /// If has_val_key and val_type == LUA_TNUMBER: value.
     lua_Number val;
@@ -146,7 +146,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                            || n == (lua_Number)kObjectTypeDictionary)
                         {
                             ret.has_type_key = true;
-                            ret.type = (ObjectType)n;
+                            ret.type = (object_type_et)n;
                         }
                         else
                         {
@@ -765,7 +765,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out]  lstate  Lua state.
 /// @param[in]   type    Type to push.
-static inline void nlua_push_type(lua_State *lstate, ObjectType type)
+static inline void nlua_push_type(lua_State *lstate, object_type_et type)
 FUNC_ATTR_NONNULL_ALL
 {
     lua_pushnumber(lstate, (lua_Number)type);
@@ -780,7 +780,7 @@ FUNC_ATTR_NONNULL_ALL
 static inline void nlua_create_typed_table(lua_State *lstate,
                                            const size_t narr,
                                            const size_t nrec,
-                                           const ObjectType type)
+                                           const object_type_et type)
 FUNC_ATTR_NONNULL_ALL
 {
     lua_createtable(lstate, (int)narr, (int)(1 + nrec));
@@ -1028,7 +1028,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return @see nlua_traverse_table().
 static inline LuaTableProps nlua_check_type(lua_State *const lstate,
                                             error_st *const err,
-                                            const ObjectType type)
+                                            const object_type_et type)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
