@@ -28,7 +28,7 @@ struct u_entry
     linenr_T ue_top;     ///< number of line above undo block
     linenr_T ue_bot;     ///< number of line below undo block
     linenr_T ue_lcount;  ///< linecount when u_save called
-    uchar_kt **ue_array;   ///< array of lines in undo block
+    uchar_kt **ue_array; ///< array of lines in undo block
     long ue_size;        ///< number of lines in ue_array
 
 #ifdef U_DEBUG

@@ -47,8 +47,8 @@ static bool did_syntax_onoff = false;
 /// It is the index in the highlight_ga array PLUS ONE.
 struct hl_group
 {
-    uchar_kt *sg_name;         ///< highlight group name
-    uchar_kt *sg_name_u;       ///< uppercase of sg_name
+    uchar_kt *sg_name;       ///< highlight group name
+    uchar_kt *sg_name_u;     ///< uppercase of sg_name
     int sg_attr;             ///< Screen attr @see ATTR_ENTRY
     int sg_link;             ///< link to this highlight group ID
     int sg_set;              ///< combination of flags in @ref SG_SET
@@ -132,7 +132,7 @@ typedef struct syn_pattern
     int sp_cchar;           ///< conceal substitute character
     struct sp_syn sp_syn;   ///< struct passed to in_id_list()
     short sp_syn_match_id;  ///< highlight group ID of patter
-    uchar_kt *sp_pattern;     ///< regexp to match, pattern
+    uchar_kt *sp_pattern;   ///< regexp to match, pattern
     regprog_T *sp_prog;     ///< regexp to match, program
     syn_time_T sp_time;
     int sp_ic;              ///< ignore-case flag for sp_prog
@@ -150,7 +150,7 @@ typedef struct syn_cluster_S
 {
     uchar_kt *scl_name;    ///< syntax cluster name
     uchar_kt *scl_name_u;  ///< uppercase of scl_name
-    short *scl_list;     ///< IDs in this syntax cluster
+    short *scl_list;       ///< IDs in this syntax cluster
 } syn_cluster_T;
 
 /// For the current state we need to remember more than just the idx.
@@ -3300,7 +3300,7 @@ static void syn_add_start_off(lpos_T *result,
     int col;
     int off;
     uchar_kt *base;
-    uchar_kt  *p;
+    uchar_kt *p;
 
     if(spp->sp_off_flags & (1 << (idx + SPO_COUNT)))
     {
@@ -7355,7 +7355,9 @@ void init_highlight(int both, int reset)
     }
     else
     {
-        do_highlight((uchar_kt *)"Visual cterm=reverse ctermbg=NONE", FALSE, TRUE);
+        do_highlight((uchar_kt *)"Visual cterm=reverse ctermbg=NONE",
+                     FALSE,
+                     TRUE);
 
         if(*p_bg == 'l')
         {
@@ -8426,7 +8428,12 @@ static void highlight_list_one(int id)
 
     if(!didh)
     {
-        highlight_list_arg(id, didh, LIST_STRING, 0, (uchar_kt *)"cleared", "");
+        highlight_list_arg(id,
+                           didh,
+                           LIST_STRING,
+                           0,
+                           (uchar_kt *)"cleared",
+                           "");
     }
 
     if(p_verbose > 0)
@@ -8984,7 +8991,8 @@ void highlight_changed(void)
     // Translate builtin highlight groups into attributes for quick lookup.
     for(int hlf = 0; hlf < (int)HLF_COUNT; hlf++)
     {
-        id = syn_check_group((uchar_kt *)hlf_names[hlf], STRLEN(hlf_names[hlf]));
+        id = syn_check_group((uchar_kt *)hlf_names[hlf],
+                             STRLEN(hlf_names[hlf]));
 
         if(id == 0)
         {

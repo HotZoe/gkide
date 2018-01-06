@@ -1315,7 +1315,10 @@ int win_lbr_chartabsize(win_T *wp,
 /// @param headp
 ///
 /// @return The number of characters take up on the screen.
-static int win_nolbr_chartabsize(win_T *wp, uchar_kt *s, colnr_T col, int *headp)
+static int win_nolbr_chartabsize(win_T *wp,
+                                 uchar_kt *s,
+                                 colnr_T col,
+                                 int *headp)
 {
     int n;
 

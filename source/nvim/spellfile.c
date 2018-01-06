@@ -358,12 +358,18 @@ struct affentry_S
 /// Used for af_pref and af_suff.
 typedef struct affheader_S
 {
-    uchar_kt ah_key[AH_KEY_LEN]; ///< key for hashtab == name of affix
-    unsigned ah_flag;          ///< affix name as number, uses "af_flagtype"
-    int ah_newID;              ///< prefix ID after renumbering; 0 if not used
-    int ah_combine;            ///< suffix may combine with prefix
-    int ah_follows;            ///< another affix block should be following
-    affentry_T *ah_first;      ///< first affix entry
+    /// key for hashtab == name of affix
+    uchar_kt ah_key[AH_KEY_LEN];
+    /// affix name as number, uses "af_flagtype"
+    unsigned ah_flag;
+    /// prefix ID after renumbering; 0 if not used
+    int ah_newID;
+    /// suffix may combine with prefix
+    int ah_combine;
+    /// another affix block should be following
+    int ah_follows;
+    /// first affix entry
+    affentry_T *ah_first;
 } affheader_T;
 
 #define HI2AH(hi)   ((affheader_T *)(hi)->hi_key)
@@ -371,9 +377,9 @@ typedef struct affheader_S
 /// Flag used in compound items.
 typedef struct compitem_S
 {
-    uchar_kt ci_key[AH_KEY_LEN];  ///< key for hashtab == name of compound
-    unsigned ci_flag;           ///< affix name as number, uses "af_flagtype"
-    int ci_newID;               ///< affix ID after renumbering.
+    uchar_kt ci_key[AH_KEY_LEN]; ///< key for hashtab == name of compound
+    unsigned ci_flag;            ///< affix name as number, uses "af_flagtype"
+    int ci_newID;                ///< affix ID after renumbering.
 } compitem_T;
 
 #define HI2CI(hi)   ((compitem_T *)(hi)->hi_key)
@@ -390,8 +396,8 @@ typedef struct sblock_S sblock_T;
 
 struct sblock_S
 {
-    int sb_used;        ///< nr of bytes already in use
-    sblock_T *sb_next;  ///< next block in list
+    int sb_used;          ///< nr of bytes already in use
+    sblock_T *sb_next;    ///< next block in list
     uchar_kt sb_data[1];  ///< data, actually longer
 };
 
@@ -435,8 +441,8 @@ struct wordnode_S
     // In the soundfolded word tree "wn_flags" has the MSW of the wordnr and
     // "wn_region" the LSW of the wordnr.
     uchar_kt wn_affixID;  ///< supported/required prefix ID or 0
-    uint16_t wn_flags;  ///< WF_* flags
-    short wn_region;    ///< region mask
+    uint16_t wn_flags;    ///< WF_* flags
+    short wn_region;      ///< region mask
 
 #ifdef SPELL_PRINTTREE
     int wn_nr;          ///< sequence nr for printing
@@ -489,7 +495,7 @@ typedef struct spellinfo_S
     int si_memtot;         ///< runtime memory used
     int si_verbose;        ///< verbose messages
     int si_msg_count;      ///< number of words added since last message
-    uchar_kt *si_info;       ///< info text chars or NULL
+    uchar_kt *si_info;     ///< info text chars or NULL
 
     /// number of regions supported (1 when there are no regions)
     int si_region_count;
@@ -499,8 +505,8 @@ typedef struct spellinfo_S
     garray_T si_rep;          ///< list of fromto_T entries from REP lines
     garray_T si_repsal;       ///< list of fromto_T entries from REPSAL lines
     garray_T si_sal;          ///< list of fromto_T entries from SAL lines
-    uchar_kt *si_sofofr;        ///< SOFOFROM text
-    uchar_kt *si_sofoto;        ///< SOFOTO text
+    uchar_kt *si_sofofr;      ///< SOFOFROM text
+    uchar_kt *si_sofoto;      ///< SOFOTO text
     int si_nosugfile;         ///< NOSUGFILE item found
     int si_nosplitsugs;       ///< NOSPLITSUGS item found
     int si_nocompoundsugs;    ///< NOCOMPOUNDSUGS item found
@@ -510,16 +516,16 @@ typedef struct spellinfo_S
     time_t si_sugtime;        ///< timestamp for .sug file
     int si_rem_accents;       ///< soundsalike: remove accents
     garray_T si_map;          ///< MAP info concatenated
-    uchar_kt *si_midword;       ///< MIDWORD chars or NULL
+    uchar_kt *si_midword;     ///< MIDWORD chars or NULL
     int si_compmax;           ///< max nr of words for compounding
     int si_compminlen;        ///< minimal length for compounding
     int si_compsylmax;        ///< max nr of syllables for compounding
     int si_compoptions;       ///< COMP_ flags
     garray_T si_comppat;      ///< CHECKCOMPOUNDPATTERN items, each stored
                               ///< as a string
-    uchar_kt *si_compflags;     ///< flags used for compounding
-    uchar_kt si_nobreak;        ///< NOBREAK
-    uchar_kt *si_syllable;      ///< syllable string
+    uchar_kt *si_compflags;   ///< flags used for compounding
+    uchar_kt si_nobreak;      ///< NOBREAK
+    uchar_kt *si_syllable;    ///< syllable string
     garray_T si_prefcond;     ///< table with conditions for postponed
                               ///< prefixes, each stored as a string
     int si_newprefID;         ///< current value for ah_newID
@@ -2725,10 +2731,12 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
             else if(spell_info_item(items[0]) && itemcnt > 1)
             {
                 p = (uchar_kt *)getroom(spin,
-                                      (spin->si_info == NULL
-                                       ? 0 : STRLEN(spin->si_info))
-                                      + STRLEN(items[0]) + STRLEN(items[1]) + 3,
-                                      false);
+                                        (spin->si_info == NULL
+                                         ? 0 : STRLEN(spin->si_info))
+                                        + STRLEN(items[0])
+                                        + STRLEN(items[1])
+                                        + 3,
+                                        false);
 
                 if(p != NULL)
                 {
@@ -3291,10 +3299,12 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
                             {
                                 // Not found, add a new condition.
                                 idx = spin->si_prefcond.ga_len;
-                                pp = GA_APPEND_VIA_PTR(uchar_kt *, &spin->si_prefcond);
+                                pp = GA_APPEND_VIA_PTR(uchar_kt *,
+                                                       &spin->si_prefcond);
 
                                 *pp = (aff_entry->ae_cond == NULL)
-                                      ? NULL : getroom_save(spin, aff_entry->ae_cond);
+                                      ? NULL
+                                      : getroom_save(spin, aff_entry->ae_cond);
                             }
 
                             // Add the prefix to the prefix tree.
@@ -4020,7 +4030,9 @@ static void spell_free_aff(afffile_T *aff)
 /// Read dictionary file "fname".
 ///
 /// @return OK or FAIL;
-static int spell_read_dic(spellinfo_T *spin, uchar_kt *fname, afffile_T *affile)
+static int spell_read_dic(spellinfo_T *spin,
+                          uchar_kt *fname,
+                          afffile_T *affile)
 {
     hashtab_T ht;
     uchar_kt line[MAXLINELEN];
@@ -4862,7 +4874,7 @@ static int spell_read_wordfile(spellinfo_T *spin, uchar_kt *fname)
                 }
                 else
                 {
-                    uchar_kt  *enc;
+                    uchar_kt *enc;
                     line += 9; // Setup for conversion to 'encoding'.
                     enc = enc_canonize(line);
 

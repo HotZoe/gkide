@@ -53,6 +53,7 @@ typedef struct tag_pointers
     uchar_kt *fname;           ///< first char of file name
     uchar_kt *fname_end;       ///< char after file name
     uchar_kt *command;         ///< first char of command
+
     // filled in by parse_match():
     uchar_kt *command_end;     ///< first char after command
     uchar_kt *tag_fname;       ///< file name of the tags file
@@ -63,9 +64,9 @@ typedef struct tag_pointers
 /// Structure to hold info about the tag pattern being used.
 typedef struct
 {
-    uchar_kt *pat;          ///< the pattern
+    uchar_kt *pat;        ///< the pattern
     int len;              ///< length of pat[]
-    uchar_kt *head;         ///< start of pattern head
+    uchar_kt *head;       ///< start of pattern head
     int headlen;          ///< length of head[]
     regmatch_T regmatch;  ///< regexp program, may be NULL
 } pat_T;
@@ -933,7 +934,8 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
                     }
                     else
                     {
-                        uchar_kt *cmd_start, *cmd_end;
+                        uchar_kt *cmd_start;
+                        uchar_kt *cmd_end;
 
                         // Search pattern is used to locate the tag
                         // Locate the end of the command
@@ -1330,7 +1332,9 @@ static void prepare_pats(pat_T *pats, int has_re)
         }
         else
         {
-            for(pats->headlen = 0; pats->head[pats->headlen] != NUL; ++pats->headlen)
+            for(pats->headlen = 0;
+                pats->head[pats->headlen] != NUL;
+                ++pats->headlen)
             {
                 if(vim_strchr((uchar_kt *)(p_magic ? ".[~*\\$" : "\\$"),
                               pats->head[pats->headlen]) != NULL)
@@ -2393,7 +2397,10 @@ parse_line:
                         // The format is {tagname}@{lang}NUL{heuristic}NUL
                         *tagp.tagname_end = NUL;
                         len = (int)(tagp.tagname_end - tagp.tagname);
-                        mfp = xmalloc(sizeof(uchar_kt) + len + 10 + ML_EXTRA + 1);
+                        mfp = xmalloc(sizeof(uchar_kt)
+                                      + len
+                                      + 10
+                                      + ML_EXTRA + 1);
                         p = mfp;
                         STRCPY(p, tagp.tagname);
                         p[len] = '@';
@@ -3035,7 +3042,8 @@ static uchar_kt *tag_full_fname(tagptrs_T *tagp)
 /// @param forceit     :ta with !
 /// @param keep_help   keep help flag (FALSE for cscope)
 ///
-/// @return OK for success, NOTAGFILE when file not found, FAIL otherwise.
+/// @return
+/// OK for success, NOTAGFILE when file not found, FAIL otherwise.
 static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
 {
     int save_secure;
@@ -3377,7 +3385,9 @@ erret:
 /// If 'tagrelative' option set, change fname (name of file containing tag)
 /// according to tag_fname (name of tag file containing fname).
 /// Returns a pointer to allocated memory.
-static uchar_kt *expand_tag_fname(uchar_kt *fname, uchar_kt *tag_fname, int expand)
+static uchar_kt *expand_tag_fname(uchar_kt *fname,
+                                  uchar_kt *tag_fname,
+                                  int expand)
 {
     uchar_kt *p;
     uchar_kt *expanded_fname = NULL;
@@ -3636,8 +3646,11 @@ static int add_tag_field(dict_T *dict,
 /// as a dictionary. Use "buf_fname" for priority, unless NULL.
 int get_tags(list_T *list, uchar_kt *pat, uchar_kt *buf_fname)
 {
-    int num_matches, i, ret;
-    uchar_kt **matches, *p;
+    int i;
+    int ret;
+    int num_matches;
+    uchar_kt *p;
+    uchar_kt **matches;
     uchar_kt *full_fname;
     dict_T *dict;
     tagptrs_T tp;
@@ -3702,8 +3715,9 @@ int get_tags(list_T *list, uchar_kt *pat, uchar_kt *buf_fname)
                     }
                     else if(!ascii_iswhite(*p))
                     {
-                        uchar_kt  *s, *n;
                         int len;
+                        uchar_kt *s;
+                        uchar_kt *n;
                         // Add extra field as a dict entry.
                         // Fields are separated by Tabs.
                         n = p;

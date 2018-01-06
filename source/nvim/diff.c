@@ -1370,8 +1370,11 @@ void diff_win_options(win_T *wp, int addbuf)
         wp->w_p_fdm_save = vim_strsave(wp->w_p_fdm);
     }
 
-    set_string_option_direct((uchar_kt *)"fdm", -1,
-                             (uchar_kt *)"diff", OPT_LOCAL | OPT_FREE, 0);
+    set_string_option_direct((uchar_kt *)"fdm",
+                             -1,
+                             (uchar_kt *)"diff",
+                             OPT_LOCAL | OPT_FREE,
+                             0);
 
     curwin = old_curwin;
     curbuf = curwin->w_buffer;

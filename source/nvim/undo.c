@@ -722,7 +722,8 @@ int u_savecommon(linenr_T top, linenr_T bot, linenr_T newbot, int reload)
 #define UF_LAST_SAVE_NR        1       ///< extra fields for header
 #define UHP_SAVE_NR            1       ///< extra fields for uhp
 
-static uchar_kt e_not_open[] = N_("E828: Cannot open undo file for writing: %s");
+static uchar_kt e_not_open[] =
+    N_("E828: Cannot open undo file for writing: %s");
 
 /// Compute the hash for the current buffer text into hash[UNDO_HASH_SIZE].
 void u_compute_hash(uchar_kt *hash)
@@ -1666,7 +1667,7 @@ FUNC_ATTR_NONNULL_ARG(2)
             }
 
             give_warning((uchar_kt *)_("File contents changed, "
-                                     "cannot use undo info"), true);
+                                       "cannot use undo info"), true);
 
             if(name == NULL)
             {

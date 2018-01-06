@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <stdio.h> // for FILE
 
-// Forward declaration
 typedef struct file_buffer buf_T;
 
 /// Reference to a buffer that stores the value of buf_free_count.
@@ -458,8 +457,8 @@ struct file_buffer
 {
     #define b_fnum handle
     handle_kt handle;  ///< unique id for the buffer (buffer number)
-    memline_T b_ml;   ///< associated memline (also contains line count
-    buf_T *b_next;    ///< links in list of buffers
+    memline_T b_ml;    ///< associated memline (also contains line count
+    buf_T *b_next;     ///< links in list of buffers
     buf_T *b_prev;
 
     int b_nwindows;   ///< nr of windows open on this buffer
@@ -553,7 +552,7 @@ struct file_buffer
     long b_u_save_nr_cur;    ///< file write nr after which we are now
 
     // variables for "U" command in undo.c
-    uchar_kt *b_u_line_ptr;    ///< saved line for "U" command
+    uchar_kt *b_u_line_ptr;  ///< saved line for "U" command
     linenr_T b_u_line_lnum;  ///< line number of line in u_line
     colnr_T b_u_line_colnr;  ///< optional column number
 
@@ -583,65 +582,65 @@ struct file_buffer
 
     int b_p_ai;                   ///< 'autoindent'
     int b_p_ai_nopaste;           ///< b_p_ai saved for paste mode
-    uchar_kt *b_p_bkc;              ///< 'backupco
+    uchar_kt *b_p_bkc;            ///< 'backupco
     unsigned int b_bkc_flags;     ///< flags for 'backupco
     int b_p_ci;                   ///< 'copyindent'
     int b_p_bin;                  ///< 'binary'
     int b_p_bomb;                 ///< 'bomb'
-    uchar_kt *b_p_bh;               ///< 'bufhidden'
-    uchar_kt *b_p_bt;               ///< 'buftype'
+    uchar_kt *b_p_bh;             ///< 'bufhidden'
+    uchar_kt *b_p_bt;             ///< 'buftype'
     int b_has_qf_entry;           ///< quickfix exists for buffer
     int b_p_bl;                   ///< 'buflisted'
     int b_p_cin;                  ///< 'cindent'
-    uchar_kt *b_p_cino;             ///< 'cinoptions'
-    uchar_kt *b_p_cink;             ///< 'cinkeys'
-    uchar_kt *b_p_cinw;             ///< 'cinwords'
-    uchar_kt *b_p_com;              ///< 'comments'
-    uchar_kt *b_p_cms;              ///< 'commentstring'
-    uchar_kt *b_p_cpt;              ///< 'complete'
-    uchar_kt *b_p_cfu;              ///< 'completefunc'
-    uchar_kt *b_p_ofu;              ///< 'omnifunc'
+    uchar_kt *b_p_cino;           ///< 'cinoptions'
+    uchar_kt *b_p_cink;           ///< 'cinkeys'
+    uchar_kt *b_p_cinw;           ///< 'cinwords'
+    uchar_kt *b_p_com;            ///< 'comments'
+    uchar_kt *b_p_cms;            ///< 'commentstring'
+    uchar_kt *b_p_cpt;            ///< 'complete'
+    uchar_kt *b_p_cfu;            ///< 'completefunc'
+    uchar_kt *b_p_ofu;            ///< 'omnifunc'
     int b_p_eol;                  ///< 'endofline'
     int b_p_fixeol;               ///< 'fixendofline'
     int b_p_et;                   ///< 'expandtab'
     int b_p_et_nobin;             ///< 'b_p_et' saved for binary mode
     int b_p_et_nopaste;           ///< 'b_p_et' saved for paste mode
-    uchar_kt *b_p_fenc;             ///< 'fileencoding'
-    uchar_kt *b_p_ff;               ///< 'fileformat'
-    uchar_kt *b_p_ft;               ///< 'filetype'
-    uchar_kt *b_p_fo;               ///< 'formatoptions'
-    uchar_kt *b_p_flp;              ///< 'formatlistpat'
+    uchar_kt *b_p_fenc;           ///< 'fileencoding'
+    uchar_kt *b_p_ff;             ///< 'fileformat'
+    uchar_kt *b_p_ft;             ///< 'filetype'
+    uchar_kt *b_p_fo;             ///< 'formatoptions'
+    uchar_kt *b_p_flp;            ///< 'formatlistpat'
     int b_p_inf;                  ///< 'infercase'
-    uchar_kt *b_p_isk;              ///< 'iskeyword'
-    uchar_kt *b_p_def;              ///< 'define' local value
-    uchar_kt *b_p_inc;              ///< 'include'
-    uchar_kt *b_p_inex;             ///< 'includeexpr'
+    uchar_kt *b_p_isk;            ///< 'iskeyword'
+    uchar_kt *b_p_def;            ///< 'define' local value
+    uchar_kt *b_p_inc;            ///< 'include'
+    uchar_kt *b_p_inex;           ///< 'includeexpr'
     uint32_t b_p_inex_flags;      ///< flags for 'includeexpr'
-    uchar_kt *b_p_inde;             ///< 'indentexpr'
+    uchar_kt *b_p_inde;           ///< 'indentexpr'
     uint32_t b_p_inde_flags;      ///< flags for 'indentexpr'
-    uchar_kt *b_p_indk;             ///< 'indentkeys'
-    uchar_kt *b_p_fp;               ///< 'formatprg'
-    uchar_kt *b_p_fex;              ///< 'formatexpr'
+    uchar_kt *b_p_indk;           ///< 'indentkeys'
+    uchar_kt *b_p_fp;             ///< 'formatprg'
+    uchar_kt *b_p_fex;            ///< 'formatexpr'
     uint32_t b_p_fex_flags;       ///< flags for 'formatexpr'
-    uchar_kt *b_p_kp;               ///< 'keywordprg'
+    uchar_kt *b_p_kp;             ///< 'keywordprg'
     int b_p_lisp;                 ///< 'lisp'
-    uchar_kt *b_p_mps;              ///< 'matchpairs'
+    uchar_kt *b_p_mps;            ///< 'matchpairs'
     int b_p_ml;                   ///< 'modeline'
     int b_p_ml_nobin;             ///< 'b_p_ml' saved for binary mode
     int b_p_ma;                   ///< 'modifiable'
-    uchar_kt *b_p_nf;               ///< 'nrformats'
+    uchar_kt *b_p_nf;             ///< 'nrformats'
     int b_p_pi;                   ///< 'preserveindent'
-    uchar_kt *b_p_qe;               ///< 'quoteescape'
+    uchar_kt *b_p_qe;             ///< 'quoteescape'
     int b_p_ro;                   ///< 'readonly'
     long b_p_sw;                  ///< 'shiftwidth'
     long b_p_scbk;                ///< 'scrollback'
     int b_p_si;                   ///< 'smartindent'
     long b_p_sts;                 ///< 'softtabstop'
     long b_p_sts_nopaste;         ///< 'b_p_sts' saved for paste mode
-    uchar_kt *b_p_sua;              ///< 'suffixesadd'
+    uchar_kt *b_p_sua;            ///< 'suffixesadd'
     int b_p_swf;                  ///< 'swapfile'
     long b_p_smc;                 ///< 'synmaxcol'
-    uchar_kt *b_p_syn;              ///< 'syntax'
+    uchar_kt *b_p_syn;            ///< 'syntax'
     long b_p_ts;                  ///< 'tabstop'
     long b_p_tw;                  ///< 'textwidth'
     long b_p_tw_nobin;            ///< 'b_p_tw' saved for binary mode
@@ -649,23 +648,23 @@ struct file_buffer
     long b_p_wm;                  ///< 'wrapma'rgin'
     long b_p_wm_nobin;            ///< 'b_p_wm' saved for binary mode
     long b_p_wm_nopaste;          ///< 'b_p_wm' saved for paste mode
-    uchar_kt *b_p_keymap;           ///< 'keymap'
+    uchar_kt *b_p_keymap;         ///< 'keymap'
 
     // local values for options which are normally global
-    uchar_kt *b_p_gp;               ///< 'grepprg' local value
-    uchar_kt *b_p_mp;               ///< 'makeprg' local value
-    uchar_kt *b_p_efm;              ///< 'errorformat' local value
-    uchar_kt *b_p_ep;               ///< 'equalprg' local value
-    uchar_kt *b_p_path;             ///< 'path' local value
-    int b_p_ar;                   ///< 'autoread' local value
-    uchar_kt *b_p_tags;             ///< 'tags' local value
-    uchar_kt *b_p_tc;               ///< 'tagcase' local value
-    unsigned b_tc_flags;          ///< flags for 'tagcase'
-    uchar_kt *b_p_dict;             ///< 'dictionary' local value
-    uchar_kt *b_p_tsr;              ///< 'thesaurus' local value
-    long b_p_ul;                  ///< 'undolevels' local value
-    int b_p_udf;                  ///< 'undofile'
-    uchar_kt *b_p_lw;               ///< 'lispwords' local value
+    uchar_kt *b_p_gp;       ///< 'grepprg' local value
+    uchar_kt *b_p_mp;       ///< 'makeprg' local value
+    uchar_kt *b_p_efm;      ///< 'errorformat' local value
+    uchar_kt *b_p_ep;       ///< 'equalprg' local value
+    uchar_kt *b_p_path;     ///< 'path' local value
+    int b_p_ar;             ///< 'autoread' local value
+    uchar_kt *b_p_tags;     ///< 'tags' local value
+    uchar_kt *b_p_tc;       ///< 'tagcase' local value
+    unsigned b_tc_flags;    ///< flags for 'tagcase'
+    uchar_kt *b_p_dict;     ///< 'dictionary' local value
+    uchar_kt *b_p_tsr;      ///< 'thesaurus' local value
+    long b_p_ul;            ///< 'undolevels' local value
+    int b_p_udf;            ///< 'undofile'
+    uchar_kt *b_p_lw;       ///< 'lispwords' local value
     // end of buffer options
     //////////////////////////////////////////////////////////////
 
@@ -710,7 +709,7 @@ struct file_buffer
                               ///< write should not have an end-of-line
     int b_start_eol;          ///< last line had eol when it was read
     int b_start_ffc;          ///< first char of 'ff' when edit started
-    uchar_kt *b_start_fenc;     ///< 'fileencoding' when edit started or NULL
+    uchar_kt *b_start_fenc;   ///< 'fileencoding' when edit started or NULL
     int b_bad_char;           ///< "++bad=" argument when edit started or 0
     int b_start_bomb;         ///< 'bomb' when it was read */
 
@@ -795,7 +794,7 @@ struct tabpage_S
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
     scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
     dict_T *tp_vars;                    ///< Internal variables, local to tab page.
-    uchar_kt *tp_localdir;                ///< Absolute path of local cwd or NULL.
+    uchar_kt *tp_localdir;              ///< Absolute path of local cwd or NULL.
 };
 
 /// Structure to cache info for displayed lines in w_lines[].
@@ -887,7 +886,7 @@ struct matchitem
     matchitem_T *next;
     int id;             ///< match ID
     int priority;       ///< match priority
-    uchar_kt *pattern;    ///< pattern to highlight
+    uchar_kt *pattern;  ///< pattern to highlight
     int hlg_id;         ///< highlight group ID
     regmmatch_T match;  ///< regexp program for pattern
     posmatch_T pos;     ///< position matches
@@ -1027,7 +1026,7 @@ struct window_S
     alist_T *w_alist;      ///< pointer to arglist for this window
     int w_arg_idx;         ///< current index in argument list (can be out of range!)
     int w_arg_idx_invalid; ///< editing another file than w_arg_idx
-    uchar_kt *w_localdir;    ///< absolute path of local directory or NULL
+    uchar_kt *w_localdir;  ///< absolute path of local directory or NULL
 
     // Options local to a window.
     // They are local because they influence the layout of the window or

@@ -6603,11 +6603,11 @@ uchar_kt *file_name_at_cursor(int options, long count, linenr_T *file_lnum)
 /// @param rel_fname  file we are searching relative to
 /// @param file_lnum  line number after the file name
 uchar_kt *file_name_in_line(uchar_kt *line,
-                          int col,
-                          int options,
-                          long count,
-                          uchar_kt *rel_fname,
-                          linenr_T *file_lnum)
+                            int col,
+                            int options,
+                            long count,
+                            uchar_kt *rel_fname,
+                            linenr_T *file_lnum)
 {
     uchar_kt *ptr;
     size_t len;

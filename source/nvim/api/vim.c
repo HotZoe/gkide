@@ -417,10 +417,11 @@ FUNC_API_SINCE(1)
         rv.items[i].data.string.data = xmalloc(MAXPATHL);
 
         // Copy the path from 'runtimepath' to rv.items[i]
-        size_t length = copy_option_part(&rtp,
-                                         (uchar_kt *)rv.items[i].data.string.data,
-                                         MAXPATHL,
-                                         ",");
+        size_t length =
+            copy_option_part(&rtp,
+                             (uchar_kt *)rv.items[i].data.string.data,
+                             MAXPATHL,
+                             ",");
 
         rv.items[i].data.string.size = length;
     }

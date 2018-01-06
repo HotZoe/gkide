@@ -75,7 +75,8 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Same as vim_strsave(), but any characters found in esc_chars are
 /// preceded by a backslash.
-uchar_kt *vim_strsave_escaped(const uchar_kt *string, const uchar_kt *esc_chars)
+uchar_kt *vim_strsave_escaped(const uchar_kt *string,
+                              const uchar_kt *esc_chars)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
@@ -87,8 +88,8 @@ FUNC_ATTR_NONNULL_ALL
 /// characters where rem_backslash() would remove the backslash.
 /// Escape the characters with "cc".
 uchar_kt *vim_strsave_escaped_ext(const uchar_kt *string,
-                                const uchar_kt *esc_chars,
-                                uchar_kt cc, bool bsl)
+                                  const uchar_kt *esc_chars,
+                                  uchar_kt cc, bool bsl)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
@@ -223,8 +224,8 @@ FUNC_ATTR_NONNULL_RET
 ///
 /// @return the result in allocated memory.
 uchar_kt *vim_strsave_shellescape(const uchar_kt *string,
-                                bool do_special,
-                                bool do_newline)
+                                  bool do_special,
+                                  bool do_newline)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
@@ -645,7 +646,8 @@ FUNC_ATTR_PURE
 }
 
 /// Concatenate two strings and return the result in allocated memory.
-uchar_kt *concat_str(const uchar_kt *restrict str1, const uchar_kt *restrict str2)
+uchar_kt *concat_str(const uchar_kt *restrict str1,
+                     const uchar_kt *restrict str2)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL

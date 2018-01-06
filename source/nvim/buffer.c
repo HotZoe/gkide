@@ -835,8 +835,9 @@ static void free_buffer_stuff(buf_T *buf, int free_options)
     // Avoid loosing b:changedtick when deleting buffer:
     // clearing variables implies using clear_tv() on
     // b:changedtick and that sets changedtick to zero.
-    hashitem_T *const changedtick_hi = hash_find(&buf->b_vars->dv_hashtab,
-                                                 (const uchar_kt *)"changedtick");
+    hashitem_T *const changedtick_hi =
+        hash_find(&buf->b_vars->dv_hashtab,
+                  (const uchar_kt *)"changedtick");
 
     assert(changedtick_hi != NULL);
 
@@ -1006,11 +1007,11 @@ void handle_swap_exists(bufref_T *old_curbuf)
 ///
 /// @return returns error message or NULL
 uchar_kt *do_bufdel(int command,
-                  uchar_kt *arg,
-                  int addr_count,
-                  int start_bnr,
-                  int end_bnr,
-                  int forceit)
+                    uchar_kt *arg,
+                    int addr_count,
+                    int start_bnr,
+                    int end_bnr,
+                    int forceit)
 {
     int do_current = 0; // delete current buffer?
     int deleted = 0; // number of buffers deleted
@@ -1925,7 +1926,10 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 /// @param bufnr
 ///
 /// @return pointer to the buffer
-buf_T *buflist_new(uchar_kt *ffname, uchar_kt *sfname, linenr_T lnum, int flags)
+buf_T *buflist_new(uchar_kt *ffname,
+                   uchar_kt *sfname,
+                   linenr_T lnum,
+                   int flags)
 {
     buf_T *buf;
     fname_expand(curbuf, &ffname, &sfname); // will allocate ffname
@@ -2725,7 +2729,9 @@ static uchar_kt *buflist_match(regmatch_T *rmp, buf_T *buf, bool ignore_case)
 ///
 /// @param ignore_case When TRUE, ignore case. Use 'fileignorecase' otherwise.
 /// @return "name" when there is a match, NULL when not.
-static uchar_kt *fname_match(regmatch_T *rmp, uchar_kt *name, bool ignore_case)
+static uchar_kt *fname_match(regmatch_T *rmp,
+                             uchar_kt *name,
+                             bool ignore_case)
 {
     uchar_kt *match = NULL;
     uchar_kt *p;
@@ -3799,7 +3805,8 @@ void maketitle(void)
                     set_string_option_direct((uchar_kt *)"iconstring",
                                              -1,
                                              (uchar_kt *)"",
-                                             OPT_FREE, SID_ERROR);
+                                             OPT_FREE,
+                                             SID_ERROR);
                 }
 
                 called_emsg |= save_called_emsg;
@@ -3944,7 +3951,9 @@ int build_stl_str_hl(win_T *wp,
 {
     struct stl_item
     {
-        uchar_kt *start; // Where the item starts in the status line output buffer
+        // Where the item starts in the status line output buffer
+        uchar_kt *start;
+
         char *cmd; // Function to run for ClickFunc items.
         int minwid; // The minimum width of the item
         int maxwid; // The maximum width of the item
@@ -4008,7 +4017,9 @@ int build_stl_str_hl(win_T *wp,
     int curitem = 0;
     bool prevchar_isflag = true;
     bool prevchar_isitem = false;
-    uchar_kt *out_p = out; // out_p is the current position in the output buffer
+
+    // out_p is the current position in the output buffer
+    uchar_kt *out_p = out;
 
     // out_end_p is the last valid character in the output buffer
     //
@@ -4449,8 +4460,8 @@ int build_stl_str_hl(win_T *wp,
                 else
                 {
                     uchar_kt *t = (opt == STL_FULLPATH)
-                                ? wp->w_buffer->b_ffname
-                                : wp->w_buffer->b_fname;
+                                  ? wp->w_buffer->b_ffname
+                                  : wp->w_buffer->b_fname;
 
                     home_replace(wp->w_buffer, t, NameBuff, MAXPATHL, true);
                 }
@@ -4666,8 +4677,7 @@ int build_stl_str_hl(win_T *wp,
                 if(wp->w_buffer->b_p_ro)
                 {
                     str = (uchar_kt *)((opt == STL_ROFLAG_ALT)
-                                     ? ",RO"
-                                     : _("[RO]"));
+                                       ? ",RO" : _("[RO]"));
                 }
 
                 break;
@@ -4679,8 +4689,7 @@ int build_stl_str_hl(win_T *wp,
                 if(wp->w_buffer->b_help)
                 {
                     str = (uchar_kt *)((opt == STL_HELPFLAG_ALT)
-                                     ? ",HLP"
-                                     : _("[Help]"));
+                                       ? ",HLP" : _("[Help]"));
                 }
 
                 break;
@@ -4732,7 +4741,7 @@ int build_stl_str_hl(win_T *wp,
                 if(wp->w_p_pvw)
                 {
                     str = (uchar_kt *)((opt == STL_PREVIEWFLAG_ALT)
-                                     ? ",PRV" : _("[Preview]"));
+                                       ? ",PRV" : _("[Preview]"));
                 }
 
                 break;
@@ -4741,7 +4750,7 @@ int build_stl_str_hl(win_T *wp,
                 if(bt_quickfix(wp->w_buffer))
                 {
                     str = (uchar_kt *)(wp->w_llist_ref
-                                     ? _(msg_loclist) : _(msg_qflist));
+                                       ? _(msg_loclist) : _(msg_qflist));
                 }
 
                 break;
@@ -4948,7 +4957,7 @@ int build_stl_str_hl(win_T *wp,
             // Note: The `*` means we take the width as one of the arguments
             *t++ = '*';
             *t++ = (uchar_kt)(base == kNumBaseHexadecimal
-                            ? 'X':(base == kNumBaseOctal ? 'o' : 'd'));
+                              ? 'X':(base == kNumBaseOctal ? 'o' : 'd'));
             *t = 0;
             // Determine how many characters the number will
             // take up when printed
@@ -5053,7 +5062,8 @@ int build_stl_str_hl(win_T *wp,
         int item_idx = 0;
         uchar_kt *trunc_p;
 
-        if(itemcnt == 0) // If there are no items, truncate from beginning
+        // If there are no items, truncate from beginning
+        if(itemcnt == 0)
         {
             trunc_p = out;
         }

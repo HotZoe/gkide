@@ -28,10 +28,12 @@
 // ":version", "$ nvim --version"
 #define NVIM_VERSION_LONG  "nvim v" NVIM_VERSION_BASIC
 
-char *nvim_gkide_version = "NVIM v" NVIM_VERSION_BASIC " (GKIDE v" GKIDE_VERSION_BASIC ")";
-
-static uchar_kt *compiled_sys = (uchar_kt *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
-static uchar_kt *compiled_usr = (uchar_kt *)BUILD_BY_USER;
+char *nvim_gkide_version =
+    "NVIM v" NVIM_VERSION_BASIC " (GKIDE v" GKIDE_VERSION_BASIC ")";
+static uchar_kt *compiled_sys =
+    (uchar_kt *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
+static uchar_kt *compiled_usr =
+    (uchar_kt *)BUILD_BY_USER;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "version.c.generated.h"
