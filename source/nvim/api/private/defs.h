@@ -30,7 +30,7 @@ typedef enum
     kErrorTypeNone = -1,
     kErrorTypeException,
     kErrorTypeValidation
-} ErrorType;
+} error_type_et;
 
 typedef enum
 {
@@ -66,7 +66,7 @@ static inline bool is_internal_call(const uint64_t channel_id)
 
 typedef struct
 {
-    ErrorType type;
+    error_type_et type;
     char *msg;
 } Error;
 

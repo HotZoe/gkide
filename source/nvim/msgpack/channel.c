@@ -302,7 +302,7 @@ Object channel_send_call(uint64_t id,
                && array.items[1].type == kObjectTypeString)
             {
                 api_set_error(err,
-                              (ErrorType)array.items[0].data.integer,
+                              (error_type_et)array.items[0].data.integer,
                               "%s",
                               array.items[1].data.string.data);
             }

@@ -1157,7 +1157,7 @@ static void set_option_value_err(char *key,
     }
 }
 
-void api_set_error(Error *err, ErrorType errType, const char *format, ...)
+void api_set_error(Error *err, error_type_et errType, const char *format, ...)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(kErrorTypeNone != errType);
