@@ -36,6 +36,18 @@
         .data.string = s               \
     })
 
+#define ARRAY_OBJ(a)                   \
+    ((Object) {                        \
+        .type = kObjectTypeArray,      \
+        .data.array = a                \
+    })
+
+#define DICTIONARY_OBJ(d)              \
+    ((Object) {                        \
+        .type = kObjectTypeDictionary, \
+        .data.dictionary = d           \
+    })
+
 #define BUFFER_OBJ(s)                  \
     ((Object) {                        \
         .type = kObjectTypeBuffer,     \
@@ -54,27 +66,21 @@
         .data.integer = s              \
     })
 
-#define ARRAY_OBJ(a)                   \
-    ((Object) {                        \
-        .type = kObjectTypeArray,      \
-        .data.array = a                \
-    })
-
-#define DICTIONARY_OBJ(d)              \
-    ((Object) {                        \
-        .type = kObjectTypeDictionary, \
-        .data.dictionary = d           \
-    })
-
-#define NIL              ((Object) { .type = kObjectTypeNil })
-
-#define PUT(dict, k, v)  \
-    kv_push(dict, ((key_value_pair_st) { .key = cstr_to_string(k), .value = v }))
+#define PUT(dict, k, v)                  \
+    kv_push(dict,                        \
+            ((key_value_pair_st) {       \
+                .key = cstr_to_string(k),\
+                .value = v               \
+    }))
 
 #define ADD(array, item) \
     kv_push(array, item)
 
-#define STATIC_CSTR_AS_STRING(s) ((String) { .data = s, .size = sizeof(s) - 1})
+#define STATIC_CSTR_AS_STRING(s)    \
+    ((String) {                     \
+        .data = s,                  \
+        .size = sizeof(s) - 1       \
+    })
 
 /// Create a new String instance, putting data in allocated memory
 ///
