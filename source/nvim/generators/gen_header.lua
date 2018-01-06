@@ -12,27 +12,31 @@ local preproc_fname = arg[4]
 local lpeg = require('lpeg')
 
 local fold = function (func, ...)
-  local result = nil
-  for i, v in ipairs({...}) do
-    if result == nil then
-      result = v
-    else
-      result = func(result, v)
+    local result = nil
+
+    for i, v in ipairs({...}) do
+        if result == nil then
+            result = v
+        else
+            result = func(result, v)
+        end
     end
-  end
-  return result
+
+    return result
 end
 
 local folder = function (func)
-  return function (...)
-    return fold(func, ...)
-  end
+    return function (...)
+        return fold(func, ...)
+    end
 end
 
 local lit = lpeg.P
+
 local set = function(...)
-  return lpeg.S(fold(function (a, b) return a .. b end, ...))
+    return lpeg.S(fold(function (a, b) return a .. b end, ...))
 end
+
 local any_character = lpeg.P(1)
 local rng = function(s, e) return lpeg.R(s .. e) end
 local concat = folder(function (a, b) return a * b end)
@@ -46,134 +50,120 @@ local look_ahead = function(v) return #v end
 local neg_look_ahead = function(v) return -v end
 local neg_look_behind = function(v) return -look_behind(v) end
 
-local w = branch(
-  rng('a', 'z'),
-  rng('A', 'Z'),
-  lit('_')
-)
-local aw = branch(
-  w,
-  rng('0', '9')
-)
 local s = set(' ', '\n', '\t')
+local w = branch(rng('a', 'z'), rng('A', 'Z'), lit('_'))
+local aw = branch(w, rng('0', '9'))
 local raw_word = concat(w, any_amount(aw))
-local right_word = concat(
-  raw_word,
-  neg_look_ahead(aw)
-)
+local right_word = concat(raw_word, neg_look_ahead(aw))
+
 local word = branch(
-  concat(
-    branch(lit('ArrayOf('),
-           lit('DictionaryOf('),
-           lit('FUNC_ARGS_UNUSED_MAYBE('),
-           lit('FUNC_ARGS_UNUSED_REALY(')), -- typed container macro
-    one_or_more(any_character - lit(')')),
-    lit(')')
-  ),
-  concat(
-    neg_look_behind(aw),
-    right_word
-  )
+    concat(branch(lit('ArrayOf('), -- typed container macro
+                  lit('DictionaryOf('),
+                  lit('FUNC_ARGS_UNUSED_MAYBE('),
+                  lit('FUNC_ARGS_UNUSED_REALY(')
+           ),
+           one_or_more(any_character - lit(')')),
+           lit(')')
+    ),
+    concat(neg_look_behind(aw), right_word)
 )
+
 local inline_comment = concat(
-  lit('/*'),
-  any_amount(concat(
-    neg_look_ahead(lit('*/')),
-    any_character
-  )),
-  lit('*/')
+    lit('/*'),
+    any_amount(concat(
+               neg_look_ahead(lit('*/')),
+               any_character)
+    ),
+    lit('*/')
 )
-local spaces = any_amount(branch(
-  s,
-  -- Comments are really handled by preprocessor, so the following is not needed
-  inline_comment,
-  concat(
-    lit('//'),
-    any_amount(concat(
-      neg_look_ahead(lit('\n')),
-      any_character
-    )),
-    lit('\n')
-  ),
-  -- Linemarker inserted by preprocessor
-  concat(
-    lit('# '),
-    any_amount(concat(
-      neg_look_ahead(lit('\n')),
-      any_character
-    )),
-    lit('\n')
-  )
-))
+
+local spaces = any_amount(
+    branch(
+        s,
+        -- Comments are really handled by 
+        -- preprocessor, so the following is not needed
+        inline_comment,
+        concat(
+            lit('//'),
+            any_amount(concat(
+                neg_look_ahead(lit('\n')), 
+                any_character)
+            ),
+            lit('\n')
+        ),
+        -- Linemarker inserted by preprocessor
+        concat(
+            lit('# '),
+            any_amount(concat(
+                neg_look_ahead(lit('\n')),
+                any_character)
+            ),
+            lit('\n')
+        )
+    )
+)
+
 local typ_part = concat(
-  word,
-  any_amount(concat(
-    spaces,
-    lit('*')
-  )),
-  spaces
+    word,
+    any_amount(concat(spaces, lit('*'))),
+    spaces
 )
+
 local typ = one_or_more(typ_part)
 local typ_id = two_or_more(typ_part)
-local arg = typ_id         -- argument name is swallowed by typ
+
+-- argument name is swallowed by typ
+local arg = typ_id
+
 local pattern = concat(
-  any_amount(branch(set(' ', '\t'), inline_comment)),
-  typ_id,                  -- return type with function name
-  spaces,
-  lit('('),
-  spaces,
-  one_or_no(branch(        -- function arguments
-    concat(
-      arg,                 -- first argument, does not require comma
-      any_amount(concat(   -- following arguments, start with a comma
-        spaces,
-        lit(','),
-        spaces,
-        arg,
-        any_amount(concat(
-          lit('['),
-          spaces,
-          any_amount(aw),
-          spaces,
-          lit(']')
-        ))
-      )),
-      one_or_no(concat(
-        spaces,
-        lit(','),
-        spaces,
-        lit('...')
-      ))
+    any_amount(branch(set(' ', '\t'), inline_comment)),
+    typ_id,                  -- return type with function name
+    spaces,
+    lit('('),
+    spaces,
+    one_or_no(branch(concat( -- function arguments
+        arg,                 -- first argument, does not require comma
+        any_amount(concat(   -- following arguments, start with a comma
+            spaces,
+            lit(','),
+            spaces,
+            arg,
+            any_amount(concat(
+                lit('['),
+                spaces,
+                any_amount(aw),
+                spaces,
+                lit(']'))))),
+        one_or_no(concat(
+            spaces,
+            lit(','),
+            spaces,
+            lit('...')))),
+        lit('void'))         -- also accepts just void
     ),
-    lit('void')            -- also accepts just void
-  )),
-  spaces,
-  lit(')'),
-  any_amount(concat(       -- optional attributes
     spaces,
-    lit('FUNC_'),
-    any_amount(aw),
-    one_or_no(concat(      -- attribute argument
-      spaces,
-      lit('('),
-      any_amount(concat(
-        neg_look_ahead(lit(')')),
-        any_character
-      )),
-      lit(')')
-    ))
-  )),
-  look_ahead(concat(       -- definition must be followed by "{"
-    spaces,
-    lit('{')
-  ))
+    lit(')'),
+    any_amount(concat(       -- optional attributes
+        spaces,
+        lit('FUNC_'),
+        any_amount(aw),
+        one_or_no(concat(    -- attribute argument
+            spaces,
+            lit('('),
+            any_amount(concat(
+                neg_look_ahead(lit(')')),
+                any_character)),
+            lit(')'))))),
+    look_ahead(concat(       -- definition must be followed by "{"
+        spaces,
+        lit('{')))
 )
 
 if fname == '--help' then
-  print'Usage:'
-  print()
-  print'    $ lua gen_header.lua definitions.c static.h non-static.h preprocessor.i'
-  os.exit()
+    print'Usage:'
+    print()
+    print'    $ lua gen_header.lua definitions.c static.h non-static.h preprocessor.i'
+    os.exit()
 end
 
 local preproc_f = io.open(preproc_fname)
@@ -218,63 +208,73 @@ local declendpos = 0
 local curdir = nil
 local is_needed_file = false
 while init ~= nil do
-  init = text:find('[\n;}]', init)
-  if init == nil then
-    break
-  end
-  local init_is_nl = text:sub(init, init) == '\n'
-  init = init + 1
-  if init_is_nl and is_needed_file then
-    declline = declline + 1
-  end
-  if init_is_nl and text:sub(init, init) == '#' then
-    local line, dir, file = text:match(filepattern, init)
-    if file ~= nil then
-      curfile = file
-      is_needed_file = (curfile == neededfile)
-      declline = tonumber(line) - 1
-      local curdir_start = dir:find('source/nvim/')
-      if curdir_start ~= nil then
-        curdir = dir:sub(curdir_start + #('source/nvim/'))
-      else
-        curdir = dir
-      end
-    else
-      declline = declline - 1
-    end
-  elseif init < declendpos then
-    -- Skipping over declaration
-  elseif is_needed_file then
-    s = init
-    e = pattern:match(text, init)
-    if e ~= nil then
-      local declaration = text:sub(s, e - 1)
-      -- Comments are really handled by preprocessor, so the following is not needed
-      declaration = declaration:gsub('/%*.-%*/', '')
-      declaration = declaration:gsub('//.-\n', '\n')
+    init = text:find('[\n;}]', init)
 
-      declaration = declaration:gsub('# .-\n', '')
-
-      declaration = declaration:gsub('\n', ' ')
-      declaration = declaration:gsub('%s+', ' ')
-      declaration = declaration:gsub(' ?%( ?', '(')
-      -- declaration = declaration:gsub(' ?%) ?', ')')
-      declaration = declaration:gsub(' ?, ?', ', ')
-      declaration = declaration:gsub(' ?(%*+) ?', ' %1')
-      declaration = declaration:gsub(' ?(FUNC_ATTR_)', ' %1')    
-      declaration = declaration:gsub(' $', '')
-      declaration = declaration:gsub('^ ', '')
-      declaration = declaration .. ';'
-      declaration = declaration .. ('  // %s/%s:%u'):format(curdir, curfile, declline)
-      declaration = declaration .. '\n'
-      if declaration:sub(1, 6) == 'static' then
-        static = static .. declaration
-      else
-        non_static = non_static .. declaration
-      end
-      declendpos = e
+    if init == nil then
+        break
     end
-  end
+
+    local init_is_nl = text:sub(init, init) == '\n'
+    init = init + 1
+
+    if init_is_nl and is_needed_file then
+        declline = declline + 1
+    end
+
+    if init_is_nl and text:sub(init, init) == '#' then
+        local line, dir, file = text:match(filepattern, init)
+        if file ~= nil then
+            curfile = file
+            is_needed_file = (curfile == neededfile)
+            declline = tonumber(line) - 1
+
+            local curdir_start = dir:find('source/nvim/')
+            if curdir_start ~= nil then
+                curdir = dir:sub(curdir_start + #('source/nvim/'))
+            else
+                curdir = dir
+            end
+        else
+            declline = declline - 1
+        end
+    elseif init < declendpos then
+        -- Skipping over declaration
+    elseif is_needed_file then
+        s = init
+        e = pattern:match(text, init)
+        if e ~= nil then
+            local declaration = text:sub(s, e - 1)
+            -- Comments are really handled by 
+            -- preprocessor, so the following is not needed
+            declaration = declaration:gsub('/%*.-%*/', '')
+            declaration = declaration:gsub('//.-\n', '\n')
+
+            declaration = declaration:gsub('# .-\n', '')
+
+            declaration = declaration:gsub('\n', ' ')
+            declaration = declaration:gsub('%s+', ' ')
+            declaration = declaration:gsub(' ?%( ?', '(')
+            -- declaration = declaration:gsub(' ?%) ?', ')')
+            declaration = declaration:gsub(' ?, ?', ', ')
+            declaration = declaration:gsub(' ?(%*+) ?', ' %1')
+            declaration = declaration:gsub(' ?(FUNC_ATTR_)', ' %1')    
+            declaration = declaration:gsub(' $', '')
+            declaration = declaration:gsub('^ ', '')
+            declaration = declaration .. ';'
+            declaration = declaration .. ('  // %s/%s:%u'):format(curdir, 
+                                                                  curfile, 
+                                                                  declline)
+            declaration = declaration .. '\n'
+
+            if declaration:sub(1, 6) == 'static' then
+                static = static .. declaration
+            else
+                non_static = non_static .. declaration
+            end
+
+            declendpos = e
+        end
+    end
 end
 
 non_static = non_static .. footer
@@ -291,10 +291,11 @@ F:close()
 -- that depend on this one
 F = io.open(non_static_fname, 'r')
 if F ~= nil then
-  if F:read('*a') == non_static then
-    os.exit(0)
-  end
-  io.close(F)
+    if F:read('*a') == non_static then
+        os.exit(0)
+    end
+
+    io.close(F)
 end
 
 F = io.open(non_static_fname, 'w')

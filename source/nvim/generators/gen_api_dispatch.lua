@@ -17,21 +17,28 @@ assert(#arg >= 6)
 local nvim_src_dir = arg[1]
 package.path = nvim_src_dir .. '/?.lua;' .. package.path
 
-c_grammar = require('generators.c_grammar') -- nvim/generators/c_grammar.lua
+-- nvim/generators/c_grammar.lua
+c_grammar = require('generators.c_grammar') 
 
 -- output h file with generated dispatch functions
 dispatch_outputf = arg[2]
+
 -- output h file with packed metadata
 funcs_metadata_outputf = arg[3]
+
 -- output metadata mpack file, for use by other build scripts
 mpack_outputf = arg[4]
+
 -- output c file for lua bindings
 lua_c_bindings_outputf = arg[5]
 
--- names of all headers relative to the source root (for inclusion in the generated file)
+-- names of all headers relative to the source
+-- root (for inclusion in the generated file)
 headers = {}
+
 -- set of functions
 functions = {}
+
 -- set of function names, used to detect duplicates
 function_names = {}
 
@@ -42,8 +49,10 @@ for i=6, #arg do
     for part in string.gmatch(full_path, '[^/]+') do
         parts[#parts + 1] = part
     end
-                         -- nvim/xx directory           header-file-name
-    headers[#headers + 1] = parts[#parts - 1] .. '/' .. parts[#parts] -- relative path to 'nvim/'
+    
+    -- relative path to 'nvim/'
+    --                      nvim/xx directory           header-file-name
+    headers[#headers + 1] = parts[#parts - 1] .. '/' .. parts[#parts]
 
     local input = io.open(full_path, 'rb')
     local tmp = c_grammar.grammar:match(input:read('*all'))
@@ -91,8 +100,10 @@ local function startswith(String, Start)
     return string.sub(String, 1, string.len(Start)) == Start
 end
 
--- Export functions under older deprecated names. These will be removed eventually.
-local deprecated_aliases = require("api.dispatch_deprecated") -- nvim/api/dispatch_deprecated.lua
+-- nvim/api/dispatch_deprecated.lua
+-- These will be removed eventually.
+-- Export functions under older deprecated names. 
+local deprecated_aliases = require("api.dispatch_deprecated") 
 
 for i,f in ipairs(shallowcopy(functions)) do
     local ismethod = false
@@ -150,7 +161,14 @@ for i,f in ipairs(shallowcopy(functions)) do
 end
 
 -- don't expose internal attributes like "impl_name" in public metadata
-exported_attributes = {'name', 'parameters', 'return_type', 'method', 'since', 'deprecated_since'}
+exported_attributes = {
+    'name', 
+    'parameters', 
+    'return_type', 
+    'method', 
+    'since', 
+    'deprecated_since'
+}
 exported_functions  = {}
 
 for _,f in ipairs(functions) do
@@ -163,8 +181,11 @@ for _,f in ipairs(functions) do
     end
 end
 
-mpack = require('mpack') -- deps/build/usr/lib/lua/xx/mpack.so
-dump_bin_array = require("generators.dump_bin_array") -- nvim/generators/dump_bin_array.lua
+-- deps/build/usr/lib/lua/xx/mpack.so
+mpack = require('mpack')
+
+-- nvim/generators/dump_bin_array.lua
+dump_bin_array = require("generators.dump_bin_array") 
 
 -- serialize the API metadata using msgpack and embed into 
 -- the resulting binary for easy querying by clients
@@ -198,7 +219,8 @@ end
 output = io.open(dispatch_outputf, 'wb')
 
 -- start the handler functions. Visit each function metadata to build the
--- handler function with code generated for validating arguments and calling to the real API.
+-- handler function with code generated for validating arguments and 
+-- calling to the real API.
 for i = 1, #functions do
     local fn = functions[i]
     if fn.impl_name == nil then
@@ -309,7 +331,8 @@ for i = 1, #functions do
         end
 
         if fn.can_fail then
-            -- if the function can fail, also pass a pointer to the local error object
+            -- if the function can fail, also pass
+            -- a pointer to the local error object
             if #args > 0 then
                 output:write(', error);\n')
             else
@@ -328,7 +351,9 @@ for i = 1, #functions do
 
         output:write('\n')
         if fn.return_type ~= 'void' then
-            output:write('    ret = '..string.upper(real_type(fn.return_type))..'_OBJ(rv);\n')
+            output:write('    ret = ' 
+                         .. string.upper(real_type(fn.return_type)) 
+                         .. '_OBJ(rv);\n')
         end
         
         output:write('\n')
@@ -349,13 +374,15 @@ void msgpack_rpc_init_method_table(void)
 ]])
 
 for i = 1, #functions do
-  local fn = functions[i]
-  output:write('  msgpack_rpc_add_method_handler('..
-               '(String) {.data = "'..fn.name..'", '..
-               '.size = sizeof("'..fn.name..'") - 1}, '..
-               '(MsgpackRpcRequestHandler) {.fn = handle_'..  (fn.impl_name or fn.name)..
-               ', .async = '..tostring(fn.async)..'});\n')
-
+    local fn = functions[i]
+    output:write('    msgpack_rpc_add_method_handler('
+                 .. '(String) { .data = "' .. fn.name.. '", '
+                 .. '.size = sizeof("' .. fn.name .. '") - 1 }, '
+                 .. '(MsgpackRpcRequestHandler) {.fn = handle_'
+                 .. (fn.impl_name or fn.name)
+                 .. ', .async = '
+                 .. tostring(fn.async)
+                 .. '});\n')
 end
 
 output:write('\n}\n\n')
@@ -366,18 +393,18 @@ mpack_output:write(mpack.pack(functions))
 mpack_output:close()
 
 local function include_headers(output, headers)
-  for i = 1, #headers do
-    if headers[i]:sub(-12) ~= '.generated.h' then
-      output:write('\n#include "nvim/'..headers[i]..'"')
+    for i = 1, #headers do
+        if headers[i]:sub(-12) ~= '.generated.h' then
+            output:write('\n#include "nvim/' .. headers[i] .. '"')
+        end
     end
-  end
 end
 
 local function write_shifted_output(output, str)
-  str = str:gsub('\n  ', '\n')
-  str = str:gsub('^  ', '')
-  str = str:gsub(' +$', '')
-  output:write(str)
+    str = str:gsub('\n  ', '\n')
+    str = str:gsub('^  ', '')
+    str = str:gsub(' +$', '')
+    output:write(str)
 end
 
 -- start building lua output
@@ -399,120 +426,159 @@ output:write('\n')
 lua_c_functions = {}
 
 local function process_function(fn)
-  lua_c_function_name = ('nlua_msgpack_%s'):format(fn.name)
-  write_shifted_output(output, string.format([[
+    lua_c_function_name = ('nlua_msgpack_%s'):format(fn.name)
 
-  static int %s(lua_State *lstate)
-  {
-    error_st err = ERROR_INIT;
-    if (lua_gettop(lstate) != %i) {
-      api_set_error(&err, kErrorTypeValidation, "Expected %i argument%s");
-      goto exit_0;
+    write_shifted_output(output, 
+                         string.format([[
+
+    static int %s(lua_State *lstate)
+    {
+        error_st err = ERROR_INIT;
+        if(lua_gettop(lstate) != %i) 
+        {
+            api_set_error(&err, kErrorTypeValidation, "Expected %i argument%s");
+            goto exit_0;
+        }
+    ]], 
+                         lua_c_function_name, 
+                         #fn.parameters, 
+                         #fn.parameters,
+                         (#fn.parameters == 1) and '' or 's'))
+      
+    lua_c_functions[#lua_c_functions + 1] = {
+        binding=lua_c_function_name,
+        api=fn.name
     }
-  ]], lua_c_function_name, #fn.parameters, #fn.parameters,
-      (#fn.parameters == 1) and '' or 's'))
-  lua_c_functions[#lua_c_functions + 1] = {
-    binding=lua_c_function_name,
-    api=fn.name
-  }
-  local cparams = ''
-  local free_code = {}
-  for j = #fn.parameters,1,-1 do
-    param = fn.parameters[j]
-    cparam = string.format('arg%u', j)
-    param_type = real_type(param[1])
-    lc_param_type = param_type:lower()
-    write_shifted_output(output, string.format([[
+
+    local cparams = ''
+    local free_code = {}
+    for j = #fn.parameters,1,-1 do
+        param = fn.parameters[j]
+        cparam = string.format('arg%u', j)
+        param_type = real_type(param[1])
+        lc_param_type = param_type:lower()
+        
+        write_shifted_output(output, 
+                             string.format([[
     const %s %s = nlua_pop_%s(lstate, &err);
 
-    if (ERROR_SET(&err)) {
-      goto exit_%u;
+    if(ERROR_SET(&err)) 
+    {
+        goto exit_%u;
     }
-    ]], param[1], cparam, param_type, #fn.parameters - j))
-    free_code[#free_code + 1] = ('api_free_%s(%s);'):format(
-      lc_param_type, cparam)
-    cparams = cparam .. ', ' .. cparams
-  end
-  if fn.receives_channel_id then
-    cparams = 'LUA_INTERNAL_CALL, ' .. cparams
-  end
-  if fn.can_fail then
-    cparams = cparams .. '&err'
-  else
-    cparams = cparams:gsub(', $', '')
-  end
-  local free_at_exit_code = ''
-  for i = 1, #free_code do
-    local rev_i = #free_code - i + 1
-    local code = free_code[rev_i]
-    if i == 1 then
-      free_at_exit_code = free_at_exit_code .. ('\n    %s'):format(code)
-    else
-      free_at_exit_code = free_at_exit_code .. ('\n  exit_%u:\n    %s'):format(
-        rev_i, code)
+    ]], 
+                             param[1], 
+                             cparam, 
+                             param_type, 
+                             #fn.parameters - j))
+        free_code[#free_code + 1] = ('api_free_%s(%s);'):format(lc_param_type, 
+                                                                cparam)
+        cparams = cparam .. ', ' .. cparams
     end
-  end
-  local err_throw_code = [[
 
-  exit_0:
-    if (ERROR_SET(&err)) {
-      luaL_where(lstate, 1);
-      lua_pushstring(lstate, err.msg);
-      api_clear_error(&err);
-      lua_concat(lstate, 2);
-      return lua_error(lstate);
-    }
-  ]]
-  if fn.return_type ~= 'void' then
-    if fn.return_type:match('^ArrayOf') then
-      return_type = 'Array'
-    else
-      return_type = fn.return_type
+    if fn.receives_channel_id then
+        cparams = 'LUA_INTERNAL_CALL, ' .. cparams
     end
-    write_shifted_output(output, string.format([[
+
+    if fn.can_fail then
+        cparams = cparams .. '&err'
+    else
+        cparams = cparams:gsub(', $', '')
+    end
+
+    local free_at_exit_code = ''
+    for i = 1, #free_code do
+        local rev_i = #free_code - i + 1
+        local code = free_code[rev_i]
+        
+        if i == 1 then
+            free_at_exit_code = free_at_exit_code 
+                                .. ('\n    %s'):format(code)
+        else
+            free_at_exit_code = free_at_exit_code 
+                                .. ('\n  exit_%u:\n    %s'):format(rev_i, code)
+        end
+    end
+
+    local err_throw_code = [[
+
+    exit_0:
+        if(ERROR_SET(&err))
+        {
+            luaL_where(lstate, 1);
+            lua_pushstring(lstate, err.msg);
+            api_clear_error(&err);
+            lua_concat(lstate, 2);
+            return lua_error(lstate);
+        }
+  ]]
+
+    if fn.return_type ~= 'void' then
+        if fn.return_type:match('^ArrayOf') then
+            return_type = 'Array'
+        else
+            return_type = fn.return_type
+        end
+
+        write_shifted_output(output, 
+                             string.format([[
     const %s ret = %s(%s);
     nlua_push_%s(lstate, ret);
     api_free_%s(ret);
-  %s
-  %s
+    %s
+    %s
     return 1;
-    ]], fn.return_type, fn.name, cparams, return_type, return_type:lower(),
-        free_at_exit_code, err_throw_code))
-  else
-    write_shifted_output(output, string.format([[
+    ]],
+                             fn.return_type, 
+                             fn.name, cparams, 
+                             return_type, 
+                             return_type:lower(),
+                             free_at_exit_code, 
+                             err_throw_code))
+    else
+        write_shifted_output(output, 
+                             string.format([[
     %s(%s);
-  %s
-  %s
+    %s
+    %s
     return 0;
-    ]], fn.name, cparams, free_at_exit_code, err_throw_code))
-  end
-  write_shifted_output(output, [[
-  }
-  ]])
+    ]], 
+                             fn.name, 
+                             cparams, 
+                             free_at_exit_code, 
+                             err_throw_code))
+    end
+
+    write_shifted_output(output, [[
+    }
+    ]])
 end
 
 for _, fn in ipairs(functions) do
-  if not fn.remote_only or fn.name:sub(1, 4) == '_vim' then
-    process_function(fn)
-  end
+    if not fn.remote_only or fn.name:sub(1, 4) == '_vim' then
+        process_function(fn)
+    end
 end
 
 output:write(string.format([[
 void nlua_add_api_functions(lua_State *lstate)
-  FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
 {
   lua_createtable(lstate, 0, %u);
 ]], #lua_c_functions))
-for _, func in ipairs(lua_c_functions) do
-  output:write(string.format([[
 
-  lua_pushcfunction(lstate, &%s);
-  lua_setfield(lstate, -2, "%s");]], func.binding, func.api))
+for _, func in ipairs(lua_c_functions) do
+    output:write(string.format([[
+
+    lua_pushcfunction(lstate, &%s);
+    lua_setfield(lstate, -2, "%s");]], func.binding, func.api))
 end
+
 output:write([[
 
-  lua_setfield(lstate, -2, "api");
+    lua_setfield(lstate, -2, "api");
 }
 ]])
 
 output:close()
+
