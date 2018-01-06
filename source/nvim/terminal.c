@@ -746,7 +746,7 @@ static int term_movecursor(VTermPos new,
 static void buf_set_term_title(buf_T *buf, char *title)
 FUNC_ATTR_NONNULL_ALL
 {
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
 
     dict_set_var(buf->b_vars,
                  STATIC_CSTR_AS_STRING("term_title"),
@@ -1571,7 +1571,7 @@ static bool is_focused(Terminal *term)
 #define GET_CONFIG_VALUE(k, o)                                          \
     do                                                                  \
     {                                                                   \
-        Error err = ERROR_INIT;                                         \
+        error_st err = ERROR_INIT;                                         \
         /* Only called from terminal_open where  */                     \
         /* curbuf->terminal is the context */                           \
         o = dict_get_value(curbuf->b_vars, cstr_as_string(k), &err);    \

@@ -955,7 +955,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Convert lua value to string
 ///
 /// Always pops one value from the stack.
-String nlua_pop_String(lua_State *lstate, Error *err)
+String nlua_pop_String(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -982,7 +982,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua value to integer
 ///
 /// Always pops one value from the stack.
-Integer nlua_pop_Integer(lua_State *lstate, Error *err)
+Integer nlua_pop_Integer(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1010,7 +1010,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua value to boolean
 ///
 /// Always pops one value from the stack.
-Boolean nlua_pop_Boolean(lua_State *lstate, Error *FUNC_ARGS_UNUSED_REALY(err))
+Boolean nlua_pop_Boolean(lua_State *lstate, error_st *FUNC_ARGS_UNUSED_REALY(err))
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1027,7 +1027,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return @see nlua_traverse_table().
 static inline LuaTableProps nlua_check_type(lua_State *const lstate,
-                                            Error *const err,
+                                            error_st *const err,
                                             const ObjectType type)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1069,7 +1069,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua table to float
 ///
 /// Always pops one value from the stack.
-Float nlua_pop_Float(lua_State *lstate, Error *err)
+Float nlua_pop_Float(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1102,7 +1102,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[out] err         Location where error will be saved.
 static Array nlua_pop_Array_unchecked(lua_State *const lstate,
                                       const LuaTableProps table_props,
-                                      Error *const err)
+                                      error_st *const err)
 {
     Array ret = { .size = table_props.maxidx, .items = NULL };
 
@@ -1141,7 +1141,7 @@ static Array nlua_pop_Array_unchecked(lua_State *const lstate,
 /// Convert lua table to array
 ///
 /// Always pops one value from the stack.
-Array nlua_pop_Array(lua_State *lstate, Error *err)
+Array nlua_pop_Array(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1170,7 +1170,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[out] err         Location where error will be saved.
 static Dictionary nlua_pop_Dictionary_unchecked(lua_State *lstate,
                                                 const LuaTableProps table_props,
-                                                Error *err)
+                                                error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1235,7 +1235,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua table to dictionary
 ///
 /// Always pops one value from the stack.
-Dictionary nlua_pop_Dictionary(lua_State *lstate, Error *err)
+Dictionary nlua_pop_Dictionary(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1264,7 +1264,7 @@ typedef struct
 /// Convert lua table to object
 ///
 /// Always pops one value from the stack.
-Object nlua_pop_Object(lua_State *const lstate, Error *const err)
+Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 {
     Object ret = NIL;
     const int initial_size = lua_gettop(lstate);
@@ -1513,7 +1513,7 @@ Object nlua_pop_Object(lua_State *const lstate, Error *const err)
 
 #define GENERATE_INDEX_FUNCTION(type)                        \
     type nlua_pop_##type(lua_State *lstate,                  \
-                         Error *FUNC_ARGS_UNUSED_REALY(err)) \
+                      error_st *FUNC_ARGS_UNUSED_REALY(err)) \
     FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT       \
     {                                                        \
         type ret;                                            \

@@ -8500,7 +8500,7 @@ static void api_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
         ADD(args, vim_to_object(tv));
     }
 
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
     Object result = fn(VIML_INTERNAL_CALL, args, &err);
 
     if(ERROR_SET(&err))
@@ -18056,7 +18056,7 @@ static void f_rpcrequest(typval_T *argvars,
         restore_funccal(provider_caller_scope.funccalp);
     }
 
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
     Object result = channel_send_call((uint64_t)argvars[0].vval.v_number,
                                       tv_get_string(&argvars[1]),
                                       args,
@@ -21731,7 +21731,7 @@ static void f_termopen(typval_T *argvars,
     (void)setfname(curbuf, (uchar_kt *)buf, NULL, true);
 
     // Save the job id and pid in b:terminal_job_{id,pid}
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
 
     dict_set_var(curbuf->b_vars,
                  cstr_as_string("terminal_job_id"),

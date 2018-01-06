@@ -37,7 +37,7 @@ local typed_container = (P('ArrayOf(') + P('DictionaryOf(')) * ((any - P(')')) ^
 local c_id   = (typed_container + (letter * (alpha ^ 0)))
 local c_void = P('void')
 
-local c_param_type = (((P('Error') * fill * P('*') * fill) * Cc('error')) + (C(c_id) * (ws ^ 1)))
+local c_param_type = (((P('error_st') * fill * P('*') * fill) * Cc('error')) + (C(c_id) * (ws ^ 1)))
 local c_type = (C(c_void) * (ws ^ 1)) + c_param_type
 
 local c_param = Ct(c_param_type * C(c_id))

@@ -17,7 +17,7 @@ REAL_FATTR_NONNULL_ALL;
 #define set_api_error(s, err)                 \
     do                                        \
     {                                         \
-        Error *err_ = (err);                  \
+        error_st *err_ = (err);               \
         err_->type = kErrorTypeException;     \
         err_->set = true;                     \
         memcpy(&err_->msg[0], s, sizeof(s));  \

@@ -48,7 +48,7 @@ void try_start(void)
 ///
 /// @param err Pointer to the stack-allocated error object
 /// @return true if an error occurred
-bool try_end(Error *err)
+bool try_end(error_st *err)
 {
     --trylevel;
     // Without this it stops processing all subsequent VimL commands and
@@ -97,7 +97,7 @@ bool try_end(Error *err)
 /// @param dict     The vimscript dict
 /// @param key      The key
 /// @param[out] err Details of an error that may have occurred
-Object dict_get_value(dict_T *dict, String key, Error *err)
+Object dict_get_value(dict_T *dict, String key, error_st *err)
 {
     dictitem_T *const di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
 
@@ -126,7 +126,7 @@ Object dict_set_var(dict_T *dict,
                     Object value,
                     bool del,
                     bool retval,
-                    Error *err)
+                    error_st *err)
 {
     Object rv = OBJECT_INIT;
 
@@ -249,7 +249,7 @@ Object dict_set_var(dict_T *dict,
 /// @param name     The option name
 /// @param[out] err Details of an error that may have occurred
 /// @return the option value
-Object get_option_from(void *from, int type, String name, Error *err)
+Object get_option_from(void *from, int type, String name, error_st *err)
 {
     Object rv = OBJECT_INIT;
 
@@ -312,7 +312,7 @@ Object get_option_from(void *from, int type, String name, Error *err)
 /// @param type     One of @b SREQ_GLOBAL, @b SREQ_WIN or @b SREQ_BUF
 /// @param name     The option name
 /// @param[out] err Details of an error that may have occurred
-void set_option_to(void *to, int type, String name, Object value, Error *err)
+void set_option_to(void *to, int type, String name, Object value, error_st *err)
 {
     if(name.size == 0)
     {
@@ -622,7 +622,7 @@ Object vim_to_object(typval_T *obj)
     return ret;
 }
 
-buf_T *find_buffer_by_handle(Buffer buffer, Error *err)
+buf_T *find_buffer_by_handle(Buffer buffer, error_st *err)
 {
     if(buffer == 0)
     {
@@ -639,7 +639,7 @@ buf_T *find_buffer_by_handle(Buffer buffer, Error *err)
     return rv;
 }
 
-win_T *find_window_by_handle(Window window, Error *err)
+win_T *find_window_by_handle(Window window, error_st *err)
 {
     if(window == 0)
     {
@@ -656,7 +656,7 @@ win_T *find_window_by_handle(Window window, Error *err)
     return rv;
 }
 
-tabpage_T *find_tab_by_handle(Tabpage tabpage, Error *err)
+tabpage_T *find_tab_by_handle(Tabpage tabpage, error_st *err)
 {
     if(tabpage == 0)
     {
@@ -720,7 +720,7 @@ String cstr_as_string(char *str) FUNC_ATTR_PURE
 /// @param tv   Conversion result is placed here. On failure member v_type is
 ///             set to VAR_UNKNOWN (no allocation was made for this variable).
 /// returns     true if conversion is successful, otherwise false.
-bool object_to_vim(Object obj, typval_T *tv, Error *err)
+bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 {
     tv->v_type = VAR_UNKNOWN;
     tv->v_lock = VAR_UNLOCKED;
@@ -906,7 +906,7 @@ void api_free_dictionary(Dictionary value)
     xfree(value.items);
 }
 
-void api_clear_error(Error *value) FUNC_ATTR_NONNULL_ALL
+void api_clear_error(error_st *value) FUNC_ATTR_NONNULL_ALL
 {
     if(!ERROR_SET(value))
     {
@@ -1088,7 +1088,7 @@ static void set_option_value_for(char *key,
                                  int opt_flags,
                                  int opt_type,
                                  void *from,
-                                 Error *err)
+                                 error_st *err)
 {
     win_T *save_curwin = NULL;
     tabpage_T *save_curtab = NULL;
@@ -1142,7 +1142,7 @@ static void set_option_value_err(char *key,
                                  int numval,
                                  char *stringval,
                                  int opt_flags,
-                                 Error *err)
+                                 error_st *err)
 {
     char *errmsg;
 
@@ -1157,7 +1157,7 @@ static void set_option_value_err(char *key,
     }
 }
 
-void api_set_error(Error *err, error_type_et errType, const char *format, ...)
+void api_set_error(error_st *err, error_type_et errType, const char *format, ...)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(kErrorTypeNone != errType);

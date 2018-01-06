@@ -27,7 +27,7 @@
 
 typedef struct
 {
-    Error err;
+    error_st err;
     String lua_err_str;
 } LuaError;
 
@@ -479,7 +479,7 @@ FUNC_ATTR_NONNULL_ALL
     const String *str = (const String *)lua_touserdata(lstate, 1);
     const Array *args = (const Array *)lua_touserdata(lstate, 2);
     Object *retval = (Object *)lua_touserdata(lstate, 3);
-    Error *err = (Error *)lua_touserdata(lstate, 4);
+    error_st *err = (error_st *)lua_touserdata(lstate, 4);
 
     lua_pop(lstate, 4);
 
@@ -718,7 +718,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out] err  Location where error will be saved.
 ///
 /// @return Return value of the execution.
-Object executor_exec_lua_api(const String str, const Array args, Error *err)
+Object executor_exec_lua_api(const String str, const Array args, error_st *err)
 {
     if(global_lstate == NULL)
     {

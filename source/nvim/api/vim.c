@@ -46,7 +46,7 @@
 ///
 /// @param[out] err
 /// Error details (including actual VimL error), if any
-void nvim_command(String command, Error *err)
+void nvim_command(String command, error_st *err)
 FUNC_API_SINCE(1)
 {
     // Run the command
@@ -217,7 +217,7 @@ FUNC_API_SINCE(1)
     return cstr_as_string(ptr);
 }
 
-String nvim_command_output(String str, Error *err)
+String nvim_command_output(String str, error_st *err)
 FUNC_API_SINCE(1)
 {
     do_cmdline_cmd("redir => v:command_output");
@@ -239,7 +239,7 @@ FUNC_API_SINCE(1)
 /// @param expr     VimL expression string
 /// @param[out] err Error details, if any
 /// @return         Evaluation result or expanded object
-Object nvim_eval(String expr, Error *err)
+Object nvim_eval(String expr, error_st *err)
 FUNC_API_SINCE(1)
 {
     Object rv = OBJECT_INIT;
@@ -273,7 +273,7 @@ FUNC_API_SINCE(1)
 /// @param[out] err Error details, if any
 ///
 /// @return Result of the function call
-Object nvim_call_function(String fname, Array args, Error *err)
+Object nvim_call_function(String fname, Array args, error_st *err)
 FUNC_API_SINCE(1)
 {
     Object rv = OBJECT_INIT;
@@ -354,7 +354,7 @@ free_vim_args:
 ///
 /// @return
 /// Return value of lua code if present or NIL.
-Object nvim_execute_lua(String code, Array args, Error *err)
+Object nvim_execute_lua(String code, Array args, error_st *err)
 FUNC_API_SINCE(3)
 FUNC_API_REMOTE_ONLY
 {
@@ -367,7 +367,7 @@ FUNC_API_REMOTE_ONLY
 /// @param text       Some text
 /// @param[out] err   Error details, if any
 /// @return Number of cells
-Integer nvim_strwidth(String str, Error *err)
+Integer nvim_strwidth(String str, error_st *err)
 FUNC_API_SINCE(1)
 {
     if(str.size > INT_MAX)
@@ -432,7 +432,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param dir      Directory path
 /// @param[out] err Error details, if any
-void nvim_set_current_dir(String dir, Error *err)
+void nvim_set_current_dir(String dir, error_st *err)
 FUNC_API_SINCE(1)
 {
     if(dir.size >= MAXPATHL)
@@ -466,7 +466,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param[out] err Error details, if any
 /// @return Current line string
-String nvim_get_current_line(Error *err)
+String nvim_get_current_line(error_st *err)
 FUNC_API_SINCE(1)
 {
     return buffer_get_line(curbuf->handle, curwin->w_cursor.lnum - 1, err);
@@ -476,7 +476,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param line     Line contents
 /// @param[out] err Error details, if any
-void nvim_set_current_line(String line, Error *err)
+void nvim_set_current_line(String line, error_st *err)
 FUNC_API_SINCE(1)
 {
     buffer_set_line(curbuf->handle, curwin->w_cursor.lnum - 1, line, err);
@@ -485,7 +485,7 @@ FUNC_API_SINCE(1)
 /// Deletes the current line
 ///
 /// @param[out] err Error details, if any
-void nvim_del_current_line(Error *err)
+void nvim_del_current_line(error_st *err)
 FUNC_API_SINCE(1)
 {
     buffer_del_line(curbuf->handle, curwin->w_cursor.lnum - 1, err);
@@ -497,7 +497,7 @@ FUNC_API_SINCE(1)
 /// @param[out] err Error details, if any
 ///
 /// @return Variable value
-Object nvim_get_var(String name, Error *err)
+Object nvim_get_var(String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     return dict_get_value(&globvardict, name, err);
@@ -508,7 +508,7 @@ FUNC_API_SINCE(1)
 /// @param name     Variable name
 /// @param value    Variable value
 /// @param[out] err Error details, if any
-void nvim_set_var(String name, Object value, Error *err)
+void nvim_set_var(String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
     dict_set_var(&globvardict, name, value, false, false, err);
@@ -518,7 +518,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param name     Variable name
 /// @param[out] err Error details, if any
-void nvim_del_var(String name, Error *err)
+void nvim_del_var(String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     dict_set_var(&globvardict, name, NIL, true, false, err);
@@ -535,7 +535,7 @@ FUNC_API_SINCE(1)
 ///
 ///         @warning It may return nil if there was no previous value
 ///                  or if previous value was `v:null`.
-Object vim_set_var(String name, Object value, Error *err)
+Object vim_set_var(String name, Object value, error_st *err)
 {
     return dict_set_var(&globvardict, name, value, false, true, err);
 }
@@ -547,7 +547,7 @@ Object vim_set_var(String name, Object value, Error *err)
 /// @param name     Variable name
 /// @param[out] err Error details, if any
 /// @return Old value
-Object vim_del_var(String name, Error *err)
+Object vim_del_var(String name, error_st *err)
 {
     return dict_set_var(&globvardict, name, NIL, true, true, err);
 }
@@ -558,7 +558,7 @@ Object vim_del_var(String name, Error *err)
 /// @param[out] err Error details, if any
 ///
 /// @return         Variable value
-Object nvim_get_vvar(String name, Error *err)
+Object nvim_get_vvar(String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     return dict_get_value(&vimvardict, name, err);
@@ -570,7 +570,7 @@ FUNC_API_SINCE(1)
 /// @param[out] err Error details, if any
 ///
 /// @return         Option value (global)
-Object nvim_get_option(String name, Error *err)
+Object nvim_get_option(String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     return get_option_from(NULL, SREQ_GLOBAL, name, err);
@@ -581,7 +581,7 @@ FUNC_API_SINCE(1)
 /// @param name     Option name
 /// @param value    New option value
 /// @param[out] err Error details, if any
-void nvim_set_option(String name, Object value, Error *err)
+void nvim_set_option(String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
     set_option_to(NULL, SREQ_GLOBAL, name, value, err);
@@ -658,7 +658,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param id       Buffer handle
 /// @param[out] err Error details, if any
-void nvim_set_current_buf(Buffer buffer, Error *err)
+void nvim_set_current_buf(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1)
 {
     buf_T *buf = find_buffer_by_handle(buffer, err);
@@ -715,7 +715,7 @@ FUNC_API_SINCE(1)
 /// Sets the current window
 ///
 /// @param handle Window handle
-void nvim_set_current_win(Window window, Error *err)
+void nvim_set_current_win(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
     win_T *win = find_window_by_handle(window, err);
@@ -773,7 +773,7 @@ FUNC_API_SINCE(1)
 ///
 /// @param handle   Tabpage handle
 /// @param[out] err Error details, if any
-void nvim_set_current_tabpage(Tabpage tabpage, Error *err)
+void nvim_set_current_tabpage(Tabpage tabpage, error_st *err)
 FUNC_API_SINCE(1)
 {
     tabpage_T *tp = find_tab_by_handle(tabpage, err);
@@ -916,13 +916,13 @@ FUNC_API_REMOTE_ONLY
 /// zero-based index of the call which resulted in an error, the
 /// error type and the error message. If an error ocurred, the
 /// values from all preceding calls will still be returned.
-Array nvim_call_atomic(uint64_t channel_id, Array calls, Error *err)
+Array nvim_call_atomic(uint64_t channel_id, Array calls, error_st *err)
 FUNC_API_SINCE(1)
 FUNC_API_REMOTE_ONLY
 {
     Array rv = ARRAY_DICT_INIT;
     Array results = ARRAY_DICT_INIT;
-    Error nested_error = ERROR_INIT;
+    error_st nested_error = ERROR_INIT;
 
     size_t i; // also used for freeing the variables
 

@@ -216,7 +216,7 @@ for i = 1, #functions do
         for k=0, args_align do
             output:write(' ')
         end
-        output:write('Error *error)\n') -- function signature
+        output:write('error_st *error)\n') -- function signature
         
         output:write('{\n') -- function body begin
         output:write('    Object ret = NIL;\n')
@@ -404,7 +404,7 @@ local function process_function(fn)
 
   static int %s(lua_State *lstate)
   {
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
     if (lua_gettop(lstate) != %i) {
       api_set_error(&err, kErrorTypeValidation, "Expected %i argument%s");
       goto exit_0;

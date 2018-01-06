@@ -295,7 +295,7 @@ static int get_key_code_timeout(void)
 
     // Check 'ttimeout' to determine if
     // we should send ESC after 'ttimeoutlen'.
-    Error err = ERROR_INIT;
+    error_st err = ERROR_INIT;
 
     if(nvim_get_option(cstr_as_string("ttimeout"), &err).data.boolean)
     {

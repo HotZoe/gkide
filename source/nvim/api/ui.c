@@ -58,7 +58,7 @@ void nvim_ui_attach(uint64_t channel_id,
                     Integer width,
                     Integer height,
                     Dictionary options,
-                    Error *err)
+                    error_st *err)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(pmap_has(uint64_t)(connected_uis, channel_id))
@@ -133,7 +133,7 @@ void ui_attach(uint64_t channel_id,
                Integer width,
                Integer height,
                Boolean enable_rgb,
-               Error *err)
+               error_st *err)
 {
     Dictionary opts = ARRAY_DICT_INIT;
     PUT(opts, "rgb", BOOLEAN_OBJ(enable_rgb));
@@ -141,7 +141,7 @@ void ui_attach(uint64_t channel_id,
     api_free_dictionary(opts);
 }
 
-void nvim_ui_detach(uint64_t channel_id, Error *err)
+void nvim_ui_detach(uint64_t channel_id, error_st *err)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
@@ -158,7 +158,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 void nvim_ui_try_resize(uint64_t channel_id,
                         Integer width,
                         Integer height,
-                        Error *err)
+                        error_st *err)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
@@ -184,7 +184,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 void nvim_ui_set_option(uint64_t channel_id,
                         String name,
                         Object value,
-                        Error *error)
+                        error_st *error)
 FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 {
     if(!pmap_has(uint64_t)(connected_uis, channel_id))
@@ -207,7 +207,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
 static void ui_set_option(UI *ui,
                           String name,
                           Object value,
-                          Error *error)
+                          error_st *error)
 {
 #define UI_EXT_OPTION(o, e)                                                   \
     do                                                                        \

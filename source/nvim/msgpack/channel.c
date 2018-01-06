@@ -250,7 +250,7 @@ bool channel_send_event(uint64_t id, const char *name, Array args)
 Object channel_send_call(uint64_t id,
                          const char *method_name,
                          Array args,
-                         Error *err)
+                         error_st *err)
 {
     Channel *channel = NULL;
 
@@ -517,7 +517,7 @@ static void handle_request(Channel *channel, msgpack_object *request)
 FUNC_ATTR_NONNULL_ALL
 {
     uint64_t request_id;
-    Error error = ERROR_INIT;
+    error_st error = ERROR_INIT;
 
     msgpack_rpc_validate(&request_id, request, &error);
 
@@ -603,7 +603,7 @@ static void on_request_event(void **argv)
     MsgpackRpcRequestHandler handler = e->handler;
     Array args = e->args;
     uint64_t request_id = e->request_id;
-    Error error = ERROR_INIT;
+    error_st error = ERROR_INIT;
     Object result = handler.fn(channel->id, args, &error);
 
     if(request_id != NO_RESPONSE)
@@ -696,7 +696,7 @@ static void internal_read_event(void **argv)
 
 static void send_error(Channel *channel, uint64_t id, char *err)
 {
-    Error e = ERROR_INIT;
+    error_st e = ERROR_INIT;
     api_set_error(&e, kErrorTypeException, "%s", err);
     channel_write(channel,
                   serialize_response(channel->id,
@@ -977,7 +977,7 @@ static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
 
 static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
                                    uint64_t response_id,
-                                   Error *err,
+                                   error_st *err,
                                    Object arg,
                                    msgpack_sbuffer *sbuffer)
 {

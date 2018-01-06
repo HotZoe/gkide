@@ -68,7 +68,7 @@ typedef struct
 {
     error_type_et type;
     char *msg;
-} Error;
+} error_st;
 
 typedef int64_t  Integer;
 typedef bool     Boolean;
