@@ -7,24 +7,24 @@
 #include "nvim/map.h"
 #include "nvim/api/private/handle.h"
 
-#define HANDLE_INIT(name) name##_handles = pmap_new(handle_T)()
+#define HANDLE_INIT(name) name##_handles = pmap_new(handle_kt)()
 
 #define HANDLE_IMPL(type, name)                                 \
-    static PMap(handle_T) *name##_handles = NULL;               \
+    static PMap(handle_kt) *name##_handles = NULL;               \
                                                                 \
-    type *handle_get_##name(handle_T handle)                    \
+    type *handle_get_##name(handle_kt handle)                    \
     {                                                           \
-        return pmap_get(handle_T)(name##_handles, handle);      \
+        return pmap_get(handle_kt)(name##_handles, handle);      \
     }                                                           \
                                                                 \
     void handle_register_##name(type *name)                     \
     {                                                           \
-        pmap_put(handle_T)(name##_handles, name->handle, name); \
+        pmap_put(handle_kt)(name##_handles, name->handle, name); \
     }                                                           \
                                                                 \
     void handle_unregister_##name(type *name)                   \
     {                                                           \
-        pmap_del(handle_T)(name##_handles, name->handle);       \
+        pmap_del(handle_kt)(name##_handles, name->handle);       \
     }
 
 HANDLE_IMPL(buf_T, buffer)

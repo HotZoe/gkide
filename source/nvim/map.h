@@ -31,7 +31,7 @@ MAP_DECLS(int,      int)
 MAP_DECLS(cstr_t,   ptr_t)
 MAP_DECLS(ptr_t,    ptr_t)
 MAP_DECLS(uint64_t, ptr_t)
-MAP_DECLS(handle_T, ptr_t)
+MAP_DECLS(handle_kt, ptr_t)
 MAP_DECLS(linenr_T, bufhl_vec_T)
 MAP_DECLS(String,   MsgpackRpcRequestHandler)
 

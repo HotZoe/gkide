@@ -2764,7 +2764,7 @@ buf_T *buflist_findnr(int nr)
         nr = curwin->w_alt_fnum;
     }
 
-    return handle_get_buffer((handle_T)nr);
+    return handle_get_buffer((handle_kt)nr);
 }
 
 /// Get name of file 'n' in the buffer list.
@@ -7026,7 +7026,7 @@ void wipe_buffer(buf_T *buf, int aucmd)
 /// @param bufnr  Buffer to switch to, or 0 to create a new buffer.
 ///
 /// @see curbufIsChanged()
-void buf_open_scratch(handle_T bufnr, char *bufname)
+void buf_open_scratch(handle_kt bufnr, char *bufname)
 {
     (void)do_ecmd((int)bufnr, NULL, NULL, NULL, ECMD_ONE, ECMD_HIDE, NULL);
     (void)setfname(curbuf, (uchar_kt *)bufname, NULL, true);

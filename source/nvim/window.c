@@ -7634,7 +7634,7 @@ int win_gotoid(typval_T *argvars)
     return 0;
 }
 
-void win_get_tabwin(handle_T id, int *tabnr, int *winnr)
+void win_get_tabwin(handle_kt id, int *tabnr, int *winnr)
 {
     *tabnr = 0;
     *winnr = 0;
@@ -7662,7 +7662,7 @@ void win_id2tabwin(typval_T *argvars, list_T *list)
 {
     int winnr = 1;
     int tabnr = 1;
-    handle_T id = (handle_T)tv_get_number(&argvars[0]);
+    handle_kt id = (handle_kt)tv_get_number(&argvars[0]);
 
     win_get_tabwin(id, &tabnr, &winnr);
     tv_list_append_number(list, tabnr);

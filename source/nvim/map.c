@@ -22,8 +22,8 @@
 #define int_eq          kh_int_hash_equal
 #define linenr_T_hash   kh_int_hash_func
 #define linenr_T_eq     kh_int_hash_equal
-#define handle_T_hash   kh_int_hash_func
-#define handle_T_eq     kh_int_hash_equal
+#define handle_kt_hash  kh_int_hash_func
+#define handle_kt_eq    kh_int_hash_equal
 
 #if defined(HOST_OS_ARCH_64)
     #define ptr_t_hash(key)     uint64_t_hash((uint64_t)key)
@@ -156,7 +156,7 @@ MAP_IMPL(int,      int,   DEFAULT_INITIALIZER)
 MAP_IMPL(cstr_t,   ptr_t, DEFAULT_INITIALIZER)
 MAP_IMPL(ptr_t,    ptr_t, DEFAULT_INITIALIZER)
 MAP_IMPL(uint64_t, ptr_t, DEFAULT_INITIALIZER)
-MAP_IMPL(handle_T, ptr_t, DEFAULT_INITIALIZER)
+MAP_IMPL(handle_kt, ptr_t, DEFAULT_INITIALIZER)
 
 #define BUFFER_HL_VEC_INITIALIZER    { .size = 0,  .capacity = 0, .items = NULL }
 #define MSGPACK_HANDLER_INITIALIZER  { .fn = NULL, .async = false }

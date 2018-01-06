@@ -14,16 +14,15 @@
 #define OBJECT_INIT     { .type = kObjectTypeNil }
 #define ERROR_INIT      { .type = kErrorTypeNone, .msg = NULL }
 
-#define REMOTE_TYPE(type) typedef handle_T type
-
-#define ERROR_SET(e)    ((e)->type != kErrorTypeNone)
+#define ERROR_SET(e)      ((e)->type != kErrorTypeNone)
+#define REMOTE_TYPE(type) typedef handle_kt type
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #define ArrayOf(...)      Array
     #define DictionaryOf(...) Dictionary
 #endif
 
-typedef int handle_T;
+typedef int handle_kt;
 
 // Basic types
 typedef enum

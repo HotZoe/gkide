@@ -130,7 +130,7 @@ typedef enum
     VAR_SCOPE = 1,
     /// Scope dictionary which may be accessed without prefix (l:, g:).
     VAR_DEF_SCOPE = 2,
-} ScopeType;
+} scope_type_et;
 
 /// Structure to hold an item of a list
 typedef struct listitem_S listitem_T;
@@ -224,7 +224,7 @@ typedef enum
 struct dictvar_S
 {
     VarLockStatus dv_lock;  ///< Whole dictionary lock status.
-    ScopeType dv_scope;     ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
+    scope_type_et dv_scope; ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
                             ///< dictionary represents a scope (i.e. g:, l: ...).
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.

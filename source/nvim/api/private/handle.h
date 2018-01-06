@@ -8,7 +8,7 @@
 #include "nvim/api/private/defs.h"
 
 #define HANDLE_DECLS(type, name)              \
-    type *handle_get_##name(handle_T handle); \
+    type *handle_get_##name(handle_kt handle); \
     void handle_register_##name(type *name);  \
     void handle_unregister_##name(type *name);
 

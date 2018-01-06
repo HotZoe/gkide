@@ -129,7 +129,7 @@ struct terminal
     /// we can't store a direct reference to the buffer because the
     /// refresh_timer_cb may be called after the buffer was freed,
     /// and there's no way to know if the memory was reused.
-    handle_T buf_handle;
+    handle_kt buf_handle;
 
     bool closed;   ///< program exited
     bool destroy;  ///< program exited

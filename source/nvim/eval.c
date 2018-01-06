@@ -315,16 +315,16 @@ typedef enum
     VAR_FLAVOUR_SHADA      ///< all uppercase
 } var_flavour_T;
 
-/// @addtogroup NVIM_VAR_FLAGS v:XXX Variables Flags(vimvar)
+/// @addtogroup NVIM_VAR_FLAGS v:XXX Variables Flags(vimvar_st)
 /// @{
 
-/// for vimvar::vv_flags, compatible, also used without 'v:'
+/// for vimvar_st::vv_flags, compatible, also used without 'v:'
 #define VV_COMPAT       0x01
 
-/// for vimvar::vv_flags, read-only
+/// for vimvar_st::vv_flags, read-only
 #define VV_RO           0x02
 
-/// for vimvar::vv_flags, read-only in the sandbox
+/// for vimvar_st::vv_flags, read-only in the sandbox
 #define VV_RO_SBX       0x04
 
 /// for init ::vimvars only
@@ -341,13 +341,7 @@ typedef enum
         .vv_flags = flags,               \
     }
 
-/// Array to hold the value of @b v: variables.
-///
-/// The value is in a dictitem, so that it can
-/// also be used in the @b v: scope. The reason
-/// to use this table anyway is for very quick
-/// access to the variables with the @b VV_* defines.
-static struct vimvar
+typedef struct vimvar_s
 {
     ///< Name of the variable, without @b v:
     /// the length is <= 16
@@ -356,10 +350,18 @@ static struct vimvar
     {
         typval_T di_tv;       ///< scope dictionary
         uint8_t  di_flags;    ///< Flags.
-        uchar_kt   di_key[17];  ///< Key value.
+        uchar_kt di_key[17];  ///< Key value.
     } vv_di;                  ///< Value and name for key (max 16 chars)
     char vv_flags;            ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
-} vimvars[] =
+} vimvar_st;
+
+/// Array to hold the value of @b v: variables.
+///
+/// The value is in a dictitem, so that it can
+/// also be used in the @b v: scope. The reason
+/// to use this table anyway is for very quick
+/// access to the variables with the @b VV_* defines.
+static vimvar_st vimvars[] =
 {
     // VV_ tails differing from upcased string literals:
     // VV_REG           "register"
@@ -608,7 +610,7 @@ void eval_init(void)
     jobs = pmap_new(uint64_t)();
     timers = pmap_new(uint64_t)();
 
-    struct vimvar *p;
+    vimvar_st *p;
     init_var_dict(&globvardict, &globvars_var, VAR_DEF_SCOPE);
     init_var_dict(&vimvardict, &vimvars_var, VAR_SCOPE);
     vimvardict.dv_lock = VAR_FIXED;
@@ -701,7 +703,7 @@ void eval_init(void)
 #if defined(EXITFREE)
 void eval_clear(void)
 {
-    struct vimvar   *p;
+    vimvar_st *p;
     for(size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
     {
         p = &vimvars[i];
@@ -8836,7 +8838,7 @@ static void fill_assert_error(garray_T *gap,
 /// Add an assert error to v:errors.
 static void assert_error(garray_T *gap)
 {
-    struct vimvar *vp = &vimvars[VV_ERRORS];
+    vimvar_st *vp = &vimvars[VV_ERRORS];
 
     if(vp->vv_type != VAR_LIST || vimvars[VV_ERRORS].vv_list == NULL)
     {

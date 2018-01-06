@@ -252,7 +252,7 @@ for i = 1, #functions do
                     output:write('    if(args.items['..(j - 1)..'].type == kObjectType'..rt)
                     output:write(' && args.items['..(j - 1)..'].data.integer >= 0)\n')
                     output:write('    {\n')
-                    output:write('        '..converted..' = (handle_T)args.items['..(j - 1)..'].data.integer;\n')
+                    output:write('        '..converted..' = (handle_kt)args.items['..(j - 1)..'].data.integer;\n')
                 else
                     output:write('    if(args.items['..(j - 1)..'].type == kObjectType'..rt..')\n')
                     output:write('    {\n')
@@ -265,7 +265,7 @@ for i = 1, #functions do
                     output:write('    else if(args.items['..(j - 1)..'].type == kObjectTypeInteger')
                     output:write(' && args.items['..(j - 1)..'].data.integer >= 0)\n')
                     output:write('    {\n')
-                    output:write('        '..converted..' = (handle_T)args.items['..(j - 1)..'].data.integer;\n')
+                    output:write('        '..converted..' = (handle_kt)args.items['..(j - 1)..'].data.integer;\n')
                 end
 
                 output:write('    }\n')

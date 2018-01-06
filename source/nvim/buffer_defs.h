@@ -457,7 +457,7 @@ typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
 struct file_buffer
 {
     #define b_fnum handle
-    handle_T handle;  ///< unique id for the buffer (buffer number)
+    handle_kt handle;  ///< unique id for the buffer (buffer number)
     memline_T b_ml;   ///< associated memline (also contains line count
     buf_T *b_next;    ///< links in list of buffers
     buf_T *b_prev;
@@ -778,7 +778,7 @@ struct diffblock_S
 typedef struct tabpage_S tabpage_T;
 struct tabpage_S
 {
-    handle_T handle;
+    handle_kt handle;
     tabpage_T *tp_next;     ///< next tabpage or NULL
     frame_T *tp_topframe;   ///< topframe for the windows
     win_T *tp_curwin;       ///< current window in this Tab page
@@ -900,7 +900,7 @@ struct matchitem
 /// All row numbers are relative to the start of the window, except w_winrow.
 struct window_S
 {
-    handle_T handle; ///< unique identifier for the window
+    handle_kt handle; ///< unique identifier for the window
 
     /// buffer we are a window into (used often, keep it the first item!)
     buf_T *w_buffer;

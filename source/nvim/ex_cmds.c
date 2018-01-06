@@ -7865,7 +7865,7 @@ static buf_T *show_sub(exarg_T *eap,
                        MatchedLineVec *matched_lines)
 FUNC_ATTR_NONNULL_ALL
 {
-    static handle_T bufnr = 0; // special buffer, re-used on each visit
+    static handle_kt bufnr = 0; // special buffer, re-used on each visit
 
     win_T *save_curwin = curwin;
     cmdmod_T save_cmdmod = cmdmod;
