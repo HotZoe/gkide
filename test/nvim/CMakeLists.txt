@@ -1,5 +1,6 @@
-# Setup busted.
 message(STATUS "Enable nvim testing")
+
+# Setup busted.
 find_program(BUSTED_PROG NAMES busted busted.bat)
 if(BUSTED_PROG MATCHES "NOTFOUND")
     message(WARNING "'busted' program not find, 'nvim' testing skip ...")
@@ -21,34 +22,3 @@ endif()
 # busted output type: http://olivinelabs.com/busted/#output-handlers
 # utfTerminal, plainTerminal, junit, json, TAP
 set(BUSTED_OUTPUT_TYPE "OutputHandlers")
-
-# testing configuration
-add_subdirectory(config)
-
-# prerequisite fixtures for functional testing
-set(NVIM_FUNCTIONAL_TEST_PREREQS nvim
-                                 nvim-shell-test
-                                 nvim-printargs-test)
-
-if(NOT WIN32)
-    list(APPEND NVIM_FUNCTIONAL_TEST_PREREQS nvim-tty-test)
-endif()
-
-add_custom_target(nvim-functional-test-prereqs
-                  DEPENDS ${NVIM_FUNCTIONAL_TEST_PREREQS})
-
-add_custom_target(run-nvim-functional-test
-                  COMMAND  ${CMAKE_COMMAND}
-                           -DLUA_PROG=${LUA_PROG}
-                           -DBUSTED_PROG=${BUSTED_PROG}
-                           -DNVIM_PROG=$<TARGET_FILE:nvim>
-                           -DLUA_PATH_ENV="${CONFIG_LUA_PATH_ENV}"
-                           -DLUA_CPATH_ENV="${CONFIG_LUA_CPATH_ENV}"
-                           -DWORKING_SRC_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-                           -DWORKING_BIN_DIR=${CMAKE_CURRENT_BINARY_DIR}
-                           -DBUSTED_OUTPUT_TYPE=${BUSTED_OUTPUT_TYPE}
-                           -DTEST_TYPE=functional
-                           -DBUILD_DIR=${CMAKE_BINARY_DIR}
-                           -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME}
-                           -P ${PROJECT_SOURCE_DIR}/cmake/RunNvimTests.cmake
-                  DEPENDS  nvim-functional-test-prereqs)

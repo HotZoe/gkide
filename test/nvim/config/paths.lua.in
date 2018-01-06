@@ -1,5 +1,0 @@
-local module = {}
-
-module.build_dir = "@CMAKE_BINARY_DIR@"
-
-return module

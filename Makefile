@@ -250,23 +250,14 @@ endif
 	$(Q)cd deps/build && $(CMAKE_PROG) -G $(CMAKE_GENERATOR_NAME) $(DEPS_CMAKE_BUILD_FLAGS) ..
 
 .PHONY: check-nvim
-.PHONY: run-nvim-unit-test
-.PHONY: run-nvim-functional-test
 
-run-nvim-functional-test: | nvim
-	+$(BUILD_CMD) -C build run-nvim-functional-test
-
-run-nvim-unit-test: | nvim
-
-check-nvim: run-nvim-functional-test run-nvim-unit-test
+check-nvim:
+	$(Q)echo "Nothing todo for nvim test now"
 
 .PHONY: check-snail
-.PHONY: run-snail-libs-test
 
-run-snail-libs-test: | snail
-	+$(BUILD_CMD) -C build run-snail-libs-test
-
-check-snail: run-snail-libs-test
+check-snail:
+	$(Q)echo "Nothing todo for snail test now"
 
 .PHONY: check
 
@@ -399,10 +390,7 @@ help:
 	@echo ""
 	@echo "  check                     equal to 'check-nvim' and 'check-snail'."
 	@echo "  check-nvim                equal to 'run-nvim-*' targets."
-	@echo "  run-nvim-unit-test        to run nvim unit testing."
-	@echo "  run-nvim-functional-test  to run nvim functional testing."
 	@echo "  check-snail               equal to 'run-snail-*' targets."
-	@echo "  run-snail-libs-test       to run snail lib testing."
 	@echo ""
 	@echo "  cppcheck                  to check the building environment."
 	@echo "  envcheck                  to check the building environment."
