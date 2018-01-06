@@ -9,8 +9,8 @@ typedef Object(*ApiDispatchWrapper)(uint64_t channel_id,
                                     Array args,
                                     error_st *error);
 
-/// The rpc_method_handlers table, used in msgpack_rpc_dispatch(),
-/// stores functions of this type.
+/// The rpc_method_handlers table, used in
+/// rpc_dispatch(), stores functions of this type.
 typedef struct
 {
     ApiDispatchWrapper fn;
@@ -18,7 +18,7 @@ typedef struct
     /// function is always safe to run immediately instead of being
     /// put in a request queue for handling when nvim waits for input.
     bool async;
-} MsgpackRpcRequestHandler;
+} rpc_request_handler_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "api/private/dispatch.h.generated.h"

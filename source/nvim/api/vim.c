@@ -960,8 +960,8 @@ FUNC_API_REMOTE_ONLY
 
         Array args = call.items[1].data.array;
 
-        MsgpackRpcRequestHandler handler =
-            msgpack_rpc_get_handler_for(name.data, name.size);
+        rpc_request_handler_st handler =
+            rpc_get_handler_for(name.data, name.size);
 
         Object result = handler.fn(channel_id, args, &nested_error);
 

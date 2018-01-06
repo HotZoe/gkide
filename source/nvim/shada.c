@@ -4682,8 +4682,7 @@ shada_read_next_item_start:
     {
         case kSDItemHeader:
         {
-            if(!msgpack_rpc_to_dictionary(&(unpacked.data),
-                                          &(entry->data.header)))
+            if(!rpc_to_dictionary(&(unpacked.data), &(entry->data.header)))
             {
                 emsgf(_(READERR("header", "is not a dictionary")),
                       initial_fpos);

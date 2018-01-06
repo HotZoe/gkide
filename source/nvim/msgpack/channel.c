@@ -93,7 +93,7 @@ typedef struct
 typedef struct
 {
     Channel *channel;
-    MsgpackRpcRequestHandler handler;
+    rpc_request_handler_st handler;
     Array args;
     uint64_t request_id;
 } RequestEvent;
@@ -519,7 +519,7 @@ FUNC_ATTR_NONNULL_ALL
     uint64_t request_id;
     error_st error = ERROR_INIT;
 
-    msgpack_rpc_validate(&request_id, request, &error);
+    rpc_validate(&request_id, request, &error);
 
     if(ERROR_SET(&error))
     {
@@ -544,25 +544,25 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     // Retrieve the request handler
-    MsgpackRpcRequestHandler handler;
-    msgpack_object *method = msgpack_rpc_method(request);
+    rpc_request_handler_st handler;
+    msgpack_object *method = rpc_method(request);
 
     if(method)
     {
-        handler = msgpack_rpc_get_handler_for(method->via.bin.ptr,
-                                              method->via.bin.size);
+        handler = rpc_get_handler_for(method->via.bin.ptr,
+                                      method->via.bin.size);
     }
     else
     {
-        handler.fn = msgpack_rpc_handle_missing_method;
+        handler.fn = rpc_handle_missing_method;
         handler.async = true;
     }
 
     Array args = ARRAY_DICT_INIT;
 
-    if(!msgpack_rpc_to_array(msgpack_rpc_args(request), &args))
+    if(!rpc_to_array(rpc_args(request), &args))
     {
-        handler.fn = msgpack_rpc_handle_invalid_arguments;
+        handler.fn = rpc_handle_invalid_arguments;
         handler.async = true;
     }
 
@@ -600,7 +600,7 @@ static void on_request_event(void **argv)
 {
     RequestEvent *e = argv[0];
     Channel *channel = e->channel;
-    MsgpackRpcRequestHandler handler = e->handler;
+    rpc_request_handler_st handler = e->handler;
     Array args = e->args;
     uint64_t request_id = e->request_id;
     error_st error = ERROR_INIT;
@@ -930,11 +930,11 @@ static void complete_call(msgpack_object *obj, Channel *channel)
 
     if(frame->errored)
     {
-        msgpack_rpc_to_object(&obj->via.array.ptr[2], &frame->result);
+        rpc_to_object(&obj->via.array.ptr[2], &frame->result);
     }
     else
     {
-        msgpack_rpc_to_object(&obj->via.array.ptr[3], &frame->result);
+        rpc_to_object(&obj->via.array.ptr[3], &frame->result);
     }
 }
 
@@ -962,7 +962,7 @@ static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
 {
     msgpack_packer pac;
     msgpack_packer_init(&pac, sbuffer, msgpack_sbuffer_write);
-    msgpack_rpc_serialize_request(request_id, method, args, &pac);
+    rpc_serialize_request(request_id, method, args, &pac);
     SERVER_MSG_LOG(channel_id, sbuffer);
 
     WBuffer *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
@@ -983,7 +983,7 @@ static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
 {
     msgpack_packer pac;
     msgpack_packer_init(&pac, sbuffer, msgpack_sbuffer_write);
-    msgpack_rpc_serialize_response(response_id, err, arg, &pac);
+    rpc_serialize_response(response_id, err, arg, &pac);
 
     SERVER_MSG_LOG(channel_id, sbuffer);
 

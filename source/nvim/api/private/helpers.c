@@ -949,8 +949,9 @@ static void init_function_metadata(Dictionary *metadata)
     }
 
     Object functions;
-    msgpack_rpc_to_object(&unpacked.data, &functions);
+    rpc_to_object(&unpacked.data, &functions);
     msgpack_unpacked_destroy(&unpacked);
+
     PUT(*metadata, "functions", functions);
 }
 
@@ -969,8 +970,9 @@ static void init_ui_event_metadata(Dictionary *metadata)
     }
 
     Object ui_events;
-    msgpack_rpc_to_object(&unpacked.data, &ui_events);
+    rpc_to_object(&unpacked.data, &ui_events);
     msgpack_unpacked_destroy(&unpacked);
+
     PUT(*metadata, "ui_events", ui_events);
 }
 

@@ -143,8 +143,8 @@ static void event_init(void)
     loop_init(&main_loop, NULL);
 
     // early msgpack-rpc initialization
-    msgpack_rpc_init_method_table();
-    msgpack_rpc_helpers_init();
+    rpc_init_method_table();
+    rpc_helpers_init();
 
     // Initialize input events
     input_init();
@@ -854,7 +854,7 @@ static void command_line_scan(main_args_st *parmp)
 
                         Object md = DICTIONARY_OBJ(api_metadata());
 
-                        msgpack_rpc_from_object(md, p);
+                        rpc_from_object(md, p);
 
                         for(size_t i = 0; i < b->size; i++)
                         {

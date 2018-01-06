@@ -20,29 +20,27 @@
 #include "nvim/api/vim.h"
 #include "nvim/api/window.h"
 
-static Map(String, MsgpackRpcRequestHandler) *methods = NULL;
+static Map(String, rpc_request_handler_st) *methods = NULL;
 
-static void msgpack_rpc_add_method_handler(String method,
-                                           MsgpackRpcRequestHandler handler)
+static void rpc_add_method_handler(String method,
+                                   rpc_request_handler_st handler)
 {
-    map_put(String, MsgpackRpcRequestHandler)(methods,
-                                              method,
-                                              handler);
+    map_put(String, rpc_request_handler_st)(methods, method, handler);
 }
 
-MsgpackRpcRequestHandler msgpack_rpc_get_handler_for(const char *name,
-                                                     size_t name_len)
+rpc_request_handler_st rpc_get_handler_for(const char *name,
+                                           size_t name_len)
 {
     String m = { 0 };
     m.data = (char *)name;
     m.size = name_len;
 
-    MsgpackRpcRequestHandler rv =
-        map_get(String, MsgpackRpcRequestHandler)(methods, m);
+    rpc_request_handler_st rv =
+        map_get(String, rpc_request_handler_st)(methods, m);
 
     if(!rv.fn)
     {
-        rv.fn = msgpack_rpc_handle_missing_method;
+        rv.fn = rpc_handle_missing_method;
     }
 
     return rv;

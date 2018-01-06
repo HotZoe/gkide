@@ -367,22 +367,24 @@ end
 
 -- Generate a function that initializes method names with handler functions
 output:write([[
-void msgpack_rpc_init_method_table(void)
+void rpc_init_method_table(void)
 {
-  methods = map_new(String, MsgpackRpcRequestHandler)();
+    methods = map_new(String, rpc_request_handler_st)();
 
 ]])
 
 for i = 1, #functions do
     local fn = functions[i]
-    output:write('    msgpack_rpc_add_method_handler('
-                 .. '(String) { .data = "' .. fn.name.. '", '
-                 .. '.size = sizeof("' .. fn.name .. '") - 1 }, '
-                 .. '(MsgpackRpcRequestHandler) {.fn = handle_'
-                 .. (fn.impl_name or fn.name)
-                 .. ', .async = '
-                 .. tostring(fn.async)
-                 .. '});\n')
+    output:write('    rpc_add_method_handler(\n'
+                 .. '        (String) {\n'
+                 .. '            .data = "' .. fn.name.. '",\n'
+                 .. '            .size = sizeof("' .. fn.name .. '") - 1\n'
+                 .. '        },\n'
+                 .. '        (rpc_request_handler_st) {\n'
+                 .. '            .fn = handle_' .. (fn.impl_name or fn.name) .. ',\n'
+                 .. '            .async = ' .. tostring(fn.async) .. '\n'
+                 .. '        }\n'
+                 .. '    );\n\n')
 end
 
 output:write('\n}\n\n')

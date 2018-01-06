@@ -23,8 +23,8 @@ static msgpack_zone zone;
 static msgpack_sbuffer sbuffer;
 
 #define HANDLE_TYPE_CONVERSION_IMPL(t, lt)                                  \
-    static bool msgpack_rpc_to_##lt(const msgpack_object *const obj,        \
-                                    Integer *const arg)                     \
+    static bool rpc_to_##lt(const msgpack_object *const obj,                \
+                            Integer *const arg)                             \
     FUNC_ATTR_NONNULL_ALL                                                   \
     FUNC_ATTR_WARN_UNUSED_RESULT                                            \
     {                                                                       \
@@ -46,23 +46,23 @@ static msgpack_sbuffer sbuffer;
             return false;                                                   \
         }                                                                   \
                                                                             \
-        *arg = (handle_kt)data.via.i64;                                      \
+        *arg = (handle_kt)data.via.i64;                                     \
         return true;                                                        \
     }                                                                       \
                                                                             \
-    static void msgpack_rpc_from_##lt(Integer o, msgpack_packer *res)       \
+    static void rpc_from_##lt(Integer o, msgpack_packer *res)               \
     FUNC_ATTR_NONNULL_ARG(2)                                                \
     {                                                                       \
         msgpack_packer pac;                                                 \
         msgpack_packer_init(&pac, &sbuffer, msgpack_sbuffer_write);         \
-        msgpack_pack_int64(&pac, (handle_kt)o);                              \
+        msgpack_pack_int64(&pac, (handle_kt)o);                             \
         msgpack_pack_ext(res, sbuffer.size,                                 \
                          kObjectType##t - EXT_OBJECT_TYPE_SHIFT);           \
         msgpack_pack_ext_body(res, sbuffer.data, sbuffer.size);             \
         msgpack_sbuffer_clear(&sbuffer);                                    \
     }
 
-void msgpack_rpc_helpers_init(void)
+void rpc_helpers_init(void)
 {
     msgpack_zone_init(&zone, 0xfff);
     msgpack_sbuffer_init(&sbuffer);
@@ -86,7 +86,7 @@ typedef struct
 /// @param[out] arg  Location where result of conversion will be saved.
 ///
 /// @return true in case of success, false otherwise.
-bool msgpack_rpc_to_object(const msgpack_object *const obj, Object *const arg)
+bool rpc_to_object(const msgpack_object *const obj, Object *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     bool ret = true;
@@ -307,24 +307,24 @@ case type:                                                                    \
                     case kObjectTypeBuffer:
                     {
                         cur.aobj->type = kObjectTypeBuffer;
-                        ret = msgpack_rpc_to_buffer(cur.mobj,
-                                                    &cur.aobj->data.integer);
+                        ret = rpc_to_buffer(cur.mobj,
+                                            &cur.aobj->data.integer);
                         break;
                     }
 
                     case kObjectTypeWindow:
                     {
                         cur.aobj->type = kObjectTypeWindow;
-                        ret = msgpack_rpc_to_window(cur.mobj,
-                                                    &cur.aobj->data.integer);
+                        ret = rpc_to_window(cur.mobj,
+                                            &cur.aobj->data.integer);
                         break;
                     }
 
                     case kObjectTypeTabpage:
                     {
                         cur.aobj->type = kObjectTypeTabpage;
-                        ret = msgpack_rpc_to_tabpage(cur.mobj,
-                                                     &cur.aobj->data.integer);
+                        ret = rpc_to_tabpage(cur.mobj,
+                                             &cur.aobj->data.integer);
                         break;
                     }
 
@@ -356,8 +356,8 @@ case type:                                                                    \
     return ret;
 }
 
-static bool msgpack_rpc_to_string(const msgpack_object *const obj,
-                                  String *const arg)
+static bool rpc_to_string(const msgpack_object *const obj,
+                          String *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     if(obj->type == MSGPACK_OBJECT_BIN || obj->type == MSGPACK_OBJECT_STR)
@@ -372,7 +372,7 @@ FUNC_ATTR_NONNULL_ALL
     return false;
 }
 
-bool msgpack_rpc_to_array(const msgpack_object *const obj, Array *const arg)
+bool rpc_to_array(const msgpack_object *const obj, Array *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     if(obj->type != MSGPACK_OBJECT_ARRAY)
@@ -385,7 +385,7 @@ FUNC_ATTR_NONNULL_ALL
 
     for(uint32_t i = 0; i < obj->via.array.size; i++)
     {
-        if(!msgpack_rpc_to_object(obj->via.array.ptr + i, &arg->items[i]))
+        if(!rpc_to_object(obj->via.array.ptr + i, &arg->items[i]))
         {
             return false;
         }
@@ -394,8 +394,7 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-bool msgpack_rpc_to_dictionary(const msgpack_object *const obj,
-                               Dictionary *const arg)
+bool rpc_to_dictionary(const msgpack_object *const obj, Dictionary *const arg)
 FUNC_ATTR_NONNULL_ALL
 {
     if(obj->type != MSGPACK_OBJECT_MAP)
@@ -408,13 +407,12 @@ FUNC_ATTR_NONNULL_ALL
 
     for(uint32_t i = 0; i < obj->via.map.size; i++)
     {
-        if(!msgpack_rpc_to_string(&obj->via.map.ptr[i].key, &arg->items[i].key))
+        if(!rpc_to_string(&obj->via.map.ptr[i].key, &arg->items[i].key))
         {
             return false;
         }
 
-        if(!msgpack_rpc_to_object(&obj->via.map.ptr[i].val,
-                                  &arg->items[i].value))
+        if(!rpc_to_object(&obj->via.map.ptr[i].val, &arg->items[i].value))
         {
             return false;
         }
@@ -423,7 +421,7 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-void msgpack_rpc_from_boolean(Boolean result, msgpack_packer *res)
+void rpc_from_boolean(Boolean result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     if(result)
@@ -436,19 +434,19 @@ FUNC_ATTR_NONNULL_ARG(2)
     }
 }
 
-void msgpack_rpc_from_integer(Integer result, msgpack_packer *res)
+void rpc_from_integer(Integer result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_int64(res, result);
 }
 
-void msgpack_rpc_from_float(Float result, msgpack_packer *res)
+void rpc_from_float(Float result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_double(res, result);
 }
 
-void msgpack_rpc_from_string(const String result, msgpack_packer *res)
+void rpc_from_string(const String result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_str(res, result.size);
@@ -475,12 +473,12 @@ typedef struct
 /// Structure that defines where conversion results are saved.
 ///
 /// @return true in case of success, false otherwise.
-void msgpack_rpc_from_object(const Object result, msgpack_packer *const res)
+void rpc_from_object(const Object result, msgpack_packer *const res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     kvec_t(APIToMPObjectStackItem) stack = KV_INITIAL_VALUE;
-    kv_push(stack, ((APIToMPObjectStackItem)
-    {
+
+    kv_push(stack, ((APIToMPObjectStackItem) {
         &result, false, 0
     }));
 
@@ -502,43 +500,43 @@ FUNC_ATTR_NONNULL_ARG(2)
 
             case kObjectTypeBoolean:
             {
-                msgpack_rpc_from_boolean(cur.aobj->data.boolean, res);
+                rpc_from_boolean(cur.aobj->data.boolean, res);
                 break;
             }
 
             case kObjectTypeInteger:
             {
-                msgpack_rpc_from_integer(cur.aobj->data.integer, res);
+                rpc_from_integer(cur.aobj->data.integer, res);
                 break;
             }
 
             case kObjectTypeFloat:
             {
-                msgpack_rpc_from_float(cur.aobj->data.floating, res);
+                rpc_from_float(cur.aobj->data.floating, res);
                 break;
             }
 
             case kObjectTypeString:
             {
-                msgpack_rpc_from_string(cur.aobj->data.string, res);
+                rpc_from_string(cur.aobj->data.string, res);
                 break;
             }
 
             case kObjectTypeBuffer:
             {
-                msgpack_rpc_from_buffer(cur.aobj->data.integer, res);
+                rpc_from_buffer(cur.aobj->data.integer, res);
                 break;
             }
 
             case kObjectTypeWindow:
             {
-                msgpack_rpc_from_window(cur.aobj->data.integer, res);
+                rpc_from_window(cur.aobj->data.integer, res);
                 break;
             }
 
             case kObjectTypeTabpage:
             {
-                msgpack_rpc_from_tabpage(cur.aobj->data.integer, res);
+                rpc_from_tabpage(cur.aobj->data.integer, res);
                 break;
             }
 
@@ -591,7 +589,8 @@ FUNC_ATTR_NONNULL_ARG(2)
 
                         kv_last(stack) = cur;
 
-                        msgpack_rpc_from_string(cur.aobj->data.dictionary.items[idx].key, res);
+                        rpc_from_string(cur.aobj->data.dictionary.items[idx].key,
+                                        res);
 
                         kv_push(stack, ((APIToMPObjectStackItem) {
                             .aobj = &cur.aobj->data.dictionary.items[idx].value,
@@ -619,52 +618,52 @@ FUNC_ATTR_NONNULL_ARG(2)
     kv_destroy(stack);
 }
 
-void msgpack_rpc_from_array(Array result, msgpack_packer *res)
+void rpc_from_array(Array result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_array(res, result.size);
 
     for(size_t i = 0; i < result.size; i++)
     {
-        msgpack_rpc_from_object(result.items[i], res);
+        rpc_from_object(result.items[i], res);
     }
 }
 
-void msgpack_rpc_from_dictionary(Dictionary result, msgpack_packer *res)
+void rpc_from_dictionary(Dictionary result, msgpack_packer *res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     msgpack_pack_map(res, result.size);
 
     for(size_t i = 0; i < result.size; i++)
     {
-        msgpack_rpc_from_string(result.items[i].key, res);
-        msgpack_rpc_from_object(result.items[i].value, res);
+        rpc_from_string(result.items[i].key, res);
+        rpc_from_object(result.items[i].value, res);
     }
 }
 
 /// Handler executed when an invalid method name is passed
-Object msgpack_rpc_handle_missing_method(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
-                                         Array FUNC_ARGS_UNUSED_REALY(args),
-                                         error_st *error)
+Object rpc_handle_missing_method(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
+                                 Array FUNC_ARGS_UNUSED_REALY(args),
+                                 error_st *error)
 {
     api_set_error(error, kErrorTypeException, "Invalid method name");
     return NIL;
 }
 
 /// Handler executed when malformated arguments are passed
-Object msgpack_rpc_handle_invalid_arguments(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
-                                            Array FUNC_ARGS_UNUSED_REALY(args),
-                                            error_st *error)
+Object rpc_handle_invalid_arguments(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
+                                    Array FUNC_ARGS_UNUSED_REALY(args),
+                                    error_st *error)
 {
     api_set_error(error, kErrorTypeException, "Invalid method arguments");
     return NIL;
 }
 
 /// Serializes a msgpack-rpc request or notification(id == 0)
-void msgpack_rpc_serialize_request(uint64_t request_id,
-                                   const String method,
-                                   Array args,
-                                   msgpack_packer *pac)
+void rpc_serialize_request(uint64_t request_id,
+                           const String method,
+                           Array args,
+                           msgpack_packer *pac)
 FUNC_ATTR_NONNULL_ARG(4)
 {
     msgpack_pack_array(pac, request_id ? 4 : 3);
@@ -675,15 +674,15 @@ FUNC_ATTR_NONNULL_ARG(4)
         msgpack_pack_uint64(pac, request_id);
     }
 
-    msgpack_rpc_from_string(method, pac);
-    msgpack_rpc_from_array(args, pac);
+    rpc_from_string(method, pac);
+    rpc_from_array(args, pac);
 }
 
 /// Serializes a msgpack-rpc response
-void msgpack_rpc_serialize_response(uint64_t response_id,
-                                    error_st *err,
-                                    Object arg,
-                                    msgpack_packer *pac)
+void rpc_serialize_response(uint64_t response_id,
+                            error_st *err,
+                            Object arg,
+                            msgpack_packer *pac)
 FUNC_ATTR_NONNULL_ARG(2, 4)
 {
     msgpack_pack_array(pac, 4);
@@ -694,42 +693,42 @@ FUNC_ATTR_NONNULL_ARG(2, 4)
     {
         // error represented by a [type, message] array
         msgpack_pack_array(pac, 2);
-        msgpack_rpc_from_integer(err->type, pac);
-        msgpack_rpc_from_string(cstr_as_string(err->msg), pac);
+        rpc_from_integer(err->type, pac);
+        rpc_from_string(cstr_as_string(err->msg), pac);
         msgpack_pack_nil(pac); // Nil result
     }
     else
     {
         msgpack_pack_nil(pac); // Nil error
-        msgpack_rpc_from_object(arg, pac); // Return value
+        rpc_from_object(arg, pac); // Return value
     }
 }
 
-static bool msgpack_rpc_is_notification(msgpack_object *req)
+static bool rpc_is_notification(msgpack_object *req)
 {
     return req->via.array.ptr[0].via.u64 == 2;
 }
 
-msgpack_object *msgpack_rpc_method(msgpack_object *req)
+msgpack_object *rpc_method(msgpack_object *req)
 {
     msgpack_object *obj =
-        req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 1 : 2);
+        req->via.array.ptr + (rpc_is_notification(req) ? 1 : 2);
 
     return (obj->type == MSGPACK_OBJECT_STR
             || obj->type == MSGPACK_OBJECT_BIN) ? obj : NULL;
 }
 
-msgpack_object *msgpack_rpc_args(msgpack_object *req)
+msgpack_object *rpc_args(msgpack_object *req)
 {
     msgpack_object *obj =
-        req->via.array.ptr + (msgpack_rpc_is_notification(req) ? 2 : 3);
+        req->via.array.ptr + (rpc_is_notification(req) ? 2 : 3);
 
     return (obj->type == MSGPACK_OBJECT_ARRAY) ? obj : NULL;
 }
 
-static msgpack_object *msgpack_rpc_msg_id(msgpack_object *req)
+static msgpack_object *rpc_msg_id(msgpack_object *req)
 {
-    if(msgpack_rpc_is_notification(req))
+    if(rpc_is_notification(req))
     {
         return NULL;
     }
@@ -738,9 +737,9 @@ static msgpack_object *msgpack_rpc_msg_id(msgpack_object *req)
     return (obj->type == MSGPACK_OBJECT_POSITIVE_INTEGER) ? obj : NULL;
 }
 
-void msgpack_rpc_validate(uint64_t *response_id,
-                          msgpack_object *req,
-                          error_st *err)
+void rpc_validate(uint64_t *response_id,
+                  msgpack_object *req,
+                  error_st *err)
 {
     *response_id = NO_RESPONSE; // response id not known yet
 
@@ -785,7 +784,7 @@ void msgpack_rpc_validate(uint64_t *response_id,
 
     if(type == kMessageTypeRequest)
     {
-        msgpack_object *id_obj = msgpack_rpc_msg_id(req);
+        msgpack_object *id_obj = rpc_msg_id(req);
 
         if(!id_obj)
         {
@@ -797,14 +796,14 @@ void msgpack_rpc_validate(uint64_t *response_id,
         *response_id = id_obj->via.u64;
     }
 
-    if(!msgpack_rpc_method(req))
+    if(!rpc_method(req))
     {
         api_set_error(err, kErrorTypeValidation,
                       "Method must be a string");
         return;
     }
 
-    if(!msgpack_rpc_args(req))
+    if(!rpc_args(req))
     {
         api_set_error(err, kErrorTypeValidation,
                       "Parameters must be an array");
