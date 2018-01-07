@@ -340,7 +340,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Get the number of items in a list
 ///
-/// @param[in]  l  List to check.
+/// @param[in] l  List to check.
 static inline long tv_list_len(const list_st *const l)
 {
     if(l == NULL)
@@ -395,8 +395,11 @@ static inline void tv_init(typval_st *const tv)
     }
 }
 
-#define TV_INITIAL_VALUE  \
-    ((typval_st) { .v_type = kNvarUnknown, .v_lock = kNvlVarUnlocked, })
+#define TV_INITIAL_VALUE            \
+    ((typval_st) {                  \
+        .v_type = kNvarUnknown,     \
+        .v_lock = kNvlVarUnlocked,  \
+    })
 
 /// Empty string
 ///

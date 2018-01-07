@@ -301,11 +301,11 @@ typedef struct
 /// Info used by a @b :for loop.
 typedef struct
 {
-    int fi_semicolon;   ///< TRUE if ending in '; var]'
-    int fi_varcount;    ///< nr of variables in the list
-    list_watcher_st fi_lw;  ///< keep an eye on the item used.
-    list_st *fi_list;    ///< list being used
-} forinfo_T;
+    int fi_semicolon;      ///< TRUE if ending in '; var]'
+    int fi_varcount;       ///< nr of variables in the list
+    list_watcher_st fi_lw; ///< keep an eye on the item used.
+    list_st *fi_list;      ///< list being used
+} forinfo_st;
 
 /// enum used by var_flavour()
 typedef enum
@@ -348,8 +348,8 @@ typedef struct vimvar_s
     char *vv_name;
     struct
     {
-        typval_st di_tv;       ///< scope dictionary
-        uint8_t  di_flags;    ///< Flags.
+        typval_st di_tv;      ///< scope dictionary
+        uint8_t di_flags;     ///< Flags.
         uchar_kt di_key[17];  ///< Key value.
     } vv_di;                  ///< Value and name for key (max 16 chars)
     char vv_flags;            ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
@@ -3145,7 +3145,7 @@ notify:
 /// @todo move to eval/ex_cmds
 void *eval_for_line(const uchar_kt *arg, bool *errp, uchar_kt **nextcmdp, int skip)
 {
-    forinfo_T *fi = xcalloc(1, sizeof(forinfo_T));
+    forinfo_st *fi = xcalloc(1, sizeof(forinfo_st));
     const uchar_kt *expr;
     typval_st tv;
     list_st *l;
@@ -3215,7 +3215,7 @@ void *eval_for_line(const uchar_kt *arg, bool *errp, uchar_kt **nextcmdp, int sk
 /// @todo move to eval/ex_cmds
 int next_for_item(void *fi_void, uchar_kt *arg)
 {
-    forinfo_T *fi = (forinfo_T *)fi_void;
+    forinfo_st *fi = (forinfo_st *)fi_void;
     int result;
     listitem_st *item;
     item = fi->fi_lw.lw_item;
@@ -3243,7 +3243,7 @@ int next_for_item(void *fi_void, uchar_kt *arg)
 /// @todo move to eval/ex_cmds
 void free_for_info(void *fi_void)
 {
-    forinfo_T *fi = (forinfo_T *)fi_void;
+    forinfo_st *fi = (forinfo_st *)fi_void;
 
     if(fi != NULL && fi->fi_list != NULL)
     {
