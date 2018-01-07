@@ -303,7 +303,7 @@ typedef struct
 {
     int fi_semicolon;   ///< TRUE if ending in '; var]'
     int fi_varcount;    ///< nr of variables in the list
-    listwatch_T fi_lw;  ///< keep an eye on the item used.
+    list_watcher_st fi_lw;  ///< keep an eye on the item used.
     list_st *fi_list;    ///< list being used
 } forinfo_T;
 

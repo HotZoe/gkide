@@ -84,7 +84,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out]  l  List to add watcher to.
 /// @param[in]  lw  Watcher to add.
-void tv_list_watch_add(list_st *const l, listwatch_T *const lw)
+void tv_list_watch_add(list_st *const l, list_watcher_st *const lw)
 FUNC_ATTR_NONNULL_ALL
 {
     lw->lw_next = l->lv_watch;
@@ -97,12 +97,12 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out] l      List to remove watcher from.
 /// @param[in]  lwrem  Watcher to remove.
-void tv_list_watch_remove(list_st *const l, listwatch_T *const lwrem)
+void tv_list_watch_remove(list_st *const l, list_watcher_st *const lwrem)
 FUNC_ATTR_NONNULL_ALL
 {
-    listwatch_T **lwp = &l->lv_watch;
+    list_watcher_st **lwp = &l->lv_watch;
 
-    for(listwatch_T *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
+    for(list_watcher_st *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
     {
         if(lw == lwrem)
         {
@@ -123,7 +123,7 @@ FUNC_ATTR_NONNULL_ALL
 void tv_list_watch_fix(list_st *const l, const listitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
-    for(listwatch_T *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
+    for(list_watcher_st *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
     {
         if(lw->lw_item == item)
         {

@@ -78,7 +78,7 @@ typedef struct
 #define CALLBACK_NONE ((callback_st){ .type = kCallbackNone })
 
 /// Structure holding dictionary watcher
-typedef struct dict_watcher
+typedef struct dict_watcher_s
 {
     callback_st callback;
     char *key_pattern;
@@ -157,30 +157,30 @@ struct listitem_s
 };
 
 /// Structure used by those that are using an item in a list
-typedef struct listwatch_S listwatch_T;
+typedef struct list_watcher_s list_watcher_st;
 
-struct listwatch_S
+struct list_watcher_s
 {
-    listitem_st *lw_item;   ///< Item being watched.
-    listwatch_T *lw_next;  ///< Next watcher.
+    listitem_st *lw_item;     ///< Item being watched.
+    list_watcher_st *lw_next; ///< Next watcher.
 };
 
 /// Structure to hold info about a list
 struct list_s
 {
-    listitem_st *lv_first;     ///< First item, NULL if none.
-    listitem_st *lv_last;      ///< Last item, NULL if none.
-    int lv_refcount;          ///< Reference count.
-    int lv_len;               ///< Number of items.
-    listwatch_T *lv_watch;    ///< First watcher, NULL if none.
-    int lv_idx;               ///< Index of a cached item, used for
-                              ///< optimising repeated l[idx].
-    listitem_st *lv_idx_item;  ///< When not NULL item at index "lv_idx".
-    int lv_copyID;            ///< ID used by deepcopy().
-    list_st *lv_copylist;      ///< Copied list used by deepcopy().
-    nvlvar_lock_status_et lv_lock;    ///< Zero, kNvlVarLocked, kNvlVarFixed.
-    list_st *lv_used_next;     ///< next list in used lists list.
-    list_st *lv_used_prev;     ///< Previous list in used lists list.
+    listitem_st *lv_first;         ///< First item, NULL if none.
+    listitem_st *lv_last;          ///< Last item, NULL if none.
+    int lv_refcount;               ///< Reference count.
+    int lv_len;                    ///< Number of items.
+    list_watcher_st *lv_watch;     ///< First watcher, NULL if none.
+    int lv_idx;                    ///< Index of a cached item, used for
+                                   ///< optimising repeated l[idx].
+    listitem_st *lv_idx_item;      ///< When not NULL item at index "lv_idx".
+    int lv_copyID;                 ///< ID used by deepcopy().
+    list_st *lv_copylist;          ///< Copied list used by deepcopy().
+    nvlvar_lock_status_et lv_lock; ///< Zero, kNvlVarLocked, kNvlVarFixed.
+    list_st *lv_used_next;         ///< next list in used lists list.
+    list_st *lv_used_prev;         ///< Previous list in used lists list.
 };
 
 /// Static list with 10 items.
@@ -205,7 +205,7 @@ struct dictitem_S
     struct                                               \
     {                                                    \
         typval_st di_tv;          /* scope dictionary */ \
-        uint8_t  di_flags;        /* Flags.           */ \
+        uint8_t di_flags;         /* Flags.           */ \
         uchar_kt di_key[KEY_LEN]; /* Key value.       */ \
     }
 
