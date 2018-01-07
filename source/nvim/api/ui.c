@@ -25,7 +25,7 @@ typedef struct
 {
     uint64_t channel_id;
     Array buffer;
-} UIData;
+} ui_data_st;
 
 static PMap(uint64_t) *connected_uis = NULL;
 
@@ -45,7 +45,7 @@ FUNC_API_NOEXPORT
         return;
     }
 
-    UIData *data = ui->data;
+    ui_data_st *data = ui->data;
     // destroy pending screen updates
     api_free_array(data->buffer);
     pmap_del(uint64_t)(connected_uis, channel_id);
@@ -119,7 +119,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
         }
     }
 
-    UIData *data = xmalloc(sizeof(UIData));
+    ui_data_st *data = xmalloc(sizeof(ui_data_st));
     data->channel_id = channel_id;
     data->buffer = (Array)ARRAY_DICT_INIT;
     ui->data = data;
@@ -263,7 +263,7 @@ static void ui_set_option(UI *ui,
 static void push_call(UI *ui, char *name, Array args)
 {
     Array call = ARRAY_DICT_INIT;
-    UIData *data = ui->data;
+    ui_data_st *data = ui->data;
 
     // To optimize data transfer(especially for "put"), we bundle adjacent
     // calls to same method together, so only add a new call entry if the last
@@ -335,7 +335,7 @@ static void remote_ui_highlight_set(UI *ui, HlAttrs attrs)
 
 static void remote_ui_flush(UI *ui)
 {
-    UIData *data = ui->data;
+    ui_data_st *data = ui->data;
 
     if(data->buffer.size > 0)
     {
