@@ -475,7 +475,7 @@ struct file_buffer_s
     uchar_kt *b_fname;  ///< current file name
 
     bool file_id_valid;
-    FileID file_id;
+    fileid_st file_id;
 
     /// 'modified': Set to true if something in the
     /// file has been changed and not written out.

@@ -1107,11 +1107,11 @@ FUNC_ATTR_NONNULL_ALL
     && file_info_1->stat.st_dev == file_info_2->stat.st_dev;
 }
 
-/// Get the `FileID` of a `fileinfo_st`
+/// Get the `fileid_st` of a `fileinfo_st`
 ///
 /// @param file_info Pointer to the `fileinfo_st`
-/// @param[out] file_id Pointer to a `FileID`
-void os_fileinfo_id(const fileinfo_st *file_info, FileID *file_id)
+/// @param[out] file_id Pointer to a `fileid_st`
+void os_fileinfo_id(const fileinfo_st *file_info, fileid_st *file_id)
 FUNC_ATTR_NONNULL_ALL
 {
     file_id->inode = file_info->stat.st_ino;
@@ -1121,7 +1121,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Get the inode of a `fileinfo_st`
 ///
 /// @deprecated Use
-/// `FileID` instead, this function is only needed in memline.c
+/// `fileid_st` instead, this function is only needed in memline.c
 ///
 /// @param file_info
 /// Pointer to the `fileinfo_st`
@@ -1160,13 +1160,13 @@ FUNC_ATTR_NONNULL_ALL
     return file_info->stat.st_blksize;
 }
 
-/// Get the `FileID` for a given path
+/// Get the `fileid_st` for a given path
 ///
 /// @param path Path to the file.
-/// @param[out] file_info Pointer to a `FileID` to fill in.
+/// @param[out] file_info Pointer to a `fileid_st` to fill in.
 ///
 /// @return `true` on sucess, `false` for failure.
-bool os_fileid(const char *path, FileID *file_id)
+bool os_fileid(const char *path, fileid_st *file_id)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_stat_t statbuf;
@@ -1181,26 +1181,26 @@ FUNC_ATTR_NONNULL_ALL
     return false;
 }
 
-/// Check if two `FileID`s are equal
+/// Check if two `fileid_st`s are equal
 ///
-/// @param file_id_1 Pointer to first `FileID`
-/// @param file_id_2 Pointer to second `FileID`
+/// @param file_id_1 Pointer to first `fileid_st`
+/// @param file_id_2 Pointer to second `fileid_st`
 ///
-/// @return `true` if the two `FileID`s represent te same file.
-bool os_fileid_equal(const FileID *file_id_1, const FileID *file_id_2)
+/// @return `true` if the two `fileid_st`s represent te same file.
+bool os_fileid_equal(const fileid_st *file_id_1, const fileid_st *file_id_2)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_id_1->inode == file_id_2->inode
     && file_id_1->device_id == file_id_2->device_id;
 }
 
-/// Check if a `FileID` is equal to a `fileinfo_st`
+/// Check if a `fileid_st` is equal to a `fileinfo_st`
 ///
-/// @param file_id   Pointer to a `FileID`
+/// @param file_id   Pointer to a `fileid_st`
 /// @param file_info Pointer to a `fileinfo_st`
 ///
-/// @return `true` if the `FileID` and the `fileinfo_st` represent te same file.
-bool os_fileid_equal_fileinfo(const FileID *file_id, const fileinfo_st *file_info)
+/// @return `true` if the `fileid_st` and the `fileinfo_st` represent te same file.
+bool os_fileid_equal_fileinfo(const fileid_st *file_id, const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_id->inode == file_info->stat.st_ino

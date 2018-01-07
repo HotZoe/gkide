@@ -67,8 +67,8 @@ FileComparison path_full_compare(uchar_kt *s1, uchar_kt *s2, int checkname)
     uchar_kt full1[MAXPATHL];
     uchar_kt full2[MAXPATHL];
 
-    FileID file_id_1;
-    FileID file_id_2;
+    fileid_st file_id_1;
+    fileid_st file_id_2;
 
     expand_env(s1, exp1, MAXPATHL);
     bool id_ok_1 = os_fileid((char *)exp1, &file_id_1);

@@ -8,22 +8,22 @@
 /// Struct which encapsulates stat information.
 typedef struct
 {
-    uv_stat_t stat;  ///< @private
+    uv_stat_t stat;  ///<
 } fileinfo_st;
 
 /// Struct which encapsulates inode/dev_id information.
 typedef struct
 {
-    uint64_t inode;     ///< @private The inode of the file
-    uint64_t device_id; ///< @private The id of the device containing the file
-} FileID;
+    uint64_t inode;     ///< The inode of the file
+    uint64_t device_id; ///< The id of the device containing the file
+} fileid_st;
 
-#define FILE_ID_EMPTY   (FileID){ .inode = 0, .device_id = 0 }
+#define FILE_ID_EMPTY   (fileid_st){ .inode = 0, .device_id = 0 }
 
 typedef struct
 {
-    uv_fs_t request;  ///< @private The request to uv for the directory.
-    uv_dirent_t ent;  ///< @private The entry information.
+    uv_fs_t request;  ///< The request to uv for the directory.
+    uv_dirent_t ent;  ///< The entry information.
 } Directory;
 
 enum

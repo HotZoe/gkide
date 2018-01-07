@@ -1937,7 +1937,7 @@ fbuf_st *buflist_new(uchar_kt *ffname,
     // If file name already exists in the list, update the entry.
     // We can use inode numbers when the file exists.
     // Works better for hard links.
-    FileID file_id;
+    fileid_st file_id;
     bool file_id_valid = (sfname != NULL && os_fileid((char *)sfname, &file_id));
 
     if(ffname != NULL
@@ -2413,16 +2413,16 @@ fbuf_st *buflist_findname_exp(uchar_kt *fname)
 /// Returns NULL if not found.
 fbuf_st *buflist_findname(uchar_kt *ffname)
 {
-    FileID file_id;
+    fileid_st file_id;
     bool file_id_valid = os_fileid((char *)ffname, &file_id);
     return buflist_findname_file_id(ffname, &file_id, file_id_valid);
 }
 
-/// Same as buflist_findname(), but pass the FileID structure to avoid
+/// Same as buflist_findname(), but pass the fileid_st structure to avoid
 /// getting it twice for the same file.
 /// Returns NULL if not found.
 static fbuf_st *buflist_findname_file_id(uchar_kt *ffname,
-                                       FileID *file_id,
+                                       fileid_st *file_id,
                                        bool file_id_valid)
 {
     // Start at the last buffer, expect to find a match sooner.
@@ -3128,7 +3128,7 @@ int buflist_name_nr(int fnum, uchar_kt **fname, linenum_kt *lnum)
 int setfname(fbuf_st *buf, uchar_kt *ffname, uchar_kt *sfname, int message)
 {
     fbuf_st *obuf = NULL;
-    FileID file_id;
+    fileid_st file_id;
     bool file_id_valid = false;
 
     if(ffname == NULL || *ffname == NUL)
@@ -3352,7 +3352,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  file_id_valid  whether a valid "file_id_p" was passed in.
 static bool otherfile_buf(fbuf_st *buf,
                           uchar_kt *ffname,
-                          FileID *file_id_p,
+                          fileid_st *file_id_p,
                           bool file_id_valid)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -3368,7 +3368,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return false;
     }
 
-    FileID file_id;
+    fileid_st file_id;
 
     if(file_id_p == NULL) // If no struct stat given, get it now
     {
@@ -3406,7 +3406,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Must always be called when b_fname is changed!
 void buf_set_file_id(fbuf_st *buf)
 {
-    FileID file_id;
+    fileid_st file_id;
 
     if(buf->b_fname != NULL && os_fileid((char *)buf->b_fname, &file_id))
     {
@@ -3423,7 +3423,7 @@ void buf_set_file_id(fbuf_st *buf)
 ///
 /// @param  buf      buffer
 /// @param  file_id  file id
-static bool buf_same_file_id(fbuf_st *buf, FileID *file_id)
+static bool buf_same_file_id(fbuf_st *buf, fileid_st *file_id)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL

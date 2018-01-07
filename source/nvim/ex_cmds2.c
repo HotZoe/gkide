@@ -57,7 +57,7 @@ typedef struct scriptitem_S
 {
     uchar_kt      *sn_name;
     bool file_id_valid;
-    FileID file_id;
+    fileid_st file_id;
     bool sn_prof_on;        ///< true when script is/was profiled
     bool sn_pr_force;       ///< forceit: profile functions in this script
     proftime_kt sn_pr_child; ///< time set when going into first child
@@ -3671,7 +3671,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
     // If it's new, generate a new SID.
     save_current_SID = current_SID;
 
-    FileID file_id;
+    fileid_st file_id;
     bool file_id_ok = os_fileid((char *)fname_exp, &file_id);
     assert(script_items.ga_len >= 0);
 

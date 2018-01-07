@@ -52,7 +52,7 @@ typedef struct csi
     DWORD   nIndexLow;
 #endif
 
-    FileID file_id;
+    fileid_st file_id;
 
     FILE *fr_fp;  ///< from cscope: FILE.
     FILE *to_fp;  ///< to cscope: FILE.

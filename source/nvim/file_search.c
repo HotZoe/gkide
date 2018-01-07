@@ -109,9 +109,9 @@ typedef struct ff_visited
     /// string are different. So we have to save it.
     uchar_kt *ffv_wc_path;
 
-    /// use FileID for comparison (needed because of links), else use filename.
+    /// use fileid_st for comparison (needed because of links), else use filename.
     bool file_id_valid;
-    FileID file_id;
+    fileid_st file_id;
 
     /// The memory for this struct is allocated according
     /// to the length of ffv_fname.
@@ -1288,7 +1288,7 @@ static int ff_check_visited(ff_visited_T **visited_list,
 {
     ff_visited_T *vp;
     bool url = false;
-    FileID file_id;
+    fileid_st file_id;
 
     // For an URL we only compare the name,
     // otherwise we compare the device/inode.
