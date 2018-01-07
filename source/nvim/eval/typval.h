@@ -253,10 +253,10 @@ struct dict_s
 };
 
 /// Type used for script ID
-typedef int scid_T;
+typedef int script_id_kt;
 
-/// Format argument for scid_T
-#define PRIdSCID "d"
+/// %d printf format specifier for script_id_kt
+#define ScriptIdKtPrtFmt    "d"
 
 /// Structure to hold info for a function that is currently being executed.
 typedef struct funccall_S funccall_T;
@@ -287,7 +287,7 @@ struct ufunc_s
     proftime_T uf_tml_wait;    ///< start wait time for current line
     int uf_tml_idx;             ///< index of line being timed; -1 if none
     int uf_tml_execed;          ///< line being timed was executed
-    scid_T uf_script_ID;       ///< ID of script where function was defined,
+    script_id_kt uf_script_ID;       ///< ID of script where function was defined,
                                 ///< used for s: variables
     int uf_refcount;            ///< reference count, see func_name_refcount()
     funccall_T *uf_scoped;     ///< l: local variables for closure

@@ -2300,7 +2300,7 @@ static int process_env(char *env, bool is_viminit)
         sourcing_name = (uchar_kt *)env;
         sourcing_lnum = 0;
 
-        scid_T save_sid = current_SID;
+        script_id_kt save_sid = current_SID;
         current_SID = SID_ENV;
         do_cmdline_cmd((char *)initstr);
         sourcing_name = save_sourcing_name;

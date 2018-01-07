@@ -52,7 +52,7 @@ struct hl_group
     int sg_attr;             ///< Screen attr @see ATTR_ENTRY
     int sg_link;             ///< link to this highlight group ID
     int sg_set;              ///< combination of flags in @ref SG_SET
-    scid_T sg_scriptID;      ///< script in which the group was last set
+    script_id_kt sg_scriptID;      ///< script in which the group was last set
     // for terminal UIs
     int sg_cterm;            ///< "cterm=" highlighting attr
     int sg_cterm_fg;         ///< terminal fg color number + 1

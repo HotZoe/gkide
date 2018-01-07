@@ -181,7 +181,7 @@ typedef struct vimoption
     idopt_T indir;      ///< global option: PV_NONE;
                         ///< local option: indirect option index
     uchar_kt *def_val[2]; ///< default values for variable (vi and vim)
-    scid_T scriptID;    ///< script in which the option was last set
+    script_id_kt scriptID;    ///< script in which the option was last set
 
     #define SCRIPTID_INIT  , 0
 } vimoption_T;

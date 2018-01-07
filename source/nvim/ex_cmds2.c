@@ -3482,8 +3482,8 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 {
     uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    scid_T save_current_SID;
-    static scid_T last_current_SID = 0;
+    script_id_kt save_current_SID;
+    static script_id_kt last_current_SID = 0;
     void *save_funccalp;
     int save_debug_break_level = debug_break_level;
     scriptitem_T *si = NULL;
@@ -3853,7 +3853,7 @@ void scriptnames_slash_adjust(void)
 #endif
 
 /// Get a pointer to a script name. Used for ":verbose set".
-uchar_kt *get_scriptname(scid_T id)
+uchar_kt *get_scriptname(script_id_kt id)
 {
     if(id == SID_MODELINE)
     {

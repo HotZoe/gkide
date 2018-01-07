@@ -6113,7 +6113,7 @@ static int chk_modeline(linenr_T lnum, int flags)
     int retval = OK;
     uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    scid_T save_SID;
+    script_id_kt save_SID;
     prev = -1;
 
     for(s = ml_get(lnum); *s != NUL; ++s)

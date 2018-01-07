@@ -18033,7 +18033,7 @@ static void f_rpcrequest(typval_st *argvars,
         ADD(args, vim_to_object(tv));
     }
 
-    scid_T save_current_SID;
+    script_id_kt save_current_SID;
     uint8_t *save_sourcing_name, *save_autocmd_fname, *save_autocmd_match;
     linenr_T save_sourcing_lnum;
     int save_autocmd_fname_full, save_autocmd_bufnr;
@@ -24564,7 +24564,7 @@ uchar_kt *get_var_value(const char *const name)
 
 /// Allocate a new hashtab for a sourced script. It will be used while
 /// sourcing this script and when executing functions defined in the script.
-void new_script_vars(scid_T id)
+void new_script_vars(script_id_kt id)
 {
     hashtable_st *ht;
     scriptvar_T *sv;
@@ -26488,7 +26488,8 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
 
             sid_buf_len = snprintf(sid_buf,
                                    sizeof(sid_buf),
-                                   "%" PRIdSCID "_", current_SID);
+                                   "%" ScriptIdKtPrtFmt "_",
+                                   current_SID);
 
             lead += sid_buf_len;
         }
@@ -27474,7 +27475,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 {
     uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
-    scid_T save_current_SID;
+    script_id_kt save_current_SID;
     funccall_T  *fc;
     int save_did_emsg;
     static int depth = 0;
@@ -28629,7 +28630,7 @@ int store_session_globals(FILE *fd)
 
 /// Display script name where an item was last set.
 /// Should only be invoked when 'verbose' is non-zero.
-void last_set_msg(scid_T scriptID)
+void last_set_msg(script_id_kt scriptID)
 {
     if(scriptID != 0)
     {

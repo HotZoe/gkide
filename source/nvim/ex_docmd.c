@@ -84,7 +84,7 @@ typedef struct ucmd
     long uc_def;             ///< The default value for a range/count
     int uc_compl;            ///< completion type
     int uc_addr_type;        ///< The command's address type
-    scid_T uc_scriptID;      ///< SID where the command was defined
+    script_id_kt uc_scriptID;      ///< SID where the command was defined
     uchar_kt *uc_compl_arg;    ///< completion argument if any
 } ucmd_T;
 
@@ -7416,7 +7416,7 @@ static void do_ucmd(exarg_T *eap)
     uchar_kt *end = NULL;
     size_t split_len = 0;
     uchar_kt *split_buf = NULL;
-    scid_T save_current_SID = current_SID;
+    script_id_kt save_current_SID = current_SID;
 
     if(eap->cmdidx == CMD_USER)
     {
