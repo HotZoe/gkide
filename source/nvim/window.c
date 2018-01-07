@@ -298,8 +298,8 @@ newwindow:
             }
             else
             {
-                tabpage_T *oldtab = curtab;
-                tabpage_T *newtab;
+                tabpage_st *oldtab = curtab;
+                tabpage_st *newtab;
                 // First create a new tab with the window, then go
                 // back to the old tab and close the window there.
                 wp = curwin;
@@ -468,7 +468,7 @@ wingotofile:
 
             if(ptr != NULL)
             {
-                tabpage_T *oldtab = curtab;
+                tabpage_st *oldtab = curtab;
                 win_st *oldwin = curwin;
                 setpcmark();
 
@@ -2278,7 +2278,7 @@ static void win_equal_rec(win_st *next_curwin,
 /// @param keep_curwin don't close @b curwin
 void close_windows(fbuf_st *buf, int keep_curwin)
 {
-    tabpage_T *tp, *nexttp;
+    tabpage_st *tp, *nexttp;
     int h = tabline_height();
     int count = tabpage_index(NULL);
     ++RedrawingDisabled;
@@ -2393,7 +2393,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return true when the window was closed already.
 static bool close_last_window_tabpage(win_st *win,
                                       bool free_buf,
-                                      tabpage_T *prev_curtab)
+                                      tabpage_st *prev_curtab)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(firstwin != lastwin)
@@ -2466,7 +2466,7 @@ int win_close(win_st *win, int free_buf)
     int close_curwin = FALSE;
     int dir;
     int help_window = FALSE;
-    tabpage_T *prev_curtab = curtab;
+    tabpage_st *prev_curtab = curtab;
 
     if(last_window())
     {
@@ -2710,10 +2710,10 @@ int win_close(win_st *win, int free_buf)
 /// This may be the last window in that tab page and result in closing the tab,
 /// thus "tp" may become invalid! Caller must check if buffer is hidden and
 /// whether the tabline needs to be updated.
-void win_close_othertab(win_st *win, int free_buf, tabpage_T *tp)
+void win_close_othertab(win_st *win, int free_buf, tabpage_st *tp)
 {
     int dir;
-    tabpage_T *ptp = NULL;
+    tabpage_st *ptp = NULL;
     int free_tp = FALSE;
 
     // Get here with win->w_buffer == NULL
@@ -2801,7 +2801,7 @@ void win_close_othertab(win_st *win, int free_buf, tabpage_T *tp)
 /// @param tp     tab page "win" is in, NULL for current
 ///
 /// @return Returns a pointer to the window that got the freed up space.
-static win_st *win_free_mem(win_st *win, int *dirp, tabpage_T *tp)
+static win_st *win_free_mem(win_st *win, int *dirp, tabpage_st *tp)
 {
     frame_T *frp;
     win_st *wp;
@@ -2856,7 +2856,7 @@ void win_free_all(void)
 /// @param tp     tab page "win" is in, NULL for current
 ///
 /// @return Returns a pointer to the window that got the freed up space.
-win_st *winframe_remove(win_st *win, int *dirp,tabpage_T *tp)
+win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
 {
     frame_T *frp, *frp2, *frp3;
     frame_T *frp_close = win->w_frame;
@@ -3042,7 +3042,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_T *tp)
 /// goes to the window above/left. if 'nosplitbelow'/'nosplitleft'
 /// the space goes to the window below/right. This makes opening
 /// a window and closing it immediately keep the same window layout.
-static frame_T *win_altframe(win_st *win, tabpage_T *tp)
+static frame_T *win_altframe(win_st *win, tabpage_st *tp)
 {
     frame_T *frp;
     int b;
@@ -3073,9 +3073,9 @@ static frame_T *win_altframe(win_st *win, tabpage_T *tp)
 }
 
 /// Return the tabpage that will be used if the current one is closed.
-static tabpage_T *alt_tabpage(void)
+static tabpage_st *alt_tabpage(void)
 {
-    tabpage_T *tp;
+    tabpage_st *tp;
 
     // Use the next tab page if possible.
     if(curtab->tp_next != NULL)
@@ -3907,11 +3907,11 @@ void win_init_size(void)
     topframe->fr_width = Columns;
 }
 
-/// Allocate a new tabpage_T and init the values.
-static tabpage_T *alloc_tabpage(void)
+/// Allocate a new tabpage_st and init the values.
+static tabpage_st *alloc_tabpage(void)
 {
     static int last_tp_handle = 0;
-    tabpage_T *tp = xcalloc(1, sizeof(tabpage_T));
+    tabpage_st *tp = xcalloc(1, sizeof(tabpage_st));
 
     tp->handle = ++last_tp_handle;
     handle_register_tabpage(tp);
@@ -3924,7 +3924,7 @@ static tabpage_T *alloc_tabpage(void)
     return tp;
 }
 
-void free_tabpage(tabpage_T *tp)
+void free_tabpage(tabpage_st *tp)
 {
     int idx;
     handle_unregister_tabpage(tp);
@@ -3958,8 +3958,8 @@ void free_tabpage(tabpage_T *tp)
 /// Was the new tabpage created successfully? FAIL or OK.
 int win_new_tabpage(int after, uchar_kt *filename)
 {
-    tabpage_T *tp = curtab;
-    tabpage_T *newtp;
+    tabpage_st *tp = curtab;
+    tabpage_st *newtp;
     int n;
     newtp = alloc_tabpage();
 
@@ -4077,7 +4077,7 @@ int make_tabpages(int maxcount)
 /// Check that tpc points to a valid tab page.
 ///
 /// @param[in] tpc  Tabpage to check.
-bool valid_tabpage(tabpage_T *tpc)
+bool valid_tabpage(tabpage_st *tpc)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -4092,7 +4092,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Returns true when @b tpc is valid and at least one window is valid.
-int valid_tabpage_win(tabpage_T *tpc)
+int valid_tabpage_win(tabpage_st *tpc)
 {
     FOR_ALL_TABS(tp)
     {
@@ -4113,9 +4113,9 @@ int valid_tabpage_win(tabpage_T *tpc)
 
 /// Close tabpage `tab`, assuming it has no windows in it.
 /// There must be another tabpage or this will crash.
-void close_tabpage(tabpage_T *tab)
+void close_tabpage(tabpage_st *tab)
 {
-    tabpage_T *ptp;
+    tabpage_st *ptp;
 
     if(tab == first_tabpage)
     {
@@ -4139,9 +4139,9 @@ void close_tabpage(tabpage_T *tab)
 
 /// Find tab page "n" (first one is 1).
 /// Returns NULL when not found.
-tabpage_T *find_tabpage(int n)
+tabpage_st *find_tabpage(int n)
 {
-    tabpage_T *tp;
+    tabpage_st *tp;
     int i = 1;
 
     for(tp = first_tabpage; tp != NULL && i != n; tp = tp->tp_next)
@@ -4154,10 +4154,10 @@ tabpage_T *find_tabpage(int n)
 
 /// Get index of tab page "tp". First one has index 1.
 /// When not found returns number of tab pages plus one.
-int tabpage_index(tabpage_T *ftp)
+int tabpage_index(tabpage_st *ftp)
 {
     int i = 1;
-    tabpage_T *tp;
+    tabpage_st *tp;
 
     for(tp = first_tabpage; tp != NULL && tp != ftp; tp = tp->tp_next)
     {
@@ -4181,7 +4181,7 @@ int tabpage_index(tabpage_T *ftp)
 /// very very soon!
 static int leave_tabpage(fbuf_st *new_curbuf, int trigger_leave_autocmds)
 {
-    tabpage_T *tp = curtab;
+    tabpage_st *tp = curtab;
     reset_VIsual_and_resel(); // stop Visual mode
 
     if(trigger_leave_autocmds)
@@ -4228,7 +4228,7 @@ static int leave_tabpage(fbuf_st *new_curbuf, int trigger_leave_autocmds)
 /// - Only to be used after leave_tabpage() or freeing the current tab page.
 /// - Only trigger *Enter autocommands when trigger_enter_autocmds is TRUE.
 /// - Only trigger *Leave autocommands when trigger_leave_autocmds is TRUE.
-static void enter_tabpage(tabpage_T *tp,
+static void enter_tabpage(tabpage_st *tp,
                           fbuf_st *old_curbuf,
                           int trigger_enter_autocmds,
                           int trigger_leave_autocmds)
@@ -4292,8 +4292,8 @@ static void enter_tabpage(tabpage_T *tp,
 /// When "n" is 9999 go to the last tab page.
 void goto_tabpage(int n)
 {
-    tabpage_T *tp = NULL;
-    tabpage_T *ttp = NULL;
+    tabpage_st *tp = NULL;
+    tabpage_st *ttp = NULL;
     int i;
 
     if(text_locked())
@@ -4365,7 +4365,7 @@ void goto_tabpage(int n)
 /// Only trigger *Enter autocommands when trigger_enter_autocmds is TRUE.
 /// Only trigger *Leave autocommands when trigger_leave_autocmds is TRUE.
 /// Note: doesn't update the GUI tab.
-void goto_tabpage_tp(tabpage_T *tp,
+void goto_tabpage_tp(tabpage_st *tp,
                      int trigger_enter_autocmds,
                      int trigger_leave_autocmds)
 {
@@ -4395,7 +4395,7 @@ void goto_tabpage_tp(tabpage_T *tp,
 
 /// Enter window "wp" in tab page "tp".
 /// Also updates the GUI tab.
-void goto_tabpage_win(tabpage_T *tp, win_st *wp)
+void goto_tabpage_win(tabpage_st *tp, win_st *wp)
 {
     goto_tabpage_tp(tp, TRUE, TRUE);
 
@@ -4409,8 +4409,8 @@ void goto_tabpage_win(tabpage_T *tp, win_st *wp)
 void tabpage_move(int nr)
 {
     int n = 1;
-    tabpage_T *tp;
-    tabpage_T *tp_dst;
+    tabpage_st *tp;
+    tabpage_st *tp_dst;
     assert(curtab != NULL);
 
     if(first_tabpage->tp_next == NULL)
@@ -4522,7 +4522,7 @@ void win_goto(win_st *wp)
 
 
 /// Find the tabpage for window "win".
-tabpage_T *win_find_tabpage(win_st *win)
+tabpage_st *win_find_tabpage(win_st *win)
 {
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
@@ -5016,7 +5016,7 @@ static win_st *win_alloc(win_st *after, int hidden)
 ///
 /// @param wp
 /// @param tp tab page "win" is in, NULL for current
-static void win_free(win_st *wp, tabpage_T *tp)
+static void win_free(win_st *wp, tabpage_st *tp)
 {
     int i;
     wininfo_T *wip;
@@ -5132,7 +5132,7 @@ void win_append(win_st *after, win_st *wp)
 ///
 /// @param wp
 /// @param tp tab page "win" is in, NULL for current
-void win_remove(win_st *wp, tabpage_T *tp)
+void win_remove(win_st *wp, tabpage_st *tp)
 {
     if(wp->w_prev != NULL)
     {
@@ -6926,7 +6926,7 @@ static void make_snapshot_rec(frame_T *fr, frame_T **frp)
 }
 
 /// Remove any existing snapshot.
-static void clear_snapshot(tabpage_T *tp, int idx)
+static void clear_snapshot(tabpage_st *tp, int idx)
 {
     clear_snapshot_rec(tp->tp_snapshot[idx]);
     tp->tp_snapshot[idx] = NULL;
@@ -7038,9 +7038,9 @@ static win_st *restore_snapshot_rec(frame_T *sn, frame_T *fr)
 ///
 /// @return FAIL if switching to "win" failed.
 int switch_win(win_st **save_curwin,
-               tabpage_T **save_curtab,
+               tabpage_st **save_curtab,
                win_st *win,
-               tabpage_T *tp,
+               tabpage_st *tp,
                int no_display)
 {
     block_autocmds();
@@ -7077,7 +7077,7 @@ int switch_win(win_st **save_curwin,
 /// Restore current tabpage and window saved by switch_win(),
 /// if still valid. When "no_display" is TRUE the display won't
 /// be affected, no redraw is triggered.
-void restore_win(win_st *save_curwin, tabpage_T *save_curtab, int no_display)
+void restore_win(win_st *save_curwin, tabpage_st *save_curtab, int no_display)
 {
     if(save_curtab != NULL && valid_tabpage(save_curtab))
     {
@@ -7581,7 +7581,7 @@ int win_getid(typval_T *argvars)
         }
         else
         {
-            tabpage_T *tp = NULL;
+            tabpage_st *tp = NULL;
             int tabnr = tv_get_number(&argvars[1]);
 
             FOR_ALL_TABS(tp2)

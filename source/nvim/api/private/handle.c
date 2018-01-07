@@ -27,9 +27,9 @@
         pmap_del(handle_kt)(name##_handles, name->handle);       \
     }
 
-HANDLE_IMPL(fbuf_st, buffer)
 HANDLE_IMPL(win_st, window)
-HANDLE_IMPL(tabpage_T, tabpage)
+HANDLE_IMPL(fbuf_st, buffer)
+HANDLE_IMPL(tabpage_st, tabpage)
 
 /// init three big thing: buffer, window, tabpage
 void handle_init(void)

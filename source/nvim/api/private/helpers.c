@@ -656,14 +656,14 @@ win_st *find_window_by_handle(Window window, error_st *err)
     return rv;
 }
 
-tabpage_T *find_tab_by_handle(Tabpage tabpage, error_st *err)
+tabpage_st *find_tab_by_handle(Tabpage tabpage, error_st *err)
 {
     if(tabpage == 0)
     {
         return curtab;
     }
 
-    tabpage_T *rv = handle_get_tabpage(tabpage);
+    tabpage_st *rv = handle_get_tabpage(tabpage);
 
     if(!rv)
     {
@@ -1093,7 +1093,7 @@ static void set_option_value_for(char *key,
                                  error_st *err)
 {
     win_st *save_curwin = NULL;
-    tabpage_T *save_curtab = NULL;
+    tabpage_st *save_curtab = NULL;
     bufref_T save_curbuf =  { NULL, 0 };
     try_start();
 

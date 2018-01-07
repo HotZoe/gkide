@@ -777,7 +777,7 @@ FUNC_API_SINCE(1)
 void nvim_set_current_tabpage(Tabpage tabpage, error_st *err)
 FUNC_API_SINCE(1)
 {
-    tabpage_T *tp = find_tab_by_handle(tabpage, err);
+    tabpage_st *tp = find_tab_by_handle(tabpage, err);
 
     if(!tp)
     {

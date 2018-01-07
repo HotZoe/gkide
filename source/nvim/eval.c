@@ -12455,7 +12455,7 @@ static void f_getcwd(typval_T *argvars,
 
     uchar_kt *cwd  = NULL; // Current working directory to print
     uchar_kt *from = NULL; // The original string to copy
-    tabpage_T *tp  = curtab; // The tabpage to look at.
+    tabpage_st *tp  = curtab; // The tabpage to look at.
     win_st *win = curwin; // The window to look at.
 
     rettv->v_type = VAR_STRING;
@@ -13117,7 +13117,7 @@ static void f_getregtype(typval_T *argvars,
 
 /// Returns information (variables, options, etc.) about a tab page
 /// as a dictionary.
-static dict_T *get_tabpage_info(tabpage_T *tp, int tp_idx)
+static dict_T *get_tabpage_info(tabpage_st *tp, int tp_idx)
 {
     dict_T *const dict = tv_dict_alloc();
     tv_dict_add_nr(dict, S_LEN("tabnr"), tp_idx);
@@ -13140,7 +13140,7 @@ static void f_gettabinfo(typval_T *argvars,
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    tabpage_T *tparg = NULL;
+    tabpage_st *tparg = NULL;
     tv_list_alloc_ret(rettv);
 
     if(argvars[0].v_type != VAR_UNKNOWN)
@@ -13185,7 +13185,7 @@ static void f_gettabvar(typval_T *argvars,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *oldcurwin;
-    tabpage_T *tp, *oldtabpage;
+    tabpage_st *tp, *oldtabpage;
     dictitem_T  *v;
     bool done = false;
     rettv->v_type = VAR_STRING;
@@ -13328,7 +13328,7 @@ static void f_getwinposy(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
 ///
 /// @param vp
 /// @param tp NULL for current tab page
-static win_st *find_win_by_nr(typval_T *vp, tabpage_T *tp)
+static win_st *find_win_by_nr(typval_T *vp, tabpage_st *tp)
 {
     int nr = (int)tv_get_number_chk(vp, NULL);
 
@@ -13370,7 +13370,7 @@ static win_st *find_win_by_nr(typval_T *vp, tabpage_T *tp)
 static win_st *find_tabwin(typval_T *wvp, typval_T *tvp)
 {
     win_st *wp = NULL;
-    tabpage_T *tp = NULL;
+    tabpage_st *tp = NULL;
 
     if(wvp->v_type != VAR_UNKNOWN)
     {
@@ -13418,8 +13418,8 @@ static void getwinvar(typval_T *argvars, typval_T *rettv, int off)
 {
     win_st *win, *oldcurwin;
     dictitem_T *v;
-    tabpage_T *tp = NULL;
-    tabpage_T *oldtabpage = NULL;
+    tabpage_st *tp = NULL;
+    tabpage_st *oldtabpage = NULL;
     bool done = false;
 
     if(off == 1)
@@ -13945,7 +13945,7 @@ static void f_haslocaldir(typval_T *argvars,
         [kCdScopeTab   ] = 0, // Number of tab to look at.
     };
 
-    tabpage_T *tp  = curtab; // The tabpage to look at.
+    tabpage_st *tp  = curtab; // The tabpage to look at.
     win_st *win = curwin; // The window to look at.
 
     rettv->v_type = VAR_NUMBER;
@@ -19523,7 +19523,7 @@ static void f_settabvar(typval_T *argvars,
         return;
     }
 
-    tabpage_T *const tp =
+    tabpage_st *const tp =
         find_tabpage((int)tv_get_number_chk(&argvars[0], NULL));
 
     const char *const varname = tv_get_string_chk(&argvars[1]);
@@ -19531,7 +19531,7 @@ static void f_settabvar(typval_T *argvars,
 
     if(varname != NULL && tp != NULL)
     {
-        tabpage_T *const save_curtab = curtab;
+        tabpage_st *const save_curtab = curtab;
         goto_tabpage_tp(tp, false, false);
 
         const size_t varname_len = strlen(varname);
@@ -19576,7 +19576,7 @@ static void setwinvar(typval_T *argvars,
         return;
     }
 
-    tabpage_T *tp = NULL;
+    tabpage_st *tp = NULL;
 
     if(off == 1)
     {
@@ -19594,7 +19594,7 @@ static void setwinvar(typval_T *argvars,
     if(win != NULL && varname != NULL && varp != NULL)
     {
         win_st *save_curwin;
-        tabpage_T *save_curtab;
+        tabpage_st *save_curtab;
         bool need_switch_win = tp != curtab || win != curwin;
 
         if(!need_switch_win
@@ -21442,7 +21442,7 @@ static void f_tabpagebuflist(typval_T *argvars,
     }
     else
     {
-        tabpage_T *const tp = find_tabpage((int)tv_get_number(&argvars[0]));
+        tabpage_st *const tp = find_tabpage((int)tv_get_number(&argvars[0]));
 
         if(tp != NULL)
         {
@@ -21495,7 +21495,7 @@ static void f_tabpagenr(typval_T *argvars,
 }
 
 /// Common code for tabpagewinnr() and winnr().
-static int get_winnr(tabpage_T *tp, typval_T *argvar)
+static int get_winnr(tabpage_st *tp, typval_T *argvar)
 {
     win_st *twin;
     int nr = 1;
@@ -21556,7 +21556,7 @@ static void f_tabpagewinnr(typval_T *argvars,
                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int nr = 1;
-    tabpage_T *const tp = find_tabpage((int)tv_get_number(&argvars[0]));
+    tabpage_st *const tp = find_tabpage((int)tv_get_number(&argvars[0]));
 
     if(tp == NULL)
     {

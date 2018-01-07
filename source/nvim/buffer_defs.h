@@ -774,11 +774,11 @@ struct diffblock_S
 /// Note: Most values are NOT valid for the current tab page! Use "curwin",
 /// "firstwin", etc. for that. "tp_topframe" is always valid and can be
 /// compared against "topframe" to find the current tab page.
-typedef struct tabpage_s tabpage_T;
+typedef struct tabpage_s tabpage_st;
 struct tabpage_s
 {
     handle_kt handle;
-    tabpage_T *tp_next;     ///< next tabpage or NULL
+    tabpage_st *tp_next;     ///< next tabpage or NULL
     frame_T *tp_topframe;   ///< topframe for the windows
     win_st *tp_curwin;       ///< current window in this Tab page
     win_st *tp_prevwin;      ///< previous window in this Tab page

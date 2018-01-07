@@ -1265,7 +1265,7 @@ static int current_win_nr(win_st *win)
     return nr;
 }
 
-static int current_tab_nr(tabpage_T *tab)
+static int current_tab_nr(tabpage_st *tab)
 {
     int nr = 0;
     FOR_ALL_TABS(tp)
@@ -7976,7 +7976,7 @@ static void ex_pclose(exarg_T *eap)
 /// @param forceit
 /// @param win
 /// @param tp         NULL or the tab page "win" is in
-static void ex_win_close(int forceit, win_st *win, tabpage_T *tp)
+static void ex_win_close(int forceit, win_st *win, tabpage_st *tp)
 {
     int need_hide;
     fbuf_st *buf = win->w_buffer;
@@ -8019,7 +8019,7 @@ static void ex_win_close(int forceit, win_st *win, tabpage_T *tp)
 /// - ":tabclose N": close tab page N.
 static void ex_tabclose(exarg_T *eap)
 {
-    tabpage_T *tp;
+    tabpage_st *tp;
 
     if(cmdwin_type != 0)
     {
@@ -8130,7 +8130,7 @@ void tabpage_close(int forceit)
 // Note that autocommands may make "tp" invalid.
 // Also takes care of the tab pages line disappearing when closing the
 // last-but-one tab page.
-void tabpage_close_other(tabpage_T *tp, int forceit)
+void tabpage_close_other(tabpage_st *tp, int forceit)
 {
     int done = 0;
     win_st *wp;
@@ -11499,7 +11499,7 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
 
         if((ssop_flags & SSOP_TABPAGES))
         {
-            tabpage_T *tp = find_tabpage(tabnr);
+            tabpage_st *tp = find_tabpage(tabnr);
 
             if(tp == NULL)
             {

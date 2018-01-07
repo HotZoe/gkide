@@ -389,7 +389,7 @@ void close_buffer(win_st *win, fbuf_st *buf, int action, int abort_if_last)
     bool is_curwin = (curwin != NULL && curwin->w_buffer == buf);
 
     win_st *the_curwin = curwin;
-    tabpage_T *the_curtab = curtab;
+    tabpage_st *the_curtab = curtab;
 
     // Force unloading or deleting when 'bufhidden' says so, but not
     // for terminal buffers. The caller must take care of NOT
@@ -688,7 +688,7 @@ void buf_freeall(fbuf_st *buf, int flags)
     bool is_curbuf = (buf == curbuf);
     int is_curwin = (curwin != NULL && curwin->w_buffer == buf);
     win_st *the_curwin = curwin;
-    tabpage_T *the_curtab = curtab;
+    tabpage_st *the_curtab = curtab;
 
     // Make sure the buffer isn't closed by autocommands.
     buf->b_locked++;
@@ -5493,12 +5493,12 @@ void do_arg_all(int count, int forceit, int keep_tabs)
     bool p_ea_save;
     alist_T *alist; // argument list to be used
     fbuf_st *buf;
-    tabpage_T *tpnext;
+    tabpage_st *tpnext;
     int had_tab = cmdmod.tab;
     win_st *old_curwin, *last_curwin;
-    tabpage_T *old_curtab, *last_curtab;
+    tabpage_st *old_curtab, *last_curtab;
     win_st *new_curwin = NULL;
-    tabpage_T *new_curtab = NULL;
+    tabpage_st *new_curtab = NULL;
     assert(firstwin != NULL); // satisfy coverity
 
     if(ARGCOUNT <= 0)
@@ -5822,7 +5822,7 @@ void ex_buffer_all(exarg_T *eap)
     long count; // Maximum number of windows to open.
     int all; // When TRUE also load inactive buffers.
     int had_tab = cmdmod.tab;
-    tabpage_T   *tpnext;
+    tabpage_st   *tpnext;
 
     if(eap->addr_count == 0)  // make as many windows as possible
     {
@@ -6248,7 +6248,7 @@ uchar_kt *buf_spname(fbuf_st *buf)
     if(bt_quickfix(buf))
     {
         win_st *win;
-        tabpage_T *tp;
+        tabpage_st *tp;
 
         // For location list window, w_llist_ref points to the location list.
         // For quickfix window, w_llist_ref is NULL.
@@ -6292,7 +6292,7 @@ uchar_kt *buf_spname(fbuf_st *buf)
 /// @param[out]  tp   stores the found tabpage
 ///
 /// @return true if a window was found for the buffer.
-bool find_win_for_buf(fbuf_st *buf, win_st **wp, tabpage_T **tp)
+bool find_win_for_buf(fbuf_st *buf, win_st **wp, tabpage_st **tp)
 {
     *wp = NULL;
     *tp = NULL;

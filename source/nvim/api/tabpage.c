@@ -20,7 +20,7 @@ ArrayOf(Window) nvim_tabpage_list_wins(Tabpage tabpage, error_st *err)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab || !valid_tabpage(tab))
     {
@@ -50,7 +50,7 @@ FUNC_API_SINCE(1)
 Object nvim_tabpage_get_var(Tabpage tabpage, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {
@@ -72,7 +72,7 @@ void nvim_tabpage_set_var(Tabpage tabpage,
                           error_st *err)
 FUNC_API_SINCE(1)
 {
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {
@@ -90,7 +90,7 @@ FUNC_API_SINCE(1)
 void nvim_tabpage_del_var(Tabpage tabpage, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {
@@ -117,7 +117,7 @@ FUNC_API_SINCE(1)
 /// or if previous value was `v:null`.
 Object tabpage_set_var(Tabpage tabpage, String name, Object value, error_st *err)
 {
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {
@@ -138,7 +138,7 @@ Object tabpage_set_var(Tabpage tabpage, String name, Object value, error_st *err
 /// @return Old value
 Object tabpage_del_var(Tabpage tabpage, String name, error_st *err)
 {
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {
@@ -158,7 +158,7 @@ Window nvim_tabpage_get_win(Tabpage tabpage, error_st *err)
 FUNC_API_SINCE(1)
 {
     Window rv = 0;
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab || !valid_tabpage(tab))
     {
@@ -193,7 +193,7 @@ Integer nvim_tabpage_get_number(Tabpage tabpage, error_st *err)
 FUNC_API_SINCE(1)
 {
     Integer rv = 0;
-    tabpage_T *tab = find_tab_by_handle(tabpage, err);
+    tabpage_st *tab = find_tab_by_handle(tabpage, err);
 
     if(!tab)
     {

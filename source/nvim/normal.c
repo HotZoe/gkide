@@ -2889,7 +2889,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
 
                 case kStlClickTabClose:
                 {
-                    tabpage_T *tp;
+                    tabpage_st *tp;
 
                     // Close the current or specified tab page.
                     if(c1 == 999)

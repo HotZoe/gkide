@@ -2511,7 +2511,7 @@ void ex_listdo(exarg_T *eap)
 {
     int i;
     win_st *wp;
-    tabpage_T *tp;
+    tabpage_st *tp;
     int next_fnum = 0;
     uchar_kt *save_ei = NULL;
     uchar_kt *p_shm_save;

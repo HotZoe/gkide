@@ -651,13 +651,13 @@ EXTERN frame_T  *topframe;  ///< top of the window frame tree
 
 // Tab pages are alternative topframes. "first_tabpage" points to the first
 // one in the list, "curtab" is the current one.
-EXTERN tabpage_T *first_tabpage;
-EXTERN tabpage_T *curtab;
+EXTERN tabpage_st *first_tabpage;
+EXTERN tabpage_st *curtab;
 EXTERN int redraw_tabline INIT(= FALSE); ///< need to redraw tabline
 
 /// Iterates over all tabs in the tab list
 #define FOR_ALL_TABS(tp) \
-    for(tabpage_T *tp = first_tabpage; tp != NULL; tp = tp->tp_next)
+    for(tabpage_st *tp = first_tabpage; tp != NULL; tp = tp->tp_next)
 
 // All buffers are linked in a list. 'firstbuf' points to the first entry,
 // 'lastbuf' to the last entry and 'curbuf' to the currently active buffer.

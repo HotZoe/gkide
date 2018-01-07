@@ -577,8 +577,8 @@ int main(int argc, char **argv)
 // Exit properly
 void getout(int exitval)
 {
-    tabpage_T *tp;
-    tabpage_T *next_tp;
+    tabpage_st *tp;
+    tabpage_st *next_tp;
     exiting = TRUE;
 
     // When running in Ex mode an error causes us

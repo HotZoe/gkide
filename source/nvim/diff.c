@@ -174,7 +174,7 @@ static int diff_buf_idx(fbuf_st *buf)
 /// @param tp
 ///
 /// @return its index or DB_COUNT if not found.
-static int diff_buf_idx_tp(fbuf_st *buf, tabpage_T *tp)
+static int diff_buf_idx_tp(fbuf_st *buf, tabpage_st *tp)
 {
     int idx;
 
@@ -248,7 +248,7 @@ void diff_mark_adjust(linenr_T line1,
 /// @param line2
 /// @param amount
 /// @amount_after
-static void diff_mark_adjust_tp(tabpage_T *tp,
+static void diff_mark_adjust_tp(tabpage_st *tp,
                                 int idx,
                                 linenr_T line1,
                                 linenr_T line2,
@@ -550,7 +550,7 @@ static void diff_mark_adjust_tp(tabpage_T *tp,
 /// @param dp
 ///
 /// @return The new diff block.
-static diff_T *diff_alloc_new(tabpage_T *tp, diff_T *dprev, diff_T *dp)
+static diff_T *diff_alloc_new(tabpage_st *tp, diff_T *dprev, diff_T *dp)
 {
     diff_T *dnew = xmalloc(sizeof(*dnew));
     dnew->df_next = dp;
@@ -575,7 +575,7 @@ static diff_T *diff_alloc_new(tabpage_T *tp, diff_T *dprev, diff_T *dp)
 ///
 /// @param tp
 /// @param dp
-static void diff_check_unchanged(tabpage_T *tp, diff_T *dp)
+static void diff_check_unchanged(tabpage_st *tp, diff_T *dp)
 {
     // Find the first buffers, use it as the original,
     // compare the other buffer lines against this one.
@@ -689,7 +689,7 @@ static void diff_check_unchanged(tabpage_T *tp, diff_T *dp)
 /// @param dp
 ///
 /// @return OK if the diff block doesn't contain invalid line numbers.
-static int diff_check_sanity(tabpage_T *tp, diff_T *dp)
+static int diff_check_sanity(tabpage_st *tp, diff_T *dp)
 {
     int i;
 
@@ -1771,7 +1771,7 @@ static void diff_copy_entry(diff_T *dprev,
 /// Clear the list of diffblocks for tab page "tp".
 ///
 /// @param tp
-void diff_clear(tabpage_T *tp)
+void diff_clear(tabpage_st *tp)
 {
     diff_T *p;
     diff_T *next_p;

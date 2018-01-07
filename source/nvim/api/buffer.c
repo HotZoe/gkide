@@ -331,7 +331,7 @@ FUNC_API_SINCE(1)
     }
 
     win_st *save_curwin = NULL;
-    tabpage_T *save_curtab = NULL;
+    tabpage_st *save_curtab = NULL;
     size_t new_len = replacement.size;
     size_t old_len = (size_t)(end - start);
     ptrdiff_t extra = 0;  // lines added to text, can be negative

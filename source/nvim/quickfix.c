@@ -3351,7 +3351,7 @@ void ex_copen(exarg_T *eap)
     qf_info_T *qi = &ql_info;
     int height;
     win_st *win;
-    tabpage_T *prevtab = curtab;
+    tabpage_st *prevtab = curtab;
     fbuf_st *qf_buf;
     win_st *oldwin = curwin;
 
