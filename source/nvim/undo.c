@@ -896,7 +896,7 @@ static void u_free_uhp(u_header_T *uhp)
 /// @param hash The hash of the buffer contents
 //
 /// @returns false in case of an error.
-static bool serialize_header(bufinfo_T *bi, uchar_kt *hash)
+static bool serialize_header(undobuf_st *bi, uchar_kt *hash)
 FUNC_ATTR_NONNULL_ALL
 {
     fbuf_st *buf = bi->bi_buf;
@@ -960,7 +960,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param uhp The undo header to write
 //
 /// @returns false in case of an error.
-static bool serialize_uhp(bufinfo_T *bi, u_header_T *uhp)
+static bool serialize_uhp(undobuf_st *bi, u_header_T *uhp)
 {
     if(!undo_write_bytes(bi, (uintmax_t)UF_HEADER_MAGIC, 2))
     {
@@ -1010,7 +1010,7 @@ static bool serialize_uhp(bufinfo_T *bi, u_header_T *uhp)
     return true;
 }
 
-static u_header_T *unserialize_uhp(bufinfo_T *bi, const char *file_name)
+static u_header_T *unserialize_uhp(undobuf_st *bi, const char *file_name)
 {
     u_header_T *uhp = xmalloc(sizeof(u_header_T));
     memset(uhp, 0, sizeof(u_header_T));
@@ -1117,7 +1117,7 @@ static u_header_T *unserialize_uhp(bufinfo_T *bi, const char *file_name)
 /// @param uep The undo entry to write
 //
 /// @returns false in case of an error.
-static bool serialize_uep(bufinfo_T *bi, u_entry_T *uep)
+static bool serialize_uep(undobuf_st *bi, u_entry_T *uep)
 {
     undo_write_bytes(bi, (uintmax_t)uep->ue_top, 4);
     undo_write_bytes(bi, (uintmax_t)uep->ue_bot, 4);
@@ -1142,7 +1142,7 @@ static bool serialize_uep(bufinfo_T *bi, u_entry_T *uep)
     return true;
 }
 
-static u_entry_T *unserialize_uep(bufinfo_T *bi,
+static u_entry_T *unserialize_uep(undobuf_st *bi,
                                   bool *error,
                                   const char *file_name)
 {
@@ -1198,7 +1198,7 @@ static u_entry_T *unserialize_uep(bufinfo_T *bi,
 }
 
 /// Serializes "pos".
-static void serialize_pos(bufinfo_T *bi, apos_st pos)
+static void serialize_pos(undobuf_st *bi, apos_st pos)
 {
     undo_write_bytes(bi, (uintmax_t)pos.lnum, 4);
     undo_write_bytes(bi, (uintmax_t)pos.col, 4);
@@ -1206,7 +1206,7 @@ static void serialize_pos(bufinfo_T *bi, apos_st pos)
 }
 
 /// Unserializes the apos_st at the current position.
-static void unserialize_pos(bufinfo_T *bi, apos_st *pos)
+static void unserialize_pos(undobuf_st *bi, apos_st *pos)
 {
     pos->lnum = undo_read_4c(bi);
 
@@ -1231,7 +1231,7 @@ static void unserialize_pos(bufinfo_T *bi, apos_st *pos)
 }
 
 /// Serializes "info".
-static void serialize_visualinfo(bufinfo_T *bi, visualinfo_st *info)
+static void serialize_visualinfo(undobuf_st *bi, visualinfo_st *info)
 {
     serialize_pos(bi, info->vi_start);
     serialize_pos(bi, info->vi_end);
@@ -1240,7 +1240,7 @@ static void serialize_visualinfo(bufinfo_T *bi, visualinfo_st *info)
 }
 
 /// Unserializes the visualinfo_st at the current position.
-static void unserialize_visualinfo(bufinfo_T *bi, visualinfo_st *info)
+static void unserialize_visualinfo(undobuf_st *bi, visualinfo_st *info)
 {
     unserialize_pos(bi, &info->vi_start);
     unserialize_pos(bi, &info->vi_end);
@@ -1280,7 +1280,7 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
     FILE *fp = NULL;
     int perm;
     bool write_ok = false;
-    bufinfo_T bi;
+    undobuf_st bi;
 
     if(name == NULL)
     {
@@ -1624,7 +1624,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         goto error;
     }
 
-    bufinfo_T bi;
+    undobuf_st bi;
     bi.bi_buf = curbuf;
     bi.bi_fp = fp;
 
@@ -1963,7 +1963,7 @@ theend:
 /// @param len The number of bytes to write
 ///
 /// @returns false in case of an error.
-static bool undo_write(bufinfo_T *bi, uint8_t *ptr, size_t len)
+static bool undo_write(undobuf_st *bi, uint8_t *ptr, size_t len)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     return fwrite(ptr, len, 1, bi->bi_fp) == 1;
@@ -1978,7 +1978,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param len The number of bytes to use when writing the number.
 ///
 /// @returns false in case of an error.
-static bool undo_write_bytes(bufinfo_T *bi, uintmax_t nr, size_t len)
+static bool undo_write_bytes(undobuf_st *bi, uintmax_t nr, size_t len)
 {
     assert(len > 0);
     uint8_t buf[8];
@@ -1995,28 +1995,28 @@ static bool undo_write_bytes(bufinfo_T *bi, uintmax_t nr, size_t len)
 ///
 /// Instead of writing the pointer itself, we use the sequence
 /// number of the header. This is converted back to pointers when reading.
-static void put_header_ptr(bufinfo_T *bi, u_header_T *uhp)
+static void put_header_ptr(undobuf_st *bi, u_header_T *uhp)
 {
     assert(uhp == NULL || uhp->uh_seq >= 0);
     undo_write_bytes(bi, (uint64_t)(uhp != NULL ? uhp->uh_seq : 0), 4);
 }
 
-static int undo_read_4c(bufinfo_T *bi)
+static int undo_read_4c(undobuf_st *bi)
 {
     return get4c(bi->bi_fp);
 }
 
-static int undo_read_2c(bufinfo_T *bi)
+static int undo_read_2c(undobuf_st *bi)
 {
     return get2c(bi->bi_fp);
 }
 
-static int undo_read_byte(bufinfo_T *bi)
+static int undo_read_byte(undobuf_st *bi)
 {
     return getc(bi->bi_fp);
 }
 
-static time_t undo_read_time(bufinfo_T *bi)
+static time_t undo_read_time(undobuf_st *bi)
 {
     return get8ctime(bi->bi_fp);
 }
@@ -2028,7 +2028,7 @@ static time_t undo_read_time(bufinfo_T *bi)
 /// @param size   The size of the character buffer
 ///
 /// @returns false in case of an error.
-static bool undo_read(bufinfo_T *bi, uint8_t *buffer, size_t size)
+static bool undo_read(undobuf_st *bi, uint8_t *buffer, size_t size)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     return fread(buffer, size, 1, bi->bi_fp) == 1;
@@ -2039,7 +2039,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param len can be zero to allocate an empty line.
 ///
 /// @returns a pointer to allocated memory or NULL in case of an error.
-static uint8_t *undo_read_string(bufinfo_T *bi, size_t len)
+static uint8_t *undo_read_string(undobuf_st *bi, size_t len)
 {
     uint8_t *ptr = xmallocz(len);
 

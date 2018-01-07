@@ -87,6 +87,6 @@ typedef struct
 {
     fbuf_st *bi_buf;
     FILE *bi_fp;
-} bufinfo_T;
+} undobuf_st;
 
 #endif // NVIM_UNDO_DEFS_H
