@@ -38,10 +38,10 @@ typedef struct
     bool didcomma;           ///< True if previous token was comma.
     bool didcolon;           ///< True if previous token was colon.
     typval_T val;            ///< Actual value.
-} ValuesStackItem;
+} value_item_st;
 
 /// Vector containing values not yet saved in any container
-typedef kvec_t(ValuesStackItem) ValuesStack;
+typedef kvec_t(value_item_st) ValuesStack;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval/decode.c.generated.h"
@@ -111,7 +111,7 @@ FUNC_ATTR_NONNULL_ALL
 /// is restarted, otherwise unused.
 ///
 /// @return OK in case of success, FAIL in case of error.
-static inline int json_decoder_pop(ValuesStackItem obj,
+static inline int json_decoder_pop(value_item_st obj,
                                    ValuesStack *const stack,
                                    container_stack_st *const container_stack,
                                    const char **const pp,
@@ -165,7 +165,7 @@ FUNC_ATTR_NONNULL_ALL
             return FAIL;
         }
 
-        ValuesStackItem key = kv_pop(*stack);
+        value_item_st key = kv_pop(*stack);
 
         if(last_container.special_val == NULL)
         {
@@ -232,7 +232,7 @@ FUNC_ATTR_NONNULL_ALL
             // Restart
             (void) kv_pop(*container_stack);
 
-            ValuesStackItem last_container_val =
+            value_item_st last_container_val =
                 kv_A(*stack, last_container.stack_index);
 
             while(kv_size(*stack) > last_container.stack_index)
@@ -258,7 +258,7 @@ FUNC_ATTR_NONNULL_ALL
     ((int) ((e) - (p))), (p)
 
 #define OBJ(obj_tv, is_sp_string, didcomma_, didcolon_) \
-    ((ValuesStackItem) {                                \
+    ((value_item_st) {                                \
         .is_special_string = (is_sp_string),            \
         .val = (obj_tv),                                \
         .didcomma = (didcomma_),                        \
