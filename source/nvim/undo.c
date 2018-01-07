@@ -1231,7 +1231,7 @@ static void unserialize_pos(bufinfo_T *bi, apos_st *pos)
 }
 
 /// Serializes "info".
-static void serialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
+static void serialize_visualinfo(bufinfo_T *bi, visualinfo_st *info)
 {
     serialize_pos(bi, info->vi_start);
     serialize_pos(bi, info->vi_end);
@@ -1239,8 +1239,8 @@ static void serialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
     undo_write_bytes(bi, (uintmax_t)info->vi_curswant, 4);
 }
 
-/// Unserializes the visualinfo_T at the current position.
-static void unserialize_visualinfo(bufinfo_T *bi, visualinfo_T *info)
+/// Unserializes the visualinfo_st at the current position.
+static void unserialize_visualinfo(bufinfo_T *bi, visualinfo_st *info)
 {
     unserialize_pos(bi, &info->vi_start);
     unserialize_pos(bi, &info->vi_end);
@@ -2701,7 +2701,7 @@ static void u_undoredo(int undo)
     int old_flags;
     int new_flags;
     fmark_T namedm[NMARKS];
-    visualinfo_T visualinfo;
+    visualinfo_st visualinfo;
 
     int empty_buffer; // buffer became empty
     u_header_T *curhead = curbuf->b_u_curhead;

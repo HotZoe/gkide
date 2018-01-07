@@ -503,7 +503,7 @@ struct file_buffer_s
     uint64_t b_orig_size;     ///< size of original file in bytes
     int b_orig_mode;          ///< mode of original file
     fmark_T b_namedm[NMARKS]; ///< current named marks (mark.c)
-    visualinfo_T b_visual;    ///< These variables are set when VIsual_active becomes FALSE
+    visualinfo_st b_visual;    ///< These variables are set when VIsual_active becomes FALSE
     int b_visual_mode_eval;   ///< b_visual.vi_mode for visualmode()
     fmark_T b_last_cursor;    ///< cursor position when last unloading this
     fmark_T b_last_insert;    ///< where Insert mode was left

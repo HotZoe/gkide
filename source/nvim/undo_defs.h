@@ -12,11 +12,11 @@
 /// Structure to store info about the Visual area.
 typedef struct
 {
-    apos_st vi_start;      ///< start pos of last VIsual
-    apos_st vi_end;        ///< end position of last VIsual
-    int vi_mode;         ///< VIsual_mode of last VIsual
+    apos_st vi_start;        ///< start pos of last VIsual
+    apos_st vi_end;          ///< end position of last VIsual
+    int vi_mode;             ///< VIsual_mode of last VIsual
     columnum_kt vi_curswant; ///< MAXCOL from w_curswant
-} visualinfo_T;
+} visualinfo_st;
 
 typedef struct u_entry u_entry_T;
 
@@ -24,15 +24,15 @@ typedef struct u_header u_header_T;
 
 struct u_entry
 {
-    u_entry_T *ue_next;  ///< pointer to next entry in list
+    u_entry_T *ue_next;   ///< pointer to next entry in list
     linenum_kt ue_top;     ///< number of line above undo block
     linenum_kt ue_bot;     ///< number of line below undo block
     linenum_kt ue_lcount;  ///< linecount when u_save called
-    uchar_kt **ue_array; ///< array of lines in undo block
-    long ue_size;        ///< number of lines in ue_array
+    uchar_kt **ue_array;   ///< array of lines in undo block
+    long ue_size;          ///< number of lines in ue_array
 
 #ifdef U_DEBUG
-    int ue_magic;        ///< magic number to check allocation
+    int ue_magic;          ///< magic number to check allocation
 #endif
 };
 
@@ -69,7 +69,7 @@ struct u_header
     long uh_cursor_vcol;
     int uh_flags;               ///< see below
     fmark_T uh_namedm[NMARKS];  ///< marks before undo/after redo
-    visualinfo_T uh_visual;     ///< Visual areas before undo/after redo
+    visualinfo_st uh_visual;     ///< Visual areas before undo/after redo
     time_t uh_time;             ///< timestamp when the change was made
     long uh_save_nr;            ///< set when the file was saved after
                                 ///< the changes in this block
