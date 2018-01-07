@@ -515,7 +515,7 @@ typedef struct
     bool stopped;
     bool paused;
     callback_st callback;
-} timer_T;
+} timer_st;
 
 typedef void (*func_ptr_ft)(void);
 
@@ -6718,7 +6718,7 @@ bool garbage_collect(bool testing)
 
     // Timers
     {
-        timer_T *timer;
+        timer_st *timer;
         map_foreach_value(timers, timer, {
             set_ref_in_callback(&timer->callback, copyID, NULL, NULL);
         })
@@ -21905,7 +21905,7 @@ static bool set_ref_in_callback(callback_st *callback,
     return false;
 }
 
-static void add_timer_info(typval_st *rettv, timer_T *timer)
+static void add_timer_info(typval_st *rettv, timer_st *timer)
 {
     list_st *list = rettv->vval.v_list;
     dict_st *dict = tv_dict_alloc();
@@ -21944,7 +21944,7 @@ static void add_timer_info(typval_st *rettv, timer_T *timer)
 
 static void add_timer_info_all(typval_st *rettv)
 {
-    timer_T *timer;
+    timer_st *timer;
 
     map_foreach_value(timers, timer, {
         if(!timer->stopped)
@@ -21969,7 +21969,7 @@ static void f_timer_info(typval_st *argvars,
             return;
         }
 
-        timer_T *timer =
+        timer_st *timer =
             pmap_get(uint64_t)(timers, tv_get_number(&argvars[0]));
 
         if(timer != NULL && !timer->stopped)
@@ -21995,7 +21995,7 @@ static void f_timer_pause(typval_st *argvars,
     }
 
     int paused = (bool)tv_get_number(&argvars[1]);
-    timer_T *timer = pmap_get(uint64_t)(timers, tv_get_number(&argvars[0]));
+    timer_st *timer = pmap_get(uint64_t)(timers, tv_get_number(&argvars[0]));
 
     if(timer != NULL)
     {
@@ -22009,7 +22009,7 @@ static void f_timer_start(typval_st *argvars,
                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const long timeout = tv_get_number(&argvars[0]);
-    timer_T *timer;
+    timer_st *timer;
     int repeat = 1;
     dict_st *dict;
     rettv->vval.v_number = -1;
@@ -22074,7 +22074,7 @@ static void f_timer_stop(typval_st *argvars,
         return;
     }
 
-    timer_T *timer = pmap_get(uint64_t)(timers, tv_get_number(&argvars[0]));
+    timer_st *timer = pmap_get(uint64_t)(timers, tv_get_number(&argvars[0]));
 
     if(timer == NULL)
     {
@@ -22094,7 +22094,7 @@ static void f_timer_stopall(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// invoked on the main loop
 static void timer_due_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
 {
-    timer_T *timer = (timer_T *)data;
+    timer_st *timer = (timer_st *)data;
 
     if(timer->stopped || timer->paused)
     {
@@ -22131,7 +22131,7 @@ static void timer_due_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
     timer_decref(timer);
 }
 
-static void timer_stop(timer_T *timer)
+static void timer_stop(timer_st *timer)
 {
     if(timer->stopped)
     {
@@ -22147,14 +22147,14 @@ static void timer_stop(timer_T *timer)
 /// invoked on next event loop tick, so queue is empty
 static void timer_close_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
 {
-    timer_T *timer = (timer_T *)data;
+    timer_st *timer = (timer_st *)data;
     multiqueue_free(timer->tw.events);
     callback_free(&timer->callback);
     pmap_del(uint64_t)(timers, timer->timer_id);
     timer_decref(timer);
 }
 
-static void timer_decref(timer_T *timer)
+static void timer_decref(timer_st *timer)
 {
     if(--timer->refcount == 0)
     {
@@ -22164,7 +22164,7 @@ static void timer_decref(timer_T *timer)
 
 static void timer_stop_all(void)
 {
-    timer_T *timer;
+    timer_st *timer;
 
     map_foreach_value(timers, timer, {
         timer_stop(timer);
