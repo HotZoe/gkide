@@ -517,19 +517,19 @@ typedef struct
     callback_st callback;
 } timer_T;
 
-typedef void (*FunPtr)(void);
+typedef void (*func_ptr_ft)(void);
 
-/// Prototype of C function that implements VimL function
-typedef void (*VimLFunc)(typval_st *args, typval_st *rvar, FunPtr data);
+/// Prototype of C function that implements NvimL function
+typedef void (*nvl_func_ft)(typval_st *args, typval_st *rvar, func_ptr_ft data);
 
-/// Structure holding VimL function definition
+/// Structure holding NvimL function definition
 typedef struct fst
 {
     char *name;        ///< Name of the function.
     uint8_t min_argc;  ///< Minimal number of arguments.
     uint8_t max_argc;  ///< Maximal number of arguments.
-    VimLFunc func;     ///< Function implementation.
-    FunPtr data;       ///< Userdata for function implementation.
+    nvl_func_ft func;  ///< Function implementation.
+    func_ptr_ft data;  ///< Userdata for function implementation.
 } VimLFuncDef;
 
 KHASH_MAP_INIT_STR(functions, VimLFuncDef)
@@ -8480,7 +8480,7 @@ static int non_zero_arg(typval_st *argvars)
 /// Some versions of glibc on i386 have an optimization that makes it harder to
 /// call math functions indirectly from inside an inlined function, causing
 /// compile-time errors. Avoid `inline` in that case. #3072
-static void float_op_wrapper(typval_st *argvars, typval_st *rettv, FunPtr fptr)
+static void float_op_wrapper(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 {
     float_kt f;
     float_kt(*function)(float_kt) = (float_kt(*)(float_kt))fptr;
@@ -8496,7 +8496,7 @@ static void float_op_wrapper(typval_st *argvars, typval_st *rettv, FunPtr fptr)
     }
 }
 
-static void api_wrapper(typval_st *argvars, typval_st *rettv, FunPtr fptr)
+static void api_wrapper(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 {
     api_dispatch_ft fn = (api_dispatch_ft)fptr;
     Array args = ARRAY_DICT_INIT;
@@ -8530,11 +8530,11 @@ end:
 /// "abs(expr)" function
 static void f_abs(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type == kNvarFloat)
     {
-        float_op_wrapper(argvars, rettv, (FunPtr)&fabs);
+        float_op_wrapper(argvars, rettv, (func_ptr_ft)&fabs);
     }
     else
     {
@@ -8560,7 +8560,7 @@ static void f_abs(typval_st *argvars,
 /// "add(list, item)" function
 static void f_add(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
     rettv->vval.v_number = 1; // Default: Failed
@@ -8583,7 +8583,7 @@ static void f_add(typval_st *argvars,
 /// "and(expr, expr)" function
 static void f_and(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = tv_get_number_chk(&argvars[0], NULL)
                            & tv_get_number_chk(&argvars[1], NULL);
@@ -8593,7 +8593,7 @@ static void f_and(typval_st *argvars,
 /// "api_info()" function
 static void f_api_info(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     Dictionary metadata = api_metadata();
     (void)object_to_vim(DICTIONARY_OBJ(metadata), rettv, NULL);
@@ -8603,7 +8603,7 @@ static void f_api_info(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "append(lnum, string/list)" function
 static void f_append(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     long lnum;
     list_st *l = NULL;
@@ -8687,7 +8687,7 @@ static void f_append(typval_st *argvars,
 /// "argc()" function
 static void f_argc(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = ARGCOUNT;
 }
@@ -8695,7 +8695,7 @@ static void f_argc(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "argidx()" function
 static void f_argidx(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = curwin->w_arg_idx;
 }
@@ -8703,7 +8703,7 @@ static void f_argidx(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "arglistid" function
 static void f_arglistid(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
     win_st *wp = find_tabwin(&argvars[0], &argvars[1]);
@@ -8717,7 +8717,7 @@ static void f_arglistid(typval_st *argvars,
 /// "argv(nr)" function
 static void f_argv(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int idx;
 
@@ -8876,7 +8876,7 @@ static void assert_equal_common(typval_st *argvars, assert_type_T atype)
 /// "assert_equal(expected, actual[, msg])" function
 static void f_assert_equal(typval_st *argvars,
                            typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_equal_common(argvars, ASSERT_EQUAL);
 }
@@ -8884,7 +8884,7 @@ static void f_assert_equal(typval_st *argvars,
 /// "assert_notequal(expected, actual[, msg])" function
 static void f_assert_notequal(typval_st *argvars,
                               typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                              FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                              func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_equal_common(argvars, ASSERT_NOTEQUAL);
 }
@@ -8892,7 +8892,7 @@ static void f_assert_notequal(typval_st *argvars,
 /// "assert_exception(string[, msg])" function
 static void f_assert_exception(typval_st *argvars,
                                typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                               FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                               func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     garray_st ga;
     const char *const error = tv_get_string_chk(&argvars[0]);
@@ -8924,7 +8924,7 @@ static void f_assert_exception(typval_st *argvars,
 /// "assert_fails(cmd [, error])" function
 static void f_assert_fails(typval_st *argvars,
                            typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const cmd = tv_get_string_chk(&argvars[0]);
     garray_st ga;
@@ -9036,7 +9036,7 @@ static void assert_bool(typval_st *argvars, bool is_true)
 /// "assert_false(actual[, msg])" function
 static void f_assert_false(typval_st *argvars,
                            typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_bool(argvars, false);
 }
@@ -9069,7 +9069,7 @@ static void assert_match_common(typval_st *argvars, assert_type_T atype)
 /// "assert_inrange(lower, upper[, msg])" function
 static void f_assert_inrange(typval_st *argvars,
                              typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_inrange(argvars);
 }
@@ -9077,7 +9077,7 @@ static void f_assert_inrange(typval_st *argvars,
 /// "assert_match(pattern, actual[, msg])" function
 static void f_assert_match(typval_st *argvars,
                            typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_match_common(argvars, ASSERT_MATCH);
 }
@@ -9085,7 +9085,7 @@ static void f_assert_match(typval_st *argvars,
 /// "assert_notmatch(pattern, actual[, msg])" function
 static void f_assert_notmatch(typval_st *argvars,
                               typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                              FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                              func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_match_common(argvars, ASSERT_NOTMATCH);
 }
@@ -9093,7 +9093,7 @@ static void f_assert_notmatch(typval_st *argvars,
 // "assert_true(actual[, msg])" function
 static void f_assert_true(typval_st *argvars,
                           typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     assert_bool(argvars, true);
 }
@@ -9101,7 +9101,7 @@ static void f_assert_true(typval_st *argvars,
 /// "atan2()" function
 static void f_atan2(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     float_kt fx;
     float_kt fy;
@@ -9120,7 +9120,7 @@ static void f_atan2(typval_st *argvars,
 /// "browse(save, title, initdir, default)" function
 static void f_browse(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_string = NULL;
     rettv->v_type = kNvarString;
@@ -9129,7 +9129,7 @@ static void f_browse(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "browsedir(title, initdir)" function
 static void f_browsedir(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     f_browse(argvars, rettv, NULL);
 }
@@ -9171,7 +9171,7 @@ static fbuf_st *find_buffer(typval_st *avar)
 /// "bufexists(expr)" function
 static void f_bufexists(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = (find_buffer(&argvars[0]) != NULL);
 }
@@ -9179,7 +9179,7 @@ static void f_bufexists(typval_st *argvars,
 /// "buflisted(expr)" function
 static void f_buflisted(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     fbuf_st *buf;
     buf = find_buffer(&argvars[0]);
@@ -9189,7 +9189,7 @@ static void f_buflisted(typval_st *argvars,
 /// "bufloaded(expr)" function
 static void f_bufloaded(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     fbuf_st *buf;
     buf = find_buffer(&argvars[0]);
@@ -9250,7 +9250,7 @@ static fbuf_st *get_buf_tv(typval_st *tv, int curtab_only)
 /// "bufname(expr)" function
 static void f_bufname(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -9273,7 +9273,7 @@ static void f_bufname(typval_st *argvars,
 /// "bufnr(expr)" function
 static void f_bufnr(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool error = false;
     rettv->vval.v_number = -1;
@@ -9349,7 +9349,7 @@ end:
 /// "bufwinid(nr)" function
 static void f_bufwinid(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     buf_win_common(argvars, rettv, false);
 }
@@ -9357,7 +9357,7 @@ static void f_bufwinid(typval_st *argvars,
 /// "bufwinnr(nr)" function
 static void f_bufwinnr(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     buf_win_common(argvars, rettv, true);
 }
@@ -9365,7 +9365,7 @@ static void f_bufwinnr(typval_st *argvars,
 /// "byte2line(byte)" function
 static void f_byte2line(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     long boff = tv_get_number(&argvars[0]) - 1;
 
@@ -9416,7 +9416,7 @@ static void byteidx(typval_st *argvars, typval_st *rettv, int comp)
 /// "byteidx()" function
 static void f_byteidx(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     byteidx(argvars, rettv, FALSE);
 }
@@ -9424,7 +9424,7 @@ static void f_byteidx(typval_st *argvars,
 /// "byteidxcomp()" function
 static void f_byteidxcomp(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     byteidx(argvars, rettv, TRUE);
 }
@@ -9482,7 +9482,7 @@ int func_call(uchar_kt *name,
 /// "call(func, arglist [, dict])" function
 static void f_call(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[1].v_type != kNvarList)
     {
@@ -9535,7 +9535,7 @@ static void f_call(typval_st *argvars,
 /// "changenr()" function
 static void f_changenr(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = curbuf->b_u_seq_cur;
 }
@@ -9543,7 +9543,7 @@ static void f_changenr(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "char2nr(string)" function
 static void f_char2nr(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[1].v_type != kNvarUnknown)
     {
@@ -9560,7 +9560,7 @@ static void f_char2nr(typval_st *argvars,
 /// "cindent(lnum)" function
 static void f_cindent(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     pos_T pos;
     linenr_T lnum;
@@ -9582,7 +9582,7 @@ static void f_cindent(typval_st *argvars,
 /// "clearmatches()" function
 static void f_clearmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                            typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     clear_matches(curwin);
 }
@@ -9590,7 +9590,7 @@ static void f_clearmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "col(string)" function
 static void f_col(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     colnr_T col = 0;
     pos_T *fp;
@@ -9641,7 +9641,7 @@ static void f_col(typval_st *argvars,
 /// "complete()" function
 static void f_complete(typval_st *argvars,
                        typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if((curmod & kInsertMode) == 0)
     {
@@ -9675,7 +9675,7 @@ static void f_complete(typval_st *argvars,
 /// "complete_add()" function
 static void f_complete_add(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = ins_compl_add_tv(&argvars[0], 0);
 }
@@ -9683,7 +9683,7 @@ static void f_complete_add(typval_st *argvars,
 /// "complete_check()" function
 static void f_complete_check(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                              typval_st *rettv,
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int saved = RedrawingDisabled;
     RedrawingDisabled = 0;
@@ -9695,7 +9695,7 @@ static void f_complete_check(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "confirm(message, buttons[, default [, type]])" function
 static void f_confirm(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char buf[NUMBUFLEN];
     char buf2[NUMBUFLEN];
@@ -9782,7 +9782,7 @@ static void f_confirm(typval_st *argvars,
 /// "copy()" function
 static void f_copy(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     var_item_copy(NULL, &argvars[0], rettv, false, 0);
 }
@@ -9790,7 +9790,7 @@ static void f_copy(typval_st *argvars,
 /// "count()" function
 static void f_count(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     long n = 0;
     int ic = FALSE;
@@ -9889,7 +9889,7 @@ static void f_count(typval_st *argvars,
 /// Checks the existence of a cscope connection.
 static void f_cscope_connection(typval_st *argvars,
                                 typval_st *rettv,
-                                FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                                func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int num = 0;
     const char *dbpath = NULL;
@@ -9919,7 +9919,7 @@ static void f_cscope_connection(typval_st *argvars,
 /// @returns 0 when the position could be set, -1 otherwise.
 static void f_cursor(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     long line, col;
     long coladd = 0;
@@ -9991,7 +9991,7 @@ static void f_cursor(typval_st *argvars,
 /// "deepcopy()" function
 static void f_deepcopy(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int noref = 0;
 
@@ -10014,7 +10014,7 @@ static void f_deepcopy(typval_st *argvars,
 /// "delete()" function
 static void f_delete(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
 
@@ -10067,7 +10067,7 @@ static void f_delete(typval_st *argvars,
 /// dictwatcheradd(dict, key, funcref) function
 static void f_dictwatcheradd(typval_st *argvars,
                              typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted() || check_secure())
     {
@@ -10118,7 +10118,7 @@ static void f_dictwatcheradd(typval_st *argvars,
 // dictwatcherdel(dict, key, funcref) function
 static void f_dictwatcherdel(typval_st *argvars,
                              typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted() || check_secure())
     {
@@ -10165,7 +10165,7 @@ static void f_dictwatcherdel(typval_st *argvars,
 /// "did_filetype()" function
 static void f_did_filetype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = did_filetype;
 }
@@ -10173,7 +10173,7 @@ static void f_did_filetype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "diff_filler()" function
 static void f_diff_filler(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = diff_check_fill(curwin, tv_get_lnum(argvars));
 }
@@ -10181,7 +10181,7 @@ static void f_diff_filler(typval_st *argvars,
 /// "diff_hlID()" function
 static void f_diff_hlID(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T lnum = tv_get_lnum(argvars);
     static linenr_T prev_lnum = 0;
@@ -10257,7 +10257,7 @@ static void f_diff_hlID(typval_st *argvars,
 /// "empty({expr})" function
 static void f_empty(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool n = true;
 
@@ -10306,7 +10306,7 @@ static void f_empty(typval_st *argvars,
 /// "escape({string}, {chars})" function
 static void f_escape(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char buf[NUMBUFLEN];
 
@@ -10320,7 +10320,7 @@ static void f_escape(typval_st *argvars,
 /// "eval()" function
 static void f_eval(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *s = tv_get_string_chk(&argvars[0]);
 
@@ -10351,7 +10351,7 @@ static void f_eval(typval_st *argvars,
 /// "eventhandler()" function
 static void f_eventhandler(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = vgetc_busy;
 }
@@ -10359,7 +10359,7 @@ static void f_eventhandler(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "executable()" function
 static void f_executable(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *name = tv_get_string(&argvars[0]);
 
@@ -10392,7 +10392,7 @@ static uchar_kt *get_list_line(int FUNC_ARGS_UNUSED_REALY(c),
 /// "execute(command)" function
 static void f_execute(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const int save_msg_silent = msg_silent;
     const int save_emsg_silent = emsg_silent;
@@ -10468,7 +10468,7 @@ static void f_execute(typval_st *argvars,
 /// "exepath()" function
 static void f_exepath(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *arg = tv_get_string(&argvars[0]);
     uchar_kt *path = NULL;
@@ -10482,7 +10482,7 @@ static void f_exepath(typval_st *argvars,
 /// "exists()" function
 static void f_exists(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int n = false;
     int len = 0;
@@ -10580,7 +10580,7 @@ static void f_exists(typval_st *argvars,
 /// "expand()" function
 static void f_expand(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     size_t len;
     uchar_kt *errormsg;
@@ -10671,7 +10671,7 @@ static void f_expand(typval_st *argvars,
 /// - "extend(dict, dict [, action])" function
 static void f_extend(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const arg_errmsg = N_("extend() argument");
 
@@ -10795,7 +10795,7 @@ static void f_extend(typval_st *argvars,
 /// "feedkeys()" function
 static void f_feedkeys(typval_st *argvars,
                        typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // This is not allowed in the sandbox. If the commands would still be
     // executed in the sandbox it would be OK, but it probably happens later,
@@ -10821,7 +10821,7 @@ static void f_feedkeys(typval_st *argvars,
 /// "filereadable()" function
 static void f_filereadable(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const p = tv_get_string(&argvars[0]);
 
@@ -10833,7 +10833,7 @@ static void f_filereadable(typval_st *argvars,
 /// 2 for a dir which we have rights to write into.
 static void f_filewritable(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *filename = tv_get_string(&argvars[0]);
     rettv->vval.v_number = os_file_is_writable(filename);
@@ -11164,7 +11164,7 @@ theend:
 /// "filter()" function
 static void f_filter(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     filter_map(argvars, rettv, FALSE);
 }
@@ -11172,7 +11172,7 @@ static void f_filter(typval_st *argvars,
 /// "finddir({fname}[, {path}[, {count}]])" function
 static void f_finddir(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     findfilendir(argvars, rettv, FINDFILE_DIR);
 }
@@ -11180,7 +11180,7 @@ static void f_finddir(typval_st *argvars,
 /// "findfile({fname}[, {path}[, {count}]])" function
 static void f_findfile(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     findfilendir(argvars, rettv, FINDFILE_FILE);
 }
@@ -11188,7 +11188,7 @@ static void f_findfile(typval_st *argvars,
 /// "float2nr({float})" function
 static void f_float2nr(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     float_kt f;
 
@@ -11212,7 +11212,7 @@ static void f_float2nr(typval_st *argvars,
 /// "fmod()" function
 static void f_fmod(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     float_kt fx;
     float_kt fy;
@@ -11231,7 +11231,7 @@ static void f_fmod(typval_st *argvars,
 /// "fnameescape({string})" function
 static void f_fnameescape(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_string =
         (uchar_kt *)vim_strsave_fnameescape(tv_get_string(&argvars[0]), false);
@@ -11242,7 +11242,7 @@ static void f_fnameescape(typval_st *argvars,
 /// "fnamemodify({fname}, {mods})" function
 static void f_fnamemodify(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *fbuf = NULL;
     size_t len;
@@ -11309,7 +11309,7 @@ static void foldclosed_both(typval_st *argvars, typval_st *rettv, int end)
 /// "foldclosed()" function
 static void f_foldclosed(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     foldclosed_both(argvars, rettv, FALSE);
 }
@@ -11317,7 +11317,7 @@ static void f_foldclosed(typval_st *argvars,
 /// "foldclosedend()" function
 static void f_foldclosedend(typval_st *argvars,
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     foldclosed_both(argvars, rettv, TRUE);
 }
@@ -11325,7 +11325,7 @@ static void f_foldclosedend(typval_st *argvars,
 /// "foldlevel()" function
 static void f_foldlevel(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const linenr_T lnum = tv_get_lnum(argvars);
 
@@ -11338,7 +11338,7 @@ static void f_foldlevel(typval_st *argvars,
 /// nvimL: @b foldtext() function
 static void f_foldtext(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T foldstart;
     linenr_T foldend;
@@ -11408,7 +11408,7 @@ static void f_foldtext(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "foldtextresult(lnum)" function
 static void f_foldtextresult(typval_st *argvars,
                              typval_st *rettv,
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *text;
     uchar_kt buf[FOLD_TEXT_LEN];
@@ -11442,13 +11442,13 @@ static void f_foldtextresult(typval_st *argvars,
 /// "foreground()" function
 static void f_foreground(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 { /* empty body */ }
 
 static void common_function(typval_st *argvars,
                             typval_st *rettv,
                             bool is_funcref,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *s;
     uchar_kt *name;
@@ -11684,12 +11684,12 @@ theend:
     xfree(trans_name);
 }
 
-static void f_funcref(typval_st *argvars, typval_st *rettv, FunPtr fptr)
+static void f_funcref(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 {
     common_function(argvars, rettv, true, fptr);
 }
 
-static void f_function(typval_st *argvars, typval_st *rettv, FunPtr fptr)
+static void f_function(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 {
     common_function(argvars, rettv, false, fptr);
 }
@@ -11697,7 +11697,7 @@ static void f_function(typval_st *argvars, typval_st *rettv, FunPtr fptr)
 /// "garbagecollect()" function
 static void f_garbagecollect(typval_st *argvars,
                              typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // This is postponed until we are back at the toplevel, because we may be
     // using Lists and Dicts internally.  E.g.: ":echo [garbagecollect()]".
@@ -11712,7 +11712,7 @@ static void f_garbagecollect(typval_st *argvars,
 /// "get()" function
 static void f_get(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     listitem_st *li;
     list_st *l;
@@ -11893,7 +11893,7 @@ static dict_st *get_buffer_info(fbuf_st *buf)
 /// "getbufinfo()" function
 static void f_getbufinfo(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     fbuf_st *argbuf = NULL;
     bool filtered = false;
@@ -12065,7 +12065,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// "getbufline()" function
 static void f_getbufline(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     fbuf_st *buf = NULL;
 
@@ -12087,7 +12087,7 @@ static void f_getbufline(typval_st *argvars,
 /// "getbufvar()" function
 static void f_getbufvar(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool done = false;
     rettv->v_type = kNvarString;
@@ -12164,7 +12164,7 @@ f_getbufvar_end:
 /// "getchar()" function
 static void f_getchar(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     number_kt n;
     bool error = false;
@@ -12290,7 +12290,7 @@ static void f_getchar(typval_st *argvars,
 /// "getcharmod()" function
 static void f_getcharmod(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = mod_mask;
 }
@@ -12298,7 +12298,7 @@ static void f_getcharmod(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcharsearch()" function
 static void f_getcharsearch(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_dict_alloc_ret(rettv);
     dict_st *dict = rettv->vval.v_dict;
@@ -12310,7 +12310,7 @@ static void f_getcharsearch(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcmdline()" function
 static void f_getcmdline(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = get_cmdline_str();
@@ -12319,7 +12319,7 @@ static void f_getcmdline(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcmdpos()" function
 static void f_getcmdpos(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = get_cmdline_pos() + 1;
 }
@@ -12327,7 +12327,7 @@ static void f_getcmdpos(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcmdtype()" function
 static void f_getcmdtype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = xmallocz(1);
@@ -12337,7 +12337,7 @@ static void f_getcmdtype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcmdwintype()" function
 static void f_getcmdwintype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -12348,7 +12348,7 @@ static void f_getcmdwintype(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getcompletion()" function
 static void f_getcompletion(typval_st *argvars,
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *pat;
     expand_T xpc;
@@ -12448,7 +12448,7 @@ theend:
 /// @post  The return value will be a string.
 static void f_getcwd(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // Possible scope of working directory to return.
     CdScope scope = kCdScopeInvalid;
@@ -12601,7 +12601,7 @@ static void f_getcwd(typval_st *argvars,
 /// "getfontname()" function
 static void f_getfontname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -12610,7 +12610,7 @@ static void f_getfontname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getfperm({fname})" function
 static void f_getfperm(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char *perm = NULL;
     uchar_kt flags[] = "rwx";
@@ -12637,7 +12637,7 @@ static void f_getfperm(typval_st *argvars,
 /// "getfsize({fname})" function
 static void f_getfsize(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *fname = tv_get_string(&argvars[0]);
     rettv->v_type = kNvarNumber;
@@ -12671,7 +12671,7 @@ static void f_getfsize(typval_st *argvars,
 /// "getftime({fname})" function
 static void f_getftime(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *fname = tv_get_string(&argvars[0]);
     FileInfo file_info;
@@ -12689,7 +12689,7 @@ static void f_getftime(typval_st *argvars,
 /// "getftype({fname})" function
 static void f_getftype(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *type = NULL;
     char *t;
@@ -12811,7 +12811,7 @@ static void f_getftype(typval_st *argvars,
 /// "getline(lnum, [end])" function
 static void f_getline(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T end;
     bool retlist;
@@ -12871,7 +12871,7 @@ static void get_qf_loc_list(int is_qf,
 /// "getloclist()" function
 static void f_getloclist(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wp = find_win_by_nr(&argvars[0], NULL);
     get_qf_loc_list(false, wp, &argvars[1], rettv);
@@ -12880,7 +12880,7 @@ static void f_getloclist(typval_st *argvars,
 ///"getmatches()" function
 static void f_getmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     matchitem_T *cur = curwin->w_match_head;
     int i;
@@ -12942,7 +12942,7 @@ static void f_getmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getpid()" function
 static void f_getpid(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = os_get_pid();
 }
@@ -12996,7 +12996,7 @@ static void getpos_both(typval_st *argvars, typval_st *rettv, bool getcurpos)
 /// "getcurpos(string)" function
 static void f_getcurpos(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     getpos_both(argvars, rettv, true);
 }
@@ -13004,7 +13004,7 @@ static void f_getcurpos(typval_st *argvars,
 /// "getpos(string)" function
 static void f_getpos(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     getpos_both(argvars, rettv, false);
 }
@@ -13012,7 +13012,7 @@ static void f_getpos(typval_st *argvars,
 /// "getqflist()" functions
 static void f_getqflist(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_qf_loc_list(true, NULL, &argvars[0], rettv);
 }
@@ -13020,7 +13020,7 @@ static void f_getqflist(typval_st *argvars,
 /// "getreg()" function
 static void f_getreg(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *strregname;
     int arg2 = false;
@@ -13085,7 +13085,7 @@ static void f_getreg(typval_st *argvars,
 /// "getregtype()" function
 static void f_getregtype(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *strregname;
 
@@ -13145,7 +13145,7 @@ static dict_st *get_tabpage_info(tabpage_st *tp, int tp_idx)
 /// "gettabinfo()" function
 static void f_gettabinfo(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tabpage_st *tparg = NULL;
     tv_list_alloc_ret(rettv);
@@ -13189,7 +13189,7 @@ static void f_gettabinfo(typval_st *argvars,
 /// "gettabvar()" function
 static void f_gettabvar(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *oldcurwin;
     tabpage_st *tp, *oldtabpage;
@@ -13236,7 +13236,7 @@ static void f_gettabvar(typval_st *argvars,
 /// "gettabwinvar()" function
 static void f_gettabwinvar(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     getwinvar(argvars, rettv, 1);
 }
@@ -13267,7 +13267,7 @@ static dict_st *get_win_info(win_st *wp, int16_t tpnr, int16_t winnr)
 /// "getwininfo()" function
 static void f_getwininfo(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wparg = NULL;
     tv_list_alloc_ret(rettv);
@@ -13318,7 +13318,7 @@ static void f_getwininfo(typval_st *argvars,
 /// nvimL: getwinposx() function
 static void f_getwinposx(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
 }
@@ -13326,7 +13326,7 @@ static void f_getwinposx(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "getwinposy()" function
 static void f_getwinposy(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
 }
@@ -13411,7 +13411,7 @@ static win_st *find_tabwin(typval_st *wvp, typval_st *tvp)
 /// "getwinvar()" function
 static void f_getwinvar(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     getwinvar(argvars, rettv, 0);
 }
@@ -13512,7 +13512,7 @@ static void getwinvar(typval_st *argvars, typval_st *rettv, int off)
 /// "glob()" function
 static void f_glob(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int options = WILD_SILENT|WILD_USE_NL;
     expand_T xpc;
@@ -13593,7 +13593,7 @@ static void f_glob(typval_st *argvars,
 /// "globpath()" function
 static void f_globpath(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int flags = 0; // Flags for globpath.
     bool error = false;
@@ -13666,7 +13666,7 @@ static void f_globpath(typval_st *argvars,
 /// NvimL: glob2regpat() function
 static void f_glob2regpat(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const pat = tv_get_string_chk(&argvars[0]); // NULL on type error
     rettv->v_type = kNvarString;
@@ -13679,7 +13679,7 @@ static void f_glob2regpat(typval_st *argvars,
 /// NvimL: has() function
 static void f_has(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // the basic check list
     static const char *const has_list[] =
@@ -13909,7 +13909,7 @@ static void f_has(typval_st *argvars,
 /// NvimL: has_key() function
 static void f_has_key(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type != kNvarDict)
     {
@@ -13939,7 +13939,7 @@ static void f_has_key(typval_st *argvars,
 /// @post  The return value will be either the number `1` or `0`.
 static void f_haslocaldir(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // Possible scope of working directory to return.
     CdScope scope = kCdScopeInvalid;
@@ -14057,7 +14057,7 @@ static void f_haslocaldir(typval_st *argvars,
 /// "hasmapto()" function
 static void f_hasmapto(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *mode;
     const char *const name = tv_get_string(&argvars[0]);
@@ -14091,7 +14091,7 @@ static void f_hasmapto(typval_st *argvars,
 /// "histadd()" function
 static void f_histadd(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     HistoryType histype;
     rettv->vval.v_number = false;
@@ -14123,7 +14123,7 @@ static void f_histadd(typval_st *argvars,
 /// "histdel()" function
 static void f_histdel(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int n;
     const char *const str = tv_get_string_chk(&argvars[0]); // NULL on type error
@@ -14157,7 +14157,7 @@ static void f_histdel(typval_st *argvars,
 /// "histget()" function
 static void f_histget(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int idx;
     HistoryType type;
@@ -14191,7 +14191,7 @@ static void f_histget(typval_st *argvars,
 /// "histnr()" function
 static void f_histnr(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int i;
     const char *const history = tv_get_string_chk(&argvars[0]);
@@ -14214,7 +14214,7 @@ static void f_histnr(typval_st *argvars,
 /// "highlightID(name)" function
 static void f_hlID(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number =
         syn_name2id((const uchar_kt *)tv_get_string(&argvars[0]));
@@ -14223,7 +14223,7 @@ static void f_hlID(typval_st *argvars,
 /// "highlight_exists()" function
 static void f_hlexists(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number =
         highlight_exists((const uchar_kt *)tv_get_string(&argvars[0]));
@@ -14232,7 +14232,7 @@ static void f_hlexists(typval_st *argvars,
 /// "hostname()" function
 static void f_hostname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char hostname[256];
     os_get_hostname(hostname, 256);
@@ -14243,7 +14243,7 @@ static void f_hostname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// iconv() function
 static void f_iconv(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     vimconv_T vimconv;
     rettv->v_type = kNvarString;
@@ -14280,7 +14280,7 @@ static void f_iconv(typval_st *argvars,
 /// "indent()" function
 static void f_indent(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const linenr_T lnum = tv_get_lnum(argvars);
 
@@ -14297,7 +14297,7 @@ static void f_indent(typval_st *argvars,
 /// "index()" function
 static void f_index(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
     listitem_st  *item;
@@ -14538,7 +14538,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Also handles inputsecret() when inputsecret is set.
 static void f_input(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_user_input(argvars, rettv, FALSE);
 }
@@ -14546,7 +14546,7 @@ static void f_input(typval_st *argvars,
 /// "inputdialog()" function
 static void f_inputdialog(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_user_input(argvars, rettv, TRUE);
 }
@@ -14554,7 +14554,7 @@ static void f_inputdialog(typval_st *argvars,
 /// "inputlist()" function
 static void f_inputlist(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     listitem_st  *li;
     int selected;
@@ -14595,7 +14595,7 @@ static garray_st ga_userinput = {0, 0, sizeof(tasave_T), 4, NULL};
 /// "inputrestore()" function
 static void f_inputrestore(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(!GA_EMPTY(&ga_userinput))
     {
@@ -14613,7 +14613,7 @@ static void f_inputrestore(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "inputsave()" function
 static void f_inputsave(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // Add an entry to the stack of typeahead storage.
     tasave_T *p = GA_APPEND_VIA_PTR(tasave_T, &ga_userinput);
@@ -14623,7 +14623,7 @@ static void f_inputsave(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "inputsecret()" function
 static void f_inputsecret(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     cmdline_star++;
     inputsecret_flag++;
@@ -14635,7 +14635,7 @@ static void f_inputsecret(typval_st *argvars,
 /// "insert()" function
 static void f_insert(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
     bool error = false;
@@ -14684,7 +14684,7 @@ static void f_insert(typval_st *argvars,
 /// "invert(expr)" function
 static void f_invert(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = ~tv_get_number_chk(&argvars[0], NULL);
 }
@@ -14692,7 +14692,7 @@ static void f_invert(typval_st *argvars,
 /// "isdirectory()" function
 static void f_isdirectory(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = os_isdir((const uchar_kt *)tv_get_string(&argvars[0]));
 }
@@ -14700,7 +14700,7 @@ static void f_isdirectory(typval_st *argvars,
 /// "islocked()" function
 static void f_islocked(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     lval_T lv;
     dictitem_T  *di;
@@ -14829,7 +14829,7 @@ static void dict_list(typval_st *const tv,
 /// "id()" function
 static void f_id(typval_st *argvars,
                  typval_st *rettv,
-                 FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                 func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     const int len = vim_vsnprintf(NULL, 0, "%p", dummy_ap, argvars);
@@ -14842,7 +14842,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "items(dict)" function
 static void f_items(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_list(argvars, rettv, 2);
 }
@@ -14850,7 +14850,7 @@ static void f_items(typval_st *argvars,
 /// "jobclose(id[, stream])" function
 static void f_jobclose(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -14945,7 +14945,7 @@ static void f_jobclose(typval_st *argvars,
 /// "jobpid(id)" function
 static void f_jobpid(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -14976,7 +14976,7 @@ static void f_jobpid(typval_st *argvars,
 /// "jobsend()" function
 static void f_jobsend(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -15031,7 +15031,7 @@ static void f_jobsend(typval_st *argvars,
 /// "jobresize(job, width, height)" function
 static void f_jobresize(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -15142,7 +15142,7 @@ static char **tv_to_argv(typval_st *cmd_tv, const char **cmd, bool *executable)
 /// "jobstart()" function
 static void f_jobstart(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -15266,7 +15266,7 @@ static void f_jobstart(typval_st *argvars,
 /// "jobstop()" function
 static void f_jobstop(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -15299,7 +15299,7 @@ static void f_jobstop(typval_st *argvars,
 /// "jobwait(ids[, timeout])" function
 static void f_jobwait(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -15444,7 +15444,7 @@ static void f_jobwait(typval_st *argvars,
 /// "join()" function
 static void f_join(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type != kNvarList)
     {
@@ -15480,7 +15480,7 @@ static void f_join(typval_st *argvars,
 /// json_decode() function
 static void f_json_decode(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char numbuf[NUMBUFLEN];
     const char *s = NULL;
@@ -15531,7 +15531,7 @@ static void f_json_decode(typval_st *argvars,
 /// json_encode() function
 static void f_json_encode(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *) encode_tv2json(&argvars[0], NULL);
@@ -15540,7 +15540,7 @@ static void f_json_encode(typval_st *argvars,
 /// "keys()" function
 static void f_keys(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_list(argvars, rettv, 0);
 }
@@ -15548,7 +15548,7 @@ static void f_keys(typval_st *argvars,
 /// "last_buffer_nr()" function.
 static void f_last_buffer_nr(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                              typval_st *rettv,
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int n = 0;
 
@@ -15565,7 +15565,7 @@ static void f_last_buffer_nr(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "len()" function
 static void f_len(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     switch (argvars[0].v_type)
     {
@@ -15659,7 +15659,7 @@ static void libcall_common(typval_st *argvars, typval_st *rettv, int out_type)
 /// "libcall()" function
 static void f_libcall(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     libcall_common(argvars, rettv, kNvarString);
 }
@@ -15667,7 +15667,7 @@ static void f_libcall(typval_st *argvars,
 /// "libcallnr()" function
 static void f_libcallnr(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     libcall_common(argvars, rettv, kNvarNumber);
 }
@@ -15675,7 +15675,7 @@ static void f_libcallnr(typval_st *argvars,
 /// "line(string)" function
 static void f_line(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T lnum = 0;
     pos_T *fp;
@@ -15693,7 +15693,7 @@ static void f_line(typval_st *argvars,
 /// "line2byte(lnum)" function
 static void f_line2byte(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const linenr_T lnum = tv_get_lnum(argvars);
 
@@ -15715,7 +15715,7 @@ static void f_line2byte(typval_st *argvars,
 /// "lispindent(lnum)" function
 static void f_lispindent(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const pos_T pos = curwin->w_cursor;
     const linenr_T lnum = tv_get_lnum(argvars);
@@ -15735,7 +15735,7 @@ static void f_lispindent(typval_st *argvars,
 /// "localtime()" function
 static void f_localtime(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = (number_kt)time(NULL);
 }
@@ -15819,7 +15819,7 @@ static void get_maparg(typval_st *argvars, typval_st *rettv, int exact)
 /// luaeval() function implementation
 static void f_luaeval(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     const char *const str = (const char *)tv_get_string_chk(&argvars[0]);
@@ -15878,7 +15878,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "map()" function
 static void f_map(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     filter_map(argvars, rettv, TRUE);
 }
@@ -15886,7 +15886,7 @@ static void f_map(typval_st *argvars,
 /// "maparg()" function
 static void f_maparg(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_maparg(argvars, rettv, TRUE);
 }
@@ -15894,7 +15894,7 @@ static void f_maparg(typval_st *argvars,
 /// "mapcheck()" function
 static void f_mapcheck(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_maparg(argvars, rettv, FALSE);
 }
@@ -16169,7 +16169,7 @@ theend:
 /// "match()" function
 static void f_match(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     find_some_match(argvars, rettv, 1);
 }
@@ -16177,7 +16177,7 @@ static void f_match(typval_st *argvars,
 /// "matchadd()" function
 static void f_matchadd(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char grpbuf[NUMBUFLEN];
     char patbuf[NUMBUFLEN];
@@ -16238,7 +16238,7 @@ static void f_matchadd(typval_st *argvars,
 
 static void f_matchaddpos(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
     char buf[NUMBUFLEN];
@@ -16313,7 +16313,7 @@ static void f_matchaddpos(typval_st *argvars,
 /// nvimL: matcharg() function
 static void f_matcharg(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_list_alloc_ret(rettv);
     int id = tv_get_number(&argvars[0]);
@@ -16341,7 +16341,7 @@ static void f_matcharg(typval_st *argvars,
 /// "matchdelete()" function
 static void f_matchdelete(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number =
         match_delete(curwin, (int)tv_get_number(&argvars[0]), true);
@@ -16350,7 +16350,7 @@ static void f_matchdelete(typval_st *argvars,
 /// "matchend()" function
 static void f_matchend(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     find_some_match(argvars, rettv, 0);
 }
@@ -16358,7 +16358,7 @@ static void f_matchend(typval_st *argvars,
 /// "matchlist()" function
 static void f_matchlist(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     find_some_match(argvars, rettv, 3);
 }
@@ -16366,7 +16366,7 @@ static void f_matchlist(typval_st *argvars,
 /// "matchstr()" function
 static void f_matchstr(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     find_some_match(argvars, rettv, 2);
 }
@@ -16374,7 +16374,7 @@ static void f_matchstr(typval_st *argvars,
 /// "matchstrpos()" function
 static void f_matchstrpos(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     find_some_match(argvars, rettv, 4);
 }
@@ -16458,7 +16458,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "max()" function
 static void f_max(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     max_min(argvars, rettv, TRUE);
 }
@@ -16466,7 +16466,7 @@ static void f_max(typval_st *argvars,
 /// "min()" function
 static void f_min(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     max_min(argvars, rettv, FALSE);
 }
@@ -16474,7 +16474,7 @@ static void f_min(typval_st *argvars,
 /// "mkdir()" function
 static void f_mkdir(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int prot = 0755;
     rettv->vval.v_number = FAIL;
@@ -16533,7 +16533,7 @@ static void f_mkdir(typval_st *argvars,
 /// "mode()" function
 static void f_mode(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char *mode = get_mode();
 
@@ -16551,7 +16551,7 @@ static void f_mode(typval_st *argvars,
 /// "msgpackdump()" function
 static void f_msgpackdump(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     if(argvars[0].v_type != kNvarList)
@@ -16592,7 +16592,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "msgpackparse" function
 static void f_msgpackparse(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     if(argvars[0].v_type != kNvarList)
@@ -16714,7 +16714,7 @@ f_msgpackparse_exit:
 /// "nextnonblank()" function
 static void f_nextnonblank(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T lnum;
 
@@ -16738,7 +16738,7 @@ static void f_nextnonblank(typval_st *argvars,
 /// "nr2char()" function
 static void f_nr2char(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[1].v_type != kNvarUnknown)
     {
@@ -16779,7 +16779,7 @@ static void f_nr2char(typval_st *argvars,
 /// "or(expr, expr)" function
 static void f_or(typval_st *argvars,
                  typval_st *rettv,
-                 FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                 func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = tv_get_number_chk(&argvars[0], NULL)
                            | tv_get_number_chk(&argvars[1], NULL);
@@ -16788,7 +16788,7 @@ static void f_or(typval_st *argvars,
 /// "pathshorten()" function
 static void f_pathshorten(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     const char *const s = tv_get_string_chk(&argvars[0]);
@@ -16804,7 +16804,7 @@ static void f_pathshorten(typval_st *argvars,
 /// "pow()" function
 static void f_pow(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     float_kt fx;
     float_kt fy;
@@ -16823,7 +16823,7 @@ static void f_pow(typval_st *argvars,
 /// "prevnonblank()" function
 static void f_prevnonblank(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenr_T lnum = tv_get_lnum(argvars);
 
@@ -16845,7 +16845,7 @@ static void f_prevnonblank(typval_st *argvars,
 /// "printf()" function
 static void f_printf(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -16874,7 +16874,7 @@ static void f_printf(typval_st *argvars,
 /// "pumvisible()" function
 static void f_pumvisible(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(pum_visible())
     {
@@ -16885,7 +16885,7 @@ static void f_pumvisible(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "pyeval()" function
 static void f_pyeval(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     script_host_eval("python", argvars, rettv);
 }
@@ -16893,7 +16893,7 @@ static void f_pyeval(typval_st *argvars,
 /// "py3eval()" function
 static void f_py3eval(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     script_host_eval("python3", argvars, rettv);
 }
@@ -16901,7 +16901,7 @@ static void f_py3eval(typval_st *argvars,
 /// "range()" function
 static void f_range(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     number_kt start;
     number_kt end;
@@ -16952,7 +16952,7 @@ static void f_range(typval_st *argvars,
 /// "readfile()" function
 static void f_readfile(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool binary = false;
     FILE *fd;
@@ -17210,7 +17210,7 @@ FUNC_ATTR_NONNULL_ALL
 /// With two arguments it returns the time passed between the two arguments.
 static void f_reltime(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     proftime_kt res;
     proftime_kt start;
@@ -17271,7 +17271,7 @@ static void f_reltime(typval_st *argvars,
 /// number of seconds followed by a dot, followed by the number of microseconds.
 static void f_reltimestr(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     proftime_kt tm;
@@ -17288,7 +17288,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "remove()" function
 static void f_remove(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     long idx;
     long end;
@@ -17411,7 +17411,7 @@ static void f_remove(typval_st *argvars,
 /// "rename({from}, {to})" function
 static void f_rename(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted() || check_secure())
     {
@@ -17430,7 +17430,7 @@ static void f_rename(typval_st *argvars,
 /// "repeat()" function
 static void f_repeat(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     number_kt n = tv_get_number(&argvars[1]);
 
@@ -17483,7 +17483,7 @@ static void f_repeat(typval_st *argvars,
 /// "resolve()" function
 static void f_resolve(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     const char *fname = tv_get_string(&argvars[0]);
@@ -17686,7 +17686,7 @@ static void f_resolve(typval_st *argvars,
 /// "reverse({list})" function
 static void f_reverse(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
 
@@ -17960,7 +17960,7 @@ theend:
 /// "rpcnotify()" function
 static void f_rpcnotify(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -18003,7 +18003,7 @@ static void f_rpcnotify(typval_st *argvars,
 /// "rpcrequest()" function
 static void f_rpcrequest(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -18101,7 +18101,7 @@ end:
 /// "rpcstart()" function (DEPRECATED)
 static void f_rpcstart(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -18177,7 +18177,7 @@ static void f_rpcstart(typval_st *argvars,
 /// "rpcstop()" function
 static void f_rpcstop(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
@@ -18208,7 +18208,7 @@ static void f_rpcstop(typval_st *argvars,
 /// "screenattr()" function
 static void f_screenattr(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int c;
     const int row = (int)tv_get_number_chk(&argvars[0], NULL) - 1;
@@ -18229,7 +18229,7 @@ static void f_screenattr(typval_st *argvars,
 /// "screenchar()" function
 static void f_screenchar(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int off;
     int c;
@@ -18262,7 +18262,7 @@ static void f_screenchar(typval_st *argvars,
 /// First column is 1 to be consistent with virtcol().
 static void f_screencol(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = ui_current_col() + 1;
 }
@@ -18270,7 +18270,7 @@ static void f_screencol(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "screenrow()" function
 static void f_screenrow(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = ui_current_row() + 1;
 }
@@ -18278,7 +18278,7 @@ static void f_screenrow(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "search()" function
 static void f_search(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int flags = 0;
     rettv->vval.v_number = search_cmn(argvars, NULL, &flags);
@@ -18287,7 +18287,7 @@ static void f_search(typval_st *argvars,
 /// "searchdecl()" function
 static void f_searchdecl(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int locally = 1;
     int thisblock = 0;
@@ -18418,7 +18418,7 @@ theend:
 /// "searchpair()" function
 static void f_searchpair(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = searchpair_cmn(argvars, NULL);
 }
@@ -18426,7 +18426,7 @@ static void f_searchpair(typval_st *argvars,
 /// "searchpairpos()" function
 static void f_searchpairpos(typval_st *argvars,
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     pos_T match_pos;
     int lnum = 0;
@@ -18666,7 +18666,7 @@ long do_searchpair(uchar_kt *spat,
 /// "searchpos()" function
 static void f_searchpos(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     pos_T match_pos;
     int lnum = 0;
@@ -18694,7 +18694,7 @@ static void f_searchpos(typval_st *argvars,
 /// "serverlist()" function
 static void f_serverlist(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     size_t n;
     char **addrs = server_address_list(&n);
@@ -18717,7 +18717,7 @@ static void f_serverlist(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "serverstart()" function
 static void f_serverstart(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL; // Address of the new server
@@ -18775,7 +18775,7 @@ static void f_serverstart(typval_st *argvars,
 /// "serverstop()" function
 static void f_serverstop(typval_st *argvars,
                          typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted() || check_secure())
     {
@@ -18797,7 +18797,7 @@ static void f_serverstop(typval_st *argvars,
 /// "setbufvar()" function
 static void f_setbufvar(typval_st *argvars,
                         typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted()
        || check_secure()
@@ -18851,7 +18851,7 @@ static void f_setbufvar(typval_st *argvars,
 
 static void f_setcharsearch(typval_st *argvars,
                             typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_st *d;
     dictitem_T *di;
@@ -18899,7 +18899,7 @@ static void f_setcharsearch(typval_st *argvars,
 /// "setcmdpos()" function
 static void f_setcmdpos(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const int pos = (int)tv_get_number(&argvars[0]) - 1;
 
@@ -18913,7 +18913,7 @@ static void f_setcmdpos(typval_st *argvars,
 /// "setfperm({fname}, {mode})" function
 static void f_setfperm(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = 0;
     const char *const fname = tv_get_string_chk(&argvars[0]);
@@ -18956,7 +18956,7 @@ static void f_setfperm(typval_st *argvars,
 /// "setline()" function
 static void f_setline(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l = NULL;
     listitem_st *li = NULL;
@@ -19146,7 +19146,7 @@ skip_args:
 /// "setloclist()" function
 static void f_setloclist(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *win;
     rettv->vval.v_number = -1;
@@ -19161,7 +19161,7 @@ static void f_setloclist(typval_st *argvars,
 /// "setmatches()" function
 static void f_setmatches(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
     listitem_st *li;
@@ -19305,7 +19305,7 @@ static void f_setmatches(typval_st *argvars,
 /// "setpos()" function
 static void f_setpos(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     pos_T pos;
     int fnum;
@@ -19362,7 +19362,7 @@ static void f_setpos(typval_st *argvars,
 /// "setqflist()" function
 static void f_setqflist(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     set_qf_ll_list(NULL, argvars, rettv);
 }
@@ -19370,7 +19370,7 @@ static void f_setqflist(typval_st *argvars,
 /// "setreg()" function
 static void f_setreg(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int regname;
     bool append = false;
@@ -19521,7 +19521,7 @@ free_lstval:
 /// "settabvar()" function
 static void f_settabvar(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = 0;
 
@@ -19560,7 +19560,7 @@ static void f_settabvar(typval_st *argvars,
 /// "settabwinvar()" function
 static void f_settabwinvar(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     setwinvar(argvars, rettv, 1);
 }
@@ -19568,7 +19568,7 @@ static void f_settabwinvar(typval_st *argvars,
 /// "setwinvar()" function
 static void f_setwinvar(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     setwinvar(argvars, rettv, 0);
 }
@@ -19643,7 +19643,7 @@ static void setwinvar(typval_st *argvars,
 /// f_sha256 - sha256({string}) function
 static void f_sha256(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *p = tv_get_string(&argvars[0]);
     const char *hash = sha256_bytes((const uint8_t *)p, strlen(p), NULL, 0);
@@ -19656,7 +19656,7 @@ static void f_sha256(typval_st *argvars,
 /// "shellescape({string})" function
 static void f_shellescape(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_string =
         vim_strsave_shellescape((const uchar_kt *)tv_get_string(&argvars[0]),
@@ -19668,7 +19668,7 @@ static void f_shellescape(typval_st *argvars,
 /// shiftwidth() function
 static void f_shiftwidth(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = get_sw_value(curbuf);
 }
@@ -19676,7 +19676,7 @@ static void f_shiftwidth(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "simplify()" function
 static void f_simplify(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const p = tv_get_string(&argvars[0]);
     rettv->vval.v_string = (uchar_kt *)xstrdup(p);
@@ -19687,7 +19687,7 @@ static void f_simplify(typval_st *argvars,
 /// "sockconnect()" function
 static void f_sockconnect(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type != kNvarString || argvars[1].v_type != kNvarString)
     {
@@ -20219,7 +20219,7 @@ theend:
 /// "sort"({list})" function
 static void f_sort(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     do_sort_uniq(argvars, rettv, true);
 }
@@ -20227,7 +20227,7 @@ static void f_sort(typval_st *argvars,
 /// "uniq({list})" function
 static void f_uniq(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     do_sort_uniq(argvars, rettv, false);
 }
@@ -20237,7 +20237,7 @@ static void f_uniq(typval_st *argvars,
 //
 static void f_reltimefloat(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
     proftime_kt tm;
@@ -20254,7 +20254,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "soundfold({word})" function
 static void f_soundfold(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     const char *const s = tv_get_string(&argvars[0]);
@@ -20264,7 +20264,7 @@ static void f_soundfold(typval_st *argvars,
 /// "spellbadword()" function
 static void f_spellbadword(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *word = "";
     hlf_T attr = HLF_COUNT;
@@ -20319,7 +20319,7 @@ static void f_spellbadword(typval_st *argvars,
 /// "spellsuggest()" function
 static void f_spellsuggest(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool typeerr = false;
     int maxcount;
@@ -20374,7 +20374,7 @@ static void f_spellsuggest(typval_st *argvars,
 
 static void f_split(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     regmatch_T regmatch;
     uchar_kt *save_cpo;
@@ -20484,7 +20484,7 @@ static void f_split(typval_st *argvars,
 /// "str2float()" function
 static void f_str2float(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *p = skipwhite((const uchar_kt *)tv_get_string(&argvars[0]));
 
@@ -20500,7 +20500,7 @@ static void f_str2float(typval_st *argvars,
 /// "str2nr()" function
 static void f_str2nr(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int base = 10;
     long n;
@@ -20557,7 +20557,7 @@ static void f_str2nr(typval_st *argvars,
 /// "strftime({format}[, {time}])" function
 static void f_strftime(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     time_t seconds;
     rettv->v_type = kNvarString;
@@ -20631,7 +20631,7 @@ static void f_strftime(typval_st *argvars,
 /// "strgetchar()" function
 static void f_strgetchar(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = -1;
     const char *const str = tv_get_string_chk(&argvars[0]);
@@ -20668,7 +20668,7 @@ static void f_strgetchar(typval_st *argvars,
 /// "stridx()" function
 static void f_stridx(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char buf[NUMBUFLEN];
     rettv->vval.v_number = -1;
@@ -20709,7 +20709,7 @@ static void f_stridx(typval_st *argvars,
 /// "string()" function
 static void f_string(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *) encode_tv2string(&argvars[0], NULL);
@@ -20718,7 +20718,7 @@ static void f_string(typval_st *argvars,
 /// "strlen()" function
 static void f_strlen(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = (number_kt)strlen(tv_get_string(&argvars[0]));
 }
@@ -20726,7 +20726,7 @@ static void f_strlen(typval_st *argvars,
 /// "strchars()" function
 static void f_strchars(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *s = tv_get_string(&argvars[0]);
     int skipcc = 0;
@@ -20759,7 +20759,7 @@ static void f_strchars(typval_st *argvars,
 /// "strdisplaywidth()" function
 static void f_strdisplaywidth(typval_st *argvars,
                               typval_st *rettv,
-                              FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                              func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const s = tv_get_string(&argvars[0]);
     int col = 0;
@@ -20776,7 +20776,7 @@ static void f_strdisplaywidth(typval_st *argvars,
 /// "strwidth()" function
 static void f_strwidth(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const s = tv_get_string(&argvars[0]);
     rettv->vval.v_number = (number_kt)mb_string2cells((const uchar_kt *)s);
@@ -20785,7 +20785,7 @@ static void f_strwidth(typval_st *argvars,
 /// "strcharpart()" function
 static void f_strcharpart(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const p = tv_get_string(&argvars[0]);
     const size_t slen = STRLEN(p);
@@ -20864,7 +20864,7 @@ static void f_strcharpart(typval_st *argvars,
 /// "strpart()" function
 static void f_strpart(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool error = false;
     const char *const p = tv_get_string(&argvars[0]);
@@ -20913,7 +20913,7 @@ static void f_strpart(typval_st *argvars,
 /// "strridx()" function
 static void f_strridx(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char buf[NUMBUFLEN];
     const char *const needle = tv_get_string_chk(&argvars[1]);
@@ -20978,7 +20978,7 @@ static void f_strridx(typval_st *argvars,
 /// "strtrans()" function
 static void f_strtrans(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = transstr((uchar_kt *)tv_get_string(&argvars[0]));
@@ -20987,7 +20987,7 @@ static void f_strtrans(typval_st *argvars,
 /// "submatch()" function
 static void f_submatch(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool error = false;
     int no = (int)tv_get_number_chk(&argvars[0], &error);
@@ -21030,7 +21030,7 @@ static void f_submatch(typval_st *argvars,
 /// "substitute()" function
 static void f_substitute(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char patbuf[NUMBUFLEN];
     char subbuf[NUMBUFLEN];
@@ -21073,7 +21073,7 @@ static void f_substitute(typval_st *argvars,
 /// "synID(lnum, col, trans)" function
 static void f_synID(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // -1 on type error (both)
     const linenr_T lnum = tv_get_lnum(argvars);
@@ -21097,7 +21097,7 @@ static void f_synID(typval_st *argvars,
 /// "synIDattr(id, what [, mode])" function
 static void f_synIDattr(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const int id = (int)tv_get_number(&argvars[0]);
     const char *const what = tv_get_string(&argvars[1]);
@@ -21209,7 +21209,7 @@ static void f_synIDattr(typval_st *argvars,
 /// "synIDtrans(id)" function
 static void f_synIDtrans(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int id = tv_get_number(&argvars[0]);
 
@@ -21228,7 +21228,7 @@ static void f_synIDtrans(typval_st *argvars,
 /// "synconcealed(lnum, col)" function
 static void f_synconcealed(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int syntax_flags = 0;
     int cchar;
@@ -21283,7 +21283,7 @@ static void f_synconcealed(typval_st *argvars,
 /// "synstack(lnum, col)" function
 static void f_synstack(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarList;
     rettv->vval.v_list = NULL;
@@ -21424,14 +21424,14 @@ static void get_system_output_as_rettv(typval_st *argvars,
 /// f_system - the VimL system() function
 static void f_system(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_system_output_as_rettv(argvars, rettv, false);
 }
 
 static void f_systemlist(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     get_system_output_as_rettv(argvars, rettv, true);
 }
@@ -21439,7 +21439,7 @@ static void f_systemlist(typval_st *argvars,
 /// "tabpagebuflist()" function
 static void f_tabpagebuflist(typval_st *argvars,
                              typval_st *rettv,
-                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wp = NULL;
 
@@ -21472,7 +21472,7 @@ static void f_tabpagebuflist(typval_st *argvars,
 /// "tabpagenr()" function
 static void f_tabpagenr(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int nr = 1;
 
@@ -21560,7 +21560,7 @@ static int get_winnr(tabpage_st *tp, typval_st *argvar)
 /// "tabpagewinnr()" function
 static void f_tabpagewinnr(typval_st *argvars,
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int nr = 1;
     tabpage_st *const tp = find_tabpage((int)tv_get_number(&argvars[0]));
@@ -21581,7 +21581,7 @@ static void f_tabpagewinnr(typval_st *argvars,
 /// "tagfiles()" function
 static void f_tagfiles(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char *fname;
     tagname_T tn;
@@ -21602,7 +21602,7 @@ static void f_tagfiles(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "taglist()" function
 static void f_taglist(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const tag_pattern = tv_get_string(&argvars[0]);
     rettv->vval.v_number = false;
@@ -21627,7 +21627,7 @@ static void f_taglist(typval_st *argvars,
 /// "tempname()" function
 static void f_tempname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     rettv->vval.v_string = vim_tempname();
@@ -21636,7 +21636,7 @@ static void f_tempname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "termopen(cmd[, cwd])" function
 static void f_termopen(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(check_restricted() || check_secure())
     {
@@ -21766,7 +21766,7 @@ static void f_termopen(typval_st *argvars,
 /// "test_garbagecollect_now()" function
 static void f_test_garbagecollect_now(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                                       typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // This is dangerous, any Lists and Dicts used
     // internally may be freed while still in use.
@@ -21957,7 +21957,7 @@ static void add_timer_info_all(typval_st *rettv)
 /// "timer_info([timer])" function
 static void f_timer_info(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_list_alloc_ret(rettv);
 
@@ -21986,7 +21986,7 @@ static void f_timer_info(typval_st *argvars,
 /// "timer_pause(timer, paused)" function
 static void f_timer_pause(typval_st *argvars,
                           typval_st *FUNC_ARGS_UNUSED_REALY(unused),
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type != kNvarNumber)
     {
@@ -22006,7 +22006,7 @@ static void f_timer_pause(typval_st *argvars,
 /// "timer_start(timeout, callback, opts)" function
 static void f_timer_start(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const long timeout = tv_get_number(&argvars[0]);
     timer_T *timer;
@@ -22066,7 +22066,7 @@ static void f_timer_start(typval_st *argvars,
 /// "timer_stop(timerid)" function
 static void f_timer_stop(typval_st *argvars,
                          typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(argvars[0].v_type != kNvarNumber)
     {
@@ -22086,7 +22086,7 @@ static void f_timer_stop(typval_st *argvars,
 
 static void f_timer_stopall(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                             typval_st *FUNC_ARGS_UNUSED_REALY(unused),
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     timer_stop_all();
 }
@@ -22179,7 +22179,7 @@ void timer_teardown(void)
 /// "tolower(string)" function
 static void f_tolower(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
 
@@ -22190,7 +22190,7 @@ static void f_tolower(typval_st *argvars,
 /// "toupper(string)" function
 static void f_toupper(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
 
@@ -22201,7 +22201,7 @@ static void f_toupper(typval_st *argvars,
 /// "tr(string, fromstr, tostr)" function
 static void f_tr(typval_st *argvars,
                  typval_st *rettv,
-                 FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                 func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char buf[NUMBUFLEN];
     char buf2[NUMBUFLEN];
@@ -22333,7 +22333,7 @@ error:
 /// "type(expr)" function
 static void f_type(typval_st *argvars,
                    typval_st *rettv,
-                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int n = -1;
 
@@ -22398,7 +22398,7 @@ static void f_type(typval_st *argvars,
 /// "undofile(name)" function
 static void f_undofile(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->v_type = kNvarString;
     const char *const fname = tv_get_string(&argvars[0]);
@@ -22425,7 +22425,7 @@ static void f_undofile(typval_st *argvars,
 /// "undotree()" function
 static void f_undotree(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_dict_alloc_ret(rettv);
     dict_st *dict = rettv->vval.v_dict;
@@ -22446,7 +22446,7 @@ static void f_undotree(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "values(dict)" function
 static void f_values(typval_st *argvars,
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_list(argvars, rettv, 1);
 }
@@ -22454,7 +22454,7 @@ static void f_values(typval_st *argvars,
 /// "virtcol(string)" function
 static void f_virtcol(typval_st *argvars,
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     colnr_T vcol = 0;
     pos_T *fp;
@@ -22474,7 +22474,7 @@ static void f_virtcol(typval_st *argvars,
 /// "visualmode()" function
 static void f_visualmode(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt str[2];
     rettv->v_type = kNvarString;
@@ -22492,7 +22492,7 @@ static void f_visualmode(typval_st *argvars,
 /// "wildmenumode()" function
 static void f_wildmenumode(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                            typval_st *rettv,
-                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     if(wild_menu_showing)
     {
@@ -22503,7 +22503,7 @@ static void f_wildmenumode(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "win_findbuf()" function
 static void f_win_findbuf(typval_st *argvars,
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_list_alloc_ret(rettv);
     win_findbuf(argvars, rettv->vval.v_list);
@@ -22512,7 +22512,7 @@ static void f_win_findbuf(typval_st *argvars,
 /// "win_getid()" function
 static void f_win_getid(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = win_getid(argvars);
 }
@@ -22520,7 +22520,7 @@ static void f_win_getid(typval_st *argvars,
 /// "win_gotoid()" function
 static void f_win_gotoid(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = win_gotoid(argvars);
 }
@@ -22528,7 +22528,7 @@ static void f_win_gotoid(typval_st *argvars,
 /// "win_id2tabwin()" function
 static void f_win_id2tabwin(typval_st *argvars,
                             typval_st *rettv,
-                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_list_alloc_ret(rettv);
     win_id2tabwin(argvars, rettv->vval.v_list);
@@ -22537,7 +22537,7 @@ static void f_win_id2tabwin(typval_st *argvars,
 /// "win_id2win()" function
 static void f_win_id2win(typval_st *argvars,
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = win_id2win(argvars);
 }
@@ -22545,7 +22545,7 @@ static void f_win_id2win(typval_st *argvars,
 /// "winbufnr(nr)" function
 static void f_winbufnr(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wp;
     wp = find_win_by_nr(&argvars[0], NULL);
@@ -22563,7 +22563,7 @@ static void f_winbufnr(typval_st *argvars,
 /// "wincol()" function
 static void f_wincol(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                      typval_st *rettv,
-                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     validate_cursor();
     rettv->vval.v_number = curwin->w_wcol + 1;
@@ -22572,7 +22572,7 @@ static void f_wincol(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "winheight(nr)" function
 static void f_winheight(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wp;
     wp = find_win_by_nr(&argvars[0], NULL);
@@ -22590,7 +22590,7 @@ static void f_winheight(typval_st *argvars,
 /// "winline()" function
 static void f_winline(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                       typval_st *rettv,
-                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     validate_cursor();
     rettv->vval.v_number = curwin->w_wrow + 1;
@@ -22599,7 +22599,7 @@ static void f_winline(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "winnr()" function
 static void f_winnr(typval_st *argvars,
                     typval_st *rettv,
-                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int nr = 1;
     nr = get_winnr(curtab, &argvars[0]);
@@ -22609,7 +22609,7 @@ static void f_winnr(typval_st *argvars,
 /// "winrestcmd()" function
 static void f_winrestcmd(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
-                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int winnr = 1;
     garray_st ga;
@@ -22633,7 +22633,7 @@ static void f_winrestcmd(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "winrestview()" function
 static void f_winrestview(typval_st *argvars,
                           typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_st *dict;
 
@@ -22709,7 +22709,7 @@ static void f_winrestview(typval_st *argvars,
 /// @b winsaveview() function
 static void f_winsaveview(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                           typval_st *rettv,
-                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_st *dict;
 
@@ -22933,7 +22933,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "winwidth(nr)" function
 static void f_winwidth(typval_st *argvars,
                        typval_st *rettv,
-                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     win_st *wp;
     wp = find_win_by_nr(&argvars[0], NULL);
@@ -22951,7 +22951,7 @@ static void f_winwidth(typval_st *argvars,
 /// "wordcount()" function
 static void f_wordcount(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_dict_alloc_ret(rettv);
     cursor_pos_info(rettv->vval.v_dict);
@@ -22960,7 +22960,7 @@ static void f_wordcount(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// "writefile()" function
 static void f_writefile(typval_st *argvars,
                         typval_st *rettv,
-                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = 0; // Assuming success.
 
@@ -23074,7 +23074,7 @@ static void f_writefile(typval_st *argvars,
 /// "xor(expr, expr)" function
 static void f_xor(typval_st *argvars,
                   typval_st *rettv,
-                  FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
+                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_number = tv_get_number_chk(&argvars[0], NULL)
                            ^ tv_get_number_chk(&argvars[1], NULL);

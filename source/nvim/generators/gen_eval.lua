@@ -67,11 +67,11 @@ for name, def in pairs(funcs) do
 
     func = def.func or ('f_' .. name)
     data = def.data or "NULL"
-    gperfpipe:write(('%s,  %s, %s, &%s, (FunPtr)%s\n'):format(name, 
-                                                              args[1], 
-                                                              args[2], 
-                                                              func, 
-                                                              data))
+    gperfpipe:write(('%s, %s, %s, &%s, (func_ptr_ft)%s\n'):format(name, 
+                                                                  args[1], 
+                                                                  args[2], 
+                                                                  func, 
+                                                                  data))
 end
 
 gperfpipe:close()
