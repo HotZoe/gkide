@@ -713,7 +713,7 @@ struct file_buffer_s
     int b_bad_char;           ///< "++bad=" argument when edit started or 0
     int b_start_bomb;         ///< 'bomb' when it was read */
 
-    scope_dict_T b_bufvar;    ///< Variable for "b:" Dictionary.
+    scope_dict_st b_bufvar;    ///< Variable for "b:" Dictionary.
     dict_st *b_vars;           ///< b: scope dictionary.
 
     // When a buffer is created, it starts without a swap file. b_may_swap is
@@ -792,7 +792,7 @@ struct tabpage_s
     fbuf_st *(tp_diffbuf[DB_COUNT]);
     int tp_diff_invalid;                ///< list of diffs is outdated
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
-    scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
+    scope_dict_st tp_winvar;             ///< Variable for "t:" Dictionary.
     dict_st *tp_vars;                    ///< Internal variables, local to tab page.
     uchar_kt *tp_localdir;              ///< Absolute path of local cwd or NULL.
 };
@@ -1052,7 +1052,7 @@ struct window_s
     long w_scbind_pos;
 
     /// Variable for "w:" dictionary.
-    scope_dict_T w_winvar;
+    scope_dict_st w_winvar;
 
     /// Dictionary with w: variables.
     dict_st *w_vars;

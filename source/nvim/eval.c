@@ -187,7 +187,7 @@ static char *e_letwrong = N_("E734: Wrong variable type for %s=");
 static uchar_kt *const namespace_char = (uchar_kt *)"abglstvw";
 
 /// Variable used for g:
-static scope_dict_T globvars_var;
+static scope_dict_st globvars_var;
 
 /// g: value
 #define globvarht globvardict.dv_hashtab
@@ -205,7 +205,7 @@ static int *eval_lavars_used = NULL;
 /// Each item holds a variable (nameless) that points to the dict_st.
 typedef struct
 {
-    scope_dict_T sv_var;
+    scope_dict_st sv_var;
     dict_st sv_dict;
 } scriptvar_T;
 
@@ -273,9 +273,9 @@ struct func_call_s
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
 
     dict_st l_vars;                        ///< @b l: local function variables.
-    scope_dict_T l_vars_var;               ///< Variable for @b l: scope.
+    scope_dict_st l_vars_var;               ///< Variable for @b l: scope.
     dict_st l_avars;                       ///< @b a: argument variables.
-    scope_dict_T l_avars_var;              ///< Variable for @b a: scope.
+    scope_dict_st l_avars_var;              ///< Variable for @b a: scope.
     list_st l_varlist;                     ///< List for @b a:000
     listitem_st l_listitems[MAX_FUNC_ARGS];///< List items for a:000.
 
@@ -471,7 +471,7 @@ static vimvar_st vimvars[] =
 #define vimvarht        vimvardict.dv_hashtab
 
 /// Variable used for @b v:
-static scope_dict_T vimvars_var;
+static scope_dict_st vimvars_var;
 
 typedef struct
 {
@@ -24599,7 +24599,7 @@ void new_script_vars(script_id_kt id)
 
 /// Initialize dictionary @b dict as a scope and
 /// set variable @b dict_var to point to it.
-void init_var_dict(dict_st *dict, scope_dict_T *dict_var, int scope)
+void init_var_dict(dict_st *dict, scope_dict_st *dict_var, int scope)
 {
     hash_init(&dict->dv_hashtab);
 

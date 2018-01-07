@@ -215,11 +215,11 @@ struct dictitem_s
 ///
 /// For use in find_var_in_ht to pretend that it found
 /// dictionary item when it finds scope dictionary.
-typedef TV_DICTITEM_STRUCT(1) scope_dict_T;
+typedef TV_DICTITEM_STRUCT(1) scope_dict_st;
 
 /// Structure to hold an item of a Dictionary
 ///
-/// @warning Must be compatible with #scope_dict_T.
+/// @warning Must be compatible with #scope_dict_st.
 ///
 /// Also used for a variable.
 typedef TV_DICTITEM_STRUCT() dictitem_T;
