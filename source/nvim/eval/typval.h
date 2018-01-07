@@ -36,11 +36,10 @@ typedef double float_T;
 /// %d printf format specifier for varnumber_T
 #define PRIdVARNUMBER "d"
 
-typedef struct list_s list_st;
-typedef struct dict_s dict_st;
-typedef struct part_s part_st;
-
-typedef struct ufunc ufunc_T;
+typedef struct list_s  list_st;
+typedef struct dict_s  dict_st;
+typedef struct part_s  part_st;
+typedef struct ufunc_s ufunc_st;
 
 typedef enum
 {
@@ -223,16 +222,16 @@ typedef enum
 /// Structure representing a Dictionary
 struct dict_s
 {
-    VarLockStatus dv_lock;  ///< Whole dictionary lock status.
+    VarLockStatus dv_lock;///< Whole dictionary lock status.
     scope_type_et dv_scope; ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
                             ///< dictionary represents a scope (i.e. g:, l: ...).
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
-    hashtab_T dv_hashtab;   ///< Hashtab containing all items.
-    dict_st *dv_copydict;    ///< Copied dict used by deepcopy().
-    dict_st *dv_used_next;   ///< Next dictionary in used dictionaries list.
-    dict_st *dv_used_prev;   ///< Previous dictionary in used dictionaries list.
-    queue_T watchers;       ///< Dictionary key watchers set by user code.
+    hashtab_T dv_hashtab;  ///< Hashtab containing all items.
+    dict_st *dv_copydict;   ///< Copied dict used by deepcopy().
+    dict_st *dv_used_next;  ///< Next dictionary in used dictionaries list.
+    dict_st *dv_used_prev;  ///< Previous dictionary in used dictionaries list.
+    queue_T watchers;      ///< Dictionary key watchers set by user code.
 };
 
 /// Type used for script ID
@@ -245,38 +244,38 @@ typedef int scid_T;
 typedef struct funccall_S funccall_T;
 
 /// Structure to hold info for a user function.
-struct ufunc
+struct ufunc_s
 {
-    int          uf_varargs;       ///< variable nr of arguments
-    int          uf_flags;
-    int          uf_calls;         ///< nr of active calls
-    bool         uf_cleared;       ///< func_clear() was already called
-    garray_T     uf_args;          ///< arguments
-    garray_T     uf_lines;         ///< function lines
-    int          uf_profiling;     ///< true when func is being profiled
+    int uf_varargs;             ///< variable nr of arguments
+    int uf_flags;               ///<
+    int uf_calls;               ///< nr of active calls
+    bool uf_cleared;            ///< func_clear() was already called
+    garray_T uf_args;          ///< arguments
+    garray_T uf_lines;         ///< function lines
+    int uf_profiling;           ///< true when func is being profiled
 
     // Profiling the function as a whole.
-    int          uf_tm_count;      ///< nr of calls
-    proftime_T   uf_tm_total;      ///< time spent in function + children
-    proftime_T   uf_tm_self;       ///< time spent in function itself
-    proftime_T   uf_tm_children;   ///< time spent in children this call
+    int uf_tm_count;            ///< nr of calls
+    proftime_T uf_tm_total;    ///< time spent in function + children
+    proftime_T uf_tm_self;     ///< time spent in function itself
+    proftime_T uf_tm_children; ///< time spent in children this call
 
     // Profiling the function per line.
-    int         *uf_tml_count;     ///< nr of times line was executed
-    proftime_T  *uf_tml_total;     ///< time spent in a line + children
-    proftime_T  *uf_tml_self;      ///< time spent in a line itself
-    proftime_T   uf_tml_start;     ///< start time for current line
-    proftime_T   uf_tml_children;  ///< time spent in children for this line
-    proftime_T   uf_tml_wait;      ///< start wait time for current line
-    int          uf_tml_idx;       ///< index of line being timed; -1 if none
-    int          uf_tml_execed;    ///< line being timed was executed
-    scid_T       uf_script_ID;     ///< ID of script where function was defined,
-                                   ///< used for s: variables
-    int          uf_refcount;      ///< reference count, see func_name_refcount()
-    funccall_T   *uf_scoped;       ///< l: local variables for closure
-    uchar_kt       uf_name[1];       ///< name of function (actually longer);
-                                   ///< can start with <SNR>123_
-                                   ///< (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
+    int *uf_tml_count;          ///< nr of times line was executed
+    proftime_T *uf_tml_total;  ///< time spent in a line + children
+    proftime_T *uf_tml_self;   ///< time spent in a line itself
+    proftime_T uf_tml_start;   ///< start time for current line
+    proftime_T uf_tml_children;///< time spent in children for this line
+    proftime_T uf_tml_wait;    ///< start wait time for current line
+    int uf_tml_idx;             ///< index of line being timed; -1 if none
+    int uf_tml_execed;          ///< line being timed was executed
+    scid_T uf_script_ID;       ///< ID of script where function was defined,
+                                ///< used for s: variables
+    int uf_refcount;            ///< reference count, see func_name_refcount()
+    funccall_T *uf_scoped;     ///< l: local variables for closure
+    uchar_kt uf_name[1];        ///< name of function (actually longer);
+                                ///< can start with <SNR>123_
+                                ///< (<SNR> is K_SPECIAL, KS_EXTRA, KE_SNR)
 };
 
 /// Maximum number of function arguments
@@ -287,7 +286,7 @@ struct part_s
 {
     int pt_refcount;   ///< Reference count.
     uchar_kt *pt_name; ///< Function name; when NULL use pt_func->name.
-    ufunc_T *pt_func; ///< Function pointer; when NULL lookup function with pt_name.
+    ufunc_st *pt_func; ///< Function pointer; when NULL lookup function with pt_name.
     bool pt_auto;      ///< When true the partial was created by using dict.member
                        ///< in handle_subscript().
     int pt_argc;       ///< Number of arguments.

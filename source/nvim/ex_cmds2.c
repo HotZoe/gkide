@@ -1281,7 +1281,7 @@ static void profile_reset(void)
         if(!HASHITEM_EMPTY(hi))
         {
             n--;
-            ufunc_T *uf = HI2UF(hi);
+            ufunc_st *uf = HI2UF(hi);
 
             if(uf->uf_profiling)
             {

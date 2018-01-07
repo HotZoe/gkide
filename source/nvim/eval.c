@@ -265,7 +265,7 @@ static garray_T ga_loaded = { 0, 0, sizeof(uchar_kt *), 4, NULL };
 /// also @see funccall_T
 struct funccall_S
 {
-    ufunc_T *func;   ///< Function being called.
+    ufunc_st *func;   ///< Function being called.
     int linenr;      ///< Next line to be executed.
     int returned;    ///< @b :return used.
 
@@ -287,7 +287,7 @@ struct funccall_S
     funccall_T *caller;    ///< Calling function or NULL.
     int fc_refcount;       ///< Number of user functions that reference this funccall.
     int fc_copyID;         ///< CopyID used for garbage collection.
-    garray_T fc_funcs;     ///< List of ufunc_T* which keep a reference to @b func
+    garray_T fc_funcs;     ///< List of ufunc_st* which keep a reference to @b func
 };
 
 /// Structure used by trans_function_name()
@@ -7140,7 +7140,7 @@ bool set_ref_in_functions(int copyID)
     int todo;
     hashitem_T *hi = NULL;
     bool abort = false;
-    ufunc_T *fp;
+    ufunc_st *fp;
     todo = (int)func_hashtab.ht_used;
 
     for(hi = func_hashtab.ht_array; todo > 0 && !got_int; hi++)
@@ -7501,7 +7501,7 @@ err_ret:
 }
 
 /// Register function "fp" as using "current_funccal" as its scope.
-static void register_closure(ufunc_T *fp)
+static void register_closure(ufunc_st *fp)
 {
     if(fp->uf_scoped == current_funccal)
     {
@@ -7514,7 +7514,7 @@ static void register_closure(ufunc_T *fp)
     fp->uf_scoped = current_funccal;
     current_funccal->fc_refcount++;
     ga_grow(&current_funccal->fc_funcs, 1);
-    ((ufunc_T **)current_funccal->fc_funcs.ga_data)
+    ((ufunc_st **)current_funccal->fc_funcs.ga_data)
     [current_funccal->fc_funcs.ga_len++] = fp;
 }
 
@@ -7525,7 +7525,7 @@ static int get_lambda_tv(uchar_kt **arg, typval_T *rettv, bool evaluate)
 {
     garray_T newargs = GA_EMPTY_INIT_VALUE;
     garray_T *pnewargs;
-    ufunc_T *fp = NULL;
+    ufunc_st *fp = NULL;
     int varargs;
     int ret;
     uchar_kt *start = skipwhite(*arg + 1);
@@ -7599,7 +7599,7 @@ static int get_lambda_tv(uchar_kt **arg, typval_T *rettv, bool evaluate)
         lambda_no++;
         snprintf((char *)name, sizeof(name), "<lambda>%d", lambda_no);
 
-        fp = (ufunc_T *)xcalloc(1, sizeof(ufunc_T) + STRLEN(name));
+        fp = (ufunc_st *)xcalloc(1, sizeof(ufunc_st) + STRLEN(name));
         pt = (part_st *)xcalloc(1, sizeof(part_st));
 
         if(pt == NULL)
@@ -8116,9 +8116,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// "ht_stack" is used to add hashtabs to be marked. Can be NULL.
 ///
 /// @return true if setting references failed somehow.
-bool set_ref_in_func(uchar_kt *name, ufunc_T *fp_in, int copyID)
+bool set_ref_in_func(uchar_kt *name, ufunc_st *fp_in, int copyID)
 {
-    ufunc_T *fp = fp_in;
+    ufunc_st *fp = fp_in;
     funccall_T *fc;
     int error = ERROR_NONE;
     uchar_kt fname_buf[FLEN_FIXED + 1];
@@ -8208,7 +8208,7 @@ int call_func(const uchar_kt *funcname,
 {
     int ret = FAIL;
     int error = ERROR_NONE;
-    ufunc_T *fp;
+    ufunc_st *fp;
     uchar_kt fname_buf[FLEN_FIXED + 1];
     uchar_kt *tofree = NULL;
     uchar_kt *fname;
@@ -24145,7 +24145,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
 
     uchar_kt *fname;
     uchar_kt *tofree = NULL;
-    ufunc_T *fp;
+    ufunc_st *fp;
     uchar_kt fname_buf[FLEN_FIXED + 1];
     int error;
 
@@ -25501,7 +25501,7 @@ void ex_function(exarg_T *eap)
     garray_T newlines;
     int varargs = false;
     int flags = 0;
-    ufunc_T *fp;
+    ufunc_st *fp;
     bool overwrite = false;
     int indent;
     int nesting;
@@ -26141,7 +26141,7 @@ void ex_function(exarg_T *eap)
             }
         }
 
-        fp = xcalloc(1, sizeof(ufunc_T) + STRLEN(name));
+        fp = xcalloc(1, sizeof(ufunc_st) + STRLEN(name));
 
         if(fudi.fd_dict != NULL)
         {
@@ -26569,7 +26569,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// List the head of the function: "name(arg1, arg2)".
-static void list_func_head(ufunc_T *fp, int indent)
+static void list_func_head(ufunc_st *fp, int indent)
 {
     msg_start();
 
@@ -26645,7 +26645,7 @@ static void list_func_head(ufunc_T *fp, int indent)
 
 /// Find a function by name, return pointer to it in ufuncs.
 /// @return NULL for unknown function.
-static ufunc_T *find_func(const uchar_kt *name)
+static ufunc_st *find_func(const uchar_kt *name)
 {
     hashitem_T *hi;
     hi = hash_find(&func_hashtab, name);
@@ -26662,7 +26662,7 @@ static ufunc_T *find_func(const uchar_kt *name)
 void free_all_functions(void)
 {
     hashitem_T *hi;
-    ufunc_T *fp;
+    ufunc_st *fp;
     uint64_t skipped = 0;
     uint64_t todo = 1;
     uint64_t used;
@@ -26809,7 +26809,7 @@ static bool builtin_function(const char *name, int len)
 }
 
 /// Start profiling function "fp".
-static void func_do_profile(ufunc_T *fp)
+static void func_do_profile(ufunc_st *fp)
 {
     int len = fp->uf_lines.ga_len;
 
@@ -26846,8 +26846,8 @@ void func_dump_profile(FILE *fd)
 {
     hashitem_T *hi;
     int todo;
-    ufunc_T *fp;
-    ufunc_T **sorttab;
+    ufunc_st *fp;
+    ufunc_st **sorttab;
     int st_len = 0;
     todo = (int)func_hashtab.ht_used;
 
@@ -26856,7 +26856,7 @@ void func_dump_profile(FILE *fd)
         return; // nothing to dump
     }
 
-    sorttab = xmalloc(sizeof(ufunc_T *) * todo);
+    sorttab = xmalloc(sizeof(ufunc_st *) * todo);
 
     for(hi = func_hashtab.ht_array; todo > 0; ++hi)
     {
@@ -26915,10 +26915,10 @@ void func_dump_profile(FILE *fd)
 
     if(st_len > 0)
     {
-        qsort((void *)sorttab, (size_t)st_len, sizeof(ufunc_T *), prof_total_cmp);
+        qsort((void *)sorttab, (size_t)st_len, sizeof(ufunc_st *), prof_total_cmp);
         prof_sort_list(fd, sorttab, st_len, "TOTAL", FALSE);
 
-        qsort((void *)sorttab, (size_t)st_len, sizeof(ufunc_T *), prof_self_cmp);
+        qsort((void *)sorttab, (size_t)st_len, sizeof(ufunc_st *), prof_self_cmp);
         prof_sort_list(fd, sorttab, st_len, "SELF", TRUE);
     }
 
@@ -26931,13 +26931,13 @@ void func_dump_profile(FILE *fd)
 /// @param title
 /// @param prefer_self  when equal print only self time
 static void prof_sort_list(FILE *fd,
-                           ufunc_T **sorttab,
+                           ufunc_st **sorttab,
                            int st_len,
                            char *title,
                            int prefer_self)
 {
     int i;
-    ufunc_T *fp;
+    ufunc_st *fp;
     fprintf(fd, "FUNCTIONS SORTED ON %s TIME\n", title);
     fprintf(fd, "count  total (s)   self (s)  function\n");
 
@@ -27008,16 +27008,16 @@ static void prof_func_line(FILE *fd,
 /// Compare function for total time sorting.
 static int prof_total_cmp(const void *s1, const void *s2)
 {
-    ufunc_T *p1 = *(ufunc_T **)s1;
-    ufunc_T *p2 = *(ufunc_T **)s2;
+    ufunc_st *p1 = *(ufunc_st **)s1;
+    ufunc_st *p2 = *(ufunc_st **)s2;
     return profile_cmp(p1->uf_tm_total, p2->uf_tm_total);
 }
 
 /// Compare function for self time sorting.
 static int prof_self_cmp(const void *s1, const void *s2)
 {
-    ufunc_T *p1 = *(ufunc_T **)s1;
-    ufunc_T *p2 = *(ufunc_T **)s2;
+    ufunc_st *p1 = *(ufunc_st **)s1;
+    ufunc_st *p2 = *(ufunc_st **)s2;
     return profile_cmp(p1->uf_tm_self, p2->uf_tm_self);
 }
 
@@ -27121,7 +27121,7 @@ uchar_kt *get_user_func_name(expand_T *xp, int idx)
 {
     static size_t done;
     static hashitem_T *hi;
-    ufunc_T *fp;
+    ufunc_st *fp;
 
     if(idx == 0)
     {
@@ -27177,7 +27177,7 @@ uchar_kt *get_user_func_name(expand_T *xp, int idx)
 /// Copy the function name of "fp" to buffer "buf".
 /// "buf" must be able to hold the function name plus three bytes.
 /// Takes care of script-local function names.
-static void cat_func_name(uchar_kt *buf, ufunc_T *fp)
+static void cat_func_name(uchar_kt *buf, ufunc_st *fp)
 {
     if(fp->uf_name[0] == K_SPECIAL)
     {
@@ -27205,7 +27205,7 @@ static bool func_name_refcount(uchar_kt *name)
 /// ":delfunction {name}"
 void ex_delfunction(exarg_T *eap)
 {
-    ufunc_T *fp = NULL;
+    ufunc_st *fp = NULL;
     uchar_kt *p;
     uchar_kt *name;
     funcdict_T fudi;
@@ -27303,7 +27303,7 @@ void ex_delfunction(exarg_T *eap)
 /// deleted while it still has references this was already done.
 ///
 /// @return true if the entry was deleted, false if it wasn't found.
-static bool func_remove(ufunc_T *fp)
+static bool func_remove(ufunc_st *fp)
 {
     hashitem_T *hi = hash_find(&func_hashtab, UF2HIKEY(fp));
 
@@ -27320,7 +27320,7 @@ static bool func_remove(ufunc_T *fp)
 /// itself, use func_free() for that.
 ///
 /// @param[in]  force   When true, we are exiting.
-static void func_clear(ufunc_T *fp, bool force)
+static void func_clear(ufunc_st *fp, bool force)
 {
     if(fp->uf_cleared)
     {
@@ -27342,7 +27342,7 @@ static void func_clear(ufunc_T *fp, bool force)
 /// what a function contains, call func_clear() first.
 ///
 /// @param[in]   fp   The function to free.
-static void func_free(ufunc_T *fp)
+static void func_free(ufunc_st *fp)
 {
     // only remove it when not done already, otherwise
     // we would remove a newer version of the function
@@ -27357,7 +27357,7 @@ static void func_free(ufunc_T *fp)
 /// Free all things that a function contains and free the function itself.
 ///
 /// @param[in]  force  When true, we are exiting.
-static void func_clear_free(ufunc_T *fp, bool force)
+static void func_clear_free(ufunc_st *fp, bool force)
 {
     func_clear(fp, force);
     func_free(fp);
@@ -27367,7 +27367,7 @@ static void func_clear_free(ufunc_T *fp, bool force)
 /// count and free it when it becomes zero.
 void func_unref(uchar_kt *name)
 {
-    ufunc_T *fp = NULL;
+    ufunc_st *fp = NULL;
 
     if(name == NULL || !func_name_refcount(name))
     {
@@ -27400,7 +27400,7 @@ void func_unref(uchar_kt *name)
 /// Decrements the reference count and frees when it becomes zero.
 ///
 /// @param  fp  Function to unreference.
-void func_ptr_unref(ufunc_T *fp)
+void func_ptr_unref(ufunc_st *fp)
 {
     if(fp != NULL && --fp->uf_refcount <= 0)
     {
@@ -27416,7 +27416,7 @@ void func_ptr_unref(ufunc_T *fp)
 /// Count a reference to a Function.
 void func_ref(uchar_kt *name)
 {
-    ufunc_T *fp;
+    ufunc_st *fp;
 
     if(name == NULL || !func_name_refcount(name))
     {
@@ -27438,7 +27438,7 @@ void func_ref(uchar_kt *name)
 }
 
 /// Count a reference to a Function.
-void func_ptr_ref(ufunc_T *fp)
+void func_ptr_ref(ufunc_st *fp)
 {
     if(fp != NULL)
     {
@@ -27455,7 +27455,7 @@ void func_ptr_ref(ufunc_T *fp)
 /// @param[in]  firstline  First line of range.
 /// @param[in]  lastline   Last line of range.
 /// @param  selfdict       Dictionary for "self" for dictionary functions.
-void call_user_func(ufunc_T *fp,
+void call_user_func(ufunc_st *fp,
                     int argcount,
                     typval_T *argvars,
                     typval_T *rettv,
@@ -27522,7 +27522,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     // Set up fields for closure.
     fc->fc_refcount = 0;
     fc->fc_copyID = 0;
-    ga_init(&fc->fc_funcs, sizeof(ufunc_T *), 1);
+    ga_init(&fc->fc_funcs, sizeof(ufunc_st *), 1);
     func_ptr_ref(fp);
 
     if(STRNCMP(fp->uf_name, "<lambda>", 8) == 0)
@@ -27932,7 +27932,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 /// becomes zero. "fp" is detached from "fc".
 ///
 /// @param[in] force  When true, we are exiting.
-static void funccal_unref(funccall_T *fc, ufunc_T *fp, bool force)
+static void funccal_unref(funccall_T *fc, ufunc_st *fp, bool force)
 {
     funccall_T **pfc;
     int i;
@@ -27961,9 +27961,9 @@ static void funccal_unref(funccall_T *fc, ufunc_T *fp, bool force)
 
     for(i = 0; i < fc->fc_funcs.ga_len; i++)
     {
-        if(((ufunc_T **)(fc->fc_funcs.ga_data))[i] == fp)
+        if(((ufunc_st **)(fc->fc_funcs.ga_data))[i] == fp)
         {
-            ((ufunc_T **)(fc->fc_funcs.ga_data))[i] = NULL;
+            ((ufunc_st **)(fc->fc_funcs.ga_data))[i] = NULL;
         }
     }
 }
@@ -27988,7 +27988,7 @@ static void free_funccal(funccall_T *fc, int free_val)
 
     for(int i = 0; i < fc->fc_funcs.ga_len; i++)
     {
-        ufunc_T *fp = ((ufunc_T **)(fc->fc_funcs.ga_data))[i];
+        ufunc_st *fp = ((ufunc_st **)(fc->fc_funcs.ga_data))[i];
 
         // When garbage collecting a funccall_T may be freed before the
         // function that references it, clear its uf_scoped field.
@@ -28223,7 +28223,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
                       int FUNC_ARGS_UNUSED_REALY(indent))
 {
     funccall_T *fcp = (funccall_T *)cookie;
-    ufunc_T *fp = fcp->func;
+    ufunc_st *fp = fcp->func;
     uchar_kt *retval;
     garray_T *gap; // growarray with function lines
 
@@ -28295,7 +28295,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
 void func_line_start(void *cookie)
 {
     funccall_T *fcp = (funccall_T *)cookie;
-    ufunc_T *fp = fcp->func;
+    ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling
        && sourcing_lnum >= 1
@@ -28320,7 +28320,7 @@ void func_line_start(void *cookie)
 void func_line_exec(void *cookie)
 {
     funccall_T *fcp = (funccall_T *)cookie;
-    ufunc_T *fp = fcp->func;
+    ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling && fp->uf_tml_idx >= 0)
     {
@@ -28332,7 +28332,7 @@ void func_line_exec(void *cookie)
 void func_line_end(void *cookie)
 {
     funccall_T *fcp = (funccall_T *)cookie;
-    ufunc_T *fp = fcp->func;
+    ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling && fp->uf_tml_idx >= 0)
     {

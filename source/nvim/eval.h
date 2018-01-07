@@ -17,10 +17,10 @@
 extern hashtab_T func_hashtab;
 
 /// From user function to hashitem and back.
-EXTERN ufunc_T dumuf;
+EXTERN ufunc_st dumuf;
 
 #define UF2HIKEY(fp) ((fp)->uf_name)
-#define HIKEY2UF(p)  ((ufunc_T *)(p - offsetof(ufunc_T, uf_name)))
+#define HIKEY2UF(p)  ((ufunc_st *)(p - offsetof(ufunc_st, uf_name)))
 #define HI2UF(hi)    HIKEY2UF((hi)->hi_key)
 
 /// Defines for Vim variables
