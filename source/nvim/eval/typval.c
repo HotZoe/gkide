@@ -320,7 +320,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 /// @param[in]  item
 /// Item to insert before. If NULL, inserts at the end of the list.
 void tv_list_insert_tv(list_st *const l,
-                       typval_T *const tv,
+                       typval_st *const tv,
                        listitem_T *const item)
 {
     listitem_T *const ni = tv_list_item_alloc();
@@ -363,7 +363,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[in,out] tv
 /// Value to append. Is copied (@see tv_copy()) to an allocated listitem_T.
-void tv_list_append_tv(list_st *const l, typval_T *const tv)
+void tv_list_append_tv(list_st *const l, typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -581,7 +581,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 /// @param[out] ret_tv  Location where new list is saved.
 ///
 /// @return OK or FAIL.
-int tv_list_concat(list_st *const l1, list_st *const l2, typval_T *const tv)
+int tv_list_concat(list_st *const l1, list_st *const l2, typval_st *const tv)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     list_st *l;
@@ -1100,11 +1100,11 @@ FUNC_ATTR_PURE
 /// @param[in]  oldtv  Old key value.
 void tv_dict_watcher_notify(dict_st *const dict,
                             const char *const key,
-                            typval_T *const newtv,
-                            typval_T *const oldtv)
+                            typval_st *const newtv,
+                            typval_st *const oldtv)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
-    typval_T argv[3];
+    typval_st argv[3];
     argv[0].v_type = kNvarDict;
     argv[0].v_lock = kNvlVarUnlocked;
     argv[0].vval.v_dict = dict;
@@ -1130,7 +1130,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
         tv_dict_add(argv[2].vval.v_dict, v);
     }
 
-    typval_T rettv;
+    typval_st rettv;
     queue_st *w;
 
     QUEUE_FOREACH(w, &dict->watchers)
@@ -1526,7 +1526,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return false;
     }
 
-    typval_T tv;
+    typval_st tv;
     tv_copy(&di->di_tv, &tv);
     set_selfdict(&tv, d);
 
@@ -1746,7 +1746,7 @@ FUNC_ATTR_NONNULL_ALL
         }
         else if(*action == 'f' && di2 != di1)
         {
-            typval_T oldtv;
+            typval_st oldtv;
 
             if(tv_check_lock(di1->di_tv.v_lock, arg_errmsg, arg_errmsg_len)
                || var_check_ro(di1->di_flags, arg_errmsg, arg_errmsg_len))
@@ -1930,7 +1930,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out]  ret_tv  Structure where list is saved.
 ///
 /// @return [allocated] pointer to the created list.
-list_st *tv_list_alloc_ret(typval_T *const ret_tv)
+list_st *tv_list_alloc_ret(typval_st *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     list_st *const l = tv_list_alloc();
@@ -1948,7 +1948,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Also sets reference count.
 ///
 /// @param[out]  ret_tv  Structure where dictionary is saved.
-void tv_dict_alloc_ret(typval_T *const ret_tv)
+void tv_dict_alloc_ret(typval_st *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     dict_st *const d = tv_dict_alloc();
@@ -1998,7 +1998,7 @@ FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_CONV_EXT_STRING(tv, buf, len, type)
 
-static inline int _nothing_conv_func_start(typval_T *const tv,
+static inline int _nothing_conv_func_start(typval_st *const tv,
                                            uchar_kt *const fun)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
@@ -2043,7 +2043,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_ARGS(tv, len)
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_SELF(tv, len)
 
-static inline void _nothing_conv_func_end(typval_T *const tv, const int copyID)
+static inline void _nothing_conv_func_end(typval_st *const tv, const int copyID)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
 {
@@ -2091,11 +2091,11 @@ FUNC_ATTR_NONNULL_ALL
                                                                     \
         if(tv != NULL)                                              \
         {                                                           \
-            ((typval_T *)tv)->v_lock = kNvlVarUnlocked;                \
+            ((typval_st *)tv)->v_lock = kNvlVarUnlocked;                \
         }                                                           \
     } while(0)
 
-static inline int _nothing_conv_real_list_after_start(typval_T *const tv,
+static inline int _nothing_conv_real_list_after_start(typval_st *const tv,
                                                       MPConvStackVal *const mpsv)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -2127,7 +2127,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define TYPVAL_ENCODE_CONV_LIST_BETWEEN_ITEMS(tv)
 
-static inline void _nothing_conv_list_end(typval_T *const tv)
+static inline void _nothing_conv_list_end(typval_st *const tv)
 FUNC_ATTR_ALWAYS_INLINE
 {
     if(tv == NULL)
@@ -2143,7 +2143,7 @@ FUNC_ATTR_ALWAYS_INLINE
 }
 #define TYPVAL_ENCODE_CONV_LIST_END(tv) _nothing_conv_list_end(tv)
 
-static inline int _nothing_conv_real_dict_after_start(typval_T *const tv,
+static inline int _nothing_conv_real_dict_after_start(typval_st *const tv,
                                                       dict_st **const dictp,
                                                       const void *const nodictvar,
                                                       MPConvStackVal *const mpsv)
@@ -2183,7 +2183,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(tv, dict)
 #define TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(tv, dict)
 
-static inline void _nothing_conv_dict_end(typval_T *const FUNC_ARGS_UNUSED_REALY(tv),
+static inline void _nothing_conv_dict_end(typval_st *const FUNC_ARGS_UNUSED_REALY(tv),
                                           dict_st **const dictp,
                                           const void *const nodictvar)
 FUNC_ATTR_ALWAYS_INLINE
@@ -2243,7 +2243,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// Free memory for a variable value and set the value to NULL or 0
 ///
 /// @param[in,out]  tv  Value to free.
-void tv_clear(typval_T *const tv)
+void tv_clear(typval_st *const tv)
 {
     if(tv != NULL && tv->v_type != kNvarUnknown)
     {
@@ -2265,7 +2265,7 @@ void tv_clear(typval_T *const tv)
 /// Free allocated VimL object and value stored inside
 ///
 /// @param  tv  Object to free.
-void tv_free(typval_T *tv)
+void tv_free(typval_st *tv)
 {
     if(tv != NULL)
     {
@@ -2324,7 +2324,7 @@ void tv_free(typval_T *tv)
 ///
 /// @param[in]  from  Location to copy from.
 /// @param[out] to    Location to copy to.
-void tv_copy(typval_T *const from, typval_T *const to)
+void tv_copy(typval_st *const from, typval_st *const to)
 {
     to->v_type = from->v_type;
     to->v_lock = kNvlVarUnlocked;
@@ -2409,7 +2409,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
 /// @param[out] tv    Item to (un)lock.
 /// @param[in]  deep  Levels to (un)lock, -1 to (un)lock everything.
 /// @param[in]  lock  True if it is needed to lock an item, false to unlock.
-void tv_item_lock(typval_T *const tv, const int deep, const bool lock)
+void tv_item_lock(typval_st *const tv, const int deep, const bool lock)
 FUNC_ATTR_NONNULL_ALL
 {
     // TODO(ZyX-I): Make this not recursive
@@ -2499,7 +2499,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  tv  Value to check.
 ///
 /// @return True if value is locked, false otherwise.
-bool tv_islocked(const typval_T *const tv)
+bool tv_islocked(const typval_st *const tv)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
@@ -2610,8 +2610,8 @@ static int tv_equal_recurse_limit;
 /// @param[in]  recursive  True when used recursively.
 ///
 /// @return true if values are equal.
-bool tv_equal(typval_T *const tv1,
-              typval_T *const tv2,
+bool tv_equal(typval_st *const tv1,
+              typval_st *const tv2,
               const bool ic,
               const bool recursive)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -2723,7 +2723,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  tv  Value to check.
 ///
 /// @return true if everything is OK, false otherwise.
-bool tv_check_str_or_nr(const typval_T *const tv)
+bool tv_check_str_or_nr(const typval_st *const tv)
 FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     switch(tv->v_type)
@@ -2799,7 +2799,7 @@ static const char *const num_errors[] =
 /// @param[in]  tv  Value to check.
 ///
 /// @return true if everything is OK, false otherwise.
-bool tv_check_num(const typval_T *const tv)
+bool tv_check_num(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
@@ -2850,7 +2850,7 @@ static const char *const str_errors[] =
 /// @param[in]  tv  Value to check.
 ///
 /// @return true if everything is OK, false otherwise.
-bool tv_check_str(const typval_T *const tv)
+bool tv_check_str(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
@@ -2888,7 +2888,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return Number value: vim_str2nr() output for kNvarString objects, value
 ///         for kNvarNumber objects, -1 for other types.
-number_kt tv_get_number(const typval_T *const tv)
+number_kt tv_get_number(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool error = false;
@@ -2909,7 +2909,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Number value: vim_str2nr() output for kNvarString objects, value for
 /// kNvarNumber objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
-number_kt tv_get_number_chk(const typval_T *const tv, bool *const ret_error)
+number_kt tv_get_number_chk(const typval_st *const tv, bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
 {
@@ -2987,7 +2987,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// a special string like ".", "$", … (works with current buffer only).
 ///
 /// @return Line number or -1 or 0.
-linenr_T tv_get_lnum(const typval_T *const tv)
+linenr_T tv_get_lnum(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -3015,7 +3015,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  tv  Object to get value of.
 ///
 /// @return Floating-point value of the variable or zero.
-float_kt tv_get_float(const typval_T *const tv)
+float_kt tv_get_float(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -3087,7 +3087,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Object value if it is kNvarString object, number converted to
 /// a string for kNvarNumber, v: variable name for kNvarSpecial or NULL.
-const char *tv_get_string_buf_chk(const typval_T *const tv, char *const buf)
+const char *tv_get_string_buf_chk(const typval_st *const tv, char *const buf)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -3143,7 +3143,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Object value if it is kNvarString object, number converted to
 /// a string for kNvarNumber, v: variable name for kNvarSpecial or NULL.
-const char *tv_get_string_chk(const typval_T *const tv)
+const char *tv_get_string_chk(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -3169,14 +3169,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Object value if it is kNvarString object, number converted to a string
 /// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
-const char *tv_get_string(const typval_T *const tv)
+const char *tv_get_string(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     static char mybuf[NUMBUFLEN];
 
-    return tv_get_string_buf((typval_T *)tv, mybuf);
+    return tv_get_string_buf((typval_st *)tv, mybuf);
 }
 
 /// Get the string value of a VimL object
@@ -3198,7 +3198,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Object value if it is kNvarString object, number converted to a string
 /// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
-const char *tv_get_string_buf(const typval_T *const tv, char *const buf)
+const char *tv_get_string_buf(const typval_st *const tv, char *const buf)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_WARN_UNUSED_RESULT

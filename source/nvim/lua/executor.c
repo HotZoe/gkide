@@ -152,7 +152,7 @@ static int nlua_exec_lua_string(lua_State *const lstate)
 FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
-    typval_T *const ret_tv = (typval_T *)lua_touserdata(lstate, 2);
+    typval_st *const ret_tv = (typval_st *)lua_touserdata(lstate, 2);
     lua_pop(lstate, 2);
 
     if(luaL_loadbuffer(lstate, str->data, str->size, NLUA_EVAL_NAME))
@@ -372,7 +372,7 @@ static lua_State *global_lstate = NULL;
 /// @param[out] ret_tv  Location where result will be saved.
 ///
 /// @return Result of the execution.
-void executor_exec_lua(const String str, typval_T *const ret_tv)
+void executor_exec_lua(const String str, typval_st *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
@@ -397,8 +397,8 @@ static int nlua_eval_lua_string(lua_State *const lstate)
 FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
-    typval_T *const arg = (typval_T *)lua_touserdata(lstate, 2);
-    typval_T *const ret_tv = (typval_T *)lua_touserdata(lstate, 3);
+    typval_st *const arg = (typval_st *)lua_touserdata(lstate, 2);
+    typval_st *const ret_tv = (typval_st *)lua_touserdata(lstate, 3);
 
     lua_pop(lstate, 3);
 
@@ -639,7 +639,7 @@ nlua_print_error:
 int nlua_debug(lua_State *lstate)
 FUNC_ATTR_NONNULL_ALL
 {
-    const typval_T input_args[] = {
+    const typval_st input_args[] = {
         {
             .v_lock = kNvlVarFixed,
             .v_type = kNvarString,
@@ -651,7 +651,7 @@ FUNC_ATTR_NONNULL_ALL
     for(;;)
     {
         lua_settop(lstate, 0);
-        typval_T input;
+        typval_st input;
         get_user_input(input_args, &input, false);
         msg_putchar('\n'); // Avoid outputting on input line.
 
@@ -695,8 +695,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return Result of the execution.
 void executor_eval_lua(const String str,
-                       typval_T *const arg,
-                       typval_T *const ret_tv)
+                       typval_st *const arg,
+                       typval_st *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
@@ -754,7 +754,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    typval_T tv = { .v_type = kNvarUnknown };
+    typval_st tv = { .v_type = kNvarUnknown };
 
     executor_exec_lua((String)
     {

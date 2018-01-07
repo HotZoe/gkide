@@ -7288,7 +7288,7 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     list_st *const args = tv_list_alloc();
     const char regname = (char)name;
     tv_list_append_string(args, &regname, 1);
-    typval_T result = eval_call_provider("clipboard", "get", args);
+    typval_st result = eval_call_provider("clipboard", "get", args);
 
     if(result.v_type != kNvarList)
     {

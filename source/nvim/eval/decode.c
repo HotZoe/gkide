@@ -22,7 +22,7 @@ typedef struct
     list_st *special_val; ///< _VAL key contents for special maps.
                          ///< When container is not a special dictionary it is NULL.
     const char *s;       ///< Location where container starts.
-    typval_T container;  ///< Container. Either kNvarList, kNvarDict or kNvarList
+    typval_st container;  ///< Container. Either kNvarList, kNvarDict or kNvarList
                          ///< which is _VAL from special dictionary.
 } container_item_st;
 
@@ -37,7 +37,7 @@ typedef struct
                              ///< dictionary with string.
     bool didcomma;           ///< True if previous token was comma.
     bool didcolon;           ///< True if previous token was colon.
-    typval_T val;            ///< Actual value.
+    typval_st val;            ///< Actual value.
 } value_item_st;
 
 /// Vector containing values not yet saved in any container
@@ -52,9 +52,9 @@ typedef kvec_t(value_item_st) value_stack_st;
 /// @param[out] rettv Location where created dictionary will be saved.
 /// @param[in]  type  Type of the dictionary.
 /// @param[in]  val   Value associated with the _VAL key.
-static inline void create_special_dict(typval_T *const rettv,
+static inline void create_special_dict(typval_st *const rettv,
                                        const MessagePackType type,
-                                       typval_T val)
+                                       typval_st val)
 FUNC_ATTR_NONNULL_ALL
 {
     dict_st *const dict = tv_dict_alloc();
@@ -72,7 +72,7 @@ FUNC_ATTR_NONNULL_ALL
     tv_dict_add(dict, val_di);
     dict->dv_refcount++;
 
-    *rettv = (typval_T) {
+    *rettv = (typval_st) {
         .v_type = kNvarDict,
         .v_lock = kNvlVarUnlocked,
         .vval = { .v_dict = dict },
@@ -291,13 +291,13 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] list which should contain key-value pairs. Return value
 ///                     may be safely ignored.
-list_st *decode_create_map_special_dict(typval_T *const ret_tv)
+list_st *decode_create_map_special_dict(typval_st *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
     list_st *const list = tv_list_alloc();
     list->lv_refcount++;
 
-    create_special_dict(ret_tv, kMPMap, ((typval_T) {
+    create_special_dict(ret_tv, kMPMap, ((typval_st) {
         .v_type = kNvarList,
         .v_lock = kNvlVarUnlocked,
         .vval = { .v_list = list },
@@ -306,7 +306,7 @@ FUNC_ATTR_NONNULL_ALL
     return list;
 }
 
-/// Convert char* string to typval_T
+/// Convert char* string to typval_st
 ///
 /// Depending on whether string has (no) NUL bytes, it may use a special
 /// dictionary or decode string to kNvarString.
@@ -328,7 +328,7 @@ FUNC_ATTR_NONNULL_ALL
 /// If it is not saved there, it will be freed.
 ///
 /// @return Decoded string.
-typval_T decode_string(const char *const s,
+typval_st decode_string(const char *const s,
                        const size_t len,
                        const TriState hasnul,
                        const bool binary,
@@ -344,11 +344,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         list_st *const list = tv_list_alloc();
         list->lv_refcount++;
-        typval_T tv;
+        typval_st tv;
 
         create_special_dict(&tv,
                             binary ? kMPBinary : kMPString,
-                            ((typval_T) {
+                            ((typval_st) {
                                 .v_type = kNvarList,
                                 .v_lock = kNvlVarUnlocked,
                                 .vval = { .v_list = list },
@@ -364,7 +364,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         if(elw_ret == -1)
         {
             tv_clear(&tv);
-            return (typval_T) {
+            return (typval_st) {
                 .v_type = kNvarUnknown,
                 .v_lock = kNvlVarUnlocked
             };
@@ -374,7 +374,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
     else
     {
-        return (typval_T) {
+        return (typval_st) {
             .v_type = kNvarString,
             .v_lock = kNvlVarUnlocked,
             .vval = {
@@ -553,7 +553,7 @@ FUNC_ATTR_ALWAYS_INLINE
 
     if(len == 0)
     {
-        POP(((typval_T)
+        POP(((typval_st)
         {
             .v_type = kNvarString, .vval = { .v_string = NULL },
         }), false);
@@ -675,7 +675,7 @@ FUNC_ATTR_ALWAYS_INLINE
 #undef PUT_FST_IN_PAIR
 
     *str_end = NUL;
-    typval_T obj = decode_string(str,
+    typval_st obj = decode_string(str,
                                  (size_t)(str_end - str),
                                  hasnul ? kTrue : kFalse,
                                  false,
@@ -836,7 +836,7 @@ parse_json_number_check:
         goto parse_json_number_fail;
     }
 
-    typval_T tv = {.v_type = kNvarNumber, .v_lock = kNvlVarUnlocked, };
+    typval_st tv = {.v_type = kNvarNumber, .v_lock = kNvlVarUnlocked, };
     const size_t exp_num_len = (size_t) (p - s);
 
     if(fracs || exps)
@@ -926,7 +926,7 @@ parse_json_number_ret:
 /// @return OK in case of success, FAIL otherwise.
 int json_decode_string(const char *const buf,
                        const size_t buf_len,
-                       typval_T *const rettv)
+                       typval_st *const rettv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1132,7 +1132,7 @@ json_decode_string_cycle_start:
 
                 p += 3;
 
-                POP(((typval_T) {
+                POP(((typval_st) {
                     .v_type = kNvarSpecial,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarNull },
@@ -1151,7 +1151,7 @@ json_decode_string_cycle_start:
 
                 p += 3;
 
-                POP(((typval_T) {
+                POP(((typval_st) {
                     .v_type = kNvarSpecial,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarTrue },
@@ -1170,7 +1170,7 @@ json_decode_string_cycle_start:
 
                 p += 4;
 
-                POP(((typval_T) {
+                POP(((typval_st) {
                     .v_type = kNvarSpecial,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarFalse },
@@ -1240,7 +1240,7 @@ json_decode_string_cycle_start:
                 list_st *list = tv_list_alloc();
                 list->lv_refcount++;
 
-                typval_T tv = (typval_T) {
+                typval_st tv = (typval_st) {
                     .v_type = kNvarList,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
@@ -1260,7 +1260,7 @@ json_decode_string_cycle_start:
 
             case '{':
             {
-                typval_T tv;
+                typval_st tv;
                 list_st *val_list = NULL;
 
                 if(next_map_special)
@@ -1273,7 +1273,7 @@ json_decode_string_cycle_start:
                     dict_st *dict = tv_dict_alloc();
                     dict->dv_refcount++;
 
-                    tv = (typval_T) {
+                    tv = (typval_st) {
                         .v_type = kNvarDict,
                         .v_lock = kNvlVarUnlocked,
                         .vval = { .v_dict = dict },
@@ -1361,14 +1361,14 @@ json_decode_string_ret:
 #undef DICT_LEN
 
 /// Convert msgpack object to a VimL one
-int msgpack_to_vim(const msgpack_object mobj, typval_T *const rettv)
+int msgpack_to_vim(const msgpack_object mobj, typval_st *const rettv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(mobj.type)
     {
         case MSGPACK_OBJECT_NIL:
         {
-            *rettv = (typval_T) {
+            *rettv = (typval_st) {
                 .v_type = kNvarSpecial,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_special = kSpecialVarNull },
@@ -1379,7 +1379,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
         case MSGPACK_OBJECT_BOOLEAN:
         {
-            *rettv = (typval_T) {
+            *rettv = (typval_st) {
                 .v_type = kNvarSpecial,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_special = mobj.via.boolean
@@ -1393,7 +1393,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             if(mobj.via.u64 <= VARNUMBER_MAX)
             {
-                *rettv = (typval_T) {
+                *rettv = (typval_st) {
                     .v_type = kNvarNumber,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_number = (number_kt) mobj.via.u64 },
@@ -1404,7 +1404,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 list_st *const list = tv_list_alloc();
                 list->lv_refcount++;
 
-                create_special_dict(rettv, kMPInteger, ((typval_T) {
+                create_special_dict(rettv, kMPInteger, ((typval_st) {
                     .v_type = kNvarList,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
@@ -1424,7 +1424,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             if(mobj.via.i64 >= VARNUMBER_MIN)
             {
-                *rettv = (typval_T) {
+                *rettv = (typval_st) {
                     .v_type = kNvarNumber,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_number = (number_kt) mobj.via.i64 },
@@ -1435,7 +1435,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 list_st *const list = tv_list_alloc();
                 list->lv_refcount++;
 
-                create_special_dict(rettv, kMPInteger, ((typval_T) {
+                create_special_dict(rettv, kMPInteger, ((typval_st) {
                     .v_type = kNvarList,
                     .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
@@ -1458,7 +1458,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         case MSGPACK_OBJECT_FLOAT:
         #endif
         {
-            *rettv = (typval_T) {
+            *rettv = (typval_st) {
                 .v_type = kNvarFloat,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_float = mobj.via.f64 },
@@ -1499,7 +1499,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             list_st *const list = tv_list_alloc();
             list->lv_refcount++;
 
-            *rettv = (typval_T) {
+            *rettv = (typval_st) {
                 .v_type = kNvarList,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_list = list },
@@ -1537,7 +1537,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             dict_st *const dict = tv_dict_alloc();
             dict->dv_refcount++;
 
-            *rettv = (typval_T) {
+            *rettv = (typval_st) {
                 .v_type = kNvarDict,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_dict = dict },
@@ -1613,7 +1613,7 @@ msgpack_to_vim_generic_map:
 
             list_st *const ext_val_list = tv_list_alloc();
             tv_list_append_list(list, ext_val_list);
-            create_special_dict(rettv, kMPExt, ((typval_T) {
+            create_special_dict(rettv, kMPExt, ((typval_st) {
                 .v_type = kNvarList,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_list = list },

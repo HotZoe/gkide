@@ -674,7 +674,7 @@ static const char *const e_printf =
 /// Index in a list. Will be incremented. Indexing starts at 1.
 ///
 /// @return Number value or 0 in case of error.
-static number_kt tv_nr(typval_T *tvs, int *idxp)
+static number_kt tv_nr(typval_st *tvs, int *idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -717,7 +717,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// as ":echo" and stored in "*tofree". The caller must free "*tofree".
 ///
 /// @return String value or NULL in case of error.
-static const char *tv_str(typval_T *tvs, int *idxp, char **const tofree)
+static const char *tv_str(typval_st *tvs, int *idxp, char **const tofree)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -751,11 +751,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Will give an error message for VimL entry with invalid type or for
 /// insufficient entries.
 ///
-/// @param[in]  tvs       List of typval_T values.
+/// @param[in]  tvs       List of typval_st values.
 /// @param[in,out]  idxp  Pointer to the index of the current value.
 ///
-/// @return Pointer stored in typval_T or NULL.
-static const void *tv_ptr(const typval_T *const tvs, int *const idxp)
+/// @return Pointer stored in typval_st or NULL.
+static const void *tv_ptr(const typval_st *const tvs, int *const idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -799,7 +799,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Index in a list. Will be incremented.
 ///
 /// @return Floating-point value or zero in case of error.
-static float_kt tv_float(typval_T *const tvs, int *const idxp)
+static float_kt tv_float(typval_st *const tvs, int *const idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -866,7 +866,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 // the resulting string will be NUL-terminated.
 //
 // vim_vsnprintf() can be invoked with either "va_list" or a list of
-// "typval_T". When the latter is not used it must be NULL.
+// "typval_st". When the latter is not used it must be NULL.
 
 /// Append a formatted value to the string
 ///
@@ -959,7 +959,7 @@ int vim_vsnprintf(char *str,
                   size_t str_m,
                   const char *fmt,
                   va_list ap,
-                  typval_T *const tvs)
+                  typval_st *const tvs)
 {
     size_t str_l = 0;
     bool str_avail = str_l < str_m;

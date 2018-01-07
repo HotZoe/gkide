@@ -4390,7 +4390,7 @@ static void expand_by_function(int type, uchar_kt *base)
     uchar_kt *funcname;
     win_st *curwin_save;
     fbuf_st *curbuf_save;
-    typval_T rettv;
+    typval_st rettv;
     funcname = (type == CTRL_X_FUNCTION) ? curbuf->b_p_cfu : curbuf->b_p_ofu;
 
     if(*funcname == NUL)
@@ -4520,7 +4520,7 @@ static void ins_compl_add_dict(dict_st *dict)
 /// NOTDONE if the given string is already in the list of completions,
 /// otherwise it is added to the list and OK is returned. FAIL will be
 /// returned in case of error.
-int ins_compl_add_tv(typval_T *const tv, const Direction dir)
+int ins_compl_add_tv(typval_st *const tv, const Direction dir)
 FUNC_ATTR_NONNULL_ALL
 {
     const char *word;

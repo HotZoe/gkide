@@ -245,7 +245,7 @@ FUNC_API_SINCE(1)
     Object rv = OBJECT_INIT;
     // Evaluate the expression
     try_start();
-    typval_T rettv;
+    typval_st rettv;
 
     if(eval_lev_0((uchar_kt *)expr.data, &rettv, NULL, true) == FAIL)
     {
@@ -285,8 +285,8 @@ FUNC_API_SINCE(1)
         return rv;
     }
 
-    // Convert the arguments in args from Object to typval_T values
-    typval_T vim_args[MAX_FUNC_ARGS + 1];
+    // Convert the arguments in args from Object to typval_st values
+    typval_st vim_args[MAX_FUNC_ARGS + 1];
     size_t i = 0;  // also used for freeing the variables
 
     for(; i < args.size; i++)
@@ -298,7 +298,7 @@ FUNC_API_SINCE(1)
     }
 
     try_start();
-    typval_T rettv;
+    typval_st rettv;
     int dummy;
     // Call the function
     int r = call_func((uchar_kt *)fname.data,

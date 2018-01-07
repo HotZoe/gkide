@@ -162,7 +162,7 @@ typedef struct
     uchar_kt *growbuf;
     size_t growbufsiz;
     FILE *fd;
-    typval_T *tv;
+    typval_st *tv;
     uchar_kt *p_str;
     listitem_T *p_li;
     fbuf_st *buf;
@@ -1283,7 +1283,7 @@ restofline:
 static int qf_init_ext(qf_info_T *qi,
                        uchar_kt *efile,
                        fbuf_st *buf,
-                       typval_T *tv,
+                       typval_st *tv,
                        uchar_kt *errorformat,
                        int newlist,
                        linenr_T lnumfirst,
@@ -5760,7 +5760,7 @@ void ex_cexpr(exarg_T *eap)
     // Evaluate the expression.
     // When the result is a string or a list
     // we can use it to fill the errorlist.
-    typval_T tv;
+    typval_st tv;
 
     if(eval_lev_0(eap->arg, &tv, NULL, true) != FAIL)
     {

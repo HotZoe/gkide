@@ -63,7 +63,7 @@
 #define THROW_ON_INTERRUPT true
 #define THROW_ON_INTERRUPT_TRUE
 
-#define discard_pending_return(p) tv_free((typval_T *)(p))
+#define discard_pending_return(p) tv_free((typval_st *)(p))
 
 /// When several errors appear in a row, setting "force_abort" is delayed until
 /// the failing command returned. "cause_abort" is set to TRUE meanwhile, in

@@ -244,7 +244,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 typedef struct
 {
     /// Location where conversion result is saved.
-    typval_T *tv;
+    typval_st *tv;
     /// True if tv is a container.
     bool container;
     /// If true, tv is a _VAL part of special dictionary that represents mapping.
@@ -253,7 +253,7 @@ typedef struct
     int idx;
 } TVPopStackItem;
 
-/// Convert lua object to VimL typval_T
+/// Convert lua object to VimL typval_st
 ///
 /// Should pop exactly one value from lua stack.
 ///
@@ -262,7 +262,7 @@ typedef struct
 ///
 /// @return true in case of success, false in case of failure.
 /// Error is reported automatically.
-bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
+bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
 {
     bool ret = true;
     const int initial_size = lua_gettop(lstate);
@@ -376,7 +376,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
         }
 
         assert(!cur.container);
-        *cur.tv = (typval_T)
+        *cur.tv = (typval_st)
         {
             .v_type = kNvarNumber,
              .v_lock = kNvlVarUnlocked,
@@ -555,7 +555,7 @@ nlua_pop_typval_table_processing_end:
     {
         tv_clear(ret_tv);
 
-        *ret_tv = (typval_T) {
+        *ret_tv = (typval_st) {
             .v_type = kNvarNumber,
              .v_lock = kNvlVarUnlocked,
               .vval = { .v_number = 0 },
@@ -712,16 +712,16 @@ nlua_pop_typval_table_processing_end:
 #undef TYPVAL_ENCODE_CONV_RECURSE
 #undef TYPVAL_ENCODE_ALLOW_SPECIALS
 
-/// Convert VimL typval_T to lua value
+/// Convert VimL typval_st to lua value
 ///
 /// Should leave single value in lua stack.
 /// May only fail if lua failed to grow stack.
 ///
 /// @param  lstate  Lua interpreter state.
-/// @param[in]  tv  typval_T to convert.
+/// @param[in]  tv  typval_st to convert.
 ///
 /// @return true in case of success, false otherwise.
-bool nlua_push_typval(lua_State *lstate, typval_T *const tv)
+bool nlua_push_typval(lua_State *lstate, typval_st *const tv)
 {
     const int initial_size = lua_gettop(lstate);
 

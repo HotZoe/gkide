@@ -315,7 +315,7 @@ typedef struct
         struct global_var
         {
             char *name;
-            typval_T value;
+            typval_st value;
             list_st *additional_elements;
         } global_var;
         struct
@@ -3255,7 +3255,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
         do
         {
-            typval_T vartv;
+            typval_st vartv;
             const char *name = NULL;
             var_iter = var_shada_iter(var_iter, &name, &vartv);
 
@@ -3264,7 +3264,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 break;
             }
 
-            typval_T tgttv;
+            typval_st tgttv;
             tv_copy(&vartv, &tgttv);
             ShaDaWriteResult spe_ret;
 
@@ -4458,7 +4458,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 }                                                             \
             };                                                                \
                                                                               \
-            typval_T adtv;                                                    \
+            typval_st adtv;                                                    \
             if(msgpack_to_vim(obj, &adtv) == FAIL                             \
                || adtv.v_type != kNvarDict)                                    \
             {                                                                 \
@@ -4490,7 +4490,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 }                                                             \
             };                                                                \
                                                                               \
-            typval_T aetv;                                                    \
+            typval_st aetv;                                                    \
             if(msgpack_to_vim(obj, &aetv) == FAIL)                            \
             {                                                                 \
                 emsgf(_(READERR(name, "cannot be converted to a VimL list")), \

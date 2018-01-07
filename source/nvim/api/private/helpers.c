@@ -206,7 +206,7 @@ Object dict_set_var(dict_st *dict,
     else
     {
         // Update the key
-        typval_T tv;
+        typval_st tv;
 
         // Convert the object to a vimscript
         // type in the temporary variable
@@ -608,7 +608,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 ///
 /// @param obj The source object
 /// @return The converted value
-Object vim_to_object(typval_T *obj)
+Object vim_to_object(typval_st *obj)
 {
     encode_data_st edata = { .stack = KV_INITIAL_VALUE };
 
@@ -720,7 +720,7 @@ String cstr_as_string(char *str) FUNC_ATTR_PURE
 /// @param tv   Conversion result is placed here. On failure member v_type is
 ///             set to kNvarUnknown (no allocation was made for this variable).
 /// returns     true if conversion is successful, otherwise false.
-bool object_to_vim(Object obj, typval_T *tv, error_st *err)
+bool object_to_vim(Object obj, typval_st *tv, error_st *err)
 {
     tv->v_type = kNvarUnknown;
     tv->v_lock = kNvlVarUnlocked;
@@ -1212,7 +1212,7 @@ ArrayOf(Dictionary) keymap_array(String mode, fbuf_st *buf)
             {
                 mapblock_fill_dict(dict, current_maphash, buffer_value, false);
 
-                ADD(mappings, vim_to_object( (typval_T[])
+                ADD(mappings, vim_to_object( (typval_st[])
                 {
                     {
                         .v_type = kNvarDict, .vval.v_dict = dict

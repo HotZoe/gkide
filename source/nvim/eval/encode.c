@@ -143,7 +143,7 @@ FUNC_ATTR_NONNULL_ALL
         {
             case kMPConvDict:
             {
-                typval_T key_tv = {
+                typval_st key_tv = {
                     .v_type = kNvarString,
                     .vval = { .v_string = (v.data.d.hi == NULL
                                            ? v.data.d.dict->dv_hashtab.ht_array
@@ -181,7 +181,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
                 else
                 {
-                    typval_T key_tv = li->li_tv.vval.v_list->lv_first->li_tv;
+                    typval_st key_tv = li->li_tv.vval.v_list->lv_first->li_tv;
                     char *const key = encode_tv2echo(&key_tv, NULL);
 
                     vim_snprintf((char *) IObuff, IOSIZE,
@@ -883,7 +883,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
 /// Check whether given key can be used in json_encode()
 ///
 /// @param[in]  tv  Key to check.
-bool encode_check_json_key(const typval_T *const tv)
+bool encode_check_json_key(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 {
     if(tv->v_type == kNvarString)
@@ -986,11 +986,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 /// Return a string with the string representation of a variable.
 /// Puts quotes around strings, so that they can be parsed back by eval().
 ///
-/// @param[in]  tv   typval_T to convert.
+/// @param[in]  tv   typval_st to convert.
 /// @param[out] len  Location where length of the result will be saved.
 ///
 /// @return String representation of the variable or NULL.
-char *encode_tv2string(typval_T *tv, size_t *len)
+char *encode_tv2string(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
     garray_T ga;
@@ -1017,11 +1017,11 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 /// Return a string with the string representation of a variable.
 /// Does not put quotes around strings, as ":echo" displays values.
 ///
-/// @param[in]  tv  typval_T to convert.
+/// @param[in]  tv  typval_st to convert.
 /// @param[out] len Location where length of the result will be saved.
 ///
 /// @return String representation of the variable or NULL.
-char *encode_tv2echo(typval_T *tv, size_t *len)
+char *encode_tv2echo(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
     garray_T ga;
@@ -1054,11 +1054,11 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 /// Return a string with the string representation of a variable.
 /// Puts quotes around strings, so that they can be parsed back by eval().
 ///
-/// @param[in]  tv  typval_T to convert.
+/// @param[in]  tv  typval_st to convert.
 /// @param[out] len Location where length of the result will be saved.
 ///
 /// @return String representation of the variable or NULL.
-char *encode_tv2json(typval_T *tv, size_t *len)
+char *encode_tv2json(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
     garray_T ga;

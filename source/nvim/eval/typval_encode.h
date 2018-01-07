@@ -37,7 +37,7 @@ typedef enum
 typedef struct
 {
     MPConvStackValType type;  ///< Type of the stack entry.
-    typval_T *tv;             ///< Currently converted typval_T.
+    typval_st *tv;             ///< Currently converted typval_st.
     int saved_copyID;         ///< copyID item used to have.
     union
     {
@@ -65,8 +65,8 @@ typedef struct
 
         struct
         {
-            typval_T *arg;    ///< Currently converted argument.
-            typval_T *argv;   ///< Start of the argument list.
+            typval_st *arg;    ///< Currently converted argument.
+            typval_st *argv;   ///< Start of the argument list.
             size_t todo;      ///< Number of items left to process.
         } a;                  ///< State of list or generic mapping conversion.
     } data;                   ///< Data to convert.
@@ -83,20 +83,20 @@ typedef kvec_withinit_t(MPConvStackVal, 8) MPConvStack;
 #define _mp_pop     kv_pop
 #define _mp_last    kv_last
 
-static inline size_t tv_strlen(const typval_T *const tv)
+static inline size_t tv_strlen(const typval_st *const tv)
 REAL_FATTR_ALWAYS_INLINE
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT
 REAL_FATTR_NONNULL_ALL;
 
-/// Length of the string stored in typval_T
+/// Length of the string stored in typval_st
 ///
 /// @param[in]  tv
-/// String for which to compute length for. Must be typval_T with kNvarString.
+/// String for which to compute length for. Must be typval_st with kNvarString.
 ///
 /// @return
-/// Length of the string stored in typval_T, including 0 for NULL string.
-static inline size_t tv_strlen(const typval_T *const tv)
+/// Length of the string stored in typval_st, including 0 for NULL string.
+static inline size_t tv_strlen(const typval_st *const tv)
 {
     assert(tv->v_type == kNvarString);
     return (tv->vval.v_string == NULL ? 0 : strlen((char *) tv->vval.v_string));

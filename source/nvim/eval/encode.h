@@ -19,7 +19,7 @@
 ///
 /// @return OK in case of success, FAIL otherwise.
 int encode_vim_to_msgpack(msgpack_packer *const packer,
-                          typval_T *const tv,
+                          typval_st *const tv,
                           const char *const objname);
 
 /// Convert VimL value to :echo output
@@ -30,7 +30,7 @@ int encode_vim_to_msgpack(msgpack_packer *const packer,
 ///
 /// @return OK in case of success, FAIL otherwise.
 int encode_vim_to_echo(garray_T *const packer,
-                       typval_T *const tv,
+                       typval_st *const tv,
                        const char *const objname);
 
 /// Structure defining state for read_from_list()

@@ -2943,7 +2943,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
 
                 case kStlClickFuncRun:
                 {
-                    typval_T argv[4] = { 0 };
+                    typval_st argv[4] = { 0 };
                     argv[0].v_lock = kNvlVarFixed;
                     argv[0].v_type = kNvarNumber;
                     argv[0].vval.v_number = (number_kt)tab_page_click_defs[mouse_col].tabnr;
@@ -2976,7 +2976,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                         NUL
                     };
 
-                    typval_T rettv;
+                    typval_st rettv;
                     int doesrange;
 
                     (void)call_func((uchar_kt *)tab_page_click_defs[mouse_col].func,

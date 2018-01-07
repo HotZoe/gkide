@@ -1897,7 +1897,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
     buf->changedtick_di = (ChangedtickDictItem) {
          // Must not include DI_FLAGS_ALLOC
         .di_flags = DI_FLAGS_RO | DI_FLAGS_FIX,
-        .di_tv = (typval_T) {
+        .di_tv = (typval_st) {
             .v_type = kNvarNumber,
             .v_lock = kNvlVarFixed,
             .vval.v_number = buf->b_changedtick,

@@ -1,6 +1,6 @@
 /// @file nvim/eval/typval_encode.c.h
 ///
-/// Contains set of macros used to convert (possibly recursive) typval_T into
+/// Contains set of macros used to convert (possibly recursive) typval_st into
 /// something else. For these macros to work the following macros must be defined:
 
 /// @def TYPVAL_ENCODE_CONV_NIL
@@ -173,7 +173,7 @@
 /// @brief Macros used to check special dictionary key
 ///
 /// @param  label  Label for goto in case check was not successfull.
-/// @param  key  typval_T key to check.
+/// @param  key  typval_st key to check.
 
 /// @def TYPVAL_ENCODE_CONV_DICT_AFTER_KEY
 /// @brief Macros used after finishing converting dictionary key
@@ -299,7 +299,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     MPConvStack *const mpstack,
     MPConvStackVal *const cur_mpsv,
-    typval_T *const tv,
+    typval_st *const tv,
     const int copyID,
     const char *const objname)
 REAL_FATTR_NONNULL_ARG(2, 4, 6)
@@ -335,7 +335,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     MPConvStack *const mpstack,
     MPConvStackVal *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
-    typval_T *const tv,
+    typval_st *const tv,
     const int copyID,
     const char *const objname)
 {
@@ -763,7 +763,7 @@ typval_encode_stop_converting_one_item:
 
 TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
-    typval_T *const tv,
+    typval_st *const tv,
     const char *const objname)
 REAL_FATTR_NONNULL_ARG(2, 3)
 REAL_FATTR_WARN_UNUSED_RESULT;
@@ -783,7 +783,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// @return OK in case of success, FAIL in case of failure.
 TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
-    typval_T *const top_tv,
+    typval_st *const top_tv,
     const char *const objname)
 {
     const int copyID = get_copyID();
@@ -807,7 +807,7 @@ typval_encode_stop_converting_one_item:
     while(_mp_size(mpstack))
     {
         MPConvStackVal *cur_mpsv = &_mp_last(mpstack);
-        typval_T *tv = NULL;
+        typval_st *tv = NULL;
 
         switch(cur_mpsv->type)
         {

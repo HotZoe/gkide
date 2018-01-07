@@ -142,7 +142,7 @@ extern const list_st *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
 #undef LAST_MSGPACK_TYPE
 
 typedef int (*ArgvFunc)(int current_argcount,
-                        typval_T *argv,
+                        typval_st *argv,
                         int called_func_argcount);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

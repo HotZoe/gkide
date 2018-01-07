@@ -42,20 +42,20 @@ typedef struct partial_s  partial_st;
 /// @todo add userdata
 /// =======================userdata_st
 
-/// NvimL(nvl) variable types, @see typval_T::v_type
+/// NvimL(nvl) variable types, @see typval_st::v_type
 typedef enum
 {
     kNvarUnknown = 0,  ///< Unknown (unspecified) value.
-    kNvarNumber,       ///< Number, number_kt, typval_T::v_number
-    kNvarString,       ///< String, string_st, typval_T::v_string
-    kNvarUfunc,        ///< User Function, ufunc_st, typval_T::v_string
+    kNvarNumber,       ///< Number, number_kt, typval_st::v_number
+    kNvarString,       ///< String, string_st, typval_st::v_string
+    kNvarUfunc,        ///< User Function, ufunc_st, typval_st::v_string
                        ///< is the function name.
-    kNvarList,         ///< List, list_st, typval_T::v_list
-    kNvarDict,         ///< Dictionary, dict_st, typval_T::v_dict
-    kNvarFloat,        ///< Float, float_kt, typval_T::v_float
+    kNvarList,         ///< List, list_st, typval_st::v_list
+    kNvarDict,         ///< Dictionary, dict_st, typval_st::v_dict
+    kNvarFloat,        ///< Float, float_kt, typval_st::v_float
     kNvarSpecial,      ///< Special value (true, false, null),
-                       ///< special_st, typval_T::v_special
-    kNvarPartial,      ///< Partial, partial_st, typval_T::v_partial
+                       ///< special_st, typval_st::v_special
+    kNvarPartial,      ///< Partial, partial_st, typval_st::v_partial
 } nvlvar_type_et;
 
 typedef enum
@@ -96,7 +96,7 @@ typedef enum
     kSpecialVarNull,   ///< v:null
 } nvlvar_special_value_et;
 
-/// Variable lock status for typval_T::v_lock
+/// Variable lock status for typval_st::v_lock
 typedef enum
 {
     kNvlVarUnlocked = 0, ///< Not locked.
@@ -133,7 +133,7 @@ typedef struct
         ///< Closure: function with args, for kNvarPartial
         partial_st *v_partial;
     } vval; ///< Actual value.
-} typval_T;
+} typval_st;
 
 /// Values for dict_st::dv_scope
 typedef enum
@@ -153,7 +153,7 @@ struct listitem_S
 {
     listitem_T *li_next;  ///< Next item in list.
     listitem_T *li_prev;  ///< Previous item in list.
-    typval_T li_tv;       ///< Item value.
+    typval_st li_tv;       ///< Item value.
 };
 
 /// Structure used by those that are using an item in a list
@@ -196,7 +196,7 @@ typedef struct
 // The key is copied into "di_key" to avoid an extra alloc/free for it.
 struct dictitem_S
 {
-    typval_T di_tv;   ///< type and value of the variable
+    typval_st di_tv;   ///< type and value of the variable
     uchar_kt di_flags;  ///< flags (only used for variable)
     uchar_kt di_key[1]; ///< key (actually longer!)
 };
@@ -204,7 +204,7 @@ struct dictitem_S
 #define TV_DICTITEM_STRUCT(KEY_LEN)                      \
     struct                                               \
     {                                                    \
-        typval_T di_tv;           /* scope dictionary */ \
+        typval_st di_tv;           /* scope dictionary */ \
         uint8_t  di_flags;        /* Flags.           */ \
         uchar_kt di_key[KEY_LEN]; /* Key value.       */ \
     }
@@ -305,7 +305,7 @@ struct partial_s
     bool pt_auto;      ///< When true the partial was created by using dict.member
                        ///< in handle_subscript().
     int pt_argc;       ///< Number of arguments.
-    typval_T *pt_argv;///< Arguments in allocated array.
+    typval_st *pt_argv;///< Arguments in allocated array.
     dict_st *pt_dict;  ///< Dict for "self".
 };
 
@@ -383,7 +383,7 @@ static inline bool tv_dict_is_watched(const dict_st *const d)
 /// Initializes to unlocked kNvarUnknown object.
 ///
 /// @param[out]  tv  Object to initialize.
-static inline void tv_init(typval_T *const tv)
+static inline void tv_init(typval_st *const tv)
 {
     if(tv != NULL)
     {
@@ -392,7 +392,7 @@ static inline void tv_init(typval_T *const tv)
 }
 
 #define TV_INITIAL_VALUE  \
-    ((typval_T) { .v_type = kNvarUnknown, .v_lock = kNvlVarUnlocked, })
+    ((typval_st) { .v_type = kNvarUnknown, .v_lock = kNvlVarUnlocked, })
 
 /// Empty string
 ///
@@ -418,7 +418,7 @@ extern bool tv_in_free_unref_items;
         }                                                  \
     })
 
-static inline bool tv_get_float_chk(const typval_T *const tv,
+static inline bool tv_get_float_chk(const typval_st *const tv,
                                     float_kt *const ret_f)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
@@ -434,7 +434,7 @@ bool emsgf(const char *const fmt, ...);
 /// @param[out]  ret_f  Location where resulting float is stored.
 ///
 /// @return true in case of success, false if tv is not a number or float.
-static inline bool tv_get_float_chk(const typval_T *const tv,
+static inline bool tv_get_float_chk(const typval_st *const tv,
                                     float_kt *const ret_f)
 {
     if(tv->v_type == kNvarFloat)
@@ -469,19 +469,19 @@ static inline dict_watcher_st *tv_dict_watcher_node_data(queue_st *q)
     return QUEUE_DATA(q, dict_watcher_st, node);
 }
 
-static inline bool tv_is_func(const typval_T tv)
+static inline bool tv_is_func(const typval_st tv)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_CONST;
 
-/// Check whether given typval_T contains a function
+/// Check whether given typval_st contains a function
 ///
 /// That is, whether it contains kNvarUfunc or kNvarPartial.
 ///
 /// @param[in]  tv  Typval to check.
 ///
 /// @return True if it is a function or a partial, false otherwise.
-static inline bool tv_is_func(const typval_T tv)
+static inline bool tv_is_func(const typval_st tv)
 {
     return tv.v_type == kNvarUfunc || tv.v_type == kNvarPartial;
 }

@@ -9050,7 +9050,7 @@ static int submatch_line_lbr;
 /// Put the submatches in "argv[0]" which is a
 /// list passed into call_func() by vim_regsub_both().
 static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
-                              typval_T *argv,
+                              typval_st *argv,
                               int argcount)
 {
     int i;
@@ -9118,7 +9118,7 @@ static void clear_submatch_list(staticList10_T *sl)
 /// the size of the replacement, including terminating NUL.
 int vim_regsub(regmatch_T *rmp,
                uchar_kt *source,
-               typval_T *expr,
+               typval_st *expr,
                uchar_kt *dest,
                int copy,
                int magic,
@@ -9152,7 +9152,7 @@ int vim_regsub_multi(regmmatch_T *rmp,
 }
 
 static int vim_regsub_both(uchar_kt *source,
-                           typval_T *expr,
+                           typval_st *expr,
                            uchar_kt *dest,
                            int copy,
                            int magic,
@@ -9231,9 +9231,9 @@ static int vim_regsub_both(uchar_kt *source,
 
             if(expr != NULL)
             {
-                typval_T argv[2];
+                typval_st argv[2];
                 int dummy;
-                typval_T rettv;
+                typval_st rettv;
                 staticList10_T matchList;
                 rettv.v_type = kNvarString;
                 rettv.vval.v_string = NULL;

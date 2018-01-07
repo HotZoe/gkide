@@ -7563,7 +7563,7 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-int win_getid(typval_T *argvars)
+int win_getid(typval_st *argvars)
 {
     if(argvars[0].v_type == kNvarUnknown)
     {
@@ -7620,7 +7620,7 @@ int win_getid(typval_T *argvars)
     return 0;
 }
 
-int win_gotoid(typval_T *argvars)
+int win_gotoid(typval_st *argvars)
 {
     int id = tv_get_number(&argvars[0]);
     FOR_ALL_TAB_WINDOWS(tp, wp)
@@ -7658,7 +7658,7 @@ void win_get_tabwin(handle_kt id, int *tabnr, int *winnr)
     }
 }
 
-void win_id2tabwin(typval_T *argvars, list_st *list)
+void win_id2tabwin(typval_st *argvars, list_st *list)
 {
     int winnr = 1;
     int tabnr = 1;
@@ -7669,7 +7669,7 @@ void win_id2tabwin(typval_T *argvars, list_st *list)
     tv_list_append_number(list, winnr);
 }
 
-win_st *win_id2wp(typval_T *argvars)
+win_st *win_id2wp(typval_st *argvars)
 {
     int id = tv_get_number(&argvars[0]);
 
@@ -7684,7 +7684,7 @@ win_st *win_id2wp(typval_T *argvars)
     return NULL;
 }
 
-int win_id2win(typval_T *argvars)
+int win_id2win(typval_st *argvars)
 {
     int nr = 1;
     int id = tv_get_number(&argvars[0]);
@@ -7702,7 +7702,7 @@ int win_id2win(typval_T *argvars)
     return 0;
 }
 
-void win_findbuf(typval_T *argvars, list_st *list)
+void win_findbuf(typval_st *argvars, list_st *list)
 {
     int bufnr = tv_get_number(&argvars[0]);
 

@@ -22,8 +22,8 @@ char *e_listidx = N_("E684: list index out of range: %" PRId64);
 /// @param[in] op       Used operator.
 ///
 /// @return OK or FAIL.
-int eexe_mod_op(typval_T *const tv1,
-                const typval_T *const tv2,
+int eexe_mod_op(typval_st *const tv1,
+                const typval_st *const tv2,
                 const char *const op)
 FUNC_ATTR_NONNULL_ALL
 {
