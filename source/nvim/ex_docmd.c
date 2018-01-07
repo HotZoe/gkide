@@ -1250,7 +1250,7 @@ static int compute_buffer_local_count(int addr_type, int lnum, int offset)
     return buf->b_fnum;
 }
 
-static int current_win_nr(win_T *win)
+static int current_win_nr(win_st *win)
 {
     int nr = 0;
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
@@ -7805,7 +7805,7 @@ static void ex_quit(exarg_T *eap)
         return;
     }
 
-    win_T *wp;
+    win_st *wp;
 
     if(eap->addr_count > 0)
     {
@@ -7922,7 +7922,7 @@ static void ex_quit_all(exarg_T *eap)
 static void ex_close(exarg_T *eap)
 {
     int winnr = 0;
-    win_T *win = NULL;
+    win_st *win = NULL;
 
     if(cmdwin_type != 0)
     {
@@ -7976,7 +7976,7 @@ static void ex_pclose(exarg_T *eap)
 /// @param forceit
 /// @param win
 /// @param tp         NULL or the tab page "win" is in
-static void ex_win_close(int forceit, win_T *win, tabpage_T *tp)
+static void ex_win_close(int forceit, win_st *win, tabpage_T *tp)
 {
     int need_hide;
     fbuf_st *buf = win->w_buffer;
@@ -8133,7 +8133,7 @@ void tabpage_close(int forceit)
 void tabpage_close_other(tabpage_T *tp, int forceit)
 {
     int done = 0;
-    win_T *wp;
+    win_st *wp;
     int h = tabline_height();
     uchar_kt prev_idx[NUMBUFLEN];
 
@@ -8165,7 +8165,7 @@ void tabpage_close_other(tabpage_T *tp, int forceit)
 /// ":only".
 static void ex_only(exarg_T *eap)
 {
-    win_T *wp;
+    win_st *wp;
     int wnr;
 
     if(eap->addr_count > 0)
@@ -8222,7 +8222,7 @@ static void ex_hide(exarg_T *eap)
             else
             {
                 int winnr = 0;
-                win_T *win = NULL;
+                win_st *win = NULL;
                 FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
                 {
                     winnr++;
@@ -8594,7 +8594,7 @@ static void ex_wrongmodifier(exarg_T *eap)
 void ex_splitview(exarg_T *eap)
 {
     uchar_kt *fname = NULL;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
 
     // A ":split" in the quickfix window works like ":new".
     // Don't want two quickfix windows.
@@ -8832,7 +8832,7 @@ static void ex_mode(exarg_T *eap)
 static void ex_resize(exarg_T *eap)
 {
     int n;
-    win_T *wp = curwin;
+    win_st *wp = curwin;
 
     if(eap->addr_count > 0)
     {
@@ -8916,7 +8916,7 @@ static void ex_edit(exarg_T *eap)
 ///
 /// @param eap
 /// @param old_curwin   curwin before doing a split or NULL
-void do_exedit(exarg_T *eap, win_T *old_curwin)
+void do_exedit(exarg_T *eap, win_st *old_curwin)
 {
     int n;
     int need_hide;
@@ -9096,7 +9096,7 @@ static void ex_syncbind(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     long y;
     long topline;
-    win_T *save_curwin = curwin;
+    win_st *save_curwin = curwin;
     fbuf_st *save_curbuf = curbuf;
     linenr_T old_linenr = curwin->w_cursor.lnum;
     setpcmark();
@@ -10729,7 +10729,7 @@ static void ex_ptag(exarg_T *eap)
 /// ":pedit"
 static void ex_pedit(exarg_T *eap)
 {
-    win_T *curwin_save = curwin;
+    win_st *curwin_save = curwin;
     g_do_tagpreview = p_pvh;
     prepare_tagpreview(true);
     keep_help_flag = curwin_save->w_buffer->b_help;
@@ -11342,11 +11342,11 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
     int only_save_windows = TRUE;
     int nr;
     int restore_size = true;
-    win_T *wp;
+    win_st *wp;
     uchar_kt *sname;
-    win_T *edited_win = NULL;
+    win_st *edited_win = NULL;
     int tabnr;
-    win_T *tab_firstwin;
+    win_st *tab_firstwin;
     frame_T *tab_topframe;
     int cur_arg_idx = 0;
     int next_arg_idx = 0;
@@ -11729,10 +11729,10 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
     return OK;
 }
 
-static int ses_winsizes(FILE *fd, int restore_size, win_T *tab_firstwin)
+static int ses_winsizes(FILE *fd, int restore_size, win_st *tab_firstwin)
 {
     int n = 0;
-    win_T *wp;
+    win_st *wp;
 
     if(restore_size && (ssop_flags & SSOP_WINSIZE))
     {
@@ -11882,7 +11882,7 @@ static int ses_do_frame(frame_T *fr)
 }
 
 /// Return non-zero if window "wp" is to be stored in the Session.
-static int ses_do_win(win_T *wp)
+static int ses_do_win(win_st *wp)
 {
     // When 'buftype' is "nofile" can't restore the window contents.
     if(wp->w_buffer->b_fname == NULL
@@ -11913,14 +11913,14 @@ static int ses_do_win(win_T *wp)
 /// @param current_arg_idx
 /// current argument index of the window, use -1 if unknown
 static int put_view(FILE *fd,
-                    win_T *wp,
+                    win_st *wp,
                     int add_edit,
                     unsigned *flagp,
                     int current_arg_idx)
 {
     int f;
     int do_cursor;
-    win_T *save_curwin;
+    win_st *save_curwin;
     int did_next = FALSE;
 
     // Always restore cursor position for ":mksession".

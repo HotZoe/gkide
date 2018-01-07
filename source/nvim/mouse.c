@@ -59,9 +59,9 @@ int jump_to_mouse(int flags, bool *inclusive, int which_button)
     static int on_sep_line = 0; // on separator right of window
     static int prev_row = -1;
     static int prev_col = -1;
-    static win_T *dragwin = NULL; // window being dragged
+    static win_st *dragwin = NULL; // window being dragged
     static int did_drag = false; // drag was noticed
-    win_T *wp, *old_curwin;
+    win_st *wp, *old_curwin;
     pos_T old_cursor;
     int count;
     bool first;
@@ -482,7 +482,7 @@ retnomove:
 /// from the posn on the screen in window "win".
 ///
 /// @returns true if the position is below the last line.
-bool mouse_comp_pos(win_T *win, int *rowp, int *colp, linenr_T *lnump)
+bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenr_T *lnump)
 {
     int col = *colp;
     int row = *rowp;
@@ -573,7 +573,7 @@ bool mouse_comp_pos(win_T *win, int *rowp, int *colp, linenr_T *lnump)
 
 /// Find the window at screen position "*rowp" and "*colp".
 /// The positions areupdated to become relative to the top-left of the window.
-win_T *mouse_find_win(int *rowp, int *colp)
+win_st *mouse_find_win(int *rowp, int *colp)
 {
     frame_T *fp;
     fp = topframe;
@@ -708,7 +708,7 @@ int mouse_has(int c)
 /// Set orig_topline.
 /// Used when jumping to another window,
 /// so that a double click still works.
-void set_mouse_topline(win_T *wp)
+void set_mouse_topline(win_st *wp)
 {
     orig_topline = wp->w_topline;
     orig_topfill = wp->w_topfill;
@@ -826,7 +826,7 @@ bool mouse_scroll_horiz(int dir)
 
 /// Adjust the clicked column position if there are concealed characters
 /// before the current column. But only when it's absolutely necessary.
-static int mouse_adjust_click(win_T *wp, int row, int col)
+static int mouse_adjust_click(win_st *wp, int row, int col)
 {
     if(!(wp->w_p_cole > 0
          && curbuf->b_p_smc > 0

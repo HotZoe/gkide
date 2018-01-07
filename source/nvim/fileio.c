@@ -8115,7 +8115,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param buf  new curbuf
 void aucmd_prepbuf(aco_save_T *aco, fbuf_st *buf)
 {
-    win_T *win;
+    win_st *win;
     int save_ea;
     int save_acd;
 
@@ -8852,7 +8852,7 @@ static bool apply_autocmds_group(event_T event,
 
         while(au_pending_free_win != NULL)
         {
-            win_T *w = au_pending_free_win->w_next;
+            win_st *w = au_pending_free_win->w_next;
             xfree(au_pending_free_win);
             au_pending_free_win = w;
         }

@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 #include "nvim/pos.h"
-#include "nvim/buffer_defs.h" // for win_T
+#include "nvim/buffer_defs.h" // for win_st
 
 // Values for find_ident_under_cursor()
 #define FIND_IDENT    1  ///< find identifier (word)

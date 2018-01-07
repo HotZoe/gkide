@@ -74,7 +74,7 @@ typedef struct
 // Mask to check for flags that prevent normal writing
 #define BF_WRITE_MASK   (BF_NOTEDITED + BF_NEW + BF_READERR)
 
-typedef struct window_S win_T;
+typedef struct window_s win_st;
 typedef struct frame_S frame_T;
 typedef struct wininfo_S wininfo_T;
 
@@ -274,7 +274,7 @@ struct wininfo_S
 {
     wininfo_T *wi_next;  ///< next entry or NULL for last entry
     wininfo_T *wi_prev;  ///< previous entry or NULL for first entry
-    win_T *wi_win;       ///< pointer to window that did set wi_fpos
+    win_st *wi_win;       ///< pointer to window that did set wi_fpos
     pos_T wi_fpos;       ///< last cursor position in the file
     bool wi_optset;      ///< true when wi_opt has useful values
     winopt_T wi_opt;     ///< local window options
@@ -771,19 +771,19 @@ struct diffblock_S
 #define SNAP_COUNT        2
 
 /// Tab pages point to the top frame of each tab page.
-/// Note: Most values are NOT valid for the current tab page!  Use "curwin",
-/// "firstwin", etc. for that.  "tp_topframe" is always valid and can be
+/// Note: Most values are NOT valid for the current tab page! Use "curwin",
+/// "firstwin", etc. for that. "tp_topframe" is always valid and can be
 /// compared against "topframe" to find the current tab page.
-typedef struct tabpage_S tabpage_T;
-struct tabpage_S
+typedef struct tabpage_s tabpage_T;
+struct tabpage_s
 {
     handle_kt handle;
     tabpage_T *tp_next;     ///< next tabpage or NULL
     frame_T *tp_topframe;   ///< topframe for the windows
-    win_T *tp_curwin;       ///< current window in this Tab page
-    win_T *tp_prevwin;      ///< previous window in this Tab page
-    win_T *tp_firstwin;     ///< first window in this Tab page
-    win_T *tp_lastwin;      ///< last window in this Tab page
+    win_st *tp_curwin;       ///< current window in this Tab page
+    win_st *tp_prevwin;      ///< previous window in this Tab page
+    win_st *tp_firstwin;     ///< first window in this Tab page
+    win_st *tp_lastwin;      ///< last window in this Tab page
     long tp_old_Rows;       ///< Rows when Tab page was left
     long tp_old_Columns;    ///< Columns when Tab page was left
     long tp_ch_used;        ///< value of 'cmdheight' when frame size was set
@@ -830,7 +830,7 @@ struct frame_S
     frame_T *fr_prev;   ///< frame left or above in same parent, NULL  for last
                         ///< fr_child and fr_win are mutually exclusive
     frame_T *fr_child;  ///< first contained frame
-    win_T *fr_win;      ///< window that fills this frame
+    win_st *fr_win;      ///< window that fills this frame
 };
 
 #define FR_LEAF   0   ///< frame is a leaf
@@ -897,7 +897,7 @@ struct matchitem
 /// Structure which contains all information that belongs to a window
 ///
 /// All row numbers are relative to the start of the window, except w_winrow.
-struct window_S
+struct window_s
 {
     handle_kt handle; ///< unique identifier for the window
 
@@ -909,8 +909,8 @@ struct window_S
     int w_hl_id_inactive; ///< 'winhighlight' id for inactive window
     int w_hl_attr;        ///< 'winhighlight' final attrs
 
-    win_T *w_prev; ///< link to previous window
-    win_T *w_next; ///< link to next window
+    win_st *w_prev; ///< link to previous window
+    win_st *w_next; ///< link to next window
 
     /// window is being closed, don't let autocommands close it too
     bool w_closing;

@@ -868,7 +868,7 @@ int chartabsize(uchar_kt *p, colnr_T col)
     RET_WIN_BUF_CHARTABSIZE(curwin, curbuf, p, col)
 }
 
-static int win_chartabsize(win_T *wp, uchar_kt *p, colnr_T col)
+static int win_chartabsize(win_st *wp, uchar_kt *p, colnr_T col)
 {
     RET_WIN_BUF_CHARTABSIZE(wp, wp->w_buffer, p, col)
 }
@@ -910,7 +910,7 @@ int linetabsize_col(int startcol, uchar_kt *s)
 /// @param len
 ///
 /// @return Number of characters the string will take on the screen.
-unsigned int win_linetabsize(win_T *wp, uchar_kt *line, colnr_T len)
+unsigned int win_linetabsize(win_st *wp, uchar_kt *line, colnr_T len)
 {
     colnr_T col = 0;
 
@@ -1112,7 +1112,7 @@ int lbr_chartabsize_adv(uchar_kt *line, uchar_kt **s, colnr_T col)
 /// @param headp
 ///
 /// @return The number of characters taken up on the screen.
-int win_lbr_chartabsize(win_T *wp,
+int win_lbr_chartabsize(win_st *wp,
                         uchar_kt *line,
                         uchar_kt *s,
                         colnr_T col,
@@ -1315,7 +1315,7 @@ int win_lbr_chartabsize(win_T *wp,
 /// @param headp
 ///
 /// @return The number of characters take up on the screen.
-static int win_nolbr_chartabsize(win_T *wp,
+static int win_nolbr_chartabsize(win_st *wp,
                                  uchar_kt *s,
                                  colnr_T col,
                                  int *headp)
@@ -1349,7 +1349,7 @@ static int win_nolbr_chartabsize(win_T *wp,
 ///
 /// @param  wp    window
 /// @param  vcol  column number
-bool in_win_border(win_T *wp, colnr_T vcol)
+bool in_win_border(win_st *wp, colnr_T vcol)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
@@ -1397,7 +1397,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param start
 /// @param cursor
 /// @param end
-void getvcol(win_T *wp,
+void getvcol(win_st *wp,
              pos_T *pos,
              colnr_T *start,
              colnr_T *cursor,
@@ -1575,7 +1575,7 @@ colnr_T getvcol_nolist(pos_T *posp)
 /// @param start
 /// @param cursor
 /// @param end
-void getvvcol(win_T *wp,
+void getvvcol(win_st *wp,
               pos_T *pos,
               colnr_T *start,
               colnr_T *cursor,
@@ -1647,7 +1647,7 @@ void getvvcol(win_T *wp,
 /// @param pos2
 /// @param left
 /// @param right
-void getvcols(win_T *wp,
+void getvcols(win_st *wp,
               pos_T *pos1,
               pos_T *pos2,
               colnr_T *left,

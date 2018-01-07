@@ -66,11 +66,11 @@ enum bfa_values
 // Caller must initialize save_curbuf to NULL.
 // restore_win_for_buf() MUST be called later!
 static inline void switch_to_win_for_buf(fbuf_st *buf,
-                                         win_T **save_curwinp,
+                                         win_st **save_curwinp,
                                          tabpage_T **save_curtabp,
                                          bufref_T *save_curbuf)
 {
-    win_T *wp;
+    win_st *wp;
     tabpage_T *tp;
 
     if(!find_win_for_buf(buf, &wp, &tp)
@@ -80,7 +80,7 @@ static inline void switch_to_win_for_buf(fbuf_st *buf,
     }
 }
 
-static inline void restore_win_for_buf(win_T *save_curwin,
+static inline void restore_win_for_buf(win_st *save_curwin,
                                        tabpage_T *save_curtab,
                                        bufref_T *save_curbuf)
 {
@@ -124,7 +124,7 @@ static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick
 #define WITH_BUFFER(b, code)                                                \
     do                                                                      \
     {                                                                       \
-        win_T *save_curwin = NULL;                                          \
+        win_st *save_curwin = NULL;                                          \
         tabpage_T *save_curtab = NULL;                                      \
         bufref_T save_curbuf = { NULL, 0 };                                 \
         switch_to_win_for_buf(b, &save_curwin, &save_curtab, &save_curbuf); \

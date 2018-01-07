@@ -44,7 +44,7 @@ typedef struct
 
 /// Compute wp->w_botline for the current wp->w_topline.
 /// Can be called after wp->w_topline changed.
-static void comp_botline(win_T *wp)
+static void comp_botline(win_st *wp)
 {
     linenr_T lnum;
     int done;
@@ -109,7 +109,7 @@ static void comp_botline(win_T *wp)
 
 /// Redraw when w_cline_row changes and
 /// 'relativenumber' or 'cursorline' is set.
-static void redraw_for_cursorline(win_T *wp)
+static void redraw_for_cursorline(win_st *wp)
 {
     if((wp->w_p_rnu || wp->w_p_cul)
        && (wp->w_valid & VALID_CROW) == 0
@@ -397,9 +397,9 @@ void update_topline(void)
 }
 
 /// Update win->w_topline to move the cursor onto the screen.
-void update_topline_win(win_T *win)
+void update_topline_win(win_st *win)
 {
-    win_T *save_curwin;
+    win_st *save_curwin;
     switch_win(&save_curwin, NULL, win, NULL, true);
     update_topline();
     restore_win(save_curwin, NULL, true);
@@ -463,7 +463,7 @@ void update_curswant(void)
 }
 
 /// Check if the cursor has moved. Set the w_valid flag accordingly.
-void check_cursor_moved(win_T *wp)
+void check_cursor_moved(win_st *wp)
 {
     if(wp->w_cursor.lnum != wp->w_valid_cursor.lnum)
     {
@@ -496,7 +496,7 @@ void changed_window_setting(void)
     changed_window_setting_win(curwin);
 }
 
-void changed_window_setting_win(win_T *wp)
+void changed_window_setting_win(win_st *wp)
 {
     wp->w_lines_valid = 0;
     changed_line_abv_curs_win(wp);
@@ -507,7 +507,7 @@ void changed_window_setting_win(win_T *wp)
 }
 
 /// Set wp->w_topline to a certain number.
-void set_topline(win_T *wp, linenr_T lnum)
+void set_topline(win_st *wp, linenr_T lnum)
 {
     // go to first of folded lines
     (void)hasFoldingWin(wp, lnum, &lnum, NULL, true, NULL);
@@ -536,7 +536,7 @@ void changed_cline_bef_curs(void)
                          | VALID_TOPLINE);
 }
 
-void changed_cline_bef_curs_win(win_T *wp)
+void changed_cline_bef_curs_win(win_st *wp)
 {
     wp->w_valid &= ~(VALID_WROW
                      | VALID_WCOL
@@ -558,7 +558,7 @@ void changed_line_abv_curs(void)
                          | VALID_TOPLINE);
 }
 
-void changed_line_abv_curs_win(win_T *wp)
+void changed_line_abv_curs_win(win_st *wp)
 {
     wp->w_valid &= ~(VALID_WROW
                      | VALID_WCOL
@@ -583,12 +583,12 @@ void invalidate_botline(void)
     curwin->w_valid &= ~(VALID_BOTLINE | VALID_BOTLINE_AP);
 }
 
-void invalidate_botline_win(win_T *wp)
+void invalidate_botline_win(win_st *wp)
 {
     wp->w_valid &= ~(VALID_BOTLINE | VALID_BOTLINE_AP);
 }
 
-void approximate_botline_win(win_T *wp)
+void approximate_botline_win(win_st *wp)
 {
     wp->w_valid &= ~VALID_BOTLINE;
 }
@@ -616,7 +616,7 @@ void validate_cursor(void)
 
 /// Compute wp->w_cline_row and wp->w_cline_height,
 /// based on the current value of wp->w_topline.
-static void curs_rows(win_T *wp)
+static void curs_rows(win_st *wp)
 {
     // Check if wp->w_lines[].wl_size is invalid
     int all_invalid = (!redrawing()
@@ -742,7 +742,7 @@ void validate_virtcol(void)
 }
 
 /// Validate wp->w_virtcol only.
-void validate_virtcol_win(win_T *wp)
+void validate_virtcol_win(win_st *wp)
 {
     check_cursor_moved(wp);
 
@@ -817,7 +817,7 @@ void validate_cursor_col(void)
 
 /// Compute offset of a window, occupied by absolute or relative line number,
 /// fold column and sign column (these don't move when scrolling horizontally).
-int win_col_off(win_T *wp)
+int win_col_off(win_st *wp)
 {
     return ((wp->w_p_nu || wp->w_p_rnu) ? number_width(wp) + 1 : 0)
            + (cmdwin_type == 0 || wp != curwin ? 0 : 1)
@@ -833,7 +833,7 @@ int curwin_col_off(void)
 /// Return the difference in column offset for the second screen line of a
 /// wrapped line.  It's 8 if 'number' or 'relativenumber' is on and 'n' is in
 /// 'cpoptions'.
-int win_col_off2(win_T *wp)
+int win_col_off2(win_st *wp)
 {
     if((wp->w_p_nu || wp->w_p_rnu) && vim_strchr(p_cpo, CPO_NUMCOL) != NULL)
     {
@@ -1357,7 +1357,7 @@ void scrollup(long line_count, int byfold)
 ///
 /// @param wp
 /// @param down  when true scroll down when not enough space
-void check_topfill(win_T *wp, bool down)
+void check_topfill(win_st *wp, bool down)
 {
     if(wp->w_topfill > 0)
     {
@@ -1740,7 +1740,7 @@ void scroll_cursor_top(int min_scroll, int always)
 
 /// Set w_empty_rows and w_filler_rows for window "wp",
 /// having used up "used" screen lines for text lines.
-void set_empty_rows(win_T *wp, int used)
+void set_empty_rows(win_st *wp, int used)
 {
     wp->w_filler_rows = 0;
 
@@ -2809,7 +2809,7 @@ void do_check_cursorbind(void)
     colnr_T coladd = curwin->w_cursor.coladd;
     colnr_T curswant = curwin->w_curswant;
     int set_curswant = curwin->w_set_curswant;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     fbuf_st *old_curbuf = curbuf;
     int old_VIsual_select = VIsual_select;
     int old_VIsual_active = VIsual_active;

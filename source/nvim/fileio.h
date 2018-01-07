@@ -22,8 +22,8 @@ typedef struct
 {
     fbuf_st *save_curbuf;    ///< saved curbuf
     int use_aucmd_win;     ///< using aucmd_win
-    win_T *save_curwin;    ///< saved curwin
-    win_T *new_curwin;     ///< new curwin
+    win_st *save_curwin;    ///< saved curwin
+    win_st *new_curwin;     ///< new curwin
     bufref_T new_curbuf;   ///< new curbuf
     uchar_kt *globaldir;     ///< saved value of globaldir
 } aco_save_T;

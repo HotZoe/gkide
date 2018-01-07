@@ -2118,7 +2118,7 @@ static void alist_check_arg_idx(void)
 
 /// Return true if window "win" is editing
 /// the file at the current argument index.
-static bool editing_arg_idx(win_T *win)
+static bool editing_arg_idx(win_st *win)
 {
     return !(win->w_arg_idx >= WARGCOUNT(win)
              || (win->w_buffer->b_fnum != WARGLIST(win)[win->w_arg_idx].ae_fnum
@@ -2129,7 +2129,7 @@ static bool editing_arg_idx(win_T *win)
 }
 
 /// Check if window "win" is editing the w_arg_idx file in its argument list.
-void check_arg_idx(win_T *win)
+void check_arg_idx(win_st *win)
 {
     if(WARGCOUNT(win) > 1 && !editing_arg_idx(win))
     {
@@ -2510,7 +2510,7 @@ void ex_argdelete(exarg_T *eap)
 void ex_listdo(exarg_T *eap)
 {
     int i;
-    win_T *wp;
+    win_st *wp;
     tabpage_T *tp;
     int next_fnum = 0;
     uchar_kt *save_ei = NULL;

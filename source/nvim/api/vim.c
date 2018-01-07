@@ -719,7 +719,7 @@ FUNC_API_SINCE(1)
 void nvim_set_current_win(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {

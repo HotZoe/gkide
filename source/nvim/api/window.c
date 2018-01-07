@@ -23,7 +23,7 @@
 Buffer nvim_win_get_buf(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -42,7 +42,7 @@ ArrayOf(Integer, 2) nvim_win_get_cursor(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(win)
     {
@@ -61,7 +61,7 @@ FUNC_API_SINCE(1)
 void nvim_win_set_cursor(Window window, ArrayOf(Integer, 2) pos, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -116,7 +116,7 @@ FUNC_API_SINCE(1)
 Integer nvim_win_get_height(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -135,7 +135,7 @@ FUNC_API_SINCE(1)
 void nvim_win_set_height(Window window, Integer height, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -148,7 +148,7 @@ FUNC_API_SINCE(1)
         return;
     }
 
-    win_T *savewin = curwin;
+    win_st *savewin = curwin;
     curwin = win;
     try_start();
     win_setheight((int)height);
@@ -165,7 +165,7 @@ FUNC_API_SINCE(1)
 Integer nvim_win_get_width(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -184,7 +184,7 @@ FUNC_API_SINCE(1)
 void nvim_win_set_width(Window window, Integer width, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -197,7 +197,7 @@ FUNC_API_SINCE(1)
         return;
     }
 
-    win_T *savewin = curwin;
+    win_st *savewin = curwin;
     curwin = win;
     try_start();
     win_setwidth((int)width);
@@ -215,7 +215,7 @@ FUNC_API_SINCE(1)
 Object nvim_win_get_var(Window window, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -234,7 +234,7 @@ FUNC_API_SINCE(1)
 void nvim_win_set_var(Window window, String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -252,7 +252,7 @@ FUNC_API_SINCE(1)
 void nvim_win_del_var(Window window, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -279,7 +279,7 @@ FUNC_API_SINCE(1)
 /// or if previous value was `v:null`.
 Object window_set_var(Window window, String name, Object value, error_st *err)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -300,7 +300,7 @@ Object window_set_var(Window window, String name, Object value, error_st *err)
 /// @return Old value
 Object window_del_var(Window window, String name, error_st *err)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -320,7 +320,7 @@ Object window_del_var(Window window, String name, error_st *err)
 Object nvim_win_get_option(Window window, String name, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -340,7 +340,7 @@ FUNC_API_SINCE(1)
 void nvim_win_set_option(Window window, String name, Object value, error_st *err)
 FUNC_API_SINCE(1)
 {
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {
@@ -360,7 +360,7 @@ ArrayOf(Integer, 2) nvim_win_get_position(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
     Array rv = ARRAY_DICT_INIT;
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(win)
     {
@@ -381,7 +381,7 @@ Tabpage nvim_win_get_tabpage(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
     Tabpage rv = 0;
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(win)
     {
@@ -401,7 +401,7 @@ Integer nvim_win_get_number(Window window, error_st *err)
 FUNC_API_SINCE(1)
 {
     int rv = 0;
-    win_T *win = find_window_by_handle(window, err);
+    win_st *win = find_window_by_handle(window, err);
 
     if(!win)
     {

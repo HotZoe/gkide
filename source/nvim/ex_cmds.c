@@ -2705,7 +2705,7 @@ int do_ecmd(int fnum,
             exarg_T *eap,
             linenr_T newlnum,
             int flags,
-            win_T *oldwin)
+            win_st *oldwin)
 {
     int other_file; // TRUE if editing another file
     int oldbuf; // TRUE if using existing buffer
@@ -2986,7 +2986,7 @@ int do_ecmd(int fnum,
             }
             else
             {
-                win_T *the_curwin = curwin;
+                win_st *the_curwin = curwin;
 
                 // Set w_closing to avoid that autocommands close
                 // the window. Set b_locked for the same reason.
@@ -5592,7 +5592,7 @@ void ex_help(exarg_T *eap)
     FILE *helpfd; // file descriptor of help file
     int n;
     int i;
-    win_T *wp;
+    win_st *wp;
     int num_matches;
     uchar_kt **matches;
     uchar_kt *p;
@@ -7867,7 +7867,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     static handle_kt bufnr = 0; // special buffer, re-used on each visit
 
-    win_T *save_curwin = curwin;
+    win_st *save_curwin = curwin;
     cmdmod_T save_cmdmod = cmdmod;
     uchar_kt *save_shm_p = vim_strsave(p_shm);
     size_t sub_size = mb_string2cells(sub);

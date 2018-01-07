@@ -331,7 +331,7 @@ static reg_extmatch_T *next_match_extmatch = NULL;
 
 // The current state (within the line) of the recognition engine.
 // When current_state.ga_itemsize is 0 the current state is invalid.
-static win_T *syn_win;             ///< current window for highlighting
+static win_st *syn_win;             ///< current window for highlighting
 static fbuf_st *syn_buf;             ///< current buffer for highlighting
 static synblock_T *syn_block;      ///< current buffer for highlighting
 static linenr_T current_lnum = 0;  ///< lnum of current state
@@ -358,7 +358,7 @@ static int syn_time_on = FALSE;
 /// once for each displayed line. The buffer is remembered in syn_buf,
 /// because get_syntax_attr() doesn't get it. Careful: curbuf and curwin
 /// are likely to point to another buffer and window.
-void syntax_start(win_T *wp, linenr_T lnum)
+void syntax_start(win_st *wp, linenr_T lnum)
 {
     synstate_T *p;
     synstate_T *last_valid = NULL;
@@ -604,10 +604,10 @@ static void clear_current_state(void)
 /// 1. Search backwards for the end of a C-comment.
 /// 2. Search backwards for given sync patterns.
 /// 3. Simply start on a given number of lines above "lnum".
-static void syn_sync(win_T *wp, linenr_T start_lnum, synstate_T *last_valid)
+static void syn_sync(win_st *wp, linenr_T start_lnum, synstate_T *last_valid)
 {
     fbuf_st *curbuf_save;
-    win_T  *curwin_save;
+    win_st  *curwin_save;
     pos_T cursor_save;
     int idx;
     linenr_T lnum;
@@ -3697,7 +3697,7 @@ void syntax_clear(synblock_T *block)
 }
 
 /// Get rid of ownsyntax for window "wp".
-void reset_synblock(win_T *wp)
+void reset_synblock(win_st *wp)
 {
     if(wp->w_s != &wp->w_buffer->b_s)
     {
@@ -6783,7 +6783,7 @@ void ex_ownsyntax(exarg_T *eap)
     }
 }
 
-bool syntax_present(win_T *win)
+bool syntax_present(win_st *win)
 {
     return win->w_s->b_syn_patterns.ga_len != 0
            || win->w_s->b_syn_clusters.ga_len != 0
@@ -6879,7 +6879,7 @@ uchar_kt *get_syntax_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 /// @param trans      remove transparency
 /// @param spellp     return: can do spell checking
 /// @param keep_state keep state of char at "col"
-int syn_get_id(win_T *wp,
+int syn_get_id(win_st *wp,
                long lnum,
                colnr_T col,
                int trans,
@@ -6920,7 +6920,7 @@ int get_syntax_info(int *seqnrp)
 /// Get the sequence number of the concealed file position.
 ///
 /// @return seqnr if the file position is concealed, 0 otherwise.
-int syn_get_concealed_id(win_T *wp, linenr_T lnum, colnr_T col)
+int syn_get_concealed_id(win_st *wp, linenr_T lnum, colnr_T col)
 {
     int seqnr;
     int syntax_flags;
@@ -6959,7 +6959,7 @@ int syn_get_stack_item(int i)
 }
 
 /// Function called to get folding level for line "lnum" in window "wp".
-int syn_get_foldlevel(win_T *wp, long lnum)
+int syn_get_foldlevel(win_st *wp, long lnum)
 {
     int level = 0;
 

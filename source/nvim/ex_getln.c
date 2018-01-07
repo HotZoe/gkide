@@ -6692,8 +6692,8 @@ static int ex_window(void)
     struct cmdline_info save_ccline;
     bufref_T old_curbuf;
     bufref_T bufref;
-    win_T *old_curwin = curwin;
-    win_T *wp;
+    win_st *old_curwin = curwin;
+    win_st *wp;
     int i;
     linenr_T lnum;
     garray_T winsizes;

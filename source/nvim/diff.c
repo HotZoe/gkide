@@ -79,7 +79,7 @@ void diff_buf_delete(fbuf_st *buf)
 /// or removed from the list of diff buffers.
 ///
 /// @param win
-void diff_buf_adjust(win_T *win)
+void diff_buf_adjust(win_st *win)
 {
     if(!win->w_p_diff)
     {
@@ -1056,7 +1056,7 @@ static void diff_file(const char *const tmp_orig,
 void ex_diffpatch(exarg_T *eap)
 {
     uchar_kt *buf = NULL;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     uchar_kt *newname = NULL; // name of patched file buffer
 
 #ifdef UNIX
@@ -1271,7 +1271,7 @@ theend:
 /// @param eap
 void ex_diffsplit(exarg_T *eap)
 {
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     bufref_T old_curbuf;
     set_bufref(&old_curbuf, curbuf);
 
@@ -1327,9 +1327,9 @@ void ex_diffthis(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 /// Set options in window "wp" for diff mode.
 ///
 /// @param addbuf Add buffer to diff.
-void diff_win_options(win_T *wp, int addbuf)
+void diff_win_options(win_st *wp, int addbuf)
 {
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
 
     // close the manually opened folds
     curwin = wp;
@@ -1799,7 +1799,7 @@ void diff_clear(tabpage_T *tp)
 /// @param lnum
 ///
 /// @return diff status.
-int diff_check(win_T *wp, linenr_T lnum)
+int diff_check(win_st *wp, linenr_T lnum)
 {
     int idx; // index in tp_diffbuf[] for this buffer
     diff_T *dp;
@@ -2064,7 +2064,7 @@ static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
 /// @param lnum
 ///
 /// @return Number of filler lines above lnum
-int diff_check_fill(win_T *wp, linenr_T lnum)
+int diff_check_fill(win_st *wp, linenr_T lnum)
 {
     // be quick when there are no filler lines
     if(!(diff_flags & DIFF_FILLER))
@@ -2087,7 +2087,7 @@ int diff_check_fill(win_T *wp, linenr_T lnum)
 ///
 /// @param fromwin
 /// @param towin
-void diff_set_topline(win_T *fromwin, win_T *towin)
+void diff_set_topline(win_st *fromwin, win_st *towin)
 {
     fbuf_st *frombuf = fromwin->w_buffer;
     linenr_T lnum = fromwin->w_topline;
@@ -2333,7 +2333,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param  endp    last char of the change
 ///
 /// @return true if the line was added, no other buffer has it.
-bool diff_find_change(win_T *wp, linenr_T lnum, int *startp, int *endp)
+bool diff_find_change(win_st *wp, linenr_T lnum, int *startp, int *endp)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
@@ -2486,7 +2486,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  lnum  line number to check within the buffer
 ///
 /// @return false if there are no diff blocks at all in this window.
-bool diff_infold(win_T *wp, linenr_T lnum)
+bool diff_infold(win_st *wp, linenr_T lnum)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
@@ -3203,7 +3203,7 @@ linenr_T diff_get_corresponding_line(fbuf_st *buf1,
 
 /// For line "lnum" in the current window find the equivalent lnum in window
 /// "wp", compensating for inserted/deleted lines.
-linenr_T diff_lnum_win(linenr_T lnum, win_T *wp)
+linenr_T diff_lnum_win(linenr_T lnum, win_st *wp)
 {
     diff_T *dp;
     int idx;

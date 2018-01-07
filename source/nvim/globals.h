@@ -592,7 +592,7 @@ EXTERN bufref_T au_new_curbuf INIT(= { NULL, 0 });
 // au_pending_free_buf/ap_pending_free_win, using b_next/w_next.
 // Free the buffer/window when autocmd_busy is being set to FALSE.
 EXTERN fbuf_st *au_pending_free_buf INIT(= NULL);
-EXTERN win_T *au_pending_free_win INIT(= NULL);
+EXTERN win_st *au_pending_free_win INIT(= NULL);
 
 // Mouse coordinates, set by check_termcode()
 EXTERN int mouse_row;
@@ -624,9 +624,9 @@ EXTERN int updating_screen INIT(= FALSE);
 // All windows are linked in a list. firstwin points to the first entry,
 // lastwin to the last entry (can be the same as firstwin) and curwin to the
 // currently active window.
-EXTERN win_T *firstwin;              ///< first window
-EXTERN win_T *lastwin;               ///< last window
-EXTERN win_T *prevwin INIT(= NULL);  ///< previous window
+EXTERN win_st *firstwin;              ///< first window
+EXTERN win_st *lastwin;               ///< last window
+EXTERN win_st *prevwin INIT(= NULL);  ///< previous window
 
 /// When using this macro "break" only breaks out of the inner loop.
 /// Use "goto" to break out of the tabpage loop.
@@ -636,13 +636,13 @@ EXTERN win_T *prevwin INIT(= NULL);  ///< previous window
 
 /// -V:FOR_ALL_WINDOWS_IN_TAB:501
 #define FOR_ALL_WINDOWS_IN_TAB(wp, tp)  \
-    for(win_T *wp = ((tp) == curtab)    \
+    for(win_st *wp = ((tp) == curtab)    \
         ? firstwin : (tp)->tp_firstwin; \
         wp != NULL;                     \
         wp = wp->w_next)
 
-EXTERN win_T *curwin;    ///< currently active window
-EXTERN win_T *aucmd_win; ///< window used in aucmd_prepbuf()
+EXTERN win_st *curwin;    ///< currently active window
+EXTERN win_st *aucmd_win; ///< window used in aucmd_prepbuf()
 EXTERN int aucmd_win_used INIT(= FALSE); ///< aucmd_win is being used
 
 // The window layout is kept in a tree of frames.

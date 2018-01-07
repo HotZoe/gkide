@@ -4577,7 +4577,7 @@ static uchar_kt **reg_startp = NULL;
 static uchar_kt **reg_endp = NULL;
 static lpos_T *reg_startpos = NULL;
 static lpos_T *reg_endpos = NULL;
-static win_T *reg_win;
+static win_st *reg_win;
 static fbuf_st *reg_buf;
 static linenr_T reg_firstlnum;
 static linenr_T reg_maxline;
@@ -4691,7 +4691,7 @@ static int bt_regexec_nl(regmatch_T *rmp,
 /// zero if there is no match and number of lines
 /// contained in the match otherwise.
 static long bt_regexec_multi(regmmatch_T *rmp,
-                             win_T *win,
+                             win_st *win,
                              fbuf_st *buf,
                              linenr_T lnum,
                              colnr_T col,
@@ -5123,7 +5123,7 @@ static int reg_match_visual(void)
     pos_T bot;
     linenr_T lnum;
     colnr_T col;
-    win_T *wp = reg_win == NULL ? curwin : reg_win;
+    win_st *wp = reg_win == NULL ? curwin : reg_win;
     int mode;
     colnr_T start;
     colnr_T end;
@@ -9210,7 +9210,7 @@ static int vim_regsub_both(uchar_kt *source,
         }
         else
         {
-            win_T *save_reg_win;
+            win_st *save_reg_win;
             int save_ireg_ic;
             bool prev_can_f_submatch = can_f_submatch;
             xfree(eval_result);
@@ -17944,7 +17944,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                     }
 
                     result = false;
-                    win_T *wp = reg_win == NULL ? curwin : reg_win;
+                    win_st *wp = reg_win == NULL ? curwin : reg_win;
 
                     if(op == 1 && col - 1 > t->state->val && col > 100)
                     {
@@ -18846,7 +18846,7 @@ static int nfa_regexec_nl(regmatch_T *rmp,
 /// @par
 /// FIXME if this behavior is not compatible.
 static long nfa_regexec_multi(regmmatch_T *rmp,
-                              win_T *win,
+                              win_st *win,
                               fbuf_st *buf,
                               linenr_T lnum,
                               colnr_T col,
@@ -19106,7 +19106,7 @@ int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, colnr_T col)
 /// - "rmp->regprog" may be freed and changed.
 /// - Uses curbuf for line count and 'iskeyword'.
 long vim_regexec_multi(regmmatch_T *rmp,
-                       win_T *win,
+                       win_st *win,
                        fbuf_st *buf,
                        linenr_T lnum,
                        colnr_T col,

@@ -1880,7 +1880,7 @@ static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
     int i;
     int arg_idx; // index in argument list
     int advance = TRUE;
-    win_T *win;
+    win_st *win;
 
     // Don't execute Win/Buf Enter/Leave autocommands here
     ++autocmd_no_enter;

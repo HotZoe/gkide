@@ -1971,7 +1971,7 @@ void mb_adjust_cursor(void)
 /// Places cursor on a valid column for this window.
 void mb_check_adjust_col(void *win_)
 {
-    win_T *win = (win_T *)win_;
+    win_st *win = (win_st *)win_;
     colnr_T oldcol = win->w_cursor.col;
 
     // Column 0 is always valid.

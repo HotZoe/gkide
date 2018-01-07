@@ -442,7 +442,7 @@ void terminal_enter(void)
 
     // Disable these options in terminal-mode. They are nonsense
     // because cursor is placed at end of buffer to "follow" output.
-    win_T *save_curwin = curwin;
+    win_st *save_curwin = curwin;
     int save_w_p_cul = curwin->w_p_cul;
     int save_w_p_cuc = curwin->w_p_cuc;
     int save_w_p_rnu = curwin->w_p_rnu;
@@ -647,7 +647,7 @@ void terminal_receive(Terminal *term, char *data, size_t len)
 }
 
 void terminal_get_line_attributes(Terminal *term,
-                                  win_T *wp,
+                                  win_st *wp,
                                   int linenr,
                                   int *term_attrs)
 {
@@ -1065,7 +1065,7 @@ static void mouse_action(Terminal *term,
 static bool send_mouse_event(Terminal *term, int c)
 {
     int row = mouse_row, col = mouse_col;
-    win_T *mouse_win = mouse_find_win(&row, &col);
+    win_st *mouse_win = mouse_find_win(&row, &col);
 
     if(term->forward_mouse && mouse_win->w_buffer->terminal == term)
     {
@@ -1128,7 +1128,7 @@ static bool send_mouse_event(Terminal *term, int c)
 
     if(c == K_MOUSEDOWN || c == K_MOUSEUP)
     {
-        win_T *save_curwin = curwin;
+        win_st *save_curwin = curwin;
 
         // switch window/buffer to perform the scroll
         curwin = mouse_win;

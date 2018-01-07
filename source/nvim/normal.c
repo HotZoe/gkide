@@ -2643,7 +2643,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     bool in_sep_line; // mouse in vertical separator line
     int c1, c2;
     pos_T save_cursor;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     static pos_T orig_cursor;
     colnr_T leftcol, rightcol;
     pos_T end_visual;
@@ -3694,7 +3694,7 @@ size_t find_ident_under_cursor(uchar_kt **string, int find_type)
 
 /// Like find_ident_under_cursor(), but for any window and any position.
 /// However: Uses 'iskeyword' from the current window!.
-size_t find_ident_at_pos(win_T *wp,
+size_t find_ident_at_pos(win_st *wp,
                          linenr_T lnum,
                          colnr_T startcol,
                          uchar_kt **string,
@@ -4254,7 +4254,7 @@ static void display_showcmd(void)
 /// scrolled. Called from normal_cmd() and edit().
 void do_check_scrollbind(bool check)
 {
-    static win_T *old_curwin = NULL;
+    static win_st *old_curwin = NULL;
     static linenr_T old_topline = 0;
     static int old_topfill = 0;
     static fbuf_st *old_buf = NULL;
@@ -4316,7 +4316,7 @@ void check_scrollbind(linenr_T topline_diff, long leftcol_diff)
     long topline;
     bool want_ver;
     bool want_hor;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     fbuf_st *old_curbuf = curbuf;
     int old_VIsual_select = VIsual_select;
     int old_VIsual_active = VIsual_active;
@@ -4852,7 +4852,7 @@ static bool nv_screengo(oparg_T *oap, int dir, long dist)
 /// - K_MOUSELEFT (cap->arg == -1) or K_MOUSERIGHT (cap->arg == -2)
 static void nv_mousescroll(cmdarg_T *cap)
 {
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
 
     if(mouse_row >= 0 && mouse_col >= 0)
     {

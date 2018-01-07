@@ -381,14 +381,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///               there to be only one window with this buffer. e.g. when
 ///               ":quit" is supposed to close the window but autocommands
 ///               close all other windows.
-void close_buffer(win_T *win, fbuf_st *buf, int action, int abort_if_last)
+void close_buffer(win_st *win, fbuf_st *buf, int action, int abort_if_last)
 {
     bool unload_buf = (action != 0);
     bool del_buf = (action == DOBUF_DEL || action == DOBUF_WIPE);
     bool wipe_buf = (action == DOBUF_WIPE);
     bool is_curwin = (curwin != NULL && curwin->w_buffer == buf);
 
-    win_T *the_curwin = curwin;
+    win_st *the_curwin = curwin;
     tabpage_T *the_curtab = curtab;
 
     // Force unloading or deleting when 'bufhidden' says so, but not
@@ -687,7 +687,7 @@ void buf_freeall(fbuf_st *buf, int flags)
 {
     bool is_curbuf = (buf == curbuf);
     int is_curwin = (curwin != NULL && curwin->w_buffer == buf);
-    win_T *the_curwin = curwin;
+    win_st *the_curwin = curwin;
     tabpage_T *the_curtab = curtab;
 
     // Make sure the buffer isn't closed by autocommands.
@@ -1720,7 +1720,7 @@ void set_curbuf(fbuf_st *buf, int action)
 
         if(bufref_valid(&bufref) && !aborting())
         {
-            win_T  *previouswin = curwin;
+            win_st  *previouswin = curwin;
 
             if(prevbuf == curbuf)
             {
@@ -2254,7 +2254,7 @@ void free_buf_options(fbuf_st *buf, int free_p_ff)
 int buflist_getfile(int n, linenr_T lnum, int options, int forceit)
 {
     fbuf_st *buf;
-    win_T *wp = NULL;
+    win_st *wp = NULL;
     pos_T *fpos;
     colnr_T col;
     buf = buflist_findnr(n);
@@ -2812,7 +2812,7 @@ uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
 /// @param[in]      copy_options
 /// If true save the local window option values.
 void buflist_setfpos(fbuf_st *const buf,
-                     win_T *const win,
+                     win_st *const win,
                      linenr_T lnum,
                      colnr_T col,
                      bool copy_options)
@@ -3326,7 +3326,7 @@ void buflist_slash_adjust(void)
 
 /// Set alternate cursor position for the current buffer and window "win".
 /// Also save the local window option values.
-void buflist_altfpos(win_T *win)
+void buflist_altfpos(win_st *win)
 {
     buflist_setfpos(curbuf, win, win->w_cursor.lnum, win->w_cursor.col, TRUE);
 }
@@ -3939,7 +3939,7 @@ typedef enum
 /// @param tabtab      Tab clicks definition (can be NULL).
 ///
 /// @return The final width of the statusline
-int build_stl_str_hl(win_T *wp,
+int build_stl_str_hl(win_st *wp,
                      uchar_kt *out,
                      size_t outlen,
                      uchar_kt *fmt,
@@ -4510,7 +4510,7 @@ int build_stl_str_hl(win_T *wp,
                 vim_snprintf((char *)tmp, sizeof(tmp), "%d", curbuf->b_fnum);
                 set_internal_string_var((uchar_kt *)"actual_curbuf", tmp);
                 fbuf_st *o_curbuf = curbuf;
-                win_T *o_curwin = curwin;
+                win_st *o_curwin = curwin;
                 curwin = wp;
                 curbuf = wp->w_buffer;
 
@@ -5340,7 +5340,7 @@ int build_stl_str_hl(win_T *wp,
 
 /// Get relative cursor position in window into "buf[buflen]",
 /// in the form 99%, using "Top", "Bot" or "All" when appropriate.
-void get_rel_pos(win_T *wp, uchar_kt *buf, int buflen)
+void get_rel_pos(win_st *wp, uchar_kt *buf, int buflen)
 {
     if(buflen < 3)
     {
@@ -5388,7 +5388,7 @@ void get_rel_pos(win_T *wp, uchar_kt *buf, int buflen)
 /// @param          add_file  if true, add "file" before the arg number
 ///
 /// @return true if it was appended.
-static bool append_arg_number(win_T *wp,
+static bool append_arg_number(win_st *wp,
                               uchar_kt *buf,
                               int buflen,
                               bool add_file)
@@ -5495,9 +5495,9 @@ void do_arg_all(int count, int forceit, int keep_tabs)
     fbuf_st *buf;
     tabpage_T *tpnext;
     int had_tab = cmdmod.tab;
-    win_T *old_curwin, *last_curwin;
+    win_st *old_curwin, *last_curwin;
     tabpage_T *old_curtab, *last_curtab;
-    win_T *new_curwin = NULL;
+    win_st *new_curwin = NULL;
     tabpage_T *new_curtab = NULL;
     assert(firstwin != NULL); // satisfy coverity
 
@@ -5532,10 +5532,10 @@ void do_arg_all(int count, int forceit, int keep_tabs)
 
     for(;;)
     {
-        win_T *wpnext = NULL;
+        win_st *wpnext = NULL;
         tpnext = curtab->tp_next;
 
-        for(win_T *wp = firstwin; wp != NULL; wp = wpnext)
+        for(win_st *wp = firstwin; wp != NULL; wp = wpnext)
         {
             wpnext = wp->w_next;
             buf = wp->w_buffer;
@@ -5813,8 +5813,8 @@ void do_arg_all(int count, int forceit, int keep_tabs)
 void ex_buffer_all(exarg_T *eap)
 {
     fbuf_st *buf;
-    win_T *wp;
-    win_T *wpnext;
+    win_st *wp;
+    win_st *wpnext;
     int split_ret = OK;
     bool p_ea_save;
     int open_wins = 0;
@@ -6247,7 +6247,7 @@ uchar_kt *buf_spname(fbuf_st *buf)
 {
     if(bt_quickfix(buf))
     {
-        win_T *win;
+        win_st *win;
         tabpage_T *tp;
 
         // For location list window, w_llist_ref points to the location list.
@@ -6292,7 +6292,7 @@ uchar_kt *buf_spname(fbuf_st *buf)
 /// @param[out]  tp   stores the found tabpage
 ///
 /// @return true if a window was found for the buffer.
-bool find_win_for_buf(fbuf_st *buf, win_T **wp, tabpage_T **tp)
+bool find_win_for_buf(fbuf_st *buf, win_st **wp, tabpage_T **tp)
 {
     *wp = NULL;
     *tp = NULL;

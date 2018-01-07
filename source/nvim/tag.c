@@ -3062,7 +3062,7 @@ static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
     int getfile_result;
     int search_options;
     int save_no_hlsearch;
-    win_T *curwin_save = NULL;
+    win_st *curwin_save = NULL;
     uchar_kt *full_fname = NULL;
     int old_KeyTyped = KeyTyped; // getting the file may reset it
     const int l_g_do_tagpreview = g_do_tagpreview;

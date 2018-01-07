@@ -304,7 +304,7 @@ int dec_cursor(void)
 /// Only look for lines that can be visible, folded lines don't count.
 ///
 /// @param lnum line number to get the result for
-linenr_T get_cursor_rel_lnum(win_T *wp, linenr_T lnum)
+linenr_T get_cursor_rel_lnum(win_st *wp, linenr_T lnum)
 {
     linenr_T cursor = wp->w_cursor.lnum;
 
@@ -387,7 +387,7 @@ void check_cursor_col(void)
 
 /// Make sure win->w_cursor.col is valid. Special handling of insert-mode.
 /// @see mb_check_adjust_col
-void check_cursor_col_win(win_T *win)
+void check_cursor_col_win(win_st *win)
 {
     colnr_T len;
     colnr_T oldcol = win->w_cursor.col;

@@ -138,7 +138,7 @@ struct regengine
     int (*regexec_nl)(regmatch_T *, uchar_kt *, colnr_T, bool);
 
     long (*regexec_multi)(regmmatch_T *,
-                          win_T *,
+                          win_st *,
                           fbuf_st *,
                           linenr_T,
                           colnr_T,

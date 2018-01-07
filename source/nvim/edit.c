@@ -4340,7 +4340,7 @@ static void ins_compl_fixRedoBufForLeader(uchar_kt *ptr_arg)
 /// Returns the buffer to scan, if any, otherwise returns curbuf -- Acevedo
 static fbuf_st *ins_compl_next_buf(fbuf_st *buf, int flag)
 {
-    static win_T *wp;
+    static win_st *wp;
 
     // just windows
     if(flag == 'w')
@@ -4388,7 +4388,7 @@ static void expand_by_function(int type, uchar_kt *base)
     list_T *matchlist = NULL;
     dict_T *matchdict = NULL;
     uchar_kt *funcname;
-    win_T *curwin_save;
+    win_st *curwin_save;
     fbuf_st *curbuf_save;
     typval_T rettv;
     funcname = (type == CTRL_X_FUNCTION) ? curbuf->b_p_cfu : curbuf->b_p_ofu;
@@ -5934,7 +5934,7 @@ static int ins_complete(int c, bool enable_pum)
             int col;
             uchar_kt *funcname;
             pos_T pos;
-            win_T *curwin_save;
+            win_st *curwin_save;
             fbuf_st *curbuf_save;
 
             // Call 'completefunc' or 'omnifunc'
@@ -10096,7 +10096,7 @@ FUNC_ATTR_NONNULL_ARG(3)
 static void ins_mouse(int c)
 {
     pos_T tpos;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
 
     if(!mouse_has(MOUSE_INSERT))
     {
@@ -10108,7 +10108,7 @@ static void ins_mouse(int c)
 
     if(do_mouse(NULL, c, BACKWARD, 1, 0))
     {
-        win_T *new_curwin = curwin;
+        win_st *new_curwin = curwin;
 
         if(curwin != old_curwin && win_valid(old_curwin))
         {
@@ -10136,7 +10136,7 @@ static void ins_mouse(int c)
 static void ins_mousescroll(int dir)
 {
     pos_T tpos;
-    win_T *old_curwin = curwin;
+    win_st *old_curwin = curwin;
     int did_scroll = FALSE;
     tpos = curwin->w_cursor;
 

@@ -1539,7 +1539,7 @@ void cleanup_jumplist(void)
 }
 
 /// Copy the jumplist from window "from" to window "to".
-void copy_jumplist(win_T *from, win_T *to)
+void copy_jumplist(win_st *from, win_st *to)
 {
     int i;
 
@@ -1571,7 +1571,7 @@ void copy_jumplist(win_T *from, win_T *to)
 /// Pointer that needs to be passed to next
 /// 'mark_jumplist_iter' call or NULL if iteration is over.
 const void *mark_jumplist_iter(const void *const iter,
-                               const win_T *const win,
+                               const win_st *const win,
                                xfmark_T *const fm)
 FUNC_ATTR_NONNULL_ARG(2, 3)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1869,7 +1869,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Free items in the jumplist of window "wp".
-void free_jumplist(win_T *wp)
+void free_jumplist(win_st *wp)
 {
     int i;
 
@@ -1881,7 +1881,7 @@ void free_jumplist(win_T *wp)
     wp->w_jumplistlen = 0;
 }
 
-void set_last_cursor(win_T *win)
+void set_last_cursor(win_st *win)
 {
     if(win->w_buffer != NULL)
     {

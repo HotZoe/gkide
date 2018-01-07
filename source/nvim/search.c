@@ -580,7 +580,7 @@ void last_pat_prog(regmmatch_T *regmatch)
 /// FAIL (zero) for failure, non-zero for success.
 /// the index of the first matching subpattern plus one;
 /// one if there was none.
-int searchit(win_T *win,
+int searchit(win_st *win,
              fbuf_st *buf,
              pos_T *pos,
              int dir,
@@ -5557,7 +5557,7 @@ void find_pattern_in_path(uchar_kt *ptr,
     uchar_kt *already = NULL;
     uchar_kt *startp = NULL;
     uchar_kt *inc_opt = NULL;
-    win_T *curwin_save = NULL;
+    win_st *curwin_save = NULL;
     const int l_g_do_tagpreview = g_do_tagpreview;
 
     regmatch.regprog = NULL;

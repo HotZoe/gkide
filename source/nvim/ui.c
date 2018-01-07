@@ -301,7 +301,7 @@ void ui_detach_impl(UI *ui)
 /// The region starts 'off' lines from the start of the window.
 /// Also set the vertical scroll region for a vertically split window.
 /// Always the full width of the window, excluding the vertical separator.
-void ui_set_scroll_region(win_T *wp, int off)
+void ui_set_scroll_region(win_st *wp, int off)
 {
     sr.top = wp->w_winrow + off;
     sr.bot = wp->w_winrow + wp->w_height - 1;

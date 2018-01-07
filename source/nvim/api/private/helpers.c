@@ -639,14 +639,14 @@ fbuf_st *find_buffer_by_handle(Buffer buffer, error_st *err)
     return rv;
 }
 
-win_T *find_window_by_handle(Window window, error_st *err)
+win_st *find_window_by_handle(Window window, error_st *err)
 {
     if(window == 0)
     {
         return curwin;
     }
 
-    win_T *rv = handle_get_window(window);
+    win_st *rv = handle_get_window(window);
 
     if(!rv)
     {
@@ -1092,7 +1092,7 @@ static void set_option_value_for(char *key,
                                  void *from,
                                  error_st *err)
 {
-    win_T *save_curwin = NULL;
+    win_st *save_curwin = NULL;
     tabpage_T *save_curtab = NULL;
     bufref_T save_curbuf =  { NULL, 0 };
     try_start();
@@ -1102,8 +1102,8 @@ static void set_option_value_for(char *key,
         case SREQ_WIN:
             if(switch_win(&save_curwin,
                           &save_curtab,
-                          (win_T *)from,
-                          win_find_tabpage((win_T *)from),
+                          (win_st *)from,
+                          win_find_tabpage((win_st *)from),
                           false) == FAIL)
             {
                 if(try_end(err))

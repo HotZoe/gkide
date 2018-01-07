@@ -13,7 +13,7 @@
     void handle_unregister_##name(type *name);
 
 HANDLE_DECLS(fbuf_st, buffer)
-HANDLE_DECLS(win_T, window)
+HANDLE_DECLS(win_st, window)
 HANDLE_DECLS(tabpage_T, tabpage)
 
 void handle_init(void);

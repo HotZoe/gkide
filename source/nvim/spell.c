@@ -276,7 +276,7 @@ typedef struct matchinf_S
     // others
     int mi_result;     ///< result so far: SP_BAD, SP_OK, etc.
     int mi_capflags;   ///< WF_ONECAP WF_ALLCAP WF_KEEPCAP
-    win_T *mi_win;     ///< buffer being checked
+    win_st *mi_win;     ///< buffer being checked
 
     // for NOBREAK
     int mi_result2;    ///< "mi_resul" without following word
@@ -371,7 +371,7 @@ static uchar_kt *repl_to = NULL;
 /// @return
 /// the length of the word in bytes, also when it's OK,
 /// so that the caller can skip over the word.
-size_t spell_check(win_T *wp,
+size_t spell_check(win_st *wp,
                    uchar_kt *ptr,
                    hlf_T *attrp,
                    int *capcol,
@@ -1691,7 +1691,7 @@ static bool spell_valid_case(int wordflags, int treeflags)
 }
 
 /// Returns true if spell checking is not enabled.
-static bool no_spell_checking(win_T *wp)
+static bool no_spell_checking(win_st *wp)
 {
     if(!wp->w_p_spell
        || *wp->w_s->b_p_spl == NUL
@@ -1721,7 +1721,7 @@ static bool no_spell_checking(win_T *wp)
 /// @param curline
 /// @param attrp
 /// return: attributes of bad word or NULL (only when "dir" is FORWARD)
-size_t spell_move_to(win_T *wp,
+size_t spell_move_to(win_st *wp,
                      int dir,
                      bool allwords,
                      bool curline,
@@ -2540,7 +2540,7 @@ static int count_syllables(slang_T *slang, uchar_kt *word)
 
 /// Parse 'spelllang' and set w_s->b_langp accordingly.
 /// Returns NULL if it's OK, an error message otherwise.
-uchar_kt *did_set_spelllang(win_T *wp)
+uchar_kt *did_set_spelllang(win_st *wp)
 {
     garray_T ga;
     uchar_kt *splp;
@@ -2926,7 +2926,7 @@ theend:
 }
 
 /// Clear the midword characters for buffer "buf".
-static void clear_midword(win_T *wp)
+static void clear_midword(win_st *wp)
 {
     memset(wp->w_s->b_spell_ismw, 0, 256);
     xfree(wp->w_s->b_spell_ismw_mb);
@@ -2935,7 +2935,7 @@ static void clear_midword(win_T *wp)
 
 /// Use the "sl_midword" field of language "lp" for buffer "buf".
 /// They add up to any currently used midword characters.
-static void use_midword(slang_T *lp, win_T *wp)
+static void use_midword(slang_T *lp, win_st *wp)
 {
     uchar_kt *p;
 
@@ -3331,7 +3331,7 @@ void init_spell_chartab(void)
 /// Thus this only works properly when past the first character of the word.
 ///
 /// @param wp Buffer used.
-static bool spell_iswordp(uchar_kt *p, win_T *wp)
+static bool spell_iswordp(uchar_kt *p, win_st *wp)
 {
     uchar_kt *s;
     int l;
@@ -3377,7 +3377,7 @@ static bool spell_iswordp(uchar_kt *p, win_T *wp)
 
 /// Returns true if "p" points to a word character.
 /// Unlike spell_iswordp() this doesn't check for "midword" characters.
-bool spell_iswordp_nmw(const uchar_kt *p, win_T *wp)
+bool spell_iswordp_nmw(const uchar_kt *p, win_st *wp)
 {
     int c;
 
@@ -3400,7 +3400,7 @@ bool spell_iswordp_nmw(const uchar_kt *p, win_T *wp)
 /// Only for characters above 255.
 /// Unicode subscript and superscript are not considered word characters.
 /// See also utf_class() in mbyte.c.
-static bool spell_mb_isword_class(int cl, win_T *wp)
+static bool spell_mb_isword_class(int cl, win_st *wp)
 {
     // East Asian characters are not considered word characters.
     if(wp->w_s->b_cjk)
@@ -3413,7 +3413,7 @@ static bool spell_mb_isword_class(int cl, win_T *wp)
 
 /// Returns true if "p" points to a word character.
 /// Wide version of spell_iswordp().
-static bool spell_iswordp_w(int *p, win_T *wp)
+static bool spell_iswordp_w(int *p, win_st *wp)
 {
     int *s;
 
@@ -10106,7 +10106,7 @@ static linenr_T dump_prefixes(slang_T *slang,
 
 /// Move "p" to the end of word "start".
 /// Uses the spell-checking word characters.
-uchar_kt *spell_to_word_end(uchar_kt *start, win_T *win)
+uchar_kt *spell_to_word_end(uchar_kt *start, win_st *win)
 {
     uchar_kt *p = start;
 

@@ -61,7 +61,7 @@ typedef struct
 /// Define "fline_T", passed to get fold level for a line.
 typedef struct
 {
-    win_T *wp;           ///< window
+    win_st *wp;           ///< window
     linenr_T lnum;       ///< current line number
     linenr_T off;        ///< offset between lnum and real line number
     linenr_T lnum_save;  ///< line nr used by foldUpdateIEMSRecurse()
@@ -108,7 +108,7 @@ static uchar_kt *foldendmarker;
 static size_t foldendmarkerlen;
 
 /// Copy that folding state from window "wp_from" to window "wp_to".
-void copyFoldingState(win_T *wp_from, win_T *wp_to)
+void copyFoldingState(win_st *wp_from, win_st *wp_to)
 {
     wp_to->w_fold_manual = wp_from->w_fold_manual;
     wp_to->w_foldinvalid = wp_from->w_foldinvalid;
@@ -116,7 +116,7 @@ void copyFoldingState(win_T *wp_from, win_T *wp_to)
 }
 
 /// Return TRUE if there may be folded lines in the current window.
-int hasAnyFolding(win_T *win)
+int hasAnyFolding(win_st *win)
 {
     // very simple now, but can become more complex later
     return !win->w_buffer->terminal
@@ -140,7 +140,7 @@ bool hasFolding(linenr_T lnum, linenr_T *firstp, linenr_T *lastp)
 /// @param infop    where to store fold info
 ///
 /// @return
-bool hasFoldingWin(win_T *win,
+bool hasFoldingWin(win_st *win,
                    linenr_T lnum,
                    linenr_T *firstp,
                    linenr_T *lastp,
@@ -297,7 +297,7 @@ int foldLevel(linenr_T lnum)
 /// - Return TRUE if line is folded.
 /// - Return FALSE if line is not folded.
 /// - Return MAYBE if the line is folded when next to a folded line.
-int lineFolded(win_T *win, linenr_T lnum)
+int lineFolded(win_st *win, linenr_T lnum)
 {
     return foldedCount(win, lnum, NULL) != 0;
 }
@@ -308,7 +308,7 @@ int lineFolded(win_T *win, linenr_T lnum)
 /// Doesn't use caching from the displayed window.
 /// Returns number of folded lines from "lnum", or 0 if line is not folded.
 /// When "infop" is not NULL, fills *infop with the fold level info.
-long foldedCount(win_T *win, linenr_T lnum, foldinfo_T *infop)
+long foldedCount(win_st *win, linenr_T lnum, foldinfo_T *infop)
 {
     linenr_T last;
 
@@ -321,37 +321,37 @@ long foldedCount(win_T *win, linenr_T lnum, foldinfo_T *infop)
 }
 
 /// Return TRUE if 'foldmethod' is "manual"
-int foldmethodIsManual(win_T *wp)
+int foldmethodIsManual(win_st *wp)
 {
     return wp->w_p_fdm[3] == 'u';
 }
 
 /// Return TRUE if 'foldmethod' is "indent"
-int foldmethodIsIndent(win_T *wp)
+int foldmethodIsIndent(win_st *wp)
 {
     return wp->w_p_fdm[0] == 'i';
 }
 
 /// Return TRUE if 'foldmethod' is "expr"
-int foldmethodIsExpr(win_T *wp)
+int foldmethodIsExpr(win_st *wp)
 {
     return wp->w_p_fdm[1] == 'x';
 }
 
 /// Return TRUE if 'foldmethod' is "marker"
-int foldmethodIsMarker(win_T *wp)
+int foldmethodIsMarker(win_st *wp)
 {
     return wp->w_p_fdm[2] == 'r';
 }
 
 /// Return TRUE if 'foldmethod' is "syntax"
-int foldmethodIsSyntax(win_T *wp)
+int foldmethodIsSyntax(win_st *wp)
 {
     return wp->w_p_fdm[0] == 's';
 }
 
 /// Return TRUE if 'foldmethod' is "diff"
-int foldmethodIsDiff(win_T *wp)
+int foldmethodIsDiff(win_st *wp)
 {
     return wp->w_p_fdm[0] == 'd';
 }
@@ -471,7 +471,7 @@ void newFoldLevel(void)
     }
 }
 
-static void newFoldLevelWin(win_T *wp)
+static void newFoldLevelWin(win_st *wp)
 {
     fold_T *fp;
     checkupdate(wp);
@@ -843,7 +843,7 @@ void deleteFold(linenr_T start,
 }
 
 /// Remove all folding for window "win".
-void clearFolding(win_T *win)
+void clearFolding(win_st *win)
 {
     deleteFoldRecurse(&win->w_folds);
     win->w_foldinvalid = false;
@@ -853,7 +853,7 @@ void clearFolding(win_T *win)
 /// Note that inserted/deleted lines must have already been taken care of by
 /// calling foldMarkAdjust().
 /// The changes in lines from top to bot (inclusive).
-void foldUpdate(win_T *wp, linenr_T top, linenr_T bot)
+void foldUpdate(win_st *wp, linenr_T top, linenr_T bot)
 {
     if(compl_busy || curmod & kInsertMode)
     {
@@ -903,7 +903,7 @@ void foldUpdateAfterInsert(void)
 /// Used when a fold setting changes or after reloading the buffer.
 /// The actual updating is postponed until fold info is used, to avoid doing
 /// every time a setting is changed or a syntax item is added.
-void foldUpdateAll(win_T *win)
+void foldUpdateAll(win_st *win)
 {
     win->w_foldinvalid = true;
     redraw_win_later(win, NOT_VALID);
@@ -1080,7 +1080,7 @@ int foldMoveTo(int updown, int dir, long count)
 }
 
 /// Init the fold info in a new window.
-void foldInitWin(win_T *new_win)
+void foldInitWin(win_st *new_win)
 {
     ga_init(&new_win->w_folds, (int)sizeof(fold_T), 10);
 }
@@ -1089,7 +1089,7 @@ void foldInitWin(win_T *new_win)
 /// Only valid entries are considered (for entries where wl_valid is FALSE the
 /// line number can be wrong).
 /// Returns index of entry or -1 if not found.
-int find_wl_entry(win_T *win, linenr_T lnum)
+int find_wl_entry(win_st *win, linenr_T lnum)
 {
     int i;
 
@@ -1233,7 +1233,7 @@ static int foldFind(garray_T *gap, linenr_T lnum, fold_T **fpp)
 }
 
 /// Return fold level at line number "lnum" in window "wp".
-static int foldLevelWin(win_T *wp, linenr_T lnum)
+static int foldLevelWin(win_st *wp, linenr_T lnum)
 {
     fold_T *fp;
     linenr_T lnum_rel = lnum;
@@ -1261,7 +1261,7 @@ static int foldLevelWin(win_T *wp, linenr_T lnum)
 }
 
 /// Check if the folds in window "wp" are invalid and update them if needed.
-static void checkupdate(win_T *wp)
+static void checkupdate(win_st *wp)
 {
     if(wp->w_foldinvalid)
     {
@@ -1345,7 +1345,7 @@ static linenr_T setManualFold(linenr_T lnum,
 /// @param opening  TRUE when opening, FALSE when closing
 /// @param recurse  TRUE when closing/opening recursive
 /// @param donep
-static linenr_T setManualFoldWin(win_T *wp,
+static linenr_T setManualFoldWin(win_st *wp,
                                  linenr_T lnum,
                                  int opening,
                                  int recurse,
@@ -1562,7 +1562,7 @@ void deleteFoldRecurse(garray_T *gap)
 }
 
 /// Update line numbers of folds for inserted/deleted lines.
-void foldMarkAdjust(win_T *wp,
+void foldMarkAdjust(win_st *wp,
                     linenr_T line1,
                     linenr_T line2,
                     long amount,
@@ -1755,7 +1755,7 @@ static int getDeepestNestingRecurse(garray_T *gap)
 /// @param lnum_off      line number offset for fp->fd_top
 ///
 /// @return
-static int check_closed(win_T *win,
+static int check_closed(win_st *win,
                         fold_T *fp,
                         int *use_levelp,
                         int level,
@@ -1809,7 +1809,7 @@ static int check_closed(win_T *win,
 /// @param wp
 /// @param fp
 /// @param lnum_off  offset for fp->fd_top
-static void checkSmall(win_T *wp, fold_T *fp, linenr_T lnum_off)
+static void checkSmall(win_st *wp, fold_T *fp, linenr_T lnum_off)
 {
     int count;
     int n;
@@ -1990,7 +1990,7 @@ static void foldDelMarker(linenr_T lnum, uchar_kt *marker, size_t markerlen)
 /// Return the text for a closed fold at line "lnum", with last line "lnume".
 /// When 'foldtext' isn't set puts the result in "buf[FOLD_TEXT_LEN]".
 /// Otherwise the result is in allocated memory.
-uchar_kt *get_foldtext(win_T *wp,
+uchar_kt *get_foldtext(win_st *wp,
                      linenr_T lnum,
                      linenr_T lnume,
                      foldinfo_T *foldinfo,
@@ -2002,7 +2002,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     // an error occurred when evaluating 'fdt' setting
     static int got_fdt_error = FALSE;
     int save_did_emsg = did_emsg;
-    static win_T    *last_wp = NULL;
+    static win_st    *last_wp = NULL;
     static linenr_T last_lnum = 0;
 
     // window changed, try evaluating foldtext setting once again
@@ -2023,7 +2023,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     if(*wp->w_p_fdt != NUL)
     {
         char dashes[MAX_LEVEL + 2];
-        win_T *save_curwin;
+        win_st *save_curwin;
         int level;
         uchar_kt  *p;
 
@@ -2235,7 +2235,7 @@ void foldtext_cleanup(uchar_kt *str)
 
 /// Update the folding for window "wp", at least from lines "top" to "bot".
 /// Return TRUE if any folds did change.
-static void foldUpdateIEMS(win_T *wp, linenr_T top, linenr_T bot)
+static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
 {
     linenr_T start;
     linenr_T end;
@@ -3495,7 +3495,7 @@ static void foldlevelDiff(fline_T *flp)
 /// Returns a level of -1 if the foldlevel depends on surrounding lines.
 static void foldlevelExpr(fline_T *flp)
 {
-    win_T *win;
+    win_st *win;
     int n;
     int c;
     linenr_T lnum = flp->lnum + flp->off;
@@ -3608,7 +3608,7 @@ static void foldlevelExpr(fline_T *flp)
 /// Parse 'foldmarker' and set "foldendmarker", "foldstartmarkerlen" and
 /// "foldendmarkerlen".
 /// Relies on the option value to have been checked for correctness already.
-static void parseMarker(win_T *wp)
+static void parseMarker(win_st *wp)
 {
     foldendmarker = vim_strchr(wp->w_p_fmr, ',');
     foldstartmarkerlen = (size_t)(foldendmarker++ - wp->w_p_fmr);
@@ -3742,7 +3742,7 @@ static void foldlevelSyntax(fline_T *flp)
 
 /// Write commands to "fd" to restore the manual folds in window "wp".
 /// Return FAIL if writing fails.
-int put_folds(FILE *fd, win_T *wp)
+int put_folds(FILE *fd, win_st *wp)
 {
     if(foldmethodIsManual(wp))
     {
@@ -3793,7 +3793,7 @@ static int put_folds_recurse(FILE *fd, garray_T *gap, linenr_T off)
 /// Write commands to "fd" to open and close manually opened/closed folds.
 /// Returns FAIL when writing failed.
 static int put_foldopen_recurse(FILE *fd,
-                                win_T *wp,
+                                win_st *wp,
                                 garray_T *gap,
                                 linenr_T off)
 {

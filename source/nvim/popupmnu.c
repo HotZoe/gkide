@@ -135,7 +135,7 @@ redo:
     max_width = 0;
     kind_width = 0;
     extra_width = 0;
-    win_T *pvwin = NULL;
+    win_st *pvwin = NULL;
 
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
@@ -746,7 +746,7 @@ static int pum_set_selected(int n, int repeat)
            && (repeat <= 1)
            && (vim_strchr(p_cot, 'p') != NULL))
         {
-            win_T *curwin_save = curwin;
+            win_st *curwin_save = curwin;
             int res = OK;
             // Open a preview window. 3 lines by default. Prefer
             // 'previewheight' if set and smaller.

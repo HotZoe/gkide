@@ -546,7 +546,7 @@ int get_number_indent(linenr_T lnum)
 /// Return appropriate space number for breakindent, taking influencing
 /// parameters into account. Window must be specified, since it is not
 /// necessarily always the current one.
-int get_breakindent_win(win_T *wp, uchar_kt *line)
+int get_breakindent_win(win_st *wp, uchar_kt *line)
 {
     static int prev_indent = 0; // cached indent value
     static long prev_ts = 0; // cached tabstop value

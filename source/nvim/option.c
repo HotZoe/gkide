@@ -4442,7 +4442,7 @@ static int int_cmp(const void *a, const void *b)
 
 /// Handle setting 'colorcolumn' or 'textwidth' in window "wp".
 /// Returns error message, NULL if it's OK.
-uchar_kt *check_colorcolumn(win_T *wp)
+uchar_kt *check_colorcolumn(win_st *wp)
 {
     uchar_kt *s;
     int col;
@@ -4871,7 +4871,7 @@ static uchar_kt *compile_cap_prog(synblock_T *synblock)
 }
 
 /// Handle setting `winhighlight' in window "wp"
-static bool parse_winhl_opt(win_T *wp)
+static bool parse_winhl_opt(win_st *wp)
 {
     int w_hl_id = 0, w_hl_id_inactive = 0;
     const char *p = (const char *)wp->w_p_winhl;
@@ -6464,9 +6464,9 @@ int get_option_value_strict(char *name,
         }
         else if(opt_type == SREQ_WIN)
         {
-            win_T   *save_curwin;
+            win_st   *save_curwin;
             save_curwin = curwin;
-            curwin = (win_T *) from;
+            curwin = (win_st *) from;
             curbuf = curwin->w_buffer;
             varp = get_varp(p);
             curwin = save_curwin;
@@ -7274,7 +7274,7 @@ void unset_global_local_option(char *name, void *from)
             break;
 
         case PV_STL:
-            clear_string_option(&((win_T *)from)->w_p_stl);
+            clear_string_option(&((win_st *)from)->w_p_stl);
             break;
 
         case PV_UL:
@@ -7755,7 +7755,7 @@ uchar_kt *get_equalprg(void)
 
 /// Copy options from one window to another.
 /// Used when splitting a window.
-void win_copy_options(win_T *wp_from, win_T *wp_to)
+void win_copy_options(win_st *wp_from, win_st *wp_to)
 {
     copy_winopt(&wp_from->w_onebuf_opt, &wp_to->w_onebuf_opt);
     copy_winopt(&wp_from->w_allbuf_opt, &wp_to->w_allbuf_opt);
@@ -7818,7 +7818,7 @@ void copy_winopt(winopt_T *from, winopt_T *to)
 }
 
 /// Check string options in a window for a NULL value.
-void check_win_options(win_T *win)
+void check_win_options(win_st *win)
 {
     check_winopt(&win->w_onebuf_opt);
     check_winopt(&win->w_allbuf_opt);
@@ -7861,7 +7861,7 @@ void clear_winopt(winopt_T *wop)
     clear_string_option(&wop->wo_winhl);
 }
 
-void didset_window_options(win_T *wp)
+void didset_window_options(win_st *wp)
 {
     check_colorcolumn(wp);
     briopt_check(wp);
@@ -9402,7 +9402,7 @@ void find_mps_values(int *initc, int *findc, int *backwards, int switchit)
 
 /// This is called when 'breakindentopt' is changed and when a window is
 /// initialized
-static bool briopt_check(win_T *wp)
+static bool briopt_check(win_st *wp)
 {
     int bri_shift = 0;
     int bri_min = 20;
@@ -9641,7 +9641,7 @@ int csh_like_shell(void)
 }
 
 /// Return true when window @b wp has a column to draw signs in.
-bool signcolumn_on(win_T *wp)
+bool signcolumn_on(win_st *wp)
 {
     if(*wp->w_p_scl == 'n')
     {
