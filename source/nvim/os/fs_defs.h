@@ -24,7 +24,7 @@ typedef struct
 {
     uv_fs_t request;  ///< The request to uv for the directory.
     uv_dirent_t ent;  ///< The entry information.
-} Directory;
+} directory_st;
 
 enum
 {

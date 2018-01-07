@@ -692,7 +692,7 @@ FUNC_ATTR_NONNULL_ALL
     return do_path_expand(gap, path, 0, flags, false);
 }
 
-static const char *scandir_next_with_dots(Directory *dir)
+static const char *scandir_next_with_dots(directory_st *dir)
 {
     static int count = 0;
 
@@ -871,7 +871,7 @@ FUNC_ATTR_NONNULL_ALL
 
     *s = NUL;
 
-    Directory dir;
+    directory_st dir;
     char *dirpath = (*buf == NUL ? "." : (char *)buf);
 
     if(os_file_is_readable(dirpath) && os_scandir(&dir, dirpath))
@@ -2218,7 +2218,7 @@ FUNC_ATTR_NONNULL_ALL
     // Open the directory where the file is located.
     uchar_kt *slash = vim_strrchr(name, '/');
     uchar_kt *tail;
-    Directory dir;
+    directory_st dir;
     bool ok;
 
     if(slash == NULL)

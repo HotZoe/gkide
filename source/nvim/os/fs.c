@@ -1006,7 +1006,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @returns
 /// true if dir contains one or more items,
 /// false if not or an error occurred.
-bool os_scandir(Directory *dir, const char *path)
+bool os_scandir(directory_st *dir, const char *path)
 FUNC_ATTR_NONNULL_ALL
 {
     int r = uv_fs_scandir(&fs_loop, &dir->request, path, 0, NULL);
@@ -1023,7 +1023,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param dir  The Directory object.
 ///
 /// @returns a pointer to the next path in @b dir or NULL.
-const char *os_scandir_next(Directory *dir)
+const char *os_scandir_next(directory_st *dir)
 FUNC_ATTR_NONNULL_ALL
 {
     int err = uv_fs_scandir_next(&dir->request, &dir->ent);
@@ -1033,7 +1033,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Frees memory associated with os_scandir().
 ///
 /// @param dir  The directory.
-void os_closedir(Directory *dir)
+void os_closedir(directory_st *dir)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_req_cleanup(&dir->request);

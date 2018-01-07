@@ -3,17 +3,17 @@
 #ifndef NVIM_VIM_H
 #define NVIM_VIM_H
 
-#include "nvim/types.h"
+#include "config.h"
 #include "nvim/pos.h"
+#include "confignvim.h"
+#include "nvim/types.h"
 
 // Some defines from the old feature.h
-#define MAX_MSG_HIST_LEN  200
 #define SESSION_FILE      "Session.vim"
 #define SYS_OPTWIN_FILE   "$VIMRUNTIME/optwin.vim"
 #define RUNTIME_DIRNAME   "runtime"
 
-#include "config.h"
-#include "confignvim.h"
+#define MAX_MSG_HIST_LEN  200
 
 // Check if configure correctly managed to find sizeof(int).
 // If this failed, it becomes zero.
@@ -28,10 +28,7 @@
 
 /// length of a buffer to store a
 /// number in ASCII (64 bits binary + NUL)
-enum
-{
-    NUMBUFLEN = 65
-};
+#define NUMBUFLEN     65
 
 // flags for vim_str2nr()
 #define STR2NR_BIN    1
