@@ -29,7 +29,7 @@
 typedef struct
 {
     kvec_t(Object) stack; ///< Object stack.
-} EncodedData;
+} encode_data_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "api/private/helpers.c.generated.h"
@@ -450,7 +450,7 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
     kv_push(edata->stack,                       \
             DICTIONARY_OBJ(((Dictionary) { .capacity = 0, .size = 0 })))
 
-static inline void typval_encode_list_start(EncodedData *const edata,
+static inline void typval_encode_list_start(encode_data_st *const edata,
                                             const size_t len)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
@@ -467,7 +467,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START(tv, mpsv)
 
-static inline void typval_encode_between_list_items(EncodedData *const edata)
+static inline void typval_encode_between_list_items(encode_data_st *const edata)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     Object item = kv_pop(edata->stack);
@@ -480,7 +480,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_LIST_BETWEEN_ITEMS(tv) \
     typval_encode_between_list_items(edata)
 
-static inline void typval_encode_list_end(EncodedData *const edata)
+static inline void typval_encode_list_end(encode_data_st *const edata)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     typval_encode_between_list_items(edata);
@@ -493,7 +493,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_CONV_LIST_END(tv)  typval_encode_list_end(edata)
 
-static inline void typval_encode_dict_start(EncodedData *const edata,
+static inline void typval_encode_dict_start(encode_data_st *const edata,
                                             const size_t len)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
@@ -512,7 +512,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(label, kv_pair)
 
-static inline void typval_encode_after_key(EncodedData *const edata)
+static inline void typval_encode_after_key(encode_data_st *const edata)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     Object key = kv_pop(edata->stack);
@@ -537,7 +537,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(tv, dict) \
     typval_encode_after_key(edata)
 
-static inline void typval_encode_between_dict_items(EncodedData *const edata)
+static inline void typval_encode_between_dict_items(encode_data_st *const edata)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     Object val = kv_pop(edata->stack);
@@ -550,7 +550,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(tv, dict) \
     typval_encode_between_dict_items(edata)
 
-static inline void typval_encode_dict_end(EncodedData *const edata)
+static inline void typval_encode_dict_end(encode_data_st *const edata)
 FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     typval_encode_between_dict_items(edata);
@@ -566,7 +566,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 #define TYPVAL_ENCODE_SCOPE          static
 #define TYPVAL_ENCODE_NAME           object
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE EncodedData *const
+#define TYPVAL_ENCODE_FIRST_ARG_TYPE encode_data_st *const
 #define TYPVAL_ENCODE_FIRST_ARG_NAME edata
 
 #include "nvim/eval/typval_encode.c.h"
@@ -610,7 +610,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 /// @return The converted value
 Object vim_to_object(typval_T *obj)
 {
-    EncodedData edata = { .stack = KV_INITIAL_VALUE };
+    encode_data_st edata = { .stack = KV_INITIAL_VALUE };
 
     const int evo_ret = encode_vim_to_object(&edata, obj,
                                              "vim_to_object argument");
