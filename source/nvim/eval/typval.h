@@ -38,7 +38,7 @@ typedef double float_T;
 
 typedef struct list_s list_st;
 typedef struct dict_s dict_st;
-typedef struct partial_S partial_T;
+typedef struct part_s part_st;
 
 typedef struct ufunc ufunc_T;
 
@@ -54,7 +54,7 @@ typedef struct
     union
     {
         uchar_kt *funcref;
-        partial_T *partial;
+        part_st *partial;
     } data;
     CallbackType type;
 } Callback;
@@ -117,7 +117,7 @@ typedef struct
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
         list_st *v_list;   ///< List for VAR_LIST, can be NULL.
         dict_st *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
-        partial_T *v_partial;      ///< Closure: function with args.
+        part_st *v_partial;      ///< Closure: function with args.
     } vval;               ///< Actual value.
 } typval_T;
 
@@ -282,16 +282,17 @@ struct ufunc
 /// Maximum number of function arguments
 #define MAX_FUNC_ARGS   20
 
-struct partial_S
+/// hold partial information
+struct part_s
 {
     int pt_refcount;   ///< Reference count.
-    uchar_kt *pt_name;   ///< Function name; when NULL use pt_func->name.
-    ufunc_T *pt_func;  ///< Function pointer; when NULL lookup function with pt_name.
+    uchar_kt *pt_name; ///< Function name; when NULL use pt_func->name.
+    ufunc_T *pt_func; ///< Function pointer; when NULL lookup function with pt_name.
     bool pt_auto;      ///< When true the partial was created by using dict.member
                        ///< in handle_subscript().
     int pt_argc;       ///< Number of arguments.
-    typval_T *pt_argv; ///< Arguments in allocated array.
-    dict_st *pt_dict;   ///< Dict for "self".
+    typval_T *pt_argv;///< Arguments in allocated array.
+    dict_st *pt_dict;  ///< Dict for "self".
 };
 
 /// Structure used for explicit stack while garbage collecting hash tables

@@ -2008,7 +2008,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     if(tv->v_type == VAR_PARTIAL)
     {
-        partial_T *const pt_ = tv->vval.v_partial;
+        part_st *const pt_ = tv->vval.v_partial;
 
         if(pt_ != NULL && pt_->pt_refcount > 1)
         {
@@ -2049,7 +2049,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     if(tv->v_type == VAR_PARTIAL)
     {
-        partial_T *const pt = tv->vval.v_partial;
+        part_st *const pt = tv->vval.v_partial;
 
         if(pt == NULL)
         {

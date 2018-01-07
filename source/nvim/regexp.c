@@ -9267,7 +9267,7 @@ static int vim_regsub_both(uchar_kt *source,
                     }
                     else if(expr->v_type == VAR_PARTIAL)
                     {
-                        partial_T *partial = expr->vval.v_partial;
+                        part_st *partial = expr->vval.v_partial;
                         s = partial_name(partial);
 
                         call_func(s,
