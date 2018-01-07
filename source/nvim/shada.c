@@ -2048,7 +2048,7 @@ FUNC_ATTR_NONNULL_ALL
     {                                                                   \
         if((src) != NULL)                                               \
         {                                                               \
-            for(listitem_T *li = (src)->lv_first;                       \
+            for(listitem_st *li = (src)->lv_first;                       \
                 li != NULL;                                             \
                 li = li->li_next)                                       \
             {                                                           \

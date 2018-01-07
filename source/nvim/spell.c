@@ -4227,7 +4227,7 @@ static void spell_find_suggest(uchar_kt *badptr,
 static void spell_suggest_expr(suginfo_T *su, uchar_kt *expr)
 {
     list_st *list;
-    listitem_T *li;
+    listitem_st *li;
     int score;
     const char *p;
 

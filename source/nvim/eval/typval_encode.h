@@ -54,7 +54,7 @@ typedef struct
         struct
         {
             list_st *list;     ///< Currently converted list.
-            listitem_T *li;   ///< Currently converted list item.
+            listitem_st *li;   ///< Currently converted list item.
         } l;                  ///< State of list or generic mapping conversion.
 
         struct

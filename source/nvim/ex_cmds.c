@@ -8141,7 +8141,7 @@ uchar_kt *skip_vimgrep_pat(uchar_kt *p, uchar_kt **s, int *flags)
 void ex_oldfiles(exarg_T *eap)
 {
     long nr = 0;
-    listitem_T *li;
+    listitem_st *li;
     list_st *l = get_vim_var_list(VV_OLDFILES);
 
     if(l == NULL)

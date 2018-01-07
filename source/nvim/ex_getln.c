@@ -5525,7 +5525,7 @@ static int ExpandUserDefined(expand_T *xp,
 static int ExpandUserList(expand_T *xp, int *num_file, uchar_kt ***file)
 {
     list_st *retlist;
-    listitem_T  *li;
+    listitem_st  *li;
     garray_T ga;
     retlist = call_user_expand_func((user_expand_func_T)call_func_retlist,
                                     xp,

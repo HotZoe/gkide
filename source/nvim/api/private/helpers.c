@@ -782,7 +782,7 @@ bool object_to_vim(Object obj, typval_st *tv, error_st *err)
             for(uint32_t i = 0; i < obj.data.array.size; i++)
             {
                 Object item = obj.data.array.items[i];
-                listitem_T *li = tv_list_item_alloc();
+                listitem_st *li = tv_list_item_alloc();
 
                 if(!object_to_vim(item, &li->li_tv, err))
                 {

@@ -153,7 +153,7 @@ typedef struct lval_S
     char *ll_exp_name;    ///< NULL or expanded name in allocated memory.
     typval_st *ll_tv;      ///< Typeval of item being used. If "newkey" isn't
                           ///< NULL it's the Dict to which to add the item.
-    listitem_T *ll_li;    ///< The list item or NULL.
+    listitem_st *ll_li;    ///< The list item or NULL.
     list_st *ll_list;      ///< The list or NULL.
     int ll_range;         ///< TRUE when a [i:j] range was used.
     long ll_n1;           ///< First index for list.
@@ -277,7 +277,7 @@ struct funccall_S
     dict_st l_avars;                        ///< @b a: argument variables.
     scope_dict_T l_avars_var;              ///< Variable for @b a: scope.
     list_st l_varlist;                      ///< List for @b a:000
-    listitem_T l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
+    listitem_st l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
 
     typval_st *rettv;       ///< Return value.
     linenr_T breakpoint;   ///< Next line with breakpoint or zero.
@@ -1329,7 +1329,7 @@ list_st *eval_spell_expr(uchar_kt *badword, uchar_kt *expr)
 /// Used to get the good word and score from the eval_spell_expr() result.
 int get_spellword(list_st *list, const char **pp)
 {
-    listitem_T *li;
+    listitem_st *li;
     li = list->lv_first;
 
     if(li == NULL)
@@ -1780,7 +1780,7 @@ static int ex_let_vars(uchar_kt *arg_start,
     int i;
     list_st *l;
     typval_st ltv;
-    listitem_T *item;
+    listitem_st *item;
     uchar_kt *arg = arg_start;
 
     if(*arg != '[')
@@ -2457,7 +2457,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
     typval_st var1;
     typval_st var2;
     int empty1 = FALSE;
-    listitem_T *ni;
+    listitem_st *ni;
     hashtab_T *ht;
     int quiet = flags & GLV_QUIET;
 
@@ -2948,7 +2948,7 @@ static void set_var_lval(lval_T *lp,
                          const uchar_kt *op)
 {
     int cc;
-    listitem_T *ri;
+    listitem_st *ri;
     dictitem_T *di;
 
     if(lp->ll_tv == NULL)
@@ -2993,11 +2993,11 @@ static void set_var_lval(lval_T *lp,
     { /* empty body */ }
     else if(lp->ll_range)
     {
-        listitem_T *ll_li = lp->ll_li;
+        listitem_st *ll_li = lp->ll_li;
         int ll_n1 = lp->ll_n1;
 
         // Check whether any of the list items is locked
-        for(listitem_T *ri = rettv->vval.v_list->lv_first;
+        for(listitem_st *ri = rettv->vval.v_list->lv_first;
             ri != NULL && ll_li != NULL; /* none */)
         {
             if(tv_check_lock(ll_li->li_tv.v_lock,
@@ -3217,7 +3217,7 @@ int next_for_item(void *fi_void, uchar_kt *arg)
 {
     forinfo_T *fi = (forinfo_T *)fi_void;
     int result;
-    listitem_T *item;
+    listitem_st *item;
     item = fi->fi_lw.lw_item;
 
     if(item == NULL)
@@ -3687,8 +3687,8 @@ static int do_unlet_var(lval_T *const lp, uchar_kt *const name_end, int forceit)
     }
     else if(lp->ll_range)
     {
-        listitem_T *li;
-        listitem_T *ll_li = lp->ll_li;
+        listitem_st *li;
+        listitem_st *ll_li = lp->ll_li;
         int ll_n1 = lp->ll_n1;
 
         while(ll_li != NULL && (lp->ll_empty2 || lp->ll_n2 >= ll_n1))
@@ -3901,7 +3901,7 @@ static int do_lock_var(lval_T *lp,
     }
     else if(lp->ll_range)
     {
-        listitem_T *li = lp->ll_li;
+        listitem_st *li = lp->ll_li;
 
         // (un)lock a range of List items.
         while(li != NULL && (lp->ll_empty2 || lp->ll_n2 >= lp->ll_n1))
@@ -5884,7 +5884,7 @@ static int eval_index(uchar_kt **arg,
                 if(range)
                 {
                     list_st *l;
-                    listitem_T *item;
+                    listitem_st *item;
 
                     if(n2 < 0)
                     {
@@ -6386,7 +6386,7 @@ static int get_list_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
 {
     list_st *l = NULL;
     typval_st tv;
-    listitem_T *item;
+    listitem_st *item;
 
     if(evaluate)
     {
@@ -6965,7 +6965,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             // Mark each item in the list.  If the item contains a hashtab
             // it is added to ht_stack, if it contains a list it is added to
             // list_stack.
-            for(listitem_T *li = cur_l->lv_first;
+            for(listitem_st *li = cur_l->lv_first;
                 !abort && li != NULL;
                 li = li->li_next)
             {
@@ -8607,7 +8607,7 @@ static void f_append(typval_st *argvars,
 {
     long lnum;
     list_st *l = NULL;
-    listitem_T *li = NULL;
+    listitem_st *li = NULL;
     typval_st *tv;
     long added = 0;
 
@@ -9435,7 +9435,7 @@ int func_call(uchar_kt *name,
               dict_st *selfdict,
               typval_st *rettv)
 {
-    listitem_T *item;
+    listitem_st *item;
     typval_st argv[MAX_FUNC_ARGS + 1];
     int argc = 0;
     int dummy;
@@ -9797,7 +9797,7 @@ static void f_count(typval_st *argvars,
 
     if(argvars[0].v_type == kNvarList)
     {
-        listitem_T *li;
+        listitem_st *li;
         list_st *l;
         long idx;
 
@@ -10373,8 +10373,8 @@ static uchar_kt *get_list_line(int FUNC_ARGS_UNUSED_REALY(c),
                              void *cookie,
                              int FUNC_ARGS_UNUSED_REALY(indent))
 {
-    const listitem_T **const p = (const listitem_T **)cookie;
-    const listitem_T *item = *p;
+    const listitem_st **const p = (const listitem_st **)cookie;
+    const listitem_st *item = *p;
 
     if(item == NULL)
     {
@@ -10443,7 +10443,7 @@ static void f_execute(typval_st *argvars,
         list_st *const list = argvars[0].vval.v_list;
         list->lv_refcount++;
 
-        listitem_T *const item = list->lv_first;
+        listitem_st *const item = list->lv_first;
 
         do_cmdline(NULL,
                    get_list_line,
@@ -10697,7 +10697,7 @@ static void f_extend(typval_st *argvars,
         }
         else if(!tv_check_lock(l1->lv_lock, arg_errmsg, TV_TRANSLATE))
         {
-            listitem_T *item;
+            listitem_st *item;
 
             if(argvars[2].v_type != kNvarUnknown)
             {
@@ -10917,8 +10917,8 @@ static void findfilendir(typval_st *argvars, typval_st *rettv, int find_what)
 static void filter_map(typval_st *argvars, typval_st *rettv, int map)
 {
     typval_st *expr;
-    listitem_T *li;
-    listitem_T *nli;
+    listitem_st *li;
+    listitem_st *nli;
     list_st *l = NULL;
     dictitem_T *di;
     hashtab_T *ht;
@@ -11619,7 +11619,7 @@ static void common_function(typval_st *argvars,
 
                 if(lv_len > 0)
                 {
-                    for(listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+                    for(listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
                     {
                         tv_copy(&li->li_tv, &pt->pt_argv[i++]);
                     }
@@ -11714,7 +11714,7 @@ static void f_get(typval_st *argvars,
                   typval_st *rettv,
                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    listitem_T *li;
+    listitem_st *li;
     list_st *l;
     dictitem_T *di;
     dict_st *d;
@@ -14300,7 +14300,7 @@ static void f_index(typval_st *argvars,
                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
-    listitem_T  *item;
+    listitem_st  *item;
     long idx = 0;
     int ic = FALSE;
     rettv->vval.v_number = -1;
@@ -14556,7 +14556,7 @@ static void f_inputlist(typval_st *argvars,
                         typval_st *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    listitem_T  *li;
+    listitem_st  *li;
     int selected;
     int mouse_used;
 
@@ -14660,7 +14660,7 @@ static void f_insert(typval_st *argvars,
             return;
         }
 
-        listitem_T *item = NULL;
+        listitem_st *item = NULL;
 
         if(before != l->lv_len)
         {
@@ -14783,7 +14783,7 @@ static void dict_list(typval_st *const tv,
     tv_list_alloc_ret(rettv);
 
     TV_DICT_ITER(tv->vval.v_dict, di, {
-        listitem_T *const li = tv_list_item_alloc();
+        listitem_st *const li = tv_list_item_alloc();
         tv_list_append(rettv->vval.v_list, li);
 
         switch(what)
@@ -14811,7 +14811,7 @@ static void dict_list(typval_st *const tv,
                 li->li_tv.vval.v_list = sub_l;
                 sub_l->lv_refcount++;
 
-                listitem_T *sub_li = tv_list_item_alloc();
+                listitem_st *sub_li = tv_list_item_alloc();
                 tv_list_append(sub_l, sub_li);
                 sub_li->li_tv.v_type = kNvarString;
                 sub_li->li_tv.v_lock = kNvlVarUnlocked;
@@ -15122,7 +15122,7 @@ static char **tv_to_argv(typval_st *cmd_tv, const char **cmd, bool *executable)
     int i = 0;
     char **argv = xcalloc(argc + 1, sizeof(char *));
 
-    for(listitem_T *arg = argl->lv_first; arg != NULL; arg = arg->li_next)
+    for(listitem_st *arg = argl->lv_first; arg != NULL; arg = arg->li_next)
     {
         const char *a = tv_get_string_chk(&arg->li_tv);
 
@@ -15324,7 +15324,7 @@ static void f_jobwait(typval_st *argvars,
     // For each item in the input list append an integer to the output list. -3
     // is used to represent an invalid job id, -2 is for a interrupted job and
     // -1 for jobs that were skipped or timed out.
-    for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+    for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
         TerminalJobData *data = NULL;
 
@@ -15357,7 +15357,7 @@ static void f_jobwait(typval_st *argvars,
         before = os_hrtime();
     }
 
-    for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+    for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
         TerminalJobData *data = NULL;
 
@@ -15403,7 +15403,7 @@ static void f_jobwait(typval_st *argvars,
         }
     }
 
-    for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+    for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
         TerminalJobData *data = NULL;
 
@@ -15419,7 +15419,7 @@ static void f_jobwait(typval_st *argvars,
     }
 
     // restore the parent queue for any jobs still alive
-    for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+    for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
         TerminalJobData *data = NULL;
 
@@ -15912,7 +15912,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
     colnr_T startcol = 0;
     int match = 0;
     list_st *l = NULL;
-    listitem_T *li = NULL;
+    listitem_st *li = NULL;
     long idx = 0;
     uchar_kt *tofree = NULL;
 
@@ -16082,10 +16082,10 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
         {
             if(type == 4)
             {
-                listitem_T *li1 = rettv->vval.v_list->lv_first;
-                listitem_T *li2 = li1->li_next;
-                listitem_T *li3 = li2->li_next;
-                listitem_T *li4 = li3->li_next;
+                listitem_st *li1 = rettv->vval.v_list->lv_first;
+                listitem_st *li2 = li1->li_next;
+                listitem_st *li3 = li2->li_next;
+                listitem_st *li4 = li3->li_next;
 
                 xfree(li1->li_tv.vval.v_string);
 
@@ -16409,7 +16409,7 @@ FUNC_ATTR_NONNULL_ALL
         {
             n = tv_get_number_chk(&l->lv_first->li_tv, &error);
 
-            for(const listitem_T *li = l->lv_first->li_next;
+            for(const listitem_st *li = l->lv_first->li_next;
                 li != NULL && !error;
                 li = li->li_next)
             {
@@ -16575,7 +16575,7 @@ FUNC_ATTR_NONNULL_ALL
     char msgbuf[sizeof("msgpackdump() argument, index ") * 4 + NUMBUFLEN];
     int idx = 0;
 
-    for(listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+    for(listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
     {
         vim_snprintf(msgbuf, sizeof(msgbuf), (char *) msg, idx);
         idx++;
@@ -16675,7 +16675,7 @@ FUNC_ATTR_NONNULL_ALL
 
             if(result == MSGPACK_UNPACK_SUCCESS)
             {
-                listitem_T *li = tv_list_item_alloc();
+                listitem_st *li = tv_list_item_alloc();
                 li->li_tv.v_type = kNvarUnknown;
                 tv_list_append(ret_list, li);
 
@@ -17006,7 +17006,7 @@ static void f_readfile(typval_st *argvars,
         {
             if(*p == '\n' || readlen <= 0)
             {
-                listitem_T *li;
+                listitem_st *li;
                 uchar_kt *s  = NULL;
                 size_t len = p - start;
 
@@ -17294,10 +17294,10 @@ static void f_remove(typval_st *argvars,
     long end;
     dict_st *d;
     list_st *l;
-    listitem_T *li;
+    listitem_st *li;
     dictitem_T *di;
-    listitem_T *item;
-    listitem_T *item2;
+    listitem_st *item;
+    listitem_st *item2;
     const char *const arg_errmsg = N_("remove() argument");
 
     if(argvars[0].v_type == kNvarDict)
@@ -17697,13 +17697,13 @@ static void f_reverse(typval_st *argvars,
     else if((l = argvars[0].vval.v_list) != NULL
             && !tv_check_lock(l->lv_lock, N_("reverse() argument"), TV_TRANSLATE))
     {
-        listitem_T *li = l->lv_last;
+        listitem_st *li = l->lv_last;
         l->lv_first = l->lv_last = NULL;
         l->lv_len = 0;
 
         while(li != NULL)
         {
-            listitem_T *const ni = li->li_prev;
+            listitem_st *const ni = li->li_prev;
             tv_list_append(l, li);
             li = ni;
         }
@@ -18128,7 +18128,7 @@ static void f_rpcstart(typval_st *argvars,
         argsl = args->lv_len;
 
         // Assert that all list items are strings
-        for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+        for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
         {
             if(arg->li_tv.v_type != kNvarString)
             {
@@ -18155,7 +18155,7 @@ static void f_rpcstart(typval_st *argvars,
     // Copy arguments to the vector
     if(argsl > 0)
     {
-        for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
+        for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
         {
             argv[i++] = xstrdup(tv_get_string(&arg->li_tv));
         }
@@ -18704,7 +18704,7 @@ static void f_serverlist(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 
     for(size_t i = 0; i < n; i++)
     {
-        listitem_T *li = tv_list_item_alloc();
+        listitem_st *li = tv_list_item_alloc();
         li->li_tv.v_type = kNvarString;
         li->li_tv.v_lock = 0;
         li->li_tv.vval.v_string = (uchar_kt *)addrs[i];
@@ -18959,7 +18959,7 @@ static void f_setline(typval_st *argvars,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l = NULL;
-    listitem_T *li = NULL;
+    listitem_st *li = NULL;
     long added = 0;
     linenr_T lcount = curbuf->b_ml.ml_line_count;
     linenr_T lnum = tv_get_lnum(&argvars[0]);
@@ -19164,7 +19164,7 @@ static void f_setmatches(typval_st *argvars,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     list_st *l;
-    listitem_T *li;
+    listitem_st *li;
     dict_st *d;
     list_st *s = NULL;
     rettv->vval.v_number = -1;
@@ -19459,7 +19459,7 @@ static void f_setreg(typval_st *argvars,
         char **allocval = lstval + len + 2;
         char **curallocval = allocval;
 
-        for(listitem_T *li = ll == NULL ? NULL : ll->lv_first;
+        for(listitem_st *li = ll == NULL ? NULL : ll->lv_first;
             li != NULL;
             li = li->li_next)
         {
@@ -19749,7 +19749,7 @@ static void f_sockconnect(typval_st *argvars,
 /// struct used in the array that's given to qsort()
 typedef struct
 {
-    listitem_T *item;
+    listitem_st *item;
     int idx;
 } sortItem_T;
 
@@ -19981,7 +19981,7 @@ static int item_compare2_not_keeping_zero(const void *s1, const void *s2)
 static void do_sort_uniq(typval_st *argvars, typval_st *rettv, bool sort)
 {
     list_st *l;
-    listitem_T *li;
+    listitem_st *li;
     sortItem_T *ptrs;
     long len;
     long i;
@@ -20324,7 +20324,7 @@ static void f_spellsuggest(typval_st *argvars,
     bool typeerr = false;
     int maxcount;
     garray_T ga;
-    listitem_T *li;
+    listitem_st *li;
     bool need_capital = false;
     tv_list_alloc_ret(rettv);
 
@@ -22742,7 +22742,7 @@ static bool write_list(FileDescriptor *const fp,
 {
     int error = 0;
 
-    for(const listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+    for(const listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
     {
         const char *const s = tv_get_string_chk(&li->li_tv);
 
@@ -22830,7 +22830,7 @@ void init_static_list(staticList10_T *sl)
 
     for(int i = 0; i < 10; i++)
     {
-        listitem_T *li = &sl->sl_items[i];
+        listitem_st *li = &sl->sl_items[i];
 
         if(i == 0)
         {
@@ -22899,7 +22899,7 @@ FUNC_ATTR_NONNULL_ALL
     *len = 0;
     list_st *list = tv->vval.v_list;
 
-    for(listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+    for(listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
     {
         *len += strlen(tv_get_string(&li->li_tv)) + 1;
     }
@@ -22912,7 +22912,7 @@ FUNC_ATTR_NONNULL_ALL
     char *ret = xmalloc(*len + endnl);
     char *end = ret;
 
-    for(listitem_T *li = list->lv_first; li != NULL; li = li->li_next)
+    for(listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
     {
         for(const char *s = tv_get_string(&li->li_tv); *s != NUL; s++)
         {
@@ -23106,7 +23106,7 @@ FUNC_ATTR_NONNULL_ALL
         list_st *l;
         int len;
         bool error = false;
-        listitem_T *li;
+        listitem_st *li;
         l = tv->vval.v_list;
 
         if(l == NULL)
@@ -27915,7 +27915,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
         });
 
         // Make a copy of the a:000 items, since we didn't do that above.
-        for(listitem_T *li = fc->l_varlist.lv_first; li != NULL; li = li->li_next)
+        for(listitem_st *li = fc->l_varlist.lv_first; li != NULL; li = li->li_next)
         {
             tv_copy(&li->li_tv, &li->li_tv);
         }
@@ -27992,7 +27992,7 @@ static int can_free_funccal(funccall_T *fc, int copyID)
 /// \param free_val  a: vars were allocated
 static void free_funccal(funccall_T *fc, int free_val)
 {
-    listitem_T *li;
+    listitem_st *li;
 
     for(int i = 0; i < fc->fc_funcs.ga_len; i++)
     {

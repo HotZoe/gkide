@@ -55,7 +55,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     list_st *const list = (list_st *) data;
     const char *const end = buf + len;
     const char *line_end = buf;
-    listitem_T *li = list->lv_last;
+    listitem_st *li = list->lv_last;
 
     // Continue the last list element
     if(li != NULL)
@@ -161,7 +161,7 @@ FUNC_ATTR_NONNULL_ALL
             case kMPConvList:
             {
                 int idx = 0;
-                const listitem_T *li;
+                const listitem_st *li;
 
                 for(li = v.data.l.list->lv_first;
                     li != NULL && li->li_next != v.data.l.li;
@@ -259,7 +259,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(list != NULL)
     {
-        for(const listitem_T *li = list->lv_first;
+        for(const listitem_st *li = list->lv_first;
             li != NULL;
             li = li->li_next)
         {
@@ -921,7 +921,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
         return true;
     }
 
-    for(const listitem_T *li = val_di->di_tv.vval.v_list->lv_first;
+    for(const listitem_st *li = val_di->di_tv.vval.v_list->lv_first;
         li != NULL;
         li = li->li_next)
     {

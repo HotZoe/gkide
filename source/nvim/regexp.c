@@ -9055,7 +9055,7 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
 {
     int i;
     uchar_kt *s;
-    listitem_T *li;
+    listitem_st *li;
 
     if(argcount == 0)
     {

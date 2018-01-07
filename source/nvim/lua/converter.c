@@ -313,7 +313,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                     {
                         list_st *const kv_pair = tv_list_alloc();
                         tv_list_append_list(cur.tv->vval.v_list, kv_pair);
-                        listitem_T *const key = tv_list_item_alloc();
+                        listitem_st *const key = tv_list_item_alloc();
                         key->li_tv = decode_string(s, len, kTrue, false, false);
                         tv_list_append(kv_pair, key);
 
@@ -324,7 +324,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                             continue;
                         }
 
-                        listitem_T *const val = tv_list_item_alloc();
+                        listitem_st *const val = tv_list_item_alloc();
                         tv_list_append(kv_pair, val);
                         kv_push(stack, cur);
                         cur = (TVPopStackItem)
@@ -365,7 +365,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                     continue;
                 }
 
-                listitem_T *const li = tv_list_item_alloc();
+                listitem_st *const li = tv_list_item_alloc();
                 tv_list_append(cur.tv->vval.v_list, li);
                 kv_push(stack, cur);
                 cur = (TVPopStackItem)

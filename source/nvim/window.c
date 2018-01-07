@@ -7235,7 +7235,7 @@ int match_add(win_st *wp,
     {
         linenr_T toplnum = 0;
         linenr_T botlnum = 0;
-        listitem_T *li;
+        listitem_st *li;
         int i;
 
         for(i = 0, li = pos_list->lv_first;
@@ -7246,7 +7246,7 @@ int match_add(win_st *wp,
             colnr_T col = 0;
             int len = 1;
             list_st *subl;
-            listitem_T *subli;
+            listitem_st *subli;
             bool error = false;
 
             if(li->li_tv.v_type == kNvarList)

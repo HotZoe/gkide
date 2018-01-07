@@ -4464,7 +4464,7 @@ theend:
 /// Add completions from a list.
 static void ins_compl_add_list(list_st *list)
 {
-    listitem_T  *li;
+    listitem_st  *li;
     int dir = compl_direction;
 
     // Go through the List with matches and add each of them.

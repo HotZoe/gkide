@@ -164,7 +164,7 @@ typedef struct
     FILE *fd;
     typval_st *tv;
     uchar_kt *p_str;
-    listitem_T *p_li;
+    listitem_st *p_li;
     fbuf_st *buf;
     linenr_T buflnum;
     linenr_T lnumlast;
@@ -640,7 +640,7 @@ static int qf_get_next_str_line(qfstate_T *state)
 /// Get the next string from state->p_Li.
 static int qf_get_next_list_line(qfstate_T *state)
 {
-    listitem_T *p_li = state->p_li;
+    listitem_st *p_li = state->p_li;
     size_t len;
 
     // Get the next line from the supplied list
@@ -5370,7 +5370,7 @@ static int qf_add_entries(qf_info_T *qi,
                           uchar_kt *title,
                           int action)
 {
-    listitem_T *li;
+    listitem_st *li;
     dict_st *d;
     qfline_T *old_last = NULL;
     int retval = OK;

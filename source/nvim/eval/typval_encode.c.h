@@ -638,7 +638,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                             break;
                         }
 
-                        for(const listitem_T *li = val_list->lv_first;
+                        for(const listitem_st *li = val_list->lv_first;
                             li != NULL;
                             li = li->li_next)
                         {

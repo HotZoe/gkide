@@ -150,7 +150,7 @@ FUNC_ATTR_NONNULL_ALL
 
         assert(last_container.special_val == NULL);
 
-        listitem_T *obj_li = tv_list_item_alloc();
+        listitem_st *obj_li = tv_list_item_alloc();
         obj_li->li_tv = obj.val;
         tv_list_append(last_container.container.vval.v_list, obj_li);
     }
@@ -191,11 +191,11 @@ FUNC_ATTR_NONNULL_ALL
             list_st *const kv_pair = tv_list_alloc();
             tv_list_append_list(last_container.special_val, kv_pair);
 
-            listitem_T *const key_li = tv_list_item_alloc();
+            listitem_st *const key_li = tv_list_item_alloc();
             key_li->li_tv = key.val;
             tv_list_append(kv_pair, key_li);
 
-            listitem_T *const val_li = tv_list_item_alloc();
+            listitem_st *const val_li = tv_list_item_alloc();
             val_li->li_tv = obj.val;
             tv_list_append(kv_pair, val_li);
         }
@@ -1507,7 +1507,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             for(size_t i = 0; i < mobj.via.array.size; i++)
             {
-                listitem_T *const li = tv_list_item_alloc();
+                listitem_st *const li = tv_list_item_alloc();
                 li->li_tv.v_type = kNvarUnknown;
                 tv_list_append(list, li);
 
@@ -1581,11 +1581,11 @@ msgpack_to_vim_generic_map:
                 list_st *const kv_pair = tv_list_alloc();
                 tv_list_append_list(list, kv_pair);
 
-                listitem_T *const key_li = tv_list_item_alloc();
+                listitem_st *const key_li = tv_list_item_alloc();
                 key_li->li_tv.v_type = kNvarUnknown;
                 tv_list_append(kv_pair, key_li);
 
-                listitem_T *const val_li = tv_list_item_alloc();
+                listitem_st *const val_li = tv_list_item_alloc();
                 val_li->li_tv.v_type = kNvarUnknown;
                 tv_list_append(kv_pair, val_li);
 

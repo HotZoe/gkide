@@ -144,16 +144,16 @@ typedef enum
     VAR_SCOPE = 1,
     /// Scope dictionary which may be accessed without prefix (l:, g:).
     VAR_DEF_SCOPE = 2,
-} scope_type_et;
+} nvlvar_scope_type_et;
 
 /// Structure to hold an item of a list
-typedef struct listitem_S listitem_T;
+typedef struct listitem_s listitem_st;
 
-struct listitem_S
+struct listitem_s
 {
-    listitem_T *li_next;  ///< Next item in list.
-    listitem_T *li_prev;  ///< Previous item in list.
-    typval_st li_tv;       ///< Item value.
+    listitem_st *li_next; ///< Next item in list.
+    listitem_st *li_prev; ///< Previous item in list.
+    typval_st li_tv;      ///< Item value.
 };
 
 /// Structure used by those that are using an item in a list
@@ -161,21 +161,21 @@ typedef struct listwatch_S listwatch_T;
 
 struct listwatch_S
 {
-    listitem_T *lw_item;   ///< Item being watched.
+    listitem_st *lw_item;   ///< Item being watched.
     listwatch_T *lw_next;  ///< Next watcher.
 };
 
 /// Structure to hold info about a list
 struct list_s
 {
-    listitem_T *lv_first;     ///< First item, NULL if none.
-    listitem_T *lv_last;      ///< Last item, NULL if none.
+    listitem_st *lv_first;     ///< First item, NULL if none.
+    listitem_st *lv_last;      ///< Last item, NULL if none.
     int lv_refcount;          ///< Reference count.
     int lv_len;               ///< Number of items.
     listwatch_T *lv_watch;    ///< First watcher, NULL if none.
     int lv_idx;               ///< Index of a cached item, used for
                               ///< optimising repeated l[idx].
-    listitem_T *lv_idx_item;  ///< When not NULL item at index "lv_idx".
+    listitem_st *lv_idx_item;  ///< When not NULL item at index "lv_idx".
     int lv_copyID;            ///< ID used by deepcopy().
     list_st *lv_copylist;      ///< Copied list used by deepcopy().
     nvlvar_lock_status_et lv_lock;    ///< Zero, kNvlVarLocked, kNvlVarFixed.
@@ -188,7 +188,7 @@ struct list_s
 typedef struct
 {
     list_st sl_list; // must be first
-    listitem_T sl_items[10];
+    listitem_st sl_items[10];
 } staticList10_T;
 
 // Structure to hold an item of a Dictionary.
@@ -196,7 +196,7 @@ typedef struct
 // The key is copied into "di_key" to avoid an extra alloc/free for it.
 struct dictitem_S
 {
-    typval_st di_tv;   ///< type and value of the variable
+    typval_st di_tv;    ///< type and value of the variable
     uchar_kt di_flags;  ///< flags (only used for variable)
     uchar_kt di_key[1]; ///< key (actually longer!)
 };
@@ -204,7 +204,7 @@ struct dictitem_S
 #define TV_DICTITEM_STRUCT(KEY_LEN)                      \
     struct                                               \
     {                                                    \
-        typval_st di_tv;           /* scope dictionary */ \
+        typval_st di_tv;          /* scope dictionary */ \
         uint8_t  di_flags;        /* Flags.           */ \
         uchar_kt di_key[KEY_LEN]; /* Key value.       */ \
     }
@@ -237,9 +237,12 @@ typedef enum
 /// Structure representing a Dictionary
 struct dict_s
 {
-    nvlvar_lock_status_et dv_lock;///< Whole dictionary lock status.
-    scope_type_et dv_scope; ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
-                            ///< dictionary represents a scope (i.e. g:, l: ...).
+    /// Whole dictionary lock status.
+    nvlvar_lock_status_et dv_lock;
+    /// Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
+    /// dictionary represents a scope (i.e. g:, l: ...).
+    nvlvar_scope_type_et dv_scope;
+
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
     hashtab_T dv_hashtab;  ///< Hashtab containing all items.

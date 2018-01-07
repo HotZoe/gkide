@@ -36,7 +36,7 @@ int encode_vim_to_echo(garray_T *const packer,
 /// Structure defining state for read_from_list()
 typedef struct
 {
-    const listitem_T *li;  ///< Item currently read.
+    const listitem_st *li;  ///< Item currently read.
     size_t offset;         ///< Byte offset inside the read item.
     size_t li_length;      ///< Length of the string inside the read item.
 } ListReaderState;

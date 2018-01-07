@@ -48,11 +48,11 @@ const char *const tv_empty_string = "";
 ///          and specifically set lv_lock.
 ///
 /// @return [allocated] new list item.
-listitem_T *tv_list_item_alloc(void)
+listitem_st *tv_list_item_alloc(void)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 {
-    return xmalloc(sizeof(listitem_T));
+    return xmalloc(sizeof(listitem_st));
 }
 
 /// Free a list item
@@ -60,7 +60,7 @@ FUNC_ATTR_MALLOC
 /// Also clears the value. Does not touch watchers.
 ///
 /// @param[out]  item  Item to free.
-void tv_list_item_free(listitem_T *const item)
+void tv_list_item_free(listitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     tv_clear(&item->li_tv);
@@ -73,7 +73,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out]  l  List to remove item from.
 /// @param[in,out]  item  Item to remove.
-void tv_list_item_remove(list_st *const l, listitem_T *const item)
+void tv_list_item_remove(list_st *const l, listitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     tv_list_remove_items(l, item, item);
@@ -120,7 +120,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out] l     List from which item is removed.
 /// @param[in]  item  List item being removed.
-void tv_list_watch_fix(list_st *const l, const listitem_T *const item)
+void tv_list_watch_fix(list_st *const l, const listitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     for(listwatch_T *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
@@ -161,7 +161,7 @@ FUNC_ATTR_NONNULL_RET
 void tv_list_free_contents(list_st *const l)
 FUNC_ATTR_NONNULL_ALL
 {
-    for(listitem_T *item = l->lv_first; item != NULL; item = l->lv_first)
+    for(listitem_st *item = l->lv_first; item != NULL; item = l->lv_first)
     {
         // Remove the item before deleting it.
         l->lv_first = item->li_next;
@@ -239,12 +239,12 @@ void tv_list_unref(list_st *const l)
 /// @param[in]  item   First item to remove.
 /// @param[in]  item2  Last item to remove.
 void tv_list_remove_items(list_st *const l,
-                          listitem_T *const item,
-                          listitem_T *const item2)
+                          listitem_st *const item,
+                          listitem_st *const item2)
 FUNC_ATTR_NONNULL_ALL
 {
     // Notify watchers.
-    for(listitem_T *ip = item; ip != item2->li_next; ip = ip->li_next)
+    for(listitem_st *ip = item; ip != item2->li_next; ip = ip->li_next)
     {
         l->lv_len--;
         tv_list_watch_fix(l, ip);
@@ -278,8 +278,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]     item  Item to insert before.
 ///                      If NULL, inserts at the end of the list.
 void tv_list_insert(list_st *const l,
-                    listitem_T *const ni,
-                    listitem_T *const item)
+                    listitem_st *const ni,
+                    listitem_st *const item)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     if(item == NULL)
@@ -315,15 +315,15 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 ///
 /// @param[in,out] tv
 /// Value to insert.
-/// Is copied (@see tv_copy()) to an allocated listitem_T and inserted.
+/// Is copied (@see tv_copy()) to an allocated listitem_st and inserted.
 ///
 /// @param[in]  item
 /// Item to insert before. If NULL, inserts at the end of the list.
 void tv_list_insert_tv(list_st *const l,
                        typval_st *const tv,
-                       listitem_T *const item)
+                       listitem_st *const item)
 {
-    listitem_T *const ni = tv_list_item_alloc();
+    listitem_st *const ni = tv_list_item_alloc();
     tv_copy(tv, &ni->li_tv);
     tv_list_insert(l, ni, item);
 }
@@ -335,7 +335,7 @@ void tv_list_insert_tv(list_st *const l,
 ///
 /// @param[in,out]  item
 /// Item to append.
-void tv_list_append(list_st *const l, listitem_T *const item)
+void tv_list_append(list_st *const l, listitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     if(l->lv_last == NULL)
@@ -362,11 +362,11 @@ FUNC_ATTR_NONNULL_ALL
 /// List to append to.
 ///
 /// @param[in,out] tv
-/// Value to append. Is copied (@see tv_copy()) to an allocated listitem_T.
+/// Value to append. Is copied (@see tv_copy()) to an allocated listitem_st.
 void tv_list_append_tv(list_st *const l, typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 {
-    listitem_T *const li = tv_list_item_alloc();
+    listitem_st *const li = tv_list_item_alloc();
     tv_copy(tv, &li->li_tv);
     tv_list_append(l, li);
 }
@@ -381,7 +381,7 @@ FUNC_ATTR_NONNULL_ALL
 void tv_list_append_list(list_st *const list, list_st *const itemlist)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    listitem_T *const li = tv_list_item_alloc();
+    listitem_st *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarList;
     li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_list = itemlist;
@@ -402,7 +402,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 void tv_list_append_dict(list_st *const list, dict_st *const dict)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    listitem_T *const li = tv_list_item_alloc();
+    listitem_st *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarDict;
     li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_dict = dict;
@@ -456,7 +456,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 void tv_list_append_allocated_string(list_st *const l, char *const str)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    listitem_T *const li = tv_list_item_alloc();
+    listitem_st *const li = tv_list_item_alloc();
     tv_list_append(l, li);
     li->li_tv.v_type = kNvarString;
     li->li_tv.v_lock = kNvlVarUnlocked;
@@ -469,10 +469,10 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// List to append to.
 ///
 /// @param[in]  n
-/// Number to append. Will be recorded in the allocated listitem_T.
+/// Number to append. Will be recorded in the allocated listitem_st.
 void tv_list_append_number(list_st *const l, const number_kt n)
 {
-    listitem_T *const li = tv_list_item_alloc();
+    listitem_st *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarNumber;
     li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_number = n;
@@ -518,11 +518,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         orig->lv_copylist = copy;
     }
 
-    listitem_T *item;
+    listitem_st *item;
 
     for(item = orig->lv_first; item != NULL && !got_int; item = item->li_next)
     {
-        listitem_T *const ni = tv_list_item_alloc();
+        listitem_st *const ni = tv_list_item_alloc();
 
         if(deep)
         {
@@ -557,16 +557,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[out] l1  List to extend.
 /// @param[in]  l2  List to extend with.
 /// @param[in]  bef If not NULL, extends before this item.
-void tv_list_extend(list_st *const l1, list_st *const l2, listitem_T *const bef)
+void tv_list_extend(list_st *const l1, list_st *const l2, listitem_st *const bef)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     int todo = l2->lv_len;
-    listitem_T *const befbef = (bef == NULL ? NULL : bef->li_prev);
-    listitem_T *const saved_next = (befbef == NULL ? NULL : befbef->li_next);
+    listitem_st *const befbef = (bef == NULL ? NULL : bef->li_prev);
+    listitem_st *const saved_next = (befbef == NULL ? NULL : befbef->li_next);
 
     // We also quit the loop when we have inserted the original item count of
     // the list, avoid a hang when we extend a list with itself.
-    for(listitem_T *item = l2->lv_first;
+    for(listitem_st *item = l2->lv_first;
         item != NULL && --todo >= 0;
         item = (item == befbef ? saved_next : item->li_next))
     {
@@ -637,7 +637,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     size_t sumlen = 0;
     bool first = true;
-    listitem_T  *item;
+    listitem_st  *item;
 
     // Stringify each item in the list.
     for(item = l->lv_first; item != NULL && !got_int; item = item->li_next)
@@ -747,8 +747,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return false;
     }
 
-    listitem_T *item1 = l1->lv_first;
-    listitem_T *item2 = l2->lv_first;
+    listitem_st *item1 = l1->lv_first;
+    listitem_st *item2 = l2->lv_first;
 
     for(; item1 != NULL && item2 != NULL;
         item1 = item1->li_next, item2 = item2->li_next)
@@ -771,7 +771,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///                the end, -1 is the last item.
 ///
 /// @return Item at the given index or NULL if @b n is out of range.
-listitem_T *tv_list_find(list_st *const l, int n)
+listitem_st *tv_list_find(list_st *const l, int n)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -796,7 +796,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
 
     int idx;
-    listitem_T *item;
+    listitem_st *item;
 
     // When there is a cached index may start search from there.
     if(l->lv_idx_item != NULL)
@@ -877,7 +877,7 @@ number_kt tv_list_find_nr(list_st *const l,
                             bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const listitem_T *const li = tv_list_find(l, n);
+    const listitem_st *const li = tv_list_find(l, n);
 
     if(li == NULL)
     {
@@ -901,7 +901,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 const char *tv_list_find_str(list_st *const l, const int n)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const listitem_T *const li = tv_list_find(l, n);
+    const listitem_st *const li = tv_list_find(l, n);
 
     if(li == NULL)
     {
@@ -918,7 +918,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  item  Item to search for.
 ///
 /// @return Index of an item or -1 if item is not in the list.
-long tv_list_idx_of_item(const list_st *const l, const listitem_T *const item)
+long tv_list_idx_of_item(const list_st *const l, const listitem_st *const item)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_PURE
 {
@@ -928,7 +928,7 @@ FUNC_ATTR_PURE
     }
 
     long idx = 0;
-    const listitem_T *li;
+    const listitem_st *li;
 
     for(li = l->lv_first; li != NULL && li != item; li = li->li_next)
     {
@@ -2443,7 +2443,7 @@ FUNC_ATTR_NONNULL_ALL
                 if(deep < 0 || deep > 1)
                 {
                     // Recursive: lock/unlock the items the List contains.
-                    for(listitem_T *li = l->lv_first;
+                    for(listitem_st *li = l->lv_first;
                         li != NULL;
                         li = li->li_next)
                     {

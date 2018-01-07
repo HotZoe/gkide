@@ -7362,7 +7362,7 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     // clipboard registers are not saved in the ShaDa file.
     int i = 0;
 
-    for(listitem_T *li = lines->lv_first; li != NULL; li = li->li_next)
+    for(listitem_st *li = lines->lv_first; li != NULL; li = li->li_next)
     {
         if(li->li_tv.v_type != kNvarString)
         {
