@@ -436,7 +436,7 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
     do {                                             \
         TYPVAL_ENCODE_CONV_NIL(tv);                  \
         goto typval_encode_stop_converting_one_item; \
-    } while (0)
+    } while(0)
 
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_ARGS(tv, len)
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_SELF(tv, len)

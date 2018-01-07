@@ -3408,7 +3408,7 @@ void ex_call(exarg_T *eap)
     int doesrange;
     bool failed = false;
     funcdict_T fudi;
-    part_st *partial = NULL;
+    partial_st *partial = NULL;
 
     if(eap->skip)
     {
@@ -4658,12 +4658,15 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                 }
                 else if(type_is)
                 {
-                    if(rettv->v_type == VAR_FUNC && var2.v_type == VAR_FUNC)
+                    if(rettv->v_type == VAR_FUNC
+                       && var2.v_type == VAR_FUNC)
                     {
-                        // strings are considered the same if their value is the same
+                        // strings are considered the
+                        // same if their value is the same
                         n1 = tv_equal(rettv, &var2, ic, false);
                     }
-                    else if(rettv->v_type == VAR_PARTIAL && var2.v_type == VAR_PARTIAL)
+                    else if(rettv->v_type == VAR_PARTIAL
+                            && var2.v_type == VAR_PARTIAL)
                     {
                         n1 = (rettv->vval.v_partial == var2.vval.v_partial);
                     }
@@ -5465,7 +5468,7 @@ static int eval_lev_7(uchar_kt **arg,
         {
             if(**arg == '(') // recursive!
             {
-                part_st *partial;
+                partial_st *partial;
 
                 if(!evaluate)
                 {
@@ -5612,7 +5615,10 @@ static int eval_lev_7(uchar_kt **arg,
 /// FAIL or OK. "*arg" is advanced to after the ']'.
 ///
 /// @todo move to eval/expressions
-static int eval_index(uchar_kt **arg, typval_T *rettv, int evaluate, int verbose)
+static int eval_index(uchar_kt **arg,
+                      typval_T *rettv,
+                      int evaluate,
+                      int verbose)
 {
     bool empty1 = false;
     bool empty2 = false;
@@ -6328,7 +6334,7 @@ static int get_lit_string_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
 }
 
 /// @return the function name of the partial.
-uchar_kt *partial_name(part_st *pt)
+uchar_kt *partial_name(partial_st *pt)
 {
     if(pt->pt_name != NULL)
     {
@@ -6339,7 +6345,7 @@ uchar_kt *partial_name(part_st *pt)
 }
 
 /// @todo move to eval/typval.h
-static void partial_free(part_st *pt)
+static void partial_free(partial_st *pt)
 {
     for(int i = 0; i < pt->pt_argc; i++)
     {
@@ -6366,7 +6372,7 @@ static void partial_free(part_st *pt)
 /// decrement the reference count and free it when it becomes zero.
 ///
 /// @todo ove to eval/typval.h
-void partial_unref(part_st *pt)
+void partial_unref(partial_st *pt)
 {
     if(pt != NULL && --pt->pt_refcount <= 0)
     {
@@ -7084,7 +7090,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         case VAR_PARTIAL:
         {
-            part_st *pt = tv->vval.v_partial;
+            partial_st *pt = tv->vval.v_partial;
 
             // A partial does not have a copyID,
             // because it cannot contain itself.
@@ -7593,14 +7599,14 @@ static int get_lambda_tv(uchar_kt **arg, typval_T *rettv, bool evaluate)
         int flags = 0;
         uchar_kt *p;
         uchar_kt name[20];
-        part_st *pt;
+        partial_st *pt;
         garray_T newlines;
 
         lambda_no++;
         snprintf((char *)name, sizeof(name), "<lambda>%d", lambda_no);
 
         fp = (ufunc_st *)xcalloc(1, sizeof(ufunc_st) + STRLEN(name));
-        pt = (part_st *)xcalloc(1, sizeof(part_st));
+        pt = (partial_st *)xcalloc(1, sizeof(partial_st));
 
         if(pt == NULL)
         {
@@ -7853,7 +7859,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE FUNC_ATTR_NONNULL_ALL
 /// @return name of the function.
 static uchar_kt *deref_func_name(const char *name,
                                int *lenp,
-                               part_st **const partialp,
+                               partial_st **const partialp,
                                bool no_autoload)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
@@ -7878,7 +7884,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 
     if(v != NULL && v->di_tv.v_type == VAR_PARTIAL)
     {
-        part_st *const pt = v->di_tv.vval.v_partial;
+        partial_st *const pt = v->di_tv.vval.v_partial;
 
         if(pt == NULL) // just in case
         {
@@ -7921,7 +7927,7 @@ static int get_func_tv(uchar_kt *name,
                        linenr_T lastline,
                        int *doesrange,
                        int evaluate,
-                       part_st *partial,
+                       partial_st *partial,
                        dict_st *selfdict)
 {
     int ret = OK;
@@ -8203,7 +8209,7 @@ int call_func(const uchar_kt *funcname,
               linenr_T lastline,
               int *doesrange,
               bool evaluate,
-              part_st *partial,
+              partial_st *partial,
               dict_st *selfdict_in)
 {
     int ret = FAIL;
@@ -9424,7 +9430,7 @@ static void f_byteidxcomp(typval_T *argvars,
 
 int func_call(uchar_kt *name,
               typval_T *args,
-              part_st *partial,
+              partial_st *partial,
               dict_st *selfdict,
               typval_T *rettv)
 {
@@ -9489,7 +9495,7 @@ static void f_call(typval_T *argvars,
     }
 
     uchar_kt *func;
-    part_st *partial = NULL;
+    partial_st *partial = NULL;
     dict_st *selfdict = NULL;
 
     if(argvars[0].v_type == VAR_FUNC)
@@ -11079,7 +11085,7 @@ static int filter_map_one(typval_T *tv, typval_T *expr, int map, int *remp)
     }
     else if(expr->v_type == VAR_PARTIAL)
     {
-        part_st *partial = expr->vval.v_partial;
+        partial_st *partial = expr->vval.v_partial;
         const uchar_kt *const s = partial_name(partial);
 
         if(call_func(s,
@@ -11446,7 +11452,7 @@ static void common_function(typval_T *argvars,
     uchar_kt *s;
     uchar_kt *name;
     bool use_string = false;
-    part_st *arg_pt = NULL;
+    partial_st *arg_pt = NULL;
     uchar_kt *trans_name = NULL;
 
     if(argvars[0].v_type == VAR_FUNC)
@@ -11585,7 +11591,7 @@ static void common_function(typval_T *argvars,
 
         if(dict_idx > 0 || arg_idx > 0 || arg_pt != NULL || is_funcref)
         {
-            part_st *const pt = xcalloc(1, sizeof(*pt));
+            partial_st *const pt = xcalloc(1, sizeof(*pt));
 
             // result is a VAR_PARTIAL
             if(arg_idx > 0 || (arg_pt != NULL && arg_pt->pt_argc > 0))
@@ -11740,8 +11746,8 @@ static void f_get(typval_T *argvars,
     }
     else if(tv_is_func(argvars[0]))
     {
-        part_st *pt;
-        part_st fref_pt;
+        partial_st *pt;
+        partial_st fref_pt;
 
         if(argvars[0].v_type == VAR_PARTIAL)
         {
@@ -19754,7 +19760,7 @@ typedef struct
     bool item_compare_numbers;
     bool item_compare_float;
     const char *item_compare_func;
-    part_st *item_compare_partial;
+    partial_st *item_compare_partial;
     dict_st *item_compare_selfdict;
     bool item_compare_func_err;
 } sortinfo_T;
@@ -19891,7 +19897,7 @@ static int item_compare2(const void *s1, const void *s2, bool keep_zero)
     typval_T argv[3];
     int dummy;
     const char *func_name;
-    part_st *partial = sortinfo->item_compare_partial;
+    partial_st *partial = sortinfo->item_compare_partial;
 
     // shortcut after failure in previous call; compare all items equal
     if(sortinfo->item_compare_func_err)
@@ -21834,7 +21840,7 @@ bool callback_call(Callback *const callback,
                    typval_T *const rettv)
 FUNC_ATTR_NONNULL_ALL
 {
-    part_st *partial;
+    partial_st *partial;
     uchar_kt *name;
 
     switch(callback->type)
@@ -24037,7 +24043,7 @@ static int handle_subscript(const char **const arg,
     {
         if(**arg == '(')
         {
-            part_st *pt = NULL;
+            partial_st *pt = NULL;
 
             // need to copy the funcref so that we can clear rettv
             if(evaluate)
@@ -24170,7 +24176,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
     // Turn "dict.Func" into a partial for "Func" with "dict".
     if(fp != NULL && (fp->uf_flags & FC_DICT))
     {
-        part_st *pt = (part_st *)xcalloc(1, sizeof(part_st));
+        partial_st *pt = (partial_st *)xcalloc(1, sizeof(partial_st));
 
         if(pt != NULL)
         {
@@ -24188,7 +24194,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
             else
             {
                 int i;
-                part_st *ret_pt = rettv->vval.v_partial;
+                partial_st *ret_pt = rettv->vval.v_partial;
 
                 // Partial: copy the function name, use selfdict and copy
                 // args. Can't take over name or args, the partial might
@@ -26252,7 +26258,7 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
                                    int skip,
                                    int flags,
                                    funcdict_T *fdp,
-                                   part_st **partial)
+                                   partial_st **partial)
 {
     uchar_kt *name = NULL;
     const uchar_kt *start;

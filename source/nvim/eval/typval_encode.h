@@ -21,7 +21,7 @@ typedef enum
     kMPConvDict,         ///< Convert dict_st *dictionary.
     kMPConvList,         ///< Convert list_st *list.
     kMPConvPairs,        ///< Convert mapping represented as a list_st* of pairs.
-    kMPConvPartial,      ///< Convert part_st* partial.
+    kMPConvPartial,      ///< Convert partial_st* partial.
     kMPConvPartialList,  ///< Convert argc/argv pair coming from a partial.
 } MPConvStackValType;
 
@@ -60,7 +60,7 @@ typedef struct
         struct
         {
             MPConvPartialStage stage;  ///< Stage at which partial is being converted.
-            part_st *pt;             ///< Currently converted partial.
+            partial_st *pt;             ///< Currently converted partial.
         } p;                           ///< State of partial conversion.
 
         struct

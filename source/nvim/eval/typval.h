@@ -21,12 +21,6 @@
 #include "nvim/message.h"
 #include "nvim/macros.h"
 
-/// Type used for VimL VAR_NUMBER values
-typedef int varnumber_T;
-
-/// Type used for VimL VAR_FLOAT values
-typedef double float_T;
-
 /// Maximal possible value of varnumber_T variable
 #define VARNUMBER_MAX INT_MAX
 
@@ -36,10 +30,35 @@ typedef double float_T;
 /// %d printf format specifier for varnumber_T
 #define PRIdVARNUMBER "d"
 
-typedef struct list_s  list_st;
-typedef struct dict_s  dict_st;
-typedef struct part_s  part_st;
-typedef struct ufunc_s ufunc_st;
+/// Type used for VimL VAR_NUMBER values
+typedef int               varnumber_T;
+// =======================string_st
+typedef struct ufunc_s    ufunc_st;
+typedef struct list_s     list_st;
+typedef struct dict_s     dict_st;
+/// Type used for VimL VAR_FLOAT values
+typedef double            float_T;
+/// @todo remove, boolean
+/// =======================special
+typedef struct partial_s  partial_st;
+/// @todo add userdata
+/// =======================userdata_st
+
+/// NvimL(nvl) variable types, @see typval_T::v_type
+typedef enum
+{
+    VAR_UNKNOWN = 0,  ///< Unknown (unspecified) value.
+    VAR_NUMBER,       ///< Number, number_kt, typval_T::v_number
+    VAR_STRING,       ///< String, string_st, typval_T::v_string
+    VAR_FUNC,         ///< User Function, ufunc_st, typval_T::v_string
+                      ///< is the function name.
+    VAR_LIST,         ///< List, list_st, typval_T::v_list
+    VAR_DICT,         ///< Dictionary, dict_st, typval_T::v_dict
+    VAR_FLOAT,        ///< Float, float_kt, typval_T::v_float
+    VAR_SPECIAL,      ///< Special value (true, false, null),
+                      ///< special_st, typval_T::v_special
+    VAR_PARTIAL,      ///< Partial, partial_st, typval_T::v_partial
+} VarType;
 
 typedef enum
 {
@@ -53,7 +72,7 @@ typedef struct
     union
     {
         uchar_kt *funcref;
-        part_st *partial;
+        partial_st *partial;
     } data;
     CallbackType type;
 } Callback;
@@ -87,22 +106,6 @@ typedef enum
     VAR_FIXED = 2,     ///< Locked forever.
 } VarLockStatus;
 
-/// VimL variable types, for use in typval_T::v_type
-typedef enum
-{
-    VAR_UNKNOWN = 0,  ///< Unknown (unspecified) value.
-    VAR_NUMBER,       ///< typval_T: Number, @b v_number is used.
-    VAR_STRING,       ///< typval_T: String, @b v_string is used.
-    VAR_FUNC,         ///< typval_T: Function reference, @b v_string
-                      ///<           is used as function name.
-    VAR_LIST,         ///< typval_T: List, @b v_list is used.
-    VAR_DICT,         ///< typval_T: Dictionary, @b v_dict is used.
-    VAR_FLOAT,        ///< typval_T: Floating-point value, @b v_float is used.
-    VAR_SPECIAL,      ///< typval_T: Special value (true, false, null),
-                      ///<           @b v_special is used.
-    VAR_PARTIAL,      ///< typval_T: Partial, @b v_partial is used.
-} VarType;
-
 /// Structure that holds an internal variable value
 typedef struct
 {
@@ -116,7 +119,7 @@ typedef struct
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
         list_st *v_list;   ///< List for VAR_LIST, can be NULL.
         dict_st *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
-        part_st *v_partial;      ///< Closure: function with args.
+        partial_st *v_partial;      ///< Closure: function with args.
     } vval;               ///< Actual value.
 } typval_T;
 
@@ -282,7 +285,7 @@ struct ufunc_s
 #define MAX_FUNC_ARGS   20
 
 /// hold partial information
-struct part_s
+struct partial_s
 {
     int pt_refcount;   ///< Reference count.
     uchar_kt *pt_name; ///< Function name; when NULL use pt_func->name.

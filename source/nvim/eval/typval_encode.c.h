@@ -370,21 +370,24 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
         case VAR_PARTIAL:
         {
-            part_st *const pt = tv->vval.v_partial;
+            partial_st *const pt = tv->vval.v_partial;
             (void)pt;
 
             TYPVAL_ENCODE_CONV_FUNC_START(tv,
                                           (pt == NULL
-                                           ? NULL : partial_name(pt)));
+                                           ? NULL
+                                           : partial_name(pt)));
 
             _mp_push(*mpstack, ((MPConvStackVal) {
                 .type = kMPConvPartial,
                 .tv = tv,
                 .saved_copyID = copyID - 1,
-                .data = { .p = { .stage = kMPConvPartialArgs,
-                                 .pt = tv->vval.v_partial,
-                               },
-                        },
+                .data = {
+                    .p = {
+                        .stage = kMPConvPartialArgs,
+                        .pt = tv->vval.v_partial,
+                    },
+                },
             }));
 
             break;
@@ -916,7 +919,7 @@ typval_encode_stop_converting_one_item:
 
             case kMPConvPartial:
             {
-                part_st *const pt = cur_mpsv->data.p.pt;
+                partial_st *const pt = cur_mpsv->data.p.pt;
                 tv = cur_mpsv->tv;
 
                 switch(cur_mpsv->data.p.stage)
