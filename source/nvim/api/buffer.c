@@ -32,6 +32,7 @@
 ///
 /// @param buffer   Buffer handle
 /// @param[out] err Error details, if any
+///
 /// @return Line count
 Integer nvim_buf_line_count(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1)
