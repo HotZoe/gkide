@@ -334,7 +334,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                     }
                     else
                     {
-                        dictitem_T *const di = tv_dict_item_alloc_len(s, len);
+                        dictitem_st *const di = tv_dict_item_alloc_len(s, len);
 
                         if(tv_dict_add(cur.tv->vval.v_dict, di) == FAIL)
                         {
@@ -485,7 +485,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                                 decode_create_map_special_dict(cur.tv);
                                 assert(cur.tv->v_type == kNvarDict);
 
-                                dictitem_T *const val_di =
+                                dictitem_st *const val_di =
                                     tv_dict_find(cur.tv->vval.v_dict,
                                                  S_LEN("_VAL"));
 

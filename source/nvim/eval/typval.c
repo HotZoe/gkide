@@ -1118,14 +1118,14 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 
     if(newtv)
     {
-        dictitem_T *const v = tv_dict_item_alloc_len(S_LEN("new"));
+        dictitem_st *const v = tv_dict_item_alloc_len(S_LEN("new"));
         tv_copy(newtv, &v->di_tv);
         tv_dict_add(argv[2].vval.v_dict, v);
     }
 
     if(oldtv)
     {
-        dictitem_T *const v = tv_dict_item_alloc_len(S_LEN("old"));
+        dictitem_st *const v = tv_dict_item_alloc_len(S_LEN("old"));
         tv_copy(oldtv, &v->di_tv);
         tv_dict_add(argv[2].vval.v_dict, v);
     }
@@ -1161,13 +1161,13 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 /// @param[in]  key_len  Key length.
 ///
 /// @return [allocated] new dictionary item.
-dictitem_T *tv_dict_item_alloc_len(const char *const key, const size_t key_len)
+dictitem_st *tv_dict_item_alloc_len(const char *const key, const size_t key_len)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC
 {
-    dictitem_T *const di = xmalloc(offsetof(dictitem_T, di_key) + key_len + 1);
+    dictitem_st *const di = xmalloc(offsetof(dictitem_st, di_key) + key_len + 1);
 
     memcpy(di->di_key, key, key_len);
     di->di_key[key_len] = NUL;
@@ -1183,7 +1183,7 @@ FUNC_ATTR_MALLOC
 /// @param[in]  key  Key, is copied to the new item.
 ///
 /// @return [allocated] new dictionary item.
-dictitem_T *tv_dict_item_alloc(const char *const key)
+dictitem_st *tv_dict_item_alloc(const char *const key)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1195,7 +1195,7 @@ FUNC_ATTR_MALLOC
 /// Free a dictionary item, also clearing the value
 ///
 /// @param  item  Item to free.
-void tv_dict_item_free(dictitem_T *const item)
+void tv_dict_item_free(dictitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     tv_clear(&item->di_tv);
@@ -1211,12 +1211,12 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  di  Item to copy.
 ///
 /// @return [allocated] new dictionary item.
-static dictitem_T *tv_dict_item_copy(dictitem_T *const di)
+static dictitem_st *tv_dict_item_copy(dictitem_st *const di)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    dictitem_T *const new_di = tv_dict_item_alloc((const char *)di->di_key);
+    dictitem_st *const new_di = tv_dict_item_alloc((const char *)di->di_key);
     tv_copy(&di->di_tv, &new_di->di_tv);
     return new_di;
 }
@@ -1225,7 +1225,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param  dict  Dictionary to remove item from.
 /// @param  item  Item to remove.
-void tv_dict_item_remove(dict_st *const dict, dictitem_T *const item)
+void tv_dict_item_remove(dict_st *const dict, dictitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     hashitem_st *const hi = hash_find(&dict->dv_hashtab, item->di_key);
@@ -1285,7 +1285,7 @@ FUNC_ATTR_NONNULL_ALL
     HASHTAB_ITER(&d->dv_hashtab, hi, {
         // Remove the item before deleting it, just in
         // case there is something recursive causing trouble.
-        dictitem_T *const di = TV_DICT_HI2DI(hi);
+        dictitem_st *const di = TV_DICT_HI2DI(hi);
         hash_remove(&d->dv_hashtab, hi);
         tv_dict_item_free(di);
     });
@@ -1365,7 +1365,7 @@ void tv_dict_unref(dict_st *const d)
 /// @param[in]  len  Key length. If negative, then strlen(key) is used.
 ///
 /// @return found item or NULL if nothing was found.
-dictitem_T *tv_dict_find(const dict_st *const d,
+dictitem_st *tv_dict_find(const dict_st *const d,
                          const char *const key,
                          const ptrdiff_t len)
 FUNC_ATTR_NONNULL_ARG(2)
@@ -1402,7 +1402,7 @@ number_kt tv_dict_get_number(const dict_st *const d, const char *const key)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    dictitem_T *const di = tv_dict_find(d, key, -1);
+    dictitem_st *const di = tv_dict_find(d, key, -1);
 
     if(di == NULL)
     {
@@ -1457,7 +1457,7 @@ const char *tv_dict_get_string_buf(const dict_st *const d,
                                    char *const numbuf)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const dictitem_T *const di = tv_dict_find(d, key, -1);
+    const dictitem_st *const di = tv_dict_find(d, key, -1);
 
     if(di == NULL)
     {
@@ -1485,7 +1485,7 @@ const char *tv_dict_get_string_buf_chk(const dict_st *const d,
                                        const char *const def)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const dictitem_T *const di = tv_dict_find(d, key, key_len);
+    const dictitem_st *const di = tv_dict_find(d, key, key_len);
 
     if(di == NULL)
     {
@@ -1513,7 +1513,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     result->type = kCallbackNone;
 
-    dictitem_T *const di = tv_dict_find(d, key, key_len);
+    dictitem_st *const di = tv_dict_find(d, key, key_len);
 
     if(di == NULL)
     {
@@ -1542,7 +1542,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  item  Item to add.
 ///
 /// @return FAIL if key already exists.
-int tv_dict_add(dict_st *const d, dictitem_T *const item)
+int tv_dict_add(dict_st *const d, dictitem_st *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     return hash_add(&d->dv_hashtab, item->di_key);
@@ -1562,7 +1562,7 @@ int tv_dict_add_list(dict_st *const d,
                      list_st *const list)
 FUNC_ATTR_NONNULL_ALL
 {
-    dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
+    dictitem_st *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarList;
@@ -1593,7 +1593,7 @@ int tv_dict_add_dict(dict_st *const d,
                      dict_st *const dict)
 FUNC_ATTR_NONNULL_ALL
 {
-    dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
+    dictitem_st *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarDict;
@@ -1622,7 +1622,7 @@ int tv_dict_add_nr(dict_st *const d,
                    const size_t key_len,
                    const number_kt nr)
 {
-    dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
+    dictitem_st *const item = tv_dict_item_alloc_len(key, key_len);
     item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarNumber;
     item->di_tv.vval.v_number = nr;
@@ -1650,7 +1650,7 @@ int tv_dict_add_str(dict_st *const d,
                     const char *const val)
 FUNC_ATTR_NONNULL_ALL
 {
-    dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
+    dictitem_st *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarString;
@@ -1706,7 +1706,7 @@ FUNC_ATTR_NONNULL_ALL
     const size_t arg_errmsg_len = strlen(arg_errmsg);
 
     TV_DICT_ITER(d2, di2, {
-        dictitem_T *const di1 =
+        dictitem_st *const di1 =
             tv_dict_find(d1, (const char *)di2->di_key, -1);
 
         if(d1->dv_scope != VAR_NO_SCOPE)
@@ -1727,7 +1727,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(di1 == NULL)
         {
-            dictitem_T *const new_di = tv_dict_item_copy(di2);
+            dictitem_st *const new_di = tv_dict_item_copy(di2);
 
             if(tv_dict_add(d1, new_di) == FAIL)
             {
@@ -1800,7 +1800,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     }
 
     TV_DICT_ITER(d1, di1, {
-        dictitem_T *const di2 =
+        dictitem_st *const di2 =
             tv_dict_find(d2, (const char *)di1->di_key, -1);
 
         if(di2 == NULL)
@@ -1858,7 +1858,7 @@ dict_st *tv_dict_copy(const vimconv_T *const conv,
             break;
         }
 
-        dictitem_T *new_di;
+        dictitem_st *new_di;
 
         if(conv == NULL || conv->vc_type == CONV_NONE)
         {

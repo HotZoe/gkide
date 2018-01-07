@@ -104,7 +104,7 @@ REAL_FATTR_NONNULL_ALL REAL_FATTR_ALWAYS_INLINE;
 static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick)
 {
 #ifndef NDEBUG
-    dictitem_T *const changedtick_di = tv_dict_find(buf->b_vars, S_LEN("changedtick"));
+    dictitem_st *const changedtick_di = tv_dict_find(buf->b_vars, S_LEN("changedtick"));
     assert(changedtick_di != NULL);
     assert(changedtick_di->di_tv.v_type == kNvarNumber);
     assert(changedtick_di->di_tv.v_lock == kNvlVarFixed);
@@ -114,7 +114,7 @@ static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick
     assert(changedtick_di->di_flags == (DI_FLAGS_RO|DI_FLAGS_FIX));
     #endif
 
-    assert(changedtick_di == (dictitem_T *)&buf->changedtick_di);
+    assert(changedtick_di == (dictitem_st *)&buf->changedtick_di);
     assert(&buf->b_changedtick == &buf->changedtick_di.di_tv.vval.v_number);
 #endif
 

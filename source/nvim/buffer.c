@@ -1905,7 +1905,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
         .di_key = "changedtick",
     };
 
-    tv_dict_add(buf->b_vars, (dictitem_T *)&buf->changedtick_di);
+    tv_dict_add(buf->b_vars, (dictitem_st *)&buf->changedtick_di);
 }
 
 /// Add a file name to the buffer list.

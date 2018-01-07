@@ -58,7 +58,7 @@ static inline void create_special_dict(typval_st *const rettv,
 FUNC_ATTR_NONNULL_ALL
 {
     dict_st *const dict = tv_dict_alloc();
-    dictitem_T *const type_di = tv_dict_item_alloc_len(S_LEN("_TYPE"));
+    dictitem_st *const type_di = tv_dict_item_alloc_len(S_LEN("_TYPE"));
 
     type_di->di_tv.v_type = kNvarList;
     type_di->di_tv.v_lock = kNvlVarUnlocked;
@@ -66,7 +66,7 @@ FUNC_ATTR_NONNULL_ALL
     type_di->di_tv.vval.v_list->lv_refcount++;
     tv_dict_add(dict, type_di);
 
-    dictitem_T *const val_di = tv_dict_item_alloc_len(S_LEN("_VAL"));
+    dictitem_st *const val_di = tv_dict_item_alloc_len(S_LEN("_VAL"));
 
     val_di->di_tv = val;
     tv_dict_add(dict, val_di);
@@ -174,7 +174,7 @@ FUNC_ATTR_NONNULL_ALL
                    || key.val.vval.v_string == NULL
                    || *key.val.vval.v_string == NUL));
 
-            dictitem_T *const obj_di =
+            dictitem_st *const obj_di =
                 tv_dict_item_alloc((const char *)key.val.vval.v_string);
 
             tv_clear(&key.val);
@@ -1545,8 +1545,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             for(size_t i = 0; i < mobj.via.map.size; i++)
             {
-                dictitem_T *const di =
-                    xmallocz(offsetof(dictitem_T, di_key)
+                dictitem_st *const di =
+                    xmallocz(offsetof(dictitem_st, di_key)
                              + mobj.via.map.ptr[i].key.via.str.size);
 
                 memcpy(&di->di_key[0],

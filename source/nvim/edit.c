@@ -4485,8 +4485,8 @@ static void ins_compl_add_list(list_st *list)
 /// Add completions from a dict.
 static void ins_compl_add_dict(dict_st *dict)
 {
-    dictitem_T *di_words;
-    dictitem_T *di_refresh;
+    dictitem_st *di_words;
+    dictitem_st *di_refresh;
 
     // Check for optional "refresh" item.
     compl_opt_refresh_always = false;

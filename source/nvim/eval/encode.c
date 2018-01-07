@@ -903,8 +903,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
         return false;
     }
 
-    const dictitem_T *type_di;
-    const dictitem_T *val_di;
+    const dictitem_st *type_di;
+    const dictitem_st *val_di;
 
     if((type_di = tv_dict_find(spdict, S_LEN("_TYPE"))) == NULL
        || type_di->di_tv.v_type != kNvarList

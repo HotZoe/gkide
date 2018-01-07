@@ -5294,7 +5294,7 @@ int get_errorlist_properties(win_st *wp, dict_st *what, dict_st *retdict)
     }
 
     int status = OK;
-    dictitem_T *di;
+    dictitem_st *di;
     int flags = QF_GETLIST_NONE;
     int qf_idx = qi->qf_curlist; // default is the current list
 
@@ -5496,7 +5496,7 @@ static int qf_add_entries(qf_info_T *qi,
 
 static int qf_set_properties(qf_info_T *qi, dict_st *what, int action)
 {
-    dictitem_T *di;
+    dictitem_st *di;
     int retval = FAIL;
     int newlist = false;
 

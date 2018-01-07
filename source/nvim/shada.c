@@ -2075,7 +2075,7 @@ FUNC_ATTR_NONNULL_ALL
                 if(!HASHITEM_EMPTY(hi))                                      \
                 {                                                            \
                     todo--;                                                  \
-                    dictitem_T *const di = TV_DICT_HI2DI(hi);                \
+                    dictitem_st *const di = TV_DICT_HI2DI(hi);                \
                     const size_t key_len = strlen((const char *)hi->hi_key); \
                     msgpack_pack_str(spacker, key_len);                      \
                                                                              \

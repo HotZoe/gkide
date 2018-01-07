@@ -459,8 +459,8 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                 break;
             }
 
-            const dictitem_T *type_di;
-            const dictitem_T *val_di;
+            const dictitem_st *type_di;
+            const dictitem_st *val_di;
 
             if(TYPVAL_ENCODE_ALLOW_SPECIALS
                && tv->vval.v_dict->dv_hashtab.ht_used == 2
@@ -837,7 +837,7 @@ typval_encode_stop_converting_one_item:
                     cur_mpsv->data.d.hi++;
                 }
 
-                dictitem_T *const di = TV_DICT_HI2DI(cur_mpsv->data.d.hi);
+                dictitem_st *const di = TV_DICT_HI2DI(cur_mpsv->data.d.hi);
                 cur_mpsv->data.d.todo--;
                 cur_mpsv->data.d.hi++;
 

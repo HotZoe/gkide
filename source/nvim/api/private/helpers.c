@@ -99,7 +99,7 @@ bool try_end(error_st *err)
 /// @param[out] err Details of an error that may have occurred
 Object dict_get_value(dict_st *dict, String key, error_st *err)
 {
-    dictitem_T *const di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
+    dictitem_st *const di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
 
     if(di == NULL)
     {
@@ -154,7 +154,7 @@ Object dict_set_var(dict_st *dict,
         return rv;
     }
 
-    dictitem_T *di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
+    dictitem_st *di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
 
     if(di != NULL)
     {
@@ -819,7 +819,7 @@ bool object_to_vim(Object obj, typval_st *tv, error_st *err)
                     return false;
                 }
 
-                dictitem_T *const di = tv_dict_item_alloc(key.data);
+                dictitem_st *const di = tv_dict_item_alloc(key.data);
 
                 if(!object_to_vim(item.value, &di->di_tv, err))
                 {

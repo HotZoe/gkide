@@ -160,7 +160,7 @@ typedef struct lval_S
     long ll_n2;           ///< Second index for list range.
     int ll_empty2;        ///< Second index is empty: [i:].
     dict_st *ll_dict;      ///< The Dictionary or NULL.
-    dictitem_T *ll_di;    ///< The dictitem or NULL.
+    dictitem_st *ll_di;    ///< The dictitem or NULL.
     uchar_kt *ll_newkey;    ///< New key for Dict in allocated memory or NULL.
 } lval_T;
 
@@ -295,7 +295,7 @@ typedef struct
 {
     dict_st *fd_dict;    ///< Dictionary used.
     uchar_kt *fd_newkey; ///< New key in "dict" in allocated memory.
-    dictitem_T *fd_di;  ///< Dictionary item used.
+    dictitem_st *fd_di;  ///< Dictionary item used.
 } funcdict_T;
 
 /// Info used by a @b :for loop.
@@ -658,7 +658,7 @@ void eval_init(void)
         type_list->lv_lock = kNvlVarFixed;
         type_list->lv_refcount = 1;
 
-        dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
+        dictitem_st *const di = tv_dict_item_alloc(msgpack_type_names[i]);
         di->di_flags |= DI_FLAGS_RO | DI_FLAGS_FIX;
         di->di_tv.v_type = kNvarList;
         di->di_tv.vval.v_list = type_list;
@@ -1952,7 +1952,7 @@ static void list_hashtable_vars(hashtable_st *ht,
                                 int *first)
 {
     hashitem_st *hi;
-    dictitem_T *di;
+    dictitem_st *di;
     int todo = (int)ht->ht_used;
 
     for(hi = ht->ht_array; todo > 0 && !got_int; ++hi)
@@ -2453,7 +2453,7 @@ static uchar_kt *get_lval(uchar_kt *const name,
                         const int fne_flags)
 FUNC_ATTR_NONNULL_ARG(1, 3)
 {
-    dictitem_T *v;
+    dictitem_st *v;
     typval_st var1;
     typval_st var2;
     int empty1 = FALSE;
@@ -2949,7 +2949,7 @@ static void set_var_lval(lval_T *lp,
 {
     int cc;
     listitem_st *ri;
-    dictitem_T *di;
+    dictitem_st *di;
 
     if(lp->ll_tv == NULL)
     {
@@ -3126,7 +3126,7 @@ notify:
             }
             else
             {
-                dictitem_T *di = lp->ll_di;
+                dictitem_st *di = lp->ll_di;
 
                 tv_dict_watcher_notify(dict,
                                        (char *)di->di_key, lp->ll_tv, &oldtv);
@@ -3726,7 +3726,7 @@ static int do_unlet_var(lval_T *const lp, uchar_kt *const name_end, int forceit)
         {
             // unlet a Dictionary item.
             dict_st *d = lp->ll_dict;
-            dictitem_T *di = lp->ll_di;
+            dictitem_st *di = lp->ll_di;
             bool watched = tv_dict_is_watched(d);
             char *key = NULL;
             typval_st oldtv;
@@ -3788,7 +3788,7 @@ FUNC_ATTR_NONNULL_ALL
         }
         else
         {
-            dictitem_T *const di = find_var_in_ht(ht, *name, "", 0, false);
+            dictitem_st *const di = find_var_in_ht(ht, *name, "", 0, false);
             d = di->di_tv.vval.v_dict;
         }
 
@@ -3807,7 +3807,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(hi != NULL && !HASHITEM_EMPTY(hi))
         {
-            dictitem_T *const di = TV_DICT_HI2DI(hi);
+            dictitem_st *const di = TV_DICT_HI2DI(hi);
 
             if(var_check_fixed(di->di_flags, (const char *)name, TV_CSTRING)
                || var_check_ro(di->di_flags, (const char *)name, TV_CSTRING)
@@ -3870,7 +3870,7 @@ static int do_lock_var(lval_T *lp,
     if(lp->ll_tv == NULL)
     {
         // Normal name or expanded name.
-        dictitem_T *const di = find_var((const char *)lp->ll_name,
+        dictitem_st *const di = find_var((const char *)lp->ll_name,
                                         lp->ll_name_len, NULL, true);
 
         if(di == NULL)
@@ -5952,7 +5952,7 @@ static int eval_index(uchar_kt **arg,
                     }
                 }
 
-                dictitem_T *const item =
+                dictitem_st *const item =
                     tv_dict_find(rettv->vval.v_dict, (const char *)key, len);
 
                 if(item == NULL && verbose)
@@ -7243,7 +7243,7 @@ static int get_dict_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
     typval_st tvkey;
     typval_st tv;
     uchar_kt *key = NULL;
-    dictitem_T *item;
+    dictitem_st *item;
     uchar_kt *start = skipwhite(*arg + 1);
     char buf[NUMBUFLEN];
 
@@ -7868,7 +7868,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
         *partialp = NULL;
     }
 
-    dictitem_T *const v = find_var(name, (size_t)(*lenp), NULL, no_autoload);
+    dictitem_st *const v = find_var(name, (size_t)(*lenp), NULL, no_autoload);
 
     if(v != NULL && v->di_tv.v_type == kNvarUfunc)
     {
@@ -10920,7 +10920,7 @@ static void filter_map(typval_st *argvars, typval_st *rettv, int map)
     listitem_st *li;
     listitem_st *nli;
     list_st *l = NULL;
-    dictitem_T *di;
+    dictitem_st *di;
     hashtable_st *ht;
     hashitem_st *hi;
     dict_st *d = NULL;
@@ -11716,7 +11716,7 @@ static void f_get(typval_st *argvars,
 {
     listitem_st *li;
     list_st *l;
-    dictitem_T *di;
+    dictitem_st *di;
     dict_st *d;
     typval_st *tv = NULL;
 
@@ -11908,7 +11908,7 @@ static void f_getbufinfo(typval_st *argvars,
 
         if(sel_d != NULL)
         {
-            dictitem_T *di;
+            dictitem_st *di;
             filtered = true;
             di = tv_dict_find(sel_d, S_LEN("buflisted"));
 
@@ -12133,7 +12133,7 @@ static void f_getbufvar(typval_st *argvars,
         {
             // Look up the variable.
             // Let getbufvar({nr}, "") return the "b:" dictionary.
-            dictitem_T *const v = find_var_in_ht(&curbuf->b_vars->dv_hashtab,
+            dictitem_st *const v = find_var_in_ht(&curbuf->b_vars->dv_hashtab,
                                                  'b',
                                                  varname,
                                                  strlen(varname),
@@ -13193,7 +13193,7 @@ static void f_gettabvar(typval_st *argvars,
 {
     win_st *oldcurwin;
     tabpage_st *tp, *oldtabpage;
-    dictitem_T  *v;
+    dictitem_st  *v;
     bool done = false;
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -13424,7 +13424,7 @@ static void f_getwinvar(typval_st *argvars,
 static void getwinvar(typval_st *argvars, typval_st *rettv, int off)
 {
     win_st *win, *oldcurwin;
-    dictitem_T *v;
+    dictitem_st *v;
     tabpage_st *tp = NULL;
     tabpage_st *oldtabpage = NULL;
     bool done = false;
@@ -14703,7 +14703,7 @@ static void f_islocked(typval_st *argvars,
                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     lval_T lv;
-    dictitem_T  *di;
+    dictitem_st  *di;
     rettv->vval.v_number = -1;
 
     const uchar_kt *const end = get_lval((uchar_kt *)tv_get_string(&argvars[0]),
@@ -16210,7 +16210,7 @@ static void f_matchadd(typval_st *argvars,
                     return;
                 }
 
-                dictitem_T *di =
+                dictitem_st *di =
                     tv_dict_find(argvars[4].vval.v_dict, S_LEN("conceal"));
 
                 if(di != NULL)
@@ -16284,7 +16284,7 @@ static void f_matchaddpos(typval_st *argvars,
                     return;
                 }
 
-                dictitem_T *di =
+                dictitem_st *di =
                     tv_dict_find(argvars[4].vval.v_dict, S_LEN("conceal"));
 
                 if(di != NULL)
@@ -17295,7 +17295,7 @@ static void f_remove(typval_st *argvars,
     dict_st *d;
     list_st *l;
     listitem_st *li;
-    dictitem_T *di;
+    dictitem_st *di;
     listitem_st *item;
     listitem_st *item2;
     const char *const arg_errmsg = N_("remove() argument");
@@ -18854,7 +18854,7 @@ static void f_setcharsearch(typval_st *argvars,
                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     dict_st *d;
-    dictitem_T *di;
+    dictitem_st *di;
 
     if(argvars[0].v_type != kNvarDict)
     {
@@ -19211,7 +19211,7 @@ static void f_setmatches(typval_st *argvars,
         {
             int i = 0;
             d = li->li_tv.vval.v_dict;
-            dictitem_T *const di = tv_dict_find(d, S_LEN("pattern"));
+            dictitem_st *const di = tv_dict_find(d, S_LEN("pattern"));
 
             if(di == NULL)
             {
@@ -19230,7 +19230,7 @@ static void f_setmatches(typval_st *argvars,
                 {
                     char buf[5];
                     snprintf(buf, sizeof(buf), "pos%d", i);
-                    dictitem_T *const pos_di = tv_dict_find(d, buf, -1);
+                    dictitem_st *const pos_di = tv_dict_find(d, buf, -1);
 
                     if(pos_di != NULL)
                     {
@@ -19263,7 +19263,7 @@ static void f_setmatches(typval_st *argvars,
 
             const int priority = (int)tv_dict_get_number(d, "priority");
             const int id = (int)tv_dict_get_number(d, "id");
-            dictitem_T *const conceal_di = tv_dict_find(d, S_LEN("conceal"));
+            dictitem_st *const conceal_di = tv_dict_find(d, S_LEN("conceal"));
 
             const char *const conceal =
                 (conceal_di != NULL ? tv_get_string(&conceal_di->di_tv) : NULL);
@@ -21919,7 +21919,7 @@ static void add_timer_info(typval_st *rettv, timer_st *timer)
                    S_LEN("repeat"),
                    (timer->repeat_count < 0 ? -1 : timer->repeat_count));
 
-    dictitem_T *di = tv_dict_item_alloc("callback");
+    dictitem_st *di = tv_dict_item_alloc("callback");
 
     if(tv_dict_add(dict, di) == FAIL)
     {
@@ -22023,7 +22023,7 @@ static void f_timer_start(typval_st *argvars,
             return;
         }
 
-        dictitem_T *const di = tv_dict_find(dict, S_LEN("repeat"));
+        dictitem_st *const di = tv_dict_find(dict, S_LEN("repeat"));
 
         if(di != NULL)
         {
@@ -22644,7 +22644,7 @@ static void f_winrestview(typval_st *argvars,
     }
     else
     {
-        dictitem_T *di;
+        dictitem_st *di;
 
         if((di = tv_dict_find(dict, S_LEN("lnum"))) != NULL)
         {
@@ -23961,13 +23961,13 @@ uchar_kt *set_cmdarg(exarg_T *eap, uchar_kt *oldarg)
 static int get_var_tv(const char *name,
                       int len,
                       typval_st *rettv,
-                      dictitem_T **dip,
+                      dictitem_st **dip,
                       int verbose,
                       int no_autoload)
 {
     int ret = OK;
     typval_st *tv = NULL;
-    dictitem_T  *v;
+    dictitem_st  *v;
     v = find_var(name, (size_t)len, NULL, no_autoload);
 
     if(v != NULL)
@@ -24247,7 +24247,7 @@ void set_selfdict(typval_st *rettv, dict_st *selfdict)
 // Careful: "a:0" variables don't have a name.
 // When "htp" is not NULL we are writing to the variable, set "htp" to the
 // hashtable_st used.
-static dictitem_T *find_var(const char *const name,
+static dictitem_st *find_var(const char *const name,
                             const size_t name_len,
                             hashtable_st **htp,
                             int no_autoload)
@@ -24265,7 +24265,7 @@ static dictitem_T *find_var(const char *const name,
         return NULL;
     }
 
-    dictitem_T *const ret =
+    dictitem_st *const ret =
         find_var_in_ht(ht,
                        *name,
                        varname,
@@ -24293,7 +24293,7 @@ static dictitem_T *find_var(const char *const name,
 /// @return
 /// pointer to the dictionary item with the found
 /// variable or NULL if it was not found.
-static dictitem_T *find_var_in_ht(hashtable_st *const ht,
+static dictitem_st *find_var_in_ht(hashtable_st *const ht,
                                   int htname,
                                   const char *const varname,
                                   const size_t varname_len,
@@ -24309,30 +24309,30 @@ FUNC_ATTR_NONNULL_ALL
         switch(htname)
         {
             case 's':
-                return (dictitem_T *)&SCRIPT_SV(current_SID)->sv_var;
+                return (dictitem_st *)&SCRIPT_SV(current_SID)->sv_var;
 
             case 'g':
-                return (dictitem_T *)&globvars_var;
+                return (dictitem_st *)&globvars_var;
 
             case 'v':
-                return (dictitem_T *)&vimvars_var;
+                return (dictitem_st *)&vimvars_var;
 
             case 'b':
-                return (dictitem_T *)&curbuf->b_bufvar;
+                return (dictitem_st *)&curbuf->b_bufvar;
 
             case 'w':
-                return (dictitem_T *)&curwin->w_winvar;
+                return (dictitem_st *)&curwin->w_winvar;
 
             case 't':
-                return (dictitem_T *)&curtab->tp_winvar;
+                return (dictitem_st *)&curtab->tp_winvar;
 
             case 'l':
                 return (current_funccal == NULL
-                        ? NULL : (dictitem_T *)&current_funccal->l_vars_var);
+                        ? NULL : (dictitem_st *)&current_funccal->l_vars_var);
 
             case 'a':
                 return (current_funccal == NULL
-                        ? NULL : (dictitem_T *)&current_funccal->l_avars_var);
+                        ? NULL : (dictitem_st *)&current_funccal->l_avars_var);
         }
 
         return NULL;
@@ -24551,7 +24551,7 @@ static hashtable_st *find_var_ht(const char *name,
 /// Returns NULL when it doesn't exist.
 uchar_kt *get_var_value(const char *const name)
 {
-    dictitem_T  *v;
+    dictitem_st  *v;
     v = find_var(name, strlen(name), NULL, false);
 
     if(v == NULL)
@@ -24638,7 +24638,7 @@ static void vars_clear_ext(hashtable_st *ht, int free_val)
 {
     int todo;
     hashitem_st *hi;
-    dictitem_T *v;
+    dictitem_st *v;
     hash_lock(ht);
     todo = (int)ht->ht_used;
 
@@ -24672,14 +24672,14 @@ static void vars_clear_ext(hashtable_st *ht, int free_val)
 /// Clear the variable value and free the dictitem.
 static void delete_var(hashtable_st *ht, hashitem_st *hi)
 {
-    dictitem_T *di = TV_DICT_HI2DI(hi);
+    dictitem_st *di = TV_DICT_HI2DI(hi);
     hash_remove(ht, hi);
     tv_clear(&di->di_tv);
     xfree(di);
 }
 
 /// List the value of one internal variable.
-static void list_one_var(dictitem_T *v, const char *prefix, int *first)
+static void list_one_var(dictitem_st *v, const char *prefix, int *first)
 {
     char *const s = encode_tv2echo(&v->di_tv, NULL);
 
@@ -24777,7 +24777,7 @@ static void set_var(const char *name,
                     const bool copy)
 FUNC_ATTR_NONNULL_ALL
 {
-    dictitem_T *v;
+    dictitem_st *v;
     hashtable_st *ht;
     dict_st *dict;
 
@@ -24881,7 +24881,7 @@ FUNC_ATTR_NONNULL_ALL
             return;
         }
 
-        v = xmalloc(sizeof(dictitem_T) + strlen(varname));
+        v = xmalloc(sizeof(dictitem_st) + strlen(varname));
         STRCPY(v->di_key, varname);
 
         if(tv_dict_add(dict, v) == FAIL)
@@ -25514,7 +25514,7 @@ void ex_function(exarg_T *eap)
     int indent;
     int nesting;
     uchar_kt *skip_until = NULL;
-    dictitem_T  *v;
+    dictitem_st  *v;
     funcdict_T fudi;
     static int func_nr = 0; // number for nameless function
     int paren;
@@ -27479,7 +27479,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     func_call_st  *fc;
     int save_did_emsg;
     static int depth = 0;
-    dictitem_T *v;
+    dictitem_st *v;
     int fixvar_idx = 0; // index in fixvar[]
     int ai;
     bool islambda = false;
@@ -27550,7 +27550,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     {
         // Set l:self to "selfdict".  Use "name" to avoid a warning from
         // some compiler that checks the destination size.
-        v = (dictitem_T *)&fc->fixvar[fixvar_idx++];
+        v = (dictitem_st *)&fc->fixvar[fixvar_idx++];
 
 #ifndef __clang_analyzer__
         name = v->di_key;
@@ -27571,13 +27571,13 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     init_var_dict(&fc->l_avars, &fc->l_avars_var, VAR_SCOPE);
 
     add_nr_var(&fc->l_avars,
-              (dictitem_T *)&fc->fixvar[fixvar_idx++],
+              (dictitem_st *)&fc->fixvar[fixvar_idx++],
               "0",
               (number_kt)(argcount - fp->uf_args.ga_len));
 
     // Use "name" to avoid a warning from some compiler
     // that checks the destination size.
-    v = (dictitem_T *)&fc->fixvar[fixvar_idx++];
+    v = (dictitem_st *)&fc->fixvar[fixvar_idx++];
 
 #ifndef __clang_analyzer__
     name = v->di_key;
@@ -27597,12 +27597,12 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     // Set a:name to named arguments.
     // Set a:N to the "..." arguments.
     add_nr_var(&fc->l_avars,
-               (dictitem_T *)&fc->fixvar[fixvar_idx++],
+               (dictitem_st *)&fc->fixvar[fixvar_idx++],
                "firstline",
                (number_kt)firstline);
 
     add_nr_var(&fc->l_avars,
-               (dictitem_T *)&fc->fixvar[fixvar_idx++],
+               (dictitem_st *)&fc->fixvar[fixvar_idx++],
                "lastline",
                (number_kt)lastline);
 
@@ -27630,12 +27630,12 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
         if(fixvar_idx < FIXVAR_CNT && STRLEN(name) <= VAR_SHORT_LEN)
         {
-            v = (dictitem_T *)&fc->fixvar[fixvar_idx++];
+            v = (dictitem_st *)&fc->fixvar[fixvar_idx++];
             v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
         }
         else
         {
-            v = xmalloc(sizeof(dictitem_T) + STRLEN(name));
+            v = xmalloc(sizeof(dictitem_st) + STRLEN(name));
             v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX | DI_FLAGS_ALLOC;
         }
 
@@ -28032,7 +28032,7 @@ static void free_funccal(func_call_st *fc, int free_val)
 }
 
 /// Add a number variable "name" to dict "dp" with value "nr".
-static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, number_kt nr)
+static void add_nr_var(dict_st *dp, dictitem_st *v, char *name, number_kt nr)
 {
 #ifndef __clang_analyzer__
     STRCPY(v->di_key, name);
@@ -28451,7 +28451,7 @@ hashitem_st *find_hi_in_scoped_ht(const char *name, hashtable_st **pht)
 }
 
 /// Search variable in parent scope.
-dictitem_T *find_var_in_scoped_ht(const char *name,
+dictitem_st *find_var_in_scoped_ht(const char *name,
                                   const size_t namelen,
                                   int no_autoload)
 {
@@ -28461,7 +28461,7 @@ dictitem_T *find_var_in_scoped_ht(const char *name,
         return NULL;
     }
 
-    dictitem_T *v = NULL;
+    dictitem_st *v = NULL;
     func_call_st *old_current_funccal = current_funccal;
     const char *varname;
 

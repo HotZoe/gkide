@@ -211,7 +211,7 @@ struct dictitem_s
 
 /// Structure to hold a scope dictionary
 ///
-/// @warning Must be compatible with dictitem_T.
+/// @warning Must be compatible with dictitem_st.
 ///
 /// For use in find_var_in_ht to pretend that it found
 /// dictionary item when it finds scope dictionary.
@@ -222,9 +222,9 @@ typedef TV_DICTITEM_STRUCT(1) scope_dict_st;
 /// @warning Must be compatible with #scope_dict_st.
 ///
 /// Also used for a variable.
-typedef TV_DICTITEM_STRUCT() dictitem_T;
+typedef TV_DICTITEM_STRUCT() dictitem_st;
 
-/// Flags for dictitem_T::di_flags
+/// Flags for dictitem_st::di_flags
 typedef enum
 {
     DI_FLAGS_RO = 1,      ///< Read-only value
@@ -332,7 +332,7 @@ typedef struct list_stack_s
 
 /// Convert a hashitem pointer to a dictitem pointer
 #define TV_DICT_HI2DI(hi) \
-    ((dictitem_T *)((hi)->hi_key - offsetof(dictitem_T, di_key)))
+    ((dictitem_st *)((hi)->hi_key - offsetof(dictitem_st, di_key)))
 
 static inline long tv_list_len(const list_st *const l)
 REAL_FATTR_PURE
@@ -413,12 +413,12 @@ extern bool tv_in_free_unref_items;
 /// Iterate over a dictionary
 ///
 /// @param[in] d     Dictionary to iterate over.
-/// @param     di    Name of the variable with current dictitem_T entry.
+/// @param     di    Name of the variable with current dictitem_st entry.
 /// @param     code  Cycle body.
 #define TV_DICT_ITER(d, di, code)                          \
     HASHTAB_ITER(&(d)->dv_hashtab, di##hi_, {              \
         {                                                  \
-            dictitem_T *const di = TV_DICT_HI2DI(di##hi_); \
+            dictitem_st *const di = TV_DICT_HI2DI(di##hi_); \
             {                                              \
                 code                                       \
             }                                              \
