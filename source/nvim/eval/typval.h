@@ -56,7 +56,7 @@ typedef enum
     kNvarSpecial,      ///< Special value (true, false, null),
                        ///< special_st, typval_T::v_special
     kNvarPartial,      ///< Partial, partial_st, typval_T::v_partial
-} nvl_var_type_et;
+} nvlvar_type_et;
 
 typedef enum
 {
@@ -88,13 +88,13 @@ typedef struct dict_watcher
     bool busy;
 } dict_watcher_st;
 
-/// Special variable values, @see special_st
+/// nvl special variable value, @see special_st
 typedef enum
 {
     kSpecialVarFalse,  ///< v:false
     kSpecialVarTrue,   ///< v:true
     kSpecialVarNull,   ///< v:null
-} SpecialVarValue;
+} nvlvar_special_value_et;
 
 /// Variable lock status for typval_T::v_lock
 typedef enum
@@ -107,12 +107,12 @@ typedef enum
 /// Structure that holds an internal variable value
 typedef struct
 {
-    nvl_var_type_et v_type; ///< Variable type.
+    nvlvar_type_et v_type; ///< Variable type.
     VarLockStatus v_lock; ///< Variable lock status.
     union typval_vval_union
     {
         number_kt v_number;      ///< Number, for kNvarNumber.
-        SpecialVarValue v_special; ///< Special value, for kNvarSpecial.
+        nvlvar_special_value_et v_special; ///< Special value, for kNvarSpecial.
         float_kt v_float;  ///< Floating-point number, for kNvarFloat.
         uchar_kt *v_string; ///< String, for kNvarString and kNvarUfunc, can be NULL.
         list_st *v_list;   ///< List for kNvarList, can be NULL.

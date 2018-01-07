@@ -53,7 +53,7 @@ FUNC_ATTR_NONNULL_ALL
     };
 }
 
-/// Array mapping values from SpecialVarValue enum to names
+/// Array mapping values from nvlvar_special_value_et enum to names
 extern const char *const encode_special_var_names[];
 
 /// First codepoint in high surrogates block

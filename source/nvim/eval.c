@@ -9015,8 +9015,9 @@ static void assert_bool(typval_T *argvars, bool is_true)
         || error)
        && (argvars[0].v_type != kNvarSpecial
            || (argvars[0].vval.v_special
-               != (SpecialVarValue) (is_true
-                                     ? kSpecialVarTrue : kSpecialVarFalse))))
+               != (nvlvar_special_value_et) (is_true
+                                              ? kSpecialVarTrue
+                                              : kSpecialVarFalse))))
     {
         prepare_assert_error(&ga);
 
@@ -23718,7 +23719,8 @@ void set_vim_var_nr(const VimVarIndex idx, const number_kt val)
 ///
 /// @param[in]  idx  Index of variable to set.
 /// @param[in]  val  Value to set to.
-void set_vim_var_special(const VimVarIndex idx, const SpecialVarValue val)
+void set_vim_var_special(const VimVarIndex idx,
+                         const nvlvar_special_value_et val)
 {
     tv_clear(&vimvars[idx].vv_tv);
     vimvars[idx].vv_type = kNvarSpecial;
