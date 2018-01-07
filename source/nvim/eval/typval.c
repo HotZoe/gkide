@@ -3095,7 +3095,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         case kNvarNumber:
         {
-            snprintf(buf, NUMBUFLEN, "%" PRIdVARNUMBER, tv->vval.v_number);
+            snprintf(buf, NUMBUFLEN, "%" NumberKtPrtFmt, tv->vval.v_number);
             return buf;
         }
 

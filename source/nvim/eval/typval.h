@@ -28,7 +28,7 @@
 #define VARNUMBER_MIN INT_MIN
 
 /// %d printf format specifier for number_kt
-#define PRIdVARNUMBER "d"
+#define NumberKtPrtFmt    "d"
 
 typedef int               number_kt;
 // =======================string_st
@@ -243,13 +243,13 @@ struct dict_s
     /// dictionary represents a scope (i.e. g:, l: ...).
     nvlvar_scope_type_et dv_scope;
 
-    int dv_refcount;        ///< Reference count.
-    int dv_copyID;          ///< ID used when recursivery traversing a value.
-    hashtable_st dv_hashtab;  ///< Hashtab containing all items.
-    dict_st *dv_copydict;   ///< Copied dict used by deepcopy().
-    dict_st *dv_used_next;  ///< Next dictionary in used dictionaries list.
-    dict_st *dv_used_prev;  ///< Previous dictionary in used dictionaries list.
-    queue_st watchers;      ///< Dictionary key watchers set by user code.
+    int dv_refcount;         ///< Reference count.
+    int dv_copyID;           ///< ID used when recursivery traversing a value.
+    hashtable_st dv_hashtab; ///< Hashtab containing all items.
+    dict_st *dv_copydict;    ///< Copied dict used by deepcopy().
+    dict_st *dv_used_next;   ///< Next dictionary in used dictionaries list.
+    dict_st *dv_used_prev;   ///< Previous dictionary in used dictionaries list.
+    queue_st watchers;       ///< Dictionary key watchers set by user code.
 };
 
 /// Type used for script ID

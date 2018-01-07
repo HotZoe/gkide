@@ -8989,7 +8989,7 @@ void assert_inrange(typval_st *argvars)
         char msg[55];
 
         vim_snprintf(msg, sizeof(msg),
-                     "range %" PRIdVARNUMBER " - %" PRIdVARNUMBER ",",
+                     "range %" NumberKtPrtFmt " - %" NumberKtPrtFmt ",",
                      lower, upper);
 
         fill_assert_error(&ga,
