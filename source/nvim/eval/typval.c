@@ -943,10 +943,10 @@ FUNC_ATTR_PURE
     return idx;
 }
 
-/// Perform all necessary cleanup for a dict_watcher_T instance
+/// Perform all necessary cleanup for a dict_watcher_st instance
 ///
 /// @param  watcher  Watcher to free.
-static void tv_dict_watcher_free(dict_watcher_T *watcher)
+static void tv_dict_watcher_free(dict_watcher_st *watcher)
 FUNC_ATTR_NONNULL_ALL
 {
     callback_free(&watcher->callback);
@@ -971,7 +971,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         return;
     }
 
-    dict_watcher_T *const watcher = xmalloc(sizeof(dict_watcher_T));
+    dict_watcher_st *const watcher = xmalloc(sizeof(dict_watcher_st));
     watcher->key_pattern = xmemdupz(key_pattern, key_pattern_len);
     watcher->key_pattern_len = key_pattern_len;
     watcher->callback = callback;
@@ -1040,7 +1040,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     }
 
     queue_st *w = NULL;
-    dict_watcher_T *watcher = NULL;
+    dict_watcher_st *watcher = NULL;
     bool matched = false;
     QUEUE_FOREACH(w, &dict->watchers)
     {
@@ -1071,7 +1071,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @param[in]  key      Key to check.
 ///
 /// @return true if key matches, false otherwise.
-static bool tv_dict_watcher_matches(dict_watcher_T *watcher,
+static bool tv_dict_watcher_matches(dict_watcher_st *watcher,
                                     const char *const key)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1135,7 +1135,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 
     QUEUE_FOREACH(w, &dict->watchers)
     {
-        dict_watcher_T *watcher = tv_dict_watcher_node_data(w);
+        dict_watcher_st *watcher = tv_dict_watcher_node_data(w);
 
         if(!watcher->busy && tv_dict_watcher_matches(watcher, key))
         {
@@ -1294,7 +1294,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         queue_st *w = QUEUE_HEAD(&d->watchers);
         queue_remove(w);
-        dict_watcher_T *watcher = tv_dict_watcher_node_data(w);
+        dict_watcher_st *watcher = tv_dict_watcher_node_data(w);
         tv_dict_watcher_free(watcher);
     }
 

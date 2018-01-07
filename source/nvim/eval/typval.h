@@ -86,9 +86,9 @@ typedef struct dict_watcher
     queue_st node;
     /// prevent recursion if the dict is changed in the callback
     bool busy;
-} dict_watcher_T;
+} dict_watcher_st;
 
-/// Special variable values
+/// Special variable values, @see special_st
 typedef enum
 {
     kSpecialVarFalse,  ///< v:false
@@ -439,20 +439,20 @@ static inline bool tv_get_float_chk(const typval_T *const tv,
     return false;
 }
 
-static inline dict_watcher_T *tv_dict_watcher_node_data(queue_st *q)
+static inline dict_watcher_st *tv_dict_watcher_node_data(queue_st *q)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_NONNULL_RET
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT
 REAL_FATTR_ALWAYS_INLINE;
 
-/// Compute the dict_watcher_T address from a queue_st node.
+/// Compute the dict_watcher_st address from a queue_st node.
 ///
 /// This only exists for .asan-blacklist
 /// (ASAN doesn't handle QUEUE_DATA pointer arithmetic).
-static inline dict_watcher_T *tv_dict_watcher_node_data(queue_st *q)
+static inline dict_watcher_st *tv_dict_watcher_node_data(queue_st *q)
 {
-    return QUEUE_DATA(q, dict_watcher_T, node);
+    return QUEUE_DATA(q, dict_watcher_st, node);
 }
 
 static inline bool tv_is_func(const typval_T tv)
