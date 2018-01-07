@@ -47,7 +47,7 @@ typedef struct
             dict_st **dictp;   ///< Location where that dictionary is stored.
                               ///< Normally it is &.tv->vval.v_dict, but not when
                               ///< converting partials.
-            hashitem_T *hi;   ///< Currently converted dictionary item.
+            hashitem_st *hi;   ///< Currently converted dictionary item.
             size_t todo;      ///< Amount of items left to process.
         } d;                  ///< State of dictionary conversion.
 

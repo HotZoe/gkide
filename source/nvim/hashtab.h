@@ -37,7 +37,7 @@ typedef size_t hash_kt;
 /// to the value. Instead, it is assumed that the key is contained within the
 /// value, so that you can get a pointer to the value subtracting an offset
 /// from the pointer to the key. This reduces the size of this item by 1/3.
-typedef struct hashitem_S
+typedef struct hashitem_s
 {
     /// Cached hash number for hi_key.
     hash_kt hi_hash;
@@ -45,11 +45,11 @@ typedef struct hashitem_S
     /// Item key.
     ///
     /// Possible values mean the following:
-    /// NULL                      : Item was never used.
-    /// HI_KEY_REMOVED            : Item was removed.
-    /// (Any other pointer value) : Item is currently being used.
+    /// - NULL            : Item was never used.
+    /// - HI_KEY_REMOVED  : Item was removed.
+    /// - Any other value : Item is currently being used.
     uchar_kt *hi_key;
-} hashitem_T;
+} hashitem_st;
 
 /// Initial size for a hashtable.
 /// Our items are relatively small and growing is expensive,
@@ -73,10 +73,10 @@ typedef struct hashtable_s
 
     /// points to the array
     /// allocated when it's not @b ht_smallarray
-    hashitem_T *ht_array;
+    hashitem_st *ht_array;
 
     /// for initial array
-    hashitem_T ht_smallarray[HT_INIT_SIZE];
+    hashitem_st ht_smallarray[HT_INIT_SIZE];
 } hashtab_T;
 
 /// Iterate over a hashtab
@@ -89,7 +89,7 @@ typedef struct hashtable_s
     {                                                               \
         hashtab_T *const hi##ht_ = (ht);                            \
         size_t hi##todo_ = hi##ht_->ht_used;                        \
-        for(hashitem_T *hi = hi##ht_->ht_array; hi##todo_; hi++)    \
+        for(hashitem_st *hi = hi##ht_->ht_array; hi##todo_; hi++)    \
         {                                                           \
             if(!HASHITEM_EMPTY(hi))                                 \
             {                                                       \

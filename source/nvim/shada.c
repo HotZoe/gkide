@@ -2070,7 +2070,7 @@ FUNC_ATTR_NONNULL_ALL
         if(d != NULL)                                                        \
         {                                                                    \
             size_t todo = d->dv_hashtab.ht_used;                             \
-            for(const hashitem_T *hi= d->dv_hashtab.ht_array; todo; hi++)    \
+            for(const hashitem_st *hi= d->dv_hashtab.ht_array; todo; hi++)    \
             {                                                                \
                 if(!HASHITEM_EMPTY(hi))                                      \
                 {                                                            \

@@ -1228,7 +1228,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 void tv_dict_item_remove(dict_st *const dict, dictitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
-    hashitem_T *const hi = hash_find(&dict->dv_hashtab, item->di_key);
+    hashitem_st *const hi = hash_find(&dict->dv_hashtab, item->di_key);
 
     if(HASHITEM_EMPTY(hi))
     {
@@ -1377,7 +1377,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return NULL;
     }
 
-    hashitem_T *const hi
+    hashitem_st *const hi
         = (len < 0
            ? hash_find(&d->dv_hashtab, (const uchar_kt *)key)
            : hash_find_len(&d->dv_hashtab, key, (size_t)len));

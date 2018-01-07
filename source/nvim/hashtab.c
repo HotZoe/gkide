@@ -64,12 +64,12 @@ void hash_clear(hashtab_T *ht)
 /// Free the array of a hash table and all contained values.
 ///
 /// @param off
-/// the offset from start of value to start of key (@see hashitem_T).
+/// the offset from start of value to start of key (@see hashitem_st).
 void hash_clear_all(hashtab_T *ht, unsigned int off)
 {
     size_t todo = ht->ht_used;
 
-    for(hashitem_T *hi = ht->ht_array; todo > 0; ++hi)
+    for(hashitem_st *hi = ht->ht_array; todo > 0; ++hi)
     {
         if(!HASHITEM_EMPTY(hi))
         {
@@ -93,7 +93,7 @@ void hash_clear_all(hashtab_T *ht, unsigned int off)
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table is
 /// changed in any way.
-hashitem_T *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
+hashitem_st *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
 {
     return hash_lookup(ht, (const char *)key, STRLEN(key), hash_hash(key));
 }
@@ -112,7 +112,7 @@ hashitem_T *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table
 /// is changed in any way.
-hashitem_T *hash_find_len(const hashtab_T *const ht,
+hashitem_st *hash_find_len(const hashtab_T *const ht,
                           const char *const key,
                           const size_t len)
 {
@@ -133,7 +133,7 @@ hashitem_T *hash_find_len(const hashtab_T *const ht,
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table
 /// is changed in any way.
-hashitem_T *hash_lookup(const hashtab_T *const ht,
+hashitem_st *hash_lookup(const hashtab_T *const ht,
                         const char *const key,
                         const size_t key_len,
                         const hash_kt hash)
@@ -146,14 +146,14 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     // - skip over a removed item
     // - return if the item matches
     hash_kt idx = hash & ht->ht_mask;
-    hashitem_T *hi = &ht->ht_array[idx];
+    hashitem_st *hi = &ht->ht_array[idx];
 
     if(hi->hi_key == NULL)
     {
         return hi;
     }
 
-    hashitem_T *freeitem = NULL;
+    hashitem_st *freeitem = NULL;
 
     if(hi->hi_key == HI_KEY_REMOVED)
     {
@@ -222,7 +222,7 @@ void hash_debug_results(void)
 ///
 /// @param key
 /// Pointer to the key for the new item. The key has to be contained
-/// in the new item (@see hashitem_T). Must not be NULL.
+/// in the new item (@see hashitem_st). Must not be NULL.
 ///
 /// @return
 /// - OK, if success.
@@ -230,7 +230,7 @@ void hash_debug_results(void)
 int hash_add(hashtab_T *ht, uchar_kt *key)
 {
     hash_kt hash = hash_hash(key);
-    hashitem_T *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
+    hashitem_st *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
 
     if(!HASHITEM_EMPTY(hi))
     {
@@ -250,11 +250,11 @@ int hash_add(hashtab_T *ht, uchar_kt *key)
 ///
 /// @param key
 /// Pointer to the key for the new item. The key has to be contained
-/// in the new item (@see hashitem_T). Must not be NULL.
+/// in the new item (@see hashitem_st). Must not be NULL.
 ///
 /// @param hash
 /// The precomputed hash value for the key.
-void hash_add_item(hashtab_T *ht, hashitem_T *hi, uchar_kt *key, hash_kt hash)
+void hash_add_item(hashtab_T *ht, hashitem_st *hi, uchar_kt *key, hash_kt hash)
 {
     ht->ht_used++;
 
@@ -276,7 +276,7 @@ void hash_add_item(hashtab_T *ht, hashitem_T *hi, uchar_kt *key, hash_kt hash)
 ///
 /// @param hi The hash item to be removed.
 ///           It must have been obtained with hash_lookup().
-void hash_remove(hashtab_T *ht, hashitem_T *hi)
+void hash_remove(hashtab_T *ht, hashitem_st *hi)
 {
     ht->ht_used--;
     hi->hi_key = HI_KEY_REMOVED;
@@ -394,17 +394,17 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 
     // Make sure that oldarray and newarray do not overlap,
     // so that copying is possible.
-    hashitem_T temparray[HT_INIT_SIZE];
+    hashitem_st temparray[HT_INIT_SIZE];
 
-    hashitem_T *oldarray = keep_smallarray
+    hashitem_st *oldarray = keep_smallarray
                            ? memcpy(temparray, ht->ht_smallarray, sizeof(temparray))
                            : ht->ht_array;
 
-    hashitem_T *newarray = newarray_is_small
+    hashitem_st *newarray = newarray_is_small
                            ? ht->ht_smallarray
-                           : xmalloc(sizeof(hashitem_T) * newsize);
+                           : xmalloc(sizeof(hashitem_st) * newsize);
 
-    memset(newarray, 0, sizeof(hashitem_T) * newsize);
+    memset(newarray, 0, sizeof(hashitem_st) * newsize);
 
     // Move all the items from the old array to the new one, placing them in
     // the right spot. The new array won't have any removed items, thus this
@@ -412,7 +412,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     hash_kt newmask = newsize - 1;
     size_t todo = ht->ht_used;
 
-    for(hashitem_T *olditem = oldarray; todo > 0; ++olditem)
+    for(hashitem_st *olditem = oldarray; todo > 0; ++olditem)
     {
         if(HASHITEM_EMPTY(olditem))
         {
@@ -423,7 +423,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
         // the algorithm to find an item in hash_lookup(). But we only
         // need to search for a NULL key, thus it's simpler.
         hash_kt newi = olditem->hi_hash & newmask;
-        hashitem_T *newitem = &newarray[newi];
+        hashitem_st *newitem = &newarray[newi];
 
         if(newitem->hi_key != NULL)
         {

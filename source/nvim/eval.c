@@ -1264,7 +1264,7 @@ static void prepare_vimvar(int idx, typval_st *save_tv)
 /// When no longer defined, remove the variable from the v: hashtable.
 static void restore_vimvar(int idx, typval_st *save_tv)
 {
-    hashitem_T  *hi;
+    hashitem_st  *hi;
     vimvars[idx].vv_tv = *save_tv;
 
     if(vimvars[idx].vv_type == kNvarUnknown)
@@ -1951,7 +1951,7 @@ static void list_hashtable_vars(hashtab_T *ht,
                                 int empty,
                                 int *first)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     dictitem_T *di;
     int todo = (int)ht->ht_used;
 
@@ -3798,7 +3798,7 @@ FUNC_ATTR_NONNULL_ALL
             return FAIL;
         }
 
-        hashitem_T *hi = hash_find(ht, (const uchar_kt *)varname);
+        hashitem_st *hi = hash_find(ht, (const uchar_kt *)varname);
 
         if(HASHITEM_EMPTY(hi))
         {
@@ -3974,7 +3974,7 @@ uchar_kt *get_user_var_name(expand_T *xp, int idx)
     static size_t wdone;
     static size_t tdone;
     static size_t vidx;
-    static hashitem_T *hi;
+    static hashitem_st *hi;
     hashtab_T *ht;
 
     if(idx == 0)
@@ -7144,7 +7144,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 bool set_ref_in_functions(int copyID)
 {
     int todo;
-    hashitem_T *hi = NULL;
+    hashitem_st *hi = NULL;
     bool abort = false;
     ufunc_st *fp;
     todo = (int)func_hashtab.ht_used;
@@ -9844,7 +9844,7 @@ static void f_count(typval_st *argvars,
     {
         int todo;
         dict_st *d;
-        hashitem_T *hi;
+        hashitem_st *hi;
 
         if((d = argvars[0].vval.v_dict) != NULL)
         {
@@ -10922,7 +10922,7 @@ static void filter_map(typval_st *argvars, typval_st *rettv, int map)
     list_st *l = NULL;
     dictitem_T *di;
     hashtab_T *ht;
-    hashitem_T *hi;
+    hashitem_st *hi;
     dict_st *d = NULL;
     typval_st save_val;
     typval_st save_key;
@@ -24301,7 +24301,7 @@ static dictitem_T *find_var_in_ht(hashtab_T *const ht,
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     if(varname_len == 0)
     {
@@ -24437,7 +24437,7 @@ static hashtab_T *find_var_ht_dict(const char *name,
                                    const char **varname,
                                    dict_st **d)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     *d = NULL;
 
     if(name_len == 0)
@@ -24637,7 +24637,7 @@ void vars_clear(hashtab_T *ht)
 static void vars_clear_ext(hashtab_T *ht, int free_val)
 {
     int todo;
-    hashitem_T *hi;
+    hashitem_st *hi;
     dictitem_T *v;
     hash_lock(ht);
     todo = (int)ht->ht_used;
@@ -24670,7 +24670,7 @@ static void vars_clear_ext(hashtab_T *ht, int free_val)
 
 /// Delete a variable from hashtab "ht" at item "hi".
 /// Clear the variable value and free the dictitem.
-static void delete_var(hashtab_T *ht, hashitem_T *hi)
+static void delete_var(hashtab_T *ht, hashitem_st *hi)
 {
     dictitem_T *di = TV_DICT_HI2DI(hi);
     hash_remove(ht, hi);
@@ -25520,7 +25520,7 @@ void ex_function(exarg_T *eap)
     int paren;
     hashtab_T *ht;
     int todo;
-    hashitem_T  *hi;
+    hashitem_st  *hi;
     int sourcing_lnum_off;
 
     // ":function" without argument: list functions.
@@ -26655,7 +26655,7 @@ static void list_func_head(ufunc_st *fp, int indent)
 /// @return NULL for unknown function.
 static ufunc_st *find_func(const uchar_kt *name)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     hi = hash_find(&func_hashtab, name);
 
     if(!HASHITEM_EMPTY(hi))
@@ -26669,7 +26669,7 @@ static ufunc_st *find_func(const uchar_kt *name)
 #if defined(EXITFREE)
 void free_all_functions(void)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     ufunc_st *fp;
     uint64_t skipped = 0;
     uint64_t todo = 1;
@@ -26852,7 +26852,7 @@ static void func_do_profile(ufunc_st *fp)
 /// Dump the profiling results for all functions in file "fd".
 void func_dump_profile(FILE *fd)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     int todo;
     ufunc_st *fp;
     ufunc_st **sorttab;
@@ -27128,7 +27128,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 uchar_kt *get_user_func_name(expand_T *xp, int idx)
 {
     static size_t done;
-    static hashitem_T *hi;
+    static hashitem_st *hi;
     ufunc_st *fp;
 
     if(idx == 0)
@@ -27313,7 +27313,7 @@ void ex_delfunction(exarg_T *eap)
 /// @return true if the entry was deleted, false if it wasn't found.
 static bool func_remove(ufunc_st *fp)
 {
-    hashitem_T *hi = hash_find(&func_hashtab, UF2HIKEY(fp));
+    hashitem_st *hi = hash_find(&func_hashtab, UF2HIKEY(fp));
 
     if(!HASHITEM_EMPTY(hi))
     {
@@ -28407,7 +28407,7 @@ static var_flavour_T var_flavour(uchar_kt *varname)
 }
 
 /// Search hashitem in parent scope.
-hashitem_T *find_hi_in_scoped_ht(const char *name, hashtab_T **pht)
+hashitem_st *find_hi_in_scoped_ht(const char *name, hashtab_T **pht)
 {
     if(current_funccal == NULL || current_funccal->func->uf_scoped == NULL)
     {
@@ -28415,7 +28415,7 @@ hashitem_T *find_hi_in_scoped_ht(const char *name, hashtab_T **pht)
     }
 
     funccall_T *old_current_funccal = current_funccal;
-    hashitem_T *hi = NULL;
+    hashitem_st *hi = NULL;
     const size_t namelen = strlen(name);
     const char *varname;
 
@@ -28516,8 +28516,8 @@ const void *var_shada_iter(const void *const iter,
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(2, 3)
 {
-    const hashitem_T *hi;
-    const hashitem_T *hifirst = globvarht.ht_array;
+    const hashitem_st *hi;
+    const hashitem_st *hifirst = globvarht.ht_array;
     const size_t hinum = (size_t) globvarht.ht_mask + 1;
     *name = NULL;
 
@@ -28539,7 +28539,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
     }
     else
     {
-        hi = (const hashitem_T *) iter;
+        hi = (const hashitem_st *) iter;
     }
 
     *name = (char *)TV_DICT_HI2DI(hi)->di_key;

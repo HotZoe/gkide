@@ -835,7 +835,7 @@ static void free_buffer_stuff(fbuf_st *buf, int free_options)
     // Avoid loosing b:changedtick when deleting buffer:
     // clearing variables implies using clear_tv() on
     // b:changedtick and that sets changedtick to zero.
-    hashitem_T *const changedtick_hi =
+    hashitem_st *const changedtick_hi =
         hash_find(&buf->b_vars->dv_hashtab,
                   (const uchar_kt *)"changedtick");
 

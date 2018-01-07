@@ -1274,7 +1274,7 @@ static void profile_reset(void)
 
     // Reset functions.
     size_t n  = func_hashtab.ht_used;
-    hashitem_T *hi = func_hashtab.ht_array;
+    hashitem_st *hi = func_hashtab.ht_array;
 
     for(; n > (size_t)0; hi++)
     {

@@ -2494,7 +2494,7 @@ parse_line:
 
                     if(mfp != NULL)
                     {
-                        hashitem_T *hi;
+                        hashitem_st *hi;
 
                         // Don't add identical matches.
                         // Add all cscope tags, because they are all listed.

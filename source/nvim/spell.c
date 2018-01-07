@@ -2323,7 +2323,7 @@ static void spell_load_cb(uchar_kt *fname, void *cookie)
 void count_common_word(slang_T *lp, uchar_kt *word, int len, int count)
 {
     hash_kt hash;
-    hashitem_T *hi;
+    hashitem_st *hi;
     wordcount_T *wc;
     uchar_kt buf[MAXWLEN];
     uchar_kt *p;
@@ -2367,7 +2367,7 @@ static int score_wordcount_adj(slang_T *slang,
                                uchar_kt *word,
                                bool split)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     wordcount_T *wc;
     int bonus;
     int newscore;
@@ -6959,7 +6959,7 @@ static void suggest_try_soundalike_finish(void)
     langp_T *lp;
     slang_T *slang;
     int todo;
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     // Do this for all languages that support sound folding
     // and for which a .sug file has been loaded.
@@ -7016,7 +7016,7 @@ static void add_sound_suggest(suginfo_T *su,
     int wc;
     int goodscore;
     hash_kt hash;
-    hashitem_T *hi;
+    hashitem_st *hi;
     sftword_T *sft;
     int bc, gc;
     int limit;
@@ -7358,7 +7358,7 @@ static bool similar_chars(slang_T *slang, int c1, int c2)
 {
     int m1, m2;
     uchar_kt buf[MB_MAXBYTES + 1];
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     if(c1 >= 256)
     {
@@ -7613,7 +7613,7 @@ static void add_banned(suginfo_T *su, uchar_kt *word)
 {
     uchar_kt *s;
     hash_kt hash;
-    hashitem_T *hi;
+    hashitem_st *hi;
     hash = hash_hash(word);
     const size_t word_len = STRLEN(word);
     hi = hash_lookup(&su->su_banned, (const char *)word, word_len, hash);
@@ -9929,7 +9929,7 @@ static void dump_word(slang_T *slang,
 
         if(dumpflags & DUMPFLAG_COUNT)
         {
-            hashitem_T *hi;
+            hashitem_st *hi;
 
             // Include the word count for ":spelldump!".
             hi = hash_find(&slang->sl_wordcount, tw);

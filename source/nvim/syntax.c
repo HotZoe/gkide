@@ -3483,7 +3483,7 @@ static keyentry_T *match_keyword(uchar_kt *keyword,
                                  hashtab_T *ht,
                                  stateitem_T *cur_si)
 {
-    hashitem_T *hi = hash_find(ht, keyword);
+    hashitem_st *hi = hash_find(ht, keyword);
 
     if(!HASHITEM_EMPTY(hi))
     {
@@ -4454,7 +4454,7 @@ static void put_pattern(char *s, int c, synpat_T *spp, int attr)
 static int syn_list_keywords(int id, hashtab_T *ht,int did_header, int attr)
 {
     int outlen;
-    hashitem_T *hi;
+    hashitem_st *hi;
     keyentry_T *kp;
     int todo;
     int prev_contained = 0;
@@ -4560,7 +4560,7 @@ static int syn_list_keywords(int id, hashtab_T *ht,int did_header, int attr)
 
 static void syn_clear_keyword(int id, hashtab_T *ht)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     keyentry_T *kp;
     keyentry_T *kp_prev;
     keyentry_T *kp_next;
@@ -4619,7 +4619,7 @@ static void syn_clear_keyword(int id, hashtab_T *ht)
 /// Clear a whole keyword table.
 static void clear_keywtab(hashtab_T *ht)
 {
-    hashitem_T *hi;
+    hashitem_st *hi;
     int todo;
     keyentry_T *kp;
     keyentry_T *kp_next;
@@ -4688,7 +4688,7 @@ static void add_keyword(uchar_kt *name,
                     ? &curwin->w_s->b_keywtab_ic
                     : &curwin->w_s->b_keywtab;
 
-    hashitem_T *hi = hash_lookup(ht,
+    hashitem_st *hi = hash_lookup(ht,
                                  (const char *)kp->keyword,
                                  STRLEN(kp->keyword), hash);
 

@@ -2543,7 +2543,7 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
     int do_sal;
     int do_mapline;
     bool found_map = false;
-    hashitem_T  *hi;
+    hashitem_st  *hi;
     int l;
     int compminlen = 0; // COMPOUNDMIN value
     int compsylmax = 0; // COMPOUNDSYLMAX value
@@ -3781,7 +3781,7 @@ static void process_compflags(spellinfo_T *spin,
     int len;
     uchar_kt *tp;
     uchar_kt key[AH_KEY_LEN];
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     // Make room for the old and the new compflags, concatenated with a / in
     // between. Processing it makes it shorter, but we don't know by how
@@ -3992,7 +3992,7 @@ static void spell_free_aff(afffile_T *aff)
 {
     int todo;
     hashtab_T *ht;
-    hashitem_T *hi;
+    hashitem_st *hi;
     affheader_T *ah;
     affentry_T *ae;
     xfree(aff->af_enc);
@@ -4046,7 +4046,7 @@ static int spell_read_dic(spellinfo_T *spin,
     uchar_kt *w;
     int l;
     hash_kt hash;
-    hashitem_T *hi;
+    hashitem_st *hi;
     FILE *fd;
     int lnum = 1;
     int non_ascii = 0;
@@ -4359,7 +4359,7 @@ static int get_pfxlist(afffile_T *affile,
     int cnt = 0;
     int id;
     uchar_kt key[AH_KEY_LEN];
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     for(p = afflist; *p != NUL;)
     {
@@ -4404,7 +4404,7 @@ static void get_compflags(afffile_T *affile,
     uchar_kt *prevp;
     int cnt = 0;
     uchar_kt key[AH_KEY_LEN];
-    hashitem_T *hi;
+    hashitem_st *hi;
 
     for(p = afflist; *p != NUL;)
     {
@@ -4462,7 +4462,7 @@ static int store_aff_word(spellinfo_T *spin,
                           int pfxlen)
 {
     int todo;
-    hashitem_T *hi;
+    hashitem_st *hi;
     affheader_T *ah;
     affentry_T *ae;
     uchar_kt newword[MAXWLEN];
@@ -5506,7 +5506,7 @@ static int node_compress(spellinfo_T *spin,
     wordnode_T *tp;
     wordnode_T *child;
     hash_kt hash;
-    hashitem_T *hi;
+    hashitem_st *hi;
     int len = 0;
     unsigned nr, n;
     int compressed = 0;
@@ -5915,7 +5915,7 @@ static int write_vim_spell(spellinfo_T *spin, uchar_kt *fname)
         {
             size_t todo;
             size_t len = 0;
-            hashitem_T  *hi;
+            hashitem_st  *hi;
             todo = spin->si_commonwords.ht_used;
 
             for(hi = spin->si_commonwords.ht_array; todo > 0; ++hi)
@@ -7599,7 +7599,7 @@ static void set_map_str(slang_T *lp, uchar_kt *map)
                 int headcl = mb_char2len(headc);
                 uchar_kt *b;
                 hash_kt hash;
-                hashitem_T *hi;
+                hashitem_st *hi;
                 b = xmalloc(cl + headcl + 2);
                 mb_char2bytes(c, b);
                 b[cl] = NUL;
