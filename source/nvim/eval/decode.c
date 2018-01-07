@@ -15,7 +15,7 @@
 #include "nvim/lib/kvec.h"
 #include "nvim/vim.h" // OK, FAIL
 
-/// Helper structure for container_struct
+/// Helper structure
 typedef struct
 {
     size_t stack_index;  ///< Index of current container in stack.
@@ -24,7 +24,7 @@ typedef struct
     const char *s;       ///< Location where container starts.
     typval_T container;  ///< Container. Either VAR_LIST, VAR_DICT or VAR_LIST
                          ///< which is _VAL from special dictionary.
-} ContainerStackItem;
+} container_item_st;
 
 /// Helper structure for values struct
 typedef struct
@@ -39,8 +39,9 @@ typedef struct
 /// Vector containing values not yet saved in any container
 typedef kvec_t(ValuesStackItem) ValuesStack;
 
-/// Vector containing containers, each next container is located inside previous
-typedef kvec_t(ContainerStackItem) ContainerStack;
+/// Vector containing containers, each
+/// next container is located inside previous
+typedef kvec_t(container_item_st) ContainerStack;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval/decode.c.generated.h"
@@ -125,7 +126,7 @@ FUNC_ATTR_NONNULL_ALL
         return OK;
     }
 
-    ContainerStackItem last_container = kv_last(*container_stack);
+    container_item_st last_container = kv_last(*container_stack);
     const char *val_location = *pp;
 
     // vval.v_list and vval.v_dict should have the same size and offset
@@ -970,7 +971,7 @@ json_decode_string_cycle_start:
                     goto json_decode_string_fail;
                 }
 
-                ContainerStackItem last_container = kv_last(container_stack);
+                container_item_st last_container = kv_last(container_stack);
 
                 if(*p == '}' && last_container.container.v_type != VAR_DICT)
                 {
@@ -1040,7 +1041,7 @@ json_decode_string_cycle_start:
                     goto json_decode_string_fail;
                 }
 
-                ContainerStackItem last_container = kv_last(container_stack);
+                container_item_st last_container = kv_last(container_stack);
 
                 if(didcomma)
                 {
@@ -1084,7 +1085,7 @@ json_decode_string_cycle_start:
                     goto json_decode_string_fail;
                 }
 
-                ContainerStackItem last_container = kv_last(container_stack);
+                container_item_st last_container = kv_last(container_stack);
 
                 if(last_container.container.v_type != VAR_DICT)
                 {
@@ -1245,7 +1246,7 @@ json_decode_string_cycle_start:
                     .vval = { .v_list = list },
                 };
 
-                kv_push(container_stack, ((ContainerStackItem) {
+                kv_push(container_stack, ((container_item_st) {
                     .stack_index = kv_size(stack),
                     .s = p,
                     .container = tv,
@@ -1279,7 +1280,7 @@ json_decode_string_cycle_start:
                     };
                 }
 
-                kv_push(container_stack, ((ContainerStackItem) {
+                kv_push(container_stack, ((container_item_st) {
                     .stack_index = kv_size(stack),
                     .s = p,
                     .container = tv,
