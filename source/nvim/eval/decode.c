@@ -41,7 +41,7 @@ typedef struct
 } value_item_st;
 
 /// Vector containing values not yet saved in any container
-typedef kvec_t(value_item_st) ValuesStack;
+typedef kvec_t(value_item_st) value_stack_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval/decode.c.generated.h"
@@ -112,7 +112,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return OK in case of success, FAIL in case of error.
 static inline int json_decoder_pop(value_item_st obj,
-                                   ValuesStack *const stack,
+                                   value_stack_st *const stack,
                                    container_stack_st *const container_stack,
                                    const char **const pp,
                                    bool *const next_map_special,
@@ -420,7 +420,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 static inline int parse_json_string(const char *const buf,
                                     const size_t buf_len,
                                     const char **const pp,
-                                    ValuesStack *const stack,
+                                    value_stack_st *const stack,
                                     container_stack_st *const container_stack,
                                     bool *const next_map_special,
                                     bool *const didcomma,
@@ -738,7 +738,7 @@ parse_json_string_ret:
 static inline int parse_json_number(const char *const buf,
                                     const size_t buf_len,
                                     const char **const pp,
-                                    ValuesStack *const stack,
+                                    value_stack_st *const stack,
                                     container_stack_st *const container_stack,
                                     bool *const next_map_special,
                                     bool *const didcomma,
@@ -946,7 +946,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     int ret = OK;
 
-    ValuesStack stack = KV_INITIAL_VALUE;
+    value_stack_st stack = KV_INITIAL_VALUE;
     container_stack_st container_stack = KV_INITIAL_VALUE;
     rettv->v_type = VAR_UNKNOWN;
 
