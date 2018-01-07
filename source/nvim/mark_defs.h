@@ -37,7 +37,7 @@ typedef struct filemark
     pos_T mark;               ///< Cursor position.
     int fnum;                 ///< File number.
     Timestamp timestamp;      ///< Time when this mark was last set.
-    dict_T *additional_data;  ///< Additional data from ShaDa file.
+    dict_st *additional_data;  ///< Additional data from ShaDa file.
 } fmark_T;
 
 /// Structure defining extended mark (mark with file name attached)

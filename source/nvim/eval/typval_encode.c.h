@@ -151,7 +151,7 @@
 /// @def TYPVAL_ENCODE_CONV_DICT_START
 /// @brief Macros used before starting to convert non-empty dictionary
 ///
-/// Only used for real dict_T* dictionaries, not for special dictionaries. Also
+/// Only used for real dict_st* dictionaries, not for special dictionaries. Also
 /// used for partial self dictionary.
 ///
 /// @param  tv  Pointer to typval where dictionary is stored. May be NULL. May
@@ -247,7 +247,7 @@
 ///
 /// Must not be written to, if needed one must check that address of the
 /// macros argument is (not) equal to `&TYPVAL_ENCODE_NODICT_VAR`.
-const dict_T *const TYPVAL_ENCODE_NODICT_VAR = NULL;
+const dict_st *const TYPVAL_ENCODE_NODICT_VAR = NULL;
 
 static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
@@ -461,10 +461,10 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
             if(TYPVAL_ENCODE_ALLOW_SPECIALS
                && tv->vval.v_dict->dv_hashtab.ht_used == 2
-               && (type_di = tv_dict_find((dict_T *)tv->vval.v_dict,
+               && (type_di = tv_dict_find((dict_st *)tv->vval.v_dict,
                                           S_LEN("_TYPE"))) != NULL
                && type_di->di_tv.v_type == VAR_LIST
-               && (val_di = tv_dict_find((dict_T *)tv->vval.v_dict,
+               && (val_di = tv_dict_find((dict_st *)tv->vval.v_dict,
                                          S_LEN("_VAL"))) != NULL)
             {
                 size_t i;
@@ -948,7 +948,7 @@ typval_encode_stop_converting_one_item:
                     case kMPConvPartialSelf:
                     {
                         cur_mpsv->data.p.stage = kMPConvPartialEnd;
-                        dict_T *const dict = pt == NULL ? NULL : pt->pt_dict;
+                        dict_st *const dict = pt == NULL ? NULL : pt->pt_dict;
 
                         if(dict != NULL)
                         {

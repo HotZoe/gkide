@@ -4386,7 +4386,7 @@ static void expand_by_function(int type, uchar_kt *base)
 {
     pos_T pos;
     list_st *matchlist = NULL;
-    dict_T *matchdict = NULL;
+    dict_st *matchdict = NULL;
     uchar_kt *funcname;
     win_st *curwin_save;
     fbuf_st *curbuf_save;
@@ -4483,7 +4483,7 @@ static void ins_compl_add_list(list_st *list)
 }
 
 /// Add completions from a dict.
-static void ins_compl_add_dict(dict_T *dict)
+static void ins_compl_add_dict(dict_st *dict)
 {
     dictitem_T *di_words;
     dictitem_T *di_refresh;
@@ -5173,7 +5173,7 @@ static void ins_compl_insert(int in_compl_func)
 
     // Set completed item.
     // { word, abbr, menu, kind, info }
-    dict_T *dict = tv_dict_alloc();
+    dict_st *dict = tv_dict_alloc();
 
     tv_dict_add_str(dict, S_LEN("word"),
                     (const char *)EMPTY_IF_NULL(compl_shown_match->cp_str));

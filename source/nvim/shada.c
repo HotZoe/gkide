@@ -280,7 +280,7 @@ typedef struct
             char name;
             pos_T mark;
             char *fname;
-            dict_T *additional_data;
+            dict_st *additional_data;
         } filemark;
         struct search_pattern
         {
@@ -294,7 +294,7 @@ typedef struct
             bool highlighted;
             bool search_backward;
             char *pat;
-            dict_T *additional_data;
+            dict_st *additional_data;
         } search_pattern;
         struct history_item
         {
@@ -310,7 +310,7 @@ typedef struct
             char **contents;
             size_t contents_size;
             size_t width;
-            dict_T *additional_data;
+            dict_st *additional_data;
         } reg;
         struct global_var
         {
@@ -336,7 +336,7 @@ typedef struct
             {
                 pos_T pos;
                 char *fname;
-                dict_T *additional_data;
+                dict_st *additional_data;
             } *buffers;
         } buffer_list;
     } data;
@@ -2066,7 +2066,7 @@ FUNC_ATTR_NONNULL_ALL
 #define DUMP_ADDITIONAL_DATA(src, what)                                      \
     do                                                                       \
     {                                                                        \
-        dict_T *const d = (src);                                             \
+        dict_st *const d = (src);                                             \
         if(d != NULL)                                                        \
         {                                                                    \
             size_t todo = d->dv_hashtab.ht_used;                             \

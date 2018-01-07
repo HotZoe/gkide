@@ -9657,10 +9657,10 @@ bool signcolumn_on(win_st *wp)
 }
 
 /// Get window or buffer local options
-dict_T *get_winbuf_options(const int bufopt)
+dict_st *get_winbuf_options(const int bufopt)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    dict_T *const d = tv_dict_alloc();
+    dict_st *const d = tv_dict_alloc();
 
     for(int opt_idx = 0; options[opt_idx].fullname; opt_idx++)
     {

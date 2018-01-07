@@ -896,7 +896,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
         return false;
     }
 
-    const dict_T *const spdict = tv->vval.v_dict;
+    const dict_st *const spdict = tv->vval.v_dict;
 
     if(spdict->dv_hashtab.ht_used != 2)
     {

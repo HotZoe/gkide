@@ -37,7 +37,7 @@ typedef double float_T;
 #define PRIdVARNUMBER "d"
 
 typedef struct list_s list_st;
-typedef struct dictvar_S dict_T;
+typedef struct dict_s dict_st;
 typedef struct partial_S partial_T;
 
 typedef struct ufunc ufunc_T;
@@ -116,12 +116,12 @@ typedef struct
         float_T v_float;  ///< Floating-point number, for VAR_FLOAT.
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
         list_st *v_list;   ///< List for VAR_LIST, can be NULL.
-        dict_T *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
+        dict_st *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
         partial_T *v_partial;      ///< Closure: function with args.
     } vval;               ///< Actual value.
 } typval_T;
 
-/// Values for dict_T::dv_scope
+/// Values for dict_st::dv_scope
 typedef enum
 {
     /// Not a scope dictionary.
@@ -221,7 +221,7 @@ typedef enum
 } DictItemFlags;
 
 /// Structure representing a Dictionary
-struct dictvar_S
+struct dict_s
 {
     VarLockStatus dv_lock;  ///< Whole dictionary lock status.
     scope_type_et dv_scope; ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
@@ -229,9 +229,9 @@ struct dictvar_S
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
     hashtab_T dv_hashtab;   ///< Hashtab containing all items.
-    dict_T *dv_copydict;    ///< Copied dict used by deepcopy().
-    dict_T *dv_used_next;   ///< Next dictionary in used dictionaries list.
-    dict_T *dv_used_prev;   ///< Previous dictionary in used dictionaries list.
+    dict_st *dv_copydict;    ///< Copied dict used by deepcopy().
+    dict_st *dv_used_next;   ///< Next dictionary in used dictionaries list.
+    dict_st *dv_used_prev;   ///< Previous dictionary in used dictionaries list.
     queue_T watchers;       ///< Dictionary key watchers set by user code.
 };
 
@@ -291,7 +291,7 @@ struct partial_S
                        ///< in handle_subscript().
     int pt_argc;       ///< Number of arguments.
     typval_T *pt_argv; ///< Arguments in allocated array.
-    dict_T *pt_dict;   ///< Dict for "self".
+    dict_st *pt_dict;   ///< Dict for "self".
 };
 
 /// Structure used for explicit stack while garbage collecting hash tables
@@ -332,14 +332,14 @@ static inline long tv_list_len(const list_st *const l)
     return l->lv_len;
 }
 
-static inline long tv_dict_len(const dict_T *const d)
+static inline long tv_dict_len(const dict_st *const d)
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Get the number of items in a Dictionary
 ///
 /// @param[in]  d  Dictionary to check.
-static inline long tv_dict_len(const dict_T *const d)
+static inline long tv_dict_len(const dict_st *const d)
 {
     if(d == NULL)
     {
@@ -349,7 +349,7 @@ static inline long tv_dict_len(const dict_T *const d)
     return (long)d->dv_hashtab.ht_used;
 }
 
-static inline bool tv_dict_is_watched(const dict_T *const d)
+static inline bool tv_dict_is_watched(const dict_st *const d)
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT;
 
@@ -358,7 +358,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// @param[in]  d  Dictionary to check.
 ///
 /// @return true if there is at least one watcher.
-static inline bool tv_dict_is_watched(const dict_T *const d)
+static inline bool tv_dict_is_watched(const dict_st *const d)
 {
     return d && !queue_empty(&d->watchers);
 }

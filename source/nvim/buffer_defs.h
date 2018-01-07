@@ -714,7 +714,7 @@ struct file_buffer_s
     int b_start_bomb;         ///< 'bomb' when it was read */
 
     scope_dict_T b_bufvar;    ///< Variable for "b:" Dictionary.
-    dict_T *b_vars;           ///< b: scope dictionary.
+    dict_st *b_vars;           ///< b: scope dictionary.
 
     // When a buffer is created, it starts without a swap file. b_may_swap is
     // then set to indicate that a swap file may be opened later. It is reset
@@ -738,7 +738,7 @@ struct file_buffer_s
 
     signlist_T *b_signlist;     ///< list of signs to draw
     Terminal *terminal;         ///< Terminal instance associated with the buffer
-    dict_T *additional_data;    ///< Additional data from shada file if any.
+    dict_st *additional_data;    ///< Additional data from shada file if any.
     int b_mapped_ctrl_c;        ///< modes where CTRL-C is mapped
     bufhl_info_T *b_bufhl_info; ///< buffer stored highlights
 };
@@ -793,7 +793,7 @@ struct tabpage_s
     int tp_diff_invalid;                ///< list of diffs is outdated
     frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
     scope_dict_T tp_winvar;             ///< Variable for "t:" Dictionary.
-    dict_T *tp_vars;                    ///< Internal variables, local to tab page.
+    dict_st *tp_vars;                    ///< Internal variables, local to tab page.
     uchar_kt *tp_localdir;              ///< Absolute path of local cwd or NULL.
 };
 
@@ -1055,7 +1055,7 @@ struct window_s
     scope_dict_T w_winvar;
 
     /// Dictionary with w: variables.
-    dict_T *w_vars;
+    dict_st *w_vars;
 
     /// for the window dependent Farsi functions
     int w_farsi;

@@ -905,7 +905,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
                     int len;
                     int cmd_len;
                     long lnum;
-                    dict_T *dict;
+                    dict_st *dict;
 
                     parse_match(matches[i], &tagp);
 
@@ -3585,7 +3585,7 @@ int expand_tags(int tagnames, uchar_kt *pat, int *num_file, uchar_kt ***file)
 /// @param end          after the value; can be NULL
 ///
 /// @return OK or FAIL.
-static int add_tag_field(dict_T *dict,
+static int add_tag_field(dict_st *dict,
                          char *field_name,
                          uchar_kt *start,
                          uchar_kt *end)
@@ -3652,7 +3652,7 @@ int get_tags(list_st *list, uchar_kt *pat, uchar_kt *buf_fname)
     uchar_kt *p;
     uchar_kt **matches;
     uchar_kt *full_fname;
-    dict_T *dict;
+    dict_st *dict;
     tagptrs_T tp;
     bool is_static;
 

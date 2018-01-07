@@ -1067,7 +1067,7 @@ int do_record(int c)
     return retval;
 }
 
-static void set_yreg_additional_data(yankreg_T *reg, dict_T *additional_data)
+static void set_yreg_additional_data(yankreg_T *reg, dict_st *additional_data)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(reg->additional_data == additional_data)
@@ -3276,7 +3276,7 @@ FUNC_ATTR_NONNULL_ALL
     recursive = true;
 
     // set v:event to a dictionary with information about the yank
-    dict_T *dict = get_vim_var_dict(VV_EVENT);
+    dict_st *dict = get_vim_var_dict(VV_EVENT);
 
     // the yanked text
     list_st *list = tv_list_alloc();
@@ -6847,7 +6847,7 @@ static long line_count_info(uchar_kt *line,
 /// In Visual mode, give some info about the selected region. (In this case,
 /// the *_count_cursor variables store running totals for the selection.)
 /// When "dict" is not NULL store the info there instead of showing it.
-void cursor_pos_info(dict_T *dict)
+void cursor_pos_info(dict_st *dict)
 {
     uchar_kt *p;
     uchar_kt buf1[50];

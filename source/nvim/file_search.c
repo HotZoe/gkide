@@ -1840,7 +1840,7 @@ void do_autocmd_dirchanged(char *new_dir, CdScope scope)
     }
 
     recursive = true;
-    dict_T *dict = get_vim_var_dict(VV_EVENT);
+    dict_st *dict = get_vim_var_dict(VV_EVENT);
     char buf[8];
 
     switch(scope)

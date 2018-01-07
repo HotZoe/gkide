@@ -399,7 +399,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// List to append to.
 ///
 /// @param[in,out]  dict  Dictionary to append. Reference count is increased.
-void tv_list_append_dict(list_st *const list, dict_T *const dict)
+void tv_list_append_dict(list_st *const list, dict_st *const dict)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -960,7 +960,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  key_pattern      Pattern to watch for.
 /// @param[in]  key_pattern_len  Key pattern length.
 /// @param  callback             Function to be called on events.
-void tv_dict_watcher_add(dict_T *const dict,
+void tv_dict_watcher_add(dict_st *const dict,
                          const char *const key_pattern,
                          const size_t key_pattern_len,
                          Callback callback)
@@ -1028,7 +1028,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param      callback          Callback to remove watcher for.
 ///
 /// @return True on success, false if relevant watcher was not found.
-bool tv_dict_watcher_remove(dict_T *const dict,
+bool tv_dict_watcher_remove(dict_st *const dict,
                             const char *const key_pattern,
                             const size_t key_pattern_len,
                             Callback callback)
@@ -1098,7 +1098,7 @@ FUNC_ATTR_PURE
 /// @param[in]  key    Key which was modified.
 /// @param[in]  newtv  New key value.
 /// @param[in]  oldtv  Old key value.
-void tv_dict_watcher_notify(dict_T *const dict,
+void tv_dict_watcher_notify(dict_st *const dict,
                             const char *const key,
                             typval_T *const newtv,
                             typval_T *const oldtv)
@@ -1225,7 +1225,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param  dict  Dictionary to remove item from.
 /// @param  item  Item to remove.
-void tv_dict_item_remove(dict_T *const dict, dictitem_T *const item)
+void tv_dict_item_remove(dict_st *const dict, dictitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     hashitem_T *const hi = hash_find(&dict->dv_hashtab, item->di_key);
@@ -1245,11 +1245,11 @@ FUNC_ATTR_NONNULL_ALL
 /// Allocate an empty dictionary
 ///
 /// @return [allocated] new dictionary.
-dict_T *tv_dict_alloc(void)
+dict_st *tv_dict_alloc(void)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    dict_T *const d = xmalloc(sizeof(dict_T));
+    dict_st *const d = xmalloc(sizeof(dict_st));
 
     // Add the dict to the list of dicts for garbage collection.
     if(gc_first_dict != NULL)
@@ -1274,7 +1274,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Free items contained in a dictionary
 ///
 /// @param[in,out]  d  Dictionary to clear.
-void tv_dict_free_contents(dict_T *const d)
+void tv_dict_free_contents(dict_st *const d)
 FUNC_ATTR_NONNULL_ALL
 {
     // Lock the hashtab, we don't want it to resize while freeing items.
@@ -1308,7 +1308,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Ignores the reference count.
 ///
 /// @param[in,out]  d  Dictionary to free.
-void tv_dict_free_dict(dict_T *const d)
+void tv_dict_free_dict(dict_st *const d)
 FUNC_ATTR_NONNULL_ALL
 {
     // Remove the dict from the list of dicts for garbage collection.
@@ -1334,7 +1334,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Ignores the reference count.
 ///
 /// @param  d  Dictionary to free.
-void tv_dict_free(dict_T *const d)
+void tv_dict_free(dict_st *const d)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!tv_in_free_unref_items)
@@ -1350,7 +1350,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Decrements the reference count and frees dictionary when it becomes zero.
 ///
 /// @param[in]  d  Dictionary to operate on.
-void tv_dict_unref(dict_T *const d)
+void tv_dict_unref(dict_st *const d)
 {
     if(d != NULL && --d->dv_refcount <= 0)
     {
@@ -1365,7 +1365,7 @@ void tv_dict_unref(dict_T *const d)
 /// @param[in]  len  Key length. If negative, then strlen(key) is used.
 ///
 /// @return found item or NULL if nothing was found.
-dictitem_T *tv_dict_find(const dict_T *const d,
+dictitem_T *tv_dict_find(const dict_st *const d,
                          const char *const key,
                          const ptrdiff_t len)
 FUNC_ATTR_NONNULL_ARG(2)
@@ -1398,7 +1398,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  key  Key to find in dictionary.
 ///
 /// @return Dictionary item.
-varnumber_T tv_dict_get_number(const dict_T *const d, const char *const key)
+varnumber_T tv_dict_get_number(const dict_st *const d, const char *const key)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1427,7 +1427,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// NULL if key does not exist, empty string in case of type error,
 /// string item value otherwise. If returned value is not NULL, it may
 /// be allocated depending on `save` argument.
-char *tv_dict_get_string(const dict_T *const d,
+char *tv_dict_get_string(const dict_st *const d,
                          const char *const key,
                          const bool save)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1452,7 +1452,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return NULL if key does not exist, empty string in case of type error,
 ///         string item value otherwise.
-const char *tv_dict_get_string_buf(const dict_T *const d,
+const char *tv_dict_get_string_buf(const dict_st *const d,
                                    const char *const key,
                                    char *const numbuf)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1478,7 +1478,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return `def` when key does not exist, NULL in case of type error,
 ///         string item value in case of success.
-const char *tv_dict_get_string_buf_chk(const dict_T *const d,
+const char *tv_dict_get_string_buf_chk(const dict_st *const d,
                                        const char *const key,
                                        const ptrdiff_t key_len,
                                        char *const numbuf,
@@ -1504,7 +1504,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///                      callback will be left.
 ///
 /// @return true/false on success/failure.
-bool tv_dict_get_callback(dict_T *const d,
+bool tv_dict_get_callback(dict_st *const d,
                           const char *const key,
                           const ptrdiff_t key_len,
                           Callback *const result)
@@ -1542,7 +1542,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  item  Item to add.
 ///
 /// @return FAIL if key already exists.
-int tv_dict_add(dict_T *const d, dictitem_T *const item)
+int tv_dict_add(dict_st *const d, dictitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     return hash_add(&d->dv_hashtab, item->di_key);
@@ -1556,7 +1556,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param      list     List to add. Will have reference count incremented.
 ///
 /// @return OK in case of success, FAIL when key already exists.
-int tv_dict_add_list(dict_T *const d,
+int tv_dict_add_list(dict_st *const d,
                      const char *const key,
                      const size_t key_len,
                      list_st *const list)
@@ -1587,10 +1587,10 @@ FUNC_ATTR_NONNULL_ALL
 ///                      Will have reference count incremented.
 ///
 /// @return OK in case of success, FAIL when key already exists.
-int tv_dict_add_dict(dict_T *const d,
+int tv_dict_add_dict(dict_st *const d,
                      const char *const key,
                      const size_t key_len,
-                     dict_T *const dict)
+                     dict_st *const dict)
 FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
@@ -1617,7 +1617,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  nr       Number to add.
 ///
 /// @return OK in case of success, FAIL when key already exists.
-int tv_dict_add_nr(dict_T *const d,
+int tv_dict_add_nr(dict_st *const d,
                    const char *const key,
                    const size_t key_len,
                    const varnumber_T nr)
@@ -1644,7 +1644,7 @@ int tv_dict_add_nr(dict_T *const d,
 /// @param[in]  val      String to add.
 ///
 /// @return OK in case of success, FAIL when key already exists.
-int tv_dict_add_str(dict_T *const d,
+int tv_dict_add_str(dict_st *const d,
                     const char *const key,
                     const size_t key_len,
                     const char *const val)
@@ -1669,7 +1669,7 @@ FUNC_ATTR_NONNULL_ALL
 /// "d" remains a valid empty Dictionary.
 ///
 /// @param  d  The Dictionary to clear
-void tv_dict_clear(dict_T *const d)
+void tv_dict_clear(dict_st *const d)
 FUNC_ATTR_NONNULL_ALL
 {
     hash_lock(&d->dv_hashtab);
@@ -1696,8 +1696,8 @@ FUNC_ATTR_NONNULL_ALL
 /// - e*, including "error": duplicate key gives an error.
 /// - f*, including "force": duplicate d2 keys override d1.
 /// - other, including "keep": duplicate d2 keys ignored.
-void tv_dict_extend(dict_T *const d1,
-                    dict_T *const d2,
+void tv_dict_extend(dict_st *const d1,
+                    dict_st *const d2,
                     const char *const action)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -1778,8 +1778,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  d2         Second dictionary.
 /// @param[in]  ic         True if case is to be ignored.
 /// @param[in]  recursive  True when used recursively.
-bool tv_dict_equal(dict_T *const d1,
-                   dict_T *const d2,
+bool tv_dict_equal(dict_st *const d1,
+                   dict_st *const d2,
                    const bool ic,
                    const bool recursive)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1834,8 +1834,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Copied dictionary. May be NULL in case original dictionary is NULL or
 /// some failure happens. The refcount of the new dictionary is set to 1.
-dict_T *tv_dict_copy(const vimconv_T *const conv,
-                     dict_T *const orig,
+dict_st *tv_dict_copy(const vimconv_T *const conv,
+                     dict_st *const orig,
                      const bool deep,
                      const int copyID)
 {
@@ -1844,7 +1844,7 @@ dict_T *tv_dict_copy(const vimconv_T *const conv,
         return NULL;
     }
 
-    dict_T *copy = tv_dict_alloc();
+    dict_st *copy = tv_dict_alloc();
 
     if(copyID != 0)
     {
@@ -1917,7 +1917,7 @@ dict_T *tv_dict_copy(const vimconv_T *const conv,
 /// This does not protect against adding new keys to the Dictionary.
 ///
 /// @param  dict  The dict whose keys should be frozen.
-void tv_dict_set_keys_readonly(dict_T *const dict)
+void tv_dict_set_keys_readonly(dict_st *const dict)
 FUNC_ATTR_NONNULL_ALL
 {
     TV_DICT_ITER(dict, di, { di->di_flags |= DI_FLAGS_RO | DI_FLAGS_FIX; });
@@ -1951,7 +1951,7 @@ FUNC_ATTR_NONNULL_ALL
 void tv_dict_alloc_ret(typval_T *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
-    dict_T *const d = tv_dict_alloc();
+    dict_st *const d = tv_dict_alloc();
     ret_tv->vval.v_dict = d;
     ret_tv->v_type = VAR_DICT;
     ret_tv->v_lock = VAR_UNLOCKED;
@@ -2086,8 +2086,8 @@ FUNC_ATTR_NONNULL_ALL
     {                                                               \
         assert((void *)&dict != (void *)&TYPVAL_ENCODE_NODICT_VAR); \
                                                                     \
-        tv_dict_unref((dict_T *)dict);                              \
-        *((dict_T **)&dict) = NULL;                                 \
+        tv_dict_unref((dict_st *)dict);                              \
+        *((dict_st **)&dict) = NULL;                                 \
                                                                     \
         if(tv != NULL)                                              \
         {                                                           \
@@ -2144,7 +2144,7 @@ FUNC_ATTR_ALWAYS_INLINE
 #define TYPVAL_ENCODE_CONV_LIST_END(tv) _nothing_conv_list_end(tv)
 
 static inline int _nothing_conv_real_dict_after_start(typval_T *const tv,
-                                                      dict_T **const dictp,
+                                                      dict_st **const dictp,
                                                       const void *const nodictvar,
                                                       MPConvStackVal *const mpsv)
 FUNC_ATTR_ALWAYS_INLINE
@@ -2171,7 +2171,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     do                                                                            \
     {                                                                             \
         if(_nothing_conv_real_dict_after_start(tv,                                \
-                                               (dict_T **)&dict,                  \
+                                               (dict_st **)&dict,                  \
                                                (void *)&TYPVAL_ENCODE_NODICT_VAR, \
                                                &mpsv) != NOTDONE)                 \
         {                                                                         \
@@ -2184,7 +2184,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(tv, dict)
 
 static inline void _nothing_conv_dict_end(typval_T *const FUNC_ARGS_UNUSED_REALY(tv),
-                                          dict_T **const dictp,
+                                          dict_st **const dictp,
                                           const void *const nodictvar)
 FUNC_ATTR_ALWAYS_INLINE
 {
@@ -2195,7 +2195,7 @@ FUNC_ATTR_ALWAYS_INLINE
     }
 }
 #define TYPVAL_ENCODE_CONV_DICT_END(tv, dict) \
-    _nothing_conv_dict_end(tv, (dict_T **)&dict, (void *)&TYPVAL_ENCODE_NODICT_VAR)
+    _nothing_conv_dict_end(tv, (dict_st **)&dict, (void *)&TYPVAL_ENCODE_NODICT_VAR)
 
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type)
 
@@ -2457,7 +2457,7 @@ FUNC_ATTR_NONNULL_ALL
 
         case VAR_DICT:
         {
-            dict_T *const d = tv->vval.v_dict;
+            dict_st *const d = tv->vval.v_dict;
 
             if(d != NULL)
             {

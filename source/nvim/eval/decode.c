@@ -57,7 +57,7 @@ static inline void create_special_dict(typval_T *const rettv,
                                        typval_T val)
 FUNC_ATTR_NONNULL_ALL
 {
-    dict_T *const dict = tv_dict_alloc();
+    dict_st *const dict = tv_dict_alloc();
     dictitem_T *const type_di = tv_dict_item_alloc_len(S_LEN("_TYPE"));
 
     type_di->di_tv.v_type = VAR_LIST;
@@ -1270,7 +1270,7 @@ json_decode_string_cycle_start:
                 }
                 else
                 {
-                    dict_T *dict = tv_dict_alloc();
+                    dict_st *dict = tv_dict_alloc();
                     dict->dv_refcount++;
 
                     tv = (typval_T) {
@@ -1534,7 +1534,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 }
             }
 
-            dict_T *const dict = tv_dict_alloc();
+            dict_st *const dict = tv_dict_alloc();
             dict->dv_refcount++;
 
             *rettv = (typval_T) {

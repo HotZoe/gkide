@@ -97,7 +97,7 @@ bool try_end(error_st *err)
 /// @param dict     The vimscript dict
 /// @param key      The key
 /// @param[out] err Details of an error that may have occurred
-Object dict_get_value(dict_T *dict, String key, error_st *err)
+Object dict_get_value(dict_st *dict, String key, error_st *err)
 {
     dictitem_T *const di = tv_dict_find(dict, key.data, (ptrdiff_t)key.size);
 
@@ -121,7 +121,7 @@ Object dict_get_value(dict_T *dict, String key, error_st *err)
 /// @param retval   If true the old value will be converted and returned.
 /// @param[out] err Details of an error that may have occurred
 /// @return The old value if @b retval is true and the key was present, else NIL
-Object dict_set_var(dict_T *dict,
+Object dict_set_var(dict_st *dict,
                     String key,
                     Object value,
                     bool del,
@@ -803,7 +803,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 
         case kObjectTypeDictionary:
         {
-            dict_T *const dict = tv_dict_alloc();
+            dict_st *const dict = tv_dict_alloc();
 
             for(uint32_t i = 0; i < obj.data.dictionary.size; i++)
             {
@@ -1191,7 +1191,7 @@ FUNC_ATTR_NONNULL_ALL
 ArrayOf(Dictionary) keymap_array(String mode, fbuf_st *buf)
 {
     Array mappings = ARRAY_DICT_INIT;
-    dict_T *const dict = tv_dict_alloc();
+    dict_st *const dict = tv_dict_alloc();
 
     // Convert the string mode to the integer mode
     // that is stored within each mapblock

@@ -18,7 +18,7 @@
 /// Type of the stack entry
 typedef enum
 {
-    kMPConvDict,         ///< Convert dict_T *dictionary.
+    kMPConvDict,         ///< Convert dict_st *dictionary.
     kMPConvList,         ///< Convert list_st *list.
     kMPConvPairs,        ///< Convert mapping represented as a list_st* of pairs.
     kMPConvPartial,      ///< Convert partial_T* partial.
@@ -43,8 +43,8 @@ typedef struct
     {
         struct
         {
-            dict_T *dict;     ///< Currently converted dictionary.
-            dict_T **dictp;   ///< Location where that dictionary is stored.
+            dict_st *dict;     ///< Currently converted dictionary.
+            dict_st **dictp;   ///< Location where that dictionary is stored.
                               ///< Normally it is &.tv->vval.v_dict, but not when
                               ///< converting partials.
             hashitem_T *hi;   ///< Currently converted dictionary item.
@@ -158,7 +158,7 @@ static inline size_t tv_strlen(const typval_T *const tv)
 #define _TYPVAL_ENCODE_CONVERT_ONE_VALUE \
     _TYPVAL_ENCODE_FUNC_NAME(_typval_encode_, _convert_one_value)
 
-/// Name of the dummy const dict_T *const variable
+/// Name of the dummy const dict_st *const variable
 #define TYPVAL_ENCODE_NODICT_VAR \
     _TYPVAL_ENCODE_FUNC_NAME(_typval_encode_, _nodict_var)
 

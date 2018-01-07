@@ -5227,7 +5227,7 @@ int get_errorlist(win_st *wp, int qf_idx, list_st *list)
             bufnum = 0;
         }
 
-        dict_T *const dict = tv_dict_alloc();
+        dict_st *const dict = tv_dict_alloc();
 
         tv_list_append_dict(list, dict);
         buf[0] = qfp->qf_type;
@@ -5279,7 +5279,7 @@ enum
 /// Return quickfix/location list details (title) as a
 /// dictionary. 'what' contains the details to return. If 'list_idx' is -1,
 /// then current list is used. Otherwise the specified list is used.
-int get_errorlist_properties(win_st *wp, dict_T *what, dict_T *retdict)
+int get_errorlist_properties(win_st *wp, dict_st *what, dict_st *retdict)
 {
     qf_info_T *qi = &ql_info;
 
@@ -5371,7 +5371,7 @@ static int qf_add_entries(qf_info_T *qi,
                           int action)
 {
     listitem_T *li;
-    dict_T *d;
+    dict_st *d;
     qfline_T *old_last = NULL;
     int retval = OK;
     bool did_bufnr_emsg = false;
@@ -5494,7 +5494,7 @@ static int qf_add_entries(qf_info_T *qi,
     return retval;
 }
 
-static int qf_set_properties(qf_info_T *qi, dict_T *what, int action)
+static int qf_set_properties(qf_info_T *qi, dict_st *what, int action)
 {
     dictitem_T *di;
     int retval = FAIL;
@@ -5561,7 +5561,7 @@ int set_errorlist(win_st *wp,
                   list_st *list,
                   int action,
                   uchar_kt *title,
-                  dict_T *what)
+                  dict_st *what)
 {
     qf_info_T *qi = &ql_info;
     int retval = OK;

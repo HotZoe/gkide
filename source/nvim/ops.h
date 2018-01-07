@@ -89,7 +89,7 @@ typedef struct yankreg
     colnr_T y_width;          ///< Register width
                               ///< (only valid for y_type == kBlockWise).
     Timestamp timestamp;      ///< Time when register was last modified.
-    dict_T *additional_data;  ///< Additional data from ShaDa file.
+    dict_st *additional_data;  ///< Additional data from ShaDa file.
 } yankreg_T;
 
 /// Convert register name into register index

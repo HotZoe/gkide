@@ -159,7 +159,7 @@ typedef struct lval_S
     long ll_n1;           ///< First index for list.
     long ll_n2;           ///< Second index for list range.
     int ll_empty2;        ///< Second index is empty: [i:].
-    dict_T *ll_dict;      ///< The Dictionary or NULL.
+    dict_st *ll_dict;      ///< The Dictionary or NULL.
     dictitem_T *ll_di;    ///< The dictitem or NULL.
     uchar_kt *ll_newkey;    ///< New key for Dict in allocated memory or NULL.
 } lval_T;
@@ -202,11 +202,11 @@ hashtab_T func_hashtab;
 static int *eval_lavars_used = NULL;
 
 /// Array to hold the hashtab with variables local to each sourced script.
-/// Each item holds a variable (nameless) that points to the dict_T.
+/// Each item holds a variable (nameless) that points to the dict_st.
 typedef struct
 {
     scope_dict_T sv_var;
-    dict_T sv_dict;
+    dict_st sv_dict;
 } scriptvar_T;
 
 static garray_T ga_scripts = {0, 0, sizeof(scriptvar_T *), 4, NULL};
@@ -272,9 +272,9 @@ struct funccall_S
     /// Fixed variables for arguments.
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
 
-    dict_T l_vars;                         ///< @b l: local function variables.
+    dict_st l_vars;                         ///< @b l: local function variables.
     scope_dict_T l_vars_var;               ///< Variable for @b l: scope.
-    dict_T l_avars;                        ///< @b a: argument variables.
+    dict_st l_avars;                        ///< @b a: argument variables.
     scope_dict_T l_avars_var;              ///< Variable for @b a: scope.
     list_st l_varlist;                      ///< List for @b a:000
     listitem_T l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
@@ -293,7 +293,7 @@ struct funccall_S
 /// Structure used by trans_function_name()
 typedef struct
 {
-    dict_T *fd_dict;    ///< Dictionary used.
+    dict_st *fd_dict;    ///< Dictionary used.
     uchar_kt *fd_newkey;  ///< New key in "dict" in allocated memory.
     dictitem_T *fd_di;  ///< Dictionary item used.
 } funcdict_T;
@@ -650,7 +650,7 @@ void eval_init(void)
         }
     }
 
-    dict_T *const msgpack_types_dict = tv_dict_alloc();
+    dict_st *const msgpack_types_dict = tv_dict_alloc();
 
     for(size_t i = 0; i < ARRAY_SIZE(msgpack_type_names); i++)
     {
@@ -676,7 +676,7 @@ void eval_init(void)
     set_vim_var_dict(VV_MSGPACK_TYPES, msgpack_types_dict);
     set_vim_var_dict(VV_COMPLETED_ITEM, tv_dict_alloc());
 
-    dict_T *v_event = tv_dict_alloc();
+    dict_st *v_event = tv_dict_alloc();
     v_event->dv_lock = VAR_FIXED;
 
     set_vim_var_dict(VV_EVENT, v_event);
@@ -3062,7 +3062,7 @@ static void set_var_lval(lval_T *lp,
     else
     {
         typval_T oldtv = TV_INITIAL_VALUE;
-        dict_T *dict = lp->ll_dict;
+        dict_st *dict = lp->ll_dict;
         bool watched = tv_dict_is_watched(dict);
 
         // Assign to a List or Dictionary item.
@@ -3725,7 +3725,7 @@ static int do_unlet_var(lval_T *const lp, uchar_kt *const name_end, int forceit)
         else
         {
             // unlet a Dictionary item.
-            dict_T *d = lp->ll_dict;
+            dict_st *d = lp->ll_dict;
             dictitem_T *di = lp->ll_di;
             bool watched = tv_dict_is_watched(d);
             char *key = NULL;
@@ -3766,12 +3766,12 @@ int do_unlet(const char *const name, const size_t name_len, const int forceit)
 FUNC_ATTR_NONNULL_ALL
 {
     const char *varname;
-    dict_T *dict;
+    dict_st *dict;
     hashtab_T *ht = find_var_ht_dict(name, name_len, &varname, &dict);
 
     if(ht != NULL && *varname != NUL)
     {
-        dict_T *d;
+        dict_st *d;
 
         if(ht == &globvarht)
         {
@@ -6453,8 +6453,8 @@ bool func_equal(typval_T *tv1, typval_T *tv2, bool ic)
     int a2;
     uchar_kt *s1;
     uchar_kt *s2;
-    dict_T *d1;
-    dict_T *d2;
+    dict_st *d1;
+    dict_st *d2;
 
     // empty and NULL function name considered the same
     s1 = tv1->v_type == VAR_FUNC
@@ -6818,7 +6818,7 @@ bool garbage_collect(bool testing)
 /// @return true, if something was freed.
 static int free_unref_items(int copyID)
 {
-    dict_T *dd, *dd_next;
+    dict_st *dd, *dd_next;
     list_st *ll, *ll_next;
     bool did_free = false;
 
@@ -6832,7 +6832,7 @@ static int free_unref_items(int copyID)
 
     // Go through the list of dicts and free items without the copyID.
     // Don't free dicts that are referenced internally.
-    for(dict_T *dd = gc_first_dict; dd != NULL; dd = dd->dv_used_next)
+    for(dict_st *dd = gc_first_dict; dd != NULL; dd = dd->dv_used_next)
     {
         if((dd->dv_copyID & COPYID_MASK) != (copyID & COPYID_MASK))
         {
@@ -7005,7 +7005,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         case VAR_DICT:
         {
-            dict_T *dd = tv->vval.v_dict;
+            dict_st *dd = tv->vval.v_dict;
 
             if(dd != NULL && dd->dv_copyID != copyID)
             {
@@ -7197,7 +7197,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Mark all lists and dicts referenced in given dict and the dict itself
 ///
 /// @returns true if setting references failed somehow.
-static inline bool set_ref_dict(dict_T *dict, int copyID)
+static inline bool set_ref_dict(dict_st *dict, int copyID)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(dict != NULL)
@@ -7233,7 +7233,7 @@ static bool set_ref_in_funccal(funccall_T *fc, int copyID)
 /// Return OK or FAIL.  Returns NOTDONE for {expr}.
 static int get_dict_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
 {
-    dict_T *d = NULL;
+    dict_st *d = NULL;
     typval_T tvkey;
     typval_T tv;
     uchar_kt *key = NULL;
@@ -7922,7 +7922,7 @@ static int get_func_tv(uchar_kt *name,
                        int *doesrange,
                        int evaluate,
                        partial_T *partial,
-                       dict_T *selfdict)
+                       dict_st *selfdict)
 {
     int ret = OK;
     int argcount = 0; // number of arguments found
@@ -8204,7 +8204,7 @@ int call_func(const uchar_kt *funcname,
               int *doesrange,
               bool evaluate,
               partial_T *partial,
-              dict_T *selfdict_in)
+              dict_st *selfdict_in)
 {
     int ret = FAIL;
     int error = ERROR_NONE;
@@ -8215,7 +8215,7 @@ int call_func(const uchar_kt *funcname,
     uchar_kt *name;
     int argcount = argcount_in;
     typval_T *argvars = argvars_in;
-    dict_T *selfdict = selfdict_in;
+    dict_st *selfdict = selfdict_in;
     typval_T argv[MAX_FUNC_ARGS + 1]; // used when "partial" is not NULL
     int argv_clear = 0;
 
@@ -9425,7 +9425,7 @@ static void f_byteidxcomp(typval_T *argvars,
 int func_call(uchar_kt *name,
               typval_T *args,
               partial_T *partial,
-              dict_T *selfdict,
+              dict_st *selfdict,
               typval_T *rettv)
 {
     listitem_T *item;
@@ -9490,7 +9490,7 @@ static void f_call(typval_T *argvars,
 
     uchar_kt *func;
     partial_T *partial = NULL;
-    dict_T *selfdict = NULL;
+    dict_st *selfdict = NULL;
 
     if(argvars[0].v_type == VAR_FUNC)
     {
@@ -9836,7 +9836,7 @@ static void f_count(typval_T *argvars,
     else if(argvars[0].v_type == VAR_DICT)
     {
         int todo;
-        dict_T *d;
+        dict_st *d;
         hashitem_T *hi;
 
         if((d = argvars[0].vval.v_dict) != NULL)
@@ -10727,8 +10727,8 @@ static void f_extend(typval_T *argvars,
     }
     else if(argvars[0].v_type == VAR_DICT && argvars[1].v_type == VAR_DICT)
     {
-        dict_T *const d1 = argvars[0].vval.v_dict;
-        dict_T *const d2 = argvars[1].vval.v_dict;
+        dict_st *const d1 = argvars[0].vval.v_dict;
+        dict_st *const d2 = argvars[1].vval.v_dict;
 
         if(d1 == NULL)
         {
@@ -10916,7 +10916,7 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
     dictitem_T *di;
     hashtab_T *ht;
     hashitem_T *hi;
-    dict_T *d = NULL;
+    dict_st *d = NULL;
     typval_T save_val;
     typval_T save_key;
     int rem = false;
@@ -11710,7 +11710,7 @@ static void f_get(typval_T *argvars,
     listitem_T *li;
     list_st *l;
     dictitem_T *di;
-    dict_T *d;
+    dict_st *d;
     typval_T *tv = NULL;
 
     if(argvars[0].v_type == VAR_LIST)
@@ -11823,7 +11823,7 @@ static void get_buffer_signs(fbuf_st *buf, list_st *l)
 {
     for(signlist_T *sign = buf->b_signlist; sign; sign = sign->next)
     {
-        dict_T *const d = tv_dict_alloc();
+        dict_st *const d = tv_dict_alloc();
 
         tv_dict_add_nr(d, S_LEN("id"), sign->id);
         tv_dict_add_nr(d, S_LEN("lnum"), sign->lnum);
@@ -11836,9 +11836,9 @@ static void get_buffer_signs(fbuf_st *buf, list_st *l)
 }
 
 /// Returns buffer options, variables and other attributes in a dictionary.
-static dict_T *get_buffer_info(fbuf_st *buf)
+static dict_st *get_buffer_info(fbuf_st *buf)
 {
-    dict_T *const dict = tv_dict_alloc();
+    dict_st *const dict = tv_dict_alloc();
     tv_dict_add_nr(dict, S_LEN("bufnr"), buf->b_fnum);
 
     tv_dict_add_str(dict,
@@ -11897,7 +11897,7 @@ static void f_getbufinfo(typval_T *argvars,
     // List of all the buffers or selected buffers
     if(argvars[0].v_type == VAR_DICT)
     {
-        dict_T *sel_d = argvars[0].vval.v_dict;
+        dict_st *sel_d = argvars[0].vval.v_dict;
 
         if(sel_d != NULL)
         {
@@ -11949,7 +11949,7 @@ static void f_getbufinfo(typval_T *argvars,
             continue;
         }
 
-        dict_T *const d = get_buffer_info(buf);
+        dict_st *const d = get_buffer_info(buf);
 
         if(d != NULL)
         {
@@ -12106,7 +12106,7 @@ static void f_getbufvar(typval_T *argvars,
             if(varname[1] == NUL)
             {
                 // get all buffer-local options in a dict
-                dict_T *opts = get_winbuf_options(true);
+                dict_st *opts = get_winbuf_options(true);
 
                 if(opts != NULL)
                 {
@@ -12294,7 +12294,7 @@ static void f_getcharsearch(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_dict_alloc_ret(rettv);
-    dict_T *dict = rettv->vval.v_dict;
+    dict_st *dict = rettv->vval.v_dict;
     tv_dict_add_str(dict, S_LEN("char"), last_csearch());
     tv_dict_add_nr(dict, S_LEN("forward"), last_csearch_forward());
     tv_dict_add_nr(dict, S_LEN("until"), last_csearch_until());
@@ -12846,7 +12846,7 @@ static void get_qf_loc_list(int is_qf,
         {
             if(what_arg->v_type == VAR_DICT)
             {
-                dict_T *d = what_arg->vval.v_dict;
+                dict_st *d = what_arg->vval.v_dict;
 
                 if(d != NULL)
                 {
@@ -12881,7 +12881,7 @@ static void f_getmatches(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
 
     while(cur != NULL)
     {
-        dict_T *dict = tv_dict_alloc();
+        dict_st *dict = tv_dict_alloc();
 
         if(cur->match.regprog == NULL)
         {
@@ -13117,9 +13117,9 @@ static void f_getregtype(typval_T *argvars,
 
 /// Returns information (variables, options, etc.) about a tab page
 /// as a dictionary.
-static dict_T *get_tabpage_info(tabpage_st *tp, int tp_idx)
+static dict_st *get_tabpage_info(tabpage_st *tp, int tp_idx)
 {
-    dict_T *const dict = tv_dict_alloc();
+    dict_st *const dict = tv_dict_alloc();
     tv_dict_add_nr(dict, S_LEN("tabnr"), tp_idx);
     list_st *const l = tv_list_alloc();
 
@@ -13165,7 +13165,7 @@ static void f_gettabinfo(typval_T *argvars,
             continue;
         }
 
-        dict_T *const d = get_tabpage_info(tp, tpnr);
+        dict_st *const d = get_tabpage_info(tp, tpnr);
 
         if(d != NULL)
         {
@@ -13235,9 +13235,9 @@ static void f_gettabwinvar(typval_T *argvars,
 }
 
 /// Returns information about a window as a dictionary.
-static dict_T *get_win_info(win_st *wp, int16_t tpnr, int16_t winnr)
+static dict_st *get_win_info(win_st *wp, int16_t tpnr, int16_t winnr)
 {
-    dict_T *const dict = tv_dict_alloc();
+    dict_st *const dict = tv_dict_alloc();
 
     tv_dict_add_nr(dict, S_LEN("tabnr"), tpnr);
     tv_dict_add_nr(dict, S_LEN("winnr"), winnr);
@@ -13292,7 +13292,7 @@ static void f_getwininfo(typval_T *argvars,
             }
 
             winnr++;
-            dict_T *const d = get_win_info(wp, tabnr, winnr);
+            dict_st *const d = get_win_info(wp, tabnr, winnr);
 
             if(d != NULL)
             {
@@ -13452,7 +13452,7 @@ static void getwinvar(typval_T *argvars, typval_T *rettv, int off)
                 if(varname[1] == NUL)
                 {
                     // get all window-local options in a dict
-                    dict_T *opts = get_winbuf_options(false);
+                    dict_st *opts = get_winbuf_options(false);
 
                     if(opts != NULL)
                     {
@@ -14372,7 +14372,7 @@ FUNC_ATTR_NONNULL_ALL
             return;
         }
 
-        const dict_T *const dict = argvars[0].vval.v_dict;
+        const dict_st *const dict = argvars[0].vval.v_dict;
         prompt = tv_dict_get_string_buf_chk(dict, S_LEN("prompt"), prompt_buf, "");
 
         if(prompt == NULL)
@@ -15166,7 +15166,7 @@ static void f_jobstart(typval_T *argvars,
     bool pty = false;
     char *cwd = NULL;
     bool detach = false;
-    dict_T *job_opts = NULL;
+    dict_st *job_opts = NULL;
     Callback on_stdout = CALLBACK_NONE;
     Callback on_stderr = CALLBACK_NONE;
     Callback on_exit = CALLBACK_NONE;
@@ -15831,7 +15831,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  mp            The maphash that contains the mapping information
 /// @param  buffer_value  The "buffer" value
 /// @param  compatible    True for compatible with old maparg() dict
-void mapblock_fill_dict(dict_T *const dict,
+void mapblock_fill_dict(dict_st *const dict,
                         const mapblock_T *const mp,
                         long buffer_value,
                         bool compatible)
@@ -17285,7 +17285,7 @@ static void f_remove(typval_T *argvars,
 {
     long idx;
     long end;
-    dict_T *d;
+    dict_st *d;
     list_st *l;
     listitem_T *li;
     dictitem_T *di;
@@ -18846,7 +18846,7 @@ static void f_setcharsearch(typval_T *argvars,
                             typval_T *FUNC_ARGS_UNUSED_REALY(rettv),
                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    dict_T *d;
+    dict_st *d;
     dictitem_T *di;
 
     if(argvars[0].v_type != VAR_DICT)
@@ -19059,7 +19059,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
     const char *title = NULL;
     int action = ' ';
     rettv->vval.v_number = -1;
-    dict_T *d = NULL;
+    dict_st *d = NULL;
     typval_T *list_arg = &args[0];
 
     if(list_arg->v_type != VAR_LIST)
@@ -19158,7 +19158,7 @@ static void f_setmatches(typval_T *argvars,
 {
     list_st *l;
     listitem_T *li;
-    dict_T *d;
+    dict_st *d;
     list_st *s = NULL;
     rettv->vval.v_number = -1;
 
@@ -19717,7 +19717,7 @@ static void f_sockconnect(typval_T *argvars,
 
     if(argvars[2].v_type == VAR_DICT)
     {
-        dict_T *opts = argvars[2].vval.v_dict;
+        dict_st *opts = argvars[2].vval.v_dict;
         rpc = tv_dict_get_number(opts, "rpc") != 0;
     }
 
@@ -19755,7 +19755,7 @@ typedef struct
     bool item_compare_float;
     const char *item_compare_func;
     partial_T *item_compare_partial;
-    dict_T *item_compare_selfdict;
+    dict_st *item_compare_selfdict;
     bool item_compare_func_err;
 } sortinfo_T;
 static sortinfo_T *sortinfo = NULL;
@@ -21664,7 +21664,7 @@ static void f_termopen(typval_T *argvars,
     Callback on_stdout = CALLBACK_NONE;
     Callback on_stderr = CALLBACK_NONE;
     Callback on_exit = CALLBACK_NONE;
-    dict_T *job_opts = NULL;
+    dict_st *job_opts = NULL;
     const char *cwd = ".";
 
     if(argvars[1].v_type == VAR_DICT)
@@ -21901,7 +21901,7 @@ static bool set_ref_in_callback(Callback *callback,
 static void add_timer_info(typval_T *rettv, timer_T *timer)
 {
     list_st *list = rettv->vval.v_list;
-    dict_T *dict = tv_dict_alloc();
+    dict_st *dict = tv_dict_alloc();
 
     tv_list_append_dict(list, dict);
     tv_dict_add_nr(dict, S_LEN("id"), timer->timer_id);
@@ -22004,7 +22004,7 @@ static void f_timer_start(typval_T *argvars,
     const long timeout = tv_get_number(&argvars[0]);
     timer_T *timer;
     int repeat = 1;
-    dict_T *dict;
+    dict_st *dict;
     rettv->vval.v_number = -1;
 
     if(argvars[2].v_type != VAR_UNKNOWN)
@@ -22421,7 +22421,7 @@ static void f_undotree(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     tv_dict_alloc_ret(rettv);
-    dict_T *dict = rettv->vval.v_dict;
+    dict_st *dict = rettv->vval.v_dict;
     list_st *list;
 
     tv_dict_add_nr(dict, S_LEN("synced"), (varnumber_T)curbuf->b_u_synced);
@@ -22628,7 +22628,7 @@ static void f_winrestview(typval_T *argvars,
                           typval_T *FUNC_ARGS_UNUSED_REALY(rettv),
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    dict_T *dict;
+    dict_st *dict;
 
     if(argvars[0].v_type != VAR_DICT
        || (dict = argvars[0].vval.v_dict) == NULL)
@@ -22704,7 +22704,7 @@ static void f_winsaveview(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    dict_T *dict;
+    dict_st *dict;
 
     tv_dict_alloc_ret(rettv);
     dict = rettv->vval.v_dict;
@@ -23661,7 +23661,7 @@ list_st *get_vim_var_list(int idx) FUNC_ATTR_PURE
 
 /// Get Dictionary v: variable value.
 /// Caller must take care of reference count when needed.
-dict_T *get_vim_var_dict(int idx) FUNC_ATTR_PURE
+dict_st *get_vim_var_dict(int idx) FUNC_ATTR_PURE
 {
     return vimvars[idx].vv_dict;
 }
@@ -23777,7 +23777,7 @@ void set_vim_var_list(const VimVarIndex idx, list_st *const val)
 /// @param[in,out]  val
 /// Value to set to. Reference count will be incremented.
 /// Also keys of the dictionary will be made read-only.
-void set_vim_var_dict(const VimVarIndex idx, dict_T *const val)
+void set_vim_var_dict(const VimVarIndex idx, dict_st *const val)
 {
     tv_clear(&vimvars[idx].vv_di.di_tv);
     vimvars[idx].vv_type = VAR_DICT;
@@ -24024,7 +24024,7 @@ static int handle_subscript(const char **const arg,
                             int verbose)
 {
     int ret = OK;
-    dict_T *selfdict = NULL;
+    dict_st *selfdict = NULL;
     uchar_kt *s;
     int len;
     typval_T functv;
@@ -24132,7 +24132,7 @@ static int handle_subscript(const char **const arg,
     return ret;
 }
 
-void set_selfdict(typval_T *rettv, dict_T *selfdict)
+void set_selfdict(typval_T *rettv, dict_st *selfdict)
 {
     // Don't do this when "dict.Func" is already a partial that was bound
     // explicitly (pt_auto is false).
@@ -24427,7 +24427,7 @@ static hashtab_T *get_funccal_local_ht(void)
 static hashtab_T *find_var_ht_dict(const char *name,
                                    const size_t name_len,
                                    const char **varname,
-                                   dict_T **d)
+                                   dict_st **d)
 {
     hashitem_T *hi;
     *d = NULL;
@@ -24534,7 +24534,7 @@ static hashtab_T *find_var_ht(const char *name,
                               const size_t name_len,
                               const char **varname)
 {
-    dict_T *d;
+    dict_st *d;
     return find_var_ht_dict(name, name_len, varname, &d);
 }
 
@@ -24591,7 +24591,7 @@ void new_script_vars(scid_T id)
 
 /// Initialize dictionary @b dict as a scope and
 /// set variable @b dict_var to point to it.
-void init_var_dict(dict_T *dict, scope_dict_T *dict_var, int scope)
+void init_var_dict(dict_st *dict, scope_dict_T *dict_var, int scope)
 {
     hash_init(&dict->dv_hashtab);
 
@@ -24609,7 +24609,7 @@ void init_var_dict(dict_T *dict, scope_dict_T *dict_var, int scope)
 }
 
 /// Unreference a dictionary initialized by init_var_dict().
-void unref_var_dict(dict_T *dict)
+void unref_var_dict(dict_st *dict)
 {
     // Now the dict needs to be freed if no one else is
     // using it, go back to normal reference counting.
@@ -24771,7 +24771,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *v;
     hashtab_T *ht;
-    dict_T *dict;
+    dict_st *dict;
 
     const char *varname;
     ht = find_var_ht_dict(name, name_len, &varname, &dict);
@@ -27461,7 +27461,7 @@ void call_user_func(ufunc_T *fp,
                     typval_T *rettv,
                     linenr_T firstline,
                     linenr_T lastline,
-                    dict_T *selfdict)
+                    dict_st *selfdict)
 FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 {
     uchar_kt *save_sourcing_name;
@@ -28023,7 +28023,7 @@ static void free_funccal(funccall_T *fc, int free_val)
 }
 
 /// Add a number variable "name" to dict "dp" with value "nr".
-static void add_nr_var(dict_T *dp, dictitem_T *v, char *name, varnumber_T nr)
+static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, varnumber_T nr)
 {
 #ifndef __clang_analyzer__
     STRCPY(v->di_key, name);
@@ -29152,7 +29152,7 @@ static inline TerminalJobData *common_job_init(char **argv,
 /// common code for getting job callbacks for jobstart, termopen and rpcstart
 ///
 /// @return true/false on success/failure.
-static inline bool common_job_callbacks(dict_T *vopts,
+static inline bool common_job_callbacks(dict_st *vopts,
                                         Callback *on_stdout,
                                         Callback *on_stderr,
                                         Callback *on_exit)

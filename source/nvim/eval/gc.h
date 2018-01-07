@@ -5,7 +5,7 @@
 
 #include "nvim/eval/typval.h"
 
-extern dict_T *gc_first_dict;
+extern dict_st *gc_first_dict;
 extern list_st *gc_first_list;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

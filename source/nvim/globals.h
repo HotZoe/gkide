@@ -268,10 +268,10 @@ EXTERN int emsg_severe INIT(= FALSE);
 EXTERN int did_endif INIT(= FALSE);
 
 /// Dictionary with v: variables
-EXTERN dict_T vimvardict;
+EXTERN dict_st vimvardict;
 
 /// Dictionary with g: variables
-EXTERN dict_T globvardict;
+EXTERN dict_st globvardict;
 
 /// set by emsg() when the message is displayed or thrown
 EXTERN int did_emsg;

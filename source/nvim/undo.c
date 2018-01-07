@@ -3749,7 +3749,7 @@ bool curbufIsChanged(void)
 /// undo blocks at "first_uhp" to "list". Recursive.
 void u_eval_tree(u_header_T *first_uhp, list_st *list)
 {
-    dict_T *dict;
+    dict_st *dict;
     u_header_T *uhp = first_uhp;
 
     while(uhp != NULL)
