@@ -3332,7 +3332,7 @@ int call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_shell_arg)
         retval = os_call_shell(cmd, opts, extra_shell_arg);
     }
 
-    set_vim_var_nr(VV_SHELL_ERROR, (varnumber_T)retval);
+    set_vim_var_nr(VV_SHELL_ERROR, (number_kt)retval);
 
     if(do_profiling == PROF_YES)
     {

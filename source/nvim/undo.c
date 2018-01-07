@@ -3756,8 +3756,8 @@ void u_eval_tree(u_header_T *first_uhp, list_st *list)
     {
         dict = tv_dict_alloc();
 
-        tv_dict_add_nr(dict, S_LEN("seq"), (varnumber_T)uhp->uh_seq);
-        tv_dict_add_nr(dict, S_LEN("time"), (varnumber_T)uhp->uh_time);
+        tv_dict_add_nr(dict, S_LEN("seq"), (number_kt)uhp->uh_seq);
+        tv_dict_add_nr(dict, S_LEN("time"), (number_kt)uhp->uh_time);
 
         if(uhp == curbuf->b_u_newhead)
         {
@@ -3771,7 +3771,7 @@ void u_eval_tree(u_header_T *first_uhp, list_st *list)
 
         if(uhp->uh_save_nr > 0)
         {
-            tv_dict_add_nr(dict, S_LEN("save"), (varnumber_T)uhp->uh_save_nr);
+            tv_dict_add_nr(dict, S_LEN("save"), (number_kt)uhp->uh_save_nr);
         }
 
         if(uhp->uh_alt_next.ptr != NULL)

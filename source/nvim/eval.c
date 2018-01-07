@@ -2278,7 +2278,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             char *stringval = NULL;
             const char c1 = *p;
             *p = NUL;
-            varnumber_T n = tv_get_number(tv);
+            number_kt n = tv_get_number(tv);
 
             // != NULL if number or string.
             const char *s = tv_get_string_chk(tv);
@@ -8538,7 +8538,7 @@ static void f_abs(typval_T *argvars,
     }
     else
     {
-        varnumber_T n;
+        number_kt n;
         bool error = false;
         n = tv_get_number_chk(&argvars[0], &error);
 
@@ -8973,9 +8973,9 @@ static void f_assert_fails(typval_T *argvars,
 void assert_inrange(typval_T *argvars)
 {
     bool error = false;
-    const varnumber_T lower = tv_get_number_chk(&argvars[0], &error);
-    const varnumber_T upper = tv_get_number_chk(&argvars[1], &error);
-    const varnumber_T actual = tv_get_number_chk(&argvars[2], &error);
+    const number_kt lower = tv_get_number_chk(&argvars[0], &error);
+    const number_kt upper = tv_get_number_chk(&argvars[1], &error);
+    const number_kt actual = tv_get_number_chk(&argvars[2], &error);
 
     if(error)
     {
@@ -9375,14 +9375,14 @@ static void f_byte2line(typval_T *argvars,
     else
     {
         rettv->vval.v_number =
-            (varnumber_T)ml_find_line_or_offset(curbuf, 0, &boff);
+            (number_kt)ml_find_line_or_offset(curbuf, 0, &boff);
     }
 }
 
 static void byteidx(typval_T *argvars, typval_T *rettv, int comp)
 {
     const char *const str = tv_get_string_chk(&argvars[0]);
-    varnumber_T idx = tv_get_number_chk(&argvars[1], NULL);
+    number_kt idx = tv_get_number_chk(&argvars[1], NULL);
     rettv->vval.v_number = -1;
 
     if(str == NULL || idx < 0)
@@ -9409,7 +9409,7 @@ static void byteidx(typval_T *argvars, typval_T *rettv, int comp)
         }
     }
 
-    rettv->vval.v_number = (varnumber_T)(t - str);
+    rettv->vval.v_number = (number_kt)(t - str);
 }
 
 /// "byteidx()" function
@@ -11203,7 +11203,7 @@ static void f_float2nr(typval_T *argvars,
         }
         else
         {
-            rettv->vval.v_number = (varnumber_T)f;
+            rettv->vval.v_number = (number_kt)f;
         }
     }
 }
@@ -11291,11 +11291,11 @@ static void foldclosed_both(typval_T *argvars, typval_T *rettv, int end)
         {
             if(end)
             {
-                rettv->vval.v_number = (varnumber_T)last;
+                rettv->vval.v_number = (number_kt)last;
             }
             else
             {
-                rettv->vval.v_number = (varnumber_T)first;
+                rettv->vval.v_number = (number_kt)first;
             }
 
             return;
@@ -11871,7 +11871,7 @@ static dict_st *get_buffer_info(fbuf_st *buf)
     {
         if(wp->w_buffer == buf)
         {
-            tv_list_append_number(windows, (varnumber_T)wp->handle);
+            tv_list_append_number(windows, (number_kt)wp->handle);
         }
     }
 
@@ -12165,7 +12165,7 @@ static void f_getchar(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    varnumber_T n;
+    number_kt n;
     bool error = false;
     no_mapping++;
 
@@ -12652,7 +12652,7 @@ static void f_getfsize(typval_T *argvars,
         }
         else
         {
-            rettv->vval.v_number = (varnumber_T)filesize;
+            rettv->vval.v_number = (number_kt)filesize;
 
             // non-perfect check for overflow
             if((uint64_t)rettv->vval.v_number != filesize)
@@ -12677,7 +12677,7 @@ static void f_getftime(typval_T *argvars,
 
     if(os_fileinfo(fname, &file_info))
     {
-        rettv->vval.v_number = (varnumber_T)file_info.stat.st_mtim.tv_sec;
+        rettv->vval.v_number = (number_kt)file_info.stat.st_mtim.tv_sec;
     }
     else
     {
@@ -12904,12 +12904,12 @@ static void f_getmatches(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                 }
 
                 list_st *l = tv_list_alloc();
-                tv_list_append_number(l, (varnumber_T)llpos->lnum);
+                tv_list_append_number(l, (number_kt)llpos->lnum);
 
                 if(llpos->col > 0)
                 {
-                    tv_list_append_number(l, (varnumber_T)llpos->col);
-                    tv_list_append_number(l, (varnumber_T)llpos->len);
+                    tv_list_append_number(l, (number_kt)llpos->col);
+                    tv_list_append_number(l, (number_kt)llpos->len);
                 }
 
                 int len = snprintf(buf, sizeof(buf), "pos%d", i + 1);
@@ -12923,8 +12923,8 @@ static void f_getmatches(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
         }
 
         tv_dict_add_str(dict, S_LEN("group"), (const char *)syn_id2name(cur->hlg_id));
-        tv_dict_add_nr(dict, S_LEN("priority"), (varnumber_T)cur->priority);
-        tv_dict_add_nr(dict, S_LEN("id"), (varnumber_T)cur->id);
+        tv_dict_add_nr(dict, S_LEN("priority"), (number_kt)cur->priority);
+        tv_dict_add_nr(dict, S_LEN("id"), (number_kt)cur->id);
 
         if(cur->conceal_char)
         {
@@ -12964,31 +12964,31 @@ static void getpos_both(typval_T *argvars, typval_T *rettv, bool getcurpos)
 
     tv_list_append_number(l,
                           (fnum != -1)
-                          ? (varnumber_T)fnum
-                          : (varnumber_T)0);
+                          ? (number_kt)fnum
+                          : (number_kt)0);
 
     tv_list_append_number(l,
                           ((fp != NULL)
-                           ? (varnumber_T)fp->lnum
-                           : (varnumber_T)0));
+                           ? (number_kt)fp->lnum
+                           : (number_kt)0));
 
     tv_list_append_number(l, ((fp != NULL)
-                              ? (varnumber_T)(fp->col == MAXCOL
+                              ? (number_kt)(fp->col == MAXCOL
                                               ? MAXCOL : fp->col + 1)
-                              : (varnumber_T)0));
+                              : (number_kt)0));
 
     tv_list_append_number(l,
                           (fp != NULL)
-                          ? (varnumber_T)fp->coladd
-                          : (varnumber_T)0);
+                          ? (number_kt)fp->coladd
+                          : (number_kt)0);
 
     if(getcurpos)
     {
         update_curswant();
         tv_list_append_number(l,
                               (curwin->w_curswant == MAXCOL
-                              ? (varnumber_T)MAXCOL
-                              : (varnumber_T)curwin->w_curswant + 1));
+                              ? (number_kt)MAXCOL
+                              : (number_kt)curwin->w_curswant + 1));
     }
 }
 
@@ -13131,7 +13131,7 @@ static dict_st *get_tabpage_info(tabpage_st *tp, int tp_idx)
 
     FOR_ALL_WINDOWS_IN_TAB(wp, tp)
     {
-        tv_list_append_number(l, (varnumber_T)wp->handle);
+        tv_list_append_number(l, (number_kt)wp->handle);
     }
 
     tv_dict_add_list(dict, S_LEN("windows"), l);
@@ -15572,7 +15572,7 @@ static void f_len(typval_T *argvars,
         case VAR_NUMBER:
         {
             rettv->vval.v_number =
-                (varnumber_T)strlen(tv_get_string(&argvars[0]));
+                (number_kt)strlen(tv_get_string(&argvars[0]));
             break;
         }
 
@@ -15736,7 +15736,7 @@ static void f_localtime(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->vval.v_number = (varnumber_T)time(NULL);
+    rettv->vval.v_number = (number_kt)time(NULL);
 }
 
 
@@ -15845,7 +15845,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     uchar_kt *lhs = str2special_save(mp->m_keys, true);
     char *const mapmode = map_mode_to_chars(mp->m_mode);
-    varnumber_T noremap_value;
+    number_kt noremap_value;
 
     if(compatible)
     {
@@ -15865,8 +15865,8 @@ FUNC_ATTR_NONNULL_ALL
     tv_dict_add_nr(dict,  S_LEN("noremap"), noremap_value);
     tv_dict_add_nr(dict,  S_LEN("expr"),    mp->m_expr ? 1 : 0);
     tv_dict_add_nr(dict,  S_LEN("silent"),  mp->m_silent ? 1 : 0);
-    tv_dict_add_nr(dict,  S_LEN("sid"),     (varnumber_T)mp->m_script_ID);
-    tv_dict_add_nr(dict,  S_LEN("buffer"),  (varnumber_T)buffer_value);
+    tv_dict_add_nr(dict,  S_LEN("sid"),     (number_kt)mp->m_script_ID);
+    tv_dict_add_nr(dict,  S_LEN("buffer"),  (number_kt)buffer_value);
     tv_dict_add_nr(dict,  S_LEN("nowait"),  mp->m_nowait ? 1 : 0);
     tv_dict_add_str(dict, S_LEN("mode"),    mapmode);
 
@@ -16091,12 +16091,12 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
                 int rd = (int)(regmatch.endp[0] - regmatch.startp[0]);
 
                 li1->li_tv.vval.v_string = vim_strnsave(regmatch.startp[0], rd);
-                li3->li_tv.vval.v_number = (varnumber_T)(regmatch.startp[0] - expr);
-                li4->li_tv.vval.v_number = (varnumber_T)(regmatch.endp[0] - expr);
+                li3->li_tv.vval.v_number = (number_kt)(regmatch.startp[0] - expr);
+                li4->li_tv.vval.v_number = (number_kt)(regmatch.endp[0] - expr);
 
                 if(l != NULL)
                 {
-                    li2->li_tv.vval.v_number = (varnumber_T)idx;
+                    li2->li_tv.vval.v_number = (number_kt)idx;
                 }
             }
             else if(type == 3)
@@ -16138,14 +16138,14 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
             {
                 if(type != 0)
                 {
-                    rettv->vval.v_number = (varnumber_T)(regmatch.startp[0] - str);
+                    rettv->vval.v_number = (number_kt)(regmatch.startp[0] - str);
                 }
                 else
                 {
-                    rettv->vval.v_number = (varnumber_T)(regmatch.endp[0] - str);
+                    rettv->vval.v_number = (number_kt)(regmatch.endp[0] - str);
                 }
 
-                rettv->vval.v_number += (varnumber_T)(str - expr);
+                rettv->vval.v_number += (number_kt)(str - expr);
             }
         }
 
@@ -16397,7 +16397,7 @@ static void max_min(const typval_T *const tv,
                     const bool domax)
 FUNC_ATTR_NONNULL_ALL
 {
-    varnumber_T n = 0;
+    number_kt n = 0;
     bool error = false;
 
     if(tv->v_type == VAR_LIST)
@@ -16412,7 +16412,7 @@ FUNC_ATTR_NONNULL_ALL
                 li != NULL && !error;
                 li = li->li_next)
             {
-                const varnumber_T i = tv_get_number_chk(&li->li_tv, &error);
+                const number_kt i = tv_get_number_chk(&li->li_tv, &error);
 
                 if(domax ? i > n : i < n)
                 {
@@ -16428,7 +16428,7 @@ FUNC_ATTR_NONNULL_ALL
             bool first = true;
 
             TV_DICT_ITER(tv->vval.v_dict, di, {
-                const varnumber_T i = tv_get_number_chk(&di->di_tv, &error);
+                const number_kt i = tv_get_number_chk(&di->di_tv, &error);
 
                 if(error)
                 {
@@ -16748,7 +16748,7 @@ static void f_nr2char(typval_T *argvars,
     }
 
     bool error = false;
-    const varnumber_T num = tv_get_number_chk(&argvars[0], &error);
+    const number_kt num = tv_get_number_chk(&argvars[0], &error);
 
     if(error)
     {
@@ -16902,9 +16902,9 @@ static void f_range(typval_T *argvars,
                     typval_T *rettv,
                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    varnumber_T start;
-    varnumber_T end;
-    varnumber_T stride = 1;
+    number_kt start;
+    number_kt end;
+    number_kt stride = 1;
     long i;
     bool error = false;
     start = tv_get_number_chk(&argvars[0], &error);
@@ -16943,7 +16943,7 @@ static void f_range(typval_T *argvars,
 
         for(i = start; stride > 0 ? i <= end : i >= end; i += stride)
         {
-            tv_list_append_number(rettv->vval.v_list, (varnumber_T)i);
+            tv_list_append_number(rettv->vval.v_list, (number_kt)i);
         }
     }
 }
@@ -17180,8 +17180,8 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     bool error = false;
-    varnumber_T n1 = tv_list_find_nr(arg->vval.v_list, 0L, &error);
-    varnumber_T n2 = tv_list_find_nr(arg->vval.v_list, 1L, &error);
+    number_kt n1 = tv_list_find_nr(arg->vval.v_list, 0L, &error);
+    number_kt n2 = tv_list_find_nr(arg->vval.v_list, 1L, &error);
 
     if(error)
     {
@@ -17192,7 +17192,7 @@ FUNC_ATTR_NONNULL_ALL
     // values, now we combine them again.
     union
     {
-        struct { varnumber_T low, high; } split;
+        struct { number_kt low, high; } split;
         proftime_T prof;
     } u = { .split.high = n1, .split.low = n2 };
 
@@ -17241,19 +17241,19 @@ static void f_reltime(typval_T *argvars,
     }
 
     // we have to store the 64-bit proftime_T inside of a list of int's
-    // (varnumber_T is defined as int). For all our supported platforms, int's
+    // (number_kt is defined as int). For all our supported platforms, int's
     // are at least 32-bits wide. So we'll use two 32-bit values to store it.
     union
     {
         struct
         {
-            varnumber_T low, high;
+            number_kt low, high;
         } split;
         proftime_T prof;
     } u = { .prof = res };
 
     // statically assert that the union type conv will provide the correct
-    // results, if varnumber_T or proftime_T change, the union cast will need
+    // results, if number_kt or proftime_T change, the union cast will need
     // to be revised.
     STATIC_ASSERT(sizeof(u.prof) == sizeof(u) && sizeof(u.split) == sizeof(u),
                   "type punning will produce incorrect results on this platform");
@@ -17431,7 +17431,7 @@ static void f_repeat(typval_T *argvars,
                      typval_T *rettv,
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    varnumber_T n = tv_get_number(&argvars[1]);
+    number_kt n = tv_get_number(&argvars[1]);
 
     if(argvars[0].v_type == VAR_LIST)
     {
@@ -17470,7 +17470,7 @@ static void f_repeat(typval_T *argvars,
 
         char *const r = xmallocz(len);
 
-        for(varnumber_T i = 0; i < n; i++)
+        for(number_kt i = 0; i < n; i++)
         {
             memmove(r + i * slen, p, slen);
         }
@@ -18438,8 +18438,8 @@ static void f_searchpairpos(typval_T *argvars,
         col = match_pos.col;
     }
 
-    tv_list_append_number(rettv->vval.v_list, (varnumber_T)lnum);
-    tv_list_append_number(rettv->vval.v_list, (varnumber_T)col);
+    tv_list_append_number(rettv->vval.v_list, (number_kt)lnum);
+    tv_list_append_number(rettv->vval.v_list, (number_kt)col);
 }
 
 /*
@@ -18681,12 +18681,12 @@ static void f_searchpos(typval_T *argvars,
         col = match_pos.col;
     }
 
-    tv_list_append_number(rettv->vval.v_list, (varnumber_T)lnum);
-    tv_list_append_number(rettv->vval.v_list, (varnumber_T)col);
+    tv_list_append_number(rettv->vval.v_list, (number_kt)lnum);
+    tv_list_append_number(rettv->vval.v_list, (number_kt)col);
 
     if(flags & SP_SUBPAT)
     {
-        tv_list_append_number(rettv->vval.v_list, (varnumber_T)n);
+        tv_list_append_number(rettv->vval.v_list, (number_kt)n);
     }
 }
 
@@ -19741,7 +19741,7 @@ static void f_sockconnect(typval_T *argvars,
         EMSG2(_("connection failed: %s"), error);
     }
 
-    rettv->vval.v_number = (varnumber_T)id;
+    rettv->vval.v_number = (number_kt)id;
     rettv->v_type = VAR_NUMBER;
 }
 
@@ -20641,7 +20641,7 @@ static void f_strgetchar(typval_T *argvars,
     }
 
     bool error = false;
-    varnumber_T charidx = tv_get_number_chk(&argvars[1], &error);
+    number_kt charidx = tv_get_number_chk(&argvars[1], &error);
 
     if(error)
     {
@@ -20701,7 +20701,7 @@ static void f_stridx(typval_T *argvars,
 
     if(pos != NULL)
     {
-        rettv->vval.v_number = (varnumber_T)(pos - haystack_start);
+        rettv->vval.v_number = (number_kt)(pos - haystack_start);
     }
 }
 
@@ -20719,7 +20719,7 @@ static void f_strlen(typval_T *argvars,
                      typval_T *rettv,
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->vval.v_number = (varnumber_T)strlen(tv_get_string(&argvars[0]));
+    rettv->vval.v_number = (number_kt)strlen(tv_get_string(&argvars[0]));
 }
 
 /// "strchars()" function
@@ -20729,7 +20729,7 @@ static void f_strchars(typval_T *argvars,
 {
     const char *s = tv_get_string(&argvars[0]);
     int skipcc = 0;
-    varnumber_T len = 0;
+    number_kt len = 0;
     int (*func_mb_ptr2char_adv)(const uchar_kt **pp);
 
     if(argvars[1].v_type != VAR_UNKNOWN)
@@ -20769,7 +20769,7 @@ static void f_strdisplaywidth(typval_T *argvars,
     }
 
     rettv->vval.v_number =
-        (varnumber_T)(linetabsize_col(col, (uchar_kt *)s) - col);
+        (number_kt)(linetabsize_col(col, (uchar_kt *)s) - col);
 }
 
 /// "strwidth()" function
@@ -20778,7 +20778,7 @@ static void f_strwidth(typval_T *argvars,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const s = tv_get_string(&argvars[0]);
-    rettv->vval.v_number = (varnumber_T)mb_string2cells((const uchar_kt *)s);
+    rettv->vval.v_number = (number_kt)mb_string2cells((const uchar_kt *)s);
 }
 
 /// "strcharpart()" function
@@ -20790,7 +20790,7 @@ static void f_strcharpart(typval_T *argvars,
     const size_t slen = STRLEN(p);
     int nbyte = 0;
     bool error = false;
-    varnumber_T nchar = tv_get_number_chk(&argvars[1], &error);
+    number_kt nchar = tv_get_number_chk(&argvars[1], &error);
 
     if(!error)
     {
@@ -20868,8 +20868,8 @@ static void f_strpart(typval_T *argvars,
     bool error = false;
     const char *const p = tv_get_string(&argvars[0]);
     const size_t slen = strlen(p);
-    varnumber_T n = tv_get_number_chk(&argvars[1], &error);
-    varnumber_T len;
+    number_kt n = tv_get_number_chk(&argvars[1], &error);
+    number_kt len;
 
     if(error)
     {
@@ -20891,7 +20891,7 @@ static void f_strpart(typval_T *argvars,
         len += n;
         n = 0;
     }
-    else if(n > (varnumber_T)slen)
+    else if(n > (number_kt)slen)
     {
         n = slen;
     }
@@ -20900,7 +20900,7 @@ static void f_strpart(typval_T *argvars,
     {
         len = 0;
     }
-    else if(n + len > (varnumber_T)slen)
+    else if(n + len > (number_kt)slen)
     {
         len = slen - n;
     }
@@ -20970,7 +20970,7 @@ static void f_strridx(typval_T *argvars,
     }
     else
     {
-        rettv->vval.v_number = (varnumber_T)(lastmatch - haystack);
+        rettv->vval.v_number = (number_kt)(lastmatch - haystack);
     }
 }
 
@@ -22430,12 +22430,12 @@ static void f_undotree(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
     dict_st *dict = rettv->vval.v_dict;
     list_st *list;
 
-    tv_dict_add_nr(dict, S_LEN("synced"), (varnumber_T)curbuf->b_u_synced);
-    tv_dict_add_nr(dict, S_LEN("seq_last"), (varnumber_T)curbuf->b_u_seq_last);
-    tv_dict_add_nr(dict, S_LEN("save_last"), (varnumber_T)curbuf->b_u_save_nr_last);
-    tv_dict_add_nr(dict, S_LEN("seq_cur"), (varnumber_T)curbuf->b_u_seq_cur);
-    tv_dict_add_nr(dict, S_LEN("time_cur"), (varnumber_T)curbuf->b_u_time_cur);
-    tv_dict_add_nr(dict, S_LEN("save_cur"), (varnumber_T)curbuf->b_u_save_nr_cur);
+    tv_dict_add_nr(dict, S_LEN("synced"), (number_kt)curbuf->b_u_synced);
+    tv_dict_add_nr(dict, S_LEN("seq_last"), (number_kt)curbuf->b_u_seq_last);
+    tv_dict_add_nr(dict, S_LEN("save_last"), (number_kt)curbuf->b_u_save_nr_last);
+    tv_dict_add_nr(dict, S_LEN("seq_cur"), (number_kt)curbuf->b_u_seq_cur);
+    tv_dict_add_nr(dict, S_LEN("time_cur"), (number_kt)curbuf->b_u_time_cur);
+    tv_dict_add_nr(dict, S_LEN("save_cur"), (number_kt)curbuf->b_u_save_nr_cur);
 
     list = tv_list_alloc();
     u_eval_tree(curbuf->b_u_oldhead, list);
@@ -22715,17 +22715,17 @@ static void f_winsaveview(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
     tv_dict_alloc_ret(rettv);
     dict = rettv->vval.v_dict;
 
-    tv_dict_add_nr(dict, S_LEN("lnum"), (varnumber_T)curwin->w_cursor.lnum);
-    tv_dict_add_nr(dict, S_LEN("col"), (varnumber_T)curwin->w_cursor.col);
-    tv_dict_add_nr(dict, S_LEN("coladd"), (varnumber_T)curwin->w_cursor.coladd);
+    tv_dict_add_nr(dict, S_LEN("lnum"), (number_kt)curwin->w_cursor.lnum);
+    tv_dict_add_nr(dict, S_LEN("col"), (number_kt)curwin->w_cursor.col);
+    tv_dict_add_nr(dict, S_LEN("coladd"), (number_kt)curwin->w_cursor.coladd);
 
     update_curswant();
 
-    tv_dict_add_nr(dict, S_LEN("curswant"), (varnumber_T)curwin->w_curswant);
-    tv_dict_add_nr(dict, S_LEN("topline"), (varnumber_T)curwin->w_topline);
-    tv_dict_add_nr(dict, S_LEN("topfill"), (varnumber_T)curwin->w_topfill);
-    tv_dict_add_nr(dict, S_LEN("leftcol"), (varnumber_T)curwin->w_leftcol);
-    tv_dict_add_nr(dict, S_LEN("skipcol"), (varnumber_T)curwin->w_skipcol);
+    tv_dict_add_nr(dict, S_LEN("curswant"), (number_kt)curwin->w_curswant);
+    tv_dict_add_nr(dict, S_LEN("topline"), (number_kt)curwin->w_topline);
+    tv_dict_add_nr(dict, S_LEN("topfill"), (number_kt)curwin->w_topfill);
+    tv_dict_add_nr(dict, S_LEN("leftcol"), (number_kt)curwin->w_leftcol);
+    tv_dict_add_nr(dict, S_LEN("skipcol"), (number_kt)curwin->w_skipcol);
 }
 
 /// Writes list of strings to file
@@ -23707,7 +23707,7 @@ void set_vcount(long count, long count1, int set_prevcount)
 ///
 /// @param[in]  idx  Index of variable to set.
 /// @param[in]  val  Value to set to.
-void set_vim_var_nr(const VimVarIndex idx, const varnumber_T val)
+void set_vim_var_nr(const VimVarIndex idx, const number_kt val)
 {
     tv_clear(&vimvars[idx].vv_tv);
     vimvars[idx].vv_type = VAR_NUMBER;
@@ -27570,7 +27570,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     add_nr_var(&fc->l_avars,
               (dictitem_T *)&fc->fixvar[fixvar_idx++],
               "0",
-              (varnumber_T)(argcount - fp->uf_args.ga_len));
+              (number_kt)(argcount - fp->uf_args.ga_len));
 
     // Use "name" to avoid a warning from some compiler
     // that checks the destination size.
@@ -27596,12 +27596,12 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     add_nr_var(&fc->l_avars,
                (dictitem_T *)&fc->fixvar[fixvar_idx++],
                "firstline",
-               (varnumber_T)firstline);
+               (number_kt)firstline);
 
     add_nr_var(&fc->l_avars,
                (dictitem_T *)&fc->fixvar[fixvar_idx++],
                "lastline",
-               (varnumber_T)lastline);
+               (number_kt)lastline);
 
     for(int i = 0; i < argcount; i++)
     {
@@ -28029,7 +28029,7 @@ static void free_funccal(funccall_T *fc, int free_val)
 }
 
 /// Add a number variable "name" to dict "dp" with value "nr".
-static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, varnumber_T nr)
+static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, number_kt nr)
 {
 #ifndef __clang_analyzer__
     STRCPY(v->di_key, name);

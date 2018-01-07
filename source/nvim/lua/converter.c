@@ -420,7 +420,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
 
                 if(n > (lua_Number)VARNUMBER_MAX
                    || n < (lua_Number)VARNUMBER_MIN
-                   || ((lua_Number)((varnumber_T)n)) != n)
+                   || ((lua_Number)((number_kt)n)) != n)
                 {
                     cur.tv->v_type = VAR_FLOAT;
                     cur.tv->vval.v_float = (float_kt)n;
@@ -428,7 +428,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                 else
                 {
                     cur.tv->v_type = VAR_NUMBER;
-                    cur.tv->vval.v_number = (varnumber_T)n;
+                    cur.tv->vval.v_number = (number_kt)n;
                 }
 
                 break;

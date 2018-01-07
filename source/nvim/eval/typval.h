@@ -21,17 +21,16 @@
 #include "nvim/message.h"
 #include "nvim/macros.h"
 
-/// Maximal possible value of varnumber_T variable
+/// Maximal possible value of number_kt variable
 #define VARNUMBER_MAX INT_MAX
 
-/// Mimimal possible value of varnumber_T variable
+/// Mimimal possible value of number_kt variable
 #define VARNUMBER_MIN INT_MIN
 
-/// %d printf format specifier for varnumber_T
+/// %d printf format specifier for number_kt
 #define PRIdVARNUMBER "d"
 
-/// Type used for VimL VAR_NUMBER values
-typedef int               varnumber_T;
+typedef int               number_kt;
 // =======================string_st
 typedef struct ufunc_s    ufunc_st;
 typedef struct list_s     list_st;
@@ -112,7 +111,7 @@ typedef struct
     VarLockStatus v_lock; ///< Variable lock status.
     union typval_vval_union
     {
-        varnumber_T v_number;      ///< Number, for VAR_NUMBER.
+        number_kt v_number;      ///< Number, for VAR_NUMBER.
         SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
         float_kt v_float;  ///< Floating-point number, for VAR_FLOAT.
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.

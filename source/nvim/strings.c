@@ -674,12 +674,12 @@ static const char *const e_printf =
 /// Index in a list. Will be incremented. Indexing starts at 1.
 ///
 /// @return Number value or 0 in case of error.
-static varnumber_T tv_nr(typval_T *tvs, int *idxp)
+static number_kt tv_nr(typval_T *tvs, int *idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int idx = *idxp - 1;
-    varnumber_T n = 0;
+    number_kt n = 0;
 
     if(tvs[idx].v_type == VAR_UNKNOWN)
     {

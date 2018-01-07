@@ -67,7 +67,7 @@ FUNC_ATTR_NONNULL_ALL
                 if(*op == '+' || *op == '-')
                 {
                     // nr += nr  or  nr -= nr
-                    varnumber_T n = tv_get_number(tv1);
+                    number_kt n = tv_get_number(tv1);
 
                     if(tv2->v_type == VAR_FLOAT)
                     {

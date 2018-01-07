@@ -2946,12 +2946,12 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                     typval_T argv[4] = { 0 };
                     argv[0].v_lock = VAR_FIXED;
                     argv[0].v_type = VAR_NUMBER;
-                    argv[0].vval.v_number = (varnumber_T)tab_page_click_defs[mouse_col].tabnr;
+                    argv[0].vval.v_number = (number_kt)tab_page_click_defs[mouse_col].tabnr;
                     argv[1].v_lock = VAR_FIXED;
                     argv[1].v_type = VAR_NUMBER;
 
                     argv[1].vval.v_number =
-                        (varnumber_T)(((mod_mask & MOD_MASK_MULTI_CLICK)  == MOD_MASK_4CLICK)
+                        (number_kt)(((mod_mask & MOD_MASK_MULTI_CLICK)  == MOD_MASK_4CLICK)
                                       ? 4 : ((mod_mask & MOD_MASK_MULTI_CLICK) == MOD_MASK_3CLICK)
                                       ? 3 : ((mod_mask & MOD_MASK_MULTI_CLICK) == MOD_MASK_2CLICK)
                                       ? 2 : 1);

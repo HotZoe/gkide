@@ -2028,8 +2028,8 @@ FUNC_ATTR_NONNULL_ARG(1)
         uchar_kt  *p;
 
         // Set "v:foldstart" and "v:foldend".
-        set_vim_var_nr(VV_FOLDSTART, (varnumber_T) lnum);
-        set_vim_var_nr(VV_FOLDEND, (varnumber_T) lnume);
+        set_vim_var_nr(VV_FOLDSTART, (number_kt) lnum);
+        set_vim_var_nr(VV_FOLDEND, (number_kt) lnume);
 
         // Set "v:folddashes" to a string of "level" dashes.
         // Set "v:foldlevel" to "level".
@@ -2043,7 +2043,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         memset(dashes, '-', (size_t)level);
         dashes[level] = NUL;
         set_vim_var_string(VV_FOLDDASHES, dashes, -1);
-        set_vim_var_nr(VV_FOLDLEVEL, (varnumber_T) level);
+        set_vim_var_nr(VV_FOLDLEVEL, (number_kt) level);
 
         // skip evaluating foldtext on errors
         if(!got_fdt_error)
@@ -3503,7 +3503,7 @@ static void foldlevelExpr(fline_T *flp)
     win = curwin;
     curwin = flp->wp;
     curbuf = flp->wp->w_buffer;
-    set_vim_var_nr(VV_LNUM, (varnumber_T) lnum);
+    set_vim_var_nr(VV_LNUM, (number_kt) lnum);
     flp->start = 0;
     flp->had_end = flp->end;
     flp->end = MAX_LEVEL + 1;

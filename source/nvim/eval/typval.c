@@ -470,7 +470,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// @param[in]  n
 /// Number to append. Will be recorded in the allocated listitem_T.
-void tv_list_append_number(list_st *const l, const varnumber_T n)
+void tv_list_append_number(list_st *const l, const number_kt n)
 {
     listitem_T *const li = tv_list_item_alloc();
     li->li_tv.v_type = VAR_NUMBER;
@@ -872,7 +872,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// May be NULL. If everything is OK, `*ret_error` is not touched.
 ///
 /// @return Integer value at the given index or -1.
-varnumber_T tv_list_find_nr(list_st *const l,
+number_kt tv_list_find_nr(list_st *const l,
                             const int n,
                             bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1398,7 +1398,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  key  Key to find in dictionary.
 ///
 /// @return Dictionary item.
-varnumber_T tv_dict_get_number(const dict_st *const d, const char *const key)
+number_kt tv_dict_get_number(const dict_st *const d, const char *const key)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1620,7 +1620,7 @@ FUNC_ATTR_NONNULL_ALL
 int tv_dict_add_nr(dict_st *const d,
                    const char *const key,
                    const size_t key_len,
-                   const varnumber_T nr)
+                   const number_kt nr)
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
     item->di_tv.v_lock = VAR_UNLOCKED;
@@ -2888,7 +2888,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return Number value: vim_str2nr() output for VAR_STRING objects, value
 ///         for VAR_NUMBER objects, -1 for other types.
-varnumber_T tv_get_number(const typval_T *const tv)
+number_kt tv_get_number(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool error = false;
@@ -2909,7 +2909,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Number value: vim_str2nr() output for VAR_STRING objects, value for
 /// VAR_NUMBER objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
-varnumber_T tv_get_number_chk(const typval_T *const tv, bool *const ret_error)
+number_kt tv_get_number_chk(const typval_T *const tv, bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
 {
@@ -2932,7 +2932,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
         case VAR_STRING:
         {
-            varnumber_T n = 0;
+            number_kt n = 0;
 
             if(tv->vval.v_string != NULL)
             {
@@ -2940,7 +2940,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 vim_str2nr(tv->vval.v_string, NULL,
                            NULL, STR2NR_ALL, &nr, NULL, 0);
 
-                n = (varnumber_T)nr;
+                n = (number_kt)nr;
             }
 
             return n;

@@ -867,7 +867,7 @@ parse_json_number_check:
                   (int) exp_num_len, s, num_len, exp_num_len);
         }
 
-        tv.vval.v_number = (varnumber_T) nr;
+        tv.vval.v_number = (number_kt) nr;
     }
 
     if(json_decoder_pop(OBJ(tv, false, *didcomma, *didcolon),
@@ -1396,7 +1396,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 *rettv = (typval_T) {
                     .v_type = VAR_NUMBER,
                     .v_lock = VAR_UNLOCKED,
-                    .vval = { .v_number = (varnumber_T) mobj.via.u64 },
+                    .vval = { .v_number = (number_kt) mobj.via.u64 },
                 };
             }
             else
@@ -1412,9 +1412,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
                 uint64_t n = mobj.via.u64;
                 tv_list_append_number(list, 1);
-                tv_list_append_number(list, (varnumber_T)((n >> 62) & 0x3));
-                tv_list_append_number(list, (varnumber_T)((n >> 31) & 0x7FFFFFFF));
-                tv_list_append_number(list, (varnumber_T)(n & 0x7FFFFFFF));
+                tv_list_append_number(list, (number_kt)((n >> 62) & 0x3));
+                tv_list_append_number(list, (number_kt)((n >> 31) & 0x7FFFFFFF));
+                tv_list_append_number(list, (number_kt)(n & 0x7FFFFFFF));
             }
 
             break;
@@ -1427,7 +1427,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 *rettv = (typval_T) {
                     .v_type = VAR_NUMBER,
                     .v_lock = VAR_UNLOCKED,
-                    .vval = { .v_number = (varnumber_T) mobj.via.i64 },
+                    .vval = { .v_number = (number_kt) mobj.via.i64 },
                 };
             }
             else
@@ -1443,9 +1443,9 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
                 uint64_t n = -((uint64_t)mobj.via.i64);
                 tv_list_append_number(list, -1);
-                tv_list_append_number(list, (varnumber_T)((n >> 62) & 0x3));
-                tv_list_append_number(list, (varnumber_T)((n >> 31) & 0x7FFFFFFF));
-                tv_list_append_number(list, (varnumber_T)(n & 0x7FFFFFFF));
+                tv_list_append_number(list, (number_kt)((n >> 62) & 0x3));
+                tv_list_append_number(list, (number_kt)((n >> 31) & 0x7FFFFFFF));
+                tv_list_append_number(list, (number_kt)(n & 0x7FFFFFFF));
             }
 
             break;

@@ -752,7 +752,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
             }
 
             tv->v_type = VAR_NUMBER;
-            tv->vval.v_number = (varnumber_T)obj.data.integer;
+            tv->vval.v_number = (number_kt)obj.data.integer;
             break;
 
         case kObjectTypeFloat:

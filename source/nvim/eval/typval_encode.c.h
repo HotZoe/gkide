@@ -28,7 +28,7 @@
 ///
 /// @param  tv  Pointer to typval where value is stored. May not be NULL. May
 ///             point to a special dictionary.
-/// @param  num  Integer to convert, must accept both varnumber_T and int64_t.
+/// @param  num  Integer to convert, must accept both number_kt and int64_t.
 
 /// @def TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER
 /// @brief Macros used to convert unsigned integer
@@ -507,10 +507,10 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                     case kMPInteger:
                     {
                         const list_st *val_list;
-                        varnumber_T sign;
-                        varnumber_T highest_bits;
-                        varnumber_T high_bits;
-                        varnumber_T low_bits;
+                        number_kt sign;
+                        number_kt highest_bits;
+                        number_kt high_bits;
+                        number_kt low_bits;
 
                         // List of 4 integers; first is signed (should be 1 or
                         // -1, but this is not checked), second is unsigned and
@@ -678,7 +678,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                     case kMPExt:
                     {
                         const list_st *val_list;
-                        varnumber_T type;
+                        number_kt type;
 
                         if((val_di->di_tv.v_type != VAR_LIST)
                            || (val_list = val_di->di_tv.vval.v_list) == NULL

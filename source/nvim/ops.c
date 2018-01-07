@@ -5018,8 +5018,8 @@ int fex_format(linenr_T lnum, long count, int c)
 
     // Set v:lnum to the first line number and v:count to the number of lines.
     // Set v:char to the character to be inserted (can be NUL).
-    set_vim_var_nr(VV_LNUM, (varnumber_T)lnum);
-    set_vim_var_nr(VV_COUNT, (varnumber_T)count);
+    set_vim_var_nr(VV_LNUM, (number_kt)lnum);
+    set_vim_var_nr(VV_COUNT, (number_kt)count);
     set_vim_var_char(c);
 
     // Make a copy, the option could be changed while calling it.
@@ -7161,10 +7161,10 @@ void cursor_pos_info(dict_st *dict)
     if(dict != NULL)
     {
         // Don't shorten this message, the user asked for it.
-        tv_dict_add_nr(dict, S_LEN("words"), (varnumber_T)word_count);
-        tv_dict_add_nr(dict, S_LEN("chars"), (varnumber_T)char_count);
+        tv_dict_add_nr(dict, S_LEN("words"), (number_kt)word_count);
+        tv_dict_add_nr(dict, S_LEN("chars"), (number_kt)char_count);
         tv_dict_add_nr(dict, S_LEN("bytes"),
-                       (varnumber_T)(byte_count + bom_count));
+                       (number_kt)(byte_count + bom_count));
 
         STATIC_ASSERT(sizeof("visual") == sizeof("cursor"),
                       "key_len argument in tv_dict_add_nr is wrong");
@@ -7172,17 +7172,17 @@ void cursor_pos_info(dict_st *dict)
         tv_dict_add_nr(dict,
                        l_VIsual_active ? "visual_bytes" : "cursor_bytes",
                        sizeof("visual_bytes") - 1,
-                       (varnumber_T)byte_count_cursor);
+                       (number_kt)byte_count_cursor);
 
         tv_dict_add_nr(dict,
                        l_VIsual_active ? "visual_chars" : "cursor_chars",
                        sizeof("visual_chars") - 1,
-                       (varnumber_T)char_count_cursor);
+                       (number_kt)char_count_cursor);
 
         tv_dict_add_nr(dict,
                        l_VIsual_active ? "visual_words" : "cursor_words",
                        sizeof("visual_words") - 1,
-                       (varnumber_T)word_count_cursor);
+                       (number_kt)word_count_cursor);
 
     }
 }

@@ -639,7 +639,7 @@ int get_expr_indent(void)
     save_pos = curwin->w_cursor;
     save_curswant = curwin->w_curswant;
     save_set_curswant = curwin->w_set_curswant;
-    set_vim_var_nr(VV_LNUM, (varnumber_T) curwin->w_cursor.lnum);
+    set_vim_var_nr(VV_LNUM, (number_kt) curwin->w_cursor.lnum);
 
     if(use_sandbox)
     {
