@@ -36,8 +36,7 @@ typedef int               varnumber_T;
 typedef struct ufunc_s    ufunc_st;
 typedef struct list_s     list_st;
 typedef struct dict_s     dict_st;
-/// Type used for VimL VAR_FLOAT values
-typedef double            float_T;
+typedef double            float_kt;
 /// @todo remove, boolean
 /// =======================special
 typedef struct partial_s  partial_st;
@@ -115,7 +114,7 @@ typedef struct
     {
         varnumber_T v_number;      ///< Number, for VAR_NUMBER.
         SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
-        float_T v_float;  ///< Floating-point number, for VAR_FLOAT.
+        float_kt v_float;  ///< Floating-point number, for VAR_FLOAT.
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
         list_st *v_list;   ///< List for VAR_LIST, can be NULL.
         dict_st *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
@@ -407,7 +406,7 @@ extern bool tv_in_free_unref_items;
     })
 
 static inline bool tv_get_float_chk(const typval_T *const tv,
-                                    float_T *const ret_f)
+                                    float_kt *const ret_f)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
@@ -423,7 +422,7 @@ bool emsgf(const char *const fmt, ...);
 ///
 /// @return true in case of success, false if tv is not a number or float.
 static inline bool tv_get_float_chk(const typval_T *const tv,
-                                    float_T *const ret_f)
+                                    float_kt *const ret_f)
 {
     if(tv->v_type == VAR_FLOAT)
     {
@@ -433,7 +432,7 @@ static inline bool tv_get_float_chk(const typval_T *const tv,
 
     if(tv->v_type == VAR_NUMBER)
     {
-        *ret_f = (float_T)tv->vval.v_number;
+        *ret_f = (float_kt)tv->vval.v_number;
         return true;
     }
 

@@ -3015,7 +3015,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  tv  Object to get value of.
 ///
 /// @return Floating-point value of the variable or zero.
-float_T tv_get_float(const typval_T *const tv)
+float_kt tv_get_float(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -3023,7 +3023,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         case VAR_NUMBER:
         {
-            return (float_T)(tv->vval.v_number);
+            return (float_kt)(tv->vval.v_number);
         }
 
         case VAR_FLOAT:

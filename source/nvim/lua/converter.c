@@ -423,7 +423,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                    || ((lua_Number)((varnumber_T)n)) != n)
                 {
                     cur.tv->v_type = VAR_FLOAT;
-                    cur.tv->vval.v_float = (float_T)n;
+                    cur.tv->vval.v_float = (float_kt)n;
                 }
                 else
                 {
@@ -512,7 +512,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                     case kObjectTypeFloat:
                     {
                         cur.tv->v_type = VAR_FLOAT;
-                        cur.tv->vval.v_float = (float_T)table_props.val;
+                        cur.tv->vval.v_float = (float_kt)table_props.val;
                         break;
                     }
 

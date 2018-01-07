@@ -45,7 +45,7 @@
 ///
 /// @param  tv  Pointer to typval where value is stored. May not be NULL. May
 ///             point to a special dictionary.
-/// @param  flt  Number to convert, must accept float_T.
+/// @param  flt  Number to convert, must accept float_kt.
 
 /// @def TYPVAL_ENCODE_CONV_STRING
 /// @brief Macros used to convert plain string

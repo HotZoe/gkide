@@ -4691,8 +4691,8 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                     && type != TYPE_MATCH
                     && type != TYPE_NOMATCH)
             {
-                float_T f1;
-                float_T f2;
+                float_kt f1;
+                float_kt f2;
 
                 if(rettv->v_type == VAR_FLOAT)
                 {
@@ -4878,7 +4878,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
     typval_T var3;
     int op;
     long n1, n2;
-    float_T f1 = 0, f2 = 0;
+    float_kt f1 = 0, f2 = 0;
     uchar_kt *p;
 
     // Get the first variable.
@@ -5076,8 +5076,8 @@ static int eval_lev_6(uchar_kt **arg,
     long n1;
     long n2;
     int use_float = FALSE;
-    float_T f1 = 0;
-    float_T f2 = 0;
+    float_kt f1 = 0;
+    float_kt f2 = 0;
     bool error = false;
 
     // Get the first variable.
@@ -5347,7 +5347,7 @@ static int eval_lev_7(uchar_kt **arg,
 
             if(get_float)
             {
-                float_T f;
+                float_kt f;
                 *arg += string2float((char *) *arg, &f);
 
                 if(evaluate)
@@ -5539,7 +5539,7 @@ static int eval_lev_7(uchar_kt **arg,
     {
         bool error = false;
         int val = 0;
-        float_T f = 0.0;
+        float_kt f = 0.0;
 
         if(rettv->v_type == VAR_FLOAT)
         {
@@ -7686,7 +7686,7 @@ errret:
 /// @param[out]  ret_value  Location where conversion result is saved.
 ///
 /// @return Length of the text that was consumed.
-size_t string2float(const char *const text, float_T *const ret_value)
+size_t string2float(const char *const text, float_kt *const ret_value)
 FUNC_ATTR_NONNULL_ALL
 {
     char *s = NULL;
@@ -8475,15 +8475,15 @@ static int non_zero_arg(typval_T *argvars)
 ////////////////// Implementation of the built-in functions //////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/// Apply a floating point C function on a typval with one float_T.
+/// Apply a floating point C function on a typval with one float_kt.
 ///
 /// Some versions of glibc on i386 have an optimization that makes it harder to
 /// call math functions indirectly from inside an inlined function, causing
 /// compile-time errors. Avoid `inline` in that case. #3072
 static void float_op_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
-    float_T f;
-    float_T(*function)(float_T) = (float_T(*)(float_T))fptr;
+    float_kt f;
+    float_kt(*function)(float_kt) = (float_kt(*)(float_kt))fptr;
     rettv->v_type = VAR_FLOAT;
 
     if(tv_get_float_chk(argvars, &f))
@@ -9102,8 +9102,8 @@ static void f_atan2(typval_T *argvars,
                     typval_T *rettv,
                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    float_T fx;
-    float_T fy;
+    float_kt fx;
+    float_kt fy;
     rettv->v_type = VAR_FLOAT;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
@@ -11189,7 +11189,7 @@ static void f_float2nr(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    float_T f;
+    float_kt f;
 
     if(tv_get_float_chk(argvars, &f))
     {
@@ -11213,8 +11213,8 @@ static void f_fmod(typval_T *argvars,
                    typval_T *rettv,
                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    float_T fx;
-    float_T fy;
+    float_kt fx;
+    float_kt fy;
     rettv->v_type = VAR_FLOAT;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
@@ -16805,8 +16805,8 @@ static void f_pow(typval_T *argvars,
                   typval_T *rettv,
                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    float_T fx;
-    float_T fy;
+    float_kt fx;
+    float_kt fy;
     rettv->v_type = VAR_FLOAT;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
@@ -19789,8 +19789,8 @@ static int item_compare(const void *s1,
 
     if(sortinfo->item_compare_float)
     {
-        const float_T v1 = tv_get_float(tv1);
-        const float_T v2 = tv_get_float(tv2);
+        const float_kt v1 = tv_get_float(tv1);
+        const float_kt v2 = tv_get_float(tv2);
         res = v1 == v2 ? 0 : v1 > v2 ? 1 : -1;
         goto item_compare_end;
     }
@@ -20246,7 +20246,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(list2proftime(&argvars[0], &tm) == OK)
     {
-        rettv->vval.v_float = ((float_T)tm) / 1000000000;
+        rettv->vval.v_float = ((float_kt)tm) / 1000000000;
     }
 }
 
@@ -28606,7 +28606,7 @@ int store_session_globals(FILE *fd)
         else if(this_var->di_tv.v_type == VAR_FLOAT
                 && var_flavour(this_var->di_key) == VAR_FLAVOUR_SESSION)
         {
-            float_T f = this_var->di_tv.vval.v_float;
+            float_kt f = this_var->di_tv.vval.v_float;
             int sign = ' ';
 
             if(f < 0)

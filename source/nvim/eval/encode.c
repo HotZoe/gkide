@@ -418,7 +418,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                             \
     do                                                                \
     {                                                                 \
-        const float_T flt_ = (flt);                                   \
+        const float_kt flt_ = (flt);                                   \
         switch(fpclassify((float) flt_))                              \
         {                                                             \
             case FP_NAN:                                              \
@@ -646,7 +646,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                               \
     do                                                                  \
     {                                                                   \
-        const float_T flt_ = (flt);                                     \
+        const float_kt flt_ = (flt);                                     \
         switch(fpclassify((float) flt_))                                \
         {                                                               \
             case FP_NAN:                                                \

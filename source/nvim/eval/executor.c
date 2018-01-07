@@ -71,7 +71,7 @@ FUNC_ATTR_NONNULL_ALL
 
                     if(tv2->v_type == VAR_FLOAT)
                     {
-                        float_T f = n;
+                        float_kt f = n;
 
                         if(*op == '+')
                         {
@@ -136,7 +136,7 @@ FUNC_ATTR_NONNULL_ALL
                     break;
                 }
 
-                const float_T f = (tv2->v_type == VAR_FLOAT
+                const float_kt f = (tv2->v_type == VAR_FLOAT
                                    ? tv2->vval.v_float : tv_get_number(tv2));
 
                 if(*op == '+')

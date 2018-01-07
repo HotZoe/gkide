@@ -799,12 +799,12 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Index in a list. Will be incremented.
 ///
 /// @return Floating-point value or zero in case of error.
-static float_T tv_float(typval_T *const tvs, int *const idxp)
+static float_kt tv_float(typval_T *const tvs, int *const idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int idx = *idxp - 1;
-    float_T f = 0;
+    float_kt f = 0;
 
     if(tvs[idx].v_type == VAR_UNKNOWN)
     {
