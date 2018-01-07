@@ -402,7 +402,7 @@ FUNC_ATTR_NONNULL_ALL
 
     lua_pop(lstate, 3);
 
-    garray_T str_ga;
+    garray_st str_ga;
     ga_init(&str_ga, 1, 80);
 
 #define EVALHEADER "local _A=select(1,...) return ("
@@ -531,7 +531,7 @@ FUNC_ATTR_NONNULL_ALL
     lua_getglobal(lstate, "tostring");
     const char *errmsg = NULL;
     size_t errmsg_len = 0;
-    garray_T msg_ga;
+    garray_st msg_ga;
     ga_init(&msg_ga, 1, 80);
     int curargidx = 1;
 

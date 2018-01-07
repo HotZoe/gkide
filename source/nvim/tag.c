@@ -1458,7 +1458,7 @@ int find_tags(uchar_kt *pat,
     int matchoff = 0;
     int save_emsg_off;
     uchar_kt *mfp;
-    garray_T ga_match[MT_COUNT]; // stores matches in sequence
+    garray_st ga_match[MT_COUNT]; // stores matches in sequence
     hashtab_T ht_match[MT_COUNT]; // stores matches by key
     hash_T hash = 0;
     int match_count = 0; // number of matches found
@@ -2684,7 +2684,7 @@ findtag_end:
     return retval;
 }
 
-static garray_T tag_fnames = GA_EMPTY_INIT_VALUE;
+static garray_st tag_fnames = GA_EMPTY_INIT_VALUE;
 
 /// Callback function for finding all "tags" and "tags-??"
 /// files in 'runtimepath' doc directories.

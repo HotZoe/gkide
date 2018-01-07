@@ -703,7 +703,7 @@ static void set_runtimepath_default(void)
 static void set_init_1_tmp_dir(void)
 {
     int len;
-    garray_T ga;
+    garray_st ga;
 
 #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
     static char *(names[4]) = {"", "TMPDIR", "TEMP", "TMP"};
@@ -8598,7 +8598,7 @@ typedef struct
     int to;
 } langmap_entry_T;
 
-static garray_T langmap_mapga = GA_EMPTY_INIT_VALUE;
+static garray_st langmap_mapga = GA_EMPTY_INIT_VALUE;
 
 /// Search for an entry in @b langmap_mapga for @b from.
 /// If found set the @b to field.

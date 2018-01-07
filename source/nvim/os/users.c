@@ -16,7 +16,7 @@
 
 /// Initialize users garray and fill it with os usernames.
 /// Return Ok for success, FAIL for failure.
-int os_get_usernames(garray_T *users)
+int os_get_usernames(garray_st *users)
 {
     if(users == NULL)
     {

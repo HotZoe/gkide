@@ -120,7 +120,7 @@ static int conv_error(const char *const msg,
                       const char *const objname)
 FUNC_ATTR_NONNULL_ALL
 {
-    garray_T msg_ga;
+    garray_st msg_ga;
     ga_init(&msg_ga, (int)sizeof(char), 80);
 
     const char *const key_msg = _("key %s");
@@ -548,7 +548,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_ALLOW_SPECIALS  false
 #define TYPVAL_ENCODE_SCOPE           static
 #define TYPVAL_ENCODE_NAME            string
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_T *const
+#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_st *const
 #define TYPVAL_ENCODE_FIRST_ARG_NAME  gap
 
 #include "nvim/eval/typval_encode.c.h"
@@ -599,7 +599,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define TYPVAL_ENCODE_SCOPE
 #define TYPVAL_ENCODE_NAME            echo
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_T *const
+#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_st *const
 #define TYPVAL_ENCODE_FIRST_ARG_NAME  gap
 
 #include "nvim/eval/typval_encode.c.h"
@@ -690,7 +690,7 @@ static const char xdigits[] = "0123456789ABCDEF";
 /// @param[in]  len  Converted string length.
 ///
 /// @return OK in case of success, FAIL otherwise.
-static inline int convert_to_json_string(garray_T *const gap,
+static inline int convert_to_json_string(garray_st *const gap,
                                          const char *const buf,
                                          const size_t len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
@@ -947,7 +947,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 
 #define TYPVAL_ENCODE_SCOPE          static
 #define TYPVAL_ENCODE_NAME           json
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE garray_T *const
+#define TYPVAL_ENCODE_FIRST_ARG_TYPE garray_st *const
 #define TYPVAL_ENCODE_FIRST_ARG_NAME gap
 
 #include "nvim/eval/typval_encode.c.h"
@@ -993,7 +993,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 char *encode_tv2string(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
     const int evs_ret =
@@ -1024,7 +1024,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 char *encode_tv2echo(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
     if(tv->v_type == kNvarString || tv->v_type == kNvarUfunc)
@@ -1061,7 +1061,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 char *encode_tv2json(typval_st *tv, size_t *len)
 FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 {
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
     const int evj_ret =

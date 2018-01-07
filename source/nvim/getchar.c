@@ -3761,7 +3761,7 @@ void map_clear_int(fbuf_st *buf, int mode, int local, int abbr)
 char *map_mode_to_chars(int mode)
 FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
 {
-    garray_T mapmode;
+    garray_st mapmode;
 
     ga_init(&mapmode, 1, 7);
 
@@ -5217,7 +5217,7 @@ void add_map(uchar_kt *map, int mode)
 /// @return NULL when there is a problem.
 static uchar_kt *translate_mapping(uchar_kt *str, int expmap, int cpo_flags)
 {
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, 1, 40);
 
     bool cpo_bslash = !(cpo_flags&FLAG_CPO_BSLASH);

@@ -38,7 +38,7 @@ typedef struct digraph
 #endif
 
 // digraphs added by the user
-static garray_T user_digraphs = { 0, 0, (int)sizeof(digr_T), 10, NULL };
+static garray_st user_digraphs = { 0, 0, (int)sizeof(digr_T), 10, NULL };
 
 /// Characters marked with XX are not included literally, because some
 /// compilers cannot handle them (Amiga SAS/C is the most picky one).

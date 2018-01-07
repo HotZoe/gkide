@@ -209,7 +209,7 @@ typedef struct
     dict_st sv_dict;
 } scriptvar_T;
 
-static garray_T ga_scripts = {0, 0, sizeof(scriptvar_T *), 4, NULL};
+static garray_st ga_scripts = {0, 0, sizeof(scriptvar_T *), 4, NULL};
 
 #define SCRIPT_SV(id)   (((scriptvar_T **)ga_scripts.ga_data)[(id) - 1])
 #define SCRIPT_VARS(id) (SCRIPT_SV(id)->sv_dict.dv_hashtab)
@@ -250,7 +250,7 @@ typedef enum
 #define FC_REMOVED  0x20    ///< function redefined while uf_refcount > 0
 
 /// The names of packages that once were loaded are remembered.
-static garray_T ga_loaded = { 0, 0, sizeof(uchar_kt *), 4, NULL };
+static garray_st ga_loaded = { 0, 0, sizeof(uchar_kt *), 4, NULL };
 
 #define FUNCARG(fp, j)  ((uchar_kt **)(fp->uf_args.ga_data))[j]
 #define FUNCLINE(fp, j) ((uchar_kt **)(fp->uf_lines.ga_data))[j]
@@ -287,7 +287,7 @@ struct funccall_S
     funccall_T *caller;    ///< Calling function or NULL.
     int fc_refcount;       ///< Number of user functions that reference this funccall.
     int fc_copyID;         ///< CopyID used for garbage collection.
-    garray_T fc_funcs;     ///< List of ufunc_st* which keep a reference to @b func
+    garray_st fc_funcs;     ///< List of ufunc_st* which keep a reference to @b func
 };
 
 /// Structure used by trans_function_name()
@@ -796,7 +796,7 @@ void set_internal_string_var(uchar_kt *name, uchar_kt *value)
 }
 
 static lval_T *redir_lval = NULL;
-static garray_T redir_ga; // Only valid when redir_lval is not NULL.
+static garray_st redir_ga; // Only valid when redir_lval is not NULL.
 static uchar_kt *redir_endp = NULL;
 static uchar_kt *redir_varname = NULL;
 
@@ -1155,7 +1155,7 @@ uchar_kt *eval_to_string(uchar_kt *arg, uchar_kt **nextcmd, int convert)
 {
     typval_st tv;
     char *retval;
-    garray_T ga;
+    garray_st ga;
 
     if(eval_lev_0(arg, &tv, nextcmd, true) == FAIL)
     {
@@ -6550,7 +6550,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Used by get_func_tv()
-static garray_T funcargs = GA_EMPTY_INIT_VALUE;
+static garray_st funcargs = GA_EMPTY_INIT_VALUE;
 
 // Garbage collection for lists and dictionaries.
 //
@@ -7379,7 +7379,7 @@ failret:
 /// Get function arguments.
 static int get_function_args(uchar_kt **argp,
                              uchar_kt endchar,
-                             garray_T *newargs,
+                             garray_st *newargs,
                              int *varargs,
                              bool skip)
 {
@@ -7529,8 +7529,8 @@ static void register_closure(ufunc_st *fp)
 /// @return OK or FAIL.  Returns NOTDONE for dict or {expr}.
 static int get_lambda_tv(uchar_kt **arg, typval_st *rettv, bool evaluate)
 {
-    garray_T newargs = GA_EMPTY_INIT_VALUE;
-    garray_T *pnewargs;
+    garray_st newargs = GA_EMPTY_INIT_VALUE;
+    garray_st *pnewargs;
     ufunc_st *fp = NULL;
     int varargs;
     int ret;
@@ -7600,7 +7600,7 @@ static int get_lambda_tv(uchar_kt **arg, typval_st *rettv, bool evaluate)
         uchar_kt *p;
         uchar_kt name[20];
         partial_st *pt;
-        garray_T newlines;
+        garray_st newlines;
 
         lambda_no++;
         snprintf((char *)name, sizeof(name), "<lambda>%d", lambda_no);
@@ -8750,7 +8750,7 @@ static void f_argv(typval_st *argvars,
 }
 
 /// Prepare "gap" for an assert error and add the sourcing position.
-static void prepare_assert_error(garray_T *gap)
+static void prepare_assert_error(garray_st *gap)
 {
     char buf[NUMBUFLEN];
     ga_init(gap, 1, 100);
@@ -8780,7 +8780,7 @@ static void prepare_assert_error(garray_T *gap)
 }
 
 /// Fill "gap" with information about an assert error.
-static void fill_assert_error(garray_T *gap,
+static void fill_assert_error(garray_st *gap,
                               typval_st *opt_msg_tv,
                               uchar_kt *exp_str,
                               typval_st *exp_tv,
@@ -8842,7 +8842,7 @@ static void fill_assert_error(garray_T *gap,
 }
 
 /// Add an assert error to v:errors.
-static void assert_error(garray_T *gap)
+static void assert_error(garray_st *gap)
 {
     vimvar_st *vp = &vimvars[VV_ERRORS];
 
@@ -8859,7 +8859,7 @@ static void assert_error(garray_T *gap)
 
 static void assert_equal_common(typval_st *argvars, assert_type_T atype)
 {
-    garray_T ga;
+    garray_st ga;
 
     if(tv_equal(&argvars[0], &argvars[1], false, false) != (atype == ASSERT_EQUAL))
     {
@@ -8894,7 +8894,7 @@ static void f_assert_exception(typval_st *argvars,
                                typval_st *FUNC_ARGS_UNUSED_REALY(rettv),
                                FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    garray_T ga;
+    garray_st ga;
     const char *const error = tv_get_string_chk(&argvars[0]);
 
     if(vimvars[VV_EXCEPTION].vv_str == NULL)
@@ -8927,7 +8927,7 @@ static void f_assert_fails(typval_st *argvars,
                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const cmd = tv_get_string_chk(&argvars[0]);
-    garray_T ga;
+    garray_st ga;
     called_emsg = false;
     suppress_errthrow = true;
     emsg_silent = true;
@@ -8984,7 +8984,7 @@ void assert_inrange(typval_st *argvars)
 
     if(actual < lower || actual > upper)
     {
-        garray_T ga;
+        garray_st ga;
         prepare_assert_error(&ga);
         char msg[55];
 
@@ -9008,7 +9008,7 @@ void assert_inrange(typval_st *argvars)
 static void assert_bool(typval_st *argvars, bool is_true)
 {
     bool error = false;
-    garray_T ga;
+    garray_st ga;
 
     if((argvars[0].v_type != kNvarNumber
         || (tv_get_number_chk(&argvars[0], &error) == 0) == is_true
@@ -9055,7 +9055,7 @@ static void assert_match_common(typval_st *argvars, assert_type_T atype)
     else if(pattern_match((uchar_kt *)pat, (uchar_kt *)text, false)
             != (atype == ASSERT_MATCH))
     {
-        garray_T ga;
+        garray_st ga;
         prepare_assert_error(&ga);
 
         fill_assert_error(&ga, &argvars[2], NULL,
@@ -10397,7 +10397,7 @@ static void f_execute(typval_st *argvars,
     const int save_msg_silent = msg_silent;
     const int save_emsg_silent = emsg_silent;
     const bool save_emsg_noredir = emsg_noredir;
-    garray_T *const save_capture_ga = capture_ga;
+    garray_st *const save_capture_ga = capture_ga;
 
     if(check_secure())
     {
@@ -10430,7 +10430,7 @@ static void f_execute(typval_st *argvars,
         msg_silent++;
     }
 
-    garray_T capture_local;
+    garray_st capture_local;
     ga_init(&capture_local, (int)sizeof(char), 80);
     capture_ga = &capture_local;
 
@@ -13631,7 +13631,7 @@ static void f_globpath(typval_st *argvars,
 
     if(file != NULL && !error)
     {
-        garray_T ga;
+        garray_st ga;
         ga_init(&ga, (int)sizeof(uchar_kt *), 10);
 
         globpath((uchar_kt *)tv_get_string(&argvars[0]),
@@ -14590,7 +14590,7 @@ static void f_inputlist(typval_st *argvars,
 }
 
 
-static garray_T ga_userinput = {0, 0, sizeof(tasave_T), 4, NULL};
+static garray_st ga_userinput = {0, 0, sizeof(tasave_T), 4, NULL};
 
 /// "inputrestore()" function
 static void f_inputrestore(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
@@ -15464,7 +15464,7 @@ static void f_join(typval_st *argvars,
 
     if(sep != NULL)
     {
-        garray_T ga;
+        garray_st ga;
 
         ga_init(&ga, (int)sizeof(char), 80);
         tv_list_join(&ga, argvars[0].vval.v_list, sep);
@@ -20323,7 +20323,7 @@ static void f_spellsuggest(typval_st *argvars,
 {
     bool typeerr = false;
     int maxcount;
-    garray_T ga;
+    garray_st ga;
     listitem_st *li;
     bool need_capital = false;
     tv_list_alloc_ret(rettv);
@@ -22218,7 +22218,7 @@ static void f_tr(typval_st *argvars,
         return; // Type error; errmsg already given.
     }
 
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
     if(!has_mbyte)
@@ -22612,7 +22612,7 @@ static void f_winrestcmd(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int winnr = 1;
-    garray_T ga;
+    garray_st ga;
     uchar_kt buf[50];
     ga_init(&ga, (int)sizeof(char), 70);
 
@@ -25363,7 +25363,7 @@ void ex_execute(exarg_T *eap)
     typval_st rettv;
     int ret = OK;
     uchar_kt *p;
-    garray_T ga;
+    garray_st ga;
     int save_did_emsg;
     ga_init(&ga, 1, 80);
 
@@ -25505,8 +25505,8 @@ void ex_function(exarg_T *eap)
     uchar_kt *p;
     uchar_kt *arg;
     uchar_kt *line_arg = NULL;
-    garray_T newargs;
-    garray_T newlines;
+    garray_st newargs;
+    garray_st newlines;
     int varargs = false;
     int flags = 0;
     ufunc_st *fp;
@@ -28233,7 +28233,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
     funccall_T *fcp = (funccall_T *)cookie;
     ufunc_st *fp = fcp->func;
     uchar_kt *retval;
-    garray_T *gap; // growarray with function lines
+    garray_st *gap; // growarray with function lines
 
     // If breakpoints have been added/deleted need to check for it.
     if(fcp->dbg_tick != debug_tick)
@@ -29018,7 +29018,7 @@ uchar_kt *do_string_sub(uchar_kt *str,
     int do_all;
     uchar_kt *tail;
     uchar_kt *end;
-    garray_T ga;
+    garray_st ga;
     uchar_kt *save_cpo;
     uchar_kt *zero_width = NULL;
 

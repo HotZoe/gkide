@@ -58,7 +58,7 @@
 #endif
 
 /// All user names (for ~user completion as done by shell).
-static garray_T ga_users = GA_EMPTY_INIT_VALUE;
+static garray_st ga_users = GA_EMPTY_INIT_VALUE;
 
 /// Add a new line below or above the current line.
 ///

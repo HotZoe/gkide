@@ -4703,7 +4703,7 @@ shada_read_next_item_start:
                 goto shada_read_next_item_error;
             }
 
-            garray_T ad_ga;
+            garray_st ad_ga;
             ga_init(&ad_ga, sizeof(*(unpacked.data.via.map.ptr)), 1);
 
             for(size_t i = 0; i < unpacked.data.via.map.size; i++)
@@ -4760,7 +4760,7 @@ shada_read_next_item_start:
                 goto shada_read_next_item_error;
             }
 
-            garray_T ad_ga;
+            garray_st ad_ga;
             ga_init(&ad_ga, sizeof(*(unpacked.data.via.map.ptr)), 1);
 
             for(size_t i = 0; i < unpacked.data.via.map.size; i++)
@@ -4835,7 +4835,7 @@ shada_read_next_item_start:
                 goto shada_read_next_item_error;
             }
 
-            garray_T ad_ga;
+            garray_st ad_ga;
             ga_init(&ad_ga, sizeof(*(unpacked.data.via.map.ptr)), 1);
 
             for(size_t i = 0; i < unpacked.data.via.map.size; i++)
@@ -5133,7 +5133,7 @@ shada_read_next_item_start:
                     }
 
                     entry->data.buffer_list.buffers[i].pos = default_pos;
-                    garray_T ad_ga;
+                    garray_st ad_ga;
                     ga_init(&ad_ga, sizeof(*(unpacked.data.via.map.ptr)), 1);
 
                     {

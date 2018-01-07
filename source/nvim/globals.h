@@ -1049,7 +1049,7 @@ EXTERN int redir_off INIT(= false);       ///< no redirection for a moment
 EXTERN FILE *redir_fd INIT(= NULL);       ///< message redirection file
 EXTERN int redir_reg INIT(= 0);           ///< message redirection register
 EXTERN int redir_vname INIT(= 0);         ///< message redirection variable
-EXTERN garray_T *capture_ga INIT(= NULL); ///< captured output for execute()
+EXTERN garray_st *capture_ga INIT(= NULL); ///< captured output for execute()
 EXTERN uchar_kt langmap_mapchar[256];       ///< mapping for language keys
 EXTERN int save_p_ls INIT(= -1);          ///< Save 'laststatus' setting
 EXTERN int save_p_wmh INIT(= -1);         ///< Save 'winminheight' setting
@@ -1141,7 +1141,7 @@ EXTERN int need_cursor_line_redraw INIT(= FALSE);
 
 #ifdef USE_MCH_ERRMSG
     /// Grow array to collect error messages in until they can be displayed.
-    EXTERN garray_T error_ga INIT(= GA_EMPTY_INIT_VALUE);
+    EXTERN garray_st error_ga INIT(= GA_EMPTY_INIT_VALUE);
 #endif
 
 // The error messages that can be shared are included here.

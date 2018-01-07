@@ -71,7 +71,7 @@ typedef struct scriptitem_S
     proftime_T sn_pr_children; ///< time in children after script start
 
     // profiling the script per line
-    garray_T sn_prl_ga;           ///< things stored for every line
+    garray_st sn_prl_ga;           ///< things stored for every line
     proftime_T sn_prl_start;      ///< start time for current line
     proftime_T sn_prl_children;   ///< time spent in children for this line
     proftime_T sn_prl_wait;       ///< wait start time for current line
@@ -79,7 +79,7 @@ typedef struct scriptitem_S
     int sn_prl_execed;            ///< line being timed was executed
 } scriptitem_T;
 
-static garray_T script_items = { 0, 0, sizeof(scriptitem_T), 4, NULL };
+static garray_st script_items = { 0, 0, sizeof(scriptitem_T), 4, NULL };
 #define SCRIPT_ITEM(id) (((scriptitem_T *)script_items.ga_data)[(id) - 1])
 
 // Struct used in sn_prl_ga for every line of a script.
@@ -641,10 +641,10 @@ struct debuggy
 /// nr of last defined breakpoint
 static int last_breakp = 0;
 
-static garray_T dbg_breakp = { 0, 0, sizeof(struct debuggy), 4, NULL };
+static garray_st dbg_breakp = { 0, 0, sizeof(struct debuggy), 4, NULL };
 
 /// Profiling uses file and func names similar to breakpoints.
-static garray_T prof_ga = { 0, 0, sizeof(struct debuggy), 4, NULL };
+static garray_st prof_ga = { 0, 0, sizeof(struct debuggy), 4, NULL };
 
 /// Parse the arguments of ":profile", ":breakadd" or ":breakdel" and put them
 /// in the entry just after the last one in dbg_breakp. Note that "dbg_name"
@@ -653,7 +653,7 @@ static garray_T prof_ga = { 0, 0, sizeof(struct debuggy), 4, NULL };
 ///
 /// @param arg
 /// @param gap  either &dbg_breakp or &prof_ga
-static int dbg_parsearg(uchar_kt *arg, garray_T *gap)
+static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
 {
     uchar_kt *p = arg;
     uchar_kt *q;
@@ -768,7 +768,7 @@ void ex_breakadd(exarg_T *eap)
     struct debuggy *bp;
 
     uchar_kt *pat;
-    garray_T *gap = &dbg_breakp;
+    garray_st *gap = &dbg_breakp;
 
     if(eap->cmdidx == CMD_profile)
     {
@@ -831,7 +831,7 @@ void ex_breakdel(exarg_T *eap)
     struct debuggy *bpi;
     bool del_all = false;
     linenr_T best_lnum = 0;
-    garray_T *gap = &dbg_breakp;
+    garray_st *gap = &dbg_breakp;
 
     if(eap->cmdidx == CMD_profdel)
     {
@@ -988,7 +988,7 @@ bool has_profiling(bool file, uchar_kt *fname, bool *fp)
 static linenr_T debuggy_find(bool file,
                              uchar_kt *fname,
                              linenr_T after,
-                             garray_T *gap,
+                             garray_st *gap,
                              bool *fp)
 {
     struct debuggy *bp;
@@ -1934,7 +1934,7 @@ static uchar_kt *do_one_arg(uchar_kt *str)
 
 /// Separate the arguments in "str" and return a list of pointers in the
 /// growarray "gap".
-void get_arglist(garray_T *gap, uchar_kt *str)
+void get_arglist(garray_st *gap, uchar_kt *str)
 {
     ga_init(gap, (int)sizeof(uchar_kt *), 20);
 
@@ -1953,7 +1953,7 @@ void get_arglist(garray_T *gap, uchar_kt *str)
 int get_arglist_exp(uchar_kt *str, int *fcountp, uchar_kt ***fnamesp, bool wig)
 {
     int i;
-    garray_T ga;
+    garray_st ga;
 
     get_arglist(&ga, str);
 
@@ -1990,7 +1990,7 @@ int get_arglist_exp(uchar_kt *str, int *fcountp, uchar_kt ***fnamesp, bool wig)
 /// @return FAIL for failure, OK otherwise.
 static int do_arglist(uchar_kt *str, int what, int after)
 {
-    garray_T new_ga;
+    garray_st new_ga;
     int exp_count;
     uchar_kt **exp_files;
     uchar_kt *p;
@@ -2217,7 +2217,7 @@ void ex_args(exarg_T *eap)
     }
     else if(eap->cmdidx == CMD_arglocal)
     {
-        garray_T *gap = &curwin->w_alist->al_ga;
+        garray_st *gap = &curwin->w_alist->al_ga;
 
         // ":argslocal": make a local copy of the global argument list.
         ga_grow(gap, GARGCOUNT);
@@ -3954,7 +3954,7 @@ uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
 
         if(sp->nextline != NULL && *(p = skipwhite(sp->nextline)) == '\\')
         {
-            garray_T ga;
+            garray_st ga;
             ga_init(&ga, (int)sizeof(uchar_kt), 400);
             ga_concat(&ga, line);
             ga_concat(&ga, p + 1);
@@ -4021,7 +4021,7 @@ uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
 
 static uchar_kt *get_one_sourceline(struct source_cookie *sp)
 {
-    garray_T ga;
+    garray_st ga;
     int len;
     int c;
     uchar_kt *buf;
@@ -4608,7 +4608,7 @@ static void init_locales(void)
 /// last element. Return NULL in case of error.
 static uchar_kt **find_locales(void)
 {
-    garray_T locales_ga;
+    garray_st locales_ga;
     uchar_kt *loc;
     char *saveptr = NULL;
 

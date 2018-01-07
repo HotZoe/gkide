@@ -135,7 +135,7 @@ struct slang_S
     int sl_compminlen;       ///< COMPOUNDMIN (default: 0)
     int sl_compsylmax;       ///< COMPOUNDSYLMAX (default: MAXWLEN)
     int sl_compoptions;      ///< COMP_* flags
-    garray_T sl_comppat;     ///< CHECKCOMPOUNDPATTERN items
+    garray_st sl_comppat;     ///< CHECKCOMPOUNDPATTERN items
     regprog_T *sl_compprog;  ///< COMPOUNDRULE turned into a regexp progrm
                              ///< (NULL when no compounding)
     uchar_kt *sl_comprules;      ///< all COMPOUNDRULE concatenated (or NULL)
@@ -143,17 +143,17 @@ struct slang_S
     uchar_kt *sl_compallflags;   ///< all flags for compound words
     bool sl_nobreak;           ///< When true: no spaces between words
     uchar_kt *sl_syllable;       ///< SYLLABLE repeatable chars or NULL
-    garray_T sl_syl_items;     ///< syllable items
+    garray_st sl_syl_items;     ///< syllable items
 
     int sl_prefixcnt;          ///< number of items in "sl_prefprog"
     regprog_T **sl_prefprog;   ///< table with regprogs for prefixes
 
     /// list of fromto_T entries from REP lines
-    garray_T sl_rep;
+    garray_st sl_rep;
     /// indexes where byte first appears, -1 if there is none
     int16_t sl_rep_first[256];
     /// list of salitem_T entries from SAL lines
-    garray_T sl_sal;
+    garray_st sl_sal;
     /// indexes where byte first appears, -1 if there is none
     salfirst_T sl_sal_first[256];
 
@@ -166,7 +166,7 @@ struct slang_S
     /// - @b sl_sal is a list of wide char lists.
     bool sl_sofo;
 
-    garray_T sl_repsal; ///< list of fromto_T entries from REPSAL lines
+    garray_st sl_repsal; ///< list of fromto_T entries from REPSAL lines
     int16_t sl_repsal_first[256]; ///< sl_rep_first for REPSAL lines
     bool sl_nosplitsugs; ///< don't suggest splitting a word
     bool sl_nocompoundsugs; ///< don't suggest compounding

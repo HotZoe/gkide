@@ -154,11 +154,11 @@ typedef struct wordcount_S
 /// Information used when looking for suggestions.
 typedef struct suginfo_S
 {
-    garray_T su_ga;                 ///< suggestions, contains "suggest_T"
+    garray_st su_ga;                 ///< suggestions, contains "suggest_T"
     int su_maxcount;                ///< max. number of suggestions displayed
     int su_maxscore;                ///< maximum score for adding to su_ga
     int su_sfmaxscore;              ///< idem, for when doing soundfold words
-    garray_T su_sga;                ///< like su_ga, sound-folded scoring
+    garray_st su_sga;                ///< like su_ga, sound-folded scoring
     uchar_kt *su_badptr;              ///< start of bad word in line
     int su_badlen;                  ///< length of detected bad word in line
     int su_badflags;                ///< caps flags for bad word
@@ -1263,7 +1263,7 @@ static void find_word(matchinf_T *mip, int mode)
 /// CHECKCOMPOUNDPATTERN rules, assuming that we will concatenate with
 /// another word. A match means that the first part of CHECKCOMPOUNDPATTERN
 /// matches at the end of ptr[wlen] and the second part matches after it.
-static bool match_checkcompoundpattern(uchar_kt *ptr, int wlen, garray_T *gap)
+static bool match_checkcompoundpattern(uchar_kt *ptr, int wlen, garray_st *gap)
 {
     uchar_kt *p;
     int len;
@@ -2190,7 +2190,7 @@ static void free_fromto(fromto_T *ftp)
 /// Clear an slang_T so that the file can be reloaded.
 void slang_clear(slang_T *lp)
 {
-    garray_T *gap;
+    garray_st *gap;
 
     xfree(lp->sl_fbyts);
     lp->sl_fbyts = NULL;
@@ -2542,7 +2542,7 @@ static int count_syllables(slang_T *slang, uchar_kt *word)
 /// Returns NULL if it's OK, an error message otherwise.
 uchar_kt *did_set_spelllang(win_st *wp)
 {
-    garray_T ga;
+    garray_st ga;
     uchar_kt *splp;
     uchar_kt *region;
     uchar_kt region_cp[3];
@@ -4009,7 +4009,7 @@ void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 /// @param maxcount
 /// @param need_cap     maximum nr of suggestions
 /// @param interactive  'spellcapcheck' matched
-void spell_suggest_list(garray_T *gap,
+void spell_suggest_list(garray_st *gap,
                         uchar_kt *word,
                         int maxcount,
                         bool need_cap,
@@ -4733,7 +4733,7 @@ static void suggest_trie_walk(suginfo_T *su,
     int c, c2, c3;
     int n = 0;
     int flags;
-    garray_T *gap;
+    garray_st *gap;
     idx_T arridx;
     int len;
     uchar_kt *p;
@@ -6683,8 +6683,8 @@ static void score_comp_sal(suginfo_T *su)
 // They are entwined.
 static void score_combine(suginfo_T *su)
 {
-    garray_T ga;
-    garray_T *gap;
+    garray_st ga;
+    garray_st *gap;
     langp_T *lp;
     suggest_T *stp;
     uchar_kt *p;
@@ -7420,7 +7420,7 @@ static bool similar_chars(slang_T *slang, int c1, int c2)
 /// @param maxsf       su_maxscore applies to soundfold score,
 ///                    su_sfmaxscore to the total score.
 static void add_suggestion(suginfo_T *su,
-                           garray_T *gap,
+                           garray_st *gap,
                            const uchar_kt *goodword,
                            int badlenarg,
                            int score,
@@ -7571,7 +7571,7 @@ static void add_suggestion(suginfo_T *su,
 ///
 /// @param su
 /// @param gap  either su_ga or su_sga
-static void check_suggestions(suginfo_T *su, garray_T *gap)
+static void check_suggestions(suginfo_T *su, garray_st *gap)
 {
     suggest_T *stp;
     uchar_kt longword[MAXWLEN + 1];
@@ -7702,7 +7702,7 @@ static int sug_compare(const void *s1, const void *s2)
 /// @param keep      nr of suggestions to keep
 ///
 /// @return the maximum score in the list or "maxscore" unmodified.
-static int cleanup_suggestions(garray_T *gap, int maxscore, int keep)
+static int cleanup_suggestions(garray_st *gap, int maxscore, int keep)
 {
     suggest_T *stp = &SUG(*gap, 0);
 
@@ -10181,7 +10181,7 @@ int expand_spelling(linenr_T FUNC_ARGS_UNUSED_REALY(lnum),
                     uchar_kt *pat,
                     uchar_kt ***matchp)
 {
-    garray_T ga;
+    garray_st ga;
 
     spell_suggest_list(&ga, pat, 100, spell_expand_need_cap, true);
     *matchp = ga.ga_data;

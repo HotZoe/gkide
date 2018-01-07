@@ -3147,7 +3147,7 @@ void u_sync(int force)
 /// ":undolist": List the leafs of the undo tree
 void ex_undolist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    garray_T ga;
+    garray_st ga;
     u_header_T *uhp;
     int mark;
     int nomark;

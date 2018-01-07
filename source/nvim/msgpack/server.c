@@ -26,7 +26,7 @@
 #define MAX_CONNECTIONS         32
 #define LISTEN_ADDRESS_ENV_VAR  "NVIM_LISTEN_ADDRESS"
 
-static garray_T watchers = GA_EMPTY_INIT_VALUE;
+static garray_st watchers = GA_EMPTY_INIT_VALUE;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "msgpack/server.c.generated.h"
@@ -68,7 +68,7 @@ static void close_socket_watcher(SocketWatcher **watcher)
 
 /// Set v:servername to the first server in the server
 /// list, or unset it if no servers are known.
-static void set_vservername(garray_T *srvs)
+static void set_vservername(garray_st *srvs)
 {
     char *default_server = (srvs->ga_len > 0)
                            ? ((SocketWatcher **)srvs->ga_data)[0]->addr

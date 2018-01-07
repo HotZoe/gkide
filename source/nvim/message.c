@@ -1519,7 +1519,7 @@ int msg_outtrans_special(uchar_kt *strstart, int from)
 /// @param is_lhs  TRUE for lhs, FALSE for rhs
 uchar_kt *str2special_save(uchar_kt *str, int is_lhs)
 {
-    garray_T ga;
+    garray_st ga;
     uchar_kt *p = str;
     ga_init(&ga, 1, 40);
 

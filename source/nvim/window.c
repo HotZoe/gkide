@@ -5282,7 +5282,7 @@ void shell_new_columns(void)
 }
 
 /// Save the size of all windows in "gap".
-void win_size_save(garray_T *gap)
+void win_size_save(garray_st *gap)
 
 {
     ga_init(gap, (int)sizeof(int), 1);
@@ -5296,7 +5296,7 @@ void win_size_save(garray_T *gap)
 
 /// Restore window sizes, but only if the number of windows is still the same.
 /// Does not free the growarray.
-void win_size_restore(garray_T *gap)
+void win_size_restore(garray_st *gap)
 {
     if(win_count() * 2 == gap->ga_len)
     {

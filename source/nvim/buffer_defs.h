@@ -279,7 +279,7 @@ struct wininfo_S
     bool wi_optset;      ///< true when wi_opt has useful values
     winopt_T wi_opt;     ///< local window options
     bool wi_fold_manual; ///< copy of w_fold_manual
-    garray_T wi_folds;   ///< clone of w_folds
+    garray_st wi_folds;   ///< clone of w_folds
 };
 
 /// Argument list: Array of file names.
@@ -288,7 +288,7 @@ struct wininfo_S
 /// @todo move struct arglist to another header
 typedef struct arglist
 {
-    garray_T al_ga;   ///< growarray with the array of file names
+    garray_st al_ga;   ///< growarray with the array of file names
     int al_refcount;  ///< number of windows using this arglist
     int id;           ///< id of this arglist
 } alist_T;
@@ -391,8 +391,8 @@ typedef struct
     int b_syn_error;                 ///< TRUE when error occurred in HL
     int b_syn_ic;                    ///< ignore case for :syn cmds
     int b_syn_spell;                 ///< SYNSPL_ values
-    garray_T b_syn_patterns;         ///< table for syntax patterns
-    garray_T b_syn_clusters;         ///< table for syntax clusters
+    garray_st b_syn_patterns;         ///< table for syntax patterns
+    garray_st b_syn_clusters;         ///< table for syntax clusters
     int b_spell_cluster_id;          ///< @Spell cluster ID or 0
     int b_nospell_cluster_id;        ///< @NoSpell cluster ID or 0
     int b_syn_containedin;           ///< TRUE when there is an item with a
@@ -425,7 +425,7 @@ typedef struct
     uint16_t b_sst_lasttick;     ///< last display tick
 
     // for spell checking
-    garray_T b_langp;         ///< list of pointers to slang_T, see spell.c
+    garray_st b_langp;         ///< list of pointers to slang_T, see spell.c
     bool b_spell_ismw[256];   ///< flags: is midword char
     uchar_kt *b_spell_ismw_mb;  ///< multi-byte midword chars
     uchar_kt *b_p_spc;          ///< 'spellcapcheck'
@@ -526,7 +526,7 @@ struct file_buffer_s
     mapblock_T *b_first_abbr;
 
     /// User commands local to the buffer.
-    garray_T b_ucmds;
+    garray_st b_ucmds;
 
     /// start and end of an operator, also used for '[ and ']
     pos_T b_op_start;
@@ -571,7 +571,7 @@ struct file_buffer_s
     short b_kmap_state;          ///< using "lmap" mappings
 #define KEYMAP_INIT         1    ///< 'keymap' was set, call keymap_init()
 #define KEYMAP_LOADED       2    ///< 'keymap' mappings have been loaded
-    garray_T b_kmap_ga;          ///< the keymap table
+    garray_st b_kmap_ga;          ///< the keymap table
 
     //////////////////////////////////////////////////////////////
     // Options local to a buffer.
@@ -1001,7 +1001,7 @@ struct window_s
     // This is used for efficient redrawing.
     int w_lines_valid;  ///< number of valid entries
     wline_T *w_lines;
-    garray_T w_folds;   ///< array of nested folds
+    garray_st w_folds;   ///< array of nested folds
     bool w_fold_manual; ///< when true: some folds are opened/closed  manually
     bool w_foldinvalid; ///< when true: folding needs to be recomputed
     int w_nrwidth;      ///< width of 'number' and 'relativenumber' column being used

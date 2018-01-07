@@ -21,7 +21,7 @@
 #endif
 
 /// Clear an allocated growing array.
-void ga_clear(garray_T *gap)
+void ga_clear(garray_st *gap)
 {
     xfree(gap->ga_data);
 
@@ -35,7 +35,7 @@ void ga_clear(garray_T *gap)
 /// Clear a growing array that contains a list of strings.
 ///
 /// @param gap
-void ga_clear_strings(garray_T *gap)
+void ga_clear_strings(garray_st *gap)
 {
     GA_DEEP_CLEAR_PTR(gap);
 }
@@ -45,7 +45,7 @@ void ga_clear_strings(garray_T *gap)
 /// @param gap
 /// @param itemsize
 /// @param growsize
-void ga_init(garray_T *gap, int itemsize, int growsize)
+void ga_init(garray_st *gap, int itemsize, int growsize)
 {
     gap->ga_data = NULL;
     gap->ga_maxlen = 0;
@@ -58,7 +58,7 @@ void ga_init(garray_T *gap, int itemsize, int growsize)
 ///
 /// @param gap
 /// @param growsize
-void ga_set_growsize(garray_T *gap, int growsize)
+void ga_set_growsize(garray_st *gap, int growsize)
 {
     if(growsize < 1)
     {
@@ -75,7 +75,7 @@ void ga_set_growsize(garray_T *gap, int growsize)
 ///
 /// @param gap
 /// @param n
-void ga_grow(garray_T *gap, int n)
+void ga_grow(garray_st *gap, int n)
 {
     if(gap->ga_maxlen - gap->ga_len >= n)
     {
@@ -108,7 +108,7 @@ void ga_grow(garray_T *gap, int n)
 /// list of file names in allocated memory.
 ///
 /// @param gap
-void ga_remove_duplicate_strings(garray_T *gap)
+void ga_remove_duplicate_strings(garray_st *gap)
 {
     uchar_kt **fnames = gap->ga_data;
     // sort the growing array, which puts duplicates next to each other
@@ -139,7 +139,7 @@ void ga_remove_duplicate_strings(garray_T *gap)
 /// @param sep
 ///
 /// @returns the concatenated strings
-uchar_kt *ga_concat_strings_sep(const garray_T *gap, const char *sep)
+uchar_kt *ga_concat_strings_sep(const garray_st *gap, const char *sep)
 FUNC_ATTR_NONNULL_RET
 {
     const size_t nelem = (size_t) gap->ga_len;
@@ -180,7 +180,7 @@ FUNC_ATTR_NONNULL_RET
 /// @param gap
 ///
 /// @returns the concatenated strings
-uchar_kt *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
+uchar_kt *ga_concat_strings(const garray_st *gap) FUNC_ATTR_NONNULL_RET
 {
     return ga_concat_strings_sep(gap, ",");
 }
@@ -194,7 +194,7 @@ uchar_kt *ga_concat_strings(const garray_T *gap) FUNC_ATTR_NONNULL_RET
 ///
 /// @param gap
 /// @param s
-void ga_concat(garray_T *gap, const uchar_kt *restrict s)
+void ga_concat(garray_st *gap, const uchar_kt *restrict s)
 {
     if(s == NULL)
     {
@@ -209,7 +209,7 @@ void ga_concat(garray_T *gap, const uchar_kt *restrict s)
 /// @param[out] gap  Growarray to modify.
 /// @param[in]  s    String to concatenate.
 /// @param[in]  len  String length.
-void ga_concat_len(garray_T *const gap,
+void ga_concat_len(garray_st *const gap,
                    const char *restrict s,
                    const size_t len)
 FUNC_ATTR_NONNULL_ALL
@@ -227,7 +227,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param gap
 /// @param c
-void ga_append(garray_T *gap, char c)
+void ga_append(garray_st *gap, char c)
 {
     GA_APPEND(char, gap, c);
 }

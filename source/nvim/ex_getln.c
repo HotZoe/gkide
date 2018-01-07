@@ -2304,7 +2304,7 @@ uchar_kt *getexmodeline(int promptc,
                       void *FUNC_ARGS_UNUSED_REALY(cookie),
                       int indent)
 {
-    garray_T line_ga;
+    garray_st line_ga;
     uchar_kt *pend;
     int startcol = 0;
     int c1 = 0;
@@ -5266,7 +5266,7 @@ FUNC_ATTR_NONNULL_ALL
     uchar_kt *pat;
     int i;
     uchar_kt *path;
-    garray_T ga;
+    garray_st ga;
     uchar_kt *buf = xmalloc(MAXPATHL);
     size_t l;
     uchar_kt *s, *e;
@@ -5469,7 +5469,7 @@ static int ExpandUserDefined(expand_T *xp,
     uchar_kt *s;
     uchar_kt *e;
     uchar_kt keep;
-    garray_T ga;
+    garray_st ga;
     retstr = call_user_expand_func((user_expand_func_T)call_func_retstr,
                                    xp,
                                    num_file,
@@ -5526,7 +5526,7 @@ static int ExpandUserList(expand_T *xp, int *num_file, uchar_kt ***file)
 {
     list_st *retlist;
     listitem_st  *li;
-    garray_T ga;
+    garray_st ga;
     retlist = call_user_expand_func((user_expand_func_T)call_func_retlist,
                                     xp,
                                     num_file,
@@ -5575,7 +5575,7 @@ static int ExpandRTDir(uchar_kt *pat,
     *num_file = 0;
     *file = NULL;
     size_t pat_len = STRLEN(pat);
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, (int)sizeof(char *), 10);
 
     for(int i = 0; dirnames[i] != NULL; i++)
@@ -5665,7 +5665,7 @@ static int ExpandRTDir(uchar_kt *pat,
 /// 'packpath'/pack/ * /opt/{pat}
 static int ExpandPackAddDir(uchar_kt *pat, int *num_file, uchar_kt ***file)
 {
-    garray_T ga;
+    garray_st ga;
     *num_file = 0;
     *file = NULL;
     size_t pat_len = STRLEN(pat);
@@ -5701,7 +5701,7 @@ static int ExpandPackAddDir(uchar_kt *pat, int *num_file, uchar_kt ***file)
 
 /// Expand `file` for all comma-separated directories in `path`.
 /// Adds matches to `ga`.
-void globpath(uchar_kt *path, uchar_kt *file, garray_T *ga, int expand_options)
+void globpath(uchar_kt *path, uchar_kt *file, garray_st *ga, int expand_options)
 {
     expand_T xpc;
     ExpandInit(&xpc);
@@ -6696,7 +6696,7 @@ static int ex_window(void)
     win_st *wp;
     int i;
     linenr_T lnum;
-    garray_T winsizes;
+    garray_st winsizes;
     uchar_kt typestr[2];
     int save_restart_edit = restart_edit;
     int save_State = curmod;
@@ -6975,7 +6975,7 @@ FUNC_ATTR_MALLOC
         return eap->skip ? NULL : xmemdupz(eap->arg, *lenp);
     }
 
-    garray_T ga = { .ga_data = NULL, .ga_len = 0 };
+    garray_st ga = { .ga_data = NULL, .ga_len = 0 };
 
     if(!eap->skip)
     {

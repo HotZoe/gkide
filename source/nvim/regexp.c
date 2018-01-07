@@ -4588,8 +4588,8 @@ static int reg_line_lbr; ///< "\n" in string is line break
 // and free() often. "regstack" is a stack with regitem_T items,
 // sometimes preceded by regstar_T or regbehind_T.
 // "backpos_T" is a table with backpos_T for BACK
-static garray_T regstack = GA_EMPTY_INIT_VALUE;
-static garray_T backpos = GA_EMPTY_INIT_VALUE;
+static garray_st regstack = GA_EMPTY_INIT_VALUE;
+static garray_st backpos = GA_EMPTY_INIT_VALUE;
 
 // Both for regstack and backpos tables we use the following strategy of
 // allocation (to reduce malloc/free calls):
@@ -7933,7 +7933,7 @@ static void reg_nextline(void)
 }
 
 /// Save the input line and position in a regsave_T.
-static void reg_save(regsave_T *save, garray_T *gap)
+static void reg_save(regsave_T *save, garray_st *gap)
 {
     if(REG_MULTI)
     {
@@ -7949,7 +7949,7 @@ static void reg_save(regsave_T *save, garray_T *gap)
 }
 
 /// Restore the input line and position from a regsave_T.
-static void reg_restore(regsave_T *save, garray_T *gap)
+static void reg_restore(regsave_T *save, garray_st *gap)
 {
     if(REG_MULTI)
     {
@@ -13564,7 +13564,7 @@ static void nfa_postfix_dump(uchar_kt *expr, int retval)
 /// Print the NFA starting with a root node @b state.
 static void nfa_print_state(FILE *debugf, nfa_state_T *state)
 {
-    garray_T indent;
+    garray_st indent;
     ga_init(&indent, 1, 64);
     ga_append(&indent, '\0');
     nfa_print_state2(debugf, state, &indent);
@@ -13573,7 +13573,7 @@ static void nfa_print_state(FILE *debugf, nfa_state_T *state)
 
 static void nfa_print_state2(FILE *debugf,
                              nfa_state_T *state,
-                             garray_T *indent)
+                             garray_st *indent)
 {
     uchar_kt  *p;
 

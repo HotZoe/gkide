@@ -45,7 +45,7 @@ typedef struct
     linenr_T fd_top;    ///< first line of fold,
                         ///< for nested fold relative to parent
     linenr_T fd_len;    ///< number of lines in the fold
-    garray_T fd_nested; ///< array of nested folds
+    garray_st fd_nested; ///< array of nested folds
     char fd_flags;      ///< see below
 
     /// TRUE, FALSE or MAYBE: fold smaller than 'foldminlines';
@@ -156,7 +156,7 @@ bool hasFoldingWin(win_st *win,
     int level = 0;
     int use_level = FALSE;
     int maybe_small = FALSE;
-    garray_T *gap;
+    garray_st *gap;
     int low_level = 0;
     checkupdate(win);
 
@@ -510,7 +510,7 @@ void foldCheckClose(void)
     }
 }
 
-static int checkCloseRec(garray_T *gap, linenr_T lnum, int level)
+static int checkCloseRec(garray_st *gap, linenr_T lnum, int level)
 {
     fold_T  *fp;
     int retval = FALSE;
@@ -566,8 +566,8 @@ int foldManualAllowed(int create)
 void foldCreate(linenr_T start, linenr_T end)
 {
     fold_T *fp;
-    garray_T *gap;
-    garray_T fold_ga;
+    garray_st *gap;
+    garray_st fold_ga;
     int i, j;
     int cont;
     int use_level = FALSE;
@@ -729,9 +729,9 @@ void deleteFold(linenr_T start,
                 int recursive,
                 int had_visual)
 {
-    garray_T *gap;
+    garray_st *gap;
     fold_T *fp;
-    garray_T *found_ga;
+    garray_st *found_ga;
     fold_T *found_fp = NULL;
     linenr_T found_off = 0;
     int use_level;
@@ -927,7 +927,7 @@ int foldMoveTo(int updown, int dir, long count)
     linenr_T lnum;
     int use_level;
     int maybe_small;
-    garray_T *gap;
+    garray_st *gap;
     fold_T *fp;
     int level;
     int last;
@@ -1161,8 +1161,8 @@ void foldAdjustCursor(void)
     (void)hasFolding(curwin->w_cursor.lnum, &curwin->w_cursor.lnum, NULL);
 }
 
-/// Will "clone" (i.e deep copy) a garray_T of folds.
-void cloneFoldGrowArray(garray_T *from, garray_T *to)
+/// Will "clone" (i.e deep copy) a garray_st of folds.
+void cloneFoldGrowArray(garray_st *from, garray_st *to)
 {
     fold_T *from_p;
     fold_T *to_p;
@@ -1194,7 +1194,7 @@ void cloneFoldGrowArray(garray_T *from, garray_T *to)
 /// Set *fpp to the fold struct for the fold that contains "lnum" or
 /// the first fold below it (careful: it can be beyond the end of the array!).
 /// Returns FALSE when there is no fold that contains "lnum".
-static int foldFind(garray_T *gap, linenr_T lnum, fold_T **fpp)
+static int foldFind(garray_st *gap, linenr_T lnum, fold_T **fpp)
 {
     linenr_T low, high;
     fold_T *fp;
@@ -1238,7 +1238,7 @@ static int foldLevelWin(win_st *wp, linenr_T lnum)
     fold_T *fp;
     linenr_T lnum_rel = lnum;
     int level =  0;
-    garray_T *gap;
+    garray_st *gap;
 
     // Recursively search for a fold that contains "lnum".
     gap = &wp->w_folds;
@@ -1358,7 +1358,7 @@ static linenr_T setManualFoldWin(win_st *wp,
     int level = 0;
     int use_level = FALSE;
     int found_fold = FALSE;
-    garray_T *gap;
+    garray_st *gap;
     linenr_T next = MAXLNUM;
     linenr_T off = 0;
     int done = 0;
@@ -1492,7 +1492,7 @@ static void foldOpenNested(fold_T *fpr)
 /// Delete fold "idx" from growarray "gap".
 /// - When "recursive" is TRUE also delete all the folds contained in it.
 /// - When "recursive" is FALSE contained folds are moved one level up.
-static void deleteFoldEntry(garray_T *gap, int idx, int recursive)
+static void deleteFoldEntry(garray_st *gap, int idx, int recursive)
 {
     fold_T *fp;
     int i;
@@ -1554,7 +1554,7 @@ static void deleteFoldEntry(garray_T *gap, int idx, int recursive)
 }
 
 /// Delete nested folds in a fold.
-void deleteFoldRecurse(garray_T *gap)
+void deleteFoldRecurse(garray_st *gap)
 {
 #define DELETE_FOLD_NESTED(fd)  deleteFoldRecurse(&((fd)->fd_nested))
 
@@ -1585,7 +1585,7 @@ void foldMarkAdjust(win_st *wp,
     foldMarkAdjustRecurse(&wp->w_folds, line1, line2, amount, amount_after);
 }
 
-static void foldMarkAdjustRecurse(garray_T *gap,
+static void foldMarkAdjustRecurse(garray_st *gap,
                                   linenr_T line1,
                                   linenr_T line2,
                                   long amount,
@@ -1725,7 +1725,7 @@ int getDeepestNesting(void)
     return getDeepestNestingRecurse(&curwin->w_folds);
 }
 
-static int getDeepestNestingRecurse(garray_T *gap)
+static int getDeepestNestingRecurse(garray_st *gap)
 {
     int level;
     int maxlevel = 0;
@@ -1844,7 +1844,7 @@ static void checkSmall(win_st *wp, fold_T *fp, linenr_T lnum_off)
 }
 
 /// Set small flags in "gap" to MAYBE.
-static void setSmallMaybe(garray_T *gap)
+static void setSmallMaybe(garray_st *gap)
 {
     fold_T *fp = (fold_T *)gap->ga_data;
 
@@ -2381,7 +2381,7 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
     // to point to the end of the current fold:
     if(foldlevelSyntax == getlevel)
     {
-        garray_T *gap = &wp->w_folds;
+        garray_st *gap = &wp->w_folds;
         fold_T *fpn = NULL;
         int current_fdl = 0;
         linenr_T fold_start_lnum = 0;
@@ -2542,7 +2542,7 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
 /// updated as a result of a detected change in the fold.
 ///
 /// @param topflags  containing fold flags
-static linenr_T foldUpdateIEMSRecurse(garray_T *gap,
+static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
                                       int level,
                                       linenr_T startlnum,
                                       fline_T *flp,
@@ -3066,7 +3066,7 @@ static linenr_T foldUpdateIEMSRecurse(garray_T *gap,
 }
 
 /// Insert a new fold in "gap" at position "i".
-static void foldInsert(garray_T *gap, int i)
+static void foldInsert(garray_st *gap, int i)
 {
     fold_T *fp;
     ga_grow(gap, 1);
@@ -3085,12 +3085,12 @@ static void foldInsert(garray_T *gap, int i)
 /// "bot" in two pieces, one ending above "top" and the other starting below
 /// "bot". The caller must first have taken care of any nested folds from
 /// "top" to "bot"!
-static void foldSplit(garray_T *gap, int i, linenr_T top, linenr_T bot)
+static void foldSplit(garray_st *gap, int i, linenr_T top, linenr_T bot)
 {
     fold_T *fp;
     fold_T *fp2;
-    garray_T *gap1;
-    garray_T *gap2;
+    garray_st *gap1;
+    garray_st *gap2;
     int idx;
     int len;
 
@@ -3148,7 +3148,7 @@ static void foldSplit(garray_T *gap, int i, linenr_T top, linenr_T bot)
 /// 4: deleted
 /// 5: made to start below "bot".
 /// 6: not changed
-static void foldRemove(garray_T *gap, linenr_T top, linenr_T bot)
+static void foldRemove(garray_st *gap, linenr_T top, linenr_T bot)
 {
     fold_T *fp = NULL;
 
@@ -3210,7 +3210,7 @@ static void foldRemove(garray_T *gap, linenr_T top, linenr_T bot)
     }
 }
 
-static void reverse_fold_order(garray_T *gap, size_t start, size_t end)
+static void reverse_fold_order(garray_st *gap, size_t start, size_t end)
 {
     for(; start < end; start++, end--)
     {
@@ -3264,7 +3264,7 @@ static void truncate_fold(fold_T *fp, linenr_T end)
 #define VALID_FOLD(fp, gap) ((fp) < ((fold_T *)(gap)->ga_data + (gap)->ga_len))
 #define FOLD_INDEX(fp, gap) ((size_t)(fp - ((fold_T *)(gap)->ga_data)))
 
-void foldMoveRange(garray_T *gap,
+void foldMoveRange(garray_st *gap,
                    const linenr_T line1,
                    const linenr_T line2,
                    const linenr_T dest)
@@ -3404,13 +3404,13 @@ void foldMoveRange(garray_T *gap,
 /// must end just above "fp2".
 /// The resulting fold is "fp1", nested folds are moved from "fp2" to "fp1".
 /// Fold entry "fp2" in "gap" is deleted.
-static void foldMerge(fold_T *fp1, garray_T *gap, fold_T *fp2)
+static void foldMerge(fold_T *fp1, garray_st *gap, fold_T *fp2)
 {
     fold_T *fp3;
     fold_T *fp4;
     int idx;
-    garray_T *gap1 = &fp1->fd_nested;
-    garray_T *gap2 = &fp2->fd_nested;
+    garray_st *gap1 = &fp1->fd_nested;
+    garray_st *gap2 = &fp2->fd_nested;
 
     // If the last nested fold in fp1 touches the first nested fold in fp2,
     // merge them recursively.
@@ -3764,7 +3764,7 @@ int put_folds(FILE *fd, win_st *wp)
 
 /// Write commands to "fd" to recreate manually created folds.
 /// Returns FAIL when writing failed.
-static int put_folds_recurse(FILE *fd, garray_T *gap, linenr_T off)
+static int put_folds_recurse(FILE *fd, garray_st *gap, linenr_T off)
 {
     fold_T *fp = (fold_T *)gap->ga_data;
 
@@ -3794,7 +3794,7 @@ static int put_folds_recurse(FILE *fd, garray_T *gap, linenr_T off)
 /// Returns FAIL when writing failed.
 static int put_foldopen_recurse(FILE *fd,
                                 win_st *wp,
-                                garray_T *gap,
+                                garray_st *gap,
                                 linenr_T off)
 {
     int level;

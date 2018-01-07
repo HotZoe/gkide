@@ -91,7 +91,7 @@ typedef struct ucmd
 /// buffer: local to current buffer
 #define UC_BUFFER  1
 
-static garray_T ucmds = {0, 0, sizeof(ucmd_T), 4, NULL};
+static garray_st ucmds = {0, 0, sizeof(ucmd_T), 4, NULL};
 
 #define USER_CMD(i)          (&((ucmd_T *)(ucmds.ga_data))[i])
 #define USER_CMD_GA(gap, i)  (&((ucmd_T *)((gap)->ga_data))[i])
@@ -113,7 +113,7 @@ typedef struct
 /// reads more lines that may come from the while/for loop.
 struct loop_cookie
 {
-    garray_T *lines_gap;  ///< growarray with line info
+    garray_st *lines_gap;  ///< growarray with line info
     int current_line;     ///< last read line from growarray
 
     /// TRUE when looping a second time.
@@ -348,7 +348,7 @@ int do_cmdline(uchar_kt *cmdline,
     int did_inc = FALSE; // incremented RedrawingDisabled
     int retval = OK;
     struct condstack cstack; // conditional stack
-    garray_T lines_ga; // keep lines for ":while"/":for"
+    garray_st lines_ga; // keep lines for ":while"/":for"
     int current_line = 0; // active line in lines_ga
     uchar_kt *fname = NULL; // function or script name
     linenr_T *breakpoint = NULL; // ptr to breakpoint field in cookie
@@ -1128,7 +1128,7 @@ static uchar_kt *get_loop_line(int c, void *cookie, int indent)
 }
 
 /// Store a line in "gap" so that a ":while" loop can execute it again.
-static void store_loop_line(garray_T *gap, uchar_kt *line)
+static void store_loop_line(garray_st *gap, uchar_kt *line)
 {
     wcmd_T *p = GA_APPEND_VIA_PTR(wcmd_T, gap);
     p->line = vim_strsave(line);
@@ -3133,7 +3133,7 @@ static uchar_kt *find_ucmd(exarg_T *eap,
     int found = FALSE;
     int possible = FALSE;
     uchar_kt *cp, *np; // Point into typed cmd and test name
-    garray_T *gap;
+    garray_st *gap;
 
     // Found ambiguous buffer-local command,
     // only full match global is accepted.
@@ -6154,7 +6154,7 @@ static int uc_add_command(uchar_kt *name,
     int i;
     uchar_kt *p;
     int cmp = 1;
-    garray_T *gap;
+    garray_st *gap;
     ucmd_T *cmd = NULL;
     uchar_kt *rep_buf = NULL;
 
@@ -6326,7 +6326,7 @@ static void uc_list(uchar_kt *name, size_t name_len)
     ucmd_T *cmd;
     int len;
     uint32_t a;
-    garray_T *gap;
+    garray_st *gap;
     gap = &curbuf->b_ucmds;
 
     for(;;)
@@ -6804,7 +6804,7 @@ static void free_ucmd(ucmd_T *cmd)
 }
 
 /// Clear all user commands for "gap".
-void uc_clear(garray_T *gap)
+void uc_clear(garray_st *gap)
 {
     GA_DEEP_CLEAR(gap, ucmd_T, free_ucmd);
 }
@@ -6814,7 +6814,7 @@ static void ex_delcommand(exarg_T *eap)
     int i = 0;
     ucmd_T *cmd = NULL;
     int cmp = -1;
-    garray_T *gap;
+    garray_st *gap;
     gap = &curbuf->b_ucmds;
 
     for(;;)
@@ -12141,7 +12141,7 @@ static int put_view(FILE *fd,
 /// @param flagp
 static int ses_arglist(FILE *fd,
                        char *cmd,
-                       garray_T *gap,
+                       garray_st *gap,
                        int fullname,
                        unsigned *flagp)
 {

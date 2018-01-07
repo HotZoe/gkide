@@ -502,7 +502,7 @@ uchar_kt *str_foldcase(uchar_kt *str, int orglen, uchar_kt *buf, int buflen)
 FUNC_ATTR_NONNULL_RET
 {
     int i;
-    garray_T ga;
+    garray_st ga;
     int len = orglen;
 
     #define GA_CHAR(i)    ((uchar_kt *)ga.ga_data)[i]

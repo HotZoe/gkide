@@ -6540,7 +6540,7 @@ static void helptags_one(uchar_kt *dir,
 {
     FILE *fd_tags;
     FILE *fd;
-    garray_T ga;
+    garray_st ga;
     int filecount;
     uchar_kt **files;
     uchar_kt *p1;
@@ -6799,7 +6799,7 @@ static void helptags_one(uchar_kt *dir,
 static void do_helptags(uchar_kt *dirname, bool add_help_tags)
 {
     int len;
-    garray_T ga;
+    garray_st ga;
     uchar_kt lang[2];
     uchar_kt ext[5];
     uchar_kt fname[8];
@@ -8021,7 +8021,7 @@ void ex_substitute(exarg_T *eap)
 
     block_autocmds(); // Disable events during command preview.
     uchar_kt *save_eap = eap->arg;
-    garray_T save_view;
+    garray_st save_view;
     win_size_save(&save_view); // Save current window sizes.
     save_search_patterns();
     int save_changedtick = curbuf->b_changedtick;

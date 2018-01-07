@@ -6872,7 +6872,7 @@ uchar_kt *vim_tempname(void)
 static AutoPatCmd *active_apc_list = NULL;
 
 /// List of autocmd group names
-static garray_T augroups = { 0, 0, sizeof(uchar_kt *), 10, NULL };
+static garray_st augroups = { 0, 0, sizeof(uchar_kt *), 10, NULL };
 
 ///
 #define AUGROUP_NAME(i)    (((char **)augroups.ga_data)[i])

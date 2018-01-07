@@ -184,17 +184,17 @@ struct list_s
 };
 
 /// Static list with 10 items.
-/// Use init_static_list"()" to initialize.
+/// Use init_static_list() to initialize.
 typedef struct
 {
     list_st sl_list; // must be first
     listitem_st sl_items[10];
 } staticList10_T;
 
-// Structure to hold an item of a Dictionary.
-// Also used for a variable.
-// The key is copied into "di_key" to avoid an extra alloc/free for it.
-struct dictitem_S
+/// Structure to hold an item of a Dictionary.
+/// Also used for a variable. The key is copied
+/// into "di_key" to avoid an extra alloc/free for it.
+struct dictitem_s
 {
     typval_st di_tv;    ///< type and value of the variable
     uchar_kt di_flags;  ///< flags (only used for variable)
@@ -268,8 +268,8 @@ struct ufunc_s
     int uf_flags;               ///<
     int uf_calls;               ///< nr of active calls
     bool uf_cleared;            ///< func_clear() was already called
-    garray_T uf_args;          ///< arguments
-    garray_T uf_lines;         ///< function lines
+    garray_st uf_args;          ///< arguments
+    garray_st uf_lines;         ///< function lines
     int uf_profiling;           ///< true when func is being profiled
 
     // Profiling the function as a whole.

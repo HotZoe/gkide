@@ -1744,7 +1744,7 @@ typedef struct
     uchar_kt *to;          ///< translated name
 } menutrans_T;
 
-static garray_T menutrans_ga = GA_EMPTY_INIT_VALUE;
+static garray_st menutrans_ga = GA_EMPTY_INIT_VALUE;
 
 #define FREE_MENUTRANS(mt)   \
     menutrans_T* _mt = (mt); \

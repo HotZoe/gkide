@@ -686,7 +686,7 @@ FUNC_ATTR_NONNULL_ALL
 ///                  - EW_NOERROR: Silence error messeges.
 ///                  - EW_NOTWILD: Add matches literally.
 /// @returns the number of matches found.
-static size_t path_expand(garray_T *gap, const uchar_kt *path, int flags)
+static size_t path_expand(garray_st *gap, const uchar_kt *path, int flags)
 FUNC_ATTR_NONNULL_ALL
 {
     return do_path_expand(gap, path, 0, flags, false);
@@ -715,7 +715,7 @@ static const char *scandir_next_with_dots(Directory *dir)
 /// Implementation of path_expand().
 ///
 /// Chars before @b path + @b wildoff do not get expanded.
-static size_t do_path_expand(garray_T *gap,
+static size_t do_path_expand(garray_st *gap,
                              const uchar_kt *path,
                              size_t wildoff,
                              int flags,
@@ -979,7 +979,7 @@ static int find_previous_pathsep(uchar_kt *path, uchar_kt **psep)
 
 /// Returns TRUE if @b maybe_unique is unique wrt other_paths in @b gap.
 /// @b maybe_unique is the end portion of "((uchar_kt **)gap->ga_data)[i]".
-static bool is_unique(uchar_kt *maybe_unique, garray_T *gap, int i)
+static bool is_unique(uchar_kt *maybe_unique, garray_st *gap, int i)
 {
     uchar_kt **other_paths = (uchar_kt **)gap->ga_data;
 
@@ -1011,7 +1011,7 @@ static bool is_unique(uchar_kt *maybe_unique, garray_T *gap, int i)
 }
 
 /*
- * Split the 'path' option into an array of strings in garray_T. Relative
+ * Split the 'path' option into an array of strings in garray_st. Relative
  * paths are expanded to their equivalent fullpath. This includes the "."
  * (relative to current buffer directory) and empty path (relative to current
  * directory) notations.
@@ -1019,7 +1019,7 @@ static bool is_unique(uchar_kt *maybe_unique, garray_T *gap, int i)
  * TODO: handle upward search (;) and path limiter (**N) notations by
  * expanding each into their equivalent path(s).
  */
-static void expand_path_option(uchar_kt *curdir, garray_T *gap)
+static void expand_path_option(uchar_kt *curdir, garray_st *gap)
 {
     uchar_kt *path_option = *curbuf->b_p_path == NUL ? p_path : curbuf->b_p_path;
     uchar_kt *buf = xmalloc(MAXPATHL);
@@ -1096,7 +1096,7 @@ static void expand_path_option(uchar_kt *curdir, garray_T *gap)
  *   fname: /foo/bar/baz/quux.txt
  * returns:      ^this
  */
-static uchar_kt *get_path_cutoff(uchar_kt *fname, garray_T *gap)
+static uchar_kt *get_path_cutoff(uchar_kt *fname, garray_st *gap)
 {
     int maxlen = 0;
     uchar_kt  **path_part = (uchar_kt **)gap->ga_data;
@@ -1134,12 +1134,12 @@ static uchar_kt *get_path_cutoff(uchar_kt *fname, garray_T *gap)
  * that they are unique with respect to each other while conserving the part
  * that matches the pattern. Beware, this is at least O(n^2) wrt "gap->ga_len".
  */
-static void uniquefy_paths(garray_T *gap, uchar_kt *pattern)
+static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
 {
     uchar_kt **fnames = (uchar_kt **)gap->ga_data;
     bool sort_again = false;
     regmatch_T regmatch;
-    garray_T path_ga;
+    garray_st path_ga;
     uchar_kt **in_curdir = NULL;
     uchar_kt *short_name;
     ga_remove_duplicate_strings(gap);
@@ -1354,13 +1354,13 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
  */
 static int
 expand_in_path(
-    garray_T *gap,
+    garray_st *gap,
     uchar_kt *pattern,
     int flags                      /* EW_* flags */
 )
 {
     uchar_kt      *curdir;
-    garray_T path_ga;
+    garray_st path_ga;
     uchar_kt      *paths = NULL;
     curdir = xmalloc(MAXPATHL);
     os_dirname(curdir, MAXPATHL);
@@ -1448,7 +1448,7 @@ static bool has_special_wildchar(uchar_kt *p)
 int gen_expand_wildcards(int num_pat, uchar_kt **pat, int *num_file,
                          uchar_kt ***file, int flags)
 {
-    garray_T ga;
+    garray_st ga;
     uchar_kt *p;
     static bool recursive = false;
     int add_pat;
@@ -1620,7 +1620,7 @@ static int vim_backtick(uchar_kt *p)
 // Currently only works when pat[] starts and ends with a `.
 // Returns number of file names found, -1 if an error is encountered.
 static int expand_backtick(
-    garray_T *gap,
+    garray_st *gap,
     uchar_kt *pat,
     int flags              /* EW_* flags */
 )
@@ -1716,7 +1716,7 @@ void slash_adjust(uchar_kt *p)
 // EW_ADDSLASH add slash after directory name
 // EW_ALLLINKS add symlink also when the referred file does not exist
 void addfile(
-    garray_T *gap,
+    garray_st *gap,
     uchar_kt *f,         /* filename */
     int flags
 )

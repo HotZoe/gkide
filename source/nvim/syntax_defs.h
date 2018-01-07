@@ -66,7 +66,7 @@ struct syn_state
         /// short state stack
         bufstate_T sst_stack[SST_FIX_STATES];
         /// growarray for long state stack
-        garray_T sst_ga;
+        garray_st sst_ga;
     } sst_union;
     /// flags for sst_next_list
     int sst_next_flags;

@@ -10,18 +10,18 @@
 
 /// Structure used for growing arrays.
 ///
-/// This is used to store information that only grows, is deleted all at
-/// once, and needs to be accessed by index.
+/// This is used to store information that only grows, is
+/// deleted all at once, and needs to be accessed by index.
 ///
 /// @see ga_clear and ga_grow
-typedef struct growarray
+typedef struct growarray_s
 {
     int ga_len;       ///< current number of items used
     int ga_maxlen;    ///< maximum number of items possible
     int ga_itemsize;  ///< sizeof(item)
     int ga_growsize;  ///< number of items to grow each time
     void *ga_data;    ///< pointer to the first item
-} garray_T;
+} garray_st;
 
 #define GA_EMPTY(ga_ptr)      ((ga_ptr)->ga_len <= 0)
 #define GA_EMPTY_INIT_VALUE   { 0, 0, 0, 1, NULL }
@@ -41,7 +41,7 @@ typedef struct growarray
     #include "garray.h.generated.h"
 #endif
 
-static inline void *ga_append_via_ptr(garray_T *gap, size_t item_size)
+static inline void *ga_append_via_ptr(garray_st *gap, size_t item_size)
 {
     if((int)item_size != gap->ga_itemsize)
     {
@@ -58,20 +58,20 @@ static inline void *ga_append_via_ptr(garray_T *gap, size_t item_size)
 /// @param gap          the garray to be freed
 /// @param item_type    type of the item in the garray
 /// @param free_item_fn free function that takes (*item_type) as parameter
-#define GA_DEEP_CLEAR(gap, item_type, free_item_fn)                    \
-    do                                                                 \
-    {                                                                  \
-        garray_T *_gap = (gap);                                        \
-        if(_gap->ga_data != NULL)                                      \
-        {                                                              \
-            for(int i = 0; i < _gap->ga_len; i++)                      \
-            {                                                          \
-                item_type *_item = &(((item_type *)_gap->ga_data)[i]); \
-                free_item_fn(_item);                                   \
-            }                                                          \
-        }                                                              \
-        ga_clear(_gap);                                                \
-    } while (false)
+#define GA_DEEP_CLEAR(gap, item_type, free_item_fn)                   \
+    do                                                                \
+    {                                                                 \
+        garray_st *ptr = (gap);                                       \
+        if(ptr->ga_data != NULL)                                      \
+        {                                                             \
+            for(int i = 0; i < ptr->ga_len; i++)                      \
+            {                                                         \
+                item_type *iptr = &(((item_type *)ptr->ga_data)[i]);  \
+                free_item_fn(iptr);                                   \
+            }                                                         \
+        }                                                             \
+        ga_clear(ptr);                                                \
+    } while(false)
 
 #define FREE_PTR_PTR(ptr) xfree(*(ptr))
 
@@ -81,4 +81,4 @@ static inline void *ga_append_via_ptr(garray_T *gap, size_t item_size)
 /// @param gap the garray to be freed
 #define GA_DEEP_CLEAR_PTR(gap) GA_DEEP_CLEAR(gap, void*, FREE_PTR_PTR)
 
-#endif  // NVIM_GARRAY_H
+#endif // NVIM_GARRAY_H

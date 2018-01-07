@@ -629,10 +629,10 @@ typedef struct
 /// @param[in]  join_gap  Garray to keep each list item string.
 ///
 /// @return OK in case of success, FAIL otherwise.
-static int list_join_inner(garray_T *const gap,
+static int list_join_inner(garray_st *const gap,
                            list_st *const l,
                            const char *const sep,
-                           garray_T *const join_gap)
+                           garray_st *const join_gap)
 FUNC_ATTR_NONNULL_ALL
 {
     size_t sumlen = 0;
@@ -697,7 +697,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  sep  Separator.
 ///
 /// @return OK in case of success, FAIL otherwise.
-int tv_list_join(garray_T *const gap, list_st *const l, const char *const sep)
+int tv_list_join(garray_st *const gap, list_st *const l, const char *const sep)
 FUNC_ATTR_NONNULL_ALL
 {
     if(l->lv_len < 1)
@@ -705,7 +705,7 @@ FUNC_ATTR_NONNULL_ALL
         return OK;
     }
 
-    garray_T join_ga;
+    garray_st join_ga;
     int retval;
 
     ga_init(&join_ga, (int)sizeof(Join), l->lv_len);

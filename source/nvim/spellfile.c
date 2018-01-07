@@ -502,9 +502,9 @@ typedef struct spellinfo_S
     /// region names; used only if si_region_count > 1
     uchar_kt si_region_name[17];
 
-    garray_T si_rep;          ///< list of fromto_T entries from REP lines
-    garray_T si_repsal;       ///< list of fromto_T entries from REPSAL lines
-    garray_T si_sal;          ///< list of fromto_T entries from SAL lines
+    garray_st si_rep;          ///< list of fromto_T entries from REP lines
+    garray_st si_repsal;       ///< list of fromto_T entries from REPSAL lines
+    garray_st si_sal;          ///< list of fromto_T entries from SAL lines
     uchar_kt *si_sofofr;      ///< SOFOFROM text
     uchar_kt *si_sofoto;      ///< SOFOTO text
     int si_nosugfile;         ///< NOSUGFILE item found
@@ -515,18 +515,18 @@ typedef struct spellinfo_S
     hashtab_T si_commonwords; ///< hashtable for common words
     time_t si_sugtime;        ///< timestamp for .sug file
     int si_rem_accents;       ///< soundsalike: remove accents
-    garray_T si_map;          ///< MAP info concatenated
+    garray_st si_map;          ///< MAP info concatenated
     uchar_kt *si_midword;     ///< MIDWORD chars or NULL
     int si_compmax;           ///< max nr of words for compounding
     int si_compminlen;        ///< minimal length for compounding
     int si_compsylmax;        ///< max nr of syllables for compounding
     int si_compoptions;       ///< COMP_ flags
-    garray_T si_comppat;      ///< CHECKCOMPOUNDPATTERN items, each stored
+    garray_st si_comppat;      ///< CHECKCOMPOUNDPATTERN items, each stored
                               ///< as a string
     uchar_kt *si_compflags;   ///< flags used for compounding
     uchar_kt si_nobreak;      ///< NOBREAK
     uchar_kt *si_syllable;    ///< syllable string
-    garray_T si_prefcond;     ///< table with conditions for postponed
+    garray_st si_prefcond;     ///< table with conditions for postponed
                               ///< prefixes, each stored as a string
     int si_newprefID;         ///< current value for ah_newID
     int si_newcompID;         ///< current value for compound ID
@@ -1024,7 +1024,7 @@ void suggest_load_files(void)
     time_t timestamp;
     int wcount;
     int wordnr;
-    garray_T ga;
+    garray_st ga;
     int c;
 
     // Do this for all languages that support sound folding.
@@ -1323,7 +1323,7 @@ static int read_prefcond_section(FILE *fd, slang_T *lp)
 /// Read REP or REPSAL items section from "fd": <repcount> <rep> ...
 ///
 /// @return SP_*ERROR flags.
-static int read_rep_section(FILE *fd, garray_T *gap, int16_t *first)
+static int read_rep_section(FILE *fd, garray_st *gap, int16_t *first)
 {
     int cnt;
     fromto_T *ftp;
@@ -1393,7 +1393,7 @@ static int read_rep_section(FILE *fd, garray_T *gap, int16_t *first)
 static int read_sal_section(FILE *fd, slang_T *slang)
 {
     int cnt;
-    garray_T *gap;
+    garray_st *gap;
     salitem_T *smp;
     int ccnt;
     uchar_kt *p;
@@ -1674,7 +1674,7 @@ static int read_compound(FILE *fd, slang_T *slang, int len)
     uchar_kt *ap;
     uchar_kt *crp;
     int cnt;
-    garray_T *gap;
+    garray_st *gap;
 
     if(todo < 2)
     {
@@ -1888,7 +1888,7 @@ static int read_compound(FILE *fd, slang_T *slang, int len)
 static int set_sofo(slang_T *lp, uchar_kt *from, uchar_kt *to)
 {
     int i;
-    garray_T *gap;
+    garray_st *gap;
     uchar_kt *s;
     uchar_kt *p;
     int c;
@@ -1990,7 +1990,7 @@ static void set_sal_first(slang_T *lp)
     salfirst_T *sfirst;
     salitem_T *smp;
     int c;
-    garray_T *gap = &lp->sl_sal;
+    garray_st *gap = &lp->sl_sal;
     sfirst = lp->sl_sal_first;
 
     for(int i = 0; i < 256; ++i)
@@ -2946,7 +2946,7 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
             else if(is_aff_rule(items, itemcnt, "CHECKCOMPOUNDPATTERN", 3))
             {
                 int i;
-                garray_T *gap = &spin->si_comppat;
+                garray_st *gap = &spin->si_comppat;
 
                 // Only add the couple if it isn't already there.
                 for(i = 0; i < gap->ga_len - 1; i += 2)
@@ -3967,7 +3967,7 @@ static bool str_equal(uchar_kt *s1, uchar_kt *s2)
 /// Used for REP and SAL items.
 /// They are stored case-folded.
 static void add_fromto(spellinfo_T *spin,
-                       garray_T *gap,
+                       garray_st *gap,
                        uchar_kt *from,
                        uchar_kt *to)
 {
@@ -5782,7 +5782,7 @@ static int write_vim_spell(spellinfo_T *spin, uchar_kt *fname)
     // round 3: SN_REPSAL section
     for(unsigned int round = 1; round <= 3; ++round)
     {
-        garray_T *gap;
+        garray_st *gap;
 
         if(round == 1)
         {
@@ -6519,7 +6519,7 @@ static int sug_filltree(spellinfo_T *spin, slang_T *slang)
 /// @return FAIL when out of memory.
 static int sug_maketable(spellinfo_T *spin)
 {
-    garray_T ga;
+    garray_st ga;
     int res = OK;
 
     // Allocate a buffer, open a memline for it and create
@@ -6551,7 +6551,7 @@ static int sug_maketable(spellinfo_T *spin)
 static int sug_filltable(spellinfo_T *spin,
                          wordnode_T *node,
                          int startwordnr,
-                         garray_T *gap)
+                         garray_st *gap)
 {
     wordnode_T *p;
     wordnode_T *np;
@@ -7506,7 +7506,7 @@ static int set_spell_finish(spelltab_T *new_st)
 
 /// Write the table with prefix conditions to the .spl file.
 /// When "fd" is NULL only count the length of what is written.
-static int write_spell_prefcond(FILE *fd, garray_T *gap)
+static int write_spell_prefcond(FILE *fd, garray_st *gap)
 {
     assert(gap->ga_len >= 0);
 

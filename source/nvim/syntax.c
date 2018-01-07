@@ -77,7 +77,7 @@ struct hl_group
 /// @}
 
 // highlight groups for 'highlight' option
-static garray_T highlight_ga = GA_EMPTY_INIT_VALUE;
+static garray_st highlight_ga = GA_EMPTY_INIT_VALUE;
 
 #define HL_TABLE()   ((struct hl_group *)((highlight_ga.ga_data)))
 #define MAX_HL_ID    20000  ///< maximum value for a highlight ID.
@@ -325,7 +325,7 @@ static int next_match_end_idx;        ///< ID of group for end pattn or zero
 static reg_extmatch_T *next_match_extmatch = NULL;
 
 // A state stack is an array of integers or stateitem_T, stored in a
-// garray_T. A state stack is invalid if it's itemsize entry is zero.
+// garray_st. A state stack is invalid if it's itemsize entry is zero.
 #define INVALID_STATE(ssp)  ((ssp)->ga_itemsize == 0)
 #define VALID_STATE(ssp)    ((ssp)->ga_itemsize != 0)
 
@@ -342,7 +342,7 @@ static int current_finished = 0;   ///< current line has been finished
 static int current_state_stored = 0;
 
 /// current stack of state_items
-static garray_T current_state = GA_EMPTY_INIT_VALUE;
+static garray_st current_state = GA_EMPTY_INIT_VALUE;
 static short *current_next_list = NULL; ///< when non-zero, nextgroup list
 static int current_next_flags = 0;      ///< flags for current_next_list
 static int current_line_id = 0;         ///< unique number for current line
@@ -1911,7 +1911,7 @@ static int syn_current_attr(int syncing,
     // variables for zero-width matches that have a "nextgroup" argument
     int keep_next_list;
     int zero_width_next_list = FALSE;
-    garray_T zero_width_next_ga;
+    garray_st zero_width_next_ga;
 
     // No character, no attributes! Past end of line?
     // Do try matching with an empty line (could be the start of a region).
@@ -2466,7 +2466,7 @@ static int syn_current_attr(int syncing,
 
 
 /// Check if we already matched pattern "idx" at the current column.
-static int did_match_already(int idx, garray_T *gap)
+static int did_match_already(int idx, garray_st *gap)
 {
     for(int i = current_state.ga_len; --i >= 0;)
     {
@@ -7079,7 +7079,7 @@ static void syntime_report(void)
         return;
     }
 
-    garray_T ga;
+    garray_st ga;
     ga_init(&ga, sizeof(time_entry_T), 50);
     proftime_T total_total = profile_zero();
     int total_count = 0;
@@ -8224,7 +8224,7 @@ static void highlight_clear(int idx)
 /// Table with the specifications for an attribute number.
 /// Note that this table is used by ALL buffers. This is
 /// required because the GUI can redraw at any time for any buffer.
-static garray_T attr_table = GA_EMPTY_INIT_VALUE;
+static garray_st attr_table = GA_EMPTY_INIT_VALUE;
 
 #define ATTR_ENTRY(idx)  ((attrentry_T *)attr_table.ga_data)[idx]
 
@@ -8235,7 +8235,7 @@ static garray_T attr_table = GA_EMPTY_INIT_VALUE;
 /// @return 0 for error.
 int get_attr_entry(attrentry_T *aep)
 {
-    garray_T *table = &attr_table;
+    garray_st *table = &attr_table;
     attrentry_T *taep;
     static int recursive = FALSE;
 

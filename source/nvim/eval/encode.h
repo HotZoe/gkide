@@ -29,7 +29,7 @@ int encode_vim_to_msgpack(msgpack_packer *const packer,
 /// @param[in]  objname  Object name, used for error message.
 ///
 /// @return OK in case of success, FAIL otherwise.
-int encode_vim_to_echo(garray_T *const packer,
+int encode_vim_to_echo(garray_st *const packer,
                        typval_st *const tv,
                        const char *const objname);
 
