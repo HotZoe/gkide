@@ -4045,7 +4045,7 @@ static int spell_read_dic(spellinfo_T *spin,
     uchar_kt *pc;
     uchar_kt *w;
     int l;
-    hash_T hash;
+    hash_kt hash;
     hashitem_T *hi;
     FILE *fd;
     int lnum = 1;
@@ -5505,7 +5505,7 @@ static int node_compress(spellinfo_T *spin,
     wordnode_T *np;
     wordnode_T *tp;
     wordnode_T *child;
-    hash_T hash;
+    hash_kt hash;
     hashitem_T *hi;
     int len = 0;
     unsigned nr, n;
@@ -7598,7 +7598,7 @@ static void set_map_str(slang_T *lp, uchar_kt *map)
                 int cl = mb_char2len(c);
                 int headcl = mb_char2len(headc);
                 uchar_kt *b;
-                hash_T hash;
+                hash_kt hash;
                 hashitem_T *hi;
                 b = xmalloc(cl + headcl + 2);
                 mb_char2bytes(c, b);

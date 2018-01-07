@@ -2322,7 +2322,7 @@ static void spell_load_cb(uchar_kt *fname, void *cookie)
 /// @param[in]  count  1 to count once, 10 to init
 void count_common_word(slang_T *lp, uchar_kt *word, int len, int count)
 {
-    hash_T hash;
+    hash_kt hash;
     hashitem_T *hi;
     wordcount_T *wc;
     uchar_kt buf[MAXWLEN];
@@ -7015,7 +7015,7 @@ static void add_sound_suggest(suginfo_T *su,
     int wordcount;
     int wc;
     int goodscore;
-    hash_T hash;
+    hash_kt hash;
     hashitem_T *hi;
     sftword_T *sft;
     int bc, gc;
@@ -7612,7 +7612,7 @@ static void check_suggestions(suginfo_T *su, garray_st *gap)
 static void add_banned(suginfo_T *su, uchar_kt *word)
 {
     uchar_kt *s;
-    hash_T hash;
+    hash_kt hash;
     hashitem_T *hi;
     hash = hash_hash(word);
     const size_t word_len = STRLEN(word);

@@ -136,7 +136,7 @@ hashitem_T *hash_find_len(const hashtab_T *const ht,
 hashitem_T *hash_lookup(const hashtab_T *const ht,
                         const char *const key,
                         const size_t key_len,
-                        const hash_T hash)
+                        const hash_kt hash)
 {
 #ifdef HT_DEBUG
     hash_count_lookup++;
@@ -145,7 +145,7 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     // - return if there is no item at all
     // - skip over a removed item
     // - return if the item matches
-    hash_T idx = hash & ht->ht_mask;
+    hash_kt idx = hash & ht->ht_mask;
     hashitem_T *hi = &ht->ht_array[idx];
 
     if(hi->hi_key == NULL)
@@ -172,7 +172,7 @@ hashitem_T *hash_lookup(const hashtab_T *const ht,
     // table entries in the end.
     // When we run into a NULL key it's clear that the key isn't there.
     // Return the first available slot found (can be a slot of a removed item).
-    for(hash_T perturb = hash;; perturb >>= PERTURB_SHIFT)
+    for(hash_kt perturb = hash;; perturb >>= PERTURB_SHIFT)
     {
 #ifdef HT_DEBUG
         // count a "miss" for hashtab lookup
@@ -229,7 +229,7 @@ void hash_debug_results(void)
 /// - FAIL, if key already present
 int hash_add(hashtab_T *ht, uchar_kt *key)
 {
-    hash_T hash = hash_hash(key);
+    hash_kt hash = hash_hash(key);
     hashitem_T *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
 
     if(!HASHITEM_EMPTY(hi))
@@ -254,7 +254,7 @@ int hash_add(hashtab_T *ht, uchar_kt *key)
 ///
 /// @param hash
 /// The precomputed hash value for the key.
-void hash_add_item(hashtab_T *ht, hashitem_T *hi, uchar_kt *key, hash_T hash)
+void hash_add_item(hashtab_T *ht, hashitem_T *hi, uchar_kt *key, hash_kt hash)
 {
     ht->ht_used++;
 
@@ -409,7 +409,7 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
     // Move all the items from the old array to the new one, placing them in
     // the right spot. The new array won't have any removed items, thus this
     // is also a cleanup action.
-    hash_T newmask = newsize - 1;
+    hash_kt newmask = newsize - 1;
     size_t todo = ht->ht_used;
 
     for(hashitem_T *olditem = oldarray; todo > 0; ++olditem)
@@ -422,12 +422,12 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
         // The algorithm to find the spot to add the item is identical to
         // the algorithm to find an item in hash_lookup(). But we only
         // need to search for a NULL key, thus it's simpler.
-        hash_T newi = olditem->hi_hash & newmask;
+        hash_kt newi = olditem->hi_hash & newmask;
         hashitem_T *newitem = &newarray[newi];
 
         if(newitem->hi_key != NULL)
         {
-            for(hash_T perturb = olditem->hi_hash;; perturb >>= PERTURB_SHIFT)
+            for(hash_kt perturb = olditem->hi_hash;; perturb >>= PERTURB_SHIFT)
             {
                 newi = 5 * newi + perturb + 1;
                 newitem = &newarray[newi & newmask];
@@ -461,13 +461,13 @@ static void hash_may_resize(hashtab_T *ht, size_t minitems)
 /// Compile with HT_DEBUG set and run a script that uses hashtables a lot.
 /// Vim will then print statistics when exiting. Try that with the current
 /// hash algorithm and yours. The lower the percentage the better.
-hash_T hash_hash(const uchar_kt *key)
+hash_kt hash_hash(const uchar_kt *key)
 {
-    hash_T hash = *key;
+    hash_kt hash = *key;
 
     if(hash == 0)
     {
-        return (hash_T)0;
+        return (hash_kt)0;
     }
 
     // A simplistic algorithm that appears to do very well.
@@ -492,7 +492,7 @@ hash_T hash_hash(const uchar_kt *key)
 /// @param[in]  len  Key length.
 ///
 /// @return Key hash.
-hash_T hash_hash_len(const char *key, const size_t len)
+hash_kt hash_hash_len(const char *key, const size_t len)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -501,7 +501,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return 0;
     }
 
-    hash_T hash = *(uint8_t *)key;
+    hash_kt hash = *(uint8_t *)key;
     const uint8_t *end = (uint8_t *)key + len;
 
     const uint8_t *p = (const uint8_t *)key + 1;

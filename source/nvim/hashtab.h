@@ -13,7 +13,7 @@
 extern char hash_removed;
 
 /// Type for hash number (hash calculation result).
-typedef size_t hash_T;
+typedef size_t hash_kt;
 
 /// The address of "hash_removed" is used as a magic number
 /// for hi_key to indicate a removed item.
@@ -40,7 +40,7 @@ typedef size_t hash_T;
 typedef struct hashitem_S
 {
     /// Cached hash number for hi_key.
-    hash_T hi_hash;
+    hash_kt hi_hash;
 
     /// Item key.
     ///
@@ -63,15 +63,17 @@ typedef struct hashitem_S
 /// Values are of any type.
 ///
 /// The hashtable grows to accommodate more entries when needed.
-typedef struct hashtable_S
+typedef struct hashtable_s
 {
-    hash_T ht_mask;         ///< mask used for hash value
-                            ///< (nr of items in array is "ht_mask" + 1)
+    hash_kt ht_mask;        ///< mask used for hash value
+                            ///< nr of items in array is: @b ht_mask + 1
     size_t ht_used;         ///< number of items used
     size_t ht_filled;       ///< number of items used or removed
     int ht_locked;          ///< counter for hash_lock()
-    hashitem_T *ht_array;   ///< points to the array, allocated when it's
-                            ///< not "ht_smallarray"
+
+    /// points to the array
+    /// allocated when it's not @b ht_smallarray
+    hashitem_T *ht_array;
 
     /// for initial array
     hashitem_T ht_smallarray[HT_INIT_SIZE];

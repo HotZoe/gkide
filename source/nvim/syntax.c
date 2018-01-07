@@ -4682,7 +4682,7 @@ static void add_keyword(uchar_kt *name,
     }
 
     kp->next_list = copy_id_list(next_list);
-    hash_T hash = hash_hash(kp->keyword);
+    hash_kt hash = hash_hash(kp->keyword);
 
     hashtab_T *ht = (curwin->w_s->b_syn_ic)
                     ? &curwin->w_s->b_keywtab_ic
