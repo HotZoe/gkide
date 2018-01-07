@@ -3747,7 +3747,7 @@ bool curbufIsChanged(void)
 
 /// For undotree(): Append the list of
 /// undo blocks at "first_uhp" to "list". Recursive.
-void u_eval_tree(u_header_T *first_uhp, list_T *list)
+void u_eval_tree(u_header_T *first_uhp, list_st *list)
 {
     dict_T *dict;
     u_header_T *uhp = first_uhp;
@@ -3776,7 +3776,7 @@ void u_eval_tree(u_header_T *first_uhp, list_T *list)
 
         if(uhp->uh_alt_next.ptr != NULL)
         {
-            list_T *alt_list = tv_list_alloc();
+            list_st *alt_list = tv_list_alloc();
 
             // Recursive call to add alternate undo tree.
             u_eval_tree(uhp->uh_alt_next.ptr, alt_list);

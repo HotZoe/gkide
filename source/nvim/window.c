@@ -7145,7 +7145,7 @@ int match_add(win_st *wp,
               const char *const pat,
               int prio,
               int id,
-              list_T *pos_list,
+              list_st *pos_list,
               const char *const conceal_char)
 {
     matchitem_T *cur;
@@ -7245,7 +7245,7 @@ int match_add(win_st *wp,
             linenr_T lnum = 0;
             colnr_T col = 0;
             int len = 1;
-            list_T *subl;
+            list_st *subl;
             listitem_T *subli;
             bool error = false;
 
@@ -7658,7 +7658,7 @@ void win_get_tabwin(handle_kt id, int *tabnr, int *winnr)
     }
 }
 
-void win_id2tabwin(typval_T *argvars, list_T *list)
+void win_id2tabwin(typval_T *argvars, list_st *list)
 {
     int winnr = 1;
     int tabnr = 1;
@@ -7702,7 +7702,7 @@ int win_id2win(typval_T *argvars)
     return 0;
 }
 
-void win_findbuf(typval_T *argvars, list_T *list)
+void win_findbuf(typval_T *argvars, list_st *list)
 {
     int bufnr = tv_get_number(&argvars[0]);
 

@@ -9857,7 +9857,7 @@ uchar_kt *reg_submatch(int no)
 /// - a list of allocated strings.
 /// - NULL when not in a ":s" command, for a
 ///   non-existing submatch and for any error.
-list_T *reg_submatch_list(int no)
+list_st *reg_submatch_list(int no)
 {
     if(!can_f_submatch || no < 0)
     {
@@ -9866,7 +9866,7 @@ list_T *reg_submatch_list(int no)
 
     linenr_T slnum;
     linenr_T elnum;
-    list_T *list;
+    list_st *list;
     const char *s;
 
     if(submatch_match == NULL)

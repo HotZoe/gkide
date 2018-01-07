@@ -52,7 +52,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         return 0;
     }
 
-    list_T *const list = (list_T *) data;
+    list_st *const list = (list_st *) data;
     const char *const end = buf + len;
     const char *line_end = buf;
     listitem_T *li = list->lv_last;
@@ -250,7 +250,7 @@ FUNC_ATTR_NONNULL_ALL
 ///                      NULL if ret_len is zero.
 ///
 /// @return true in case of success, false in case of failure.
-bool encode_vim_list_to_buf(const list_T *const list,
+bool encode_vim_list_to_buf(const list_st *const list,
                             size_t *const ret_len,
                             char **const ret_buf)
 FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT

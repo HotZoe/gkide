@@ -19,7 +19,7 @@
 typedef struct
 {
     size_t stack_index;  ///< Index of current container in stack.
-    list_T *special_val; ///< _VAL key contents for special maps.
+    list_st *special_val; ///< _VAL key contents for special maps.
                          ///< When container is not a special dictionary it is NULL.
     const char *s;       ///< Location where container starts.
     typval_T container;  ///< Container. Either VAR_LIST, VAR_DICT or VAR_LIST
@@ -62,7 +62,7 @@ FUNC_ATTR_NONNULL_ALL
 
     type_di->di_tv.v_type = VAR_LIST;
     type_di->di_tv.v_lock = VAR_UNLOCKED;
-    type_di->di_tv.vval.v_list = (list_T *) eval_msgpack_type_lists[type];
+    type_di->di_tv.vval.v_list = (list_st *) eval_msgpack_type_lists[type];
     type_di->di_tv.vval.v_list->lv_refcount++;
     tv_dict_add(dict, type_di);
 
@@ -188,7 +188,7 @@ FUNC_ATTR_NONNULL_ALL
         }
         else
         {
-            list_T *const kv_pair = tv_list_alloc();
+            list_st *const kv_pair = tv_list_alloc();
             tv_list_append_list(last_container.special_val, kv_pair);
 
             listitem_T *const key_li = tv_list_item_alloc();
@@ -291,10 +291,10 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] list which should contain key-value pairs. Return value
 ///                     may be safely ignored.
-list_T *decode_create_map_special_dict(typval_T *const ret_tv)
+list_st *decode_create_map_special_dict(typval_T *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
-    list_T *const list = tv_list_alloc();
+    list_st *const list = tv_list_alloc();
     list->lv_refcount++;
 
     create_special_dict(ret_tv, kMPMap, ((typval_T) {
@@ -342,7 +342,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(really_hasnul)
     {
-        list_T *const list = tv_list_alloc();
+        list_st *const list = tv_list_alloc();
         list->lv_refcount++;
         typval_T tv;
 
@@ -1237,7 +1237,7 @@ json_decode_string_cycle_start:
 
             case '[':
             {
-                list_T *list = tv_list_alloc();
+                list_st *list = tv_list_alloc();
                 list->lv_refcount++;
 
                 typval_T tv = (typval_T) {
@@ -1261,7 +1261,7 @@ json_decode_string_cycle_start:
             case '{':
             {
                 typval_T tv;
-                list_T *val_list = NULL;
+                list_st *val_list = NULL;
 
                 if(next_map_special)
                 {
@@ -1401,7 +1401,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             }
             else
             {
-                list_T *const list = tv_list_alloc();
+                list_st *const list = tv_list_alloc();
                 list->lv_refcount++;
 
                 create_special_dict(rettv, kMPInteger, ((typval_T) {
@@ -1432,7 +1432,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             }
             else
             {
-                list_T *const list = tv_list_alloc();
+                list_st *const list = tv_list_alloc();
                 list->lv_refcount++;
 
                 create_special_dict(rettv, kMPInteger, ((typval_T) {
@@ -1496,7 +1496,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
         case MSGPACK_OBJECT_ARRAY:
         {
-            list_T *const list = tv_list_alloc();
+            list_st *const list = tv_list_alloc();
             list->lv_refcount++;
 
             *rettv = (typval_T) {
@@ -1574,11 +1574,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 msgpack_to_vim_generic_map:
             {}
 
-            list_T *const list = decode_create_map_special_dict(rettv);
+            list_st *const list = decode_create_map_special_dict(rettv);
 
             for(size_t i = 0; i < mobj.via.map.size; i++)
             {
-                list_T *const kv_pair = tv_list_alloc();
+                list_st *const kv_pair = tv_list_alloc();
                 tv_list_append_list(list, kv_pair);
 
                 listitem_T *const key_li = tv_list_item_alloc();
@@ -1607,11 +1607,11 @@ msgpack_to_vim_generic_map:
 
         case MSGPACK_OBJECT_EXT:
         {
-            list_T *const list = tv_list_alloc();
+            list_st *const list = tv_list_alloc();
             list->lv_refcount++;
             tv_list_append_number(list, mobj.via.ext.type);
 
-            list_T *const ext_val_list = tv_list_alloc();
+            list_st *const ext_val_list = tv_list_alloc();
             tv_list_append_list(list, ext_val_list);
             create_special_dict(rettv, kMPExt, ((typval_T) {
                 .v_type = VAR_LIST,

@@ -8,4 +8,4 @@
 #endif
 
 dict_T *gc_first_dict = NULL; ///< Head of list of all dictionaries
-list_T *gc_first_list = NULL; ///< Head of list of all lists
+list_st *gc_first_list = NULL; ///< Head of list of all lists

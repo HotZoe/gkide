@@ -138,7 +138,7 @@ typedef enum
 } MessagePackType;
 
 /// Array mapping values from MessagePackType to corresponding list pointers
-extern const list_T *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
+extern const list_st *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
 #undef LAST_MSGPACK_TYPE
 
 typedef int (*ArgvFunc)(int current_argcount,

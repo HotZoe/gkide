@@ -311,7 +311,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
 
                     if(cur.special)
                     {
-                        list_T *const kv_pair = tv_list_alloc();
+                        list_st *const kv_pair = tv_list_alloc();
                         tv_list_append_list(cur.tv->vval.v_list, kv_pair);
                         listitem_T *const key = tv_list_item_alloc();
                         key->li_tv = decode_string(s, len, kTrue, false, false);

@@ -36,7 +36,7 @@ typedef double float_T;
 /// %d printf format specifier for varnumber_T
 #define PRIdVARNUMBER "d"
 
-typedef struct listvar_S list_T;
+typedef struct list_s list_st;
 typedef struct dictvar_S dict_T;
 typedef struct partial_S partial_T;
 
@@ -115,7 +115,7 @@ typedef struct
         SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
         float_T v_float;  ///< Floating-point number, for VAR_FLOAT.
         uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
-        list_T *v_list;   ///< List for VAR_LIST, can be NULL.
+        list_st *v_list;   ///< List for VAR_LIST, can be NULL.
         dict_T *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
         partial_T *v_partial;      ///< Closure: function with args.
     } vval;               ///< Actual value.
@@ -152,7 +152,7 @@ struct listwatch_S
 };
 
 /// Structure to hold info about a list
-struct listvar_S
+struct list_s
 {
     listitem_T *lv_first;     ///< First item, NULL if none.
     listitem_T *lv_last;      ///< Last item, NULL if none.
@@ -163,17 +163,17 @@ struct listvar_S
                               ///< optimising repeated l[idx].
     listitem_T *lv_idx_item;  ///< When not NULL item at index "lv_idx".
     int lv_copyID;            ///< ID used by deepcopy().
-    list_T *lv_copylist;      ///< Copied list used by deepcopy().
+    list_st *lv_copylist;      ///< Copied list used by deepcopy().
     VarLockStatus lv_lock;    ///< Zero, VAR_LOCKED, VAR_FIXED.
-    list_T *lv_used_next;     ///< next list in used lists list.
-    list_T *lv_used_prev;     ///< Previous list in used lists list.
+    list_st *lv_used_next;     ///< next list in used lists list.
+    list_st *lv_used_prev;     ///< Previous list in used lists list.
 };
 
 /// Static list with 10 items.
 /// Use init_static_list"()" to initialize.
 typedef struct
 {
-    list_T sl_list; // must be first
+    list_st sl_list; // must be first
     listitem_T sl_items[10];
 } staticList10_T;
 
@@ -304,7 +304,7 @@ typedef struct ht_stack_S
 /// Structure used for explicit stack while garbage collecting lists
 typedef struct list_stack_S
 {
-    list_T *list;
+    list_st *list;
     struct list_stack_S *prev;
 } list_stack_T;
 
@@ -315,14 +315,14 @@ typedef struct list_stack_S
 #define TV_DICT_HI2DI(hi) \
     ((dictitem_T *)((hi)->hi_key - offsetof(dictitem_T, di_key)))
 
-static inline long tv_list_len(const list_T *const l)
+static inline long tv_list_len(const list_st *const l)
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Get the number of items in a list
 ///
 /// @param[in]  l  List to check.
-static inline long tv_list_len(const list_T *const l)
+static inline long tv_list_len(const list_st *const l)
 {
     if(l == NULL)
     {

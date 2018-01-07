@@ -30,7 +30,7 @@ typedef struct
 {
     char *sub;                    ///< Previous replacement string.
     Timestamp timestamp;          ///< Time when it was last set.
-    list_T *additional_elements;  ///< Additional data left from ShaDa file.
+    list_st *additional_elements;  ///< Additional data left from ShaDa file.
 } SubReplacementString;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

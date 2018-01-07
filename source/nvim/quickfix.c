@@ -5186,7 +5186,7 @@ static void unload_dummy_buffer(fbuf_st *buf, uchar_kt *dirname_start)
 /// Add each quickfix error to list "list" as a dictionary.
 /// If qf_idx is -1, use the current list.
 /// Otherwise, use the specified list.
-int get_errorlist(win_st *wp, int qf_idx, list_T *list)
+int get_errorlist(win_st *wp, int qf_idx, list_st *list)
 {
     qf_info_T *qi = &ql_info;
     uchar_kt buf[2];
@@ -5366,7 +5366,7 @@ int get_errorlist_properties(win_st *wp, dict_T *what, dict_T *retdict)
 /// Add list of entries to quickfix/location list.
 /// Each list entry is a dictionary with item information.
 static int qf_add_entries(qf_info_T *qi,
-                          list_T *list,
+                          list_st *list,
                           uchar_kt *title,
                           int action)
 {
@@ -5558,7 +5558,7 @@ static int qf_set_properties(qf_info_T *qi, dict_T *what, int action)
 /// of dictionaries. "title" will be copied to w:quickfix_title
 /// "action" is 'a' for add, 'r' for replace. Otherwise create a new list.
 int set_errorlist(win_st *wp,
-                  list_T *list,
+                  list_st *list,
                   int action,
                   uchar_kt *title,
                   dict_T *what)

@@ -2986,7 +2986,7 @@ void completeopt_was_set(void)
 /// Start completion for the complete() function.
 /// "startcol" is where the matched text starts (1 is first column).
 /// "list" is the list of matches.
-void set_completion(colnr_T startcol, list_T *list)
+void set_completion(colnr_T startcol, list_st *list)
 {
     // If already doing completions stop it.
     if(ctrl_x_mode != 0)
@@ -4385,7 +4385,7 @@ static fbuf_st *ins_compl_next_buf(fbuf_st *buf, int flag)
 static void expand_by_function(int type, uchar_kt *base)
 {
     pos_T pos;
-    list_T *matchlist = NULL;
+    list_st *matchlist = NULL;
     dict_T *matchdict = NULL;
     uchar_kt *funcname;
     win_st *curwin_save;
@@ -4462,7 +4462,7 @@ theend:
 }
 
 /// Add completions from a list.
-static void ins_compl_add_list(list_T *list)
+static void ins_compl_add_list(list_st *list)
 {
     listitem_T  *li;
     int dir = compl_direction;

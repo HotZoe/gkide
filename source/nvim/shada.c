@@ -301,7 +301,7 @@ typedef struct
             uint8_t histtype;
             char *string;
             char sep;
-            list_T *additional_elements;
+            list_st *additional_elements;
         } history_item;
         struct reg
         {
@@ -316,7 +316,7 @@ typedef struct
         {
             char *name;
             typval_T value;
-            list_T *additional_elements;
+            list_st *additional_elements;
         } global_var;
         struct
         {
@@ -327,7 +327,7 @@ typedef struct
         struct sub_string
         {
             char *sub;
-            list_T *additional_elements;
+            list_st *additional_elements;
         } sub_string;
         struct buffer_list
         {
@@ -1446,7 +1446,7 @@ static inline bool marks_equal(const pos_T a, const pos_T b)
 static void shada_read(ShaDaReadDef *const sd_reader, const int flags)
 FUNC_ATTR_NONNULL_ALL
 {
-    list_T *oldfiles_list = get_vim_var_list(VV_OLDFILES);
+    list_st *oldfiles_list = get_vim_var_list(VV_OLDFILES);
     const bool force = flags & kShaDaForceit;
 
     const bool get_old_files = (flags & (kShaDaGetOldfiles | kShaDaForceit)

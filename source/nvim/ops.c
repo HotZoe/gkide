@@ -3279,7 +3279,7 @@ FUNC_ATTR_NONNULL_ALL
     dict_T *dict = get_vim_var_dict(VV_EVENT);
 
     // the yanked text
-    list_T *list = tv_list_alloc();
+    list_st *list = tv_list_alloc();
 
     for(size_t i = 0; i < reg->y_size; i++)
     {
@@ -6310,7 +6310,7 @@ static void *get_reg_wrap_one_line(uchar_kt *s, int flags)
         return s;
     }
 
-    list_T *list = tv_list_alloc();
+    list_st *list = tv_list_alloc();
     tv_list_append_string(list, NULL, 0);
     list->lv_first->li_tv.vval.v_string = s;
     return list;
@@ -6382,7 +6382,7 @@ void *get_reg_contents(int regname, int flags)
 
     if(flags & kGRegList)
     {
-        list_T *list = tv_list_alloc();
+        list_st *list = tv_list_alloc();
 
         for(size_t i = 0; i < reg->y_size; i++)
         {
@@ -7285,7 +7285,7 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     }
 
     free_register(reg);
-    list_T *const args = tv_list_alloc();
+    list_st *const args = tv_list_alloc();
     const char regname = (char)name;
     tv_list_append_string(args, &regname, 1);
     typval_T result = eval_call_provider("clipboard", "get", args);
@@ -7301,8 +7301,8 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
         goto err;
     }
 
-    list_T *res = result.vval.v_list;
-    list_T *lines = NULL;
+    list_st *res = result.vval.v_list;
+    list_st *lines = NULL;
 
     if(res->lv_len == 2 && res->lv_first->li_tv.v_type == VAR_LIST)
     {
@@ -7451,14 +7451,14 @@ static void set_clipboard(int name, yankreg_T *reg)
         return;
     }
 
-    list_T *lines = tv_list_alloc();
+    list_st *lines = tv_list_alloc();
 
     for(size_t i = 0; i < reg->y_size; i++)
     {
         tv_list_append_string(lines, (const char *)reg->y_array[i], -1);
     }
 
-    list_T *args = tv_list_alloc();
+    list_st *args = tv_list_alloc();
     tv_list_append_list(args, lines);
     char regtype;
 

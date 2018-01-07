@@ -19,8 +19,8 @@
 typedef enum
 {
     kMPConvDict,         ///< Convert dict_T *dictionary.
-    kMPConvList,         ///< Convert list_T *list.
-    kMPConvPairs,        ///< Convert mapping represented as a list_T* of pairs.
+    kMPConvList,         ///< Convert list_st *list.
+    kMPConvPairs,        ///< Convert mapping represented as a list_st* of pairs.
     kMPConvPartial,      ///< Convert partial_T* partial.
     kMPConvPartialList,  ///< Convert argc/argv pair coming from a partial.
 } MPConvStackValType;
@@ -53,7 +53,7 @@ typedef struct
 
         struct
         {
-            list_T *list;     ///< Currently converted list.
+            list_st *list;     ///< Currently converted list.
             listitem_T *li;   ///< Currently converted list item.
         } l;                  ///< State of list or generic mapping conversion.
 

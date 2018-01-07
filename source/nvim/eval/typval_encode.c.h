@@ -131,7 +131,7 @@
 /// @def TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START
 /// @brief Macros used after pushing list onto the stack
 ///
-/// Only used for real list_T* lists, not for special dictionaries or partial
+/// Only used for real list_st* lists, not for special dictionaries or partial
 /// arguments.
 ///
 /// @param  tv  Pointer to typval where value is stored. May be NULL. May
@@ -503,7 +503,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPInteger:
                     {
-                        const list_T *val_list;
+                        const list_st *val_list;
                         varnumber_T sign;
                         varnumber_T highest_bits;
                         varnumber_T high_bits;
@@ -627,7 +627,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                             goto _convert_one_value_regular_dict;
                         }
 
-                        list_T *const val_list = val_di->di_tv.vval.v_list;
+                        list_st *const val_list = val_di->di_tv.vval.v_list;
 
                         if(val_list == NULL || val_list->lv_len == 0)
                         {
@@ -674,7 +674,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPExt:
                     {
-                        const list_T *val_list;
+                        const list_st *val_list;
                         varnumber_T type;
 
                         if((val_di->di_tv.v_type != VAR_LIST)
@@ -889,7 +889,7 @@ typval_encode_stop_converting_one_item:
                                                           TYPVAL_ENCODE_NODICT_VAR);
                 }
 
-                const list_T *const kv_pair =
+                const list_st *const kv_pair =
                     cur_mpsv->data.l.li->li_tv.vval.v_list;
 
                 TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(encode_vim_to__error_ret,

@@ -73,7 +73,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out]  l  List to remove item from.
 /// @param[in,out]  item  Item to remove.
-void tv_list_item_remove(list_T *const l, listitem_T *const item)
+void tv_list_item_remove(list_st *const l, listitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     tv_list_remove_items(l, item, item);
@@ -84,7 +84,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out]  l  List to add watcher to.
 /// @param[in]  lw  Watcher to add.
-void tv_list_watch_add(list_T *const l, listwatch_T *const lw)
+void tv_list_watch_add(list_st *const l, listwatch_T *const lw)
 FUNC_ATTR_NONNULL_ALL
 {
     lw->lw_next = l->lv_watch;
@@ -97,7 +97,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out] l      List to remove watcher from.
 /// @param[in]  lwrem  Watcher to remove.
-void tv_list_watch_remove(list_T *const l, listwatch_T *const lwrem)
+void tv_list_watch_remove(list_st *const l, listwatch_T *const lwrem)
 FUNC_ATTR_NONNULL_ALL
 {
     listwatch_T **lwp = &l->lv_watch;
@@ -120,7 +120,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[out] l     List from which item is removed.
 /// @param[in]  item  List item being removed.
-void tv_list_watch_fix(list_T *const l, const listitem_T *const item)
+void tv_list_watch_fix(list_st *const l, const listitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     for(listwatch_T *lw = l->lv_watch; lw != NULL; lw = lw->lw_next)
@@ -137,10 +137,10 @@ FUNC_ATTR_NONNULL_ALL
 /// Caller should take care of the reference count.
 ///
 /// @return [allocated] new list.
-list_T *tv_list_alloc(void)
+list_st *tv_list_alloc(void)
 FUNC_ATTR_NONNULL_RET
 {
-    list_T *const list = xcalloc(1, sizeof(list_T));
+    list_st *const list = xcalloc(1, sizeof(list_st));
 
     // Prepend the list to the list of lists for garbage collection.
     if(gc_first_list != NULL)
@@ -158,7 +158,7 @@ FUNC_ATTR_NONNULL_RET
 /// Free items contained in a list
 ///
 /// @param[in,out]  l  List to clear.
-void tv_list_free_contents(list_T *const l)
+void tv_list_free_contents(list_st *const l)
 FUNC_ATTR_NONNULL_ALL
 {
     for(listitem_T *item = l->lv_first; item != NULL; item = l->lv_first)
@@ -181,7 +181,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Ignores the reference count.
 ///
 /// @param[in,out]  l  List to free.
-void tv_list_free_list(list_T *const l)
+void tv_list_free_list(list_st *const l)
 FUNC_ATTR_NONNULL_ALL
 {
     // Remove the list from the list of lists for garbage collection.
@@ -208,7 +208,7 @@ FUNC_ATTR_NONNULL_ALL
 /// if tv_in_free_unref_items is true.
 ///
 /// @param[in,out]  l  List to free.
-void tv_list_free(list_T *const l)
+void tv_list_free(list_st *const l)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!tv_in_free_unref_items)
@@ -223,7 +223,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Decrements the reference count and frees when it becomes zero or less.
 ///
 /// @param[in,out]  l  List to unreference.
-void tv_list_unref(list_T *const l)
+void tv_list_unref(list_st *const l)
 {
     if(l != NULL && --l->lv_refcount <= 0)
     {
@@ -238,7 +238,7 @@ void tv_list_unref(list_T *const l)
 /// @param[out] l      List to remove from.
 /// @param[in]  item   First item to remove.
 /// @param[in]  item2  Last item to remove.
-void tv_list_remove_items(list_T *const l,
+void tv_list_remove_items(list_st *const l,
                           listitem_T *const item,
                           listitem_T *const item2)
 FUNC_ATTR_NONNULL_ALL
@@ -277,7 +277,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in,out] ni    Item to insert.
 /// @param[in]     item  Item to insert before.
 ///                      If NULL, inserts at the end of the list.
-void tv_list_insert(list_T *const l,
+void tv_list_insert(list_st *const l,
                     listitem_T *const ni,
                     listitem_T *const item)
 FUNC_ATTR_NONNULL_ARG(1, 2)
@@ -319,7 +319,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 ///
 /// @param[in]  item
 /// Item to insert before. If NULL, inserts at the end of the list.
-void tv_list_insert_tv(list_T *const l,
+void tv_list_insert_tv(list_st *const l,
                        typval_T *const tv,
                        listitem_T *const item)
 {
@@ -335,7 +335,7 @@ void tv_list_insert_tv(list_T *const l,
 ///
 /// @param[in,out]  item
 /// Item to append.
-void tv_list_append(list_T *const l, listitem_T *const item)
+void tv_list_append(list_st *const l, listitem_T *const item)
 FUNC_ATTR_NONNULL_ALL
 {
     if(l->lv_last == NULL)
@@ -363,7 +363,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[in,out] tv
 /// Value to append. Is copied (@see tv_copy()) to an allocated listitem_T.
-void tv_list_append_tv(list_T *const l, typval_T *const tv)
+void tv_list_append_tv(list_st *const l, typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -378,7 +378,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[in,out]  itemlist
 /// List to append. Reference count is increased.
-void tv_list_append_list(list_T *const list, list_T *const itemlist)
+void tv_list_append_list(list_st *const list, list_st *const itemlist)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -399,7 +399,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// List to append to.
 ///
 /// @param[in,out]  dict  Dictionary to append. Reference count is increased.
-void tv_list_append_dict(list_T *const list, dict_T *const dict)
+void tv_list_append_dict(list_st *const list, dict_T *const dict)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -425,7 +425,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param[in]  len
 /// Length of the appended string. May be -1, in this case string
 /// is considered to be usual zero-terminated string or NULL “empty” string.
-void tv_list_append_string(list_T *const l,
+void tv_list_append_string(list_st *const l,
                            const char *const str,
                            const ptrdiff_t len)
 FUNC_ATTR_NONNULL_ARG(1)
@@ -453,7 +453,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// @param[in]   str
 /// String to append.
-void tv_list_append_allocated_string(list_T *const l, char *const str)
+void tv_list_append_allocated_string(list_st *const l, char *const str)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
@@ -470,7 +470,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// @param[in]  n
 /// Number to append. Will be recorded in the allocated listitem_T.
-void tv_list_append_number(list_T *const l, const varnumber_T n)
+void tv_list_append_number(list_st *const l, const varnumber_T n)
 {
     listitem_T *const li = tv_list_item_alloc();
     li->li_tv.v_type = VAR_NUMBER;
@@ -497,8 +497,8 @@ void tv_list_append_number(list_T *const l, const varnumber_T n)
 /// Copied list. May be NULL in case original
 /// list is NULL or some failure happens.
 /// The refcount of the new list is set to 1.
-list_T *tv_list_copy(const vimconv_T *const conv,
-                     list_T *const orig,
+list_st *tv_list_copy(const vimconv_T *const conv,
+                     list_st *const orig,
                      const bool deep,
                      const int copyID)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -508,7 +508,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return NULL;
     }
 
-    list_T *copy = tv_list_alloc();
+    list_st *copy = tv_list_alloc();
 
     if(copyID != 0)
     {
@@ -557,7 +557,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[out] l1  List to extend.
 /// @param[in]  l2  List to extend with.
 /// @param[in]  bef If not NULL, extends before this item.
-void tv_list_extend(list_T *const l1, list_T *const l2, listitem_T *const bef)
+void tv_list_extend(list_st *const l1, list_st *const l2, listitem_T *const bef)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     int todo = l2->lv_len;
@@ -581,10 +581,10 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 /// @param[out] ret_tv  Location where new list is saved.
 ///
 /// @return OK or FAIL.
-int tv_list_concat(list_T *const l1, list_T *const l2, typval_T *const tv)
+int tv_list_concat(list_st *const l1, list_st *const l2, typval_T *const tv)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    list_T *l;
+    list_st *l;
 
     tv->v_type = VAR_LIST;
 
@@ -630,7 +630,7 @@ typedef struct
 ///
 /// @return OK in case of success, FAIL otherwise.
 static int list_join_inner(garray_T *const gap,
-                           list_T *const l,
+                           list_st *const l,
                            const char *const sep,
                            garray_T *const join_gap)
 FUNC_ATTR_NONNULL_ALL
@@ -697,7 +697,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  sep  Separator.
 ///
 /// @return OK in case of success, FAIL otherwise.
-int tv_list_join(garray_T *const gap, list_T *const l, const char *const sep)
+int tv_list_join(garray_T *const gap, list_st *const l, const char *const sep)
 FUNC_ATTR_NONNULL_ALL
 {
     if(l->lv_len < 1)
@@ -726,8 +726,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  recursive  True when used recursively.
 ///
 /// @return True if lists are equal, false otherwise.
-bool tv_list_equal(list_T *const l1,
-                   list_T *const l2,
+bool tv_list_equal(list_st *const l1,
+                   list_st *const l2,
                    const bool ic,
                    const bool recursive)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -771,7 +771,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///                the end, -1 is the last item.
 ///
 /// @return Item at the given index or NULL if @b n is out of range.
-listitem_T *tv_list_find(list_T *const l, int n)
+listitem_T *tv_list_find(list_st *const l, int n)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -872,7 +872,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// May be NULL. If everything is OK, `*ret_error` is not touched.
 ///
 /// @return Integer value at the given index or -1.
-varnumber_T tv_list_find_nr(list_T *const l,
+varnumber_T tv_list_find_nr(list_st *const l,
                             const int n,
                             bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -898,7 +898,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  n  Index in a list.
 ///
 /// @return List item string value or NULL in case of error.
-const char *tv_list_find_str(list_T *const l, const int n)
+const char *tv_list_find_str(list_st *const l, const int n)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const listitem_T *const li = tv_list_find(l, n);
@@ -918,7 +918,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  item  Item to search for.
 ///
 /// @return Index of an item or -1 if item is not in the list.
-long tv_list_idx_of_item(const list_T *const l, const listitem_T *const item)
+long tv_list_idx_of_item(const list_st *const l, const listitem_T *const item)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_PURE
 {
@@ -1559,7 +1559,7 @@ FUNC_ATTR_NONNULL_ALL
 int tv_dict_add_list(dict_T *const d,
                      const char *const key,
                      const size_t key_len,
-                     list_T *const list)
+                     list_st *const list)
 FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
@@ -1930,10 +1930,10 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out]  ret_tv  Structure where list is saved.
 ///
 /// @return [allocated] pointer to the created list.
-list_T *tv_list_alloc_ret(typval_T *const ret_tv)
+list_st *tv_list_alloc_ret(typval_T *const ret_tv)
 FUNC_ATTR_NONNULL_ALL
 {
-    list_T *const l = tv_list_alloc();
+    list_st *const l = tv_list_alloc();
 
     ret_tv->vval.v_list = l;
     ret_tv->v_type = VAR_LIST;
@@ -2137,7 +2137,7 @@ FUNC_ATTR_ALWAYS_INLINE
 
     assert(tv->v_type == VAR_LIST);
 
-    list_T *const list = tv->vval.v_list;
+    list_st *const list = tv->vval.v_list;
     tv_list_unref(list);
     tv->vval.v_list = NULL;
 }
@@ -2434,7 +2434,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         case VAR_LIST:
         {
-            list_T *const l = tv->vval.v_list;
+            list_st *const l = tv->vval.v_list;
 
             if(l != NULL)
             {

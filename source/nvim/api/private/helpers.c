@@ -777,7 +777,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 
         case kObjectTypeArray:
         {
-            list_T *const list = tv_list_alloc();
+            list_st *const list = tv_list_alloc();
 
             for(uint32_t i = 0; i < obj.data.array.size; i++)
             {

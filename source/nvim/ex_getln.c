@@ -5524,7 +5524,7 @@ static int ExpandUserDefined(expand_T *xp,
 /// Expand names with a list returned by a function defined by the user.
 static int ExpandUserList(expand_T *xp, int *num_file, uchar_kt ***file)
 {
-    list_T *retlist;
+    list_st *retlist;
     listitem_T  *li;
     garray_T ga;
     retlist = call_user_expand_func((user_expand_func_T)call_func_retlist,
@@ -5979,7 +5979,7 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
 
     if(last_i >= 0)
     {
-        list_T *const list = history[type][i].additional_elements;
+        list_st *const list = history[type][i].additional_elements;
         str = history[type][i].hisstr;
 
         while(i != hisidx[type])

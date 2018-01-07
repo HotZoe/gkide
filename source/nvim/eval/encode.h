@@ -33,7 +33,7 @@ int encode_vim_to_echo(garray_T *const packer,
                        typval_T *const tv,
                        const char *const objname);
 
-/// Structure defining state for read_from_list"()"
+/// Structure defining state for read_from_list()
 typedef struct
 {
     const listitem_T *li;  ///< Item currently read.
@@ -42,7 +42,7 @@ typedef struct
 } ListReaderState;
 
 /// Initialize ListReaderState structure
-static inline ListReaderState encode_init_lrstate(const list_T *const list)
+static inline ListReaderState encode_init_lrstate(const list_st *const list)
 FUNC_ATTR_NONNULL_ALL
 {
     return (ListReaderState) {

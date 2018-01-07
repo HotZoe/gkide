@@ -889,7 +889,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
             }
             else if(type == DT_LTAG)
             {
-                list_T *list;
+                list_st *list;
                 uchar_kt tag_name[128 + 1];
                 uchar_kt *fname;
                 uchar_kt *cmd;
@@ -3644,7 +3644,7 @@ static int add_tag_field(dict_T *dict,
 
 /// Add the tags matching the specified pattern "pat" to the list "list"
 /// as a dictionary. Use "buf_fname" for priority, unless NULL.
-int get_tags(list_T *list, uchar_kt *pat, uchar_kt *buf_fname)
+int get_tags(list_st *list, uchar_kt *pat, uchar_kt *buf_fname)
 {
     int i;
     int ret;

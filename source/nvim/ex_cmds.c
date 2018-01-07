@@ -8142,7 +8142,7 @@ void ex_oldfiles(exarg_T *eap)
 {
     long nr = 0;
     listitem_T *li;
-    list_T *l = get_vim_var_list(VV_OLDFILES);
+    list_st *l = get_vim_var_list(VV_OLDFILES);
 
     if(l == NULL)
     {
