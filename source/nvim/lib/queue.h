@@ -15,11 +15,11 @@
 
 #include "nvim/func_attr.h"
 
-typedef struct _queue
+typedef struct queue_s
 {
-    struct _queue *next;
-    struct _queue *prev;
-} queue_T;
+    struct queue_s *next;
+    struct queue_s *prev;
+} queue_st;
 
 /// Public macros.
 #define QUEUE_DATA(ptr, type, field) \
@@ -32,7 +32,7 @@ typedef struct _queue
     for((q) = (h)->next; (q) != (h); (q) = (q)->next)
 
 /// ffi.cdef is unable to swallow @b bool in place of @b int here.
-static inline int queue_empty(const queue_T *const q)
+static inline int queue_empty(const queue_st *const q)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -42,14 +42,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define QUEUE_HEAD(q)   (q)->next
 
-static inline void queue_init(queue_T *const q)
+static inline void queue_init(queue_st *const q)
 FUNC_ATTR_ALWAYS_INLINE
 {
     q->next = q;
     q->prev = q;
 }
 
-static inline void queue_add(queue_T *const h, queue_T *const n)
+static inline void queue_add(queue_st *const h, queue_st *const n)
 FUNC_ATTR_ALWAYS_INLINE
 {
     h->prev->next = n->next;
@@ -58,7 +58,7 @@ FUNC_ATTR_ALWAYS_INLINE
     h->prev->next = h;
 }
 
-static inline void queue_insert_head(queue_T *const h, queue_T *const q)
+static inline void queue_insert_head(queue_st *const h, queue_st *const q)
 FUNC_ATTR_ALWAYS_INLINE
 {
     q->next = h->next;
@@ -67,7 +67,7 @@ FUNC_ATTR_ALWAYS_INLINE
     h->next = q;
 }
 
-static inline void queue_insert_tail(queue_T *const h, queue_T *const q)
+static inline void queue_insert_tail(queue_st *const h, queue_st *const q)
 FUNC_ATTR_ALWAYS_INLINE
 {
     q->next = h;
@@ -76,7 +76,7 @@ FUNC_ATTR_ALWAYS_INLINE
     h->prev = q;
 }
 
-static inline void queue_remove(queue_T *const q)
+static inline void queue_remove(queue_st *const q)
 FUNC_ATTR_ALWAYS_INLINE
 {
     q->prev->next = q->next;

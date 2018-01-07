@@ -83,7 +83,7 @@ typedef struct dict_watcher
     callback_st callback;
     char *key_pattern;
     size_t key_pattern_len;
-    queue_T node;
+    queue_st node;
     /// prevent recursion if the dict is changed in the callback
     bool busy;
 } dict_watcher_T;
@@ -232,7 +232,7 @@ struct dict_s
     dict_st *dv_copydict;   ///< Copied dict used by deepcopy().
     dict_st *dv_used_next;  ///< Next dictionary in used dictionaries list.
     dict_st *dv_used_prev;  ///< Previous dictionary in used dictionaries list.
-    queue_T watchers;      ///< Dictionary key watchers set by user code.
+    queue_st watchers;      ///< Dictionary key watchers set by user code.
 };
 
 /// Type used for script ID
@@ -439,18 +439,18 @@ static inline bool tv_get_float_chk(const typval_T *const tv,
     return false;
 }
 
-static inline dict_watcher_T *tv_dict_watcher_node_data(queue_T *q)
+static inline dict_watcher_T *tv_dict_watcher_node_data(queue_st *q)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_NONNULL_RET
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT
 REAL_FATTR_ALWAYS_INLINE;
 
-/// Compute the dict_watcher_T address from a queue_T node.
+/// Compute the dict_watcher_T address from a queue_st node.
 ///
 /// This only exists for .asan-blacklist
 /// (ASAN doesn't handle QUEUE_DATA pointer arithmetic).
-static inline dict_watcher_T *tv_dict_watcher_node_data(queue_T *q)
+static inline dict_watcher_T *tv_dict_watcher_node_data(queue_st *q)
 {
     return QUEUE_DATA(q, dict_watcher_T, node);
 }

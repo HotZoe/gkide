@@ -1039,7 +1039,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         return false;
     }
 
-    queue_T *w = NULL;
+    queue_st *w = NULL;
     dict_watcher_T *watcher = NULL;
     bool matched = false;
     QUEUE_FOREACH(w, &dict->watchers)
@@ -1131,7 +1131,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
     }
 
     typval_T rettv;
-    queue_T *w;
+    queue_st *w;
 
     QUEUE_FOREACH(w, &dict->watchers)
     {
@@ -1292,7 +1292,7 @@ FUNC_ATTR_NONNULL_ALL
 
     while(!queue_empty(&d->watchers))
     {
-        queue_T *w = QUEUE_HEAD(&d->watchers);
+        queue_st *w = QUEUE_HEAD(&d->watchers);
         queue_remove(w);
         dict_watcher_T *watcher = tv_dict_watcher_node_data(w);
         tv_dict_watcher_free(watcher);

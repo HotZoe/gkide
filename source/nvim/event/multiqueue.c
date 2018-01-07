@@ -70,13 +70,13 @@ struct multiqueue_item
     } data;
     /// true: current item is just a link to a node in a child queue
     bool link;
-    queue_T node;
+    queue_st node;
 };
 
 struct multiqueue
 {
     MultiQueue *parent;  ///<
-    queue_T headtail;    ///< circularly-linked
+    queue_st headtail;    ///< circularly-linked
     put_callback put_cb; ///<
     void *data;          ///<
     size_t size;         ///<
@@ -123,7 +123,7 @@ void multiqueue_free(MultiQueue *ptr)
 
     while(!queue_empty(&ptr->headtail))
     {
-        queue_T *q = QUEUE_HEAD(&ptr->headtail);
+        queue_st *q = QUEUE_HEAD(&ptr->headtail);
         MultiQueueItem *item = multiqueue_node_data(q);
 
         if(ptr->parent)
@@ -245,7 +245,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
 static Event multiqueue_remove(MultiQueue *ptr)
 {
     assert(!multiqueue_empty(ptr));
-    queue_T *h = QUEUE_HEAD(&ptr->headtail);
+    queue_st *h = QUEUE_HEAD(&ptr->headtail);
     queue_remove(h);
     MultiQueueItem *item = multiqueue_node_data(h);
 
@@ -281,7 +281,7 @@ static void multiqueue_push(MultiQueue *ptr, Event event)
     ptr->size++;
 }
 
-static MultiQueueItem *multiqueue_node_data(queue_T *q)
+static MultiQueueItem *multiqueue_node_data(queue_st *q)
 {
     return QUEUE_DATA(q, MultiQueueItem, node);
 }

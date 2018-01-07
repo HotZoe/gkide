@@ -7038,7 +7038,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     }
                 }
 
-                queue_T *w = NULL;
+                queue_st *w = NULL;
                 dict_watcher_T *watcher = NULL;
 
                 QUEUE_FOREACH(w, &dd->watchers)
