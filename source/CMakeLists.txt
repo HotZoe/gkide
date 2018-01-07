@@ -269,6 +269,5 @@ include_directories("${GEN_CONFIG_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/source")
 
 add_subdirectory(nvim)
-add_subdirectory(snail)
 add_subdirectory(config)
 add_subdirectory(plugins)

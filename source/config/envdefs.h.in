@@ -3,7 +3,7 @@
 #ifndef GKIDE_GENERATED_CONFIG_ENVDEFS_H
 #define GKIDE_GENERATED_CONFIG_ENVDEFS_H
 
-#define GKIDE_NVIM_DOMAIN   "gkidenvim"
+#define GKIDE_NVIM_DOMAIN         "gkidenvim"
 
 // Environment Variables
 #define ENV_GKIDE_SYS_HOME        "GKIDE_SYS_HOME"

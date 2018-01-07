@@ -9,23 +9,16 @@ check_type_size("size_t"    CHECK_SIZEOF_SIZE_T)
 check_type_size("intmax_t"  CHECK_SIZEOF_INTMAX_T)
 check_type_size("long long" CHECK_SIZEOF_LONG_LONG)
 
-# get nvim and snail compile flags
+# get nvim compile flags
 include(GetCompileFlags)
-GetNvimCompileFlags(NVIM_BUILD_CFLAGS)
-GetSnailCompileFlags(SNAIL_BUILD_CXXFLAGS)
+GetTargetCompileFlags(nvim NVIM_BUILD_CFLAGS false)
 
-# set the project root directory to ~/project/snail
+# set the project root directory to ~/project/gkide
 # unifying the information to be shown in the program
-string(REPLACE "${CMAKE_SOURCE_DIR}" "snail"
+string(REPLACE "${CMAKE_SOURCE_DIR}" "gkide"
                NVIM_BUILD_CFLAGS "${NVIM_BUILD_CFLAGS}")
 
-string(REPLACE "${CMAKE_SOURCE_DIR}" "snail"
-               SNAIL_BUILD_CXXFLAGS "${SNAIL_BUILD_CXXFLAGS}")
-
 # Generated configuration files for source
-message(STATUS "=============================================================")
-message(STATUS "                  configuration files")
-message(STATUS "=============================================================")
 configure_file("${CMAKE_CURRENT_LIST_DIR}/config.h.in"
                 "${GEN_CONFIG_DIR}/config.h")
 message(STATUS
@@ -49,7 +42,6 @@ message(STATUS
 # Generated doxygen configuration file
 set(DOXYGEN_MANUAL_NAME        "nvim")
 set(DOXYGEN_MANUAL_OUTPUT_DIR  "nvim")
-
 set(DOXYGEN_MANUAL_INPUT "${GEN_CONFIG_DIR} ${PROJECT_SOURCE_DIR}/source/nvim")
 
 # TODO, use doxygen to generated the docs for the files,
@@ -60,17 +52,6 @@ set(DOXYGEN_MANUAL_EXCLUDE  "${PROJECT_SOURCE_DIR}/source/nvim/eval/typval.c \
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/doxygen/Doxyfile.in"
                 "${GENERATED_DIR}/doxygen/Doxyfile.nvim")
-
 message(STATUS "Doxygen Config: ${GENERATED_DIR}/doxygen/Doxyfile.nvim")
 
-set(DOXYGEN_MANUAL_NAME        "snail")
-set(DOXYGEN_MANUAL_OUTPUT_DIR  "snail")
-set(DOXYGEN_MANUAL_EXCLUDE     "")
-
-set(DOXYGEN_MANUAL_INPUT
-    "${GEN_CONFIG_DIR} ${PROJECT_SOURCE_DIR}/source/snail")
-
-configure_file("${CMAKE_CURRENT_LIST_DIR}/doxygen/Doxyfile.in"
-                "${GENERATED_DIR}/doxygen/Doxyfile.snail")
-
-message(STATUS "Doxygen Config: ${GENERATED_DIR}/doxygen/Doxyfile.snail")
+add_subdirectory(nvimapi)

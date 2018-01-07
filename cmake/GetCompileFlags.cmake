@@ -1,7 +1,12 @@
-function(GetCompileFlags _compile_flags _target)
-    if(NOT _target STREQUAL snail AND NOT _target STREQUAL nvim)
-        message(FATAL_ERROR "GetCompileFlags target error!")
+function(GetCompileFlags _compile_flags _target_name _use_cpp)
+    if(_target_name STREQUAL nvim)
+        set(_target_dir ${CMAKE_SOURCE_DIR}/source/${_target_name})
+    else()
+        # plugin target
+        set(_target_dir ${CMAKE_SOURCE_DIR}/source/plugins/bin/${_target_name})
     endif()
+
+    string(TOUPPER ${_target_name} tgt_name_upper)
 
     # Create template akin to
     # 'CMAKE_C_COMPILE_OBJECT' <= 'CMAKE_<LANG>_COMPILE_OBJECT'
@@ -12,7 +17,7 @@ function(GetCompileFlags _compile_flags _target)
     set(code_msg false)
     get_directory_property(tgt_definitions
                            DIRECTORY
-                           "${CMAKE_SOURCE_DIR}/source/${_target}"
+                           "${_target_dir}"
                            COMPILE_DEFINITIONS)
 
     foreach(defs_item ${tgt_definitions})
@@ -35,7 +40,7 @@ function(GetCompileFlags _compile_flags _target)
     set(index  0)
     set(out_msg false)
     set(code_msg false)
-    get_target_property(include_dirs ${_target} INCLUDE_DIRECTORIES)
+    get_target_property(include_dirs ${_target_name} INCLUDE_DIRECTORIES)
     foreach(inc_dir ${include_dirs})
         string(FIND ${code_msg} ${inc_dir} inc_dir_${index})
         if(NOT inc_dir_${index} EQUAL -1)
@@ -65,15 +70,15 @@ function(GetCompileFlags _compile_flags _target)
     set(code_msg false)
     get_directory_property(tgt_flags
                            DIRECTORY
-                           "${CMAKE_SOURCE_DIR}/source/${_target}"
+                           "${_target_dir}"
                            COMPILE_OPTIONS)
 
-    if(_target STREQUAL nvim)
-        set(tgt_build_flags ${NVIM_CONFIG_C_FLAGS_${build_type}})
-        set(tgt_compile_flags ${NVIM_CONFIG_C_FLAGS})
+    if(_use_cpp)
+        set(tgt_build_flags ${${tgt_name_upper}_CONFIG_CXX_FLAGS_${build_type}})
+        set(tgt_compile_flags ${${tgt_name_upper}_CONFIG_CXX_FLAGS})
     else()
-        set(tgt_build_flags ${SNAIL_CONFIG_CXX_FLAGS_${build_type}})
-        set(tgt_compile_flags ${SNAIL_CONFIG_CXX_FLAGS})
+        set(tgt_build_flags ${${tgt_name_upper}_CONFIG_C_FLAGS_${build_type}})
+        set(tgt_compile_flags ${${tgt_name_upper}_CONFIG_C_FLAGS})
     endif()
 
     separate_arguments(tgt_build_flags UNIX_COMMAND ${tgt_build_flags})
@@ -172,18 +177,10 @@ function(GetCompileFlags _compile_flags _target)
     message(STATUS "Duplicated flags automatically removed for hard coding only !")
 endfunction()
 
-function(GetNvimCompileFlags nvim_compile_flags)
+macro(GetTargetCompileFlags _target _compile_flags _is_cpp_language)
     message(STATUS "==========================================================")
-    message(STATUS "                   nvim build flags")
+    message(STATUS "                           ${_target}")
     message(STATUS "==========================================================")
-    GetCompileFlags(_compile_flags nvim)
-    set(${nvim_compile_flags} "${_compile_flags}" PARENT_SCOPE)
-endfunction()
-
-function(GetSnailCompileFlags snail_compile_flags)
-    message(STATUS "==========================================================")
-    message(STATUS "                   snail build flags")
-    message(STATUS "==========================================================")
-    GetCompileFlags(_compile_flags snail)
-    set(${snail_compile_flags} "${_compile_flags}" PARENT_SCOPE)
-endfunction()
+    GetCompileFlags(${_target}_compile_flags ${_target} ${_is_cpp_language})
+    set(${_compile_flags} "${${_target}_compile_flags}")
+endmacro()

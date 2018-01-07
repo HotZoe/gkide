@@ -1,3 +1,5 @@
+add_subdirectory(bin)
+
 # for $GKIDE_SYS_HOME/etc/*
 file(GLOB SYS_HOME_ETC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/etc/*.nvl")
 

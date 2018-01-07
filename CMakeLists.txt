@@ -145,9 +145,8 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
         set(PACKAGE_RELEASE_READY  false)
 
         if(NOT release_check_msg)
-            set(release_check_msg
-                "Release tag should be: "
-                "v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(info_msg "v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(release_check_msg "Release tag should be: ${info_msg}")
         endif()
     elseif(NOT ${GIT_COMMIT_TAG} MATCHES "^v[0-9]+\.[0-9]+\.[0-9]+[-]*[a-z]*$")
         # if the current commit is ready to release, must set a tag
@@ -155,9 +154,8 @@ if(EXISTS "${GKIDE_GIT_REPO_DIR}" AND IS_DIRECTORY "${GKIDE_GIT_REPO_DIR}")
         set(PACKAGE_RELEASE_READY  false)
 
         if(NOT release_check_msg)
-            set(release_check_msg
-                "Release tag should be: "
-                "${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(info_msg "v${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+            set(release_check_msg "Release tag should be: ${info_msg}")
         endif()
     endif()
 
@@ -255,8 +253,9 @@ endif()
 
 add_subdirectory(source)
 
-message(STATUS "GKIDE Default User Home: ~/.gkide or \$GKIDE_USR_HOME")
-message(STATUS "GKIDE TmpInstall Prefix: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "==========================================================")
+message(STATUS "GKIDE NVIM User Home: ~/.gkide or \$GKIDE_USR_HOME")
+message(STATUS "GKIDE Install Prefix: ${CMAKE_INSTALL_PREFIX}")
 
 if(PACKAGE_RELEASE_READY)
     message(STATUS "==========================================================")
