@@ -613,7 +613,7 @@ void eval_init(void)
     vimvar_st *p;
     init_var_dict(&globvardict, &globvars_var, VAR_DEF_SCOPE);
     init_var_dict(&vimvardict, &vimvars_var, VAR_SCOPE);
-    vimvardict.dv_lock = VAR_FIXED;
+    vimvardict.dv_lock = kNvlVarFixed;
     hash_init(&compat_hashtab);
     hash_init(&func_hashtab);
 
@@ -655,7 +655,7 @@ void eval_init(void)
     for(size_t i = 0; i < ARRAY_SIZE(msgpack_type_names); i++)
     {
         list_st *const type_list = tv_list_alloc();
-        type_list->lv_lock = VAR_FIXED;
+        type_list->lv_lock = kNvlVarFixed;
         type_list->lv_refcount = 1;
 
         dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
@@ -672,12 +672,12 @@ void eval_init(void)
         }
     }
 
-    msgpack_types_dict->dv_lock = VAR_FIXED;
+    msgpack_types_dict->dv_lock = kNvlVarFixed;
     set_vim_var_dict(VV_MSGPACK_TYPES, msgpack_types_dict);
     set_vim_var_dict(VV_COMPLETED_ITEM, tv_dict_alloc());
 
     dict_st *v_event = tv_dict_alloc();
-    v_event->dv_lock = VAR_FIXED;
+    v_event->dv_lock = kNvlVarFixed;
 
     set_vim_var_dict(VV_EVENT, v_event);
     set_vim_var_list(VV_ERRORS, tv_list_alloc());
@@ -9450,7 +9450,7 @@ int func_call(uchar_kt *name,
         }
 
         // Make a copy of each argument. This is needed to be able to set
-        // v_lock to VAR_FIXED in the copy without changing the original list.
+        // v_lock to kNvlVarFixed in the copy without changing the original list.
         tv_copy(&item->li_tv, &argv[argc++]);
     }
 
@@ -10685,7 +10685,7 @@ static void f_extend(typval_T *argvars,
         if(l1 == NULL)
         {
             const bool locked =
-                tv_check_lock(VAR_FIXED, arg_errmsg, TV_TRANSLATE);
+                tv_check_lock(kNvlVarFixed, arg_errmsg, TV_TRANSLATE);
 
             (void)locked;
             assert(locked == true);
@@ -10740,7 +10740,7 @@ static void f_extend(typval_T *argvars,
         if(d1 == NULL)
         {
             const bool locked =
-                tv_check_lock(VAR_FIXED, arg_errmsg, TV_TRANSLATE);
+                tv_check_lock(kNvlVarFixed, arg_errmsg, TV_TRANSLATE);
 
             (void)locked;
             assert(locked == true);
@@ -14791,7 +14791,7 @@ static void dict_list(typval_T *const tv,
             case kDictListKeys:
             {
                 li->li_tv.v_type = kNvarString;
-                li->li_tv.v_lock = VAR_UNLOCKED;
+                li->li_tv.v_lock = kNvlVarUnlocked;
                 li->li_tv.vval.v_string = vim_strsave(di->di_key);
                 break;
             }
@@ -14807,14 +14807,14 @@ static void dict_list(typval_T *const tv,
                 // items()
                 list_st *const sub_l = tv_list_alloc();
                 li->li_tv.v_type = kNvarList;
-                li->li_tv.v_lock = VAR_UNLOCKED;
+                li->li_tv.v_lock = kNvlVarUnlocked;
                 li->li_tv.vval.v_list = sub_l;
                 sub_l->lv_refcount++;
 
                 listitem_T *sub_li = tv_list_item_alloc();
                 tv_list_append(sub_l, sub_li);
                 sub_li->li_tv.v_type = kNvarString;
-                sub_li->li_tv.v_lock = VAR_UNLOCKED;
+                sub_li->li_tv.v_lock = kNvlVarUnlocked;
                 sub_li->li_tv.vval.v_string = vim_strsave(di->di_key);
                 sub_li = tv_list_item_alloc();
                 tv_list_append(sub_l, sub_li);
@@ -19918,7 +19918,7 @@ static int item_compare2(const void *s1, const void *s2, bool keep_zero)
         func_name = (const char *)partial_name(partial);
     }
 
-    // Copy the values. This is needed to be able to set v_lock to VAR_FIXED
+    // Copy the values. This is needed to be able to set v_lock to kNvlVarFixed
     // in the copy without changing the original list items.
     tv_copy(&si1->item->li_tv, &argv[0]);
     tv_copy(&si2->item->li_tv, &argv[1]);
@@ -22825,7 +22825,7 @@ void init_static_list(staticList10_T *sl)
     l->lv_first = &sl->sl_items[0];
     l->lv_last = &sl->sl_items[9];
     l->lv_refcount = DO_NOT_FREE_CNT;
-    l->lv_lock = VAR_FIXED;
+    l->lv_lock = kNvlVarFixed;
     sl->sl_list.lv_len = 10;
 
     for(int i = 0; i < 10; i++)
@@ -24603,13 +24603,13 @@ void init_var_dict(dict_st *dict, scope_dict_T *dict_var, int scope)
 {
     hash_init(&dict->dv_hashtab);
 
-    dict->dv_lock = VAR_UNLOCKED;
+    dict->dv_lock = kNvlVarUnlocked;
     dict->dv_scope = scope;
     dict->dv_refcount = DO_NOT_FREE_CNT;
     dict->dv_copyID = 0;
     dict_var->di_tv.vval.v_dict = dict;
     dict_var->di_tv.v_type = kNvarDict;
-    dict_var->di_tv.v_lock = VAR_FIXED;
+    dict_var->di_tv.v_lock = kNvlVarFixed;
     dict_var->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     dict_var->di_key[0] = NUL;
 
@@ -27586,11 +27586,11 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     tv_dict_add(&fc->l_avars, v);
     v->di_tv.v_type = kNvarList;
-    v->di_tv.v_lock = VAR_FIXED;
+    v->di_tv.v_lock = kNvlVarFixed;
     v->di_tv.vval.v_list = &fc->l_varlist;
     memset(&fc->l_varlist, 0, sizeof(list_st));
     fc->l_varlist.lv_refcount = DO_NOT_FREE_CNT;
-    fc->l_varlist.lv_lock = VAR_FIXED;
+    fc->l_varlist.lv_lock = kNvlVarFixed;
 
     // Set a:firstline to "firstline" and a:lastline to "lastline".
     // Set a:name to named arguments.
@@ -27641,9 +27641,9 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
         STRCPY(v->di_key, name);
 
         // Note: the values are copied directly to avoid alloc/free.
-        // "argvars" must have VAR_FIXED for v_lock.
+        // "argvars" must have kNvlVarFixed for v_lock.
         v->di_tv = argvars[i];
-        v->di_tv.v_lock = VAR_FIXED;
+        v->di_tv.v_lock = kNvlVarFixed;
 
         if(addlocal)
         {
@@ -27661,7 +27661,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
         {
             tv_list_append(&fc->l_varlist, &fc->l_listitems[ai]);
             fc->l_listitems[ai].li_tv = argvars[i];
-            fc->l_listitems[ai].li_tv.v_lock = VAR_FIXED;
+            fc->l_listitems[ai].li_tv.v_lock = kNvlVarFixed;
         }
     }
 
@@ -28040,7 +28040,7 @@ static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, number_kt nr)
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     tv_dict_add(dp, v);
     v->di_tv.v_type = kNvarNumber;
-    v->di_tv.v_lock = VAR_FIXED;
+    v->di_tv.v_lock = kNvlVarFixed;
     v->di_tv.vval.v_number = nr;
 }
 

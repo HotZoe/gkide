@@ -641,7 +641,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     const typval_T input_args[] = {
         {
-            .v_lock = VAR_FIXED,
+            .v_lock = kNvlVarFixed,
             .v_type = kNvarString,
             .vval.v_string = (uchar_kt *)"lua_debug> ",
         },

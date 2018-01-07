@@ -723,7 +723,7 @@ String cstr_as_string(char *str) FUNC_ATTR_PURE
 bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 {
     tv->v_type = kNvarUnknown;
-    tv->v_lock = VAR_UNLOCKED;
+    tv->v_lock = kNvlVarUnlocked;
 
     switch(obj.type)
     {

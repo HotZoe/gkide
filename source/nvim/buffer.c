@@ -1899,7 +1899,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
         .di_flags = DI_FLAGS_RO | DI_FLAGS_FIX,
         .di_tv = (typval_T) {
             .v_type = kNvarNumber,
-            .v_lock = VAR_FIXED,
+            .v_lock = kNvlVarFixed,
             .vval.v_number = buf->b_changedtick,
         },
         .di_key = "changedtick",

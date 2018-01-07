@@ -379,7 +379,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
         *cur.tv = (typval_T)
         {
             .v_type = kNvarNumber,
-             .v_lock = VAR_UNLOCKED,
+             .v_lock = kNvlVarUnlocked,
               .vval = { .v_number = 0 },
         };
 
@@ -557,7 +557,7 @@ nlua_pop_typval_table_processing_end:
 
         *ret_tv = (typval_T) {
             .v_type = kNvarNumber,
-             .v_lock = VAR_UNLOCKED,
+             .v_lock = kNvlVarUnlocked,
               .vval = { .v_number = 0 },
         };
 

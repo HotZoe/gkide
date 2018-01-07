@@ -383,7 +383,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarList;
-    li->li_tv.v_lock = VAR_UNLOCKED;
+    li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_list = itemlist;
     tv_list_append(list, li);
 
@@ -404,7 +404,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarDict;
-    li->li_tv.v_lock = VAR_UNLOCKED;
+    li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_dict = dict;
     tv_list_append(list, li);
 
@@ -459,7 +459,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     listitem_T *const li = tv_list_item_alloc();
     tv_list_append(l, li);
     li->li_tv.v_type = kNvarString;
-    li->li_tv.v_lock = VAR_UNLOCKED;
+    li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_string = (uchar_kt *)str;
 }
 
@@ -474,7 +474,7 @@ void tv_list_append_number(list_st *const l, const number_kt n)
 {
     listitem_T *const li = tv_list_item_alloc();
     li->li_tv.v_type = kNvarNumber;
-    li->li_tv.v_lock = VAR_UNLOCKED;
+    li->li_tv.v_lock = kNvlVarUnlocked;
     li->li_tv.vval.v_number = n;
     tv_list_append(l, li);
 }
@@ -1106,13 +1106,13 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     typval_T argv[3];
     argv[0].v_type = kNvarDict;
-    argv[0].v_lock = VAR_UNLOCKED;
+    argv[0].v_lock = kNvlVarUnlocked;
     argv[0].vval.v_dict = dict;
     argv[1].v_type = kNvarString;
-    argv[1].v_lock = VAR_UNLOCKED;
+    argv[1].v_lock = kNvlVarUnlocked;
     argv[1].vval.v_string = (uchar_kt *)xstrdup(key);
     argv[2].v_type = kNvarDict;
-    argv[2].v_lock = VAR_UNLOCKED;
+    argv[2].v_lock = kNvlVarUnlocked;
     argv[2].vval.v_dict = tv_dict_alloc();
     argv[2].vval.v_dict->dv_refcount++;
 
@@ -1262,7 +1262,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     gc_first_dict = d;
 
     hash_init(&d->dv_hashtab);
-    d->dv_lock = VAR_UNLOCKED;
+    d->dv_lock = kNvlVarUnlocked;
     d->dv_scope = VAR_NO_SCOPE;
     d->dv_refcount = 0;
     d->dv_copyID = 0;
@@ -1564,7 +1564,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
-    item->di_tv.v_lock = VAR_UNLOCKED;
+    item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarList;
     item->di_tv.vval.v_list = list;
     list->lv_refcount++;
@@ -1595,7 +1595,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
-    item->di_tv.v_lock = VAR_UNLOCKED;
+    item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarDict;
     item->di_tv.vval.v_dict = dict;
     dict->dv_refcount++;
@@ -1623,7 +1623,7 @@ int tv_dict_add_nr(dict_st *const d,
                    const number_kt nr)
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
-    item->di_tv.v_lock = VAR_UNLOCKED;
+    item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarNumber;
     item->di_tv.vval.v_number = nr;
 
@@ -1652,7 +1652,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
-    item->di_tv.v_lock = VAR_UNLOCKED;
+    item->di_tv.v_lock = kNvlVarUnlocked;
     item->di_tv.v_type = kNvarString;
     item->di_tv.vval.v_string = (uchar_kt *)xstrdup(val);
 
@@ -1937,7 +1937,7 @@ FUNC_ATTR_NONNULL_ALL
 
     ret_tv->vval.v_list = l;
     ret_tv->v_type = kNvarList;
-    ret_tv->v_lock = VAR_UNLOCKED;
+    ret_tv->v_lock = kNvlVarUnlocked;
     l->lv_refcount++;
 
     return l;
@@ -1954,7 +1954,7 @@ FUNC_ATTR_NONNULL_ALL
     dict_st *const d = tv_dict_alloc();
     ret_tv->vval.v_dict = d;
     ret_tv->v_type = kNvarDict;
-    ret_tv->v_lock = VAR_UNLOCKED;
+    ret_tv->v_lock = kNvlVarUnlocked;
     d->dv_refcount++;
 }
 
@@ -1964,7 +1964,7 @@ FUNC_ATTR_NONNULL_ALL
     do                                         \
     {                                          \
         tv->vval.v_special = kSpecialVarFalse; \
-        tv->v_lock = VAR_UNLOCKED;             \
+        tv->v_lock = kNvlVarUnlocked;             \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_BOOL(tv, num)  TYPVAL_ENCODE_CONV_NIL(tv)
@@ -1974,7 +1974,7 @@ FUNC_ATTR_NONNULL_ALL
     {                                      \
         (void)num;                         \
         tv->vval.v_number = 0;             \
-        tv->v_lock = VAR_UNLOCKED;         \
+        tv->v_lock = kNvlVarUnlocked;         \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)
@@ -1983,7 +1983,7 @@ FUNC_ATTR_NONNULL_ALL
     do                                    \
     {                                     \
         tv->vval.v_float = 0;             \
-        tv->v_lock = VAR_UNLOCKED;        \
+        tv->v_lock = kNvlVarUnlocked;        \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_STRING(tv, buf, len) \
@@ -1991,7 +1991,7 @@ FUNC_ATTR_NONNULL_ALL
     {                                           \
         xfree(buf);                             \
         tv->vval.v_string = NULL;               \
-        tv->v_lock = VAR_UNLOCKED;              \
+        tv->v_lock = kNvlVarUnlocked;              \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_STR_STRING(tv, buf, len)
@@ -2004,7 +2004,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    tv->v_lock = VAR_UNLOCKED;
+    tv->v_lock = kNvlVarUnlocked;
 
     if(tv->v_type == kNvarPartial)
     {
@@ -2068,7 +2068,7 @@ FUNC_ATTR_NONNULL_ALL
         partial_unref(pt);
         tv->vval.v_partial = NULL;
 
-        assert(tv->v_lock == VAR_UNLOCKED);
+        assert(tv->v_lock == kNvlVarUnlocked);
     }
 }
 #define TYPVAL_ENCODE_CONV_FUNC_END(tv) _nothing_conv_func_end(tv, copyID)
@@ -2078,7 +2078,7 @@ FUNC_ATTR_NONNULL_ALL
     {                                     \
         tv_list_unref(tv->vval.v_list);   \
         tv->vval.v_list = NULL;           \
-        tv->v_lock = VAR_UNLOCKED;        \
+        tv->v_lock = kNvlVarUnlocked;        \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, dict)                     \
@@ -2091,7 +2091,7 @@ FUNC_ATTR_NONNULL_ALL
                                                                     \
         if(tv != NULL)                                              \
         {                                                           \
-            ((typval_T *)tv)->v_lock = VAR_UNLOCKED;                \
+            ((typval_T *)tv)->v_lock = kNvlVarUnlocked;                \
         }                                                           \
     } while(0)
 
@@ -2102,7 +2102,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     assert(tv != NULL);
 
-    tv->v_lock = VAR_UNLOCKED;
+    tv->v_lock = kNvlVarUnlocked;
 
     if(tv->vval.v_list->lv_refcount > 1)
     {
@@ -2152,7 +2152,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(tv != NULL)
     {
-        tv->v_lock = VAR_UNLOCKED;
+        tv->v_lock = kNvlVarUnlocked;
     }
 
     if((const void *)dictp != nodictvar && (*dictp)->dv_refcount > 1)
@@ -2327,7 +2327,7 @@ void tv_free(typval_T *tv)
 void tv_copy(typval_T *const from, typval_T *const to)
 {
     to->v_type = from->v_type;
-    to->v_lock = VAR_UNLOCKED;
+    to->v_lock = kNvlVarUnlocked;
     memmove(&to->vval, &from->vval, sizeof(to->vval));
 
     switch(from->v_type)
@@ -2398,9 +2398,9 @@ void tv_copy(typval_T *const from, typval_T *const to)
     do                                                           \
     {                                                            \
         var = ((nvlvar_lock_status_et[]) {                               \
-            [VAR_UNLOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED), \
-            [VAR_LOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED),   \
-            [VAR_FIXED] = VAR_FIXED,                             \
+            [kNvlVarUnlocked] = (lock ? kNvlVarLocked : kNvlVarUnlocked), \
+            [kNvlVarLocked] = (lock ? kNvlVarLocked : kNvlVarUnlocked),   \
+            [kNvlVarFixed] = kNvlVarFixed,                             \
         })[var];                                                 \
     } while(0)
 
@@ -2504,21 +2504,21 @@ FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
-    if(tv->v_lock == VAR_LOCKED)
+    if(tv->v_lock == kNvlVarLocked)
     {
         return true;
     }
 
     if(tv->v_type == kNvarList
        && tv->vval.v_list != NULL
-       && tv->vval.v_list->lv_lock == VAR_LOCKED)
+       && tv->vval.v_list->lv_lock == kNvlVarLocked)
     {
         return true;
     }
 
     if(tv->v_type == kNvarDict
        && tv->vval.v_dict != NULL
-       && tv->vval.v_dict->dv_lock == VAR_LOCKED)
+       && tv->vval.v_dict->dv_lock == kNvlVarLocked)
     {
         return true;
     }
@@ -2554,18 +2554,18 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     switch(lock)
     {
-        case VAR_UNLOCKED:
+        case kNvlVarUnlocked:
         {
             return false;
         }
 
-        case VAR_LOCKED:
+        case kNvlVarLocked:
         {
             error_message = N_("E741: Value is locked: %.*s");
             break;
         }
 
-        case VAR_FIXED:
+        case kNvlVarFixed:
         {
             error_message = N_("E742: Cannot change value of %.*s");
             break;

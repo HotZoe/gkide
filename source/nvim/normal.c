@@ -2944,10 +2944,10 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                 case kStlClickFuncRun:
                 {
                     typval_T argv[4] = { 0 };
-                    argv[0].v_lock = VAR_FIXED;
+                    argv[0].v_lock = kNvlVarFixed;
                     argv[0].v_type = kNvarNumber;
                     argv[0].vval.v_number = (number_kt)tab_page_click_defs[mouse_col].tabnr;
-                    argv[1].v_lock = VAR_FIXED;
+                    argv[1].v_lock = kNvlVarFixed;
                     argv[1].v_type = kNvarNumber;
 
                     argv[1].vval.v_number =
@@ -2956,7 +2956,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                                       ? 3 : ((mod_mask & MOD_MASK_MULTI_CLICK) == MOD_MASK_2CLICK)
                                       ? 2 : 1);
 
-                    argv[2].v_lock = VAR_FIXED;
+                    argv[2].v_lock = kNvlVarFixed;
                     argv[2].v_type = kNvarString;
 
                     argv[2].vval.v_string =
@@ -2965,7 +2965,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                                    ? "r" : which_button == MOUSE_MIDDLE
                                    ? "m" : "?");
 
-                    argv[3].v_lock = VAR_FIXED;
+                    argv[3].v_lock = kNvlVarFixed;
                     argv[3].v_type = kNvarString;
 
                     argv[3].vval.v_string = (uchar_kt[]) {

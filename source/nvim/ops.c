@@ -3286,7 +3286,7 @@ FUNC_ATTR_NONNULL_ALL
         tv_list_append_string(list, (const char *)reg->y_array[i], -1);
     }
 
-    list->lv_lock = VAR_FIXED;
+    list->lv_lock = kNvlVarFixed;
     tv_dict_add_list(dict, S_LEN("regcontents"), list);
 
     // the register type

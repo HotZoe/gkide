@@ -99,9 +99,9 @@ typedef enum
 /// Variable lock status for typval_T::v_lock
 typedef enum
 {
-    VAR_UNLOCKED = 0,  ///< Not locked.
-    VAR_LOCKED = 1,    ///< User lock, can be unlocked.
-    VAR_FIXED = 2,     ///< Locked forever.
+    kNvlVarUnlocked = 0, ///< Not locked.
+    kNvlVarLocked   = 1, ///< User locked, can be unlocked.
+    kNvlVarFixed    = 2, ///< Locked forever.
 } nvlvar_lock_status_et;
 
 /// Structure that holds an internal variable value
@@ -178,7 +178,7 @@ struct list_s
     listitem_T *lv_idx_item;  ///< When not NULL item at index "lv_idx".
     int lv_copyID;            ///< ID used by deepcopy().
     list_st *lv_copylist;      ///< Copied list used by deepcopy().
-    nvlvar_lock_status_et lv_lock;    ///< Zero, VAR_LOCKED, VAR_FIXED.
+    nvlvar_lock_status_et lv_lock;    ///< Zero, kNvlVarLocked, kNvlVarFixed.
     list_st *lv_used_next;     ///< next list in used lists list.
     list_st *lv_used_prev;     ///< Previous list in used lists list.
 };
@@ -392,7 +392,7 @@ static inline void tv_init(typval_T *const tv)
 }
 
 #define TV_INITIAL_VALUE  \
-    ((typval_T) { .v_type = kNvarUnknown, .v_lock = VAR_UNLOCKED, })
+    ((typval_T) { .v_type = kNvarUnknown, .v_lock = kNvlVarUnlocked, })
 
 /// Empty string
 ///

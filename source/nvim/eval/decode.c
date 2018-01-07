@@ -61,7 +61,7 @@ FUNC_ATTR_NONNULL_ALL
     dictitem_T *const type_di = tv_dict_item_alloc_len(S_LEN("_TYPE"));
 
     type_di->di_tv.v_type = kNvarList;
-    type_di->di_tv.v_lock = VAR_UNLOCKED;
+    type_di->di_tv.v_lock = kNvlVarUnlocked;
     type_di->di_tv.vval.v_list = (list_st *) eval_msgpack_type_lists[type];
     type_di->di_tv.vval.v_list->lv_refcount++;
     tv_dict_add(dict, type_di);
@@ -74,7 +74,7 @@ FUNC_ATTR_NONNULL_ALL
 
     *rettv = (typval_T) {
         .v_type = kNvarDict,
-        .v_lock = VAR_UNLOCKED,
+        .v_lock = kNvlVarUnlocked,
         .vval = { .v_dict = dict },
     };
 }
@@ -299,7 +299,7 @@ FUNC_ATTR_NONNULL_ALL
 
     create_special_dict(ret_tv, kMPMap, ((typval_T) {
         .v_type = kNvarList,
-        .v_lock = VAR_UNLOCKED,
+        .v_lock = kNvlVarUnlocked,
         .vval = { .v_list = list },
     }));
 
@@ -350,7 +350,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                             binary ? kMPBinary : kMPString,
                             ((typval_T) {
                                 .v_type = kNvarList,
-                                .v_lock = VAR_UNLOCKED,
+                                .v_lock = kNvlVarUnlocked,
                                 .vval = { .v_list = list },
                             }));
 
@@ -366,7 +366,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             tv_clear(&tv);
             return (typval_T) {
                 .v_type = kNvarUnknown,
-                .v_lock = VAR_UNLOCKED
+                .v_lock = kNvlVarUnlocked
             };
         }
 
@@ -376,7 +376,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         return (typval_T) {
             .v_type = kNvarString,
-            .v_lock = VAR_UNLOCKED,
+            .v_lock = kNvlVarUnlocked,
             .vval = {
                 .v_string =
                     (uchar_kt *)( s_allocated ? (char *)s : xmemdupz(s, len)) },
@@ -836,7 +836,7 @@ parse_json_number_check:
         goto parse_json_number_fail;
     }
 
-    typval_T tv = {.v_type = kNvarNumber, .v_lock = VAR_UNLOCKED, };
+    typval_T tv = {.v_type = kNvarNumber, .v_lock = kNvlVarUnlocked, };
     const size_t exp_num_len = (size_t) (p - s);
 
     if(fracs || exps)
@@ -1134,7 +1134,7 @@ json_decode_string_cycle_start:
 
                 POP(((typval_T) {
                     .v_type = kNvarSpecial,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarNull },
                 }), false);
 
@@ -1153,7 +1153,7 @@ json_decode_string_cycle_start:
 
                 POP(((typval_T) {
                     .v_type = kNvarSpecial,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarTrue },
                 }), false);
 
@@ -1172,7 +1172,7 @@ json_decode_string_cycle_start:
 
                 POP(((typval_T) {
                     .v_type = kNvarSpecial,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_special = kSpecialVarFalse },
                 }), false);
 
@@ -1242,7 +1242,7 @@ json_decode_string_cycle_start:
 
                 typval_T tv = (typval_T) {
                     .v_type = kNvarList,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
                 };
 
@@ -1275,7 +1275,7 @@ json_decode_string_cycle_start:
 
                     tv = (typval_T) {
                         .v_type = kNvarDict,
-                        .v_lock = VAR_UNLOCKED,
+                        .v_lock = kNvlVarUnlocked,
                         .vval = { .v_dict = dict },
                     };
                 }
@@ -1370,7 +1370,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             *rettv = (typval_T) {
                 .v_type = kNvarSpecial,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_special = kSpecialVarNull },
             };
 
@@ -1381,7 +1381,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             *rettv = (typval_T) {
                 .v_type = kNvarSpecial,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_special = mobj.via.boolean
                                        ? kSpecialVarTrue : kSpecialVarFalse },
             };
@@ -1395,7 +1395,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 *rettv = (typval_T) {
                     .v_type = kNvarNumber,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_number = (number_kt) mobj.via.u64 },
                 };
             }
@@ -1406,7 +1406,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
                 create_special_dict(rettv, kMPInteger, ((typval_T) {
                     .v_type = kNvarList,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
                 }));
 
@@ -1426,7 +1426,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 *rettv = (typval_T) {
                     .v_type = kNvarNumber,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_number = (number_kt) mobj.via.i64 },
                 };
             }
@@ -1437,7 +1437,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
                 create_special_dict(rettv, kMPInteger, ((typval_T) {
                     .v_type = kNvarList,
-                    .v_lock = VAR_UNLOCKED,
+                    .v_lock = kNvlVarUnlocked,
                     .vval = { .v_list = list },
                 }));
 
@@ -1460,7 +1460,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         {
             *rettv = (typval_T) {
                 .v_type = kNvarFloat,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_float = mobj.via.f64 },
             };
 
@@ -1501,7 +1501,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             *rettv = (typval_T) {
                 .v_type = kNvarList,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_list = list },
             };
 
@@ -1539,7 +1539,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             *rettv = (typval_T) {
                 .v_type = kNvarDict,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_dict = dict },
             };
 
@@ -1615,7 +1615,7 @@ msgpack_to_vim_generic_map:
             tv_list_append_list(list, ext_val_list);
             create_special_dict(rettv, kMPExt, ((typval_T) {
                 .v_type = kNvarList,
-                .v_lock = VAR_UNLOCKED,
+                .v_lock = kNvlVarUnlocked,
                 .vval = { .v_list = list },
             }));
 

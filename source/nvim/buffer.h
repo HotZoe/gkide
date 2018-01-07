@@ -107,7 +107,7 @@ static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick
     dictitem_T *const changedtick_di = tv_dict_find(buf->b_vars, S_LEN("changedtick"));
     assert(changedtick_di != NULL);
     assert(changedtick_di->di_tv.v_type == kNvarNumber);
-    assert(changedtick_di->di_tv.v_lock == VAR_FIXED);
+    assert(changedtick_di->di_tv.v_lock == kNvlVarFixed);
 
     // For some reason formatc does not like the below.
     #ifndef UNIT_TESTING_LUA_PREPROCESSING
