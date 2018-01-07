@@ -73,14 +73,14 @@ typedef struct
         partial_st *partial;
     } data;
     callback_type_et type;
-} Callback;
+} callback_st;
 
-#define CALLBACK_NONE ((Callback){ .type = kCallbackNone })
+#define CALLBACK_NONE ((callback_st){ .type = kCallbackNone })
 
 /// Structure holding dictionary watcher
 typedef struct dict_watcher
 {
-    Callback callback;
+    callback_st callback;
     char *key_pattern;
     size_t key_pattern_len;
     queue_T node;
@@ -192,7 +192,7 @@ struct dictitem_S
     {                                                    \
         typval_T di_tv;           /* scope dictionary */ \
         uint8_t  di_flags;        /* Flags.           */ \
-        uchar_kt   di_key[KEY_LEN]; /* Key value.       */ \
+        uchar_kt di_key[KEY_LEN]; /* Key value.       */ \
     }
 
 /// Structure to hold a scope dictionary

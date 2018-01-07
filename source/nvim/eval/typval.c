@@ -963,7 +963,7 @@ FUNC_ATTR_NONNULL_ALL
 void tv_dict_watcher_add(dict_st *const dict,
                          const char *const key_pattern,
                          const size_t key_pattern_len,
-                         Callback callback)
+                         callback_st callback)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     if(dict == NULL)
@@ -985,7 +985,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @param[in]  cb2  Second callback to check.
 ///
 /// @return True if they are equal, false otherwise.
-bool tv_callback_equal(const Callback *const cb1, const Callback *const cb2)
+bool tv_callback_equal(const callback_st *const cb1, const callback_st *const cb2)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1031,7 +1031,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 bool tv_dict_watcher_remove(dict_st *const dict,
                             const char *const key_pattern,
                             const size_t key_pattern_len,
-                            Callback callback)
+                            callback_st callback)
 FUNC_ATTR_NONNULL_ARG(2)
 {
     if(dict == NULL)
@@ -1507,7 +1507,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 bool tv_dict_get_callback(dict_st *const d,
                           const char *const key,
                           const ptrdiff_t key_len,
-                          Callback *const result)
+                          callback_st *const result)
 FUNC_ATTR_NONNULL_ARG(2, 4)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {

@@ -488,9 +488,9 @@ typedef struct
     bool exited;
     bool rpc;
     int refcount;
-    Callback on_stdout;
-    Callback on_stderr;
-    Callback on_exit;
+    callback_st on_stdout;
+    callback_st on_stderr;
+    callback_st on_exit;
     int *status_ptr;
     uint64_t id;
     MultiQueue *events;
@@ -499,7 +499,7 @@ typedef struct
 typedef struct
 {
     TerminalJobData *data;
-    Callback *callback;
+    callback_st *callback;
     const char *type;
     list_st *received;
     int status;
@@ -514,7 +514,7 @@ typedef struct
     long timeout;
     bool stopped;
     bool paused;
-    Callback callback;
+    callback_st callback;
 } timer_T;
 
 typedef void (*FunPtr)(void);
@@ -10102,7 +10102,7 @@ static void f_dictwatcheradd(typval_T *argvars,
     }
 
     const size_t key_pattern_len = strlen(key_pattern);
-    Callback callback;
+    callback_st callback;
 
     if(!callback_from_typval(&callback, &argvars[2]))
     {
@@ -10143,7 +10143,7 @@ static void f_dictwatcherdel(typval_T *argvars,
         return;
     }
 
-    Callback callback;
+    callback_st callback;
 
     if(!callback_from_typval(&callback, &argvars[2]))
     {
@@ -15173,9 +15173,9 @@ static void f_jobstart(typval_T *argvars,
     char *cwd = NULL;
     bool detach = false;
     dict_st *job_opts = NULL;
-    Callback on_stdout = CALLBACK_NONE;
-    Callback on_stderr = CALLBACK_NONE;
-    Callback on_exit = CALLBACK_NONE;
+    callback_st on_stdout = CALLBACK_NONE;
+    callback_st on_stderr = CALLBACK_NONE;
+    callback_st on_exit = CALLBACK_NONE;
 
 
     if(argvars[1].v_type == kNvarDict)
@@ -21667,9 +21667,9 @@ static void f_termopen(typval_T *argvars,
         return;
     }
 
-    Callback on_stdout = CALLBACK_NONE;
-    Callback on_stderr = CALLBACK_NONE;
-    Callback on_exit = CALLBACK_NONE;
+    callback_st on_stdout = CALLBACK_NONE;
+    callback_st on_stderr = CALLBACK_NONE;
+    callback_st on_exit = CALLBACK_NONE;
     dict_st *job_opts = NULL;
     const char *cwd = ".";
 
@@ -21772,7 +21772,7 @@ static void f_test_garbagecollect_now(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
     garbage_collect(true);
 }
 
-bool callback_from_typval(Callback *const callback, typval_T *const arg)
+bool callback_from_typval(callback_st *const callback, typval_T *const arg)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(arg->v_type == kNvarPartial && arg->vval.v_partial != NULL)
@@ -21802,7 +21802,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Unref/free callback
-void callback_free(Callback *const callback)
+void callback_free(callback_st *const callback)
 FUNC_ATTR_NONNULL_ALL
 {
     switch(callback->type)
@@ -21834,7 +21834,7 @@ FUNC_ATTR_NONNULL_ALL
     callback->type = kCallbackNone;
 }
 
-bool callback_call(Callback *const callback,
+bool callback_call(callback_st *const callback,
                    const int argcount_in,
                    typval_T *const argvars_in,
                    typval_T *const rettv)
@@ -21878,7 +21878,7 @@ FUNC_ATTR_NONNULL_ALL
                      NULL);
 }
 
-static bool set_ref_in_callback(Callback *callback,
+static bool set_ref_in_callback(callback_st *callback,
                                 int copyID,
                                 ht_stack_T **ht_stack,
                                 list_stack_T **list_stack)
@@ -22035,7 +22035,7 @@ static void f_timer_start(typval_T *argvars,
         }
     }
 
-    Callback callback;
+    callback_st callback;
 
     if(!callback_from_typval(&callback, &argvars[1]))
     {
@@ -29111,9 +29111,9 @@ uchar_kt *do_string_sub(uchar_kt *str,
 }
 
 static inline TerminalJobData *common_job_init(char **argv,
-                                               Callback on_stdout,
-                                               Callback on_stderr,
-                                               Callback on_exit,
+                                               callback_st on_stdout,
+                                               callback_st on_stderr,
+                                               callback_st on_exit,
                                                bool pty,
                                                bool rpc,
                                                bool detach,
@@ -29159,9 +29159,9 @@ static inline TerminalJobData *common_job_init(char **argv,
 ///
 /// @return true/false on success/failure.
 static inline bool common_job_callbacks(dict_st *vopts,
-                                        Callback *on_stdout,
-                                        Callback *on_stderr,
-                                        Callback *on_exit)
+                                        callback_st *on_stdout,
+                                        callback_st *on_stderr,
+                                        callback_st *on_exit)
 {
     if(tv_dict_get_callback(vopts, S_LEN("on_stdout"), on_stdout)
        && tv_dict_get_callback(vopts, S_LEN("on_stderr"), on_stderr)
@@ -29259,7 +29259,7 @@ static inline void free_term_job_data(TerminalJobData *data)
 
 // vimscript job callbacks must be executed on Nvim main loop
 static inline void process_job_event(TerminalJobData *data,
-                                     Callback *callback,
+                                     callback_st *callback,
                                      const char *type,
                                      char *buf,
                                      size_t count,
@@ -29335,7 +29335,7 @@ static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
                           RBuffer *buf,
                           size_t count,
                           bool eof,
-                          Callback *callback,
+                          callback_st *callback,
                           const char *type)
 {
     if(eof)
