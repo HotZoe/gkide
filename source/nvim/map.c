@@ -20,8 +20,8 @@
 #define uint32_t_eq     kh_int_hash_equal
 #define int_hash        kh_int_hash_func
 #define int_eq          kh_int_hash_equal
-#define linenr_T_hash   kh_int_hash_func
-#define linenr_T_eq     kh_int_hash_equal
+#define linenum_kt_hash kh_int_hash_func
+#define linenum_kt_eq   kh_int_hash_equal
 #define handle_kt_hash  kh_int_hash_func
 #define handle_kt_eq    kh_int_hash_equal
 
@@ -161,5 +161,5 @@ MAP_IMPL(handle_kt, ptr_t, DEFAULT_INITIALIZER)
 #define BUFFER_HL_VEC_INITIALIZER    { .size = 0,  .capacity = 0, .items = NULL }
 #define MSGPACK_HANDLER_INITIALIZER  { .fn = NULL, .async = false }
 
-MAP_IMPL(linenr_T, bufhl_vec_T,            BUFFER_HL_VEC_INITIALIZER)
+MAP_IMPL(linenum_kt, bufhl_vec_T,            BUFFER_HL_VEC_INITIALIZER)
 MAP_IMPL(String,   rpc_request_handler_st, MSGPACK_HANDLER_INITIALIZER)

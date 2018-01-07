@@ -1727,7 +1727,7 @@ size_t spell_move_to(win_st *wp,
                      bool curline,
                      hlf_T *attrp)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     pos_T found_pos;
     size_t found_len = 0;
     uchar_kt *line;
@@ -3848,7 +3848,7 @@ void spell_suggest(int count)
 
 /// Check if the word at line "lnum" column "col" is required to
 /// start with a capital. This uses 'spellcapcheck' of the current buffer.
-static bool check_need_cap(linenr_T lnum, colnr_T col)
+static bool check_need_cap(linenum_kt lnum, colnr_T col)
 {
     bool need_cap = false;
     uchar_kt *line;
@@ -3937,7 +3937,7 @@ void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
     uchar_kt *line;
     uchar_kt *p;
     bool save_ws = p_ws;
-    linenr_T prev_lnum = 0;
+    linenum_kt prev_lnum = 0;
 
     if(repl_from == NULL || repl_to == NULL)
     {
@@ -7062,7 +7062,7 @@ static void add_sound_suggest(suginfo_T *su,
     }
 
     // Go over the list of good words that produce this soundfold word
-    nrline = ml_get_buf(slang->sl_sugbuf, (linenr_T)(sfwordnr + 1), FALSE);
+    nrline = ml_get_buf(slang->sl_sugbuf, (linenum_kt)(sfwordnr + 1), FALSE);
     orgnr = 0;
 
     while(*nrline != NUL)
@@ -9629,7 +9629,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
     int c;
     uchar_kt *byts;
     idx_T *idxs;
-    linenr_T lnum = 0;
+    linenum_kt lnum = 0;
     int round;
     int depth;
     int n;
@@ -9850,7 +9850,7 @@ static void dump_word(slang_T *slang,
                       int *dir,
                       int dumpflags,
                       int wordflags,
-                      linenr_T lnum)
+                      linenum_kt lnum)
 {
     bool keepcap = false;
     uchar_kt *p;
@@ -9970,13 +9970,13 @@ static void dump_word(slang_T *slang,
 ///
 /// @return
 /// the updated line number.
-static linenr_T dump_prefixes(slang_T *slang,
+static linenum_kt dump_prefixes(slang_T *slang,
                               uchar_kt *word,
                               uchar_kt *pat,
                               int *dir,
                               int dumpflags,
                               int flags,
-                              linenr_T startlnum)
+                              linenum_kt startlnum)
 {
     idx_T arridx[MAXWLEN];
     int curi[MAXWLEN];
@@ -9986,7 +9986,7 @@ static linenr_T dump_prefixes(slang_T *slang,
     int c;
     uchar_kt *byts;
     idx_T *idxs;
-    linenr_T lnum = startlnum;
+    linenum_kt lnum = startlnum;
     int depth;
     int n;
     int len;
@@ -10177,7 +10177,7 @@ void spell_expand_check_cap(colnr_T col)
 /// Used for Insert mode completion CTRL-X ?.
 /// Returns the number of matches.
 /// The matches are in "matchp[]", array of allocated strings.
-int expand_spelling(linenr_T FUNC_ARGS_UNUSED_REALY(lnum),
+int expand_spelling(linenum_kt FUNC_ARGS_UNUSED_REALY(lnum),
                     uchar_kt *pat,
                     uchar_kt ***matchp)
 {

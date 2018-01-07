@@ -334,7 +334,7 @@ static reg_extmatch_T *next_match_extmatch = NULL;
 static win_st *syn_win;             ///< current window for highlighting
 static fbuf_st *syn_buf;             ///< current buffer for highlighting
 static synblock_T *syn_block;      ///< current buffer for highlighting
-static linenr_T current_lnum = 0;  ///< lnum of current state
+static linenum_kt current_lnum = 0;  ///< lnum of current state
 static colnr_T current_col = 0;    ///< column of current state
 static int current_finished = 0;   ///< current line has been finished
 
@@ -358,14 +358,14 @@ static int syn_time_on = FALSE;
 /// once for each displayed line. The buffer is remembered in syn_buf,
 /// because get_syntax_attr() doesn't get it. Careful: curbuf and curwin
 /// are likely to point to another buffer and window.
-void syntax_start(win_st *wp, linenr_T lnum)
+void syntax_start(win_st *wp, linenum_kt lnum)
 {
     synstate_T *p;
     synstate_T *last_valid = NULL;
     synstate_T *last_min_valid = NULL;
     synstate_T *sp, *prev = NULL;
-    linenr_T parsed_lnum;
-    linenr_T first_stored;
+    linenum_kt parsed_lnum;
+    linenum_kt first_stored;
     int dist;
     static int changedtick = 0; // remember the last change ID
     current_sub_char = NUL;
@@ -604,22 +604,22 @@ static void clear_current_state(void)
 /// 1. Search backwards for the end of a C-comment.
 /// 2. Search backwards for given sync patterns.
 /// 3. Simply start on a given number of lines above "lnum".
-static void syn_sync(win_st *wp, linenr_T start_lnum, synstate_T *last_valid)
+static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_T *last_valid)
 {
     fbuf_st *curbuf_save;
     win_st  *curwin_save;
     pos_T cursor_save;
     int idx;
-    linenr_T lnum;
-    linenr_T end_lnum;
-    linenr_T break_lnum;
+    linenum_kt lnum;
+    linenum_kt end_lnum;
+    linenum_kt break_lnum;
     int had_sync_point;
     stateitem_T *cur_si;
     synpat_T *spp;
     uchar_kt *line;
     int found_flags = 0;
     int found_match_idx = 0;
-    linenr_T found_current_lnum = 0;
+    linenum_kt found_current_lnum = 0;
     int found_current_col= 0;
     lpos_T found_m_endpos;
     colnr_T prev_current_col;
@@ -919,7 +919,7 @@ static void restore_chartab(uchar_kt *chartab)
 }
 
 /// Return TRUE if the line-continuation pattern matches in line "lnum".
-static int syn_match_linecont(linenr_T lnum)
+static int syn_match_linecont(linenum_kt lnum)
 {
     if(syn_block->b_syn_linecont_prog != NULL)
     {
@@ -1222,7 +1222,7 @@ void syn_stack_apply_changes(fbuf_st *buf)
 static void syn_stack_apply_changes_block(synblock_T *block, fbuf_st *buf)
 {
     synstate_T *p, *prev, *np;
-    linenr_T n;
+    linenum_kt n;
 
     if(block->b_sst_array == NULL) // nothing to do
     {
@@ -1369,7 +1369,7 @@ static void syn_stack_free_entry(synblock_T *block, synstate_T *p)
 
 /// Find an entry in the list of state stacks at or before "lnum".
 /// Returns NULL when there is no entry or the first entry is after "lnum".
-static synstate_T *syn_stack_find_entry(linenr_T lnum)
+static synstate_T *syn_stack_find_entry(linenum_kt lnum)
 {
     synstate_T  *p, *prev;
     prev = NULL;
@@ -1686,7 +1686,7 @@ static int syn_stack_equal(synstate_T *sp)
 /// - displayed line
 /// - displayed line
 /// - lnum ->  line below window
-void syntax_end_parsing(linenr_T lnum)
+void syntax_end_parsing(linenum_kt lnum)
 {
     synstate_T *sp;
     sp = syn_stack_find_entry(lnum);
@@ -1726,7 +1726,7 @@ static void validate_current_state(void)
 /// Return TRUE if the syntax at start of lnum changed since last time.
 /// This will only be called just after get_syntax_attr() for the previous
 /// line, to check if the next line needs to be redrawn too.
-int syntax_check_changed(linenr_T lnum)
+int syntax_check_changed(linenum_kt lnum)
 {
     int retval = TRUE;
     synstate_T  *sp;
@@ -3357,7 +3357,7 @@ static uchar_kt *syn_getcurline(void)
 /// Call vim_regexec() to find a match with "rmp" in "syn_buf".
 /// Returns TRUE when there is a match.
 static int syn_regexec(regmmatch_T *rmp,
-                       linenr_T lnum,
+                       linenum_kt lnum,
                        colnr_T col,
                        syn_time_T *st)
 {
@@ -6920,7 +6920,7 @@ int get_syntax_info(int *seqnrp)
 /// Get the sequence number of the concealed file position.
 ///
 /// @return seqnr if the file position is concealed, 0 otherwise.
-int syn_get_concealed_id(win_st *wp, linenr_T lnum, colnr_T col)
+int syn_get_concealed_id(win_st *wp, linenum_kt lnum, colnr_T col)
 {
     int seqnr;
     int syntax_flags;

@@ -168,8 +168,8 @@ struct bw_info
     uchar_kt *bw_conv_buf;          ///< buffer for writing converted chars
     int bw_conv_buflen;           ///< size of bw_conv_buf
     int bw_conv_error;            ///< set for conversion error
-    linenr_T bw_conv_error_lnum;  ///< first line with error or zero
-    linenr_T bw_start_lnum;       ///< line number at start of buffer
+    linenum_kt bw_conv_error_lnum;  ///< first line with error or zero
+    linenum_kt bw_start_lnum;       ///< line number at start of buffer
 #ifdef USE_ICONV
     iconv_t bw_iconv_fd;          ///< descriptor for iconv() or -1
 #endif
@@ -254,9 +254,9 @@ void filemess(fbuf_st *buf, uchar_kt *name, uchar_kt *s, int attr)
 /// return FAIL for failure, NOTDONE for directory (failure), or OK
 int readfile(uchar_kt *fname,
              uchar_kt *sfname,
-             linenr_T from,
-             linenr_T lines_to_skip,
-             linenr_T lines_to_read,
+             linenum_kt from,
+             linenum_kt lines_to_skip,
+             linenum_kt lines_to_read,
              exarg_T *eap,
              int flags)
 {
@@ -271,10 +271,10 @@ int readfile(uchar_kt *fname,
                       || read_buffer
                       || (eap != NULL && eap->read_edit);
 
-    linenr_T read_buf_lnum = 1; // next line to read from curbuf
+    linenum_kt read_buf_lnum = 1; // next line to read from curbuf
     colnr_T read_buf_col = 0; // next char to read from this line
     uchar_kt c;
-    linenr_T lnum = from;
+    linenum_kt lnum = from;
     uchar_kt *ptr = NULL; // pointer into read buffer
     uchar_kt *buffer = NULL; // read buffer
     uchar_kt *new_buffer = NULL; // init to shut up gcc
@@ -288,7 +288,7 @@ int readfile(uchar_kt *fname,
     context_sha256_T sha_ctx;
     int read_undo_file = FALSE;
     int split = 0; // number of split lines
-    linenr_T linecnt;
+    linenum_kt linecnt;
     int error = FALSE; // errors encountered
     int ff_error = EOL_UNKNOWN; // file format with errors
     long linerest = 0; // remaining chars in line
@@ -301,18 +301,18 @@ int readfile(uchar_kt *fname,
     int fileformat = 0; // end-of-line format
     int keep_fileformat = FALSE;
     int file_readonly;
-    linenr_T skip_count = 0;
-    linenr_T read_count = 0;
+    linenum_kt skip_count = 0;
+    linenum_kt read_count = 0;
     int msg_save = msg_scroll;
     // non-zero lnum when last line of last read was missing the eol
-    linenr_T read_no_eol_lnum = 0;
+    linenum_kt read_no_eol_lnum = 0;
     int try_mac = (vim_strchr(p_ffs, 'm') != NULL);
     int try_dos = (vim_strchr(p_ffs, 'd') != NULL);
     int try_unix = (vim_strchr(p_ffs, 'x') != NULL);
     int file_rewind = FALSE;
     int can_retry;
-    linenr_T conv_error = 0; // line nr with conversion error
-    linenr_T illegal_byte = 0; // line nr with illegal byte
+    linenum_kt conv_error = 0; // line nr with conversion error
+    linenum_kt illegal_byte = 0; // line nr with illegal byte
 
     // don't retry when char doesn't fit in destination encoding
     int keep_dest_enc = FALSE;
@@ -2593,10 +2593,10 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param p         start of more bytes read
 /// @param endp      end of more bytes read
 ///
-static linenr_T readfile_linenr(linenr_T linecnt, uchar_kt *p, uchar_kt *endp)
+static linenum_kt readfile_linenr(linenum_kt linecnt, uchar_kt *p, uchar_kt *endp)
 {
     uchar_kt *s;
-    linenr_T lnum;
+    linenum_kt lnum;
     lnum = curbuf->b_ml.ml_line_count - linecnt + 1;
 
     for(s = p; s < endp; ++s)
@@ -2833,8 +2833,8 @@ static void set_file_time(uchar_kt *fname, time_t atime, time_t mtime)
 int buf_write(fbuf_st *buf,
               uchar_kt *fname,
               uchar_kt *sfname,
-              linenr_T start,
-              linenr_T end,
+              linenum_kt start,
+              linenum_kt end,
               exarg_T *eap,
               int append,
               int forceit,
@@ -2851,7 +2851,7 @@ int buf_write(fbuf_st *buf,
     uchar_kt *ptr;
     uchar_kt c;
     int len;
-    linenr_T lnum;
+    linenum_kt lnum;
     long nchars;
 
 #define SET_ERRMSG_NUM(num, msg)     errnum = num,  errmsg = msg, errmsgarg = 0
@@ -2883,7 +2883,7 @@ int buf_write(fbuf_st *buf,
 
     // writing everything
     int whole = (start == 1 && end == buf->b_ml.ml_line_count);
-    linenr_T old_line_count = buf->b_ml.ml_line_count;
+    linenum_kt old_line_count = buf->b_ml.ml_line_count;
     int fileformat;
     int write_bin;
     struct bw_info write_info; // info for buf_write_bytes()
@@ -6107,7 +6107,7 @@ static int move_lines(fbuf_st *frombuf, fbuf_st *tobuf)
 {
     fbuf_st *tbuf = curbuf;
     int retval = OK;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *p;
 
     // Copy the lines in "frombuf" to "tobuf".
@@ -6462,7 +6462,7 @@ void buf_reload(fbuf_st *buf, int orig_mode)
 {
     exarg_T ea;
     pos_T old_cursor;
-    linenr_T old_topline;
+    linenum_kt old_topline;
     int old_ro = buf->b_p_ro;
     fbuf_st *savebuf;
     bufref_T bufref;
@@ -6501,7 +6501,7 @@ void buf_reload(fbuf_st *buf, int orig_mode)
     else
     {
         // Allocate a buffer without putting it in the buffer list.
-        savebuf = buflist_new(NULL, NULL, (linenr_T)1, BLN_DUMMY);
+        savebuf = buflist_new(NULL, NULL, (linenum_kt)1, BLN_DUMMY);
         set_bufref(&bufref, savebuf);
 
         if(savebuf != NULL && buf == curbuf)
@@ -6533,9 +6533,9 @@ void buf_reload(fbuf_st *buf, int orig_mode)
 
         if(readfile(buf->b_ffname,
                     buf->b_fname,
-                    (linenr_T)0,
-                    (linenr_T)0,
-                    (linenr_T)MAXLNUM,
+                    (linenum_kt)0,
+                    (linenum_kt)0,
+                    (linenum_kt)MAXLNUM,
                     &ea,
                     flags) != OK)
         {
@@ -6640,7 +6640,7 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Adjust the line with missing eol, used for the next write.
 /// Used for do_filter(), when the input lines for the filter are deleted.
-void write_lnum_adjust(linenr_T offset)
+void write_lnum_adjust(linenum_kt offset)
 {
     if(curbuf->b_no_eol_lnum != 0) // only if there is a missing eol
     {
@@ -8490,7 +8490,7 @@ static bool apply_autocmds_group(event_T event,
     fbuf_st *old_curbuf;
     bool retval = false;
     uchar_kt *save_sourcing_name;
-    linenr_T save_sourcing_lnum;
+    linenum_kt save_sourcing_lnum;
     uchar_kt *save_autocmd_fname;
     int save_autocmd_fname_full;
     int save_autocmd_bufnr;

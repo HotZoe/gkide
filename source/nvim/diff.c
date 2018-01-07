@@ -217,8 +217,8 @@ void diff_invalidate(fbuf_st *buf)
 /// @param line2
 /// @param amount
 /// @param amount_after
-void diff_mark_adjust(linenr_T line1,
-                      linenr_T line2,
+void diff_mark_adjust(linenum_kt line1,
+                      linenum_kt line2,
                       long amount,
                       long amount_after)
 {
@@ -250,8 +250,8 @@ void diff_mark_adjust(linenr_T line1,
 /// @amount_after
 static void diff_mark_adjust_tp(tabpage_st *tp,
                                 int idx,
-                                linenr_T line1,
-                                linenr_T line2,
+                                linenum_kt line1,
+                                linenum_kt line2,
                                 long amount,
                                 long amount_after)
 {
@@ -279,8 +279,8 @@ static void diff_mark_adjust_tp(tabpage_st *tp,
 
     diff_T *dprev = NULL;
     diff_T *dp = tp->tp_first_diff;
-    linenr_T last;
-    linenr_T lnum_deleted = line1; // lnum of remaining deletion
+    linenum_kt last;
+    linenum_kt lnum_deleted = line1; // lnum of remaining deletion
     int n;
     int off;
 
@@ -763,7 +763,7 @@ static int diff_write(fbuf_st *buf, uchar_kt *fname)
     int r = buf_write(buf,
                       fname,
                       NULL,
-                      (linenr_T)1,
+                      (linenum_kt)1,
                       buf->b_ml.ml_line_count,
                       NULL,
                       FALSE,
@@ -1080,7 +1080,7 @@ void ex_diffpatch(exarg_T *eap)
     if(buf_write(curbuf,
                  tmp_orig,
                  NULL,
-                 (linenr_T)1,
+                 (linenum_kt)1,
                  curbuf->b_ml.ml_line_count,
                  NULL,
                  FALSE,
@@ -1511,8 +1511,8 @@ static void diff_read(int idx_orig, int idx_new, uchar_kt *fname)
     uchar_kt *p;
     long off;
     int i;
-    linenr_T lnum_orig;
-    linenr_T lnum_new;
+    linenum_kt lnum_orig;
+    linenum_kt lnum_new;
     long count_orig;
     long count_new;
     int notset = TRUE; // block "*dp" not set yet
@@ -1799,7 +1799,7 @@ void diff_clear(tabpage_st *tp)
 /// @param lnum
 ///
 /// @return diff status.
-int diff_check(win_st *wp, linenr_T lnum)
+int diff_check(win_st *wp, linenum_kt lnum)
 {
     int idx; // index in tp_diffbuf[] for this buffer
     diff_T *dp;
@@ -2064,7 +2064,7 @@ static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
 /// @param lnum
 ///
 /// @return Number of filler lines above lnum
-int diff_check_fill(win_st *wp, linenr_T lnum)
+int diff_check_fill(win_st *wp, linenum_kt lnum)
 {
     // be quick when there are no filler lines
     if(!(diff_flags & DIFF_FILLER))
@@ -2090,7 +2090,7 @@ int diff_check_fill(win_st *wp, linenr_T lnum)
 void diff_set_topline(win_st *fromwin, win_st *towin)
 {
     fbuf_st *frombuf = fromwin->w_buffer;
-    linenr_T lnum = fromwin->w_topline;
+    linenum_kt lnum = fromwin->w_topline;
     diff_T *dp;
     int max_count;
     int i;
@@ -2312,7 +2312,7 @@ int diffopt_changed(void)
 
     // recompute the scroll binding with the
     // new option value, may remove or add filler lines
-    check_scrollbind((linenr_T)0, 0L);
+    check_scrollbind((linenum_kt)0, 0L);
 
     return OK;
 }
@@ -2333,7 +2333,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param  endp    last char of the change
 ///
 /// @return true if the line was added, no other buffer has it.
-bool diff_find_change(win_st *wp, linenr_T lnum, int *startp, int *endp)
+bool diff_find_change(win_st *wp, linenum_kt lnum, int *startp, int *endp)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
@@ -2486,7 +2486,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  lnum  line number to check within the buffer
 ///
 /// @return false if there are no diff blocks at all in this window.
-bool diff_infold(win_st *wp, linenr_T lnum)
+bool diff_infold(win_st *wp, linenum_kt lnum)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
@@ -2587,9 +2587,9 @@ void nv_diffgetput(bool put, size_t count)
 /// @param eap
 void ex_diffgetput(exarg_T *eap)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int count;
-    linenr_T off = 0;
+    linenum_kt off = 0;
     diff_T *dp;
     diff_T *dprev;
     diff_T *dfree;
@@ -2856,7 +2856,7 @@ void ex_diffgetput(exarg_T *eap)
 
             for(i = 0; i < dp->df_count[idx_from] - start_skip - end_skip; ++i)
             {
-                linenr_T nr = dp->df_lnum[idx_from] + start_skip + i;
+                linenum_kt nr = dp->df_lnum[idx_from] + start_skip + i;
 
                 if(nr > curtab->tp_diffbuf[idx_from]->b_ml.ml_line_count)
                 {
@@ -2875,7 +2875,7 @@ void ex_diffgetput(exarg_T *eap)
                     // Added the first line into an empty buffer, need to
                     // delete the dummy empty line.
                     buf_empty = FALSE;
-                    ml_delete((linenr_T)2, FALSE);
+                    ml_delete((linenum_kt)2, FALSE);
                 }
             }
 
@@ -3039,7 +3039,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @return FAIL if there isn't such a diff block.
 int diff_move_to(int dir, long count)
 {
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     int idx = diff_buf_idx(curbuf);
 
     if((idx == DB_COUNT) || (curtab->tp_first_diff == NULL))
@@ -3114,16 +3114,16 @@ int diff_move_to(int dir, long count)
 /// @param lnum3
 ///
 /// @return The corresponding line.
-linenr_T diff_get_corresponding_line(fbuf_st *buf1,
-                                     linenr_T lnum1,
+linenum_kt diff_get_corresponding_line(fbuf_st *buf1,
+                                     linenum_kt lnum1,
                                      fbuf_st *buf2,
-                                     linenr_T lnum3)
+                                     linenum_kt lnum3)
 {
     int idx1;
     int idx2;
     diff_T *dp;
     int baseline = 0;
-    linenr_T lnum2;
+    linenum_kt lnum2;
     idx1 = diff_buf_idx(buf1);
     idx2 = diff_buf_idx(buf2);
 
@@ -3203,18 +3203,18 @@ linenr_T diff_get_corresponding_line(fbuf_st *buf1,
 
 /// For line "lnum" in the current window find the equivalent lnum in window
 /// "wp", compensating for inserted/deleted lines.
-linenr_T diff_lnum_win(linenr_T lnum, win_st *wp)
+linenum_kt diff_lnum_win(linenum_kt lnum, win_st *wp)
 {
     diff_T *dp;
     int idx;
     int i;
-    linenr_T n;
+    linenum_kt n;
     idx = diff_buf_idx(curbuf);
 
     if(idx == DB_COUNT)
     {
         // safety check
-        return (linenr_T)0;
+        return (linenum_kt)0;
     }
 
     if(curtab->tp_diff_invalid)
@@ -3245,7 +3245,7 @@ linenr_T diff_lnum_win(linenr_T lnum, win_st *wp)
     if(i == DB_COUNT)
     {
         // safety check
-        return (linenr_T)0;
+        return (linenum_kt)0;
     }
 
     n = lnum + (dp->df_lnum[i] - dp->df_lnum[idx]);

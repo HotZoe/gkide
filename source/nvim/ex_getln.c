@@ -101,9 +101,9 @@ typedef struct command_line_state
     pos_T old_cursor;
     colnr_T old_curswant;
     colnr_T old_leftcol;
-    linenr_T old_topline;
+    linenum_kt old_topline;
     int old_topfill;
-    linenr_T old_botline;
+    linenum_kt old_botline;
     int did_incsearch;
 
     int incsearch_postponed;
@@ -6695,7 +6695,7 @@ static int ex_window(void)
     win_st *old_curwin = curwin;
     win_st *wp;
     int i;
-    linenr_T lnum;
+    linenum_kt lnum;
     garray_st winsizes;
     uchar_kt typestr[2];
     int save_restart_edit = restart_edit;

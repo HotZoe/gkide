@@ -204,7 +204,7 @@ typedef struct insert_state
     int i;
     bool did_backspace;     ///< previous char was backspace
     bool line_is_white;     ///< line is empty before insert
-    linenr_T old_topline;   ///< topline before insertion
+    linenum_kt old_topline;   ///< topline before insertion
     int old_topfill;
     int inserted_space;     ///< just inserted a space
     int replaceState;
@@ -251,7 +251,7 @@ static int did_add_space = FALSE;
 /// CTRL-G U prevents syncing undo for the next left/right cursor
 static int dont_sync_undo = false;
 
-static linenr_T o_lnum = 0;
+static linenum_kt o_lnum = 0;
 
 static void insert_enter(InsertState *s)
 {
@@ -1651,8 +1651,8 @@ bool edit(int cmdchar, bool startln, long count)
 /// @param ready  not busy with something
 static void ins_redraw(int ready)
 {
-    linenr_T conceal_old_cursor_line = 0;
-    linenr_T conceal_new_cursor_line = 0;
+    linenum_kt conceal_old_cursor_line = 0;
+    linenum_kt conceal_new_cursor_line = 0;
     int conceal_update_lines = FALSE;
 
     if(char_avail())
@@ -4898,7 +4898,7 @@ static int ins_compl_get_exp(pos_T *ini)
                                                    1L,
                                                    SEARCH_KEEP + SEARCH_NFMSG,
                                                    RE_LAST,
-                                                   (linenr_T)0, NULL);
+                                                   (linenum_kt)0, NULL);
                     }
 
                     --msg_silent;
@@ -7381,7 +7381,7 @@ void auto_format(int trailblank, int prev_line)
     // Do the formatting and restore the cursor position.
     // "saved_cursor" will be adjusted for the text formatting.
     saved_cursor = pos;
-    format_lines((linenr_T)-1, FALSE);
+    format_lines((linenum_kt)-1, FALSE);
     curwin->w_cursor = saved_cursor;
     saved_cursor.lnum = 0;
 
@@ -7583,7 +7583,7 @@ static void check_spell_redraw(void)
 {
     if(spell_redraw_lnum != 0)
     {
-        linenr_T lnum = spell_redraw_lnum;
+        linenum_kt lnum = spell_redraw_lnum;
         spell_redraw_lnum = 0;
         redrawWinline(lnum, FALSE);
     }
@@ -8034,7 +8034,7 @@ int oneleft(void)
 /// @param upd_topline  When TRUE: update topline
 int cursor_up(long n, int upd_topline)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(n > 0)
     {
@@ -8107,7 +8107,7 @@ int cursor_up(long n, int upd_topline)
 /// @param upd_topline     When TRUE: update topline
 int cursor_down(long n, int upd_topline)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(n > 0)
     {
@@ -8128,7 +8128,7 @@ int cursor_down(long n, int upd_topline)
         }
         else if(hasAnyFolding(curwin))
         {
-            linenr_T last;
+            linenum_kt last;
 
             // count each sequence of folded lines as one logical line
             while(n--)
@@ -9677,7 +9677,7 @@ static void ins_bs_one(colnr_T *vcolp)
 static bool ins_bs(int c, int mode, int *inserted_space_p)
 FUNC_ATTR_NONNULL_ARG(3)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int cc;
     int temp = 0; // init for GCC
     colnr_T save_col;
@@ -9755,8 +9755,8 @@ FUNC_ATTR_NONNULL_ARG(3)
 
         if(curwin->w_cursor.lnum == lnum || revins_on)
         {
-            if(u_save((linenr_T)(curwin->w_cursor.lnum - 2),
-                      (linenr_T)(curwin->w_cursor.lnum + 1)) == FAIL)
+            if(u_save((linenum_kt)(curwin->w_cursor.lnum - 2),
+                      (linenum_kt)(curwin->w_cursor.lnum + 1)) == FAIL)
             {
                 return false;
             }
@@ -10400,7 +10400,7 @@ static void ins_s_right(void)
 static void ins_up(int startcol)
 {
     pos_T tpos;
-    linenr_T old_topline = curwin->w_topline;
+    linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
     undisplay_dollar();
     tpos = curwin->w_cursor;
@@ -10461,7 +10461,7 @@ static void ins_pageup(void)
 static void ins_down(int startcol)
 {
     pos_T tpos;
-    linenr_T old_topline = curwin->w_topline;
+    linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
     undisplay_dollar();
     tpos = curwin->w_cursor;
@@ -10911,7 +10911,7 @@ static int ins_digraph(void)
 
 /// Handle CTRL-E and CTRL-Y in Insert mode: copy char from other line.
 /// Returns the char to be inserted, or NUL if none found.
-int ins_copychar(linenr_T lnum)
+int ins_copychar(linenum_kt lnum)
 {
     int c;
     int temp;

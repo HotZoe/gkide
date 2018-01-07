@@ -235,7 +235,7 @@ void redraw_buf_later(fbuf_st *buf, int type)
 ///
 /// @param lnum
 /// @param invalid  window line height is invalid now
-void redrawWinline(linenr_T lnum, int invalid)
+void redrawWinline(linenum_kt lnum, int invalid)
 {
     int i;
 
@@ -571,7 +571,7 @@ void conceal_check_cursur_line(void)
     }
 }
 
-void update_single_line(win_st *wp, linenr_T lnum)
+void update_single_line(win_st *wp, linenum_kt lnum)
 {
     int row;
     int j;
@@ -629,7 +629,7 @@ static void update_finish(void)
     updating_screen = FALSE;
 }
 
-void update_debug_sign(fbuf_st *buf, linenr_T lnum)
+void update_debug_sign(fbuf_st *buf, linenum_kt lnum)
 {
     int  doit = FALSE;
     win_foldinfo.fi_level = 0;
@@ -748,7 +748,7 @@ static void win_update(win_st *wp)
     matchitem_T *cur; // points to the match list
     int top_to_mod = FALSE; // redraw above mod_top
     int row; // current window row to display
-    linenr_T lnum; // current buffer lnum to display
+    linenum_kt lnum; // current buffer lnum to display
     int idx; // current index in w_lines[]
     int srow; // starting row of the current line
     int eof = FALSE; // if TRUE, we hit the end of the file
@@ -767,9 +767,9 @@ static void win_update(win_st *wp)
 #define DID_FOLD  3 // updated a folded line
 
     int did_update = DID_NONE;
-    linenr_T syntax_last_parsed = 0; // last parsed text line
-    linenr_T mod_top = 0;
-    linenr_T mod_bot = 0;
+    linenum_kt syntax_last_parsed = 0; // last parsed text line
+    linenum_kt mod_top = 0;
+    linenum_kt mod_bot = 0;
     int save_got_int;
     type = wp->w_redr_type;
 
@@ -887,7 +887,7 @@ static void win_update(win_st *wp)
 
         if(mod_top != 0 && hasAnyFolding(wp))
         {
-            linenr_T lnumt, lnumb;
+            linenum_kt lnumt, lnumb;
             // A change in a line can cause lines above it to become folded or
             // unfolded. Find the top most buffer line that may be affected.
             // If the line was previously folded and displayed, get the first
@@ -1025,7 +1025,7 @@ static void win_update(win_st *wp)
             // New topline is above old topline: May scroll down.
             if(hasAnyFolding(wp))
             {
-                linenr_T ln;
+                linenum_kt ln;
                 // count the number of lines we are off,
                 // counting a sequence of folded lines as one
                 j = 0;
@@ -1270,7 +1270,7 @@ static void win_update(win_st *wp)
     if((VIsual_active && buf == curwin->w_buffer)
        || (wp->w_old_cursor_lnum != 0 && type != NOT_VALID))
     {
-        linenr_T from, to;
+        linenum_kt from, to;
 
         if(VIsual_active)
         {
@@ -1588,7 +1588,7 @@ static void win_update(win_st *wp)
                 int old_rows = 0;
                 int new_rows = 0;
                 int xtra_rows;
-                linenr_T l;
+                linenum_kt l;
 
                 // Count the old number of window rows, using w_lines[], which
                 // should still contain the sizes for the lines as they are
@@ -2175,12 +2175,12 @@ static int compute_foldcolumn(win_st *wp, int col)
 static void fold_line(win_st *wp,
                       long fold_count,
                       foldinfo_st *foldinfo,
-                      linenr_T lnum,
+                      linenum_kt lnum,
                       int row)
 {
     uchar_kt buf[FOLD_TEXT_LEN];
     pos_T *top, *bot;
-    linenr_T lnume = lnum + fold_count - 1;
+    linenum_kt lnume = lnum + fold_count - 1;
     int len;
     uchar_kt *text;
     int fdc;
@@ -2660,7 +2660,7 @@ static void copy_text_attr(int off, uchar_kt *buf, int len, int attr)
 /// @param wp
 /// @param closed  TRUE of FALSE
 /// @param lnum    current line number
-static void fill_foldcolumn(uchar_kt *p, win_st *wp, int closed, linenr_T lnum)
+static void fill_foldcolumn(uchar_kt *p, win_st *wp, int closed, linenum_kt lnum)
 {
     int i = 0;
     int level;
@@ -2733,7 +2733,7 @@ static void fill_foldcolumn(uchar_kt *p, win_st *wp, int closed, linenr_T lnum)
 /// @return
 /// Return the number of last row the line occupies.
 static int win_line(win_st *wp,
-                    linenr_T lnum,
+                    linenum_kt lnum,
                     int startrow,
                     int endrow,
                     bool nochange)
@@ -2803,12 +2803,12 @@ static int win_line(win_st *wp,
     int spell_attr = 0; // attributes desired by spelling
     int word_end = 0; // last byte with same spell_attr
 
-    static linenr_T checked_lnum = 0; // line number for "checked_col"
+    static linenum_kt checked_lnum = 0; // line number for "checked_col"
     // column in "checked_lnum" up to which there are no spell errors
     static int checked_col = 0;
 
     static int cap_col = -1; // column to check for Cap word
-    static linenr_T capcol_lnum = 0; // line number where "cap_col" used
+    static linenum_kt capcol_lnum = 0; // line number where "cap_col" used
     int cur_checked_col = 0; // checked column for current line
     int extra_check; // has syntax or linebreak
     int multi_attr = 0; // attributes desired by multibyte
@@ -7406,7 +7406,7 @@ static void init_search_hl(win_st *wp)
 }
 
 /// Advance to the match in window "wp" line "lnum" or past it.
-static void prepare_search_hl(win_st *wp, linenr_T lnum)
+static void prepare_search_hl(win_st *wp, linenum_kt lnum)
 {
     matchitem_T *cur; // points to the match list
     match_T *shl; // points to search_hl or a match
@@ -7509,11 +7509,11 @@ static void prepare_search_hl(win_st *wp, linenr_T lnum)
 /// @param cur     to retrieve match positions if any
 static void next_search_hl(win_st *win,
                            match_T *shl,
-                           linenr_T lnum,
+                           linenum_kt lnum,
                            colnr_T mincol,
                            matchitem_T *cur)
 {
-    linenr_T l;
+    linenum_kt l;
     colnr_T matchcol;
     long nmatched = 0;
 
@@ -7653,7 +7653,7 @@ static void next_search_hl(win_st *win,
 ///
 /// @return zero otherwise.
 static int next_search_hl_pos(match_T *shl,
-                              linenr_T lnum,
+                              linenum_kt lnum,
                               posmatch_T *posmatch,
                               colnr_T mincol)
 {
@@ -9768,7 +9768,7 @@ static void win_redr_ruler(win_st *wp, int always)
 int number_width(win_st *wp)
 {
     int n;
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(wp->w_p_rnu && !wp->w_p_nu)
     {

@@ -85,7 +85,7 @@ typedef struct wininfo_S wininfo_T;
 #include "nvim/sign_defs.h"
 #include "nvim/bufhl_defs.h"
 
-typedef Map(linenr_T, bufhl_vec_T) bufhl_info_T;
+typedef Map(linenum_kt, bufhl_vec_T) bufhl_info_T;
 
 #include "nvim/os/fs_defs.h"
 #include "nvim/terminal.h"
@@ -420,7 +420,7 @@ typedef struct
     synstate_T *b_sst_first;     ///< pointer to first used entry in b_sst_array[] or NULL
     synstate_T *b_sst_firstfree; ///< pointer to first free entry in b_sst_array[] or NULL
     int b_sst_freecount;         ///< number of free entries in b_sst_array[]
-    linenr_T b_sst_check_lnum;   ///< entries after this lnum need to be checked for
+    linenum_kt b_sst_check_lnum;   ///< entries after this lnum need to be checked for
                                  ///< validity (MAXLNUM means no check needed)
     uint16_t b_sst_lasttick;     ///< last display tick
 
@@ -493,8 +493,8 @@ struct file_buffer_s
     /// true when there are changes since the last time the display was updated
     bool b_mod_set;
 
-    linenr_T b_mod_top;       ///< topmost lnum that was changed
-    linenr_T b_mod_bot;       ///< lnum below last changed line, AFTER the change
+    linenum_kt b_mod_top;       ///< topmost lnum that was changed
+    linenum_kt b_mod_bot;       ///< lnum below last changed line, AFTER the change
     long b_mod_xlines;        ///< number of extra buffer lines inserted
                               ///< negative when lines were deleted
     wininfo_T *b_wininfo;     ///< list of last used info for each window
@@ -553,7 +553,7 @@ struct file_buffer_s
 
     // variables for "U" command in undo.c
     uchar_kt *b_u_line_ptr;  ///< saved line for "U" command
-    linenr_T b_u_line_lnum;  ///< line number of line in u_line
+    linenum_kt b_u_line_lnum;  ///< line number of line in u_line
     colnr_T b_u_line_colnr;  ///< optional column number
 
     /// ^N/^P have scanned this buffer
@@ -705,7 +705,7 @@ struct file_buffer_s
     int b_ind_cpp_namespace;
     int b_ind_if_for_while;
 
-    linenr_T b_no_eol_lnum;   ///< non-zero lnum when last line of next binary
+    linenum_kt b_no_eol_lnum;   ///< non-zero lnum when last line of next binary
                               ///< write should not have an end-of-line
     int b_start_eol;          ///< last line had eol when it was read
     int b_start_ffc;          ///< first char of 'ff' when edit started
@@ -762,8 +762,8 @@ typedef struct diffblock_S diff_T;
 struct diffblock_S
 {
     diff_T *df_next;
-    linenr_T df_lnum[DB_COUNT];  ///< line number in buffer
-    linenr_T df_count[DB_COUNT]; ///< nr of inserted/changed lines
+    linenum_kt df_lnum[DB_COUNT];  ///< line number in buffer
+    linenum_kt df_count[DB_COUNT]; ///< nr of inserted/changed lines
 };
 
 #define SNAP_HELP_IDX     0
@@ -809,11 +809,11 @@ struct tabpage_s
 /// wl_lnum and wl_lastlnum are invalid too.
 typedef struct w_line
 {
-    linenr_T wl_lnum;       ///< buffer line number for logical line
+    linenum_kt wl_lnum;       ///< buffer line number for logical line
     uint16_t wl_size;       ///< height in screen lines
     char wl_valid;          ///< TRUE values are valid for text in buffer
     char wl_folded;         ///< TRUE when this is a range of folded lines
-    linenr_T wl_lastlnum;   ///< last buffer line number for logical line
+    linenum_kt wl_lastlnum;   ///< last buffer line number for logical line
 } wline_T;
 
 /// Windows are kept in a tree of frames.  Each frame has a column (FR_COL)
@@ -846,10 +846,10 @@ typedef struct
     regmmatch_T rm;       ///< points to the regexp program; contains last found
                           ///< match (may continue in next line)
     fbuf_st *buf;           ///< the buffer to search for a match
-    linenr_T lnum;        ///< the line to search for a match
+    linenum_kt lnum;        ///< the line to search for a match
     int attr;             ///< attributes to be used for a match
     int attr_cur;         ///< attributes currently active in win_line()
-    linenr_T first_lnum;  ///< first lnum to search for multi-line pat
+    linenum_kt first_lnum;  ///< first lnum to search for multi-line pat
     colnr_T startcol;     ///< in win_line() points to char where HL starts
     colnr_T endcol;       ///< in win_line() points to char where HL ends
     bool is_addpos;       ///< position specified directly by matchaddpos()
@@ -862,7 +862,7 @@ typedef struct
 /// Same as lpos_T, but with additional field len.
 typedef struct
 {
-    linenr_T  lnum; ///< line number
+    linenum_kt  lnum; ///< line number
     colnr_T col;    ///< column number
     int len;        ///< length: 0 - to the end of line
 } llpos_T;
@@ -874,8 +874,8 @@ struct posmatch
 {
     llpos_T pos[MAXPOSMATCH]; ///< array of positions
     int cur;                  ///< internal position counter
-    linenr_T toplnum;         ///< top buffer line
-    linenr_T botlnum;         ///< bottom buffer line
+    linenum_kt toplnum;         ///< top buffer line
+    linenum_kt botlnum;         ///< bottom buffer line
 };
 
 /// matchitem_T provides a linked list for storing
@@ -928,15 +928,15 @@ struct window_s
 
     // the next seven are used to update the visual part
     char w_old_visual_mode;      ///< last known VIsual_mode
-    linenr_T w_old_cursor_lnum;  ///< last known end of visual part
+    linenum_kt w_old_cursor_lnum;  ///< last known end of visual part
     colnr_T w_old_cursor_fcol;   ///< first column for block visual part
     colnr_T w_old_cursor_lcol;   ///< last column for block visual part
-    linenr_T w_old_visual_lnum;  ///< last known start of visual part
+    linenum_kt w_old_visual_lnum;  ///< last known start of visual part
     colnr_T w_old_visual_col;    ///< last known start of visual part
     colnr_T w_old_curswant;      ///< last known value of Curswant
 
     // "w_topline", "w_leftcol" and "w_skipcol" specify the offsets for displaying the buffer.
-    linenr_T w_topline;     ///< buffer line number of the line at the top of the window
+    linenum_kt w_topline;     ///< buffer line number of the line at the top of the window
     char w_topline_was_set; ///< flag set to TRUE when topline is set, e.g. by winrestview()
     int w_topfill;          ///< number of filler lines above w_topline
     int w_old_topfill;      ///< w_topfill at last redraw
@@ -987,7 +987,7 @@ struct window_s
     // This is related to positions in the window, not in the display or
     // buffer, thus w_wrow is relative to w_winrow.
     int w_wrow, w_wcol; ///< cursor position in window
-    linenr_T w_botline; ///< number of the line below the bottom of the window
+    linenum_kt w_botline; ///< number of the line below the bottom of the window
     int w_empty_rows;   ///< number of ~ rows in window
     int w_filler_rows;  ///< number of filler rows at the end of the window
 
@@ -1010,15 +1010,15 @@ struct window_s
 
     int w_redr_type;       ///< type of redraw to be performed on win
     int w_upd_rows;        ///< number of window lines to update when w_redr_type is REDRAW_TOP
-    linenr_T w_redraw_top; ///< when != 0: first line needing redraw
-    linenr_T w_redraw_bot; ///< when != 0: last line needing redraw
+    linenum_kt w_redraw_top; ///< when != 0: first line needing redraw
+    linenum_kt w_redraw_bot; ///< when != 0: last line needing redraw
     int w_redr_status;     ///< if TRUE status line must be redrawn
 
     // remember what is shown in the ruler for this window (if 'ruler' set)
     pos_T w_ru_cursor;        ///< cursor position shown in ruler
     colnr_T w_ru_virtcol;     ///< virtcol shown in ruler
-    linenr_T w_ru_topline;    ///< topline shown in ruler
-    linenr_T w_ru_line_count; ///< line count used for ruler
+    linenum_kt w_ru_topline;    ///< topline shown in ruler
+    linenum_kt w_ru_line_count; ///< line count used for ruler
     int w_ru_topfill;         ///< topfill shown in ruler
     char w_ru_empty;          ///< TRUE if ruler shows 0-1 (empty line)
     int w_alt_fnum;           ///< alternate file (for # and CTRL-^)
@@ -1090,7 +1090,7 @@ struct window_s
     int w_prev_fraction_row;
 
     /// line count when ml_nrwidth_width was computed.
-    linenr_T w_nrwidth_line_count;
+    linenum_kt w_nrwidth_line_count;
     int w_nrwidth_width;  ///< nr of chars to print line count.
     qf_info_T *w_llist;   ///< Location list for this window
 

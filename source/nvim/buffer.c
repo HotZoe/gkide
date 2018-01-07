@@ -157,9 +157,9 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
 
         retval = readfile(curbuf->b_ffname,
                           curbuf->b_fname,
-                          (linenr_T)0,
-                          (linenr_T)0,
-                          (linenr_T)MAXLNUM,
+                          (linenum_kt)0,
+                          (linenum_kt)0,
+                          (linenum_kt)MAXLNUM,
                           eap,
                           flags | READ_NEW);
 
@@ -174,7 +174,7 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
     else if(read_stdin)
     {
         int save_bin = curbuf->b_p_bin;
-        linenr_T line_count;
+        linenum_kt line_count;
         // First read the text in binary mode into the buffer.
         // Then read from that same buffer and append at the end.
         // This makes it possible to retry when 'fileformat' or
@@ -183,9 +183,9 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
 
         retval = readfile(NULL,
                           NULL,
-                          (linenr_T)0,
-                          (linenr_T)0,
-                          (linenr_T)MAXLNUM,
+                          (linenum_kt)0,
+                          (linenum_kt)0,
+                          (linenum_kt)MAXLNUM,
                           NULL,
                           flags | (READ_NEW + READ_STDIN));
 
@@ -196,9 +196,9 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
             line_count = curbuf->b_ml.ml_line_count;
             retval = readfile(NULL,
                               NULL,
-                              (linenr_T)line_count,
-                              (linenr_T)0,
-                              (linenr_T)MAXLNUM,
+                              (linenum_kt)line_count,
+                              (linenum_kt)0,
+                              (linenum_kt)MAXLNUM,
                               eap,
                               flags | READ_BUFFER);
 
@@ -207,7 +207,7 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
                 // Delete the binary lines.
                 while(--line_count >= 0)
                 {
-                    ml_delete((linenr_T)1, FALSE);
+                    ml_delete((linenum_kt)1, FALSE);
                 }
             }
             else
@@ -665,11 +665,11 @@ void buf_clear_file(fbuf_st *buf)
 /// Clears the current buffer contents.
 void buf_clear(void)
 {
-    linenr_T line_count = curbuf->b_ml.ml_line_count;
+    linenum_kt line_count = curbuf->b_ml.ml_line_count;
 
     while(!(curbuf->b_ml.ml_flags & ML_EMPTY))
     {
-        ml_delete((linenr_T)1, false);
+        ml_delete((linenum_kt)1, false);
     }
 
     deleted_lines_mark(1, line_count); // prepare for display
@@ -1928,7 +1928,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 /// @return pointer to the buffer
 fbuf_st *buflist_new(uchar_kt *ffname,
                    uchar_kt *sfname,
-                   linenr_T lnum,
+                   linenum_kt lnum,
                    int flags)
 {
     fbuf_st *buf;
@@ -2251,7 +2251,7 @@ void free_buf_options(fbuf_st *buf, int free_p_ff)
 /// - if(options & GETF_SWITCH)  respect 'switchbuf' settings when jumping
 ///
 /// @return return `FAIL` for failure, `OK` for success
-int buflist_getfile(int n, linenr_T lnum, int options, int forceit)
+int buflist_getfile(int n, linenum_kt lnum, int options, int forceit)
 {
     fbuf_st *buf;
     win_st *wp = NULL;
@@ -2813,7 +2813,7 @@ uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
 /// If true save the local window option values.
 void buflist_setfpos(fbuf_st *const buf,
                      win_st *const win,
-                     linenr_T lnum,
+                     linenum_kt lnum,
                      colnr_T col,
                      bool copy_options)
 FUNC_ATTR_NONNULL_ALL
@@ -3001,7 +3001,7 @@ pos_T *buflist_findfpos(fbuf_st *buf)
 }
 
 /// Find the lnum for the buffer 'buf' for the current window.
-linenr_T buflist_findlnum(fbuf_st *buf)
+linenum_kt buflist_findlnum(fbuf_st *buf)
 {
     return buflist_findfpos(buf)->lnum;
 }
@@ -3099,7 +3099,7 @@ void buflist_list(exarg_T *eap)
 /// Used by DoOneCmd() for translating '%' and '#'.
 /// Used by insert_reg() and cmdline_paste() for '#' register.
 /// Return FAIL if not found, OK for success.
-int buflist_name_nr(int fnum, uchar_kt **fname, linenr_T *lnum)
+int buflist_name_nr(int fnum, uchar_kt **fname, linenum_kt *lnum)
 {
     fbuf_st *buf;
     buf = buflist_findnr(fnum);
@@ -3252,7 +3252,7 @@ void buf_name_changed(fbuf_st *buf)
 /// Used by do_one_cmd(), do_write() and do_ecmd().
 ///
 /// @return the buffer.
-fbuf_st *setaltfname(uchar_kt *ffname, uchar_kt *sfname, linenr_T lnum)
+fbuf_st *setaltfname(uchar_kt *ffname, uchar_kt *sfname, linenum_kt lnum)
 {
     fbuf_st *buf;
 
@@ -3272,7 +3272,7 @@ fbuf_st *setaltfname(uchar_kt *ffname, uchar_kt *sfname, linenr_T lnum)
 uchar_kt *getaltfname(int errmsg)
 {
     uchar_kt *fname;
-    linenr_T dummy;
+    linenum_kt dummy;
 
     if(buflist_name_nr(0, &fname, &dummy) == FAIL)
     {
@@ -3294,7 +3294,7 @@ uchar_kt *getaltfname(int errmsg)
 int buflist_add(uchar_kt *fname, int flags)
 {
     fbuf_st *buf;
-    buf = buflist_new(fname, NULL, (linenr_T)0, flags);
+    buf = buflist_new(fname, NULL, (linenum_kt)0, flags);
 
     if(buf != NULL)
     {
@@ -6053,7 +6053,7 @@ void ex_buffer_all(exarg_T *eap)
 /// Returns immediately if the "ml" option isn't set.
 void do_modelines(int flags)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int nmlines;
     static int entered = 0;
 
@@ -6102,7 +6102,7 @@ void do_modelines(int flags)
 /// @param flags  Same as for do_modelines()
 ///
 /// Return FAIL if an error encountered.
-static int chk_modeline(linenr_T lnum, int flags)
+static int chk_modeline(linenum_kt lnum, int flags)
 {
     uchar_kt *s;
     uchar_kt *e;
@@ -6112,7 +6112,7 @@ static int chk_modeline(linenr_T lnum, int flags)
     int end;
     int retval = OK;
     uchar_kt *save_sourcing_name;
-    linenr_T save_sourcing_lnum;
+    linenum_kt save_sourcing_lnum;
     script_id_kt save_SID;
     prev = -1;
 
@@ -6321,7 +6321,7 @@ static void insert_sign(fbuf_st *buf,
                         signlist_T *prev,
                         signlist_T *next,
                         int id,
-                        linenr_T lnum,
+                        linenum_kt lnum,
                         int typenr)
 {
     signlist_T *newsign = xmalloc(sizeof(signlist_T));
@@ -6354,7 +6354,7 @@ static void insert_sign(fbuf_st *buf,
 /// @param id      sign ID
 /// @param lnum    line number which gets the mark
 /// @param typenr  typenr of sign we are adding
-void buf_addsign(fbuf_st *buf, int id, linenr_T lnum, int typenr)
+void buf_addsign(fbuf_st *buf, int id, linenum_kt lnum, int typenr)
 {
     signlist_T *sign = NULL; // a sign in the signlist
     signlist_T *prev = NULL; // the previous sign
@@ -6389,7 +6389,7 @@ void buf_addsign(fbuf_st *buf, int id, linenr_T lnum, int typenr)
 /// @param typenr    typenr of sign we are adding
 ///
 /// Returns the line number of the sign, or zero if the sign is not found.
-linenr_T buf_change_sign_type(fbuf_st *buf, int markId, int typenr)
+linenum_kt buf_change_sign_type(fbuf_st *buf, int markId, int typenr)
 {
     signlist_T *sign; // a sign in the signlist
 
@@ -6402,13 +6402,13 @@ linenr_T buf_change_sign_type(fbuf_st *buf, int markId, int typenr)
         }
     }
 
-    return (linenr_T)0;
+    return (linenum_kt)0;
 }
 
 /// @param buf
 /// @param lnum
 /// @param type one of: SIGN_ICON, SIGN_TEXT, SIGN_ANY, SIGN_LINEHL
-int buf_getsigntype(fbuf_st *buf, linenr_T lnum, int type)
+int buf_getsigntype(fbuf_st *buf, linenum_kt lnum, int type)
 {
     signlist_T *sign; // a sign in a b_signlist
 
@@ -6429,12 +6429,12 @@ int buf_getsigntype(fbuf_st *buf, linenr_T lnum, int type)
 
 /// @param buf  buffer sign is stored in
 /// @param id   sign id
-linenr_T buf_delsign(fbuf_st *buf, int id)
+linenum_kt buf_delsign(fbuf_st *buf, int id)
 {
     signlist_T **lastp; // pointer to pointer to current sign
     signlist_T *sign; // a sign in a b_signlist
     signlist_T *next; // the next sign in a b_signlist
-    linenr_T lnum; // line number whose sign was deleted
+    linenum_kt lnum; // line number whose sign was deleted
     lastp = &buf->b_signlist;
     lnum = 0;
 
@@ -6490,7 +6490,7 @@ int buf_findsign(fbuf_st *buf, int id)
 
 /// @param buf   buffer whose sign we are searching for
 /// @param lnum  line number of sign
-int buf_findsign_id(fbuf_st *buf, linenr_T lnum)
+int buf_findsign_id(fbuf_st *buf, linenum_kt lnum)
 {
     signlist_T *sign; // a sign in the signlist
 
@@ -6590,8 +6590,8 @@ void sign_list_placed(fbuf_st *rbuf)
 }
 
 /// Adjust a placed sign for inserted/deleted lines.
-void sign_mark_adjust(linenr_T line1,
-                      linenr_T line2,
+void sign_mark_adjust(linenum_kt line1,
+                      linenum_kt line2,
                       long amount,
                       long amount_after)
 {
@@ -6655,7 +6655,7 @@ void sign_mark_adjust(linenr_T line1,
 int bufhl_add_hl(fbuf_st *buf,
                  int src_id,
                  int hl_id,
-                 linenr_T lnum,
+                 linenum_kt lnum,
                  colnr_T col_start,
                  colnr_T col_end)
 {
@@ -6675,11 +6675,11 @@ int bufhl_add_hl(fbuf_st *buf,
 
     if(!buf->b_bufhl_info)
     {
-        buf->b_bufhl_info = map_new(linenr_T, bufhl_vec_T)();
+        buf->b_bufhl_info = map_new(linenum_kt, bufhl_vec_T)();
     }
 
     bufhl_vec_T *lineinfo =
-        map_ref(linenr_T, bufhl_vec_T)(buf->b_bufhl_info, lnum, true);
+        map_ref(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info, lnum, true);
 
     bufhl_hl_item_T *hlentry = kv_pushp(*lineinfo);
 
@@ -6712,16 +6712,16 @@ int bufhl_add_hl(fbuf_st *buf,
 /// last line to clear or MAXLNUM to clear to end of file.
 void bufhl_clear_line_range(fbuf_st *buf,
                             int src_id,
-                            linenr_T line_start,
-                            linenr_T line_end)
+                            linenum_kt line_start,
+                            linenum_kt line_end)
 {
     if(!buf->b_bufhl_info)
     {
         return;
     }
 
-    linenr_T line;
-    linenr_T first_changed = MAXLNUM, last_changed = -1;
+    linenum_kt line;
+    linenum_kt first_changed = MAXLNUM, last_changed = -1;
 
     // In the case line_start - line_end << bufhl_info->size
     // it might be better to reverse this, i e loop over the lines
@@ -6767,10 +6767,10 @@ void bufhl_clear_line_range(fbuf_st *buf,
 /// Linenr where the highlight should be cleared
 static bool bufhl_clear_line(bufhl_info_T *bufhl_info,
                              int src_id,
-                             linenr_T lnum)
+                             linenum_kt lnum)
 {
     bufhl_vec_T *lineinfo =
-        map_ref(linenr_T, bufhl_vec_T)(bufhl_info, lnum, false);
+        map_ref(linenum_kt, bufhl_vec_T)(bufhl_info, lnum, false);
 
     size_t oldsize = kv_size(*lineinfo);
 
@@ -6801,7 +6801,7 @@ static bool bufhl_clear_line(bufhl_info_T *bufhl_info,
     if(kv_size(*lineinfo) == 0)
     {
         kv_destroy(*lineinfo);
-        map_del(linenr_T, bufhl_vec_T)(bufhl_info, lnum);
+        map_del(linenum_kt, bufhl_vec_T)(bufhl_info, lnum);
     }
 
     return kv_size(*lineinfo) != oldsize;
@@ -6816,14 +6816,14 @@ void bufhl_clear_all(fbuf_st *buf)
     }
 
     bufhl_clear_line_range(buf, -1, 1, MAXLNUM);
-    map_free(linenr_T, bufhl_vec_T)(buf->b_bufhl_info);
+    map_free(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info);
     buf->b_bufhl_info = NULL;
 }
 
 /// Adjust a placed highlight for inserted/deleted lines.
 void bufhl_mark_adjust(fbuf_st *buf,
-                       linenr_T line1,
-                       linenr_T line2,
+                       linenum_kt line1,
+                       linenum_kt line2,
                        long amount,
                        long amount_after)
 {
@@ -6832,8 +6832,8 @@ void bufhl_mark_adjust(fbuf_st *buf,
         return;
     }
 
-    bufhl_info_T *newmap = map_new(linenr_T, bufhl_vec_T)();
-    linenr_T line;
+    bufhl_info_T *newmap = map_new(linenum_kt, bufhl_vec_T)();
+    linenum_kt line;
     bufhl_vec_T lineinfo;
 
     map_foreach(buf->b_bufhl_info, line, lineinfo, {
@@ -6854,10 +6854,10 @@ void bufhl_mark_adjust(fbuf_st *buf,
             line += amount_after;
         }
 
-        map_put(linenr_T, bufhl_vec_T)(newmap, line, lineinfo);
+        map_put(linenum_kt, bufhl_vec_T)(newmap, line, lineinfo);
     });
 
-    map_free(linenr_T, bufhl_vec_T)(buf->b_bufhl_info);
+    map_free(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info);
     buf->b_bufhl_info = newmap;
 }
 
@@ -6869,7 +6869,7 @@ void bufhl_mark_adjust(fbuf_st *buf,
 /// @param[out]  info The highligts for the line
 ///
 /// @return true if there was highlights to display
-bool bufhl_start_line(fbuf_st *buf, linenr_T lnum, bufhl_lineinfo_T *info)
+bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_T *info)
 {
     if(!buf->b_bufhl_info)
     {
@@ -6877,7 +6877,7 @@ bool bufhl_start_line(fbuf_st *buf, linenr_T lnum, bufhl_lineinfo_T *info)
     }
 
     info->valid_to = -1;
-    info->entries = map_get(linenr_T, bufhl_vec_T)(buf->b_bufhl_info, lnum);
+    info->entries = map_get(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info, lnum);
     return kv_size(info->entries) > 0;
 }
 
@@ -6955,7 +6955,7 @@ bool buf_contents_changed(fbuf_st *buf) FUNC_ATTR_NONNULL_ALL
     bool differ = true;
 
     // Allocate a buffer without putting it in the buffer list.
-    fbuf_st *newbuf = buflist_new(NULL, NULL, (linenr_T)1, BLN_DUMMY);
+    fbuf_st *newbuf = buflist_new(NULL, NULL, (linenum_kt)1, BLN_DUMMY);
 
     if(newbuf == NULL)
     {
@@ -6973,9 +6973,9 @@ bool buf_contents_changed(fbuf_st *buf) FUNC_ATTR_NONNULL_ALL
     if(ml_open(curbuf) == OK
        && readfile(buf->b_ffname,
                    buf->b_fname,
-                   (linenr_T)0,
-                   (linenr_T)0,
-                   (linenr_T)MAXLNUM,
+                   (linenum_kt)0,
+                   (linenum_kt)0,
+                   (linenum_kt)MAXLNUM,
                    &ea,
                    READ_NEW | READ_DUMMY) == OK)
     {
@@ -6984,7 +6984,7 @@ bool buf_contents_changed(fbuf_st *buf) FUNC_ATTR_NONNULL_ALL
         {
             differ = false;
 
-            for(linenr_T lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
+            for(linenum_kt lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
             {
                 if(STRCMP(ml_get_buf(buf, lnum, false), ml_get(lnum)) != 0)
                 {

@@ -326,7 +326,7 @@ EXTERN int lines_left INIT(= -1);
 EXTERN int msg_no_more INIT(= FALSE);
 
 EXTERN uchar_kt *sourcing_name INIT(= NULL); ///< name of error message source
-EXTERN linenr_T sourcing_lnum INIT(= 0);   ///< line number of the source file
+EXTERN linenum_kt sourcing_lnum INIT(= 0);   ///< line number of the source file
 
 EXTERN int ex_nesting_level INIT(= 0);     ///< nesting level
 EXTERN int debug_break_level INIT(= -1);   ///< break below this level
@@ -424,7 +424,7 @@ EXTERN struct caller_scope
     uint8_t *sourcing_name;
     uint8_t *autocmd_fname;
     uint8_t *autocmd_match;
-    linenr_T sourcing_lnum;
+    linenum_kt sourcing_lnum;
     int autocmd_fname_full;
     int autocmd_bufnr;
     void *funccalp;
@@ -441,7 +441,7 @@ EXTERN int t_colors INIT(= 256);
 // character just after the match in the last line.
 
 EXTERN int highlight_match INIT(= FALSE); ///< show search match pos
-EXTERN linenr_T search_match_lines;       ///< lines of of matched string
+EXTERN linenum_kt search_match_lines;       ///< lines of of matched string
 EXTERN colnr_T search_match_endcol;       ///< col nr of match end
 
 /// don't use 'smartcase' once
@@ -1099,7 +1099,7 @@ EXTERN uchar_kt no_lines_msg[] INIT(= N_("--No lines in buffer--"));
 // and changed lines is accumulated until it's finished.
 // Also used for ":spellrepall".
 EXTERN long sub_nsubs;       ///< total number of substitutions
-EXTERN linenr_T sub_nlines;  ///< total number of lines changed
+EXTERN linenum_kt sub_nlines;  ///< total number of lines changed
 
 /// table to store parsed 'wildmode'
 EXTERN uchar_kt wim_flags[4];
@@ -1114,7 +1114,7 @@ EXTERN int stl_syntax INIT(= 0);
 EXTERN int no_hlsearch INIT(= FALSE);
 
 /// Page number used for %N in 'pageheader' and 'guitablabel'.
-EXTERN linenr_T printer_page_num;
+EXTERN linenum_kt printer_page_num;
 
 /// received text from client or from feedkeys()
 EXTERN int typebuf_was_filled INIT(= FALSE);
@@ -1134,7 +1134,7 @@ EXTERN disptick_T display_tick INIT(= 0);
 
 /// Line in which spell checking wasn't highlighted because it touched the
 /// cursor position in Insert mode.
-EXTERN linenr_T spell_redraw_lnum INIT(= 0);
+EXTERN linenum_kt spell_redraw_lnum INIT(= 0);
 
 /// Set when the cursor line needs to be redrawn.
 EXTERN int need_cursor_line_redraw INIT(= FALSE);

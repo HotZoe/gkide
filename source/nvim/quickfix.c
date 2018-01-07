@@ -55,7 +55,7 @@ struct qfline_S
 {
     qfline_T *qf_next;   ///< pointer to next error in the list
     qfline_T *qf_prev;   ///< pointer to previous error in the list
-    linenr_T qf_lnum;    ///< line number where the error occurred
+    linenum_kt qf_lnum;    ///< line number where the error occurred
     int qf_fnum;         ///< file number for the line
     int qf_col;          ///< column where the error occurred
     int qf_nr;           ///< error number
@@ -166,8 +166,8 @@ typedef struct
     uchar_kt *p_str;
     listitem_st *p_li;
     fbuf_st *buf;
-    linenr_T buflnum;
-    linenr_T lnumlast;
+    linenum_kt buflnum;
+    linenum_kt lnumlast;
 } qfstate_T;
 
 typedef struct
@@ -231,8 +231,8 @@ int qf_init(win_st *wp,
                        NULL,
                        errorformat,
                        newlist,
-                       (linenr_T)0,
-                       (linenr_T)0,
+                       (linenum_kt)0,
+                       (linenum_kt)0,
                        qf_title);
 }
 
@@ -1286,8 +1286,8 @@ static int qf_init_ext(qf_info_T *qi,
                        typval_st *tv,
                        uchar_kt *errorformat,
                        int newlist,
-                       linenr_T lnumfirst,
-                       linenr_T lnumlast,
+                       linenum_kt lnumfirst,
+                       linenum_kt lnumlast,
                        uchar_kt *qf_title)
 {
     qffields_T fields = { NULL, NULL, 0, 0L, 0, false, NULL, 0, 0, 0 };
@@ -1906,7 +1906,7 @@ static int qf_get_fnum(qf_info_T *qi, uchar_kt *directory, uchar_kt *fname)
     else
     {
         xfree(qf_last_bufname);
-        buf = buflist_new(bufname, NULL, (linenr_T)0, BLN_NOOPT);
+        buf = buflist_new(bufname, NULL, (linenum_kt)0, BLN_NOOPT);
         qf_last_bufname = (bufname == ptr) ? bufname : vim_strsave(bufname);
         set_bufref(&qf_last_bufref, buf);
     }
@@ -2146,9 +2146,9 @@ void qf_jump(qf_info_T *qi, int dir, int errornr, int forceit)
     int prev_index;
     static uchar_kt *e_no_more_items = (uchar_kt *)N_("E553: No more items");
     uchar_kt *err = e_no_more_items;
-    linenr_T i;
+    linenum_kt i;
     fbuf_st *old_curbuf;
-    linenr_T old_lnum;
+    linenum_kt old_lnum;
     colnr_T screen_col;
     colnr_T char_col;
     uchar_kt *line;
@@ -2575,7 +2575,7 @@ win_found:
                              NULL,
                              NULL,
                              NULL,
-                             (linenr_T)1,
+                             (linenum_kt)1,
                              ECMD_HIDE + ECMD_SET_HELP,
                              oldwin == curwin ? curwin : NULL);
             }
@@ -2586,7 +2586,7 @@ win_found:
             bool is_abort = false;
 
             ok = buflist_getfile(qf_ptr->qf_fnum,
-                                 (linenr_T)1,
+                                 (linenum_kt)1,
                                  GETF_SETMARK | GETF_SWITCH,
                                  forceit);
 
@@ -3157,8 +3157,8 @@ static void qf_free(qf_info_T *qi, int idx)
 
 /// qf_mark_adjust: adjust marks
 void qf_mark_adjust(win_st *wp,
-                    linenr_T line1,
-                    linenr_T line2,
+                    linenum_kt line1,
+                    linenum_kt line2,
                     long amount,
                     long amount_after)
 {
@@ -3495,7 +3495,7 @@ void ex_copen(exarg_T *eap)
 }
 
 // Move the cursor in the quickfix window to "lnum".
-static void qf_win_goto(win_st *win, linenr_T lnum)
+static void qf_win_goto(win_st *win, linenum_kt lnum)
 {
     win_st *old_curwin = curwin;
     curwin = win;
@@ -3538,7 +3538,7 @@ void ex_cbottom(exarg_T *eap)
 
 /// Return the number of the current entry
 /// (line number in the quickfix window).
-linenr_T qf_current_entry(win_st *wp)
+linenum_kt qf_current_entry(win_st *wp)
 {
     qf_info_T *qi = &ql_info;
 
@@ -3667,7 +3667,7 @@ static void qf_update_buffer(qf_info_T *qi, qfline_T *old_last)
 
     if(buf != NULL)
     {
-        linenr_T old_line_count = buf->b_ml.ml_line_count;
+        linenum_kt old_line_count = buf->b_ml.ml_line_count;
 
         if(old_last == NULL)
         {
@@ -3712,7 +3712,7 @@ static void qf_set_title_var(qf_info_T *qi)
 // is used and autocommands will be triggered.
 static void qf_fill_buffer(qf_info_T *qi, fbuf_st *buf, qfline_T *old_last)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     qfline_T *qfp;
     fbuf_st *errbuf;
     int len;
@@ -3729,7 +3729,7 @@ static void qf_fill_buffer(qf_info_T *qi, fbuf_st *buf, qfline_T *old_last)
         // delete all existing lines
         while((curbuf->b_ml.ml_flags & ML_EMPTY) == 0)
         {
-            (void)ml_delete((linenr_T)1, false);
+            (void)ml_delete((linenum_kt)1, false);
         }
     }
 
@@ -5062,7 +5062,7 @@ static fbuf_st *load_dummy_buffer(uchar_kt *fname,
     aco_save_T aco;
 
     // Allocate a buffer without putting it in the buffer list.
-    newbuf = buflist_new(NULL, NULL, (linenr_T)1, BLN_DUMMY);
+    newbuf = buflist_new(NULL, NULL, (linenum_kt)1, BLN_DUMMY);
 
     if(newbuf == NULL)
     {
@@ -5091,8 +5091,8 @@ static fbuf_st *load_dummy_buffer(uchar_kt *fname,
         curbuf->b_flags &= ~BF_DUMMY;
         newbuf_to_wipe.br_buf = NULL;
 
-        if(readfile(fname, NULL, (linenr_T)0, (linenr_T)0,
-                    (linenr_T)MAXLNUM, NULL, READ_NEW | READ_DUMMY) == OK
+        if(readfile(fname, NULL, (linenum_kt)0, (linenum_kt)0,
+                    (linenum_kt)MAXLNUM, NULL, READ_NEW | READ_DUMMY) == OK
            && !got_int
            && !(curbuf->b_flags & BF_NEW))
         {
@@ -5770,7 +5770,7 @@ void ex_cexpr(exarg_T *eap)
             if(qf_init_ext(qi, NULL, NULL, &tv, p_efm,
                            (eap->cmdidx != CMD_caddexpr
                             && eap->cmdidx != CMD_laddexpr),
-                           (linenr_T)0, (linenr_T)0, *eap->cmdlinep) > 0)
+                           (linenum_kt)0, (linenum_kt)0, *eap->cmdlinep) > 0)
             {
                 if(au_name != NULL)
                 {

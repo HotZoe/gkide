@@ -722,7 +722,7 @@ static uchar_kt *after_label(uchar_kt *l)
 /// @param lnum
 ///
 /// @return  Return 0 if there is nothing after the label.
-static int get_indent_nolabel(linenr_T lnum)
+static int get_indent_nolabel(linenum_kt lnum)
 {
     uchar_kt *l;
     pos_T fp;
@@ -748,7 +748,7 @@ static int get_indent_nolabel(linenr_T lnum)
 /// Also return a pointer to the text (after the label) in "pp".
 ///   label: if (asdf && asdfasdf)
 ///      ^
-static int skip_label(linenr_T lnum, uchar_kt **pp)
+static int skip_label(linenum_kt lnum, uchar_kt **pp)
 {
     uchar_kt *l;
     int amount;
@@ -843,7 +843,7 @@ static int cin_first_id_amount(void)
 ///   char *foo = "here";
 /// - Return zero if no (useful) equal sign found.
 /// - Return -1 if the line above "lnum" ends in a backslash.
-static int cin_get_equal_amount(linenr_T lnum)
+static int cin_get_equal_amount(linenum_kt lnum)
 {
     uchar_kt *line;
     uchar_kt *s;
@@ -913,10 +913,10 @@ static int cin_ispreproc(uchar_kt *s)
 /// Return TRUE if line "*pp" at "*lnump" is a preprocessor statement or a
 /// continuation line of a preprocessor statement. Decrease "*lnump" to the
 /// start and return the line in "*pp".
-static int cin_ispreproc_cont(uchar_kt **pp, linenr_T *lnump)
+static int cin_ispreproc_cont(uchar_kt **pp, linenum_kt *lnump)
 {
     uchar_kt *line = *pp;
-    linenr_T lnum = *lnump;
+    linenum_kt lnum = *lnump;
     int retval = FALSE;
 
     for(;;)
@@ -1039,10 +1039,10 @@ static uchar_kt cin_isterminated(uchar_kt *s, int incl_open, int incl_comma)
 /// "lnum" is where we start looking.
 ///
 /// "min_lnum" is the line before which we will not be looking.
-static int cin_isfuncdecl(uchar_kt **sp, linenr_T first_lnum, linenr_T min_lnum)
+static int cin_isfuncdecl(uchar_kt **sp, linenum_kt first_lnum, linenum_kt min_lnum)
 {
     uchar_kt *s;
-    linenr_T lnum = first_lnum;
+    linenum_kt lnum = first_lnum;
     int retval = FALSE;
     pos_T       *trypos;
     int just_started = TRUE;
@@ -1212,7 +1212,7 @@ static int cin_isdo(uchar_kt *p)
 ///
 /// @param p
 /// @param lnum
-static int cin_iswhileofdo(uchar_kt *p, linenr_T lnum)
+static int cin_iswhileofdo(uchar_kt *p, linenum_kt lnum)
 {
     pos_T cursor_save;
     pos_T *trypos;
@@ -1399,7 +1399,7 @@ static int cin_is_cpp_baseclass(cpp_baseclass_cache_T *cached)
     lpos_T *pos = &cached->lpos;  // find position
     uchar_kt *s;
     int class_or_struct, lookfor_ctor_init, cpp_base_class;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     uchar_kt *line = get_cursor_line_ptr();
 
     if(pos->lnum <= lnum)
@@ -2251,7 +2251,7 @@ int get_c_indent(void)
 #define BRACE_AT_START     2  ///< '{' is at start of line
 #define BRACE_AT_END       3  ///< '{' is at end of line
 
-    linenr_T ourscope;
+    linenum_kt ourscope;
     uchar_kt *l;
     uchar_kt *look;
     uchar_kt terminated;
@@ -2272,7 +2272,7 @@ int get_c_indent(void)
 #define LOOKFOR_COMMA           12
 
     int whilelevel;
-    linenr_T lnum;
+    linenum_kt lnum;
     int n;
     int iscase;
     int lookfor_break;
@@ -2683,7 +2683,7 @@ int get_c_indent(void)
 
                 if(*look == '(')
                 {
-                    linenr_T save_lnum = curwin->w_cursor.lnum;
+                    linenum_kt save_lnum = curwin->w_cursor.lnum;
                     uchar_kt *line;
                     int look_col;
 
@@ -4405,7 +4405,7 @@ laterend:
     return amount;
 }
 
-static int find_match(int lookfor, linenr_T ourscope)
+static int find_match(int lookfor, linenum_kt ourscope)
 {
     uchar_kt *look;
     pos_T *theirscope;

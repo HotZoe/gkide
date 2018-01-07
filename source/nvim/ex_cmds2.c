@@ -75,7 +75,7 @@ typedef struct scriptitem_S
     proftime_kt sn_prl_start;      ///< start time for current line
     proftime_kt sn_prl_children;   ///< time spent in children for this line
     proftime_kt sn_prl_wait;       ///< wait start time for current line
-    linenr_T sn_prl_idx;          ///< index of line being timed; -1 if none
+    linenum_kt sn_prl_idx;          ///< index of line being timed; -1 if none
     int sn_prl_execed;            ///< line being timed was executed
 } scriptitem_T;
 
@@ -105,7 +105,7 @@ struct source_cookie
     bool error;                   ///< true if LF found after CR-LF
 #endif
 
-    linenr_T breakpoint;          ///< next line with breakpoint or zero
+    linenum_kt breakpoint;          ///< next line with breakpoint or zero
     uchar_kt *fname;                ///< name of sourced file
     int dbg_tick;                 ///< debug_tick when breakpoint was set
     int level;                    ///< top nesting level of sourced file
@@ -531,7 +531,7 @@ void ex_debug(exarg_T *eap)
 }
 
 static uchar_kt *debug_breakpoint_name = NULL;
-static linenr_T debug_breakpoint_lnum;
+static linenum_kt debug_breakpoint_lnum;
 
 /// When debugging or a breakpoint is set on a skipped command, no debug prompt
 /// is shown by do_one_cmd(). This situation is indicated by debug_skipped, and
@@ -629,7 +629,7 @@ struct debuggy
     int dbg_type;           ///< DBG_FUNC or DBG_FILE
     uchar_kt *dbg_name;       ///< function or file name
     regprog_T *dbg_prog;    ///< regexp program
-    linenr_T dbg_lnum;      ///< line number in function or file
+    linenum_kt dbg_lnum;      ///< line number in function or file
     int dbg_forceit;        ///< ! used
 };
 
@@ -830,7 +830,7 @@ void ex_breakdel(exarg_T *eap)
     struct debuggy *bp;
     struct debuggy *bpi;
     bool del_all = false;
-    linenr_T best_lnum = 0;
+    linenum_kt best_lnum = 0;
     garray_st *gap = &dbg_breakp;
 
     if(eap->cmdidx == CMD_profdel)
@@ -961,7 +961,7 @@ void ex_breaklist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 /// @param after  after this line number
 ///
 /// @return line number at which to break; zero when no matching breakpoint.
-linenr_T dbg_find_breakpoint(bool file, uchar_kt *fname, linenr_T after)
+linenum_kt dbg_find_breakpoint(bool file, uchar_kt *fname, linenum_kt after)
 {
     return debuggy_find(file, fname, after, &dbg_breakp, NULL);
 }
@@ -973,7 +973,7 @@ linenr_T dbg_find_breakpoint(bool file, uchar_kt *fname, linenr_T after)
 /// @returns true if profiling is on for a function or sourced file.
 bool has_profiling(bool file, uchar_kt *fname, bool *fp)
 {
-    return debuggy_find(file, fname, (linenr_T)0, &prof_ga, fp) != (linenr_T)0;
+    return debuggy_find(file, fname, (linenum_kt)0, &prof_ga, fp) != (linenum_kt)0;
 }
 
 /// Common code for dbg_find_breakpoint() and has_profiling().
@@ -985,21 +985,21 @@ bool has_profiling(bool file, uchar_kt *fname, bool *fp)
 /// @param fp      if not NULL: return forceit
 ///
 /// @return
-static linenr_T debuggy_find(bool file,
+static linenum_kt debuggy_find(bool file,
                              uchar_kt *fname,
-                             linenr_T after,
+                             linenum_kt after,
                              garray_st *gap,
                              bool *fp)
 {
     struct debuggy *bp;
-    linenr_T lnum = 0;
+    linenum_kt lnum = 0;
     uchar_kt *name = fname;
     int prev_got_int;
 
     // Return quickly when there are no breakpoints.
     if(GA_EMPTY(gap))
     {
-        return (linenr_T)0;
+        return (linenum_kt)0;
     }
 
     // Replace K_SNR in function name with "<SNR>".
@@ -1049,7 +1049,7 @@ static linenr_T debuggy_find(bool file,
 }
 
 /// Called when a breakpoint was encountered.
-void dbg_breakpoint(uchar_kt *name, linenr_T lnum)
+void dbg_breakpoint(uchar_kt *name, linenum_kt lnum)
 {
     // We need to check if this line is actually executed in do_one_cmd()
     debug_breakpoint_name = name;
@@ -1874,7 +1874,7 @@ int buf_write_all(fbuf_st *buf, int forceit)
     fbuf_st *old_curbuf = curbuf;
 
     retval = (buf_write(buf, buf->b_ffname, buf->b_fname,
-                        (linenr_T)1, buf->b_ml.ml_line_count, NULL,
+                        (linenum_kt)1, buf->b_ml.ml_line_count, NULL,
                         false, forceit, true, false));
 
     if(curbuf != old_curbuf)
@@ -2456,7 +2456,7 @@ void ex_argdelete(exarg_T *eap)
             eap->line2 = ARGCOUNT;
         }
 
-        linenr_T n = eap->line2 - eap->line1 + 1;
+        linenum_kt n = eap->line2 - eap->line1 + 1;
 
         if(*eap->arg != NUL || n <= 0)
         {
@@ -2464,7 +2464,7 @@ void ex_argdelete(exarg_T *eap)
         }
         else
         {
-            for(linenr_T i = eap->line1; i <= eap->line2; i++)
+            for(linenum_kt i = eap->line1; i <= eap->line2; i++)
             {
                 xfree(ARGLIST[i - 1].ae_fname);
             }
@@ -2604,7 +2604,7 @@ void ex_listdo(exarg_T *eap)
                 {
                     // Default to all quickfix/location list entries.
                     assert(qf_size < MAXLNUM);
-                    eap->line2 = (linenr_T)qf_size;
+                    eap->line2 = (linenum_kt)qf_size;
                 }
             }
         }
@@ -3432,7 +3432,7 @@ static void cmd_source(uchar_kt *fname, exarg_T *eap)
 /// ":source" and associated commands.
 ///
 /// @return address holding the next breakpoint line for a source cookie
-linenr_T *source_breakpoint(void *cookie)
+linenum_kt *source_breakpoint(void *cookie)
 {
     return &((struct source_cookie *)cookie)->breakpoint;
 }
@@ -3481,7 +3481,7 @@ static FILE *fopen_noinh_readbin(char *filename)
 int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 {
     uchar_kt *save_sourcing_name;
-    linenr_T save_sourcing_lnum;
+    linenum_kt save_sourcing_lnum;
     script_id_kt save_current_SID;
     static script_id_kt last_current_SID = 0;
     void *save_funccalp;
@@ -3610,7 +3610,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
     cookie.finished = false;
 
     // Check if this script has a breakpoint.
-    cookie.breakpoint = dbg_find_breakpoint(true, fname_exp, (linenr_T)0);
+    cookie.breakpoint = dbg_find_breakpoint(true, fname_exp, (linenum_kt)0);
     cookie.fname = fname_exp;
     cookie.dbg_tick = debug_tick;
     cookie.level = ex_nesting_level;

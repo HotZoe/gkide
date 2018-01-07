@@ -403,8 +403,8 @@ typedef struct
     {
         struct multipos
         {
-            linenr_T start_lnum;
-            linenr_T end_lnum;
+            linenum_kt start_lnum;
+            linenum_kt end_lnum;
             colnr_T start_col;
             colnr_T end_col;
         } multi[NSUBEXP];
@@ -4504,7 +4504,7 @@ static int read_limits(long *minval, long *maxval)
 // Global work variables for vim_regexec().
 
 // The current match-position is remembered with these variables:
-static linenr_T reglnum;   ///< line number, relative to first line
+static linenum_kt reglnum;   ///< line number, relative to first line
 static uchar_kt *regline;  ///< start of current line
 static uchar_kt *reginput; ///< current input, points into "regline"
 
@@ -4579,8 +4579,8 @@ static lpos_T *reg_startpos = NULL;
 static lpos_T *reg_endpos = NULL;
 static win_st *reg_win;
 static fbuf_st *reg_buf;
-static linenr_T reg_firstlnum;
-static linenr_T reg_maxline;
+static linenum_kt reg_firstlnum;
+static linenum_kt reg_maxline;
 static int reg_line_lbr; ///< "\n" in string is line break
 
 // "regstack" and "backpos" are used by regmatch().
@@ -4615,7 +4615,7 @@ void free_regexp_stuff(void)
 #endif
 
 /// Get pointer to the line "lnum", which is relative to "reg_firstlnum".
-static uchar_kt *reg_getline(linenr_T lnum)
+static uchar_kt *reg_getline(linenum_kt lnum)
 {
     // when looking behind for a match/no-match
     // lnum is negative. But we can't go before line 1
@@ -4693,7 +4693,7 @@ static int bt_regexec_nl(regmatch_T *rmp,
 static long bt_regexec_multi(regmmatch_T *rmp,
                              win_st *win,
                              fbuf_st *buf,
-                             linenr_T lnum,
+                             linenum_kt lnum,
                              colnr_T col,
                              proftime_kt *tm)
 {
@@ -4749,7 +4749,7 @@ static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_kt *tm)
     if(REG_MULTI)
     {
         prog = (bt_regprog_T *)reg_mmatch->regprog;
-        line = reg_getline((linenr_T)0);
+        line = reg_getline((linenum_kt)0);
         reg_startpos = reg_mmatch->startpos;
         reg_endpos = reg_mmatch->endpos;
     }
@@ -4916,7 +4916,7 @@ static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_kt *tm)
             if(reglnum != 0)
             {
                 reglnum = 0;
-                regline = reg_getline((linenr_T)0);
+                regline = reg_getline((linenum_kt)0);
             }
 
             if(regline[col] == NUL)
@@ -5121,7 +5121,7 @@ static int reg_match_visual(void)
 {
     pos_T top;
     pos_T bot;
-    linenr_T lnum;
+    linenum_kt lnum;
     colnr_T col;
     win_st *wp = reg_win == NULL ? curwin : reg_win;
     int mode;
@@ -8029,15 +8029,15 @@ static int re_num_cmp(uint32_t val, uchar_kt *scan)
 /// @note
 /// If @b bytelen is not NULL, it is set to the
 /// byte length of the match in the last line.
-static int match_with_backref(linenr_T start_lnum,
+static int match_with_backref(linenum_kt start_lnum,
                               colnr_T start_col,
-                              linenr_T end_lnum,
+                              linenum_kt end_lnum,
                               colnr_T end_col,
                               int *bytelen)
 {
     int len;
     uchar_kt *p;
-    linenr_T clnum = start_lnum;
+    linenum_kt clnum = start_lnum;
     colnr_T ccol = start_col;
 
     if(bytelen != NULL)
@@ -9043,8 +9043,8 @@ static int can_f_submatch = FALSE;
 // a call to substitute() and submatch().
 static regmatch_T *submatch_match;
 static regmmatch_T *submatch_mmatch;
-static linenr_T submatch_firstlnum;
-static linenr_T submatch_maxline;
+static linenum_kt submatch_firstlnum;
+static linenum_kt submatch_maxline;
 static int submatch_line_lbr;
 
 /// Put the submatches in "argv[0]" which is a
@@ -9134,7 +9134,7 @@ int vim_regsub(regmatch_T *rmp,
 }
 
 int vim_regsub_multi(regmmatch_T *rmp,
-                     linenr_T lnum,
+                     linenum_kt lnum,
                      uchar_kt *source,
                      uchar_kt *dest,
                      int copy,
@@ -9166,7 +9166,7 @@ static int vim_regsub_both(uchar_kt *source,
     uchar_kt *s;
     fptr_T func_all = (fptr_T)NULL;
     fptr_T func_one = (fptr_T)NULL;
-    linenr_T clnum = 0; // init for GCC
+    linenum_kt clnum = 0; // init for GCC
     int len = 0; // init for GCC
     static uchar_kt *eval_result = NULL;
 
@@ -9705,11 +9705,11 @@ exit:
 /// Call reg_getline() with the line numbers from the submatch.
 /// If a substitute() was used the reg_maxline and other values
 /// have been overwritten.
-static uchar_kt *reg_getline_submatch(linenr_T lnum)
+static uchar_kt *reg_getline_submatch(linenum_kt lnum)
 {
     uchar_kt *s;
-    linenr_T save_first = reg_firstlnum;
-    linenr_T save_max = reg_maxline;
+    linenum_kt save_first = reg_firstlnum;
+    linenum_kt save_max = reg_maxline;
 
     reg_firstlnum = submatch_firstlnum;
     reg_maxline = submatch_maxline;
@@ -9728,7 +9728,7 @@ static uchar_kt *reg_getline_submatch(linenr_T lnum)
 uchar_kt *reg_submatch(int no)
 {
     int round;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *s;
     uchar_kt *retval = NULL;
 
@@ -9864,8 +9864,8 @@ list_st *reg_submatch_list(int no)
         return NULL;
     }
 
-    linenr_T slnum;
-    linenr_T elnum;
+    linenum_kt slnum;
+    linenum_kt elnum;
     list_st *list;
     const char *s;
 
@@ -14996,8 +14996,8 @@ static int sub_equal(regsub_T *sub1, regsub_T *sub2)
 {
     int i;
     int todo;
-    linenr_T s1;
-    linenr_T s2;
+    linenum_kt s1;
+    linenum_kt s2;
     uchar_kt *sp1;
     uchar_kt *sp2;
 
@@ -18550,7 +18550,7 @@ static long nfa_regexec_both(uchar_kt *line,
     if(REG_MULTI)
     {
         prog = (nfa_regprog_T *)reg_mmatch->regprog;
-        line = reg_getline((linenr_T)0); // relative to the cursor
+        line = reg_getline((linenum_kt)0); // relative to the cursor
         reg_startpos = reg_mmatch->startpos;
         reg_endpos = reg_mmatch->endpos;
     }
@@ -18848,7 +18848,7 @@ static int nfa_regexec_nl(regmatch_T *rmp,
 static long nfa_regexec_multi(regmmatch_T *rmp,
                               win_st *win,
                               fbuf_st *buf,
-                              linenr_T lnum,
+                              linenum_kt lnum,
                               colnr_T col,
                               proftime_kt *tm)
 {
@@ -19108,7 +19108,7 @@ int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, colnr_T col)
 long vim_regexec_multi(regmmatch_T *rmp,
                        win_st *win,
                        fbuf_st *buf,
-                       linenr_T lnum,
+                       linenum_kt lnum,
                        colnr_T col,
                        proftime_kt *tm)
 {

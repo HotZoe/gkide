@@ -3,7 +3,7 @@
 #ifndef NVIM_EX_EVAL_H
 #define NVIM_EX_EVAL_H
 
-#include "nvim/pos.h" // for linenr_T
+#include "nvim/pos.h" // for linenum_kt
 #include "nvim/ex_cmds_defs.h" // for exarg_T
 
 /// A list used for saving values of "emsg_silent".
@@ -95,7 +95,7 @@ struct vim_exception
     uchar_kt *value;             ///< exception value
     struct msglist *messages;  ///< message(s) causing error exception
     uchar_kt *throw_name;        ///< name of the throw point
-    linenr_T throw_lnum;       ///< line number of the throw point
+    linenum_kt throw_lnum;       ///< line number of the throw point
     except_T *caught;          ///< next exception on the caught stack
 };
 

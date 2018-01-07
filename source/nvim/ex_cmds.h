@@ -21,9 +21,9 @@
 
 
 // for lnum argument in do_ecmd()
-#define ECMD_LASTL      (linenr_T)0     ///< use last position in loaded file
-#define ECMD_LAST       (linenr_T)-1    ///< use last position in all files
-#define ECMD_ONE        (linenr_T)1     ///< use first line
+#define ECMD_LASTL      (linenum_kt)0     ///< use last position in loaded file
+#define ECMD_LAST       (linenum_kt)-1    ///< use last position in all files
+#define ECMD_ONE        (linenum_kt)1     ///< use first line
 
 /// Previous :substitute replacement string definition
 typedef struct

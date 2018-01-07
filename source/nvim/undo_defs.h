@@ -25,9 +25,9 @@ typedef struct u_header u_header_T;
 struct u_entry
 {
     u_entry_T *ue_next;  ///< pointer to next entry in list
-    linenr_T ue_top;     ///< number of line above undo block
-    linenr_T ue_bot;     ///< number of line below undo block
-    linenr_T ue_lcount;  ///< linecount when u_save called
+    linenum_kt ue_top;     ///< number of line above undo block
+    linenum_kt ue_bot;     ///< number of line below undo block
+    linenum_kt ue_lcount;  ///< linecount when u_save called
     uchar_kt **ue_array; ///< array of lines in undo block
     long ue_size;        ///< number of lines in ue_array
 

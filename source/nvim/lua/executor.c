@@ -183,7 +183,7 @@ static int nlua_exec_luado_string(lua_State *const lstate)
 FUNC_ATTR_NONNULL_ALL
 {
     const String *const str = (const String *)lua_touserdata(lstate, 1);
-    const linenr_T *const range = (const linenr_T *)lua_touserdata(lstate, 2);
+    const linenum_kt *const range = (const linenum_kt *)lua_touserdata(lstate, 2);
 
     lua_pop(lstate, 2);
 
@@ -234,7 +234,7 @@ FUNC_ATTR_NONNULL_ALL
         return 0;
     }
 
-    for(linenr_T l = range[0]; l <= range[1]; l++)
+    for(linenum_kt l = range[0]; l <= range[1]; l++)
     {
         if(l > curbuf->b_ml.ml_line_count)
         {
@@ -786,7 +786,7 @@ FUNC_ATTR_NONNULL_ALL
 
     const String cmd = { .size = STRLEN(eap->arg), .data = (char *)eap->arg, };
 
-    const linenr_T range[] = { eap->line1, eap->line2 };
+    const linenum_kt range[] = { eap->line1, eap->line2 };
 
     NLUA_CALL_C_FUNCTION_2(global_lstate,
                            nlua_exec_luado_string,

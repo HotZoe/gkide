@@ -637,7 +637,7 @@ slang_T *spell_load_file(uchar_kt *fname,
     int n;
     int len;
     uchar_kt *save_sourcing_name = sourcing_name;
-    linenr_T save_sourcing_lnum = sourcing_lnum;
+    linenum_kt save_sourcing_lnum = sourcing_lnum;
     slang_T *lp = NULL;
     int c = 0;
     int res;
@@ -1150,7 +1150,7 @@ someerror:
                 }
 
                 if(ml_append_buf(slang->sl_sugbuf,
-                                 (linenr_T)wordnr,
+                                 (linenum_kt)wordnr,
                                  ga.ga_data,
                                  ga.ga_len,
                                  TRUE) == FAIL)
@@ -6586,7 +6586,7 @@ static int sug_filltable(spellinfo_T *spin,
             ((uchar_kt *)gap->ga_data)[gap->ga_len++] = NUL;
 
             if(ml_append_buf(spin->si_spellbuf,
-                             (linenr_T)wordnr,
+                             (linenum_kt)wordnr,
                              gap->ga_data,
                              gap->ga_len,
                              TRUE) == FAIL)
@@ -6708,11 +6708,11 @@ static void sug_write(spellinfo_T *spin, uchar_kt *fname)
     spin->si_memtot += (int)(nodecount + nodecount * sizeof(int));
     (void)put_node(fd, tree, 0, 0, false); // Write the nodes.
     // <SUGTABLE>: <sugwcount> <sugline> ...
-    linenr_T wcount = spin->si_spellbuf->b_ml.ml_line_count;
+    linenum_kt wcount = spin->si_spellbuf->b_ml.ml_line_count;
     assert(wcount >= 0);
     put_bytes(fd, (uintmax_t)wcount, 4); // <sugwcount>
 
-    for(linenr_T lnum = 1; lnum <= wcount; ++lnum)
+    for(linenum_kt lnum = 1; lnum <= wcount; ++lnum)
     {
         // <sugline>: <sugnr> ... NUL
         uchar_kt *line = ml_get_buf(spin->si_spellbuf, lnum, FALSE);

@@ -103,7 +103,7 @@ static garray_st ucmds = {0, 0, sizeof(ucmd_T), 4, NULL};
 typedef struct
 {
     uchar_kt *line;   ///< command line
-    linenr_T lnum;  ///< sourcing_lnum of the line
+    linenum_kt lnum;  ///< sourcing_lnum of the line
 } wcmd_T;
 
 #define FREE_WCMD(wcmd) xfree((wcmd)->line)
@@ -206,7 +206,7 @@ void do_exmode(int improved)
 {
     int save_msg_scroll;
     int prev_msg_row;
-    linenr_T prev_line;
+    linenum_kt prev_line;
     int changedtick;
 
     if(improved)
@@ -351,7 +351,7 @@ int do_cmdline(uchar_kt *cmdline,
     garray_st lines_ga; // keep lines for ":while"/":for"
     int current_line = 0; // active line in lines_ga
     uchar_kt *fname = NULL; // function or script name
-    linenr_T *breakpoint = NULL; // ptr to breakpoint field in cookie
+    linenum_kt *breakpoint = NULL; // ptr to breakpoint field in cookie
     int *dbg_tick = NULL; // ptr to dbg_tick field in cookie
     struct dbg_stuff debug_saved; // saved things for debug mode
     int initial_trylevel;
@@ -1403,7 +1403,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
 {
     long n;
     uchar_kt *p;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *errormsg = NULL; // error message
     exarg_T ea; // Ex command arguments
     long verbose_save = -1;
@@ -4534,7 +4534,7 @@ uchar_kt *skip_range(const uchar_kt *cmd, int *ctx)
 ///
 /// @return
 /// MAXLNUM when no Ex address was found.
-static linenr_T get_address(exarg_T *eap,
+static linenum_kt get_address(exarg_T *eap,
                             uchar_kt **ptr,
                             int addr_type,
                             int skip,
@@ -4547,7 +4547,7 @@ static linenr_T get_address(exarg_T *eap,
     uchar_kt  *cmd;
     pos_T pos;
     pos_T *fp;
-    linenr_T lnum;
+    linenum_kt lnum;
     fbuf_st *buf;
     cmd = skipwhite(*ptr);
     lnum = MAXLNUM;
@@ -4800,7 +4800,7 @@ static linenr_T get_address(exarg_T *eap,
                                 *cmd == '?' ? BACKWARD : FORWARD,
                                 (uchar_kt *)"", 1L, SEARCH_MSG,
                                 i,
-                                (linenr_T)0,
+                                (linenum_kt)0,
                                 NULL) != FAIL)
                     {
                         lnum = pos.lnum;
@@ -9098,7 +9098,7 @@ static void ex_syncbind(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
     long topline;
     win_st *save_curwin = curwin;
     fbuf_st *save_curbuf = curbuf;
-    linenr_T old_linenr = curwin->w_cursor.lnum;
+    linenum_kt old_linenr = curwin->w_cursor.lnum;
     setpcmark();
 
     // determine max topline
@@ -9176,7 +9176,7 @@ static void ex_read(exarg_T *eap)
 {
     int i;
     int empty = (curbuf->b_ml.ml_flags & ML_EMPTY);
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(eap->usefilter)
     {
@@ -9185,7 +9185,7 @@ static void ex_read(exarg_T *eap)
     }
     else
     {
-        if(u_save(eap->line2, (linenr_T)(eap->line2 + 1)) == FAIL)
+        if(u_save(eap->line2, (linenum_kt)(eap->line2 + 1)) == FAIL)
         {
             return;
         }
@@ -9200,8 +9200,8 @@ static void ex_read(exarg_T *eap)
             i = readfile(curbuf->b_ffname,
                          curbuf->b_fname,
                          eap->line2,
-                         (linenr_T)0,
-                         (linenr_T)MAXLNUM,
+                         (linenum_kt)0,
+                         (linenum_kt)MAXLNUM,
                          eap,
                          0);
         }
@@ -9209,14 +9209,14 @@ static void ex_read(exarg_T *eap)
         {
             if(vim_strchr(p_cpo, CPO_ALTREAD) != NULL)
             {
-                (void)setaltfname(eap->arg, eap->arg, (linenr_T)1);
+                (void)setaltfname(eap->arg, eap->arg, (linenum_kt)1);
             }
 
             i = readfile(eap->arg,
                          NULL,
                          eap->line2,
-                         (linenr_T)0,
-                         (linenr_T)MAXLNUM,
+                         (linenum_kt)0,
+                         (linenum_kt)MAXLNUM,
                          eap,
                          0);
         }
@@ -10625,8 +10625,8 @@ static void ex_checkpath(exarg_T *eap)
                          CHECK_PATH,
                          1L,
                          eap->forceit ? ACTION_SHOW_ALL : ACTION_SHOW,
-                         (linenr_T)1,
-                         (linenr_T)MAXLNUM);
+                         (linenum_kt)1,
+                         (linenum_kt)MAXLNUM);
 }
 
 /// ":psearch"
@@ -10902,7 +10902,7 @@ FUNC_ATTR_NONNULL_ALL
 uchar_kt *eval_vars(uchar_kt *src,
                   uchar_kt *srcstart,
                   size_t *usedlen,
-                  linenr_T *lnump,
+                  linenum_kt *lnump,
                   uchar_kt **errormsg,
                   int *escaped)
 {
@@ -12713,7 +12713,7 @@ static void ex_foldopen(exarg_T *eap)
 static void ex_folddo(exarg_T *eap)
 {
     // First set the marks for all lines closed/open.
-    for(linenr_T lnum = eap->line1; lnum <= eap->line2; ++lnum)
+    for(linenum_kt lnum = eap->line1; lnum <= eap->line2; ++lnum)
     {
         if(hasFolding(lnum, NULL, NULL) == (eap->cmdidx == CMD_folddoclosed))
         {

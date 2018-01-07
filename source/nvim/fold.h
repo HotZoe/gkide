@@ -15,7 +15,7 @@
 typedef struct foldinfo_s
 {
     /// line number where fold starts
-    linenr_T fi_lnum;
+    linenum_kt fi_lnum;
     /// level of the fold; when this is zero the other fields are invalid
     int fi_level;
     /// lowest fold level that starts in the same line

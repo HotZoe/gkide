@@ -11,8 +11,8 @@
 typedef struct info_pointer
 {
     blocknr_T ip_bnum;  ///< block number
-    linenr_T ip_low;    ///< lowest lnum in this block
-    linenr_T ip_high;   ///< highest lnum in this block
+    linenum_kt ip_low;    ///< lowest lnum in this block
+    linenum_kt ip_high;   ///< highest lnum in this block
     int ip_index;       ///< index for block with current lnum block/index pair
 } infoptr_T;
 
@@ -30,7 +30,7 @@ typedef struct ml_chunksize
 /// the memline structure holds all the information about a memline
 typedef struct memline
 {
-    linenr_T ml_line_count;     ///< number of lines in the buffer
+    linenum_kt ml_line_count;     ///< number of lines in the buffer
 
     memfile_T *ml_mfp;          ///< pointer to associated memfile
 
@@ -44,12 +44,12 @@ typedef struct memline
     int ml_stack_top;           ///< current top of ml_stack
     int ml_stack_size;          ///< total number of entries in ml_stack
 
-    linenr_T ml_line_lnum;      ///< line number of cached line, 0 if not valid
+    linenum_kt ml_line_lnum;      ///< line number of cached line, 0 if not valid
     uchar_kt *ml_line_ptr;        ///< pointer to cached line
 
     bhdr_T *ml_locked;          ///< block used by last ml_get
-    linenr_T ml_locked_low;     ///< first line in ml_locked
-    linenr_T ml_locked_high;    ///< last line in ml_locked
+    linenum_kt ml_locked_low;     ///< first line in ml_locked
+    linenum_kt ml_locked_high;    ///< last line in ml_locked
     int ml_locked_lineadd;      ///< number of lines inserted in ml_locked
     chunksize_T *ml_chunksize;
 

@@ -179,7 +179,7 @@ typedef struct
     int lead_spaces;       ///< remaining spaces for a TAB
     int print_pos;         ///< virtual column for computing TABs
     colnr_T column;        ///< byte column
-    linenr_T file_line;    ///< line nr in the buffer
+    linenum_kt file_line;    ///< line nr in the buffer
     size_t bytes_printed;  ///< bytes printed so far
     int ff;                ///< seen form feed character
 } prt_pos_T;
@@ -484,7 +484,7 @@ static void prt_set_font(int bold, int italic, int underline)
 /// Print the line number in the left margin.
 static void prt_line_number(prt_settings_T *psettings,
                             int page_line,
-                            linenr_T lnum)
+                            linenum_kt lnum)
 {
     int i;
     uchar_kt tbuf[20];
@@ -562,7 +562,7 @@ int prt_get_unit(int idx)
 }
 
 /// Print the page header.
-static void prt_header(prt_settings_T *psettings, int pagenum, linenr_T lnum)
+static void prt_header(prt_settings_T *psettings, int pagenum, linenum_kt lnum)
 {
     int width = psettings->chars_per_line;
     int page_line;
@@ -580,7 +580,7 @@ static void prt_header(prt_settings_T *psettings, int pagenum, linenr_T lnum)
 
     if(*p_header != NUL)
     {
-        linenr_T tmp_lnum, tmp_topline, tmp_botline;
+        linenum_kt tmp_lnum, tmp_topline, tmp_botline;
         int use_sandbox = FALSE;
 
         // Need to (temporarily) set current line number and first/last line
@@ -671,7 +671,7 @@ static void prt_message(uchar_kt *s)
 
 void ex_hardcopy(exarg_T *eap)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int collated_copies, uncollated_copies;
     prt_settings_T settings;
     size_t bytes_to_print = 0;

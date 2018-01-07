@@ -953,7 +953,7 @@ int open_line(int dir, int flags, int second_line_indent)
         // last one, there can't be marks there.
         if(curwin->w_cursor.lnum + 1 < curbuf->b_ml.ml_line_count)
         {
-            mark_adjust(curwin->w_cursor.lnum + 1, (linenr_T)MAXLNUM, 1L, 0L);
+            mark_adjust(curwin->w_cursor.lnum + 1, (linenum_kt)MAXLNUM, 1L, 0L);
         }
 
         did_append = true;
@@ -1512,7 +1512,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
 }
 
 /// Return the number of window lines occupied by buffer line "lnum".
-int plines(linenr_T lnum)
+int plines(linenum_kt lnum)
 {
     return plines_win(curwin, lnum, TRUE);
 }
@@ -1522,14 +1522,14 @@ int plines(linenr_T lnum)
 /// @param winheight   when TRUE limit to window height
 ///
 /// @return
-int plines_win(win_st *wp, linenr_T lnum, int winheight)
+int plines_win(win_st *wp, linenum_kt lnum, int winheight)
 {
     // Check for filler lines above this buffer line.
     // When folded the result is one line anyway.
     return plines_win_nofill(wp, lnum, winheight) + diff_check_fill(wp, lnum);
 }
 
-int plines_nofill(linenr_T lnum)
+int plines_nofill(linenum_kt lnum)
 {
     return plines_win_nofill(curwin, lnum, TRUE);
 }
@@ -1539,7 +1539,7 @@ int plines_nofill(linenr_T lnum)
 /// @param winheight  when TRUE limit to window height
 ///
 /// @return
-int plines_win_nofill(win_st *wp, linenr_T lnum, int winheight)
+int plines_win_nofill(win_st *wp, linenum_kt lnum, int winheight)
 {
     int lines;
 
@@ -1572,7 +1572,7 @@ int plines_win_nofill(win_st *wp, linenr_T lnum, int winheight)
 
 /// Return number of window lines physical line "lnum" will occupy in window
 /// "wp". Does not care about folding, 'wrap' or 'diff'.
-int plines_win_nofold(win_st *wp, linenr_T lnum)
+int plines_win_nofold(win_st *wp, linenum_kt lnum)
 {
     uchar_kt *s;
     unsigned int col;
@@ -1615,7 +1615,7 @@ int plines_win_nofold(win_st *wp, linenr_T lnum)
 
 /// Like plines_win(), but only reports the number of physical screen lines
 /// used from the start of the line to the given column number.
-int plines_win_col(win_st *wp, linenr_T lnum, long column)
+int plines_win_col(win_st *wp, linenum_kt lnum, long column)
 {
     // Check for filler lines above this buffer line.
     // When folded the result is one line anyway.
@@ -1669,7 +1669,7 @@ int plines_win_col(win_st *wp, linenr_T lnum, long column)
     return lines;
 }
 
-int plines_m_win(win_st *wp, linenr_T first, linenr_T last)
+int plines_m_win(win_st *wp, linenum_kt first, linenum_kt last)
 {
     int count = 0;
 
@@ -1677,7 +1677,7 @@ int plines_m_win(win_st *wp, linenr_T first, linenr_T last)
     {
         // Check if there are any really folded lines,
         // but also included lines that are maybe folded.
-        linenr_T x = foldedCount(wp, first, NULL);
+        linenum_kt x = foldedCount(wp, first, NULL);
 
         if(x > 0)
         {
@@ -1770,7 +1770,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
     }
 
     size_t col = (size_t)curwin->w_cursor.col;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     uchar_kt *oldp = ml_get(lnum);
     size_t linelen = STRLEN(oldp) + 1; // length of old line including NUL
 
@@ -1902,7 +1902,7 @@ void ins_str(uchar_kt *s)
     int newlen = (int)STRLEN(s);
     int oldlen;
     colnr_T col;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
 
     if(virtual_active() && curwin->w_cursor.coladd > 0)
     {
@@ -1979,7 +1979,7 @@ int del_chars(long count, int fixpos)
 /// @return FAIL for failure, OK otherwise
 int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
 {
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     colnr_T col = curwin->w_cursor.col;
     bool fixpos = fixpos_arg;
     uchar_kt *oldp = ml_get(lnum);
@@ -2079,7 +2079,7 @@ int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
 void truncate_line(int fixpos)
 {
     uchar_kt *newp;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     colnr_T col = curwin->w_cursor.col;
 
     if(col == 0)
@@ -2111,7 +2111,7 @@ void truncate_line(int fixpos)
 void del_lines(long nlines, int undo)
 {
     long n;
-    linenr_T first = curwin->w_cursor.lnum;
+    linenum_kt first = curwin->w_cursor.lnum;
 
     if(nlines <= 0)
     {
@@ -2225,7 +2225,7 @@ void changed_int(void)
 /// - invalidates cached values
 ///
 /// @note may trigger autocommands that reload the buffer.
-void changed_bytes(linenr_T lnum, colnr_T col)
+void changed_bytes(linenum_kt lnum, colnr_T col)
 {
     changedOneline(curbuf, lnum);
     changed_common(lnum, col, lnum + 1, 0L);
@@ -2233,7 +2233,7 @@ void changed_bytes(linenr_T lnum, colnr_T col)
     // Diff highlighting in other diff windows may need to be updated too.
     if(curwin->w_p_diff)
     {
-        linenr_T wlnum;
+        linenum_kt wlnum;
 
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
@@ -2251,7 +2251,7 @@ void changed_bytes(linenr_T lnum, colnr_T col)
     }
 }
 
-static void changedOneline(fbuf_st *buf, linenr_T lnum)
+static void changedOneline(fbuf_st *buf, linenum_kt lnum)
 {
     if(buf->b_mod_set)
     {
@@ -2278,19 +2278,19 @@ static void changedOneline(fbuf_st *buf, linenr_T lnum)
 /// Appended "count" lines below line "lnum" in the current buffer.
 /// Must be called AFTER the change and after mark_adjust().
 /// Takes care of marking the buffer to be redrawn and sets the changed flag.
-void appended_lines(linenr_T lnum, long count)
+void appended_lines(linenum_kt lnum, long count)
 {
     changed_lines(lnum + 1, 0, lnum + 1, count);
 }
 
 /// Like appended_lines(), but adjust marks first.
-void appended_lines_mark(linenr_T lnum, long count)
+void appended_lines_mark(linenum_kt lnum, long count)
 {
     // Skip mark_adjust when adding a line after the last one,
     // there can't be marks there.
     if(lnum + count < curbuf->b_ml.ml_line_count)
     {
-        mark_adjust(lnum + 1, (linenr_T)MAXLNUM, count, 0L);
+        mark_adjust(lnum + 1, (linenum_kt)MAXLNUM, count, 0L);
     }
 
     changed_lines(lnum + 1, 0, lnum + 1, count);
@@ -2299,7 +2299,7 @@ void appended_lines_mark(linenr_T lnum, long count)
 /// Deleted "count" lines at line "lnum" in the current buffer.
 /// Must be called AFTER the change and after mark_adjust().
 /// Takes care of marking the buffer to be redrawn and sets the changed flag.
-void deleted_lines(linenr_T lnum, long count)
+void deleted_lines(linenum_kt lnum, long count)
 {
     changed_lines(lnum, 0, lnum + count, -count);
 }
@@ -2307,9 +2307,9 @@ void deleted_lines(linenr_T lnum, long count)
 /// Like deleted_lines(), but adjust marks first.
 /// Make sure the cursor is on a valid line before calling,
 /// a GUI callback may be triggered to display the cursor.
-void deleted_lines_mark(linenr_T lnum, long count)
+void deleted_lines_mark(linenum_kt lnum, long count)
 {
-    mark_adjust(lnum, (linenr_T)(lnum + count - 1), (long)MAXLNUM, -count);
+    mark_adjust(lnum, (linenum_kt)(lnum + count - 1), (long)MAXLNUM, -count);
     changed_lines(lnum, 0, lnum + count, -count);
 }
 
@@ -2329,7 +2329,7 @@ void deleted_lines_mark(linenr_T lnum, long count)
 /// Takes care of calling changed() and updating b_mod_*.
 ///
 /// @note may trigger autocommands that reload the buffer.
-void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
+void changed_lines(linenum_kt lnum, colnr_T col, linenum_kt lnume, long xtra)
 {
     changed_lines_buf(curbuf, lnum, lnume, xtra);
 
@@ -2337,7 +2337,7 @@ void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
     {
         // When the number of lines doesn't change then mark_adjust() isn't
         // called and other diff buffers still need to be marked for displaying.
-        linenr_T wlnum;
+        linenum_kt wlnum;
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
             if(wp->w_p_diff && wp != curwin)
@@ -2363,7 +2363,7 @@ void changed_lines(linenr_T lnum, colnr_T col, linenr_T lnume, long xtra)
 /// @param lnum  first line with change
 /// @param lnume line below last changed line
 /// @param xtra  number of extra lines (negative when deleting)
-void changed_lines_buf(fbuf_st *buf, linenr_T lnum, linenr_T lnume, long xtra)
+void changed_lines_buf(fbuf_st *buf, linenum_kt lnum, linenum_kt lnume, long xtra)
 {
     if(buf->b_mod_set)
     {
@@ -2405,9 +2405,9 @@ void changed_lines_buf(fbuf_st *buf, linenr_T lnum, linenr_T lnume, long xtra)
 /// See changed_lines() for the arguments.
 ///
 /// @note may trigger autocommands that reload the buffer.
-static void changed_common(linenr_T lnum,
+static void changed_common(linenum_kt lnum,
                            colnr_T col,
-                           linenr_T lnume,
+                           linenum_kt lnume,
                            long xtra)
 {
     int i;

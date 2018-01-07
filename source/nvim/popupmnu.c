@@ -778,7 +778,7 @@ static int pum_set_selected(int n, int repeat)
                     // Already a "wipeout" buffer, make it empty.
                     while(!bufempty())
                     {
-                        ml_delete((linenr_T)1, FALSE);
+                        ml_delete((linenum_kt)1, FALSE);
                     }
                 }
                 else
@@ -802,7 +802,7 @@ static int pum_set_selected(int n, int repeat)
                 if(res == OK)
                 {
                     uchar_kt *p, *e;
-                    linenr_T lnum = 0;
+                    linenum_kt lnum = 0;
 
                     for(p = pum_array[pum_selected].pum_info; *p != NUL;)
                     {

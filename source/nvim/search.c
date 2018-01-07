@@ -100,7 +100,7 @@ typedef struct SearchedFile
 {
     FILE *fp;        ///< File pointer
     uchar_kt *name;    ///< Full name of file
-    linenr_T lnum;   ///< Line we were up to in file
+    linenum_kt lnum;   ///< Line we were up to in file
     int matched;     ///< Found a match in this file
 } SearchedFile;
 
@@ -588,11 +588,11 @@ int searchit(win_st *win,
              long count,
              int options,
              int pat_use,
-             linenr_T stop_lnum,
+             linenum_kt stop_lnum,
              proftime_kt *tm)
 {
     int found;
-    linenr_T lnum; // no init to shut up Apollo cc
+    linenum_kt lnum; // no init to shut up Apollo cc
     regmmatch_T regmatch;
     uchar_kt *ptr;
     colnr_T matchcol;
@@ -1491,7 +1491,7 @@ int do_search(oparg_T *oap,
                                     + ((pat != NULL && *pat == ';')
                                        ? 0 : SEARCH_NOOF)))),
                      RE_LAST,
-                (linenr_T)0, tm);
+                (linenum_kt)0, tm);
 
         if(dircp != NULL)
         {
@@ -1617,7 +1617,7 @@ end_do_search:
 /// OK for success, or FAIL if no line found.
 int search_for_exact_line(fbuf_st *buf, pos_T *pos, int dir, uchar_kt *pat)
 {
-    linenr_T start = 0;
+    linenum_kt start = 0;
     uchar_kt *ptr;
     uchar_kt *p;
 
@@ -1916,7 +1916,7 @@ static int find_rawstring_end(uchar_kt *linep, pos_T *startpos, pos_T *endpos)
     uchar_kt *p;
     uchar_kt *delim_copy;
     size_t delim_len;
-    linenr_T lnum;
+    linenum_kt lnum;
     int found = false;
 
     for(p = linep + startpos->col + 1; *p && *p != '('; ++p) {}
@@ -3122,11 +3122,11 @@ bool findpar(bool *pincl,
              int what,
              int both)
 {
-    linenr_T curr;
+    linenum_kt curr;
     bool did_skip; // true after separating lines have been skipped
     bool first; // true on first line
-    linenr_T fold_first; // first line of a closed fold
-    linenr_T fold_last; //last line of a closed fold
+    linenum_kt fold_first; // first line of a closed fold
+    linenum_kt fold_last; //last line of a closed fold
     bool fold_skipped; // true if a closed fold was skipped this iteration
     curr = curwin->w_cursor.lnum;
 
@@ -3232,7 +3232,7 @@ static int inmacro(uchar_kt *opt, uchar_kt *s)
 /// startPS: return TRUE if line 'lnum' is the start of a section or paragraph.
 /// - If 'para' is '{' or '}' only check for sections.
 /// - If 'both' is TRUE also stop at '}'
-int startPS(linenr_T lnum, int para, int both)
+int startPS(linenum_kt lnum, int para, int both)
 {
     uchar_kt *s;
     s = ml_get(lnum);
@@ -4480,7 +4480,7 @@ again:
                          BACKWARD,
                          (uchar_kt *)"", 0,
                          NULL,
-                         (linenr_T)0, 0L) <= 0)
+                         (linenum_kt)0, 0L) <= 0)
         {
             curwin->w_cursor = old_pos;
             goto theend;
@@ -4514,7 +4514,7 @@ again:
     sprintf((char *)epat, "</%.*s>\\c", len, p);
 
     r = do_searchpair(spat, (uchar_kt *)"", epat, FORWARD,
-                      (uchar_kt *)"", 0, NULL, (linenr_T)0, 0L);
+                      (uchar_kt *)"", 0, NULL, (linenum_kt)0, 0L);
 
     xfree(spat);
     xfree(epat);
@@ -4642,8 +4642,8 @@ theend:
 /// @return
 int current_par(oparg_T *oap, long count, int include, int type)
 {
-    linenr_T start_lnum;
-    linenr_T end_lnum;
+    linenum_kt start_lnum;
+    linenum_kt end_lnum;
     int white_in_front;
     int dir;
     int start_is_white;
@@ -5495,7 +5495,7 @@ static int is_one_char(uchar_kt *pattern, bool move)
 }
 
 /// return TRUE if line 'lnum' is empty or has white chars only.
-int linewhite(linenr_T lnum)
+int linewhite(linenum_kt lnum)
 {
     uchar_kt  *p;
 
@@ -5526,8 +5526,8 @@ void find_pattern_in_path(uchar_kt *ptr,
                           int type,
                           long count,
                           int action,
-                          linenr_T start_lnum,
-                          linenr_T end_lnum)
+                          linenum_kt start_lnum,
+                          linenum_kt end_lnum)
 {
     SearchedFile *files; // Stack of included files
     SearchedFile *bigger; // When we need more space
@@ -5537,7 +5537,7 @@ void find_pattern_in_path(uchar_kt *ptr,
     uchar_kt *new_fname;
     uchar_kt *curr_fname = curbuf->b_fname;
     uchar_kt *prev_fname = NULL;
-    linenr_T lnum;
+    linenum_kt lnum;
     int depth;
     int depth_displayed; // For type==CHECK_PATH
     int old_files;
@@ -6393,7 +6393,7 @@ static void show_pat_in_path(uchar_kt *line,
                              int did_show,
                              int action,
                              FILE *fp,
-                             linenr_T *lnum,
+                             linenum_kt *lnum,
                              long count)
 {
     uchar_kt *p;

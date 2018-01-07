@@ -26,7 +26,7 @@
 #endif
 
 static int orig_topfill = 0;
-static linenr_T orig_topline = 0;
+static linenum_kt orig_topline = 0;
 
 /// Move the cursor to the specified row and column on the screen.
 /// Change current window if necessary. Returns an integer with the
@@ -482,11 +482,11 @@ retnomove:
 /// from the posn on the screen in window "win".
 ///
 /// @returns true if the position is below the last line.
-bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenr_T *lnump)
+bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenum_kt *lnump)
 {
     int col = *colp;
     int row = *rowp;
-    linenr_T lnum;
+    linenum_kt lnum;
     bool retval = false;
     int off;
     int count;
@@ -715,7 +715,7 @@ void set_mouse_topline(win_st *wp)
 }
 
 /// Return length of line "lnum" for horizontal scrolling.
-static colnr_T scroll_line_len(linenr_T lnum)
+static colnr_T scroll_line_len(linenum_kt lnum)
 {
     colnr_T col = 0;
     uchar_kt *line = ml_get(lnum);
@@ -740,9 +740,9 @@ static colnr_T scroll_line_len(linenr_T lnum)
 }
 
 /// Find longest visible line number.
-static linenr_T find_longest_lnum(void)
+static linenum_kt find_longest_lnum(void)
 {
-    linenr_T ret = 0;
+    linenum_kt ret = 0;
 
     // Calculate maximum for horizontal scrollbar.
     // Check for reasonable line numbers, topline and
@@ -756,7 +756,7 @@ static linenr_T find_longest_lnum(void)
         // Use maximum of all visible lines.
         // Remember the lnum of the longest line,
         // closest to the cursor line. Used when scrolling below.
-        for(linenr_T lnum = curwin->w_topline; lnum < curwin->w_botline; lnum++)
+        for(linenum_kt lnum = curwin->w_topline; lnum < curwin->w_botline; lnum++)
         {
             colnr_T len = scroll_line_len(lnum);
 

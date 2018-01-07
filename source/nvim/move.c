@@ -33,7 +33,7 @@
 
 typedef struct
 {
-    linenr_T lnum;  ///< line number
+    linenum_kt lnum;  ///< line number
     int fill;       ///< filler lines
     int height;     ///< height of added line
 } lineoff_T;
@@ -46,7 +46,7 @@ typedef struct
 /// Can be called after wp->w_topline changed.
 static void comp_botline(win_st *wp)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int done;
 
     // If w_cline_row is valid, start there.
@@ -67,7 +67,7 @@ static void comp_botline(win_st *wp)
     for(; lnum <= wp->w_buffer->b_ml.ml_line_count; ++lnum)
     {
         int n;
-        linenr_T last = lnum;
+        linenum_kt last = lnum;
         bool folded = hasFoldingWin(wp, lnum, NULL, &last, true, NULL);
 
         if(folded)
@@ -134,7 +134,7 @@ void update_topline_redraw(void)
 /// Update curwin->w_topline to move the cursor onto the screen.
 void update_topline(void)
 {
-    linenr_T old_topline;
+    linenum_kt old_topline;
     int old_topfill;
     bool check_topline = false;
     bool check_botline = false;
@@ -227,7 +227,7 @@ void update_topline(void)
                 // topline + p_so (approximation of how much will be scrolled).
                 n = 0;
 
-                for(linenr_T lnum = curwin->w_cursor.lnum;
+                for(linenum_kt lnum = curwin->w_cursor.lnum;
                     lnum < curwin->w_topline + p_so; ++lnum)
                 {
                     ++n;
@@ -336,7 +336,7 @@ void update_topline(void)
                     // Count the number of logical lines between
                     // the cursor and botline - p_so (approximation
                     // of how much will be scrolled).
-                    for(linenr_T lnum = curwin->w_cursor.lnum;
+                    for(linenum_kt lnum = curwin->w_cursor.lnum;
                         lnum >= curwin->w_botline - p_so; --lnum)
                     {
                         ++line_count;
@@ -507,7 +507,7 @@ void changed_window_setting_win(win_st *wp)
 }
 
 /// Set wp->w_topline to a certain number.
-void set_topline(win_st *wp, linenr_T lnum)
+void set_topline(win_st *wp, linenum_kt lnum)
 {
     // go to first of folded lines
     (void)hasFoldingWin(wp, lnum, &lnum, NULL, true, NULL);
@@ -626,7 +626,7 @@ static void curs_rows(win_st *wp)
     wp->w_cline_row = 0;
 
     int i = 0;
-    for(linenr_T lnum = wp->w_topline; lnum < wp->w_cursor.lnum; ++i)
+    for(linenum_kt lnum = wp->w_topline; lnum < wp->w_cursor.lnum; ++i)
     {
         bool valid = false;
 
@@ -1188,7 +1188,7 @@ void scrolldown(long line_count, int byfold)
 
             // A sequence of folded lines only
             // counts for one logical line
-            linenr_T first;
+            linenum_kt first;
 
             if(hasFolding(curwin->w_topline, &first, NULL))
             {
@@ -1239,7 +1239,7 @@ void scrolldown(long line_count, int byfold)
 
     while(wrow >= curwin->w_height && curwin->w_cursor.lnum > 1)
     {
-        linenr_T first;
+        linenum_kt first;
 
         if(hasFolding(curwin->w_cursor.lnum, &first, NULL))
         {
@@ -1284,7 +1284,7 @@ void scrollup(long line_count, int byfold)
     if((byfold && hasAnyFolding(curwin)) || curwin->w_p_diff)
     {
         // count each sequence of folded lines as one logical line
-        linenr_T lnum = curwin->w_topline;
+        linenum_kt lnum = curwin->w_topline;
 
         while(line_count--)
         {
@@ -1599,11 +1599,11 @@ static void topline_botline(lineoff_T *lp)
 void scroll_cursor_top(int min_scroll, int always)
 {
     int scrolled = 0;
-    linenr_T top; // just above displayed lines
-    linenr_T bot; // just below displayed lines
-    linenr_T old_topline = curwin->w_topline;
-    linenr_T old_topfill = curwin->w_topfill;
-    linenr_T new_topline;
+    linenum_kt top; // just above displayed lines
+    linenum_kt bot; // just below displayed lines
+    linenum_kt old_topline = curwin->w_topline;
+    linenum_kt old_topfill = curwin->w_topfill;
+    linenum_kt new_topline;
 
     assert(p_so <= INT_MAX);
     int off = (int)p_so;
@@ -1780,12 +1780,12 @@ void scroll_cursor_bot(int min_scroll, int set_topbot)
     lineoff_T loff;
     lineoff_T boff;
     int fill_below_window;
-    linenr_T old_topline = curwin->w_topline;
+    linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
-    linenr_T old_botline = curwin->w_botline;
+    linenum_kt old_botline = curwin->w_botline;
     int old_valid = curwin->w_valid;
     int old_empty_rows = curwin->w_empty_rows;
-    linenr_T cln = curwin->w_cursor.lnum; // Cursor Line Number
+    linenum_kt cln = curwin->w_cursor.lnum; // Cursor Line Number
 
     if(set_topbot)
     {
@@ -1929,7 +1929,7 @@ void scroll_cursor_bot(int min_scroll, int set_topbot)
         }
     }
 
-    linenr_T line_count;
+    linenum_kt line_count;
 
     // curwin->w_empty_rows is larger, no need to scroll
     if(scrolled <= 0)
@@ -1997,13 +1997,13 @@ void scroll_cursor_halfway(int atend)
     int below = 0;
     lineoff_T loff;
     lineoff_T boff;
-    linenr_T old_topline = curwin->w_topline;
+    linenum_kt old_topline = curwin->w_topline;
     loff.lnum = boff.lnum = curwin->w_cursor.lnum;
     (void)hasFolding(loff.lnum, &loff.lnum, &boff.lnum);
     int used = plines_nofill(loff.lnum);
     loff.fill = 0;
     boff.fill = 0;
-    linenr_T topline = loff.lnum;
+    linenum_kt topline = loff.lnum;
 
     while(topline > 1)
     {
@@ -2123,7 +2123,7 @@ void cursor_correct(void)
 
     // If there are sufficient file-lines above and
     // below the cursor, we can return now.
-    linenr_T cln = curwin->w_cursor.lnum; // Cursor Line Number
+    linenum_kt cln = curwin->w_cursor.lnum; // Cursor Line Number
 
     if(cln >= curwin->w_topline + above_wanted
        && cln < curwin->w_botline - below_wanted
@@ -2136,8 +2136,8 @@ void cursor_correct(void)
     // the top and the bottom until:
     // - the desired context lines are found
     // - the lines from the top is past the lines from the bottom
-    linenr_T topline = curwin->w_topline;
-    linenr_T botline = curwin->w_botline - 1;
+    linenum_kt topline = curwin->w_topline;
+    linenum_kt botline = curwin->w_botline - 1;
 
     // count filler lines as context
     int above = curwin->w_topfill; // screen lines above topline
@@ -2222,7 +2222,7 @@ int onepage(int dir, long count)
     long n;
     int retval = OK;
     lineoff_T loff;
-    linenr_T old_topline = curwin->w_topline;
+    linenum_kt old_topline = curwin->w_topline;
 
     if(curbuf->b_ml.ml_line_count == 1) // nothing to do
     {
@@ -2568,7 +2568,7 @@ static void get_scroll_overlap(lineoff_T *lp, int dir)
 
 ///
 /// Scroll 'scroll' lines up or down.
-void halfpage(bool flag, linenr_T Prenum)
+void halfpage(bool flag, linenum_kt Prenum)
 {
     long scrolled = 0;
     int i;
@@ -2755,7 +2755,7 @@ void halfpage(bool flag, linenr_T Prenum)
         // When hit top of the file: move cursor up.
         if(n > 0)
         {
-            if(curwin->w_cursor.lnum <= (linenr_T)n)
+            if(curwin->w_cursor.lnum <= (linenum_kt)n)
             {
                 curwin->w_cursor.lnum = 1;
             }
@@ -2804,7 +2804,7 @@ void halfpage(bool flag, linenr_T Prenum)
 
 void do_check_cursorbind(void)
 {
-    linenr_T line = curwin->w_cursor.lnum;
+    linenum_kt line = curwin->w_cursor.lnum;
     colnr_T col = curwin->w_cursor.col;
     colnr_T coladd = curwin->w_cursor.coladd;
     colnr_T curswant = curwin->w_curswant;

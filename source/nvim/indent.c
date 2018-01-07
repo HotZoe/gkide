@@ -34,7 +34,7 @@ int get_indent(void)
 
 
 /// Count the size (in window cells) of the indent in line "lnum".
-int get_indent_lnum(linenr_T lnum)
+int get_indent_lnum(linenum_kt lnum)
 {
     return get_indent_str(ml_get(lnum), (int)curbuf->b_p_ts, false);
 }
@@ -42,7 +42,7 @@ int get_indent_lnum(linenr_T lnum)
 
 /// Count the size (in window cells) of the
 /// indent in line "lnum" of buffer "buf".
-int get_indent_buf(fbuf_st *buf, linenr_T lnum)
+int get_indent_buf(fbuf_st *buf, linenum_kt lnum)
 {
     return get_indent_str(ml_get_buf(buf, lnum, false),
                           (int)buf->b_p_ts,
@@ -496,7 +496,7 @@ int copy_indent(int size, uchar_kt *src)
 /// Return the indent of the current line after a number. Return -1 if no
 /// number was found. Used for 'n' in 'formatoptions': numbered list.
 /// Since a pattern is used it can actually handle more than numbers.
-int get_number_indent(linenr_T lnum)
+int get_number_indent(linenum_kt lnum)
 {
     colnr_T col;
     pos_T pos;

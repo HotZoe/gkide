@@ -2839,7 +2839,7 @@ static void conv_to_pvim(void)
 
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
     {
-        ptr = ml_get((linenr_T)lnum);
+        ptr = ml_get((linenum_kt)lnum);
         llen = (int)STRLEN(ptr);
 
         for(i = 0; i < llen - 1; i++)
@@ -2891,7 +2891,7 @@ static void conv_to_pstd(void)
 
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; lnum++)
     {
-        ptr = ml_get((linenr_T)lnum);
+        ptr = ml_get((linenum_kt)lnum);
         llen = (int)STRLEN(ptr);
 
         for(i = 0; i < llen; i++)

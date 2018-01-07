@@ -199,7 +199,7 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        const char *bufstr = (char *) ml_get_buf(buf, (linenr_T) lnum, false);
+        const char *bufstr = (char *) ml_get_buf(buf, (linenum_kt) lnum, false);
         Object str = STRING_OBJ(cstr_to_string(bufstr));
 
         // Vim represents NULs as NLs, but this may confuse clients.
@@ -351,7 +351,7 @@ FUNC_API_SINCE(1)
     bufref_T save_curbuf = { NULL, 0 };
     switch_to_win_for_buf(buf, &save_curwin, &save_curtab, &save_curbuf);
 
-    if(u_save((linenr_T)(start - 1), (linenr_T)end) == FAIL)
+    if(u_save((linenum_kt)(start - 1), (linenum_kt)end) == FAIL)
     {
         api_set_error(err, kErrorTypeException,
                       "Failed to save undo information");
@@ -365,7 +365,7 @@ FUNC_API_SINCE(1)
 
     for(size_t i = 0; i < to_delete; i++)
     {
-        if(ml_delete((linenr_T)start, false) == FAIL)
+        if(ml_delete((linenum_kt)start, false) == FAIL)
         {
             api_set_error(err, kErrorTypeException, "Failed to delete line");
             goto end;
@@ -392,7 +392,7 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        if(ml_replace((linenr_T)lnum, (uchar_kt *)lines[i], false) == FAIL)
+        if(ml_replace((linenum_kt)lnum, (uchar_kt *)lines[i], false) == FAIL)
         {
             api_set_error(err, kErrorTypeException, "Failed to replace line");
             goto end;
@@ -414,7 +414,7 @@ FUNC_API_SINCE(1)
             goto end;
         }
 
-        if(ml_append((linenr_T)lnum, (uchar_kt *)lines[i], 0, false) == FAIL)
+        if(ml_append((linenum_kt)lnum, (uchar_kt *)lines[i], 0, false) == FAIL)
         {
             api_set_error(err, kErrorTypeException, "Failed to insert line");
             goto end;
@@ -432,14 +432,14 @@ FUNC_API_SINCE(1)
     // the buffer, otherwise line numbers will be invalid.
     if(save_curbuf.br_buf == NULL)
     {
-        mark_adjust((linenr_T)start, (linenr_T)(end - 1), MAXLNUM, (long)extra);
+        mark_adjust((linenum_kt)start, (linenum_kt)(end - 1), MAXLNUM, (long)extra);
     }
 
-    changed_lines((linenr_T)start, 0, (linenr_T)end, (long)extra);
+    changed_lines((linenum_kt)start, 0, (linenum_kt)end, (long)extra);
 
     if(save_curbuf.br_buf == NULL)
     {
-        fix_cursor((linenr_T)start, (linenr_T)end, (linenr_T)extra);
+        fix_cursor((linenum_kt)start, (linenum_kt)end, (linenum_kt)extra);
     }
 
 end:
@@ -857,7 +857,7 @@ FUNC_API_SINCE(1)
 
     src_id = bufhl_add_hl(buf,
                           (int)src_id, hlg_id,
-                          (linenr_T)line+1,
+                          (linenum_kt)line+1,
                           (colnr_T)col_start+1,
                           (colnr_T)col_end);
     return src_id;
@@ -905,7 +905,7 @@ FUNC_API_SINCE(1)
 // Check if deleting lines made the cursor position invalid.
 // Changed the lines from "lo" to "hi" and added "extra" lines (negative if
 // deleted).
-static void fix_cursor(linenr_T lo, linenr_T hi, linenr_T extra)
+static void fix_cursor(linenum_kt lo, linenum_kt hi, linenum_kt extra)
 {
     if(curwin->w_cursor.lnum >= lo)
     {

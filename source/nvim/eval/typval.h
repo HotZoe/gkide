@@ -16,7 +16,7 @@
 #include "nvim/func_attr.h"
 #include "nvim/lib/queue.h"
 #include "nvim/profile.h" // for proftime_kt
-#include "nvim/pos.h" // for linenr_T
+#include "nvim/pos.h" // for linenum_kt
 #include "nvim/gettext.h"
 #include "nvim/message.h"
 #include "nvim/macros.h"

@@ -70,7 +70,7 @@ void do_window(int nchar, long Prenum, int xchar)
     long Prenum1;
     win_st *wp;
     uchar_kt *ptr;
-    linenr_T lnum = -1;
+    linenum_kt lnum = -1;
     int type = FIND_DEFINE;
     size_t len;
     char cbuf[40];
@@ -6267,7 +6267,7 @@ void win_new_height(win_st *wp, int height)
 
 void scroll_to_fraction(win_st *wp, int prev_height)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int sline, line_size;
     int height = wp->w_height;
 
@@ -6548,7 +6548,7 @@ static void frame_add_height(frame_T *frp, int n)
 /// Get the file name at the cursor.
 /// If Visual mode is active, use the selected text if it's in one line.
 /// Returns the name in allocated memory, NULL for failure.
-uchar_kt *grab_file_name(long count, linenr_T *file_lnum)
+uchar_kt *grab_file_name(long count, linenum_kt *file_lnum)
 {
     int options = FNAME_MESS | FNAME_EXP | FNAME_REL | FNAME_UNESC;
 
@@ -6583,7 +6583,7 @@ uchar_kt *grab_file_name(long count, linenr_T *file_lnum)
 /// FNAME_EXP       expand to path
 /// FNAME_HYP       check for hypertext link
 /// FNAME_INCL      apply "includeexpr"
-uchar_kt *file_name_at_cursor(int options, long count, linenr_T *file_lnum)
+uchar_kt *file_name_at_cursor(int options, long count, linenum_kt *file_lnum)
 {
     return file_name_in_line(get_cursor_line_ptr(),
                              curwin->w_cursor.col,
@@ -6607,7 +6607,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
                             int options,
                             long count,
                             uchar_kt *rel_fname,
-                            linenr_T *file_lnum)
+                            linenum_kt *file_lnum)
 {
     uchar_kt *ptr;
     size_t len;
@@ -7233,8 +7233,8 @@ int match_add(win_st *wp,
     // Set up position matches
     if(pos_list != NULL)
     {
-        linenr_T toplnum = 0;
-        linenr_T botlnum = 0;
+        linenum_kt toplnum = 0;
+        linenum_kt botlnum = 0;
         listitem_st *li;
         int i;
 
@@ -7242,7 +7242,7 @@ int match_add(win_st *wp,
             li != NULL && i < MAXPOSMATCH;
             i++, li = li->li_next)
         {
-            linenr_T lnum = 0;
+            linenum_kt lnum = 0;
             colnr_T col = 0;
             int len = 1;
             list_st *subl;

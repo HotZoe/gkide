@@ -304,18 +304,18 @@ int dec_cursor(void)
 /// Only look for lines that can be visible, folded lines don't count.
 ///
 /// @param lnum line number to get the result for
-linenr_T get_cursor_rel_lnum(win_st *wp, linenr_T lnum)
+linenum_kt get_cursor_rel_lnum(win_st *wp, linenum_kt lnum)
 {
-    linenr_T cursor = wp->w_cursor.lnum;
+    linenum_kt cursor = wp->w_cursor.lnum;
 
     if(lnum == cursor || !hasAnyFolding(wp))
     {
         return lnum - cursor;
     }
 
-    linenr_T from_line = lnum < cursor ? lnum : cursor;
-    linenr_T to_line = lnum > cursor ? lnum : cursor;
-    linenr_T retval = 0;
+    linenum_kt from_line = lnum < cursor ? lnum : cursor;
+    linenum_kt to_line = lnum > cursor ? lnum : cursor;
+    linenum_kt retval = 0;
 
     // Loop until we reach to_line, skipping folds.
     for(; from_line < to_line; from_line++, retval++)

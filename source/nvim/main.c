@@ -547,7 +547,7 @@ int main(int argc, char **argv)
     if(curwin->w_p_diff && curwin->w_p_scb)
     {
         update_topline();
-        check_scrollbind((linenr_T)0, 0L);
+        check_scrollbind((linenum_kt)0, 0L);
         TIME_MSG("diff scrollbinding");
     }
 
@@ -2296,7 +2296,7 @@ static int process_env(char *env, bool is_viminit)
         }
 
         uchar_kt *save_sourcing_name = sourcing_name;
-        linenr_T save_sourcing_lnum = sourcing_lnum;
+        linenum_kt save_sourcing_lnum = sourcing_lnum;
         sourcing_name = (uchar_kt *)env;
         sourcing_lnum = 0;
 

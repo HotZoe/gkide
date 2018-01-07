@@ -233,9 +233,9 @@ static void u_check(int newhead_may_be_NULL)
 /// @return OK or FAIL.
 int u_save_cursor(void)
 {
-    linenr_T cur = curwin->w_cursor.lnum;
-    linenr_T top = cur > 0 ? cur - 1 : 0;
-    linenr_T bot = cur + 1;
+    linenum_kt cur = curwin->w_cursor.lnum;
+    linenum_kt top = cur > 0 ? cur - 1 : 0;
+    linenum_kt bot = cur + 1;
 
     return u_save(top, bot);
 }
@@ -245,7 +245,7 @@ int u_save_cursor(void)
 /// Careful: may trigger autocommands that reload the buffer.
 ///
 /// @return FAIL when lines could not be saved, OK otherwise.
-int u_save(linenr_T top, linenr_T bot)
+int u_save(linenum_kt top, linenum_kt bot)
 {
     if(undo_off)
     {
@@ -259,10 +259,10 @@ int u_save(linenr_T top, linenr_T bot)
 
     if(top + 2 == bot)
     {
-        u_saveline((linenr_T)(top + 1));
+        u_saveline((linenum_kt)(top + 1));
     }
 
-    return u_savecommon(top, bot, (linenr_T)0, FALSE);
+    return u_savecommon(top, bot, (linenum_kt)0, FALSE);
 }
 
 /// Save the line "lnum" (used by ":s" and "~" command).
@@ -270,7 +270,7 @@ int u_save(linenr_T top, linenr_T bot)
 /// Careful: may trigger autocommands that reload the buffer.
 ///
 /// @return FAIL when lines could not be saved, OK otherwise.
-int u_savesub(linenr_T lnum)
+int u_savesub(linenum_kt lnum)
 {
     if(undo_off)
     {
@@ -285,7 +285,7 @@ int u_savesub(linenr_T lnum)
 /// Careful: may trigger autocommands that reload the buffer.
 ///
 /// @return FAIL when lines could not be saved, OK otherwise.
-int u_inssub(linenr_T lnum)
+int u_inssub(linenum_kt lnum)
 {
     if(undo_off)
     {
@@ -301,7 +301,7 @@ int u_inssub(linenr_T lnum)
 ///
 /// Careful: may trigger autocommands that reload the buffer.
 /// @return FAIL when lines could not be saved, OK otherwise.
-int u_savedel(linenr_T lnum, long nlines)
+int u_savedel(linenum_kt lnum, long nlines)
 {
     if(undo_off)
     {
@@ -373,9 +373,9 @@ static inline void zero_fmark_additional_data(fmark_T *fmarks)
 /// Careful: may trigger autocommands that reload the buffer.
 ///
 /// @return FAIL when lines could not be saved, OK otherwise.
-int u_savecommon(linenr_T top, linenr_T bot, linenr_T newbot, int reload)
+int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     long i;
     u_header_T *uhp;
     u_header_T *old_curhead;
@@ -729,7 +729,7 @@ static uchar_kt e_not_open[] =
 void u_compute_hash(uchar_kt *hash)
 {
     context_sha256_T ctx;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *p;
     sha256_start(&ctx);
 
@@ -1654,7 +1654,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         goto error;
     }
 
-    linenr_T line_count = (linenr_T)undo_read_4c(&bi);
+    linenum_kt line_count = (linenum_kt)undo_read_4c(&bi);
 
     if(memcmp(hash, read_hash, UNDO_HASH_SIZE) != 0
        || line_count != curbuf->b_ml.ml_line_count)
@@ -1691,7 +1691,7 @@ FUNC_ATTR_NONNULL_ARG(2)
         line_ptr = undo_read_string(&bi, (size_t)str_len);
     }
 
-    linenr_T line_lnum = (linenr_T)undo_read_4c(&bi);
+    linenum_kt line_lnum = (linenum_kt)undo_read_4c(&bi);
     colnr_T line_colnr = (colnr_T)undo_read_4c(&bi);
 
     if(line_lnum < 0 || line_colnr < 0)
@@ -2690,11 +2690,11 @@ void undo_time(long step, int sec, int file, int absolute)
 static void u_undoredo(int undo)
 {
     uchar_kt **newarray = NULL;
-    linenr_T oldsize;
-    linenr_T newsize;
-    linenr_T top, bot;
-    linenr_T lnum;
-    linenr_T newlnum = MAXLNUM;
+    linenum_kt oldsize;
+    linenum_kt newsize;
+    linenum_kt top, bot;
+    linenum_kt lnum;
+    linenum_kt newlnum = MAXLNUM;
     long i;
     u_entry_T *uep, *nuep;
     u_entry_T *newlist = NULL;
@@ -2832,7 +2832,7 @@ static void u_undoredo(int undo)
                 // should get rid of, by replacing it with the new line
                 if(empty_buffer && lnum == 0)
                 {
-                    ml_replace((linenr_T)1, uep->ue_array[i], TRUE);
+                    ml_replace((linenum_kt)1, uep->ue_array[i], TRUE);
                 }
                 else
                 {
@@ -3330,7 +3330,7 @@ void u_find_first_changed(void)
 {
     u_header_T *uhp = curbuf->b_u_newhead;
     u_entry_T *uep;
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(curbuf->b_u_curhead != NULL || uhp == NULL)
     {
@@ -3422,7 +3422,7 @@ static u_entry_T *u_get_headentry(void)
 static void u_getbot(void)
 {
     u_entry_T *uep;
-    linenr_T extra;
+    linenum_kt extra;
     uep = u_get_headentry(); // check for corrupt undo list
 
     if(uep == NULL)
@@ -3612,7 +3612,7 @@ void u_clearall(fbuf_st *buf)
 }
 
 /// save the line "lnum" for the "U" command
-void u_saveline(linenr_T lnum)
+void u_saveline(linenum_kt lnum)
 {
     if(lnum == curbuf->b_u_line_lnum) // line is already saved
     {
@@ -3675,7 +3675,7 @@ void u_undoline(void)
     // first save the line for the 'u' command
     if(u_savecommon(curbuf->b_u_line_lnum - 1,
                     curbuf->b_u_line_lnum + 1,
-                    (linenr_T)0, FALSE) == FAIL)
+                    (linenum_kt)0, FALSE) == FAIL)
     {
         return;
     }
@@ -3714,7 +3714,7 @@ void u_blockfree(fbuf_st *buf)
 }
 
 /// u_save_line(): allocate memory and copy line 'lnum' into it.
-static uchar_kt *u_save_line(linenr_T lnum)
+static uchar_kt *u_save_line(linenum_kt lnum)
 {
     return vim_strsave(ml_get(lnum));
 }

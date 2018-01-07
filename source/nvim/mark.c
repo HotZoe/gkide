@@ -493,7 +493,7 @@ pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
                && changefile && namedfm[c].fmark.fnum)
             {
                 if(buflist_getfile(namedfm[c].fmark.fnum,
-                                   (linenr_T)1, GETF_SETMARK, FALSE) == OK)
+                                   (linenum_kt)1, GETF_SETMARK, FALSE) == OK)
                 {
                     // Set the lnum now, autocommands could have changed it
                     curwin->w_cursor = namedfm[c].fmark.mark;
@@ -599,7 +599,7 @@ static void fname2fnum(xfmark_T *fm)
         p = path_shorten_fname(NameBuff, IObuff);
 
         // buflist_new() will call fmarks_check_names()
-        (void)buflist_new(NameBuff, p, (linenr_T)1, 0);
+        (void)buflist_new(NameBuff, p, (linenum_kt)1, 0);
     }
 }
 
@@ -1163,8 +1163,8 @@ void ex_changes(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 /// - Example: Delete lines 34 and 35: mark_adjust(34, 35, MAXLNUM, -2);
 /// - Example: Insert two lines below 55: mark_adjust(56, MAXLNUM, 2, 0);
 ///            or: mark_adjust(56, 55, MAXLNUM, 2);
-void mark_adjust(linenr_T line1,
-                 linenr_T line2,
+void mark_adjust(linenum_kt line1,
+                 linenum_kt line2,
                  long amount,
                  long amount_after)
 {
@@ -1176,23 +1176,23 @@ void mark_adjust(linenr_T line1,
 // This is only useful when folds need to be moved in a way different to
 // calling foldMarkAdjust() with arguments line1, line2, amount, amount_after,
 // for an example of why this may be necessary, see do_move().
-void mark_adjust_nofold(linenr_T line1,
-                        linenr_T line2,
+void mark_adjust_nofold(linenum_kt line1,
+                        linenum_kt line2,
                         long amount,
                         long amount_after)
 {
     mark_adjust_internal(line1, line2, amount, amount_after, false);
 }
 
-static void mark_adjust_internal(linenr_T line1,
-                                 linenr_T line2,
+static void mark_adjust_internal(linenum_kt line1,
+                                 linenum_kt line2,
                                  long amount,
                                  long amount_after,
                                  bool adjust_folds)
 {
     int i;
     int fnum = curbuf->b_fnum;
-    linenr_T *lp;
+    linenum_kt *lp;
     static pos_T initpos = INIT_POS_T(1, 0, 0);
 
     if(line2 < line1 && amount_after == 0L) // nothing to do
@@ -1394,7 +1394,7 @@ static void mark_adjust_internal(linenr_T line1,
 /// Adjust marks in line "lnum" at column "mincol" and further:
 /// add "lnum_amount" to the line number and add "col_amount" to
 /// the column position.
-void mark_col_adjust(linenr_T lnum,
+void mark_col_adjust(linenum_kt lnum,
                      colnr_T mincol,
                      long lnum_amount,
                      long col_amount)

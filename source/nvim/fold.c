@@ -42,9 +42,9 @@ extern char *ngettext(const char *__msgid1,
 /// The info stored in both growarrays is the same: An array of fold_T.
 typedef struct
 {
-    linenr_T fd_top;    ///< first line of fold,
+    linenum_kt fd_top;    ///< first line of fold,
                         ///< for nested fold relative to parent
-    linenr_T fd_len;    ///< number of lines in the fold
+    linenum_kt fd_len;    ///< number of lines in the fold
     garray_st fd_nested; ///< array of nested folds
     char fd_flags;      ///< see below
 
@@ -62,9 +62,9 @@ typedef struct
 typedef struct
 {
     win_st *wp;           ///< window
-    linenr_T lnum;       ///< current line number
-    linenr_T off;        ///< offset between lnum and real line number
-    linenr_T lnum_save;  ///< line nr used by foldUpdateIEMSRecurse()
+    linenum_kt lnum;       ///< current line number
+    linenum_kt off;        ///< offset between lnum and real line number
+    linenum_kt lnum_save;  ///< line nr used by foldUpdateIEMSRecurse()
 
     int lvl;        ///< current level (-1 for undefined)
     int lvl_next;   ///< level used for next line
@@ -87,15 +87,15 @@ static char *e_nofold = N_("E490: No fold found");
 
 // While updating the folds lines between invalid_top and invalid_bot have an
 // undefined fold level. Only used for the window currently being updated.
-static linenr_T invalid_top = (linenr_T)0;
-static linenr_T invalid_bot = (linenr_T)0;
+static linenum_kt invalid_top = (linenum_kt)0;
+static linenum_kt invalid_bot = (linenum_kt)0;
 
 // When using 'foldexpr' we sometimes get the level of the next line, which
 // calls foldlevel() to get the level of the current line, which hasn't been
 // stored yet. To get around this chicken-egg problem the level of the
 // previous line is stored here when available. prev_lnum is zero when the
 // level is not available.
-static linenr_T prev_lnum = 0;
+static linenum_kt prev_lnum = 0;
 static int prev_lnum_lvl = -1;
 
 // Flags used for "done" argument of setManualFold.
@@ -127,7 +127,7 @@ int hasAnyFolding(win_st *win)
 /// Return TRUE if line "lnum" in the current window is part of a closed fold.
 /// When returning TRUE, *firstp and *lastp are set to the first and last
 /// lnum of the sequence of folded lines (skipped when NULL).
-bool hasFolding(linenr_T lnum, linenr_T *firstp, linenr_T *lastp)
+bool hasFolding(linenum_kt lnum, linenum_kt *firstp, linenum_kt *lastp)
 {
     return hasFoldingWin(curwin, lnum, firstp, lastp, TRUE, NULL);
 }
@@ -141,16 +141,16 @@ bool hasFolding(linenr_T lnum, linenr_T *firstp, linenr_T *lastp)
 ///
 /// @return
 bool hasFoldingWin(win_st *win,
-                   linenr_T lnum,
-                   linenr_T *firstp,
-                   linenr_T *lastp,
+                   linenum_kt lnum,
+                   linenum_kt *firstp,
+                   linenum_kt *lastp,
                    int cache,
                    foldinfo_st *infop)
 {
     int had_folded = FALSE;
-    linenr_T first = 0;
-    linenr_T last = 0;
-    linenr_T lnum_rel = lnum;
+    linenum_kt first = 0;
+    linenum_kt last = 0;
+    linenum_kt lnum_rel = lnum;
     int x;
     fold_T *fp;
     int level = 0;
@@ -267,11 +267,11 @@ bool hasFoldingWin(win_st *win,
 }
 
 /// Return fold level at line number "lnum" in the current window.
-int foldLevel(linenr_T lnum)
+int foldLevel(linenum_kt lnum)
 {
     // While updating the folds lines between invalid_top and invalid_bot have
     // an undefined fold level. Otherwise update the folds first.
-    if(invalid_top == (linenr_T)0)
+    if(invalid_top == (linenum_kt)0)
     {
         checkupdate(curwin);
     }
@@ -297,7 +297,7 @@ int foldLevel(linenr_T lnum)
 /// - Return TRUE if line is folded.
 /// - Return FALSE if line is not folded.
 /// - Return MAYBE if the line is folded when next to a folded line.
-int lineFolded(win_st *win, linenr_T lnum)
+int lineFolded(win_st *win, linenum_kt lnum)
 {
     return foldedCount(win, lnum, NULL) != 0;
 }
@@ -308,9 +308,9 @@ int lineFolded(win_st *win, linenr_T lnum)
 /// Doesn't use caching from the displayed window.
 /// Returns number of folded lines from "lnum", or 0 if line is not folded.
 /// When "infop" is not NULL, fills *infop with the fold level info.
-long foldedCount(win_st *win, linenr_T lnum, foldinfo_st *infop)
+long foldedCount(win_st *win, linenum_kt lnum, foldinfo_st *infop)
 {
-    linenr_T last;
+    linenum_kt last;
 
     if(hasFoldingWin(win, lnum, NULL, &last, FALSE, infop))
     {
@@ -358,13 +358,13 @@ int foldmethodIsDiff(win_st *wp)
 
 /// Close fold for current window at line "lnum".
 /// Repeat "count" times.
-void closeFold(linenr_T lnum, long count)
+void closeFold(linenum_kt lnum, long count)
 {
     setFoldRepeat(lnum, count, FALSE);
 }
 
 /// Close fold for current window at line "lnum" recursively.
-void closeFoldRecurse(linenr_T lnum)
+void closeFoldRecurse(linenum_kt lnum)
 {
     (void)setManualFold(lnum, FALSE, TRUE, NULL);
 }
@@ -377,15 +377,15 @@ void closeFoldRecurse(linenr_T lnum)
 /// @param opening     TRUE to open, FALSE to close
 /// @param recurse     TRUE to do it recursively
 /// @param had_visual  TRUE when Visual selection used
-void opFoldRange(linenr_T first,
-                 linenr_T last,
+void opFoldRange(linenum_kt first,
+                 linenum_kt last,
                  int opening,
                  int recurse,
                  int had_visual)
 {
     int done = DONE_NOTHING; // avoid error messages
-    linenr_T lnum;
-    linenr_T lnum_next;
+    linenum_kt lnum;
+    linenum_kt lnum_next;
 
     for(lnum = first; lnum <= last; lnum = lnum_next + 1)
     {
@@ -422,13 +422,13 @@ void opFoldRange(linenr_T first,
 
 /// Open fold for current window at line "lnum".
 /// Repeat "count" times.
-void openFold(linenr_T lnum, long count)
+void openFold(linenum_kt lnum, long count)
 {
     setFoldRepeat(lnum, count, TRUE);
 }
 
 /// Open fold for current window at line "lnum" recursively.
-void openFoldRecurse(linenr_T lnum)
+void openFoldRecurse(linenum_kt lnum)
 {
     (void)setManualFold(lnum, TRUE, TRUE, NULL);
 }
@@ -510,7 +510,7 @@ void foldCheckClose(void)
     }
 }
 
-static int checkCloseRec(garray_st *gap, linenr_T lnum, int level)
+static int checkCloseRec(garray_st *gap, linenum_kt lnum, int level)
 {
     fold_T  *fp;
     int retval = FALSE;
@@ -563,7 +563,7 @@ int foldManualAllowed(int create)
 
 /// Create a fold from line "start" to line "end"
 /// (inclusive) in the current window.
-void foldCreate(linenr_T start, linenr_T end)
+void foldCreate(linenum_kt start, linenum_kt end)
 {
     fold_T *fp;
     garray_st *gap;
@@ -573,8 +573,8 @@ void foldCreate(linenr_T start, linenr_T end)
     int use_level = FALSE;
     int closed = FALSE;
     int level = 0;
-    linenr_T start_rel = start;
-    linenr_T end_rel = end;
+    linenum_kt start_rel = start;
+    linenum_kt end_rel = end;
 
     if(start > end)
     {
@@ -724,8 +724,8 @@ void foldCreate(linenr_T start, linenr_T end)
 /// @param end
 /// @param recursive
 /// @param had_visual  TRUE when Visual selection used
-void deleteFold(linenr_T start,
-                linenr_T end,
+void deleteFold(linenum_kt start,
+                linenum_kt end,
                 int recursive,
                 int had_visual)
 {
@@ -733,15 +733,15 @@ void deleteFold(linenr_T start,
     fold_T *fp;
     garray_st *found_ga;
     fold_T *found_fp = NULL;
-    linenr_T found_off = 0;
+    linenum_kt found_off = 0;
     int use_level;
     int maybe_small = FALSE;
     int level = 0;
-    linenr_T lnum = start;
-    linenr_T lnum_off;
+    linenum_kt lnum = start;
+    linenum_kt lnum_off;
     int did_one = FALSE;
-    linenr_T first_lnum = MAXLNUM;
-    linenr_T last_lnum = 0;
+    linenum_kt first_lnum = MAXLNUM;
+    linenum_kt last_lnum = 0;
     checkupdate(curwin);
 
     while(lnum <= end)
@@ -853,7 +853,7 @@ void clearFolding(win_st *win)
 /// Note that inserted/deleted lines must have already been taken care of by
 /// calling foldMarkAdjust().
 /// The changes in lines from top to bot (inclusive).
-void foldUpdate(win_st *wp, linenr_T top, linenr_T bot)
+void foldUpdate(win_st *wp, linenum_kt top, linenum_kt bot)
 {
     if(compl_busy || curmod & kInsertMode)
     {
@@ -922,9 +922,9 @@ int foldMoveTo(int updown, int dir, long count)
 {
     long n;
     int retval = FAIL;
-    linenr_T lnum_off;
-    linenr_T lnum_found;
-    linenr_T lnum;
+    linenum_kt lnum_off;
+    linenum_kt lnum_found;
+    linenum_kt lnum;
     int use_level;
     int maybe_small;
     garray_st *gap;
@@ -1089,7 +1089,7 @@ void foldInitWin(win_st *new_win)
 /// Only valid entries are considered (for entries where wl_valid is FALSE the
 /// line number can be wrong).
 /// Returns index of entry or -1 if not found.
-int find_wl_entry(win_st *win, linenr_T lnum)
+int find_wl_entry(win_st *win, linenum_kt lnum)
 {
     int i;
 
@@ -1194,9 +1194,9 @@ void cloneFoldGrowArray(garray_st *from, garray_st *to)
 /// Set *fpp to the fold struct for the fold that contains "lnum" or
 /// the first fold below it (careful: it can be beyond the end of the array!).
 /// Returns FALSE when there is no fold that contains "lnum".
-static int foldFind(garray_st *gap, linenr_T lnum, fold_T **fpp)
+static int foldFind(garray_st *gap, linenum_kt lnum, fold_T **fpp)
 {
-    linenr_T low, high;
+    linenum_kt low, high;
     fold_T *fp;
 
     // Perform a binary search.
@@ -1208,7 +1208,7 @@ static int foldFind(garray_st *gap, linenr_T lnum, fold_T **fpp)
 
     while(low <= high)
     {
-        linenr_T i = (low + high) / 2;
+        linenum_kt i = (low + high) / 2;
 
         if(fp[i].fd_top > lnum)
         {
@@ -1233,10 +1233,10 @@ static int foldFind(garray_st *gap, linenr_T lnum, fold_T **fpp)
 }
 
 /// Return fold level at line number "lnum" in window "wp".
-static int foldLevelWin(win_st *wp, linenr_T lnum)
+static int foldLevelWin(win_st *wp, linenum_kt lnum)
 {
     fold_T *fp;
-    linenr_T lnum_rel = lnum;
+    linenum_kt lnum_rel = lnum;
     int level =  0;
     garray_st *gap;
 
@@ -1265,14 +1265,14 @@ static void checkupdate(win_st *wp)
 {
     if(wp->w_foldinvalid)
     {
-        foldUpdate(wp, (linenr_T)1, (linenr_T)MAXLNUM); // will update all
+        foldUpdate(wp, (linenum_kt)1, (linenum_kt)MAXLNUM); // will update all
         wp->w_foldinvalid = false;
     }
 }
 
 /// Open or close fold for current window at line "lnum".
 /// Repeat "count" times.
-static void setFoldRepeat(linenr_T lnum, long count, int do_open)
+static void setFoldRepeat(linenum_kt lnum, long count, int do_open)
 {
     int done;
     long n;
@@ -1304,14 +1304,14 @@ static void setFoldRepeat(linenr_T lnum, long count, int do_open)
 /// @param donep
 ///
 /// @return
-static linenr_T setManualFold(linenr_T lnum,
+static linenum_kt setManualFold(linenum_kt lnum,
                               int opening,
                               int recurse,
                               int *donep)
 {
     if(foldmethodIsDiff(curwin) && curwin->w_p_scb)
     {
-        linenr_T dlnum;
+        linenum_kt dlnum;
 
         // Do the same operation in other windows in diff mode.
         // Calculate the line number from the diffs.
@@ -1345,8 +1345,8 @@ static linenr_T setManualFold(linenr_T lnum,
 /// @param opening  TRUE when opening, FALSE when closing
 /// @param recurse  TRUE when closing/opening recursive
 /// @param donep
-static linenr_T setManualFoldWin(win_st *wp,
-                                 linenr_T lnum,
+static linenum_kt setManualFoldWin(win_st *wp,
+                                 linenum_kt lnum,
                                  int opening,
                                  int recurse,
                                  int *donep)
@@ -1359,8 +1359,8 @@ static linenr_T setManualFoldWin(win_st *wp,
     int use_level = FALSE;
     int found_fold = FALSE;
     garray_st *gap;
-    linenr_T next = MAXLNUM;
-    linenr_T off = 0;
+    linenum_kt next = MAXLNUM;
+    linenum_kt off = 0;
     int done = 0;
     checkupdate(wp);
 
@@ -1563,8 +1563,8 @@ void deleteFoldRecurse(garray_st *gap)
 
 /// Update line numbers of folds for inserted/deleted lines.
 void foldMarkAdjust(win_st *wp,
-                    linenr_T line1,
-                    linenr_T line2,
+                    linenum_kt line1,
+                    linenum_kt line2,
                     long amount,
                     long amount_after)
 {
@@ -1577,7 +1577,7 @@ void foldMarkAdjust(win_st *wp,
 
     // If appending a line in Insert mode, it should be included in the fold
     // just above the line.
-    if((curmod & kInsertMode) && amount == (linenr_T)1 && line2 == MAXLNUM)
+    if((curmod & kInsertMode) && amount == (linenum_kt)1 && line2 == MAXLNUM)
     {
         --line1;
     }
@@ -1586,18 +1586,18 @@ void foldMarkAdjust(win_st *wp,
 }
 
 static void foldMarkAdjustRecurse(garray_st *gap,
-                                  linenr_T line1,
-                                  linenr_T line2,
+                                  linenum_kt line1,
+                                  linenum_kt line2,
                                   long amount,
                                   long amount_after)
 {
     fold_T *fp;
-    linenr_T last;
-    linenr_T top;
+    linenum_kt last;
+    linenum_kt top;
 
     // In Insert mode an inserted line at the top of a fold
     // is considered part of the fold, otherwise it isn't.
-    if((curmod & kInsertMode) && amount == (linenr_T)1 && line2 == MAXLNUM)
+    if((curmod & kInsertMode) && amount == (linenum_kt)1 && line2 == MAXLNUM)
     {
         top = line1 + 1;
     }
@@ -1760,7 +1760,7 @@ static int check_closed(win_st *win,
                         int *use_levelp,
                         int level,
                         int *maybe_smallp,
-                        linenr_T lnum_off)
+                        linenum_kt lnum_off)
 {
     int closed = FALSE;
 
@@ -1809,7 +1809,7 @@ static int check_closed(win_st *win,
 /// @param wp
 /// @param fp
 /// @param lnum_off  offset for fp->fd_top
-static void checkSmall(win_st *wp, fold_T *fp, linenr_T lnum_off)
+static void checkSmall(win_st *wp, fold_T *fp, linenum_kt lnum_off)
 {
     int count;
     int n;
@@ -1856,7 +1856,7 @@ static void setSmallMaybe(garray_st *gap)
 
 /// Create a fold from line "start" to line "end"
 /// (inclusive) in the current window by adding markers.
-static void foldCreateMarkers(linenr_T start, linenr_T end)
+static void foldCreateMarkers(linenum_kt start, linenum_kt end)
 {
     if(!MODIFIABLE(curbuf))
     {
@@ -1874,7 +1874,7 @@ static void foldCreateMarkers(linenr_T start, linenr_T end)
 }
 
 /// Add "marker[markerlen]" in 'commentstring' to line "lnum".
-static void foldAddMarker(linenr_T lnum,
+static void foldAddMarker(linenum_kt lnum,
                           const uchar_kt *marker,
                           size_t markerlen)
 {
@@ -1916,7 +1916,7 @@ static void foldAddMarker(linenr_T lnum,
 /// @param fp
 /// @param recursive
 /// @param lnum_off   offset for fp->fd_top
-static void deleteFoldMarkers(fold_T *fp, int recursive, linenr_T lnum_off)
+static void deleteFoldMarkers(fold_T *fp, int recursive, linenum_kt lnum_off)
 {
     if(recursive)
     {
@@ -1937,7 +1937,7 @@ static void deleteFoldMarkers(fold_T *fp, int recursive, linenr_T lnum_off)
 /// Delete 'commentstring' if it matches.
 /// If the marker is not found, there is no error message. Could a missing
 /// close-marker.
-static void foldDelMarker(linenr_T lnum, uchar_kt *marker, size_t markerlen)
+static void foldDelMarker(linenum_kt lnum, uchar_kt *marker, size_t markerlen)
 {
     uchar_kt *newline;
     uchar_kt *cms = curbuf->b_p_cms;
@@ -1991,8 +1991,8 @@ static void foldDelMarker(linenr_T lnum, uchar_kt *marker, size_t markerlen)
 /// When 'foldtext' isn't set puts the result in "buf[FOLD_TEXT_LEN]".
 /// Otherwise the result is in allocated memory.
 uchar_kt *get_foldtext(win_st *wp,
-                     linenr_T lnum,
-                     linenr_T lnume,
+                     linenum_kt lnum,
+                     linenum_kt lnume,
                      foldinfo_st *foldinfo,
                      uchar_kt *buf)
 FUNC_ATTR_NONNULL_ARG(1)
@@ -2003,7 +2003,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     static int got_fdt_error = FALSE;
     int save_did_emsg = did_emsg;
     static win_st    *last_wp = NULL;
-    static linenr_T last_lnum = 0;
+    static linenum_kt last_lnum = 0;
 
     // window changed, try evaluating foldtext setting once again
     if(last_wp == NULL
@@ -2235,17 +2235,17 @@ void foldtext_cleanup(uchar_kt *str)
 
 /// Update the folding for window "wp", at least from lines "top" to "bot".
 /// Return TRUE if any folds did change.
-static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
+static void foldUpdateIEMS(win_st *wp, linenum_kt top, linenum_kt bot)
 {
-    linenr_T start;
-    linenr_T end;
+    linenum_kt start;
+    linenum_kt end;
     fline_T fline;
     void (*getlevel)(fline_T *);
     int level;
     fold_T *fp;
 
     // Avoid problems when being called recursively.
-    if(invalid_top != (linenr_T)0)
+    if(invalid_top != (linenum_kt)0)
     {
         return;
     }
@@ -2384,8 +2384,8 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
         garray_st *gap = &wp->w_folds;
         fold_T *fpn = NULL;
         int current_fdl = 0;
-        linenr_T fold_start_lnum = 0;
-        linenr_T lnum_rel = fline.lnum;
+        linenum_kt fold_start_lnum = 0;
+        linenum_kt lnum_rel = fline.lnum;
 
         while(current_fdl < fline.lvl)
         {
@@ -2402,7 +2402,7 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
 
         if(fpn != NULL && current_fdl == fline.lvl)
         {
-            linenr_T fold_end_lnum = fold_start_lnum + fpn->fd_len;
+            linenum_kt fold_end_lnum = fold_start_lnum + fpn->fd_len;
 
             if(fold_end_lnum > bot)
             {
@@ -2517,7 +2517,7 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
         }
     }
 
-    invalid_top = (linenr_T)0;
+    invalid_top = (linenum_kt)0;
 }
 
 /// Update a fold that starts at "flp->lnum". At this line there is always a
@@ -2542,23 +2542,23 @@ static void foldUpdateIEMS(win_st *wp, linenr_T top, linenr_T bot)
 /// updated as a result of a detected change in the fold.
 ///
 /// @param topflags  containing fold flags
-static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
+static linenum_kt foldUpdateIEMSRecurse(garray_st *gap,
                                       int level,
-                                      linenr_T startlnum,
+                                      linenum_kt startlnum,
                                       fline_T *flp,
                                       LevelGetter getlevel,
-                                      linenr_T bot,
+                                      linenum_kt bot,
                                       char topflags)
 {
-    linenr_T ll;
+    linenum_kt ll;
     fold_T *fp = NULL;
     fold_T *fp2;
     int lvl = level;
-    linenr_T startlnum2 = startlnum;
-    linenr_T firstlnum = flp->lnum; // first lnum we got
+    linenum_kt startlnum2 = startlnum;
+    linenum_kt firstlnum = flp->lnum; // first lnum we got
     int i;
     int finish = FALSE;
-    linenr_T linecount = flp->wp->w_buffer->b_ml.ml_line_count - flp->off;
+    linenum_kt linecount = flp->wp->w_buffer->b_ml.ml_line_count - flp->off;
     int concat;
 
     // If using the marker method, the start line is not the start of a fold
@@ -2715,8 +2715,8 @@ static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
                                 // hence we move all nested folds (with
                                 // relative line numbers) down.
                                 foldMarkAdjustRecurse(&fp->fd_nested,
-                                                      (linenr_T)0,
-                                                      (linenr_T)MAXLNUM,
+                                                      (linenum_kt)0,
+                                                      (linenum_kt)MAXLNUM,
                                                       (long)(fp->fd_top - firstlnum),
                                                       0L);
                             }
@@ -2725,9 +2725,9 @@ static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
                                 // Will move fold down, move
                                 // nested folds relatively up.
                                 foldMarkAdjustRecurse(&fp->fd_nested,
-                                                      (linenr_T)0,
+                                                      (linenum_kt)0,
                                                       (long)(firstlnum - fp->fd_top - 1),
-                                                      (linenr_T)MAXLNUM,
+                                                      (linenum_kt)MAXLNUM,
                                                       (long)(fp->fd_top - firstlnum));
                             }
 
@@ -2750,8 +2750,8 @@ static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
                             // lower indent than "level", we need to split
                             // the fold in this range. Any splits have to be
                             // done recursively.
-                            linenr_T breakstart;
-                            linenr_T breakend;
+                            linenum_kt breakstart;
+                            linenum_kt breakend;
 
                             if(firstlnum != startlnum)
                             {
@@ -2816,9 +2816,9 @@ static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
                         fp->fd_len = startlnum - fp->fd_top;
 
                         foldMarkAdjustRecurse(&fp->fd_nested,
-                                              (linenr_T)fp->fd_len,
-                                              (linenr_T)MAXLNUM,
-                                              (linenr_T)MAXLNUM,
+                                              (linenum_kt)fp->fd_len,
+                                              (linenum_kt)MAXLNUM,
+                                              (linenum_kt)MAXLNUM,
                                               0L);
                         fold_changed = TRUE;
                     }
@@ -3032,9 +3032,9 @@ static linenr_T foldUpdateIEMSRecurse(garray_st *gap,
             {
                 // Make fold that includes lnum start at lnum.
                 foldMarkAdjustRecurse(&fp2->fd_nested,
-                                      (linenr_T)0,
+                                      (linenum_kt)0,
                                       (long)(flp->lnum - fp2->fd_top - 1),
-                                      (linenr_T)MAXLNUM,
+                                      (linenum_kt)MAXLNUM,
                                       (long)(fp2->fd_top - flp->lnum));
 
                 fp2->fd_len -= flp->lnum - fp2->fd_top;
@@ -3085,7 +3085,7 @@ static void foldInsert(garray_st *gap, int i)
 /// "bot" in two pieces, one ending above "top" and the other starting below
 /// "bot". The caller must first have taken care of any nested folds from
 /// "top" to "bot"!
-static void foldSplit(garray_st *gap, int i, linenr_T top, linenr_T bot)
+static void foldSplit(garray_st *gap, int i, linenum_kt top, linenum_kt bot)
 {
     fold_T *fp;
     fold_T *fp2;
@@ -3148,7 +3148,7 @@ static void foldSplit(garray_st *gap, int i, linenr_T top, linenr_T bot)
 /// 4: deleted
 /// 5: made to start below "bot".
 /// 6: not changed
-static void foldRemove(garray_st *gap, linenr_T top, linenr_T bot)
+static void foldRemove(garray_st *gap, linenum_kt top, linenum_kt bot)
 {
     fold_T *fp = NULL;
 
@@ -3195,8 +3195,8 @@ static void foldRemove(garray_st *gap, linenr_T top, linenr_T bot)
             {
                 // 5: Make fold that includes bot start below bot.
                 foldMarkAdjustRecurse(&fp->fd_nested,
-                                      (linenr_T)0, (long)(bot - fp->fd_top),
-                                      (linenr_T)MAXLNUM,
+                                      (linenum_kt)0, (long)(bot - fp->fd_top),
+                                      (linenum_kt)MAXLNUM,
                                       (long)(fp->fd_top - bot - 1));
 
                 fp->fd_len -= bot - fp->fd_top + 1;
@@ -3252,7 +3252,7 @@ static void reverse_fold_order(garray_st *gap, size_t start, size_t end)
 /// 8. truncated below dest and shifted up.
 /// 9. shifted up
 /// 10. not changed
-static void truncate_fold(fold_T *fp, linenr_T end)
+static void truncate_fold(fold_T *fp, linenum_kt end)
 {
     // I want to stop *at here*, foldRemove() stops *above* top
     end += 1;
@@ -3265,13 +3265,13 @@ static void truncate_fold(fold_T *fp, linenr_T end)
 #define FOLD_INDEX(fp, gap) ((size_t)(fp - ((fold_T *)(gap)->ga_data)))
 
 void foldMoveRange(garray_st *gap,
-                   const linenr_T line1,
-                   const linenr_T line2,
-                   const linenr_T dest)
+                   const linenum_kt line1,
+                   const linenum_kt line2,
+                   const linenum_kt dest)
 {
     fold_T *fp;
-    const linenr_T range_len = line2 - line1 + 1;
-    const linenr_T move_len = dest - line2;
+    const linenum_kt range_len = line2 - line1 + 1;
+    const linenum_kt move_len = dest - line2;
     const bool at_start = foldFind(gap, line1 - 1, &fp);
 
     if(at_start)
@@ -3447,7 +3447,7 @@ static void foldlevelIndent(fline_T *flp)
 {
     uchar_kt *s;
     fbuf_st *buf;
-    linenr_T lnum = flp->lnum + flp->off;
+    linenum_kt lnum = flp->lnum + flp->off;
     buf = flp->wp->w_buffer;
     s = skipwhite(ml_get_buf(buf, lnum, FALSE));
 
@@ -3498,7 +3498,7 @@ static void foldlevelExpr(fline_T *flp)
     win_st *win;
     int n;
     int c;
-    linenr_T lnum = flp->lnum + flp->off;
+    linenum_kt lnum = flp->lnum + flp->off;
     int save_keytyped;
     win = curwin;
     curwin = flp->wp;
@@ -3721,7 +3721,7 @@ static void foldlevelMarker(fline_T *flp)
 /// Doesn't use any caching.
 static void foldlevelSyntax(fline_T *flp)
 {
-    linenr_T lnum = flp->lnum + flp->off;
+    linenum_kt lnum = flp->lnum + flp->off;
     int n;
 
     // Use the maximum fold level at the start of this line and the next.
@@ -3747,7 +3747,7 @@ int put_folds(FILE *fd, win_st *wp)
     if(foldmethodIsManual(wp))
     {
         if(put_line(fd, "silent! normal! zE") == FAIL
-           || put_folds_recurse(fd, &wp->w_folds, (linenr_T)0) == FAIL)
+           || put_folds_recurse(fd, &wp->w_folds, (linenum_kt)0) == FAIL)
         {
             return FAIL;
         }
@@ -3756,7 +3756,7 @@ int put_folds(FILE *fd, win_st *wp)
     // If some folds are manually opened/closed, need to restore that.
     if(wp->w_fold_manual)
     {
-        return put_foldopen_recurse(fd, wp, &wp->w_folds, (linenr_T)0);
+        return put_foldopen_recurse(fd, wp, &wp->w_folds, (linenum_kt)0);
     }
 
     return OK;
@@ -3764,7 +3764,7 @@ int put_folds(FILE *fd, win_st *wp)
 
 /// Write commands to "fd" to recreate manually created folds.
 /// Returns FAIL when writing failed.
-static int put_folds_recurse(FILE *fd, garray_st *gap, linenr_T off)
+static int put_folds_recurse(FILE *fd, garray_st *gap, linenum_kt off)
 {
     fold_T *fp = (fold_T *)gap->ga_data;
 
@@ -3795,7 +3795,7 @@ static int put_folds_recurse(FILE *fd, garray_st *gap, linenr_T off)
 static int put_foldopen_recurse(FILE *fd,
                                 win_st *wp,
                                 garray_st *gap,
-                                linenr_T off)
+                                linenum_kt off)
 {
     int level;
     fold_T *fp = (fold_T *)gap->ga_data;
@@ -3855,7 +3855,7 @@ static int put_foldopen_recurse(FILE *fd,
 
 /// Write the open or close command to "fd".
 /// Returns FAIL when writing failed.
-static int put_fold_open_close(FILE *fd, fold_T *fp, linenr_T off)
+static int put_fold_open_close(FILE *fd, fold_T *fp, linenum_kt off)
 {
     if(fprintf(fd, "%" PRId64, (int64_t)(fp->fd_top + off)) < 0
        || put_eol(fd) == FAIL

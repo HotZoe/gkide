@@ -3050,7 +3050,7 @@ static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
     int save_magic;
     bool save_p_ws;
     int save_p_scs, save_p_ic;
-    linenr_T save_lnum;
+    linenum_kt save_lnum;
     int csave = 0;
     uchar_kt *str;
     uchar_kt *pbuf; // search pattern buffer
@@ -3159,7 +3159,7 @@ static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
         }
     }
 
-    getfile_result = getfile(0, fname, NULL, TRUE, (linenr_T)0, forceit);
+    getfile_result = getfile(0, fname, NULL, TRUE, (linenum_kt)0, forceit);
     keep_help_flag = FALSE;
 
     if(getfile_result <= 0) // got to the right file

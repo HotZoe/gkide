@@ -94,7 +94,7 @@ FUNC_API_SINCE(1)
         return;
     }
 
-    win->w_cursor.lnum = (linenr_T)row;
+    win->w_cursor.lnum = (linenum_kt)row;
     win->w_cursor.col = (colnr_T)col;
     win->w_cursor.coladd = 0;
 

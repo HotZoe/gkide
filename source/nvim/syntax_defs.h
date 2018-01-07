@@ -60,7 +60,7 @@ struct syn_state
     /// next entry in used or free list
     synstate_T *sst_next;
     /// line number for this state
-    linenr_T sst_lnum;
+    linenum_kt sst_lnum;
     union
     {
         /// short state stack
@@ -77,7 +77,7 @@ struct syn_state
     /// tick when last displayed
     disptick_T sst_tick;
     /// when non-zero, change in this line may have made the state invalid
-    linenr_T sst_change_lnum;
+    linenum_kt sst_change_lnum;
 };
 
 /// Structure shared between syntax.c, screen.c

@@ -699,7 +699,7 @@ static size_t word_length(const uchar_kt *str)
 static void read_input(DynamicBuffer *buf)
 {
     size_t written = 0, l = 0, len = 0;
-    linenr_T lnum = curbuf->b_op_start.lnum;
+    linenum_kt lnum = curbuf->b_op_start.lnum;
     uchar_kt *lp = ml_get(lnum);
 
     for(;;)

@@ -3,12 +3,6 @@
 #ifndef NVIM_POS_H
 #define NVIM_POS_H
 
-/// Format used to print values which have linenr_T type
-#define PRIdLINENR "ld"
-
-/// Format used to print values which have colnr_T type
-#define PRIdCOLNR "d"
-
 /// maximum (invalid) line number
 #define MAXLNUM   0x7fffffff
 
@@ -17,16 +11,18 @@
 
 #define INIT_POS_T(l, c, ca) {l, c, ca}
 
-/// line number type
-typedef long linenr_T;
+typedef long linenum_kt; /// line number
+typedef int colnr_T;  /// Column number
 
-/// Column number type
-typedef int colnr_T;
+/// Format used to print values which have linenum_kt type
+#define PRIdLINENR  "ld"
+/// Format used to print values which have colnr_T type
+#define PRIdCOLNR   "d"
 
 /// position in file or buffer
 typedef struct
 {
-    linenr_T lnum;   ///< line number
+    linenum_kt lnum;   ///< line number
     colnr_T col;     ///< column number
     colnr_T coladd;
 } pos_T;
@@ -35,7 +31,7 @@ typedef struct
 /// Same, but without coladd.
 typedef struct
 {
-    linenr_T lnum; ///< line number
+    linenum_kt lnum; ///< line number
     colnr_T col;   ///< column number
 } lpos_T;
 

@@ -90,7 +90,7 @@ typedef struct
 /// Lines matched during :substitute.
 typedef struct
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     long nmatch;
     uchar_kt *line;
     kvec_t(colnr_T) cols;  ///< columns of in-line matches
@@ -284,7 +284,7 @@ void ex_align(exarg_T *eap)
         }
     }
 
-    if(u_save((linenr_T)(eap->line1 - 1), (linenr_T)(eap->line2 + 1)) == FAIL)
+    if(u_save((linenum_kt)(eap->line1 - 1), (linenum_kt)(eap->line2 + 1)) == FAIL)
     {
         return;
     }
@@ -402,7 +402,7 @@ static int sort_abort; ///< flag to indicate if sorting has been interrupted
 /// Struct to store info to be sorted.
 typedef struct
 {
-    linenr_T lnum;          ///< line number
+    linenum_kt lnum;          ///< line number
     long start_col_nr;      ///< starting column number or number
     long end_col_nr;        ///< ending column number
     union
@@ -485,7 +485,7 @@ void ex_sort(exarg_T *eap)
 {
     regmatch_T regmatch;
     int len;
-    linenr_T lnum;
+    linenum_kt lnum;
     long maxlen = 0;
     size_t count = (size_t)(eap->line2 - eap->line1 + 1);
     size_t i;
@@ -505,7 +505,7 @@ void ex_sort(exarg_T *eap)
         return;
     }
 
-    if(u_save((linenr_T)(eap->line1 - 1), (linenr_T)(eap->line2 + 1)) == FAIL)
+    if(u_save((linenum_kt)(eap->line1 - 1), (linenum_kt)(eap->line2 + 1)) == FAIL)
     {
         return;
     }
@@ -832,7 +832,7 @@ sortend:
 /// ":retab".
 void ex_retab(exarg_T *eap)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     int got_tab = FALSE;
     long num_spaces = 0;
     long num_tabs;
@@ -848,8 +848,8 @@ void ex_retab(exarg_T *eap)
     int did_undo; // called u_save for current line
     int new_ts;
     int save_list;
-    linenr_T first_line = 0; // first changed line
-    linenr_T last_line = 0; // last changed line
+    linenum_kt first_line = 0; // first changed line
+    linenum_kt last_line = 0; // last changed line
     save_list = curwin->w_p_list;
     curwin->w_p_list = 0; // don't want list mode here
     new_ts = getdigits_int(&(eap->arg));
@@ -922,8 +922,8 @@ void ex_retab(exarg_T *eap)
                         {
                             did_undo = true;
 
-                            if(u_save((linenr_T)(lnum - 1),
-                                      (linenr_T)(lnum + 1)) == FAIL)
+                            if(u_save((linenum_kt)(lnum - 1),
+                                      (linenum_kt)(lnum + 1)) == FAIL)
                             {
                                 new_line = NULL; // flag out-of-memory
                                 break;
@@ -1015,13 +1015,13 @@ void ex_retab(exarg_T *eap)
 /// :move command - move lines line1-line2 to line dest
 ///
 /// return FAIL for failure, OK otherwise
-int do_move(linenr_T line1, linenr_T line2, linenr_T dest)
+int do_move(linenum_kt line1, linenum_kt line2, linenum_kt dest)
 {
     uchar_kt *str;
-    linenr_T l;
-    linenr_T extra; // Num lines added before line1
-    linenr_T num_lines; // Num lines moved
-    linenr_T last_line; // Last line in file after adding new text
+    linenum_kt l;
+    linenum_kt extra; // Num lines added before line1
+    linenum_kt num_lines; // Num lines moved
+    linenum_kt last_line; // Last line in file after adding new text
 
     if(dest >= line1 && dest < line2)
     {
@@ -1158,9 +1158,9 @@ int do_move(linenr_T line1, linenr_T line2, linenr_T dest)
 }
 
 /// ":copy"
-void ex_copy(linenr_T line1, linenr_T line2, linenr_T n)
+void ex_copy(linenum_kt line1, linenum_kt line2, linenum_kt n)
 {
-    linenr_T count;
+    linenum_kt count;
     uchar_kt *p;
     count = line2 - line1 + 1;
     curbuf->b_op_start.lnum = n + 1;
@@ -1233,8 +1233,8 @@ void free_prev_shellcmd(void)
 void do_bang(int addr_count, exarg_T *eap, int forceit, int do_in, int do_out)
 {
     uchar_kt *arg = eap->arg; // command
-    linenr_T line1 = eap->line1; // start of range
-    linenr_T line2 = eap->line2; // end of range
+    linenum_kt line1 = eap->line1; // start of range
+    linenum_kt line2 = eap->line2; // end of range
     uchar_kt *newcmd = NULL; // the new command
     int free_newcmd = FALSE; // need to free() newcmd
     int ins_prevcmd;
@@ -1400,8 +1400,8 @@ void do_bang(int addr_count, exarg_T *eap, int forceit, int do_in, int do_out)
 /// @param do_in
 /// @param do_out
 ///
-static void do_filter(linenr_T line1,
-                      linenr_T line2,
+static void do_filter(linenum_kt line1,
+                      linenum_kt line2,
                       exarg_T *eap,
                       uchar_kt *cmd,
                       int do_in,
@@ -1409,8 +1409,8 @@ static void do_filter(linenr_T line1,
 {
     uchar_kt *itmp = NULL;
     uchar_kt *otmp = NULL;
-    linenr_T linecount;
-    linenr_T read_linecount;
+    linenum_kt linecount;
+    linenum_kt read_linecount;
     pos_T cursor_save;
     uchar_kt *cmd_buf;
     fbuf_st *old_curbuf = curbuf;
@@ -1521,7 +1521,7 @@ static void do_filter(linenr_T line1,
 
     if(do_out)
     {
-        if(u_save((linenr_T)(line2), (linenr_T)(line2 + 1)) == FAIL)
+        if(u_save((linenum_kt)(line2), (linenum_kt)(line2 + 1)) == FAIL)
         {
             xfree(cmd_buf);
             goto error;
@@ -1556,8 +1556,8 @@ static void do_filter(linenr_T line1,
     {
         if(otmp != NULL)
         {
-            if(readfile(otmp, NULL, line2, (linenr_T)0,
-                        (linenr_T)MAXLNUM, eap, READ_FILTER) != OK)
+            if(readfile(otmp, NULL, line2, (linenum_kt)0,
+                        (linenum_kt)MAXLNUM, eap, READ_FILTER) != OK)
             {
                 if(!aborting())
                 {
@@ -1901,7 +1901,7 @@ void append_redir(char *const buf,
     }
 }
 
-void print_line_no_prefix(linenr_T lnum, int use_number, int list)
+void print_line_no_prefix(linenum_kt lnum, int use_number, int list)
 {
     char numbuf[30];
 
@@ -1917,7 +1917,7 @@ void print_line_no_prefix(linenr_T lnum, int use_number, int list)
 }
 
 /// Print a text line.  Also in silent mode ("ex -s").
-void print_line(linenr_T lnum, int use_number, int list)
+void print_line(linenum_kt lnum, int use_number, int list)
 {
     int save_silent = silent_mode;
 
@@ -2105,7 +2105,7 @@ int do_write(exarg_T *eap)
         if(vim_strchr(p_cpo, CPO_ALTWRITE) != NULL
            || eap->cmdidx == CMD_saveas)
         {
-            alt_buf = setaltfname(ffname, fname, (linenr_T)1);
+            alt_buf = setaltfname(ffname, fname, (linenum_kt)1);
         }
         else
         {
@@ -2558,7 +2558,7 @@ int getfile(int fnum,
             uchar_kt *ffname,
             uchar_kt *sfname,
             int setpm,
-            linenr_T lnum,
+            linenum_kt lnum,
             int forceit)
 {
     int other;
@@ -2703,7 +2703,7 @@ int do_ecmd(int fnum,
             uchar_kt *ffname,
             uchar_kt *sfname,
             exarg_T *eap,
-            linenr_T newlnum,
+            linenum_kt newlnum,
             int flags,
             win_st *oldwin)
 {
@@ -2722,7 +2722,7 @@ int do_ecmd(int fnum,
     int retval = FAIL;
     long n;
     pos_T orig_pos;
-    linenr_T topline = 0;
+    linenum_kt topline = 0;
     int newcol = -1;
     int solcol = -1;
     pos_T *pos;
@@ -2828,7 +2828,7 @@ int do_ecmd(int fnum,
     // copied into the GUI selection buffer.
     reset_VIsual();
 
-    if((command != NULL || newlnum > (linenr_T)0)
+    if((command != NULL || newlnum > (linenum_kt)0)
        && *get_vim_var_str(VV_SWAPCOMMAND) == NUL)
     {
         // Set v:swapcommand for the SwapExists autocommands.
@@ -2874,7 +2874,7 @@ int do_ecmd(int fnum,
         {
             if(flags & ECMD_ADDBUF)
             {
-                linenr_T tlnum = 1L;
+                linenum_kt tlnum = 1L;
 
                 if(command != NULL)
                 {
@@ -3430,7 +3430,7 @@ void ex_append(exarg_T *eap)
 {
     uchar_kt *theline;
     int did_undo = FALSE;
-    linenr_T lnum = eap->line2;
+    linenum_kt lnum = eap->line2;
     int indent = 0;
     uchar_kt *p;
     int vcol;
@@ -3616,7 +3616,7 @@ void ex_append(exarg_T *eap)
 /// ":change"
 void ex_change(exarg_T *eap)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(eap->line2 >= eap->line1
        && u_save(eap->line1 - 1, eap->line2 + 1) == FAIL)
@@ -3655,9 +3655,9 @@ void ex_z(exarg_T *eap)
     int bigness;
     uchar_kt *kind;
     int minus = 0;
-    linenr_T start, end, curs, i;
+    linenum_kt start, end, curs, i;
     int j;
-    linenr_T lnum = eap->line2;
+    linenum_kt lnum = eap->line2;
 
     // Vi compatible: ":z!" uses display height,
     // without a count uses 'scroll'
@@ -3723,7 +3723,7 @@ void ex_z(exarg_T *eap)
     switch(*kind)
     {
         case '-':
-            start = lnum - bigness * (linenr_T)(x - kind) + 1;
+            start = lnum - bigness * (linenum_kt)(x - kind) + 1;
             end = start + bigness - 1;
             curs = end;
             break;
@@ -3752,7 +3752,7 @@ void ex_z(exarg_T *eap)
 
             if(*kind == '+')
             {
-                start += bigness * (linenr_T)(x - kind - 1) + 1;
+                start += bigness * (linenum_kt)(x - kind - 1) + 1;
             }
             else if(eap->addr_count == 0)
             {
@@ -3931,7 +3931,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
         }
 
         // The number of lines joined is the number of lines in the range
-        linenr_T joined_lines_count =
+        linenum_kt joined_lines_count =
             eap->line2
             - eap->line1
             + 1
@@ -4139,9 +4139,9 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
     int got_match = false;
     int which_pat;
     uchar_kt *cmd = eap->arg;
-    linenr_T first_line = 0; // first changed line
-    linenr_T last_line= 0; // below last changed line AFTER the change
-    linenr_T old_line_count = curbuf->b_ml.ml_line_count;
+    linenum_kt first_line = 0; // first changed line
+    linenum_kt last_line= 0; // below last changed line AFTER the change
+    linenum_kt old_line_count = curbuf->b_ml.ml_line_count;
     uchar_kt *sub_firstline; // allocated copy of first sub line
     bool endcolumn = false; // cursor in last column when done
     MatchedLineVec matched_lines = KV_INITIAL_VALUE;
@@ -4358,9 +4358,9 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
     }
 
     // Check for a match on each line.
-    linenr_T line2 = eap->line2;
+    linenum_kt line2 = eap->line2;
 
-    for(linenr_T lnum = eap->line1;
+    for(linenum_kt lnum = eap->line1;
         lnum <= line2 && !(got_quit || aborting());
         lnum++)
     {
@@ -4384,7 +4384,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
             long nmatch_tl = 0; // nr of lines matched below lnum
             int do_again; // do it again after joining lines
             int skip_match = false;
-            linenr_T sub_firstlnum; // nr of first sub line
+            linenum_kt sub_firstlnum; // nr of first sub line
 
             // The new text is build up step by step, to avoid too much
             // copying. There are these pieces:
@@ -4916,7 +4916,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                                           (colnr_T)(p1 - new_start + 1),
                                           false);
 
-                                mark_adjust(lnum + 1, (linenr_T)MAXLNUM, 1L, 0L);
+                                mark_adjust(lnum + 1, (linenum_kt)MAXLNUM, 1L, 0L);
 
                                 if(subflags.do_ask)
                                 {
@@ -5327,7 +5327,7 @@ bool do_sub_msg(bool count_only)
 /// deleting lines we do not know where to search for the next match.
 void ex_global(exarg_T *eap)
 {
-    linenr_T lnum; // line number according to old situation
+    linenum_kt lnum; // line number according to old situation
     int ndone = 0;
     int type; // first char of cmd: 'v' or 'g'
     uchar_kt *cmd; // command argument
@@ -5459,9 +5459,9 @@ void ex_global(exarg_T *eap)
 /// Execute `cmd` on lines marked with ml_setmarked().
 void global_exe(uchar_kt *cmd)
 {
-    linenr_T old_lcount; // b_ml.ml_line_count before the command
+    linenum_kt old_lcount; // b_ml.ml_line_count before the command
     fbuf_st *old_buf = curbuf; // remember what buffer we started in
-    linenr_T lnum; // line number according to old situation
+    linenum_kt lnum; // line number according to old situation
     int save_mapped_ctrl_c = mapped_ctrl_c;
 
     // Set current position only once for a global command.
@@ -6224,7 +6224,7 @@ static void prepare_help_buffer(void)
 /// highlighting is not used.
 void fix_help_buffer(void)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *line;
     int in_example = FALSE;
     int len;
@@ -7255,7 +7255,7 @@ void ex_sign(exarg_T *eap)
     else
     {
         int id = -1;
-        linenr_T lnum = -1;
+        linenum_kt lnum = -1;
         uchar_kt *sign_name = NULL;
         uchar_kt *arg1;
 
@@ -7925,7 +7925,7 @@ FUNC_ATTR_NONNULL_ALL
         curwin->w_p_fen = false;
 
         // Width of the "| lnum|..." column which displays the line numbers.
-        linenr_T highest_num_line = kv_last(*matched_lines).lnum;
+        linenum_kt highest_num_line = kv_last(*matched_lines).lnum;
         int col_width = log10(highest_num_line) + 1 + 3;
         char *str = NULL;
         size_t old_line_size = 0;

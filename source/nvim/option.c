@@ -9243,7 +9243,7 @@ bool file_ff_differs(fbuf_st *buf, bool ignore_empty)
     if(ignore_empty
        && (buf->b_flags & BF_NEW)
        && buf->b_ml.ml_line_count == 1
-       && *ml_get_buf(buf, (linenr_T)1, FALSE) == NUL)
+       && *ml_get_buf(buf, (linenum_kt)1, FALSE) == NUL)
     {
         return FALSE;
     }

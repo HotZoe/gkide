@@ -2987,11 +2987,11 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// a special string like ".", "$", … (works with current buffer only).
 ///
 /// @return Line number or -1 or 0.
-linenr_T tv_get_lnum(const typval_st *const tv)
+linenum_kt tv_get_lnum(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    linenr_T lnum = tv_get_number_chk(tv, NULL);
+    linenum_kt lnum = tv_get_number_chk(tv, NULL);
 
     // No valid number, try using same function as line() does.
     if(lnum == 0)

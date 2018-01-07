@@ -1530,7 +1530,7 @@ static void adjust_topline(Terminal *term, fbuf_st *buf, long added)
     {
         if(wp->w_buffer == buf)
         {
-            linenr_T ml_end = buf->b_ml.ml_line_count;
+            linenum_kt ml_end = buf->b_ml.ml_line_count;
 
             // cursor at end ?
             bool following = ml_end == wp->w_cursor.lnum + added;

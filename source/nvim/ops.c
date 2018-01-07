@@ -189,8 +189,8 @@ void op_shift(oparg_T *oap, int curs_top, int amount)
     uchar_kt *s;
     int block_col = 0;
 
-    if(u_save((linenr_T)(oap->start.lnum - 1),
-              (linenr_T)(oap->end.lnum + 1)) == FAIL)
+    if(u_save((linenum_kt)(oap->start.lnum - 1),
+              (linenum_kt)(oap->end.lnum + 1)) == FAIL)
     {
         return;
     }
@@ -577,7 +577,7 @@ static void block_insert(oparg_T *oap,
     colnr_T offset; // pointer along new line
     size_t s_len = STRLEN(s);
     uchar_kt *newp, *oldp; // new, old lines
-    linenr_T lnum; // loop var
+    linenum_kt lnum; // loop var
     int oldstate = curmod;
     curmod = kInsertMode; // don't want 'kReplaceMode' for 'curmod'
 
@@ -704,9 +704,9 @@ void op_reindent(oparg_T *oap, Indenter how)
     long i;
     uchar_kt *l;
     int amount;
-    linenr_T first_changed = 0;
-    linenr_T last_changed = 0;
-    linenr_T start_lnum = curwin->w_cursor.lnum;
+    linenum_kt first_changed = 0;
+    linenum_kt last_changed = 0;
+    linenum_kt start_lnum = curwin->w_cursor.lnum;
 
     // Don't even try when 'modifiable' is off.
     if(!MODIFIABLE(curbuf))
@@ -1634,11 +1634,11 @@ bool cmdline_paste_reg(int regname, bool literally, bool remcr)
 int op_delete(oparg_T *oap)
 {
     int n;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *ptr;
     uchar_kt *newp, *oldp;
     struct block_def bd;
-    linenr_T old_lcount = curbuf->b_ml.ml_line_count;
+    linenum_kt old_lcount = curbuf->b_ml.ml_line_count;
 
     if(curbuf->b_ml.ml_flags & ML_EMPTY) // nothing to do
     {
@@ -1766,8 +1766,8 @@ int op_delete(oparg_T *oap)
     // block mode delete
     if(oap->motion_type == kMTBlockWise)
     {
-        if(u_save((linenr_T)(oap->start.lnum - 1),
-                  (linenr_T)(oap->end.lnum + 1)) == FAIL)
+        if(u_save((linenum_kt)(oap->start.lnum - 1),
+                  (linenum_kt)(oap->end.lnum + 1)) == FAIL)
         {
             return FAIL;
         }
@@ -1903,8 +1903,8 @@ int op_delete(oparg_T *oap)
                && oap->inclusive)
             {
                 // save last line for undo
-                if(u_save((linenr_T)(oap->end.lnum - 1),
-                          (linenr_T)(oap->end.lnum + 1)) == FAIL)
+                if(u_save((linenum_kt)(oap->end.lnum - 1),
+                          (linenum_kt)(oap->end.lnum + 1)) == FAIL)
                 {
                     return FAIL;
                 }
@@ -1971,8 +1971,8 @@ int op_delete(oparg_T *oap)
             pos_T curpos;
 
             // save deleted and changed lines for undo
-            if(u_save((linenr_T)(curwin->w_cursor.lnum - 1),
-                      (linenr_T)(curwin->w_cursor.lnum
+            if(u_save((linenum_kt)(curwin->w_cursor.lnum - 1),
+                      (linenum_kt)(curwin->w_cursor.lnum
                                  + oap->line_count)) == FAIL)
             {
                 return FAIL;
@@ -2058,8 +2058,8 @@ int op_replace(oparg_T *oap, int c)
         mb_adjust_opend(oap);
     }
 
-    if(u_save((linenr_T)(oap->start.lnum - 1),
-              (linenr_T)(oap->end.lnum + 1)) == FAIL)
+    if(u_save((linenum_kt)(oap->start.lnum - 1),
+              (linenum_kt)(oap->end.lnum + 1)) == FAIL)
     {
         return FAIL;
     }
@@ -2335,8 +2335,8 @@ void op_tilde(oparg_T *oap)
     struct block_def bd;
     int did_change = FALSE;
 
-    if(u_save((linenr_T)(oap->start.lnum - 1),
-              (linenr_T)(oap->end.lnum + 1)) == FAIL)
+    if(u_save((linenum_kt)(oap->start.lnum - 1),
+              (linenum_kt)(oap->end.lnum + 1)) == FAIL)
     {
         return;
     }
@@ -2652,7 +2652,7 @@ void op_insert(oparg_T *oap, long count1)
     }
 
     t1 = oap->start;
-    edit(NUL, false, (linenr_T)count1);
+    edit(NUL, false, (linenum_kt)count1);
 
     // When a tab was inserted, and the characters in front of the tab
     // have been converted to a tab as well, the column of the cursor
@@ -2745,7 +2745,7 @@ void op_insert(oparg_T *oap, long count1)
             ins_text = vim_strnsave(firstline, (size_t)ins_len);
 
             // block handled here
-            if(u_save(oap->start.lnum, (linenr_T)(oap->end.lnum + 1)) == OK)
+            if(u_save(oap->start.lnum, (linenum_kt)(oap->end.lnum + 1)) == OK)
             {
                 block_insert(oap, ins_text, (oap->op_type == OP_INSERT), &bd);
             }
@@ -2765,7 +2765,7 @@ int op_change(oparg_T *oap)
     colnr_T l;
     int retval;
     long offset;
-    linenr_T linenr;
+    linenum_kt linenr;
     long ins_len;
     long pre_textlen = 0;
     long pre_indent = 0;
@@ -2828,7 +2828,7 @@ int op_change(oparg_T *oap)
         fix_indent();
     }
 
-    retval = edit(NUL, FALSE, (linenr_T)1);
+    retval = edit(NUL, FALSE, (linenum_kt)1);
 
     // In Visual block mode, handle copying the new text to all lines of
     // the block. Don't repeat the insert when Insert mode ended with CTRL-C.
@@ -2979,11 +2979,11 @@ static void op_yank_reg(oparg_T *oap,
 {
     yankreg_T newreg; // new yank register when appending
     uchar_kt **new_ptr;
-    linenr_T lnum; // current line number
+    linenum_kt lnum; // current line number
     size_t j;
     MotionType yank_type = oap->motion_type;
     size_t yanklines = (size_t)oap->line_count;
-    linenr_T yankendlnum = oap->end.lnum;
+    linenum_kt yankendlnum = oap->end.lnum;
     uchar_kt *p;
     uchar_kt *pnew;
     struct block_def bd;
@@ -3331,7 +3331,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     uchar_kt *oldp;
     int yanklen;
     size_t totlen = 0; // init for gcc
-    linenr_T lnum;
+    linenum_kt lnum;
     colnr_T col;
     size_t i; // index in y_array[]
     MotionType y_type;
@@ -3650,7 +3650,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
 
     if(y_type == kMTBlockWise)
     {
-        lnum = curwin->w_cursor.lnum + (linenr_T)y_size + 1;
+        lnum = curwin->w_cursor.lnum + (linenum_kt)y_size + 1;
 
         if(lnum > curbuf->b_ml.ml_line_count)
         {
@@ -4145,7 +4145,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
             {
                 mark_adjust(curbuf->b_op_start.lnum
                             + (y_type == kMTCharWise),
-                            (linenr_T)MAXLNUM,
+                            (linenum_kt)MAXLNUM,
                             nr_lines,
                             0L);
             }
@@ -4425,7 +4425,7 @@ void ex_display(exarg_T *eap)
     if((arg == NULL || vim_strchr(arg, '%') != NULL) && !got_int)
     {
         uchar_kt *fname;
-        linenr_T dummy;
+        linenum_kt dummy;
 
         if(buflist_name_nr(0, &fname, &dummy) != FAIL)
         {
@@ -4589,7 +4589,7 @@ int do_join(size_t count,
     int endcurr2 = NUL;
     int currsize = 0; // size of the current line
     int sumsize = 0; // size of the long new line
-    linenr_T t;
+    linenum_kt t;
     colnr_T col = 0;
     int ret = OK;
     int *comments = NULL;
@@ -4600,7 +4600,7 @@ int do_join(size_t count,
     bool prev_was_comment;
 
     if(save_undo && u_save(curwin->w_cursor.lnum - 1,
-                           curwin->w_cursor.lnum + (linenr_T)count) == FAIL)
+                           curwin->w_cursor.lnum + (linenum_kt)count) == FAIL)
     {
         return FAIL;
     }
@@ -4617,9 +4617,9 @@ int do_join(size_t count,
 
     // Don't move anything, just compute the final line length
     // and setup the array of space strings lengths
-    for(t = 0; t < (linenr_T)count; t++)
+    for(t = 0; t < (linenum_kt)count; t++)
     {
-        curr = curr_start = ml_get((linenr_T)(curwin->w_cursor.lnum + t));
+        curr = curr_start = ml_get((linenum_kt)(curwin->w_cursor.lnum + t));
 
         if(t == 0 && setmark)
         {
@@ -4729,7 +4729,7 @@ int do_join(size_t count,
     // Move marks from each deleted line to the joined line,
     // adjusting the column. This is not Vi compatible, but
     // Vi deletes the marks, thus that should not really be a problem.
-    for(t = (linenr_T)count - 1;; t--)
+    for(t = (linenum_kt)count - 1;; t--)
     {
         cend -= currsize;
         memmove(cend, curr, (size_t)currsize);
@@ -4742,7 +4742,7 @@ int do_join(size_t count,
 
         mark_col_adjust(curwin->w_cursor.lnum + t,
                         (colnr_T)0,
-                        (linenr_T)-t,
+                        (linenum_kt)-t,
                         (long)(cend
                                - newp
                                + spaces[t]
@@ -4753,7 +4753,7 @@ int do_join(size_t count,
             break;
         }
 
-        curr = curr_start = ml_get((linenr_T)(curwin->w_cursor.lnum
+        curr = curr_start = ml_get((linenum_kt)(curwin->w_cursor.lnum
                                               + t
                                               - 1));
 
@@ -4817,7 +4817,7 @@ theend:
 /// Return TRUE if the two comment leaders given are the same. "lnum" is
 /// the first line.  White-space is ignored.  Note that the whole of
 /// 'leader1' must match 'leader2_len' characters from 'leader2'
-static int same_leader(linenr_T lnum,
+static int same_leader(linenum_kt lnum,
                        int leader1_len,
                        uchar_kt *leader1_flags,
                        int leader2_len,
@@ -4917,8 +4917,8 @@ void op_format(oparg_T *oap, int keep_cursor)
     // was given, so that "u" can put it back there.
     curwin->w_cursor = oap->cursor_start;
 
-    if(u_save((linenr_T)(oap->start.lnum - 1),
-              (linenr_T)(oap->end.lnum + 1)) == FAIL)
+    if(u_save((linenum_kt)(oap->start.lnum - 1),
+              (linenum_kt)(oap->end.lnum + 1)) == FAIL)
     {
         return;
     }
@@ -5010,7 +5010,7 @@ void op_formatexpr(oparg_T *oap)
 /// @param c           character to be inserted
 ///
 /// @return
-int fex_format(linenr_T lnum, long count, int c)
+int fex_format(linenum_kt lnum, long count, int c)
 {
     int r;
     uchar_kt *fex;
@@ -5055,7 +5055,7 @@ int fex_format(linenr_T lnum, long count, int c)
 ///
 /// @param line_count
 /// @param avoid_fex   don't use 'formatexpr'
-void format_lines(linenr_T line_count, int avoid_fex)
+void format_lines(linenum_kt line_count, int avoid_fex)
 {
     int max_len;
     int is_not_par; // current line not part of parag.
@@ -5335,7 +5335,7 @@ void format_lines(linenr_T line_count, int avoid_fex)
 }
 
 /// Return TRUE if line "lnum" ends in a white character.
-static int ends_in_white(linenr_T lnum)
+static int ends_in_white(linenum_kt lnum)
 {
     size_t l;
     uchar_kt *s = ml_get(lnum);
@@ -5355,7 +5355,7 @@ static int ends_in_white(linenr_T lnum)
 /// ('e' in comment flags), so that this line is skipped, and not joined to the
 /// previous line.  A new paragraph starts after a blank line, or when the
 /// comment leader changes -- webb.
-static int fmt_check_par(linenr_T lnum,
+static int fmt_check_par(linenum_kt lnum,
                          int *leader_len,
                          uchar_kt **leader_flags,
                          int do_comments)
@@ -5392,7 +5392,7 @@ static int fmt_check_par(linenr_T lnum,
 /// Return TRUE when a paragraph starts in line "lnum".
 /// Return FALSE when the previous line is in the same paragraph.
 /// Used for auto-formatting.
-int paragraph_start(linenr_T lnum)
+int paragraph_start(linenum_kt lnum)
 {
     uchar_kt *p;
     int leader_len = 0; // leader len of current line
@@ -5457,7 +5457,7 @@ int paragraph_start(linenr_T lnum)
 ///   char that are to be yanked.
 static void block_prep(oparg_T *oap,
                        struct block_def *bdp,
-                       linenr_T lnum,
+                       linenum_kt lnum,
                        int is_del)
 {
     int incr = 0;
@@ -5630,12 +5630,12 @@ static void block_prep(oparg_T *oap,
 /// @param[in]  oap      Arguments of operator.
 /// @param[in]  Prenum1  Amount of addition or subtraction.
 /// @param[in]  g_cmd    Prefixed with `g`.
-void op_addsub(oparg_T *oap, linenr_T Prenum1, bool g_cmd)
+void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
 {
     pos_T pos;
     struct block_def bd;
     ssize_t change_cnt = 0;
-    linenr_T amount = Prenum1;
+    linenum_kt amount = Prenum1;
 
     if(!VIsual_active)
     {
@@ -5659,8 +5659,8 @@ void op_addsub(oparg_T *oap, linenr_T Prenum1, bool g_cmd)
         int length;
         pos_T startpos;
 
-        if(u_save((linenr_T)(oap->start.lnum - 1),
-                  (linenr_T)(oap->end.lnum + 1)) == FAIL)
+        if(u_save((linenum_kt)(oap->start.lnum - 1),
+                  (linenum_kt)(oap->end.lnum + 1)) == FAIL)
         {
             return;
         }
@@ -5772,7 +5772,7 @@ void op_addsub(oparg_T *oap, linenr_T Prenum1, bool g_cmd)
 /// @param Prenum1  Amount of addition or subtraction.
 ///
 /// @return true if some character was changed.
-int do_addsub(int op_type, pos_T *pos, int length, linenr_T Prenum1)
+int do_addsub(int op_type, pos_T *pos, int length, linenum_kt Prenum1)
 {
     int col;
     uchar_kt *buf1;
@@ -6852,7 +6852,7 @@ void cursor_pos_info(dict_st *dict)
     uchar_kt *p;
     uchar_kt buf1[50];
     uchar_kt buf2[40];
-    linenr_T lnum;
+    linenum_kt lnum;
     long byte_count = 0;
     long bom_count = 0;
     long byte_count_cursor = 0;

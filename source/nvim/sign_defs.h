@@ -12,7 +12,7 @@ typedef struct signlist signlist_T;
 struct signlist
 {
     int id;           ///< unique identifier for each placed sign
-    linenr_T lnum;    ///< line number which has this sign
+    linenum_kt lnum;    ///< line number which has this sign
     int typenr;       ///< typenr of sign
     signlist_T *next; ///< next signlist entry
 };

@@ -262,7 +262,7 @@ void mf_close_file(fbuf_st *buf, bool getlines)
         // get all blocks in memory by accessing all lines (clumsy!)
         mf_dont_release = true;
 
-        for(linenr_T lnum = 1; lnum <= buf->b_ml.ml_line_count; ++lnum)
+        for(linenum_kt lnum = 1; lnum <= buf->b_ml.ml_line_count; ++lnum)
         {
             (void)ml_get_buf(buf, lnum, false);
         }

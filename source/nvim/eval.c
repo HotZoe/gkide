@@ -280,7 +280,7 @@ struct func_call_s
     listitem_st l_listitems[MAX_FUNC_ARGS];///< List items for a:000.
 
     typval_st *rettv;      ///< Return value.
-    linenr_T breakpoint;   ///< Next line with breakpoint or zero.
+    linenum_kt breakpoint;   ///< Next line with breakpoint or zero.
     int dbg_tick;          ///< Debug_tick when breakpoint was set.
     int level;             ///< Top nesting level of executed function.
     proftime_kt prof_child; ///< Time spent in a child.
@@ -753,7 +753,7 @@ uchar_kt *func_name(void *cookie)
 }
 
 /// Return the address holding the next breakpoint line for a funccall cookie.
-linenr_T *func_breakpoint(void *cookie)
+linenum_kt *func_breakpoint(void *cookie)
 {
     return &((func_call_st *)cookie)->breakpoint;
 }
@@ -3404,7 +3404,7 @@ void ex_call(exarg_T *eap)
     uchar_kt *tofree;
     int len;
     typval_st rettv;
-    linenr_T lnum;
+    linenum_kt lnum;
     int doesrange;
     bool failed = false;
     funcdict_T fudi;
@@ -7923,8 +7923,8 @@ static int get_func_tv(uchar_kt *name,
                        int len,
                        typval_st *rettv,
                        uchar_kt **arg,
-                       linenr_T firstline,
-                       linenr_T lastline,
+                       linenum_kt firstline,
+                       linenum_kt lastline,
                        int *doesrange,
                        int evaluate,
                        partial_st *partial,
@@ -8205,8 +8205,8 @@ int call_func(const uchar_kt *funcname,
               int argcount_in,
               typval_st *argvars_in,
               ArgvFunc argv_func,
-              linenr_T firstline,
-              linenr_T lastline,
+              linenum_kt firstline,
+              linenum_kt lastline,
               int *doesrange,
               bool evaluate,
               partial_st *partial,
@@ -9563,7 +9563,7 @@ static void f_cindent(typval_st *argvars,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     pos_T pos;
-    linenr_T lnum;
+    linenum_kt lnum;
     pos = curwin->w_cursor;
     lnum = tv_get_lnum(argvars);
 
@@ -10183,8 +10183,8 @@ static void f_diff_hlID(typval_st *argvars,
                         typval_st *rettv,
                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T lnum = tv_get_lnum(argvars);
-    static linenr_T prev_lnum = 0;
+    linenum_kt lnum = tv_get_lnum(argvars);
+    static linenum_kt prev_lnum = 0;
     static int changedtick = 0;
     static int fnum = 0;
     static int change_start = 0;
@@ -11281,12 +11281,12 @@ static void f_fnamemodify(typval_st *argvars,
 /// "foldclosed()" function
 static void foldclosed_both(typval_st *argvars, typval_st *rettv, int end)
 {
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
     {
-        linenr_T first;
-        linenr_T last;
+        linenum_kt first;
+        linenum_kt last;
 
         if(hasFoldingWin(curwin, lnum, &first, &last, false, NULL))
         {
@@ -11327,7 +11327,7 @@ static void f_foldlevel(typval_st *argvars,
                         typval_st *rettv,
                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
     {
@@ -11340,10 +11340,10 @@ static void f_foldtext(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_st *rettv,
                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T foldstart;
-    linenr_T foldend;
+    linenum_kt foldstart;
+    linenum_kt foldend;
     uchar_kt  *dashes;
-    linenr_T lnum;
+    linenum_kt lnum;
     uchar_kt *s;
     uchar_kt *r;
     int len;
@@ -11351,8 +11351,8 @@ static void f_foldtext(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
-    foldstart = (linenr_T)get_vim_var_nr(VV_FOLDSTART);
-    foldend = (linenr_T)get_vim_var_nr(VV_FOLDEND);
+    foldstart = (linenum_kt)get_vim_var_nr(VV_FOLDSTART);
+    foldend = (linenum_kt)get_vim_var_nr(VV_FOLDEND);
     dashes = get_vim_var_str(VV_FOLDDASHES);
 
     if(foldstart > 0
@@ -11416,7 +11416,7 @@ static void f_foldtextresult(typval_st *argvars,
     int fold_count;
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
-    linenr_T lnum = tv_get_lnum(argvars);
+    linenum_kt lnum = tv_get_lnum(argvars);
 
     // Treat illegal types and illegal string values for {lnum} the same.
     if(lnum < 0)
@@ -11975,8 +11975,8 @@ static void f_getbufinfo(typval_st *argvars,
 /// the specified buffer. If 'retlist' is TRUE, then the lines
 /// are returned as a Vim List.
 static void get_buffer_lines(fbuf_st *buf,
-                             linenr_T start,
-                             linenr_T end,
+                             linenum_kt start,
+                             linenum_kt end,
                              int retlist,
                              typval_st *rettv)
 {
@@ -12046,7 +12046,7 @@ static void get_buffer_lines(fbuf_st *buf,
 /// May be NULL, in this case "$" results in zero return.
 ///
 /// @return Line number or 0 in case of error.
-static linenr_T tv_get_lnum_buf(const typval_st *const tv,
+static linenum_kt tv_get_lnum_buf(const typval_st *const tv,
                                 const fbuf_st *const buf)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -12076,9 +12076,9 @@ static void f_getbufline(typval_st *argvars,
         emsg_off--;
     }
 
-    const linenr_T lnum = tv_get_lnum_buf(&argvars[1], buf);
+    const linenum_kt lnum = tv_get_lnum_buf(&argvars[1], buf);
 
-    const linenr_T end = (argvars[2].v_type == kNvarUnknown
+    const linenum_kt end = (argvars[2].v_type == kNvarUnknown
                           ? lnum : tv_get_lnum_buf(&argvars[2], buf));
 
     get_buffer_lines(buf, lnum, end, true, rettv);
@@ -12262,7 +12262,7 @@ static void f_getchar(typval_st *argvars,
             int row = mouse_row;
             int col = mouse_col;
             win_st *win;
-            linenr_T lnum;
+            linenum_kt lnum;
             win_st *wp;
             int winnr = 1;
 
@@ -12813,9 +12813,9 @@ static void f_getline(typval_st *argvars,
                       typval_st *rettv,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T end;
+    linenum_kt end;
     bool retlist;
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(argvars[1].v_type == kNvarUnknown)
     {
@@ -14282,7 +14282,7 @@ static void f_indent(typval_st *argvars,
                      typval_st *rettv,
                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
     {
@@ -15677,7 +15677,7 @@ static void f_line(typval_st *argvars,
                    typval_st *rettv,
                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T lnum = 0;
+    linenum_kt lnum = 0;
     pos_T *fp;
     int fnum;
     fp = var2fpos(&argvars[0], TRUE, &fnum);
@@ -15695,7 +15695,7 @@ static void f_line2byte(typval_st *argvars,
                         typval_st *rettv,
                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum < 1 || lnum > curbuf->b_ml.ml_line_count + 1)
     {
@@ -15718,7 +15718,7 @@ static void f_lispindent(typval_st *argvars,
                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const pos_T pos = curwin->w_cursor;
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
     {
@@ -16716,7 +16716,7 @@ static void f_nextnonblank(typval_st *argvars,
                            typval_st *rettv,
                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T lnum;
+    linenum_kt lnum;
 
     for(lnum = tv_get_lnum(argvars);; lnum++)
     {
@@ -16825,7 +16825,7 @@ static void f_prevnonblank(typval_st *argvars,
                            typval_st *rettv,
                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    linenr_T lnum = tv_get_lnum(argvars);
+    linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum < 1 || lnum > curbuf->b_ml.ml_line_count)
     {
@@ -17908,7 +17908,7 @@ static int search_cmn(typval_st *argvars, pos_T *match_pos, int *flagsp)
                          1,
                          options,
                          RE_SEARCH,
-                         (linenr_T)lnum_stop,
+                         (linenum_kt)lnum_stop,
                          &tm);
 
     if(subpatnum != FAIL)
@@ -18035,7 +18035,7 @@ static void f_rpcrequest(typval_st *argvars,
 
     script_id_kt save_current_SID;
     uint8_t *save_sourcing_name, *save_autocmd_fname, *save_autocmd_match;
-    linenr_T save_sourcing_lnum;
+    linenum_kt save_sourcing_lnum;
     int save_autocmd_fname_full, save_autocmd_bufnr;
     void *save_funccalp;
 
@@ -18467,7 +18467,7 @@ long do_searchpair(uchar_kt *spat,
                    uchar_kt *skip,
                    int flags,
                    pos_T *match_pos,
-                   linenr_T lnum_stop,
+                   linenum_kt lnum_stop,
                    long time_limit)
 {
     uchar_kt *save_cpo;
@@ -18961,8 +18961,8 @@ static void f_setline(typval_st *argvars,
     list_st *l = NULL;
     listitem_st *li = NULL;
     long added = 0;
-    linenr_T lcount = curbuf->b_ml.ml_line_count;
-    linenr_T lnum = tv_get_lnum(&argvars[0]);
+    linenum_kt lcount = curbuf->b_ml.ml_line_count;
+    linenum_kt lnum = tv_get_lnum(&argvars[0]);
     const char *line = NULL;
 
     if(argvars[1].v_type == kNvarList)
@@ -21076,7 +21076,7 @@ static void f_synID(typval_st *argvars,
                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     // -1 on type error (both)
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
     const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
     bool transerr = false;
     const int trans = tv_get_number_chk(&argvars[2], &transerr);
@@ -21238,7 +21238,7 @@ static void f_synconcealed(typval_st *argvars,
     rettv->vval.v_list = NULL;
 
     // -1 on type error (both)
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
     const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
     memset(str, NUL, sizeof(str));
     tv_list_alloc_ret(rettv);
@@ -21289,7 +21289,7 @@ static void f_synstack(typval_st *argvars,
     rettv->vval.v_list = NULL;
 
     // -1 on type error (both)
-    const linenr_T lnum = tv_get_lnum(argvars);
+    const linenum_kt lnum = tv_get_lnum(argvars);
     const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
 
     if(lnum >= 1
@@ -27468,13 +27468,13 @@ void call_user_func(ufunc_st *fp,
                     int argcount,
                     typval_st *argvars,
                     typval_st *rettv,
-                    linenr_T firstline,
-                    linenr_T lastline,
+                    linenum_kt firstline,
+                    linenum_kt lastline,
                     dict_st *selfdict)
 FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 {
     uchar_kt *save_sourcing_name;
-    linenr_T save_sourcing_lnum;
+    linenum_kt save_sourcing_lnum;
     script_id_kt save_current_SID;
     func_call_st  *fc;
     int save_did_emsg;
@@ -27525,7 +27525,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     fc->level = ex_nesting_level;
 
     // Check if this function has a breakpoint.
-    fc->breakpoint = dbg_find_breakpoint(FALSE, fp->uf_name, (linenr_T)0);
+    fc->breakpoint = dbg_find_breakpoint(FALSE, fp->uf_name, (linenum_kt)0);
     fc->dbg_tick = debug_tick;
 
     // Set up fields for closure.

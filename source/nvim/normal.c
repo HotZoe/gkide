@@ -61,8 +61,8 @@
 typedef struct normal_state
 {
     VimState state;
-    linenr_T conceal_old_cursor_line;
-    linenr_T conceal_new_cursor_line;
+    linenum_kt conceal_old_cursor_line;
+    linenum_kt conceal_new_cursor_line;
     bool command_finished;
     bool ctrl_w;
     bool need_flushbuf;
@@ -85,7 +85,7 @@ typedef struct normal_state
 
 // The Visual area is remembered for reselection.
 static int resel_VIsual_mode = NUL;      ///< 'v', 'V', or Ctrl-V
-static linenr_T resel_VIsual_line_count; ///< number of lines
+static linenum_kt resel_VIsual_line_count; ///< number of lines
 static colnr_T resel_VIsual_vcol;        ///< nr of cols or end col
 static int VIsual_mode_orig = NUL;       ///< saved Visual mode
 static int restart_VIsual_select = 0;    ///<
@@ -1556,7 +1556,7 @@ static int normal_check(VimState *state)
         // Avoids doing it for every change.
         if(diff_need_scrollbind)
         {
-            check_scrollbind((linenr_T)0, 0L);
+            check_scrollbind((linenum_kt)0, 0L);
             diff_need_scrollbind = false;
         }
 
@@ -1635,7 +1635,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
 
     // The visual area is remembered for redo
     static int redo_VIsual_mode = NUL; // 'v', 'V', or Ctrl-V
-    static linenr_T redo_VIsual_line_count; // number of lines
+    static linenum_kt redo_VIsual_line_count; // number of lines
     static colnr_T redo_VIsual_vcol; // number of cols or end column
     static long redo_VIsual_count; // count for Visual operator
     static int redo_VIsual_arg; // extra argument
@@ -3695,7 +3695,7 @@ size_t find_ident_under_cursor(uchar_kt **string, int find_type)
 /// Like find_ident_under_cursor(), but for any window and any position.
 /// However: Uses 'iskeyword' from the current window!.
 size_t find_ident_at_pos(win_st *wp,
-                         linenr_T lnum,
+                         linenum_kt lnum,
                          colnr_T startcol,
                          uchar_kt **string,
                          int find_type)
@@ -4005,8 +4005,8 @@ void clear_showcmd(void)
     if(VIsual_active && !char_avail())
     {
         long lines;
-        linenr_T top;
-        linenr_T bot;
+        linenum_kt top;
+        linenum_kt bot;
         colnr_T leftcol;
         colnr_T rightcol;
         int cursor_bot = lt(VIsual, curwin->w_cursor);
@@ -4255,7 +4255,7 @@ static void display_showcmd(void)
 void do_check_scrollbind(bool check)
 {
     static win_st *old_curwin = NULL;
-    static linenr_T old_topline = 0;
+    static linenum_kt old_topline = 0;
     static int old_topfill = 0;
     static fbuf_st *old_buf = NULL;
     static colnr_T old_leftcol = 0;
@@ -4310,7 +4310,7 @@ void do_check_scrollbind(bool check)
 /// Synchronize any windows that have "scrollbind" set, based on the
 /// number of rows by which the current window has changed
 /// (1998-11-02 16:21:01  R. Edward Ralston <eralston@computer.org>)
-void check_scrollbind(linenr_T topline_diff, long leftcol_diff)
+void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
 {
     long y;
     long topline;
@@ -4572,7 +4572,7 @@ bool find_decl(uchar_kt *ptr,
                      1L,
                      searchflags,
                      RE_LAST,
-                     (linenr_T)0,
+                     (linenum_kt)0,
                      NULL);
 
         if(curwin->w_cursor.lnum >= old_pos.lnum)
@@ -4907,9 +4907,9 @@ static void nv_scroll_line(cmdarg_T *cap)
 /// Scroll "count" lines up or down, and redraw.
 void scroll_redraw(int up, long count)
 {
-    linenr_T prev_topline = curwin->w_topline;
+    linenum_kt prev_topline = curwin->w_topline;
     int prev_topfill = curwin->w_topfill;
-    linenr_T prev_lnum = curwin->w_cursor.lnum;
+    linenum_kt prev_lnum = curwin->w_cursor.lnum;
 
     if(up)
     {
@@ -5286,7 +5286,7 @@ dozet:
             }
             else if(foldmethodIsMarker(curwin))
             {
-                deleteFold((linenr_T)1, curbuf->b_ml.ml_line_count, true, false);
+                deleteFold((linenum_kt)1, curbuf->b_ml.ml_line_count, true, false);
             }
             else
             {
@@ -5710,7 +5710,7 @@ static void nv_hat(cmdarg_T *cap)
 {
     if(!checkclearopq(cap->oap))
     {
-        (void)buflist_getfile((int)cap->count0, (linenr_T)0,
+        (void)buflist_getfile((int)cap->count0, (linenum_kt)0,
                               GETF_SETMARK | GETF_ALT, false);
     }
 }
@@ -6111,7 +6111,7 @@ static void nv_scroll(cmdarg_T *cap)
 {
     long n;
     int used = 0;
-    linenr_T lnum;
+    linenum_kt lnum;
     int half;
     cap->oap->motion_type = kMTLineWise;
     setpcmark();
@@ -6490,7 +6490,7 @@ static void nv_down(cmdarg_T *cap)
 static void nv_gotofile(cmdarg_T *cap)
 {
     uchar_kt *ptr;
-    linenr_T lnum = -1;
+    linenum_kt lnum = -1;
 
     if(text_locked())
     {
@@ -6786,7 +6786,7 @@ static void nv_brackets(cmdarg_T *cap)
                                         ? ACTION_SHOW : ACTION_GOTO),
                                      (cap->cmdchar == ']'
                                       ? curwin->w_cursor.lnum + 1
-                                      : (linenr_T)1),
+                                      : (linenum_kt)1),
                                      MAXLNUM);
 
                 curwin->w_set_curswant = true;
@@ -7022,7 +7022,7 @@ static void nv_brackets(cmdarg_T *cap)
 
                     int regname = cap->oap->regname;
                     int was_visual = VIsual_active;
-                    linenr_T line_count = curbuf->b_ml.ml_line_count;
+                    linenum_kt line_count = curbuf->b_ml.ml_line_count;
                     pos_T start, end;
 
                     if(VIsual_active)
@@ -7166,7 +7166,7 @@ static void nv_brackets(cmdarg_T *cap)
 static void nv_percent(cmdarg_T *cap)
 {
     pos_T *pos;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     cap->oap->inclusive = true;
 
     // {cnt}% : goto {cnt} percentage in file
@@ -7955,7 +7955,7 @@ static void nv_gomark(cmdarg_T *cap)
 static void nv_pcmark(cmdarg_T *cap)
 {
     pos_T *pos;
-    linenr_T lnum = curwin->w_cursor.lnum;
+    linenum_kt lnum = curwin->w_cursor.lnum;
     int old_KeyTyped = KeyTyped; // getting file may reset it
 
     if(!checkclearopq(cap->oap))
@@ -8862,7 +8862,7 @@ static void nv_g_cmd(cmdarg_T *cap)
 /// Handle "o" and "O" commands.
 static void n_opencmd(cmdarg_T *cap)
 {
-    linenr_T oldline = curwin->w_cursor.lnum;
+    linenum_kt oldline = curwin->w_cursor.lnum;
 
     if(!checkclearopq(cap->oap))
     {
@@ -8879,8 +8879,8 @@ static void n_opencmd(cmdarg_T *cap)
                              NULL, &curwin->w_cursor.lnum);
         }
 
-        if(u_save((linenr_T)(curwin->w_cursor.lnum - (cap->cmdchar == 'O' ? 1 : 0)),
-                  (linenr_T)(curwin->w_cursor.lnum + (cap->cmdchar == 'o' ? 1 : 0)))
+        if(u_save((linenum_kt)(curwin->w_cursor.lnum - (cap->cmdchar == 'O' ? 1 : 0)),
+                  (linenum_kt)(curwin->w_cursor.lnum + (cap->cmdchar == 'o' ? 1 : 0)))
            && open_line(cap->cmdchar == 'O' ? BACKWARD : FORWARD,
                         has_format_option(FO_OPEN_COMS) ? OPENLINE_DO_COM : 0, 0))
         {
@@ -9299,7 +9299,7 @@ static void nv_select(cmdarg_T *cap)
 /// cap->arg is true for "G".
 static void nv_goto(cmdarg_T *cap)
 {
-    linenr_T lnum;
+    linenum_kt lnum;
 
     if(cap->arg)
     {
