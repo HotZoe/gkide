@@ -144,7 +144,7 @@ FUNC_ATTR_NONNULL_ALL
             case kMPConvDict:
             {
                 typval_T key_tv = {
-                    .v_type = VAR_STRING,
+                    .v_type = kNvarString,
                     .vval = { .v_string = (v.data.d.hi == NULL
                                            ? v.data.d.dict->dv_hashtab.ht_array
                                            : (v.data.d.hi - 1))->hi_key },
@@ -172,7 +172,7 @@ FUNC_ATTR_NONNULL_ALL
 
                 if(v.type == kMPConvList
                    || li == NULL
-                   || (li->li_tv.v_type != VAR_LIST
+                   || (li->li_tv.v_type != kNvarList
                        && li->li_tv.vval.v_list->lv_len <= 0))
                 {
                     vim_snprintf((char *) IObuff, IOSIZE, idx_msg, idx);
@@ -263,7 +263,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
             li != NULL;
             li = li->li_next)
         {
-            if(li->li_tv.v_type != VAR_STRING)
+            if(li->li_tv.v_type != kNvarString)
             {
                 return false;
             }
@@ -359,7 +359,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             *p++ = NL;
 
-            if(state->li->li_tv.v_type != VAR_STRING)
+            if(state->li->li_tv.v_type != kNvarString)
             {
                 *read_bytes = (size_t)(p - buf);
                 return FAIL;
@@ -886,12 +886,12 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
 bool encode_check_json_key(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 {
-    if(tv->v_type == VAR_STRING)
+    if(tv->v_type == kNvarString)
     {
         return true;
     }
 
-    if(tv->v_type != VAR_DICT)
+    if(tv->v_type != kNvarDict)
     {
         return false;
     }
@@ -907,11 +907,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
     const dictitem_T *val_di;
 
     if((type_di = tv_dict_find(spdict, S_LEN("_TYPE"))) == NULL
-       || type_di->di_tv.v_type != VAR_LIST
+       || type_di->di_tv.v_type != kNvarList
        || (type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPString]
            && type_di->di_tv.vval.v_list != eval_msgpack_type_lists[kMPBinary])
        || (val_di = tv_dict_find(spdict, S_LEN("_VAL"))) == NULL
-       || val_di->di_tv.v_type != VAR_LIST)
+       || val_di->di_tv.v_type != kNvarList)
     {
         return false;
     }
@@ -925,7 +925,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
         li != NULL;
         li = li->li_next)
     {
-        if(li->li_tv.v_type != VAR_STRING)
+        if(li->li_tv.v_type != kNvarString)
         {
             return false;
         }
@@ -1027,7 +1027,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
     garray_T ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
-    if(tv->v_type == VAR_STRING || tv->v_type == VAR_FUNC)
+    if(tv->v_type == kNvarString || tv->v_type == kNvarUfunc)
     {
         if(tv->vval.v_string != NULL)
         {

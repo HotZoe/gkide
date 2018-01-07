@@ -45,25 +45,25 @@ typedef struct partial_s  partial_st;
 /// NvimL(nvl) variable types, @see typval_T::v_type
 typedef enum
 {
-    VAR_UNKNOWN = 0,  ///< Unknown (unspecified) value.
-    VAR_NUMBER,       ///< Number, number_kt, typval_T::v_number
-    VAR_STRING,       ///< String, string_st, typval_T::v_string
-    VAR_FUNC,         ///< User Function, ufunc_st, typval_T::v_string
-                      ///< is the function name.
-    VAR_LIST,         ///< List, list_st, typval_T::v_list
-    VAR_DICT,         ///< Dictionary, dict_st, typval_T::v_dict
-    VAR_FLOAT,        ///< Float, float_kt, typval_T::v_float
-    VAR_SPECIAL,      ///< Special value (true, false, null),
-                      ///< special_st, typval_T::v_special
-    VAR_PARTIAL,      ///< Partial, partial_st, typval_T::v_partial
-} VarType;
+    kNvarUnknown = 0,  ///< Unknown (unspecified) value.
+    kNvarNumber,       ///< Number, number_kt, typval_T::v_number
+    kNvarString,       ///< String, string_st, typval_T::v_string
+    kNvarUfunc,        ///< User Function, ufunc_st, typval_T::v_string
+                       ///< is the function name.
+    kNvarList,         ///< List, list_st, typval_T::v_list
+    kNvarDict,         ///< Dictionary, dict_st, typval_T::v_dict
+    kNvarFloat,        ///< Float, float_kt, typval_T::v_float
+    kNvarSpecial,      ///< Special value (true, false, null),
+                       ///< special_st, typval_T::v_special
+    kNvarPartial,      ///< Partial, partial_st, typval_T::v_partial
+} nvl_var_type_et;
 
 typedef enum
 {
     kCallbackNone,
     kCallbackFuncref,
     kCallbackPartial,
-} CallbackType;
+} callback_type_et;
 
 typedef struct
 {
@@ -72,7 +72,7 @@ typedef struct
         uchar_kt *funcref;
         partial_st *partial;
     } data;
-    CallbackType type;
+    callback_type_et type;
 } Callback;
 
 #define CALLBACK_NONE ((Callback){ .type = kCallbackNone })
@@ -107,16 +107,16 @@ typedef enum
 /// Structure that holds an internal variable value
 typedef struct
 {
-    VarType v_type;       ///< Variable type.
+    nvl_var_type_et v_type; ///< Variable type.
     VarLockStatus v_lock; ///< Variable lock status.
     union typval_vval_union
     {
-        number_kt v_number;      ///< Number, for VAR_NUMBER.
-        SpecialVarValue v_special; ///< Special value, for VAR_SPECIAL.
-        float_kt v_float;  ///< Floating-point number, for VAR_FLOAT.
-        uchar_kt *v_string; ///< String, for VAR_STRING and VAR_FUNC, can be NULL.
-        list_st *v_list;   ///< List for VAR_LIST, can be NULL.
-        dict_st *v_dict;   ///< Dictionary for VAR_DICT, can be NULL.
+        number_kt v_number;      ///< Number, for kNvarNumber.
+        SpecialVarValue v_special; ///< Special value, for kNvarSpecial.
+        float_kt v_float;  ///< Floating-point number, for kNvarFloat.
+        uchar_kt *v_string; ///< String, for kNvarString and kNvarUfunc, can be NULL.
+        list_st *v_list;   ///< List for kNvarList, can be NULL.
+        dict_st *v_dict;   ///< Dictionary for kNvarDict, can be NULL.
         partial_st *v_partial;      ///< Closure: function with args.
     } vval;               ///< Actual value.
 } typval_T;
@@ -366,7 +366,7 @@ static inline bool tv_dict_is_watched(const dict_st *const d)
 
 /// Initialize VimL object
 ///
-/// Initializes to unlocked VAR_UNKNOWN object.
+/// Initializes to unlocked kNvarUnknown object.
 ///
 /// @param[out]  tv  Object to initialize.
 static inline void tv_init(typval_T *const tv)
@@ -378,7 +378,7 @@ static inline void tv_init(typval_T *const tv)
 }
 
 #define TV_INITIAL_VALUE  \
-    ((typval_T) { .v_type = VAR_UNKNOWN, .v_lock = VAR_UNLOCKED, })
+    ((typval_T) { .v_type = kNvarUnknown, .v_lock = VAR_UNLOCKED, })
 
 /// Empty string
 ///
@@ -423,13 +423,13 @@ bool emsgf(const char *const fmt, ...);
 static inline bool tv_get_float_chk(const typval_T *const tv,
                                     float_kt *const ret_f)
 {
-    if(tv->v_type == VAR_FLOAT)
+    if(tv->v_type == kNvarFloat)
     {
         *ret_f = tv->vval.v_float;
         return true;
     }
 
-    if(tv->v_type == VAR_NUMBER)
+    if(tv->v_type == kNvarNumber)
     {
         *ret_f = (float_kt)tv->vval.v_number;
         return true;
@@ -462,14 +462,14 @@ FUNC_ATTR_CONST;
 
 /// Check whether given typval_T contains a function
 ///
-/// That is, whether it contains VAR_FUNC or VAR_PARTIAL.
+/// That is, whether it contains kNvarUfunc or kNvarPartial.
 ///
 /// @param[in]  tv  Typval to check.
 ///
 /// @return True if it is a function or a partial, false otherwise.
 static inline bool tv_is_func(const typval_T tv)
 {
-    return tv.v_type == VAR_FUNC || tv.v_type == VAR_PARTIAL;
+    return tv.v_type == kNvarUfunc || tv.v_type == kNvarPartial;
 }
 
 /// Specify that argument needs to be translated

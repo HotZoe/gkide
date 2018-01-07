@@ -4240,7 +4240,7 @@ static void spell_suggest_expr(suginfo_T *su, uchar_kt *expr)
     {
         // Loop over the items in the list.
         for(li = list->lv_first; li != NULL; li = li->li_next)
-            if(li->li_tv.v_type == VAR_LIST)
+            if(li->li_tv.v_type == kNvarList)
             {
                 // Get the word and the score from the items.
                 score = get_spellword(li->li_tv.vval.v_list, &p);

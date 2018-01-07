@@ -5542,7 +5542,7 @@ static int ExpandUserList(expand_T *xp, int *num_file, uchar_kt ***file)
     // Loop over the items in the list.
     for(li = retlist->lv_first; li != NULL; li = li->li_next)
     {
-        if(li->li_tv.v_type != VAR_STRING
+        if(li->li_tv.v_type != kNvarString
            || li->li_tv.vval.v_string == NULL)
         {
             continue; // Skip non-string items and empty strings

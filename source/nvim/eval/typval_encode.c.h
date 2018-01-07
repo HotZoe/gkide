@@ -50,7 +50,7 @@
 /// @def TYPVAL_ENCODE_CONV_STRING
 /// @brief Macros used to convert plain string
 ///
-/// Is used to convert VAR_STRING objects as well as BIN strings represented as
+/// Is used to convert kNvarString objects as well as BIN strings represented as
 /// special dictionary.
 ///
 /// @param  tv  Pointer to typval where value is stored. May not be NULL. May
@@ -341,25 +341,25 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 {
     switch(tv->v_type)
     {
-        case VAR_STRING:
+        case kNvarString:
         {
             TYPVAL_ENCODE_CONV_STRING(tv, tv->vval.v_string, tv_strlen(tv));
             break;
         }
 
-        case VAR_NUMBER:
+        case kNvarNumber:
         {
             TYPVAL_ENCODE_CONV_NUMBER(tv, tv->vval.v_number);
             break;
         }
 
-        case VAR_FLOAT:
+        case kNvarFloat:
         {
             TYPVAL_ENCODE_CONV_FLOAT(tv, tv->vval.v_float);
             break;
         }
 
-        case VAR_FUNC:
+        case kNvarUfunc:
         {
             TYPVAL_ENCODE_CONV_FUNC_START(tv, tv->vval.v_string);
             TYPVAL_ENCODE_CONV_FUNC_BEFORE_ARGS(tv, 0);
@@ -368,7 +368,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
             break;
         }
 
-        case VAR_PARTIAL:
+        case kNvarPartial:
         {
             partial_st *const pt = tv->vval.v_partial;
             (void)pt;
@@ -393,7 +393,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
             break;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             if(tv->vval.v_list == NULL || tv->vval.v_list->lv_len == 0)
             {
@@ -427,7 +427,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
             break;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             switch(tv->vval.v_special)
             {
@@ -450,7 +450,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
             break;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             if(tv->vval.v_dict == NULL
                || tv->vval.v_dict->dv_hashtab.ht_used == 0)
@@ -466,7 +466,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                && tv->vval.v_dict->dv_hashtab.ht_used == 2
                && (type_di = tv_dict_find((dict_st *)tv->vval.v_dict,
                                           S_LEN("_TYPE"))) != NULL
-               && type_di->di_tv.v_type == VAR_LIST
+               && type_di->di_tv.v_type == kNvarList
                && (val_di = tv_dict_find((dict_st *)tv->vval.v_dict,
                                          S_LEN("_VAL"))) != NULL)
             {
@@ -495,7 +495,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPBoolean:
                     {
-                        if(val_di->di_tv.v_type != VAR_NUMBER)
+                        if(val_di->di_tv.v_type != kNvarNumber)
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -518,16 +518,16 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                         // non-zero bits (number of bits is not checked), other
                         // unsigned and have at most 31 non-zero bits (number
                         // of bits is not checked).
-                        if((val_di->di_tv.v_type != VAR_LIST)
+                        if((val_di->di_tv.v_type != kNvarList)
                            || (val_list = val_di->di_tv.vval.v_list) == NULL
                            || (val_list->lv_len != 4)
-                           || (val_list->lv_first->li_tv.v_type != VAR_NUMBER)
+                           || (val_list->lv_first->li_tv.v_type != kNvarNumber)
                            || (sign = val_list->lv_first->li_tv.vval.v_number) == 0
-                           || (val_list->lv_first->li_next->li_tv.v_type != VAR_NUMBER)
+                           || (val_list->lv_first->li_next->li_tv.v_type != kNvarNumber)
                            || (highest_bits = val_list->lv_first->li_next->li_tv.vval.v_number) < 0
-                           || (val_list->lv_last->li_prev->li_tv.v_type != VAR_NUMBER)
+                           || (val_list->lv_last->li_prev->li_tv.v_type != kNvarNumber)
                            || (high_bits = val_list->lv_last->li_prev->li_tv.vval.v_number) < 0
-                           || (val_list->lv_last->li_tv.v_type != VAR_NUMBER)
+                           || (val_list->lv_last->li_tv.v_type != kNvarNumber)
                            || (low_bits = val_list->lv_last->li_tv.vval.v_number) < 0)
                         {
                             goto _convert_one_value_regular_dict;
@@ -551,7 +551,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPFloat:
                     {
-                        if(val_di->di_tv.v_type != VAR_FLOAT)
+                        if(val_di->di_tv.v_type != kNvarFloat)
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -566,7 +566,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                     {
                         const bool is_string = ((MessagePackType)i == kMPString);
 
-                        if(val_di->di_tv.v_type != VAR_LIST)
+                        if(val_di->di_tv.v_type != kNvarList)
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -594,7 +594,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPArray:
                     {
-                        if(val_di->di_tv.v_type != VAR_LIST)
+                        if(val_di->di_tv.v_type != kNvarList)
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -625,7 +625,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                     case kMPMap:
                     {
-                        if(val_di->di_tv.v_type != VAR_LIST)
+                        if(val_di->di_tv.v_type != kNvarList)
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -642,7 +642,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                             li != NULL;
                             li = li->li_next)
                         {
-                            if(li->li_tv.v_type != VAR_LIST
+                            if(li->li_tv.v_type != kNvarList
                                || li->li_tv.vval.v_list->lv_len != 2)
                             {
                                 goto _convert_one_value_regular_dict;
@@ -680,13 +680,13 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                         const list_st *val_list;
                         number_kt type;
 
-                        if((val_di->di_tv.v_type != VAR_LIST)
+                        if((val_di->di_tv.v_type != kNvarList)
                            || (val_list = val_di->di_tv.vval.v_list) == NULL
                            || (val_list->lv_len != 2)
-                           || (val_list->lv_first->li_tv.v_type != VAR_NUMBER)
+                           || (val_list->lv_first->li_tv.v_type != kNvarNumber)
                            || (type = val_list->lv_first->li_tv.vval.v_number) > INT8_MAX
                            || (type < INT8_MIN)
-                           || (val_list->lv_last->li_tv.v_type != VAR_LIST))
+                           || (val_list->lv_last->li_tv.v_type != kNvarList))
                         {
                             goto _convert_one_value_regular_dict;
                         }
@@ -746,7 +746,7 @@ _convert_one_value_regular_dict:
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             EMSG2(_(e_intern2), STR(_TYPVAL_ENCODE_CONVERT_ONE_VALUE) "()");
             return FAIL;

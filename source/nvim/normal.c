@@ -2945,10 +2945,10 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                 {
                     typval_T argv[4] = { 0 };
                     argv[0].v_lock = VAR_FIXED;
-                    argv[0].v_type = VAR_NUMBER;
+                    argv[0].v_type = kNvarNumber;
                     argv[0].vval.v_number = (number_kt)tab_page_click_defs[mouse_col].tabnr;
                     argv[1].v_lock = VAR_FIXED;
-                    argv[1].v_type = VAR_NUMBER;
+                    argv[1].v_type = kNvarNumber;
 
                     argv[1].vval.v_number =
                         (number_kt)(((mod_mask & MOD_MASK_MULTI_CLICK)  == MOD_MASK_4CLICK)
@@ -2957,7 +2957,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                                       ? 2 : 1);
 
                     argv[2].v_lock = VAR_FIXED;
-                    argv[2].v_type = VAR_STRING;
+                    argv[2].v_type = kNvarString;
 
                     argv[2].vval.v_string =
                         (uchar_kt *)(which_button == MOUSE_LEFT
@@ -2966,7 +2966,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
                                    ? "m" : "?");
 
                     argv[3].v_lock = VAR_FIXED;
-                    argv[3].v_type = VAR_STRING;
+                    argv[3].v_type = kNvarString;
 
                     argv[3].vval.v_string = (uchar_kt[]) {
                         (uchar_kt)(mod_mask & MOD_MASK_SHIFT ? 's' : ' '),

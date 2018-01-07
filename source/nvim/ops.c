@@ -7290,9 +7290,9 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     tv_list_append_string(args, &regname, 1);
     typval_T result = eval_call_provider("clipboard", "get", args);
 
-    if(result.v_type != VAR_LIST)
+    if(result.v_type != kNvarList)
     {
-        if(result.v_type == VAR_NUMBER && result.vval.v_number == 0)
+        if(result.v_type == kNvarNumber && result.vval.v_number == 0)
         {
             // failure has already been indicated by provider
             errmsg = false;
@@ -7304,11 +7304,11 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     list_st *res = result.vval.v_list;
     list_st *lines = NULL;
 
-    if(res->lv_len == 2 && res->lv_first->li_tv.v_type == VAR_LIST)
+    if(res->lv_len == 2 && res->lv_first->li_tv.v_type == kNvarList)
     {
         lines = res->lv_first->li_tv.vval.v_list;
 
-        if(res->lv_last->li_tv.v_type != VAR_STRING)
+        if(res->lv_last->li_tv.v_type != kNvarString)
         {
             goto err;
         }
@@ -7364,7 +7364,7 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
 
     for(listitem_T *li = lines->lv_first; li != NULL; li = li->li_next)
     {
-        if(li->li_tv.v_type != VAR_STRING)
+        if(li->li_tv.v_type != kNvarString)
         {
             goto err;
         }

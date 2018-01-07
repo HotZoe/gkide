@@ -1898,7 +1898,7 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
          // Must not include DI_FLAGS_ALLOC
         .di_flags = DI_FLAGS_RO | DI_FLAGS_FIX,
         .di_tv = (typval_T) {
-            .v_type = VAR_NUMBER,
+            .v_type = kNvarNumber,
             .v_lock = VAR_FIXED,
             .vval.v_number = buf->b_changedtick,
         },

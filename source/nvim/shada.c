@@ -525,7 +525,7 @@ static const ShadaEntry sd_default_values[] = {
     DEF_SDE(Variable, global_var,
             .name = NULL,
             .value = {
-                .v_type = VAR_UNKNOWN,
+                .v_type = kNvarUnknown,
                 .vval = { .v_string = NULL }
             },
             .additional_elements = NULL),
@@ -1686,7 +1686,7 @@ FUNC_ATTR_NONNULL_ALL
                 var_set_global(cur_entry.data.global_var.name,
                                cur_entry.data.global_var.value);
 
-                cur_entry.data.global_var.value.v_type = VAR_UNKNOWN;
+                cur_entry.data.global_var.value.v_type = kNvarUnknown;
                 shada_free_shada_entry(&cur_entry);
 
                 break;
@@ -4460,7 +4460,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                                                                               \
             typval_T adtv;                                                    \
             if(msgpack_to_vim(obj, &adtv) == FAIL                             \
-               || adtv.v_type != VAR_DICT)                                    \
+               || adtv.v_type != kNvarDict)                                    \
             {                                                                 \
                 emsgf(_(READERR(name,                                         \
                                 "cannot be converted to a VimL dictionary")), \
@@ -4500,7 +4500,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 goto shada_read_next_item_error;                              \
             }                                                                 \
                                                                               \
-            assert(aetv.v_type == VAR_LIST);                                  \
+            assert(aetv.v_type == kNvarList);                                  \
             (tgt) = aetv.vval.v_list;                                         \
         }                                                                     \
     } while(0)

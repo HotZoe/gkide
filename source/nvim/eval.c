@@ -372,89 +372,89 @@ static vimvar_st vimvars[] =
     //
     // index              name                type        flags
     //
-    VV(VV_COUNT,          "count",            VAR_NUMBER,  VV_COMPAT+VV_RO),
-    VV(VV_COUNT1,         "count1",           VAR_NUMBER,  VV_RO),
-    VV(VV_PREVCOUNT,      "prevcount",        VAR_NUMBER,  VV_RO),
-    VV(VV_ERRMSG,         "errmsg",           VAR_STRING,  VV_COMPAT),
-    VV(VV_WARNINGMSG,     "warningmsg",       VAR_STRING,  0),
-    VV(VV_STATUSMSG,      "statusmsg",        VAR_STRING,  0),
-    VV(VV_SHELL_ERROR,    "shell_error",      VAR_NUMBER,  VV_COMPAT+VV_RO),
-    VV(VV_THIS_SESSION,   "this_session",     VAR_STRING,  VV_COMPAT),
-    VV(VV_VERSION,        "version",          VAR_NUMBER,  VV_COMPAT+VV_RO),
-    VV(VV_LNUM,           "lnum",             VAR_NUMBER,  VV_RO_SBX),
-    VV(VV_TERMRESPONSE,   "termresponse",     VAR_STRING,  VV_RO),
-    VV(VV_FNAME,          "fname",            VAR_STRING,  VV_RO),
-    VV(VV_LANG,           "lang",             VAR_STRING,  VV_RO),
-    VV(VV_LC_TIME,        "lc_time",          VAR_STRING,  VV_RO),
-    VV(VV_CTYPE,          "ctype",            VAR_STRING,  VV_RO),
-    VV(VV_CC_FROM,        "charconvert_from", VAR_STRING,  VV_RO),
-    VV(VV_CC_TO,          "charconvert_to",   VAR_STRING,  VV_RO),
-    VV(VV_FNAME_IN,       "fname_in",         VAR_STRING,  VV_RO),
-    VV(VV_FNAME_OUT,      "fname_out",        VAR_STRING,  VV_RO),
-    VV(VV_FNAME_NEW,      "fname_new",        VAR_STRING,  VV_RO),
-    VV(VV_FNAME_DIFF,     "fname_diff",       VAR_STRING,  VV_RO),
-    VV(VV_CMDARG,         "cmdarg",           VAR_STRING,  VV_RO),
-    VV(VV_FOLDSTART,      "foldstart",        VAR_NUMBER,  VV_RO_SBX),
-    VV(VV_FOLDEND,        "foldend",          VAR_NUMBER,  VV_RO_SBX),
-    VV(VV_FOLDDASHES,     "folddashes",       VAR_STRING,  VV_RO_SBX),
-    VV(VV_FOLDLEVEL,      "foldlevel",        VAR_NUMBER,  VV_RO_SBX),
-    VV(VV_PROGNAME,       "progname",         VAR_STRING,  VV_RO),
-    VV(VV_SEND_SERVER,    "servername",       VAR_STRING,  VV_RO),
-    VV(VV_DYING,          "dying",            VAR_NUMBER,  VV_RO),
-    VV(VV_EXCEPTION,      "exception",        VAR_STRING,  VV_RO),
-    VV(VV_THROWPOINT,     "throwpoint",       VAR_STRING,  VV_RO),
-    VV(VV_REG,            "register",         VAR_STRING,  VV_RO),
-    VV(VV_CMDBANG,        "cmdbang",          VAR_NUMBER,  VV_RO),
-    VV(VV_INSERTMODE,     "insertmode",       VAR_STRING,  VV_RO),
-    VV(VV_VAL,            "val",              VAR_UNKNOWN, VV_RO),
-    VV(VV_KEY,            "key",              VAR_UNKNOWN, VV_RO),
-    VV(VV_PROFILING,      "profiling",        VAR_NUMBER,  VV_RO),
-    VV(VV_FCS_REASON,     "fcs_reason",       VAR_STRING,  VV_RO),
-    VV(VV_FCS_CHOICE,     "fcs_choice",       VAR_STRING,  0),
-    VV(VV_BEVAL_BUFNR,    "beval_bufnr",      VAR_NUMBER,  VV_RO),
-    VV(VV_BEVAL_WINNR,    "beval_winnr",      VAR_NUMBER,  VV_RO),
-    VV(VV_BEVAL_WINID,    "beval_winid",      VAR_NUMBER,  VV_RO),
-    VV(VV_BEVAL_LNUM,     "beval_lnum",       VAR_NUMBER,  VV_RO),
-    VV(VV_BEVAL_COL,      "beval_col",        VAR_NUMBER,  VV_RO),
-    VV(VV_BEVAL_TEXT,     "beval_text",       VAR_STRING,  VV_RO),
-    VV(VV_SCROLLSTART,    "scrollstart",      VAR_STRING,  0),
-    VV(VV_SWAPNAME,       "swapname",         VAR_STRING,  VV_RO),
-    VV(VV_SWAPCHOICE,     "swapchoice",       VAR_STRING,  0),
-    VV(VV_SWAPCOMMAND,    "swapcommand",      VAR_STRING,  VV_RO),
-    VV(VV_CHAR,           "char",             VAR_STRING,  0),
-    VV(VV_MOUSE_WIN,      "mouse_win",        VAR_NUMBER,  0),
-    VV(VV_MOUSE_WINID,    "mouse_winid",      VAR_NUMBER,  0),
-    VV(VV_MOUSE_LNUM,     "mouse_lnum",       VAR_NUMBER,  0),
-    VV(VV_MOUSE_COL,      "mouse_col",        VAR_NUMBER,  0),
-    VV(VV_OP,             "operator",         VAR_STRING,  VV_RO),
-    VV(VV_SEARCHFORWARD,  "searchforward",    VAR_NUMBER,  0),
-    VV(VV_HLSEARCH,       "hlsearch",         VAR_NUMBER,  0),
-    VV(VV_OLDFILES,       "oldfiles",         VAR_LIST,    0),
-    VV(VV_WINDOWID,       "windowid",         VAR_NUMBER,  VV_RO_SBX),
-    VV(VV_PROGPATH,       "progpath",         VAR_STRING,  VV_RO),
-    VV(VV_COMMAND_OUTPUT, "command_output",   VAR_STRING,  0),
-    VV(VV_COMPLETED_ITEM, "completed_item",   VAR_DICT,    VV_RO),
-    VV(VV_OPTION_NEW,     "option_new",       VAR_STRING,  VV_RO),
-    VV(VV_OPTION_OLD,     "option_old",       VAR_STRING,  VV_RO),
-    VV(VV_OPTION_TYPE,    "option_type",      VAR_STRING,  VV_RO),
-    VV(VV_ERRORS,         "errors",           VAR_LIST,    0),
-    VV(VV_MSGPACK_TYPES,  "msgpack_types",    VAR_DICT,    VV_RO),
-    VV(VV_EVENT,          "event",            VAR_DICT,    VV_RO),
-    VV(VV_FALSE,          "false",            VAR_SPECIAL, VV_RO),
-    VV(VV_TRUE,           "true",             VAR_SPECIAL, VV_RO),
-    VV(VV_NULL,           "null",             VAR_SPECIAL, VV_RO),
-    VV(VV__NULL_LIST,     "_null_list",       VAR_LIST,    VV_RO),
-    VV(VV__NULL_DICT,     "_null_dict",       VAR_DICT,    VV_RO),
-    VV(VV_VIM_DID_ENTER,  "vim_did_enter",    VAR_NUMBER,  VV_RO),
-    VV(VV_TESTING,        "testing",          VAR_NUMBER,  0),
-    VV(VV_TYPE_NUMBER,    "t_number",         VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_STRING,    "t_string",         VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_FUNC,      "t_func",           VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_LIST,      "t_list",           VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_DICT,      "t_dict",           VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_FLOAT,     "t_float",          VAR_NUMBER,  VV_RO),
-    VV(VV_TYPE_BOOL,      "t_bool",           VAR_NUMBER,  VV_RO),
-    VV(VV_EXITING,        "exiting",          VAR_NUMBER,  VV_RO),
+    VV(VV_COUNT,          "count",            kNvarNumber,  VV_COMPAT+VV_RO),
+    VV(VV_COUNT1,         "count1",           kNvarNumber,  VV_RO),
+    VV(VV_PREVCOUNT,      "prevcount",        kNvarNumber,  VV_RO),
+    VV(VV_ERRMSG,         "errmsg",           kNvarString,  VV_COMPAT),
+    VV(VV_WARNINGMSG,     "warningmsg",       kNvarString,  0),
+    VV(VV_STATUSMSG,      "statusmsg",        kNvarString,  0),
+    VV(VV_SHELL_ERROR,    "shell_error",      kNvarNumber,  VV_COMPAT+VV_RO),
+    VV(VV_THIS_SESSION,   "this_session",     kNvarString,  VV_COMPAT),
+    VV(VV_VERSION,        "version",          kNvarNumber,  VV_COMPAT+VV_RO),
+    VV(VV_LNUM,           "lnum",             kNvarNumber,  VV_RO_SBX),
+    VV(VV_TERMRESPONSE,   "termresponse",     kNvarString,  VV_RO),
+    VV(VV_FNAME,          "fname",            kNvarString,  VV_RO),
+    VV(VV_LANG,           "lang",             kNvarString,  VV_RO),
+    VV(VV_LC_TIME,        "lc_time",          kNvarString,  VV_RO),
+    VV(VV_CTYPE,          "ctype",            kNvarString,  VV_RO),
+    VV(VV_CC_FROM,        "charconvert_from", kNvarString,  VV_RO),
+    VV(VV_CC_TO,          "charconvert_to",   kNvarString,  VV_RO),
+    VV(VV_FNAME_IN,       "fname_in",         kNvarString,  VV_RO),
+    VV(VV_FNAME_OUT,      "fname_out",        kNvarString,  VV_RO),
+    VV(VV_FNAME_NEW,      "fname_new",        kNvarString,  VV_RO),
+    VV(VV_FNAME_DIFF,     "fname_diff",       kNvarString,  VV_RO),
+    VV(VV_CMDARG,         "cmdarg",           kNvarString,  VV_RO),
+    VV(VV_FOLDSTART,      "foldstart",        kNvarNumber,  VV_RO_SBX),
+    VV(VV_FOLDEND,        "foldend",          kNvarNumber,  VV_RO_SBX),
+    VV(VV_FOLDDASHES,     "folddashes",       kNvarString,  VV_RO_SBX),
+    VV(VV_FOLDLEVEL,      "foldlevel",        kNvarNumber,  VV_RO_SBX),
+    VV(VV_PROGNAME,       "progname",         kNvarString,  VV_RO),
+    VV(VV_SEND_SERVER,    "servername",       kNvarString,  VV_RO),
+    VV(VV_DYING,          "dying",            kNvarNumber,  VV_RO),
+    VV(VV_EXCEPTION,      "exception",        kNvarString,  VV_RO),
+    VV(VV_THROWPOINT,     "throwpoint",       kNvarString,  VV_RO),
+    VV(VV_REG,            "register",         kNvarString,  VV_RO),
+    VV(VV_CMDBANG,        "cmdbang",          kNvarNumber,  VV_RO),
+    VV(VV_INSERTMODE,     "insertmode",       kNvarString,  VV_RO),
+    VV(VV_VAL,            "val",              kNvarUnknown, VV_RO),
+    VV(VV_KEY,            "key",              kNvarUnknown, VV_RO),
+    VV(VV_PROFILING,      "profiling",        kNvarNumber,  VV_RO),
+    VV(VV_FCS_REASON,     "fcs_reason",       kNvarString,  VV_RO),
+    VV(VV_FCS_CHOICE,     "fcs_choice",       kNvarString,  0),
+    VV(VV_BEVAL_BUFNR,    "beval_bufnr",      kNvarNumber,  VV_RO),
+    VV(VV_BEVAL_WINNR,    "beval_winnr",      kNvarNumber,  VV_RO),
+    VV(VV_BEVAL_WINID,    "beval_winid",      kNvarNumber,  VV_RO),
+    VV(VV_BEVAL_LNUM,     "beval_lnum",       kNvarNumber,  VV_RO),
+    VV(VV_BEVAL_COL,      "beval_col",        kNvarNumber,  VV_RO),
+    VV(VV_BEVAL_TEXT,     "beval_text",       kNvarString,  VV_RO),
+    VV(VV_SCROLLSTART,    "scrollstart",      kNvarString,  0),
+    VV(VV_SWAPNAME,       "swapname",         kNvarString,  VV_RO),
+    VV(VV_SWAPCHOICE,     "swapchoice",       kNvarString,  0),
+    VV(VV_SWAPCOMMAND,    "swapcommand",      kNvarString,  VV_RO),
+    VV(VV_CHAR,           "char",             kNvarString,  0),
+    VV(VV_MOUSE_WIN,      "mouse_win",        kNvarNumber,  0),
+    VV(VV_MOUSE_WINID,    "mouse_winid",      kNvarNumber,  0),
+    VV(VV_MOUSE_LNUM,     "mouse_lnum",       kNvarNumber,  0),
+    VV(VV_MOUSE_COL,      "mouse_col",        kNvarNumber,  0),
+    VV(VV_OP,             "operator",         kNvarString,  VV_RO),
+    VV(VV_SEARCHFORWARD,  "searchforward",    kNvarNumber,  0),
+    VV(VV_HLSEARCH,       "hlsearch",         kNvarNumber,  0),
+    VV(VV_OLDFILES,       "oldfiles",         kNvarList,    0),
+    VV(VV_WINDOWID,       "windowid",         kNvarNumber,  VV_RO_SBX),
+    VV(VV_PROGPATH,       "progpath",         kNvarString,  VV_RO),
+    VV(VV_COMMAND_OUTPUT, "command_output",   kNvarString,  0),
+    VV(VV_COMPLETED_ITEM, "completed_item",   kNvarDict,    VV_RO),
+    VV(VV_OPTION_NEW,     "option_new",       kNvarString,  VV_RO),
+    VV(VV_OPTION_OLD,     "option_old",       kNvarString,  VV_RO),
+    VV(VV_OPTION_TYPE,    "option_type",      kNvarString,  VV_RO),
+    VV(VV_ERRORS,         "errors",           kNvarList,    0),
+    VV(VV_MSGPACK_TYPES,  "msgpack_types",    kNvarDict,    VV_RO),
+    VV(VV_EVENT,          "event",            kNvarDict,    VV_RO),
+    VV(VV_FALSE,          "false",            kNvarSpecial, VV_RO),
+    VV(VV_TRUE,           "true",             kNvarSpecial, VV_RO),
+    VV(VV_NULL,           "null",             kNvarSpecial, VV_RO),
+    VV(VV__NULL_LIST,     "_null_list",       kNvarList,    VV_RO),
+    VV(VV__NULL_DICT,     "_null_dict",       kNvarDict,    VV_RO),
+    VV(VV_VIM_DID_ENTER,  "vim_did_enter",    kNvarNumber,  VV_RO),
+    VV(VV_TESTING,        "testing",          kNvarNumber,  0),
+    VV(VV_TYPE_NUMBER,    "t_number",         kNvarNumber,  VV_RO),
+    VV(VV_TYPE_STRING,    "t_string",         kNvarNumber,  VV_RO),
+    VV(VV_TYPE_FUNC,      "t_func",           kNvarNumber,  VV_RO),
+    VV(VV_TYPE_LIST,      "t_list",           kNvarNumber,  VV_RO),
+    VV(VV_TYPE_DICT,      "t_dict",           kNvarNumber,  VV_RO),
+    VV(VV_TYPE_FLOAT,     "t_float",          kNvarNumber,  VV_RO),
+    VV(VV_TYPE_BOOL,      "t_bool",           kNvarNumber,  VV_RO),
+    VV(VV_EXITING,        "exiting",          kNvarNumber,  VV_RO),
 };
 #undef VV
 /// @}
@@ -638,7 +638,7 @@ void eval_init(void)
         }
 
         // add to v: scope dict, unless the value is not always available
-        if(p->vv_type != VAR_UNKNOWN)
+        if(p->vv_type != kNvarUnknown)
         {
             hash_add(&vimvarht, p->vv_di.di_key);
         }
@@ -660,7 +660,7 @@ void eval_init(void)
 
         dictitem_T *const di = tv_dict_item_alloc(msgpack_type_names[i]);
         di->di_flags |= DI_FLAGS_RO | DI_FLAGS_FIX;
-        di->di_tv.v_type = VAR_LIST;
+        di->di_tv.v_type = kNvarList;
         di->di_tv.vval.v_list = type_list;
 
         eval_msgpack_type_lists[i] = type_list;
@@ -707,12 +707,12 @@ void eval_clear(void)
     for(size_t i = 0; i < ARRAY_SIZE(vimvars); i++)
     {
         p = &vimvars[i];
-        if(p->vv_di.di_tv.v_type == VAR_STRING)
+        if(p->vv_di.di_tv.v_type == kNvarString)
         {
             xfree(p->vv_str);
             p->vv_str = NULL;
         }
-        else if(p->vv_di.di_tv.v_type == VAR_LIST)
+        else if(p->vv_di.di_tv.v_type == kNvarList)
         {
             tv_list_unref(p->vv_list);
             p->vv_list = NULL;
@@ -788,7 +788,7 @@ int current_func_returned(void)
 void set_internal_string_var(uchar_kt *name, uchar_kt *value)
 {
     const typval_T tv = {
-        .v_type = VAR_STRING,
+        .v_type = kNvarString,
         .vval.v_string = value,
     };
 
@@ -858,7 +858,7 @@ int var_redir_start(uchar_kt *name, int append)
     // set it to or append an empty string
     save_emsg = did_emsg;
     did_emsg = FALSE;
-    tv.v_type = VAR_STRING;
+    tv.v_type = kNvarString;
     tv.vval.v_string = (uchar_kt *)"";
 
     if(append)
@@ -926,7 +926,7 @@ void var_redir_stop(void)
         if(redir_endp != NULL)
         {
             ga_append(&redir_ga, NUL); // Append the trailing NUL.
-            tv.v_type = VAR_STRING;
+            tv.v_type = kNvarString;
             tv.vval.v_string = redir_ga.ga_data;
 
             // Call get_lval() again, if it's inside a Dict or
@@ -1163,7 +1163,7 @@ uchar_kt *eval_to_string(uchar_kt *arg, uchar_kt **nextcmd, int convert)
     }
     else
     {
-        if(convert && tv.v_type == VAR_LIST)
+        if(convert && tv.v_type == kNvarList)
         {
             ga_init(&ga, (int)sizeof(char), 80);
 
@@ -1180,7 +1180,7 @@ uchar_kt *eval_to_string(uchar_kt *arg, uchar_kt **nextcmd, int convert)
             ga_append(&ga, NUL);
             retval = (char *)ga.ga_data;
         }
-        else if(convert && tv.v_type == VAR_FLOAT)
+        else if(convert && tv.v_type == kNvarFloat)
         {
             char numbuf[NUMBUFLEN];
             vim_snprintf(numbuf, NUMBUFLEN, "%g", tv.vval.v_float);
@@ -1254,7 +1254,7 @@ static void prepare_vimvar(int idx, typval_T *save_tv)
 {
     *save_tv = vimvars[idx].vv_tv;
 
-    if(vimvars[idx].vv_type == VAR_UNKNOWN)
+    if(vimvars[idx].vv_type == kNvarUnknown)
     {
         hash_add(&vimvarht, vimvars[idx].vv_di.di_key);
     }
@@ -1267,7 +1267,7 @@ static void restore_vimvar(int idx, typval_T *save_tv)
     hashitem_T  *hi;
     vimvars[idx].vv_tv = *save_tv;
 
-    if(vimvars[idx].vv_type == VAR_UNKNOWN)
+    if(vimvars[idx].vv_type == kNvarUnknown)
     {
         hi = hash_find(&vimvarht, vimvars[idx].vv_di.di_key);
 
@@ -1294,7 +1294,7 @@ list_st *eval_spell_expr(uchar_kt *badword, uchar_kt *expr)
 
     // Set "v:val" to the bad word.
     prepare_vimvar(VV_VAL, &save_val);
-    vimvars[VV_VAL].vv_type = VAR_STRING;
+    vimvars[VV_VAL].vv_type = kNvarString;
     vimvars[VV_VAL].vv_str = badword;
 
     if(p_verbose == 0)
@@ -1304,7 +1304,7 @@ list_st *eval_spell_expr(uchar_kt *badword, uchar_kt *expr)
 
     if(eval_lev_1(&p, &rettv, true) == OK)
     {
-        if(rettv.v_type != VAR_LIST)
+        if(rettv.v_type != kNvarList)
         {
             tv_clear(&rettv);
         }
@@ -1380,7 +1380,7 @@ int call_vim_function(const uchar_kt *func,
         // Pass a NULL or empty argument as an empty string
         if(argv[i] == NULL || *argv[i] == NUL)
         {
-            argvars[i].v_type = VAR_STRING;
+            argvars[i].v_type = kNvarString;
             argvars[i].vval.v_string = (uchar_kt *)"";
             continue;
         }
@@ -1397,12 +1397,12 @@ int call_vim_function(const uchar_kt *func,
 
         if(len != 0 && len == (int)STRLEN(argv[i]))
         {
-            argvars[i].v_type = VAR_NUMBER;
+            argvars[i].v_type = kNvarNumber;
             argvars[i].vval.v_number = n;
         }
         else
         {
-            argvars[i].v_type = VAR_STRING;
+            argvars[i].v_type = kNvarString;
             argvars[i].vval.v_string = (uchar_kt *)argv[i];
         }
     }
@@ -1413,7 +1413,7 @@ int call_vim_function(const uchar_kt *func,
         ++sandbox;
     }
 
-    rettv->v_type = VAR_UNKNOWN; // tv_clear() uses this.
+    rettv->v_type = kNvarUnknown; // tv_clear() uses this.
 
     ret = call_func(func,
                     (int)STRLEN(func),
@@ -1527,7 +1527,7 @@ void *call_func_retlist(uchar_kt *func,
         return NULL;
     }
 
-    if(rettv.v_type != VAR_LIST)
+    if(rettv.v_type != kNvarList)
     {
         tv_clear(&rettv);
         return NULL;
@@ -1616,11 +1616,11 @@ int eval_foldexpr(uchar_kt *arg, int *cp)
     else
     {
         // If the result is a number, just return the number.
-        if(tv.v_type == VAR_NUMBER)
+        if(tv.v_type == kNvarNumber)
         {
             retval = tv.vval.v_number;
         }
-        else if(tv.v_type != VAR_STRING || tv.vval.v_string == NULL)
+        else if(tv.v_type != kNvarString || tv.vval.v_string == NULL)
         {
             retval = 0;
         }
@@ -1795,7 +1795,7 @@ static int ex_let_vars(uchar_kt *arg_start,
     }
 
     // ":let [v1, v2] = list" or ":for [v1, v2] in listlist"
-    if(tv->v_type != VAR_LIST || (l = tv->vval.v_list) == NULL)
+    if(tv->v_type != kNvarList || (l = tv->vval.v_list) == NULL)
     {
         EMSG(_(e_listreq));
         return FAIL;
@@ -1842,7 +1842,7 @@ static int ex_let_vars(uchar_kt *arg_start,
                 item = item->li_next;
             }
 
-            ltv.v_type = VAR_LIST;
+            ltv.v_type = kNvarList;
             ltv.v_lock = 0;
             ltv.vval.v_list = l;
             l->lv_refcount = 1;
@@ -1963,7 +1963,7 @@ static void list_hashtable_vars(hashtab_T *ht,
             di = TV_DICT_HI2DI(hi);
 
             if(empty
-               || di->di_tv.v_type != VAR_STRING
+               || di->di_tv.v_type != kNvarString
                || di->di_tv.vval.v_string != NULL)
             {
                 list_one_var(di, prefix, first);
@@ -2550,10 +2550,10 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
     // Loop until no more [idx] or .key is following.
     lp->ll_tv = &v->di_tv;
 
-    while(*p == '[' || (*p == '.' && lp->ll_tv->v_type == VAR_DICT))
+    while(*p == '[' || (*p == '.' && lp->ll_tv->v_type == kNvarDict))
     {
-        if(!(lp->ll_tv->v_type == VAR_LIST && lp->ll_tv->vval.v_list != NULL)
-           && !(lp->ll_tv->v_type == VAR_DICT && lp->ll_tv->vval.v_dict != NULL))
+        if(!(lp->ll_tv->v_type == kNvarList && lp->ll_tv->vval.v_list != NULL)
+           && !(lp->ll_tv->v_type == kNvarDict && lp->ll_tv->vval.v_dict != NULL))
         {
             if(!quiet)
             {
@@ -2625,7 +2625,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
             // Optionally get the second index [ :expr].
             if(*p == ':')
             {
-                if(lp->ll_tv->v_type == VAR_DICT)
+                if(lp->ll_tv->v_type == kNvarDict)
                 {
                     if(!quiet)
                     {
@@ -2641,7 +2641,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
                 }
 
                 if(rettv != NULL
-                   && (rettv->v_type != VAR_LIST || rettv->vval.v_list == NULL))
+                   && (rettv->v_type != kNvarList || rettv->vval.v_list == NULL))
                 {
                     if(!quiet)
                     {
@@ -2720,7 +2720,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
             ++p; // Skip to past ']'.
         }
 
-        if(lp->ll_tv->v_type == VAR_DICT)
+        if(lp->ll_tv->v_type == kNvarDict)
         {
             if(len == -1)
             {
@@ -3119,7 +3119,7 @@ notify:
 
         if(watched)
         {
-            if(oldtv.v_type == VAR_UNKNOWN)
+            if(oldtv.v_type == kNvarUnknown)
             {
                 tv_dict_watcher_notify(dict,
                                        (char *)lp->ll_newkey, lp->ll_tv, NULL);
@@ -3178,7 +3178,7 @@ void *eval_for_line(const uchar_kt *arg, bool *errp, uchar_kt **nextcmdp, int sk
         {
             l = tv.vval.v_list;
 
-            if(tv.v_type != VAR_LIST)
+            if(tv.v_type != kNvarList)
             {
                 EMSG(_(e_listreq));
                 tv_clear(&tv);
@@ -3448,8 +3448,8 @@ void ex_call(exarg_T *eap)
         ++fudi.fd_dict->dv_refcount;
     }
 
-    // If it is the name of a variable of type VAR_FUNC or VAR_PARTIAL use its
-    // contents. For VAR_PARTIAL get its partial, unless we already have one
+    // If it is the name of a variable of type kNvarUfunc or kNvarPartial use its
+    // contents. For kNvarPartial get its partial, unless we already have one
     // from trans_function_name().
     len = (int)STRLEN(tofree);
 
@@ -3459,7 +3459,7 @@ void ex_call(exarg_T *eap)
     // Skip white space to allow ":call func ()".
     // Not good, but required for backward compatibility.
     startarg = skipwhite(arg);
-    rettv.v_type = VAR_UNKNOWN; // tv_clear() uses this.
+    rettv.v_type = kNvarUnknown; // tv_clear() uses this.
 
     if(*startarg != '(')
     {
@@ -3878,8 +3878,8 @@ static int do_lock_var(lval_T *lp,
             ret = FAIL;
         }
         else if((di->di_flags & DI_FLAGS_FIX)
-                && di->di_tv.v_type != VAR_DICT
-                && di->di_tv.v_type != VAR_LIST)
+                && di->di_tv.v_type != kNvarDict
+                && di->di_tv.v_type != kNvarList)
         {
             // For historical reasons this error is not given for Lists and
             // Dictionaries. E.g. b: dictionary may be locked/unlocked.
@@ -4127,7 +4127,7 @@ typedef enum
 
 // The @b evaluate argument: When FALSE, the argument is only
 // parsed but not  executed. The function may return OK, but the
-// rettv will be of type VAR_UNKNOWN.
+// rettv will be of type kNvarUnknown.
 // The function still returns FAIL for a syntax error.
 
 /// Handle zero level expression.
@@ -4327,7 +4327,7 @@ static int eval_lev_2(uchar_kt **arg, typval_T *rettv, int evaluate)
 
         if(evaluate)
         {
-            rettv->v_type = VAR_NUMBER;
+            rettv->v_type = kNvarNumber;
             rettv->vval.v_number = result;
         }
     }
@@ -4406,7 +4406,7 @@ static int eval_lev_3(uchar_kt **arg, typval_T *rettv, int evaluate)
 
         if(evaluate)
         {
-            rettv->v_type = VAR_NUMBER;
+            rettv->v_type = kNvarNumber;
             rettv->vval.v_number = result;
         }
     }
@@ -4560,7 +4560,7 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                 // for "notis" it means TRUE.
                 n1 = (type == TYPE_NEQUAL);
             }
-            else if(rettv->v_type == VAR_LIST || var2.v_type == VAR_LIST)
+            else if(rettv->v_type == kNvarList || var2.v_type == kNvarList)
             {
                 if(type_is)
                 {
@@ -4600,7 +4600,7 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                     }
                 }
             }
-            else if(rettv->v_type == VAR_DICT || var2.v_type == VAR_DICT)
+            else if(rettv->v_type == kNvarDict || var2.v_type == kNvarDict)
             {
                 if(type_is)
                 {
@@ -4650,23 +4650,23 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                     return FAIL;
                 }
 
-                if((rettv->v_type == VAR_PARTIAL && rettv->vval.v_partial == NULL)
-                   || (var2.v_type == VAR_PARTIAL && var2.vval.v_partial == NULL))
+                if((rettv->v_type == kNvarPartial && rettv->vval.v_partial == NULL)
+                   || (var2.v_type == kNvarPartial && var2.vval.v_partial == NULL))
                 {
                     // when a partial is NULL assume not equal
                     n1 = false;
                 }
                 else if(type_is)
                 {
-                    if(rettv->v_type == VAR_FUNC
-                       && var2.v_type == VAR_FUNC)
+                    if(rettv->v_type == kNvarUfunc
+                       && var2.v_type == kNvarUfunc)
                     {
                         // strings are considered the
                         // same if their value is the same
                         n1 = tv_equal(rettv, &var2, ic, false);
                     }
-                    else if(rettv->v_type == VAR_PARTIAL
-                            && var2.v_type == VAR_PARTIAL)
+                    else if(rettv->v_type == kNvarPartial
+                            && var2.v_type == kNvarPartial)
                     {
                         n1 = (rettv->vval.v_partial == var2.vval.v_partial);
                     }
@@ -4687,14 +4687,14 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
             }
             // If one of the two variables is a float, compare as a float.
             // When using "=~" or "!~", always compare as string.
-            else if((rettv->v_type == VAR_FLOAT || var2.v_type == VAR_FLOAT)
+            else if((rettv->v_type == kNvarFloat || var2.v_type == kNvarFloat)
                     && type != TYPE_MATCH
                     && type != TYPE_NOMATCH)
             {
                 float_kt f1;
                 float_kt f2;
 
-                if(rettv->v_type == VAR_FLOAT)
+                if(rettv->v_type == kNvarFloat)
                 {
                     f1 = rettv->vval.v_float;
                 }
@@ -4703,7 +4703,7 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
                     f1 = tv_get_number(rettv);
                 }
 
-                if(var2.v_type == VAR_FLOAT)
+                if(var2.v_type == kNvarFloat)
                 {
                     f2 = var2.vval.v_float;
                 }
@@ -4748,7 +4748,7 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
             }
             // If one of the two variables is a number, compare as a number.
             // When using "=~" or "!~", always compare as string.
-            else if((rettv->v_type == VAR_NUMBER || var2.v_type == VAR_NUMBER)
+            else if((rettv->v_type == kNvarNumber || var2.v_type == kNvarNumber)
                     && type != TYPE_MATCH
                     && type != TYPE_NOMATCH)
             {
@@ -4851,7 +4851,7 @@ static int eval_lev_4(uchar_kt **arg, typval_T *rettv, int evaluate)
 
             tv_clear(rettv);
             tv_clear(&var2);
-            rettv->v_type = VAR_NUMBER;
+            rettv->v_type = kNvarNumber;
             rettv->vval.v_number = n1;
         }
     }
@@ -4897,8 +4897,8 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
             break;
         }
 
-        if((op != '+' || rettv->v_type != VAR_LIST)
-           && (op == '.' || rettv->v_type != VAR_FLOAT))
+        if((op != '+' || rettv->v_type != kNvarList)
+           && (op == '.' || rettv->v_type != kNvarFloat))
         {
             // For "list + ...", an illegal use of the first operand as
             // a number cannot be determined before evaluating the 2nd
@@ -4943,12 +4943,12 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
 
                 p = concat_str((const uchar_kt *)s1, (const uchar_kt *)s2);
                 tv_clear(rettv);
-                rettv->v_type = VAR_STRING;
+                rettv->v_type = kNvarString;
                 rettv->vval.v_string = p;
             }
             else if(op == '+'
-                    && rettv->v_type == VAR_LIST
-                    && var2.v_type == VAR_LIST)
+                    && rettv->v_type == kNvarList
+                    && var2.v_type == kNvarList)
             {
                 // Concatenate Lists.
                 if(tv_list_concat(rettv->vval.v_list, var2.vval.v_list, &var3) == FAIL)
@@ -4965,7 +4965,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
             {
                 bool error = false;
 
-                if(rettv->v_type == VAR_FLOAT)
+                if(rettv->v_type == kNvarFloat)
                 {
                     f1 = rettv->vval.v_float;
                     n1 = 0;
@@ -4983,13 +4983,13 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
                         return FAIL;
                     }
 
-                    if(var2.v_type == VAR_FLOAT)
+                    if(var2.v_type == kNvarFloat)
                     {
                         f1 = n1;
                     }
                 }
 
-                if(var2.v_type == VAR_FLOAT)
+                if(var2.v_type == kNvarFloat)
                 {
                     f2 = var2.vval.v_float;
                     n2 = 0;
@@ -5005,7 +5005,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
                         return FAIL;
                     }
 
-                    if(rettv->v_type == VAR_FLOAT)
+                    if(rettv->v_type == kNvarFloat)
                     {
                         f2 = n2;
                     }
@@ -5014,7 +5014,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
                 tv_clear(rettv);
 
                 // If there is a float on either side the result is a float.
-                if(rettv->v_type == VAR_FLOAT || var2.v_type == VAR_FLOAT)
+                if(rettv->v_type == kNvarFloat || var2.v_type == kNvarFloat)
                 {
                     if(op == '+')
                     {
@@ -5025,7 +5025,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
                         f1 = f1 - f2;
                     }
 
-                    rettv->v_type = VAR_FLOAT;
+                    rettv->v_type = kNvarFloat;
                     rettv->vval.v_float = f1;
                 }
                 else
@@ -5039,7 +5039,7 @@ static int eval_lev_5(uchar_kt **arg, typval_T *rettv, int evaluate)
                         n1 = n1 - n2;
                     }
 
-                    rettv->v_type = VAR_NUMBER;
+                    rettv->v_type = kNvarNumber;
                     rettv->vval.v_number = n1;
                 }
             }
@@ -5098,7 +5098,7 @@ static int eval_lev_6(uchar_kt **arg,
 
         if(evaluate)
         {
-            if(rettv->v_type == VAR_FLOAT)
+            if(rettv->v_type == kNvarFloat)
             {
                 f1 = rettv->vval.v_float;
                 use_float = TRUE;
@@ -5131,7 +5131,7 @@ static int eval_lev_6(uchar_kt **arg,
 
         if(evaluate)
         {
-            if(var2.v_type == VAR_FLOAT)
+            if(var2.v_type == kNvarFloat)
             {
                 if(!use_float)
                 {
@@ -5185,7 +5185,7 @@ static int eval_lev_6(uchar_kt **arg,
                     return FAIL;
                 }
 
-                rettv->v_type = VAR_FLOAT;
+                rettv->v_type = kNvarFloat;
                 rettv->vval.v_float = f1;
             }
             else
@@ -5228,7 +5228,7 @@ static int eval_lev_6(uchar_kt **arg,
                     }
                 }
 
-                rettv->v_type = VAR_NUMBER;
+                rettv->v_type = kNvarNumber;
                 rettv->vval.v_number = n1;
             }
         }
@@ -5282,7 +5282,7 @@ static int eval_lev_7(uchar_kt **arg,
 
     // Initialise variable so that tv_clear() can't mistake this for a
     // string and free a string that isn't there.
-    rettv->v_type = VAR_UNKNOWN;
+    rettv->v_type = kNvarUnknown;
 
     // Skip '!', '-' and '+' characters.  They are handled later.
     start_leader = *arg;
@@ -5352,7 +5352,7 @@ static int eval_lev_7(uchar_kt **arg,
 
                 if(evaluate)
                 {
-                    rettv->v_type = VAR_FLOAT;
+                    rettv->v_type = kNvarFloat;
                     rettv->vval.v_float = f;
                 }
             }
@@ -5363,7 +5363,7 @@ static int eval_lev_7(uchar_kt **arg,
 
                 if(evaluate)
                 {
-                    rettv->v_type = VAR_NUMBER;
+                    rettv->v_type = kNvarNumber;
                     rettv->vval.v_number = n;
                 }
             }
@@ -5414,7 +5414,7 @@ static int eval_lev_7(uchar_kt **arg,
 
             if(evaluate)
             {
-                rettv->v_type = VAR_STRING;
+                rettv->v_type = kNvarString;
                 rettv->vval.v_string = get_reg_contents(**arg, kGRegExprSrc);
             }
 
@@ -5475,7 +5475,7 @@ static int eval_lev_7(uchar_kt **arg,
                     check_vars((const char *)s, len);
                 }
 
-                // If "s" is the name of a variable of type VAR_FUNC use its contents.
+                // If "s" is the name of a variable of type kNvarUfunc use its contents.
                 s = deref_func_name((const char *)s, &len, &partial, !evaluate);
 
                 // Invoke the function.
@@ -5493,10 +5493,10 @@ static int eval_lev_7(uchar_kt **arg,
                 // If evaluate is false rettv->v_type was not set in
                 // get_func_tv, but it's needed in handle_subscript() to parse
                 // what follows. So set it here.
-                if(rettv->v_type == VAR_UNKNOWN && !evaluate && **arg == '(')
+                if(rettv->v_type == kNvarUnknown && !evaluate && **arg == '(')
                 {
                     rettv->vval.v_string = (uchar_kt *)tv_empty_string;
-                    rettv->v_type = VAR_FUNC;
+                    rettv->v_type = kNvarUfunc;
                 }
 
                 // Stop the expression evaluation when immediately
@@ -5541,7 +5541,7 @@ static int eval_lev_7(uchar_kt **arg,
         int val = 0;
         float_kt f = 0.0;
 
-        if(rettv->v_type == VAR_FLOAT)
+        if(rettv->v_type == kNvarFloat)
         {
             f = rettv->vval.v_float;
         }
@@ -5563,7 +5563,7 @@ static int eval_lev_7(uchar_kt **arg,
 
                 if(*end_leader == '!')
                 {
-                    if(rettv->v_type == VAR_FLOAT)
+                    if(rettv->v_type == kNvarFloat)
                     {
                         f = !f;
                     }
@@ -5574,7 +5574,7 @@ static int eval_lev_7(uchar_kt **arg,
                 }
                 else if(*end_leader == '-')
                 {
-                    if(rettv->v_type == VAR_FLOAT)
+                    if(rettv->v_type == kNvarFloat)
                     {
                         f = -f;
                     }
@@ -5585,7 +5585,7 @@ static int eval_lev_7(uchar_kt **arg,
                 }
             }
 
-            if(rettv->v_type == VAR_FLOAT)
+            if(rettv->v_type == kNvarFloat)
             {
                 tv_clear(rettv);
                 rettv->vval.v_float = f;
@@ -5593,7 +5593,7 @@ static int eval_lev_7(uchar_kt **arg,
             else
             {
                 tv_clear(rettv);
-                rettv->v_type = VAR_NUMBER;
+                rettv->v_type = kNvarNumber;
                 rettv->vval.v_number = val;
             }
         }
@@ -5629,8 +5629,8 @@ static int eval_index(uchar_kt **arg,
 
     switch(rettv->v_type)
     {
-        case VAR_FUNC:
-        case VAR_PARTIAL:
+        case kNvarUfunc:
+        case kNvarPartial:
         {
             if(verbose)
             {
@@ -5640,7 +5640,7 @@ static int eval_index(uchar_kt **arg,
             return FAIL;
         }
 
-        case VAR_FLOAT:
+        case kNvarFloat:
         {
             if(verbose)
             {
@@ -5650,7 +5650,7 @@ static int eval_index(uchar_kt **arg,
             return FAIL;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             if(verbose)
             {
@@ -5660,7 +5660,7 @@ static int eval_index(uchar_kt **arg,
             return FAIL;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             if(evaluate)
             {
@@ -5669,10 +5669,10 @@ static int eval_index(uchar_kt **arg,
             // fallthrough
         }
 
-        case VAR_STRING:
-        case VAR_NUMBER:
-        case VAR_LIST:
-        case VAR_DICT:
+        case kNvarString:
+        case kNvarNumber:
+        case kNvarList:
+        case kNvarDict:
         {
             break;
         }
@@ -5774,7 +5774,7 @@ static int eval_index(uchar_kt **arg,
     {
         n1 = 0;
 
-        if(!empty1 && rettv->v_type != VAR_DICT)
+        if(!empty1 && rettv->v_type != kNvarDict)
         {
             n1 = tv_get_number(&var1);
             tv_clear(&var1);
@@ -5795,8 +5795,8 @@ static int eval_index(uchar_kt **arg,
 
         switch(rettv->v_type)
         {
-            case VAR_NUMBER:
-            case VAR_STRING:
+            case kNvarNumber:
+            case kNvarString:
             {
                 const char *const s = tv_get_string(rettv);
                 char *v;
@@ -5849,12 +5849,12 @@ static int eval_index(uchar_kt **arg,
                 }
 
                 tv_clear(rettv);
-                rettv->v_type = VAR_STRING;
+                rettv->v_type = kNvarString;
                 rettv->vval.v_string = (uchar_kt *)v;
                 break;
             }
 
-            case VAR_LIST:
+            case kNvarList:
             {
                 len = tv_list_len(rettv->vval.v_list);
 
@@ -5910,7 +5910,7 @@ static int eval_index(uchar_kt **arg,
                     }
 
                     tv_clear(rettv);
-                    rettv->v_type = VAR_LIST;
+                    rettv->v_type = kNvarList;
                     rettv->vval.v_list = l;
                     l->lv_refcount++;
                 }
@@ -5924,7 +5924,7 @@ static int eval_index(uchar_kt **arg,
                 break;
             }
 
-            case VAR_DICT:
+            case kNvarDict:
             {
                 if(range)
                 {
@@ -5976,11 +5976,11 @@ static int eval_index(uchar_kt **arg,
                 break;
             }
 
-            case VAR_SPECIAL:
-            case VAR_FUNC:
-            case VAR_FLOAT:
-            case VAR_PARTIAL:
-            case VAR_UNKNOWN:
+            case kNvarSpecial:
+            case kNvarUfunc:
+            case kNvarFloat:
+            case kNvarPartial:
+            case kNvarUnknown:
             {
                 break; // Not evaluating, skipping over subscript
             }
@@ -6055,25 +6055,25 @@ FUNC_ATTR_NONNULL_ARG(1)
         if(opt_type == -2)
         {
             // hidden string option
-            rettv->v_type = VAR_STRING;
+            rettv->v_type = kNvarString;
             rettv->vval.v_string = NULL;
         }
         else if(opt_type == -1)
         {
             // hidden number option
-            rettv->v_type = VAR_NUMBER;
+            rettv->v_type = kNvarNumber;
             rettv->vval.v_number = 0;
         }
         else if(opt_type == 1)
         {
             // number option
-            rettv->v_type = VAR_NUMBER;
+            rettv->v_type = kNvarNumber;
             rettv->vval.v_number = numval;
         }
         else
         {
             // string option
-            rettv->v_type = VAR_STRING;
+            rettv->v_type = kNvarString;
             rettv->vval.v_string = stringval;
         }
     }
@@ -6128,7 +6128,7 @@ static int get_string_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
     // Copy the string into allocated memory,
     // handling backslashed characters.
     name = xmalloc(p - *arg + extra);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = name;
 
     for(p = *arg + 1; *p != NUL && *p != '"';)
@@ -6310,7 +6310,7 @@ static int get_lit_string_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
     // Copy the string into allocated memory,
     // handling '' to ' reduction.
     str = xmalloc((p - *arg) - reduce);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = str;
 
     for(p = *arg + 1; *p != NUL;)
@@ -6442,7 +6442,7 @@ failret:
 
     if(evaluate)
     {
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         rettv->vval.v_list = l;
         ++l->lv_refcount;
     }
@@ -6463,7 +6463,7 @@ bool func_equal(typval_T *tv1, typval_T *tv2, bool ic)
     dict_st *d2;
 
     // empty and NULL function name considered the same
-    s1 = tv1->v_type == VAR_FUNC
+    s1 = tv1->v_type == kNvarUfunc
          ? tv1->vval.v_string : partial_name(tv1->vval.v_partial);
 
     if(s1 != NULL && *s1 == NUL)
@@ -6471,7 +6471,7 @@ bool func_equal(typval_T *tv1, typval_T *tv2, bool ic)
         s1 = NULL;
     }
 
-    s2 = tv2->v_type == VAR_FUNC
+    s2 = tv2->v_type == kNvarUfunc
          ? tv2->vval.v_string : partial_name(tv2->vval.v_partial);
 
     if(s2 != NULL && *s2 == NUL)
@@ -6492,8 +6492,8 @@ bool func_equal(typval_T *tv1, typval_T *tv2, bool ic)
     }
 
     // empty dict and NULL dict is different
-    d1 = tv1->v_type == VAR_FUNC ? NULL : tv1->vval.v_partial->pt_dict;
-    d2 = tv2->v_type == VAR_FUNC ? NULL : tv2->vval.v_partial->pt_dict;
+    d1 = tv1->v_type == kNvarUfunc ? NULL : tv1->vval.v_partial->pt_dict;
+    d2 = tv2->v_type == kNvarUfunc ? NULL : tv2->vval.v_partial->pt_dict;
 
     if(d1 == NULL || d2 == NULL)
     {
@@ -6508,8 +6508,8 @@ bool func_equal(typval_T *tv1, typval_T *tv2, bool ic)
     }
 
     // empty list and no list considered the same
-    a1 = tv1->v_type == VAR_FUNC ? 0 : tv1->vval.v_partial->pt_argc;
-    a2 = tv2->v_type == VAR_FUNC ? 0 : tv2->vval.v_partial->pt_argc;
+    a1 = tv1->v_type == kNvarUfunc ? 0 : tv1->vval.v_partial->pt_argc;
+    a2 = tv2->v_type == kNvarUfunc ? 0 : tv2->vval.v_partial->pt_argc;
 
     if(a1 != a2)
     {
@@ -7009,7 +7009,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     switch(tv->v_type)
     {
-        case VAR_DICT:
+        case kNvarDict:
         {
             dict_st *dd = tv->vval.v_dict;
 
@@ -7055,7 +7055,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             break;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             list_st *ll = tv->vval.v_list;
 
@@ -7088,7 +7088,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             break;
         }
 
-        case VAR_PARTIAL:
+        case kNvarPartial:
         {
             partial_st *pt = tv->vval.v_partial;
 
@@ -7102,7 +7102,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 {
                     typval_T dtv;
 
-                    dtv.v_type = VAR_DICT;
+                    dtv.v_type = kNvarDict;
                     dtv.vval.v_dict = pt->pt_dict;
 
                     abort = abort || set_ref_in_item(&dtv,
@@ -7123,15 +7123,15 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             break;
         }
 
-        case VAR_FUNC:
+        case kNvarUfunc:
             abort = set_ref_in_func(tv->vval.v_string, NULL, copyID);
             break;
 
-        case VAR_UNKNOWN:
-        case VAR_SPECIAL:
-        case VAR_FLOAT:
-        case VAR_NUMBER:
-        case VAR_STRING:
+        case kNvarUnknown:
+        case kNvarSpecial:
+        case kNvarFloat:
+        case kNvarNumber:
+        case kNvarString:
         {
             break;
         }
@@ -7190,7 +7190,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(list != NULL)
     {
         typval_T tv = (typval_T) {
-            .v_type = VAR_LIST,
+            .v_type = kNvarList,
             .vval = { .v_list = list }
         };
 
@@ -7209,7 +7209,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(dict != NULL)
     {
         typval_T tv = (typval_T) {
-            .v_type = VAR_DICT,
+            .v_type = kNvarDict,
             .vval = { .v_dict = dict }
         };
 
@@ -7270,8 +7270,8 @@ static int get_dict_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
         d = tv_dict_alloc();
     }
 
-    tvkey.v_type = VAR_UNKNOWN;
-    tv.v_type = VAR_UNKNOWN;
+    tvkey.v_type = kNvarUnknown;
+    tv.v_type = kNvarUnknown;
     *arg = skipwhite(*arg + 1);
 
     while(**arg != '}' && **arg != NUL)
@@ -7368,7 +7368,7 @@ failret:
 
     if(evaluate)
     {
-        rettv->v_type = VAR_DICT;
+        rettv->v_type = kNvarDict;
         rettv->vval.v_dict = d;
         ++d->dv_refcount;
     }
@@ -7661,7 +7661,7 @@ static int get_lambda_tv(uchar_kt **arg, typval_T *rettv, bool evaluate)
         pt->pt_refcount = 1;
 
         rettv->vval.v_partial = pt;
-        rettv->v_type = VAR_PARTIAL;
+        rettv->v_type = kNvarPartial;
     }
 
     eval_lavars_used = old_eval_lavars;
@@ -7739,7 +7739,7 @@ static int get_env_tv(uchar_kt **arg, typval_T *rettv, int evaluate)
         }
 
         name[len] = cc;
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
         rettv->vval.v_string = string;
     }
 
@@ -7870,7 +7870,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 
     dictitem_T *const v = find_var(name, (size_t)(*lenp), NULL, no_autoload);
 
-    if(v != NULL && v->di_tv.v_type == VAR_FUNC)
+    if(v != NULL && v->di_tv.v_type == kNvarUfunc)
     {
         if(v->di_tv.vval.v_string == NULL) // just in case
         {
@@ -7882,7 +7882,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
         return v->di_tv.vval.v_string;
     }
 
-    if(v != NULL && v->di_tv.v_type == VAR_PARTIAL)
+    if(v != NULL && v->di_tv.v_type == kNvarPartial)
     {
         partial_st *const pt = v->di_tv.vval.v_partial;
 
@@ -8276,7 +8276,7 @@ int call_func(const uchar_kt *funcname,
             rfname = fname + 2;
         }
 
-        rettv->v_type = VAR_NUMBER; // default rettv is number zero
+        rettv->v_type = kNvarNumber; // default rettv is number zero
         rettv->vval.v_number = 0;
         error = ERROR_UNKNOWN;
 
@@ -8371,7 +8371,7 @@ int call_func(const uchar_kt *funcname,
                 }
                 else
                 {
-                    argvars[argcount].v_type = VAR_UNKNOWN;
+                    argvars[argcount].v_type = kNvarUnknown;
                     fdef->func(argvars, rettv, fdef->data);
                     error = ERROR_NONE;
                 }
@@ -8462,11 +8462,11 @@ static void emsg_funcname(char *ermsg, uchar_kt *name)
 /// Return TRUE for a non-zero Number and a non-empty String.
 static int non_zero_arg(typval_T *argvars)
 {
-    return ((argvars[0].v_type == VAR_NUMBER
+    return ((argvars[0].v_type == kNvarNumber
              && argvars[0].vval.v_number != 0)
-            || (argvars[0].v_type == VAR_SPECIAL
+            || (argvars[0].v_type == kNvarSpecial
                 && argvars[0].vval.v_special == kSpecialVarTrue)
-            || (argvars[0].v_type == VAR_STRING
+            || (argvars[0].v_type == kNvarString
                 && argvars[0].vval.v_string != NULL
                 && *argvars[0].vval.v_string != NUL));
 }
@@ -8484,7 +8484,7 @@ static void float_op_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
 {
     float_kt f;
     float_kt(*function)(float_kt) = (float_kt(*)(float_kt))fptr;
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
 
     if(tv_get_float_chk(argvars, &f))
     {
@@ -8501,7 +8501,7 @@ static void api_wrapper(typval_T *argvars, typval_T *rettv, FunPtr fptr)
     api_dispatch_ft fn = (api_dispatch_ft)fptr;
     Array args = ARRAY_DICT_INIT;
 
-    for(typval_T *tv = argvars; tv->v_type != VAR_UNKNOWN; tv++)
+    for(typval_T *tv = argvars; tv->v_type != kNvarUnknown; tv++)
     {
         ADD(args, vim_to_object(tv));
     }
@@ -8532,7 +8532,7 @@ static void f_abs(typval_T *argvars,
                   typval_T *rettv,
                   FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type == VAR_FLOAT)
+    if(argvars[0].v_type == kNvarFloat)
     {
         float_op_wrapper(argvars, rettv, (FunPtr)&fabs);
     }
@@ -8565,7 +8565,7 @@ static void f_add(typval_T *argvars,
     list_st *l;
     rettv->vval.v_number = 1; // Default: Failed
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         if((l = argvars[0].vval.v_list) != NULL
            && !tv_check_lock(l->lv_lock, "add() argument", TV_TRANSLATE))
@@ -8625,7 +8625,7 @@ static void f_append(typval_T *argvars,
        && lnum <= curbuf->b_ml.ml_line_count
        && u_save(lnum, lnum + 1) == OK)
     {
-        if(argvars[1].v_type == VAR_LIST)
+        if(argvars[1].v_type == kNvarList)
         {
             l = argvars[1].vval.v_list;
 
@@ -8721,7 +8721,7 @@ static void f_argv(typval_T *argvars,
 {
     int idx;
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         idx = tv_get_number_chk(&argvars[0], NULL);
 
@@ -8735,7 +8735,7 @@ static void f_argv(typval_T *argvars,
             rettv->vval.v_string = NULL;
         }
 
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
     }
     else
     {
@@ -8789,7 +8789,7 @@ static void fill_assert_error(garray_T *gap,
 {
     uchar_kt *tofree;
 
-    if(opt_msg_tv->v_type != VAR_UNKNOWN)
+    if(opt_msg_tv->v_type != kNvarUnknown)
     {
         tofree = (uchar_kt *) encode_tv2string(opt_msg_tv, NULL);
         ga_concat(gap, tofree);
@@ -8846,7 +8846,7 @@ static void assert_error(garray_T *gap)
 {
     vimvar_st *vp = &vimvars[VV_ERRORS];
 
-    if(vp->vv_type != VAR_LIST || vimvars[VV_ERRORS].vv_list == NULL)
+    if(vp->vv_type != kNvarList || vimvars[VV_ERRORS].vv_list == NULL)
     {
         // Make sure v:errors is a list.
         set_vim_var_list(VV_ERRORS, tv_list_alloc());
@@ -8941,7 +8941,7 @@ static void f_assert_fails(typval_T *argvars,
         assert_error(&ga);
         ga_clear(&ga);
     }
-    else if(argvars[1].v_type != VAR_UNKNOWN)
+    else if(argvars[1].v_type != kNvarUnknown)
     {
         char buf[NUMBUFLEN];
         const char *const error = tv_get_string_buf_chk(&argvars[1], buf);
@@ -9010,10 +9010,10 @@ static void assert_bool(typval_T *argvars, bool is_true)
     bool error = false;
     garray_T ga;
 
-    if((argvars[0].v_type != VAR_NUMBER
+    if((argvars[0].v_type != kNvarNumber
         || (tv_get_number_chk(&argvars[0], &error) == 0) == is_true
         || error)
-       && (argvars[0].v_type != VAR_SPECIAL
+       && (argvars[0].v_type != kNvarSpecial
            || (argvars[0].vval.v_special
                != (SpecialVarValue) (is_true
                                      ? kSpecialVarTrue : kSpecialVarFalse))))
@@ -9104,7 +9104,7 @@ static void f_atan2(typval_T *argvars,
 {
     float_kt fx;
     float_kt fy;
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
     {
@@ -9122,7 +9122,7 @@ static void f_browse(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_string = NULL;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "browsedir(title, initdir)" function
@@ -9139,11 +9139,11 @@ static fbuf_st *find_buffer(typval_T *avar)
 {
     fbuf_st *buf = NULL;
 
-    if(avar->v_type == VAR_NUMBER)
+    if(avar->v_type == kNvarNumber)
     {
         buf = buflist_findnr((int)avar->vval.v_number);
     }
-    else if(avar->v_type == VAR_STRING && avar->vval.v_string != NULL)
+    else if(avar->v_type == kNvarString && avar->vval.v_string != NULL)
     {
         buf = buflist_findname_exp(avar->vval.v_string);
 
@@ -9203,12 +9203,12 @@ static fbuf_st *get_buf_tv(typval_T *tv, int curtab_only)
     uchar_kt *save_cpo;
     fbuf_st *buf;
 
-    if(tv->v_type == VAR_NUMBER)
+    if(tv->v_type == kNvarNumber)
     {
         return buflist_findnr((int)tv->vval.v_number);
     }
 
-    if(tv->v_type != VAR_STRING)
+    if(tv->v_type != kNvarString)
     {
         return NULL;
     }
@@ -9251,7 +9251,7 @@ static void f_bufname(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(!tv_check_str_or_nr(&argvars[0]))
@@ -9291,7 +9291,7 @@ static void f_bufnr(typval_T *argvars,
     const char *name;
 
     if(buf == NULL
-       && argvars[1].v_type != VAR_UNKNOWN
+       && argvars[1].v_type != kNvarUnknown
        && tv_get_number_chk(&argvars[1], &error) != 0
        && !error
        && (name = tv_get_string_chk(&argvars[0])) != NULL
@@ -9483,7 +9483,7 @@ static void f_call(typval_T *argvars,
                    typval_T *rettv,
                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[1].v_type != VAR_LIST)
+    if(argvars[1].v_type != kNvarList)
     {
         EMSG(_(e_listreq));
         return;
@@ -9498,11 +9498,11 @@ static void f_call(typval_T *argvars,
     partial_st *partial = NULL;
     dict_st *selfdict = NULL;
 
-    if(argvars[0].v_type == VAR_FUNC)
+    if(argvars[0].v_type == kNvarUfunc)
     {
         func = argvars[0].vval.v_string;
     }
-    else if(argvars[0].v_type == VAR_PARTIAL)
+    else if(argvars[0].v_type == kNvarPartial)
     {
         partial = argvars[0].vval.v_partial;
         func = partial_name(partial);
@@ -9517,9 +9517,9 @@ static void f_call(typval_T *argvars,
         return; // type error or empty name
     }
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
-        if(argvars[2].v_type != VAR_DICT)
+        if(argvars[2].v_type != kNvarDict)
         {
             EMSG(_(e_dictreq));
             return;
@@ -9544,7 +9544,7 @@ static void f_char2nr(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         if(!tv_check_num(&argvars[1]))
         {
@@ -9655,7 +9655,7 @@ static void f_complete(typval_T *argvars,
         return;
     }
 
-    if(argvars[1].v_type != VAR_LIST || argvars[1].vval.v_list == NULL)
+    if(argvars[1].v_type != kNvarList || argvars[1].vval.v_list == NULL)
     {
         EMSG(_(e_invarg));
         return;
@@ -9711,7 +9711,7 @@ static void f_confirm(typval_T *argvars,
         error = true;
     }
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         buttons = tv_get_string_buf_chk(&argvars[1], buf);
 
@@ -9720,11 +9720,11 @@ static void f_confirm(typval_T *argvars,
             error = true;
         }
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             def = tv_get_number_chk(&argvars[2], &error);
 
-            if(argvars[3].v_type != VAR_UNKNOWN)
+            if(argvars[3].v_type != kNvarUnknown)
             {
                 typestr = tv_get_string_buf_chk(&argvars[3], buf2);
 
@@ -9794,7 +9794,7 @@ static void f_count(typval_T *argvars,
     long n = 0;
     int ic = FALSE;
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         listitem_T *li;
         list_st *l;
@@ -9804,12 +9804,12 @@ static void f_count(typval_T *argvars,
         {
             li = l->lv_first;
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 bool error = false;
                 ic = tv_get_number_chk(&argvars[2], &error);
 
-                if(argvars[3].v_type != VAR_UNKNOWN)
+                if(argvars[3].v_type != kNvarUnknown)
                 {
                     idx = tv_get_number_chk(&argvars[3], &error);
 
@@ -9839,7 +9839,7 @@ static void f_count(typval_T *argvars,
             }
         }
     }
-    else if(argvars[0].v_type == VAR_DICT)
+    else if(argvars[0].v_type == kNvarDict)
     {
         int todo;
         dict_st *d;
@@ -9849,11 +9849,11 @@ static void f_count(typval_T *argvars,
         {
             bool error = false;
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 ic = tv_get_number_chk(&argvars[2], &error);
 
-                if(argvars[3].v_type != VAR_UNKNOWN)
+                if(argvars[3].v_type != kNvarUnknown)
                 {
                     EMSG(_(e_invarg));
                 }
@@ -9895,12 +9895,12 @@ static void f_cscope_connection(typval_T *argvars,
     const char *prepend = NULL;
     char buf[NUMBUFLEN];
 
-    if(argvars[0].v_type != VAR_UNKNOWN && argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown && argvars[1].v_type != kNvarUnknown)
     {
         num = (int)tv_get_number(&argvars[0]);
         dbpath = tv_get_string(&argvars[1]);
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             prepend = tv_get_string_buf(&argvars[2], buf);
         }
@@ -9925,7 +9925,7 @@ static void f_cursor(typval_T *argvars,
     bool set_curswant = true;
     rettv->vval.v_number = -1;
 
-    if(argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[1].v_type == kNvarUnknown)
     {
         pos_T pos;
         colnr_T curswant = -1;
@@ -9951,7 +9951,7 @@ static void f_cursor(typval_T *argvars,
         line = tv_get_lnum(argvars);
         col = tv_get_number_chk(&argvars[1], NULL);
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             coladd = tv_get_number_chk(&argvars[2], NULL);
         }
@@ -9994,7 +9994,7 @@ static void f_deepcopy(typval_T *argvars,
 {
     int noref = 0;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         noref = tv_get_number_chk(&argvars[1], NULL);
     }
@@ -10033,7 +10033,7 @@ static void f_delete(typval_T *argvars,
     char nbuf[NUMBUFLEN];
     const char *flags;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         flags = tv_get_string_buf(&argvars[1], nbuf);
     }
@@ -10073,7 +10073,7 @@ static void f_dictwatcheradd(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_DICT)
+    if(argvars[0].v_type != kNvarDict)
     {
         emsgf(_(e_invarg2), "dict");
         return;
@@ -10088,7 +10088,7 @@ static void f_dictwatcheradd(typval_T *argvars,
         return;
     }
 
-    if(argvars[1].v_type != VAR_STRING && argvars[1].v_type != VAR_NUMBER)
+    if(argvars[1].v_type != kNvarString && argvars[1].v_type != kNvarNumber)
     {
         emsgf(_(e_invarg2), "key");
         return;
@@ -10124,13 +10124,13 @@ static void f_dictwatcherdel(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_DICT)
+    if(argvars[0].v_type != kNvarDict)
     {
         emsgf(_(e_invarg2), "dict");
         return;
     }
 
-    if(argvars[2].v_type != VAR_FUNC && argvars[2].v_type != VAR_STRING)
+    if(argvars[2].v_type != kNvarUfunc && argvars[2].v_type != kNvarString)
     {
         emsgf(_(e_invarg2), "funcref");
         return;
@@ -10262,39 +10262,39 @@ static void f_empty(typval_T *argvars,
 
     switch(argvars[0].v_type)
     {
-        case VAR_STRING:
-        case VAR_FUNC:
+        case kNvarString:
+        case kNvarUfunc:
             n = argvars[0].vval.v_string == NULL
                 || *argvars[0].vval.v_string == NUL;
             break;
 
-        case VAR_PARTIAL:
+        case kNvarPartial:
             n = false;
             break;
 
-        case VAR_NUMBER:
+        case kNvarNumber:
             n = argvars[0].vval.v_number == 0;
             break;
 
-        case VAR_FLOAT:
+        case kNvarFloat:
             n = argvars[0].vval.v_float == 0.0;
             break;
 
-        case VAR_LIST:
+        case kNvarList:
             n = argvars[0].vval.v_list == NULL
                 || argvars[0].vval.v_list->lv_first == NULL;
             break;
 
-        case VAR_DICT:
+        case kNvarDict:
             n = argvars[0].vval.v_dict == NULL
                 || argvars[0].vval.v_dict->dv_hashtab.ht_used == 0;
             break;
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
             n = argvars[0].vval.v_special != kSpecialVarTrue;
             break;
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
             EMSG2(_(e_intern2), "f_empty(UNKNOWN)");
             break;
     }
@@ -10313,7 +10313,7 @@ static void f_escape(typval_T *argvars,
             vim_strsave_escaped((const uchar_kt *)tv_get_string(&argvars[0]),
                                 (const uchar_kt *)tv_get_string_buf(&argvars[1], buf));
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "eval()" function
@@ -10338,7 +10338,7 @@ static void f_eval(typval_T *argvars,
         }
 
         need_clr_eos = FALSE;
-        rettv->v_type = VAR_NUMBER;
+        rettv->v_type = kNvarNumber;
         rettv->vval.v_number = 0;
     }
     else if(*s != NUL)
@@ -10403,7 +10403,7 @@ static void f_execute(typval_T *argvars,
         return;
     }
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         char buf[NUMBUFLEN];
         const char *const s = tv_get_string_buf_chk(&argvars[1], buf);
@@ -10433,7 +10433,7 @@ static void f_execute(typval_T *argvars,
     ga_init(&capture_local, (int)sizeof(char), 80);
     capture_ga = &capture_local;
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         do_cmdline_cmd(tv_get_string(&argvars[0]));
     }
@@ -10458,7 +10458,7 @@ static void f_execute(typval_T *argvars,
 
     ga_append(capture_ga, NUL);
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = vim_strsave(capture_ga->ga_data);
     ga_clear(capture_ga);
     capture_ga = save_capture_ga;
@@ -10474,7 +10474,7 @@ static void f_exepath(typval_T *argvars,
 
     (void)os_can_exe((const uchar_kt *)arg, &path, true);
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = path;
 }
 
@@ -10587,14 +10587,14 @@ static void f_expand(typval_T *argvars,
     expand_T xpc;
     bool error = false;
     uchar_kt *result;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
-    if(argvars[1].v_type != VAR_UNKNOWN
-       && argvars[2].v_type != VAR_UNKNOWN
+    if(argvars[1].v_type != kNvarUnknown
+       && argvars[2].v_type != kNvarUnknown
        && tv_get_number_chk(&argvars[2], &error)
        && !error)
     {
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         rettv->vval.v_list = NULL;
     }
 
@@ -10606,7 +10606,7 @@ static void f_expand(typval_T *argvars,
         result = eval_vars((uchar_kt *)s, (uchar_kt *)s, &len, NULL, &errormsg, NULL);
         emsg_off--;
 
-        if(rettv->v_type == VAR_LIST)
+        if(rettv->v_type == kNvarList)
         {
             tv_list_alloc_ret(rettv);
 
@@ -10624,7 +10624,7 @@ static void f_expand(typval_T *argvars,
     {
         // When the optional second argument is non-zero, don't remove matches
         // for 'wildignore' and don't put matches for 'suffixes' at the end.
-        if(argvars[1].v_type != VAR_UNKNOWN
+        if(argvars[1].v_type != kNvarUnknown
            && tv_get_number_chk(&argvars[1], &error))
         {
             options |= WILD_KEEP_ALL;
@@ -10640,7 +10640,7 @@ static void f_expand(typval_T *argvars,
                 options += WILD_ICASE;
             }
 
-            if(rettv->v_type == VAR_STRING)
+            if(rettv->v_type == kNvarString)
             {
                 rettv->vval.v_string =
                     ExpandOne(&xpc, (uchar_kt *)s, NULL, options, WILD_ALL);
@@ -10674,7 +10674,7 @@ static void f_extend(typval_T *argvars,
 {
     const char *const arg_errmsg = N_("extend() argument");
 
-    if(argvars[0].v_type == VAR_LIST && argvars[1].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList && argvars[1].v_type == kNvarList)
     {
         long before;
         bool error = false;
@@ -10698,7 +10698,7 @@ static void f_extend(typval_T *argvars,
         {
             listitem_T *item;
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 before = tv_get_number_chk(&argvars[2], &error);
 
@@ -10731,7 +10731,7 @@ static void f_extend(typval_T *argvars,
             tv_copy(&argvars[0], rettv);
         }
     }
-    else if(argvars[0].v_type == VAR_DICT && argvars[1].v_type == VAR_DICT)
+    else if(argvars[0].v_type == kNvarDict && argvars[1].v_type == kNvarDict)
     {
         dict_st *const d1 = argvars[0].vval.v_dict;
         dict_st *const d2 = argvars[1].vval.v_dict;
@@ -10754,7 +10754,7 @@ static void f_extend(typval_T *argvars,
             const char *action = "force";
 
             // Check the third argument.
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 const char *const av[] = { "keep", "force", "error" };
                 action = tv_get_string_chk(&argvars[2]);
@@ -10808,7 +10808,7 @@ static void f_feedkeys(typval_T *argvars,
     char nbuf[NUMBUFLEN];
     const char *flags = NULL;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         flags = tv_get_string_buf(&argvars[1], nbuf);
     }
@@ -10847,11 +10847,11 @@ static void findfilendir(typval_T *argvars, typval_T *rettv, int find_what)
     bool first = true;
     bool error = false;
     rettv->vval.v_string = NULL;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     const char *fname = tv_get_string(&argvars[0]);
     char pathbuf[NUMBUFLEN];
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         const char *p = tv_get_string_buf_chk(&argvars[1], pathbuf);
 
@@ -10866,7 +10866,7 @@ static void findfilendir(typval_T *argvars, typval_T *rettv, int find_what)
                 path = (uchar_kt *)p;
             }
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 count = tv_get_number_chk(&argvars[2], &error);
             }
@@ -10882,7 +10882,7 @@ static void findfilendir(typval_T *argvars, typval_T *rettv, int find_what)
     {
         do
         {
-            if(rettv->v_type == VAR_STRING || rettv->v_type == VAR_LIST)
+            if(rettv->v_type == kNvarString || rettv->v_type == kNvarList)
             {
                 xfree(fresult);
             }
@@ -10898,14 +10898,14 @@ static void findfilendir(typval_T *argvars, typval_T *rettv, int find_what)
                                                 ? (uchar_kt *)"" : curbuf->b_p_sua));
             first = false;
 
-            if(fresult != NULL && rettv->v_type == VAR_LIST)
+            if(fresult != NULL && rettv->v_type == kNvarList)
             {
                 tv_list_append_string(rettv->vval.v_list, (const char *)fresult, -1);
             }
-        } while((rettv->v_type == VAR_LIST || --count > 0) && fresult != NULL);
+        } while((rettv->v_type == kNvarList || --count > 0) && fresult != NULL);
     }
 
-    if(rettv->v_type == VAR_STRING)
+    if(rettv->v_type == kNvarString)
     {
         rettv->vval.v_string = fresult;
     }
@@ -10934,7 +10934,7 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
     const char *const arg_errmsg =
         (map ? N_("map() argument") : N_("filter() argument"));
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         if((l = argvars[0].vval.v_list) == NULL
            || (!map && tv_check_lock(l->lv_lock, arg_errmsg, TV_TRANSLATE)))
@@ -10942,7 +10942,7 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
             return;
         }
     }
-    else if(argvars[0].v_type == VAR_DICT)
+    else if(argvars[0].v_type == kNvarDict)
     {
         if((d = argvars[0].vval.v_dict) == NULL
            || (!map && tv_check_lock(d->dv_lock, arg_errmsg, TV_TRANSLATE)))
@@ -10961,7 +10961,7 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
     // On type errors, the preceding call has already displayed an error
     // message. Avoid a misleading error message for an empty string that
     // was not passed as argument.
-    if(expr->v_type != VAR_UNKNOWN)
+    if(expr->v_type != kNvarUnknown)
     {
         prepare_vimvar(VV_VAL, &save_val);
 
@@ -10971,9 +10971,9 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
         did_emsg = FALSE;
         prepare_vimvar(VV_KEY, &save_key);
 
-        if(argvars[0].v_type == VAR_DICT)
+        if(argvars[0].v_type == kNvarDict)
         {
-            vimvars[VV_KEY].vv_type = VAR_STRING;
+            vimvars[VV_KEY].vv_type = kNvarString;
             ht = &d->dv_hashtab;
             hash_lock(ht);
             todo = (int)ht->ht_used;
@@ -11018,7 +11018,7 @@ static void filter_map(typval_T *argvars, typval_T *rettv, int map)
         }
         else
         {
-            vimvars[VV_KEY].vv_type = VAR_NUMBER;
+            vimvars[VV_KEY].vv_type = kNvarNumber;
 
             for(li = l->lv_first; li != NULL; li = nli)
             {
@@ -11063,7 +11063,7 @@ static int filter_map_one(typval_T *tv, typval_T *expr, int map, int *remp)
     argv[0] = vimvars[VV_KEY].vv_tv;
     argv[1] = vimvars[VV_VAL].vv_tv;
 
-    if(expr->v_type == VAR_FUNC)
+    if(expr->v_type == kNvarUfunc)
     {
         const uchar_kt *const s = expr->vval.v_string;
 
@@ -11083,7 +11083,7 @@ static int filter_map_one(typval_T *tv, typval_T *expr, int map, int *remp)
             goto theend;
         }
     }
-    else if(expr->v_type == VAR_PARTIAL)
+    else if(expr->v_type == kNvarPartial)
     {
         partial_st *partial = expr->vval.v_partial;
         const uchar_kt *const s = partial_name(partial);
@@ -11215,7 +11215,7 @@ static void f_fmod(typval_T *argvars,
 {
     float_kt fx;
     float_kt fy;
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
     {
@@ -11235,7 +11235,7 @@ static void f_fnameescape(typval_T *argvars,
     rettv->vval.v_string =
         (uchar_kt *)vim_strsave_fnameescape(tv_get_string(&argvars[0]), false);
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "fnamemodify({fname}, {mods})" function
@@ -11262,7 +11262,7 @@ static void f_fnamemodify(typval_T *argvars,
                            (uchar_kt **)&fname, &fbuf, &len);
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     if(fname == NULL)
     {
@@ -11348,7 +11348,7 @@ static void f_foldtext(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
     int len;
     char *txt;
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     foldstart = (linenr_T)get_vim_var_nr(VV_FOLDSTART);
     foldend = (linenr_T)get_vim_var_nr(VV_FOLDEND);
@@ -11413,7 +11413,7 @@ static void f_foldtextresult(typval_T *argvars,
     uchar_kt buf[FOLD_TEXT_LEN];
     foldinfo_T foldinfo;
     int fold_count;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     linenr_T lnum = tv_get_lnum(argvars);
 
@@ -11455,12 +11455,12 @@ static void common_function(typval_T *argvars,
     partial_st *arg_pt = NULL;
     uchar_kt *trans_name = NULL;
 
-    if(argvars[0].v_type == VAR_FUNC)
+    if(argvars[0].v_type == kNvarUfunc)
     {
         // function(MyFunc, [arg], dict)
         s = argvars[0].vval.v_string;
     }
-    else if(argvars[0].v_type == VAR_PARTIAL
+    else if(argvars[0].v_type == kNvarPartial
             && argvars[0].vval.v_partial != NULL)
     {
         // function(dict.MyFunc, [arg])
@@ -11535,15 +11535,15 @@ static void common_function(typval_T *argvars,
             name = vim_strsave(s);
         }
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 // function(name, [args], dict)
                 arg_idx = 1;
                 dict_idx = 2;
             }
-            else if(argvars[1].v_type == VAR_DICT)
+            else if(argvars[1].v_type == kNvarDict)
             {
                 // function(name, dict)
                 dict_idx = 1;
@@ -11556,7 +11556,7 @@ static void common_function(typval_T *argvars,
 
             if(dict_idx > 0)
             {
-                if(argvars[dict_idx].v_type != VAR_DICT)
+                if(argvars[dict_idx].v_type != kNvarDict)
                 {
                     EMSG(_("E922: expected a dict"));
                     xfree(name);
@@ -11571,7 +11571,7 @@ static void common_function(typval_T *argvars,
 
             if(arg_idx > 0)
             {
-                if(argvars[arg_idx].v_type != VAR_LIST)
+                if(argvars[arg_idx].v_type != kNvarList)
                 {
                     EMSG(_("E923: Second argument of function() "
                            "must be a list or a dict"));
@@ -11593,7 +11593,7 @@ static void common_function(typval_T *argvars,
         {
             partial_st *const pt = xcalloc(1, sizeof(*pt));
 
-            // result is a VAR_PARTIAL
+            // result is a kNvarPartial
             if(arg_idx > 0 || (arg_pt != NULL && arg_pt->pt_argc > 0))
             {
                 const int arg_len = (arg_pt == NULL ? 0 : arg_pt->pt_argc);
@@ -11666,13 +11666,13 @@ static void common_function(typval_T *argvars,
                 func_ref(name);
             }
 
-            rettv->v_type = VAR_PARTIAL;
+            rettv->v_type = kNvarPartial;
             rettv->vval.v_partial = pt;
         }
         else
         {
-            // result is a VAR_FUNC
-            rettv->v_type = VAR_FUNC;
+            // result is a kNvarUfunc
+            rettv->v_type = kNvarUfunc;
             rettv->vval.v_string = name;
             func_ref(name);
         }
@@ -11702,7 +11702,7 @@ static void f_garbagecollect(typval_T *argvars,
     // using Lists and Dicts internally.  E.g.: ":echo [garbagecollect()]".
     want_garbage_collect = true;
 
-    if(argvars[0].v_type != VAR_UNKNOWN && tv_get_number(&argvars[0]) == 1)
+    if(argvars[0].v_type != kNvarUnknown && tv_get_number(&argvars[0]) == 1)
     {
         garbage_collect_at_exit = true;
     }
@@ -11719,7 +11719,7 @@ static void f_get(typval_T *argvars,
     dict_st *d;
     typval_T *tv = NULL;
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         if((l = argvars[0].vval.v_list) != NULL)
         {
@@ -11732,7 +11732,7 @@ static void f_get(typval_T *argvars,
             }
         }
     }
-    else if(argvars[0].v_type == VAR_DICT)
+    else if(argvars[0].v_type == kNvarDict)
     {
         if((d = argvars[0].vval.v_dict) != NULL)
         {
@@ -11749,7 +11749,7 @@ static void f_get(typval_T *argvars,
         partial_st *pt;
         partial_st fref_pt;
 
-        if(argvars[0].v_type == VAR_PARTIAL)
+        if(argvars[0].v_type == kNvarPartial)
         {
             pt = argvars[0].vval.v_partial;
         }
@@ -11766,19 +11766,19 @@ static void f_get(typval_T *argvars,
 
             if(strcmp(what, "func") == 0 || strcmp(what, "name") == 0)
             {
-                rettv->v_type = (*what == 'f' ? VAR_FUNC : VAR_STRING);
+                rettv->v_type = (*what == 'f' ? kNvarUfunc : kNvarString);
                 const char *const n = (const char *)partial_name(pt);
                 assert(n != NULL);
                 rettv->vval.v_string = (uchar_kt *)xstrdup(n);
 
-                if(rettv->v_type == VAR_FUNC)
+                if(rettv->v_type == kNvarUfunc)
                 {
                     func_ref(rettv->vval.v_string);
                 }
             }
             else if(strcmp(what, "dict") == 0)
             {
-                rettv->v_type = VAR_DICT;
+                rettv->v_type = kNvarDict;
                 rettv->vval.v_dict = pt->pt_dict;
 
                 if(pt->pt_dict != NULL)
@@ -11788,7 +11788,7 @@ static void f_get(typval_T *argvars,
             }
             else if(strcmp(what, "args") == 0)
             {
-                rettv->v_type = VAR_LIST;
+                rettv->v_type = kNvarList;
 
                 if(tv_list_alloc_ret(rettv) != NULL)
                 {
@@ -11813,7 +11813,7 @@ static void f_get(typval_T *argvars,
 
     if(tv == NULL)
     {
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             tv_copy(&argvars[2], rettv);
         }
@@ -11901,7 +11901,7 @@ static void f_getbufinfo(typval_T *argvars,
     tv_list_alloc_ret(rettv);
 
     // List of all the buffers or selected buffers
-    if(argvars[0].v_type == VAR_DICT)
+    if(argvars[0].v_type == kNvarDict)
     {
         dict_st *sel_d = argvars[0].vval.v_dict;
 
@@ -11924,7 +11924,7 @@ static void f_getbufinfo(typval_T *argvars,
             }
         }
     }
-    else if(argvars[0].v_type != VAR_UNKNOWN)
+    else if(argvars[0].v_type != kNvarUnknown)
     {
         // Information about one buffer. Argument specifies the buffer
         if(tv_check_num(&argvars[0]))  // issue errmsg if type error
@@ -11980,7 +11980,7 @@ static void get_buffer_lines(fbuf_st *buf,
                              typval_T *rettv)
 {
     uchar_kt *p;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(retlist)
@@ -12050,7 +12050,7 @@ static linenr_T tv_get_lnum_buf(const typval_T *const tv,
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if(tv->v_type == VAR_STRING
+    if(tv->v_type == kNvarString
        && tv->vval.v_string != NULL
        && tv->vval.v_string[0] == '$'
        && buf != NULL)
@@ -12077,7 +12077,7 @@ static void f_getbufline(typval_T *argvars,
 
     const linenr_T lnum = tv_get_lnum_buf(&argvars[1], buf);
 
-    const linenr_T end = (argvars[2].v_type == VAR_UNKNOWN
+    const linenr_T end = (argvars[2].v_type == kNvarUnknown
                           ? lnum : tv_get_lnum_buf(&argvars[2], buf));
 
     get_buffer_lines(buf, lnum, end, true, rettv);
@@ -12089,7 +12089,7 @@ static void f_getbufvar(typval_T *argvars,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     bool done = false;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(!tv_check_str_or_nr(&argvars[0]))
@@ -12116,7 +12116,7 @@ static void f_getbufvar(typval_T *argvars,
 
                 if(opts != NULL)
                 {
-                    rettv->v_type = VAR_DICT;
+                    rettv->v_type = kNvarDict;
                     rettv->vval.v_dict = opts;
                     opts->dv_refcount++;
                     done = true;
@@ -12153,7 +12153,7 @@ static void f_getbufvar(typval_T *argvars,
 
 f_getbufvar_end:
 
-    if(!done && argvars[2].v_type != VAR_UNKNOWN)
+    if(!done && argvars[2].v_type != kNvarUnknown)
     {
         // use the default value
         tv_copy(&argvars[2], rettv);
@@ -12175,7 +12175,7 @@ static void f_getchar(typval_T *argvars,
         // or if event processing caused a redraw.
         ui_cursor_goto(msg_row, msg_col);
 
-        if(argvars[0].v_type == VAR_UNKNOWN)
+        if(argvars[0].v_type == kNvarUnknown)
         {
             // getchar(): blocking wait.
             if(!(char_avail() || using_script() || input_available()))
@@ -12253,7 +12253,7 @@ static void f_getchar(typval_T *argvars,
         }
 
         temp[i++] = NUL;
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
         rettv->vval.v_string = vim_strsave(temp);
 
         if(is_mouse_key(n))
@@ -12311,7 +12311,7 @@ static void f_getcmdline(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = get_cmdline_str();
 }
 
@@ -12328,7 +12328,7 @@ static void f_getcmdtype(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = xmallocz(1);
     rettv->vval.v_string[0] = get_cmdline_type();
 }
@@ -12338,7 +12338,7 @@ static void f_getcmdwintype(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                             typval_T *rettv,
                             FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     rettv->vval.v_string = xmallocz(1);
     rettv->vval.v_string[0] = cmdwin_type;
@@ -12354,7 +12354,7 @@ static void f_getcompletion(typval_T *argvars,
     bool filtered = false;
     int options = WILD_SILENT | WILD_USE_NL | WILD_ADD_SLASH | WILD_NO_BEEP;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         filtered = (bool)tv_get_number_chk(&argvars[2], NULL);
     }
@@ -12370,7 +12370,7 @@ static void f_getcompletion(typval_T *argvars,
         options |= WILD_KEEP_ALL;
     }
 
-    if(argvars[0].v_type != VAR_STRING || argvars[1].v_type != VAR_STRING)
+    if(argvars[0].v_type != kNvarString || argvars[1].v_type != kNvarString)
     {
         EMSG(_(e_invarg));
         return;
@@ -12464,7 +12464,7 @@ static void f_getcwd(typval_T *argvars,
     tabpage_st *tp  = curtab; // The tabpage to look at.
     win_st *win = curwin; // The window to look at.
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     // Pre-conditions and scope extraction together
@@ -12472,12 +12472,12 @@ static void f_getcwd(typval_T *argvars,
     {
         // If there is no argument there are
         // no more scopes after it, break out.
-        if(argvars[i].v_type == VAR_UNKNOWN)
+        if(argvars[i].v_type == kNvarUnknown)
         {
             break;
         }
 
-        if(argvars[i].v_type != VAR_NUMBER)
+        if(argvars[i].v_type != kNvarNumber)
         {
             EMSG(_(e_invarg));
             return;
@@ -12602,7 +12602,7 @@ static void f_getfontname(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 }
 
@@ -12629,7 +12629,7 @@ static void f_getfperm(typval_T *argvars,
         }
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *)perm;
 }
 
@@ -12639,7 +12639,7 @@ static void f_getfsize(typval_T *argvars,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *fname = tv_get_string(&argvars[0]);
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     FileInfo file_info;
 
     if(os_fileinfo(fname, &file_info))
@@ -12693,7 +12693,7 @@ static void f_getftype(typval_T *argvars,
     uchar_kt *type = NULL;
     char *t;
     const char *fname = tv_get_string(&argvars[0]);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     FileInfo file_info;
 
     if(os_fileinfo_link(fname, &file_info))
@@ -12816,7 +12816,7 @@ static void f_getline(typval_T *argvars,
     bool retlist;
     const linenr_T lnum = tv_get_lnum(argvars);
 
-    if(argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[1].v_type == kNvarUnknown)
     {
         end = 0;
         retlist = false;
@@ -12835,7 +12835,7 @@ static void get_qf_loc_list(int is_qf,
                             typval_T *what_arg,
                             typval_T *rettv)
 {
-    if(what_arg->v_type == VAR_UNKNOWN)
+    if(what_arg->v_type == kNvarUnknown)
     {
         tv_list_alloc_ret(rettv);
 
@@ -12850,7 +12850,7 @@ static void get_qf_loc_list(int is_qf,
 
         if(is_qf || wp != NULL)
         {
-            if(what_arg->v_type == VAR_DICT)
+            if(what_arg->v_type == kNvarDict)
             {
                 dict_st *d = what_arg->vval.v_dict;
 
@@ -13026,16 +13026,16 @@ static void f_getreg(typval_T *argvars,
     bool return_list = false;
     bool error = false;
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         strregname = tv_get_string_chk(&argvars[0]);
         error = strregname == NULL;
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
             arg2 = tv_get_number_chk(&argvars[1], &error);
 
-            if(!error && argvars[2].v_type != VAR_UNKNOWN)
+            if(!error && argvars[2].v_type != kNvarUnknown)
             {
                 return_list = tv_get_number_chk(&argvars[2], &error);
             }
@@ -13060,7 +13060,7 @@ static void f_getreg(typval_T *argvars,
 
     if(return_list)
     {
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
 
         rettv->vval.v_list =
             get_reg_contents(regname, (arg2 ? kGRegExprSrc : 0) | kGRegList);
@@ -13074,7 +13074,7 @@ static void f_getreg(typval_T *argvars,
     }
     else
     {
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
 
         rettv->vval.v_string =
             get_reg_contents(regname, arg2 ? kGRegExprSrc : 0);
@@ -13088,13 +13088,13 @@ static void f_getregtype(typval_T *argvars,
 {
     const char *strregname;
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         strregname = tv_get_string_chk(&argvars[0]);
 
         if(strregname == NULL) // Type error; errmsg already given.
         {
-            rettv->v_type = VAR_STRING;
+            rettv->v_type = kNvarString;
             rettv->vval.v_string = NULL;
             return;
         }
@@ -13117,7 +13117,7 @@ static void f_getregtype(typval_T *argvars,
     MotionType reg_type = get_reg_type(regname, &reglen);
 
     format_reg_type(reg_type, reglen, buf, ARRAY_SIZE(buf));
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *)xstrdup(buf);
 }
 
@@ -13149,7 +13149,7 @@ static void f_gettabinfo(typval_T *argvars,
     tabpage_st *tparg = NULL;
     tv_list_alloc_ret(rettv);
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         // Information about one tab page
         tparg = find_tabpage((int)tv_get_number_chk(&argvars[0], NULL));
@@ -13194,7 +13194,7 @@ static void f_gettabvar(typval_T *argvars,
     tabpage_st *tp, *oldtabpage;
     dictitem_T  *v;
     bool done = false;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     const char *const varname = tv_get_string_chk(&argvars[1]);
     tp = find_tabpage((int)tv_get_number_chk(&argvars[0], NULL));
@@ -13226,7 +13226,7 @@ static void f_gettabvar(typval_T *argvars,
         restore_win(oldcurwin, oldtabpage, TRUE);
     }
 
-    if(!done && argvars[2].v_type != VAR_UNKNOWN)
+    if(!done && argvars[2].v_type != kNvarUnknown)
     {
         tv_copy(&argvars[2], rettv);
     }
@@ -13271,7 +13271,7 @@ static void f_getwininfo(typval_T *argvars,
     win_st *wparg = NULL;
     tv_list_alloc_ret(rettv);
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         wparg = win_id2wp(argvars);
 
@@ -13378,9 +13378,9 @@ static win_st *find_tabwin(typval_T *wvp, typval_T *tvp)
     win_st *wp = NULL;
     tabpage_st *tp = NULL;
 
-    if(wvp->v_type != VAR_UNKNOWN)
+    if(wvp->v_type != kNvarUnknown)
     {
-        if(tvp->v_type != VAR_UNKNOWN)
+        if(tvp->v_type != kNvarUnknown)
         {
             long n = tv_get_number(tvp);
 
@@ -13439,7 +13439,7 @@ static void getwinvar(typval_T *argvars, typval_T *rettv, int off)
 
     win = find_win_by_nr(&argvars[off], tp);
     const char *varname = tv_get_string_chk(&argvars[off + 1]);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     emsg_off++;
 
@@ -13462,7 +13462,7 @@ static void getwinvar(typval_T *argvars, typval_T *rettv, int off)
 
                     if(opts != NULL)
                     {
-                        rettv->v_type = VAR_DICT;
+                        rettv->v_type = kNvarDict;
                         rettv->vval.v_dict = opts;
                         opts->dv_refcount++;
                         done = true;
@@ -13501,7 +13501,7 @@ static void getwinvar(typval_T *argvars, typval_T *rettv, int off)
 
     emsg_off--;
 
-    if(!done && argvars[off + 2].v_type != VAR_UNKNOWN)
+    if(!done && argvars[off + 2].v_type != kNvarUnknown)
     {
         // use the default return value
         tv_copy(&argvars[off + 2], rettv);
@@ -13519,24 +13519,24 @@ static void f_glob(typval_T *argvars,
 
     // When the optional second argument is non-zero, don't remove matches
     // for 'wildignore' and don't put matches for 'suffixes' at the end.
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         if(tv_get_number_chk(&argvars[1], &error))
         {
             options |= WILD_KEEP_ALL;
         }
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             if(tv_get_number_chk(&argvars[2], &error))
             {
-                rettv->v_type = VAR_LIST;
+                rettv->v_type = kNvarList;
                 rettv->vval.v_list = NULL;
             }
 
-            if(argvars[3].v_type != VAR_UNKNOWN
+            if(argvars[3].v_type != kNvarUnknown
                && tv_get_number_chk(&argvars[3], &error))
             {
                 options |= WILD_ALLLINKS;
@@ -13554,7 +13554,7 @@ static void f_glob(typval_T *argvars,
             options += WILD_ICASE;
         }
 
-        if(rettv->v_type == VAR_STRING)
+        if(rettv->v_type == kNvarString)
         {
             rettv->vval.v_string =
                 ExpandOne(&xpc,
@@ -13598,9 +13598,9 @@ static void f_globpath(typval_T *argvars,
     bool error = false;
 
     // Return a string, or a list if the optional third argument is non-zero.
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         // When the optional second argument is non-zero, don't remove matches
         // for 'wildignore' and don't put matches for 'suffixes' at the end.
@@ -13609,15 +13609,15 @@ static void f_globpath(typval_T *argvars,
             flags |= WILD_KEEP_ALL;
         }
 
-        if(argvars[3].v_type != VAR_UNKNOWN)
+        if(argvars[3].v_type != kNvarUnknown)
         {
             if(tv_get_number_chk(&argvars[3], &error))
             {
-                rettv->v_type = VAR_LIST;
+                rettv->v_type = kNvarList;
                 rettv->vval.v_list = NULL;
             }
 
-            if(argvars[4].v_type != VAR_UNKNOWN
+            if(argvars[4].v_type != kNvarUnknown
                && tv_get_number_chk(&argvars[4], &error))
             {
                 flags |= WILD_ALLLINKS;
@@ -13638,7 +13638,7 @@ static void f_globpath(typval_T *argvars,
                 &ga,
                 flags);
 
-        if(rettv->v_type == VAR_STRING)
+        if(rettv->v_type == kNvarString)
         {
             rettv->vval.v_string = ga_concat_strings_sep(&ga, "\n");
         }
@@ -13668,7 +13668,7 @@ static void f_glob2regpat(typval_T *argvars,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const pat = tv_get_string_chk(&argvars[0]); // NULL on type error
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     rettv->vval.v_string =
         ((pat == NULL)
@@ -13910,7 +13910,7 @@ static void f_has_key(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type != VAR_DICT)
+    if(argvars[0].v_type != kNvarDict)
     {
         EMSG(_(e_dictreq));
         return;
@@ -13954,18 +13954,18 @@ static void f_haslocaldir(typval_T *argvars,
     tabpage_st *tp  = curtab; // The tabpage to look at.
     win_st *win = curwin; // The window to look at.
 
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     // Pre-conditions and scope extraction together
     for(int i = MIN_CD_SCOPE; i < MAX_CD_SCOPE; i++)
     {
-        if(argvars[i].v_type == VAR_UNKNOWN)
+        if(argvars[i].v_type == kNvarUnknown)
         {
             break;
         }
 
-        if(argvars[i].v_type != VAR_NUMBER)
+        if(argvars[i].v_type != kNvarNumber)
         {
             EMSG(_(e_invarg));
             return;
@@ -14063,7 +14063,7 @@ static void f_hasmapto(typval_T *argvars,
     bool abbr = false;
     char buf[NUMBUFLEN];
 
-    if(argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[1].v_type == kNvarUnknown)
     {
         mode = "nvo";
     }
@@ -14071,7 +14071,7 @@ static void f_hasmapto(typval_T *argvars,
     {
         mode = tv_get_string_buf(&argvars[1], buf);
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             abbr = tv_get_number(&argvars[2]);
         }
@@ -14131,12 +14131,12 @@ static void f_histdel(typval_T *argvars,
     {
         n = 0;
     }
-    else if(argvars[1].v_type == VAR_UNKNOWN)
+    else if(argvars[1].v_type == kNvarUnknown)
     {
         // only one argument: clear entire history
         n = clr_history(get_histtype(str, strlen(str), false));
     }
-    else if(argvars[1].v_type == VAR_NUMBER)
+    else if(argvars[1].v_type == kNvarNumber)
     {
         // index given: remove that entry
         n = del_history_idx(get_histtype(str, strlen(str), false),
@@ -14171,7 +14171,7 @@ static void f_histget(typval_T *argvars,
     {
         type = get_histtype(str, strlen(str), false);
 
-        if(argvars[1].v_type == VAR_UNKNOWN)
+        if(argvars[1].v_type == kNvarUnknown)
         {
             idx = get_history_idx(type);
         }
@@ -14184,7 +14184,7 @@ static void f_histget(typval_T *argvars,
         rettv->vval.v_string = vim_strsave(get_history_entry(type, idx));
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "histnr()" function
@@ -14235,7 +14235,7 @@ static void f_hostname(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
 {
     char hostname[256];
     os_get_hostname(hostname, 256);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = vim_strsave((uchar_kt *)hostname);
 }
 
@@ -14245,7 +14245,7 @@ static void f_iconv(typval_T *argvars,
                     FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     vimconv_T vimconv;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     const char *const str = tv_get_string(&argvars[0]);
     char buf1[NUMBUFLEN];
@@ -14304,7 +14304,7 @@ static void f_index(typval_T *argvars,
     int ic = FALSE;
     rettv->vval.v_number = -1;
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG(_(e_listreq));
         return;
@@ -14316,7 +14316,7 @@ static void f_index(typval_T *argvars,
     {
         item = l->lv_first;
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             bool error = false;
 
@@ -14325,7 +14325,7 @@ static void f_index(typval_T *argvars,
             item = tv_list_find(l, tv_get_number_chk(&argvars[2], &error));
             idx = l->lv_idx;
 
-            if(argvars[3].v_type != VAR_UNKNOWN)
+            if(argvars[3].v_type != kNvarUnknown)
             {
                 ic = tv_get_number_chk(&argvars[3], &error);
             }
@@ -14358,7 +14358,7 @@ void get_user_input(const typval_T *const argvars,
                     const bool inputdialog)
 FUNC_ATTR_NONNULL_ALL
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     const char *prompt = "";
@@ -14370,9 +14370,9 @@ FUNC_ATTR_NONNULL_ALL
     char cancelreturn_buf[NUMBUFLEN];
     char xp_name_buf[NUMBUFLEN];
 
-    if(argvars[0].v_type == VAR_DICT)
+    if(argvars[0].v_type == kNvarDict)
     {
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
             emsgf(_("E5050: {opts} must be the only argument"));
             return;
@@ -14431,7 +14431,7 @@ FUNC_ATTR_NONNULL_ALL
             return;
         }
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
             defstr = tv_get_string_buf_chk(&argvars[1], defstr_buf);
 
@@ -14440,7 +14440,7 @@ FUNC_ATTR_NONNULL_ALL
                 return;
             }
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 const char *const arg2 =
                     tv_get_string_buf_chk(&argvars[2], cancelreturn_buf);
@@ -14559,7 +14559,7 @@ static void f_inputlist(typval_T *argvars,
     int selected;
     int mouse_used;
 
-    if(argvars[0].v_type != VAR_LIST || argvars[0].vval.v_list == NULL)
+    if(argvars[0].v_type != kNvarList || argvars[0].vval.v_list == NULL)
     {
         EMSG2(_(e_listarg), "inputlist()");
         return;
@@ -14639,7 +14639,7 @@ static void f_insert(typval_T *argvars,
     list_st *l;
     bool error = false;
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "insert()");
     }
@@ -14648,7 +14648,7 @@ static void f_insert(typval_T *argvars,
     {
         long before = 0;
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             before = tv_get_number_chk(&argvars[2], &error);
         }
@@ -14768,7 +14768,7 @@ static void dict_list(typval_T *const tv,
                       typval_T *const rettv,
                       const DictListType what)
 {
-    if(tv->v_type != VAR_DICT)
+    if(tv->v_type != kNvarDict)
     {
         emsgf(_(e_dictreq));
         return;
@@ -14789,7 +14789,7 @@ static void dict_list(typval_T *const tv,
         {
             case kDictListKeys:
             {
-                li->li_tv.v_type = VAR_STRING;
+                li->li_tv.v_type = kNvarString;
                 li->li_tv.v_lock = VAR_UNLOCKED;
                 li->li_tv.vval.v_string = vim_strsave(di->di_key);
                 break;
@@ -14805,14 +14805,14 @@ static void dict_list(typval_T *const tv,
             {
                 // items()
                 list_st *const sub_l = tv_list_alloc();
-                li->li_tv.v_type = VAR_LIST;
+                li->li_tv.v_type = kNvarList;
                 li->li_tv.v_lock = VAR_UNLOCKED;
                 li->li_tv.vval.v_list = sub_l;
                 sub_l->lv_refcount++;
 
                 listitem_T *sub_li = tv_list_item_alloc();
                 tv_list_append(sub_l, sub_li);
-                sub_li->li_tv.v_type = VAR_STRING;
+                sub_li->li_tv.v_type = kNvarString;
                 sub_li->li_tv.v_lock = VAR_UNLOCKED;
                 sub_li->li_tv.vval.v_string = vim_strsave(di->di_key);
                 sub_li = tv_list_item_alloc();
@@ -14833,7 +14833,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     const int len = vim_vsnprintf(NULL, 0, "%p", dummy_ap, argvars);
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = xmalloc(len + 1);
     vim_vsnprintf((char *)rettv->vval.v_string, len + 1, "%p", dummy_ap, argvars);
 }
@@ -14851,7 +14851,7 @@ static void f_jobclose(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -14859,8 +14859,8 @@ static void f_jobclose(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER
-       || (argvars[1].v_type != VAR_STRING && argvars[1].v_type != VAR_UNKNOWN))
+    if(argvars[0].v_type != kNvarNumber
+       || (argvars[1].v_type != kNvarString && argvars[1].v_type != kNvarUnknown))
     {
         EMSG(_(e_invarg));
         return;
@@ -14876,7 +14876,7 @@ static void f_jobclose(typval_T *argvars,
 
     Process *proc = (Process *)&data->proc;
 
-    if(argvars[1].v_type == VAR_STRING)
+    if(argvars[1].v_type == kNvarString)
     {
         char *stream = (char *)argvars[1].vval.v_string;
 
@@ -14946,7 +14946,7 @@ static void f_jobpid(typval_T *argvars,
                      typval_T *rettv,
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -14954,7 +14954,7 @@ static void f_jobpid(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber)
     {
         EMSG(_(e_invarg));
         return;
@@ -14977,7 +14977,7 @@ static void f_jobsend(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -14985,7 +14985,7 @@ static void f_jobsend(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER || argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarNumber || argvars[1].v_type == kNvarUnknown)
     {
         // First argument is the job id and
         // second is the string or list to write to the job's stdin
@@ -15032,7 +15032,7 @@ static void f_jobresize(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -15040,9 +15040,9 @@ static void f_jobresize(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER
-       || argvars[1].v_type != VAR_NUMBER
-       || argvars[2].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber
+       || argvars[1].v_type != kNvarNumber
+       || argvars[2].v_type != kNvarNumber)
     {
         // job id, width, height
         EMSG(_(e_invarg));
@@ -15072,7 +15072,7 @@ static void f_jobresize(typval_T *argvars,
 
 static char **tv_to_argv(typval_T *cmd_tv, const char **cmd, bool *executable)
 {
-    if(cmd_tv->v_type == VAR_STRING)
+    if(cmd_tv->v_type == kNvarString)
     {
         const char *cmd_str = tv_get_string(cmd_tv);
 
@@ -15084,7 +15084,7 @@ static char **tv_to_argv(typval_T *cmd_tv, const char **cmd, bool *executable)
         return shell_build_argv(cmd_str, NULL);
     }
 
-    if(cmd_tv->v_type != VAR_LIST)
+    if(cmd_tv->v_type != kNvarList)
     {
         EMSG2(_(e_invarg2), "expected String or List");
         return NULL;
@@ -15143,7 +15143,7 @@ static void f_jobstart(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -15160,7 +15160,7 @@ static void f_jobstart(typval_T *argvars,
         return; // Did error message in tv_to_argv.
     }
 
-    if(argvars[1].v_type != VAR_DICT && argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarDict && argvars[1].v_type != kNvarUnknown)
     {
         // Wrong argument types
         EMSG2(_(e_invarg2), "expected dictionary");
@@ -15178,7 +15178,7 @@ static void f_jobstart(typval_T *argvars,
     Callback on_exit = CALLBACK_NONE;
 
 
-    if(argvars[1].v_type == VAR_DICT)
+    if(argvars[1].v_type == kNvarDict)
     {
         job_opts = argvars[1].vval.v_dict;
         detach = tv_dict_get_number(job_opts, "detach") != 0;
@@ -15267,7 +15267,7 @@ static void f_jobstop(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -15275,7 +15275,7 @@ static void f_jobstop(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber)
     {
         // Only argument is the job id
         EMSG(_(e_invarg));
@@ -15300,7 +15300,7 @@ static void f_jobwait(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -15308,8 +15308,8 @@ static void f_jobwait(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_LIST
-       || (argvars[1].v_type != VAR_NUMBER && argvars[1].v_type != VAR_UNKNOWN))
+    if(argvars[0].v_type != kNvarList
+       || (argvars[1].v_type != kNvarNumber && argvars[1].v_type != kNvarUnknown))
     {
         EMSG(_(e_invarg));
         return;
@@ -15327,7 +15327,7 @@ static void f_jobwait(typval_T *argvars,
     {
         TerminalJobData *data = NULL;
 
-        if(arg->li_tv.v_type != VAR_NUMBER
+        if(arg->li_tv.v_type != kNvarNumber
            || !(data = find_job(arg->li_tv.vval.v_number)))
         {
             tv_list_append_number(rv, -3);
@@ -15349,7 +15349,7 @@ static void f_jobwait(typval_T *argvars,
     int remaining = -1;
     uint64_t before = 0;
 
-    if(argvars[1].v_type == VAR_NUMBER
+    if(argvars[1].v_type == kNvarNumber
        && argvars[1].vval.v_number >= 0)
     {
         remaining = argvars[1].vval.v_number;
@@ -15366,7 +15366,7 @@ static void f_jobwait(typval_T *argvars,
             break;
         }
 
-        if(arg->li_tv.v_type != VAR_NUMBER
+        if(arg->li_tv.v_type != kNvarNumber
            || !(data = find_job(arg->li_tv.vval.v_number)))
         {
             continue;
@@ -15406,7 +15406,7 @@ static void f_jobwait(typval_T *argvars,
     {
         TerminalJobData *data = NULL;
 
-        if(arg->li_tv.v_type != VAR_NUMBER
+        if(arg->li_tv.v_type != kNvarNumber
            || !(data = find_job(arg->li_tv.vval.v_number)))
         {
             continue;
@@ -15422,7 +15422,7 @@ static void f_jobwait(typval_T *argvars,
     {
         TerminalJobData *data = NULL;
 
-        if(arg->li_tv.v_type != VAR_NUMBER
+        if(arg->li_tv.v_type != kNvarNumber
            || !(data = pmap_get(uint64_t)(jobs, arg->li_tv.vval.v_number)))
         {
             continue;
@@ -15436,7 +15436,7 @@ static void f_jobwait(typval_T *argvars,
     multiqueue_free(waiting_jobs);
     ui_busy_stop();
     rv->lv_refcount++;
-    rettv->v_type = VAR_LIST;
+    rettv->v_type = kNvarList;
     rettv->vval.v_list = rv;
 }
 
@@ -15445,7 +15445,7 @@ static void f_join(typval_T *argvars,
                    typval_T *rettv,
                    FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG(_(e_listreq));
         return;
@@ -15456,10 +15456,10 @@ static void f_join(typval_T *argvars,
         return;
     }
 
-    const char *const sep = (argvars[1].v_type == VAR_UNKNOWN
+    const char *const sep = (argvars[1].v_type == kNvarUnknown
                              ? " " : tv_get_string_chk(&argvars[1]));
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     if(sep != NULL)
     {
@@ -15486,7 +15486,7 @@ static void f_json_decode(typval_T *argvars,
     char *tofree = NULL;
     size_t len;
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         if(!encode_vim_list_to_buf(argvars[0].vval.v_list, &len, &tofree))
         {
@@ -15519,11 +15519,11 @@ static void f_json_decode(typval_T *argvars,
     if(json_decode_string(s, len, rettv) == FAIL)
     {
         emsgf(_("E474: Failed to parse %.*s"), (int) len, s);
-        rettv->v_type = VAR_NUMBER;
+        rettv->v_type = kNvarNumber;
         rettv->vval.v_number = 0;
     }
 
-    assert(rettv->v_type != VAR_UNKNOWN);
+    assert(rettv->v_type != kNvarUnknown);
     xfree(tofree);
 }
 
@@ -15532,7 +15532,7 @@ static void f_json_encode(typval_T *argvars,
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *) encode_tv2json(&argvars[0], NULL);
 }
 
@@ -15568,31 +15568,31 @@ static void f_len(typval_T *argvars,
 {
     switch (argvars[0].v_type)
     {
-        case VAR_STRING:
-        case VAR_NUMBER:
+        case kNvarString:
+        case kNvarNumber:
         {
             rettv->vval.v_number =
                 (number_kt)strlen(tv_get_string(&argvars[0]));
             break;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             rettv->vval.v_number = tv_list_len(argvars[0].vval.v_list);
             break;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             rettv->vval.v_number = tv_dict_len(argvars[0].vval.v_dict);
             break;
         }
 
-        case VAR_UNKNOWN:
-        case VAR_SPECIAL:
-        case VAR_FLOAT:
-        case VAR_PARTIAL:
-        case VAR_FUNC:
+        case kNvarUnknown:
+        case kNvarSpecial:
+        case kNvarFloat:
+        case kNvarPartial:
+        case kNvarUfunc:
         {
             EMSG(_("E701: Invalid type for len()"));
             break;
@@ -15604,7 +15604,7 @@ static void libcall_common(typval_T *argvars, typval_T *rettv, int out_type)
 {
     rettv->v_type = out_type;
 
-    if(out_type != VAR_NUMBER)
+    if(out_type != kNvarNumber)
     {
         rettv->vval.v_string = NULL;
     }
@@ -15615,7 +15615,7 @@ static void libcall_common(typval_T *argvars, typval_T *rettv, int out_type)
     }
 
     // The first two args (libname and funcname) must be strings
-    if(argvars[0].v_type != VAR_STRING || argvars[1].v_type != VAR_STRING)
+    if(argvars[0].v_type != kNvarString || argvars[1].v_type != kNvarString)
     {
         return;
     }
@@ -15625,13 +15625,13 @@ static void libcall_common(typval_T *argvars, typval_T *rettv, int out_type)
     int in_type = argvars[2].v_type;
 
     // input variables
-    char *str_in = (in_type == VAR_STRING)
+    char *str_in = (in_type == kNvarString)
                    ? (char *) argvars[2].vval.v_string : NULL;
 
     int64_t int_in = argvars[2].vval.v_number;
 
     // output variables
-    char **str_out = (out_type == VAR_STRING)
+    char **str_out = (out_type == kNvarString)
                      ? (char **) &rettv->vval.v_string : NULL;
 
     int64_t int_out = 0;
@@ -15649,7 +15649,7 @@ static void libcall_common(typval_T *argvars, typval_T *rettv, int out_type)
         return;
     }
 
-    if(out_type == VAR_NUMBER)
+    if(out_type == kNvarNumber)
     {
         rettv->vval.v_number = (int) int_out;
     }
@@ -15660,7 +15660,7 @@ static void f_libcall(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    libcall_common(argvars, rettv, VAR_STRING);
+    libcall_common(argvars, rettv, kNvarString);
 }
 
 /// "libcallnr()" function
@@ -15668,7 +15668,7 @@ static void f_libcallnr(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    libcall_common(argvars, rettv, VAR_NUMBER);
+    libcall_common(argvars, rettv, kNvarNumber);
 }
 
 /// "line(string)" function
@@ -15751,7 +15751,7 @@ static void get_maparg(typval_T *argvars, typval_T *rettv, int exact)
     int buffer_local;
 
     // Return empty string for failure.
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     uchar_kt *keys = (uchar_kt *)tv_get_string(&argvars[0]);
 
@@ -15763,15 +15763,15 @@ static void get_maparg(typval_T *argvars, typval_T *rettv, int exact)
     char buf[NUMBUFLEN];
     const char *which;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         which = tv_get_string_buf_chk(&argvars[1], buf);
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             abbr = tv_get_number(&argvars[2]);
 
-            if(argvars[3].v_type != VAR_UNKNOWN)
+            if(argvars[3].v_type != kNvarUnknown)
             {
                 get_dict = tv_get_number(&argvars[3]);
             }
@@ -15936,11 +15936,11 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
     }
     else if(type == 2)
     {
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
         rettv->vval.v_string = NULL;
     }
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         if((l = argvars[0].vval.v_list) == NULL)
         {
@@ -15963,7 +15963,7 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
         goto theend;
     }
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         bool error = false;
         start = tv_get_number_chk(&argvars[2], &error);
@@ -15999,7 +15999,7 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
             // When "count" argument is there ignore matches before "start",
             // otherwise skip part of the string. Differs when pattern is "^"
             // or "\<".
-            if(argvars[3].v_type != VAR_UNKNOWN)
+            if(argvars[3].v_type != kNvarUnknown)
             {
                 startcol = start;
             }
@@ -16010,7 +16010,7 @@ static void find_some_match(typval_T *argvars, typval_T *rettv, int type)
             }
         }
 
-        if(argvars[3].v_type != VAR_UNKNOWN)
+        if(argvars[3].v_type != kNvarUnknown)
         {
             nth = tv_get_number_chk(&argvars[3], &error);
         }
@@ -16193,17 +16193,17 @@ static void f_matchadd(typval_T *argvars,
         return;
     }
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         prio = tv_get_number_chk(&argvars[2], &error);
 
-        if(argvars[3].v_type != VAR_UNKNOWN)
+        if(argvars[3].v_type != kNvarUnknown)
         {
             id = tv_get_number_chk(&argvars[3], &error);
 
-            if(argvars[4].v_type != VAR_UNKNOWN)
+            if(argvars[4].v_type != kNvarUnknown)
             {
-                if(argvars[4].v_type != VAR_DICT)
+                if(argvars[4].v_type != kNvarDict)
                 {
                     EMSG(_(e_dictreq));
                     return;
@@ -16248,7 +16248,7 @@ static void f_matchaddpos(typval_T *argvars,
         return;
     }
 
-    if(argvars[1].v_type != VAR_LIST)
+    if(argvars[1].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "matchaddpos()");
         return;
@@ -16267,17 +16267,17 @@ static void f_matchaddpos(typval_T *argvars,
     int id = -1;
     const char *conceal_char = NULL;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         prio = tv_get_number_chk(&argvars[2], &error);
 
-        if(argvars[3].v_type != VAR_UNKNOWN)
+        if(argvars[3].v_type != kNvarUnknown)
         {
             id = tv_get_number_chk(&argvars[3], &error);
 
-            if(argvars[4].v_type != VAR_UNKNOWN)
+            if(argvars[4].v_type != kNvarUnknown)
             {
-                if(argvars[4].v_type != VAR_DICT)
+                if(argvars[4].v_type != kNvarDict)
                 {
                     EMSG(_(e_dictreq));
                     return;
@@ -16400,7 +16400,7 @@ FUNC_ATTR_NONNULL_ALL
     number_kt n = 0;
     bool error = false;
 
-    if(tv->v_type == VAR_LIST)
+    if(tv->v_type == kNvarList)
     {
         const list_st *const l = tv->vval.v_list;
 
@@ -16421,7 +16421,7 @@ FUNC_ATTR_NONNULL_ALL
             }
         }
     }
-    else if(tv->v_type == VAR_DICT)
+    else if(tv->v_type == kNvarDict)
     {
         if(tv->vval.v_dict != NULL)
         {
@@ -16498,9 +16498,9 @@ static void f_mkdir(typval_T *argvars,
             *path_tail_with_sep((uchar_kt *)dir) = NUL;
         }
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 prot = tv_get_number_chk(&argvars[2], NULL);
             }
@@ -16544,7 +16544,7 @@ static void f_mode(typval_T *argvars,
     }
 
     rettv->vval.v_string = (uchar_kt *)mode;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "msgpackdump()" function
@@ -16553,7 +16553,7 @@ static void f_msgpackdump(typval_T *argvars,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "msgpackdump()");
         return;
@@ -16594,7 +16594,7 @@ static void f_msgpackparse(typval_T *argvars,
                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "msgpackparse()");
         return;
@@ -16608,7 +16608,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    if(list->lv_first->li_tv.v_type != VAR_STRING)
+    if(list->lv_first->li_tv.v_type != kNvarString)
     {
         EMSG2(_(e_invarg2), "List item is not a string");
         return;
@@ -16675,7 +16675,7 @@ FUNC_ATTR_NONNULL_ALL
             if(result == MSGPACK_UNPACK_SUCCESS)
             {
                 listitem_T *li = tv_list_item_alloc();
-                li->li_tv.v_type = VAR_UNKNOWN;
+                li->li_tv.v_type = kNvarUnknown;
                 tv_list_append(ret_list, li);
 
                 if(msgpack_to_vim(unpacked.data, &li->li_tv) == FAIL)
@@ -16739,7 +16739,7 @@ static void f_nr2char(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         if(!tv_check_num(&argvars[1]))
         {
@@ -16771,7 +16771,7 @@ static void f_nr2char(typval_T *argvars,
     char buf[MB_MAXBYTES];
     const int len = utf_char2bytes((int)num, (uchar_kt *)buf);
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = xmemdupz(buf, (size_t)len);
 }
 
@@ -16789,7 +16789,7 @@ static void f_pathshorten(typval_T *argvars,
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     const char *const s = tv_get_string_chk(&argvars[0]);
 
     if(!s)
@@ -16807,7 +16807,7 @@ static void f_pow(typval_T *argvars,
 {
     float_kt fx;
     float_kt fy;
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
 
     if(tv_get_float_chk(argvars, &fx) && tv_get_float_chk(&argvars[1], &fy))
     {
@@ -16846,7 +16846,7 @@ static void f_printf(typval_T *argvars,
                      typval_T *rettv,
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     {
@@ -16909,7 +16909,7 @@ static void f_range(typval_T *argvars,
     bool error = false;
     start = tv_get_number_chk(&argvars[0], &error);
 
-    if(argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[1].v_type == kNvarUnknown)
     {
         end = start - 1;
         start = 0;
@@ -16918,7 +16918,7 @@ static void f_range(typval_T *argvars,
     {
         end = tv_get_number_chk(&argvars[1], &error);
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             stride = tv_get_number_chk(&argvars[2], &error);
         }
@@ -16966,14 +16966,14 @@ static void f_readfile(typval_T *argvars,
     uchar_kt *p; // position in buf
     uchar_kt *start; // start of current line
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         if(strcmp(tv_get_string(&argvars[1]), "b") == 0)
         {
             binary = true;
         }
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             maxline = tv_get_number(&argvars[2]);
         }
@@ -17045,7 +17045,7 @@ static void f_readfile(typval_T *argvars,
                 }
 
                 li = tv_list_item_alloc();
-                li->li_tv.v_type = VAR_STRING;
+                li->li_tv.v_type = kNvarString;
                 li->li_tv.v_lock = 0;
                 li->li_tv.vval.v_string = s;
                 tv_list_append(rettv->vval.v_list, li);
@@ -17163,7 +17163,7 @@ static void f_readfile(typval_T *argvars,
 /// convert a List to proftime_T
 ///
 /// @param arg
-/// The input list, must be of type VAR_LIST and have exactly 2 items
+/// The input list, must be of type kNvarList and have exactly 2 items
 ///
 /// @param[out] tm
 /// The proftime_T representation of @b arg
@@ -17172,7 +17172,7 @@ static void f_readfile(typval_T *argvars,
 static int list2proftime(typval_T *arg, proftime_T *tm)
 FUNC_ATTR_NONNULL_ALL
 {
-    if(arg->v_type != VAR_LIST
+    if(arg->v_type != kNvarList
        || arg->vval.v_list == NULL
        || arg->vval.v_list->lv_len != 2)
     {
@@ -17214,12 +17214,12 @@ static void f_reltime(typval_T *argvars,
     proftime_T res;
     proftime_T start;
 
-    if(argvars[0].v_type == VAR_UNKNOWN)
+    if(argvars[0].v_type == kNvarUnknown)
     {
         // no arguments: get current time.
         res = profile_start();
     }
-    else if(argvars[1].v_type == VAR_UNKNOWN)
+    else if(argvars[1].v_type == kNvarUnknown)
     {
         if(list2proftime(&argvars[0], &res) == FAIL)
         {
@@ -17275,7 +17275,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     proftime_T tm;
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(list2proftime(&argvars[0], &tm) == OK)
@@ -17299,9 +17299,9 @@ static void f_remove(typval_T *argvars,
     listitem_T *item2;
     const char *const arg_errmsg = N_("remove() argument");
 
-    if(argvars[0].v_type == VAR_DICT)
+    if(argvars[0].v_type == kNvarDict)
     {
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             EMSG2(_(e_toomanyarg), "remove()");
         }
@@ -17333,7 +17333,7 @@ static void f_remove(typval_T *argvars,
             }
         }
     }
-    else if(argvars[0].v_type != VAR_LIST)
+    else if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listdictarg), "remove()");
     }
@@ -17353,7 +17353,7 @@ static void f_remove(typval_T *argvars,
         }
         else
         {
-            if(argvars[2].v_type == VAR_UNKNOWN)
+            if(argvars[2].v_type == kNvarUnknown)
             {
                 // Remove one item, return its value.
                 tv_list_remove_items(l, item, item);
@@ -17433,7 +17433,7 @@ static void f_repeat(typval_T *argvars,
 {
     number_kt n = tv_get_number(&argvars[1]);
 
-    if(argvars[0].v_type == VAR_LIST)
+    if(argvars[0].v_type == kNvarList)
     {
         tv_list_alloc_ret(rettv);
 
@@ -17444,7 +17444,7 @@ static void f_repeat(typval_T *argvars,
     }
     else
     {
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
         rettv->vval.v_string = NULL;
 
         if(n <= 0)
@@ -17484,7 +17484,7 @@ static void f_resolve(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     const char *fname = tv_get_string(&argvars[0]);
 
 #ifdef HOST_OS_WINDOWS
@@ -17689,7 +17689,7 @@ static void f_reverse(typval_T *argvars,
 {
     list_st *l;
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "reverse()");
     }
@@ -17708,7 +17708,7 @@ static void f_reverse(typval_T *argvars,
         }
 
         rettv->vval.v_list = l;
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         l->lv_refcount++;
         l->lv_idx = l->lv_len - l->lv_idx - 1;
     }
@@ -17731,7 +17731,7 @@ static int get_search_arg(typval_T *varp, int *flagsp)
     int dir = FORWARD;
     int mask;
 
-    if(varp->v_type != VAR_UNKNOWN)
+    if(varp->v_type != kNvarUnknown)
     {
         char nbuf[NUMBUFLEN];
         const char *flags = tv_get_string_buf_chk(varp, nbuf);
@@ -17863,7 +17863,7 @@ static int search_cmn(typval_T *argvars, pos_T *match_pos, int *flagsp)
     }
 
     // Optional arguments: line number to stop searching and timeout.
-    if(argvars[1].v_type != VAR_UNKNOWN && argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown && argvars[2].v_type != kNvarUnknown)
     {
         lnum_stop = tv_get_number_chk(&argvars[2], NULL);
 
@@ -17872,7 +17872,7 @@ static int search_cmn(typval_T *argvars, pos_T *match_pos, int *flagsp)
             goto theend;
         }
 
-        if(argvars[3].v_type != VAR_UNKNOWN)
+        if(argvars[3].v_type != kNvarUnknown)
         {
             time_limit = tv_get_number_chk(&argvars[3], NULL);
 
@@ -17961,7 +17961,7 @@ static void f_rpcnotify(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -17969,13 +17969,13 @@ static void f_rpcnotify(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER || argvars[0].vval.v_number < 0)
+    if(argvars[0].v_type != kNvarNumber || argvars[0].vval.v_number < 0)
     {
         EMSG2(_(e_invarg2), "Channel id must be a positive integer");
         return;
     }
 
-    if(argvars[1].v_type != VAR_STRING)
+    if(argvars[1].v_type != kNvarString)
     {
         EMSG2(_(e_invarg2), "Event type must be a string");
         return;
@@ -17983,7 +17983,7 @@ static void f_rpcnotify(typval_T *argvars,
 
     Array args = ARRAY_DICT_INIT;
 
-    for(typval_T *tv = argvars + 2; tv->v_type != VAR_UNKNOWN; tv++)
+    for(typval_T *tv = argvars + 2; tv->v_type != kNvarUnknown; tv++)
     {
         ADD(args, vim_to_object(tv));
     }
@@ -18004,7 +18004,7 @@ static void f_rpcrequest(typval_T *argvars,
                          typval_T *rettv,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
     const int l_provider_call_nesting = provider_call_nesting;
 
@@ -18013,13 +18013,13 @@ static void f_rpcrequest(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER || argvars[0].vval.v_number <= 0)
+    if(argvars[0].v_type != kNvarNumber || argvars[0].vval.v_number <= 0)
     {
         EMSG2(_(e_invarg2), "Channel id must be a positive integer");
         return;
     }
 
-    if(argvars[1].v_type != VAR_STRING)
+    if(argvars[1].v_type != kNvarString)
     {
         EMSG2(_(e_invarg2), "Method name must be a string");
         return;
@@ -18027,7 +18027,7 @@ static void f_rpcrequest(typval_T *argvars,
 
     Array args = ARRAY_DICT_INIT;
 
-    for(typval_T *tv = argvars + 2; tv->v_type != VAR_UNKNOWN; tv++)
+    for(typval_T *tv = argvars + 2; tv->v_type != kNvarUnknown; tv++)
     {
         ADD(args, vim_to_object(tv));
     }
@@ -18102,7 +18102,7 @@ static void f_rpcstart(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -18110,8 +18110,8 @@ static void f_rpcstart(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_STRING
-       || (argvars[1].v_type != VAR_LIST && argvars[1].v_type != VAR_UNKNOWN))
+    if(argvars[0].v_type != kNvarString
+       || (argvars[1].v_type != kNvarList && argvars[1].v_type != kNvarUnknown))
     {
         // Wrong argument types
         EMSG(_(e_invarg));
@@ -18121,7 +18121,7 @@ static void f_rpcstart(typval_T *argvars,
     list_st *args = NULL;
     int argsl = 0;
 
-    if(argvars[1].v_type == VAR_LIST)
+    if(argvars[1].v_type == kNvarList)
     {
         args = argvars[1].vval.v_list;
         argsl = args->lv_len;
@@ -18129,7 +18129,7 @@ static void f_rpcstart(typval_T *argvars,
         // Assert that all list items are strings
         for(listitem_T *arg = args->lv_first; arg != NULL; arg = arg->li_next)
         {
-            if(arg->li_tv.v_type != VAR_STRING)
+            if(arg->li_tv.v_type != kNvarString)
             {
                 EMSG(_(e_invarg));
                 return;
@@ -18178,7 +18178,7 @@ static void f_rpcstop(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
     rettv->vval.v_number = 0;
 
     if(check_restricted() || check_secure())
@@ -18186,7 +18186,7 @@ static void f_rpcstop(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber)
     {
         // Wrong argument types
         EMSG(_(e_invarg));
@@ -18294,11 +18294,11 @@ static void f_searchdecl(typval_T *argvars,
     rettv->vval.v_number = 1; // default: FAIL
     const char *const name = tv_get_string_chk(&argvars[0]);
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         locally = tv_get_number_chk(&argvars[1], &error) == 0;
 
-        if(!error && argvars[2].v_type != VAR_UNKNOWN)
+        if(!error && argvars[2].v_type != kNvarUnknown)
         {
             thisblock = tv_get_number_chk(&argvars[2], &error) != 0;
         }
@@ -18364,8 +18364,8 @@ static int searchpair_cmn(typval_T *argvars, pos_T *match_pos)
     // Optional fifth argument: skip expression.
     const char *skip;
 
-    if(argvars[3].v_type == VAR_UNKNOWN
-       || argvars[4].v_type == VAR_UNKNOWN)
+    if(argvars[3].v_type == kNvarUnknown
+       || argvars[4].v_type == kNvarUnknown)
     {
         skip = "";
     }
@@ -18378,7 +18378,7 @@ static int searchpair_cmn(typval_T *argvars, pos_T *match_pos)
             goto theend; // Type error.
         }
 
-        if(argvars[5].v_type != VAR_UNKNOWN)
+        if(argvars[5].v_type != kNvarUnknown)
         {
             lnum_stop = tv_get_number_chk(&argvars[5], NULL);
 
@@ -18387,7 +18387,7 @@ static int searchpair_cmn(typval_T *argvars, pos_T *match_pos)
                 goto theend;
             }
 
-            if(argvars[6].v_type != VAR_UNKNOWN)
+            if(argvars[6].v_type != kNvarUnknown)
             {
                 time_limit = tv_get_number_chk(&argvars[6], NULL);
 
@@ -18704,7 +18704,7 @@ static void f_serverlist(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
     for(size_t i = 0; i < n; i++)
     {
         listitem_T *li = tv_list_item_alloc();
-        li->li_tv.v_type = VAR_STRING;
+        li->li_tv.v_type = kNvarString;
         li->li_tv.v_lock = 0;
         li->li_tv.vval.v_string = (uchar_kt *)addrs[i];
         tv_list_append(l, li);
@@ -18718,7 +18718,7 @@ static void f_serverstart(typval_T *argvars,
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL; // Address of the new server
 
     if(check_restricted() || check_secure())
@@ -18729,9 +18729,9 @@ static void f_serverstart(typval_T *argvars,
     char *address;
 
     // If the user supplied an address, use it, otherwise use a temp.
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
-        if(argvars[0].v_type != VAR_STRING)
+        if(argvars[0].v_type != kNvarString)
         {
             EMSG(_(e_invarg));
             return;
@@ -18781,7 +18781,7 @@ static void f_serverstop(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_STRING)
+    if(argvars[0].v_type != kNvarString)
     {
         EMSG(_(e_invarg));
         return;
@@ -18855,7 +18855,7 @@ static void f_setcharsearch(typval_T *argvars,
     dict_st *d;
     dictitem_T *di;
 
-    if(argvars[0].v_type != VAR_DICT)
+    if(argvars[0].v_type != kNvarDict)
     {
         EMSG(_(e_dictreq));
         return;
@@ -18964,7 +18964,7 @@ static void f_setline(typval_T *argvars,
     linenr_T lnum = tv_get_lnum(&argvars[0]);
     const char *line = NULL;
 
-    if(argvars[1].v_type == VAR_LIST)
+    if(argvars[1].v_type == kNvarList)
     {
         l = argvars[1].vval.v_list;
         li = l->lv_first;
@@ -19049,7 +19049,7 @@ static void f_setline(typval_T *argvars,
 ///
 /// Used by `setqflist()` and `setloclist()` functions. Accepts invalid
 /// list_arg, action_arg and what_arg arguments in which case errors out,
-/// including VAR_UNKNOWN parameters.
+/// including kNvarUnknown parameters.
 ///
 /// @param[in,out]  wp      Window to create location list for. May be NULL in
 ///                         which case quickfix list will be created.
@@ -19068,7 +19068,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
     dict_st *d = NULL;
     typval_T *list_arg = &args[0];
 
-    if(list_arg->v_type != VAR_LIST)
+    if(list_arg->v_type != kNvarList)
     {
         EMSG(_(e_listreq));
         return;
@@ -19076,12 +19076,12 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
     typval_T *action_arg = &args[1];
 
-    if(action_arg->v_type == VAR_UNKNOWN)
+    if(action_arg->v_type == kNvarUnknown)
     {
         // Option argument was not given.
         goto skip_args;
     }
-    else if(action_arg->v_type != VAR_STRING)
+    else if(action_arg->v_type != kNvarString)
     {
         EMSG(_(e_stringreq));
         return;
@@ -19101,12 +19101,12 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
     typval_T *title_arg = &args[2];
 
-    if(title_arg->v_type == VAR_UNKNOWN)
+    if(title_arg->v_type == kNvarUnknown)
     {
         // Option argument was not given.
         goto skip_args;
     }
-    else if(title_arg->v_type == VAR_STRING)
+    else if(title_arg->v_type == kNvarString)
     {
         title = tv_get_string_chk(title_arg);
 
@@ -19117,7 +19117,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
             return;
         }
     }
-    else if(title_arg->v_type == VAR_DICT)
+    else if(title_arg->v_type == kNvarDict)
     {
         d = title_arg->vval.v_dict;
     }
@@ -19168,7 +19168,7 @@ static void f_setmatches(typval_T *argvars,
     list_st *s = NULL;
     rettv->vval.v_number = -1;
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG(_(e_listreq));
         return;
@@ -19182,7 +19182,7 @@ static void f_setmatches(typval_T *argvars,
 
         while(li != NULL)
         {
-            if(li->li_tv.v_type != VAR_DICT
+            if(li->li_tv.v_type != kNvarDict
                || (d = li->li_tv.vval.v_dict) == NULL)
             {
                 EMSG(_(e_invarg));
@@ -19233,7 +19233,7 @@ static void f_setmatches(typval_T *argvars,
 
                     if(pos_di != NULL)
                     {
-                        if(pos_di->di_tv.v_type != VAR_LIST)
+                        if(pos_di->di_tv.v_type != kNvarList)
                         {
                             return;
                         }
@@ -19392,7 +19392,7 @@ static void f_setreg(typval_T *argvars,
         regname = '"';
     }
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         const char *stropt = tv_get_string_chk(&argvars[2]);
 
@@ -19444,7 +19444,7 @@ static void f_setreg(typval_T *argvars,
         }
     }
 
-    if(argvars[1].v_type == VAR_LIST)
+    if(argvars[1].v_type == kNvarList)
     {
         list_st *ll = argvars[1].vval.v_list;
 
@@ -19649,7 +19649,7 @@ static void f_sha256(typval_T *argvars,
 
     // make a copy of the hash (sha256_bytes returns a static buffer)
     rettv->vval.v_string = (uchar_kt *)xstrdup(hash);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "shellescape({string})" function
@@ -19661,7 +19661,7 @@ static void f_shellescape(typval_T *argvars,
         vim_strsave_shellescape((const uchar_kt *)tv_get_string(&argvars[0]),
                                 non_zero_arg(&argvars[1]),
                                 true);
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// shiftwidth() function
@@ -19680,7 +19680,7 @@ static void f_simplify(typval_T *argvars,
     const char *const p = tv_get_string(&argvars[0]);
     rettv->vval.v_string = (uchar_kt *)xstrdup(p);
     simplify_filename(rettv->vval.v_string); // Simplify in place.
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "sockconnect()" function
@@ -19688,13 +19688,13 @@ static void f_sockconnect(typval_T *argvars,
                           typval_T *rettv,
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type != VAR_STRING || argvars[1].v_type != VAR_STRING)
+    if(argvars[0].v_type != kNvarString || argvars[1].v_type != kNvarString)
     {
         EMSG(_(e_invarg));
         return;
     }
 
-    if(argvars[2].v_type != VAR_DICT && argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarDict && argvars[2].v_type != kNvarUnknown)
     {
         // Wrong argument types
         EMSG2(_(e_invarg2), "expected dictionary");
@@ -19721,7 +19721,7 @@ static void f_sockconnect(typval_T *argvars,
 
     bool rpc = false;
 
-    if(argvars[2].v_type == VAR_DICT)
+    if(argvars[2].v_type == kNvarDict)
     {
         dict_st *opts = argvars[2].vval.v_dict;
         rpc = tv_dict_get_number(opts, "rpc") != 0;
@@ -19742,7 +19742,7 @@ static void f_sockconnect(typval_T *argvars,
     }
 
     rettv->vval.v_number = (number_kt)id;
-    rettv->v_type = VAR_NUMBER;
+    rettv->v_type = kNvarNumber;
 }
 
 /// struct used in the array that's given to qsort()
@@ -19803,9 +19803,9 @@ static int item_compare(const void *s1,
     // encode_tv2string() puts quotes around a string and allocates memory.
     // Don't do that for string variables. Use a single quote when comparing
     // with a non-string to do what the docs promise.
-    if(tv1->v_type == VAR_STRING)
+    if(tv1->v_type == kNvarString)
     {
-        if(tv2->v_type != VAR_STRING || sortinfo->item_compare_numeric)
+        if(tv2->v_type != kNvarString || sortinfo->item_compare_numeric)
         {
             p1 = "'";
         }
@@ -19819,9 +19819,9 @@ static int item_compare(const void *s1,
         tofree1 = p1 = encode_tv2string(tv1, NULL);
     }
 
-    if(tv2->v_type == VAR_STRING)
+    if(tv2->v_type == kNvarString)
     {
-        if(tv1->v_type != VAR_STRING || sortinfo->item_compare_numeric)
+        if(tv1->v_type != kNvarString || sortinfo->item_compare_numeric)
         {
             p2 = "'";
         }
@@ -19922,7 +19922,7 @@ static int item_compare2(const void *s1, const void *s2, bool keep_zero)
     tv_copy(&si1->item->li_tv, &argv[0]);
     tv_copy(&si2->item->li_tv, &argv[1]);
 
-    rettv.v_type = VAR_UNKNOWN; // tv_clear() uses this
+    rettv.v_type = kNvarUnknown; // tv_clear() uses this
 
     res = call_func((const uchar_kt *)func_name,
                     (int)STRLEN(func_name),
@@ -19995,7 +19995,7 @@ static void do_sort_uniq(typval_T *argvars, typval_T *rettv, bool sort)
                                     ? N_("sort() argument")
                                     : N_("uniq() argument"));
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), sort ? "sort()" : "uniq()");
     }
@@ -20010,7 +20010,7 @@ static void do_sort_uniq(typval_T *argvars, typval_T *rettv, bool sort)
         }
 
         rettv->vval.v_list = l;
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         ++l->lv_refcount;
         len = tv_list_len(l);
 
@@ -20027,14 +20027,14 @@ static void do_sort_uniq(typval_T *argvars, typval_T *rettv, bool sort)
         info.item_compare_partial = NULL;
         info.item_compare_selfdict = NULL;
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
             // optional second argument: {func}
-            if(argvars[1].v_type == VAR_FUNC)
+            if(argvars[1].v_type == kNvarUfunc)
             {
                 info.item_compare_func = (const char *)argvars[1].vval.v_string;
             }
-            else if(argvars[1].v_type == VAR_PARTIAL)
+            else if(argvars[1].v_type == kNvarPartial)
             {
                 info.item_compare_partial = argvars[1].vval.v_partial;
             }
@@ -20052,7 +20052,7 @@ static void do_sort_uniq(typval_T *argvars, typval_T *rettv, bool sort)
                 {
                     info.item_compare_ic = true;
                 }
-                else if(argvars[1].v_type != VAR_NUMBER)
+                else if(argvars[1].v_type != kNvarNumber)
                 {
                     info.item_compare_func = tv_get_string(&argvars[1]);
                 }
@@ -20092,10 +20092,10 @@ static void do_sort_uniq(typval_T *argvars, typval_T *rettv, bool sort)
                 }
             }
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 // optional third argument: {dict}
-                if(argvars[2].v_type != VAR_DICT)
+                if(argvars[2].v_type != kNvarDict)
                 {
                     EMSG(_(e_dictreq));
                     goto theend;
@@ -20241,7 +20241,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     proftime_T tm;
 
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
     rettv->vval.v_float = 0;
 
     if(list2proftime(&argvars[0], &tm) == OK)
@@ -20255,7 +20255,7 @@ static void f_soundfold(typval_T *argvars,
                         typval_T *rettv,
                         FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     const char *const s = tv_get_string(&argvars[0]);
     rettv->vval.v_string = (uchar_kt *)eval_soundfold(s);
 }
@@ -20270,7 +20270,7 @@ static void f_spellbadword(typval_T *argvars,
     size_t len = 0;
     tv_list_alloc_ret(rettv);
 
-    if(argvars[0].v_type == VAR_UNKNOWN)
+    if(argvars[0].v_type == kNvarUnknown)
     {
         // Find the start and length of the badly spelled word.
         len = spell_move_to(curwin, FORWARD, true, true, &attr);
@@ -20331,7 +20331,7 @@ static void f_spellsuggest(typval_T *argvars,
     {
         const char *const str = tv_get_string(&argvars[0]);
 
-        if(argvars[1].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown)
         {
             maxcount = tv_get_number_chk(&argvars[1], &typeerr);
 
@@ -20340,7 +20340,7 @@ static void f_spellsuggest(typval_T *argvars,
                 return;
             }
 
-            if(argvars[2].v_type != VAR_UNKNOWN)
+            if(argvars[2].v_type != kNvarUnknown)
             {
                 need_capital = tv_get_number_chk(&argvars[2], &typeerr);
 
@@ -20361,7 +20361,7 @@ static void f_spellsuggest(typval_T *argvars,
         {
             char *p = ((char **)ga.ga_data)[i];
             li = tv_list_item_alloc();
-            li->li_tv.v_type = VAR_STRING;
+            li->li_tv.v_type = kNvarString;
             li->li_tv.v_lock = 0;
             li->li_tv.vval.v_string = (uchar_kt *)p;
             tv_list_append(rettv->vval.v_list, li);
@@ -20390,7 +20390,7 @@ static void f_split(typval_T *argvars,
     const char *pat = NULL;
     char patbuf[NUMBUFLEN];
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         pat = tv_get_string_buf_chk(&argvars[1], patbuf);
 
@@ -20399,7 +20399,7 @@ static void f_split(typval_T *argvars,
             typeerr = true;
         }
 
-        if(argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[2].v_type != kNvarUnknown)
         {
             keepempty = (bool)tv_get_number_chk(&argvars[2], &typeerr);
         }
@@ -20493,7 +20493,7 @@ static void f_str2float(typval_T *argvars,
     }
 
     (void)string2float((char *)p, &rettv->vval.v_float);
-    rettv->v_type = VAR_FLOAT;
+    rettv->v_type = kNvarFloat;
 }
 
 /// "str2nr()" function
@@ -20505,7 +20505,7 @@ static void f_str2nr(typval_T *argvars,
     long n;
     int what;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         base = tv_get_number(&argvars[1]);
 
@@ -20559,10 +20559,10 @@ static void f_strftime(typval_T *argvars,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     time_t seconds;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     char *p = (char *)tv_get_string(&argvars[0]);
 
-    if(argvars[1].v_type == VAR_UNKNOWN)
+    if(argvars[1].v_type == kNvarUnknown)
     {
         seconds = time(NULL);
     }
@@ -20680,7 +20680,7 @@ static void f_stridx(typval_T *argvars,
         return; // Type error; errmsg already given.
     }
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         bool error = false;
         const ptrdiff_t start_idx =
@@ -20710,7 +20710,7 @@ static void f_string(typval_T *argvars,
                      typval_T *rettv,
                      FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *) encode_tv2string(&argvars[0], NULL);
 }
 
@@ -20732,7 +20732,7 @@ static void f_strchars(typval_T *argvars,
     number_kt len = 0;
     int (*func_mb_ptr2char_adv)(const uchar_kt **pp);
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         skipcc = tv_get_number_chk(&argvars[1], NULL);
     }
@@ -20763,7 +20763,7 @@ static void f_strdisplaywidth(typval_T *argvars,
     const char *const s = tv_get_string(&argvars[0]);
     int col = 0;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         col = tv_get_number(&argvars[1]);
     }
@@ -20810,7 +20810,7 @@ static void f_strcharpart(typval_T *argvars,
 
     int len = 0;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         int charlen = tv_get_number(&argvars[2]);
 
@@ -20856,7 +20856,7 @@ static void f_strcharpart(typval_T *argvars,
         len = slen - nbyte;
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *)xstrndup(p + nbyte, (size_t)len);
 }
 
@@ -20875,7 +20875,7 @@ static void f_strpart(typval_T *argvars,
     {
         len = 0;
     }
-    else if(argvars[2].v_type != VAR_UNKNOWN)
+    else if(argvars[2].v_type != kNvarUnknown)
     {
         len = tv_get_number(&argvars[2]);
     }
@@ -20905,7 +20905,7 @@ static void f_strpart(typval_T *argvars,
         len = slen - n;
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *)xmemdupz(p + n, (size_t)len);
 }
 
@@ -20927,7 +20927,7 @@ static void f_strridx(typval_T *argvars,
     const size_t haystack_len = STRLEN(haystack);
     ptrdiff_t end_idx;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         // Third argument: upper limit for index.
         end_idx = (ptrdiff_t)tv_get_number_chk(&argvars[2], NULL);
@@ -20979,7 +20979,7 @@ static void f_strtrans(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = transstr((uchar_kt *)tv_get_string(&argvars[0]));
 }
 
@@ -21004,7 +21004,7 @@ static void f_submatch(typval_T *argvars,
 
     int retList = 0;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         retList = tv_get_number_chk(&argvars[1], &error);
 
@@ -21016,12 +21016,12 @@ static void f_submatch(typval_T *argvars,
 
     if(retList == 0)
     {
-        rettv->v_type = VAR_STRING;
+        rettv->v_type = kNvarString;
         rettv->vval.v_string = reg_submatch(no);
     }
     else
     {
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         rettv->vval.v_list = reg_submatch_list(no);
     }
 }
@@ -21049,7 +21049,7 @@ static void f_substitute(typval_T *argvars,
         sub = tv_get_string_buf_chk(&argvars[2], subbuf);
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     if(str == NULL
        || pat == NULL
@@ -21102,7 +21102,7 @@ static void f_synIDattr(typval_T *argvars,
     const char *const what = tv_get_string(&argvars[1]);
     int modec;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         char modebuf[NUMBUFLEN];
         const char *const mode = tv_get_string_buf(&argvars[2], modebuf);
@@ -21201,7 +21201,7 @@ static void f_synIDattr(typval_T *argvars,
         }
     }
 
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = (uchar_kt *)(p == NULL ? p : xstrdup(p));
 }
 
@@ -21233,7 +21233,7 @@ static void f_synconcealed(typval_T *argvars,
     int cchar;
     int matchid = 0;
     uchar_kt str[NUMBUFLEN];
-    rettv->v_type = VAR_LIST;
+    rettv->v_type = kNvarList;
     rettv->vval.v_list = NULL;
 
     // -1 on type error (both)
@@ -21284,7 +21284,7 @@ static void f_synstack(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_LIST;
+    rettv->v_type = kNvarList;
     rettv->vval.v_list = NULL;
 
     // -1 on type error (both)
@@ -21325,7 +21325,7 @@ static void get_system_output_as_rettv(typval_T *argvars,
                                        typval_T *rettv,
                                        bool retlist)
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(check_restricted() || check_secure())
@@ -21384,15 +21384,15 @@ static void get_system_output_as_rettv(typval_T *argvars,
     {
         int keepempty = 0;
 
-        if(argvars[1].v_type != VAR_UNKNOWN
-           && argvars[2].v_type != VAR_UNKNOWN)
+        if(argvars[1].v_type != kNvarUnknown
+           && argvars[2].v_type != kNvarUnknown)
         {
             keepempty = tv_get_number(&argvars[2]);
         }
 
         rettv->vval.v_list = string_to_list(res, nread, (bool)keepempty);
         rettv->vval.v_list->lv_refcount++;
-        rettv->v_type = VAR_LIST;
+        rettv->v_type = kNvarList;
         xfree(res);
     }
     else
@@ -21442,7 +21442,7 @@ static void f_tabpagebuflist(typval_T *argvars,
 {
     win_st *wp = NULL;
 
-    if(argvars[0].v_type == VAR_UNKNOWN)
+    if(argvars[0].v_type == kNvarUnknown)
     {
         wp = firstwin;
     }
@@ -21475,7 +21475,7 @@ static void f_tabpagenr(typval_T *argvars,
 {
     int nr = 1;
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
         const char *const arg = tv_get_string_chk(&argvars[0]);
         nr = 0;
@@ -21508,7 +21508,7 @@ static int get_winnr(tabpage_st *tp, typval_T *argvar)
     win_st *wp;
     twin = (tp == curtab) ? curwin : tp->tp_curwin;
 
-    if(argvar->v_type != VAR_UNKNOWN)
+    if(argvar->v_type != kNvarUnknown)
     {
         const char *const arg = tv_get_string_chk(argvar);
 
@@ -21613,7 +21613,7 @@ static void f_taglist(typval_T *argvars,
 
     const char *fname = NULL;
 
-    if(argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarUnknown)
     {
         fname = tv_get_string(&argvars[1]);
     }
@@ -21628,7 +21628,7 @@ static void f_tempname(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = vim_tempname();
 }
 
@@ -21658,8 +21658,8 @@ static void f_termopen(typval_T *argvars,
         return; // Did error message in tv_to_argv.
     }
 
-    if(argvars[1].v_type != VAR_DICT
-       && argvars[1].v_type != VAR_UNKNOWN)
+    if(argvars[1].v_type != kNvarDict
+       && argvars[1].v_type != kNvarUnknown)
     {
         // Wrong argument type
         EMSG2(_(e_invarg2), "expected dictionary");
@@ -21673,7 +21673,7 @@ static void f_termopen(typval_T *argvars,
     dict_st *job_opts = NULL;
     const char *cwd = ".";
 
-    if(argvars[1].v_type == VAR_DICT)
+    if(argvars[1].v_type == kNvarDict)
     {
         job_opts = argvars[1].vval.v_dict;
         const char *const new_cwd = tv_dict_get_string(job_opts, "cwd", false);
@@ -21775,20 +21775,20 @@ static void f_test_garbagecollect_now(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
 bool callback_from_typval(Callback *const callback, typval_T *const arg)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if(arg->v_type == VAR_PARTIAL && arg->vval.v_partial != NULL)
+    if(arg->v_type == kNvarPartial && arg->vval.v_partial != NULL)
     {
         callback->data.partial = arg->vval.v_partial;
         callback->data.partial->pt_refcount++;
         callback->type = kCallbackPartial;
     }
-    else if(arg->v_type == VAR_FUNC || arg->v_type == VAR_STRING)
+    else if(arg->v_type == kNvarUfunc || arg->v_type == kNvarString)
     {
         uchar_kt *name = arg->vval.v_string;
         func_ref(name);
         callback->data.funcref = vim_strsave(name);
         callback->type = kCallbackFuncref;
     }
-    else if(arg->v_type == VAR_NUMBER && arg->vval.v_number == 0)
+    else if(arg->v_type == kNvarNumber && arg->vval.v_number == 0)
     {
         callback->type = kCallbackNone;
     }
@@ -21892,7 +21892,7 @@ static bool set_ref_in_callback(Callback *callback,
             break;
 
         case kCallbackPartial:
-            tv.v_type = VAR_PARTIAL;
+            tv.v_type = kNvarPartial;
             tv.vval.v_partial = callback->data.partial;
             return set_ref_in_item(&tv, copyID, ht_stack, list_stack);
             break;
@@ -21928,13 +21928,13 @@ static void add_timer_info(typval_T *rettv, timer_T *timer)
 
     if(timer->callback.type == kCallbackPartial)
     {
-        di->di_tv.v_type = VAR_PARTIAL;
+        di->di_tv.v_type = kNvarPartial;
         di->di_tv.vval.v_partial = timer->callback.data.partial;
         timer->callback.data.partial->pt_refcount++;
     }
     else if(timer->callback.type == kCallbackFuncref)
     {
-        di->di_tv.v_type = VAR_FUNC;
+        di->di_tv.v_type = kNvarUfunc;
         di->di_tv.vval.v_string = vim_strsave(timer->callback.data.funcref);
     }
 
@@ -21960,9 +21960,9 @@ static void f_timer_info(typval_T *argvars,
 {
     tv_list_alloc_ret(rettv);
 
-    if(argvars[0].v_type != VAR_UNKNOWN)
+    if(argvars[0].v_type != kNvarUnknown)
     {
-        if(argvars[0].v_type != VAR_NUMBER)
+        if(argvars[0].v_type != kNvarNumber)
         {
             EMSG(_(e_number_exp));
             return;
@@ -21987,7 +21987,7 @@ static void f_timer_pause(typval_T *argvars,
                           typval_T *FUNC_ARGS_UNUSED_REALY(unused),
                           FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber)
     {
         EMSG(_(e_number_exp));
         return;
@@ -22013,9 +22013,9 @@ static void f_timer_start(typval_T *argvars,
     dict_st *dict;
     rettv->vval.v_number = -1;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
-        if(argvars[2].v_type != VAR_DICT
+        if(argvars[2].v_type != kNvarDict
            || (dict = argvars[2].vval.v_dict) == NULL)
         {
             EMSG2(_(e_invarg2), tv_get_string(&argvars[2]));
@@ -22067,7 +22067,7 @@ static void f_timer_stop(typval_T *argvars,
                          typval_T *FUNC_ARGS_UNUSED_REALY(rettv),
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    if(argvars[0].v_type != VAR_NUMBER)
+    if(argvars[0].v_type != kNvarNumber)
     {
         EMSG(_(e_number_exp));
         return;
@@ -22110,7 +22110,7 @@ static void timer_due_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
 
     typval_T argv[2] = { TV_INITIAL_VALUE, TV_INITIAL_VALUE };
 
-    argv[0].v_type = VAR_NUMBER;
+    argv[0].v_type = kNvarNumber;
     argv[0].vval.v_number = timer->timer_id;
 
     typval_T rettv = TV_INITIAL_VALUE;
@@ -22180,7 +22180,7 @@ static void f_tolower(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     rettv->vval.v_string =
         (uchar_kt *)strcase_save(tv_get_string(&argvars[0]), false);
@@ -22191,7 +22191,7 @@ static void f_toupper(typval_T *argvars,
                       typval_T *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 
     rettv->vval.v_string =
         (uchar_kt *)strcase_save(tv_get_string(&argvars[0]), true);
@@ -22209,7 +22209,7 @@ static void f_tr(typval_T *argvars,
     const char *tostr = tv_get_string_buf_chk(&argvars[2], buf2);
 
     // Default return value: empty string.
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
 
     if(fromstr == NULL || tostr == NULL)
@@ -22338,32 +22338,32 @@ static void f_type(typval_T *argvars,
 
     switch(argvars[0].v_type)
     {
-        case VAR_NUMBER:
+        case kNvarNumber:
             n = VAR_TYPE_NUMBER;
             break;
 
-        case VAR_STRING:
+        case kNvarString:
             n = VAR_TYPE_STRING;
             break;
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
+        case kNvarPartial:
+        case kNvarUfunc:
             n = VAR_TYPE_FUNC;
             break;
 
-        case VAR_LIST:
+        case kNvarList:
             n = VAR_TYPE_LIST;
             break;
 
-        case VAR_DICT:
+        case kNvarDict:
             n = VAR_TYPE_DICT;
             break;
 
-        case VAR_FLOAT:
+        case kNvarFloat:
             n = VAR_TYPE_FLOAT;
             break;
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             switch(argvars[0].vval.v_special)
             {
@@ -22384,7 +22384,7 @@ static void f_type(typval_T *argvars,
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             EMSG2(_(e_intern2), "f_type(UNKNOWN)");
             break;
@@ -22399,7 +22399,7 @@ static void f_undofile(typval_T *argvars,
                        typval_T *rettv,
                        FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     const char *const fname = tv_get_string(&argvars[0]);
 
     if(*fname == NUL)
@@ -22476,7 +22476,7 @@ static void f_visualmode(typval_T *argvars,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt str[2];
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
     str[0] = curbuf->b_visual_mode_eval;
     str[1] = NUL;
     rettv->vval.v_string = vim_strsave(str);
@@ -22626,7 +22626,7 @@ static void f_winrestcmd(typval_T *FUNC_ARGS_UNUSED_REALY(argvars),
 
     ga_append(&ga, NUL);
     rettv->vval.v_string = ga.ga_data;
-    rettv->v_type = VAR_STRING;
+    rettv->v_type = kNvarString;
 }
 
 /// "winrestview()" function
@@ -22636,7 +22636,7 @@ static void f_winrestview(typval_T *argvars,
 {
     dict_st *dict;
 
-    if(argvars[0].v_type != VAR_DICT
+    if(argvars[0].v_type != kNvarDict
        || (dict = argvars[0].vval.v_dict) == NULL)
     {
         emsgf(_(e_invarg));
@@ -22871,7 +22871,7 @@ static char *save_tv_as_string(typval_T *tv, ptrdiff_t *const len, bool endnl)
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
 {
-    if(tv->v_type == VAR_UNKNOWN)
+    if(tv->v_type == kNvarUnknown)
     {
         *len = 0;
         return NULL;
@@ -22879,7 +22879,7 @@ FUNC_ATTR_NONNULL_ALL
 
     // For types other than list, let tv_get_string_buf_chk()
     // get the value or print an error.
-    if(tv->v_type != VAR_LIST)
+    if(tv->v_type != kNvarList)
     {
         const char *ret = tv_get_string_chk(tv);
 
@@ -22968,7 +22968,7 @@ static void f_writefile(typval_T *argvars,
         return;
     }
 
-    if(argvars[0].v_type != VAR_LIST)
+    if(argvars[0].v_type != kNvarList)
     {
         EMSG2(_(e_listarg), "writefile()");
         return;
@@ -22983,7 +22983,7 @@ static void f_writefile(typval_T *argvars,
     bool append = false;
     bool do_fsync = !!p_fs;
 
-    if(argvars[2].v_type != VAR_UNKNOWN)
+    if(argvars[2].v_type != kNvarUnknown)
     {
         const char *const flags = tv_get_string_chk(&argvars[2]);
 
@@ -23082,7 +23082,7 @@ static void f_xor(typval_T *argvars,
 
 /// Translate a VimL object into a position
 ///
-/// Accepts VAR_LIST and VAR_STRING objects.
+/// Accepts kNvarList and kNvarString objects.
 /// Does not give an error for invalid type.
 ///
 /// @param[in] tv           Object to translate.
@@ -23100,7 +23100,7 @@ FUNC_ATTR_NONNULL_ALL
     pos_T *pp;
 
     // Argument can be [lnum, col, coladd].
-    if(tv->v_type == VAR_LIST)
+    if(tv->v_type == kNvarList)
     {
         list_st *l;
         int len;
@@ -23135,7 +23135,7 @@ FUNC_ATTR_NONNULL_ALL
         li = tv_list_find(l, 1L);
 
         if(li != NULL
-           && li->li_tv.v_type == VAR_STRING
+           && li->li_tv.v_type == kNvarString
            && li->li_tv.vval.v_string != NULL
            && STRCMP(li->li_tv.vval.v_string, "$") == 0)
         {
@@ -23251,7 +23251,7 @@ static int list2fpos(typval_T *arg,
 
     // List must be: [fnum, lnum, col, coladd, curswant], where "fnum" is only
     // there when "fnump" isn't NULL; "coladd" and "curswant" are optional.
-    if(arg->v_type != VAR_LIST
+    if(arg->v_type != kNvarList
        || l == NULL
        || l->lv_len < (fnump == NULL ? 2 : 3)
        || l->lv_len > (fnump == NULL ? 4 : 5))
@@ -23710,7 +23710,7 @@ void set_vcount(long count, long count1, int set_prevcount)
 void set_vim_var_nr(const VimVarIndex idx, const number_kt val)
 {
     tv_clear(&vimvars[idx].vv_tv);
-    vimvars[idx].vv_type = VAR_NUMBER;
+    vimvars[idx].vv_type = kNvarNumber;
     vimvars[idx].vv_nr = val;
 }
 
@@ -23721,7 +23721,7 @@ void set_vim_var_nr(const VimVarIndex idx, const number_kt val)
 void set_vim_var_special(const VimVarIndex idx, const SpecialVarValue val)
 {
     tv_clear(&vimvars[idx].vv_tv);
-    vimvars[idx].vv_type = VAR_SPECIAL;
+    vimvars[idx].vv_type = kNvarSpecial;
     vimvars[idx].vv_special = val;
 }
 
@@ -23740,7 +23740,7 @@ void set_vim_var_string(const VimVarIndex idx,
                         const ptrdiff_t len)
 {
     tv_clear(&vimvars[idx].vv_di.di_tv);
-    vimvars[idx].vv_type = VAR_STRING;
+    vimvars[idx].vv_type = kNvarString;
 
     if(val == NULL)
     {
@@ -23766,7 +23766,7 @@ void set_vim_var_string(const VimVarIndex idx,
 void set_vim_var_list(const VimVarIndex idx, list_st *const val)
 {
     tv_clear(&vimvars[idx].vv_di.di_tv);
-    vimvars[idx].vv_type = VAR_LIST;
+    vimvars[idx].vv_type = kNvarList;
     vimvars[idx].vv_list = val;
 
     if(val != NULL)
@@ -23786,7 +23786,7 @@ void set_vim_var_list(const VimVarIndex idx, list_st *const val)
 void set_vim_var_dict(const VimVarIndex idx, dict_st *const val)
 {
     tv_clear(&vimvars[idx].vv_di.di_tv);
-    vimvars[idx].vv_type = VAR_DICT;
+    vimvars[idx].vv_type = kNvarDict;
     vimvars[idx].vv_dict = val;
 
     if(val != NULL)
@@ -24037,7 +24037,7 @@ static int handle_subscript(const char **const arg,
 
     while(ret == OK
           && (**arg == '['
-              || (**arg == '.' && rettv->v_type == VAR_DICT)
+              || (**arg == '.' && rettv->v_type == kNvarDict)
               || (**arg == '(' && (!evaluate || tv_is_func(*rettv))))
           && !ascii_iswhite(*(*arg - 1)))
     {
@@ -24049,10 +24049,10 @@ static int handle_subscript(const char **const arg,
             if(evaluate)
             {
                 functv = *rettv;
-                rettv->v_type = VAR_UNKNOWN;
+                rettv->v_type = kNvarUnknown;
 
                 // Invoke the function.  Recursive!
-                if(functv.v_type == VAR_PARTIAL)
+                if(functv.v_type == kNvarPartial)
                 {
                     pt = functv.vval.v_partial;
                     s = partial_name(pt);
@@ -24106,7 +24106,7 @@ static int handle_subscript(const char **const arg,
             // **arg == '[' || **arg == '.'
             tv_dict_unref(selfdict);
 
-            if(rettv->v_type == VAR_DICT)
+            if(rettv->v_type == kNvarDict)
             {
                 selfdict = rettv->vval.v_dict;
 
@@ -24142,7 +24142,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
 {
     // Don't do this when "dict.Func" is already a partial that was bound
     // explicitly (pt_auto is false).
-    if(rettv->v_type == VAR_PARTIAL
+    if(rettv->v_type == kNvarPartial
        && !rettv->vval.v_partial->pt_auto
        && rettv->vval.v_partial->pt_dict != NULL)
     {
@@ -24155,15 +24155,15 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
     uchar_kt fname_buf[FLEN_FIXED + 1];
     int error;
 
-    if(rettv->v_type == VAR_PARTIAL
+    if(rettv->v_type == kNvarPartial
        && rettv->vval.v_partial->pt_func != NULL)
     {
         fp = rettv->vval.v_partial->pt_func;
     }
     else
     {
-        fname = rettv->v_type == VAR_FUNC
-                || rettv->v_type == VAR_STRING
+        fname = rettv->v_type == kNvarUfunc
+                || rettv->v_type == kNvarString
                    ? rettv->vval.v_string
                    : rettv->vval.v_partial->pt_name;
 
@@ -24185,7 +24185,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
             (selfdict->dv_refcount)++;
             pt->pt_auto = true;
 
-            if(rettv->v_type == VAR_FUNC || rettv->v_type == VAR_STRING)
+            if(rettv->v_type == kNvarUfunc || rettv->v_type == kNvarString)
             {
                 // Just a function:
                 // Take over the function name and use selfdict.
@@ -24234,7 +24234,7 @@ void set_selfdict(typval_T *rettv, dict_st *selfdict)
                 partial_unref(ret_pt);
             }
 
-            rettv->v_type = VAR_PARTIAL;
+            rettv->v_type = kNvarPartial;
             rettv->vval.v_partial = pt;
         }
     }
@@ -24606,7 +24606,7 @@ void init_var_dict(dict_st *dict, scope_dict_T *dict_var, int scope)
     dict->dv_refcount = DO_NOT_FREE_CNT;
     dict->dv_copyID = 0;
     dict_var->di_tv.vval.v_dict = dict;
-    dict_var->di_tv.v_type = VAR_DICT;
+    dict_var->di_tv.v_type = kNvarDict;
     dict_var->di_tv.v_lock = VAR_FIXED;
     dict_var->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     dict_var->di_key[0] = NUL;
@@ -24715,15 +24715,15 @@ static void list_one_var_a(const char *prefix,
     msg_putchar(' ');
     msg_advance(22);
 
-    if(type == VAR_NUMBER)
+    if(type == kNvarNumber)
     {
         msg_putchar('#');
     }
-    else if(type == VAR_FUNC || type == VAR_PARTIAL)
+    else if(type == kNvarUfunc || type == kNvarPartial)
     {
         msg_putchar('*');
     }
-    else if(type == VAR_LIST)
+    else if(type == kNvarList)
     {
         msg_putchar('[');
 
@@ -24732,7 +24732,7 @@ static void list_one_var_a(const char *prefix,
             ++string;
         }
     }
-    else if(type == VAR_DICT)
+    else if(type == kNvarDict)
     {
         msg_putchar('{');
 
@@ -24748,7 +24748,7 @@ static void list_one_var_a(const char *prefix,
 
     msg_outtrans((uchar_kt *)string);
 
-    if(type == VAR_FUNC || type == VAR_PARTIAL)
+    if(type == kNvarUfunc || type == kNvarPartial)
     {
         msg_puts("()");
     }
@@ -24817,11 +24817,11 @@ FUNC_ATTR_NONNULL_ALL
         // where needed to prevent changing the type.
         if(ht == &vimvarht)
         {
-            if(v->di_tv.v_type == VAR_STRING)
+            if(v->di_tv.v_type == kNvarString)
             {
                 xfree(v->di_tv.vval.v_string);
 
-                if(copy || tv->v_type != VAR_STRING)
+                if(copy || tv->v_type != kNvarString)
                 {
                     v->di_tv.vval.v_string =
                         (uchar_kt *)xstrdup(tv_get_string(tv));
@@ -24835,7 +24835,7 @@ FUNC_ATTR_NONNULL_ALL
 
                 return;
             }
-            else if(v->di_tv.v_type == VAR_NUMBER)
+            else if(v->di_tv.v_type == kNvarNumber)
             {
                 v->di_tv.vval.v_number = tv_get_number(tv);
 
@@ -24891,7 +24891,7 @@ FUNC_ATTR_NONNULL_ALL
         v->di_flags = DI_FLAGS_ALLOC;
     }
 
-    if(copy || tv->v_type == VAR_NUMBER || tv->v_type == VAR_FLOAT)
+    if(copy || tv->v_type == kNvarNumber || tv->v_type == kNvarFloat)
     {
         tv_copy(tv, &v->di_tv);
     }
@@ -24904,7 +24904,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(watched)
     {
-        if(oldtv.v_type == VAR_UNKNOWN)
+        if(oldtv.v_type == kNvarUnknown)
         {
             tv_dict_watcher_notify(dict, (char *)v->di_key, &v->di_tv, NULL);
         }
@@ -25115,15 +25115,15 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
     switch(from->v_type)
     {
-        case VAR_NUMBER:
-        case VAR_FLOAT:
-        case VAR_FUNC:
-        case VAR_PARTIAL:
-        case VAR_SPECIAL:
+        case kNvarNumber:
+        case kNvarFloat:
+        case kNvarUfunc:
+        case kNvarPartial:
+        case kNvarSpecial:
             tv_copy(from, to);
             break;
 
-        case VAR_STRING:
+        case kNvarString:
             if(conv == NULL
                || conv->vc_type == CONV_NONE
                || from->vval.v_string == NULL)
@@ -25132,7 +25132,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
             }
             else
             {
-                to->v_type = VAR_STRING;
+                to->v_type = kNvarString;
                 to->v_lock = 0;
 
                 if((to->vval.v_string = string_convert((vimconv_T *)conv,
@@ -25145,8 +25145,8 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
             break;
 
-        case VAR_LIST:
-            to->v_type = VAR_LIST;
+        case kNvarList:
+            to->v_type = kNvarList;
             to->v_lock = 0;
 
             if(from->vval.v_list == NULL)
@@ -25172,8 +25172,8 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
             break;
 
-        case VAR_DICT:
-            to->v_type = VAR_DICT;
+        case kNvarDict:
+            to->v_type = kNvarDict;
             to->v_lock = 0;
 
             if(from->vval.v_dict == NULL)
@@ -25199,7 +25199,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
             break;
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
             EMSG2(_(e_intern2), "var_item_copy(UNKNOWN)");
             ret = FAIL;
     }
@@ -26040,7 +26040,7 @@ void ex_function(exarg_T *eap)
     {
         v = find_var((const char *)name, STRLEN(name), &ht, false);
 
-        if(v != NULL && v->di_tv.v_type == VAR_FUNC)
+        if(v != NULL && v->di_tv.v_type == kNvarUfunc)
         {
             emsg_funcname(N_("E707: Function name conflicts with variable: %s"), name);
             goto erret;
@@ -26169,7 +26169,7 @@ void ex_function(exarg_T *eap)
                 tv_clear(&fudi.fd_di->di_tv);
             }
 
-            fudi.fd_di->di_tv.v_type = VAR_FUNC;
+            fudi.fd_di->di_tv.v_type = kNvarUfunc;
             fudi.fd_di->di_tv.v_lock = 0;
             fudi.fd_di->di_tv.vval.v_string = vim_strsave(name);
             flags |= FC_DICT; // behave like "dict" was used
@@ -26343,13 +26343,13 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
             fdp->fd_di = lv.ll_di;
         }
 
-        if(lv.ll_tv->v_type == VAR_FUNC
+        if(lv.ll_tv->v_type == kNvarUfunc
            && lv.ll_tv->vval.v_string != NULL)
         {
             name = vim_strsave(lv.ll_tv->vval.v_string);
             *pp = (uchar_kt *)end;
         }
-        else if(lv.ll_tv->v_type == VAR_PARTIAL
+        else if(lv.ll_tv->v_type == kNvarPartial
                 && lv.ll_tv->vval.v_partial != NULL)
         {
             name = vim_strsave(partial_name(lv.ll_tv->vval.v_partial));
@@ -27490,7 +27490,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     if(depth >= p_mfd)
     {
         EMSG(_("E132: Function call depth is higher than 'maxfuncdepth'"));
-        rettv->v_type = VAR_NUMBER;
+        rettv->v_type = kNvarNumber;
         rettv->vval.v_number = -1;
         return;
     }
@@ -27556,7 +27556,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
         v->di_flags = DI_FLAGS_RO + DI_FLAGS_FIX;
         tv_dict_add(&fc->l_vars, v);
-        v->di_tv.v_type = VAR_DICT;
+        v->di_tv.v_type = kNvarDict;
         v->di_tv.v_lock = 0;
         v->di_tv.vval.v_dict = selfdict;
         ++selfdict->dv_refcount;
@@ -27583,7 +27583,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     tv_dict_add(&fc->l_avars, v);
-    v->di_tv.v_type = VAR_LIST;
+    v->di_tv.v_type = kNvarList;
     v->di_tv.v_lock = VAR_FIXED;
     v->di_tv.vval.v_list = &fc->l_varlist;
     memset(&fc->l_varlist, 0, sizeof(list_st));
@@ -27713,7 +27713,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
                         msg_puts(", ");
                     }
 
-                    if(argvars[i].v_type == VAR_NUMBER)
+                    if(argvars[i].v_type == kNvarNumber)
                     {
                         msg_outnum((long)argvars[i].vval.v_number);
                     }
@@ -27795,10 +27795,10 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
     // when the function was aborted because of an error, return -1
     if((did_emsg
-       && (fp->uf_flags & FC_ABORT)) || rettv->v_type == VAR_UNKNOWN)
+       && (fp->uf_flags & FC_ABORT)) || rettv->v_type == kNvarUnknown)
     {
         tv_clear(rettv);
-        rettv->v_type = VAR_NUMBER;
+        rettv->v_type = kNvarNumber;
         rettv->vval.v_number = -1;
     }
 
@@ -27831,7 +27831,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
         {
             smsg(_("%s aborted"), sourcing_name);
         }
-        else if(fc->rettv->v_type == VAR_NUMBER)
+        else if(fc->rettv->v_type == kNvarNumber)
         {
             smsg(_("%s returning #%" PRId64 ""),
                  sourcing_name,
@@ -28037,7 +28037,7 @@ static void add_nr_var(dict_st *dp, dictitem_T *v, char *name, number_kt nr)
 
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
     tv_dict_add(dp, v);
-    v->di_tv.v_type = VAR_NUMBER;
+    v->di_tv.v_type = kNvarNumber;
     v->di_tv.v_lock = VAR_FIXED;
     v->di_tv.vval.v_number = nr;
 }
@@ -28163,7 +28163,7 @@ int do_return(exarg_T *eap, int reanimate, int is_cmd, void *rettv)
                 // The pending return value could be overwritten by a ":return"
                 // without argument in a finally clause; reset the default
                 // return value.
-                current_funccal->rettv->v_type = VAR_NUMBER;
+                current_funccal->rettv->v_type = kNvarNumber;
                 current_funccal->rettv->vval.v_number = 0;
             }
         }
@@ -28567,8 +28567,8 @@ int store_session_globals(FILE *fd)
 {
     TV_DICT_ITER(&globvardict, this_var,
     {
-        if((this_var->di_tv.v_type == VAR_NUMBER
-            || this_var->di_tv.v_type == VAR_STRING)
+        if((this_var->di_tv.v_type == kNvarNumber
+            || this_var->di_tv.v_type == kNvarString)
            && var_flavour(this_var->di_key) == VAR_FLAVOUR_SESSION)
         {
             // Escape special characters with a backslash.
@@ -28592,9 +28592,9 @@ int store_session_globals(FILE *fd)
             if((fprintf(fd,
                         "let %s = %c%s%c",
                         this_var->di_key,
-                        ((this_var->di_tv.v_type == VAR_STRING) ? '"' : ' '),
+                        ((this_var->di_tv.v_type == kNvarString) ? '"' : ' '),
                         p,
-                        ((this_var->di_tv.v_type == VAR_STRING) ? '"' : ' ')) < 0)
+                        ((this_var->di_tv.v_type == kNvarString) ? '"' : ' ')) < 0)
                || put_eol(fd) == FAIL)
             {
                 xfree(p);
@@ -28603,7 +28603,7 @@ int store_session_globals(FILE *fd)
 
             xfree(p);
         }
-        else if(this_var->di_tv.v_type == VAR_FLOAT
+        else if(this_var->di_tv.v_type == kNvarFloat
                 && var_flavour(this_var->di_key) == VAR_FLAVOUR_SESSION)
         {
             float_kt f = this_var->di_tv.vval.v_float;
@@ -29002,7 +29002,7 @@ repeat:
 }
 
 /// Perform a substitution on "str" with pattern "pat" and substitute "sub".
-/// When "sub" is NULL "expr" is used, must be a VAR_FUNC or VAR_PARTIAL.
+/// When "sub" is NULL "expr" is used, must be a kNvarUfunc or kNvarPartial.
 /// "flags" can be "g" to do a global substitute.
 /// Returns an allocated string, NULL for error.
 uchar_kt *do_string_sub(uchar_kt *str,
@@ -29454,25 +29454,25 @@ static void on_job_event(JobEvent *ev)
     }
 
     typval_T argv[4];
-    argv[0].v_type = VAR_NUMBER;
+    argv[0].v_type = kNvarNumber;
     argv[0].v_lock = 0;
     argv[0].vval.v_number = ev->data->id;
 
     if(ev->received)
     {
-        argv[1].v_type = VAR_LIST;
+        argv[1].v_type = kNvarList;
         argv[1].v_lock = 0;
         argv[1].vval.v_list = ev->received;
         argv[1].vval.v_list->lv_refcount++;
     }
     else
     {
-        argv[1].v_type = VAR_NUMBER;
+        argv[1].v_type = kNvarNumber;
         argv[1].v_lock = 0;
         argv[1].vval.v_number = ev->status;
     }
 
-    argv[2].v_type = VAR_STRING;
+    argv[2].v_type = kNvarString;
     argv[2].v_lock = 0;
     argv[2].vval.v_string = (uint8_t *)ev->type;
 
@@ -29500,7 +29500,7 @@ static void script_host_eval(char *name, typval_T *argvars, typval_T *rettv)
         return;
     }
 
-    if(argvars[0].v_type != VAR_STRING)
+    if(argvars[0].v_type != kNvarString)
     {
         EMSG(_(e_invarg));
         return;
@@ -29533,12 +29533,12 @@ typval_T eval_call_provider(char *provider, char *method, list_st *arguments)
     provider_call_nesting++;
 
     typval_T argvars[3] = {
-        {.v_type = VAR_STRING, .vval.v_string = (uint8_t *)method, .v_lock = 0},
-        {.v_type = VAR_LIST, .vval.v_list = arguments, .v_lock = 0},
-        {.v_type = VAR_UNKNOWN}
+        {.v_type = kNvarString, .vval.v_string = (uint8_t *)method, .v_lock = 0},
+        {.v_type = kNvarList, .vval.v_list = arguments, .v_lock = 0},
+        {.v_type = kNvarUnknown}
     };
 
-    typval_T rettv = {.v_type = VAR_UNKNOWN, .v_lock = 0};
+    typval_T rettv = {.v_type = kNvarUnknown, .v_lock = 0};
     arguments->lv_refcount++;
     int dummy;
 

@@ -718,22 +718,22 @@ String cstr_as_string(char *str) FUNC_ATTR_PURE
 ///
 /// @param obj  Object to convert from.
 /// @param tv   Conversion result is placed here. On failure member v_type is
-///             set to VAR_UNKNOWN (no allocation was made for this variable).
+///             set to kNvarUnknown (no allocation was made for this variable).
 /// returns     true if conversion is successful, otherwise false.
 bool object_to_vim(Object obj, typval_T *tv, error_st *err)
 {
-    tv->v_type = VAR_UNKNOWN;
+    tv->v_type = kNvarUnknown;
     tv->v_lock = VAR_UNLOCKED;
 
     switch(obj.type)
     {
         case kObjectTypeNil:
-            tv->v_type = VAR_SPECIAL;
+            tv->v_type = kNvarSpecial;
             tv->vval.v_special = kSpecialVarNull;
             break;
 
         case kObjectTypeBoolean:
-            tv->v_type = VAR_SPECIAL;
+            tv->v_type = kNvarSpecial;
 
             tv->vval.v_special = obj.data.boolean
                                  ? kSpecialVarTrue: kSpecialVarFalse;
@@ -751,17 +751,17 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
                 return false;
             }
 
-            tv->v_type = VAR_NUMBER;
+            tv->v_type = kNvarNumber;
             tv->vval.v_number = (number_kt)obj.data.integer;
             break;
 
         case kObjectTypeFloat:
-            tv->v_type = VAR_FLOAT;
+            tv->v_type = kNvarFloat;
             tv->vval.v_float = obj.data.floating;
             break;
 
         case kObjectTypeString:
-            tv->v_type = VAR_STRING;
+            tv->v_type = kNvarString;
 
             if(obj.data.string.data == NULL)
             {
@@ -796,7 +796,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
             }
 
             list->lv_refcount++;
-            tv->v_type = VAR_LIST;
+            tv->v_type = kNvarList;
             tv->vval.v_list = list;
             break;
         }
@@ -833,7 +833,7 @@ bool object_to_vim(Object obj, typval_T *tv, error_st *err)
             }
 
             dict->dv_refcount++;
-            tv->v_type = VAR_DICT;
+            tv->v_type = kNvarDict;
             tv->vval.v_dict = dict;
             break;
         }
@@ -1215,7 +1215,7 @@ ArrayOf(Dictionary) keymap_array(String mode, fbuf_st *buf)
                 ADD(mappings, vim_to_object( (typval_T[])
                 {
                     {
-                        .v_type = VAR_DICT, .vval.v_dict = dict
+                        .v_type = kNvarDict, .vval.v_dict = dict
                     }
                 }));
 

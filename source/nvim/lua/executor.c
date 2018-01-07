@@ -443,7 +443,7 @@ FUNC_ATTR_NONNULL_ALL
         xfree(lcmd);
     }
 
-    if(arg == NULL || arg->v_type == VAR_UNKNOWN)
+    if(arg == NULL || arg->v_type == kNvarUnknown)
     {
         lua_pushnil(lstate);
     }
@@ -642,10 +642,10 @@ FUNC_ATTR_NONNULL_ALL
     const typval_T input_args[] = {
         {
             .v_lock = VAR_FIXED,
-            .v_type = VAR_STRING,
+            .v_type = kNvarString,
             .vval.v_string = (uchar_kt *)"lua_debug> ",
         },
-        { .v_type = VAR_UNKNOWN, },
+        { .v_type = kNvarUnknown, },
     };
 
     for(;;)
@@ -655,7 +655,7 @@ FUNC_ATTR_NONNULL_ALL
         get_user_input(input_args, &input, false);
         msg_putchar('\n'); // Avoid outputting on input line.
 
-        if(input.v_type != VAR_STRING
+        if(input.v_type != kNvarString
            || input.vval.v_string == NULL
            || *input.vval.v_string == NUL
            || STRCMP(input.vval.v_string, "cont") == 0)
@@ -754,7 +754,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    typval_T tv = { .v_type = VAR_UNKNOWN };
+    typval_T tv = { .v_type = kNvarUnknown };
 
     executor_exec_lua((String)
     {

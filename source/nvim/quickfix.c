@@ -645,7 +645,7 @@ static int qf_get_next_list_line(qfstate_T *state)
 
     // Get the next line from the supplied list
     while(p_li != NULL
-          && (p_li->li_tv.v_type != VAR_STRING
+          && (p_li->li_tv.v_type != kNvarString
               || p_li->li_tv.vval.v_string == NULL))
     {
         p_li = p_li->li_next; // Skip non-string items
@@ -798,12 +798,12 @@ static int qf_get_nextline(qfstate_T *state)
     {
         if(state->tv != NULL)
         {
-            if(state->tv->v_type == VAR_STRING)
+            if(state->tv->v_type == kNvarString)
             {
                 // Get the next line from the supplied string
                 status = qf_get_next_str_line(state);
             }
-            else if(state->tv->v_type == VAR_LIST)
+            else if(state->tv->v_type == kNvarList)
             {
                 // Get the next line from the supplied list
                 status = qf_get_next_list_line(state);
@@ -1378,11 +1378,11 @@ static int qf_init_ext(qf_info_T *qi,
 
     if(tv != NULL)
     {
-        if(tv->v_type == VAR_STRING)
+        if(tv->v_type == kNvarString)
         {
             state.p_str = tv->vval.v_string;
         }
-        else if(tv->v_type == VAR_LIST)
+        else if(tv->v_type == kNvarList)
         {
             state.p_li = tv->vval.v_list->lv_first;
         }
@@ -5301,7 +5301,7 @@ int get_errorlist_properties(win_st *wp, dict_st *what, dict_st *retdict)
     if((di = tv_dict_find(what, S_LEN("nr"))) != NULL)
     {
         // Use the specified quickfix/location list
-        if(di->di_tv.v_type == VAR_NUMBER)
+        if(di->di_tv.v_type == kNvarNumber)
         {
             qf_idx = di->di_tv.vval.v_number - 1;
 
@@ -5394,7 +5394,7 @@ static int qf_add_entries(qf_info_T *qi,
 
     for(li = list->lv_first; li != NULL; li = li->li_next)
     {
-        if(li->li_tv.v_type != VAR_DICT)
+        if(li->li_tv.v_type != kNvarDict)
         {
             continue; // Skip non-dict items
         }
@@ -5510,7 +5510,7 @@ static int qf_set_properties(qf_info_T *qi, dict_st *what, int action)
     if((di = tv_dict_find(what, S_LEN("nr"))) != NULL)
     {
         // Use the specified quickfix/location list
-        if(di->di_tv.v_type == VAR_NUMBER)
+        if(di->di_tv.v_type == kNvarNumber)
         {
             qf_idx = di->di_tv.vval.v_number - 1;
 
@@ -5535,7 +5535,7 @@ static int qf_set_properties(qf_info_T *qi, dict_st *what, int action)
 
     if((di = tv_dict_find(what, S_LEN("title"))) != NULL)
     {
-        if(di->di_tv.v_type == VAR_STRING)
+        if(di->di_tv.v_type == kNvarString)
         {
             xfree(qi->qf_lists[qf_idx].qf_title);
 
@@ -5764,8 +5764,8 @@ void ex_cexpr(exarg_T *eap)
 
     if(eval_lev_0(eap->arg, &tv, NULL, true) != FAIL)
     {
-        if((tv.v_type == VAR_STRING && tv.vval.v_string != NULL)
-           || (tv.v_type == VAR_LIST && tv.vval.v_list != NULL))
+        if((tv.v_type == kNvarString && tv.vval.v_string != NULL)
+           || (tv.v_type == kNvarList && tv.vval.v_list != NULL))
         {
             if(qf_init_ext(qi, NULL, NULL, &tv, p_efm,
                            (eap->cmdidx != CMD_caddexpr

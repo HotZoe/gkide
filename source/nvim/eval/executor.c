@@ -28,21 +28,21 @@ int eexe_mod_op(typval_T *const tv1,
 FUNC_ATTR_NONNULL_ALL
 {
     // Can't do anything with a Funcref, a Dict or special value on the right.
-    if(tv2->v_type != VAR_FUNC && tv2->v_type != VAR_DICT)
+    if(tv2->v_type != kNvarUfunc && tv2->v_type != kNvarDict)
     {
         switch(tv1->v_type)
         {
-            case VAR_DICT:
-            case VAR_FUNC:
-            case VAR_PARTIAL:
-            case VAR_SPECIAL:
+            case kNvarDict:
+            case kNvarUfunc:
+            case kNvarPartial:
+            case kNvarSpecial:
             {
                 break;
             }
 
-            case VAR_LIST:
+            case kNvarList:
             {
-                if(*op != '+' || tv2->v_type != VAR_LIST)
+                if(*op != '+' || tv2->v_type != kNvarList)
                 {
                     break;
                 }
@@ -56,10 +56,10 @@ FUNC_ATTR_NONNULL_ALL
                 return OK;
             }
 
-            case VAR_NUMBER:
-            case VAR_STRING:
+            case kNvarNumber:
+            case kNvarString:
             {
-                if(tv2->v_type == VAR_LIST)
+                if(tv2->v_type == kNvarList)
                 {
                     break;
                 }
@@ -69,7 +69,7 @@ FUNC_ATTR_NONNULL_ALL
                     // nr += nr  or  nr -= nr
                     number_kt n = tv_get_number(tv1);
 
-                    if(tv2->v_type == VAR_FLOAT)
+                    if(tv2->v_type == kNvarFloat)
                     {
                         float_kt f = n;
 
@@ -83,7 +83,7 @@ FUNC_ATTR_NONNULL_ALL
                         }
 
                         tv_clear(tv1);
-                        tv1->v_type = VAR_FLOAT;
+                        tv1->v_type = kNvarFloat;
                         tv1->vval.v_float = f;
                     }
                     else
@@ -98,14 +98,14 @@ FUNC_ATTR_NONNULL_ALL
                         }
 
                         tv_clear(tv1);
-                        tv1->v_type = VAR_NUMBER;
+                        tv1->v_type = kNvarNumber;
                         tv1->vval.v_number = n;
                     }
                 }
                 else
                 {
                     // str .= str
-                    if(tv2->v_type == VAR_FLOAT)
+                    if(tv2->v_type == kNvarFloat)
                     {
                         break;
                     }
@@ -118,25 +118,25 @@ FUNC_ATTR_NONNULL_ALL
                                            (const uchar_kt *)tv_get_string_buf(tv2,
                                                                              numbuf));
                     tv_clear(tv1);
-                    tv1->v_type = VAR_STRING;
+                    tv1->v_type = kNvarString;
                     tv1->vval.v_string = (uchar_kt *)s;
                 }
 
                 return OK;
             }
 
-            case VAR_FLOAT:
+            case kNvarFloat:
             {
-                bool flag = tv2->v_type != VAR_FLOAT
-                            && tv2->v_type != VAR_NUMBER
-                            && tv2->v_type != VAR_STRING;
+                bool flag = tv2->v_type != kNvarFloat
+                            && tv2->v_type != kNvarNumber
+                            && tv2->v_type != kNvarString;
 
                 if(*op == '.' || flag)
                 {
                     break;
                 }
 
-                const float_kt f = (tv2->v_type == VAR_FLOAT
+                const float_kt f = (tv2->v_type == kNvarFloat
                                    ? tv2->vval.v_float : tv_get_number(tv2));
 
                 if(*op == '+')
@@ -151,7 +151,7 @@ FUNC_ATTR_NONNULL_ALL
                 return OK;
             }
 
-            case VAR_UNKNOWN:
+            case kNvarUnknown:
             {
                 assert(false);
             }

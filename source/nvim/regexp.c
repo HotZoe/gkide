@@ -9082,7 +9082,7 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
             s = vim_strnsave(s, (int)(submatch_match->endp[i] - s));
         }
 
-        li->li_tv.v_type = VAR_STRING;
+        li->li_tv.v_type = kNvarString;
         li->li_tv.vval.v_string = s;
         li = li->li_next;
     }
@@ -9235,7 +9235,7 @@ static int vim_regsub_both(uchar_kt *source,
                 int dummy;
                 typval_T rettv;
                 staticList10_T matchList;
-                rettv.v_type = VAR_STRING;
+                rettv.v_type = kNvarString;
                 rettv.vval.v_string = NULL;
 
                 if(prev_can_f_submatch)
@@ -9244,11 +9244,11 @@ static int vim_regsub_both(uchar_kt *source,
                 }
                 else
                 {
-                    argv[0].v_type = VAR_LIST;
+                    argv[0].v_type = kNvarList;
                     argv[0].vval.v_list = &matchList.sl_list;
                     matchList.sl_list.lv_len = 0;
 
-                    if(expr->v_type == VAR_FUNC)
+                    if(expr->v_type == kNvarUfunc)
                     {
                         s = expr->vval.v_string;
 
@@ -9265,7 +9265,7 @@ static int vim_regsub_both(uchar_kt *source,
                                   NULL,
                                   NULL);
                     }
-                    else if(expr->v_type == VAR_PARTIAL)
+                    else if(expr->v_type == kNvarPartial)
                     {
                         partial_st *partial = expr->vval.v_partial;
                         s = partial_name(partial);

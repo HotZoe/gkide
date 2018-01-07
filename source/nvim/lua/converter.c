@@ -287,9 +287,9 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
 
         if(cur.container)
         {
-            if(cur.special || cur.tv->v_type == VAR_DICT)
+            if(cur.special || cur.tv->v_type == kNvarDict)
             {
-                assert(cur.tv->v_type == (cur.special ? VAR_LIST : VAR_DICT));
+                assert(cur.tv->v_type == (cur.special ? kNvarList : kNvarDict));
 
                 bool next_key_found = false;
 
@@ -317,7 +317,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                         key->li_tv = decode_string(s, len, kTrue, false, false);
                         tv_list_append(kv_pair, key);
 
-                        if(key->li_tv.v_type == VAR_UNKNOWN)
+                        if(key->li_tv.v_type == kNvarUnknown)
                         {
                             ret = false;
                             tv_list_unref(kv_pair);
@@ -356,7 +356,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
             }
             else
             {
-                assert(cur.tv->v_type == VAR_LIST);
+                assert(cur.tv->v_type == kNvarList);
                 lua_rawgeti(lstate, -1, cur.tv->vval.v_list->lv_len + 1);
 
                 if(lua_isnil(lstate, -1))
@@ -378,7 +378,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
         assert(!cur.container);
         *cur.tv = (typval_T)
         {
-            .v_type = VAR_NUMBER,
+            .v_type = kNvarNumber,
              .v_lock = VAR_UNLOCKED,
               .vval = { .v_number = 0 },
         };
@@ -387,14 +387,14 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
         {
             case LUA_TNIL:
             {
-                cur.tv->v_type = VAR_SPECIAL;
+                cur.tv->v_type = kNvarSpecial;
                 cur.tv->vval.v_special = kSpecialVarNull;
                 break;
             }
 
             case LUA_TBOOLEAN:
             {
-                cur.tv->v_type = VAR_SPECIAL;
+                cur.tv->v_type = kNvarSpecial;
                 cur.tv->vval.v_special = (lua_toboolean(lstate, -1)
                                           ? kSpecialVarTrue : kSpecialVarFalse);
                 break;
@@ -406,7 +406,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                 const char *s = lua_tolstring(lstate, -1, &len);
                 *cur.tv = decode_string(s, len, kNone, true, false);
 
-                if(cur.tv->v_type == VAR_UNKNOWN)
+                if(cur.tv->v_type == kNvarUnknown)
                 {
                     ret = false;
                 }
@@ -422,12 +422,12 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                    || n < (lua_Number)VARNUMBER_MIN
                    || ((lua_Number)((number_kt)n)) != n)
                 {
-                    cur.tv->v_type = VAR_FLOAT;
+                    cur.tv->v_type = kNvarFloat;
                     cur.tv->vval.v_float = (float_kt)n;
                 }
                 else
                 {
-                    cur.tv->v_type = VAR_NUMBER;
+                    cur.tv->v_type = kNvarNumber;
                     cur.tv->vval.v_number = (number_kt)n;
                 }
 
@@ -454,7 +454,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                 {
                     case kObjectTypeArray:
                     {
-                        cur.tv->v_type = VAR_LIST;
+                        cur.tv->v_type = kNvarList;
                         cur.tv->vval.v_list = tv_list_alloc();
                         cur.tv->vval.v_list->lv_refcount++;
 
@@ -472,7 +472,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                     {
                         if(table_props.string_keys_num == 0)
                         {
-                            cur.tv->v_type = VAR_DICT;
+                            cur.tv->v_type = kNvarDict;
                             cur.tv->vval.v_dict = tv_dict_alloc();
                             cur.tv->vval.v_dict->dv_refcount++;
                         }
@@ -483,7 +483,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
                             if(table_props.has_string_with_nul)
                             {
                                 decode_create_map_special_dict(cur.tv);
-                                assert(cur.tv->v_type == VAR_DICT);
+                                assert(cur.tv->v_type == kNvarDict);
 
                                 dictitem_T *const val_di =
                                     tv_dict_find(cur.tv->vval.v_dict,
@@ -491,11 +491,11 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
 
                                 assert(val_di != NULL);
                                 cur.tv = &val_di->di_tv;
-                                assert(cur.tv->v_type == VAR_LIST);
+                                assert(cur.tv->v_type == kNvarList);
                             }
                             else
                             {
-                                cur.tv->v_type = VAR_DICT;
+                                cur.tv->v_type = kNvarDict;
                                 cur.tv->vval.v_dict = tv_dict_alloc();
                                 cur.tv->vval.v_dict->dv_refcount++;
                             }
@@ -511,7 +511,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_T *ret_tv)
 
                     case kObjectTypeFloat:
                     {
-                        cur.tv->v_type = VAR_FLOAT;
+                        cur.tv->v_type = kNvarFloat;
                         cur.tv->vval.v_float = (float_kt)table_props.val;
                         break;
                     }
@@ -556,7 +556,7 @@ nlua_pop_typval_table_processing_end:
         tv_clear(ret_tv);
 
         *ret_tv = (typval_T) {
-            .v_type = VAR_NUMBER,
+            .v_type = kNvarNumber,
              .v_lock = VAR_UNLOCKED,
               .vval = { .v_number = 0 },
         };

@@ -7249,7 +7249,7 @@ int match_add(win_st *wp,
             listitem_T *subli;
             bool error = false;
 
-            if(li->li_tv.v_type == VAR_LIST)
+            if(li->li_tv.v_type == kNvarList)
             {
                 subl = li->li_tv.vval.v_list;
 
@@ -7306,7 +7306,7 @@ int match_add(win_st *wp,
                 m->pos.pos[i].col = col;
                 m->pos.pos[i].len = len;
             }
-            else if(li->li_tv.v_type == VAR_NUMBER)
+            else if(li->li_tv.v_type == kNvarNumber)
             {
                 if(li->li_tv.vval.v_number == 0)
                 {
@@ -7565,7 +7565,7 @@ FUNC_ATTR_NONNULL_ALL
 
 int win_getid(typval_T *argvars)
 {
-    if(argvars[0].v_type == VAR_UNKNOWN)
+    if(argvars[0].v_type == kNvarUnknown)
     {
         return curwin->handle;
     }
@@ -7575,7 +7575,7 @@ int win_getid(typval_T *argvars)
 
     if(winnr > 0)
     {
-        if(argvars[1].v_type == VAR_UNKNOWN)
+        if(argvars[1].v_type == kNvarUnknown)
         {
             wp = firstwin;
         }

@@ -4409,11 +4409,11 @@ static void expand_by_function(int type, uchar_kt *base)
     {
         switch(rettv.v_type)
         {
-            case VAR_LIST:
+            case kNvarList:
                 matchlist = rettv.vval.v_list;
                 break;
 
-            case VAR_DICT:
+            case kNvarDict:
                 matchdict = rettv.vval.v_dict;
                 break;
 
@@ -4492,7 +4492,7 @@ static void ins_compl_add_dict(dict_st *dict)
     compl_opt_refresh_always = false;
     di_refresh = tv_dict_find(dict, S_LEN("refresh"));
 
-    if(di_refresh != NULL && di_refresh->di_tv.v_type == VAR_STRING)
+    if(di_refresh != NULL && di_refresh->di_tv.v_type == kNvarString)
     {
         const char *v = (const char *)di_refresh->di_tv.vval.v_string;
 
@@ -4505,7 +4505,7 @@ static void ins_compl_add_dict(dict_st *dict)
     // Add completions from a "words" list.
     di_words = tv_dict_find(dict, S_LEN("words"));
 
-    if(di_words != NULL && di_words->di_tv.v_type == VAR_LIST)
+    if(di_words != NULL && di_words->di_tv.v_type == kNvarList)
     {
         ins_compl_add_list(di_words->di_tv.vval.v_list);
     }
@@ -4529,7 +4529,7 @@ FUNC_ATTR_NONNULL_ALL
     bool aempty = false;
     char *(cptext[CPT_COUNT]);
 
-    if(tv->v_type == VAR_DICT && tv->vval.v_dict != NULL)
+    if(tv->v_type == kNvarDict && tv->vval.v_dict != NULL)
     {
         word = tv_dict_get_string(tv->vval.v_dict, "word", false);
 

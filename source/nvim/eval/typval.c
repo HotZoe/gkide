@@ -382,7 +382,7 @@ void tv_list_append_list(list_st *const list, list_st *const itemlist)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
-    li->li_tv.v_type = VAR_LIST;
+    li->li_tv.v_type = kNvarList;
     li->li_tv.v_lock = VAR_UNLOCKED;
     li->li_tv.vval.v_list = itemlist;
     tv_list_append(list, li);
@@ -403,7 +403,7 @@ void tv_list_append_dict(list_st *const list, dict_st *const dict)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
-    li->li_tv.v_type = VAR_DICT;
+    li->li_tv.v_type = kNvarDict;
     li->li_tv.v_lock = VAR_UNLOCKED;
     li->li_tv.vval.v_dict = dict;
     tv_list_append(list, li);
@@ -458,7 +458,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 {
     listitem_T *const li = tv_list_item_alloc();
     tv_list_append(l, li);
-    li->li_tv.v_type = VAR_STRING;
+    li->li_tv.v_type = kNvarString;
     li->li_tv.v_lock = VAR_UNLOCKED;
     li->li_tv.vval.v_string = (uchar_kt *)str;
 }
@@ -473,7 +473,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 void tv_list_append_number(list_st *const l, const number_kt n)
 {
     listitem_T *const li = tv_list_item_alloc();
-    li->li_tv.v_type = VAR_NUMBER;
+    li->li_tv.v_type = kNvarNumber;
     li->li_tv.v_lock = VAR_UNLOCKED;
     li->li_tv.vval.v_number = n;
     tv_list_append(l, li);
@@ -586,7 +586,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     list_st *l;
 
-    tv->v_type = VAR_LIST;
+    tv->v_type = kNvarList;
 
     if(l1 == NULL && l2 == NULL)
     {
@@ -1105,13 +1105,13 @@ void tv_dict_watcher_notify(dict_st *const dict,
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     typval_T argv[3];
-    argv[0].v_type = VAR_DICT;
+    argv[0].v_type = kNvarDict;
     argv[0].v_lock = VAR_UNLOCKED;
     argv[0].vval.v_dict = dict;
-    argv[1].v_type = VAR_STRING;
+    argv[1].v_type = kNvarString;
     argv[1].v_lock = VAR_UNLOCKED;
     argv[1].vval.v_string = (uchar_kt *)xstrdup(key);
-    argv[2].v_type = VAR_DICT;
+    argv[2].v_type = kNvarDict;
     argv[2].v_lock = VAR_UNLOCKED;
     argv[2].vval.v_dict = tv_dict_alloc();
     argv[2].vval.v_dict->dv_refcount++;
@@ -1520,7 +1520,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return true;
     }
 
-    if(!tv_is_func(di->di_tv) && di->di_tv.v_type != VAR_STRING)
+    if(!tv_is_func(di->di_tv) && di->di_tv.v_type != kNvarString)
     {
         emsgf(_("E6000: Argument is not a function or function name"));
         return false;
@@ -1565,7 +1565,7 @@ FUNC_ATTR_NONNULL_ALL
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = VAR_UNLOCKED;
-    item->di_tv.v_type = VAR_LIST;
+    item->di_tv.v_type = kNvarList;
     item->di_tv.vval.v_list = list;
     list->lv_refcount++;
 
@@ -1596,7 +1596,7 @@ FUNC_ATTR_NONNULL_ALL
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = VAR_UNLOCKED;
-    item->di_tv.v_type = VAR_DICT;
+    item->di_tv.v_type = kNvarDict;
     item->di_tv.vval.v_dict = dict;
     dict->dv_refcount++;
 
@@ -1624,7 +1624,7 @@ int tv_dict_add_nr(dict_st *const d,
 {
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
     item->di_tv.v_lock = VAR_UNLOCKED;
-    item->di_tv.v_type = VAR_NUMBER;
+    item->di_tv.v_type = kNvarNumber;
     item->di_tv.vval.v_number = nr;
 
     if(tv_dict_add(d, item) == FAIL)
@@ -1653,7 +1653,7 @@ FUNC_ATTR_NONNULL_ALL
     dictitem_T *const item = tv_dict_item_alloc_len(key, key_len);
 
     item->di_tv.v_lock = VAR_UNLOCKED;
-    item->di_tv.v_type = VAR_STRING;
+    item->di_tv.v_type = kNvarString;
     item->di_tv.vval.v_string = (uchar_kt *)xstrdup(val);
 
     if(tv_dict_add(d, item) == FAIL)
@@ -1936,7 +1936,7 @@ FUNC_ATTR_NONNULL_ALL
     list_st *const l = tv_list_alloc();
 
     ret_tv->vval.v_list = l;
-    ret_tv->v_type = VAR_LIST;
+    ret_tv->v_type = kNvarList;
     ret_tv->v_lock = VAR_UNLOCKED;
     l->lv_refcount++;
 
@@ -1953,7 +1953,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     dict_st *const d = tv_dict_alloc();
     ret_tv->vval.v_dict = d;
-    ret_tv->v_type = VAR_DICT;
+    ret_tv->v_type = kNvarDict;
     ret_tv->v_lock = VAR_UNLOCKED;
     d->dv_refcount++;
 }
@@ -2006,7 +2006,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 {
     tv->v_lock = VAR_UNLOCKED;
 
-    if(tv->v_type == VAR_PARTIAL)
+    if(tv->v_type == kNvarPartial)
     {
         partial_st *const pt_ = tv->vval.v_partial;
 
@@ -2047,7 +2047,7 @@ static inline void _nothing_conv_func_end(typval_T *const tv, const int copyID)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
 {
-    if(tv->v_type == VAR_PARTIAL)
+    if(tv->v_type == kNvarPartial)
     {
         partial_st *const pt = tv->vval.v_partial;
 
@@ -2135,7 +2135,7 @@ FUNC_ATTR_ALWAYS_INLINE
         return;
     }
 
-    assert(tv->v_type == VAR_LIST);
+    assert(tv->v_type == kNvarList);
 
     list_st *const list = tv->vval.v_list;
     tv_list_unref(list);
@@ -2245,7 +2245,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// @param[in,out]  tv  Value to free.
 void tv_clear(typval_T *const tv)
 {
-    if(tv != NULL && tv->v_type != VAR_UNKNOWN)
+    if(tv != NULL && tv->v_type != kNvarUnknown)
     {
         // WARNING: do not translate the string here, gettext is slow and
         // function is used *very* often. At the current state
@@ -2271,40 +2271,40 @@ void tv_free(typval_T *tv)
     {
         switch(tv->v_type)
         {
-            case VAR_PARTIAL:
+            case kNvarPartial:
             {
                 partial_unref(tv->vval.v_partial);
                 break;
             }
 
-            case VAR_FUNC:
+            case kNvarUfunc:
             {
                 func_unref(tv->vval.v_string);
                 FALL_THROUGH_ATTRIBUTE;
             }
 
-            case VAR_STRING:
+            case kNvarString:
             {
                 xfree(tv->vval.v_string);
                 break;
             }
 
-            case VAR_LIST:
+            case kNvarList:
             {
                 tv_list_unref(tv->vval.v_list);
                 break;
             }
 
-            case VAR_DICT:
+            case kNvarDict:
             {
                 tv_dict_unref(tv->vval.v_dict);
                 break;
             }
 
-            case VAR_SPECIAL:
-            case VAR_NUMBER:
-            case VAR_FLOAT:
-            case VAR_UNKNOWN:
+            case kNvarSpecial:
+            case kNvarNumber:
+            case kNvarFloat:
+            case kNvarUnknown:
             {
                 break;
             }
@@ -2332,21 +2332,21 @@ void tv_copy(typval_T *const from, typval_T *const to)
 
     switch(from->v_type)
     {
-        case VAR_NUMBER:
-        case VAR_FLOAT:
-        case VAR_SPECIAL:
+        case kNvarNumber:
+        case kNvarFloat:
+        case kNvarSpecial:
         {
             break;
         }
 
-        case VAR_STRING:
-        case VAR_FUNC:
+        case kNvarString:
+        case kNvarUfunc:
         {
             if(from->vval.v_string != NULL)
             {
                 to->vval.v_string = vim_strsave(from->vval.v_string);
 
-                if(from->v_type == VAR_FUNC)
+                if(from->v_type == kNvarUfunc)
                 {
                     func_ref(to->vval.v_string);
                 }
@@ -2355,7 +2355,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
             break;
         }
 
-        case VAR_PARTIAL:
+        case kNvarPartial:
         {
             if(to->vval.v_partial != NULL)
             {
@@ -2365,7 +2365,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
             break;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             if(from->vval.v_list != NULL)
             {
@@ -2375,7 +2375,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
             break;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             if(from->vval.v_dict != NULL)
             {
@@ -2385,7 +2385,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             emsgf(_(e_intern2), "tv_copy(UNKNOWN)");
             break;
@@ -2432,7 +2432,7 @@ FUNC_ATTR_NONNULL_ALL
 
     switch(tv->v_type)
     {
-        case VAR_LIST:
+        case kNvarList:
         {
             list_st *const l = tv->vval.v_list;
 
@@ -2455,7 +2455,7 @@ FUNC_ATTR_NONNULL_ALL
             break;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             dict_st *const d = tv->vval.v_dict;
 
@@ -2474,17 +2474,17 @@ FUNC_ATTR_NONNULL_ALL
             break;
         }
 
-        case VAR_NUMBER:
-        case VAR_FLOAT:
-        case VAR_STRING:
-        case VAR_FUNC:
-        case VAR_PARTIAL:
-        case VAR_SPECIAL:
+        case kNvarNumber:
+        case kNvarFloat:
+        case kNvarString:
+        case kNvarUfunc:
+        case kNvarPartial:
+        case kNvarSpecial:
         {
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             assert(false);
         }
@@ -2509,14 +2509,14 @@ FUNC_ATTR_NONNULL_ALL
         return true;
     }
 
-    if(tv->v_type == VAR_LIST
+    if(tv->v_type == kNvarList
        && tv->vval.v_list != NULL
        && tv->vval.v_list->lv_lock == VAR_LOCKED)
     {
         return true;
     }
 
-    if(tv->v_type == VAR_DICT
+    if(tv->v_type == kNvarDict
        && tv->vval.v_dict != NULL
        && tv->vval.v_dict->dv_lock == VAR_LOCKED)
     {
@@ -2644,7 +2644,7 @@ FUNC_ATTR_NONNULL_ALL
 
     switch(tv1->v_type)
     {
-        case VAR_LIST:
+        case kNvarList:
         {
             recursive_cnt++;
             const bool r = tv_list_equal(tv1->vval.v_list,
@@ -2653,7 +2653,7 @@ FUNC_ATTR_NONNULL_ALL
             return r;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             recursive_cnt++;
             const bool r = tv_dict_equal(tv1->vval.v_dict,
@@ -2662,11 +2662,11 @@ FUNC_ATTR_NONNULL_ALL
             return r;
         }
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
+        case kNvarPartial:
+        case kNvarUfunc:
         {
-            if((tv1->v_type == VAR_PARTIAL && tv1->vval.v_partial == NULL)
-               || (tv2->v_type == VAR_PARTIAL && tv2->vval.v_partial == NULL))
+            if((tv1->v_type == kNvarPartial && tv1->vval.v_partial == NULL)
+               || (tv2->v_type == kNvarPartial && tv2->vval.v_partial == NULL))
             {
                 return false;
             }
@@ -2677,17 +2677,17 @@ FUNC_ATTR_NONNULL_ALL
             return r;
         }
 
-        case VAR_NUMBER:
+        case kNvarNumber:
         {
             return tv1->vval.v_number == tv2->vval.v_number;
         }
 
-        case VAR_FLOAT:
+        case kNvarFloat:
         {
             return tv1->vval.v_float == tv2->vval.v_float;
         }
 
-        case VAR_STRING:
+        case kNvarString:
         {
             char buf1[NUMBUFLEN];
             char buf2[NUMBUFLEN];
@@ -2696,14 +2696,14 @@ FUNC_ATTR_NONNULL_ALL
             return mb_strcmp_ic((bool)ic, s1, s2) == 0;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             return tv1->vval.v_special == tv2->vval.v_special;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
-            // VAR_UNKNOWN can be the result of an invalid expression,
+            // kNvarUnknown can be the result of an invalid expression,
             // let’s say it does not equal anything, not even self.
             return false;
         }
@@ -2728,44 +2728,44 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     switch(tv->v_type)
     {
-        case VAR_NUMBER:
-        case VAR_STRING:
+        case kNvarNumber:
+        case kNvarString:
         {
             return true;
         }
 
-        case VAR_FLOAT:
+        case kNvarFloat:
         {
             emsgf(_("E805: Expected a Number or a String, Float found"));
             return false;
         }
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
+        case kNvarPartial:
+        case kNvarUfunc:
         {
             emsgf(_("E703: Expected a Number or a String, Funcref found"));
             return false;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             emsgf(_("E745: Expected a Number or a String, List found"));
             return false;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             emsgf(_("E728: Expected a Number or a String, Dictionary found"));
             return false;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             emsgf(_("E5300: Expected a Number or a String"));
             return false;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             emsgf(_(e_intern2), "tv_check_str_or_nr(UNKNOWN)");
             return false;
@@ -2781,12 +2781,12 @@ FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 
 static const char *const num_errors[] =
 {
-    [VAR_PARTIAL]=N_(FUNC_ERROR),
-    [VAR_FUNC]=N_(FUNC_ERROR),
-    [VAR_LIST]=N_("E745: Using a List as a Number"),
-    [VAR_DICT]=N_("E728: Using a Dictionary as a Number"),
-    [VAR_FLOAT]=N_("E805: Using a Float as a Number"),
-    [VAR_UNKNOWN]=N_("E685: using an invalid value as a Number"),
+    [kNvarPartial]=N_(FUNC_ERROR),
+    [kNvarUfunc]=N_(FUNC_ERROR),
+    [kNvarList]=N_("E745: Using a List as a Number"),
+    [kNvarDict]=N_("E728: Using a Dictionary as a Number"),
+    [kNvarFloat]=N_("E805: Using a Float as a Number"),
+    [kNvarUnknown]=N_("E685: using an invalid value as a Number"),
 };
 
 #undef FUNC_ERROR
@@ -2804,19 +2804,19 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
-        case VAR_NUMBER:
-        case VAR_SPECIAL:
-        case VAR_STRING:
+        case kNvarNumber:
+        case kNvarSpecial:
+        case kNvarString:
         {
             return true;
         }
 
-        case VAR_FUNC:
-        case VAR_PARTIAL:
-        case VAR_LIST:
-        case VAR_DICT:
-        case VAR_FLOAT:
-        case VAR_UNKNOWN:
+        case kNvarUfunc:
+        case kNvarPartial:
+        case kNvarList:
+        case kNvarDict:
+        case kNvarFloat:
+        case kNvarUnknown:
         {
             emsgf(_(num_errors[tv->v_type]));
             return false;
@@ -2832,12 +2832,12 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 static const char *const str_errors[] =
 {
-    [VAR_PARTIAL]=N_(FUNC_ERROR),
-    [VAR_FUNC]=N_(FUNC_ERROR),
-    [VAR_LIST]=N_("E730: using List as a String"),
-    [VAR_DICT]=N_("E731: using Dictionary as a String"),
-    [VAR_FLOAT]=((const char *)e_float_as_string),
-    [VAR_UNKNOWN]=N_("E908: using an invalid value as a String"),
+    [kNvarPartial]=N_(FUNC_ERROR),
+    [kNvarUfunc]=N_(FUNC_ERROR),
+    [kNvarList]=N_("E730: using List as a String"),
+    [kNvarDict]=N_("E731: using Dictionary as a String"),
+    [kNvarFloat]=((const char *)e_float_as_string),
+    [kNvarUnknown]=N_("E908: using an invalid value as a String"),
 };
 
 #undef FUNC_ERROR
@@ -2855,19 +2855,19 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
-        case VAR_NUMBER:
-        case VAR_SPECIAL:
-        case VAR_STRING:
+        case kNvarNumber:
+        case kNvarSpecial:
+        case kNvarString:
         {
             return true;
         }
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
-        case VAR_LIST:
-        case VAR_DICT:
-        case VAR_FLOAT:
-        case VAR_UNKNOWN:
+        case kNvarPartial:
+        case kNvarUfunc:
+        case kNvarList:
+        case kNvarDict:
+        case kNvarFloat:
+        case kNvarUnknown:
         {
             emsgf(_(str_errors[tv->v_type]));
             return false;
@@ -2886,8 +2886,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param[in]  tv  Object to get value from.
 ///
-/// @return Number value: vim_str2nr() output for VAR_STRING objects, value
-///         for VAR_NUMBER objects, -1 for other types.
+/// @return Number value: vim_str2nr() output for kNvarString objects, value
+///         for kNvarNumber objects, -1 for other types.
 number_kt tv_get_number(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -2907,30 +2907,30 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @note Needs to be initialized to `false` to be useful.
 ///
 /// @return
-/// Number value: vim_str2nr() output for VAR_STRING objects, value for
-/// VAR_NUMBER objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
+/// Number value: vim_str2nr() output for kNvarString objects, value for
+/// kNvarNumber objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
 number_kt tv_get_number_chk(const typval_T *const tv, bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
 {
     switch(tv->v_type)
     {
-        case VAR_FUNC:
-        case VAR_PARTIAL:
-        case VAR_LIST:
-        case VAR_DICT:
-        case VAR_FLOAT:
+        case kNvarUfunc:
+        case kNvarPartial:
+        case kNvarList:
+        case kNvarDict:
+        case kNvarFloat:
         {
             emsgf(_(num_errors[tv->v_type]));
             break;
         }
 
-        case VAR_NUMBER:
+        case kNvarNumber:
         {
             return tv->vval.v_number;
         }
 
-        case VAR_STRING:
+        case kNvarString:
         {
             number_kt n = 0;
 
@@ -2946,7 +2946,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             return n;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             switch(tv->vval.v_special)
             {
@@ -2965,7 +2965,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             emsgf(_(e_intern2), "tv_get_number(UNKNOWN)");
             break;
@@ -3021,48 +3021,48 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
-        case VAR_NUMBER:
+        case kNvarNumber:
         {
             return (float_kt)(tv->vval.v_number);
         }
 
-        case VAR_FLOAT:
+        case kNvarFloat:
         {
             return tv->vval.v_float;
         }
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
+        case kNvarPartial:
+        case kNvarUfunc:
         {
             emsgf(_("E891: Using a Funcref as a Float"));
             break;
         }
 
-        case VAR_STRING:
+        case kNvarString:
         {
             emsgf(_("E892: Using a String as a Float"));
             break;
         }
 
-        case VAR_LIST:
+        case kNvarList:
         {
             emsgf(_("E893: Using a List as a Float"));
             break;
         }
 
-        case VAR_DICT:
+        case kNvarDict:
         {
             emsgf(_("E894: Using a Dictionary as a Float"));
             break;
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             emsgf(_("E907: Using a special value as a Float"));
             break;
         }
 
-        case VAR_UNKNOWN:
+        case kNvarUnknown:
         {
             emsgf(_(e_intern2), "tv_get_float(UNKNOWN)");
             break;
@@ -3085,21 +3085,21 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Buffer must have NUMBUFLEN size.
 ///
 /// @return
-/// Object value if it is VAR_STRING object, number converted to
-/// a string for VAR_NUMBER, v: variable name for VAR_SPECIAL or NULL.
+/// Object value if it is kNvarString object, number converted to
+/// a string for kNvarNumber, v: variable name for kNvarSpecial or NULL.
 const char *tv_get_string_buf_chk(const typval_T *const tv, char *const buf)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
-        case VAR_NUMBER:
+        case kNvarNumber:
         {
             snprintf(buf, NUMBUFLEN, "%" PRIdVARNUMBER, tv->vval.v_number);
             return buf;
         }
 
-        case VAR_STRING:
+        case kNvarString:
         {
             if(tv->vval.v_string != NULL)
             {
@@ -3109,18 +3109,18 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             return "";
         }
 
-        case VAR_SPECIAL:
+        case kNvarSpecial:
         {
             STRCPY(buf, encode_special_var_names[tv->vval.v_special]);
             return buf;
         }
 
-        case VAR_PARTIAL:
-        case VAR_FUNC:
-        case VAR_LIST:
-        case VAR_DICT:
-        case VAR_FLOAT:
-        case VAR_UNKNOWN:
+        case kNvarPartial:
+        case kNvarUfunc:
+        case kNvarList:
+        case kNvarDict:
+        case kNvarFloat:
+        case kNvarUnknown:
         {
             emsgf(_(str_errors[tv->v_type]));
             return false;
@@ -3141,8 +3141,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  tv  Object to get value of.
 ///
 /// @return
-/// Object value if it is VAR_STRING object, number converted to
-/// a string for VAR_NUMBER, v: variable name for VAR_SPECIAL or NULL.
+/// Object value if it is kNvarString object, number converted to
+/// a string for kNvarNumber, v: variable name for kNvarSpecial or NULL.
 const char *tv_get_string_chk(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -3167,8 +3167,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  tv  Object to get value of.
 ///
 /// @return
-/// Object value if it is VAR_STRING object, number converted to a string
-/// for VAR_NUMBER, v: variable name for VAR_SPECIAL or empty string.
+/// Object value if it is kNvarString object, number converted to a string
+/// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
 const char *tv_get_string(const typval_T *const tv)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
@@ -3196,8 +3196,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Buffer must have NUMBUFLEN size.
 ///
 /// @return
-/// Object value if it is VAR_STRING object, number converted to a string
-/// for VAR_NUMBER, v: variable name for VAR_SPECIAL or empty string.
+/// Object value if it is kNvarString object, number converted to a string
+/// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
 const char *tv_get_string_buf(const typval_T *const tv, char *const buf)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET

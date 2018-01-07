@@ -668,7 +668,7 @@ static const char *const e_printf =
 /// insufficient entries.
 ///
 /// @param[in]  tvs
-/// List of VimL values. List is terminated by VAR_UNKNOWN value.
+/// List of VimL values. List is terminated by kNvarUnknown value.
 ///
 /// @param[in,out] idxp
 /// Index in a list. Will be incremented. Indexing starts at 1.
@@ -681,7 +681,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     int idx = *idxp - 1;
     number_kt n = 0;
 
-    if(tvs[idx].v_type == VAR_UNKNOWN)
+    if(tvs[idx].v_type == kNvarUnknown)
     {
         EMSG(_(e_printf));
     }
@@ -706,7 +706,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// insufficient entries.
 ///
 /// @param[in] tvs
-/// List of VimL values. List is terminated by VAR_UNKNOWN value.
+/// List of VimL values. List is terminated by kNvarUnknown value.
 ///
 /// @param[in,out] idxp
 /// Index in a list. Will be incremented.
@@ -724,7 +724,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     int idx = *idxp - 1;
     const char *s = NULL;
 
-    if(tvs[idx].v_type == VAR_UNKNOWN)
+    if(tvs[idx].v_type == kNvarUnknown)
     {
         EMSG(_(e_printf));
     }
@@ -732,7 +732,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         (*idxp)++;
 
-        if(tvs[idx].v_type == VAR_STRING || tvs[idx].v_type == VAR_NUMBER)
+        if(tvs[idx].v_type == kNvarString || tvs[idx].v_type == kNvarNumber)
         {
             s = tv_get_string_chk(&tvs[idx]);
             *tofree = NULL;
@@ -775,7 +775,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     const int idx = *idxp - 1;
 
-    if(tvs[idx].v_type == VAR_UNKNOWN)
+    if(tvs[idx].v_type == kNvarUnknown)
     {
         EMSG(_(e_printf));
         return NULL;
@@ -793,7 +793,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// insufficient entries.
 ///
 /// @param[in] tvs
-/// List of VimL values. List is terminated by VAR_UNKNOWN value.
+/// List of VimL values. List is terminated by kNvarUnknown value.
 ///
 /// @param[in,out] idxp
 /// Index in a list. Will be incremented.
@@ -806,7 +806,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     int idx = *idxp - 1;
     float_kt f = 0;
 
-    if(tvs[idx].v_type == VAR_UNKNOWN)
+    if(tvs[idx].v_type == kNvarUnknown)
     {
         EMSG(_(e_printf));
     }
@@ -814,11 +814,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         (*idxp)++;
 
-        if(tvs[idx].v_type == VAR_FLOAT)
+        if(tvs[idx].v_type == kNvarFloat)
         {
             f = tvs[idx].vval.v_float;
         }
-        else if(tvs[idx].v_type == VAR_NUMBER)
+        else if(tvs[idx].v_type == kNvarNumber)
         {
             f = tvs[idx].vval.v_number;
         }
@@ -1926,7 +1926,7 @@ int vim_vsnprintf(char *str,
         str[str_l <= str_m - 1 ? str_l : str_m - 1] = '\0';
     }
 
-    if(tvs && tvs[arg_idx - 1].v_type != VAR_UNKNOWN)
+    if(tvs && tvs[arg_idx - 1].v_type != kNvarUnknown)
     {
         EMSG(_("E767: Too many arguments to printf()"));
     }
