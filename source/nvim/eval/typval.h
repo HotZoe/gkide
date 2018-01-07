@@ -102,23 +102,37 @@ typedef enum
     VAR_UNLOCKED = 0,  ///< Not locked.
     VAR_LOCKED = 1,    ///< User lock, can be unlocked.
     VAR_FIXED = 2,     ///< Locked forever.
-} VarLockStatus;
+} nvlvar_lock_status_et;
 
 /// Structure that holds an internal variable value
 typedef struct
 {
-    nvlvar_type_et v_type; ///< Variable type.
-    VarLockStatus v_lock; ///< Variable lock status.
+    nvlvar_type_et v_type;        ///< Variable type.
+    nvlvar_lock_status_et v_lock; ///< Variable lock status.
+
     union typval_vval_union
     {
-        number_kt v_number;      ///< Number, for kNvarNumber.
-        nvlvar_special_value_et v_special; ///< Special value, for kNvarSpecial.
-        float_kt v_float;  ///< Floating-point number, for kNvarFloat.
-        uchar_kt *v_string; ///< String, for kNvarString and kNvarUfunc, can be NULL.
-        list_st *v_list;   ///< List for kNvarList, can be NULL.
-        dict_st *v_dict;   ///< Dictionary for kNvarDict, can be NULL.
-        partial_st *v_partial;      ///< Closure: function with args.
-    } vval;               ///< Actual value.
+        ///< Number, for kNvarNumber.
+        number_kt v_number;
+
+        ///< Special value, for kNvarSpecial.
+        nvlvar_special_value_et v_special;
+
+        ///< Floating-point number, for kNvarFloat.
+        float_kt v_float;
+
+        ///< String, for kNvarString and kNvarUfunc, can be NULL.
+        uchar_kt *v_string;
+
+        ///< List for kNvarList, can be NULL.
+        list_st *v_list;
+
+        ///< Dictionary for kNvarDict, can be NULL.
+        dict_st *v_dict;
+
+        ///< Closure: function with args, for kNvarPartial
+        partial_st *v_partial;
+    } vval; ///< Actual value.
 } typval_T;
 
 /// Values for dict_st::dv_scope
@@ -164,7 +178,7 @@ struct list_s
     listitem_T *lv_idx_item;  ///< When not NULL item at index "lv_idx".
     int lv_copyID;            ///< ID used by deepcopy().
     list_st *lv_copylist;      ///< Copied list used by deepcopy().
-    VarLockStatus lv_lock;    ///< Zero, VAR_LOCKED, VAR_FIXED.
+    nvlvar_lock_status_et lv_lock;    ///< Zero, VAR_LOCKED, VAR_FIXED.
     list_st *lv_used_next;     ///< next list in used lists list.
     list_st *lv_used_prev;     ///< Previous list in used lists list.
 };
@@ -223,7 +237,7 @@ typedef enum
 /// Structure representing a Dictionary
 struct dict_s
 {
-    VarLockStatus dv_lock;///< Whole dictionary lock status.
+    nvlvar_lock_status_et dv_lock;///< Whole dictionary lock status.
     scope_type_et dv_scope; ///< Non-zero (#VAR_SCOPE, #VAR_DEF_SCOPE) if
                             ///< dictionary represents a scope (i.e. g:, l: ...).
     int dv_refcount;        ///< Reference count.

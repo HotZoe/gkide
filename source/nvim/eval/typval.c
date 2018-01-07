@@ -2397,7 +2397,7 @@ void tv_copy(typval_T *const from, typval_T *const to)
 #define CHANGE_LOCK(lock, var)                                   \
     do                                                           \
     {                                                            \
-        var = ((VarLockStatus[]) {                               \
+        var = ((nvlvar_lock_status_et[]) {                               \
             [VAR_UNLOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED), \
             [VAR_LOCKED] = (lock ? VAR_LOCKED : VAR_UNLOCKED),   \
             [VAR_FIXED] = VAR_FIXED,                             \
@@ -2547,7 +2547,7 @@ FUNC_ATTR_NONNULL_ALL
 /// of CPU resources. This especially applies to gettext.
 ///
 /// @return true if variable is locked, false otherwise.
-bool tv_check_lock(const VarLockStatus lock, const char *name, size_t name_len)
+bool tv_check_lock(const nvlvar_lock_status_et lock, const char *name, size_t name_len)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *error_message = NULL;
