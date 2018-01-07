@@ -326,9 +326,9 @@ typedef struct afffile_S
     int af_pfxpostpone;      ///< postpone prefixes without chop string and
                              ///< without flags
     bool af_ignoreextra;     ///< IGNOREEXTRA present
-    hashtab_T af_pref;       ///< hashtable for prefixes, affheader_T
-    hashtab_T af_suff;       ///< hashtable for suffixes, affheader_T
-    hashtab_T af_comp;       ///< hashtable for compound flags, compitem_T
+    hashtable_st af_pref;       ///< hashtable for prefixes, affheader_T
+    hashtable_st af_suff;       ///< hashtable for suffixes, affheader_T
+    hashtable_st af_comp;       ///< hashtable for compound flags, compitem_T
 } afffile_T;
 
 #define AFT_CHAR       0    ///< flags are one character
@@ -512,7 +512,7 @@ typedef struct spellinfo_S
     int si_nocompoundsugs;    ///< NOCOMPOUNDSUGS item found
     int si_followup;          ///< soundsalike: ?
     int si_collapse;          ///< soundsalike: ?
-    hashtab_T si_commonwords; ///< hashtable for common words
+    hashtable_st si_commonwords; ///< hashtable for common words
     time_t si_sugtime;        ///< timestamp for .sug file
     int si_rem_accents;       ///< soundsalike: remove accents
     garray_st si_map;          ///< MAP info concatenated
@@ -2534,7 +2534,7 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
     affheader_T *cur_aff = NULL;
     bool did_postpone_prefix = false;
     int aff_todo = 0;
-    hashtab_T *tp;
+    hashtable_st *tp;
     uchar_kt *low = NULL;
     uchar_kt *fol = NULL;
     uchar_kt *upp = NULL;
@@ -3991,7 +3991,7 @@ static bool sal_to_bool(uchar_kt *s)
 static void spell_free_aff(afffile_T *aff)
 {
     int todo;
-    hashtab_T *ht;
+    hashtable_st *ht;
     hashitem_st *hi;
     affheader_T *ah;
     affentry_T *ae;
@@ -4034,7 +4034,7 @@ static int spell_read_dic(spellinfo_T *spin,
                           uchar_kt *fname,
                           afffile_T *affile)
 {
-    hashtab_T ht;
+    hashtable_st ht;
     uchar_kt line[MAXLINELEN];
     uchar_kt *p;
     uchar_kt *afflist;
@@ -4454,8 +4454,8 @@ static int store_aff_word(spellinfo_T *spin,
                           uchar_kt *word,
                           uchar_kt *afflist,
                           afffile_T *affile,
-                          hashtab_T *ht,
-                          hashtab_T *xht,
+                          hashtable_st *ht,
+                          hashtable_st *xht,
                           int condit,
                           int flags,
                           uchar_kt *pfxlist,
@@ -5445,7 +5445,7 @@ static void free_wordnode(spellinfo_T *spin, wordnode_T *n)
 /// Compress a tree: find tails that are identical and can be shared.
 static void wordtree_compress(spellinfo_T *spin, wordnode_T *root)
 {
-    hashtab_T ht;
+    hashtable_st ht;
     int n;
     int tot = 0;
     int perc;
@@ -5499,7 +5499,7 @@ static void wordtree_compress(spellinfo_T *spin, wordnode_T *root)
 ///              incremented while going through the tree
 static int node_compress(spellinfo_T *spin,
                          wordnode_T *node,
-                         hashtab_T *ht,
+                         hashtable_st *ht,
                          int *tot)
 {
     wordnode_T *np;

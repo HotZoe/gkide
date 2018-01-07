@@ -39,11 +39,11 @@
 char hash_removed;
 
 /// Initialize an empty hash table.
-void hash_init(hashtab_T *ht)
+void hash_init(hashtable_st *ht)
 {
     // This zeroes all "ht_*" entries and
     // all the "hi_key" in "ht_smallarray".
-    memset(ht, 0, sizeof(hashtab_T));
+    memset(ht, 0, sizeof(hashtable_st));
 
     ht->ht_array = ht->ht_smallarray;
     ht->ht_mask = HT_INIT_SIZE - 1;
@@ -53,7 +53,7 @@ void hash_init(hashtab_T *ht)
 ///
 /// If "ht" is not freed (after calling this) then you should call
 /// hash_init() right next!
-void hash_clear(hashtab_T *ht)
+void hash_clear(hashtable_st *ht)
 {
     if(ht->ht_array != ht->ht_smallarray)
     {
@@ -65,7 +65,7 @@ void hash_clear(hashtab_T *ht)
 ///
 /// @param off
 /// the offset from start of value to start of key (@see hashitem_st).
-void hash_clear_all(hashtab_T *ht, unsigned int off)
+void hash_clear_all(hashtable_st *ht, unsigned int off)
 {
     size_t todo = ht->ht_used;
 
@@ -93,7 +93,7 @@ void hash_clear_all(hashtab_T *ht, unsigned int off)
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table is
 /// changed in any way.
-hashitem_st *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
+hashitem_st *hash_find(const hashtable_st *const ht, const uchar_kt *const key)
 {
     return hash_lookup(ht, (const char *)key, STRLEN(key), hash_hash(key));
 }
@@ -112,7 +112,7 @@ hashitem_st *hash_find(const hashtab_T *const ht, const uchar_kt *const key)
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table
 /// is changed in any way.
-hashitem_st *hash_find_len(const hashtab_T *const ht,
+hashitem_st *hash_find_len(const hashtable_st *const ht,
                           const char *const key,
                           const size_t len)
 {
@@ -133,7 +133,7 @@ hashitem_st *hash_find_len(const hashtab_T *const ht,
 /// @warning
 /// Returned pointer becomes invalid as soon as the hash table
 /// is changed in any way.
-hashitem_st *hash_lookup(const hashtab_T *const ht,
+hashitem_st *hash_lookup(const hashtable_st *const ht,
                         const char *const key,
                         const size_t key_len,
                         const hash_kt hash)
@@ -227,7 +227,7 @@ void hash_debug_results(void)
 /// @return
 /// - OK, if success.
 /// - FAIL, if key already present
-int hash_add(hashtab_T *ht, uchar_kt *key)
+int hash_add(hashtable_st *ht, uchar_kt *key)
 {
     hash_kt hash = hash_hash(key);
     hashitem_st *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
@@ -254,7 +254,7 @@ int hash_add(hashtab_T *ht, uchar_kt *key)
 ///
 /// @param hash
 /// The precomputed hash value for the key.
-void hash_add_item(hashtab_T *ht, hashitem_st *hi, uchar_kt *key, hash_kt hash)
+void hash_add_item(hashtable_st *ht, hashitem_st *hi, uchar_kt *key, hash_kt hash)
 {
     ht->ht_used++;
 
@@ -276,7 +276,7 @@ void hash_add_item(hashtab_T *ht, hashitem_st *hi, uchar_kt *key, hash_kt hash)
 ///
 /// @param hi The hash item to be removed.
 ///           It must have been obtained with hash_lookup().
-void hash_remove(hashtab_T *ht, hashitem_st *hi)
+void hash_remove(hashtable_st *ht, hashitem_st *hi)
 {
     ht->ht_used--;
     hi->hi_key = HI_KEY_REMOVED;
@@ -287,7 +287,7 @@ void hash_remove(hashtab_T *ht, hashitem_st *hi)
 ///
 /// Don't use this when items are to be added!
 /// Must call hash_unlock() later.
-void hash_lock(hashtab_T *ht)
+void hash_lock(hashtable_st *ht)
 {
     ht->ht_locked++;
 }
@@ -296,7 +296,7 @@ void hash_lock(hashtab_T *ht)
 ///
 /// Table will be resized (shrunk) when necessary.
 /// This must balance a call to hash_lock().
-void hash_unlock(hashtab_T *ht)
+void hash_unlock(hashtable_st *ht)
 {
     ht->ht_locked--;
     hash_may_resize(ht, 0);
@@ -310,7 +310,7 @@ void hash_unlock(hashtab_T *ht)
 ///   * Shrink when too much empty space.
 ///   * Grow when not enough empty space.
 /// - If non-zero, passed minitems will be used.
-static void hash_may_resize(hashtab_T *ht, size_t minitems)
+static void hash_may_resize(hashtable_st *ht, size_t minitems)
 {
     // Don't resize a locked table.
     if(ht->ht_locked > 0)

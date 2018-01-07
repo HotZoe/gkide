@@ -386,8 +386,8 @@ typedef struct
 /// But when using ":ownsyntax" a window may have its own instance.
 typedef struct
 {
-    hashtab_T b_keywtab;             ///< syntax keywords hash table
-    hashtab_T b_keywtab_ic;          ///< idem, ignore case
+    hashtable_st b_keywtab;             ///< syntax keywords hash table
+    hashtable_st b_keywtab_ic;          ///< idem, ignore case
     int b_syn_error;                 ///< TRUE when error occurred in HL
     int b_syn_ic;                    ///< ignore case for :syn cmds
     int b_syn_spell;                 ///< SYNSPL_ values

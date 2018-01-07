@@ -1459,7 +1459,7 @@ int find_tags(uchar_kt *pat,
     int save_emsg_off;
     uchar_kt *mfp;
     garray_st ga_match[MT_COUNT]; // stores matches in sequence
-    hashtab_T ht_match[MT_COUNT]; // stores matches by key
+    hashtable_st ht_match[MT_COUNT]; // stores matches by key
     hash_kt hash = 0;
     int match_count = 0; // number of matches found
     uchar_kt **matches;

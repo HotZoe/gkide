@@ -7,7 +7,8 @@
 
 #include "nvim/types.h"
 
-/// Magic number used for hashitem @b hi_key value indicating a deleted item
+/// Magic number used for hash item(hashitem_st)
+/// @b hi_key, indicating a deleted item
 ///
 /// Only the address is used.
 extern char hash_removed;
@@ -15,28 +16,30 @@ extern char hash_removed;
 /// Type for hash number (hash calculation result).
 typedef size_t hash_kt;
 
-/// The address of "hash_removed" is used as a magic number
+/// The address of hash_removed is used as a magic number
 /// for hi_key to indicate a removed item.
-#define HI_KEY_REMOVED     ((uchar_kt *)&hash_removed)
+#define HI_KEY_REMOVED     ((uchar_kt *) &hash_removed)
 
-#define HASHITEM_EMPTY(hi) \
-    ((hi)->hi_key == NULL || (hi)->hi_key == (uchar_kt *)&hash_removed)
+#define HASHITEM_EMPTY(hi) ((hi)->hi_key == NULL \
+                            || (hi)->hi_key == (uchar_kt *) &hash_removed)
 
 /// A hastable item.
 ///
 /// Each item has a NUL terminated string key.
 /// A key can appear only once in the table.
 ///
-/// A hash number is computed from the key for quick lookup. When the hashes
-/// of two different keys point to the same entry an algorithm is used to
-/// iterate over other entries in the table until the right one is found.
-/// To make the iteration work removed keys are different from entries where a
-/// key was never present.
+/// A hash number is computed from the key for quick lookup.
+/// When the hashes of two different keys point to the same
+/// entry an algorithm is used to iterate over other entries
+/// in the table until the right one is found. To make the
+/// iteration work removed keys are different from entries
+/// where a key was never present.
 ///
-/// Note that this does not contain a pointer to the key and another pointer
-/// to the value. Instead, it is assumed that the key is contained within the
-/// value, so that you can get a pointer to the value subtracting an offset
-/// from the pointer to the key. This reduces the size of this item by 1/3.
+/// Note that this does not contain a pointer to the key and
+/// another pointer to the value. Instead, it is assumed that
+/// the key is contained within the value, so that you can get
+/// a pointer to the value subtracting an offset from the pointer
+/// to the key. This reduces the size of this item by 1/3.
 typedef struct hashitem_s
 {
     /// Cached hash number for hi_key.
@@ -52,9 +55,12 @@ typedef struct hashitem_s
 } hashitem_st;
 
 /// Initial size for a hashtable.
-/// Our items are relatively small and growing is expensive,
-/// thus start with 16. Must be a power of 2.
-#define HT_INIT_SIZE 16
+///
+/// Our items are relatively small and
+/// growing is expensive, thus start with 16.
+///
+/// @note Must be a power of 2.
+#define HT_INIT_SIZE    16
 
 /// An array-based hashtable.
 ///
@@ -77,7 +83,7 @@ typedef struct hashtable_s
 
     /// for initial array
     hashitem_st ht_smallarray[HT_INIT_SIZE];
-} hashtab_T;
+} hashtable_st;
 
 /// Iterate over a hashtab
 ///
@@ -87,9 +93,9 @@ typedef struct hashtable_s
 #define HASHTAB_ITER(ht, hi, code)                                  \
     do                                                              \
     {                                                               \
-        hashtab_T *const hi##ht_ = (ht);                            \
+        hashtable_st *const hi##ht_ = (ht);                         \
         size_t hi##todo_ = hi##ht_->ht_used;                        \
-        for(hashitem_st *hi = hi##ht_->ht_array; hi##todo_; hi++)    \
+        for(hashitem_st *hi = hi##ht_->ht_array; hi##todo_; hi++)   \
         {                                                           \
             if(!HASHITEM_EMPTY(hi))                                 \
             {                                                       \

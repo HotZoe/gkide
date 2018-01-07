@@ -129,7 +129,7 @@ struct slang_S
     uchar_kt *sl_info;         ///< infotext string or NULL
     uchar_kt sl_regions[17];   ///< table with up to 8 region names plus NUL
     uchar_kt *sl_midword;      ///< MIDWORD string or NULL
-    hashtab_T sl_wordcount;  ///< hashtable with word count, wordcount_T
+    hashtable_st sl_wordcount;  ///< hashtable with word count, wordcount_T
 
     int sl_compmax;          ///< COMPOUNDWORDMAX (default: MAXWLEN)
     int sl_compminlen;       ///< COMPOUNDMIN (default: 0)
@@ -179,9 +179,9 @@ struct slang_S
     bool sl_sugloaded;  ///< true when .sug file was loaded or failed to load
 
     bool sl_has_map;         ///< true, if there is a MAP line
-    hashtab_T sl_map_hash;   ///< MAP for multi-byte chars
+    hashtable_st sl_map_hash;   ///< MAP for multi-byte chars
     int sl_map_array[256];   ///< MAP for first 256 chars
-    hashtab_T sl_sounddone;  ///< table with soundfolded words that have
+    hashtable_st sl_sounddone;  ///< table with soundfolded words that have
                              ///< handled, see add_sound_suggest()
 };
 

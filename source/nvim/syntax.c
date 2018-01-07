@@ -3480,7 +3480,7 @@ static int check_keyword_id(uchar_kt *line,
 /// Accept a not-contained keyword at toplevel.
 /// Accept a keyword at other levels only if it is in the contains list.
 static keyentry_T *match_keyword(uchar_kt *keyword,
-                                 hashtab_T *ht,
+                                 hashtable_st *ht,
                                  stateitem_T *cur_si)
 {
     hashitem_st *hi = hash_find(ht, keyword);
@@ -4451,7 +4451,7 @@ static void put_pattern(char *s, int c, synpat_T *spp, int attr)
 /// @param ht
 /// @param did_header  header has already been printed
 /// @param attr
-static int syn_list_keywords(int id, hashtab_T *ht,int did_header, int attr)
+static int syn_list_keywords(int id, hashtable_st *ht,int did_header, int attr)
 {
     int outlen;
     hashitem_st *hi;
@@ -4558,7 +4558,7 @@ static int syn_list_keywords(int id, hashtab_T *ht,int did_header, int attr)
     return did_header;
 }
 
-static void syn_clear_keyword(int id, hashtab_T *ht)
+static void syn_clear_keyword(int id, hashtable_st *ht)
 {
     hashitem_st *hi;
     keyentry_T *kp;
@@ -4617,7 +4617,7 @@ static void syn_clear_keyword(int id, hashtab_T *ht)
 }
 
 /// Clear a whole keyword table.
-static void clear_keywtab(hashtab_T *ht)
+static void clear_keywtab(hashtable_st *ht)
 {
     hashitem_st *hi;
     int todo;
@@ -4684,7 +4684,7 @@ static void add_keyword(uchar_kt *name,
     kp->next_list = copy_id_list(next_list);
     hash_kt hash = hash_hash(kp->keyword);
 
-    hashtab_T *ht = (curwin->w_s->b_syn_ic)
+    hashtable_st *ht = (curwin->w_s->b_syn_ic)
                     ? &curwin->w_s->b_keywtab_ic
                     : &curwin->w_s->b_keywtab;
 

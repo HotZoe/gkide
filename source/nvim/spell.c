@@ -165,7 +165,7 @@ typedef struct suginfo_S
     uchar_kt su_badword[MAXWLEN];     ///< bad word truncated at su_badlen
     uchar_kt su_fbadword[MAXWLEN];    ///< su_badword case-folded
     uchar_kt su_sal_badword[MAXWLEN]; ///< su_badword soundfolded
-    hashtab_T su_banned;            ///< table with banned words
+    hashtable_st su_banned;            ///< table with banned words
     slang_T *su_sallang;            ///< default language for sound folding
 } suginfo_T;
 

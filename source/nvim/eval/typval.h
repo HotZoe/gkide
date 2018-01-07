@@ -245,7 +245,7 @@ struct dict_s
 
     int dv_refcount;        ///< Reference count.
     int dv_copyID;          ///< ID used when recursivery traversing a value.
-    hashtab_T dv_hashtab;  ///< Hashtab containing all items.
+    hashtable_st dv_hashtab;  ///< Hashtab containing all items.
     dict_st *dv_copydict;   ///< Copied dict used by deepcopy().
     dict_st *dv_used_next;  ///< Next dictionary in used dictionaries list.
     dict_st *dv_used_prev;  ///< Previous dictionary in used dictionaries list.
@@ -315,7 +315,7 @@ struct partial_s
 /// Structure used for explicit stack while garbage collecting hash tables
 typedef struct ht_stack_S
 {
-    hashtab_T *ht;
+    hashtable_st *ht;
     struct ht_stack_S *prev;
 } ht_stack_T;
 

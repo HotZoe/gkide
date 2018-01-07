@@ -3,7 +3,7 @@
 #ifndef NVIM_EVAL_H
 #define NVIM_EVAL_H
 
-#include "nvim/hashtab.h" // For hashtab_T
+#include "nvim/hashtab.h" // For hashtable_st
 #include "nvim/buffer_defs.h"
 #include "nvim/ex_cmds_defs.h" // For exarg_T
 #include "nvim/eval/typval.h"
@@ -14,7 +14,7 @@
 #define COPYID_MASK  (~0x1)
 
 /// All user-defined functions are found in this hashtable.
-extern hashtab_T func_hashtab;
+extern hashtable_st func_hashtab;
 
 /// From user function to hashitem and back.
 EXTERN ufunc_st dumuf;

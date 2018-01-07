@@ -194,9 +194,9 @@ static scope_dict_T globvars_var;
 
 /// Old Vim variables such as @b v:version are also available without the @b v:
 /// Also in functions. We need a special hashtable for them.
-static hashtab_T compat_hashtab;
+static hashtable_st compat_hashtab;
 
-hashtab_T func_hashtab;
+hashtable_st func_hashtab;
 
 /// Used for checking if local variables or arguments used in a lambda.
 static int *eval_lavars_used = NULL;
@@ -1946,7 +1946,7 @@ static const uchar_kt *skip_var_one(const uchar_kt *arg)
 
 /// List variables for hashtab "ht" with prefix "prefix".
 /// If "empty" is TRUE also list NULL strings as empty strings.
-static void list_hashtable_vars(hashtab_T *ht,
+static void list_hashtable_vars(hashtable_st *ht,
                                 const char *prefix,
                                 int empty,
                                 int *first)
@@ -2458,7 +2458,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
     typval_st var2;
     int empty1 = FALSE;
     listitem_st *ni;
-    hashtab_T *ht;
+    hashtable_st *ht;
     int quiet = flags & GLV_QUIET;
 
     // Clear everything in "lp".
@@ -3767,7 +3767,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     const char *varname;
     dict_st *dict;
-    hashtab_T *ht = find_var_ht_dict(name, name_len, &varname, &dict);
+    hashtable_st *ht = find_var_ht_dict(name, name_len, &varname, &dict);
 
     if(ht != NULL && *varname != NUL)
     {
@@ -3975,7 +3975,7 @@ uchar_kt *get_user_var_name(expand_T *xp, int idx)
     static size_t tdone;
     static size_t vidx;
     static hashitem_st *hi;
-    hashtab_T *ht;
+    hashtable_st *ht;
 
     if(idx == 0)
     {
@@ -6902,13 +6902,13 @@ static int free_unref_items(int copyID)
 /// @param list_stack    Used to add lists to be marked. Can be NULL.
 ///
 /// @returns             true if setting references failed somehow.
-bool set_ref_in_ht(hashtab_T *ht, int copyID, list_stack_T **list_stack)
+bool set_ref_in_ht(hashtable_st *ht, int copyID, list_stack_T **list_stack)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool abort = false;
     ht_stack_T *ht_stack = NULL;
 
-    hashtab_T *cur_ht = ht;
+    hashtable_st *cur_ht = ht;
 
     for(;;)
     {
@@ -10921,7 +10921,7 @@ static void filter_map(typval_st *argvars, typval_st *rettv, int map)
     listitem_st *nli;
     list_st *l = NULL;
     dictitem_T *di;
-    hashtab_T *ht;
+    hashtable_st *ht;
     hashitem_st *hi;
     dict_st *d = NULL;
     typval_st save_val;
@@ -24007,7 +24007,7 @@ static void check_vars(const char *name, size_t len)
     }
 
     const char *varname;
-    hashtab_T *ht = find_var_ht(name, len, &varname);
+    hashtable_st *ht = find_var_ht(name, len, &varname);
 
     if(ht == get_funccal_local_ht() || ht == get_funccal_args_ht())
     {
@@ -24246,14 +24246,14 @@ void set_selfdict(typval_st *rettv, dict_st *selfdict)
 // Return a pointer to it if found, NULL if not found.
 // Careful: "a:0" variables don't have a name.
 // When "htp" is not NULL we are writing to the variable, set "htp" to the
-// hashtab_T used.
+// hashtable_st used.
 static dictitem_T *find_var(const char *const name,
                             const size_t name_len,
-                            hashtab_T **htp,
+                            hashtable_st **htp,
                             int no_autoload)
 {
     const char *varname;
-    hashtab_T *const ht = find_var_ht(name, name_len, &varname);
+    hashtable_st *const ht = find_var_ht(name, name_len, &varname);
 
     if(htp != NULL)
     {
@@ -24293,7 +24293,7 @@ static dictitem_T *find_var(const char *const name,
 /// @return
 /// pointer to the dictionary item with the found
 /// variable or NULL if it was not found.
-static dictitem_T *find_var_in_ht(hashtab_T *const ht,
+static dictitem_T *find_var_in_ht(hashtable_st *const ht,
                                   int htname,
                                   const char *const varname,
                                   const size_t varname_len,
@@ -24395,7 +24395,7 @@ static funccall_T *get_funccal(void)
 
 /// Return the hashtable used for argument in the current funccal.
 /// Return NULL if there is no current funccal.
-static hashtab_T *get_funccal_args_ht(void)
+static hashtable_st *get_funccal_args_ht(void)
 {
     if(current_funccal == NULL)
     {
@@ -24407,7 +24407,7 @@ static hashtab_T *get_funccal_args_ht(void)
 
 /// Return the hashtable used for local variables in the current funccal.
 /// Return NULL if there is no current funccal.
-static hashtab_T *get_funccal_local_ht(void)
+static hashtable_st *get_funccal_local_ht(void)
 {
     if(current_funccal == NULL)
     {
@@ -24432,7 +24432,7 @@ static hashtab_T *get_funccal_local_ht(void)
 /// Scope dictionary.
 ///
 /// @return Scope hashtab, NULL if name is not valid.
-static hashtab_T *find_var_ht_dict(const char *name,
+static hashtable_st *find_var_ht_dict(const char *name,
                                    const size_t name_len,
                                    const char **varname,
                                    dict_st **d)
@@ -24538,7 +24538,7 @@ end:
 ///
 /// @return
 /// Scope hashtab, NULL if name is not valid.
-static hashtab_T *find_var_ht(const char *name,
+static hashtable_st *find_var_ht(const char *name,
                               const size_t name_len,
                               const char **varname)
 {
@@ -24566,7 +24566,7 @@ uchar_kt *get_var_value(const char *const name)
 /// sourcing this script and when executing functions defined in the script.
 void new_script_vars(scid_T id)
 {
-    hashtab_T *ht;
+    hashtable_st *ht;
     scriptvar_T *sv;
     ga_grow(&ga_scripts, (int)(id - ga_scripts.ga_len));
 
@@ -24628,13 +24628,13 @@ void unref_var_dict(dict_st *dict)
 /// Clean up a list of internal variables.
 /// Frees all allocated variables and the value they contain.
 /// Clears hashtab "ht", does not free it.
-void vars_clear(hashtab_T *ht)
+void vars_clear(hashtable_st *ht)
 {
     vars_clear_ext(ht, TRUE);
 }
 
 /// Like vars_clear(), but only free the value if "free_val" is TRUE.
-static void vars_clear_ext(hashtab_T *ht, int free_val)
+static void vars_clear_ext(hashtable_st *ht, int free_val)
 {
     int todo;
     hashitem_st *hi;
@@ -24670,7 +24670,7 @@ static void vars_clear_ext(hashtab_T *ht, int free_val)
 
 /// Delete a variable from hashtab "ht" at item "hi".
 /// Clear the variable value and free the dictitem.
-static void delete_var(hashtab_T *ht, hashitem_st *hi)
+static void delete_var(hashtable_st *ht, hashitem_st *hi)
 {
     dictitem_T *di = TV_DICT_HI2DI(hi);
     hash_remove(ht, hi);
@@ -24778,7 +24778,7 @@ static void set_var(const char *name,
 FUNC_ATTR_NONNULL_ALL
 {
     dictitem_T *v;
-    hashtab_T *ht;
+    hashtable_st *ht;
     dict_st *dict;
 
     const char *varname;
@@ -25518,7 +25518,7 @@ void ex_function(exarg_T *eap)
     funcdict_T fudi;
     static int func_nr = 0; // number for nameless function
     int paren;
-    hashtab_T *ht;
+    hashtable_st *ht;
     int todo;
     hashitem_st  *hi;
     int sourcing_lnum_off;
@@ -28407,7 +28407,7 @@ static var_flavour_T var_flavour(uchar_kt *varname)
 }
 
 /// Search hashitem in parent scope.
-hashitem_st *find_hi_in_scoped_ht(const char *name, hashtab_T **pht)
+hashitem_st *find_hi_in_scoped_ht(const char *name, hashtable_st **pht)
 {
     if(current_funccal == NULL || current_funccal->func->uf_scoped == NULL)
     {
@@ -28424,7 +28424,7 @@ hashitem_st *find_hi_in_scoped_ht(const char *name, hashtab_T **pht)
 
     while(current_funccal != NULL)
     {
-        hashtab_T *ht = find_var_ht(name, namelen, &varname);
+        hashtable_st *ht = find_var_ht(name, namelen, &varname);
 
         if(ht != NULL && *varname != NUL)
         {
@@ -28469,7 +28469,7 @@ dictitem_T *find_var_in_scoped_ht(const char *name,
 
     while(current_funccal)
     {
-        hashtab_T *ht = find_var_ht(name, namelen, &varname);
+        hashtable_st *ht = find_var_ht(name, namelen, &varname);
 
         if(ht != NULL && *varname != NUL)
         {
