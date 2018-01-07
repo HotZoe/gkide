@@ -751,7 +751,7 @@ static void set_b0_fname(ZERO_BL *b0p, fbuf_st *buf)
             }
         }
 
-        FileInfo file_info;
+        fileinfo_st file_info;
 
         if(os_fileinfo((char *)buf->b_ffname, &file_info))
         {
@@ -1075,8 +1075,8 @@ void ml_recover(void)
     msg_putchar('\n');
 
     // check date of swap file and original file
-    FileInfo org_file_info;
-    FileInfo swp_file_info;
+    fileinfo_st org_file_info;
+    fileinfo_st swp_file_info;
 
     mtime = char_to_long(b0p->b0_mtime);
 
@@ -1767,7 +1767,7 @@ static time_t swapfile_info(uchar_kt *fname)
 #endif
 
     // print the swap file date
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo((char *)fname, &file_info))
     {
@@ -1966,7 +1966,7 @@ void ml_sync_all(int check_file, int check_char)
         {
             // If the original file does not exist anymore or has been changed
             // call ml_preserve() to get rid of all negative numbered blocks.
-            FileInfo file_info;
+            fileinfo_st file_info;
 
             if(!os_fileinfo((char *)buf->b_ffname, &file_info)
                || file_info.stat.st_mtim.tv_sec != buf->b_mtime_read
@@ -3819,7 +3819,7 @@ static void attention_message(fbuf_st *buf, uchar_kt *fname)
     msg_outtrans(buf->b_fname);
 
     MSG_PUTS("\"\n");
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo((char *)buf->b_fname, &file_info))
     {
@@ -3981,7 +3981,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
         // check if the swapfile already exists
         // Extra security check: When a swap file is a symbolic
         // link, this is most likely a symlink attack.
-        FileInfo file_info;
+        fileinfo_st file_info;
         bool file_or_link_found = os_fileinfo_link(fname, &file_info);
 
         if(!file_or_link_found)
@@ -4296,7 +4296,7 @@ static int fnamecmp_ino(uchar_kt *fname_c, uchar_kt *fname_s, long ino_block0)
     uchar_kt buf_s[MAXPATHL]; // full path of fname_s
     int retval_c; // flag: buf_c valid
     int retval_s; // flag: buf_s valid
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo((char *)fname_c, &file_info))
     {

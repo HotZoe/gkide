@@ -511,7 +511,7 @@ int readfile(uchar_kt *fname,
 
     if(newfile && !read_stdin && !read_buffer)
     {
-        FileInfo file_info; // Remember time of file.
+        fileinfo_st file_info; // Remember time of file.
 
         if(os_fileinfo((char *)fname, &file_info))
         {
@@ -3269,7 +3269,7 @@ int buf_write(fbuf_st *buf,
     }
 
     // Get information about original file (if there is one).
-    FileInfo file_info_old;
+    fileinfo_st file_info_old;
 
 #if defined(UNIX)
     perm = -1;
@@ -3405,7 +3405,7 @@ int buf_write(fbuf_st *buf,
     // off. This helps when editing large files on almost-full disks.
     if(!(append && *p_pm == NUL) && !filtering && perm >= 0 && dobackup)
     {
-        FileInfo file_info;
+        fileinfo_st file_info;
 
         if((bkc & BKC_YES) || append) // "yes"
         {
@@ -3551,7 +3551,7 @@ int buf_write(fbuf_st *buf,
                     goto nobackup;
                 }
 
-                FileInfo file_info_new;
+                fileinfo_st file_info_new;
                 {
                     // Make backup file name.
                     backup = (uchar_kt *)modname((char *)rootname,
@@ -3994,7 +3994,7 @@ nobackup:
         if(errmsg == NULL)
         {
         #ifdef UNIX
-            FileInfo file_info;
+            fileinfo_st file_info;
 
             // Don't delete the file when it's a hard or symbolic link.
             if((!newfile && os_fileinfo_hardlinks(&file_info) > 1)
@@ -4296,7 +4296,7 @@ restore_backup:
     {
         // don't change the owner when it's already OK, some systems remove
         // permission or ACL stuff
-        FileInfo file_info;
+        fileinfo_st file_info;
 
         if(!os_fileinfo((char *)wfname, &file_info)
            || file_info.stat.st_uid != file_info_old.stat.st_uid
@@ -4953,7 +4953,7 @@ static void msg_add_eol(void)
 /// Check modification time of file, before writing to it.
 /// The size isn't checked, because using a tool like "gzip" takes care of
 /// using the same timestamp but can't set the size.
-static int check_mtime(fbuf_st *buf, FileInfo *file_info)
+static int check_mtime(fbuf_st *buf, fileinfo_st *file_info)
 {
     if(buf->b_mtime_read != 0
        && time_differs(file_info->stat.st_mtim.tv_sec, buf->b_mtime_read))
@@ -5845,7 +5845,7 @@ int vim_rename(const uchar_kt *from, const uchar_kt *to)
     }
 
     // Fail if the "from" file doesn't exist. Avoids that "to" is deleted.
-    FileInfo from_info;
+    fileinfo_st from_info;
 
     if(!os_fileinfo((char *)from, &from_info))
     {
@@ -5855,7 +5855,7 @@ int vim_rename(const uchar_kt *from, const uchar_kt *to)
     // It's possible for the source and destination to be the same file.
     // This happens when "from" and "to" differ in case and are on a FAT32
     // filesystem. In that case go through a temp file name.
-    FileInfo to_info;
+    fileinfo_st to_info;
 
     if(os_fileinfo((char *)to, &to_info)
        && os_fileinfo_id_equal(&from_info,  &to_info))
@@ -6189,7 +6189,7 @@ int buf_check_timestamp(fbuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
         return 0;
     }
 
-    FileInfo file_info;
+    fileinfo_st file_info;
     bool file_info_ok;
 
     if(!(buf->b_flags & BF_NOTEDITED)
@@ -6630,7 +6630,7 @@ void buf_reload(fbuf_st *buf, int orig_mode)
     // Careful: autocommands may have made "buf" invalid!
 }
 
-void buf_store_file_info(fbuf_st *buf, FileInfo *file_info)
+void buf_store_file_info(fbuf_st *buf, fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     buf->b_mtime = file_info->stat.st_mtim.tv_sec;

@@ -1421,8 +1421,8 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
     // Try to set the group of the undo file same as the original file. If
     // this fails, set the protection bits for the group same as the
     // protection bits for others.
-    FileInfo file_info_old;
-    FileInfo file_info_new;
+    fileinfo_st file_info_old;
+    fileinfo_st file_info_new;
 
     if(buf->b_ffname != NULL
        && os_fileinfo((char *)buf->b_ffname, &file_info_old)
@@ -1581,8 +1581,8 @@ FUNC_ATTR_NONNULL_ARG(2)
 #ifdef UNIX
         // For safety we only read an undo file if the owner is equal
         // to the owner of the text file or equal to the current user.
-        FileInfo file_info_orig;
-        FileInfo file_info_undo;
+        fileinfo_st file_info_orig;
+        fileinfo_st file_info_undo;
 
         if(os_fileinfo((char *)orig_name, &file_info_orig)
            && os_fileinfo((char *)file_name, &file_info_undo)

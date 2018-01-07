@@ -1053,10 +1053,10 @@ FUNC_ATTR_NONNULL_ALL
 /// Get the file information for a given path
 ///
 /// @param path Path to the file.
-/// @param[out] file_info Pointer to a FileInfo to put the information in.
+/// @param[out] file_info Pointer to a fileinfo_st to put the information in.
 ///
 /// @return true on success, false for failure.
-bool os_fileinfo(const char *path, FileInfo *file_info)
+bool os_fileinfo(const char *path, fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return os_stat(path, &(file_info->stat)) == kLibuvSuccess;
@@ -1065,10 +1065,10 @@ FUNC_ATTR_NONNULL_ALL
 /// Get the file information for a given path without following links
 ///
 /// @param path Path to the file.
-/// @param[out] file_info Pointer to a FileInfo to put the information in.
+/// @param[out] file_info Pointer to a fileinfo_st to put the information in.
 ///
 /// @return true on success, false for failure.
-bool os_fileinfo_link(const char *path, FileInfo *file_info)
+bool os_fileinfo_link(const char *path, fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
@@ -1082,10 +1082,10 @@ FUNC_ATTR_NONNULL_ALL
 /// Get the file information for a given file descriptor
 ///
 /// @param file_descriptor File descriptor of the file.
-/// @param[out] file_info Pointer to a FileInfo to put the information in.
+/// @param[out] file_info Pointer to a fileinfo_st to put the information in.
 ///
 /// @return true on success, false for failure.
-bool os_fileinfo_fd(int file_descriptor, FileInfo *file_info)
+bool os_fileinfo_fd(int file_descriptor, fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_fs_t request;
@@ -1099,62 +1099,62 @@ FUNC_ATTR_NONNULL_ALL
 /// Compare the inodes of two FileInfos
 ///
 /// @return `true` if the two FileInfos represent the same file.
-bool os_fileinfo_id_equal(const FileInfo *file_info_1,
-                          const FileInfo *file_info_2)
+bool os_fileinfo_id_equal(const fileinfo_st *file_info_1,
+                          const fileinfo_st *file_info_2)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info_1->stat.st_ino == file_info_2->stat.st_ino
     && file_info_1->stat.st_dev == file_info_2->stat.st_dev;
 }
 
-/// Get the `FileID` of a `FileInfo`
+/// Get the `FileID` of a `fileinfo_st`
 ///
-/// @param file_info Pointer to the `FileInfo`
+/// @param file_info Pointer to the `fileinfo_st`
 /// @param[out] file_id Pointer to a `FileID`
-void os_fileinfo_id(const FileInfo *file_info, FileID *file_id)
+void os_fileinfo_id(const fileinfo_st *file_info, FileID *file_id)
 FUNC_ATTR_NONNULL_ALL
 {
     file_id->inode = file_info->stat.st_ino;
     file_id->device_id = file_info->stat.st_dev;
 }
 
-/// Get the inode of a `FileInfo`
+/// Get the inode of a `fileinfo_st`
 ///
 /// @deprecated Use
 /// `FileID` instead, this function is only needed in memline.c
 ///
 /// @param file_info
-/// Pointer to the `FileInfo`
+/// Pointer to the `fileinfo_st`
 ///
 /// @return the inode number
-uint64_t os_fileinfo_inode(const FileInfo *file_info)
+uint64_t os_fileinfo_inode(const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_ino;
 }
 
-/// Get the size of a file from a `FileInfo`.
+/// Get the size of a file from a `fileinfo_st`.
 ///
 /// @return filesize in bytes.
-uint64_t os_fileinfo_size(const FileInfo *file_info)
+uint64_t os_fileinfo_size(const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_size;
 }
 
-/// Get the number of hardlinks from a `FileInfo`.
+/// Get the number of hardlinks from a `fileinfo_st`.
 ///
 /// @return number of hardlinks.
-uint64_t os_fileinfo_hardlinks(const FileInfo *file_info)
+uint64_t os_fileinfo_hardlinks(const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_nlink;
 }
 
-/// Get the blocksize from a `FileInfo`.
+/// Get the blocksize from a `fileinfo_st`.
 ///
 /// @return blocksize in bytes.
-uint64_t os_fileinfo_blocksize(const FileInfo *file_info)
+uint64_t os_fileinfo_blocksize(const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_info->stat.st_blksize;
@@ -1194,13 +1194,13 @@ FUNC_ATTR_NONNULL_ALL
     && file_id_1->device_id == file_id_2->device_id;
 }
 
-/// Check if a `FileID` is equal to a `FileInfo`
+/// Check if a `FileID` is equal to a `fileinfo_st`
 ///
 /// @param file_id   Pointer to a `FileID`
-/// @param file_info Pointer to a `FileInfo`
+/// @param file_info Pointer to a `fileinfo_st`
 ///
-/// @return `true` if the `FileID` and the `FileInfo` represent te same file.
-bool os_fileid_equal_fileinfo(const FileID *file_id, const FileInfo *file_info)
+/// @return `true` if the `FileID` and the `fileinfo_st` represent te same file.
+bool os_fileid_equal_fileinfo(const FileID *file_id, const fileinfo_st *file_info)
 FUNC_ATTR_NONNULL_ALL
 {
     return file_id->inode == file_info->stat.st_ino

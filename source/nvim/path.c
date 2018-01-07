@@ -916,7 +916,7 @@ FUNC_ATTR_NONNULL_ALL
                 }
                 else
                 {
-                    FileInfo file_info;
+                    fileinfo_st file_info;
 
                     // no more wildcards, check if there is a match
                     // remove backslashes for the remaining components only
@@ -1722,7 +1722,7 @@ void addfile(
 )
 {
     bool isdir;
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     // if the file/dir/link doesn't exist, may not add it
     if(!(flags & EW_NOTFOUND)
@@ -1867,7 +1867,7 @@ void simplify_filename(uchar_kt *filename)
                      * link that refers to a non-existent file. */
                     saved_char = p[-1];
                     p[-1] = NUL;
-                    FileInfo file_info;
+                    fileinfo_st file_info;
 
                     if(!os_fileinfo_link((char *)filename, &file_info))
                     {
@@ -1918,7 +1918,7 @@ void simplify_filename(uchar_kt *filename)
                              * same as the stripped file name.  (The latter
                              * exists in the file system since it is the
                              * component's parent directory.) */
-                            FileInfo new_file_info;
+                            fileinfo_st new_file_info;
 
                             if(p == start && relative)
                             {
@@ -2208,7 +2208,7 @@ char *fix_fname(const char *fname)
 void path_fix_case(uchar_kt *name)
 FUNC_ATTR_NONNULL_ALL
 {
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(!os_fileinfo_link((char *)name, &file_info))
     {
@@ -2252,7 +2252,7 @@ FUNC_ATTR_NONNULL_ALL
             STRLCPY(newname, name, MAXPATHL + 1);
             STRLCPY(newname + (tail - name), entry,
                     MAXPATHL - (tail - name) + 1);
-            FileInfo file_info_new;
+            fileinfo_st file_info_new;
 
             if(os_fileinfo_link((char *)newname, &file_info_new)
                && os_fileinfo_id_equal(&file_info, &file_info_new))

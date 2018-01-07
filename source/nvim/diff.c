@@ -1192,7 +1192,7 @@ void ex_diffpatch(exarg_T *eap)
     os_remove((char *)buf);
 
     // Only continue if the output file was created.
-    FileInfo file_info;
+    fileinfo_st file_info;
     bool info_ok = os_fileinfo((char *)tmp_new, &file_info);
     uint64_t filesize = os_fileinfo_size(&file_info);
 

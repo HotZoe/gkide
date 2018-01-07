@@ -111,7 +111,7 @@ memfile_T *mf_open(uchar_kt *fname, int flags)
 
     // Try to set the page size equal to
     // device's block size. Speeds up I/O a lot.
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(mfp->mf_fd >= 0 && os_fileinfo_fd(mfp->mf_fd, &file_info))
     {
@@ -1125,7 +1125,7 @@ static bool mf_do_open(memfile_T *mfp, uchar_kt *fname, int flags)
 
     /// Extra security check: When creating a swap file it really shouldn't
     /// exist yet. If there is a symbolic link, this is most likely an attack.
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if((flags & O_CREAT)
        && os_fileinfo_link((char *)mfp->mf_fname, &file_info))

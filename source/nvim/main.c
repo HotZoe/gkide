@@ -2320,7 +2320,7 @@ static int process_env(char *env, bool is_viminit)
 static bool file_owned(const char *fname)
 {
     uid_t uid = getuid();
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     bool file_owned = os_fileinfo(fname, &file_info)
                       && file_info.stat.st_uid == uid;

@@ -561,7 +561,7 @@ static int cs_add_common(char *arg1, char *arg2, char *flags)
 
     fname = (char *)vim_strnsave((uchar_kt *)fname, len);
     xfree(fbuf);
-    FileInfo file_info;
+    fileinfo_st file_info;
     bool file_info_ok  = os_fileinfo(fname, &file_info);
 
     if(!file_info_ok)
@@ -1452,7 +1452,7 @@ static void clear_csinfo(size_t i)
 static int cs_insert_filelist(char *fname,
                               char *ppath,
                               char *flags,
-                              FileInfo *file_info)
+                              fileinfo_st *file_info)
 {
     size_t i = 0;
     bool empty_found = false;

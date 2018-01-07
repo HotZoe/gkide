@@ -12641,7 +12641,7 @@ static void f_getfsize(typval_st *argvars,
 {
     const char *fname = tv_get_string(&argvars[0]);
     rettv->v_type = kNvarNumber;
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo(fname, &file_info))
     {
@@ -12674,7 +12674,7 @@ static void f_getftime(typval_st *argvars,
                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *fname = tv_get_string(&argvars[0]);
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo(fname, &file_info))
     {
@@ -12695,7 +12695,7 @@ static void f_getftype(typval_st *argvars,
     char *t;
     const char *fname = tv_get_string(&argvars[0]);
     rettv->v_type = kNvarString;
-    FileInfo file_info;
+    fileinfo_st file_info;
 
     if(os_fileinfo_link(fname, &file_info))
     {

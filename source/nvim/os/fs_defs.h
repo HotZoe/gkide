@@ -9,7 +9,7 @@
 typedef struct
 {
     uv_stat_t stat;  ///< @private
-} FileInfo;
+} fileinfo_st;
 
 /// Struct which encapsulates inode/dev_id information.
 typedef struct
@@ -41,8 +41,10 @@ enum
 //
 /// file or directory, check with os_isdir()
 #define NODE_NORMAL     0
+
 /// something we can write to (character device, fifo, socket, ..)
 #define NODE_WRITABLE   1
+
 /// non-writable thing (e.g., block device)
 #define NODE_OTHER      2
 

@@ -4129,7 +4129,7 @@ static uchar_kt *get_mef_name(void)
         STRCAT(name, p + 2);
 
         // Don't accept a symbolic link, its a security risk.
-        FileInfo file_info;
+        fileinfo_st file_info;
         bool file_or_link_found = os_fileinfo_link((char *)name, &file_info);
 
         if(!file_or_link_found)

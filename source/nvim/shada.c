@@ -3949,7 +3949,7 @@ shada_write_file_nomerge:
             // For Unix we check the owner of the file. It's not very nice to
             // overwrite a user’s viminfo file after a "su root", with a
             // viminfo file that the user can't read.
-            FileInfo old_info;
+            fileinfo_st old_info;
 
             if(os_fileinfo((char *)fname, &old_info))
             {
