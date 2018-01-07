@@ -89,7 +89,7 @@ int open_line(int dir, int flags, int second_line_indent)
     uchar_kt *p_extra = NULL; // what goes to next line
     columnum_kt less_cols = 0; // less columns for mark in new line
     columnum_kt less_cols_off = 0; // columns to skip for mark adjust
-    pos_T old_cursor; // old cursor position
+    apos_st old_cursor; // old cursor position
     columnum_kt newcol = 0; // new cursor column
     int newindent = 0; // auto-indent of the new line
     bool trunc_line = false; // truncate current line afterwards
@@ -101,7 +101,7 @@ int open_line(int dir, int flags, int second_line_indent)
     uchar_kt *allocated = NULL; // allocated memory
     uchar_kt *p;
     uchar_kt saved_char = NUL; // init for GCC
-    pos_T *pos;
+    apos_st *pos;
     bool do_si = (!p_paste && curbuf->b_p_si && !curbuf->b_p_cin);
     bool no_si = false; // reset did_si afterwards
     int first_char = NUL; // init for GCC
@@ -205,7 +205,7 @@ int open_line(int dir, int flags, int second_line_indent)
         {
             uchar_kt  *ptr;
             uchar_kt last_char;
-            pos_T old_cursor = curwin->w_cursor;
+            apos_st old_cursor = curwin->w_cursor;
             ptr = saved_line;
 
             if(flags & OPENLINE_DO_COM)
@@ -2150,7 +2150,7 @@ void del_lines(long nlines, int undo)
     deleted_lines_mark(first, n);
 }
 
-int gchar_pos(pos_T *pos)
+int gchar_pos(apos_st *pos)
 {
     uchar_kt *ptr = ml_get_pos(pos);
 
@@ -2412,7 +2412,7 @@ static void changed_common(linenum_kt lnum,
 {
     int i;
     int cols;
-    pos_T *p;
+    apos_st *p;
     int add;
 
     // mark the buffer as modified
@@ -2421,7 +2421,7 @@ static void changed_common(linenum_kt lnum,
     // set the '. mark
     if(!cmdmod.keepjumps)
     {
-        RESET_FMARK(&curbuf->b_last_change, ((pos_T) { lnum, col, 0 }), 0);
+        RESET_FMARK(&curbuf->b_last_change, ((apos_st) { lnum, col, 0 }), 0);
 
         // Create a new entry if a new undo-able change was
         // started or we don't have an entry yet.

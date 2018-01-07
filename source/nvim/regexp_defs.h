@@ -116,8 +116,8 @@ typedef struct
 typedef struct
 {
     regprog_T *regprog;
-    lpos_T startpos[NSUBEXP];
-    lpos_T endpos[NSUBEXP];
+    bpos_st startpos[NSUBEXP];
+    bpos_st endpos[NSUBEXP];
     int rmm_ic;
     columnum_kt rmm_maxcol;        ///< when not zero: maximum column
 } regmmatch_T;

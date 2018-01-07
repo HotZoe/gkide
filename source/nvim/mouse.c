@@ -62,7 +62,7 @@ int jump_to_mouse(int flags, bool *inclusive, int which_button)
     static win_st *dragwin = NULL; // window being dragged
     static int did_drag = false; // drag was noticed
     win_st *wp, *old_curwin;
-    pos_T old_cursor;
+    apos_st old_cursor;
     int count;
     bool first;
     int row = mouse_row;

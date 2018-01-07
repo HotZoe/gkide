@@ -163,10 +163,10 @@ typedef struct state_item
     int si_trans_id;              ///< idem, transparency removed
     int si_m_lnum;                ///< lnum of the match
     int si_m_startcol;            ///< starting column of the match
-    lpos_T si_m_endpos;           ///< just after end posn of the match
-    lpos_T si_h_startpos;         ///< start position of the highlighting
-    lpos_T si_h_endpos;           ///< end position of the highlighting
-    lpos_T si_eoe_pos;            ///< end position of end pattern
+    bpos_st si_m_endpos;           ///< just after end posn of the match
+    bpos_st si_h_startpos;         ///< start position of the highlighting
+    bpos_st si_h_endpos;           ///< end position of the highlighting
+    bpos_st si_eoe_pos;            ///< end position of end pattern
     int si_end_idx;               ///< group ID for end pattern or zero
     int si_ends;                  ///< if match ends before si_m_endpos
     int si_attr;                  ///< attributes in this state
@@ -313,13 +313,13 @@ static int next_seqnr = 1; ///< value to use for si_seqnr
 // If next_match_col == MAXCOL, no match found in this line.
 // (All end positions have the column of the char after the end)
 static int next_match_col;            ///< column for start of next match
-static lpos_T next_match_m_endpos;    ///< position for end of next match
-static lpos_T next_match_h_startpos;  ///< pos. for highl. start of next match
-static lpos_T next_match_h_endpos;    ///< pos. for highl. end of next match
+static bpos_st next_match_m_endpos;    ///< position for end of next match
+static bpos_st next_match_h_startpos;  ///< pos. for highl. start of next match
+static bpos_st next_match_h_endpos;    ///< pos. for highl. end of next match
 static int next_match_idx;            ///< index of matched item
 static long next_match_flags;         ///< flags for next match
-static lpos_T next_match_eos_pos;     ///< end of start pattn (start region)
-static lpos_T next_match_eoe_pos;     ///< pos. for end of end pattern
+static bpos_st next_match_eos_pos;     ///< end of start pattn (start region)
+static bpos_st next_match_eoe_pos;     ///< pos. for end of end pattern
 static int next_match_end_idx;        ///< ID of group for end pattn or zero
 
 static reg_extmatch_T *next_match_extmatch = NULL;
@@ -608,7 +608,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_T *last_valid)
 {
     fbuf_st *curbuf_save;
     win_st  *curwin_save;
-    pos_T cursor_save;
+    apos_st cursor_save;
     int idx;
     linenum_kt lnum;
     linenum_kt end_lnum;
@@ -621,7 +621,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_T *last_valid)
     int found_match_idx = 0;
     linenum_kt found_current_lnum = 0;
     int found_current_col= 0;
-    lpos_T found_m_endpos;
+    bpos_st found_m_endpos;
     columnum_kt prev_current_col;
     // Clear any current state that might be hanging around.
     invalidate_current_state();
@@ -1884,11 +1884,11 @@ static int syn_current_attr(int syncing,
                             int keep_state)
 {
     int syn_id;
-    lpos_T endpos; // was: uchar_kt *endp;
-    lpos_T hl_startpos; // was: int hl_startcol;
-    lpos_T hl_endpos;
-    lpos_T eos_pos; // end-of-start match (start region)
-    lpos_T eoe_pos; // end-of-end pattern
+    bpos_st endpos; // was: uchar_kt *endp;
+    bpos_st hl_startpos; // was: int hl_startcol;
+    bpos_st hl_endpos;
+    bpos_st eos_pos; // end-of-start match (start region)
+    bpos_st eoe_pos; // end-of-end pattern
     int end_idx; // group ID for end pattern
     synpat_T *spp;
     stateitem_T *cur_si, *sip = NULL;
@@ -1901,7 +1901,7 @@ static int syn_current_attr(int syncing,
     static int try_next_column = FALSE; // must try in next col
     int do_keywords;
     regmmatch_T regmatch;
-    lpos_T pos;
+    bpos_st pos;
     int lc_col;
     reg_extmatch_T *cur_extmatch = NULL;
     uchar_kt buf_chartab[32]; // chartab array for syn iskeyword
@@ -2195,7 +2195,7 @@ static int syn_current_attr(int syncing,
                             if(spp->sp_type == SPTYPE_START
                                && (spp->sp_flags & HL_ONELINE))
                             {
-                                lpos_T startpos = endpos;
+                                bpos_st startpos = endpos;
 
                                 find_endpos(idx,
                                             &startpos,
@@ -2756,8 +2756,8 @@ static void update_si_attr(int idx)
 static void check_keepend(void)
 {
     int i;
-    lpos_T maxpos;
-    lpos_T maxpos_h;
+    bpos_st maxpos;
+    bpos_st maxpos_h;
     stateitem_T *sip;
 
     // This check can consume a lot of time;
@@ -2826,10 +2826,10 @@ static void check_keepend(void)
 /// Return the flags for the matched END.
 static void update_si_end(stateitem_T *sip, int startcol, int force)
 {
-    lpos_T startpos;
-    lpos_T endpos;
-    lpos_T hl_endpos;
-    lpos_T end_endpos;
+    bpos_st startpos;
+    bpos_st endpos;
+    bpos_st hl_endpos;
+    bpos_st end_endpos;
     int end_idx;
 
     // return quickly for a keyword
@@ -2933,11 +2933,11 @@ static void pop_current_state(void)
 /// @param end_idx,    return: group ID for end pat. match, or 0
 /// @param start_ext   submatches from the start pattern
 static void find_endpos(int idx,
-                        lpos_T *startpos,
-                        lpos_T *m_endpos,
-                        lpos_T *hl_endpos,
+                        bpos_st *startpos,
+                        bpos_st *m_endpos,
+                        bpos_st *hl_endpos,
                         long *flagsp,
-                        lpos_T *end_endpos,
+                        bpos_st *end_endpos,
                         int *end_idx,
                         reg_extmatch_T *start_ext)
 {
@@ -2947,7 +2947,7 @@ static void find_endpos(int idx,
     int best_idx;
     regmmatch_T regmatch;
     regmmatch_T best_regmatch; // startpos/endpos of best match
-    lpos_T pos;
+    bpos_st pos;
     uchar_kt *line;
     int had_match = false;
     uchar_kt buf_chartab[32]; // chartab array for syn option iskeyword
@@ -3195,7 +3195,7 @@ static void find_endpos(int idx,
 }
 
 /// Limit "pos" not to be after "limit".
-static void limit_pos(lpos_T *pos, lpos_T *limit)
+static void limit_pos(bpos_st *pos, bpos_st *limit)
 {
     if(pos->lnum > limit->lnum)
     {
@@ -3208,7 +3208,7 @@ static void limit_pos(lpos_T *pos, lpos_T *limit)
 }
 
 /// Limit "pos" not to be after "limit", unless pos->lnum is zero.
-static void limit_pos_zero(lpos_T *pos, lpos_T *limit)
+static void limit_pos_zero(bpos_st *pos, bpos_st *limit)
 {
     if(pos->lnum == 0)
     {
@@ -3227,7 +3227,7 @@ static void limit_pos_zero(lpos_T *pos, lpos_T *limit)
 /// @param spp         matched pattern
 /// @param idx         index of offset
 /// @param extra       extra chars for offset to start
-static void syn_add_end_off(lpos_T *result,
+static void syn_add_end_off(bpos_st *result,
                             regmmatch_T *regmatch,
                             synpat_T *spp,
                             int idx,
@@ -3291,7 +3291,7 @@ static void syn_add_end_off(lpos_T *result,
 /// @param spp,
 /// @param idx,
 /// @param extra         extra chars for offset to end
-static void syn_add_start_off(lpos_T *result,
+static void syn_add_start_off(bpos_st *result,
                               regmmatch_T *regmatch,
                               synpat_T *spp,
                               int idx,

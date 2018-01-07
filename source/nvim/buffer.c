@@ -2255,7 +2255,7 @@ int buflist_getfile(int n, linenum_kt lnum, int options, int forceit)
 {
     fbuf_st *buf;
     win_st *wp = NULL;
-    pos_T *fpos;
+    apos_st *fpos;
     columnum_kt col;
     buf = buflist_findnr(n);
 
@@ -2365,7 +2365,7 @@ int buflist_getfile(int n, linenum_kt lnum, int options, int forceit)
 // Go to the last known line number for the current buffer.
 void buflist_getfpos(void)
 {
-    pos_T *fpos;
+    apos_st *fpos;
     fpos = buflist_findfpos(curbuf);
     curwin->w_cursor.lnum = fpos->lnum;
     check_cursor_lnum();
@@ -2993,9 +2993,9 @@ void get_winopts(fbuf_st *buf)
 /// current window.
 ///
 /// @returns a pointer to no_position if no position is found.
-pos_T *buflist_findfpos(fbuf_st *buf)
+apos_st *buflist_findfpos(fbuf_st *buf)
 {
-    static pos_T no_position = INIT_POS_T(1, 0, 0);
+    static apos_st no_position = INIT_POS_T(1, 0, 0);
     wininfo_T *wip = find_wininfo(buf, FALSE);
     return (wip == NULL) ? &no_position : &(wip->wi_fpos);
 }

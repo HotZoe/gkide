@@ -278,7 +278,7 @@ typedef struct
         struct shada_filemark
         {
             char name;
-            pos_T mark;
+            apos_st mark;
             char *fname;
             dict_st *additional_data;
         } filemark;
@@ -334,7 +334,7 @@ typedef struct
             size_t size;
             struct buffer_list_buffer
             {
-                pos_T pos;
+                apos_st pos;
                 char *fname;
                 dict_st *additional_data;
             } *buffers;
@@ -489,7 +489,7 @@ typedef struct sd_write_def
     }
 
 #define DEFAULT_POS    { 1, 0, 0 }
-static const pos_T default_pos = DEFAULT_POS;
+static const apos_st default_pos = DEFAULT_POS;
 
 static const ShadaEntry sd_default_values[] = {
     [kSDItemMissing] = { .type = kSDItemMissing, .timestamp = 0 },
@@ -1356,7 +1356,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Compare two marks
-static inline bool marks_equal(const pos_T a, const pos_T b)
+static inline bool marks_equal(const apos_st a, const apos_st b)
 {
     return (a.lnum == b.lnum) && (a.col == b.col);
 }

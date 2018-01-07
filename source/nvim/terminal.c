@@ -270,7 +270,7 @@ Terminal *terminal_open(TerminalOptions opts)
     RESET_BINDING(curwin);
 
     // Reset cursor in current window.
-    curwin->w_cursor = (pos_T)
+    curwin->w_cursor = (apos_st)
     {
         .lnum = 1, .col = 0, .coladd = 0
     };

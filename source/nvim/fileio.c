@@ -403,7 +403,7 @@ int readfile(uchar_kt *fname,
     // process by executing the associated commands instead.
     if(!filtering && !read_stdin && !read_buffer)
     {
-        pos_T pos;
+        apos_st pos;
         pos = curbuf->b_op_start;
 
         // Set '[ mark to the line above where the lines go (line 1 if zero).
@@ -6461,7 +6461,7 @@ int buf_check_timestamp(fbuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 void buf_reload(fbuf_st *buf, int orig_mode)
 {
     exarg_T ea;
-    pos_T old_cursor;
+    apos_st old_cursor;
     linenum_kt old_topline;
     int old_ro = buf->b_p_ro;
     fbuf_st *savebuf;

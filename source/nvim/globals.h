@@ -741,7 +741,7 @@ EXTERN int silent_mode INIT(= FALSE);
 EXTERN bool did_source_startup_scripts INIT(= false);
 
 /// start position of active Visual selection
-EXTERN pos_T VIsual;
+EXTERN apos_st VIsual;
 
 EXTERN int VIsual_active INIT(= FALSE);
 
@@ -760,7 +760,7 @@ EXTERN int redo_VIsual_busy INIT(= FALSE);
 
 /// When pasting text with the middle mouse button in visual mode with
 /// restart_edit set, remember where it started so we can set Insstart.
-EXTERN pos_T where_paste_started;
+EXTERN apos_st where_paste_started;
 
 /// This flag is used to make auto-indent work right on lines where only a
 /// <RETURN> or <ESC> is typed. It is set when an auto-indent is done, and
@@ -798,17 +798,17 @@ EXTERN int can_si INIT(= FALSE);
 EXTERN int can_si_back INIT(= FALSE);
 
 /// w_cursor before formatting text.
-EXTERN pos_T saved_cursor INIT(= INIT_POS_T(0, 0, 0));
+EXTERN apos_st saved_cursor INIT(= INIT_POS_T(0, 0, 0));
 
 // Stuff for insert mode.
 
 /// This is where the latest insert/append mode started.
-EXTERN pos_T Insstart;
+EXTERN apos_st Insstart;
 
 /// This is where the latest insert/append mode started. In contrast to
 /// Insstart, this won't be reset by certain keys and is needed for
 /// op_insert(), to detect correctly where inserting by the user started.
-EXTERN pos_T Insstart_orig;
+EXTERN apos_st Insstart_orig;
 
 // Stuff for 'kVReplaceMode' mode.
 
@@ -1025,7 +1025,7 @@ EXTERN int did_cursorhold INIT(= false);      ///< set when CursorHold t'gerd
 EXTERN int last_changedtick INIT(= 0);        ///< for TextChanged event
 
 /// for CursorMoved event
-EXTERN pos_T last_cursormoved INIT(= INIT_POS_T(0, 0, 0));
+EXTERN apos_st last_cursormoved INIT(= INIT_POS_T(0, 0, 0));
 EXTERN fbuf_st *last_changedtick_buf INIT(= NULL);
 
 EXTERN int postponed_split INIT(= 0);       ///< for CTRL-W CTRL-] command

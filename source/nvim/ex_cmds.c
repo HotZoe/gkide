@@ -233,7 +233,7 @@ void do_ascii(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 /// ":left", ":center" and ":right": align text.
 void ex_align(exarg_T *eap)
 {
-    pos_T save_curpos;
+    apos_st save_curpos;
     int len;
     int indent = 0;
     int new_indent;
@@ -1411,7 +1411,7 @@ static void do_filter(linenum_kt line1,
     uchar_kt *otmp = NULL;
     linenum_kt linecount;
     linenum_kt read_linecount;
-    pos_T cursor_save;
+    apos_st cursor_save;
     uchar_kt *cmd_buf;
     fbuf_st *old_curbuf = curbuf;
     int shell_flags = 0;
@@ -2721,11 +2721,11 @@ int do_ecmd(int fnum,
     uchar_kt *free_fname = NULL;
     int retval = FAIL;
     long n;
-    pos_T orig_pos;
+    apos_st orig_pos;
     linenum_kt topline = 0;
     int newcol = -1;
     int solcol = -1;
-    pos_T *pos;
+    apos_st *pos;
     uchar_kt *command = NULL;
     int did_get_winopts = FALSE;
     int readfile_flags = 0;
@@ -4146,7 +4146,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
     bool endcolumn = false; // cursor in last column when done
     MatchedLineVec matched_lines = KV_INITIAL_VALUE;
 
-    pos_T old_cursor = curwin->w_cursor;
+    apos_st old_cursor = curwin->w_cursor;
     int start_nsubs;
     int save_ma = 0;
     int save_b_changed = curbuf->b_changed;
@@ -7859,7 +7859,7 @@ void set_context_in_sign_cmd(expand_T *xp, uchar_kt *arg)
 /// Shows the effects of the :substitute command being typed ('inccommand').
 /// If inccommand=split, shows a preview window and later restores the layout.
 static fbuf_st *show_sub(exarg_T *eap,
-                       pos_T old_cusr,
+                       apos_st old_cusr,
                        uchar_kt *pat,
                        uchar_kt *sub,
                        MatchedLineVec *matched_lines)

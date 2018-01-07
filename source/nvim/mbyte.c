@@ -1871,7 +1871,7 @@ int mb_tail_off(uchar_kt *base, uchar_kt *p)
 /// Find the next illegal byte sequence.
 void utf_find_illegal(void)
 {
-    pos_T pos = curwin->w_cursor;
+    apos_st pos = curwin->w_cursor;
     uchar_kt *p;
     int len;
     vimconv_T vimconv;

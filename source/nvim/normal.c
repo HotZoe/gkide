@@ -80,7 +80,7 @@ typedef struct normal_state
     int idx;
     int c;
     int old_col;
-    pos_T old_pos;
+    apos_st old_pos;
 } NormalState;
 
 // The Visual area is remembered for reselection.
@@ -1628,7 +1628,7 @@ static void set_vcount_ca(cmdarg_T *cap, bool *set_prevcount)
 void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
 {
     oparg_T *oap = cap->oap;
-    pos_T old_cursor;
+    apos_st old_cursor;
     bool empty_region_error;
     int restart_edit_save;
     int lbr_saved = curwin->w_p_lbr;
@@ -2636,17 +2636,17 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     bool is_click; // If false it's a drag or release event
     bool is_drag; // If true it's a drag event
     int jump_flags = 0; // flags for jump_to_mouse()
-    pos_T start_visual;
+    apos_st start_visual;
     bool moved; // Has cursor moved?
     bool in_status_line; // mouse in status line
     static bool in_tab_line = false; // mouse clicked in tab line
     bool in_sep_line; // mouse in vertical separator line
     int c1, c2;
-    pos_T save_cursor;
+    apos_st save_cursor;
     win_st *old_curwin = curwin;
-    static pos_T orig_cursor;
+    static apos_st orig_cursor;
     columnum_kt leftcol, rightcol;
-    pos_T end_visual;
+    apos_st end_visual;
     long diff;
     int old_active = VIsual_active;
     int old_mode = VIsual_mode;
@@ -3399,7 +3399,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
         if((mod_mask & MOD_MASK_MULTI_CLICK) == MOD_MASK_2CLICK)
         {
             int gc;
-            pos_T *pos = NULL;
+            apos_st *pos = NULL;
 
             if(is_click)
             {
@@ -3503,7 +3503,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
 }
 
 /// Move "pos" back to the start of the word it's in.
-static void find_start_of_word(pos_T *pos)
+static void find_start_of_word(apos_st *pos)
 {
     uchar_kt *line;
     int cclass;
@@ -3527,7 +3527,7 @@ static void find_start_of_word(pos_T *pos)
 
 /// Move "pos" forward to the end of the word it's in.
 /// When 'selection' is "exclusive", the position is just after the word.
-static void find_end_of_word(pos_T *pos)
+static void find_end_of_word(apos_st *pos)
 {
     uchar_kt *line;
     int cclass;
@@ -4512,9 +4512,9 @@ bool find_decl(uchar_kt *ptr,
                int flags_arg)
 {
     uchar_kt *pat;
-    pos_T old_pos;
-    pos_T par_pos;
-    pos_T found_pos;
+    apos_st old_pos;
+    apos_st par_pos;
+    apos_st found_pos;
     bool t;
     bool save_p_ws;
     bool save_p_scs;
@@ -4582,7 +4582,7 @@ bool find_decl(uchar_kt *ptr,
 
         if(thisblock && t != false)
         {
-            pos_T *pos;
+            apos_st *pos;
 
             // Check that the block the match is in doesn't end before the
             // position where we started the search from.
@@ -5486,7 +5486,7 @@ dozet:
 
             if(ptr == NULL)
             {
-                pos_T pos = curwin->w_cursor;
+                apos_st pos = curwin->w_cursor;
 
                 // Find bad word under the cursor. When 'spell' is
                 // off this fails and find_ident_under_cursor() is used below.
@@ -6614,7 +6614,7 @@ static void nv_search(cmdarg_T *cap)
 /// cap->arg is SEARCH_REV for "N", 0 for "n".
 static void nv_next(cmdarg_T *cap)
 {
-    pos_T old = curwin->w_cursor;
+    apos_st old = curwin->w_cursor;
     int i = normal_search(cap, 0, NULL, SEARCH_MARK | cap->arg);
 
     if(i == 1 && equalpos(old, curwin->w_cursor))
@@ -6733,10 +6733,10 @@ static void nv_csearch(cmdarg_T *cap)
 /// cap->arg is BACKWARD for "[" and FORWARD for "]".
 static void nv_brackets(cmdarg_T *cap)
 {
-    pos_T new_pos = INIT_POS_T(0, 0, 0);
-    pos_T prev_pos;
-    pos_T *pos = NULL; // init for GCC
-    pos_T old_pos; // cursor position before command
+    apos_st new_pos = INIT_POS_T(0, 0, 0);
+    apos_st prev_pos;
+    apos_st *pos = NULL; // init for GCC
+    apos_st old_pos; // cursor position before command
     int flag;
     long n;
     int findc;
@@ -7023,7 +7023,7 @@ static void nv_brackets(cmdarg_T *cap)
                     int regname = cap->oap->regname;
                     int was_visual = VIsual_active;
                     linenum_kt line_count = curbuf->b_ml.ml_line_count;
-                    pos_T start, end;
+                    apos_st start, end;
 
                     if(VIsual_active)
                     {
@@ -7165,7 +7165,7 @@ static void nv_brackets(cmdarg_T *cap)
 /// Handle Normal mode "%" command.
 static void nv_percent(cmdarg_T *cap)
 {
-    pos_T *pos;
+    apos_st *pos;
     linenum_kt lnum = curwin->w_cursor.lnum;
     cap->oap->inclusive = true;
 
@@ -7581,7 +7581,7 @@ static void nv_replace(cmdarg_T *cap)
 /// 'O': same, but in block mode exchange left and right corners.
 static void v_swap_corners(int cmdchar)
 {
-    pos_T old_cursor;
+    apos_st old_cursor;
     columnum_kt left, right;
 
     if(cmdchar == 'O' && VIsual_mode == Ctrl_V)
@@ -7700,7 +7700,7 @@ static void nv_vreplace(cmdarg_T *cap)
 static void n_swapchar(cmdarg_T *cap)
 {
     long n;
-    pos_T startpos;
+    apos_st startpos;
     int did_change = 0;
 
     if(checkclearopq(cap->oap))
@@ -7773,7 +7773,7 @@ static void n_swapchar(cmdarg_T *cap)
 }
 
 /// Move cursor to mark.
-static void nv_cursormark(cmdarg_T *cap, int flag, pos_T *pos)
+static void nv_cursormark(cmdarg_T *cap, int flag, apos_st *pos)
 {
     if(check_mark(pos) == false)
     {
@@ -7902,8 +7902,8 @@ static void nv_optrans(cmdarg_T *cap)
 static void nv_gomark(cmdarg_T *cap)
 {
     int c;
-    pos_T *pos;
-    pos_T old_cursor = curwin->w_cursor;
+    apos_st *pos;
+    apos_st old_cursor = curwin->w_cursor;
     int old_KeyTyped = KeyTyped; // getting file may reset it
 
     if(cap->cmdchar == 'g')
@@ -7918,7 +7918,7 @@ static void nv_gomark(cmdarg_T *cap)
     pos = getmark(c, (cap->oap->op_type == OP_NOP));
 
     // jumped to other file
-    if(pos == (pos_T *)-1)
+    if(pos == (apos_st *)-1)
     {
         if(cap->arg)
         {
@@ -7943,7 +7943,7 @@ static void nv_gomark(cmdarg_T *cap)
 
     if(cap->oap->op_type == OP_NOP
        && pos != NULL
-       && (pos == (pos_T *)-1 || !equalpos(old_cursor, *pos))
+       && (pos == (apos_st *)-1 || !equalpos(old_cursor, *pos))
        && (fdo_flags & FDO_MARK)
        && old_KeyTyped)
     {
@@ -7954,7 +7954,7 @@ static void nv_gomark(cmdarg_T *cap)
 /// Handle CTRL-O, CTRL-I, "g;" and "g," commands.
 static void nv_pcmark(cmdarg_T *cap)
 {
-    pos_T *pos;
+    apos_st *pos;
     linenum_kt lnum = curwin->w_cursor.lnum;
     int old_KeyTyped = KeyTyped; // getting file may reset it
 
@@ -7970,7 +7970,7 @@ static void nv_pcmark(cmdarg_T *cap)
         }
 
         // jump to other file
-        if(pos == (pos_T *)-1)
+        if(pos == (apos_st *)-1)
         {
             curwin->w_set_curswant = true;
             check_cursor();
@@ -8001,7 +8001,7 @@ static void nv_pcmark(cmdarg_T *cap)
         }
 
         if(cap->oap->op_type == OP_NOP
-           && (pos == (pos_T *)-1 || lnum != curwin->w_cursor.lnum)
+           && (pos == (apos_st *)-1 || lnum != curwin->w_cursor.lnum)
            && (fdo_flags & FDO_MARK)
            && old_KeyTyped)
         {
@@ -8277,7 +8277,7 @@ static void nv_suspend(cmdarg_T *cap)
 static void nv_g_cmd(cmdarg_T *cap)
 {
     oparg_T *oap = cap->oap;
-    pos_T tpos;
+    apos_st tpos;
     int i;
     bool flag = false;
 
@@ -9099,7 +9099,7 @@ static void nv_wordcmd(cmdarg_T *cap)
     int n;
     bool word_end;
     bool flag = false;
-    pos_T startpos = curwin->w_cursor;
+    apos_st startpos = curwin->w_cursor;
 
     // Set inclusive for the "E" and "e" command.
     if(cap->cmdchar == 'e' || cap->cmdchar == 'E')
@@ -9246,7 +9246,7 @@ static void adjust_for_sel(cmdarg_T *cap)
 /// before calling this. Returns true when backed up to the previous line.
 static bool unadjust_for_sel(void)
 {
-    pos_T *pp;
+    apos_st *pp;
 
     if(*p_sel == 'e' && !equalpos(VIsual, curwin->w_cursor))
     {

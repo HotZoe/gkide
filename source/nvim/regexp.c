@@ -288,7 +288,7 @@ typedef struct
     union
     {
         uchar_kt *ptr; ///< reginput pointer, for single-line regexp
-        lpos_T pos;    ///< reginput pos, for multi-line regexp
+        bpos_st pos;    ///< reginput pos, for multi-line regexp
     } rs_u;
     int rs_len;
 } regsave_T;
@@ -299,7 +299,7 @@ typedef struct
     union
     {
         uchar_kt *ptr;
-        lpos_T pos;
+        bpos_st pos;
     } se_u;
 } save_se_T;
 
@@ -432,7 +432,7 @@ struct nfa_pim_S
     regsubs_T subs;     ///< submatch info, only party used
     union
     {
-        lpos_T pos;
+        bpos_st pos;
         uchar_kt  *ptr;
     } end;              ///< where the match must end
 };
@@ -4575,8 +4575,8 @@ static regmatch_T *reg_match;
 static regmmatch_T *reg_mmatch;
 static uchar_kt **reg_startp = NULL;
 static uchar_kt **reg_endp = NULL;
-static lpos_T *reg_startpos = NULL;
-static lpos_T *reg_endpos = NULL;
+static bpos_st *reg_startpos = NULL;
+static bpos_st *reg_endpos = NULL;
 static win_st *reg_win;
 static fbuf_st *reg_buf;
 static linenum_kt reg_firstlnum;
@@ -4637,8 +4637,8 @@ static regsave_T behind_pos;
 
 static uchar_kt *reg_startzp[NSUBEXP];  ///< Workspace to mark beginning
 static uchar_kt *reg_endzp[NSUBEXP];    ///< and end of \z(...\) matches
-static lpos_T reg_startzpos[NSUBEXP];   ///< idem, beginning pos
-static lpos_T reg_endzpos[NSUBEXP];     ///< idem, end pos
+static bpos_st reg_startzpos[NSUBEXP];   ///< idem, beginning pos
+static bpos_st reg_endzpos[NSUBEXP];     ///< idem, end pos
 
 /// TRUE if using multi-line regexp.
 #define REG_MULTI   (reg_match == NULL)
@@ -5119,8 +5119,8 @@ static int reg_prev_class(void)
 /// TRUE if the current reginput position matches the Visual area.
 static int reg_match_visual(void)
 {
-    pos_T top;
-    pos_T bot;
+    apos_st top;
+    apos_st bot;
     linenum_kt lnum;
     columnum_kt col;
     win_st *wp = reg_win == NULL ? curwin : reg_win;
@@ -5413,7 +5413,7 @@ static int regmatch(uchar_kt *scan)
                     {
                         int mark = OPERAND(scan)[0];
                         int cmp = OPERAND(scan)[1];
-                        pos_T *pos;
+                        apos_st *pos;
                         pos = getmark_buf(reg_buf, mark, FALSE);
 
                         if(pos == NULL       // mark doesn't exist
@@ -7835,8 +7835,8 @@ static void cleanup_subexpr(void)
         if(REG_MULTI)
         {
             // Use 0xff to set lnum to -1
-            memset(reg_startpos, 0xff, sizeof(lpos_T) * NSUBEXP);
-            memset(reg_endpos, 0xff, sizeof(lpos_T) * NSUBEXP);
+            memset(reg_startpos, 0xff, sizeof(bpos_st) * NSUBEXP);
+            memset(reg_endpos, 0xff, sizeof(bpos_st) * NSUBEXP);
         }
         else
         {
@@ -7855,8 +7855,8 @@ static void cleanup_zsubexpr(void)
         if(REG_MULTI)
         {
             // Use 0xff to set lnum to -1
-            memset(reg_startzpos, 0xff, sizeof(lpos_T) * NSUBEXP);
-            memset(reg_endzpos, 0xff, sizeof(lpos_T) * NSUBEXP);
+            memset(reg_startzpos, 0xff, sizeof(bpos_st) * NSUBEXP);
+            memset(reg_endzpos, 0xff, sizeof(bpos_st) * NSUBEXP);
         }
         else
         {
@@ -7990,7 +7990,7 @@ static int reg_save_equal(regsave_T *save)
 ///
 /// Use se_save() to use pointer (save_se_multi()) or position
 /// (save_se_one()), depending on REG_MULTI.
-static void save_se_multi(save_se_T *savep, lpos_T *posp)
+static void save_se_multi(save_se_T *savep, bpos_st *posp)
 {
     savep->se_u.pos = *posp;
     posp->lnum = reglnum;
@@ -15371,7 +15371,7 @@ static regsubs_T *addstate(nfa_list_T *l,
     int k;
     int found = FALSE;
     nfa_thread_T *thread;
-    lpos_T save_lpos;
+    bpos_st save_lpos;
     int save_in_use;
     uchar_kt *save_ptr;
     int i;
@@ -17981,7 +17981,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                 case NFA_MARK_GT:
                 case NFA_MARK_LT:
                 {
-                    pos_T *pos = getmark_buf(reg_buf, t->state->val, FALSE);
+                    apos_st *pos = getmark_buf(reg_buf, t->state->val, FALSE);
 
                     // Compare the mark position to the match position.
                     result = (pos != NULL // mark doesn't exist

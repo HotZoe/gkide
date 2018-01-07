@@ -765,7 +765,7 @@ FUNC_API_SINCE(1)
         return rv;
     }
 
-    pos_T *posp;
+    apos_st *posp;
     char mark = *name.data;
     try_start();
     bufref_T save_buf;

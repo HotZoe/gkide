@@ -4547,7 +4547,7 @@ static uchar_kt *eval_map_expr(uchar_kt *str, int c)
     uchar_kt *p;
     uchar_kt *expr;
     uchar_kt *save_cmd;
-    pos_T save_cursor;
+    apos_st save_cursor;
     int save_msg_col;
     int save_msg_row;
 

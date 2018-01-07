@@ -25,14 +25,13 @@ typedef struct
     linenum_kt lnum;    ///< line number
     columnum_kt col;    ///< column number
     columnum_kt coladd; ///<
-} pos_T;
-
+} apos_st;
 
 /// Same, but without coladd.
 typedef struct
 {
     linenum_kt lnum; ///< line number
     columnum_kt col; ///< column number
-} lpos_T;
+} bpos_st;
 
 #endif // NVIM_POS_H

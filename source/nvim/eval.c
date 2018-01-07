@@ -9562,7 +9562,7 @@ static void f_cindent(typval_st *argvars,
                       typval_st *rettv,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    pos_T pos;
+    apos_st pos;
     linenum_kt lnum;
     pos = curwin->w_cursor;
     lnum = tv_get_lnum(argvars);
@@ -9593,7 +9593,7 @@ static void f_col(typval_st *argvars,
                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     columnum_kt col = 0;
-    pos_T *fp;
+    apos_st *fp;
     int fnum = curbuf->b_fnum;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
 
@@ -9928,7 +9928,7 @@ static void f_cursor(typval_st *argvars,
 
     if(argvars[1].v_type == kNvarUnknown)
     {
-        pos_T pos;
+        apos_st pos;
         columnum_kt curswant = -1;
 
         if(list2fpos(argvars, &pos, NULL, &curswant) == FAIL)
@@ -12949,7 +12949,7 @@ static void f_getpid(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 
 static void getpos_both(typval_st *argvars, typval_st *rettv, bool getcurpos)
 {
-    pos_T *fp;
+    apos_st *fp;
     int fnum = -1;
 
     if(getcurpos)
@@ -15678,7 +15678,7 @@ static void f_line(typval_st *argvars,
                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     linenum_kt lnum = 0;
-    pos_T *fp;
+    apos_st *fp;
     int fnum;
     fp = var2fpos(&argvars[0], TRUE, &fnum);
 
@@ -15717,7 +15717,7 @@ static void f_lispindent(typval_st *argvars,
                          typval_st *rettv,
                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    const pos_T pos = curwin->w_cursor;
+    const apos_st pos = curwin->w_cursor;
     const linenum_kt lnum = tv_get_lnum(argvars);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count)
@@ -17825,11 +17825,11 @@ static int get_search_arg(typval_st *varp, int *flagsp)
 }
 
 /// Shared by search() and searchpos() functions.
-static int search_cmn(typval_st *argvars, pos_T *match_pos, int *flagsp)
+static int search_cmn(typval_st *argvars, apos_st *match_pos, int *flagsp)
 {
     int flags;
-    pos_T pos;
-    pos_T save_cursor;
+    apos_st pos;
+    apos_st save_cursor;
     bool save_p_ws = p_ws;
     int dir;
     int retval = 0; // default: FAIL
@@ -18316,7 +18316,7 @@ static void f_searchdecl(typval_st *argvars,
 }
 
 /// Used by searchpair() and searchpairpos()
-static int searchpair_cmn(typval_st *argvars, pos_T *match_pos)
+static int searchpair_cmn(typval_st *argvars, apos_st *match_pos)
 {
     bool save_p_ws = p_ws;
     int dir;
@@ -18428,7 +18428,7 @@ static void f_searchpairpos(typval_st *argvars,
                             typval_st *rettv,
                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    pos_T match_pos;
+    apos_st match_pos;
     int lnum = 0;
     int col = 0;
     tv_list_alloc_ret(rettv);
@@ -18466,7 +18466,7 @@ long do_searchpair(uchar_kt *spat,
                    int dir,
                    uchar_kt *skip,
                    int flags,
-                   pos_T *match_pos,
+                   apos_st *match_pos,
                    linenum_kt lnum_stop,
                    long time_limit)
 {
@@ -18475,11 +18475,11 @@ long do_searchpair(uchar_kt *spat,
     uchar_kt *pat2 = NULL;
     uchar_kt *pat3 = NULL;
     long retval = 0;
-    pos_T pos;
-    pos_T firstpos;
-    pos_T foundpos;
-    pos_T save_cursor;
-    pos_T save_pos;
+    apos_st pos;
+    apos_st firstpos;
+    apos_st foundpos;
+    apos_st save_cursor;
+    apos_st save_pos;
     int n;
     int r;
     int nest = 1;
@@ -18668,7 +18668,7 @@ static void f_searchpos(typval_st *argvars,
                         typval_st *rettv,
                         func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    pos_T match_pos;
+    apos_st match_pos;
     int lnum = 0;
     int col = 0;
     int n;
@@ -19307,7 +19307,7 @@ static void f_setpos(typval_st *argvars,
                      typval_st *rettv,
                      func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    pos_T pos;
+    apos_st pos;
     int fnum;
     columnum_kt curswant = -1;
     rettv->vval.v_number = -1;
@@ -22457,7 +22457,7 @@ static void f_virtcol(typval_st *argvars,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     columnum_kt vcol = 0;
-    pos_T *fp;
+    apos_st *fp;
     int fnum = curbuf->b_fnum;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
 
@@ -23091,14 +23091,14 @@ static void f_xor(typval_st *argvars,
 /// @param[out] ret_fnum    Set to fnum for marks.
 ///
 /// @return Pointer to position or NULL in case of error (e.g. invalid type).
-pos_T *var2fpos(const typval_st *const tv,
+apos_st *var2fpos(const typval_st *const tv,
                 const int dollar_lnum,
                 int *const ret_fnum)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
-    static pos_T pos;
-    pos_T *pp;
+    static apos_st pos;
+    apos_st *pp;
 
     // Argument can be [lnum, col, coladd].
     if(tv->v_type == kNvarList)
@@ -23187,7 +23187,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         pp = getmark_buf_fnum(curbuf, (uint8_t)name[1], false, ret_fnum);
 
-        if(pp == NULL || pp == (pos_T *)-1 || pp->lnum <= 0)
+        if(pp == NULL || pp == (apos_st *)-1 || pp->lnum <= 0)
         {
             return NULL;
         }
@@ -23242,7 +23242,7 @@ FUNC_ATTR_NONNULL_ALL
 /// FAIL when conversion is not possible,
 /// doesn't check the position for validity.
 static int list2fpos(typval_st *arg,
-                     pos_T *posp,
+                     apos_st *posp,
                      int *fnump,
                      columnum_kt *curswantp)
 {

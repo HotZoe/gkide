@@ -2026,7 +2026,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
             else if(*ea.cmd == '*')
             {
                 // '*' - visual area
-                pos_T *fp;
+                apos_st *fp;
 
                 if(ea.addr_type != ADDR_LINES)
                 {
@@ -4545,8 +4545,8 @@ static linenum_kt get_address(exarg_T *eap,
     int i;
     long n;
     uchar_kt  *cmd;
-    pos_T pos;
-    pos_T *fp;
+    apos_st pos;
+    apos_st *fp;
     linenum_kt lnum;
     fbuf_st *buf;
     cmd = skipwhite(*ptr);
@@ -4680,7 +4680,7 @@ static linenum_kt get_address(exarg_T *eap,
                     fp = getmark(*cmd, to_other_file && cmd[1] == NUL);
                     ++cmd;
 
-                    if(fp == (pos_T *)-1)
+                    if(fp == (apos_st *)-1)
                     {
                         // Jumped to another file.
                         lnum = curwin->w_cursor.lnum;
@@ -10357,7 +10357,7 @@ FILE *open_exfile(uchar_kt *fname, int forceit, char *mode)
 /// ":mark" and ":k".
 static void ex_mark(exarg_T *eap)
 {
-    pos_T pos;
+    apos_st pos;
 
     if(*eap->arg == NUL)
     {

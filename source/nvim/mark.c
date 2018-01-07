@@ -75,7 +75,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Set named mark "c" to position "pos".
 /// When "c" is upper case use file "fnum".
 /// Returns OK on success, FAIL if bad name given.
-int setmark_pos(int c, pos_T *pos, int fnum)
+int setmark_pos(int c, apos_st *pos, int fnum)
 {
     int i;
 
@@ -223,15 +223,15 @@ void checkpcmark(void)
 }
 
 /// move "count" positions in the jump list (count may be negative)
-pos_T *movemark(int count)
+apos_st *movemark(int count)
 {
-    pos_T *pos;
+    apos_st *pos;
     xfmark_T *jmp;
     cleanup_jumplist();
 
     if(curwin->w_jumplistlen == 0) // nothing to jump to
     {
-        return (pos_T *)NULL;
+        return (apos_st *)NULL;
     }
 
     for(;;)
@@ -239,7 +239,7 @@ pos_T *movemark(int count)
         if(curwin->w_jumplistidx + count < 0
            || curwin->w_jumplistidx + count >= curwin->w_jumplistlen)
         {
-            return (pos_T *)NULL;
+            return (apos_st *)NULL;
         }
 
         // if first CTRL-O or CTRL-I command after a jump, add cursor position
@@ -252,7 +252,7 @@ pos_T *movemark(int count)
 
             if(curwin->w_jumplistidx + count < 0)
             {
-                return (pos_T *)NULL;
+                return (apos_st *)NULL;
             }
         }
 
@@ -276,12 +276,12 @@ pos_T *movemark(int count)
             if(buflist_getfile(jmp->fmark.fnum,
                                jmp->fmark.mark.lnum, 0, FALSE) == FAIL)
             {
-                return (pos_T *)NULL;
+                return (apos_st *)NULL;
             }
 
             // Set lnum again, autocommands my have changed it
             curwin->w_cursor = jmp->fmark.mark;
-            pos = (pos_T *)-1;
+            pos = (apos_st *)-1;
         }
         else
         {
@@ -293,13 +293,13 @@ pos_T *movemark(int count)
 }
 
 /// Move "count" positions in the changelist (count may be negative).
-pos_T *movechangelist(int count)
+apos_st *movechangelist(int count)
 {
     int n;
 
     if(curbuf->b_changelistlen == 0) // nothing to jump to
     {
-        return (pos_T *)NULL;
+        return (apos_st *)NULL;
     }
 
     n = curwin->w_changelistidx;
@@ -308,7 +308,7 @@ pos_T *movechangelist(int count)
     {
         if(n == 0)
         {
-            return (pos_T *)NULL;
+            return (apos_st *)NULL;
         }
 
         n = 0;
@@ -317,7 +317,7 @@ pos_T *movechangelist(int count)
     {
         if(n == curbuf->b_changelistlen - 1)
         {
-            return (pos_T *)NULL;
+            return (apos_st *)NULL;
         }
 
         n = curbuf->b_changelistlen - 1;
@@ -337,25 +337,25 @@ pos_T *movechangelist(int count)
 /// NULL store the fnum there for '0, 'A etc., don't edit another file.
 ///
 /// @return
-/// - pointer to pos_T if found.  lnum is 0 when mark not set, -1 when mark is
+/// - pointer to apos_st if found.  lnum is 0 when mark not set, -1 when mark is
 ///   in another file which can't be gotten. (caller needs to check lnum!)
 /// - NULL if there is no mark called 'c'.
 /// - -1 if mark is in other file and jumped there (only if changefile is TRUE)
-pos_T *getmark_buf(fbuf_st *buf, int c, int changefile)
+apos_st *getmark_buf(fbuf_st *buf, int c, int changefile)
 {
     return getmark_buf_fnum(buf, c, changefile, NULL);
 }
 
-pos_T *getmark(int c, int changefile)
+apos_st *getmark(int c, int changefile)
 {
     return getmark_buf_fnum(curbuf, c, changefile, NULL);
 }
 
-pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
+apos_st *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
 {
-    pos_T *posp;
-    pos_T *startp, *endp;
-    static pos_T pos_copy;
+    apos_st *posp;
+    apos_st *startp, *endp;
+    static apos_st pos_copy;
     posp = NULL;
 
     // Check for special key, can't be a mark
@@ -395,7 +395,7 @@ pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
     }
     else if(c == '{' || c == '}') // to previous/next paragraph
     {
-        pos_T pos;
+        apos_st pos;
         oparg_T oa;
         int slcb = listcmd_busy;
         pos = curwin->w_cursor;
@@ -412,7 +412,7 @@ pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
     }
     else if(c == '(' || c == ')') // to previous/next sentence
     {
-        pos_T pos;
+        apos_st pos;
         int slcb = listcmd_busy;
         pos = curwin->w_cursor;
         listcmd_busy = TRUE; // avoid that '' is changed
@@ -497,7 +497,7 @@ pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
                 {
                     // Set the lnum now, autocommands could have changed it
                     curwin->w_cursor = namedfm[c].fmark.mark;
-                    return (pos_T *)-1;
+                    return (apos_st *)-1;
                 }
 
                 pos_copy.lnum = -1; // can't get file
@@ -520,12 +520,12 @@ pos_T *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
 /// @param begin_line
 ///
 /// @return
-/// Returns pointer to pos_T of the next mark or NULL if no mark is found.
-pos_T *getnextmark(pos_T *startpos, int dir, int begin_line)
+/// Returns pointer to apos_st of the next mark or NULL if no mark is found.
+apos_st *getnextmark(apos_st *startpos, int dir, int begin_line)
 {
     int i;
-    pos_T *result = NULL;
-    pos_T pos;
+    apos_st *result = NULL;
+    apos_st pos;
     pos = *startpos;
 
     // When searching backward and leaving the cursor on the first non-blank,
@@ -644,7 +644,7 @@ static void fmarks_check_one(xfmark_T *fm, uchar_kt *name, fbuf_st *buf)
 
 /// Check a if a position from a mark is valid.
 /// Give and error message and return FAIL if not.
-int check_mark(pos_T *pos)
+int check_mark(apos_st *pos)
 {
     if(pos == NULL)
     {
@@ -717,7 +717,7 @@ uchar_kt *fm_getname(fmark_T *fmark, int lead_len)
 
 /// Return the line at mark "mp".  Truncate to fit in window.
 /// The returned string has been allocated.
-static uchar_kt *mark_line(pos_T *mp, int lead_len)
+static uchar_kt *mark_line(apos_st *mp, int lead_len)
 {
     uchar_kt *s, *p;
     int len;
@@ -809,7 +809,7 @@ void do_marks(exarg_T *eap)
 /// @param current  in current file
 static void show_one_mark(int c,
                           uchar_kt *arg,
-                          pos_T *p,
+                          apos_st *p,
                           uchar_kt *name,
                           int current)
 {
@@ -1193,7 +1193,7 @@ static void mark_adjust_internal(linenum_kt line1,
     int i;
     int fnum = curbuf->b_fnum;
     linenum_kt *lp;
-    static pos_T initpos = INIT_POS_T(1, 0, 0);
+    static apos_st initpos = INIT_POS_T(1, 0, 0);
 
     if(line2 < line1 && amount_after == 0L) // nothing to do
     {
@@ -1401,7 +1401,7 @@ void mark_col_adjust(linenum_kt lnum,
 {
     int i;
     int fnum = curbuf->b_fnum;
-    pos_T *posp;
+    apos_st *posp;
 
     if((col_amount == 0L && lnum_amount == 0L) || cmdmod.lockmarks)
     {
@@ -1912,7 +1912,7 @@ void free_all_marks(void)
 ///
 /// @param[in]  buf  Buffer to adjust position in.
 /// @param[out]  lp  Position to adjust.
-void mark_mb_adjustpos(fbuf_st *buf, pos_T *lp)
+void mark_mb_adjustpos(fbuf_st *buf, apos_st *lp)
 FUNC_ATTR_NONNULL_ALL
 {
     if(lp->col > 0 || lp->coladd > 1)

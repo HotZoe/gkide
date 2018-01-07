@@ -11,7 +11,7 @@
 /// String searches
 ///
 /// The string search functions are divided into two levels:
-/// - lowest:  searchit(); uses a pos_T for starting position and found match.
+/// - lowest:  searchit(); uses a apos_st for starting position and found match.
 /// - highest: do_search(); uses curwin->w_cursor; calls searchit().
 ///
 /// The last search pattern is remembered for repeating the same search.
@@ -582,7 +582,7 @@ void last_pat_prog(regmmatch_T *regmatch)
 /// one if there was none.
 int searchit(win_st *win,
              fbuf_st *buf,
-             pos_T *pos,
+             apos_st *pos,
              int dir,
              uchar_kt *pat,
              long count,
@@ -596,10 +596,10 @@ int searchit(win_st *win,
     regmmatch_T regmatch;
     uchar_kt *ptr;
     columnum_kt matchcol;
-    lpos_T endpos;
-    lpos_T matchpos;
+    bpos_st endpos;
+    bpos_st matchpos;
     int loop;
-    pos_T start_pos;
+    apos_st start_pos;
     int at_first_line;
     int extra_col;
     int start_char_len;
@@ -1167,7 +1167,7 @@ int do_search(oparg_T *oap,
               int options,
               proftime_kt *tm)
 {
-    pos_T pos; // position of the last match
+    apos_st pos; // position of the last match
     uchar_kt *searchstr;
     struct soffset old_off;
     int retval; // Return value
@@ -1615,7 +1615,7 @@ end_do_search:
 ///
 /// @return
 /// OK for success, or FAIL if no line found.
-int search_for_exact_line(fbuf_st *buf, pos_T *pos, int dir, uchar_kt *pat)
+int search_for_exact_line(fbuf_st *buf, apos_st *pos, int dir, uchar_kt *pat)
 {
     linenum_kt start = 0;
     uchar_kt *ptr;
@@ -1883,7 +1883,7 @@ int searchc(cmdarg_T *cap, int t_cmd)
 ///find the matching paren or brace
 ///
 /// Improvement over vi: Braces inside quotes are ignored.
-pos_T *findmatch(oparg_T *oap, int initc)
+apos_st *findmatch(oparg_T *oap, int initc)
 {
     return findmatchlimit(oap, initc, 0, 0);
 }
@@ -1911,7 +1911,7 @@ static int check_prevcol(uchar_kt *linep, int col, int ch, int *prevcol)
 
 /// Raw string start is found at linep[startpos.col - 1].
 /// Return true if the matching end can be found between startpos and endpos.
-static int find_rawstring_end(uchar_kt *linep, pos_T *startpos, pos_T *endpos)
+static int find_rawstring_end(uchar_kt *linep, apos_st *startpos, apos_st *endpos)
 {
     uchar_kt *p;
     uchar_kt *delim_copy;
@@ -1982,9 +1982,9 @@ static int find_rawstring_end(uchar_kt *linep, pos_T *startpos, pos_T *endpos)
 /// - FM_BLOCKSTOP  stop at start/end of block ({ or } in column 0)
 /// - FM_SKIPCOMM   skip comments (not implemented yet!)
 ///
-pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
+apos_st *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
 {
-    static pos_T pos; // current search position
+    static apos_st pos; // current search position
     int findc = 0; // matching brace
     int c;
     int count = 0; // cumulative number of braces
@@ -1997,7 +1997,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
     int at_start; // do_quotes value at start position
     int hash_dir = 0; // Direction searched for # things
     int comment_dir = 0; // Direction searched for comments
-    pos_T match_pos; // Where last slash-star was found
+    apos_st match_pos; // Where last slash-star was found
     int start_in_quotes; // start position is in quotes
     int traveled = 0; // how far we've searched so far
     int ignore_cend = FALSE; // ignore comment end
@@ -2736,7 +2736,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
         return &pos;
     }
 
-    return (pos_T *)NULL; // never found it
+    return (apos_st *)NULL; // never found it
 }
 
 /// Check if line[] contains a / / comment.
@@ -2822,8 +2822,8 @@ static int check_linecomment(uchar_kt *line)
 /// @param c char to show match for
 void showmatch(int c)
 {
-    pos_T *lpos, save_cursor;
-    pos_T mpos;
+    apos_st *lpos, save_cursor;
+    apos_st mpos;
     columnum_kt vcol;
     long save_so;
     long save_siso;
@@ -2932,9 +2932,9 @@ void showmatch(int c)
 /// OK if the next sentence was found.
 int findsent(int dir, long count)
 {
-    pos_T pos, tpos;
+    apos_st pos, tpos;
     int c;
-    int (*func)(pos_T *);
+    int (*func)(apos_st *);
     int startlnum;
     int noskip = FALSE; // do not skip blanks
     int cpo_J;
@@ -3626,7 +3626,7 @@ static void back_in_line(void)
     }
 }
 
-static void find_first_blank(pos_T *posp)
+static void find_first_blank(apos_st *posp)
 {
     int c;
 
@@ -3680,8 +3680,8 @@ int current_word(oparg_T *oap,
                  int include,
                  int bigword)
 {
-    pos_T start_pos;
-    pos_T pos;
+    apos_st start_pos;
+    apos_st pos;
     bool inclusive = true;
     int include_white = FALSE;
     cls_bigword = bigword;
@@ -3873,8 +3873,8 @@ int current_word(oparg_T *oap,
 /// When Visual active, extend it by one or more sentences.
 int current_sent(oparg_T *oap, long count, int include)
 {
-    pos_T start_pos;
-    pos_T pos;
+    apos_st start_pos;
+    apos_st pos;
     int start_blank;
     int c;
     int at_start_sent;
@@ -4121,11 +4121,11 @@ int current_block(oparg_T *oap,
                   int what,
                   int other)
 {
-    pos_T old_pos;
-    pos_T *pos = NULL;
-    pos_T start_pos;
-    pos_T *end_pos;
-    pos_T old_start, old_end;
+    apos_st old_pos;
+    apos_st *pos = NULL;
+    apos_st start_pos;
+    apos_st *end_pos;
+    apos_st old_start, old_end;
     uchar_kt *save_cpo;
     int sol = FALSE; // '{' at start of line
     old_pos = curwin->w_cursor;
@@ -4297,7 +4297,7 @@ static int in_html_tag(int end_tag)
     uchar_kt *p;
     int c;
     int lc = NUL;
-    pos_T pos;
+    apos_st pos;
 
     if(enc_dbcs)
     {
@@ -4394,10 +4394,10 @@ int current_tagblock(oparg_T *oap,long count_arg, int include)
 {
     long count = count_arg;
     long n;
-    pos_T old_pos;
-    pos_T start_pos;
-    pos_T end_pos;
-    pos_T old_start, old_end;
+    apos_st old_pos;
+    apos_st start_pos;
+    apos_st end_pos;
+    apos_st old_start, old_end;
     uchar_kt *spat, *epat;
     uchar_kt *p;
     uchar_kt *cp;
@@ -5250,7 +5250,7 @@ int current_quote(oparg_T *oap, long count, int include, int quotechar)
 int current_search(long count, int forward)
 {
     bool old_p_ws = p_ws;
-    pos_T save_VIsual = VIsual;
+    apos_st save_VIsual = VIsual;
 
     // wrapping should not occur
     p_ws = false;
@@ -5261,8 +5261,8 @@ int current_search(long count, int forward)
         dec_cursor();
     }
 
-    pos_T orig_pos; // position of the cursor at beginning
-    pos_T pos; // position after the pattern
+    apos_st orig_pos; // position of the cursor at beginning
+    apos_st pos; // position after the pattern
 
     if(VIsual_active)
     {
@@ -5356,7 +5356,7 @@ int current_search(long count, int forward)
     }
 
     int flags = forward ? SEARCH_END : 0;
-    pos_T start_pos = pos;
+    apos_st start_pos = pos;
 
     // Check again from the current cursor position,
     // since the next match might actually be only one char wide
@@ -5421,7 +5421,7 @@ static int is_one_char(uchar_kt *pattern, bool move)
     regmmatch_T regmatch;
     int nmatched = 0;
     int result = -1;
-    pos_T pos;
+    apos_st pos;
     int save_called_emsg = called_emsg;
     int flag = 0;
 

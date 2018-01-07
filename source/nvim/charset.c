@@ -1398,7 +1398,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param cursor
 /// @param end
 void getvcol(win_st *wp,
-             pos_T *pos,
+             apos_st *pos,
              columnum_kt *start,
              columnum_kt *cursor,
              columnum_kt *end)
@@ -1556,7 +1556,7 @@ void getvcol(win_st *wp,
 /// @param posp
 ///
 /// @retujrn The virtual cursor column.
-columnum_kt getvcol_nolist(pos_T *posp)
+columnum_kt getvcol_nolist(apos_st *posp)
 {
     int list_save = curwin->w_p_list;
     columnum_kt vcol;
@@ -1576,7 +1576,7 @@ columnum_kt getvcol_nolist(pos_T *posp)
 /// @param cursor
 /// @param end
 void getvvcol(win_st *wp,
-              pos_T *pos,
+              apos_st *pos,
               columnum_kt *start,
               columnum_kt *cursor,
               columnum_kt *end)
@@ -1648,8 +1648,8 @@ void getvvcol(win_st *wp,
 /// @param left
 /// @param right
 void getvcols(win_st *wp,
-              pos_T *pos1,
-              pos_T *pos2,
+              apos_st *pos1,
+              apos_st *pos2,
               columnum_kt *left,
               columnum_kt *right)
 {

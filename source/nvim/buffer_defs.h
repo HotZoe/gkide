@@ -275,7 +275,7 @@ struct wininfo_S
     wininfo_T *wi_next;  ///< next entry or NULL for last entry
     wininfo_T *wi_prev;  ///< previous entry or NULL for first entry
     win_st *wi_win;       ///< pointer to window that did set wi_fpos
-    pos_T wi_fpos;       ///< last cursor position in the file
+    apos_st wi_fpos;       ///< last cursor position in the file
     bool wi_optset;      ///< true when wi_opt has useful values
     winopt_T wi_opt;     ///< local window options
     bool wi_fold_manual; ///< copy of w_fold_manual
@@ -529,11 +529,11 @@ struct file_buffer_s
     garray_st b_ucmds;
 
     /// start and end of an operator, also used for '[ and ']
-    pos_T b_op_start;
+    apos_st b_op_start;
 
     /// used for Insstart_orig
-    pos_T b_op_start_orig;
-    pos_T b_op_end;
+    apos_st b_op_start_orig;
+    apos_st b_op_end;
 
     /// Have we read ShaDa marks yet ?
     bool b_marks_read;
@@ -859,7 +859,7 @@ typedef struct
 /// number of positions supported by matchaddpos()
 #define MAXPOSMATCH 8
 
-/// Same as lpos_T, but with additional field len.
+/// Same as bpos_st, but with additional field len.
 typedef struct
 {
     linenum_kt  lnum; ///< line number
@@ -916,7 +916,7 @@ struct window_s
     bool w_closing;
 
     frame_T *w_frame; ///< frame containing this window
-    pos_T w_cursor;   ///< cursor position in buffer
+    apos_st w_cursor;   ///< cursor position in buffer
 
     /// The column we'd like to be at. This is used to try to
     /// stay in the same column for up/down cursor motions.
@@ -969,7 +969,7 @@ struct window_s
     // w_valid is a bitfield of flags, which indicate if specific values are
     // valid or need to be recomputed.
     int w_valid;
-    pos_T w_valid_cursor;    ///< last known position of w_cursor, used  to adjust w_valid
+    apos_st w_valid_cursor;    ///< last known position of w_cursor, used  to adjust w_valid
     columnum_kt w_valid_leftcol; ///< last known w_leftcol
 
     // w_cline_height is the number of physical lines taken by the buffer line
@@ -1015,7 +1015,7 @@ struct window_s
     int w_redr_status;     ///< if TRUE status line must be redrawn
 
     // remember what is shown in the ruler for this window (if 'ruler' set)
-    pos_T w_ru_cursor;        ///< cursor position shown in ruler
+    apos_st w_ru_cursor;        ///< cursor position shown in ruler
     columnum_kt w_ru_virtcol;     ///< virtcol shown in ruler
     linenum_kt w_ru_topline;    ///< topline shown in ruler
     linenum_kt w_ru_line_count; ///< line count used for ruler
@@ -1063,8 +1063,8 @@ struct window_s
     // The w_prev_pcmark field is used to check whether we really did jump to
     // a new line after setting the w_pcmark. If not, then we revert to
     // using the previous w_pcmark.
-    pos_T w_pcmark;      ///< previous context mark
-    pos_T w_prev_pcmark; ///< previous w_pcmark
+    apos_st w_pcmark;      ///< previous context mark
+    apos_st w_prev_pcmark; ///< previous w_pcmark
 
     /// contains old cursor positions
     xfmark_T w_jumplist[JUMPLISTSIZE];

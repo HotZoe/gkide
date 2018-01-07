@@ -2688,7 +2688,7 @@ win_found:
         }
         else
         {
-            pos_T save_cursor;
+            apos_st save_cursor;
 
             // Move the cursor to the first line in the buffer
             save_cursor = curwin->w_cursor;

@@ -12,8 +12,8 @@
 /// Structure to store info about the Visual area.
 typedef struct
 {
-    pos_T vi_start;      ///< start pos of last VIsual
-    pos_T vi_end;        ///< end position of last VIsual
+    apos_st vi_start;      ///< start pos of last VIsual
+    apos_st vi_end;        ///< end position of last VIsual
     int vi_mode;         ///< VIsual_mode of last VIsual
     columnum_kt vi_curswant; ///< MAXCOL from w_curswant
 } visualinfo_T;
@@ -65,7 +65,7 @@ struct u_header
     int uh_walk;                ///< used by undo_time()
     u_entry_T *uh_entry;        ///< pointer to first entry
     u_entry_T *uh_getbot_entry; ///< pointer to where ue_bot must be set
-    pos_T uh_cursor;            ///< cursor position before saving
+    apos_st uh_cursor;            ///< cursor position before saving
     long uh_cursor_vcol;
     int uh_flags;               ///< see below
     fmark_T uh_namedm[NMARKS];  ///< marks before undo/after redo

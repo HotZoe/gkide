@@ -1968,7 +1968,7 @@ int op_delete(oparg_T *oap)
         else
         {
             // delete characters between lines
-            pos_T curpos;
+            apos_st curpos;
 
             // save deleted and changed lines for undo
             if(u_save((linenum_kt)(curwin->w_cursor.lnum - 1),
@@ -2026,7 +2026,7 @@ static void mb_adjust_opend(oparg_T *oap)
 }
 
 /// Put character 'c' at position 'lp'
-static inline void pchar(pos_T lp, int c)
+static inline void pchar(apos_st lp, int c)
 {
     assert(c <= UCHAR_MAX);
     *(ml_get_buf(curbuf, lp.lnum, true) + lp.col) = (uchar_kt)c;
@@ -2089,7 +2089,7 @@ int op_replace(oparg_T *oap, int c)
             // coladd offset as part of "startspaces"
             if(virtual_op && bd.is_short && *bd.textstart == NUL)
             {
-                pos_T vpos;
+                apos_st vpos;
                 vpos.lnum = curwin->w_cursor.lnum;
                 getvpos(&vpos, oap->start_vcol);
                 bd.startspaces += vpos.coladd;
@@ -2331,7 +2331,7 @@ int op_replace(oparg_T *oap, int c)
 /// Also for "gu", "gU" and "g?".
 void op_tilde(oparg_T *oap)
 {
-    pos_T pos;
+    apos_st pos;
     struct block_def bd;
     int did_change = FALSE;
 
@@ -2438,7 +2438,7 @@ void op_tilde(oparg_T *oap)
 /// Also works correctly when the number of bytes changes.
 ///
 /// @returns TRUE if some character was changed.
-static int swapchars(int op_type, pos_T *pos, int length)
+static int swapchars(int op_type, apos_st *pos, int length)
 {
     int todo;
     int did_change = 0;
@@ -2473,7 +2473,7 @@ static int swapchars(int op_type, pos_T *pos, int length)
 /// - else swap case of character at 'pos'
 ///
 /// @returns TRUE when something actually changed.
-int swapchar(int op_type, pos_T *pos)
+int swapchar(int op_type, apos_st *pos)
 {
     int c;
     int nc;
@@ -2487,7 +2487,7 @@ int swapchar(int op_type, pos_T *pos)
 
     if(op_type == OP_UPPER && c == 0xdf)
     {
-        pos_T sp = curwin->w_cursor;
+        apos_st sp = curwin->w_cursor;
 
         // Special handling of German sharp s: change to "SS".
         curwin->w_cursor = *pos;
@@ -2532,7 +2532,7 @@ int swapchar(int op_type, pos_T *pos)
     {
         if(enc_utf8 && (c >= 0x80 || nc >= 0x80))
         {
-            pos_T sp = curwin->w_cursor;
+            apos_st sp = curwin->w_cursor;
             curwin->w_cursor = *pos;
 
             // don't use del_char(), it also removes composing chars
@@ -2558,7 +2558,7 @@ void op_insert(oparg_T *oap, long count1)
     uchar_kt *firstline, *ins_text;
     struct block_def bd;
     int i;
-    pos_T t1;
+    apos_st t1;
 
     // edit() changes this - record it for OP_APPEND
     bd.is_MAX = (curwin->w_curswant == MAXCOL);
@@ -2862,7 +2862,7 @@ int op_change(oparg_T *oap)
 
                 if(!bd.is_short || virtual_op)
                 {
-                    pos_T vpos;
+                    apos_st vpos;
 
                     // If the block starts in virtual space, count the
                     // initial coladd offset as part of "startspaces"
@@ -3345,13 +3345,13 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     struct block_def bd;
     uchar_kt **y_array = NULL;
     long nr_lines = 0;
-    pos_T new_cursor;
+    apos_st new_cursor;
     int indent;
     int orig_indent = 0; // init for gcc
     int indent_diff = 0; // init for gcc
     int first_indent = TRUE;
     int lendiff = 0;
-    pos_T old_pos;
+    apos_st old_pos;
     uchar_kt *insert_string = NULL;
     int allocated = FALSE;
     long cnt;
@@ -5632,7 +5632,7 @@ static void block_prep(oparg_T *oap,
 /// @param[in]  g_cmd    Prefixed with `g`.
 void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
 {
-    pos_T pos;
+    apos_st pos;
     struct block_def bd;
     ssize_t change_cnt = 0;
     linenum_kt amount = Prenum1;
@@ -5657,7 +5657,7 @@ void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
     {
         int one_change;
         int length;
-        pos_T startpos;
+        apos_st startpos;
 
         if(u_save((linenum_kt)(oap->start.lnum - 1),
                   (linenum_kt)(oap->end.lnum + 1)) == FAIL)
@@ -5772,7 +5772,7 @@ void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
 /// @param Prenum1  Amount of addition or subtraction.
 ///
 /// @return true if some character was changed.
-int do_addsub(int op_type, pos_T *pos, int length, linenum_kt Prenum1)
+int do_addsub(int op_type, apos_st *pos, int length, linenum_kt Prenum1)
 {
     int col;
     uchar_kt *buf1;
@@ -5794,10 +5794,10 @@ int do_addsub(int op_type, pos_T *pos, int length, linenum_kt Prenum1)
     bool was_positive = true;
     bool visual = VIsual_active;
     bool did_change = false;
-    pos_T save_cursor = curwin->w_cursor;
+    apos_st save_cursor = curwin->w_cursor;
     int maxlen = 0;
-    pos_T startpos;
-    pos_T endpos;
+    apos_st startpos;
+    apos_st endpos;
     dohex = (vim_strchr(curbuf->b_p_nf, 'x') != NULL); // "heX"
     dooct = (vim_strchr(curbuf->b_p_nf, 'o') != NULL); // "Octal"
     dobin = (vim_strchr(curbuf->b_p_nf, 'b') != NULL); // "Bin"
@@ -6863,7 +6863,7 @@ void cursor_pos_info(dict_st *dict)
     int eol_size;
     long last_check = 100000L;
     long line_count_selected = 0;
-    pos_T min_pos, max_pos;
+    apos_st min_pos, max_pos;
     oparg_T oparg;
     struct block_def bd;
     const int l_VIsual_active = VIsual_active;

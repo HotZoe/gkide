@@ -2179,7 +2179,7 @@ static void fold_line(win_st *wp,
                       int row)
 {
     uchar_kt buf[FOLD_TEXT_LEN];
-    pos_T *top, *bot;
+    apos_st *top, *bot;
     linenum_kt lnume = lnum + fold_count - 1;
     int len;
     uchar_kt *text;
@@ -2776,9 +2776,9 @@ static int win_line(win_st *wp,
     int fromcol, tocol; // start/end of inverting
     int fromcol_prev = -2; // start of inverting after cursor
     int noinvcur = FALSE; // don't invert the cursor
-    pos_T *top, *bot;
+    apos_st *top, *bot;
     int lnum_in_visual_area = FALSE;
-    pos_T pos;
+    apos_st pos;
     long v;
     int char_attr = 0; // attributes for next character
     int attr_pri = FALSE; // char_attr has priority

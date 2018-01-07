@@ -1198,15 +1198,15 @@ static u_entry_T *unserialize_uep(bufinfo_T *bi,
 }
 
 /// Serializes "pos".
-static void serialize_pos(bufinfo_T *bi, pos_T pos)
+static void serialize_pos(bufinfo_T *bi, apos_st pos)
 {
     undo_write_bytes(bi, (uintmax_t)pos.lnum, 4);
     undo_write_bytes(bi, (uintmax_t)pos.col, 4);
     undo_write_bytes(bi, (uintmax_t)pos.coladd, 4);
 }
 
-/// Unserializes the pos_T at the current position.
-static void unserialize_pos(bufinfo_T *bi, pos_T *pos)
+/// Unserializes the apos_st at the current position.
+static void unserialize_pos(bufinfo_T *bi, apos_st *pos)
 {
     pos->lnum = undo_read_4c(bi);
 

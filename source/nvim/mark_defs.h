@@ -34,7 +34,7 @@
 /// Structure defining single local mark
 typedef struct filemark
 {
-    pos_T mark;               ///< Cursor position.
+    apos_st mark;               ///< Cursor position.
     int fnum;                 ///< File number.
     Timestamp timestamp;      ///< Time when this mark was last set.
     dict_st *additional_data;  ///< Additional data from ShaDa file.

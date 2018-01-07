@@ -98,7 +98,7 @@ typedef struct command_line_state
     int hiscnt;        ///< current history line in use
     int histype;       ///< history type to be used
 
-    pos_T old_cursor;
+    apos_st old_cursor;
     columnum_kt old_curswant;
     columnum_kt old_leftcol;
     linenum_kt old_topline;
@@ -1895,7 +1895,7 @@ static int command_line_changed(CommandLineState *s)
     // 'incsearch' highlighting.
     if(p_is && !cmd_silent && (s->firstc == '/' || s->firstc == '?'))
     {
-        pos_T end_pos;
+        apos_st end_pos;
         proftime_kt tm;
 
         // if there is a character waiting, search and redraw later
@@ -1968,7 +1968,7 @@ static int command_line_changed(CommandLineState *s)
 
         if(s->i != 0)
         {
-            pos_T save_pos = curwin->w_cursor;
+            apos_st save_pos = curwin->w_cursor;
 
             // First move cursor to end of match, then to the start. This
             // moves the whole match onto the screen when 'nowrap' is set.

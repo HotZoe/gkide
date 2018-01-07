@@ -1728,7 +1728,7 @@ size_t spell_move_to(win_st *wp,
                      hlf_T *attrp)
 {
     linenum_kt lnum;
-    pos_T found_pos;
+    apos_st found_pos;
     size_t found_len = 0;
     uchar_kt *line;
     uchar_kt *p;
@@ -3566,7 +3566,7 @@ int spell_check_sps(void)
 void spell_suggest(int count)
 {
     uchar_kt *line;
-    pos_T prev_cursor = curwin->w_cursor;
+    apos_st prev_cursor = curwin->w_cursor;
     uchar_kt wcopy[MAXWLEN + 2];
     uchar_kt *p;
     int c;
@@ -3931,7 +3931,7 @@ static bool check_need_cap(linenum_kt lnum, columnum_kt col)
 /// ":spellrepall"
 void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    pos_T pos = curwin->w_cursor;
+    apos_st pos = curwin->w_cursor;
     uchar_kt *frompat;
     int addlen;
     uchar_kt *line;

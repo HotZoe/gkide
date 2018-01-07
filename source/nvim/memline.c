@@ -2101,7 +2101,7 @@ uchar_kt *ml_get(linenum_kt lnum)
 }
 
 /// Return pointer to position "pos".
-uchar_kt *ml_get_pos(pos_T *pos)
+uchar_kt *ml_get_pos(apos_st *pos)
 {
     return ml_get_buf(curbuf, pos->lnum, FALSE) + pos->col;
 }
@@ -4876,7 +4876,7 @@ void goto_byte(long cnt)
 /// Return 2 when moving forward onto a NUL at the end of the line).
 /// Return -1 when at the end of file.
 /// Return 0 otherwise.
-int inc(pos_T *lp)
+int inc(apos_st *lp)
 {
     uchar_kt  *p = ml_get_pos(lp);
 
@@ -4908,7 +4908,7 @@ int inc(pos_T *lp)
 }
 
 /// Same as inc(), but skip NUL at the end of non-empty lines.
-int incl(pos_T *lp)
+int incl(apos_st *lp)
 {
     int r;
 
@@ -4920,7 +4920,7 @@ int incl(pos_T *lp)
     return r;
 }
 
-int dec(pos_T *lp)
+int dec(apos_st *lp)
 {
     uchar_kt *p;
     lp->coladd = 0;
@@ -4956,7 +4956,7 @@ int dec(pos_T *lp)
 }
 
 /// Same as dec(), but skip NUL at the end of non-empty lines.
-int decl(pos_T *lp)
+int decl(apos_st *lp)
 {
     int r;
 

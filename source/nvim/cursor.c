@@ -32,7 +32,7 @@ int getviscol(void)
 int getviscol2(columnum_kt col, columnum_kt coladd)
 {
     columnum_kt x;
-    pos_T pos;
+    apos_st pos;
     pos.lnum = curwin->w_cursor.lnum;
     pos.col = col;
     pos.coladd = coladd;
@@ -92,7 +92,7 @@ int coladvance(columnum_kt wcol)
 /// @param addspaces  change the text to achieve our goal?
 /// @param finetune   change char offset for the exact column
 /// @param wcol       column to move to
-static int coladvance2(pos_T *pos, bool addspaces, bool finetune, columnum_kt wcol)
+static int coladvance2(apos_st *pos, bool addspaces, bool finetune, columnum_kt wcol)
 {
     int idx;
     uchar_kt *ptr;
@@ -281,7 +281,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, columnum_kt wc
 
 /// Return in "pos" the position of the cursor advanced to screen column "wcol".
 /// return OK if desired column is reached, FAIL if not
-int getvpos(pos_T *pos, columnum_kt wcol)
+int getvpos(apos_st *pos, columnum_kt wcol)
 {
     return coladvance2(pos, false, virtual_active(), wcol);
 }
@@ -337,7 +337,7 @@ linenum_kt get_cursor_rel_lnum(win_st *wp, linenum_kt lnum)
 // Make sure "pos.lnum" and "pos.col" are valid in "buf".
 
 // This allows for the col to be on the NUL byte.
-void check_pos(fbuf_st *buf, pos_T *pos)
+void check_pos(fbuf_st *buf, apos_st *pos)
 {
     uchar_kt *line;
     columnum_kt len;

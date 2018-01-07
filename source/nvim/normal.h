@@ -35,9 +35,9 @@ typedef struct oparg_S
     bool inclusive;    ///< true if char motion is inclusive (only
                        ///< valid when motion_type is kMTCharWise)
     bool end_adjusted; ///< backuped b_op_end one char (only used by do_format())
-    pos_T start;       ///< start of the operator
-    pos_T end;         ///< end of the operator
-    pos_T cursor_start;///< cursor position before motion for "gw"
+    apos_st start;       ///< start of the operator
+    apos_st end;         ///< end of the operator
+    apos_st cursor_start;///< cursor position before motion for "gw"
 
     long line_count;   ///< number of lines from op_start to op_end (inclusive)
     bool empty;        ///< op_start and op_end the same (only used by op_change())

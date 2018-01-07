@@ -1113,7 +1113,7 @@ int find_wl_entry(win_st *win, linenum_kt lnum)
 /// Adjust the Visual area to include any fold at the start or end completely.
 void foldAdjustVisual(void)
 {
-    pos_T *start, *end;
+    apos_st *start, *end;
     uchar_kt *ptr;
 
     if(!VIsual_active || !hasAnyFolding(curwin))

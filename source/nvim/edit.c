@@ -178,7 +178,7 @@ static int compl_shows_dir = FORWARD;
 
 /// > 1 for postponed CTRL-N
 static int compl_pending = 0;
-static pos_T compl_startpos;
+static apos_st compl_startpos;
 
 /// column where the text starts that is being completed
 static columnum_kt compl_col = 0;
@@ -274,7 +274,7 @@ static void insert_enter(InsertState *s)
     // Do not do this for "r<CR>" or "grx".
     if(s->cmdchar != 'r' && s->cmdchar != 'v')
     {
-        pos_T save_cursor = curwin->w_cursor;
+        apos_st save_cursor = curwin->w_cursor;
 
         if(s->cmdchar == 'R')
         {
@@ -4384,7 +4384,7 @@ static fbuf_st *ins_compl_next_buf(fbuf_st *buf, int flag)
 /// @param base
 static void expand_by_function(int type, uchar_kt *base)
 {
-    pos_T pos;
+    apos_st pos;
     list_st *matchlist = NULL;
     dict_st *matchdict = NULL;
     uchar_kt *funcname;
@@ -4571,15 +4571,15 @@ FUNC_ATTR_NONNULL_ALL
 /// where we stopped searching before.
 /// This may return before finding all the matches.
 /// Return the total number of matches or -1 if still unknown -- Acevedo
-static int ins_compl_get_exp(pos_T *ini)
+static int ins_compl_get_exp(apos_st *ini)
 {
-    static pos_T first_match_pos;
-    static pos_T last_match_pos;
+    static apos_st first_match_pos;
+    static apos_st last_match_pos;
     static uchar_kt *e_cpt = (uchar_kt *)""; // curr. entry in 'complete'
     static int found_all = FALSE; // Found all matches of a certain type.
     static fbuf_st *ins_buf = NULL; // buffer being scanned
 
-    pos_T *pos;
+    apos_st *pos;
     uchar_kt **matches;
     int save_p_scs;
     bool save_p_ws;
@@ -5933,7 +5933,7 @@ static int ins_complete(int c, bool enable_pum)
             // set to 1 to obtain the length of text to use for completion.
             int col;
             uchar_kt *funcname;
-            pos_T pos;
+            apos_st pos;
             win_st *curwin_save;
             fbuf_st *curbuf_save;
 
@@ -7307,7 +7307,7 @@ static void internal_format(int textwidth,
 ///
 void auto_format(int trailblank, int prev_line)
 {
-    pos_T pos;
+    apos_st pos;
     columnum_kt len;
     uchar_kt *old;
     uchar_kt *new;
@@ -7541,7 +7541,7 @@ static void redo_literal(int c)
 /// For undo/redo it resembles hitting the <ESC> key.
 ///
 /// @param end_insert_pos  can be NULL
-static void start_arrow(pos_T *end_insert_pos)
+static void start_arrow(apos_st *end_insert_pos)
 {
     start_arrow_common(end_insert_pos, true);
 }
@@ -7551,7 +7551,7 @@ static void start_arrow(pos_T *end_insert_pos)
 ///
 /// @param end_insert_pos  can be NULL
 /// @param end_change      end undoable change
-static void start_arrow_with_change(pos_T *end_insert_pos, bool end_change)
+static void start_arrow_with_change(apos_st *end_insert_pos, bool end_change)
 {
     start_arrow_common(end_insert_pos, end_change);
 
@@ -7564,7 +7564,7 @@ static void start_arrow_with_change(pos_T *end_insert_pos, bool end_change)
 
 /// @param end_insert_pos  can be NULL
 /// @param end_change      end undoable change
-static void start_arrow_common(pos_T *end_insert_pos, bool end_change)
+static void start_arrow_common(apos_st *end_insert_pos, bool end_change)
 {
     // something has been inserted
     if(!arrow_used && end_change)
@@ -7593,7 +7593,7 @@ static void check_spell_redraw(void)
 /// Move backwards to a previous badly spelled word, if there is one.
 static void spell_back_to_badword(void)
 {
-    pos_T tpos = curwin->w_cursor;
+    apos_st tpos = curwin->w_cursor;
     spell_bad_len = spell_move_to(curwin, BACKWARD, TRUE, TRUE, NULL);
 
     if(curwin->w_cursor.col != tpos.col)
@@ -7659,7 +7659,7 @@ int stop_arrow(void)
 /// @param esc
 /// @param nomove          <c-\><c-o>, don't move cursor
 ///
-static void stop_insert(pos_T *end_insert_pos, int esc, int nomove)
+static void stop_insert(apos_st *end_insert_pos, int esc, int nomove)
 {
     int cc;
     uchar_kt *ptr;
@@ -7691,7 +7691,7 @@ static void stop_insert(pos_T *end_insert_pos, int esc, int nomove)
         // was actually inserted, otherwise undo won't work.
         if(!ins_need_undo && has_format_option(FO_AUTO))
         {
-            pos_T tpos = curwin->w_cursor;
+            apos_st tpos = curwin->w_cursor;
 
             // When the cursor is at the end of the line after a space the
             // formatting will move it to the following word. Avoid that by
@@ -7743,7 +7743,7 @@ static void stop_insert(pos_T *end_insert_pos, int esc, int nomove)
                        && curwin->w_cursor.lnum != end_insert_pos->lnum))
            && end_insert_pos->lnum <= curbuf->b_ml.ml_line_count)
         {
-            pos_T tpos = curwin->w_cursor;
+            apos_st tpos = curwin->w_cursor;
             curwin->w_cursor = *end_insert_pos;
             check_cursor_col(); // make sure it is not past the line
 
@@ -7919,7 +7919,7 @@ int oneright(void)
 
     if(virtual_active())
     {
-        pos_T prevpos = curwin->w_cursor;
+        apos_st prevpos = curwin->w_cursor;
 
         // Adjust for multi-wide char (excluding TAB)
         ptr = get_cursor_pos_ptr();
@@ -10095,7 +10095,7 @@ FUNC_ATTR_NONNULL_ARG(3)
 
 static void ins_mouse(int c)
 {
-    pos_T tpos;
+    apos_st tpos;
     win_st *old_curwin = curwin;
 
     if(!mouse_has(MOUSE_INSERT))
@@ -10135,7 +10135,7 @@ static void ins_mouse(int c)
 
 static void ins_mousescroll(int dir)
 {
-    pos_T tpos;
+    apos_st tpos;
     win_st *old_curwin = curwin;
     int did_scroll = FALSE;
     tpos = curwin->w_cursor;
@@ -10202,7 +10202,7 @@ static void ins_mousescroll(int dir)
 
 static void ins_left(bool end_change)
 {
-    pos_T tpos;
+    apos_st tpos;
 
     if((fdo_flags & FDO_HOR) && KeyTyped)
     {
@@ -10248,7 +10248,7 @@ static void ins_left(bool end_change)
 
 static void ins_home(int c)
 {
-    pos_T tpos;
+    apos_st tpos;
 
     if((fdo_flags & FDO_HOR) && KeyTyped)
     {
@@ -10271,7 +10271,7 @@ static void ins_home(int c)
 
 static void ins_end(int c)
 {
-    pos_T tpos;
+    apos_st tpos;
 
     if((fdo_flags & FDO_HOR) && KeyTyped)
     {
@@ -10399,7 +10399,7 @@ static void ins_s_right(void)
 /// @param startcol  when TRUE move to Insstart.col
 static void ins_up(int startcol)
 {
-    pos_T tpos;
+    apos_st tpos;
     linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
     undisplay_dollar();
@@ -10429,7 +10429,7 @@ static void ins_up(int startcol)
 
 static void ins_pageup(void)
 {
-    pos_T tpos;
+    apos_st tpos;
     undisplay_dollar();
 
     if(mod_mask & MOD_MASK_CTRL)
@@ -10460,7 +10460,7 @@ static void ins_pageup(void)
 /// @param startcol  when TRUE move to Insstart.col
 static void ins_down(int startcol)
 {
-    pos_T tpos;
+    apos_st tpos;
     linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
     undisplay_dollar();
@@ -10490,7 +10490,7 @@ static void ins_down(int startcol)
 
 static void ins_pagedown(void)
 {
-    pos_T tpos;
+    apos_st tpos;
     undisplay_dollar();
 
     if(mod_mask & MOD_MASK_CTRL)
@@ -10610,9 +10610,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         uchar_kt *ptr;
         uchar_kt *saved_line = NULL; // init for GCC
-        pos_T pos;
-        pos_T fpos;
-        pos_T *cursor;
+        apos_st pos;
+        apos_st fpos;
+        apos_st *cursor;
         columnum_kt want_vcol, vcol;
         int change_col = -1;
         int save_list = curwin->w_p_list;
@@ -11007,9 +11007,9 @@ static void ins_try_si(int c)
 {
     int i;
     int temp;
-    pos_T *pos;
+    apos_st *pos;
     uchar_kt *ptr;
-    pos_T old_pos;
+    apos_st old_pos;
 
     // do some very smart indenting when entering '{' or '}'
     if(((did_si || can_si_back) && c == '{') || (can_si && c == '}'))

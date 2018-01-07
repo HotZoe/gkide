@@ -2997,7 +2997,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(lnum == 0)
     {
         int fnum;
-        pos_T *const fp = var2fpos(tv, true, &fnum);
+        apos_st *const fp = var2fpos(tv, true, &fnum);
 
         if(fp != NULL)
         {

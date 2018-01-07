@@ -1662,7 +1662,7 @@ void ex_emenu(exarg_T *eap)
     }
     else if(eap->addr_count)
     {
-        pos_T tpos;
+        apos_st tpos;
         mode = (uchar_kt *)"Visual";
         idx = MENU_INDEX_VISUAL;
 

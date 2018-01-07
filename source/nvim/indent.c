@@ -499,7 +499,7 @@ int copy_indent(int size, uchar_kt *src)
 int get_number_indent(linenum_kt lnum)
 {
     columnum_kt col;
-    pos_T pos;
+    apos_st pos;
     regmatch_T regmatch;
     int lead_len = 0; // Length of comment leader.
 
@@ -628,7 +628,7 @@ int inindent(int extra)
 int get_expr_indent(void)
 {
     int indent;
-    pos_T save_pos;
+    apos_st save_pos;
     columnum_kt save_curswant;
     int save_set_curswant;
     int save_State;
@@ -694,7 +694,7 @@ int get_expr_indent(void)
 
 int get_lisp_indent(void)
 {
-    pos_T *pos, realpos, paren;
+    apos_st *pos, realpos, paren;
     int amount;
     uchar_kt *that;
     columnum_kt col;
