@@ -60,21 +60,21 @@ typedef struct scriptitem_S
     FileID file_id;
     bool sn_prof_on;        ///< true when script is/was profiled
     bool sn_pr_force;       ///< forceit: profile functions in this script
-    proftime_T sn_pr_child; ///< time set when going into first child
+    proftime_kt sn_pr_child; ///< time set when going into first child
     int sn_pr_nest;         ///< nesting for sn_pr_child
 
     // profiling the script as a whole
     int sn_pr_count;           ///< nr of times sourced
-    proftime_T sn_pr_total;    ///< time spent in script + children
-    proftime_T sn_pr_self;     ///< time spent in script itself
-    proftime_T sn_pr_start;    ///< time at script start
-    proftime_T sn_pr_children; ///< time in children after script start
+    proftime_kt sn_pr_total;    ///< time spent in script + children
+    proftime_kt sn_pr_self;     ///< time spent in script itself
+    proftime_kt sn_pr_start;    ///< time at script start
+    proftime_kt sn_pr_children; ///< time in children after script start
 
     // profiling the script per line
     garray_st sn_prl_ga;           ///< things stored for every line
-    proftime_T sn_prl_start;      ///< start time for current line
-    proftime_T sn_prl_children;   ///< time spent in children for this line
-    proftime_T sn_prl_wait;       ///< wait start time for current line
+    proftime_kt sn_prl_start;      ///< start time for current line
+    proftime_kt sn_prl_children;   ///< time spent in children for this line
+    proftime_kt sn_prl_wait;       ///< wait start time for current line
     linenr_T sn_prl_idx;          ///< index of line being timed; -1 if none
     int sn_prl_execed;            ///< line being timed was executed
 } scriptitem_T;
@@ -86,8 +86,8 @@ static garray_st script_items = { 0, 0, sizeof(scriptitem_T), 4, NULL };
 typedef struct sn_prl_S
 {
     int snp_count;                ///< nr of times line was executed
-    proftime_T sn_prl_total;      ///< time spent in a line + children
-    proftime_T sn_prl_self;       ///< time spent in a line itself
+    proftime_kt sn_prl_total;      ///< time spent in a line + children
+    proftime_kt sn_prl_self;       ///< time spent in a line itself
 } sn_prl_T;
 
 /// Structure used to store info for each sourced file.
@@ -1063,7 +1063,7 @@ void ex_profile(exarg_T *eap)
 {
     int len;
     uchar_kt *e;
-    static proftime_T pause_time;
+    static proftime_kt pause_time;
 
     e = skiptowhite(eap->arg);
     len = (int)(e - eap->arg);
@@ -1321,7 +1321,7 @@ static void profile_init(scriptitem_T *si)
 /// save time when starting to invoke another script or function.
 ///
 /// @param tm  place to store wait time
-void script_prof_save(proftime_T  *tm)
+void script_prof_save(proftime_kt  *tm)
 {
     scriptitem_T *si;
 
@@ -1339,7 +1339,7 @@ void script_prof_save(proftime_T  *tm)
 }
 
 /// Count time spent in children after invoking another script or function.
-void script_prof_restore(proftime_T *tm)
+void script_prof_restore(proftime_kt *tm)
 {
     scriptitem_T *si;
 
@@ -1362,7 +1362,7 @@ void script_prof_restore(proftime_T *tm)
     }
 }
 
-static proftime_T inchar_time;
+static proftime_kt inchar_time;
 
 /// Called when starting to wait for the user to type a character.
 void prof_inchar_enter(void)
@@ -3646,8 +3646,8 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 
     // start measuring script load time if --startuptime was passed and
     // time_fd was successfully opened afterwards.
-    proftime_T rel_time;
-    proftime_T start_time;
+    proftime_kt rel_time;
+    proftime_kt start_time;
     FILE *const l_time_fd = time_fd;
 
     if(l_time_fd != NULL)
@@ -3656,7 +3656,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
     }
 
     const int l_do_profiling = do_profiling;
-    proftime_T wait_start;
+    proftime_kt wait_start;
 
     if(l_do_profiling == PROF_YES)
     {

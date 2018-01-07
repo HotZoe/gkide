@@ -8505,7 +8505,7 @@ static bool apply_autocmds_group(event_T event,
     uchar_kt *save_cmdarg;
     long save_cmdbang;
     static int filechangeshell_busy = FALSE;
-    proftime_T wait_time;
+    proftime_kt wait_time;
     bool did_save_redobuff = false;
 
     // Quickly return if there are no autocommands

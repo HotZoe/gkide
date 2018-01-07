@@ -4588,9 +4588,9 @@ static void suggest_try_special(suginfo_T *su)
 // Output is dumped in "suggestprof".
 
 #ifdef SUGGEST_PROFILE
-proftime_T current;
-proftime_T total;
-proftime_T times[STATE_FINAL + 1];
+proftime_kt current;
+proftime_kt total;
+proftime_kt times[STATE_FINAL + 1];
 long counts[STATE_FINAL + 1];
 
 static void prof_init(void)

@@ -376,8 +376,8 @@ typedef struct qf_info_S qf_info_T;
 /// Used for :syntime: timing of executing a syntax pattern.
 typedef struct
 {
-    proftime_T total;   ///< total time used
-    proftime_T slowest; ///< time of slowest call
+    proftime_kt total;   ///< total time used
+    proftime_kt slowest; ///< time of slowest call
     long count;         ///< nr of times used
     long match;         ///< nr of times matched
 } syn_time_T;
@@ -853,7 +853,7 @@ typedef struct
     colnr_T startcol;     ///< in win_line() points to char where HL starts
     colnr_T endcol;       ///< in win_line() points to char where HL ends
     bool is_addpos;       ///< position specified directly by matchaddpos()
-    proftime_T tm;        ///< for a time limit
+    proftime_kt tm;        ///< for a time limit
 } match_T;
 
 /// number of positions supported by matchaddpos()

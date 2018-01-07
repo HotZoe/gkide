@@ -195,11 +195,11 @@ typedef struct
 
 typedef struct
 {
-    proftime_T total;
+    proftime_kt total;
     int count;
     int match;
-    proftime_T slowest;
-    proftime_T average;
+    proftime_kt slowest;
+    proftime_kt average;
     int id;
     uchar_kt *pattern;
 } time_entry_T;
@@ -3362,7 +3362,7 @@ static int syn_regexec(regmmatch_T *rmp,
                        syn_time_T *st)
 {
     int r;
-    proftime_T pt;
+    proftime_kt pt;
     const int l_syn_time_on = syn_time_on;
 
     if(l_syn_time_on)
@@ -7081,7 +7081,7 @@ static void syntime_report(void)
 
     garray_st ga;
     ga_init(&ga, sizeof(time_entry_T), 50);
-    proftime_T total_total = profile_zero();
+    proftime_kt total_total = profile_zero();
     int total_count = 0;
     time_entry_T *p;
 
@@ -7098,7 +7098,7 @@ static void syntime_report(void)
             p->match = spp->sp_time.match;
             total_count += spp->sp_time.count;
             p->slowest = spp->sp_time.slowest;
-            proftime_T tm = profile_divide(spp->sp_time.total, spp->sp_time.count);
+            proftime_kt tm = profile_divide(spp->sp_time.total, spp->sp_time.count);
             p->average = tm;
             p->id = spp->sp_syn.id;
             p->pattern = spp->sp_pattern;

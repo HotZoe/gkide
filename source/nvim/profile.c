@@ -17,12 +17,12 @@
 #endif
 
 /// @todo: what is this ?
-static proftime_T prof_wait_time;
+static proftime_kt prof_wait_time;
 
 /// return the current time
 ///
 /// @return the current time
-proftime_T profile_start(void)
+proftime_kt profile_start(void)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return os_hrtime();
@@ -31,7 +31,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// compute the time elapsed
 ///
 /// @return the elapsed time from @b tm until now.
-proftime_T profile_end(proftime_T tm)
+proftime_kt profile_end(proftime_kt tm)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return os_hrtime() - tm;
@@ -47,7 +47,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return
 /// a static string representing @b tm in the form "seconds.microseconds".
-const char *profile_msg(proftime_T tm)
+const char *profile_msg(proftime_kt tm)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     static char buf[50];
@@ -66,7 +66,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// if msec > 0, returns the time msec past now.
 /// Otherwise returns the zero time.
-proftime_T profile_setlimit(int64_t msec)
+proftime_kt profile_setlimit(int64_t msec)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(msec <= 0)
@@ -77,7 +77,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     assert(msec <= (INT64_MAX / 1000000LL) - 1);
 
-    proftime_T nsec = (proftime_T) msec * 1000000ULL;
+    proftime_kt nsec = (proftime_kt) msec * 1000000ULL;
     return os_hrtime() + nsec;
 }
 
@@ -86,7 +86,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// true if the current time is past @b tm,
 /// false if not or if the timer was not set.
-bool profile_passed_limit(proftime_T tm)
+bool profile_passed_limit(proftime_kt tm)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(tm == 0)
@@ -101,7 +101,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// obtain the zero time
 ///
 /// @return the zero time
-proftime_T profile_zero(void)
+proftime_kt profile_zero(void)
 FUNC_ATTR_CONST
 {
     return 0;
@@ -111,7 +111,7 @@ FUNC_ATTR_CONST
 ///
 /// @return
 /// 0 if count <= 0, otherwise @b tm / @b count
-proftime_T profile_divide(proftime_T tm, int count)
+proftime_kt profile_divide(proftime_kt tm, int count)
 FUNC_ATTR_CONST
 {
     if(count <= 0)
@@ -119,13 +119,13 @@ FUNC_ATTR_CONST
         return profile_zero();
     }
 
-    return (proftime_T) round((double) tm / (double) count);
+    return (proftime_kt) round((double) tm / (double) count);
 }
 
 /// add the time @b tm2 to @b tm1
 ///
 /// @return @b tm1 + @b tm2
-proftime_T profile_add(proftime_T tm1, proftime_T tm2)
+proftime_kt profile_add(proftime_kt tm1, proftime_kt tm2)
 FUNC_ATTR_CONST
 {
     return tm1 + tm2;
@@ -134,7 +134,7 @@ FUNC_ATTR_CONST
 /// subtract @b tm2 from @b tm1
 ///
 /// @return @b tm1 - @b tm2
-proftime_T profile_sub(proftime_T tm1, proftime_T tm2)
+proftime_kt profile_sub(proftime_kt tm1, proftime_kt tm2)
 FUNC_ATTR_CONST
 {
     return tm1 - tm2;
@@ -145,9 +145,9 @@ FUNC_ATTR_CONST
 /// @return
 /// if @b total <= @b children, then self, otherwise
 /// @b self + @b total - @b children
-proftime_T profile_self(proftime_T self,
-                        proftime_T total,
-                        proftime_T children)
+proftime_kt profile_self(proftime_kt self,
+                        proftime_kt total,
+                        proftime_kt children)
 FUNC_ATTR_CONST
 {
     // check that the result won't be negative,
@@ -164,14 +164,14 @@ FUNC_ATTR_CONST
 /// get the current waittime
 ///
 /// @return the current waittime
-proftime_T profile_get_wait(void)
+proftime_kt profile_get_wait(void)
 FUNC_ATTR_PURE
 {
     return prof_wait_time;
 }
 
 /// set the current waittime
-void profile_set_wait(proftime_T wait)
+void profile_set_wait(proftime_kt wait)
 {
     prof_wait_time = wait;
 }
@@ -179,17 +179,17 @@ void profile_set_wait(proftime_T wait)
 /// subtract the passed waittime since @b tm
 ///
 /// @return @b tma - (waittime - @b tm)
-proftime_T profile_sub_wait(proftime_T tm, proftime_T tma)
+proftime_kt profile_sub_wait(proftime_kt tm, proftime_kt tma)
 FUNC_ATTR_PURE
 {
-    proftime_T tm3 = profile_sub(profile_get_wait(), tm);
+    proftime_kt tm3 = profile_sub(profile_get_wait(), tm);
     return profile_sub(tma, tm3);
 }
 
 /// check if @b tm1 is equal to @b tm2
 ///
 /// @return true if @b tm1 == @b tm2
-bool profile_equal(proftime_T tm1, proftime_T tm2)
+bool profile_equal(proftime_kt tm1, proftime_kt tm2)
 FUNC_ATTR_CONST
 {
     return tm1 == tm2;
@@ -211,7 +211,7 @@ FUNC_ATTR_CONST
 ///
 /// @return
 /// <0, 0 or >0 if @b tm2 < @b tm1, @b tm2 == @b tm1 or @b tm2 > @b tm1
-int profile_cmp(proftime_T tm1, proftime_T tm2)
+int profile_cmp(proftime_kt tm1, proftime_kt tm2)
 FUNC_ATTR_CONST
 {
     return sgn64((int64_t)(tm2 - tm1));
@@ -219,11 +219,11 @@ FUNC_ATTR_CONST
 
 /// nvim startup time, init on startup and nerver
 /// changing will running, for time_* funcs to use
-static proftime_T g_start_time;
+static proftime_kt g_start_time;
 
 /// the start point of a period of time, e.g: how
 /// long do we need to load a plugin
-static proftime_T g_prev_time;
+static proftime_kt g_prev_time;
 
 /// save the previous time before doing something that could nest
 ///
@@ -232,9 +232,9 @@ static proftime_T g_prev_time;
 ///
 /// @param[out] rel   to the time elapsed so far
 /// @param[out] start the current time
-void time_push(proftime_T *rel, proftime_T *start)
+void time_push(proftime_kt *rel, proftime_kt *start)
 {
-    proftime_T now = profile_start();
+    proftime_kt now = profile_start();
 
     // subtract the previous time from now, store it in 'rel'
     *rel = profile_sub(now, g_prev_time);
@@ -249,7 +249,7 @@ void time_push(proftime_T *rel, proftime_T *start)
 /// Subtracts @b tp from the static global ::g_prev_time.
 ///
 /// @param tp the time to subtract
-void time_pop(proftime_T tp)
+void time_pop(proftime_kt tp)
 {
     g_prev_time -= tp;
 }
@@ -257,9 +257,9 @@ void time_pop(proftime_T tp)
 /// print the difference between @b then and @b now
 ///
 /// the format is "msec.usec".
-static void time_diff(proftime_T then, proftime_T now)
+static void time_diff(proftime_kt then, proftime_kt now)
 {
-    proftime_T diff = profile_sub(now, then);
+    proftime_kt diff = profile_sub(now, then);
     fprintf(time_fd, "%07.3lf", (double) diff / 1.0E6);
 }
 
@@ -295,7 +295,7 @@ void time_start(const char *message)
 ///
 /// @param start
 /// only for do_source(): start time
-void time_msg(const char *mesg, const proftime_T *start)
+void time_msg(const char *mesg, const proftime_kt *start)
 {
     if(time_fd == NULL)
     {
@@ -303,7 +303,7 @@ void time_msg(const char *mesg, const proftime_T *start)
     }
 
     // print out the difference between 'g_start_time' and 'now'
-    proftime_T now = profile_start();
+    proftime_kt now = profile_start();
     time_diff(g_start_time, now);
 
     // if 'start' was supplied, print the diff between 'start' and 'now'

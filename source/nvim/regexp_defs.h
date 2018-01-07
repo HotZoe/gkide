@@ -142,7 +142,7 @@ struct regengine
                           fbuf_st *,
                           linenr_T,
                           colnr_T,
-                          proftime_T *);
+                          proftime_kt *);
     uchar_kt *expr;
 };
 

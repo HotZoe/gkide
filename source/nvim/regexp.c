@@ -4695,7 +4695,7 @@ static long bt_regexec_multi(regmmatch_T *rmp,
                              fbuf_st *buf,
                              linenr_T lnum,
                              colnr_T col,
-                             proftime_T *tm)
+                             proftime_kt *tm)
 {
     reg_match = NULL;
     reg_mmatch = rmp;
@@ -4720,7 +4720,7 @@ static long bt_regexec_multi(regmmatch_T *rmp,
 ///
 /// @return
 /// 0 for failure, number of lines contained in the match otherwise.
-static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_T *tm)
+static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_kt *tm)
 {
     uchar_kt *s;
     long retval = 0L;
@@ -14883,7 +14883,7 @@ static char *pim_info(nfa_pim_T *pim)
 
 // Used during execution: whether a match has been found.
 static int nfa_match;
-static proftime_T *nfa_time_limit;
+static proftime_kt *nfa_time_limit;
 static int nfa_time_count;
 
 /// Copy postponed invisible match info from @b from to @b to.
@@ -18383,7 +18383,7 @@ theend:
 /// contained in the match otherwise.
 static long nfa_regtry(nfa_regprog_T *prog,
                        colnr_T col,
-                       proftime_T *tm)
+                       proftime_kt *tm)
 {
     int i;
     regsubs_T subs, m;
@@ -18540,7 +18540,7 @@ static long nfa_regtry(nfa_regprog_T *prog,
 /// in the match otherwise.
 static long nfa_regexec_both(uchar_kt *line,
                              colnr_T startcol,
-                             proftime_T *tm)
+                             proftime_kt *tm)
 {
     nfa_regprog_T *prog;
     long retval = 0L;
@@ -18850,7 +18850,7 @@ static long nfa_regexec_multi(regmmatch_T *rmp,
                               fbuf_st *buf,
                               linenr_T lnum,
                               colnr_T col,
-                              proftime_T *tm)
+                              proftime_kt *tm)
 {
     reg_match = NULL;
     reg_mmatch = rmp;
@@ -19110,7 +19110,7 @@ long vim_regexec_multi(regmmatch_T *rmp,
                        fbuf_st *buf,
                        linenr_T lnum,
                        colnr_T col,
-                       proftime_T *tm)
+                       proftime_kt *tm)
 {
     int result =
         rmp->regprog->engine->regexec_multi(rmp, win, buf, lnum, col, tm);

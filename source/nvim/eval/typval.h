@@ -15,7 +15,7 @@
 #include "nvim/mbyte.h"
 #include "nvim/func_attr.h"
 #include "nvim/lib/queue.h"
-#include "nvim/profile.h" // for proftime_T
+#include "nvim/profile.h" // for proftime_kt
 #include "nvim/pos.h" // for linenr_T
 #include "nvim/gettext.h"
 #include "nvim/message.h"
@@ -275,17 +275,17 @@ struct ufunc_s
 
     // Profiling the function as a whole.
     int uf_tm_count;            ///< nr of calls
-    proftime_T uf_tm_total;    ///< time spent in function + children
-    proftime_T uf_tm_self;     ///< time spent in function itself
-    proftime_T uf_tm_children; ///< time spent in children this call
+    proftime_kt uf_tm_total;    ///< time spent in function + children
+    proftime_kt uf_tm_self;     ///< time spent in function itself
+    proftime_kt uf_tm_children; ///< time spent in children this call
 
     // Profiling the function per line.
     int *uf_tml_count;          ///< nr of times line was executed
-    proftime_T *uf_tml_total;  ///< time spent in a line + children
-    proftime_T *uf_tml_self;   ///< time spent in a line itself
-    proftime_T uf_tml_start;   ///< start time for current line
-    proftime_T uf_tml_children;///< time spent in children for this line
-    proftime_T uf_tml_wait;    ///< start wait time for current line
+    proftime_kt *uf_tml_total;  ///< time spent in a line + children
+    proftime_kt *uf_tml_self;   ///< time spent in a line itself
+    proftime_kt uf_tml_start;   ///< start time for current line
+    proftime_kt uf_tml_children;///< time spent in children for this line
+    proftime_kt uf_tml_wait;    ///< start wait time for current line
     int uf_tml_idx;             ///< index of line being timed; -1 if none
     int uf_tml_execed;          ///< line being timed was executed
     script_id_kt uf_script_ID;  ///< ID of script where function was defined,
@@ -314,17 +314,17 @@ struct partial_s
 };
 
 /// Structure used for explicit stack while garbage collecting hash tables
-typedef struct ht_stack_S
+typedef struct ht_stack_s
 {
     hashtable_st *ht;
-    struct ht_stack_S *prev;
+    struct ht_stack_s *prev;
 } ht_stack_T;
 
 /// Structure used for explicit stack while garbage collecting lists
-typedef struct list_stack_S
+typedef struct list_stack_s
 {
     list_st *list;
-    struct list_stack_S *prev;
+    struct list_stack_s *prev;
 } list_stack_T;
 
 // In a hashtab item "hi_key" points to "di_key" in a dictitem.

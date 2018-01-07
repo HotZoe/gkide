@@ -283,7 +283,7 @@ struct func_call_s
     linenr_T breakpoint;   ///< Next line with breakpoint or zero.
     int dbg_tick;          ///< Debug_tick when breakpoint was set.
     int level;             ///< Top nesting level of executed function.
-    proftime_T prof_child; ///< Time spent in a child.
+    proftime_kt prof_child; ///< Time spent in a child.
     func_call_st *caller;    ///< Calling function or NULL.
     int fc_refcount;       ///< Number of user functions that reference this funccall.
     int fc_copyID;         ///< CopyID used for garbage collection.
@@ -1556,7 +1556,7 @@ void restore_funccal(void *vfc)
 /// Should always be called in pair with prof_child_exit().
 ///
 /// @param tm  place to store waittime
-void prof_child_enter(proftime_T *tm)
+void prof_child_enter(proftime_kt *tm)
 {
     func_call_st *fc = current_funccal;
     if(fc != NULL && fc->func->uf_profiling)
@@ -1570,7 +1570,7 @@ void prof_child_enter(proftime_T *tm)
 /// Should always be called after prof_child_enter().
 ///
 /// @param tm  where waittime was stored
-void prof_child_exit(proftime_T *tm)
+void prof_child_exit(proftime_kt *tm)
 {
     func_call_st *fc = current_funccal;
     if(fc != NULL && fc->func->uf_profiling)
@@ -17161,16 +17161,16 @@ static void f_readfile(typval_st *argvars,
 }
 
 
-/// convert a List to proftime_T
+/// convert a List to proftime_kt
 ///
 /// @param arg
 /// The input list, must be of type kNvarList and have exactly 2 items
 ///
 /// @param[out] tm
-/// The proftime_T representation of @b arg
+/// The proftime_kt representation of @b arg
 ///
 /// @return OK In case of success, FAIL in case of error
-static int list2proftime(typval_st *arg, proftime_T *tm)
+static int list2proftime(typval_st *arg, proftime_kt *tm)
 FUNC_ATTR_NONNULL_ALL
 {
     if(arg->v_type != kNvarList
@@ -17189,12 +17189,12 @@ FUNC_ATTR_NONNULL_ALL
         return FAIL;
     }
 
-    // in f_reltime() we split up the 64-bit proftime_T into two 32-bit
+    // in f_reltime() we split up the 64-bit proftime_kt into two 32-bit
     // values, now we combine them again.
     union
     {
         struct { number_kt low, high; } split;
-        proftime_T prof;
+        proftime_kt prof;
     } u = { .split.high = n1, .split.low = n2 };
 
     *tm = u.prof;
@@ -17212,8 +17212,8 @@ static void f_reltime(typval_st *argvars,
                       typval_st *rettv,
                       FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    proftime_T res;
-    proftime_T start;
+    proftime_kt res;
+    proftime_kt start;
 
     if(argvars[0].v_type == kNvarUnknown)
     {
@@ -17241,7 +17241,7 @@ static void f_reltime(typval_st *argvars,
         res = profile_sub(res, start);
     }
 
-    // we have to store the 64-bit proftime_T inside of a list of int's
+    // we have to store the 64-bit proftime_kt inside of a list of int's
     // (number_kt is defined as int). For all our supported platforms, int's
     // are at least 32-bits wide. So we'll use two 32-bit values to store it.
     union
@@ -17250,11 +17250,11 @@ static void f_reltime(typval_st *argvars,
         {
             number_kt low, high;
         } split;
-        proftime_T prof;
+        proftime_kt prof;
     } u = { .prof = res };
 
     // statically assert that the union type conv will provide the correct
-    // results, if number_kt or proftime_T change, the union cast will need
+    // results, if number_kt or proftime_kt change, the union cast will need
     // to be revised.
     STATIC_ASSERT(sizeof(u.prof) == sizeof(u) && sizeof(u.split) == sizeof(u),
                   "type punning will produce incorrect results on this platform");
@@ -17274,7 +17274,7 @@ static void f_reltimestr(typval_st *argvars,
                          FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
-    proftime_T tm;
+    proftime_kt tm;
 
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
@@ -17834,7 +17834,7 @@ static int search_cmn(typval_st *argvars, pos_T *match_pos, int *flagsp)
     int dir;
     int retval = 0; // default: FAIL
     long lnum_stop = 0;
-    proftime_T tm;
+    proftime_kt tm;
     long time_limit = 0;
     int options = SEARCH_KEEP;
     int subpatnum;
@@ -18484,7 +18484,7 @@ long do_searchpair(uchar_kt *spat,
     int r;
     int nest = 1;
     int options = SEARCH_KEEP;
-    proftime_T tm;
+    proftime_kt tm;
 
     // Make 'cpoptions' empty, the 'l' flag should not be used here.
     save_cpo = p_cpo;
@@ -20240,7 +20240,7 @@ static void f_reltimefloat(typval_st *argvars,
                            FunPtr FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
-    proftime_T tm;
+    proftime_kt tm;
 
     rettv->v_type = kNvarFloat;
     rettv->vval.v_float = 0;
@@ -26838,12 +26838,12 @@ static void func_do_profile(ufunc_st *fp)
 
     if(fp->uf_tml_total == NULL)
     {
-        fp->uf_tml_total = xcalloc(len, sizeof(proftime_T));
+        fp->uf_tml_total = xcalloc(len, sizeof(proftime_kt));
     }
 
     if(fp->uf_tml_self == NULL)
     {
-        fp->uf_tml_self = xcalloc(len, sizeof(proftime_T));
+        fp->uf_tml_self = xcalloc(len, sizeof(proftime_kt));
     }
 
     fp->uf_tml_idx = -1;
@@ -26982,8 +26982,8 @@ static void prof_sort_list(FILE *fd,
 /// @param prefer_self  when equal print only self time
 static void prof_func_line(FILE *fd,
                            int count,
-                           proftime_T *total,
-                           proftime_T *self,
+                           proftime_kt *total,
+                           proftime_kt *self,
                            int prefer_self)
 {
     if(count > 0)
@@ -27485,8 +27485,8 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     bool islambda = false;
     uchar_kt numbuf[NUMBUFLEN];
     uchar_kt *name;
-    proftime_T wait_start;
-    proftime_T call_start;
+    proftime_kt wait_start;
+    proftime_kt call_start;
     bool did_save_redo = false;
 
     // If depth of calling is getting too high, don't execute the function

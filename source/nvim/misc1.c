@@ -3305,7 +3305,7 @@ void fast_breakcheck(void)
 int call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_shell_arg)
 {
     int retval;
-    proftime_T wait_time;
+    proftime_kt wait_time;
 
     if(p_verbose > 3)
     {

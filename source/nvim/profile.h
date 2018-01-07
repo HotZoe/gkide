@@ -6,7 +6,7 @@
 #include <time.h>
 #include <stdint.h>
 
-typedef uint64_t proftime_T;
+typedef uint64_t proftime_kt;
 
 /// trace mainly startup logging messages
 #define TIME_MSG(s)                            \

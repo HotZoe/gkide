@@ -589,7 +589,7 @@ int searchit(win_st *win,
              int options,
              int pat_use,
              linenr_T stop_lnum,
-             proftime_T *tm)
+             proftime_kt *tm)
 {
     int found;
     linenr_T lnum; // no init to shut up Apollo cc
@@ -1165,7 +1165,7 @@ int do_search(oparg_T *oap,
               uchar_kt *pat,
               long count,
               int options,
-              proftime_T *tm)
+              proftime_kt *tm)
 {
     pos_T pos; // position of the last match
     uchar_kt *searchstr;

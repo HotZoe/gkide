@@ -1896,7 +1896,7 @@ static int command_line_changed(CommandLineState *s)
     if(p_is && !cmd_silent && (s->firstc == '/' || s->firstc == '?'))
     {
         pos_T end_pos;
-        proftime_T tm;
+        proftime_kt tm;
 
         // if there is a character waiting, search and redraw later
         if(char_avail())

@@ -4114,7 +4114,7 @@ FUNC_ATTR_NONNULL_RET
 /// The usual escapes are supported as described in the regexp docs.
 ///
 /// @return buffer used for 'inccommand' preview
-static fbuf_st *do_sub(exarg_T *eap, proftime_T timeout)
+static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
 {
     long i = 0;
     regmmatch_T regmatch;
