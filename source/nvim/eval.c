@@ -261,40 +261,40 @@ static garray_st ga_loaded = { 0, 0, sizeof(uchar_kt *), 4, NULL };
 /// Number of fixed variables used for arguments
 #define FIXVAR_CNT     12
 
-/// Structure to hold info for a function that is currently being executed.
-/// also @see funccall_T
-struct funccall_S
+/// Structure to hold info for a function that is
+/// currently being executed, also @see func_call_st
+struct func_call_s
 {
-    ufunc_st *func;   ///< Function being called.
+    ufunc_st *func;  ///< Function being called.
     int linenr;      ///< Next line to be executed.
     int returned;    ///< @b :return used.
 
     /// Fixed variables for arguments.
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
 
-    dict_st l_vars;                         ///< @b l: local function variables.
+    dict_st l_vars;                        ///< @b l: local function variables.
     scope_dict_T l_vars_var;               ///< Variable for @b l: scope.
-    dict_st l_avars;                        ///< @b a: argument variables.
+    dict_st l_avars;                       ///< @b a: argument variables.
     scope_dict_T l_avars_var;              ///< Variable for @b a: scope.
-    list_st l_varlist;                      ///< List for @b a:000
-    listitem_st l_listitems[MAX_FUNC_ARGS]; ///< List items for a:000.
+    list_st l_varlist;                     ///< List for @b a:000
+    listitem_st l_listitems[MAX_FUNC_ARGS];///< List items for a:000.
 
-    typval_st *rettv;       ///< Return value.
+    typval_st *rettv;      ///< Return value.
     linenr_T breakpoint;   ///< Next line with breakpoint or zero.
     int dbg_tick;          ///< Debug_tick when breakpoint was set.
     int level;             ///< Top nesting level of executed function.
     proftime_T prof_child; ///< Time spent in a child.
-    funccall_T *caller;    ///< Calling function or NULL.
+    func_call_st *caller;    ///< Calling function or NULL.
     int fc_refcount;       ///< Number of user functions that reference this funccall.
     int fc_copyID;         ///< CopyID used for garbage collection.
-    garray_st fc_funcs;     ///< List of ufunc_st* which keep a reference to @b func
+    garray_st fc_funcs;    ///< List of ufunc_st* which keep a reference to @b func
 };
 
 /// Structure used by trans_function_name()
 typedef struct
 {
     dict_st *fd_dict;    ///< Dictionary used.
-    uchar_kt *fd_newkey;  ///< New key in "dict" in allocated memory.
+    uchar_kt *fd_newkey; ///< New key in "dict" in allocated memory.
     dictitem_T *fd_di;  ///< Dictionary item used.
 } funcdict_T;
 
@@ -749,33 +749,33 @@ void eval_clear(void)
 /// Return the name of the executed function.
 uchar_kt *func_name(void *cookie)
 {
-    return ((funccall_T *)cookie)->func->uf_name;
+    return ((func_call_st *)cookie)->func->uf_name;
 }
 
 /// Return the address holding the next breakpoint line for a funccall cookie.
 linenr_T *func_breakpoint(void *cookie)
 {
-    return &((funccall_T *)cookie)->breakpoint;
+    return &((func_call_st *)cookie)->breakpoint;
 }
 
 /// Return the address holding the debug tick for a funccall cookie.
 int *func_dbg_tick(void *cookie)
 {
-    return &((funccall_T *)cookie)->dbg_tick;
+    return &((func_call_st *)cookie)->dbg_tick;
 }
 
 /// Return the nesting level for a funccall cookie.
 int func_level(void *cookie)
 {
-    return ((funccall_T *)cookie)->level;
+    return ((func_call_st *)cookie)->level;
 }
 
 /// pointer to funccal for currently active function
-funccall_T *current_funccal = NULL;
+func_call_st *current_funccal = NULL;
 
 /// pointer to list of previously used funccal, still around because some
 /// item in it is still being used.
-funccall_T *previous_funccal = NULL;
+func_call_st *previous_funccal = NULL;
 
 /// Return TRUE when a function was ended by a ":return" command.
 int current_func_returned(void)
@@ -1540,14 +1540,14 @@ void *call_func_retlist(uchar_kt *func,
 /// Used when executing autocommands and for ":source".
 void *save_funccal(void)
 {
-    funccall_T *fc = current_funccal;
+    func_call_st *fc = current_funccal;
     current_funccal = NULL;
     return (void *)fc;
 }
 
 void restore_funccal(void *vfc)
 {
-    funccall_T *fc = (funccall_T *)vfc;
+    func_call_st *fc = (func_call_st *)vfc;
     current_funccal = fc;
 }
 
@@ -1558,7 +1558,7 @@ void restore_funccal(void *vfc)
 /// @param tm  place to store waittime
 void prof_child_enter(proftime_T *tm)
 {
-    funccall_T *fc = current_funccal;
+    func_call_st *fc = current_funccal;
     if(fc != NULL && fc->func->uf_profiling)
     {
         fc->prof_child = profile_start();
@@ -1572,7 +1572,7 @@ void prof_child_enter(proftime_T *tm)
 /// @param tm  where waittime was stored
 void prof_child_exit(proftime_T *tm)
 {
-    funccall_T *fc = current_funccal;
+    func_call_st *fc = current_funccal;
     if(fc != NULL && fc->func->uf_profiling)
     {
         fc->prof_child = profile_end(fc->prof_child);
@@ -6597,7 +6597,7 @@ bool garbage_collect(bool testing)
     // Don't free variables in the previous_funccal list unless they are only
     // referenced through previous_funccal.  This must be first, because if
     // the item is referenced elsewhere the funccal must not be freed.
-    for(funccall_T *fc = previous_funccal; fc != NULL; fc = fc->caller)
+    for(func_call_st *fc = previous_funccal; fc != NULL; fc = fc->caller)
     {
         fc->fc_copyID = copyID + 1;
         ABORTING(set_ref_in_ht)(&fc->l_vars.dv_hashtab, copyID + 1, NULL);
@@ -6695,7 +6695,7 @@ bool garbage_collect(bool testing)
     ABORTING(set_ref_in_ht)(&globvarht, copyID, NULL);
 
     // function-local variables
-    for(funccall_T *fc = current_funccal; fc != NULL; fc = fc->caller)
+    for(func_call_st *fc = current_funccal; fc != NULL; fc = fc->caller)
     {
         fc->fc_copyID = copyID;
 
@@ -6780,11 +6780,11 @@ bool garbage_collect(bool testing)
         // 3. Check if any funccal can be freed now.
         bool did_free_funccal = false;
 
-        for(funccall_T **pfc = &previous_funccal; *pfc != NULL;)
+        for(func_call_st **pfc = &previous_funccal; *pfc != NULL;)
         {
             if(can_free_funccal(*pfc, copyID))
             {
-                funccall_T *fc = *pfc;
+                func_call_st *fc = *pfc;
 
                 *pfc = fc->caller;
                 free_funccal(fc, true);
@@ -7219,7 +7219,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return false;
 }
 
-static bool set_ref_in_funccal(funccall_T *fc, int copyID)
+static bool set_ref_in_funccal(func_call_st *fc, int copyID)
 {
     bool abort = false;
 
@@ -8125,7 +8125,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 bool set_ref_in_func(uchar_kt *name, ufunc_st *fp_in, int copyID)
 {
     ufunc_st *fp = fp_in;
-    funccall_T *fc;
+    func_call_st *fc;
     int error = ERROR_NONE;
     uchar_kt fname_buf[FLEN_FIXED + 1];
     uchar_kt *tofree = NULL;
@@ -24368,15 +24368,15 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 // Get function call environment based on backtrace debug level
-static funccall_T *get_funccal(void)
+static func_call_st *get_funccal(void)
 {
-    funccall_T *funccal = current_funccal;
+    func_call_st *funccal = current_funccal;
 
     if(debug_backtrace_level > 0)
     {
         for(int i = 0; i < debug_backtrace_level; i++)
         {
-            funccall_T *temp_funccal = funccal->caller;
+            func_call_st *temp_funccal = funccal->caller;
 
             if(temp_funccal)
             {
@@ -27476,7 +27476,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     uchar_kt *save_sourcing_name;
     linenr_T save_sourcing_lnum;
     script_id_kt save_current_SID;
-    funccall_T  *fc;
+    func_call_st  *fc;
     int save_did_emsg;
     static int depth = 0;
     dictitem_T *v;
@@ -27513,8 +27513,8 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     // check for CTRL-C hit
     line_breakcheck();
 
-    // prepare the funccall_T structure
-    fc = xmalloc(sizeof(funccall_T));
+    // prepare the func_call_st structure
+    fc = xmalloc(sizeof(func_call_st));
     fc->caller = current_funccal;
     current_funccal = fc;
     fc->func = fp;
@@ -27894,7 +27894,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     --depth;
 
     // If the a:000 list and the l: and a: dicts are not referenced and there
-    // is no closure using it, we can free the funccall_T and what's in it.
+    // is no closure using it, we can free the func_call_st and what's in it.
     if(fc->l_varlist.lv_refcount == DO_NOT_FREE_CNT
        && fc->l_vars.dv_refcount == DO_NOT_FREE_CNT
        && fc->l_avars.dv_refcount == DO_NOT_FREE_CNT
@@ -27941,9 +27941,9 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 /// becomes zero. "fp" is detached from "fc".
 ///
 /// @param[in] force  When true, we are exiting.
-static void funccal_unref(funccall_T *fc, ufunc_st *fp, bool force)
+static void funccal_unref(func_call_st *fc, ufunc_st *fp, bool force)
 {
-    funccall_T **pfc;
+    func_call_st **pfc;
     int i;
 
     if(fc == NULL)
@@ -27979,7 +27979,7 @@ static void funccal_unref(funccall_T *fc, ufunc_st *fp, bool force)
 
 /// @return true if items in "fc" do not have "copyID". That means they are not
 /// referenced from anywhere that is in use.
-static int can_free_funccal(funccall_T *fc, int copyID)
+static int can_free_funccal(func_call_st *fc, int copyID)
 {
     return fc->l_varlist.lv_copyID != copyID
            && fc->l_vars.dv_copyID != copyID
@@ -27991,7 +27991,7 @@ static int can_free_funccal(funccall_T *fc, int copyID)
 ///
 /// \param fc
 /// \param free_val  a: vars were allocated
-static void free_funccal(funccall_T *fc, int free_val)
+static void free_funccal(func_call_st *fc, int free_val)
 {
     listitem_st *li;
 
@@ -27999,7 +27999,7 @@ static void free_funccal(funccall_T *fc, int free_val)
     {
         ufunc_st *fp = ((ufunc_st **)(fc->fc_funcs.ga_data))[i];
 
-        // When garbage collecting a funccall_T may be freed before the
+        // When garbage collecting a func_call_st may be freed before the
         // function that references it, clear its uf_scoped field.
         // The function may have been redefined and point to another
         // funccal_T, don't clear it then.
@@ -28231,7 +28231,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
                       void *cookie,
                       int FUNC_ARGS_UNUSED_REALY(indent))
 {
-    funccall_T *fcp = (funccall_T *)cookie;
+    func_call_st *fcp = (func_call_st *)cookie;
     ufunc_st *fp = fcp->func;
     uchar_kt *retval;
     garray_st *gap; // growarray with function lines
@@ -28303,7 +28303,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
 /// until later and we need to store the time now.
 void func_line_start(void *cookie)
 {
-    funccall_T *fcp = (funccall_T *)cookie;
+    func_call_st *fcp = (func_call_st *)cookie;
     ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling
@@ -28328,7 +28328,7 @@ void func_line_start(void *cookie)
 /// Called when actually executing a function line.
 void func_line_exec(void *cookie)
 {
-    funccall_T *fcp = (funccall_T *)cookie;
+    func_call_st *fcp = (func_call_st *)cookie;
     ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling && fp->uf_tml_idx >= 0)
@@ -28340,7 +28340,7 @@ void func_line_exec(void *cookie)
 /// Called when done with a function line.
 void func_line_end(void *cookie)
 {
-    funccall_T *fcp = (funccall_T *)cookie;
+    func_call_st *fcp = (func_call_st *)cookie;
     ufunc_st *fp = fcp->func;
 
     if(fp->uf_profiling && fp->uf_tml_idx >= 0)
@@ -28371,7 +28371,7 @@ void func_line_end(void *cookie)
 /// return was encountered or an error occurred. Used inside a ":while".
 int func_has_ended(void *cookie)
 {
-    funccall_T *fcp = (funccall_T *)cookie;
+    func_call_st *fcp = (func_call_st *)cookie;
 
     // Ignore the "abort" flag if the abortion behavior has
     // been changed due to an error inside a try conditional.
@@ -28382,7 +28382,7 @@ int func_has_ended(void *cookie)
 /// return TRUE if cookie indicates a function which "abort"s on errors.
 int func_has_abort(void *cookie)
 {
-    return ((funccall_T *)cookie)->func->uf_flags & FC_ABORT;
+    return ((func_call_st *)cookie)->func->uf_flags & FC_ABORT;
 }
 
 static var_flavour_T var_flavour(uchar_kt *varname)
@@ -28415,7 +28415,7 @@ hashitem_st *find_hi_in_scoped_ht(const char *name, hashtable_st **pht)
         return NULL;
     }
 
-    funccall_T *old_current_funccal = current_funccal;
+    func_call_st *old_current_funccal = current_funccal;
     hashitem_st *hi = NULL;
     const size_t namelen = strlen(name);
     const char *varname;
@@ -28462,7 +28462,7 @@ dictitem_T *find_var_in_scoped_ht(const char *name,
     }
 
     dictitem_T *v = NULL;
-    funccall_T *old_current_funccal = current_funccal;
+    func_call_st *old_current_funccal = current_funccal;
     const char *varname;
 
     // Search in parent scope which is possible to reference from lambda
@@ -28560,7 +28560,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 
 void var_set_global(const char *const name, typval_st vartv)
 {
-    funccall_T *const saved_current_funccal = current_funccal;
+    func_call_st *const saved_current_funccal = current_funccal;
     current_funccal = NULL;
     set_var(name, strlen(name), &vartv, false);
     current_funccal = saved_current_funccal;
