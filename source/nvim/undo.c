@@ -1692,7 +1692,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     }
 
     linenum_kt line_lnum = (linenum_kt)undo_read_4c(&bi);
-    colnr_T line_colnr = (colnr_T)undo_read_4c(&bi);
+    columnum_kt line_colnr = (columnum_kt)undo_read_4c(&bi);
 
     if(line_lnum < 0 || line_colnr < 0)
     {
@@ -2836,7 +2836,7 @@ static void u_undoredo(int undo)
                 }
                 else
                 {
-                    ml_append(lnum, uep->ue_array[i], (colnr_T)0, FALSE);
+                    ml_append(lnum, uep->ue_array[i], (columnum_kt)0, FALSE);
                 }
 
                 xfree(uep->ue_array[i]);
@@ -2952,7 +2952,7 @@ static void u_undoredo(int undo)
 
             if(virtual_active() && curhead->uh_cursor_vcol >= 0)
             {
-                coladvance((colnr_T)curhead->uh_cursor_vcol);
+                coladvance((columnum_kt)curhead->uh_cursor_vcol);
             }
             else
             {
@@ -3657,7 +3657,7 @@ void u_clearline(void)
 /// Careful: may trigger autocommands that reload the buffer.
 void u_undoline(void)
 {
-    colnr_T t;
+    columnum_kt t;
     uchar_kt *oldp;
 
     if(undo_off)

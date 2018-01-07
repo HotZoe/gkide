@@ -11,8 +11,8 @@ struct bufhl_hl_item
 {
     int src_id;
     int hl_id;      ///< highlight group
-    colnr_T start;  ///< first column to highlight
-    colnr_T stop;   ///< last column to highlight
+    columnum_kt start;  ///< first column to highlight
+    columnum_kt stop;   ///< last column to highlight
 };
 typedef struct bufhl_hl_item bufhl_hl_item_T;
 
@@ -22,7 +22,7 @@ typedef struct
 {
     bufhl_vec_T entries;
     int current;
-    colnr_T valid_to;
+    columnum_kt valid_to;
 } bufhl_lineinfo_T;
 
 #endif  // NVIM_BUFHL_DEFS_H

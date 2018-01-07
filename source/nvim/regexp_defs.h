@@ -119,7 +119,7 @@ typedef struct
     lpos_T startpos[NSUBEXP];
     lpos_T endpos[NSUBEXP];
     int rmm_ic;
-    colnr_T rmm_maxcol;        ///< when not zero: maximum column
+    columnum_kt rmm_maxcol;        ///< when not zero: maximum column
 } regmmatch_T;
 
 /// Structure used to store external references: "\z\(\)" to "\z\1".
@@ -135,13 +135,13 @@ struct regengine
 {
     regprog_T *(*regcomp)(uchar_kt *, int);
     void (*regfree)(regprog_T *);
-    int (*regexec_nl)(regmatch_T *, uchar_kt *, colnr_T, bool);
+    int (*regexec_nl)(regmatch_T *, uchar_kt *, columnum_kt, bool);
 
     long (*regexec_multi)(regmmatch_T *,
                           win_st *,
                           fbuf_st *,
                           linenum_kt,
-                          colnr_T,
+                          columnum_kt,
                           proftime_kt *);
     uchar_kt *expr;
 };

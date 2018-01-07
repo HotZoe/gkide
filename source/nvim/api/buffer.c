@@ -858,8 +858,8 @@ FUNC_API_SINCE(1)
     src_id = bufhl_add_hl(buf,
                           (int)src_id, hlg_id,
                           (linenum_kt)line+1,
-                          (colnr_T)col_start+1,
-                          (colnr_T)col_end);
+                          (columnum_kt)col_start+1,
+                          (columnum_kt)col_end);
     return src_id;
 }
 

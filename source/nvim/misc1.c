@@ -87,10 +87,10 @@ int open_line(int dir, int flags, int second_line_indent)
 {
     uchar_kt *next_line = NULL; // copy of the next line
     uchar_kt *p_extra = NULL; // what goes to next line
-    colnr_T less_cols = 0; // less columns for mark in new line
-    colnr_T less_cols_off = 0; // columns to skip for mark adjust
+    columnum_kt less_cols = 0; // less columns for mark in new line
+    columnum_kt less_cols_off = 0; // columns to skip for mark adjust
     pos_T old_cursor; // old cursor position
-    colnr_T newcol = 0; // new cursor column
+    columnum_kt newcol = 0; // new cursor column
     int newindent = 0; // auto-indent of the new line
     bool trunc_line = false; // truncate current line afterwards
     bool retval = false; // return value, default is false
@@ -266,7 +266,7 @@ int open_line(int dir, int flags, int second_line_indent)
                                 // End of C comment, indent should line up
                                 // with the line containing the start of
                                 // the comment
-                                curwin->w_cursor.col = (colnr_T)(p - ptr);
+                                curwin->w_cursor.col = (columnum_kt)(p - ptr);
 
                                 if((pos = findmatch(NULL, NUL)) != NULL)
                                 {
@@ -311,7 +311,7 @@ int open_line(int dir, int flags, int second_line_indent)
                     //      }
                     if(*p == ')')
                     {
-                        curwin->w_cursor.col = (colnr_T)(p - ptr);
+                        curwin->w_cursor.col = (columnum_kt)(p - ptr);
 
                         if((pos = findmatch(NULL, '(')) != NULL)
                         {
@@ -846,7 +846,7 @@ int open_line(int dir, int flags, int second_line_indent)
                && (curbuf->b_p_ai || do_si))
             {
                 old_cursor = curwin->w_cursor;
-                curwin->w_cursor.col = (colnr_T)(comment_end - saved_line);
+                curwin->w_cursor.col = (columnum_kt)(comment_end - saved_line);
 
                 if((pos = findmatch(NULL, NUL)) != NULL)
                 {
@@ -942,7 +942,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
     if(!(curmod & kModFlgVReplace) || old_cursor.lnum >= orig_line_count)
     {
-        if(ml_append(curwin->w_cursor.lnum, p_extra, (colnr_T)0, FALSE) == FAIL)
+        if(ml_append(curwin->w_cursor.lnum, p_extra, (columnum_kt)0, FALSE) == FAIL)
         {
             goto theend;
         }
@@ -1015,7 +1015,7 @@ int open_line(int dir, int flags, int second_line_indent)
         // be a NUL on the replace stack, for when it is deleted with BS
         if(REPLACE_NORMAL(curmod))
         {
-            for(colnr_T n = 0; n < curwin->w_cursor.col; n++)
+            for(columnum_kt n = 0; n < curwin->w_cursor.col; n++)
             {
                 replace_push(NUL);
             }
@@ -1112,7 +1112,7 @@ int open_line(int dir, int flags, int second_line_indent)
     {
         fixthisline(get_lisp_indent);
         p = get_cursor_line_ptr();
-        ai_col = (colnr_T)(skipwhite(p) - p);
+        ai_col = (columnum_kt)(skipwhite(p) - p);
     }
 
     // May do indenting after opening a new line.
@@ -1123,7 +1123,7 @@ int open_line(int dir, int flags, int second_line_indent)
     {
         do_c_expr_indent();
         p = get_cursor_line_ptr();
-        ai_col = (colnr_T)(skipwhite(p) - p);
+        ai_col = (columnum_kt)(skipwhite(p) - p);
     }
 
     if(vreplace_mode != 0)
@@ -1584,7 +1584,7 @@ int plines_win_nofold(win_st *wp, linenum_kt lnum)
         return 1;
     }
 
-    col = win_linetabsize(wp, s, (colnr_T)MAXCOL);
+    col = win_linetabsize(wp, s, (columnum_kt)MAXCOL);
 
     // If list mode is on, then the '$' at the end
     // of the line may take up one extra column.
@@ -1633,7 +1633,7 @@ int plines_win_col(win_st *wp, linenum_kt lnum, long column)
 
     uchar_kt *line = ml_get_buf(wp->w_buffer, lnum, false);
     uchar_kt *s = line;
-    colnr_T col = 0;
+    columnum_kt col = 0;
 
     while(*s != NUL && --column >= 0)
     {
@@ -1796,9 +1796,9 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
             // characters (zero if it's a TAB). Count the number of bytes to
             // be deleted to make room for the new character, counting screen
             // cells. May result in adding spaces to fill a gap.
-            colnr_T vcol;
+            columnum_kt vcol;
             getvcol(curwin, &curwin->w_cursor, NULL, &vcol, NULL);
-            colnr_T new_vcol = vcol + chartabsize(buf, vcol);
+            columnum_kt new_vcol = vcol + chartabsize(buf, vcol);
 
             while(oldp[col + oldlen] != NUL && vcol < new_vcol)
             {
@@ -1872,7 +1872,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
     ml_replace(lnum, newp, FALSE);
 
     // mark the buffer as changed and prepare for displaying
-    changed_bytes(lnum, (colnr_T)col);
+    changed_bytes(lnum, (columnum_kt)col);
 
     // If we're in Insert or Replace mode and 'showmatch' is set,
     // then briefly show the match for right parens and braces.
@@ -1901,7 +1901,7 @@ void ins_str(uchar_kt *s)
     uchar_kt *oldp, *newp;
     int newlen = (int)STRLEN(s);
     int oldlen;
-    colnr_T col;
+    columnum_kt col;
     linenum_kt lnum = curwin->w_cursor.lnum;
 
     if(virtual_active() && curwin->w_cursor.coladd > 0)
@@ -1977,13 +1977,13 @@ int del_chars(long count, int fixpos)
 /// @param  use_delcombine  'delcombine' option applies
 ///
 /// @return FAIL for failure, OK otherwise
-int del_bytes(colnr_T count, bool fixpos_arg, bool use_delcombine)
+int del_bytes(columnum_kt count, bool fixpos_arg, bool use_delcombine)
 {
     linenum_kt lnum = curwin->w_cursor.lnum;
-    colnr_T col = curwin->w_cursor.col;
+    columnum_kt col = curwin->w_cursor.col;
     bool fixpos = fixpos_arg;
     uchar_kt *oldp = ml_get(lnum);
-    colnr_T oldlen = (colnr_T)STRLEN(oldp);
+    columnum_kt oldlen = (columnum_kt)STRLEN(oldp);
 
     // Can't do anything when the cursor is on the NUL after the line.
     if(col >= oldlen)
@@ -2080,7 +2080,7 @@ void truncate_line(int fixpos)
 {
     uchar_kt *newp;
     linenum_kt lnum = curwin->w_cursor.lnum;
-    colnr_T col = curwin->w_cursor.col;
+    columnum_kt col = curwin->w_cursor.col;
 
     if(col == 0)
     {
@@ -2225,7 +2225,7 @@ void changed_int(void)
 /// - invalidates cached values
 ///
 /// @note may trigger autocommands that reload the buffer.
-void changed_bytes(linenum_kt lnum, colnr_T col)
+void changed_bytes(linenum_kt lnum, columnum_kt col)
 {
     changedOneline(curbuf, lnum);
     changed_common(lnum, col, lnum + 1, 0L);
@@ -2329,7 +2329,7 @@ void deleted_lines_mark(linenum_kt lnum, long count)
 /// Takes care of calling changed() and updating b_mod_*.
 ///
 /// @note may trigger autocommands that reload the buffer.
-void changed_lines(linenum_kt lnum, colnr_T col, linenum_kt lnume, long xtra)
+void changed_lines(linenum_kt lnum, columnum_kt col, linenum_kt lnume, long xtra)
 {
     changed_lines_buf(curbuf, lnum, lnume, xtra);
 
@@ -2406,7 +2406,7 @@ void changed_lines_buf(fbuf_st *buf, linenum_kt lnum, linenum_kt lnume, long xtr
 ///
 /// @note may trigger autocommands that reload the buffer.
 static void changed_common(linenum_kt lnum,
-                           colnr_T col,
+                           columnum_kt col,
                            linenum_kt lnume,
                            long xtra)
 {

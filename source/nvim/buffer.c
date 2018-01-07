@@ -1949,7 +1949,7 @@ fbuf_st *buflist_new(uchar_kt *ffname,
 
         if(lnum != 0)
         {
-            buflist_setfpos(buf, curwin, lnum, (colnr_T)0, false);
+            buflist_setfpos(buf, curwin, lnum, (columnum_kt)0, false);
         }
 
         if((flags & BLN_NOOPT) == 0)
@@ -2256,7 +2256,7 @@ int buflist_getfile(int n, linenum_kt lnum, int options, int forceit)
     fbuf_st *buf;
     win_st *wp = NULL;
     pos_T *fpos;
-    colnr_T col;
+    columnum_kt col;
     buf = buflist_findnr(n);
 
     if(buf == NULL)
@@ -2741,7 +2741,7 @@ static uchar_kt *fname_match(regmatch_T *rmp,
         // Ignore case when 'fileignorecase' or the argument is set.
         rmp->rm_ic = p_fic || ignore_case;
 
-        if(vim_regexec(rmp, name, (colnr_T)0))
+        if(vim_regexec(rmp, name, (columnum_kt)0))
         {
             match = name;
         }
@@ -2750,7 +2750,7 @@ static uchar_kt *fname_match(regmatch_T *rmp,
             // Replace $(HOME) with '~' and try matching again
             p = home_replace_save(NULL, name);
 
-            if(vim_regexec(rmp, p, (colnr_T)0))
+            if(vim_regexec(rmp, p, (columnum_kt)0))
             {
                 match = name;
             }
@@ -2814,7 +2814,7 @@ uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
 void buflist_setfpos(fbuf_st *const buf,
                      win_st *const win,
                      linenum_kt lnum,
-                     colnr_T col,
+                     columnum_kt col,
                      bool copy_options)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -4004,7 +4004,7 @@ int build_stl_str_hl(win_st *wp,
     // efficient than making a copy of the line.
     int byteval;
 
-    if(wp->w_cursor.col > (colnr_T)STRLEN(line_ptr))
+    if(wp->w_cursor.col > (columnum_kt)STRLEN(line_ptr))
     {
         byteval = 0;
     }
@@ -4556,7 +4556,7 @@ int build_stl_str_hl(win_st *wp,
             case STL_VIRTCOL_ALT:
             {
                 // In list mode virtcol needs to be recomputed
-                colnr_T virtcol = wp->w_virtcol;
+                columnum_kt virtcol = wp->w_virtcol;
 
                 if(wp->w_p_list && lcs_tab1 == NUL)
                 {
@@ -4569,7 +4569,7 @@ int build_stl_str_hl(win_st *wp,
 
                 // Don't display %V if it's the same as %c.
                 if(opt == STL_VIRTCOL_ALT
-                   && ((colnr_T)((!(curmod & kInsertMode) && empty_line)
+                   && ((columnum_kt)((!(curmod & kInsertMode) && empty_line)
                                  ? 0 : (int)wp->w_cursor.col + 1)) == virtcol)
                 {
                     break;
@@ -6656,8 +6656,8 @@ int bufhl_add_hl(fbuf_st *buf,
                  int src_id,
                  int hl_id,
                  linenum_kt lnum,
-                 colnr_T col_start,
-                 colnr_T col_end)
+                 columnum_kt col_start,
+                 columnum_kt col_end)
 {
     static int next_src_id = 1;
 
@@ -6891,7 +6891,7 @@ bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_T *info)
 /// @param col   The column to get the attr for
 ///
 /// @return The highilight attr to display at the column
-int bufhl_get_attr(bufhl_lineinfo_T *info, colnr_T col)
+int bufhl_get_attr(bufhl_lineinfo_T *info, columnum_kt col)
 {
     if(col <= info->valid_to)
     {

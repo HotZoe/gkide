@@ -787,14 +787,14 @@ void validate_cursor_col(void)
 
     if(!(curwin->w_valid & VALID_WCOL))
     {
-        colnr_T col = curwin->w_virtcol;
-        colnr_T off = curwin_col_off();
+        columnum_kt col = curwin->w_virtcol;
+        columnum_kt off = curwin_col_off();
         col += off;
         int width = curwin->w_width - off + curwin_col_off2();
 
         // long line wrapping, adjust curwin->w_wrow
         if(curwin->w_p_wrap
-           && col >= (colnr_T)curwin->w_width
+           && col >= (columnum_kt)curwin->w_width
            && width > 0)
         {
             // use same formula as what is used in curs_columns()
@@ -857,9 +857,9 @@ void curs_columns(int may_scroll)
 {
     int n;
     int width = 0;
-    colnr_T startcol;
-    colnr_T endcol;
-    colnr_T prev_skipcol;
+    columnum_kt startcol;
+    columnum_kt endcol;
+    columnum_kt prev_skipcol;
 
     // First make sure that w_topline is valid (after moving the cursor).
     update_topline();
@@ -1050,7 +1050,7 @@ void curs_columns(int may_scroll)
             n = p_lines;
         }
 
-        if((colnr_T)n >= curwin->w_height + curwin->w_skipcol / width)
+        if((columnum_kt)n >= curwin->w_height + curwin->w_skipcol / width)
         {
             extra += 2;
         }
@@ -1090,7 +1090,7 @@ void curs_columns(int may_scroll)
 
             if(extra > 0)
             {
-                if((colnr_T)(extra * width) > curwin->w_skipcol)
+                if((columnum_kt)(extra * width) > curwin->w_skipcol)
                 {
                     extra = curwin->w_skipcol / width;
                 }
@@ -2805,9 +2805,9 @@ void halfpage(bool flag, linenum_kt Prenum)
 void do_check_cursorbind(void)
 {
     linenum_kt line = curwin->w_cursor.lnum;
-    colnr_T col = curwin->w_cursor.col;
-    colnr_T coladd = curwin->w_cursor.coladd;
-    colnr_T curswant = curwin->w_curswant;
+    columnum_kt col = curwin->w_cursor.col;
+    columnum_kt coladd = curwin->w_cursor.coladd;
+    columnum_kt curswant = curwin->w_curswant;
     int set_curswant = curwin->w_set_curswant;
     win_st *old_curwin = curwin;
     fbuf_st *old_curbuf = curbuf;

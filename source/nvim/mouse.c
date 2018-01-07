@@ -715,9 +715,9 @@ void set_mouse_topline(win_st *wp)
 }
 
 /// Return length of line "lnum" for horizontal scrolling.
-static colnr_T scroll_line_len(linenum_kt lnum)
+static columnum_kt scroll_line_len(linenum_kt lnum)
 {
-    colnr_T col = 0;
+    columnum_kt col = 0;
     uchar_kt *line = ml_get(lnum);
 
     if(*line != NUL)
@@ -758,14 +758,14 @@ static linenum_kt find_longest_lnum(void)
         // closest to the cursor line. Used when scrolling below.
         for(linenum_kt lnum = curwin->w_topline; lnum < curwin->w_botline; lnum++)
         {
-            colnr_T len = scroll_line_len(lnum);
+            columnum_kt len = scroll_line_len(lnum);
 
-            if(len > (colnr_T)max)
+            if(len > (columnum_kt)max)
             {
                 max = len;
                 ret = lnum;
             }
-            else if(len == (colnr_T)max
+            else if(len == (columnum_kt)max
                     && abs((int)(lnum - curwin->w_cursor.lnum))
                        < abs((int)(ret - curwin->w_cursor.lnum)))
             {
@@ -810,12 +810,12 @@ bool mouse_scroll_horiz(int dir)
         return false;
     }
 
-    curwin->w_leftcol = (colnr_T)leftcol;
+    curwin->w_leftcol = (columnum_kt)leftcol;
 
     // When the line of the cursor is too short,
     // move the cursor to the longest visible line.
     if(!virtual_active()
-       && (colnr_T)leftcol > scroll_line_len(curwin->w_cursor.lnum))
+       && (columnum_kt)leftcol > scroll_line_len(curwin->w_cursor.lnum))
     {
         curwin->w_cursor.lnum = find_longest_lnum();
         curwin->w_cursor.col = 0;
@@ -836,7 +836,7 @@ static int mouse_adjust_click(win_st *wp, int row, int col)
         return col;
     }
 
-    int end = (colnr_T)STRLEN(ml_get(wp->w_cursor.lnum));
+    int end = (columnum_kt)STRLEN(ml_get(wp->w_cursor.lnum));
     int vend = getviscol2(end, 0);
 
     if(col >= vend)

@@ -4513,7 +4513,7 @@ static int store_aff_word(spellinfo_T *spin,
                        && (ae->ae_prog == NULL || vim_regexec_prog(&ae->ae_prog,
                                                                    false,
                                                                    word,
-                                                                   (colnr_T)0))
+                                                                   (columnum_kt)0))
                        && (((condit & CONDIT_CFIX) == 0)
                            == ((condit & CONDIT_AFF) == 0
                                || ae->ae_flags == NULL

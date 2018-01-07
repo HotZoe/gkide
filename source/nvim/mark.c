@@ -1380,13 +1380,13 @@ static void mark_adjust_internal(linenum_kt line1,
         {                                                           \
             posp->lnum += lnum_amount;                              \
             assert(col_amount > INT_MIN && col_amount <= INT_MAX);  \
-            if(col_amount < 0 && posp->col <= (colnr_T)-col_amount) \
+            if(col_amount < 0 && posp->col <= (columnum_kt)-col_amount) \
             {                                                       \
                 posp->col = 0;                                      \
             }                                                       \
             else                                                    \
             {                                                       \
-                posp->col += (colnr_T)col_amount;                   \
+                posp->col += (columnum_kt)col_amount;                   \
             }                                                       \
         }                                                           \
     }
@@ -1395,7 +1395,7 @@ static void mark_adjust_internal(linenum_kt line1,
 /// add "lnum_amount" to the line number and add "col_amount" to
 /// the column position.
 void mark_col_adjust(linenum_kt lnum,
-                     colnr_T mincol,
+                     columnum_kt mincol,
                      long lnum_amount,
                      long col_amount)
 {

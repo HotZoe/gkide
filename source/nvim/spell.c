@@ -1823,7 +1823,7 @@ size_t spell_move_to(win_st *wp,
             if(dir == BACKWARD
                && lnum == wp->w_cursor.lnum
                && !wrapped
-               && (colnr_T)(p - buf) >= wp->w_cursor.col)
+               && (columnum_kt)(p - buf) >= wp->w_cursor.col)
             {
                 break;
             }
@@ -1843,7 +1843,7 @@ size_t spell_move_to(win_st *wp,
                        || lnum != wp->w_cursor.lnum
                        || (lnum == wp->w_cursor.lnum
                            && (wrapped
-                               || ((colnr_T)(curline
+                               || ((columnum_kt)(curline
                                              ? p - buf + (ptrdiff_t)len
                                              : p - buf) > wp->w_cursor.col))))
                     {
@@ -1851,7 +1851,7 @@ size_t spell_move_to(win_st *wp,
                         {
                             col = (int)(p - buf);
 
-                            (void)syn_get_id(wp, lnum, (colnr_T)col,
+                            (void)syn_get_id(wp, lnum, (columnum_kt)col,
                                              FALSE, &can_spell, FALSE);
 
                             if(!can_spell)
@@ -3638,7 +3638,7 @@ void spell_suggest(int count)
                 return;
             }
 
-            curwin->w_cursor.col = (colnr_T)(p - line);
+            curwin->w_cursor.col = (columnum_kt)(p - line);
         }
     }
 
@@ -3848,13 +3848,13 @@ void spell_suggest(int count)
 
 /// Check if the word at line "lnum" column "col" is required to
 /// start with a capital. This uses 'spellcapcheck' of the current buffer.
-static bool check_need_cap(linenum_kt lnum, colnr_T col)
+static bool check_need_cap(linenum_kt lnum, columnum_kt col)
 {
     bool need_cap = false;
     uchar_kt *line;
     uchar_kt *line_copy = NULL;
     uchar_kt *p;
-    colnr_T endcol;
+    columnum_kt endcol;
     regmatch_T regmatch;
 
     if(curwin->w_s->b_cap_prog == NULL)
@@ -3886,7 +3886,7 @@ static bool check_need_cap(linenum_kt lnum, colnr_T col)
                 // Append a space in place of the line break.
                 line_copy = concat_str(line, (uchar_kt *)" ");
                 line = line_copy;
-                endcol = (colnr_T)STRLEN(line);
+                endcol = (columnum_kt)STRLEN(line);
             }
         }
     }
@@ -3984,7 +3984,7 @@ void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
             ++sub_nsubs;
         }
 
-        curwin->w_cursor.col += (colnr_T)STRLEN(repl_to);
+        curwin->w_cursor.col += (columnum_kt)STRLEN(repl_to);
     }
 
     p_ws = save_ws;
@@ -9690,7 +9690,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
         if(pat == NULL)
         {
             vim_snprintf((char *)IObuff, IOSIZE, "/regions=%s", region_names);
-            ml_append(lnum++, IObuff, (colnr_T)0, FALSE);
+            ml_append(lnum++, IObuff, (columnum_kt)0, FALSE);
         }
     }
     else
@@ -9712,7 +9712,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
         if(pat == NULL)
         {
             vim_snprintf((char *)IObuff, IOSIZE, "# file: %s", slang->sl_fname);
-            ml_append(lnum++, IObuff, (colnr_T)0, FALSE);
+            ml_append(lnum++, IObuff, (columnum_kt)0, FALSE);
         }
 
         // When matching with a pattern and there are no
@@ -9943,7 +9943,7 @@ static void dump_word(slang_T *slang,
             }
         }
 
-        ml_append(lnum, p, (colnr_T)0, FALSE);
+        ml_append(lnum, p, (columnum_kt)0, FALSE);
     }
     else if(((dumpflags & DUMPFLAG_ICASE)
              ? mb_strnicmp(p, pat, STRLEN(pat)) == 0
@@ -10168,7 +10168,7 @@ int spell_word_start(int startcol)
 /// expand_spelling() is called. Therefore the ugly global variable.
 static bool spell_expand_need_cap;
 
-void spell_expand_check_cap(colnr_T col)
+void spell_expand_check_cap(columnum_kt col)
 {
     spell_expand_need_cap = check_need_cap(curwin->w_cursor.lnum, col);
 }

@@ -303,7 +303,7 @@ static uchar_kt toF_Xor_X_(int c)
 
             if(p_ri
                && (curwin->w_cursor.col + 1
-                   < (colnr_T)STRLEN(get_cursor_line_ptr())))
+                   < (columnum_kt)STRLEN(get_cursor_line_ptr())))
             {
                 inc_cursor();
 
@@ -660,7 +660,7 @@ static void put_curr_and_l_to_X(uchar_kt c)
         return;
     }
 
-    if((curwin->w_cursor.col < (colnr_T)STRLEN(get_cursor_line_ptr())))
+    if((curwin->w_cursor.col < (columnum_kt)STRLEN(get_cursor_line_ptr())))
     {
         if(!p_ri || curwin->w_cursor.col)
         {
@@ -932,7 +932,7 @@ static void chg_c_to_X_or_X(void)
     int tempc;
     tempc = gchar_cursor();
 
-    if(curwin->w_cursor.col + 1 < (colnr_T)STRLEN(get_cursor_line_ptr()))
+    if(curwin->w_cursor.col + 1 < (columnum_kt)STRLEN(get_cursor_line_ptr()))
     {
         inc_cursor();
 
@@ -959,7 +959,7 @@ static void chg_l_to_X_orX_(void)
     int tempc;
 
     if((curwin->w_cursor.col != 0)
-       && (curwin->w_cursor.col + 1 == (colnr_T)STRLEN(get_cursor_line_ptr())))
+       && (curwin->w_cursor.col + 1 == (columnum_kt)STRLEN(get_cursor_line_ptr())))
     {
         return;
     }
@@ -1049,7 +1049,7 @@ static void chg_l_toXor_X(void)
     uchar_kt tempc;
 
     if((curwin->w_cursor.col != 0)
-       && (curwin->w_cursor.col + 1 == (colnr_T)STRLEN(get_cursor_line_ptr())))
+       && (curwin->w_cursor.col + 1 == (columnum_kt)STRLEN(get_cursor_line_ptr())))
     {
         return;
     }

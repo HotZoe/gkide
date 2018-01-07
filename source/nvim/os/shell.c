@@ -540,7 +540,7 @@ static void out_data_append_to_screen(char *output,
                                       bool new_line)
 {
     // Column of last row to append to.
-    static colnr_T last_col = 0;
+    static columnum_kt last_col = 0;
     size_t off = 0;
     int last_row = (int)Rows - 1;
 
@@ -587,7 +587,7 @@ static void out_data_append_to_screen(char *output,
         screen_puts_len((uchar_kt *)output,
                         (int)remaining, last_row, last_col, 0);
 
-        last_col += (colnr_T)remaining;
+        last_col += (columnum_kt)remaining;
     }
 
     if(new_line)

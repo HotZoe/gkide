@@ -346,17 +346,17 @@ int set_indent(int size, int flags)
         // Correct saved cursor position if it is in this line.
         if(saved_cursor.lnum == curwin->w_cursor.lnum)
         {
-            if(saved_cursor.col >= (colnr_T)(p - oldline))
+            if(saved_cursor.col >= (columnum_kt)(p - oldline))
             {
                 // Cursor was after the indent, adjust for the number of
                 // bytes added/removed.
-                saved_cursor.col += ind_len - (colnr_T)(p - oldline);
+                saved_cursor.col += ind_len - (columnum_kt)(p - oldline);
             }
-            else if(saved_cursor.col >= (colnr_T)(s - newline))
+            else if(saved_cursor.col >= (columnum_kt)(s - newline))
             {
                 // Cursor was in the indent, and is now after it, put it back
                 // at the start of the indent (replacing spaces with TAB).
-                saved_cursor.col = (colnr_T)(s - newline);
+                saved_cursor.col = (columnum_kt)(s - newline);
             }
         }
 
@@ -498,7 +498,7 @@ int copy_indent(int size, uchar_kt *src)
 /// Since a pattern is used it can actually handle more than numbers.
 int get_number_indent(linenum_kt lnum)
 {
-    colnr_T col;
+    columnum_kt col;
     pos_T pos;
     regmatch_T regmatch;
     int lead_len = 0; // Length of comment leader.
@@ -524,10 +524,10 @@ int get_number_indent(linenum_kt lnum)
 
         // vim_regexec() expects a pointer to a line. This lets us
         // start matching for the flp beyond any comment leader...
-        if(vim_regexec(&regmatch, ml_get(lnum) + lead_len, (colnr_T)0))
+        if(vim_regexec(&regmatch, ml_get(lnum) + lead_len, (columnum_kt)0))
         {
             pos.lnum = lnum;
-            pos.col = (colnr_T)(*regmatch.endp - ml_get(lnum));
+            pos.col = (columnum_kt)(*regmatch.endp - ml_get(lnum));
             pos.coladd = 0;
         }
 
@@ -606,7 +606,7 @@ int get_breakindent_win(win_st *wp, uchar_kt *line)
 int inindent(int extra)
 {
     uchar_kt *ptr;
-    colnr_T col;
+    columnum_kt col;
 
     for(col = 0, ptr = get_cursor_line_ptr(); ascii_iswhite(*ptr); ++col)
     {
@@ -629,7 +629,7 @@ int get_expr_indent(void)
 {
     int indent;
     pos_T save_pos;
-    colnr_T save_curswant;
+    columnum_kt save_curswant;
     int save_set_curswant;
     int save_State;
     int use_sandbox = was_set_insecurely((uchar_kt *)"indentexpr", OPT_LOCAL);
@@ -697,8 +697,8 @@ int get_lisp_indent(void)
     pos_T *pos, realpos, paren;
     int amount;
     uchar_kt *that;
-    colnr_T col;
-    colnr_T firsttry;
+    columnum_kt col;
+    columnum_kt firsttry;
     int parencount;
     int quotecount;
     int vi_lisp;
@@ -818,7 +818,7 @@ int get_lisp_indent(void)
                 {
                     amount += lbr_chartabsize_adv(line,
                                                   &that,
-                                                  (colnr_T)amount);
+                                                  (columnum_kt)amount);
                     col--;
                 }
 
@@ -841,7 +841,7 @@ int get_lisp_indent(void)
                     {
                         amount += lbr_chartabsize(line,
                                                   that,
-                                                  (colnr_T)amount);
+                                                  (columnum_kt)amount);
                         that++;
                     }
 
@@ -892,12 +892,12 @@ int get_lisp_indent(void)
                                 {
                                     amount += lbr_chartabsize_adv(line,
                                                                   &that,
-                                                                  (colnr_T)amount);
+                                                                  (columnum_kt)amount);
                                 }
 
                                 amount += lbr_chartabsize_adv(line,
                                                               &that,
-                                                              (colnr_T)amount);
+                                                              (columnum_kt)amount);
                             }
                         }
 
@@ -905,7 +905,7 @@ int get_lisp_indent(void)
                         {
                             amount += lbr_chartabsize(line,
                                                       that,
-                                                      (colnr_T)amount);
+                                                      (columnum_kt)amount);
                             that++;
                         }
 

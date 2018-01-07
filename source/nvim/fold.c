@@ -838,7 +838,7 @@ void deleteFold(linenum_kt start,
 
     if(last_lnum > 0)
     {
-        changed_lines(first_lnum, (colnr_T)0, last_lnum, 0L);
+        changed_lines(first_lnum, (columnum_kt)0, last_lnum, 0L);
     }
 }
 
@@ -1140,7 +1140,7 @@ void foldAdjustVisual(void)
     if(hasFolding(end->lnum, NULL, &end->lnum))
     {
         ptr = ml_get(end->lnum);
-        end->col = (colnr_T)STRLEN(ptr);
+        end->col = (columnum_kt)STRLEN(ptr);
 
         if(end->col > 0 && *p_sel == 'o')
         {
@@ -1870,7 +1870,7 @@ static void foldCreateMarkers(linenum_kt start, linenum_kt end)
 
     // Update both changes here, to avoid all folds after the start are
     // changed when the start marker is inserted and the end isn't.
-    changed_lines(start, (colnr_T)0, end, 0L);
+    changed_lines(start, (columnum_kt)0, end, 0L);
 }
 
 /// Add "marker[markerlen]" in 'commentstring' to line "lnum".

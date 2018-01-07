@@ -1916,7 +1916,7 @@ void utf_find_illegal(void)
             {
                 if(vimconv.vc_type == CONV_NONE)
                 {
-                    curwin->w_cursor.col += (colnr_T)(p - get_cursor_pos_ptr());
+                    curwin->w_cursor.col += (columnum_kt)(p - get_cursor_pos_ptr());
                 }
                 else
                 {
@@ -1972,13 +1972,13 @@ void mb_adjust_cursor(void)
 void mb_check_adjust_col(void *win_)
 {
     win_st *win = (win_st *)win_;
-    colnr_T oldcol = win->w_cursor.col;
+    columnum_kt oldcol = win->w_cursor.col;
 
     // Column 0 is always valid.
     if(oldcol != 0)
     {
         uchar_kt *p = ml_get_buf(win->w_buffer, win->w_cursor.lnum, false);
-        colnr_T len = (colnr_T)STRLEN(p);
+        columnum_kt len = (columnum_kt)STRLEN(p);
 
         // Empty line or invalid column?
         if(len == 0 || oldcol < 0)

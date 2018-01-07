@@ -405,8 +405,8 @@ typedef struct
         {
             linenum_kt start_lnum;
             linenum_kt end_lnum;
-            colnr_T start_col;
-            colnr_T end_col;
+            columnum_kt start_col;
+            columnum_kt end_col;
         } multi[NSUBEXP];
         struct linepos
         {
@@ -4547,7 +4547,7 @@ static int ireg_icombine;
 
 /// Copy of "rmm_maxcol": maximum column to search for a match.
 /// Zero when there is no maximum.
-static colnr_T ireg_maxcol;
+static columnum_kt ireg_maxcol;
 
 // Sometimes need to save a copy of a line. Since alloc()/free() is very
 // slow, we keep one allocated piece of memory and only re-allocate it when
@@ -4656,7 +4656,7 @@ static lpos_T reg_endzpos[NSUBEXP];     ///< idem, end pos
 /// 0 for failure, number of lines contained in the match otherwise.
 static int bt_regexec_nl(regmatch_T *rmp,
                          uchar_kt *line,
-                         colnr_T col,
+                         columnum_kt col,
                          bool line_lbr)
 {
     reg_match = rmp;
@@ -4694,7 +4694,7 @@ static long bt_regexec_multi(regmmatch_T *rmp,
                              win_st *win,
                              fbuf_st *buf,
                              linenum_kt lnum,
-                             colnr_T col,
+                             columnum_kt col,
                              proftime_kt *tm)
 {
     reg_match = NULL;
@@ -4720,7 +4720,7 @@ static long bt_regexec_multi(regmmatch_T *rmp,
 ///
 /// @return
 /// 0 for failure, number of lines contained in the match otherwise.
-static long bt_regexec_both(uchar_kt *line, colnr_T col, proftime_kt *tm)
+static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
 {
     uchar_kt *s;
     long retval = 0L;
@@ -5009,7 +5009,7 @@ void unref_extmatch(reg_extmatch_T *em)
 
 /// try match of "prog" with at regline["col"].
 /// Returns 0 for failure, number of lines contained in the match otherwise.
-static long regtry(bt_regprog_T *prog, colnr_T col)
+static long regtry(bt_regprog_T *prog, columnum_kt col)
 {
     reginput = regline + col;
     need_clear_subexpr = TRUE;
@@ -5122,13 +5122,13 @@ static int reg_match_visual(void)
     pos_T top;
     pos_T bot;
     linenum_kt lnum;
-    colnr_T col;
+    columnum_kt col;
     win_st *wp = reg_win == NULL ? curwin : reg_win;
     int mode;
-    colnr_T start;
-    colnr_T end;
-    colnr_T start2;
-    colnr_T end2;
+    columnum_kt start;
+    columnum_kt end;
+    columnum_kt start2;
+    columnum_kt end2;
 
     // Check if the buffer is the current buffer.
     if(reg_buf != curbuf || VIsual.lnum == 0)
@@ -5176,7 +5176,7 @@ static int reg_match_visual(void)
 
     if(mode == 'v')
     {
-        col = (colnr_T)(reginput - regline);
+        col = (columnum_kt)(reginput - regline);
 
         if((lnum == top.lnum && col < top.col)
            || (lnum == bot.lnum && col >= bot.col + (*p_sel != 'e')))
@@ -5205,11 +5205,11 @@ static int reg_match_visual(void)
         }
 
         unsigned int cols_u =
-            win_linetabsize(wp, regline, (colnr_T)(reginput - regline));
+            win_linetabsize(wp, regline, (columnum_kt)(reginput - regline));
 
         assert(cols_u <= MAXCOL);
 
-        colnr_T cols = (colnr_T)cols_u;
+        columnum_kt cols = (columnum_kt)cols_u;
 
         if(cols < start || cols > end - (*p_sel == 'e'))
         {
@@ -5400,7 +5400,7 @@ static int regmatch(uchar_kt *scan)
                         if(reg_win == NULL
                            || (reglnum + reg_firstlnum
                                != reg_win->w_cursor.lnum)
-                           || ((colnr_T)(reginput - regline)
+                           || ((columnum_kt)(reginput - regline)
                                != reg_win->w_cursor.col))
                         {
                             status = RA_NOMATCH;
@@ -5419,9 +5419,9 @@ static int regmatch(uchar_kt *scan)
                         if(pos == NULL       // mark doesn't exist
                            || pos->lnum <= 0 // mark isn't set in reg_buf
                            || (pos->lnum == reglnum + reg_firstlnum
-                               ? (pos->col == (colnr_T)(reginput - regline)
+                               ? (pos->col == (columnum_kt)(reginput - regline)
                                   ? (cmp == '<' || cmp == '>')
-                                  : (pos->col < (colnr_T)(reginput - regline)
+                                  : (pos->col < (columnum_kt)(reginput - regline)
                                      ? cmp != '>'
                                      : cmp != '<'))
                                : (pos->lnum < reglnum + reg_firstlnum
@@ -5471,7 +5471,7 @@ static int regmatch(uchar_kt *scan)
                         if(!re_num_cmp(win_linetabsize(reg_win == NULL
                                                        ? curwin : reg_win,
                                                        regline,
-                                                       (colnr_T)(reginput
+                                                       (columnum_kt)(reginput
                                                                  - regline)) + 1,
                                        scan))
                         {
@@ -6620,7 +6620,7 @@ static int regmatch(uchar_kt *scan)
                         if(REG_MULTI)
                         {
                             if((behind_pos.rs_u.pos.col
-                                != (colnr_T)(reginput - regline))
+                                != (columnum_kt)(reginput - regline))
                                || behind_pos.rs_u.pos.lnum != reglnum)
                             {
                                 status = RA_NOMATCH;
@@ -6930,7 +6930,7 @@ static int regmatch(uchar_kt *scan)
                             if(limit > 0
                                && ((rp->rs_un.regsave.rs_u.pos.lnum
                                     < behind_pos.rs_u.pos.lnum
-                                    ? (colnr_T)STRLEN(regline)
+                                    ? (columnum_kt)STRLEN(regline)
                                     : behind_pos.rs_u.pos.col)
                                    - rp->rs_un.regsave.rs_u.pos.col >= limit))
                             {
@@ -6947,7 +6947,7 @@ static int regmatch(uchar_kt *scan)
                                 {
                                     reg_restore(&rp->rs_un.regsave, &backpos);
                                     rp->rs_un.regsave.rs_u.pos.col =
-                                        (colnr_T)STRLEN(regline);
+                                        (columnum_kt)STRLEN(regline);
                                 }
                             }
                             else
@@ -7937,7 +7937,7 @@ static void reg_save(regsave_T *save, garray_st *gap)
 {
     if(REG_MULTI)
     {
-        save->rs_u.pos.col = (colnr_T)(reginput - regline);
+        save->rs_u.pos.col = (columnum_kt)(reginput - regline);
         save->rs_u.pos.lnum = reglnum;
     }
     else
@@ -7994,7 +7994,7 @@ static void save_se_multi(save_se_T *savep, lpos_T *posp)
 {
     savep->se_u.pos = *posp;
     posp->lnum = reglnum;
-    posp->col = (colnr_T)(reginput - regline);
+    posp->col = (columnum_kt)(reginput - regline);
 }
 
 static void save_se_one(save_se_T *savep, uchar_kt **pp)
@@ -8030,15 +8030,15 @@ static int re_num_cmp(uint32_t val, uchar_kt *scan)
 /// If @b bytelen is not NULL, it is set to the
 /// byte length of the match in the last line.
 static int match_with_backref(linenum_kt start_lnum,
-                              colnr_T start_col,
+                              columnum_kt start_col,
                               linenum_kt end_lnum,
-                              colnr_T end_col,
+                              columnum_kt end_col,
                               int *bytelen)
 {
     int len;
     uchar_kt *p;
     linenum_kt clnum = start_lnum;
-    colnr_T ccol = start_col;
+    columnum_kt ccol = start_col;
 
     if(bytelen != NULL)
     {
@@ -9879,8 +9879,8 @@ list_st *reg_submatch_list(int no)
             return NULL;
         }
 
-        colnr_T scol = submatch_mmatch->startpos[no].col;
-        colnr_T ecol = submatch_mmatch->endpos[no].col;
+        columnum_kt scol = submatch_mmatch->startpos[no].col;
+        columnum_kt ecol = submatch_mmatch->endpos[no].col;
         list = tv_list_alloc();
         s = (const char *)reg_getline_submatch(slnum) + scol;
 
@@ -15665,7 +15665,7 @@ static regsubs_T *addstate(nfa_list_T *l,
                 {
                     sub->list.multi[subidx].start_lnum = reglnum;
                     sub->list.multi[subidx].start_col =
-                        (colnr_T)(reginput - regline + off);
+                        (columnum_kt)(reginput - regline + off);
                 }
 
                 sub->list.multi[subidx].end_lnum = -1;
@@ -15796,7 +15796,7 @@ static regsubs_T *addstate(nfa_list_T *l,
                 {
                     sub->list.multi[subidx].end_lnum = reglnum;
                     sub->list.multi[subidx].end_col =
-                        (colnr_T)(reginput - regline + off);
+                        (columnum_kt)(reginput - regline + off);
                 }
 
                 // avoid compiler warnings
@@ -16600,7 +16600,7 @@ static int failure_chance(nfa_state_T *state, int depth)
 }
 
 /// Skip until the char "c" we know a match must start with.
-static int skip_to_start(int c, colnr_T *colp)
+static int skip_to_start(int c, columnum_kt *colp)
 {
     const uchar_kt *const s = cstrchr(regline + *colp, c);
 
@@ -16617,13 +16617,13 @@ static int skip_to_start(int c, colnr_T *colp)
 /// Called after skip_to_start() has found regstart.
 ///
 /// @return zero for no match, 1 for a match.
-static long find_match_text(colnr_T startcol,
+static long find_match_text(columnum_kt startcol,
                             int regstart,
                             uchar_kt *match_text)
 {
 #define PTR2LEN(x)    enc_utf8 ? utf_ptr2len(x) : MB_PTR2LEN(x)
 
-    colnr_T col = startcol;
+    columnum_kt col = startcol;
     int regstart_len = PTR2LEN(regline + startcol);
 
     for(;;)
@@ -16800,7 +16800,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
         if(REG_MULTI)
         {
             m->norm.list.multi[0].start_lnum = reglnum;
-            m->norm.list.multi[0].start_col = (colnr_T)(reginput - regline);
+            m->norm.list.multi[0].start_col = (columnum_kt)(reginput - regline);
         }
         else
         {
@@ -17933,7 +17933,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                 case NFA_VCOL_LT:
                 {
                     int op = t->state->c - NFA_VCOL;
-                    colnr_T col = (colnr_T)(reginput - regline);
+                    columnum_kt col = (columnum_kt)(reginput - regline);
 
                     // Bail out quickly when there can't be a match,
                     // avoid the overhead of win_linetabsize() on long lines.
@@ -17987,9 +17987,9 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                     result = (pos != NULL // mark doesn't exist
                               && pos->lnum > 0 // mark isn't set in reg_buf
                               && (pos->lnum == reglnum + reg_firstlnum
-                                  ? (pos->col == (colnr_T)(reginput - regline)
+                                  ? (pos->col == (columnum_kt)(reginput - regline)
                                      ? t->state->c == NFA_MARK
-                                     : (pos->col < (colnr_T)(reginput - regline)
+                                     : (pos->col < (columnum_kt)(reginput - regline)
                                         ? t->state->c == NFA_MARK_GT
                                         : t->state->c == NFA_MARK_LT))
                                   : (pos->lnum < reglnum + reg_firstlnum
@@ -18008,7 +18008,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                 case NFA_CURSOR:
                     result = (reg_win != NULL
                               && (reglnum + reg_firstlnum == reg_win->w_cursor.lnum)
-                              && ((colnr_T)(reginput - regline) == reg_win->w_cursor.col));
+                              && ((columnum_kt)(reginput - regline) == reg_win->w_cursor.col));
 
                     if(result)
                     {
@@ -18215,7 +18215,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                 && reglnum == 0
                 && clen != 0
                 && (ireg_maxcol == 0
-                    || (colnr_T)(reginput - regline) < ireg_maxcol))
+                    || (columnum_kt)(reginput - regline) < ireg_maxcol))
                || (nfa_endp != NULL
                    && (REG_MULTI
                        ? (reglnum < nfa_endp->se_u.pos.lnum
@@ -18239,7 +18239,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                 {
                     if(nextlist->n == 0)
                     {
-                        colnr_T col = (colnr_T)(reginput - regline) + clen;
+                        columnum_kt col = (columnum_kt)(reginput - regline) + clen;
 
                         // Nextlist is empty, we can skip ahead to the
                         // character that must appear at the start.
@@ -18251,7 +18251,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                         #ifdef REGEXP_DEBUG
                         fprintf(log_fd,
                                 "  Skipping ahead %d bytes to regstart\n",
-                                col - ((colnr_T)(reginput - regline) + clen));
+                                col - ((columnum_kt)(reginput - regline) + clen));
                         #endif
 
                         reginput = regline + col - clen;
@@ -18282,7 +18282,7 @@ static int nfa_regmatch(nfa_regprog_T *prog,
                     if(REG_MULTI)
                     {
                         m->norm.list.multi[0].start_col =
-                            (colnr_T)(reginput - regline) + clen;
+                            (columnum_kt)(reginput - regline) + clen;
                     }
                     else
                     {
@@ -18382,7 +18382,7 @@ theend:
 /// <= 0 for failure, number of lines
 /// contained in the match otherwise.
 static long nfa_regtry(nfa_regprog_T *prog,
-                       colnr_T col,
+                       columnum_kt col,
                        proftime_kt *tm)
 {
     int i;
@@ -18539,13 +18539,13 @@ static long nfa_regtry(nfa_regprog_T *prog,
 /// <= 0 if there is no match and number of lines contained
 /// in the match otherwise.
 static long nfa_regexec_both(uchar_kt *line,
-                             colnr_T startcol,
+                             columnum_kt startcol,
                              proftime_kt *tm)
 {
     nfa_regprog_T *prog;
     long retval = 0L;
     int i;
-    colnr_T col = startcol;
+    columnum_kt col = startcol;
 
     if(REG_MULTI)
     {
@@ -18792,7 +18792,7 @@ static void nfa_regfree(regprog_T *prog)
 /// <= 0 for failure, number of lines contained in the match otherwise.
 static int nfa_regexec_nl(regmatch_T *rmp,
                           uchar_kt *line,
-                          colnr_T col,
+                          columnum_kt col,
                           bool line_lbr)
 {
     reg_match = rmp;
@@ -18849,7 +18849,7 @@ static long nfa_regexec_multi(regmmatch_T *rmp,
                               win_st *win,
                               fbuf_st *buf,
                               linenum_kt lnum,
-                              colnr_T col,
+                              columnum_kt col,
                               proftime_kt *tm)
 {
     reg_match = NULL;
@@ -19017,7 +19017,7 @@ static void report_re_switch(uchar_kt *pat)
 /// @return TRUE if there is a match, FALSE if not.
 static int vim_regexec_both(regmatch_T *rmp,
                             uchar_kt *line,
-                            colnr_T col, bool nl)
+                            columnum_kt col, bool nl)
 {
     int result = rmp->regprog->engine->regexec_nl(rmp, line, col, nl);
 
@@ -19056,7 +19056,7 @@ static int vim_regexec_both(regmatch_T *rmp,
 int vim_regexec_prog(regprog_T **prog,
                      bool ignore_case,
                      uchar_kt *line,
-                     colnr_T col)
+                     columnum_kt col)
 {
     regmatch_T regmatch = { .regprog = *prog, .rm_ic = ignore_case };
     int r = vim_regexec_both(&regmatch, line, col, false);
@@ -19071,7 +19071,7 @@ int vim_regexec_prog(regprog_T **prog,
 ///
 /// @note
 /// "rmp->regprog" may be freed and changed.
-int vim_regexec(regmatch_T *rmp, uchar_kt *line, colnr_T col)
+int vim_regexec(regmatch_T *rmp, uchar_kt *line, columnum_kt col)
 {
     return vim_regexec_both(rmp, line, col, false);
 }
@@ -19083,7 +19083,7 @@ int vim_regexec(regmatch_T *rmp, uchar_kt *line, colnr_T col)
 ///
 /// @note
 /// "rmp->regprog" may be freed and changed.
-int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, colnr_T col)
+int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, columnum_kt col)
 {
     return vim_regexec_both(rmp, line, col, true);
 }
@@ -19109,7 +19109,7 @@ long vim_regexec_multi(regmmatch_T *rmp,
                        win_st *win,
                        fbuf_st *buf,
                        linenum_kt lnum,
-                       colnr_T col,
+                       columnum_kt col,
                        proftime_kt *tm)
 {
     int result =

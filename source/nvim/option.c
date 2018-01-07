@@ -8383,7 +8383,7 @@ int ExpandSettings(expand_T *xp,
         if(xp->xp_context != EXPAND_BOOL_SETTINGS)
         {
             for(match = 0; match < (int)ARRAY_SIZE(names); ++match)
-                if(vim_regexec(regmatch, (uchar_kt *)names[match], (colnr_T)0))
+                if(vim_regexec(regmatch, (uchar_kt *)names[match], (columnum_kt)0))
                 {
                     if(loop == 0)
                     {
@@ -8414,11 +8414,11 @@ int ExpandSettings(expand_T *xp,
 
             match = FALSE;
 
-            if(vim_regexec(regmatch, str, (colnr_T)0)
+            if(vim_regexec(regmatch, str, (columnum_kt)0)
                || (options[opt_idx].shortname != NULL
                    && vim_regexec(regmatch,
                                   (uchar_kt *)options[opt_idx].shortname,
-                                  (colnr_T)0)))
+                                  (columnum_kt)0)))
             {
                 match = TRUE;
             }

@@ -7243,7 +7243,7 @@ int match_add(win_st *wp,
             i++, li = li->li_next)
         {
             linenum_kt lnum = 0;
-            colnr_T col = 0;
+            columnum_kt col = 0;
             int len = 1;
             list_st *subl;
             listitem_st *subli;

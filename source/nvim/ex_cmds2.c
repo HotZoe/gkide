@@ -1026,7 +1026,7 @@ static linenum_kt debuggy_find(bool file,
             prev_got_int = got_int;
             got_int = false;
 
-            if(vim_regexec_prog(&bp->dbg_prog, false, name, (colnr_T)0))
+            if(vim_regexec_prog(&bp->dbg_prog, false, name, (columnum_kt)0))
             {
                 lnum = bp->dbg_lnum;
 
@@ -2042,7 +2042,7 @@ static int do_arglist(uchar_kt *str, int what, int after)
             for(match = 0; match < ARGCOUNT; match++)
             {
                 if(vim_regexec(&regmatch, alist_name(&ARGLIST[match]),
-                               (colnr_T)0))
+                               (columnum_kt)0))
                 {
                     didone = true;
                     xfree(ARGLIST[match].ae_fname);

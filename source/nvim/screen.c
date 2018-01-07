@@ -1363,7 +1363,7 @@ static void win_update(win_st *wp)
             // First compute the actual start and end column.
             if(VIsual_mode == Ctrl_V)
             {
-                colnr_T fromc, toc;
+                columnum_kt fromc, toc;
                 int save_ve_flags = ve_flags;
 
                 if(curwin->w_p_lbr)
@@ -2536,17 +2536,17 @@ static void fold_line(win_st *wp,
                    && (lnume < bot->lnum
                        || (lnume == bot->lnum
                            && (bot->col - (*p_sel == 'e'))
-                           >= (colnr_T)STRLEN(ml_get_buf(wp->w_buffer,
+                           >= (columnum_kt)STRLEN(ml_get_buf(wp->w_buffer,
                                                          lnume,
                                                          FALSE)))))))
         {
             if(VIsual_mode == Ctrl_V)
             {
                 // Visual block mode: highlight the chars part of the block
-                if(wp->w_old_cursor_fcol + txtcol < (colnr_T)wp->w_width)
+                if(wp->w_old_cursor_fcol + txtcol < (columnum_kt)wp->w_width)
                 {
                     if(wp->w_old_cursor_lcol != MAXCOL
-                       && wp->w_old_cursor_lcol + txtcol < (colnr_T)wp->w_width)
+                       && wp->w_old_cursor_lcol + txtcol < (columnum_kt)wp->w_width)
                     {
                         len = wp->w_old_cursor_lcol;
                     }
@@ -2821,7 +2821,7 @@ static int win_line(win_st *wp,
     hlf_T diff_hlf = (hlf_T)0; // type of diff highlighting
     int change_start = MAXCOL; // first col of changed area
     int change_end = -1; // last col of changed area
-    colnr_T trailcol = MAXCOL; // start of trailing spaces
+    columnum_kt trailcol = MAXCOL; // start of trailing spaces
     int need_showbreak = FALSE;
     int line_attr = 0; // attribute for the whole line
     matchitem_T *cur; // points to the match list
@@ -3010,7 +3010,7 @@ static int win_line(win_st *wp,
                 }
                 else
                 {
-                    getvvcol(wp, top, (colnr_T *)&fromcol, NULL, NULL);
+                    getvvcol(wp, top, (columnum_kt *)&fromcol, NULL, NULL);
 
                     if(gchar_pos(top) == NUL)
                     {
@@ -3036,11 +3036,11 @@ static int win_line(win_st *wp,
 
                     if(*p_sel == 'e')
                     {
-                        getvvcol(wp, &pos, (colnr_T *)&tocol, NULL, NULL);
+                        getvvcol(wp, &pos, (columnum_kt *)&tocol, NULL, NULL);
                     }
                     else
                     {
-                        getvvcol(wp, &pos, NULL, NULL, (colnr_T *)&tocol);
+                        getvvcol(wp, &pos, NULL, NULL, (columnum_kt *)&tocol);
                         ++tocol;
                     }
                 }
@@ -3071,7 +3071,7 @@ static int win_line(win_st *wp,
         if(lnum == curwin->w_cursor.lnum)
         {
             getvcol(curwin, &(curwin->w_cursor),
-                    (colnr_T *)&fromcol, NULL, NULL);
+                    (columnum_kt *)&fromcol, NULL, NULL);
         }
         else
         {
@@ -3082,7 +3082,7 @@ static int win_line(win_st *wp,
         {
             pos.lnum = lnum;
             pos.col = search_match_endcol;
-            getvcol(curwin, &pos, (colnr_T *)&tocol, NULL, NULL);
+            getvcol(curwin, &pos, (columnum_kt *)&tocol, NULL, NULL);
         }
         else
         {
@@ -3211,14 +3211,14 @@ static int win_line(win_st *wp,
         // find start of trailing whitespace
         if(lcs_trail)
         {
-            trailcol = (colnr_T)STRLEN(ptr);
+            trailcol = (columnum_kt)STRLEN(ptr);
 
-            while(trailcol > (colnr_T)0 && ascii_iswhite(ptr[trailcol - 1]))
+            while(trailcol > (columnum_kt)0 && ascii_iswhite(ptr[trailcol - 1]))
             {
                 trailcol--;
             }
 
-            trailcol += (colnr_T)(ptr - line);
+            trailcol += (columnum_kt)(ptr - line);
         }
     }
 
@@ -3239,7 +3239,7 @@ static int win_line(win_st *wp,
 
         while(vcol < v && *ptr != NUL)
         {
-            c = win_lbr_chartabsize(wp, line, ptr, (colnr_T)vcol, NULL);
+            c = win_lbr_chartabsize(wp, line, ptr, (columnum_kt)vcol, NULL);
             vcol += c;
             prev_ptr = ptr;
             mb_ptr_adv(ptr);
@@ -3291,7 +3291,7 @@ static int win_line(win_st *wp,
         if(has_spell)
         {
             size_t len;
-            colnr_T linecol = (colnr_T)(ptr - line);
+            columnum_kt linecol = (columnum_kt)(ptr - line);
             hlf_T spell_hlf = HLF_COUNT;
             pos = wp->w_cursor;
             wp->w_cursor.lnum = lnum;
@@ -3338,14 +3338,14 @@ static int win_line(win_st *wp,
     {
         if(noinvcur)
         {
-            if((colnr_T)fromcol == wp->w_virtcol)
+            if((columnum_kt)fromcol == wp->w_virtcol)
             {
                 // highlighting starts at cursor, let it
                 // start just after the cursor
                 fromcol_prev = fromcol;
                 fromcol = -1;
             }
-            else if((colnr_T)fromcol < wp->w_virtcol)
+            else if((columnum_kt)fromcol < wp->w_virtcol)
             {
                 // restart highlighting after the cursor
                 fromcol_prev = wp->w_virtcol;
@@ -3386,7 +3386,7 @@ static int win_line(win_st *wp,
             cur->pos.cur = 0;
         }
 
-        next_search_hl(wp, shl, lnum, (colnr_T)v,
+        next_search_hl(wp, shl, lnum, (columnum_kt)v,
                        shl == &search_hl ? NULL : cur);
 
         // Need to get the line again, a multi-line
@@ -3806,7 +3806,7 @@ static int win_line(win_st *wp,
             }
             else if(area_attr != 0
                     && (vcol == tocol
-                        || (noinvcur && (colnr_T)vcol == wp->w_virtcol)))
+                        || (noinvcur && (columnum_kt)vcol == wp->w_virtcol)))
             {
                 area_attr = 0; // stop highlighting
             }
@@ -3880,7 +3880,7 @@ static int win_line(win_st *wp,
                         else if(v == (long)shl->endcol)
                         {
                             shl->attr_cur = 0;
-                            next_search_hl(wp, shl, lnum, (colnr_T)v,
+                            next_search_hl(wp, shl, lnum, (columnum_kt)v,
                                            shl == &search_hl ? NULL : cur);
 
                             pos_inprogress = !(cur == NULL || cur->pos.cur == 0);
@@ -4355,7 +4355,7 @@ static int win_line(win_st *wp,
                     // If there is an error, disable syntax highlighting.
                     save_did_emsg = did_emsg;
                     did_emsg = FALSE;
-                    syntax_attr = get_syntax_attr((colnr_T)v - 1,
+                    syntax_attr = get_syntax_attr((columnum_kt)v - 1,
                                                   has_spell
                                                   ? &can_spell : NULL,
                                                   FALSE);
@@ -4456,8 +4456,8 @@ static int win_line(win_st *wp,
                            && (curmod & kInsertMode) != 0
                            && wp->w_cursor.lnum == lnum
                            && wp->w_cursor.col >=
-                           (colnr_T)(prev_ptr - line)
-                           && wp->w_cursor.col < (colnr_T)word_end)
+                           (columnum_kt)(prev_ptr - line)
+                           && wp->w_cursor.col < (columnum_kt)word_end)
                         {
                             spell_hlf = HLF_COUNT;
                             spell_redraw_lnum = lnum;
@@ -4512,7 +4512,7 @@ static int win_line(win_st *wp,
 
                 if(has_bufhl && v > 0)
                 {
-                    bufhl_attr = bufhl_get_attr(&bufhl_info, (colnr_T)v);
+                    bufhl_attr = bufhl_get_attr(&bufhl_info, (columnum_kt)v);
 
                     if(bufhl_attr != 0)
                     {
@@ -4540,7 +4540,7 @@ static int win_line(win_st *wp,
 
                     // TODO: is passing p for start of the line OK?
                     n_extra = win_lbr_chartabsize(wp, line, p,
-                                                  (colnr_T)vcol, NULL) - 1;
+                                                  (columnum_kt)vcol, NULL) - 1;
 
                     if(c == TAB && n_extra + col > wp->w_width)
                     {
@@ -4757,7 +4757,7 @@ static int win_line(win_st *wp,
                                     : (col < wp->w_width))
                                 && !(noinvcur
                                      && lnum == wp->w_cursor.lnum
-                                     && (colnr_T)vcol == wp->w_virtcol)))
+                                     && (columnum_kt)vcol == wp->w_virtcol)))
                         && lcs_eol_one > 0)
                 {
                     // Display a '$' after the line or highlight an extra
@@ -7465,7 +7465,7 @@ static void prepare_search_hl(win_st *wp, linenum_kt lnum)
                   && (shl->rm.regprog != NULL
                       || (cur != NULL && pos_inprogress)))
             {
-                next_search_hl(wp, shl, shl->first_lnum, (colnr_T)n,
+                next_search_hl(wp, shl, shl->first_lnum, (columnum_kt)n,
                                shl == &search_hl ? NULL : cur);
 
                 pos_inprogress = !(cur == NULL ||  cur->pos.cur == 0);
@@ -7510,11 +7510,11 @@ static void prepare_search_hl(win_st *wp, linenum_kt lnum)
 static void next_search_hl(win_st *win,
                            match_T *shl,
                            linenum_kt lnum,
-                           colnr_T mincol,
+                           columnum_kt mincol,
                            matchitem_T *cur)
 {
     linenum_kt l;
-    colnr_T matchcol;
+    columnum_kt matchcol;
     long nmatched = 0;
 
     if(shl->lnum != 0)
@@ -7655,7 +7655,7 @@ static void next_search_hl(win_st *win,
 static int next_search_hl_pos(match_T *shl,
                               linenum_kt lnum,
                               posmatch_T *posmatch,
-                              colnr_T mincol)
+                              columnum_kt mincol)
 {
     int i;
     int found = -1;
@@ -7699,10 +7699,10 @@ static int next_search_hl_pos(match_T *shl,
 
     if(found >= 0)
     {
-        colnr_T start = posmatch->pos[found].col == 0
+        columnum_kt start = posmatch->pos[found].col == 0
                         ? 0: posmatch->pos[found].col - 1;
 
-        colnr_T end = posmatch->pos[found].col == 0
+        columnum_kt end = posmatch->pos[found].col == 0
                       ? MAXCOL : start + posmatch->pos[found].len;
 
         shl->lnum = lnum;
@@ -9648,7 +9648,7 @@ static void win_redr_ruler(win_st *wp, int always)
         }
 
         // In list mode virtcol needs to be recomputed
-        colnr_T virtcol = wp->w_virtcol;
+        columnum_kt virtcol = wp->w_virtcol;
 
         if(wp->w_p_list && lcs_tab1 == NUL)
         {

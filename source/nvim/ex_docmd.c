@@ -676,7 +676,7 @@ int do_cmdline(uchar_kt *cmdline,
         {
             ++no_wait_return;
             verbose_enter_scroll();
-            smsg(_("line %" PRIdLINENR ": %s"), sourcing_lnum, cmdline_copy);
+            smsg(_("line %" LineNumKtPrtFmt ": %s"), sourcing_lnum, cmdline_copy);
 
             if(msg_silent == 0)
             {
@@ -10545,7 +10545,7 @@ static void ex_startinsert(exarg_T *eap)
 {
     if(eap->forceit)
     {
-        coladvance((colnr_T)MAXCOL);
+        coladvance((columnum_kt)MAXCOL);
         curwin->w_curswant = MAXCOL;
         curwin->w_set_curswant = FALSE;
     }
@@ -11133,7 +11133,7 @@ uchar_kt *eval_vars(uchar_kt *src,
                     return NULL;
                 }
 
-                snprintf(strbuf, sizeof(strbuf), "%" PRIdLINENR, sourcing_lnum);
+                snprintf(strbuf, sizeof(strbuf), "%" LineNumKtPrtFmt, sourcing_lnum);
                 result = (uchar_kt *)strbuf;
                 break;
 

@@ -9,22 +9,22 @@
 /// maximum column number, 31 bits
 #define MAXCOL    0x7fffffff
 
-#define INIT_POS_T(l, c, ca) {l, c, ca}
+#define INIT_POS_T(l, c, ca) { l, c, ca }
 
 typedef long linenum_kt; /// line number
-typedef int colnr_T;  /// Column number
+typedef int columnum_kt; /// Column number
 
 /// Format used to print values which have linenum_kt type
-#define PRIdLINENR  "ld"
-/// Format used to print values which have colnr_T type
-#define PRIdCOLNR   "d"
+#define LineNumKtPrtFmt  "ld"
+/// Format used to print values which have columnum_kt type
+#define ColumNumKtPrtFmt  "d"
 
 /// position in file or buffer
 typedef struct
 {
-    linenum_kt lnum;   ///< line number
-    colnr_T col;     ///< column number
-    colnr_T coladd;
+    linenum_kt lnum;    ///< line number
+    columnum_kt col;    ///< column number
+    columnum_kt coladd; ///<
 } pos_T;
 
 
@@ -32,7 +32,7 @@ typedef struct
 typedef struct
 {
     linenum_kt lnum; ///< line number
-    colnr_T col;   ///< column number
+    columnum_kt col; ///< column number
 } lpos_T;
 
 #endif // NVIM_POS_H

@@ -42,8 +42,8 @@ typedef struct oparg_S
     long line_count;   ///< number of lines from op_start to op_end (inclusive)
     bool empty;        ///< op_start and op_end the same (only used by op_change())
     bool is_VIsual;    ///< operator on Visual area
-    colnr_T start_vcol;///< start col for block mode operator
-    colnr_T end_vcol;  ///< end col for block mode operator
+    columnum_kt start_vcol;///< start col for block mode operator
+    columnum_kt end_vcol;  ///< end col for block mode operator
     long prev_opcount; ///< ca.opcount saved for K_EVENT
     long prev_count0;  ///< ca.count0 saved for K_EVENT
 } oparg_T;

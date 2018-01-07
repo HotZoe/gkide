@@ -61,12 +61,12 @@ pos_T *find_start_comment(int ind_maxcomment)
         // If it is then restrict the search to below this line and try again.
         line = ml_get(pos->lnum);
 
-        for(p = line; *p && (colnr_T)(p - line) < pos->col; ++p)
+        for(p = line; *p && (columnum_kt)(p - line) < pos->col; ++p)
         {
             p = skip_string(p);
         }
 
-        if((colnr_T)(p - line) <= pos->col)
+        if((columnum_kt)(p - line) <= pos->col)
         {
             break;
         }
@@ -138,12 +138,12 @@ static pos_T *find_start_rawstring(int ind_maxcomment)
         // If it is then restrict the search to below this line and try again.
         line = ml_get(pos->lnum);
 
-        for(p = line; *p && (colnr_T)(p - line) < pos->col; ++p)
+        for(p = line; *p && (columnum_kt)(p - line) < pos->col; ++p)
         {
             p = skip_string(p);
         }
 
-        if((colnr_T)(p - line) <= pos->col)
+        if((columnum_kt)(p - line) <= pos->col)
         {
             break;
         }
@@ -726,7 +726,7 @@ static int get_indent_nolabel(linenum_kt lnum)
 {
     uchar_kt *l;
     pos_T fp;
-    colnr_T col;
+    columnum_kt col;
     uchar_kt *p;
 
     l = ml_get(lnum);
@@ -737,7 +737,7 @@ static int get_indent_nolabel(linenum_kt lnum)
         return 0;
     }
 
-    fp.col = (colnr_T)(p - l);
+    fp.col = (columnum_kt)(p - l);
     fp.lnum = lnum;
     getvcol(curwin, &fp, &col, NULL, NULL);
 
@@ -789,7 +789,7 @@ static int cin_first_id_amount(void)
     uchar_kt *line, *p, *s;
     int len;
     pos_T fp;
-    colnr_T col;
+    columnum_kt col;
     line = get_cursor_line_ptr();
     p = skipwhite(line);
     len = (int)(skiptowhite(p) - p);
@@ -832,7 +832,7 @@ static int cin_first_id_amount(void)
 
     p = skipwhite(p + len);
     fp.lnum = curwin->w_cursor.lnum;
-    fp.col = (colnr_T)(p - line);
+    fp.col = (columnum_kt)(p - line);
     getvcol(curwin, &fp, &col, NULL, NULL);
 
     return (int)col;
@@ -847,7 +847,7 @@ static int cin_get_equal_amount(linenum_kt lnum)
 {
     uchar_kt *line;
     uchar_kt *s;
-    colnr_T col;
+    columnum_kt col;
     pos_T fp;
 
     if(lnum > 1)
@@ -892,7 +892,7 @@ static int cin_get_equal_amount(linenum_kt lnum)
     }
 
     fp.lnum = lnum;
-    fp.col = (colnr_T)(s - line);
+    fp.col = (columnum_kt)(s - line);
     getvcol(curwin, &fp, &col, NULL, NULL);
 
     return (int)col;
@@ -1578,7 +1578,7 @@ static int cin_is_cpp_baseclass(cpp_baseclass_cache_T *cached)
                 // the first statement starts here: lineup with this one...
                 if(cpp_base_class)
                 {
-                    pos->col = (colnr_T)(s - line);
+                    pos->col = (columnum_kt)(s - line);
                 }
             }
 
@@ -1605,7 +1605,7 @@ static int cin_is_cpp_baseclass(cpp_baseclass_cache_T *cached)
 static int get_baseclass_amount(int col)
 {
     int amount;
-    colnr_T vcol;
+    columnum_kt vcol;
     pos_T *trypos;
 
     if(col == 0)
@@ -1690,7 +1690,7 @@ static int cin_skip2pos(pos_T *trypos)
     uchar_kt *p;
     p = line = ml_get(trypos->lnum);
 
-    while(*p && (colnr_T)(p - line) < trypos->col)
+    while(*p && (columnum_kt)(p - line) < trypos->col)
     {
         if(cin_iscomment(p))
         {
@@ -1732,7 +1732,7 @@ static pos_T *find_start_brace(void)
         pos = NULL;
 
         // ignore the { if it's in a // or / *  * / comment
-        if((colnr_T)cin_skip2pos(trypos) == trypos->col
+        if((columnum_kt)cin_skip2pos(trypos) == trypos->col
            && (pos = ind_find_start_CORS()) == NULL)
         {
             break;
@@ -1768,7 +1768,7 @@ retry:
     if((trypos = findmatchlimit(NULL, c, 0, ind_maxp_wk)) != NULL)
     {
         // check if the ( is in a // comment
-        if((colnr_T)cin_skip2pos(trypos) > trypos->col)
+        if((columnum_kt)cin_skip2pos(trypos) > trypos->col)
         {
             ind_maxp_wk = ind_maxparen
                           - (int)(cursor_save.lnum - trypos->lnum);
@@ -2236,7 +2236,7 @@ int get_c_indent(void)
     int amount;
     int scope_amount;
     int cur_amount = MAXCOL;
-    colnr_T col;
+    columnum_kt col;
     uchar_kt *theline;
     uchar_kt *linecopy;
     pos_T *trypos;
@@ -2305,7 +2305,7 @@ int get_c_indent(void)
     // For unknown reasons the cursor might be past the end of the line, thus
     // check for that.
     if((curmod & kInsertMode)
-       && curwin->w_cursor.col < (colnr_T)STRLEN(linecopy)
+       && curwin->w_cursor.col < (columnum_kt)STRLEN(linecopy)
        && linecopy[curwin->w_cursor.col] == ')')
     {
         linecopy[curwin->w_cursor.col] = NUL;
@@ -2539,7 +2539,7 @@ int get_c_indent(void)
 
                     if(*look != NUL) // if something after it
                     {
-                        comment_pos->col = (colnr_T)(skipwhite(look) - start);
+                        comment_pos->col = (columnum_kt)(skipwhite(look) - start);
                     }
                 }
 
@@ -3753,7 +3753,7 @@ int get_c_indent(void)
                                 if(*l == '}')
                                 {
                                     curwin->w_cursor.col =
-                                        (colnr_T)(l - get_cursor_line_ptr()) + 1;
+                                        (columnum_kt)(l - get_cursor_line_ptr()) + 1;
                                 }
 
                                 if((trypos = find_start_brace()) == NULL

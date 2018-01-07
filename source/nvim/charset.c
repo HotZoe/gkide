@@ -863,12 +863,12 @@ int vim_strnsize(uchar_kt *s, int len)
         return ptr2cells(p);                         \
     }
 
-int chartabsize(uchar_kt *p, colnr_T col)
+int chartabsize(uchar_kt *p, columnum_kt col)
 {
     RET_WIN_BUF_CHARTABSIZE(curwin, curbuf, p, col)
 }
 
-static int win_chartabsize(win_st *wp, uchar_kt *p, colnr_T col)
+static int win_chartabsize(win_st *wp, uchar_kt *p, columnum_kt col)
 {
     RET_WIN_BUF_CHARTABSIZE(wp, wp->w_buffer, p, col)
 }
@@ -892,7 +892,7 @@ int linetabsize(uchar_kt *s)
 /// @return Number of characters the string will take on the screen.
 int linetabsize_col(int startcol, uchar_kt *s)
 {
-    colnr_T col = startcol;
+    columnum_kt col = startcol;
     uchar_kt *line = s; // pointer to start of line, for breakindent
 
     while(*s != NUL)
@@ -910,9 +910,9 @@ int linetabsize_col(int startcol, uchar_kt *s)
 /// @param len
 ///
 /// @return Number of characters the string will take on the screen.
-unsigned int win_linetabsize(win_st *wp, uchar_kt *line, colnr_T len)
+unsigned int win_linetabsize(win_st *wp, uchar_kt *line, columnum_kt len)
 {
-    colnr_T col = 0;
+    columnum_kt col = 0;
 
     for(uchar_kt *s = line;
         *s != NUL && (len == MAXCOL || s < line + len);
@@ -1069,7 +1069,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param col
 ///
 /// @return The number of characters taken up on the screen.
-int lbr_chartabsize(uchar_kt *line, unsigned char *s, colnr_T col)
+int lbr_chartabsize(uchar_kt *line, unsigned char *s, columnum_kt col)
 {
     if(!curwin->w_p_lbr && (*p_sbr == NUL) && !curwin->w_p_bri)
     {
@@ -1091,7 +1091,7 @@ int lbr_chartabsize(uchar_kt *line, unsigned char *s, colnr_T col)
 /// @param col
 ///
 /// @return The number of characters take up on the screen.
-int lbr_chartabsize_adv(uchar_kt *line, uchar_kt **s, colnr_T col)
+int lbr_chartabsize_adv(uchar_kt *line, uchar_kt **s, columnum_kt col)
 {
     int retval;
     retval = lbr_chartabsize(line, *s, col);
@@ -1115,17 +1115,17 @@ int lbr_chartabsize_adv(uchar_kt *line, uchar_kt **s, colnr_T col)
 int win_lbr_chartabsize(win_st *wp,
                         uchar_kt *line,
                         uchar_kt *s,
-                        colnr_T col,
+                        columnum_kt col,
                         int *headp)
 {
     int n;
     int added;
     uchar_kt *ps;
-    colnr_T col2;
-    colnr_T colmax;
+    columnum_kt col2;
+    columnum_kt colmax;
     int numberextra;
     int mb_added = 0;
-    colnr_T col_adj = 0; // col + screen size of tab
+    columnum_kt col_adj = 0; // col + screen size of tab
 
     // No 'linebreak', 'showbreak' and 'breakindent': return quickly.
     if(!wp->w_p_lbr && !wp->w_p_bri && (*p_sbr == NUL))
@@ -1159,7 +1159,7 @@ int win_lbr_chartabsize(win_st *wp,
         // non-blank after a blank.
         numberextra = win_col_off(wp);
         col2 = col;
-        colmax = (colnr_T)(wp->w_width - numberextra - col_adj);
+        colmax = (columnum_kt)(wp->w_width - numberextra - col_adj);
 
         if(col >= colmax)
         {
@@ -1213,12 +1213,12 @@ int win_lbr_chartabsize(win_st *wp,
 
     if((*p_sbr != NUL || wp->w_p_bri) && wp->w_p_wrap && (col != 0))
     {
-        colnr_T sbrlen = 0;
+        columnum_kt sbrlen = 0;
         int numberwidth = win_col_off(wp);
         numberextra = numberwidth;
         col += numberextra + mb_added;
 
-        if(col >= (colnr_T)wp->w_width)
+        if(col >= (columnum_kt)wp->w_width)
         {
             col -= wp->w_width;
             numberextra = wp->w_width - (numberextra - win_col_off2(wp));
@@ -1230,7 +1230,7 @@ int win_lbr_chartabsize(win_st *wp,
 
             if(*p_sbr != NUL)
             {
-                sbrlen = (colnr_T)MB_CHARLEN(p_sbr);
+                sbrlen = (columnum_kt)MB_CHARLEN(p_sbr);
 
                 if(col >= sbrlen)
                 {
@@ -1250,23 +1250,23 @@ int win_lbr_chartabsize(win_st *wp,
             numberwidth -= win_col_off2(wp);
         }
 
-        if(col == 0 || (col + size + sbrlen > (colnr_T)wp->w_width))
+        if(col == 0 || (col + size + sbrlen > (columnum_kt)wp->w_width))
         {
             added = 0;
 
             if(*p_sbr != NUL)
             {
-                if(size + sbrlen + numberwidth > (colnr_T)wp->w_width)
+                if(size + sbrlen + numberwidth > (columnum_kt)wp->w_width)
                 {
                     // Calculate effective window width.
-                    int width = (colnr_T)wp->w_width - sbrlen - numberwidth;
+                    int width = (columnum_kt)wp->w_width - sbrlen - numberwidth;
 
                     int prev_width =
-                        col ? ((colnr_T)wp->w_width - (sbrlen + col)) : 0;
+                        col ? ((columnum_kt)wp->w_width - (sbrlen + col)) : 0;
 
                     if(width == 0)
                     {
-                        width = (colnr_T)wp->w_width;
+                        width = (columnum_kt)wp->w_width;
                     }
 
                     added += ((size - prev_width) / width) * vim_strsize(p_sbr);
@@ -1317,7 +1317,7 @@ int win_lbr_chartabsize(win_st *wp,
 /// @return The number of characters take up on the screen.
 static int win_nolbr_chartabsize(win_st *wp,
                                  uchar_kt *s,
-                                 colnr_T col,
+                                 columnum_kt col,
                                  int *headp)
 {
     int n;
@@ -1349,7 +1349,7 @@ static int win_nolbr_chartabsize(win_st *wp,
 ///
 /// @param  wp    window
 /// @param  vcol  column number
-bool in_win_border(win_st *wp, colnr_T vcol)
+bool in_win_border(win_st *wp, columnum_kt vcol)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
@@ -1399,11 +1399,11 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param end
 void getvcol(win_st *wp,
              pos_T *pos,
-             colnr_T *start,
-             colnr_T *cursor,
-             colnr_T *end)
+             columnum_kt *start,
+             columnum_kt *cursor,
+             columnum_kt *end)
 {
-    colnr_T vcol;
+    columnum_kt vcol;
     uchar_kt *ptr; // points to current char
     uchar_kt *posptr; // points to char at pos->col
     uchar_kt *line; // start of the line
@@ -1556,10 +1556,10 @@ void getvcol(win_st *wp,
 /// @param posp
 ///
 /// @retujrn The virtual cursor column.
-colnr_T getvcol_nolist(pos_T *posp)
+columnum_kt getvcol_nolist(pos_T *posp)
 {
     int list_save = curwin->w_p_list;
-    colnr_T vcol;
+    columnum_kt vcol;
 
     curwin->w_p_list = false;
     getvcol(curwin, posp, NULL, &vcol, NULL);
@@ -1577,13 +1577,13 @@ colnr_T getvcol_nolist(pos_T *posp)
 /// @param end
 void getvvcol(win_st *wp,
               pos_T *pos,
-              colnr_T *start,
-              colnr_T *cursor,
-              colnr_T *end)
+              columnum_kt *start,
+              columnum_kt *cursor,
+              columnum_kt *end)
 {
-    colnr_T col;
-    colnr_T coladd;
-    colnr_T endadd;
+    columnum_kt col;
+    columnum_kt coladd;
+    columnum_kt endadd;
     uchar_kt *ptr;
 
     if(virtual_active())
@@ -1596,13 +1596,13 @@ void getvvcol(win_st *wp,
         // Cannot put the cursor on part of a wide character.
         ptr = ml_get_buf(wp->w_buffer, pos->lnum, false);
 
-        if(pos->col < (colnr_T)STRLEN(ptr))
+        if(pos->col < (columnum_kt)STRLEN(ptr))
         {
             int c = (*mb_ptr2char)(ptr + pos->col);
 
             if((c != TAB) && vim_isprintc(c))
             {
-                endadd = (colnr_T)(char2cells(c) - 1);
+                endadd = (columnum_kt)(char2cells(c) - 1);
 
                 if(coladd > endadd)
                 {
@@ -1650,13 +1650,13 @@ void getvvcol(win_st *wp,
 void getvcols(win_st *wp,
               pos_T *pos1,
               pos_T *pos2,
-              colnr_T *left,
-              colnr_T *right)
+              columnum_kt *left,
+              columnum_kt *right)
 {
-    colnr_T from1;
-    colnr_T from2;
-    colnr_T to1;
-    colnr_T to2;
+    columnum_kt from1;
+    columnum_kt from2;
+    columnum_kt to1;
+    columnum_kt to2;
 
     if(lt(*pos1, *pos2))
     {

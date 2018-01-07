@@ -99,8 +99,8 @@ typedef struct command_line_state
     int histype;       ///< history type to be used
 
     pos_T old_cursor;
-    colnr_T old_curswant;
-    colnr_T old_leftcol;
+    columnum_kt old_curswant;
+    columnum_kt old_leftcol;
     linenum_kt old_topline;
     int old_topfill;
     linenum_kt old_botline;
@@ -1978,7 +1978,7 @@ static int command_line_changed(CommandLineState *s)
             if(curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
             {
                 curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
-                coladvance((colnr_T)MAXCOL);
+                coladvance((columnum_kt)MAXCOL);
             }
 
             validate_cursor();
@@ -5163,7 +5163,7 @@ void ExpandGeneric(expand_T *xp,
             continue;
         }
 
-        if(vim_regexec(regmatch, str, (colnr_T)0))
+        if(vim_regexec(regmatch, str, (columnum_kt)0))
         {
             ++count;
         }
@@ -5192,7 +5192,7 @@ void ExpandGeneric(expand_T *xp,
             continue;
         }
 
-        if(vim_regexec(regmatch, str, (colnr_T)0))
+        if(vim_regexec(regmatch, str, (columnum_kt)0))
         {
             if(escaped)
             {
@@ -5494,7 +5494,7 @@ static int ExpandUserDefined(expand_T *xp,
         keep = *e;
         *e = 0;
 
-        if(xp->xp_pattern[0] && vim_regexec(regmatch, s, (colnr_T)0) == 0)
+        if(xp->xp_pattern[0] && vim_regexec(regmatch, s, (columnum_kt)0) == 0)
         {
             *e = keep;
 
@@ -6369,7 +6369,7 @@ int del_history_entry(int histype, uchar_kt *str)
                 break;
             }
 
-            if(vim_regexec(&regmatch, hisptr->hisstr, (colnr_T)0))
+            if(vim_regexec(&regmatch, hisptr->hisstr, (columnum_kt)0))
             {
                 found = true;
                 hist_free_entry(hisptr);
@@ -6786,7 +6786,7 @@ static int ex_window(void)
                 {
                     ml_append(lnum++,
                               history[histtype][i].hisstr,
-                              (colnr_T)0, FALSE);
+                              (columnum_kt)0, FALSE);
                 }
             } while(i != hisidx[histtype]);
         }

@@ -191,7 +191,7 @@ EXTERN int screen_cleared INIT(= FALSE);  ///< screen has been cleared
 /// When a change command is given that deletes only part of a line, a dollar
 /// is put at the end of the changed text. dollar_vcol is set to the virtual
 /// column of this '$'.  -1 is used to indicate no $ is being displayed.
-EXTERN colnr_T dollar_vcol INIT(= -1);
+EXTERN columnum_kt dollar_vcol INIT(= -1);
 
 // Variables for Insert mode completion.
 
@@ -442,7 +442,7 @@ EXTERN int t_colors INIT(= 256);
 
 EXTERN int highlight_match INIT(= FALSE); ///< show search match pos
 EXTERN linenum_kt search_match_lines;       ///< lines of of matched string
-EXTERN colnr_T search_match_endcol;       ///< col nr of match end
+EXTERN columnum_kt search_match_endcol;       ///< col nr of match end
 
 /// don't use 'smartcase' once
 EXTERN int no_smartcase INIT(= FALSE);
@@ -770,7 +770,7 @@ EXTERN int did_ai INIT(= FALSE);
 
 /// Column of first char after autoindent. 0 when no autoindent done. Used
 /// when 'backspace' is 0, to avoid backspacing over autoindent.
-EXTERN colnr_T ai_col INIT(= 0);
+EXTERN columnum_kt ai_col INIT(= 0);
 
 /// This is a character which will end a start-middle-end comment when typed as
 /// the first character on a new line. It is taken from the last character of

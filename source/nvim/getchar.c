@@ -2437,7 +2437,7 @@ static int vgetorpeek(int advance)
                                   typebuf.tb_change_cnt)) == 0)
                 {
                     uchar_kt *ptr;
-                    colnr_T col = 0, vcol;
+                    columnum_kt col = 0, vcol;
 
                     if(mode_displayed)
                     {
@@ -2471,7 +2471,7 @@ static int vgetorpeek(int advance)
 
                                     vcol += lbr_chartabsize(ptr,
                                                             ptr + col,
-                                                            (colnr_T)vcol);
+                                                            (columnum_kt)vcol);
 
                                     if(has_mbyte)
                                     {
@@ -4184,7 +4184,7 @@ int ExpandMappings(regmatch_T *regmatch, int *num_file, uchar_kt ***file)
                 continue;
             }
 
-            if(vim_regexec(regmatch, p, (colnr_T)0))
+            if(vim_regexec(regmatch, p, (columnum_kt)0))
             {
                 if(round == 1)
                 {
@@ -4223,7 +4223,7 @@ int ExpandMappings(regmatch_T *regmatch, int *num_file, uchar_kt ***file)
                 {
                     p = translate_mapping(mp->m_keys, true, CPO_TO_CPO_FLAGS);
 
-                    if(p != NULL && vim_regexec(regmatch, p, (colnr_T)0))
+                    if(p != NULL && vim_regexec(regmatch, p, (columnum_kt)0))
                     {
                         if(round == 1)
                         {

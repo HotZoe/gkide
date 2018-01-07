@@ -1199,7 +1199,7 @@ static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
         if(pattern[0] == '*' && pattern[1] == '*'
            && vim_ispathsep_nocolon(pattern[2])
            && path_cutoff != NULL
-           && vim_regexec(&regmatch, path_cutoff, (colnr_T)0)
+           && vim_regexec(&regmatch, path_cutoff, (columnum_kt)0)
            && is_unique(path_cutoff, gap, i))
         {
             sort_again = true;
@@ -1213,7 +1213,7 @@ static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
 
             while(find_previous_pathsep(path, &pathsep_p))
             {
-                if(vim_regexec(&regmatch, pathsep_p + 1, (colnr_T)0)
+                if(vim_regexec(&regmatch, pathsep_p + 1, (columnum_kt)0)
                    && is_unique(pathsep_p + 1, gap, i)
                    && path_cutoff != NULL && pathsep_p + 1 >= path_cutoff)
                 {

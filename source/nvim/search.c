@@ -595,7 +595,7 @@ int searchit(win_st *win,
     linenum_kt lnum; // no init to shut up Apollo cc
     regmmatch_T regmatch;
     uchar_kt *ptr;
-    colnr_T matchcol;
+    columnum_kt matchcol;
     lpos_T endpos;
     lpos_T matchpos;
     int loop;
@@ -709,7 +709,7 @@ int searchit(win_st *win,
                 }
 
                 // Look for a match somewhere in line "lnum".
-                colnr_T col = at_first_line
+                columnum_kt col = at_first_line
                               && (options & SEARCH_COL) ? pos->col : 0;
 
                 nmatched = vim_regexec_multi(&regmatch, win, buf,
@@ -954,7 +954,7 @@ int searchit(win_st *win,
                                 --pos->lnum;
 
                                 pos->col =
-                                    (colnr_T)STRLEN(ml_get_buf(buf,
+                                    (columnum_kt)STRLEN(ml_get_buf(buf,
                                                                pos->lnum,
                                                                FALSE));
                             }
@@ -1677,7 +1677,7 @@ int search_for_exact_line(fbuf_st *buf, pos_T *pos, int dir, uchar_kt *pat)
 
         ptr = ml_get_buf(buf, pos->lnum, FALSE);
         p = skipwhite(ptr);
-        pos->col = (colnr_T)(p - ptr);
+        pos->col = (columnum_kt)(p - ptr);
 
         // when adding lines the matching line may be empty but it is not
         // ignored because we are interested in the next line
@@ -1936,7 +1936,7 @@ static int find_rawstring_end(uchar_kt *linep, pos_T *startpos, pos_T *endpos)
         for(p = line + (lnum == startpos->lnum
                         ? startpos->col + 1 : 0); *p; ++p)
         {
-            if(lnum == endpos->lnum && (colnr_T)(p - line) >= endpos->col)
+            if(lnum == endpos->lnum && (columnum_kt)(p - line) >= endpos->col)
             {
                 break;
             }
@@ -2073,7 +2073,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                 // Are we before or at #if, #else etc.?
                 ptr = skipwhite(linep);
 
-                if(*ptr == '#' && pos.col <= (colnr_T)(ptr - linep))
+                if(*ptr == '#' && pos.col <= (columnum_kt)(ptr - linep))
                 {
                     ptr = skipwhite(ptr + 1);
 
@@ -2227,7 +2227,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                     continue;
                 }
 
-                pos.col = (colnr_T)(ptr - linep);
+                pos.col = (columnum_kt)(ptr - linep);
                 ptr = skipwhite(ptr + 1);
 
                 if(hash_dir > 0)
@@ -2299,7 +2299,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
         comment_col = check_linecomment(linep);
     }
 
-    if(lisp && comment_col != MAXCOL && pos.col > (colnr_T)comment_col)
+    if(lisp && comment_col != MAXCOL && pos.col > (columnum_kt)comment_col)
     {
         lispcomm = TRUE; // find match inside this comment
     }
@@ -2311,7 +2311,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
         if(backwards)
         {
             // char to match is inside of comment, don't search outside
-            if(lispcomm && pos.col < (colnr_T)comment_col)
+            if(lispcomm && pos.col < (columnum_kt)comment_col)
             {
                 break;
             }
@@ -2331,7 +2331,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                 }
 
                 linep = ml_get(pos.lnum);
-                pos.col = (colnr_T)STRLEN(linep); // pos.col on trailing NUL
+                pos.col = (columnum_kt)STRLEN(linep); // pos.col on trailing NUL
                 do_quotes = -1;
                 line_breakcheck();
 
@@ -2364,7 +2364,7 @@ pos_T *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
                // don't search for match in comment
                || (lisp
                    && comment_col != MAXCOL
-                   && pos.col == (colnr_T)comment_col))
+                   && pos.col == (columnum_kt)comment_col))
             {
                 // - end of file
                 // - line is exhausted and comment with it,
@@ -2824,11 +2824,11 @@ void showmatch(int c)
 {
     pos_T *lpos, save_cursor;
     pos_T mpos;
-    colnr_T vcol;
+    columnum_kt vcol;
     long save_so;
     long save_siso;
     int save_state;
-    colnr_T save_dollar_vcol;
+    columnum_kt save_dollar_vcol;
     uchar_kt *p;
 
     // Only show match for chars in the 'matchpairs' option.
@@ -3184,7 +3184,7 @@ bool findpar(bool *pincl,
 
     if(curr == curbuf->b_ml.ml_line_count && what != '}')
     {
-        if((curwin->w_cursor.col = (colnr_T)STRLEN(ml_get(curr))) != 0)
+        if((curwin->w_cursor.col = (columnum_kt)STRLEN(ml_get(curr))) != 0)
         {
             --curwin->w_cursor.col;
             *pincl = true;
@@ -3321,7 +3321,7 @@ int fwd_word(long count, int bigword, int eol)
         // move to the last char of the last line.
         if(hasFolding(curwin->w_cursor.lnum, NULL, &curwin->w_cursor.lnum))
         {
-            coladvance((colnr_T)MAXCOL);
+            coladvance((columnum_kt)MAXCOL);
         }
 
         sclass = cls();
@@ -3466,7 +3466,7 @@ int end_word(long count, int bigword, int stop, int empty)
         // move to the last char of the last line.
         if(hasFolding(curwin->w_cursor.lnum, NULL, &curwin->w_cursor.lnum))
         {
-            coladvance((colnr_T)MAXCOL);
+            coladvance((columnum_kt)MAXCOL);
         }
 
         sclass = cls();
@@ -4349,7 +4349,7 @@ static int in_html_tag(int end_tag)
     }
 
     pos.lnum = curwin->w_cursor.lnum;
-    pos.col = (colnr_T)(p - line);
+    pos.col = (columnum_kt)(p - line);
     mb_ptr_adv(p);
 
     // check that there is a '/' after the '<'
@@ -5348,7 +5348,7 @@ int current_search(long count, int forward)
                 pos.lnum = curwin->w_buffer->b_ml.ml_line_count;
 
                 pos.col =
-                    (colnr_T)STRLEN(ml_get(curwin->w_buffer->b_ml.ml_line_count));
+                    (columnum_kt)STRLEN(ml_get(curwin->w_buffer->b_ml.ml_line_count));
             }
         }
 
@@ -5638,7 +5638,7 @@ void find_pattern_in_path(uchar_kt *ptr,
     for(;;)
     {
         if(incl_regmatch.regprog != NULL
-           && vim_regexec(&incl_regmatch, line, (colnr_T)0))
+           && vim_regexec(&incl_regmatch, line, (columnum_kt)0))
         {
             uchar_kt *p_fname = (curr_fname == curbuf->b_fname)
                               ? curbuf->b_ffname : curr_fname;
@@ -5905,7 +5905,7 @@ search_line:
             define_matched = FALSE;
 
             if(def_regmatch.regprog != NULL
-               && vim_regexec(&def_regmatch, line, (colnr_T)0))
+               && vim_regexec(&def_regmatch, line, (columnum_kt)0))
             {
                 // Pattern must be first identifier after 'define', so skip
                 // to that position before checking for match of pattern. Also
@@ -5946,7 +5946,7 @@ search_line:
                     }
                 }
                 else if(regmatch.regprog != NULL
-                        && vim_regexec(&regmatch, line, (colnr_T)(p - line)))
+                        && vim_regexec(&regmatch, line, (columnum_kt)(p - line)))
                 {
                     matched = TRUE;
                     startp = regmatch.startp[0];
@@ -6230,7 +6230,7 @@ search_line:
 
                 if(action != ACTION_SHOW)
                 {
-                    curwin->w_cursor.col = (colnr_T)(startp - line);
+                    curwin->w_cursor.col = (columnum_kt)(startp - line);
                     curwin->w_set_curswant = TRUE;
                 }
 

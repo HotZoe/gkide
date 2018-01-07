@@ -95,7 +95,7 @@ FUNC_API_SINCE(1)
     }
 
     win->w_cursor.lnum = (linenum_kt)row;
-    win->w_cursor.col = (colnr_T)col;
+    win->w_cursor.col = (columnum_kt)col;
     win->w_cursor.coladd = 0;
 
     // When column is out of range silently correct it.

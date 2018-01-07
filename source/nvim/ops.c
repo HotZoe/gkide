@@ -68,16 +68,16 @@ struct block_def
     int endspaces;            ///< 'extra' cols after last char
     int textlen;              ///< chars in block
     uchar_kt *textstart;        ///< pointer to 1st char (partially) in block
-    colnr_T textcol;          ///< index of chars (partially) in block
-    colnr_T start_vcol;       ///< start col of 1st char wholly inside block
-    colnr_T end_vcol;         ///< start col of 1st char wholly after block
+    columnum_kt textcol;          ///< index of chars (partially) in block
+    columnum_kt start_vcol;       ///< start col of 1st char wholly inside block
+    columnum_kt end_vcol;         ///< start col of 1st char wholly after block
     int is_short;             ///< TRUE if line is too short to fit in block
     int is_MAX;               ///< TRUE if curswant==MAXCOL when starting
     int is_oneChar;           ///< TRUE if block within one character
     int pre_whitesp;          ///< screen cols of ws before block
     int pre_whitesp_c;        ///< chars of ws before block
-    colnr_T end_char_vcols;   ///< number of vcols of post-block char
-    colnr_T start_char_vcols; ///< number of vcols of pre-block char
+    columnum_kt end_char_vcols;   ///< number of vcols of post-block char
+    columnum_kt start_char_vcols; ///< number of vcols of pre-block char
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -284,7 +284,7 @@ void op_shift(oparg_T *oap, int curs_top, int amount)
     // Set "'[" and "']" marks.
     curbuf->b_op_start = oap->start;
     curbuf->b_op_end.lnum = oap->end.lnum;
-    curbuf->b_op_end.col = (colnr_T)STRLEN(ml_get(oap->end.lnum));
+    curbuf->b_op_end.col = (columnum_kt)STRLEN(ml_get(oap->end.lnum));
 
     if(curbuf->b_op_end.col > 0)
     {
@@ -373,7 +373,7 @@ static void shift_block(oparg_T *oap, int amount)
     int p_ts = (int)curbuf->b_p_ts;
     struct block_def bd;
     int incr;
-    colnr_T ws_vcol;
+    columnum_kt ws_vcol;
     int i = 0, j = 0;
     int len;
     int old_p_ri = p_ri;
@@ -423,7 +423,7 @@ static void shift_block(oparg_T *oap, int amount)
         {
             // TODO: is passing bd.textstart for start of the line OK?
             incr = lbr_chartabsize_adv(bd.textstart, &bd.textstart,
-                                       (colnr_T)(bd.start_vcol));
+                                       (columnum_kt)(bd.start_vcol));
 
             total += incr;
             bd.start_vcol += incr;
@@ -458,19 +458,19 @@ static void shift_block(oparg_T *oap, int amount)
     else // left
     {
         // column to which text in block will be shifted
-        colnr_T destination_col;
+        columnum_kt destination_col;
         // end of the part of the line which is copied verbatim
         uchar_kt *verbatim_copy_end;
         // the (displayed) width of this part of line
-        colnr_T verbatim_copy_width;
+        columnum_kt verbatim_copy_width;
         // nr of spaces that replace a TAB
         size_t fill;
         // the length of the line after the block shift
         size_t new_line_len;
-        colnr_T block_space_width;
-        colnr_T shift_amount;
+        columnum_kt block_space_width;
+        columnum_kt shift_amount;
         uchar_kt *non_white = bd.textstart;
-        colnr_T non_white_col;
+        columnum_kt non_white_col;
 
         // Firstly, let's find the first non-whitespace character that is
         // displayed after the block's start column and the character's column
@@ -558,7 +558,7 @@ static void shift_block(oparg_T *oap, int amount)
 
     // replace the line
     ml_replace(curwin->w_cursor.lnum, newp, FALSE);
-    changed_bytes(curwin->w_cursor.lnum, (colnr_T)bd.textcol);
+    changed_bytes(curwin->w_cursor.lnum, (columnum_kt)bd.textcol);
     curmod = oldstate;
     curwin->w_cursor.col = oldcol;
     p_ri = old_p_ri;
@@ -574,7 +574,7 @@ static void block_insert(oparg_T *oap,
     int p_ts;
     int count = 0; // extra spaces to replace a cut TAB
     int spaces = 0; // non-zero if cutting a TAB
-    colnr_T offset; // pointer along new line
+    columnum_kt offset; // pointer along new line
     size_t s_len = STRLEN(s);
     uchar_kt *newp, *oldp; // new, old lines
     linenum_kt lnum; // loop var
@@ -1962,7 +1962,7 @@ int op_delete(oparg_T *oap)
                 }
             }
 
-            (void)del_bytes((colnr_T)n, !virtual_op,
+            (void)del_bytes((columnum_kt)n, !virtual_op,
                             oap->op_type == OP_DELETE && !oap->is_VIsual);
         }
         else
@@ -1986,7 +1986,7 @@ int op_delete(oparg_T *oap)
             // delete from start of line until op_end
             n = (oap->end.col + 1 - !oap->inclusive);
             curwin->w_cursor.col = 0;
-            (void)del_bytes((colnr_T)n, !virtual_op,
+            (void)del_bytes((columnum_kt)n, !virtual_op,
                             oap->op_type == OP_DELETE && !oap->is_VIsual);
 
             curwin->w_cursor = curpos; // restore curwin->w_cursor
@@ -2038,7 +2038,7 @@ int op_replace(oparg_T *oap, int c)
     int n, numc;
     int num_chars;
     uchar_kt *newp, *oldp;
-    colnr_T oldlen;
+    columnum_kt oldlen;
     struct block_def bd;
     uchar_kt *after_p = NULL;
     int had_ctrl_v_cr = (c == -1 || c == -2);
@@ -2218,7 +2218,7 @@ int op_replace(oparg_T *oap, int c)
         {
             oap->start.col = 0;
             curwin->w_cursor.col = 0;
-            oap->end.col = (colnr_T)STRLEN(ml_get(oap->end.lnum));
+            oap->end.col = (columnum_kt)STRLEN(ml_get(oap->end.lnum));
 
             if(oap->end.col)
             {
@@ -2365,7 +2365,7 @@ void op_tilde(oparg_T *oap)
         {
             oap->start.col = 0;
             pos.col = 0;
-            oap->end.col = (colnr_T)STRLEN(ml_get(oap->end.lnum));
+            oap->end.col = (columnum_kt)STRLEN(ml_get(oap->end.lnum));
 
             if(oap->end.col)
             {
@@ -2762,7 +2762,7 @@ void op_insert(oparg_T *oap, long count1)
 /// @return TRUE if edit() returns because of a CTRL-O command
 int op_change(oparg_T *oap)
 {
-    colnr_T l;
+    columnum_kt l;
     int retval;
     long offset;
     linenum_kt linenr;
@@ -2839,11 +2839,11 @@ int op_change(oparg_T *oap)
         // the indent, exclude that indent change from the inserted text.
         firstline = ml_get(oap->start.lnum);
 
-        if(bd.textcol > (colnr_T)pre_indent)
+        if(bd.textcol > (columnum_kt)pre_indent)
         {
             long new_indent = (long)(skipwhite(firstline) - firstline);
             pre_textlen += new_indent - pre_indent;
-            bd.textcol += (colnr_T)(new_indent - pre_indent);
+            bd.textcol += (columnum_kt)(new_indent - pre_indent);
         }
 
         ins_len = (long)STRLEN(firstline) - pre_textlen;
@@ -3048,9 +3048,9 @@ static void op_yank_reg(oparg_T *oap,
 
             case kMTCharWise:
             {
-                colnr_T startcol = 0, endcol = MAXCOL;
+                columnum_kt startcol = 0, endcol = MAXCOL;
                 int is_oneChar = FALSE;
-                colnr_T cs, ce;
+                columnum_kt cs, ce;
                 p = ml_get(lnum);
                 bd.startspaces = 0;
                 bd.endspaces = 0;
@@ -3114,7 +3114,7 @@ static void op_yank_reg(oparg_T *oap,
 
                 if(endcol == MAXCOL)
                 {
-                    endcol = (colnr_T)STRLEN(p);
+                    endcol = (columnum_kt)STRLEN(p);
                 }
 
                 if(startcol > endcol || is_oneChar)
@@ -3332,13 +3332,13 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     int yanklen;
     size_t totlen = 0; // init for gcc
     linenum_kt lnum;
-    colnr_T col;
+    columnum_kt col;
     size_t i; // index in y_array[]
     MotionType y_type;
     size_t y_size;
     size_t oldlen;
     int y_width = 0;
-    colnr_T vcol;
+    columnum_kt vcol;
     int delcount;
     int incr = 0;
     long j;
@@ -3608,7 +3608,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
             }
 
             ptr = vim_strsave(p);
-            ml_append(curwin->w_cursor.lnum, ptr, (colnr_T)0, false);
+            ml_append(curwin->w_cursor.lnum, ptr, (columnum_kt)0, false);
             xfree(ptr);
             oldp = get_cursor_line_ptr();
             p = oldp + curwin->w_cursor.col;
@@ -3737,7 +3737,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     if(y_type == kMTBlockWise)
     {
         int c = gchar_cursor();
-        colnr_T endcol2 = 0;
+        columnum_kt endcol2 = 0;
 
         if(dir == FORWARD && c != NUL)
         {
@@ -3805,7 +3805,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
             if(curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
             {
                 if(ml_append(curbuf->b_ml.ml_line_count, (uchar_kt *)"",
-                             (colnr_T)1, FALSE) == FAIL)
+                             (columnum_kt)1, FALSE) == FAIL)
                 {
                     break;
                 }
@@ -3820,11 +3820,11 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
             for(ptr = oldp; vcol < col && *ptr;)
             {
                 // Count a tab for what it's worth (if list mode not on)
-                incr = lbr_chartabsize_adv(oldp, &ptr, (colnr_T)vcol);
+                incr = lbr_chartabsize_adv(oldp, &ptr, (columnum_kt)vcol);
                 vcol += incr;
             }
 
-            bd.textcol = (colnr_T)(ptr - oldp);
+            bd.textcol = (columnum_kt)(ptr - oldp);
             shortline = (vcol < col) || (vcol == col && !*ptr);
 
             if(vcol < col) // line too short, padd with spaces
@@ -3918,17 +3918,17 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
 
         // adjust '] mark
         curbuf->b_op_end.lnum = curwin->w_cursor.lnum - 1;
-        curbuf->b_op_end.col = bd.textcol + (colnr_T)totlen - 1;
+        curbuf->b_op_end.col = bd.textcol + (columnum_kt)totlen - 1;
         curbuf->b_op_end.coladd = 0;
 
         if(flags & PUT_CURSEND)
         {
-            colnr_T len;
+            columnum_kt len;
             curwin->w_cursor = curbuf->b_op_end;
             curwin->w_cursor.col++;
 
             // in Insert mode we might be after the NUL, correct for that
-            len = (colnr_T)STRLEN(get_cursor_line_ptr());
+            len = (columnum_kt)STRLEN(get_cursor_line_ptr());
 
             if(curwin->w_cursor.col > len)
             {
@@ -4002,7 +4002,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
                     {
                         // make sure curwin->w_virtcol is updated
                         changed_cline_bef_curs();
-                        curwin->w_cursor.col += (colnr_T)(totlen - 1);
+                        curwin->w_cursor.col += (columnum_kt)(totlen - 1);
                     }
                 }
 
@@ -4053,7 +4053,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
                     STRCAT(newp, ptr);
 
                     // insert second line
-                    ml_append(lnum, newp, (colnr_T)0, FALSE);
+                    ml_append(lnum, newp, (columnum_kt)0, FALSE);
                     xfree(newp);
                     oldp = ml_get(lnum);
                     newp = (uchar_kt *) xmalloc((size_t)(col + yanklen + 1));
@@ -4072,7 +4072,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
                 {
                     if((y_type != kMTCharWise || i < y_size - 1)
                        && ml_append(lnum, y_array[i],
-                                    (colnr_T)0, false) == FAIL)
+                                    (columnum_kt)0, false) == FAIL)
                     {
                         goto error;
                     }
@@ -4166,7 +4166,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
             curbuf->b_op_end.lnum = lnum;
 
             // correct length for change in indent
-            col = (colnr_T)STRLEN(y_array[y_size - 1]) - lendiff;
+            col = (columnum_kt)STRLEN(y_array[y_size - 1]) - lendiff;
 
             if(col > 1)
             {
@@ -4259,7 +4259,7 @@ void adjust_cursor_eol(void)
 
         if(ve_flags == VE_ALL)
         {
-            colnr_T scol, ecol;
+            columnum_kt scol, ecol;
 
             // Coladd is set to the width of the last character.
             getvcol(curwin, &curwin->w_cursor, &scol, NULL, &ecol);
@@ -4590,7 +4590,7 @@ int do_join(size_t count,
     int currsize = 0; // size of the current line
     int sumsize = 0; // size of the long new line
     linenum_kt t;
-    colnr_T col = 0;
+    columnum_kt col = 0;
     int ret = OK;
     int *comments = NULL;
 
@@ -4625,7 +4625,7 @@ int do_join(size_t count,
         {
             // Set the '[ mark.
             curwin->w_buffer->b_op_start.lnum = curwin->w_cursor.lnum;
-            curwin->w_buffer->b_op_start.col = (colnr_T)STRLEN(curr);
+            curwin->w_buffer->b_op_start.col = (columnum_kt)STRLEN(curr);
         }
 
         if(remove_comments)
@@ -4741,7 +4741,7 @@ int do_join(size_t count,
         }
 
         mark_col_adjust(curwin->w_cursor.lnum + t,
-                        (colnr_T)0,
+                        (columnum_kt)0,
                         (linenum_kt)-t,
                         (long)(cend
                                - newp
@@ -4776,7 +4776,7 @@ int do_join(size_t count,
     {
         // Set the '] mark.
         curwin->w_buffer->b_op_end.lnum = curwin->w_cursor.lnum;
-        curwin->w_buffer->b_op_end.col = (colnr_T)STRLEN(newp);
+        curwin->w_buffer->b_op_end.col = (columnum_kt)STRLEN(newp);
     }
 
     // Only report the change in the first line here,
@@ -5232,7 +5232,7 @@ void format_lines(linenum_kt line_count, int avoid_fex)
 
                 // put cursor on last non-space
                 curmod = kNormalMode; // don't go past end-of-line
-                coladvance((colnr_T)MAXCOL);
+                coladvance((columnum_kt)MAXCOL);
 
                 while(curwin->w_cursor.col && ascii_isspace(gchar_cursor()))
                 {
@@ -5290,7 +5290,7 @@ void format_lines(linenum_kt line_count, int avoid_fex)
                     (void)del_bytes(next_leader_len, false, false);
 
                     mark_col_adjust(curwin->w_cursor.lnum,
-                                    (colnr_T)0, 0L,
+                                    (columnum_kt)0, 0L,
                                     (long)-next_leader_len);
                 }
                 else if(second_indent > 0) // the "leader" for FO_Q_SECOND
@@ -5303,7 +5303,7 @@ void format_lines(linenum_kt line_count, int avoid_fex)
                         (void)del_bytes(indent, FALSE, FALSE);
 
                         mark_col_adjust(curwin->w_cursor.lnum,
-                                        (colnr_T)0, 0L,
+                                        (columnum_kt)0, 0L,
                                         (long)-indent);
                     }
                 }
@@ -5485,7 +5485,7 @@ static void block_prep(oparg_T *oap,
     while(bdp->start_vcol < oap->start_vcol && *pstart)
     {
         // Count a tab for what it's worth (if list mode not on)
-        incr = lbr_chartabsize(line, pstart, (colnr_T)bdp->start_vcol);
+        incr = lbr_chartabsize(line, pstart, (columnum_kt)bdp->start_vcol);
         bdp->start_vcol += incr;
 
         if(ascii_iswhite(*pstart))
@@ -5568,7 +5568,7 @@ static void block_prep(oparg_T *oap,
                 prev_pend = pend;
 
                 incr = lbr_chartabsize_adv(line, &pend,
-                                           (colnr_T)bdp->end_vcol);
+                                           (columnum_kt)bdp->end_vcol);
 
                 bdp->end_vcol += incr;
             }
@@ -5621,7 +5621,7 @@ static void block_prep(oparg_T *oap,
         bdp->textlen = (int)(pend - pstart);
     }
 
-    bdp->textcol = (colnr_T)(pstart - line);
+    bdp->textcol = (columnum_kt)(pstart - line);
     bdp->textstart = pstart;
 }
 
@@ -5680,7 +5680,7 @@ void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
             {
                 curwin->w_cursor.col = 0;
                 pos.col = 0;
-                length = (colnr_T)STRLEN(ml_get(pos.lnum));
+                length = (columnum_kt)STRLEN(ml_get(pos.lnum));
             }
             else
             {
@@ -5690,7 +5690,7 @@ void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
                     dec(&(oap->end));
                 }
 
-                length = (colnr_T)STRLEN(ml_get(pos.lnum));
+                length = (columnum_kt)STRLEN(ml_get(pos.lnum));
                 pos.col = 0;
 
                 if(pos.lnum == oap->start.lnum)
@@ -6222,7 +6222,7 @@ theend:
 /// Return the type of a register.
 /// Used for getregtype()
 /// Returns kMTUnknown for error.
-MotionType get_reg_type(int regname, colnr_T *reg_width)
+MotionType get_reg_type(int regname, columnum_kt *reg_width)
 {
     switch(regname)
     {
@@ -6269,7 +6269,7 @@ MotionType get_reg_type(int regname, colnr_T *reg_width)
 ///                  to always fit the value.
 /// @param buf_len   The allocated size of the buffer.
 void format_reg_type(MotionType reg_type,
-                     colnr_T reg_width,
+                     columnum_kt reg_width,
                      char *buf,
                      size_t buf_len)
 FUNC_ATTR_NONNULL_ALL
@@ -6289,7 +6289,7 @@ FUNC_ATTR_NONNULL_ALL
             break;
 
         case kMTBlockWise:
-            snprintf(buf, buf_len, CTRL_V_STR "%" PRIdCOLNR, reg_width + 1);
+            snprintf(buf, buf_len, CTRL_V_STR "%" ColumNumKtPrtFmt, reg_width + 1);
             break;
 
         case kMTUnknown:
@@ -6480,7 +6480,7 @@ void write_reg_contents_lst(int name,
                             uchar_kt **strings,
                             bool must_append,
                             MotionType yank_type,
-                            colnr_T block_len)
+                            columnum_kt block_len)
 {
     if(name == '/' || name == '=')
     {
@@ -6554,7 +6554,7 @@ void write_reg_contents_ex(int name,
                            ssize_t len,
                            bool must_append,
                            MotionType yank_type,
-                           colnr_T block_len)
+                           columnum_kt block_len)
 {
     if(len < 0)
     {
@@ -6650,7 +6650,7 @@ static void str_to_reg(yankreg_T *y_ptr,
                        MotionType yank_type,
                        const uchar_kt *str,
                        size_t len,
-                       colnr_T blocklen,
+                       columnum_kt blocklen,
                        bool str_list)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -6769,7 +6769,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(yank_type == kMTBlockWise)
     {
-        y_ptr->y_width = (blocklen == -1 ? (colnr_T) maxlen - 1 : blocklen);
+        y_ptr->y_width = (blocklen == -1 ? (columnum_kt) maxlen - 1 : blocklen);
     }
     else
     {
@@ -6979,10 +6979,10 @@ void cursor_pos_info(dict_st *dict)
 
                     case 'v':
                     {
-                        colnr_T start_col = (lnum == min_pos.lnum)
+                        columnum_kt start_col = (lnum == min_pos.lnum)
                                             ? min_pos.col : 0;
 
-                        colnr_T end_col = (lnum == max_pos.lnum)
+                        columnum_kt end_col = (lnum == max_pos.lnum)
                                           ? max_pos.col - start_col + 1
                                           : MAXCOL;
 

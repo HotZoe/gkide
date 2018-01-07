@@ -23,15 +23,15 @@
 /// Get the screen position of the cursor.
 int getviscol(void)
 {
-    colnr_T x;
+    columnum_kt x;
     getvvcol(curwin, &curwin->w_cursor, &x, NULL, NULL);
     return (int)x;
 }
 
 /// Get the screen position of character col with a coladd in the cursor line.
-int getviscol2(colnr_T col, colnr_T coladd)
+int getviscol2(columnum_kt col, columnum_kt coladd)
 {
-    colnr_T x;
+    columnum_kt x;
     pos_T pos;
     pos.lnum = curwin->w_cursor.lnum;
     pos.col = col;
@@ -43,7 +43,7 @@ int getviscol2(colnr_T col, colnr_T coladd)
 /// Go to column "wcol", and add/insert white space as necessary to get the
 /// cursor in that column.
 /// The caller must have saved the cursor line for undo!
-int coladvance_force(colnr_T wcol)
+int coladvance_force(columnum_kt wcol)
 {
     int rc = coladvance2(&curwin->w_cursor, true, false, wcol);
 
@@ -68,7 +68,7 @@ int coladvance_force(colnr_T wcol)
 /// beginning at coladd 0.
 ///
 /// return OK if desired column is reached, FAIL if not
-int coladvance(colnr_T wcol)
+int coladvance(columnum_kt wcol)
 {
     int rc = getvpos(&curwin->w_cursor, wcol);
 
@@ -92,12 +92,12 @@ int coladvance(colnr_T wcol)
 /// @param addspaces  change the text to achieve our goal?
 /// @param finetune   change char offset for the exact column
 /// @param wcol       column to move to
-static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
+static int coladvance2(pos_T *pos, bool addspaces, bool finetune, columnum_kt wcol)
 {
     int idx;
     uchar_kt *ptr;
     uchar_kt *line;
-    colnr_T col = 0;
+    columnum_kt col = 0;
     int csize = 0;
     int one_more;
     int head = 0;
@@ -131,7 +131,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
         if(finetune
            && curwin->w_p_wrap
            && curwin->w_width != 0
-           && wcol >= (colnr_T)width)
+           && wcol >= (columnum_kt)width)
         {
             csize = linetabsize(line);
 
@@ -140,7 +140,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
                 csize--;
             }
 
-            if(wcol / width > (colnr_T)csize / width
+            if(wcol / width > (columnum_kt)csize / width
                && ((curmod & kInsertMode) == 0 || (int)wcol > csize + 1))
             {
                 // In case of line wrapping don't move the cursor beyond the
@@ -191,7 +191,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
                 memcpy(newline, line, (size_t)idx);
                 memset(newline + idx, ' ', (size_t)correct);
                 ml_replace(pos->lnum, newline, false);
-                changed_bytes(pos->lnum, (colnr_T)idx);
+                changed_bytes(pos->lnum, (columnum_kt)idx);
                 idx += correct;
                 col = wcol;
             }
@@ -246,7 +246,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
             // The width of the last character is used to set coladd.
             if(!one_more)
             {
-                colnr_T scol, ecol;
+                columnum_kt scol, ecol;
                 getvcol(curwin, pos, &scol, NULL, &ecol);
                 pos->coladd = ecol - scol;
             }
@@ -281,7 +281,7 @@ static int coladvance2(pos_T *pos, bool addspaces, bool finetune, colnr_T wcol)
 
 /// Return in "pos" the position of the cursor advanced to screen column "wcol".
 /// return OK if desired column is reached, FAIL if not
-int getvpos(pos_T *pos, colnr_T wcol)
+int getvpos(pos_T *pos, columnum_kt wcol)
 {
     return coladvance2(pos, false, virtual_active(), wcol);
 }
@@ -340,7 +340,7 @@ linenum_kt get_cursor_rel_lnum(win_st *wp, linenum_kt lnum)
 void check_pos(fbuf_st *buf, pos_T *pos)
 {
     uchar_kt *line;
-    colnr_T len;
+    columnum_kt len;
 
     if(pos->lnum > buf->b_ml.ml_line_count)
     {
@@ -350,7 +350,7 @@ void check_pos(fbuf_st *buf, pos_T *pos)
     if(pos->col > 0)
     {
         line = ml_get_buf(buf, pos->lnum, false);
-        len = (colnr_T)STRLEN(line);
+        len = (columnum_kt)STRLEN(line);
 
         if(pos->col > len)
         {
@@ -389,11 +389,11 @@ void check_cursor_col(void)
 /// @see mb_check_adjust_col
 void check_cursor_col_win(win_st *win)
 {
-    colnr_T len;
-    colnr_T oldcol = win->w_cursor.col;
-    colnr_T oldcoladd = win->w_cursor.col + win->w_cursor.coladd;
+    columnum_kt len;
+    columnum_kt oldcol = win->w_cursor.col;
+    columnum_kt oldcoladd = win->w_cursor.col + win->w_cursor.coladd;
 
-    len = (colnr_T)STRLEN(ml_get_buf(win->w_buffer,
+    len = (columnum_kt)STRLEN(ml_get_buf(win->w_buffer,
                                      win->w_cursor.lnum, false));
 
     if(len == 0)
@@ -477,10 +477,10 @@ void adjust_cursor_col(void)
 bool leftcol_changed(void)
 {
     // TODO(hinidu):
-    // I think it should be colnr_T or int, but p_siso is long.
+    // I think it should be columnum_kt or int, but p_siso is long.
     // Perhaps we can change p_siso to int.
     int64_t lastcol;
-    colnr_T s, e;
+    columnum_kt s, e;
     bool retval = false;
     changed_cline_bef_curs();
     lastcol = curwin->w_leftcol + curwin->w_width - curwin_col_off() - 1;
@@ -488,15 +488,15 @@ bool leftcol_changed(void)
 
     // If the cursor is right or left of the screen,
     // move it to last or first character.
-    if(curwin->w_virtcol > (colnr_T)(lastcol - p_siso))
+    if(curwin->w_virtcol > (columnum_kt)(lastcol - p_siso))
     {
         retval = true;
-        coladvance((colnr_T)(lastcol - p_siso));
+        coladvance((columnum_kt)(lastcol - p_siso));
     }
     else if(curwin->w_virtcol < curwin->w_leftcol + p_siso)
     {
         retval = true;
-        coladvance((colnr_T)(curwin->w_leftcol + p_siso));
+        coladvance((columnum_kt)(curwin->w_leftcol + p_siso));
     }
 
     // If the start of the character under the cursor is not on
@@ -504,7 +504,7 @@ bool leftcol_changed(void)
     // If this fails (last char of the line) adjust the scrolling.
     getvvcol(curwin, &curwin->w_cursor, &s, NULL, &e);
 
-    if(e > (colnr_T)lastcol)
+    if(e > (columnum_kt)lastcol)
     {
         retval = true;
         coladvance(s - 1);

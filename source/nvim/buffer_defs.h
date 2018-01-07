@@ -554,7 +554,7 @@ struct file_buffer_s
     // variables for "U" command in undo.c
     uchar_kt *b_u_line_ptr;  ///< saved line for "U" command
     linenum_kt b_u_line_lnum;  ///< line number of line in u_line
-    colnr_T b_u_line_colnr;  ///< optional column number
+    columnum_kt b_u_line_colnr;  ///< optional column number
 
     /// ^N/^P have scanned this buffer
     bool b_scanned;
@@ -850,8 +850,8 @@ typedef struct
     int attr;             ///< attributes to be used for a match
     int attr_cur;         ///< attributes currently active in win_line()
     linenum_kt first_lnum;  ///< first lnum to search for multi-line pat
-    colnr_T startcol;     ///< in win_line() points to char where HL starts
-    colnr_T endcol;       ///< in win_line() points to char where HL ends
+    columnum_kt startcol;     ///< in win_line() points to char where HL starts
+    columnum_kt endcol;       ///< in win_line() points to char where HL ends
     bool is_addpos;       ///< position specified directly by matchaddpos()
     proftime_kt tm;        ///< for a time limit
 } match_T;
@@ -863,7 +863,7 @@ typedef struct
 typedef struct
 {
     linenum_kt  lnum; ///< line number
-    colnr_T col;    ///< column number
+    columnum_kt col;    ///< column number
     int len;        ///< length: 0 - to the end of line
 } llpos_T;
 
@@ -920,7 +920,7 @@ struct window_s
 
     /// The column we'd like to be at. This is used to try to
     /// stay in the same column for up/down cursor motions.
-    colnr_T w_curswant;
+    columnum_kt w_curswant;
 
     /// If set, then update w_curswant the next time through
     /// cursupdate() to the current virtual column
@@ -929,11 +929,11 @@ struct window_s
     // the next seven are used to update the visual part
     char w_old_visual_mode;      ///< last known VIsual_mode
     linenum_kt w_old_cursor_lnum;  ///< last known end of visual part
-    colnr_T w_old_cursor_fcol;   ///< first column for block visual part
-    colnr_T w_old_cursor_lcol;   ///< last column for block visual part
+    columnum_kt w_old_cursor_fcol;   ///< first column for block visual part
+    columnum_kt w_old_cursor_lcol;   ///< last column for block visual part
     linenum_kt w_old_visual_lnum;  ///< last known start of visual part
-    colnr_T w_old_visual_col;    ///< last known start of visual part
-    colnr_T w_old_curswant;      ///< last known value of Curswant
+    columnum_kt w_old_visual_col;    ///< last known start of visual part
+    columnum_kt w_old_curswant;      ///< last known value of Curswant
 
     // "w_topline", "w_leftcol" and "w_skipcol" specify the offsets for displaying the buffer.
     linenum_kt w_topline;     ///< buffer line number of the line at the top of the window
@@ -945,10 +945,10 @@ struct window_s
 
     /// window column number of the left most character
     /// in the window; used when 'wrap' is off
-    colnr_T w_leftcol;
+    columnum_kt w_leftcol;
 
     /// starting column when a single line doesn't fit in the window
-    colnr_T w_skipcol;
+    columnum_kt w_skipcol;
 
     // Layout of the window in the screen.
     // May need to add "msg_scrolled" to "w_winrow" in rare situations.
@@ -970,7 +970,7 @@ struct window_s
     // valid or need to be recomputed.
     int w_valid;
     pos_T w_valid_cursor;    ///< last known position of w_cursor, used  to adjust w_valid
-    colnr_T w_valid_leftcol; ///< last known w_leftcol
+    columnum_kt w_valid_leftcol; ///< last known w_leftcol
 
     // w_cline_height is the number of physical lines taken by the buffer line
     // that the cursor is on. We use this to avoid extra calls to plines().
@@ -981,7 +981,7 @@ struct window_s
     /// column number of the cursor in the buffer line, as opposed to the column
     /// number we're at on the screen. This makes a difference on lines which span
     /// more than one screen line or when w_leftcol is non-zero
-    colnr_T w_virtcol;
+    columnum_kt w_virtcol;
 
     // w_wrow and w_wcol specify the cursor position in the window.
     // This is related to positions in the window, not in the display or
@@ -1016,7 +1016,7 @@ struct window_s
 
     // remember what is shown in the ruler for this window (if 'ruler' set)
     pos_T w_ru_cursor;        ///< cursor position shown in ruler
-    colnr_T w_ru_virtcol;     ///< virtcol shown in ruler
+    columnum_kt w_ru_virtcol;     ///< virtcol shown in ruler
     linenum_kt w_ru_topline;    ///< topline shown in ruler
     linenum_kt w_ru_line_count; ///< line count used for ruler
     int w_ru_topfill;         ///< topfill shown in ruler

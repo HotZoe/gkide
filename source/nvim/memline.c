@@ -1178,7 +1178,7 @@ void ml_recover(void)
             }
 
             ++error;
-            ml_append(lnum++, (uchar_kt *)_("???MANY LINES MISSING"), (colnr_T)0, TRUE);
+            ml_append(lnum++, (uchar_kt *)_("???MANY LINES MISSING"), (columnum_kt)0, TRUE);
         }
         else // there is a block
         {
@@ -1200,7 +1200,7 @@ void ml_recover(void)
 
                         ml_append(lnum++,
                                   (uchar_kt *)_("???LINE COUNT WRONG"),
-                                  (colnr_T)0,
+                                  (columnum_kt)0,
                                   TRUE);
                     }
                 }
@@ -1209,7 +1209,7 @@ void ml_recover(void)
                 {
                     ml_append(lnum++,
                               (uchar_kt *)_("???EMPTY BLOCK"),
-                              (colnr_T)0,
+                              (columnum_kt)0,
                               TRUE);
 
                     ++error;
@@ -1245,7 +1245,7 @@ void ml_recover(void)
                             ++error;
                             ml_append(lnum++,
                                       (uchar_kt *)_("???LINES MISSING"),
-                                      (colnr_T)0, TRUE);
+                                      (columnum_kt)0, TRUE);
                         }
 
                         ++idx; // get same block again for next index
@@ -1283,7 +1283,7 @@ void ml_recover(void)
 
                     ml_append(lnum++,
                               (uchar_kt *)_("???BLOCK MISSING"),
-                              (colnr_T)0,
+                              (columnum_kt)0,
                               TRUE);
                 }
                 else
@@ -1299,7 +1299,7 @@ void ml_recover(void)
                         ml_append(lnum++,
                                   (uchar_kt *)_("??? from here until ???END "
                                               "lines may be messed up"),
-                                  (colnr_T)0,
+                                  (columnum_kt)0,
                                   TRUE);
 
                         ++error;
@@ -1317,7 +1317,7 @@ void ml_recover(void)
                         ml_append(lnum++,
                                   (uchar_kt *)_("??? from here until ???END lines"
                                               " may have been inserted/deleted"),
-                                  (colnr_T)0, TRUE);
+                                  (columnum_kt)0, TRUE);
 
                         ++error;
                         has_error = TRUE;
@@ -1338,14 +1338,14 @@ void ml_recover(void)
                             p = (uchar_kt *)dp + txt_start;
                         }
 
-                        ml_append(lnum++, p, (colnr_T)0, TRUE);
+                        ml_append(lnum++, p, (columnum_kt)0, TRUE);
                     }
 
                     if(has_error)
                     {
                         ml_append(lnum++,
                                   (uchar_kt *)_("???END"),
-                                  (colnr_T)0,
+                                  (columnum_kt)0,
                                   TRUE);
                     }
                 }
@@ -2220,7 +2220,7 @@ int ml_line_alloced(void)
 /// that pe_old_lnum will be set for recovery
 ///
 /// @return FAIL for failure, OK otherwise
-int ml_append(linenum_kt lnum, uchar_kt *line, colnr_T len, int newfile)
+int ml_append(linenum_kt lnum, uchar_kt *line, columnum_kt len, int newfile)
 {
     // When starting up, we might still need to create the memfile
     if(curbuf->b_ml.ml_mfp == NULL && open_buffer(FALSE, NULL, 0) == FAIL)
@@ -2247,7 +2247,7 @@ int ml_append(linenum_kt lnum, uchar_kt *line, colnr_T len, int newfile)
 int ml_append_buf(fbuf_st *buf,
                   linenum_kt lnum,
                   uchar_kt *line,
-                  colnr_T len,
+                  columnum_kt len,
                   int newfile)
 {
     if(buf->b_ml.ml_mfp == NULL)
@@ -2274,7 +2274,7 @@ int ml_append_buf(fbuf_st *buf,
 static int ml_append_int(fbuf_st *buf,
               linenum_kt lnum,
               uchar_kt *line,
-              colnr_T len,
+              columnum_kt len,
               int newfile,
               int mark)
 {
@@ -2306,7 +2306,7 @@ static int ml_append_int(fbuf_st *buf,
 
     if(len == 0)
     {
-        len = (colnr_T)STRLEN(line) + 1; // space needed for the text
+        len = (columnum_kt)STRLEN(line) + 1; // space needed for the text
     }
 
     space_needed = len + INDEX_SIZE; // space needed for text + index
@@ -3168,7 +3168,7 @@ static void ml_flush_line(fbuf_st *buf)
     linenum_kt lnum;
     uchar_kt *new_line;
     uchar_kt *old_line;
-    colnr_T new_len;
+    columnum_kt new_len;
     int old_len;
     int extra;
     int idx;
@@ -3215,7 +3215,7 @@ static void ml_flush_line(fbuf_st *buf)
                 old_len = (dp->db_index[idx - 1] & DB_INDEX_MASK) - start;
             }
 
-            new_len = (colnr_T)STRLEN(new_line) + 1;
+            new_len = (columnum_kt)STRLEN(new_line) + 1;
             extra = new_len - old_len; // negative if lines gets smaller
 
             // if new line fits in data block, replace directly
@@ -4852,12 +4852,12 @@ void goto_byte(long cnt)
     {
         curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
         curwin->w_curswant = MAXCOL;
-        coladvance((colnr_T)MAXCOL);
+        coladvance((columnum_kt)MAXCOL);
     }
     else
     {
         curwin->w_cursor.lnum = lnum;
-        curwin->w_cursor.col = (colnr_T)boff;
+        curwin->w_cursor.col = (columnum_kt)boff;
         curwin->w_cursor.coladd = 0;
         curwin->w_set_curswant = TRUE;
     }
@@ -4942,7 +4942,7 @@ int dec(pos_T *lp)
     {
         lp->lnum--;
         p = ml_get(lp->lnum);
-        lp->col = (colnr_T)STRLEN(p);
+        lp->col = (columnum_kt)STRLEN(p);
 
         if(has_mbyte)
         {

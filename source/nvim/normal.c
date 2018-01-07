@@ -86,7 +86,7 @@ typedef struct normal_state
 // The Visual area is remembered for reselection.
 static int resel_VIsual_mode = NUL;      ///< 'v', 'V', or Ctrl-V
 static linenum_kt resel_VIsual_line_count; ///< number of lines
-static colnr_T resel_VIsual_vcol;        ///< nr of cols or end col
+static columnum_kt resel_VIsual_vcol;        ///< nr of cols or end col
 static int VIsual_mode_orig = NUL;       ///< saved Visual mode
 static int restart_VIsual_select = 0;    ///<
 
@@ -1636,7 +1636,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
     // The visual area is remembered for redo
     static int redo_VIsual_mode = NUL; // 'v', 'V', or Ctrl-V
     static linenum_kt redo_VIsual_line_count; // number of lines
-    static colnr_T redo_VIsual_vcol; // number of cols or end column
+    static columnum_kt redo_VIsual_vcol; // number of cols or end column
     static long redo_VIsual_count; // count for Visual operator
     static int redo_VIsual_arg; // extra argument
 
@@ -1811,12 +1811,12 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
                     VIsual.col = 0;
 
                     curwin->w_cursor.col =
-                        (colnr_T)STRLEN(ml_get(curwin->w_cursor.lnum));
+                        (columnum_kt)STRLEN(ml_get(curwin->w_cursor.lnum));
                 }
                 else
                 {
                     curwin->w_cursor.col = 0;
-                    VIsual.col = (colnr_T)STRLEN(ml_get(VIsual.lnum));
+                    VIsual.col = (columnum_kt)STRLEN(ml_get(VIsual.lnum));
                 }
 
                 VIsual_mode = 'v';
@@ -1852,7 +1852,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
                               NULL, &curwin->w_cursor.lnum))
                 {
                     curwin->w_cursor.col =
-                        (colnr_T)STRLEN(get_cursor_line_ptr());
+                        (columnum_kt)STRLEN(get_cursor_line_ptr());
                 }
             }
 
@@ -1876,7 +1876,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
 
                 if(hasFolding(oap->start.lnum, NULL, &oap->start.lnum))
                 {
-                    oap->start.col = (colnr_T)STRLEN(ml_get(oap->start.lnum));
+                    oap->start.col = (columnum_kt)STRLEN(ml_get(oap->start.lnum));
                 }
             }
 
@@ -2098,7 +2098,7 @@ void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
             }
             else
             {
-                oap->end.col = (colnr_T)STRLEN(ml_get(oap->end.lnum));
+                oap->end.col = (columnum_kt)STRLEN(ml_get(oap->end.lnum));
 
                 if(oap->end.col)
                 {
@@ -2645,7 +2645,7 @@ bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
     pos_T save_cursor;
     win_st *old_curwin = curwin;
     static pos_T orig_cursor;
-    colnr_T leftcol, rightcol;
+    columnum_kt leftcol, rightcol;
     pos_T end_visual;
     long diff;
     int old_active = VIsual_active;
@@ -3696,7 +3696,7 @@ size_t find_ident_under_cursor(uchar_kt **string, int find_type)
 /// However: Uses 'iskeyword' from the current window!.
 size_t find_ident_at_pos(win_st *wp,
                          linenum_kt lnum,
-                         colnr_T startcol,
+                         columnum_kt startcol,
                          uchar_kt **string,
                          int find_type)
 {
@@ -4007,8 +4007,8 @@ void clear_showcmd(void)
         long lines;
         linenum_kt top;
         linenum_kt bot;
-        colnr_T leftcol;
-        colnr_T rightcol;
+        columnum_kt leftcol;
+        columnum_kt rightcol;
         int cursor_bot = lt(VIsual, curwin->w_cursor);
 
         // Show the size of the Visual area.
@@ -4258,7 +4258,7 @@ void do_check_scrollbind(bool check)
     static linenum_kt old_topline = 0;
     static int old_topfill = 0;
     static fbuf_st *old_buf = NULL;
-    static colnr_T old_leftcol = 0;
+    static columnum_kt old_leftcol = 0;
 
     if(check && curwin->w_p_scb)
     {
@@ -4320,7 +4320,7 @@ void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
     fbuf_st *old_curbuf = curbuf;
     int old_VIsual_select = VIsual_select;
     int old_VIsual_active = VIsual_active;
-    colnr_T tgt_leftcol = curwin->w_leftcol;
+    columnum_kt tgt_leftcol = curwin->w_leftcol;
 
     // check 'scrollopt' string for vertical and horizontal scroll options
     want_ver = (vim_strchr(p_sbo, 'v') && topline_diff != 0);
@@ -4724,7 +4724,7 @@ static bool nv_screengo(oparg_T *oap, int dir, long dist)
                 n = width1;
             }
 
-            if(curwin->w_curswant > (colnr_T)n + 1)
+            if(curwin->w_curswant > (columnum_kt)n + 1)
             {
                 curwin->w_curswant -=
                     ((curwin->w_curswant - n) / width2 + 1) * width2;
@@ -4780,7 +4780,7 @@ static bool nv_screengo(oparg_T *oap, int dir, long dist)
                     n = width1;
                 }
 
-                if(curwin->w_curswant + width2 < (colnr_T)n)
+                if(curwin->w_curswant + width2 < (columnum_kt)n)
                 {
                     // move forward within line
                     curwin->w_curswant += width2;
@@ -4821,17 +4821,17 @@ static bool nv_screengo(oparg_T *oap, int dir, long dist)
         // last line. We want to advance a screenline, not end up in the same
         // screenline or move two screenlines.
         validate_virtcol();
-        colnr_T virtcol = curwin->w_virtcol;
+        columnum_kt virtcol = curwin->w_virtcol;
 
-        if(virtcol > (colnr_T)width1 && *p_sbr != NUL)
+        if(virtcol > (columnum_kt)width1 && *p_sbr != NUL)
         {
             virtcol -= vim_strsize(p_sbr);
         }
 
         if(virtcol > curwin->w_curswant
-           && (curwin->w_curswant < (colnr_T)width1
-               ? (curwin->w_curswant > (colnr_T)width1 / 2)
-               : ((curwin->w_curswant - width1) % width2 > (colnr_T)width2 / 2)))
+           && (curwin->w_curswant < (columnum_kt)width1
+               ? (curwin->w_curswant > (columnum_kt)width1 / 2)
+               : ((curwin->w_curswant - width1) % width2 > (columnum_kt)width2 / 2)))
         {
             --curwin->w_cursor.col;
         }
@@ -4971,7 +4971,7 @@ void scroll_redraw(int up, long count)
 static void nv_zet(cmdarg_T *cap)
 {
     int n;
-    colnr_T col;
+    columnum_kt col;
     int nchar = cap->nchar;
     long old_fdl = curwin->w_p_fdl;
     int old_fen = curwin->w_p_fen;
@@ -5146,13 +5146,13 @@ dozet:
         case K_LEFT:
             if(!curwin->w_p_wrap)
             {
-                if((colnr_T)cap->count1 > curwin->w_leftcol)
+                if((columnum_kt)cap->count1 > curwin->w_leftcol)
                 {
                     curwin->w_leftcol = 0;
                 }
                 else
                 {
-                    curwin->w_leftcol -= (colnr_T)cap->count1;
+                    curwin->w_leftcol -= (columnum_kt)cap->count1;
                 }
 
                 leftcol_changed();
@@ -5170,7 +5170,7 @@ dozet:
             if(!curwin->w_p_wrap)
             {
                 // scroll the window left
-                curwin->w_leftcol += (colnr_T)cap->count1;
+                curwin->w_leftcol += (columnum_kt)cap->count1;
                 leftcol_changed();
             }
 
@@ -5637,7 +5637,7 @@ static void nv_colon(cmdarg_T *cap)
         else if(cap->oap->op_type != OP_NOP
                 && (cap->oap->start.lnum > curbuf->b_ml.ml_line_count
                     || cap->oap->start.col
-                       > (colnr_T)STRLEN(ml_get(cap->oap->start.lnum))
+                       > (columnum_kt)STRLEN(ml_get(cap->oap->start.lnum))
                     || did_emsg))
         {
             // The start of the operator has
@@ -5829,7 +5829,7 @@ static void nv_ident(cmdarg_T *cap)
             // under the cursor. Call setpcmark() first, so "*``" puts
             // the cursor back where it was.
             setpcmark();
-            curwin->w_cursor.col = (colnr_T)(ptr - get_cursor_line_ptr());
+            curwin->w_cursor.col = (columnum_kt)(ptr - get_cursor_line_ptr());
 
             if(!g_cmd && vim_iswordp(ptr))
             {
@@ -6367,7 +6367,7 @@ static void nv_left(cmdarg_T *cap)
                && curwin->w_cursor.lnum > 1)
             {
                 --(curwin->w_cursor.lnum);
-                coladvance((colnr_T)MAXCOL);
+                coladvance((columnum_kt)MAXCOL);
                 curwin->w_set_curswant = true;
 
                 // When the NL before the first char has to be deleted we
@@ -6711,7 +6711,7 @@ static void nv_csearch(cmdarg_T *cap)
            && cap->arg == FORWARD
            && (t_cmd || cap->oap->op_type != OP_NOP))
         {
-            colnr_T scol, ecol;
+            columnum_kt scol, ecol;
             getvcol(curwin, &curwin->w_cursor, &scol, NULL, &ecol);
             curwin->w_cursor.coladd = ecol - scol;
         }
@@ -7397,9 +7397,9 @@ static void nv_replace(cmdarg_T *cap)
         if(gchar_cursor() == NUL)
         {
             // Add extra space and put the cursor on the first one.
-            coladvance_force((colnr_T)(getviscol() + cap->count1));
+            coladvance_force((columnum_kt)(getviscol() + cap->count1));
             assert(cap->count1 <= INT_MAX);
-            curwin->w_cursor.col -= (colnr_T)cap->count1;
+            curwin->w_cursor.col -= (columnum_kt)cap->count1;
         }
         else if(gchar_cursor() == TAB)
         {
@@ -7557,7 +7557,7 @@ static void nv_replace(cmdarg_T *cap)
 
             // mark the buffer as changed and prepare for displaying
             changed_bytes(curwin->w_cursor.lnum,
-                          (colnr_T)(curwin->w_cursor.col - cap->count1));
+                          (columnum_kt)(curwin->w_cursor.col - cap->count1));
         }
 
         --curwin->w_cursor.col; // cursor on the last replaced char
@@ -7582,7 +7582,7 @@ static void nv_replace(cmdarg_T *cap)
 static void v_swap_corners(int cmdchar)
 {
     pos_T old_cursor;
-    colnr_T left, right;
+    columnum_kt left, right;
 
     if(cmdchar == 'O' && VIsual_mode == Ctrl_V)
     {
@@ -8138,7 +8138,7 @@ static void nv_visual(cmdarg_T *cap)
             if(resel_VIsual_vcol == MAXCOL)
             {
                 curwin->w_curswant = MAXCOL;
-                coladvance((colnr_T)MAXCOL);
+                coladvance((columnum_kt)MAXCOL);
             }
             else if(VIsual_mode == Ctrl_V)
             {
@@ -8492,7 +8492,7 @@ static void nv_g_cmd(cmdarg_T *cap)
                 validate_virtcol();
                 i = 0;
 
-                if(curwin->w_virtcol >= (colnr_T)width1 && width2 > 0)
+                if(curwin->w_virtcol >= (columnum_kt)width1 && width2 > 0)
                 {
                     i = (curwin->w_virtcol - width1) / width2 * width2 + width1;
                 }
@@ -8513,7 +8513,7 @@ static void nv_g_cmd(cmdarg_T *cap)
                          ? curwin_col_off2() : 0)) / 2;
             }
 
-            coladvance((colnr_T)i);
+            coladvance((columnum_kt)i);
 
             if(flag)
             {
@@ -8581,12 +8581,12 @@ static void nv_g_cmd(cmdarg_T *cap)
                     validate_virtcol();
                     i = width1 - 1;
 
-                    if(curwin->w_virtcol >= (colnr_T)width1)
+                    if(curwin->w_virtcol >= (columnum_kt)width1)
                     {
                         i += ((curwin->w_virtcol - width1) / width2 + 1) * width2;
                     }
 
-                    coladvance((colnr_T)i);
+                    coladvance((columnum_kt)i);
                     validate_virtcol(); // Make sure we stick in this column.
                     curwin->w_curswant = curwin->w_virtcol;
                     curwin->w_set_curswant = false;
@@ -8596,7 +8596,7 @@ static void nv_g_cmd(cmdarg_T *cap)
                         // Check for landing on a character that got split at
                         // the end of the line. We do not want to advance to
                         // the next screen line.
-                        if(curwin->w_virtcol > (colnr_T)i)
+                        if(curwin->w_virtcol > (columnum_kt)i)
                         {
                             --curwin->w_cursor.col;
                         }
@@ -8610,7 +8610,7 @@ static void nv_g_cmd(cmdarg_T *cap)
             else
             {
                 i = curwin->w_leftcol + curwin->w_width - col_off - 1;
-                coladvance((colnr_T)i);
+                coladvance((columnum_kt)i);
                 validate_virtcol(); // Make sure we stick in this column.
                 curwin->w_curswant = curwin->w_virtcol;
                 curwin->w_set_curswant = false;
@@ -8656,7 +8656,7 @@ static void nv_g_cmd(cmdarg_T *cap)
                 check_cursor_lnum();
                 i = (int)STRLEN(get_cursor_line_ptr());
 
-                if(curwin->w_cursor.col > (colnr_T)i)
+                if(curwin->w_cursor.col > (columnum_kt)i)
                 {
                     if(virtual_active())
                     {
@@ -9061,8 +9061,8 @@ static void nv_pipe(cmdarg_T *cap)
 
     if(cap->count0 > 0)
     {
-        coladvance((colnr_T)(cap->count0 - 1));
-        curwin->w_curswant = (colnr_T)(cap->count0 - 1);
+        coladvance((columnum_kt)(cap->count0 - 1));
+        curwin->w_curswant = (columnum_kt)(cap->count0 - 1);
     }
     else
     {
@@ -9271,7 +9271,7 @@ static bool unadjust_for_sel(void)
         else if(pp->lnum > 1)
         {
             --pp->lnum;
-            pp->col = (colnr_T)STRLEN(ml_get(pp->lnum));
+            pp->col = (columnum_kt)STRLEN(ml_get(pp->lnum));
             return true;
         }
     }
@@ -9476,13 +9476,13 @@ static void nv_edit(cmdarg_T *cap)
                     // Pretend Insert mode here to allow the cursor
                     // on the character past the end of the line
                     curmod = kInsertMode;
-                    coladvance((colnr_T)MAXCOL);
+                    coladvance((columnum_kt)MAXCOL);
                     curmod = save_State;
                 }
                 else
                 {
                     curwin->w_cursor.col +=
-                        (colnr_T)STRLEN(get_cursor_pos_ptr());
+                        (columnum_kt)STRLEN(get_cursor_pos_ptr());
                 }
 
                 break;
@@ -9910,7 +9910,7 @@ static void nv_put(cmdarg_T *cap)
             if(curwin->w_cursor.lnum > curbuf->b_ml.ml_line_count)
             {
                 curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
-                coladvance((colnr_T)MAXCOL);
+                coladvance((columnum_kt)MAXCOL);
             }
         }
 
@@ -9947,10 +9947,10 @@ static void nv_open(cmdarg_T *cap)
 ///
 /// @param initial
 /// when true: adjust position for 'selectmode'
-static void get_op_vcol(oparg_T *oap, colnr_T redo_VIsual_vcol, bool initial)
+static void get_op_vcol(oparg_T *oap, columnum_kt redo_VIsual_vcol, bool initial)
 {
-    colnr_T start;
-    colnr_T end;
+    columnum_kt start;
+    columnum_kt end;
 
     if(VIsual_mode != Ctrl_V || (!initial && oap->end.col < curwin->w_width))
     {

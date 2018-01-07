@@ -2294,7 +2294,7 @@ parse_line:
 
                     match = vim_regexec(&orgpat.regmatch,
                                         tagp.tagname,
-                                        (colnr_T)0);
+                                        (columnum_kt)0);
 
                     if(match)
                     {
@@ -2307,7 +2307,7 @@ parse_line:
 
                             match_no_ic = vim_regexec(&orgpat.regmatch,
                                                       tagp.tagname,
-                                                      (colnr_T)0);
+                                                      (columnum_kt)0);
 
                             orgpat.regmatch.rm_ic = TRUE;
                         }

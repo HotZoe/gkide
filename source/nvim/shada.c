@@ -1669,7 +1669,7 @@ FUNC_ATTR_NONNULL_ALL
                     .y_array = (uchar_kt **)cur_entry.data.reg.contents,
                     .y_size = cur_entry.data.reg.contents_size,
                     .y_type = cur_entry.data.reg.type,
-                    .y_width = (colnr_T) cur_entry.data.reg.width,
+                    .y_width = (columnum_kt) cur_entry.data.reg.width,
                     .timestamp = cur_entry.timestamp,
                     .additional_data = cur_entry.data.reg.additional_data,}))
                 {

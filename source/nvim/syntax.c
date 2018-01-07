@@ -335,7 +335,7 @@ static win_st *syn_win;             ///< current window for highlighting
 static fbuf_st *syn_buf;             ///< current buffer for highlighting
 static synblock_T *syn_block;      ///< current buffer for highlighting
 static linenum_kt current_lnum = 0;  ///< lnum of current state
-static colnr_T current_col = 0;    ///< column of current state
+static columnum_kt current_col = 0;    ///< column of current state
 static int current_finished = 0;   ///< current line has been finished
 
 /// TRUE if stored current state after setting current_finished
@@ -622,7 +622,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_T *last_valid)
     linenum_kt found_current_lnum = 0;
     int found_current_col= 0;
     lpos_T found_m_endpos;
-    colnr_T prev_current_col;
+    columnum_kt prev_current_col;
     // Clear any current state that might be hanging around.
     invalidate_current_state();
 
@@ -933,7 +933,7 @@ static int syn_match_linecont(linenum_kt lnum)
 
         int r = syn_regexec(&regmatch,
                             lnum,
-                            (colnr_T)0,
+                            (columnum_kt)0,
                             IF_SYN_TIME(&syn_block->b_syn_linecont_time));
 
         syn_block->b_syn_linecont_prog = regmatch.regprog;
@@ -1772,7 +1772,7 @@ int syntax_check_changed(linenum_kt lnum)
 static int syn_finish_line(int syncing)
 {
     stateitem_T *cur_si;
-    colnr_T prev_current_col;
+    columnum_kt prev_current_col;
 
     while(!current_finished)
     {
@@ -1823,7 +1823,7 @@ static int syn_finish_line(int syncing)
 /// and to stop before the end of the line. But only a "col" after
 /// a previously used column is allowed. When "can_spell" is not NULL
 /// set it to TRUE when spell-checking should be done.
-int get_syntax_attr(colnr_T col, bool *can_spell, int keep_state)
+int get_syntax_attr(columnum_kt col, bool *can_spell, int keep_state)
 {
     int attr = 0;
 
@@ -1843,7 +1843,7 @@ int get_syntax_attr(colnr_T col, bool *can_spell, int keep_state)
     }
 
     // After 'synmaxcol' the attribute is always zero.
-    if(syn_buf->b_p_smc > 0 && col >= (colnr_T)syn_buf->b_p_smc)
+    if(syn_buf->b_p_smc > 0 && col >= (columnum_kt)syn_buf->b_p_smc)
     {
         clear_current_state();
         current_id = 0;
@@ -2122,7 +2122,7 @@ static int syn_current_attr(int syncing,
                             regmatch.regprog = spp->sp_prog;
                             int r = syn_regexec(&regmatch,
                                                 current_lnum,
-                                                (colnr_T)lc_col,
+                                                (columnum_kt)lc_col,
                                                 IF_SYN_TIME(&spp->sp_time));
                             spp->sp_prog = regmatch.regprog;
 
@@ -2868,7 +2868,7 @@ static void update_si_end(stateitem_T *sip, int startcol, int force)
             // a "oneline" never continues in the next line
             sip->si_ends = TRUE;
             sip->si_m_endpos.lnum = current_lnum;
-            sip->si_m_endpos.col = (colnr_T)STRLEN(syn_getcurline());
+            sip->si_m_endpos.col = (columnum_kt)STRLEN(syn_getcurline());
         }
         else
         {
@@ -2941,7 +2941,7 @@ static void find_endpos(int idx,
                         int *end_idx,
                         reg_extmatch_T *start_ext)
 {
-    colnr_T matchcol;
+    columnum_kt matchcol;
     synpat_T *spp, *spp_skip;
     int start_idx;
     int best_idx;
@@ -3358,7 +3358,7 @@ static uchar_kt *syn_getcurline(void)
 /// Returns TRUE when there is a match.
 static int syn_regexec(regmmatch_T *rmp,
                        linenum_kt lnum,
-                       colnr_T col,
+                       columnum_kt col,
                        syn_time_T *st)
 {
     int r;
@@ -6404,7 +6404,7 @@ static int get_id_list(uchar_kt **arg, int keylen, short **list)
                     {
                         if(vim_regexec(&regmatch,
                                        HL_TABLE()[i].sg_name,
-                                       (colnr_T)0))
+                                       (columnum_kt)0))
                         {
                             if(round == 2)
                             {
@@ -6881,7 +6881,7 @@ uchar_kt *get_syntax_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 /// @param keep_state keep state of char at "col"
 int syn_get_id(win_st *wp,
                long lnum,
-               colnr_T col,
+               columnum_kt col,
                int trans,
                bool *spellp,
                int keep_state)
@@ -6920,7 +6920,7 @@ int get_syntax_info(int *seqnrp)
 /// Get the sequence number of the concealed file position.
 ///
 /// @return seqnr if the file position is concealed, 0 otherwise.
-int syn_get_concealed_id(win_st *wp, linenum_kt lnum, colnr_T col)
+int syn_get_concealed_id(win_st *wp, linenum_kt lnum, columnum_kt col)
 {
     int seqnr;
     int syntax_flags;

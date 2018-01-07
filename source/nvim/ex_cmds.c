@@ -93,7 +93,7 @@ typedef struct
     linenum_kt lnum;
     long nmatch;
     uchar_kt *line;
-    kvec_t(colnr_T) cols;  ///< columns of in-line matches
+    kvec_t(columnum_kt) cols;  ///< columns of in-line matches
 } MatchedLine;
 typedef kvec_t(MatchedLine) MatchedLineVec;
 
@@ -495,8 +495,8 @@ void ex_sort(exarg_T *eap)
     uchar_kt c; // temporary character storage
     bool unique = false;
     long deleted;
-    colnr_T start_col;
-    colnr_T end_col;
+    columnum_kt start_col;
+    columnum_kt end_col;
     int sort_what = 0;
 
     // Sorting one line is really quick!
@@ -645,12 +645,12 @@ void ex_sort(exarg_T *eap)
         {
             if(sort_rx)
             {
-                start_col = (colnr_T)(regmatch.startp[0] - s);
-                end_col = (colnr_T)(regmatch.endp[0] - s);
+                start_col = (columnum_kt)(regmatch.startp[0] - s);
+                end_col = (columnum_kt)(regmatch.endp[0] - s);
             }
             else
             {
-                start_col = (colnr_T)(regmatch.endp[0] - s);
+                start_col = (columnum_kt)(regmatch.endp[0] - s);
             }
         }
         else if(regmatch.regprog != NULL)
@@ -773,7 +773,7 @@ void ex_sort(exarg_T *eap)
             // ml_append(). And it's needed for "unique".
             STRCPY(sortbuf1, s);
 
-            if(ml_append(lnum++, sortbuf1, (colnr_T)0, false) == FAIL)
+            if(ml_append(lnum++, sortbuf1, (columnum_kt)0, false) == FAIL)
             {
                 break;
             }
@@ -971,7 +971,7 @@ void ex_retab(exarg_T *eap)
                 break;
             }
 
-            vcol += chartabsize(ptr + col, (colnr_T)vcol);
+            vcol += chartabsize(ptr + col, (columnum_kt)vcol);
 
             if(has_mbyte)
             {
@@ -1041,7 +1041,7 @@ int do_move(linenum_kt line1, linenum_kt line2, linenum_kt dest)
     for(extra = 0, l = line1; l <= line2; l++)
     {
         str = vim_strsave(ml_get(l + extra));
-        ml_append(dest + l - line1, str, (colnr_T)0, FALSE);
+        ml_append(dest + l - line1, str, (columnum_kt)0, FALSE);
         xfree(str);
 
         if(dest < line1)
@@ -1189,7 +1189,7 @@ void ex_copy(linenum_kt line1, linenum_kt line2, linenum_kt n)
         // will be unlocked within ml_append()
         p = vim_strsave(ml_get(line1));
 
-        ml_append(curwin->w_cursor.lnum, p, (colnr_T)0, FALSE);
+        ml_append(curwin->w_cursor.lnum, p, (columnum_kt)0, FALSE);
         xfree(p);
 
         // situation 2: skip already copied lines
@@ -1907,7 +1907,7 @@ void print_line_no_prefix(linenum_kt lnum, int use_number, int list)
 
     if(curwin->w_p_nu || use_number)
     {
-        vim_snprintf(numbuf, sizeof(numbuf), "%*" PRIdLINENR " ",
+        vim_snprintf(numbuf, sizeof(numbuf), "%*" LineNumKtPrtFmt " ",
                      number_width(curwin), lnum);
 
         msg_puts_attr(numbuf, hl_attr(HLF_N)); // Highlight line nrs.
@@ -3573,7 +3573,7 @@ void ex_append(exarg_T *eap)
         }
 
         did_undo = TRUE;
-        ml_append(lnum, theline, (colnr_T)0, FALSE);
+        ml_append(lnum, theline, (columnum_kt)0, FALSE);
         appended_lines_mark(lnum + (empty ? 1 : 0), 1L);
         xfree(theline);
         ++lnum;
@@ -4368,14 +4368,14 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                                         curwin,
                                         curbuf,
                                         lnum,
-                                        (colnr_T)0,
+                                        (columnum_kt)0,
                                         NULL);
 
         if(nmatch)
         {
-            colnr_T copycol;
-            colnr_T matchcol;
-            colnr_T prev_matchcol = MAXCOL;
+            columnum_kt copycol;
+            columnum_kt matchcol;
+            columnum_kt prev_matchcol = MAXCOL;
             uchar_kt *new_end;
             uchar_kt *new_start = NULL;
             uchar_kt *p1;
@@ -4523,7 +4523,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                     // Avoids that ":s/\nB\@=//gc" get stuck.
                     if(nmatch > 1)
                     {
-                        matchcol = (colnr_T)STRLEN(sub_firstline);
+                        matchcol = (columnum_kt)STRLEN(sub_firstline);
                         nmatch = 1;
                         skip_match = TRUE;
                     }
@@ -4564,7 +4564,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                         if(exmode_active)
                         {
                             uchar_kt *resp;
-                            colnr_T sc, ec;
+                            columnum_kt sc, ec;
 
                             print_line_no_prefix(lnum,
                                                  subflags.do_number,
@@ -4754,7 +4754,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                         // get stuck when pressing 'n'.
                         if(nmatch > 1)
                         {
-                            matchcol = (colnr_T)STRLEN(sub_firstline);
+                            matchcol = (columnum_kt)STRLEN(sub_firstline);
                             skip_match = TRUE;
                         }
 
@@ -4913,7 +4913,7 @@ static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
                                 *p1 = NUL; // truncate up to the CR
                                 ml_append(lnum - 1,
                                           new_start,
-                                          (colnr_T)(p1 - new_start + 1),
+                                          (columnum_kt)(p1 - new_start + 1),
                                           false);
 
                                 mark_adjust(lnum + 1, (linenum_kt)MAXLNUM, 1L, 0L);
@@ -4992,9 +4992,9 @@ skip:
                         // have changed the number of characters.  Same for
                         // "prev_matchcol".
                         STRCAT(new_start, sub_firstline + copycol);
-                        matchcol = (colnr_T)STRLEN(sub_firstline) - matchcol;
+                        matchcol = (columnum_kt)STRLEN(sub_firstline) - matchcol;
 
-                        prev_matchcol = (colnr_T)STRLEN(sub_firstline)
+                        prev_matchcol = (columnum_kt)STRLEN(sub_firstline)
                                         - prev_matchcol;
 
                         if(u_savesub(lnum) != OK)
@@ -5055,9 +5055,9 @@ skip:
                         xfree(sub_firstline); // free the temp buffer
                         sub_firstline = new_start;
                         new_start = NULL;
-                        matchcol = (colnr_T)STRLEN(sub_firstline) - matchcol;
+                        matchcol = (columnum_kt)STRLEN(sub_firstline) - matchcol;
 
-                        prev_matchcol = (colnr_T)STRLEN(sub_firstline)
+                        prev_matchcol = (columnum_kt)STRLEN(sub_firstline)
                                         - prev_matchcol;
                         copycol = 0;
                     }
@@ -5146,7 +5146,7 @@ skip:
             {
                 if(endcolumn)
                 {
-                    coladvance((colnr_T)MAXCOL);
+                    coladvance((columnum_kt)MAXCOL);
                 }
                 else
                 {
@@ -5420,7 +5420,7 @@ void ex_global(exarg_T *eap)
     {
         // a match on this line?
         match = vim_regexec_multi(&regmatch, curwin,
-                                  curbuf, lnum, (colnr_T)0, NULL);
+                                  curbuf, lnum, (columnum_kt)0, NULL);
 
         if((type == 'g' && match) || (type == 'v' && !match))
         {
@@ -6482,7 +6482,7 @@ void fix_help_buffer(void)
                                 }
 
                                 convert_setup(&vc, NULL, NULL);
-                                ml_append(lnum, cp, (colnr_T)0, FALSE);
+                                ml_append(lnum, cp, (columnum_kt)0, FALSE);
 
                                 if(cp != IObuff)
                                 {
@@ -7954,19 +7954,19 @@ FUNC_ATTR_NONNULL_ALL
                      col_width - 3,
                      mat.lnum, mat.line);
 
-            ml_append(line, (uchar_kt *)str, (colnr_T)line_size, false);
+            ml_append(line, (uchar_kt *)str, (columnum_kt)line_size, false);
 
             // highlight the replaced part
             if(sub_size > 0)
             {
                 for(size_t i = 0; i < mat.cols.size; i++)
                 {
-                    colnr_T col_start = mat.cols.items[i]
+                    columnum_kt col_start = mat.cols.items[i]
                                         + col_width
                                         + i * (sub_size - pat_size)
                                         + 1;
 
-                    colnr_T col_end = col_start - 1 + sub_size;
+                    columnum_kt col_end = col_start - 1 + sub_size;
 
                     src_id_highlight = bufhl_add_hl(curbuf,
                                                     src_id_highlight,

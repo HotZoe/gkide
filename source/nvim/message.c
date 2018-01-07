@@ -2187,7 +2187,7 @@ bool message_filtered(uchar_kt *msg)
         return false;
     }
 
-    bool match = vim_regexec(&cmdmod.filter_regmatch, msg, (colnr_T)0);
+    bool match = vim_regexec(&cmdmod.filter_regmatch, msg, (columnum_kt)0);
     return cmdmod.filter_force ? match : !match;
 }
 

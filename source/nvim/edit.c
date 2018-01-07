@@ -181,7 +181,7 @@ static int compl_pending = 0;
 static pos_T compl_startpos;
 
 /// column where the text starts that is being completed
-static colnr_T compl_col = 0;
+static columnum_kt compl_col = 0;
 
 /// text as it was before completion started
 static uchar_kt *compl_orig_text = NULL;
@@ -224,8 +224,8 @@ typedef struct insert_state
 #define BACKSPACE_LINE              4
 
 static size_t spell_bad_len = 0;         ///< length of located bad word
-static colnr_T Insstart_textlen;         ///< length of line when insert started
-static colnr_T Insstart_blank_vcol;      ///< vcol for first inserted blank
+static columnum_kt Insstart_textlen;         ///< length of line when insert started
+static columnum_kt Insstart_blank_vcol;      ///< vcol for first inserted blank
 static bool update_Insstart_orig = true; ///< set Insstart_orig to Insstart
 static uchar_kt *last_insert = NULL;       ///< the text of the previous insert,
                                          ///< K_SPECIAL and CSI are escaped
@@ -331,7 +331,7 @@ static void insert_enter(InsertState *s)
         }
     }
 
-    Insstart_textlen = (colnr_T)linetabsize(get_cursor_line_ptr());
+    Insstart_textlen = (columnum_kt)linetabsize(get_cursor_line_ptr());
     Insstart_blank_vcol = MAXCOL;
 
     if(!did_ai)
@@ -1870,9 +1870,9 @@ void edit_unputchar(void)
 
 /// Called when p_dollar is set: display a '$' at the end of the changed text
 /// Only works when cursor is in the line that changes.
-void display_dollar(colnr_T col)
+void display_dollar(columnum_kt col)
 {
-    colnr_T save_col;
+    columnum_kt save_col;
 
     if(!redrawing())
     {
@@ -1941,8 +1941,8 @@ void change_indent(int type,
     uchar_kt *ptr;
     int save_p_list;
     int start_col;
-    colnr_T vc;
-    colnr_T orig_col = 0; // init for GCC
+    columnum_kt vc;
+    columnum_kt orig_col = 0; // init for GCC
     uchar_kt *new_line;
     uchar_kt *orig_line = NULL; // init for GCC
 
@@ -2033,7 +2033,7 @@ void change_indent(int type,
     {
         // Compute the screen column where the cursor should be.
         vcol = get_indent() - vcol;
-        curwin->w_virtcol = (colnr_T)((vcol < 0) ? 0 : vcol);
+        curwin->w_virtcol = (columnum_kt)((vcol < 0) ? 0 : vcol);
 
         // Advance the cursor until we reach the right screen column.
         vcol = last_vcol = 0;
@@ -2053,7 +2053,7 @@ void change_indent(int type,
                 ++new_cursor_col;
             }
 
-            vcol += lbr_chartabsize(ptr, ptr + new_cursor_col, (colnr_T)vcol);
+            vcol += lbr_chartabsize(ptr, ptr + new_cursor_col, (columnum_kt)vcol);
         }
 
         vcol = last_vcol;
@@ -2062,7 +2062,7 @@ void change_indent(int type,
         // the right screen column.
         if(vcol != (int)curwin->w_virtcol)
         {
-            curwin->w_cursor.col = (colnr_T)new_cursor_col;
+            curwin->w_cursor.col = (columnum_kt)new_cursor_col;
             i = (int)curwin->w_virtcol - vcol;
             ptr = xmallocz(i);
             memset(ptr, ' ', i);
@@ -2084,7 +2084,7 @@ void change_indent(int type,
     }
     else
     {
-        curwin->w_cursor.col = (colnr_T)new_cursor_col;
+        curwin->w_cursor.col = (columnum_kt)new_cursor_col;
     }
 
     curwin->w_set_curswant = TRUE;
@@ -2217,13 +2217,13 @@ static bool del_char_after_col(int limit_col)
 {
     if(enc_utf8 && limit_col >= 0)
     {
-        colnr_T ecol = curwin->w_cursor.col + 1;
+        columnum_kt ecol = curwin->w_cursor.col + 1;
         // Make sure the cursor is at the start of a character, but
         // skip forward again when going too far back because of a
         // composing character.
         mb_adjust_cursor();
 
-        while(curwin->w_cursor.col < (colnr_T)limit_col)
+        while(curwin->w_cursor.col < (columnum_kt)limit_col)
         {
             int l = utf_ptr2len(get_cursor_pos_ptr());
 
@@ -2986,7 +2986,7 @@ void completeopt_was_set(void)
 /// Start completion for the complete() function.
 /// "startcol" is where the matched text starts (1 is first column).
 /// "list" is the list of matches.
-void set_completion(colnr_T startcol, list_st *list)
+void set_completion(columnum_kt startcol, list_st *list)
 {
     // If already doing completions stop it.
     if(ctrl_x_mode != 0)
@@ -3139,7 +3139,7 @@ void ins_compl_show_pum(void)
     int shown_match_ok = FALSE;
     int i;
     int cur = -1;
-    colnr_T col;
+    columnum_kt col;
     int lead_len = 0;
     bool array_changed = false;
 
@@ -3486,7 +3486,7 @@ static void ins_compl_files(int count,
         {
             ptr = buf;
 
-            while(vim_regexec(regmatch, buf, (colnr_T)(ptr - buf)))
+            while(vim_regexec(regmatch, buf, (columnum_kt)(ptr - buf)))
             {
                 ptr = regmatch->startp[0];
 
@@ -5621,7 +5621,7 @@ static int ins_complete(int c, bool enable_pum)
 {
     uchar_kt *line;
     int startcol = 0; // column where searched text starts
-    colnr_T curs_col; // cursor column
+    columnum_kt curs_col; // cursor column
     int n;
     int save_w_wrow;
     int save_w_leftcol;
@@ -5670,7 +5670,7 @@ static int ins_complete(int c, bool enable_pum)
                     // first non_blank in the line, if it is not a wordchar
                     // include it to get a better pattern, but then we don't
                     // want the "\\<" prefix, check it bellow
-                    compl_col = (colnr_T)(skipwhite(line) - line);
+                    compl_col = (columnum_kt)(skipwhite(line) - line);
                     compl_startpos.col = compl_col;
                     compl_startpos.lnum = curwin->w_cursor.lnum;
                     compl_cont_status &= ~CONT_SOL; // clear SOL if present
@@ -5685,7 +5685,7 @@ static int ins_complete(int c, bool enable_pum)
                         compl_cont_status |= CONT_SOL;
 
                         compl_startpos.col =
-                            (colnr_T)(skipwhite(line
+                            (columnum_kt)(skipwhite(line
                                                 + compl_length
                                                 + compl_startpos.col)
                                       - line);
@@ -5855,7 +5855,7 @@ static int ins_complete(int c, bool enable_pum)
         }
         else if(CTRL_X_MODE_LINE_OR_EVAL(ctrl_x_mode))
         {
-            compl_col = (colnr_T)(skipwhite(line) - line);
+            compl_col = (columnum_kt)(skipwhite(line) - line);
             compl_length = (int)curs_col - (int)compl_col;
 
             // cursor in indent: empty pattern
@@ -6029,7 +6029,7 @@ static int ins_complete(int c, bool enable_pum)
                 compl_col = spell_word_start(startcol);
             }
 
-            if(compl_col >= (colnr_T)startcol)
+            if(compl_col >= (columnum_kt)startcol)
             {
                 compl_length = 0;
                 compl_col = curs_col;
@@ -6665,20 +6665,20 @@ void insertchar(int c,  int flags, int second_indent)
                      && *get_cursor_pos_ptr() != NUL)
                && (curwin->w_cursor.lnum != Insstart.lnum
                    || ((!has_format_option(FO_INS_LONG)
-                        || Insstart_textlen <= (colnr_T)textwidth)
+                        || Insstart_textlen <= (columnum_kt)textwidth)
                        && (!fo_ins_blank
-                           || Insstart_blank_vcol <= (colnr_T)textwidth))))))
+                           || Insstart_blank_vcol <= (columnum_kt)textwidth))))))
     {
         // Format with 'formatexpr' when it's set. Use internal formatting
         // when 'formatexpr' isn't set or it returns non-zero.
         int do_internal = TRUE;
 
-        colnr_T virtcol =
+        columnum_kt virtcol =
             get_nolist_virtcol() + char2cells(c != NUL ? c : gchar_cursor());
 
         if(*curbuf->b_p_fex != NUL
            && (flags & INSCHAR_NO_FEX) == 0
-           && (force_format || virtcol > (colnr_T)textwidth))
+           && (force_format || virtcol > (columnum_kt)textwidth))
         {
             do_internal = (fex_format(curwin->w_cursor.lnum, 1L, c) != 0);
 
@@ -6782,7 +6782,7 @@ void insertchar(int c,  int flags, int second_indent)
 #define INPUT_BUFLEN 100
         int i = 1;
         uchar_kt buf[INPUT_BUFLEN + 1];
-        colnr_T virtcol = 0;
+        columnum_kt virtcol = 0;
         buf[0] = c;
 
         if(textwidth > 0)
@@ -6801,7 +6801,7 @@ void insertchar(int c,  int flags, int second_indent)
               && (!has_mbyte || MB_BYTE2LEN_CHECK(c) == 1)
               && i < INPUT_BUFLEN
               && (textwidth == 0
-                  || (virtcol += byte2cells(buf[i - 1])) < (colnr_T)textwidth)
+                  || (virtcol += byte2cells(buf[i - 1])) < (columnum_kt)textwidth)
               && !(!no_abbr && !vim_iswordc(c) && vim_iswordc(buf[i - 1])))
         {
             c = vgetc();
@@ -6891,7 +6891,7 @@ static void internal_format(int textwidth,
     int fo_multibyte = has_format_option(FO_MBYTE_BREAK);
     int fo_white_par = has_format_option(FO_WHITE_PAR);
     int first_line = TRUE;
-    colnr_T leader_len;
+    columnum_kt leader_len;
     int no_leader = FALSE;
     int do_comments = (flags & INSCHAR_DO_COM);
     int has_lbr = curwin->w_p_lbr;
@@ -6919,17 +6919,17 @@ static void internal_format(int textwidth,
         int wantcol; // column at textwidth border
         int foundcol; // column for start of spaces
         int end_foundcol = 0; // column for start of word
-        colnr_T len;
-        colnr_T virtcol;
+        columnum_kt len;
+        columnum_kt virtcol;
         int orig_col = 0;
         uchar_kt  *saved_text = NULL;
-        colnr_T col;
-        colnr_T end_col;
+        columnum_kt col;
+        columnum_kt end_col;
 
         virtcol = get_nolist_virtcol()
                   + char2cells(c != NUL ? c : gchar_cursor());
 
-        if(virtcol <= (colnr_T)textwidth)
+        if(virtcol <= (columnum_kt)textwidth)
         {
             break;
         }
@@ -6976,7 +6976,7 @@ static void internal_format(int textwidth,
         }
 
         // find column of textwidth border
-        coladvance((colnr_T)textwidth);
+        coladvance((columnum_kt)textwidth);
         wantcol = curwin->w_cursor.col;
         curwin->w_cursor.col = startcol;
         foundcol = 0;
@@ -7050,7 +7050,7 @@ static void internal_format(int textwidth,
                 end_foundcol = end_col + 1;
                 foundcol = curwin->w_cursor.col;
 
-                if(curwin->w_cursor.col <= (colnr_T)wantcol)
+                if(curwin->w_cursor.col <= (columnum_kt)wantcol)
                 {
                     break;
                 }
@@ -7075,7 +7075,7 @@ static void internal_format(int textwidth,
                         foundcol = curwin->w_cursor.col;
                         end_foundcol = foundcol;
 
-                        if(curwin->w_cursor.col <= (colnr_T)wantcol)
+                        if(curwin->w_cursor.col <= (columnum_kt)wantcol)
                         {
                             break;
                         }
@@ -7108,7 +7108,7 @@ static void internal_format(int textwidth,
                 foundcol = curwin->w_cursor.col;
                 end_foundcol = foundcol;
 
-                if(curwin->w_cursor.col <= (colnr_T)wantcol)
+                if(curwin->w_cursor.col <= (columnum_kt)wantcol)
                 {
                     break;
                 }
@@ -7262,7 +7262,7 @@ static void internal_format(int textwidth,
             // Check if cursor is not past the NUL off the line, cindent
             // may have added or removed indent.
             curwin->w_cursor.col += startcol;
-            len = (colnr_T)STRLEN(get_cursor_line_ptr());
+            len = (columnum_kt)STRLEN(get_cursor_line_ptr());
 
             if(curwin->w_cursor.col > len)
             {
@@ -7308,7 +7308,7 @@ static void internal_format(int textwidth,
 void auto_format(int trailblank, int prev_line)
 {
     pos_T pos;
-    colnr_T len;
+    columnum_kt len;
     uchar_kt *old;
     uchar_kt *new;
     uchar_kt *pnew;
@@ -7331,7 +7331,7 @@ void auto_format(int trailblank, int prev_line)
     // in 'formatoptions' and there is a single character before the cursor.
     // Otherwise the line would be broken and when typing another non-white
     // next they are not joined back together.
-    wasatend = (pos.col == (colnr_T)STRLEN(old));
+    wasatend = (pos.col == (columnum_kt)STRLEN(old));
 
     if(*old != NUL && !trailblank && wasatend)
     {
@@ -7389,7 +7389,7 @@ void auto_format(int trailblank, int prev_line)
     {
         // "cannot happen"
         curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
-        coladvance((colnr_T)MAXCOL);
+        coladvance((columnum_kt)MAXCOL);
     }
     else
     {
@@ -7403,7 +7403,7 @@ void auto_format(int trailblank, int prev_line)
     if(!wasatend && has_format_option(FO_WHITE_PAR))
     {
         new = get_cursor_line_ptr();
-        len = (colnr_T)STRLEN(new);
+        len = (columnum_kt)STRLEN(new);
 
         if(curwin->w_cursor.col == len)
         {
@@ -7618,7 +7618,7 @@ int stop_arrow(void)
             update_Insstart_orig = FALSE;
         }
 
-        Insstart_textlen = (colnr_T)linetabsize(get_cursor_line_ptr());
+        Insstart_textlen = (columnum_kt)linetabsize(get_cursor_line_ptr());
 
         if(u_save_cursor() == OK)
         {
@@ -8517,7 +8517,7 @@ static void replace_do_bs(int limit_col)
     int orig_len = 0;
     int ins_len;
     int orig_vcols = 0;
-    colnr_T start_vcol;
+    columnum_kt start_vcol;
     uchar_kt *p;
     int i;
     int vcol;
@@ -8859,7 +8859,7 @@ bool in_cinkeys(int keytyped, int when, bool line_is_empty)
             }
 
             if((try_match || try_match_word)
-               && curwin->w_cursor.col >= (colnr_T)(p - look))
+               && curwin->w_cursor.col >= (columnum_kt)(p - look))
             {
                 int match = FALSE;
 
@@ -8916,7 +8916,7 @@ bool in_cinkeys(int keytyped, int when, bool line_is_empty)
                         line = get_cursor_pos_ptr();
                         assert(p >= look && (uintmax_t)(p - look) <= SIZE_MAX);
 
-                        if((curwin->w_cursor.col == (colnr_T)(p - look)
+                        if((curwin->w_cursor.col == (columnum_kt)(p - look)
                             || !vim_iswordc(line[-(p - look) - 1]))
                            && (icase
                                ? mb_strnicmp(line - (p - look), look, (size_t)(p - look))
@@ -9330,7 +9330,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 
     // When an autoindent was removed, curswant stays after the indent
-    if(restart_edit == NUL && (colnr_T)temp == curwin->w_cursor.col)
+    if(restart_edit == NUL && (columnum_kt)temp == curwin->w_cursor.col)
     {
         curwin->w_set_curswant = TRUE;
     }
@@ -9645,7 +9645,7 @@ static void ins_del(void)
 
 
 /// Delete one character for ins_bs().
-static void ins_bs_one(colnr_T *vcolp)
+static void ins_bs_one(columnum_kt *vcolp)
 {
     dec_cursor();
     getvcol(curwin, &curwin->w_cursor, vcolp, NULL, NULL);
@@ -9680,8 +9680,8 @@ FUNC_ATTR_NONNULL_ARG(3)
     linenum_kt lnum;
     int cc;
     int temp = 0; // init for GCC
-    colnr_T save_col;
-    colnr_T mincol;
+    columnum_kt save_col;
+    columnum_kt mincol;
     bool did_backspace = false;
     int in_indent;
     int oldState;
@@ -9885,9 +9885,9 @@ FUNC_ATTR_NONNULL_ARG(3)
                            && (!*inserted_space_p || arrow_used))))))
         {
             int ts;
-            colnr_T vcol;
-            colnr_T want_vcol;
-            colnr_T start_vcol;
+            columnum_kt vcol;
+            columnum_kt want_vcol;
+            columnum_kt start_vcol;
             *inserted_space_p = FALSE;
 
             if(p_sta && in_indent)
@@ -10235,7 +10235,7 @@ static void ins_left(bool end_change)
         // always break undo when moving upwards/downwards, else undo may break
         start_arrow(&tpos);
         --(curwin->w_cursor.lnum);
-        coladvance((colnr_T)MAXCOL);
+        coladvance((columnum_kt)MAXCOL);
         curwin->w_set_curswant = true; // so we stay at the end
     }
     else
@@ -10286,7 +10286,7 @@ static void ins_end(int c)
         curwin->w_cursor.lnum = curbuf->b_ml.ml_line_count;
     }
 
-    coladvance((colnr_T)MAXCOL);
+    coladvance((columnum_kt)MAXCOL);
     curwin->w_curswant = MAXCOL;
     start_arrow(&tpos);
 }
@@ -10613,7 +10613,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         pos_T pos;
         pos_T fpos;
         pos_T *cursor;
-        colnr_T want_vcol, vcol;
+        columnum_kt want_vcol, vcol;
         int change_col = -1;
         int save_list = curwin->w_p_list;
 
@@ -10806,7 +10806,7 @@ static bool ins_eol(int c)
     // NL in reverse insert will always start in the end of current line.
     if(revins_on)
     {
-        curwin->w_cursor.col += (colnr_T)STRLEN(get_cursor_pos_ptr());
+        curwin->w_cursor.col += (columnum_kt)STRLEN(get_cursor_pos_ptr());
     }
 
     AppendToRedobuff(NL_STR);
@@ -10931,13 +10931,13 @@ int ins_copychar(linenum_kt lnum)
     prev_ptr = ptr;
     validate_virtcol();
 
-    while((colnr_T)temp < curwin->w_virtcol && *ptr != NUL)
+    while((columnum_kt)temp < curwin->w_virtcol && *ptr != NUL)
     {
         prev_ptr = ptr;
-        temp += lbr_chartabsize_adv(line, &ptr, (colnr_T)temp);
+        temp += lbr_chartabsize_adv(line, &ptr, (columnum_kt)temp);
     }
 
-    if((colnr_T)temp > curwin->w_virtcol)
+    if((columnum_kt)temp > curwin->w_virtcol)
     {
         ptr = prev_ptr;
     }
@@ -11108,7 +11108,7 @@ static void ins_try_si(int c)
 
 /// Get the value that w_virtcol would have when 'list' is off.
 /// Unless 'cpo' contains the 'L' flag.
-static colnr_T get_nolist_virtcol(void)
+static columnum_kt get_nolist_virtcol(void)
 {
     if(curwin->w_p_list && vim_strchr(p_cpo, CPO_LISTWM) == NULL)
     {

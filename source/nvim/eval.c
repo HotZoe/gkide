@@ -4103,7 +4103,7 @@ static int pattern_match(uchar_kt *pat, uchar_kt *text, int ic)
     if(regmatch.regprog != NULL)
     {
         regmatch.rm_ic = ic;
-        matches = vim_regexec_nl(&regmatch, text, (colnr_T)0);
+        matches = vim_regexec_nl(&regmatch, text, (columnum_kt)0);
         vim_regfree(regmatch.regprog);
     }
 
@@ -8660,7 +8660,7 @@ static void f_append(typval_st *argvars,
                 break;
             }
 
-            ml_append(lnum + added, (uchar_kt *)line, (colnr_T)0, false);
+            ml_append(lnum + added, (uchar_kt *)line, (columnum_kt)0, false);
             added++;
 
             if(l == NULL)
@@ -9592,7 +9592,7 @@ static void f_col(typval_st *argvars,
                   typval_st *rettv,
                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    colnr_T col = 0;
+    columnum_kt col = 0;
     pos_T *fp;
     int fnum = curbuf->b_fnum;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
@@ -9604,7 +9604,7 @@ static void f_col(typval_st *argvars,
             // '> can be MAXCOL, get the length of the line then
             if(fp->lnum <= curbuf->b_ml.ml_line_count)
             {
-                col = (colnr_T)STRLEN(ml_get(fp->lnum)) + 1;
+                col = (columnum_kt)STRLEN(ml_get(fp->lnum)) + 1;
             }
             else
             {
@@ -9622,7 +9622,7 @@ static void f_col(typval_st *argvars,
                 uchar_kt  *p = get_cursor_pos_ptr();
 
                 if(curwin->w_cursor.coladd
-                   >= (colnr_T)chartabsize(p, curwin->w_virtcol - curwin->w_cursor.coladd))
+                   >= (columnum_kt)chartabsize(p, curwin->w_virtcol - curwin->w_cursor.coladd))
                 {
                     int l;
 
@@ -9929,7 +9929,7 @@ static void f_cursor(typval_st *argvars,
     if(argvars[1].v_type == kNvarUnknown)
     {
         pos_T pos;
-        colnr_T curswant = -1;
+        columnum_kt curswant = -1;
 
         if(list2fpos(argvars, &pos, NULL, &curswant) == FAIL)
         {
@@ -13113,7 +13113,7 @@ static void f_getregtype(typval_st *argvars,
         regname = '"';
     }
 
-    colnr_T reglen = 0;
+    columnum_kt reglen = 0;
     char buf[NUMBUFLEN + 2];
     MotionType reg_type = get_reg_type(regname, &reglen);
 
@@ -15909,7 +15909,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
     uchar_kt *save_cpo;
     long start = 0;
     long nth = 1;
-    colnr_T startcol = 0;
+    columnum_kt startcol = 0;
     int match = 0;
     list_st *l = NULL;
     listitem_st *li = NULL;
@@ -16047,7 +16047,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
                 }
             }
 
-            match = vim_regexec_nl(&regmatch, str, (colnr_T)startcol);
+            match = vim_regexec_nl(&regmatch, str, (columnum_kt)startcol);
 
             if(match && --nth <= 0)
             {
@@ -16067,10 +16067,10 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
             }
             else
             {
-                startcol = (colnr_T)(regmatch.startp[0]
+                startcol = (columnum_kt)(regmatch.startp[0]
                                      + (*mb_ptr2len)(regmatch.startp[0]) - str);
 
-                if(startcol > (colnr_T)len || str + startcol <= regmatch.startp[0])
+                if(startcol > (columnum_kt)len || str + startcol <= regmatch.startp[0])
                 {
                     match = FALSE;
                     break;
@@ -19309,7 +19309,7 @@ static void f_setpos(typval_st *argvars,
 {
     pos_T pos;
     int fnum;
-    colnr_T curswant = -1;
+    columnum_kt curswant = -1;
     rettv->vval.v_number = -1;
     const char *const name = tv_get_string_chk(argvars);
 
@@ -20379,7 +20379,7 @@ static void f_split(typval_st *argvars,
     regmatch_T regmatch;
     uchar_kt *save_cpo;
     int match;
-    colnr_T col = 0;
+    columnum_kt col = 0;
     bool keepempty = false;
     bool typeerr = false;
 
@@ -21077,7 +21077,7 @@ static void f_synID(typval_st *argvars,
 {
     // -1 on type error (both)
     const linenum_kt lnum = tv_get_lnum(argvars);
-    const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
+    const columnum_kt col = (columnum_kt)tv_get_number(&argvars[1]) - 1;
     bool transerr = false;
     const int trans = tv_get_number_chk(&argvars[2], &transerr);
     int id = 0;
@@ -21239,7 +21239,7 @@ static void f_synconcealed(typval_st *argvars,
 
     // -1 on type error (both)
     const linenum_kt lnum = tv_get_lnum(argvars);
-    const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
+    const columnum_kt col = (columnum_kt)tv_get_number(&argvars[1]) - 1;
     memset(str, NUL, sizeof(str));
     tv_list_alloc_ret(rettv);
 
@@ -21290,7 +21290,7 @@ static void f_synstack(typval_st *argvars,
 
     // -1 on type error (both)
     const linenum_kt lnum = tv_get_lnum(argvars);
-    const colnr_T col = (colnr_T)tv_get_number(&argvars[1]) - 1;
+    const columnum_kt col = (columnum_kt)tv_get_number(&argvars[1]) - 1;
 
     if(lnum >= 1
        && lnum <= curbuf->b_ml.ml_line_count
@@ -22456,7 +22456,7 @@ static void f_virtcol(typval_st *argvars,
                       typval_st *rettv,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    colnr_T vcol = 0;
+    columnum_kt vcol = 0;
     pos_T *fp;
     int fnum = curbuf->b_fnum;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
@@ -23224,7 +23224,7 @@ FUNC_ATTR_NONNULL_ALL
         else
         {
             pos.lnum = curwin->w_cursor.lnum;
-            pos.col = (colnr_T)STRLEN(get_cursor_line_ptr());
+            pos.col = (columnum_kt)STRLEN(get_cursor_line_ptr());
         }
 
         return &pos;
@@ -23244,7 +23244,7 @@ FUNC_ATTR_NONNULL_ALL
 static int list2fpos(typval_st *arg,
                      pos_T *posp,
                      int *fnump,
-                     colnr_T *curswantp)
+                     columnum_kt *curswantp)
 {
     list_st *l = arg->vval.v_list;
     long i = 0;
@@ -29036,7 +29036,7 @@ uchar_kt *do_string_sub(uchar_kt *str,
         tail = str;
         end = str + STRLEN(str);
 
-        while(vim_regexec_nl(&regmatch, str, (colnr_T)(tail - str)))
+        while(vim_regexec_nl(&regmatch, str, (columnum_kt)(tail - str)))
         {
             // Skip empty match except for first match.
             if(regmatch.startp[0] == regmatch.endp[0])

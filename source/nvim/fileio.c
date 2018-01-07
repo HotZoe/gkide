@@ -272,7 +272,7 @@ int readfile(uchar_kt *fname,
                       || (eap != NULL && eap->read_edit);
 
     linenum_kt read_buf_lnum = 1; // next line to read from curbuf
-    colnr_T read_buf_col = 0; // next char to read from this line
+    columnum_kt read_buf_col = 0; // next char to read from this line
     uchar_kt c;
     linenum_kt lnum = from;
     uchar_kt *ptr = NULL; // pointer into read buffer
@@ -280,7 +280,7 @@ int readfile(uchar_kt *fname,
     uchar_kt *new_buffer = NULL; // init to shut up gcc
     uchar_kt *line_start = NULL; // init to shut up gcc
     int wasempty; // buffer was empty before reading
-    colnr_T len;
+    columnum_kt len;
     long size = 0;
     uchar_kt *p = NULL;
     off_t filesize = 0;
@@ -2033,7 +2033,7 @@ rewind_retry:
                     if(skip_count == 0)
                     {
                         *ptr = NUL; // end of line
-                        len = (colnr_T)(ptr - line_start + 1);
+                        len = (columnum_kt)(ptr - line_start + 1);
 
                         if(ml_append(lnum, line_start, len, newfile) == FAIL)
                         {
@@ -2084,7 +2084,7 @@ rewind_retry:
                     if(skip_count == 0)
                     {
                         *ptr = NUL; // end of line
-                        len = (colnr_T)(ptr - line_start + 1);
+                        len = (columnum_kt)(ptr - line_start + 1);
 
                         if(fileformat == EOL_DOS)
                         {
@@ -2181,7 +2181,7 @@ failed:
         }
 
         *ptr = NUL;
-        len = (colnr_T)(ptr - line_start + 1);
+        len = (columnum_kt)(ptr - line_start + 1);
 
         if(ml_append(lnum, line_start, len, newfile) == FAIL)
         {
@@ -4386,7 +4386,7 @@ restore_backup:
 
                     vim_snprintf(errmsg, 300,
                                  _("E513: write error, conversion failed in "
-                                   "line %" PRIdLINENR " (make 'fenc' empty to override)"),
+                                   "line %" LineNumKtPrtFmt " (make 'fenc' empty to override)"),
                                  write_info.bw_conv_error_lnum);
                 }
             }
@@ -9409,9 +9409,9 @@ static bool match_file_pat(uchar_kt *pattern,
     // 3. the tail of the file name, when the pattern has no '/'.
     if(regmatch.regprog != NULL
        && ((allow_dirs
-            && (vim_regexec(&regmatch, fname, (colnr_T)0)
-                || (sfname != NULL && vim_regexec(&regmatch, sfname, (colnr_T)0))))
-           || (!allow_dirs && vim_regexec(&regmatch, tail, (colnr_T)0))))
+            && (vim_regexec(&regmatch, fname, (columnum_kt)0)
+                || (sfname != NULL && vim_regexec(&regmatch, sfname, (columnum_kt)0))))
+           || (!allow_dirs && vim_regexec(&regmatch, tail, (columnum_kt)0))))
     {
         result = true;
     }

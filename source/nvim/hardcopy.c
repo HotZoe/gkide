@@ -178,7 +178,7 @@ typedef struct
 {
     int lead_spaces;       ///< remaining spaces for a TAB
     int print_pos;         ///< virtual column for computing TABs
-    colnr_T column;        ///< byte column
+    columnum_kt column;        ///< byte column
     linenum_kt file_line;    ///< line nr in the buffer
     size_t bytes_printed;  ///< bytes printed so far
     int ff;                ///< seen form feed character
@@ -958,11 +958,11 @@ print_fail_no_begin:
 /// Print one page line.
 /// Return the next column to print,
 /// or zero if the line is finished.
-static colnr_T hardcopy_line(prt_settings_T *psettings,
+static columnum_kt hardcopy_line(prt_settings_T *psettings,
                              int page_line,
                              prt_pos_T *ppos)
 {
-    colnr_T col;
+    columnum_kt col;
     uchar_kt *line;
     int need_break = FALSE;
     int outputlen;

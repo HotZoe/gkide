@@ -905,7 +905,7 @@ restofline:
         tail = NULL;
         regmatch.regprog = fmt_ptr->prog;
 
-        int r = vim_regexec(&regmatch, linebuf, (colnr_T)0);
+        int r = vim_regexec(&regmatch, linebuf, (columnum_kt)0);
         fmt_ptr->prog = regmatch.regprog;
 
         if(r)
@@ -2149,8 +2149,8 @@ void qf_jump(qf_info_T *qi, int dir, int errornr, int forceit)
     linenum_kt i;
     fbuf_st *old_curbuf;
     linenum_kt old_lnum;
-    colnr_T screen_col;
-    colnr_T char_col;
+    columnum_kt screen_col;
+    columnum_kt char_col;
     uchar_kt *line;
     uchar_kt *old_swb = p_swb;
     unsigned old_swb_flags = swb_flags;
@@ -2919,14 +2919,14 @@ void qf_list(exarg_T *eap)
             {
                 vim_snprintf((char *)IObuff,
                              IOSIZE,
-                             ":%" PRIdLINENR,
+                             ":%" LineNumKtPrtFmt,
                              qfp->qf_lnum);
             }
             else
             {
                 vim_snprintf((char *)IObuff,
                              IOSIZE,
-                             ":%" PRIdLINENR " col %d",
+                             ":%" LineNumKtPrtFmt " col %d",
                              qfp->qf_lnum,
                              qfp->qf_col);
             }
@@ -3815,7 +3815,7 @@ static void qf_fill_buffer(qf_info_T *qi, fbuf_st *buf, qfline_T *old_last)
             if(ml_append_buf(buf,
                              lnum,
                              IObuff,
-                             (colnr_T)STRLEN(IObuff) + 1,
+                             (columnum_kt)STRLEN(IObuff) + 1,
                              false) == FAIL)
             {
                 break;
@@ -4579,7 +4579,7 @@ void ex_vimgrep(exarg_T *eap)
     uchar_kt *save_ei = NULL;
     aco_save_T aco;
     int flags = 0;
-    colnr_T col;
+    columnum_kt col;
     long tomatch;
     uchar_kt *dirname_start = NULL;
     uchar_kt *dirname_now = NULL;
@@ -4866,7 +4866,7 @@ void ex_vimgrep(exarg_T *eap)
                     col = regmatch.endpos[0].col
                           + (col == regmatch.endpos[0].col);
 
-                    if(col > (colnr_T)STRLEN(ml_get_buf(buf, lnum, FALSE)))
+                    if(col > (columnum_kt)STRLEN(ml_get_buf(buf, lnum, FALSE)))
                     {
                         break;
                     }
@@ -5938,7 +5938,7 @@ void ex_helpgrep(exarg_T *eap)
                                 }
                             }
 
-                            if(vim_regexec(&regmatch, line, (colnr_T)0))
+                            if(vim_regexec(&regmatch, line, (columnum_kt)0))
                             {
                                 int l = (int)STRLEN(line);
 

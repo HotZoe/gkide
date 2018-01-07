@@ -86,7 +86,7 @@ typedef struct yankreg
     uchar_kt **y_array;         ///< Pointer to an array of line pointers.
     size_t y_size;            ///< Number of lines in y_array.
     MotionType y_type;        ///< Register type
-    colnr_T y_width;          ///< Register width
+    columnum_kt y_width;          ///< Register width
                               ///< (only valid for y_type == kBlockWise).
     Timestamp timestamp;      ///< Time when register was last modified.
     dict_st *additional_data;  ///< Additional data from ShaDa file.
