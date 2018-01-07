@@ -26,6 +26,10 @@ typedef struct
                          ///< which is _VAL from special dictionary.
 } container_item_st;
 
+/// Vector containing containers, each
+/// next container is located inside previous
+typedef kvec_t(container_item_st) container_stack_st;
+
 /// Helper structure for values struct
 typedef struct
 {
@@ -38,10 +42,6 @@ typedef struct
 
 /// Vector containing values not yet saved in any container
 typedef kvec_t(ValuesStackItem) ValuesStack;
-
-/// Vector containing containers, each
-/// next container is located inside previous
-typedef kvec_t(container_item_st) ContainerStack;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval/decode.c.generated.h"
@@ -113,7 +113,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @return OK in case of success, FAIL in case of error.
 static inline int json_decoder_pop(ValuesStackItem obj,
                                    ValuesStack *const stack,
-                                   ContainerStack *const container_stack,
+                                   container_stack_st *const container_stack,
                                    const char **const pp,
                                    bool *const next_map_special,
                                    bool *const didcomma,
@@ -421,7 +421,7 @@ static inline int parse_json_string(const char *const buf,
                                     const size_t buf_len,
                                     const char **const pp,
                                     ValuesStack *const stack,
-                                    ContainerStack *const container_stack,
+                                    container_stack_st *const container_stack,
                                     bool *const next_map_special,
                                     bool *const didcomma,
                                     bool *const didcolon)
@@ -739,7 +739,7 @@ static inline int parse_json_number(const char *const buf,
                                     const size_t buf_len,
                                     const char **const pp,
                                     ValuesStack *const stack,
-                                    ContainerStack *const container_stack,
+                                    container_stack_st *const container_stack,
                                     bool *const next_map_special,
                                     bool *const didcomma,
                                     bool *const didcolon)
@@ -947,7 +947,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     int ret = OK;
 
     ValuesStack stack = KV_INITIAL_VALUE;
-    ContainerStack container_stack = KV_INITIAL_VALUE;
+    container_stack_st container_stack = KV_INITIAL_VALUE;
     rettv->v_type = VAR_UNKNOWN;
 
     bool didcomma = false;
