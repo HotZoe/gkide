@@ -12,7 +12,7 @@
 
 /// Info used to pass info about a fold from the fold-detection
 /// code to the code that displays the foldcolumn.
-typedef struct foldinfo
+typedef struct foldinfo_s
 {
     /// line number where fold starts
     linenr_T fi_lnum;
@@ -20,7 +20,7 @@ typedef struct foldinfo
     int fi_level;
     /// lowest fold level that starts in the same line
     int fi_low_level;
-} foldinfo_T;
+} foldinfo_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "fold.h.generated.h"

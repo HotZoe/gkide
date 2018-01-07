@@ -145,7 +145,7 @@ bool hasFoldingWin(win_st *win,
                    linenr_T *firstp,
                    linenr_T *lastp,
                    int cache,
-                   foldinfo_T *infop)
+                   foldinfo_st *infop)
 {
     int had_folded = FALSE;
     linenr_T first = 0;
@@ -308,7 +308,7 @@ int lineFolded(win_st *win, linenr_T lnum)
 /// Doesn't use caching from the displayed window.
 /// Returns number of folded lines from "lnum", or 0 if line is not folded.
 /// When "infop" is not NULL, fills *infop with the fold level info.
-long foldedCount(win_st *win, linenr_T lnum, foldinfo_T *infop)
+long foldedCount(win_st *win, linenr_T lnum, foldinfo_st *infop)
 {
     linenr_T last;
 
@@ -1993,7 +1993,7 @@ static void foldDelMarker(linenr_T lnum, uchar_kt *marker, size_t markerlen)
 uchar_kt *get_foldtext(win_st *wp,
                      linenr_T lnum,
                      linenr_T lnume,
-                     foldinfo_T *foldinfo,
+                     foldinfo_st *foldinfo,
                      uchar_kt *buf)
 FUNC_ATTR_NONNULL_ARG(1)
 {

@@ -11412,7 +11412,7 @@ static void f_foldtextresult(typval_st *argvars,
 {
     uchar_kt *text;
     uchar_kt buf[FOLD_TEXT_LEN];
-    foldinfo_T foldinfo;
+    foldinfo_st foldinfo;
     int fold_count;
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;

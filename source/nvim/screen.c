@@ -146,7 +146,7 @@ static int screen_attr = 0;
 static match_T search_hl;
 
 /// info for 'foldcolumn'
-static foldinfo_T win_foldinfo;
+static foldinfo_st win_foldinfo;
 
 /// Buffer for one screen line (characters and attributes).
 static schar_T *current_ScreenLine;
@@ -2174,7 +2174,7 @@ static int compute_foldcolumn(win_st *wp, int col)
 /// Display one folded line.
 static void fold_line(win_st *wp,
                       long fold_count,
-                      foldinfo_T *foldinfo,
+                      foldinfo_st *foldinfo,
                       linenr_T lnum,
                       int row)
 {
