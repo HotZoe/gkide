@@ -2596,7 +2596,7 @@ void ex_diffgetput(exarg_T *eap)
     int i;
     int added;
     uchar_kt *p;
-    aco_save_T aco;
+    auto_cmd_save_st aco;
     fbuf_st *buf;
     int start_skip, end_skip;
     int new_count;

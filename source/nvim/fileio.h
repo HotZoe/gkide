@@ -26,7 +26,7 @@ typedef struct
     win_st *new_curwin;     ///< new curwin
     bufref_T new_curbuf;   ///< new curbuf
     uchar_kt *globaldir;     ///< saved value of globaldir
-} aco_save_T;
+} auto_cmd_save_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     // Events for autocommands

@@ -3000,7 +3000,7 @@ int buf_write(fbuf_st *buf,
     buf->b_op_end.lnum = end;
     buf->b_op_end.col = 0;
     {
-        aco_save_T aco;
+        auto_cmd_save_st aco;
         int buf_ffname = FALSE;
         int buf_sfname = FALSE;
         int buf_fname_f = FALSE;
@@ -4736,7 +4736,7 @@ nofail:
 
     if(!should_abort(retval))
     {
-        aco_save_T aco;
+        auto_cmd_save_st aco;
         curbuf->b_no_eol_lnum = 0; // in case it was set by the previous read
 
         // Apply POST autocommands.
@@ -6467,7 +6467,7 @@ void buf_reload(fbuf_st *buf, int orig_mode)
     fbuf_st *savebuf;
     bufref_T bufref;
     int saved = OK;
-    aco_save_T aco;
+    auto_cmd_save_st aco;
     int flags = READ_NEW;
 
     // set curwin/curbuf for "buf" and save some things
@@ -8046,7 +8046,7 @@ int do_doautocmd(uchar_kt *arg, int do_msg, bool *did_something)
 void ex_doautoall(exarg_T *eap)
 {
     int retval;
-    aco_save_T aco;
+    auto_cmd_save_st aco;
     uchar_kt *arg = eap->arg;
     int call_do_modelines = check_nomodeline(&arg);
     bufref_T bufref;
@@ -8113,7 +8113,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param aco  structure to save values in
 /// @param buf  new curbuf
-void aucmd_prepbuf(aco_save_T *aco, fbuf_st *buf)
+void aucmd_prepbuf(auto_cmd_save_st *aco, fbuf_st *buf)
 {
     win_st *win;
     int save_ea;
@@ -8208,7 +8208,7 @@ void aucmd_prepbuf(aco_save_T *aco, fbuf_st *buf)
 /// Restore the window as it was (if possible).
 ///
 /// @param aco  structure holding saved values
-void aucmd_restbuf(aco_save_T *aco)
+void aucmd_restbuf(auto_cmd_save_st *aco)
 {
     int dummy;
 

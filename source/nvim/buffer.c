@@ -298,7 +298,7 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
     // modelines to the correct buffer, if it still exists and is loaded.
     if(bufref_valid(&old_curbuf) && old_curbuf.br_buf->b_ml.ml_mfp != NULL)
     {
-        aco_save_T aco;
+        auto_cmd_save_st aco;
 
         // Go to the buffer that was opened.
         aucmd_prepbuf(&aco, old_curbuf.br_buf);
@@ -6967,7 +6967,7 @@ bool buf_contents_changed(fbuf_st *buf) FUNC_ATTR_NONNULL_ALL
     prep_exarg(&ea, buf);
 
     // set curwin/curbuf to buf and save a few things
-    aco_save_T aco;
+    auto_cmd_save_st aco;
     aucmd_prepbuf(&aco, newbuf);
 
     if(ml_open(curbuf) == OK
