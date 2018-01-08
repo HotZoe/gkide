@@ -454,21 +454,21 @@ struct wordnode_s
 #define HI2WN(hi)   (wordnode_st *)((hi)->hi_key)
 
 /// Info used while reading the spell files.
-typedef struct spellinfo_S
+typedef struct spellinfo_s
 {
     wordnode_st *si_foldroot; ///< tree with case-folded words
-    long si_foldwcount;      ///< nr of words in si_foldroot
+    long si_foldwcount;       ///< nr of words in si_foldroot
 
     wordnode_st *si_keeproot; ///< tree with keep-case words
-    long si_keepwcount;      ///< nr of words in si_keeproot
+    long si_keepwcount;       ///< nr of words in si_keeproot
 
     wordnode_st *si_prefroot; ///< tree with postponed prefixes
 
-    long si_sugtree;         ///< creating the soundfolding trie
+    long si_sugtree;          ///< creating the soundfolding trie
 
     sblock_st *si_blocks;     ///< memory blocks used
-    long si_blocks_cnt;      ///< memory blocks allocated
-    int si_did_emsg;         ///< TRUE when ran out of memory
+    long si_blocks_cnt;       ///< memory blocks allocated
+    int si_did_emsg;          ///< TRUE when ran out of memory
 
     /// words to add before lowering compression limit
     long si_compress_cnt;
@@ -525,11 +525,11 @@ typedef struct spellinfo_S
     uchar_kt *si_compflags;   ///< flags used for compounding
     uchar_kt si_nobreak;      ///< NOBREAK
     uchar_kt *si_syllable;    ///< syllable string
-    garray_st si_prefcond;     ///< table with conditions for postponed
+    garray_st si_prefcond;    ///< table with conditions for postponed
                               ///< prefixes, each stored as a string
     int si_newprefID;         ///< current value for ah_newID
     int si_newcompID;         ///< current value for compound ID
-} spellinfo_T;
+} spellinfo_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "spellfile.c.generated.h"
@@ -2516,7 +2516,7 @@ static void spell_print_tree(wordnode_st *root)
 /// Reads the affix file @b fname.
 ///
 /// @return an afffile_T, NULL for complete failure.
-static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
+static afffile_T *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
 {
     FILE *fd;
     afffile_T *aff;
@@ -3768,7 +3768,7 @@ static unsigned get_affitem(int flagtype, uchar_kt **pp)
 /// spin->si_compflags.
 /// The processing involves changing the affix names to ID numbers, so that
 /// they fit in one byte.
-static void process_compflags(spellinfo_T *spin,
+static void process_compflags(spellinfo_st *spin,
                               afffile_T *aff,
                               uchar_kt *compflags)
 {
@@ -3867,7 +3867,7 @@ static void process_compflags(spellinfo_T *spin,
 /// each other. We have almost 255 available, but start at 0-127 to avoid
 /// using two bytes for utf-8. When the 0-127 range is used up go to 128-255.
 /// When that is used up an error message is given.
-static void check_renumber(spellinfo_T *spin)
+static void check_renumber(spellinfo_st *spin)
 {
     if(spin->si_newprefID == spin->si_newcompID && spin->si_newcompID < 128)
     {
@@ -3965,7 +3965,7 @@ static bool str_equal(uchar_kt *s1, uchar_kt *s2)
 /// Add a from-to item to "gap".
 /// Used for REP and SAL items.
 /// They are stored case-folded.
-static void add_fromto(spellinfo_T *spin,
+static void add_fromto(spellinfo_st *spin,
                        garray_st *gap,
                        uchar_kt *from,
                        uchar_kt *to)
@@ -4029,7 +4029,7 @@ static void spell_free_aff(afffile_T *aff)
 /// Read dictionary file "fname".
 ///
 /// @return OK or FAIL;
-static int spell_read_dic(spellinfo_T *spin,
+static int spell_read_dic(spellinfo_st *spin,
                           uchar_kt *fname,
                           afffile_T *affile)
 {
@@ -4449,7 +4449,7 @@ static void get_compflags(afffile_T *affile,
 ///                  rest is compound flags
 ///
 /// Returns FAIL when out of memory.
-static int store_aff_word(spellinfo_T *spin,
+static int store_aff_word(spellinfo_st *spin,
                           uchar_kt *word,
                           uchar_kt *afflist,
                           afffile_T *affile,
@@ -4780,7 +4780,7 @@ static int store_aff_word(spellinfo_T *spin,
 }
 
 /// Read a file with a list of words.
-static int spell_read_wordfile(spellinfo_T *spin, uchar_kt *fname)
+static int spell_read_wordfile(spellinfo_st *spin, uchar_kt *fname)
 {
     FILE *fd;
     long lnum = 0;
@@ -5020,7 +5020,7 @@ static int spell_read_wordfile(spellinfo_T *spin, uchar_kt *fname)
 /// @param len Length needed (<= SBLOCKSIZE).
 /// @param align Align for pointer.
 /// @return Pointer into block data.
-static void *getroom(spellinfo_T *spin, size_t len, bool align)
+static void *getroom(spellinfo_st *spin, size_t len, bool align)
 FUNC_ATTR_NONNULL_RET
 {
     uchar_kt *p;
@@ -5055,7 +5055,7 @@ FUNC_ATTR_NONNULL_RET
 /// Make a copy of a string into memory allocated with getroom().
 ///
 /// @return NULL when out of memory.
-static uchar_kt *getroom_save(spellinfo_T *spin, uchar_kt *s)
+static uchar_kt *getroom_save(spellinfo_st *spin, uchar_kt *s)
 {
     uchar_kt *sc;
     sc = (uchar_kt *)getroom(spin, STRLEN(s) + 1, false);
@@ -5084,7 +5084,7 @@ static void free_blocks(sblock_st *bl)
 /// Allocate the root of a word tree.
 ///
 /// @return NULL when out of memory.
-static wordnode_st *wordtree_alloc(spellinfo_T *spin)
+static wordnode_st *wordtree_alloc(spellinfo_st *spin)
 {
     return (wordnode_st *)getroom(spin, sizeof(wordnode_st), true);
 }
@@ -5104,7 +5104,7 @@ static wordnode_st *wordtree_alloc(spellinfo_T *spin)
 /// @param pfxlist    list of prefix IDs or NULL
 /// @param need_affix only store word with affix ID
 ///
-static int store_word(spellinfo_T *spin,
+static int store_word(spellinfo_st *spin,
                       uchar_kt *word,
                       int flags,
                       int region,
@@ -5169,7 +5169,7 @@ static int store_word(spellinfo_T *spin,
 /// and "region" is the condition nr.
 ///
 /// @return FAIL when out of memory.
-static int tree_add_word(spellinfo_T *spin,
+static int tree_add_word(spellinfo_st *spin,
                          uchar_kt *word,
                          wordnode_st *root,
                          int flags,
@@ -5377,7 +5377,7 @@ static int tree_add_word(spellinfo_T *spin,
 /// freed nodes or allocate a new one.
 ///
 /// @return NULL when out of memory.
-static wordnode_st *get_wordnode(spellinfo_T *spin)
+static wordnode_st *get_wordnode(spellinfo_st *spin)
 {
     wordnode_st *n;
 
@@ -5408,7 +5408,7 @@ static wordnode_st *get_wordnode(spellinfo_T *spin)
 /// node and its siblings.
 ///
 /// @return the number of nodes actually freed.
-static int deref_wordnode(spellinfo_T *spin, wordnode_st *node)
+static int deref_wordnode(spellinfo_st *spin, wordnode_st *node)
 {
     wordnode_st *np;
     int cnt = 0;
@@ -5434,7 +5434,7 @@ static int deref_wordnode(spellinfo_T *spin, wordnode_st *node)
 
 /// Free a wordnode_st for re-use later.
 /// Only the "wn_child" field becomes invalid.
-static void free_wordnode(spellinfo_T *spin, wordnode_st *n)
+static void free_wordnode(spellinfo_st *spin, wordnode_st *n)
 {
     n->wn_child = spin->si_first_free;
     spin->si_first_free = n;
@@ -5442,7 +5442,7 @@ static void free_wordnode(spellinfo_T *spin, wordnode_st *n)
 }
 
 /// Compress a tree: find tails that are identical and can be shared.
-static void wordtree_compress(spellinfo_T *spin, wordnode_st *root)
+static void wordtree_compress(spellinfo_st *spin, wordnode_st *root)
 {
     hashtable_st ht;
     int n;
@@ -5496,7 +5496,7 @@ static void wordtree_compress(spellinfo_T *spin, wordnode_st *root)
 /// @param ht
 /// @param tot   total count of nodes before compressing
 ///              incremented while going through the tree
-static int node_compress(spellinfo_T *spin,
+static int node_compress(spellinfo_st *spin,
                          wordnode_st *node,
                          hashtable_st *ht,
                          int *tot)
@@ -5647,7 +5647,7 @@ static int rep_compare(const void *s1, const void *s2)
 /// Write the Vim .spl file "fname".
 ///
 /// @return OK or FAIL.
-static int write_vim_spell(spellinfo_T *spin, uchar_kt *fname)
+static int write_vim_spell(spellinfo_st *spin, uchar_kt *fname)
 {
     int retval = OK;
     int regionmask;
@@ -6316,7 +6316,7 @@ void ex_mkspell(exarg_T *eap)
 /// Create the .sug file.
 /// Uses the soundfold info in "spin".
 /// Writes the file with the name "wfname", with ".spl" changed to ".sug".
-static void spell_make_sugfile(spellinfo_T *spin, uchar_kt *wfname)
+static void spell_make_sugfile(spellinfo_st *spin, uchar_kt *wfname)
 {
     uchar_kt *fname = NULL;
     int len;
@@ -6405,7 +6405,7 @@ theend:
 }
 
 /// Build the soundfold trie for language "slang".
-static int sug_filltree(spellinfo_T *spin, slang_T *slang)
+static int sug_filltree(spellinfo_st *spin, slang_T *slang)
 {
     uchar_kt *byts;
     idx_T *idxs;
@@ -6516,7 +6516,7 @@ static int sug_filltree(spellinfo_T *spin, slang_T *slang)
 /// to be able to access the table efficiently.
 ///
 /// @return FAIL when out of memory.
-static int sug_maketable(spellinfo_T *spin)
+static int sug_maketable(spellinfo_st *spin)
 {
     garray_st ga;
     int res = OK;
@@ -6547,7 +6547,7 @@ static int sug_maketable(spellinfo_T *spin)
 /// @param node
 /// @param startwordnr
 /// @param gap         place to store line of numbers
-static int sug_filltable(spellinfo_T *spin,
+static int sug_filltable(spellinfo_st *spin,
                          wordnode_st *node,
                          int startwordnr,
                          garray_st *gap)
@@ -6668,7 +6668,7 @@ static int offset2bytes(int nr, uchar_kt *buf)
 }
 
 /// Write the .sug file in "fname".
-static void sug_write(spellinfo_T *spin, uchar_kt *fname)
+static void sug_write(spellinfo_st *spin, uchar_kt *fname)
 {
     // Create the file.
     // Note that an existing file is silently overwritten!
@@ -6771,7 +6771,7 @@ static void mkspell(int fcount,
     int i;
     int len;
     bool error = false;
-    spellinfo_T spin;
+    spellinfo_st spin;
 
     memset(&spin, 0, sizeof(spin));
 
@@ -7035,7 +7035,7 @@ theend:
 
 /// Display a message for spell file processing when 'verbose'
 /// is set or using ":mkspell".  "str" can be IObuff.
-static void spell_message(spellinfo_T *spin, uchar_kt *str)
+static void spell_message(spellinfo_st *spin, uchar_kt *str)
 {
     if(spin->si_verbose || p_verbose > 2)
     {
