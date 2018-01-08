@@ -11347,7 +11347,7 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
     win_st *edited_win = NULL;
     int tabnr;
     win_st *tab_firstwin;
-    frame_T *tab_topframe;
+    frame_st *tab_topframe;
     int cur_arg_idx = 0;
     int next_arg_idx = 0;
 
@@ -11790,9 +11790,9 @@ static int ses_winsizes(FILE *fd, int restore_size, win_st *tab_firstwin)
 /// horizontally and vertically split.
 /// After the commands the last window in the frame is the current window.
 /// Returns FAIL when writing the commands to "fd" fails.
-static int ses_win_rec(FILE *fd, frame_T *fr)
+static int ses_win_rec(FILE *fd, frame_st *fr)
 {
-    frame_T *frc;
+    frame_st *frc;
     int count = 0;
 
     if(fr->fr_layout != FR_LEAF)
@@ -11844,9 +11844,9 @@ static int ses_win_rec(FILE *fd, frame_T *fr)
 
 /// Skip frames that don't contain windows we want to save in the Session.
 /// Returns NULL when there none.
-static frame_T *ses_skipframe(frame_T *fr)
+static frame_st *ses_skipframe(frame_st *fr)
 {
-    frame_T *frc;
+    frame_st *frc;
 
     for(frc = fr; frc != NULL; frc = frc->fr_next)
     {
@@ -11861,9 +11861,9 @@ static frame_T *ses_skipframe(frame_T *fr)
 
 /// Return TRUE if frame "fr" has a window
 /// somewhere that we want to save in the Session.
-static int ses_do_frame(frame_T *fr)
+static int ses_do_frame(frame_st *fr)
 {
-    frame_T *frc;
+    frame_st *frc;
 
     if(fr->fr_layout == FR_LEAF)
     {

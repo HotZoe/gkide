@@ -6144,7 +6144,7 @@ void redraw_statuslines(void)
 }
 
 /// Redraw all status lines at the bottom of frame "frp".
-void win_redraw_last_status(frame_T *frp)
+void win_redraw_last_status(frame_st *frp)
 {
     if(frp->fr_layout == FR_LEAF)
     {
@@ -6688,7 +6688,7 @@ static void redraw_custom_statusline(win_st *wp)
 /// Only call if (wp->w_vsep_width != 0).
 int stl_connected(win_st *wp)
 {
-    frame_T *fr;
+    frame_st *fr;
     fr = wp->w_frame;
 
     while(fr->fr_parent != NULL)

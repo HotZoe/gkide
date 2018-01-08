@@ -647,7 +647,7 @@ EXTERN int aucmd_win_used INIT(= FALSE); ///< aucmd_win is being used
 
 // The window layout is kept in a tree of frames.
 // topframe points to the top of the tree.
-EXTERN frame_T  *topframe;  ///< top of the window frame tree
+EXTERN frame_st  *topframe;  ///< top of the window frame tree
 
 // Tab pages are alternative topframes. "first_tabpage" points to the first
 // one in the list, "curtab" is the current one.

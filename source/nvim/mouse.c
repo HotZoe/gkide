@@ -575,7 +575,7 @@ bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenum_kt *lnump)
 /// The positions areupdated to become relative to the top-left of the window.
 win_st *mouse_find_win(int *rowp, int *colp)
 {
-    frame_T *fp;
+    frame_st *fp;
     fp = topframe;
     *rowp -= firstwin->w_winrow;
 

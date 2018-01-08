@@ -74,8 +74,8 @@ typedef struct
 // Mask to check for flags that prevent normal writing
 #define BF_WRITE_MASK   (BF_NOTEDITED + BF_NEW + BF_READERR)
 
-typedef struct window_s win_st;
-typedef struct frame_S frame_T;
+typedef struct window_s  win_st;
+typedef struct frame_s   frame_st;
 typedef struct wininfo_s wininfo_st;
 
 #include "nvim/memline_defs.h"
@@ -779,7 +779,7 @@ struct tabpage_s
 {
     handle_kt handle;
     tabpage_st *tp_next;     ///< next tabpage or NULL
-    frame_T *tp_topframe;   ///< topframe for the windows
+    frame_st *tp_topframe;   ///< topframe for the windows
     win_st *tp_curwin;       ///< current window in this Tab page
     win_st *tp_prevwin;      ///< previous window in this Tab page
     win_st *tp_firstwin;     ///< first window in this Tab page
@@ -791,7 +791,7 @@ struct tabpage_s
     diff_T *tp_first_diff;
     fbuf_st *(tp_diffbuf[DB_COUNT]);
     int tp_diff_invalid;                ///< list of diffs is outdated
-    frame_T *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
+    frame_st *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
     scope_dict_st tp_winvar;             ///< Variable for "t:" Dictionary.
     dict_st *tp_vars;                    ///< Internal variables, local to tab page.
     uchar_kt *tp_localdir;              ///< Absolute path of local cwd or NULL.
@@ -818,18 +818,18 @@ typedef struct w_line
 
 /// Windows are kept in a tree of frames.  Each frame has a column (FR_COL)
 /// or row (FR_ROW) layout or is a leaf, which has a window.
-struct frame_S
+struct frame_s
 {
     char fr_layout;     ///< FR_LEAF, FR_COL or FR_ROW
     int fr_width;
     int fr_newwidth;    ///< new width used in win_equal_rec()
     int fr_height;
     int fr_newheight;   ///< new height used in win_equal_rec()
-    frame_T *fr_parent; ///< containing frame or NULL
-    frame_T *fr_next;   ///< frame right or below in same parent, NULL for first
-    frame_T *fr_prev;   ///< frame left or above in same parent, NULL  for last
+    frame_st *fr_parent; ///< containing frame or NULL
+    frame_st *fr_next;   ///< frame right or below in same parent, NULL for first
+    frame_st *fr_prev;   ///< frame left or above in same parent, NULL  for last
                         ///< fr_child and fr_win are mutually exclusive
-    frame_T *fr_child;  ///< first contained frame
+    frame_st *fr_child;  ///< first contained frame
     win_st *fr_win;      ///< window that fills this frame
 };
 
@@ -915,7 +915,7 @@ struct window_s
     /// window is being closed, don't let autocommands close it too
     bool w_closing;
 
-    frame_T *w_frame; ///< frame containing this window
+    frame_st *w_frame; ///< frame containing this window
     apos_st w_cursor;   ///< cursor position in buffer
 
     /// The column we'd like to be at. This is used to try to
