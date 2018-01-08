@@ -328,7 +328,7 @@ typedef struct afffile_S
     bool af_ignoreextra;     ///< IGNOREEXTRA present
     hashtable_st af_pref;       ///< hashtable for prefixes, affix_header_st
     hashtable_st af_suff;       ///< hashtable for suffixes, affix_header_st
-    hashtable_st af_comp;       ///< hashtable for compound flags, compitem_T
+    hashtable_st af_comp;       ///< hashtable for compound flags, compitem_st
 } afffile_T;
 
 #define AFT_CHAR       0    ///< flags are one character
@@ -355,7 +355,7 @@ struct affix_entry_s
 
 /// Affix header from ".aff" file.
 /// Used for af_pref and af_suff.
-typedef struct affheader_s
+typedef struct affix_header_s
 {
     /// key for hashtab == name of affix
     uchar_kt ah_key[AH_KEY_LEN];
@@ -379,9 +379,9 @@ typedef struct compitem_s
     uchar_kt ci_key[AH_KEY_LEN]; ///< key for hashtab == name of compound
     unsigned ci_flag;            ///< affix name as number, uses "af_flagtype"
     int ci_newID;                ///< affix ID after renumbering.
-} compitem_T;
+} compitem_st;
 
-#define HI2CI(hi)   ((compitem_T *)(hi)->hi_key)
+#define HI2CI(hi)   ((compitem_st *)(hi)->hi_key)
 
 // Structure that is used to store the items in the word tree. This avoids
 // the need to keep track of each allocated thing, everything is freed all at
@@ -391,9 +391,9 @@ typedef struct compitem_s
 // pointer-size boundaries and sizeof(pointer) > sizeof(int) (e.g., Sparc).
 
 #define  SBLOCKSIZE   16000  ///< size of sb_data
-typedef struct sblock_S sblock_T;
+typedef struct sblock_s sblock_T;
 
-struct sblock_S
+struct sblock_s
 {
     int sb_used;          ///< nr of bytes already in use
     sblock_T *sb_next;    ///< next block in list
@@ -3775,7 +3775,7 @@ static void process_compflags(spellinfo_T *spin,
     uchar_kt *p;
     uchar_kt *prevp;
     unsigned flag;
-    compitem_T *ci;
+    compitem_st *ci;
     int id;
     int len;
     uchar_kt *tp;
@@ -3828,7 +3828,7 @@ static void process_compflags(spellinfo_T *spin,
                 }
                 else
                 {
-                    ci = (compitem_T *)getroom(spin, sizeof(compitem_T), true);
+                    ci = (compitem_st *)getroom(spin, sizeof(compitem_st), true);
 
                     if(ci == NULL)
                     {
