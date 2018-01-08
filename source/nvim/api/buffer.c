@@ -348,7 +348,7 @@ FUNC_API_SINCE(1)
     }
 
     try_start();
-    bufref_T save_curbuf = { NULL, 0 };
+    bufref_st save_curbuf = { NULL, 0 };
     switch_to_win_for_buf(buf, &save_curwin, &save_curtab, &save_curbuf);
 
     if(u_save((linenum_kt)(start - 1), (linenum_kt)end) == FAIL)
@@ -768,7 +768,7 @@ FUNC_API_SINCE(1)
     apos_st *posp;
     char mark = *name.data;
     try_start();
-    bufref_T save_buf;
+    bufref_st save_buf;
     switch_buffer(&save_buf, buf);
     posp = getmark(mark, false);
     restore_buffer(&save_buf);

@@ -93,7 +93,7 @@ static int buf_free_count = 0;
 int open_buffer(int read_stdin, exarg_T *eap, int flags)
 {
     int retval = OK;
-    bufref_T old_curbuf;
+    bufref_st old_curbuf;
     long old_tw = curbuf->b_p_tw;
 
     // The 'readonly' flag is only set when BF_NEVERLOADED is being reset.
@@ -318,7 +318,7 @@ int open_buffer(int read_stdin, exarg_T *eap, int flags)
 ///
 /// @param bufref Reference to be used for the buffer.
 /// @param buf    The buffer to reference.
-void set_bufref(bufref_T *bufref, fbuf_st *buf)
+void set_bufref(bufref_st *bufref, fbuf_st *buf)
 {
     bufref->br_buf = buf;
     bufref->br_buf_free_count = buf_free_count;
@@ -329,7 +329,7 @@ void set_bufref(bufref_T *bufref, fbuf_st *buf)
 /// Only goes through the buffer list if buf_free_count changed.
 ///
 /// @param bufref Buffer reference to check for.
-bool bufref_valid(bufref_T *bufref)
+bool bufref_valid(bufref_st *bufref)
 {
     return (bufref->br_buf_free_count == buf_free_count)
             ? true : buf_valid(bufref->br_buf);
@@ -450,7 +450,7 @@ void close_buffer(win_st *win, fbuf_st *buf, int action, int abort_if_last)
                         win->w_cursor.col, TRUE);
     }
 
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, buf);
 
     // When the buffer is no longer in a window, trigger BufWinLeave
@@ -692,7 +692,7 @@ void buf_freeall(fbuf_st *buf, int flags)
 
     // Make sure the buffer isn't closed by autocommands.
     buf->b_locked++;
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, buf);
 
     if((buf->b_ml.ml_mfp != NULL)
@@ -880,7 +880,7 @@ static void clear_wininfo(fbuf_st *buf)
 /// Go to another buffer.  Handles the result of the ATTENTION dialog.
 void goto_buffer(exarg_T *eap, int start, int dir, int count)
 {
-    bufref_T old_curbuf;
+    bufref_st old_curbuf;
     set_bufref(&old_curbuf, curbuf);
     swap_exists_action = SEA_DIALOG;
 
@@ -918,7 +918,7 @@ void goto_buffer(exarg_T *eap, int start, int dir, int count)
 /// It is allowed for "old_curbuf" to be NULL or invalid.
 ///
 /// @param old_curbuf The buffer to check for.
-void handle_swap_exists(bufref_T *old_curbuf)
+void handle_swap_exists(bufref_st *old_curbuf)
 {
     fbuf_st *buf;
     cleanup_T cs;
@@ -1176,7 +1176,7 @@ static int empty_curbuf(int close_others, int forceit, int action)
         return FAIL;
     }
 
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, buf);
 
     if(close_others)
@@ -1349,7 +1349,7 @@ int do_buffer(int action, int start, int dir, int count, int forceit)
     if(unload)
     {
         int forward;
-        bufref_T bufref;
+        bufref_st bufref;
         set_bufref(&bufref, buf);
 
         // When unloading or deleting a buffer that's already unloaded and
@@ -1634,7 +1634,7 @@ int do_buffer(int action, int start, int dir, int count, int forceit)
     {
         if((p_confirm || cmdmod.confirm) && p_write)
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
             dialog_changed(curbuf, false);
 
@@ -1702,7 +1702,7 @@ void set_curbuf(fbuf_st *buf, int action)
     // close_windows() or apply_autocmds() may change curbuf
     prevbuf = curbuf;
 
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, prevbuf);
 
     if(!apply_autocmds(EVENT_BUFLEAVE, NULL, NULL, false, curbuf)
@@ -1962,7 +1962,7 @@ fbuf_st *buflist_new(uchar_kt *ffname,
         if((flags & BLN_LISTED) && !buf->b_p_bl)
         {
             buf->b_p_bl = true;
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
 
             if(!(flags & BLN_DUMMY))
@@ -2149,7 +2149,7 @@ fbuf_st *buflist_new(uchar_kt *ffname,
         // They could also split the window with re-using the one
         // empty buffer. This may result in unexpectedly losing the
         // empty buffer.
-        bufref_T bufref;
+        bufref_st bufref;
         set_bufref(&bufref, buf);
 
         if(apply_autocmds(EVENT_BUFNEW, NULL,
@@ -5617,7 +5617,7 @@ void do_arg_all(int count, int forceit, int keep_tabs)
                     if(!P_HID(buf)
                        && buf->b_nwindows <= 1 && bufIsChanged(buf))
                     {
-                        bufref_T bufref;
+                        bufref_st bufref;
                         set_bufref(&bufref, buf);
                         (void)autowrite(buf, false);
 
@@ -5938,7 +5938,7 @@ void ex_buffer_all(exarg_T *eap)
 
         if(wp == NULL && split_ret == OK)
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
 
             // Split the window and put the buffer in it.

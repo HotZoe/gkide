@@ -1472,7 +1472,7 @@ bool prof_def_func(void)
 int autowrite(fbuf_st *buf, int forceit)
 {
     int r;
-    bufref_T bufref;
+    bufref_st bufref;
 
     if(!(p_aw || p_awa) || !p_write
        // never autowrite a "nofile" or "nowrite" buffer
@@ -1508,7 +1508,7 @@ void autowrite_all(void)
     {
         if(bufIsChanged(buf) && !buf->b_p_ro)
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
             (void)buf_write_all(buf, false);
 
@@ -1526,7 +1526,7 @@ void autowrite_all(void)
 bool check_changed(fbuf_st *buf, int flags)
 {
     int forceit = (flags & CCGD_FORCEIT);
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, buf);
 
     if(!forceit
@@ -1637,7 +1637,7 @@ void dialog_changed(fbuf_st *buf, int checkall)
             if(bufIsChanged(buf2)
                && (buf2->b_ffname != NULL) && !buf2->b_p_ro)
             {
-                bufref_T bufref;
+                bufref_st bufref;
                 set_bufref(&bufref, buf2);
 
                 if(buf2->b_fname != NULL
@@ -1768,7 +1768,7 @@ bool check_changed_any(bool hidden, bool unload)
 
         if((!hidden || buf->b_nwindows == 0) && bufIsChanged(buf))
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
 
             // Try auto-writing the buffer. If this fails but the buffer no
@@ -1823,7 +1823,7 @@ bool check_changed_any(bool hidden, bool unload)
         {
             if(wp->w_buffer == buf)
             {
-                bufref_T bufref;
+                bufref_st bufref;
                 set_bufref(&bufref, buf);
                 goto_tabpage_win(tp, wp);
 

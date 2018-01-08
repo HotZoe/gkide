@@ -1094,7 +1094,7 @@ static void set_option_value_for(char *key,
 {
     win_st *save_curwin = NULL;
     tabpage_st *save_curtab = NULL;
-    bufref_T save_curbuf =  { NULL, 0 };
+    bufref_st save_curbuf =  { NULL, 0 };
     try_start();
 
     switch(opt_type)

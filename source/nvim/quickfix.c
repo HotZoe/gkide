@@ -204,7 +204,7 @@ typedef struct
 // Looking up a buffer can be slow if there are many. Remember the last one
 // to make this a lot faster if there are multiple matches in the same file.
 static uchar_kt *qf_last_bufname = NULL;
-static bufref_T qf_last_bufref = { NULL, 0 };
+static bufref_st qf_last_bufref = { NULL, 0 };
 
 /// Read the errorfile @b efile into memory, line by line, building the error
 /// list. Set the error list's title to qf_title.
@@ -5056,8 +5056,8 @@ static fbuf_st *load_dummy_buffer(uchar_kt *fname,
                                 uchar_kt *resulting_dir)
 {
     fbuf_st *newbuf;
-    bufref_T newbufref;
-    bufref_T newbuf_to_wipe;
+    bufref_st newbufref;
+    bufref_st newbuf_to_wipe;
     int failed = true;
     auto_cmd_save_st aco;
 

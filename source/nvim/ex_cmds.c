@@ -2448,7 +2448,7 @@ void do_wqall(exarg_T *eap)
         }
         else
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
 
             if(buf_write_all(buf, eap->forceit) == FAIL)
@@ -2716,8 +2716,8 @@ int do_ecmd(int fnum,
     uchar_kt *new_name = NULL;
     int did_set_swapcommand = FALSE;
     fbuf_st *buf;
-    bufref_T bufref;
-    bufref_T old_curbuf;
+    bufref_st bufref;
+    bufref_st old_curbuf;
     uchar_kt *free_fname = NULL;
     int retval = FAIL;
     long n;

@@ -68,7 +68,7 @@ enum bfa_values
 static inline void switch_to_win_for_buf(fbuf_st *buf,
                                          win_st **save_curwinp,
                                          tabpage_st **save_curtabp,
-                                         bufref_T *save_curbuf)
+                                         bufref_st *save_curbuf)
 {
     win_st *wp;
     tabpage_st *tp;
@@ -82,7 +82,7 @@ static inline void switch_to_win_for_buf(fbuf_st *buf,
 
 static inline void restore_win_for_buf(win_st *save_curwin,
                                        tabpage_st *save_curtab,
-                                       bufref_T *save_curbuf)
+                                       bufref_st *save_curbuf)
 {
     if(save_curbuf->br_buf == NULL)
     {
@@ -126,7 +126,7 @@ static inline void buf_set_changedtick(fbuf_st *const buf, const int changedtick
     {                                                                       \
         win_st *save_curwin = NULL;                                          \
         tabpage_st *save_curtab = NULL;                                      \
-        bufref_T save_curbuf = { NULL, 0 };                                 \
+        bufref_st save_curbuf = { NULL, 0 };                                 \
         switch_to_win_for_buf(b, &save_curwin, &save_curtab, &save_curbuf); \
         code;                                                               \
         restore_win_for_buf(save_curwin, save_curtab, &save_curbuf);        \

@@ -1272,7 +1272,7 @@ theend:
 void ex_diffsplit(exarg_T *eap)
 {
     win_st *old_curwin = curwin;
-    bufref_T old_curbuf;
+    bufref_st old_curbuf;
     set_bufref(&old_curbuf, curbuf);
 
     // Need to compute w_fraction when no redraw happened yet.

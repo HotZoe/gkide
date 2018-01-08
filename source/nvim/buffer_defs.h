@@ -14,8 +14,8 @@ typedef struct file_buffer_s fbuf_st;
 typedef struct
 {
     fbuf_st *br_buf;
-    int    br_buf_free_count;
-} bufref_T;
+    int br_buf_free_count;
+} bufref_st;
 
 #include "nvim/garray.h"
 #include "nvim/pos.h"

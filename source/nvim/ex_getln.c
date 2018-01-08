@@ -6690,8 +6690,8 @@ int cmd_gchar(int offset)
 static int ex_window(void)
 {
     struct cmdline_info save_ccline;
-    bufref_T old_curbuf;
-    bufref_T bufref;
+    bufref_st old_curbuf;
+    bufref_st bufref;
     win_st *old_curwin = curwin;
     win_st *wp;
     int i;

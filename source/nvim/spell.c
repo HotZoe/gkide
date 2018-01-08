@@ -2563,7 +2563,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
     static bool recursive = false;
     uchar_kt *ret_msg = NULL;
     uchar_kt *spl_copy;
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, wp->w_buffer);
 
     // We don't want to do this recursively. May happen when a language is

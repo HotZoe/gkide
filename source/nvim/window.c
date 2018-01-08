@@ -2569,7 +2569,7 @@ int win_close(win_st *win, int free_buf)
     // Close the link to the buffer.
     if(win->w_buffer != NULL)
     {
-        bufref_T bufref;
+        bufref_st bufref;
         set_bufref(&bufref, curbuf);
         win->w_closing = true;
         close_buffer(win, win->w_buffer, free_buf ? DOBUF_UNLOAD : 0, true);
@@ -7108,7 +7108,7 @@ void restore_win(win_st *save_curwin, tabpage_st *save_curtab, int no_display)
 ///
 /// restore_buffer() MUST be called to undo.
 /// No autocommands will be executed. Use aucmd_prepbuf() if there are any.
-void switch_buffer(bufref_T *save_curbuf, fbuf_st *buf)
+void switch_buffer(bufref_st *save_curbuf, fbuf_st *buf)
 {
     block_autocmds();
     set_bufref(save_curbuf, curbuf);
@@ -7119,7 +7119,7 @@ void switch_buffer(bufref_T *save_curbuf, fbuf_st *buf)
 }
 
 /// Restore the current buffer after using switch_buffer().
-void restore_buffer(bufref_T *save_curbuf)
+void restore_buffer(bufref_st *save_curbuf)
 {
     unblock_autocmds();
 

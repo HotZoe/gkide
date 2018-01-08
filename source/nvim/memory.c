@@ -817,7 +817,7 @@ void free_all_mem(void)
 
     for(buf = firstbuf; buf != NULL;)
     {
-        bufref_T bufref;
+        bufref_st bufref;
         set_bufref(&bufref, buf);
         nextbuf = buf->b_next;
         close_buffer(NULL, buf, DOBUF_WIPE, false);

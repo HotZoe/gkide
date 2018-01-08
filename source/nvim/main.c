@@ -637,7 +637,7 @@ void getout(int exitval)
         {
             if(buf->b_ml.ml_mfp != NULL)
             {
-                bufref_T bufref;
+                bufref_st bufref;
                 set_bufref(&bufref, buf);
 
                 apply_autocmds(EVENT_BUFUNLOAD,

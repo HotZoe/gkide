@@ -3008,7 +3008,7 @@ int buf_write(fbuf_st *buf,
         int did_cmd = FALSE;
         int nofile_err = FALSE;
         int empty_memline = (buf->b_ml.ml_mfp == NULL);
-        bufref_T bufref;
+        bufref_st bufref;
 
         // Apply PRE autocommands.
         // Set curbuf to the buffer to be written.
@@ -6068,7 +6068,7 @@ int check_timestamps(int focus)
             // Only check buffers in a window.
             if(buf->b_nwindows > 0)
             {
-                bufref_T bufref;
+                bufref_st bufref;
                 set_bufref(&bufref, buf);
                 n = buf_check_timestamp(buf, focus);
 
@@ -6173,7 +6173,7 @@ int buf_check_timestamp(fbuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
     int n;
     uchar_kt *s;
     char *reason;
-    bufref_T bufref;
+    bufref_st bufref;
     set_bufref(&bufref, buf);
 
     // If its a terminal, there is no file name, the buffer is not loaded,
@@ -6465,7 +6465,7 @@ void buf_reload(fbuf_st *buf, int orig_mode)
     linenum_kt old_topline;
     int old_ro = buf->b_p_ro;
     fbuf_st *savebuf;
-    bufref_T bufref;
+    bufref_st bufref;
     int saved = OK;
     auto_cmd_save_st aco;
     int flags = READ_NEW;
@@ -8049,7 +8049,7 @@ void ex_doautoall(exarg_T *eap)
     auto_cmd_save_st aco;
     uchar_kt *arg = eap->arg;
     int call_do_modelines = check_nomodeline(&arg);
-    bufref_T bufref;
+    bufref_st bufref;
 
     // This is a bit tricky: For some commands curwin->w_buffer needs to be
     // equal to curbuf, but for some buffers there may not be a window.

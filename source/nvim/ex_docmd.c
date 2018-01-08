@@ -7986,7 +7986,7 @@ static void ex_win_close(int forceit, win_st *win, tabpage_st *tp)
     {
         if((p_confirm || cmdmod.confirm) && p_write)
         {
-            bufref_T bufref;
+            bufref_st bufref;
             set_bufref(&bufref, buf);
             dialog_changed(buf, false);
 
