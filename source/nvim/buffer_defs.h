@@ -91,13 +91,13 @@ typedef Map(linenum_kt, bufhl_vec_T) bufhl_info_T;
 #include "nvim/terminal.h"
 
 /// The taggy struct is used to store the information about a :tag command.
-typedef struct taggy
+typedef struct taggy_s
 {
-    uchar_kt *tagname;    ///< tag name
-    filemark_st fmark;      ///< cursor position BEFORE ":tag"
+    uchar_kt *tagname;  ///< tag name
+    filemark_st fmark;  ///< cursor position BEFORE ":tag"
     int cur_match;      ///< match number
     int cur_fnum;       ///< buffer number used for cur_match
-} taggy_T;
+} taggy_st;
 
 typedef struct buffblock buffblock_T;
 typedef struct buffheader buffheader_T;
@@ -1078,7 +1078,7 @@ struct window_s
     // entry 0: older
     // entry 1: newer
     // entry 2: newest
-    taggy_T w_tagstack[TAGSTACKSIZE]; ///< the tag stack
+    taggy_st w_tagstack[TAGSTACKSIZE]; ///< the tag stack
     int w_tagstackidx; ///< idx just below active entry
     int w_tagstacklen; ///< number of tags on stack
 

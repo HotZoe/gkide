@@ -111,7 +111,7 @@ static uchar_kt *tagmatchname = NULL; ///< name of last used tag
 
 /// Tag for preview window is remembered separately,
 /// to avoid messing up the normal tagstack.
-static taggy_T ptag_entry = {
+static taggy_st ptag_entry = {
     NULL, { INIT_POS_T(0, 0, 0), 0, 0, NULL }, 0, 0 };
 
 /// Jump to tag; handling of tag commands and tag stack
@@ -140,7 +140,7 @@ static taggy_T ptag_entry = {
 /// for cscope, returns TRUE if we jumped to tag or aborted, FALSE otherwise
 int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
 {
-    taggy_T *tagstack = curwin->w_tagstack;
+    taggy_st *tagstack = curwin->w_tagstack;
     int tagstackidx = curwin->w_tagstackidx;
     int tagstacklen = curwin->w_tagstacklen;
     int cur_match = 0;
@@ -1233,7 +1233,7 @@ void do_tags(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int i;
     uchar_kt *name;
-    taggy_T *tagstack = curwin->w_tagstack;
+    taggy_st *tagstack = curwin->w_tagstack;
     int tagstackidx = curwin->w_tagstackidx;
     int tagstacklen = curwin->w_tagstacklen;
 
