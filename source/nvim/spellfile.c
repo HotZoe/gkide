@@ -391,18 +391,18 @@ typedef struct compitem_s
 // pointer-size boundaries and sizeof(pointer) > sizeof(int) (e.g., Sparc).
 
 #define  SBLOCKSIZE   16000  ///< size of sb_data
-typedef struct sblock_s sblock_T;
 
+typedef struct sblock_s sblock_st;
 struct sblock_s
 {
     int sb_used;          ///< nr of bytes already in use
-    sblock_T *sb_next;    ///< next block in list
+    sblock_st *sb_next;   ///< next block in list
     uchar_kt sb_data[1];  ///< data, actually longer
 };
 
 /// A node in the tree.
-typedef struct wordnode_S wordnode_T;
-struct wordnode_S
+typedef struct wordnode_s wordnode_T;
+struct wordnode_s
 {
     /// shared to save space
     union
@@ -466,7 +466,7 @@ typedef struct spellinfo_S
 
     long si_sugtree;         ///< creating the soundfolding trie
 
-    sblock_T *si_blocks;     ///< memory blocks used
+    sblock_st *si_blocks;     ///< memory blocks used
     long si_blocks_cnt;      ///< memory blocks allocated
     int si_did_emsg;         ///< TRUE when ran out of memory
 
@@ -5012,7 +5012,7 @@ static int spell_read_wordfile(spellinfo_T *spin, uchar_kt *fname)
     return retval;
 }
 
-/// Get part of an sblock_T, "len" bytes long.
+/// Get part of an sblock_st, "len" bytes long.
 /// This avoids calling free() for every little struct we use (and keeping
 /// track of them).
 /// The memory is cleared to all zeros.
@@ -5024,7 +5024,7 @@ static void *getroom(spellinfo_T *spin, size_t len, bool align)
 FUNC_ATTR_NONNULL_RET
 {
     uchar_kt *p;
-    sblock_T *bl = spin->si_blocks;
+    sblock_st *bl = spin->si_blocks;
 
     assert(len <= SBLOCKSIZE);
 
@@ -5039,7 +5039,7 @@ FUNC_ATTR_NONNULL_RET
     if(bl == NULL || bl->sb_used + len > SBLOCKSIZE)
     {
         // Allocate a block of memory. It is not freed until much later.
-        bl = xcalloc(1, (sizeof(sblock_T) + SBLOCKSIZE));
+        bl = xcalloc(1, (sizeof(sblock_st) + SBLOCKSIZE));
         bl->sb_next = spin->si_blocks;
         spin->si_blocks = bl;
         bl->sb_used = 0;
@@ -5068,10 +5068,10 @@ static uchar_kt *getroom_save(spellinfo_T *spin, uchar_kt *s)
     return sc;
 }
 
-/// Free the list of allocated sblock_T.
-static void free_blocks(sblock_T *bl)
+/// Free the list of allocated sblock_st.
+static void free_blocks(sblock_st *bl)
 {
-    sblock_T *next;
+    sblock_st *next;
 
     while(bl != NULL)
     {
