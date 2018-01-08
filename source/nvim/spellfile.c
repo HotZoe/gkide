@@ -401,7 +401,7 @@ struct sblock_s
 };
 
 /// A node in the tree.
-typedef struct wordnode_s wordnode_T;
+typedef struct wordnode_s wordnode_st;
 struct wordnode_s
 {
     /// shared to save space
@@ -417,16 +417,16 @@ struct wordnode_s
     union
     {
         /// next node with same hash key
-        wordnode_T *next;
+        wordnode_st *next;
         /// parent node that will write this node
-        wordnode_T *wnode;
+        wordnode_st *wnode;
     } wn_u2;
 
     /// child (next byte in word)
-    wordnode_T  *wn_child;
+    wordnode_st  *wn_child;
 
     /// next sibling (alternate byte in word, always sorted)
-    wordnode_T  *wn_sibling;
+    wordnode_st  *wn_sibling;
 
     /// Nr. of references to this node. Only relevant for first node
     /// in a list of siblings, in following siblings it is always one.
@@ -451,18 +451,18 @@ struct wordnode_s
 ///< mask relevant bits of @b wn_flags
 #define WN_MASK     0xffff
 
-#define HI2WN(hi)   (wordnode_T *)((hi)->hi_key)
+#define HI2WN(hi)   (wordnode_st *)((hi)->hi_key)
 
 /// Info used while reading the spell files.
 typedef struct spellinfo_S
 {
-    wordnode_T *si_foldroot; ///< tree with case-folded words
+    wordnode_st *si_foldroot; ///< tree with case-folded words
     long si_foldwcount;      ///< nr of words in si_foldroot
 
-    wordnode_T *si_keeproot; ///< tree with keep-case words
+    wordnode_st *si_keeproot; ///< tree with keep-case words
     long si_keepwcount;      ///< nr of words in si_keeproot
 
-    wordnode_T *si_prefroot; ///< tree with postponed prefixes
+    wordnode_st *si_prefroot; ///< tree with postponed prefixes
 
     long si_sugtree;         ///< creating the soundfolding trie
 
@@ -475,7 +475,7 @@ typedef struct spellinfo_S
 
     /// List of nodes that have been freed during
     /// compression, linked by "wn_child" field.
-    wordnode_T *si_first_free;
+    wordnode_st *si_first_free;
 
     long si_free_count;  ///< number of nodes in si_first_free
 
@@ -2420,9 +2420,9 @@ static char line1[PRINTLINESIZE];
 static char line2[PRINTLINESIZE];
 static char line3[PRINTLINESIZE];
 
-static void spell_clear_flags(wordnode_T *node)
+static void spell_clear_flags(wordnode_st *node)
 {
-    wordnode_T *np;
+    wordnode_st *np;
 
     for(np = node; np != NULL; np = np->wn_sibling)
     {
@@ -2431,7 +2431,7 @@ static void spell_clear_flags(wordnode_T *node)
     }
 }
 
-static void spell_print_node(wordnode_T *node, int depth)
+static void spell_print_node(wordnode_st *node, int depth)
 {
     if(node->wn_u1.index)
     {
@@ -2499,7 +2499,7 @@ static void spell_print_node(wordnode_T *node, int depth)
     }
 }
 
-static void spell_print_tree(wordnode_T *root)
+static void spell_print_tree(wordnode_st *root)
 {
     if(root != NULL)
     {
@@ -5084,9 +5084,9 @@ static void free_blocks(sblock_st *bl)
 /// Allocate the root of a word tree.
 ///
 /// @return NULL when out of memory.
-static wordnode_T *wordtree_alloc(spellinfo_T *spin)
+static wordnode_st *wordtree_alloc(spellinfo_T *spin)
 {
-    return (wordnode_T *)getroom(spin, sizeof(wordnode_T), true);
+    return (wordnode_st *)getroom(spin, sizeof(wordnode_st), true);
 }
 
 /// Store a word in the tree(s).
@@ -5171,15 +5171,15 @@ static int store_word(spellinfo_T *spin,
 /// @return FAIL when out of memory.
 static int tree_add_word(spellinfo_T *spin,
                          uchar_kt *word,
-                         wordnode_T *root,
+                         wordnode_st *root,
                          int flags,
                          int region,
                          int affixID)
 {
-    wordnode_T *node = root;
-    wordnode_T *np;
-    wordnode_T *copyp, **copyprev;
-    wordnode_T **prev = NULL;
+    wordnode_st *node = root;
+    wordnode_st *np;
+    wordnode_st *copyp, **copyprev;
+    wordnode_st **prev = NULL;
     int i;
 
     // Add each byte of the word to the tree, including the NUL at the end.
@@ -5373,23 +5373,23 @@ static int tree_add_word(spellinfo_T *spin,
     return OK;
 }
 
-/// Get a wordnode_T, either from the list of previously
+/// Get a wordnode_st, either from the list of previously
 /// freed nodes or allocate a new one.
 ///
 /// @return NULL when out of memory.
-static wordnode_T *get_wordnode(spellinfo_T *spin)
+static wordnode_st *get_wordnode(spellinfo_T *spin)
 {
-    wordnode_T *n;
+    wordnode_st *n;
 
     if(spin->si_first_free == NULL)
     {
-        n = (wordnode_T *)getroom(spin, sizeof(wordnode_T), true);
+        n = (wordnode_st *)getroom(spin, sizeof(wordnode_st), true);
     }
     else
     {
         n = spin->si_first_free;
         spin->si_first_free = n->wn_child;
-        memset(n, 0, sizeof(wordnode_T));
+        memset(n, 0, sizeof(wordnode_st));
         --spin->si_free_count;
     }
 
@@ -5408,9 +5408,9 @@ static wordnode_T *get_wordnode(spellinfo_T *spin)
 /// node and its siblings.
 ///
 /// @return the number of nodes actually freed.
-static int deref_wordnode(spellinfo_T *spin, wordnode_T *node)
+static int deref_wordnode(spellinfo_T *spin, wordnode_st *node)
 {
-    wordnode_T *np;
+    wordnode_st *np;
     int cnt = 0;
 
     if(--node->wn_refs == 0)
@@ -5432,9 +5432,9 @@ static int deref_wordnode(spellinfo_T *spin, wordnode_T *node)
     return cnt;
 }
 
-/// Free a wordnode_T for re-use later.
+/// Free a wordnode_st for re-use later.
 /// Only the "wn_child" field becomes invalid.
-static void free_wordnode(spellinfo_T *spin, wordnode_T *n)
+static void free_wordnode(spellinfo_T *spin, wordnode_st *n)
 {
     n->wn_child = spin->si_first_free;
     spin->si_first_free = n;
@@ -5442,7 +5442,7 @@ static void free_wordnode(spellinfo_T *spin, wordnode_T *n)
 }
 
 /// Compress a tree: find tails that are identical and can be shared.
-static void wordtree_compress(spellinfo_T *spin, wordnode_T *root)
+static void wordtree_compress(spellinfo_T *spin, wordnode_st *root)
 {
     hashtable_st ht;
     int n;
@@ -5497,13 +5497,13 @@ static void wordtree_compress(spellinfo_T *spin, wordnode_T *root)
 /// @param tot   total count of nodes before compressing
 ///              incremented while going through the tree
 static int node_compress(spellinfo_T *spin,
-                         wordnode_T *node,
+                         wordnode_st *node,
                          hashtable_st *ht,
                          int *tot)
 {
-    wordnode_T *np;
-    wordnode_T *tp;
-    wordnode_T *child;
+    wordnode_st *np;
+    wordnode_st *tp;
+    wordnode_st *child;
     hash_kt hash;
     hashitem_st *hi;
     int len = 0;
@@ -5611,10 +5611,10 @@ static int node_compress(spellinfo_T *spin,
 }
 
 /// Returns true when two nodes have identical siblings and children.
-static bool node_equal(wordnode_T *n1, wordnode_T *n2)
+static bool node_equal(wordnode_st *n1, wordnode_st *n2)
 {
-    wordnode_T  *p1;
-    wordnode_T  *p2;
+    wordnode_st  *p1;
+    wordnode_st  *p2;
 
     for(p1 = n1, p2 = n2;
         p1 != NULL && p2 != NULL;
@@ -6049,7 +6049,7 @@ static int write_vim_spell(spellinfo_T *spin, uchar_kt *fname)
 
     for(unsigned int round = 1; round <= 3; ++round)
     {
-        wordnode_T *tree;
+        wordnode_st *tree;
 
         if(round == 1)
         {
@@ -6106,9 +6106,9 @@ theend:
 
 /// Clear the index and wnode fields of "node", it siblings and its children.  
 /// This is needed because they are a union with other items to save space.
-static void clear_node(wordnode_T *node)
+static void clear_node(wordnode_st *node)
 {
-    wordnode_T *np;
+    wordnode_st *np;
 
     if(node != NULL)
     {
@@ -6144,7 +6144,7 @@ static void clear_node(wordnode_T *node)
 ///
 /// Returns the number of nodes used.
 static int put_node(FILE *fd,
-                    wordnode_T *node,
+                    wordnode_st *node,
                     int idx,
                     int regionmask,
                     bool prefixtree)
@@ -6158,7 +6158,7 @@ static int put_node(FILE *fd,
     node->wn_u1.index = idx; // Store the index where this node is written.
     int siblingcount = 0; // Count the number of siblings.
 
-    for(wordnode_T *np = node; np != NULL; np = np->wn_sibling)
+    for(wordnode_st *np = node; np != NULL; np = np->wn_sibling)
     {
         ++siblingcount;
     }
@@ -6169,7 +6169,7 @@ static int put_node(FILE *fd,
     }
 
     // Write each sibling byte and optionally extra info.
-    for(wordnode_T *np = node; np != NULL; np = np->wn_sibling)
+    for(wordnode_st *np = node; np != NULL; np = np->wn_sibling)
     {
         if(np->wn_byte == 0)
         {
@@ -6278,7 +6278,7 @@ static int put_node(FILE *fd,
     int newindex = idx + siblingcount + 1;
 
     // Recursively dump the children of each sibling.
-    for(wordnode_T *np = node; np != NULL; np = np->wn_sibling)
+    for(wordnode_st *np = node; np != NULL; np = np->wn_sibling)
     {
         if(np->wn_byte != 0 && np->wn_child->wn_u2.wnode == node)
         {
@@ -6548,12 +6548,12 @@ static int sug_maketable(spellinfo_T *spin)
 /// @param startwordnr
 /// @param gap         place to store line of numbers
 static int sug_filltable(spellinfo_T *spin,
-                         wordnode_T *node,
+                         wordnode_st *node,
                          int startwordnr,
                          garray_st *gap)
 {
-    wordnode_T *p;
-    wordnode_T *np;
+    wordnode_st *p;
+    wordnode_st *np;
     int wordnr = startwordnr;
     int nr;
     int prev_nr;
@@ -6696,7 +6696,7 @@ static void sug_write(spellinfo_T *spin, uchar_kt *fname)
     // Write si_sugtime to the file.
     put_time(fd, spin->si_sugtime); // <timestamp>
     spin->si_memtot = 0; // <SUGWORDTREE>
-    wordnode_T *tree = spin->si_foldroot->wn_sibling;
+    wordnode_st *tree = spin->si_foldroot->wn_sibling;
     clear_node(tree); // Clear the index and wnode fields in the tree.
     // Count the number of nodes. Needed to be able to allocate the
     // memory when reading the nodes.  Also fills in index for shared nodes.
