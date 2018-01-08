@@ -99,21 +99,21 @@ typedef struct taggy_s
     int cur_fnum;       ///< buffer number used for cur_match
 } taggy_st;
 
-typedef struct buffblock buffblock_T;
-typedef struct buffheader buffheader_T;
+typedef struct buffblock_s  buffblock_st;
+typedef struct buffheader_s buffheader_st;
 
 /// structure used to store one block of the stuff/redo/recording buffers
-struct buffblock
+struct buffblock_s
 {
-    buffblock_T *b_next;  ///< pointer to next buffblock
+    buffblock_st *b_next;  ///< pointer to next buffblock
     uchar_kt b_str[1];      ///< contents (actually longer)
 };
 
 /// header used for the stuff buffer and the redo buffer
-struct buffheader
+struct buffheader_s
 {
-    buffblock_T bh_first;  ///< first (dummy) block of list
-    buffblock_T *bh_curr;  ///< buffblock for appending
+    buffblock_st bh_first;  ///< first (dummy) block of list
+    buffblock_st *bh_curr;  ///< buffblock for appending
     size_t bh_index;       ///< index for reading
     size_t bh_space;       ///< space in bh_curr for appending
 };
@@ -334,8 +334,8 @@ typedef struct
     int typebuf_valid; ///< TRUE when save_typebuf valid
     int old_char;
     int old_mod_mask;
-    buffheader_T save_readbuf1;
-    buffheader_T save_readbuf2;
+    buffheader_st save_readbuf1;
+    buffheader_st save_readbuf2;
     String save_inputbuf;
 } tasave_T;
 

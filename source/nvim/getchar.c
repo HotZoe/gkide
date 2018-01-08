@@ -65,17 +65,17 @@
 /// minimal size for @b b_str
 #define MINIMAL_SIZE 20
 
-static buffheader_T redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_T recordbuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_T old_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_T save_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_T save_old_redobuff = { { NULL, {NUL} }, NULL, 0, 0 };
+static buffheader_st redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st recordbuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st old_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st save_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st save_old_redobuff = { { NULL, {NUL} }, NULL, 0, 0 };
 
 /// First read ahead buffer. Used for translated commands.
-static buffheader_T readbuf1 = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st readbuf1 = { { NULL, { NUL } }, NULL, 0, 0 };
 
 /// Second read ahead buffer. Used for redo.
-static buffheader_T readbuf2 = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st readbuf2 = { { NULL, { NUL } }, NULL, 0, 0 };
 
 /// typeahead char that's not flushed
 static int typeahead_char = 0;
@@ -144,9 +144,9 @@ static const uint8_t ui_toggle[] = { K_SPECIAL, KS_EXTRA, KE_PASTE, 0 };
 #endif
 
 /// Free and clear a buffer.
-void free_buff(buffheader_T *buf)
+void free_buff(buffheader_st *buf)
 {
-    buffblock_T *p, *np;
+    buffblock_st *p, *np;
 
     for(p = buf->bh_first.b_next; p != NULL; p = np)
     {
@@ -162,7 +162,7 @@ void free_buff(buffheader_T *buf)
 ///
 /// @param buffer
 /// @param dozero  count == zero is not an error
-static uchar_kt *get_buffcont(buffheader_T *buffer, int dozero)
+static uchar_kt *get_buffcont(buffheader_st *buffer, int dozero)
 {
     size_t count = 0;
     uchar_kt *p = NULL;
@@ -170,7 +170,7 @@ static uchar_kt *get_buffcont(buffheader_T *buffer, int dozero)
     uchar_kt  *str;
 
     // compute the total length of the string
-    for(buffblock_T *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
+    for(buffblock_st *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
     {
         count += STRLEN(bp->b_str);
     }
@@ -180,7 +180,7 @@ static uchar_kt *get_buffcont(buffheader_T *buffer, int dozero)
         p = xmalloc(count + 1);
         p2 = p;
 
-        for(buffblock_T *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
+        for(buffblock_st *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
         {
             for(str = bp->b_str; *str;)
             {
@@ -238,7 +238,7 @@ uchar_kt *get_inserted(void)
 /// @param[out] buf   Buffer to add to.
 /// @param[in]  s     String to add.
 /// @param[in]  slen  String length or -1 for NUL-terminated string.
-static void add_buff(buffheader_T *const buf,
+static void add_buff(buffheader_st *const buf,
                      const char *const s,
                      ptrdiff_t slen)
 {
@@ -289,7 +289,7 @@ static void add_buff(buffheader_T *const buf,
             len = (size_t)slen;
         }
 
-        buffblock_T *p = xmalloc(sizeof(buffblock_T) + len);
+        buffblock_st *p = xmalloc(sizeof(buffblock_st) + len);
         buf->bh_space = len - (size_t)slen;
         STRLCPY(p->b_str, s, slen + 1);
         p->b_next = buf->bh_curr->b_next;
@@ -301,7 +301,7 @@ static void add_buff(buffheader_T *const buf,
 }
 
 /// Add number "n" to buffer "buf".
-static void add_num_buff(buffheader_T *buf, long n)
+static void add_num_buff(buffheader_st *buf, long n)
 {
     char number[32];
     snprintf(number, sizeof(number), "%ld", n);
@@ -310,7 +310,7 @@ static void add_num_buff(buffheader_T *buf, long n)
 
 /// Add character 'c' to buffer "buf".
 /// Translates special keys, NUL, CSI, K_SPECIAL and multibyte characters.
-static void add_char_buff(buffheader_T *buf, int c)
+static void add_char_buff(buffheader_st *buf, int c)
 {
     uint8_t bytes[MB_MAXBYTES + 1];
     int len;
@@ -369,10 +369,10 @@ static int read_readbuffers(int advance)
     return c;
 }
 
-static int read_readbuf(buffheader_T *buf, int advance)
+static int read_readbuf(buffheader_st *buf, int advance)
 {
     uchar_kt c;
-    buffblock_T *curr;
+    buffblock_st *curr;
 
     if(buf->bh_first.b_next == NULL) // buffer is empty
     {
@@ -695,7 +695,7 @@ void stuffnumReadbuff(long n)
 /// If old is TRUE, use old_redobuff instead of redobuff.
 static int read_redo(int init, int old_redo)
 {
-    static buffblock_T *bp;
+    static buffblock_st *bp;
     static uchar_kt *p;
     int c;
     int n;
