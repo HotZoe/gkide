@@ -5491,7 +5491,7 @@ void do_arg_all(int count, int forceit, int keep_tabs)
     int use_firstwin = FALSE; // use first window for arglist
     int split_ret = OK;
     bool p_ea_save;
-    alist_T *alist; // argument list to be used
+    arglist_st *alist; // argument list to be used
     fbuf_st *buf;
     tabpage_st *tpnext;
     int had_tab = cmdmod.tab;

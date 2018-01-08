@@ -285,13 +285,13 @@ struct wininfo_S
 /// Argument list: Array of file names.
 /// Used for the global argument list and the argument lists local to a window.
 ///
-/// @todo move struct arglist to another header
-typedef struct arglist
+/// @todo move arglist_s to another header
+typedef struct arglist_s
 {
-    garray_st al_ga;   ///< growarray with the array of file names
-    int al_refcount;  ///< number of windows using this arglist
-    int id;           ///< id of this arglist
-} alist_T;
+    garray_st al_ga;  ///< growarray with the array of file names
+    int al_refcount;  ///< number of windows using this arglist_st
+    int id;           ///< id of this arglist_st
+} arglist_st;
 
 /// For each argument remember the file name as it was given, and the buffer
 /// number that contains the expanded file name (required for when ":cd" is
@@ -1023,7 +1023,7 @@ struct window_s
     char w_ru_empty;          ///< TRUE if ruler shows 0-1 (empty line)
     int w_alt_fnum;           ///< alternate file (for # and CTRL-^)
 
-    alist_T *w_alist;      ///< pointer to arglist for this window
+    arglist_st *w_alist;      ///< pointer to arglist_st for this window
     int w_arg_idx;         ///< current index in argument list (can be out of range!)
     int w_arg_idx_invalid; ///< editing another file than w_arg_idx
     uchar_kt *w_localdir;  ///< absolute path of local directory or NULL
