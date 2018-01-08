@@ -147,8 +147,8 @@ FUNC_ATTR_NONNULL_ALL
 /// Obtains the current Unix timestamp.
 ///
 /// @return Seconds since epoch.
-Timestamp os_time(void)
+timestamp_kt os_time(void)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    return (Timestamp) time(NULL);
+    return (timestamp_kt) time(NULL);
 }

@@ -7358,7 +7358,7 @@ static bool get_clipboard(int name, yankreg_T **target, bool quiet)
     reg->additional_data = NULL;
     reg->timestamp = 0;
 
-    // Timestamp is not saved for clipboard registers because
+    // timestamp_kt is not saved for clipboard registers because
     // clipboard registers are not saved in the ShaDa file.
     int i = 0;
 

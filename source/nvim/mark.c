@@ -42,7 +42,7 @@
 #endif
 
 /// Global marks (marks with file number or name)
-static xfmark_T namedfm[NGLOBALMARKS];
+static xfilemark_st namedfm[NGLOBALMARKS];
 
 /// Set named mark "c" at current cursor position.
 /// Returns OK on success, FAIL if bad name given.
@@ -51,21 +51,21 @@ int setmark(int c)
     return setmark_pos(c, &curwin->w_cursor, curbuf->b_fnum);
 }
 
-/// Free fmark_T item
-void free_fmark(fmark_T fm)
+/// Free filemark_st item
+void free_fmark(filemark_st fm)
 {
     tv_dict_unref(fm.additional_data);
 }
 
-/// Free xfmark_T item
-void free_xfmark(xfmark_T fm)
+/// Free xfilemark_st item
+void free_xfmark(xfilemark_st fm)
 {
     xfree(fm.fname);
     free_fmark(fm.fmark);
 }
 
-/// Free and clear fmark_T item
-void clear_fmark(fmark_T *fm)
+/// Free and clear filemark_st item
+void clear_fmark(filemark_st *fm)
 FUNC_ATTR_NONNULL_ALL
 {
     free_fmark(*fm);
@@ -179,7 +179,7 @@ int setmark_pos(int c, apos_st *pos, int fnum)
 /// position and add it to the jump list.
 void setpcmark(void)
 {
-    xfmark_T *fm;
+    xfilemark_st *fm;
 
     // for :global the mark is set only once
     if(global_busy || listcmd_busy || cmdmod.keepjumps)
@@ -226,7 +226,7 @@ void checkpcmark(void)
 apos_st *movemark(int count)
 {
     apos_st *pos;
-    xfmark_T *jmp;
+    xfilemark_st *jmp;
     cleanup_jumplist();
 
     if(curwin->w_jumplistlen == 0) // nothing to jump to
@@ -570,7 +570,7 @@ apos_st *getnextmark(apos_st *startpos, int dir, int begin_line)
 /// For an xtended filemark: set the fnum from the fname.
 /// This is used for marks obtained from the .shada file. It's postponed
 /// until the mark is used to avoid a long startup delay.
-static void fname2fnum(xfmark_T *fm)
+static void fname2fnum(xfilemark_st *fm)
 {
     uchar_kt *p;
 
@@ -630,7 +630,7 @@ void fmarks_check_names(fbuf_st *buf)
     }
 }
 
-static void fmarks_check_one(xfmark_T *fm, uchar_kt *name, fbuf_st *buf)
+static void fmarks_check_one(xfilemark_st *fm, uchar_kt *name, fbuf_st *buf)
 {
     if(fm->fmark.fnum == 0
        && fm->fname != NULL
@@ -705,7 +705,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Get name of file from a filemark.
 /// When it's in the current buffer, return the text at the mark.
 /// Returns an allocated string.
-uchar_kt *fm_getname(fmark_T *fmark, int lead_len)
+uchar_kt *fm_getname(filemark_st *fmark, int lead_len)
 {
     if(fmark->fnum == curbuf->b_fnum) // current buffer
     {
@@ -1572,19 +1572,19 @@ void copy_jumplist(win_st *from, win_st *to)
 /// 'mark_jumplist_iter' call or NULL if iteration is over.
 const void *mark_jumplist_iter(const void *const iter,
                                const win_st *const win,
-                               xfmark_T *const fm)
+                               xfilemark_st *const fm)
 FUNC_ATTR_NONNULL_ARG(2, 3)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(iter == NULL && win->w_jumplistlen == 0)
     {
-        *fm = (xfmark_T) { { { 0, 0, 0 }, 0, 0, NULL}, NULL };
+        *fm = (xfilemark_st) { { { 0, 0, 0 }, 0, 0, NULL}, NULL };
         return NULL;
     }
 
-    const xfmark_T *const iter_mark = (iter == NULL
+    const xfilemark_st *const iter_mark = (iter == NULL
                                        ? &(win->w_jumplist[0])
-                                       : (const xfmark_T *const) iter);
+                                       : (const xfilemark_st *const) iter);
 
     *fm = *iter_mark;
 
@@ -1613,14 +1613,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// 'mark_global_iter' call or NULL if iteration is over.
 const void *mark_global_iter(const void *const iter,
                              char *const name,
-                             xfmark_T *const fm)
+                             xfilemark_st *const fm)
 FUNC_ATTR_NONNULL_ARG(2, 3)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *name = NUL;
-    const xfmark_T *iter_mark = (iter == NULL
+    const xfilemark_st *iter_mark = (iter == NULL
                                  ? &(namedfm[0])
-                                 : (const xfmark_T *const) iter);
+                                 : (const xfilemark_st *const) iter);
 
     while((size_t)(iter_mark - &(namedfm[0])) < ARRAY_SIZE(namedfm)
           && !iter_mark->fmark.mark.lnum)
@@ -1667,7 +1667,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// behaviour is undefined.
 ///
 /// @return Pointer to the next mark or NULL.
-static inline const fmark_T *next_buffer_mark(const fbuf_st *const buf,
+static inline const filemark_st *next_buffer_mark(const fbuf_st *const buf,
                                               char *const mark_name)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1727,7 +1727,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 const void *mark_buffer_iter(const void *const iter,
                              const fbuf_st *const buf,
                              char *const name,
-                             fmark_T *const fm)
+                             filemark_st *const fm)
 FUNC_ATTR_NONNULL_ARG(2, 3, 4)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1741,10 +1741,10 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                                   ? '^'
                                   : (iter == &(buf->b_last_change)
                                      ? '.'
-                                     : 'a' + (char)((const fmark_T *)iter
+                                     : 'a' + (char)((const filemark_st *)iter
                                                     - &(buf->b_namedm[0]))))));
 
-    const fmark_T *iter_mark = next_buffer_mark(buf, &mark_name);
+    const filemark_st *iter_mark = next_buffer_mark(buf, &mark_name);
 
     while(iter_mark != NULL && iter_mark->mark.lnum == 0)
     {
@@ -1784,7 +1784,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// it was created later then existing one.
 ///
 /// @return true on success, false on failure.
-bool mark_set_global(const char name, const xfmark_T fm, const bool update)
+bool mark_set_global(const char name, const xfilemark_st fm, const bool update)
 {
     const int idx = mark_global_index(name);
 
@@ -1793,7 +1793,7 @@ bool mark_set_global(const char name, const xfmark_T fm, const bool update)
         return false;
     }
 
-    xfmark_T *const fm_tgt = &(namedfm[idx]);
+    xfilemark_st *const fm_tgt = &(namedfm[idx]);
 
     if(update && fm.fmark.timestamp <= fm_tgt->fmark.timestamp)
     {
@@ -1827,11 +1827,11 @@ bool mark_set_global(const char name, const xfmark_T fm, const bool update)
 /// @return true on success, false on failure.
 bool mark_set_local(const char name,
                     fbuf_st *const buf,
-                    const fmark_T fm,
+                    const filemark_st fm,
                     const bool update)
 FUNC_ATTR_NONNULL_ALL
 {
-    fmark_T *fm_tgt = NULL;
+    filemark_st *fm_tgt = NULL;
 
     if(ASCII_ISLOWER(name))
     {

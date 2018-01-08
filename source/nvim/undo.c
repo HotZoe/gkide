@@ -356,7 +356,7 @@ static long get_undolevel(void)
     return curbuf->b_p_ul;
 }
 
-static inline void zero_fmark_additional_data(fmark_T *fmarks)
+static inline void zero_fmark_additional_data(filemark_st *fmarks)
 {
     for(size_t i = 0; i < NMARKS; i++)
     {
@@ -1035,7 +1035,7 @@ static u_header_T *unserialize_uhp(undobuf_st *bi, const char *file_name)
     unserialize_pos(bi, &uhp->uh_cursor);
     uhp->uh_cursor_vcol = undo_read_4c(bi);
     uhp->uh_flags = undo_read_2c(bi);
-    const Timestamp cur_timestamp = os_time();
+    const timestamp_kt cur_timestamp = os_time();
 
     for(size_t i = 0; i < (size_t)NMARKS; i++)
     {
@@ -2700,7 +2700,7 @@ static void u_undoredo(int undo)
     u_entry_T *newlist = NULL;
     int old_flags;
     int new_flags;
-    fmark_T namedm[NMARKS];
+    filemark_st namedm[NMARKS];
     visualinfo_st visualinfo;
 
     int empty_buffer; // buffer became empty

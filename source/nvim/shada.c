@@ -271,7 +271,7 @@ enum SRNIFlags
 typedef struct
 {
     ShadaEntryType type;
-    Timestamp timestamp;
+    timestamp_kt timestamp;
     union
     {
         Dictionary header;
@@ -399,7 +399,7 @@ typedef struct
     size_t changes_size; ///< Number of changes occupied.
     ShadaEntry *additional_marks; ///< All marks with unknown names.
     size_t additional_marks_size; ///< Size of the additional_marks array.
-    Timestamp greatest_timestamp; ///< Greatest timestamp among marks.
+    timestamp_kt greatest_timestamp; ///< Greatest timestamp among marks.
 } FileMarks;
 
 KHASH_MAP_INIT_STR(file_marks, FileMarks)
@@ -1704,7 +1704,7 @@ FUNC_ATTR_NONNULL_ALL
                     cur_entry.data.filemark.fname = NULL;
                 }
 
-                xfmark_T fm = (xfmark_T) {
+                xfilemark_st fm = (xfilemark_st) {
                     .fname = (uchar_kt *)(buf == NULL
                                         ? cur_entry.data.filemark.fname
                                         : NULL),
@@ -1740,7 +1740,7 @@ FUNC_ATTR_NONNULL_ALL
                     // the real code
                     MERGE_JUMPS(curwin->w_jumplistlen,
                                 curwin->w_jumplist,
-                                xfmark_T,
+                                xfilemark_st,
                                 fmark.timestamp,
                                 fmark.mark,
                                 cur_entry,
@@ -1838,7 +1838,7 @@ FUNC_ATTR_NONNULL_ALL
                     break;
                 }
 
-                const fmark_T fm = (fmark_T) {
+                const filemark_st fm = (filemark_st) {
                     .mark = cur_entry.data.filemark.mark,
                     .fnum = 0,
                     .timestamp = cur_entry.timestamp,
@@ -1866,7 +1866,7 @@ FUNC_ATTR_NONNULL_ALL
                     // the real code
                     MERGE_JUMPS(buf->b_changelistlen,
                                 buf->b_changelist,
-                                fmark_T,
+                                filemark_st,
                                 timestamp,
                                 mark,
                                 cur_entry,
@@ -3251,7 +3251,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     if(dump_global_vars)
     {
         const void *var_iter = NULL;
-        const Timestamp cur_timestamp = os_time();
+        const timestamp_kt cur_timestamp = os_time();
 
         do
         {
@@ -3342,7 +3342,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     do
     {
-        xfmark_T fm;
+        xfilemark_st fm;
         jump_iter = mark_jumplist_iter(jump_iter, curwin, &fm);
 
         const fbuf_st *const buf = (fm.fmark.fnum == 0
@@ -3392,7 +3392,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         do
         {
             char name = NUL;
-            xfmark_T fm;
+            xfilemark_st fm;
             global_mark_iter = mark_global_iter(global_mark_iter, &name, &fm);
 
             if(name == NUL)
@@ -3513,7 +3513,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             do
             {
-                fmark_T fm;
+                filemark_st fm;
                 char name = NUL;
 
                 local_marks_iter =
@@ -3549,7 +3549,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             for(int i = 0; i < buf->b_changelistlen; i++)
             {
-                const fmark_T fm = buf->b_changelist[i];
+                const filemark_st fm = buf->b_changelist[i];
 
                 filemarks->changes[i] =
                     (PossiblyFreedShadaEntry) {
@@ -4571,7 +4571,7 @@ shada_read_next_item_start:
     }
 
     const size_t length = (size_t) length_u64;
-    entry->timestamp = (Timestamp) timestamp_u64;
+    entry->timestamp = (timestamp_kt) timestamp_u64;
 
     if(type_u64 == 0)
     {

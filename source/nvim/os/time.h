@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-typedef uint64_t Timestamp;
+typedef uint64_t timestamp_kt;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "os/time.h.generated.h"

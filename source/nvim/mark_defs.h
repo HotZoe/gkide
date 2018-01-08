@@ -32,19 +32,19 @@
 #define TAGSTACKSIZE    20
 
 /// Structure defining single local mark
-typedef struct filemark
+typedef struct filemark_s
 {
-    apos_st mark;               ///< Cursor position.
+    apos_st mark;             ///< Cursor position.
     int fnum;                 ///< File number.
-    Timestamp timestamp;      ///< Time when this mark was last set.
-    dict_st *additional_data;  ///< Additional data from ShaDa file.
-} fmark_T;
+    timestamp_kt timestamp;   ///< Time when this mark was last set.
+    dict_st *additional_data; ///< Additional data from ShaDa file.
+} filemark_st;
 
 /// Structure defining extended mark (mark with file name attached)
-typedef struct xfilemark
+typedef struct xfilemark_s
 {
-    fmark_T fmark;  ///< Actual mark.
-    uchar_kt *fname;  ///< File name, used when fnum == 0.
-} xfmark_T;
+    filemark_st fmark; ///< Actual mark.
+    uchar_kt *fname;   ///< File name, used when fnum == 0.
+} xfilemark_st;
 
 #endif // NVIM_MARK_DEFS_H

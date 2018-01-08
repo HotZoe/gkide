@@ -29,7 +29,7 @@
 typedef struct
 {
     char *sub;                    ///< Previous replacement string.
-    Timestamp timestamp;          ///< Time when it was last set.
+    timestamp_kt timestamp;          ///< Time when it was last set.
     list_st *additional_elements;  ///< Additional data left from ShaDa file.
 } SubReplacementString;
 

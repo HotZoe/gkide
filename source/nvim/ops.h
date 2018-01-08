@@ -88,7 +88,7 @@ typedef struct yankreg
     MotionType y_type;        ///< Register type
     columnum_kt y_width;          ///< Register width
                               ///< (only valid for y_type == kBlockWise).
-    Timestamp timestamp;      ///< Time when register was last modified.
+    timestamp_kt timestamp;      ///< Time when register was last modified.
     dict_st *additional_data;  ///< Additional data from ShaDa file.
 } yankreg_T;
 

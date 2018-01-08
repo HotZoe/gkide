@@ -161,7 +161,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
     int error_cur_match = 0;
     uchar_kt *command_end;
     int save_pos = FALSE;
-    fmark_T saved_fmark;
+    filemark_st saved_fmark;
     int taglen;
     int jumped_to_tag = FALSE;
     tagptrs_T tagp;

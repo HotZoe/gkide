@@ -52,7 +52,7 @@ typedef struct hist_entry
 {
     int hisnum; ///< Entry identifier number.
     uchar_kt *hisstr; ///< Actual entry, separator char after the NUL.
-    Timestamp timestamp; ///< Time when entry was added.
+    timestamp_kt timestamp; ///< Time when entry was added.
     list_st *additional_elements; ///< Additional entries from ShaDa file.
 } histentry_T;
 

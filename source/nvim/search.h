@@ -71,7 +71,7 @@ typedef struct spat
     uchar_kt *pat;             ///< The pattern (in allocated memory) or NULL.
     bool magic;              ///< Magicness of the pattern.
     bool no_scs;             ///< No smartcase for this pattern.
-    Timestamp timestamp;     ///< Time of the last change.
+    timestamp_kt timestamp;     ///< Time of the last change.
     SearchOffset off;        ///< Pattern offset.
     dict_st *additional_data; ///< Additional data from ShaDa file.
 } SearchPattern;

@@ -94,7 +94,7 @@ typedef Map(linenum_kt, bufhl_vec_T) bufhl_info_T;
 typedef struct taggy
 {
     uchar_kt *tagname;    ///< tag name
-    fmark_T fmark;      ///< cursor position BEFORE ":tag"
+    filemark_st fmark;      ///< cursor position BEFORE ":tag"
     int cur_match;      ///< match number
     int cur_fnum;       ///< buffer number used for cur_match
 } taggy_T;
@@ -316,8 +316,8 @@ typedef struct argentry_s
 /// Used for the typeahead buffer: typebuf.
 typedef struct
 {
-    uchar_kt *tb_buf;       ///< buffer for typed characters
-    uchar_kt *tb_noremap;   ///< mapping flags for characters in tb_buf[]
+    uchar_kt *tb_buf;     ///< buffer for typed characters
+    uchar_kt *tb_noremap; ///< mapping flags for characters in tb_buf[]
     int tb_buflen;        ///< size of tb_buf[]
     int tb_off;           ///< current position in tb_buf[]
     int tb_len;           ///< number of valid bytes in tb_buf[]
@@ -502,16 +502,16 @@ struct file_buffer_s
     long b_mtime_read;        ///< last change time when reading
     uint64_t b_orig_size;     ///< size of original file in bytes
     int b_orig_mode;          ///< mode of original file
-    fmark_T b_namedm[NMARKS]; ///< current named marks (mark.c)
+    filemark_st b_namedm[NMARKS]; ///< current named marks (mark.c)
     visualinfo_st b_visual;    ///< These variables are set when VIsual_active becomes FALSE
     int b_visual_mode_eval;   ///< b_visual.vi_mode for visualmode()
-    fmark_T b_last_cursor;    ///< cursor position when last unloading this
-    fmark_T b_last_insert;    ///< where Insert mode was left
-    fmark_T b_last_change;    ///< position of last change: '. mark'
+    filemark_st b_last_cursor;    ///< cursor position when last unloading this
+    filemark_st b_last_insert;    ///< where Insert mode was left
+    filemark_st b_last_change;    ///< position of last change: '. mark'
 
 
     /// the changelist contains old change positions
-    fmark_T b_changelist[JUMPLISTSIZE];
+    filemark_st b_changelist[JUMPLISTSIZE];
     int b_changelistlen;  ///< number of active entries
     bool b_new_change;    ///< set by u_savecommon()
 
@@ -1067,7 +1067,7 @@ struct window_s
     apos_st w_prev_pcmark; ///< previous w_pcmark
 
     /// contains old cursor positions
-    xfmark_T w_jumplist[JUMPLISTSIZE];
+    xfilemark_st w_jumplist[JUMPLISTSIZE];
     int w_jumplistlen;         ///< number of active entries
     int w_jumplistidx;         ///< current position
     int w_changelistidx;       ///< current position in b_changelist
