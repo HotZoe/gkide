@@ -336,13 +336,12 @@ typedef struct afffile_S
 #define AFT_CAPLONG    2    ///< flags are one or two characters
 #define AFT_NUM        3    ///< flags are numbers, comma separated
 
-typedef struct affentry_S affentry_T;
-
 /// Affix entry from ".aff" file.
 /// Used for prefixes and suffixes.
-struct affentry_S
+typedef struct affix_entry_s affix_entry_st;
+struct affix_entry_s
 {
-    affentry_T *ae_next;   ///< next affix with same name/number
+    affix_entry_st *ae_next;   ///< next affix with same name/number
     uchar_kt *ae_chop;       ///< text to chop off basic word (can be NULL)
     uchar_kt *ae_add;        ///< text to add to basic word (can be NULL)
     uchar_kt *ae_flags;      ///< flags on the affix (can be NULL)
@@ -369,7 +368,7 @@ typedef struct affheader_S
     /// another affix block should be following
     int ah_follows;
     /// first affix entry
-    affentry_T *ah_first;
+    affix_entry_st *ah_first;
 } affheader_T;
 
 #define HI2AH(hi)   ((affheader_T *)(hi)->hi_key)
@@ -3135,7 +3134,7 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
                     && STRCMP(cur_aff->ah_key, items[1]) == 0
                     && itemcnt >= 5)
             {
-                affentry_T *aff_entry;
+                affix_entry_st *aff_entry;
                 bool upper = false;
                 int lasti = 5;
 
@@ -3151,8 +3150,8 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
                 // New item for an affix letter.
                 --aff_todo;
 
-                aff_entry = (affentry_T *)getroom(spin,
-                                                  sizeof(affentry_T),
+                aff_entry = (affix_entry_st *)getroom(spin,
+                                                  sizeof(affix_entry_st),
                                                   true);
 
                 if(aff_entry == NULL)
@@ -3644,7 +3643,7 @@ static bool is_aff_rule(uchar_kt **items,
 
 /// For affix "entry" move COMPOUNDFORBIDFLAG and COMPOUNDPERMITFLAG from
 /// ae_flags to ae_comppermit and ae_compforbid.
-static void aff_process_flags(afffile_T *affile, affentry_T *entry)
+static void aff_process_flags(afffile_T *affile, affix_entry_st *entry)
 {
     uchar_kt *p;
     uchar_kt *prevp;
@@ -3994,7 +3993,7 @@ static void spell_free_aff(afffile_T *aff)
     hashtable_st *ht;
     hashitem_st *hi;
     affheader_T *ah;
-    affentry_T *ae;
+    affix_entry_st *ae;
     xfree(aff->af_enc);
 
     // All this trouble to free the "ae_prog" items...
@@ -4432,7 +4431,7 @@ static void get_compflags(afffile_T *affile,
 }
 
 /// Apply affixes to a word and store the resulting words.
-/// "ht" is the hashtable with affentry_T that need to be applied, either
+/// "ht" is the hashtable with affix_entry_st that need to be applied, either
 /// prefixes or suffixes.
 /// "xht", when not NULL, is the prefix hashtable, to be used additionally on
 /// the resulting words for combining affixes.
@@ -4464,7 +4463,7 @@ static int store_aff_word(spellinfo_T *spin,
     int todo;
     hashitem_st *hi;
     affheader_T *ah;
-    affentry_T *ae;
+    affix_entry_st *ae;
     uchar_kt newword[MAXWLEN];
     int retval = OK;
     int i;
