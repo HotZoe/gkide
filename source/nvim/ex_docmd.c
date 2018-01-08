@@ -8366,7 +8366,7 @@ void alist_clear(alist_T *al)
 {
     #define FREE_AENTRY_FNAME(arg) xfree(arg->ae_fname)
 
-    GA_DEEP_CLEAR(&al->al_ga, aentry_T, FREE_AENTRY_FNAME);
+    GA_DEEP_CLEAR(&al->al_ga, aentry_st, FREE_AENTRY_FNAME);
 }
 
 /// Init an argument list.
@@ -8374,7 +8374,7 @@ void alist_clear(alist_T *al)
 /// @param al
 void alist_init(alist_T *al)
 {
-    ga_init(&al->al_ga, (int)sizeof(aentry_T), 5);
+    ga_init(&al->al_ga, (int)sizeof(aentry_st), 5);
 }
 
 /// Remove a reference from an argument list.
@@ -12161,7 +12161,7 @@ static int ses_arglist(FILE *fd,
     for(int i = 0; i < gap->ga_len; ++i)
     {
         // NULL file names are skipped (only happens when out of memory).
-        s = alist_name(&((aentry_T *)gap->ga_data)[i]);
+        s = alist_name(&((aentry_st *)gap->ga_data)[i]);
 
         if(s != NULL)
         {

@@ -2049,7 +2049,7 @@ static int do_arglist(uchar_kt *str, int what, int after)
 
                     memmove(ARGLIST + match,
                             ARGLIST + match + 1,
-                            (size_t)(ARGCOUNT - match - 1) * sizeof(aentry_T));
+                            (size_t)(ARGCOUNT - match - 1) * sizeof(aentry_st));
 
                     ALIST(curwin)->al_ga.ga_len--;
 
@@ -2470,7 +2470,7 @@ void ex_argdelete(exarg_T *eap)
             }
 
             memmove(ARGLIST + eap->line1 - 1, ARGLIST + eap->line2,
-                    (size_t)(ARGCOUNT - eap->line2) * sizeof(aentry_T));
+                    (size_t)(ARGCOUNT - eap->line2) * sizeof(aentry_st));
 
             ALIST(curwin)->al_ga.ga_len -= (int)n;
 
@@ -2826,7 +2826,7 @@ static int alist_add_list(int count, uchar_kt **files, int after)
         {
             memmove(&(ARGLIST[after + count]),
                     &(ARGLIST[after]),
-                    (size_t)(ARGCOUNT - after) * sizeof(aentry_T));
+                    (size_t)(ARGCOUNT - after) * sizeof(aentry_st));
         }
 
         for(int i = 0; i < count; i++)

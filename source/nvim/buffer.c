@@ -5460,7 +5460,7 @@ void fname_expand(fbuf_st *FUNC_ARGS_UNUSED_MAYBE(buf),
 }
 
 /// Get the file name for an argument list entry.
-uchar_kt *alist_name(aentry_T *aep)
+uchar_kt *alist_name(aentry_st *aep)
 {
     // Use the name from the associated buffer if it exists.
     fbuf_st *bp = buflist_findnr(aep->ae_fnum);
