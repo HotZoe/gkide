@@ -5019,7 +5019,7 @@ static win_st *win_alloc(win_st *after, int hidden)
 static void win_free(win_st *wp, tabpage_st *tp)
 {
     int i;
-    wininfo_T *wip;
+    wininfo_st *wip;
     handle_unregister_window(wp);
     clearFolding(wp);
 

@@ -76,7 +76,7 @@ typedef struct
 
 typedef struct window_s win_st;
 typedef struct frame_S frame_T;
-typedef struct wininfo_S wininfo_T;
+typedef struct wininfo_s wininfo_st;
 
 #include "nvim/memline_defs.h"
 #include "nvim/memfile_defs.h"
@@ -120,7 +120,7 @@ struct buffheader_s
 
 /// Structure that contains all options that are local to a window.
 /// Used twice in a window: for the current buffer and for all buffers.
-/// Also used in wininfo_T.
+/// Also used in wininfo_st.
 typedef struct
 {
     int wo_arab;                ///< 'arabic'
@@ -270,10 +270,10 @@ typedef struct
 /// 2. The window-local options for a buffer work in a similar way.
 ///    The window-info is kept in a list at b_wininfo. It is kept in
 ///    most-recently-used order.
-struct wininfo_S
+struct wininfo_s
 {
-    wininfo_T *wi_next;  ///< next entry or NULL for last entry
-    wininfo_T *wi_prev;  ///< previous entry or NULL for first entry
+    wininfo_st *wi_next;  ///< next entry or NULL for last entry
+    wininfo_st *wi_prev;  ///< previous entry or NULL for first entry
     win_st *wi_win;       ///< pointer to window that did set wi_fpos
     apos_st wi_fpos;       ///< last cursor position in the file
     bool wi_optset;      ///< true when wi_opt has useful values
@@ -497,7 +497,7 @@ struct file_buffer_s
     linenum_kt b_mod_bot;       ///< lnum below last changed line, AFTER the change
     long b_mod_xlines;        ///< number of extra buffer lines inserted
                               ///< negative when lines were deleted
-    wininfo_T *b_wininfo;     ///< list of last used info for each window
+    wininfo_st *b_wininfo;     ///< list of last used info for each window
     long b_mtime;             ///< last change time of original file
     long b_mtime_read;        ///< last change time when reading
     uint64_t b_orig_size;     ///< size of original file in bytes

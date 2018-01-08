@@ -860,7 +860,7 @@ static void free_buffer_stuff(fbuf_st *buf, int free_options)
 /// Free the b_wininfo list for buffer "buf".
 static void clear_wininfo(fbuf_st *buf)
 {
-    wininfo_T *wip;
+    wininfo_st *wip;
 
     while(buf->b_wininfo != NULL)
     {
@@ -2035,7 +2035,7 @@ fbuf_st *buflist_new(uchar_kt *ffname,
     }
 
     clear_wininfo(buf);
-    buf->b_wininfo = xcalloc(1, sizeof(wininfo_T));
+    buf->b_wininfo = xcalloc(1, sizeof(wininfo_st));
 
     if(ffname != NULL && (buf->b_ffname == NULL || buf->b_sfname == NULL))
     {
@@ -2818,7 +2818,7 @@ void buflist_setfpos(fbuf_st *const buf,
                      bool copy_options)
 FUNC_ATTR_NONNULL_ALL
 {
-    wininfo_T *wip;
+    wininfo_st *wip;
 
     for(wip = buf->b_wininfo; wip != NULL; wip = wip->wi_next)
     {
@@ -2831,7 +2831,7 @@ FUNC_ATTR_NONNULL_ALL
     if(wip == NULL)
     {
         // allocate a new entry
-        wip = xcalloc(1, sizeof(wininfo_T));
+        wip = xcalloc(1, sizeof(wininfo_st));
         wip->wi_win = win;
 
         if(lnum == 0)
@@ -2893,7 +2893,7 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Check that "wip" has 'diff' set and the diff is only for another tab page.
 /// That's because a diff is local to a tab page.
-static bool wininfo_other_tab_diff(wininfo_T *wip)
+static bool wininfo_other_tab_diff(wininfo_st *wip)
 FUNC_ATTR_PURE
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
@@ -2921,9 +2921,9 @@ FUNC_ATTR_NONNULL_ALL
 /// another tab page.
 ///
 /// @returns NULL when there isn't any info.
-static wininfo_T *find_wininfo(fbuf_st *buf, int skip_diff_buffer)
+static wininfo_st *find_wininfo(fbuf_st *buf, int skip_diff_buffer)
 {
-    wininfo_T *wip;
+    wininfo_st *wip;
 
     for(wip = buf->b_wininfo; wip != NULL; wip = wip->wi_next)
     {
@@ -2963,7 +2963,7 @@ static wininfo_T *find_wininfo(fbuf_st *buf, int skip_diff_buffer)
 /// global values for the window.
 void get_winopts(fbuf_st *buf)
 {
-    wininfo_T *wip;
+    wininfo_st *wip;
     clear_winopt(&curwin->w_onebuf_opt);
     clearFolding(curwin);
     wip = find_wininfo(buf, TRUE);
@@ -2996,7 +2996,7 @@ void get_winopts(fbuf_st *buf)
 apos_st *buflist_findfpos(fbuf_st *buf)
 {
     static apos_st no_position = INIT_POS_T(1, 0, 0);
-    wininfo_T *wip = find_wininfo(buf, FALSE);
+    wininfo_st *wip = find_wininfo(buf, FALSE);
     return (wip == NULL) ? &no_position : &(wip->wi_fpos);
 }
 
