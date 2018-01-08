@@ -326,8 +326,8 @@ typedef struct afffile_S
     int af_pfxpostpone;      ///< postpone prefixes without chop string and
                              ///< without flags
     bool af_ignoreextra;     ///< IGNOREEXTRA present
-    hashtable_st af_pref;       ///< hashtable for prefixes, affheader_T
-    hashtable_st af_suff;       ///< hashtable for suffixes, affheader_T
+    hashtable_st af_pref;       ///< hashtable for prefixes, affix_header_st
+    hashtable_st af_suff;       ///< hashtable for suffixes, affix_header_st
     hashtable_st af_comp;       ///< hashtable for compound flags, compitem_T
 } afffile_T;
 
@@ -341,21 +341,21 @@ typedef struct afffile_S
 typedef struct affix_entry_s affix_entry_st;
 struct affix_entry_s
 {
-    affix_entry_st *ae_next;   ///< next affix with same name/number
+    affix_entry_st *ae_next; ///< next affix with same name/number
     uchar_kt *ae_chop;       ///< text to chop off basic word (can be NULL)
     uchar_kt *ae_add;        ///< text to add to basic word (can be NULL)
     uchar_kt *ae_flags;      ///< flags on the affix (can be NULL)
     uchar_kt *ae_cond;       ///< condition (NULL for ".")
-    regprog_T *ae_prog;    ///< regexp program for ae_cond or NULL
-    char ae_compforbid;    ///< COMPOUNDFORBIDFLAG found
-    char ae_comppermit;    ///< COMPOUNDPERMITFLAG found
+    regprog_T *ae_prog;      ///< regexp program for ae_cond or NULL
+    char ae_compforbid;      ///< COMPOUNDFORBIDFLAG found
+    char ae_comppermit;      ///< COMPOUNDPERMITFLAG found
 };
 
 #define AH_KEY_LEN  17     ///< 2 x 8 bytes + NUL
 
 /// Affix header from ".aff" file.
 /// Used for af_pref and af_suff.
-typedef struct affheader_S
+typedef struct affheader_s
 {
     /// key for hashtab == name of affix
     uchar_kt ah_key[AH_KEY_LEN];
@@ -369,12 +369,12 @@ typedef struct affheader_S
     int ah_follows;
     /// first affix entry
     affix_entry_st *ah_first;
-} affheader_T;
+} affix_header_st;
 
-#define HI2AH(hi)   ((affheader_T *)(hi)->hi_key)
+#define HI2AH(hi)   ((affix_header_st *)(hi)->hi_key)
 
 /// Flag used in compound items.
-typedef struct compitem_S
+typedef struct compitem_s
 {
     uchar_kt ci_key[AH_KEY_LEN]; ///< key for hashtab == name of compound
     unsigned ci_flag;            ///< affix name as number, uses "af_flagtype"
@@ -2530,7 +2530,7 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
     int itemcnt;
     uchar_kt *p;
     int lnum = 0;
-    affheader_T *cur_aff = NULL;
+    affix_header_st *cur_aff = NULL;
     bool did_postpone_prefix = false;
     int aff_todo = 0;
     hashtable_st *tp;
@@ -3041,8 +3041,8 @@ static afffile_T *spell_read_aff(spellinfo_T *spin, uchar_kt *fname)
                 else
                 {
                     // New affix letter.
-                    cur_aff = (affheader_T *)getroom(spin,
-                                                     sizeof(affheader_T),
+                    cur_aff = (affix_header_st *)getroom(spin,
+                                                     sizeof(affix_header_st),
                                                      true);
 
                     if(cur_aff == NULL)
@@ -3992,7 +3992,7 @@ static void spell_free_aff(afffile_T *aff)
     int todo;
     hashtable_st *ht;
     hashitem_st *hi;
-    affheader_T *ah;
+    affix_header_st *ah;
     affix_entry_st *ae;
     xfree(aff->af_enc);
 
@@ -4462,7 +4462,7 @@ static int store_aff_word(spellinfo_T *spin,
 {
     int todo;
     hashitem_st *hi;
-    affheader_T *ah;
+    affix_header_st *ah;
     affix_entry_st *ae;
     uchar_kt newword[MAXWLEN];
     int retval = OK;
