@@ -6,7 +6,7 @@
 [![Stories in Ready](https://badge.waffle.io/gkide/gkide.svg?label=ready&title=Ready)](http://waffle.io/gkide/gkide)
 
 
-GKIDE is an elegant and sophisticated code editor based on vim/nvim.
+GKIDE is an elegant code editor/browser of the natural vim way..
 
 # What is GKIDE exactly?
 
