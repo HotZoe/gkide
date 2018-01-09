@@ -53,7 +53,7 @@ enum_tgt:write('\n} event_T;\n')
 names_tgt:write('\n};\n')
 
 enum_tgt:write(('\n#define NUM_EVENTS %u\n'):format(#events))
-names_tgt:write('\nstatic AutoPat *first_autopat[NUM_EVENTS] = {\n ')
+names_tgt:write('\nstatic autopat_st *first_autopat[NUM_EVENTS] = {\n ')
 line_len = 1
 
 for i = 1,((#events) - 1) do

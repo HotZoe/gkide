@@ -102,24 +102,25 @@ struct autocmd_s
     autocmd_st *next;       ///< Next autocmd_st in list
 };
 
-typedef struct AutoPat
+typedef struct autopat_s autopat_st;
+struct autopat_s
 {
-    uchar_kt *pat;          ///< pattern as typed
+    uchar_kt *pat;        ///< pattern as typed
                           ///< (NULL when command has been removed)
-    regprog_st *reg_prog;  ///< compiled regprog for pattern
-    autocmd_st *cmds;        ///< list of commands to do
-    struct AutoPat *next; ///< next AutoPat in AutoPat list
+    regprog_st *reg_prog; ///< compiled regprog for pattern
+    autocmd_st *cmds;     ///< list of commands to do
+    autopat_st *next;     ///< next autopat_st in autopat_st list
     int group;            ///< group ID
     int patlen;           ///< strlen() of pat
-    int buflocal_nr;      ///< !=0 for buffer-local AutoPat
+    int buflocal_nr;      ///< !=0 for buffer-local autopat_st
     char allow_dirs;      ///< Pattern may match whole path
     char last;            ///< last pattern for apply_autocmds()
-} AutoPat;
+};
 
 /// struct used to keep status while executing autocommands for an event.
 typedef struct AutoPatCmd
 {
-    AutoPat *curpat;         ///< next AutoPat to examine
+    autopat_st *curpat;         ///< next autopat_st to examine
     autocmd_st *nextcmd;        ///< next autocmd_st to execute
     int group;               ///< group being used
     uchar_kt *fname;           ///< fname to match with
@@ -6902,8 +6903,8 @@ FUNC_ATTR_ALWAYS_INLINE
     return deleted_augroup;
 }
 
-/// Show the autocommands for one AutoPat.
-static void show_autocmd(AutoPat *ap, event_T event)
+/// Show the autocommands for one autopat_st.
+static void show_autocmd(autopat_st *ap, event_T event)
 {
     autocmd_st *ac;
 
@@ -7000,7 +7001,7 @@ static void show_autocmd(AutoPat *ap, event_T event)
 }
 
 /// Mark an autocommand pattern for deletion.
-static void au_remove_pat(AutoPat *ap)
+static void au_remove_pat(autopat_st *ap)
 {
     xfree(ap->pat);
     ap->pat = NULL;
@@ -7009,7 +7010,7 @@ static void au_remove_pat(AutoPat *ap)
 }
 
 /// Mark all commands for a pattern for deletion.
-static void au_remove_cmds(AutoPat *ap)
+static void au_remove_cmds(autopat_st *ap)
 {
     autocmd_st *ac;
 
@@ -7026,7 +7027,7 @@ static void au_remove_cmds(AutoPat *ap)
 /// This is only done when not executing autocommands.
 static void au_cleanup(void)
 {
-    AutoPat *ap, **prev_ap;
+    autopat_st *ap, **prev_ap;
     autocmd_st *ac, **prev_ac;
     event_T event;
 
@@ -7085,7 +7086,7 @@ static void au_cleanup(void)
 /// related buffer-local autocmds.
 void aubuflocal_remove(fbuf_st *buf)
 {
-    AutoPat *ap;
+    autopat_st *ap;
     event_T event;
     AutoPatCmd *apc;
 
@@ -7176,7 +7177,7 @@ static void au_del_group(uchar_kt *name)
     else
     {
         event_T event;
-        AutoPat *ap;
+        autopat_st *ap;
         int in_use = false;
 
         for(event = (event_T)0;
@@ -7733,8 +7734,8 @@ static int do_autocmd_event(event_T event,
                             int forceit,
                             int group)
 {
-    AutoPat *ap;
-    AutoPat **prev_ap;
+    autopat_st *ap;
+    autopat_st **prev_ap;
     autocmd_st *ac;
     autocmd_st **prev_ac;
     int brace_level;
@@ -7762,7 +7763,7 @@ static int do_autocmd_event(event_T event,
     {
         for(ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
         {
-            if(forceit) // delete the AutoPat, if it's in the current group
+            if(forceit) // delete the autopat_st, if it's in the current group
             {
                 if(ap->group == findgroup)
                 {
@@ -7846,7 +7847,7 @@ static int do_autocmd_event(event_T event,
             patlen = (int)STRLEN(buflocal_pat); // but not endpat
         }
 
-        // Find AutoPat entries with this pattern.
+        // Find autopat_st entries with this pattern.
         prev_ap = &first_autopat[(int)event];
 
         while((ap = *prev_ap) != NULL)
@@ -7866,7 +7867,7 @@ static int do_autocmd_event(event_T event,
                    && STRNCMP(pat, ap->pat, patlen) == 0)
                 {
                     // Remove existing autocommands.
-                    // If adding any new autocmd's for this AutoPat,
+                    // If adding any new autocmd's for this autopat_st,
                     // don't delete the pattern from the autopat list,
                     // append to this list.
                     if(forceit)
@@ -7914,7 +7915,7 @@ static int do_autocmd_event(event_T event,
                     return FAIL;
                 }
 
-                ap = xmalloc(sizeof(AutoPat));
+                ap = xmalloc(sizeof(autopat_st));
                 ap->pat = vim_strnsave(pat, patlen);
                 ap->patlen = patlen;
 
@@ -8500,7 +8501,7 @@ static bool apply_autocmds_group(event_T event,
     int save_autocmd_nested;
     static int nesting = 0;
     AutoPatCmd patcmd;
-    AutoPat *ap;
+    autopat_st *ap;
     script_id_kt save_current_SID;
     void *save_funccalp;
     uchar_kt *save_cmdarg;
@@ -8930,7 +8931,7 @@ void unblock_autocmds(void)
 /// @param stop_at_last  stop when 'last' flag is set
 static void auto_next_pat(AutoPatCmd *apc, int stop_at_last)
 {
-    AutoPat *ap;
+    autopat_st *ap;
     autocmd_st *cp;
     char *s;
     xfree(sourcing_name);
@@ -9116,7 +9117,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     forward_slash(fname);
 #endif
 
-    for(AutoPat *ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
+    for(autopat_st *ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
     {
         if(ap->pat != NULL
            && ap->cmds != NULL
@@ -9274,7 +9275,7 @@ bool au_exists(const char *const arg)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     event_T event;
-    AutoPat *ap;
+    autopat_st *ap;
     fbuf_st *buflocal_buf = NULL;
     int group;
     bool retval = false;
