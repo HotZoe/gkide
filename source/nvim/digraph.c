@@ -1863,7 +1863,7 @@ uchar_kt *keymap_init(void)
 /// load the following lines as the keymap.
 ///
 /// @param eap
-void ex_loadkeymap(exarg_T *eap)
+void ex_loadkeymap(exargs_st *eap)
 {
     uchar_kt *p;
     uchar_kt *s;

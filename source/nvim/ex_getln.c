@@ -6493,7 +6493,7 @@ int get_list_range(uchar_kt **str, int *num1, int *num2)
 }
 
 /// :history command - print a history
-void ex_history(exarg_T *eap)
+void ex_history(exargs_st *eap)
 {
     histentry_T *hist;
     int histype1 = HIST_CMD;
@@ -6962,7 +6962,7 @@ static int ex_window(void)
 /// @return [allocated]
 /// NULL or script. Does not show any error messages.
 /// NULL is returned when skipping and on error.
-char *script_get(exarg_T *const eap, size_t *const lenp)
+char *script_get(exargs_st *const eap, size_t *const lenp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC

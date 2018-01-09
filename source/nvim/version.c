@@ -231,7 +231,7 @@ Dictionary version_dict(void)
     return d;
 }
 
-void ex_version(exarg_T *eap)
+void ex_version(exargs_st *eap)
 {
     // Ignore a ":version 9.99" command.
     if(*eap->arg == NUL)
@@ -601,7 +601,7 @@ static void do_intro_line(long row, uchar_kt *mesg, int attr)
 /// ":intro": clear screen, display intro screen and wait for return.
 ///
 /// @param eap
-void ex_intro(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_intro(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     screenclear();
     intro_message(TRUE);

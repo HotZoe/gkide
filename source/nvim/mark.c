@@ -748,7 +748,7 @@ static uchar_kt *mark_line(apos_st *mp, int lead_len)
 }
 
 /// print the marks
-void do_marks(exarg_T *eap)
+void do_marks(exargs_st *eap)
 {
     int i;
     uchar_kt *name;
@@ -875,7 +875,7 @@ static void show_one_mark(int c,
 }
 
 /// ":delmarks[!] [marks]"
-void ex_delmarks(exarg_T *eap)
+void ex_delmarks(exargs_st *eap)
 {
     uchar_kt *p;
     int from, to;
@@ -997,7 +997,7 @@ void ex_delmarks(exarg_T *eap)
 }
 
 /// print the jumplist
-void ex_jumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_jumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
     uchar_kt *name;
@@ -1057,7 +1057,7 @@ void ex_jumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
     }
 }
 
-void ex_clearjumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_clearjumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     free_jumplist(curwin);
     curwin->w_jumplistlen = 0;
@@ -1065,7 +1065,7 @@ void ex_clearjumps(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 }
 
 /// print the changelist
-void ex_changes(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_changes(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     int i;
     uchar_kt *name;

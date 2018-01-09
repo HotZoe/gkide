@@ -784,7 +784,7 @@ static int diff_write(fbuf_st *buf, uchar_kt *fname)
 /// could have been produced by autocommands, e.g. the netrw plugin).
 ///
 /// @param eap can be NULL
-void ex_diffupdate(exarg_T *eap)
+void ex_diffupdate(exargs_st *eap)
 {
     diff_clear(curtab); // Delete all diffblocks.
     curtab->tp_diff_invalid = FALSE;
@@ -1053,7 +1053,7 @@ static void diff_file(const char *const tmp_orig,
 /// could have been produced by autocommands, e.g. the netrw plugin).
 ///
 /// @param eap
-void ex_diffpatch(exarg_T *eap)
+void ex_diffpatch(exargs_st *eap)
 {
     uchar_kt *buf = NULL;
     win_st *old_curwin = curwin;
@@ -1269,7 +1269,7 @@ theend:
 /// Split the window and edit another file, setting options to show the diffs.
 ///
 /// @param eap
-void ex_diffsplit(exarg_T *eap)
+void ex_diffsplit(exargs_st *eap)
 {
     win_st *old_curwin = curwin;
     bufref_st old_curbuf;
@@ -1318,7 +1318,7 @@ void ex_diffsplit(exarg_T *eap)
 }
 
 /// Set options to show diffs for the current window.
-void ex_diffthis(exarg_T *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_diffthis(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 {
     // Set 'diff', 'scrollbind' on and 'wrap' off.
     diff_win_options(curwin, TRUE);
@@ -1416,7 +1416,7 @@ void diff_win_options(win_st *wp, int addbuf)
 /// Only in the current tab page.
 ///
 /// @param eap
-void ex_diffoff(exarg_T *eap)
+void ex_diffoff(exargs_st *eap)
 {
     int diffwin = false;
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
@@ -2554,7 +2554,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// "dp" and "do" commands.
 void nv_diffgetput(bool put, size_t count)
 {
-    exarg_T ea;
+    exargs_st ea;
     char buf[30];
 
     if(count == 0)
@@ -2585,7 +2585,7 @@ void nv_diffgetput(bool put, size_t count)
 /// ":diffget" and ":diffput"
 ///
 /// @param eap
-void ex_diffgetput(exarg_T *eap)
+void ex_diffgetput(exargs_st *eap)
 {
     linenum_kt lnum;
     int count;

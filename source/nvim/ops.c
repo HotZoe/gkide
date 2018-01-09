@@ -4307,7 +4307,7 @@ int get_register_name(int num)
 
 /// ":dis" and ":registers":
 /// Display the contents of the yank registers.
-void ex_display(exarg_T *eap)
+void ex_display(exargs_st *eap)
 {
     uchar_kt *p;
     yankreg_T *yb;

@@ -11,7 +11,7 @@
 #include "nvim/eval/typval.h"
 #include "nvim/os/time.h"
 #include "nvim/normal.h" // for MotionType and oparg_T
-#include "nvim/ex_cmds_defs.h" // for exarg_T
+#include "nvim/ex_cmds_defs.h" // for exargs_st
 
 typedef int (*Indenter)(void);
 

@@ -2795,7 +2795,7 @@ theend:
 
 /// - ":clist": list all errors
 /// - ":llist": list all locations
-void qf_list(exarg_T *eap)
+void qf_list(exargs_st *eap)
 {
     fbuf_st *buf;
     uchar_kt *fname;
@@ -3035,7 +3035,7 @@ static void qf_msg(qf_info_T *qi, int which, char *lead)
 /// - ":cnewer [count]": Down in the quickfix stack.
 /// - ":lolder [count]": Up in the location list stack.
 /// - ":lnewer [count]": Down in the location list stack.
-void qf_age(exarg_T *eap)
+void qf_age(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
     int count;
@@ -3089,7 +3089,7 @@ void qf_age(exarg_T *eap)
     qf_update_buffer(qi, NULL);
 }
 
-void qf_history(exarg_T *eap)
+void qf_history(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
     int i;
@@ -3282,7 +3282,7 @@ static uchar_kt *qf_types(int c, int nr)
 /// - ":lwindow":
 ///   open the location list window if we have locations to
 ///   display, close it if not.
-void ex_cwindow(exarg_T *eap)
+void ex_cwindow(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
     win_st *win;
@@ -3320,7 +3320,7 @@ void ex_cwindow(exarg_T *eap)
 
 /// - ":cclose": close the window showing the list of errors.
 /// - ":lclose": close the window showing the location list
-void ex_cclose(exarg_T *eap)
+void ex_cclose(exargs_st *eap)
 {
     win_st *win = NULL;
     qf_info_T *qi = &ql_info;
@@ -3346,7 +3346,7 @@ void ex_cclose(exarg_T *eap)
 
 /// - ":copen": open a window that shows the list of errors.
 /// - ":lopen": open a window that shows the location list.
-void ex_copen(exarg_T *eap)
+void ex_copen(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
     int height;
@@ -3512,7 +3512,7 @@ static void qf_win_goto(win_st *win, linenum_kt lnum)
 }
 
 /// :cbottom/:lbottom command.
-void ex_cbottom(exarg_T *eap)
+void ex_cbottom(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
 
@@ -3932,7 +3932,7 @@ int grep_internal(cmdidx_T cmdidx)
 }
 
 /// Used for ":make", ":lmake", ":grep", ":lgrep", ":grepadd", and ":lgrepadd"
-void ex_make(exarg_T *eap)
+void ex_make(exargs_st *eap)
 {
     uchar_kt *fname;
     win_st *wp = NULL;
@@ -4145,7 +4145,7 @@ static uchar_kt *get_mef_name(void)
 
 /// Returns the number of valid entries
 /// in the current quickfix/location list.
-size_t qf_get_size(exarg_T *eap)
+size_t qf_get_size(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
     qf_info_T *qi = &ql_info;
@@ -4194,7 +4194,7 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Returns the current index of the quickfix/location list.
 /// Returns 0 if there is an error.
-size_t qf_get_cur_idx(exarg_T *eap)
+size_t qf_get_cur_idx(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
     qf_info_T *qi = &ql_info;
@@ -4218,7 +4218,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Returns the current index in the quickfix/location list,
 /// counting only valid entries.
 /// Returns 1 if there are no valid entries.
-int qf_get_cur_valid_idx(exarg_T *eap)
+int qf_get_cur_valid_idx(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
     qf_info_T *qi = &ql_info;
@@ -4331,7 +4331,7 @@ FUNC_ATTR_NONNULL_ALL
 /// - ":cc", ":crewind", ":cfirst" and ":clast".
 /// - ":ll", ":lrewind", ":lfirst" and ":llast".
 /// - ":cdo", ":ldo", ":cfdo" and ":lfdo".
-void ex_cc(exarg_T *eap)
+void ex_cc(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
 
@@ -4404,7 +4404,7 @@ void ex_cc(exarg_T *eap)
 /// - ":cnext", ":cnfile", ":cNext" and ":cprevious".
 /// - ":lnext", ":lNext", ":lprevious", ":lnfile", ":lNfile" and ":lpfile".
 /// - ":cdo", ":ldo", ":cfdo" and ":lfdo".
-void ex_cnext(exarg_T *eap)
+void ex_cnext(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
 
@@ -4460,7 +4460,7 @@ void ex_cnext(exarg_T *eap)
 
 /// - ":cfile"/":cgetfile"/":caddfile" commands.
 /// - ":lfile"/":lgetfile"/":laddfile" commands.
-void ex_cfile(exarg_T *eap)
+void ex_cfile(exargs_st *eap)
 {
     win_st *wp = NULL;
     qf_info_T *qi = &ql_info;
@@ -4556,7 +4556,7 @@ void ex_cfile(exarg_T *eap)
 /// - ":vimgrepadd {pattern} file(s)"
 /// - ":lvimgrep {pattern} file(s)"
 /// - ":lvimgrepadd {pattern} file(s)"
-void ex_vimgrep(exarg_T *eap)
+void ex_vimgrep(exargs_st *eap)
 {
     regmmatch_st regmatch;
     int fcount;
@@ -4987,7 +4987,7 @@ void ex_vimgrep(exarg_T *eap)
             // Jump to the directory used after loading the buffer.
             if(curbuf == first_match_buf && target_dir != NULL)
             {
-                exarg_T ea;
+                exargs_st ea;
                 ea.arg = target_dir;
                 ea.cmdidx = CMD_lcd;
                 ex_cd(&ea);
@@ -5027,7 +5027,7 @@ static void restore_start_dir(uchar_kt *dirname_start)
     {
         // If the directory has changed, change it back by
         // building up an appropriate ex command and executing it.
-        exarg_T ea;
+        exargs_st ea;
         ea.arg = dirname_start;
         ea.cmdidx = (curwin->w_localdir == NULL) ? CMD_cd : CMD_lcd;
         ex_cd(&ea);
@@ -5589,7 +5589,7 @@ int set_errorlist(win_st *wp,
 /// - ":[range]lbuffer [bufnr]" command.
 /// - ":[range]laddbuffer [bufnr]" command.
 /// - ":[range]lgetbuffer [bufnr]" command.
-void ex_cbuffer(exarg_T *eap)
+void ex_cbuffer(exargs_st *eap)
 {
     fbuf_st *buf = NULL;
     qf_info_T *qi = &ql_info;
@@ -5705,7 +5705,7 @@ void ex_cbuffer(exarg_T *eap)
 
 /// - ":cexpr {expr}", ":cgetexpr {expr}", ":caddexpr {expr}" command.
 /// - ":lexpr {expr}", ":lgetexpr {expr}", ":laddexpr {expr}" command.
-void ex_cexpr(exarg_T *eap)
+void ex_cexpr(exargs_st *eap)
 {
     qf_info_T *qi = &ql_info;
     const char *au_name = NULL;
@@ -5794,7 +5794,7 @@ void ex_cexpr(exarg_T *eap)
 }
 
 /// ":helpgrep {pattern}"
-void ex_helpgrep(exarg_T *eap)
+void ex_helpgrep(exargs_st *eap)
 {
     regmatch_st regmatch;
     uchar_kt *save_cpo;

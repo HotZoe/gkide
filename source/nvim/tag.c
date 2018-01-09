@@ -1229,7 +1229,7 @@ static void taglen_advance(int l)
 }
 
 /// Print the tag stack
-void do_tags(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void do_tags(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int i;
     uchar_kt *name;

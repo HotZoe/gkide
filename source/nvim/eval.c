@@ -1659,7 +1659,7 @@ int eval_foldexpr(uchar_kt *arg, int *cp)
 /// - :let var -= expr,         assignment command.
 /// - :let var .= expr,         assignment command.
 /// - :let [var1, var2] = expr, unpack list.
-void ex_let(exarg_T *eap)
+void ex_let(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     uchar_kt *expr = NULL;
@@ -2022,7 +2022,7 @@ static void list_func_vars(int *first)
 }
 
 /// List variables in "arg".
-static const char *list_arg_vars(exarg_T *eap, const char *arg, int *first)
+static const char *list_arg_vars(exargs_st *eap, const char *arg, int *first)
 {
     int len;
     typval_st tv;
@@ -3396,7 +3396,7 @@ void set_context_for_expression(expand_st *xp, uchar_kt *arg, cmdidx_T cmdidx)
 /// ":1,25call func(arg1, arg2)"  function call.
 ///
 /// @todo move to eval/ex_cmds
-void ex_call(exarg_T *eap)
+void ex_call(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     uchar_kt *startarg;
@@ -3559,7 +3559,7 @@ end:
 ///":unlet[!] var1 ... " command.
 ///
 /// @todo move to eval/ex_cmds
-void ex_unlet(exarg_T *eap)
+void ex_unlet(exargs_st *eap)
 {
     ex_unletlock(eap, eap->arg, 0);
 }
@@ -3567,7 +3567,7 @@ void ex_unlet(exarg_T *eap)
 /// ":lockvar" and ":unlockvar" commands
 ///
 /// @todo move to eval/ex_cmds
-void ex_lockvar(exarg_T *eap)
+void ex_lockvar(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     int deep = 2;
@@ -3588,7 +3588,7 @@ void ex_lockvar(exarg_T *eap)
 /// ":unlet", ":lockvar" and ":unlockvar" are quite similar.
 ///
 /// @todo move to eval/ex_cmds
-static void ex_unletlock(exarg_T *eap, uchar_kt *argstart, int deep)
+static void ex_unletlock(exargs_st *eap, uchar_kt *argstart, int deep)
 {
     uchar_kt *arg = argstart;
     bool error = false;
@@ -23854,7 +23854,7 @@ uchar_kt *v_throwpoint(uchar_kt *oldval)
 /// If "eap" != NULL, use "eap" to generate the value and return the old value.
 /// If "oldarg" != NULL, restore the value to "oldarg" and return NULL.
 ///
-uchar_kt *set_cmdarg(exarg_T *eap, uchar_kt *oldarg)
+uchar_kt *set_cmdarg(exargs_st *eap, uchar_kt *oldarg)
 {
     uchar_kt *oldval;
     uchar_kt *newval;
@@ -25214,7 +25214,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
 ///   print each argument separated with a space, add a newline at the end.
 /// - ":echon expr1 ..."
 ///   print each argument plain.
-void ex_echo(exarg_T *eap)
+void ex_echo(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     typval_st rettv;
@@ -25336,7 +25336,7 @@ void ex_echo(exarg_T *eap)
 }
 
 /// ":echohl {name}".
-void ex_echohl(exarg_T *eap)
+void ex_echohl(exargs_st *eap)
 {
     int id;
     id = syn_name2id(eap->arg);
@@ -25357,7 +25357,7 @@ void ex_echohl(exarg_T *eap)
 ///
 /// Each gets spaces around each argument and a newline at the end for
 /// echo commands
-void ex_execute(exarg_T *eap)
+void ex_execute(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     typval_st rettv;
@@ -25495,7 +25495,7 @@ static const char *find_option_end(const char **const arg,
 }
 
 /// ":function"
-void ex_function(exarg_T *eap)
+void ex_function(exargs_st *eap)
 {
     uchar_kt *theline;
     int c;
@@ -27212,7 +27212,7 @@ static bool func_name_refcount(uchar_kt *name)
 }
 
 /// ":delfunction {name}"
-void ex_delfunction(exarg_T *eap)
+void ex_delfunction(exargs_st *eap)
 {
     ufunc_st *fp = NULL;
     uchar_kt *p;
@@ -28046,7 +28046,7 @@ static void add_nr_var(dict_st *dp, dictitem_st *v, char *name, number_kt nr)
 }
 
 /// ":return [expr]"
-void ex_return(exarg_T *eap)
+void ex_return(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     typval_st rettv;
@@ -28112,7 +28112,7 @@ void ex_return(exarg_T *eap)
 /// when called due to a ":return" command. "rettv" may point to a typval_st
 /// with the return rettv. Returns TRUE when the return can be carried out,
 /// FALSE when the return gets pending.
-int do_return(exarg_T *eap, int reanimate, int is_cmd, void *rettv)
+int do_return(exargs_st *eap, int reanimate, int is_cmd, void *rettv)
 {
     int idx;
     struct condstack *cstack = eap->cstack;

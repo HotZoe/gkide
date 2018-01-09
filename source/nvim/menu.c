@@ -42,7 +42,7 @@ static uchar_kt e_nomenu[] = N_("E329: No menu \"%s\"");
 /// Do the :menu command and relatives.
 ///
 /// @param eap  Ex command arguments
-void ex_menu(exarg_T *eap)
+void ex_menu(exargs_st *eap)
 {
     uchar_kt *menu_path;
     int modes;
@@ -1584,7 +1584,7 @@ static int menu_is_hidden(uchar_kt *name)
 
 /// Given a menu descriptor, e.g. "File.New", find it in
 /// the menu hierarchy and execute it.
-void ex_emenu(exarg_T *eap)
+void ex_emenu(exargs_st *eap)
 {
     int idx;
     uchar_kt *p;
@@ -1755,7 +1755,7 @@ static garray_st menutrans_ga = GA_EMPTY_INIT_VALUE;
 /// ":menutrans".
 /// This function is also defined without the +multi_lang feature,
 /// in which case the commands are ignored.
-void ex_menutranslate(exarg_T *eap)
+void ex_menutranslate(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     uchar_kt *from, *from_noamp, *to;

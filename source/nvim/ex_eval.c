@@ -921,7 +921,7 @@ void report_discard_pending(int pending, void *value)
 
 
 /// ":if".
-void ex_if(exarg_T *eap)
+void ex_if(exargs_st *eap)
 {
     int skip;
     int result;
@@ -963,7 +963,7 @@ void ex_if(exarg_T *eap)
 }
 
 /// ":endif".
-void ex_endif(exarg_T *eap)
+void ex_endif(exargs_st *eap)
 {
     did_endif = TRUE;
 
@@ -993,7 +993,7 @@ void ex_endif(exarg_T *eap)
 }
 
 /// ":else" and ":elseif".
-void ex_else(exarg_T *eap)
+void ex_else(exargs_st *eap)
 {
     int skip;
     int result;
@@ -1097,7 +1097,7 @@ void ex_else(exarg_T *eap)
 }
 
 /// Handle ":while" and ":for".
-void ex_while(exarg_T *eap)
+void ex_while(exargs_st *eap)
 {
     bool error;
     int skip;
@@ -1196,7 +1196,7 @@ void ex_while(exarg_T *eap)
 }
 
 /// ":continue"
-void ex_continue(exarg_T *eap)
+void ex_continue(exargs_st *eap)
 {
     int idx;
     struct condstack *cstack = eap->cstack;
@@ -1233,7 +1233,7 @@ void ex_continue(exarg_T *eap)
 }
 
 /// ":break"
-void ex_break(exarg_T *eap)
+void ex_break(exargs_st *eap)
 {
     int idx;
     struct condstack *cstack = eap->cstack;
@@ -1259,7 +1259,7 @@ void ex_break(exarg_T *eap)
 }
 
 /// ":endwhile" and ":endfor"
-void ex_endwhile(exarg_T *eap)
+void ex_endwhile(exargs_st *eap)
 {
     struct condstack *cstack = eap->cstack;
     int idx;
@@ -1358,7 +1358,7 @@ void ex_endwhile(exarg_T *eap)
 
 
 /// ":throw expr"
-void ex_throw(exarg_T *eap)
+void ex_throw(exargs_st *eap)
 {
     const char *arg = (const char *)eap->arg;
     char *value;
@@ -1460,7 +1460,7 @@ void do_throw(struct condstack *cstack)
 }
 
 /// ":try"
-void ex_try(exarg_T *eap)
+void ex_try(exargs_st *eap)
 {
     int skip;
     struct condstack *cstack = eap->cstack;
@@ -1519,7 +1519,7 @@ void ex_try(exarg_T *eap)
 }
 
 /// ":catch /{pattern}/" and ":catch"
-void ex_catch(exarg_T *eap)
+void ex_catch(exargs_st *eap)
 {
     int idx = 0;
     int give_up = FALSE;
@@ -1697,7 +1697,7 @@ void ex_catch(exarg_T *eap)
 }
 
 /// ":finally"
-void ex_finally(exarg_T *eap)
+void ex_finally(exargs_st *eap)
 {
     int idx;
     int skip = FALSE;
@@ -1833,7 +1833,7 @@ void ex_finally(exarg_T *eap)
 }
 
 /// ":endtry"
-void ex_endtry(exarg_T *eap)
+void ex_endtry(exargs_st *eap)
 {
     int idx;
     int skip;
@@ -2376,7 +2376,7 @@ void rewind_conditionals(struct condstack *cstack,
 }
 
 /// ":endfunction" when not after a ":function"
-void ex_endfunction(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_endfunction(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     EMSG(_("E193: :endfunction not inside a function"));
 }

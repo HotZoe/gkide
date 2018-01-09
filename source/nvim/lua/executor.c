@@ -742,7 +742,7 @@ Object executor_exec_lua_api(const String str, const Array args, error_st *err)
 /// Used for :lua.
 ///
 /// @param  eap  VimL command being run.
-void ex_lua(exarg_T *const eap)
+void ex_lua(exargs_st *const eap)
 FUNC_ATTR_NONNULL_ALL
 {
     size_t len;
@@ -770,7 +770,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Used for :luado.
 ///
 /// @param  eap  VimL command being run.
-void ex_luado(exarg_T *const eap)
+void ex_luado(exargs_st *const eap)
 FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)
@@ -800,7 +800,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Used for :luafile.
 ///
 /// @param  eap  VimL command being run.
-void ex_luafile(exarg_T *const eap)
+void ex_luafile(exargs_st *const eap)
 FUNC_ATTR_NONNULL_ALL
 {
     if(global_lstate == NULL)

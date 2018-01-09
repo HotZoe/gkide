@@ -7,7 +7,7 @@
 #include <stdlib.h> // for size_t
 
 #include "nvim/types.h" // for uchar_kt
-#include "nvim/ex_cmds_defs.h" // for exarg_T
+#include "nvim/ex_cmds_defs.h" // for exargs_st
 
 /// Structure to hold printing color and font attributes.
 typedef struct

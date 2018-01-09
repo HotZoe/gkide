@@ -669,7 +669,7 @@ static void prt_message(uchar_kt *s)
     ui_flush();
 }
 
-void ex_hardcopy(exarg_T *eap)
+void ex_hardcopy(exargs_st *eap)
 {
     linenum_kt lnum;
     int collated_copies, uncollated_copies;

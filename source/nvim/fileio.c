@@ -261,7 +261,7 @@ int readfile(uchar_kt *fname,
              linenum_kt from,
              linenum_kt lines_to_skip,
              linenum_kt lines_to_read,
-             exarg_T *eap,
+             exargs_st *eap,
              int flags)
 {
     int fd = 0;
@@ -2616,7 +2616,7 @@ static linenum_kt readfile_linenr(linenum_kt linecnt, uchar_kt *p, uchar_kt *end
 
 /// Fill "*eap" to force the 'fileencoding', 'fileformat' and 'binary to be
 /// equal to the buffer "buf".  Used for calling readfile().
-void prep_exarg(exarg_T *eap, fbuf_st *buf)
+void prep_exarg(exargs_st *eap, fbuf_st *buf)
 {
     eap->cmd = xmalloc(STRLEN(buf->b_p_ff) + STRLEN(buf->b_p_fenc) + 15);
     sprintf((char *)eap->cmd, "e ++ff=%s ++enc=%s", buf->b_p_ff, buf->b_p_fenc);
@@ -2629,7 +2629,7 @@ void prep_exarg(exarg_T *eap, fbuf_st *buf)
 }
 
 /// Set default or forced 'fileformat' and 'binary'.
-void set_file_options(int set_options, exarg_T *eap)
+void set_file_options(int set_options, exargs_st *eap)
 {
     // set default 'fileformat'
     if(set_options)
@@ -2654,7 +2654,7 @@ void set_file_options(int set_options, exarg_T *eap)
 }
 
 /// Set forced 'fileencoding'.
-void set_forced_fenc(exarg_T *eap)
+void set_forced_fenc(exargs_st *eap)
 {
     if(eap->force_enc != 0)
     {
@@ -2839,7 +2839,7 @@ int buf_write(fbuf_st *buf,
               uchar_kt *sfname,
               linenum_kt start,
               linenum_kt end,
-              exarg_T *eap,
+              exargs_st *eap,
               int append,
               int forceit,
               int reset_changed,
@@ -6464,7 +6464,7 @@ int buf_check_timestamp(fbuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 /// buf->b_orig_mode may have been reset already.
 void buf_reload(fbuf_st *buf, int orig_mode)
 {
-    exarg_T ea;
+    exargs_st ea;
     apos_st old_cursor;
     linenum_kt old_topline;
     int old_ro = buf->b_p_ro;
@@ -8047,7 +8047,7 @@ int do_doautocmd(uchar_kt *arg, int do_msg, bool *did_something)
 }
 
 /// ":doautoall": execute autocommands for each loaded buffer.
-void ex_doautoall(exarg_T *eap)
+void ex_doautoall(exargs_st *eap)
 {
     int retval;
     auto_cmd_save_st aco;
@@ -8358,7 +8358,7 @@ static bool apply_autocmds_exarg(event_T event,
                                  uchar_kt *fname_io,
                                  bool force,
                                  fbuf_st *buf,
-                                 exarg_T *eap)
+                                 exargs_st *eap)
 {
     return apply_autocmds_group(event,
                                 fname,
@@ -8486,7 +8486,7 @@ static bool apply_autocmds_group(event_T event,
                                  bool force,
                                  int group,
                                  fbuf_st *buf,
-                                 exarg_T *eap)
+                                 exargs_st *eap)
 {
     uchar_kt *sfname = NULL; // short file name
     uchar_kt *tail;

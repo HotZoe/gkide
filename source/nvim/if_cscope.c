@@ -241,7 +241,7 @@ void set_context_in_cscope_cmd(expand_st *xp, const char *arg, cmdidx_T cmdidx)
 ///
 /// @param eap
 /// @param make_split   whether to split window
-static void do_cscope_general(exarg_T *eap, int make_split)
+static void do_cscope_general(exargs_st *eap, int make_split)
 {
     cscmd_T *cmdp;
 
@@ -270,18 +270,18 @@ static void do_cscope_general(exarg_T *eap, int make_split)
     postponed_split_tab = 0;
 }
 
-void do_cscope(exarg_T *eap)
+void do_cscope(exargs_st *eap)
 {
     do_cscope_general(eap, FALSE);
 }
 
 /// same as do_cscope, but splits window, too.
-void do_scscope(exarg_T *eap)
+void do_scscope(exargs_st *eap)
 {
     do_cscope_general(eap, TRUE);
 }
 
-void do_cstag(exarg_T *eap)
+void do_cstag(exargs_st *eap)
 {
     int ret = FALSE;
 
@@ -501,7 +501,7 @@ int cs_connection(int num, uchar_kt *dbpath, uchar_kt *ppath)
 /// (to look for cscope.out) to the cscope connection list
 ///
 /// MAXPATHL 256
-static int cs_add(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_add(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char *fname, *ppath, *flags = NULL;
 
@@ -1110,7 +1110,7 @@ err_closing:
 /// like Nvi, creates a pipe to send to/from query/cscope.
 ///
 /// returns TRUE if we jump to a tag or abort, FALSE if not.
-static int cs_find(exarg_T *eap)
+static int cs_find(exargs_st *eap)
 {
     char *opt, *pat;
 
@@ -1390,7 +1390,7 @@ static int cs_find_common(char *opt,
 }
 
 /// print help
-static int cs_help(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_help(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     cscmd_T *cmdp = cs_cmds;
     (void)MSG_PUTS(_("cscope commands:\n"));
@@ -1531,7 +1531,7 @@ static int cs_insert_filelist(char *fname,
 }
 
 /// find cscope command in command table
-static cscmd_T *cs_lookup_cmd(exarg_T *eap)
+static cscmd_T *cs_lookup_cmd(exargs_st *eap)
 {
     cscmd_T *cmdp;
     char *stok;
@@ -1564,7 +1564,7 @@ static cscmd_T *cs_lookup_cmd(exarg_T *eap)
 }
 
 /// nuke em
-static int cs_kill(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_kill(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char *stok;
     int num;
@@ -2406,7 +2406,7 @@ static void cs_release_csp(size_t i, int freefnpp)
 }
 
 /// calls cs_kill on all cscope connections then reinits
-static int cs_reset(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_reset(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     char **dblist = NULL, **pplist = NULL, **fllist = NULL;
     char buf[25]; // for snprintf " (#%zu)"
@@ -2527,7 +2527,7 @@ static char *cs_resolve_file(size_t i, char *name)
 }
 
 /// show all cscope connections
-static int cs_show(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_show(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if(cs_cnt_connections() == 0)
     {

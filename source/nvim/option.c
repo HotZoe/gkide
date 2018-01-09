@@ -9477,7 +9477,7 @@ int get_fileformat(fbuf_st *buf)
 /// with "p" for "++opt=val" argument.
 ///
 /// @param eap  can be NULL!
-int get_fileformat_force(fbuf_st *buf, exarg_T *eap)
+int get_fileformat_force(fbuf_st *buf, exargs_st *eap)
 {
     int c;
 

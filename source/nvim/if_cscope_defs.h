@@ -29,7 +29,7 @@
 typedef struct
 {
     char *name;
-    int (*func)(exarg_T *eap);
+    int (*func)(exargs_st *eap);
     char *help;
     char *usage;
     /// if supports splitting window

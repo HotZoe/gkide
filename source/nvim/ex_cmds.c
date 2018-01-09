@@ -102,7 +102,7 @@ typedef kvec_t(MatchedLine) MatchedLineVec;
 #endif
 
 /// @b :ascii and ga
-void do_ascii(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     int c;
     int cval;
@@ -231,7 +231,7 @@ void do_ascii(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 }
 
 /// ":left", ":center" and ":right": align text.
-void ex_align(exarg_T *eap)
+void ex_align(exargs_st *eap)
 {
     apos_st save_curpos;
     int len;
@@ -481,7 +481,7 @@ static int sort_compare(const void *s1, const void *s2)
 }
 
 /// ":sort".
-void ex_sort(exarg_T *eap)
+void ex_sort(exargs_st *eap)
 {
     regmatch_st regmatch;
     int len;
@@ -830,7 +830,7 @@ sortend:
 }
 
 /// ":retab".
-void ex_retab(exarg_T *eap)
+void ex_retab(exargs_st *eap)
 {
     linenum_kt lnum;
     int got_tab = FALSE;
@@ -1230,7 +1230,7 @@ void free_prev_shellcmd(void)
 /// Handle the ":!cmd" command.  Also for ":r !cmd" and ":w !cmd"
 /// Bangs in the argument are replaced with the previously entered command.
 /// Remember the argument.
-void do_bang(int addr_count, exarg_T *eap, int forceit, int do_in, int do_out)
+void do_bang(int addr_count, exargs_st *eap, int forceit, int do_in, int do_out)
 {
     uchar_kt *arg = eap->arg; // command
     linenum_kt line1 = eap->line1; // start of range
@@ -1402,7 +1402,7 @@ void do_bang(int addr_count, exarg_T *eap, int forceit, int do_in, int do_out)
 ///
 static void do_filter(linenum_kt line1,
                       linenum_kt line2,
-                      exarg_T *eap,
+                      exargs_st *eap,
                       uchar_kt *cmd,
                       int do_in,
                       int do_out)
@@ -2003,7 +2003,7 @@ int rename_buffer(uchar_kt *new_fname)
 }
 
 /// ":file[!] [fname]".
-void ex_file(exarg_T *eap)
+void ex_file(exargs_st *eap)
 {
     // ":0file" removes the file name.
     // Check for illegal uses ":3file", "0file name", etc.
@@ -2030,7 +2030,7 @@ void ex_file(exarg_T *eap)
 }
 
 /// ":update".
-void ex_update(exarg_T *eap)
+void ex_update(exargs_st *eap)
 {
     if(curbufIsChanged())
     {
@@ -2039,7 +2039,7 @@ void ex_update(exarg_T *eap)
 }
 
 /// ":write" and ":saveas".
-void ex_write(exarg_T *eap)
+void ex_write(exargs_st *eap)
 {
     if(eap->usefilter) // input lines to shell command
     {
@@ -2056,7 +2056,7 @@ void ex_write(exarg_T *eap)
 /// - if *eap->arg == NUL write to current file
 ///
 /// @return FAIL for failure, OK otherwise
-int do_write(exarg_T *eap)
+int do_write(exargs_st *eap)
 {
     int other;
     uchar_kt *fname = NULL; // init to shut up gcc
@@ -2275,7 +2275,7 @@ theend:
 /// @param other   writing under other name
 ///
 /// @return OK if it's OK, FAIL if it is not.
-int check_overwrite(exarg_T *eap,
+int check_overwrite(exargs_st *eap,
                     fbuf_st *buf,
                     uchar_kt *fname,
                     uchar_kt *ffname,
@@ -2385,7 +2385,7 @@ int check_overwrite(exarg_T *eap,
 }
 
 /// Handle ":wnext", ":wNext" and ":wprevious" commands.
-void ex_wnext(exarg_T *eap)
+void ex_wnext(exargs_st *eap)
 {
     int i;
 
@@ -2408,7 +2408,7 @@ void ex_wnext(exarg_T *eap)
 }
 
 /// ":wall", ":wqall" and ":xall": Write all changed files (and exit).
-void do_wqall(exarg_T *eap)
+void do_wqall(exargs_st *eap)
 {
     int error = 0;
     int save_forceit = eap->forceit;
@@ -2702,7 +2702,7 @@ theend:
 int do_ecmd(int fnum,
             uchar_kt *ffname,
             uchar_kt *sfname,
-            exarg_T *eap,
+            exargs_st *eap,
             linenum_kt newlnum,
             int flags,
             win_st *oldwin)
@@ -3426,7 +3426,7 @@ static void delbuf_msg(uchar_kt *name)
 static int append_indent = 0;
 
 /// ":insert" and ":append", also used by ":change"
-void ex_append(exarg_T *eap)
+void ex_append(exargs_st *eap)
 {
     uchar_kt *theline;
     int did_undo = FALSE;
@@ -3614,7 +3614,7 @@ void ex_append(exarg_T *eap)
 }
 
 /// ":change"
-void ex_change(exarg_T *eap)
+void ex_change(exargs_st *eap)
 {
     linenum_kt lnum;
 
@@ -3649,7 +3649,7 @@ void ex_change(exarg_T *eap)
     ex_append(eap);
 }
 
-void ex_z(exarg_T *eap)
+void ex_z(exargs_st *eap)
 {
     uchar_kt *x;
     int bigness;
@@ -3897,7 +3897,7 @@ void sub_set_replacement(SubReplacementString sub)
 /// @param[in]  save Save pattern to options, history
 ///
 /// @returns true if :substitute can be replaced with a join command
-static bool sub_joining_lines(exarg_T *eap,
+static bool sub_joining_lines(exargs_st *eap,
                               uchar_kt *pat,
                               uchar_kt *sub,
                               uchar_kt *cmd,
@@ -4114,7 +4114,7 @@ FUNC_ATTR_NONNULL_RET
 /// The usual escapes are supported as described in the regexp docs.
 ///
 /// @return buffer used for 'inccommand' preview
-static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
+static fbuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
 {
     long i = 0;
     regmmatch_st regmatch;
@@ -5325,7 +5325,7 @@ bool do_sub_msg(bool count_only)
 /// and set a mark for each line that (not) matches. Secondly we execute the
 /// command for each line that has a mark. This is required because after
 /// deleting lines we do not know where to search for the next match.
-void ex_global(exarg_T *eap)
+void ex_global(exargs_st *eap)
 {
     linenum_kt lnum; // line number according to old situation
     int ndone = 0;
@@ -5585,7 +5585,7 @@ bool prepare_tagpreview(bool undo_sync)
 }
 
 /// ":help": open a read-only window on a help file
-void ex_help(exarg_T *eap)
+void ex_help(exargs_st *eap)
 {
     uchar_kt *arg;
     uchar_kt *tag;
@@ -6508,13 +6508,13 @@ void fix_help_buffer(void)
 }
 
 /// ":exusage"
-void ex_exusage(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_exusage(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     do_cmdline_cmd("help ex-cmd-index");
 }
 
 /// ":viusage"
-void ex_viusage(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_viusage(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     do_cmdline_cmd("help normal-index");
 }
@@ -6919,7 +6919,7 @@ static void helptags_cb(uchar_kt *fname, void *cookie)
 }
 
 /// @b :helptags
-void ex_helptags(exarg_T *eap)
+void ex_helptags(exargs_st *eap)
 {
     expand_st xpc;
     uchar_kt *dirname;
@@ -6979,7 +6979,7 @@ static sign_T *first_sign = NULL;
 static int next_sign_typenr = 1;
 
 /// @b :helpclose Close one help window
-void ex_helpclose(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_helpclose(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     FOR_ALL_WINDOWS_IN_TAB(win, curtab)
     {
@@ -7039,7 +7039,7 @@ static int sign_cmd_idx(uchar_kt *begin_cmd, uchar_kt *end_cmd)
 }
 
 /// ":sign" command
-void ex_sign(exarg_T *eap)
+void ex_sign(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     uchar_kt *p;
@@ -7858,7 +7858,7 @@ void set_context_in_sign_cmd(expand_st *xp, uchar_kt *arg)
 
 /// Shows the effects of the :substitute command being typed ('inccommand').
 /// If inccommand=split, shows a preview window and later restores the layout.
-static fbuf_st *show_sub(exarg_T *eap,
+static fbuf_st *show_sub(exargs_st *eap,
                        apos_st old_cusr,
                        uchar_kt *pat,
                        uchar_kt *sub,
@@ -8009,7 +8009,7 @@ FUNC_ATTR_NONNULL_ALL
 /// - If 'inccommand' is empty: calls do_sub().
 /// - If 'inccommand' is set: shows a "live" preview
 ///   then removes the changes. from undo history.
-void ex_substitute(exarg_T *eap)
+void ex_substitute(exargs_st *eap)
 {
     bool preview = (curmod & kPreviewCmdMode);
 
@@ -8138,7 +8138,7 @@ uchar_kt *skip_vimgrep_pat(uchar_kt *p, uchar_kt **s, int *flags)
 }
 
 /// List v:oldfiles in a nice way.
-void ex_oldfiles(exarg_T *eap)
+void ex_oldfiles(exargs_st *eap)
 {
     long nr = 0;
     listitem_st *li;

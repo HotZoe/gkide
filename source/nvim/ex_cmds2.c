@@ -522,7 +522,7 @@ static void do_showbacktrace(uchar_kt *cmd)
 
 
 /// ":debug".
-void ex_debug(exarg_T *eap)
+void ex_debug(exargs_st *eap)
 {
     int debug_break_level_save = debug_break_level;
     debug_break_level = 9999;
@@ -546,7 +546,7 @@ static uchar_kt *debug_skipped_name;
 /// executed. Return true and set breakpoint_name for skipped commands that
 /// decide to execute something themselves.
 /// Called from do_one_cmd() before executing a command.
-void dbg_check_breakpoint(exarg_T *eap)
+void dbg_check_breakpoint(exargs_st *eap)
 {
     uchar_kt *p;
     debug_skipped = false;
@@ -599,7 +599,7 @@ void dbg_check_breakpoint(exarg_T *eap)
 /// set.
 ///
 /// @return true when the debug mode is entered this time.
-bool dbg_check_skipped(exarg_T *eap)
+bool dbg_check_skipped(exargs_st *eap)
 {
     int prev_got_int;
 
@@ -763,7 +763,7 @@ static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
 }
 
 /// ":breakadd".
-void ex_breakadd(exarg_T *eap)
+void ex_breakadd(exargs_st *eap)
 {
     struct debuggy *bp;
 
@@ -810,7 +810,7 @@ void ex_breakadd(exarg_T *eap)
 }
 
 /// ":debuggreedy".
-void ex_debuggreedy(exarg_T *eap)
+void ex_debuggreedy(exargs_st *eap)
 {
     if(eap->addr_count == 0 || eap->line2 != 0)
     {
@@ -823,7 +823,7 @@ void ex_debuggreedy(exarg_T *eap)
 }
 
 /// ":breakdel" and ":profdel".
-void ex_breakdel(exarg_T *eap)
+void ex_breakdel(exargs_st *eap)
 {
     int nr;
     int todel = -1;
@@ -925,7 +925,7 @@ void ex_breakdel(exarg_T *eap)
 }
 
 /// ":breaklist".
-void ex_breaklist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_breaklist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     struct debuggy *bp;
 
@@ -1059,7 +1059,7 @@ void dbg_breakpoint(uchar_kt *name, linenum_kt lnum)
 static uchar_kt *profile_fname = NULL;
 
 /// ":profile cmd args"
-void ex_profile(exarg_T *eap)
+void ex_profile(exargs_st *eap)
 {
     int len;
     uchar_kt *e;
@@ -1118,47 +1118,47 @@ void ex_profile(exarg_T *eap)
     }
 }
 
-void ex_python(exarg_T *eap)
+void ex_python(exargs_st *eap)
 {
     script_host_execute("python", eap);
 }
 
-void ex_pyfile(exarg_T *eap)
+void ex_pyfile(exargs_st *eap)
 {
     script_host_execute_file("python", eap);
 }
 
-void ex_pydo(exarg_T *eap)
+void ex_pydo(exargs_st *eap)
 {
     script_host_do_range("python", eap);
 }
 
-void ex_ruby(exarg_T *eap)
+void ex_ruby(exargs_st *eap)
 {
     script_host_execute("ruby", eap);
 }
 
-void ex_rubyfile(exarg_T *eap)
+void ex_rubyfile(exargs_st *eap)
 {
     script_host_execute_file("ruby", eap);
 }
 
-void ex_rubydo(exarg_T *eap)
+void ex_rubydo(exargs_st *eap)
 {
     script_host_do_range("ruby", eap);
 }
 
-void ex_python3(exarg_T *eap)
+void ex_python3(exargs_st *eap)
 {
     script_host_execute("python3", eap);
 }
 
-void ex_py3file(exarg_T *eap)
+void ex_py3file(exargs_st *eap)
 {
     script_host_execute_file("python3", eap);
 }
 
-void ex_pydo3(exarg_T *eap)
+void ex_pydo3(exargs_st *eap)
 {
     script_host_do_range("python3", eap);
 }
@@ -1591,7 +1591,7 @@ bool check_changed(fbuf_st *buf, int flags)
 void dialog_changed(fbuf_st *buf, int checkall)
 {
     int ret;
-    exarg_T ea;
+    exargs_st ea;
     uchar_kt buff[DIALOG_MSG_SIZE];
 
     dialog_msg(buff, _("Save changes to \"%s\"?"),
@@ -2166,7 +2166,7 @@ void check_arg_idx(win_st *win)
 }
 
 /// ":args", ":argslocal" and ":argsglobal".
-void ex_args(exarg_T *eap)
+void ex_args(exargs_st *eap)
 {
     if(eap->cmdidx != CMD_args)
     {
@@ -2237,7 +2237,7 @@ void ex_args(exarg_T *eap)
 }
 
 /// ":previous", ":sprevious", ":Next" and ":sNext".
-void ex_previous(exarg_T *eap)
+void ex_previous(exargs_st *eap)
 {
     // If past the last one already, go to the last one.
     if(curwin->w_arg_idx - (int)eap->line2 >= ARGCOUNT)
@@ -2251,19 +2251,19 @@ void ex_previous(exarg_T *eap)
 }
 
 /// ":rewind", ":first", ":sfirst" and ":srewind".
-void ex_rewind(exarg_T *eap)
+void ex_rewind(exargs_st *eap)
 {
     do_argfile(eap, 0);
 }
 
 /// ":last" and ":slast".
-void ex_last(exarg_T *eap)
+void ex_last(exargs_st *eap)
 {
     do_argfile(eap, ARGCOUNT - 1);
 }
 
 /// ":argument" and ":sargument".
-void ex_argument(exarg_T *eap)
+void ex_argument(exargs_st *eap)
 {
     int i;
 
@@ -2280,7 +2280,7 @@ void ex_argument(exarg_T *eap)
 }
 
 /// Edit file "argn" of the argument lists.
-void do_argfile(exarg_T *eap, int argn)
+void do_argfile(exargs_st *eap, int argn)
 {
     int other;
     uchar_kt *p;
@@ -2368,7 +2368,7 @@ void do_argfile(exarg_T *eap, int argn)
 }
 
 /// ":next", and commands that behave like it.
-void ex_next(exarg_T *eap)
+void ex_next(exargs_st *eap)
 {
     int i;
 
@@ -2399,7 +2399,7 @@ void ex_next(exarg_T *eap)
 }
 
 /// ":argedit"
-void ex_argedit(exarg_T *eap)
+void ex_argedit(exargs_st *eap)
 {
     int fnum;
     int i;
@@ -2435,7 +2435,7 @@ void ex_argedit(exarg_T *eap)
 }
 
 /// ":argadd"
-void ex_argadd(exarg_T *eap)
+void ex_argadd(exargs_st *eap)
 {
     do_arglist(eap->arg,
                AL_ADD,
@@ -2446,7 +2446,7 @@ void ex_argadd(exarg_T *eap)
 }
 
 /// ":argdelete"
-void ex_argdelete(exarg_T *eap)
+void ex_argdelete(exargs_st *eap)
 {
     if(eap->addr_count > 0)
     {
@@ -2507,7 +2507,7 @@ void ex_argdelete(exarg_T *eap)
 
 /// ":argdo", ":windo", ":bufdo", ":tabdo",
 /// ":cdo",   ":ldo",   ":cfdo",  ":lfdo"
-void ex_listdo(exarg_T *eap)
+void ex_listdo(exargs_st *eap)
 {
     int i;
     win_st *wp;
@@ -2848,7 +2848,7 @@ static int alist_add_list(int count, uchar_kt **files, int after)
 
 
 /// ":compiler[!] {name}"
-void ex_compiler(exarg_T *eap)
+void ex_compiler(exargs_st *eap)
 {
     uchar_kt *buf;
     uchar_kt *old_cur_comp = NULL;
@@ -2926,7 +2926,7 @@ void ex_compiler(exarg_T *eap)
 }
 
 /// ":runtime [what] {name}"
-void ex_runtime(exarg_T *eap)
+void ex_runtime(exargs_st *eap)
 {
     uchar_kt *arg = eap->arg;
     uchar_kt *p = skiptowhite(arg);
@@ -3347,7 +3347,7 @@ static bool did_source_packages = false;
 ///
 /// Find plugins in the package directories and source them.
 /// "eap" is NULL when invoked during startup.
-void ex_packloadall(exarg_T *eap)
+void ex_packloadall(exargs_st *eap)
 {
     if(!did_source_packages || (eap != NULL && eap->forceit))
     {
@@ -3371,7 +3371,7 @@ void ex_packloadall(exarg_T *eap)
 }
 
 /// ":packadd[!] {name}"
-void ex_packadd(exarg_T *eap)
+void ex_packadd(exargs_st *eap)
 {
     static const char *plugpat = "pack/*/opt/%s"; // NOLINT
     size_t len = STRLEN(plugpat) + STRLEN(eap->arg);
@@ -3389,18 +3389,18 @@ void ex_packadd(exarg_T *eap)
 }
 
 /// ":options"
-void ex_options(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_options(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     cmd_source((uchar_kt *)SYS_OPTWIN_FILE, NULL);
 }
 
 /// ":source {fname}"
-void ex_source(exarg_T *eap)
+void ex_source(exargs_st *eap)
 {
     cmd_source(eap->arg, eap);
 }
 
-static void cmd_source(uchar_kt *fname, exarg_T *eap)
+static void cmd_source(uchar_kt *fname, exargs_st *eap)
 {
     if(*fname == NUL)
     {
@@ -3825,7 +3825,7 @@ theend:
 
 
 /// ":scriptnames"
-void ex_scriptnames(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_scriptnames(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     for(int i = 1; i <= script_items.ga_len && !got_int; i++)
     {
@@ -4236,7 +4236,7 @@ void script_line_end(void)
 
 /// ":scriptencoding": Set encoding conversion for a sourced script.
 /// Without the multi-byte feature it's simply ignored.
-void ex_scriptencoding(exarg_T *eap)
+void ex_scriptencoding(exargs_st *eap)
 {
     struct source_cookie *sp;
     uchar_kt *name;
@@ -4267,7 +4267,7 @@ void ex_scriptencoding(exarg_T *eap)
 }
 
 /// ":finish": Mark a sourced file as finished.
-void ex_finish(exarg_T *eap)
+void ex_finish(exargs_st *eap)
 {
     if(getline_equal(eap->getline, eap->cookie, getsourceline))
     {
@@ -4282,7 +4282,7 @@ void ex_finish(exarg_T *eap)
 /// Mark a sourced file as finished. Possibly makes the ":finish" pending.
 /// Also called for a pending finish at the ":endtry" or after returning from
 /// an extra do_cmdline().  "reanimate" is used in the latter case.
-void do_finish(exarg_T *eap, int reanimate)
+void do_finish(exargs_st *eap, int reanimate)
 {
     int idx;
 
@@ -4321,7 +4321,7 @@ bool source_finished(LineGetter fgetline, void *cookie)
 }
 
 /// ":checktime [buffer]"
-void ex_checktime(exarg_T *eap)
+void ex_checktime(exargs_st *eap)
 {
     fbuf_st *buf;
     int save_no_check_timestamps = no_check_timestamps;
@@ -4461,7 +4461,7 @@ void set_lang_var(void)
 ///
 /// @param eap
 ///
-void ex_language(exarg_T *eap)
+void ex_language(exargs_st *eap)
 {
     char *loc;
     uchar_kt *p;
@@ -4707,7 +4707,7 @@ uchar_kt *get_locales(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 #endif // FOUND_WORKING_LIBINTL
 
-static void script_host_execute(char *name, exarg_T *eap)
+static void script_host_execute(char *name, exargs_st *eap)
 {
     size_t len;
     char *const script = script_get(eap, &len);
@@ -4727,7 +4727,7 @@ static void script_host_execute(char *name, exarg_T *eap)
     }
 }
 
-static void script_host_execute_file(char *name, exarg_T *eap)
+static void script_host_execute_file(char *name, exargs_st *eap)
 {
     uint8_t buffer[MAXPATHL];
     vim_FullName((char *)eap->arg, (char *)buffer, sizeof(buffer), false);
@@ -4743,7 +4743,7 @@ static void script_host_execute_file(char *name, exarg_T *eap)
     (void)eval_call_provider(name, "execute_file", args);
 }
 
-static void script_host_do_range(char *name, exarg_T *eap)
+static void script_host_do_range(char *name, exargs_st *eap)
 {
     list_st *args = tv_list_alloc();
 
@@ -4758,7 +4758,7 @@ static void script_host_do_range(char *name, exarg_T *eap)
 ///
 /// Opens the first argument in a window.
 /// When there are two or more arguments the argument list is redefined.
-void ex_drop(exarg_T *eap)
+void ex_drop(exargs_st *eap)
 {
     bool split = false;
     fbuf_st *buf;

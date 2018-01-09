@@ -3145,7 +3145,7 @@ void u_sync(int force)
 }
 
 /// ":undolist": List the leafs of the undo tree
-void ex_undolist(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_undolist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     garray_st ga;
     u_header_T *uhp;
@@ -3288,7 +3288,7 @@ static void u_add_time(uchar_kt *buf, size_t buflen, time_t tt)
 }
 
 /// ":undojoin": continue adding to the last entry list
-void ex_undojoin(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_undojoin(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if(curbuf->b_u_newhead == NULL)
     {

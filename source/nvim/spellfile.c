@@ -6292,7 +6292,7 @@ static int put_node(FILE *fd,
 
 /// - ":mkspell [-ascii] outfile  infile ..."
 /// - ":mkspell [-ascii] addfile"
-void ex_mkspell(exarg_T *eap)
+void ex_mkspell(exargs_st *eap)
 {
     int fcount;
     uchar_kt **fnames;
@@ -7057,7 +7057,7 @@ static void spell_message(spellinfo_st *spin, uchar_kt *str)
 /// - ":[count]spellgood  {word}"
 /// - ":[count]spellwrong  {word}"
 /// - ":[count]spellundo  {word}"
-void ex_spell(exarg_T *eap)
+void ex_spell(exargs_st *eap)
 {
     spell_add_word(eap->arg,
                    (int)STRLEN(eap->arg),

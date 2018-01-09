@@ -79,14 +79,14 @@
 #define ADDR_QUICKFIX           7
 #define ADDR_OTHER              99
 
-typedef struct exarg exarg_T;
+typedef struct exargs_s exargs_st;
 
 // behavior for bad character, "++bad=" argument
 #define BAD_REPLACE     '?'  ///< replace it with '?' (default)
 #define BAD_KEEP        -1   ///< leave it
 #define BAD_DROP        -2   ///< erase it
 
-typedef void (*ex_func_T)(exarg_T *eap);
+typedef void (*ex_func_T)(exargs_st *eap);
 
 typedef uchar_kt *(*LineGetter)(int, void *, int);
 
@@ -100,7 +100,7 @@ typedef struct cmdname
 } CommandDefinition;
 
 /// Arguments used for Ex commands.
-struct exarg
+struct exargs_s
 {
     uchar_kt *arg;             ///< argument of the command
     uchar_kt *nextcmd;         ///< next command (NULL if none)

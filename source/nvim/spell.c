@@ -3929,7 +3929,7 @@ static bool check_need_cap(linenum_kt lnum, columnum_kt col)
 
 
 /// ":spellrepall"
-void ex_spellrepall(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     apos_st pos = curwin->w_cursor;
     uchar_kt *frompat;
@@ -9539,7 +9539,7 @@ pop:
 }
 
 /// ":spellinfo"
-void ex_spellinfo(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_spellinfo(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if(no_spell_checking(curwin))
     {
@@ -9573,7 +9573,7 @@ void ex_spellinfo(exarg_T *FUNC_ARGS_UNUSED_REALY(eap))
 #define DUMPFLAG_ALLCAP     16  ///< pattern is all capitals
 
 /// ":spelldump"
-void ex_spelldump(exarg_T *eap)
+void ex_spelldump(exargs_st *eap)
 {
     uchar_kt *spl;
     long dummy;

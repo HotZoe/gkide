@@ -5,7 +5,7 @@
 
 #include "nvim/hashtab.h" // For hashtable_st
 #include "nvim/buffer_defs.h"
-#include "nvim/ex_cmds_defs.h" // For exarg_T
+#include "nvim/ex_cmds_defs.h" // For exargs_st
 #include "nvim/eval/typval.h"
 #include "nvim/profile.h"
 #include "nvim/garray.h"

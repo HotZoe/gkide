@@ -90,7 +90,7 @@ static int buf_free_count = 0;
 /// @param flags       extra flags for readfile()
 ///
 /// @return return `FAIL` for failure, `OK` otherwise.
-int open_buffer(int read_stdin, exarg_T *eap, int flags)
+int open_buffer(int read_stdin, exargs_st *eap, int flags)
 {
     int retval = OK;
     bufref_st old_curbuf;
@@ -878,7 +878,7 @@ static void clear_wininfo(fbuf_st *buf)
 }
 
 /// Go to another buffer.  Handles the result of the ATTENTION dialog.
-void goto_buffer(exarg_T *eap, int start, int dir, int count)
+void goto_buffer(exargs_st *eap, int start, int dir, int count)
 {
     bufref_st old_curbuf;
     set_bufref(&old_curbuf, curbuf);
@@ -3007,7 +3007,7 @@ linenum_kt buflist_findlnum(fbuf_st *buf)
 }
 
 /// List all known file names (for :files and :buffers command).
-void buflist_list(exarg_T *eap)
+void buflist_list(exargs_st *eap)
 {
     fbuf_st *buf;
     int len;
@@ -5810,7 +5810,7 @@ void do_arg_all(int count, int forceit, int keep_tabs)
 }
 
 /// Open a window for a number of buffers.
-void ex_buffer_all(exarg_T *eap)
+void ex_buffer_all(exargs_st *eap)
 {
     fbuf_st *buf;
     win_st *wp;
@@ -6963,7 +6963,7 @@ bool buf_contents_changed(fbuf_st *buf) FUNC_ATTR_NONNULL_ALL
     }
 
     // Force the 'fileencoding' and 'fileformat' to be equal.
-    exarg_T ea;
+    exargs_st ea;
     prep_exarg(&ea, buf);
 
     // set curwin/curbuf to buf and save a few things
