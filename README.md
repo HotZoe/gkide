@@ -5,8 +5,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/gkide/gkide/badge.svg)](https://coveralls.io/github/gkide/gkide)
 [![Stories in Ready](https://badge.waffle.io/gkide/gkide.svg?label=ready&title=Ready)](http://waffle.io/gkide/gkide)
 
-
-GKIDE is an elegant code editor/browser of the natural vim way..
+GKIDE is an elegant code editor/browser of the natural vim way, just as IDE.
 
 # What is GKIDE exactly?
 
