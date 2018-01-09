@@ -267,7 +267,7 @@ int ml_open(fbuf_st *buf)
 
     // Open the memfile. No swap file is created yet.
     blk_hdr_st *hp = NULL;
-    memfile_T *mfp = mf_open(NULL, 0);
+    memfile_st *mfp = mf_open(NULL, 0);
 
     if(mfp == NULL)
     {
@@ -385,7 +385,7 @@ error:
 void ml_setname(fbuf_st *buf)
 {
     int success = FALSE;
-    memfile_T *mfp;
+    memfile_st *mfp;
     uchar_kt *fname;
     uchar_kt *dirp;
     mfp = buf->b_ml.ml_mfp;
@@ -497,7 +497,7 @@ void ml_open_files(void)
 /// and the memfile will be in memory only (no recovery possible).
 void ml_open_file(fbuf_st *buf)
 {
-    memfile_T *mfp;
+    memfile_st *mfp;
     uchar_kt *fname;
     uchar_kt *dirp;
     mfp = buf->b_ml.ml_mfp;
@@ -680,7 +680,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Update the timestamp or the B0_SAME_DIR flag of the .swp file.
 static void ml_upd_block0(fbuf_st *buf, upd_block0_T what)
 {
-    memfile_T *mfp;
+    memfile_st *mfp;
     blk_hdr_st *hp;
     ZERO_BL *b0p;
 
@@ -817,7 +817,7 @@ static void add_b0_fenc(ZERO_BL *b0p, fbuf_st *buf)
 void ml_recover(void)
 {
     fbuf_st *buf = NULL;
-    memfile_T *mfp = NULL;
+    memfile_st *mfp = NULL;
     uchar_kt *fname;
     uchar_kt *fname_used = NULL;
     blk_hdr_st *hp = NULL;
@@ -2004,7 +2004,7 @@ void ml_preserve(fbuf_st *buf, int message)
 {
     blk_hdr_st *hp;
     linenum_kt lnum;
-    memfile_T *mfp = buf->b_ml.ml_mfp;
+    memfile_st *mfp = buf->b_ml.ml_mfp;
     int status;
     int got_int_save = got_int;
 
@@ -2288,7 +2288,7 @@ static int ml_append_int(fbuf_st *buf,
     int db_idx; // index for lnum in data block
 
     blk_hdr_st *hp;
-    memfile_T *mfp;
+    memfile_st *mfp;
     DATA_BL *dp;
     PTR_BL *pp;
     infoptr_T *ip;
@@ -2876,7 +2876,7 @@ int ml_delete(linenum_kt lnum, int message)
 static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
 {
     blk_hdr_st *hp;
-    memfile_T *mfp;
+    memfile_st *mfp;
     DATA_BL *dp;
     PTR_BL *pp;
     infoptr_T *ip;
@@ -3277,7 +3277,7 @@ static void ml_flush_line(fbuf_st *buf)
 }
 
 /// create a new, empty, data block
-static blk_hdr_st *ml_new_data(memfile_T *mfp, int negative, int page_count)
+static blk_hdr_st *ml_new_data(memfile_st *mfp, int negative, int page_count)
 {
     assert(page_count >= 0);
 
@@ -3293,7 +3293,7 @@ static blk_hdr_st *ml_new_data(memfile_T *mfp, int negative, int page_count)
 }
 
 /// create a new, empty, pointer block
-static blk_hdr_st *ml_new_ptr(memfile_T *mfp)
+static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
 {
     blk_hdr_st *hp = mf_new(mfp, false, 1);
     PTR_BL *pp = hp->bh_data;
@@ -3328,7 +3328,7 @@ static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
     PTR_BL *pp;
     infoptr_T *ip;
     blk_hdr_st *hp;
-    memfile_T *mfp;
+    memfile_st *mfp;
     linenum_kt t;
     blknum_kt bnum, bnum2;
     int dirty;
@@ -3578,7 +3578,7 @@ static void ml_lineadd(fbuf_st *buf, int count)
     int idx;
     infoptr_T *ip;
     PTR_BL *pp;
-    memfile_T *mfp = buf->b_ml.ml_mfp;
+    memfile_st *mfp = buf->b_ml.ml_mfp;
     blk_hdr_st *hp;
 
     for(idx = buf->b_ml.ml_stack_top - 1; idx >= 0; --idx)

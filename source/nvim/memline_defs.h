@@ -32,7 +32,7 @@ typedef struct memline
 {
     linenum_kt ml_line_count;     ///< number of lines in the buffer
 
-    memfile_T *ml_mfp;          ///< pointer to associated memfile
+    memfile_st *ml_mfp;          ///< pointer to associated memfile
 
     #define ML_EMPTY        1   ///< empty buffer
     #define ML_LINE_DIRTY   2   ///< cached line was changed and allocated

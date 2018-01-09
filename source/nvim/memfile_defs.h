@@ -132,6 +132,6 @@ typedef struct memfile_s
     blknum_kt mf_infile_count;   ///< number of pages in the file
     unsigned mf_page_size;       ///< number of bytes in a page
     bool mf_dirty;               ///< TRUE if there are dirty blocks
-} memfile_T;
+} memfile_st;
 
 #endif // NVIM_MEMFILE_DEFS_H
