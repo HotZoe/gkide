@@ -4093,7 +4093,7 @@ uchar_kt *get_user_var_name(expand_T *xp, int idx)
 static int pattern_match(uchar_kt *pat, uchar_kt *text, int ic)
 {
     int matches = 0;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
 
     // avoid 'l' flag in 'cpoptions'
     uchar_kt *save_cpo = p_cpo;
@@ -15905,7 +15905,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
     uchar_kt *str = NULL;
     long len = 0;
     uchar_kt *expr = NULL;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     uchar_kt *save_cpo;
     long start = 0;
     long nth = 1;
@@ -20376,7 +20376,7 @@ static void f_split(typval_st *argvars,
                     typval_st *rettv,
                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     uchar_kt *save_cpo;
     int match;
     columnum_kt col = 0;
@@ -25556,7 +25556,7 @@ void ex_function(exarg_T *eap)
 
         if(!eap->skip)
         {
-            regmatch_T regmatch;
+            regmatch_st regmatch;
             c = *p;
             *p = NUL;
             regmatch.regprog = vim_regcomp(eap->arg + 1, RE_MAGIC);
@@ -29015,7 +29015,7 @@ uchar_kt *do_string_sub(uchar_kt *str,
                       uchar_kt *flags)
 {
     int sublen;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     int do_all;
     uchar_kt *tail;
     uchar_kt *end;

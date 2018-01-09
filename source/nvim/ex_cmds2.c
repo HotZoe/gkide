@@ -2012,7 +2012,7 @@ static int do_arglist(uchar_kt *str, int what, int after)
 
     if(what == AL_DEL)
     {
-        regmatch_T regmatch;
+        regmatch_st regmatch;
         bool didone;
 
         // Delete the items:

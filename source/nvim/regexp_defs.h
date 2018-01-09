@@ -105,7 +105,7 @@ typedef struct
     uchar_kt *startp[NSUBEXP];
     uchar_kt *endp[NSUBEXP];
     bool rm_ic;
-} regmatch_T;
+} regmatch_st;
 
 /// Structure to be used for multi-line matching.
 /// Sub-match "no" starts in line "startpos[no].lnum"
@@ -135,7 +135,7 @@ struct regengine
 {
     regprog_st *(*regcomp)(uchar_kt *, int);
     void (*regfree)(regprog_st *);
-    int (*regexec_nl)(regmatch_T *, uchar_kt *, columnum_kt, bool);
+    int (*regexec_nl)(regmatch_st *, uchar_kt *, columnum_kt, bool);
 
     long (*regexec_multi)(regmmatch_T *,
                           win_st *,

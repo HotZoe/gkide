@@ -183,7 +183,7 @@ typedef struct
     bool lockmarks;              ///< true when ":lockmarks" was used
     bool noswapfile;             ///< true when ":noswapfile" was used
     uchar_kt *save_ei;             ///< saved value of 'eventignore'
-    regmatch_T filter_regmatch;  ///< set by :filter /pat/
+    regmatch_st filter_regmatch;  ///< set by :filter /pat/
     bool filter_force;           ///< set for :filter!
 } cmdmod_T;
 

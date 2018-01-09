@@ -6299,7 +6299,7 @@ static int get_id_list(uchar_kt **arg, int keylen, short **list)
     int total_count = 0;
     short *retval = NULL;
     uchar_kt *name;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     int id;
     int failed = FALSE;
 

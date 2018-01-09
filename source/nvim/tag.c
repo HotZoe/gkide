@@ -68,7 +68,7 @@ typedef struct
     int len;              ///< length of pat[]
     uchar_kt *head;       ///< start of pattern head
     int headlen;          ///< length of head[]
-    regmatch_T regmatch;  ///< regexp program, may be NULL
+    regmatch_st regmatch;  ///< regexp program, may be NULL
 } pat_T;
 
 // The matching tags are first stored in one of the hash tables.

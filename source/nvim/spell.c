@@ -529,7 +529,7 @@ size_t spell_check(win_st *wp,
             // skip over the character (try looking for a word after it).
             if(capcol != NULL && wp->w_s->b_cap_prog != NULL)
             {
-                regmatch_T regmatch;
+                regmatch_st regmatch;
                 // Check for end of sentence.
                 regmatch.regprog = wp->w_s->b_cap_prog;
                 regmatch.rm_ic = false;
@@ -3855,7 +3855,7 @@ static bool check_need_cap(linenum_kt lnum, columnum_kt col)
     uchar_kt *line_copy = NULL;
     uchar_kt *p;
     columnum_kt endcol;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
 
     if(curwin->w_s->b_cap_prog == NULL)
     {

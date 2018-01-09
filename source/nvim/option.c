@@ -8361,7 +8361,7 @@ void set_context_in_set_cmd(expand_T *xp, uchar_kt *arg, int opt_flags)
 }
 
 int ExpandSettings(expand_T *xp,
-                   regmatch_T *regmatch,
+                   regmatch_st *regmatch,
                    int *num_file,
                    uchar_kt ***file)
 {

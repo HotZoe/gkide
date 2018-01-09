@@ -483,7 +483,7 @@ static int sort_compare(const void *s1, const void *s2)
 /// ":sort".
 void ex_sort(exarg_T *eap)
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     int len;
     linenum_kt lnum;
     long maxlen = 0;

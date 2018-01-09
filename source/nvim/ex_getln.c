@@ -4855,7 +4855,7 @@ static int ExpandFromContext(expand_T *xp,
                              uchar_kt ***file,
                              int options)
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     int ret;
     int flags;
     flags = EW_DIR; // include directories
@@ -5138,7 +5138,7 @@ static int ExpandFromContext(expand_T *xp,
 /// @param escaped
 ///
 void ExpandGeneric(expand_T *xp,
-                   regmatch_T *regmatch,
+                   regmatch_st *regmatch,
                    int *num_file,
                    uchar_kt ***file,
                    CompleteListItemGetter func,
@@ -5461,7 +5461,7 @@ static void *call_user_expand_func(user_expand_func_T user_expand_func,
 
 /// Expand names with a function defined by the user.
 static int ExpandUserDefined(expand_T *xp,
-                             regmatch_T *regmatch,
+                             regmatch_st *regmatch,
                              int *num_file,
                              uchar_kt ***file)
 {
@@ -6341,7 +6341,7 @@ int clr_history(const int histype)
 /// "histype" may be one of the HIST_ values.
 int del_history_entry(int histype, uchar_kt *str)
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     histentry_T *hisptr;
     int idx;
     int i;

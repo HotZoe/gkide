@@ -3326,7 +3326,7 @@ static void ins_compl_dictionaries(uchar_kt *dict_start,
     uchar_kt *dict = dict_start;
     uchar_kt *ptr;
     uchar_kt *buf;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     uchar_kt **files;
     int count;
     int save_p_scs;
@@ -3455,7 +3455,7 @@ static void ins_compl_files(int count,
                             uchar_kt **files,
                             int thesaurus,
                             int flags,
-                            regmatch_T *regmatch,
+                            regmatch_st *regmatch,
                             uchar_kt *buf,
                             int *dir)
 {

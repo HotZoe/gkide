@@ -1528,7 +1528,7 @@ void ex_catch(exarg_T *eap)
     uchar_kt *end;
     uchar_kt save_char = 0;
     uchar_kt *save_cpo;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     int prev_got_int;
     struct condstack *cstack = eap->cstack;
     uchar_kt *pat;

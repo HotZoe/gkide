@@ -826,7 +826,7 @@ FUNC_ATTR_NONNULL_ALL
     }
 
     // compile the regexp into a program
-    regmatch_T regmatch;
+    regmatch_st regmatch;
 
 #if defined(UNIX)
     // Ignore case if given 'wildignorecase', else respect 'fileignorecase'.
@@ -1138,7 +1138,7 @@ static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
 {
     uchar_kt **fnames = (uchar_kt **)gap->ga_data;
     bool sort_again = false;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     garray_st path_ga;
     uchar_kt **in_curdir = NULL;
     uchar_kt *short_name;

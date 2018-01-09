@@ -858,7 +858,7 @@ static int qf_parse_line(qf_info_T *qi,
     int i;
     int idx = 0;
     uchar_kt *tail = NULL;
-    regmatch_T regmatch;
+    regmatch_st regmatch;
 
     // Always ignore case when looking for a matching error.
     regmatch.rm_ic = true;
@@ -5796,7 +5796,7 @@ void ex_cexpr(exarg_T *eap)
 /// ":helpgrep {pattern}"
 void ex_helpgrep(exarg_T *eap)
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     uchar_kt *save_cpo;
     uchar_kt *p;
     int fcount;

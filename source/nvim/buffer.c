@@ -2519,7 +2519,7 @@ int buflist_findpat(const uchar_kt *pattern,
                     ++p; // add/remove '^'
                 }
 
-                regmatch_T regmatch;
+                regmatch_st regmatch;
                 regmatch.regprog = vim_regcomp(p, p_magic ? RE_MAGIC : 0);
 
                 if(regmatch.regprog == NULL)
@@ -2631,7 +2631,7 @@ int ExpandBufnames(uchar_kt *pat, int *num_file, uchar_kt ***file, int options)
             break; // there was no anchor, no need to try again
         }
 
-        regmatch_T regmatch;
+        regmatch_st regmatch;
         regmatch.regprog = vim_regcomp(patc + attempt * 11, RE_MAGIC);
 
         if(regmatch.regprog == NULL)
@@ -2712,7 +2712,7 @@ int ExpandBufnames(uchar_kt *pat, int *num_file, uchar_kt ***file, int options)
 /// Check for a match on the file name for buffer "buf" with regprog "prog".
 ///
 /// @param ignore_case When TRUE, ignore case. Use 'fic' otherwise.
-static uchar_kt *buflist_match(regmatch_T *rmp, fbuf_st *buf, bool ignore_case)
+static uchar_kt *buflist_match(regmatch_st *rmp, fbuf_st *buf, bool ignore_case)
 {
     // First try the short file name, then the long file name.
     uchar_kt *match = fname_match(rmp, buf->b_sfname, ignore_case);
@@ -2729,7 +2729,7 @@ static uchar_kt *buflist_match(regmatch_T *rmp, fbuf_st *buf, bool ignore_case)
 ///
 /// @param ignore_case When TRUE, ignore case. Use 'fileignorecase' otherwise.
 /// @return "name" when there is a match, NULL when not.
-static uchar_kt *fname_match(regmatch_T *rmp,
+static uchar_kt *fname_match(regmatch_st *rmp,
                              uchar_kt *name,
                              bool ignore_case)
 {

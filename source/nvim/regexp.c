@@ -4558,7 +4558,7 @@ static unsigned reg_tofreelen;
 // Which ones are set depends on whether a single-line or multi-line match is
 // done:
 //                  single-line         multi-line
-// reg_match        &regmatch_T         NULL
+// reg_match        &regmatch_st         NULL
 // reg_mmatch       NULL                &regmmatch_T
 // reg_startp       reg_match->startp   <invalid>
 // reg_endp         reg_match->endp     <invalid>
@@ -4570,7 +4570,7 @@ static unsigned reg_tofreelen;
 // reg_maxline      0                   last line nr
 // reg_line_lbr     FALSE or TRUE       FALSE
 
-static regmatch_T *reg_match;
+static regmatch_st *reg_match;
 static regmmatch_T *reg_mmatch;
 static uchar_kt **reg_startp = NULL;
 static uchar_kt **reg_endp = NULL;
@@ -4653,7 +4653,7 @@ static bpos_st reg_endzpos[NSUBEXP];     ///< idem, end pos
 ///
 /// @return
 /// 0 for failure, number of lines contained in the match otherwise.
-static int bt_regexec_nl(regmatch_T *rmp,
+static int bt_regexec_nl(regmatch_st *rmp,
                          uchar_kt *line,
                          columnum_kt col,
                          bool line_lbr)
@@ -9040,7 +9040,7 @@ static int can_f_submatch = FALSE;
 // reg_mmatch for reg_submatch(). Needed for when the
 // substitution string is an expression that contains
 // a call to substitute() and submatch().
-static regmatch_T *submatch_match;
+static regmatch_st *submatch_match;
 static regmmatch_T *submatch_mmatch;
 static linenum_kt submatch_firstlnum;
 static linenum_kt submatch_maxline;
@@ -9115,7 +9115,7 @@ static void clear_submatch_list(staticList10_T *sl)
 ///
 /// @return
 /// the size of the replacement, including terminating NUL.
-int vim_regsub(regmatch_T *rmp,
+int vim_regsub(regmatch_st *rmp,
                uchar_kt *source,
                typval_st *expr,
                uchar_kt *dest,
@@ -18789,7 +18789,7 @@ static void nfa_regfree(regprog_st *prog)
 ///
 /// @return
 /// <= 0 for failure, number of lines contained in the match otherwise.
-static int nfa_regexec_nl(regmatch_T *rmp,
+static int nfa_regexec_nl(regmatch_st *rmp,
                           uchar_kt *line,
                           columnum_kt col,
                           bool line_lbr)
@@ -19014,7 +19014,7 @@ static void report_re_switch(uchar_kt *pat)
 /// @param nl
 ///
 /// @return TRUE if there is a match, FALSE if not.
-static int vim_regexec_both(regmatch_T *rmp,
+static int vim_regexec_both(regmatch_st *rmp,
                             uchar_kt *line,
                             columnum_kt col, bool nl)
 {
@@ -19057,7 +19057,7 @@ int vim_regexec_prog(regprog_st **prog,
                      uchar_kt *line,
                      columnum_kt col)
 {
-    regmatch_T regmatch = { .regprog = *prog, .rm_ic = ignore_case };
+    regmatch_st regmatch = { .regprog = *prog, .rm_ic = ignore_case };
     int r = vim_regexec_both(&regmatch, line, col, false);
 
     *prog = regmatch.regprog;
@@ -19070,7 +19070,7 @@ int vim_regexec_prog(regprog_st **prog,
 ///
 /// @note
 /// "rmp->regprog" may be freed and changed.
-int vim_regexec(regmatch_T *rmp, uchar_kt *line, columnum_kt col)
+int vim_regexec(regmatch_st *rmp, uchar_kt *line, columnum_kt col)
 {
     return vim_regexec_both(rmp, line, col, false);
 }
@@ -19082,7 +19082,7 @@ int vim_regexec(regmatch_T *rmp, uchar_kt *line, columnum_kt col)
 ///
 /// @note
 /// "rmp->regprog" may be freed and changed.
-int vim_regexec_nl(regmatch_T *rmp, uchar_kt *line, columnum_kt col)
+int vim_regexec_nl(regmatch_st *rmp, uchar_kt *line, columnum_kt col)
 {
     return vim_regexec_both(rmp, line, col, true);
 }

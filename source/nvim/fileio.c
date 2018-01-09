@@ -9393,7 +9393,7 @@ static bool match_file_pat(uchar_kt *pattern,
                            uchar_kt *tail,
                            int allow_dirs)
 {
-    regmatch_T regmatch;
+    regmatch_st regmatch;
     bool result = false;
     regmatch.rm_ic = p_fic; // ignore case if 'fileignorecase' is set
     {

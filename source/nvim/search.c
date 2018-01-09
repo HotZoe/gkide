@@ -5547,9 +5547,9 @@ void find_pattern_in_path(uchar_kt *ptr,
     uchar_kt *p;
     uchar_kt save_char;
     int define_matched;
-    regmatch_T regmatch;
-    regmatch_T incl_regmatch;
-    regmatch_T def_regmatch;
+    regmatch_st regmatch;
+    regmatch_st incl_regmatch;
+    regmatch_st def_regmatch;
     int matched = FALSE;
     int did_show = FALSE;
     int found = FALSE;

@@ -4135,7 +4135,7 @@ uchar_kt *set_context_in_map_cmd(expand_T *xp,
 /// Find all mapping/abbreviation names that match regexp 'prog'.
 /// For command line expansion of ":[un]map" and ":[un]abbrev" in all modes.
 /// Return OK if matches found, FAIL otherwise.
-int ExpandMappings(regmatch_T *regmatch, int *num_file, uchar_kt ***file)
+int ExpandMappings(regmatch_st *regmatch, int *num_file, uchar_kt ***file)
 {
     mapblock_T *mp;
     int hash;
