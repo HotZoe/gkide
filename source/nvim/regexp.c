@@ -373,7 +373,7 @@ typedef struct
     int a;
     int b;
     int c;
-} decomp_T;
+} decomp_st;
 
 /// Since the out pointers in the list are always
 /// uninitialized, we use the pointers themselves
@@ -8720,7 +8720,7 @@ static uchar_kt *regprop(uchar_kt *op)
 #endif // REGEXP_DEBUG
 
 /// 0xfb20 - 0xfb4f
-static decomp_T decomp_table[0xfb4f-0xfb20+1] =
+static decomp_st decomp_table[0xfb4f-0xfb20+1] =
 {
     {0x5e2,  0,     0},        ///< 0xfb20 alt ayin
     {0x5d0,  0,     0},        ///< 0xfb21 alt alef
@@ -8774,7 +8774,7 @@ static decomp_T decomp_table[0xfb4f-0xfb20+1] =
 
 static void mb_decompose(int c, int *c1, int *c2, int *c3)
 {
-    decomp_T d;
+    decomp_st d;
 
     if(c >= 0xfb20 && c <= 0xfb4f)
     {
