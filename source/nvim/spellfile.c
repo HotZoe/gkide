@@ -309,9 +309,9 @@ static char *msg_compressing = N_("Compressing word tree...");
 #define MAXLINELEN   500
 
 /// Main structure to store the contents of a ".aff" file.
-typedef struct afffile_S
+typedef struct afffile_s
 {
-    uchar_kt *af_enc;          ///< "SET", normalized, alloc'ed string or NULL
+    uchar_kt *af_enc;        ///< "SET", normalized, alloc'ed string or NULL
     int af_flagtype;         ///< AFT_CHAR, AFT_LONG, AFT_NUM or AFT_CAPLONG
     unsigned af_rare;        ///< RARE ID for rare word
     unsigned af_keepcase;    ///< KEEPCASE ID for keep-case word
@@ -326,10 +326,10 @@ typedef struct afffile_S
     int af_pfxpostpone;      ///< postpone prefixes without chop string and
                              ///< without flags
     bool af_ignoreextra;     ///< IGNOREEXTRA present
-    hashtable_st af_pref;       ///< hashtable for prefixes, affix_header_st
-    hashtable_st af_suff;       ///< hashtable for suffixes, affix_header_st
-    hashtable_st af_comp;       ///< hashtable for compound flags, compitem_st
-} afffile_T;
+    hashtable_st af_pref;    ///< hashtable for prefixes, affix_header_st
+    hashtable_st af_suff;    ///< hashtable for suffixes, affix_header_st
+    hashtable_st af_comp;    ///< hashtable for compound flags, compitem_st
+} afffile_st;
 
 #define AFT_CHAR       0    ///< flags are one character
 #define AFT_LONG       1    ///< flags are two characters
@@ -2515,11 +2515,11 @@ static void spell_print_tree(wordnode_st *root)
 
 /// Reads the affix file @b fname.
 ///
-/// @return an afffile_T, NULL for complete failure.
-static afffile_T *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
+/// @return an afffile_st, NULL for complete failure.
+static afffile_st *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
 {
     FILE *fd;
-    afffile_T *aff;
+    afffile_st *aff;
     uchar_kt rline[MAXLINELEN];
     uchar_kt *line;
     uchar_kt  *pc = NULL;
@@ -2578,8 +2578,8 @@ static afffile_T *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
     // Only do MAP lines when not done in another .aff file already.
     do_mapline = GA_EMPTY(&spin->si_map);
 
-    // Allocate and init the afffile_T structure.
-    aff = (afffile_T *)getroom(spin, sizeof(afffile_T), true);
+    // Allocate and init the afffile_st structure.
+    aff = (afffile_st *)getroom(spin, sizeof(afffile_st), true);
 
     if(aff == NULL)
     {
@@ -3643,7 +3643,7 @@ static bool is_aff_rule(uchar_kt **items,
 
 /// For affix "entry" move COMPOUNDFORBIDFLAG and COMPOUNDPERMITFLAG from
 /// ae_flags to ae_comppermit and ae_compforbid.
-static void aff_process_flags(afffile_T *affile, affix_entry_st *entry)
+static void aff_process_flags(afffile_st *affile, affix_entry_st *entry)
 {
     uchar_kt *p;
     uchar_kt *prevp;
@@ -3769,7 +3769,7 @@ static unsigned get_affitem(int flagtype, uchar_kt **pp)
 /// The processing involves changing the affix names to ID numbers, so that
 /// they fit in one byte.
 static void process_compflags(spellinfo_st *spin,
-                              afffile_T *aff,
+                              afffile_st *aff,
                               uchar_kt *compflags)
 {
     uchar_kt *p;
@@ -3987,7 +3987,7 @@ static bool sal_to_bool(uchar_kt *s)
 }
 
 /// Free the structure filled by spell_read_aff().
-static void spell_free_aff(afffile_T *aff)
+static void spell_free_aff(afffile_st *aff)
 {
     int todo;
     hashtable_st *ht;
@@ -4031,7 +4031,7 @@ static void spell_free_aff(afffile_T *aff)
 /// @return OK or FAIL;
 static int spell_read_dic(spellinfo_st *spin,
                           uchar_kt *fname,
-                          afffile_T *affile)
+                          afffile_st *affile)
 {
     hashtable_st ht;
     uchar_kt line[MAXLINELEN];
@@ -4302,7 +4302,7 @@ static int spell_read_dic(spellinfo_st *spin,
 /// Check for affix flags in "afflist" that are turned into word flags.
 ///
 /// @return WF_* flags.
-static int get_affix_flags(afffile_T *affile, uchar_kt *afflist)
+static int get_affix_flags(afffile_st *affile, uchar_kt *afflist)
 {
     int flags = 0;
 
@@ -4349,7 +4349,7 @@ static int get_affix_flags(afffile_T *affile, uchar_kt *afflist)
 /// Used for PFXPOSTPONE.
 /// Put the resulting flags in "store_afflist[MAXWLEN]" with a terminating NUL
 /// and return the number of affixes.
-static int get_pfxlist(afffile_T *affile,
+static int get_pfxlist(afffile_st *affile,
                        uchar_kt *afflist,
                        uchar_kt *store_afflist)
 {
@@ -4395,7 +4395,7 @@ static int get_pfxlist(afffile_T *affile,
 /// Get the list of compound IDs from the affix list "afflist"
 /// that are used for compound words.
 /// Puts the flags in "store_afflist[]".
-static void get_compflags(afffile_T *affile,
+static void get_compflags(afffile_st *affile,
                           uchar_kt *afflist,
                           uchar_kt *store_afflist)
 {
@@ -4452,7 +4452,7 @@ static void get_compflags(afffile_T *affile,
 static int store_aff_word(spellinfo_st *spin,
                           uchar_kt *word,
                           uchar_kt *afflist,
-                          afffile_T *affile,
+                          afffile_st *affile,
                           hashtable_st *ht,
                           hashtable_st *xht,
                           int condit,
@@ -6767,7 +6767,7 @@ static void mkspell(int fcount,
     uchar_kt *wfname;
     uchar_kt **innames;
     int incount;
-    afffile_T *(afile[8]);
+    afffile_st *(afile[8]);
     int i;
     int len;
     bool error = false;
