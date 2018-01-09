@@ -451,14 +451,14 @@ blk_hdr_st *mf_get(memfile_st *mfp, blknum_kt nr, unsigned page_count)
 /// @param infile  Whether block should be in file (needed for recovery).
 void mf_put(memfile_st *mfp, blk_hdr_st *hp, bool dirty, bool infile)
 {
-    unsigned flags = hp->bh_flags;
+    blkhdr_flg_et flags = hp->bh_flags;
 
     if((flags & kBlkHdrLocked) == 0)
     {
         EMSG(_("E293: block was not locked"));
     }
 
-    flags &= ~kBlkHdrLocked;
+    flags &= ~(unsigned)kBlkHdrLocked;
 
     if(dirty)
     {
@@ -971,7 +971,7 @@ static int mf_write(memfile_st *mfp, blk_hdr_st *hp)
 
         if(hp2 != NULL) // written a non-dummy block
         {
-            hp2->bh_flags &= ~kBlkHdrDirty;
+            hp2->bh_flags &= ~(unsigned)kBlkHdrDirty;
         }
 
         // appended to file
