@@ -376,7 +376,7 @@ blk_hdr_st *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
         }
     }
 
-    hp->bh_flags = BH_LOCKED | BH_DIRTY; // new block is always dirty
+    hp->bh_flags = kBlkHdrLocked | kBlkHdrDirty; // new block is always dirty
     mfp->mf_dirty = true;
     hp->bh_page_count = page_count;
     mf_ins_used(mfp, hp);
@@ -439,7 +439,7 @@ blk_hdr_st *mf_get(memfile_T *mfp, blknum_kt nr, unsigned page_count)
         mf_rem_hash(mfp, hp);
     }
 
-    hp->bh_flags |= BH_LOCKED;
+    hp->bh_flags |= kBlkHdrLocked;
     mf_ins_used(mfp, hp); // put in front of used list
     mf_ins_hash(mfp, hp); // put in front of hash list
     return hp;
@@ -453,16 +453,16 @@ void mf_put(memfile_T *mfp, blk_hdr_st *hp, bool dirty, bool infile)
 {
     unsigned flags = hp->bh_flags;
 
-    if((flags & BH_LOCKED) == 0)
+    if((flags & kBlkHdrLocked) == 0)
     {
         EMSG(_("E293: block was not locked"));
     }
 
-    flags &= ~BH_LOCKED;
+    flags &= ~kBlkHdrLocked;
 
     if(dirty)
     {
-        flags |= BH_DIRTY;
+        flags |= kBlkHdrDirty;
         mfp->mf_dirty = true;
     }
 
@@ -531,7 +531,7 @@ int mf_sync(memfile_T *mfp, int flags)
 
     for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
         if(((flags & MFS_ALL) || hp->bh_bnum >= 0)
-           && (hp->bh_flags & BH_DIRTY)
+           && (hp->bh_flags & kBlkHdrDirty)
            && (status == OK || (hp->bh_bnum >= 0
                                 && hp->bh_bnum < mfp->mf_infile_count)))
         {
@@ -596,7 +596,7 @@ void mf_set_dirty(memfile_T *mfp)
     {
         if(hp->bh_bnum > 0)
         {
-            hp->bh_flags |= BH_DIRTY;
+            hp->bh_flags |= kBlkHdrDirty;
         }
     }
 
@@ -729,7 +729,7 @@ static blk_hdr_st *mf_release(memfile_T *mfp, unsigned page_count)
 
     for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     {
-        if(!(hp->bh_flags & BH_LOCKED))
+        if(!(hp->bh_flags & kBlkHdrLocked))
         {
             break;
         }
@@ -742,7 +742,7 @@ static blk_hdr_st *mf_release(memfile_T *mfp, unsigned page_count)
 
     // If the block is dirty, write it.
     // If the write fails we don't free it.
-    if((hp->bh_flags & BH_DIRTY) && mf_write(mfp, hp) == FAIL)
+    if((hp->bh_flags & kBlkHdrDirty) && mf_write(mfp, hp) == FAIL)
     {
         return NULL;
     }
@@ -788,8 +788,8 @@ bool mf_release_all(void)
             {
                 for(blk_hdr_st *hp = mfp->mf_used_last; hp != NULL;)
                 {
-                    if(!(hp->bh_flags & BH_LOCKED)
-                       && (!(hp->bh_flags & BH_DIRTY)
+                    if(!(hp->bh_flags & kBlkHdrLocked)
+                       && (!(hp->bh_flags & kBlkHdrDirty)
                            || mf_write(mfp, hp) != FAIL))
                     {
                         mf_rem_used(mfp, hp);
@@ -971,7 +971,7 @@ static int mf_write(memfile_T *mfp, blk_hdr_st *hp)
 
         if(hp2 != NULL) // written a non-dummy block
         {
-            hp2->bh_flags &= ~BH_DIRTY;
+            hp2->bh_flags &= ~kBlkHdrDirty;
         }
 
         // appended to file

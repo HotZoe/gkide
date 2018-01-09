@@ -4391,7 +4391,7 @@ void ml_setflags(fbuf_st *buf)
                             | (get_fileformat(buf) + 1);
 
             add_b0_fenc(b0p, buf);
-            hp->bh_flags |= BH_DIRTY;
+            hp->bh_flags |= kBlkHdrDirty;
             mf_sync(buf->b_ml.ml_mfp, MFS_ZERO);
 
             break;

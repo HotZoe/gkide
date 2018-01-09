@@ -59,6 +59,14 @@ typedef struct mf_hashtab_s
     mf_hashitem_st *mht_small_buckets[MHT_INIT_SIZE];
 } mf_hashtab_st;
 
+/// Block header flags, used for blk_hdr_st::bh_flags
+typedef enum blkhdr_flg_e
+{
+    kBlkHdrClean  = 0,
+    kBlkHdrDirty  = 1,
+    kBlkHdrLocked = 2,
+} blkhdr_flg_et;
+
 /// A block header.
 ///
 /// There is a block header for each previously used block in the memfile.
@@ -78,16 +86,14 @@ struct blk_hdr_s
 {
     /// block number, part of bh_hashitem
     #define bh_bnum  bh_hashitem.mhi_key
-    mf_hashitem_st   bh_hashitem; ///< header for hash table and key
+    /// header for hash table and key
+    mf_hashitem_st   bh_hashitem;
 
-    blk_hdr_st *bh_next;      ///< next block header in free or used list
-    blk_hdr_st *bh_prev;      ///< previous block header in used list
-    void *bh_data;            ///< pointer to memory (for used block)
-    unsigned bh_page_count;   ///< number of pages in this block
-
-    #define BH_DIRTY    1U
-    #define BH_LOCKED   2U
-    unsigned bh_flags;        ///< BH_DIRTY or BH_LOCKED
+    blk_hdr_st *bh_next;    ///< next block header in free or used list
+    blk_hdr_st *bh_prev;    ///< previous block header in used list
+    void *bh_data;          ///< pointer to memory (for used block)
+    unsigned bh_page_count; ///< number of pages in this block
+    blkhdr_flg_et bh_flags; ///< kBlkHdrClean, kBlkHdrDirty, kBlkHdrLocked
 };
 
 /// A block number translation list item.
@@ -98,10 +104,13 @@ struct blk_hdr_s
 /// double linked trans lists. The structure is the same as the hash lists.
 typedef struct mf_blocknr_trans_item
 {
-    #define nt_old_bnum nt_hashitem.mhi_key  ///< old, negative, number
-    mf_hashitem_st       nt_hashitem; ///< header for hash table and key
+    /// old, negative, number
+    #define nt_old_bnum nt_hashitem.mhi_key
+    /// header for hash table and key
+    mf_hashitem_st      nt_hashitem;
 
-    blknum_kt nt_new_bnum; ///< new, positive, number
+    /// new, positive, number
+    blknum_kt nt_new_bnum;
 } mf_blocknr_trans_item_T;
 
 /// A memory file.
