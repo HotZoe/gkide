@@ -41,7 +41,7 @@ struct mf_hashitem_s
 /// This is an intrusive data structure: we require that items begin with
 /// mf_hashitem_st which contains the key and linked list pointers.
 /// List of items in each bucket is doubly-linked.
-typedef struct mf_hashtab
+typedef struct mf_hashtab_s
 {
     /// mask used to mod hash value to array index
     /// (nr of items in array is 'mht_mask + 1')
@@ -55,8 +55,9 @@ typedef struct mf_hashtab
     /// when mht_small_buckets becomes too small)
     mf_hashitem_st **mht_buckets;
 
-    mf_hashitem_st *mht_small_buckets[MHT_INIT_SIZE]; ///< initial buckets
-} mf_hashtab_T;
+    /// the initial buckets
+    mf_hashitem_st *mht_small_buckets[MHT_INIT_SIZE];
+} mf_hashtab_st;
 
 /// A block header.
 ///
@@ -77,16 +78,16 @@ struct blk_hdr_s
 {
     /// block number, part of bh_hashitem
     #define bh_bnum  bh_hashitem.mhi_key
-    mf_hashitem_st    bh_hashitem; ///< header for hash table and key
+    mf_hashitem_st   bh_hashitem; ///< header for hash table and key
 
     blk_hdr_st *bh_next;      ///< next block header in free or used list
     blk_hdr_st *bh_prev;      ///< previous block header in used list
-    void *bh_data;             ///< pointer to memory (for used block)
-    unsigned bh_page_count;    ///< number of pages in this block
+    void *bh_data;            ///< pointer to memory (for used block)
+    unsigned bh_page_count;   ///< number of pages in this block
 
     #define BH_DIRTY    1U
     #define BH_LOCKED   2U
-    unsigned bh_flags;         ///< BH_DIRTY or BH_LOCKED
+    unsigned bh_flags;        ///< BH_DIRTY or BH_LOCKED
 };
 
 /// A block number translation list item.
@@ -114,8 +115,8 @@ typedef struct memfile
     blk_hdr_st *mf_used_last;        ///< lru block header in used list
     unsigned mf_used_count;      ///< number of pages in used list
     unsigned mf_used_count_max;  ///< maximum number of pages in memory
-    mf_hashtab_T mf_hash;        ///< hash lists
-    mf_hashtab_T mf_trans;       ///< trans lists
+    mf_hashtab_st mf_hash;        ///< hash lists
+    mf_hashtab_st mf_trans;       ///< trans lists
     blknum_kt mf_blocknr_max;    ///< highest positive block number + 1
     blknum_kt mf_blocknr_min;    ///< lowest negative block number - 1
     blknum_kt mf_neg_count;      ///< number of negative blocks numbers

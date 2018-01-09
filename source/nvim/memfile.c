@@ -1155,7 +1155,7 @@ static bool mf_do_open(memfile_T *mfp, uchar_kt *fname, int flags)
     return true;
 }
 
-// Implementation of mf_hashtab_T.
+// Implementation of mf_hashtab_st.
 
 /// The number of buckets in the hashtable is increased by a factor of
 /// MHT_GROWTH_FACTOR when the average number of items per bucket
@@ -1164,16 +1164,16 @@ static bool mf_do_open(memfile_T *mfp, uchar_kt *fname, int flags)
 #define MHT_GROWTH_FACTOR     2   ///< must be a power of two
 
 /// Initialize an empty hash table.
-static void mf_hash_init(mf_hashtab_T *mht)
+static void mf_hash_init(mf_hashtab_st *mht)
 {
-    memset(mht, 0, sizeof(mf_hashtab_T));
+    memset(mht, 0, sizeof(mf_hashtab_st));
     mht->mht_buckets = mht->mht_small_buckets;
     mht->mht_mask = MHT_INIT_SIZE - 1;
 }
 
 /// Free the array of a hash table. Does not free the items it contains!
 /// The hash table must not be used again without another mf_hash_init() call.
-static void mf_hash_free(mf_hashtab_T *mht)
+static void mf_hash_free(mf_hashtab_st *mht)
 {
     if(mht->mht_buckets != mht->mht_small_buckets)
     {
@@ -1182,7 +1182,7 @@ static void mf_hash_free(mf_hashtab_T *mht)
 }
 
 /// Free the array of a hash table and all the items it contains.
-static void mf_hash_free_all(mf_hashtab_T *mht)
+static void mf_hash_free_all(mf_hashtab_st *mht)
 {
     for(size_t idx = 0; idx <= mht->mht_mask; idx++)
     {
@@ -1201,7 +1201,7 @@ static void mf_hash_free_all(mf_hashtab_T *mht)
 /// Find by key.
 ///
 /// @return  A pointer to a mf_hashitem_st or NULL if the item was not found.
-static mf_hashitem_st *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
+static mf_hashitem_st *mf_hash_find(mf_hashtab_st *mht, blknum_kt key)
 {
     mf_hashitem_st *mhi = mht->mht_buckets[(size_t)key & mht->mht_mask];
 
@@ -1214,7 +1214,7 @@ static mf_hashitem_st *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
 }
 
 /// Add item to hashtable. Item must not be NULL.
-static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
+static void mf_hash_add_item(mf_hashtab_st *mht, mf_hashitem_st *mhi)
 {
     size_t idx = (size_t)mhi->mhi_key & mht->mht_mask;
     mhi->mhi_next = mht->mht_buckets[idx];
@@ -1237,7 +1237,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
 }
 
 /// Remove item from hashtable. Item must be non NULL and within hashtable.
-static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
+static void mf_hash_rem_item(mf_hashtab_st *mht, mf_hashitem_st *mhi)
 {
     if(mhi->mhi_prev == NULL)
         mht->mht_buckets[(size_t)mhi->mhi_key & mht->mht_mask] =
@@ -1259,7 +1259,7 @@ static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
 
 /// Increase number of buckets in the hashtable by
 /// MHT_GROWTH_FACTOR and rehash items.
-static void mf_hash_grow(mf_hashtab_T *mht)
+static void mf_hash_grow(mf_hashtab_st *mht)
 {
     size_t size = (mht->mht_mask + 1) * MHT_GROWTH_FACTOR * sizeof(void *);
     mf_hashitem_st **buckets = xcalloc(1, size);
