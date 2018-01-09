@@ -120,7 +120,7 @@ typedef struct
     bpos_st endpos[NSUBEXP];
     int rmm_ic;
     columnum_kt rmm_maxcol;        ///< when not zero: maximum column
-} regmmatch_T;
+} regmmatch_st;
 
 /// Structure used to store external references: "\z\(\)" to "\z\1".
 /// Use a reference count to avoid the need to copy this around.
@@ -137,7 +137,7 @@ struct regengine
     void (*regfree)(regprog_st *);
     int (*regexec_nl)(regmatch_st *, uchar_kt *, columnum_kt, bool);
 
-    long (*regexec_multi)(regmmatch_T *,
+    long (*regexec_multi)(regmmatch_st *,
                           win_st *,
                           fbuf_st *,
                           linenum_kt,

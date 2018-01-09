@@ -923,7 +923,7 @@ static int syn_match_linecont(linenum_kt lnum)
 {
     if(syn_block->b_syn_linecont_prog != NULL)
     {
-        regmmatch_T regmatch;
+        regmmatch_st regmatch;
         // chartab array for syn iskeyword
         uchar_kt buf_chartab[32];
 
@@ -1900,7 +1900,7 @@ static int syn_current_attr(int syncing,
     int found_match; // found usable match
     static int try_next_column = FALSE; // must try in next col
     int do_keywords;
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
     bpos_st pos;
     int lc_col;
     reg_extmatch_T *cur_extmatch = NULL;
@@ -2945,8 +2945,8 @@ static void find_endpos(int idx,
     synpat_T *spp, *spp_skip;
     int start_idx;
     int best_idx;
-    regmmatch_T regmatch;
-    regmmatch_T best_regmatch; // startpos/endpos of best match
+    regmmatch_st regmatch;
+    regmmatch_st best_regmatch; // startpos/endpos of best match
     bpos_st pos;
     uchar_kt *line;
     int had_match = false;
@@ -3228,7 +3228,7 @@ static void limit_pos_zero(bpos_st *pos, bpos_st *limit)
 /// @param idx         index of offset
 /// @param extra       extra chars for offset to start
 static void syn_add_end_off(bpos_st *result,
-                            regmmatch_T *regmatch,
+                            regmmatch_st *regmatch,
                             synpat_T *spp,
                             int idx,
                             int extra)
@@ -3292,7 +3292,7 @@ static void syn_add_end_off(bpos_st *result,
 /// @param idx,
 /// @param extra         extra chars for offset to end
 static void syn_add_start_off(bpos_st *result,
-                              regmmatch_T *regmatch,
+                              regmmatch_st *regmatch,
                               synpat_T *spp,
                               int idx,
                               int extra)
@@ -3356,7 +3356,7 @@ static uchar_kt *syn_getcurline(void)
 
 /// Call vim_regexec() to find a match with "rmp" in "syn_buf".
 /// Returns TRUE when there is a match.
-static int syn_regexec(regmmatch_T *rmp,
+static int syn_regexec(regmmatch_st *rmp,
                        linenum_kt lnum,
                        columnum_kt col,
                        syn_time_T *st)

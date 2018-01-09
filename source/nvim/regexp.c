@@ -4559,7 +4559,7 @@ static unsigned reg_tofreelen;
 // done:
 //                  single-line         multi-line
 // reg_match        &regmatch_st         NULL
-// reg_mmatch       NULL                &regmmatch_T
+// reg_mmatch       NULL                &regmmatch_st
 // reg_startp       reg_match->startp   <invalid>
 // reg_endp         reg_match->endp     <invalid>
 // reg_startpos     <invalid>           reg_mmatch->startpos
@@ -4571,7 +4571,7 @@ static unsigned reg_tofreelen;
 // reg_line_lbr     FALSE or TRUE       FALSE
 
 static regmatch_st *reg_match;
-static regmmatch_T *reg_mmatch;
+static regmmatch_st *reg_mmatch;
 static uchar_kt **reg_startp = NULL;
 static uchar_kt **reg_endp = NULL;
 static bpos_st *reg_startpos = NULL;
@@ -4689,7 +4689,7 @@ static int bt_regexec_nl(regmatch_st *rmp,
 /// @return
 /// zero if there is no match and number of lines
 /// contained in the match otherwise.
-static long bt_regexec_multi(regmmatch_T *rmp,
+static long bt_regexec_multi(regmmatch_st *rmp,
                              win_st *win,
                              fbuf_st *buf,
                              linenum_kt lnum,
@@ -9041,7 +9041,7 @@ static int can_f_submatch = FALSE;
 // substitution string is an expression that contains
 // a call to substitute() and submatch().
 static regmatch_st *submatch_match;
-static regmmatch_T *submatch_mmatch;
+static regmmatch_st *submatch_mmatch;
 static linenum_kt submatch_firstlnum;
 static linenum_kt submatch_maxline;
 static int submatch_line_lbr;
@@ -9132,7 +9132,7 @@ int vim_regsub(regmatch_st *rmp,
     return vim_regsub_both(source, expr, dest, copy, magic, backslash);
 }
 
-int vim_regsub_multi(regmmatch_T *rmp,
+int vim_regsub_multi(regmmatch_st *rmp,
                      linenum_kt lnum,
                      uchar_kt *source,
                      uchar_kt *dest,
@@ -18844,7 +18844,7 @@ static int nfa_regexec_nl(regmatch_st *rmp,
 ///
 /// @par
 /// FIXME if this behavior is not compatible.
-static long nfa_regexec_multi(regmmatch_T *rmp,
+static long nfa_regexec_multi(regmmatch_st *rmp,
                               win_st *win,
                               fbuf_st *buf,
                               linenum_kt lnum,
@@ -19104,7 +19104,7 @@ int vim_regexec_nl(regmatch_st *rmp, uchar_kt *line, columnum_kt col)
 /// @note
 /// - "rmp->regprog" may be freed and changed.
 /// - Uses curbuf for line count and 'iskeyword'.
-long vim_regexec_multi(regmmatch_T *rmp,
+long vim_regexec_multi(regmmatch_st *rmp,
                        win_st *win,
                        fbuf_st *buf,
                        linenum_kt lnum,

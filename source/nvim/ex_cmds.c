@@ -4117,7 +4117,7 @@ FUNC_ATTR_NONNULL_RET
 static fbuf_st *do_sub(exarg_T *eap, proftime_kt timeout)
 {
     long i = 0;
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
 
     static subflags_T subflags =
     {
@@ -5333,7 +5333,7 @@ void ex_global(exarg_T *eap)
     uchar_kt *cmd; // command argument
     uchar_kt delim; // delimiter, normally '/'
     uchar_kt *pat;
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
     int match;
     int which_pat;
 

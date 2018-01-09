@@ -124,7 +124,7 @@ int search_regcomp(uchar_kt *pat,
                    int pat_save,
                    int pat_use,
                    int options,
-                   regmmatch_T *regmatch)
+                   regmmatch_st *regmatch)
 {
     int magic;
     int i;
@@ -529,7 +529,7 @@ void set_last_search_pat(const uchar_kt *s, int idx, int magic, int setlast)
 /// Get a regexp program for the last used search pattern.
 /// This is used for highlighting all matches in a window.
 /// Values returned in regmatch->regprog and regmatch->rmm_ic.
-void last_pat_prog(regmmatch_T *regmatch)
+void last_pat_prog(regmmatch_st *regmatch)
 {
     if(spats[last_idx].pat == NULL)
     {
@@ -593,7 +593,7 @@ int searchit(win_st *win,
 {
     int found;
     linenum_kt lnum; // no init to shut up Apollo cc
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
     uchar_kt *ptr;
     columnum_kt matchcol;
     bpos_st endpos;
@@ -1113,7 +1113,7 @@ static void set_vv_searchforward(void)
 
 // Return the number of the first subpat that matched.
 // Return zero if none of them matched.
-static int first_submatch(regmmatch_T *rp)
+static int first_submatch(regmmatch_st *rp)
 {
     int submatch;
 
@@ -5418,7 +5418,7 @@ int current_search(long count, int forward)
 /// Returns TRUE, FALSE or -1 for failure.
 static int is_one_char(uchar_kt *pattern, bool move)
 {
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
     int nmatched = 0;
     int result = -1;
     apos_st pos;

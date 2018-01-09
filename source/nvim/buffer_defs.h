@@ -843,7 +843,7 @@ struct frame_s
 /// match functions there is a different pattern for each window.
 typedef struct
 {
-    regmmatch_T rm;       ///< points to the regexp program; contains last found
+    regmmatch_st rm;       ///< points to the regexp program; contains last found
                           ///< match (may continue in next line)
     fbuf_st *buf;           ///< the buffer to search for a match
     linenum_kt lnum;        ///< the line to search for a match
@@ -888,7 +888,7 @@ struct matchitem
     int priority;       ///< match priority
     uchar_kt *pattern;  ///< pattern to highlight
     int hlg_id;         ///< highlight group ID
-    regmmatch_T match;  ///< regexp program for pattern
+    regmmatch_st match;  ///< regexp program for pattern
     posmatch_T pos;     ///< position matches
     match_T hl;         ///< struct for doing the actual highlighting
     int conceal_char;   ///< cchar for Conceal highlighting

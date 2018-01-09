@@ -4558,7 +4558,7 @@ void ex_cfile(exarg_T *eap)
 /// - ":lvimgrepadd {pattern} file(s)"
 void ex_vimgrep(exarg_T *eap)
 {
-    regmmatch_T regmatch;
+    regmmatch_st regmatch;
     int fcount;
     uchar_kt **fnames;
     uchar_kt *fname;
