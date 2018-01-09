@@ -76,7 +76,7 @@ struct cmdline_info
     int cmdattr;        ///< attributes for prompt
     int overstrike;     ///< Typing mode on the command line. Shared by
                         ///< getcmdline() and put_on_cmdline().
-    expand_T *xpc;      ///< struct being used for expansion, xp_pattern
+    expand_st *xpc;      ///< struct being used for expansion, xp_pattern
                         ///<may point into cmdbuff
     int xp_context;     ///< type of expansion
     uchar_kt *xp_arg;     ///< user-defined expansion arg
@@ -120,7 +120,7 @@ typedef struct command_line_state
     /// preceded with a mouse down event
     int ignore_drag_release;
     int break_ctrl_c;
-    expand_T xpc;
+    expand_st xpc;
     long *b_im_ptr;
 
     /// Everything that may work recursively should save and restore the
@@ -3477,7 +3477,7 @@ static int sort_func_compare(const void *s1, const void *s2)
 /// @param type
 /// @param options  extra options for ExpandOne()
 /// @param escape   if TRUE, escape the returned matches
-static int nextwild(expand_T *xp, int type, int options, int escape)
+static int nextwild(expand_st *xp, int type, int options, int escape)
 {
     int i, j;
     uchar_kt *p1;
@@ -3648,7 +3648,7 @@ static int nextwild(expand_T *xp, int type, int options, int escape)
 /// - mode = WILD_ALL_KEEP:    get all matches, keep matches
 ///
 /// The variables xp->xp_context and xp->xp_backslash must have been set!
-uchar_kt *ExpandOne(expand_T *xp,
+uchar_kt *ExpandOne(expand_st *xp,
                   uchar_kt *str,
                   uchar_kt *orig,
                   int options,
@@ -3937,7 +3937,7 @@ uchar_kt *ExpandOne(expand_T *xp,
 }
 
 /// Prepare an expand structure for use.
-void ExpandInit(expand_T *xp)
+void ExpandInit(expand_st *xp)
 {
     xp->xp_pattern = NULL;
     xp->xp_pattern_len = 0;
@@ -3954,7 +3954,7 @@ void ExpandInit(expand_T *xp)
 }
 
 /// Cleanup an expand structure after use.
-void ExpandCleanup(expand_T *xp)
+void ExpandCleanup(expand_st *xp)
 {
     if(xp->xp_numfiles >= 0)
     {
@@ -3963,7 +3963,7 @@ void ExpandCleanup(expand_T *xp)
     }
 }
 
-void ExpandEscape(expand_T *xp,
+void ExpandEscape(expand_st *xp,
                   uchar_kt *str,
                   int numfiles,
                   uchar_kt **files,
@@ -4136,7 +4136,7 @@ void tilde_replace(uchar_kt *orig_pat, int num_files, uchar_kt **files)
 /// Show all matches for completion on the command line.
 /// Returns EXPAND_NOTHING when the character that triggered expansion should
 /// be inserted like a normal character.
-static int showmatches(expand_T *xp, int wildmenu)
+static int showmatches(expand_st *xp, int wildmenu)
 {
 #define L_SHOWFILE(m) (showtail ? sm_gettail(files_found[m]) : files_found[m])
 
@@ -4384,7 +4384,7 @@ uchar_kt *sm_gettail(uchar_kt *s)
 /// Return TRUE if we only need to show the tail of completion matches.
 /// When not completing file names or there is a wildcard in the path
 /// FALSE is returned.
-static int expand_showtail(expand_T *xp)
+static int expand_showtail(expand_st *xp)
 {
     uchar_kt *s;
     uchar_kt *end;
@@ -4649,7 +4649,7 @@ FUNC_ATTR_NONNULL_RET
 ///     - Complete environment variable names
 ///   - EXPAND_USER
 ///     - Complete user names
-static void set_expand_context(expand_T *xp)
+static void set_expand_context(expand_st *xp)
 {
     // only expansion for ':', '>' and '=' command-lines
     if(ccline.cmdfirstc != ':'
@@ -4669,7 +4669,7 @@ static void set_expand_context(expand_T *xp)
 /// @param len        length of command line (excl. NUL)
 /// @param col        position of cursor
 /// @param use_ccline use ccline for info
-void set_cmd_context(expand_T *xp,
+void set_cmd_context(expand_st *xp,
                      uchar_kt *str,
                      int len,
                      int col,
@@ -4729,7 +4729,7 @@ void set_cmd_context(expand_T *xp,
 /// - EXPAND_UNSUCCESSFUL when there is something illegal before the cursor.
 /// - EXPAND_NOTHING when there is nothing to expand, might insert the
 ///   key that triggered expansion literally.
-int expand_cmdline(expand_T *xp,
+int expand_cmdline(expand_st *xp,
                    uchar_kt *str,
                    int col,
                    int *matchcount,
@@ -4840,7 +4840,7 @@ static void cleanup_help_tags(int num_file, uchar_kt **file)
     }
 }
 
-typedef uchar_kt *(*ExpandFunc)(expand_T *, int);
+typedef uchar_kt *(*ExpandFunc)(expand_st *, int);
 
 /// Do the expansion based on xp->xp_context and @b pat.
 ///
@@ -4849,7 +4849,7 @@ typedef uchar_kt *(*ExpandFunc)(expand_T *, int);
 /// @param num_file
 /// @param file
 /// @param options     EW_ flags
-static int ExpandFromContext(expand_T *xp,
+static int ExpandFromContext(expand_st *xp,
                              uchar_kt *pat,
                              int *num_file,
                              uchar_kt ***file,
@@ -5137,7 +5137,7 @@ static int ExpandFromContext(expand_T *xp,
 /// @param func       returns a string from the list
 /// @param escaped
 ///
-void ExpandGeneric(expand_T *xp,
+void ExpandGeneric(expand_st *xp,
                    regmatch_st *regmatch,
                    int *num_file,
                    uchar_kt ***file,
@@ -5409,7 +5409,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Call "user_expand_func()" to invoke a user defined
 /// VimL function and return the result (either a string or a List).
 static void *call_user_expand_func(user_expand_func_T user_expand_func,
-                                   expand_T *xp,
+                                   expand_st *xp,
                                    int *num_file,
                                    uchar_kt ***file)
 {
@@ -5460,7 +5460,7 @@ static void *call_user_expand_func(user_expand_func_T user_expand_func,
 }
 
 /// Expand names with a function defined by the user.
-static int ExpandUserDefined(expand_T *xp,
+static int ExpandUserDefined(expand_st *xp,
                              regmatch_st *regmatch,
                              int *num_file,
                              uchar_kt ***file)
@@ -5522,7 +5522,7 @@ static int ExpandUserDefined(expand_T *xp,
 }
 
 /// Expand names with a list returned by a function defined by the user.
-static int ExpandUserList(expand_T *xp, int *num_file, uchar_kt ***file)
+static int ExpandUserList(expand_st *xp, int *num_file, uchar_kt ***file)
 {
     list_st *retlist;
     listitem_st  *li;
@@ -5703,7 +5703,7 @@ static int ExpandPackAddDir(uchar_kt *pat, int *num_file, uchar_kt ***file)
 /// Adds matches to `ga`.
 void globpath(uchar_kt *path, uchar_kt *file, garray_st *ga, int expand_options)
 {
-    expand_T xpc;
+    expand_st xpc;
     ExpandInit(&xpc);
     xpc.xp_context = EXPAND_FILES;
     uchar_kt *buf = xmalloc(MAXPATHL);
@@ -5814,7 +5814,7 @@ static char *(history_names[]) =
 
 /// Function given to ExpandGeneric() to obtain the possible first
 /// arguments of the ":history command.
-static uchar_kt *get_history_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+static uchar_kt *get_history_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static uchar_kt compl[2] = { NUL, NUL };
     char *short_names = ":=@>?/";

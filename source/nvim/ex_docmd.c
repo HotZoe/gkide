@@ -3124,7 +3124,7 @@ static uchar_kt *find_command(exarg_T *eap, int *full)
 static uchar_kt *find_ucmd(exarg_T *eap,
                          uchar_kt *p,
                          int *full,
-                         expand_T *xp,
+                         expand_st *xp,
                          int *compl)
 {
     int len = (int)(p - eap->cmd);
@@ -3382,7 +3382,7 @@ int cmd_exists(const char *const name)
 ///
 /// @param xp
 /// @param buff   buffer for command string
-const char *set_one_cmd_context(expand_T *xp, const char *buff)
+const char *set_one_cmd_context(expand_st *xp, const char *buff)
 {
     size_t len = 0;
     exarg_T ea;
@@ -5384,7 +5384,7 @@ int expand_filename(exarg_T *eap, uchar_kt **cmdlinep, uchar_kt **errormsgp)
 
         if(has_wildcards)
         {
-            expand_T xpc;
+            expand_st xpc;
             int options = WILD_LIST_NOTFOUND|WILD_ADD_SLASH;
             ExpandInit(&xpc);
             xpc.xp_context = EXPAND_FILES;
@@ -6130,7 +6130,7 @@ static int check_more(int message, int forceit)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of command names.
-uchar_kt *get_command_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_command_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx >= (int)CMD_SIZE)
     {
@@ -7552,14 +7552,14 @@ static uchar_kt *get_user_command_name(int idx)
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user address type names.
-uchar_kt *get_user_cmd_addr_type(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_addr_type(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     return (uchar_kt *)addr_type_complete[idx].name;
 }
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user command names.
-uchar_kt *get_user_commands(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_commands(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx < curbuf->b_ucmds.ga_len)
     {
@@ -7578,7 +7578,7 @@ uchar_kt *get_user_commands(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user command attributes.
-uchar_kt *get_user_cmd_flags(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_flags(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static char *user_cmd_flags[] = {
         "addr",   "bang",     "bar",
@@ -7595,7 +7595,7 @@ uchar_kt *get_user_cmd_flags(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of values for -nargs.
-uchar_kt *get_user_cmd_nargs(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_nargs(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static char *user_cmd_nargs[] = { "0", "1", "*", "?", "+"};
 
@@ -7608,7 +7608,7 @@ uchar_kt *get_user_cmd_nargs(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of values for -complete.
-uchar_kt *get_user_cmd_complete(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_complete(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     return (uchar_kt *)command_complete[idx].name;
 }
@@ -12423,7 +12423,7 @@ static void ex_behave(exarg_T *eap)
 
 /// Function given to ExpandGeneric() to obtain the possible
 /// arguments of the ":behave {mswin,xterm}" command.
-uchar_kt *get_behave_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_behave_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx == 0)
     {

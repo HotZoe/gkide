@@ -1184,7 +1184,7 @@ static char *pexpand_cmds[] =
 
 /// Function given to ExpandGeneric() to obtain the profile command
 /// specific expansion.
-uchar_kt *get_profile_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_profile_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     switch(pexpand_what)
     {
@@ -1198,7 +1198,7 @@ uchar_kt *get_profile_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Handle command line completion for :profile command.
-void set_context_in_profile_cmd(expand_T *xp, const char *arg)
+void set_context_in_profile_cmd(expand_st *xp, const char *arg)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_PROFILE;
@@ -4666,7 +4666,7 @@ void free_locales(void)
 
 /// Function given to ExpandGeneric() to obtain the possible
 /// arguments of the ":language" command.
-uchar_kt *get_lang_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_lang_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx == 0)
     {
@@ -4694,7 +4694,7 @@ uchar_kt *get_lang_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the available locales.
-uchar_kt *get_locales(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_locales(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     init_locales();
 

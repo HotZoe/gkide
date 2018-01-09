@@ -3254,7 +3254,7 @@ void free_for_info(void *fi_void)
     xfree(fi);
 }
 
-void set_context_for_expression(expand_T *xp, uchar_kt *arg, cmdidx_T cmdidx)
+void set_context_for_expression(expand_st *xp, uchar_kt *arg, cmdidx_T cmdidx)
 {
     int got_eq = FALSE;
     int c;
@@ -3967,7 +3967,7 @@ static uchar_kt *cat_prefix_varname(int prefix, uchar_kt *name)
 
 /// Function given to ExpandGeneric() to obtain the list of user defined
 /// (global/buffer/window/built-in) variable names.
-uchar_kt *get_user_var_name(expand_T *xp, int idx)
+uchar_kt *get_user_var_name(expand_st *xp, int idx)
 {
     static size_t gdone;
     static size_t bdone;
@@ -7752,7 +7752,7 @@ static int get_env_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
 
 /// Function given to ExpandGeneric() to obtain the list of internal
 /// or user defined function names.
-uchar_kt *get_function_name(expand_T *xp, int idx)
+uchar_kt *get_function_name(expand_st *xp, int idx)
 {
     static int intidx = -1;
     uchar_kt *name;
@@ -7802,7 +7802,7 @@ uchar_kt *get_function_name(expand_T *xp, int idx)
 
 /// Function given to ExpandGeneric() to obtain the list of internal or
 /// user defined variable or function names.
-uchar_kt *get_expr_name(expand_T *xp, int idx)
+uchar_kt *get_expr_name(expand_st *xp, int idx)
 {
     static int intidx = -1;
     uchar_kt *name;
@@ -10585,7 +10585,7 @@ static void f_expand(typval_st *argvars,
     size_t len;
     uchar_kt *errormsg;
     int options = WILD_SILENT|WILD_USE_NL|WILD_LIST_NOTFOUND;
-    expand_T xpc;
+    expand_st xpc;
     bool error = false;
     uchar_kt *result;
     rettv->v_type = kNvarString;
@@ -12351,7 +12351,7 @@ static void f_getcompletion(typval_st *argvars,
                             func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     uchar_kt *pat;
-    expand_T xpc;
+    expand_st xpc;
     bool filtered = false;
     int options = WILD_SILENT | WILD_USE_NL | WILD_ADD_SLASH | WILD_NO_BEEP;
 
@@ -13515,7 +13515,7 @@ static void f_glob(typval_st *argvars,
                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int options = WILD_SILENT|WILD_USE_NL;
-    expand_T xpc;
+    expand_st xpc;
     bool error = false;
 
     // When the optional second argument is non-zero, don't remove matches
@@ -27126,7 +27126,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Function given to ExpandGeneric() to obtain the
 /// list of user defined function names.
-uchar_kt *get_user_func_name(expand_T *xp, int idx)
+uchar_kt *get_user_func_name(expand_st *xp, int idx)
 {
     static size_t done;
     static hashitem_st *hi;

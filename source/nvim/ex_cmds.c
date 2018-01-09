@@ -6921,7 +6921,7 @@ static void helptags_cb(uchar_kt *fname, void *cookie)
 /// @b :helptags
 void ex_helptags(exarg_T *eap)
 {
-    expand_T xpc;
+    expand_st xpc;
     uchar_kt *dirname;
     bool add_help_tags = false;
 
@@ -7672,7 +7672,7 @@ static enum
 } expand_what;
 
 /// Function given to ExpandGeneric() to obtain the sign command expansion.
-uchar_kt *get_sign_name(expand_T *FUNC_ARGS_UNUSED_REALY(x), int idx)
+uchar_kt *get_sign_name(expand_st *FUNC_ARGS_UNUSED_REALY(x), int idx)
 {
     switch(expand_what)
     {
@@ -7719,7 +7719,7 @@ uchar_kt *get_sign_name(expand_T *FUNC_ARGS_UNUSED_REALY(x), int idx)
 }
 
 /// Handle command line completion for :sign command.
-void set_context_in_sign_cmd(expand_T *xp, uchar_kt *arg)
+void set_context_in_sign_cmd(expand_st *xp, uchar_kt *arg)
 {
     uchar_kt *p;
     uchar_kt *end_subcmd;

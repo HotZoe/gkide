@@ -14,6 +14,6 @@ typedef uint32_t utf8char_kt;
 /// Shorthand for unsigned variables.
 typedef unsigned char uchar_kt;
 
-typedef struct expand expand_T;
+typedef struct expand_s expand_st;
 
 #endif // NVIM_TYPES_H

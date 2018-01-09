@@ -8103,7 +8103,7 @@ static uchar_kt expand_option_name[5] = {'t', '_', NUL, NUL, NUL};
 /// @param xp
 /// @param arg
 /// @param otp_flags  OPT_GLOBAL and/or OPT_LOCAL
-void set_context_in_set_cmd(expand_T *xp, uchar_kt *arg, int opt_flags)
+void set_context_in_set_cmd(expand_st *xp, uchar_kt *arg, int opt_flags)
 {
     uchar_kt nextchar;
     uint32_t flags = 0; // init for GCC
@@ -8360,7 +8360,7 @@ void set_context_in_set_cmd(expand_T *xp, uchar_kt *arg, int opt_flags)
     return;
 }
 
-int ExpandSettings(expand_T *xp,
+int ExpandSettings(expand_st *xp,
                    regmatch_st *regmatch,
                    int *num_file,
                    uchar_kt ***file)

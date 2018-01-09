@@ -9143,7 +9143,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Function given to ExpandGeneric() to
 /// obtain the list of autocommand group names.
-uchar_kt *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_augroup_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx == augroups.ga_len) // add "END" add the end
     {
@@ -9166,7 +9166,7 @@ uchar_kt *get_augroup_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 static int include_groups = FALSE;
 
 /// @param doautocmd  TRUE for :doauto*, FALSE for :autocmd
-uchar_kt *set_context_in_autocmd(expand_T *xp, uchar_kt *arg, int doautocmd)
+uchar_kt *set_context_in_autocmd(expand_st *xp, uchar_kt *arg, int doautocmd)
 {
     uchar_kt *p;
     int group;
@@ -9230,7 +9230,7 @@ uchar_kt *set_context_in_autocmd(expand_T *xp, uchar_kt *arg, int doautocmd)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of event names.
-uchar_kt *get_event_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_event_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(idx < augroups.ga_len) // First list group names, if wanted
     {

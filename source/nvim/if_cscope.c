@@ -117,7 +117,7 @@ static enum
 
 /// Function given to ExpandGeneric() to obtain
 /// the cscope command expansion.
-uchar_kt *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     int current_idx;
 
@@ -194,7 +194,7 @@ uchar_kt *get_cscope_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Handle command line completion for :cscope command.
-void set_context_in_cscope_cmd(expand_T *xp, const char *arg, cmdidx_T cmdidx)
+void set_context_in_cscope_cmd(expand_st *xp, const char *arg, cmdidx_T cmdidx)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_CSCOPE;

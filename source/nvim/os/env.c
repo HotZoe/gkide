@@ -581,7 +581,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
 
                 if(var == NULL)
                 {
-                    expand_T xpc;
+                    expand_st xpc;
                     ExpandInit(&xpc);
                     xpc.xp_context = EXPAND_FILES;
                     var = ExpandOne(&xpc, dst, NULL, WILD_ADD_SLASH | WILD_SILENT, WILD_EXPAND_FREE);
@@ -1150,7 +1150,7 @@ void vim_setenv(const char *name, const char *val)
 }
 
 /// Function given to ExpandGeneric() to obtain an environment variable name.
-uchar_kt *get_env_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_env_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
 #define ENVNAMELEN  100
     // this static buffer is needed to avoid a memory leak in ExpandGeneric

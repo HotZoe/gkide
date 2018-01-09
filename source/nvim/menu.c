@@ -1024,7 +1024,7 @@ static int expand_emenu;
 
 /// Work out what to complete when doing
 /// command line completion of menu names.
-uchar_kt *set_context_in_menu_cmd(expand_T *xp,
+uchar_kt *set_context_in_menu_cmd(expand_st *xp,
                                 uchar_kt *cmd,
                                 uchar_kt *arg,
                                 int forceit)
@@ -1167,7 +1167,7 @@ uchar_kt *set_context_in_menu_cmd(expand_T *xp,
 
 /// Function given to ExpandGeneric() to
 /// obtain the list of (sub)menus (not entries).
-uchar_kt *get_menu_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_menu_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static vimmenu_T *menu = NULL;
     uchar_kt *str;
@@ -1226,7 +1226,7 @@ uchar_kt *get_menu_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
 /// Function given to ExpandGeneric() to obtain
 /// the list of menus and menu entries.
-uchar_kt *get_menu_names(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
 #define TBUFFER_LEN 256
 

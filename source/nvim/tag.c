@@ -3391,7 +3391,7 @@ static uchar_kt *expand_tag_fname(uchar_kt *fname,
 {
     uchar_kt *p;
     uchar_kt *expanded_fname = NULL;
-    expand_T xpc;
+    expand_st xpc;
 
     // Expand file name (for environment variables) when needed.
     if(expand && path_has_wildcard(fname))

@@ -187,7 +187,7 @@ static columnum_kt compl_col = 0;
 static uchar_kt *compl_orig_text = NULL;
 
 static int compl_cont_mode = 0;
-static expand_T compl_xp;
+static expand_st compl_xp;
 
 static int compl_opt_refresh_always = FALSE;
 

@@ -6806,7 +6806,7 @@ void reset_expand_highlight(void)
 
 /// Handle command line completion for :match and :echohl
 /// command: Add "None" as highlight group.
-void set_context_in_echohl_cmd(expand_T *xp, const char *arg)
+void set_context_in_echohl_cmd(expand_st *xp, const char *arg)
 {
     xp->xp_context = EXPAND_HIGHLIGHT;
     xp->xp_pattern = (uchar_kt *)arg;
@@ -6814,7 +6814,7 @@ void set_context_in_echohl_cmd(expand_T *xp, const char *arg)
 }
 
 /// Handle command line completion for :syntax command.
-void set_context_in_syntax_cmd(expand_T *xp, const char *arg)
+void set_context_in_syntax_cmd(expand_st *xp, const char *arg)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_SYNTAX;
@@ -6859,7 +6859,7 @@ static char *(case_args[]) = {"match", "ignore", NULL};
 
 /// Function given to ExpandGeneric() to
 /// obtain the list syntax names for expansion.
-uchar_kt *get_syntax_name(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_syntax_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     if(expand_what == EXP_SUBCMD)
     {
@@ -7043,7 +7043,7 @@ static void syntime_clear(void)
 
 /// Function given to ExpandGeneric() to obtain the possible
 /// arguments of the ":syntime {on,off,clear,report}" command.
-uchar_kt *get_syntime_arg(expand_T *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_syntime_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     switch(idx)
     {
@@ -9100,7 +9100,7 @@ void highlight_changed(void)
 
 
 /// Handle command line completion for :highlight command.
-void set_context_in_highlight_cmd(expand_T *xp, const char *arg)
+void set_context_in_highlight_cmd(expand_st *xp, const char *arg)
 {
     // Default: expand group names.
     xp->xp_context = EXPAND_HIGHLIGHT;
@@ -9180,7 +9180,7 @@ static void highlight_list_two(int cnt, int attr)
 
 /// Function given to ExpandGeneric() to obtain the list of group names.
 /// Also used for synIDattr() function.
-const char *get_highlight_name(expand_T *const FUNC_ARGS_UNUSED_REALY(xp),
+const char *get_highlight_name(expand_st *const FUNC_ARGS_UNUSED_REALY(xp),
                                const int idx)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {

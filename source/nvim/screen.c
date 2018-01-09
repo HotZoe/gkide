@@ -6192,7 +6192,7 @@ static void draw_vsep_win(win_st *wp, int row)
 }
 
 /// Get the length of an item as it will be shown in the status line.
-static int status_match_len(expand_T *xp, uchar_kt *s)
+static int status_match_len(expand_st *xp, uchar_kt *s)
 {
     int len = 0;
     int emenu = (xp->xp_context == EXPAND_MENUS
@@ -6216,7 +6216,7 @@ static int status_match_len(expand_T *xp, uchar_kt *s)
 
 /// Return the number of characters that should be skipped in a status match.
 /// These are backslashes used for escaping. Do show backslashes in help tags.
-static int skip_status_match_char(expand_T *xp, uchar_kt *s)
+static int skip_status_match_char(expand_st *xp, uchar_kt *s)
 {
     if((rem_backslash(s) && xp->xp_context != EXPAND_HELP)
        || ((xp->xp_context == EXPAND_MENUS
@@ -6246,7 +6246,7 @@ static int skip_status_match_char(expand_T *xp, uchar_kt *s)
 /// @param matches      list of matches
 /// @param match
 /// @param showtail
-void win_redr_status_matches(expand_T *xp,
+void win_redr_status_matches(expand_st *xp,
                              int num_matches,
                              uchar_kt **matches,
                              int match,

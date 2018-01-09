@@ -4049,7 +4049,7 @@ static int expand_buffer = FALSE;
 /// @param cmdidx
 ///
 /// @return
-uchar_kt *set_context_in_map_cmd(expand_T *xp,
+uchar_kt *set_context_in_map_cmd(expand_st *xp,
                                uchar_kt *cmd,
                                uchar_kt *arg,
                                int forceit,

@@ -93,8 +93,8 @@ typedef uchar_kt *(*LineGetter)(int, void *, int);
 /// Structure for command definition.
 typedef struct cmdname
 {
-    uchar_kt *cmd_name;    ///< Name of the command.
-    ex_func_T cmd_func;  ///< Function with implementation of this command.
+    uchar_kt *cmd_name;  ///< Name of the command.
+    ex_func_T cmd_func; ///< Function with implementation of this command.
     uint32_t cmd_argt;   ///< Relevant flags from the declared above.
     int cmd_addr_type;   ///< Flag for address type
 } CommandDefinition;
@@ -102,21 +102,21 @@ typedef struct cmdname
 /// Arguments used for Ex commands.
 struct exarg
 {
-    uchar_kt *arg;               ///< argument of the command
-    uchar_kt *nextcmd;           ///< next command (NULL if none)
-    uchar_kt *cmd;               ///< the name of the command (except for :make)
-    uchar_kt **cmdlinep;         ///< pointer to pointer of allocated cmdline
-    cmdidx_T cmdidx;           ///< the index for the command
+    uchar_kt *arg;             ///< argument of the command
+    uchar_kt *nextcmd;         ///< next command (NULL if none)
+    uchar_kt *cmd;             ///< the name of the command (except for :make)
+    uchar_kt **cmdlinep;       ///< pointer to pointer of allocated cmdline
+    cmdidx_T cmdidx;          ///< the index for the command
     uint32_t argt;             ///< flags for the command
     int skip;                  ///< don't execute the command, only parse it
     int forceit;               ///< TRUE if ! present
     int addr_count;            ///< the number of addresses given
-    linenum_kt line1;            ///< the first line number
-    linenum_kt line2;            ///< the second line number or count
+    linenum_kt line1;          ///< the first line number
+    linenum_kt line2;          ///< the second line number or count
     int addr_type;             ///< type of the count/range
     int flags;                 ///< extra flags after count: EXFLAG_
-    uchar_kt *do_ecmd_cmd;       ///< +command arg to be used in edited file
-    linenum_kt do_ecmd_lnum;     ///< the line number in an edited file
+    uchar_kt *do_ecmd_cmd;     ///< +command arg to be used in edited file
+    linenum_kt do_ecmd_lnum;   ///< the line number in an edited file
     int append;                ///< TRUE with ":w >>file" command
     int usefilter;             ///< TRUE with ":w !command" and ":r!command"
     int amount;                ///< number of '>' or '<' for shift command
@@ -127,8 +127,8 @@ struct exarg
     int force_enc;             ///< ++enc= argument (index in cmd[])
     int bad_char;              ///< BAD_KEEP, BAD_DROP or replacement byte
     int useridx;               ///< user command index
-    uchar_kt *errmsg;            ///< returned error message
-    LineGetter getline;        ///< Function used to get the next line
+    uchar_kt *errmsg;          ///< returned error message
+    LineGetter getline;      ///< Function used to get the next line
     void *cookie;              ///< argument for getline()
     struct condstack *cstack;  ///< condition stack for ":if" etc.
 };
@@ -141,12 +141,12 @@ struct exarg
 #define EXFLAG_PRINT    0x04   ///< 'p': print
 
 /// used for completion on the command line
-struct expand
+struct expand_s
 {
     int xp_context;          ///< type of expansion
-    uchar_kt *xp_pattern;      ///< start of item to expand
+    uchar_kt *xp_pattern;    ///< start of item to expand
     int xp_pattern_len;      ///< bytes in xp_pattern before cursor
-    uchar_kt *xp_arg;          ///< completion function
+    uchar_kt *xp_arg;        ///< completion function
     int xp_scriptID;         ///< SID for completion function
     int xp_backslash;        ///< one of the XP_BS_ values
 
@@ -156,8 +156,8 @@ struct expand
     #endif
 
     int xp_numfiles;         ///< number of files found by file name completion
-    uchar_kt **xp_files;       ///< list of files
-    uchar_kt *xp_line;         ///< text being completed
+    uchar_kt **xp_files;     ///< list of files
+    uchar_kt *xp_line;       ///< text being completed
     int xp_col;              ///< cursor position in line
 };
 
@@ -182,8 +182,8 @@ typedef struct
     bool keeppatterns;           ///< true when ":keeppatterns" was used
     bool lockmarks;              ///< true when ":lockmarks" was used
     bool noswapfile;             ///< true when ":noswapfile" was used
-    uchar_kt *save_ei;             ///< saved value of 'eventignore'
-    regmatch_st filter_regmatch;  ///< set by :filter /pat/
+    uchar_kt *save_ei;           ///< saved value of 'eventignore'
+    regmatch_st filter_regmatch; ///< set by :filter /pat/
     bool filter_force;           ///< set for :filter!
 } cmdmod_T;
 
