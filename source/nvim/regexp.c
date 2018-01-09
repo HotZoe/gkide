@@ -366,7 +366,7 @@ typedef struct backpos_s
 {
     uchar_kt *bp_scan; ///< "scan" where BACK was encountered
     regsave_st bp_pos; ///< last input position
-} backpos_T;
+} backpos_st;
 
 typedef struct
 {
@@ -4587,7 +4587,7 @@ static int reg_line_lbr; ///< "\n" in string is line break
 // They are kept over calls to avoid invoking malloc()
 // and free() often. "regstack" is a stack with regitem_T items,
 // sometimes preceded by regstar_T or regbehind_T.
-// "backpos_T" is a table with backpos_T for BACK
+// "backpos_st" is a table with backpos_st for BACK
 static garray_st regstack = GA_EMPTY_INIT_VALUE;
 static garray_st backpos = GA_EMPTY_INIT_VALUE;
 
@@ -4741,7 +4741,7 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
 
     if(backpos.ga_data == NULL)
     {
-        ga_init(&backpos, sizeof(backpos_T), BACKPOS_INITIAL);
+        ga_init(&backpos, sizeof(backpos_st), BACKPOS_INITIAL);
         ga_grow(&backpos, BACKPOS_INITIAL);
         ga_set_growsize(&backpos, BACKPOS_INITIAL * 8);
     }
@@ -6054,7 +6054,7 @@ static int regmatch(uchar_kt *scan)
                         // as the previous time. The positions are stored in
                         // "backpos" and found by the current value of "scan",
                         // the position in the RE program.
-                        backpos_T *bp = (backpos_T *)backpos.ga_data;
+                        backpos_st *bp = (backpos_st *)backpos.ga_data;
 
                         for(i = 0; i < backpos.ga_len; ++i)
                         {
@@ -6066,8 +6066,8 @@ static int regmatch(uchar_kt *scan)
 
                         if(i == backpos.ga_len)
                         {
-                            backpos_T *p =
-                                GA_APPEND_VIA_PTR(backpos_T, &backpos);
+                            backpos_st *p =
+                                GA_APPEND_VIA_PTR(backpos_st, &backpos);
                             p->bp_scan = scan;
                         }
                         else if(reg_save_equal(&bp[i].bp_pos))
