@@ -378,18 +378,17 @@ typedef struct
 /// Since the out pointers in the list are always
 /// uninitialized, we use the pointers themselves
 /// as storage for the Ptrlists.
-typedef union Ptrlist Ptrlist;
-
-union Ptrlist
+typedef union ptrlist_u ptrlist_ut;
+union ptrlist_u
 {
-    Ptrlist *next;
+    ptrlist_ut *next;
     nfa_state_T *s;
 };
 
 struct Frag
 {
     nfa_state_T *start;
-    Ptrlist *out;
+    ptrlist_ut *out;
 };
 typedef struct Frag Frag_T;
 
@@ -13728,7 +13727,7 @@ static nfa_state_T *alloc_state(int c,
 // next state for this fragment.
 
 /// Initialize a Frag_T struct and return it.
-static Frag_T frag(nfa_state_T *start, Ptrlist *out)
+static Frag_T frag(nfa_state_T *start, ptrlist_ut *out)
 {
     Frag_T n;
     n.start = start;
@@ -13737,18 +13736,18 @@ static Frag_T frag(nfa_state_T *start, Ptrlist *out)
 }
 
 /// Create singleton list containing just outp.
-static Ptrlist *list1(nfa_state_T **outp)
+static ptrlist_ut *list1(nfa_state_T **outp)
 {
-    Ptrlist *l;
-    l = (Ptrlist *)outp;
+    ptrlist_ut *l;
+    l = (ptrlist_ut *)outp;
     l->next = NULL;
     return l;
 }
 
 /// Patch the list of states at out to point to start.
-static void patch(Ptrlist *l, nfa_state_T *s)
+static void patch(ptrlist_ut *l, nfa_state_T *s)
 {
-    Ptrlist *next;
+    ptrlist_ut *next;
 
     for(; l; l = next)
     {
@@ -13759,9 +13758,9 @@ static void patch(Ptrlist *l, nfa_state_T *s)
 
 
 /// Join the two lists l1 and l2, returning the combination.
-static Ptrlist *append(Ptrlist *l1, Ptrlist *l2)
+static ptrlist_ut *append(ptrlist_ut *l1, ptrlist_ut *l2)
 {
-    Ptrlist *oldl1;
+    ptrlist_ut *oldl1;
     oldl1 = l1;
 
     while(l1->next)
