@@ -462,7 +462,7 @@ typedef struct
     const Object *aobj;
     bool container;
     size_t idx;
-} APIToMPObjectStackItem;
+} api2mpobj_stackitem_st;
 
 /// Convert type used by Neovim API to msgpack
 ///
@@ -476,15 +476,15 @@ typedef struct
 void rpc_from_object(const Object result, msgpack_packer *const res)
 FUNC_ATTR_NONNULL_ARG(2)
 {
-    kvec_t(APIToMPObjectStackItem) stack = KV_INITIAL_VALUE;
+    kvec_t(api2mpobj_stackitem_st) stack = KV_INITIAL_VALUE;
 
-    kv_push(stack, ((APIToMPObjectStackItem) {
+    kv_push(stack, ((api2mpobj_stackitem_st) {
         &result, false, 0
     }));
 
     while(kv_size(stack))
     {
-        APIToMPObjectStackItem cur = kv_last(stack);
+        api2mpobj_stackitem_st cur = kv_last(stack);
 
         STATIC_ASSERT(kObjectTypeWindow == kObjectTypeBuffer + 1
                       && kObjectTypeTabpage == kObjectTypeWindow + 1,
@@ -556,7 +556,7 @@ FUNC_ATTR_NONNULL_ARG(2)
                         cur.idx++;
                         kv_last(stack) = cur;
 
-                        kv_push(stack, ((APIToMPObjectStackItem) {
+                        kv_push(stack, ((api2mpobj_stackitem_st) {
                             .aobj = &cur.aobj->data.array.items[idx],
                             .container = false,
                         }));
@@ -592,7 +592,7 @@ FUNC_ATTR_NONNULL_ARG(2)
                         rpc_from_string(cur.aobj->data.dictionary.items[idx].key,
                                         res);
 
-                        kv_push(stack, ((APIToMPObjectStackItem) {
+                        kv_push(stack, ((api2mpobj_stackitem_st) {
                             .aobj = &cur.aobj->data.dictionary.items[idx].value,
                             .container = false,
                         }));
