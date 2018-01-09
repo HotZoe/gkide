@@ -98,11 +98,11 @@ struct blk_hdr_s
 
 /// A block number translation list item.
 ///
-/// When a block with a negative number is flushed to the file, it gets
-/// a positive number. Because the reference to the block is still the negative
+/// When a block with a negative number is flushed to the file, it gets a
+/// positive number. Because the reference to the block is still the negative
 /// number, we remember the translation to the new positive number in the
 /// double linked trans lists. The structure is the same as the hash lists.
-typedef struct mf_blocknr_trans_item
+typedef struct mf_blknum_trans_item_s
 {
     /// old, negative, number
     #define nt_old_bnum nt_hashitem.mhi_key
@@ -111,21 +111,21 @@ typedef struct mf_blocknr_trans_item
 
     /// new, positive, number
     blknum_kt nt_new_bnum;
-} mf_blocknr_trans_item_T;
+} mf_blknum_trans_item_st;
 
 /// A memory file.
-typedef struct memfile
+typedef struct memfile_s
 {
-    uchar_kt *mf_fname;            ///< name of the file
-    uchar_kt *mf_ffname;           ///< idem, full path
+    uchar_kt *mf_fname;          ///< name of the file
+    uchar_kt *mf_ffname;         ///< idem, full path
     int mf_fd;                   ///< file descriptor
-    blk_hdr_st *mf_free_first;       ///< first block header in free list
-    blk_hdr_st *mf_used_first;       ///< mru block header in used list
-    blk_hdr_st *mf_used_last;        ///< lru block header in used list
+    blk_hdr_st *mf_free_first;   ///< first block header in free list
+    blk_hdr_st *mf_used_first;   ///< mru block header in used list
+    blk_hdr_st *mf_used_last;    ///< lru block header in used list
     unsigned mf_used_count;      ///< number of pages in used list
     unsigned mf_used_count_max;  ///< maximum number of pages in memory
-    mf_hashtab_st mf_hash;        ///< hash lists
-    mf_hashtab_st mf_trans;       ///< trans lists
+    mf_hashtab_st mf_hash;       ///< hash lists
+    mf_hashtab_st mf_trans;      ///< trans lists
     blknum_kt mf_blocknr_max;    ///< highest positive block number + 1
     blknum_kt mf_blocknr_min;    ///< lowest negative block number - 1
     blknum_kt mf_neg_count;      ///< number of negative blocks numbers
