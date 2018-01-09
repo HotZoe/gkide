@@ -1413,7 +1413,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
     int save_msg_silent = -1;
     int did_esilent = 0;
     int did_sandbox = FALSE;
-    cmdmod_T save_cmdmod;
+    cmdmod_st save_cmdmod;
     int ni; // set when Not Implemented
     uchar_kt *cmd;
     int address_count = 1;

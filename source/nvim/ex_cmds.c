@@ -7868,7 +7868,7 @@ FUNC_ATTR_NONNULL_ALL
     static handle_kt bufnr = 0; // special buffer, re-used on each visit
 
     win_st *save_curwin = curwin;
-    cmdmod_T save_cmdmod = cmdmod;
+    cmdmod_st save_cmdmod = cmdmod;
     uchar_kt *save_shm_p = vim_strsave(p_shm);
     size_t sub_size = mb_string2cells(sub);
     size_t pat_size = mb_string2cells(pat);
