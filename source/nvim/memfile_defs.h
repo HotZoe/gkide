@@ -17,28 +17,29 @@
 /// file. The blocks with negative numbers are currently in memory only.
 typedef int64_t blknum_kt;
 
-/// A hash item.
+/// A hash item used for memory file.
 ///
 /// Items' keys are block numbers.
 /// Items in the same bucket are organized into a doubly-linked list.
 ///
 /// Therefore, items can be arbitrary data structures beginning with
 /// pointers for the list and and a block number key.
-typedef struct mf_hashitem
+typedef struct mf_hashitem_s mf_hashitem_st;
+struct mf_hashitem_s
 {
-    struct mf_hashitem *mhi_next;
-    struct mf_hashitem *mhi_prev;
+    mf_hashitem_st *mhi_next;
+    mf_hashitem_st *mhi_prev;
     blknum_kt mhi_key;
-} mf_hashitem_T;
+};
 
-/// Initial size for a hashtable.
-#define MHT_INIT_SIZE 64
+/// Initial size for a hashtable of memory file.
+#define MHT_INIT_SIZE   64
 
 /// A chained hashtable with block numbers as keys and arbitrary data
 /// structures as items.
 ///
 /// This is an intrusive data structure: we require that items begin with
-/// mf_hashitem_T which contains the key and linked list pointers.
+/// mf_hashitem_st which contains the key and linked list pointers.
 /// List of items in each bucket is doubly-linked.
 typedef struct mf_hashtab
 {
@@ -52,9 +53,9 @@ typedef struct mf_hashtab
     /// points to the array of buckets (can be
     /// mht_small_buckets or a newly allocated array
     /// when mht_small_buckets becomes too small)
-    mf_hashitem_T **mht_buckets;
+    mf_hashitem_st **mht_buckets;
 
-    mf_hashitem_T *mht_small_buckets[MHT_INIT_SIZE]; ///< initial buckets
+    mf_hashitem_st *mht_small_buckets[MHT_INIT_SIZE]; ///< initial buckets
 } mf_hashtab_T;
 
 /// A block header.
@@ -76,7 +77,7 @@ struct blk_hdr_s
 {
     /// block number, part of bh_hashitem
     #define bh_bnum  bh_hashitem.mhi_key
-    mf_hashitem_T    bh_hashitem; ///< header for hash table and key
+    mf_hashitem_st    bh_hashitem; ///< header for hash table and key
 
     blk_hdr_st *bh_next;      ///< next block header in free or used list
     blk_hdr_st *bh_prev;      ///< previous block header in used list
@@ -97,7 +98,7 @@ struct blk_hdr_s
 typedef struct mf_blocknr_trans_item
 {
     #define nt_old_bnum nt_hashitem.mhi_key  ///< old, negative, number
-    mf_hashitem_T       nt_hashitem; ///< header for hash table and key
+    mf_hashitem_st       nt_hashitem; ///< header for hash table and key
 
     blknum_kt nt_new_bnum; ///< new, positive, number
 } mf_blocknr_trans_item_T;

@@ -606,13 +606,13 @@ void mf_set_dirty(memfile_T *mfp)
 /// Insert block in front of memfile's hash list.
 static void mf_ins_hash(memfile_T *mfp, blk_hdr_st *hp)
 {
-    mf_hash_add_item(&mfp->mf_hash, (mf_hashitem_T *)hp);
+    mf_hash_add_item(&mfp->mf_hash, (mf_hashitem_st *)hp);
 }
 
 /// Remove block from memfile's hash list.
 static void mf_rem_hash(memfile_T *mfp, blk_hdr_st *hp)
 {
-    mf_hash_rem_item(&mfp->mf_hash, (mf_hashitem_T *)hp);
+    mf_hash_rem_item(&mfp->mf_hash, (mf_hashitem_st *)hp);
 }
 
 /// Lookup block with number "nr" in memfile's hash list.
@@ -1040,7 +1040,7 @@ static int mf_trans_add(memfile_T *mfp, blk_hdr_st *hp)
     mf_ins_hash(mfp, hp); // insert in new hash list
 
     // Insert "np" into "mf_trans" hashtable with key "np->nt_old_bnum".
-    mf_hash_add_item(&mfp->mf_trans, (mf_hashitem_T *)np);
+    mf_hash_add_item(&mfp->mf_trans, (mf_hashitem_st *)np);
 
     return OK;
 }
@@ -1064,7 +1064,7 @@ blknum_kt mf_trans_del(memfile_T *mfp, blknum_kt old_nr)
     blknum_kt new_bnum = np->nt_new_bnum;
 
     // remove entry from the trans list
-    mf_hash_rem_item(&mfp->mf_trans, (mf_hashitem_T *)np);
+    mf_hash_rem_item(&mfp->mf_trans, (mf_hashitem_st *)np);
     xfree(np);
 
     return new_bnum;
@@ -1186,9 +1186,9 @@ static void mf_hash_free_all(mf_hashtab_T *mht)
 {
     for(size_t idx = 0; idx <= mht->mht_mask; idx++)
     {
-        mf_hashitem_T *next;
+        mf_hashitem_st *next;
 
-        for(mf_hashitem_T *mhi = mht->mht_buckets[idx]; mhi != NULL; mhi = next)
+        for(mf_hashitem_st *mhi = mht->mht_buckets[idx]; mhi != NULL; mhi = next)
         {
             next = mhi->mhi_next;
             xfree(mhi);
@@ -1200,10 +1200,10 @@ static void mf_hash_free_all(mf_hashtab_T *mht)
 
 /// Find by key.
 ///
-/// @return  A pointer to a mf_hashitem_T or NULL if the item was not found.
-static mf_hashitem_T *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
+/// @return  A pointer to a mf_hashitem_st or NULL if the item was not found.
+static mf_hashitem_st *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
 {
-    mf_hashitem_T *mhi = mht->mht_buckets[(size_t)key & mht->mht_mask];
+    mf_hashitem_st *mhi = mht->mht_buckets[(size_t)key & mht->mht_mask];
 
     while(mhi != NULL && mhi->mhi_key != key)
     {
@@ -1214,7 +1214,7 @@ static mf_hashitem_T *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
 }
 
 /// Add item to hashtable. Item must not be NULL.
-static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
+static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
 {
     size_t idx = (size_t)mhi->mhi_key & mht->mht_mask;
     mhi->mhi_next = mht->mht_buckets[idx];
@@ -1237,7 +1237,7 @@ static void mf_hash_add_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
 }
 
 /// Remove item from hashtable. Item must be non NULL and within hashtable.
-static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
+static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_st *mhi)
 {
     if(mhi->mhi_prev == NULL)
         mht->mht_buckets[(size_t)mhi->mhi_key & mht->mht_mask] =
@@ -1262,7 +1262,7 @@ static void mf_hash_rem_item(mf_hashtab_T *mht, mf_hashitem_T *mhi)
 static void mf_hash_grow(mf_hashtab_T *mht)
 {
     size_t size = (mht->mht_mask + 1) * MHT_GROWTH_FACTOR * sizeof(void *);
-    mf_hashitem_T **buckets = xcalloc(1, size);
+    mf_hashitem_st **buckets = xcalloc(1, size);
     int shift = 0;
 
     while((mht->mht_mask >> shift) != 0)
@@ -1280,10 +1280,10 @@ static void mf_hash_grow(mf_hashtab_T *mht)
         ///
         /// Here we strongly rely on the fact that hashes are computed modulo
         /// a power of two.
-        mf_hashitem_T *tails[MHT_GROWTH_FACTOR];
+        mf_hashitem_st *tails[MHT_GROWTH_FACTOR];
         memset(tails, 0, sizeof(tails));
 
-        for(mf_hashitem_T *mhi = mht->mht_buckets[i];
+        for(mf_hashitem_st *mhi = mht->mht_buckets[i];
             mhi != NULL;
             mhi = mhi->mhi_next)
         {
