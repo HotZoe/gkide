@@ -153,9 +153,9 @@ EXTERN uchar_kt *LineWraps INIT(= NULL);
 // Note: These three are only allocated when enc_utf8 is set!
 
 /// decoded UTF-8 characters
-EXTERN u8char_T *ScreenLinesUC INIT(= NULL);
+EXTERN utf8char_kt *ScreenLinesUC INIT(= NULL);
 /// composing characters
-EXTERN u8char_T *ScreenLinesC[MAX_MCO];
+EXTERN utf8char_kt *ScreenLinesC[MAX_MCO];
 /// value of p_mco used when allocating ScreenLinesC[]
 EXTERN int Screen_mco INIT(= 0);
 

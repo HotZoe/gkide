@@ -9,7 +9,7 @@
 typedef void *  nvim_acl_kt;
 
 /// Can hold one decoded UTF-8 character.
-typedef uint32_t u8char_T;
+typedef uint32_t utf8char_kt;
 
 /// Shorthand for unsigned variables.
 typedef unsigned char uchar_kt;

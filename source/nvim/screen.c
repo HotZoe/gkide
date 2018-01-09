@@ -2644,7 +2644,7 @@ static void copy_text_attr(int off, uchar_kt *buf, int len, int attr)
 
     if(enc_utf8)
     {
-        memset(ScreenLinesUC + off, 0, sizeof(u8char_T) * (size_t)len);
+        memset(ScreenLinesUC + off, 0, sizeof(utf8char_kt) * (size_t)len);
     }
 
     for(i = 0; i < len; ++i)
@@ -7053,7 +7053,7 @@ static int screen_comp_differs(int off, int *u8cc)
 
     for(i = 0; i < Screen_mco; ++i)
     {
-        if(ScreenLinesC[i][off] != (u8char_T)u8cc[i])
+        if(ScreenLinesC[i][off] != (utf8char_kt)u8cc[i])
         {
             return TRUE;
         }
@@ -7206,7 +7206,7 @@ void screen_puts_len(uchar_kt *text, int textlen, int row, int col, int attr)
         need_redraw = ScreenLines[off] != c
                       || (mbyte_cells == 2 && ScreenLines[off + 1] != 0)
                       || (ScreenLinesUC[off] !=
-                          (u8char_T)(c < 0x80 && u8cc[0] == 0 ? 0 : u8c)
+                          (utf8char_kt)(c < 0x80 && u8cc[0] == 0 ? 0 : u8c)
                           || (ScreenLinesUC[off] != 0
                               && screen_comp_differs(off, u8cc)))
                       || ScreenAttrs[off] != attr
@@ -8052,8 +8052,8 @@ void screenalloc(bool doclear)
     int outofmem = FALSE;
     int len;
     schar_T *new_ScreenLines;
-    u8char_T *new_ScreenLinesUC = NULL;
-    u8char_T *new_ScreenLinesC[MAX_MCO];
+    utf8char_kt *new_ScreenLinesUC = NULL;
+    utf8char_kt *new_ScreenLinesC[MAX_MCO];
     schar_T *new_ScreenLines2 = NULL;
     int i;
     sattr_T *new_ScreenAttrs;
@@ -8121,17 +8121,17 @@ retry:
     new_ScreenLines =
         xmalloc((size_t)((Rows + 1) * Columns * sizeof(schar_T)));
 
-    memset(new_ScreenLinesC, 0, sizeof(u8char_T *) * MAX_MCO);
+    memset(new_ScreenLinesC, 0, sizeof(utf8char_kt *) * MAX_MCO);
 
     if(l_enc_utf8)
     {
         new_ScreenLinesUC =
-            xmalloc((size_t)((Rows + 1) * Columns * sizeof(u8char_T)));
+            xmalloc((size_t)((Rows + 1) * Columns * sizeof(utf8char_kt)));
 
         for(i = 0; i < p_mco; ++i)
         {
             new_ScreenLinesC[i] =
-                xcalloc((Rows + 1) * Columns, sizeof(u8char_T));
+                xcalloc((Rows + 1) * Columns, sizeof(utf8char_kt));
         }
     }
 
@@ -8236,12 +8236,12 @@ retry:
                 if(l_enc_utf8)
                 {
                     (void)memset(new_ScreenLinesUC + new_row * Columns,
-                                 0, (size_t)Columns * sizeof(u8char_T));
+                                 0, (size_t)Columns * sizeof(utf8char_kt));
 
                     for(i = 0; i < p_mco; ++i)
                     {
                         (void)memset(new_ScreenLinesC[i] + new_row * Columns,
-                                     0, (size_t)Columns * sizeof(u8char_T));
+                                     0, (size_t)Columns * sizeof(utf8char_kt));
                     }
                 }
 
@@ -8283,13 +8283,13 @@ retry:
                     {
                         memmove(new_ScreenLinesUC + new_LineOffset[new_row],
                                 ScreenLinesUC + LineOffset[old_row],
-                                (size_t)len * sizeof(u8char_T));
+                                (size_t)len * sizeof(utf8char_kt));
 
                         for(i = 0; i < p_mco; ++i)
                         {
                             memmove(new_ScreenLinesC[i] + new_LineOffset[new_row],
                                     ScreenLinesC[i] + LineOffset[old_row],
-                                    (size_t)len * sizeof(u8char_T));
+                                    (size_t)len * sizeof(utf8char_kt));
                         }
                     }
 
@@ -8451,7 +8451,7 @@ static void lineclear(unsigned off, int width)
     if(enc_utf8)
     {
         (void)memset(ScreenLinesUC + off, 0,
-                     (size_t)width * sizeof(u8char_T));
+                     (size_t)width * sizeof(utf8char_kt));
     }
 
     (void)memset(ScreenAttrs + off, 0, (size_t)width * sizeof(sattr_T));
@@ -8472,13 +8472,13 @@ static void linecopy(int to, int from, win_st *wp)
         int i;
         memmove(ScreenLinesUC + off_to,
                 ScreenLinesUC + off_from,
-                wp->w_width * sizeof(u8char_T));
+                wp->w_width * sizeof(utf8char_kt));
 
         for(i = 0; i < p_mco; ++i)
         {
             memmove(ScreenLinesC[i] + off_to,
                     ScreenLinesC[i] + off_from,
-                    wp->w_width * sizeof(u8char_T));
+                    wp->w_width * sizeof(utf8char_kt));
         }
     }
 
