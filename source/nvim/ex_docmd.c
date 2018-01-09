@@ -148,7 +148,9 @@ struct dbg_stuff
     #define ex_language    ex_ni
 #endif
 
-// Declare cmdnames[].
+/// @var static excmd_def_st excmd_info[].
+///
+/// The EX command declarations.
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds_defs.generated.h"
 #endif
@@ -1857,7 +1859,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
     {
         if(ea.cmdidx != CMD_SIZE)
         {
-            ea.addr_type = cmdnames[(int)ea.cmdidx].cmd_addr_type;
+            ea.addr_type = excmd_info[(int)ea.cmdidx].cmd_addr_type;
         }
         else
         {
@@ -2224,8 +2226,8 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
     }
 
     ni = (!IS_USER_CMDIDX(ea.cmdidx)
-          && (cmdnames[ea.cmdidx].cmd_func == ex_ni
-              || cmdnames[ea.cmdidx].cmd_func == ex_script_ni));
+          && (excmd_info[ea.cmdidx].cmd_func == ex_ni
+              || excmd_info[ea.cmdidx].cmd_func == ex_script_ni));
 
     // forced commands
     if(*p == '!'
@@ -2244,7 +2246,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
     // 6. Parse arguments.
     if(!IS_USER_CMDIDX(ea.cmdidx))
     {
-        ea.argt = cmdnames[(int)ea.cmdidx].cmd_argt;
+        ea.argt = excmd_info[(int)ea.cmdidx].cmd_argt;
     }
 
     if(!ea.skip)
@@ -2792,7 +2794,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
     {
         // Call the function to execute the command.
         ea.errmsg = NULL;
-        (cmdnames[ea.cmdidx].cmd_func)(&ea);
+        (excmd_info[ea.cmdidx].cmd_func)(&ea);
 
         if(ea.errmsg != NULL)
         {
@@ -2849,7 +2851,7 @@ doend:
 
     do_errthrow(cstack,
                 (ea.cmdidx != CMD_SIZE && !IS_USER_CMDIDX(ea.cmdidx))
-                ? cmdnames[(int)ea.cmdidx].cmd_name : (uchar_kt *)NULL);
+                ? excmd_info[(int)ea.cmdidx].cmd_name : (uchar_kt *)NULL);
 
     if(verbose_save >= 0)
     {
@@ -3074,11 +3076,11 @@ static uchar_kt *find_command(exargs_st *eap, int *full)
             (int)eap->cmdidx < (int)CMD_SIZE;
             eap->cmdidx = (cmdidx_T)((int)eap->cmdidx + 1))
         {
-            if(STRNCMP(cmdnames[(int)eap->cmdidx].cmd_name,
+            if(STRNCMP(excmd_info[(int)eap->cmdidx].cmd_name,
                        (char *)eap->cmd, (size_t)len) == 0)
             {
                 if(full != NULL
-                   && cmdnames[(int)eap->cmdidx].cmd_name[len] == NUL)
+                   && excmd_info[(int)eap->cmdidx].cmd_name[len] == NUL)
                 {
                     *full = TRUE;
                 }
@@ -3495,7 +3497,7 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
             (int)ea.cmdidx < (int)CMD_SIZE;
             ea.cmdidx = (cmdidx_T)((int)ea.cmdidx + 1))
         {
-            if(STRNCMP(cmdnames[(int)ea.cmdidx].cmd_name, cmd, len) == 0)
+            if(STRNCMP(excmd_info[(int)ea.cmdidx].cmd_name, cmd, len) == 0)
             {
                 break;
             }
@@ -3555,7 +3557,7 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
     // 5. parse arguments
     if(!IS_USER_CMDIDX(ea.cmdidx))
     {
-        ea.argt = cmdnames[(int)ea.cmdidx].cmd_argt;
+        ea.argt = excmd_info[(int)ea.cmdidx].cmd_argt;
     }
 
     const char *arg = (const char *)skipwhite((const uchar_kt *)p);
@@ -6137,7 +6139,7 @@ uchar_kt *get_command_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
         return get_user_command_name(idx);
     }
 
-    return cmdnames[idx].cmd_name;
+    return excmd_info[idx].cmd_name;
 }
 
 static int uc_add_command(uchar_kt *name,
@@ -10644,10 +10646,10 @@ static void ex_findpat(exargs_st *eap)
     uchar_kt *p;
     int action;
 
-    switch(cmdnames[eap->cmdidx].cmd_name[2])
+    switch(excmd_info[eap->cmdidx].cmd_name[2])
     {
         case 'e': // ":psearch", ":isearch" and ":dsearch"
-            if(cmdnames[eap->cmdidx].cmd_name[0] == 'p')
+            if(excmd_info[eap->cmdidx].cmd_name[0] == 'p')
             {
                 action = ACTION_GOTO;
             }
@@ -10723,7 +10725,7 @@ static void ex_findpat(exargs_st *eap)
 static void ex_ptag(exargs_st *eap)
 {
     g_do_tagpreview = p_pvh; // will be reset to 0 in ex_tag_cmd()
-    ex_tag_cmd(eap, cmdnames[eap->cmdidx].cmd_name + 1);
+    ex_tag_cmd(eap, excmd_info[eap->cmdidx].cmd_name + 1);
 }
 
 /// ":pedit"
@@ -10753,7 +10755,7 @@ static void ex_stag(exargs_st *eap)
     postponed_split = -1;
     postponed_split_flags = cmdmod.split;
     postponed_split_tab = cmdmod.tab;
-    ex_tag_cmd(eap, cmdnames[eap->cmdidx].cmd_name + 1);
+    ex_tag_cmd(eap, excmd_info[eap->cmdidx].cmd_name + 1);
     postponed_split_flags = 0;
     postponed_split_tab = 0;
 }
@@ -10761,7 +10763,7 @@ static void ex_stag(exargs_st *eap)
 /// ":tag", ":tselect", ":tjump", ":tnext", etc.
 static void ex_tag(exargs_st *eap)
 {
-    ex_tag_cmd(eap, cmdnames[eap->cmdidx].cmd_name);
+    ex_tag_cmd(eap, excmd_info[eap->cmdidx].cmd_name);
 }
 
 static void ex_tag_cmd(exargs_st *eap, uchar_kt *name)
