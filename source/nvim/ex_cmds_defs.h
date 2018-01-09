@@ -90,14 +90,14 @@ typedef void (*exfunc_ft)(exargs_st *eap);
 
 typedef uchar_kt *(*line_getter_ft)(int, void *, int);
 
-/// Structure for command definition.
-typedef struct cmdname
+/// Structure for ex command definition.
+typedef struct excmd_def_s
 {
     uchar_kt *cmd_name;  ///< Name of the command.
     exfunc_ft cmd_func;  ///< Function with implementation of this command.
     uint32_t cmd_argt;   ///< Relevant flags from the declared above.
     int cmd_addr_type;   ///< Flag for address type
-} CommandDefinition;
+} excmd_def_st;
 
 /// Arguments used for Ex commands.
 struct exargs_s
@@ -128,7 +128,7 @@ struct exargs_s
     int bad_char;              ///< BAD_KEEP, BAD_DROP or replacement byte
     int useridx;               ///< user command index
     uchar_kt *errmsg;          ///< returned error message
-    line_getter_ft getline;      ///< Function used to get the next line
+    line_getter_ft getline;    ///< Function used to get the next line
     void *cookie;              ///< argument for getline()
     struct condstack *cstack;  ///< condition stack for ":if" etc.
 };

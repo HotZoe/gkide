@@ -42,7 +42,7 @@ typedef enum CMD_index {
 ]])
 
 defsfile:write(string.format([[
-static CommandDefinition cmdnames[%u] = {
+static excmd_def_st cmdnames[%u] = {
 ]], #defs))
 
 for i, cmd in ipairs(defs) do
