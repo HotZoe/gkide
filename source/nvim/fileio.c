@@ -4,16 +4,16 @@
 /// The autocommands are stored in a list for each event.
 /// Autocommands for the same pattern, that are consecutive, are joined
 /// together, to avoid having to match the pattern too often.
-/// The result is an array of Autopat lists, which point to AutoCmd lists:
+/// The result is an array of Autopat lists, which point to autocmd_st lists:
 ///
 /// first_autopat[0] --> Autopat.next  -->  Autopat.next -->  NULL
 ///                      Autopat.cmds       Autopat.cmds
 ///                          |                    |
 ///                          V                    V
-///                      AutoCmd.next       AutoCmd.next
+///                      autocmd_st.next       autocmd_st.next
 ///                          |                    |
 ///                          V                    V
-///                      AutoCmd.next            NULL
+///                      autocmd_st.next            NULL
 ///                          |
 ///                          V
 ///                         NULL
@@ -22,7 +22,7 @@
 ///                      Autopat.cmds
 ///                          |
 ///                          V
-///                      AutoCmd.next
+///                      autocmd_st.next
 ///                          |
 ///                          V
 ///                         NULL
@@ -91,22 +91,23 @@
 #define BUFSIZE         8192    ///< size of normal write buffer
 #define SMBUFSIZE       256     ///< size of emergency write buffer
 
-typedef struct AutoCmd
+typedef struct autocmd_s autocmd_st;
+struct autocmd_s
 {
     uchar_kt *cmd;          ///< The command to be executed
-                          ///< (NULL when command has been removed)
-    char nested;          ///< If autocommands nest here
-    char last;            ///< last command in list
-    script_id_kt scriptID;      ///< script ID where defined
-    struct AutoCmd *next; ///< Next AutoCmd in list
-} AutoCmd;
+                            ///< (NULL when command has been removed)
+    char nested;            ///< If autocommands nest here
+    char last;              ///< last command in list
+    script_id_kt scriptID;  ///< script ID where defined
+    autocmd_st *next;       ///< Next autocmd_st in list
+};
 
 typedef struct AutoPat
 {
     uchar_kt *pat;          ///< pattern as typed
                           ///< (NULL when command has been removed)
     regprog_st *reg_prog;  ///< compiled regprog for pattern
-    AutoCmd *cmds;        ///< list of commands to do
+    autocmd_st *cmds;        ///< list of commands to do
     struct AutoPat *next; ///< next AutoPat in AutoPat list
     int group;            ///< group ID
     int patlen;           ///< strlen() of pat
@@ -119,7 +120,7 @@ typedef struct AutoPat
 typedef struct AutoPatCmd
 {
     AutoPat *curpat;         ///< next AutoPat to examine
-    AutoCmd *nextcmd;        ///< next AutoCmd to execute
+    autocmd_st *nextcmd;        ///< next autocmd_st to execute
     int group;               ///< group being used
     uchar_kt *fname;           ///< fname to match with
     uchar_kt *sfname;          ///< sfname to match with
@@ -6904,7 +6905,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// Show the autocommands for one AutoPat.
 static void show_autocmd(AutoPat *ap, event_T event)
 {
-    AutoCmd *ac;
+    autocmd_st *ac;
 
     // Check for "got_int" (here and at various places below),
     // which is set when "q" has been hit for the "--more--" prompt
@@ -7010,7 +7011,7 @@ static void au_remove_pat(AutoPat *ap)
 /// Mark all commands for a pattern for deletion.
 static void au_remove_cmds(AutoPat *ap)
 {
-    AutoCmd *ac;
+    autocmd_st *ac;
 
     for(ac = ap->cmds; ac != NULL; ac = ac->next)
     {
@@ -7026,7 +7027,7 @@ static void au_remove_cmds(AutoPat *ap)
 static void au_cleanup(void)
 {
     AutoPat *ap, **prev_ap;
-    AutoCmd *ac, **prev_ac;
+    autocmd_st *ac, **prev_ac;
     event_T event;
 
     if(autocmd_busy || !au_need_clean)
@@ -7734,8 +7735,8 @@ static int do_autocmd_event(event_T event,
 {
     AutoPat *ap;
     AutoPat **prev_ap;
-    AutoCmd *ac;
-    AutoCmd **prev_ac;
+    autocmd_st *ac;
+    autocmd_st **prev_ac;
     int brace_level;
     uchar_kt *endpat;
     int findgroup;
@@ -7961,7 +7962,7 @@ static int do_autocmd_event(event_T event,
                 }
             }
 
-            // Add the autocmd at the end of the AutoCmd list.
+            // Add the autocmd at the end of the autocmd_st list.
             prev_ac = &(ap->cmds);
 
             while((ac = *prev_ac) != NULL)
@@ -7969,7 +7970,7 @@ static int do_autocmd_event(event_T event,
                 prev_ac = &ac->next;
             }
 
-            ac = xmalloc(sizeof(AutoCmd));
+            ac = xmalloc(sizeof(autocmd_st));
             ac->cmd = vim_strsave(cmd);
             ac->scriptID = current_SID;
             ac->next = NULL;
@@ -8930,7 +8931,7 @@ void unblock_autocmds(void)
 static void auto_next_pat(AutoPatCmd *apc, int stop_at_last)
 {
     AutoPat *ap;
-    AutoCmd *cp;
+    autocmd_st *cp;
     char *s;
     xfree(sourcing_name);
     sourcing_name = NULL;
@@ -9013,7 +9014,7 @@ uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
 {
     AutoPatCmd *acp = (AutoPatCmd *)cookie;
     uchar_kt *retval;
-    AutoCmd *ac;
+    autocmd_st *ac;
 
     // Can be called again after returning the last line.
     if(acp->curpat == NULL)
