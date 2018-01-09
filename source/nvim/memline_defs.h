@@ -47,7 +47,7 @@ typedef struct memline
     linenum_kt ml_line_lnum;      ///< line number of cached line, 0 if not valid
     uchar_kt *ml_line_ptr;        ///< pointer to cached line
 
-    bhdr_T *ml_locked;          ///< block used by last ml_get
+    blk_hdr_st *ml_locked;          ///< block used by last ml_get
     linenum_kt ml_locked_low;     ///< first line in ml_locked
     linenum_kt ml_locked_high;    ///< last line in ml_locked
     int ml_locked_lineadd;      ///< number of lines inserted in ml_locked

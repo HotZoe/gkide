@@ -71,21 +71,22 @@ typedef struct mf_hashtab
 /// The free list is a single linked list, not sorted.
 /// The blocks in the free list have no block of memory allocated and
 /// the contents of the block in the file (if any) is irrelevant.
-typedef struct bhdr
+typedef struct blk_hdr_s blk_hdr_st;
+struct blk_hdr_s
 {
     /// block number, part of bh_hashitem
     #define bh_bnum  bh_hashitem.mhi_key
     mf_hashitem_T    bh_hashitem; ///< header for hash table and key
 
-    struct bhdr *bh_next;      ///< next block header in free or used list
-    struct bhdr *bh_prev;      ///< previous block header in used list
+    blk_hdr_st *bh_next;      ///< next block header in free or used list
+    blk_hdr_st *bh_prev;      ///< previous block header in used list
     void *bh_data;             ///< pointer to memory (for used block)
     unsigned bh_page_count;    ///< number of pages in this block
 
     #define BH_DIRTY    1U
     #define BH_LOCKED   2U
     unsigned bh_flags;         ///< BH_DIRTY or BH_LOCKED
-} bhdr_T;
+};
 
 /// A block number translation list item.
 ///
@@ -107,9 +108,9 @@ typedef struct memfile
     uchar_kt *mf_fname;            ///< name of the file
     uchar_kt *mf_ffname;           ///< idem, full path
     int mf_fd;                   ///< file descriptor
-    bhdr_T *mf_free_first;       ///< first block header in free list
-    bhdr_T *mf_used_first;       ///< mru block header in used list
-    bhdr_T *mf_used_last;        ///< lru block header in used list
+    blk_hdr_st *mf_free_first;       ///< first block header in free list
+    blk_hdr_st *mf_used_first;       ///< mru block header in used list
+    blk_hdr_st *mf_used_last;        ///< lru block header in used list
     unsigned mf_used_count;      ///< number of pages in used list
     unsigned mf_used_count_max;  ///< maximum number of pages in memory
     mf_hashtab_T mf_hash;        ///< hash lists

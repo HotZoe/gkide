@@ -227,7 +227,7 @@ void mf_close(memfile_T *mfp, bool del_file)
     }
 
     // free entries in used list
-    for(bhdr_T *hp = mfp->mf_used_first, *nextp; hp != NULL; hp = nextp)
+    for(blk_hdr_st *hp = mfp->mf_used_first, *nextp; hp != NULL; hp = nextp)
     {
         total_mem_used -= hp->bh_page_count * mfp->mf_page_size;
         nextp = hp->bh_next;
@@ -310,29 +310,29 @@ void mf_new_page_size(memfile_T *mfp, unsigned new_size)
 ///
 /// @param page_count
 /// Desired number of pages.
-bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
+blk_hdr_st *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
 {
     // If we reached the maximum size for the used memory blocks, release one.
-    // If a bhdr_T is returned, use it and adjust the page_count if necessary.
-    // If no bhdr_T is returned, a new one will be created.
-    bhdr_T *hp = mf_release(mfp, page_count); // the block to be returned
+    // If a blk_hdr_st is returned, use it and adjust the page_count if necessary.
+    // If no blk_hdr_st is returned, a new one will be created.
+    blk_hdr_st *hp = mf_release(mfp, page_count); // the block to be returned
 
     // Decide on the number to use:
     // If there is a free block, use its number.
     // Otherwise use mf_block_min for a negative number, mf_block_max for
     // a positive number.
-    bhdr_T *freep = mfp->mf_free_first; // first free block
+    blk_hdr_st *freep = mfp->mf_free_first; // first free block
 
     if(!negative && freep != NULL && freep->bh_page_count >= page_count)
     {
         // If the block in the free list has more pages, take only the number
-        // of pages needed and allocate a new bhdr_T with data.
+        // of pages needed and allocate a new blk_hdr_st with data.
         //
         // If the number of pages matches and mf_release() did not return a
-        // bhdr_T, use the bhdr_T from the free list and allocate the data.
+        // blk_hdr_st, use the blk_hdr_st from the free list and allocate the data.
         //
-        // If the number of pages matches and mf_release() returned a bhdr_T,
-        // just use the number and free the bhdr_T from the free list
+        // If the number of pages matches and mf_release() returned a blk_hdr_st,
+        // just use the number and free the blk_hdr_st from the free list
         if(freep->bh_page_count > page_count)
         {
             if(hp == NULL)
@@ -394,7 +394,7 @@ bhdr_T *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
 // Caller should first check a negative nr with mf_trans_del().
 //
 // @return  NULL if not found
-bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
+blk_hdr_st *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
 {
     // check block number exists
     if(nr >= mfp->mf_blocknr_max || nr <= mfp->mf_blocknr_min)
@@ -403,7 +403,7 @@ bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
     }
 
     // see if it is in the cache
-    bhdr_T *hp = mf_find_hash(mfp, nr);
+    blk_hdr_st *hp = mf_find_hash(mfp, nr);
 
     if(hp == NULL) // not in the hash list
     {
@@ -449,7 +449,7 @@ bhdr_T *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
 ///
 /// @param dirty   Whether block must be written to file later.
 /// @param infile  Whether block should be in file (needed for recovery).
-void mf_put(memfile_T *mfp, bhdr_T *hp, bool dirty, bool infile)
+void mf_put(memfile_T *mfp, blk_hdr_st *hp, bool dirty, bool infile)
 {
     unsigned flags = hp->bh_flags;
 
@@ -475,7 +475,7 @@ void mf_put(memfile_T *mfp, bhdr_T *hp, bool dirty, bool infile)
 }
 
 /// Signal block as no longer used (may put it in the free list).
-void mf_free(memfile_T *mfp, bhdr_T *hp)
+void mf_free(memfile_T *mfp, blk_hdr_st *hp)
 {
     xfree(hp->bh_data); // free data
     mf_rem_hash(mfp, hp); // get *hp out of the hash list
@@ -527,7 +527,7 @@ int mf_sync(memfile_T *mfp, int flags)
     // Then we only try to write blocks within the existing file. If that also
     // fails then we give up.
     int status = OK;
-    bhdr_T *hp;
+    blk_hdr_st *hp;
 
     for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
         if(((flags & MFS_ALL) || hp->bh_bnum >= 0)
@@ -592,7 +592,7 @@ int mf_sync(memfile_T *mfp, int flags)
 /// These are blocks that need to be written to a newly created swapfile.
 void mf_set_dirty(memfile_T *mfp)
 {
-    for(bhdr_T *hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
+    for(blk_hdr_st *hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     {
         if(hp->bh_bnum > 0)
         {
@@ -604,25 +604,25 @@ void mf_set_dirty(memfile_T *mfp)
 }
 
 /// Insert block in front of memfile's hash list.
-static void mf_ins_hash(memfile_T *mfp, bhdr_T *hp)
+static void mf_ins_hash(memfile_T *mfp, blk_hdr_st *hp)
 {
     mf_hash_add_item(&mfp->mf_hash, (mf_hashitem_T *)hp);
 }
 
 /// Remove block from memfile's hash list.
-static void mf_rem_hash(memfile_T *mfp, bhdr_T *hp)
+static void mf_rem_hash(memfile_T *mfp, blk_hdr_st *hp)
 {
     mf_hash_rem_item(&mfp->mf_hash, (mf_hashitem_T *)hp);
 }
 
 /// Lookup block with number "nr" in memfile's hash list.
-static bhdr_T *mf_find_hash(memfile_T *mfp, blocknr_T nr)
+static blk_hdr_st *mf_find_hash(memfile_T *mfp, blocknr_T nr)
 {
-    return (bhdr_T *)mf_hash_find(&mfp->mf_hash, nr);
+    return (blk_hdr_st *)mf_hash_find(&mfp->mf_hash, nr);
 }
 
 /// Insert block at the front of memfile's used list.
-static void mf_ins_used(memfile_T *mfp, bhdr_T *hp)
+static void mf_ins_used(memfile_T *mfp, blk_hdr_st *hp)
 {
     hp->bh_next = mfp->mf_used_first;
     mfp->mf_used_first = hp;
@@ -642,7 +642,7 @@ static void mf_ins_used(memfile_T *mfp, bhdr_T *hp)
 }
 
 /// Remove block from memfile's used list.
-static void mf_rem_used(memfile_T *mfp, bhdr_T *hp)
+static void mf_rem_used(memfile_T *mfp, blk_hdr_st *hp)
 {
     if(hp->bh_next == NULL) // last block in used list
     {
@@ -680,7 +680,7 @@ static void mf_rem_used(memfile_T *mfp, bhdr_T *hp)
 /// - Tried to create swap file but couldn't.
 /// - All blocks are locked.
 /// - Unlocked dirty block found, but flush failed.
-static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
+static blk_hdr_st *mf_release(memfile_T *mfp, unsigned page_count)
 {
     // don't release while in mf_close_file()
     if(mf_dont_release)
@@ -725,7 +725,7 @@ static bhdr_T *mf_release(memfile_T *mfp, unsigned page_count)
         return NULL;
     }
 
-    bhdr_T *hp;
+    blk_hdr_st *hp;
 
     for(hp = mfp->mf_used_last; hp != NULL; hp = hp->bh_prev)
     {
@@ -786,7 +786,7 @@ bool mf_release_all(void)
             // only if there is a swapfile.
             if(mfp->mf_fd >= 0)
             {
-                for(bhdr_T *hp = mfp->mf_used_last; hp != NULL;)
+                for(blk_hdr_st *hp = mfp->mf_used_last; hp != NULL;)
                 {
                     if(!(hp->bh_flags & BH_LOCKED)
                        && (!(hp->bh_flags & BH_DIRTY)
@@ -810,23 +810,23 @@ bool mf_release_all(void)
 }
 
 /// Allocate a block header and a block of memory for it.
-static bhdr_T *mf_alloc_bhdr(memfile_T *mfp, unsigned page_count)
+static blk_hdr_st *mf_alloc_bhdr(memfile_T *mfp, unsigned page_count)
 {
-    bhdr_T *hp = xmalloc(sizeof(bhdr_T));
+    blk_hdr_st *hp = xmalloc(sizeof(blk_hdr_st));
     hp->bh_data = xmalloc(mfp->mf_page_size * page_count);
     hp->bh_page_count = page_count;
     return hp;
 }
 
 /// Free a block header and its block memory.
-static void mf_free_bhdr(bhdr_T *hp)
+static void mf_free_bhdr(blk_hdr_st *hp)
 {
     xfree(hp->bh_data);
     xfree(hp);
 }
 
 /// Insert a block in the free list.
-static void mf_ins_free(memfile_T *mfp, bhdr_T *hp)
+static void mf_ins_free(memfile_T *mfp, blk_hdr_st *hp)
 {
     hp->bh_next = mfp->mf_free_first;
     mfp->mf_free_first = hp;
@@ -835,9 +835,9 @@ static void mf_ins_free(memfile_T *mfp, bhdr_T *hp)
 /// Remove the first block in the free list and return it.
 ///
 /// Caller must check that mfp->mf_free_first is not NULL.
-static bhdr_T *mf_rem_free(memfile_T *mfp)
+static blk_hdr_st *mf_rem_free(memfile_T *mfp)
 {
-    bhdr_T *hp = mfp->mf_free_first;
+    blk_hdr_st *hp = mfp->mf_free_first;
     mfp->mf_free_first = hp->bh_next;
     return hp;
 }
@@ -849,7 +849,7 @@ static bhdr_T *mf_rem_free(memfile_T *mfp)
 /// - FAIL  On failure. Could be:
 ///         - No file.
 ///         - Error reading file.
-static int mf_read(memfile_T *mfp, bhdr_T *hp)
+static int mf_read(memfile_T *mfp, blk_hdr_st *hp)
 {
     if(mfp->mf_fd < 0) // there is no file, can't read
     {
@@ -889,11 +889,11 @@ static int mf_read(memfile_T *mfp, bhdr_T *hp)
 ///         - Could not translate negative block number to positive.
 ///         - Seek error in swap file.
 ///         - Write error in swap file.
-static int mf_write(memfile_T *mfp, bhdr_T *hp)
+static int mf_write(memfile_T *mfp, blk_hdr_st *hp)
 {
     off_t offset; // offset in the file
     blocknr_T nr; // block nr which is being written
-    bhdr_T *hp2;
+    blk_hdr_st *hp2;
     unsigned page_size; // number of bytes in a page
     unsigned page_count; // number of pages written
     unsigned size; // number of bytes written
@@ -994,7 +994,7 @@ static int mf_write(memfile_T *mfp, bhdr_T *hp)
 /// @return
 /// - OK    On success.
 /// - FAIL  On failure.
-static int mf_trans_add(memfile_T *mfp, bhdr_T *hp)
+static int mf_trans_add(memfile_T *mfp, blk_hdr_st *hp)
 {
     if(hp->bh_bnum >= 0) // it's already positive
     {
@@ -1007,7 +1007,7 @@ static int mf_trans_add(memfile_T *mfp, bhdr_T *hp)
     // If the first item in the free list has sufficient pages,
     // use its number. Otherwise use mf_blocknr_max.
     blocknr_T new_bnum;
-    bhdr_T *freep = mfp->mf_free_first;
+    blk_hdr_st *freep = mfp->mf_free_first;
     unsigned page_count = hp->bh_page_count;
 
     if(freep != NULL && freep->bh_page_count >= page_count)
