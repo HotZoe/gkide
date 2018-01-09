@@ -877,8 +877,8 @@ static int nextchr;      ///< used for ungetchr()
 #define REG_ZPAREN      2  ///< \z(\)
 #define REG_NPAREN      3  ///< \%(\)
 
-static regengine_T bt_regengine;
-static regengine_T nfa_regengine;
+static regengine_st bt_regengine;
+static regengine_st nfa_regengine;
 
 /// @return
 /// TRUE if compiled regular expression "prog" can match a line break.
@@ -9919,7 +9919,7 @@ list_st *reg_submatch_list(int no)
     return list;
 }
 
-static regengine_T bt_regengine =
+static regengine_st bt_regengine =
 {
     bt_regcomp,
     bt_regfree,
@@ -18865,7 +18865,7 @@ static long nfa_regexec_multi(regmmatch_T *rmp,
     return nfa_regexec_both(NULL, col, tm);
 }
 
-static regengine_T nfa_regengine =
+static regengine_st nfa_regengine =
 {
     nfa_regcomp,
     nfa_regfree,

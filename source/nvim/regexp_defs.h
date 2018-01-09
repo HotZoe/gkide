@@ -27,14 +27,14 @@
 #define BACKTRACKING_ENGINE  1
 #define NFA_ENGINE           2
 
-typedef struct regengine regengine_T;
+typedef struct regengine regengine_st;
 
 /// Structure returned by vim_regcomp() to pass on to vim_regexec().
 /// This is the general structure. For the actual matcher, two specific
 /// structures are used. See code below.
 typedef struct regprog
 {
-    regengine_T *engine;
+    regengine_st *engine;
     unsigned regflags;
     unsigned re_engine;  ///< Automatic, backtracking or NFA engine.
     unsigned re_flags;   ///< Second argument for vim_regcomp().
@@ -46,7 +46,7 @@ typedef struct regprog
 typedef struct
 {
     // These four members implement regprog_st.
-    regengine_T *engine;
+    regengine_st *engine;
     unsigned regflags;
     unsigned re_engine;
     unsigned re_flags;   ///< Second argument for vim_regcomp().
@@ -76,7 +76,7 @@ struct nfa_state_s
 typedef struct
 {
     // These four members implement regprog_st.
-    regengine_T *engine;
+    regengine_st *engine;
     unsigned regflags;
     unsigned re_engine;
     unsigned re_flags;    ///< Second argument for vim_regcomp().
