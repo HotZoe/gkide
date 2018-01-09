@@ -115,7 +115,7 @@ typedef struct efm_S efm_T;
 struct efm_S
 {
     /// pre-formatted part of 'errorformat'
-    regprog_T *prog;
+    regprog_st *prog;
 
     /// pointer to next (NULL if last)
     efm_T *next;

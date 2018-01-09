@@ -883,7 +883,7 @@ static regengine_T nfa_regengine;
 
 /// @return
 /// TRUE if compiled regular expression "prog" can match a line break.
-int re_multiline(regprog_T *prog)
+int re_multiline(regprog_st *prog)
 {
     return prog->regflags & RF_HASNL;
 }
@@ -1933,7 +1933,7 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
 /// Beware that the optimization-preparation code in here knows about some
 /// of the structure of the compiled regexp.
 /// "re_flags": RE_MAGIC and/or RE_STRING.
-static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
+static regprog_st *bt_regcomp(uchar_kt *expr, int re_flags)
 {
     int len;
     int flags;
@@ -2079,11 +2079,11 @@ static regprog_T *bt_regcomp(uchar_kt *expr, int re_flags)
 #endif
 
     r->engine = &bt_regengine;
-    return (regprog_T *)r;
+    return (regprog_st *)r;
 }
 
 /// Free a compiled regexp program, returned by bt_regcomp().
-static void bt_regfree(regprog_T *prog)
+static void bt_regfree(regprog_st *prog)
 {
     xfree(prog);
 }
@@ -7807,7 +7807,7 @@ static uchar_kt *regnext(uchar_kt *p)
 /// @return TRUE if it's wrong.
 static int prog_magic_wrong(void)
 {
-    regprog_T *prog;
+    regprog_st *prog;
     prog = REG_MULTI ? reg_mmatch->regprog : reg_match->regprog;
 
     // For NFA matcher we don't check the magic
@@ -18654,7 +18654,7 @@ theend:
 /// @return
 /// - the program in allocated space.
 /// - NULL for an error.
-static regprog_T *nfa_regcomp(uchar_kt *expr, int re_flags)
+static regprog_st *nfa_regcomp(uchar_kt *expr, int re_flags)
 {
     int *postfix;
     nfa_regprog_T *prog = NULL;
@@ -18751,7 +18751,7 @@ out:
     post_start = post_ptr = post_end = NULL;
     state_ptr = NULL;
 
-    return (regprog_T *)prog;
+    return (regprog_st *)prog;
 
 fail:
 
@@ -18768,7 +18768,7 @@ fail:
 }
 
 /// Free a compiled regexp program, returned by nfa_regcomp().
-static void nfa_regfree(regprog_T *prog)
+static void nfa_regfree(regprog_st *prog)
 {
     if(prog != NULL)
     {
@@ -18894,9 +18894,9 @@ static uchar_kt regname[][30] =
 /// - the program in allocated memory.
 ///   Use vim_regfree() to free the memory.
 /// - NULL for an error.
-regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
+regprog_st *vim_regcomp(uchar_kt *expr_arg, int re_flags)
 {
-    regprog_T *prog = NULL;
+    regprog_st *prog = NULL;
     uchar_kt *expr = expr_arg;
     regexp_engine = p_re;
 
@@ -18984,7 +18984,7 @@ regprog_T *vim_regcomp(uchar_kt *expr_arg, int re_flags)
 }
 
 /// Free a compiled regexp program, returned by vim_regcomp().
-void vim_regfree(regprog_T *prog)
+void vim_regfree(regprog_st *prog)
 {
     if(prog != NULL)
     {
@@ -19053,7 +19053,7 @@ static int vim_regexec_both(regmatch_T *rmp,
 ///
 /// @note
 /// "*prog" may be freed and changed.
-int vim_regexec_prog(regprog_T **prog,
+int vim_regexec_prog(regprog_st **prog,
                      bool ignore_case,
                      uchar_kt *line,
                      columnum_kt col)

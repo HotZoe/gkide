@@ -136,7 +136,7 @@ struct slang_S
     int sl_compsylmax;       ///< COMPOUNDSYLMAX (default: MAXWLEN)
     int sl_compoptions;      ///< COMP_* flags
     garray_st sl_comppat;     ///< CHECKCOMPOUNDPATTERN items
-    regprog_T *sl_compprog;  ///< COMPOUNDRULE turned into a regexp progrm
+    regprog_st *sl_compprog;  ///< COMPOUNDRULE turned into a regexp progrm
                              ///< (NULL when no compounding)
     uchar_kt *sl_comprules;      ///< all COMPOUNDRULE concatenated (or NULL)
     uchar_kt *sl_compstartflags; ///< flags for first compound word
@@ -146,7 +146,7 @@ struct slang_S
     garray_st sl_syl_items;     ///< syllable items
 
     int sl_prefixcnt;          ///< number of items in "sl_prefprog"
-    regprog_T **sl_prefprog;   ///< table with regprogs for prefixes
+    regprog_st **sl_prefprog;   ///< table with regprogs for prefixes
 
     /// list of fromto_T entries from REP lines
     garray_st sl_rep;

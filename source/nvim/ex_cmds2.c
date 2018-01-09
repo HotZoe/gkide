@@ -628,7 +628,7 @@ struct debuggy
     int dbg_nr;             ///< breakpoint number
     int dbg_type;           ///< DBG_FUNC or DBG_FILE
     uchar_kt *dbg_name;       ///< function or file name
-    regprog_T *dbg_prog;    ///< regexp program
+    regprog_st *dbg_prog;    ///< regexp program
     linenum_kt dbg_lnum;      ///< line number in function or file
     int dbg_forceit;        ///< ! used
 };

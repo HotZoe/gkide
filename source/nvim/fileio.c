@@ -105,7 +105,7 @@ typedef struct AutoPat
 {
     uchar_kt *pat;          ///< pattern as typed
                           ///< (NULL when command has been removed)
-    regprog_T *reg_prog;  ///< compiled regprog for pattern
+    regprog_st *reg_prog;  ///< compiled regprog for pattern
     AutoCmd *cmds;        ///< list of commands to do
     struct AutoPat *next; ///< next AutoPat in AutoPat list
     int group;            ///< group ID
@@ -9383,7 +9383,7 @@ theend:
 ///
 /// @return true if there is a match, false otherwise
 static bool match_file_pat(uchar_kt *pattern,
-                           regprog_T **prog,
+                           regprog_st **prog,
                            uchar_kt *fname,
                            uchar_kt *sfname,
                            uchar_kt *tail,

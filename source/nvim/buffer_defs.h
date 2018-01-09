@@ -403,7 +403,7 @@ typedef struct
     long b_syn_sync_maxlines;        ///< maximal sync lines offset
     long b_syn_sync_linebreaks;      ///< offset for multi-line pattern
     uchar_kt *b_syn_linecont_pat;      ///< line continuation pattern
-    regprog_T *b_syn_linecont_prog;  ///< line continuation program
+    regprog_st *b_syn_linecont_prog;  ///< line continuation program
     syn_time_T b_syn_linecont_time;  ///<
     int b_syn_linecont_ic;           ///< ignore-case flag for above
     int b_syn_topgrp;                ///< for ":syntax include"
@@ -429,7 +429,7 @@ typedef struct
     bool b_spell_ismw[256];   ///< flags: is midword char
     uchar_kt *b_spell_ismw_mb;  ///< multi-byte midword chars
     uchar_kt *b_p_spc;          ///< 'spellcapcheck'
-    regprog_T *b_cap_prog;    ///< program for 'spellcapcheck'
+    regprog_st *b_cap_prog;    ///< program for 'spellcapcheck'
     uchar_kt *b_p_spf;          ///< 'spellfile'
     uchar_kt *b_p_spl;          ///< 'spelllang'
     int b_cjk;                ///< all CJK letters as OK

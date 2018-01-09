@@ -346,7 +346,7 @@ struct affix_entry_s
     uchar_kt *ae_add;        ///< text to add to basic word (can be NULL)
     uchar_kt *ae_flags;      ///< flags on the affix (can be NULL)
     uchar_kt *ae_cond;       ///< condition (NULL for ".")
-    regprog_T *ae_prog;      ///< regexp program for ae_cond or NULL
+    regprog_st *ae_prog;     ///< regexp program for ae_cond or NULL
     char ae_compforbid;      ///< COMPOUNDFORBIDFLAG found
     char ae_comppermit;      ///< COMPOUNDPERMITFLAG found
 };
@@ -1289,7 +1289,7 @@ static int read_prefcond_section(FILE *fd, slang_T *lp)
         return SP_FORMERROR;
     }
 
-    lp->sl_prefprog = xcalloc(cnt, sizeof(regprog_T *));
+    lp->sl_prefprog = xcalloc(cnt, sizeof(regprog_st *));
     lp->sl_prefixcnt = cnt;
 
     for(int i = 0; i < cnt; i++)

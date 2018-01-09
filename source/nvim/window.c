@@ -7152,7 +7152,7 @@ int match_add(win_st *wp,
     matchitem_T *prev;
     matchitem_T *m;
     int hlg_id;
-    regprog_T *regprog = NULL;
+    regprog_st *regprog = NULL;
     int rtype = SOME_VALID;
 
     if(*grp == NUL || (pat != NULL && *pat == NUL))

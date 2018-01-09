@@ -1481,7 +1481,7 @@ static int valid_word_prefix(int totprefcnt,
 
         // Check the condition, if there is one. The condition index is
         // stored in the two bytes above the prefix ID byte.
-        regprog_T **rp = &slang->sl_prefprog[((unsigned)pidx >> 8) & 0xffff];
+        regprog_st **rp = &slang->sl_prefprog[((unsigned)pidx >> 8) & 0xffff];
 
         if(*rp != NULL)
         {

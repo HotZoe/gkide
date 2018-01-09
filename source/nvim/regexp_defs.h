@@ -38,14 +38,14 @@ typedef struct regprog
     unsigned regflags;
     unsigned re_engine;  ///< Automatic, backtracking or NFA engine.
     unsigned re_flags;   ///< Second argument for vim_regcomp().
-} regprog_T;
+} regprog_st;
 
 /// Structure used by the back track matcher.
 /// These fields are only to be used in regexp.c!
 /// @see regexp.c for an explanation.
 typedef struct
 {
-    // These four members implement regprog_T.
+    // These four members implement regprog_st.
     regengine_T *engine;
     unsigned regflags;
     unsigned re_engine;
@@ -75,7 +75,7 @@ struct nfa_state
 /// Structure used by the NFA matcher.
 typedef struct
 {
-    // These four members implement regprog_T.
+    // These four members implement regprog_st.
     regengine_T *engine;
     unsigned regflags;
     unsigned re_engine;
@@ -101,7 +101,7 @@ typedef struct
 /// When there is no match, the pointer is NULL.
 typedef struct
 {
-    regprog_T *regprog;
+    regprog_st *regprog;
     uchar_kt *startp[NSUBEXP];
     uchar_kt *endp[NSUBEXP];
     bool rm_ic;
@@ -115,7 +115,7 @@ typedef struct
 /// no match, the line number is -1.
 typedef struct
 {
-    regprog_T *regprog;
+    regprog_st *regprog;
     bpos_st startpos[NSUBEXP];
     bpos_st endpos[NSUBEXP];
     int rmm_ic;
@@ -133,8 +133,8 @@ typedef struct
 
 struct regengine
 {
-    regprog_T *(*regcomp)(uchar_kt *, int);
-    void (*regfree)(regprog_T *);
+    regprog_st *(*regcomp)(uchar_kt *, int);
+    void (*regfree)(regprog_st *);
     int (*regexec_nl)(regmatch_T *, uchar_kt *, columnum_kt, bool);
 
     long (*regexec_multi)(regmmatch_T *,

@@ -133,7 +133,7 @@ typedef struct syn_pattern
     struct sp_syn sp_syn;   ///< struct passed to in_id_list()
     short sp_syn_match_id;  ///< highlight group ID of patter
     uchar_kt *sp_pattern;   ///< regexp to match, pattern
-    regprog_T *sp_prog;     ///< regexp to match, program
+    regprog_st *sp_prog;     ///< regexp to match, program
     syn_time_T sp_time;
     int sp_ic;              ///< ignore-case flag for sp_prog
     short sp_off_flags;     ///< see below

@@ -4841,7 +4841,7 @@ static uchar_kt *did_set_spell_option(bool is_spellfile)
 /// Return error message when failed, NULL when OK.
 static uchar_kt *compile_cap_prog(synblock_T *synblock)
 {
-    regprog_T *rp = synblock->b_cap_prog;
+    regprog_st *rp = synblock->b_cap_prog;
     uchar_kt *re;
 
     if(*synblock->b_p_spc == NUL)
