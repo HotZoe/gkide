@@ -61,12 +61,12 @@ typedef struct
 
 /// Structure representing a NFA state.
 /// A NFA state may have no outgoing edge, when it is a NFA_MATCH state.
-typedef struct nfa_state nfa_state_T;
-struct nfa_state
+typedef struct nfa_state_s nfa_state_st;
+struct nfa_state_s
 {
     int c;
-    nfa_state_T *out;
-    nfa_state_T *out1;
+    nfa_state_st *out;
+    nfa_state_st *out1;
     int id;
     int lastlist[2];   ///< 0: normal, 1: recursive
     int val;
@@ -81,7 +81,7 @@ typedef struct
     unsigned re_engine;
     unsigned re_flags;    ///< Second argument for vim_regcomp().
 
-    nfa_state_T *start;   ///< points into state[]
+    nfa_state_st *start;   ///< points into state[]
 
     int reganch;          ///< pattern starts with ^
     int regstart;         ///< char at start of pattern
@@ -93,7 +93,7 @@ typedef struct
     uchar_kt *pattern;
     int nsubexp;          ///< number of ()
     int nstate;
-    nfa_state_T state[1]; ///< actually longer ...
+    nfa_state_st state[1]; ///< actually longer ...
 } nfa_regprog_T;
 
 /// Structure to be used for single-line matching.
