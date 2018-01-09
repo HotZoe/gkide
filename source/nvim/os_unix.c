@@ -122,15 +122,15 @@ void mch_copy_sec(uchar_kt *from_file, uchar_kt *to_file)
 
 // Return a pointer to the ACL of file @b fname in allocated memory.
 // Return NULL if the ACL is not available for whatever reason.
-vim_acl_T mch_get_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname))
+nvim_acl_kt mch_get_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname))
 {
-    vim_acl_T ret = NULL;
+    nvim_acl_kt ret = NULL;
     return ret;
 }
 
 // Set the ACL of file @b fname to @b acl (unless it's NULL).
 void mch_set_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname),
-                 vim_acl_T aclent)
+                 nvim_acl_kt aclent)
 {
     if(aclent == NULL)
     {
@@ -138,7 +138,7 @@ void mch_set_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname),
     }
 }
 
-void mch_free_acl(vim_acl_T aclent)
+void mch_free_acl(nvim_acl_kt aclent)
 {
     if(aclent == NULL)
     {

@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #include "nvim/pos.h"
+#include "nvim/types.h"
 
 /// The number of sub-matches is limited to 10.
 /// The first one (index 0) is the whole match, referenced with "\0".
@@ -27,7 +28,7 @@
 #define BACKTRACKING_ENGINE  1
 #define NFA_ENGINE           2
 
-typedef struct regengine regengine_st;
+typedef struct regengine_s regengine_st;
 
 /// Structure returned by vim_regcomp() to pass on to vim_regexec().
 /// This is the general structure. For the actual matcher, two specific
@@ -131,7 +132,7 @@ typedef struct
     uchar_kt *matches[NSUBEXP];
 } reg_extmatch_st;
 
-struct regengine
+struct regengine_s
 {
     regprog_st *(*regcomp)(uchar_kt *, int);
     void (*regfree)(regprog_st *);

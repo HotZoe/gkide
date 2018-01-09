@@ -2902,7 +2902,7 @@ int buf_write(fbuf_st *buf,
 
 #ifdef HAVE_ACL
     // ACL copied from original file to backup or new file
-    vim_acl_T acl = NULL;
+    nvim_acl_kt acl = NULL;
 #endif
 
     int write_undo_file = FALSE;
@@ -5827,7 +5827,7 @@ int vim_rename(const uchar_kt *from, const uchar_kt *to)
     long perm;
 
 #ifdef HAVE_ACL
-    vim_acl_T acl; // ACL from original file
+    nvim_acl_kt acl; // ACL from original file
 #endif
 
     bool use_tmp_file = false;

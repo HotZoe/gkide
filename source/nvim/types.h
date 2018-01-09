@@ -6,13 +6,13 @@
 #include <stdint.h>
 
 /// dummy to pass an ACL to a function
-typedef void *vim_acl_T;
-
-/// Shorthand for unsigned variables.
-typedef unsigned char uchar_kt;
+typedef void *  nvim_acl_kt;
 
 /// Can hold one decoded UTF-8 character.
 typedef uint32_t u8char_T;
+
+/// Shorthand for unsigned variables.
+typedef unsigned char uchar_kt;
 
 typedef struct expand expand_T;
 

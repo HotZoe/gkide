@@ -1536,7 +1536,7 @@ write_error:
 #ifdef HAVE_ACL
     if(buf->b_ffname != NULL)
     {
-        vim_acl_T acl;
+        nvim_acl_kt acl;
 
         // For systems that support ACL:
         // get the ACL from the original file.
