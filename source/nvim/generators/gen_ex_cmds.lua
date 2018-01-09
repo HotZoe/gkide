@@ -22,6 +22,7 @@ local defsfname = autodir .. '/ex_cmds_defs.generated.h'
 local enumfile = io.open(enumfname, 'w')
 local defsfile = io.open(defsfname, 'w')
 
+-- the ex cmd definitions
 local defs = require('ex_cmds')
 local lastchar = nil
 
@@ -34,11 +35,11 @@ local byte_a = string.byte('a')
 local byte_z = string.byte('z')
 
 local cmdidxs = string.format([[
-static const cmdidx_T cmdidxs[%u] = {
+static const excmd_idx_et cmdidxs[%u] = {
 ]], byte_z - byte_a + 2)
 
 enumfile:write([[
-typedef enum CMD_index {
+typedef enum excmd_idx_e {
 ]])
 
 defsfile:write(string.format([[
@@ -46,8 +47,8 @@ static excmd_def_st excmd_info[%u] = {
 ]], #defs))
 
 for i, cmd in ipairs(defs) do
-    local enumname = cmd.enum or ('CMD_' .. cmd.command)
-    firstchar = string.byte(cmd.command)
+    local enumname = cmd.idxname or ('CMD_' .. cmd.cmdname)
+    firstchar = string.byte(cmd.cmdname)
     
     if firstchar ~= prevfirstchar then
         if(not prevfirstchar
@@ -76,7 +77,7 @@ for i, cmd in ipairs(defs) do
         .cmd_addr_type = %i
     }]], 
                    enumname, 
-                   cmd.command, 
+                   cmd.cmdname, 
                    cmd.func, 
                    cmd.flags, 
                    cmd.addr_type))
@@ -92,7 +93,7 @@ enumfile:write([[
     CMD_SIZE,
     CMD_USER = -1,
     CMD_USER_BUF = -2
-} cmdidx_T;
+} excmd_idx_et;
 ]])
 
 cmdidxs = cmdidxs .. [[

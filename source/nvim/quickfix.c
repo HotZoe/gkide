@@ -3921,7 +3921,7 @@ int buf_hide(fbuf_st *buf)
 }
 
 /// Return TRUE when using ":vimgrep" for ":grep".
-int grep_internal(cmdidx_T cmdidx)
+int grep_internal(excmd_idx_et cmdidx)
 {
     return (cmdidx == CMD_grep
             || cmdidx == CMD_lgrep

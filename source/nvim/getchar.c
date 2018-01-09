@@ -4055,7 +4055,7 @@ uchar_kt *set_context_in_map_cmd(expand_st *xp,
                                int forceit,
                                int isabbrev,
                                int isunmap,
-                               cmdidx_T cmdidx)
+                               excmd_idx_et cmdidx)
 {
     if(forceit && cmdidx != CMD_map && cmdidx != CMD_unmap)
     {

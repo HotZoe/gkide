@@ -3254,7 +3254,9 @@ void free_for_info(void *fi_void)
     xfree(fi);
 }
 
-void set_context_for_expression(expand_st *xp, uchar_kt *arg, cmdidx_T cmdidx)
+void set_context_for_expression(expand_st *xp,
+                                uchar_kt *arg,
+								excmd_idx_et cmdidx)
 {
     int got_eq = FALSE;
     int c;

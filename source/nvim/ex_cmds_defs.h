@@ -35,6 +35,9 @@
 #include "nvim/normal.h"
 #include "nvim/regexp_defs.h"
 
+/// @var typedef excmd_idx_e excmd_idx_et;
+///
+/// The index of Ex commands
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds_enum.generated.h"
 #endif
@@ -106,7 +109,7 @@ struct exargs_s
     uchar_kt *nextcmd;         ///< next command (NULL if none)
     uchar_kt *cmd;             ///< the name of the command (except for :make)
     uchar_kt **cmdlinep;       ///< pointer to pointer of allocated cmdline
-    cmdidx_T cmdidx;          ///< the index for the command
+    excmd_idx_et cmdidx;       ///< the index for the command
     uint32_t argt;             ///< flags for the command
     int skip;                  ///< don't execute the command, only parse it
     int forceit;               ///< TRUE if ! present

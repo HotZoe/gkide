@@ -3074,7 +3074,7 @@ static uchar_kt *find_command(exargs_st *eap, int *full)
 
         for(/* nothing */;
             (int)eap->cmdidx < (int)CMD_SIZE;
-            eap->cmdidx = (cmdidx_T)((int)eap->cmdidx + 1))
+            eap->cmdidx = (excmd_idx_et)((int)eap->cmdidx + 1))
         {
             if(STRNCMP(excmd_info[(int)eap->cmdidx].cmd_name,
                        (char *)eap->cmd, (size_t)len) == 0)
@@ -3354,7 +3354,7 @@ int cmd_exists(const char *const name)
     // Check built-in commands and user defined commands.
     // For ":2match" and ":3match" we need to skip the number.
     ea.cmd = (uchar_kt *)((*name == '2' || *name == '3') ? name + 1 : name);
-    ea.cmdidx = (cmdidx_T)0;
+    ea.cmdidx = (excmd_idx_et)0;
     int full = false;
     p = find_command(&ea, &full);
 
@@ -3493,9 +3493,9 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
             return NULL;
         }
 
-        for(ea.cmdidx = (cmdidx_T)0;
+        for(ea.cmdidx = (excmd_idx_et)0;
             (int)ea.cmdidx < (int)CMD_SIZE;
-            ea.cmdidx = (cmdidx_T)((int)ea.cmdidx + 1))
+            ea.cmdidx = (excmd_idx_et)((int)ea.cmdidx + 1))
         {
             if(STRNCMP(excmd_info[(int)ea.cmdidx].cmd_name, cmd, len) == 0)
             {

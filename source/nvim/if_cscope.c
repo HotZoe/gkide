@@ -194,7 +194,9 @@ uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Handle command line completion for :cscope command.
-void set_context_in_cscope_cmd(expand_st *xp, const char *arg, cmdidx_T cmdidx)
+void set_context_in_cscope_cmd(expand_st *xp, 
+                               const char *arg, 
+							   excmd_idx_et cmdidx)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_CSCOPE;
