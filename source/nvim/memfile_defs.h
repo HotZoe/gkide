@@ -12,23 +12,23 @@
 
 /// A block number.
 ///
-/// Blocks numbered from 0 upwards have been assigned a place in the actual
-/// file. The block number is equal to the page number in the file. The blocks
-/// with negative numbers are currently in memory only.
-typedef int64_t blocknr_T;
+/// Blocks numbered from 0 upwards have been assigned a place in the
+/// actual file. The block number is equal to the page number in the
+/// file. The blocks with negative numbers are currently in memory only.
+typedef int64_t blknum_kt;
 
 /// A hash item.
 ///
 /// Items' keys are block numbers.
 /// Items in the same bucket are organized into a doubly-linked list.
 ///
-/// Therefore, items can be arbitrary data structures beginning with pointers
-/// for the list and and a block number key.
+/// Therefore, items can be arbitrary data structures beginning with
+/// pointers for the list and and a block number key.
 typedef struct mf_hashitem
 {
     struct mf_hashitem *mhi_next;
     struct mf_hashitem *mhi_prev;
-    blocknr_T mhi_key;
+    blknum_kt mhi_key;
 } mf_hashitem_T;
 
 /// Initial size for a hashtable.
@@ -99,7 +99,7 @@ typedef struct mf_blocknr_trans_item
     #define nt_old_bnum nt_hashitem.mhi_key  ///< old, negative, number
     mf_hashitem_T       nt_hashitem; ///< header for hash table and key
 
-    blocknr_T nt_new_bnum; ///< new, positive, number
+    blknum_kt nt_new_bnum; ///< new, positive, number
 } mf_blocknr_trans_item_T;
 
 /// A memory file.
@@ -115,10 +115,10 @@ typedef struct memfile
     unsigned mf_used_count_max;  ///< maximum number of pages in memory
     mf_hashtab_T mf_hash;        ///< hash lists
     mf_hashtab_T mf_trans;       ///< trans lists
-    blocknr_T mf_blocknr_max;    ///< highest positive block number + 1
-    blocknr_T mf_blocknr_min;    ///< lowest negative block number - 1
-    blocknr_T mf_neg_count;      ///< number of negative blocks numbers
-    blocknr_T mf_infile_count;   ///< number of pages in the file
+    blknum_kt mf_blocknr_max;    ///< highest positive block number + 1
+    blknum_kt mf_blocknr_min;    ///< lowest negative block number - 1
+    blknum_kt mf_neg_count;      ///< number of negative blocks numbers
+    blknum_kt mf_infile_count;   ///< number of pages in the file
     unsigned mf_page_size;       ///< number of bytes in a page
     bool mf_dirty;               ///< TRUE if there are dirty blocks
 } memfile_T;

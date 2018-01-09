@@ -90,7 +90,7 @@ typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
 /// pointer to a block, used in a pointer block
 struct pointer_entry
 {
-    blocknr_T pe_bnum;         ///< block number
+    blknum_kt pe_bnum;         ///< block number
     linenum_kt pe_line_count;    ///< number of lines in this branch
     linenum_kt pe_old_lnum;      ///< lnum for this block (for recovery)
     int pe_page_count;         ///< number of pages in block pe_bnum
@@ -827,7 +827,7 @@ void ml_recover(void)
     PTR_BL *pp;
     DATA_BL *dp;
     infoptr_T *ip;
-    blocknr_T bnum;
+    blknum_kt bnum;
     int page_count;
     int len;
     int directly;
@@ -2444,7 +2444,7 @@ static int ml_append_int(fbuf_st *buf,
         int stack_idx;
         int in_left;
         int lineadd;
-        blocknr_T bnum_left, bnum_right;
+        blknum_kt bnum_left, bnum_right;
         linenum_kt lnum_left, lnum_right;
         int pb_idx;
         PTR_BL *pp_new;
@@ -3330,7 +3330,7 @@ static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
     blk_hdr_st *hp;
     memfile_T *mfp;
     linenum_kt t;
-    blocknr_T bnum, bnum2;
+    blknum_kt bnum, bnum2;
     int dirty;
     linenum_kt low, high;
     int top;

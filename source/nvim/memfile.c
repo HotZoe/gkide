@@ -140,12 +140,12 @@ memfile_T *mf_open(uchar_kt *fname, int flags)
     }
     else
     {
-        assert(sizeof(off_t) <= sizeof(blocknr_T)
+        assert(sizeof(off_t) <= sizeof(blknum_kt)
                && mfp->mf_page_size > 0
                && mfp->mf_page_size - 1 <= INT64_MAX - size);
 
         mfp->mf_blocknr_max =
-            (((blocknr_T)size + mfp->mf_page_size - 1) / mfp->mf_page_size);
+            (((blknum_kt)size + mfp->mf_page_size - 1) / mfp->mf_page_size);
     }
 
     mfp->mf_blocknr_min = -1;
@@ -394,7 +394,7 @@ blk_hdr_st *mf_new(memfile_T *mfp, bool negative, unsigned page_count)
 // Caller should first check a negative nr with mf_trans_del().
 //
 // @return  NULL if not found
-blk_hdr_st *mf_get(memfile_T *mfp, blocknr_T nr, unsigned page_count)
+blk_hdr_st *mf_get(memfile_T *mfp, blknum_kt nr, unsigned page_count)
 {
     // check block number exists
     if(nr >= mfp->mf_blocknr_max || nr <= mfp->mf_blocknr_min)
@@ -616,7 +616,7 @@ static void mf_rem_hash(memfile_T *mfp, blk_hdr_st *hp)
 }
 
 /// Lookup block with number "nr" in memfile's hash list.
-static blk_hdr_st *mf_find_hash(memfile_T *mfp, blocknr_T nr)
+static blk_hdr_st *mf_find_hash(memfile_T *mfp, blknum_kt nr)
 {
     return (blk_hdr_st *)mf_hash_find(&mfp->mf_hash, nr);
 }
@@ -892,7 +892,7 @@ static int mf_read(memfile_T *mfp, blk_hdr_st *hp)
 static int mf_write(memfile_T *mfp, blk_hdr_st *hp)
 {
     off_t offset; // offset in the file
-    blocknr_T nr; // block nr which is being written
+    blknum_kt nr; // block nr which is being written
     blk_hdr_st *hp2;
     unsigned page_size; // number of bytes in a page
     unsigned page_count; // number of pages written
@@ -975,7 +975,7 @@ static int mf_write(memfile_T *mfp, blk_hdr_st *hp)
         }
 
         // appended to file
-        if(nr + (blocknr_T)page_count > mfp->mf_infile_count)
+        if(nr + (blknum_kt)page_count > mfp->mf_infile_count)
         {
             mfp->mf_infile_count = nr + page_count;
         }
@@ -1006,7 +1006,7 @@ static int mf_trans_add(memfile_T *mfp, blk_hdr_st *hp)
     // Get a new number for the block.
     // If the first item in the free list has sufficient pages,
     // use its number. Otherwise use mf_blocknr_max.
-    blocknr_T new_bnum;
+    blknum_kt new_bnum;
     blk_hdr_st *freep = mfp->mf_free_first;
     unsigned page_count = hp->bh_page_count;
 
@@ -1050,7 +1050,7 @@ static int mf_trans_add(memfile_T *mfp, blk_hdr_st *hp)
 /// @return
 /// - The positive new number, When found.
 /// - The old number, When not found.
-blocknr_T mf_trans_del(memfile_T *mfp, blocknr_T old_nr)
+blknum_kt mf_trans_del(memfile_T *mfp, blknum_kt old_nr)
 {
     mf_blocknr_trans_item_T *np =
         (mf_blocknr_trans_item_T *)mf_hash_find(&mfp->mf_trans, old_nr);
@@ -1061,7 +1061,7 @@ blocknr_T mf_trans_del(memfile_T *mfp, blocknr_T old_nr)
     }
 
     mfp->mf_neg_count--;
-    blocknr_T new_bnum = np->nt_new_bnum;
+    blknum_kt new_bnum = np->nt_new_bnum;
 
     // remove entry from the trans list
     mf_hash_rem_item(&mfp->mf_trans, (mf_hashitem_T *)np);
@@ -1201,7 +1201,7 @@ static void mf_hash_free_all(mf_hashtab_T *mht)
 /// Find by key.
 ///
 /// @return  A pointer to a mf_hashitem_T or NULL if the item was not found.
-static mf_hashitem_T *mf_hash_find(mf_hashtab_T *mht, blocknr_T key)
+static mf_hashitem_T *mf_hash_find(mf_hashtab_T *mht, blknum_kt key)
 {
     mf_hashitem_T *mhi = mht->mht_buckets[(size_t)key & mht->mht_mask];
 

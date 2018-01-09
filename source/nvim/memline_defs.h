@@ -10,7 +10,7 @@
 /// entry is a pointer to info in a block (may be data block or pointer block)
 typedef struct info_pointer
 {
-    blocknr_T ip_bnum;  ///< block number
+    blknum_kt ip_bnum;  ///< block number
     linenum_kt ip_low;    ///< lowest lnum in this block
     linenum_kt ip_high;   ///< highest lnum in this block
     int ip_index;       ///< index for block with current lnum block/index pair
