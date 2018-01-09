@@ -3065,11 +3065,11 @@ static uchar_kt *find_command(exargs_st *eap, int *full)
 
         if(ASCII_ISLOWER(*eap->cmd))
         {
-            eap->cmdidx = cmdidxs[CharOrdLow(*eap->cmd)];
+            eap->cmdidx = excmd_idxinfo[CharOrdLow(*eap->cmd)];
         }
         else
         {
-            eap->cmdidx = cmdidxs[26];
+            eap->cmdidx = excmd_idxinfo[26];
         }
 
         for(/* nothing */;

@@ -35,7 +35,7 @@ local byte_a = string.byte('a')
 local byte_z = string.byte('z')
 
 local cmdidxs = string.format([[
-static const excmd_idx_et cmdidxs[%u] = {
+static const excmd_idx_et excmd_idxinfo[%u] = {
 ]], byte_z - byte_a + 2)
 
 enumfile:write([[
