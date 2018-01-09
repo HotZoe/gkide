@@ -16,7 +16,7 @@
 ///      func    | Name of the function containing the implementation.
 ///
 ///    Referenced function should be either non-static one or defined in
-///    ex_docmd.c and be coercible to ex_func_T type from below.
+///    ex_docmd.c and be coercible to exfunc_ft type from below.
 ///
 ///    All keys not described in the above table are reserved for future use.
 ///
@@ -86,7 +86,7 @@ typedef struct exargs_s exargs_st;
 #define BAD_KEEP        -1   ///< leave it
 #define BAD_DROP        -2   ///< erase it
 
-typedef void (*ex_func_T)(exargs_st *eap);
+typedef void (*exfunc_ft)(exargs_st *eap);
 
 typedef uchar_kt *(*LineGetter)(int, void *, int);
 
@@ -94,7 +94,7 @@ typedef uchar_kt *(*LineGetter)(int, void *, int);
 typedef struct cmdname
 {
     uchar_kt *cmd_name;  ///< Name of the command.
-    ex_func_T cmd_func; ///< Function with implementation of this command.
+    exfunc_ft cmd_func;  ///< Function with implementation of this command.
     uint32_t cmd_argt;   ///< Relevant flags from the declared above.
     int cmd_addr_type;   ///< Flag for address type
 } CommandDefinition;

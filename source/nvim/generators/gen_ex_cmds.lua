@@ -69,12 +69,12 @@ for i, cmd in ipairs(defs) do
     
     enumfile:write('    ' .. enumname .. ',\n')
     defsfile:write(string.format([[
-[%s] = {
-    .cmd_name = (uchar_kt *) "%s",
-    .cmd_func = (ex_func_T)&%s,
-    .cmd_argt = %uL,
-    .cmd_addr_type = %i
-}]], 
+    [%s] = {
+        .cmd_name = (uchar_kt *) "%s",
+        .cmd_func = (exfunc_ft)&%s,
+        .cmd_argt = %uL,
+        .cmd_addr_type = %i
+    }]], 
                    enumname, 
                    cmd.command, 
                    cmd.func, 
