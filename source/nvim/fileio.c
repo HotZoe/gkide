@@ -118,19 +118,20 @@ struct autopat_s
 };
 
 /// struct used to keep status while executing autocommands for an event.
-typedef struct AutoPatCmd
+typedef struct autopatcmd_s autopatcmd_st;
+struct autopatcmd_s
 {
-    autopat_st *curpat;         ///< next autopat_st to examine
-    autocmd_st *nextcmd;        ///< next autocmd_st to execute
-    int group;               ///< group being used
-    uchar_kt *fname;           ///< fname to match with
-    uchar_kt *sfname;          ///< sfname to match with
-    uchar_kt *tail;            ///< tail of fname
-    event_T event;           ///< current event
-    int arg_bufnr;           ///< initially equal to <abuf>,
-                             ///< set to zero when buf is deleted
-    struct AutoPatCmd *next; ///< chain of active apc-s for auto-invalidation
-} AutoPatCmd;
+    autopat_st *curpat;  ///< next autopat_st to examine
+    autocmd_st *nextcmd; ///< next autocmd_st to execute
+    int group;           ///< group being used
+    uchar_kt *fname;     ///< fname to match with
+    uchar_kt *sfname;    ///< sfname to match with
+    uchar_kt *tail;      ///< tail of fname
+    event_T event;       ///< current event
+    int arg_bufnr;       ///< initially equal to <abuf>,
+                         ///< set to zero when buf is deleted
+    autopatcmd_st *next; ///< chain of active apc-s for auto-invalidation
+};
 
 #define AUGROUP_DEFAULT  -1  ///< default autocmd group
 #define AUGROUP_ERROR    -2  ///< erroneous autocmd group
@@ -6871,7 +6872,7 @@ uchar_kt *vim_tempname(void)
 #endif
 
 /// stack of active autocommands
-static AutoPatCmd *active_apc_list = NULL;
+static autopatcmd_st *active_apc_list = NULL;
 
 /// List of autocmd group names
 static garray_st augroups = { 0, 0, sizeof(uchar_kt *), 10, NULL };
@@ -7088,7 +7089,7 @@ void aubuflocal_remove(fbuf_st *buf)
 {
     autopat_st *ap;
     event_T event;
-    AutoPatCmd *apc;
+    autopatcmd_st *apc;
 
     // invalidate currently executing autocommands
     for(apc = active_apc_list; apc; apc = apc->next)
@@ -8500,7 +8501,7 @@ static bool apply_autocmds_group(event_T event,
     int save_autocmd_busy;
     int save_autocmd_nested;
     static int nesting = 0;
-    AutoPatCmd patcmd;
+    autopatcmd_st patcmd;
     autopat_st *ap;
     script_id_kt save_current_SID;
     void *save_funccalp;
@@ -8929,7 +8930,7 @@ void unblock_autocmds(void)
 ///
 /// @param apc
 /// @param stop_at_last  stop when 'last' flag is set
-static void auto_next_pat(AutoPatCmd *apc, int stop_at_last)
+static void auto_next_pat(autopatcmd_st *apc, int stop_at_last)
 {
     autopat_st *ap;
     autocmd_st *cp;
@@ -9013,7 +9014,7 @@ uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
                   void *cookie,
                   int FUNC_ARGS_UNUSED_REALY(indent))
 {
-    AutoPatCmd *acp = (AutoPatCmd *)cookie;
+    autopatcmd_st *acp = (autopatcmd_st *)cookie;
     uchar_kt *retval;
     autocmd_st *ac;
 
