@@ -94,7 +94,7 @@ typedef struct
     int nsubexp;          ///< number of ()
     int nstate;
     nfa_state_st state[1]; ///< actually longer ...
-} nfa_regprog_T;
+} nfa_regprog_st;
 
 /// Structure to be used for single-line matching.
 /// Sub-match "no" starts at "startp[no]" and ends just before "endp[no]".

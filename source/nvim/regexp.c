@@ -13643,7 +13643,7 @@ static void nfa_print_state2(FILE *debugf,
 }
 
 /// Print the NFA state machine.
-static void nfa_dump(nfa_regprog_T *prog)
+static void nfa_dump(nfa_regprog_st *prog)
 {
     FILE *debugf = fopen(NFA_REGEXP_DUMP_LOG, "a");
 
@@ -14752,7 +14752,7 @@ theend:
 #undef PUSH
 
 /// After building the NFA program, inspect it to add optimization hints.
-static void nfa_postprocess(nfa_regprog_T *prog)
+static void nfa_postprocess(nfa_regprog_st *prog)
 {
     int i;
     int c;
@@ -16174,7 +16174,7 @@ static int match_zref(int subidx, int *bytelen)
 /// Save list IDs for all NFA states of @b prog into @b list.
 /// Also reset the IDs to zero.
 /// Only used for the recursive value lastlist[1].
-static void nfa_save_listids(nfa_regprog_T *prog, int *list)
+static void nfa_save_listids(nfa_regprog_st *prog, int *list)
 {
     int i;
     nfa_state_st *p;
@@ -16192,7 +16192,7 @@ static void nfa_save_listids(nfa_regprog_T *prog, int *list)
 }
 
 /// Restore list IDs from @b list to all NFA states.
-static void nfa_restore_listids(nfa_regprog_T *prog, int *list)
+static void nfa_restore_listids(nfa_regprog_st *prog, int *list)
 {
     int i;
     nfa_state_st *p;
@@ -16225,7 +16225,7 @@ static bool nfa_re_num_cmp(uintmax_t val, int op, uintmax_t pos)
 /// Postponed Invisible Match (start position).
 static int recursive_regmatch(nfa_state_st *state,
                               nfa_pim_T *pim,
-                              nfa_regprog_T *prog,
+                              nfa_regprog_st *prog,
                               regsubs_T *submatch,
                               regsubs_T *m,
                               int **listids)
@@ -16696,7 +16696,7 @@ static long find_match_text(columnum_kt startcol,
 ///
 /// @note
 /// Caller must ensure that: start != NULL.
-static int nfa_regmatch(nfa_regprog_T *prog,
+static int nfa_regmatch(nfa_regprog_st *prog,
                         nfa_state_st *start,
                         regsubs_T *submatch,
                         regsubs_T *m)
@@ -18380,7 +18380,7 @@ theend:
 /// @return
 /// <= 0 for failure, number of lines
 /// contained in the match otherwise.
-static long nfa_regtry(nfa_regprog_T *prog,
+static long nfa_regtry(nfa_regprog_st *prog,
                        columnum_kt col,
                        proftime_kt *tm)
 {
@@ -18541,21 +18541,21 @@ static long nfa_regexec_both(uchar_kt *line,
                              columnum_kt startcol,
                              proftime_kt *tm)
 {
-    nfa_regprog_T *prog;
+    nfa_regprog_st *prog;
     long retval = 0L;
     int i;
     columnum_kt col = startcol;
 
     if(REG_MULTI)
     {
-        prog = (nfa_regprog_T *)reg_mmatch->regprog;
+        prog = (nfa_regprog_st *)reg_mmatch->regprog;
         line = reg_getline((linenum_kt)0); // relative to the cursor
         reg_startpos = reg_mmatch->startpos;
         reg_endpos = reg_mmatch->endpos;
     }
     else
     {
-        prog = (nfa_regprog_T *)reg_match->regprog;
+        prog = (nfa_regprog_st *)reg_match->regprog;
         reg_startp = reg_match->startp;
         reg_endp = reg_match->endp;
     }
@@ -18656,7 +18656,7 @@ theend:
 static regprog_st *nfa_regcomp(uchar_kt *expr, int re_flags)
 {
     int *postfix;
-    nfa_regprog_T *prog = NULL;
+    nfa_regprog_st *prog = NULL;
 
     if(expr == NULL)
     {
@@ -18711,7 +18711,7 @@ static regprog_st *nfa_regcomp(uchar_kt *expr, int re_flags)
 
     // allocate the regprog with space for the compiled regexp
     size_t prog_size =
-        sizeof(nfa_regprog_T) + sizeof(nfa_state_st) * (nstate - 1);
+        sizeof(nfa_regprog_st) + sizeof(nfa_state_st) * (nstate - 1);
     prog = xmalloc(prog_size);
     state_ptr = prog->state;
 
@@ -18771,8 +18771,8 @@ static void nfa_regfree(regprog_st *prog)
 {
     if(prog != NULL)
     {
-        xfree(((nfa_regprog_T *)prog)->match_text);
-        xfree(((nfa_regprog_T *)prog)->pattern);
+        xfree(((nfa_regprog_st *)prog)->match_text);
+        xfree(((nfa_regprog_st *)prog)->pattern);
         xfree(prog);
     }
 }
@@ -19028,7 +19028,7 @@ static int vim_regexec_both(regmatch_T *rmp,
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
 
-        uchar_kt *pat = vim_strsave(((nfa_regprog_T *)rmp->regprog)->pattern);
+        uchar_kt *pat = vim_strsave(((nfa_regprog_st *)rmp->regprog)->pattern);
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
         report_re_switch(pat);
@@ -19121,7 +19121,7 @@ long vim_regexec_multi(regmmatch_T *rmp,
     {
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
-        uchar_kt *pat = vim_strsave(((nfa_regprog_T *)rmp->regprog)->pattern);
+        uchar_kt *pat = vim_strsave(((nfa_regprog_st *)rmp->regprog)->pattern);
 
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
