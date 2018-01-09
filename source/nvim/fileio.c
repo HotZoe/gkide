@@ -159,22 +159,22 @@ struct autopatcmd_s
 /// Structure to pass arguments from buf_write() to buf_write_bytes().
 struct bw_info
 {
-    int bw_fd;                    ///< file descriptor
+    int bw_fd;                      ///< file descriptor
     uchar_kt *bw_buf;               ///< buffer with data to be written
-    int bw_len;                   ///< length of data
+    int bw_len;                     ///< length of data
 #ifdef HAS_BW_FLAGS
-    int bw_flags;                 ///< FIO_ flags
+    int bw_flags;                   ///< FIO_ flags
 #endif
     uchar_kt bw_rest[CONV_RESTLEN]; ///< not converted bytes
-    int bw_restlen;               ///< nr of bytes in bw_rest[]
-    int bw_first;                 ///< first write call
+    int bw_restlen;                 ///< nr of bytes in bw_rest[]
+    int bw_first;                   ///< first write call
     uchar_kt *bw_conv_buf;          ///< buffer for writing converted chars
-    int bw_conv_buflen;           ///< size of bw_conv_buf
-    int bw_conv_error;            ///< set for conversion error
+    int bw_conv_buflen;             ///< size of bw_conv_buf
+    int bw_conv_error;              ///< set for conversion error
     linenum_kt bw_conv_error_lnum;  ///< first line with error or zero
     linenum_kt bw_start_lnum;       ///< line number at start of buffer
 #ifdef USE_ICONV
-    iconv_t bw_iconv_fd;          ///< descriptor for iconv() or -1
+    iconv_t bw_iconv_fd;            ///< descriptor for iconv() or -1
 #endif
 };
 
@@ -185,7 +185,8 @@ struct bw_info
 #ifdef UNIX
 #endif
 
-static char *e_auchangedbuf = N_("E812: Autocommands changed buffer or buffer name");
+static char *e_auchangedbuf =
+    N_("E812: Autocommands changed buffer or buffer name");
 
 /// Set by the apply_autocmds_group function if the given event is equal to
 /// EVENT_FILETYPE. Used by the readfile function in order to determine if

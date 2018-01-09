@@ -291,7 +291,7 @@ typedef struct
         bpos_st pos;    ///< reginput pos, for multi-line regexp
     } rs_u;
     int rs_len;
-} regsave_T;
+} regsave_st;
 
 /// struct to save start/end pointer/position in for \(\)
 typedef struct
@@ -306,8 +306,8 @@ typedef struct
 /// used for BEHIND and NOBEHIND matching
 typedef struct regbehind_S
 {
-    regsave_T save_after;
-    regsave_T save_behind;
+    regsave_st save_after;
+    regsave_st save_behind;
     int save_need_clear_subexpr;
     save_se_T save_start[NSUBEXP];
     save_se_T save_end[NSUBEXP];
@@ -344,7 +344,7 @@ typedef struct regitem_S
     union
     {
         save_se_T sesave;
-        regsave_T regsave;
+        regsave_st regsave;
     } rs_un;     ///< room for saving reginput
     short rs_no; ///< submatch nr or BEHIND/NOBEHIND
 } regitem_T;
@@ -362,10 +362,10 @@ typedef struct regstar_S
 
 /// used to store input position when a BACK was encountered,
 /// so that we now if we made any progress since the last time.
-typedef struct backpos_S
+typedef struct backpos_s
 {
     uchar_kt *bp_scan; ///< "scan" where BACK was encountered
-    regsave_T bp_pos;  ///< last input position
+    regsave_st bp_pos; ///< last input position
 } backpos_T;
 
 typedef struct
@@ -4633,7 +4633,7 @@ static uchar_kt *reg_getline(linenum_kt lnum)
     return ml_get_buf(reg_buf, reg_firstlnum + lnum, FALSE);
 }
 
-static regsave_T behind_pos;
+static regsave_st behind_pos;
 
 static uchar_kt *reg_startzp[NSUBEXP];  ///< Workspace to mark beginning
 static uchar_kt *reg_endzp[NSUBEXP];    ///< and end of \z(...\) matches
@@ -7932,8 +7932,8 @@ static void reg_nextline(void)
     fast_breakcheck();
 }
 
-/// Save the input line and position in a regsave_T.
-static void reg_save(regsave_T *save, garray_st *gap)
+/// Save the input line and position in a regsave_st.
+static void reg_save(regsave_st *save, garray_st *gap)
 {
     if(REG_MULTI)
     {
@@ -7948,8 +7948,8 @@ static void reg_save(regsave_T *save, garray_st *gap)
     save->rs_len = gap->ga_len;
 }
 
-/// Restore the input line and position from a regsave_T.
-static void reg_restore(regsave_T *save, garray_st *gap)
+/// Restore the input line and position from a regsave_st.
+static void reg_restore(regsave_st *save, garray_st *gap)
 {
     if(REG_MULTI)
     {
@@ -7973,7 +7973,7 @@ static void reg_restore(regsave_T *save, garray_st *gap)
 
 /// @return
 /// TRUE if current position is equal to saved position.
-static int reg_save_equal(regsave_T *save)
+static int reg_save_equal(regsave_st *save)
 {
     if(REG_MULTI)
     {
