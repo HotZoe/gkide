@@ -8226,27 +8226,27 @@ static void highlight_clear(int idx)
 /// required because the GUI can redraw at any time for any buffer.
 static garray_st attr_table = GA_EMPTY_INIT_VALUE;
 
-#define ATTR_ENTRY(idx)  ((attrentry_T *)attr_table.ga_data)[idx]
+#define ATTR_ENTRY(idx)  ((attrinfo_st *)attr_table.ga_data)[idx]
 
 /// Return the attr number for a set of colors and font.
 /// Add a new entry to the term_attr_table, attr_table or gui_attr_table
 /// if the combination is new.
 ///
 /// @return 0 for error.
-int get_attr_entry(attrentry_T *aep)
+int get_attr_entry(attrinfo_st *aep)
 {
     garray_st *table = &attr_table;
-    attrentry_T *taep;
+    attrinfo_st *taep;
     static int recursive = FALSE;
 
     // Init the table, in case it wasn't done yet.
-    table->ga_itemsize = sizeof(attrentry_T);
+    table->ga_itemsize = sizeof(attrinfo_st);
     ga_set_growsize(table, 7);
 
     // Try to find an entry with the same specifications.
     for(int i = 0; i < table->ga_len; ++i)
     {
-        taep = &(((attrentry_T *)table->ga_data)[i]);
+        taep = &(((attrinfo_st *)table->ga_data)[i]);
 
         if(aep->cterm_ae_attr == taep->cterm_ae_attr
            && aep->cterm_fg_color == taep->cterm_fg_color
@@ -8284,7 +8284,7 @@ int get_attr_entry(attrentry_T *aep)
     }
 
     // This is a new combination of colors and font, add an entry.
-    taep = GA_APPEND_VIA_PTR(attrentry_T, table);
+    taep = GA_APPEND_VIA_PTR(attrinfo_st, table);
     memset(taep, 0, sizeof(*taep));
 
     taep->cterm_ae_attr = aep->cterm_ae_attr;
@@ -8314,9 +8314,9 @@ void clear_hl_tables(void)
 /// @return the resulting attributes.
 int hl_combine_attr(int char_attr, int prim_attr)
 {
-    attrentry_T *char_aep = NULL;
-    attrentry_T *spell_aep;
-    attrentry_T new_en;
+    attrinfo_st *char_aep = NULL;
+    attrinfo_st *spell_aep;
+    attrinfo_st new_en;
 
     if(char_attr == 0)
     {
@@ -8377,7 +8377,7 @@ int hl_combine_attr(int char_attr, int prim_attr)
     return get_attr_entry(&new_en);
 }
 
-attrentry_T *syn_cterm_attr2entry(int attr)
+attrinfo_st *syn_cterm_attr2entry(int attr)
 {
     attr -= ATTR_OFF;
 
@@ -8731,7 +8731,7 @@ static int syn_list_header(int did_header, int outlen, int id)
 /// @param idx  index in array
 static void set_hl_attr(int idx)
 {
-    attrentry_T at_en;
+    attrinfo_st at_en;
     struct hl_group *sgp = HL_TABLE() + idx;
 
     // The "Normal" group doesn't need an attribute number

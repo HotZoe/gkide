@@ -690,7 +690,7 @@ void terminal_get_line_attributes(Terminal *term,
 
         if(hl_attrs || vt_fg != -1 || vt_bg != -1)
         {
-            attr_id = get_attr_entry(&(attrentry_T) {
+            attr_id = get_attr_entry(&(attrinfo_st) {
                 .cterm_ae_attr = (int16_t)hl_attrs,
                 .cterm_fg_color = vt_fg_idx,
                 .cterm_bg_color = vt_bg_idx,

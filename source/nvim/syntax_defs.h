@@ -81,7 +81,7 @@ struct syn_state
 };
 
 /// Structure shared between syntax.c, screen.c
-typedef struct attr_entry
+typedef struct attrinfo_s
 {
     // HL_BOLD, etc.
     int16_t rgb_ae_attr;
@@ -93,6 +93,6 @@ typedef struct attr_entry
 
     int cterm_fg_color;
     int cterm_bg_color;
-} attrentry_T;
+} attrinfo_st;
 
 #endif // NVIM_SYNTAX_DEFS_H

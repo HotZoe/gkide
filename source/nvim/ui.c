@@ -442,7 +442,7 @@ static void set_highlight_args(int attr_code)
 
     int rgb_mask = 0;
     int cterm_mask = 0;
-    attrentry_T *aep = syn_cterm_attr2entry(attr_code);
+    attrinfo_st *aep = syn_cterm_attr2entry(attr_code);
 
     if(!aep)
     {
