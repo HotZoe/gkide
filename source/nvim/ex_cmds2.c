@@ -4314,7 +4314,7 @@ void do_finish(exargs_st *eap, int reanimate)
 /// Return true when a sourced file had the ":finish" command:
 /// Don't give error message for missing ":endif".
 /// Return false when not sourcing a file.
-bool source_finished(LineGetter fgetline, void *cookie)
+bool source_finished(line_getter_ft fgetline, void *cookie)
 {
     return getline_equal(fgetline, cookie, getsourceline)
            && ((struct source_cookie *)getline_cookie(fgetline, cookie))->finished;

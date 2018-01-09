@@ -335,7 +335,7 @@ int do_cmdline_cmd(const char *cmd)
 /// @return
 /// FAIL if cmdline could not be executed, OK otherwise
 int do_cmdline(uchar_kt *cmdline,
-               LineGetter fgetline,
+               line_getter_ft fgetline,
                void *cookie,
                int flags)
 {
@@ -1142,9 +1142,9 @@ static void store_loop_line(garray_st *gap, uchar_kt *line)
 /// @param fgetline
 /// @param cookie    argument for fgetline()
 /// @param func
-int getline_equal(LineGetter fgetline, void *cookie, LineGetter func)
+int getline_equal(line_getter_ft fgetline, void *cookie, line_getter_ft func)
 {
-    LineGetter gp;
+    line_getter_ft gp;
     struct loop_cookie *cp;
 
     // When "fgetline" is "get_loop_line()" use the "cookie" to find the
@@ -1167,9 +1167,9 @@ int getline_equal(LineGetter fgetline, void *cookie, LineGetter func)
 ///
 /// @param fgetline
 /// @param cookie    argument for fgetline()
-void *getline_cookie(LineGetter fgetline, void *cookie)
+void *getline_cookie(line_getter_ft fgetline, void *cookie)
 {
-    LineGetter gp;
+    line_getter_ft gp;
     struct loop_cookie *cp;
 
     // When "fgetline" is "get_loop_line()" use the "cookie" to find the
@@ -1398,7 +1398,7 @@ static void get_wincmd_addr_type(uchar_kt *arg, exargs_st *eap)
 static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                           int flags,
                           struct condstack *cstack,
-                          LineGetter fgetline,
+                          line_getter_ft fgetline,
                           void *cookie)
 {
     long n;

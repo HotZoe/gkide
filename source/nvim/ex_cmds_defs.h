@@ -88,7 +88,7 @@ typedef struct exargs_s exargs_st;
 
 typedef void (*exfunc_ft)(exargs_st *eap);
 
-typedef uchar_kt *(*LineGetter)(int, void *, int);
+typedef uchar_kt *(*line_getter_ft)(int, void *, int);
 
 /// Structure for command definition.
 typedef struct cmdname
@@ -128,7 +128,7 @@ struct exargs_s
     int bad_char;              ///< BAD_KEEP, BAD_DROP or replacement byte
     int useridx;               ///< user command index
     uchar_kt *errmsg;          ///< returned error message
-    LineGetter getline;      ///< Function used to get the next line
+    line_getter_ft getline;      ///< Function used to get the next line
     void *cookie;              ///< argument for getline()
     struct condstack *cstack;  ///< condition stack for ":if" etc.
 };
