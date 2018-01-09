@@ -563,7 +563,7 @@ static int toggle_Magic(int x)
 #define MAX_LIMIT            (32767L << 16L)
 
 #ifdef BT_REGEXP_DUMP
-    static void regdump(uchar_kt *, bt_regprog_T *);
+    static void regdump(uchar_kt *, bt_regprog_st *);
 #endif
 
 #ifdef REGEXP_DEBUG
@@ -1957,7 +1957,7 @@ static regprog_st *bt_regcomp(uchar_kt *expr, int re_flags)
     }
 
     // Allocate space.
-    bt_regprog_T *r = xmalloc(sizeof(bt_regprog_T) + regsize);
+    bt_regprog_st *r = xmalloc(sizeof(bt_regprog_st) + regsize);
 
     // Second pass: emit code.
     regcomp_start(expr, re_flags);
@@ -4723,7 +4723,7 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
 {
     uchar_kt *s;
     long retval = 0L;
-    bt_regprog_T *prog;
+    bt_regprog_st *prog;
 
     // Create "regstack" and "backpos" if they are not allocated yet.
     // We allocate *_INITIAL amount of bytes first and then set the grow size
@@ -4747,14 +4747,14 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
 
     if(REG_MULTI)
     {
-        prog = (bt_regprog_T *)reg_mmatch->regprog;
+        prog = (bt_regprog_st *)reg_mmatch->regprog;
         line = reg_getline((linenum_kt)0);
         reg_startpos = reg_mmatch->startpos;
         reg_endpos = reg_mmatch->endpos;
     }
     else
     {
-        prog = (bt_regprog_T *)reg_match->regprog;
+        prog = (bt_regprog_st *)reg_match->regprog;
         reg_startp = reg_match->startp;
         reg_endp = reg_match->endp;
     }
@@ -5008,7 +5008,7 @@ void unref_extmatch(reg_extmatch_T *em)
 
 /// try match of "prog" with at regline["col"].
 /// Returns 0 for failure, number of lines contained in the match otherwise.
-static long regtry(bt_regprog_T *prog, columnum_kt col)
+static long regtry(bt_regprog_st *prog, columnum_kt col)
 {
     reginput = regline + col;
     need_clear_subexpr = TRUE;
@@ -7815,7 +7815,7 @@ static int prog_magic_wrong(void)
         return FALSE;
     }
 
-    if(UCHARAT(((bt_regprog_T *)prog)->program) != REGMAGIC)
+    if(UCHARAT(((bt_regprog_st *)prog)->program) != REGMAGIC)
     {
         EMSG(_(e_re_corr));
         return TRUE;
@@ -8122,7 +8122,7 @@ static int match_with_backref(linenum_kt start_lnum,
 
 #ifdef BT_REGEXP_DUMP
 /// dump a regexp onto stdout in vaguely comprehensible form
-static void regdump(uchar_kt *pattern, bt_regprog_T *r)
+static void regdump(uchar_kt *pattern, bt_regprog_st *r)
 {
     uchar_kt *s;
     int op = EXACTLY; // Arbitrary non-END op.

@@ -32,7 +32,7 @@ typedef struct regengine regengine_st;
 /// Structure returned by vim_regcomp() to pass on to vim_regexec().
 /// This is the general structure. For the actual matcher, two specific
 /// structures are used. See code below.
-typedef struct regprog
+typedef struct regprog_s
 {
     regengine_st *engine;
     unsigned regflags;
@@ -56,8 +56,8 @@ typedef struct
     uchar_kt *regmust;
     int regmlen;
     uchar_kt reghasz;
-    uchar_kt program[1];   ///< actually longer ...
-} bt_regprog_T;
+    uchar_kt program[1]; ///< actually longer ...
+} bt_regprog_st;
 
 /// Structure representing a NFA state.
 /// A NFA state may have no outgoing edge, when it is a NFA_MATCH state.
