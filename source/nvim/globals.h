@@ -995,10 +995,10 @@ EXTERN int searchcmdlen;
 EXTERN int reg_do_extmatch INIT(= 0);
 
 /// Used by vim_regexec(): strings for \z\1...\z\9
-EXTERN reg_extmatch_T *re_extmatch_in INIT(= NULL);
+EXTERN reg_extmatch_st *re_extmatch_in INIT(= NULL);
 
 /// Set by vim_regexec() to store \z\(...\) matches
-EXTERN reg_extmatch_T *re_extmatch_out INIT(= NULL);
+EXTERN reg_extmatch_st *re_extmatch_out INIT(= NULL);
 
 EXTERN int did_outofmem_msg INIT(= false);
 

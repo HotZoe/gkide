@@ -4971,15 +4971,15 @@ theend:
 }
 
 /// Create a new extmatch and mark it as referenced once.
-static reg_extmatch_T *make_extmatch(void)
+static reg_extmatch_st *make_extmatch(void)
 {
-    reg_extmatch_T *em = xcalloc(1, sizeof(reg_extmatch_T));
+    reg_extmatch_st *em = xcalloc(1, sizeof(reg_extmatch_st));
     em->refcnt = 1;
     return em;
 }
 
 /// Add a reference to an extmatch.
-reg_extmatch_T *ref_extmatch(reg_extmatch_T *em)
+reg_extmatch_st *ref_extmatch(reg_extmatch_st *em)
 {
     if(em != NULL)
     {
@@ -4991,7 +4991,7 @@ reg_extmatch_T *ref_extmatch(reg_extmatch_T *em)
 
 /// Remove a reference to an extmatch.
 /// If there are no references left, free the info.
-void unref_extmatch(reg_extmatch_T *em)
+void unref_extmatch(reg_extmatch_st *em)
 {
     int i;
 

@@ -48,7 +48,7 @@ typedef struct buf_state
     int bs_cchar;  ///< stores si_cchar
 
     /// external matches from start pattern
-    reg_extmatch_T *bs_extmatch;
+    reg_extmatch_st *bs_extmatch;
 } bufstate_T;
 
 /// syn_state contains the syntax state stack for

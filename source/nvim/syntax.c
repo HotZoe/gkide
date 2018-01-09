@@ -176,7 +176,7 @@ typedef struct state_item
     int si_cchar;                 ///< substitution character for conceal
     short *si_cont_list;          ///< list of contained groups
     short *si_next_list;          ///< nextgroup IDs after this item ends
-    reg_extmatch_T *si_extmatch;  ///< \z(...\) matches from start pattern
+    reg_extmatch_st *si_extmatch;  ///< \z(...\) matches from start pattern
 } stateitem_T;
 
 /// Struct to reduce the number of arguments
@@ -322,7 +322,7 @@ static bpos_st next_match_eos_pos;     ///< end of start pattn (start region)
 static bpos_st next_match_eoe_pos;     ///< pos. for end of end pattern
 static int next_match_end_idx;        ///< ID of group for end pattn or zero
 
-static reg_extmatch_T *next_match_extmatch = NULL;
+static reg_extmatch_st *next_match_extmatch = NULL;
 
 // A state stack is an array of integers or stateitem_T, stored in a
 // garray_st. A state stack is invalid if it's itemsize entry is zero.
@@ -1592,7 +1592,7 @@ static void load_current_state(synstate_T *from)
 static int syn_stack_equal(synstate_T *sp)
 {
     bufstate_T *bp;
-    reg_extmatch_T *six, *bsx;
+    reg_extmatch_st *six, *bsx;
 
     // First a quick check if the stacks have the same size end nextlist.
     if(sp->sst_stacksize != current_state.ga_len
@@ -1903,7 +1903,7 @@ static int syn_current_attr(int syncing,
     regmmatch_st regmatch;
     bpos_st pos;
     int lc_col;
-    reg_extmatch_T *cur_extmatch = NULL;
+    reg_extmatch_st *cur_extmatch = NULL;
     uchar_kt buf_chartab[32]; // chartab array for syn iskeyword
     uchar_kt *line; // current line. NOTE: becomes invalid after
 
@@ -2939,7 +2939,7 @@ static void find_endpos(int idx,
                         long *flagsp,
                         bpos_st *end_endpos,
                         int *end_idx,
-                        reg_extmatch_T *start_ext)
+                        reg_extmatch_st *start_ext)
 {
     columnum_kt matchcol;
     synpat_T *spp, *spp_skip;

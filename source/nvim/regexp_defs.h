@@ -129,7 +129,7 @@ typedef struct
 {
     short refcnt;
     uchar_kt *matches[NSUBEXP];
-} reg_extmatch_T;
+} reg_extmatch_st;
 
 struct regengine
 {
