@@ -12,7 +12,7 @@
 /// - Pointer blocks contain list of pointers to other blocks.
 /// - Data blocks contain the actual text.
 ///
-/// Block nr 0 contains the block0 structure (see below).
+/// Block nr 0 contains the blk_zero_st structure (see below).
 ///
 /// Block nr 1 is the first pointer block. It is the root of the tree.
 /// Other pointer blocks are branches.
@@ -77,7 +77,7 @@
     #include <time.h>
 #endif
 
-typedef struct block0        ZERO_BL;       ///< contents of the first block
+typedef struct blk_zero_s    blk_zero_st;   ///< contents of the first block
 typedef struct pointer_block PTR_BL;        ///< contents of a pointer block
 typedef struct data_block    DATA_BL;       ///< contents of a data block
 typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
@@ -163,12 +163,12 @@ struct data_block
 /// DEFINITION OF BLOCK 0 SHOULD NOT CHANGE! It would make all existing
 /// swap files unusable!
 ///
-/// If size of block0 changes anyway, adjust MIN_SWAP_PAGE_SIZE in vim.h!!
+/// If size of blk_zero_st changes anyway, adjust MIN_SWAP_PAGE_SIZE in vim.h!!
 ///
 /// This block is built up of single bytes, to make it portable across
 /// different machines. b0_magic_* is used to check the byte order and size of
 /// variables, because the rest of the swap file is not portable.
-struct block0
+struct blk_zero_s
 {
     uchar_kt b0_id[2];         ///< ID for block 0: BLOCK0_ID0 and BLOCK0_ID1.
     uchar_kt b0_version[10];   ///< Vim version string
@@ -279,7 +279,7 @@ int ml_open(fbuf_st *buf)
     buf->b_ml.ml_line_count = 1;
     curwin->w_nrwidth_line_count = 0;
 
-    // fill block0 struct and write page 0
+    // fill blk_zero_st struct and write page 0
     hp = mf_new(mfp, false, 1);
 
     if(hp->bh_bnum != 0)
@@ -288,7 +288,7 @@ int ml_open(fbuf_st *buf)
         goto error;
     }
 
-    ZERO_BL *b0p = hp->bh_data;
+    blk_zero_st *b0p = hp->bh_data;
 
     b0p->b0_id[0] = BLOCK0_ID0;
     b0p->b0_id[1] = BLOCK0_ID1;
@@ -661,14 +661,14 @@ void ml_timestamp(fbuf_st *buf)
 }
 
 /// Checks whether the IDs in b0 are valid.
-static bool ml_check_b0_id(ZERO_BL *b0p)
+static bool ml_check_b0_id(blk_zero_st *b0p)
 FUNC_ATTR_NONNULL_ALL
 {
     return b0p->b0_id[0] == BLOCK0_ID0 && b0p->b0_id[1] == BLOCK0_ID1;
 }
 
 /// Checks whether all strings in b0 are valid (i.e. nul-terminated).
-static bool ml_check_b0_strings(ZERO_BL *b0p)
+static bool ml_check_b0_strings(blk_zero_st *b0p)
 FUNC_ATTR_NONNULL_ALL
 {
     return (memchr(b0p->b0_version, NUL, 10)
@@ -682,7 +682,7 @@ static void ml_upd_block0(fbuf_st *buf, upd_block0_T what)
 {
     memfile_st *mfp;
     blk_hdr_st *hp;
-    ZERO_BL *b0p;
+    blk_zero_st *b0p;
 
     mfp = buf->b_ml.ml_mfp;
 
@@ -715,7 +715,7 @@ static void ml_upd_block0(fbuf_st *buf, upd_block0_T what)
 /// Write file name and timestamp into block 0 of a swap file.
 /// Also set buf->b_mtime.
 /// Don't use NameBuff[]!!!
-static void set_b0_fname(ZERO_BL *b0p, fbuf_st *buf)
+static void set_b0_fname(blk_zero_st *b0p, fbuf_st *buf)
 {
     if(buf->b_ffname == NULL)
     {
@@ -779,7 +779,7 @@ static void set_b0_fname(ZERO_BL *b0p, fbuf_st *buf)
 /// It's set if the file and the swapfile for "buf" are in the same directory.
 /// This is fail safe: if we are not sure the directories are equal the flag is
 /// not set.
-static void set_b0_dir_flag(ZERO_BL *b0p, fbuf_st *buf)
+static void set_b0_dir_flag(blk_zero_st *b0p, fbuf_st *buf)
 {
     if(same_directory(buf->b_ml.ml_mfp->mf_fname, buf->b_ffname))
     {
@@ -792,7 +792,7 @@ static void set_b0_dir_flag(ZERO_BL *b0p, fbuf_st *buf)
 }
 
 /// When there is room, add the 'fileencoding' to block zero.
-static void add_b0_fenc(ZERO_BL *b0p, fbuf_st *buf)
+static void add_b0_fenc(blk_zero_st *b0p, fbuf_st *buf)
 {
     int n;
     int size = B0_FNAME_SIZE_NOCRYPT;
@@ -821,7 +821,7 @@ void ml_recover(void)
     uchar_kt *fname;
     uchar_kt *fname_used = NULL;
     blk_hdr_st *hp = NULL;
-    ZERO_BL *b0p;
+    blk_zero_st *b0p;
     int b0_ff;
     uchar_kt *b0_fenc = NULL;
     PTR_BL *pp;
@@ -1758,7 +1758,7 @@ static int process_still_running;
 static time_t swapfile_info(uchar_kt *fname)
 {
     int fd;
-    struct block0 b0;
+    blk_zero_st b0;
     time_t x = (time_t)0;
     char *p;
 
@@ -4006,8 +4006,8 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                && !buf->b_help && !(buf->b_flags & BF_DUMMY))
             {
                 int fd;
-                struct block0 b0;
                 int differ = FALSE;
+                blk_zero_st b0;
 
                 // Try to read block 0 from the swap file to get
                 // the original file name (and inode number).
@@ -4231,7 +4231,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
     return fname;
 }
 
-static int b0_magic_wrong(ZERO_BL *b0p)
+static int b0_magic_wrong(blk_zero_st *b0p)
 {
     return b0p->b0_magic_long != (long)B0_MAGIC_LONG
            || b0p->b0_magic_int != (int)B0_MAGIC_INT
@@ -4373,7 +4373,7 @@ static long char_to_long(uchar_kt *s)
 void ml_setflags(fbuf_st *buf)
 {
     blk_hdr_st *hp;
-    ZERO_BL *b0p;
+    blk_zero_st *b0p;
 
     if(!buf->b_ml.ml_mfp)
     {
