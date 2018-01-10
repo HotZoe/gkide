@@ -79,7 +79,7 @@
 
 typedef struct blk_zero_s    blk_zero_st;   ///< contents of the first block
 typedef struct blk_ptr_s     blk_ptr_st;    ///< contents of a pointer block
-typedef struct data_block    DATA_BL;       ///< contents of a data block
+typedef struct blk_data_s    blk_data_st;   ///< contents of a data block
 typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
 
 #define DATA_ID        (('d' << 8) + 'a')   ///< data block id
@@ -111,7 +111,7 @@ struct blk_ptr_s
 /// The text of the lines is at the end of the block. The text of the first line
 /// in the block is put at the end, the text of the second line in front of it,
 /// etc. Thus the order of the lines is the opposite of the line number.
-struct data_block
+struct blk_data_s
 {
     uint16_t db_id;           ///< ID for data block: DATA_ID
     unsigned db_free;         ///< free space available
@@ -141,7 +141,7 @@ struct data_block
 #define INDEX_SIZE      (sizeof(unsigned))
 
 /// size of data block header
-#define HEADER_SIZE     (sizeof(DATA_BL) - INDEX_SIZE)
+#define HEADER_SIZE     (sizeof(blk_data_st) - INDEX_SIZE)
 
 #define B0_FNAME_SIZE_ORG       900   ///< what it was in older versions
 #define B0_FNAME_SIZE_NOCRYPT   898   ///< 2 bytes used for other things
@@ -355,7 +355,7 @@ int ml_open(fbuf_st *buf)
         goto error;
     }
 
-    DATA_BL *dp = hp->bh_data;
+    blk_data_st *dp = hp->bh_data;
     dp->db_index[0] = --dp->db_txt_start; // at end of block
     dp->db_free -= 1 + INDEX_SIZE;
     dp->db_line_count = 1;
@@ -825,7 +825,7 @@ void ml_recover(void)
     int b0_ff;
     uchar_kt *b0_fenc = NULL;
     blk_ptr_st *pp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     infoptr_T *ip;
     blknum_kt bnum;
     int page_count;
@@ -2118,7 +2118,7 @@ uchar_kt *ml_get_pos(apos_st *pos)
 uchar_kt *ml_get_buf(fbuf_st *buf, linenum_kt lnum, int will_change)
 {
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     uchar_kt *ptr;
     static int recursive = 0;
 
@@ -2289,7 +2289,7 @@ static int ml_append_int(fbuf_st *buf,
 
     blk_hdr_st *hp;
     memfile_st *mfp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     blk_ptr_st *pp;
     infoptr_T *ip;
 
@@ -2440,7 +2440,7 @@ static int ml_append_int(fbuf_st *buf,
         int lines_moved;
         int data_moved = 0; // init to shut up gcc
         int total_moved = 0; // init to shut up gcc
-        DATA_BL *dp_right, *dp_left;
+        blk_data_st *dp_right, *dp_left;
         int stack_idx;
         int in_left;
         int lineadd;
@@ -2877,7 +2877,7 @@ static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
 {
     blk_hdr_st *hp;
     memfile_st *mfp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     blk_ptr_st *pp;
     infoptr_T *ip;
 
@@ -3046,7 +3046,7 @@ static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
 void ml_setmarked(linenum_kt lnum)
 {
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
 
     // invalid line number
     if(lnum < 1 || lnum > curbuf->b_ml.ml_line_count
@@ -3077,7 +3077,7 @@ void ml_setmarked(linenum_kt lnum)
 linenum_kt ml_firstmarked(void)
 {
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     linenum_kt lnum;
     int i;
 
@@ -3122,7 +3122,7 @@ linenum_kt ml_firstmarked(void)
 void ml_clearmarked(void)
 {
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     linenum_kt lnum;
     int i;
 
@@ -3164,7 +3164,7 @@ void ml_clearmarked(void)
 static void ml_flush_line(fbuf_st *buf)
 {
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     linenum_kt lnum;
     uchar_kt *new_line;
     uchar_kt *old_line;
@@ -3282,7 +3282,7 @@ static blk_hdr_st *ml_new_data(memfile_st *mfp, int negative, int page_count)
     assert(page_count >= 0);
 
     blk_hdr_st *hp = mf_new(mfp, negative, (unsigned)page_count);
-    DATA_BL *dp = hp->bh_data;
+    blk_data_st *dp = hp->bh_data;
 
     dp->db_id = DATA_ID;
     dp->db_txt_start = dp->db_txt_end = page_count * mfp->mf_page_size;
@@ -3324,7 +3324,7 @@ static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
 /// NULL for failure, pointer to block header otherwise
 static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
 {
-    DATA_BL *dp;
+    blk_data_st *dp;
     blk_ptr_st *pp;
     infoptr_T *ip;
     blk_hdr_st *hp;
@@ -4419,7 +4419,7 @@ static void ml_updatechunk(fbuf_st *buf, linenum_kt line, long len, int updtype)
     chunksize_T *curchnk;
     int rest;
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
 
     if(buf->b_ml.ml_usedchunks == -1 || len == 0)
     {
@@ -4663,7 +4663,7 @@ long ml_find_line_or_offset(fbuf_st *buf, linenum_kt lnum, long *offp)
     int curix;
     long size;
     blk_hdr_st *hp;
-    DATA_BL *dp;
+    blk_data_st *dp;
     int count; // number of entries in block
     int idx;
     int start_idx;
