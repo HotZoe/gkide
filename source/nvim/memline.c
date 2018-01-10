@@ -77,10 +77,10 @@
     #include <time.h>
 #endif
 
-typedef struct blk_zero_s    blk_zero_st;   ///< contents of the first block
-typedef struct blk_ptr_s     blk_ptr_st;    ///< contents of a pointer block
-typedef struct blk_data_s    blk_data_st;   ///< contents of a data block
-typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
+typedef struct blk_zero_s  blk_zero_st;     ///< contents of the first block
+typedef struct blk_ptr_s   blk_ptr_st;      ///< contents of a pointer block
+typedef struct blk_data_s  blk_data_st;     ///< contents of a data block
+typedef struct blk_line_s  blk_line_st;     ///< block/line-count pair
 
 #define DATA_ID        (('d' << 8) + 'a')   ///< data block id
 #define PTR_ID         (('p' << 8) + 't')   ///< pointer block id
@@ -88,22 +88,22 @@ typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
 #define BLOCK0_ID1     '0'                  ///< block 0 id 1
 
 /// pointer to a block, used in a pointer block
-struct pointer_entry
+struct blk_line_s
 {
     blknum_kt pe_bnum;         ///< block number
-    linenum_kt pe_line_count;    ///< number of lines in this branch
-    linenum_kt pe_old_lnum;      ///< lnum for this block (for recovery)
+    linenum_kt pe_line_count;  ///< number of lines in this branch
+    linenum_kt pe_old_lnum;    ///< lnum for this block (for recovery)
     int pe_page_count;         ///< number of pages in block pe_bnum
 };
 
 /// A pointer block contains a list of branches in the tree.
 struct blk_ptr_s
 {
-    uint16_t pb_id;        ///< ID for pointer block: PTR_ID
-    uint16_t pb_count;     ///< number of pointers in this block
-    uint16_t pb_count_max; ///< maximum value for pb_count
-    PTR_EN pb_pointer[1];  ///< list of pointers to blocks (actually longer)
-                           ///< followed by empty space until end of page
+    uint16_t pb_id;            ///< ID for pointer block: PTR_ID
+    uint16_t pb_count;         ///< number of pointers in this block
+    uint16_t pb_count_max;     ///< maximum value for pb_count
+    blk_line_st pb_pointer[1]; ///< list of pointers to blocks (actually longer)
+                               ///< followed by empty space until end of page
 };
 
 /// A data block is a leaf in the tree.
@@ -117,7 +117,7 @@ struct blk_data_s
     unsigned db_free;         ///< free space available
     unsigned db_txt_start;    ///< byte where text starts
     unsigned db_txt_end;      ///< byte just after data block
-    linenum_kt db_line_count;   ///< number of lines in this block
+    linenum_kt db_line_count; ///< number of lines in this block
 
     /// index for start of line (actually bigger) followed
     /// by empty space upto db_txt_start followed by the text
@@ -184,7 +184,7 @@ struct blk_zero_s
     long b0_magic_long;     ///< check for byte order of long
     int b0_magic_int;       ///< check for byte order of int
     short b0_magic_short;   ///< check for byte order of short
-    uchar_kt b0_magic_char;   ///< check for last char
+    uchar_kt b0_magic_char; ///< check for last char
 };
 
 // Note: b0_dirty and b0_flags are put at the end of the file name. For very
@@ -244,10 +244,10 @@ int ml_open(fbuf_st *buf)
 {
     // init fields in memline struct
     buf->b_ml.ml_stack_size = 0; // no stack yet
-    buf->b_ml.ml_stack = NULL; // no stack yet
-    buf->b_ml.ml_stack_top = 0; // nothing in the stack
-    buf->b_ml.ml_locked = NULL; // no cached block
-    buf->b_ml.ml_line_lnum = 0; // no cached line
+    buf->b_ml.ml_stack = NULL;   // no stack yet
+    buf->b_ml.ml_stack_top = 0;  // nothing in the stack
+    buf->b_ml.ml_locked = NULL;  // no cached block
+    buf->b_ml.ml_line_lnum = 0;  // no cached line
     buf->b_ml.ml_chunksize = NULL;
 
     if(cmdmod.noswapfile)
@@ -2654,7 +2654,7 @@ static int ml_append_int(fbuf_st *buf,
                 {
                     memmove(&pp->pb_pointer[pb_idx + 2],
                             &pp->pb_pointer[pb_idx + 1],
-                            (size_t)(pp->pb_count - pb_idx - 1) * sizeof(PTR_EN));
+                            (size_t)(pp->pb_count - pb_idx - 1) * sizeof(blk_line_st));
                 }
 
                 ++pp->pb_count;
@@ -2742,7 +2742,7 @@ static int ml_append_int(fbuf_st *buf,
                 {
                     memmove(&pp_new->pb_pointer[0],
                             &pp->pb_pointer[pb_idx + 1],
-                            (size_t)(total_moved) * sizeof(PTR_EN));
+                            (size_t)(total_moved) * sizeof(blk_line_st));
 
                     pp_new->pb_count = total_moved;
                     pp->pb_count -= total_moved - 1;
@@ -2991,7 +2991,7 @@ static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
                 {
                     memmove(&pp->pb_pointer[idx],
                             &pp->pb_pointer[idx + 1],
-                            (size_t)(count - idx) * sizeof(PTR_EN));
+                            (size_t)(count - idx) * sizeof(blk_line_st));
                 }
 
                 mf_put(mfp, hp, true, false);
@@ -3301,7 +3301,7 @@ static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
     pp->pb_id = PTR_ID;
     pp->pb_count = 0;
 
-    pp->pb_count_max = (mfp->mf_page_size - sizeof(blk_ptr_st)) / sizeof(PTR_EN)
+    pp->pb_count_max = (mfp->mf_page_size - sizeof(blk_ptr_st)) / sizeof(blk_line_st)
                        + 1;
 
     return hp;
