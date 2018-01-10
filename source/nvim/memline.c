@@ -78,7 +78,7 @@
 #endif
 
 typedef struct blk_zero_s    blk_zero_st;   ///< contents of the first block
-typedef struct pointer_block PTR_BL;        ///< contents of a pointer block
+typedef struct blk_ptr_s     blk_ptr_st;    ///< contents of a pointer block
 typedef struct data_block    DATA_BL;       ///< contents of a data block
 typedef struct pointer_entry PTR_EN;        ///< block/line-count pair
 
@@ -97,7 +97,7 @@ struct pointer_entry
 };
 
 /// A pointer block contains a list of branches in the tree.
-struct pointer_block
+struct blk_ptr_s
 {
     uint16_t pb_id;        ///< ID for pointer block: PTR_ID
     uint16_t pb_count;     ///< number of pointers in this block
@@ -336,7 +336,7 @@ int ml_open(fbuf_st *buf)
         goto error;
     }
 
-    PTR_BL *pp = hp->bh_data;
+    blk_ptr_st *pp = hp->bh_data;
 
     pp->pb_count = 1;
     pp->pb_pointer[0].pe_bnum = 2;
@@ -824,7 +824,7 @@ void ml_recover(void)
     blk_zero_st *b0p;
     int b0_ff;
     uchar_kt *b0_fenc = NULL;
-    PTR_BL *pp;
+    blk_ptr_st *pp;
     DATA_BL *dp;
     infoptr_T *ip;
     blknum_kt bnum;
@@ -2290,7 +2290,7 @@ static int ml_append_int(fbuf_st *buf,
     blk_hdr_st *hp;
     memfile_st *mfp;
     DATA_BL *dp;
-    PTR_BL *pp;
+    blk_ptr_st *pp;
     infoptr_T *ip;
 
     // lnum out of range
@@ -2447,7 +2447,7 @@ static int ml_append_int(fbuf_st *buf,
         blknum_kt bnum_left, bnum_right;
         linenum_kt lnum_left, lnum_right;
         int pb_idx;
-        PTR_BL *pp_new;
+        blk_ptr_st *pp_new;
 
         // We are going to allocate a new data block. Depending on the
         // situation it will be put to the left or right of the existing
@@ -2878,7 +2878,7 @@ static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
     blk_hdr_st *hp;
     memfile_st *mfp;
     DATA_BL *dp;
-    PTR_BL *pp;
+    blk_ptr_st *pp;
     infoptr_T *ip;
 
     int count; // number of entries in block
@@ -3296,12 +3296,12 @@ static blk_hdr_st *ml_new_data(memfile_st *mfp, int negative, int page_count)
 static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
 {
     blk_hdr_st *hp = mf_new(mfp, false, 1);
-    PTR_BL *pp = hp->bh_data;
+    blk_ptr_st *pp = hp->bh_data;
 
     pp->pb_id = PTR_ID;
     pp->pb_count = 0;
 
-    pp->pb_count_max = (mfp->mf_page_size - sizeof(PTR_BL)) / sizeof(PTR_EN)
+    pp->pb_count_max = (mfp->mf_page_size - sizeof(blk_ptr_st)) / sizeof(PTR_EN)
                        + 1;
 
     return hp;
@@ -3325,7 +3325,7 @@ static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
 static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
 {
     DATA_BL *dp;
-    PTR_BL *pp;
+    blk_ptr_st *pp;
     infoptr_T *ip;
     blk_hdr_st *hp;
     memfile_st *mfp;
@@ -3446,7 +3446,7 @@ static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
             return hp;
         }
 
-        pp = (PTR_BL *)(dp); // must be pointer block
+        pp = (blk_ptr_st *)(dp); // must be pointer block
 
         if(pp->pb_id != PTR_ID)
         {
@@ -3577,7 +3577,7 @@ static void ml_lineadd(fbuf_st *buf, int count)
 {
     int idx;
     infoptr_T *ip;
-    PTR_BL *pp;
+    blk_ptr_st *pp;
     memfile_st *mfp = buf->b_ml.ml_mfp;
     blk_hdr_st *hp;
 
