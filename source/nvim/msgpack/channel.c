@@ -88,11 +88,11 @@ typedef struct
     kvec_t(WBuffer *) delayed_notifications;
 
     MultiQueue *events;
-} Channel;
+} rpc_channel_st;
 
 typedef struct
 {
-    Channel *channel;
+    rpc_channel_st *channel;
     rpc_request_handler_st handler;
     Array args;
     uint64_t request_id;
@@ -124,7 +124,7 @@ void channel_teardown(void)
         return;
     }
 
-    Channel *channel;
+    rpc_channel_st *channel;
     map_foreach_value(channels, channel, { close_channel(channel); });
 }
 
@@ -136,7 +136,7 @@ void channel_teardown(void)
 /// @return The channel id (> 0), on success. 0, on error.
 uint64_t channel_from_process(Process *proc, uint64_t id)
 {
-    Channel *channel = register_channel(kChannelTypeProc, id, proc->events);
+    rpc_channel_st *channel = register_channel(kChannelTypeProc, id, proc->events);
     incref(channel); // process channels are only closed by the exit_cb
     channel->data.proc = proc;
     wstream_init(proc->in, 0);
@@ -150,7 +150,7 @@ uint64_t channel_from_process(Process *proc, uint64_t id)
 /// @param watcher The SocketWatcher ready to accept the connection
 void channel_from_connection(SocketWatcher *watcher)
 {
-    Channel *channel = register_channel(kChannelTypeSocket, 0, NULL);
+    rpc_channel_st *channel = register_channel(kChannelTypeSocket, 0, NULL);
     socket_watcher_accept(watcher, &channel->data.stream);
     incref(channel); // close channel only after the stream is closed
     channel->data.stream.internal_close_cb = close_cb;
@@ -178,7 +178,7 @@ uint64_t channel_connect(bool tcp,
         xfree(path);
     }
 
-    Channel *channel = register_channel(kChannelTypeSocket, 0, NULL);
+    rpc_channel_st *channel = register_channel(kChannelTypeSocket, 0, NULL);
 
     if(!socket_connect(&main_loop, &channel->data.stream,
                        tcp, address, timeout, error))
@@ -206,7 +206,7 @@ uint64_t channel_connect(bool tcp,
 /// @return True if the event was sent successfully, false otherwise.
 bool channel_send_event(uint64_t id, const char *name, Array args)
 {
-    Channel *channel = NULL;
+    rpc_channel_st *channel = NULL;
 
     if(id && (!(channel = pmap_get(uint64_t)(channels, id)) || channel->closed))
     {
@@ -252,7 +252,7 @@ Object channel_send_call(uint64_t id,
                          Array args,
                          error_st *err)
 {
-    Channel *channel = NULL;
+    rpc_channel_st *channel = NULL;
 
     if(!(channel = pmap_get(uint64_t)(channels, id)) || channel->closed)
     {
@@ -334,7 +334,7 @@ Object channel_send_call(uint64_t id,
 /// @param event The event type string
 void channel_subscribe(uint64_t id, char *event)
 {
-    Channel *channel;
+    rpc_channel_st *channel;
 
     if(!(channel = pmap_get(uint64_t)(channels, id)) || channel->closed)
     {
@@ -358,7 +358,7 @@ void channel_subscribe(uint64_t id, char *event)
 /// @param event The event type string
 void channel_unsubscribe(uint64_t id, char *event)
 {
-    Channel *channel;
+    rpc_channel_st *channel;
 
     if(!(channel = pmap_get(uint64_t)(channels, id)) || channel->closed)
     {
@@ -375,7 +375,7 @@ void channel_unsubscribe(uint64_t id, char *event)
 /// @return true if successful, false otherwise
 bool channel_close(uint64_t id)
 {
-    Channel *channel;
+    rpc_channel_st *channel;
 
     if(!(channel = pmap_get(uint64_t)(channels, id)) || channel->closed)
     {
@@ -390,7 +390,7 @@ bool channel_close(uint64_t id)
 /// This is used when embedding Neovim
 void channel_from_stdio(void)
 {
-    Channel *channel = register_channel(kChannelTypeStdio, 0, NULL);
+    rpc_channel_st *channel = register_channel(kChannelTypeStdio, 0, NULL);
     incref(channel); // stdio channels are only closed on exit
     // read stream
     rstream_init_fd(&main_loop, &channel->data.std.in, 0, CHANNEL_BUFFER_SIZE);
@@ -404,14 +404,14 @@ void channel_from_stdio(void)
 /// an instance connects to its own named pipe.
 uint64_t channel_create_internal(void)
 {
-    Channel *channel = register_channel(kChannelTypeInternal, 0, NULL);
+    rpc_channel_st *channel = register_channel(kChannelTypeInternal, 0, NULL);
     incref(channel); // internal channel lives until process exit
     return channel->id;
 }
 
 void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
 {
-    Channel *channel = pmap_get(uint64_t)(channels, id);
+    rpc_channel_st *channel = pmap_get(uint64_t)(channels, id);
     channel->closed = true;
     decref(channel);
 }
@@ -422,7 +422,7 @@ static void receive_msgpack(Stream *FUNC_ARGS_UNUSED_MAYBE(stream),
                             void *data,
                             bool eof)
 {
-    Channel *channel = data;
+    rpc_channel_st *channel = data;
     incref(channel);
 
     if(eof)
@@ -450,7 +450,7 @@ end:
     decref(channel);
 }
 
-static void parse_msgpack(Channel *channel)
+static void parse_msgpack(rpc_channel_st *channel)
 {
     msgpack_unpacked unpacked;
     msgpack_unpacked_init(&unpacked);
@@ -513,7 +513,7 @@ static void parse_msgpack(Channel *channel)
 }
 
 
-static void handle_request(Channel *channel, msgpack_object *request)
+static void handle_request(rpc_channel_st *channel, msgpack_object *request)
 FUNC_ATTR_NONNULL_ALL
 {
     uint64_t request_id;
@@ -599,7 +599,7 @@ FUNC_ATTR_NONNULL_ALL
 static void on_request_event(void **argv)
 {
     RequestEvent *e = argv[0];
-    Channel *channel = e->channel;
+    rpc_channel_st *channel = e->channel;
     rpc_request_handler_st handler = e->handler;
     Array args = e->args;
     uint64_t request_id = e->request_id;
@@ -628,7 +628,7 @@ static void on_request_event(void **argv)
     api_clear_error(&error);
 }
 
-static bool channel_write(Channel *channel, WBuffer *buffer)
+static bool channel_write(rpc_channel_st *channel, WBuffer *buffer)
 {
     bool success = false;
 
@@ -679,7 +679,7 @@ static bool channel_write(Channel *channel, WBuffer *buffer)
 
 static void internal_read_event(void **argv)
 {
-    Channel *channel = argv[0];
+    rpc_channel_st *channel = argv[0];
     WBuffer *buffer = argv[1];
 
     msgpack_unpacker_reserve_buffer(channel->unpacker, buffer->size);
@@ -694,7 +694,7 @@ static void internal_read_event(void **argv)
     wstream_release_wbuffer(buffer);
 }
 
-static void send_error(Channel *channel, uint64_t id, char *err)
+static void send_error(rpc_channel_st *channel, uint64_t id, char *err)
 {
     error_st e = ERROR_INIT;
     api_set_error(&e, kErrorTypeException, "%s", err);
@@ -707,7 +707,7 @@ static void send_error(Channel *channel, uint64_t id, char *err)
     api_clear_error(&e);
 }
 
-static void send_request(Channel *channel,
+static void send_request(rpc_channel_st *channel,
                          uint64_t id,
                          const char *name,
                          Array args)
@@ -723,7 +723,7 @@ static void send_request(Channel *channel,
                                     1));
 }
 
-static void send_event(Channel *channel, const char *name, Array args)
+static void send_event(rpc_channel_st *channel, const char *name, Array args)
 {
     const String method = cstr_as_string((char *)name);
     channel_write(channel,
@@ -737,9 +737,9 @@ static void send_event(Channel *channel, const char *name, Array args)
 
 static void broadcast_event(const char *name, Array args)
 {
-    kvec_t(Channel *) subscribed = KV_INITIAL_VALUE;
+    kvec_t(rpc_channel_st *) subscribed = KV_INITIAL_VALUE;
 
-    Channel *channel;
+    rpc_channel_st *channel;
 
     map_foreach_value(channels, channel, {
         if(pmap_has(cstr_t)(channel->subscribed_events, name))
@@ -764,7 +764,7 @@ static void broadcast_event(const char *name, Array args)
 
     for(size_t i = 0; i < kv_size(subscribed); i++)
     {
-        Channel *channel = kv_A(subscribed, i);
+        rpc_channel_st *channel = kv_A(subscribed, i);
 
         if(channel->pending_requests)
         {
@@ -780,7 +780,7 @@ end:
     kv_destroy(subscribed);
 }
 
-static void unsubscribe(Channel *channel, char *event)
+static void unsubscribe(rpc_channel_st *channel, char *event)
 {
     char *event_string = pmap_get(cstr_t)(event_strings, event);
     pmap_del(cstr_t)(channel->subscribed_events, event_string);
@@ -800,7 +800,7 @@ static void unsubscribe(Channel *channel, char *event)
 }
 
 /// Close the channel streams/process and free the channel resources.
-static void close_channel(Channel *channel)
+static void close_channel(rpc_channel_st *channel)
 {
     if(channel->closed)
     {
@@ -846,7 +846,7 @@ static void exit_event(void **argv)
     }
 }
 
-static void free_channel(Channel *channel)
+static void free_channel(rpc_channel_st *channel)
 {
     remote_ui_disconnect(channel->id);
 
@@ -878,11 +878,11 @@ static void close_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
     decref(data);
 }
 
-static Channel *register_channel(ChannelType type,
+static rpc_channel_st *register_channel(ChannelType type,
                                  uint64_t id,
                                  MultiQueue *events)
 {
-    Channel *rv = xmalloc(sizeof(Channel));
+    rpc_channel_st *rv = xmalloc(sizeof(rpc_channel_st));
 
     rv->events = events ? events : multiqueue_new_child(main_loop.events);
     rv->type = type;
@@ -911,7 +911,7 @@ static bool is_rpc_response(msgpack_object *obj)
            && obj->via.array.ptr[1].type == MSGPACK_OBJECT_POSITIVE_INTEGER;
 }
 
-static bool is_valid_rpc_response(msgpack_object *obj, Channel *channel)
+static bool is_valid_rpc_response(msgpack_object *obj, rpc_channel_st *channel)
 {
     uint64_t response_id = obj->via.array.ptr[1].via.u64;
     // Must be equal to the frame at the stack's bottom
@@ -920,7 +920,7 @@ static bool is_valid_rpc_response(msgpack_object *obj, Channel *channel)
                                   kv_size(channel->call_stack) - 1)->request_id;
 }
 
-static void complete_call(msgpack_object *obj, Channel *channel)
+static void complete_call(msgpack_object *obj, rpc_channel_st *channel)
 {
     ChannelCallFrame *frame =
         kv_A(channel->call_stack, kv_size(channel->call_stack) - 1);
@@ -938,7 +938,7 @@ static void complete_call(msgpack_object *obj, Channel *channel)
     }
 }
 
-static void call_set_error(Channel *channel, char *msg)
+static void call_set_error(rpc_channel_st *channel, char *msg)
 {
     ERROR_LOG("RPC: %s", msg);
 
@@ -997,7 +997,7 @@ static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
     return rv;
 }
 
-static void send_delayed_notifications(Channel *channel)
+static void send_delayed_notifications(rpc_channel_st *channel)
 {
     for(size_t i = 0; i < kv_size(channel->delayed_notifications); i++)
     {
@@ -1008,12 +1008,12 @@ static void send_delayed_notifications(Channel *channel)
     kv_size(channel->delayed_notifications) = 0;
 }
 
-static void incref(Channel *channel)
+static void incref(rpc_channel_st *channel)
 {
     channel->refcount++;
 }
 
-static void decref(Channel *channel)
+static void decref(rpc_channel_st *channel)
 {
     if(!(--channel->refcount))
     {
