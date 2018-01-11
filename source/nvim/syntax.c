@@ -237,7 +237,7 @@ static char *(spo_name_tab[SPO_COUNT]) = {
 #define MAXKEYWLEN      80      ///< maximum length of a keyword
 
 #define SYN_ITEMS(buf)    ((synpat_T *)((buf)->b_syn_patterns.ga_data))
-#define SYN_STATE_P(ssp)  ((bufstate_T *)((ssp)->ga_data))
+#define SYN_STATE_P(ssp)  ((bufstate_st *)((ssp)->ga_data))
 
 // The attributes of the syntax item that has been recognized.
 static int current_attr = 0;        ///< attr of current syntax word
@@ -574,7 +574,7 @@ static void clear_syn_state(synstate_T *p)
 
     if(p->sst_stacksize > SST_FIX_STATES)
     {
-        GA_DEEP_CLEAR(&(p->sst_union.sst_ga), bufstate_T, UNREF_BUFSTATE_EXTMATCH);
+        GA_DEEP_CLEAR(&(p->sst_union.sst_ga), bufstate_st, UNREF_BUFSTATE_EXTMATCH);
     }
     else
     {
@@ -1396,7 +1396,7 @@ static synstate_T *store_current_state(void)
 {
     int i;
     synstate_T *p;
-    bufstate_T *bp;
+    bufstate_st *bp;
     stateitem_T *cur_si;
     synstate_T *sp = syn_stack_find_entry(current_lnum);
 
@@ -1499,7 +1499,7 @@ static synstate_T *store_current_state(void)
         {
             // Need to clear it, might be something remaining
             // from when the length was less than SST_FIX_STATES.
-            ga_init(&sp->sst_union.sst_ga, (int)sizeof(bufstate_T), 1);
+            ga_init(&sp->sst_union.sst_ga, (int)sizeof(bufstate_st), 1);
             ga_grow(&sp->sst_union.sst_ga, current_state.ga_len);
             sp->sst_union.sst_ga.ga_len = current_state.ga_len;
             bp = SYN_STATE_P(&(sp->sst_union.sst_ga));
@@ -1532,7 +1532,7 @@ static synstate_T *store_current_state(void)
 static void load_current_state(synstate_T *from)
 {
     int i;
-    bufstate_T *bp;
+    bufstate_st *bp;
     clear_current_state();
     validate_current_state();
     keepend_level = -1;
@@ -1591,7 +1591,7 @@ static void load_current_state(synstate_T *from)
 /// Return TRUE when they are equal.
 static int syn_stack_equal(synstate_T *sp)
 {
-    bufstate_T *bp;
+    bufstate_st *bp;
     reg_extmatch_st *six, *bsx;
 
     // First a quick check if the stacks have the same size end nextlist.

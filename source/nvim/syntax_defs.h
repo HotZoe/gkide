@@ -40,7 +40,7 @@ struct keyentry
 };
 
 /// Struct used to store one state of the state stack.
-typedef struct buf_state
+typedef struct bufstate_s
 {
     int bs_idx;    ///< index of pattern
     int bs_flags;  ///< flags for pattern
@@ -49,7 +49,7 @@ typedef struct buf_state
 
     /// external matches from start pattern
     reg_extmatch_st *bs_extmatch;
-} bufstate_T;
+} bufstate_st;
 
 /// syn_state contains the syntax state stack for
 /// the start of one line. Used by b_sst_array[].
@@ -64,7 +64,7 @@ struct syn_state
     union
     {
         /// short state stack
-        bufstate_T sst_stack[SST_FIX_STATES];
+        bufstate_st sst_stack[SST_FIX_STATES];
         /// growarray for long state stack
         garray_st sst_ga;
     } sst_union;
