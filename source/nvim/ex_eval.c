@@ -1507,10 +1507,10 @@ void ex_try(exargs_st *eap)
             // to save the value.
             if(emsg_silent)
             {
-                eslist_T *elem = xmalloc(sizeof(struct eslist_elem));
+                errmsg_elem_st *elem = xmalloc(sizeof(errmsg_elem_st));
                 elem->saved_emsg_silent = emsg_silent;
-                elem->next = cstack->cs_emsg_silent_list;
-                cstack->cs_emsg_silent_list = elem;
+                elem->next = cstack->cs_emsg_list;
+                cstack->cs_emsg_list = elem;
                 cstack->cs_flags[cstack->cs_idx] |= CSF_SILENT;
                 emsg_silent = 0;
             }
@@ -2315,9 +2315,9 @@ int cleanup_conditionals(struct condstack *cstack,
         if((cstack->cs_flags[idx] & CSF_TRY)
            && (cstack->cs_flags[idx] & CSF_SILENT))
         {
-            eslist_T *elem;
-            elem = cstack->cs_emsg_silent_list;
-            cstack->cs_emsg_silent_list = elem->next;
+            errmsg_elem_st *elem;
+            elem = cstack->cs_emsg_list;
+            cstack->cs_emsg_list = elem->next;
             emsg_silent = elem->saved_emsg_silent;
             xfree(elem);
             cstack->cs_flags[idx] &= ~CSF_SILENT;

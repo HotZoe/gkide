@@ -396,7 +396,7 @@ int do_cmdline(uchar_kt *cmdline,
     cstack.cs_idx = -1;
     cstack.cs_looplevel = 0;
     cstack.cs_trylevel = 0;
-    cstack.cs_emsg_silent_list = NULL;
+    cstack.cs_emsg_list = NULL;
     cstack.cs_lflags = 0;
     ga_init(&lines_ga, (int)sizeof(wcmd_T), 10);
     real_cookie = getline_cookie(fgetline, cookie);
