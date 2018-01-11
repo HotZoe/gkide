@@ -48,7 +48,7 @@ typedef enum
     kChannelTypeProc,
     kChannelTypeStdio,
     kChannelTypeInternal
-} ChannelType;
+} rpc_channel_type_et;
 
 typedef struct
 {
@@ -67,7 +67,7 @@ typedef struct
     PMap(cstr_t) *subscribed_events;
     bool closed;
 
-    ChannelType type;
+    rpc_channel_type_et type;
     msgpack_unpacker *unpacker;
 
     union
@@ -878,9 +878,9 @@ static void close_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
     decref(data);
 }
 
-static rpc_channel_st *register_channel(ChannelType type,
-                                 uint64_t id,
-                                 MultiQueue *events)
+static rpc_channel_st *register_channel(rpc_channel_type_et type,
+                                        uint64_t id,
+                                        MultiQueue *events)
 {
     rpc_channel_st *rv = xmalloc(sizeof(rpc_channel_st));
 
