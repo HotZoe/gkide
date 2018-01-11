@@ -2043,8 +2043,8 @@ void ex_endtry(exargs_st *eap)
 // has been made, an interrupt occurred, or there is an uncaught exception
 // from a previous autocommand execution of the same command.)
 //
-// Call enter_cleanup() with a pointer to a cleanup_T and pass the same
-// pointer to leave_cleanup(). The cleanup_T structure stores the pending
+// Call enter_cleanup() with a pointer to a excmd_cleanup_st and pass the same
+// pointer to leave_cleanup(). The excmd_cleanup_st structure stores the pending
 // error/interrupt/exception state.
 
 /// This function works a bit like ex_finally() except that there was not
@@ -2052,7 +2052,7 @@ void ex_endtry(exargs_st *eap)
 /// interrupt has not (yet) been converted to an exception. This function
 /// saves the error/interrupt/ exception state and prepares for the call to
 /// do_cmdline() that is going to be made for the cleanup autocommand execution.
-void enter_cleanup(cleanup_T *csp)
+void enter_cleanup(excmd_cleanup_st *csp)
 {
     int pending = CSTP_NONE;
 
@@ -2106,13 +2106,13 @@ void enter_cleanup(cleanup_T *csp)
 /// had not (yet) been converted to an exception when the cleanup autocommand
 /// sequence was invoked.
 ///
-/// This function has to be called with the address of the cleanup_T structure
+/// This function has to be called with the address of the excmd_cleanup_st structure
 /// filled by enter_cleanup() as an argument; it restores the error/interrupt/
 /// exception state saved by that function - except there was an aborting
 /// error, an interrupt or an uncaught exception during execution of the
 /// cleanup autocommands. In the latter case, the saved error/interrupt/
 /// exception state is discarded.
-void leave_cleanup(cleanup_T *csp)
+void leave_cleanup(excmd_cleanup_st *csp)
 {
     int pending = csp->pending;
 

@@ -5150,7 +5150,7 @@ static void wipe_dummy_buffer(fbuf_st *buf, uchar_kt *dirname_start)
     // safety check
     if(curbuf != buf)
     {
-        cleanup_T cs;
+        excmd_cleanup_st cs;
 
         // Reset the error/interrupt/exception state here so that aborting()
         // returns FALSE when wiping out the buffer. Otherwise it doesn't

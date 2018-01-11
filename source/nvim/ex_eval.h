@@ -107,8 +107,8 @@ struct vim_exception
 /// Structure to save the error/interrupt/exception state between calls to
 /// enter_cleanup() and leave_cleanup(). Must be allocated as an automatic
 /// variable by the (common) caller of these functions.
-typedef struct cleanup_stuff cleanup_T;
-struct cleanup_stuff
+typedef struct excmd_cleanup_s excmd_cleanup_st;
+struct excmd_cleanup_s
 {
     int pending;         ///< error/interrupt/exception state
     except_T *exception; ///< exception value

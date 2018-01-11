@@ -9018,7 +9018,7 @@ void do_exedit(exargs_st *eap, win_st *old_curwin)
 
                 if(!need_hide || P_HID(curbuf))
                 {
-                    cleanup_T cs;
+                    excmd_cleanup_st cs;
 
                     // Reset the error/interrupt/exception state here so that
                     // aborting() returns FALSE when closing a window.

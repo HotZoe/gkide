@@ -892,7 +892,7 @@ void goto_buffer(exargs_st *eap, int start, int dir, int count)
 
     if(swap_exists_action == SEA_QUIT && *eap->cmd == 's')
     {
-        cleanup_T cs;
+        excmd_cleanup_st cs;
 
         // Reset the error/interrupt/exception state here so that
         // aborting() returns FALSE when closing a window.
@@ -921,7 +921,7 @@ void goto_buffer(exargs_st *eap, int start, int dir, int count)
 void handle_swap_exists(bufref_st *old_curbuf)
 {
     fbuf_st *buf;
-    cleanup_T cs;
+    excmd_cleanup_st cs;
     long old_tw = curbuf->b_p_tw;
 
     if(swap_exists_action == SEA_QUIT)
@@ -5967,7 +5967,7 @@ void ex_buffer_all(exargs_st *eap)
 
             if(swap_exists_action == SEA_QUIT)
             {
-                cleanup_T cs;
+                excmd_cleanup_st cs;
 
                 // Reset the error/interrupt/exception state here so that
                 // aborting() returns FALSE when closing a window.
