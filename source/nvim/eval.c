@@ -28117,7 +28117,7 @@ void ex_return(exargs_st *eap)
 int do_return(exargs_st *eap, int reanimate, int is_cmd, void *rettv)
 {
     int idx;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(reanimate)
     {

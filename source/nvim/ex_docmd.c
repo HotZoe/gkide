@@ -349,7 +349,7 @@ int do_cmdline(uchar_kt *cmdline,
     int count = 0; // line number count
     int did_inc = FALSE; // incremented RedrawingDisabled
     int retval = OK;
-    struct condstack cstack; // conditional stack
+    condstack_st cstack; // conditional stack
     garray_st lines_ga; // keep lines for ":while"/":for"
     int current_line = 0; // active line in lines_ga
     uchar_kt *fname = NULL; // function or script name
@@ -386,7 +386,7 @@ int do_cmdline(uchar_kt *cmdline,
         EMSG(_("E169: Command too recursive"));
         // When converting to an exception, we do not include the command name
         // since this is not an error of the specific command.
-        do_errthrow((struct condstack *)NULL, (uchar_kt *)NULL);
+        do_errthrow((condstack_st *)NULL, (uchar_kt *)NULL);
         msg_list = saved_msg_list;
         return FAIL;
     }
@@ -1399,7 +1399,7 @@ static void get_wincmd_addr_type(uchar_kt *arg, exargs_st *eap)
 /// - this function may be called recursively!
 static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                           int flags,
-                          struct condstack *cstack,
+                          condstack_st *cstack,
                           line_getter_ft fgetline,
                           void *cookie)
 {

@@ -82,7 +82,8 @@
 #define ADDR_QUICKFIX           7
 #define ADDR_OTHER              99
 
-typedef struct exargs_s exargs_st;
+typedef struct exargs_s     exargs_st;
+typedef struct condstack_s  condstack_st;
 
 // behavior for bad character, "++bad=" argument
 #define BAD_REPLACE     '?'  ///< replace it with '?' (default)
@@ -133,7 +134,7 @@ struct exargs_s
     uchar_kt *errmsg;          ///< returned error message
     line_getter_ft getline;    ///< Function used to get the next line
     void *cookie;              ///< argument for getline()
-    struct condstack *cstack;  ///< condition stack for ":if" etc.
+    condstack_st *cstack;  ///< condition stack for ":if" etc.
 };
 
 #define FORCE_BIN       1      ///< ":edit ++bin file"

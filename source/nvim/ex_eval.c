@@ -287,7 +287,7 @@ void free_global_msglist(void)
 /// Throw the message specified in the call to cause_errthrow() above as an
 /// error exception.  If cstack is NULL, postpone the throw until do_cmdline()
 /// has returned (see do_one_cmd()).
-void do_errthrow(struct condstack *cstack, uchar_kt *cmdname)
+void do_errthrow(condstack_st *cstack, uchar_kt *cmdname)
 {
     // Ensure that all commands in nested function
     // calls and sourced files are aborted immediately.
@@ -326,7 +326,7 @@ void do_errthrow(struct condstack *cstack, uchar_kt *cmdname)
 /// Replace the current exception by an interrupt or interrupt
 /// exception if appropriate. Return TRUE if the current exception
 /// is discarded, FALSE otherwise.
-int do_intthrow(struct condstack *cstack)
+int do_intthrow(condstack_st *cstack)
 {
     // If no interrupt occurred or no try conditional is active and
     // no exception is being thrown, do nothing (for compatibility
@@ -925,7 +925,7 @@ void ex_if(exargs_st *eap)
 {
     int skip;
     int result;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
@@ -997,7 +997,7 @@ void ex_else(exargs_st *eap)
 {
     int skip;
     int result;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     // Don't do something after an error, interrupt, or throw,
     // or when there is a surrounding conditional and it was not active.
@@ -1102,7 +1102,7 @@ void ex_while(exargs_st *eap)
     bool error;
     int skip;
     int result;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
@@ -1199,7 +1199,7 @@ void ex_while(exargs_st *eap)
 void ex_continue(exargs_st *eap)
 {
     int idx;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_looplevel <= 0 || cstack->cs_idx < 0)
     {
@@ -1236,7 +1236,7 @@ void ex_continue(exargs_st *eap)
 void ex_break(exargs_st *eap)
 {
     int idx;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_looplevel <= 0 || cstack->cs_idx < 0)
     {
@@ -1261,7 +1261,7 @@ void ex_break(exargs_st *eap)
 /// ":endwhile" and ":endfor"
 void ex_endwhile(exargs_st *eap)
 {
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
     int idx;
     uchar_kt *err;
     int csf;
@@ -1393,7 +1393,7 @@ void ex_throw(exargs_st *eap)
 /// Throw the current exception through the specified cstack. Common routine
 /// for ":throw" (user exception) and error and interrupt exceptions. Also
 /// used for rethrowing an uncaught exception.
-void do_throw(struct condstack *cstack)
+void do_throw(condstack_st *cstack)
 {
     int idx;
     int inactivate_try = FALSE;
@@ -1463,7 +1463,7 @@ void do_throw(struct condstack *cstack)
 void ex_try(exargs_st *eap)
 {
     int skip;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_idx == CSTACK_LEN - 1)
     {
@@ -1530,7 +1530,7 @@ void ex_catch(exargs_st *eap)
     uchar_kt *save_cpo;
     regmatch_st regmatch;
     int prev_got_int;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
     uchar_kt *pat;
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
@@ -1702,7 +1702,7 @@ void ex_finally(exargs_st *eap)
     int idx;
     int skip = FALSE;
     int pending = CSTP_NONE;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
     {
@@ -1840,7 +1840,7 @@ void ex_endtry(exargs_st *eap)
     int rethrow = FALSE;
     int pending = CSTP_NONE;
     void *rettv = NULL;
-    struct condstack *cstack = eap->cstack;
+    condstack_st *cstack = eap->cstack;
 
     if(cstack->cs_trylevel <= 0 || cstack->cs_idx < 0)
     {
@@ -2204,7 +2204,7 @@ void leave_cleanup(excmd_cleanup_st *csp)
 /// "emsg_silent", if reset when the try conditional finally reached was
 /// entered, is restored (used by ex_endtry()).  This is normally done only
 /// when such a try conditional is left.
-int cleanup_conditionals(struct condstack *cstack,
+int cleanup_conditionals(condstack_st *cstack,
                          int searched_cond,
                          int inclusive)
 {
@@ -2333,7 +2333,7 @@ int cleanup_conditionals(struct condstack *cstack,
 }
 
 /// Return an appropriate error message for a missing endwhile/endfor/endif.
-static uchar_kt *get_end_emsg(struct condstack *cstack)
+static uchar_kt *get_end_emsg(condstack_st *cstack)
 {
     if(cstack->cs_flags[cstack->cs_idx] & CSF_WHILE)
     {
@@ -2354,7 +2354,7 @@ static uchar_kt *get_end_emsg(struct condstack *cstack)
 /// type and the address of a level variable which is to
 /// be decremented with each skipped conditional of the specified type.
 /// Also free "for info" structures where needed.
-void rewind_conditionals(struct condstack *cstack,
+void rewind_conditionals(condstack_st *cstack,
                          int idx,
                          int cond_type,
                          int *cond_level)

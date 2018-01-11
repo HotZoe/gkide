@@ -3,8 +3,8 @@
 #ifndef NVIM_EX_EVAL_H
 #define NVIM_EX_EVAL_H
 
-#include "nvim/pos.h" // for linenum_kt
-#include "nvim/ex_cmds_defs.h" // for exargs_st
+#include "nvim/pos.h"
+#include "nvim/ex_cmds_defs.h"
 
 /// A list used for saving values of emsg_silent.
 /// Used by ex_try() to save the value of emsg_silent if it
@@ -20,7 +20,7 @@ struct errmsg_elem_s
 /// When cs_idx < 0, there is no conditional command.
 #define CSTACK_LEN      50
 
-struct condstack
+struct condstack_s
 {
     int cs_flags[CSTACK_LEN];     ///< CSF_ flags
     char cs_pending[CSTACK_LEN];  ///< CSTP_: what's pending in ":finally"
@@ -68,7 +68,7 @@ struct condstack
 #define CSTP_RETURN    24      ///< ":return" is pending
 #define CSTP_FINISH    32      ///< ":finish" is pending
 
-// Flags for the cs_lflags item in struct condstack.
+// Flags for the cs_lflags item in condstack_st.
 #define CSL_HAD_LOOP    1      ///< just found ":while" or ":for"
 #define CSL_HAD_ENDLOOP 2      ///< just found ":endwhile" or ":endfor"
 #define CSL_HAD_CONT    4      ///< just found ":continue"
@@ -78,7 +78,7 @@ struct condstack
 /// "throw_msg" is only set in the first element of the list. Usually,
 /// it points to the original message stored in that element, but sometimes
 /// it points to a later message in the list. See cause_errthrow() below.
-typedef struct errmsg_list_s    errmsg_list_st;
+typedef struct errmsg_list_s   errmsg_list_st;
 struct errmsg_list_s
 {
     uchar_kt *msg;        ///< original message
