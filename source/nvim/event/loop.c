@@ -73,7 +73,7 @@ void loop_schedule(main_loop_T *loop, Event event)
     uv_mutex_unlock(&loop->mutex);
 }
 
-void loop_on_put(MultiQueue *FUNC_ARGS_UNUSED_REALY(queue), void *data)
+void loop_on_put(multiqueue_st *FUNC_ARGS_UNUSED_REALY(queue), void *data)
 {
     main_loop_T *loop = data;
 

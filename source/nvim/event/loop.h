@@ -20,9 +20,9 @@ KLIST_INIT(WatcherPtr, WatcherPtr, _noop)
 typedef struct main_loop_S
 {
     uv_loop_t uv;
-    MultiQueue *events;
-    MultiQueue *fast_events;
-    MultiQueue *thread_events;
+    multiqueue_st *events;
+    multiqueue_st *fast_events;
+    multiqueue_st *thread_events;
     klist_t(WatcherPtr) *children;
     uv_signal_t children_watcher;
     uv_timer_t children_kill_timer;

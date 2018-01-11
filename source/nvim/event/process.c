@@ -209,7 +209,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Exit code of the process.
 /// - -1 if the timeout expired while the process is still running.
 /// - -2 if the user interruped the wait.
-int process_wait(Process *proc, int ms, MultiQueue *events)
+int process_wait(Process *proc, int ms, multiqueue_st *events)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     int status = -1;
@@ -505,7 +505,7 @@ static void on_process_exit(Process *proc)
     // OS. We are still in the libuv loop, so we cannot call code that polls for
     // more data directly. Instead delay the reading after the libuv loop by
     // queueing process_close_handles() as an event.
-    MultiQueue *queue = proc->events ? proc->events : loop->events;
+    multiqueue_st *queue = proc->events ? proc->events : loop->events;
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }
 

@@ -36,7 +36,7 @@ struct socket_watcher
     void *data;
     socket_cb cb;
     socket_close_cb close_cb;
-    MultiQueue *events;
+    multiqueue_st *events;
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

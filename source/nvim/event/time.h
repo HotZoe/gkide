@@ -15,7 +15,7 @@ struct time_watcher
     uv_timer_t uv;
     void *data;
     time_cb cb, close_cb;
-    MultiQueue *events;
+    multiqueue_st *events;
     bool blockable;
 };
 

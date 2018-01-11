@@ -493,7 +493,7 @@ typedef struct
     callback_st on_exit;
     int *status_ptr;
     uint64_t id;
-    MultiQueue *events;
+    multiqueue_st *events;
 } TerminalJobData;
 
 typedef struct
@@ -15321,7 +15321,7 @@ static void f_jobwait(typval_st *argvars,
     list_st *args = argvars[0].vval.v_list;
     list_st *rv = tv_list_alloc();
     ui_busy_start();
-    MultiQueue *waiting_jobs = multiqueue_new_parent(loop_on_put, &main_loop);
+    multiqueue_st *waiting_jobs = multiqueue_new_parent(loop_on_put, &main_loop);
 
     // For each item in the input list append an integer to the output list. -3
     // is used to represent an invalid job id, -2 is for a interrupted job and

@@ -17,7 +17,7 @@ struct signal_watcher
     void *data;
     signal_cb cb;
     signal_close_cb close_cb;
-    MultiQueue *events;
+    multiqueue_st *events;
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

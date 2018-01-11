@@ -248,7 +248,7 @@ static int do_os_system(char **argv,
 
     LibuvProcess uvproc = libuv_process_init(&main_loop, &buf);
     Process *proc = &uvproc.process;
-    MultiQueue *events = multiqueue_new_child(main_loop.events);
+    multiqueue_st *events = multiqueue_new_child(main_loop.events);
     Stream in;
     Stream out;
     Stream err;

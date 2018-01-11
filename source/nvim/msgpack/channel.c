@@ -87,7 +87,7 @@ typedef struct
     kvec_t(rpc_channel_callframe_st *) call_stack;
     kvec_t(WBuffer *) delayed_notifications;
 
-    MultiQueue *events;
+    multiqueue_st *events;
 } rpc_channel_st;
 
 /// rpc channel request event
@@ -886,7 +886,7 @@ static void close_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
 
 static rpc_channel_st *register_channel(rpc_channel_type_et type,
                                         uint64_t id,
-                                        MultiQueue *events)
+                                        multiqueue_st *events)
 {
     rpc_channel_st *rv = xmalloc(sizeof(rpc_channel_st));
 

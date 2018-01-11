@@ -41,7 +41,7 @@ struct process
     bool closed;
     bool term_sent;
     bool detach;
-    MultiQueue *events;
+    multiqueue_st *events;
 };
 
 static inline Process process_init(main_loop_T *loop,

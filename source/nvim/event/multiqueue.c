@@ -61,7 +61,7 @@ struct multiqueue_item
 {
     union
     {
-        MultiQueue *queue;
+        multiqueue_st *queue;
         struct
         {
             Event event;
@@ -75,7 +75,7 @@ struct multiqueue_item
 
 struct multiqueue
 {
-    MultiQueue *parent;  ///<
+    multiqueue_st *parent;  ///<
     queue_st headtail;    ///< circularly-linked
     put_callback put_cb; ///<
     void *data;          ///<
@@ -88,12 +88,12 @@ struct multiqueue
 
 static Event nil_event = { 0 }; // { .handler = NULL, .argv = {NULL} }
 
-MultiQueue *multiqueue_new_parent(put_callback put_cb, void *data)
+multiqueue_st *multiqueue_new_parent(put_callback put_cb, void *data)
 {
     return multiqueue_new(NULL, put_cb, data);
 }
 
-MultiQueue *multiqueue_new_child(MultiQueue *parent)
+multiqueue_st *multiqueue_new_child(multiqueue_st *parent)
 FUNC_ATTR_NONNULL_ALL
 {
     // parent cannot have a parent, more like a "root"
@@ -104,11 +104,11 @@ FUNC_ATTR_NONNULL_ALL
     return multiqueue_new(parent, NULL, NULL);
 }
 
-static MultiQueue *multiqueue_new(MultiQueue *parent,
+static multiqueue_st *multiqueue_new(multiqueue_st *parent,
                                   put_callback put_cb,
                                   void *data)
 {
-    MultiQueue *rv = xmalloc(sizeof(MultiQueue));
+    multiqueue_st *rv = xmalloc(sizeof(multiqueue_st));
     queue_init(&rv->headtail);
     rv->size = 0;
     rv->parent = parent;
@@ -117,7 +117,7 @@ static MultiQueue *multiqueue_new(MultiQueue *parent,
     return rv;
 }
 
-void multiqueue_free(MultiQueue *ptr)
+void multiqueue_free(multiqueue_st *ptr)
 {
     assert(ptr);
 
@@ -140,12 +140,12 @@ void multiqueue_free(MultiQueue *ptr)
 }
 
 /// Removes the next item and returns its Event.
-Event multiqueue_get(MultiQueue *ptr)
+Event multiqueue_get(multiqueue_st *ptr)
 {
     return multiqueue_empty(ptr) ? nil_event : multiqueue_remove(ptr);
 }
 
-void multiqueue_put_event(MultiQueue *ptr, Event event)
+void multiqueue_put_event(multiqueue_st *ptr, Event event)
 {
     assert(ptr);
     multiqueue_push(ptr, event);
@@ -156,7 +156,7 @@ void multiqueue_put_event(MultiQueue *ptr, Event event)
     }
 }
 
-void multiqueue_process_events(MultiQueue *ptr)
+void multiqueue_process_events(multiqueue_st *ptr)
 {
     assert(ptr);
 
@@ -172,7 +172,7 @@ void multiqueue_process_events(MultiQueue *ptr)
 }
 
 /// Removes all events without processing them.
-void multiqueue_purge_events(MultiQueue *ptr)
+void multiqueue_purge_events(multiqueue_st *ptr)
 {
     assert(ptr);
 
@@ -182,20 +182,20 @@ void multiqueue_purge_events(MultiQueue *ptr)
     }
 }
 
-bool multiqueue_empty(MultiQueue *ptr)
+bool multiqueue_empty(multiqueue_st *ptr)
 {
     assert(ptr);
     return queue_empty(&ptr->headtail);
 }
 
-void multiqueue_replace_parent(MultiQueue *ptr, MultiQueue *new_parent)
+void multiqueue_replace_parent(multiqueue_st *ptr, multiqueue_st *new_parent)
 {
     assert(multiqueue_empty(ptr));
     ptr->parent = new_parent;
 }
 
 /// Gets the count of all events currently in the queue.
-size_t multiqueue_size(MultiQueue *ptr)
+size_t multiqueue_size(multiqueue_st *ptr)
 {
     return ptr->size;
 }
@@ -211,7 +211,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
     if(item->link)
     {
         // get the next node in the linked queue
-        MultiQueue *linked = item->data.queue;
+        multiqueue_st *linked = item->data.queue;
         assert(!multiqueue_empty(linked));
 
         MultiQueueItem *child =
@@ -242,7 +242,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
     return ev;
 }
 
-static Event multiqueue_remove(MultiQueue *ptr)
+static Event multiqueue_remove(multiqueue_st *ptr)
 {
     assert(!multiqueue_empty(ptr));
     queue_st *h = QUEUE_HEAD(&ptr->headtail);
@@ -259,7 +259,7 @@ static Event multiqueue_remove(MultiQueue *ptr)
     return ev;
 }
 
-static void multiqueue_push(MultiQueue *ptr, Event event)
+static void multiqueue_push(multiqueue_st *ptr, Event event)
 {
     MultiQueueItem *item = xmalloc(sizeof(MultiQueueItem));
     item->link = false;
