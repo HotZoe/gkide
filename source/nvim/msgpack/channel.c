@@ -90,13 +90,14 @@ typedef struct
     MultiQueue *events;
 } rpc_channel_st;
 
+/// rpc channel request event
 typedef struct
 {
     rpc_channel_st *channel;
     rpc_request_handler_st handler;
     Array args;
     uint64_t request_id;
-} RequestEvent;
+} rpc_channel_request_st;
 
 static PMap(uint64_t) *channels = NULL;
 static PMap(cstr_t) *event_strings = NULL;
@@ -136,12 +137,16 @@ void channel_teardown(void)
 /// @return The channel id (> 0), on success. 0, on error.
 uint64_t channel_from_process(Process *proc, uint64_t id)
 {
-    rpc_channel_st *channel = register_channel(kChannelTypeProc, id, proc->events);
-    incref(channel); // process channels are only closed by the exit_cb
+    rpc_channel_st *channel =
+        register_channel(kChannelTypeProc, id, proc->events);
+
+    // process channels are only closed by the exit_cb
+    incref(channel);
     channel->data.proc = proc;
     wstream_init(proc->in, 0);
     rstream_init(proc->out, 0);
     rstream_start(proc->out, receive_msgpack, channel);
+
     return channel->id;
 }
 
@@ -566,7 +571,8 @@ FUNC_ATTR_NONNULL_ALL
         handler.async = true;
     }
 
-    RequestEvent *evdata = xmalloc(sizeof(RequestEvent));
+    rpc_channel_request_st *evdata =
+        xmalloc(sizeof(rpc_channel_request_st));
 
     evdata->channel = channel;
     evdata->handler = handler;
@@ -598,7 +604,7 @@ FUNC_ATTR_NONNULL_ALL
 
 static void on_request_event(void **argv)
 {
-    RequestEvent *e = argv[0];
+    rpc_channel_request_st *e = argv[0];
     rpc_channel_st *channel = e->channel;
     rpc_request_handler_st handler = e->handler;
     Array args = e->args;
