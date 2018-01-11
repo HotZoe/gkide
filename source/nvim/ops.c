@@ -62,20 +62,20 @@ static bool clipboard_needs_update = false;  ///< clipboard was updated
 
 /// structure used by block_prep, op_delete and op_yank for blockwise
 /// operators also op_change, op_shift, op_insert, op_replace
-struct block_def
+struct blockdef_s
 {
-    int startspaces;          ///< 'extra' cols before first char
-    int endspaces;            ///< 'extra' cols after last char
-    int textlen;              ///< chars in block
-    uchar_kt *textstart;        ///< pointer to 1st char (partially) in block
+    int startspaces;              ///< 'extra' cols before first char
+    int endspaces;                ///< 'extra' cols after last char
+    int textlen;                  ///< chars in block
+    uchar_kt *textstart;          ///< pointer to 1st char (partially) in block
     columnum_kt textcol;          ///< index of chars (partially) in block
     columnum_kt start_vcol;       ///< start col of 1st char wholly inside block
     columnum_kt end_vcol;         ///< start col of 1st char wholly after block
-    int is_short;             ///< TRUE if line is too short to fit in block
-    int is_MAX;               ///< TRUE if curswant==MAXCOL when starting
-    int is_oneChar;           ///< TRUE if block within one character
-    int pre_whitesp;          ///< screen cols of ws before block
-    int pre_whitesp_c;        ///< chars of ws before block
+    int is_short;                 ///< TRUE if line is too short to fit in block
+    int is_MAX;                   ///< TRUE if curswant==MAXCOL when starting
+    int is_oneChar;               ///< TRUE if block within one character
+    int pre_whitesp;              ///< screen cols of ws before block
+    int pre_whitesp_c;            ///< chars of ws before block
     columnum_kt end_char_vcols;   ///< number of vcols of post-block char
     columnum_kt start_char_vcols; ///< number of vcols of pre-block char
 };
@@ -93,29 +93,29 @@ static char opchars[][3] =
     { 'd',    NUL, false },    // OP_DELETE
     { 'y',    NUL, false },    // OP_YANK
     { 'c',    NUL, false },    // OP_CHANGE
-    { '<',    NUL, true },     // OP_LSHIFT
-    { '>',    NUL, true },     // OP_RSHIFT
-    { '!',    NUL, true },     // OP_FILTER
+    { '<',    NUL, true  },    // OP_LSHIFT
+    { '>',    NUL, true  },    // OP_RSHIFT
+    { '!',    NUL, true  },    // OP_FILTER
     { 'g',    '~', false },    // OP_TILDE
-    { '=',    NUL, true },     // OP_INDENT
-    { 'g',    'q', true },     // OP_FORMAT
-    { ':',    NUL, true },     // OP_COLON
+    { '=',    NUL, true  },    // OP_INDENT
+    { 'g',    'q', true  },    // OP_FORMAT
+    { ':',    NUL, true  },    // OP_COLON
     { 'g',    'U', false },    // OP_UPPER
     { 'g',    'u', false },    // OP_LOWER
-    { 'J',    NUL, true },     // DO_JOIN
-    { 'g',    'J', true },     // DO_JOIN_NS
+    { 'J',    NUL, true  },    // DO_JOIN
+    { 'g',    'J', true  },    // DO_JOIN_NS
     { 'g',    '?', false },    // OP_ROT13
     { 'r',    NUL, false },    // OP_REPLACE
     { 'I',    NUL, false },    // OP_INSERT
     { 'A',    NUL, false },    // OP_APPEND
-    { 'z',    'f', true },     // OP_FOLD
-    { 'z',    'o', true },     // OP_FOLDOPEN
-    { 'z',    'O', true },     // OP_FOLDOPENREC
-    { 'z',    'c', true },     // OP_FOLDCLOSE
-    { 'z',    'C', true },     // OP_FOLDCLOSEREC
-    { 'z',    'd', true },     // OP_FOLDDEL
-    { 'z',    'D', true },     // OP_FOLDDELREC
-    { 'g',    'w', true },     // OP_FORMAT2
+    { 'z',    'f', true  },    // OP_FOLD
+    { 'z',    'o', true  },    // OP_FOLDOPEN
+    { 'z',    'O', true  },    // OP_FOLDOPENREC
+    { 'z',    'c', true  },    // OP_FOLDCLOSE
+    { 'z',    'C', true  },    // OP_FOLDCLOSEREC
+    { 'z',    'd', true  },    // OP_FOLDDEL
+    { 'z',    'D', true  },    // OP_FOLDDELREC
+    { 'g',    'w', true  },    // OP_FORMAT2
     { 'g',    '@', false },    // OP_FUNCTION
     { Ctrl_A, NUL, false },    // OP_NR_ADD
     { Ctrl_X, NUL, false },    // OP_NR_SUB
@@ -371,7 +371,7 @@ static void shift_block(oparg_T *oap, int amount)
     int oldcol = curwin->w_cursor.col;
     int p_sw = get_sw_value(curbuf);
     int p_ts = (int)curbuf->b_p_ts;
-    struct block_def bd;
+    struct blockdef_s bd;
     int incr;
     columnum_kt ws_vcol;
     int i = 0, j = 0;
@@ -569,7 +569,7 @@ static void shift_block(oparg_T *oap, int amount)
 static void block_insert(oparg_T *oap,
                          uchar_kt *s,
                          int b_insert,
-                         struct block_def *bdp)
+                         struct blockdef_s *bdp)
 {
     int p_ts;
     int count = 0; // extra spaces to replace a cut TAB
@@ -1637,7 +1637,7 @@ int op_delete(oparg_T *oap)
     linenum_kt lnum;
     uchar_kt *ptr;
     uchar_kt *newp, *oldp;
-    struct block_def bd;
+    struct blockdef_s bd;
     linenum_kt old_lcount = curbuf->b_ml.ml_line_count;
 
     if(curbuf->b_ml.ml_flags & ML_EMPTY) // nothing to do
@@ -2039,7 +2039,7 @@ int op_replace(oparg_T *oap, int c)
     int num_chars;
     uchar_kt *newp, *oldp;
     columnum_kt oldlen;
-    struct block_def bd;
+    struct blockdef_s bd;
     uchar_kt *after_p = NULL;
     int had_ctrl_v_cr = (c == -1 || c == -2);
 
@@ -2332,7 +2332,7 @@ int op_replace(oparg_T *oap, int c)
 void op_tilde(oparg_T *oap)
 {
     apos_st pos;
-    struct block_def bd;
+    struct blockdef_s bd;
     int did_change = FALSE;
 
     if(u_save((linenum_kt)(oap->start.lnum - 1),
@@ -2556,7 +2556,7 @@ void op_insert(oparg_T *oap, long count1)
 {
     long ins_len, pre_textlen = 0;
     uchar_kt *firstline, *ins_text;
-    struct block_def bd;
+    struct blockdef_s bd;
     int i;
     apos_st t1;
 
@@ -2672,7 +2672,7 @@ void op_insert(oparg_T *oap, long count1)
 
     if(oap->motion_type == kMTBlockWise)
     {
-        struct block_def bd2;
+        struct blockdef_s bd2;
 
         // The user may have moved the cursor before inserting something, try
         // to adjust the block for that.
@@ -2773,7 +2773,7 @@ int op_change(oparg_T *oap)
     uchar_kt *firstline;
     uchar_kt *ins_text;
     uchar_kt *oldp;
-    struct block_def bd;
+    struct blockdef_s bd;
     l = oap->start.col;
 
     if(oap->motion_type == kMTLineWise)
@@ -2986,7 +2986,7 @@ static void op_yank_reg(oparg_T *oap,
     linenum_kt yankendlnum = oap->end.lnum;
     uchar_kt *p;
     uchar_kt *pnew;
-    struct block_def bd;
+    struct blockdef_s bd;
     yankreg_T *curr = reg; // copy of current register
 
     // append to existing contents
@@ -3240,7 +3240,7 @@ static void op_yank_reg(oparg_T *oap,
 }
 
 static void yank_copy_line(yankreg_T *reg,
-                           struct block_def *bd,
+                           struct blockdef_s *bd,
                            size_t y_idx)
 {
     uchar_kt *pnew = xmallocz((size_t)(bd->startspaces
@@ -3342,7 +3342,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     int delcount;
     int incr = 0;
     long j;
-    struct block_def bd;
+    struct blockdef_s bd;
     uchar_kt **y_array = NULL;
     long nr_lines = 0;
     apos_st new_cursor;
@@ -5456,7 +5456,7 @@ int paragraph_start(linenum_kt lnum)
 /// - start/endspaces is the number of columns of the first/last yanked
 ///   char that are to be yanked.
 static void block_prep(oparg_T *oap,
-                       struct block_def *bdp,
+                       struct blockdef_s *bdp,
                        linenum_kt lnum,
                        int is_del)
 {
@@ -5633,7 +5633,7 @@ static void block_prep(oparg_T *oap,
 void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
 {
     apos_st pos;
-    struct block_def bd;
+    struct blockdef_s bd;
     ssize_t change_cnt = 0;
     linenum_kt amount = Prenum1;
 
@@ -6865,7 +6865,7 @@ void cursor_pos_info(dict_st *dict)
     long line_count_selected = 0;
     apos_st min_pos, max_pos;
     oparg_T oparg;
-    struct block_def bd;
+    struct blockdef_s bd;
     const int l_VIsual_active = VIsual_active;
     const int l_VIsual_mode = VIsual_mode;
 
