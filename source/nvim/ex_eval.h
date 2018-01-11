@@ -8,7 +8,7 @@
 
 /// A list used for saving values of emsg_silent.
 /// Used by ex_try() to save the value of emsg_silent if it
-/// was non-zero. When this is done, the CSF_SILENT flag below is set.
+/// was non-zero. When this is done, the kCSNflgSilent flag below is set.
 typedef struct errmsg_elem_s  errmsg_elem_st;
 struct errmsg_elem_s
 {
@@ -20,10 +20,57 @@ struct errmsg_elem_s
 /// When cs_idx < 0, there is no conditional command.
 #define CSTACK_LEN      50
 
+/// There is no CSF_IF, the lack of kCSNflgWhile, kCSNflgFor and kCSNflgTry
+/// means ":if" was used. Note that kCSNflgElse is only used when kCSNflgTry
+/// and kCSNflgWhile are unset (an ":if"), and kCSNflgSilent is only used
+/// when kCSNflgTry is set.
+///
+/// conditional stack flags for condstack_s::cs_flags
+enum cs_normalflags_e
+{
+    kCSNflgTrue     = 0x0001,  ///< condition was TRUE
+    kCSNflgActive   = 0x0002,  ///< current state is active
+    kCSNflgElse     = 0x0004,  ///< ":else" has been passed
+    kCSNflgWhile    = 0x0008,  ///< is a ":while"
+    kCSNflgFor      = 0x0010,  ///< is a ":for"
+    kCSNflgTry      = 0x0100,  ///< is a ":try"
+    kCSNflgFinally  = 0x0200,  ///< ":finally" has been passed
+    kCSNflgThrown   = 0x0400,  ///< exception thrown to this try conditional
+    kCSNflgCaught   = 0x0800,  ///< exception caught by this try conditional
+    kCSNflgSilent   = 0x1000,  ///< "emsg_silent" reset by ":try"
+};
+
+/// What's pending for being reactivated at the
+/// ":endtry" of this try conditional.
+///
+/// conditional stack flags for condstack_s::cs_pending
+enum cs_tryflags_e
+{
+    kCSTflgNone      = 0,   ///< nothing pending in ":finally" clause
+    kCSTflgError     = 1,   ///< an error is pending
+    kCSTflgInterrupt = 2,   ///< an interrupt is pending
+    kCSTflgThrow     = 4,   ///< a throw is pending
+    kCSTflgBreak     = 8,   ///< ":break" is pending
+    kCSTflgContinue  = 16,  ///< ":continue" is pending
+    kCSTflgReturn    = 24,  ///< ":return" is pending
+    kCSTflgFinish    = 32,  ///< ":finish" is pending
+};
+
+/// conditional stack flags for condstack_s::cs_lflags
+enum cs_loopflags_e
+{
+    kCSLflgLoop     = 1,  ///< just found ":while" or ":for"
+    kCSLflgEndloop  = 2,  ///< just found ":endwhile" or ":endfor"
+    kCSLflgContinue = 4,  ///< just found ":continue"
+    kCSLflgFinally  = 8,  ///< just found ":finally"
+};
+
 struct condstack_s
 {
-    int cs_flags[CSTACK_LEN];     ///< CSF_ flags
-    char cs_pending[CSTACK_LEN];  ///< CSTP_: what's pending in ":finally"
+    /// normal flags: cs_normalflags_e
+    int cs_flags[CSTACK_LEN];
+    /// what's pending in ":finally": cs_tryflags_e
+    char cs_pending[CSTACK_LEN];
 
     union
     {
@@ -37,42 +84,11 @@ struct condstack_s
     int cs_looplevel;             ///< nr of nested ":while"s and ":for"s
     int cs_trylevel;              ///< nr of nested ":try"s
     errmsg_elem_st *cs_emsg_list; ///< saved values of emsg_silent
-    int cs_lflags;                ///< loop flags: CSL_ flags
+    int cs_lflags;                ///< loop flags: cs_loopflags_e
 };
 
 #define cs_rettv       cs_pend.csp_rv
 #define cs_exception   cs_pend.csp_ex
-
-// There is no CSF_IF, the lack of CSF_WHILE, CSF_FOR and CSF_TRY means
-// ":if" was used. Note that CSF_ELSE is only used when CSF_TRY and
-// CSF_WHILE are unset (an ":if"), and CSF_SILENT is only used when
-// CSF_TRY is set.
-#define CSF_TRUE       0x0001  ///< condition was TRUE
-#define CSF_ACTIVE     0x0002  ///< current state is active
-#define CSF_ELSE       0x0004  ///< ":else" has been passed
-#define CSF_WHILE      0x0008  ///< is a ":while"
-#define CSF_FOR        0x0010  ///< is a ":for"
-#define CSF_TRY        0x0100  ///< is a ":try"
-#define CSF_FINALLY    0x0200  ///< ":finally" has been passed
-#define CSF_THROWN     0x0400  ///< exception thrown to this try conditional
-#define CSF_CAUGHT     0x0800  ///< exception caught by this try conditional
-#define CSF_SILENT     0x1000  ///< "emsg_silent" reset by ":try"
-
-// What's pending for being reactivated at the ":endtry" of this try conditional:
-#define CSTP_NONE      0       ///< nothing pending in ":finally" clause
-#define CSTP_ERROR     1       ///< an error is pending
-#define CSTP_INTERRUPT 2       ///< an interrupt is pending
-#define CSTP_THROW     4       ///< a throw is pending
-#define CSTP_BREAK     8       ///< ":break" is pending
-#define CSTP_CONTINUE  16      ///< ":continue" is pending
-#define CSTP_RETURN    24      ///< ":return" is pending
-#define CSTP_FINISH    32      ///< ":finish" is pending
-
-// Flags for the cs_lflags item in condstack_st.
-#define CSL_HAD_LOOP    1      ///< just found ":while" or ":for"
-#define CSL_HAD_ENDLOOP 2      ///< just found ":endwhile" or ":endfor"
-#define CSL_HAD_CONT    4      ///< just found ":continue"
-#define CSL_HAD_FINA    8      ///< just found ":finally"
 
 /// A list of error messages that can be converted to an exception.
 /// "throw_msg" is only set in the first element of the list. Usually,

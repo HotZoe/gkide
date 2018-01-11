@@ -28133,7 +28133,7 @@ int do_return(exargs_st *eap, int reanimate, int is_cmd, void *rettv)
 
     if(idx >= 0)
     {
-        cstack->cs_pending[idx] = CSTP_RETURN;
+        cstack->cs_pending[idx] = kCSTflgReturn;
 
         if(!is_cmd && !reanimate)
         {
@@ -28173,7 +28173,7 @@ int do_return(exargs_st *eap, int reanimate, int is_cmd, void *rettv)
             }
         }
 
-        report_make_pending(CSTP_RETURN, rettv);
+        report_make_pending(kCSTflgReturn, rettv);
     }
     else
     {

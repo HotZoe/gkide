@@ -746,9 +746,9 @@ int do_cmdline(uchar_kt *cmdline,
             // An ":endwhile", ":endfor" and ":continue" is handled here.
             // If we were executing commands, jump back to the ":while" or ":for".
             // If we were not executing commands, decrement cs_looplevel.
-            if(cstack.cs_lflags & (CSL_HAD_CONT | CSL_HAD_ENDLOOP))
+            if(cstack.cs_lflags & (kCSLflgContinue | kCSLflgEndloop))
             {
-                cstack.cs_lflags &= ~(CSL_HAD_CONT | CSL_HAD_ENDLOOP);
+                cstack.cs_lflags &= ~(kCSLflgContinue | kCSLflgEndloop);
 
                 // Jump back to the matching ":while" or ":for". Be careful
                 // not to use a cs_line[] from an entry that isn't a ":while"
@@ -757,14 +757,14 @@ int do_cmdline(uchar_kt *cmdline,
                 if(!did_emsg && !got_int
                    && !did_throw
                    && cstack.cs_idx >= 0
-                   && (cstack.cs_flags[cstack.cs_idx] & (CSF_WHILE | CSF_FOR))
+                   && (cstack.cs_flags[cstack.cs_idx] & (kCSNflgWhile | kCSNflgFor))
                    && cstack.cs_line[cstack.cs_idx] >= 0
-                   && (cstack.cs_flags[cstack.cs_idx] & CSF_ACTIVE))
+                   && (cstack.cs_flags[cstack.cs_idx] & kCSNflgActive))
                 {
                     current_line = cstack.cs_line[cstack.cs_idx];
 
                     // remember we jumped there
-                    cstack.cs_lflags |= CSL_HAD_LOOP;
+                    cstack.cs_lflags |= kCSLflgLoop;
                     line_breakcheck(); // check if CTRL-C typed
 
                     // Check for the next breakpoint at or after
@@ -786,15 +786,15 @@ int do_cmdline(uchar_kt *cmdline,
                     {
                         rewind_conditionals(&cstack,
                                             cstack.cs_idx - 1,
-                                            CSF_WHILE | CSF_FOR,
+                                            kCSNflgWhile | kCSNflgFor,
                                             &cstack.cs_looplevel);
                     }
                 }
             }
-            else if(cstack.cs_lflags & CSL_HAD_LOOP)
+            else if(cstack.cs_lflags & kCSLflgLoop)
             {
                 // For a ":while" or ":for" we need to remember the line number.
-                cstack.cs_lflags &= ~CSL_HAD_LOOP;
+                cstack.cs_lflags &= ~kCSLflgLoop;
                 cstack.cs_line[cstack.cs_idx] = current_line - 1;
             }
         }
@@ -816,16 +816,16 @@ int do_cmdline(uchar_kt *cmdline,
         // ACTIVE and FINALLY flags, so that the finally clause gets executed.
         // This includes the case where a missing ":endif", ":endwhile" or
         // ":endfor" was detected by the ":finally" itself.
-        if(cstack.cs_lflags & CSL_HAD_FINA)
+        if(cstack.cs_lflags & kCSLflgFinally)
         {
-            cstack.cs_lflags &= ~CSL_HAD_FINA;
+            cstack.cs_lflags &= ~kCSLflgFinally;
 
             report_make_pending(cstack.cs_pending[cstack.cs_idx]
-                                & (CSTP_ERROR | CSTP_INTERRUPT | CSTP_THROW),
+                                & (kCSTflgError | kCSTflgInterrupt | kCSTflgThrow),
                                 did_throw ? (void *)current_exception : NULL);
 
             did_emsg = got_int = did_throw = FALSE;
-            cstack.cs_flags[cstack.cs_idx] |= CSF_ACTIVE | CSF_FINALLY;
+            cstack.cs_flags[cstack.cs_idx] |= kCSNflgActive | kCSNflgFinally;
         }
 
         // Update global "trylevel" for recursive calls to do_cmdline() from
@@ -878,15 +878,15 @@ int do_cmdline(uchar_kt *cmdline,
                || (getline_equal(fgetline, cookie, get_func_line)
                    && !func_has_ended(real_cookie))))
         {
-            if(cstack.cs_flags[cstack.cs_idx] & CSF_TRY)
+            if(cstack.cs_flags[cstack.cs_idx] & kCSNflgTry)
             {
                 EMSG(_(e_endtry));
             }
-            else if(cstack.cs_flags[cstack.cs_idx] & CSF_WHILE)
+            else if(cstack.cs_flags[cstack.cs_idx] & kCSNflgWhile)
             {
                 EMSG(_(e_endwhile));
             }
-            else if(cstack.cs_flags[cstack.cs_idx] & CSF_FOR)
+            else if(cstack.cs_flags[cstack.cs_idx] & kCSNflgFor)
             {
                 EMSG(_(e_endfor));
             }
@@ -911,7 +911,7 @@ int do_cmdline(uchar_kt *cmdline,
 
             rewind_conditionals(&cstack,
                                 idx,
-                                CSF_WHILE | CSF_FOR,
+                                kCSNflgWhile | kCSNflgFor,
                                 &cstack.cs_looplevel);
 
         } while(cstack.cs_idx >= 0);
@@ -1802,7 +1802,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
               || got_int
               || did_throw
               || (cstack->cs_idx >= 0
-                  && !(cstack->cs_flags[cstack->cs_idx] & CSF_ACTIVE));
+                  && !(cstack->cs_flags[cstack->cs_idx] & kCSNflgActive));
 
     // Count this line for profiling if ea.skip is FALSE.
     if(do_profiling == PROF_YES && !ea.skip)

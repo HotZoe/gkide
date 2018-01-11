@@ -4300,8 +4300,8 @@ void do_finish(exargs_st *eap, int reanimate)
 
     if(idx >= 0)
     {
-        eap->cstack->cs_pending[idx] = CSTP_FINISH;
-        report_make_pending(CSTP_FINISH, NULL);
+        eap->cstack->cs_pending[idx] = kCSTflgFinish;
+        report_make_pending(kCSTflgFinish, NULL);
     }
     else
     {
