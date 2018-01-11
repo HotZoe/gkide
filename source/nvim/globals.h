@@ -418,17 +418,7 @@ EXTERN script_id_kt current_SID INIT(= 0);
 
 // Scope information for the code that indirectly triggered the current
 // provider function call
-EXTERN struct caller_scope
-{
-    script_id_kt SID;
-    uint8_t *sourcing_name;
-    uint8_t *autocmd_fname;
-    uint8_t *autocmd_match;
-    linenum_kt sourcing_lnum;
-    int autocmd_fname_full;
-    int autocmd_bufnr;
-    void *funccalp;
-} provider_caller_scope;
+EXTERN caller_scope_st provider_caller_scope;
 
 EXTERN int provider_call_nesting INIT(= 0);
 

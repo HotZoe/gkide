@@ -141,6 +141,18 @@ typedef enum
 extern const list_st *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
 #undef LAST_MSGPACK_TYPE
 
+struct caller_scope_s
+{
+    script_id_kt SID;
+    uint8_t *sourcing_name;
+    uint8_t *autocmd_fname;
+    uint8_t *autocmd_match;
+    linenum_kt sourcing_lnum;
+    int autocmd_fname_full;
+    int autocmd_bufnr;
+    void *funccalp;
+};
+
 typedef int (*ArgvFunc)(int current_argcount,
                         typval_st *argv,
                         int called_func_argcount);

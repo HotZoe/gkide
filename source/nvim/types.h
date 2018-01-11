@@ -16,4 +16,6 @@ typedef unsigned char uchar_kt;
 
 typedef struct expand_s expand_st;
 
+typedef struct caller_scope_s caller_scope_st;
+
 #endif // NVIM_TYPES_H

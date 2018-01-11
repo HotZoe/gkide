@@ -29523,8 +29523,8 @@ typval_st eval_call_provider(char *provider, char *method, list_st *arguments)
     int name_len = snprintf(func, sizeof(func), "provider#%s#Call", provider);
 
     // Save caller scope information
-    struct caller_scope saved_provider_caller_scope = provider_caller_scope;
-    provider_caller_scope = (struct caller_scope) {
+    caller_scope_st saved_provider_caller_scope = provider_caller_scope;
+    provider_caller_scope = (caller_scope_st) {
         .SID = current_SID,
         .sourcing_name = sourcing_name,
         .sourcing_lnum = sourcing_lnum,
