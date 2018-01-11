@@ -377,11 +377,11 @@ EXTERN int force_abort INIT(= FALSE);
 /// the list of arguments of several emsg() calls, one of which is to be
 /// converted to an error exception immediately after the failing command
 /// returns. The message to be used for the exception value is pointed to by
-/// the "throw_msg" field of the first element in the list.  It is usually the
+/// the "throw_msg" field of the first element in the list. It is usually the
 /// same as the "msg" field of that element, but can be identical to the "msg"
 /// field of a later list element, when the "emsg_severe" flag was set when the
 /// emsg() call was made.
-EXTERN struct msglist **msg_list INIT(= NULL);
+EXTERN errmsg_list_st **msg_list INIT(= NULL);
 
 /// suppress_errthrow: When TRUE, don't convert an error to an exception. Used
 /// when displaying the interrupt message or reporting an exception that is still

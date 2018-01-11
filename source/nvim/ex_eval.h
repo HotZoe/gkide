@@ -75,15 +75,16 @@ struct condstack
 #define CSL_HAD_CONT    4      ///< just found ":continue"
 #define CSL_HAD_FINA    8      ///< just found ":finally"
 
-/// A list of error messages that can be converted to an exception. "throw_msg"
-/// is only set in the first element of the list. Usually, it points to the
-/// original message stored in that element, but sometimes it points to a later
-/// message in the list. See cause_errthrow() below.
-struct msglist
+/// A list of error messages that can be converted to an exception.
+/// "throw_msg" is only set in the first element of the list. Usually,
+/// it points to the original message stored in that element, but sometimes
+/// it points to a later message in the list. See cause_errthrow() below.
+typedef struct errmsg_list_s    errmsg_list_st;
+struct errmsg_list_s
 {
     uchar_kt *msg;        ///< original message
     uchar_kt *throw_msg;  ///< msg to throw: usually original one
-    struct msglist *next; ///< next of several messages in a row
+    errmsg_list_st *next; ///< next of several messages in a row
 };
 
 /// Structure describing an exception.
@@ -92,7 +93,7 @@ struct excmd_exception_s
 {
     int type;                   ///< exception type
     uchar_kt *value;            ///< exception value
-    struct msglist *messages;   ///< message(s) causing error exception
+    errmsg_list_st *messages;   ///< message(s) causing error exception
     uchar_kt *throw_name;       ///< name of the throw point
     linenum_kt throw_lnum;      ///< line number of the throw point
     excmd_exception_st *caught; ///< next exception on the caught stack

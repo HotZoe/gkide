@@ -129,8 +129,8 @@ int aborted_in_try(void)
 /// set to TRUE, if a later but severer message should be used instead.
 int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
 {
-    struct msglist *elem;
-    struct msglist **plist;
+    errmsg_list_st *elem;
+    errmsg_list_st **plist;
 
     // Do nothing when displaying the interrupt message or reporting an
     // uncaught exception (which has already been discarded then) at the top
@@ -229,7 +229,7 @@ int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
                 plist = &(*plist)->next;
             }
 
-            elem = xmalloc(sizeof(struct msglist));
+            elem = xmalloc(sizeof(errmsg_list_st));
             elem->msg = vim_strsave(mesg);
             elem->next = NULL;
             elem->throw_msg = NULL;
@@ -262,10 +262,10 @@ int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
 }
 
 /// Free a "msg_list" and the messages it contains.
-static void free_msglist(struct msglist *l)
+static void free_msglist(errmsg_list_st *l)
 {
-    struct msglist *messages, *next;
-    messages = l;
+    errmsg_list_st *next;
+    errmsg_list_st *messages = l;
 
     while(messages != NULL)
     {
@@ -387,7 +387,7 @@ uchar_kt *get_exception_string(void *value,
     if(type == ET_ERROR)
     {
         *should_free = true;
-        mesg = ((struct msglist *)value)->throw_msg;
+        mesg = ((errmsg_list_st *)value)->throw_msg;
 
         if(cmdname != NULL && *cmdname != NUL)
         {
@@ -486,7 +486,7 @@ static int throw_exception(void *value, int type, uchar_kt *cmdname)
     {
         // Store the original message and prefix the exception value with
         // "Vim:" or, if a command name is given, "Vim(cmdname):".
-        excp->messages = (struct msglist *)value;
+        excp->messages = (errmsg_list_st *)value;
     }
 
     excp->value = get_exception_string(value, type, cmdname, &should_free);

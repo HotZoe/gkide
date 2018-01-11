@@ -357,8 +357,8 @@ int do_cmdline(uchar_kt *cmdline,
     int *dbg_tick = NULL; // ptr to dbg_tick field in cookie
     struct dbg_stuff debug_saved; // saved things for debug mode
     int initial_trylevel;
-    struct msglist **saved_msg_list = NULL;
-    struct msglist *private_msg_list;
+    errmsg_list_st **saved_msg_list = NULL;
+    errmsg_list_st *private_msg_list;
 
     // "fgetline" and "cookie" passed to do_one_cmd()
     uchar_kt *(*cmd_getline)(int, void *, int);
@@ -937,7 +937,7 @@ int do_cmdline(uchar_kt *cmdline,
             void *p = NULL;
             uchar_kt *saved_sourcing_name;
             int saved_sourcing_lnum;
-            struct msglist *messages = NULL, *next;
+            errmsg_list_st *messages = NULL, *next;
 
             // If the uncaught exception is a user exception, report it as an
             // error. If it is an error exception, display the saved error
