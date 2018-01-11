@@ -11,7 +11,7 @@
 #define SST_DIST         16     ///< normal distance between entries
 
 /// invalid syn_state pointer
-#define SST_INVALID     (synstate_T *)-1
+#define SST_INVALID     (synstate_st *)-1
 
 typedef int32_t RgbValue;
 
@@ -53,12 +53,12 @@ typedef struct bufstate_s
 
 /// syn_state contains the syntax state stack for
 /// the start of one line. Used by b_sst_array[].
-typedef struct syn_state synstate_T;
+typedef struct synstate_s synstate_st;
 
-struct syn_state
+struct synstate_s
 {
     /// next entry in used or free list
-    synstate_T *sst_next;
+    synstate_st *sst_next;
     /// line number for this state
     linenum_kt sst_lnum;
     union

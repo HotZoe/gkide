@@ -415,10 +415,10 @@ typedef struct
     // syntax state too often.
     // b_sst_array[] is allocated to hold the state for all displayed lines,
     // and states for 1 out of about 20 other lines.
-    synstate_T *b_sst_array;     ///< pointer to an array of synstate_T
+    synstate_st *b_sst_array;     ///< pointer to an array of synstate_st
     int b_sst_len;               ///< number of entries in b_sst_array[]
-    synstate_T *b_sst_first;     ///< pointer to first used entry in b_sst_array[] or NULL
-    synstate_T *b_sst_firstfree; ///< pointer to first free entry in b_sst_array[] or NULL
+    synstate_st *b_sst_first;     ///< pointer to first used entry in b_sst_array[] or NULL
+    synstate_st *b_sst_firstfree; ///< pointer to first free entry in b_sst_array[] or NULL
     int b_sst_freecount;         ///< number of free entries in b_sst_array[]
     linenum_kt b_sst_check_lnum;   ///< entries after this lnum need to be checked for
                                  ///< validity (MAXLNUM means no check needed)

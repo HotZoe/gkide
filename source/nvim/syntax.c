@@ -360,10 +360,10 @@ static int syn_time_on = FALSE;
 /// are likely to point to another buffer and window.
 void syntax_start(win_st *wp, linenum_kt lnum)
 {
-    synstate_T *p;
-    synstate_T *last_valid = NULL;
-    synstate_T *last_min_valid = NULL;
-    synstate_T *sp, *prev = NULL;
+    synstate_st *p;
+    synstate_st *last_valid = NULL;
+    synstate_st *last_min_valid = NULL;
+    synstate_st *sp, *prev = NULL;
     linenum_kt parsed_lnum;
     linenum_kt first_stored;
     int dist;
@@ -568,7 +568,7 @@ void syntax_start(win_st *wp, linenum_kt lnum)
 
 /// We cannot simply discard growarrays full of state_items or
 /// buf_states; we have to manually release their extmatch pointers first.
-static void clear_syn_state(synstate_T *p)
+static void clear_syn_state(synstate_st *p)
 {
 #define UNREF_BUFSTATE_EXTMATCH(bs)    unref_extmatch((bs)->bs_extmatch)
 
@@ -604,7 +604,7 @@ static void clear_current_state(void)
 /// 1. Search backwards for the end of a C-comment.
 /// 2. Search backwards for given sync patterns.
 /// 3. Simply start on a given number of lines above "lnum".
-static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_T *last_valid)
+static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_st *last_valid)
 {
     fbuf_st *curbuf_save;
     win_st  *curwin_save;
@@ -1078,7 +1078,7 @@ static void syn_update_ends(int startofline)
 
 static void syn_stack_free_block(synblock_T *block)
 {
-    synstate_T *p;
+    synstate_st *p;
 
     if(block->b_sst_array != NULL)
     {
@@ -1116,8 +1116,8 @@ void syn_stack_free_all(synblock_T *block)
 static void syn_stack_alloc(void)
 {
     long len;
-    synstate_T *to, *from;
-    synstate_T *sstp;
+    synstate_st *to, *from;
+    synstate_st *sstp;
     len = syn_buf->b_ml.ml_line_count / SST_DIST + Rows * 2;
 
     if(len < SST_MIN_ENTRIES)
@@ -1159,7 +1159,7 @@ static void syn_stack_alloc(void)
         }
 
         assert(len >= 0);
-        sstp = xcalloc(len, sizeof(synstate_T));
+        sstp = xcalloc(len, sizeof(synstate_st));
         to = sstp - 1;
 
         if(syn_block->b_sst_array != NULL)
@@ -1221,7 +1221,7 @@ void syn_stack_apply_changes(fbuf_st *buf)
 
 static void syn_stack_apply_changes_block(synblock_T *block, fbuf_st *buf)
 {
-    synstate_T *p, *prev, *np;
+    synstate_st *p, *prev, *np;
     linenum_kt n;
 
     if(block->b_sst_array == NULL) // nothing to do
@@ -1290,7 +1290,7 @@ static void syn_stack_apply_changes_block(synblock_T *block, fbuf_st *buf)
 /// Returns TRUE if at least one entry was freed.
 static int syn_stack_cleanup(void)
 {
-    synstate_T *p, *prev;
+    synstate_st *p, *prev;
     disptick_T tick;
     int above;
     int dist;
@@ -1359,7 +1359,7 @@ static int syn_stack_cleanup(void)
 
 /// Free the allocated memory for a syn_state item.
 /// Move the entry into the free list.
-static void syn_stack_free_entry(synblock_T *block, synstate_T *p)
+static void syn_stack_free_entry(synblock_T *block, synstate_st *p)
 {
     clear_syn_state(p);
     p->sst_next = block->b_sst_firstfree;
@@ -1369,9 +1369,9 @@ static void syn_stack_free_entry(synblock_T *block, synstate_T *p)
 
 /// Find an entry in the list of state stacks at or before "lnum".
 /// Returns NULL when there is no entry or the first entry is after "lnum".
-static synstate_T *syn_stack_find_entry(linenum_kt lnum)
+static synstate_st *syn_stack_find_entry(linenum_kt lnum)
 {
-    synstate_T  *p, *prev;
+    synstate_st  *p, *prev;
     prev = NULL;
 
     for(p = syn_block->b_sst_first; p != NULL; prev = p, p = p->sst_next)
@@ -1392,13 +1392,13 @@ static synstate_T *syn_stack_find_entry(linenum_kt lnum)
 
 /// Try saving the current state in b_sst_array[].
 /// The current state must be valid for the start of the current_lnum line!
-static synstate_T *store_current_state(void)
+static synstate_st *store_current_state(void)
 {
     int i;
-    synstate_T *p;
+    synstate_st *p;
     bufstate_st *bp;
     stateitem_T *cur_si;
-    synstate_T *sp = syn_stack_find_entry(current_lnum);
+    synstate_st *sp = syn_stack_find_entry(current_lnum);
 
     // If the current state contains a start or end pattern that continues
     // from the previous line, we can't use it. Don't store it then.
@@ -1529,7 +1529,7 @@ static synstate_T *store_current_state(void)
 }
 
 /// Copy a state stack from "from" in b_sst_array[] to current_state;
-static void load_current_state(synstate_T *from)
+static void load_current_state(synstate_st *from)
 {
     int i;
     bufstate_st *bp;
@@ -1589,7 +1589,7 @@ static void load_current_state(synstate_T *from)
 
 /// Compare saved state stack "*sp" with the current state.
 /// Return TRUE when they are equal.
-static int syn_stack_equal(synstate_T *sp)
+static int syn_stack_equal(synstate_st *sp)
 {
     bufstate_st *bp;
     reg_extmatch_st *six, *bsx;
@@ -1688,7 +1688,7 @@ static int syn_stack_equal(synstate_T *sp)
 /// - lnum ->  line below window
 void syntax_end_parsing(linenum_kt lnum)
 {
-    synstate_T *sp;
+    synstate_st *sp;
     sp = syn_stack_find_entry(lnum);
 
     if(sp != NULL && sp->sst_lnum < lnum)
@@ -1729,7 +1729,7 @@ static void validate_current_state(void)
 int syntax_check_changed(linenum_kt lnum)
 {
     int retval = TRUE;
-    synstate_T  *sp;
+    synstate_st  *sp;
 
     // Check the state stack when:
     // - lnum is just below the previously syntaxed line.
