@@ -62,6 +62,7 @@ static bool clipboard_needs_update = false;  ///< clipboard was updated
 
 /// structure used by block_prep, op_delete and op_yank for blockwise
 /// operators also op_change, op_shift, op_insert, op_replace
+typedef struct blockdef_s blockdef_st;
 struct blockdef_s
 {
     int startspaces;              ///< 'extra' cols before first char
@@ -371,7 +372,7 @@ static void shift_block(oparg_T *oap, int amount)
     int oldcol = curwin->w_cursor.col;
     int p_sw = get_sw_value(curbuf);
     int p_ts = (int)curbuf->b_p_ts;
-    struct blockdef_s bd;
+    blockdef_st bd;
     int incr;
     columnum_kt ws_vcol;
     int i = 0, j = 0;
@@ -569,7 +570,7 @@ static void shift_block(oparg_T *oap, int amount)
 static void block_insert(oparg_T *oap,
                          uchar_kt *s,
                          int b_insert,
-                         struct blockdef_s *bdp)
+                         blockdef_st *bdp)
 {
     int p_ts;
     int count = 0; // extra spaces to replace a cut TAB
@@ -1637,7 +1638,7 @@ int op_delete(oparg_T *oap)
     linenum_kt lnum;
     uchar_kt *ptr;
     uchar_kt *newp, *oldp;
-    struct blockdef_s bd;
+    blockdef_st bd;
     linenum_kt old_lcount = curbuf->b_ml.ml_line_count;
 
     if(curbuf->b_ml.ml_flags & ML_EMPTY) // nothing to do
@@ -2039,7 +2040,7 @@ int op_replace(oparg_T *oap, int c)
     int num_chars;
     uchar_kt *newp, *oldp;
     columnum_kt oldlen;
-    struct blockdef_s bd;
+    blockdef_st bd;
     uchar_kt *after_p = NULL;
     int had_ctrl_v_cr = (c == -1 || c == -2);
 
@@ -2332,7 +2333,7 @@ int op_replace(oparg_T *oap, int c)
 void op_tilde(oparg_T *oap)
 {
     apos_st pos;
-    struct blockdef_s bd;
+    blockdef_st bd;
     int did_change = FALSE;
 
     if(u_save((linenum_kt)(oap->start.lnum - 1),
@@ -2556,7 +2557,7 @@ void op_insert(oparg_T *oap, long count1)
 {
     long ins_len, pre_textlen = 0;
     uchar_kt *firstline, *ins_text;
-    struct blockdef_s bd;
+    blockdef_st bd;
     int i;
     apos_st t1;
 
@@ -2672,7 +2673,7 @@ void op_insert(oparg_T *oap, long count1)
 
     if(oap->motion_type == kMTBlockWise)
     {
-        struct blockdef_s bd2;
+        blockdef_st bd2;
 
         // The user may have moved the cursor before inserting something, try
         // to adjust the block for that.
@@ -2773,7 +2774,7 @@ int op_change(oparg_T *oap)
     uchar_kt *firstline;
     uchar_kt *ins_text;
     uchar_kt *oldp;
-    struct blockdef_s bd;
+    blockdef_st bd;
     l = oap->start.col;
 
     if(oap->motion_type == kMTLineWise)
@@ -2986,7 +2987,7 @@ static void op_yank_reg(oparg_T *oap,
     linenum_kt yankendlnum = oap->end.lnum;
     uchar_kt *p;
     uchar_kt *pnew;
-    struct blockdef_s bd;
+    blockdef_st bd;
     yankreg_T *curr = reg; // copy of current register
 
     // append to existing contents
@@ -3240,7 +3241,7 @@ static void op_yank_reg(oparg_T *oap,
 }
 
 static void yank_copy_line(yankreg_T *reg,
-                           struct blockdef_s *bd,
+                           blockdef_st *bd,
                            size_t y_idx)
 {
     uchar_kt *pnew = xmallocz((size_t)(bd->startspaces
@@ -3342,7 +3343,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     int delcount;
     int incr = 0;
     long j;
-    struct blockdef_s bd;
+    blockdef_st bd;
     uchar_kt **y_array = NULL;
     long nr_lines = 0;
     apos_st new_cursor;
@@ -5456,7 +5457,7 @@ int paragraph_start(linenum_kt lnum)
 /// - start/endspaces is the number of columns of the first/last yanked
 ///   char that are to be yanked.
 static void block_prep(oparg_T *oap,
-                       struct blockdef_s *bdp,
+                       blockdef_st *bdp,
                        linenum_kt lnum,
                        int is_del)
 {
@@ -5633,7 +5634,7 @@ static void block_prep(oparg_T *oap,
 void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
 {
     apos_st pos;
-    struct blockdef_s bd;
+    blockdef_st bd;
     ssize_t change_cnt = 0;
     linenum_kt amount = Prenum1;
 
@@ -6865,7 +6866,7 @@ void cursor_pos_info(dict_st *dict)
     long line_count_selected = 0;
     apos_st min_pos, max_pos;
     oparg_T oparg;
-    struct blockdef_s bd;
+    blockdef_st bd;
     const int l_VIsual_active = VIsual_active;
     const int l_VIsual_mode = VIsual_mode;
 
