@@ -73,13 +73,13 @@ struct multiqueue_item
     queue_st node;
 };
 
-struct multiqueue
+struct multiqueue_s
 {
-    multiqueue_st *parent;  ///<
-    queue_st headtail;    ///< circularly-linked
-    put_callback put_cb; ///<
-    void *data;          ///<
-    size_t size;         ///<
+    multiqueue_st *parent; ///<
+    queue_st headtail;     ///< circularly-linked
+    put_callback_ft put_cb;///<
+    void *data;            ///<
+    size_t size;           ///<
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -88,7 +88,7 @@ struct multiqueue
 
 static Event nil_event = { 0 }; // { .handler = NULL, .argv = {NULL} }
 
-multiqueue_st *multiqueue_new_parent(put_callback put_cb, void *data)
+multiqueue_st *multiqueue_new_parent(put_callback_ft put_cb, void *data)
 {
     return multiqueue_new(NULL, put_cb, data);
 }
@@ -105,8 +105,8 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 static multiqueue_st *multiqueue_new(multiqueue_st *parent,
-                                  put_callback put_cb,
-                                  void *data)
+                                     put_callback_ft put_cb,
+                                     void *data)
 {
     multiqueue_st *rv = xmalloc(sizeof(multiqueue_st));
     queue_init(&rv->headtail);
