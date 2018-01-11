@@ -56,7 +56,7 @@ typedef struct
     bool returned;
     bool errored;
     Object result;
-} ChannelCallFrame;
+} rpc_channel_callframe_st;
 
 typedef struct
 {
@@ -84,7 +84,7 @@ typedef struct
 
     uint64_t next_request_id;
 
-    kvec_t(ChannelCallFrame *) call_stack;
+    kvec_t(rpc_channel_callframe_st *) call_stack;
     kvec_t(WBuffer *) delayed_notifications;
 
     MultiQueue *events;
@@ -271,7 +271,7 @@ Object channel_send_call(uint64_t id,
     send_request(channel, request_id, method_name, args);
 
     // Push the frame
-    ChannelCallFrame frame = { request_id, false, false, NIL };
+    rpc_channel_callframe_st frame = { request_id, false, false, NIL };
 
     kv_push(channel->call_stack, &frame);
 
@@ -922,7 +922,7 @@ static bool is_valid_rpc_response(msgpack_object *obj, rpc_channel_st *channel)
 
 static void complete_call(msgpack_object *obj, rpc_channel_st *channel)
 {
-    ChannelCallFrame *frame =
+    rpc_channel_callframe_st *frame =
         kv_A(channel->call_stack, kv_size(channel->call_stack) - 1);
 
     frame->returned = true;
@@ -944,7 +944,7 @@ static void call_set_error(rpc_channel_st *channel, char *msg)
 
     for(size_t i = 0; i < kv_size(channel->call_stack); i++)
     {
-        ChannelCallFrame *frame = kv_A(channel->call_stack, i);
+        rpc_channel_callframe_st *frame = kv_A(channel->call_stack, i);
         frame->returned = true;
         frame->errored = true;
         frame->result = STRING_OBJ(cstr_to_string(msg));
