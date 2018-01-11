@@ -157,7 +157,7 @@ struct autopatcmd_s
 #define ICONV_MULT 8
 
 /// Structure to pass arguments from buf_write() to buf_write_bytes().
-struct bw_info
+typedef struct bwinfo_s
 {
     int bw_fd;                      ///< file descriptor
     uchar_kt *bw_buf;               ///< buffer with data to be written
@@ -176,7 +176,7 @@ struct bw_info
 #ifdef USE_ICONV
     iconv_t bw_iconv_fd;            ///< descriptor for iconv() or -1
 #endif
-};
+} bwinfo_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "fileio.c.generated.h"
@@ -2890,7 +2890,7 @@ int buf_write(fbuf_st *buf,
     linenum_kt old_line_count = buf->b_ml.ml_line_count;
     int fileformat;
     int write_bin;
-    struct bw_info write_info; // info for buf_write_bytes()
+    bwinfo_st write_info; // info for buf_write_bytes()
     int converted = FALSE;
     int notconverted = FALSE;
     uchar_kt *fenc; // effective 'fileencoding'
@@ -4999,8 +4999,8 @@ static bool time_differs(long t1, long t2) FUNC_ATTR_CONST
 /// Call write() to write a number of bytes to the file.
 /// Handles 'encoding' conversion.
 ///
-/// Return FAIL for failure, OK otherwise.
-static int buf_write_bytes(struct bw_info *ip)
+/// @return FAIL for failure, OK otherwise.
+static int buf_write_bytes(bwinfo_st *ip)
 {
     int wlen;
     uchar_kt *buf = ip->bw_buf; // data to write
