@@ -6869,7 +6869,7 @@ void bufhl_mark_adjust(fbuf_st *buf,
 /// @param[out]  info The highligts for the line
 ///
 /// @return true if there was highlights to display
-bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_T *info)
+bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_st *info)
 {
     if(!buf->b_bufhl_info)
     {
@@ -6891,7 +6891,7 @@ bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_T *info)
 /// @param col   The column to get the attr for
 ///
 /// @return The highilight attr to display at the column
-int bufhl_get_attr(bufhl_lineinfo_T *info, columnum_kt col)
+int bufhl_get_attr(bufhl_lineinfo_st *info, columnum_kt col)
 {
     if(col <= info->valid_to)
     {

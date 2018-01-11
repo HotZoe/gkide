@@ -23,6 +23,6 @@ typedef struct
     bufhl_vec_st entries;
     int current;
     columnum_kt valid_to;
-} bufhl_lineinfo_T;
+} bufhl_lineinfo_st;
 
-#endif  // NVIM_BUFHL_DEFS_H
+#endif // NVIM_BUFHL_DEFS_H
