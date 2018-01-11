@@ -675,7 +675,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                         break;
                     }
 
-                    case kMPExt:
+                    case kMPNone:
                     {
                         const list_st *val_list;
                         number_kt type;

@@ -1613,7 +1613,7 @@ msgpack_to_vim_generic_map:
 
             list_st *const ext_val_list = tv_list_alloc();
             tv_list_append_list(list, ext_val_list);
-            create_special_dict(rettv, kMPExt, ((typval_st) {
+            create_special_dict(rettv, kMPNone, ((typval_st) {
                 .v_type = kNvarList,
                 .v_lock = kNvlVarUnlocked,
                 .vval = { .v_list = list },

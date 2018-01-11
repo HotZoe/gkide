@@ -586,7 +586,7 @@ static const char *const msgpack_type_names[] =
     [kMPBinary] = "binary",
     [kMPArray] = "array",
     [kMPMap] = "map",
-    [kMPExt] = "ext",
+    [kMPNone] = "none",
 };
 
 const list_st *eval_msgpack_type_lists[] =
@@ -599,7 +599,7 @@ const list_st *eval_msgpack_type_lists[] =
     [kMPBinary] = NULL,
     [kMPArray] = NULL,
     [kMPMap] = NULL,
-    [kMPExt] = NULL,
+    [kMPNone] = NULL,
 };
 
 /// Initialize the global and @b v: variables.

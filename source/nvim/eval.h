@@ -133,13 +133,11 @@ typedef enum
     kMPBinary,
     kMPArray,
     kMPMap,
-    kMPExt,
-#define LAST_MSGPACK_TYPE kMPExt
+    kMPNone      ///< the last msgpack type
 } MessagePackType;
 
 /// Array mapping values from MessagePackType to corresponding list pointers
-extern const list_st *eval_msgpack_type_lists[LAST_MSGPACK_TYPE + 1];
-#undef LAST_MSGPACK_TYPE
+extern const list_st *eval_msgpack_type_lists[kMPNone + 1];
 
 struct caller_scope_s
 {
