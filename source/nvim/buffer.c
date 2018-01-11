@@ -6675,13 +6675,13 @@ int bufhl_add_hl(fbuf_st *buf,
 
     if(!buf->b_bufhl_info)
     {
-        buf->b_bufhl_info = map_new(linenum_kt, bufhl_vec_T)();
+        buf->b_bufhl_info = map_new(linenum_kt, bufhl_vec_st)();
     }
 
-    bufhl_vec_T *lineinfo =
-        map_ref(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info, lnum, true);
+    bufhl_vec_st *lineinfo =
+        map_ref(linenum_kt, bufhl_vec_st)(buf->b_bufhl_info, lnum, true);
 
-    bufhl_hl_item_T *hlentry = kv_pushp(*lineinfo);
+    bufhl_item_st *hlentry = kv_pushp(*lineinfo);
 
     hlentry->src_id = src_id;
     hlentry->hl_id = hl_id;
@@ -6726,7 +6726,7 @@ void bufhl_clear_line_range(fbuf_st *buf,
     // In the case line_start - line_end << bufhl_info->size
     // it might be better to reverse this, i e loop over the lines
     // to clear on.
-    bufhl_vec_T unused;
+    bufhl_vec_st unused;
 
     map_foreach(buf->b_bufhl_info, line, unused, {
         (void)unused;
@@ -6769,8 +6769,8 @@ static bool bufhl_clear_line(bufhl_info_T *bufhl_info,
                              int src_id,
                              linenum_kt lnum)
 {
-    bufhl_vec_T *lineinfo =
-        map_ref(linenum_kt, bufhl_vec_T)(bufhl_info, lnum, false);
+    bufhl_vec_st *lineinfo =
+        map_ref(linenum_kt, bufhl_vec_st)(bufhl_info, lnum, false);
 
     size_t oldsize = kv_size(*lineinfo);
 
@@ -6801,7 +6801,7 @@ static bool bufhl_clear_line(bufhl_info_T *bufhl_info,
     if(kv_size(*lineinfo) == 0)
     {
         kv_destroy(*lineinfo);
-        map_del(linenum_kt, bufhl_vec_T)(bufhl_info, lnum);
+        map_del(linenum_kt, bufhl_vec_st)(bufhl_info, lnum);
     }
 
     return kv_size(*lineinfo) != oldsize;
@@ -6816,7 +6816,7 @@ void bufhl_clear_all(fbuf_st *buf)
     }
 
     bufhl_clear_line_range(buf, -1, 1, MAXLNUM);
-    map_free(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info);
+    map_free(linenum_kt, bufhl_vec_st)(buf->b_bufhl_info);
     buf->b_bufhl_info = NULL;
 }
 
@@ -6832,9 +6832,9 @@ void bufhl_mark_adjust(fbuf_st *buf,
         return;
     }
 
-    bufhl_info_T *newmap = map_new(linenum_kt, bufhl_vec_T)();
+    bufhl_info_T *newmap = map_new(linenum_kt, bufhl_vec_st)();
     linenum_kt line;
-    bufhl_vec_T lineinfo;
+    bufhl_vec_st lineinfo;
 
     map_foreach(buf->b_bufhl_info, line, lineinfo, {
         if(line >= line1 && line <= line2)
@@ -6854,10 +6854,10 @@ void bufhl_mark_adjust(fbuf_st *buf,
             line += amount_after;
         }
 
-        map_put(linenum_kt, bufhl_vec_T)(newmap, line, lineinfo);
+        map_put(linenum_kt, bufhl_vec_st)(newmap, line, lineinfo);
     });
 
-    map_free(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info);
+    map_free(linenum_kt, bufhl_vec_st)(buf->b_bufhl_info);
     buf->b_bufhl_info = newmap;
 }
 
@@ -6877,7 +6877,7 @@ bool bufhl_start_line(fbuf_st *buf, linenum_kt lnum, bufhl_lineinfo_T *info)
     }
 
     info->valid_to = -1;
-    info->entries = map_get(linenum_kt, bufhl_vec_T)(buf->b_bufhl_info, lnum);
+    info->entries = map_get(linenum_kt, bufhl_vec_st)(buf->b_bufhl_info, lnum);
     return kv_size(info->entries) > 0;
 }
 
@@ -6903,7 +6903,7 @@ int bufhl_get_attr(bufhl_lineinfo_T *info, columnum_kt col)
 
     for(size_t i = 0; i < kv_size(info->entries); i++)
     {
-        bufhl_hl_item_T entry = kv_A(info->entries, i);
+        bufhl_item_st entry = kv_A(info->entries, i);
 
         if(entry.start <= col && col <= entry.stop)
         {

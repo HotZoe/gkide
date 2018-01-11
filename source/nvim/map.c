@@ -161,5 +161,5 @@ MAP_IMPL(handle_kt, ptr_t, DEFAULT_INITIALIZER)
 #define BUFFER_HL_VEC_INITIALIZER    { .size = 0,  .capacity = 0, .items = NULL }
 #define MSGPACK_HANDLER_INITIALIZER  { .fn = NULL, .async = false }
 
-MAP_IMPL(linenum_kt, bufhl_vec_T,            BUFFER_HL_VEC_INITIALIZER)
+MAP_IMPL(linenum_kt, bufhl_vec_st,            BUFFER_HL_VEC_INITIALIZER)
 MAP_IMPL(String,   rpc_request_handler_st, MSGPACK_HANDLER_INITIALIZER)

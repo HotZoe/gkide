@@ -32,7 +32,7 @@ MAP_DECLS(cstr_t,    ptr_t)
 MAP_DECLS(ptr_t,     ptr_t)
 MAP_DECLS(uint64_t,  ptr_t)
 MAP_DECLS(handle_kt, ptr_t)
-MAP_DECLS(linenum_kt,  bufhl_vec_T)
+MAP_DECLS(linenum_kt,  bufhl_vec_st)
 MAP_DECLS(String,    rpc_request_handler_st)
 
 #define map_new(T, U)   map_##T##_##U##_new

@@ -85,7 +85,7 @@ typedef struct wininfo_s wininfo_st;
 #include "nvim/sign_defs.h"
 #include "nvim/bufhl_defs.h"
 
-typedef Map(linenum_kt, bufhl_vec_T) bufhl_info_T;
+typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_T;
 
 #include "nvim/os/fs_defs.h"
 #include "nvim/terminal.h"
