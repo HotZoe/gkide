@@ -344,7 +344,7 @@ EXTERN int do_profiling INIT(= PROF_NONE); ///< PROF_ values
 /// The exception currently being thrown. Used to pass an exception to
 /// a different cstack. Also used for discarding an exception before it is
 /// caught or made pending. Only valid when did_throw is TRUE.
-EXTERN except_T *current_exception;
+EXTERN excmd_exception_st *current_exception;
 
 /// did_throw: An exception is being thrown.
 /// Reset when the exception is caught or as long
@@ -393,7 +393,7 @@ EXTERN int suppress_errthrow INIT(= FALSE);
 /// top of the stack is the one got by evaluation of v:exception. The complete
 /// stack of all caught and pending exceptions is embedded in the various
 /// cstacks; the pending exceptions, however, are not on the caught stack.
-EXTERN except_T *caught_stack INIT(= NULL);
+EXTERN excmd_exception_st *caught_stack INIT(= NULL);
 
 // Garbage collection can only take place when we are sure there are no Lists
 // or Dictionaries being used internally. This is flagged with:

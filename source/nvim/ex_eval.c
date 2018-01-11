@@ -463,7 +463,7 @@ uchar_kt *get_exception_string(void *value,
 /// error exception.
 static int throw_exception(void *value, int type, uchar_kt *cmdname)
 {
-    except_T *excp;
+    excmd_exception_st *excp;
     int should_free;
 
     // Disallow faking Interrupt or error exceptions as user exceptions. They
@@ -480,7 +480,7 @@ static int throw_exception(void *value, int type, uchar_kt *cmdname)
         }
     }
 
-    excp = xmalloc(sizeof(except_T));
+    excp = xmalloc(sizeof(excmd_exception_st));
 
     if(type == ET_ERROR)
     {
@@ -560,7 +560,7 @@ fail:
 
 /// Discard an exception. "was_finished" is set when the exception has been
 /// caught and the catch clause has been ended normally.
-static void discard_exception(except_T *excp, int was_finished)
+static void discard_exception(excmd_exception_st *excp, int was_finished)
 {
     uchar_kt *saved_IObuff;
 
@@ -640,7 +640,7 @@ void discard_current_exception(void)
 }
 
 /// Put an exception on the caught stack.
-static void catch_exception(except_T *excp)
+static void catch_exception(excmd_exception_st *excp)
 {
     excp->caught = caught_stack;
     caught_stack = excp;
@@ -708,7 +708,7 @@ static void catch_exception(except_T *excp)
 }
 
 /// Remove an exception from the caught stack.
-static void finish_exception(except_T *excp)
+static void finish_exception(excmd_exception_st *excp)
 {
     if(excp != caught_stack)
     {
@@ -814,7 +814,7 @@ static void report_pending(int action, int pending, void *value)
             {
                 vim_snprintf((char *)IObuff, IOSIZE, mesg, _("Exception"));
                 mesg = (char *)concat_str(IObuff, (uchar_kt *)": %s");
-                s = (char *)((except_T *)value)->value;
+                s = (char *)((excmd_exception_st *)value)->value;
             }
             else if((pending & CSTP_ERROR) && (pending & CSTP_INTERRUPT))
             {
@@ -1664,7 +1664,7 @@ void ex_catch(exargs_st *eap)
             // and did_throw. Put the exception on the caught stack.
             cstack->cs_flags[idx] |= CSF_ACTIVE | CSF_CAUGHT;
             did_emsg = got_int = did_throw = FALSE;
-            catch_exception((except_T *)cstack->cs_exception[idx]);
+            catch_exception((excmd_exception_st *)cstack->cs_exception[idx]);
 
             // It's mandatory that the current exception is stored in
             // the cstack so that it can be discarded at the next ":catch",
@@ -2248,7 +2248,7 @@ int cleanup_conditionals(struct condstack *cstack,
                                 // Cancel the pending exception. This is in the
                                 // finally clause, so that the stack of the
                                 // caught exceptions is not involved.
-                                discard_exception((except_T *)
+                                discard_exception((excmd_exception_st *)
                                                   cstack->cs_exception[idx],
                                                   FALSE);
                             }
@@ -2270,7 +2270,7 @@ int cleanup_conditionals(struct condstack *cstack,
                 if((cstack->cs_flags[idx] & CSF_ACTIVE)
                    && (cstack->cs_flags[idx] & CSF_CAUGHT))
                 {
-                    finish_exception((except_T *)cstack->cs_exception[idx]);
+                    finish_exception((excmd_exception_st *)cstack->cs_exception[idx]);
                 }
 
                 // Stop at this try conditional, except the try block never got

@@ -129,7 +129,7 @@ struct dbg_stuff
 {
     int trylevel;
     int force_abort;
-    except_T *caught_stack;
+    excmd_exception_st *caught_stack;
     uchar_kt *vv_exception;
     uchar_kt *vv_throwpoint;
     int did_emsg;
@@ -137,7 +137,7 @@ struct dbg_stuff
     int did_throw;
     int need_rethrow;
     int check_cstack;
-    except_T *current_exception;
+    excmd_exception_st *current_exception;
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

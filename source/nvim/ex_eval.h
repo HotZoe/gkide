@@ -81,22 +81,21 @@ struct condstack
 /// message in the list. See cause_errthrow() below.
 struct msglist
 {
-    uchar_kt *msg;             ///< original message
-    uchar_kt *throw_msg;       ///< msg to throw: usually original one
-    struct msglist *next;    ///< next of several messages in a row
+    uchar_kt *msg;        ///< original message
+    uchar_kt *throw_msg;  ///< msg to throw: usually original one
+    struct msglist *next; ///< next of several messages in a row
 };
 
 /// Structure describing an exception.
-/// (don't use "struct exception", it's used by the math library).
-typedef struct vim_exception except_T;
-struct vim_exception
+typedef struct excmd_exception_s excmd_exception_st;
+struct excmd_exception_s
 {
-    int type;                  ///< exception type
-    uchar_kt *value;             ///< exception value
-    struct msglist *messages;  ///< message(s) causing error exception
-    uchar_kt *throw_name;        ///< name of the throw point
-    linenum_kt throw_lnum;       ///< line number of the throw point
-    except_T *caught;          ///< next exception on the caught stack
+    int type;                   ///< exception type
+    uchar_kt *value;            ///< exception value
+    struct msglist *messages;   ///< message(s) causing error exception
+    uchar_kt *throw_name;       ///< name of the throw point
+    linenum_kt throw_lnum;      ///< line number of the throw point
+    excmd_exception_st *caught; ///< next exception on the caught stack
 };
 
 // The exception types.
@@ -110,8 +109,8 @@ struct vim_exception
 typedef struct excmd_cleanup_s excmd_cleanup_st;
 struct excmd_cleanup_s
 {
-    int pending;         ///< error/interrupt/exception state
-    except_T *exception; ///< exception value
+    int pending; ///< error/interrupt/exception state
+    excmd_exception_st *exception; ///< exception value
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
