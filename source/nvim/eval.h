@@ -153,9 +153,10 @@ struct caller_scope_s
     void *funccalp;
 };
 
-typedef int (*ArgvFunc)(int current_argcount,
-                        typval_st *argv,
-                        int called_func_argcount);
+/// @param cur_argc     current arguments count
+/// @param cur_argv     current arguments vector
+/// @param cfargcnt     called function arguments count
+typedef int (*argv_func_ft)(int cur_argc, typval_st *cur_argv, int cfargcnt);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval.h.generated.h"
