@@ -111,16 +111,15 @@ static qfinfo_st ql_info;
 /// maximum number of % recognized
 #define FMT_PATTERNS   10
 
+typedef struct errfmt_info_s errfmt_info_st;
 /// Structure used to hold the info of one part of 'errorformat'
-typedef struct efm_S efm_T;
-
-struct efm_S
+struct errfmt_info_s
 {
     /// pre-formatted part of 'errorformat'
     regprog_st *prog;
 
     /// pointer to next (NULL if last)
-    efm_T *next;
+    errfmt_info_st *next;
 
     /// indices of used % patterns
     uchar_kt addr[FMT_PATTERNS];
@@ -145,7 +144,8 @@ struct efm_S
 
     /// - '-' do not include this line
     /// - '+' include whole line in message
-    int conthere; ///< %> used
+    /// %> used
+    int conthere;
 };
 
 enum
@@ -261,7 +261,7 @@ static struct fmtpattern
 /// Converts a 'errorformat' string to regular expression pattern
 static int efm_to_regpat(uchar_kt *efm,
                          int len,
-                         efm_T *fmt_ptr,
+                         errfmt_info_st *fmt_ptr,
                          uchar_kt *regpat,
                          uchar_kt *errmsg)
 {
@@ -485,9 +485,9 @@ static int efm_to_regpat(uchar_kt *efm,
     return 0;
 }
 
-static void free_efm_list(efm_T **efm_first)
+static void free_efm_list(errfmt_info_st **efm_first)
 {
-    for(efm_T *efm_ptr = *efm_first; efm_ptr != NULL; efm_ptr = *efm_first)
+    for(errfmt_info_st *efm_ptr = *efm_first; efm_ptr != NULL; efm_ptr = *efm_first)
     {
         *efm_first = efm_ptr->next;
         vim_regfree(efm_ptr->prog);
@@ -496,12 +496,12 @@ static void free_efm_list(efm_T **efm_first)
 }
 
 // Parse 'errorformat' option
-static efm_T *parse_efm_option(uchar_kt *efm)
+static errfmt_info_st *parse_efm_option(uchar_kt *efm)
 {
     int len;
-    efm_T *fmt_ptr = NULL;
-    efm_T *fmt_first = NULL;
-    efm_T *fmt_last = NULL;
+    errfmt_info_st *fmt_ptr = NULL;
+    errfmt_info_st *fmt_first = NULL;
+    errfmt_info_st *fmt_last = NULL;
     size_t errmsglen = CMDBUFFSIZE + 1;
     uchar_kt *errmsg = xmalloc(errmsglen);
 
@@ -519,7 +519,7 @@ static efm_T *parse_efm_option(uchar_kt *efm)
     while(efm[0] != NUL)
     {
         // Allocate a new eformat structure and put it at the end of the list
-        fmt_ptr = (efm_T *)xcalloc(1, sizeof(efm_T));
+        fmt_ptr = (errfmt_info_st *)xcalloc(1, sizeof(errfmt_info_st));
 
         if(fmt_first == NULL) // first one
         {
@@ -851,11 +851,11 @@ static int qf_get_nextline(qfstate_T *state)
 static int qf_parse_line(qfinfo_st *qi,
                          uchar_kt *linebuf,
                          size_t linelen,
-                         efm_T *fmt_first,
+                         errfmt_info_st *fmt_first,
                          qffields_T *fields)
 {
-    efm_T *fmt_ptr;
-    static efm_T *fmt_start = NULL; // cached across calls
+    errfmt_info_st *fmt_ptr;
+    static errfmt_info_st *fmt_start = NULL; // cached across calls
     size_t len;
     int i;
     int idx = 0;
@@ -1296,7 +1296,7 @@ static int qf_init_ext(qfinfo_st *qi,
     qfstate_T state = { NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
 
     qfline_T *old_last = NULL;
-    static efm_T *fmt_first = NULL;
+    static errfmt_info_st *fmt_first = NULL;
     uchar_kt *efm;
     static uchar_kt *last_efm = NULL;
     int retval = -1; // default: return error flag
