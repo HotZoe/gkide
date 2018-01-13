@@ -1842,7 +1842,7 @@ FUNC_ATTR_NONNULL_ALL
                     break;
                 }
 
-                const filemark_st fm = (filemark_st) {
+                const mark_st fm = (mark_st) {
                     .mark = cur_entry.data.filemark.mark,
                     .fnum = 0,
                     .timestamp = cur_entry.timestamp,
@@ -1870,7 +1870,7 @@ FUNC_ATTR_NONNULL_ALL
                     // the real code
                     MERGE_JUMPS(buf->b_changelistlen,
                                 buf->b_changelist,
-                                filemark_st,
+                                mark_st,
                                 timestamp,
                                 mark,
                                 cur_entry,
@@ -3517,7 +3517,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             do
             {
-                filemark_st fm;
+                mark_st fm;
                 char name = NUL;
 
                 local_marks_iter =
@@ -3553,7 +3553,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             for(int i = 0; i < buf->b_changelistlen; i++)
             {
-                const filemark_st fm = buf->b_changelist[i];
+                const mark_st fm = buf->b_changelist[i];
 
                 filemarks->changes[i] =
                     (pfse_info_st) {

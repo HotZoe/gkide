@@ -7171,7 +7171,7 @@ bool set_ref_in_functions(int copyID)
 /// Mark all lists and dicts referenced in given mark
 ///
 /// @returns true if setting references failed somehow.
-static inline bool set_ref_in_fmark(filemark_st fm, int copyID)
+static inline bool set_ref_in_fmark(mark_st fm, int copyID)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(fm.additional_data != NULL && fm.additional_data->dv_copyID != copyID)

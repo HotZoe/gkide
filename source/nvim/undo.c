@@ -356,7 +356,7 @@ static long get_undolevel(void)
     return curbuf->b_p_ul;
 }
 
-static inline void zero_fmark_additional_data(filemark_st *fmarks)
+static inline void zero_fmark_additional_data(mark_st *fmarks)
 {
     for(size_t i = 0; i < NMARKS; i++)
     {
@@ -2700,7 +2700,7 @@ static void u_undoredo(int undo)
     undo_blk_st *newlist = NULL;
     int old_flags;
     int new_flags;
-    filemark_st namedm[NMARKS];
+    mark_st namedm[NMARKS];
     visualinfo_st visualinfo;
 
     int empty_buffer; // buffer became empty

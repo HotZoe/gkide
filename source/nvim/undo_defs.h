@@ -67,7 +67,7 @@ struct undo_hdr_s
     apos_st uh_cursor;            ///< cursor position before saving
     long uh_cursor_vcol;
     int uh_flags;                 ///< see below
-    filemark_st uh_namedm[NMARKS];///< marks before undo/after redo
+    mark_st uh_namedm[NMARKS];///< marks before undo/after redo
     visualinfo_st uh_visual;      ///< Visual areas before undo/after redo
     time_t uh_time;               ///< timestamp when the change was made
     long uh_save_nr;              ///< set when the file was saved after

@@ -17,7 +17,7 @@
 #define SET_FMARK(fmarkp_, mark_, fnum_)    \
     do                                      \
     {                                       \
-        filemark_st *const fmarkp__ = fmarkp_;  \
+        mark_st *const fmarkp__ = fmarkp_;  \
         fmarkp__->mark = mark_;             \
         fmarkp__->fnum = fnum_;             \
         fmarkp__->timestamp = os_time();    \
@@ -28,7 +28,7 @@
 #define RESET_FMARK(fmarkp_, mark_, fnum_)  \
     do                                      \
     {                                       \
-        filemark_st *const fmarkp___ = fmarkp_; \
+        mark_st *const fmarkp___ = fmarkp_; \
         free_fmark(*fmarkp___);             \
         SET_FMARK(fmarkp___, mark_, fnum_); \
     } while(0)

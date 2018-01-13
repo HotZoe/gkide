@@ -94,7 +94,7 @@ typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_T;
 typedef struct taggy_s
 {
     uchar_kt *tagname;  ///< tag name
-    filemark_st fmark;  ///< cursor position BEFORE ":tag"
+    mark_st fmark;  ///< cursor position BEFORE ":tag"
     int cur_match;      ///< match number
     int cur_fnum;       ///< buffer number used for cur_match
 } taggy_st;
@@ -507,18 +507,18 @@ struct filebuf_s
     int b_orig_mode;       ///< mode of original file
 
     /// current named marks (mark.c)
-    filemark_st b_namedm[NMARKS];
+    mark_st b_namedm[NMARKS];
     /// These variables are set when VIsual_active becomes FALSE
     visualinfo_st b_visual;
 
     int b_visual_mode_eval;    ///< b_visual.vi_mode for visualmode()
-    filemark_st b_last_cursor; ///< cursor position when last unloading this
-    filemark_st b_last_insert; ///< where Insert mode was left
-    filemark_st b_last_change; ///< position of last change: '. mark'
+    mark_st b_last_cursor; ///< cursor position when last unloading this
+    mark_st b_last_insert; ///< where Insert mode was left
+    mark_st b_last_change; ///< position of last change: '. mark'
 
 
     /// the changelist contains old change positions
-    filemark_st b_changelist[JUMPLISTSIZE];
+    mark_st b_changelist[JUMPLISTSIZE];
     int b_changelistlen;  ///< number of active entries
     bool b_new_change;    ///< set by u_savecommon()
 
