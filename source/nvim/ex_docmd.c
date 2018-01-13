@@ -125,7 +125,7 @@ typedef struct loop_cookie_s
 
 /// Struct to save a few things while debugging.
 /// Used in do_cmdline() only.
-struct dbg_stuff
+typedef struct excmd_dbg_s
 {
     int trylevel;
     int force_abort;
@@ -138,7 +138,7 @@ struct dbg_stuff
     int need_rethrow;
     int check_cstack;
     excmd_exception_st *current_exception;
-};
+} excmd_dbg_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_docmd.c.generated.h"
@@ -157,7 +157,7 @@ struct dbg_stuff
 
 static uchar_kt dollar_command[2] = {'$', 0};
 
-static void save_dbg_stuff(struct dbg_stuff *dsp)
+static void save_dbg_stuff(excmd_dbg_st *dsp)
 {
     dsp->trylevel = trylevel;
     trylevel = 0;
@@ -184,7 +184,7 @@ static void save_dbg_stuff(struct dbg_stuff *dsp)
     current_exception = NULL;
 }
 
-static void restore_dbg_stuff(struct dbg_stuff *dsp)
+static void restore_dbg_stuff(excmd_dbg_st *dsp)
 {
     suppress_errthrow = FALSE;
     trylevel = dsp->trylevel;
@@ -199,7 +199,6 @@ static void restore_dbg_stuff(struct dbg_stuff *dsp)
     check_cstack = dsp->check_cstack;
     current_exception = dsp->current_exception;
 }
-
 
 /// Repeatedly get commands for the "Ex" mode, until the ":vi" command is given.
 ///
@@ -314,7 +313,10 @@ void do_exmode(int improved)
 /// Used for translated commands like "*".
 int do_cmdline_cmd(const char *cmd)
 {
-    return do_cmdline((uchar_kt *)cmd, NULL, NULL, DOCMD_NOWAIT | DOCMD_KEYTYPED);
+    return do_cmdline((uchar_kt *)cmd,
+                      NULL,
+                      NULL,
+                      DOCMD_NOWAIT | DOCMD_KEYTYPED);
 }
 
 /// execute one Ex command line
@@ -355,7 +357,7 @@ int do_cmdline(uchar_kt *cmdline,
     uchar_kt *fname = NULL; // function or script name
     linenum_kt *breakpoint = NULL; // ptr to breakpoint field in cookie
     int *dbg_tick = NULL; // ptr to dbg_tick field in cookie
-    struct dbg_stuff debug_saved; // saved things for debug mode
+    excmd_dbg_st debug_saved; // saved things for debug mode
     int initial_trylevel;
     errmsg_list_st **saved_msg_list = NULL;
     errmsg_list_st *private_msg_list;
@@ -409,8 +411,8 @@ int do_cmdline(uchar_kt *cmdline,
         ++ex_nesting_level;
     }
 
-    // Get the function or script name and the address where the next breakpoint
-    // line and the debug tick for a function or script are stored.
+    // Get the function or script name and the address where the next
+    // breakpoint line and the debug tick for a function or script are stored.
     if(getline_is_func)
     {
         fname = func_name(real_cookie);
@@ -455,7 +457,8 @@ int do_cmdline(uchar_kt *cmdline,
 
     // KeyTyped is only set when calling vgetc(). Reset it here when not
     // calling vgetc() (sourced command lines).
-    if(!(flags & DOCMD_KEYTYPED) && !getline_equal(fgetline, cookie, getexline))
+    if(!(flags & DOCMD_KEYTYPED)
+       && !getline_equal(fgetline, cookie, getexline))
     {
         KeyTyped = FALSE;
     }
@@ -488,13 +491,13 @@ int do_cmdline(uchar_kt *cmdline,
         // 1. If repeating, get a previous line from lines_ga.
         if(cstack.cs_looplevel > 0 && current_line < lines_ga.ga_len)
         {
-            // Each '|' separated command is stored separately in lines_ga, to
-            // be able to jump to it. Don't use next_cmdline now.
+            // Each '|' separated command is stored separately in lines_ga,
+            // to be able to jump to it. Don't use next_cmdline now.
             xfree(cmdline_copy);
             cmdline_copy = NULL;
 
-            // Check if a function has returned or, unless it has an unclosed
-            // try conditional, aborted.
+            // Check if a function has returned or, unless it
+            // has an unclosed try conditional, aborted.
             if(getline_is_func)
             {
                 if(do_profiling == PROF_YES)
@@ -527,15 +530,19 @@ int do_cmdline(uchar_kt *cmdline,
                && *dbg_tick != debug_tick)
             {
                 *breakpoint =
-                    dbg_find_breakpoint(getline_equal(fgetline, cookie, getsourceline),
+                    dbg_find_breakpoint(getline_equal(fgetline,
+                                                      cookie,
+                                                      getsourceline),
                                         fname,
                                         sourcing_lnum);
 
                 *dbg_tick = debug_tick;
             }
 
-            next_cmdline = ((loopbody_st *)(lines_ga.ga_data))[current_line].line;
-            sourcing_lnum = ((loopbody_st *)(lines_ga.ga_data))[current_line].lnum;
+            next_cmdline =
+                ((loopbody_st *)(lines_ga.ga_data))[current_line].line;
+            sourcing_lnum =
+                ((loopbody_st *)(lines_ga.ga_data))[current_line].lnum;
 
             // Did we encounter a breakpoint?
             if(breakpoint != NULL
@@ -546,7 +553,9 @@ int do_cmdline(uchar_kt *cmdline,
 
                 // Find next breakpoint.
                 *breakpoint =
-                    dbg_find_breakpoint(getline_equal(fgetline, cookie, getsourceline),
+                    dbg_find_breakpoint(getline_equal(fgetline,
+                                                      cookie,
+                                                      getsourceline),
                                         fname,
                                         sourcing_lnum);
 
