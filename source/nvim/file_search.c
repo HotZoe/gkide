@@ -72,9 +72,9 @@
 static uchar_kt *ff_expand_buffer = NULL;
 
 /// type for the directory search stack
-typedef struct ff_stack
+typedef struct dirsearch_stack_s
 {
-    struct ff_stack *ffs_prev;
+    struct dirsearch_stack_s *ffs_prev;
 
     // the fix part (no wildcards) and the part
     // containing the wildcards of the search path
@@ -98,7 +98,7 @@ typedef struct ff_stack
 
     /// Did we already expand '**' to an empty string?
     int ffs_star_star_empty;
-} ff_stack_T;
+} dirsearch_stack_st;
 
 /// type for already visited directories or files.
 typedef struct ff_visited
@@ -164,7 +164,7 @@ typedef struct ff_visited_list_hdr
 /// - ffsc_tagfile:    searching for tags file, don't use 'suffixesadd'
 typedef struct filesearch_ctx_s
 {
-    ff_stack_T *ffsc_stack_ptr;
+    dirsearch_stack_st *ffsc_stack_ptr;
     ff_visited_list_hdr_T *ffsc_visited_list;
     ff_visited_list_hdr_T *ffsc_dir_visited_list;
     ff_visited_list_hdr_T *ffsc_visited_lists_list;
@@ -259,7 +259,7 @@ void *vim_findfile_init(uchar_kt *path,
                         uchar_kt *rel_fname)
 {
     uchar_kt *wc_part;
-    ff_stack_T *sptr;
+    dirsearch_stack_st *sptr;
     filesearch_ctx_st *search_ctx;
 
     // If a search context is given by the caller,
@@ -666,7 +666,7 @@ uchar_kt *vim_findfile(void *search_ctx_arg)
     uchar_kt *file_path;
     uchar_kt *rest_of_wildcards;
     uchar_kt *path_end = NULL;
-    ff_stack_T *stackp;
+    dirsearch_stack_st *stackp;
     size_t len;
     uchar_kt *p;
     uchar_kt *suf;
@@ -1073,7 +1073,7 @@ uchar_kt *vim_findfile(void *search_ctx_arg)
            && search_ctx->ffsc_stopdirs_v != NULL
            && !got_int)
         {
-            ff_stack_T *sptr;
+            dirsearch_stack_st *sptr;
 
             // is the last starting directory in the stop list?
             if(ff_path_in_stoplist(search_ctx->ffsc_start_dir,
@@ -1353,12 +1353,12 @@ static int ff_check_visited(ff_visited_T **visited_list,
 }
 
 /// create stack element from given path pieces
-static ff_stack_T *ff_create_stack_element(uchar_kt *fix_part,
+static dirsearch_stack_st *ff_create_stack_element(uchar_kt *fix_part,
                                            uchar_kt *wc_part,
                                            int level,
                                            int star_star_empty)
 {
-    ff_stack_T *new_ptr = xmalloc(sizeof(ff_stack_T));
+    dirsearch_stack_st *new_ptr = xmalloc(sizeof(dirsearch_stack_st));
 
     new_ptr->ffs_prev = NULL;
     new_ptr->ffs_filearray = NULL;
@@ -1387,7 +1387,7 @@ static ff_stack_T *ff_create_stack_element(uchar_kt *fix_part,
 }
 
 /// Push a dir on the directory stack.
-static void ff_push(filesearch_ctx_st *search_ctx, ff_stack_T *stack_ptr)
+static void ff_push(filesearch_ctx_st *search_ctx, dirsearch_stack_st *stack_ptr)
 {
     // check for NULL pointer, not to return an
     // error to the user, but to prevent a crash
@@ -1400,9 +1400,9 @@ static void ff_push(filesearch_ctx_st *search_ctx, ff_stack_T *stack_ptr)
 
 /// Pop a dir from the directory stack.
 /// Returns NULL if stack is empty.
-static ff_stack_T *ff_pop(filesearch_ctx_st *search_ctx)
+static dirsearch_stack_st *ff_pop(filesearch_ctx_st *search_ctx)
 {
-    ff_stack_T *sptr;
+    dirsearch_stack_st *sptr;
     sptr = search_ctx->ffsc_stack_ptr;
 
     if(search_ctx->ffsc_stack_ptr != NULL)
@@ -1414,7 +1414,7 @@ static ff_stack_T *ff_pop(filesearch_ctx_st *search_ctx)
 }
 
 /// free the given stack element
-static void ff_free_stack_element(ff_stack_T *stack_ptr)
+static void ff_free_stack_element(dirsearch_stack_st *stack_ptr)
 {
     // free handles possible NULL pointers
     xfree(stack_ptr->ffs_fix_path);
@@ -1431,7 +1431,7 @@ static void ff_free_stack_element(ff_stack_T *stack_ptr)
 /// Clear the search context, but NOT the visited list.
 static void ff_clear(filesearch_ctx_st *search_ctx)
 {
-    ff_stack_T *sptr;
+    dirsearch_stack_st *sptr;
 
     // clear up stack
     while((sptr = ff_pop(search_ctx)) != NULL)
