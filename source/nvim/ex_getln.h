@@ -32,7 +32,7 @@
 #define WILD_ALLLINKS           0x200
 
 /// Present history tables
-typedef enum
+typedef enum history_type_e
 {
     HIST_DEFAULT = -2,  ///< Default (current) history.
     HIST_INVALID = -1,  ///< Unknown history.
@@ -41,7 +41,7 @@ typedef enum
     HIST_EXPR    = 2,   ///< Expressions (e.g. from entering = register).
     HIST_INPUT   = 3,   ///< input() lines.
     HIST_DEBUG   = 4,   ///< Debug commands.
-} HistoryType;
+} history_type_et;
 
 /// Number of history tables
 #define HIST_COUNT      (HIST_DEBUG + 1)

@@ -5756,7 +5756,7 @@ void globpath(uchar_kt *path, uchar_kt *file, garray_st *ga, int expand_options)
 //-----------------------------------
 
 /// Translate a history character to the associated type number
-static HistoryType hist_char2type(const int c)
+static history_type_et hist_char2type(const int c)
 FUNC_ATTR_CONST
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -6020,9 +6020,9 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
 /// returned or value based on 'ccline.cmdfirstc'.
 ///
 /// @return
-/// Any value from HistoryType enum, including HIST_INVALID. May not
+/// Any value from history_type_et enum, including HIST_INVALID. May not
 /// return HIST_DEFAULT unless return_default is true.
-HistoryType get_histtype(const char *const name,
+history_type_et get_histtype(const char *const name,
                          const size_t len,
                          const bool return_default)
 FUNC_ATTR_PURE
@@ -6036,7 +6036,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 : hist_char2type(ccline.cmdfirstc);
     }
 
-    for(HistoryType i = 0; history_names[i] != NULL; i++)
+    for(history_type_et i = 0; history_names[i] != NULL; i++)
     {
         if(STRNICMP(name, history_names[i], len) == 0)
         {

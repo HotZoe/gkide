@@ -14097,7 +14097,7 @@ static void f_histadd(typval_st *argvars,
                       typval_st *rettv,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    HistoryType histype;
+    history_type_et histype;
     rettv->vval.v_number = false;
 
     if(check_restricted() || check_secure())
@@ -14164,7 +14164,7 @@ static void f_histget(typval_st *argvars,
                       func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     int idx;
-    HistoryType type;
+    history_type_et type;
     // NULL on type error
     const char *const str = tv_get_string_chk(&argvars[0]);
 
