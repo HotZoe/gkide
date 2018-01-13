@@ -36,7 +36,7 @@ typedef struct
     uchar_kt *jobname;
     uchar_kt *outfile;
     uchar_kt *arguments;
-} prev_prtinfo_st;
+} prt_geninfo_st;
 
 /// Generic option table item, only used for printer at the moment.
 typedef struct
