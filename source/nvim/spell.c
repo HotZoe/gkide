@@ -249,7 +249,7 @@ typedef struct
 /// Structure to store info for word matching.
 typedef struct matchinf_S
 {
-    langp_T *mi_lp;        ///< info for language and region
+    langp_st *mi_lp;        ///< info for language and region
 
     // pointers to original text to be checked
     uchar_kt *mi_word;       ///< start of word being checked
@@ -1073,7 +1073,7 @@ static void find_word(matchinf_T *mip, int mode)
             {
                 int save_result = mip->mi_result;
                 uchar_kt  *save_end = mip->mi_end;
-                langp_T *save_lp = mip->mi_lp;
+                langp_st *save_lp = mip->mi_lp;
 
                 // Check that a valid word follows. If there is one and we
                 // are compounding, it will set "mi_result", thus we are
@@ -2559,7 +2559,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
     uchar_kt *use_region = NULL;
     bool dont_use_region = false;
     bool nobreak = false;
-    langp_T *lp, *lp2;
+    langp_st *lp, *lp2;
     static bool recursive = false;
     uchar_kt *ret_msg = NULL;
     uchar_kt *spl_copy;
@@ -2575,7 +2575,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
     }
 
     recursive = true;
-    ga_init(&ga, sizeof(langp_T), 2);
+    ga_init(&ga, sizeof(langp_st), 2);
     clear_midword(wp);
 
     // Make a copy of 'spelllang', the SpellFileMissing
@@ -2728,7 +2728,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
 
                 if(region_mask != 0)
                 {
-                    langp_T *p = GA_APPEND_VIA_PTR(langp_T, &ga);
+                    langp_st *p = GA_APPEND_VIA_PTR(langp_st, &ga);
                     p->lp_slang = slang;
                     p->lp_region = region_mask;
                     use_midword(slang, wp);
@@ -2846,7 +2846,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
 
             if(region_mask != 0)
             {
-                langp_T *p = GA_APPEND_VIA_PTR(langp_T, &ga);
+                langp_st *p = GA_APPEND_VIA_PTR(langp_st, &ga);
                 p->lp_slang = slang;
                 p->lp_sallang = NULL;
                 p->lp_replang = NULL;
@@ -4072,7 +4072,7 @@ static void spell_find_suggest(uchar_kt *badptr,
     uchar_kt *sps_copy;
     static bool expr_busy = false;
     int c;
-    langp_T *lp;
+    langp_st *lp;
     // Set the info in "*su".
     memset(su, 0, sizeof(suginfo_T));
     ga_init(&su->su_ga, (int)sizeof(suggest_T), 10);
@@ -4644,7 +4644,7 @@ static void suggest_try_change(suginfo_T *su)
     int n;
     uchar_kt fword[MAXWLEN]; // copy of the bad word, case-folded
     uchar_kt *p;
-    langp_T *lp;
+    langp_st *lp;
 
     // We make a copy of the case-folded bad word, so that we can modify it
     // to find matches (esp. REP items). Append some more text, changing
@@ -4713,7 +4713,7 @@ static void suggest_try_change(suginfo_T *su)
 ///     "similar_chars()"
 ///     use "slang->sl_repsal" instead of "lp->lp_replang->sl_rep"
 static void suggest_trie_walk(suginfo_T *su,
-                              langp_T *lp,
+                              langp_st *lp,
                               uchar_kt *fword,
                               bool soundfold)
 {
@@ -6636,7 +6636,7 @@ static void find_keepcap_word(slang_st *slang, uchar_kt *fword, uchar_kt *kword)
 /// in su->su_ga and add them to su->su_sga.
 static void score_comp_sal(suginfo_T *su)
 {
-    langp_T *lp;
+    langp_st *lp;
     uchar_kt badsound[MAXWLEN];
     int i;
     suggest_T *stp;
@@ -6685,7 +6685,7 @@ static void score_combine(suginfo_T *su)
 {
     garray_st ga;
     garray_st *gap;
-    langp_T *lp;
+    langp_st *lp;
     suggest_T *stp;
     uchar_kt *p;
     uchar_kt badsound[MAXWLEN];
@@ -6896,7 +6896,7 @@ static sftword_T dumsft;
 // Prepare for calling suggest_try_soundalike().
 static void suggest_try_soundalike_prep(void)
 {
-    langp_T *lp;
+    langp_st *lp;
     slang_st *slang;
 
     // Do this for all languages that support sound folding
@@ -6919,7 +6919,7 @@ static void suggest_try_soundalike_prep(void)
 static void suggest_try_soundalike(suginfo_T *su)
 {
     uchar_kt salword[MAXWLEN];
-    langp_T *lp;
+    langp_st *lp;
     slang_st *slang;
 
     // Do this for all languages that support sound
@@ -6956,7 +6956,7 @@ static void suggest_try_soundalike(suginfo_T *su)
 // Finish up after calling suggest_try_soundalike().
 static void suggest_try_soundalike_finish(void)
 {
-    langp_T *lp;
+    langp_st *lp;
     slang_st *slang;
     int todo;
     hashitem_st *hi;
@@ -6999,7 +6999,7 @@ static void suggest_try_soundalike_finish(void)
 static void add_sound_suggest(suginfo_T *su,
                               uchar_kt *goodword,
                               int score,
-                              langp_T *lp)
+                              langp_st *lp)
 {
     // language for sound folding
     slang_st *slang = lp->lp_slang;
@@ -7744,7 +7744,7 @@ FUNC_ATTR_NONNULL_ALL
         // Use the sound-folding of the first language that supports it.
         for(int lpi = 0; lpi < curwin->w_s->b_langp.ga_len; lpi++)
         {
-            langp_T *const lp = LANGP_ENTRY(curwin->w_s->b_langp, lpi);
+            langp_st *const lp = LANGP_ENTRY(curwin->w_s->b_langp, lpi);
 
             if(!GA_EMPTY(&lp->lp_slang->sl_sal))
             {
@@ -9550,7 +9550,7 @@ void ex_spellinfo(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 
     for(int lpi = 0; lpi < curwin->w_s->b_langp.ga_len && !got_int; lpi++)
     {
-        langp_T *const lp = LANGP_ENTRY(curwin->w_s->b_langp, lpi);
+        langp_st *const lp = LANGP_ENTRY(curwin->w_s->b_langp, lpi);
         msg_puts("file: ");
         msg_puts((const char *)lp->lp_slang->sl_fname);
         msg_putchar('\n');
@@ -9621,7 +9621,7 @@ void ex_spelldump(exargs_st *eap)
 /// @param dumpflags_arg   DUMPFLAG_*
 void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
 {
-    langp_T *lp;
+    langp_st *lp;
     slang_st *slang;
     idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];

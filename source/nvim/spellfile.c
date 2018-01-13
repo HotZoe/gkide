@@ -1014,7 +1014,7 @@ static void tree_count_words(uchar_kt *byts, idx_kt *idxs)
 /// Load the .sug files for languages that have one and weren't loaded yet.
 void suggest_load_files(void)
 {
-    langp_T *lp;
+    langp_st *lp;
     slang_st *slang;
     uchar_kt *dotp;
     FILE *fd;

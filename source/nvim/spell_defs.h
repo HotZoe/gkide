@@ -185,15 +185,15 @@ struct slang_s
 };
 
 /// Structure used in "b_langp", filled from 'spelllang'.
-typedef struct langp_S
+typedef struct langp_s
 {
-    slang_st *lp_slang;    ///< info for this language
-    slang_st *lp_sallang;  ///< language used for sound folding or NULL
-    slang_st *lp_replang;  ///< language used for REP items or NULL
+    slang_st *lp_slang;   ///< info for this language
+    slang_st *lp_sallang; ///< language used for sound folding or NULL
+    slang_st *lp_replang; ///< language used for REP items or NULL
     int lp_region;        ///< bitmask for region or REGION_ALL
-} langp_T;
+} langp_st;
 
-#define LANGP_ENTRY(ga, i)   (((langp_T *)(ga).ga_data) + (i))
+#define LANGP_ENTRY(ga, i)   (((langp_st *)(ga).ga_data) + (i))
 
 /// string at start of Vim .sug file
 #define VIMSUGMAGIC    "VIMsug"
@@ -208,10 +208,10 @@ typedef struct langp_S
 /// These are only used for the first 256 characters of 'encoding'.
 typedef struct
 {
-    bool st_isw[256];      ///< flags: is word char
-    bool st_isu[256];      ///< flags: is uppercase char
-    uchar_kt st_fold[256];   ///< chars: folded case
-    uchar_kt st_upper[256];  ///< chars: upper case
+    bool st_isw[256];       ///< flags: is word char
+    bool st_isu[256];       ///< flags: is uppercase char
+    uchar_kt st_fold[256];  ///< chars: folded case
+    uchar_kt st_upper[256]; ///< chars: upper case
 } spelltab_T;
 
 /// For finding suggestions:
