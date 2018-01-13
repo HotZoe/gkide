@@ -6785,7 +6785,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
     uchar_kt buf[MAXPATHL];
     uchar_kt *stl;
     uchar_kt *p;
-    struct stl_hlrec hltab[STL_MAX_ITEM];
+    hl_stline_st hltab[STL_MAX_ITEM];
     StlClickRecord tabtab[STL_MAX_ITEM];
     int use_sandbox = false;
     win_st *ewp;

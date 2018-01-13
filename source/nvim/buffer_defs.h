@@ -357,11 +357,13 @@ struct map_abbr_s
 };
 
 /// Used for highlighting in the status line.
-struct stl_hlrec
+typedef struct hl_stline_s
 {
     uchar_kt *start;
-    int userhl;     ///< 0: no HL, 1-9: User HL, < 0 for syn ID
-};
+
+    /// 0: no HL, 1-9: User HL, < 0 for syn ID
+    int userhl;
+} hl_stline_st;
 
 // values for b_syn_spell: what to do with toplevel text
 #define SYNSPL_DEFAULT  0   ///< spell check if @Spell not defined

@@ -3946,7 +3946,7 @@ int build_stl_str_hl(win_st *wp,
                      int use_sandbox,
                      uchar_kt fillchar,
                      int maxwidth,
-                     struct stl_hlrec *hltab,
+                     hl_stline_st *hltab,
                      StlClickRecord *tabtab)
 {
     struct stl_item
@@ -5267,7 +5267,7 @@ int build_stl_str_hl(win_st *wp,
     // Store the info about highlighting.
     if(hltab != NULL)
     {
-        struct stl_hlrec *sp = hltab;
+        hl_stline_st *sp = hltab;
 
         for(long l = 0; l < itemcnt; l++)
         {
