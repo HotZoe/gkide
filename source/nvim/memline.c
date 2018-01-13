@@ -2809,7 +2809,7 @@ static int ml_append_int(filebuf_st *buf,
     }
 
     // The line was inserted below 'lnum'
-    ml_updatechunk(buf, lnum + 1, (long)len, ML_CHNK_ADDLINE);
+    ml_updatechunk(buf, lnum + 1, (long)len, kMLCLineAdd);
 
     return OK;
 }
@@ -3038,7 +3038,7 @@ static int ml_delete_int(filebuf_st *buf, linenum_kt lnum, int message)
         buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
     }
 
-    ml_updatechunk(buf, lnum, line_size, ML_CHNK_DELLINE);
+    ml_updatechunk(buf, lnum, line_size, kMLCLineDel);
     return OK;
 }
 
@@ -3249,7 +3249,7 @@ static void ml_flush_line(filebuf_st *buf)
                 buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
 
                 // The else case is already covered by the insert and delete
-                ml_updatechunk(buf, lnum, (long)extra, ML_CHNK_UPDLINE);
+                ml_updatechunk(buf, lnum, (long)extra, kMLCLineUpd);
             }
             else
             {
@@ -4403,11 +4403,15 @@ void ml_setflags(filebuf_st *buf)
 #define MLCS_MINL  400   ///< should be half of MLCS_MAXL
 
 /// Keep information for finding byte offset of a line, updtype may be one of:
-/// - ML_CHNK_ADDLINE: Add len to parent chunk, possibly splitting it
-///   Careful: ML_CHNK_ADDLINE may cause ml_find_line() to be called.
-/// - ML_CHNK_DELLINE: Subtract len from parent chunk, possibly deleting it
-/// - ML_CHNK_UPDLINE: Add len to parent chunk, as a signed entity.
-static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updtype)
+/// - kMLCLineAdd: Add len to parent chunk, possibly splitting it
+/// - kMLCLineDel: Subtract len from parent chunk, possibly deleting it
+/// - kMLCLineUpd: Add len to parent chunk, as a signed entity
+///
+/// @note kMLCLineAdd may cause ml_find_line() to be called.
+static void ml_updatechunk(filebuf_st *buf,
+                           linenum_kt line,
+                           long len,
+                           int updtype)
 {
     static filebuf_st *ml_upd_lastbuf = NULL;
     static linenum_kt ml_upd_lastline;
@@ -4435,7 +4439,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
         buf->b_ml.ml_chunksize[0].mlcs_totalsize = 1;
     }
 
-    if(updtype == ML_CHNK_UPDLINE && buf->b_ml.ml_line_count == 1)
+    if(updtype == kMLCLineUpd && buf->b_ml.ml_line_count == 1)
     {
         // First line in empty buffer from ml_flush_line() -- reset
         buf->b_ml.ml_usedchunks = 1;
@@ -4448,7 +4452,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
     // Find chunk that our line belongs to, curline will
     // be at start of the chunk.
     if(buf != ml_upd_lastbuf || line != ml_upd_lastline + 1
-       || updtype != ML_CHNK_ADDLINE)
+       || updtype != kMLCLineAdd)
     {
         for(curline = 1, curix = 0;
             curix < buf->b_ml.ml_usedchunks - 1
@@ -4469,14 +4473,14 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
 
     curchnk = buf->b_ml.ml_chunksize + curix;
 
-    if(updtype == ML_CHNK_DELLINE)
+    if(updtype == kMLCLineDel)
     {
         len = -len;
     }
 
     curchnk->mlcs_totalsize += len;
 
-    if(updtype == ML_CHNK_ADDLINE)
+    if(updtype == kMLCLineAdd)
     {
         curchnk->mlcs_numlines++;
 
@@ -4603,7 +4607,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
             }
         }
     }
-    else if(updtype == ML_CHNK_DELLINE)
+    else if(updtype == kMLCLineDel)
     {
         curchnk->mlcs_numlines--;
         ml_upd_lastbuf = NULL; // Force recalc of curix & curline

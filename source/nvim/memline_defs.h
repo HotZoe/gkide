@@ -23,10 +23,13 @@ typedef struct mlchksize_s
     long mlcs_totalsize;
 } mlchksize_st;
 
-// Flags when calling ml_updatechunk()
-#define ML_CHNK_ADDLINE    1
-#define ML_CHNK_DELLINE    2
-#define ML_CHNK_UPDLINE    3
+/// Flags when calling ml_updatechunk()
+enum
+{
+    kMLCLineAdd = 1, ///< memory line chunk line: add
+    kMLCLineDel = 2, ///< memory line chunk line: delete
+    kMLCLineUpd = 3, ///< memory line chunk line: update
+};
 
 /// the memline_s structure holds all the information about a memline
 typedef struct memline_s
