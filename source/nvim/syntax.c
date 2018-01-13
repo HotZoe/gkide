@@ -45,14 +45,14 @@ static bool did_syntax_onoff = false;
 /// Structure that stores information about a highlight group.
 /// The ID of a highlight group is also called group ID.
 /// It is the index in the highlight_ga array PLUS ONE.
-struct hl_group
+typedef struct hl_group_s
 {
     uchar_kt *sg_name;       ///< highlight group name
     uchar_kt *sg_name_u;     ///< uppercase of sg_name
     int sg_attr;             ///< Screen attr @see ATTR_ENTRY
     int sg_link;             ///< link to this highlight group ID
     int sg_set;              ///< combination of flags in @ref SG_SET
-    script_id_kt sg_scriptID;      ///< script in which the group was last set
+    script_id_kt sg_scriptID;///< script in which the group was last set
     // for terminal UIs
     int sg_cterm;            ///< "cterm=" highlighting attr
     int sg_cterm_fg;         ///< terminal fg color number + 1
@@ -67,7 +67,7 @@ struct hl_group
     uint8_t *sg_rgb_fg_name; ///< RGB foreground color name
     uint8_t *sg_rgb_bg_name; ///< RGB background color name
     uint8_t *sg_rgb_sp_name; ///< RGB special color name
-};
+} hl_group_st;
 
 /// @addtogroup SG_SET Syntax Group
 /// @{
@@ -79,7 +79,7 @@ struct hl_group
 // highlight groups for 'highlight' option
 static garray_st highlight_ga = GA_EMPTY_INIT_VALUE;
 
-#define HL_TABLE()   ((struct hl_group *)((highlight_ga.ga_data)))
+#define HL_TABLE()   ((hl_group_st *)((highlight_ga.ga_data)))
 #define MAX_HL_ID    20000  ///< maximum value for a highlight ID.
 
 // different types of offsets that are possible
@@ -100,8 +100,14 @@ static int include_link = 0;    ///< when 2 include "nvim/link" and "clear"
 /// The "term", "cterm" and "gui" arguments can be any combination of the
 /// following names, separated by commas (but no spaces!).
 static char *(hl_name_table[]) = {
-    "bold", "standout", "underline", "undercurl",
-    "italic", "reverse", "inverse", "NONE"
+    "bold",
+    "standout",
+    "underline",
+    "undercurl",
+    "italic",
+    "reverse",
+    "inverse",
+    "NONE"
 };
 
 static int hl_attr_table[] =
@@ -124,19 +130,19 @@ static int hl_attr_table[] =
 ///
 /// A character offset can be given for the matched text (_m_start and _m_end)
 /// and for the actually highlighted text (_h_start and _h_end).
-typedef struct syn_pattern
+typedef struct syn_pattern_s
 {
-    char sp_type;           ///< see SPTYPE_ defines below
-    char sp_syncing;        ///< this item used for syncing
-    int sp_flags;           ///< see HL_ defines below
-    int sp_cchar;           ///< conceal substitute character
-    struct sp_syn sp_syn;   ///< struct passed to in_id_list()
-    short sp_syn_match_id;  ///< highlight group ID of patter
-    uchar_kt *sp_pattern;   ///< regexp to match, pattern
-    regprog_st *sp_prog;     ///< regexp to match, program
+    char sp_type;              ///< see SPTYPE_ defines below
+    char sp_syncing;           ///< this item used for syncing
+    int sp_flags;              ///< see HL_ defines below
+    int sp_cchar;              ///< conceal substitute character
+    struct sp_syn sp_syn;      ///< struct passed to in_id_list()
+    short sp_syn_match_id;     ///< highlight group ID of patter
+    uchar_kt *sp_pattern;      ///< regexp to match, pattern
+    regprog_st *sp_prog;       ///< regexp to match, program
     syntime_st sp_time;
-    int sp_ic;              ///< ignore-case flag for sp_prog
-    short sp_off_flags;     ///< see below
+    int sp_ic;                 ///< ignore-case flag for sp_prog
+    short sp_off_flags;        ///< see below
     int sp_offsets[SPO_COUNT]; ///< offsets
     short *sp_cont_list;       ///< cont. group IDs, if non-zero
     short *sp_next_list;       ///< next group IDs, if non-zero
@@ -146,7 +152,7 @@ typedef struct syn_pattern
 } synpat_T;
 
 
-typedef struct syn_cluster_S
+typedef struct syn_cluster_s
 {
     uchar_kt *scl_name;    ///< syntax cluster name
     uchar_kt *scl_name_u;  ///< uppercase of scl_name
@@ -156,44 +162,46 @@ typedef struct syn_cluster_S
 /// For the current state we need to remember more than just the idx.
 /// When si_m_endpos.lnum is 0, the items other than si_idx are unknown.
 /// (The end positions have the column number of the next char)
-typedef struct state_item
+typedef struct state_item_s
 {
-    int si_idx;                   ///< index of syntax pattern or KEYWORD_IDX
-    int si_id;                    ///< highlight group ID for keywords
-    int si_trans_id;              ///< idem, transparency removed
-    int si_m_lnum;                ///< lnum of the match
-    int si_m_startcol;            ///< starting column of the match
-    bpos_st si_m_endpos;           ///< just after end posn of the match
-    bpos_st si_h_startpos;         ///< start position of the highlighting
-    bpos_st si_h_endpos;           ///< end position of the highlighting
-    bpos_st si_eoe_pos;            ///< end position of end pattern
-    int si_end_idx;               ///< group ID for end pattern or zero
-    int si_ends;                  ///< if match ends before si_m_endpos
-    int si_attr;                  ///< attributes in this state
-    long si_flags;                ///< HL_HAS_EOL flag in this state, and
-                                  ///< HL_SKIP* for si_next_list
-    int si_seqnr;                 ///< sequence number
-    int si_cchar;                 ///< substitution character for conceal
-    short *si_cont_list;          ///< list of contained groups
-    short *si_next_list;          ///< nextgroup IDs after this item ends
-    reg_extmatch_st *si_extmatch;  ///< \z(...\) matches from start pattern
+    int si_idx;            ///< index of syntax pattern or KEYWORD_IDX
+    int si_id;             ///< highlight group ID for keywords
+    int si_trans_id;       ///< idem, transparency removed
+    int si_m_lnum;         ///< lnum of the match
+    int si_m_startcol;     ///< starting column of the match
+    bpos_st si_m_endpos;   ///< just after end posn of the match
+    bpos_st si_h_startpos; ///< start position of the highlighting
+    bpos_st si_h_endpos;   ///< end position of the highlighting
+    bpos_st si_eoe_pos;    ///< end position of end pattern
+    int si_end_idx;        ///< group ID for end pattern or zero
+    int si_ends;           ///< if match ends before si_m_endpos
+    int si_attr;           ///< attributes in this state
+    long si_flags;         ///< HL_HAS_EOL flag in this state, and
+                           ///< HL_SKIP* for si_next_list
+    int si_seqnr;          ///< sequence number
+    int si_cchar;          ///< substitution character for conceal
+    short *si_cont_list;   ///< list of contained groups
+    short *si_next_list;   ///< nextgroup IDs after this item ends
+
+    /// \z(...\) matches from start pattern
+    reg_extmatch_st *si_extmatch;
 } stateitem_T;
 
 /// Struct to reduce the number of arguments
 /// to get_syn_options(), it's used very often.
-typedef struct
+typedef struct syn_optarg_s
 {
-    int flags;            ///< flags for contained and transparent
-    int keyword;          ///< TRUE for ":syn keyword"
-    int *sync_idx;        ///< syntax item for "grouphere" argument,
-                          ///< NULL if not allowed
-    char has_cont_list;   ///< TRUE if "cont_list" can be used
-    short *cont_list;     ///< group IDs for "contains" argument
-    short *cont_in_list;  ///< group IDs for "containedin" argument
-    short *next_list;     ///< group IDs for "nextgroup" argument
+    int flags;           ///< flags for contained and transparent
+    int keyword;         ///< TRUE for ":syn keyword"
+    int *sync_idx;       ///< syntax item for "grouphere" argument,
+                         ///< NULL if not allowed
+    char has_cont_list;  ///< TRUE if "cont_list" can be used
+    short *cont_list;    ///< group IDs for "contains" argument
+    short *cont_in_list; ///< group IDs for "containedin" argument
+    short *next_list;    ///< group IDs for "nextgroup" argument
 } syn_opt_arg_T;
 
-typedef struct
+typedef struct time_entry_s
 {
     proftime_kt total;
     int count;
@@ -204,11 +212,11 @@ typedef struct
     uchar_kt *pattern;
 } time_entry_T;
 
-struct name_list
+typedef struct syntax_name_list_s
 {
     int flag;
     char *name;
-};
+} syntax_name_list_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "syntax.c.generated.h"
@@ -218,7 +226,14 @@ struct name_list
 #define ATTR_OFF   1
 
 static char *(spo_name_tab[SPO_COUNT]) = {
-    "ms=", "me=", "hs=", "he=", "rs=", "re=", "lc=" };
+    "ms=",
+    "me=",
+    "hs=",
+    "he=",
+    "rs=",
+    "re=",
+    "lc="
+};
 
 // The sp_off_flags are computed like this:
 // offset from the start of the matched text: (1 << SPO_XX_OFF)
@@ -232,20 +247,20 @@ static char *(spo_name_tab[SPO_COUNT]) = {
 #define NONE_IDX        -2  ///< value of sp_sync_idx for "NONE"
 
 // Flags for b_syn_sync_flags:
-#define SF_CCOMMENT     0x01    ///< sync on a C-style comment
-#define SF_MATCH        0x02    ///< sync by matching a pattern
-#define MAXKEYWLEN      80      ///< maximum length of a keyword
+#define SF_CCOMMENT     0x01  ///< sync on a C-style comment
+#define SF_MATCH        0x02  ///< sync by matching a pattern
+#define MAXKEYWLEN      80    ///< maximum length of a keyword
 
 #define SYN_ITEMS(buf)    ((synpat_T *)((buf)->b_syn_patterns.ga_data))
 #define SYN_STATE_P(ssp)  ((bufstate_st *)((ssp)->ga_data))
 
 // The attributes of the syntax item that has been recognized.
-static int current_attr = 0;        ///< attr of current syntax word
-static int current_id = 0;          ///< ID of current char for syn_get_id()
-static int current_trans_id = 0;    ///< idem, transparency removed
-static int current_flags = 0;       ///<
-static int current_seqnr = 0;       ///<
-static int current_sub_char = 0;    ///<
+static int current_attr = 0;     ///< attr of current syntax word
+static int current_id = 0;       ///< ID of current char for syn_get_id()
+static int current_trans_id = 0; ///< idem, transparency removed
+static int current_flags = 0;    ///<
+static int current_seqnr = 0;    ///<
+static int current_sub_char = 0; ///<
 
 // Methods of combining two clusters
 #define CLUSTER_REPLACE     1   ///< replace first list with second
@@ -261,14 +276,14 @@ static int current_sub_char = 0;    ///<
 // 22000 - 22999  CONTAINED indicator (current_syn_inc_tag added)
 // 23000 - 32767  cluster IDs (subtract SYNID_CLUSTER for the cluster ID)
 
-#define SYNID_ALLBUT    MAX_HL_ID   ///< syntax group ID for contains=ALLBUT
-#define SYNID_TOP       21000       ///< syntax group ID for contains=TOP
-#define SYNID_CONTAINED 22000       ///< syntax group ID for contains=CONTAINED
-#define SYNID_CLUSTER   23000       ///< first syntax group ID for clusters
+#define SYNID_ALLBUT       MAX_HL_ID ///< syntax group ID for contains=ALLBUT
+#define SYNID_TOP          21000     ///< syntax group ID for contains=TOP
+#define SYNID_CONTAINED    22000     ///< syntax group ID for contains=CONTAINED
+#define SYNID_CLUSTER      23000     ///< first syntax group ID for clusters
 
-#define MAX_SYN_INC_TAG 999         ///< maximum before the above overflow
+#define MAX_SYN_INC_TAG    999       ///< maximum before the above overflow
 
-#define MAX_CLUSTER_ID  (32767 - SYNID_CLUSTER)
+#define MAX_CLUSTER_ID     (32767 - SYNID_CLUSTER)
 
 /// Annoying Hack(TM): ":syn include" needs this pointer to pass to
 /// expand_filename(). Most of the other syntax commands don't need it, so
@@ -292,9 +307,9 @@ static keyentry_T dumkey;
 #define HIKEY2KE(p)   ((keyentry_T *)((p) - (dumkey.keyword - (uchar_kt *)&dumkey)))
 #define HI2KE(hi)     HIKEY2KE((hi)->hi_key)
 
-/// To reduce the time spent in keepend(), remember at which level in the state
-/// stack the first item with "keepend" is present. When "-1", there is no
-/// "keepend" on the stack.
+/// To reduce the time spent in keepend(), remember at which level in the
+/// state stack the first item with "keepend" is present. When "-1", there
+/// is no "keepend" on the stack.
 static int keepend_level = -1;
 
 static char msg_no_items[] = N_("No Syntax items defined for this buffer");
@@ -313,13 +328,13 @@ static int next_seqnr = 1; ///< value to use for si_seqnr
 // If next_match_col == MAXCOL, no match found in this line.
 // (All end positions have the column of the char after the end)
 static int next_match_col;            ///< column for start of next match
-static bpos_st next_match_m_endpos;    ///< position for end of next match
-static bpos_st next_match_h_startpos;  ///< pos. for highl. start of next match
-static bpos_st next_match_h_endpos;    ///< pos. for highl. end of next match
+static bpos_st next_match_m_endpos;   ///< position for end of next match
+static bpos_st next_match_h_startpos; ///< pos. for highl. start of next match
+static bpos_st next_match_h_endpos;   ///< pos. for highl. end of next match
 static int next_match_idx;            ///< index of matched item
 static long next_match_flags;         ///< flags for next match
-static bpos_st next_match_eos_pos;     ///< end of start pattn (start region)
-static bpos_st next_match_eoe_pos;     ///< pos. for end of end pattern
+static bpos_st next_match_eos_pos;    ///< end of start pattn (start region)
+static bpos_st next_match_eoe_pos;    ///< pos. for end of end pattern
 static int next_match_end_idx;        ///< ID of group for end pattn or zero
 
 static reg_extmatch_st *next_match_extmatch = NULL;
@@ -332,11 +347,11 @@ static reg_extmatch_st *next_match_extmatch = NULL;
 // The current state (within the line) of the recognition engine.
 // When current_state.ga_itemsize is 0 the current state is invalid.
 static win_st *syn_win;             ///< current window for highlighting
-static filebuf_st *syn_buf;             ///< current buffer for highlighting
-static synblk_st *syn_block;      ///< current buffer for highlighting
-static linenum_kt current_lnum = 0;  ///< lnum of current state
-static columnum_kt current_col = 0;    ///< column of current state
-static int current_finished = 0;   ///< current line has been finished
+static filebuf_st *syn_buf;         ///< current buffer for highlighting
+static synblk_st *syn_block;        ///< current buffer for highlighting
+static linenum_kt current_lnum = 0; ///< lnum of current state
+static columnum_kt current_col = 0; ///< column of current state
+static int current_finished = 0;    ///< current line has been finished
 
 /// TRUE if stored current state after setting current_finished
 static int current_state_stored = 0;
@@ -4125,25 +4140,25 @@ static void syn_list_one(int id, int syncing, int link_only)
     int did_header = FALSE;
     synpat_T *spp;
 
-    static struct name_list namelist1[] = {
-        {HL_DISPLAY,     "display"},
-        {HL_CONTAINED,   "contained"},
-        {HL_ONELINE,     "oneline"},
-        {HL_KEEPEND,     "keepend"},
-        {HL_EXTEND,      "extend"},
-        {HL_EXCLUDENL,   "excludenl"},
-        {HL_TRANSP,      "transparent"},
-        {HL_FOLD,        "fold"},
-        {HL_CONCEAL,     "conceal"},
-        {HL_CONCEALENDS, "concealends"},
-        {0, NULL}
+    static syntax_name_list_st namelist1[] = {
+        { HL_DISPLAY,     "display"     },
+        { HL_CONTAINED,   "contained"   },
+        { HL_ONELINE,     "oneline"     },
+        { HL_KEEPEND,     "keepend"     },
+        { HL_EXTEND,      "extend"      },
+        { HL_EXCLUDENL,   "excludenl"   },
+        { HL_TRANSP,      "transparent" },
+        { HL_FOLD,        "fold"        },
+        { HL_CONCEAL,     "conceal"     },
+        { HL_CONCEALENDS, "concealends" },
+        { 0,              NULL          }
     };
 
-    static struct name_list namelist2[] = {
-        {HL_SKIPWHITE, "skipwhite"},
-        {HL_SKIPNL,    "skipnl"},
-        {HL_SKIPEMPTY, "skipempty"},
-        {0, NULL}
+    static syntax_name_list_st namelist2[] = {
+        { HL_SKIPWHITE, "skipwhite" },
+        { HL_SKIPNL,    "skipnl"    },
+        { HL_SKIPEMPTY, "skipempty" },
+        { 0,            NULL        }
     };
 
     // highlight like directories
@@ -4260,7 +4275,7 @@ static void syn_list_one(int id, int syncing, int link_only)
     }
 }
 
-static void syn_list_flags(struct name_list *nlist, int flags, int attr)
+static void syn_list_flags(syntax_name_list_st *nlist, int flags, int attr)
 {
     for(int i = 0; nlist[i].flag != 0; ++i)
     {
@@ -8396,7 +8411,7 @@ attrinfo_st *syn_cterm_attr2entry(int attr)
 
 static void highlight_list_one(int id)
 {
-    struct hl_group *sgp;
+    hl_group_st *sgp;
     int didh = FALSE;
 
     // index is ID minus one
@@ -8732,7 +8747,7 @@ static int syn_list_header(int did_header, int outlen, int id)
 static void set_hl_attr(int idx)
 {
     attrinfo_st at_en;
-    struct hl_group *sgp = HL_TABLE() + idx;
+    hl_group_st *sgp = HL_TABLE() + idx;
 
     // The "Normal" group doesn't need an attribute number
     if(sgp->sg_name_u != NULL
@@ -8876,7 +8891,7 @@ static int syn_add_group(uchar_kt *name)
     // First call for this growarray: init growing array.
     if(highlight_ga.ga_data == NULL)
     {
-        highlight_ga.ga_itemsize = sizeof(struct hl_group);
+        highlight_ga.ga_itemsize = sizeof(hl_group_st);
         ga_set_growsize(&highlight_ga, 10);
     }
 
@@ -8888,7 +8903,7 @@ static int syn_add_group(uchar_kt *name)
     }
 
     // Append another syntax_highlight entry.
-    struct hl_group *hlgp = GA_APPEND_VIA_PTR(struct hl_group, &highlight_ga);
+    hl_group_st *hlgp = GA_APPEND_VIA_PTR(hl_group_st, &highlight_ga);
     memset(hlgp, 0, sizeof(*hlgp));
     hlgp->sg_name = name;
     hlgp->sg_name_u = vim_strsave_up(name);
@@ -8909,7 +8924,7 @@ static void syn_unadd_group(void)
 /// Translate a group ID to highlight attributes.
 int syn_id2attr(int hl_id)
 {
-    struct hl_group *sgp;
+    hl_group_st *sgp;
 
     hl_id = syn_get_final_id(hl_id);
 
@@ -8924,7 +8939,7 @@ int syn_id2attr(int hl_id)
 int syn_get_final_id(int hl_id)
 {
     int count;
-    struct hl_group *sgp;
+    hl_group_st *sgp;
 
     if(hl_id > highlight_ga.ga_len || hl_id < 1)
     {
@@ -8953,7 +8968,7 @@ static void highlight_attr_set_all(void)
 {
     for(int idx = 0; idx < highlight_ga.ga_len; idx++)
     {
-        struct hl_group *sgp = &HL_TABLE()[idx];
+        hl_group_st *sgp = &HL_TABLE()[idx];
 
         if(sgp->sg_rgb_bg_name != NULL)
         {
@@ -9023,7 +9038,7 @@ void highlight_changed(void)
     if(id_S == 0)
     {
         // Make sure id_S is always valid to simplify code below
-        memset(&HL_TABLE()[hlcnt + 9], 0, sizeof(struct hl_group));
+        memset(&HL_TABLE()[hlcnt + 9], 0, sizeof(hl_group_st));
         id_S = hlcnt + 10;
     }
 
@@ -9039,12 +9054,12 @@ void highlight_changed(void)
         }
         else
         {
-            struct hl_group *hlt = HL_TABLE();
+            hl_group_st *hlt = HL_TABLE();
             highlight_user[i] = syn_id2attr(id);
 
             if(id_SNC == 0)
             {
-                memset(&hlt[hlcnt + i], 0, sizeof(struct hl_group));
+                memset(&hlt[hlcnt + i], 0, sizeof(hl_group_st));
                 hlt[hlcnt + i].sg_cterm = highlight_attr[HLF_SNC];
                 hlt[hlcnt + i].sg_gui = highlight_attr[HLF_SNC];
             }
@@ -9052,7 +9067,7 @@ void highlight_changed(void)
             {
                 memmove(&hlt[hlcnt + i],
                         &hlt[id_SNC - 1],
-                        sizeof(struct hl_group));
+                        sizeof(hl_group_st));
             }
 
             hlt[hlcnt + i].sg_link = 0;

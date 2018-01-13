@@ -805,7 +805,7 @@ FUNC_API_SINCE(1)
 /// nvim_buf_clear_highlight. If the highlight never will be manually deleted
 /// pass in -1 for "src_id".
 ///
-/// If "hl_group" is the empty string no highlight is added, but a new src_id
+/// If "hl_group_st" is the empty string no highlight is added, but a new src_id
 /// is still returned. This is useful for an external plugin to synchrounously
 /// request an unique src_id at initialization, and later asynchronously add and
 /// clear highlights in response to buffer changes.
