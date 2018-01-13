@@ -381,19 +381,19 @@ typedef struct
     proftime_kt slowest; ///< time of slowest call
     long count;          ///< nr of times used
     long match;          ///< nr of times matched
-} syn_time_T;
+} syntime_st;
 
 /// These are items normally related to a buffer.
 /// But when using ":ownsyntax" a window may have its own instance.
 typedef struct
 {
-    hashtable_st b_keywtab;             ///< syntax keywords hash table
-    hashtable_st b_keywtab_ic;          ///< idem, ignore case
+    hashtable_st b_keywtab;          ///< syntax keywords hash table
+    hashtable_st b_keywtab_ic;       ///< idem, ignore case
     int b_syn_error;                 ///< TRUE when error occurred in HL
     int b_syn_ic;                    ///< ignore case for :syn cmds
     int b_syn_spell;                 ///< SYNSPL_ values
-    garray_st b_syn_patterns;         ///< table for syntax patterns
-    garray_st b_syn_clusters;         ///< table for syntax clusters
+    garray_st b_syn_patterns;        ///< table for syntax patterns
+    garray_st b_syn_clusters;        ///< table for syntax clusters
     int b_spell_cluster_id;          ///< @Spell cluster ID or 0
     int b_nospell_cluster_id;        ///< @NoSpell cluster ID or 0
     int b_syn_containedin;           ///< TRUE when there is an item with a
@@ -403,9 +403,9 @@ typedef struct
     long b_syn_sync_minlines;        ///< minimal sync lines offset
     long b_syn_sync_maxlines;        ///< maximal sync lines offset
     long b_syn_sync_linebreaks;      ///< offset for multi-line pattern
-    uchar_kt *b_syn_linecont_pat;      ///< line continuation pattern
-    regprog_st *b_syn_linecont_prog;  ///< line continuation program
-    syn_time_T b_syn_linecont_time;  ///<
+    uchar_kt *b_syn_linecont_pat;    ///< line continuation pattern
+    regprog_st *b_syn_linecont_prog; ///< line continuation program
+    syntime_st b_syn_linecont_time;  ///<
     int b_syn_linecont_ic;           ///< ignore-case flag for above
     int b_syn_topgrp;                ///< for ":syntax include"
     int b_syn_conceal;               ///< auto-conceal for :syn cmds
@@ -417,25 +417,25 @@ typedef struct
     // b_sst_array[] is allocated to hold the state for all displayed lines,
     // and states for 1 out of about 20 other lines.
     synstate_st *b_sst_array;     ///< pointer to an array of synstate_st
-    int b_sst_len;               ///< number of entries in b_sst_array[]
+    int b_sst_len;                ///< number of entries in b_sst_array[]
     synstate_st *b_sst_first;     ///< pointer to first used entry in b_sst_array[] or NULL
     synstate_st *b_sst_firstfree; ///< pointer to first free entry in b_sst_array[] or NULL
-    int b_sst_freecount;         ///< number of free entries in b_sst_array[]
-    linenum_kt b_sst_check_lnum;   ///< entries after this lnum need to be checked for
-                                 ///< validity (MAXLNUM means no check needed)
-    uint16_t b_sst_lasttick;     ///< last display tick
+    int b_sst_freecount;          ///< number of free entries in b_sst_array[]
+    linenum_kt b_sst_check_lnum;  ///< entries after this lnum need to be checked for
+                                  ///< validity (MAXLNUM means no check needed)
+    uint16_t b_sst_lasttick;      ///< last display tick
 
     // for spell checking
     garray_st b_langp;         ///< list of pointers to slang_T, see spell.c
-    bool b_spell_ismw[256];   ///< flags: is midword char
-    uchar_kt *b_spell_ismw_mb;  ///< multi-byte midword chars
-    uchar_kt *b_p_spc;          ///< 'spellcapcheck'
+    bool b_spell_ismw[256];    ///< flags: is midword char
+    uchar_kt *b_spell_ismw_mb; ///< multi-byte midword chars
+    uchar_kt *b_p_spc;         ///< 'spellcapcheck'
     regprog_st *b_cap_prog;    ///< program for 'spellcapcheck'
-    uchar_kt *b_p_spf;          ///< 'spellfile'
-    uchar_kt *b_p_spl;          ///< 'spelllang'
-    int b_cjk;                ///< all CJK letters as OK
-    uchar_kt b_syn_chartab[32]; ///< syntax iskeyword option
-    uchar_kt *b_syn_isk;        ///< iskeyword option
+    uchar_kt *b_p_spf;         ///< 'spellfile'
+    uchar_kt *b_p_spl;         ///< 'spelllang'
+    int b_cjk;                 ///< all CJK letters as OK
+    uchar_kt b_syn_chartab[32];///< syntax iskeyword option
+    uchar_kt *b_syn_isk;       ///< iskeyword option
 } synblock_T;
 
 /// Type used for changedtick_di member in filebuf_st

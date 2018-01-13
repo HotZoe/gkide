@@ -134,7 +134,7 @@ typedef struct syn_pattern
     short sp_syn_match_id;  ///< highlight group ID of patter
     uchar_kt *sp_pattern;   ///< regexp to match, pattern
     regprog_st *sp_prog;     ///< regexp to match, program
-    syn_time_T sp_time;
+    syntime_st sp_time;
     int sp_ic;              ///< ignore-case flag for sp_prog
     short sp_off_flags;     ///< see below
     int sp_offsets[SPO_COUNT]; ///< offsets
@@ -3359,7 +3359,7 @@ static uchar_kt *syn_getcurline(void)
 static int syn_regexec(regmmatch_st *rmp,
                        linenum_kt lnum,
                        columnum_kt col,
-                       syn_time_T *st)
+                       syntime_st *st)
 {
     int r;
     proftime_kt pt;
@@ -7015,7 +7015,7 @@ void ex_syntime(exargs_st *eap)
     }
 }
 
-static void syn_clear_time(syn_time_T *st)
+static void syn_clear_time(syntime_st *st)
 {
     st->total = profile_zero();
     st->slowest = profile_zero();
