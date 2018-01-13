@@ -208,7 +208,7 @@ typedef struct time_entry_s
     proftime_kt average;
     int id;
     uchar_kt *pattern;
-} time_entry_T;
+} time_entry_st;
 
 typedef struct syntax_name_list_s
 {
@@ -7078,8 +7078,8 @@ uchar_kt *get_syntime_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
 static int syn_compare_syntime(const void *v1, const void *v2)
 {
-    const time_entry_T  *s1 = v1;
-    const time_entry_T  *s2 = v2;
+    const time_entry_st  *s1 = v1;
+    const time_entry_st  *s2 = v2;
     return profile_cmp(s1->total, s2->total);
 }
 
@@ -7093,10 +7093,10 @@ static void syntime_report(void)
     }
 
     garray_st ga;
-    ga_init(&ga, sizeof(time_entry_T), 50);
+    ga_init(&ga, sizeof(time_entry_st), 50);
     proftime_kt total_total = profile_zero();
     int total_count = 0;
-    time_entry_T *p;
+    time_entry_st *p;
 
     for(int idx = 0; idx < curwin->w_s->b_syn_patterns.ga_len; ++idx)
     {
@@ -7104,7 +7104,7 @@ static void syntime_report(void)
 
         if(spp->sp_time.count > 0)
         {
-            p = GA_APPEND_VIA_PTR(time_entry_T, &ga);
+            p = GA_APPEND_VIA_PTR(time_entry_st, &ga);
             p->total = spp->sp_time.total;
             total_total = profile_add(total_total, spp->sp_time.total);
             p->count = spp->sp_time.count;
@@ -7121,7 +7121,7 @@ static void syntime_report(void)
     // sort on total time
     qsort(ga.ga_data,
           (size_t)ga.ga_len,
-          sizeof(time_entry_T),
+          sizeof(time_entry_st),
           syn_compare_syntime);
 
     MSG_PUTS_TITLE(_("  TOTAL      COUNT  MATCH   SLOWEST     "
@@ -7130,7 +7130,7 @@ static void syntime_report(void)
 
     for(int idx = 0; idx < ga.ga_len && !got_int; ++idx)
     {
-        p = ((time_entry_T *)ga.ga_data) + idx;
+        p = ((time_entry_st *)ga.ga_data) + idx;
         MSG_PUTS(profile_msg(p->total));
 
         // make sure there is always a separating space
