@@ -111,9 +111,9 @@ typedef struct
 /// Structure used to store info for line position in a while or for loop.
 /// This is required, because do_one_cmd() may invoke ex_function(), which
 /// reads more lines that may come from the while/for loop.
-struct loop_cookie
+typedef struct loop_cookie_s
 {
-    garray_st *lines_gap;  ///< growarray with line info
+    garray_st *lines_gap; ///< growarray with line info
     int current_line;     ///< last read line from growarray
 
     /// TRUE when looping a second time.
@@ -121,7 +121,7 @@ struct loop_cookie
     int repeating;
     uchar_kt *(*getline)(int, void *, int);
     void *cookie;
-};
+} loop_cookie_st;
 
 /// Struct to save a few things while debugging.
 /// Used in do_cmdline() only.
@@ -364,7 +364,7 @@ int do_cmdline(uchar_kt *cmdline,
     uchar_kt *(*cmd_getline)(int, void *, int);
 
     void *cmd_cookie;
-    struct loop_cookie cmd_loop_cookie;
+    loop_cookie_st cmd_loop_cookie;
     void *real_cookie;
     int getline_is_func;
     static int call_depth = 0; // recursiveness
@@ -1093,7 +1093,7 @@ static uchar_kt *get_loop_line(int c, void *cookie, int indent)
 {
     wcmd_T *wp;
     uchar_kt *line;
-    struct loop_cookie  *cp = (struct loop_cookie *)cookie;
+    loop_cookie_st *cp = (loop_cookie_st *)cookie;
 
     if(cp->current_line + 1 >= cp->lines_gap->ga_len)
     {
@@ -1147,13 +1147,13 @@ static void store_loop_line(garray_st *gap, uchar_kt *line)
 int getline_equal(line_getter_ft fgetline, void *cookie, line_getter_ft func)
 {
     line_getter_ft gp;
-    struct loop_cookie *cp;
+    loop_cookie_st *cp;
 
     // When "fgetline" is "get_loop_line()" use the "cookie" to find the
     // function that's originally used to obtain the lines.
     // This may be nested several levels.
     gp = fgetline;
-    cp = (struct loop_cookie *)cookie;
+    cp = (loop_cookie_st *)cookie;
 
     while(gp == get_loop_line)
     {
@@ -1172,13 +1172,13 @@ int getline_equal(line_getter_ft fgetline, void *cookie, line_getter_ft func)
 void *getline_cookie(line_getter_ft fgetline, void *cookie)
 {
     line_getter_ft gp;
-    struct loop_cookie *cp;
+    loop_cookie_st *cp;
 
     // When "fgetline" is "get_loop_line()" use the "cookie" to find the
     // cookie that's originally used to obtain the lines. This may be nested
     // several levels.
     gp = fgetline;
-    cp = (struct loop_cookie *)cookie;
+    cp = (loop_cookie_st *)cookie;
 
     while(gp == get_loop_line)
     {
