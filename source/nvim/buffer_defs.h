@@ -546,10 +546,10 @@ struct filebuf_s
     bool b_marks_read;
 
     // The following only used in undo.c.
-    u_header_T *b_u_oldhead; ///< pointer to oldest header
-    u_header_T *b_u_newhead; ///< pointer to newest header, may not be valid
+    undo_hdr_st *b_u_oldhead; ///< pointer to oldest header
+    undo_hdr_st *b_u_newhead; ///< pointer to newest header, may not be valid
                              ///< if b_u_curhead is not NULL
-    u_header_T *b_u_curhead; ///< pointer to current header
+    undo_hdr_st *b_u_curhead; ///< pointer to current header
     int b_u_numhead;         ///< current number of headers
     bool b_u_synced;         ///< entry lists are synced
     long b_u_seq_last;       ///< last used undo sequence number

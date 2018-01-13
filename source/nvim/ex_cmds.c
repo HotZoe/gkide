@@ -8026,7 +8026,7 @@ void ex_substitute(exargs_st *eap)
     save_search_patterns();
     int save_changedtick = curbuf->b_changedtick;
     time_t save_b_u_time_cur = curbuf->b_u_time_cur;
-    u_header_T *save_b_u_newhead = curbuf->b_u_newhead;
+    undo_hdr_st *save_b_u_newhead = curbuf->b_u_newhead;
     long save_b_p_ul = curbuf->b_p_ul;
     int save_w_p_cul = curwin->w_p_cul;
     int save_w_p_cuc = curwin->w_p_cuc;

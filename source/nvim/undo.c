@@ -130,9 +130,9 @@ static int seen_b_u_curhead;
 static int seen_b_u_newhead;
 static int header_count;
 
-static void u_check_tree(u_header_T *uhp,
-                         u_header_T *exp_uh_next,
-                         u_header_T *exp_uh_alt_prev)
+static void u_check_tree(undo_hdr_st *uhp,
+                         undo_hdr_st *exp_uh_next,
+                         undo_hdr_st *exp_uh_alt_prev)
 {
     undo_blk_st *uep;
 
@@ -377,8 +377,8 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
 {
     linenum_kt lnum;
     long i;
-    u_header_T *uhp;
-    u_header_T *old_curhead;
+    undo_hdr_st *uhp;
+    undo_hdr_st *old_curhead;
     undo_blk_st *uep;
     undo_blk_st *prev_uep;
     long size;
@@ -423,7 +423,7 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
         {
             // Make a new header entry. Do this first so that
             // we don't mess up the undo info when out of memory.
-            uhp = xmalloc(sizeof(u_header_T));
+            uhp = xmalloc(sizeof(undo_hdr_st));
 
         #ifdef U_DEBUG
             uhp->uh_magic = UH_MAGIC;
@@ -448,7 +448,7 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
         while(curbuf->b_u_numhead > get_undolevel()
               && curbuf->b_u_oldhead != NULL)
         {
-            u_header_T *uhfree = curbuf->b_u_oldhead;
+            undo_hdr_st *uhfree = curbuf->b_u_oldhead;
 
             if(uhfree == old_curhead)
             {
@@ -874,7 +874,7 @@ FUNC_ATTR_NONNULL_ALL
     EMSG3(_("E825: Corrupted undo file (%s): %s"), mesg, file_name);
 }
 
-static void u_free_uhp(u_header_T *uhp)
+static void u_free_uhp(undo_hdr_st *uhp)
 {
     undo_blk_st *nuep;
     undo_blk_st *uep;
@@ -960,7 +960,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param uhp The undo header to write
 //
 /// @returns false in case of an error.
-static bool serialize_uhp(undobuf_st *bi, u_header_T *uhp)
+static bool serialize_uhp(undobuf_st *bi, undo_hdr_st *uhp)
 {
     if(!undo_write_bytes(bi, (uintmax_t)UF_HEADER_MAGIC, 2))
     {
@@ -1010,10 +1010,10 @@ static bool serialize_uhp(undobuf_st *bi, u_header_T *uhp)
     return true;
 }
 
-static u_header_T *unserialize_uhp(undobuf_st *bi, const char *file_name)
+static undo_hdr_st *unserialize_uhp(undobuf_st *bi, const char *file_name)
 {
-    u_header_T *uhp = xmalloc(sizeof(u_header_T));
-    memset(uhp, 0, sizeof(u_header_T));
+    undo_hdr_st *uhp = xmalloc(sizeof(undo_hdr_st));
+    memset(uhp, 0, sizeof(undo_hdr_st));
 
 #ifdef U_DEBUG
     uhp->uh_magic = UH_MAGIC;
@@ -1268,7 +1268,7 @@ void u_write_undo(const char *const name,
                   uchar_kt *const hash)
 FUNC_ATTR_NONNULL_ARG(3, 4)
 {
-    u_header_T *uhp;
+    undo_hdr_st *uhp;
     char *file_name;
     int mark;
 
@@ -1565,7 +1565,7 @@ void u_read_undo(char *name,
                  uchar_kt *FUNC_ARGS_UNUSED_MAYBE(orig_name))
 FUNC_ATTR_NONNULL_ARG(2)
 {
-    u_header_T **uhp_table = NULL;
+    undo_hdr_st **uhp_table = NULL;
     uchar_kt *line_ptr = NULL;
     char *file_name;
 
@@ -1758,7 +1758,7 @@ FUNC_ATTR_NONNULL_ARG(2)
             goto error;
         }
 
-        u_header_T *uhp = unserialize_uhp(&bi, file_name);
+        undo_hdr_st *uhp = unserialize_uhp(&bi, file_name);
 
         if(uhp == NULL)
         {
@@ -1796,7 +1796,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 
     for(int i = 0; i < num_head; i++)
     {
-        u_header_T *uhp = uhp_table[i];
+        undo_hdr_st *uhp = uhp_table[i];
 
         if(uhp == NULL)
         {
@@ -1995,7 +1995,7 @@ static bool undo_write_bytes(undobuf_st *bi, uintmax_t nr, size_t len)
 ///
 /// Instead of writing the pointer itself, we use the sequence
 /// number of the header. This is converted back to pointers when reading.
-static void put_header_ptr(undobuf_st *bi, u_header_T *uhp)
+static void put_header_ptr(undobuf_st *bi, undo_hdr_st *uhp)
 {
     assert(uhp == NULL || uhp->uh_seq >= 0);
     undo_write_bytes(bi, (uint64_t)(uhp != NULL ? uhp->uh_seq : 0), 4);
@@ -2110,7 +2110,7 @@ bool u_undo_and_forget(int count)
     // Delete the current redo header
     // set the redo header to the next alternative branch (if any)
     // otherwise we will be in the leaf state
-    u_header_T *to_forget = curbuf->b_u_curhead;
+    undo_hdr_st *to_forget = curbuf->b_u_curhead;
     curbuf->b_u_newhead = to_forget->uh_next.ptr;
     curbuf->b_u_curhead = to_forget->uh_alt_next.ptr;
 
@@ -2246,8 +2246,8 @@ void undo_time(long step, int sec, int file, int absolute)
     long closest_start;
     long closest_seq = 0;
     long val;
-    u_header_T *uhp;
-    u_header_T *last;
+    undo_hdr_st *uhp;
+    undo_hdr_st *last;
     int mark;
     int nomark;
     int round;
@@ -2704,7 +2704,7 @@ static void u_undoredo(int undo)
     visualinfo_st visualinfo;
 
     int empty_buffer; // buffer became empty
-    u_header_T *curhead = curbuf->b_u_curhead;
+    undo_hdr_st *curhead = curbuf->b_u_curhead;
 
     // Don't want autocommands using the undo structures
     // here, they are invalid till the end.
@@ -3021,7 +3021,7 @@ static void u_undoredo(int undo)
 static void u_undo_end(int did_undo, int absolute, bool quiet)
 {
     char *msgstr;
-    u_header_T *uhp;
+    undo_hdr_st *uhp;
     uchar_kt msgbuf[80];
 
     if((fdo_flags & FDO_UNDO) && KeyTyped)
@@ -3148,7 +3148,7 @@ void u_sync(int force)
 void ex_undolist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     garray_st ga;
-    u_header_T *uhp;
+    undo_hdr_st *uhp;
     int mark;
     int nomark;
     int changes = 1;
@@ -3328,7 +3328,7 @@ void u_unchanged(filebuf_st *buf)
 /// Find the first line that was changed and set the cursor there.
 void u_find_first_changed(void)
 {
-    u_header_T *uhp = curbuf->b_u_newhead;
+    undo_hdr_st *uhp = curbuf->b_u_newhead;
     undo_blk_st *uep;
     linenum_kt lnum;
 
@@ -3369,7 +3369,7 @@ void u_find_first_changed(void)
 /// last undo header, what would be used for "u".
 void u_update_save_nr(filebuf_st *buf)
 {
-    u_header_T *uhp;
+    undo_hdr_st *uhp;
     ++buf->b_u_save_nr_last;
     buf->b_u_save_nr_cur = buf->b_u_save_nr_last;
     uhp = buf->b_u_curhead;
@@ -3389,9 +3389,9 @@ void u_update_save_nr(filebuf_st *buf)
     }
 }
 
-static void u_unch_branch(u_header_T *uhp)
+static void u_unch_branch(undo_hdr_st *uhp)
 {
-    u_header_T *uh;
+    undo_hdr_st *uh;
 
     for(uh = uhp; uh != NULL; uh = uh->uh_prev.ptr)
     {
@@ -3460,9 +3460,9 @@ static void u_getbot(void)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freeheader(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freeheader(filebuf_st *buf, undo_hdr_st *uhp, undo_hdr_st **uhpp)
 {
-    u_header_T *uhap;
+    undo_hdr_st *uhap;
 
     // When there is an alternate redo list free
     // that branch completely, because we can never go there.
@@ -3506,9 +3506,9 @@ static void u_freeheader(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freebranch(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freebranch(filebuf_st *buf, undo_hdr_st *uhp, undo_hdr_st **uhpp)
 {
-    u_header_T *tofree, *next;
+    undo_hdr_st *tofree, *next;
 
     // If this is the top branch we may need to use
     // u_freeheader() to update all the pointers.
@@ -3549,7 +3549,7 @@ static void u_freebranch(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freeentries(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freeentries(filebuf_st *buf, undo_hdr_st *uhp, undo_hdr_st **uhpp)
 {
     undo_blk_st *uep, *nuep;
 
@@ -3703,7 +3703,7 @@ void u_blockfree(filebuf_st *buf)
     while(buf->b_u_oldhead != NULL)
     {
     #ifndef NDEBUG
-        u_header_T *previous_oldhead = buf->b_u_oldhead;
+        undo_hdr_st *previous_oldhead = buf->b_u_oldhead;
     #endif
 
         u_freeheader(buf, buf->b_u_oldhead, NULL);
@@ -3747,10 +3747,10 @@ bool curbufIsChanged(void)
 
 /// For undotree(): Append the list of
 /// undo blocks at "first_uhp" to "list". Recursive.
-void u_eval_tree(u_header_T *first_uhp, list_st *list)
+void u_eval_tree(undo_hdr_st *first_uhp, list_st *list)
 {
     dict_st *dict;
-    u_header_T *uhp = first_uhp;
+    undo_hdr_st *uhp = first_uhp;
 
     while(uhp != NULL)
     {

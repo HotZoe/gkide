@@ -19,7 +19,7 @@ typedef struct
 } visualinfo_st;
 
 typedef struct undo_blk_s   undo_blk_st; ///< undo entry block
-typedef struct undo_hdr_s   u_header_T;///< undo header block
+typedef struct undo_hdr_s   undo_hdr_st; ///< undo header block
 
 struct undo_blk_s
 {
@@ -41,29 +41,29 @@ struct undo_hdr_s
 {
     union
     {
-        u_header_T *ptr; ///< pointer to next undo header in list
+        undo_hdr_st *ptr; ///< pointer to next undo header in list
         long seq;
     } uh_next;
     union
     {
-        u_header_T *ptr; ///< pointer to previous header in list
+        undo_hdr_st *ptr; ///< pointer to previous header in list
         long seq;
     } uh_prev;
     union
     {
-        u_header_T *ptr; ///< pointer to next header for alt. redo
+        undo_hdr_st *ptr; ///< pointer to next header for alt. redo
         long seq;
     } uh_alt_next;
     union
     {
-        u_header_T *ptr; ///< pointer to previous header for alt. redo
+        undo_hdr_st *ptr; ///< pointer to previous header for alt. redo
         long seq;
     } uh_alt_prev;
 
     long uh_seq;                  ///< sequence number, higher == newer undo
     int uh_walk;                  ///< used by undo_time()
-    undo_blk_st *uh_entry;          ///< pointer to first entry
-    undo_blk_st *uh_getbot_entry;   ///< pointer to where ue_bot must be set
+    undo_blk_st *uh_entry;        ///< pointer to first entry
+    undo_blk_st *uh_getbot_entry; ///< pointer to where ue_bot must be set
     apos_st uh_cursor;            ///< cursor position before saving
     long uh_cursor_vcol;
     int uh_flags;                 ///< see below
