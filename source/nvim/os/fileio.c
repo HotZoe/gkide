@@ -34,7 +34,7 @@
 /// @param[out] ret_fp Address where information needed for reading from or
 ///                    writing to a file is saved
 /// @param[in]  fname  File name to open.
-/// @param[in]  flags  Flags, @see FileOpenFlags. Currently reading from and
+/// @param[in]  flags  Flags, @see fileopenflg_et. Currently reading from and
 ///                    writing to the file at once is not supported, so either
 ///                    FILE_WRITE_ONLY or FILE_READ_ONLY is required.
 /// @param[in]  mode   Permissions for the newly created file (ignored if flags
@@ -116,7 +116,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// File name to open.
 ///
 /// @param[in]  flags
-/// Flags, @see FileOpenFlags.
+/// Flags, @see fileopenflg_et.
 ///
 /// @param[in]  mode
 /// Permissions for the newly created file (ignored if flags does

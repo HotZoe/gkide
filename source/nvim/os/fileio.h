@@ -20,7 +20,7 @@ typedef struct filedesc_s
 } filedesc_st;
 
 /// file_open() flags
-typedef enum fileopenflags_e
+typedef enum fileopenflg_e
 {
     kFileReadOnly   = 1,  ///< Open file read-only. Default.
     kFileCreate     = 2,  ///< Create file if it does not exist yet.
@@ -36,7 +36,7 @@ typedef enum fileopenflags_e
                           ///< kFileCreateOnly.
     kFileAppend     = 64, ///< Append to the file. Implies kFileWriteOnly.
                           ///< Cannot be used with kFileCreateOnly.
-} FileOpenFlags;
+} fileopenflg_et;
 
 static inline bool file_eof(const filedesc_st *const fp)
 REAL_FATTR_PURE
