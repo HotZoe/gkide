@@ -26,7 +26,7 @@
 #define CSCOPE_PROMPT       ">> "
 
 /// See ":help cscope-find" for the possible queries.
-typedef struct
+typedef struct cscmd_s
 {
     char *name;
     int (*func)(exargs_st *eap);
@@ -34,7 +34,7 @@ typedef struct
     char *usage;
     /// if supports splitting window
     int cansplit;
-} cscmd_T;
+} cscmd_st;
 
 typedef struct csi
 {

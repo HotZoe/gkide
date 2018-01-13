@@ -48,7 +48,7 @@ static csinfo_T *csinfo = NULL;
 static size_t csinfo_size = 0; ///< number of items allocated in csinfo[]
 static int eap_arg_len; ///< length of eap->arg, set in cs_lookup_cmd()
 
-static cscmd_T cs_cmds[] =
+static cscmd_st cs_cmds[] =
 {
     {
         "add",
@@ -245,7 +245,7 @@ void set_context_in_cscope_cmd(expand_st *xp,
 /// @param make_split   whether to split window
 static void do_cscope_general(exargs_st *eap, int make_split)
 {
-    cscmd_T *cmdp;
+    cscmd_st *cmdp;
 
     if((cmdp = cs_lookup_cmd(eap)) == NULL)
     {
@@ -1394,7 +1394,7 @@ static int cs_find_common(char *opt,
 /// print help
 static int cs_help(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    cscmd_T *cmdp = cs_cmds;
+    cscmd_st *cmdp = cs_cmds;
     (void)MSG_PUTS(_("cscope commands:\n"));
 
     while(cmdp->name != NULL)
@@ -1533,9 +1533,9 @@ static int cs_insert_filelist(char *fname,
 }
 
 /// find cscope command in command table
-static cscmd_T *cs_lookup_cmd(exargs_st *eap)
+static cscmd_st *cs_lookup_cmd(exargs_st *eap)
 {
-    cscmd_T *cmdp;
+    cscmd_st *cmdp;
     char *stok;
     size_t len;
 
