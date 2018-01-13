@@ -142,7 +142,7 @@ typedef enum
     kMessageTypeNotification
 } message_type_et;
 
-typedef struct
+typedef struct error_s
 {
     error_type_et type;
     char *msg;

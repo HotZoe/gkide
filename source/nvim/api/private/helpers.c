@@ -26,7 +26,7 @@
 #include "nvim/getchar.h"
 
 /// Helper structure for vim_to_object
-typedef struct
+typedef struct encode_data_s
 {
     kvec_t(Object) stack; ///< Object stack.
 } encode_data_st;

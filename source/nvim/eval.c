@@ -22738,7 +22738,7 @@ static void f_winsaveview(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 /// @param[in]  binary  Whether to write in binary mode.
 ///
 /// @return true in case of success, false otherwise.
-static bool write_list(FileDescriptor *const fp,
+static bool write_list(filedesc_st *const fp,
                        const list_st *const list,
                        const bool binary)
 {
@@ -23042,7 +23042,7 @@ static void f_writefile(typval_st *argvars,
         return;
     }
 
-    FileDescriptor fp;
+    filedesc_st fp;
     int error;
     rettv->vval.v_number = -1;
 

@@ -41,7 +41,7 @@
 ///                    does not have FILE_CREATE\*).
 ///
 /// @return Error code (@see os_strerror()) or 0.
-int file_open(FileDescriptor *const ret_fp,
+int file_open(filedesc_st *const ret_fp,
               const char *const fname,
               const int flags,
               const int mode)
@@ -123,14 +123,14 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// not have FILE_CREATE\*).
 ///
 /// @return [allocated] Opened file or NULL in case of error.
-FileDescriptor *file_open_new(int *const error,
+filedesc_st *file_open_new(int *const error,
                               const char *const fname,
                               const int flags,
                               const int mode)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    FileDescriptor *const fp = xmalloc(sizeof(*fp));
+    filedesc_st *const fp = xmalloc(sizeof(*fp));
 
     if((*error = file_open(fp, fname, flags, mode)) != 0)
     {
@@ -147,7 +147,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  do_fsync  If true, use fsync() to write changes to disk.
 ///
 /// @return 0 or error code.
-int file_close(FileDescriptor *const fp, const bool do_fsync)
+int file_close(filedesc_st *const fp, const bool do_fsync)
 FUNC_ATTR_NONNULL_ALL
 {
     const int flush_error = (do_fsync ? file_fsync(fp) : file_flush(fp));
@@ -168,7 +168,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]  do_fsync  If true, use fsync() to write changes to disk.
 ///
 /// @return 0 or error code.
-int file_free(FileDescriptor *const fp, const bool do_fsync)
+int file_free(filedesc_st *const fp, const bool do_fsync)
 FUNC_ATTR_NONNULL_ALL
 {
     const int ret = file_close(fp, do_fsync);
@@ -183,7 +183,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in,out]  fp  File to work with.
 ///
 /// @return 0 or error code.
-int file_flush(FileDescriptor *const fp)
+int file_flush(filedesc_st *const fp)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!fp->wr)
@@ -203,7 +203,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in,out]  fp  File to work with.
 ///
 /// @return 0 or error code.
-int file_fsync(FileDescriptor *const fp)
+int file_fsync(filedesc_st *const fp)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!fp->wr)
@@ -239,7 +239,7 @@ static char writebuf[kRWBufferSize];
 ///
 /// @param[in,out]  rv  RBuffer instance used.
 /// @param[in,out]  fp  File to work with.
-static void file_rb_write_full_cb(RBuffer *const rv, FileDescriptor *const fp)
+static void file_rb_write_full_cb(RBuffer *const rv, filedesc_st *const fp)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(fp->wr);
@@ -278,7 +278,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Number of bytes to read. Buffer must have at least ret_buf bytes.
 ///
 /// @return error_code (< 0) or number of bytes read.
-ptrdiff_t file_read(FileDescriptor *const fp,
+ptrdiff_t file_read(filedesc_st *const fp,
                     char *const ret_buf,
                     const size_t size)
 FUNC_ATTR_NONNULL_ALL
@@ -399,7 +399,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  size  Amount of bytes to write.
 ///
 /// @return Number of bytes written or libuv error code (< 0).
-ptrdiff_t file_write(FileDescriptor *const fp,
+ptrdiff_t file_write(filedesc_st *const fp,
                      const char *const buf,
                      const size_t size)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -430,7 +430,7 @@ static char skipbuf[kRWBufferSize];
 ///
 /// This is like `fseek(fp, size, SEEK_CUR)`,
 /// but actual implementation simply reads to a buffer and discards the result.
-ptrdiff_t file_skip(FileDescriptor *const fp, const size_t size)
+ptrdiff_t file_skip(filedesc_st *const fp, const size_t size)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(!fp->wr);
