@@ -1312,7 +1312,7 @@ static int cs_find_common(char *opt,
         // fill error list
         FILE *f;
         uchar_kt *tmp = vim_tempname();
-        qf_info_T *qi = NULL;
+        qfinfo_st *qi = NULL;
         win_st *wp = NULL;
         f = mch_fopen((char *)tmp, "w");
 

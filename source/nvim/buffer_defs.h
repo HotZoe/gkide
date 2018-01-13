@@ -371,15 +371,16 @@ struct stl_hlrec
 /// avoid #ifdefs for when b_spell is not available
 #define B_SPELL(buf)   ((buf)->b_spell)
 
-typedef struct qf_info_S qf_info_T;
+/// quickfix info
+typedef struct qfinfo_s qfinfo_st;
 
 /// Used for :syntime: timing of executing a syntax pattern.
 typedef struct
 {
     proftime_kt total;   ///< total time used
     proftime_kt slowest; ///< time of slowest call
-    long count;         ///< nr of times used
-    long match;         ///< nr of times matched
+    long count;          ///< nr of times used
+    long match;          ///< nr of times matched
 } syn_time_T;
 
 /// These are items normally related to a buffer.
@@ -1095,10 +1096,10 @@ struct window_s
     /// line count when ml_nrwidth_width was computed.
     linenum_kt w_nrwidth_line_count;
     int w_nrwidth_width;  ///< nr of chars to print line count.
-    qf_info_T *w_llist;   ///< Location list for this window
+    qfinfo_st *w_llist;   ///< Location list for this window
 
     /// Location list reference used in the location list window.
     /// In a non-location list window, w_llist_ref is NULL.
-    qf_info_T *w_llist_ref;
+    qfinfo_st *w_llist_ref;
 };
 #endif // NVIM_BUFFER_DEFS_H

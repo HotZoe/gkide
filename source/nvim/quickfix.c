@@ -82,7 +82,7 @@ typedef struct qf_list_S
                         ///< created the error list
 } qf_list_T;
 
-struct qf_info_S
+struct qfinfo_s
 {
     // Count of references to this list. Used only for location lists.
     // When a location list window reference this list, qf_refcount
@@ -104,7 +104,7 @@ struct qf_info_S
 };
 
 /// global quickfix list
-static qf_info_T ql_info;
+static qfinfo_st ql_info;
 
 /// maximum number of % recognized
 #define FMT_PATTERNS   10
@@ -218,7 +218,7 @@ int qf_init(win_st *wp,
             int newlist,
             uchar_kt *qf_title)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(wp != NULL)
     {
@@ -846,7 +846,7 @@ static int qf_get_nextline(qfstate_T *state)
 
 /// Parse a line and get the quickfix fields.
 /// Return the QF_ status.
-static int qf_parse_line(qf_info_T *qi,
+static int qf_parse_line(qfinfo_st *qi,
                          uchar_kt *linebuf,
                          size_t linelen,
                          efm_T *fmt_first,
@@ -1280,7 +1280,7 @@ restofline:
 /// @param qf_title
 ///
 /// @return -1 for error, number of errors for success.
-static int qf_init_ext(qf_info_T *qi,
+static int qf_init_ext(qfinfo_st *qi,
                        uchar_kt *efile,
                        filebuf_st *buf,
                        typval_st *tv,
@@ -1499,7 +1499,7 @@ qf_init_end:
     return retval;
 }
 
-static void qf_store_title(qf_info_T *qi, uchar_kt *title)
+static void qf_store_title(qfinfo_st *qi, uchar_kt *title)
 {
     if(title != NULL)
     {
@@ -1510,7 +1510,7 @@ static void qf_store_title(qf_info_T *qi, uchar_kt *title)
 }
 
 /// Prepare for adding a new quickfix list.
-static void qf_new_list(qf_info_T *qi, uchar_kt *qf_title)
+static void qf_new_list(qfinfo_st *qi, uchar_kt *qf_title)
 {
     int i;
 
@@ -1545,10 +1545,10 @@ static void qf_new_list(qf_info_T *qi, uchar_kt *qf_title)
 }
 
 /// Free a location list
-static void ll_free_all(qf_info_T **pqi)
+static void ll_free_all(qfinfo_st **pqi)
 {
     int i;
-    qf_info_T *qi;
+    qfinfo_st *qi;
     qi = *pqi;
 
     if(qi == NULL)
@@ -1574,7 +1574,7 @@ static void ll_free_all(qf_info_T **pqi)
 void qf_free_all(win_st *wp)
 {
     int i;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(wp != NULL)
     {
@@ -1608,7 +1608,7 @@ void qf_free_all(win_st *wp)
 /// @param  valid    valid entry
 ///
 /// @returns OK or FAIL.
-static int qf_add_entry(qf_info_T *qi,
+static int qf_add_entry(qfinfo_st *qi,
                         uchar_kt *dir,
                         uchar_kt *fname,
                         int bufnum,
@@ -1699,9 +1699,9 @@ static int qf_add_entry(qf_info_T *qi,
 }
 
 /// Allocate a new location list
-static qf_info_T *ll_new_list(void)
+static qfinfo_st *ll_new_list(void)
 {
-    qf_info_T *qi = xcalloc(1, sizeof(qf_info_T));
+    qfinfo_st *qi = xcalloc(1, sizeof(qfinfo_st));
 
     qi->qf_refcount++;
 
@@ -1710,7 +1710,7 @@ static qf_info_T *ll_new_list(void)
 
 /// Return the location list for window 'wp'.
 /// If not present, allocate a location list
-static qf_info_T *ll_get_or_alloc_list(win_st *wp)
+static qfinfo_st *ll_get_or_alloc_list(win_st *wp)
 {
     // For a location list window,
     // use the referenced location list
@@ -1735,7 +1735,7 @@ static qf_info_T *ll_get_or_alloc_list(win_st *wp)
 /// Copy the location list from window @b from to window @b to.
 void copy_loclist(win_st *from, win_st *to)
 {
-    qf_info_T *qi;
+    qfinfo_st *qi;
     int idx;
     int i;
 
@@ -1844,7 +1844,7 @@ void copy_loclist(win_st *from, win_st *to)
 
 /// Get buffer number for file "directory.fname".
 /// Also sets the b_has_qf_entry flag.
-static int qf_get_fnum(qf_info_T *qi, uchar_kt *directory, uchar_kt *fname)
+static int qf_get_fnum(qfinfo_st *qi, uchar_kt *directory, uchar_kt *fname)
 {
     uchar_kt *ptr = NULL;
     uchar_kt *bufname;
@@ -2051,7 +2051,7 @@ static void qf_clean_dir_stack(struct dir_stack_T **stackptr)
 ///
 /// Then qf_push_dir thinks we are in ./aa/bb, but we are in ./bb.
 /// qf_guess_filepath will return NULL.
-static uchar_kt *qf_guess_filepath(qf_info_T *qi, uchar_kt *filename)
+static uchar_kt *qf_guess_filepath(qfinfo_st *qi, uchar_kt *filename)
 {
     uchar_kt *fullname;
     struct dir_stack_T *ds_ptr;
@@ -2100,7 +2100,7 @@ static uchar_kt *qf_guess_filepath(qf_info_T *qi, uchar_kt *filename)
 /// This may invalidate the current quickfix entry. This function checks
 /// whether a entry is still present in the quickfix.
 /// Similar to location list.
-static bool is_qf_entry_present(qf_info_T *qi, qfline_T *qf_ptr)
+static bool is_qf_entry_present(qfinfo_st *qi, qfline_T *qf_ptr)
 {
     qf_list_T *qfl;
     qfline_T *qfp;
@@ -2135,9 +2135,9 @@ static bool is_qf_entry_present(qf_info_T *qi, qfline_T *qf_ptr)
 /// - if dir == BACKWARD_FILE go @b errornr valid entries files backward
 /// - else if "errornr" is zero, redisplay the same line
 /// - else go to entry @b errornr
-void qf_jump(qf_info_T *qi, int dir, int errornr, int forceit)
+void qf_jump(qfinfo_st *qi, int dir, int errornr, int forceit)
 {
-    qf_info_T *ll_ref;
+    qfinfo_st *ll_ref;
     qfline_T *qf_ptr;
     qfline_T *old_qf_ptr;
     int qf_index;
@@ -2807,7 +2807,7 @@ void qf_list(exargs_st *eap)
 
     // if not :cl!, only show recognised errors
     int all = eap->forceit;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_llist)
     {
@@ -3000,7 +3000,7 @@ static void qf_fmt_text(uchar_kt *text, uchar_kt *buf, int bufsize)
     buf[i] = NUL;
 }
 
-static void qf_msg(qf_info_T *qi, int which, char *lead)
+static void qf_msg(qfinfo_st *qi, int which, char *lead)
 {
     char *title = (char *)qi->qf_lists[which].qf_title;
     int count = qi->qf_lists[which].qf_count;
@@ -3037,7 +3037,7 @@ static void qf_msg(qf_info_T *qi, int which, char *lead)
 /// - ":lnewer [count]": Down in the location list stack.
 void qf_age(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int count;
 
     if(eap->cmdidx == CMD_lolder || eap->cmdidx == CMD_lnewer)
@@ -3091,7 +3091,7 @@ void qf_age(exargs_st *eap)
 
 void qf_history(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int i;
 
     if(eap->cmdidx == CMD_lhistory)
@@ -3115,7 +3115,7 @@ void qf_history(exargs_st *eap)
 }
 
 /// Free error list "idx".
-static void qf_free(qf_info_T *qi, int idx)
+static void qf_free(qfinfo_st *qi, int idx)
 {
     qfline_T *qfp;
     qfline_T *qfpnext;
@@ -3165,7 +3165,7 @@ void qf_mark_adjust(win_st *wp,
     int i;
     qfline_T *qfp;
     int idx;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     bool found_one = false;
     int buf_has_flag = wp == NULL ? BUF_HAS_QF_ENTRY : BUF_HAS_LL_ENTRY;
 
@@ -3284,7 +3284,7 @@ static uchar_kt *qf_types(int c, int nr)
 ///   display, close it if not.
 void ex_cwindow(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     win_st *win;
 
     if(eap->cmdidx == CMD_lwindow)
@@ -3323,7 +3323,7 @@ void ex_cwindow(exargs_st *eap)
 void ex_cclose(exargs_st *eap)
 {
     win_st *win = NULL;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_lclose || eap->cmdidx == CMD_lwindow)
     {
@@ -3348,7 +3348,7 @@ void ex_cclose(exargs_st *eap)
 /// - ":lopen": open a window that shows the location list.
 void ex_copen(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int height;
     win_st *win;
     tabpage_st *prevtab = curtab;
@@ -3514,7 +3514,7 @@ static void qf_win_goto(win_st *win, linenum_kt lnum)
 /// :cbottom/:lbottom command.
 void ex_cbottom(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_lbottom)
     {
@@ -3540,7 +3540,7 @@ void ex_cbottom(exargs_st *eap)
 /// (line number in the quickfix window).
 linenum_kt qf_current_entry(win_st *wp)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     // In the location list window,
     // use the referenced location list
@@ -3561,7 +3561,7 @@ linenum_kt qf_current_entry(win_st *wp)
 ///
 /// @return
 /// Return TRUE if there is a quickfix window.
-static int qf_win_pos_update(qf_info_T *qi, int old_qf_index)
+static int qf_win_pos_update(qfinfo_st *qi, int old_qf_index)
 {
     win_st *win;
     int qf_index = qi->qf_lists[qi->qf_curlist].qf_index;
@@ -3593,7 +3593,7 @@ static int qf_win_pos_update(qf_info_T *qi, int old_qf_index)
 
 /// Check whether the given window is displaying
 /// the specified quickfix/location list buffer
-static int is_qf_win(win_st *win, qf_info_T *qi)
+static int is_qf_win(win_st *win, qfinfo_st *qi)
 {
     // A window displaying the quickfix buffer will
     // have the w_llist_ref field set to NULL.
@@ -3613,7 +3613,7 @@ static int is_qf_win(win_st *win, qf_info_T *qi)
 
 /// Find a window displaying the quickfix/location list @b qi
 /// Searches in only the windows opened in the current tab.
-static win_st *qf_find_win(qf_info_T *qi)
+static win_st *qf_find_win(qfinfo_st *qi)
 {
     FOR_ALL_WINDOWS_IN_TAB(win, curtab)
     {
@@ -3627,7 +3627,7 @@ static win_st *qf_find_win(qf_info_T *qi)
 
 /// Find a quickfix buffer.
 /// Searches in windows opened in all the tabs.
-static filebuf_st *qf_find_buf(qf_info_T *qi)
+static filebuf_st *qf_find_buf(qfinfo_st *qi)
 {
     FOR_ALL_TAB_WINDOWS(tp, win)
     {
@@ -3641,7 +3641,7 @@ static filebuf_st *qf_find_buf(qf_info_T *qi)
 
 /// Update the w:quickfix_title variable
 /// in the quickfix/location list window
-static void qf_update_win_titlevar(qf_info_T *qi)
+static void qf_update_win_titlevar(qfinfo_st *qi)
 {
     win_st *win;
 
@@ -3656,7 +3656,7 @@ static void qf_update_win_titlevar(qf_info_T *qi)
 
 /// Find the quickfix buffer.
 /// If it exists, update the contents.
-static void qf_update_buffer(qf_info_T *qi, qfline_T *old_last)
+static void qf_update_buffer(qfinfo_st *qi, qfline_T *old_last)
 {
     filebuf_st *buf;
     win_st *win;
@@ -3696,7 +3696,7 @@ static void qf_update_buffer(qf_info_T *qi, qfline_T *old_last)
 }
 
 /// Set "w:quickfix_title" if @b qi has a title.
-static void qf_set_title_var(qf_info_T *qi)
+static void qf_set_title_var(qfinfo_st *qi)
 {
     if(qi->qf_lists[qi->qf_curlist].qf_title != NULL)
     {
@@ -3710,7 +3710,7 @@ static void qf_set_title_var(qf_info_T *qi)
 // If "old_last" is not NULL append the items after this one.
 // When "old_last" is NULL then "buf" must equal "curbuf"! Because ml_delete()
 // is used and autocommands will be triggered.
-static void qf_fill_buffer(qf_info_T *qi, filebuf_st *buf, qfline_T *old_last)
+static void qf_fill_buffer(qfinfo_st *qi, filebuf_st *buf, qfline_T *old_last)
 {
     linenum_kt lnum;
     qfline_T *qfp;
@@ -3936,7 +3936,7 @@ void ex_make(exargs_st *eap)
 {
     uchar_kt *fname;
     win_st *wp = NULL;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int res;
     uchar_kt *au_name = NULL;
 
@@ -4148,7 +4148,7 @@ static uchar_kt *get_mef_name(void)
 size_t qf_get_size(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_ldo || eap->cmdidx == CMD_lfdo)
     {
@@ -4197,7 +4197,7 @@ FUNC_ATTR_NONNULL_ALL
 size_t qf_get_cur_idx(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_ldo || eap->cmdidx == CMD_lfdo)
     {
@@ -4221,7 +4221,7 @@ FUNC_ATTR_NONNULL_ALL
 int qf_get_cur_valid_idx(exargs_st *eap)
 FUNC_ATTR_NONNULL_ALL
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_ldo || eap->cmdidx == CMD_lfdo)
     {
@@ -4280,7 +4280,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Used by :cdo, :ldo, :cfdo and :lfdo commands.
 /// For :cdo and :ldo, returns the 'n'th valid error entry.
 /// For :cfdo and :lfdo, returns the 'n'th valid file entry.
-static size_t qf_get_nth_valid_entry(qf_info_T *qi, size_t n, bool fdo)
+static size_t qf_get_nth_valid_entry(qfinfo_st *qi, size_t n, bool fdo)
 FUNC_ATTR_NONNULL_ALL
 {
     qf_list_T *qfl = &qi->qf_lists[qi->qf_curlist];
@@ -4333,7 +4333,7 @@ FUNC_ATTR_NONNULL_ALL
 /// - ":cdo", ":ldo", ":cfdo" and ":lfdo".
 void ex_cc(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_ll
        || eap->cmdidx == CMD_lrewind
@@ -4406,7 +4406,7 @@ void ex_cc(exargs_st *eap)
 /// - ":cdo", ":ldo", ":cfdo" and ":lfdo".
 void ex_cnext(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(eap->cmdidx == CMD_lnext
        || eap->cmdidx == CMD_lNext
@@ -4463,7 +4463,7 @@ void ex_cnext(exargs_st *eap)
 void ex_cfile(exargs_st *eap)
 {
     win_st *wp = NULL;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     uchar_kt *au_name = NULL;
 
     if(eap->cmdidx == CMD_lfile
@@ -4565,7 +4565,7 @@ void ex_vimgrep(exargs_st *eap)
     uchar_kt *s;
     uchar_kt *p;
     int fi;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     qfline_T *cur_qf_start;
     long lnum;
     filebuf_st *buf;
@@ -5188,7 +5188,7 @@ static void unload_dummy_buffer(filebuf_st *buf, uchar_kt *dirname_start)
 /// Otherwise, use the specified list.
 int get_errorlist(win_st *wp, int qf_idx, list_st *list)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     uchar_kt buf[2];
     qfline_T *qfp;
     int i;
@@ -5281,7 +5281,7 @@ enum
 /// then current list is used. Otherwise the specified list is used.
 int get_errorlist_properties(win_st *wp, dict_st *what, dict_st *retdict)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
 
     if(wp != NULL)
     {
@@ -5365,7 +5365,7 @@ int get_errorlist_properties(win_st *wp, dict_st *what, dict_st *retdict)
 
 /// Add list of entries to quickfix/location list.
 /// Each list entry is a dictionary with item information.
-static int qf_add_entries(qf_info_T *qi,
+static int qf_add_entries(qfinfo_st *qi,
                           list_st *list,
                           uchar_kt *title,
                           int action)
@@ -5494,7 +5494,7 @@ static int qf_add_entries(qf_info_T *qi,
     return retval;
 }
 
-static int qf_set_properties(qf_info_T *qi, dict_st *what, int action)
+static int qf_set_properties(qfinfo_st *qi, dict_st *what, int action)
 {
     dictitem_st *di;
     int retval = FAIL;
@@ -5563,7 +5563,7 @@ int set_errorlist(win_st *wp,
                   uchar_kt *title,
                   dict_st *what)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int retval = OK;
 
     if(wp != NULL)
@@ -5592,7 +5592,7 @@ int set_errorlist(win_st *wp,
 void ex_cbuffer(exargs_st *eap)
 {
     filebuf_st *buf = NULL;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     const char *au_name = NULL;
 
     if(eap->cmdidx == CMD_lbuffer || eap->cmdidx == CMD_lgetbuffer
@@ -5707,7 +5707,7 @@ void ex_cbuffer(exargs_st *eap)
 /// - ":lexpr {expr}", ":lgetexpr {expr}", ":laddexpr {expr}" command.
 void ex_cexpr(exargs_st *eap)
 {
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     const char *au_name = NULL;
 
     if(eap->cmdidx == CMD_lexpr
@@ -5805,7 +5805,7 @@ void ex_helpgrep(exargs_st *eap)
     int fi;
     long lnum;
     uchar_kt *lang;
-    qf_info_T *qi = &ql_info;
+    qfinfo_st *qi = &ql_info;
     int new_qi = FALSE;
     uchar_kt *au_name =  NULL;
 
