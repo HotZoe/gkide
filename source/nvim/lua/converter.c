@@ -31,7 +31,7 @@
 #include "nvim/lua/executor.h"
 
 /// Determine, which keys lua table contains
-typedef struct
+typedef struct lua_tableprop_s
 {
     /// Maximum positive integral value found.
     size_t maxidx;
@@ -52,7 +52,7 @@ typedef struct
 
     /// True if type key is present.
     bool has_type_key;
-} LuaTableProps;
+} lua_tableprop_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "lua/converter.c.generated.h"
@@ -64,7 +64,7 @@ typedef struct
 #define LUA_PUSH_STATIC_STRING(lstate, s) \
     lua_pushlstring(lstate, s, sizeof(s) - 1)
 
-static LuaTableProps nlua_traverse_table(lua_State *const lstate)
+static lua_tableprop_st nlua_traverse_table(lua_State *const lstate)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t tsize = 0; // Total number of keys.
@@ -75,7 +75,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     // Number of keys that are not string, integral or type keys.
     size_t other_keys_num = 0;
 
-    LuaTableProps ret;
+    lua_tableprop_st ret;
 
     memset(&ret, 0, sizeof(ret));
 
@@ -436,7 +436,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
 
             case LUA_TTABLE:
             {
-                const LuaTableProps table_props = nlua_traverse_table(lstate);
+                const lua_tableprop_st table_props = nlua_traverse_table(lstate);
 
                 for(size_t i = 0; i < kv_size(stack); i++)
                 {
@@ -1026,7 +1026,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  type   Type to check.
 ///
 /// @return @see nlua_traverse_table().
-static inline LuaTableProps nlua_check_type(lua_State *const lstate,
+static inline lua_tableprop_st nlua_check_type(lua_State *const lstate,
                                             error_st *const err,
                                             const object_type_et type)
 FUNC_ATTR_NONNULL_ARG(1)
@@ -1039,13 +1039,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             api_set_error(err, kErrorTypeValidation, "Expected lua table");
         }
 
-        return (LuaTableProps)
+        return (lua_tableprop_st)
         {
             .type = kObjectTypeNil
         };
     }
 
-    LuaTableProps table_props = nlua_traverse_table(lstate);
+    lua_tableprop_st table_props = nlua_traverse_table(lstate);
 
     if(type == kObjectTypeDictionary
        && table_props.type == kObjectTypeArray
@@ -1080,7 +1080,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return ret;
     }
 
-    const LuaTableProps table_props =
+    const lua_tableprop_st table_props =
         nlua_check_type(lstate, err, kObjectTypeFloat);
 
     lua_pop(lstate, 1);
@@ -1101,7 +1101,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in] table_props  nlua_traverse_table() output.
 /// @param[out] err         Location where error will be saved.
 static Array nlua_pop_Array_unchecked(lua_State *const lstate,
-                                      const LuaTableProps table_props,
+                                      const lua_tableprop_st table_props,
                                       error_st *const err)
 {
     Array ret = { .size = table_props.maxidx, .items = NULL };
@@ -1145,7 +1145,7 @@ Array nlua_pop_Array(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const LuaTableProps table_props =
+    const lua_tableprop_st table_props =
         nlua_check_type(lstate, err, kObjectTypeArray);
 
     if(table_props.type != kObjectTypeArray)
@@ -1169,7 +1169,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in] table_props  nlua_traverse_table() output.
 /// @param[out] err         Location where error will be saved.
 static Dictionary nlua_pop_Dictionary_unchecked(lua_State *lstate,
-                                                const LuaTableProps table_props,
+                                                const lua_tableprop_st table_props,
                                                 error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1239,7 +1239,7 @@ Dictionary nlua_pop_Dictionary(lua_State *lstate, error_st *err)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    const LuaTableProps table_props =
+    const lua_tableprop_st table_props =
         nlua_check_type(lstate, err, kObjectTypeDictionary);
 
     if(table_props.type != kObjectTypeDictionary)
@@ -1409,7 +1409,7 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 
             case LUA_TTABLE:
             {
-                const LuaTableProps table_props = nlua_traverse_table(lstate);
+                const lua_tableprop_st table_props = nlua_traverse_table(lstate);
 
                 switch(table_props.type)
                 {
