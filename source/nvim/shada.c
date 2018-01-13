@@ -440,7 +440,7 @@ typedef struct wms_info_s
 typedef struct sd_read_s    sd_read_st;
 
 /// Function used to close files defined by sd_read_st
-typedef void (*ShaDaReadCloser)(sd_read_st *const sd_reader)
+typedef void (*sd_read_closer_ft)(sd_read_st *const sd_reader)
 REAL_FATTR_NONNULL_ALL;
 
 /// Function used to read ShaDa files
@@ -460,7 +460,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 struct sd_read_s
 {
     ShaDaFileReader read;   ///< Reader function.
-    ShaDaReadCloser close;  ///< Close function.
+    sd_read_closer_ft close;  ///< Close function.
     ShaDaFileSkipper skip;  ///< Function used to skip some bytes.
     void *cookie;           ///< Data describing object read from.
     bool eof;               ///< True if reader reached end of file.
