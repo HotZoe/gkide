@@ -148,13 +148,14 @@ struct errfmt_info_s
     int conthere;
 };
 
+/// quickfix status
 enum
 {
-    QF_FAIL = 0,
-    QF_OK = 1,
-    QF_END_OF_INPUT = 2,
-    QF_NOMEM = 3,
-    QF_IGNORE_LINE = 4
+    kQfFailure    = 0,
+    kQfSuccess    = 1,
+    kQfInputEnd   = 2,
+    kQfNoMemory   = 3,
+    kQfIgnoreLine = 4
 };
 
 typedef struct
@@ -605,7 +606,7 @@ static int qf_get_next_str_line(qfstate_T *state)
 
     if(*p_str == NUL) // Reached the end of the string
     {
-        return QF_END_OF_INPUT;
+        return kQfInputEnd;
     }
 
     p = vim_strchr(p_str, '\n');
@@ -636,7 +637,7 @@ static int qf_get_next_str_line(qfstate_T *state)
     p_str += len;
     state->p_str = p_str;
 
-    return QF_OK;
+    return kQfSuccess;
 }
 
 /// Get the next string from state->p_Li.
@@ -656,7 +657,7 @@ static int qf_get_next_list_line(qfstate_T *state)
     if(p_li == NULL) // End of the list
     {
         state->p_li = NULL;
-        return QF_END_OF_INPUT;
+        return kQfInputEnd;
     }
 
     len = STRLEN(p_li->li_tv.vval.v_string);
@@ -677,7 +678,7 @@ static int qf_get_next_list_line(qfstate_T *state)
 
     state->p_li = p_li->li_next; // next item
 
-    return QF_OK;
+    return kQfSuccess;
 }
 
 /// Get the next string from state->buf.
@@ -689,7 +690,7 @@ static int qf_get_next_buf_line(qfstate_T *state)
     // Get the next line from the supplied buffer
     if(state->buflnum > state->lnumlast)
     {
-        return QF_END_OF_INPUT;
+        return kQfInputEnd;
     }
 
     p_buf = ml_get_buf(state->buf, state->buflnum, false);
@@ -707,7 +708,7 @@ static int qf_get_next_buf_line(qfstate_T *state)
     }
 
     STRLCPY(state->linebuf, p_buf, state->linelen + 1);
-    return QF_OK;
+    return kQfSuccess;
 }
 
 /// Get the next string from file state->fd.
@@ -717,7 +718,7 @@ static int qf_get_next_file_line(qfstate_T *state)
 
     if(fgets((char *)IObuff, IOSIZE, state->fd) == NULL)
     {
-        return QF_END_OF_INPUT;
+        return kQfInputEnd;
     }
 
     bool discard = false;
@@ -788,13 +789,13 @@ static int qf_get_next_file_line(qfstate_T *state)
         state->linebuf = IObuff;
     }
 
-    return QF_OK;
+    return kQfSuccess;
 }
 
 /// Get the next string from a file/buffer/list/string.
 static int qf_get_nextline(qfstate_T *state)
 {
-    int status = QF_FAIL;
+    int status = kQfFailure;
 
     if(state->fd == NULL)
     {
@@ -823,7 +824,7 @@ static int qf_get_nextline(qfstate_T *state)
         status = qf_get_next_file_line(state);
     }
 
-    if(status != QF_OK)
+    if(status != kQfSuccess)
     {
         return status;
     }
@@ -842,7 +843,7 @@ static int qf_get_nextline(qfstate_T *state)
 
     remove_bom(state->linebuf);
 
-    return QF_OK;
+    return kQfSuccess;
 }
 
 
@@ -1107,7 +1108,7 @@ restofline:
                 if(*fields->namebuf == NUL)
                 {
                     EMSG(_("E379: Missing or empty directory name"));
-                    return QF_FAIL;
+                    return kQfFailure;
                 }
 
                 qi->qf_directory = qf_push_dir(fields->namebuf,
@@ -1116,7 +1117,7 @@ restofline:
 
                 if(qi->qf_directory == NULL)
                 {
-                    return QF_FAIL;
+                    return kQfFailure;
                 }
             }
             else if(idx == 'X') // leave directory
@@ -1164,7 +1165,7 @@ restofline:
 
             if(qfprev == NULL)
             {
-                return QF_FAIL;
+                return kQfFailure;
             }
 
             if(*fields->errmsg && !qi->qf_multiignore)
@@ -1218,7 +1219,7 @@ restofline:
             }
 
             line_breakcheck();
-            return QF_IGNORE_LINE;
+            return kQfIgnoreLine;
         }
         else if(vim_strchr((uchar_kt *)"OPQ", idx) != NULL)
         {
@@ -1257,11 +1258,11 @@ restofline:
                 qi->qf_multiignore = true;
             }
 
-            return QF_IGNORE_LINE;
+            return kQfIgnoreLine;
         }
     }
 
-    return QF_OK;
+    return kQfSuccess;
 }
 
 /// Read the errorfile "efile" into memory, line by line,
@@ -1403,7 +1404,7 @@ static int qf_init_ext(qfinfo_st *qi,
         // Get the next line from a file/buffer/list/string
         status = qf_get_nextline(&state);
 
-        if(status == QF_END_OF_INPUT) // end of input
+        if(status == kQfInputEnd) // end of input
         {
             break;
         }
@@ -1414,12 +1415,12 @@ static int qf_init_ext(qfinfo_st *qi,
                                fmt_first,
                                &fields);
 
-        if(status == QF_FAIL)
+        if(status == kQfFailure)
         {
             goto error2;
         }
 
-        if(status == QF_IGNORE_LINE)
+        if(status == kQfIgnoreLine)
         {
             continue;
         }
