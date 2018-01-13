@@ -27,9 +27,9 @@
 
 typedef struct
 {
-    error_st err;
-    String lua_err_str;
-} LuaError;
+    error_st le_ptr; ///< nvim error message
+    String le_msg;   ///< lua error message
+} lua_error_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "lua/vim_module.generated.h"
