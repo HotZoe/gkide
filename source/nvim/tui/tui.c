@@ -662,9 +662,9 @@ static void tui_cursor_goto(UI *ui, Integer row, Integer col)
     unibi_goto(ui, (int)row, (int)col);
 }
 
-CursorShape tui_cursor_decode_shape(const char *shape_str)
+cursor_shape_et tui_cursor_decode_shape(const char *shape_str)
 {
-    CursorShape shape = 0;
+    cursor_shape_et shape = 0;
 
     if(strequal(shape_str, "block"))
     {
@@ -834,7 +834,7 @@ static void tui_set_mode(UI *ui, ModeShape mode)
         unibi_format(vars,
                      vars + 26,
                      TMUX_WRAP("\x1b]50;"
-                               "CursorShape=%p1%d;"
+                               "cursor_shape_et=%p1%d;"
                                "BlinkingCursorEnabled=%p2%d\x07"),
                      data->params,
                      out,

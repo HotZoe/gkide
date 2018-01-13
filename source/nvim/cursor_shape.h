@@ -32,10 +32,10 @@ typedef enum
 
 typedef enum
 {
-    SHAPE_BLOCK     = 0,    ///< block cursor
-    SHAPE_HOR       = 1,    ///< horizontal bar cursor
-    SHAPE_VER       = 2     ///< vertical bar cursor
-} CursorShape;
+    SHAPE_BLOCK   = 0,    ///< block cursor
+    SHAPE_HOR     = 1,    ///< horizontal bar cursor
+    SHAPE_VER     = 2     ///< vertical bar cursor
+} cursor_shape_et;
 
 #define MSHAPE_NUMBERED 1000   ///< offset for shapes identified by number
 #define MSHAPE_HIDE     1      ///< hide mouse pointer
@@ -46,7 +46,7 @@ typedef enum
 typedef struct cursor_info_s
 {
     char *full_name;    ///< mode description
-    CursorShape shape;  ///< cursor shape: one of the SHAPE_ defines
+    cursor_shape_et shape;  ///< cursor shape: one of the SHAPE_ defines
     int mshape;         ///< mouse shape: one of the MSHAPE defines
     int percentage;     ///< percentage of cell for bar
     long blinkwait;     ///< blinking, wait time before blinking starts
