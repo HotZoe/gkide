@@ -102,9 +102,9 @@ static garray_st ucmds = {0, 0, sizeof(usrcmd_st), 4, NULL};
 /// Struct for storing a line inside a while/for loop
 typedef struct
 {
-    uchar_kt *line;   ///< command line
-    linenum_kt lnum;  ///< sourcing_lnum of the line
-} wcmd_T;
+    uchar_kt *line;  ///< command line
+    linenum_kt lnum; ///< sourcing_lnum of the line
+} loopbody_st;
 
 #define FREE_WCMD(wcmd) xfree((wcmd)->line)
 
@@ -398,7 +398,7 @@ int do_cmdline(uchar_kt *cmdline,
     cstack.cs_trylevel = 0;
     cstack.cs_emsg_list = NULL;
     cstack.cs_lflags = 0;
-    ga_init(&lines_ga, (int)sizeof(wcmd_T), 10);
+    ga_init(&lines_ga, (int)sizeof(loopbody_st), 10);
     real_cookie = getline_cookie(fgetline, cookie);
 
     // Inside a function use a higher nesting level.
@@ -534,8 +534,8 @@ int do_cmdline(uchar_kt *cmdline,
                 *dbg_tick = debug_tick;
             }
 
-            next_cmdline = ((wcmd_T *)(lines_ga.ga_data))[current_line].line;
-            sourcing_lnum = ((wcmd_T *)(lines_ga.ga_data))[current_line].lnum;
+            next_cmdline = ((loopbody_st *)(lines_ga.ga_data))[current_line].line;
+            sourcing_lnum = ((loopbody_st *)(lines_ga.ga_data))[current_line].lnum;
 
             // Did we encounter a breakpoint?
             if(breakpoint != NULL
@@ -774,7 +774,7 @@ int do_cmdline(uchar_kt *cmdline,
                         *breakpoint =
                             dbg_find_breakpoint(getline_equal(fgetline, cookie, getsourceline),
                                                 fname,
-                                                ((wcmd_T *)lines_ga.ga_data)[current_line].lnum-1);
+                                                ((loopbody_st *)lines_ga.ga_data)[current_line].lnum-1);
 
                         *dbg_tick = debug_tick;
                     }
@@ -804,8 +804,8 @@ int do_cmdline(uchar_kt *cmdline,
         {
             if(!GA_EMPTY(&lines_ga))
             {
-                sourcing_lnum = ((wcmd_T *)lines_ga.ga_data)[lines_ga.ga_len - 1].lnum;
-                GA_DEEP_CLEAR(&lines_ga, wcmd_T, FREE_WCMD);
+                sourcing_lnum = ((loopbody_st *)lines_ga.ga_data)[lines_ga.ga_len - 1].lnum;
+                GA_DEEP_CLEAR(&lines_ga, loopbody_st, FREE_WCMD);
             }
 
             current_line = 0;
@@ -866,7 +866,7 @@ int do_cmdline(uchar_kt *cmdline,
 
     xfree(cmdline_copy);
     did_emsg_syntax = FALSE;
-    GA_DEEP_CLEAR(&lines_ga, wcmd_T, FREE_WCMD);
+    GA_DEEP_CLEAR(&lines_ga, loopbody_st, FREE_WCMD);
 
     if(cstack.cs_idx >= 0)
     {
@@ -1091,7 +1091,7 @@ int do_cmdline(uchar_kt *cmdline,
 /// Obtain a line when inside a ":while" or ":for" loop.
 static uchar_kt *get_loop_line(int c, void *cookie, int indent)
 {
-    wcmd_T *wp;
+    loopbody_st *wp;
     uchar_kt *line;
     loop_cookie_st *cp = (loop_cookie_st *)cookie;
 
@@ -1124,7 +1124,7 @@ static uchar_kt *get_loop_line(int c, void *cookie, int indent)
 
     KeyTyped = FALSE;
     ++cp->current_line;
-    wp = (wcmd_T *)(cp->lines_gap->ga_data) + cp->current_line;
+    wp = (loopbody_st *)(cp->lines_gap->ga_data) + cp->current_line;
     sourcing_lnum = wp->lnum;
     return vim_strsave(wp->line);
 }
@@ -1132,7 +1132,7 @@ static uchar_kt *get_loop_line(int c, void *cookie, int indent)
 /// Store a line in "gap" so that a ":while" loop can execute it again.
 static void store_loop_line(garray_st *gap, uchar_kt *line)
 {
-    wcmd_T *p = GA_APPEND_VIA_PTR(wcmd_T, gap);
+    loopbody_st *p = GA_APPEND_VIA_PTR(loopbody_st, gap);
     p->line = vim_strsave(line);
     p->lnum = sourcing_lnum;
 }
