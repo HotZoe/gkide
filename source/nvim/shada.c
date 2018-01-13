@@ -359,7 +359,7 @@ typedef struct hmll_item_s
 KHASH_MAP_INIT_STR(hmll_entries, hmll_item_st *)
 
 /// Sized linked list structure for history merger
-typedef struct
+typedef struct hmll_list_s
 {
     /// Pointer to the start of the allocated array of entries.
     hmll_item_st *entries;
@@ -375,11 +375,11 @@ typedef struct
 
     /// Hash mapping all history entry strings to corresponding entry pointers.
     khash_t(hmll_entries) contained_entries;
-} HMLList;
+} hmll_list_st;
 
 typedef struct
 {
-    HMLList hmll;
+    hmll_list_st hmll;
     bool do_merge;
     bool reading;
     const void *iter;
@@ -563,10 +563,10 @@ static const shada_entry_st sd_default_values[] = {
 ///
 /// @param[out]  hmll   List to initialize.
 /// @param[in]   size   Maximum size of the list.
-static inline void hmll_init(HMLList *const hmll, const size_t size)
+static inline void hmll_init(hmll_list_st *const hmll, const size_t size)
 FUNC_ATTR_NONNULL_ALL
 {
-    *hmll = (HMLList) {
+    *hmll = (hmll_list_st) {
         .entries = xcalloc(size, sizeof(hmll->entries[0])),
         .first = NULL,
         .last = NULL,
@@ -579,7 +579,7 @@ FUNC_ATTR_NONNULL_ALL
     hmll->last_free_entry = hmll->entries;
 }
 
-/// Iterate over HMLList in forward direction
+/// Iterate over hmll_list_st in forward direction
 ///
 /// @param  hmll       Pointer to the list.
 /// @param  cur_entry  Name of the variable to iterate over.
@@ -601,7 +601,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param hmll_entry
 /// Entry to remove.
-static inline void hmll_remove(HMLList *const hmll,
+static inline void hmll_remove(hmll_list_st *const hmll,
                                hmll_item_st *const hmll_entry)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -662,7 +662,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param[in] can_free_entry
 /// True if data can be freed.
-static inline void hmll_insert(HMLList *const hmll,
+static inline void hmll_insert(hmll_list_st *const hmll,
                                hmll_item_st *hmll_entry,
                                const shada_entry_st data,
                                const bool can_free_entry)
@@ -732,7 +732,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 }
 
-/// Iterate over HMLList in backward direction
+/// Iterate over hmll_list_st in backward direction
 ///
 /// @param  hmll
 /// Pointer to the list.
@@ -755,7 +755,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// Free linked list
 ///
 /// @param[in]  hmll  List to free.
-static inline void hmll_dealloc(HMLList *const hmll)
+static inline void hmll_dealloc(hmll_list_st *const hmll)
 FUNC_ATTR_NONNULL_ALL
 {
     kh_dealloc(hmll_entries, &hmll->contained_entries);
@@ -1170,7 +1170,7 @@ FUNC_ATTR_NONNULL_ALL
         }
     }
 
-    HMLList *const hmll = &hms_p->hmll;
+    hmll_list_st *const hmll = &hms_p->hmll;
 
     const khiter_t k = kh_get(hmll_entries,
                               &hms_p->hmll.contained_entries,
