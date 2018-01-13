@@ -444,9 +444,9 @@ typedef void (*sd_read_closer_ft)(sd_read_st *const sd_reader)
 REAL_FATTR_NONNULL_ALL;
 
 /// Function used to read ShaDa files
-typedef ptrdiff_t (*ShaDaFileReader)(sd_read_st *const sd_reader,
-                                     void *const dest,
-                                     const size_t size)
+typedef ptrdiff_t (*sd_file_reader_ft)(sd_read_st *const sd_reader,
+                                       void *const dest,
+                                       const size_t size)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
@@ -459,7 +459,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// Structure containing necessary pointers for reading ShaDa files
 struct sd_read_s
 {
-    ShaDaFileReader read;   ///< Reader function.
+    sd_file_reader_ft read;   ///< Reader function.
     sd_read_closer_ft close;  ///< Close function.
     ShaDaFileSkipper skip;  ///< Function used to skip some bytes.
     void *cookie;           ///< Data describing object read from.
