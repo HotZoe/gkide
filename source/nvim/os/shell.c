@@ -35,12 +35,12 @@
 /// 10KB, "a few screenfuls" of data.
 #define OUT_DATA_THRESHOLD  1024 * 10U
 
-typedef struct
+typedef struct dynamic_buf_s
 {
     char *data;
     size_t cap;
     size_t len;
-} DynamicBuffer;
+} dynamic_buf_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "os/shell.c.generated.h"
@@ -114,7 +114,7 @@ void shell_free_argv(char **argv)
 /// @param extra_args Extra arguments to the shell, or NULL.
 int os_call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_args)
 {
-    DynamicBuffer input = DYNAMIC_BUFFER_INIT;
+    dynamic_buf_st input = DYNAMIC_BUFFER_INIT;
     char *output = NULL, **output_ptr = NULL;
     int current_state = curmod;
     bool forward_output = true;
@@ -225,7 +225,7 @@ static int do_os_system(char **argv,
     out_data_decide_throttle(0); // Initialize throttle decider.
     out_data_ring(NULL, 0); // Initialize output ring-buffer.
     // the output buffer
-    DynamicBuffer buf = DYNAMIC_BUFFER_INIT;
+    dynamic_buf_st buf = DYNAMIC_BUFFER_INIT;
     stream_read_cb data_cb = system_data_cb;
 
     if(nread)
@@ -358,7 +358,7 @@ static int do_os_system(char **argv,
 /// ensures at least `desired` bytes in buffer
 ///
 /// @todo fold with kvec/garray
-static void dynamic_buffer_ensure(DynamicBuffer *buf, size_t desired)
+static void dynamic_buffer_ensure(dynamic_buf_st *buf, size_t desired)
 {
     if(buf->cap >= desired)
     {
@@ -377,7 +377,7 @@ static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                            void *data,
                            bool FUNC_ARGS_UNUSED_REALY(eof))
 {
-    DynamicBuffer *dbuf = data;
+    dynamic_buf_st *dbuf = data;
     size_t nread = buf->size;
     dynamic_buffer_ensure(dbuf, dbuf->len + nread + 1);
     rbuffer_read(buf, dbuf->data + dbuf->len, nread);
@@ -696,7 +696,7 @@ static size_t word_length(const uchar_kt *str)
 /// event loop starts. If we don't (by writing in chunks returned by `ml_get`)
 /// the buffer being modified might get modified by reading from the process
 /// before we finish writing.
-static void read_input(DynamicBuffer *buf)
+static void read_input(dynamic_buf_st *buf)
 {
     size_t written = 0, l = 0, len = 0;
     linenum_kt lnum = curbuf->b_op_start.lnum;
