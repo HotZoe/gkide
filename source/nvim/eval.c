@@ -6744,7 +6744,7 @@ bool garbage_collect(bool testing)
 
             do
             {
-                histentry_T hist;
+                history_st hist;
                 iter = hist_iter(iter, i, false, &hist);
 
                 if(hist.hisstr != NULL)

@@ -141,7 +141,7 @@ static int new_cmdpos;   ///< position set by set_cmdline_pos()
 /// Type used by call_user_expand_func
 typedef void *(*user_expand_func_T)(uchar_kt *, int, uchar_kt **, int);
 
-static histentry_T *(history[HIST_COUNT]) = {NULL, NULL, NULL, NULL, NULL};
+static history_st *(history[HIST_COUNT]) = {NULL, NULL, NULL, NULL, NULL};
 
 /// lastused entry
 static int hisidx[HIST_COUNT] = {-1, -1, -1, -1, -1};
@@ -5855,7 +5855,7 @@ void init_history(void)
     {
         for(int type = 0; type < HIST_COUNT; type++)
         {
-            histentry_T *temp = newlen ? xmalloc(newlen * sizeof(*temp)) : NULL;
+            history_st *temp = newlen ? xmalloc(newlen * sizeof(*temp)) : NULL;
             int j = hisidx[type];
 
             if(j >= 0)
@@ -5914,7 +5914,7 @@ void init_history(void)
     }
 }
 
-static inline void hist_free_entry(histentry_T *hisptr)
+static inline void hist_free_entry(history_st *hisptr)
 FUNC_ATTR_NONNULL_ALL
 {
     xfree(hisptr->hisstr);
@@ -5922,7 +5922,7 @@ FUNC_ATTR_NONNULL_ALL
     clear_hist_entry(hisptr);
 }
 
-static inline void clear_hist_entry(histentry_T *hisptr)
+static inline void clear_hist_entry(history_st *hisptr)
 FUNC_ATTR_NONNULL_ALL
 {
     memset(hisptr, 0, sizeof(*hisptr));
@@ -6064,7 +6064,7 @@ static int last_maptick = -1; ///< last seen maptick
 /// @param sep        separator character used (search hist)
 void add_to_history(int histype, uchar_kt *new_entry, int in_map, int sep)
 {
-    histentry_T *hisptr;
+    history_st *hisptr;
     int len;
 
     if(hislen == 0 || histype == HIST_INVALID) // no history
@@ -6248,7 +6248,7 @@ int get_cmdline_type(void)
 static int calc_hist_idx(int histype, int num)
 {
     int i;
-    histentry_T *hist;
+    history_st *hist;
     int wrapped = FALSE;
 
     if(hislen == 0 || histype < 0 || histype >= HIST_COUNT
@@ -6322,7 +6322,7 @@ int clr_history(const int histype)
 {
     if(hislen != 0 && histype >= 0 && histype < HIST_COUNT)
     {
-        histentry_T *hisptr = history[histype];
+        history_st *hisptr = history[histype];
 
         for(int i = hislen; i--; hisptr++)
         {
@@ -6342,7 +6342,7 @@ int clr_history(const int histype)
 int del_history_entry(int histype, uchar_kt *str)
 {
     regmatch_st regmatch;
-    histentry_T *hisptr;
+    history_st *hisptr;
     int idx;
     int i;
     int last;
@@ -6495,7 +6495,7 @@ int get_list_range(uchar_kt **str, int *num1, int *num2)
 /// :history command - print a history
 void ex_history(exargs_st *eap)
 {
-    histentry_T *hist;
+    history_st *hist;
     int histype1 = HIST_CMD;
     int histype2 = HIST_CMD;
     int hisidx1 = 1;
@@ -7047,25 +7047,25 @@ FUNC_ATTR_MALLOC
 const void *hist_iter(const void *const iter,
                       const uint8_t history_type,
                       const bool zero,
-                      histentry_T *const hist)
+                      history_st *const hist)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(4)
 {
-    *hist = (histentry_T) { .hisstr = NULL };
+    *hist = (history_st) { .hisstr = NULL };
 
     if(hisidx[history_type] == -1)
     {
         return NULL;
     }
 
-    histentry_T *const hstart = &(history[history_type][0]);
-    histentry_T *const hlast = (&(history[history_type][hisidx[history_type]]));
-    histentry_T *hiter;
-    const histentry_T *const hend = &(history[history_type][hislen - 1]);
+    history_st *const hstart = &(history[history_type][0]);
+    history_st *const hlast = (&(history[history_type][hisidx[history_type]]));
+    history_st *hiter;
+    const history_st *const hend = &(history[history_type][hislen - 1]);
 
     if(iter == NULL)
     {
-        histentry_T *hfirst = hlast;
+        history_st *hfirst = hlast;
 
         do
         {
@@ -7086,7 +7086,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     }
     else
     {
-        hiter = (histentry_T *) iter;
+        hiter = (history_st *) iter;
     }
 
     if(hiter == NULL)
@@ -7123,7 +7123,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 ///
 /// @return
 /// Pointer to the array or NULL.
-histentry_T *hist_get_array(const uint8_t history_type,
+history_st *hist_get_array(const uint8_t history_type,
                             int **const new_hisidx,
                             int **const new_hisnum)
 FUNC_ATTR_WARN_UNUSED_RESULT

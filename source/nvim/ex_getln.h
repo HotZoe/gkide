@@ -9,7 +9,8 @@
 #include "nvim/os/time.h"
 #include "nvim/regexp_defs.h"
 
-// Values for nextwild() and ExpandOne(). See ExpandOne() for meaning.
+// Values for nextwild() and ExpandOne().
+// See ExpandOne() for meaning.
 #define WILD_FREE               1
 #define WILD_EXPAND_FREE        2
 #define WILD_EXPAND_KEEP        3
@@ -35,11 +36,11 @@ typedef enum
 {
     HIST_DEFAULT = -2,  ///< Default (current) history.
     HIST_INVALID = -1,  ///< Unknown history.
-    HIST_CMD = 0,       ///< Colon commands.
-    HIST_SEARCH,        ///< Search commands.
-    HIST_EXPR,          ///< Expressions (e.g. from entering = register).
-    HIST_INPUT,         ///< input() lines.
-    HIST_DEBUG,         ///< Debug commands.
+    HIST_CMD     = 0,   ///< Colon commands.
+    HIST_SEARCH  = 1,   ///< Search commands.
+    HIST_EXPR    = 2,   ///< Expressions (e.g. from entering = register).
+    HIST_INPUT   = 3,   ///< input() lines.
+    HIST_DEBUG   = 4,   ///< Debug commands.
 } HistoryType;
 
 /// Number of history tables
@@ -48,13 +49,13 @@ typedef enum
 typedef uchar_kt *(*CompleteListItemGetter)(expand_st *, int);
 
 /// History entry definition
-typedef struct hist_entry
+typedef struct history_s
 {
     int hisnum; ///< Entry identifier number.
     uchar_kt *hisstr; ///< Actual entry, separator char after the NUL.
     timestamp_kt timestamp; ///< Time when entry was added.
     list_st *additional_elements; ///< Additional entries from ShaDa file.
-} histentry_T;
+} history_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_getln.h.generated.h"

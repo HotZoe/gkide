@@ -1094,7 +1094,7 @@ static const void *shada_hist_iter(const void *const iter,
 FUNC_ATTR_NONNULL_ARG(4)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    histentry_T hist_he;
+    history_st hist_he;
     const void *const ret = hist_iter(iter, history_type, zero, &hist_he);
 
     if(hist_he.hisstr == NULL)
@@ -1282,12 +1282,12 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out]  new_hisidx  New last history entry index.
 /// @param[out]  new_hisnum  Amount of history items in merger structure.
 static inline void hms_to_he_array(const HistoryMergerState *const hms_p,
-                                   histentry_T *const hist_array,
+                                   history_st *const hist_array,
                                    int *const new_hisidx,
                                    int *const new_hisnum)
 FUNC_ATTR_NONNULL_ALL
 {
-    histentry_T *hist = hist_array;
+    history_st *hist = hist_array;
 
     HMLL_FORALL(&hms_p->hmll, cur_entry,  {
         hist->timestamp = cur_entry->data.timestamp;
@@ -1909,7 +1909,7 @@ shada_read_main_cycle_end:
             clr_history(i);
             int *new_hisidx;
             int *new_hisnum;
-            histentry_T *hist = hist_get_array(i, &new_hisidx, &new_hisnum);
+            history_st *hist = hist_get_array(i, &new_hisidx, &new_hisnum);
 
             if(hist != NULL)
             {
