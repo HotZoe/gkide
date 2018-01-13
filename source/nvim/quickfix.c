@@ -42,10 +42,12 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 
+/// directory stack
+typedef struct dirstack_s dirstack_st;
 
-struct dir_stack_T
+struct dirstack_s
 {
-    struct dir_stack_T  *next;
+    dirstack_st *next;
     uchar_kt *dirname;
 };
 
@@ -94,9 +96,9 @@ struct qfinfo_s
     qf_list_T qf_lists[LISTCOUNT];
 
     int qf_dir_curlist; ///< error list for qf_dir_stack
-    struct dir_stack_T *qf_dir_stack;
+    dirstack_st *qf_dir_stack;
     uchar_kt *qf_directory;
-    struct dir_stack_T *qf_file_stack;
+    dirstack_st *qf_file_stack;
     uchar_kt *qf_currfile;
     bool qf_multiline;
     bool qf_multiignore;
@@ -1925,12 +1927,12 @@ static int qf_get_fnum(qfinfo_st *qi, uchar_kt *directory, uchar_kt *fname)
 /// Push dirbuf onto the directory stack and
 /// return pointer to actual dir or NULL on error.
 static uchar_kt *qf_push_dir(uchar_kt *dirbuf,
-                           struct dir_stack_T **stackptr,
-                           bool is_file_stack)
+                             dirstack_st **stackptr,
+                             bool is_file_stack)
 {
-    struct dir_stack_T  *ds_ptr;
+    dirstack_st *ds_ptr;
     // allocate new stack element and hook it in
-    struct dir_stack_T *ds_new = xmalloc(sizeof(struct dir_stack_T));
+    dirstack_st *ds_new = xmalloc(sizeof(dirstack_st));
     ds_new->next = *stackptr;
     *stackptr = ds_new;
 
@@ -1997,9 +1999,9 @@ static uchar_kt *qf_push_dir(uchar_kt *dirbuf,
 
 /// pop dirbuf from the directory stack and return
 /// previous directory or NULL if stack is empty
-static uchar_kt *qf_pop_dir(struct dir_stack_T **stackptr)
+static uchar_kt *qf_pop_dir(dirstack_st **stackptr)
 {
-    struct dir_stack_T  *ds_ptr;
+    dirstack_st *ds_ptr;
 
     // TODO: Should we check if dirbuf is the directory
     // on top of the stack? What to do if it isn't?
@@ -2018,9 +2020,9 @@ static uchar_kt *qf_pop_dir(struct dir_stack_T **stackptr)
 }
 
 /// clean up directory stack
-static void qf_clean_dir_stack(struct dir_stack_T **stackptr)
+static void qf_clean_dir_stack(dirstack_st **stackptr)
 {
-    struct dir_stack_T *ds_ptr;
+    dirstack_st *ds_ptr;
 
     while((ds_ptr = *stackptr) != NULL)
     {
@@ -2054,8 +2056,8 @@ static void qf_clean_dir_stack(struct dir_stack_T **stackptr)
 static uchar_kt *qf_guess_filepath(qfinfo_st *qi, uchar_kt *filename)
 {
     uchar_kt *fullname;
-    struct dir_stack_T *ds_ptr;
-    struct dir_stack_T *ds_tmp;
+    dirstack_st *ds_ptr;
+    dirstack_st *ds_tmp;
 
 
     // no dirs on the stack - there's nothing we can do
