@@ -76,25 +76,25 @@ static int ex_pressedreturn = FALSE;
 /// whether ":lcd" was produced for a session
 static int did_lcd;
 
-typedef struct ucmd
+typedef struct usrcmd_s
 {
-    uchar_kt *uc_name;         ///< The command name
-    uint32_t uc_argt;        ///< The argument type
-    uchar_kt *uc_rep;          ///< The command's replacement string
-    long uc_def;             ///< The default value for a range/count
-    int uc_compl;            ///< completion type
-    int uc_addr_type;        ///< The command's address type
-    script_id_kt uc_scriptID;      ///< SID where the command was defined
-    uchar_kt *uc_compl_arg;    ///< completion argument if any
-} ucmd_T;
+    uchar_kt *uc_name;        ///< The command name
+    uint32_t uc_argt;         ///< The argument type
+    uchar_kt *uc_rep;         ///< The command's replacement string
+    long uc_def;              ///< The default value for a range/count
+    int uc_compl;             ///< completion type
+    int uc_addr_type;         ///< The command's address type
+    script_id_kt uc_scriptID; ///< SID where the command was defined
+    uchar_kt *uc_compl_arg;   ///< completion argument if any
+} usrcmd_st;
 
 /// buffer: local to current buffer
 #define UC_BUFFER  1
 
-static garray_st ucmds = {0, 0, sizeof(ucmd_T), 4, NULL};
+static garray_st ucmds = {0, 0, sizeof(usrcmd_st), 4, NULL};
 
-#define USER_CMD(i)          (&((ucmd_T *)(ucmds.ga_data))[i])
-#define USER_CMD_GA(gap, i)  (&((ucmd_T *)((gap)->ga_data))[i])
+#define USER_CMD(i)          (&((usrcmd_st *)(ucmds.ga_data))[i])
+#define USER_CMD_GA(gap, i)  (&((usrcmd_st *)((gap)->ga_data))[i])
 
 /// Wether a command index indicates a user command.
 #define IS_USER_CMDIDX(idx)  ((int)(idx) < 0)
@@ -3131,7 +3131,7 @@ static uchar_kt *find_ucmd(exargs_st *eap,
 {
     int len = (int)(p - eap->cmd);
     int j, k, matchlen = 0;
-    ucmd_T *uc;
+    usrcmd_st *uc;
     int found = FALSE;
     int possible = FALSE;
     uchar_kt *cp, *np; // Point into typed cmd and test name
@@ -6157,7 +6157,7 @@ static int uc_add_command(uchar_kt *name,
     uchar_kt *p;
     int cmp = 1;
     garray_st *gap;
-    ucmd_T *cmd = NULL;
+    usrcmd_st *cmd = NULL;
     uchar_kt *rep_buf = NULL;
 
     replace_termcodes(rep,
@@ -6181,7 +6181,7 @@ static int uc_add_command(uchar_kt *name,
 
         if(gap->ga_itemsize == 0)
         {
-            ga_init(gap, (int)sizeof(ucmd_T), 4);
+            ga_init(gap, (int)sizeof(usrcmd_st), 4);
         }
     }
     else
@@ -6237,7 +6237,7 @@ static int uc_add_command(uchar_kt *name,
         ga_grow(gap, 1);
         p = vim_strnsave(name, (int)name_len);
         cmd = USER_CMD_GA(gap, i);
-        memmove(cmd + 1, cmd, (gap->ga_len - i) * sizeof(ucmd_T));
+        memmove(cmd + 1, cmd, (gap->ga_len - i) * sizeof(usrcmd_st));
         ++gap->ga_len;
         cmd->uc_name = p;
     }
@@ -6325,7 +6325,7 @@ static void uc_list(uchar_kt *name, size_t name_len)
 {
     int i, j;
     int found = FALSE;
-    ucmd_T *cmd;
+    usrcmd_st *cmd;
     int len;
     uint32_t a;
     garray_st *gap;
@@ -6798,7 +6798,7 @@ void ex_comclear(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     uc_clear(&curbuf->b_ucmds);
 }
 
-static void free_ucmd(ucmd_T *cmd)
+static void free_ucmd(usrcmd_st *cmd)
 {
     xfree(cmd->uc_name);
     xfree(cmd->uc_rep);
@@ -6808,13 +6808,13 @@ static void free_ucmd(ucmd_T *cmd)
 /// Clear all user commands for "gap".
 void uc_clear(garray_st *gap)
 {
-    GA_DEEP_CLEAR(gap, ucmd_T, free_ucmd);
+    GA_DEEP_CLEAR(gap, usrcmd_st, free_ucmd);
 }
 
 static void ex_delcommand(exargs_st *eap)
 {
     int i = 0;
-    ucmd_T *cmd = NULL;
+    usrcmd_st *cmd = NULL;
     int cmp = -1;
     garray_st *gap;
     gap = &curbuf->b_ucmds;
@@ -6853,7 +6853,7 @@ static void ex_delcommand(exargs_st *eap)
 
     if(i < gap->ga_len)
     {
-        memmove(cmd, cmd + 1, (gap->ga_len - i) * sizeof(ucmd_T));
+        memmove(cmd, cmd + 1, (gap->ga_len - i) * sizeof(usrcmd_st));
     }
 }
 
@@ -7002,7 +7002,7 @@ static size_t add_cmd_modifier(uchar_kt *buf, char *mod_str, bool *multi_mods)
 static size_t uc_check_code(uchar_kt *code,
                             size_t len,
                             uchar_kt *buf,
-                            ucmd_T *cmd,
+                            usrcmd_st *cmd,
                             exargs_st *eap,
                             uchar_kt **split_buf,
                             size_t *split_len)
@@ -7411,7 +7411,7 @@ static void do_ucmd(exargs_st *eap)
     uchar_kt *q;
     uchar_kt *buf;
     uchar_kt *ksp;
-    ucmd_T *cmd;
+    usrcmd_st *cmd;
     size_t len;
     size_t totlen;
     uchar_kt *start;
