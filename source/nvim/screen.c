@@ -143,7 +143,7 @@
 static int screen_attr = 0;
 
 /// used for 'hlsearch' highlight matching
-static match_T search_hl;
+static hlmatch_st search_hl;
 
 /// info for 'foldcolumn'
 static foldinfo_st win_foldinfo;
@@ -2825,7 +2825,7 @@ static int win_line(win_st *wp,
     int need_showbreak = FALSE;
     int line_attr = 0; // attribute for the whole line
     matchitem_T *cur; // points to the match list
-    match_T *shl; // points to search_hl or a match
+    hlmatch_st *shl; // points to search_hl or a match
 
     // flag to indicate whether search_hl has been processed or not
     int shl_flag;
@@ -7409,7 +7409,7 @@ static void init_search_hl(win_st *wp)
 static void prepare_search_hl(win_st *wp, linenum_kt lnum)
 {
     matchitem_T *cur; // points to the match list
-    match_T *shl; // points to search_hl or a match
+    hlmatch_st *shl; // points to search_hl or a match
 
     // flag to indicate whether search_hl
     // has been processed or not
@@ -7508,7 +7508,7 @@ static void prepare_search_hl(win_st *wp, linenum_kt lnum)
 /// @param mincol  minimal column for a match
 /// @param cur     to retrieve match positions if any
 static void next_search_hl(win_st *win,
-                           match_T *shl,
+                           hlmatch_st *shl,
                            linenum_kt lnum,
                            columnum_kt mincol,
                            matchitem_T *cur)
@@ -7652,7 +7652,7 @@ static void next_search_hl(win_st *win,
 /// @param mincol    minimal column for a match
 ///
 /// @return zero otherwise.
-static int next_search_hl_pos(match_T *shl,
+static int next_search_hl_pos(hlmatch_st *shl,
                               linenum_kt lnum,
                               posmatch_T *posmatch,
                               columnum_kt mincol)

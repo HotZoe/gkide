@@ -856,7 +856,7 @@ typedef struct
     columnum_kt endcol;    ///< in win_line() points to char where HL ends
     bool is_addpos;        ///< position specified directly by matchaddpos()
     proftime_kt tm;        ///< for a time limit
-} match_T;
+} hlmatch_st;
 
 /// number of positions supported by matchaddpos()
 #define MAXPOSMATCH 8
@@ -871,28 +871,28 @@ typedef struct
 
 /// posmatch_T provides an array for storing match items
 /// for matchaddpos() function.
-typedef struct posmatch posmatch_T;
-struct posmatch
+typedef struct posmatch_s posmatch_T;
+struct posmatch_s
 {
     cpos_st pos[MAXPOSMATCH]; ///< array of positions
     int cur;                  ///< internal position counter
-    linenum_kt toplnum;         ///< top buffer line
-    linenum_kt botlnum;         ///< bottom buffer line
+    linenum_kt toplnum;       ///< top buffer line
+    linenum_kt botlnum;       ///< bottom buffer line
 };
 
 /// matchitem_T provides a linked list for storing
 /// match items for ":match" and the match functions.
-typedef struct matchitem matchitem_T;
-struct matchitem
+typedef struct matchitem_s matchitem_T;
+struct matchitem_s
 {
     matchitem_T *next;
     int id;             ///< match ID
     int priority;       ///< match priority
     uchar_kt *pattern;  ///< pattern to highlight
     int hlg_id;         ///< highlight group ID
-    regmmatch_st match;  ///< regexp program for pattern
-    posmatch_T pos;     ///< position matches
-    match_T hl;         ///< struct for doing the actual highlighting
+    regmmatch_st match; ///< regexp program for pattern
+    posmatch_T pos;    ///< position matches
+    hlmatch_st hl;      ///< struct for doing the actual highlighting
     int conceal_char;   ///< cchar for Conceal highlighting
 };
 
