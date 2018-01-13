@@ -3954,7 +3954,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
                 save_re_pat(RE_SUBST, pat, p_magic);
             }
 
-            add_to_history(HIST_SEARCH, pat, true, NUL);
+            add_to_history(kHistSearch, pat, true, NUL);
         }
 
         return true;

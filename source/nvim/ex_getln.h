@@ -34,17 +34,17 @@
 /// Present history tables
 typedef enum history_type_e
 {
-    HIST_DEFAULT = -2,  ///< Default (current) history.
-    HIST_INVALID = -1,  ///< Unknown history.
-    HIST_CMD     = 0,   ///< Colon commands.
-    HIST_SEARCH  = 1,   ///< Search commands.
-    HIST_EXPR    = 2,   ///< Expressions (e.g. from entering = register).
-    HIST_INPUT   = 3,   ///< input() lines.
-    HIST_DEBUG   = 4,   ///< Debug commands.
+    kHistDefault = -2,  ///< Default (current) history.
+    kHistInvalid = -1,  ///< Unknown history.
+    kHistCmd     = 0,   ///< Colon commands.
+    kHistSearch  = 1,   ///< Search commands.
+    kHistExpr    = 2,   ///< Expressions (e.g. from entering = register).
+    kHistInput   = 3,   ///< input() lines.
+    kHistDebug   = 4,   ///< Debug commands.
 } history_type_et;
 
 /// Number of history tables
-#define HIST_COUNT      (HIST_DEBUG + 1)
+#define HIST_COUNT      (kHistDebug + 1)
 
 typedef uchar_kt *(*CompleteListItemGetter)(expand_st *, int);
 

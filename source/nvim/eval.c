@@ -14107,9 +14107,9 @@ static void f_histadd(typval_st *argvars,
 
     const char *str = tv_get_string_chk(&argvars[0]); // NULL on type error
     histype = str != NULL
-              ? get_histtype(str, strlen(str), false) : HIST_INVALID;
+              ? get_histtype(str, strlen(str), false) : kHistInvalid;
 
-    if(histype != HIST_INVALID)
+    if(histype != kHistInvalid)
     {
         char buf[NUMBUFLEN];
         str = tv_get_string_buf(&argvars[1], buf);
@@ -14201,9 +14201,9 @@ static void f_histnr(typval_st *argvars,
     const char *const history = tv_get_string_chk(&argvars[0]);
 
     i = history == NULL
-        ? HIST_CMD - 1 : get_histtype(history, strlen(history), false);
+        ? kHistCmd - 1 : get_histtype(history, strlen(history), false);
 
-    if(i != HIST_INVALID)
+    if(i != kHistInvalid)
     {
         i = get_history_idx(i);
     }

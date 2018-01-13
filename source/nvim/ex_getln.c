@@ -310,13 +310,13 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     if(ccline.cmdbuff != NULL)
     {
         // Put line in history buffer (":" and "=" only when it was typed).
-        if(s->histype != HIST_INVALID
+        if(s->histype != kHistInvalid
            && ccline.cmdlen
            && s->firstc != NUL
-           && (s->some_key_typed || s->histype == HIST_SEARCH))
+           && (s->some_key_typed || s->histype == kHistSearch))
         {
             add_to_history(s->histype, ccline.cmdbuff, true,
-                           s->histype == HIST_SEARCH ? s->firstc : NUL);
+                           s->histype == kHistSearch ? s->firstc : NUL);
 
             if(s->firstc == ':')
             {
@@ -1591,7 +1591,7 @@ static int command_line_handle_key(CommandLineState *s)
         case K_KPAGEUP:
         case K_PAGEDOWN:
         case K_KPAGEDOWN:
-            if(s->histype == HIST_INVALID || hislen == 0 || s->firstc == NUL)
+            if(s->histype == kHistInvalid || hislen == 0 || s->firstc == NUL)
             {
                 // no history
                 return command_line_not_changed(s);
@@ -1693,7 +1693,7 @@ static int command_line_handle_key(CommandLineState *s)
                     p = history[s->histype][s->hiscnt].hisstr;
                 }
 
-                if(s->histype == HIST_SEARCH
+                if(s->histype == kHistSearch
                    && p != s->lookfor
                    && (old_firstc = p[STRLEN(p) + 1]) != s->firstc)
                 {
@@ -5764,34 +5764,34 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         case ':':
         {
-            return HIST_CMD;
+            return kHistCmd;
         }
 
         case '=':
         {
-            return HIST_EXPR;
+            return kHistExpr;
         }
 
         case '@':
         {
-            return HIST_INPUT;
+            return kHistInput;
         }
 
         case '>':
         {
-            return HIST_DEBUG;
+            return kHistDebug;
         }
 
         case NUL:
         case '/':
         case '?':
         {
-            return HIST_SEARCH;
+            return kHistSearch;
         }
 
         default:
         {
-            return HIST_INVALID;
+            return kHistInvalid;
         }
     }
 
@@ -5960,7 +5960,7 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
         p = history[type][i].hisstr;
 
         if(STRCMP(str, p) == 0
-           && (type != HIST_SEARCH || sep == p[STRLEN(p) + 1]))
+           && (type != kHistSearch || sep == p[STRLEN(p) + 1]))
         {
             if(!move_to_front)
             {
@@ -6007,7 +6007,7 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
 /// Convert history name to its HIST_ equivalent
 ///
 /// Names are taken from the table above. When @b name is empty returns currently
-/// active history or HIST_DEFAULT, depending on @b return_default argument.
+/// active history or kHistDefault, depending on @b return_default argument.
 ///
 /// @param[in] name
 /// Converted name.
@@ -6016,12 +6016,12 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
 /// Name length.
 ///
 /// @param[in] return_default
-/// Determines whether HIST_DEFAULT should be
+/// Determines whether kHistDefault should be
 /// returned or value based on 'ccline.cmdfirstc'.
 ///
 /// @return
-/// Any value from history_type_et enum, including HIST_INVALID. May not
-/// return HIST_DEFAULT unless return_default is true.
+/// Any value from history_type_et enum, including kHistInvalid. May not
+/// return kHistDefault unless return_default is true.
 history_type_et get_histtype(const char *const name,
                          const size_t len,
                          const bool return_default)
@@ -6032,7 +6032,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(len == 0)
     {
         return return_default
-                ? HIST_DEFAULT
+                ? kHistDefault
                 : hist_char2type(ccline.cmdfirstc);
     }
 
@@ -6049,7 +6049,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         return hist_char2type(name[0]);
     }
 
-    return HIST_INVALID;
+    return kHistInvalid;
 }
 
 static int last_maptick = -1; ///< last seen maptick
@@ -6067,14 +6067,14 @@ void add_to_history(int histype, uchar_kt *new_entry, int in_map, int sep)
     history_st *hisptr;
     int len;
 
-    if(hislen == 0 || histype == HIST_INVALID) // no history
+    if(hislen == 0 || histype == kHistInvalid) // no history
     {
         return;
     }
 
-    assert(histype != HIST_DEFAULT);
+    assert(histype != kHistDefault);
 
-    if(cmdmod.keeppatterns && histype == HIST_SEARCH)
+    if(cmdmod.keeppatterns && histype == kHistSearch)
     {
         return;
     }
@@ -6082,18 +6082,18 @@ void add_to_history(int histype, uchar_kt *new_entry, int in_map, int sep)
     // Searches inside the same mapping overwrite each other, so that only
     // the last line is kept. Be careful not to remove a line that was moved
     // down, only lines that were added.
-    if(histype == HIST_SEARCH && in_map)
+    if(histype == kHistSearch && in_map)
     {
-        if(maptick == last_maptick && hisidx[HIST_SEARCH] >= 0)
+        if(maptick == last_maptick && hisidx[kHistSearch] >= 0)
         {
             // Current line is from the same mapping, remove it
-            hisptr = &history[HIST_SEARCH][hisidx[HIST_SEARCH]];
+            hisptr = &history[kHistSearch][hisidx[kHistSearch]];
             hist_free_entry(hisptr);
             --hisnum[histype];
 
-            if(--hisidx[HIST_SEARCH] < 0)
+            if(--hisidx[kHistSearch] < 0)
             {
-                hisidx[HIST_SEARCH] = hislen - 1;
+                hisidx[kHistSearch] = hislen - 1;
             }
         }
 
@@ -6118,7 +6118,7 @@ void add_to_history(int histype, uchar_kt *new_entry, int in_map, int sep)
         hisptr->hisstr[len + 1] = sep;
         hisptr->hisnum = ++hisnum[histype];
 
-        if(histype == HIST_SEARCH && in_map)
+        if(histype == kHistSearch && in_map)
         {
             last_maptick = maptick;
         }
@@ -6421,7 +6421,7 @@ int del_history_idx(int histype, int idx)
 
     // When deleting the last added search string in a mapping, reset
     // last_maptick, so that the last added search string isn't deleted again.
-    if(histype == HIST_SEARCH && maptick == last_maptick && i == idx)
+    if(histype == kHistSearch && maptick == last_maptick && i == idx)
     {
         last_maptick = -1;
     }
@@ -6496,8 +6496,8 @@ int get_list_range(uchar_kt **str, int *num1, int *num2)
 void ex_history(exargs_st *eap)
 {
     history_st *hist;
-    int histype1 = HIST_CMD;
-    int histype2 = HIST_CMD;
+    int histype1 = kHistCmd;
+    int histype2 = kHistCmd;
     int hisidx1 = 1;
     int hisidx2 = -1;
     int idx;
@@ -6523,7 +6523,7 @@ void ex_history(exargs_st *eap)
 
         histype1 = get_histtype((const char *)arg, end - arg, false);
 
-        if(histype1 == HIST_INVALID)
+        if(histype1 == kHistInvalid)
         {
             if(STRNICMP(arg, "all", end - arg) == 0)
             {
@@ -6619,27 +6619,27 @@ int hist_type2char(int type) FUNC_ATTR_CONST
 {
     switch(type)
     {
-        case HIST_CMD:
+        case kHistCmd:
         {
             return ':';
         }
 
-        case HIST_SEARCH:
+        case kHistSearch:
         {
             return '/';
         }
 
-        case HIST_EXPR:
+        case kHistExpr:
         {
             return '=';
         }
 
-        case HIST_INPUT:
+        case kHistInput:
         {
             return '@';
         }
 
-        case HIST_DEBUG:
+        case kHistDebug:
         {
             return '>';
         }
@@ -6749,7 +6749,7 @@ static int ex_window(void)
     need_wait_return = FALSE;
     const int histtype = hist_char2type(cmdwin_type);
 
-    if(histtype == HIST_CMD || histtype == HIST_DEBUG)
+    if(histtype == kHistCmd || histtype == kHistDebug)
     {
         if(p_wc == TAB)
         {
@@ -6767,7 +6767,7 @@ static int ex_window(void)
     // Fill the buffer with the history.
     init_history();
 
-    if(hislen > 0 && histtype != HIST_INVALID)
+    if(hislen > 0 && histtype != kHistInvalid)
     {
         i = hisidx[histtype];
 
@@ -6861,7 +6861,7 @@ static int ex_window(void)
         {
             const char *p = (cmdwin_result == K_XF2) ? "qa" : "qa!";
 
-            if(histtype == HIST_CMD)
+            if(histtype == kHistCmd)
             {
                 // Execute the command directly.
                 ccline.cmdbuff = (uchar_kt *)xstrdup(p);

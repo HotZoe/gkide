@@ -515,7 +515,7 @@ static const ShadaEntry sd_default_values[] = {
             .sub = NULL,
             .additional_elements = NULL),
     DEF_SDE(HistoryEntry, history_item,
-            .histtype = HIST_CMD,
+            .histtype = kHistCmd,
             .string = NULL,
             .sep = NUL,
             .additional_elements = NULL),
@@ -1113,7 +1113,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 .history_item = {
                     .histtype = history_type,
                     .string = (char *) hist_he.hisstr,
-                    .sep = (char)(history_type == HIST_SEARCH
+                    .sep = (char)(history_type == kHistSearch
                                   ? (char) hist_he.hisstr[STRLEN(hist_he.hisstr) + 1]
                                   : 0),
                     .additional_elements = hist_he.additional_elements,
@@ -2127,7 +2127,7 @@ FUNC_ATTR_NONNULL_ALL
         case kSDItemHistoryEntry:
         {
             const bool is_hist_search =
-                entry.data.history_item.histtype == HIST_SEARCH;
+                entry.data.history_item.histtype == kHistSearch;
 
             const size_t arr_size =
                 2
@@ -4969,7 +4969,7 @@ shada_read_next_item_start:
                 (uint8_t) unpacked.data.via.array.ptr[0].via.u64;
 
             const bool is_hist_search =
-                entry->data.history_item.histtype == HIST_SEARCH;
+                entry->data.history_item.histtype == kHistSearch;
 
             if(is_hist_search)
             {

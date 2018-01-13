@@ -6031,7 +6031,7 @@ static void nv_ident(cmdarg_st *cap)
 
         // put pattern in search history
         init_history();
-        add_to_history(HIST_SEARCH, (uchar_kt *)buf, true, NUL);
+        add_to_history(kHistSearch, (uchar_kt *)buf, true, NUL);
 
         (void)normal_search(cap,
                             cmdchar == '*' ? '/' : '?',

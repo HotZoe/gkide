@@ -166,7 +166,7 @@ int search_regcomp(uchar_kt *pat,
     else if(options & SEARCH_HIS)
     {
         // put new pattern in history
-        add_to_history(HIST_SEARCH, pat, TRUE, NUL);
+        add_to_history(kHistSearch, pat, TRUE, NUL);
     }
 
     if(mr_pattern_alloced)
