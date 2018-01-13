@@ -1716,7 +1716,7 @@ int search_for_exact_line(filebuf_st *buf, apos_st *pos, int dir, uchar_kt *pat)
 ///
 /// @return
 /// FAIL or OK.
-int searchc(cmdarg_T *cap, int t_cmd)
+int searchc(cmdarg_st *cap, int t_cmd)
 {
     int c = cap->nchar; // char to search for
     int dir = cap->arg; // TRUE for searching forward

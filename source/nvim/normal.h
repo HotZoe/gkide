@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 #include "nvim/pos.h"
-#include "nvim/buffer_defs.h" // for win_st
+#include "nvim/buffer_defs.h"
 
 // Values for find_ident_under_cursor()
 #define FIND_IDENT    1  ///< find identifier (word)
@@ -49,7 +49,7 @@ typedef struct oparg_S
 } oparg_T;
 
 /// Arguments for Normal mode commands.
-typedef struct cmdarg_S
+typedef struct cmdarg_s
 {
     oparg_T *oap;        ///< Operator arguments
     int prechar;         ///< prefix character (optional, always 'g')
@@ -64,7 +64,7 @@ typedef struct cmdarg_S
     int arg;             ///< extra argument from nv_cmds[]
     int retval;          ///< return: CA_* values
     uchar_kt *searchbuf;   ///< return: pointer to search pattern or NULL
-} cmdarg_T;
+} cmdarg_st;
 
 // values for retval:
 #define CA_COMMAND_BUSY     1   ///< skip restarting edit() once

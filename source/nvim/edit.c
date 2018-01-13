@@ -194,7 +194,7 @@ static int compl_opt_refresh_always = FALSE;
 typedef struct insert_state
 {
     VimState state;
-    cmdarg_T *ca;
+    cmdarg_st *ca;
     int mincol;
     int cmdchar;
     int startln;

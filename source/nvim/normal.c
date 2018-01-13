@@ -74,7 +74,7 @@ typedef struct normal_state
                            ///< ex mode(:global or :visual for example)
     bool toplevel;         ///< top-level normal mode
     oparg_T oa;            ///< operator arguments
-    cmdarg_T ca;           ///< command arguments
+    cmdarg_st ca;           ///< command arguments
     int mapped_len;
     int old_mapped_len;
     int idx;
@@ -108,8 +108,8 @@ static inline void normal_state_init(NormalState *s)
 static char *e_noident = N_("E349: No identifier under cursor");
 
 /// Function to be called for a Normal or Visual mode command.
-/// The argument is a cmdarg_T.
-typedef void (*nv_func_T)(cmdarg_T *cap);
+/// The argument is a cmdarg_st.
+typedef void (*nv_func_T)(cmdarg_st *cap);
 
 // Values for cmd_flags.
 #define NV_NCH      0x01          ///< may need to get a second char
@@ -1610,7 +1610,7 @@ static int normal_check(VimState *state)
 
 /// Set v:count and v:count1 according to "cap".
 /// Set v:prevcount only when "set_prevcount" is true.
-static void set_vcount_ca(cmdarg_T *cap, bool *set_prevcount)
+static void set_vcount_ca(cmdarg_st *cap, bool *set_prevcount)
 {
     long count = cap->count0;
 
@@ -1625,7 +1625,7 @@ static void set_vcount_ca(cmdarg_T *cap, bool *set_prevcount)
 }
 
 /// Handle an operator after visual mode or when the movement is finished
-void do_pending_operator(cmdarg_T *cap, int old_col, bool gui_yank)
+void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
 {
     oparg_T *oap = cap->oap;
     apos_st old_cursor;
@@ -3842,7 +3842,7 @@ size_t find_ident_at_pos(win_st *wp,
 }
 
 /// Prepare for redo of a normal command.
-static void prep_redo_cmd(cmdarg_T *cap)
+static void prep_redo_cmd(cmdarg_st *cap)
 {
     prep_redo(cap->oap->regname, cap->count0,
               NUL, cap->cmdchar, NUL, NUL, cap->nchar);
@@ -3940,7 +3940,7 @@ static void clearopbeep(oparg_T *oap)
 }
 
 /// Remove the shift modifier from a special key.
-static void unshift_special(cmdarg_T *cap)
+static void unshift_special(cmdarg_st *cap)
 {
     switch(cap->cmdchar)
     {
@@ -4398,7 +4398,7 @@ void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
 ///
 /// Used for CTRL-Q and CTRL-S to avoid
 /// problems with terminals that use xon/xoff.
-static void nv_ignore(cmdarg_T *cap)
+static void nv_ignore(cmdarg_st *cap)
 {
     cap->retval |= CA_COMMAND_BUSY; // don't call edit() now
 }
@@ -4407,18 +4407,18 @@ static void nv_ignore(cmdarg_T *cap)
 /// but unlike nv_ignore() does start edit().
 ///
 /// Used for "startinsert" executed while starting up.
-static void nv_nop(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_nop(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
 {
 }
 
 /// Command character doesn't exist.
-static void nv_error(cmdarg_T *cap)
+static void nv_error(cmdarg_st *cap)
 {
     clearopbeep(cap->oap);
 }
 
 /// <Help> and <F1> commands.
-static void nv_help(cmdarg_T *cap)
+static void nv_help(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -4428,7 +4428,7 @@ static void nv_help(cmdarg_T *cap)
 
 /// CTRL-A and CTRL-X: Add or subtract
 /// from letter or number under cursor.
-static void nv_addsub(cmdarg_T *cap)
+static void nv_addsub(cmdarg_st *cap)
 {
     if(!VIsual_active && cap->oap->op_type == OP_NOP)
     {
@@ -4448,7 +4448,7 @@ static void nv_addsub(cmdarg_T *cap)
 }
 
 /// CTRL-F, CTRL-B, etc: Scroll page up or down.
-static void nv_page(cmdarg_T *cap)
+static void nv_page(cmdarg_st *cap)
 {
     if(!checkclearop(cap->oap))
     {
@@ -4850,7 +4850,7 @@ static bool nv_screengo(oparg_T *oap, int dir, long dist)
 ///
 /// - K_MOUSEUP (cap->arg == 1) or K_MOUSEDOWN (cap->arg == 0) or
 /// - K_MOUSELEFT (cap->arg == -1) or K_MOUSERIGHT (cap->arg == -2)
-static void nv_mousescroll(cmdarg_T *cap)
+static void nv_mousescroll(cmdarg_st *cap)
 {
     win_st *old_curwin = curwin;
 
@@ -4889,14 +4889,14 @@ static void nv_mousescroll(cmdarg_T *cap)
 }
 
 /// Mouse clicks and drags.
-static void nv_mouse(cmdarg_T *cap)
+static void nv_mouse(cmdarg_st *cap)
 {
     (void)do_mouse(cap->oap, cap->cmdchar, BACKWARD, cap->count1, 0);
 }
 
 /// Handle CTRL-E and CTRL-Y commands: scroll a line up or down.
 /// cap->arg must be true for CTRL-E.
-static void nv_scroll_line(cmdarg_T *cap)
+static void nv_scroll_line(cmdarg_st *cap)
 {
     if(!checkclearop(cap->oap))
     {
@@ -4968,7 +4968,7 @@ void scroll_redraw(int up, long count)
 }
 
 /// Commands that start with "z".
-static void nv_zet(cmdarg_T *cap)
+static void nv_zet(cmdarg_st *cap)
 {
     int n;
     columnum_kt col;
@@ -5558,7 +5558,7 @@ dozet:
 
 
 /// "Q" command.
-static void nv_exmode(cmdarg_T *cap)
+static void nv_exmode(cmdarg_st *cap)
 {
     // Ignore 'Q' in Visual mode, just give a beep.
     if(VIsual_active)
@@ -5572,7 +5572,7 @@ static void nv_exmode(cmdarg_T *cap)
 }
 
 /// Handle a ":" command.
-static void nv_colon(cmdarg_T *cap)
+static void nv_colon(cmdarg_st *cap)
 {
     int old_p_im;
     bool cmd_result;
@@ -5648,7 +5648,7 @@ static void nv_colon(cmdarg_T *cap)
 }
 
 /// Handle CTRL-G command.
-static void nv_ctrlg(cmdarg_T *cap)
+static void nv_ctrlg(cmdarg_st *cap)
 {
     if(VIsual_active)
     {
@@ -5664,7 +5664,7 @@ static void nv_ctrlg(cmdarg_T *cap)
 }
 
 /// Handle CTRL-H <Backspace> command.
-static void nv_ctrlh(cmdarg_T *cap)
+static void nv_ctrlh(cmdarg_st *cap)
 {
     if(VIsual_active && VIsual_select)
     {
@@ -5678,7 +5678,7 @@ static void nv_ctrlh(cmdarg_T *cap)
 }
 
 /// CTRL-L: clear screen and redraw.
-static void nv_clear(cmdarg_T *cap)
+static void nv_clear(cmdarg_st *cap)
 {
     if(!checkclearop(cap->oap))
     {
@@ -5690,7 +5690,7 @@ static void nv_clear(cmdarg_T *cap)
 
 /// CTRL-O: In Select mode: switch to Visual mode for one command.
 /// Otherwise: Go to older pcmark.
-static void nv_ctrlo(cmdarg_T *cap)
+static void nv_ctrlo(cmdarg_st *cap)
 {
     if(VIsual_active && VIsual_select)
     {
@@ -5706,7 +5706,7 @@ static void nv_ctrlo(cmdarg_T *cap)
 }
 
 /// CTRL-^ command, short for ":e #"
-static void nv_hat(cmdarg_T *cap)
+static void nv_hat(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -5716,7 +5716,7 @@ static void nv_hat(cmdarg_T *cap)
 }
 
 /// "Z" commands.
-static void nv_Zet(cmdarg_T *cap)
+static void nv_Zet(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -5740,7 +5740,7 @@ static void nv_Zet(cmdarg_T *cap)
 void do_nv_ident(int c1, int c2)
 {
     oparg_T oa;
-    cmdarg_T ca;
+    cmdarg_st ca;
     clear_oparg(&oa);
     memset(&ca, 0, sizeof(ca));
     ca.oap = &oa;
@@ -5755,7 +5755,7 @@ void do_nv_ident(int c1, int c2)
 /// - [g] '*' /        to current identifier or string
 /// - [g] '#' ?        to current identifier or string
 /// -  g  ']' :tselect for current identifier
-static void nv_ident(cmdarg_T *cap)
+static void nv_ident(cmdarg_st *cap)
 {
     uchar_kt *ptr = NULL;
     uchar_kt *p;
@@ -6051,7 +6051,7 @@ static void nv_ident(cmdarg_T *cap)
 /// @param cap
 /// @param pp     return: start of selected text
 /// @param lenp   return: length of selected text
-bool get_visual_text(cmdarg_T *cap, uchar_kt **pp, size_t *lenp)
+bool get_visual_text(cmdarg_st *cap, uchar_kt **pp, size_t *lenp)
 {
     if(VIsual_mode != 'V')
     {
@@ -6098,7 +6098,7 @@ bool get_visual_text(cmdarg_T *cap, uchar_kt **pp, size_t *lenp)
 }
 
 /// CTRL-T: backwards in tag stack
-static void nv_tagpop(cmdarg_T *cap)
+static void nv_tagpop(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -6107,7 +6107,7 @@ static void nv_tagpop(cmdarg_T *cap)
 }
 
 /// Handle scrolling command 'H', 'L' and 'M'.
-static void nv_scroll(cmdarg_T *cap)
+static void nv_scroll(cmdarg_st *cap)
 {
     long n;
     int used = 0;
@@ -6219,7 +6219,7 @@ static void nv_scroll(cmdarg_T *cap)
 }
 
 /// Cursor right commands.
-static void nv_right(cmdarg_T *cap)
+static void nv_right(cmdarg_st *cap)
 {
     long n;
     int PAST_LINE;
@@ -6334,7 +6334,7 @@ static void nv_right(cmdarg_T *cap)
 /// Cursor left commands.
 ///
 /// Returns true when operator end should not be adjusted.
-static void nv_left(cmdarg_T *cap)
+static void nv_left(cmdarg_st *cap)
 {
     long n;
 
@@ -6418,7 +6418,7 @@ static void nv_left(cmdarg_T *cap)
 
 /// Cursor up commands.
 /// cap->arg is true for "-": Move cursor to first non-blank.
-static void nv_up(cmdarg_T *cap)
+static void nv_up(cmdarg_st *cap)
 {
     if(mod_mask & MOD_MASK_SHIFT)
     {
@@ -6443,7 +6443,7 @@ static void nv_up(cmdarg_T *cap)
 
 /// Cursor down commands.
 /// cap->arg is true for CR and "+": Move cursor to first non-blank.
-static void nv_down(cmdarg_T *cap)
+static void nv_down(cmdarg_st *cap)
 {
     if(mod_mask & MOD_MASK_SHIFT)
     {
@@ -6487,7 +6487,7 @@ static void nv_down(cmdarg_T *cap)
 }
 
 /// Grab the file name under the cursor and edit it.
-static void nv_gotofile(cmdarg_T *cap)
+static void nv_gotofile(cmdarg_st *cap)
 {
     uchar_kt *ptr;
     linenum_kt lnum = -1;
@@ -6540,7 +6540,7 @@ static void nv_gotofile(cmdarg_T *cap)
 }
 
 /// <End> command: to end of current line or last line.
-static void nv_end(cmdarg_T *cap)
+static void nv_end(cmdarg_st *cap)
 {
     // CTRL-END = goto last line
     if(cap->arg || (mod_mask & MOD_MASK_CTRL))
@@ -6554,7 +6554,7 @@ static void nv_end(cmdarg_T *cap)
 }
 
 /// Handle the "$" command.
-static void nv_dollar(cmdarg_T *cap)
+static void nv_dollar(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->inclusive = true;
@@ -6583,7 +6583,7 @@ static void nv_dollar(cmdarg_T *cap)
 
 /// Implementation of '?' and '/' commands.
 /// If cap->arg is true don't set PC mark.
-static void nv_search(cmdarg_T *cap)
+static void nv_search(cmdarg_st *cap)
 {
     oparg_T *oap = cap->oap;
 
@@ -6612,7 +6612,7 @@ static void nv_search(cmdarg_T *cap)
 
 /// Handle "N" and "n" commands.
 /// cap->arg is SEARCH_REV for "N", 0 for "n".
-static void nv_next(cmdarg_T *cap)
+static void nv_next(cmdarg_st *cap)
 {
     apos_st old = curwin->w_cursor;
     int i = normal_search(cap, 0, NULL, SEARCH_MARK | cap->arg);
@@ -6636,7 +6636,7 @@ static void nv_next(cmdarg_T *cap)
 /// @param dir
 /// @param pat
 /// @param opt  extra flags for do_search()
-static int normal_search(cmdarg_T *cap, int dir, uchar_kt *pat, int opt)
+static int normal_search(cmdarg_st *cap, int dir, uchar_kt *pat, int opt)
 {
     int i;
     cap->oap->motion_type = kMTCharWise;
@@ -6682,7 +6682,7 @@ static int normal_search(cmdarg_T *cap, int dir, uchar_kt *pat, int opt)
 /// cap->arg is BACKWARD for 'F' and 'T', FORWARD for 'f' and 't', true for
 /// ',' and false for ';'.
 /// cap->nchar is NUL for ',' and ';' (repeat the search)
-static void nv_csearch(cmdarg_T *cap)
+static void nv_csearch(cmdarg_st *cap)
 {
     bool t_cmd;
 
@@ -6731,7 +6731,7 @@ static void nv_csearch(cmdarg_T *cap)
 
 /// "[" and "]" commands.
 /// cap->arg is BACKWARD for "[" and FORWARD for "]".
-static void nv_brackets(cmdarg_T *cap)
+static void nv_brackets(cmdarg_st *cap)
 {
     apos_st new_pos = INIT_POS_T(0, 0, 0);
     apos_st prev_pos;
@@ -7163,7 +7163,7 @@ static void nv_brackets(cmdarg_T *cap)
 }
 
 /// Handle Normal mode "%" command.
-static void nv_percent(cmdarg_T *cap)
+static void nv_percent(cmdarg_st *cap)
 {
     apos_st *pos;
     linenum_kt lnum = curwin->w_cursor.lnum;
@@ -7233,7 +7233,7 @@ static void nv_percent(cmdarg_T *cap)
 
 /// Handle "(" and ")" commands.
 /// cap->arg is BACKWARD for "(" and FORWARD for ")".
-static void nv_brace(cmdarg_T *cap)
+static void nv_brace(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->use_reg_one = true;
@@ -7263,7 +7263,7 @@ static void nv_brace(cmdarg_T *cap)
 }
 
 /// "m" command: Mark a position.
-static void nv_mark(cmdarg_T *cap)
+static void nv_mark(cmdarg_st *cap)
 {
     if(!checkclearop(cap->oap))
     {
@@ -7276,7 +7276,7 @@ static void nv_mark(cmdarg_T *cap)
 
 /// "{" and "}" commands.
 /// cmd->arg is BACKWARD for "{" and FORWARD for "}".
-static void nv_findpar(cmdarg_T *cap)
+static void nv_findpar(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->inclusive = false;
@@ -7301,7 +7301,7 @@ static void nv_findpar(cmdarg_T *cap)
 }
 
 /// "u" command: Undo or make lower case.
-static void nv_undo(cmdarg_T *cap)
+static void nv_undo(cmdarg_st *cap)
 {
     if(cap->oap->op_type == OP_LOWER || VIsual_active)
     {
@@ -7317,7 +7317,7 @@ static void nv_undo(cmdarg_T *cap)
 }
 
 /// <Undo> command.
-static void nv_kundo(cmdarg_T *cap)
+static void nv_kundo(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -7327,7 +7327,7 @@ static void nv_kundo(cmdarg_T *cap)
 }
 
 /// Handle the "r" command.
-static void nv_replace(cmdarg_T *cap)
+static void nv_replace(cmdarg_st *cap)
 {
     uchar_kt *ptr;
     int had_ctrl_v;
@@ -7631,7 +7631,7 @@ static void v_swap_corners(int cmdchar)
 }
 
 /// "R" (cap->arg is false) and "gR" (cap->arg is true).
-static void nv_Replace(cmdarg_T *cap)
+static void nv_Replace(cmdarg_st *cap)
 {
     if(VIsual_active)
     {
@@ -7661,7 +7661,7 @@ static void nv_Replace(cmdarg_T *cap)
 }
 
 /// "gr".
-static void nv_vreplace(cmdarg_T *cap)
+static void nv_vreplace(cmdarg_st *cap)
 {
     if(VIsual_active)
     {
@@ -7697,7 +7697,7 @@ static void nv_vreplace(cmdarg_T *cap)
 }
 
 /// Swap case for "~" command, when it does not work like an operator.
-static void n_swapchar(cmdarg_T *cap)
+static void n_swapchar(cmdarg_st *cap)
 {
     long n;
     apos_st startpos;
@@ -7773,7 +7773,7 @@ static void n_swapchar(cmdarg_T *cap)
 }
 
 /// Move cursor to mark.
-static void nv_cursormark(cmdarg_T *cap, int flag, apos_st *pos)
+static void nv_cursormark(cmdarg_st *cap, int flag, apos_st *pos)
 {
     if(check_mark(pos) == false)
     {
@@ -7813,7 +7813,7 @@ static void nv_cursormark(cmdarg_T *cap, int flag, apos_st *pos)
 }
 
 /// Handle commands that are operators in Visual mode.
-static void v_visop(cmdarg_T *cap)
+static void v_visop(cmdarg_st *cap)
 {
     static uchar_kt trans[] = "YyDdCcxdXdAAIIrr";
 
@@ -7837,7 +7837,7 @@ static void v_visop(cmdarg_T *cap)
 }
 
 /// "s" and "S" commands.
-static void nv_subst(cmdarg_T *cap)
+static void nv_subst(cmdarg_st *cap)
 {
     if(VIsual_active)
     {
@@ -7858,7 +7858,7 @@ static void nv_subst(cmdarg_T *cap)
 }
 
 /// Abbreviated commands.
-static void nv_abbrev(cmdarg_T *cap)
+static void nv_abbrev(cmdarg_st *cap)
 {
     if(cap->cmdchar == K_DEL || cap->cmdchar == K_KDEL)
     {
@@ -7877,7 +7877,7 @@ static void nv_abbrev(cmdarg_T *cap)
 }
 
 /// Translate a command into another command.
-static void nv_optrans(cmdarg_T *cap)
+static void nv_optrans(cmdarg_st *cap)
 {
     static const char *str = "xXDCsSY&";
     static const char *(ar[]) = {
@@ -7899,7 +7899,7 @@ static void nv_optrans(cmdarg_T *cap)
 
 /// "'" and "`" commands.  Also for "g'" and "g`".
 /// cap->arg is true for "'" and "g'".
-static void nv_gomark(cmdarg_T *cap)
+static void nv_gomark(cmdarg_st *cap)
 {
     int c;
     apos_st *pos;
@@ -7952,7 +7952,7 @@ static void nv_gomark(cmdarg_T *cap)
 }
 
 /// Handle CTRL-O, CTRL-I, "g;" and "g," commands.
-static void nv_pcmark(cmdarg_T *cap)
+static void nv_pcmark(cmdarg_st *cap)
 {
     apos_st *pos;
     linenum_kt lnum = curwin->w_cursor.lnum;
@@ -8011,7 +8011,7 @@ static void nv_pcmark(cmdarg_T *cap)
 }
 
 /// Handle '"' command.
-static void nv_regname(cmdarg_T *cap)
+static void nv_regname(cmdarg_st *cap)
 {
     if(checkclearop(cap->oap))
     {
@@ -8039,7 +8039,7 @@ static void nv_regname(cmdarg_T *cap)
 /// Also for "gh", "gH" and "g^H" commands:
 /// Always start Select mode, cap->arg is true.
 /// Handle CTRL-Q just like CTRL-V.
-static void nv_visual(cmdarg_T *cap)
+static void nv_visual(cmdarg_st *cap)
 {
     if(cap->cmdchar == Ctrl_Q)
     {
@@ -8251,7 +8251,7 @@ static void n_start_visual_mode(int c)
 
 
 /// CTRL-W: Window commands
-static void nv_window(cmdarg_T *cap)
+static void nv_window(cmdarg_st *cap)
 {
     if(!checkclearop(cap->oap))
     {
@@ -8261,7 +8261,7 @@ static void nv_window(cmdarg_T *cap)
 }
 
 /// CTRL-Z: Suspend
-static void nv_suspend(cmdarg_T *cap)
+static void nv_suspend(cmdarg_st *cap)
 {
     clearop(cap->oap);
 
@@ -8274,7 +8274,7 @@ static void nv_suspend(cmdarg_T *cap)
 }
 
 /// Commands starting with "g".
-static void nv_g_cmd(cmdarg_T *cap)
+static void nv_g_cmd(cmdarg_st *cap)
 {
     oparg_T *oap = cap->oap;
     apos_st tpos;
@@ -8860,7 +8860,7 @@ static void nv_g_cmd(cmdarg_T *cap)
 }
 
 /// Handle "o" and "O" commands.
-static void n_opencmd(cmdarg_T *cap)
+static void n_opencmd(cmdarg_st *cap)
 {
     linenum_kt oldline = curwin->w_cursor.lnum;
 
@@ -8901,7 +8901,7 @@ static void n_opencmd(cmdarg_T *cap)
 }
 
 /// "." command: redo last change.
-static void nv_dot(cmdarg_T *cap)
+static void nv_dot(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -8916,7 +8916,7 @@ static void nv_dot(cmdarg_T *cap)
 }
 
 /// CTRL-R: undo undo
-static void nv_redo(cmdarg_T *cap)
+static void nv_redo(cmdarg_st *cap)
 {
     if(!checkclearopq(cap->oap))
     {
@@ -8926,7 +8926,7 @@ static void nv_redo(cmdarg_T *cap)
 }
 
 /// Handle "U" command.
-static void nv_Undo(cmdarg_T *cap)
+static void nv_Undo(cmdarg_st *cap)
 {
     // In Visual mode and typing "gUU" triggers an operator
     if(cap->oap->op_type == OP_UPPER || VIsual_active)
@@ -8945,7 +8945,7 @@ static void nv_Undo(cmdarg_T *cap)
 
 /// '~' command: If tilde is not an operator and Visual
 /// is off: swap case of a single character.
-static void nv_tilde(cmdarg_T *cap)
+static void nv_tilde(cmdarg_st *cap)
 {
     if(!p_to && !VIsual_active && cap->oap->op_type != OP_TILDE)
     {
@@ -8959,7 +8959,7 @@ static void nv_tilde(cmdarg_T *cap)
 
 /// Handle an operator command.
 /// The actual work is done by do_pending_operator().
-static void nv_operator(cmdarg_T *cap)
+static void nv_operator(cmdarg_st *cap)
 {
     int op_type;
     op_type = get_op_type(cap->cmdchar, cap->nchar);
@@ -9009,7 +9009,7 @@ static void set_op_var(int optype)
 /// command actually refers to "the current line". Commands like "dd" and "yy"
 /// are really an alternate form of "d_" and "y_". It does accept a count, so
 /// "d3_" works to delete 3 lines.
-static void nv_lineop(cmdarg_T *cap)
+static void nv_lineop(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTLineWise;
 
@@ -9034,7 +9034,7 @@ static void nv_lineop(cmdarg_T *cap)
 }
 
 /// <Home> command.
-static void nv_home(cmdarg_T *cap)
+static void nv_home(cmdarg_st *cap)
 {
     // CTRL-HOME is like "gg"
     if(mod_mask & MOD_MASK_CTRL)
@@ -9053,7 +9053,7 @@ static void nv_home(cmdarg_T *cap)
 }
 
 /// "|" command.
-static void nv_pipe(cmdarg_T *cap)
+static void nv_pipe(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->inclusive = false;
@@ -9076,7 +9076,7 @@ static void nv_pipe(cmdarg_T *cap)
 
 /// Handle back-word command "b" and "B".
 /// cap->arg is 1 for "B"
-static void nv_bck_word(cmdarg_T *cap)
+static void nv_bck_word(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->inclusive = false;
@@ -9094,7 +9094,7 @@ static void nv_bck_word(cmdarg_T *cap)
 
 /// Handle word motion commands "e", "E", "w" and "W".
 /// cap->arg is true for "E" and "W".
-static void nv_wordcmd(cmdarg_T *cap)
+static void nv_wordcmd(cmdarg_st *cap)
 {
     int n;
     bool word_end;
@@ -9201,7 +9201,7 @@ static void adjust_cursor(oparg_T *oap)
 
 /// "0" and "^" commands.
 /// cap->arg is the argument for beginline().
-static void nv_beginline(cmdarg_T *cap)
+static void nv_beginline(cmdarg_st *cap)
 {
     cap->oap->motion_type = kMTCharWise;
     cap->oap->inclusive = false;
@@ -9220,7 +9220,7 @@ static void nv_beginline(cmdarg_T *cap)
 }
 
 /// In exclusive Visual mode, may include the last character.
-static void adjust_for_sel(cmdarg_T *cap)
+static void adjust_for_sel(cmdarg_st *cap)
 {
     if(VIsual_active
        && cap->oap->inclusive
@@ -9280,7 +9280,7 @@ static bool unadjust_for_sel(void)
 }
 
 /// SELECT key in Normal or Visual mode: end of Select mode mapping.
-static void nv_select(cmdarg_T *cap)
+static void nv_select(cmdarg_st *cap)
 {
     if(VIsual_active)
     {
@@ -9297,7 +9297,7 @@ static void nv_select(cmdarg_T *cap)
 
 /// "G", "gg", CTRL-END, CTRL-HOME.
 /// cap->arg is true for "G".
-static void nv_goto(cmdarg_T *cap)
+static void nv_goto(cmdarg_st *cap)
 {
     linenum_kt lnum;
 
@@ -9340,7 +9340,7 @@ static void nv_goto(cmdarg_T *cap)
 }
 
 /// CTRL-\ in Normal mode.
-static void nv_normal(cmdarg_T *cap)
+static void nv_normal(cmdarg_st *cap)
 {
     if(cap->nchar == Ctrl_N || cap->nchar == Ctrl_G)
     {
@@ -9379,7 +9379,7 @@ static void nv_normal(cmdarg_T *cap)
 
 /// ESC in Normal mode: beep, but don't flush buffers.
 /// Don't even beep if we are canceling a command.
-static void nv_esc(cmdarg_T *cap)
+static void nv_esc(cmdarg_st *cap)
 {
     int no_reason;
 
@@ -9438,7 +9438,7 @@ static void nv_esc(cmdarg_T *cap)
 }
 
 /// Handle "A", "a", "I", "i" and <Insert> commands.
-static void nv_edit(cmdarg_T *cap)
+static void nv_edit(cmdarg_st *cap)
 {
     // <Insert> is equal to "i"
     if(cap->cmdchar == K_INS || cap->cmdchar == K_KINS)
@@ -9531,7 +9531,7 @@ static void nv_edit(cmdarg_T *cap)
 /// @param repl    "r" or "gr" command
 /// @param cmd
 /// @param startln
-static void invoke_edit(cmdarg_T *cap, int repl, int cmd, int startln)
+static void invoke_edit(cmdarg_st *cap, int repl, int cmd, int startln)
 {
     int restart_edit_save = 0;
 
@@ -9562,7 +9562,7 @@ static void invoke_edit(cmdarg_T *cap, int repl, int cmd, int startln)
 
 /// "a" or "i" while an operator is
 /// pending or in Visual mode: object motion.
-static void nv_object(cmdarg_T *cap)
+static void nv_object(cmdarg_st *cap)
 {
     bool flag;
     bool include;
@@ -9658,7 +9658,7 @@ static void nv_object(cmdarg_T *cap)
 
 /// "q" command: Start/stop recording.
 /// "q:", "q/", "q?": edit command-line in command-line window.
-static void nv_record(cmdarg_T *cap)
+static void nv_record(cmdarg_st *cap)
 {
     if(cap->oap->op_type == OP_FORMAT)
     {
@@ -9687,7 +9687,7 @@ static void nv_record(cmdarg_T *cap)
 }
 
 /// Handle the "@r" command.
-static void nv_at(cmdarg_T *cap)
+static void nv_at(cmdarg_st *cap)
 {
     if(checkclearop(cap->oap))
     {
@@ -9715,7 +9715,7 @@ static void nv_at(cmdarg_T *cap)
 }
 
 /// Handle the CTRL-U and CTRL-D commands.
-static void nv_halfpage(cmdarg_T *cap)
+static void nv_halfpage(cmdarg_st *cap)
 {
     if((cap->cmdchar == Ctrl_U && curwin->w_cursor.lnum == 1)
        || (cap->cmdchar == Ctrl_D
@@ -9730,7 +9730,7 @@ static void nv_halfpage(cmdarg_T *cap)
 }
 
 /// Handle "J" or "gJ" command.
-static void nv_join(cmdarg_T *cap)
+static void nv_join(cmdarg_st *cap)
 {
     // join the visual lines
     if(VIsual_active)
@@ -9766,7 +9766,7 @@ static void nv_join(cmdarg_T *cap)
 }
 
 /// "P", "gP", "p" and "gp" commands.
-static void nv_put(cmdarg_T *cap)
+static void nv_put(cmdarg_st *cap)
 {
     int regname = 0;
     yankreg_T *savereg = NULL;
@@ -9919,7 +9919,7 @@ static void nv_put(cmdarg_T *cap)
 }
 
 /// "o" and "O" commands.
-static void nv_open(cmdarg_T *cap)
+static void nv_open(cmdarg_st *cap)
 {
     // "do" is ":diffget"
     if(cap->oap->op_type == OP_DELETE && cap->cmdchar == 'o')
@@ -10027,7 +10027,7 @@ static void get_op_vcol(oparg_T *oap, columnum_kt redo_VIsual_vcol, bool initial
 }
 
 /// Handle an arbitrary event in normal mode
-static void nv_event(cmdarg_T *cap)
+static void nv_event(cmdarg_st *cap)
 {
     // Garbage collection should have been executed before blocking for
     // events in the `os_inchar` in `state_enter`, but we also disable it
@@ -10045,13 +10045,13 @@ static void nv_event(cmdarg_T *cap)
 }
 
 /// Trigger FocusGained event.
-static void nv_focusgained(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_focusgained(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
 {
     apply_autocmds(EVENT_FOCUSGAINED, NULL, NULL, false, curbuf);
 }
 
 /// Trigger FocusLost event.
-static void nv_focuslost(cmdarg_T *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_focuslost(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
 {
     apply_autocmds(EVENT_FOCUSLOST, NULL, NULL, false, curbuf);
 }
