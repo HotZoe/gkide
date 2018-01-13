@@ -18,15 +18,15 @@
 
 /// Struct to save values in before executing autocommands
 /// for a buffer that is not the current buffer.
-typedef struct
+typedef struct save_autocmd_s
 {
-    filebuf_st *save_curbuf;  ///< saved curbuf
-    int use_aucmd_win;     ///< using aucmd_win
-    win_st *save_curwin;   ///< saved curwin
-    win_st *new_curwin;    ///< new curwin
-    bufref_st new_curbuf;  ///< new curbuf
-    uchar_kt *globaldir;   ///< saved value of globaldir
-} auto_cmd_save_st;
+    filebuf_st *save_curbuf; ///< saved curbuf
+    int use_aucmd_win;       ///< using aucmd_win
+    win_st *save_curwin;     ///< saved curwin
+    win_st *new_curwin;      ///< new curwin
+    bufref_st new_curbuf;    ///< new curbuf
+    uchar_kt *globaldir;     ///< saved value of globaldir
+} save_autocmd_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     // Events for autocommands

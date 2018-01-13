@@ -457,7 +457,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     }
 }
 
-typedef struct
+typedef struct api2mpobj_stackitem_s
 {
     const Object *aobj;
     bool container;

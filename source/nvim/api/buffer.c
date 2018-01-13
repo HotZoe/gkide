@@ -693,7 +693,7 @@ FUNC_API_SINCE(1)
 
     try_start();
     // Using aucmd_*: autocommands will be executed by rename_buffer
-    auto_cmd_save_st aco;
+    save_autocmd_st aco;
     aucmd_prepbuf(&aco, buf);
     int ren_ret = rename_buffer((uchar_kt *) name.data);
     aucmd_restbuf(&aco);

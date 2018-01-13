@@ -6456,7 +6456,7 @@ int get_option_value_strict(char *name,
             }
             else
             {
-                auto_cmd_save_st  aco;
+                save_autocmd_st  aco;
                 aucmd_prepbuf(&aco, (filebuf_st *) from);
                 varp = get_varp(p);
                 aucmd_restbuf(&aco);

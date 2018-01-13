@@ -3660,7 +3660,7 @@ static void qf_update_buffer(qfinfo_st *qi, qfline_T *old_last)
 {
     filebuf_st *buf;
     win_st *win;
-    auto_cmd_save_st aco;
+    save_autocmd_st aco;
 
     // Check if a buffer for the quickfix list exists. Update it.
     buf = qf_find_buf(qi);
@@ -4577,7 +4577,7 @@ void ex_vimgrep(exargs_st *eap)
     time_t seconds = 0;
     long save_mls;
     uchar_kt *save_ei = NULL;
-    auto_cmd_save_st aco;
+    save_autocmd_st aco;
     int flags = 0;
     columnum_kt col;
     long tomatch;
@@ -5059,7 +5059,7 @@ static filebuf_st *load_dummy_buffer(uchar_kt *fname,
     bufref_st newbufref;
     bufref_st newbuf_to_wipe;
     int failed = true;
-    auto_cmd_save_st aco;
+    save_autocmd_st aco;
 
     // Allocate a buffer without putting it in the buffer list.
     newbuf = buflist_new(NULL, NULL, (linenum_kt)1, BLN_DUMMY);

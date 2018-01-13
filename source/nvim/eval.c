@@ -18818,7 +18818,7 @@ static void f_setbufvar(typval_st *argvars,
         {
             long numval;
             bool error = false;
-            auto_cmd_save_st aco;
+            save_autocmd_st aco;
 
             // set curbuf to be our buf, temporarily
             aucmd_prepbuf(&aco, buf);
