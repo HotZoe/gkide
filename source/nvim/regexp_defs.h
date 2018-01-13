@@ -44,7 +44,7 @@ typedef struct regprog_s
 /// Structure used by the back track matcher.
 /// These fields are only to be used in regexp.c!
 /// @see regexp.c for an explanation.
-typedef struct
+typedef struct bt_regprog_s
 {
     // These four members implement regprog_st.
     regengine_st *engine;

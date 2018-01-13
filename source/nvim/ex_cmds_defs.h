@@ -173,7 +173,7 @@ struct expand_s
 /// Command modifiers ":vertical", ":browse", ":confirm", ":hide", etc.
 /// set a flag. This needs to be saved for recursive commands, put them in a
 /// structure for easy manipulation.
-typedef struct
+typedef struct cmdmod_s
 {
     int split;                   ///< flags for win_split()
     int tab;                     ///< > 0 when ":tab" was used

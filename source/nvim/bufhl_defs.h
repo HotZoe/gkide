@@ -18,7 +18,7 @@ struct bufhl_s
     columnum_kt stop;  ///< last column to highlight
 };
 
-typedef struct
+typedef struct bufhl_lineinfo_s
 {
     bufhl_vec_st entries;
     int current;

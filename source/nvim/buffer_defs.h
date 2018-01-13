@@ -11,7 +11,7 @@ typedef struct filebuf_s filebuf_st;
 
 /// Reference to a buffer that stores the value of buf_free_count.
 /// bufref_valid() only needs to check "buf" when the count differs.
-typedef struct
+typedef struct bufref_s
 {
     filebuf_st *br_buf;
     int br_buf_free_count;
@@ -869,7 +869,7 @@ typedef struct
 #define MAXPOSMATCH 8
 
 /// Same as bpos_st, but with additional field len.
-typedef struct
+typedef struct cpos_s
 {
     linenum_kt  lnum; ///< line number
     columnum_kt col;  ///< column number

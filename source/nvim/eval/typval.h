@@ -65,7 +65,7 @@ typedef enum
     kCallbackPartial,
 } callback_type_et;
 
-typedef struct
+typedef struct callback_s
 {
     union
     {
