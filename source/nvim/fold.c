@@ -42,11 +42,11 @@ extern char *ngettext(const char *__msgid1,
 /// The info stored in both growarrays is the same: An array of fold_T.
 typedef struct
 {
-    linenum_kt fd_top;    ///< first line of fold,
-                        ///< for nested fold relative to parent
-    linenum_kt fd_len;    ///< number of lines in the fold
+    linenum_kt fd_top;   ///< first line of fold,
+                         ///< for nested fold relative to parent
+    linenum_kt fd_len;   ///< number of lines in the fold
     garray_st fd_nested; ///< array of nested folds
-    char fd_flags;      ///< see below
+    char fd_flags;       ///< see below
 
     /// TRUE, FALSE or MAYBE: fold smaller than 'foldminlines';
     /// MAYBE applies to nested folds too
@@ -58,27 +58,27 @@ typedef struct
 #define FD_LEVEL        2    ///< depends on 'foldlevel' (nested folds too)
 #define MAX_LEVEL       20   ///< maximum fold depth
 
-/// Define "fline_T", passed to get fold level for a line.
-typedef struct
+/// passed to get fold level for a line.
+typedef struct fold_line_s
 {
     win_st *wp;           ///< window
-    linenum_kt lnum;       ///< current line number
-    linenum_kt off;        ///< offset between lnum and real line number
-    linenum_kt lnum_save;  ///< line nr used by foldUpdateIEMSRecurse()
+    linenum_kt lnum;      ///< current line number
+    linenum_kt off;       ///< offset between lnum and real line number
+    linenum_kt lnum_save; ///< line nr used by foldUpdateIEMSRecurse()
 
-    int lvl;        ///< current level (-1 for undefined)
-    int lvl_next;   ///< level used for next line
-    int start;      ///< number of folds that are forced to start at this line.
-    int end;        ///< level of fold that is forced to end below this line
-    int had_end;    ///< level of fold that is forced to end above
-                    ///< this line (copy of "end" of prev. line)
-} fline_T;
+    int lvl;      ///< current level (-1 for undefined)
+    int lvl_next; ///< level used for next line
+    int start;    ///< number of folds that are forced to start at this line.
+    int end;      ///< level of fold that is forced to end below this line
+    int had_end;  ///< level of fold that is forced to end above
+                  ///< this line (copy of "end" of prev. line)
+} fold_line_st;
 
 /// Flag is set when redrawing is needed.
 static int fold_changed;
 
 // Function used by foldUpdateIEMSRecurse
-typedef void (*LevelGetter)(fline_T *);
+typedef void (*LevelGetter)(fold_line_st *);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "fold.c.generated.h"
@@ -2239,8 +2239,8 @@ static void foldUpdateIEMS(win_st *wp, linenum_kt top, linenum_kt bot)
 {
     linenum_kt start;
     linenum_kt end;
-    fline_T fline;
-    void (*getlevel)(fline_T *);
+    fold_line_st fline;
+    void (*getlevel)(fold_line_st *);
     int level;
     fold_T *fp;
 
@@ -2545,7 +2545,7 @@ static void foldUpdateIEMS(win_st *wp, linenum_kt top, linenum_kt bot)
 static linenum_kt foldUpdateIEMSRecurse(garray_st *gap,
                                       int level,
                                       linenum_kt startlnum,
-                                      fline_T *flp,
+                                      fold_line_st *flp,
                                       LevelGetter getlevel,
                                       linenum_kt bot,
                                       char topflags)
@@ -3443,7 +3443,7 @@ static void foldMerge(fold_T *fp1, garray_st *gap, fold_T *fp2)
 /// Low level function to get the foldlevel for the "indent" method.
 /// Doesn't use any caching.
 /// Returns a level of -1 if the foldlevel depends on surrounding lines.
-static void foldlevelIndent(fline_T *flp)
+static void foldlevelIndent(fold_line_st *flp)
 {
     uchar_kt *s;
     filebuf_st *buf;
@@ -3478,7 +3478,7 @@ static void foldlevelIndent(fline_T *flp)
 
 /// Low level function to get the foldlevel for the "diff" method.
 /// Doesn't use any caching.
-static void foldlevelDiff(fline_T *flp)
+static void foldlevelDiff(fold_line_st *flp)
 {
     if(diff_infold(flp->wp, flp->lnum + flp->off))
     {
@@ -3493,7 +3493,7 @@ static void foldlevelDiff(fline_T *flp)
 /// Low level function to get the foldlevel for the "expr" method.
 /// Doesn't use any caching.
 /// Returns a level of -1 if the foldlevel depends on surrounding lines.
-static void foldlevelExpr(fline_T *flp)
+static void foldlevelExpr(fold_line_st *flp)
 {
     win_st *win;
     int n;
@@ -3622,7 +3622,7 @@ static void parseMarker(win_st *wp)
 /// Careful: This means you can't call this function twice on the same line.
 /// Doesn't use any caching.
 /// Sets flp->start when a start marker was found.
-static void foldlevelMarker(fline_T *flp)
+static void foldlevelMarker(fold_line_st *flp)
 {
     uchar_kt *startmarker;
     int cstart;
@@ -3719,7 +3719,7 @@ static void foldlevelMarker(fline_T *flp)
 
 /// Low level function to get the foldlevel for the "syntax" method.
 /// Doesn't use any caching.
-static void foldlevelSyntax(fline_T *flp)
+static void foldlevelSyntax(fold_line_st *flp)
 {
     linenum_kt lnum = flp->lnum + flp->off;
     int n;
