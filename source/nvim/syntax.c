@@ -110,8 +110,7 @@ static char *(hl_name_table[]) = {
     "NONE"
 };
 
-static int hl_attr_table[] =
-{
+static int hl_attr_table[] = {
     HL_BOLD,
     HL_STANDOUT,
     HL_UNDERLINE,
@@ -156,7 +155,7 @@ typedef struct syn_cluster_s
     uchar_kt *scl_name;    ///< syntax cluster name
     uchar_kt *scl_name_u;  ///< uppercase of scl_name
     short *scl_list;       ///< IDs in this syntax cluster
-} syn_cluster_T;
+} syn_cluster_st;
 
 /// For the current state we need to remember more than just the idx.
 /// When si_m_endpos.lnum is 0, the items other than si_idx are unknown.
@@ -266,7 +265,7 @@ static int current_sub_char = 0; ///<
 #define CLUSTER_ADD         2   ///< add second list to first
 #define CLUSTER_SUBTRACT    3   ///< subtract second list from first
 
-#define SYN_CLSTR(buf)  ((syn_cluster_T *)((buf)->b_syn_clusters.ga_data))
+#define SYN_CLSTR(buf)  ((syn_cluster_st *)((buf)->b_syn_clusters.ga_data))
 
 // Syntax group IDs have different types:
 //     0 - 19999  normal syntax groups
@@ -5845,7 +5844,7 @@ static int syn_add_cluster(uchar_kt *name)
     // First call for this growarray: init growing array.
     if(curwin->w_s->b_syn_clusters.ga_data == NULL)
     {
-        curwin->w_s->b_syn_clusters.ga_itemsize = sizeof(syn_cluster_T);
+        curwin->w_s->b_syn_clusters.ga_itemsize = sizeof(syn_cluster_st);
         ga_set_growsize(&curwin->w_s->b_syn_clusters, 10);
     }
 
@@ -5858,7 +5857,7 @@ static int syn_add_cluster(uchar_kt *name)
         return 0;
     }
 
-    syn_cluster_T *scp = GA_APPEND_VIA_PTR(syn_cluster_T,
+    syn_cluster_st *scp = GA_APPEND_VIA_PTR(syn_cluster_st,
                                            &curwin->w_s->b_syn_clusters);
     memset(scp, 0, sizeof(*scp));
     scp->scl_name = name;
