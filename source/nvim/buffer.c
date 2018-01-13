@@ -673,7 +673,7 @@ void buf_clear(void)
     }
 
     deleted_lines_mark(1, line_count); // prepare for display
-    ml_close(curbuf, true); // free memline_T
+    ml_close(curbuf, true); // free memline_st
     buf_clear_file(curbuf);
 }
 

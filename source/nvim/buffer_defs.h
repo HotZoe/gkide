@@ -458,7 +458,7 @@ struct filebuf_s
 {
     #define b_fnum handle
     handle_kt handle;  ///< unique id for the buffer (buffer number)
-    memline_T b_ml;    ///< associated memline (also contains line count
+    memline_st b_ml;    ///< associated memline (also contains line count
     filebuf_st *b_next;     ///< links in list of buffers
     filebuf_st *b_prev;
 
