@@ -347,31 +347,29 @@ typedef struct shada_entry_s
     } data;
 } shada_entry_st;
 
-struct hm_llist_entry;
-
-/// One entry in sized linked list
-typedef struct hm_llist_entry
+/// One entry in sized linked list(History Merge Linked List)
+typedef struct hmll_item_s
 {
-    shada_entry_st data; ///< Entry data.
-    bool can_free_entry; ///< True if data can be freed.
-    struct hm_llist_entry *next; ///< Pointer to next entry or NULL.
-    struct hm_llist_entry *prev; ///< Pointer to previous entry or NULL.
-} HMLListEntry;
+    shada_entry_st data;      ///< Entry data.
+    bool can_free_entry;      ///< True if data can be freed.
+    struct hmll_item_s *next; ///< Pointer to next entry or NULL.
+    struct hmll_item_s *prev; ///< Pointer to previous entry or NULL.
+} hmll_item_st;
 
-KHASH_MAP_INIT_STR(hmll_entries, HMLListEntry *)
+KHASH_MAP_INIT_STR(hmll_entries, hmll_item_st *)
 
 /// Sized linked list structure for history merger
 typedef struct
 {
     /// Pointer to the start of the allocated array of entries.
-    HMLListEntry *entries;
+    hmll_item_st *entries;
 
     /// First entry in the list (is not necessary start of the array) or NULL.
-    HMLListEntry *first;
+    hmll_item_st *first;
 
-    HMLListEntry *last; ///< Last entry in the list or NULL.
-    HMLListEntry *free_entry; ///< Last free entry removed by hmll_remove.
-    HMLListEntry *last_free_entry; ///< Last unused element in entries array.
+    hmll_item_st *last; ///< Last entry in the list or NULL.
+    hmll_item_st *free_entry; ///< Last free entry removed by hmll_remove.
+    hmll_item_st *last_free_entry; ///< Last unused element in entries array.
     size_t size; ///< Number of allocated entries.
     size_t num_entries; ///< Number of entries already used.
 
@@ -589,7 +587,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return @b for cycle header (use `HMLL_FORALL(hmll, cur_entry) {body}`).
 #define HMLL_FORALL(hmll, cur_entry, code)       \
-    for(HMLListEntry *cur_entry = (hmll)->first; \
+    for(hmll_item_st *cur_entry = (hmll)->first; \
         cur_entry != NULL;                       \
         cur_entry = cur_entry->next)             \
     {                                            \
@@ -604,7 +602,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param hmll_entry
 /// Entry to remove.
 static inline void hmll_remove(HMLList *const hmll,
-                               HMLListEntry *const hmll_entry)
+                               hmll_item_st *const hmll_entry)
 FUNC_ATTR_NONNULL_ALL
 {
     if(hmll_entry == hmll->last_free_entry - 1)
@@ -665,7 +663,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in] can_free_entry
 /// True if data can be freed.
 static inline void hmll_insert(HMLList *const hmll,
-                               HMLListEntry *hmll_entry,
+                               hmll_item_st *hmll_entry,
                                const shada_entry_st data,
                                const bool can_free_entry)
 FUNC_ATTR_NONNULL_ARG(1)
@@ -680,7 +678,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         hmll_remove(hmll, hmll->first);
     }
 
-    HMLListEntry *target_entry;
+    hmll_item_st *target_entry;
 
     if(hmll->free_entry == NULL)
     {
@@ -1180,7 +1178,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(k != kh_end(&hmll->contained_entries))
     {
-        HMLListEntry *const existing_entry =
+        hmll_item_st *const existing_entry =
             kh_val(&hmll->contained_entries, k);
 
         if(entry.timestamp > existing_entry->data.timestamp)
@@ -1212,7 +1210,7 @@ FUNC_ATTR_NONNULL_ALL
         }
     }
 
-    HMLListEntry *insert_after;
+    hmll_item_st *insert_after;
 
     HMLL_ITER_BACK(hmll, insert_after, {
         if(insert_after->data.timestamp <= entry.timestamp)
