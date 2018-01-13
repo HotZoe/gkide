@@ -10957,8 +10957,8 @@ uchar_kt *eval_vars(uchar_kt *src,
         resultlen =
             find_ident_under_cursor(&result,
                                     (spec_idx == SPEC_CWORD
-                                     ? (FIND_IDENT|FIND_STRING)
-                                     : FIND_STRING));
+                                     ? (kFindFlgIdent|kFindFlgString)
+                                     : kFindFlgString));
 
         if(resultlen == 0)
         {

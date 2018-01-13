@@ -850,7 +850,7 @@ struct frame_s
 /// ":match" and matches defined by match functions.
 /// For 'hlsearch' there is one pattern for all windows. For ":match" and the
 /// match functions there is a different pattern for each window.
-typedef struct
+typedef struct hlmatch_s
 {
     regmmatch_st rm;       ///< points to the regexp program; contains last
                            ///< found match (may continue in next line)

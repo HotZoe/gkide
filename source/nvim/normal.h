@@ -7,10 +7,13 @@
 #include "nvim/pos.h"
 #include "nvim/buffer_defs.h"
 
-// Values for find_ident_under_cursor()
-#define FIND_IDENT    1  ///< find identifier (word)
-#define FIND_STRING   2  ///< find any string (WORD)
-#define FIND_EVAL     4  ///< include "->", "[]" and "."
+/// flag values for find_ident_under_cursor()
+enum find_flg_e
+{
+    kFindFlgIdent  = 1, ///< find identifier (word)
+    kFindFlgString = 2, ///< find any string (word)
+    kFindFlgEval   = 4  ///< include "->", "[]" and "."
+};
 
 /// Motion types, used for operators and for yank/delete registers.
 ///

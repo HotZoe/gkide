@@ -1571,8 +1571,8 @@ int get_spec_reg(int regname, uchar_kt **argp, int *allocated, int errmsg)
             }
 
             cnt = find_ident_under_cursor(argp, (regname == Ctrl_W
-                                                 ? (FIND_IDENT|FIND_STRING)
-                                                 : FIND_STRING));
+                                                 ? (kFindFlgIdent|kFindFlgString)
+                                                 : kFindFlgString));
 
             *argp = cnt ? vim_strnsave(*argp, cnt) : NULL;
             *allocated = TRUE;

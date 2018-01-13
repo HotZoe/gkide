@@ -3666,10 +3666,10 @@ void reset_VIsual(void)
 
 /// Find the identifier under or to the right of the cursor.
 /// "find_type" can have one of three values:
-/// - FIND_IDENT:               find an identifier (keyword)
-/// - FIND_STRING:              find any non-white string
-/// - FIND_IDENT + FIND_STRING: find any non-white string, identifier preferred.
-/// - FIND_EVAL:                find text useful for C program debugging
+/// - kFindFlgIdent:               find an identifier (keyword)
+/// - kFindFlgString:              find any non-white string
+/// - kFindFlgIdent + kFindFlgString: find any non-white string, identifier preferred.
+/// - kFindFlgEval:                find text useful for C program debugging
 ///
 /// There are three steps:
 /// 1. Search forward for the start of an identifier/string. Doesn't move if
@@ -3678,7 +3678,7 @@ void reset_VIsual(void)
 ///    This doesn't match the real Vi but I like it a little better and it
 ///    shouldn't bother anyone.
 /// 3. Search forward to the end of this identifier/string.
-///    When FIND_IDENT isn't defined, we backup until a blank.
+///    When kFindFlgIdent isn't defined, we backup until a blank.
 ///
 /// Returns the length of the string, or zero if no string is found.
 /// If a string is found, a pointer to the string is put in "*string". This
@@ -3711,7 +3711,7 @@ size_t find_ident_at_pos(win_st *wp,
     // if i == 1: try to find any non-white string
     ptr = ml_get_buf(wp->w_buffer, lnum, false);
 
-    for(i = (find_type & FIND_IDENT) ? 0 : 1; i < 2; ++i)
+    for(i = (find_type & kFindFlgIdent) ? 0 : 1; i < 2; ++i)
     {
         // 1. skip to start of identifier/string
         col = startcol;
@@ -3751,7 +3751,7 @@ size_t find_ident_at_pos(win_st *wp,
                 prev_class = mb_get_class(ptr + prevcol);
 
                 if(this_class != prev_class
-                   && (i == 0 || prev_class == 0 || (find_type & FIND_IDENT)))
+                   && (i == 0 || prev_class == 0 || (find_type & kFindFlgIdent)))
                 {
                     break;
                 }
@@ -3766,7 +3766,7 @@ size_t find_ident_at_pos(win_st *wp,
                 this_class = 2;
             }
 
-            if(!(find_type & FIND_STRING) || this_class == 2)
+            if(!(find_type & kFindFlgString) || this_class == 2)
             {
                 break;
             }
@@ -3777,7 +3777,7 @@ size_t find_ident_at_pos(win_st *wp,
                   && ((i == 0
                        ? vim_iswordc(ptr[col - 1])
                        : (!ascii_iswhite(ptr[col - 1])
-                          && (!(find_type & FIND_IDENT)
+                          && (!(find_type & kFindFlgIdent)
                               || !vim_iswordc(ptr[col - 1]))))))
             {
                 --col;
@@ -3785,7 +3785,7 @@ size_t find_ident_at_pos(win_st *wp,
 
             // If we don't want just any old string, or we've found an
             // identifier, stop searching.
-            if(!(find_type & FIND_STRING) || vim_iswordc(ptr[col]))
+            if(!(find_type & kFindFlgString) || vim_iswordc(ptr[col]))
             {
                 break;
             }
@@ -3796,7 +3796,7 @@ size_t find_ident_at_pos(win_st *wp,
        || (i == 0 && (has_mbyte ? this_class != 2 : !vim_iswordc(ptr[col]))))
     {
         // didn't find an identifier or string
-        if(find_type & FIND_STRING)
+        if(find_type & kFindFlgString)
         {
             EMSG(_("E348: No string under cursor"));
         }
@@ -4482,7 +4482,7 @@ static void nv_gd(oparg_st *oap, int nchar, int thisblock)
     size_t len;
     uchar_kt *ptr;
 
-    if((len = find_ident_under_cursor(&ptr, FIND_IDENT)) == 0
+    if((len = find_ident_under_cursor(&ptr, kFindFlgIdent)) == 0
        || !find_decl(ptr, len, nchar == 'd', thisblock, SEARCH_START))
     {
         clearopbeep(oap);
@@ -5503,7 +5503,7 @@ dozet:
             }
 
             if(ptr == NULL
-               && (len = find_ident_under_cursor(&ptr, FIND_IDENT)) == 0)
+               && (len = find_ident_under_cursor(&ptr, kFindFlgIdent)) == 0)
             {
                 return;
             }
@@ -5800,8 +5800,8 @@ static void nv_ident(cmdarg_st *cap)
     if(ptr == NULL
        && (n = find_ident_under_cursor(&ptr,
                                        ((cmdchar == '*' || cmdchar == '#')
-                                        ? FIND_IDENT | FIND_STRING
-                                        : FIND_IDENT))) == 0)
+                                        ? kFindFlgIdent | kFindFlgString
+                                        : kFindFlgIdent))) == 0)
     {
         clearop(cap->oap);
         return;
@@ -6765,7 +6765,7 @@ static void nv_brackets(cmdarg_st *cap)
             uchar_kt *ptr;
             size_t len;
 
-            if((len = find_ident_under_cursor(&ptr, FIND_IDENT)) == 0)
+            if((len = find_ident_under_cursor(&ptr, kFindFlgIdent)) == 0)
             {
                 clearop(cap->oap);
             }
