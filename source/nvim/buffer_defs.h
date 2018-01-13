@@ -337,11 +337,11 @@ typedef struct
     buffheader_st save_readbuf1;
     buffheader_st save_readbuf2;
     String save_inputbuf;
-} tasave_T;
+} tahsave_st;
 
 /// Structure used for mappings and abbreviations.
-typedef struct mapblock mapblock_T;
-struct mapblock
+typedef struct mapabbr_blk_s mapblock_T;
+struct mapabbr_blk_s
 {
     mapblock_T *m_next;  ///< next mapblock in list
     uchar_kt *m_keys;      ///< mapped from, lhs

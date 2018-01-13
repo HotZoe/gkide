@@ -1324,7 +1324,7 @@ static int old_mouse_col; ///< mouse_col related to old_char
 static int old_char = old_char_invalid; ///< character put back by vungetc()
 
 /// Save all three kinds of typeahead, so that the user must type at a prompt.
-void save_typeahead(tasave_T *tp)
+void save_typeahead(tahsave_st *tp)
 {
     tp->save_typebuf = typebuf;
     alloc_typebuf();
@@ -1340,7 +1340,7 @@ void save_typeahead(tasave_T *tp)
 
 /// Restore the typeahead to what it was before calling save_typeahead().
 /// The allocated memory is freed, can only be called once!
-void restore_typeahead(tasave_T *tp)
+void restore_typeahead(tahsave_st *tp)
 {
     if(tp->typebuf_valid)
     {

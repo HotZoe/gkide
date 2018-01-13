@@ -10412,7 +10412,7 @@ static void ex_normal(exargs_st *eap)
     int save_restart_edit = restart_edit;
     int save_msg_didout = msg_didout;
     int save_State = curmod;
-    tasave_T tabuf;
+    tahsave_st tabuf;
     int save_insertmode = p_im;
     int save_finish_op = finish_op;
     long save_opcount = opcount;

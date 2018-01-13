@@ -132,7 +132,7 @@ void do_debug(uchar_kt *cmd)
     int save_msg_silent = msg_silent;
     int save_emsg_silent = emsg_silent;
     int save_redir_off = redir_off;
-    tasave_T typeaheadbuf;
+    tahsave_st typeaheadbuf;
     bool typeahead_saved = false;
     int save_ignore_script = 0;
     int save_ex_normal_busy;
