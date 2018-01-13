@@ -100,7 +100,7 @@ typedef struct
     bool can_set_left_right_margin;
     bool mouse_enabled;
     bool busy;
-    cursorentry_T cursor_shapes[SHAPE_IDX_COUNT];
+    cursor_info_st cursor_shapes[SHAPE_IDX_COUNT];
     HlAttrs print_attrs;
     ModeShape showing_mode;
     TermType term;
@@ -686,9 +686,9 @@ CursorShape tui_cursor_decode_shape(const char *shape_str)
     return shape;
 }
 
-static cursorentry_T decode_cursor_entry(Dictionary args)
+static cursor_info_st decode_cursor_entry(Dictionary args)
 {
-    cursorentry_T r;
+    cursor_info_st r;
 
     for(size_t i = 0; i < args.size; i++)
     {
@@ -733,7 +733,7 @@ static void tui_mode_info_set(UI *ui, bool guicursor_enabled, Array args)
     for(size_t i = 0; i < args.size; i++)
     {
         assert(args.items[i].type == kObjectTypeDictionary);
-        cursorentry_T r = decode_cursor_entry(args.items[i].data.dictionary);
+        cursor_info_st r = decode_cursor_entry(args.items[i].data.dictionary);
         data->cursor_shapes[i] = r;
     }
 
@@ -786,7 +786,7 @@ static void tui_set_mode(UI *ui, ModeShape mode)
     }
 
     TUIData *data = ui->data;
-    cursorentry_T c = data->cursor_shapes[mode];
+    cursor_info_st c = data->cursor_shapes[mode];
     int shape = c.shape;
     unibi_var_t vars[26 + 26] = { { 0 } };
 

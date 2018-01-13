@@ -43,22 +43,22 @@ typedef enum
 #define SHAPE_MOUSE     1      ///< used for mouse pointer shape
 #define SHAPE_CURSOR    2      ///< used for text cursor shape
 
-typedef struct cursor_entry
+typedef struct cursor_info_s
 {
-    char *full_name;        ///< mode description
-    CursorShape shape;      ///< cursor shape: one of the SHAPE_ defines
-    int mshape;             ///< mouse shape: one of the MSHAPE defines
-    int percentage;         ///< percentage of cell for bar
-    long blinkwait;         ///< blinking, wait time before blinking starts
-    long blinkon;           ///< blinking, on time
-    long blinkoff;          ///< blinking, off time
-    int id;                 ///< highlight group ID
-    int id_lm;              ///< highlight group ID for :lmap mode
-    char *name;             ///< mode short name
-    char used_for;          ///< SHAPE_MOUSE and/or SHAPE_CURSOR
-} cursorentry_T;
+    char *full_name;    ///< mode description
+    CursorShape shape;  ///< cursor shape: one of the SHAPE_ defines
+    int mshape;         ///< mouse shape: one of the MSHAPE defines
+    int percentage;     ///< percentage of cell for bar
+    long blinkwait;     ///< blinking, wait time before blinking starts
+    long blinkon;       ///< blinking, on time
+    long blinkoff;      ///< blinking, off time
+    int id;             ///< highlight group ID
+    int id_lm;          ///< highlight group ID for :lmap mode
+    char *name;         ///< mode short name
+    char used_for;      ///< SHAPE_MOUSE and/or SHAPE_CURSOR
+} cursor_info_st;
 
-extern cursorentry_T shape_table[SHAPE_IDX_COUNT];
+extern cursor_info_st shape_table[SHAPE_IDX_COUNT];
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "cursor_shape.h.generated.h"

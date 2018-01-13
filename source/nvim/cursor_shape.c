@@ -13,7 +13,7 @@
 #include "nvim/ui.h"
 
 /// Handling of cursor and mouse pointer shapes in various modes.
-cursorentry_T shape_table[SHAPE_IDX_COUNT] =
+cursor_info_st shape_table[SHAPE_IDX_COUNT] =
 {
     // Values are set by 'guicursor' and 'mouseshape'.
     // Adjust the SHAPE_IDX_ defines when changing this!
@@ -45,7 +45,7 @@ Array mode_style_array(void)
     for(int i = 0; i < SHAPE_IDX_COUNT; i++)
     {
         Dictionary dic = ARRAY_DICT_INIT;
-        cursorentry_T *cur = &shape_table[i];
+        cursor_info_st *cur = &shape_table[i];
 
         if(cur->used_for & SHAPE_MOUSE)
         {
