@@ -72,17 +72,17 @@ struct qfline_s
 /// There is a stack of error lists.
 #define LISTCOUNT   10
 
-typedef struct qf_list_S
+typedef struct qflist_s
 {
     qfline_st *qf_start; ///< pointer to the first error
     qfline_st *qf_last;  ///< pointer to the last error
     qfline_st *qf_ptr;   ///< pointer to the current error
-    int qf_count;       ///< number of errors (0 means no error list)
-    int qf_index;       ///< current index in the error list
-    int qf_nonevalid;   ///< TRUE if not a single valid entry found
-    uchar_kt *qf_title;   ///< title derived from the command that
-                        ///< created the error list
-} qf_list_T;
+    int qf_count;        ///< number of errors (0 means no error list)
+    int qf_index;        ///< current index in the error list
+    int qf_nonevalid;    ///< TRUE if not a single valid entry found
+    uchar_kt *qf_title;  ///< title derived from the command that
+                         ///< created the error list
+} qflist_st;
 
 struct qfinfo_s
 {
@@ -93,7 +93,7 @@ struct qfinfo_s
     int qf_refcount;
     int qf_listcount; ///< current number of lists
     int qf_curlist; ///< current error list
-    qf_list_T qf_lists[LISTCOUNT];
+    qflist_st qf_lists[LISTCOUNT];
 
     int qf_dir_curlist; ///< error list for qf_dir_stack
     dirstack_st *qf_dir_stack;
@@ -1542,7 +1542,7 @@ static void qf_new_list(qfinfo_st *qi, uchar_kt *qf_title)
         qi->qf_curlist = qi->qf_listcount++;
     }
 
-    memset(&qi->qf_lists[qi->qf_curlist], 0, (size_t)(sizeof(qf_list_T)));
+    memset(&qi->qf_lists[qi->qf_curlist], 0, (size_t)(sizeof(qflist_st)));
     qf_store_title(qi, qf_title);
 }
 
@@ -1765,8 +1765,8 @@ void copy_loclist(win_st *from, win_st *to)
     // Copy the location lists one at a time
     for(idx = 0; idx < qi->qf_listcount; idx++)
     {
-        qf_list_T *from_qfl;
-        qf_list_T *to_qfl;
+        qflist_st *from_qfl;
+        qflist_st *to_qfl;
 
         to->w_llist->qf_curlist = idx;
         from_qfl = &qi->qf_lists[idx];
@@ -2104,7 +2104,7 @@ static uchar_kt *qf_guess_filepath(qfinfo_st *qi, uchar_kt *filename)
 /// Similar to location list.
 static bool is_qf_entry_present(qfinfo_st *qi, qfline_st *qf_ptr)
 {
-    qf_list_T *qfl;
+    qflist_st *qfl;
     qfline_st *qfp;
     int i;
     qfl = &qi->qf_lists[qi->qf_curlist];
@@ -4236,7 +4236,7 @@ FUNC_ATTR_NONNULL_ALL
         }
     }
 
-    qf_list_T *qfl = &qi->qf_lists[qi->qf_curlist];
+    qflist_st *qfl = &qi->qf_lists[qi->qf_curlist];
 
     // Check if the list has valid errors.
     if(qfl->qf_count <= 0 || qfl->qf_nonevalid)
@@ -4285,7 +4285,7 @@ FUNC_ATTR_NONNULL_ALL
 static size_t qf_get_nth_valid_entry(qfinfo_st *qi, size_t n, bool fdo)
 FUNC_ATTR_NONNULL_ALL
 {
-    qf_list_T *qfl = &qi->qf_lists[qi->qf_curlist];
+    qflist_st *qfl = &qi->qf_lists[qi->qf_curlist];
 
     // Check if the list has valid errors.
     if(qfl->qf_count <= 0 || qfl->qf_nonevalid)
