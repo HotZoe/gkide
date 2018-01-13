@@ -239,10 +239,10 @@ int qf_init(win_st *wp,
                        qf_title);
 }
 
-// Maximum number of bytes allowed per line while reading an errorfile.
-static const size_t LINE_MAXLEN = 4096;
+/// Maximum number of bytes allowed per line while reading an errorfile.
+#define PRELINE_MAXLEN    4096
 
-static struct fmtpattern
+static struct fmtpattern_s
 {
     uchar_kt convchar;
     char *pattern;
@@ -577,9 +577,9 @@ parse_efm_end:
 
 static uchar_kt *qf_grow_linebuf(qfstate_st *state, size_t newsz)
 {
-    // If the line exceeds LINE_MAXLEN exclude the last
+    // If the line exceeds PRELINE_MAXLEN exclude the last
     // byte since it's not a NL character.
-    state->linelen = newsz > LINE_MAXLEN ? LINE_MAXLEN - 1 : newsz;
+    state->linelen = newsz > PRELINE_MAXLEN ? PRELINE_MAXLEN - 1 : newsz;
 
     if(state->growbuf == NULL)
     {
@@ -633,7 +633,7 @@ static int qf_get_next_str_line(qfstate_st *state)
     STRLCPY(state->linebuf, p_str, state->linelen + 1);
 
     // Increment using len in order to discard the
-    // rest of the line if it exceeds LINE_MAXLEN.
+    // rest of the line if it exceeds PRELINE_MAXLEN.
     p_str += len;
     state->p_str = p_str;
 
@@ -728,7 +728,7 @@ static int qf_get_next_file_line(qfstate_st *state)
        && !(IObuff[state->linelen - 1] == '\n'))
     {
         // The current line exceeds IObuff, continue reading
-        // using growbuf until EOL or LINE_MAXLEN bytes is read.
+        // using growbuf until EOL or PRELINE_MAXLEN bytes is read.
         if(state->growbuf == NULL)
         {
             state->growbufsiz = 2 * (IOSIZE - 1);
@@ -756,21 +756,21 @@ static int qf_get_next_file_line(qfstate_st *state)
                 break;
             }
 
-            if(state->growbufsiz == LINE_MAXLEN)
+            if(state->growbufsiz == PRELINE_MAXLEN)
             {
                 discard = true;
                 break;
             }
 
-            state->growbufsiz = (2 * state->growbufsiz < LINE_MAXLEN)
-                                ? 2 * state->growbufsiz : LINE_MAXLEN;
+            state->growbufsiz = (2 * state->growbufsiz < PRELINE_MAXLEN)
+                                ? 2 * state->growbufsiz : PRELINE_MAXLEN;
 
             state->growbuf = xrealloc(state->growbuf, state->growbufsiz);
         }
 
         while(discard)
         {
-            // The current line is longer than LINE_MAXLEN,
+            // The current line is longer than PRELINE_MAXLEN,
             // continue reading but discard everything until
             // EOL or EOF is reached.
             if(fgets((char *)IObuff, IOSIZE, state->fd) == NULL
