@@ -146,23 +146,23 @@ extern char *ngettext(const char *__msgid1,
 ///   - @b exp_name     NULL or non-NULL, to be freed later.
 ///   - @b tv           points to the Dictionary typval_st
 ///   - @b newkey       is the key for the new item.
-typedef struct lval_S
+typedef struct leftval_s
 {
-    const char *ll_name;  ///< Start of variable name (can be NULL).
-    size_t ll_name_len;   ///< Length of the .ll_name.
-    char *ll_exp_name;    ///< NULL or expanded name in allocated memory.
-    typval_st *ll_tv;      ///< Typeval of item being used. If "newkey" isn't
-                          ///< NULL it's the Dict to which to add the item.
-    listitem_st *ll_li;    ///< The list item or NULL.
-    list_st *ll_list;      ///< The list or NULL.
-    int ll_range;         ///< TRUE when a [i:j] range was used.
-    long ll_n1;           ///< First index for list.
-    long ll_n2;           ///< Second index for list range.
-    int ll_empty2;        ///< Second index is empty: [i:].
-    dict_st *ll_dict;      ///< The Dictionary or NULL.
-    dictitem_st *ll_di;    ///< The dictitem or NULL.
-    uchar_kt *ll_newkey;    ///< New key for Dict in allocated memory or NULL.
-} lval_T;
+    const char *ll_name; ///< Start of variable name (can be NULL).
+    size_t ll_name_len;  ///< Length of the .ll_name.
+    char *ll_exp_name;   ///< NULL or expanded name in allocated memory.
+    typval_st *ll_tv;    ///< Typeval of item being used. If "newkey" isn't
+                         ///< NULL it's the Dict to which to add the item.
+    listitem_st *ll_li;  ///< The list item or NULL.
+    list_st *ll_list;    ///< The list or NULL.
+    int ll_range;        ///< TRUE when a [i:j] range was used.
+    long ll_n1;          ///< First index for list.
+    long ll_n2;          ///< Second index for list range.
+    int ll_empty2;       ///< Second index is empty: [i:].
+    dict_st *ll_dict;    ///< The Dictionary or NULL.
+    dictitem_st *ll_di;  ///< The dictitem or NULL.
+    uchar_kt *ll_newkey; ///< New key for Dict in allocated memory or NULL.
+} leftval_st;
 
 static char *e_letunexp = N_("E18: Unexpected characters in :let");
 static char *e_missbrac = N_("E111: Missing ']'");
@@ -192,8 +192,8 @@ static scope_dict_st globvars_var;
 /// g: value
 #define globvarht globvardict.dv_hashtab
 
-/// Old Vim variables such as @b v:version are also available without the @b v:
-/// Also in functions. We need a special hashtable for them.
+/// Old Vim variables such as @b v:version are also available without
+/// the @b v: also in functions. We need a special hashtable for them.
 static hashtable_st compat_hashtab;
 
 hashtable_st func_hashtab;
@@ -795,7 +795,7 @@ void set_internal_string_var(uchar_kt *name, uchar_kt *value)
     set_var((const char *)name, STRLEN(name), (typval_st *)&tv, true);
 }
 
-static lval_T *redir_lval = NULL;
+static leftval_st *redir_lval = NULL;
 static garray_st redir_ga; // Only valid when redir_lval is not NULL.
 static uchar_kt *redir_endp = NULL;
 static uchar_kt *redir_varname = NULL;
@@ -821,7 +821,7 @@ int var_redir_start(uchar_kt *name, int append)
 
     // Make a copy of the name, it is used in redir_lval until redir ends.
     redir_varname = vim_strsave(name);
-    redir_lval = xcalloc(1, sizeof(lval_T));
+    redir_lval = xcalloc(1, sizeof(leftval_st));
 
     // The output is stored in growarray "redir_ga" until redirection ends.
     ga_init(&redir_ga, (int)sizeof(char), 500);
@@ -2378,7 +2378,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     // ":let {expr} = expr": Idem, name made with curly braces
     else if(eval_isnamec1(*arg) || *arg == '{')
     {
-        lval_T lv;
+        leftval_st lv;
         uchar_kt *const p = get_lval(arg, tv, &lv, false,
                                    false, 0, FNE_CHECK_START);
 
@@ -2446,7 +2446,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @todo move to eval/executor
 static uchar_kt *get_lval(uchar_kt *const name,
                         typval_st *const rettv,
-                        lval_T *const lp,
+                        leftval_st *const lp,
                         const bool unlet,
                         const bool skip,
                         const int flags,
@@ -2462,7 +2462,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
     int quiet = flags & GLV_QUIET;
 
     // Clear everything in "lp".
-    memset(lp, 0, sizeof(lval_T));
+    memset(lp, 0, sizeof(leftval_st));
 
     if(skip)
     {
@@ -2928,7 +2928,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
 /// Clear lval "lp" that was filled by get_lval().
 ///
 /// @todo move to eval/executor
-static void clear_lval(lval_T *lp)
+static void clear_lval(leftval_st *lp)
 {
     xfree(lp->ll_exp_name);
     xfree(lp->ll_newkey);
@@ -2941,7 +2941,7 @@ static void clear_lval(lval_T *lp)
 /// "op" is NULL, "+" for "+=", "-" for "-=", "." for ".=" or "=" for "=".
 ///
 /// @todo move to eval/executor
-static void set_var_lval(lval_T *lp,
+static void set_var_lval(leftval_st *lp,
                          uchar_kt *endp,
                          typval_st *rettv,
                          int copy,
@@ -3594,7 +3594,7 @@ static void ex_unletlock(exargs_st *eap, uchar_kt *argstart, int deep)
 {
     uchar_kt *arg = argstart;
     bool error = false;
-    lval_T lv;
+    leftval_st lv;
 
     do
     {
@@ -3660,7 +3660,7 @@ static void ex_unletlock(exargs_st *eap, uchar_kt *argstart, int deep)
 }
 
 /// @todo move to eval/ex_cmds
-static int do_unlet_var(lval_T *const lp, uchar_kt *const name_end, int forceit)
+static int do_unlet_var(leftval_st *const lp, uchar_kt *const name_end, int forceit)
 {
     int ret = OK;
     int cc;
@@ -3857,7 +3857,7 @@ FUNC_ATTR_NONNULL_ALL
 /// - "lock" is TRUE for ":lockvar", FALSE for ":unlockvar".
 ///
 /// @todo move to eval/ex_cmds
-static int do_lock_var(lval_T *lp,
+static int do_lock_var(leftval_st *lp,
                        uchar_kt *const FUNC_ARGS_UNUSED_REALY(name_end),
                        const int deep,
                        const bool lock)
@@ -14704,7 +14704,7 @@ static void f_islocked(typval_st *argvars,
                        typval_st *rettv,
                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    lval_T lv;
+    leftval_st lv;
     dictitem_st  *di;
     rettv->vval.v_number = -1;
 
@@ -26269,7 +26269,7 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
     const uchar_kt *end;
     int lead;
     int len;
-    lval_T lv;
+    leftval_st lv;
 
     if(fdp != NULL)
     {
