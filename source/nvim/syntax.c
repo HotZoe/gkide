@@ -130,7 +130,7 @@ static int hl_attr_table[] =
 ///
 /// A character offset can be given for the matched text (_m_start and _m_end)
 /// and for the actually highlighted text (_h_start and _h_end).
-typedef struct syn_pattern_s
+typedef struct synpat_s
 {
     char sp_type;              ///< see SPTYPE_ defines below
     char sp_syncing;           ///< this item used for syncing
@@ -149,8 +149,7 @@ typedef struct syn_pattern_s
     int sp_sync_idx;           ///< sync item index (syncing only)
     int sp_line_id;            ///< ID of last line where tried
     int sp_startcol;           ///< next match in sp_line_id line
-} synpat_T;
-
+} synpat_st;
 
 typedef struct syn_cluster_s
 {
@@ -251,7 +250,7 @@ static char *(spo_name_tab[SPO_COUNT]) = {
 #define SF_MATCH        0x02  ///< sync by matching a pattern
 #define MAXKEYWLEN      80    ///< maximum length of a keyword
 
-#define SYN_ITEMS(buf)    ((synpat_T *)((buf)->b_syn_patterns.ga_data))
+#define SYN_ITEMS(buf)    ((synpat_st *)((buf)->b_syn_patterns.ga_data))
 #define SYN_STATE_P(ssp)  ((bufstate_st *)((ssp)->ga_data))
 
 // The attributes of the syntax item that has been recognized.
@@ -630,7 +629,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_st *last_valid)
     linenum_kt break_lnum;
     int had_sync_point;
     stateitem_T *cur_si;
-    synpat_T *spp;
+    synpat_st *spp;
     uchar_kt *line;
     int found_flags = 0;
     int found_match_idx = 0;
@@ -1905,7 +1904,7 @@ static int syn_current_attr(int syncing,
     bpos_st eos_pos; // end-of-start match (start region)
     bpos_st eoe_pos; // end-of-end pattern
     int end_idx; // group ID for end pattern
-    synpat_T *spp;
+    synpat_st *spp;
     stateitem_T *cur_si, *sip = NULL;
     int startcol;
     int endcol;
@@ -2280,7 +2279,7 @@ static int syn_current_attr(int syncing,
                 // If we found a match at the current column, use it.
                 if(next_match_idx >= 0 && next_match_col == (int)current_col)
                 {
-                    synpat_T *lspp;
+                    synpat_st *lspp;
                     // When a zero-width item matched which has a nextgroup,
                     // don't push the item but set nextgroup.
                     lspp = &(SYN_ITEMS(syn_block)[next_match_idx]);
@@ -2509,7 +2508,7 @@ static int did_match_already(int idx, garray_st *gap)
 /// Push the next match onto the stack.
 static stateitem_T *push_next_match(stateitem_T *cur_si)
 {
-    synpat_T *spp;
+    synpat_st *spp;
     int save_flags;
     spp = &(SYN_ITEMS(syn_block)[next_match_idx]);
 
@@ -2703,7 +2702,7 @@ static void check_state_ends(void)
 /// This fills in si_attr, si_next_list and si_cont_list.
 static void update_si_attr(int idx)
 {
-    synpat_T *spp;
+    synpat_st *spp;
     stateitem_T *sip = &CUR_STATE(idx);
 
     // This should not happen ...
@@ -2957,7 +2956,7 @@ static void find_endpos(int idx,
                         reg_extmatch_st *start_ext)
 {
     columnum_kt matchcol;
-    synpat_T *spp, *spp_skip;
+    synpat_st *spp, *spp_skip;
     int start_idx;
     int best_idx;
     regmmatch_st regmatch;
@@ -3244,7 +3243,7 @@ static void limit_pos_zero(bpos_st *pos, bpos_st *limit)
 /// @param extra       extra chars for offset to start
 static void syn_add_end_off(bpos_st *result,
                             regmmatch_st *regmatch,
-                            synpat_T *spp,
+                            synpat_st *spp,
                             int idx,
                             int extra)
 {
@@ -3308,7 +3307,7 @@ static void syn_add_end_off(bpos_st *result,
 /// @param extra         extra chars for offset to end
 static void syn_add_start_off(bpos_st *result,
                               regmmatch_st *regmatch,
-                              synpat_T *spp,
+                              synpat_st *spp,
                               int idx,
                               int extra)
 {
@@ -3749,7 +3748,7 @@ static void syntax_sync_clear(void)
 /// Remove one pattern from the buffer's pattern list.
 static void syn_remove_pattern(synblk_st *block, int idx)
 {
-    synpat_T *spp;
+    synpat_st *spp;
     spp = &(SYN_ITEMS(block)[idx]);
 
     if(spp->sp_flags & HL_FOLD)
@@ -3761,7 +3760,7 @@ static void syn_remove_pattern(synblk_st *block, int idx)
 
     memmove(spp,
             spp + 1,
-            sizeof(synpat_T) * (block->b_syn_patterns.ga_len - idx - 1));
+            sizeof(synpat_st) * (block->b_syn_patterns.ga_len - idx - 1));
 
     --block->b_syn_patterns.ga_len;
 }
@@ -3882,7 +3881,7 @@ static void syn_cmd_clear(exargs_st *eap, int syncing)
 /// Clear one syntax group for the current buffer.
 static void syn_clear_one(int id, int syncing)
 {
-    synpat_T *spp;
+    synpat_st *spp;
 
     // Clear keywords only when not ":syn sync clear group-name"
     if(!syncing)
@@ -4138,7 +4137,7 @@ static void syn_list_one(int id, int syncing, int link_only)
 {
     int attr;
     int did_header = FALSE;
-    synpat_T *spp;
+    synpat_st *spp;
 
     static syntax_name_list_st namelist1[] = {
         { HL_DISPLAY,     "display"     },
@@ -4368,7 +4367,7 @@ static void put_id_list(const char *name, short *list, int attr)
     msg_putchar(' ');
 }
 
-static void put_pattern(char *s, int c, synpat_T *spp, int attr)
+static void put_pattern(char *s, int c, synpat_st *spp, int attr)
 {
     long n;
     int mask;
@@ -5225,7 +5224,7 @@ static void syn_cmd_match(exargs_st *eap, int syncing)
     uchar_kt *arg = eap->arg;
     uchar_kt *group_name_end;
     uchar_kt *rest;
-    synpat_T item; // the item found in the line
+    synpat_st item; // the item found in the line
     int syn_id;
     syn_opt_arg_T syn_opt_arg;
     int sync_idx = 0;
@@ -5271,7 +5270,7 @@ static void syn_cmd_match(exargs_st *eap, int syncing)
                 syn_incl_toplevel(syn_id, &syn_opt_arg.flags);
 
                 //Store the pattern in the syn_items list
-                synpat_T *spp = GA_APPEND_VIA_PTR(synpat_T,
+                synpat_st *spp = GA_APPEND_VIA_PTR(synpat_st,
                                                   &curwin->w_s->b_syn_patterns);
 
                 *spp = item;
@@ -5351,7 +5350,7 @@ static void syn_cmd_region(exargs_st *eap, int syncing)
 
     struct pat_ptr
     {
-        synpat_T *pp_synp; // pointer to syn_pattern
+        synpat_st *pp_synp; // pointer to syn_pattern
         int pp_matchgroup_id; // matchgroup ID
         struct pat_ptr *pp_next; // pointer to next pat_ptr
     } *(pat_ptrs[3]);
@@ -5478,7 +5477,7 @@ static void syn_cmd_region(exargs_st *eap, int syncing)
             ppp = xmalloc(sizeof(struct pat_ptr));
             ppp->pp_next = pat_ptrs[item];
             pat_ptrs[item] = ppp;
-            ppp->pp_synp = xcalloc(1, sizeof(synpat_T));
+            ppp->pp_synp = xcalloc(1, sizeof(synpat_st));
 
             // Get the syntax pattern and the following offset(s).
             // Enable the appropriate \z specials.
@@ -5970,14 +5969,14 @@ static void syn_cmd_cluster(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 /// On first call for current buffer: Init growing array.
 static void init_syn_patterns(void)
 {
-    curwin->w_s->b_syn_patterns.ga_itemsize = sizeof(synpat_T);
+    curwin->w_s->b_syn_patterns.ga_itemsize = sizeof(synpat_st);
     ga_set_growsize(&curwin->w_s->b_syn_patterns, 10);
 }
 
 /// Get one pattern for a ":syntax match" or ":syntax region" command.
-/// Stores the pattern and program in a synpat_T.
+/// Stores the pattern and program in a synpat_st.
 /// Returns a pointer to the next argument, or NULL in case of an error.
-static uchar_kt *get_syn_pattern(uchar_kt *arg, synpat_T *ci)
+static uchar_kt *get_syn_pattern(uchar_kt *arg, synpat_st *ci)
 {
     uchar_kt *end;
     int *p;
@@ -7041,7 +7040,7 @@ static void syn_clear_time(syntime_st *st)
 /// Clear the syntax timing for the current buffer.
 static void syntime_clear(void)
 {
-    synpat_T *spp;
+    synpat_st *spp;
 
     if(!syntax_present(curwin))
     {
@@ -7102,7 +7101,7 @@ static void syntime_report(void)
 
     for(int idx = 0; idx < curwin->w_s->b_syn_patterns.ga_len; ++idx)
     {
-        synpat_T *spp = &(SYN_ITEMS(curwin->w_s)[idx]);
+        synpat_st *spp = &(SYN_ITEMS(curwin->w_s)[idx]);
 
         if(spp->sp_time.count > 0)
         {
