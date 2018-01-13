@@ -4416,7 +4416,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
     linenum_kt curline = ml_upd_lastcurline;
     int curix = ml_upd_lastcurix;
     long size;
-    chunksize_T *curchnk;
+    mlchksize_st *curchnk;
     int rest;
     blk_hdr_st *hp;
     blk_data_st *dp;
@@ -4428,7 +4428,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
 
     if(buf->b_ml.ml_chunksize == NULL)
     {
-        buf->b_ml.ml_chunksize = xmalloc(sizeof(chunksize_T) * 100);
+        buf->b_ml.ml_chunksize = xmalloc(sizeof(mlchksize_st) * 100);
         buf->b_ml.ml_numchunks = 100;
         buf->b_ml.ml_usedchunks = 1;
         buf->b_ml.ml_chunksize[0].mlcs_numlines = 1;
@@ -4486,8 +4486,8 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
             buf->b_ml.ml_numchunks = buf->b_ml.ml_numchunks * 3 / 2;
 
             buf->b_ml.ml_chunksize =
-                (chunksize_T *) xrealloc(buf->b_ml.ml_chunksize,
-                                         sizeof(chunksize_T)
+                (mlchksize_st *) xrealloc(buf->b_ml.ml_chunksize,
+                                         sizeof(mlchksize_st)
                                          * buf->b_ml.ml_numchunks);
         }
 
@@ -4501,7 +4501,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
             memmove(buf->b_ml.ml_chunksize + curix + 1,
                     buf->b_ml.ml_chunksize + curix,
                     (buf->b_ml.ml_usedchunks - curix) *
-                    sizeof(chunksize_T));
+                    sizeof(mlchksize_st));
 
             // Compute length of first half of lines in the split chunk
             size = 0;
@@ -4620,7 +4620,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
 
             memmove(buf->b_ml.ml_chunksize,
                     buf->b_ml.ml_chunksize + 1,
-                    buf->b_ml.ml_usedchunks * sizeof(chunksize_T));
+                    buf->b_ml.ml_usedchunks * sizeof(mlchksize_st));
 
             return;
         }
@@ -4641,7 +4641,7 @@ static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updty
             memmove(buf->b_ml.ml_chunksize + curix,
                     buf->b_ml.ml_chunksize + curix + 1,
                     (buf->b_ml.ml_usedchunks - curix) *
-                    sizeof(chunksize_T));
+                    sizeof(mlchksize_st));
         }
 
         return;

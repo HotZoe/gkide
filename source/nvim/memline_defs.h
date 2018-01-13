@@ -16,11 +16,12 @@ typedef struct infoptr_s
     int ip_index;       ///< index for block with current lnum block/index pair
 } infoptr_st;
 
-typedef struct mlchunk_s
+/// memory line chunk size
+typedef struct mlchksize_s
 {
     int mlcs_numlines;
     long mlcs_totalsize;
-} chunksize_T;
+} mlchksize_st;
 
 // Flags when calling ml_updatechunk()
 #define ML_CHNK_ADDLINE    1
@@ -40,7 +41,7 @@ typedef struct memline_s
     #define ML_LOCKED_POS   8   ///< ml_locked needs positive block number
     int ml_flags;
 
-    infoptr_st *ml_stack;        ///< stack of pointer blocks (array of IPTRs)
+    infoptr_st *ml_stack;       ///< stack of pointer blocks (array of IPTRs)
     int ml_stack_top;           ///< current top of ml_stack
     int ml_stack_size;          ///< total number of entries in ml_stack
 
@@ -51,7 +52,7 @@ typedef struct memline_s
     linenum_kt ml_locked_low;   ///< first line in ml_locked
     linenum_kt ml_locked_high;  ///< last line in ml_locked
     int ml_locked_lineadd;      ///< number of lines inserted in ml_locked
-    chunksize_T *ml_chunksize;
+    mlchksize_st *ml_chunksize;
 
     int ml_numchunks;
     int ml_usedchunks;
