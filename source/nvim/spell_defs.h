@@ -110,43 +110,42 @@ typedef int salfirst_kt;
 /// here and "idxs" holds the flags, region mask and affixID for the word.
 /// There may be several zeros in sequence for alternative
 /// flag/region/affixID combinations.
-typedef struct slang_S slang_T;
-
-struct slang_S
+typedef struct slang_s slang_st;
+struct slang_s
 {
-    slang_T *sl_next;  ///< next language
+    slang_st *sl_next;   ///< next language
     uchar_kt *sl_name;   ///< language name "en", "en.rare", "nl", etc.
     uchar_kt *sl_fname;  ///< name of .spl file
-    bool sl_add;       ///< true if it's a .add file.
+    bool sl_add;         ///< true if it's a .add file.
 
     uchar_kt *sl_fbyts;  ///< case-folded word bytes
-    idx_kt *sl_fidxs;   ///< case-folded word indexes
+    idx_kt *sl_fidxs;    ///< case-folded word indexes
     uchar_kt *sl_kbyts;  ///< keep-case word bytes
-    idx_kt *sl_kidxs;   ///< keep-case word indexes
+    idx_kt *sl_kidxs;    ///< keep-case word indexes
     uchar_kt *sl_pbyts;  ///< prefix tree word bytes
-    idx_kt *sl_pidxs;   ///< prefix tree word indexes
+    idx_kt *sl_pidxs;    ///< prefix tree word indexes
 
     uchar_kt *sl_info;         ///< infotext string or NULL
     uchar_kt sl_regions[17];   ///< table with up to 8 region names plus NUL
     uchar_kt *sl_midword;      ///< MIDWORD string or NULL
-    hashtable_st sl_wordcount;  ///< hashtable with word count, wordcount_T
+    hashtable_st sl_wordcount; ///< hashtable with word count, wordcount_T
 
     int sl_compmax;          ///< COMPOUNDWORDMAX (default: MAXWLEN)
     int sl_compminlen;       ///< COMPOUNDMIN (default: 0)
     int sl_compsylmax;       ///< COMPOUNDSYLMAX (default: MAXWLEN)
     int sl_compoptions;      ///< COMP_* flags
-    garray_st sl_comppat;     ///< CHECKCOMPOUNDPATTERN items
-    regprog_st *sl_compprog;  ///< COMPOUNDRULE turned into a regexp progrm
+    garray_st sl_comppat;    ///< CHECKCOMPOUNDPATTERN items
+    regprog_st *sl_compprog; ///< COMPOUNDRULE turned into a regexp progrm
                              ///< (NULL when no compounding)
     uchar_kt *sl_comprules;      ///< all COMPOUNDRULE concatenated (or NULL)
     uchar_kt *sl_compstartflags; ///< flags for first compound word
     uchar_kt *sl_compallflags;   ///< all flags for compound words
-    bool sl_nobreak;           ///< When true: no spaces between words
+    bool sl_nobreak;             ///< When true: no spaces between words
     uchar_kt *sl_syllable;       ///< SYLLABLE repeatable chars or NULL
-    garray_st sl_syl_items;     ///< syllable items
+    garray_st sl_syl_items;      ///< syllable items
 
-    int sl_prefixcnt;          ///< number of items in "sl_prefprog"
-    regprog_st **sl_prefprog;   ///< table with regprogs for prefixes
+    int sl_prefixcnt;         ///< number of items in "sl_prefprog"
+    regprog_st **sl_prefprog; ///< table with regprogs for prefixes
 
     /// list of fromto_st entries from REP lines
     garray_st sl_rep;
@@ -168,29 +167,29 @@ struct slang_S
 
     garray_st sl_repsal; ///< list of fromto_st entries from REPSAL lines
     int16_t sl_repsal_first[256]; ///< sl_rep_first for REPSAL lines
-    bool sl_nosplitsugs; ///< don't suggest splitting a word
-    bool sl_nocompoundsugs; ///< don't suggest compounding
+    bool sl_nosplitsugs;          ///< don't suggest splitting a word
+    bool sl_nocompoundsugs;       ///< don't suggest compounding
 
     // Info from the .sug file. Loaded on demand.
-    time_t sl_sugtime;  ///< timestamp for .sug file
-    uchar_kt *sl_sbyts;   ///< soundfolded word bytes
-    idx_kt *sl_sidxs;    ///< soundfolded word indexes
-    filebuf_st *sl_sugbuf;   ///< buffer with word number table
-    bool sl_sugloaded;  ///< true when .sug file was loaded or failed to load
+    time_t sl_sugtime;     ///< timestamp for .sug file
+    uchar_kt *sl_sbyts;    ///< soundfolded word bytes
+    idx_kt *sl_sidxs;      ///< soundfolded word indexes
+    filebuf_st *sl_sugbuf; ///< buffer with word number table
+    bool sl_sugloaded;     ///< true when .sug file was loaded or failed to load
 
-    bool sl_has_map;         ///< true, if there is a MAP line
-    hashtable_st sl_map_hash;   ///< MAP for multi-byte chars
-    int sl_map_array[256];   ///< MAP for first 256 chars
-    hashtable_st sl_sounddone;  ///< table with soundfolded words that have
-                             ///< handled, see add_sound_suggest()
+    bool sl_has_map;           ///< true, if there is a MAP line
+    hashtable_st sl_map_hash;  ///< MAP for multi-byte chars
+    int sl_map_array[256];     ///< MAP for first 256 chars
+    hashtable_st sl_sounddone; ///< table with soundfolded words that have
+                               ///< handled, see add_sound_suggest()
 };
 
 /// Structure used in "b_langp", filled from 'spelllang'.
 typedef struct langp_S
 {
-    slang_T *lp_slang;    ///< info for this language
-    slang_T *lp_sallang;  ///< language used for sound folding or NULL
-    slang_T *lp_replang;  ///< language used for REP items or NULL
+    slang_st *lp_slang;    ///< info for this language
+    slang_st *lp_sallang;  ///< language used for sound folding or NULL
+    slang_st *lp_replang;  ///< language used for REP items or NULL
     int lp_region;        ///< bitmask for region or REGION_ALL
 } langp_T;
 
@@ -294,7 +293,7 @@ typedef struct trystate_S
 
 /// First language that is loaded, start of
 /// the linked list of loaded languages.
-extern slang_T *first_lang;
+extern slang_st *first_lang;
 
 /// file used for "zG" and "zW"
 extern uchar_kt *int_wordlist;

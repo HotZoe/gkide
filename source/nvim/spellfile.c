@@ -609,7 +609,7 @@ FUNC_ATTR_ALWAYS_INLINE
     return 0;
 }
 
-/// Load one spell file and store the info into a slang_T.
+/// Load one spell file and store the info into a slang_st.
 ///
 /// @param fname
 /// @param lang
@@ -618,17 +618,17 @@ FUNC_ATTR_ALWAYS_INLINE
 ///
 /// This is invoked in three ways:
 /// - From spell_load_cb() to load a spell file for the first time.  "lang" is
-///   the language name, "old_lp" is NULL. Will allocate an slang_T.
+///   the language name, "old_lp" is NULL. Will allocate an slang_st.
 /// - To reload a spell file that was changed. "lang" is NULL and "old_lp"
-///   points to the existing slang_T.
+///   points to the existing slang_st.
 /// - Just after writing a .spl file; it's read back to produce the .sug file.
-///   "old_lp" is NULL and "lang" is NULL. Will allocate an slang_T.
+///   "old_lp" is NULL and "lang" is NULL. Will allocate an slang_st.
 ///
 /// @return
-/// the slang_T the spell file was loaded into. NULL for error.
-slang_T *spell_load_file(uchar_kt *fname,
+/// the slang_st the spell file was loaded into. NULL for error.
+slang_st *spell_load_file(uchar_kt *fname,
                          uchar_kt *lang,
-                         slang_T *old_lp,
+                         slang_st *old_lp,
                          bool silent)
 {
     FILE *fd;
@@ -637,7 +637,7 @@ slang_T *spell_load_file(uchar_kt *fname,
     int len;
     uchar_kt *save_sourcing_name = sourcing_name;
     linenum_kt save_sourcing_lnum = sourcing_lnum;
-    slang_T *lp = NULL;
+    slang_st *lp = NULL;
     int c = 0;
     int res;
     fd = mch_fopen((char *)fname, "r");
@@ -1015,7 +1015,7 @@ static void tree_count_words(uchar_kt *byts, idx_kt *idxs)
 void suggest_load_files(void)
 {
     langp_T *lp;
-    slang_T *slang;
+    slang_st *slang;
     uchar_kt *dotp;
     FILE *fd;
     uchar_kt buf[MAXWLEN];
@@ -1220,7 +1220,7 @@ static uchar_kt *read_cnt_string(FILE *fd, int cnt_bytes, int *cntp)
 
 /// Read SN_REGION: <regionname> ...
 /// Return SP_*ERROR flags.
-static int read_region_section(FILE *fd, slang_T *lp, int len)
+static int read_region_section(FILE *fd, slang_st *lp, int len)
 {
     if(len > 16)
     {
@@ -1279,7 +1279,7 @@ static int read_charflags_section(FILE *fd)
 
 /// Read SN_PREFCOND section.
 /// Return SP_*ERROR flags.
-static int read_prefcond_section(FILE *fd, slang_T *lp)
+static int read_prefcond_section(FILE *fd, slang_st *lp)
 {
     // <prefcondcnt> <prefcond> ...
     const int cnt = get2c(fd); // <prefcondcnt>
@@ -1389,7 +1389,7 @@ static int read_rep_section(FILE *fd, garray_st *gap, int16_t *first)
 /// Read SN_SAL section: <salflags> <salcount> <sal> ...
 ///
 /// @return SP_*ERROR flags.
-static int read_sal_section(FILE *fd, slang_T *slang)
+static int read_sal_section(FILE *fd, slang_st *slang)
 {
     int cnt;
     garray_st *gap;
@@ -1577,7 +1577,7 @@ static int read_sal_section(FILE *fd, slang_T *slang)
 
 // Read SN_WORDS: <word> ...
 // Return SP_*ERROR flags.
-static int read_words_section(FILE *fd, slang_T *lp, int len)
+static int read_words_section(FILE *fd, slang_st *lp, int len)
 {
     int done = 0;
     int i;
@@ -1618,7 +1618,7 @@ static int read_words_section(FILE *fd, slang_T *lp, int len)
 /// SN_SOFO: <sofofromlen> <sofofrom> <sofotolen> <sofoto>
 ///
 /// @return SP_*ERROR flags.
-static int read_sofo_section(FILE *fd, slang_T *slang)
+static int read_sofo_section(FILE *fd, slang_st *slang)
 {
     int cnt;
     uchar_kt *from, *to;
@@ -1662,7 +1662,7 @@ static int read_sofo_section(FILE *fd, slang_T *slang)
 ///      <compmax> <compminlen> <compsylmax> <compoptions> <compflags>
 
 /// @returns SP_*ERROR flags.
-static int read_compound(FILE *fd, slang_T *slang, int len)
+static int read_compound(FILE *fd, slang_st *slang, int len)
 {
     int todo = len;
     int c;
@@ -1884,7 +1884,7 @@ static int read_compound(FILE *fd, slang_T *slang, int len)
 
 /// Set the SOFOFROM and SOFOTO items in language "lp".
 /// Returns SP_*ERROR flags when there is something wrong.
-static int set_sofo(slang_T *lp, uchar_kt *from, uchar_kt *to)
+static int set_sofo(slang_st *lp, uchar_kt *from, uchar_kt *to)
 {
     int i;
     garray_st *gap;
@@ -1984,7 +1984,7 @@ static int set_sofo(slang_T *lp, uchar_kt *from, uchar_kt *to)
 }
 
 /// Fill the first-index table for "lp".
-static void set_sal_first(slang_T *lp)
+static void set_sal_first(slang_st *lp)
 {
     salfirst_kt *sfirst;
     salitem_T *smp;
@@ -2294,7 +2294,7 @@ static idx_kt read_tree_node(FILE *fd,
 /// @param added_word invoked through "zg"
 static void spell_reload_one(uchar_kt *fname, bool added_word)
 {
-    slang_T *slang;
+    slang_st *slang;
     bool didit = false;
 
     for(slang = first_lang; slang != NULL; slang = slang->sl_next)
@@ -6320,7 +6320,7 @@ static void spell_make_sugfile(spellinfo_st *spin, uchar_kt *wfname)
 {
     uchar_kt *fname = NULL;
     int len;
-    slang_T *slang;
+    slang_st *slang;
     bool free_slang = false;
 
     // Read back the .spl file that was written. This fills the required
@@ -6405,7 +6405,7 @@ theend:
 }
 
 /// Build the soundfold trie for language "slang".
-static int sug_filltree(spellinfo_st *spin, slang_T *slang)
+static int sug_filltree(spellinfo_st *spin, slang_st *slang)
 {
     uchar_kt *byts;
     idx_kt *idxs;
@@ -7548,7 +7548,7 @@ static int write_spell_prefcond(FILE *fd, garray_st *gap)
 }
 
 /// Use map string @b map for languages @b lp
-static void set_map_str(slang_T *lp, uchar_kt *map)
+static void set_map_str(slang_st *lp, uchar_kt *map)
 {
     uchar_kt *p;
     int headc = 0;

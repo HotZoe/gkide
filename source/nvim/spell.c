@@ -136,7 +136,7 @@
 
 /// First language that is loaded, start of the
 /// linked list of loaded languages.
-slang_T *first_lang = NULL;
+slang_st *first_lang = NULL;
 
 /// file used for @b zG and @b zW
 uchar_kt *int_wordlist = NULL;
@@ -166,7 +166,7 @@ typedef struct suginfo_S
     uchar_kt su_fbadword[MAXWLEN];    ///< su_badword case-folded
     uchar_kt su_sal_badword[MAXWLEN]; ///< su_badword soundfolded
     hashtable_st su_banned;            ///< table with banned words
-    slang_T *su_sallang;            ///< default language for sound folding
+    slang_st *su_sallang;            ///< default language for sound folding
 } suginfo_T;
 
 /// One word suggestion. Used in @b si_ga
@@ -179,7 +179,7 @@ typedef struct
     int st_altscore;    ///< used when st_score compares equal
     bool st_salscore;   ///< st_score is for soundalike
     bool st_had_bonus;  ///< bonus already included in score
-    slang_T *st_slang;  ///< language used for sound folding
+    slang_st *st_slang;  ///< language used for sound folding
 } suggest_T;
 
 #define SUG(ga, i) \
@@ -287,7 +287,7 @@ typedef struct matchinf_S
 typedef struct spelload_S
 {
     uchar_kt sl_lang[MAXWLEN + 1];  ///< language name
-    slang_T *sl_slang;            ///< resulting slang_T struct
+    slang_st *sl_slang;            ///< resulting slang_st struct
     int sl_nobreak;               ///< NOBREAK language found
 } spelload_T;
 
@@ -629,7 +629,7 @@ static void find_word(matchinf_T *mip, int mode)
     int wlen = 0;
     int flen;
     uchar_kt *ptr;
-    slang_T *slang = mip->mi_lp->lp_slang;
+    slang_st *slang = mip->mi_lp->lp_slang;
     uchar_kt *byts;
     idx_kt *idxs;
 
@@ -1291,7 +1291,7 @@ static bool match_checkcompoundpattern(uchar_kt *ptr, int wlen, garray_st *gap)
 
 /// Returns true if "flags" is a valid sequence of compound
 /// flags and "word" does not have too many syllables.
-static bool can_compound(slang_T *slang, uchar_kt *word, uchar_kt *flags)
+static bool can_compound(slang_st *slang, uchar_kt *word, uchar_kt *flags)
 {
     uchar_kt uflags[MAXWLEN * 2];
     int i;
@@ -1341,7 +1341,7 @@ static bool can_compound(slang_T *slang, uchar_kt *word, uchar_kt *flags)
 /// possibly form a valid compounded word. This also checks the COMPOUNDRULE
 /// lines if they don't contain wildcards.
 static bool can_be_compound(trystate_T *sp,
-                            slang_T *slang,
+                            slang_st *slang,
                             uchar_kt *compflags,
                             int flag)
 {
@@ -1373,7 +1373,7 @@ static bool can_be_compound(trystate_T *sp,
 /// compound rule. This is used to stop trying a compound if the flags
 /// collected so far can't possibly match any compound rule.
 /// Caller must check that slang->sl_comprules is not NULL.
-static bool match_compoundrule(slang_T *slang, uchar_kt *compflags)
+static bool match_compoundrule(slang_st *slang, uchar_kt *compflags)
 {
     uchar_kt *p;
     int i;
@@ -1454,7 +1454,7 @@ static int valid_word_prefix(int totprefcnt,
                              int arridx,
                              int flags,
                              uchar_kt *word,
-                             slang_T *slang,
+                             slang_st *slang,
                              bool cond_req)
 {
     int prefcnt;
@@ -1518,7 +1518,7 @@ static void find_prefix(matchinf_T *mip, int mode)
     int c;
     uchar_kt *ptr;
     idx_kt lo, hi, m;
-    slang_T *slang = mip->mi_lp->lp_slang;
+    slang_st *slang = mip->mi_lp->lp_slang;
     uchar_kt *byts;
     idx_kt *idxs;
     byts = slang->sl_pbyts;
@@ -2140,11 +2140,11 @@ static void int_wordlist_spl(uchar_kt *fname)
                  SPL_FNAME_TMPL, int_wordlist, spell_enc());
 }
 
-/// Allocate a new slang_T for language @b lang
+/// Allocate a new slang_st for language @b lang
 /// @b lang can be NULL. Caller must fill "sl_next".
-slang_T *slang_alloc(uchar_kt *lang)
+slang_st *slang_alloc(uchar_kt *lang)
 {
-    slang_T *lp = xcalloc(1, sizeof(slang_T));
+    slang_st *lp = xcalloc(1, sizeof(slang_st));
 
     if(lang != NULL)
     {
@@ -2160,8 +2160,8 @@ slang_T *slang_alloc(uchar_kt *lang)
     return lp;
 }
 
-/// Free the contents of an slang_T and the structure itself.
-void slang_free(slang_T *lp)
+/// Free the contents of an slang_st and the structure itself.
+void slang_free(slang_st *lp)
 {
     xfree(lp->sl_name);
     xfree(lp->sl_fname);
@@ -2187,8 +2187,8 @@ static void free_fromto(fromto_st *ftp)
     xfree(ftp->ft_to);
 }
 
-/// Clear an slang_T so that the file can be reloaded.
-void slang_clear(slang_T *lp)
+/// Clear an slang_st so that the file can be reloaded.
+void slang_clear(slang_st *lp)
 {
     garray_st *gap;
 
@@ -2273,7 +2273,7 @@ void slang_clear(slang_T *lp)
 }
 
 /// Clear the info from the .sug file in "lp".
-void slang_clear_sug(slang_T *lp)
+void slang_clear_sug(slang_st *lp)
 {
     xfree(lp->sl_sbyts);
     lp->sl_sbyts = NULL;
@@ -2288,12 +2288,12 @@ void slang_clear_sug(slang_T *lp)
     lp->sl_sugtime = 0;
 }
 
-/// Load one spell file and store the info into a slang_T.
+/// Load one spell file and store the info into a slang_st.
 /// Invoked through do_in_runtimepath().
 static void spell_load_cb(uchar_kt *fname, void *cookie)
 {
     spelload_T *slp = (spelload_T *)cookie;
-    slang_T *slang;
+    slang_st *slang;
     slang = spell_load_file(fname, slp->sl_lang, NULL, false);
 
     if(slang != NULL)
@@ -2320,7 +2320,7 @@ static void spell_load_cb(uchar_kt *fname, void *cookie)
 /// @param[in]  word   added to common words hashtable
 /// @param[in]  len    length of word or -1 for NUL terminated
 /// @param[in]  count  1 to count once, 10 to init
-void count_common_word(slang_T *lp, uchar_kt *word, int len, int count)
+void count_common_word(slang_st *lp, uchar_kt *word, int len, int count)
 {
     hash_kt hash;
     hashitem_st *hi;
@@ -2362,7 +2362,7 @@ void count_common_word(slang_T *lp, uchar_kt *word, int len, int count)
 }
 
 /// Adjust the score of common words.
-static int score_wordcount_adj(slang_T *slang,
+static int score_wordcount_adj(slang_st *slang,
                                int score,
                                uchar_kt *word,
                                bool split)
@@ -2429,7 +2429,7 @@ bool byte_in_str(uchar_kt *str, int n)
 
 /// Truncate "slang->sl_syllable" at the first
 /// slash and put the following items in "slang->sl_syl_items".
-int init_syl_tab(slang_T *slang)
+int init_syl_tab(slang_st *slang)
 {
     uchar_kt *p;
     uchar_kt *s;
@@ -2474,7 +2474,7 @@ int init_syl_tab(slang_T *slang)
 /// Count the number of syllables in "word". When "word"
 /// contains spaces the syllables after the last space are counted.
 /// Returns zero if syllables are not defines.
-static int count_syllables(slang_T *slang, uchar_kt *word)
+static int count_syllables(slang_st *slang, uchar_kt *word)
 {
     int cnt = 0;
     bool skip = false;
@@ -2548,7 +2548,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
     uchar_kt region_cp[3];
     bool filename;
     int region_mask;
-    slang_T *slang;
+    slang_st *slang;
     int c;
     uchar_kt lang[MAXWLEN + 1];
     uchar_kt spf_name[MAXPATHL];
@@ -2935,7 +2935,7 @@ static void clear_midword(win_st *wp)
 
 /// Use the "sl_midword" field of language "lp" for buffer "buf".
 /// They add up to any currently used midword characters.
-static void use_midword(slang_T *lp, win_st *wp)
+static void use_midword(slang_st *lp, win_st *wp)
 {
     uchar_kt *p;
 
@@ -3159,7 +3159,7 @@ void spell_delete_wordlist(void)
 /// Free all languages.
 void spell_free_all(void)
 {
-    slang_T *slang;
+    slang_st *slang;
     // Go through all buffers and handle 'spelllang'. <VN>
     FOR_ALL_BUFFERS(buf)
     {
@@ -4740,7 +4740,7 @@ static void suggest_trie_walk(suginfo_T *su,
     fromto_st *ftp;
     int fl = 0, tl;
     int repextra = 0; // extra bytes in fword[] from REP item
-    slang_T *slang = lp->lp_slang;
+    slang_st *slang = lp->lp_slang;
     int fword_ends;
     bool goodword_ends;
 
@@ -6474,7 +6474,7 @@ static int nofold_len(uchar_kt *fword, int flen, uchar_kt *word)
 // words and put it in "kword".
 // Theoretically there could be several keep-case words that result in the
 // same case-folded word, but we only find one...
-static void find_keepcap_word(slang_T *slang, uchar_kt *fword, uchar_kt *kword)
+static void find_keepcap_word(slang_st *slang, uchar_kt *fword, uchar_kt *kword)
 {
     uchar_kt uword[MAXWLEN]; // "fword" in upper-case
     int depth;
@@ -6690,7 +6690,7 @@ static void score_combine(suginfo_T *su)
     uchar_kt *p;
     uchar_kt badsound[MAXWLEN];
     int round;
-    slang_T *slang = NULL;
+    slang_st *slang = NULL;
 
     // Add the alternate score to su_ga.
     for(int lpi = 0; lpi < curwin->w_s->b_langp.ga_len; ++lpi)
@@ -6826,7 +6826,7 @@ static void score_combine(suginfo_T *su)
 /// @return
 static int stp_sal_score(suggest_T *stp,
                          suginfo_T *su,
-                         slang_T *slang,
+                         slang_st *slang,
                          uchar_kt *badsound)
 {
     uchar_kt *p;
@@ -6897,7 +6897,7 @@ static sftword_T dumsft;
 static void suggest_try_soundalike_prep(void)
 {
     langp_T *lp;
-    slang_T *slang;
+    slang_st *slang;
 
     // Do this for all languages that support sound folding
     // and for which a .sug file has been loaded.
@@ -6920,7 +6920,7 @@ static void suggest_try_soundalike(suginfo_T *su)
 {
     uchar_kt salword[MAXWLEN];
     langp_T *lp;
-    slang_T *slang;
+    slang_st *slang;
 
     // Do this for all languages that support sound
     // folding and for which a .sug file has been loaded.
@@ -6957,7 +6957,7 @@ static void suggest_try_soundalike(suginfo_T *su)
 static void suggest_try_soundalike_finish(void)
 {
     langp_T *lp;
-    slang_T *slang;
+    slang_st *slang;
     int todo;
     hashitem_st *hi;
 
@@ -7002,7 +7002,7 @@ static void add_sound_suggest(suginfo_T *su,
                               langp_T *lp)
 {
     // language for sound folding
-    slang_T *slang = lp->lp_slang;
+    slang_st *slang = lp->lp_slang;
     int sfwordnr;
     uchar_kt *nrline;
     int orgnr;
@@ -7241,7 +7241,7 @@ badword:
 }
 
 // Find word "word" in fold-case tree for "slang" and return the word number.
-static int soundfold_find(slang_T *slang, uchar_kt *word)
+static int soundfold_find(slang_st *slang, uchar_kt *word)
 {
     idx_kt arridx = 0;
     int len;
@@ -7354,7 +7354,7 @@ static void make_case_word(uchar_kt *fword, uchar_kt *cword, int flags)
 
 /// Returns true if "c1" and "c2" are similar characters
 /// according to the MAP lines in the .aff file.
-static bool similar_chars(slang_T *slang, int c1, int c2)
+static bool similar_chars(slang_st *slang, int c1, int c2)
 {
     int m1, m2;
     uchar_kt buf[MB_MAXBYTES + 1];
@@ -7426,7 +7426,7 @@ static void add_suggestion(suginfo_T *su,
                            int score,
                            int altscore,
                            bool had_bonus,
-                           slang_T *slang,
+                           slang_st *slang,
                            bool maxsf)
 {
     int goodlen; // len of goodword changed
@@ -7643,7 +7643,7 @@ static void rescore_one(suginfo_T *su, suggest_T *stp)
 {
     uchar_kt *p;
     uchar_kt sal_badword[MAXWLEN];
-    slang_T *slang = stp->st_slang;
+    slang_st *slang = stp->st_slang;
 
     // Only rescore suggestions that have no sal
     // score yet and do have a language.
@@ -7775,7 +7775,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in] inword   word to soundfold
 /// @param[in] folded   whether inword is already case-folded
 /// @param[in,out] res  destination for soundfolded word
-void spell_soundfold(slang_T *slang, uchar_kt *inword, bool folded, uchar_kt *res)
+void spell_soundfold(slang_st *slang, uchar_kt *inword, bool folded, uchar_kt *res)
 {
     uchar_kt *word;
     uchar_kt fword[MAXWLEN];
@@ -7812,7 +7812,7 @@ void spell_soundfold(slang_T *slang, uchar_kt *inword, bool folded, uchar_kt *re
 
 // Perform sound folding of "inword" into
 // "res" according to SOFOFROM and SOFOTO lines.
-static void spell_soundfold_sofo(slang_T *slang, uchar_kt *inword, uchar_kt *res)
+static void spell_soundfold_sofo(slang_st *slang, uchar_kt *inword, uchar_kt *res)
 {
     int c;
     uchar_kt *s;
@@ -7903,7 +7903,7 @@ static void spell_soundfold_sofo(slang_T *slang, uchar_kt *inword, uchar_kt *res
     res[ri] = NUL;
 }
 
-static void spell_soundfold_sal(slang_T *slang, uchar_kt *inword, uchar_kt *res)
+static void spell_soundfold_sal(slang_st *slang, uchar_kt *inword, uchar_kt *res)
 {
     salitem_T *smp;
     uchar_kt word[MAXWLEN];
@@ -8265,7 +8265,7 @@ static void spell_soundfold_sal(slang_T *slang, uchar_kt *inword, uchar_kt *res)
 
 // Turn "inword" into its sound-a-like equivalent in "res[MAXWLEN]".
 // Multi-byte version of spell_soundfold().
-static void spell_soundfold_wsal(slang_T *slang, uchar_kt *inword, uchar_kt *res)
+static void spell_soundfold_wsal(slang_st *slang, uchar_kt *inword, uchar_kt *res)
 {
     salitem_T *smp = (salitem_T *)slang->sl_sal.ga_data;
     int word[MAXWLEN];
@@ -8970,7 +8970,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
 // The implementation of the algorithm comes from Aspell editdist.cpp,
 // edit_distance(). It has been converted from C++ to C and modified to
 // support multi-byte characters.
-static int spell_edit_score(slang_T *slang, uchar_kt *badword, uchar_kt *goodword)
+static int spell_edit_score(slang_st *slang, uchar_kt *badword, uchar_kt *goodword)
 {
     int *cnt;
     int j, i;
@@ -9119,7 +9119,7 @@ static int spell_edit_score(slang_T *slang, uchar_kt *badword, uchar_kt *goodwor
 /// This uses a stack for the edits still to be tried.
 /// The idea comes from Aspell leditdist.cpp.
 /// Rewritten in C and added support for multi-byte characters.
-static int spell_edit_score_limit(slang_T *slang,
+static int spell_edit_score_limit(slang_st *slang,
                                   uchar_kt *badword,
                                   uchar_kt *goodword,
                                   int limit)
@@ -9322,7 +9322,7 @@ pop:
 
 /// Multi-byte version of spell_edit_score_limit().
 /// Keep it in sync with the above!
-static int spell_edit_score_limit_w(slang_T *slang,
+static int spell_edit_score_limit_w(slang_st *slang,
                                     uchar_kt *badword,
                                     uchar_kt *goodword,
                                     int limit)
@@ -9622,7 +9622,7 @@ void ex_spelldump(exargs_st *eap)
 void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
 {
     langp_T *lp;
-    slang_T *slang;
+    slang_st *slang;
     idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];
     uchar_kt word[MAXWLEN];
@@ -9844,7 +9844,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
 
 // Dumps one word: apply case modifications and append a line to the buffer.
 // When "lnum" is zero add insert mode completion.
-static void dump_word(slang_T *slang,
+static void dump_word(slang_st *slang,
                       uchar_kt *word,
                       uchar_kt *pat,
                       int *dir,
@@ -9970,7 +9970,7 @@ static void dump_word(slang_T *slang,
 ///
 /// @return
 /// the updated line number.
-static linenum_kt dump_prefixes(slang_T *slang,
+static linenum_kt dump_prefixes(slang_st *slang,
                               uchar_kt *word,
                               uchar_kt *pat,
                               int *dir,

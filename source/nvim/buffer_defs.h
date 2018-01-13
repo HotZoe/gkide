@@ -428,7 +428,7 @@ typedef struct
     uint16_t b_sst_lasttick;      ///< last display tick
 
     // for spell checking
-    garray_st b_langp;         ///< list of pointers to slang_T, see spell.c
+    garray_st b_langp;         ///< list of pointers to slang_st, see spell.c
     bool b_spell_ismw[256];    ///< flags: is midword char
     uchar_kt *b_spell_ismw_mb; ///< multi-byte midword chars
     uchar_kt *b_p_spc;         ///< 'spellcapcheck'
