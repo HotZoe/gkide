@@ -39,8 +39,8 @@ typedef struct
 // Every function that invalidates one of these must call one of the
 // invalidate_* functions.
 //
-// w_valid is supposed to be used only in screen.c.  From other files, use the
-// functions that set or reset the flags.
+// w_valid is supposed to be used only in screen.c.
+// From other files, use the functions that set or reset the flags.
 //
 // VALID_BOTLINE    VALID_BOTLINE_AP
 //  on      on      w_botline valid
@@ -106,14 +106,14 @@ typedef struct buffheader_s buffheader_st;
 struct buffblock_s
 {
     buffblock_st *b_next;  ///< pointer to next buffblock
-    uchar_kt b_str[1];      ///< contents (actually longer)
+    uchar_kt b_str[1];     ///< contents (actually longer)
 };
 
 /// header used for the stuff buffer and the redo buffer
 struct buffheader_s
 {
-    buffblock_st bh_first;  ///< first (dummy) block of list
-    buffblock_st *bh_curr;  ///< buffblock for appending
+    buffblock_st bh_first; ///< first (dummy) block of list
+    buffblock_st *bh_curr; ///< buffblock for appending
     size_t bh_index;       ///< index for reading
     size_t bh_space;       ///< space in bh_curr for appending
 };
@@ -129,7 +129,7 @@ typedef struct
     int wo_bri;                 ///< 'breakindent'
 #define w_p_bri                 w_onebuf_opt.wo_bri
 
-    uchar_kt *wo_briopt;          ///< 'breakindentopt'
+    uchar_kt *wo_briopt;        ///< 'breakindentopt'
 #define w_p_briopt              w_onebuf_opt.wo_briopt
 
     int wo_diff;                ///< 'diff'
@@ -147,7 +147,7 @@ typedef struct
     int wo_fen_save;            ///< 'foldenable' saved for diff mode
 #define w_p_fen_save            w_onebuf_opt.wo_fen_save
 
-    uchar_kt *wo_fdi;             ///< 'foldignore'
+    uchar_kt *wo_fdi;           ///< 'foldignore'
 #define w_p_fdi                 w_onebuf_opt.wo_fdi
 
     long wo_fdl;                ///< 'foldlevel'
@@ -156,10 +156,10 @@ typedef struct
     int wo_fdl_save;            ///< 'foldlevel' state saved for diff mode
 #define w_p_fdl_save            w_onebuf_opt.wo_fdl_save
 
-    uchar_kt *wo_fdm;             ///< 'foldmethod'
+    uchar_kt *wo_fdm;           ///< 'foldmethod'
 #define w_p_fdm                 w_onebuf_opt.wo_fdm
 
-    uchar_kt *wo_fdm_save;        ///< 'fdm' saved for diff mode
+    uchar_kt *wo_fdm_save;      ///< 'fdm' saved for diff mode
 #define w_p_fdm_save            w_onebuf_opt.wo_fdm_save
 
     long wo_fml;                ///< 'foldminlines'
@@ -168,13 +168,13 @@ typedef struct
     long wo_fdn;                ///< 'foldnestmax'
 #define w_p_fdn                 w_onebuf_opt.wo_fdn
 
-    uchar_kt *wo_fde;             ///< 'foldexpr'
+    uchar_kt *wo_fde;           ///< 'foldexpr'
 #define w_p_fde                 w_onebuf_opt.wo_fde
 
-    uchar_kt *wo_fdt;             ///< 'foldtext'
+    uchar_kt *wo_fdt;           ///< 'foldtext'
 #define w_p_fdt                 w_onebuf_opt.wo_fdt
 
-    uchar_kt *wo_fmr;             ///< 'foldmarker'
+    uchar_kt *wo_fmr;           ///< 'foldmarker'
 #define w_p_fmr                 w_onebuf_opt.wo_fmr
 
     int wo_lbr;                 ///< 'linebreak'
@@ -204,7 +204,7 @@ typedef struct
     int wo_rl;                  ///< 'rightleft'
 #define w_p_rl                  w_onebuf_opt.wo_rl
 
-    uchar_kt *wo_rlc;             ///< 'rightleftcmd'
+    uchar_kt *wo_rlc;           ///< 'rightleftcmd'
 #define w_p_rlc                 w_onebuf_opt.wo_rlc
 
     long wo_scr;                ///< 'scroll'
@@ -219,10 +219,10 @@ typedef struct
     int wo_cul;                 ///< 'cursorline'
 #define w_p_cul                 w_onebuf_opt.wo_cul
 
-    uchar_kt *wo_cc;              ///< 'colorcolumn'
+    uchar_kt *wo_cc;            ///< 'colorcolumn'
 #define w_p_cc                  w_onebuf_opt.wo_cc
 
-    uchar_kt *wo_stl;             ///< 'statusline'
+    uchar_kt *wo_stl;           ///< 'statusline'
 #define w_p_stl                 w_onebuf_opt.wo_stl
 
     int wo_scb;                 ///< 'scrollbind'
@@ -240,7 +240,7 @@ typedef struct
     int wo_wrap_save;           ///< 'wrap' state saved for diff mode
 #define w_p_wrap_save           w_onebuf_opt.wo_wrap_save
 
-    uchar_kt *wo_cocu;            ///< 'concealcursor'
+    uchar_kt *wo_cocu;          ///< 'concealcursor'
 #define w_p_cocu                w_onebuf_opt.wo_cocu
 
     long wo_cole;               ///< 'conceallevel'
@@ -252,15 +252,15 @@ typedef struct
     int wo_crb_save;            ///< 'cursorbind' state saved for diff mode
 #define w_p_crb_save            w_onebuf_opt.wo_crb_save
 
-    uchar_kt *wo_scl;             ///< 'signcolumn'
+    uchar_kt *wo_scl;           ///< 'signcolumn'
 #define w_p_scl                 w_onebuf_opt.wo_scl
 
-    uchar_kt *wo_winhl;           ///< 'winhighlight'
+    uchar_kt *wo_winhl;         ///< 'winhighlight'
 #define w_p_winhl               w_onebuf_opt.wo_winhl
 
     int wo_scriptID[WV_COUNT];  ///< SIDs for window-local options
 #define w_p_scriptID            w_onebuf_opt.wo_scriptID
-} winopt_T;
+} winopt_st;
 
 /// Window info stored with a buffer.
 ///
@@ -275,10 +275,10 @@ struct wininfo_s
     wininfo_st *wi_next;  ///< next entry or NULL for last entry
     wininfo_st *wi_prev;  ///< previous entry or NULL for first entry
     win_st *wi_win;       ///< pointer to window that did set wi_fpos
-    apos_st wi_fpos;       ///< last cursor position in the file
-    bool wi_optset;      ///< true when wi_opt has useful values
-    winopt_T wi_opt;     ///< local window options
-    bool wi_fold_manual; ///< copy of w_fold_manual
+    apos_st wi_fpos;      ///< last cursor position in the file
+    bool wi_optset;       ///< true when wi_opt has useful values
+    winopt_st wi_opt;     ///< local window options
+    bool wi_fold_manual;  ///< copy of w_fold_manual
     garray_st wi_folds;   ///< clone of w_folds
 };
 
@@ -1041,8 +1041,8 @@ struct window_s
     // depend on the window layout.
     // There are two values: w_onebuf_opt is local to the buffer currently in
     // this window, w_allbuf_opt is for all buffers in this window.
-    winopt_T w_onebuf_opt;
-    winopt_T w_allbuf_opt;
+    winopt_st w_onebuf_opt;
+    winopt_st w_allbuf_opt;
 
     // A few options have local flags for P_INSECURE.
     uint32_t w_p_stl_flags;  ///< flags for 'statusline'
@@ -1055,7 +1055,7 @@ struct window_s
     bool w_p_brisbr;   ///< sbr in 'briopt'
 
     /// transform a pointer to a "onebuf" option into a "allbuf" option
-    #define GLOBAL_WO(p)    ((char *)p + sizeof(winopt_T))
+    #define GLOBAL_WO(p)    ((char *)p + sizeof(winopt_st))
 
     long w_scbind_pos;
 
