@@ -47,7 +47,7 @@ typedef struct
     uchar_kt *string;     ///< points into option string
     int strlen;
     int present;
-} option_table_T;
+} prt_opttable_st;
 
 #define OPT_PRINT_TOP               0
 #define OPT_PRINT_BOT               1

@@ -93,7 +93,7 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 
-static option_table_T printer_opts[OPT_PRINT_NUM_OPTIONS] =
+static prt_opttable_st printer_opts[OPT_PRINT_NUM_OPTIONS] =
 {
     {"top",      TRUE,  0, NULL, 0, FALSE},
     {"bottom",   TRUE,  0, NULL, 0, FALSE},
@@ -163,7 +163,7 @@ static int page_count;
 #define OPT_MBFONT_BOLDOBLIQUE  5
 #define OPT_MBFONT_NUM_OPTIONS  6
 
-static option_table_T mbfont_opts[OPT_MBFONT_NUM_OPTIONS] =
+static prt_opttable_st mbfont_opts[OPT_MBFONT_NUM_OPTIONS] =
 {
     {"c", FALSE, 0, NULL, 0, FALSE},
     {"a", FALSE, 0, NULL, 0, FALSE},
@@ -290,10 +290,10 @@ uchar_kt *parse_printmbfont(void)
 /// Returns an error message for an illegal option, NULL otherwise.
 /// Only used for the printer at the moment...
 static uchar_kt *parse_list_options(uchar_kt *option_str,
-                                  option_table_T *table,
+                                  prt_opttable_st *table,
                                   size_t table_size)
 {
-    option_table_T *old_opts;
+    prt_opttable_st *old_opts;
     uchar_kt *ret = NULL;
     uchar_kt *stringp;
     uchar_kt *colonp;
@@ -303,7 +303,7 @@ static uchar_kt *parse_list_options(uchar_kt *option_str,
     int len;
 
     // Save the old values, so that they can be restored in case of an error.
-    old_opts = (option_table_T *)xmalloc(sizeof(option_table_T) * table_size);
+    old_opts = (prt_opttable_st *)xmalloc(sizeof(prt_opttable_st) * table_size);
 
     for(idx = 0; idx < table_size; idx++)
     {
