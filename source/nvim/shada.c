@@ -471,7 +471,7 @@ struct sd_read_s
 };
 
 /// Function used to close files defined by sd_write_st
-typedef void (*ShaDaWriteCloser)(sd_write_st *const sd_writer)
+typedef void (*sd_write_closer_ft)(sd_write_st *const sd_writer)
 REAL_FATTR_NONNULL_ALL;
 
 /// Function used to write ShaDa files
@@ -485,7 +485,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 struct sd_write_s
 {
     ShaDaFileWriter write;   ///< Writer function.
-    ShaDaWriteCloser close;  ///< Close function.
+    sd_write_closer_ft close;  ///< Close function.
     void *cookie;            ///< Data describing object written to.
     const char *error;       ///< Error message in case of error.
 };
