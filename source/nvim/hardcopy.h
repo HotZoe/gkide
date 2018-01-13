@@ -44,26 +44,30 @@ typedef struct
     const char *name;
     int hasnum;
     int number;
-    uchar_kt *string;     ///< points into option string
+    uchar_kt *string;  ///< points into option string
     int strlen;
     int present;
 } prt_opttable_st;
 
-#define OPT_PRINT_TOP               0
-#define OPT_PRINT_BOT               1
-#define OPT_PRINT_LEFT              2
-#define OPT_PRINT_RIGHT             3
-#define OPT_PRINT_HEADERHEIGHT      4
-#define OPT_PRINT_SYNTAX            5
-#define OPT_PRINT_NUMBER            6
-#define OPT_PRINT_WRAP              7
-#define OPT_PRINT_DUPLEX            8
-#define OPT_PRINT_PORTRAIT          9
-#define OPT_PRINT_PAPER             10
-#define OPT_PRINT_COLLATE           11
-#define OPT_PRINT_JOBSPLIT          12
-#define OPT_PRINT_FORMFEED          13
-#define OPT_PRINT_NUM_OPTIONS       14
+/// printer option index
+enum prt_optidx_e
+{
+    kPrtOptTop           = 0,
+    kPrtOptBottom        = 1,
+    kPrtOptLeft          = 2,
+    kPrtOptRight         = 3,
+    kPrtOptHeaderHight   = 4,
+    kPrtOptSyntax        = 5,
+    kPrtOptNumber        = 6,
+    kPrtOptWrap          = 7,
+    kPrtOptDuplex        = 8,
+    kPrtOptPortrait      = 9,
+    kPrtOptPaper         = 10,
+    kPrtOptCollate       = 11,
+    kPrtOptJobSplit      = 12,
+    kPrtOptFormfeed      = 13,
+    kPrtOptNumOptions    = 14,
+};
 
 // For prt_get_unit().
 #define PRT_UNIT_NONE       -1

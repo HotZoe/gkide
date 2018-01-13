@@ -93,7 +93,7 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 
-static prt_opttable_st printer_opts[OPT_PRINT_NUM_OPTIONS] =
+static prt_opttable_st printer_opts[kPrtOptNumOptions] =
 {
     {"top",      TRUE,  0, NULL, 0, FALSE},
     {"bottom",   TRUE,  0, NULL, 0, FALSE},
@@ -272,7 +272,7 @@ struct prt_resfile_buffer_S
 /// Returns an error message or NULL;
 uchar_kt *parse_printoptions(void)
 {
-    return parse_list_options(p_popt, printer_opts, OPT_PRINT_NUM_OPTIONS);
+    return parse_list_options(p_popt, printer_opts, kPrtOptNumOptions);
 }
 
 /// Parse 'printoptions' and set the flags in "printer_opts".
@@ -523,9 +523,9 @@ static void prt_line_number(prt_geninfo_st *psettings,
 /// Get the currently effective header height.
 int prt_header_height(void)
 {
-    if(printer_opts[OPT_PRINT_HEADERHEIGHT].present)
+    if(printer_opts[kPrtOptHeaderHight].present)
     {
-        return printer_opts[OPT_PRINT_HEADERHEIGHT].number;
+        return printer_opts[kPrtOptHeaderHight].number;
     }
 
     return 2;
@@ -534,8 +534,8 @@ int prt_header_height(void)
 /// Return TRUE if using a line number for printing.
 int prt_use_number(void)
 {
-    return printer_opts[OPT_PRINT_NUMBER].present
-           && TOLOWER_ASC(printer_opts[OPT_PRINT_NUMBER].string[0]) == 'y';
+    return printer_opts[kPrtOptNumber].present
+           && TOLOWER_ASC(printer_opts[kPrtOptNumber].string[0]) == 'y';
 }
 
 /// - Return the unit used in a margin item in 'printoptions'.
@@ -724,11 +724,11 @@ void ex_hardcopy(exargs_st *eap)
     {
         settings.do_syntax = FALSE;
     }
-    else if(printer_opts[OPT_PRINT_SYNTAX].present
-            && TOLOWER_ASC(printer_opts[OPT_PRINT_SYNTAX].string[0]) != 'a')
+    else if(printer_opts[kPrtOptSyntax].present
+            && TOLOWER_ASC(printer_opts[kPrtOptSyntax].string[0]) != 'a')
     {
         settings.do_syntax =
-            (TOLOWER_ASC(printer_opts[OPT_PRINT_SYNTAX].string[0]) == 'y');
+            (TOLOWER_ASC(printer_opts[kPrtOptSyntax].string[0]) == 'y');
     }
     else
     {
@@ -782,8 +782,8 @@ void ex_hardcopy(exargs_st *eap)
     prt_set_font(FALSE, FALSE, FALSE);
     current_syn_id = -1;
 
-    jobsplit = (printer_opts[OPT_PRINT_JOBSPLIT].present
-                && TOLOWER_ASC(printer_opts[OPT_PRINT_JOBSPLIT].string[0]) == 'y');
+    jobsplit = (printer_opts[kPrtOptJobSplit].present
+                && TOLOWER_ASC(printer_opts[kPrtOptJobSplit].string[0]) == 'y');
 
     if(!mch_print_begin(&settings))
     {
@@ -1055,8 +1055,8 @@ static columnum_kt hardcopy_line(prt_geninfo_st *psettings,
             }
         }
         else if(line[col] == FF
-                && printer_opts[OPT_PRINT_FORMFEED].present
-                && TOLOWER_ASC(printer_opts[OPT_PRINT_FORMFEED].string[0])
+                && printer_opts[kPrtOptFormfeed].present
+                && TOLOWER_ASC(printer_opts[kPrtOptFormfeed].string[0])
                 == 'y')
         {
             ppos->ff = TRUE;
@@ -1085,8 +1085,8 @@ static columnum_kt hardcopy_line(prt_geninfo_st *psettings,
     // are doing a formfeed.
     if(!ppos->ff
        && (line[col] == NUL
-           || (printer_opts[OPT_PRINT_WRAP].present
-               && TOLOWER_ASC(printer_opts[OPT_PRINT_WRAP].string[0]) == 'n')))
+           || (printer_opts[kPrtOptWrap].present
+               && TOLOWER_ASC(printer_opts[kPrtOptWrap].string[0]) == 'n')))
     {
         return 0;
     }
@@ -2471,10 +2471,10 @@ static void prt_page_margins(double width,
                              double *top,
                              double *bottom)
 {
-    *left = to_device_units(OPT_PRINT_LEFT, width, 10);
-    *right = width - to_device_units(OPT_PRINT_RIGHT, width, 5);
-    *top = height - to_device_units(OPT_PRINT_TOP, height, 5);
-    *bottom = to_device_units(OPT_PRINT_BOT, height, 5);
+    *left = to_device_units(kPrtOptLeft, width, 10);
+    *right = width - to_device_units(kPrtOptRight, width, 5);
+    *top = height - to_device_units(kPrtOptTop, height, 5);
+    *bottom = to_device_units(kPrtOptBottom, height, 5);
 }
 
 static void prt_font_metrics(int font_scale)
@@ -2776,13 +2776,13 @@ int mch_print_init(prt_geninfo_st *psettings,
     }
 
     // Find the size of the paper and set the margins.
-    prt_portrait = (!printer_opts[OPT_PRINT_PORTRAIT].present
-                    || TOLOWER_ASC(printer_opts[OPT_PRINT_PORTRAIT].string[0]) == 'y');
+    prt_portrait = (!printer_opts[kPrtOptPortrait].present
+                    || TOLOWER_ASC(printer_opts[kPrtOptPortrait].string[0]) == 'y');
 
-    if(printer_opts[OPT_PRINT_PAPER].present)
+    if(printer_opts[kPrtOptPaper].present)
     {
-        paper_name = (char *)printer_opts[OPT_PRINT_PAPER].string;
-        paper_strlen = printer_opts[OPT_PRINT_PAPER].strlen;
+        paper_name = (char *)printer_opts[kPrtOptPaper].string;
+        paper_strlen = printer_opts[kPrtOptPaper].strlen;
     }
     else
     {
@@ -2869,8 +2869,8 @@ int mch_print_init(prt_geninfo_st *psettings,
     psettings->n_collated_copies = 1;
     psettings->n_uncollated_copies = 1;
     prt_num_copies = 1;
-    prt_collate = (!printer_opts[OPT_PRINT_COLLATE].present
-                   || TOLOWER_ASC(printer_opts[OPT_PRINT_COLLATE].string[0]) == 'y');
+    prt_collate = (!printer_opts[kPrtOptCollate].present
+                   || TOLOWER_ASC(printer_opts[kPrtOptCollate].string[0]) == 'y');
 
     if(prt_collate)
     {
@@ -2892,14 +2892,14 @@ int mch_print_init(prt_geninfo_st *psettings,
     prt_tumble = FALSE;
     psettings->duplex = 1;
 
-    if(printer_opts[OPT_PRINT_DUPLEX].present)
+    if(printer_opts[kPrtOptDuplex].present)
     {
-        if(STRNICMP(printer_opts[OPT_PRINT_DUPLEX].string, "off", 3) == 0)
+        if(STRNICMP(printer_opts[kPrtOptDuplex].string, "off", 3) == 0)
         {
             prt_duplex = FALSE;
             psettings->duplex = 0;
         }
-        else if(STRNICMP(printer_opts[OPT_PRINT_DUPLEX].string, "short", 5)
+        else if(STRNICMP(printer_opts[kPrtOptDuplex].string, "short", 5)
                 == 0)
         {
             prt_tumble = TRUE;
