@@ -948,7 +948,7 @@ EXTERN int readonlymode INIT(= FALSE);  ///< Set to `TRUE` for "view"
 EXTERN int recoverymode INIT(= FALSE);  ///< Set to `TRUE` for "-r" option
 
 // typeahead buffer
-EXTERN typebuf_T typebuf INIT(= { NULL, NULL, 0, 0, 0, 0, 0, 0, 0 });
+EXTERN typebuf_st typebuf INIT(= { NULL, NULL, 0, 0, 0, 0, 0, 0, 0 });
 
 EXTERN int ex_normal_busy INIT(= 0);    ///< recursiveness of ex_normal()
 EXTERN int ex_normal_lock INIT(= 0);    ///< forbid use of ex_normal()
