@@ -291,12 +291,12 @@ struct func_call_s
 };
 
 /// Structure used by trans_function_name()
-typedef struct
+typedef struct funcdict_s
 {
     dict_st *fd_dict;    ///< Dictionary used.
     uchar_kt *fd_newkey; ///< New key in "dict" in allocated memory.
     dictitem_st *fd_di;  ///< Dictionary item used.
-} funcdict_T;
+} funcdict_st;
 
 /// Info used by a @b :for loop.
 typedef struct forinfo_s
@@ -3409,7 +3409,7 @@ void ex_call(exargs_st *eap)
     linenum_kt lnum;
     int doesrange;
     bool failed = false;
-    funcdict_T fudi;
+    funcdict_st fudi;
     partial_st *partial = NULL;
 
     if(eap->skip)
@@ -25519,7 +25519,7 @@ void ex_function(exargs_st *eap)
     int nesting;
     uchar_kt *skip_until = NULL;
     dictitem_st  *v;
-    funcdict_T fudi;
+    funcdict_st fudi;
     static int func_nr = 0; // number for nameless function
     int paren;
     hashtable_st *ht;
@@ -26263,7 +26263,7 @@ ret_free:
 static uchar_kt *trans_function_name(uchar_kt **pp,
                                    int skip,
                                    int flags,
-                                   funcdict_T *fdp,
+                                   funcdict_st *fdp,
                                    partial_st **partial)
 {
     uchar_kt *name = NULL;
@@ -26275,7 +26275,7 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
 
     if(fdp != NULL)
     {
-        memset(fdp, 0, sizeof(funcdict_T));
+        memset(fdp, 0, sizeof(funcdict_st));
     }
 
     start = *pp;
@@ -27221,7 +27221,7 @@ void ex_delfunction(exargs_st *eap)
     ufunc_st *fp = NULL;
     uchar_kt *p;
     uchar_kt *name;
-    funcdict_T fudi;
+    funcdict_st fudi;
     p = eap->arg;
     name = trans_function_name(&p, eap->skip, 0, &fudi, NULL);
     xfree(fudi.fd_newkey);
