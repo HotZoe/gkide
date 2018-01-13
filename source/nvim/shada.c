@@ -438,6 +438,7 @@ typedef struct wms_info_s
 } wms_info_st;
 
 typedef struct sd_read_s    sd_read_st;
+typedef struct sd_write_s   sd_write_st;
 
 /// Function used to close files defined by sd_read_st
 typedef void (*sd_read_closer_ft)(sd_read_st *const sd_reader)
@@ -469,27 +470,25 @@ struct sd_read_s
                              ///< reader structure initialization). May overflow.
 };
 
-struct sd_write_def;
-
-/// Function used to close files defined by ShaDaWriteDef
-typedef void (*ShaDaWriteCloser)(struct sd_write_def *const sd_writer)
+/// Function used to close files defined by sd_write_st
+typedef void (*ShaDaWriteCloser)(sd_write_st *const sd_writer)
 REAL_FATTR_NONNULL_ALL;
 
 /// Function used to write ShaDa files
-typedef ptrdiff_t (*ShaDaFileWriter)(struct sd_write_def *const sd_writer,
+typedef ptrdiff_t (*ShaDaFileWriter)(sd_write_st *const sd_writer,
                                      const void *const src,
                                      const size_t size)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Structure containing necessary pointers for writing ShaDa files
-typedef struct sd_write_def
+struct sd_write_s
 {
     ShaDaFileWriter write;   ///< Writer function.
     ShaDaWriteCloser close;  ///< Close function.
     void *cookie;            ///< Data describing object written to.
     const char *error;       ///< Error message in case of error.
-} ShaDaWriteDef;
+};
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "shada.c.generated.h"
@@ -816,7 +815,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Wrapper for writing to file descriptors
 ///
 /// @return -1 or number of bytes written.
-static ptrdiff_t write_file(ShaDaWriteDef *const sd_writer,
+static ptrdiff_t write_file(sd_write_st *const sd_writer,
                             const void *const dest,
                             const size_t size)
 FUNC_ATTR_NONNULL_ALL
@@ -841,7 +840,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Wrapper for closing file descriptors opened for writing
-static void close_sd_writer(ShaDaWriteDef *const sd_writer)
+static void close_sd_writer(sd_write_st *const sd_writer)
 FUNC_ATTR_NONNULL_ALL
 {
     close_file(sd_writer->cookie);
@@ -1004,10 +1003,10 @@ FUNC_ATTR_PURE
     return kh_get(strset, set, str) != kh_end(set);
 }
 
-/// Msgpack callback for writing to ShaDaWriteDef*
+/// Msgpack callback for writing to sd_write_st*
 static int msgpack_sd_writer_write(void *data, const char *buf, size_t len)
 {
-    ShaDaWriteDef *const sd_writer = (ShaDaWriteDef *) data;
+    sd_write_st *const sd_writer = (sd_write_st *) data;
     ptrdiff_t written_bytes = sd_writer->write(sd_writer, buf, len);
 
     if(written_bytes == -1)
@@ -3115,7 +3114,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// Structure containing file reader definition.
 /// If it is not NULL then contents of this file
 /// will be merged with current Neovim runtime.
-static psdw_result_et shada_write(ShaDaWriteDef *const sd_writer,
+static psdw_result_et shada_write(sd_write_st *const sd_writer,
                                     sd_read_st *const sd_reader)
 FUNC_ATTR_NONNULL_ARG(1)
 {
@@ -3792,7 +3791,7 @@ int shada_write_file(const char *const file, bool nomerge)
     char *const fname = shada_filename(file);
     char *tempname = NULL;
 
-    ShaDaWriteDef sd_writer = {
+    sd_write_st sd_writer = {
         .write = &write_file,
         .close = &close_sd_writer,
         .error = NULL,
