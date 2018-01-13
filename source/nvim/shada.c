@@ -200,14 +200,14 @@ typedef enum shada_entry_type_e
 } shada_entry_type_et;
 
 /// Possible results when reading ShaDa file
-typedef enum
+typedef enum shada_read_result_e
 {
     kSDReadStatusSuccess,    ///< Reading was successfull.
     kSDReadStatusFinished,   ///< Nothing more to read.
     kSDReadStatusReadError,  ///< Failed to read from file.
     kSDReadStatusNotShaDa,   ///< Input is most likely not a ShaDa file.
     kSDReadStatusMalformed,  ///< Error in the currently read item.
-} ShaDaReadResult;
+} shada_read_result_et;
 
 /// Possible results of shada_write function.
 typedef enum
@@ -891,7 +891,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// kSDReadStatusReadError, kSDReadStatusNotShaDa or
 /// kSDReadStatusSuccess.
-static ShaDaReadResult sd_reader_skip(ShaDaReadDef *const sd_reader,
+static shada_read_result_et sd_reader_skip(ShaDaReadDef *const sd_reader,
                                       const size_t offset)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
@@ -1504,7 +1504,7 @@ FUNC_ATTR_NONNULL_ALL
         set_vim_var_list(VV_OLDFILES, oldfiles_list);
     }
 
-    ShaDaReadResult srni_ret;
+    shada_read_result_et srni_ret;
 
     while((srni_ret = shada_read_next_item(sd_reader,
                                            &cur_entry,
@@ -2543,7 +2543,7 @@ FUNC_ATTR_PURE
 /// @return
 /// kSDReadStatusNotShaDa, kSDReadStatusReadError or
 /// kSDReadStatusSuccess.
-static inline ShaDaReadResult shada_parse_msgpack(ShaDaReadDef *const sd_reader,
+static inline shada_read_result_et shada_parse_msgpack(ShaDaReadDef *const sd_reader,
                                                   const size_t length,
                                                   msgpack_unpacked *ret_unpacked,
                                                   char **const ret_buf)
@@ -2552,7 +2552,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 {
     const uintmax_t initial_fpos = sd_reader->fpos;
     char *const buf = xmalloc(length);
-    const ShaDaReadResult fl_ret = fread_len(sd_reader, buf, length);
+    const shada_read_result_et fl_ret = fread_len(sd_reader, buf, length);
 
     if(fl_ret != kSDReadStatusSuccess)
     {
@@ -2572,7 +2572,7 @@ shada_parse_msgpack_read_next:
     const msgpack_unpack_return result =
         msgpack_unpack_next(&unpacked, buf, length, &off);
 
-    ShaDaReadResult ret = kSDReadStatusSuccess;
+    shada_read_result_et ret = kSDReadStatusSuccess;
 
     switch(result)
     {
@@ -2673,7 +2673,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 {
     ShaDaWriteResult ret = kSDWriteSuccessfull;
     ShadaEntry entry;
-    ShaDaReadResult srni_ret;
+    shada_read_result_et srni_ret;
 
     while((srni_ret = shada_read_next_item(sd_reader,
                                            &entry,
@@ -4192,7 +4192,7 @@ static inline uint64_t be64toh(uint64_t big_endian_64_bits)
 /// kSDReadStatusSuccess if everything was OK, kSDReadStatusNotShaDa if
 /// there were not enough bytes to read or kSDReadStatusReadError if
 /// there was some error while reading.
-static ShaDaReadResult fread_len(ShaDaReadDef *const sd_reader,
+static shada_read_result_et fread_len(ShaDaReadDef *const sd_reader,
                                  char *const buffer,
                                  const size_t length)
 FUNC_ATTR_NONNULL_ALL
@@ -4238,7 +4238,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// - kSDReadStatusSuccess if reading was successfull,
 /// - kSDReadStatusNotShaDa if there were not enough bytes to read or
 /// - kSDReadStatusReadError if reading failed for whatever reason.
-static ShaDaReadResult msgpack_read_uint64(ShaDaReadDef *const sd_reader,
+static shada_read_result_et msgpack_read_uint64(ShaDaReadDef *const sd_reader,
                                            const int first_char,
                                            uint64_t *const result)
 FUNC_ATTR_NONNULL_ALL
@@ -4310,7 +4310,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         uint64_t buf = 0;
         char *buf_u8 = (char *) &buf;
-        ShaDaReadResult fl_ret;
+        shada_read_result_et fl_ret;
 
         if((fl_ret = fread_len(sd_reader,
                                &(buf_u8[sizeof(buf)-length]),
@@ -4524,15 +4524,15 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in] max_kbyte
 /// If non-zero, skip reading entries which have length greater then given.
 ///
-/// @return Any value from ShaDaReadResult enum.
-static ShaDaReadResult shada_read_next_item(ShaDaReadDef *const sd_reader,
+/// @return Any value from shada_read_result_et enum.
+static shada_read_result_et shada_read_next_item(ShaDaReadDef *const sd_reader,
                                             ShadaEntry *const entry,
                                             const unsigned flags,
                                             const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    ShaDaReadResult ret = kSDReadStatusMalformed;
+    shada_read_result_et ret = kSDReadStatusMalformed;
 shada_read_next_item_start:
     // Set entry type to kSDItemMissing and also make sure that all pointers in
     // data union are NULL so they are safe to xfree(). This is needed in case
@@ -4559,7 +4559,7 @@ shada_read_next_item_start:
         return kSDReadStatusFinished;
     }
 
-    ShaDaReadResult mru_ret;
+    shada_read_result_et mru_ret;
 
     if(((mru_ret = msgpack_read_uint64(sd_reader,
                                        first_char,
@@ -4604,7 +4604,7 @@ shada_read_next_item_start:
         if(initial_fpos == 0
            && (type_u64 == '\n' || type_u64 > SHADA_LAST_ENTRY))
         {
-            const ShaDaReadResult spm_ret =
+            const shada_read_result_et spm_ret =
                 shada_parse_msgpack(sd_reader, length, NULL, NULL);
 
             if(spm_ret != kSDReadStatusSuccess)
@@ -4614,7 +4614,7 @@ shada_read_next_item_start:
         }
         else
         {
-            const ShaDaReadResult srs_ret = sd_reader_skip(sd_reader, length);
+            const shada_read_result_et srs_ret = sd_reader_skip(sd_reader, length);
 
             if(srs_ret != kSDReadStatusSuccess)
             {
@@ -4633,7 +4633,7 @@ shada_read_next_item_start:
 
         if(initial_fpos == 0)
         {
-            const ShaDaReadResult spm_ret =
+            const shada_read_result_et spm_ret =
                 shada_parse_msgpack(sd_reader,
                                     length,
                                     NULL,
@@ -4650,7 +4650,7 @@ shada_read_next_item_start:
         {
             entry->data.unknown_item.contents = xmalloc(length);
 
-            const ShaDaReadResult fl_ret =
+            const shada_read_result_et fl_ret =
                 fread_len(sd_reader,
                           entry->data.unknown_item.contents,
                           length);
@@ -4668,7 +4668,7 @@ shada_read_next_item_start:
     msgpack_unpacked unpacked;
     char *buf = NULL;
 
-    const ShaDaReadResult spm_ret = shada_parse_msgpack(sd_reader,
+    const shada_read_result_et spm_ret = shada_parse_msgpack(sd_reader,
                                                         length,
                                                         &unpacked,
                                                         &buf);
