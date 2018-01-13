@@ -6757,7 +6757,7 @@ bool garbage_collect(bool testing)
 
     // previously used search/substitute patterns (ShaDa additional data)
     {
-        SearchPattern pat;
+        search_pattern_st pat;
 
         get_search_pattern(&pat);
         ABORTING(set_ref_dict)(pat.additional_data, copyID);

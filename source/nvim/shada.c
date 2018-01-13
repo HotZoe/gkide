@@ -161,7 +161,7 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 #define WERR     "E574: "
 
 /// Callback function for add_search_pattern
-typedef void (*search_pattern_cbk_ft)(SearchPattern *);
+typedef void (*search_pattern_cbk_ft)(search_pattern_st *);
 
 /// Flags for shada_read_file and children
 typedef enum
@@ -498,8 +498,7 @@ static const apos_st default_pos = DEFAULT_POS;
 
 static const ShadaEntry sd_default_values[] = {
     [kSDItemMissing] = { .type = kSDItemMissing, .timestamp = 0 },
-    DEF_SDE(Header, header,
-            .size = 0),
+    DEF_SDE(Header, header, .size = 0),
     DEF_SDE(SearchPattern, search_pattern,
             .magic = true,
             .smartcase = false,
@@ -1559,7 +1558,7 @@ FUNC_ATTR_NONNULL_ALL
             {
                 if(!force)
                 {
-                    SearchPattern pat;
+                    search_pattern_st pat;
 
                     (cur_entry.data.search_pattern.is_substitute_pattern
                      ? &get_substitute_pattern
@@ -1574,7 +1573,7 @@ FUNC_ATTR_NONNULL_ALL
 
                 (cur_entry.data.search_pattern.is_substitute_pattern
                  ? &set_substitute_pattern
-                 : &set_search_pattern)((SearchPattern) {
+                 : &set_search_pattern)((search_pattern_st) {
                     .magic = cur_entry.data.search_pattern.magic,
                     .no_scs = !cur_entry.data.search_pattern.smartcase,
                     .off = {
@@ -3058,7 +3057,7 @@ static inline void add_search_pattern(PossiblyFreedShadaEntry *const ret_pse,
 FUNC_ATTR_ALWAYS_INLINE
 {
     const ShadaEntry defaults = sd_default_values[kSDItemSearchPattern];
-    SearchPattern pat;
+    search_pattern_st pat;
     get_pattern(&pat);
 
     if(pat.pat != NULL)

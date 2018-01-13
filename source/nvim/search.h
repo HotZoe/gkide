@@ -66,15 +66,15 @@ typedef struct soffset
 } SearchOffset;
 
 /// Structure containing last search pattern and its attributes.
-typedef struct spat
+typedef struct search_pattern_s
 {
-    uchar_kt *pat;             ///< The pattern (in allocated memory) or NULL.
-    bool magic;              ///< Magicness of the pattern.
-    bool no_scs;             ///< No smartcase for this pattern.
-    timestamp_kt timestamp;     ///< Time of the last change.
-    SearchOffset off;        ///< Pattern offset.
+    uchar_kt *pat;            ///< The pattern (in allocated memory) or NULL.
+    bool magic;               ///< Magicness of the pattern.
+    bool no_scs;              ///< No smartcase for this pattern.
+    timestamp_kt timestamp;   ///< Time of the last change.
+    SearchOffset off;       ///< Pattern offset.
     dict_st *additional_data; ///< Additional data from ShaDa file.
-} SearchPattern;
+} search_pattern_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "search.h.generated.h"

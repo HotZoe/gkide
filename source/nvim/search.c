@@ -69,7 +69,7 @@
 /// Two search patterns are remembered:
 /// One for the :substitute command and one for other searches.
 /// last_idx points to the one that was used the last time.
-static struct spat spats[2] = {
+static search_pattern_st spats[2] = {
     // Last used search pattern
     [0] = { NULL, true, false, 0, {'/', false, false, 0L}, NULL },
 
@@ -87,7 +87,7 @@ static int last_t_cmd = TRUE;   ///< last search t_cmd
 static int lastc_bytelen = 1;   ///< >1 for multi-byte char
 
 // copy of spats[], for keeping the search patterns while executing autocmds
-static struct spat saved_spats[2];
+static search_pattern_st saved_spats[2];
 static int saved_last_idx = 0;
 static int saved_no_hlsearch = 0;
 
@@ -316,7 +316,7 @@ void restore_search_patterns(void)
     }
 }
 
-static inline void free_spat(struct spat *const spat)
+static inline void free_spat(search_pattern_st *const spat)
 {
     xfree(spat->pat);
     tv_dict_unref(spat->additional_data);
@@ -4398,7 +4398,8 @@ int current_tagblock(oparg_st *oap,long count_arg, int include)
     apos_st start_pos;
     apos_st end_pos;
     apos_st old_start, old_end;
-    uchar_kt *spat, *epat;
+    uchar_kt *spat;
+    uchar_kt *epat;
     uchar_kt *p;
     uchar_kt *cp;
     int len;
@@ -6480,20 +6481,20 @@ static void show_pat_in_path(uchar_kt *line,
 }
 
 /// Get last search pattern
-void get_search_pattern(SearchPattern *const pat)
+void get_search_pattern(search_pattern_st *const pat)
 {
     memcpy(pat, &(spats[0]), sizeof(spats[0]));
 }
 
 /// Get last substitute pattern
-void get_substitute_pattern(SearchPattern *const pat)
+void get_substitute_pattern(search_pattern_st *const pat)
 {
     memcpy(pat, &(spats[1]), sizeof(spats[1]));
     memset(&(pat->off), 0, sizeof(pat->off));
 }
 
 /// Set last search pattern
-void set_search_pattern(const SearchPattern pat)
+void set_search_pattern(const search_pattern_st pat)
 {
     free_spat(&spats[0]);
     memcpy(&(spats[0]), &pat, sizeof(spats[0]));
@@ -6501,7 +6502,7 @@ void set_search_pattern(const SearchPattern pat)
 }
 
 /// Set last substitute pattern
-void set_substitute_pattern(const SearchPattern pat)
+void set_substitute_pattern(const search_pattern_st pat)
 {
     free_spat(&spats[1]);
     memcpy(&(spats[1]), &pat, sizeof(spats[1]));
