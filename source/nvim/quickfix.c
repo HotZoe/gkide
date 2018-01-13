@@ -51,16 +51,16 @@ struct dirstack_s
     uchar_kt *dirname;
 };
 
+typedef struct qfline_s qfline_st;
 /// For each error the next struct is allocated and linked in a list.
-typedef struct qfline_S qfline_T;
-struct qfline_S
+struct qfline_s
 {
-    qfline_T *qf_next;   ///< pointer to next error in the list
-    qfline_T *qf_prev;   ///< pointer to previous error in the list
+    qfline_st *qf_next;    ///< pointer to next error in the list
+    qfline_st *qf_prev;    ///< pointer to previous error in the list
     linenum_kt qf_lnum;    ///< line number where the error occurred
-    int qf_fnum;         ///< file number for the line
-    int qf_col;          ///< column where the error occurred
-    int qf_nr;           ///< error number
+    int qf_fnum;           ///< file number for the line
+    int qf_col;            ///< column where the error occurred
+    int qf_nr;             ///< error number
     uchar_kt *qf_pattern;  ///< search pattern for the error
     uchar_kt *qf_text;     ///< description of the error
     uchar_kt qf_viscol;    ///< set to TRUE if qf_col is screen column
@@ -74,9 +74,9 @@ struct qfline_S
 
 typedef struct qf_list_S
 {
-    qfline_T *qf_start; ///< pointer to the first error
-    qfline_T *qf_last;  ///< pointer to the last error
-    qfline_T *qf_ptr;   ///< pointer to the current error
+    qfline_st *qf_start; ///< pointer to the first error
+    qfline_st *qf_last;  ///< pointer to the last error
+    qfline_st *qf_ptr;   ///< pointer to the current error
     int qf_count;       ///< number of errors (0 means no error list)
     int qf_index;       ///< current index in the error list
     int qf_nonevalid;   ///< TRUE if not a single valid entry found
@@ -1160,7 +1160,7 @@ restofline:
         // continuation of multi-line msg
         else if(vim_strchr((uchar_kt *)"CZ", idx) != NULL)
         {
-            qfline_T *qfprev = qi->qf_lists[qi->qf_curlist].qf_last;
+            qfline_st *qfprev = qi->qf_lists[qi->qf_curlist].qf_last;
 
             if(qfprev == NULL)
             {
@@ -1295,7 +1295,7 @@ static int qf_init_ext(qfinfo_st *qi,
     qffields_T fields = { NULL, NULL, 0, 0L, 0, false, NULL, 0, 0, 0 };
     qfstate_T state = { NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
 
-    qfline_T *old_last = NULL;
+    qfline_st *old_last = NULL;
     static errfmt_info_st *fmt_first = NULL;
     uchar_kt *efm;
     static uchar_kt *last_efm = NULL;
@@ -1623,8 +1623,8 @@ static int qf_add_entry(qfinfo_st *qi,
                         uchar_kt type,
                         uchar_kt valid)
 {
-    qfline_T **lastp; // pointer to qf_last or NULL
-    qfline_T *qfp = xmalloc(sizeof(qfline_T));
+    qfline_st **lastp; // pointer to qf_last or NULL
+    qfline_st *qfp = xmalloc(sizeof(qfline_st));
 
     if(bufnum != 0)
     {
@@ -1791,8 +1791,8 @@ void copy_loclist(win_st *from, win_st *to)
 
         if(from_qfl->qf_count)
         {
-            qfline_T *from_qfp;
-            qfline_T *prevp;
+            qfline_st *from_qfp;
+            qfline_st *prevp;
 
             // copy all the location entries in this list
             for(i = 0, from_qfp = from_qfl->qf_start;
@@ -2102,10 +2102,10 @@ static uchar_kt *qf_guess_filepath(qfinfo_st *qi, uchar_kt *filename)
 /// This may invalidate the current quickfix entry. This function checks
 /// whether a entry is still present in the quickfix.
 /// Similar to location list.
-static bool is_qf_entry_present(qfinfo_st *qi, qfline_T *qf_ptr)
+static bool is_qf_entry_present(qfinfo_st *qi, qfline_st *qf_ptr)
 {
     qf_list_T *qfl;
-    qfline_T *qfp;
+    qfline_st *qfp;
     int i;
     qfl = &qi->qf_lists[qi->qf_curlist];
 
@@ -2140,8 +2140,8 @@ static bool is_qf_entry_present(qfinfo_st *qi, qfline_T *qf_ptr)
 void qf_jump(qfinfo_st *qi, int dir, int errornr, int forceit)
 {
     qfinfo_st *ll_ref;
-    qfline_T *qf_ptr;
-    qfline_T *old_qf_ptr;
+    qfline_st *qf_ptr;
+    qfline_st *old_qf_ptr;
     int qf_index;
     int old_qf_fnum;
     int old_qf_index;
@@ -2801,7 +2801,7 @@ void qf_list(exargs_st *eap)
 {
     filebuf_st *buf;
     uchar_kt *fname;
-    qfline_T *qfp;
+    qfline_st *qfp;
     int i;
     int idx1 = 1;
     int idx2 = -1;
@@ -3119,8 +3119,8 @@ void qf_history(exargs_st *eap)
 /// Free error list "idx".
 static void qf_free(qfinfo_st *qi, int idx)
 {
-    qfline_T *qfp;
-    qfline_T *qfpnext;
+    qfline_st *qfp;
+    qfline_st *qfpnext;
     bool stop = false;
 
     while(qi->qf_lists[idx].qf_count && qi->qf_lists[idx].qf_start != NULL)
@@ -3165,7 +3165,7 @@ void qf_mark_adjust(win_st *wp,
                     long amount_after)
 {
     int i;
-    qfline_T *qfp;
+    qfline_st *qfp;
     int idx;
     qfinfo_st *qi = &ql_info;
     bool found_one = false;
@@ -3658,7 +3658,7 @@ static void qf_update_win_titlevar(qfinfo_st *qi)
 
 /// Find the quickfix buffer.
 /// If it exists, update the contents.
-static void qf_update_buffer(qfinfo_st *qi, qfline_T *old_last)
+static void qf_update_buffer(qfinfo_st *qi, qfline_st *old_last)
 {
     filebuf_st *buf;
     win_st *win;
@@ -3712,10 +3712,10 @@ static void qf_set_title_var(qfinfo_st *qi)
 // If "old_last" is not NULL append the items after this one.
 // When "old_last" is NULL then "buf" must equal "curbuf"! Because ml_delete()
 // is used and autocommands will be triggered.
-static void qf_fill_buffer(qfinfo_st *qi, filebuf_st *buf, qfline_T *old_last)
+static void qf_fill_buffer(qfinfo_st *qi, filebuf_st *buf, qfline_st *old_last)
 {
     linenum_kt lnum;
-    qfline_T *qfp;
+    qfline_st *qfp;
     filebuf_st *errbuf;
     int len;
     int old_KeyTyped = KeyTyped;
@@ -4165,7 +4165,7 @@ FUNC_ATTR_NONNULL_ALL
 
     int prev_fnum = 0;
     size_t sz = 0;
-    qfline_T *qfp;
+    qfline_st *qfp;
     size_t i;
     assert(qi->qf_lists[qi->qf_curlist].qf_count >= 0);
 
@@ -4246,7 +4246,7 @@ FUNC_ATTR_NONNULL_ALL
 
     int prev_fnum = 0;
     int eidx = 0;
-    qfline_T *qfp;
+    qfline_st *qfp;
     size_t i;
     assert(qfl->qf_index >= 0);
 
@@ -4296,7 +4296,7 @@ FUNC_ATTR_NONNULL_ALL
     int prev_fnum = 0;
     size_t eidx = 0;
     size_t i;
-    qfline_T *qfp;
+    qfline_st *qfp;
 
     assert(qfl->qf_count >= 0);
 
@@ -4568,7 +4568,7 @@ void ex_vimgrep(exargs_st *eap)
     uchar_kt *p;
     int fi;
     qfinfo_st *qi = &ql_info;
-    qfline_T *cur_qf_start;
+    qfline_st *cur_qf_start;
     long lnum;
     filebuf_st *buf;
     int duplicate_name = FALSE;
@@ -5192,7 +5192,7 @@ int get_errorlist(win_st *wp, int qf_idx, list_st *list)
 {
     qfinfo_st *qi = &ql_info;
     uchar_kt buf[2];
-    qfline_T *qfp;
+    qfline_st *qfp;
     int i;
     int bufnum;
 
@@ -5374,7 +5374,7 @@ static int qf_add_entries(qfinfo_st *qi,
 {
     listitem_st *li;
     dict_st *d;
-    qfline_T *old_last = NULL;
+    qfline_st *old_last = NULL;
     int retval = OK;
     bool did_bufnr_emsg = false;
 
