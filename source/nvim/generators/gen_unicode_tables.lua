@@ -112,7 +112,7 @@ local make_range = function(start, end_, step, add)
 end
 
 local build_convert_table = function(ut_fp, props, cond_func, nl_index, table_name)
-    ut_fp:write('static const convertStruct ' .. table_name .. '[] = {\n')
+    ut_fp:write('static const mbyte_conv_st ' .. table_name .. '[] = {\n')
 
     local start = -1
     local end_ = -1

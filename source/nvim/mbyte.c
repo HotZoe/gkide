@@ -58,13 +58,14 @@
 
 #include "config.h"
 
-typedef struct
+/// mutlibyte convert
+typedef struct mbyte_conv_s
 {
     int rangeStart;
     int rangeEnd;
     int step;
     int offset;
-} convertStruct;
+} mbyte_conv_st;
 
 struct interval
 {
@@ -1320,9 +1321,11 @@ bool utf_ambiguous_width(int c)
 }
 
 /// Generic conversion function for case operations.
-/// Return the converted equivalent of "a", which is a UCS-4 character. Use
-/// the given conversion "table". Uses binary search on "table".
-static int utf_convert(int a, const convertStruct *const table, size_t n_items)
+/// - Use the given conversion "table".
+/// - Uses binary search on "table".
+///
+/// @return the converted equivalent of "a", which is a UCS-4 character.
+static int utf_convert(int a, const mbyte_conv_st *const table, size_t n_items)
 {
     size_t start, mid, end; // indices into table
     start = 0;
