@@ -951,13 +951,13 @@ endOK:
 
 /// Fill in the wordcount fields for a trie.
 /// Returns the total number of words.
-static void tree_count_words(uchar_kt *byts, idx_T *idxs)
+static void tree_count_words(uchar_kt *byts, idx_kt *idxs)
 {
     int depth;
-    idx_T arridx[MAXWLEN];
+    idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];
     int c;
-    idx_T n;
+    idx_kt n;
     int wordcount[MAXWLEN];
     arridx[0] = 0;
     curi[0] = 1;
@@ -2079,13 +2079,13 @@ static int *mb_str2wide(uchar_kt *s)
 /// @param prefixcnt   when "prefixtree" is true: prefix count
 static int spell_read_tree(FILE *fd,
                            uchar_kt **bytsp,
-                           idx_T **idxsp,
+                           idx_kt **idxsp,
                            bool prefixtree,
                            int prefixcnt)
 {
     int idx;
     uchar_kt *bp;
-    idx_T *ip;
+    idx_kt *ip;
 
     // The tree size was computed when writing the file,
     // so that we can allocate it as one long block. <nodecount>
@@ -2138,18 +2138,18 @@ static int spell_read_tree(FILE *fd,
 /// - Returns the index (>= 0) following the siblings.
 /// - Returns SP_TRUNCERROR if the file is shorter than expected.
 /// - Returns SP_FORMERROR if there is a format error.
-static idx_T read_tree_node(FILE *fd,
+static idx_kt read_tree_node(FILE *fd,
                             uchar_kt *byts,
-                            idx_T *idxs,
+                            idx_kt *idxs,
                             int maxidx,
-                            idx_T startidx,
+                            idx_kt startidx,
                             bool prefixtree,
                             int maxprefcondnr)
 {
     int len;
     int i;
     int n;
-    idx_T idx = startidx;
+    idx_kt idx = startidx;
     int c;
     int c2;
 
@@ -6408,14 +6408,14 @@ theend:
 static int sug_filltree(spellinfo_st *spin, slang_T *slang)
 {
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     int depth;
-    idx_T arridx[MAXWLEN];
+    idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];
     uchar_kt tword[MAXWLEN];
     uchar_kt tsalword[MAXWLEN];
     int c;
-    idx_T n;
+    idx_kt n;
     unsigned words_done = 0;
     int wordcount[MAXWLEN];
 

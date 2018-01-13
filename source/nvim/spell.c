@@ -631,7 +631,7 @@ static void find_word(matchinf_T *mip, int mode)
     uchar_kt *ptr;
     slang_T *slang = mip->mi_lp->lp_slang;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
 
     if(mode == FIND_KEEPWORD || mode == FIND_KEEPCOMPOUND)
     {
@@ -677,9 +677,9 @@ static void find_word(matchinf_T *mip, int mode)
         return; // array is empty
     }
 
-    idx_T arridx = 0;
+    idx_kt arridx = 0;
     int endlen[MAXWLEN]; // length at possible word endings
-    idx_T endidx[MAXWLEN]; // possible word endings
+    idx_kt endidx[MAXWLEN]; // possible word endings
     int endidxcnt = 0;
     int len;
     int c;
@@ -740,12 +740,12 @@ static void find_word(matchinf_T *mip, int mode)
             c = ' ';
         }
 
-        idx_T lo = arridx;
-        idx_T hi = arridx + len - 1;
+        idx_kt lo = arridx;
+        idx_kt hi = arridx + len - 1;
 
         while(lo < hi)
         {
-            idx_T m = (lo + hi) / 2;
+            idx_kt m = (lo + hi) / 2;
 
             if(byts[m] > c)
             {
@@ -1511,16 +1511,16 @@ static int valid_word_prefix(int totprefcnt,
 /// For a match mip->mi_result is updated.
 static void find_prefix(matchinf_T *mip, int mode)
 {
-    idx_T arridx = 0;
+    idx_kt arridx = 0;
     int len;
     int wlen = 0;
     int flen;
     int c;
     uchar_kt *ptr;
-    idx_T lo, hi, m;
+    idx_kt lo, hi, m;
     slang_T *slang = mip->mi_lp->lp_slang;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     byts = slang->sl_pbyts;
 
     if(byts == NULL)
@@ -4728,13 +4728,13 @@ static void suggest_trie_walk(suginfo_T *su,
     int newscore;
     int score;
     uchar_kt *byts, *fbyts, *pbyts;
-    idx_T *idxs, *fidxs, *pidxs;
+    idx_kt *idxs, *fidxs, *pidxs;
     int depth;
     int c, c2, c3;
     int n = 0;
     int flags;
     garray_st *gap;
-    idx_T arridx;
+    idx_kt arridx;
     int len;
     uchar_kt *p;
     fromto_st *ftp;
@@ -6478,10 +6478,10 @@ static void find_keepcap_word(slang_T *slang, uchar_kt *fword, uchar_kt *kword)
 {
     uchar_kt uword[MAXWLEN]; // "fword" in upper-case
     int depth;
-    idx_T tryidx;
+    idx_kt tryidx;
 
     // The following arrays are used at each depth in the tree.
-    idx_T arridx[MAXWLEN];
+    idx_kt arridx[MAXWLEN];
     int round[MAXWLEN];
     int fwordidx[MAXWLEN];
     int uwordidx[MAXWLEN];
@@ -6490,10 +6490,10 @@ static void find_keepcap_word(slang_T *slang, uchar_kt *fword, uchar_kt *kword)
     int l;
     int len;
     int c;
-    idx_T lo, hi, m;
+    idx_kt lo, hi, m;
     uchar_kt *p;
     uchar_kt *byts = slang->sl_kbyts; // array with bytes of the words
-    idx_T *idxs = slang->sl_kidxs; // array with indexes
+    idx_kt *idxs = slang->sl_kidxs; // array with indexes
 
     if(byts == NULL)
     {
@@ -7010,7 +7010,7 @@ static void add_sound_suggest(suginfo_T *su,
     int i;
     int wlen;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     int n;
     int wordcount;
     int wc;
@@ -7243,13 +7243,13 @@ badword:
 // Find word "word" in fold-case tree for "slang" and return the word number.
 static int soundfold_find(slang_T *slang, uchar_kt *word)
 {
-    idx_T arridx = 0;
+    idx_kt arridx = 0;
     int len;
     int wlen = 0;
     int c;
     uchar_kt *ptr = word;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     int wordnr = 0;
     byts = slang->sl_sbyts;
     idxs = slang->sl_sidxs;
@@ -9623,12 +9623,12 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
 {
     langp_T *lp;
     slang_T *slang;
-    idx_T arridx[MAXWLEN];
+    idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];
     uchar_kt word[MAXWLEN];
     int c;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     linenum_kt lnum = 0;
     int round;
     int depth;
@@ -9978,14 +9978,14 @@ static linenum_kt dump_prefixes(slang_T *slang,
                               int flags,
                               linenum_kt startlnum)
 {
-    idx_T arridx[MAXWLEN];
+    idx_kt arridx[MAXWLEN];
     int curi[MAXWLEN];
     uchar_kt prefix[MAXWLEN];
     uchar_kt word_up[MAXWLEN];
     bool has_word_up = false;
     int c;
     uchar_kt *byts;
-    idx_T *idxs;
+    idx_kt *idxs;
     linenum_kt lnum = startlnum;
     int depth;
     int n;

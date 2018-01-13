@@ -17,7 +17,7 @@
 
 /// Type used for indexes in the word tree need to be at least 4 bytes.
 /// If int is 8 bytes we could use something smaller, but what?
-typedef int idx_T;
+typedef int idx_kt;
 
 #define SPL_FNAME_TMPL   "%s.%s.spl"
 #define SPL_FNAME_ADD    ".add."
@@ -120,11 +120,11 @@ struct slang_S
     bool sl_add;       ///< true if it's a .add file.
 
     uchar_kt *sl_fbyts;  ///< case-folded word bytes
-    idx_T *sl_fidxs;   ///< case-folded word indexes
+    idx_kt *sl_fidxs;   ///< case-folded word indexes
     uchar_kt *sl_kbyts;  ///< keep-case word bytes
-    idx_T *sl_kidxs;   ///< keep-case word indexes
+    idx_kt *sl_kidxs;   ///< keep-case word indexes
     uchar_kt *sl_pbyts;  ///< prefix tree word bytes
-    idx_T *sl_pidxs;   ///< prefix tree word indexes
+    idx_kt *sl_pidxs;   ///< prefix tree word indexes
 
     uchar_kt *sl_info;         ///< infotext string or NULL
     uchar_kt sl_regions[17];   ///< table with up to 8 region names plus NUL
@@ -174,7 +174,7 @@ struct slang_S
     // Info from the .sug file. Loaded on demand.
     time_t sl_sugtime;  ///< timestamp for .sug file
     uchar_kt *sl_sbyts;   ///< soundfolded word bytes
-    idx_T *sl_sidxs;    ///< soundfolded word indexes
+    idx_kt *sl_sidxs;    ///< soundfolded word indexes
     filebuf_st *sl_sugbuf;   ///< buffer with word number table
     bool sl_sugloaded;  ///< true when .sug file was loaded or failed to load
 
@@ -247,7 +247,7 @@ typedef struct trystate_S
 {
     state_T ts_state;        ///< state at this level, STATE_
     int ts_score;            ///< score
-    idx_T ts_arridx;         ///< index in tree array, start of node
+    idx_kt ts_arridx;         ///< index in tree array, start of node
     short ts_curi;           ///< index in list of child nodes
     uchar_kt ts_fidx;          ///< index in fword[], case-folded bad word
     uchar_kt ts_fidxtry;       ///< ts_fidx at which bytes may be changed
