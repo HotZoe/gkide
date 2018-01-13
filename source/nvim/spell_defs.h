@@ -88,7 +88,7 @@ typedef struct salitem_s
     int *sm_to_w;       ///< wide character copy of "sm_to"
 } salitem_T;
 
-typedef int salfirst_T;
+typedef int salfirst_kt;
 
 // Values for SP_*ERROR are negative,
 // positive values are used by read_cnt_string().
@@ -155,7 +155,7 @@ struct slang_S
     /// list of salitem_T entries from SAL lines
     garray_st sl_sal;
     /// indexes where byte first appears, -1 if there is none
-    salfirst_T sl_sal_first[256];
+    salfirst_kt sl_sal_first[256];
 
     bool sl_followup;     ///< SAL followup
     bool sl_collapse;     ///< SAL collapse_result

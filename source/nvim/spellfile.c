@@ -1936,7 +1936,7 @@ static int set_sofo(slang_T *lp, uchar_kt *from, uchar_kt *to)
 
         // Put the characters up to 255 in sl_sal_first[]
         // the rest in a sl_sal list.
-        memset(lp->sl_sal_first, 0, sizeof(salfirst_T) * 256);
+        memset(lp->sl_sal_first, 0, sizeof(salfirst_kt) * 256);
 
         for(p = from, s = to; *p != NUL && *s != NUL;)
         {
@@ -1986,7 +1986,7 @@ static int set_sofo(slang_T *lp, uchar_kt *from, uchar_kt *to)
 /// Fill the first-index table for "lp".
 static void set_sal_first(slang_T *lp)
 {
-    salfirst_T *sfirst;
+    salfirst_kt *sfirst;
     salitem_T *smp;
     int c;
     garray_st *gap = &lp->sl_sal;
