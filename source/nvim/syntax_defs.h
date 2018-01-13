@@ -19,20 +19,21 @@ typedef int32_t rgb_color_kt;
 typedef unsigned short disptick_kt;
 
 /// struct passed to in_id_list()
-struct sp_syn
+struct syn_args_s
 {
     int inc_tag;         ///< ":syn include" unique tag
     short id;            ///< highlight group ID of item
     short *cont_in_list; ///< cont.in group IDs, if non-zero
 };
+typedef struct syn_args_s syn_args_st;
 
 /// Each keyword has one keyentry, which is linked in a hash list.
 typedef struct keyentry keyentry_T;
 
 struct keyentry
 {
-    keyentry_T *ke_next;  ///< next entry with identical "keyword[]"
-    struct sp_syn k_syn;  ///< struct passed to in_id_list()
+    keyentry_T *ke_next; ///< next entry with identical "keyword[]"
+    syn_args_st k_syn;    ///< struct passed to in_id_list()
     short *next_list;     ///< ID list for next match (if non-zero)
     int flags;
     int k_char;           ///< conceal substitute character

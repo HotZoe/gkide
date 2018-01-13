@@ -135,7 +135,7 @@ typedef struct synpat_s
     char sp_syncing;           ///< this item used for syncing
     int sp_flags;              ///< see HL_ defines below
     int sp_cchar;              ///< conceal substitute character
-    struct sp_syn sp_syn;      ///< struct passed to in_id_list()
+    syn_args_st sp_syn;          ///< struct passed to in_id_list()
     short sp_syn_match_id;     ///< highlight group ID of patter
     uchar_kt *sp_pattern;      ///< regexp to match, pattern
     regprog_st *sp_prog;       ///< regexp to match, program
@@ -2377,7 +2377,7 @@ static int syn_current_attr(int syncing,
 
         if(can_spell != NULL)
         {
-            struct sp_syn sps;
+            syn_args_st sps;
 
             // set "can_spell" to TRUE if spell checking
             // is supposed to be done in the current item.
@@ -6549,7 +6549,7 @@ static short *copy_id_list(short *list)
 /// @param contained  group id is contained
 static int in_id_list(state_item_st *cur_si,
                       short *list,
-                      struct sp_syn *ssp,
+                      syn_args_st *ssp,
                       int contained)
 {
     int retval;
