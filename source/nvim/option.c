@@ -2752,7 +2752,7 @@ void check_options(void)
 }
 
 /// Check string options in a buffer for NULL value.
-void check_buf_options(fbuf_st *buf)
+void check_buf_options(filebuf_st *buf)
 {
     check_string_option(&buf->b_p_bh);
     check_string_option(&buf->b_p_bt);
@@ -5005,7 +5005,7 @@ static char *set_bool_option(const int opt_idx,
         if(curbuf->b_p_udf || p_udf)
         {
             uchar_kt hash[UNDO_HASH_SIZE];
-            fbuf_st       *save_curbuf = curbuf;
+            filebuf_st       *save_curbuf = curbuf;
             FOR_ALL_BUFFERS(bp)
             {
                 curbuf = bp;
@@ -6451,13 +6451,13 @@ int get_option_value_strict(char *name,
             // 'ff' or 'fenc' changed.
             if(p->indir == PV_MOD)
             {
-                *numval = bufIsChanged((fbuf_st *) from);
+                *numval = bufIsChanged((filebuf_st *) from);
                 varp = NULL;
             }
             else
             {
                 auto_cmd_save_st  aco;
-                aucmd_prepbuf(&aco, (fbuf_st *) from);
+                aucmd_prepbuf(&aco, (filebuf_st *) from);
                 varp = get_varp(p);
                 aucmd_restbuf(&aco);
             }
@@ -7196,7 +7196,7 @@ void comp_col(void)
 void unset_global_local_option(char *name, void *from)
 {
     vimoption_T *p;
-    fbuf_st *buf = (fbuf_st *)from;
+    filebuf_st *buf = (filebuf_st *)from;
     int opt_idx = findoption(name);
 
     if(opt_idx < 0)
@@ -7878,7 +7878,7 @@ void didset_window_options(win_st *wp)
 /// - BCO_ALWAYS   Always copy the options, but only
 ///                set b_p_initialized when appropriate.
 /// - BCO_NOHELP   Don't copy the values to a help buffer.
-void buf_copy_options(fbuf_st *buf, int flags)
+void buf_copy_options(filebuf_st *buf, int flags)
 {
     int should_copy = TRUE;
     uchar_kt *save_p_isk = NULL; // init for GCC
@@ -9212,7 +9212,7 @@ bool can_bs(int what)
 /// Save the current values of 'fileformat' and 'fileencoding',
 /// so that we know the file must be considered changed when
 /// the value is different.
-void save_file_ff(fbuf_st *buf)
+void save_file_ff(filebuf_st *buf)
 {
     buf->b_start_ffc = *buf->b_p_ff;
     buf->b_start_eol = buf->b_p_eol;
@@ -9232,7 +9232,7 @@ void save_file_ff(fbuf_st *buf)
 /// was changed and 'binary' is set, or when 'bomb' was changed and 'binary'
 /// is not set. Also when 'endofline' was changed and 'fixeol' is not set.
 /// When "ignore_empty" is true don't consider a new, empty buffer to be changed.
-bool file_ff_differs(fbuf_st *buf, bool ignore_empty)
+bool file_ff_differs(filebuf_st *buf, bool ignore_empty)
 {
     // In a buffer that was never loaded the options are not valid.
     if(buf->b_flags & BF_NEVERLOADED)
@@ -9281,7 +9281,7 @@ int check_ff_value(uchar_kt *p)
 
 /// Return the effective shiftwidth value for current buffer,
 /// using the 'tabstop' value when 'shiftwidth' is zero.
-int get_sw_value(fbuf_st *buf)
+int get_sw_value(filebuf_st *buf)
 {
     long result = buf->b_p_sw ? buf->b_p_sw : buf->b_p_ts;
     assert(result >= 0 && result <= INT_MAX);
@@ -9449,14 +9449,14 @@ static bool briopt_check(win_st *wp)
 /// Get the local or global value of 'backupcopy'.
 ///
 /// @param buf The buffer.
-unsigned int get_bkc_value(fbuf_st *buf)
+unsigned int get_bkc_value(filebuf_st *buf)
 {
     return buf->b_bkc_flags ? buf->b_bkc_flags : bkc_flags;
 }
 
 /// Return the current end-of-line type:
 /// EOL_DOS, EOL_UNIX or EOL_MAC.
-int get_fileformat(fbuf_st *buf)
+int get_fileformat(filebuf_st *buf)
 {
     int c = *buf->b_p_ff;
 
@@ -9477,7 +9477,7 @@ int get_fileformat(fbuf_st *buf)
 /// with "p" for "++opt=val" argument.
 ///
 /// @param eap  can be NULL!
-int get_fileformat_force(fbuf_st *buf, exargs_st *eap)
+int get_fileformat_force(filebuf_st *buf, exargs_st *eap)
 {
     int c;
 

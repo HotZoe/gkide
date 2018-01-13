@@ -142,7 +142,7 @@ int setmark_pos(int c, apos_st *pos, int fnum)
         return OK;
     }
 
-    fbuf_st *buf = buflist_findnr(fnum);
+    filebuf_st *buf = buflist_findnr(fnum);
 
     // Can't set a mark in a non-existant buffer.
     if(buf == NULL)
@@ -341,7 +341,7 @@ apos_st *movechangelist(int count)
 ///   in another file which can't be gotten. (caller needs to check lnum!)
 /// - NULL if there is no mark called 'c'.
 /// - -1 if mark is in other file and jumped there (only if changefile is TRUE)
-apos_st *getmark_buf(fbuf_st *buf, int c, int changefile)
+apos_st *getmark_buf(filebuf_st *buf, int c, int changefile)
 {
     return getmark_buf_fnum(buf, c, changefile, NULL);
 }
@@ -351,7 +351,7 @@ apos_st *getmark(int c, int changefile)
     return getmark_buf_fnum(curbuf, c, changefile, NULL);
 }
 
-apos_st *getmark_buf_fnum(fbuf_st *buf, int c, int changefile, int *fnum)
+apos_st *getmark_buf_fnum(filebuf_st *buf, int c, int changefile, int *fnum)
 {
     apos_st *posp;
     apos_st *startp, *endp;
@@ -606,7 +606,7 @@ static void fname2fnum(xfilemark_st *fm)
 /// Check all file marks for a name that matches the file name in buf.
 /// May replace the name with an fnum.
 /// Used for marks that come from the .shada file.
-void fmarks_check_names(fbuf_st *buf)
+void fmarks_check_names(filebuf_st *buf)
 {
     int i;
     uchar_kt *name = buf->b_ffname;
@@ -630,7 +630,7 @@ void fmarks_check_names(fbuf_st *buf)
     }
 }
 
-static void fmarks_check_one(xfilemark_st *fm, uchar_kt *name, fbuf_st *buf)
+static void fmarks_check_one(xfilemark_st *fm, uchar_kt *name, filebuf_st *buf)
 {
     if(fm->fmark.fnum == 0
        && fm->fname != NULL
@@ -678,7 +678,7 @@ int check_mark(apos_st *pos)
 /// Used mainly when trashing the entire buffer during ":e" type commands.
 ///
 /// @param[out]  buf  Buffer to clear marks in.
-void clrallmarks(fbuf_st *const buf)
+void clrallmarks(filebuf_st *const buf)
 FUNC_ATTR_NONNULL_ALL
 {
     for(size_t i = 0; i < NMARKS; i++)
@@ -1667,7 +1667,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// behaviour is undefined.
 ///
 /// @return Pointer to the next mark or NULL.
-static inline const filemark_st *next_buffer_mark(const fbuf_st *const buf,
+static inline const filemark_st *next_buffer_mark(const filebuf_st *const buf,
                                               char *const mark_name)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -1725,7 +1725,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Pointer that needs to be passed to next
 /// 'mark_buffer_iter' call or NULL if iteration is over.
 const void *mark_buffer_iter(const void *const iter,
-                             const fbuf_st *const buf,
+                             const filebuf_st *const buf,
                              char *const name,
                              filemark_st *const fm)
 FUNC_ATTR_NONNULL_ARG(2, 3, 4)
@@ -1826,7 +1826,7 @@ bool mark_set_global(const char name, const xfilemark_st fm, const bool update)
 ///
 /// @return true on success, false on failure.
 bool mark_set_local(const char name,
-                    fbuf_st *const buf,
+                    filebuf_st *const buf,
                     const filemark_st fm,
                     const bool update)
 FUNC_ATTR_NONNULL_ALL
@@ -1912,7 +1912,7 @@ void free_all_marks(void)
 ///
 /// @param[in]  buf  Buffer to adjust position in.
 /// @param[out]  lp  Position to adjust.
-void mark_mb_adjustpos(fbuf_st *buf, apos_st *lp)
+void mark_mb_adjustpos(filebuf_st *buf, apos_st *lp)
 FUNC_ATTR_NONNULL_ALL
 {
     if(lp->col > 0 || lp->coladd > 1)

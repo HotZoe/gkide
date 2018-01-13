@@ -1195,9 +1195,9 @@ void *getline_cookie(line_getter_ft fgetline, void *cookie)
 /// Returns the buffer number.
 static int compute_buffer_local_count(int addr_type, int lnum, int offset)
 {
-    fbuf_st *nextbuf;
+    filebuf_st *nextbuf;
     int count = offset;
-    fbuf_st *buf = firstbuf;
+    filebuf_st *buf = firstbuf;
 
     while(buf->b_next != NULL && buf->b_fnum < lnum)
     {
@@ -1950,7 +1950,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
 
                     case ADDR_LOADED_BUFFERS:
                     {
-                        fbuf_st *buf = firstbuf;
+                        filebuf_st *buf = firstbuf;
 
                         while(buf->b_next != NULL && buf->b_ml.ml_mfp == NULL)
                         {
@@ -2481,7 +2481,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
 
     if((ea.argt & DFLALL) && ea.addr_count == 0)
     {
-        fbuf_st *buf;
+        filebuf_st *buf;
         ea.line1 = 1;
 
         switch(ea.addr_type)
@@ -4550,7 +4550,7 @@ static linenum_kt get_address(exargs_st *eap,
     apos_st pos;
     apos_st *fp;
     linenum_kt lnum;
-    fbuf_st *buf;
+    filebuf_st *buf;
     cmd = skipwhite(*ptr);
     lnum = MAXLNUM;
 
@@ -4981,7 +4981,7 @@ static void ex_script_ni(exargs_st *eap)
 /// Return NULL when valid, error message when invalid.
 static uchar_kt *invalid_range(exargs_st *eap)
 {
-    fbuf_st *buf;
+    filebuf_st *buf;
 
     if(eap->line1 < 0 || eap->line2 < 0 || eap->line1 > eap->line2)
     {
@@ -7981,7 +7981,7 @@ static void ex_pclose(exargs_st *eap)
 static void ex_win_close(int forceit, win_st *win, tabpage_st *tp)
 {
     int need_hide;
-    fbuf_st *buf = win->w_buffer;
+    filebuf_st *buf = win->w_buffer;
     need_hide = (bufIsChanged(buf) && buf->b_nwindows <= 1);
 
     if(need_hide && !P_HID(buf) && !forceit)
@@ -9099,7 +9099,7 @@ static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     long y;
     long topline;
     win_st *save_curwin = curwin;
-    fbuf_st *save_curbuf = curbuf;
+    filebuf_st *save_curbuf = curbuf;
     linenum_kt old_linenr = curwin->w_cursor.lnum;
     setpcmark();
 
@@ -10910,7 +10910,7 @@ uchar_kt *eval_vars(uchar_kt *src,
 {
     int i;
     uchar_kt *s;
-    fbuf_st *buf;
+    filebuf_st *buf;
     uchar_kt *result;
     uchar_kt *resultbuf = NULL;
     size_t resultlen;
@@ -12192,7 +12192,7 @@ static int ses_arglist(FILE *fd,
 /// Write a buffer name to the session file.
 /// Also ends the line.
 /// Returns FAIL if writing fails.
-static int ses_fname(FILE *fd, fbuf_st *buf, unsigned *flagp)
+static int ses_fname(FILE *fd, filebuf_st *buf, unsigned *flagp)
 {
     uchar_kt *name;
 

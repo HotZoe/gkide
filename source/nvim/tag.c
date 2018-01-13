@@ -493,7 +493,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
     // position for "cur_match".
     if(cur_fnum != curbuf->b_fnum)
     {
-        fbuf_st *buf = buflist_findnr(cur_fnum);
+        filebuf_st *buf = buflist_findnr(cur_fnum);
 
         if(buf != NULL)
         {

@@ -140,7 +140,7 @@ struct regengine_s
 
     long (*regexec_multi)(regmmatch_st *,
                           win_st *,
-                          fbuf_st *,
+                          filebuf_st *,
                           linenum_kt,
                           columnum_kt,
                           proftime_kt *);

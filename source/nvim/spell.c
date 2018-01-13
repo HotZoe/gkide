@@ -3245,9 +3245,9 @@ static int bytes2offset(uchar_kt **pp)
 /// use.
 /// Most other fields are invalid! Esp. watch out for string options being
 /// NULL and there is no undo info.
-fbuf_st *open_spellbuf(void)
+filebuf_st *open_spellbuf(void)
 {
-    fbuf_st *buf = xcalloc(1, sizeof(fbuf_st));
+    filebuf_st *buf = xcalloc(1, sizeof(filebuf_st));
     buf->b_spell = true;
     buf->b_p_swf = true; // may create a swap file
     ml_open(buf);
@@ -3256,7 +3256,7 @@ fbuf_st *open_spellbuf(void)
 }
 
 // Close the buffer used for spell info.
-void close_spellbuf(fbuf_st *buf)
+void close_spellbuf(filebuf_st *buf)
 {
     if(buf != NULL)
     {

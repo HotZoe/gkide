@@ -337,7 +337,7 @@ linenum_kt get_cursor_rel_lnum(win_st *wp, linenum_kt lnum)
 // Make sure "pos.lnum" and "pos.col" are valid in "buf".
 
 // This allows for the col to be on the NUL byte.
-void check_pos(fbuf_st *buf, apos_st *pos)
+void check_pos(filebuf_st *buf, apos_st *pos)
 {
     uchar_kt *line;
     columnum_kt len;

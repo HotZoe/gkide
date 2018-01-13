@@ -4577,7 +4577,7 @@ static uchar_kt **reg_endp = NULL;
 static bpos_st *reg_startpos = NULL;
 static bpos_st *reg_endpos = NULL;
 static win_st *reg_win;
-static fbuf_st *reg_buf;
+static filebuf_st *reg_buf;
 static linenum_kt reg_firstlnum;
 static linenum_kt reg_maxline;
 static int reg_line_lbr; ///< "\n" in string is line break
@@ -4691,7 +4691,7 @@ static int bt_regexec_nl(regmatch_st *rmp,
 /// contained in the match otherwise.
 static long bt_regexec_multi(regmmatch_st *rmp,
                              win_st *win,
-                             fbuf_st *buf,
+                             filebuf_st *buf,
                              linenum_kt lnum,
                              columnum_kt col,
                              proftime_kt *tm)
@@ -18846,7 +18846,7 @@ static int nfa_regexec_nl(regmatch_st *rmp,
 /// FIXME if this behavior is not compatible.
 static long nfa_regexec_multi(regmmatch_st *rmp,
                               win_st *win,
-                              fbuf_st *buf,
+                              filebuf_st *buf,
                               linenum_kt lnum,
                               columnum_kt col,
                               proftime_kt *tm)
@@ -19106,7 +19106,7 @@ int vim_regexec_nl(regmatch_st *rmp, uchar_kt *line, columnum_kt col)
 /// - Uses curbuf for line count and 'iskeyword'.
 long vim_regexec_multi(regmmatch_st *rmp,
                        win_st *win,
-                       fbuf_st *buf,
+                       filebuf_st *buf,
                        linenum_kt lnum,
                        columnum_kt col,
                        proftime_kt *tm)

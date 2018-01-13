@@ -240,7 +240,7 @@ typedef enum
 /// Open a new memline for **buf**
 ///
 /// Return FAIL for failure, OK otherwise.
-int ml_open(fbuf_st *buf)
+int ml_open(filebuf_st *buf)
 {
     // init fields in memline struct
     buf->b_ml.ml_stack_size = 0; // no stack yet
@@ -382,7 +382,7 @@ error:
 
 /// ml_setname() is called when the file name of "buf" has been changed.
 /// It may rename the swap file.
-void ml_setname(fbuf_st *buf)
+void ml_setname(filebuf_st *buf)
 {
     int success = FALSE;
     memfile_st *mfp;
@@ -495,7 +495,7 @@ void ml_open_files(void)
 /// Open a swap file for an existing memfile, if there is no swap file yet.
 /// If we are unable to find a file name, mf_fname will be NULL
 /// and the memfile will be in memory only (no recovery possible).
-void ml_open_file(fbuf_st *buf)
+void ml_open_file(filebuf_st *buf)
 {
     memfile_st *mfp;
     uchar_kt *fname;
@@ -601,7 +601,7 @@ void check_need_swap(int newfile)
 /// Close memline for buffer 'buf'.
 ///
 /// If 'del_file' is TRUE, delete the swap file
-void ml_close(fbuf_st *buf, int del_file)
+void ml_close(filebuf_st *buf, int del_file)
 {
     if(buf->b_ml.ml_mfp == NULL) // not open
     {
@@ -655,7 +655,7 @@ void ml_close_notmod(void)
 
 /// Update the timestamp in the .swp file.
 /// Used when the file has been written.
-void ml_timestamp(fbuf_st *buf)
+void ml_timestamp(filebuf_st *buf)
 {
     ml_upd_block0(buf, UB_FNAME);
 }
@@ -678,7 +678,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Update the timestamp or the B0_SAME_DIR flag of the .swp file.
-static void ml_upd_block0(fbuf_st *buf, upd_block0_T what)
+static void ml_upd_block0(filebuf_st *buf, upd_block0_T what)
 {
     memfile_st *mfp;
     blk_hdr_st *hp;
@@ -715,7 +715,7 @@ static void ml_upd_block0(fbuf_st *buf, upd_block0_T what)
 /// Write file name and timestamp into block 0 of a swap file.
 /// Also set buf->b_mtime.
 /// Don't use NameBuff[]!!!
-static void set_b0_fname(blk_zero_st *b0p, fbuf_st *buf)
+static void set_b0_fname(blk_zero_st *b0p, filebuf_st *buf)
 {
     if(buf->b_ffname == NULL)
     {
@@ -779,7 +779,7 @@ static void set_b0_fname(blk_zero_st *b0p, fbuf_st *buf)
 /// It's set if the file and the swapfile for "buf" are in the same directory.
 /// This is fail safe: if we are not sure the directories are equal the flag is
 /// not set.
-static void set_b0_dir_flag(blk_zero_st *b0p, fbuf_st *buf)
+static void set_b0_dir_flag(blk_zero_st *b0p, filebuf_st *buf)
 {
     if(same_directory(buf->b_ml.ml_mfp->mf_fname, buf->b_ffname))
     {
@@ -792,7 +792,7 @@ static void set_b0_dir_flag(blk_zero_st *b0p, fbuf_st *buf)
 }
 
 /// When there is room, add the 'fileencoding' to block zero.
-static void add_b0_fenc(blk_zero_st *b0p, fbuf_st *buf)
+static void add_b0_fenc(blk_zero_st *b0p, filebuf_st *buf)
 {
     int n;
     int size = B0_FNAME_SIZE_NOCRYPT;
@@ -816,7 +816,7 @@ static void add_b0_fenc(blk_zero_st *b0p, fbuf_st *buf)
 /// Try to recover curbuf from the .swp file.
 void ml_recover(void)
 {
-    fbuf_st *buf = NULL;
+    filebuf_st *buf = NULL;
     memfile_st *mfp = NULL;
     uchar_kt *fname;
     uchar_kt *fname_used = NULL;
@@ -921,7 +921,7 @@ void ml_recover(void)
 
     // Allocate a buffer structure for the swap file that
     // is used for recovery. Only the memline in it is really used.
-    buf = xmalloc(sizeof(fbuf_st));
+    buf = xmalloc(sizeof(filebuf_st));
 
     // init fields in memline struct
     buf->b_ml.ml_stack_size = 0; // no stack yet
@@ -2000,7 +2000,7 @@ void ml_sync_all(int check_file, int check_char)
 /// file has been changed or deleted.
 ///
 /// when message is TRUE the success of preserving is reported
-void ml_preserve(fbuf_st *buf, int message)
+void ml_preserve(filebuf_st *buf, int message)
 {
     blk_hdr_st *hp;
     linenum_kt lnum;
@@ -2115,7 +2115,7 @@ uchar_kt *ml_get_pos(apos_st *pos)
 ///
 /// @param will_change
 /// if TRUE mark the buffer dirty (chars in the line will be changed)
-uchar_kt *ml_get_buf(fbuf_st *buf, linenum_kt lnum, int will_change)
+uchar_kt *ml_get_buf(filebuf_st *buf, linenum_kt lnum, int will_change)
 {
     blk_hdr_st *hp;
     blk_data_st *dp;
@@ -2244,7 +2244,7 @@ int ml_append(linenum_kt lnum, uchar_kt *line, columnum_kt len, int newfile)
 /// @param line     text of the new line
 /// @param len      length of new line, including NUL, or 0
 /// @param newfile  flag, see above
-int ml_append_buf(fbuf_st *buf,
+int ml_append_buf(filebuf_st *buf,
                   linenum_kt lnum,
                   uchar_kt *line,
                   columnum_kt len,
@@ -2271,7 +2271,7 @@ int ml_append_buf(fbuf_st *buf,
 /// @param mark      mark the new line
 ///
 /// @return
-static int ml_append_int(fbuf_st *buf,
+static int ml_append_int(filebuf_st *buf,
               linenum_kt lnum,
               uchar_kt *line,
               columnum_kt len,
@@ -2873,7 +2873,7 @@ int ml_delete(linenum_kt lnum, int message)
     return ml_delete_int(curbuf, lnum, message);
 }
 
-static int ml_delete_int(fbuf_st *buf, linenum_kt lnum, int message)
+static int ml_delete_int(filebuf_st *buf, linenum_kt lnum, int message)
 {
     blk_hdr_st *hp;
     memfile_st *mfp;
@@ -3161,7 +3161,7 @@ void ml_clearmarked(void)
 }
 
 /// flush ml_line if necessary
-static void ml_flush_line(fbuf_st *buf)
+static void ml_flush_line(filebuf_st *buf)
 {
     blk_hdr_st *hp;
     blk_data_st *dp;
@@ -3322,7 +3322,7 @@ static blk_hdr_st *ml_new_ptr(memfile_st *mfp)
 ///
 /// @return
 /// NULL for failure, pointer to block header otherwise
-static blk_hdr_st *ml_find_line(fbuf_st *buf, linenum_kt lnum, int action)
+static blk_hdr_st *ml_find_line(filebuf_st *buf, linenum_kt lnum, int action)
 {
     blk_data_st *dp;
     blk_ptr_st *pp;
@@ -3548,7 +3548,7 @@ error_noblock:
 /// add an entry to the info pointer stack
 ///
 /// return number of the new entry
-static int ml_add_stack(fbuf_st *buf)
+static int ml_add_stack(filebuf_st *buf)
 {
     int top = buf->b_ml.ml_stack_top;
 
@@ -3573,7 +3573,7 @@ static int ml_add_stack(fbuf_st *buf)
 /// walking through the stack.
 ///
 /// Count is the number of lines added, negative if lines have been deleted.
-static void ml_lineadd(fbuf_st *buf, int count)
+static void ml_lineadd(filebuf_st *buf, int count)
 {
     int idx;
     infoptr_T *ip;
@@ -3693,7 +3693,7 @@ int resolve_symlink(const uchar_kt *fname, uchar_kt *buf)
 /// Returns pointer to allocated memory or NULL.
 uchar_kt *makeswapname(uchar_kt *fname,
                      uchar_kt *FUNC_ARGS_UNUSED_REALY(ffname),
-                     fbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
+                     filebuf_st *FUNC_ARGS_UNUSED_REALY(buf),
                      uchar_kt *dir_name)
 {
     uchar_kt *r, *s;
@@ -3801,7 +3801,7 @@ uchar_kt *get_file_in_dir(uchar_kt *fname, uchar_kt *dname)
 ///
 /// @param buf    buffer being edited
 /// @param fname  swap file name
-static void attention_message(fbuf_st *buf, uchar_kt *fname)
+static void attention_message(filebuf_st *buf, uchar_kt *fname)
 {
     time_t x, sx;
     char *p;
@@ -3871,7 +3871,7 @@ static void attention_message(fbuf_st *buf, uchar_kt *fname)
 /// - 4: delete it
 /// - 5: quit
 /// - 6: abort
-static int do_swapexists(fbuf_st *buf, uchar_kt *fname)
+static int do_swapexists(filebuf_st *buf, uchar_kt *fname)
 {
     set_vim_var_string(VV_SWAPNAME, (char *) fname, -1);
     set_vim_var_string(VV_SWAPCHOICE, NULL, -1);
@@ -3939,7 +3939,7 @@ static int do_swapexists(fbuf_st *buf, uchar_kt *fname)
 /// set to false.
 ///
 /// @return [allocated] Name of the swap file.
-static char *findswapname(fbuf_st *buf,
+static char *findswapname(filebuf_st *buf,
                           char **dirp,
                           char *old_fname,
                           bool *found_existing_dir)
@@ -4370,7 +4370,7 @@ static long char_to_long(uchar_kt *s)
 /// - file is modified or not: buf->b_changed
 /// - 'fileformat'
 /// - 'fileencoding'
-void ml_setflags(fbuf_st *buf)
+void ml_setflags(filebuf_st *buf)
 {
     blk_hdr_st *hp;
     blk_zero_st *b0p;
@@ -4407,9 +4407,9 @@ void ml_setflags(fbuf_st *buf)
 ///   Careful: ML_CHNK_ADDLINE may cause ml_find_line() to be called.
 /// - ML_CHNK_DELLINE: Subtract len from parent chunk, possibly deleting it
 /// - ML_CHNK_UPDLINE: Add len to parent chunk, as a signed entity.
-static void ml_updatechunk(fbuf_st *buf, linenum_kt line, long len, int updtype)
+static void ml_updatechunk(filebuf_st *buf, linenum_kt line, long len, int updtype)
 {
-    static fbuf_st *ml_upd_lastbuf = NULL;
+    static filebuf_st *ml_upd_lastbuf = NULL;
     static linenum_kt ml_upd_lastline;
     static linenum_kt ml_upd_lastcurline;
     static int ml_upd_lastcurix;
@@ -4657,7 +4657,7 @@ static void ml_updatechunk(fbuf_st *buf, linenum_kt line, long len, int updtype)
 /// - Find line with offset if "lnum" is 0; return remaining offset in offp
 /// - Find offset of line if "lnum" > 0
 /// @return -1 if information is not available
-long ml_find_line_or_offset(fbuf_st *buf, linenum_kt lnum, long *offp)
+long ml_find_line_or_offset(filebuf_st *buf, linenum_kt lnum, long *offp)
 {
     linenum_kt curline;
     int curix;

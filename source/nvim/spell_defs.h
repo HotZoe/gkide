@@ -175,7 +175,7 @@ struct slang_S
     time_t sl_sugtime;  ///< timestamp for .sug file
     uchar_kt *sl_sbyts;   ///< soundfolded word bytes
     idx_T *sl_sidxs;    ///< soundfolded word indexes
-    fbuf_st *sl_sugbuf;   ///< buffer with word number table
+    filebuf_st *sl_sugbuf;   ///< buffer with word number table
     bool sl_sugloaded;  ///< true when .sug file was loaded or failed to load
 
     bool sl_has_map;         ///< true, if there is a MAP line

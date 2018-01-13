@@ -28,7 +28,7 @@
     }
 
 HANDLE_IMPL(win_st, window)
-HANDLE_IMPL(fbuf_st, buffer)
+HANDLE_IMPL(filebuf_st, buffer)
 HANDLE_IMPL(tabpage_st, tabpage)
 
 /// init three big thing: buffer, window, tabpage

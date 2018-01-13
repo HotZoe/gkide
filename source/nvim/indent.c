@@ -42,7 +42,7 @@ int get_indent_lnum(linenum_kt lnum)
 
 /// Count the size (in window cells) of the
 /// indent in line "lnum" of buffer "buf".
-int get_indent_buf(fbuf_st *buf, linenum_kt lnum)
+int get_indent_buf(filebuf_st *buf, linenum_kt lnum)
 {
     return get_indent_str(ml_get_buf(buf, lnum, false),
                           (int)buf->b_p_ts,

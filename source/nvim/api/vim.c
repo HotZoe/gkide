@@ -662,7 +662,7 @@ FUNC_API_SINCE(1)
 void nvim_set_current_buf(Buffer buffer, error_st *err)
 FUNC_API_SINCE(1)
 {
-    fbuf_st *buf = find_buffer_by_handle(buffer, err);
+    filebuf_st *buf = find_buffer_by_handle(buffer, err);
 
     if(!buf)
     {

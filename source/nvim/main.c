@@ -611,7 +611,7 @@ void getout(int exitval)
                     continue;
                 }
 
-                fbuf_st *buf = wp->w_buffer;
+                filebuf_st *buf = wp->w_buffer;
 
                 if(buf->b_changedtick != -1)
                 {

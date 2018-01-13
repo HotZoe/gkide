@@ -20,7 +20,7 @@
 /// for a buffer that is not the current buffer.
 typedef struct
 {
-    fbuf_st *save_curbuf;  ///< saved curbuf
+    filebuf_st *save_curbuf;  ///< saved curbuf
     int use_aucmd_win;     ///< using aucmd_win
     win_st *save_curwin;   ///< saved curwin
     win_st *new_curwin;    ///< new curwin

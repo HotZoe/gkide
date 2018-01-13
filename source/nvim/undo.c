@@ -899,7 +899,7 @@ static void u_free_uhp(u_header_T *uhp)
 static bool serialize_header(undobuf_st *bi, uchar_kt *hash)
 FUNC_ATTR_NONNULL_ALL
 {
-    fbuf_st *buf = bi->bi_buf;
+    filebuf_st *buf = bi->bi_buf;
     FILE *fp = bi->bi_fp;
 
     // Start writing, first the magic marker and undo info version.
@@ -1264,7 +1264,7 @@ static void unserialize_visualinfo(undobuf_st *bi, visualinfo_st *info)
 /// Hash value of the buffer text. Must have #UNDO_HASH_SIZE size.
 void u_write_undo(const char *const name,
                   const bool forceit,
-                  fbuf_st *const buf,
+                  filebuf_st *const buf,
                   uchar_kt *const hash)
 FUNC_ATTR_NONNULL_ARG(3, 4)
 {
@@ -3318,7 +3318,7 @@ void ex_undojoin(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 
 /// Called after writing or reloading the file and setting
 /// b_changed to FALSE. Now an undo means that the buffer is modified.
-void u_unchanged(fbuf_st *buf)
+void u_unchanged(filebuf_st *buf)
 {
     u_unch_branch(buf->b_u_oldhead);
     buf->b_did_warn = false;
@@ -3367,7 +3367,7 @@ void u_find_first_changed(void)
 
 /// Increase the write count, store it in the
 /// last undo header, what would be used for "u".
-void u_update_save_nr(fbuf_st *buf)
+void u_update_save_nr(filebuf_st *buf)
 {
     u_header_T *uhp;
     ++buf->b_u_save_nr_last;
@@ -3460,7 +3460,7 @@ static void u_getbot(void)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freeheader(fbuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freeheader(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 {
     u_header_T *uhap;
 
@@ -3506,7 +3506,7 @@ static void u_freeheader(fbuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freebranch(fbuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freebranch(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 {
     u_header_T *tofree, *next;
 
@@ -3549,7 +3549,7 @@ static void u_freebranch(fbuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 /// @param buf
 /// @param uhp
 /// @param uhpp  if not NULL reset when freeing this header
-static void u_freeentries(fbuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
+static void u_freeentries(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 {
     u_entry_T *uep, *nuep;
 
@@ -3602,7 +3602,7 @@ static void u_freeentry(u_entry_T *uep, long n)
 
 /// invalidate the undo buffer;
 /// called when storage has already been released
-void u_clearall(fbuf_st *buf)
+void u_clearall(filebuf_st *buf)
 {
     buf->b_u_newhead = buf->b_u_oldhead = buf->b_u_curhead = NULL;
     buf->b_u_synced = true;
@@ -3698,7 +3698,7 @@ void u_undoline(void)
 }
 
 /// Free all allocated memory blocks for the buffer 'buf'.
-void u_blockfree(fbuf_st *buf)
+void u_blockfree(filebuf_st *buf)
 {
     while(buf->b_u_oldhead != NULL)
     {
@@ -3726,7 +3726,7 @@ static uchar_kt *u_save_line(linenum_kt lnum)
 /// @param buf The buffer to check
 ///
 /// @return true if the buffer has changed
-bool bufIsChanged(fbuf_st *buf)
+bool bufIsChanged(filebuf_st *buf)
 {
     return !bt_dontwrite(buf)
             && (buf->b_changed

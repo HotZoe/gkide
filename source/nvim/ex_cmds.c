@@ -1413,7 +1413,7 @@ static void do_filter(linenum_kt line1,
     linenum_kt read_linecount;
     apos_st cursor_save;
     uchar_kt *cmd_buf;
-    fbuf_st *old_curbuf = curbuf;
+    filebuf_st *old_curbuf = curbuf;
     int shell_flags = 0;
 
     if(*cmd == NUL) // no filter command
@@ -1947,7 +1947,7 @@ int rename_buffer(uchar_kt *new_fname)
     uchar_kt *fname;
     uchar_kt *sfname;
     uchar_kt *xfname;
-    fbuf_st *buf;
+    filebuf_st *buf;
     buf = curbuf;
     apply_autocmds(EVENT_BUFFILEPRE, NULL, NULL, FALSE, curbuf);
 
@@ -2063,7 +2063,7 @@ int do_write(exargs_st *eap)
     uchar_kt *ffname;
     int retval = FAIL;
     uchar_kt *free_fname = NULL;
-    fbuf_st *alt_buf = NULL;
+    filebuf_st *alt_buf = NULL;
     int name_was_missing;
 
     // check 'write' option
@@ -2164,7 +2164,7 @@ int do_write(exargs_st *eap)
     {
         if(eap->cmdidx == CMD_saveas && alt_buf != NULL)
         {
-            fbuf_st *was_curbuf = curbuf;
+            filebuf_st *was_curbuf = curbuf;
 
             apply_autocmds(EVENT_BUFFILEPRE, NULL, NULL, FALSE, curbuf);
             apply_autocmds(EVENT_BUFFILEPRE, NULL, NULL, FALSE, alt_buf);
@@ -2276,7 +2276,7 @@ theend:
 ///
 /// @return OK if it's OK, FAIL if it is not.
 int check_overwrite(exargs_st *eap,
-                    fbuf_st *buf,
+                    filebuf_st *buf,
                     uchar_kt *fname,
                     uchar_kt *ffname,
                     int other)
@@ -2493,7 +2493,7 @@ int not_writing(void)
 /// Check if a buffer is read-only (either 'readonly' option is set or file is
 /// read-only). Ask for overruling in a dialog. Return TRUE and give an error
 /// message when the buffer is readonly.
-static int check_readonly(int *forceit, fbuf_st *buf)
+static int check_readonly(int *forceit, filebuf_st *buf)
 {
     // Handle a file being readonly when the 'readonly' option is set or when
     // the file exists and permissions are read-only.
@@ -2715,7 +2715,7 @@ int do_ecmd(int fnum,
 
     uchar_kt *new_name = NULL;
     int did_set_swapcommand = FALSE;
-    fbuf_st *buf;
+    filebuf_st *buf;
     bufref_st bufref;
     bufref_st old_curbuf;
     uchar_kt *free_fname = NULL;
@@ -4114,7 +4114,7 @@ FUNC_ATTR_NONNULL_RET
 /// The usual escapes are supported as described in the regexp docs.
 ///
 /// @return buffer used for 'inccommand' preview
-static fbuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
+static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
 {
     long i = 0;
     regmmatch_st regmatch;
@@ -5203,7 +5203,7 @@ skip:
     subflags.do_ask = save_do_ask;
 
     // Show 'inccommand' preview if there are matched lines.
-    fbuf_st *preview_buf = NULL;
+    filebuf_st *preview_buf = NULL;
 
     if(preview && !aborting())
     {
@@ -5460,7 +5460,7 @@ void ex_global(exargs_st *eap)
 void global_exe(uchar_kt *cmd)
 {
     linenum_kt old_lcount; // b_ml.ml_line_count before the command
-    fbuf_st *old_buf = curbuf; // remember what buffer we started in
+    filebuf_st *old_buf = curbuf; // remember what buffer we started in
     linenum_kt lnum; // line number according to old situation
     int save_mapped_ctrl_c = mapped_ctrl_c;
 
@@ -5598,7 +5598,7 @@ void ex_help(exargs_st *eap)
     uchar_kt *p;
     int empty_fnum = 0;
     int alt_fnum = 0;
-    fbuf_st *buf;
+    filebuf_st *buf;
     int len;
     uchar_kt *lang;
     int old_KeyTyped = KeyTyped;
@@ -7329,7 +7329,7 @@ void ex_sign(exargs_st *eap)
 
         // Check for line={lnum} name={name} and file={fname} or buffer={nr}.
         // Leave "arg" pointing to {fname}.
-        fbuf_st *buf = NULL;
+        filebuf_st *buf = NULL;
 
         for(;;)
         {
@@ -7858,7 +7858,7 @@ void set_context_in_sign_cmd(expand_st *xp, uchar_kt *arg)
 
 /// Shows the effects of the :substitute command being typed ('inccommand').
 /// If inccommand=split, shows a preview window and later restores the layout.
-static fbuf_st *show_sub(exargs_st *eap,
+static filebuf_st *show_sub(exargs_st *eap,
                        apos_st old_cusr,
                        uchar_kt *pat,
                        uchar_kt *sub,
@@ -7874,7 +7874,7 @@ FUNC_ATTR_NONNULL_ALL
     size_t pat_size = mb_string2cells(pat);
 
     // We keep a special-purpose buffer around, but don't assume it exists.
-    fbuf_st *preview_buf = bufnr ? buflist_findnr(bufnr) : 0;
+    filebuf_st *preview_buf = bufnr ? buflist_findnr(bufnr) : 0;
     cmdmod.tab = 0; // disable :tab modifier
     cmdmod.noswapfile = true; // disable swap for preview buffer
 
@@ -8033,7 +8033,7 @@ void ex_substitute(exargs_st *eap)
     curbuf->b_p_ul = LONG_MAX; // make sure we can undo all changes
     curwin->w_p_cul = false; // Disable 'cursorline'
     curwin->w_p_cuc = false; // Disable 'cursorcolumn'
-    fbuf_st *preview_buf = do_sub(eap, profile_setlimit(p_rdt));
+    filebuf_st *preview_buf = do_sub(eap, profile_setlimit(p_rdt));
 
     if(save_changedtick != curbuf->b_changedtick)
     {

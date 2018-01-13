@@ -2276,7 +2276,7 @@ static void win_equal_rec(win_st *next_curwin,
 /// Closes all windows for buffer @b buf.
 ///
 /// @param keep_curwin don't close @b curwin
-void close_windows(fbuf_st *buf, int keep_curwin)
+void close_windows(filebuf_st *buf, int keep_curwin)
 {
     tabpage_st *tp, *nexttp;
     int h = tabline_height();
@@ -2401,7 +2401,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         return false;
     }
 
-    fbuf_st *old_curbuf = curbuf;
+    filebuf_st *old_curbuf = curbuf;
     Terminal *term = win->w_buffer ? win->w_buffer->terminal : NULL;
 
     if(term)
@@ -4179,7 +4179,7 @@ int tabpage_index(tabpage_st *ftp)
 ///
 /// Careful: When OK is returned need to get a new tab page
 /// very very soon!
-static int leave_tabpage(fbuf_st *new_curbuf, int trigger_leave_autocmds)
+static int leave_tabpage(filebuf_st *new_curbuf, int trigger_leave_autocmds)
 {
     tabpage_st *tp = curtab;
     reset_VIsual_and_resel(); // stop Visual mode
@@ -4229,7 +4229,7 @@ static int leave_tabpage(fbuf_st *new_curbuf, int trigger_leave_autocmds)
 /// - Only trigger *Enter autocommands when trigger_enter_autocmds is TRUE.
 /// - Only trigger *Leave autocommands when trigger_leave_autocmds is TRUE.
 static void enter_tabpage(tabpage_st *tp,
-                          fbuf_st *old_curbuf,
+                          filebuf_st *old_curbuf,
                           int trigger_enter_autocmds,
                           int trigger_leave_autocmds)
 {
@@ -4900,7 +4900,7 @@ static void win_enter_ext(win_st *wp,
 
 /// Jump to the first open window that contains buffer "buf", if one exists.
 /// Returns a pointer to the window found, otherwise NULL.
-win_st *buf_jump_open_win(fbuf_st *buf)
+win_st *buf_jump_open_win(filebuf_st *buf)
 {
     if(curwin->w_buffer == buf)
     {
@@ -4926,7 +4926,7 @@ win_st *buf_jump_open_win(fbuf_st *buf)
 /// that contains buffer "buf", if one exists.
 ///
 /// @return the found window, or NULL.
-win_st *buf_jump_open_tab(fbuf_st *buf)
+win_st *buf_jump_open_tab(filebuf_st *buf)
 {
     // First try the current tab page.
     {
@@ -7108,7 +7108,7 @@ void restore_win(win_st *save_curwin, tabpage_st *save_curtab, int no_display)
 ///
 /// restore_buffer() MUST be called to undo.
 /// No autocommands will be executed. Use aucmd_prepbuf() if there are any.
-void switch_buffer(bufref_st *save_curbuf, fbuf_st *buf)
+void switch_buffer(bufref_st *save_curbuf, filebuf_st *buf)
 {
     block_autocmds();
     set_bufref(save_curbuf, curbuf);

@@ -692,7 +692,7 @@ void time_to_bytes(time_t time_var, uint8_t buf[8])
 /// local to a library function.
 void free_all_mem(void)
 {
-    fbuf_st *buf, *nextbuf;
+    filebuf_st *buf, *nextbuf;
 
     // When we cause a crash here it is caught and Vim tries
     // to exit cleanly. Don't try freeing everything again.

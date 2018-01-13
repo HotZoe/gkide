@@ -103,7 +103,7 @@ int init_chartab(void)
 /// @return
 /// FAIL if 'iskeyword', 'isident', 'isfname'
 /// or 'isprint' option has an error, OK otherwise.
-int buf_init_chartab(fbuf_st *buf, int global)
+int buf_init_chartab(filebuf_st *buf, int global)
 {
     int c;
 
@@ -965,7 +965,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 ///
 /// @param  c    character to check
 /// @param  buf  buffer whose keywords to use
-bool vim_iswordc_buf(int c, fbuf_st *buf)
+bool vim_iswordc_buf(int c, filebuf_st *buf)
 FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(2)
 {
     return vim_iswordc_tab(c, buf->b_chartab);
@@ -994,7 +994,7 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 /// @param  buf  buffer whose keywords to use
 ///
 /// @return true if "p" points to a keyword character.
-bool vim_iswordp_buf(uchar_kt *p, fbuf_st *buf)
+bool vim_iswordp_buf(uchar_kt *p, filebuf_st *buf)
 FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 {
     if(MB_BYTE2LEN(*p) > 1)
