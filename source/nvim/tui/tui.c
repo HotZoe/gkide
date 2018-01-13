@@ -668,15 +668,15 @@ cursor_shape_et tui_cursor_decode_shape(const char *shape_str)
 
     if(strequal(shape_str, "block"))
     {
-        shape = SHAPE_BLOCK;
+        shape = kCsrShpBlock;
     }
     else if(strequal(shape_str, "vertical"))
     {
-        shape = SHAPE_VER;
+        shape = kCsrShpVertical;
     }
     else if(strequal(shape_str, "horizontal"))
     {
-        shape = SHAPE_HOR;
+        shape = kCsrShpHorizontal;
     }
     else
     {
@@ -811,15 +811,15 @@ static void tui_set_mode(UI *ui, ModeShape mode)
         // the cursor shape and does not support DECSCUSR.
         switch(shape)
         {
-            case SHAPE_BLOCK:
+            case kCsrShpBlock:
                 shape = 0;
                 break;
 
-            case SHAPE_VER:
+            case kCsrShpVertical:
                 shape = 1;
                 break;
 
-            case SHAPE_HOR:
+            case kCsrShpHorizontal:
                 shape = 2;
                 break;
 
@@ -850,15 +850,15 @@ static void tui_set_mode(UI *ui, ModeShape mode)
         // according to its terminal-overrides.
         switch(shape)
         {
-            case SHAPE_BLOCK:
+            case kCsrShpBlock:
                 shape = 1;
                 break;
 
-            case SHAPE_HOR:
+            case kCsrShpHorizontal:
                 shape = 3;
                 break;
 
-            case SHAPE_VER:
+            case kCsrShpVertical:
                 shape = 5;
                 break;
 

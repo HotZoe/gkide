@@ -32,9 +32,9 @@ typedef enum
 
 typedef enum
 {
-    SHAPE_BLOCK   = 0,    ///< block cursor
-    SHAPE_HOR     = 1,    ///< horizontal bar cursor
-    SHAPE_VER     = 2     ///< vertical bar cursor
+    kCsrShpBlock      = 0, ///< block cursor
+    kCsrShpHorizontal = 1, ///< horizontal bar cursor
+    kCsrShpVertical   = 2, ///< vertical bar cursor
 } cursor_shape_et;
 
 #define MSHAPE_NUMBERED 1000   ///< offset for shapes identified by number

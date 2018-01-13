@@ -58,15 +58,15 @@ Array mode_style_array(void)
 
             switch(cur->shape)
             {
-                case SHAPE_BLOCK:
+                case kCsrShpBlock:
                     shape_str = cstr_to_string("block");
                     break;
 
-                case SHAPE_VER:
+                case kCsrShpVertical:
                     shape_str = cstr_to_string("vertical");
                     break;
 
-                case SHAPE_HOR:
+                case kCsrShpHorizontal:
                     shape_str = cstr_to_string("horizontal");
                     break;
 
@@ -195,7 +195,7 @@ uchar_kt *parse_shape_opt(int what)
                 {
                     {
                         // Set the defaults, for the missing parts
-                        shape_table[idx].shape = SHAPE_BLOCK;
+                        shape_table[idx].shape = kCsrShpBlock;
                         shape_table[idx].blinkwait = 0L;
                         shape_table[idx].blinkon = 0L;
                         shape_table[idx].blinkoff = 0L;
@@ -255,11 +255,11 @@ uchar_kt *parse_shape_opt(int what)
                                 {
                                     if(TOLOWER_ASC(i) == 'v')
                                     {
-                                        shape_table[idx].shape = SHAPE_VER;
+                                        shape_table[idx].shape = kCsrShpVertical;
                                     }
                                     else
                                     {
-                                        shape_table[idx].shape = SHAPE_HOR;
+                                        shape_table[idx].shape = kCsrShpHorizontal;
                                     }
 
                                     shape_table[idx].percentage = n;
@@ -285,7 +285,7 @@ uchar_kt *parse_shape_opt(int what)
                         {
                             if(round == 2)
                             {
-                                shape_table[idx].shape = SHAPE_BLOCK;
+                                shape_table[idx].shape = kCsrShpBlock;
                             }
 
                             p += 5;
