@@ -9595,7 +9595,7 @@ static void ex_wincmd(exargs_st *eap)
 /// ":delete", ":yank", ":>" and ":<".
 static void ex_operators(exargs_st *eap)
 {
-    oparg_T oa;
+    oparg_st oa;
     clear_oparg(&oa);
     oa.regname = eap->regname;
     oa.start.lnum = eap->line1;
@@ -10614,7 +10614,7 @@ void exec_normal_cmd(uchar_kt *cmd, int remap, bool silent)
 /// @param was_typed whether or not something was typed
 void exec_normal(bool was_typed)
 {
-    oparg_T oa;
+    oparg_st oa;
     clear_oparg(&oa);
     finish_op = false;
 

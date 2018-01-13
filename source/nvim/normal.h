@@ -27,31 +27,32 @@ typedef enum motion_type_e
 /// Arguments for operators.
 typedef struct oparg_s
 {
-    int op_type;            ///< current pending operator type
-    int regname;            ///< register to use for the operator
+    int op_type;                ///< current pending operator type
+    int regname;                ///< register to use for the operator
     motion_type_et motion_type; ///< type of the current cursor motion
-    int motion_force;       ///< force motion type: 'v', 'V' or CTRL-V
-    bool use_reg_one;  ///< true if delete uses reg 1 even when not linewise
-    bool inclusive;    ///< true if char motion is inclusive (only
-                       ///< valid when motion_type is kMTCharWise)
-    bool end_adjusted; ///< backuped b_op_end one char (only used by do_format())
+    int motion_force;    ///< force motion type: 'v', 'V' or CTRL-V
+    bool use_reg_one;    ///< true if delete uses reg 1 even when not linewise
+    bool inclusive;      ///< true if char motion is inclusive (only
+                         ///< valid when motion_type is kMTCharWise)
+    bool end_adjusted;   ///< backuped b_op_end one char
+                         ///< (only used by do_format())
     apos_st start;       ///< start of the operator
     apos_st end;         ///< end of the operator
     apos_st cursor_start;///< cursor position before motion for "gw"
 
-    long line_count;   ///< number of lines from op_start to op_end (inclusive)
-    bool empty;        ///< op_start and op_end the same (only used by op_change())
-    bool is_VIsual;    ///< operator on Visual area
+    long line_count; ///< number of lines from op_start to op_end (inclusive)
+    bool empty;      ///< op_start and op_end the same (only used by op_change())
+    bool is_VIsual;  ///< operator on Visual area
     columnum_kt start_vcol;///< start col for block mode operator
     columnum_kt end_vcol;  ///< end col for block mode operator
-    long prev_opcount; ///< ca.opcount saved for K_EVENT
-    long prev_count0;  ///< ca.count0 saved for K_EVENT
-} oparg_T;
+    long prev_opcount;     ///< ca.opcount saved for K_EVENT
+    long prev_count0;      ///< ca.count0 saved for K_EVENT
+} oparg_st;
 
 /// Arguments for Normal mode commands.
 typedef struct cmdarg_s
 {
-    oparg_T *oap;        ///< operator arguments
+    oparg_st *oap;       ///< operator arguments
     int prechar;         ///< prefix character (optional, always 'g')
     int cmdchar;         ///< command character
     int nchar;           ///< next command character (optional)

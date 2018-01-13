@@ -73,7 +73,7 @@ typedef struct normal_state
     bool noexmode;         ///< true if the normal mode was pushed from
                            ///< ex mode(:global or :visual for example)
     bool toplevel;         ///< top-level normal mode
-    oparg_T oa;            ///< operator arguments
+    oparg_st oa;            ///< operator arguments
     cmdarg_st ca;           ///< command arguments
     int mapped_len;
     int old_mapped_len;
@@ -1627,7 +1627,7 @@ static void set_vcount_ca(cmdarg_st *cap, bool *set_prevcount)
 /// Handle an operator after visual mode or when the movement is finished
 void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
 {
-    oparg_T *oap = cap->oap;
+    oparg_st *oap = cap->oap;
     apos_st old_cursor;
     bool empty_region_error;
     int restart_edit_save;
@@ -2457,7 +2457,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
 }
 
 /// Handle indent and format operators and visual mode ":".
-static void op_colon(oparg_T *oap)
+static void op_colon(oparg_st *oap)
 {
     stuffcharReadbuff(':');
 
@@ -2533,7 +2533,7 @@ static void op_colon(oparg_T *oap)
 }
 
 /// Handle the "g@" operator: call 'operatorfunc'.
-static void op_function(oparg_T *oap)
+static void op_function(oparg_st *oap)
 {
     int save_virtual_op = virtual_op;
 
@@ -2629,7 +2629,7 @@ static void move_tab_to_mouse(void)
 /// @param fixindent   PUT_FIXINDENT if fixing indent necessary
 ///
 /// @return true if start_arrow() should be called for edit mode.
-bool do_mouse(oparg_T *oap, int c, int dir, long count, bool fixindent)
+bool do_mouse(oparg_st *oap, int c, int dir, long count, bool fixindent)
 {
     static bool got_click = false; // got a click some time back
     int which_button; // MOUSE_LEFT, _MIDDLE or _RIGHT
@@ -3900,7 +3900,7 @@ static void prep_redo(int regname,
 /// check for operator active and clear it
 ///
 /// return true if operator was active
-static bool checkclearop(oparg_T *oap)
+static bool checkclearop(oparg_st *oap)
 {
     if(oap->op_type == OP_NOP)
     {
@@ -3914,7 +3914,7 @@ static bool checkclearop(oparg_T *oap)
 /// Check for operator or Visual active. Clear active operator.
 ///
 /// Return true if operator or Visual was active.
-static bool checkclearopq(oparg_T *oap)
+static bool checkclearopq(oparg_st *oap)
 {
     if(oap->op_type == OP_NOP && !VIsual_active)
     {
@@ -3925,7 +3925,7 @@ static bool checkclearopq(oparg_T *oap)
     return true;
 }
 
-static void clearop(oparg_T *oap)
+static void clearop(oparg_st *oap)
 {
     oap->op_type = OP_NOP;
     oap->regname = 0;
@@ -3933,7 +3933,7 @@ static void clearop(oparg_T *oap)
     oap->use_reg_one = false;
 }
 
-static void clearopbeep(oparg_T *oap)
+static void clearopbeep(oparg_st *oap)
 {
     clearop(oap);
     beep_flush();
@@ -4477,7 +4477,7 @@ static void nv_page(cmdarg_st *cap)
 /// @param oap
 /// @param nchar
 /// @param thisblock  1 for "1gd" and "1gD"
-static void nv_gd(oparg_T *oap, int nchar, int thisblock)
+static void nv_gd(oparg_st *oap, int nchar, int thisblock)
 {
     size_t len;
     uchar_kt *ptr;
@@ -4666,7 +4666,7 @@ bool find_decl(uchar_kt *ptr,
 /// 'dist' must be positive.
 ///
 /// Return true if able to move cursor, false otherwise.
-static bool nv_screengo(oparg_T *oap, int dir, long dist)
+static bool nv_screengo(oparg_st *oap, int dir, long dist)
 {
     int linelen = linetabsize(get_cursor_line_ptr());
     bool retval = true;
@@ -5739,7 +5739,7 @@ static void nv_Zet(cmdarg_st *cap)
 /// Call nv_ident() as if "c1" was used, with "c2" as next character.
 void do_nv_ident(int c1, int c2)
 {
-    oparg_T oa;
+    oparg_st oa;
     cmdarg_st ca;
     clear_oparg(&oa);
     memset(&ca, 0, sizeof(ca));
@@ -6585,7 +6585,7 @@ static void nv_dollar(cmdarg_st *cap)
 /// If cap->arg is true don't set PC mark.
 static void nv_search(cmdarg_st *cap)
 {
-    oparg_T *oap = cap->oap;
+    oparg_st *oap = cap->oap;
 
     if(cap->cmdchar == '?' && cap->oap->op_type == OP_ROT13)
     {
@@ -8276,7 +8276,7 @@ static void nv_suspend(cmdarg_st *cap)
 /// Commands starting with "g".
 static void nv_g_cmd(cmdarg_st *cap)
 {
-    oparg_T *oap = cap->oap;
+    oparg_st *oap = cap->oap;
     apos_st tpos;
     int i;
     bool flag = false;
@@ -9175,7 +9175,7 @@ static void nv_wordcmd(cmdarg_st *cap)
 /// Used after a movement command:
 /// If the cursor ends up on the NUL after the end of the line,
 /// may move it back to the last character and make the motion inclusive.
-static void adjust_cursor(oparg_T *oap)
+static void adjust_cursor(oparg_st *oap)
 {
     // The cursor cannot remain on the NUL when:
     // - the column is > 0
@@ -9947,7 +9947,7 @@ static void nv_open(cmdarg_st *cap)
 ///
 /// @param initial
 /// when true: adjust position for 'selectmode'
-static void get_op_vcol(oparg_T *oap, columnum_kt redo_VIsual_vcol, bool initial)
+static void get_op_vcol(oparg_st *oap, columnum_kt redo_VIsual_vcol, bool initial)
 {
     columnum_kt start;
     columnum_kt end;
@@ -10062,7 +10062,7 @@ static int mouse_model_popup(void)
     return p_mousem[0] == 'p';
 }
 
-void normal_cmd(oparg_T *oap, bool toplevel)
+void normal_cmd(oparg_st *oap, bool toplevel)
 {
     NormalState s;
 

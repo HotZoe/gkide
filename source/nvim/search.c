@@ -1160,7 +1160,7 @@ static int first_submatch(regmmatch_st *rp)
 ///
 /// @return
 /// 0 for failure, 1 for found, 2 for found and line offset added.
-int do_search(oparg_T *oap,
+int do_search(oparg_st *oap,
               int dirc,
               uchar_kt *pat,
               long count,
@@ -1883,7 +1883,7 @@ int searchc(cmdarg_st *cap, int t_cmd)
 ///find the matching paren or brace
 ///
 /// Improvement over vi: Braces inside quotes are ignored.
-apos_st *findmatch(oparg_T *oap, int initc)
+apos_st *findmatch(oparg_st *oap, int initc)
 {
     return findmatchlimit(oap, initc, 0, 0);
 }
@@ -1982,7 +1982,7 @@ static int find_rawstring_end(uchar_kt *linep, apos_st *startpos, apos_st *endpo
 /// - FM_BLOCKSTOP  stop at start/end of block ({ or } in column 0)
 /// - FM_SKIPCOMM   skip comments (not implemented yet!)
 ///
-apos_st *findmatchlimit(oparg_T *oap, int initc, int flags, int64_t maxtravel)
+apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
 {
     static apos_st pos; // current search position
     int findc = 0; // matching brace
@@ -3675,7 +3675,7 @@ static void findsent_forward(long count, int at_start_sent)
 /// @param bigword   FALSE == word, TRUE == WORD
 ///
 /// @return
-int current_word(oparg_T *oap,
+int current_word(oparg_st *oap,
                  long count,
                  int include,
                  int bigword)
@@ -3871,7 +3871,7 @@ int current_word(oparg_T *oap,
 
 /// Find sentence(s) under the cursor, cursor at end.
 /// When Visual active, extend it by one or more sentences.
-int current_sent(oparg_T *oap, long count, int include)
+int current_sent(oparg_st *oap, long count, int include)
 {
     apos_st start_pos;
     apos_st pos;
@@ -4115,7 +4115,7 @@ extend:
 /// @param other    ')', '}', etc.
 ///
 /// @return
-int current_block(oparg_T *oap,
+int current_block(oparg_st *oap,
                   long count,
                   int include,
                   int what,
@@ -4390,7 +4390,7 @@ static int in_html_tag(int end_tag)
 /// @param oap
 /// @param count_arg
 /// @param include    TRUE == include white space
-int current_tagblock(oparg_T *oap,long count_arg, int include)
+int current_tagblock(oparg_st *oap,long count_arg, int include)
 {
     long count = count_arg;
     long n;
@@ -4640,7 +4640,7 @@ theend:
 /// @param type     'p' for paragraph, 'S' for section
 ///
 /// @return
-int current_par(oparg_T *oap, long count, int include, int type)
+int current_par(oparg_st *oap, long count, int include, int type)
 {
     linenum_kt start_lnum;
     linenum_kt end_lnum;
@@ -4952,7 +4952,7 @@ static int find_prev_quote(uchar_kt *line,
 ///
 /// @return
 /// TRUE if found, else FALSE.
-int current_quote(oparg_T *oap, long count, int include, int quotechar)
+int current_quote(oparg_st *oap, long count, int include, int quotechar)
 {
     uchar_kt *line = get_cursor_line_ptr();
     int col_end;

@@ -396,7 +396,7 @@ apos_st *getmark_buf_fnum(filebuf_st *buf, int c, int changefile, int *fnum)
     else if(c == '{' || c == '}') // to previous/next paragraph
     {
         apos_st pos;
-        oparg_T oa;
+        oparg_st oa;
         int slcb = listcmd_busy;
         pos = curwin->w_cursor;
         listcmd_busy = TRUE; // avoid that '' is changed

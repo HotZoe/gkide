@@ -183,7 +183,7 @@ int get_extra_op_char(int optype)
 }
 
 /// handle a shift operation
-void op_shift(oparg_T *oap, int curs_top, int amount)
+void op_shift(oparg_st *oap, int curs_top, int amount)
 {
     long i;
     int first_char;
@@ -363,7 +363,7 @@ void shift_line(int left, int round, int amount, int call_changed_bytes)
 
 /// Shift one line of the current block one shiftwidth right or left.
 /// Leaves cursor on first character in block.
-static void shift_block(oparg_T *oap, int amount)
+static void shift_block(oparg_st *oap, int amount)
 {
     int left = (oap->op_type == OP_LSHIFT);
     int oldstate = curmod;
@@ -567,7 +567,7 @@ static void shift_block(oparg_T *oap, int amount)
 
 /// Insert string @b s (b_insert ? before : after) block :AKelly
 /// Caller must prepare for undo.
-static void block_insert(oparg_T *oap,
+static void block_insert(oparg_st *oap,
                          uchar_kt *s,
                          int b_insert,
                          blockdef_st *bdp)
@@ -700,7 +700,7 @@ static void block_insert(oparg_T *oap,
 }
 
 /// handle reindenting a block of lines.
-void op_reindent(oparg_T *oap, Indenter how)
+void op_reindent(oparg_st *oap, Indenter how)
 {
     long i;
     uchar_kt *l;
@@ -1632,7 +1632,7 @@ bool cmdline_paste_reg(int regname, bool literally, bool remcr)
 /// Handle a delete operation.
 ///
 /// @return FAIL if undo failed, OK otherwise.
-int op_delete(oparg_T *oap)
+int op_delete(oparg_st *oap)
 {
     int n;
     linenum_kt lnum;
@@ -2015,7 +2015,7 @@ setmarks:
 
 /// Adjust end of operating area for ending on a multi-byte character.
 /// Used for deletion.
-static void mb_adjust_opend(oparg_T *oap)
+static void mb_adjust_opend(oparg_st *oap)
 {
     uchar_kt *p;
 
@@ -2034,7 +2034,7 @@ static inline void pchar(apos_st lp, int c)
 }
 
 /// Replace a whole area with one character.
-int op_replace(oparg_T *oap, int c)
+int op_replace(oparg_st *oap, int c)
 {
     int n, numc;
     int num_chars;
@@ -2330,7 +2330,7 @@ int op_replace(oparg_T *oap, int c)
 
 /// Handle the (non-standard vi) tilde operator.
 /// Also for "gu", "gU" and "g?".
-void op_tilde(oparg_T *oap)
+void op_tilde(oparg_st *oap)
 {
     apos_st pos;
     blockdef_st bd;
@@ -2553,7 +2553,7 @@ int swapchar(int op_type, apos_st *pos)
 }
 
 /// Insert and append operators for Visual mode.
-void op_insert(oparg_T *oap, long count1)
+void op_insert(oparg_st *oap, long count1)
 {
     long ins_len, pre_textlen = 0;
     uchar_kt *firstline, *ins_text;
@@ -2761,7 +2761,7 @@ void op_insert(oparg_T *oap, long count1)
 /// handle a change operation
 ///
 /// @return TRUE if edit() returns because of a CTRL-O command
-int op_change(oparg_T *oap)
+int op_change(oparg_st *oap)
 {
     columnum_kt l;
     int retval;
@@ -2950,7 +2950,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param oap operator arguments
 /// @param message show message when more than `&report` lines are yanked.
 /// @returns whether the operation register was writable.
-bool op_yank(oparg_T *oap, bool message)
+bool op_yank(oparg_st *oap, bool message)
 FUNC_ATTR_NONNULL_ALL
 {
     // check for read-only register
@@ -2973,7 +2973,7 @@ FUNC_ATTR_NONNULL_ALL
     return true;
 }
 
-static void op_yank_reg(oparg_T *oap,
+static void op_yank_reg(oparg_st *oap,
                         bool message,
                         yankreg_T *reg,
                         bool append)
@@ -3262,7 +3262,7 @@ static void yank_copy_line(yankreg_T *reg,
 ///
 /// @param oap  Operator arguments.
 /// @param reg  The yank register used.
-static void do_autocmd_textyankpost(oparg_T *oap, yankreg_T *reg)
+static void do_autocmd_textyankpost(oparg_st *oap, yankreg_T *reg)
 FUNC_ATTR_NONNULL_ALL
 {
     static bool recursive = false;
@@ -4910,7 +4910,7 @@ static int same_leader(linenum_kt lnum,
 ///
 /// @param oap
 /// @param keep_cursor  keep cursor on same text char
-void op_format(oparg_T *oap, int keep_cursor)
+void op_format(oparg_st *oap, int keep_cursor)
 {
     long old_line_count = curbuf->b_ml.ml_line_count;
 
@@ -4988,7 +4988,7 @@ void op_format(oparg_T *oap, int keep_cursor)
 }
 
 /// Implementation of the format operator 'gq' for when using 'formatexpr'.
-void op_formatexpr(oparg_T *oap)
+void op_formatexpr(oparg_st *oap)
 {
     if(oap->is_VIsual)
     {
@@ -5456,7 +5456,7 @@ int paragraph_start(linenum_kt lnum)
 /// - textlen includes the first/last char to be wholly yanked
 /// - start/endspaces is the number of columns of the first/last yanked
 ///   char that are to be yanked.
-static void block_prep(oparg_T *oap,
+static void block_prep(oparg_st *oap,
                        blockdef_st *bdp,
                        linenum_kt lnum,
                        int is_del)
@@ -5631,7 +5631,7 @@ static void block_prep(oparg_T *oap,
 /// @param[in]  oap      Arguments of operator.
 /// @param[in]  Prenum1  Amount of addition or subtraction.
 /// @param[in]  g_cmd    Prefixed with `g`.
-void op_addsub(oparg_T *oap, linenum_kt Prenum1, bool g_cmd)
+void op_addsub(oparg_st *oap, linenum_kt Prenum1, bool g_cmd)
 {
     apos_st pos;
     blockdef_st bd;
@@ -6778,9 +6778,9 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-void clear_oparg(oparg_T *oap)
+void clear_oparg(oparg_st *oap)
 {
-    memset(oap, 0, sizeof(oparg_T));
+    memset(oap, 0, sizeof(oparg_st));
 }
 
 
@@ -6865,7 +6865,7 @@ void cursor_pos_info(dict_st *dict)
     long last_check = 100000L;
     long line_count_selected = 0;
     apos_st min_pos, max_pos;
-    oparg_T oparg;
+    oparg_st oparg;
     blockdef_st bd;
     const int l_VIsual_active = VIsual_active;
     const int l_VIsual_mode = VIsual_mode;

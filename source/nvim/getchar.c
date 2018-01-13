@@ -1404,7 +1404,7 @@ void openscript(uchar_kt *name, int directly)
     // always, "make test" would fail.
     if(directly)
     {
-        oparg_T oa;
+        oparg_st oa;
         int oldcurscript;
         int save_State = curmod;
         int save_restart_edit = restart_edit;

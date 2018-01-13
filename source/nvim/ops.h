@@ -10,7 +10,7 @@
 #include "nvim/types.h"
 #include "nvim/eval/typval.h"
 #include "nvim/os/time.h"
-#include "nvim/normal.h" // for motion_type_et and oparg_T
+#include "nvim/normal.h" // for motion_type_et and oparg_st
 #include "nvim/ex_cmds_defs.h" // for exargs_st
 
 typedef int (*Indenter)(void);
