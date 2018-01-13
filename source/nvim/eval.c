@@ -308,12 +308,12 @@ typedef struct forinfo_s
 } forinfo_st;
 
 /// enum used by var_flavour()
-typedef enum
+typedef enum var_flavour_e
 {
     VAR_FLAVOUR_DEFAULT,   ///< doesn't start with uppercase
     VAR_FLAVOUR_SESSION,   ///< starts with uppercase, some lower
     VAR_FLAVOUR_SHADA      ///< all uppercase
-} var_flavour_T;
+} var_flavour_et;
 
 /// @addtogroup NVIM_VAR_FLAGS v:XXX Variables Flags(vimvar_st)
 /// @{
@@ -28387,7 +28387,7 @@ int func_has_abort(void *cookie)
     return ((func_call_st *)cookie)->func->uf_flags & FC_ABORT;
 }
 
-static var_flavour_T var_flavour(uchar_kt *varname)
+static var_flavour_et var_flavour(uchar_kt *varname)
 {
     uchar_kt *p = varname;
 
