@@ -3947,7 +3947,7 @@ int build_stl_str_hl(win_st *wp,
                      uchar_kt fillchar,
                      int maxwidth,
                      hl_stline_st *hltab,
-                     StlClickRecord *tabtab)
+                     stl_clickrec_st *tabtab)
 {
     struct stl_item
     {
@@ -5286,7 +5286,7 @@ int build_stl_str_hl(win_st *wp,
     // Store the info about tab pages labels.
     if(tabtab != NULL)
     {
-        StlClickRecord *cur_tab_rec = tabtab;
+        stl_clickrec_st *cur_tab_rec = tabtab;
 
         for(long l = 0; l < itemcnt; l++)
         {

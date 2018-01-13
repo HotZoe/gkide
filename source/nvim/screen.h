@@ -39,7 +39,7 @@ typedef struct
 {
     stl_clickdef_st def;  ///< Click definition.
     const char *start;    ///< Location where region starts.
-} StlClickRecord;
+} stl_clickrec_st;
 
 /// Array defining what should be done when tabline is clicked
 extern stl_clickdef_st *tab_page_click_defs;

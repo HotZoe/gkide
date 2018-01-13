@@ -6786,7 +6786,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
     uchar_kt *stl;
     uchar_kt *p;
     hl_stline_st hltab[STL_MAX_ITEM];
-    StlClickRecord tabtab[STL_MAX_ITEM];
+    stl_clickrec_st tabtab[STL_MAX_ITEM];
     int use_sandbox = false;
     win_st *ewp;
     int p_crb_save;

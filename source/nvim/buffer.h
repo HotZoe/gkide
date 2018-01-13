@@ -7,7 +7,7 @@
 #include "nvim/window.h"
 #include "nvim/pos.h" // for linenum_kt
 #include "nvim/ex_cmds_defs.h" // for exargs_st
-#include "nvim/screen.h" // for StlClickRecord
+#include "nvim/screen.h" // for stl_clickrec_st
 #include "nvim/func_attr.h"
 #include "nvim/eval.h"
 #include "nvim/macros.h"
