@@ -24,13 +24,11 @@
 #include "nvim/strings.h"
 #include "nvim/os/input.h"
 
-typedef int result_T;
-
 typedef struct digraph_s
 {
     uchar_kt char1;
     uchar_kt char2;
-    result_T result;
+    int result;
 } digraph_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
