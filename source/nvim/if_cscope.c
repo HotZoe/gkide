@@ -101,7 +101,7 @@ static cscmd_st cs_cmds[] =
     }
 };
 
-static void cs_usage_msg(csid_e x)
+static void cs_usage_msg(csid_et x)
 {
     (void)EMSG2(_("E560: Usage: cs[cope] %s"), cs_cmds[(int)x].usage);
 }
@@ -1731,7 +1731,7 @@ static char *cs_make_vim_style_matches(char *fname,
 static char *cs_manage_matches(char **matches,
                                char **contexts,
                                size_t totmatches,
-                               mcmd_e cmd)
+                               mcmd_et cmd)
 {
     static char **mp = NULL;
     static char **cp = NULL;

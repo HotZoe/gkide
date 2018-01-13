@@ -58,14 +58,22 @@ typedef struct csinfo_s
     FILE *to_fp;  ///< to cscope: FILE.
 } csinfo_st;
 
-typedef enum { Add, Find, Help, Kill, Reset, Show } csid_e;
+typedef enum csid_e
+{
+    Add,
+    Find,
+    Help,
+    Kill,
+    Reset,
+    Show
+} csid_et;
 
-typedef enum
+typedef enum mcmd_e
 {
     Store,
     Get,
     Free,
     Print
-} mcmd_e;
+} mcmd_et;
 
 #endif // NVIM_IF_CSCOPE_DEFS_H
