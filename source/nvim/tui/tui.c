@@ -100,7 +100,7 @@ typedef struct
     bool can_set_left_right_margin;
     bool mouse_enabled;
     bool busy;
-    cursor_info_st cursor_shapes[SHAPE_IDX_COUNT];
+    cursor_info_st cursor_shapes[kCsrShpIdxAllIndexCount];
     HlAttrs print_attrs;
     mode_shape_et showing_mode;
     TermType term;
@@ -170,7 +170,7 @@ static void terminfo_start(UI *ui)
     data->scroll_region_is_full_screen = true;
     data->bufpos = 0;
     data->bufsize = sizeof(data->buf) - CNORM_COMMAND_MAX_SIZE;
-    data->showing_mode = SHAPE_IDX_N;
+    data->showing_mode = kCsrShpIdxNormal;
     data->unibi_ext.enable_mouse = -1;
     data->unibi_ext.disable_mouse = -1;
     data->unibi_ext.set_cursor_color = -1;
@@ -240,7 +240,7 @@ static void terminfo_stop(UI *ui)
     TUIData *data = ui->data;
 
     // Destroy output stuff
-    tui_mode_change(ui, (String)STRING_INIT, SHAPE_IDX_N);
+    tui_mode_change(ui, (String)STRING_INIT, kCsrShpIdxNormal);
     tui_mouse_off(ui);
     unibi_out(ui, unibi_exit_attribute_mode);
 

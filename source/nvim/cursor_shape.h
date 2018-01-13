@@ -10,24 +10,24 @@
 /// and 'mouseshape' Indexes in shape_table[]
 typedef enum mode_shape_e
 {
-    SHAPE_IDX_N      = 0,   ///< Normal mode
-    SHAPE_IDX_V      = 1,   ///< Visual mode
-    SHAPE_IDX_I      = 2,   ///< Insert mode
-    SHAPE_IDX_R      = 3,   ///< Replace mode
-    SHAPE_IDX_C      = 4,   ///< Command line Normal mode
-    SHAPE_IDX_CI     = 5,   ///< Command line Insert mode
-    SHAPE_IDX_CR     = 6,   ///< Command line Replace mode
-    SHAPE_IDX_O      = 7,   ///< Operator-pending mode
-    SHAPE_IDX_VE     = 8,   ///< Visual mode with 'selection' exclusive
-    SHAPE_IDX_CLINE  = 9,   ///< On command line
-    SHAPE_IDX_STATUS = 10,  ///< On status line
-    SHAPE_IDX_SDRAG  = 11,  ///< dragging a status line
-    SHAPE_IDX_VSEP   = 12,  ///< On vertical separator line
-    SHAPE_IDX_VDRAG  = 13,  ///< dragging a vertical separator line
-    SHAPE_IDX_MORE   = 14,  ///< Hit-return or More
-    SHAPE_IDX_MOREL  = 15,  ///< Hit-return or More in last line
-    SHAPE_IDX_SMP    = 16,  ///< showing matching paren
-    SHAPE_IDX_COUNT  = 17
+    kCsrShpIdxNormal        = 0,   ///< Normal mode
+    kCsrShpIdxVisual        = 1,   ///< Visual mode
+    kCsrShpIdxInsert        = 2,   ///< Insert mode
+    kCsrShpIdxReplace       = 3,   ///< Replace mode
+    kCsrShpIdxCmdNormal     = 4,   ///< Command line Normal mode
+    kCsrShpIdxCmdInsert     = 5,   ///< Command line Insert mode
+    kCsrShpIdxCmdReplace    = 6,   ///< Command line Replace mode
+    kCsrShpIdxOperatorPend  = 7,   ///< Operator-pending mode
+    kCsrShpIdxVisualExclus  = 8,   ///< Visual mode with 'selection' exclusive
+    kCsrShpIdxOnCmdL        = 9,   ///< On command line
+    kCsrShpIdxOnStatusL     = 10,  ///< On status line
+    kCsrShpIdxDragStatusL   = 11,  ///< dragging a status line
+    kCsrShpIdxOnVertSepL    = 12,  ///< On vertical separator line
+    kCsrShpIdxDragVertSepL  = 13,  ///< dragging a vertical separator line
+    kCsrShpIdxHitReturnMore = 14,  ///< Hit-return or More
+    kCsrShpIdxHitReturnMoreL= 15,  ///< Hit-return or More in last line
+    kCsrShpIdxShowMatchParen= 16,  ///< showing matching paren
+    kCsrShpIdxAllIndexCount = 17   ///< all index count, must be last one
 } mode_shape_et;
 
 typedef enum
@@ -45,20 +45,20 @@ typedef enum
 
 typedef struct cursor_info_s
 {
-    char *full_name;    ///< mode description
+    char *full_name;        ///< mode description
     cursor_shape_et shape;  ///< cursor shape: one of the SHAPE_ defines
-    int mshape;         ///< mouse shape: one of the MSHAPE defines
-    int percentage;     ///< percentage of cell for bar
-    long blinkwait;     ///< blinking, wait time before blinking starts
-    long blinkon;       ///< blinking, on time
-    long blinkoff;      ///< blinking, off time
-    int id;             ///< highlight group ID
-    int id_lm;          ///< highlight group ID for :lmap mode
-    char *name;         ///< mode short name
-    char used_for;      ///< SHAPE_MOUSE and/or SHAPE_CURSOR
+    int mshape;             ///< mouse shape: one of the MSHAPE defines
+    int percentage;         ///< percentage of cell for bar
+    long blinkwait;         ///< blinking, wait time before blinking starts
+    long blinkon;           ///< blinking, on time
+    long blinkoff;          ///< blinking, off time
+    int id;                 ///< highlight group ID
+    int id_lm;              ///< highlight group ID for :lmap mode
+    char *name;             ///< mode short name
+    char used_for;          ///< SHAPE_MOUSE and/or SHAPE_CURSOR
 } cursor_info_st;
 
-extern cursor_info_st shape_table[SHAPE_IDX_COUNT];
+extern cursor_info_st shape_table[kCsrShpIdxAllIndexCount];
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "cursor_shape.h.generated.h"

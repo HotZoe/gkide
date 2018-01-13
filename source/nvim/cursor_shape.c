@@ -13,7 +13,7 @@
 #include "nvim/ui.h"
 
 /// Handling of cursor and mouse pointer shapes in various modes.
-cursor_info_st shape_table[SHAPE_IDX_COUNT] =
+cursor_info_st shape_table[kCsrShpIdxAllIndexCount] =
 {
     // Values are set by 'guicursor' and 'mouseshape'.
     // Adjust the SHAPE_IDX_ defines when changing this!
@@ -42,7 +42,7 @@ Array mode_style_array(void)
 {
     Array all = ARRAY_DICT_INIT;
 
-    for(int i = 0; i < SHAPE_IDX_COUNT; i++)
+    for(int i = 0; i < kCsrShpIdxAllIndexCount; i++)
     {
         Dictionary dic = ARRAY_DICT_INIT;
         cursor_info_st *cur = &shape_table[i];
@@ -160,11 +160,11 @@ uchar_kt *parse_shape_opt(int what)
 
                     if(len == 1 && TOLOWER_ASC(modep[0]) == 'a')
                     {
-                        all_idx = SHAPE_IDX_COUNT - 1;
+                        all_idx = kCsrShpIdxAllIndexCount - 1;
                     }
                     else
                     {
-                        for(idx = 0; idx < SHAPE_IDX_COUNT; ++idx)
+                        for(idx = 0; idx < kCsrShpIdxAllIndexCount; ++idx)
                         {
                             if(STRNICMP(modep, shape_table[idx].name, len) == 0)
                             {
@@ -172,7 +172,7 @@ uchar_kt *parse_shape_opt(int what)
                             }
                         }
 
-                        if(idx == SHAPE_IDX_COUNT
+                        if(idx == kCsrShpIdxAllIndexCount
                            || (shape_table[idx].used_for & what) == 0)
                         {
                             return (uchar_kt *)N_("E546: Illegal mode");
@@ -353,13 +353,13 @@ uchar_kt *parse_shape_opt(int what)
     // If the 's' flag is not given, use the 'v' cursor for 's'
     if(!found_ve)
     {
-        shape_table[SHAPE_IDX_VE].shape = shape_table[SHAPE_IDX_V].shape;
-        shape_table[SHAPE_IDX_VE].percentage = shape_table[SHAPE_IDX_V].percentage;
-        shape_table[SHAPE_IDX_VE].blinkwait = shape_table[SHAPE_IDX_V].blinkwait;
-        shape_table[SHAPE_IDX_VE].blinkon = shape_table[SHAPE_IDX_V].blinkon;
-        shape_table[SHAPE_IDX_VE].blinkoff = shape_table[SHAPE_IDX_V].blinkoff;
-        shape_table[SHAPE_IDX_VE].id = shape_table[SHAPE_IDX_V].id;
-        shape_table[SHAPE_IDX_VE].id_lm = shape_table[SHAPE_IDX_V].id_lm;
+        shape_table[kCsrShpIdxVisualExclus].shape = shape_table[kCsrShpIdxVisual].shape;
+        shape_table[kCsrShpIdxVisualExclus].percentage = shape_table[kCsrShpIdxVisual].percentage;
+        shape_table[kCsrShpIdxVisualExclus].blinkwait = shape_table[kCsrShpIdxVisual].blinkwait;
+        shape_table[kCsrShpIdxVisualExclus].blinkon = shape_table[kCsrShpIdxVisual].blinkon;
+        shape_table[kCsrShpIdxVisualExclus].blinkoff = shape_table[kCsrShpIdxVisual].blinkoff;
+        shape_table[kCsrShpIdxVisualExclus].id = shape_table[kCsrShpIdxVisual].id;
+        shape_table[kCsrShpIdxVisualExclus].id_lm = shape_table[kCsrShpIdxVisual].id_lm;
     }
 
     ui_mode_info_set();
@@ -373,7 +373,7 @@ uchar_kt *parse_shape_opt(int what)
 /// @return -1 in case of failure, else the matching SHAPE_ID* integer
 int cursor_mode_str2int(const char *mode)
 {
-    for(int current_mode = 0; current_mode < SHAPE_IDX_COUNT; current_mode++)
+    for(int current_mode = 0; current_mode < kCsrShpIdxAllIndexCount; current_mode++)
     {
         if(strcmp(shape_table[current_mode].full_name, mode) == 0)
         {
@@ -392,52 +392,52 @@ int cursor_get_mode_idx(void)
 {
     if(curmod == kInsertShowMatchMode)
     {
-        return SHAPE_IDX_SMP;
+        return kCsrShpIdxShowMatchParen;
     }
     else if(curmod & kModFlgVReplace)
     {
-        return SHAPE_IDX_R;
+        return kCsrShpIdxReplace;
     }
     else if(curmod & kModFlgReplace)
     {
-        return SHAPE_IDX_R;
+        return kCsrShpIdxReplace;
     }
     else if(curmod & kInsertMode)
     {
-        return SHAPE_IDX_I;
+        return kCsrShpIdxInsert;
     }
     else if(curmod & kCmdLineMode)
     {
         if(cmdline_at_end())
         {
-            return SHAPE_IDX_C;
+            return kCsrShpIdxCmdNormal;
         }
         else if(cmdline_overstrike())
         {
-            return SHAPE_IDX_CR;
+            return kCsrShpIdxCmdReplace;
         }
         else
         {
-            return SHAPE_IDX_CI;
+            return kCsrShpIdxCmdInsert;
         }
     }
     else if(finish_op)
     {
-        return SHAPE_IDX_O;
+        return kCsrShpIdxOperatorPend;
     }
     else if(VIsual_active)
     {
         if(*p_sel == 'e')
         {
-            return SHAPE_IDX_VE;
+            return kCsrShpIdxVisualExclus;
         }
         else
         {
-            return SHAPE_IDX_V;
+            return kCsrShpIdxVisual;
         }
     }
     else
     {
-        return SHAPE_IDX_N;
+        return kCsrShpIdxNormal;
     }
 }
