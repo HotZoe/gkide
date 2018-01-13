@@ -44,7 +44,7 @@
     #include "if_cscope.c.generated.h"
 #endif
 
-static csinfo_T *csinfo = NULL;
+static csinfo_st *csinfo = NULL;
 static size_t csinfo_size = 0; ///< number of items allocated in csinfo[]
 static int eap_arg_len; ///< length of eap->arg, set in cs_lookup_cmd()
 
@@ -1489,13 +1489,13 @@ static int cs_insert_filelist(char *fname,
             // be enough for most users. If more is needed, csinfo will be
             // reallocated.
             csinfo_size = 1;
-            csinfo = xcalloc(1, sizeof(csinfo_T));
+            csinfo = xcalloc(1, sizeof(csinfo_st));
         }
         else
         {
             // Reallocate space for more connections.
             csinfo_size *= 2;
-            csinfo = xrealloc(csinfo, sizeof(csinfo_T)*csinfo_size);
+            csinfo = xrealloc(csinfo, sizeof(csinfo_st)*csinfo_size);
         }
 
         for(size_t j = csinfo_size/2; j < csinfo_size; j++)

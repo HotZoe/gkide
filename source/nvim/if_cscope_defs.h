@@ -36,7 +36,7 @@ typedef struct cscmd_s
     int cansplit;
 } cscmd_st;
 
-typedef struct csi
+typedef struct csinfo_s
 {
     char *fname;  ///< cscope db name
     char *ppath;  ///< path to prepend (the -P option)
@@ -56,7 +56,7 @@ typedef struct csi
 
     FILE *fr_fp;  ///< from cscope: FILE.
     FILE *to_fp;  ///< to cscope: FILE.
-} csinfo_T;
+} csinfo_st;
 
 typedef enum { Add, Find, Help, Kill, Reset, Show } csid_e;
 
