@@ -8,15 +8,15 @@
 /// When searching for a specific line, we remember what blocks in the tree
 /// are the branches leading to that block. This is stored in ml_stack. Each
 /// entry is a pointer to info in a block (may be data block or pointer block)
-typedef struct info_pointer
+typedef struct infoptr_s
 {
     blknum_kt ip_bnum;  ///< block number
     linenum_kt ip_low;  ///< lowest lnum in this block
     linenum_kt ip_high; ///< highest lnum in this block
     int ip_index;       ///< index for block with current lnum block/index pair
-} infoptr_T;
+} infoptr_st;
 
-typedef struct ml_chunksize
+typedef struct mlchunk_s
 {
     int mlcs_numlines;
     long mlcs_totalsize;
@@ -27,8 +27,8 @@ typedef struct ml_chunksize
 #define ML_CHNK_DELLINE    2
 #define ML_CHNK_UPDLINE    3
 
-/// the memline structure holds all the information about a memline
-typedef struct memline
+/// the memline_s structure holds all the information about a memline
+typedef struct memline_s
 {
     linenum_kt ml_line_count;   ///< number of lines in the buffer
 
@@ -40,7 +40,7 @@ typedef struct memline
     #define ML_LOCKED_POS   8   ///< ml_locked needs positive block number
     int ml_flags;
 
-    infoptr_T *ml_stack;        ///< stack of pointer blocks (array of IPTRs)
+    infoptr_st *ml_stack;        ///< stack of pointer blocks (array of IPTRs)
     int ml_stack_top;           ///< current top of ml_stack
     int ml_stack_size;          ///< total number of entries in ml_stack
 

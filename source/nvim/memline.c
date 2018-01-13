@@ -826,7 +826,7 @@ void ml_recover(void)
     uchar_kt *b0_fenc = NULL;
     blk_ptr_st *pp;
     blk_data_st *dp;
-    infoptr_T *ip;
+    infoptr_st *ip;
     blknum_kt bnum;
     int page_count;
     int len;
@@ -2291,7 +2291,7 @@ static int ml_append_int(filebuf_st *buf,
     memfile_st *mfp;
     blk_data_st *dp;
     blk_ptr_st *pp;
-    infoptr_T *ip;
+    infoptr_st *ip;
 
     // lnum out of range
     if(lnum > buf->b_ml.ml_line_count || buf->b_ml.ml_mfp == NULL)
@@ -2879,7 +2879,7 @@ static int ml_delete_int(filebuf_st *buf, linenum_kt lnum, int message)
     memfile_st *mfp;
     blk_data_st *dp;
     blk_ptr_st *pp;
-    infoptr_T *ip;
+    infoptr_st *ip;
 
     int count; // number of entries in block
     int idx;
@@ -3326,7 +3326,7 @@ static blk_hdr_st *ml_find_line(filebuf_st *buf, linenum_kt lnum, int action)
 {
     blk_data_st *dp;
     blk_ptr_st *pp;
-    infoptr_T *ip;
+    infoptr_st *ip;
     blk_hdr_st *hp;
     memfile_st *mfp;
     linenum_kt t;
@@ -3557,7 +3557,7 @@ static int ml_add_stack(filebuf_st *buf)
     {
         CHECK(top > 0, _("Stack size increases")); // more than 5 levels ???
         buf->b_ml.ml_stack_size += STACK_INCR;
-        size_t new_size = sizeof(infoptr_T) * buf->b_ml.ml_stack_size;
+        size_t new_size = sizeof(infoptr_st) * buf->b_ml.ml_stack_size;
         buf->b_ml.ml_stack = xrealloc(buf->b_ml.ml_stack, new_size);
     }
 
@@ -3576,7 +3576,7 @@ static int ml_add_stack(filebuf_st *buf)
 static void ml_lineadd(filebuf_st *buf, int count)
 {
     int idx;
-    infoptr_T *ip;
+    infoptr_st *ip;
     blk_ptr_st *pp;
     memfile_st *mfp = buf->b_ml.ml_mfp;
     blk_hdr_st *hp;
