@@ -26,23 +26,23 @@
 
 typedef int result_T;
 
-typedef struct digraph
+typedef struct digraph_s
 {
     uchar_kt char1;
     uchar_kt char2;
     result_T result;
-} digr_T;
+} digraph_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "digraph.c.generated.h"
 #endif
 
 // digraphs added by the user
-static garray_st user_digraphs = { 0, 0, (int)sizeof(digr_T), 10, NULL };
+static garray_st user_digraphs = { 0, 0, (int)sizeof(digraph_st), 10, NULL };
 
 /// Characters marked with XX are not included literally, because some
 /// compilers cannot handle them (Amiga SAS/C is the most picky one).
-static digr_T digraphdefault[] =
+static digraph_st digraphdefault[] =
 {
     // digraphs for Unicode from RFC1345
     // (also work for ISO-8859-1 aka latin1)
@@ -1517,7 +1517,7 @@ static int getexactdigraph(int char1, int char2, int meta_char)
     }
 
     // Search user digraphs first.
-    digr_T *dp = (digr_T *)user_digraphs.ga_data;
+    digraph_st *dp = (digraph_st *)user_digraphs.ga_data;
 
     for(int i = 0; i < user_digraphs.ga_len; ++i)
     {
@@ -1627,7 +1627,7 @@ int getdigraph(int char1, int char2, int meta_char)
 /// @param str
 void putdigraph(uchar_kt *str)
 {
-    digr_T *dp;
+    digraph_st *dp;
     uchar_kt char1;
     uchar_kt char2;
 
@@ -1666,7 +1666,7 @@ void putdigraph(uchar_kt *str)
         int n = getdigits_int(&str);
 
         // If the digraph already exists, replace the result.
-        dp = (digr_T *)user_digraphs.ga_data;
+        dp = (digraph_st *)user_digraphs.ga_data;
 
         int i;
 
@@ -1685,7 +1685,7 @@ void putdigraph(uchar_kt *str)
         // Add a new digraph to the table.
         if(i == user_digraphs.ga_len)
         {
-            dp = GA_APPEND_VIA_PTR(digr_T, &user_digraphs);
+            dp = GA_APPEND_VIA_PTR(digraph_st, &user_digraphs);
 
             dp->char1 = char1;
             dp->char2 = char2;
@@ -1696,14 +1696,14 @@ void putdigraph(uchar_kt *str)
 
 void listdigraphs(void)
 {
-    digr_T *dp;
+    digraph_st *dp;
 
     msg_putchar('\n');
     dp = digraphdefault;
 
     for(int i = 0; dp->char1 != NUL && !got_int; ++i)
     {
-        digr_T tmp;
+        digraph_st tmp;
 
         // May need to convert the result to 'encoding'.
         tmp.char1 = dp->char1;
@@ -1722,7 +1722,7 @@ void listdigraphs(void)
         os_breakcheck();
     }
 
-    dp = (digr_T *)user_digraphs.ga_data;
+    dp = (digraph_st *)user_digraphs.ga_data;
 
     for(int i = 0; i < user_digraphs.ga_len && !got_int; ++i)
     {
@@ -1736,7 +1736,7 @@ void listdigraphs(void)
     must_redraw = CLEAR;
 }
 
-static void printdigraph(digr_T *dp)
+static void printdigraph(digraph_st *dp)
 {
     uchar_kt *p;
     uchar_kt buf[30];
