@@ -185,7 +185,7 @@ typedef struct
     int enr;
     uchar_kt type;
     bool valid;
-} qffields_T;
+} qffield_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "quickfix.c.generated.h"
@@ -853,7 +853,7 @@ static int qf_parse_line(qfinfo_st *qi,
                          uchar_kt *linebuf,
                          size_t linelen,
                          errfmt_info_st *fmt_first,
-                         qffields_T *fields)
+                         qffield_st *fields)
 {
     errfmt_info_st *fmt_ptr;
     static errfmt_info_st *fmt_start = NULL; // cached across calls
@@ -1293,7 +1293,7 @@ static int qf_init_ext(qfinfo_st *qi,
                        linenum_kt lnumlast,
                        uchar_kt *qf_title)
 {
-    qffields_T fields = { NULL, NULL, 0, 0L, 0, false, NULL, 0, 0, 0 };
+    qffield_st fields = { NULL, NULL, 0, 0L, 0, false, NULL, 0, 0, 0 };
     qfstate_st state = { NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
 
     qfline_st *old_last = NULL;
