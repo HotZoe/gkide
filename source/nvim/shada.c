@@ -225,7 +225,7 @@ typedef enum shada_write_result_e
 } shada_write_result_et;
 
 /// Flags for shada_read_next_item
-enum SRNIFlags
+enum srni_flags_e
 {
     ///Determines whether header should be read (it is usually ignored).
     kSDReadHeader = (1 << kSDItemHeader),
@@ -269,25 +269,25 @@ enum SRNIFlags
     kSDReadChanges = (1 << kSDItemChange),
 };
 // Note:
-// SRNIFlags enum name was created only to make it possible to reference
+// srni_flags_e enum name was created only to make it possible to reference
 // it. This name is not actually used anywhere outside of the documentation.
 
 /// Structure defining a single ShaDa file entry
-typedef struct
+typedef struct shada_entry_s
 {
     shada_entry_type_et type;
     timestamp_kt timestamp;
     union
     {
         Dictionary header;
-        struct shada_filemark
+        struct shada_filemark_s
         {
             char name;
             apos_st mark;
             char *fname;
             dict_st *additional_data;
         } filemark;
-        struct search_pattern
+        struct search_pattern_info_s
         {
             bool magic;
             bool smartcase;
@@ -301,14 +301,14 @@ typedef struct
             char *pat;
             dict_st *additional_data;
         } search_pattern;
-        struct history_item
+        struct history_item_s
         {
             uint8_t histtype;
             char *string;
             char sep;
             list_st *additional_elements;
         } history_item;
-        struct reg
+        struct reg_s
         {
             char name;
             motion_type_et type;
@@ -317,7 +317,7 @@ typedef struct
             size_t width;
             dict_st *additional_data;
         } reg;
-        struct global_var
+        struct global_var_s
         {
             char *name;
             typval_st value;
@@ -329,15 +329,15 @@ typedef struct
             char *contents;
             size_t size;
         } unknown_item;
-        struct sub_string
+        struct sub_string_s
         {
             char *sub;
             list_st *additional_elements;
         } sub_string;
-        struct buffer_list
+        struct buf_list_s
         {
             size_t size;
-            struct buffer_list_buffer
+            struct buf_list_buf_s
             {
                 apos_st pos;
                 char *fname;
@@ -345,14 +345,14 @@ typedef struct
             } *buffers;
         } buffer_list;
     } data;
-} ShadaEntry;
+} shada_entry_st;
 
 struct hm_llist_entry;
 
 /// One entry in sized linked list
 typedef struct hm_llist_entry
 {
-    ShadaEntry data; ///< Entry data.
+    shada_entry_st data; ///< Entry data.
     bool can_free_entry; ///< True if data can be freed.
     struct hm_llist_entry *next; ///< Pointer to next entry or NULL.
     struct hm_llist_entry *prev; ///< Pointer to previous entry or NULL.
@@ -385,14 +385,14 @@ typedef struct
     bool do_merge;
     bool reading;
     const void *iter;
-    ShadaEntry last_hist_entry;
+    shada_entry_st last_hist_entry;
     uint8_t history_type;
 } HistoryMergerState;
 
-/// ShadaEntry structure that knows whether it should be freed
+/// shada_entry_st structure that knows whether it should be freed
 typedef struct
 {
-    ShadaEntry data; ///< ShadaEntry data.
+    shada_entry_st data; ///< shada_entry_st data.
     bool can_free_entry; ///< True if entry can be freed.
 } PossiblyFreedShadaEntry;
 
@@ -402,7 +402,7 @@ typedef struct
     PossiblyFreedShadaEntry marks[NLOCALMARKS]; ///< All file marks.
     PossiblyFreedShadaEntry changes[JUMPLISTSIZE]; ///< All file changes.
     size_t changes_size; ///< Number of changes occupied.
-    ShadaEntry *additional_marks; ///< All marks with unknown names.
+    shada_entry_st *additional_marks; ///< All marks with unknown names.
     size_t additional_marks_size; ///< Size of the additional_marks array.
     timestamp_kt greatest_timestamp; ///< Greatest timestamp among marks.
 } FileMarks;
@@ -496,7 +496,7 @@ typedef struct sd_write_def
 #define DEFAULT_POS    { 1, 0, 0 }
 static const apos_st default_pos = DEFAULT_POS;
 
-static const ShadaEntry sd_default_values[] = {
+static const shada_entry_st sd_default_values[] = {
     [kSDItemMissing] = { .type = kSDItemMissing, .timestamp = 0 },
     DEF_SDE(Header, header, .size = 0),
     DEF_SDE(SearchPattern, search_pattern,
@@ -666,7 +666,7 @@ FUNC_ATTR_NONNULL_ALL
 /// True if data can be freed.
 static inline void hmll_insert(HMLList *const hmll,
                                HMLListEntry *hmll_entry,
-                               const ShadaEntry data,
+                               const shada_entry_st data,
                                const bool can_free_entry)
 FUNC_ATTR_NONNULL_ARG(1)
 {
@@ -1072,7 +1072,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return OK;
 }
 
-/// Wrapper for hist_iter() function which produces ShadaEntry values
+/// Wrapper for hist_iter() function which produces shada_entry_st values
 ///
 /// @param[in] iter
 /// Current iteration state.
@@ -1090,7 +1090,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 static const void *shada_hist_iter(const void *const iter,
                                    const uint8_t history_type,
                                    const bool zero,
-                                   ShadaEntry *const hist)
+                                   shada_entry_st *const hist)
 FUNC_ATTR_NONNULL_ARG(4)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1099,14 +1099,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(hist_he.hisstr == NULL)
     {
-        *hist = (ShadaEntry)
+        *hist = (shada_entry_st)
         {
             .type = kSDItemMissing
         };
     }
     else
     {
-        *hist = (ShadaEntry) {
+        *hist = (shada_entry_st) {
             .type = kSDItemHistoryEntry,
             .timestamp = hist_he.timestamp,
             .data = {
@@ -1147,7 +1147,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in] can_free_entry
 /// True if entry can be freed.
 static void hms_insert(HistoryMergerState *const hms_p,
-                       const ShadaEntry entry,
+                       const shada_entry_st entry,
                        const bool do_iter,
                        const bool can_free_entry)
 FUNC_ATTR_NONNULL_ALL
@@ -1492,7 +1492,7 @@ FUNC_ATTR_NONNULL_ALL
         }
     }
 
-    ShadaEntry cur_entry;
+    shada_entry_st cur_entry;
 
     khash_t(bufset) cl_bufs = KHASH_EMPTY_TABLE(bufset);
     khash_t(fnamebufs) fname_bufs = KHASH_EMPTY_TABLE(fnamebufs);
@@ -1895,7 +1895,7 @@ FUNC_ATTR_NONNULL_ALL
 
 shada_read_main_cycle_end:
     // Warning:
-    // shada_hist_iter returns ShadaEntry elements which use strings from
+    // shada_hist_iter returns shada_entry_st elements which use strings from
     // original history list. This means that once such entry is removed
     // from the history Neovim array will no longer be valid. To reduce
     // amount of memory allocations ShaDa file reader allocates enough
@@ -2036,7 +2036,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return kSDWriteSuccessfull, kSDWriteFailed or kSDWriteIgnError.
 static shada_write_result_et shada_pack_entry(msgpack_packer *const packer,
-                                         ShadaEntry entry,
+                                         shada_entry_st entry,
                                          const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -2672,7 +2672,7 @@ FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     shada_write_result_et ret = kSDWriteSuccessfull;
-    ShadaEntry entry;
+    shada_entry_st entry;
     shada_read_result_et srni_ret;
 
     while((srni_ret = shada_read_next_item(sd_reader,
@@ -2964,8 +2964,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Buffers which are ignored
 ///
 /// @return
-/// ShadaEntry  List of buffers to save, kSDItemBufferList entry.
-static inline ShadaEntry shada_get_buflist(khash_t(bufset) *const removable_bufs)
+/// shada_entry_st  List of buffers to save, kSDItemBufferList entry.
+static inline shada_entry_st shada_get_buflist(khash_t(bufset) *const removable_bufs)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
@@ -2988,7 +2988,7 @@ FUNC_ATTR_ALWAYS_INLINE
         }
     }
 
-    ShadaEntry buflist_entry = (ShadaEntry) {
+    shada_entry_st buflist_entry = (shada_entry_st) {
         .type = kSDItemBufferList,
         .timestamp = os_time(),
         .data = {
@@ -3016,7 +3016,7 @@ FUNC_ATTR_ALWAYS_INLINE
         }
 
         buflist_entry.data.buffer_list.buffers[i] =
-            (struct buffer_list_buffer) {
+            (struct buf_list_buf_s) {
                 .pos = buf->b_last_cursor.mark,
                 .fname = (char *)buf->b_ffname,
                 .additional_data = buf->additional_data,
@@ -3056,7 +3056,7 @@ static inline void add_search_pattern(PossiblyFreedShadaEntry *const ret_pse,
                                       const bool search_highlighted)
 FUNC_ATTR_ALWAYS_INLINE
 {
-    const ShadaEntry defaults = sd_default_values[kSDItemSearchPattern];
+    const shada_entry_st defaults = sd_default_values[kSDItemSearchPattern];
     search_pattern_st pat;
     get_pattern(&pat);
 
@@ -3199,7 +3199,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 
     // Write header
-    if(shada_pack_entry(packer, (ShadaEntry) {
+    if(shada_pack_entry(packer, (shada_entry_st) {
             .type = kSDItemHeader,
             .timestamp = os_time(),
             .data = {
@@ -3239,7 +3239,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     // Write buffer list
     if(find_shada_parameter('%') != NULL)
     {
-        ShadaEntry buflist_entry = shada_get_buflist(&removable_bufs);
+        shada_entry_st buflist_entry = shada_get_buflist(&removable_bufs);
 
         if(shada_pack_entry(packer, buflist_entry, 0) == kSDWriteFailed)
         {
@@ -3272,7 +3272,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             tv_copy(&vartv, &tgttv);
             shada_write_result_et spe_ret;
 
-            if((spe_ret = shada_pack_entry(packer, (ShadaEntry) {
+            if((spe_ret = shada_pack_entry(packer, (shada_entry_st) {
                     .type = kSDItemVariable,
                     .timestamp = cur_timestamp,
                     .data = {
@@ -4068,7 +4068,7 @@ int shada_read_everything(const char *const fname,
                            | (missing_ok ? 0 : kShaDaMissingError));
 }
 
-static void shada_free_shada_entry(ShadaEntry *const entry)
+static void shada_free_shada_entry(shada_entry_st *const entry)
 {
     if(entry == NULL)
     {
@@ -4519,14 +4519,14 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param[in] flags
 /// Flags, determining whether and which items should
-/// be skipped (see SRNIFlags enum).
+/// be skipped (see srni_flags_e enum).
 ///
 /// @param[in] max_kbyte
 /// If non-zero, skip reading entries which have length greater then given.
 ///
 /// @return Any value from shada_read_result_et enum.
 static shada_read_result_et shada_read_next_item(ShaDaReadDef *const sd_reader,
-                                            ShadaEntry *const entry,
+                                            shada_entry_st *const entry,
                                             const unsigned flags,
                                             const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
