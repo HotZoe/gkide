@@ -377,7 +377,8 @@ typedef struct hmll_list_s
     khash_t(hmll_entries) contained_entries;
 } hmll_list_st;
 
-typedef struct
+/// history merger state info
+typedef struct hms_info_s
 {
     hmll_list_st hmll;
     bool do_merge;
@@ -385,7 +386,7 @@ typedef struct
     const void *iter;
     shada_entry_st last_hist_entry;
     uint8_t history_type;
-} HistoryMergerState;
+} hms_info_st;
 
 /// shada_entry_st structure that knows whether it should be freed
 typedef struct
@@ -412,7 +413,7 @@ KHASH_MAP_INIT_STR(file_marks, FileMarks)
 /// Before actually writing most of the data is read to this structure.
 typedef struct
 {
-    HistoryMergerState hms[HIST_COUNT]; ///< Structures for history merging.
+    hms_info_st hms[HIST_COUNT]; ///< Structures for history merging.
     PossiblyFreedShadaEntry global_marks[NGLOBALMARKS]; ///< All global marks.
     PossiblyFreedShadaEntry registers[NUM_SAVED_REGISTERS]; ///< All registers.
     PossiblyFreedShadaEntry jumps[JUMPLISTSIZE]; ///< All dumped jumps.
@@ -1144,7 +1145,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param[in] can_free_entry
 /// True if entry can be freed.
-static void hms_insert(HistoryMergerState *const hms_p,
+static void hms_insert(hms_info_st *const hms_p,
                        const shada_entry_st entry,
                        const bool do_iter,
                        const bool can_free_entry)
@@ -1230,7 +1231,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in]   do_merge      Prepare structure for merging elements.
 /// @param[in]   reading       If true, then merger is reading history for use
 ///                            in Neovim.
-static inline void hms_init(HistoryMergerState *const hms_p,
+static inline void hms_init(hms_info_st *const hms_p,
                             const uint8_t history_type,
                             const size_t num_elements,
                             const bool do_merge,
@@ -1254,7 +1255,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[in,out] hms_p
 /// Merger structure into which history should be inserted.
 static inline void hms_insert_whole_neovim_history(
-    HistoryMergerState *const hms_p)
+    hms_info_st *const hms_p)
 FUNC_ATTR_NONNULL_ALL
 {
     while(hms_p->last_hist_entry.type != kSDItemMissing)
@@ -1279,7 +1280,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param[out]  hist_array  Array with the results.
 /// @param[out]  new_hisidx  New last history entry index.
 /// @param[out]  new_hisnum  Amount of history items in merger structure.
-static inline void hms_to_he_array(const HistoryMergerState *const hms_p,
+static inline void hms_to_he_array(const hms_info_st *const hms_p,
                                    history_st *const hist_array,
                                    int *const new_hisidx,
                                    int *const new_hisnum)
@@ -1303,7 +1304,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Free history merger structure
 ///
 /// @param[in]  hms_p  Structure to be freed.
-static inline void hms_dealloc(HistoryMergerState *const hms_p)
+static inline void hms_dealloc(hms_info_st *const hms_p)
 FUNC_ATTR_NONNULL_ALL
 {
     hmll_dealloc(&hms_p->hmll);
@@ -1480,7 +1481,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    HistoryMergerState hms[HIST_COUNT];
+    hms_info_st hms[HIST_COUNT];
 
     if(srni_flags & kSDReadHistory)
     {
