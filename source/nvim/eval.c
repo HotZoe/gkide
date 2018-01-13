@@ -13117,7 +13117,7 @@ static void f_getregtype(typval_st *argvars,
 
     columnum_kt reglen = 0;
     char buf[NUMBUFLEN + 2];
-    MotionType reg_type = get_reg_type(regname, &reglen);
+    motion_type_et reg_type = get_reg_type(regname, &reglen);
 
     format_reg_type(reg_type, reglen, buf, ARRAY_SIZE(buf));
     rettv->v_type = kNvarString;
@@ -19376,7 +19376,7 @@ static void f_setreg(typval_st *argvars,
 {
     int regname;
     bool append = false;
-    MotionType yank_type;
+    motion_type_et yank_type;
     long block_len;
     block_len = -1;
     yank_type = kMTUnknown;

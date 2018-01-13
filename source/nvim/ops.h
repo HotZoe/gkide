@@ -10,7 +10,7 @@
 #include "nvim/types.h"
 #include "nvim/eval/typval.h"
 #include "nvim/os/time.h"
-#include "nvim/normal.h" // for MotionType and oparg_T
+#include "nvim/normal.h" // for motion_type_et and oparg_T
 #include "nvim/ex_cmds_defs.h" // for exargs_st
 
 typedef int (*Indenter)(void);
@@ -85,7 +85,7 @@ typedef struct yankreg
 {
     uchar_kt **y_array;         ///< Pointer to an array of line pointers.
     size_t y_size;            ///< Number of lines in y_array.
-    MotionType y_type;        ///< Register type
+    motion_type_et y_type;        ///< Register type
     columnum_kt y_width;          ///< Register width
                               ///< (only valid for y_type == kBlockWise).
     timestamp_kt timestamp;      ///< Time when register was last modified.

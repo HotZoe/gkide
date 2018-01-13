@@ -16,20 +16,20 @@
 ///
 /// The three valid numerical values must not be changed, as they
 /// are used in external communication and serialization.
-typedef enum
+typedef enum motion_type_e
 {
-    kMTCharWise = 0,   ///< character-wise movement/register
-    kMTLineWise = 1,   ///< line-wise movement/register
-    kMTBlockWise = 2,  ///< block-wise movement/register
-    kMTUnknown = -1    ///< Unknown or invalid motion type
-} MotionType;
+    kMTUnknown   = -1, ///< Unknown or invalid motion type
+    kMTCharWise  = 0,  ///< character-wise movement/register
+    kMTLineWise  = 1,  ///< line-wise movement/register
+    kMTBlockWise = 2   ///< block-wise movement/register
+} motion_type_et;
 
 /// Arguments for operators.
-typedef struct oparg_S
+typedef struct oparg_s
 {
     int op_type;            ///< current pending operator type
     int regname;            ///< register to use for the operator
-    MotionType motion_type; ///< type of the current cursor motion
+    motion_type_et motion_type; ///< type of the current cursor motion
     int motion_force;       ///< force motion type: 'v', 'V' or CTRL-V
     bool use_reg_one;  ///< true if delete uses reg 1 even when not linewise
     bool inclusive;    ///< true if char motion is inclusive (only
@@ -51,7 +51,7 @@ typedef struct oparg_S
 /// Arguments for Normal mode commands.
 typedef struct cmdarg_s
 {
-    oparg_T *oap;        ///< Operator arguments
+    oparg_T *oap;        ///< operator arguments
     int prechar;         ///< prefix character (optional, always 'g')
     int cmdchar;         ///< command character
     int nchar;           ///< next command character (optional)
@@ -63,12 +63,12 @@ typedef struct cmdarg_s
     long count1;         ///< count before command, default 1
     int arg;             ///< extra argument from nv_cmds[]
     int retval;          ///< return: CA_* values
-    uchar_kt *searchbuf;   ///< return: pointer to search pattern or NULL
+    uchar_kt *searchbuf; ///< return: pointer to search pattern or NULL
 } cmdarg_st;
 
 // values for retval:
-#define CA_COMMAND_BUSY     1   ///< skip restarting edit() once
-#define CA_NO_ADJ_OP_END    2   ///< don't adjust operator end
+#define CA_COMMAND_BUSY   1 ///< skip restarting edit() once
+#define CA_NO_ADJ_OP_END  2 ///< don't adjust operator end
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "normal.h.generated.h"

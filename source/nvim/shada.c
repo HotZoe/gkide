@@ -306,7 +306,7 @@ typedef struct
         struct reg
         {
             char name;
-            MotionType type;
+            motion_type_et type;
             char **contents;
             size_t contents_size;
             size_t width;

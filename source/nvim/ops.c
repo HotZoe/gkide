@@ -2982,7 +2982,7 @@ static void op_yank_reg(oparg_T *oap,
     uchar_kt **new_ptr;
     linenum_kt lnum; // current line number
     size_t j;
-    MotionType yank_type = oap->motion_type;
+    motion_type_et yank_type = oap->motion_type;
     size_t yanklines = (size_t)oap->line_count;
     linenum_kt yankendlnum = oap->end.lnum;
     uchar_kt *p;
@@ -3335,7 +3335,7 @@ void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
     linenum_kt lnum;
     columnum_kt col;
     size_t i; // index in y_array[]
-    MotionType y_type;
+    motion_type_et y_type;
     size_t y_size;
     size_t oldlen;
     int y_width = 0;
@@ -6223,7 +6223,7 @@ theend:
 /// Return the type of a register.
 /// Used for getregtype()
 /// Returns kMTUnknown for error.
-MotionType get_reg_type(int regname, columnum_kt *reg_width)
+motion_type_et get_reg_type(int regname, columnum_kt *reg_width)
 {
     switch(regname)
     {
@@ -6269,7 +6269,7 @@ MotionType get_reg_type(int regname, columnum_kt *reg_width)
 ///                  The allocated size should be at least NUMBUFLEN+2
 ///                  to always fit the value.
 /// @param buf_len   The allocated size of the buffer.
-void format_reg_type(MotionType reg_type,
+void format_reg_type(motion_type_et reg_type,
                      columnum_kt reg_width,
                      char *buf,
                      size_t buf_len)
@@ -6480,7 +6480,7 @@ void write_reg_contents(int name,
 void write_reg_contents_lst(int name,
                             uchar_kt **strings,
                             bool must_append,
-                            MotionType yank_type,
+                            motion_type_et yank_type,
                             columnum_kt block_len)
 {
     if(name == '/' || name == '=')
@@ -6554,7 +6554,7 @@ void write_reg_contents_ex(int name,
                            const uchar_kt *str,
                            ssize_t len,
                            bool must_append,
-                           MotionType yank_type,
+                           motion_type_et yank_type,
                            columnum_kt block_len)
 {
     if(len < 0)
@@ -6648,7 +6648,7 @@ void write_reg_contents_ex(int name,
 /// @param blocklen  width of visual block, or -1 for "I don't know."
 /// @param str_list  True if str is `uchar_kt **`.
 static void str_to_reg(yankreg_T *y_ptr,
-                       MotionType yank_type,
+                       motion_type_et yank_type,
                        const uchar_kt *str,
                        size_t len,
                        columnum_kt blocklen,
