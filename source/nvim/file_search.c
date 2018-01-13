@@ -101,9 +101,9 @@ typedef struct dirsearch_stack_s
 } dirsearch_stack_st;
 
 /// type for already visited directories or files.
-typedef struct ff_visited
+typedef struct ff_visited_s
 {
-    struct ff_visited *ffv_next;
+    struct ff_visited_s *ffv_next;
 
     /// Visited directories are different if the wildcard
     /// string are different. So we have to save it.
@@ -116,7 +116,7 @@ typedef struct ff_visited
     /// The memory for this struct is allocated according
     /// to the length of ffv_fname.
     uchar_kt ffv_fname[1]; ///< actually longer
-} ff_visited_T;
+} ff_visited_st;
 
 /// We might have to manage several visited lists during a search.
 /// This is especially needed for the tags option. If tags is set to:
@@ -139,7 +139,7 @@ typedef struct ff_visited_list_hdr
     /// the filename the attached visited list is for
     uchar_kt *ffvl_filename;
 
-    ff_visited_T *ffvl_visited_list;
+    ff_visited_st *ffvl_visited_list;
 
 } ff_visited_list_hdr_T;
 
@@ -1164,9 +1164,9 @@ static void vim_findfile_free_visited_list(ff_visited_list_hdr_T **list_headp)
     *list_headp = NULL;
 }
 
-static void ff_free_visited_list(ff_visited_T *vl)
+static void ff_free_visited_list(ff_visited_st *vl)
 {
-    ff_visited_T *vp;
+    ff_visited_st *vp;
 
     while(vl != NULL)
     {
@@ -1282,11 +1282,11 @@ static bool ff_wc_equal(uchar_kt *s1, uchar_kt *s2)
 /// @returns
 /// - FAIL if the given file/dir is already in the list
 /// - OK if it is newly added
-static int ff_check_visited(ff_visited_T **visited_list,
+static int ff_check_visited(ff_visited_st **visited_list,
                             uchar_kt *fname,
                             uchar_kt *wc_path)
 {
-    ff_visited_T *vp;
+    ff_visited_st *vp;
     bool url = false;
     fileid_st file_id;
 
@@ -1324,7 +1324,7 @@ static int ff_check_visited(ff_visited_T **visited_list,
     }
 
     // New file/dir. Add it to the list of visited files/dirs.
-    vp = xmalloc(sizeof(ff_visited_T) + STRLEN(ff_expand_buffer));
+    vp = xmalloc(sizeof(ff_visited_st) + STRLEN(ff_expand_buffer));
 
     if(!url)
     {
