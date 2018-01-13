@@ -13,7 +13,7 @@
 /// invalid syn_state pointer
 #define SST_INVALID     (synstate_st *)-1
 
-typedef int32_t RgbValue;
+typedef int32_t rgb_color_kt;
 
 /// display tick type
 typedef unsigned short disptick_T;
@@ -87,9 +87,9 @@ typedef struct attrinfo_s
     int16_t rgb_ae_attr;
     int16_t cterm_ae_attr;
 
-    RgbValue rgb_fg_color;
-    RgbValue rgb_bg_color;
-    RgbValue rgb_sp_color;
+    rgb_color_kt rgb_fg_color;
+    rgb_color_kt rgb_bg_color;
+    rgb_color_kt rgb_sp_color;
 
     int cterm_fg_color;
     int cterm_bg_color;

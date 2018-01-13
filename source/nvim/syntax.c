@@ -61,9 +61,9 @@ typedef struct hl_group_s
     // for RGB UIs
     int sg_gui;              ///< "gui=" highlighting attributes
                              ///< (combination of @ref HL_ATTRIBUTES)
-    RgbValue sg_rgb_fg;      ///< RGB foreground color
-    RgbValue sg_rgb_bg;      ///< RGB background color
-    RgbValue sg_rgb_sp;      ///< RGB special color
+    rgb_color_kt sg_rgb_fg;      ///< RGB foreground color
+    rgb_color_kt sg_rgb_bg;      ///< RGB background color
+    rgb_color_kt sg_rgb_sp;      ///< RGB special color
     uint8_t *sg_rgb_fg_name; ///< RGB foreground color name
     uint8_t *sg_rgb_bg_name; ///< RGB background color name
     uint8_t *sg_rgb_sp_name; ///< RGB special color name
@@ -9908,13 +9908,13 @@ color_name_table_st color_name_table[] = {
     { NULL, 0 },
 };
 
-/// Translate to RgbValue if \p name is an hex value (e.g. #XXXXXX),
+/// Translate to rgb_color_kt if \p name is an hex value (e.g. #XXXXXX),
 /// else look into color_name_table to translate a color name to its hex value
 ///
 /// @param[in] name string value to convert to RGB
 ///
 /// @return return the hex value or -1 if could not find a correct value
-RgbValue name_to_color(const uint8_t *name)
+rgb_color_kt name_to_color(const uint8_t *name)
 {
     if(name[0] == '#'
        && isxdigit(name[1])

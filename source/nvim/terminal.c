@@ -308,7 +308,7 @@ Terminal *terminal_open(TerminalOptions opts)
     // - the VTerm instance
     for(int i = 0; i < 16; i++)
     {
-        RgbValue color_val = -1;
+        rgb_color_kt color_val = -1;
         char var[64];
         snprintf(var, sizeof(var), "terminal_color_%d", i);
         char *name = get_config_string(var);

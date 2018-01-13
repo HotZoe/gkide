@@ -45,7 +45,7 @@
 typedef struct color_name_table_s
 {
     char *name;
-    RgbValue color;
+    rgb_color_kt color;
 } color_name_table_st;
 
 extern color_name_table_st color_name_table[];
