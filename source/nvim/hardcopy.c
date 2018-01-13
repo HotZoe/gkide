@@ -539,10 +539,10 @@ int prt_use_number(void)
 }
 
 /// - Return the unit used in a margin item in 'printoptions'.
-/// - Returns PRT_UNIT_NONE if not recognized.
+/// - Returns kPrtUnitNone if not recognized.
 int prt_get_unit(int idx)
 {
-    int u = PRT_UNIT_NONE;
+    int u = kPrtUnitNone;
     int i;
     static char *(units[4]) = PRT_UNIT_NAMES;
 
@@ -2430,9 +2430,9 @@ static double to_device_units(int idx, double physsize, int def_number)
     int nr;
     int u = prt_get_unit(idx);
 
-    if(u == PRT_UNIT_NONE)
+    if(u == kPrtUnitNone)
     {
-        u = PRT_UNIT_PERC;
+        u = kPrtUnitPerc;
         nr = def_number;
     }
     else
@@ -2442,19 +2442,19 @@ static double to_device_units(int idx, double physsize, int def_number)
 
     switch(u)
     {
-        case PRT_UNIT_INCH:
+        case kPrtUnitInch:
             ret = nr * PRT_PS_DEFAULT_DPI;
             break;
 
-        case PRT_UNIT_MM:
+        case kPrtUnitMM:
             ret = nr * PRT_PS_DEFAULT_DPI / 25.4;
             break;
 
-        case PRT_UNIT_POINT:
+        case kPrtUnitPoint:
             ret = nr;
             break;
 
-        case PRT_UNIT_PERC:
+        case kPrtUnitPerc:
         default:
             ret = physsize * nr / 100;
             break;

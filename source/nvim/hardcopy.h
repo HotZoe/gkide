@@ -50,7 +50,7 @@ typedef struct
 } prt_opttable_st;
 
 /// printer option index
-enum prt_optidx_e
+enum prt_flgoption_e
 {
     kPrtOptTop           = 0,
     kPrtOptBottom        = 1,
@@ -69,15 +69,20 @@ enum prt_optidx_e
     kPrtOptNumOptions    = 14,
 };
 
-// For prt_get_unit().
-#define PRT_UNIT_NONE       -1
-#define PRT_UNIT_PERC       0
-#define PRT_UNIT_INCH       1
-#define PRT_UNIT_MM         2
-#define PRT_UNIT_POINT      3
-#define PRINT_NUMBER_WIDTH  8
+/// print unit names, also see: prt_flgunit_e
+#define PRT_UNIT_NAMES  { "pc", "in", "mm", "pt" }
 
-#define PRT_UNIT_NAMES      {"pc", "in", "mm", "pt"}
+/// For prt_get_unit().
+enum prt_flgunit_e
+{
+    kPrtUnitNone    = -1,
+    kPrtUnitPerc    = 0,  ///< print unit name: pc
+    kPrtUnitInch    = 1,  ///< print unit name: in
+    kPrtUnitMM      = 2,  ///< print unit name: mm
+    kPrtUnitPoint   = 3,  ///< print unit name: pt
+};
+
+#define PRINT_NUMBER_WIDTH  8
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "hardcopy.h.generated.h"
