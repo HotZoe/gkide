@@ -98,11 +98,11 @@ static int block_redo = FALSE;
 
 /// Each mapping is put in one of the MAX_MAPHASH hash lists,
 /// to speed up finding it.
-static mapblock_T *(maphash[MAX_MAPHASH]);
+static map_abbr_st *(maphash[MAX_MAPHASH]);
 static bool maphash_valid = false;
 
 /// List used for abbreviations.
-static mapblock_T *first_abbr = NULL; ///< first entry in abbrlist
+static map_abbr_st *first_abbr = NULL; ///< first entry in abbrlist
 
 static int KeyNoremap = 0; ///< remapping flags
 
@@ -1842,9 +1842,9 @@ static int vgetorpeek(int advance)
     int c1;
     int keylen;
     uchar_kt *s;
-    mapblock_T *mp;
-    mapblock_T *mp2;
-    mapblock_T *mp_match;
+    map_abbr_st *mp;
+    map_abbr_st *mp2;
+    map_abbr_st *mp_match;
     int mp_match_len = 0;
 
     // waited for more than 1 second for mapping to complete
@@ -2976,7 +2976,7 @@ int fix_input_buffer(uchar_kt *buf, int len)
 int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
 {
     uchar_kt *keys;
-    mapblock_T *mp, **mpp;
+    map_abbr_st *mp, **mpp;
     uchar_kt *rhs;
     uchar_kt *p;
     int n;
@@ -2992,8 +2992,8 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     int do_backslash;
     int hash;
     int new_hash;
-    mapblock_T **abbr_table;
-    mapblock_T **map_table;
+    map_abbr_st **abbr_table;
+    map_abbr_st **map_table;
     bool unique = false;
     bool nowait = false;
     bool silent = false;
@@ -3516,7 +3516,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     }
 
     // Get here when adding a new entry to the maphash[] list or abbrlist.
-    mp = xmalloc(sizeof(mapblock_T));
+    mp = xmalloc(sizeof(map_abbr_st));
 
     // If CTRL-C has been mapped, don't always use it for Interrupting.
     if(*keys == Ctrl_C)
@@ -3565,9 +3565,9 @@ theend:
 
 /// Delete one entry from the abbrlist or maphash[].
 /// "mpp" is a pointer to the m_next field of the PREVIOUS entry!
-static void mapblock_free(mapblock_T **mpp)
+static void mapblock_free(map_abbr_st **mpp)
 {
-    mapblock_T *mp;
+    map_abbr_st *mp;
     mp = *mpp;
     xfree(mp->m_keys);
     xfree(mp->m_str);
@@ -3678,8 +3678,8 @@ void map_clear_mode(uchar_kt *cmdp, uchar_kt *arg, int forceit, int abbr)
 /// @param abbr   TRUE for abbreviations
 void map_clear_int(filebuf_st *buf, int mode, int local, int abbr)
 {
-    mapblock_T *mp;
-    mapblock_T **mpp;
+    map_abbr_st *mp;
+    map_abbr_st **mpp;
     int hash;
     int new_hash;
     validate_maphash();
@@ -3823,7 +3823,7 @@ FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
 
 /// @param mp
 /// @param local  TRUE for buffer-local map
-static void showmap(mapblock_T *mp, int local)
+static void showmap(map_abbr_st *mp, int local)
 {
     size_t len = 1;
 
@@ -3976,7 +3976,7 @@ FUNC_ATTR_PURE
 /// @return true if there is at least one mapping with given parameters.
 int map_to_exists_mode(const char *const rhs, const int mode, const bool abbr)
 {
-    mapblock_T *mp;
+    map_abbr_st *mp;
     int hash;
     bool expand_buffer = false;
     validate_maphash();
@@ -4137,7 +4137,7 @@ uchar_kt *set_context_in_map_cmd(expand_st *xp,
 /// Return OK if matches found, FAIL otherwise.
 int ExpandMappings(regmatch_st *regmatch, int *num_file, uchar_kt ***file)
 {
-    mapblock_T *mp;
+    map_abbr_st *mp;
     int hash;
     int count;
     int round;
@@ -4305,8 +4305,8 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
     int j;
     uchar_kt *s;
     uchar_kt tb[MB_MAXBYTES + 4];
-    mapblock_T *mp;
-    mapblock_T *mp2;
+    map_abbr_st *mp;
+    map_abbr_st *mp2;
     int clen = 0; // length in characters
     int is_id = TRUE;
     int vim_abbr;
@@ -4657,7 +4657,7 @@ void vim_unescape_csi(uchar_kt *p)
 /// @return Return FAIL on error, OK otherwise.
 int makemap(FILE *fd, filebuf_st *buf)
 {
-    mapblock_T *mp;
+    map_abbr_st *mp;
     uchar_kt c1, c2, c3;
     uchar_kt *p;
     char *cmd;
@@ -5102,13 +5102,13 @@ uchar_kt *check_map(uchar_kt *keys,
                   int exact,
                   int ign_mod,
                   int abbr,
-                  mapblock_T **mp_ptr,
+                  map_abbr_st **mp_ptr,
                   int *local_ptr)
 {
     int hash;
     int len;
     int minlen;
-    mapblock_T *mp;
+    map_abbr_st *mp;
     int local;
     validate_maphash();
     len = (int)STRLEN(keys);
@@ -5309,7 +5309,7 @@ static bool typebuf_match_len(const uint8_t *str, int *mlen)
 ///
 /// @param  index  The index in the maphash[]
 /// @param  buf  The buffer to get the maphash from. NULL for global
-mapblock_T *get_maphash(int index, filebuf_st *buf) FUNC_ATTR_PURE
+map_abbr_st *get_maphash(int index, filebuf_st *buf) FUNC_ATTR_PURE
 {
     if(index > MAX_MAPHASH)
     {

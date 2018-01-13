@@ -15750,7 +15750,7 @@ static void get_maparg(typval_st *argvars, typval_st *rettv, int exact)
     int mode;
     int abbr = FALSE;
     int get_dict = FALSE;
-    mapblock_T  *mp;
+    map_abbr_st  *mp;
     int buffer_local;
 
     // Return empty string for failure.
@@ -15841,7 +15841,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  buffer_value  The "buffer" value
 /// @param  compatible    True for compatible with old maparg() dict
 void mapblock_fill_dict(dict_st *const dict,
-                        const mapblock_T *const mp,
+                        const map_abbr_st *const mp,
                         long buffer_value,
                         bool compatible)
 FUNC_ATTR_NONNULL_ALL

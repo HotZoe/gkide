@@ -340,20 +340,20 @@ typedef struct
 } tahsave_st;
 
 /// Structure used for mappings and abbreviations.
-typedef struct mapabbr_blk_s mapblock_T;
-struct mapabbr_blk_s
+typedef struct map_abbr_s map_abbr_st;
+struct map_abbr_s
 {
-    mapblock_T *m_next;  ///< next mapblock in list
-    uchar_kt *m_keys;      ///< mapped from, lhs
-    uchar_kt *m_str;       ///< mapped to, rhs
-    uchar_kt *m_orig_str;  ///< rhs as entered by the user
-    int m_keylen;        ///< strlen(m_keys)
-    int m_mode;          ///< valid mode
-    int m_noremap;       ///< if non-zero no re-mapping for m_str
-    char m_silent;       ///< <silent> used, don't echo commands
-    char m_nowait;       ///< <nowait> used
-    char m_expr;         ///< <expr> used, m_str is an expression
-    script_id_kt m_script_ID;  ///< ID of script where map was defined
+    map_abbr_st *m_next;        ///< next mapblock in list
+    uchar_kt *m_keys;           ///< mapped from, lhs
+    uchar_kt *m_str;            ///< mapped to, rhs
+    uchar_kt *m_orig_str;       ///< rhs as entered by the user
+    int m_keylen;               ///< strlen(m_keys)
+    int m_mode;                 ///< valid mode
+    int m_noremap;              ///< if non-zero no re-mapping for m_str
+    char m_silent;              ///< <silent> used, don't echo commands
+    char m_nowait;              ///< <nowait> used
+    char m_expr;                ///< <expr> used, m_str is an expression
+    script_id_kt m_script_ID;   ///< ID of script where map was defined
 };
 
 /// Used for highlighting in the status line.
@@ -525,10 +525,10 @@ struct filebuf_s
     uint64_t b_chartab[4];
 
     /// Table used for mappings local to a buffer.
-    mapblock_T *(b_maphash[MAX_MAPHASH]);
+    map_abbr_st *(b_maphash[MAX_MAPHASH]);
 
     /// First abbreviation local to a buffer.
-    mapblock_T *b_first_abbr;
+    map_abbr_st *b_first_abbr;
 
     /// User commands local to the buffer.
     garray_st b_ucmds;

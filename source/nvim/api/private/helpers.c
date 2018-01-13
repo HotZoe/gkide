@@ -1203,7 +1203,7 @@ ArrayOf(Dictionary) keymap_array(String mode, filebuf_st *buf)
 
     for(int i = 0; i < MAX_MAPHASH; i++)
     {
-        for(const mapblock_T *current_maphash = get_maphash(i, buf);
+        for(const map_abbr_st *current_maphash = get_maphash(i, buf);
             current_maphash;
             current_maphash = current_maphash->m_next)
         {
