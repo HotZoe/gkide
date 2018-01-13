@@ -299,7 +299,7 @@ typedef struct
 } funcdict_T;
 
 /// Info used by a @b :for loop.
-typedef struct
+typedef struct forinfo_s
 {
     int fi_semicolon;      ///< TRUE if ending in '; var]'
     int fi_varcount;       ///< nr of variables in the list
