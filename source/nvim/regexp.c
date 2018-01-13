@@ -368,7 +368,7 @@ typedef struct backpos_s
     regsave_st bp_pos; ///< last input position
 } backpos_st;
 
-typedef struct
+typedef struct decomp_s
 {
     int a;
     int b;

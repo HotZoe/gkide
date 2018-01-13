@@ -623,28 +623,28 @@ bool dbg_check_skipped(exargs_st *eap)
 
 /// The list of breakpoints: dbg_breakp.
 /// This is a grow-array of structs.
-struct debuggy
+typedef struct debuggy_s
 {
-    int dbg_nr;             ///< breakpoint number
-    int dbg_type;           ///< DBG_FUNC or DBG_FILE
-    uchar_kt *dbg_name;       ///< function or file name
-    regprog_st *dbg_prog;    ///< regexp program
-    linenum_kt dbg_lnum;      ///< line number in function or file
-    int dbg_forceit;        ///< ! used
-};
+    int dbg_nr;           ///< breakpoint number
+    int dbg_type;         ///< DBG_FUNC or DBG_FILE
+    uchar_kt *dbg_name;   ///< function or file name
+    regprog_st *dbg_prog; ///< regexp program
+    linenum_kt dbg_lnum;  ///< line number in function or file
+    int dbg_forceit;      ///< ! used
+} debuggy_st;
 
 #define DBG_FUNC                1
 #define DBG_FILE                2
-#define BREAKP(idx)             (((struct debuggy *)dbg_breakp.ga_data)[idx])
-#define DEBUGGY(gap, idx)       (((struct debuggy *)gap->ga_data)[idx])
+#define BREAKP(idx)             (((debuggy_st *)dbg_breakp.ga_data)[idx])
+#define DEBUGGY(gap, idx)       (((debuggy_st *)gap->ga_data)[idx])
 
 /// nr of last defined breakpoint
 static int last_breakp = 0;
 
-static garray_st dbg_breakp = { 0, 0, sizeof(struct debuggy), 4, NULL };
+static garray_st dbg_breakp = { 0, 0, sizeof(debuggy_st), 4, NULL };
 
 /// Profiling uses file and func names similar to breakpoints.
-static garray_st prof_ga = { 0, 0, sizeof(struct debuggy), 4, NULL };
+static garray_st prof_ga = { 0, 0, sizeof(debuggy_st), 4, NULL };
 
 /// Parse the arguments of ":profile", ":breakadd" or ":breakdel" and put them
 /// in the entry just after the last one in dbg_breakp. Note that "dbg_name"
@@ -657,7 +657,7 @@ static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
 {
     uchar_kt *p = arg;
     uchar_kt *q;
-    struct debuggy *bp;
+    debuggy_st *bp;
     bool here = false;
 
     ga_grow(gap, 1);
@@ -765,7 +765,7 @@ static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
 /// ":breakadd".
 void ex_breakadd(exargs_st *eap)
 {
-    struct debuggy *bp;
+    debuggy_st *bp;
 
     uchar_kt *pat;
     garray_st *gap = &dbg_breakp;
@@ -827,8 +827,8 @@ void ex_breakdel(exargs_st *eap)
 {
     int nr;
     int todel = -1;
-    struct debuggy *bp;
-    struct debuggy *bpi;
+    debuggy_st *bp;
+    debuggy_st *bpi;
     bool del_all = false;
     linenum_kt best_lnum = 0;
     garray_st *gap = &dbg_breakp;
@@ -902,7 +902,7 @@ void ex_breakdel(exargs_st *eap)
             {
                 memmove(&DEBUGGY(gap, todel),
                         &DEBUGGY(gap, todel + 1),
-                        (size_t)(gap->ga_len - todel) * sizeof(struct debuggy));
+                        (size_t)(gap->ga_len - todel) * sizeof(debuggy_st));
             }
 
             if(eap->cmdidx == CMD_breakdel)
@@ -927,7 +927,7 @@ void ex_breakdel(exargs_st *eap)
 /// ":breaklist".
 void ex_breaklist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    struct debuggy *bp;
+    debuggy_st *bp;
 
     if(GA_EMPTY(&dbg_breakp))
     {
@@ -991,7 +991,7 @@ static linenum_kt debuggy_find(bool file,
                              garray_st *gap,
                              bool *fp)
 {
-    struct debuggy *bp;
+    debuggy_st *bp;
     linenum_kt lnum = 0;
     uchar_kt *name = fname;
     int prev_got_int;
