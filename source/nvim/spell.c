@@ -1340,7 +1340,7 @@ static bool can_compound(slang_st *slang, uchar_kt *word, uchar_kt *flags)
 /// Returns true when the sequence of flags in "compflags" plus "flag" can
 /// possibly form a valid compounded word. This also checks the COMPOUNDRULE
 /// lines if they don't contain wildcards.
-static bool can_be_compound(trystate_T *sp,
+static bool can_be_compound(trystate_st *sp,
                             slang_st *slang,
                             uchar_kt *compflags,
                             int flag)
@@ -4718,13 +4718,13 @@ static void suggest_trie_walk(suginfo_T *su,
                               bool soundfold)
 {
     uchar_kt tword[MAXWLEN]; // good word collected so far
-    trystate_T stack[MAXWLEN];
+    trystate_st stack[MAXWLEN];
     uchar_kt preword[MAXWLEN * 3]; // word found with proper case
 
     // concatenation of prefix compound words and split word.
     // NUL terminated when going deeper but not when coming back.
     uchar_kt compflags[MAXWLEN]; // compound flags, one for each word
-    trystate_T *sp;
+    trystate_st *sp;
     int newscore;
     int score;
     uchar_kt *byts, *fbyts, *pbyts;
@@ -4757,7 +4757,7 @@ static void suggest_trie_walk(suginfo_T *su,
     // "fword[]" the word we are trying to match with (initially the bad word).
     depth = 0;
     sp = &stack[0];
-    memset(sp, 0, sizeof(trystate_T));
+    memset(sp, 0, sizeof(trystate_st));
     sp->ts_curi = 1;
 
     if(soundfold)
@@ -6441,7 +6441,7 @@ static void suggest_trie_walk(suginfo_T *su,
 
 
 // Go one level deeper in the tree.
-static void go_deeper(trystate_T *stack, int depth, int score_add)
+static void go_deeper(trystate_st *stack, int depth, int score_add)
 {
     stack[depth + 1] = stack[depth];
     stack[depth + 1].ts_state = STATE_START;

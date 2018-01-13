@@ -242,7 +242,7 @@ typedef enum state_e
 } state_et;
 
 /// Struct to keep the state at each level in suggest_try_change().
-typedef struct trystate_S
+typedef struct trystate_s
 {
     state_et ts_state;         ///< state at this level, STATE_
     int ts_score;              ///< score
@@ -266,7 +266,7 @@ typedef struct trystate_S
     uchar_kt ts_save_badflags; ///< su_badflags saved here
     uchar_kt ts_delidx;        ///< index in fword for char that was deleted,
                                ///< valid when "ts_flags" has TSF_DIDDEL
-} trystate_T;
+} trystate_st;
 
 // Use our own character-case definitions, because the current locale may
 // differ from what the .spl file uses.
