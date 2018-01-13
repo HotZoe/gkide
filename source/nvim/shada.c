@@ -389,17 +389,18 @@ typedef struct hms_info_s
 } hms_info_st;
 
 /// shada_entry_st structure that knows whether it should be freed
-typedef struct
+/// pfse = Possibly Freed Shada Entry
+typedef struct pfse_info_s
 {
     shada_entry_st data; ///< shada_entry_st data.
     bool can_free_entry; ///< True if entry can be freed.
-} PossiblyFreedShadaEntry;
+} pfse_info_st;
 
 /// Structure that holds one file marks.
 typedef struct
 {
-    PossiblyFreedShadaEntry marks[NLOCALMARKS]; ///< All file marks.
-    PossiblyFreedShadaEntry changes[JUMPLISTSIZE]; ///< All file changes.
+    pfse_info_st marks[NLOCALMARKS]; ///< All file marks.
+    pfse_info_st changes[JUMPLISTSIZE]; ///< All file changes.
     size_t changes_size; ///< Number of changes occupied.
     shada_entry_st *additional_marks; ///< All marks with unknown names.
     size_t additional_marks_size; ///< Size of the additional_marks array.
@@ -414,13 +415,13 @@ KHASH_MAP_INIT_STR(file_marks, FileMarks)
 typedef struct
 {
     hms_info_st hms[HIST_COUNT]; ///< Structures for history merging.
-    PossiblyFreedShadaEntry global_marks[NGLOBALMARKS]; ///< All global marks.
-    PossiblyFreedShadaEntry registers[NUM_SAVED_REGISTERS]; ///< All registers.
-    PossiblyFreedShadaEntry jumps[JUMPLISTSIZE]; ///< All dumped jumps.
+    pfse_info_st global_marks[NGLOBALMARKS]; ///< All global marks.
+    pfse_info_st registers[NUM_SAVED_REGISTERS]; ///< All registers.
+    pfse_info_st jumps[JUMPLISTSIZE]; ///< All dumped jumps.
     size_t jumps_size; ///< Number of jumps occupied.
-    PossiblyFreedShadaEntry search_pattern; ///< Last search pattern.
-    PossiblyFreedShadaEntry sub_search_pattern; ///< Last s/ search pattern.
-    PossiblyFreedShadaEntry replacement; ///< Last s// replacement string.
+    pfse_info_st search_pattern; ///< Last search pattern.
+    pfse_info_st sub_search_pattern; ///< Last s/ search pattern.
+    pfse_info_st replacement; ///< Last s// replacement string.
     khash_t(strset) dumped_variables; ///< Names of already dumped variables.
     khash_t(file_marks) file_marks; ///< All file marks.
 } WriteMergerState;
@@ -2489,7 +2490,7 @@ shada_pack_entry_error:
 /// @param[in]  max_kbyte
 /// Maximum size of an item in KiB. Zero means no restrictions.
 static inline shada_write_result_et shada_pack_pfreed_entry(msgpack_packer *const packer,
-                                                       PossiblyFreedShadaEntry entry,
+                                                       pfse_info_st entry,
                                                        const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_ALWAYS_INLINE
@@ -2712,7 +2713,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #define COMPARE_WITH_ENTRY(wms_entry_, entry)                    \
     do                                                           \
     {                                                            \
-        PossiblyFreedShadaEntry *const wms_entry = (wms_entry_); \
+        pfse_info_st *const wms_entry = (wms_entry_); \
         if(wms_entry->data.type != kSDItemMissing)               \
         {                                                        \
             if(wms_entry->data.timestamp >= (entry).timestamp)   \
@@ -2866,7 +2867,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     }
                     else
                     {
-                        PossiblyFreedShadaEntry *const wms_entry =
+                        pfse_info_st *const wms_entry =
                             &filemarks->marks[idx];
 
                         if(wms_entry->data.type != kSDItemMissing)
@@ -2900,7 +2901,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #define AFTERFREE_DUMMY(entry)
 
 #define SDE_TO_PFSDE(entry) \
-    ((PossiblyFreedShadaEntry) { .can_free_entry = true, .data = entry })
+    ((pfse_info_st) { .can_free_entry = true, .data = entry })
 
 #define FREE_POSSIBLY_FREED_SHADA_ENTRY(entry)   \
     do                                           \
@@ -2914,7 +2915,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     // the real code
                     MERGE_JUMPS(filemarks->changes_size,
                                 filemarks->changes,
-                                PossiblyFreedShadaEntry,
+                                pfse_info_st,
                                 data.timestamp,
                                 data.data.filemark.mark,
                                 entry,
@@ -2933,7 +2934,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 // the real code
                 MERGE_JUMPS(wms->jumps_size,
                             wms->jumps,
-                            PossiblyFreedShadaEntry,
+                            pfse_info_st,
                             data.timestamp,
                             data.data.filemark.mark,
                             entry,
@@ -3029,7 +3030,7 @@ FUNC_ATTR_ALWAYS_INLINE
     return buflist_entry;
 }
 
-/// Save search pattern to PossiblyFreedShadaEntry
+/// Save search pattern to pfse_info_st
 ///
 /// @param[out] ret_pse
 /// Location where result will be saved.
@@ -3048,7 +3049,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// @param[in] search_highlighted
 /// True if search pattern was highlighted by &hlsearch
 /// and this information should be saved.
-static inline void add_search_pattern(PossiblyFreedShadaEntry *const ret_pse,
+static inline void add_search_pattern(pfse_info_st *const ret_pse,
                                       const search_pattern_cbk_ft get_pattern,
                                       const bool is_substitute_pattern,
                                       const bool search_last_used,
@@ -3061,7 +3062,7 @@ FUNC_ATTR_ALWAYS_INLINE
 
     if(pat.pat != NULL)
     {
-        *ret_pse = (PossiblyFreedShadaEntry) {
+        *ret_pse = (pfse_info_st) {
             .can_free_entry = false,
             .data = {
                 .type = kSDItemSearchPattern,
@@ -3323,7 +3324,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     {
         SubReplacementString sub;
         sub_get_replacement(&sub);
-        wms->replacement = (PossiblyFreedShadaEntry) {
+        wms->replacement = (pfse_info_st) {
             .can_free_entry = false,
             .data = {
                 .type = kSDItemSubString,
@@ -3370,7 +3371,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         }
 
         wms->jumps[wms->jumps_size++] =
-            (PossiblyFreedShadaEntry) {
+            (pfse_info_st) {
                 .can_free_entry = false,
                 .data = {
                     .type = kSDItemJump,
@@ -3431,7 +3432,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             }
 
             wms->global_marks[mark_global_index(name)] =
-                (PossiblyFreedShadaEntry) {
+                (pfse_info_st) {
                     .can_free_entry = false,
                     .data = {
                         .type = kSDItemGlobalMark,
@@ -3471,7 +3472,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             }
 
             wms->registers[op_reg_index(name)] =
-                (PossiblyFreedShadaEntry) {
+                (pfse_info_st) {
                     .can_free_entry = false,
                     .data = {
                         .type = kSDItemRegister,
@@ -3528,7 +3529,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 }
 
                 filemarks->marks[mark_local_index(name)] =
-                    (PossiblyFreedShadaEntry) {
+                    (pfse_info_st) {
                         .can_free_entry = false,
                         .data = {
                             .type = kSDItemLocalMark,
@@ -3555,7 +3556,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 const filemark_st fm = buf->b_changelist[i];
 
                 filemarks->changes[i] =
-                    (PossiblyFreedShadaEntry) {
+                    (pfse_info_st) {
                         .can_free_entry = false,
                         .data = {
                             .type = kSDItemChange,
@@ -3718,7 +3719,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
                 HMS_ITER(&wms->hms[i], cur_entry, {
                     if(shada_pack_pfreed_entry(packer,
-                                               (PossiblyFreedShadaEntry) {
+                                               (pfse_info_st) {
                         .data = cur_entry->data,
                         .can_free_entry = cur_entry->can_free_entry,
                         }, max_kbyte) == kSDWriteFailed)
