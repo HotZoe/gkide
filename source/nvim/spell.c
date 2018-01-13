@@ -2151,8 +2151,8 @@ slang_T *slang_alloc(uchar_kt *lang)
         lp->sl_name = vim_strsave(lang);
     }
 
-    ga_init(&lp->sl_rep, sizeof(fromto_T), 10);
-    ga_init(&lp->sl_repsal, sizeof(fromto_T), 10);
+    ga_init(&lp->sl_rep, sizeof(fromto_st), 10);
+    ga_init(&lp->sl_repsal, sizeof(fromto_st), 10);
     lp->sl_compmax = MAXWLEN;
     lp->sl_compsylmax = MAXWLEN;
     hash_init(&lp->sl_wordcount);
@@ -2180,8 +2180,8 @@ static void free_salitem(salitem_T *smp)
     xfree(smp->sm_to_w);
 }
 
-/// Frees a fromto_T
-static void free_fromto(fromto_T *ftp)
+/// Frees a fromto_st
+static void free_fromto(fromto_st *ftp)
 {
     xfree(ftp->ft_from);
     xfree(ftp->ft_to);
@@ -2210,8 +2210,8 @@ void slang_clear(slang_T *lp)
     xfree(lp->sl_pidxs);
     lp->sl_pidxs = NULL;
 
-    GA_DEEP_CLEAR(&lp->sl_rep, fromto_T, free_fromto);
-    GA_DEEP_CLEAR(&lp->sl_repsal, fromto_T, free_fromto);
+    GA_DEEP_CLEAR(&lp->sl_rep, fromto_st, free_fromto);
+    GA_DEEP_CLEAR(&lp->sl_repsal, fromto_st, free_fromto);
 
     gap = &lp->sl_sal;
 
@@ -4737,7 +4737,7 @@ static void suggest_trie_walk(suginfo_T *su,
     idx_T arridx;
     int len;
     uchar_kt *p;
-    fromto_T *ftp;
+    fromto_st *ftp;
     int fl = 0, tl;
     int repextra = 0; // extra bytes in fword[] from REP item
     slang_T *slang = lp->lp_slang;
@@ -6339,7 +6339,7 @@ static void suggest_trie_walk(suginfo_T *su,
 
                 while(sp->ts_curi < gap->ga_len)
                 {
-                    ftp = (fromto_T *)gap->ga_data + sp->ts_curi++;
+                    ftp = (fromto_st *)gap->ga_data + sp->ts_curi++;
 
                     if(*ftp->ft_from != *p)
                     {
@@ -6402,7 +6402,7 @@ static void suggest_trie_walk(suginfo_T *su,
                     gap = &lp->lp_replang->sl_rep;
                 }
 
-                ftp = (fromto_T *)gap->ga_data + sp->ts_curi - 1;
+                ftp = (fromto_st *)gap->ga_data + sp->ts_curi - 1;
                 fl = (int)STRLEN(ftp->ft_from);
                 tl = (int)STRLEN(ftp->ft_to);
                 p = fword + sp->ts_fidx;

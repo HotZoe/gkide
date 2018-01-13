@@ -501,9 +501,9 @@ typedef struct spellinfo_s
     /// region names; used only if si_region_count > 1
     uchar_kt si_region_name[17];
 
-    garray_st si_rep;          ///< list of fromto_T entries from REP lines
-    garray_st si_repsal;       ///< list of fromto_T entries from REPSAL lines
-    garray_st si_sal;          ///< list of fromto_T entries from SAL lines
+    garray_st si_rep;          ///< list of fromto_st entries from REP lines
+    garray_st si_repsal;       ///< list of fromto_st entries from REPSAL lines
+    garray_st si_sal;          ///< list of fromto_st entries from SAL lines
     uchar_kt *si_sofofr;      ///< SOFOFROM text
     uchar_kt *si_sofoto;      ///< SOFOTO text
     int si_nosugfile;         ///< NOSUGFILE item found
@@ -1325,7 +1325,7 @@ static int read_prefcond_section(FILE *fd, slang_T *lp)
 static int read_rep_section(FILE *fd, garray_st *gap, int16_t *first)
 {
     int cnt;
-    fromto_T *ftp;
+    fromto_st *ftp;
     cnt = get2c(fd); // <repcount>
 
     if(cnt < 0)
@@ -1339,7 +1339,7 @@ static int read_rep_section(FILE *fd, garray_st *gap, int16_t *first)
     for(; gap->ga_len < cnt; ++gap->ga_len)
     {
         int c;
-        ftp = &((fromto_T *)gap->ga_data)[gap->ga_len];
+        ftp = &((fromto_st *)gap->ga_data)[gap->ga_len];
         ftp->ft_from = read_cnt_string(fd, 1, &c);
 
         if(c < 0)
@@ -1375,7 +1375,7 @@ static int read_rep_section(FILE *fd, garray_st *gap, int16_t *first)
 
     for(int i = 0; i < gap->ga_len; ++i)
     {
-        ftp = &((fromto_T *)gap->ga_data)[i];
+        ftp = &((fromto_st *)gap->ga_data)[i];
 
         if(first[*ftp->ft_from] == -1)
         {
@@ -3971,7 +3971,7 @@ static void add_fromto(spellinfo_st *spin,
                        uchar_kt *to)
 {
     uchar_kt word[MAXWLEN];
-    fromto_T *ftp = GA_APPEND_VIA_PTR(fromto_T, gap);
+    fromto_st *ftp = GA_APPEND_VIA_PTR(fromto_st, gap);
 
     (void)spell_casefold(from, (int)STRLEN(from), word, MAXWLEN);
     ftp->ft_from = getroom_save(spin, word);
@@ -5638,8 +5638,8 @@ static bool node_equal(wordnode_st *n1, wordnode_st *n2)
 /// Function given to qsort() to sort the REP items on "from" string.
 static int rep_compare(const void *s1, const void *s2)
 {
-    fromto_T *p1 = (fromto_T *)s1;
-    fromto_T *p2 = (fromto_T *)s2;
+    fromto_st *p1 = (fromto_st *)s1;
+    fromto_st *p2 = (fromto_st *)s2;
 
     return STRCMP(p1->ft_from, p2->ft_from);
 }
@@ -5814,7 +5814,7 @@ static int write_vim_spell(spellinfo_st *spin, uchar_kt *fname)
         {
             qsort(gap->ga_data,
                   (size_t)gap->ga_len,
-                  sizeof(fromto_T),
+                  sizeof(fromto_st),
                   rep_compare);
         }
 
@@ -5828,7 +5828,7 @@ static int write_vim_spell(spellinfo_st *spin, uchar_kt *fname)
 
         for(size_t i = 0; i < (size_t)gap->ga_len; ++i)
         {
-            fromto_T *ftp = &((fromto_T *)gap->ga_data)[i];
+            fromto_st *ftp = &((fromto_st *)gap->ga_data)[i];
             l += 1 + STRLEN(ftp->ft_from); // count <*fromlen> and <*from>
             l += 1 + STRLEN(ftp->ft_to); // count <*tolen> and <*to>
         }
@@ -5869,7 +5869,7 @@ static int write_vim_spell(spellinfo_st *spin, uchar_kt *fname)
         {
             // <rep> : <repfromlen> <repfrom> <reptolen> <repto>
             // <sal> : <salfromlen> <salfrom> <saltolen> <salto>
-            fromto_T *ftp = &((fromto_T *)gap->ga_data)[i];
+            fromto_st *ftp = &((fromto_st *)gap->ga_data)[i];
 
             for(unsigned int rr = 1; rr <= 2; ++rr)
             {
@@ -6780,9 +6780,9 @@ static void mkspell(int fcount,
     spin.si_followup = true;
     spin.si_rem_accents = true;
 
-    ga_init(&spin.si_rep, (int)sizeof(fromto_T), 20);
-    ga_init(&spin.si_repsal, (int)sizeof(fromto_T), 20);
-    ga_init(&spin.si_sal, (int)sizeof(fromto_T), 20);
+    ga_init(&spin.si_rep, (int)sizeof(fromto_st), 20);
+    ga_init(&spin.si_repsal, (int)sizeof(fromto_st), 20);
+    ga_init(&spin.si_sal, (int)sizeof(fromto_st), 20);
     ga_init(&spin.si_map, (int)sizeof(uchar_kt), 100);
     ga_init(&spin.si_comppat, (int)sizeof(uchar_kt *), 20);
     ga_init(&spin.si_prefcond, (int)sizeof(uchar_kt *), 50);

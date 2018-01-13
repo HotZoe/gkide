@@ -67,22 +67,22 @@ typedef int idx_T;
 /// Info from "REP", "REPSAL" and "SAL" entries in ".aff"
 /// file used in si_rep, si_repsal, sl_rep, and si_sal.
 /// Not for sl_sal! One replacement: from "ft_from" to "ft_to".
-typedef struct fromto_S
+typedef struct fromto_s
 {
-    uchar_kt  *ft_from;
-    uchar_kt  *ft_to;
-} fromto_T;
+    uchar_kt *ft_from;
+    uchar_kt *ft_to;
+} fromto_st;
 
 /// Info from "SAL" entries in ".aff" file used in sl_sal.
 /// The info is split for quick processing by spell_soundfold().
 /// Note that "sm_oneof" and "sm_rules" point into sm_lead.
-typedef struct salitem_S
+typedef struct salitem_s
 {
-    uchar_kt *sm_lead;    ///< leading letters
+    uchar_kt *sm_lead;  ///< leading letters
     int sm_leadlen;     ///< length of "sm_lead"
-    uchar_kt *sm_oneof;   ///< letters from () or NULL
-    uchar_kt *sm_rules;   ///< rules like ^, $, priority
-    uchar_kt *sm_to;      ///< replacement.
+    uchar_kt *sm_oneof; ///< letters from () or NULL
+    uchar_kt *sm_rules; ///< rules like ^, $, priority
+    uchar_kt *sm_to;    ///< replacement.
     int *sm_lead_w;     ///< wide character copy of "sm_lead"
     int *sm_oneof_w;    ///< wide character copy of "sm_oneof"
     int *sm_to_w;       ///< wide character copy of "sm_to"
@@ -148,7 +148,7 @@ struct slang_S
     int sl_prefixcnt;          ///< number of items in "sl_prefprog"
     regprog_st **sl_prefprog;   ///< table with regprogs for prefixes
 
-    /// list of fromto_T entries from REP lines
+    /// list of fromto_st entries from REP lines
     garray_st sl_rep;
     /// indexes where byte first appears, -1 if there is none
     int16_t sl_rep_first[256];
@@ -166,7 +166,7 @@ struct slang_S
     /// - @b sl_sal is a list of wide char lists.
     bool sl_sofo;
 
-    garray_st sl_repsal; ///< list of fromto_T entries from REPSAL lines
+    garray_st sl_repsal; ///< list of fromto_st entries from REPSAL lines
     int16_t sl_repsal_first[256]; ///< sl_rep_first for REPSAL lines
     bool sl_nosplitsugs; ///< don't suggest splitting a word
     bool sl_nocompoundsugs; ///< don't suggest compounding
