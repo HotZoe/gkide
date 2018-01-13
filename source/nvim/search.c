@@ -1169,7 +1169,7 @@ int do_search(oparg_st *oap,
 {
     apos_st pos; // position of the last match
     uchar_kt *searchstr;
-    struct soffset old_off;
+    search_offset_st old_off;
     int retval; // Return value
     uchar_kt *p;
     long c;

@@ -57,13 +57,13 @@
 /// @note
 /// Only offset for the last search pattern is used,
 /// not for the last substitute pattern.
-typedef struct soffset
+typedef struct search_offset_s
 {
     char dir;    ///< Search direction: forward ('/') or backward ('?')
     bool line;   ///< True if search has line offset.
     bool end;    ///< True if search sets cursor at the end.
     int64_t off; ///< Actual offset value.
-} SearchOffset;
+} search_offset_st;
 
 /// Structure containing last search pattern and its attributes.
 typedef struct search_pattern_s
@@ -72,7 +72,7 @@ typedef struct search_pattern_s
     bool magic;               ///< Magicness of the pattern.
     bool no_scs;              ///< No smartcase for this pattern.
     timestamp_kt timestamp;   ///< Time of the last change.
-    SearchOffset off;       ///< Pattern offset.
+    search_offset_st off;     ///< Pattern offset.
     dict_st *additional_data; ///< Additional data from ShaDa file.
 } search_pattern_st;
 
