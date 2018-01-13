@@ -451,22 +451,22 @@ REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Function used to skip in ShaDa files
-typedef int (*ShaDaFileSkipper)(sd_read_st *const sd_reader,
-                                const size_t offset)
+typedef int (*sd_file_skipper_ft)(sd_read_st *const sd_reader,
+                                  const size_t offset)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Structure containing necessary pointers for reading ShaDa files
 struct sd_read_s
 {
-    sd_file_reader_ft read;   ///< Reader function.
-    sd_read_closer_ft close;  ///< Close function.
-    ShaDaFileSkipper skip;  ///< Function used to skip some bytes.
-    void *cookie;           ///< Data describing object read from.
-    bool eof;               ///< True if reader reached end of file.
-    const char *error;      ///< Error message in case of error.
-    uintmax_t fpos;         ///< Current position (amount of bytes read since
-                            ///< reader structure initialization). May overflow.
+    sd_file_reader_ft read;  ///< Reader function.
+    sd_read_closer_ft close; ///< Close function.
+    sd_file_skipper_ft skip; ///< Function used to skip some bytes.
+    void *cookie;            ///< Data describing object read from.
+    bool eof;                ///< True if reader reached end of file.
+    const char *error;       ///< Error message in case of error.
+    uintmax_t fpos;          ///< Current position (amount of bytes read since
+                             ///< reader structure initialization). May overflow.
 };
 
 struct sd_write_def;
