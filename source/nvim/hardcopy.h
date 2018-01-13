@@ -18,7 +18,7 @@ typedef struct
     int italic;
     int underline;
     int undercurl;
-} prtclr_fntattr_st;
+} prt_clrfnt_st;
 
 /// Structure passed back to the generic printer code.
 typedef struct
@@ -29,7 +29,7 @@ typedef struct
     int chars_per_line;
     int lines_per_page;
     int has_color;
-    prtclr_fntattr_st number;
+    prt_clrfnt_st number;
     int modec;
     int do_syntax;
     int user_abort;
