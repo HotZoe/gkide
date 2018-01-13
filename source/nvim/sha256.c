@@ -13,7 +13,7 @@
 #include <stddef.h>        // for size_t
 #include <stdio.h>         // for snprintf().
 
-#include "nvim/sha256.h"   // for context_sha256_T
+#include "nvim/sha256.h"   // for sha256_ctx_st
 #include "nvim/vim.h"      // for STRCPY()/STRLEN().
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -33,7 +33,7 @@
         (b)[(i) + 3] = (uchar_kt)((n));       \
     }
 
-void sha256_start(context_sha256_T *ctx)
+void sha256_start(sha256_ctx_st *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -47,7 +47,7 @@ void sha256_start(context_sha256_T *ctx)
     ctx->state[7] = 0x5BE0CD19;
 }
 
-static void sha256_process(context_sha256_T *ctx,
+static void sha256_process(sha256_ctx_st *ctx,
                            const uchar_kt data[SHA256_BUFFER_SIZE])
 {
     uint32_t temp1, temp2, W[SHA256_BUFFER_SIZE];
@@ -174,7 +174,7 @@ static void sha256_process(context_sha256_T *ctx,
     ctx->state[7] += H;
 }
 
-void sha256_update(context_sha256_T *ctx, const uchar_kt *input, size_t length)
+void sha256_update(sha256_ctx_st *ctx, const uchar_kt *input, size_t length)
 {
     if(length == 0)
     {
@@ -222,7 +222,7 @@ static uchar_kt sha256_padding[SHA256_BUFFER_SIZE] = {
     0,    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-void sha256_finish(context_sha256_T *ctx, uchar_kt digest[SHA256_SUM_SIZE])
+void sha256_finish(sha256_ctx_st *ctx, uchar_kt digest[SHA256_SUM_SIZE])
 {
     uint32_t last, padn;
     uint32_t high, low;
@@ -269,7 +269,7 @@ const char *sha256_bytes(const uint8_t *restrict buf,
 {
     uchar_kt sha256sum[SHA256_SUM_SIZE];
     static char hexit[SHA256_BUFFER_SIZE + 1]; // buf size + NULL
-    context_sha256_T ctx;
+    sha256_ctx_st ctx;
 
     sha256_self_test();
     sha256_start(&ctx);
@@ -314,7 +314,7 @@ static char *sha_self_test_vector[] = {
 bool sha256_self_test(void)
 {
     char output[SHA256_BUFFER_SIZE + 1]; // buf size + NULL
-    context_sha256_T ctx;
+    sha256_ctx_st ctx;
     uchar_kt buf[1000];
     uchar_kt sha256sum[SHA256_SUM_SIZE];
     const char *hexit;

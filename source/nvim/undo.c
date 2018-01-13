@@ -728,7 +728,7 @@ static uchar_kt e_not_open[] =
 /// Compute the hash for the current buffer text into hash[UNDO_HASH_SIZE].
 void u_compute_hash(uchar_kt *hash)
 {
-    context_sha256_T ctx;
+    sha256_ctx_st ctx;
     linenum_kt lnum;
     uchar_kt *p;
     sha256_start(&ctx);

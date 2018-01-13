@@ -11,8 +11,8 @@
 
 #define INIT_POS_T(l, c, ca) { l, c, ca }
 
-typedef long linenum_kt; /// line number
-typedef int columnum_kt; /// Column number
+typedef long linenum_kt; ///< line number
+typedef int columnum_kt; ///< column number
 
 /// Format used to print values which have linenum_kt type
 #define LineNumKtPrtFmt  "ld"
@@ -20,7 +20,7 @@ typedef int columnum_kt; /// Column number
 #define ColumNumKtPrtFmt  "d"
 
 /// position in file or buffer
-typedef struct
+typedef struct apos_s
 {
     linenum_kt lnum;    ///< line number
     columnum_kt col;    ///< column number
@@ -28,7 +28,7 @@ typedef struct
 } apos_st;
 
 /// Same, but without coladd.
-typedef struct
+typedef struct bpos_s
 {
     linenum_kt lnum; ///< line number
     columnum_kt col; ///< column number

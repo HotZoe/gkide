@@ -289,7 +289,7 @@ int readfile(uchar_kt *fname,
     uchar_kt *p = NULL;
     off_t filesize = 0;
     int skip_read = FALSE;
-    context_sha256_T sha_ctx;
+    sha256_ctx_st sha_ctx;
     int read_undo_file = FALSE;
     int split = 0; // number of split lines
     linenum_kt linecnt;
@@ -2906,7 +2906,7 @@ int buf_write(filebuf_st *buf,
 #endif
 
     int write_undo_file = FALSE;
-    context_sha256_T sha_ctx;
+    sha256_ctx_st sha_ctx;
     unsigned int bkc = get_bkc_value(buf);
 
     if(fname == NULL || *fname == NUL) // safety check

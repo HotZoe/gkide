@@ -11,12 +11,12 @@
 #define SHA256_SUM_SIZE     32
 #define SHA256_BUFFER_SIZE  64
 
-typedef struct
+typedef struct sha256_ctx_s
 {
     uint32_t total[2];
     uint32_t state[8];
     uchar_kt buffer[SHA256_BUFFER_SIZE];
-} context_sha256_T;
+} sha256_ctx_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "sha256.h.generated.h"

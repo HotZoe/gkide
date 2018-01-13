@@ -11,19 +11,26 @@
 #include "nvim/macros.h"
 #include "nvim/message.h"
 #include "nvim/globals.h"
-#include "nvim/charset.h" // vim_str2nr
+#include "nvim/charset.h"
 #include "nvim/lib/kvec.h"
-#include "nvim/vim.h" // OK, FAIL
+#include "nvim/vim.h"
 
 /// Helper structure
-typedef struct
+typedef struct container_item_s
 {
-    size_t stack_index;  ///< Index of current container in stack.
-    list_st *special_val; ///< _VAL key contents for special maps.
-                         ///< When container is not a special dictionary it is NULL.
-    const char *s;       ///< Location where container starts.
-    typval_st container;  ///< Container. Either kNvarList, kNvarDict or kNvarList
-                         ///< which is _VAL from special dictionary.
+    ///< Index of current container in stack.
+    size_t stack_index;
+
+    /// _VAL key contents for special maps.
+    /// When container is not a special dictionary it is NULL
+    list_st *special_val;
+
+    /// Location where container starts.
+    const char *s;
+
+    /// Container. Either kNvarList, kNvarDict or kNvarList
+    /// which is _VAL from special dictionary.
+    typval_st container;
 } container_item_st;
 
 /// Vector containing containers, each
