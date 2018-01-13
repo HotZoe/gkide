@@ -745,7 +745,7 @@ static void win_update(win_st *wp)
     // w_topline got smaller a bit
     int scrolled_down = FALSE;
 
-    matchitem_T *cur; // points to the match list
+    matchitem_st *cur; // points to the match list
     int top_to_mod = FALSE; // redraw above mod_top
     int row; // current window row to display
     linenum_kt lnum; // current buffer lnum to display
@@ -2824,7 +2824,7 @@ static int win_line(win_st *wp,
     columnum_kt trailcol = MAXCOL; // start of trailing spaces
     int need_showbreak = FALSE;
     int line_attr = 0; // attribute for the whole line
-    matchitem_T *cur; // points to the match list
+    matchitem_st *cur; // points to the match list
     hlmatch_st *shl; // points to search_hl or a match
 
     // flag to indicate whether search_hl has been processed or not
@@ -7352,7 +7352,7 @@ static void end_search_hl(void)
 /// Init for calling prepare_search_hl().
 static void init_search_hl(win_st *wp)
 {
-    matchitem_T *cur;
+    matchitem_st *cur;
 
     // Setup for match and 'hlsearch' highlighting.
     // Disable any previous match
@@ -7408,7 +7408,7 @@ static void init_search_hl(win_st *wp)
 /// Advance to the match in window "wp" line "lnum" or past it.
 static void prepare_search_hl(win_st *wp, linenum_kt lnum)
 {
-    matchitem_T *cur; // points to the match list
+    matchitem_st *cur; // points to the match list
     hlmatch_st *shl; // points to search_hl or a match
 
     // flag to indicate whether search_hl
@@ -7511,7 +7511,7 @@ static void next_search_hl(win_st *win,
                            hlmatch_st *shl,
                            linenum_kt lnum,
                            columnum_kt mincol,
-                           matchitem_T *cur)
+                           matchitem_st *cur)
 {
     linenum_kt l;
     columnum_kt matchcol;

@@ -880,12 +880,12 @@ struct posmatch_s
     linenum_kt botlnum;       ///< bottom buffer line
 };
 
-/// matchitem_T provides a linked list for storing
+/// matchitem_st provides a linked list for storing
 /// match items for ":match" and the match functions.
-typedef struct matchitem_s matchitem_T;
+typedef struct matchitem_s matchitem_st;
 struct matchitem_s
 {
-    matchitem_T *next;
+    matchitem_st *next;
     int id;             ///< match ID
     int priority;       ///< match priority
     uchar_kt *pattern;  ///< pattern to highlight
@@ -906,7 +906,7 @@ struct window_s
     /// buffer we are a window into (used often, keep it the first item!)
     filebuf_st *w_buffer;
 
-    synblock_T  *w_s;     ///< for :ownsyntax
+    synblock_T *w_s;      ///< for :ownsyntax
     int w_hl_id;          ///< 'winhighlight' id
     int w_hl_id_inactive; ///< 'winhighlight' id for inactive window
     int w_hl_attr;        ///< 'winhighlight' final attrs
@@ -918,7 +918,7 @@ struct window_s
     bool w_closing;
 
     frame_st *w_frame; ///< frame containing this window
-    apos_st w_cursor;   ///< cursor position in buffer
+    apos_st w_cursor;  ///< cursor position in buffer
 
     /// The column we'd like to be at. This is used to try to
     /// stay in the same column for up/down cursor motions.
@@ -929,16 +929,17 @@ struct window_s
     int w_set_curswant;
 
     // the next seven are used to update the visual part
-    char w_old_visual_mode;      ///< last known VIsual_mode
+    char w_old_visual_mode;        ///< last known VIsual_mode
     linenum_kt w_old_cursor_lnum;  ///< last known end of visual part
-    columnum_kt w_old_cursor_fcol;   ///< first column for block visual part
-    columnum_kt w_old_cursor_lcol;   ///< last column for block visual part
+    columnum_kt w_old_cursor_fcol; ///< first column for block visual part
+    columnum_kt w_old_cursor_lcol; ///< last column for block visual part
     linenum_kt w_old_visual_lnum;  ///< last known start of visual part
-    columnum_kt w_old_visual_col;    ///< last known start of visual part
-    columnum_kt w_old_curswant;      ///< last known value of Curswant
+    columnum_kt w_old_visual_col;  ///< last known start of visual part
+    columnum_kt w_old_curswant;    ///< last known value of Curswant
 
-    // "w_topline", "w_leftcol" and "w_skipcol" specify the offsets for displaying the buffer.
-    linenum_kt w_topline;     ///< buffer line number of the line at the top of the window
+    // "w_topline", "w_leftcol" and "w_skipcol"
+    // specify the offsets for displaying the buffer.
+    linenum_kt w_topline;   ///< buffer line number of the line at the top of the window
     char w_topline_was_set; ///< flag set to TRUE when topline is set, e.g. by winrestview()
     int w_topfill;          ///< number of filler lines above w_topline
     int w_old_topfill;      ///< w_topfill at last redraw
@@ -971,7 +972,7 @@ struct window_s
     // w_valid is a bitfield of flags, which indicate if specific values are
     // valid or need to be recomputed.
     int w_valid;
-    apos_st w_valid_cursor;    ///< last known position of w_cursor, used  to adjust w_valid
+    apos_st w_valid_cursor;      ///< last known position of w_cursor, used to adjust w_valid
     columnum_kt w_valid_leftcol; ///< last known w_leftcol
 
     // w_cline_height is the number of physical lines taken by the buffer line
@@ -980,18 +981,18 @@ struct window_s
     bool w_cline_folded; ///< cursor line is folded
     int w_cline_row;     ///< starting row of the cursor line
 
-    /// column number of the cursor in the buffer line, as opposed to the column
-    /// number we're at on the screen. This makes a difference on lines which span
-    /// more than one screen line or when w_leftcol is non-zero
+    /// column number of the cursor in the buffer line, as opposed to the
+    /// column number we're at on the screen. This makes a difference on lines
+    /// which span more than one screen line or when w_leftcol is non-zero
     columnum_kt w_virtcol;
 
     // w_wrow and w_wcol specify the cursor position in the window.
     // This is related to positions in the window, not in the display or
     // buffer, thus w_wrow is relative to w_winrow.
-    int w_wrow, w_wcol; ///< cursor position in window
+    int w_wrow, w_wcol;   ///< cursor position in window
     linenum_kt w_botline; ///< number of the line below the bottom of the window
-    int w_empty_rows;   ///< number of ~ rows in window
-    int w_filler_rows;  ///< number of filler rows at the end of the window
+    int w_empty_rows;     ///< number of ~ rows in window
+    int w_filler_rows;    ///< number of filler rows at the end of the window
 
     // Info about the lines currently in the window is remembered to avoid
     // recomputing it every time.  The allocated size of w_lines[] is Rows.
@@ -1001,31 +1002,31 @@ struct window_s
     // Between changing text and updating the display w_lines[] represents
     // what is currently displayed.  wl_valid is reset to indicated this.
     // This is used for efficient redrawing.
-    int w_lines_valid;  ///< number of valid entries
+    int w_lines_valid;   ///< number of valid entries
     lineinfo_st *w_lines;
     garray_st w_folds;   ///< array of nested folds
-    bool w_fold_manual; ///< when true: some folds are opened/closed  manually
-    bool w_foldinvalid; ///< when true: folding needs to be recomputed
-    int w_nrwidth;      ///< width of 'number' and 'relativenumber' column being used
+    bool w_fold_manual;  ///< when true: some folds are opened/closed  manually
+    bool w_foldinvalid;  ///< when true: folding needs to be recomputed
+    int w_nrwidth;       ///< width of 'number' and 'relativenumber' column being used
 
     // -----------------  end of cached values -----------------
 
-    int w_redr_type;       ///< type of redraw to be performed on win
-    int w_upd_rows;        ///< number of window lines to update when w_redr_type is REDRAW_TOP
+    int w_redr_type;         ///< type of redraw to be performed on win
+    int w_upd_rows;          ///< number of window lines to update when w_redr_type is REDRAW_TOP
     linenum_kt w_redraw_top; ///< when != 0: first line needing redraw
     linenum_kt w_redraw_bot; ///< when != 0: last line needing redraw
-    int w_redr_status;     ///< if TRUE status line must be redrawn
+    int w_redr_status;       ///< if TRUE status line must be redrawn
 
     // remember what is shown in the ruler for this window (if 'ruler' set)
     apos_st w_ru_cursor;        ///< cursor position shown in ruler
-    columnum_kt w_ru_virtcol;     ///< virtcol shown in ruler
+    columnum_kt w_ru_virtcol;   ///< virtcol shown in ruler
     linenum_kt w_ru_topline;    ///< topline shown in ruler
     linenum_kt w_ru_line_count; ///< line count used for ruler
-    int w_ru_topfill;         ///< topfill shown in ruler
-    char w_ru_empty;          ///< TRUE if ruler shows 0-1 (empty line)
-    int w_alt_fnum;           ///< alternate file (for # and CTRL-^)
+    int w_ru_topfill;           ///< topfill shown in ruler
+    char w_ru_empty;            ///< TRUE if ruler shows 0-1 (empty line)
+    int w_alt_fnum;             ///< alternate file (for # and CTRL-^)
 
-    arglist_st *w_alist;      ///< pointer to arglist_st for this window
+    arglist_st *w_alist;   ///< pointer to arglist_st for this window
     int w_arg_idx;         ///< current index in argument list (can be out of range!)
     int w_arg_idx_invalid; ///< editing another file than w_arg_idx
     uchar_kt *w_localdir;  ///< absolute path of local directory or NULL
@@ -1073,7 +1074,7 @@ struct window_s
     int w_jumplistlen;         ///< number of active entries
     int w_jumplistidx;         ///< current position
     int w_changelistidx;       ///< current position in b_changelist
-    matchitem_T *w_match_head; ///< head of match list
+    matchitem_st *w_match_head; ///< head of match list
     int w_next_match_id;       ///< next match ID
 
     // the tagstack grows from 0 upwards:

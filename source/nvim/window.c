@@ -7148,9 +7148,9 @@ int match_add(win_st *wp,
               list_st *pos_list,
               const char *const conceal_char)
 {
-    matchitem_T *cur;
-    matchitem_T *prev;
-    matchitem_T *m;
+    matchitem_st *cur;
+    matchitem_st *prev;
+    matchitem_st *m;
     int hlg_id;
     regprog_st *regprog = NULL;
     int rtype = SOME_VALID;
@@ -7215,7 +7215,7 @@ int match_add(win_st *wp,
     }
 
     // Build new match.
-    m = xcalloc(1, sizeof(matchitem_T));
+    m = xcalloc(1, sizeof(matchitem_st));
     m->id = id;
     m->priority = prio;
     m->pattern = pat == NULL ? NULL: (uchar_kt *)xstrdup(pat);
@@ -7401,8 +7401,8 @@ fail:
 /// Print error messages if 'perr' is TRUE.
 int match_delete(win_st *wp, int id, int perr)
 {
-    matchitem_T *cur = wp->w_match_head;
-    matchitem_T *prev = cur;
+    matchitem_st *cur = wp->w_match_head;
+    matchitem_st *prev = cur;
     int rtype = SOME_VALID;
 
     if(id < 1)
@@ -7478,7 +7478,7 @@ int match_delete(win_st *wp, int id, int perr)
 /// Delete all matches in the match list of window 'wp'.
 void clear_matches(win_st *wp)
 {
-    matchitem_T *m;
+    matchitem_st *m;
 
     while(wp->w_match_head != NULL)
     {
@@ -7494,9 +7494,9 @@ void clear_matches(win_st *wp)
 
 /// Get match from ID 'id' in window 'wp'.
 /// Return NULL if match not found.
-matchitem_T *get_match(win_st *wp, int id)
+matchitem_st *get_match(win_st *wp, int id)
 {
-    matchitem_T *cur = wp->w_match_head;
+    matchitem_st *cur = wp->w_match_head;
 
     while(cur != NULL && cur->id != id)
     {

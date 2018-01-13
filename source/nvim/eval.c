@@ -12884,7 +12884,7 @@ static void f_getmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                          typval_st *rettv,
                          func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    matchitem_T *cur = curwin->w_match_head;
+    matchitem_st *cur = curwin->w_match_head;
     int i;
     tv_list_alloc_ret(rettv);
 
@@ -16322,9 +16322,9 @@ static void f_matcharg(typval_st *argvars,
 
     if(id >= 1 && id <= 3)
     {
-        matchitem_T *m;
+        matchitem_st *m;
 
-        if((m = (matchitem_T *)get_match(curwin, id)) != NULL)
+        if((m = (matchitem_st *)get_match(curwin, id)) != NULL)
         {
             tv_list_append_string(rettv->vval.v_list,
                                   (const char *)syn_id2name(m->hlg_id), -1);
