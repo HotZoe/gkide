@@ -130,18 +130,18 @@ typedef struct ff_visited_s
 /// As you can see, the first and the third search are for the same file, so
 /// for the third search we can use the visited list of the first search.
 /// For the second search we must start from an empty visited list.
-/// The struct ff_visited_list_hdr is used to manage a linked list of already
+/// The struct ff_visited_listhdr_s is used to manage a linked list of already
 /// visited lists.
-typedef struct ff_visited_list_hdr
+typedef struct ff_visited_listhdr_s
 {
-    struct ff_visited_list_hdr *ffvl_next;
+    struct ff_visited_listhdr_s *ffvl_next;
 
     /// the filename the attached visited list is for
     uchar_kt *ffvl_filename;
 
     ff_visited_st *ffvl_visited_list;
 
-} ff_visited_list_hdr_T;
+} ff_visited_listhdr_st;
 
 /// '**' can be expanded to several directory levels.
 /// Set the default maximum depth.
@@ -165,10 +165,10 @@ typedef struct ff_visited_list_hdr
 typedef struct filesearch_ctx_s
 {
     dirsearch_stack_st *ffsc_stack_ptr;
-    ff_visited_list_hdr_T *ffsc_visited_list;
-    ff_visited_list_hdr_T *ffsc_dir_visited_list;
-    ff_visited_list_hdr_T *ffsc_visited_lists_list;
-    ff_visited_list_hdr_T *ffsc_dir_visited_lists_list;
+    ff_visited_listhdr_st *ffsc_visited_list;
+    ff_visited_listhdr_st *ffsc_dir_visited_list;
+    ff_visited_listhdr_st *ffsc_visited_lists_list;
+    ff_visited_listhdr_st *ffsc_dir_visited_lists_list;
     uchar_kt *ffsc_file_to_search;
     uchar_kt *ffsc_start_dir;
     uchar_kt *ffsc_fix_path;
@@ -1145,9 +1145,9 @@ void vim_findfile_free_visited(void *search_ctx_arg)
     vim_findfile_free_visited_list(&search_ctx->ffsc_dir_visited_lists_list);
 }
 
-static void vim_findfile_free_visited_list(ff_visited_list_hdr_T **list_headp)
+static void vim_findfile_free_visited_list(ff_visited_listhdr_st **list_headp)
 {
-    ff_visited_list_hdr_T *vp;
+    ff_visited_listhdr_st *vp;
 
     while(*list_headp != NULL)
     {
@@ -1181,10 +1181,10 @@ static void ff_free_visited_list(ff_visited_st *vl)
 
 /// Returns the already visited list for the given filename.
 /// If none is found it allocates a new one.
-static ff_visited_list_hdr_T *ff_get_visited_list(uchar_kt *filename,
-                                                  ff_visited_list_hdr_T **list_headp)
+static ff_visited_listhdr_st *ff_get_visited_list(uchar_kt *filename,
+                                                  ff_visited_listhdr_st **list_headp)
 {
-    ff_visited_list_hdr_T *retptr = NULL;
+    ff_visited_listhdr_st *retptr = NULL;
 
     // check if a visited list for the given filename exists
     if(*list_headp != NULL)
