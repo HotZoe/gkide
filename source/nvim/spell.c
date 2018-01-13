@@ -299,7 +299,7 @@ typedef struct syl_item_S
     int sy_len;                  ///<
 } syl_item_T;
 
-spelltab_T spelltab;
+spelltab_st spelltab;
 int did_set_spelltab;
 
 /// structure used to store soundfolded words that
@@ -3266,7 +3266,7 @@ void close_spellbuf(filebuf_st *buf)
 }
 
 // Init the chartab used for spelling for ASCII.
-void clear_spell_chartab(spelltab_T *sp)
+void clear_spell_chartab(spelltab_st *sp)
 {
     int i; // Init everything to false.
     memset(sp->st_isw, false, sizeof(sp->st_isw));

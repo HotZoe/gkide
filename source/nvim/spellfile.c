@@ -7365,7 +7365,7 @@ static int set_spell_chartab(uchar_kt *fol, uchar_kt *low, uchar_kt *upp)
 {
     // We build the new tables here first,
     // so that we can compare with the previous one.
-    spelltab_T new_st;
+    spelltab_st new_st;
     uchar_kt *pf = fol, *pl = low, *pu = upp;
     int f, l, u;
     clear_spell_chartab(&new_st);
@@ -7446,7 +7446,7 @@ static void set_spell_charflags(uchar_kt *flags, int cnt, uchar_kt *fol)
 {
     // We build the new tables here first,
     // so that we can compare with the previous one.
-    spelltab_T new_st;
+    spelltab_st new_st;
     int i;
     uchar_kt *p = fol;
     int c;
@@ -7475,7 +7475,7 @@ static void set_spell_charflags(uchar_kt *flags, int cnt, uchar_kt *fol)
     (void)set_spell_finish(&new_st);
 }
 
-static int set_spell_finish(spelltab_T *new_st)
+static int set_spell_finish(spelltab_st *new_st)
 {
     int i;
 

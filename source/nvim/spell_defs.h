@@ -206,13 +206,13 @@ typedef struct langp_s
 
 /// The tables used for recognizing word characters according to spelling.
 /// These are only used for the first 256 characters of 'encoding'.
-typedef struct
+typedef struct spelltab_s
 {
     bool st_isw[256];       ///< flags: is word char
     bool st_isu[256];       ///< flags: is uppercase char
     uchar_kt st_fold[256];  ///< chars: folded case
     uchar_kt st_upper[256]; ///< chars: upper case
-} spelltab_T;
+} spelltab_st;
 
 /// For finding suggestions:
 /// At each node in the tree these states are tried:
@@ -298,7 +298,7 @@ extern slang_st *first_lang;
 /// file used for "zG" and "zW"
 extern uchar_kt *int_wordlist;
 
-extern spelltab_T spelltab;
+extern spelltab_st spelltab;
 extern int did_set_spelltab;
 extern char *e_format;
 
