@@ -183,7 +183,7 @@ typedef struct state_item_s
 
     /// \z(...\) matches from start pattern
     reg_extmatch_st *si_extmatch;
-} stateitem_T;
+} state_item_st;
 
 /// Struct to reduce the number of arguments
 /// to get_syn_options(), it's used very often.
@@ -337,7 +337,7 @@ static int next_match_end_idx;        ///< ID of group for end pattn or zero
 
 static reg_extmatch_st *next_match_extmatch = NULL;
 
-// A state stack is an array of integers or stateitem_T, stored in a
+// A state stack is an array of integers or state_item_st, stored in a
 // garray_st. A state stack is invalid if it's itemsize entry is zero.
 #define INVALID_STATE(ssp)  ((ssp)->ga_itemsize == 0)
 #define VALID_STATE(ssp)    ((ssp)->ga_itemsize != 0)
@@ -360,7 +360,7 @@ static short *current_next_list = NULL; ///< when non-zero, nextgroup list
 static int current_next_flags = 0;      ///< flags for current_next_list
 static int current_line_id = 0;         ///< unique number for current line
 
-#define CUR_STATE(idx)  ((stateitem_T *)(current_state.ga_data))[idx]
+#define CUR_STATE(idx)  ((state_item_st *)(current_state.ga_data))[idx]
 
 static int syn_time_on = FALSE;
 
@@ -605,7 +605,7 @@ static void clear_current_state(void)
 {
 #define UNREF_STATEITEM_EXTMATCH(si)    unref_extmatch((si)->si_extmatch)
 
-    GA_DEEP_CLEAR(&current_state, stateitem_T, UNREF_STATEITEM_EXTMATCH);
+    GA_DEEP_CLEAR(&current_state, state_item_st, UNREF_STATEITEM_EXTMATCH);
 
 #undef UNREF_STATEITEM_EXTMATCH
 }
@@ -627,7 +627,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_st *last_valid)
     linenum_kt end_lnum;
     linenum_kt break_lnum;
     int had_sync_point;
-    stateitem_T *cur_si;
+    state_item_st *cur_si;
     synpat_st *spp;
     uchar_kt *line;
     int found_flags = 0;
@@ -981,7 +981,7 @@ static void syn_start_line(void)
 /// When "startofline" is FALSE the item with "keepend" is forcefully updated.
 static void syn_update_ends(int startofline)
 {
-    stateitem_T *cur_si;
+    state_item_st *cur_si;
     int seen_keepend;
 
     if(startofline)
@@ -1410,7 +1410,7 @@ static synstate_st *store_current_state(void)
     int i;
     synstate_st *p;
     bufstate_st *bp;
-    stateitem_T *cur_si;
+    state_item_st *cur_si;
     synstate_st *sp = syn_stack_find_entry(current_lnum);
 
     // If the current state contains a start or end pattern that continues
@@ -1732,7 +1732,7 @@ static void invalidate_current_state(void)
 
 static void validate_current_state(void)
 {
-    current_state.ga_itemsize = sizeof(stateitem_T);
+    current_state.ga_itemsize = sizeof(state_item_st);
     ga_set_growsize(&current_state, 3);
 }
 
@@ -1784,7 +1784,7 @@ int syntax_check_changed(linenum_kt lnum)
 /// in the line, as long as the current state is valid.
 static int syn_finish_line(int syncing)
 {
-    stateitem_T *cur_si;
+    state_item_st *cur_si;
     columnum_kt prev_current_col;
 
     while(!current_finished)
@@ -1904,7 +1904,7 @@ static int syn_current_attr(int syncing,
     bpos_st eoe_pos; // end-of-end pattern
     int end_idx; // group ID for end pattern
     synpat_st *spp;
-    stateitem_T *cur_si, *sip = NULL;
+    state_item_st *cur_si, *sip = NULL;
     int startcol;
     int endcol;
     long flags;
@@ -2505,7 +2505,7 @@ static int did_match_already(int idx, garray_st *gap)
 }
 
 /// Push the next match onto the stack.
-static stateitem_T *push_next_match(stateitem_T *cur_si)
+static state_item_st *push_next_match(state_item_st *cur_si)
 {
     synpat_st *spp;
     int save_flags;
@@ -2592,7 +2592,7 @@ static stateitem_T *push_next_match(stateitem_T *cur_si)
 /// Check for end of current state (and the states before it).
 static void check_state_ends(void)
 {
-    stateitem_T *cur_si;
+    state_item_st *cur_si;
     int had_extend;
     cur_si = &CUR_STATE(current_state.ga_len - 1);
 
@@ -2702,7 +2702,7 @@ static void check_state_ends(void)
 static void update_si_attr(int idx)
 {
     synpat_st *spp;
-    stateitem_T *sip = &CUR_STATE(idx);
+    state_item_st *sip = &CUR_STATE(idx);
 
     // This should not happen ...
     if(sip->si_idx < 0)
@@ -2771,7 +2771,7 @@ static void check_keepend(void)
     int i;
     bpos_st maxpos;
     bpos_st maxpos_h;
-    stateitem_T *sip;
+    state_item_st *sip;
 
     // This check can consume a lot of time;
     // only do it from the level where there really is a keepend.
@@ -2837,7 +2837,7 @@ static void check_keepend(void)
 /// @param force      when TRUE overrule a previous end
 ///
 /// Return the flags for the matched END.
-static void update_si_end(stateitem_T *sip, int startcol, int force)
+static void update_si_end(state_item_st *sip, int startcol, int force)
 {
     bpos_st startpos;
     bpos_st endpos;
@@ -2907,7 +2907,7 @@ static void update_si_end(stateitem_T *sip, int startcol, int force)
 /// It is cleared and the index set to "idx".
 static void push_current_state(int idx)
 {
-    stateitem_T *p = GA_APPEND_VIA_PTR(stateitem_T, &current_state);
+    state_item_st *p = GA_APPEND_VIA_PTR(state_item_st, &current_state);
     memset(p, 0, sizeof(*p));
     p->si_idx = idx;
 }
@@ -3430,7 +3430,7 @@ static int check_keyword_id(uchar_kt *line,
                             int *endcolp,
                             long *flagsp,
                             short **next_listp,
-                            stateitem_T *cur_si,
+                            state_item_st *cur_si,
                             int *ccharp)
 {
     uchar_kt *kwp;
@@ -3494,7 +3494,7 @@ static int check_keyword_id(uchar_kt *line,
 /// Accept a keyword at other levels only if it is in the contains list.
 static keyentry_T *match_keyword(uchar_kt *keyword,
                                  hashtable_st *ht,
-                                 stateitem_T *cur_si)
+                                 state_item_st *cur_si)
 {
     hashitem_st *hi = hash_find(ht, keyword);
 
@@ -6547,7 +6547,7 @@ static short *copy_id_list(short *list)
 /// @param list       id list
 /// @param ssp        group id and ":syn include" tag of group
 /// @param contained  group id is contained
-static int in_id_list(stateitem_T *cur_si,
+static int in_id_list(state_item_st *cur_si,
                       short *list,
                       struct sp_syn *ssp,
                       int contained)
@@ -6567,7 +6567,7 @@ static int in_id_list(stateitem_T *cur_si,
         // Ignore transparent items without a contains argument.  Double check
         // that we don't go back past the first one.
         while((cur_si->si_flags & HL_TRANS_CONT)
-              && cur_si > (stateitem_T *)(current_state.ga_data))
+              && cur_si > (state_item_st *)(current_state.ga_data))
         {
             --cur_si;
         }
