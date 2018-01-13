@@ -197,7 +197,7 @@ typedef struct syn_optarg_s
     short *cont_list;    ///< group IDs for "contains" argument
     short *cont_in_list; ///< group IDs for "containedin" argument
     short *next_list;    ///< group IDs for "nextgroup" argument
-} syn_opt_arg_T;
+} syn_optarg_st;
 
 typedef struct time_entry_s
 {
@@ -4756,7 +4756,7 @@ static uchar_kt *get_group_name(uchar_kt *arg, uchar_kt **name_end)
 /// @param opt           various things
 /// @param conceal_char
 static uchar_kt *get_syn_options(uchar_kt *arg,
-                               syn_opt_arg_T *opt,
+                               syn_optarg_st *opt,
                                int *conceal_char)
 {
     uchar_kt *gname_start;
@@ -5083,7 +5083,7 @@ static void syn_cmd_keyword(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
     uchar_kt *keyword_copy = NULL;
     uchar_kt *p;
     uchar_kt *kw;
-    syn_opt_arg_T syn_opt_arg;
+    syn_optarg_st syn_opt_arg;
     int cnt;
     int conceal_char = NUL;
     rest = get_group_name(arg, &group_name_end);
@@ -5225,7 +5225,7 @@ static void syn_cmd_match(exargs_st *eap, int syncing)
     uchar_kt *rest;
     synpat_st item; // the item found in the line
     int syn_id;
-    syn_opt_arg_T syn_opt_arg;
+    syn_optarg_st syn_opt_arg;
     int sync_idx = 0;
     int conceal_char = NUL;
 
@@ -5363,7 +5363,7 @@ static void syn_cmd_region(exargs_st *eap, int syncing)
     int not_enough = FALSE; // not enough arguments
     int illegal = FALSE; // illegal arguments
     int success = FALSE;
-    syn_opt_arg_T syn_opt_arg;
+    syn_optarg_st syn_opt_arg;
     int conceal_char = NUL;
 
     // Isolate the group name, check for validity
