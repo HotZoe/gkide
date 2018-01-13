@@ -171,7 +171,7 @@ typedef struct
     filebuf_st *buf;
     linenum_kt buflnum;
     linenum_kt lnumlast;
-} qfstate_T;
+} qfstate_st;
 
 typedef struct
 {
@@ -575,7 +575,7 @@ parse_efm_end:
     return fmt_first;
 }
 
-static uchar_kt *qf_grow_linebuf(qfstate_T *state, size_t newsz)
+static uchar_kt *qf_grow_linebuf(qfstate_st *state, size_t newsz)
 {
     // If the line exceeds LINE_MAXLEN exclude the last
     // byte since it's not a NL character.
@@ -596,7 +596,7 @@ static uchar_kt *qf_grow_linebuf(qfstate_T *state, size_t newsz)
 }
 
 /// Get the next string (separated by newline) from state->p_str.
-static int qf_get_next_str_line(qfstate_T *state)
+static int qf_get_next_str_line(qfstate_st *state)
 {
     uchar_kt *p;
     size_t len;
@@ -641,7 +641,7 @@ static int qf_get_next_str_line(qfstate_T *state)
 }
 
 /// Get the next string from state->p_Li.
-static int qf_get_next_list_line(qfstate_T *state)
+static int qf_get_next_list_line(qfstate_st *state)
 {
     listitem_st *p_li = state->p_li;
     size_t len;
@@ -682,7 +682,7 @@ static int qf_get_next_list_line(qfstate_T *state)
 }
 
 /// Get the next string from state->buf.
-static int qf_get_next_buf_line(qfstate_T *state)
+static int qf_get_next_buf_line(qfstate_st *state)
 {
     size_t len;
     uchar_kt *p_buf = NULL;
@@ -712,7 +712,7 @@ static int qf_get_next_buf_line(qfstate_T *state)
 }
 
 /// Get the next string from file state->fd.
-static int qf_get_next_file_line(qfstate_T *state)
+static int qf_get_next_file_line(qfstate_st *state)
 {
     size_t growbuflen;
 
@@ -793,7 +793,7 @@ static int qf_get_next_file_line(qfstate_T *state)
 }
 
 /// Get the next string from a file/buffer/list/string.
-static int qf_get_nextline(qfstate_T *state)
+static int qf_get_nextline(qfstate_st *state)
 {
     int status = kQfFailure;
 
@@ -1294,7 +1294,7 @@ static int qf_init_ext(qfinfo_st *qi,
                        uchar_kt *qf_title)
 {
     qffields_T fields = { NULL, NULL, 0, 0L, 0, false, NULL, 0, 0, 0 };
-    qfstate_T state = { NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
+    qfstate_st state = { NULL, 0, NULL, 0, NULL, NULL, NULL, NULL, NULL, 0, 0 };
 
     qfline_st *old_last = NULL;
     static errfmt_info_st *fmt_first = NULL;
