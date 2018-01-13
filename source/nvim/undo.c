@@ -134,7 +134,7 @@ static void u_check_tree(u_header_T *uhp,
                          u_header_T *exp_uh_next,
                          u_header_T *exp_uh_alt_prev)
 {
-    u_entry_T *uep;
+    undo_blk_st *uep;
 
     if(uhp == NULL)
     {
@@ -379,8 +379,8 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
     long i;
     u_header_T *uhp;
     u_header_T *old_curhead;
-    u_entry_T *uep;
-    u_entry_T *prev_uep;
+    undo_blk_st *uep;
+    undo_blk_st *prev_uep;
     long size;
 
     if(!reload)
@@ -650,8 +650,8 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
     }
 
     // add lines in front of entry list
-    uep = xmalloc(sizeof(u_entry_T));
-    memset(uep, 0, sizeof(u_entry_T));
+    uep = xmalloc(sizeof(undo_blk_st));
+    memset(uep, 0, sizeof(undo_blk_st));
 
 #ifdef U_DEBUG
     uep->ue_magic = UE_MAGIC;
@@ -876,8 +876,8 @@ FUNC_ATTR_NONNULL_ALL
 
 static void u_free_uhp(u_header_T *uhp)
 {
-    u_entry_T *nuep;
-    u_entry_T *uep;
+    undo_blk_st *nuep;
+    undo_blk_st *uep;
     uep = uhp->uh_entry;
 
     while(uep != NULL)
@@ -996,7 +996,7 @@ static bool serialize_uhp(undobuf_st *bi, u_header_T *uhp)
     undo_write_bytes(bi, 0, 1); // Write end marker.
 
     // Write all the entries.
-    for(u_entry_T *uep = uhp->uh_entry; uep; uep = uep->ue_next)
+    for(undo_blk_st *uep = uhp->uh_entry; uep; uep = uep->ue_next)
     {
         undo_write_bytes(bi, (uintmax_t)UF_ENTRY_MAGIC, 2);
 
@@ -1075,13 +1075,13 @@ static u_header_T *unserialize_uhp(undobuf_st *bi, const char *file_name)
     }
 
     // Unserialize the uep list.
-    u_entry_T *last_uep = NULL;
+    undo_blk_st *last_uep = NULL;
     int c;
 
     while((c = undo_read_2c(bi)) == UF_ENTRY_MAGIC)
     {
         bool error = false;
-        u_entry_T *uep = unserialize_uep(bi, &error, file_name);
+        undo_blk_st *uep = unserialize_uep(bi, &error, file_name);
 
         if(last_uep == NULL)
         {
@@ -1117,7 +1117,7 @@ static u_header_T *unserialize_uhp(undobuf_st *bi, const char *file_name)
 /// @param uep The undo entry to write
 //
 /// @returns false in case of an error.
-static bool serialize_uep(undobuf_st *bi, u_entry_T *uep)
+static bool serialize_uep(undobuf_st *bi, undo_blk_st *uep)
 {
     undo_write_bytes(bi, (uintmax_t)uep->ue_top, 4);
     undo_write_bytes(bi, (uintmax_t)uep->ue_bot, 4);
@@ -1142,12 +1142,12 @@ static bool serialize_uep(undobuf_st *bi, u_entry_T *uep)
     return true;
 }
 
-static u_entry_T *unserialize_uep(undobuf_st *bi,
+static undo_blk_st *unserialize_uep(undobuf_st *bi,
                                   bool *error,
                                   const char *file_name)
 {
-    u_entry_T *uep = xmalloc(sizeof(u_entry_T));
-    memset(uep, 0, sizeof(u_entry_T));
+    undo_blk_st *uep = xmalloc(sizeof(undo_blk_st));
+    memset(uep, 0, sizeof(undo_blk_st));
 
 #ifdef U_DEBUG
     uep->ue_magic = UE_MAGIC;
@@ -2696,8 +2696,8 @@ static void u_undoredo(int undo)
     linenum_kt lnum;
     linenum_kt newlnum = MAXLNUM;
     long i;
-    u_entry_T *uep, *nuep;
-    u_entry_T *newlist = NULL;
+    undo_blk_st *uep, *nuep;
+    undo_blk_st *newlist = NULL;
     int old_flags;
     int new_flags;
     filemark_st namedm[NMARKS];
@@ -3329,7 +3329,7 @@ void u_unchanged(filebuf_st *buf)
 void u_find_first_changed(void)
 {
     u_header_T *uhp = curbuf->b_u_newhead;
-    u_entry_T *uep;
+    undo_blk_st *uep;
     linenum_kt lnum;
 
     if(curbuf->b_u_curhead != NULL || uhp == NULL)
@@ -3406,7 +3406,7 @@ static void u_unch_branch(u_header_T *uhp)
 
 /// Get pointer to last added entry.
 /// If it's not valid, give an error message and return NULL.
-static u_entry_T *u_get_headentry(void)
+static undo_blk_st *u_get_headentry(void)
 {
     if(curbuf->b_u_newhead == NULL || curbuf->b_u_newhead->uh_entry == NULL)
     {
@@ -3421,7 +3421,7 @@ static u_entry_T *u_get_headentry(void)
 /// It is called only when b_u_synced is false.
 static void u_getbot(void)
 {
-    u_entry_T *uep;
+    undo_blk_st *uep;
     linenum_kt extra;
     uep = u_get_headentry(); // check for corrupt undo list
 
@@ -3551,7 +3551,7 @@ static void u_freebranch(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 /// @param uhpp  if not NULL reset when freeing this header
 static void u_freeentries(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 {
-    u_entry_T *uep, *nuep;
+    undo_blk_st *uep, *nuep;
 
     // Check for pointers to the header that become invalid now.
     if(buf->b_u_curhead == uhp)
@@ -3584,7 +3584,7 @@ static void u_freeentries(filebuf_st *buf, u_header_T *uhp, u_header_T **uhpp)
 }
 
 /// free entry 'uep' and 'n' lines in uep->ue_array[]
-static void u_freeentry(u_entry_T *uep, long n)
+static void u_freeentry(undo_blk_st *uep, long n)
 {
     while(n > 0)
     {

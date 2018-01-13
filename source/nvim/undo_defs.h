@@ -3,7 +3,7 @@
 #ifndef NVIM_UNDO_DEFS_H
 #define NVIM_UNDO_DEFS_H
 
-#include <time.h>  // for time_t
+#include <time.h>
 
 #include "nvim/pos.h"
 #include "nvim/buffer_defs.h"
@@ -18,27 +18,26 @@ typedef struct
     columnum_kt vi_curswant; ///< MAXCOL from w_curswant
 } visualinfo_st;
 
-typedef struct u_entry u_entry_T;
+typedef struct undo_blk_s   undo_blk_st; ///< undo entry block
+typedef struct undo_hdr_s   u_header_T;///< undo header block
 
-typedef struct u_header u_header_T;
-
-struct u_entry
+struct undo_blk_s
 {
-    u_entry_T *ue_next;   ///< pointer to next entry in list
-    linenum_kt ue_top;     ///< number of line above undo block
-    linenum_kt ue_bot;     ///< number of line below undo block
-    linenum_kt ue_lcount;  ///< linecount when u_save called
-    uchar_kt **ue_array;   ///< array of lines in undo block
-    long ue_size;          ///< number of lines in ue_array
+    undo_blk_st *ue_next;   ///< pointer to next entry in list
+    linenum_kt ue_top;    ///< number of line above undo block
+    linenum_kt ue_bot;    ///< number of line below undo block
+    linenum_kt ue_lcount; ///< linecount when u_save called
+    uchar_kt **ue_array;  ///< array of lines in undo block
+    long ue_size;         ///< number of lines in ue_array
 
 #ifdef U_DEBUG
-    int ue_magic;          ///< magic number to check allocation
+    int ue_magic;         ///< magic number to check allocation
 #endif
 };
 
 /// The following have a pointer and a number.
 /// The number is used when reading the undo file in u_read_undo()
-struct u_header
+struct undo_hdr_s
 {
     union
     {
@@ -61,20 +60,20 @@ struct u_header
         long seq;
     } uh_alt_prev;
 
-    long uh_seq;                ///< sequence number, higher == newer undo
-    int uh_walk;                ///< used by undo_time()
-    u_entry_T *uh_entry;        ///< pointer to first entry
-    u_entry_T *uh_getbot_entry; ///< pointer to where ue_bot must be set
+    long uh_seq;                  ///< sequence number, higher == newer undo
+    int uh_walk;                  ///< used by undo_time()
+    undo_blk_st *uh_entry;          ///< pointer to first entry
+    undo_blk_st *uh_getbot_entry;   ///< pointer to where ue_bot must be set
     apos_st uh_cursor;            ///< cursor position before saving
     long uh_cursor_vcol;
-    int uh_flags;               ///< see below
-    filemark_st uh_namedm[NMARKS];  ///< marks before undo/after redo
-    visualinfo_st uh_visual;     ///< Visual areas before undo/after redo
-    time_t uh_time;             ///< timestamp when the change was made
-    long uh_save_nr;            ///< set when the file was saved after
-                                ///< the changes in this block
+    int uh_flags;                 ///< see below
+    filemark_st uh_namedm[NMARKS];///< marks before undo/after redo
+    visualinfo_st uh_visual;      ///< Visual areas before undo/after redo
+    time_t uh_time;               ///< timestamp when the change was made
+    long uh_save_nr;              ///< set when the file was saved after
+                                  ///< the changes in this block
 #ifdef U_DEBUG
-    int uh_magic;               ///< magic number to check allocation
+    int uh_magic;                 ///< magic number to check allocation
 #endif
 };
 
