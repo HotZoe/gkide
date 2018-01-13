@@ -12897,7 +12897,7 @@ static void f_getmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
             // match added with matchaddpos()
             for(i = 0; i < MAXPOSMATCH; ++i)
             {
-                llpos_T   *llpos;
+                cpos_st   *llpos;
                 char buf[6];
                 llpos = &cur->pos.pos[i];
 

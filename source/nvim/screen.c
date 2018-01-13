@@ -7663,7 +7663,7 @@ static int next_search_hl_pos(match_T *shl,
 
     for(i = posmatch->cur; i < MAXPOSMATCH; i++)
     {
-        llpos_T *pos = &posmatch->pos[i];
+        cpos_st *pos = &posmatch->pos[i];
 
         if(pos->lnum == 0)
         {
@@ -7683,7 +7683,7 @@ static int next_search_hl_pos(match_T *shl,
                 // at "found" then swap them
                 if(pos->col < posmatch->pos[found].col)
                 {
-                    llpos_T tmp = *pos;
+                    cpos_st tmp = *pos;
                     *pos = posmatch->pos[found];
                     posmatch->pos[found] = tmp;
                 }

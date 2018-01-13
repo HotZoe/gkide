@@ -552,9 +552,9 @@ struct filebuf_s
     long b_u_save_nr_cur;    ///< file write nr after which we are now
 
     // variables for "U" command in undo.c
-    uchar_kt *b_u_line_ptr;  ///< saved line for "U" command
-    linenum_kt b_u_line_lnum;  ///< line number of line in u_line
-    columnum_kt b_u_line_colnr;  ///< optional column number
+    uchar_kt *b_u_line_ptr;     ///< saved line for "U" command
+    linenum_kt b_u_line_lnum;   ///< line number of line in u_line
+    columnum_kt b_u_line_colnr; ///< optional column number
 
     /// ^N/^P have scanned this buffer
     bool b_scanned;
@@ -571,7 +571,7 @@ struct filebuf_s
     short b_kmap_state;          ///< using "lmap" mappings
 #define KEYMAP_INIT         1    ///< 'keymap' was set, call keymap_init()
 #define KEYMAP_LOADED       2    ///< 'keymap' mappings have been loaded
-    garray_st b_kmap_ga;          ///< the keymap table
+    garray_st b_kmap_ga;         ///< the keymap table
 
     //////////////////////////////////////////////////////////////
     // Options local to a buffer.
@@ -705,7 +705,7 @@ struct filebuf_s
     int b_ind_cpp_namespace;
     int b_ind_if_for_while;
 
-    linenum_kt b_no_eol_lnum;   ///< non-zero lnum when last line of next binary
+    linenum_kt b_no_eol_lnum; ///< non-zero lnum when last line of next binary
                               ///< write should not have an end-of-line
     int b_start_eol;          ///< last line had eol when it was read
     int b_start_ffc;          ///< first char of 'ff' when edit started
@@ -724,8 +724,10 @@ struct filebuf_s
     bool b_did_warn;
 
     // Two special kinds of buffers:
-    // help buffer  - used for help files, won't use a swap file.
-    // spell buffer - used for spell info, never displayed and doesn't have a file name.
+    // help buffer:
+    //     used for help files, won't use a swap file.
+    // spell buffer:
+    //    used for spell info, never displayed and doesn't have a file name.
     bool b_help;  ///< TRUE for help file buffer (when set b_p_bt is "help")
 
     bool b_spell; ///< True for a spell file buffer, most fields
@@ -738,7 +740,7 @@ struct filebuf_s
 
     signlist_T *b_signlist;     ///< list of signs to draw
     Terminal *terminal;         ///< Terminal instance associated with the buffer
-    dict_st *additional_data;    ///< Additional data from shada file if any.
+    dict_st *additional_data;   ///< Additional data from shada file if any.
     int b_mapped_ctrl_c;        ///< modes where CTRL-C is mapped
     bufhl_info_T *b_bufhl_info; ///< buffer stored highlights
 };
@@ -778,12 +780,12 @@ typedef struct tabpage_s tabpage_st;
 struct tabpage_s
 {
     handle_kt handle;
-    tabpage_st *tp_next;     ///< next tabpage or NULL
-    frame_st *tp_topframe;   ///< topframe for the windows
-    win_st *tp_curwin;       ///< current window in this Tab page
-    win_st *tp_prevwin;      ///< previous window in this Tab page
-    win_st *tp_firstwin;     ///< first window in this Tab page
-    win_st *tp_lastwin;      ///< last window in this Tab page
+    tabpage_st *tp_next;    ///< next tabpage or NULL
+    frame_st *tp_topframe;  ///< topframe for the windows
+    win_st *tp_curwin;      ///< current window in this Tab page
+    win_st *tp_prevwin;     ///< previous window in this Tab page
+    win_st *tp_firstwin;    ///< first window in this Tab page
+    win_st *tp_lastwin;     ///< last window in this Tab page
     long tp_old_Rows;       ///< Rows when Tab page was left
     long tp_old_Columns;    ///< Columns when Tab page was left
     long tp_ch_used;        ///< value of 'cmdheight' when frame size was set
@@ -791,9 +793,9 @@ struct tabpage_s
     diff_T *tp_first_diff;
     filebuf_st *(tp_diffbuf[DB_COUNT]);
     int tp_diff_invalid;                ///< list of diffs is outdated
-    frame_st *(tp_snapshot[SNAP_COUNT]); ///< window layout snapshots
-    scope_dict_st tp_winvar;             ///< Variable for "t:" Dictionary.
-    dict_st *tp_vars;                    ///< Internal variables, local to tab page.
+    frame_st *(tp_snapshot[SNAP_COUNT]);///< window layout snapshots
+    scope_dict_st tp_winvar;            ///< Variable for "t:" Dictionary.
+    dict_st *tp_vars;                   ///< Internal variables, local to tab page.
     uchar_kt *tp_localdir;              ///< Absolute path of local cwd or NULL.
 };
 
@@ -809,26 +811,26 @@ struct tabpage_s
 /// wl_lnum and wl_lastlnum are invalid too.
 typedef struct w_line
 {
-    linenum_kt wl_lnum;       ///< buffer line number for logical line
+    linenum_kt wl_lnum;     ///< buffer line number for logical line
     uint16_t wl_size;       ///< height in screen lines
     char wl_valid;          ///< TRUE values are valid for text in buffer
     char wl_folded;         ///< TRUE when this is a range of folded lines
-    linenum_kt wl_lastlnum;   ///< last buffer line number for logical line
+    linenum_kt wl_lastlnum; ///< last buffer line number for logical line
 } wline_T;
 
 /// Windows are kept in a tree of frames.  Each frame has a column (FR_COL)
 /// or row (FR_ROW) layout or is a leaf, which has a window.
 struct frame_s
 {
-    char fr_layout;     ///< FR_LEAF, FR_COL or FR_ROW
+    char fr_layout;      ///< FR_LEAF, FR_COL or FR_ROW
     int fr_width;
-    int fr_newwidth;    ///< new width used in win_equal_rec()
+    int fr_newwidth;     ///< new width used in win_equal_rec()
     int fr_height;
-    int fr_newheight;   ///< new height used in win_equal_rec()
+    int fr_newheight;    ///< new height used in win_equal_rec()
     frame_st *fr_parent; ///< containing frame or NULL
     frame_st *fr_next;   ///< frame right or below in same parent, NULL for first
     frame_st *fr_prev;   ///< frame left or above in same parent, NULL  for last
-                        ///< fr_child and fr_win are mutually exclusive
+                         ///< fr_child and fr_win are mutually exclusive
     frame_st *fr_child;  ///< first contained frame
     win_st *fr_win;      ///< window that fills this frame
 };
@@ -863,16 +865,16 @@ typedef struct
 typedef struct
 {
     linenum_kt  lnum; ///< line number
-    columnum_kt col;    ///< column number
-    int len;        ///< length: 0 - to the end of line
-} llpos_T;
+    columnum_kt col;  ///< column number
+    int len;          ///< length: 0 - to the end of line
+} cpos_st;
 
 /// posmatch_T provides an array for storing match items
 /// for matchaddpos() function.
 typedef struct posmatch posmatch_T;
 struct posmatch
 {
-    llpos_T pos[MAXPOSMATCH]; ///< array of positions
+    cpos_st pos[MAXPOSMATCH]; ///< array of positions
     int cur;                  ///< internal position counter
     linenum_kt toplnum;         ///< top buffer line
     linenum_kt botlnum;         ///< bottom buffer line
