@@ -16617,7 +16617,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    ListReaderState lrstate = encode_init_lrstate(list);
+    list_state_st lrstate = encode_init_lrstate(list);
     msgpack_unpacker *const unpacker = msgpack_unpacker_new(IOSIZE);
 
     if(unpacker == NULL)

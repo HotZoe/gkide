@@ -290,7 +290,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
         return true;
     }
 
-    ListReaderState lrstate = encode_init_lrstate(list);
+    list_state_st lrstate = encode_init_lrstate(list);
     char *const buf = xmalloc(len);
     size_t read_bytes;
 
@@ -324,7 +324,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 /// OK when reading was finished, FAIL in case of error
 /// (i.e. list item was not a string), NOTDONE if reading
 /// was successfull, but there are more bytes to read.
-int encode_read_from_list(ListReaderState *const state,
+int encode_read_from_list(list_state_st *const state,
                           char *const buf,
                           const size_t nbuf,
                           size_t *const read_bytes)
