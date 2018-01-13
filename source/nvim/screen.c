@@ -7654,7 +7654,7 @@ static void next_search_hl(win_st *win,
 /// @return zero otherwise.
 static int next_search_hl_pos(hlmatch_st *shl,
                               linenum_kt lnum,
-                              posmatch_T *posmatch,
+                              posmatch_st *posmatch,
                               columnum_kt mincol)
 {
     int i;

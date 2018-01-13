@@ -869,9 +869,9 @@ typedef struct
     int len;          ///< length: 0 - to the end of line
 } cpos_st;
 
-/// posmatch_T provides an array for storing match items
+/// posmatch_st provides an array for storing match items
 /// for matchaddpos() function.
-typedef struct posmatch_s posmatch_T;
+typedef struct posmatch_s posmatch_st;
 struct posmatch_s
 {
     cpos_st pos[MAXPOSMATCH]; ///< array of positions
@@ -891,7 +891,7 @@ struct matchitem_s
     uchar_kt *pattern;  ///< pattern to highlight
     int hlg_id;         ///< highlight group ID
     regmmatch_st match; ///< regexp program for pattern
-    posmatch_T pos;    ///< position matches
+    posmatch_st pos;    ///< position matches
     hlmatch_st hl;      ///< struct for doing the actual highlighting
     int conceal_char;   ///< cchar for Conceal highlighting
 };
