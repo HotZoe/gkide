@@ -299,10 +299,10 @@ static int running_syn_inc_tag = 0;
 /// KE2HIKEY() converts a var pointer to a hashitem key pointer.
 /// HIKEY2KE() converts a hashitem key pointer to a var pointer.
 /// HI2KE() converts a hashitem pointer to a var pointer.
-static keyentry_T dumkey;
+static keyentry_st dumkey;
 
 #define KE2HIKEY(kp)  ((kp)->keyword)
-#define HIKEY2KE(p)   ((keyentry_T *)((p) - (dumkey.keyword - (uchar_kt *)&dumkey)))
+#define HIKEY2KE(p)   ((keyentry_st *)((p) - (dumkey.keyword - (uchar_kt *)&dumkey)))
 #define HI2KE(hi)     HIKEY2KE((hi)->hi_key)
 
 /// To reduce the time spent in keepend(), remember at which level in the
@@ -3461,7 +3461,7 @@ static int check_keyword_id(uchar_kt *line,
     // Must make a copy of the keyword, so
     // we can add a NUL and make it lowercase.
     STRLCPY(keyword, kwp, kwlen + 1);
-    keyentry_T *kp = NULL;
+    keyentry_st *kp = NULL;
 
     // matching case
     if(syn_block->b_keywtab.ht_used != 0)
@@ -3492,7 +3492,7 @@ static int check_keyword_id(uchar_kt *line,
 /// When current_next_list is non-zero accept only that group, otherwise:
 /// Accept a not-contained keyword at toplevel.
 /// Accept a keyword at other levels only if it is in the contains list.
-static keyentry_T *match_keyword(uchar_kt *keyword,
+static keyentry_st *match_keyword(uchar_kt *keyword,
                                  hashtable_st *ht,
                                  state_item_st *cur_si)
 {
@@ -3500,7 +3500,7 @@ static keyentry_T *match_keyword(uchar_kt *keyword,
 
     if(!HASHITEM_EMPTY(hi))
     {
-        for(keyentry_T *kp = HI2KE(hi); kp != NULL; kp = kp->ke_next)
+        for(keyentry_st *kp = HI2KE(hi); kp != NULL; kp = kp->ke_next)
         {
             if(current_next_list != 0
                ? in_id_list(NULL, current_next_list, &kp->k_syn, 0)
@@ -4468,7 +4468,7 @@ static int syn_list_keywords(int id, hashtable_st *ht,int did_header, int attr)
 {
     int outlen;
     hashitem_st *hi;
-    keyentry_T *kp;
+    keyentry_st *kp;
     int todo;
     int prev_contained = 0;
     short *prev_next_list = NULL;
@@ -4574,9 +4574,9 @@ static int syn_list_keywords(int id, hashtable_st *ht,int did_header, int attr)
 static void syn_clear_keyword(int id, hashtable_st *ht)
 {
     hashitem_st *hi;
-    keyentry_T *kp;
-    keyentry_T *kp_prev;
-    keyentry_T *kp_next;
+    keyentry_st *kp;
+    keyentry_st *kp_prev;
+    keyentry_st *kp_next;
     int todo;
     hash_lock(ht);
     todo = (int)ht->ht_used;
@@ -4634,8 +4634,8 @@ static void clear_keywtab(hashtable_st *ht)
 {
     hashitem_st *hi;
     int todo;
-    keyentry_T *kp;
-    keyentry_T *kp_next;
+    keyentry_st *kp;
+    keyentry_st *kp_next;
     todo = (int)ht->ht_used;
 
     for(hi = ht->ht_array; todo > 0; ++hi)
@@ -4681,7 +4681,7 @@ static void add_keyword(uchar_kt *name,
                                      sizeof(name_folded))
                       : name;
 
-    keyentry_T *kp = xmalloc(sizeof(keyentry_T) + STRLEN(name_ic));
+    keyentry_st *kp = xmalloc(sizeof(keyentry_st) + STRLEN(name_ic));
     STRCPY(kp->keyword, name_ic);
     kp->k_syn.id = id;
     kp->k_syn.inc_tag = current_syn_inc_tag;

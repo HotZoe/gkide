@@ -28,11 +28,10 @@ struct syn_args_s
 typedef struct syn_args_s syn_args_st;
 
 /// Each keyword has one keyentry, which is linked in a hash list.
-typedef struct keyentry keyentry_T;
-
-struct keyentry
+typedef struct keyentry_s keyentry_st;
+struct keyentry_s
 {
-    keyentry_T *ke_next; ///< next entry with identical "keyword[]"
+    keyentry_st *ke_next; ///< next entry with identical "keyword[]"
     syn_args_st k_syn;    ///< struct passed to in_id_list()
     short *next_list;     ///< ID list for next match (if non-zero)
     int flags;
@@ -55,7 +54,6 @@ typedef struct bufstate_s
 /// syn_state contains the syntax state stack for
 /// the start of one line. Used by b_sst_array[].
 typedef struct synstate_s synstate_st;
-
 struct synstate_s
 {
     /// next entry in used or free list
