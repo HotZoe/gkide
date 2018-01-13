@@ -102,7 +102,7 @@ typedef struct
     bool busy;
     cursor_info_st cursor_shapes[SHAPE_IDX_COUNT];
     HlAttrs print_attrs;
-    ModeShape showing_mode;
+    mode_shape_et showing_mode;
     TermType term;
 
     struct
@@ -778,7 +778,7 @@ static void tui_mouse_off(UI *ui)
     }
 }
 
-static void tui_set_mode(UI *ui, ModeShape mode)
+static void tui_set_mode(UI *ui, mode_shape_et mode)
 {
     if(!cursor_style_enabled)
     {
@@ -887,8 +887,8 @@ static void tui_mode_change(UI *ui,
 {
     TUIData *data = ui->data;
 
-    tui_set_mode(ui, (ModeShape)mode_idx);
-    data->showing_mode = (ModeShape)mode_idx;
+    tui_set_mode(ui, (mode_shape_et)mode_idx);
+    data->showing_mode = (mode_shape_et)mode_idx;
 }
 
 static void tui_set_scroll_region(UI *ui,

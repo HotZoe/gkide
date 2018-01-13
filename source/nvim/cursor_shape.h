@@ -8,7 +8,7 @@
 
 /// struct to store values from 'guicursor'
 /// and 'mouseshape' Indexes in shape_table[]
-typedef enum
+typedef enum mode_shape_e
 {
     SHAPE_IDX_N      = 0,   ///< Normal mode
     SHAPE_IDX_V      = 1,   ///< Visual mode
@@ -28,7 +28,7 @@ typedef enum
     SHAPE_IDX_MOREL  = 15,  ///< Hit-return or More in last line
     SHAPE_IDX_SMP    = 16,  ///< showing matching paren
     SHAPE_IDX_COUNT  = 17
-} ModeShape;
+} mode_shape_et;
 
 typedef enum
 {
