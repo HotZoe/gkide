@@ -52,7 +52,7 @@ gperfpipe:write([[
 %define lookup-function-name find_internal_func_gperf
 %omit-struct-type
 %struct-type
-VimLFuncDef;
+nviml_func_st;
 %%
 ]])
 

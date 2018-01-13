@@ -523,16 +523,16 @@ typedef void (*func_ptr_ft)(void);
 typedef void (*nvl_func_ft)(typval_st *args, typval_st *rvar, func_ptr_ft data);
 
 /// Structure holding NvimL function definition
-typedef struct fst
+typedef struct nviml_func_s
 {
     char *name;        ///< Name of the function.
     uint8_t min_argc;  ///< Minimal number of arguments.
     uint8_t max_argc;  ///< Maximal number of arguments.
     nvl_func_ft func;  ///< Function implementation.
     func_ptr_ft data;  ///< Userdata for function implementation.
-} VimLFuncDef;
+} nviml_func_st;
 
-KHASH_MAP_INIT_STR(functions, VimLFuncDef)
+KHASH_MAP_INIT_STR(functions, nviml_func_st)
 
 /// Type of assert_* check being performed
 typedef enum
@@ -7832,8 +7832,10 @@ uchar_kt *get_expr_name(expand_st *xp, int idx)
 /// @param[in]  name  Name of the function.
 ///
 /// Returns pointer to the function definition or NULL if not found.
-static const VimLFuncDef *find_internal_func(const char *const name)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE FUNC_ATTR_NONNULL_ALL
+static const nviml_func_st *find_internal_func(const char *const name)
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     size_t len = strlen(name);
     return find_internal_func_gperf(name, len);
@@ -8358,7 +8360,7 @@ int call_func(const uchar_kt *funcname,
         else
         {
             // Find the function name in the table, call its implementation.
-            const VimLFuncDef *const fdef =
+            const nviml_func_st *const fdef =
                 find_internal_func((const char *)fname);
 
             if(fdef != NULL)
