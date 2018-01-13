@@ -36,7 +36,7 @@ void set_scroll_region(Integer top, Integer bot, Integer left, Integer right)
 FUNC_API_SINCE(3);
 void scroll(Integer count)
 FUNC_API_SINCE(3);
-void highlight_set(HlAttrs attrs)
+void highlight_set(uihl_attr_st attrs)
 FUNC_API_SINCE(3) FUNC_API_REMOTE_IMPL FUNC_API_BRIDGE_IMPL;
 void put(String str)
 FUNC_API_SINCE(3);

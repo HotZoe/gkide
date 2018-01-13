@@ -432,8 +432,8 @@ void ui_flush(void)
 
 static void set_highlight_args(int attr_code)
 {
-    HlAttrs rgb_attrs = { false, false, false, false, false, -1, -1, -1 };
-    HlAttrs cterm_attrs = rgb_attrs;
+    uihl_attr_st rgb_attrs = { false, false, false, false, false, -1, -1, -1 };
+    uihl_attr_st cterm_attrs = rgb_attrs;
 
     if(attr_code == HL_NORMAL)
     {

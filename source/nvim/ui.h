@@ -20,7 +20,7 @@ typedef enum
 
 #define UI_WIDGETS   (kUIWildmenu + 1)
 
-typedef struct
+typedef struct uihl_attr_s
 {
     bool bold;
     bool underline;
@@ -30,7 +30,7 @@ typedef struct
     int foreground;
     int background;
     int special;
-} HlAttrs;
+} uihl_attr_st;
 
 typedef struct ui_t UI;
 

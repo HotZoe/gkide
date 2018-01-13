@@ -12,7 +12,7 @@ typedef struct ugrid UGrid;
 struct ucell
 {
     char data[6 * MAX_MCO + 1];
-    HlAttrs attrs;
+    uihl_attr_st attrs;
 };
 
 struct ugrid
@@ -27,12 +27,12 @@ struct ugrid
     int fg;
     int width;
     int height;
-    HlAttrs attrs;
+    uihl_attr_st attrs;
     UCell **cells;
 };
 
 #define EMPTY_ATTRS \
-    ((HlAttrs) { false, false, false, false, false, -1, -1, -1 })
+    ((uihl_attr_st) { false, false, false, false, false, -1, -1, -1 })
 
 #define UGRID_FOREACH_CELL(grid, top, bot, left, right, code) \
     do                                                        \

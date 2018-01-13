@@ -284,7 +284,7 @@ static void push_call(UI *ui, char *name, Array args)
     kv_A(data->buffer, kv_size(data->buffer) - 1).data.array = call;
 }
 
-static void remote_ui_highlight_set(UI *ui, HlAttrs attrs)
+static void remote_ui_highlight_set(UI *ui, uihl_attr_st attrs)
 {
     Array args = ARRAY_DICT_INIT;
     Dictionary hl = ARRAY_DICT_INIT;

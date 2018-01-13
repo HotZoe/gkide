@@ -101,7 +101,7 @@ typedef struct
     bool mouse_enabled;
     bool busy;
     cursor_info_st cursor_shapes[kCsrShpIdxAllIndexCount];
-    HlAttrs print_attrs;
+    uihl_attr_st print_attrs;
     mode_shape_et showing_mode;
     TermType term;
 
@@ -375,7 +375,7 @@ static void sigwinch_cb(SignalWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
     ui_schedule_refresh();
 }
 
-static bool attrs_differ(HlAttrs a1, HlAttrs a2)
+static bool attrs_differ(uihl_attr_st a1, uihl_attr_st a2)
 {
     return a1.foreground != a2.foreground
            || a1.background != a2.background
@@ -386,7 +386,7 @@ static bool attrs_differ(HlAttrs a1, HlAttrs a2)
            || a1.reverse != a2.reverse;
 }
 
-static void update_attrs(UI *ui, HlAttrs attrs)
+static void update_attrs(UI *ui, uihl_attr_st attrs)
 {
     TUIData *data = ui->data;
 
@@ -473,7 +473,7 @@ static void clear_region(UI *ui, int top, int bot, int left, int right)
         // Background is set to the default color and the right edge
         // matches the screen end, try to use terminal codes for
         // clearing the requested area.
-        HlAttrs clear_attrs = EMPTY_ATTRS;
+        uihl_attr_st clear_attrs = EMPTY_ATTRS;
 
         clear_attrs.foreground = grid->fg;
         clear_attrs.background = grid->bg;
@@ -936,7 +936,7 @@ static void tui_scroll(UI *ui, Integer count)
         // or some terminals can become funny
         if(scroll_clears_to_current_colour)
         {
-            HlAttrs clear_attrs = EMPTY_ATTRS;
+            uihl_attr_st clear_attrs = EMPTY_ATTRS;
             clear_attrs.foreground = grid->fg;
             clear_attrs.background = grid->bg;
             update_attrs(ui, clear_attrs);
@@ -989,7 +989,7 @@ static void tui_scroll(UI *ui, Integer count)
     }
 }
 
-static void tui_highlight_set(UI *ui, HlAttrs attrs)
+static void tui_highlight_set(UI *ui, uihl_attr_st attrs)
 {
     ((TUIData *)ui->data)->grid.attrs = attrs;
 }

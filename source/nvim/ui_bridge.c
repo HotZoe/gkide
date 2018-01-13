@@ -171,16 +171,16 @@ static void ui_bridge_stop_event(void **argv)
     ui->stop(ui);
 }
 
-static void ui_bridge_highlight_set(UI *b, HlAttrs attrs)
+static void ui_bridge_highlight_set(UI *b, uihl_attr_st attrs)
 {
-    HlAttrs *a = xmalloc(sizeof(HlAttrs));
+    uihl_attr_st *a = xmalloc(sizeof(uihl_attr_st));
     *a = attrs;
     UI_CALL(b, highlight_set, 2, b, a);
 }
 static void ui_bridge_highlight_set_event(void **argv)
 {
     UI *ui = UI(argv[0]);
-    ui->highlight_set(ui, *((HlAttrs *)argv[1]));
+    ui->highlight_set(ui, *((uihl_attr_st *)argv[1]));
     xfree(argv[1]);
 }
 

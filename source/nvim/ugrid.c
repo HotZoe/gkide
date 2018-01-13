@@ -144,7 +144,7 @@ static void clear_region(UGrid *grid,
                          int left,
                          int right)
 {
-    HlAttrs clear_attrs = EMPTY_ATTRS;
+    uihl_attr_st clear_attrs = EMPTY_ATTRS;
 
     clear_attrs.foreground = grid->fg;
     clear_attrs.background = grid->bg;
