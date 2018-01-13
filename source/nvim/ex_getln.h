@@ -46,7 +46,7 @@ typedef enum history_type_e
 /// Number of history tables
 #define HIST_COUNT      (kHistDebug + 1)
 
-typedef uchar_kt *(*CompleteListItemGetter)(expand_st *, int);
+typedef uchar_kt *(*complete_list_item_getter_ft)(expand_st *, int);
 
 /// History entry definition
 typedef struct history_s

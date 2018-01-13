@@ -5141,7 +5141,7 @@ void ExpandGeneric(expand_st *xp,
                    regmatch_st *regmatch,
                    int *num_file,
                    uchar_kt ***file,
-                   CompleteListItemGetter func,
+                   complete_list_item_getter_ft func,
                    int escaped)
 {
     int i;
