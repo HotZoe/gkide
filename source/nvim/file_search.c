@@ -162,7 +162,7 @@ typedef struct ff_visited_list_hdr
 /// - ffsc_stopdirs_v: array of stop directories for upward search
 /// - ffsc_find_what:  FINDFILE_BOTH, FINDFILE_DIR or FINDFILE_FILE
 /// - ffsc_tagfile:    searching for tags file, don't use 'suffixesadd'
-typedef struct ff_search_ctx_T
+typedef struct filesearch_ctx_s
 {
     ff_stack_T *ffsc_stack_ptr;
     ff_visited_list_hdr_T *ffsc_visited_list;
@@ -177,7 +177,7 @@ typedef struct ff_search_ctx_T
     uchar_kt **ffsc_stopdirs_v;
     int ffsc_find_what;
     int ffsc_tagfile;
-} ff_search_ctx_T;
+} filesearch_ctx_st;
 
 // locally needed functions
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -260,7 +260,7 @@ void *vim_findfile_init(uchar_kt *path,
 {
     uchar_kt *wc_part;
     ff_stack_T *sptr;
-    ff_search_ctx_T *search_ctx;
+    filesearch_ctx_st *search_ctx;
 
     // If a search context is given by the caller,
     // reuse it, else allocate a new one.
@@ -270,7 +270,7 @@ void *vim_findfile_init(uchar_kt *path,
     }
     else
     {
-        search_ctx = xcalloc(1, sizeof(ff_search_ctx_T));
+        search_ctx = xcalloc(1, sizeof(filesearch_ctx_st));
     }
 
     search_ctx->ffsc_find_what = find_what;
@@ -670,14 +670,14 @@ uchar_kt *vim_findfile(void *search_ctx_arg)
     size_t len;
     uchar_kt *p;
     uchar_kt *suf;
-    ff_search_ctx_T *search_ctx;
+    filesearch_ctx_st *search_ctx;
 
     if(search_ctx_arg == NULL)
     {
         return NULL;
     }
 
-    search_ctx = (ff_search_ctx_T *)search_ctx_arg;
+    search_ctx = (filesearch_ctx_st *)search_ctx_arg;
 
     // filepath is used as buffer for various actions
     // and as the storage to return a found filename.
@@ -1132,14 +1132,14 @@ uchar_kt *vim_findfile(void *search_ctx_arg)
 /// Can handle it if the passed search_context is NULL;
 void vim_findfile_free_visited(void *search_ctx_arg)
 {
-    ff_search_ctx_T *search_ctx;
+    filesearch_ctx_st *search_ctx;
 
     if(search_ctx_arg == NULL)
     {
         return;
     }
 
-    search_ctx = (ff_search_ctx_T *)search_ctx_arg;
+    search_ctx = (filesearch_ctx_st *)search_ctx_arg;
 
     vim_findfile_free_visited_list(&search_ctx->ffsc_visited_lists_list);
     vim_findfile_free_visited_list(&search_ctx->ffsc_dir_visited_lists_list);
@@ -1387,7 +1387,7 @@ static ff_stack_T *ff_create_stack_element(uchar_kt *fix_part,
 }
 
 /// Push a dir on the directory stack.
-static void ff_push(ff_search_ctx_T *search_ctx, ff_stack_T *stack_ptr)
+static void ff_push(filesearch_ctx_st *search_ctx, ff_stack_T *stack_ptr)
 {
     // check for NULL pointer, not to return an
     // error to the user, but to prevent a crash
@@ -1400,7 +1400,7 @@ static void ff_push(ff_search_ctx_T *search_ctx, ff_stack_T *stack_ptr)
 
 /// Pop a dir from the directory stack.
 /// Returns NULL if stack is empty.
-static ff_stack_T *ff_pop(ff_search_ctx_T *search_ctx)
+static ff_stack_T *ff_pop(filesearch_ctx_st *search_ctx)
 {
     ff_stack_T *sptr;
     sptr = search_ctx->ffsc_stack_ptr;
@@ -1429,7 +1429,7 @@ static void ff_free_stack_element(ff_stack_T *stack_ptr)
 }
 
 /// Clear the search context, but NOT the visited list.
-static void ff_clear(ff_search_ctx_T *search_ctx)
+static void ff_clear(filesearch_ctx_st *search_ctx)
 {
     ff_stack_T *sptr;
 
