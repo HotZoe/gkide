@@ -210,7 +210,7 @@ typedef enum shada_read_result_e
 } shada_read_result_et;
 
 /// Possible results of shada_write function.
-typedef enum
+typedef enum shada_write_result_e
 {
     kSDWriteSuccessfull,   ///< Writing was successfull.
     kSDWriteReadNotShada,  ///< Writing was successfull, but when reading it
@@ -222,7 +222,7 @@ typedef enum
                            ///< ignored (e.g. when trying to dump a function
                            ///< reference or self-referencing container in a
                            ///<  variable).
-} ShaDaWriteResult;
+} shada_write_result_et;
 
 /// Flags for shada_read_next_item
 enum SRNIFlags
@@ -2035,12 +2035,12 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///                        restrictions.
 ///
 /// @return kSDWriteSuccessfull, kSDWriteFailed or kSDWriteIgnError.
-static ShaDaWriteResult shada_pack_entry(msgpack_packer *const packer,
+static shada_write_result_et shada_pack_entry(msgpack_packer *const packer,
                                          ShadaEntry entry,
                                          const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
 {
-    ShaDaWriteResult ret = kSDWriteFailed;
+    shada_write_result_et ret = kSDWriteFailed;
     msgpack_sbuffer sbuf;
     msgpack_sbuffer_init(&sbuf);
 
@@ -2489,13 +2489,13 @@ shada_pack_entry_error:
 ///
 /// @param[in]  max_kbyte
 /// Maximum size of an item in KiB. Zero means no restrictions.
-static inline ShaDaWriteResult shada_pack_pfreed_entry(msgpack_packer *const packer,
+static inline shada_write_result_et shada_pack_pfreed_entry(msgpack_packer *const packer,
                                                        PossiblyFreedShadaEntry entry,
                                                        const size_t max_kbyte)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_ALWAYS_INLINE
 {
-    ShaDaWriteResult ret = kSDWriteSuccessfull;
+    shada_write_result_et ret = kSDWriteSuccessfull;
     ret = shada_pack_entry(packer, entry.data, max_kbyte);
 
     if(entry.can_free_entry)
@@ -2663,7 +2663,7 @@ shada_parse_msgpack_extra_bytes:
 /// @param[in,out]  ret_wms     Location where results are saved.
 /// @param[out]     packer      MessagePack packer for entries which are not
 ///                             merged.
-static inline ShaDaWriteResult shada_read_when_writing(ShaDaReadDef *const sd_reader,
+static inline shada_write_result_et shada_read_when_writing(ShaDaReadDef *const sd_reader,
                                                        const unsigned srni_flags,
                                                        const size_t max_kbyte,
                                                        WriteMergerState *const wms,
@@ -2671,7 +2671,7 @@ static inline ShaDaWriteResult shada_read_when_writing(ShaDaReadDef *const sd_re
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    ShaDaWriteResult ret = kSDWriteSuccessfull;
+    shada_write_result_et ret = kSDWriteSuccessfull;
     ShadaEntry entry;
     shada_read_result_et srni_ret;
 
@@ -3104,11 +3104,11 @@ FUNC_ATTR_ALWAYS_INLINE
 /// Structure containing file reader definition.
 /// If it is not NULL then contents of this file
 /// will be merged with current Neovim runtime.
-static ShaDaWriteResult shada_write(ShaDaWriteDef *const sd_writer,
+static shada_write_result_et shada_write(ShaDaWriteDef *const sd_writer,
                                     ShaDaReadDef *const sd_reader)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    ShaDaWriteResult ret = kSDWriteSuccessfull;
+    shada_write_result_et ret = kSDWriteSuccessfull;
     int max_kbyte_i = get_shada_parameter('s');
 
     if(max_kbyte_i < 0)
@@ -3270,7 +3270,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             typval_st tgttv;
             tv_copy(&vartv, &tgttv);
-            ShaDaWriteResult spe_ret;
+            shada_write_result_et spe_ret;
 
             if((spe_ret = shada_pack_entry(packer, (ShadaEntry) {
                     .type = kSDItemVariable,
@@ -3583,7 +3583,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     if(sd_reader != NULL)
     {
-        const ShaDaWriteResult srww_ret =
+        const shada_write_result_et srww_ret =
             shada_read_when_writing(sd_reader,
                                     srni_flags,
                                     max_kbyte,
@@ -3937,7 +3937,7 @@ shada_write_file_nomerge:
         verbose_leave();
     }
 
-    const ShaDaWriteResult sw_ret = shada_write(&sd_writer,
+    const shada_write_result_et sw_ret = shada_write(&sd_writer,
                                                 (nomerge
                                                 ? NULL : &sd_reader));
     assert(sw_ret != kSDWriteIgnError);
