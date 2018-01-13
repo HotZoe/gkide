@@ -397,17 +397,17 @@ typedef struct pfse_info_s
 } pfse_info_st;
 
 /// Structure that holds one file marks.
-typedef struct
+typedef struct filemark_s
 {
-    pfse_info_st marks[NLOCALMARKS]; ///< All file marks.
+    pfse_info_st marks[NLOCALMARKS];    ///< All file marks.
     pfse_info_st changes[JUMPLISTSIZE]; ///< All file changes.
-    size_t changes_size; ///< Number of changes occupied.
-    shada_entry_st *additional_marks; ///< All marks with unknown names.
-    size_t additional_marks_size; ///< Size of the additional_marks array.
-    timestamp_kt greatest_timestamp; ///< Greatest timestamp among marks.
-} FileMarks;
+    size_t changes_size;                ///< Number of changes occupied.
+    shada_entry_st *additional_marks;   ///< All marks with unknown names.
+    size_t additional_marks_size;       ///< Size of the additional_marks array.
+    timestamp_kt greatest_timestamp;    ///< Greatest timestamp among marks.
+} filemark_st;
 
-KHASH_MAP_INIT_STR(file_marks, FileMarks)
+KHASH_MAP_INIT_STR(file_marks, filemark_st)
 
 /// State structure used by shada_write
 ///
@@ -2506,7 +2506,7 @@ FUNC_ATTR_ALWAYS_INLINE
     return ret;
 }
 
-/// Compare two FileMarks structure to order them by greatest_timestamp
+/// Compare two filemark_st structure to order them by greatest_timestamp
 ///
 /// Order is reversed:
 /// structure with greatest greatest_timestamp comes first.
@@ -2515,8 +2515,8 @@ static int compare_file_marks(const void *a, const void *b)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_PURE
 {
-    const FileMarks *const *const a_fms = a;
-    const FileMarks *const *const b_fms = b;
+    const filemark_st *const *const a_fms = a;
+    const filemark_st *const *const b_fms = b;
 
     return ((*a_fms)->greatest_timestamp == (*b_fms)->greatest_timestamp
             ? 0
@@ -2840,7 +2840,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 khiter_t k;
                 int kh_ret;
                 k = kh_put(file_marks, &wms->file_marks, fname, &kh_ret);
-                FileMarks *const filemarks = &kh_val(&wms->file_marks, k);
+                filemark_st *const filemarks = &kh_val(&wms->file_marks, k);
 
                 if(kh_ret > 0)
                 {
@@ -3508,7 +3508,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             khiter_t k;
             int kh_ret;
             k = kh_put(file_marks, &wms->file_marks, fname, &kh_ret);
-            FileMarks *const filemarks = &kh_val(&wms->file_marks, k);
+            filemark_st *const filemarks = &kh_val(&wms->file_marks, k);
 
             if(kh_ret > 0)
             {
@@ -3650,10 +3650,10 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     const size_t file_markss_size = kh_size(&wms->file_marks);
 
-    FileMarks **const all_file_markss =
+    filemark_st **const all_file_markss =
         xmalloc(file_markss_size * sizeof(*all_file_markss));
 
-    FileMarks **cur_file_marks = all_file_markss;
+    filemark_st **cur_file_marks = all_file_markss;
 
     for(khint_t i = kh_begin(&wms->file_marks);
         i != kh_end(&wms->file_marks);
