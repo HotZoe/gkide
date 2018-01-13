@@ -385,12 +385,12 @@ union ptrlist_u
     nfa_state_st *s;
 };
 
-struct Frag
+struct frag_s
 {
     nfa_state_st *start;
     ptrlist_ut *out;
 };
-typedef struct Frag Frag_T;
+typedef struct frag_s frag_st;
 
 typedef struct
 {
@@ -13722,14 +13722,14 @@ static nfa_state_st *alloc_state(int c,
 }
 
 // A partially built NFA without the matching state filled in.
-// Frag_T.start points at the start state.
-// Frag_T.out is a list of places that need to be set to the
+// frag_st.start points at the start state.
+// frag_st.out is a list of places that need to be set to the
 // next state for this fragment.
 
-/// Initialize a Frag_T struct and return it.
-static Frag_T frag(nfa_state_st *start, ptrlist_ut *out)
+/// Initialize a frag_st struct and return it.
+static frag_st frag(nfa_state_st *start, ptrlist_ut *out)
 {
-    Frag_T n;
+    frag_st n;
     n.start = start;
     n.out = out;
     return n;
@@ -13773,7 +13773,7 @@ static ptrlist_ut *append(ptrlist_ut *l1, ptrlist_ut *l2)
 }
 
 /// Stack used for transforming postfix form into NFA.
-static Frag_T empty;
+static frag_st empty;
 
 static void st_error(int *FUNC_ARGS_UNUSED_MAYBE(postfix),
                      int *FUNC_ARGS_UNUSED_MAYBE(end),
@@ -13832,9 +13832,9 @@ static void st_error(int *FUNC_ARGS_UNUSED_MAYBE(postfix),
 }
 
 /// Push an item onto the stack.
-static void st_push(Frag_T s, Frag_T **p, Frag_T *stack_end)
+static void st_push(frag_st s, frag_st **p, frag_st *stack_end)
 {
-    Frag_T *stackp = *p;
+    frag_st *stackp = *p;
 
     if(stackp >= stack_end)
     {
@@ -13846,9 +13846,9 @@ static void st_push(Frag_T s, Frag_T **p, Frag_T *stack_end)
 }
 
 /// Pop an item from the stack.
-static Frag_T st_pop(Frag_T **p, Frag_T *stack)
+static frag_st st_pop(frag_st **p, frag_st *stack)
 {
-    Frag_T *stackp;
+    frag_st *stackp;
     *p = *p - 1;
     stackp = *p;
 
@@ -14091,12 +14091,12 @@ static nfa_state_st *post2nfa(int *postfix, int *end, int nfa_calc_size)
     int *p;
     int mopen;
     int mclose;
-    Frag_T *stack = NULL;
-    Frag_T *stackp = NULL;
-    Frag_T *stack_end = NULL;
-    Frag_T e1;
-    Frag_T e2;
-    Frag_T e;
+    frag_st *stack = NULL;
+    frag_st *stackp = NULL;
+    frag_st *stack_end = NULL;
+    frag_st e1;
+    frag_st e2;
+    frag_st e;
     nfa_state_st *s;
     nfa_state_st *s1;
     nfa_state_st *matchstate;
@@ -14122,7 +14122,7 @@ static nfa_state_st *post2nfa(int *postfix, int *end, int nfa_calc_size)
     {
         // Allocate space for the stack.
         // Max states on the stack : nstate
-        stack = xmalloc((nstate + 1) * sizeof(Frag_T));
+        stack = xmalloc((nstate + 1) * sizeof(frag_st));
         stackp = stack;
         stack_end = stack + (nstate + 1);
     }
