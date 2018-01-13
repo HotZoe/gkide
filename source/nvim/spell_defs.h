@@ -216,7 +216,7 @@ typedef struct spelltab_s
 
 /// For finding suggestions:
 /// At each node in the tree these states are tried:
-typedef enum
+typedef enum state_e
 {
     /// At start of node check for NUL bytes (goodword ends);
     /// if badword ends there is a match, otherwise try splitting word.
@@ -239,20 +239,20 @@ typedef enum
     STATE_REP,         ///< Use matching REP items from the .aff file.
     STATE_REP_UNDO,    ///< Undo a REP item replacement.
     STATE_FINAL        ///< End of this node.
-} state_T;
+} state_et;
 
 /// Struct to keep the state at each level in suggest_try_change().
 typedef struct trystate_S
 {
-    state_T ts_state;        ///< state at this level, STATE_
-    int ts_score;            ///< score
-    idx_kt ts_arridx;         ///< index in tree array, start of node
-    short ts_curi;           ///< index in list of child nodes
+    state_et ts_state;         ///< state at this level, STATE_
+    int ts_score;              ///< score
+    idx_kt ts_arridx;          ///< index in tree array, start of node
+    short ts_curi;             ///< index in list of child nodes
     uchar_kt ts_fidx;          ///< index in fword[], case-folded bad word
     uchar_kt ts_fidxtry;       ///< ts_fidx at which bytes may be changed
     uchar_kt ts_twordlen;      ///< valid length of tword[]
     uchar_kt ts_prefixdepth;   ///< stack depth for end of prefix or
-                             ///< PFD_PREFIXTREE or PFD_NOPREFIX
+                               ///< PFD_PREFIXTREE or PFD_NOPREFIX
     uchar_kt ts_flags;         ///< TSF_ flags
     uchar_kt ts_tcharlen;      ///< number of bytes in tword character
     uchar_kt ts_tcharidx;      ///< current byte index in tword character
@@ -265,7 +265,7 @@ typedef struct trystate_S
     uchar_kt ts_compsplit;     ///< index for "compflags" where word was spit
     uchar_kt ts_save_badflags; ///< su_badflags saved here
     uchar_kt ts_delidx;        ///< index in fword for char that was deleted,
-                             ///< valid when "ts_flags" has TSF_DIDDEL
+                               ///< valid when "ts_flags" has TSF_DIDDEL
 } trystate_T;
 
 // Use our own character-case definitions, because the current locale may

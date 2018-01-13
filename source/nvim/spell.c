@@ -4606,7 +4606,7 @@ static void prof_init(void)
 }
 
 /// call before changing state
-static void prof_store(state_T state)
+static void prof_store(state_et state)
 {
     profile_end(&current);
     profile_add(&times[state], &current);
