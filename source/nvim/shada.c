@@ -475,19 +475,19 @@ typedef void (*sd_write_closer_ft)(sd_write_st *const sd_writer)
 REAL_FATTR_NONNULL_ALL;
 
 /// Function used to write ShaDa files
-typedef ptrdiff_t (*ShaDaFileWriter)(sd_write_st *const sd_writer,
-                                     const void *const src,
-                                     const size_t size)
+typedef ptrdiff_t (*sd_file_writer_ft)(sd_write_st *const sd_writer,
+                                       const void *const src,
+                                       const size_t size)
 REAL_FATTR_NONNULL_ALL
 REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Structure containing necessary pointers for writing ShaDa files
 struct sd_write_s
 {
-    ShaDaFileWriter write;   ///< Writer function.
-    sd_write_closer_ft close;  ///< Close function.
-    void *cookie;            ///< Data describing object written to.
-    const char *error;       ///< Error message in case of error.
+    sd_file_writer_ft write;  ///< Writer function.
+    sd_write_closer_ft close; ///< Close function.
+    void *cookie;             ///< Data describing object written to.
+    const char *error;        ///< Error message in case of error.
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -902,7 +902,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// kSDReadStatusReadError, kSDReadStatusNotShaDa or
 /// kSDReadStatusSuccess.
 static psdr_result_et sd_reader_skip(sd_read_st *const sd_reader,
-                                      const size_t offset)
+                                     const size_t offset)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
@@ -1338,7 +1338,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return Pointer to the buffer or NULL.
 static filebuf_st *find_buffer(khash_t(fnamebufs) *const fname_bufs,
-                          const char *const fname)
+                               const char *const fname)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 {
@@ -1625,13 +1625,15 @@ FUNC_ATTR_NONNULL_ALL
                 sub_set_replacement((SubReplacementString) {
                     .sub = cur_entry.data.sub_string.sub,
                     .timestamp = cur_entry.timestamp,
-                    .additional_elements = cur_entry.data.sub_string.additional_elements,
+                    .additional_elements =
+                        cur_entry.data.sub_string.additional_elements,
                 });
 
-                // Without using regtilde and without / &cpo flag previous substitute
-                // string is close to useless: you can only use it with :& or :~ and
-                // that’s all because s//~ is not available until the first call to
-                // regtilde. Vim was not calling this for some reason.
+                // Without using regtilde and without / &cpo flag previous
+                // substitute string is close to useless: you can only use it
+                // with :& or :~ and that’s all because s//~ is not available
+                // until the first call to regtilde. Vim was not calling this
+                // for some reason.
                 (void) regtilde(cur_entry.data.sub_string.sub, p_magic);
 
                 // Do not free shada entry:
@@ -1726,7 +1728,8 @@ FUNC_ATTR_NONNULL_ALL
                         .mark = cur_entry.data.filemark.mark,
                         .fnum = (buf == NULL ? 0 : buf->b_fnum),
                         .timestamp = cur_entry.timestamp,
-                        .additional_data = cur_entry.data.filemark.additional_data,
+                        .additional_data =
+                            cur_entry.data.filemark.additional_data,
                     },
                 };
 
