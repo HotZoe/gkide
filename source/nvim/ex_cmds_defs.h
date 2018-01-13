@@ -106,35 +106,35 @@ typedef struct excmd_def_s
 /// Arguments used for Ex commands.
 struct exargs_s
 {
-    uchar_kt *arg;             ///< argument of the command
-    uchar_kt *nextcmd;         ///< next command (NULL if none)
-    uchar_kt *cmd;             ///< the name of the command (except for :make)
-    uchar_kt **cmdlinep;       ///< pointer to pointer of allocated cmdline
-    excmd_idx_et cmdidx;       ///< the index for the command
-    uint32_t argt;             ///< flags for the command
-    int skip;                  ///< don't execute the command, only parse it
-    int forceit;               ///< TRUE if ! present
-    int addr_count;            ///< the number of addresses given
-    linenum_kt line1;          ///< the first line number
-    linenum_kt line2;          ///< the second line number or count
-    int addr_type;             ///< type of the count/range
-    int flags;                 ///< extra flags after count: EXFLAG_
-    uchar_kt *do_ecmd_cmd;     ///< +command arg to be used in edited file
-    linenum_kt do_ecmd_lnum;   ///< the line number in an edited file
-    int append;                ///< TRUE with ":w >>file" command
-    int usefilter;             ///< TRUE with ":w !command" and ":r!command"
-    int amount;                ///< number of '>' or '<' for shift command
-    int regname;               ///< register name (NUL if none)
-    int force_bin;             ///< 0, FORCE_BIN or FORCE_NOBIN
-    int read_edit;             ///< ++edit argument
-    int force_ff;              ///< ++ff= argument (index in cmd[])
-    int force_enc;             ///< ++enc= argument (index in cmd[])
-    int bad_char;              ///< BAD_KEEP, BAD_DROP or replacement byte
-    int useridx;               ///< user command index
-    uchar_kt *errmsg;          ///< returned error message
-    line_getter_ft getline;    ///< Function used to get the next line
-    void *cookie;              ///< argument for getline()
-    condstack_st *cstack;  ///< condition stack for ":if" etc.
+    uchar_kt *arg;           ///< argument of the command
+    uchar_kt *nextcmd;       ///< next command (NULL if none)
+    uchar_kt *cmd;           ///< the name of the command (except for :make)
+    uchar_kt **cmdlinep;     ///< pointer to pointer of allocated cmdline
+    excmd_idx_et cmdidx;     ///< the index for the command
+    uint32_t argt;           ///< flags for the command
+    int skip;                ///< don't execute the command, only parse it
+    int forceit;             ///< TRUE if ! present
+    int addr_count;          ///< the number of addresses given
+    linenum_kt line1;        ///< the first line number
+    linenum_kt line2;        ///< the second line number or count
+    int addr_type;           ///< type of the count/range
+    int flags;               ///< extra flags after count: EXFLAG_
+    uchar_kt *do_ecmd_cmd;   ///< +command arg to be used in edited file
+    linenum_kt do_ecmd_lnum; ///< the line number in an edited file
+    int append;              ///< TRUE with ":w >>file" command
+    int usefilter;           ///< TRUE with ":w !command" and ":r!command"
+    int amount;              ///< number of '>' or '<' for shift command
+    int regname;             ///< register name (NUL if none)
+    int force_bin;           ///< 0, FORCE_BIN or FORCE_NOBIN
+    int read_edit;           ///< ++edit argument
+    int force_ff;            ///< ++ff= argument (index in cmd[])
+    int force_enc;           ///< ++enc= argument (index in cmd[])
+    int bad_char;            ///< BAD_KEEP, BAD_DROP or replacement byte
+    int useridx;             ///< user command index
+    uchar_kt *errmsg;        ///< returned error message
+    line_getter_ft getline;  ///< Function used to get the next line
+    void *cookie;            ///< argument for getline()
+    condstack_st *cstack;    ///< condition stack for ":if" etc.
 };
 
 #define FORCE_BIN       1      ///< ":edit ++bin file"
@@ -147,32 +147,32 @@ struct exargs_s
 /// used for completion on the command line
 struct expand_s
 {
-    int xp_context;          ///< type of expansion
-    uchar_kt *xp_pattern;    ///< start of item to expand
-    int xp_pattern_len;      ///< bytes in xp_pattern before cursor
-    uchar_kt *xp_arg;        ///< completion function
-    int xp_scriptID;         ///< SID for completion function
-    int xp_backslash;        ///< one of the XP_BS_ values
+    int xp_context;       ///< type of expansion
+    uchar_kt *xp_pattern; ///< start of item to expand
+    int xp_pattern_len;   ///< bytes in xp_pattern before cursor
+    uchar_kt *xp_arg;     ///< completion function
+    int xp_scriptID;      ///< SID for completion function
+    int xp_backslash;     ///< one of the XP_BS_ values
 
     #ifndef BACKSLASH_IN_FILENAME
     ///< TRUE for a shell command, more characters need to be escaped
     int xp_shell;
     #endif
 
-    int xp_numfiles;         ///< number of files found by file name completion
-    uchar_kt **xp_files;     ///< list of files
-    uchar_kt *xp_line;       ///< text being completed
-    int xp_col;              ///< cursor position in line
+    int xp_numfiles;      ///< number of files found by file name completion
+    uchar_kt **xp_files;  ///< list of files
+    uchar_kt *xp_line;    ///< text being completed
+    int xp_col;           ///< cursor position in line
 };
 
 // values for xp_backslash
-#define XP_BS_NONE      0    ///< nothing special for backslashes
-#define XP_BS_ONE       1    ///< uses one backslash before a space
-#define XP_BS_THREE     2    ///< uses three backslashes before a space
+#define XP_BS_NONE      0  ///< nothing special for backslashes
+#define XP_BS_ONE       1  ///< uses one backslash before a space
+#define XP_BS_THREE     2  ///< uses three backslashes before a space
 
 /// Command modifiers ":vertical", ":browse", ":confirm", ":hide", etc.
-/// set a flag. This needs to be saved for recursive commands, put them in a
-/// structure for easy manipulation.
+/// set a flag. This needs to be saved for recursive commands, put them
+/// in a structure for easy manipulation.
 typedef struct cmdmod_s
 {
     int split;                   ///< flags for win_split()

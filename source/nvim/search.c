@@ -91,18 +91,18 @@ static search_pattern_st saved_spats[2];
 static int saved_last_idx = 0;
 static int saved_no_hlsearch = 0;
 
-static uchar_kt *mr_pattern = NULL;      ///< pattern used by search_regcomp()
+static uchar_kt *mr_pattern = NULL;    ///< pattern used by search_regcomp()
 static int mr_pattern_alloced = FALSE; ///< mr_pattern was allocated
 
 /// Type used by find_pattern_in_path() to remember
 /// which included files have been searched already.
-typedef struct SearchedFile
+typedef struct searched_files_s
 {
     FILE *fp;        ///< File pointer
-    uchar_kt *name;    ///< Full name of file
-    linenum_kt lnum;   ///< Line we were up to in file
+    uchar_kt *name;  ///< Full name of file
+    linenum_kt lnum; ///< Line we were up to in file
     int matched;     ///< Found a match in this file
-} SearchedFile;
+} searched_files_st;
 
 /// translate search pattern for vim_regcomp()
 ///
@@ -5530,8 +5530,8 @@ void find_pattern_in_path(uchar_kt *ptr,
                           linenum_kt start_lnum,
                           linenum_kt end_lnum)
 {
-    SearchedFile *files; // Stack of included files
-    SearchedFile *bigger; // When we need more space
+    searched_files_st *files; // Stack of included files
+    searched_files_st *bigger; // When we need more space
     int max_path_depth = 50;
     long match_count = 1;
     uchar_kt *pat;
@@ -5618,7 +5618,7 @@ void find_pattern_in_path(uchar_kt *ptr,
         def_regmatch.rm_ic = FALSE;
     }
 
-    files = xcalloc(max_path_depth, sizeof(SearchedFile));
+    files = xcalloc(max_path_depth, sizeof(searched_files_st));
     old_files = max_path_depth;
     depth = depth_displayed = -1;
     lnum = start_lnum;
@@ -5830,7 +5830,7 @@ void find_pattern_in_path(uchar_kt *ptr,
                 // Push the new file onto the file stack
                 if(depth + 1 == old_files)
                 {
-                    bigger = xmalloc(max_path_depth * 2 * sizeof(SearchedFile));
+                    bigger = xmalloc(max_path_depth * 2 * sizeof(searched_files_st));
 
                     for(i = 0; i <= depth; i++)
                     {

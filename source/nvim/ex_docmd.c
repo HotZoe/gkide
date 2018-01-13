@@ -3268,11 +3268,12 @@ static uchar_kt *find_ucmd(exargs_st *eap,
     return p;
 }
 
-static struct cmdmod
+/// Command modifiers variable
+static struct cmdmod_var_s
 {
-    char *name;     //
-    int minlen;     //
-    int has_count;  // :123verbose :3tab
+    char *name;    ///<
+    int minlen;    ///<
+    int has_count; ///< :123verbose :3tab
 } cmdmods[] =
 {
     { "aboveleft",      3,   false },
