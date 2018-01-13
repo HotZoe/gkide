@@ -31,19 +31,21 @@ enum
     kMLCLineUpd = 3, ///< memory line chunk line: update
 };
 
+/// flags used for memline_s::ml_flags
+enum memline_flg_e
+{
+    kMLflgBufEmpty    = 1, ///< empty buffer
+    kMLflgLineDirty   = 2, ///< cached line was changed and allocated
+    kMLflgLockedDirty = 4, ///< memline_s::ml_locked was changed
+    kMLflgLockedPos   = 8  ///< memline_s::ml_locked needs positive block number
+};
+
 /// the memline_s structure holds all the information about a memline
 typedef struct memline_s
 {
     linenum_kt ml_line_count;   ///< number of lines in the buffer
-
     memfile_st *ml_mfp;         ///< pointer to associated memfile
-
-    #define ML_EMPTY        1   ///< empty buffer
-    #define ML_LINE_DIRTY   2   ///< cached line was changed and allocated
-    #define ML_LOCKED_DIRTY 4   ///< ml_locked was changed
-    #define ML_LOCKED_POS   8   ///< ml_locked needs positive block number
-    int ml_flags;
-
+    int ml_flags;               ///< memline_flg_e
     infoptr_st *ml_stack;       ///< stack of pointer blocks (array of IPTRs)
     int ml_stack_top;           ///< current top of ml_stack
     int ml_stack_size;          ///< total number of entries in ml_stack

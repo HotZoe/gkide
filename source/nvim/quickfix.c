@@ -3727,7 +3727,7 @@ static void qf_fill_buffer(qfinfo_st *qi, filebuf_st *buf, qfline_T *old_last)
         }
 
         // delete all existing lines
-        while((curbuf->b_ml.ml_flags & ML_EMPTY) == 0)
+        while((curbuf->b_ml.ml_flags & kMLflgBufEmpty) == 0)
         {
             (void)ml_delete((linenum_kt)1, false);
         }

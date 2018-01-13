@@ -267,7 +267,7 @@ void do_exmode(int improved)
             || changedtick != curbuf->b_changedtick)
            && !ex_no_reprint)
         {
-            if(curbuf->b_ml.ml_flags & ML_EMPTY)
+            if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
             {
                 EMSG(_(e_emptybuf));
             }
@@ -292,7 +292,7 @@ void do_exmode(int improved)
         }
         else if(ex_pressedreturn && !ex_no_reprint) // must be at EOF
         {
-            if(curbuf->b_ml.ml_flags & ML_EMPTY)
+            if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
             {
                 EMSG(_(e_emptybuf));
             }
@@ -8323,7 +8323,7 @@ static void ex_exit(exargs_st *eap)
 /// ":print", ":list", ":number".
 static void ex_print(exargs_st *eap)
 {
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         EMSG(_(e_emptybuf));
     }
@@ -9177,7 +9177,7 @@ static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 static void ex_read(exargs_st *eap)
 {
     int i;
-    int empty = (curbuf->b_ml.ml_flags & ML_EMPTY);
+    int empty = (curbuf->b_ml.ml_flags & kMLflgBufEmpty);
     linenum_kt lnum;
 
     if(eap->usefilter)

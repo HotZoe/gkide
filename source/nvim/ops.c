@@ -1641,7 +1641,7 @@ int op_delete(oparg_T *oap)
     blockdef_st bd;
     linenum_kt old_lcount = curbuf->b_ml.ml_line_count;
 
-    if(curbuf->b_ml.ml_flags & ML_EMPTY) // nothing to do
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty) // nothing to do
     {
         return OK;
     }
@@ -2044,7 +2044,7 @@ int op_replace(oparg_T *oap, int c)
     uchar_kt *after_p = NULL;
     int had_ctrl_v_cr = (c == -1 || c == -2);
 
-    if((curbuf->b_ml.ml_flags & ML_EMPTY) || oap->empty)
+    if((curbuf->b_ml.ml_flags & kMLflgBufEmpty) || oap->empty)
     {
         return OK; // nothing to do
     }
@@ -2789,7 +2789,7 @@ int op_change(oparg_T *oap)
 
     // First delete the text in the region.
     // In an empty buffer only need to save for undo
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         if(u_save_cursor() == FAIL)
         {
@@ -6871,7 +6871,7 @@ void cursor_pos_info(dict_st *dict)
     const int l_VIsual_mode = VIsual_mode;
 
     // Compute the length of the file in characters.
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         if(dict == NULL)
         {

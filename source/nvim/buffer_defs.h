@@ -457,9 +457,9 @@ typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
 struct filebuf_s
 {
     #define b_fnum handle
-    handle_kt handle;  ///< unique id for the buffer (buffer number)
-    memline_st b_ml;    ///< associated memline (also contains line count
-    filebuf_st *b_next;     ///< links in list of buffers
+    handle_kt handle;    ///< unique id for the buffer (buffer number)
+    memline_st b_ml;     ///< associated memline (also contains line count
+    filebuf_st *b_next;  ///< links in list of buffers
     filebuf_st *b_prev;
 
     int b_nwindows;   ///< nr of windows open on this buffer
@@ -494,21 +494,25 @@ struct filebuf_s
     /// true when there are changes since the last time the display was updated
     bool b_mod_set;
 
-    linenum_kt b_mod_top;       ///< topmost lnum that was changed
-    linenum_kt b_mod_bot;       ///< lnum below last changed line, AFTER the change
-    long b_mod_xlines;        ///< number of extra buffer lines inserted
-                              ///< negative when lines were deleted
-    wininfo_st *b_wininfo;     ///< list of last used info for each window
-    long b_mtime;             ///< last change time of original file
-    long b_mtime_read;        ///< last change time when reading
-    uint64_t b_orig_size;     ///< size of original file in bytes
-    int b_orig_mode;          ///< mode of original file
-    filemark_st b_namedm[NMARKS]; ///< current named marks (mark.c)
-    visualinfo_st b_visual;    ///< These variables are set when VIsual_active becomes FALSE
-    int b_visual_mode_eval;   ///< b_visual.vi_mode for visualmode()
-    filemark_st b_last_cursor;    ///< cursor position when last unloading this
-    filemark_st b_last_insert;    ///< where Insert mode was left
-    filemark_st b_last_change;    ///< position of last change: '. mark'
+    linenum_kt b_mod_top;  ///< topmost lnum that was changed
+    linenum_kt b_mod_bot;  ///< lnum below last changed line, AFTER the change
+    long b_mod_xlines;     ///< number of extra buffer lines inserted
+                           ///< negative when lines were deleted
+    wininfo_st *b_wininfo; ///< list of last used info for each window
+    long b_mtime;          ///< last change time of original file
+    long b_mtime_read;     ///< last change time when reading
+    uint64_t b_orig_size;  ///< size of original file in bytes
+    int b_orig_mode;       ///< mode of original file
+
+    /// current named marks (mark.c)
+    filemark_st b_namedm[NMARKS];
+    /// These variables are set when VIsual_active becomes FALSE
+    visualinfo_st b_visual;
+
+    int b_visual_mode_eval;    ///< b_visual.vi_mode for visualmode()
+    filemark_st b_last_cursor; ///< cursor position when last unloading this
+    filemark_st b_last_insert; ///< where Insert mode was left
+    filemark_st b_last_change; ///< position of last change: '. mark'
 
 
     /// the changelist contains old change positions

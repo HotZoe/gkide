@@ -9839,7 +9839,7 @@ static void nv_put(cmdarg_T *cap)
                 cap->oap->regname = NUL;
                 nv_operator(cap);
                 do_pending_operator(cap, 0, false);
-                empty = (curbuf->b_ml.ml_flags & ML_EMPTY);
+                empty = (curbuf->b_ml.ml_flags & kMLflgBufEmpty);
                 cap->oap->regname = regname; // delete PUT_LINE_BACKWARD;
             }
 

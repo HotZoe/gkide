@@ -275,7 +275,7 @@ int ml_open(filebuf_st *buf)
     }
 
     buf->b_ml.ml_mfp = mfp;
-    buf->b_ml.ml_flags = ML_EMPTY;
+    buf->b_ml.ml_flags = kMLflgBufEmpty;
     buf->b_ml.ml_line_count = 1;
     curwin->w_nrwidth_line_count = 0;
 
@@ -610,7 +610,7 @@ void ml_close(filebuf_st *buf, int del_file)
 
     mf_close(buf->b_ml.ml_mfp, del_file); // close the .swp file
 
-    if(buf->b_ml.ml_line_lnum != 0 && (buf->b_ml.ml_flags & ML_LINE_DIRTY))
+    if(buf->b_ml.ml_line_lnum != 0 && (buf->b_ml.ml_flags & kMLflgLineDirty))
     {
         xfree(buf->b_ml.ml_line_ptr);
     }
@@ -1109,7 +1109,7 @@ void ml_recover(void)
 
     // Now that we are sure that the file is going to be recovered,
     // clear the contents of the current buffer.
-    while(!(curbuf->b_ml.ml_flags & ML_EMPTY))
+    while(!(curbuf->b_ml.ml_flags & kMLflgBufEmpty))
     {
         ml_delete((linenum_kt)1, FALSE);
     }
@@ -1400,7 +1400,7 @@ void ml_recover(void)
     // Delete the lines from the original file and the dummy line from the
     // empty buffer. These will now be after the last line in the buffer.
     while(curbuf->b_ml.ml_line_count > lnum
-          && !(curbuf->b_ml.ml_flags & ML_EMPTY))
+          && !(curbuf->b_ml.ml_flags & kMLflgBufEmpty))
     {
         ml_delete(curbuf->b_ml.ml_line_count, FALSE);
     }
@@ -2181,12 +2181,12 @@ errorret:
 
         buf->b_ml.ml_line_ptr = ptr;
         buf->b_ml.ml_line_lnum = lnum;
-        buf->b_ml.ml_flags &= ~ML_LINE_DIRTY;
+        buf->b_ml.ml_flags &= ~kMLflgLineDirty;
     }
 
     if(will_change)
     {
-        buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
+        buf->b_ml.ml_flags |= (kMLflgLockedDirty | kMLflgLockedPos);
     }
 
     return buf->b_ml.ml_line_ptr;
@@ -2196,7 +2196,7 @@ errorret:
 /// is in allocated memory.
 int ml_line_alloced(void)
 {
-    return curbuf->b_ml.ml_flags & ML_LINE_DIRTY;
+    return curbuf->b_ml.ml_flags & kMLflgLineDirty;
 }
 
 /// Append a line after lnum (may be 0 to insert a line in front of the file).
@@ -2323,7 +2323,7 @@ static int ml_append_int(filebuf_st *buf,
         return FAIL;
     }
 
-    buf->b_ml.ml_flags &= ~ML_EMPTY;
+    buf->b_ml.ml_flags &= ~kMLflgBufEmpty;
 
     if(lnum == 0) // got line one instead, correct db_idx
     {
@@ -2415,11 +2415,11 @@ static int ml_append_int(filebuf_st *buf,
         }
 
         // Mark the block dirty.
-        buf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
+        buf->b_ml.ml_flags |= kMLflgLockedDirty;
 
         if(!newfile)
         {
-            buf->b_ml.ml_flags |= ML_LOCKED_POS;
+            buf->b_ml.ml_flags |= kMLflgLockedPos;
         }
     }
     else // not enough space in data block
@@ -2606,12 +2606,12 @@ static int ml_append_int(filebuf_st *buf,
         // we changed it and we are not editing a new file.
         if(lines_moved || in_left)
         {
-            buf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
+            buf->b_ml.ml_flags |= kMLflgLockedDirty;
         }
 
         if(!newfile && db_idx >= 0 && in_left)
         {
-            buf->b_ml.ml_flags |= ML_LOCKED_POS;
+            buf->b_ml.ml_flags |= kMLflgLockedPos;
         }
 
         mf_put(mfp, hp_new, true, false);
@@ -2845,7 +2845,7 @@ int ml_replace(linenum_kt lnum, uchar_kt *line, bool copy)
     {
         ml_flush_line(curbuf);// flush it
     }
-    else if(curbuf->b_ml.ml_flags & ML_LINE_DIRTY) // same line allocated
+    else if(curbuf->b_ml.ml_flags & kMLflgLineDirty) // same line allocated
     {
         xfree(curbuf->b_ml.ml_line_ptr); // free it
     }
@@ -2853,7 +2853,7 @@ int ml_replace(linenum_kt lnum, uchar_kt *line, bool copy)
     curbuf->b_ml.ml_line_ptr = line;
     curbuf->b_ml.ml_line_lnum = lnum;
 
-    curbuf->b_ml.ml_flags = (curbuf->b_ml.ml_flags | ML_LINE_DIRTY) & ~ML_EMPTY;
+    curbuf->b_ml.ml_flags = (curbuf->b_ml.ml_flags | kMLflgLineDirty) & ~kMLflgBufEmpty;
 
     return OK;
 }
@@ -2908,7 +2908,7 @@ static int ml_delete_int(filebuf_st *buf, linenum_kt lnum, int message)
         }
 
         i = ml_replace((linenum_kt)1, (uchar_kt *)"", TRUE);
-        buf->b_ml.ml_flags |= ML_EMPTY;
+        buf->b_ml.ml_flags |= kMLflgBufEmpty;
 
         return i;
     }
@@ -3035,7 +3035,7 @@ static int ml_delete_int(filebuf_st *buf, linenum_kt lnum, int message)
         --(dp->db_line_count);
 
         // mark the block dirty and make sure it is in the file (for recovery)
-        buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
+        buf->b_ml.ml_flags |= (kMLflgLockedDirty | kMLflgLockedPos);
     }
 
     ml_updatechunk(buf, lnum, line_size, kMLCLineDel);
@@ -3070,7 +3070,7 @@ void ml_setmarked(linenum_kt lnum)
 
     dp = hp->bh_data;
     dp->db_index[lnum - curbuf->b_ml.ml_locked_low] |= DB_MARKED;
-    curbuf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
+    curbuf->b_ml.ml_flags |= kMLflgLockedDirty;
 }
 
 /// find the first line with its B_MARKED flag set
@@ -3107,7 +3107,7 @@ linenum_kt ml_firstmarked(void)
             if((dp->db_index[i]) & DB_MARKED)
             {
                 (dp->db_index[i]) &= DB_INDEX_MASK;
-                curbuf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
+                curbuf->b_ml.ml_flags |= kMLflgLockedDirty;
                 lowest_marked = lnum + 1;
 
                 return lnum;
@@ -3151,7 +3151,7 @@ void ml_clearmarked(void)
             if((dp->db_index[i]) & DB_MARKED)
             {
                 (dp->db_index[i]) &= DB_INDEX_MASK;
-                curbuf->b_ml.ml_flags |= ML_LOCKED_DIRTY;
+                curbuf->b_ml.ml_flags |= kMLflgLockedDirty;
             }
         }
     }
@@ -3182,7 +3182,7 @@ static void ml_flush_line(filebuf_st *buf)
         return; // nothing to do
     }
 
-    if(buf->b_ml.ml_flags & ML_LINE_DIRTY)
+    if(buf->b_ml.ml_flags & kMLflgLineDirty)
     {
         // This code doesn't work recursively.
         if(entered)
@@ -3246,7 +3246,7 @@ static void ml_flush_line(filebuf_st *buf)
 
                 // copy new line into the data block
                 memmove(old_line - extra, new_line, (size_t)new_len);
-                buf->b_ml.ml_flags |= (ML_LOCKED_DIRTY | ML_LOCKED_POS);
+                buf->b_ml.ml_flags |= (kMLflgLockedDirty | kMLflgLockedPos);
 
                 // The else case is already covered by the insert and delete
                 ml_updatechunk(buf, lnum, (long)extra, kMLCLineUpd);
@@ -3366,8 +3366,8 @@ static blk_hdr_st *ml_find_line(filebuf_st *buf, linenum_kt lnum, int action)
         }
 
         mf_put(mfp, buf->b_ml.ml_locked,
-               buf->b_ml.ml_flags & ML_LOCKED_DIRTY,
-               buf->b_ml.ml_flags & ML_LOCKED_POS);
+               buf->b_ml.ml_flags & kMLflgLockedDirty,
+               buf->b_ml.ml_flags & kMLflgLockedPos);
 
         buf->b_ml.ml_locked = NULL;
 
@@ -3441,7 +3441,7 @@ static blk_hdr_st *ml_find_line(filebuf_st *buf, linenum_kt lnum, int action)
             buf->b_ml.ml_locked_low = low;
             buf->b_ml.ml_locked_high = high;
             buf->b_ml.ml_locked_lineadd = 0;
-            buf->b_ml.ml_flags &= ~(ML_LOCKED_DIRTY | ML_LOCKED_POS);
+            buf->b_ml.ml_flags &= ~(kMLflgLockedDirty | kMLflgLockedPos);
 
             return hp;
         }

@@ -3434,7 +3434,7 @@ void ex_append(exargs_st *eap)
     int indent = 0;
     uchar_kt *p;
     int vcol;
-    int empty = (curbuf->b_ml.ml_flags & ML_EMPTY);
+    int empty = (curbuf->b_ml.ml_flags & kMLflgBufEmpty);
 
     // the ! flag toggles autoindent
     if(eap->forceit)
@@ -3632,7 +3632,7 @@ void ex_change(exargs_st *eap)
 
     for(lnum = eap->line2; lnum >= eap->line1; --lnum)
     {
-        if(curbuf->b_ml.ml_flags & ML_EMPTY)
+        if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
         {
             break; // nothing to delete
         }

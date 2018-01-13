@@ -541,7 +541,7 @@ int u_savecommon(linenum_kt top, linenum_kt bot, linenum_kt newbot, int reload)
         // save changed and buffer empty flag for undo
         uhp->uh_flags =
             (curbuf->b_changed ? UH_CHANGED : 0)
-            + ((curbuf->b_ml.ml_flags & ML_EMPTY) ? UH_EMPTYBUF : 0);
+            + ((curbuf->b_ml.ml_flags & kMLflgBufEmpty) ? UH_EMPTYBUF : 0);
 
         // save named marks and Visual marks for undo
         zero_fmark_additional_data(curbuf->b_namedm);
@@ -2159,7 +2159,7 @@ static void u_doit(int startcount, bool quiet)
     u_newcount = 0;
     u_oldcount = 0;
 
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         u_oldcount = -1;
     }
@@ -2265,7 +2265,7 @@ void undo_time(long step, int sec, int file, int absolute)
     u_newcount = 0;
     u_oldcount = 0;
 
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         u_oldcount = -1;
     }
@@ -2717,7 +2717,7 @@ static void u_undoredo(int undo)
     old_flags = curhead->uh_flags;
 
     new_flags = (curbuf->b_changed ? UH_CHANGED : 0)
-                + ((curbuf->b_ml.ml_flags & ML_EMPTY) ? UH_EMPTYBUF : 0);
+                + ((curbuf->b_ml.ml_flags & kMLflgBufEmpty) ? UH_EMPTYBUF : 0);
 
     setpcmark();
 
@@ -2898,7 +2898,7 @@ static void u_undoredo(int undo)
 
     if((old_flags & UH_EMPTYBUF) && bufempty())
     {
-        curbuf->b_ml.ml_flags |= ML_EMPTY;
+        curbuf->b_ml.ml_flags |= kMLflgBufEmpty;
     }
 
     if(old_flags & UH_CHANGED)
@@ -3036,7 +3036,7 @@ static void u_undo_end(int did_undo, int absolute, bool quiet)
         return;
     }
 
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         --u_newcount;
     }

@@ -815,7 +815,7 @@ int readfile(uchar_kt *fname,
     }
 
     // Autocommands may add lines to the file, need to check if it is empty
-    wasempty = (curbuf->b_ml.ml_flags & ML_EMPTY);
+    wasempty = (curbuf->b_ml.ml_flags & kMLflgBufEmpty);
 
     if(!recoverymode && !filtering && !(flags & READ_DUMMY))
     {
@@ -2263,7 +2263,7 @@ failed:
     if(!recoverymode)
     {
         // need to delete the last line, which comes from the empty buffer
-        if(newfile && wasempty && !(curbuf->b_ml.ml_flags & ML_EMPTY))
+        if(newfile && wasempty && !(curbuf->b_ml.ml_flags & kMLflgBufEmpty))
         {
             ml_delete(curbuf->b_ml.ml_line_count, FALSE);
             --linecnt;
@@ -3855,7 +3855,7 @@ nobackup:
         end = buf->b_ml.ml_line_count;
     }
 
-    if(buf->b_ml.ml_flags & ML_EMPTY)
+    if(buf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         start = end + 1;
     }

@@ -659,7 +659,7 @@ void buf_clear_file(filebuf_st *buf)
     buf->b_p_bomb = FALSE;
     buf->b_start_bomb = FALSE;
     buf->b_ml.ml_mfp = NULL;
-    buf->b_ml.ml_flags = ML_EMPTY;
+    buf->b_ml.ml_flags = kMLflgBufEmpty;
 }
 
 /// Clears the current buffer contents.
@@ -667,7 +667,7 @@ void buf_clear(void)
 {
     linenum_kt line_count = curbuf->b_ml.ml_line_count;
 
-    while(!(curbuf->b_ml.ml_flags & ML_EMPTY))
+    while(!(curbuf->b_ml.ml_flags & kMLflgBufEmpty))
     {
         ml_delete((linenum_kt)1, false);
     }
@@ -3508,7 +3508,7 @@ void fileinfo(int fullname, int shorthelp, int dont_truncate)
                   / (long)curbuf->b_ml.ml_line_count);
     }
 
-    if(curbuf->b_ml.ml_flags & ML_EMPTY)
+    if(curbuf->b_ml.ml_flags & kMLflgBufEmpty)
     {
         vim_snprintf_add((char *)buffer, IOSIZE, "%s", _(no_lines_msg));
     }
@@ -4539,7 +4539,7 @@ int build_stl_str_hl(win_st *wp,
             }
 
             case STL_LINE:
-                num = (wp->w_buffer->b_ml.ml_flags & ML_EMPTY)
+                num = (wp->w_buffer->b_ml.ml_flags & kMLflgBufEmpty)
                       ? 0L : (long)(wp->w_cursor.lnum);
                 break;
 
@@ -4640,7 +4640,7 @@ int build_stl_str_hl(win_st *wp,
                                                 wp->w_cursor.lnum,
                                                 NULL);
 
-                num = (wp->w_buffer->b_ml.ml_flags & ML_EMPTY)
+                num = (wp->w_buffer->b_ml.ml_flags & kMLflgBufEmpty)
                       || l < 0
                          ? 0L
                          : l

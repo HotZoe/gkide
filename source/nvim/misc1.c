@@ -2126,7 +2126,7 @@ void del_lines(long nlines, int undo)
 
     for(n = 0; n < nlines;)
     {
-        if(curbuf->b_ml.ml_flags & ML_EMPTY) // nothing to delete
+        if(curbuf->b_ml.ml_flags & kMLflgBufEmpty) // nothing to delete
         {
             break;
         }
