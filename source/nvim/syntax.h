@@ -41,13 +41,14 @@
 #define HL_CONCEAL     0x20000 ///< can be concealed
 #define HL_CONCEALENDS 0x40000 ///< can be concealed
 
-typedef struct
+/// hightlight color name table
+typedef struct color_name_table_s
 {
     char *name;
     RgbValue color;
-} color_name_table_T;
+} color_name_table_st;
 
-extern color_name_table_T color_name_table[];
+extern color_name_table_st color_name_table[];
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "syntax.h.generated.h"

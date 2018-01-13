@@ -9211,7 +9211,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return (const char *)HL_TABLE()[idx].sg_name;
 }
 
-color_name_table_T color_name_table[] = {
+color_name_table_st color_name_table[] = {
     // Colors from rgb.txt
     { "AliceBlue",              RGB(0xf0, 0xf8, 0xff) },
     { "AntiqueWhite",           RGB(0xfa, 0xeb, 0xd7) },
