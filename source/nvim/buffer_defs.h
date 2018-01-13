@@ -809,14 +809,14 @@ struct tabpage_s
 /// may not reflect what is actually in the buffer.  When wl_valid is FALSE,
 /// the entries can only be used to count the number of displayed lines used.
 /// wl_lnum and wl_lastlnum are invalid too.
-typedef struct w_line
+typedef struct lineinfo_s
 {
     linenum_kt wl_lnum;     ///< buffer line number for logical line
     uint16_t wl_size;       ///< height in screen lines
     char wl_valid;          ///< TRUE values are valid for text in buffer
     char wl_folded;         ///< TRUE when this is a range of folded lines
     linenum_kt wl_lastlnum; ///< last buffer line number for logical line
-} wline_T;
+} lineinfo_st;
 
 /// Windows are kept in a tree of frames.  Each frame has a column (FR_COL)
 /// or row (FR_ROW) layout or is a leaf, which has a window.
@@ -841,20 +841,20 @@ struct frame_s
 
 /// Struct used for highlighting 'hlsearch' matches, matches defined by
 /// ":match" and matches defined by match functions.
-/// For 'hlsearch' there is one pattern for all windows.  For ":match" and the
+/// For 'hlsearch' there is one pattern for all windows. For ":match" and the
 /// match functions there is a different pattern for each window.
 typedef struct
 {
-    regmmatch_st rm;       ///< points to the regexp program; contains last found
-                          ///< match (may continue in next line)
-    filebuf_st *buf;           ///< the buffer to search for a match
-    linenum_kt lnum;        ///< the line to search for a match
-    int attr;             ///< attributes to be used for a match
-    int attr_cur;         ///< attributes currently active in win_line()
-    linenum_kt first_lnum;  ///< first lnum to search for multi-line pat
-    columnum_kt startcol;     ///< in win_line() points to char where HL starts
-    columnum_kt endcol;       ///< in win_line() points to char where HL ends
-    bool is_addpos;       ///< position specified directly by matchaddpos()
+    regmmatch_st rm;       ///< points to the regexp program; contains last
+                           ///< found match (may continue in next line)
+    filebuf_st *buf;       ///< the buffer to search for a match
+    linenum_kt lnum;       ///< the line to search for a match
+    int attr;              ///< attributes to be used for a match
+    int attr_cur;          ///< attributes currently active in win_line()
+    linenum_kt first_lnum; ///< first lnum to search for multi-line pat
+    columnum_kt startcol;  ///< in win_line() points to char where HL starts
+    columnum_kt endcol;    ///< in win_line() points to char where HL ends
+    bool is_addpos;        ///< position specified directly by matchaddpos()
     proftime_kt tm;        ///< for a time limit
 } match_T;
 
@@ -1002,7 +1002,7 @@ struct window_s
     // what is currently displayed.  wl_valid is reset to indicated this.
     // This is used for efficient redrawing.
     int w_lines_valid;  ///< number of valid entries
-    wline_T *w_lines;
+    lineinfo_st *w_lines;
     garray_st w_folds;   ///< array of nested folds
     bool w_fold_manual; ///< when true: some folds are opened/closed  manually
     bool w_foldinvalid; ///< when true: folding needs to be recomputed

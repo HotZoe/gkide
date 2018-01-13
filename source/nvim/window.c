@@ -5216,7 +5216,7 @@ void win_alloc_lines(win_st *wp)
 {
     wp->w_lines_valid = 0;
     assert(Rows >= 0);
-    wp->w_lines = xcalloc(Rows, sizeof(wline_T));
+    wp->w_lines = xcalloc(Rows, sizeof(lineinfo_st));
 }
 
 /// free lsize arrays for a window
