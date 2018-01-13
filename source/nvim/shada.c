@@ -164,14 +164,16 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 typedef void (*search_pattern_cbk_ft)(search_pattern_st *);
 
 /// Flags for shada_read_file and children
-typedef enum shada_readfile_flg_e
+///
+/// sdrf_flg_e = ShaDa Read File flags
+typedef enum sdrf_flg_e
 {
     kShaDaWantInfo      = 1,  ///< Load non-mark information
     kShaDaWantMarks     = 2,  ///< Load local file marks and change list
     kShaDaForceit       = 4,  ///< Overwrite info already read
     kShaDaGetOldfiles   = 8,  ///< Load v:oldfiles.
     kShaDaMissingError  = 16, ///< Error out when os_open returns -ENOENT.
-} shada_readfile_flg_et;
+} sdrf_flg_et;
 
 /// Possible ShaDa entry types
 ///
@@ -1022,7 +1024,7 @@ FUNC_ATTR_PURE
 /// Read ShaDa file
 ///
 /// @param[in]  file   File to read or NULL to use default name.
-/// @param[in]  flags  Flags, see shada_readfile_flg_et enum.
+/// @param[in]  flags  Flags, see sdrf_flg_et enum.
 ///
 /// @return FAIL if reading failed for some reason and OK otherwise.
 static int shada_read_file(const char *const file, const int flags)
@@ -1447,7 +1449,7 @@ static inline bool marks_equal(const apos_st a, const apos_st b)
 /// Read data from ShaDa file
 ///
 /// @param[in]  sd_reader  Structure containing file reader definition.
-/// @param[in]  flags      What to read, see shada_readfile_flg_et enum.
+/// @param[in]  flags      What to read, see sdrf_flg_et enum.
 static void shada_read(ShaDaReadDef *const sd_reader, const int flags)
 FUNC_ATTR_NONNULL_ALL
 {
