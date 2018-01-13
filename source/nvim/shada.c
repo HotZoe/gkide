@@ -165,7 +165,7 @@ typedef void (*search_pattern_cbk_ft)(search_pattern_st *);
 
 /// Flags for shada_read_file and children
 ///
-/// sdrf_flg_e = ShaDa Read File flags
+/// sdrf = ShaDa Read File
 typedef enum sdrf_flg_e
 {
     kShaDaWantInfo      = 1,  ///< Load non-mark information
@@ -180,7 +180,9 @@ typedef enum sdrf_flg_e
 /// @warning Enum values are part of the API and must not be altered.
 ///
 /// All values that are not in enum are ignored.
-typedef enum shada_entry_type_e
+///
+/// psde = Possible ShaDa Entry
+typedef enum psde_type_e
 {
     kSDItemUnknown       = -1, ///< Unknown item.
     kSDItemMissing       = 0,  ///< Missing value. Should never appear in a file.
@@ -199,7 +201,7 @@ typedef enum shada_entry_type_e
     kSDItemChange        = 11, ///< Item from buffer change list.
 
     #define SHADA_LAST_ENTRY   ((uint64_t) kSDItemChange)
-} shada_entry_type_et;
+} psde_type_et;
 
 /// Possible results when reading ShaDa file
 typedef enum shada_read_result_e
@@ -277,7 +279,7 @@ enum srni_flags_e
 /// Structure defining a single ShaDa file entry
 typedef struct shada_entry_s
 {
-    shada_entry_type_et type;
+    psde_type_et type;
     timestamp_kt timestamp;
     union
     {
@@ -4685,7 +4687,7 @@ shada_read_next_item_start:
     ret = kSDReadStatusMalformed;
     entry->data = sd_default_values[type_u64].data;
 
-    switch((shada_entry_type_et) type_u64)
+    switch((psde_type_et) type_u64)
     {
         case kSDItemHeader:
         {
@@ -5208,7 +5210,7 @@ shada_read_next_item_start:
         }
     }
 
-    entry->type = (shada_entry_type_et) type_u64;
+    entry->type = (psde_type_et) type_u64;
     ret = kSDReadStatusSuccess;
 
 shada_read_next_item_end:
@@ -5223,7 +5225,7 @@ shada_read_next_item_end:
 
 shada_read_next_item_error:
 
-    entry->type = (shada_entry_type_et) type_u64;
+    entry->type = (psde_type_et) type_u64;
     shada_free_shada_entry(entry);
     entry->type = kSDItemMissing;
 
