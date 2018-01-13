@@ -78,7 +78,7 @@ typedef struct fold_line_s
 static int fold_changed;
 
 // Function used by foldUpdateIEMSRecurse
-typedef void (*LevelGetter)(fold_line_st *);
+typedef void (*level_getter_ft)(fold_line_st *);
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "fold.c.generated.h"
@@ -2546,7 +2546,7 @@ static linenum_kt foldUpdateIEMSRecurse(garray_st *gap,
                                       int level,
                                       linenum_kt startlnum,
                                       fold_line_st *flp,
-                                      LevelGetter getlevel,
+                                      level_getter_ft getlevel,
                                       linenum_kt bot,
                                       char topflags)
 {
