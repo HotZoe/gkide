@@ -412,19 +412,20 @@ KHASH_MAP_INIT_STR(file_marks, filemark_st)
 /// State structure used by shada_write
 ///
 /// Before actually writing most of the data is read to this structure.
-typedef struct
+/// wms = Write Merger State
+typedef struct wms_info_s
 {
     hms_info_st hms[HIST_COUNT]; ///< Structures for history merging.
-    pfse_info_st global_marks[NGLOBALMARKS]; ///< All global marks.
+    pfse_info_st global_marks[NGLOBALMARKS];     ///< All global marks.
     pfse_info_st registers[NUM_SAVED_REGISTERS]; ///< All registers.
     pfse_info_st jumps[JUMPLISTSIZE]; ///< All dumped jumps.
-    size_t jumps_size; ///< Number of jumps occupied.
-    pfse_info_st search_pattern; ///< Last search pattern.
-    pfse_info_st sub_search_pattern; ///< Last s/ search pattern.
-    pfse_info_st replacement; ///< Last s// replacement string.
+    size_t jumps_size;                ///< Number of jumps occupied.
+    pfse_info_st search_pattern;      ///< Last search pattern.
+    pfse_info_st sub_search_pattern;  ///< Last s/ search pattern.
+    pfse_info_st replacement;         ///< Last s// replacement string.
     khash_t(strset) dumped_variables; ///< Names of already dumped variables.
-    khash_t(file_marks) file_marks; ///< All file marks.
-} WriteMergerState;
+    khash_t(file_marks) file_marks;   ///< All file marks.
+} wms_info_st;
 
 struct sd_read_def;
 
@@ -2666,7 +2667,7 @@ shada_parse_msgpack_extra_bytes:
 static inline shada_write_result_et shada_read_when_writing(ShaDaReadDef *const sd_reader,
                                                        const unsigned srni_flags,
                                                        const size_t max_kbyte,
-                                                       WriteMergerState *const wms,
+                                                       wms_info_st *const wms,
                                                        msgpack_packer *const packer)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -3121,7 +3122,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         return ret;
     }
 
-    WriteMergerState *const wms = xcalloc(1, sizeof(*wms));
+    wms_info_st *const wms = xcalloc(1, sizeof(*wms));
     bool dump_one_history[HIST_COUNT];
     const bool dump_global_vars = (find_shada_parameter('!') != NULL);
     int max_reg_lines = get_shada_parameter('<');
