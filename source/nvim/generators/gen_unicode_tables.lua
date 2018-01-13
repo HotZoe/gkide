@@ -171,7 +171,7 @@ local build_fold_table = function(ut_fp, foldprops)
 end
 
 local build_combining_table = function(ut_fp, dataprops)
-    ut_fp:write('static const struct interval combining[] = {\n')
+    ut_fp:write('static const mbyte_intv_st combining[] = {\n')
 
     local start = -1
     local end_ = -1
@@ -201,7 +201,7 @@ local build_combining_table = function(ut_fp, dataprops)
 end
 
 local build_width_table = function(ut_fp, dataprops, widthprops, widths, table_name)
-    ut_fp:write('static const struct interval ' .. table_name .. '[] = {\n')
+    ut_fp:write('static const mbyte_intv_st ' .. table_name .. '[] = {\n')
 
     local start = -1
     local end_ = -1
@@ -321,13 +321,13 @@ local build_emoji_table = function(ut_fp, emojiprops, doublewidth, ambiwidth)
         end
     end
 
-    ut_fp:write('static const struct interval emoji_all[] =\n{\n')
+    ut_fp:write('static const mbyte_intv_st emoji_all[] =\n{\n')
     for _, p in ipairs(emoji) do
         ut_fp:write(make_range(p[1], p[2]))
     end
     ut_fp:write('};\n')
 
-    ut_fp:write('static const struct interval emoji_width[] =\n{\n')
+    ut_fp:write('static const mbyte_intv_st emoji_width[] =\n{\n')
     for _, p in ipairs(emojiwidth) do
         ut_fp:write(make_range(p[1], p[2]))
     end

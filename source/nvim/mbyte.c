@@ -67,11 +67,12 @@ typedef struct mbyte_conv_s
     int offset;
 } mbyte_conv_st;
 
-struct interval
+/// mutlibyte interval
+typedef struct mbyte_intv_s
 {
     long first;
     long last;
-};
+} mbyte_intv_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "mbyte.c.generated.h"
@@ -426,7 +427,7 @@ int mb_get_class_tab(const uchar_kt *p, const uint64_t *const chartab)
 }
 
 /// Return true if "c" is in "table".
-static bool intable(const struct interval *table, size_t n_items, int c)
+static bool intable(const mbyte_intv_st *table, size_t n_items, int c)
 {
     int mid, bot, top;
 
@@ -1174,7 +1175,7 @@ bool utf_printable(int c)
 #else
     // Sorted list of non-overlapping intervals.
     // 0xd800-0xdfff is reserved for UTF-16, actually illegal.
-    static struct interval nonprint[] = {
+    static mbyte_intv_st nonprint[] = {
         {0x070f, 0x070f}, {0x180b, 0x180e}, {0x200b, 0x200f}, {0x202a, 0x202e},
         {0x206a, 0x206f}, {0xd800, 0xdfff}, {0xfeff, 0xfeff}, {0xfff9, 0xfffb},
         {0xfffe, 0xffff}
