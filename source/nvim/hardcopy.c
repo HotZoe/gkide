@@ -4,13 +4,13 @@
 ///
 /// To implement printing on a platform, the following functions must be defined:
 ///
-/// int mch_print_init(prt_settings_T *psettings, uchar_kt *jobname, int forceit)
+/// int mch_print_init(prev_prtinfo_st *psettings, uchar_kt *jobname, int forceit)
 /// Called once. Code should display printer dialogue (if appropriate) and
 /// determine printer font and margin settings. Reset has_color if the printer
 /// doesn't support colors at all.
 /// Returns FAIL to abort.
 ///
-/// - int mch_print_begin(prt_settings_T *settings)
+/// - int mch_print_begin(prev_prtinfo_st *settings)
 ///   Called to start the print job.
 ///   Return FALSE to abort.
 ///
@@ -27,7 +27,7 @@
 ///   Called to generate a blank page for collated, duplex,
 ///   multiple copy document. Return FALSE to abort.
 ///
-/// - void mch_print_end(prt_settings_T *psettings)
+/// - void mch_print_end(prev_prtinfo_st *psettings)
 ///   Called at normal end of print job.
 ///
 /// - void mch_print_cleanup()
@@ -482,7 +482,7 @@ static void prt_set_font(int bold, int italic, int underline)
 }
 
 /// Print the line number in the left margin.
-static void prt_line_number(prt_settings_T *psettings,
+static void prt_line_number(prev_prtinfo_st *psettings,
                             int page_line,
                             linenum_kt lnum)
 {
@@ -562,7 +562,7 @@ int prt_get_unit(int idx)
 }
 
 /// Print the page header.
-static void prt_header(prt_settings_T *psettings, int pagenum, linenum_kt lnum)
+static void prt_header(prev_prtinfo_st *psettings, int pagenum, linenum_kt lnum)
 {
     int width = psettings->chars_per_line;
     int page_line;
@@ -673,11 +673,11 @@ void ex_hardcopy(exargs_st *eap)
 {
     linenum_kt lnum;
     int collated_copies, uncollated_copies;
-    prt_settings_T settings;
+    prev_prtinfo_st settings;
     size_t bytes_to_print = 0;
     int page_line;
     int jobsplit;
-    memset(&settings, 0, sizeof(prt_settings_T));
+    memset(&settings, 0, sizeof(prev_prtinfo_st));
     settings.has_color = TRUE;
 
     if(*eap->arg == '>')
@@ -958,7 +958,7 @@ print_fail_no_begin:
 /// Print one page line.
 /// Return the next column to print,
 /// or zero if the line is finished.
-static columnum_kt hardcopy_line(prt_settings_T *psettings,
+static columnum_kt hardcopy_line(prev_prtinfo_st *psettings,
                              int page_line,
                              prt_pos_T *ppos)
 {
@@ -2602,7 +2602,7 @@ static int prt_match_charset(char *p_charset,
     return FALSE;
 }
 
-int mch_print_init(prt_settings_T *psettings,
+int mch_print_init(prev_prtinfo_st *psettings,
                    uchar_kt *jobname,
                    int FUNC_ARGS_UNUSED_REALY(forceit))
 {
@@ -3016,7 +3016,7 @@ static int prt_add_resource(struct prt_ps_resource_S *resource)
     return TRUE;
 }
 
-int mch_print_begin(prt_settings_T *psettings)
+int mch_print_begin(prev_prtinfo_st *psettings)
 {
     time_t now;
     int bbox[4];
@@ -3532,7 +3532,7 @@ int mch_print_begin(prt_settings_T *psettings)
     return retval;
 }
 
-void mch_print_end(prt_settings_T *psettings)
+void mch_print_end(prev_prtinfo_st *psettings)
 {
     prt_dsc_noarg("Trailer");
 
