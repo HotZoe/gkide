@@ -20,11 +20,11 @@
 #include "nvim/strings.h"
 
 /// Find result cache for cpp_baseclass
-typedef struct
+typedef struct cpp_baseclass_cache_s
 {
     int found;
     bpos_st lpos;
-} cpp_baseclass_cache_T;
+} cpp_baseclass_cache_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "indent_c.c.generated.h"
@@ -1394,7 +1394,7 @@ static int cin_isbreak(uchar_kt *p)
 ///  baseClass(...)      <-- here (constructor-initialization)
 ///
 /// This is a lot of guessing. Watch out for "cond ? func() : foo".
-static int cin_is_cpp_baseclass(cpp_baseclass_cache_T *cached)
+static int cin_is_cpp_baseclass(cpp_baseclass_cache_st *cached)
 {
     bpos_st *pos = &cached->lpos;  // find position
     uchar_kt *s;
@@ -2280,7 +2280,7 @@ int get_c_indent(void)
     int cont_amount = 0; // amount for continuation line
     int original_line_islabel;
     int added_to_amount = 0;
-    cpp_baseclass_cache_T cache_cpp_baseclass = { false, { MAXLNUM, 0 } };
+    cpp_baseclass_cache_st cache_cpp_baseclass = { false, { MAXLNUM, 0 } };
 
     // make a copy, value is changed below
     int ind_continuation = curbuf->b_ind_continuation;
