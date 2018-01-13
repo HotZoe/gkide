@@ -152,7 +152,7 @@ static foldinfo_st win_foldinfo;
 static schar_T *current_ScreenLine;
 
 long tab_page_click_defs_size = 0;
-StlClickDefinition *tab_page_click_defs = NULL;
+stl_clickdef_st *tab_page_click_defs = NULL;
 
 #define SCREEN_LINE(r, o, e, c, rl)  screen_line((r), (o), (e), (c), (rl))
 
@@ -6967,7 +6967,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
         len = 0;
         p = buf;
 
-        StlClickDefinition cur_click_def = {
+        stl_clickdef_st cur_click_def = {
             .type = kStlClickDisabled,
         };
 
@@ -8059,7 +8059,7 @@ void screenalloc(bool doclear)
     sattr_T *new_ScreenAttrs;
     unsigned *new_LineOffset;
     uchar_kt *new_LineWraps;
-    StlClickDefinition *new_tab_page_click_defs;
+    stl_clickdef_st *new_tab_page_click_defs;
     static bool entered = false; // avoid recursiveness
     static bool done_outofmem_msg = false;
     int retry_count = 0;
@@ -8380,7 +8380,7 @@ void free_screenlines(void)
 ///
 /// @param[out]  tpcd  Table to clear.
 /// @param[in]   tpcd_size  Size of the table.
-void clear_tab_page_click_defs(StlClickDefinition *const tpcd,
+void clear_tab_page_click_defs(stl_clickdef_st *const tpcd,
                                const long tpcd_size)
 {
     if(tpcd != NULL)
@@ -9377,7 +9377,7 @@ static void draw_tabline(void)
 
             while(scol < col)
             {
-                tab_page_click_defs[scol++] = (StlClickDefinition) {
+                tab_page_click_defs[scol++] = (stl_clickdef_st) {
                     .type = kStlClickTabSwitch,
                     .tabnr = tabcount,
                     .func = NULL,
@@ -9401,7 +9401,7 @@ static void draw_tabline(void)
         {
             screen_putchar('X', 0, (int)Columns - 1, attr_nosel);
 
-            tab_page_click_defs[Columns - 1] = (StlClickDefinition) {
+            tab_page_click_defs[Columns - 1] = (stl_clickdef_st) {
                 .type = kStlClickTabClose,
                 .tabnr = 999,
                 .func = NULL,

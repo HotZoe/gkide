@@ -32,17 +32,17 @@ typedef struct
     } type;                     ///< Type of the click.
     int tabnr;                  ///< Tab page number.
     char *func;                 ///< Function to run.
-} StlClickDefinition;
+} stl_clickdef_st;
 
 /// Used for tabline clicks
 typedef struct
 {
-    StlClickDefinition def;  ///< Click definition.
-    const char *start;       ///< Location where region starts.
+    stl_clickdef_st def;  ///< Click definition.
+    const char *start;    ///< Location where region starts.
 } StlClickRecord;
 
 /// Array defining what should be done when tabline is clicked
-extern StlClickDefinition *tab_page_click_defs;
+extern stl_clickdef_st *tab_page_click_defs;
 
 /// Size of the tab_page_click_defs array
 extern long tab_page_click_defs_size;
