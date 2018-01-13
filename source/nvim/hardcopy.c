@@ -405,7 +405,7 @@ static uint32_t prt_get_term_color(int colorindex)
     return cterm_color_8[colorindex % 8];
 }
 
-static void prt_get_attr(int hl_id, prt_text_attr_T *pattr, int modec)
+static void prt_get_attr(int hl_id, prtclr_fntattr_st *pattr, int modec)
 {
     int colorindex;
     uint32_t fg_color;
@@ -968,7 +968,7 @@ static columnum_kt hardcopy_line(prt_settings_T *psettings,
     int outputlen;
     int tab_spaces;
     int print_pos;
-    prt_text_attr_T attr;
+    prtclr_fntattr_st attr;
     int id;
 
     if(ppos->column == 0 || ppos->ff)
