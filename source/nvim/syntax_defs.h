@@ -16,7 +16,7 @@
 typedef int32_t rgb_color_kt;
 
 /// display tick type
-typedef unsigned short disptick_T;
+typedef unsigned short disptick_kt;
 
 /// struct passed to in_id_list()
 struct sp_syn
@@ -75,7 +75,7 @@ struct synstate_s
     /// "nextgroup" list in this state (this is a copy, don't free it!)
     short *sst_next_list;
     /// tick when last displayed
-    disptick_T sst_tick;
+    disptick_kt sst_tick;
     /// when non-zero, change in this line may have made the state invalid
     linenum_kt sst_change_lnum;
 };

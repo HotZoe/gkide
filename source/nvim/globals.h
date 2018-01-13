@@ -1120,7 +1120,7 @@ EXTERN char pseps[2] INIT(= { '\\', 0 }); ///< normal path separator string
 EXTERN int virtual_op INIT(= MAYBE);
 
 /// Display tick, incremented for each call to update_screen()
-EXTERN disptick_T display_tick INIT(= 0);
+EXTERN disptick_kt display_tick INIT(= 0);
 
 /// Line in which spell checking wasn't highlighted because it touched the
 /// cursor position in Insert mode.

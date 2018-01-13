@@ -1304,7 +1304,7 @@ static void syn_stack_apply_changes_block(synblk_st *block, filebuf_st *buf)
 static int syn_stack_cleanup(void)
 {
     synstate_st *p, *prev;
-    disptick_T tick;
+    disptick_kt tick;
     int above;
     int dist;
     int retval = FALSE;
