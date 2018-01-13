@@ -1,5 +1,6 @@
 /// @file nvim/shada.c
-
+///
+/// share data
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -65,8 +66,10 @@
 KHASH_SET_INIT_STR(strset)
 KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 
-#define copy_option_part(src, dest, ...) \
-    ((char *)copy_option_part((uchar_kt **) src, (uchar_kt *) dest, __VA_ARGS__))
+#define copy_option_part(src, dest, ...)         \
+    ((char *)copy_option_part((uchar_kt **) src, \
+                              (uchar_kt *) dest, \
+                              __VA_ARGS__))
 
 #define find_shada_parameter(...) \
     ((const char *)find_shada_parameter(__VA_ARGS__))
@@ -87,7 +90,9 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
     ((char *)path_shorten_fname_if_possible((uchar_kt *)b))
 
 #define buflist_new(ffname, sfname, ...) \
-    (buflist_new((uchar_kt *)ffname, (uchar_kt *)sfname, __VA_ARGS__))
+    (buflist_new((uchar_kt *)ffname,     \
+                 (uchar_kt *)sfname,     \
+                 __VA_ARGS__))
 
 #define os_isdir(f)           (os_isdir((uchar_kt *) f))
 #define regtilde(s, m)        ((char *) regtilde((uchar_kt *) s, m))
@@ -108,10 +113,10 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 #define REG_KEY_WIDTH     "rw"
 #define REG_KEY_CONTENTS  "rc"
 
-#define KEY_LNUM       "l"
-#define KEY_COL        "c"
-#define KEY_FILE       "f"
-#define KEY_NAME_CHAR  "n"
+#define KEY_LNUM          "l"
+#define KEY_COL           "c"
+#define KEY_FILE          "f"
+#define KEY_NAME_CHAR     "n"
 
 // Error messages formerly used by viminfo code:
 //   E136: viminfo: Too many errors, skipping rest of file
@@ -156,16 +161,16 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 #define WERR     "E574: "
 
 /// Callback function for add_search_pattern
-typedef void (*SearchPatternGetter)(SearchPattern *);
+typedef void (*search_pattern_cbk_ft)(SearchPattern *);
 
 /// Flags for shada_read_file and children
 typedef enum
 {
-    kShaDaWantInfo = 1,       ///< Load non-mark information
-    kShaDaWantMarks = 2,      ///< Load local file marks and change list
-    kShaDaForceit = 4,        ///< Overwrite info already read
-    kShaDaGetOldfiles = 8,    ///< Load v:oldfiles.
-    kShaDaMissingError = 16,  ///< Error out when os_open returns -ENOENT.
+    kShaDaWantInfo      = 1,  ///< Load non-mark information
+    kShaDaWantMarks     = 2,  ///< Load local file marks and change list
+    kShaDaForceit       = 4,  ///< Overwrite info already read
+    kShaDaGetOldfiles   = 8,  ///< Load v:oldfiles.
+    kShaDaMissingError  = 16, ///< Error out when os_open returns -ENOENT.
 } ShaDaReadFileFlags;
 
 /// Possible ShaDa entry types
@@ -3046,7 +3051,7 @@ FUNC_ATTR_ALWAYS_INLINE
 /// True if search pattern was highlighted by &hlsearch
 /// and this information should be saved.
 static inline void add_search_pattern(PossiblyFreedShadaEntry *const ret_pse,
-                                      const SearchPatternGetter get_pattern,
+                                      const search_pattern_cbk_ft get_pattern,
                                       const bool is_substitute_pattern,
                                       const bool search_last_used,
                                       const bool search_highlighted)
