@@ -178,26 +178,26 @@ typedef enum shada_readfile_flg_e
 /// @warning Enum values are part of the API and must not be altered.
 ///
 /// All values that are not in enum are ignored.
-typedef enum
+typedef enum shada_entry_type_e
 {
-    kSDItemUnknown = -1,       ///< Unknown item.
-    kSDItemMissing = 0,        ///< Missing value. Should never appear in a file.
-    kSDItemHeader = 1,         ///< Header. Present for debugging purposes.
+    kSDItemUnknown       = -1, ///< Unknown item.
+    kSDItemMissing       = 0,  ///< Missing value. Should never appear in a file.
+    kSDItemHeader        = 1,  ///< Header. Present for debugging purposes.
     kSDItemSearchPattern = 2,  ///< Last search pattern (*not* history item).
                                ///< Comes from user searches (e.g. when typing
                                ///< "/pat") or :substitute command calls.
-    kSDItemSubString = 3,      ///< Last substitute replacement string.
-    kSDItemHistoryEntry = 4,   ///< History item.
-    kSDItemRegister = 5,       ///< Register.
-    kSDItemVariable = 6,       ///< Global variable.
-    kSDItemGlobalMark = 7,     ///< Global mark definition.
-    kSDItemJump = 8,           ///< Item from jump list.
-    kSDItemBufferList = 9,     ///< Buffer list.
-    kSDItemLocalMark = 10,     ///< Buffer-local mark.
-    kSDItemChange = 11,        ///< Item from buffer change list.
+    kSDItemSubString     = 3,  ///< Last substitute replacement string.
+    kSDItemHistoryEntry  = 4,  ///< History item.
+    kSDItemRegister      = 5,  ///< Register.
+    kSDItemVariable      = 6,  ///< Global variable.
+    kSDItemGlobalMark    = 7,  ///< Global mark definition.
+    kSDItemJump          = 8,  ///< Item from jump list.
+    kSDItemBufferList    = 9,  ///< Buffer list.
+    kSDItemLocalMark     = 10, ///< Buffer-local mark.
+    kSDItemChange        = 11, ///< Item from buffer change list.
 
     #define SHADA_LAST_ENTRY   ((uint64_t) kSDItemChange)
-} ShadaEntryType;
+} shada_entry_type_et;
 
 /// Possible results when reading ShaDa file
 typedef enum
@@ -275,7 +275,7 @@ enum SRNIFlags
 /// Structure defining a single ShaDa file entry
 typedef struct
 {
-    ShadaEntryType type;
+    shada_entry_type_et type;
     timestamp_kt timestamp;
     union
     {
@@ -4682,7 +4682,7 @@ shada_read_next_item_start:
     ret = kSDReadStatusMalformed;
     entry->data = sd_default_values[type_u64].data;
 
-    switch((ShadaEntryType) type_u64)
+    switch((shada_entry_type_et) type_u64)
     {
         case kSDItemHeader:
         {
@@ -5205,7 +5205,7 @@ shada_read_next_item_start:
         }
     }
 
-    entry->type = (ShadaEntryType) type_u64;
+    entry->type = (shada_entry_type_et) type_u64;
     ret = kSDReadStatusSuccess;
 
 shada_read_next_item_end:
@@ -5220,7 +5220,7 @@ shada_read_next_item_end:
 
 shada_read_next_item_error:
 
-    entry->type = (ShadaEntryType) type_u64;
+    entry->type = (shada_entry_type_et) type_u64;
     shada_free_shada_entry(entry);
     entry->type = kSDItemMissing;
 
