@@ -436,7 +436,7 @@ typedef struct
     int b_cjk;                 ///< all CJK letters as OK
     uchar_kt b_syn_chartab[32];///< syntax iskeyword option
     uchar_kt *b_syn_isk;       ///< iskeyword option
-} synblock_T;
+} synblk_st;
 
 /// Type used for changedtick_di member in filebuf_st
 ///
@@ -736,8 +736,8 @@ struct filebuf_s
                   ///< access b_spell without #ifdef.
 
     /// Info related to syntax highlighting. w_s normally points
-    /// to this, but some windows may use a different synblock_T.
-    synblock_T b_s;
+    /// to this, but some windows may use a different synblk_st.
+    synblk_st b_s;
 
     signlist_T *b_signlist;     ///< list of signs to draw
     Terminal *terminal;         ///< Terminal instance associated with the buffer
@@ -907,7 +907,7 @@ struct window_s
     /// buffer we are a window into (used often, keep it the first item!)
     filebuf_st *w_buffer;
 
-    synblock_T *w_s;      ///< for :ownsyntax
+    synblk_st *w_s;      ///< for :ownsyntax
     int w_hl_id;          ///< 'winhighlight' id
     int w_hl_id_inactive; ///< 'winhighlight' id for inactive window
     int w_hl_attr;        ///< 'winhighlight' final attrs

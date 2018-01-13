@@ -333,7 +333,7 @@ static reg_extmatch_st *next_match_extmatch = NULL;
 // When current_state.ga_itemsize is 0 the current state is invalid.
 static win_st *syn_win;             ///< current window for highlighting
 static filebuf_st *syn_buf;             ///< current buffer for highlighting
-static synblock_T *syn_block;      ///< current buffer for highlighting
+static synblk_st *syn_block;      ///< current buffer for highlighting
 static linenum_kt current_lnum = 0;  ///< lnum of current state
 static columnum_kt current_col = 0;    ///< column of current state
 static int current_finished = 0;   ///< current line has been finished
@@ -1076,7 +1076,7 @@ static void syn_update_ends(int startofline)
 // the distance is fixed at SST_DIST, for large buffers there is a fixed
 // number of entries SST_MAX_ENTRIES, and the distance is computed.
 
-static void syn_stack_free_block(synblock_T *block)
+static void syn_stack_free_block(synblk_st *block)
 {
     synstate_st *p;
 
@@ -1095,7 +1095,7 @@ static void syn_stack_free_block(synblock_T *block)
 
 /// Free b_sst_array[] for buffer "buf".
 /// Used when syntax items changed to force resyncing everywhere.
-void syn_stack_free_all(synblock_T *block)
+void syn_stack_free_all(synblk_st *block)
 {
     syn_stack_free_block(block);
 
@@ -1219,7 +1219,7 @@ void syn_stack_apply_changes(filebuf_st *buf)
     }
 }
 
-static void syn_stack_apply_changes_block(synblock_T *block, filebuf_st *buf)
+static void syn_stack_apply_changes_block(synblk_st *block, filebuf_st *buf)
 {
     synstate_st *p, *prev, *np;
     linenum_kt n;
@@ -1359,7 +1359,7 @@ static int syn_stack_cleanup(void)
 
 /// Free the allocated memory for a syn_state item.
 /// Move the entry into the free list.
-static void syn_stack_free_entry(synblock_T *block, synstate_st *p)
+static void syn_stack_free_entry(synblk_st *block, synstate_st *p)
 {
     clear_syn_state(p);
     p->sst_next = block->b_sst_firstfree;
@@ -3652,7 +3652,7 @@ static void syn_cmd_iskeyword(exargs_st *eap,
 }
 
 /// Clear all syntax info for one buffer.
-void syntax_clear(synblock_T *block)
+void syntax_clear(synblk_st *block)
 {
     block->b_syn_error = FALSE; // clear previous error
     block->b_syn_ic = FALSE; // Use case, by default
@@ -3732,7 +3732,7 @@ static void syntax_sync_clear(void)
 }
 
 /// Remove one pattern from the buffer's pattern list.
-static void syn_remove_pattern(synblock_T *block, int idx)
+static void syn_remove_pattern(synblk_st *block, int idx)
 {
     synpat_T *spp;
     spp = &(SYN_ITEMS(block)[idx]);
@@ -3753,7 +3753,7 @@ static void syn_remove_pattern(synblock_T *block, int idx)
 
 /// Clear and free one syntax pattern.
 /// When clearing all, must be called from last to first!
-static void syn_clear_pattern(synblock_T *block, int i)
+static void syn_clear_pattern(synblk_st *block, int i)
 {
     xfree(SYN_ITEMS(block)[i].sp_pattern);
     vim_regfree(SYN_ITEMS(block)[i].sp_prog);
@@ -3768,7 +3768,7 @@ static void syn_clear_pattern(synblock_T *block, int i)
 }
 
 /// Clear and free one syntax cluster.
-static void syn_clear_cluster(synblock_T *block, int i)
+static void syn_clear_cluster(synblk_st *block, int i)
 {
     xfree(SYN_CLSTR(block)[i].scl_name);
     xfree(SYN_CLSTR(block)[i].scl_name_u);
@@ -6737,8 +6737,8 @@ void ex_ownsyntax(exargs_st *eap)
 
     if(curwin->w_s == &curwin->w_buffer->b_s)
     {
-        curwin->w_s = xmalloc(sizeof(synblock_T));
-        memset(curwin->w_s, 0, sizeof(synblock_T));
+        curwin->w_s = xmalloc(sizeof(synblk_st));
+        memset(curwin->w_s, 0, sizeof(synblk_st));
         hash_init(&curwin->w_s->b_keywtab);
         hash_init(&curwin->w_s->b_keywtab_ic);
 

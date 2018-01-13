@@ -4839,7 +4839,7 @@ static uchar_kt *did_set_spell_option(bool is_spellfile)
 
 /// Set curbuf->b_cap_prog to the regexp program for 'spellcapcheck'.
 /// Return error message when failed, NULL when OK.
-static uchar_kt *compile_cap_prog(synblock_T *synblock)
+static uchar_kt *compile_cap_prog(synblk_st *synblock)
 {
     regprog_st *rp = synblock->b_cap_prog;
     uchar_kt *re;
