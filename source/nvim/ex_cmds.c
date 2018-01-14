@@ -412,28 +412,27 @@ static int sort_flt;   ///< sort on floating number
 static int sort_abort; ///< flag to indicate if sorting has been interrupted
 
 /// Struct to store info to be sorted.
-typedef struct
+typedef struct sorti_s
 {
-    linenum_kt lnum;          ///< line number
-    long start_col_nr;      ///< starting column number or number
-    long end_col_nr;        ///< ending column number
+    linenum_kt lnum;   ///< line number
+    long start_col_nr; ///< starting column number or number
+    long end_col_nr;   ///< ending column number
     union
     {
         struct
         {
-            long start_col_nr;  ///< starting column number
-            long end_col_nr;    ///< ending column number
+            long start_col_nr; ///< starting column number
+            long end_col_nr;   ///< ending column number
         } line;
-        long value;             ///< value if sorting by integer
-        float_kt value_flt;      ///< value if sorting by float
+        long value;            ///< value if sorting by integer
+        float_kt value_flt;    ///< value if sorting by float
     } st_u;
-} sorti_T;
-
+} sorti_st;
 
 static int sort_compare(const void *s1, const void *s2)
 {
-    sorti_T l1 = *(sorti_T *)s1;
-    sorti_T l2 = *(sorti_T *)s2;
+    sorti_st l1 = *(sorti_st *)s1;
+    sorti_st l2 = *(sorti_st *)s2;
     int result = 0;
 
     // If the user interrupts, there's no way to stop qsort() immediately, but
@@ -525,7 +524,7 @@ void ex_sort(exargs_st *eap)
     sortbuf1 = NULL;
     sortbuf2 = NULL;
     regmatch.regprog = NULL;
-    sorti_T *nrs = xmalloc(count * sizeof(sorti_T));
+    sorti_st *nrs = xmalloc(count * sizeof(sorti_st));
     sort_abort = sort_ic = sort_rx = sort_nr = sort_flt = 0;
     size_t format_found = 0;
 
@@ -764,7 +763,7 @@ void ex_sort(exargs_st *eap)
     sortbuf2 = xmalloc(maxlen + 1);
 
     // Sort the array of line numbers. Note: can't be interrupted!
-    qsort((void *)nrs, count, sizeof(sorti_T), sort_compare);
+    qsort((void *)nrs, count, sizeof(sorti_st), sort_compare);
 
     if(sort_abort)
     {
