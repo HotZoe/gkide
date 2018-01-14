@@ -9,14 +9,14 @@
 
 typedef struct signal_watcher_s signal_watcher_st;
 typedef void (*signal_ft)(signal_watcher_st *watcher, int signum, void *data);
-typedef void (*signal_close_cb)(signal_watcher_st *watcher, void *data);
+typedef void (*signal_close_ft)(signal_watcher_st *watcher, void *data);
 
 struct signal_watcher_s
 {
     uv_signal_t uv;
     void *data;
     signal_ft cb;
-    signal_close_cb close_cb;
+    signal_close_ft close_cb;
     multiqueue_st *events;
 };
 

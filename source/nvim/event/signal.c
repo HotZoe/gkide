@@ -33,7 +33,7 @@ FUNC_ATTR_NONNULL_ALL
     uv_signal_stop(&watcher->uv);
 }
 
-void signal_watcher_close(signal_watcher_st *watcher, signal_close_cb cb)
+void signal_watcher_close(signal_watcher_st *watcher, signal_close_ft cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     watcher->close_cb = cb;
