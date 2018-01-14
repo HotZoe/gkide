@@ -75,7 +75,7 @@ typedef enum
 } SubIgnoreType;
 
 /// Flags kept between calls to :substitute.
-typedef struct
+typedef struct subflags_s
 {
     bool do_all;          ///< do multiple substitutions per line
     bool do_ask;          ///< ask for confirmation
@@ -85,7 +85,7 @@ typedef struct
     bool do_list;         ///< list last line with subs
     bool do_number;       ///< list last line with line nr
     SubIgnoreType do_ic;  ///< ignore case flag
-} subflags_T;
+} subflags_st;
 
 /// Lines matched during :substitute.
 typedef struct matched_line_s
@@ -4023,7 +4023,7 @@ FUNC_ATTR_NONNULL_RET
 /// @returns
 /// pointer to the end of the flags, which may be the end of the string
 static uchar_kt *sub_parse_flags(uchar_kt *cmd,
-                               subflags_T *subflags,
+                               subflags_st *subflags,
                                int *which_pat)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
@@ -4119,7 +4119,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
     long i = 0;
     regmmatch_st regmatch;
 
-    static subflags_T subflags =
+    static subflags_st subflags =
     {
         .do_all = false,
         .do_ask = false,
@@ -4787,7 +4787,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
 
                     // Save flags for recursion. They can change for e.g.
                     // :s/^/\=execute("s#^##gn")
-                    subflags_T subflags_save = subflags;
+                    subflags_st subflags_save = subflags;
 
                     // get length of substitution part
                     sublen = vim_regsub_multi(&regmatch,
