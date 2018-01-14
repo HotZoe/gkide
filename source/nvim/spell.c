@@ -284,12 +284,12 @@ typedef struct matchinf_S
 } matchinf_T;
 
 /// Structure used for the cookie argument of do_in_runtimepath().
-typedef struct spelload_S
+typedef struct spelload_s
 {
     uchar_kt sl_lang[MAXWLEN + 1]; ///< language name
     slang_st *sl_slang;            ///< resulting slang_st struct
     int sl_nobreak;                ///< NOBREAK language found
-} spelload_T;
+} spelload_st;
 
 #define SY_MAXLEN   30
 
@@ -2047,7 +2047,7 @@ static void spell_load_lang(uchar_kt *lang)
 {
     uchar_kt fname_enc[85];
     int r;
-    spelload_T sl;
+    spelload_st sl;
     int round;
 
     // Copy the language name to pass it to spell_load_cb() as a cookie.
@@ -2291,7 +2291,7 @@ void slang_clear_sug(slang_st *lp)
 /// Invoked through do_in_runtimepath().
 static void spell_load_cb(uchar_kt *fname, void *cookie)
 {
-    spelload_T *slp = (spelload_T *)cookie;
+    spelload_st *slp = (spelload_st *)cookie;
     slang_st *slang;
     slang = spell_load_file(fname, slp->sl_lang, NULL, false);
 
