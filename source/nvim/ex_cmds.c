@@ -67,12 +67,12 @@
 typedef struct sign sign_st;
 
 /// Case matching style to use for :substitute
-typedef enum
+typedef enum sub_ignore_e
 {
     kSubHonorOptions = 0, ///< Honor the user's 'ignorecase'/'smartcase' options
     kSubIgnoreCase,       ///< Ignore case of the search
     kSubMatchCase,        ///< Match case of the search
-} SubIgnoreType;
+} sub_ignore_et;
 
 /// Flags kept between calls to :substitute.
 typedef struct subflags_s
@@ -84,7 +84,7 @@ typedef struct subflags_s
     bool do_print;        ///< print last line with subs
     bool do_list;         ///< list last line with subs
     bool do_number;       ///< list last line with line nr
-    SubIgnoreType do_ic;  ///< ignore case flag
+    sub_ignore_et do_ic;  ///< ignore case flag
 } subflags_st;
 
 /// Lines matched during :substitute.
