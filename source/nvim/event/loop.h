@@ -11,11 +11,11 @@
 #include "nvim/os/time.h"
 #include "nvim/event/multiqueue.h"
 
-typedef void *WatcherPtr;
+typedef void *watcher_ptr_kt;
 
 #define _noop(x)
 
-KLIST_INIT(WatcherPtr, WatcherPtr, _noop)
+KLIST_INIT(watcher_ptr_kt, watcher_ptr_kt, _noop)
 
 typedef struct main_loop_s
 {
@@ -23,7 +23,7 @@ typedef struct main_loop_s
     multiqueue_st *events;
     multiqueue_st *fast_events;
     multiqueue_st *thread_events;
-    klist_t(WatcherPtr) *children;
+    klist_t(watcher_ptr_kt) *children;
     uv_signal_t children_watcher;
     uv_timer_t children_kill_timer;
     uv_timer_t poll_timer;

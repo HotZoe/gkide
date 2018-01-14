@@ -18,7 +18,7 @@ void loop_init(main_loop_st *loop, void *FUNC_ARGS_UNUSED_REALY(data))
 
     loop->recursive = 0;
     loop->uv.data = loop;
-    loop->children = kl_init(WatcherPtr);
+    loop->children = kl_init(watcher_ptr_kt);
     loop->children_stop_requests = 0;
     loop->events = multiqueue_new_parent(loop_on_put, loop);
     loop->fast_events = multiqueue_new_child(loop->events);
@@ -101,7 +101,7 @@ void loop_close(main_loop_st *loop, bool wait)
     multiqueue_free(loop->fast_events);
     multiqueue_free(loop->thread_events);
     multiqueue_free(loop->events);
-    kl_destroy(WatcherPtr, loop->children);
+    kl_destroy(watcher_ptr_kt, loop->children);
 }
 
 void loop_purge(main_loop_st *loop)

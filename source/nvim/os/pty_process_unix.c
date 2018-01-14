@@ -322,7 +322,7 @@ static void chld_handler(uv_signal_t *handle,
 
     main_loop_st *loop = handle->loop->data;
 
-    kl_iter(WatcherPtr, loop->children, current)
+    kl_iter(watcher_ptr_kt, loop->children, current)
     {
         process_st *proc = (*current)->data;
 

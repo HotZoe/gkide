@@ -138,7 +138,7 @@ FUNC_ATTR_NONNULL_ALL
     proc->internal_close_cb = decref;
     proc->refcount++;
 
-    kl_push(WatcherPtr, proc->loop->children, proc);
+    kl_push(watcher_ptr_kt, proc->loop->children, proc);
 
     return 0;
 }
@@ -148,7 +148,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     process_is_tearing_down = true;
 
-    kl_iter(WatcherPtr, loop->children, current)
+    kl_iter(watcher_ptr_kt, loop->children, current)
     {
         process_st *proc = (*current)->data;
 
@@ -330,7 +330,7 @@ static void children_kill_cb(uv_timer_t *handle)
   main_loop_st *loop = handle->loop->data;
     uint64_t now = os_hrtime();
 
-    kl_iter(WatcherPtr, loop->children, current)
+    kl_iter(watcher_ptr_kt, loop->children, current)
     {
         process_st *proc = (*current)->data;
 
@@ -379,9 +379,9 @@ static void decref(process_st *proc)
     }
 
    main_loop_st *loop = proc->loop;
-    kliter_t(WatcherPtr) **node = NULL;
+    kliter_t(watcher_ptr_kt) **node = NULL;
 
-    kl_iter(WatcherPtr, loop->children, current)
+    kl_iter(watcher_ptr_kt, loop->children, current)
     {
         if((*current)->data == proc)
         {
@@ -392,7 +392,7 @@ static void decref(process_st *proc)
 
     assert(node);
 
-    kl_shift_at(WatcherPtr, loop->children, node);
+    kl_shift_at(watcher_ptr_kt, loop->children, node);
 
     CREATE_EVENT(proc->events, process_close_event, 1, proc);
 }
