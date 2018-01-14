@@ -223,12 +223,12 @@
 /// static functions `_typval_encode_{TYPVAL_ENCODE_NAME}_convert_one_value`
 /// and `_typval_encode_{TYPVAL_ENCODE_NAME}_check_self_reference`.
 
-/// @def TYPVAL_ENCODE_FIRST_ARG_TYPE
+/// @def TVE_FIRST_ARG_TYPE
 /// @brief Type of the first argument, which will be used to return the results
 ///
 /// Is expected to be a pointer type.
 
-/// @def TYPVAL_ENCODE_FIRST_ARG_NAME
+/// @def TVE_FIRST_ARG_NAME
 /// @brief Name of the first argument
 ///
 /// This name will only be used by one of the above macros which are defined
@@ -251,7 +251,7 @@
 const dict_st *const TVE_ENCODE_NODICT_VAR = NULL;
 
 static inline int TVE_SELF_REF_CHECK_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
+    TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     void *const val,
     int *const val_copyID,
     const mpconv_stackvec_st *const mpstack,
@@ -264,7 +264,7 @@ REAL_FATTR_ALWAYS_INLINE;
 
 /// Function for checking whether container references itself
 ///
-/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME  First argument.
+/// @param  TVE_FIRST_ARG_NAME  First argument.
 ///
 /// @param[in,out]  val    Container to check.
 /// @param  val_copyID     Pointer to the container attribute that holds copyID.
@@ -278,7 +278,7 @@ REAL_FATTR_ALWAYS_INLINE;
 ///
 /// @return NOTDONE in case of success, what to return in case of failure.
 static inline int TVE_SELF_REF_CHECK_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE FUNC_ARGS_UNUSED_MAYBE(TYPVAL_ENCODE_FIRST_ARG_NAME),
+    TVE_FIRST_ARG_TYPE FUNC_ARGS_UNUSED_MAYBE(TVE_FIRST_ARG_NAME),
     void *const FUNC_ARGS_UNUSED_MAYBE(val),
     int *const val_copyID,
     const mpconv_stackvec_st *const FUNC_ARGS_UNUSED_MAYBE(mpstack),
@@ -297,7 +297,7 @@ static inline int TVE_SELF_REF_CHECK_FUNC(
 }
 
 static int TVE_ENCODE_CONVERT_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
+    TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const cur_mpsv,
     typval_st *const tv,
@@ -311,7 +311,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// Only scalar values are converted immediately,
 /// everything else is pushed onto the stack.
 ///
-/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME
+/// @param  TVE_FIRST_ARG_NAME
 /// First argument, defined by the includer.
 /// Only meaningful to macros  defined by the includer.
 ///
@@ -333,7 +333,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 ///
 /// @return OK in case of success, FAIL in case of failure.
 static int TVE_ENCODE_CONVERT_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
+    TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
     typval_st *const tv,
@@ -763,7 +763,7 @@ typval_encode_stop_converting_one_item:
 }
 
 TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
+    TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     typval_st *const tv,
     const char *const objname)
 REAL_FATTR_NONNULL_ARG(2, 3)
@@ -771,7 +771,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 
 /// Convert the whole typval
 ///
-/// @param  TYPVAL_ENCODE_FIRST_ARG_NAME
+/// @param  TVE_FIRST_ARG_NAME
 /// First argument, defined by the includer.
 /// Only meaningful to macros defined by the includer.
 ///
@@ -783,7 +783,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 ///
 /// @return OK in case of success, FAIL in case of failure.
 TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
-    TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
+    TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     typval_st *const top_tv,
     const char *const objname)
 {
@@ -791,7 +791,7 @@ TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
     mpconv_stackvec_st mpstack;
     _mp_init(mpstack);
 
-    if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
+    if(TVE_ENCODE_CONVERT_FUNC(TVE_FIRST_ARG_NAME,
                                         &mpstack,
                                         NULL,
                                         top_tv,
@@ -899,7 +899,7 @@ typval_encode_stop_converting_one_item:
                 TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(encode_vim_to__error_ret,
                                                      kv_pair->lv_first->li_tv);
 
-                if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
+                if(TVE_ENCODE_CONVERT_FUNC(TVE_FIRST_ARG_NAME,
                                                     &mpstack,
                                                     cur_mpsv,
                                                     &kv_pair->lv_first->li_tv,
@@ -967,7 +967,7 @@ typval_encode_stop_converting_one_item:
                             const int saved_copyID = dict->dv_copyID;
 
                             const int te_csr_ret = TVE_SELF_REF_CHECK_FUNC(
-                                                       TYPVAL_ENCODE_FIRST_ARG_NAME,
+                                                       TVE_FIRST_ARG_NAME,
                                                        dict,
                                                        &dict->dv_copyID,
                                                        &mpstack,
@@ -1051,7 +1051,7 @@ typval_encode_stop_converting_one_item:
 
         assert(tv != NULL);
 
-        if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
+        if(TVE_ENCODE_CONVERT_FUNC(TVE_FIRST_ARG_NAME,
                                             &mpstack,
                                             cur_mpsv,
                                             tv,

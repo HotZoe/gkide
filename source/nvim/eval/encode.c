@@ -548,16 +548,15 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_ALLOW_SPECIALS  false
 #define TYPVAL_ENCODE_SCOPE           static
 #define TYPVAL_ENCODE_NAME            string
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_st *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME  gap
 
+#define TVE_FIRST_ARG_TYPE      garray_st *const
+#define TVE_FIRST_ARG_NAME      gap
 #include "nvim/eval/typval_encode.c.h"
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
-
 #undef  TYPVAL_ENCODE_CONV_RECURSE
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type)                      \
     do                                                                  \
@@ -566,7 +565,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         size_t backref = 0;                                             \
         for(; backref < kv_size(*mpstack); backref++)                   \
         {                                                               \
-            const mpconv_stack_st mpval = kv_A(*mpstack, backref);       \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref);      \
             if(mpval.type == conv_type)                                 \
             {                                                           \
                 if(conv_type == kMPConvDict)                            \
@@ -598,17 +597,16 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     } while(0)
 
 #define TYPVAL_ENCODE_SCOPE
-#define TYPVAL_ENCODE_NAME            echo
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  garray_st *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME  gap
+#define TYPVAL_ENCODE_NAME      echo
 
+#define TVE_FIRST_ARG_TYPE      garray_st *const
+#define TVE_FIRST_ARG_NAME      gap
 #include "nvim/eval/typval_encode.c.h"
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
-
 #undef  TYPVAL_ENCODE_CONV_RECURSE
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type)                          \
     do                                                                      \
@@ -947,15 +945,15 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 
 #define TYPVAL_ENCODE_SCOPE          static
 #define TYPVAL_ENCODE_NAME           json
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE garray_st *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME gap
+#define TVE_FIRST_ARG_TYPE garray_st *const
+#define TVE_FIRST_ARG_NAME gap
 
 #include "nvim/eval/typval_encode.c.h"
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 #undef TYPVAL_ENCODE_CONV_STRING
 #undef TYPVAL_ENCODE_CONV_STR_STRING
 #undef TYPVAL_ENCODE_CONV_EXT_STRING
@@ -1190,15 +1188,15 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 
 #define TYPVAL_ENCODE_SCOPE
 #define TYPVAL_ENCODE_NAME           msgpack
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE msgpack_packer *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME packer
+#define TVE_FIRST_ARG_TYPE msgpack_packer *const
+#define TVE_FIRST_ARG_NAME packer
 
 #include "nvim/eval/typval_encode.c.h"
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_CONV_STRING
 #undef TYPVAL_ENCODE_CONV_STR_STRING

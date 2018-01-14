@@ -2194,24 +2194,25 @@ FUNC_ATTR_ALWAYS_INLINE
         *dictp = NULL;
     }
 }
-#define TYPVAL_ENCODE_CONV_DICT_END(tv, dict) \
-    _nothing_conv_dict_end(tv, (dict_st **)&dict, (void *)&TVE_ENCODE_NODICT_VAR)
+#define TYPVAL_ENCODE_CONV_DICT_END(tv, dict)               \
+    _nothing_conv_dict_end(tv,                              \
+                           (dict_st **)&dict,               \
+                           (void *)&TVE_ENCODE_NODICT_VAR)
 
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type)
 
-#define TYPVAL_ENCODE_SCOPE           static
-#define TYPVAL_ENCODE_NAME            nothing
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  const void *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME  ignored
-
+#define TYPVAL_ENCODE_SCOPE     static
+#define TYPVAL_ENCODE_NAME      nothing
 #define TYPVAL_ENCODE_TRANSLATE_OBJECT_NAME
 
+#define TVE_FIRST_ARG_TYPE      const void *const
+#define TVE_FIRST_ARG_NAME      ignored
 #include "nvim/eval/typval_encode.c.h"
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
 #undef TYPVAL_ENCODE_TRANSLATE_OBJECT_NAME
 #undef TYPVAL_ENCODE_ALLOW_SPECIALS
 #undef TYPVAL_ENCODE_CONV_NIL

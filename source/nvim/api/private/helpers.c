@@ -110,8 +110,8 @@ Object dict_get_value(dict_st *dict, String key, error_st *err)
     return vim_to_object(&di->di_tv);
 }
 
-/// Set a value in a scope dict. Objects are recursively expanded into their
-/// vimscript equivalents.
+/// Set a value in a scope dict. Objects are
+/// recursively expanded into their vimscript equivalents.
 ///
 /// @param dict     The vimscript dict
 /// @param key      The key
@@ -120,7 +120,9 @@ Object dict_get_value(dict_st *dict, String key, error_st *err)
 ///                 Argument @b value is ignored in this case.
 /// @param retval   If true the old value will be converted and returned.
 /// @param[out] err Details of an error that may have occurred
-/// @return The old value if @b retval is true and the key was present, else NIL
+///
+/// @return
+/// The old value if @b retval is true and the key was present, else NIL
 Object dict_set_var(dict_st *dict,
                     String key,
                     Object value,
@@ -293,7 +295,8 @@ Object get_option_from(void *from, int type, String name, error_st *err)
         else
         {
             api_set_error(err, kErrorTypeException,
-                          "Unable to get value for option \"%s\"", name.data);
+                          "Unable to get value for option \"%s\"",
+                          name.data);
         }
     }
     else
@@ -312,7 +315,11 @@ Object get_option_from(void *from, int type, String name, error_st *err)
 /// @param type     One of @b SREQ_GLOBAL, @b SREQ_WIN or @b SREQ_BUF
 /// @param name     The option name
 /// @param[out] err Details of an error that may have occurred
-void set_option_to(void *to, int type, String name, Object value, error_st *err)
+void set_option_to(void *to,
+                   int type,
+                   String name,
+                   Object value,
+                   error_st *err)
 {
     if(name.size == 0)
     {
@@ -370,14 +377,17 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
         if(value.type != kObjectTypeInteger)
         {
             api_set_error(err, kErrorTypeValidation,
-                          "Option \"%s\" requires an integer value", name.data);
+                          "Option \"%s\" requires an integer value",
+                          name.data);
             return;
         }
 
-        if(value.data.integer > INT_MAX || value.data.integer < INT_MIN)
+        if(value.data.integer > INT_MAX
+           || value.data.integer < INT_MIN)
         {
             api_set_error(err, kErrorTypeValidation,
-                          "Value for option \"%s\" is outside range", name.data);
+                          "Value for option \"%s\" is outside range",
+                          name.data);
             return;
         }
 
@@ -398,7 +408,7 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
     }
 }
 
-#define TYPVAL_ENCODE_ALLOW_SPECIALS false
+#define TYPVAL_ENCODE_ALLOW_SPECIALS       false
 
 #define TYPVAL_ENCODE_CONV_NIL(tv)         \
     kv_push(edata->stack, NIL)
@@ -416,7 +426,8 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
     kv_push(edata->stack, FLOAT_OBJ((Float)(flt)))
 
 #define TYPVAL_ENCODE_CONV_STRING(tv, str, len)       \
-    do {                                              \
+    do                                                \
+    {                                                 \
         const size_t len_ = (size_t)(len);            \
         const char *const str_ = (const char *)(str); \
         assert(len_ == 0 || str_ != NULL);            \
@@ -433,7 +444,8 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
     TYPVAL_ENCODE_CONV_NIL(tv)
 
 #define TYPVAL_ENCODE_CONV_FUNC_START(tv, fun)       \
-    do {                                             \
+    do                                               \
+    {                                                \
         TYPVAL_ENCODE_CONV_NIL(tv);                  \
         goto typval_encode_stop_converting_one_item; \
     } while(0)
@@ -452,10 +464,10 @@ void set_option_to(void *to, int type, String name, Object value, error_st *err)
 
 static inline void typval_encode_list_start(encode_data_st *const edata,
                                             const size_t len)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
-    kv_push(edata->stack, ARRAY_OBJ(((Array)
-    {
+    kv_push(edata->stack, ARRAY_OBJ(((Array) {
         .capacity = len,
         .size = 0,
         .items = xmalloc(len * sizeof(*((Object)OBJECT_INIT).data.array.items)),
@@ -472,8 +484,10 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 {
     Object item = kv_pop(edata->stack);
     Object *const list = &kv_last(edata->stack);
+
     assert(list->type == kObjectTypeArray);
     assert(list->data.array.size < list->data.array.capacity);
+
     list->data.array.items[list->data.array.size++] = item;
 }
 
@@ -481,7 +495,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
     typval_encode_between_list_items(edata)
 
 static inline void typval_encode_list_end(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
     typval_encode_between_list_items(edata);
 
@@ -495,10 +510,10 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 
 static inline void typval_encode_dict_start(encode_data_st *const edata,
                                             const size_t len)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
-    kv_push(edata->stack, DICTIONARY_OBJ(((Dictionary)
-    {
+    kv_push(edata->stack, DICTIONARY_OBJ(((Dictionary) {
         .capacity = len,
         .size = 0,
         .items = xmalloc(len * sizeof(*((Object)OBJECT_INIT).data.dictionary.items)),
@@ -513,7 +528,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(label, kv_pair)
 
 static inline void typval_encode_after_key(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
     Object key = kv_pop(edata->stack);
     Object *const dict = &kv_last(edata->stack);
@@ -538,7 +554,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
     typval_encode_after_key(edata)
 
 static inline void typval_encode_between_dict_items(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
     Object val = kv_pop(edata->stack);
     Object *const dict = &kv_last(edata->stack);
@@ -551,7 +568,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
     typval_encode_between_dict_items(edata)
 
 static inline void typval_encode_dict_end(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
     typval_encode_between_dict_items(edata);
 
@@ -564,18 +582,17 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_DICT_END(tv, dict)      typval_encode_dict_end(edata)
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type) TYPVAL_ENCODE_CONV_NIL()
 
-#define TYPVAL_ENCODE_SCOPE          static
-#define TYPVAL_ENCODE_NAME           object
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE encode_data_st *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME edata
+#define TYPVAL_ENCODE_SCOPE     static
+#define TYPVAL_ENCODE_NAME      object
 
+#define TVE_FIRST_ARG_TYPE      encode_data_st *const
+#define TVE_FIRST_ARG_NAME      edata
 #include "nvim/eval/typval_encode.c.h"
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
-
 #undef TYPVAL_ENCODE_CONV_STRING
 #undef TYPVAL_ENCODE_CONV_STR_STRING
 #undef TYPVAL_ENCODE_CONV_EXT_STRING
@@ -612,8 +629,9 @@ Object vim_to_object(typval_st *obj)
 {
     encode_data_st edata = { .stack = KV_INITIAL_VALUE };
 
-    const int evo_ret = encode_vim_to_object(&edata, obj,
-                                             "vim_to_object argument");
+    const int evo_ret =
+        encode_vim_to_object(&edata, obj, "vim_to_object argument");
+
     (void)evo_ret;
     assert(evo_ret == OK);
     Object ret = kv_A(edata.stack, 0);
@@ -701,15 +719,15 @@ String cstr_to_string(const char *str)
 ///
 /// @param str the C string to use
 /// @return The resulting String, or an empty String if str was NULL
-String cstr_as_string(char *str) FUNC_ATTR_PURE
+String cstr_as_string(char *str)
+FUNC_ATTR_PURE
 {
     if(str == NULL)
     {
         return (String) STRING_INIT;
     }
 
-    return (String)
-    {
+    return (String) {
         .data = str, .size = strlen(str)
     };
 }
@@ -719,7 +737,8 @@ String cstr_as_string(char *str) FUNC_ATTR_PURE
 /// @param obj  Object to convert from.
 /// @param tv   Conversion result is placed here. On failure member v_type is
 ///             set to kNvarUnknown (no allocation was made for this variable).
-/// returns     true if conversion is successful, otherwise false.
+/// @return
+/// true if conversion is successful, otherwise false.
 bool object_to_vim(Object obj, typval_st *tv, error_st *err)
 {
     tv->v_type = kNvarUnknown;
@@ -906,7 +925,8 @@ void api_free_dictionary(Dictionary value)
     xfree(value.items);
 }
 
-void api_clear_error(error_st *value) FUNC_ATTR_NONNULL_ALL
+void api_clear_error(error_st *value)
+FUNC_ATTR_NONNULL_ALL
 {
     if(!ERROR_SET(value))
     {
@@ -938,10 +958,12 @@ static void init_function_metadata(Dictionary *metadata)
 {
     msgpack_unpacked unpacked;
     msgpack_unpacked_init(&unpacked);
-    msgpack_unpack_return ret = msgpack_unpack_next(&unpacked,
-                                                    (const char *)funcs_metadata,
-                                                    sizeof(funcs_metadata),
-                                                    NULL);
+
+    msgpack_unpack_return ret =
+        msgpack_unpack_next(&unpacked,
+                            (const char *)funcs_metadata,
+                            sizeof(funcs_metadata),
+                            NULL);
 
     if(ret != MSGPACK_UNPACK_SUCCESS)
     {
@@ -959,10 +981,12 @@ static void init_ui_event_metadata(Dictionary *metadata)
 {
     msgpack_unpacked unpacked;
     msgpack_unpacked_init(&unpacked);
-    msgpack_unpack_return ret = msgpack_unpack_next(&unpacked,
-                                                    (const char *)ui_events_metadata,
-                                                    sizeof(ui_events_metadata),
-                                                    NULL);
+
+    msgpack_unpack_return ret =
+        msgpack_unpack_next(&unpacked,
+                            (const char *)ui_events_metadata,
+                            sizeof(ui_events_metadata),
+                            NULL);
 
     if(ret != MSGPACK_UNPACK_SUCCESS)
     {
@@ -1028,12 +1052,13 @@ String copy_string(String str)
     {
         return (String)
         {
-            .data = xmemdupz(str.data, str.size), .size = str.size
+            .data = xmemdupz(str.data, str.size),
+            .size = str.size
         };
     }
     else
     {
-        return (String)STRING_INIT;
+        return (String) STRING_INIT;
     }
 }
 
@@ -1159,7 +1184,9 @@ static void set_option_value_err(char *key,
     }
 }
 
-void api_set_error(error_st *err, error_type_et errType, const char *format, ...)
+void api_set_error(error_st *err,
+                   error_type_et errType,
+                   const char *format, ...)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(kErrorTypeNone != errType);
@@ -1210,12 +1237,15 @@ ArrayOf(Dictionary) keymap_array(String mode, filebuf_st *buf)
             // Check for correct mode
             if(int_mode & current_maphash->m_mode)
             {
-                mapblock_fill_dict(dict, current_maphash, buffer_value, false);
+                mapblock_fill_dict(dict,
+                                   current_maphash,
+                                   buffer_value,
+                                   false);
 
-                ADD(mappings, vim_to_object( (typval_st[])
-                {
+                ADD(mappings, vim_to_object( (typval_st[]) {
                     {
-                        .v_type = kNvarDict, .vval.v_dict = dict
+                        .v_type = kNvarDict,
+                        .vval.v_dict = dict
                     }
                 }));
 

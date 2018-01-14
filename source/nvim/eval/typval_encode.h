@@ -122,7 +122,7 @@ static inline size_t tv_strlen(const typval_st *const tv)
     do                                                               \
     {                                                                \
         const int te_csr_ret = TVE_SELF_REF_CHECK_FUNC(  \
-                               TYPVAL_ENCODE_FIRST_ARG_NAME,         \
+                               TVE_FIRST_ARG_NAME,         \
                                (val),                                \
                                &(val)->copyID_attr,                  \
                                mpstack,                              \

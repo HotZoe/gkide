@@ -65,7 +65,8 @@ typedef struct lua_tableprop_s
     lua_pushlstring(lstate, s, sizeof(s) - 1)
 
 static lua_tableprop_st nlua_traverse_table(lua_State *const lstate)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t tsize = 0; // Total number of keys.
     int val_type = 0; // If has_val_key: lua type of the value.
@@ -267,8 +268,8 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
     bool ret = true;
     const int initial_size = lua_gettop(lstate);
     kvec_t(TVPopStackItem) stack = KV_INITIAL_VALUE;
-    kv_push(stack, ((TVPopStackItem)
-    {
+
+    kv_push(stack, ((TVPopStackItem) {
         ret_tv, false, false, 0
     }));
 
@@ -327,8 +328,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                         listitem_st *const val = tv_list_item_alloc();
                         tv_list_append(kv_pair, val);
                         kv_push(stack, cur);
-                        cur = (TVPopStackItem)
-                        {
+                        cur = (TVPopStackItem) {
                             &val->li_tv, false, false, 0
                         };
                     }
@@ -342,8 +342,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                         }
 
                         kv_push(stack, cur);
-                        cur = (TVPopStackItem)
-                        {
+                        cur = (TVPopStackItem) {
                             &di->di_tv, false, false, 0
                         };
                     }
@@ -368,19 +367,17 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                 listitem_st *const li = tv_list_item_alloc();
                 tv_list_append(cur.tv->vval.v_list, li);
                 kv_push(stack, cur);
-                cur = (TVPopStackItem)
-                {
+                cur = (TVPopStackItem) {
                     &li->li_tv, false, false, 0
                 };
             }
         }
 
         assert(!cur.container);
-        *cur.tv = (typval_st)
-        {
+        *cur.tv = (typval_st) {
             .v_type = kNvarNumber,
-             .v_lock = kNvlVarUnlocked,
-              .vval = { .v_number = 0 },
+            .v_lock = kNvlVarUnlocked,
+            .vval = { .v_number = 0 },
         };
 
         switch(lua_type(lstate, -1))
@@ -436,7 +433,8 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
 
             case LUA_TTABLE:
             {
-                const lua_tableprop_st table_props = nlua_traverse_table(lstate);
+                const lua_tableprop_st table_props =
+                    nlua_traverse_table(lstate);
 
                 for(size_t i = 0; i < kv_size(stack); i++)
                 {
@@ -557,8 +555,8 @@ nlua_pop_typval_table_processing_end:
 
         *ret_tv = (typval_st) {
             .v_type = kNvarNumber,
-             .v_lock = kNvlVarUnlocked,
-              .vval = { .v_number = 0 },
+            .v_lock = kNvlVarUnlocked,
+            .vval = { .v_number = 0 },
         };
 
         lua_pop(lstate, lua_gettop(lstate) - initial_size + 1);
@@ -568,7 +566,7 @@ nlua_pop_typval_table_processing_end:
     return ret;
 }
 
-#define TYPVAL_ENCODE_ALLOW_SPECIALS true
+#define TYPVAL_ENCODE_ALLOW_SPECIALS    true
 
 #define TYPVAL_ENCODE_CONV_NIL(tv) \
     lua_pushnil(lstate)
@@ -658,7 +656,7 @@ nlua_pop_typval_table_processing_end:
     {                                                                  \
         for(size_t backref = kv_size(*mpstack); backref; backref--)    \
         {                                                              \
-            const mpconv_stack_st mpval = kv_A(*mpstack, backref - 1);  \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref - 1); \
             if(mpval.type == conv_type)                                \
             {                                                          \
                 if(conv_type == kMPConvDict                            \
@@ -674,17 +672,17 @@ nlua_pop_typval_table_processing_end:
         }                                                              \
     } while(0)
 
-#define TYPVAL_ENCODE_SCOPE           static
-#define TYPVAL_ENCODE_NAME            lua
-#define TYPVAL_ENCODE_FIRST_ARG_TYPE  lua_State *const
-#define TYPVAL_ENCODE_FIRST_ARG_NAME  lstate
+#define TYPVAL_ENCODE_SCOPE     static
+#define TYPVAL_ENCODE_NAME      lua
 
+#define TVE_FIRST_ARG_TYPE      lua_State *const
+#define TVE_FIRST_ARG_NAME      lstate
 #include "nvim/eval/typval_encode.c.h"
+#undef TVE_FIRST_ARG_TYPE
+#undef TVE_FIRST_ARG_NAME
 
 #undef TYPVAL_ENCODE_SCOPE
 #undef TYPVAL_ENCODE_NAME
-#undef TYPVAL_ENCODE_FIRST_ARG_TYPE
-#undef TYPVAL_ENCODE_FIRST_ARG_NAME
 #undef TYPVAL_ENCODE_CONV_STRING
 #undef TYPVAL_ENCODE_CONV_STR_STRING
 #undef TYPVAL_ENCODE_CONV_EXT_STRING
@@ -963,8 +961,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         lua_pop(lstate, 1);
         api_set_error(err, kErrorTypeValidation, "Expected lua string");
-        return (String)
-        {
+        return (String) {
             .size = 0, .data = NULL
         };
     }
@@ -1010,7 +1007,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Convert lua value to boolean
 ///
 /// Always pops one value from the stack.
-Boolean nlua_pop_Boolean(lua_State *lstate, error_st *FUNC_ARGS_UNUSED_REALY(err))
+Boolean nlua_pop_Boolean(lua_State *lstate,
+                         error_st *FUNC_ARGS_UNUSED_REALY(err))
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1125,8 +1123,7 @@ static Array nlua_pop_Array_unchecked(lua_State *const lstate,
             ret.size = i - 1;
             lua_pop(lstate, 1);
             api_free_array(ret);
-            return (Array)
-            {
+            return (Array) {
                 .size = 0, .items = NULL
             };
         }
@@ -1150,8 +1147,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     if(table_props.type != kObjectTypeArray)
     {
-        return (Array)
-        {
+        return (Array) {
             .size = 0, .items = NULL
         };
     }
@@ -1174,7 +1170,10 @@ static Dictionary nlua_pop_Dictionary_unchecked(lua_State *lstate,
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    Dictionary ret = { .size = table_props.string_keys_num, .items = NULL };
+    Dictionary ret = {
+        .size = table_props.string_keys_num,
+        .items = NULL
+    };
 
     if(ret.size == 0)
     {
@@ -1212,9 +1211,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 ret.size = i;
                 api_free_dictionary(ret);
                 lua_pop(lstate, 2);
-                // stack:
-                return (Dictionary)
-                {
+                return (Dictionary) {
                     .size = 0, .items = NULL
                 };
             }
@@ -1245,8 +1242,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(table_props.type != kObjectTypeDictionary)
     {
         lua_pop(lstate, 1);
-        return (Dictionary)
-        {
+        return (Dictionary) {
             .size = 0, .items = NULL
         };
     }
@@ -1320,14 +1316,14 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 
                     cur.obj->data.dictionary.items[idx].key = (String) {
                         .data = xmemdupz(s, len),
-                         .size = len,
+                        .size = len,
                     };
 
                     kv_push(stack, cur);
 
                     cur = (ObjPopStackItem) {
                         .obj = &cur.obj->data.dictionary.items[idx].value,
-                         .container = false,
+                        .container = false,
                     };
                 }
                 else
@@ -1354,10 +1350,9 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
                 }
 
                 kv_push(stack, cur);
-                cur = (ObjPopStackItem)
-                {
+                cur = (ObjPopStackItem) {
                     .obj = &cur.obj->data.array.items[idx],
-                     .container = false,
+                    .container = false,
                 };
             }
         }
@@ -1382,8 +1377,7 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
             {
                 size_t len;
                 const char *s = lua_tolstring(lstate, -1, &len);
-                *cur.obj = STRING_OBJ(((String)
-                {
+                *cur.obj = STRING_OBJ(((String) {
                     .data = xmemdupz(s, len), .size = len,
                 }));
                 break;
@@ -1409,17 +1403,17 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 
             case LUA_TTABLE:
             {
-                const lua_tableprop_st table_props = nlua_traverse_table(lstate);
+                const lua_tableprop_st table_props =
+                    nlua_traverse_table(lstate);
 
                 switch(table_props.type)
                 {
                     case kObjectTypeArray:
                     {
-                        *cur.obj = ARRAY_OBJ(((Array)
-                        {
+                        *cur.obj = ARRAY_OBJ(((Array) {
                             .items = NULL,
-                             .size = 0,
-                              .capacity = 0,
+                            .size = 0,
+                            .capacity = 0,
                         }));
 
                         if(table_props.maxidx != 0)
@@ -1438,11 +1432,10 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 
                     case kObjectTypeDictionary:
                     {
-                        *cur.obj = DICTIONARY_OBJ(((Dictionary)
-                        {
+                        *cur.obj = DICTIONARY_OBJ(((Dictionary) {
                             .items = NULL,
-                             .size = 0,
-                              .capacity = 0,
+                            .size = 0,
+                            .capacity = 0,
                         }));
 
                         if(table_props.string_keys_num != 0)
