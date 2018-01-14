@@ -119,7 +119,7 @@
 ///
 /// @param  tv  Pointer to typval where value is stored. May be NULL. May
 ///             point to a special dictionary.
-/// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
+/// @param  dict  Converted dictionary, lvalue or #TVE_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_LIST_START
@@ -157,7 +157,7 @@
 ///
 /// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
 ///               May point to a special dictionary.
-/// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
+/// @param  dict  Converted dictionary, lvalue or #TVE_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 /// @param  len   Dictionary length. Is an expression which evaluates to an
 ///               integer.
@@ -181,7 +181,7 @@
 ///
 /// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
 ///               May point to a special dictionary.
-/// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
+/// @param  dict  Converted dictionary, lvalue or #TVE_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS
@@ -189,7 +189,7 @@
 ///
 /// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
 ///               May point to a special dictionary.
-/// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
+/// @param  dict  Converted dictionary, lvalue or #TVE_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_DICT_END
@@ -197,7 +197,7 @@
 ///
 /// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
 ///               May point to a special dictionary.
-/// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
+/// @param  dict  Converted dictionary, lvalue or #TVE_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_RECURSE
@@ -247,8 +247,8 @@
 /// Dummy variable used because some macros need lvalue
 ///
 /// Must not be written to, if needed one must check that address of the
-/// macros argument is (not) equal to `&TYPVAL_ENCODE_NODICT_VAR`.
-const dict_st *const TYPVAL_ENCODE_NODICT_VAR = NULL;
+/// macros argument is (not) equal to `&TVE_ENCODE_NODICT_VAR`.
+const dict_st *const TVE_ENCODE_NODICT_VAR = NULL;
 
 static inline int TVE_SELF_REF_CHECK_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
@@ -635,7 +635,7 @@ static int TVE_ENCODE_CONVERT_FUNC(
 
                         if(val_list == NULL || val_list->lv_len == 0)
                         {
-                            TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, TYPVAL_ENCODE_NODICT_VAR);
+                            TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, TVE_ENCODE_NODICT_VAR);
                             break;
                         }
 
@@ -658,7 +658,7 @@ static int TVE_ENCODE_CONVERT_FUNC(
                                                                kMPConvPairs);
 
                         TYPVAL_ENCODE_CONV_DICT_START(tv,
-                                                      TYPVAL_ENCODE_NODICT_VAR,
+                                                      TVE_ENCODE_NODICT_VAR,
                                                       val_list->lv_len);
 
                         assert(saved_copyID != copyID && saved_copyID != copyID - 1);
@@ -883,14 +883,14 @@ typval_encode_stop_converting_one_item:
                     cur_mpsv->data.l.list->lv_copyID = cur_mpsv->saved_copyID;
 
                     TYPVAL_ENCODE_CONV_DICT_END(cur_mpsv->tv,
-                                                TYPVAL_ENCODE_NODICT_VAR);
+                                                TVE_ENCODE_NODICT_VAR);
 
                     continue;
                 }
                 else if(cur_mpsv->data.l.li != cur_mpsv->data.l.list->lv_first)
                 {
                     TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(cur_mpsv->tv,
-                                                          TYPVAL_ENCODE_NODICT_VAR);
+                                                          TVE_ENCODE_NODICT_VAR);
                 }
 
                 const list_st *const kv_pair =
@@ -910,7 +910,7 @@ typval_encode_stop_converting_one_item:
                 }
 
                 TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(cur_mpsv->tv,
-                                                  TYPVAL_ENCODE_NODICT_VAR);
+                                                  TVE_ENCODE_NODICT_VAR);
 
                 tv = &kv_pair->lv_last->li_tv;
                 cur_mpsv->data.l.li = cur_mpsv->data.l.li->li_next;

@@ -2084,7 +2084,7 @@ FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_EMPTY_DICT(tv, dict)                     \
     do                                                              \
     {                                                               \
-        assert((void *)&dict != (void *)&TYPVAL_ENCODE_NODICT_VAR); \
+        assert((void *)&dict != (void *)&TVE_ENCODE_NODICT_VAR); \
                                                                     \
         tv_dict_unref((dict_st *)dict);                              \
         *((dict_st **)&dict) = NULL;                                 \
@@ -2172,7 +2172,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {                                                                             \
         if(_nothing_conv_real_dict_after_start(tv,                                \
                                                (dict_st **)&dict,                  \
-                                               (void *)&TYPVAL_ENCODE_NODICT_VAR, \
+                                               (void *)&TVE_ENCODE_NODICT_VAR, \
                                                &mpsv) != NOTDONE)                 \
         {                                                                         \
             goto typval_encode_stop_converting_one_item;                          \
@@ -2195,7 +2195,7 @@ FUNC_ATTR_ALWAYS_INLINE
     }
 }
 #define TYPVAL_ENCODE_CONV_DICT_END(tv, dict) \
-    _nothing_conv_dict_end(tv, (dict_st **)&dict, (void *)&TYPVAL_ENCODE_NODICT_VAR)
+    _nothing_conv_dict_end(tv, (dict_st **)&dict, (void *)&TVE_ENCODE_NODICT_VAR)
 
 #define TYPVAL_ENCODE_CONV_RECURSE(val, conv_type)
 
