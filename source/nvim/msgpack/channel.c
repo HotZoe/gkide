@@ -50,7 +50,7 @@ typedef enum
     kChannelTypeInternal
 } rpc_channel_type_et;
 
-typedef struct
+typedef struct rpc_channel_callframe_s
 {
     uint64_t request_id;
     bool returned;
@@ -58,7 +58,7 @@ typedef struct
     Object result;
 } rpc_channel_callframe_st;
 
-typedef struct
+typedef struct rpc_channel_s
 {
     uint64_t id;
     size_t refcount;
@@ -91,7 +91,7 @@ typedef struct
 } rpc_channel_st;
 
 /// rpc channel request event
-typedef struct
+typedef struct rpc_channel_request_s
 {
     rpc_channel_st *channel;
     rpc_request_handler_st handler;

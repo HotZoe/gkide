@@ -12,7 +12,7 @@ typedef Object(*api_dispatch_ft)(uint64_t channel_id,
 
 /// The rpc_method_handlers table, used in
 /// rpc_dispatch(), stores functions of this type.
-typedef struct
+typedef struct rpc_request_handler_s
 {
     api_dispatch_ft fn;
 

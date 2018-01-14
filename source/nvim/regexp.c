@@ -351,14 +351,14 @@ typedef struct regitem_s
 
 
 /// used for STAR, PLUS and BRACE_SIMPLE matching
-typedef struct regstar_S
+typedef struct regstar_s
 {
     int nextb;    ///< next byte
     int nextb_ic; ///< next byte reverse case
     long count;
     long minval;
     long maxval;
-} regstar_T;
+} regstar_st;
 
 /// used to store input position when a BACK was encountered,
 /// so that we now if we made any progress since the last time.
@@ -385,12 +385,12 @@ union ptrlist_u
     nfa_state_st *s;
 };
 
+typedef struct frag_s frag_st;
 struct frag_s
 {
     nfa_state_st *start;
     ptrlist_ut *out;
 };
-typedef struct frag_s frag_st;
 
 typedef struct regsub_s
 {
@@ -4584,7 +4584,7 @@ static int reg_line_lbr; ///< "\n" in string is line break
 // "regstack" and "backpos" are used by regmatch().
 // They are kept over calls to avoid invoking malloc()
 // and free() often. "regstack" is a stack with regitem_st items,
-// sometimes preceded by regstar_T or regbehind_st.
+// sometimes preceded by regstar_st or regbehind_st.
 // "backpos_st" is a table with backpos_st for BACK
 static garray_st regstack = GA_EMPTY_INIT_VALUE;
 static garray_st backpos = GA_EMPTY_INIT_VALUE;
@@ -6466,7 +6466,7 @@ static int regmatch(uchar_kt *scan)
                     case STAR:
                     case PLUS:
                     {
-                        regstar_T rst;
+                        regstar_st rst;
 
                         // Lookahead to avoid useless match attempts
                         // when we know what character comes next.
@@ -6524,7 +6524,7 @@ static int regmatch(uchar_kt *scan)
                         {
                             // It could match. Prepare for trying to match
                             // what follows. The code is below. Parameters
-                            // are stored in a regstar_T on the regstack.
+                            // are stored in a regstar_st on the regstack.
                             if((long)((unsigned)regstack.ga_len >> 10) >= p_mmp)
                             {
                                 EMSG(_(e_maxmempat));
@@ -6532,8 +6532,8 @@ static int regmatch(uchar_kt *scan)
                             }
                             else
                             {
-                                ga_grow(&regstack, sizeof(regstar_T));
-                                regstack.ga_len += sizeof(regstar_T);
+                                ga_grow(&regstack, sizeof(regstar_st));
+                                regstack.ga_len += sizeof(regstar_st);
 
                                 rp = regstack_push(rst.minval <= rst.maxval
                                                    ? RS_STAR_LONG
@@ -6545,7 +6545,7 @@ static int regmatch(uchar_kt *scan)
                                 }
                                 else
                                 {
-                                    *(((regstar_T *)rp) - 1) = rst;
+                                    *(((regstar_st *)rp) - 1) = rst;
                                     status = RA_BREAK; // skip the restore bits
                                 }
                             }
@@ -7035,12 +7035,12 @@ static int regmatch(uchar_kt *scan)
                 case RS_STAR_LONG:
                 case RS_STAR_SHORT:
                 {
-                    regstar_T *rst = ((regstar_T *)rp) - 1;
+                    regstar_st *rst = ((regstar_st *)rp) - 1;
 
                     if(status == RA_MATCH)
                     {
                         regstack_pop(&scan);
-                        regstack.ga_len -= sizeof(regstar_T);
+                        regstack.ga_len -= sizeof(regstar_st);
                         break;
                     }
 
@@ -7128,7 +7128,7 @@ static int regmatch(uchar_kt *scan)
                     {
                         // Failed.
                         regstack_pop(&scan);
-                        regstack.ga_len -= sizeof(regstar_T);
+                        regstack.ga_len -= sizeof(regstar_st);
                         status = RA_NOMATCH;
                     }
                 }
