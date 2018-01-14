@@ -93,7 +93,7 @@ FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-int socket_watcher_start(socket_watcher_st *watcher, int backlog, socket_cb cb)
+int socket_watcher_start(socket_watcher_st *watcher, int backlog, socket_ft cb)
 FUNC_ATTR_NONNULL_ALL
 {
     watcher->cb = cb;

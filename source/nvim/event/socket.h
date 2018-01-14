@@ -12,7 +12,7 @@
 #define ADDRESS_MAX_SIZE 256
 
 typedef struct socket_watcher_s socket_watcher_st;
-typedef void (*socket_cb)(socket_watcher_st *watcher, int result, void *data);
+typedef void (*socket_ft)(socket_watcher_st *watcher, int result, void *data);
 typedef void (*socket_close_cb)(socket_watcher_st *watcher, void *data);
 
 struct socket_watcher_s
@@ -35,7 +35,7 @@ struct socket_watcher_s
 
     uv_stream_t *stream;
     void *data;
-    socket_cb cb;
+    socket_ft cb;
     socket_close_cb close_cb;
     multiqueue_st *events;
 };
