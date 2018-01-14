@@ -1,7 +1,8 @@
 /// @file nvim/eval/typval_encode.c.h
 ///
-/// Contains set of macros used to convert (possibly recursive) typval_st into
-/// something else. For these macros to work the following macros must be defined:
+/// Contains set of macros used to convert (possibly recursive) typval_st
+/// into something else. For these macros to work the following macros
+/// must be defined:
 
 /// @def TYPVAL_ENCODE_CONV_NIL
 /// @brief Macros used to convert NIL value
@@ -50,8 +51,8 @@
 /// @def TYPVAL_ENCODE_CONV_STRING
 /// @brief Macros used to convert plain string
 ///
-/// Is used to convert kNvarString objects as well as BIN strings represented as
-/// special dictionary.
+/// Is used to convert kNvarString objects as well as BIN strings
+/// represented as special dictionary.
 ///
 /// @param  tv  Pointer to typval where value is stored. May not be NULL. May
 ///             point to a special dictionary.
@@ -72,14 +73,14 @@
 /// @def TYPVAL_ENCODE_CONV_EXT_STRING
 /// @brief Macros used to convert EXT string
 ///
-/// Is used to convert EXT strings represented as special dictionaries. Never
-/// actually used if #TYPVAL_ENCODE_ALLOW_SPECIALS is false, but still must be
-/// defined.
+/// Is used to convert EXT strings represented as special dictionaries.
+/// Never actually used if #TYPVAL_ENCODE_ALLOW_SPECIALS is false, but
+/// still must be defined.
 ///
-/// @param  tv  Pointer to typval where value is stored. May not be NULL. Points
-///             to a special dictionary.
-/// @param  buf  String to convert. Is a char[] buffer, not NUL-terminated.
-/// @param  len  String length.
+/// @param  tv    Pointer to typval where value is stored. May not be NULL.
+///               Points to a special dictionary.
+/// @param  buf   String to convert. Is a char[] buffer, not NUL-terminated.
+/// @param  len   String length.
 /// @param  type  EXT type.
 
 /// @def TYPVAL_ENCODE_CONV_FUNC_START
@@ -99,8 +100,8 @@
 /// @brief Macros used before starting to convert self dictionary
 ///
 /// @param  tv  Pointer to typval where value is stored. May not be NULL.
-/// @param  len  Number of arguments. May be zero for empty dictionary or -1 for
-///              missing self dictionary, also when converting function
+/// @param  len  Number of arguments. May be zero for empty dictionary or
+///              -1 for missing self dictionary, also when converting function
 ///              reference.
 
 /// @def TYPVAL_ENCODE_CONV_FUNC_END
@@ -151,21 +152,21 @@
 /// @def TYPVAL_ENCODE_CONV_DICT_START
 /// @brief Macros used before starting to convert non-empty dictionary
 ///
-/// Only used for real dict_st* dictionaries, not for special dictionaries. Also
-/// used for partial self dictionary.
+/// Only used for real dict_st* dictionaries, not for special dictionaries.
+/// Also used for partial self dictionary.
 ///
-/// @param  tv  Pointer to typval where dictionary is stored. May be NULL. May
-///             point to a special dictionary.
+/// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
+///               May point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
-/// @param  len  Dictionary length. Is an expression which evaluates to an
-///              integer.
+/// @param  len   Dictionary length. Is an expression which evaluates to an
+///               integer.
 
 /// @def TYPVAL_ENCODE_CONV_REAL_DICT_AFTER_START
 /// @brief Macros used after pushing dictionary onto the stack
 ///
-/// @param  tv  Pointer to typval where dictionary is stored. May be NULL.
-///             May not point to a special dictionary.
+/// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
+///               May not point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue.
 /// @param  mpsv  Pushed mpconv_stack_st value.
 
@@ -173,36 +174,36 @@
 /// @brief Macros used to check special dictionary key
 ///
 /// @param  label  Label for goto in case check was not successfull.
-/// @param  key  typval_st key to check.
+/// @param  key    typval_st key to check.
 
 /// @def TYPVAL_ENCODE_CONV_DICT_AFTER_KEY
 /// @brief Macros used after finishing converting dictionary key
 ///
-/// @param  tv  Pointer to typval where dictionary is stored. May be NULL. May
-///             point to a special dictionary.
+/// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
+///               May point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS
 /// @brief Macros used after finishing converting non-last dictionary value
 ///
-/// @param  tv  Pointer to typval where dictionary is stored. May be NULL. May
-///             point to a special dictionary.
+/// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
+///               May point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_DICT_END
 /// @brief Macros used after converting non-empty dictionary
 ///
-/// @param  tv  Pointer to typval where dictionary is stored. May be NULL. May
-///             point to a special dictionary.
+/// @param  tv    Pointer to typval where dictionary is stored. May be NULL.
+///               May point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue or #TYPVAL_ENCODE_NODICT_VAR
 ///               (for dictionaries represented as special lists).
 
 /// @def TYPVAL_ENCODE_CONV_RECURSE
 /// @brief Macros used when self-containing container is detected
 ///
-/// @param  val  Container for which this situation was detected.
+/// @param  val        Container for which this situation was detected.
 /// @param  conv_type  Type of the stack entry, @see mpstkety_type_et.
 
 /// @def TYPVAL_ENCODE_ALLOW_SPECIALS
@@ -219,8 +220,8 @@
 ///
 /// After including this file it will define function
 /// `encode_vim_to_{TYPVAL_ENCODE_NAME}` with scope #TYPVAL_ENCODE_SCOPE and
-/// static functions `_typval_encode_{TYPVAL_ENCODE_NAME}_convert_one_value` and
-/// `_typval_encode_{TYPVAL_ENCODE_NAME}_check_self_reference`.
+/// static functions `_typval_encode_{TYPVAL_ENCODE_NAME}_convert_one_value`
+/// and `_typval_encode_{TYPVAL_ENCODE_NAME}_check_self_reference`.
 
 /// @def TYPVAL_ENCODE_FIRST_ARG_TYPE
 /// @brief Type of the first argument, which will be used to return the results
@@ -230,8 +231,8 @@
 /// @def TYPVAL_ENCODE_FIRST_ARG_NAME
 /// @brief Name of the first argument
 ///
-/// This name will only be used by one of the above macros which are defined by
-/// the caller. Functions defined here do not use first argument directly.
+/// This name will only be used by one of the above macros which are defined
+/// by the caller. Functions defined here do not use first argument directly.
 
 #include <stddef.h>
 #include <inttypes.h>
@@ -253,7 +254,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     void *const val,
     int *const val_copyID,
-    const MPConvStack *const mpstack,
+    const mpconv_stackvec_st *const mpstack,
     const int copyID,
     const mpstkety_type_et conv_type,
     const char *const objname)
@@ -280,7 +281,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE FUNC_ARGS_UNUSED_MAYBE(TYPVAL_ENCODE_FIRST_ARG_NAME),
     void *const FUNC_ARGS_UNUSED_MAYBE(val),
     int *const val_copyID,
-    const MPConvStack *const FUNC_ARGS_UNUSED_MAYBE(mpstack),
+    const mpconv_stackvec_st *const FUNC_ARGS_UNUSED_MAYBE(mpstack),
     const int copyID,
     const mpstkety_type_et FUNC_ARGS_UNUSED_MAYBE(conv_type),
     const char *const FUNC_ARGS_UNUSED_MAYBE(objname))
@@ -297,7 +298,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
 
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
-    MPConvStack *const mpstack,
+    mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const cur_mpsv,
     typval_st *const tv,
     const int copyID,
@@ -333,7 +334,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// @return OK in case of success, FAIL in case of failure.
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
-    MPConvStack *const mpstack,
+    mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
     typval_st *const tv,
     const int copyID,
@@ -787,7 +788,7 @@ TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
     const char *const objname)
 {
     const int copyID = get_copyID();
-    MPConvStack mpstack;
+    mpconv_stackvec_st mpstack;
     _mp_init(mpstack);
 
     if(_TYPVAL_ENCODE_CONVERT_ONE_VALUE(TYPVAL_ENCODE_FIRST_ARG_NAME,

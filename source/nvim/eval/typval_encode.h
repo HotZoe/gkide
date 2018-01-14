@@ -75,9 +75,9 @@ typedef struct mpconv_stack_s
 } mpconv_stack_st;
 
 /// Stack used to convert VimL values to messagepack.
-typedef kvec_withinit_t(mpconv_stack_st, 8) MPConvStack;
+typedef kvec_withinit_t(mpconv_stack_st, 8) mpconv_stackvec_st;
 
-// Defines for MPConvStack
+// Defines for mpconv_stackvec_st
 #define _mp_size    kv_size
 #define _mp_init    kvi_init
 #define _mp_destroy kvi_destroy

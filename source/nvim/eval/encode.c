@@ -116,7 +116,7 @@ static bool did_echo_string_emsg = false;
 ///
 /// @return FAIL.
 static int conv_error(const char *const msg,
-                      const MPConvStack *const mpstack,
+                      const mpconv_stackvec_st *const mpstack,
                       const char *const objname)
 FUNC_ATTR_NONNULL_ALL
 {
