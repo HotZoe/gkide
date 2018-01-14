@@ -238,12 +238,12 @@ struct prt_ps_resource_S
     uchar_kt version[256];
 };
 
-struct prt_dsc_comment_S
+typedef struct prt_dsc_comment_s
 {
     char *string;
     int len;
     int type;
-};
+} prt_dsc_comment_st;
 
 struct prt_dsc_line_S
 {
@@ -1467,7 +1467,7 @@ static char *prt_resource_types[] =
 #define PRT_DSC_ENDCOMMENTS         "%%EndComments:"
 #define SIZEOF_CSTR(s)              (sizeof(s) - 1)
 
-static struct prt_dsc_comment_S prt_dsc_table[] =
+static prt_dsc_comment_st prt_dsc_table[] =
 {
     {
         PRT_DSC_TITLE,
