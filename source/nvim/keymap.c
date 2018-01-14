@@ -54,15 +54,15 @@ static uchar_kt modifier_keys_table[] =
     MOD_MASK_SHIFT, '*', '4',                   'k', 'D',    // delete char
     MOD_MASK_SHIFT, '*', '5',                   'k', 'L',    // delete line
     MOD_MASK_SHIFT, '*', '7',                   '@', '7',    // end
-    MOD_MASK_CTRL,  KS_EXTRA, (int)KE_C_END,    '@', '7',    // end
+    MOD_MASK_CTRL , KS_EXTRA, (int)KE_C_END,    '@', '7',    // end
     MOD_MASK_SHIFT, '*', '9',                   '@', '9',    // exit
     MOD_MASK_SHIFT, '*', '0',                   '@', '0',    // find
     MOD_MASK_SHIFT, '#', '1',                   '%', '1',    // help
     MOD_MASK_SHIFT, '#', '2',                   'k', 'h',    // home
-    MOD_MASK_CTRL,  KS_EXTRA, (int)KE_C_HOME,   'k', 'h',    // home
+    MOD_MASK_CTRL , KS_EXTRA, (int)KE_C_HOME,   'k', 'h',    // home
     MOD_MASK_SHIFT, '#', '3',                   'k', 'I',    // insert
     MOD_MASK_SHIFT, '#', '4',                   'k', 'l',    // left arrow
-    MOD_MASK_CTRL,  KS_EXTRA, (int)KE_C_LEFT,   'k', 'l',    // left arrow
+    MOD_MASK_CTRL , KS_EXTRA, (int)KE_C_LEFT,   'k', 'l',    // left arrow
     MOD_MASK_SHIFT, '%', 'a',                   '%', '3',    // message
     MOD_MASK_SHIFT, '%', 'b',                   '%', '4',    // move
     MOD_MASK_SHIFT, '%', 'c',                   '%', '5',    // next
@@ -72,7 +72,7 @@ static uchar_kt modifier_keys_table[] =
     MOD_MASK_SHIFT, '%', 'g',                   '%', '0',    // redo
     MOD_MASK_SHIFT, '%', 'h',                   '&', '3',    // replace
     MOD_MASK_SHIFT, '%', 'i',                   'k', 'r',    // right arr.
-    MOD_MASK_CTRL,  KS_EXTRA, (int)KE_C_RIGHT,  'k', 'r',    // right arr.
+    MOD_MASK_CTRL , KS_EXTRA, (int)KE_C_RIGHT,  'k', 'r',    // right arr.
     MOD_MASK_SHIFT, '%', 'j',                   '&', '5',    // resume
     MOD_MASK_SHIFT, '!', '1',                   '&', '6',    // save
     MOD_MASK_SHIFT, '!', '2',                   '&', '7',    // suspend
@@ -81,54 +81,54 @@ static uchar_kt modifier_keys_table[] =
     MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_DOWN,   'k', 'd',    // down arrow
 
     /* vt100 F1 */
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF1,    KS_EXTRA, (int)KE_XF1,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF2,    KS_EXTRA, (int)KE_XF2,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF3,    KS_EXTRA, (int)KE_XF3,
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF4,    KS_EXTRA, (int)KE_XF4,
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF1,  KS_EXTRA, (int)KE_XF1,
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF2,  KS_EXTRA, (int)KE_XF2,
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF3,  KS_EXTRA, (int)KE_XF3,
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_XF4,  KS_EXTRA, (int)KE_XF4,
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F1,     'k', '1',    // F1
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F2,     'k', '2',    // F2
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F3,     'k', '3',    // F3
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F4,     'k', '4',    // F4
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F5,     'k', '5',    // F5
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F6,     'k', '6',    // F6
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F7,     'k', '7',    // F7
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F8,     'k', '8',    // F8
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F9,     'k', '9',    // F9
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F10,    'k', ';',    // F10
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F1,   'k', '1',    // F1
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F2,   'k', '2',    // F2
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F3,   'k', '3',    // F3
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F4,   'k', '4',    // F4
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F5,   'k', '5',    // F5
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F6,   'k', '6',    // F6
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F7,   'k', '7',    // F7
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F8,   'k', '8',    // F8
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F9,   'k', '9',    // F9
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F10,  'k', ';',    // F10
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F11,    'F', '1',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F12,    'F', '2',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F13,    'F', '3',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F14,    'F', '4',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F15,    'F', '5',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F16,    'F', '6',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F17,    'F', '7',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F18,    'F', '8',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F19,    'F', '9',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F20,    'F', 'A',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F11,  'F', '1',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F12,  'F', '2',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F13,  'F', '3',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F14,  'F', '4',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F15,  'F', '5',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F16,  'F', '6',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F17,  'F', '7',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F18,  'F', '8',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F19,  'F', '9',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F20,  'F', 'A',
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F21,    'F', 'B',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F22,    'F', 'C',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F23,    'F', 'D',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F24,    'F', 'E',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F25,    'F', 'F',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F26,    'F', 'G',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F27,    'F', 'H',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F28,    'F', 'I',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F29,    'F', 'J',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F30,    'F', 'K',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F21,  'F', 'B',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F22,  'F', 'C',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F23,  'F', 'D',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F24,  'F', 'E',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F25,  'F', 'F',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F26,  'F', 'G',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F27,  'F', 'H',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F28,  'F', 'I',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F29,  'F', 'J',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F30,  'F', 'K',
 
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F31,    'F', 'L',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F32,    'F', 'M',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F33,    'F', 'N',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F34,    'F', 'O',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F35,    'F', 'P',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F36,    'F', 'Q',
-    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F37,    'F', 'R',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F31,  'F', 'L',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F32,  'F', 'M',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F33,  'F', 'N',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F34,  'F', 'O',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F35,  'F', 'P',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F36,  'F', 'Q',
+    MOD_MASK_SHIFT, KS_EXTRA, (int)KE_S_F37,  'F', 'R',
 
     // TAB pseudo code
-    MOD_MASK_SHIFT, 'k', 'B',                   KS_EXTRA, (int)KE_TAB,
+    MOD_MASK_SHIFT, 'k', 'B', KS_EXTRA, (int)KE_TAB,
 
     // terminal NUL
     NUL
@@ -140,154 +140,154 @@ static struct key_name_entry_s
     uchar_kt *name; ///< Name of key
 } key_names_table[] =
 {
-    {' ',      (uchar_kt *)"Space"},
-    {TAB,      (uchar_kt *)"Tab"},
-    {K_TAB,    (uchar_kt *)"Tab"},
-    {NL,       (uchar_kt *)"NL"},
-    {NL,       (uchar_kt *)"NewLine"},      // Alternative name
-    {NL,       (uchar_kt *)"LineFeed"},     // Alternative name
-    {NL,       (uchar_kt *)"LF"},           // Alternative name
-    {CAR,      (uchar_kt *)"CR"},
-    {CAR,      (uchar_kt *)"Return"},       // Alternative name
-    {CAR,      (uchar_kt *)"Enter"},        // Alternative name
-    {K_BS,     (uchar_kt *)"BS"},
-    {K_BS,     (uchar_kt *)"BackSpace"},    // Alternative name
-    {ESC,      (uchar_kt *)"Esc"},
-    {CSI,      (uchar_kt *)"CSI"},
-    {K_CSI,    (uchar_kt *)"xCSI"},
-    {'|',      (uchar_kt *)"Bar"},
-    {'\\',     (uchar_kt *)"Bslash"},
-    {K_DEL,    (uchar_kt *)"Del"},
-    {K_DEL,    (uchar_kt *)"Delete"},       // Alternative name
-    {K_KDEL,   (uchar_kt *)"kDel"},
-    {K_UP,     (uchar_kt *)"Up"},
-    {K_DOWN,   (uchar_kt *)"Down"},
-    {K_LEFT,   (uchar_kt *)"Left"},
-    {K_RIGHT,  (uchar_kt *)"Right"},
-    {K_XUP,    (uchar_kt *)"xUp"},
-    {K_XDOWN,  (uchar_kt *)"xDown"},
-    {K_XLEFT,  (uchar_kt *)"xLeft"},
-    {K_XRIGHT, (uchar_kt *)"xRight"},
+    { ' ',      (uchar_kt *)"Space"     },
+    { TAB,      (uchar_kt *)"Tab"       },
+    { K_TAB,    (uchar_kt *)"Tab"       },
+    { NL,       (uchar_kt *)"NL"        },
+    { NL,       (uchar_kt *)"NewLine"   },  // Alternative name
+    { NL,       (uchar_kt *)"LineFeed"  },  // Alternative name
+    { NL,       (uchar_kt *)"LF"        },  // Alternative name
+    { CAR,      (uchar_kt *)"CR"        },
+    { CAR,      (uchar_kt *)"Return"    },  // Alternative name
+    { CAR,      (uchar_kt *)"Enter"     },  // Alternative name
+    { K_BS,     (uchar_kt *)"BS"        },
+    { K_BS,     (uchar_kt *)"BackSpace" },  // Alternative name
+    { ESC,      (uchar_kt *)"Esc"       },
+    { CSI,      (uchar_kt *)"CSI"       },
+    { K_CSI,    (uchar_kt *)"xCSI"      },
+    { '|',      (uchar_kt *)"Bar"       },
+    { '\\',     (uchar_kt *)"Bslash"    },
+    { K_DEL,    (uchar_kt *)"Del"       },
+    { K_DEL,    (uchar_kt *)"Delete"    },  // Alternative name
+    { K_KDEL,   (uchar_kt *)"kDel"      },
+    { K_UP,     (uchar_kt *)"Up"        },
+    { K_DOWN,   (uchar_kt *)"Down"      },
+    { K_LEFT,   (uchar_kt *)"Left"      },
+    { K_RIGHT,  (uchar_kt *)"Right"     },
+    { K_XUP,    (uchar_kt *)"xUp"       },
+    { K_XDOWN,  (uchar_kt *)"xDown"     },
+    { K_XLEFT,  (uchar_kt *)"xLeft"     },
+    { K_XRIGHT, (uchar_kt *)"xRight"    },
 
-    {K_F1,  (uchar_kt *)"F1"},
-    {K_F2,  (uchar_kt *)"F2"},
-    {K_F3,  (uchar_kt *)"F3"},
-    {K_F4,  (uchar_kt *)"F4"},
-    {K_F5,  (uchar_kt *)"F5"},
-    {K_F6,  (uchar_kt *)"F6"},
-    {K_F7,  (uchar_kt *)"F7"},
-    {K_F8,  (uchar_kt *)"F8"},
-    {K_F9,  (uchar_kt *)"F9"},
-    {K_F10, (uchar_kt *)"F10"},
+    { K_F1,  (uchar_kt *)"F1"   },
+    { K_F2,  (uchar_kt *)"F2"   },
+    { K_F3,  (uchar_kt *)"F3"   },
+    { K_F4,  (uchar_kt *)"F4"   },
+    { K_F5,  (uchar_kt *)"F5"   },
+    { K_F6,  (uchar_kt *)"F6"   },
+    { K_F7,  (uchar_kt *)"F7"   },
+    { K_F8,  (uchar_kt *)"F8"   },
+    { K_F9,  (uchar_kt *)"F9"   },
+    { K_F10, (uchar_kt *)"F10"  },
 
-    {K_F11, (uchar_kt *)"F11"},
-    {K_F12, (uchar_kt *)"F12"},
-    {K_F13, (uchar_kt *)"F13"},
-    {K_F14, (uchar_kt *)"F14"},
-    {K_F15, (uchar_kt *)"F15"},
-    {K_F16, (uchar_kt *)"F16"},
-    {K_F17, (uchar_kt *)"F17"},
-    {K_F18, (uchar_kt *)"F18"},
-    {K_F19, (uchar_kt *)"F19"},
-    {K_F20, (uchar_kt *)"F20"},
+    { K_F11, (uchar_kt *)"F11"  },
+    { K_F12, (uchar_kt *)"F12"  },
+    { K_F13, (uchar_kt *)"F13"  },
+    { K_F14, (uchar_kt *)"F14"  },
+    { K_F15, (uchar_kt *)"F15"  },
+    { K_F16, (uchar_kt *)"F16"  },
+    { K_F17, (uchar_kt *)"F17"  },
+    { K_F18, (uchar_kt *)"F18"  },
+    { K_F19, (uchar_kt *)"F19"  },
+    { K_F20, (uchar_kt *)"F20"  },
 
-    {K_F21, (uchar_kt *)"F21"},
-    {K_F22, (uchar_kt *)"F22"},
-    {K_F23, (uchar_kt *)"F23"},
-    {K_F24, (uchar_kt *)"F24"},
-    {K_F25, (uchar_kt *)"F25"},
-    {K_F26, (uchar_kt *)"F26"},
-    {K_F27, (uchar_kt *)"F27"},
-    {K_F28, (uchar_kt *)"F28"},
-    {K_F29, (uchar_kt *)"F29"},
-    {K_F30, (uchar_kt *)"F30"},
+    { K_F21, (uchar_kt *)"F21"  },
+    { K_F22, (uchar_kt *)"F22"  },
+    { K_F23, (uchar_kt *)"F23"  },
+    { K_F24, (uchar_kt *)"F24"  },
+    { K_F25, (uchar_kt *)"F25"  },
+    { K_F26, (uchar_kt *)"F26"  },
+    { K_F27, (uchar_kt *)"F27"  },
+    { K_F28, (uchar_kt *)"F28"  },
+    { K_F29, (uchar_kt *)"F29"  },
+    { K_F30, (uchar_kt *)"F30"  },
 
-    {K_F31, (uchar_kt *)"F31"},
-    {K_F32, (uchar_kt *)"F32"},
-    {K_F33, (uchar_kt *)"F33"},
-    {K_F34, (uchar_kt *)"F34"},
-    {K_F35, (uchar_kt *)"F35"},
-    {K_F36, (uchar_kt *)"F36"},
-    {K_F37, (uchar_kt *)"F37"},
+    { K_F31, (uchar_kt *)"F31"  },
+    { K_F32, (uchar_kt *)"F32"  },
+    { K_F33, (uchar_kt *)"F33"  },
+    { K_F34, (uchar_kt *)"F34"  },
+    { K_F35, (uchar_kt *)"F35"  },
+    { K_F36, (uchar_kt *)"F36"  },
+    { K_F37, (uchar_kt *)"F37"  },
 
-    {K_XF1, (uchar_kt *)"xF1"},
-    {K_XF2, (uchar_kt *)"xF2"},
-    {K_XF3, (uchar_kt *)"xF3"},
-    {K_XF4, (uchar_kt *)"xF4"},
+    { K_XF1, (uchar_kt *)"xF1"  },
+    { K_XF2, (uchar_kt *)"xF2"  },
+    { K_XF3, (uchar_kt *)"xF3"  },
+    { K_XF4, (uchar_kt *)"xF4"  },
 
-    {K_HELP,      (uchar_kt *)"Help"},
-    {K_UNDO,      (uchar_kt *)"Undo"},
-    {K_INS,       (uchar_kt *)"Insert"},
-    {K_INS,       (uchar_kt *)"Ins"},          // Alternative name
-    {K_KINS,      (uchar_kt *)"kInsert"},
-    {K_HOME,      (uchar_kt *)"Home"},
-    {K_KHOME,     (uchar_kt *)"kHome"},
-    {K_XHOME,     (uchar_kt *)"xHome"},
-    {K_ZHOME,     (uchar_kt *)"zHome"},
-    {K_END,       (uchar_kt *)"End"},
-    {K_KEND,      (uchar_kt *)"kEnd"},
-    {K_XEND,      (uchar_kt *)"xEnd"},
-    {K_ZEND,      (uchar_kt *)"zEnd"},
-    {K_PAGEUP,    (uchar_kt *)"PageUp"},
-    {K_PAGEDOWN,  (uchar_kt *)"PageDown"},
-    {K_KPAGEUP,   (uchar_kt *)"kPageUp"},
-    {K_KPAGEDOWN, (uchar_kt *)"kPageDown"},
+    { K_HELP,      (uchar_kt *)"Help"       },
+    { K_UNDO,      (uchar_kt *)"Undo"       },
+    { K_INS,       (uchar_kt *)"Insert"     },
+    { K_INS,       (uchar_kt *)"Ins"        },  // Alternative name
+    { K_KINS,      (uchar_kt *)"kInsert"    },
+    { K_HOME,      (uchar_kt *)"Home"       },
+    { K_KHOME,     (uchar_kt *)"kHome"      },
+    { K_XHOME,     (uchar_kt *)"xHome"      },
+    { K_ZHOME,     (uchar_kt *)"zHome"      },
+    { K_END,       (uchar_kt *)"End"        },
+    { K_KEND,      (uchar_kt *)"kEnd"       },
+    { K_XEND,      (uchar_kt *)"xEnd"       },
+    { K_ZEND,      (uchar_kt *)"zEnd"       },
+    { K_PAGEUP,    (uchar_kt *)"PageUp"     },
+    { K_PAGEDOWN,  (uchar_kt *)"PageDown"   },
+    { K_KPAGEUP,   (uchar_kt *)"kPageUp"    },
+    { K_KPAGEDOWN, (uchar_kt *)"kPageDown"  },
 
-    {K_KPLUS,     (uchar_kt *)"kPlus"},
-    {K_KMINUS,    (uchar_kt *)"kMinus"},
-    {K_KDIVIDE,   (uchar_kt *)"kDivide"},
-    {K_KMULTIPLY, (uchar_kt *)"kMultiply"},
-    {K_KENTER,    (uchar_kt *)"kEnter"},
-    {K_KPOINT,    (uchar_kt *)"kPoint"},
+    { K_KPLUS,     (uchar_kt *)"kPlus"      },
+    { K_KMINUS,    (uchar_kt *)"kMinus"     },
+    { K_KDIVIDE,   (uchar_kt *)"kDivide"    },
+    { K_KMULTIPLY, (uchar_kt *)"kMultiply"  },
+    { K_KENTER,    (uchar_kt *)"kEnter"     },
+    { K_KPOINT,    (uchar_kt *)"kPoint"     },
 
-    {K_K0, (uchar_kt *)"k0"},
-    {K_K1, (uchar_kt *)"k1"},
-    {K_K2, (uchar_kt *)"k2"},
-    {K_K3, (uchar_kt *)"k3"},
-    {K_K4, (uchar_kt *)"k4"},
-    {K_K5, (uchar_kt *)"k5"},
-    {K_K6, (uchar_kt *)"k6"},
-    {K_K7, (uchar_kt *)"k7"},
-    {K_K8, (uchar_kt *)"k8"},
-    {K_K9, (uchar_kt *)"k9"},
+    { K_K0, (uchar_kt *)"k0"    },
+    { K_K1, (uchar_kt *)"k1"    },
+    { K_K2, (uchar_kt *)"k2"    },
+    { K_K3, (uchar_kt *)"k3"    },
+    { K_K4, (uchar_kt *)"k4"    },
+    { K_K5, (uchar_kt *)"k5"    },
+    { K_K6, (uchar_kt *)"k6"    },
+    { K_K7, (uchar_kt *)"k7"    },
+    { K_K8, (uchar_kt *)"k8"    },
+    { K_K9, (uchar_kt *)"k9"    },
 
-    {'<',  (uchar_kt *)"lt"},
+    { '<',  (uchar_kt *)"lt"    },
 
-    {K_MOUSE,          (uchar_kt *)"Mouse"},
-    {K_LEFTMOUSE,      (uchar_kt *)"LeftMouse"},
-    {K_LEFTMOUSE_NM,   (uchar_kt *)"LeftMouseNM"},
-    {K_LEFTDRAG,       (uchar_kt *)"LeftDrag"},
-    {K_LEFTRELEASE,    (uchar_kt *)"LeftRelease"},
-    {K_LEFTRELEASE_NM, (uchar_kt *)"LeftReleaseNM"},
-    {K_MIDDLEMOUSE,    (uchar_kt *)"MiddleMouse"},
-    {K_MIDDLEDRAG,     (uchar_kt *)"MiddleDrag"},
-    {K_MIDDLERELEASE,  (uchar_kt *)"MiddleRelease"},
-    {K_RIGHTMOUSE,     (uchar_kt *)"RightMouse"},
-    {K_RIGHTDRAG,      (uchar_kt *)"RightDrag"},
-    {K_RIGHTRELEASE,   (uchar_kt *)"RightRelease"},
-    {K_MOUSEDOWN,      (uchar_kt *)"ScrollWheelUp"},
-    {K_MOUSEUP,        (uchar_kt *)"ScrollWheelDown"},
-    {K_MOUSELEFT,      (uchar_kt *)"ScrollWheelRight"},
-    {K_MOUSERIGHT,     (uchar_kt *)"ScrollWheelLeft"},
-    {K_MOUSEDOWN,      (uchar_kt *)"MouseDown"}, // OBSOLETE: Use
-    {K_MOUSEUP,        (uchar_kt *)"MouseUp"},   // ScrollWheelXXX instead
-    {K_X1MOUSE,        (uchar_kt *)"X1Mouse"},
-    {K_X1DRAG,         (uchar_kt *)"X1Drag"},
-    {K_X1RELEASE,      (uchar_kt *)"X1Release"},
-    {K_X2MOUSE,        (uchar_kt *)"X2Mouse"},
-    {K_X2DRAG,         (uchar_kt *)"X2Drag"},
-    {K_X2RELEASE,      (uchar_kt *)"X2Release"},
-    {K_DROP,           (uchar_kt *)"Drop"},
-    {K_ZERO,           (uchar_kt *)"Nul"},
-    {K_SNR,            (uchar_kt *)"SNR"},
-    {K_PLUG,           (uchar_kt *)"Plug"},
-    {K_PASTE,          (uchar_kt *)"Paste"},
-    {K_FOCUSGAINED,    (uchar_kt *)"FocusGained"},
-    {K_FOCUSLOST,      (uchar_kt *)"FocusLost"},
-    {0,                NULL}
+    { K_MOUSE,          (uchar_kt *)"Mouse"             },
+    { K_LEFTMOUSE,      (uchar_kt *)"LeftMouse"         },
+    { K_LEFTMOUSE_NM,   (uchar_kt *)"LeftMouseNM"       },
+    { K_LEFTDRAG,       (uchar_kt *)"LeftDrag"          },
+    { K_LEFTRELEASE,    (uchar_kt *)"LeftRelease"       },
+    { K_LEFTRELEASE_NM, (uchar_kt *)"LeftReleaseNM"     },
+    { K_MIDDLEMOUSE,    (uchar_kt *)"MiddleMouse"       },
+    { K_MIDDLEDRAG,     (uchar_kt *)"MiddleDrag"        },
+    { K_MIDDLERELEASE,  (uchar_kt *)"MiddleRelease"     },
+    { K_RIGHTMOUSE,     (uchar_kt *)"RightMouse"        },
+    { K_RIGHTDRAG,      (uchar_kt *)"RightDrag"         },
+    { K_RIGHTRELEASE,   (uchar_kt *)"RightRelease"      },
+    { K_MOUSEDOWN,      (uchar_kt *)"ScrollWheelUp"     },
+    { K_MOUSEUP,        (uchar_kt *)"ScrollWheelDown"   },
+    { K_MOUSELEFT,      (uchar_kt *)"ScrollWheelRight"  },
+    { K_MOUSERIGHT,     (uchar_kt *)"ScrollWheelLeft"   },
+    { K_MOUSEDOWN,      (uchar_kt *)"MouseDown"         },
+    { K_MOUSEUP,        (uchar_kt *)"MouseUp"           },
+    { K_X1MOUSE,        (uchar_kt *)"X1Mouse"           },
+    { K_X1DRAG,         (uchar_kt *)"X1Drag"            },
+    { K_X1RELEASE,      (uchar_kt *)"X1Release"         },
+    { K_X2MOUSE,        (uchar_kt *)"X2Mouse"           },
+    { K_X2DRAG,         (uchar_kt *)"X2Drag"            },
+    { K_X2RELEASE,      (uchar_kt *)"X2Release"         },
+    { K_DROP,           (uchar_kt *)"Drop"              },
+    { K_ZERO,           (uchar_kt *)"Nul"               },
+    { K_SNR,            (uchar_kt *)"SNR"               },
+    { K_PLUG,           (uchar_kt *)"Plug"              },
+    { K_PASTE,          (uchar_kt *)"Paste"             },
+    { K_FOCUSGAINED,    (uchar_kt *)"FocusGained"       },
+    { K_FOCUSLOST,      (uchar_kt *)"FocusLost"         },
+    { 0,                NULL                            }
 };
 
-static struct mousetable
+static struct mousetable_s
 {
     int pseudo_code; ///< Code for pseudo mouse event
     int button;      ///< Which mouse button is it ?
@@ -295,26 +295,26 @@ static struct mousetable
     int is_drag;     ///< Is it a mouse drag event ?
 } mouse_table[] =
 {
-    {(int)KE_LEFTMOUSE,      MOUSE_LEFT,     TRUE,   FALSE},
-    {(int)KE_LEFTDRAG,       MOUSE_LEFT,     FALSE,  TRUE},
-    {(int)KE_LEFTRELEASE,    MOUSE_LEFT,     FALSE,  FALSE},
-    {(int)KE_MIDDLEMOUSE,    MOUSE_MIDDLE,   TRUE,   FALSE},
-    {(int)KE_MIDDLEDRAG,     MOUSE_MIDDLE,   FALSE,  TRUE},
-    {(int)KE_MIDDLERELEASE,  MOUSE_MIDDLE,   FALSE,  FALSE},
-    {(int)KE_RIGHTMOUSE,     MOUSE_RIGHT,    TRUE,   FALSE},
-    {(int)KE_RIGHTDRAG,      MOUSE_RIGHT,    FALSE,  TRUE},
-    {(int)KE_RIGHTRELEASE,   MOUSE_RIGHT,    FALSE,  FALSE},
-    {(int)KE_X1MOUSE,        MOUSE_X1,       TRUE,   FALSE},
-    {(int)KE_X1DRAG,         MOUSE_X1,       FALSE,  TRUE},
-    {(int)KE_X1RELEASE,      MOUSE_X1,       FALSE,  FALSE},
-    {(int)KE_X2MOUSE,        MOUSE_X2,       TRUE,   FALSE},
-    {(int)KE_X2DRAG,         MOUSE_X2,       FALSE,  TRUE},
-    {(int)KE_X2RELEASE,      MOUSE_X2,       FALSE,  FALSE},
+    { (int)KE_LEFTMOUSE,      MOUSE_LEFT,     TRUE,   FALSE },
+    { (int)KE_LEFTDRAG,       MOUSE_LEFT,     FALSE,  TRUE  },
+    { (int)KE_LEFTRELEASE,    MOUSE_LEFT,     FALSE,  FALSE },
+    { (int)KE_MIDDLEMOUSE,    MOUSE_MIDDLE,   TRUE,   FALSE },
+    { (int)KE_MIDDLEDRAG,     MOUSE_MIDDLE,   FALSE,  TRUE  },
+    { (int)KE_MIDDLERELEASE,  MOUSE_MIDDLE,   FALSE,  FALSE },
+    { (int)KE_RIGHTMOUSE,     MOUSE_RIGHT,    TRUE,   FALSE },
+    { (int)KE_RIGHTDRAG,      MOUSE_RIGHT,    FALSE,  TRUE  },
+    { (int)KE_RIGHTRELEASE,   MOUSE_RIGHT,    FALSE,  FALSE },
+    { (int)KE_X1MOUSE,        MOUSE_X1,       TRUE,   FALSE },
+    { (int)KE_X1DRAG,         MOUSE_X1,       FALSE,  TRUE  },
+    { (int)KE_X1RELEASE,      MOUSE_X1,       FALSE,  FALSE },
+    { (int)KE_X2MOUSE,        MOUSE_X2,       TRUE,   FALSE },
+    { (int)KE_X2DRAG,         MOUSE_X2,       FALSE,  TRUE  },
+    { (int)KE_X2RELEASE,      MOUSE_X2,       FALSE,  FALSE },
     // DRAG without CLICK
-    {(int)KE_IGNORE,         MOUSE_RELEASE,  FALSE,  TRUE},
+    { (int)KE_IGNORE,         MOUSE_RELEASE,  FALSE,  TRUE  },
     // RELEASE without CLICK
-    {(int)KE_IGNORE,         MOUSE_RELEASE,  FALSE,  FALSE},
-    {0,                      0,              0,      0},
+    { (int)KE_IGNORE,         MOUSE_RELEASE,  FALSE,  FALSE },
+    { 0,                      0,              0,      0     },
 };
 
 /// Return the modifier mask bit (MOD_MASK_*) which corresponds to the given
