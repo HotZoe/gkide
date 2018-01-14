@@ -211,12 +211,12 @@ struct prt_ps_encoding_S
     int needs_charset;
 };
 
-struct prt_ps_charset_S
+typedef struct prt_ps_charset_s
 {
     char *charset;
     char *cmap_charset;
     int has_charset;
-};
+} prt_ps_charset_st;
 
 /// Collections of encodings and charsets for multi-byte printing
 struct prt_ps_mbfont_S
@@ -224,7 +224,7 @@ struct prt_ps_mbfont_S
     int num_encodings;
     struct prt_ps_encoding_S *encodings;
     int num_charsets;
-    struct prt_ps_charset_S *charsets;
+    prt_ps_charset_st *charsets;
     char *ascii_enc;
     char *defcs;
 };
@@ -1217,16 +1217,16 @@ static struct prt_ps_encoding_S j_encodings[] =
         CS_JIS_X_1990
     }
 };
-static struct prt_ps_charset_S j_charsets[] =
+static prt_ps_charset_st j_charsets[] =
 {
-    {"JIS_C_1978",  "78",    CS_JIS_C_1978},
-    {"JIS_X_1983",  NULL,    CS_JIS_X_1983},
-    {"JIS_X_1990",  "Hojo",  CS_JIS_X_1990},
-    {"NEC",         "Ext",   CS_NEC},
-    {"MSWINDOWS",   "90ms",  CS_MSWINDOWS},
-    {"CP932",       "90ms",  CS_JIS_X_1983},
-    {"KANJITALK6",  "83pv",  CS_KANJITALK6},
-    {"KANJITALK7",  "90pv",  CS_KANJITALK7}
+    { "JIS_C_1978",  "78",    CS_JIS_C_1978 },
+    { "JIS_X_1983",  NULL,    CS_JIS_X_1983 },
+    { "JIS_X_1990",  "Hojo",  CS_JIS_X_1990 },
+    { "NEC",         "Ext",   CS_NEC        },
+    { "MSWINDOWS",   "90ms",  CS_MSWINDOWS  },
+    { "CP932",       "90ms",  CS_JIS_X_1983 },
+    { "KANJITALK6",  "83pv",  CS_KANJITALK6 },
+    { "KANJITALK7",  "90pv",  CS_KANJITALK7 }
 };
 
 #define CS_GB_2312_80       (0x01)
@@ -1271,15 +1271,15 @@ static struct prt_ps_encoding_S sc_encodings[] =
         CS_SC_ISO10646
     }
 };
-static struct prt_ps_charset_S sc_charsets[] =
+static prt_ps_charset_st sc_charsets[] =
 {
-    {"GB_2312-80",    "GB",     CS_GB_2312_80},
-    {"GBT_12345-90",  "GBT",    CS_GBT_12345_90},
-    {"MAC",           "GBpc",   CS_SC_MAC},
-    {"GBT-90_MAC",    "GBTpc",  CS_GBT_90_MAC},
-    {"GBK",           "GBK",    CS_GBK},
-    {"GB18030",       "GBK2K",  CS_GBK2K},
-    {"ISO10646",      "UniGB",  CS_SC_ISO10646}
+    { "GB_2312-80",    "GB",     CS_GB_2312_80   },
+    { "GBT_12345-90",  "GBT",    CS_GBT_12345_90 },
+    { "MAC",           "GBpc",   CS_SC_MAC       },
+    { "GBT-90_MAC",    "GBTpc",  CS_GBT_90_MAC   },
+    { "GBK",           "GBK",    CS_GBK          },
+    { "GB18030",       "GBK2K",  CS_GBK2K        },
+    { "ISO10646",      "UniGB",  CS_SC_ISO10646  }
 };
 
 #define CS_CNS_PLANE_1      (0x01)
@@ -1339,22 +1339,22 @@ static struct prt_ps_encoding_S tc_encodings[] =
         CS_TC_ISO10646
     }
 };
-static struct prt_ps_charset_S tc_charsets[] =
+static prt_ps_charset_st tc_charsets[] =
 {
-    {"CNS_1992_1",  "CNS1",     CS_CNS_PLANE_1},
-    {"CNS_1992_2",  "CNS2",     CS_CNS_PLANE_2},
-    {"CNS_1993",    "CNS",      CS_CNS_PLANE_1_2},
-    {"BIG5",        NULL,       CS_B5},
-    {"CP950",       NULL,       CS_B5},
-    {"ETEN",        "ETen",     CS_ETEN},
-    {"HK_GCCS",     "HKgccs",   CS_HK_GCCS},
-    {"SCS",         "HKscs",    CS_HK_SCS},
-    {"SCS_ETEN",    "ETHK",     CS_HK_SCS_ETEN},
-    {"MTHKL",       "HKm471",   CS_MTHKL},
-    {"MTHKS",       "HKm314",   CS_MTHKS},
-    {"DLHKL",       "HKdla",    CS_DLHKL},
-    {"DLHKS",       "HKdlb",    CS_DLHKS},
-    {"ISO10646",    "UniCNS",   CS_TC_ISO10646}
+    { "CNS_1992_1",  "CNS1",     CS_CNS_PLANE_1   },
+    { "CNS_1992_2",  "CNS2",     CS_CNS_PLANE_2   },
+    { "CNS_1993",    "CNS",      CS_CNS_PLANE_1_2 },
+    { "BIG5",        NULL,       CS_B5            },
+    { "CP950",       NULL,       CS_B5            },
+    { "ETEN",        "ETen",     CS_ETEN          },
+    { "HK_GCCS",     "HKgccs",   CS_HK_GCCS       },
+    { "SCS",         "HKscs",    CS_HK_SCS        },
+    { "SCS_ETEN",    "ETHK",     CS_HK_SCS_ETEN   },
+    { "MTHKL",       "HKm471",   CS_MTHKL         },
+    { "MTHKS",       "HKm314",   CS_MTHKS         },
+    { "DLHKL",       "HKdla",    CS_DLHKL         },
+    { "DLHKS",       "HKdlb",    CS_DLHKS         },
+    { "ISO10646",    "UniCNS",   CS_TC_ISO10646   }
 };
 
 #define CS_KR_X_1992        (0x01)
@@ -1362,27 +1362,27 @@ static struct prt_ps_charset_S tc_charsets[] =
 #define CS_KR_X_1992_MS     (0x04)
 #define CS_KR_ISO10646      (0x08)
 
-/* Korean encodings and charsets */
+/// Korean encodings and charsets
 static struct prt_ps_encoding_S k_encodings[] =
 {
-    {"iso-2022-kr", NULL,       CS_KR_X_1992},
-    {"euc-kr",      "EUC",      (CS_KR_X_1992|CS_KR_MAC)},
-    {"johab",       "Johab",    CS_KR_X_1992},
-    {"cp1361",      "Johab",    CS_KR_X_1992},
-    {"uhc",         "UHC",      CS_KR_X_1992_MS},
-    {"cp949",       "UHC",      CS_KR_X_1992_MS},
-    {"ucs-2",       "UCS2",     CS_KR_ISO10646},
-    {"utf-8",       "UTF8",     CS_KR_ISO10646}
+    { "iso-2022-kr", NULL,       CS_KR_X_1992               },
+    { "euc-kr",      "EUC",      (CS_KR_X_1992 | CS_KR_MAC) },
+    { "johab",       "Johab",    CS_KR_X_1992               },
+    { "cp1361",      "Johab",    CS_KR_X_1992               },
+    { "uhc",         "UHC",      CS_KR_X_1992_MS            },
+    { "cp949",       "UHC",      CS_KR_X_1992_MS            },
+    { "ucs-2",       "UCS2",     CS_KR_ISO10646             },
+    { "utf-8",       "UTF8",     CS_KR_ISO10646             }
 };
-static struct prt_ps_charset_S k_charsets[] =
+static prt_ps_charset_st k_charsets[] =
 {
-    {"KS_X_1992",   "KSC",      CS_KR_X_1992},
-    {"CP1361",      "KSC",      CS_KR_X_1992},
-    {"MAC",         "KSCpc",    CS_KR_MAC},
-    {"MSWINDOWS",   "KSCms",    CS_KR_X_1992_MS},
-    {"CP949",       "KSCms",    CS_KR_X_1992_MS},
-    {"WANSUNG",     "KSCms",    CS_KR_X_1992_MS},
-    {"ISO10646",    "UniKS",    CS_KR_ISO10646}
+    { "KS_X_1992",   "KSC",      CS_KR_X_1992     },
+    { "CP1361",      "KSC",      CS_KR_X_1992     },
+    { "MAC",         "KSCpc",    CS_KR_MAC        },
+    { "MSWINDOWS",   "KSCms",    CS_KR_X_1992_MS  },
+    { "CP949",       "KSCms",    CS_KR_X_1992_MS  },
+    { "WANSUNG",     "KSCms",    CS_KR_X_1992_MS  },
+    { "ISO10646",    "UniKS",    CS_KR_ISO10646   }
 };
 
 static struct prt_ps_mbfont_S prt_ps_mbfonts[] =
@@ -2573,11 +2573,11 @@ static int prt_match_encoding(char *p_encoding,
 
 static int prt_match_charset(char *p_charset,
                              struct prt_ps_mbfont_S *p_cmap,
-                             struct prt_ps_charset_S **pp_mbchar)
+                             prt_ps_charset_st **pp_mbchar)
 {
     int mbchar;
     int char_len;
-    struct prt_ps_charset_S *p_mbchar;
+    prt_ps_charset_st *p_mbchar;
 
     // Look for recognised character set, using default if one is not given
     if(*p_charset == NUL)
@@ -2616,7 +2616,7 @@ int mch_print_init(prt_geninfo_st *psettings,
     uchar_kt *p_encoding;
     struct prt_ps_encoding_S *p_mbenc;
     struct prt_ps_encoding_S *p_mbenc_first;
-    struct prt_ps_charset_S  *p_mbchar = NULL;
+    prt_ps_charset_st *p_mbchar = NULL;
 
     // Set up font and encoding.
     p_encoding = enc_skip(p_penc);
