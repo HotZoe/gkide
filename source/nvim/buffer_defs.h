@@ -85,7 +85,7 @@ typedef struct wininfo_s wininfo_st;
 #include "nvim/sign_defs.h"
 #include "nvim/bufhl_defs.h"
 
-typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_T;
+typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_st;
 
 #include "nvim/os/fs_defs.h"
 #include "nvim/terminal.h"
@@ -93,10 +93,10 @@ typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_T;
 /// The taggy struct is used to store the information about a :tag command.
 typedef struct taggy_s
 {
-    uchar_kt *tagname;  ///< tag name
-    mark_st fmark;  ///< cursor position BEFORE ":tag"
-    int cur_match;      ///< match number
-    int cur_fnum;       ///< buffer number used for cur_match
+    uchar_kt *tagname; ///< tag name
+    mark_st fmark;     ///< cursor position BEFORE ":tag"
+    int cur_match;     ///< match number
+    int cur_fnum;      ///< buffer number used for cur_match
 } taggy_st;
 
 typedef struct buffblock_s  buffblock_st;
@@ -121,7 +121,7 @@ struct buffheader_s
 /// Structure that contains all options that are local to a window.
 /// Used twice in a window: for the current buffer and for all buffers.
 /// Also used in wininfo_st.
-typedef struct
+typedef struct winopt_s
 {
     int wo_arab;                ///< 'arabic'
 #define w_p_arab                w_onebuf_opt.wo_arab
@@ -314,7 +314,7 @@ typedef struct argentry_s
 #define WARGCOUNT(wp)   (ALIST(wp)->al_ga.ga_len)
 
 /// Used for the typeahead buffer: typebuf.
-typedef struct
+typedef struct typebuf_s
 {
     uchar_kt *tb_buf;     ///< buffer for typed characters
     uchar_kt *tb_noremap; ///< mapping flags for characters in tb_buf[]
@@ -328,7 +328,7 @@ typedef struct
 } typebuf_st;
 
 /// Struct to hold the saved typeahead for save_typeahead().
-typedef struct
+typedef struct tahsave_s
 {
     typebuf_st save_typebuf;
     int typebuf_valid; ///< TRUE when save_typebuf valid
@@ -377,7 +377,7 @@ typedef struct hl_stline_s
 typedef struct qfinfo_s qfinfo_st;
 
 /// Used for :syntime: timing of executing a syntax pattern.
-typedef struct
+typedef struct syntime_s
 {
     proftime_kt total;   ///< total time used
     proftime_kt slowest; ///< time of slowest call
@@ -387,7 +387,7 @@ typedef struct
 
 /// These are items normally related to a buffer.
 /// But when using ":ownsyntax" a window may have its own instance.
-typedef struct
+typedef struct synblk_s
 {
     hashtable_st b_keywtab;          ///< syntax keywords hash table
     hashtable_st b_keywtab_ic;       ///< idem, ignore case
@@ -548,15 +548,15 @@ struct filebuf_s
     // The following only used in undo.c.
     undo_hdr_st *b_u_oldhead; ///< pointer to oldest header
     undo_hdr_st *b_u_newhead; ///< pointer to newest header, may not be valid
-                             ///< if b_u_curhead is not NULL
+                              ///< if b_u_curhead is not NULL
     undo_hdr_st *b_u_curhead; ///< pointer to current header
-    int b_u_numhead;         ///< current number of headers
-    bool b_u_synced;         ///< entry lists are synced
-    long b_u_seq_last;       ///< last used undo sequence number
-    long b_u_save_nr_last;   ///< counter for last file write
-    long b_u_seq_cur;        ///< hu_seq of header below which we are now
-    time_t b_u_time_cur;     ///< uh_time of header below which we are now
-    long b_u_save_nr_cur;    ///< file write nr after which we are now
+    int b_u_numhead;          ///< current number of headers
+    bool b_u_synced;          ///< entry lists are synced
+    long b_u_seq_last;        ///< last used undo sequence number
+    long b_u_save_nr_last;    ///< counter for last file write
+    long b_u_seq_cur;         ///< hu_seq of header below which we are now
+    time_t b_u_time_cur;      ///< uh_time of header below which we are now
+    long b_u_save_nr_cur;     ///< file write nr after which we are now
 
     // variables for "U" command in undo.c
     uchar_kt *b_u_line_ptr;     ///< saved line for "U" command
@@ -720,8 +720,8 @@ struct filebuf_s
     int b_bad_char;           ///< "++bad=" argument when edit started or 0
     int b_start_bomb;         ///< 'bomb' when it was read */
 
-    scope_dict_st b_bufvar;    ///< Variable for "b:" Dictionary.
-    dict_st *b_vars;           ///< b: scope dictionary.
+    scope_dict_st b_bufvar;   ///< Variable for "b:" Dictionary.
+    dict_st *b_vars;          ///< b: scope dictionary.
 
     // When a buffer is created, it starts without a swap file. b_may_swap is
     // then set to indicate that a swap file may be opened later. It is reset
@@ -749,7 +749,7 @@ struct filebuf_s
     terminal_st *terminal;      ///< instance associated with the buffer
     dict_st *additional_data;   ///< Additional data from shada file if any.
     int b_mapped_ctrl_c;        ///< modes where CTRL-C is mapped
-    bufhl_info_T *b_bufhl_info; ///< buffer stored highlights
+    bufhl_info_st *b_bufhl_info;///< buffer stored highlights
 };
 
 /// Stuff for diff mode.
@@ -1081,7 +1081,7 @@ struct window_s
     int w_jumplistlen;         ///< number of active entries
     int w_jumplistidx;         ///< current position
     int w_changelistidx;       ///< current position in b_changelist
-    matchitem_st *w_match_head; ///< head of match list
+    matchitem_st *w_match_head;///< head of match list
     int w_next_match_id;       ///< next match ID
 
     // the tagstack grows from 0 upwards:

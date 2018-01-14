@@ -6,8 +6,8 @@
 #include "nvim/pos.h"
 
 /// signs: line annotations
-typedef struct signlist signlist_st;
-struct signlist
+typedef struct signlist_s signlist_st;
+struct signlist_s
 {
     int id;            ///< unique identifier for each placed sign
     linenum_kt lnum;   ///< line number which has this sign

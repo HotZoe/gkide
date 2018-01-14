@@ -10,7 +10,7 @@
 #include "nvim/ex_cmds_defs.h"
 
 /// Structure to hold printing color and font attributes.
-typedef struct
+typedef struct prt_clrfnt_s
 {
     uint32_t fg_color;
     uint32_t bg_color;
@@ -21,7 +21,7 @@ typedef struct
 } prt_clrfnt_st;
 
 /// Structure passed back to the generic printer code.
-typedef struct
+typedef struct prt_geninfo_s
 {
     int n_collated_copies;
     int n_uncollated_copies;
@@ -39,7 +39,7 @@ typedef struct
 } prt_geninfo_st;
 
 /// Generic option table item, only used for printer at the moment.
-typedef struct
+typedef struct prt_opttable_s
 {
     const char *name;
     int hasnum;
