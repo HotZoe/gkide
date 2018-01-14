@@ -8588,15 +8588,15 @@ static int wc_use_keyname(uchar_kt *varp, long *wcp)
 //
 // langmap_mapchar[] maps any of 256 chars to an ASCII char used for
 // Vim commands.
-// langmap_mapga.ga_data is a sorted table of langmap_entry_T.
+// langmap_mapga.ga_data is a sorted table of langmap_entry_st.
 // This does the same as langmap_mapchar[] for characters >= 256.
 
 /// With multi-byte support use growarray for 'langmap' chars >= 256
-typedef struct
+typedef struct langmap_entry_s
 {
     int from;
     int to;
-} langmap_entry_T;
+} langmap_entry_st;
 
 static garray_st langmap_mapga = GA_EMPTY_INIT_VALUE;
 
@@ -8605,7 +8605,7 @@ static garray_st langmap_mapga = GA_EMPTY_INIT_VALUE;
 /// If not found insert a new entry at the appropriate location.
 static void langmap_set_entry(int from, int to)
 {
-    langmap_entry_T *entries = (langmap_entry_T *)(langmap_mapga.ga_data);
+    langmap_entry_st *entries = (langmap_entry_st *)(langmap_mapga.ga_data);
     unsigned int a = 0;
 
     assert(langmap_mapga.ga_len >= 0);
@@ -8637,11 +8637,11 @@ static void langmap_set_entry(int from, int to)
     ga_grow(&langmap_mapga, 1);
 
     // insert new entry at position "a"
-    entries = (langmap_entry_T *)(langmap_mapga.ga_data) + a;
+    entries = (langmap_entry_st *)(langmap_mapga.ga_data) + a;
 
     memmove(entries + 1,
             entries,
-            ((unsigned int)langmap_mapga.ga_len - a) * sizeof(langmap_entry_T));
+            ((unsigned int)langmap_mapga.ga_len - a) * sizeof(langmap_entry_st));
 
     ++langmap_mapga.ga_len;
     entries[0].from = from;
@@ -8653,7 +8653,7 @@ int langmap_adjust_mb(int c)
 {
     int a = 0;
     int b = langmap_mapga.ga_len;
-    langmap_entry_T *entries = (langmap_entry_T *)(langmap_mapga.ga_data);
+    langmap_entry_st *entries = (langmap_entry_st *)(langmap_mapga.ga_data);
 
     while(a != b)
     {
@@ -8690,7 +8690,7 @@ static void langmap_init(void)
     }
 
     // init size 8 enough
-    ga_init(&langmap_mapga, sizeof(langmap_entry_T), 8);
+    ga_init(&langmap_mapga, sizeof(langmap_entry_st), 8);
 }
 
 /// Called when langmap option is set;
