@@ -184,12 +184,12 @@ typedef struct prt_pos_s
     int ff;                ///< seen form feed character
 } prt_pos_st;
 
-struct prt_mediasize_S
+typedef struct prt_mediasize_s
 {
     char *name;
     double width;  ///< width and height in points for portrait
     double height;
-};
+} prt_mediasize_st;
 
 /// PS font names, must be in Roman, Bold, Italic, Bold-Italic order
 struct prt_ps_font_S
@@ -1125,30 +1125,30 @@ static columnum_kt hardcopy_line(prt_geninfo_st *psettings,
 #define PRT_PS_DEFAULT_BUFFER_SIZE  (80)
 
 #define PRT_MEDIASIZE_LEN \
-    (sizeof(prt_mediasize) / sizeof(struct prt_mediasize_S))
+    (sizeof(prt_mediasize) / sizeof(prt_mediasize_st))
 
-static struct prt_mediasize_S prt_mediasize[] =
+static prt_mediasize_st prt_mediasize[] =
 {
-    {"A4",              595.0,  842.0},
-    {"letter",          612.0,  792.0},
-    {"10x14",           720.0, 1008.0},
-    {"A3",              842.0, 1191.0},
-    {"A5",              420.0,  595.0},
-    {"B4",              729.0, 1032.0},
-    {"B5",              516.0,  729.0},
-    {"executive",       522.0,  756.0},
-    {"folio",           595.0,  935.0},
-    {"ledger",         1224.0,  792.0}, // Yes, it is wider than taller!
-    {"legal",           612.0, 1008.0},
-    {"quarto",          610.0,  780.0},
-    {"statement",       396.0,  612.0},
-    {"tabloid",         792.0, 1224.0}
+    { "A4",          595.0,    842.0    },
+    { "letter",      612.0,    792.0    },
+    { "10x14",       720.0,    1008.0   },
+    { "A3",          842.0,    1191.0   },
+    { "A5",          420.0,    595.0    },
+    { "B4",          729.0,    1032.0   },
+    { "B5",          516.0,    729.0    },
+    { "executive",   522.0,    756.0    },
+    { "folio",       595.0,    935.0    },
+    { "ledger",      1224.0,   792.0    }, // Yes, it is wider than taller!
+    { "legal",       612.0,    1008.0   },
+    { "quarto",      610.0,    780.0    },
+    { "statement",   396.0,    612.0    },
+    { "tabloid",     792.0,    1224.0   }
 };
 
-#define PRT_PS_FONT_ROMAN       (0)
-#define PRT_PS_FONT_BOLD        (1)
-#define PRT_PS_FONT_OBLIQUE     (2)
-#define PRT_PS_FONT_BOLDOBLIQUE (3)
+#define PRT_PS_FONT_ROMAN           (0)
+#define PRT_PS_FONT_BOLD            (1)
+#define PRT_PS_FONT_OBLIQUE         (2)
+#define PRT_PS_FONT_BOLDOBLIQUE     (3)
 
 /// Standard font metrics for Courier family
 static struct prt_ps_font_S prt_ps_courier_font =
