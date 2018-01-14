@@ -87,7 +87,8 @@ FUNC_ATTR_NONNULL_ALL
     return status;
 }
 
-void libuv_process_close(libuv_process_st *uvproc) FUNC_ATTR_NONNULL_ARG(1)
+void libuv_process_close(libuv_process_st *uvproc)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     uv_close((uv_handle_t *)&uvproc->uv, close_cb);
 }

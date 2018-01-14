@@ -473,7 +473,7 @@ static vimvar_st vimvars[] =
 /// Variable used for @b v:
 static scope_dict_st vimvars_var;
 
-typedef struct
+typedef struct terminal_jobdata_s
 {
     union
     {
@@ -494,18 +494,18 @@ typedef struct
     int *status_ptr;
     uint64_t id;
     multiqueue_st *events;
-} TerminalJobData;
+} terminal_jobdata_st;
 
 typedef struct job_event_s
 {
-    TerminalJobData *data;
+    terminal_jobdata_st *data;
     callback_st *callback;
     const char *type;
     list_st *received;
     int status;
 } job_event_st;
 
-typedef struct
+typedef struct timer_s
 {
     TimeWatcher tw;
     int timer_id;
@@ -535,7 +535,7 @@ typedef struct nviml_func_s
 KHASH_MAP_INIT_STR(functions, nviml_func_st)
 
 /// Type of assert_* check being performed
-typedef enum
+typedef enum assert_type_e
 {
     ASSERT_EQUAL,
     ASSERT_NOTEQUAL,
@@ -546,7 +546,7 @@ typedef enum
 } assert_type_T;
 
 /// Type for dict_list function
-typedef enum
+typedef enum dictlist_type_e
 {
     kDictListKeys,   ///< List dictionary keys.
     kDictListValues, ///< List dictionary values.
@@ -6710,7 +6710,7 @@ bool garbage_collect(bool testing)
 
     // Jobs
     {
-        TerminalJobData *data;
+        terminal_jobdata_st *data;
         map_foreach_value(jobs, data, {
             set_ref_in_callback(&data->on_stdout, copyID, NULL, NULL);
             set_ref_in_callback(&data->on_stderr, copyID, NULL, NULL);
@@ -14871,7 +14871,7 @@ static void f_jobclose(typval_st *argvars,
         return;
     }
 
-    TerminalJobData *data = find_job(argvars[0].vval.v_number);
+    terminal_jobdata_st *data = find_job(argvars[0].vval.v_number);
 
     if(!data)
     {
@@ -14965,7 +14965,7 @@ static void f_jobpid(typval_st *argvars,
         return;
     }
 
-    TerminalJobData *data = find_job(argvars[0].vval.v_number);
+    terminal_jobdata_st *data = find_job(argvars[0].vval.v_number);
 
     if(!data)
     {
@@ -14998,7 +14998,7 @@ static void f_jobsend(typval_st *argvars,
         return;
     }
 
-    TerminalJobData *data = find_job(argvars[0].vval.v_number);
+    terminal_jobdata_st *data = find_job(argvars[0].vval.v_number);
 
     if(!data)
     {
@@ -15054,7 +15054,7 @@ static void f_jobresize(typval_st *argvars,
         return;
     }
 
-    TerminalJobData *data = find_job(argvars[0].vval.v_number);
+    terminal_jobdata_st *data = find_job(argvars[0].vval.v_number);
 
     if(!data)
     {
@@ -15219,7 +15219,7 @@ static void f_jobstart(typval_st *argvars,
         }
     }
 
-    TerminalJobData *data = common_job_init(argv,
+    terminal_jobdata_st *data = common_job_init(argv,
                                             on_stdout,
                                             on_stderr,
                                             on_exit,
@@ -15287,7 +15287,7 @@ static void f_jobstop(typval_st *argvars,
         return;
     }
 
-    TerminalJobData *data = find_job(argvars[0].vval.v_number);
+    terminal_jobdata_st *data = find_job(argvars[0].vval.v_number);
 
     if(!data)
     {
@@ -15330,7 +15330,7 @@ static void f_jobwait(typval_st *argvars,
     // -1 for jobs that were skipped or timed out.
     for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
-        TerminalJobData *data = NULL;
+        terminal_jobdata_st *data = NULL;
 
         if(arg->li_tv.v_type != kNvarNumber
            || !(data = find_job(arg->li_tv.vval.v_number)))
@@ -15363,7 +15363,7 @@ static void f_jobwait(typval_st *argvars,
 
     for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
-        TerminalJobData *data = NULL;
+        terminal_jobdata_st *data = NULL;
 
         if(remaining == 0)
         {
@@ -15409,7 +15409,7 @@ static void f_jobwait(typval_st *argvars,
 
     for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
-        TerminalJobData *data = NULL;
+        terminal_jobdata_st *data = NULL;
 
         if(arg->li_tv.v_type != kNvarNumber
            || !(data = find_job(arg->li_tv.vval.v_number)))
@@ -15425,7 +15425,7 @@ static void f_jobwait(typval_st *argvars,
     // restore the parent queue for any jobs still alive
     for(listitem_st *arg = args->lv_first; arg != NULL; arg = arg->li_next)
     {
-        TerminalJobData *data = NULL;
+        terminal_jobdata_st *data = NULL;
 
         if(arg->li_tv.v_type != kNvarNumber
            || !(data = pmap_get(uint64_t)(jobs, arg->li_tv.vval.v_number)))
@@ -18167,7 +18167,7 @@ static void f_rpcstart(typval_st *argvars,
 
     // The last item of argv must be NULL
     argv[i] = NULL;
-    TerminalJobData *data = common_job_init(argv,
+    terminal_jobdata_st *data = common_job_init(argv,
                                             CALLBACK_NONE,
                                             CALLBACK_NONE,
                                             CALLBACK_NONE,
@@ -21703,7 +21703,7 @@ static void f_termopen(typval_st *argvars,
         }
     }
 
-    TerminalJobData *data = common_job_init(argv,
+    terminal_jobdata_st *data = common_job_init(argv,
                                             on_stdout,
                                             on_stderr,
                                             on_exit,
@@ -29117,7 +29117,7 @@ uchar_kt *do_string_sub(uchar_kt *str,
     return ret;
 }
 
-static inline TerminalJobData *common_job_init(char **argv,
+static inline terminal_jobdata_st *common_job_init(char **argv,
                                                callback_st on_stdout,
                                                callback_st on_stderr,
                                                callback_st on_exit,
@@ -29126,7 +29126,7 @@ static inline TerminalJobData *common_job_init(char **argv,
                                                bool detach,
                                                const char *cwd)
 {
-    TerminalJobData *data = xcalloc(1, sizeof(TerminalJobData));
+    terminal_jobdata_st *data = xcalloc(1, sizeof(terminal_jobdata_st));
 
     data->stopped = false;
     data->on_stdout = on_stdout;
@@ -29184,7 +29184,7 @@ static inline bool common_job_callbacks(dict_st *vopts,
     return false;
 }
 
-static inline bool common_job_start(TerminalJobData *data, typval_st *rettv)
+static inline bool common_job_start(terminal_jobdata_st *data, typval_st *rettv)
 {
     process_st *proc = (process_st *)&data->proc;
 
@@ -29248,7 +29248,7 @@ static inline bool common_job_start(TerminalJobData *data, typval_st *rettv)
 
 static inline void free_term_job_data_event(void **argv)
 {
-    TerminalJobData *data = argv[0];
+    terminal_jobdata_st *data = argv[0];
     callback_free(&data->on_stdout);
     callback_free(&data->on_stderr);
     callback_free(&data->on_exit);
@@ -29257,7 +29257,7 @@ static inline void free_term_job_data_event(void **argv)
     xfree(data);
 }
 
-static inline void free_term_job_data(TerminalJobData *data)
+static inline void free_term_job_data(terminal_jobdata_st *data)
 {
     // data->queue may still be used after this function returns(process_wait), so
     // only free in the next event loop iteration
@@ -29265,7 +29265,7 @@ static inline void free_term_job_data(TerminalJobData *data)
 }
 
 // vimscript job callbacks must be executed on Nvim main loop
-static inline void process_job_event(TerminalJobData *data,
+static inline void process_job_event(terminal_jobdata_st *data,
                                      callback_st *callback,
                                      const char *type,
                                      char *buf,
@@ -29323,7 +29323,7 @@ static void on_job_stdout(Stream *stream,
                           void *job,
                           bool eof)
 {
-    TerminalJobData *data = job;
+    terminal_jobdata_st *data = job;
     on_job_output(stream, job, buf, count, eof, &data->on_stdout, "stdout");
 }
 
@@ -29333,12 +29333,12 @@ static void on_job_stderr(Stream *stream,
                           void *job,
                           bool eof)
 {
-    TerminalJobData *data = job;
+    terminal_jobdata_st *data = job;
     on_job_output(stream, job, buf, count, eof, &data->on_stderr, "stderr");
 }
 
 static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
-                          TerminalJobData *data,
+                          terminal_jobdata_st *data,
                           RBuffer *buf,
                           size_t count,
                           bool eof,
@@ -29372,7 +29372,7 @@ static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
 
 static void eval_job_process_exit_cb(process_st *proc, int status, void *d)
 {
-    TerminalJobData *data = d;
+    terminal_jobdata_st *data = d;
 
     if(data->term && !data->exited)
     {
@@ -29398,7 +29398,7 @@ static void eval_job_process_exit_cb(process_st *proc, int status, void *d)
 
 static void term_write(char *buf, size_t size, void *d)
 {
-    TerminalJobData *job = d;
+    terminal_jobdata_st *job = d;
 
     if(job->in.closed)
     {
@@ -29414,13 +29414,13 @@ static void term_write(char *buf, size_t size, void *d)
 
 static void term_resize(uint16_t width, uint16_t height, void *d)
 {
-    TerminalJobData *data = d;
+    terminal_jobdata_st *data = d;
     pty_process_resize(&data->proc.pty, width, height);
 }
 
 static inline void term_delayed_free(void **argv)
 {
-    TerminalJobData *j = argv[0];
+    terminal_jobdata_st *j = argv[0];
 
     if(j->in.pending_reqs || j->out.pending_reqs || j->err.pending_reqs)
     {
@@ -29434,7 +29434,7 @@ static inline void term_delayed_free(void **argv)
 
 static void term_close(void *d)
 {
-    TerminalJobData *data = d;
+    terminal_jobdata_st *data = d;
 
     if(!data->exited)
     {
@@ -29445,7 +29445,7 @@ static void term_close(void *d)
     multiqueue_put(data->events, term_delayed_free, 1, data);
 }
 
-static void term_job_data_decref(TerminalJobData *data)
+static void term_job_data_decref(terminal_jobdata_st *data)
 {
     if(!(--data->refcount))
     {
@@ -29488,9 +29488,9 @@ static void on_job_event(job_event_st *ev)
     tv_clear(&rettv);
 }
 
-static TerminalJobData *find_job(uint64_t id)
+static terminal_jobdata_st *find_job(uint64_t id)
 {
-    TerminalJobData *data = pmap_get(uint64_t)(jobs, id);
+    terminal_jobdata_st *data = pmap_get(uint64_t)(jobs, id);
 
     if(!data || data->stopped)
     {
