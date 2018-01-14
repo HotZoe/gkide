@@ -11,7 +11,7 @@ typedef struct pty_process
     char *term_name;
     uint16_t width;
     uint16_t height;
-} PtyProcess;
+} pty_process_st;
 
 #define pty_process_spawn(job)        libuv_process_spawn((libuv_process_st *)job)
 #define pty_process_close(job)        libuv_process_close((libuv_process_st *)job)
@@ -21,9 +21,9 @@ typedef struct pty_process
 #define pty_process_teardown(loop)             (void)loop;
 #define pty_process_resize(job, width, height) (void)job; (void)width; (void)height;
 
-static inline PtyProcess pty_process_init(main_loop_st *loop, void *data)
+static inline pty_process_st pty_process_init(main_loop_st *loop, void *data)
 {
-    PtyProcess rv;
+    pty_process_st rv;
 
     rv.process = process_init(loop, kProcessTypePty, data);
     rv.term_name = NULL;

@@ -7,7 +7,7 @@
 
 #include "nvim/event/process.h"
 
-typedef struct pty_process
+typedef struct pty_process_s
 {
     process_st process;
     char *term_name;
@@ -15,11 +15,11 @@ typedef struct pty_process
     uint16_t height;
     struct winsize winsize;
     int tty_fd;
-} PtyProcess;
+} pty_process_st;
 
-static inline PtyProcess pty_process_init(main_loop_st *loop, void *data)
+static inline pty_process_st pty_process_init(main_loop_st *loop, void *data)
 {
-    PtyProcess rv;
+    pty_process_st rv;
     rv.process = process_init(loop, kProcessTypePty, data);
     rv.term_name = NULL;
     rv.width = 80;

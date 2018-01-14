@@ -63,7 +63,7 @@ FUNC_ATTR_NONNULL_ALL
             break;
 
         case kProcessTypePty:
-            status = pty_process_spawn((PtyProcess *)proc);
+            status = pty_process_spawn((pty_process_st *)proc);
             break;
 
         default:
@@ -305,7 +305,7 @@ FUNC_ATTR_NONNULL_ALL
             // close all streams for pty processes
             // to send SIGHUP to the process
             process_close_streams(proc);
-            pty_process_close_master((PtyProcess *)proc);
+            pty_process_close_master((pty_process_st *)proc);
             break;
 
         default:
@@ -362,7 +362,7 @@ static void process_close_event(void **argv)
 
     if(proc->type == kProcessTypePty)
     {
-        xfree(((PtyProcess *)proc)->term_name);
+        xfree(((pty_process_st *)proc)->term_name);
     }
 
     if(proc->cb)
@@ -419,7 +419,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             break;
 
         case kProcessTypePty:
-            pty_process_close((PtyProcess *)proc);
+            pty_process_close((pty_process_st *)proc);
             break;
 
         default:

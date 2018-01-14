@@ -36,7 +36,8 @@
 #endif
 
 /// @returns zero on success, or negative error code
-int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
+int pty_process_spawn(pty_process_st *ptyproc)
+FUNC_ATTR_NONNULL_ALL
 {
     static struct termios termios;
 
@@ -131,7 +132,7 @@ error:
     return status;
 }
 
-void pty_process_resize(PtyProcess *ptyproc,
+void pty_process_resize(pty_process_st *ptyproc,
                         uint16_t width,
                         uint16_t height)
 FUNC_ATTR_NONNULL_ALL
@@ -141,7 +142,7 @@ FUNC_ATTR_NONNULL_ALL
     ioctl(ptyproc->tty_fd, TIOCSWINSZ, &ptyproc->winsize);
 }
 
-void pty_process_close(PtyProcess *ptyproc)
+void pty_process_close(pty_process_st *ptyproc)
 FUNC_ATTR_NONNULL_ALL
 {
     pty_process_close_master(ptyproc);
@@ -153,7 +154,7 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-void pty_process_close_master(PtyProcess *ptyproc)
+void pty_process_close_master(pty_process_st *ptyproc)
 FUNC_ATTR_NONNULL_ALL
 {
     if(ptyproc->tty_fd >= 0)
@@ -168,7 +169,7 @@ void pty_process_teardown(main_loop_st *loop)
     uv_signal_stop(&loop->children_watcher);
 }
 
-static void init_child(PtyProcess *ptyproc)
+static void init_child(pty_process_st *ptyproc)
 FUNC_ATTR_NONNULL_ALL
 {
     unsetenv("COLUMNS");
@@ -205,15 +206,15 @@ static void init_termios(struct termios *termios)
 FUNC_ATTR_NONNULL_ALL
 {
     // Taken from pangoterm
-    termios->c_iflag = ICRNL|IXON;
-    termios->c_oflag = OPOST|ONLCR;
+    termios->c_iflag = ICRNL | IXON;
+    termios->c_oflag = OPOST | ONLCR;
 
 #ifdef TAB0
     termios->c_oflag |= TAB0;
 #endif
 
-    termios->c_cflag = CS8|CREAD;
-    termios->c_lflag = ISIG|ICANON|IEXTEN|ECHO|ECHOE|ECHOK;
+    termios->c_cflag = CS8 | CREAD;
+    termios->c_lflag = ISIG | ICANON | IEXTEN | ECHO | ECHOE | ECHOK;
 
     cfsetspeed(termios, 38400);
 

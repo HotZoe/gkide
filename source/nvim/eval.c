@@ -478,7 +478,7 @@ typedef struct
     union
     {
         libuv_process_st uv;
-        PtyProcess pty;
+        pty_process_st pty;
     } proc;
     Stream in;
     Stream out;
