@@ -421,18 +421,17 @@ typedef struct
     regsub_T synt; ///< \z( .. \) matches
 } regsubs_T;
 
-/// nfa_pim_T stores a Postponed Invisible Match.
-typedef struct nfa_pim_S nfa_pim_T;
-
-struct nfa_pim_S
+/// nfa_pim_st stores a Postponed Invisible Match.
+typedef struct nfa_pim_s nfa_pim_st;
+struct nfa_pim_s
 {
-    int result;         /// NFA_PIM_*, see below
+    int result;          /// NFA_PIM_*, see below
     nfa_state_st *state; ///< the invisible match start state
-    regsubs_T subs;     ///< submatch info, only party used
+    regsubs_T subs;      ///< submatch info, only party used
     union
     {
         bpos_st pos;
-        uchar_kt  *ptr;
+        uchar_kt *ptr;
     } end;              ///< where the match must end
 };
 
@@ -443,7 +442,7 @@ typedef struct
     int count;
 
     /// if pim.result != NFA_PIM_UNUSED:  postponed invisible match
-    nfa_pim_T pim;
+    nfa_pim_st pim;
 
     /// submatch info, only party used
     regsubs_T subs;
@@ -14818,7 +14817,7 @@ static void nfa_postprocess(nfa_regprog_st *prog)
 //      NFA execution code.
 // ----------------------------------
 
-// Values for done in nfa_pim_T.
+// Values for done in nfa_pim_st.
 #define NFA_PIM_UNUSED   0   ///< pim not used
 #define NFA_PIM_TODO     1   ///< pim not done yet
 #define NFA_PIM_MATCH    2   ///< pim executed, matches
@@ -14862,7 +14861,7 @@ static void log_subexpr(regsub_T *sub)
     }
 }
 
-static char *pim_info(nfa_pim_T *pim)
+static char *pim_info(nfa_pim_st *pim)
 {
     static char buf[30];
 
@@ -14886,7 +14885,7 @@ static proftime_kt *nfa_time_limit;
 static int nfa_time_count;
 
 /// Copy postponed invisible match info from @b from to @b to.
-static void copy_pim(nfa_pim_T *to, nfa_pim_T *from)
+static void copy_pim(nfa_pim_st *to, nfa_pim_st *from)
 {
     to->result = from->result;
     to->state = from->state;
@@ -15131,7 +15130,7 @@ static void report_state(char *action,
                          regsub_T *sub,
                          nfa_state_st *state,
                          int lid,
-                         nfa_pim_T *pim)
+                         nfa_pim_st *pim)
 {
     int col;
 
@@ -15167,7 +15166,7 @@ static void report_state(char *action,
 static int has_state_with_pos(nfa_list_st *l,
                               nfa_state_st *state,
                               regsubs_T *subs,
-                              nfa_pim_T *pim)
+                              nfa_pim_st *pim)
 {
     nfa_thread_T *thread;
 
@@ -15191,7 +15190,7 @@ static int has_state_with_pos(nfa_list_st *l,
 /// @return
 /// TRUE if "one" and "two" are equal.
 /// That includes when both are not set.
-static int pim_equal(nfa_pim_T *one, nfa_pim_T *two)
+static int pim_equal(nfa_pim_st *one, nfa_pim_st *two)
 {
     int one_unused = (one == NULL || one->result == NFA_PIM_UNUSED);
     int two_unused = (two == NULL || two->result == NFA_PIM_UNUSED);
@@ -15360,7 +15359,7 @@ static int state_in_list(nfa_list_st *l,
 static regsubs_T *addstate(nfa_list_st *l,
                            nfa_state_st *state,
                            regsubs_T *subs_arg,
-                           nfa_pim_T *pim,
+                           nfa_pim_st *pim,
                            int off_arg)
 {
     int subidx;
@@ -15853,7 +15852,7 @@ static regsubs_T *addstate(nfa_list_st *l,
 static void addstate_here(nfa_list_st *l,
                           nfa_state_st *state,
                           regsubs_T *subs,
-                          nfa_pim_T *pim,
+                          nfa_pim_st *pim,
                           int *ip)
 {
     int count;
@@ -16224,7 +16223,7 @@ static bool nfa_re_num_cmp(uintmax_t val, int op, uintmax_t pos)
 /// @b pim is NULL or contains info about a
 /// Postponed Invisible Match (start position).
 static int recursive_regmatch(nfa_state_st *state,
-                              nfa_pim_T *pim,
+                              nfa_pim_st *pim,
                               nfa_regprog_st *prog,
                               regsubs_T *submatch,
                               regsubs_T *m,
@@ -17119,11 +17118,11 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     }
                     else
                     {
-                        nfa_pim_T pim;
+                        nfa_pim_st pim;
 
                         // First try matching what follows. Only if a match
                         // is found verify the invisible match matches. Add a
-                        // nfa_pim_T to the following states, it contains info
+                        // nfa_pim_st to the following states, it contains info
                         // about the invisible match.
                         pim.state = t->state;
                         pim.result = NFA_PIM_TODO;
@@ -18085,8 +18084,8 @@ static int nfa_regmatch(nfa_regprog_st *prog,
 
             if(add_state != NULL)
             {
-                nfa_pim_T *pim;
-                nfa_pim_T pim_copy;
+                nfa_pim_st *pim;
+                nfa_pim_st pim_copy;
 
                 if(t->pim.result == NFA_PIM_UNUSED)
                 {
