@@ -549,7 +549,7 @@ typedef enum dictlist_type_e
     kDictListKeys,   ///< List dictionary keys.
     kDictListValues, ///< List dictionary values.
     kDictListItems,  ///< List dictionary contents: [keys, values].
-} DictListType;
+} dictlist_type_et;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "eval.c.generated.h"
@@ -14769,7 +14769,7 @@ static void f_islocked(typval_st *argvars,
 /// @param[in]  what   What to save in rettv.
 static void dict_list(typval_st *const tv,
                       typval_st *const rettv,
-                      const DictListType what)
+                      const dictlist_type_et what)
 {
     if(tv->v_type != kNvarDict)
     {
