@@ -154,32 +154,32 @@ typedef struct wordcount_S
 /// Information used when looking for suggestions.
 typedef struct suginfo_S
 {
-    garray_st su_ga;                 ///< suggestions, contains "suggest_T"
-    int su_maxcount;                ///< max. number of suggestions displayed
-    int su_maxscore;                ///< maximum score for adding to su_ga
-    int su_sfmaxscore;              ///< idem, for when doing soundfold words
-    garray_st su_sga;                ///< like su_ga, sound-folded scoring
+    garray_st su_ga;                  ///< suggestions, contains "suggest_T"
+    int su_maxcount;                  ///< max. number of suggestions displayed
+    int su_maxscore;                  ///< maximum score for adding to su_ga
+    int su_sfmaxscore;                ///< idem, for when doing soundfold words
+    garray_st su_sga;                 ///< like su_ga, sound-folded scoring
     uchar_kt *su_badptr;              ///< start of bad word in line
-    int su_badlen;                  ///< length of detected bad word in line
-    int su_badflags;                ///< caps flags for bad word
+    int su_badlen;                    ///< length of detected bad word in line
+    int su_badflags;                  ///< caps flags for bad word
     uchar_kt su_badword[MAXWLEN];     ///< bad word truncated at su_badlen
     uchar_kt su_fbadword[MAXWLEN];    ///< su_badword case-folded
     uchar_kt su_sal_badword[MAXWLEN]; ///< su_badword soundfolded
-    hashtable_st su_banned;            ///< table with banned words
-    slang_st *su_sallang;            ///< default language for sound folding
+    hashtable_st su_banned;           ///< table with banned words
+    slang_st *su_sallang;             ///< default language for sound folding
 } suginfo_T;
 
 /// One word suggestion. Used in @b si_ga
 typedef struct
 {
-    uchar_kt *st_word;    ///< suggested word, allocated string
+    uchar_kt *st_word;  ///< suggested word, allocated string
     int st_wordlen;     ///< STRLEN(st_word)
     int st_orglen;      ///< length of replaced text
     int st_score;       ///< lower is better
     int st_altscore;    ///< used when st_score compares equal
     bool st_salscore;   ///< st_score is for soundalike
     bool st_had_bonus;  ///< bonus already included in score
-    slang_st *st_slang;  ///< language used for sound folding
+    slang_st *st_slang; ///< language used for sound folding
 } suggest_T;
 
 #define SUG(ga, i) \
@@ -238,50 +238,50 @@ typedef struct
 #define SCORE_SFMAX2    300   ///< maximum score for second try
 #define SCORE_SFMAX3    400   ///< maximum score for third try
 
-#define SCORE_BIG       SCORE_INS * 3   ///< big difference
-#define SCORE_MAXMAX    999999          ///< accept any score
-#define SCORE_LIMITMAX  350             ///< for spell_edit_score_limit()
+#define SCORE_BIG       SCORE_INS * 3 ///< big difference
+#define SCORE_MAXMAX    999999        ///< accept any score
+#define SCORE_LIMITMAX  350           ///< for spell_edit_score_limit()
 
 /// for spell_edit_score_limit() we need to know the minimum value of
 /// SCORE_ICASE, SCORE_SWAP, SCORE_DEL, SCORE_SIMILAR and SCORE_INS
 #define SCORE_EDIT_MIN  SCORE_SIMILAR
 
 /// Structure to store info for word matching.
-typedef struct matchinf_S
+typedef struct matchinf_s
 {
-    langp_st *mi_lp;        ///< info for language and region
+    langp_st *mi_lp;    ///< info for language and region
 
     // pointers to original text to be checked
-    uchar_kt *mi_word;       ///< start of word being checked
-    uchar_kt *mi_end;        ///< end of matching word so far
-    uchar_kt *mi_fend;       ///< next char to be added to mi_fword
-    uchar_kt  *mi_cend;      ///< char after what was used for mi_capflags
+    uchar_kt *mi_word;  ///< start of word being checked
+    uchar_kt *mi_end;   ///< end of matching word so far
+    uchar_kt *mi_fend;  ///< next char to be added to mi_fword
+    uchar_kt  *mi_cend; ///< char after what was used for mi_capflags
 
     // case-folded text
     uchar_kt mi_fword[MAXWLEN + 1]; ///< mi_word case-folded
-    int mi_fwordlen;              ///< nr of valid bytes in mi_fword
+    int mi_fwordlen;    ///< nr of valid bytes in mi_fword
 
     // for when checking word after a prefix
-    int mi_prefarridx;   ///< index in sl_pidxs with list of affixID/condition
-    int mi_prefcnt;      ///< number of entries at mi_prefarridx
-    int mi_prefixlen;    ///< byte length of prefix
-    int mi_cprefixlen;   ///< byte length of prefix in original case
+    int mi_prefarridx;  ///< index in sl_pidxs with list of affixID/condition
+    int mi_prefcnt;     ///< number of entries at mi_prefarridx
+    int mi_prefixlen;   ///< byte length of prefix
+    int mi_cprefixlen;  ///< byte length of prefix in original case
 
     // for when checking a compound word
-    int mi_compoff;               ///< start of following word offset
+    int mi_compoff;     ///< start of following word offset
     uchar_kt mi_compflags[MAXWLEN]; ///< flags for compound words used
-    int mi_complen;               ///< nr of compound words used
-    int mi_compextra;             ///< nr of COMPOUNDROOT words
+    int mi_complen;     ///< nr of compound words used
+    int mi_compextra;   ///< nr of COMPOUNDROOT words
 
     // others
-    int mi_result;     ///< result so far: SP_BAD, SP_OK, etc.
-    int mi_capflags;   ///< WF_ONECAP WF_ALLCAP WF_KEEPCAP
-    win_st *mi_win;     ///< buffer being checked
+    int mi_result;   ///< result so far: SP_BAD, SP_OK, etc.
+    int mi_capflags; ///< WF_ONECAP WF_ALLCAP WF_KEEPCAP
+    win_st *mi_win;  ///< buffer being checked
 
     // for NOBREAK
     int mi_result2;    ///< "mi_resul" without following word
-    uchar_kt *mi_end2;   ///< "mi_end" without following word
-} matchinf_T;
+    uchar_kt *mi_end2; ///< "mi_end" without following word
+} matchinf_st;
 
 /// Structure used for the cookie argument of do_in_runtimepath().
 typedef struct spelload_s
@@ -378,7 +378,7 @@ size_t spell_check(win_st *wp,
 {
     // Most things are put in "mi" so that
     // it can be passed to functions quickly.
-    matchinf_T mi;
+    matchinf_st mi;
     size_t nrlen = 0; // found a number first
     int c;
     size_t wrongcaplen = 0;
@@ -398,7 +398,7 @@ size_t spell_check(win_st *wp,
         return 1;
     }
 
-    memset(&mi, 0, sizeof(matchinf_T));
+    memset(&mi, 0, sizeof(matchinf_st));
 
     // A number is always OK. Also skip hexadecimal numbers 0xFF99 and 0X99FF.
     // But always do check spelling to find "3GPP" and "11 julifeest".
@@ -623,7 +623,7 @@ size_t spell_check(win_st *wp,
 ///   fold-case word tree.
 ///
 /// For a match mip->mi_result is updated.
-static void find_word(matchinf_T *mip, int mode)
+static void find_word(matchinf_st *mip, int mode)
 {
     int wlen = 0;
     int flen;
@@ -1508,7 +1508,7 @@ static int valid_word_prefix(int totprefcnt,
 /// word, find a prefix in a compound word.
 ///
 /// For a match mip->mi_result is updated.
-static void find_prefix(matchinf_T *mip, int mode)
+static void find_prefix(matchinf_st *mip, int mode)
 {
     idx_kt arridx = 0;
     int len;
@@ -1648,7 +1648,7 @@ static void find_prefix(matchinf_T *mip, int mode)
 /// Do until next non-word character for efficiency.
 /// Include the non-word character too.
 /// Return the length of the folded chars in bytes.
-static int fold_more(matchinf_T *mip)
+static int fold_more(matchinf_st *mip)
 {
     int flen;
     uchar_kt *p;
