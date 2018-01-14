@@ -64,7 +64,7 @@
 #include "nvim/os/time.h"
 
 /// Struct to hold the sign properties.
-typedef struct sign sign_T;
+typedef struct sign sign_st;
 
 /// Case matching style to use for :substitute
 typedef enum
@@ -6966,7 +6966,7 @@ void ex_helptags(exargs_st *eap)
 
 struct sign
 {
-    sign_T *sn_next;    ///< next sign in list
+    sign_st *sn_next;    ///< next sign in list
     int sn_typenr;      ///< type number of sign
     uchar_kt *sn_name;    ///< name of sign
     uchar_kt *sn_icon;    ///< name of pixmap
@@ -6975,7 +6975,7 @@ struct sign
     int sn_text_hl;     ///< highlight ID for text
 };
 
-static sign_T *first_sign = NULL;
+static sign_st *first_sign = NULL;
 static int next_sign_typenr = 1;
 
 /// @b :helpclose Close one help window
@@ -7044,8 +7044,8 @@ void ex_sign(exargs_st *eap)
     uchar_kt *arg = eap->arg;
     uchar_kt *p;
     int idx;
-    sign_T *sp;
-    sign_T *sp_prev;
+    sign_st *sp;
+    sign_st *sp_prev;
 
     // Parse the subcommand.
     p = skiptowhite(arg);
@@ -7107,10 +7107,10 @@ void ex_sign(exargs_st *eap)
                 // ":sign define {name} ...": define a sign
                 if(sp == NULL)
                 {
-                    sign_T *lp;
+                    sign_st *lp;
                     int start = next_sign_typenr;
                     // Allocate a new sign.
-                    sp = xcalloc(1, sizeof(sign_T));
+                    sp = xcalloc(1, sizeof(sign_st));
 
                     // Check that next_sign_typenr is not already being used.
                     // This only happens after wrapping around. Hopefully
@@ -7520,7 +7520,7 @@ void ex_sign(exargs_st *eap)
 }
 
 /// List one sign.
-static void sign_list_defined(sign_T *sp)
+static void sign_list_defined(sign_st *sp)
 {
     smsg("sign %s", sp->sn_name);
 
@@ -7569,7 +7569,7 @@ static void sign_list_defined(sign_T *sp)
 }
 
 /// Undefine a sign and free its memory.
-static void sign_undefine(sign_T *sp, sign_T *sp_prev)
+static void sign_undefine(sign_st *sp, sign_st *sp_prev)
 {
     xfree(sp->sn_name);
     xfree(sp->sn_icon);
@@ -7591,7 +7591,7 @@ static void sign_undefine(sign_T *sp, sign_T *sp_prev)
 /// If "line" is TRUE: line highl, if FALSE: text highl.
 int sign_get_attr(int typenr, int line)
 {
-    sign_T *sp;
+    sign_st *sp;
 
     for(sp = first_sign; sp != NULL; sp = sp->sn_next)
         if(sp->sn_typenr == typenr)
@@ -7621,7 +7621,7 @@ int sign_get_attr(int typenr, int line)
 /// Returns NULL if there isn't one.
 uchar_kt *sign_get_text(int typenr)
 {
-    sign_T *sp;
+    sign_st *sp;
 
     for(sp = first_sign; sp != NULL; sp = sp->sn_next)
     {
@@ -7638,7 +7638,7 @@ uchar_kt *sign_get_text(int typenr)
 /// Get the name of a sign by its typenr.
 uchar_kt *sign_typenr2name(int typenr)
 {
-    sign_T *sp;
+    sign_st *sp;
 
     for(sp = first_sign; sp != NULL; sp = sp->sn_next)
     {
@@ -7702,7 +7702,7 @@ uchar_kt *get_sign_name(expand_st *FUNC_ARGS_UNUSED_REALY(x), int idx)
             // Complete with name of signs already defined
             int current_idx = 0;
 
-            for(sign_T *sp = first_sign; sp != NULL; sp = sp->sn_next)
+            for(sign_st *sp = first_sign; sp != NULL; sp = sp->sn_next)
             {
                 if(current_idx++ == idx)
                 {
