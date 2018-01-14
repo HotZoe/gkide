@@ -3,7 +3,7 @@
 
 // This file is not compiled, just parsed for definitons
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-    # error "don't include this file, include nvim/ui.h"
+    #error "don't include this file, include nvim/ui.h"
 #endif
 
 #include "nvim/api/private/defs.h"
@@ -68,4 +68,4 @@ FUNC_API_SINCE(3) FUNC_API_REMOTE_ONLY;
 void tabline_update(Tabpage current, Array tabs)
 FUNC_API_SINCE(3) FUNC_API_REMOTE_ONLY;
 
-#endif  // NVIM_API_UI_EVENTS_IN_H
+#endif // NVIM_API_UI_EVENTS_IN_H

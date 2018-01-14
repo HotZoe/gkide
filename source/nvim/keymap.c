@@ -20,23 +20,23 @@
 #endif
 
 /// Some useful tables.
-static struct modmasktable
+static struct modmasktable_s
 {
-    short mod_mask;   ///< Bit-mask for particular key modifier
-    short mod_flag;   ///< Bit(s) for particular key modifier
-    uchar_kt name;      ///< Single letter name of modifier
+    short mod_mask;  ///< Bit-mask for particular key modifier
+    short mod_flag;  ///< Bit(s) for particular key modifier
+    uchar_kt name;   ///< Single letter name of modifier
 } mod_mask_table[] =
 {
-    {MOD_MASK_ALT,            MOD_MASK_ALT,    (uchar_kt)'M'},
-    {MOD_MASK_META,           MOD_MASK_META,   (uchar_kt)'T'},
-    {MOD_MASK_CTRL,           MOD_MASK_CTRL,   (uchar_kt)'C'},
-    {MOD_MASK_SHIFT,          MOD_MASK_SHIFT,  (uchar_kt)'S'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_2CLICK, (uchar_kt)'2'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_3CLICK, (uchar_kt)'3'},
-    {MOD_MASK_MULTI_CLICK,    MOD_MASK_4CLICK, (uchar_kt)'4'},
-    {MOD_MASK_CMD,            MOD_MASK_CMD,    (uchar_kt)'D'},
-    {MOD_MASK_ALT,            MOD_MASK_ALT,    (uchar_kt)'A'},
-    {0, 0, NUL} // 'A' must be the last one; NUL for the end
+    { MOD_MASK_ALT,          MOD_MASK_ALT,     (uchar_kt)'M' },
+    { MOD_MASK_META,         MOD_MASK_META,    (uchar_kt)'T' },
+    { MOD_MASK_CTRL,         MOD_MASK_CTRL,    (uchar_kt)'C' },
+    { MOD_MASK_SHIFT,        MOD_MASK_SHIFT,   (uchar_kt)'S' },
+    { MOD_MASK_MULTI_CLICK,  MOD_MASK_2CLICK,  (uchar_kt)'2' },
+    { MOD_MASK_MULTI_CLICK,  MOD_MASK_3CLICK,  (uchar_kt)'3' },
+    { MOD_MASK_MULTI_CLICK,  MOD_MASK_4CLICK,  (uchar_kt)'4' },
+    { MOD_MASK_CMD,          MOD_MASK_CMD,     (uchar_kt)'D' },
+    { MOD_MASK_ALT,          MOD_MASK_ALT,     (uchar_kt)'A' },
+    { 0, 0, NUL } // 'A' must be the last one; NUL for the end
 };
 
 /// Shifted key terminal codes and their unshifted equivalent.
