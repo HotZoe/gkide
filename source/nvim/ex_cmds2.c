@@ -94,25 +94,25 @@ typedef struct sn_prl_s
 /// It is shared between do_source() and getsourceline().
 /// This is required, because it needs to be handed to do_cmdline() and
 /// sourcing can be done recursively.
-struct source_cookie
+typedef struct source_cookie_s
 {
-    FILE *fp;                     ///< opened file for sourcing
-    uchar_kt *nextline;             ///< if not NULL: line that was read ahead
-    int finished;                 ///< **:finish** used
+    FILE *fp;               ///< opened file for sourcing
+    uchar_kt *nextline;     ///< if not NULL: line that was read ahead
+    int finished;           ///< **:finish** used
 
 #if defined(USE_CRNL)
-    int fileformat;               ///< EOL_UNKNOWN, EOL_UNIX or EOL_DOS
-    bool error;                   ///< true if LF found after CR-LF
+    int fileformat;         ///< EOL_UNKNOWN, EOL_UNIX or EOL_DOS
+    bool error;             ///< true if LF found after CR-LF
 #endif
 
-    linenum_kt breakpoint;          ///< next line with breakpoint or zero
-    uchar_kt *fname;                ///< name of sourced file
-    int dbg_tick;                 ///< debug_tick when breakpoint was set
-    int level;                    ///< top nesting level of sourced file
-    vimconv_T conv;               ///< type of conversion
-};
+    linenum_kt breakpoint;  ///< next line with breakpoint or zero
+    uchar_kt *fname;        ///< name of sourced file
+    int dbg_tick;           ///< debug_tick when breakpoint was set
+    int level;              ///< top nesting level of sourced file
+    vimconv_T conv;         ///< type of conversion
+} source_cookie_st;
 
-#define PRL_ITEM(si, idx)     (((sn_prl_st *)(si)->sn_prl_ga.ga_data)[(idx)])
+#define PRL_ITEM(si, idx)   (((sn_prl_st *)(si)->sn_prl_ga.ga_data)[(idx)])
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds2.c.generated.h"
@@ -3434,19 +3434,19 @@ static void cmd_source(uchar_kt *fname, exargs_st *eap)
 /// @return address holding the next breakpoint line for a source cookie
 linenum_kt *source_breakpoint(void *cookie)
 {
-    return &((struct source_cookie *)cookie)->breakpoint;
+    return &((source_cookie_st *)cookie)->breakpoint;
 }
 
 /// Return the address holding the debug tick for a source cookie.
 int *source_dbg_tick(void *cookie)
 {
-    return &((struct source_cookie *)cookie)->dbg_tick;
+    return &((source_cookie_st *)cookie)->dbg_tick;
 }
 
 /// Return the nesting level for a source cookie.
 int source_level(void *cookie)
 {
-    return ((struct source_cookie *)cookie)->level;
+    return ((source_cookie_st *)cookie)->level;
 }
 
 /// Special function to open a file without handle inheritance.
@@ -3522,7 +3522,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 
     // Apply SourcePre autocommands, they may get the file.
     apply_autocmds(EVENT_SOURCEPRE, fname_exp, fname_exp, false, curbuf);
-    struct source_cookie cookie;
+    source_cookie_st cookie;
     cookie.fp = fopen_noinh_readbin((char *)fname_exp);
 
     if(cookie.fp == NULL && check_other)
@@ -3904,7 +3904,7 @@ uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
 {
     uchar_kt *line;
     uchar_kt *p;
-    struct source_cookie *sp = (struct source_cookie *)cookie;
+    source_cookie_st *sp = (source_cookie_st *)cookie;
 
     // If breakpoints have been added/deleted need to check for it.
     if(sp->dbg_tick < debug_tick)
@@ -4019,7 +4019,7 @@ uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
     return line;
 }
 
-static uchar_kt *get_one_sourceline(struct source_cookie *sp)
+static uchar_kt *get_one_sourceline(source_cookie_st *sp)
 {
     garray_st ga;
     int len;
@@ -4238,7 +4238,7 @@ void script_line_end(void)
 /// Without the multi-byte feature it's simply ignored.
 void ex_scriptencoding(exargs_st *eap)
 {
-    struct source_cookie *sp;
+    source_cookie_st *sp;
     uchar_kt *name;
 
     if(!getline_equal(eap->getline, eap->cookie, getsourceline))
@@ -4257,7 +4257,7 @@ void ex_scriptencoding(exargs_st *eap)
     }
 
     // Setup for conversion from the specified encoding to 'encoding'.
-    sp = (struct source_cookie *)getline_cookie(eap->getline, eap->cookie);
+    sp = (source_cookie_st *)getline_cookie(eap->getline, eap->cookie);
     convert_setup(&sp->conv, name, p_enc);
 
     if(name != eap->arg)
@@ -4288,8 +4288,8 @@ void do_finish(exargs_st *eap, int reanimate)
 
     if(reanimate)
     {
-        ((struct source_cookie *)getline_cookie(eap->getline,
-                                                eap->cookie))->finished = false;
+        ((source_cookie_st *)getline_cookie(eap->getline,
+                                            eap->cookie))->finished = false;
     }
 
     // Cleanup (and inactivate) conditionals, but stop when a try conditional
@@ -4305,8 +4305,8 @@ void do_finish(exargs_st *eap, int reanimate)
     }
     else
     {
-        ((struct source_cookie *)getline_cookie(eap->getline,
-                                                eap->cookie))->finished = true;
+        ((source_cookie_st *)getline_cookie(eap->getline,
+                                            eap->cookie))->finished = true;
     }
 }
 
@@ -4317,7 +4317,7 @@ void do_finish(exargs_st *eap, int reanimate)
 bool source_finished(line_getter_ft fgetline, void *cookie)
 {
     return getline_equal(fgetline, cookie, getsourceline)
-           && ((struct source_cookie *)getline_cookie(fgetline, cookie))->finished;
+           && ((source_cookie_st *)getline_cookie(fgetline, cookie))->finished;
 }
 
 /// ":checktime [buffer]"
