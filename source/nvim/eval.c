@@ -273,18 +273,18 @@ struct func_call_s
     TV_DICTITEM_STRUCT(VAR_SHORT_LEN + 1) fixvar[FIXVAR_CNT];
 
     dict_st l_vars;                        ///< @b l: local function variables.
-    scope_dict_st l_vars_var;               ///< Variable for @b l: scope.
+    scope_dict_st l_vars_var;              ///< Variable for @b l: scope.
     dict_st l_avars;                       ///< @b a: argument variables.
-    scope_dict_st l_avars_var;              ///< Variable for @b a: scope.
+    scope_dict_st l_avars_var;             ///< Variable for @b a: scope.
     list_st l_varlist;                     ///< List for @b a:000
     listitem_st l_listitems[MAX_FUNC_ARGS];///< List items for a:000.
 
     typval_st *rettv;      ///< Return value.
-    linenum_kt breakpoint;   ///< Next line with breakpoint or zero.
+    linenum_kt breakpoint; ///< Next line with breakpoint or zero.
     int dbg_tick;          ///< Debug_tick when breakpoint was set.
     int level;             ///< Top nesting level of executed function.
-    proftime_kt prof_child; ///< Time spent in a child.
-    func_call_st *caller;    ///< Calling function or NULL.
+    proftime_kt prof_child;///< Time spent in a child.
+    func_call_st *caller;  ///< Calling function or NULL.
     int fc_refcount;       ///< Number of user functions that reference this funccall.
     int fc_copyID;         ///< CopyID used for garbage collection.
     garray_st fc_funcs;    ///< List of ufunc_st* which keep a reference to @b func
@@ -329,11 +329,9 @@ typedef enum var_flavour_e
 
 /// for init ::vimvars only
 #define VV(idx, name, type, flags)       \
-    [idx] =                              \
-    {                                    \
+    [idx] = {                            \
         .vv_name = name,                 \
-        .vv_di =                         \
-        {                                \
+        .vv_di = {                       \
             .di_tv = { .v_type = type }, \
             .di_flags = 0,               \
             .di_key = { 0 },             \
@@ -343,16 +341,16 @@ typedef enum var_flavour_e
 
 typedef struct vimvar_s
 {
-    ///< Name of the variable, without @b v:
+    /// Name of the variable, without @b v:
     /// the length is <= 16
     char *vv_name;
     struct
     {
-        typval_st di_tv;      ///< scope dictionary
-        uint8_t di_flags;     ///< Flags.
-        uchar_kt di_key[17];  ///< Key value.
-    } vv_di;                  ///< Value and name for key (max 16 chars)
-    char vv_flags;            ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
+        typval_st di_tv;     ///< scope dictionary
+        uint8_t di_flags;    ///< Flags.
+        uchar_kt di_key[17]; ///< Key value.
+    } vv_di;                 ///< Value and name for key (max 16 chars)
+    char vv_flags;           ///< Flags: #VV_COMPAT, #VV_RO, #VV_RO_SBX.
 } vimvar_st;
 
 /// Array to hold the value of @b v: variables.
@@ -543,7 +541,7 @@ typedef enum assert_type_e
     ASSERT_NOTMATCH,
     ASSERT_INRANGE,
     ASSERT_OTHER,
-} assert_type_T;
+} assert_type_et;
 
 /// Type for dict_list function
 typedef enum dictlist_type_e
@@ -8789,7 +8787,7 @@ static void fill_assert_error(garray_st *gap,
                               uchar_kt *exp_str,
                               typval_st *exp_tv,
                               typval_st *got_tv,
-                              assert_type_T atype)
+                              assert_type_et atype)
 {
     uchar_kt *tofree;
 
@@ -8861,7 +8859,7 @@ static void assert_error(garray_st *gap)
                           (ptrdiff_t)gap->ga_len);
 }
 
-static void assert_equal_common(typval_st *argvars, assert_type_T atype)
+static void assert_equal_common(typval_st *argvars, assert_type_et atype)
 {
     garray_st ga;
 
@@ -9045,7 +9043,7 @@ static void f_assert_false(typval_st *argvars,
     assert_bool(argvars, false);
 }
 
-static void assert_match_common(typval_st *argvars, assert_type_T atype)
+static void assert_match_common(typval_st *argvars, assert_type_et atype)
 {
     char buf1[NUMBUFLEN];
     char buf2[NUMBUFLEN];
