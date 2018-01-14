@@ -17,7 +17,7 @@
     #include "state.c.generated.h"
 #endif
 
-void state_enter(VimState *s)
+void state_enter(nvim_state_st *s)
 {
     for(;;)
     {

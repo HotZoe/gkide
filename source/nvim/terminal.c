@@ -80,7 +80,7 @@
 
 typedef struct terminal_state
 {
-    VimState state;
+    nvim_state_st state;
     Terminal *term;
     int save_rd;    ///< saved value of RedrawingDisabled
     bool close;
@@ -493,7 +493,7 @@ void terminal_enter(void)
     }
 }
 
-static int terminal_execute(VimState *state, int key)
+static int terminal_execute(nvim_state_st *state, int key)
 {
     TerminalState *s = (TerminalState *)state;
 

@@ -60,7 +60,7 @@
 ///
 typedef struct normal_state_s
 {
-    VimState state;
+    nvim_state_st state;
     linenum_kt conceal_old_cursor_line;
     linenum_kt conceal_new_cursor_line;
     bool command_finished;
@@ -1103,7 +1103,7 @@ normal_end:
     opcount = s->ca.opcount;
 }
 
-static int normal_execute(VimState *state, int key)
+static int normal_execute(nvim_state_st *state, int key)
 {
     normal_state_st *s = (normal_state_st *)state;
     s->command_finished = false;
@@ -1527,7 +1527,7 @@ static void normal_redraw(normal_state_st *s)
 /// - 1 if the iteration should continue normally
 /// - -1 if the iteration should be skipped
 /// - 0 if the main loop must exit
-static int normal_check(VimState *state)
+static int normal_check(nvim_state_st *state)
 {
     normal_state_st *s = (normal_state_st *)state;
     normal_check_stuff_buffer(s);

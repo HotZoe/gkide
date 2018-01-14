@@ -85,7 +85,7 @@ struct cmdline_info
 
 typedef struct command_line_state
 {
-    VimState state;
+    nvim_state_st state;
     int firstc;
     long count;
     int indent;
@@ -367,7 +367,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     }
 }
 
-static int command_line_check(VimState *FUNC_ARGS_UNUSED_REALY(state))
+static int command_line_check(nvim_state_st *FUNC_ARGS_UNUSED_REALY(state))
 {
     // Don't redirect the typed command.
     // Repeated, because a ":redir" inside
@@ -381,7 +381,7 @@ static int command_line_check(VimState *FUNC_ARGS_UNUSED_REALY(state))
     return 1;
 }
 
-static int command_line_execute(VimState *state, int key)
+static int command_line_execute(nvim_state_st *state, int key)
 {
     if(key == K_IGNORE || key == K_PASTE)
     {

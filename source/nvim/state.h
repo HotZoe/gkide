@@ -5,12 +5,12 @@
 
 #include <stddef.h>
 
-typedef struct vim_state VimState;
+typedef struct nvim_state_s nvim_state_st;
 
-typedef int(*state_check_callback)(VimState *state);
-typedef int(*state_execute_callback)(VimState *state, int key);
+typedef int(*state_check_callback)(nvim_state_st *state);
+typedef int(*state_execute_callback)(nvim_state_st *state, int key);
 
-struct vim_state
+struct nvim_state_s
 {
     state_check_callback check;
     state_execute_callback execute;

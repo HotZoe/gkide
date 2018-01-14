@@ -193,7 +193,7 @@ static int compl_opt_refresh_always = FALSE;
 
 typedef struct insert_state
 {
-    VimState state;
+    nvim_state_st state;
     cmdarg_st *ca;
     int mincol;
     int cmdchar;
@@ -550,7 +550,7 @@ static void insert_enter(InsertState *s)
     did_cursorhold = false;
 }
 
-static int insert_check(VimState *state)
+static int insert_check(nvim_state_st *state)
 {
     InsertState *s = (InsertState *)state;
 
@@ -706,7 +706,7 @@ static int insert_check(VimState *state)
     return 1;
 }
 
-static int insert_execute(VimState *state, int key)
+static int insert_execute(nvim_state_st *state, int key)
 {
     if(key == K_IGNORE)
     {
