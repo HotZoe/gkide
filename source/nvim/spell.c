@@ -286,18 +286,18 @@ typedef struct matchinf_S
 /// Structure used for the cookie argument of do_in_runtimepath().
 typedef struct spelload_S
 {
-    uchar_kt sl_lang[MAXWLEN + 1];  ///< language name
+    uchar_kt sl_lang[MAXWLEN + 1]; ///< language name
     slang_st *sl_slang;            ///< resulting slang_st struct
-    int sl_nobreak;               ///< NOBREAK language found
+    int sl_nobreak;                ///< NOBREAK language found
 } spelload_T;
 
 #define SY_MAXLEN   30
 
-typedef struct syl_item_S
+typedef struct syl_item_s
 {
-    uchar_kt sy_chars[SY_MAXLEN];  ///< the sequence of chars
-    int sy_len;                  ///<
-} syl_item_T;
+    uchar_kt sy_chars[SY_MAXLEN]; ///< the sequence of chars
+    int sy_len;                   ///<
+} syl_item_st;
 
 spelltab_st spelltab;
 int did_set_spelltab;
@@ -2433,7 +2433,7 @@ int init_syl_tab(slang_st *slang)
     uchar_kt *p;
     uchar_kt *s;
     int l;
-    ga_init(&slang->sl_syl_items, sizeof(syl_item_T), 4);
+    ga_init(&slang->sl_syl_items, sizeof(syl_item_st), 4);
     p = vim_strchr(slang->sl_syllable, '/');
 
     while(p != NULL)
@@ -2462,7 +2462,7 @@ int init_syl_tab(slang_st *slang)
             return SP_FORMERROR;
         }
 
-        syl_item_T *syl = GA_APPEND_VIA_PTR(syl_item_T, &slang->sl_syl_items);
+        syl_item_st *syl = GA_APPEND_VIA_PTR(syl_item_st, &slang->sl_syl_items);
         STRLCPY(syl->sy_chars, s, l + 1);
         syl->sy_len = l;
     }
@@ -2479,7 +2479,7 @@ static int count_syllables(slang_st *slang, uchar_kt *word)
     bool skip = false;
     uchar_kt *p;
     int len;
-    syl_item_T *syl;
+    syl_item_st *syl;
     int c;
 
     if(slang->sl_syllable == NULL)
@@ -2502,7 +2502,7 @@ static int count_syllables(slang_st *slang, uchar_kt *word)
 
         for(int i = 0; i < slang->sl_syl_items.ga_len; ++i)
         {
-            syl = ((syl_item_T *)slang->sl_syl_items.ga_data) + i;
+            syl = ((syl_item_st *)slang->sl_syl_items.ga_data) + i;
 
             if(syl->sy_len > len
                && STRNCMP(p, syl->sy_chars, syl->sy_len) == 0)
