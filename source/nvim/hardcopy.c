@@ -229,14 +229,14 @@ typedef struct prt_ps_mbfont_s
     char *defcs;
 } prt_ps_mbfont_st;
 
-struct prt_ps_resource_S
+typedef struct prt_ps_resource_s
 {
     uchar_kt name[64];
     uchar_kt filename[MAXPATHL + 1];
     int type;
     uchar_kt title[256];
     uchar_kt version[256];
-};
+} prt_ps_resource_st;
 
 typedef struct prt_dsc_comment_s
 {
@@ -290,8 +290,8 @@ uchar_kt *parse_printmbfont(void)
 /// Returns an error message for an illegal option, NULL otherwise.
 /// Only used for the printer at the moment...
 static uchar_kt *parse_list_options(uchar_kt *option_str,
-                                  prt_opttable_st *table,
-                                  size_t table_size)
+                                    prt_opttable_st *table,
+                                    size_t table_size)
 {
     prt_opttable_st *old_opts;
     uchar_kt *ret = NULL;
@@ -385,13 +385,13 @@ static uchar_kt *parse_list_options(uchar_kt *option_str,
 }
 
 
-/// If using a dark background, the colors will probably be too bright to show
-/// up well on white paper, so reduce their brightness.
+/// If using a dark background, the colors will probably be too bright
+/// to show up well on white paper, so reduce their brightness.
 static uint32_t darken_rgb(uint32_t rgb)
 {
     return ((rgb >> 17) << 16)
-           + (((rgb & 0xff00) >> 9) << 8)
-           + ((rgb & 0xff) >> 1);
+            + (((rgb & 0xff00) >> 9) << 8)
+            + ((rgb & 0xff) >> 1);
 }
 
 static uint32_t prt_get_term_color(int colorindex)
@@ -1843,7 +1843,7 @@ static void prt_resource_name(uchar_kt *filename, void *cookie)
     }
 }
 
-static int prt_find_resource(char *name, struct prt_ps_resource_S *resource)
+static int prt_find_resource(char *name, prt_ps_resource_st *resource)
 {
     uchar_kt *buffer;
     int retval;
@@ -2009,9 +2009,10 @@ static int prt_next_dsc(prt_dsc_line_st *p_dsc_line)
     return TRUE;
 }
 
-/// Improved hand crafted parser to get the type, title, and version number of a
-/// PS resource file so the file details can be added to the DSC header comments.
-static int prt_open_resource(struct prt_ps_resource_S *resource)
+/// Improved hand crafted parser to get the type, title, and version number
+/// of a PS resource file so the file details can be added to the DSC header
+/// comments.
+static int prt_open_resource(prt_ps_resource_st *resource)
 {
     int offset;
     int seen_all;
@@ -2173,7 +2174,7 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
     return TRUE;
 }
 
-static int prt_check_resource(struct prt_ps_resource_S *resource,
+static int prt_check_resource(prt_ps_resource_st *resource,
                               uchar_kt *version)
 {
     // Version number m.n should match, the revision number does not matter
@@ -2960,7 +2961,7 @@ int mch_print_init(prt_geninfo_st *psettings,
     return OK;
 }
 
-static int prt_add_resource(struct prt_ps_resource_S *resource)
+static int prt_add_resource(prt_ps_resource_st *resource)
 {
     FILE *fd_resource;
     uchar_kt resource_buffer[512];
@@ -3025,13 +3026,13 @@ int mch_print_begin(prt_geninfo_st *psettings)
     double right;
     double top;
     double bottom;
-    struct prt_ps_resource_S res_prolog;
-    struct prt_ps_resource_S res_encoding;
+    prt_ps_resource_st res_prolog;
+    prt_ps_resource_st res_encoding;
     char buffer[256];
     uchar_kt *p_encoding;
     uchar_kt *p;
-    struct prt_ps_resource_S res_cidfont;
-    struct prt_ps_resource_S res_cmap;
+    prt_ps_resource_st res_cidfont;
+    prt_ps_resource_st res_cmap;
     int retval = FALSE;
 
     // PS DSC Header comments - no PS code!
