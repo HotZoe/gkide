@@ -58,7 +58,7 @@
 #include "nvim/os/input.h"
 
 ///
-typedef struct normal_state
+typedef struct normal_state_s
 {
     VimState state;
     linenum_kt conceal_old_cursor_line;
@@ -73,30 +73,30 @@ typedef struct normal_state
     bool noexmode;         ///< true if the normal mode was pushed from
                            ///< ex mode(:global or :visual for example)
     bool toplevel;         ///< top-level normal mode
-    oparg_st oa;            ///< operator arguments
-    cmdarg_st ca;           ///< command arguments
+    oparg_st oa;           ///< operator arguments
+    cmdarg_st ca;          ///< command arguments
     int mapped_len;
     int old_mapped_len;
     int idx;
     int c;
     int old_col;
     apos_st old_pos;
-} NormalState;
+} normal_state_st;
 
 // The Visual area is remembered for reselection.
-static int resel_VIsual_mode = NUL;      ///< 'v', 'V', or Ctrl-V
+static int resel_VIsual_mode = NUL;        ///< 'v', 'V', or Ctrl-V
 static linenum_kt resel_VIsual_line_count; ///< number of lines
-static columnum_kt resel_VIsual_vcol;        ///< nr of cols or end col
-static int VIsual_mode_orig = NUL;       ///< saved Visual mode
-static int restart_VIsual_select = 0;    ///<
+static columnum_kt resel_VIsual_vcol;      ///< nr of cols or end col
+static int VIsual_mode_orig = NUL;         ///< saved Visual mode
+static int restart_VIsual_select = 0;      ///<
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "normal.c.generated.h"
 #endif
 
-static inline void normal_state_init(NormalState *s)
+static inline void normal_state_init(normal_state_st *s)
 {
-    memset(s, 0, sizeof(NormalState));
+    memset(s, 0, sizeof(normal_state_st));
     s->state.check = normal_check;
     s->state.execute = normal_execute;
 }
@@ -471,7 +471,7 @@ static int find_command(int cmdchar)
 /// This used to be called main_loop on main.c
 void normal_enter(bool cmdwin, bool noexmode)
 {
-    NormalState state;
+    normal_state_st state;
     normal_state_init(&state);
     state.cmdwin = cmdwin;
     state.noexmode = noexmode;
@@ -479,7 +479,7 @@ void normal_enter(bool cmdwin, bool noexmode)
     state_enter(&state.state);
 }
 
-static void normal_prepare(NormalState *s)
+static void normal_prepare(normal_state_st *s)
 {
     memset(&s->ca, 0, sizeof(s->ca)); // also resets ca.retval
     s->ca.oap = &s->oa;
@@ -530,7 +530,7 @@ static void normal_prepare(NormalState *s)
     }
 }
 
-static bool normal_handle_special_visual_command(NormalState *s)
+static bool normal_handle_special_visual_command(normal_state_st *s)
 {
     // when 'keymodel' contains "stopsel" may stop Select/Visual mode
     if(km_stopsel
@@ -566,7 +566,7 @@ static bool normal_handle_special_visual_command(NormalState *s)
     return false;
 }
 
-static bool normal_need_additional_char(NormalState *s)
+static bool normal_need_additional_char(normal_state_st *s)
 {
     int flags = nv_cmds[s->idx].cmd_flags;
     bool pending_op = s->oa.op_type != OP_NOP;
@@ -594,7 +594,7 @@ static bool normal_need_additional_char(NormalState *s)
             || ((cmdchar == 'a' || cmdchar == 'i') && (pending_op || VIsual_active)));
 }
 
-static bool normal_need_redraw_mode_message(NormalState *s)
+static bool normal_need_redraw_mode_message(normal_state_st *s)
 {
     return (// 'showmode' is set and messages can be printed
             ((p_smd && msg_silent == 0
@@ -625,7 +625,7 @@ static bool normal_need_redraw_mode_message(NormalState *s)
             && s->oa.op_type == OP_NOP);
 }
 
-static void normal_redraw_mode_message(NormalState *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_redraw_mode_message(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
 {
     int save_State = curmod;
 
@@ -666,7 +666,7 @@ static void normal_redraw_mode_message(NormalState *FUNC_ARGS_UNUSED_REALY(s))
 }
 
 // TODO(tarruda): Split into a "normal pending" state that can handle K_EVENT
-static void normal_get_additional_char(NormalState *s)
+static void normal_get_additional_char(normal_state_st *s)
 {
     int *cp;
     bool repl = false; // get character for replace mode
@@ -871,7 +871,7 @@ static void normal_get_additional_char(NormalState *s)
     no_mapping--;
 }
 
-static void normal_invert_horizontal(NormalState *s)
+static void normal_invert_horizontal(normal_state_st *s)
 {
     switch(s->ca.cmdchar)
     {
@@ -919,7 +919,7 @@ static void normal_invert_horizontal(NormalState *s)
     s->idx = find_command(s->ca.cmdchar);
 }
 
-static bool normal_get_command_count(NormalState *s)
+static bool normal_get_command_count(normal_state_st *s)
 {
     if(VIsual_active && VIsual_select)
     {
@@ -992,7 +992,7 @@ static bool normal_get_command_count(NormalState *s)
     return false;
 }
 
-static void normal_finish_command(NormalState *s)
+static void normal_finish_command(normal_state_st *s)
 {
     if(s->command_finished)
     {
@@ -1105,7 +1105,7 @@ normal_end:
 
 static int normal_execute(VimState *state, int key)
 {
-    NormalState *s = (NormalState *)state;
+    normal_state_st *s = (normal_state_st *)state;
     s->command_finished = false;
     s->ctrl_w = false; // got CTRL-W command
     s->old_col = curwin->w_curswant;
@@ -1329,7 +1329,7 @@ finish:
     return 1;
 }
 
-static void normal_check_stuff_buffer(NormalState *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_stuff_buffer(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
 {
     if(stuff_empty())
     {
@@ -1358,7 +1358,7 @@ static void normal_check_stuff_buffer(NormalState *FUNC_ARGS_UNUSED_REALY(s))
     }
 }
 
-static void normal_check_interrupt(NormalState *s)
+static void normal_check_interrupt(normal_state_st *s)
 {
     // Reset "got_int" now that we got back to the main loop. Except when
     // inside a ":g/pat/cmd" command, then the "got_int" needs to abort
@@ -1392,7 +1392,7 @@ static void normal_check_interrupt(NormalState *s)
     }
 }
 
-static void normal_check_cursor_moved(NormalState *s)
+static void normal_check_cursor_moved(normal_state_st *s)
 {
     // Trigger CursorMoved if the cursor moved.
     if(!finish_op
@@ -1415,7 +1415,7 @@ static void normal_check_cursor_moved(NormalState *s)
     }
 }
 
-static void normal_check_text_changed(NormalState *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_text_changed(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
 {
     // Trigger TextChanged if b_changedtick differs.
     if(!finish_op
@@ -1432,7 +1432,7 @@ static void normal_check_text_changed(NormalState *FUNC_ARGS_UNUSED_REALY(s))
     }
 }
 
-static void normal_check_folds(NormalState *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_folds(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
 {
     // Include a closed fold completely in the Visual area.
     foldAdjustVisual();
@@ -1452,7 +1452,7 @@ static void normal_check_folds(NormalState *FUNC_ARGS_UNUSED_REALY(s))
     }
 }
 
-static void normal_redraw(NormalState *s)
+static void normal_redraw(normal_state_st *s)
 {
     // Before redrawing, make sure w_topline is correct, and w_leftcol
     // if lines don't wrap, and w_skipcol if lines wrap.
@@ -1529,7 +1529,7 @@ static void normal_redraw(NormalState *s)
 /// - 0 if the main loop must exit
 static int normal_check(VimState *state)
 {
-    NormalState *s = (NormalState *)state;
+    normal_state_st *s = (normal_state_st *)state;
     normal_check_stuff_buffer(s);
     normal_check_interrupt(s);
 
@@ -10064,7 +10064,7 @@ static int mouse_model_popup(void)
 
 void normal_cmd(oparg_st *oap, bool toplevel)
 {
-    NormalState s;
+    normal_state_st s;
 
     normal_state_init(&s);
     s.toplevel = toplevel;
