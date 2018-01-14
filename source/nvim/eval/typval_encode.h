@@ -121,7 +121,7 @@ static inline size_t tv_strlen(const typval_st *const tv)
                                                conv_type)            \
     do                                                               \
     {                                                                \
-        const int te_csr_ret = _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(  \
+        const int te_csr_ret = TVE_SELF_REF_CHECK_FUNC(  \
                                TYPVAL_ENCODE_FIRST_ARG_NAME,         \
                                (val),                                \
                                &(val)->copyID_attr,                  \
@@ -155,7 +155,7 @@ static inline size_t tv_strlen(const typval_st *const tv)
     _TYPVAL_ENCODE_FUNC_NAME_INNER(pref, TYPVAL_ENCODE_NAME, suf)
 
 /// Self reference checker function name
-#define _TYPVAL_ENCODE_CHECK_SELF_REFERENCE \
+#define TVE_SELF_REF_CHECK_FUNC \
     _TYPVAL_ENCODE_FUNC_NAME(_typval_encode_, _check_self_reference)
 
 /// Entry point function name

@@ -250,7 +250,7 @@
 /// macros argument is (not) equal to `&TYPVAL_ENCODE_NODICT_VAR`.
 const dict_st *const TYPVAL_ENCODE_NODICT_VAR = NULL;
 
-static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
+static inline int TVE_SELF_REF_CHECK_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     void *const val,
     int *const val_copyID,
@@ -277,7 +277,7 @@ REAL_FATTR_ALWAYS_INLINE;
 /// @param[in]  objname    Object name, used for error reporting.
 ///
 /// @return NOTDONE in case of success, what to return in case of failure.
-static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
+static inline int TVE_SELF_REF_CHECK_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE FUNC_ARGS_UNUSED_MAYBE(TYPVAL_ENCODE_FIRST_ARG_NAME),
     void *const FUNC_ARGS_UNUSED_MAYBE(val),
     int *const val_copyID,
@@ -966,7 +966,7 @@ typval_encode_stop_converting_one_item:
 
                             const int saved_copyID = dict->dv_copyID;
 
-                            const int te_csr_ret = _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
+                            const int te_csr_ret = TVE_SELF_REF_CHECK_FUNC(
                                                        TYPVAL_ENCODE_FIRST_ARG_NAME,
                                                        dict,
                                                        &dict->dv_copyID,
