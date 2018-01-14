@@ -313,7 +313,7 @@ typedef struct regbehind_s
     save_se_st save_end[NSUBEXP];
 } regbehind_st;
 
-// Values for rs_state in regitem_T.
+// Values for rs_state in regitem_st.
 typedef enum regstate_e
 {
     RS_NOPEN = 0,    ///< NOPEN and NCLOSE
@@ -337,17 +337,17 @@ typedef enum regstate_e
 ///
 /// Before it may be another type of item, depending on rs_state,
 /// to remember more things.
-typedef struct regitem_S
+typedef struct regitem_s
 {
     regstate_et rs_state; ///< what we are doing, one of RS_ above
-    uchar_kt *rs_scan;   ///< current node in program
+    uchar_kt *rs_scan;    ///< current node in program
     union
     {
         save_se_st sesave;
         regsave_st regsave;
     } rs_un;     ///< room for saving reginput
     short rs_no; ///< submatch nr or BEHIND/NOBEHIND
-} regitem_T;
+} regitem_st;
 
 
 /// used for STAR, PLUS and BRACE_SIMPLE matching
@@ -4583,7 +4583,7 @@ static int reg_line_lbr; ///< "\n" in string is line break
 
 // "regstack" and "backpos" are used by regmatch().
 // They are kept over calls to avoid invoking malloc()
-// and free() often. "regstack" is a stack with regitem_T items,
+// and free() often. "regstack" is a stack with regitem_st items,
 // sometimes preceded by regstar_T or regbehind_st.
 // "backpos_st" is a table with backpos_st for BACK
 static garray_st regstack = GA_EMPTY_INIT_VALUE;
@@ -5248,7 +5248,7 @@ static int regmatch(uchar_kt *scan)
     uchar_kt *next; // Next node.
     int op;
     int c;
-    regitem_T *rp;
+    regitem_st *rp;
     int no;
 
     #define RA_FAIL      1   // something failed, abort
@@ -6681,7 +6681,7 @@ static int regmatch(uchar_kt *scan)
         // the state. If the state is popped then loop and use the older state.
         while(!GA_EMPTY(&regstack) && status != RA_FAIL)
         {
-            rp = (regitem_T *)((char *)regstack.ga_data + regstack.ga_len) - 1;
+            rp = (regitem_st *)((char *)regstack.ga_data + regstack.ga_len) - 1;
 
             switch(rp->rs_state)
             {
@@ -7137,7 +7137,7 @@ static int regmatch(uchar_kt *scan)
 
             // If we want to continue the inner loop or
             // didn't pop a state continue matching loop
-            if(status == RA_CONT || rp == (regitem_T *)
+            if(status == RA_CONT || rp == (regitem_st *)
                ((char *)regstack.ga_data + regstack.ga_len) - 1)
             {
                 break;
@@ -7182,9 +7182,9 @@ static int regmatch(uchar_kt *scan)
 /// @return
 /// - pointer to new item.
 /// - NULL when out of memory.
-static regitem_T *regstack_push(regstate_et state, uchar_kt *scan)
+static regitem_st *regstack_push(regstate_et state, uchar_kt *scan)
 {
-    regitem_T *rp;
+    regitem_st *rp;
 
     if((long)((unsigned)regstack.ga_len >> 10) >= p_mmp)
     {
@@ -7192,11 +7192,11 @@ static regitem_T *regstack_push(regstate_et state, uchar_kt *scan)
         return NULL;
     }
 
-    ga_grow(&regstack, sizeof(regitem_T));
-    rp = (regitem_T *)((char *)regstack.ga_data + regstack.ga_len);
+    ga_grow(&regstack, sizeof(regitem_st));
+    rp = (regitem_st *)((char *)regstack.ga_data + regstack.ga_len);
     rp->rs_state = state;
     rp->rs_scan = scan;
-    regstack.ga_len += sizeof(regitem_T);
+    regstack.ga_len += sizeof(regitem_st);
 
     return rp;
 }
@@ -7204,10 +7204,10 @@ static regitem_T *regstack_push(regstate_et state, uchar_kt *scan)
 /// Pop an item from the regstack.
 static void regstack_pop(uchar_kt **scan)
 {
-    regitem_T *rp;
-    rp = (regitem_T *)((char *)regstack.ga_data + regstack.ga_len) - 1;
+    regitem_st *rp;
+    rp = (regitem_st *)((char *)regstack.ga_data + regstack.ga_len) - 1;
     *scan = rp->rs_scan;
-    regstack.ga_len -= sizeof(regitem_T);
+    regstack.ga_len -= sizeof(regitem_st);
 }
 
 ///repeatedly match something simple, return how many.
