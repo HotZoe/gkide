@@ -310,13 +310,12 @@ typedef struct
     uchar_kt sft_word[1];  ///< soundfolded word, actually longer
 } sftword_T;
 
-typedef struct
+typedef struct limitscore_s
 {
     int badi;
     int goodi;
     int score;
-} limitscore_T;
-
+} limitscore_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "spell.c.generated.h"
@@ -9124,7 +9123,7 @@ static int spell_edit_score_limit(slang_st *slang,
                                   uchar_kt *goodword,
                                   int limit)
 {
-    limitscore_T stack[10]; // allow for over 3 * 2 edits
+    limitscore_st stack[10]; // allow for over 3 * 2 edits
     int stackidx;
     int bi, gi;
     int bi2, gi2;
@@ -9327,7 +9326,7 @@ static int spell_edit_score_limit_w(slang_st *slang,
                                     uchar_kt *goodword,
                                     int limit)
 {
-    limitscore_T stack[10]; // allow for over 3 * 2 edits
+    limitscore_st stack[10]; // allow for over 3 * 2 edits
     int stackidx;
     int bi, gi;
     int bi2, gi2;
