@@ -152,7 +152,7 @@ typedef struct wordcount_S
 #define HI2WC(hi)      ((wordcount_T *)((hi)->hi_key - WC_KEY_OFF))
 
 /// Information used when looking for suggestions.
-typedef struct suginfo_S
+typedef struct suginfo_s
 {
     garray_st su_ga;                  ///< suggestions, contains "suggest_st"
     int su_maxcount;                  ///< max. number of suggestions displayed
@@ -167,7 +167,7 @@ typedef struct suginfo_S
     uchar_kt su_sal_badword[MAXWLEN]; ///< su_badword soundfolded
     hashtable_st su_banned;           ///< table with banned words
     slang_st *su_sallang;             ///< default language for sound folding
-} suginfo_T;
+} suginfo_st;
 
 /// One word suggestion. Used in @b si_ga
 typedef struct suggest_s
@@ -3569,7 +3569,7 @@ void spell_suggest(int count)
     uchar_kt wcopy[MAXWLEN + 2];
     uchar_kt *p;
     int c;
-    suginfo_T sug;
+    suginfo_st sug;
     suggest_st *stp;
     int mouse_used;
     int need_cap;
@@ -4014,7 +4014,7 @@ void spell_suggest_list(garray_st *gap,
                         bool need_cap,
                         bool interactive)
 {
-    suginfo_T sug;
+    suginfo_st sug;
     suggest_st *stp;
     uchar_kt *wcopy;
 
@@ -4058,7 +4058,7 @@ void spell_suggest_list(garray_st *gap,
 /// @param interactive
 static void spell_find_suggest(uchar_kt *badptr,
                                int badlen,
-                               suginfo_T *su,
+                               suginfo_st *su,
                                int maxcount,
                                bool banbadword,
                                bool need_cap,
@@ -4073,7 +4073,7 @@ static void spell_find_suggest(uchar_kt *badptr,
     int c;
     langp_st *lp;
     // Set the info in "*su".
-    memset(su, 0, sizeof(suginfo_T));
+    memset(su, 0, sizeof(suginfo_st));
     ga_init(&su->su_ga, (int)sizeof(suggest_st), 10);
     ga_init(&su->su_sga, (int)sizeof(suggest_st), 10);
 
@@ -4223,7 +4223,7 @@ static void spell_find_suggest(uchar_kt *badptr,
 }
 
 /// Find suggestions by evaluating expression "expr".
-static void spell_suggest_expr(suginfo_T *su, uchar_kt *expr)
+static void spell_suggest_expr(suginfo_st *su, uchar_kt *expr)
 {
     list_st *list;
     listitem_st *li;
@@ -4231,7 +4231,7 @@ static void spell_suggest_expr(suginfo_T *su, uchar_kt *expr)
     const char *p;
 
     // The work is split up in a few parts to avoid
-    // having to export suginfo_T.
+    // having to export suginfo_st.
     // First evaluate the expression and get the resulting list.
     list = eval_spell_expr(su->su_badword, expr);
 
@@ -4270,7 +4270,7 @@ static void spell_suggest_expr(suginfo_T *su, uchar_kt *expr)
 }
 
 // Find suggestions in file "fname". Used for "file:" in 'spellsuggest'.
-static void spell_suggest_file(suginfo_T *su, uchar_kt *fname)
+static void spell_suggest_file(suginfo_st *su, uchar_kt *fname)
 {
     FILE *fd;
     uchar_kt line[MAXWLEN * 2];
@@ -4337,7 +4337,7 @@ static void spell_suggest_file(suginfo_T *su, uchar_kt *fname)
 }
 
 // Find suggestions for the internal method indicated by "sps_flags".
-static void spell_suggest_intern(suginfo_T *su, bool interactive)
+static void spell_suggest_intern(suginfo_st *su, bool interactive)
 {
     // Load the .sug file(s) that are available and not done yet.
     suggest_load_files();
@@ -4431,7 +4431,7 @@ static void spell_suggest_intern(suginfo_T *su, bool interactive)
 }
 
 /// Free the info put in @b su by spell_find_suggest().
-static void spell_find_cleanup(suginfo_T *su)
+static void spell_find_cleanup(suginfo_st *su)
 {
 #define FREE_SUG_WORD(sug)   xfree(sug->st_word)
 
@@ -4548,7 +4548,7 @@ static void allcap_copy(uchar_kt *word, uchar_kt *wcopy)
 }
 
 // Try finding suggestions by recognizing specific situations.
-static void suggest_try_special(suginfo_T *su)
+static void suggest_try_special(suginfo_st *su)
 {
     int c;
     uchar_kt *p;
@@ -4638,7 +4638,7 @@ static void prof_report(char *name)
 
 // Try finding suggestions by adding/removing/swapping letters.
 
-static void suggest_try_change(suginfo_T *su)
+static void suggest_try_change(suginfo_st *su)
 {
     int n;
     uchar_kt fword[MAXWLEN]; // copy of the bad word, case-folded
@@ -4711,7 +4711,7 @@ static void suggest_try_change(suginfo_T *su)
 ///     word splitting for now
 ///     "similar_chars()"
 ///     use "slang->sl_repsal" instead of "lp->lp_replang->sl_rep"
-static void suggest_trie_walk(suginfo_T *su,
+static void suggest_trie_walk(suginfo_st *su,
                               langp_st *lp,
                               uchar_kt *fword,
                               bool soundfold)
@@ -6633,7 +6633,7 @@ static void find_keepcap_word(slang_st *slang, uchar_kt *fword, uchar_kt *kword)
 
 /// Compute the sound-a-like score for suggestions
 /// in su->su_ga and add them to su->su_sga.
-static void score_comp_sal(suginfo_T *su)
+static void score_comp_sal(suginfo_st *su)
 {
     langp_st *lp;
     uchar_kt badsound[MAXWLEN];
@@ -6680,7 +6680,7 @@ static void score_comp_sal(suginfo_T *su)
 
 // Combine the list of suggestions in su->su_ga and su->su_sga.
 // They are entwined.
-static void score_combine(suginfo_T *su)
+static void score_combine(suginfo_st *su)
 {
     garray_st ga;
     garray_st *gap;
@@ -6760,7 +6760,7 @@ static void score_combine(suginfo_T *su)
     check_suggestions(su, &su->su_sga);
     (void)cleanup_suggestions(&su->su_sga, su->su_maxscore, su->su_maxcount);
 
-    ga_init(&ga, (int)sizeof(suginfo_T), 1);
+    ga_init(&ga, (int)sizeof(suginfo_st), 1);
     ga_grow(&ga, su->su_ga.ga_len + su->su_sga.ga_len);
 
     stp = &SUG(ga, 0);
@@ -6824,7 +6824,7 @@ static void score_combine(suginfo_T *su)
 ///
 /// @return
 static int stp_sal_score(suggest_st *stp,
-                         suginfo_T *su,
+                         suginfo_st *su,
                          slang_st *slang,
                          uchar_kt *badsound)
 {
@@ -6915,7 +6915,7 @@ static void suggest_try_soundalike_prep(void)
 
 // Find suggestions by comparing the word in a sound-a-like form.
 // Note: This doesn't support postponed prefixes.
-static void suggest_try_soundalike(suginfo_T *su)
+static void suggest_try_soundalike(suginfo_st *su)
 {
     uchar_kt salword[MAXWLEN];
     langp_st *lp;
@@ -6995,7 +6995,7 @@ static void suggest_try_soundalike_finish(void)
 /// @param goodword
 /// @param score     soundfold score
 /// @param lp
-static void add_sound_suggest(suginfo_T *su,
+static void add_sound_suggest(suginfo_st *su,
                               uchar_kt *goodword,
                               int score,
                               langp_st *lp)
@@ -7418,7 +7418,7 @@ static bool similar_chars(slang_st *slang, int c1, int c2)
 /// @param slang       language for sound folding
 /// @param maxsf       su_maxscore applies to soundfold score,
 ///                    su_sfmaxscore to the total score.
-static void add_suggestion(suginfo_T *su,
+static void add_suggestion(suginfo_st *su,
                            garray_st *gap,
                            const uchar_kt *goodword,
                            int badlenarg,
@@ -7570,7 +7570,7 @@ static void add_suggestion(suginfo_T *su,
 ///
 /// @param su
 /// @param gap  either su_ga or su_sga
-static void check_suggestions(suginfo_T *su, garray_st *gap)
+static void check_suggestions(suginfo_st *su, garray_st *gap)
 {
     suggest_st *stp;
     uchar_kt longword[MAXWLEN + 1];
@@ -7608,7 +7608,7 @@ static void check_suggestions(suginfo_T *su, garray_st *gap)
 
 
 // Add a word to be banned.
-static void add_banned(suginfo_T *su, uchar_kt *word)
+static void add_banned(suginfo_st *su, uchar_kt *word)
 {
     uchar_kt *s;
     hash_kt hash;
@@ -7626,7 +7626,7 @@ static void add_banned(suginfo_T *su, uchar_kt *word)
 
 /// Recompute the score for all suggestions if sound-folding is possible.
 /// This is slow, thus only done for the final results.
-static void rescore_suggestions(suginfo_T *su)
+static void rescore_suggestions(suginfo_st *su)
 {
     if(su->su_sallang != NULL)
     {
@@ -7638,7 +7638,7 @@ static void rescore_suggestions(suginfo_T *su)
 }
 
 // Recompute the score for one suggestion if sound-folding is possible.
-static void rescore_one(suginfo_T *su, suggest_st *stp)
+static void rescore_one(suginfo_st *su, suggest_st *stp)
 {
     uchar_kt *p;
     uchar_kt sal_badword[MAXWLEN];
