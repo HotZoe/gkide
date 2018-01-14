@@ -24,8 +24,8 @@
 #define UI(b) (((UIBridgeData *)b)->ui)
 
 #if NVIM_LOG_LEVEL_MIN <= DEBUG_LOG_LEVEL
-static size_t        uilog_seen = 0;
-static argv_callback uilog_event = NULL;
+static size_t uilog_seen = 0;
+static argv_callback_ft uilog_event = NULL;
 
 #define UI_CALL(ui, name, argc, ...)                                           \
     do                                                                         \

@@ -8,11 +8,11 @@
 
 #define EVENT_HANDLER_MAX_ARGC 6
 
-typedef void (*argv_callback)(void **argv);
+typedef void (*argv_callback_ft)(void **argv);
 
 typedef struct event_msg_s
 {
-    argv_callback handler;
+    argv_callback_ft handler;
     void *argv[EVENT_HANDLER_MAX_ARGC];
 } event_msg_st;
 
@@ -35,7 +35,7 @@ typedef void(*event_scheduler)(event_msg_st event, void *data);
         }                                                \
     } while(0)
 
-static inline event_msg_st event_create(argv_callback cb, int argc, ...)
+static inline event_msg_st event_create(argv_callback_ft cb, int argc, ...)
 {
     assert(argc <= EVENT_HANDLER_MAX_ARGC);
     event_msg_st event;
