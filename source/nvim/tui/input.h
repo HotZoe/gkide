@@ -24,7 +24,7 @@ typedef struct term_input
 #endif
 
     TimeWatcher timer_handle;
-    main_loop_T *loop;
+    main_loop_st *loop;
 
 #ifdef HOST_OS_WINDOWS
     uv_tty_t tty_in;

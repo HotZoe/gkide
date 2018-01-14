@@ -19,7 +19,7 @@
     #include "event/rstream.c.generated.h"
 #endif
 
-void rstream_init_fd(main_loop_T *loop, Stream *stream, int fd, size_t bufsize)
+void rstream_init_fd(main_loop_st *loop, Stream *stream, int fd, size_t bufsize)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {

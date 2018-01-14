@@ -80,7 +80,7 @@
 #define MAX_ARG_CMDS 10
 
 /// Struct for various parameters passed between main() and other functions.
-typedef struct
+typedef struct main_args_s
 {
     int argc;
     char **argv;
@@ -126,7 +126,7 @@ typedef struct
 #endif
 
 /// the main libuv event-loop
-main_loop_T main_loop;
+main_loop_st main_loop;
 
 static char *argv0 = NULL;
 

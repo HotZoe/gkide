@@ -142,7 +142,8 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-void process_teardown(main_loop_T *loop) FUNC_ATTR_NONNULL_ALL
+void process_teardown(main_loop_st *loop)
+FUNC_ATTR_NONNULL_ALL
 {
     process_is_tearing_down = true;
 
@@ -309,7 +310,7 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
             abort();
     }
 
-    main_loop_T *loop = proc->loop;
+   main_loop_st *loop = proc->loop;
 
     if(!loop->children_stop_requests++)
     {
@@ -324,7 +325,7 @@ void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
 /// to those that didn't die from SIGTERM after a while(exit_timeout is 0).
 static void children_kill_cb(uv_timer_t *handle)
 {
-    main_loop_T *loop = handle->loop->data;
+  main_loop_st *loop = handle->loop->data;
     uint64_t now = os_hrtime();
 
     kl_iter(WatcherPtr, loop->children, current)
@@ -375,7 +376,7 @@ static void decref(Process *proc)
         return;
     }
 
-    main_loop_T *loop = proc->loop;
+   main_loop_st *loop = proc->loop;
     kliter_t(WatcherPtr) **node = NULL;
 
     kl_iter(WatcherPtr, loop->children, current)
@@ -490,7 +491,7 @@ static void process_close_handles(void **argv)
 
 static void on_process_exit(Process *proc)
 {
-    main_loop_T *loop = proc->loop;
+  main_loop_st *loop = proc->loop;
 
     if(proc->stopped_time
        && loop->children_stop_requests
@@ -501,10 +502,10 @@ static void on_process_exit(Process *proc)
         uv_timer_stop(&loop->children_kill_timer);
     }
 
-    // Process has terminated, but there could still be data to be read from the
-    // OS. We are still in the libuv loop, so we cannot call code that polls for
-    // more data directly. Instead delay the reading after the libuv loop by
-    // queueing process_close_handles() as an event.
+    // Process has terminated, but there could still be data to be read from
+    // the OS. We are still in the libuv loop, so we cannot call code that
+    // polls for more data directly. Instead delay the reading after the libuv
+    // loop by queueing process_close_handles() as an event.
     multiqueue_st *queue = proc->events ? proc->events : loop->events;
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }

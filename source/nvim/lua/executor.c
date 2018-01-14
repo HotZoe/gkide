@@ -25,7 +25,7 @@
 #include "nvim/lua/executor.h"
 #include "nvim/lua/converter.h"
 
-typedef struct
+typedef struct lua_error_s
 {
     error_st le_ptr; ///< nvim error message
     String le_msg;   ///< lua error message

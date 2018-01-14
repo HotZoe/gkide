@@ -36,7 +36,7 @@ int stream_set_blocking(int fd, bool blocking)
     return retval;
 }
 
-void stream_init(main_loop_T *loop,
+void stream_init(main_loop_st *loop,
                  Stream *stream,
                  int fd,
                  uv_stream_t *uvstream)

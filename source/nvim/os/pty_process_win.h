@@ -21,7 +21,7 @@ typedef struct pty_process
 #define pty_process_teardown(loop)             (void)loop;
 #define pty_process_resize(job, width, height) (void)job; (void)width; (void)height;
 
-static inline PtyProcess pty_process_init(main_loop_T *loop, void *data)
+static inline PtyProcess pty_process_init(main_loop_st *loop, void *data)
 {
     PtyProcess rv;
 

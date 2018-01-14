@@ -17,7 +17,7 @@ typedef struct pty_process
     int tty_fd;
 } PtyProcess;
 
-static inline PtyProcess pty_process_init(main_loop_T *loop, void *data)
+static inline PtyProcess pty_process_init(main_loop_st *loop, void *data)
 {
     PtyProcess rv;
     rv.process = process_init(loop, kProcessTypePty, data);

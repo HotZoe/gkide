@@ -21,7 +21,7 @@
     #include "tui/input.c.generated.h"
 #endif
 
-void term_input_init(TermInput *input, main_loop_T *loop)
+void term_input_init(TermInput *input, main_loop_st *loop)
 {
     input->loop = loop;
     input->paste_enabled = false;

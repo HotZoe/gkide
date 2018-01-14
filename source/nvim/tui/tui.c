@@ -73,7 +73,7 @@ typedef struct
 typedef struct
 {
     UIBridgeData *bridge;
-    main_loop_T *loop;
+    main_loop_st *loop;
     bool stop;
     unibi_var_t params[9];
     char buf[OUTBUF_SIZE];
@@ -299,7 +299,7 @@ static void tui_stop(UI *ui)
 /// Main function of the TUI thread
 static void tui_main(UIBridgeData *bridge, UI *ui)
 {
-    main_loop_T tui_loop;
+    main_loop_st tui_loop;
     loop_init(&tui_loop, NULL);
 
     TUIData *data = xcalloc(1, sizeof(TUIData));

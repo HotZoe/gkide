@@ -25,7 +25,7 @@ typedef struct
     #include "event/wstream.c.generated.h"
 #endif
 
-void wstream_init_fd(main_loop_T *loop, Stream *stream, int fd, size_t maxmem)
+void wstream_init_fd(main_loop_st *loop, Stream *stream, int fd, size_t maxmem)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {

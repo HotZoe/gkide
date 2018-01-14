@@ -163,7 +163,7 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-void pty_process_teardown(main_loop_T *loop)
+void pty_process_teardown(main_loop_st *loop)
 {
     uv_signal_stop(&loop->children_watcher);
 }
@@ -320,7 +320,7 @@ static void chld_handler(uv_signal_t *handle,
         return;
     }
 
-    main_loop_T *loop = handle->loop->data;
+    main_loop_st *loop = handle->loop->data;
 
     kl_iter(WatcherPtr, loop->children, current)
     {

@@ -100,7 +100,7 @@ static garray_st ucmds = {0, 0, sizeof(usrcmd_st), 4, NULL};
 #define IS_USER_CMDIDX(idx)  ((int)(idx) < 0)
 
 /// Struct for storing a line inside a while/for loop
-typedef struct
+typedef struct loopbody_s
 {
     uchar_kt *line;  ///< command line
     linenum_kt lnum; ///< sourcing_lnum of the line

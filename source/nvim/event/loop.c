@@ -12,7 +12,7 @@
     #include "event/loop.c.generated.h"
 #endif
 
-void loop_init(main_loop_T *loop, void *FUNC_ARGS_UNUSED_REALY(data))
+void loop_init(main_loop_st *loop, void *FUNC_ARGS_UNUSED_REALY(data))
 {
     uv_loop_init(&loop->uv);
 
@@ -31,7 +31,7 @@ void loop_init(main_loop_T *loop, void *FUNC_ARGS_UNUSED_REALY(data))
     uv_timer_init(&loop->uv, &loop->poll_timer);
 }
 
-void loop_poll_events(main_loop_T *loop, int ms)
+void loop_poll_events(main_loop_st *loop, int ms)
 {
     if(loop->recursive++)
     {
@@ -65,7 +65,7 @@ void loop_poll_events(main_loop_T *loop, int ms)
 }
 
 /// Schedule an event from another thread
-void loop_schedule(main_loop_T *loop, Event event)
+void loop_schedule(main_loop_st *loop, Event event)
 {
     uv_mutex_lock(&loop->mutex);
     multiqueue_put_event(loop->thread_events, event);
@@ -75,7 +75,7 @@ void loop_schedule(main_loop_T *loop, Event event)
 
 void loop_on_put(multiqueue_st *FUNC_ARGS_UNUSED_REALY(queue), void *data)
 {
-    main_loop_T *loop = data;
+    main_loop_st *loop = data;
 
     // Sometimes libuv will run pending callbacks(timer for example) before
     // blocking for a poll. If this happens and the callback pushes a event
@@ -85,7 +85,7 @@ void loop_on_put(multiqueue_st *FUNC_ARGS_UNUSED_REALY(queue), void *data)
     uv_stop(&loop->uv);
 }
 
-void loop_close(main_loop_T *loop, bool wait)
+void loop_close(main_loop_st *loop, bool wait)
 {
     uv_mutex_destroy(&loop->mutex);
     uv_close((uv_handle_t *)&loop->children_watcher, NULL);
@@ -104,7 +104,7 @@ void loop_close(main_loop_T *loop, bool wait)
     kl_destroy(WatcherPtr, loop->children);
 }
 
-void loop_purge(main_loop_T *loop)
+void loop_purge(main_loop_st *loop)
 {
     uv_mutex_lock(&loop->mutex);
     multiqueue_purge_events(loop->thread_events);
@@ -112,7 +112,7 @@ void loop_purge(main_loop_T *loop)
     uv_mutex_unlock(&loop->mutex);
 }
 
-size_t loop_size(main_loop_T *loop)
+size_t loop_size(main_loop_st *loop)
 {
     uv_mutex_lock(&loop->mutex);
     size_t rv = multiqueue_size(loop->thread_events);
@@ -122,7 +122,7 @@ size_t loop_size(main_loop_T *loop)
 
 static void async_cb(uv_async_t *handle)
 {
-    main_loop_T *l = handle->loop->data;
+    main_loop_st *l = handle->loop->data;
     uv_mutex_lock(&l->mutex);
 
     while(!multiqueue_empty(l->thread_events))

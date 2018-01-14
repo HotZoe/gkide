@@ -15,7 +15,7 @@ typedef struct libuv_process_s
     uv_stdio_container_t uvstdio[3];
 } libuv_process_st;
 
-static inline libuv_process_st libuv_process_init(main_loop_T *loop,
+static inline libuv_process_st libuv_process_init(main_loop_st *loop,
                                                   void *data)
 {
     libuv_process_st rv = {
