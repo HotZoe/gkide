@@ -203,15 +203,15 @@ static int *eval_lavars_used = NULL;
 
 /// Array to hold the hashtab with variables local to each sourced script.
 /// Each item holds a variable (nameless) that points to the dict_st.
-typedef struct
+typedef struct scriptvar_s
 {
     scope_dict_st sv_var;
     dict_st sv_dict;
-} scriptvar_T;
+} scriptvar_st;
 
-static garray_st ga_scripts = {0, 0, sizeof(scriptvar_T *), 4, NULL};
+static garray_st ga_scripts = {0, 0, sizeof(scriptvar_st *), 4, NULL};
 
-#define SCRIPT_SV(id)   (((scriptvar_T **)ga_scripts.ga_data)[(id) - 1])
+#define SCRIPT_SV(id)   (((scriptvar_st **)ga_scripts.ga_data)[(id) - 1])
 #define SCRIPT_VARS(id) (SCRIPT_SV(id)->sv_dict.dv_hashtab)
 
 /// attributes used for @b echo
@@ -728,7 +728,7 @@ void eval_clear(void)
     ga_clear_strings(&ga_loaded); // autoloaded script names
 
     // Script-local variables. First clear all the variables and in a second
-    // loop free the scriptvar_T, because a variable in one script might hold
+    // loop free the scriptvar_st, because a variable in one script might hold
     // a reference to the whole scope of another script.
     for(int i = 1; i <= ga_scripts.ga_len; ++i)
     {
@@ -24571,7 +24571,7 @@ uchar_kt *get_var_value(const char *const name)
 void new_script_vars(script_id_kt id)
 {
     hashtable_st *ht;
-    scriptvar_T *sv;
+    scriptvar_st *sv;
     ga_grow(&ga_scripts, (int)(id - ga_scripts.ga_len));
 
     {
@@ -24593,7 +24593,7 @@ void new_script_vars(script_id_kt id)
 
         while(ga_scripts.ga_len < id)
         {
-            sv = SCRIPT_SV(ga_scripts.ga_len + 1) = xcalloc(1, sizeof(scriptvar_T));
+            sv = SCRIPT_SV(ga_scripts.ga_len + 1) = xcalloc(1, sizeof(scriptvar_st));
 
             init_var_dict(&sv->sv_dict, &sv->sv_var, VAR_SCOPE);
             ++ga_scripts.ga_len;
