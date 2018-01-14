@@ -134,10 +134,10 @@ static uchar_kt modifier_keys_table[] =
     NUL
 };
 
-static struct key_name_entry
+static struct key_name_entry_s
 {
     int key;        ///< Special key code or ascii value
-    uchar_kt  *name;  ///< Name of key
+    uchar_kt *name; ///< Name of key
 } key_names_table[] =
 {
     {' ',      (uchar_kt *)"Space"},

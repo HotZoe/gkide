@@ -496,14 +496,14 @@ typedef struct
     multiqueue_st *events;
 } TerminalJobData;
 
-typedef struct
+typedef struct job_event_s
 {
     TerminalJobData *data;
     callback_st *callback;
     const char *type;
     list_st *received;
     int status;
-} JobEvent;
+} job_event_st;
 
 typedef struct
 {
@@ -29272,7 +29272,7 @@ static inline void process_job_event(TerminalJobData *data,
                                      size_t count,
                                      int status)
 {
-    JobEvent event_data;
+    job_event_st event_data;
     event_data.received = NULL;
 
     if(buf)
@@ -29453,7 +29453,7 @@ static void term_job_data_decref(TerminalJobData *data)
     }
 }
 
-static void on_job_event(JobEvent *ev)
+static void on_job_event(job_event_st *ev)
 {
     if(!ev->callback)
     {
