@@ -154,7 +154,7 @@ typedef struct wordcount_S
 /// Information used when looking for suggestions.
 typedef struct suginfo_S
 {
-    garray_st su_ga;                  ///< suggestions, contains "suggest_T"
+    garray_st su_ga;                  ///< suggestions, contains "suggest_st"
     int su_maxcount;                  ///< max. number of suggestions displayed
     int su_maxscore;                  ///< maximum score for adding to su_ga
     int su_sfmaxscore;                ///< idem, for when doing soundfold words
@@ -170,7 +170,7 @@ typedef struct suginfo_S
 } suginfo_T;
 
 /// One word suggestion. Used in @b si_ga
-typedef struct
+typedef struct suggest_s
 {
     uchar_kt *st_word;  ///< suggested word, allocated string
     int st_wordlen;     ///< STRLEN(st_word)
@@ -180,10 +180,10 @@ typedef struct
     bool st_salscore;   ///< st_score is for soundalike
     bool st_had_bonus;  ///< bonus already included in score
     slang_st *st_slang; ///< language used for sound folding
-} suggest_T;
+} suggest_st;
 
 #define SUG(ga, i) \
-    (((suggest_T *)(ga).ga_data)[i])
+    (((suggest_st *)(ga).ga_data)[i])
 
 /// True if a word appears in the list of banned words.
 #define WAS_BANNED(su, word) \
@@ -3570,7 +3570,7 @@ void spell_suggest(int count)
     uchar_kt *p;
     int c;
     suginfo_T sug;
-    suggest_T *stp;
+    suggest_st *stp;
     int mouse_used;
     int need_cap;
     int limit;
@@ -4015,7 +4015,7 @@ void spell_suggest_list(garray_st *gap,
                         bool interactive)
 {
     suginfo_T sug;
-    suggest_T *stp;
+    suggest_st *stp;
     uchar_kt *wcopy;
 
     spell_find_suggest(word, 0, &sug, maxcount, false, need_cap, interactive);
@@ -4074,8 +4074,8 @@ static void spell_find_suggest(uchar_kt *badptr,
     langp_st *lp;
     // Set the info in "*su".
     memset(su, 0, sizeof(suginfo_T));
-    ga_init(&su->su_ga, (int)sizeof(suggest_T), 10);
-    ga_init(&su->su_sga, (int)sizeof(suggest_T), 10);
+    ga_init(&su->su_ga, (int)sizeof(suggest_st), 10);
+    ga_init(&su->su_sga, (int)sizeof(suggest_st), 10);
 
     if(*badptr == NUL)
     {
@@ -4436,8 +4436,8 @@ static void spell_find_cleanup(suginfo_T *su)
 #define FREE_SUG_WORD(sug)   xfree(sug->st_word)
 
     // Free the suggestions.
-    GA_DEEP_CLEAR(&su->su_ga, suggest_T, FREE_SUG_WORD);
-    GA_DEEP_CLEAR(&su->su_sga, suggest_T, FREE_SUG_WORD);
+    GA_DEEP_CLEAR(&su->su_ga, suggest_st, FREE_SUG_WORD);
+    GA_DEEP_CLEAR(&su->su_sga, suggest_st, FREE_SUG_WORD);
 
 #undef FREE_SUG_WORD
 
@@ -6638,8 +6638,8 @@ static void score_comp_sal(suginfo_T *su)
     langp_st *lp;
     uchar_kt badsound[MAXWLEN];
     int i;
-    suggest_T *stp;
-    suggest_T *sstp;
+    suggest_st *stp;
+    suggest_st *sstp;
     int score;
     ga_grow(&su->su_sga, su->su_ga.ga_len);
 
@@ -6685,7 +6685,7 @@ static void score_combine(suginfo_T *su)
     garray_st ga;
     garray_st *gap;
     langp_st *lp;
-    suggest_T *stp;
+    suggest_st *stp;
     uchar_kt *p;
     uchar_kt badsound[MAXWLEN];
     int round;
@@ -6823,7 +6823,7 @@ static void score_combine(suginfo_T *su)
 /// @param badsound  sound-folded badword
 ///
 /// @return
-static int stp_sal_score(suggest_T *stp,
+static int stp_sal_score(suggest_st *stp,
                          suginfo_T *su,
                          slang_st *slang,
                          uchar_kt *badsound)
@@ -7430,8 +7430,8 @@ static void add_suggestion(suginfo_T *su,
 {
     int goodlen; // len of goodword changed
     int badlen; // len of bad word changed
-    suggest_T *stp;
-    suggest_T new_sug;
+    suggest_st *stp;
+    suggest_st new_sug;
 
     // Minimize "badlen" for consistency. Avoids that changing "the the" to
     // "thee the" is added next to changing the first "the" the "thee".
@@ -7538,7 +7538,7 @@ static void add_suggestion(suginfo_T *su,
     if(i < 0)
     {
         // Add a suggestion.
-        stp = GA_APPEND_VIA_PTR(suggest_T, gap);
+        stp = GA_APPEND_VIA_PTR(suggest_st, gap);
         stp->st_word = vim_strnsave(goodword, goodlen);
         stp->st_wordlen = goodlen;
         stp->st_score = score;
@@ -7572,7 +7572,7 @@ static void add_suggestion(suginfo_T *su,
 /// @param gap  either su_ga or su_sga
 static void check_suggestions(suginfo_T *su, garray_st *gap)
 {
-    suggest_T *stp;
+    suggest_st *stp;
     uchar_kt longword[MAXWLEN + 1];
     int len;
     hlf_T attr;
@@ -7600,7 +7600,7 @@ static void check_suggestions(suginfo_T *su, garray_st *gap)
             if(i < gap->ga_len)
             {
                 memmove(stp + i, stp + i + 1,
-                        sizeof(suggest_T) * (gap->ga_len - i));
+                        sizeof(suggest_st) * (gap->ga_len - i));
             }
         }
     }
@@ -7638,7 +7638,7 @@ static void rescore_suggestions(suginfo_T *su)
 }
 
 // Recompute the score for one suggestion if sound-folding is possible.
-static void rescore_one(suginfo_T *su, suggest_T *stp)
+static void rescore_one(suginfo_T *su, suggest_st *stp)
 {
     uchar_kt *p;
     uchar_kt sal_badword[MAXWLEN];
@@ -7675,8 +7675,8 @@ static void rescore_one(suginfo_T *su, suggest_T *stp)
 // First on "st_score", then "st_altscore" then alphabetically.
 static int sug_compare(const void *s1, const void *s2)
 {
-    suggest_T *p1 = (suggest_T *)s1;
-    suggest_T *p2 = (suggest_T *)s2;
+    suggest_st *p1 = (suggest_st *)s1;
+    suggest_st *p2 = (suggest_st *)s2;
     int n = p1->st_score - p2->st_score;
 
     if(n == 0)
@@ -7703,10 +7703,10 @@ static int sug_compare(const void *s1, const void *s2)
 /// @return the maximum score in the list or "maxscore" unmodified.
 static int cleanup_suggestions(garray_st *gap, int maxscore, int keep)
 {
-    suggest_T *stp = &SUG(*gap, 0);
+    suggest_st *stp = &SUG(*gap, 0);
 
     // Sort the list.
-    qsort(gap->ga_data, (size_t)gap->ga_len, sizeof(suggest_T), sug_compare);
+    qsort(gap->ga_data, (size_t)gap->ga_len, sizeof(suggest_st), sug_compare);
 
     // Truncate the list to the number of
     // suggestions that will be displayed.
