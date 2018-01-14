@@ -73,7 +73,7 @@ typedef struct
     union
     {
         Stream stream;
-        Process *proc;
+        process_st *proc;
 
         struct
         {
@@ -135,7 +135,7 @@ void channel_teardown(void)
 /// @param argv The argument vector for the process. [consumed]
 ///
 /// @return The channel id (> 0), on success. 0, on error.
-uint64_t channel_from_process(Process *proc, uint64_t id)
+uint64_t channel_from_process(process_st *proc, uint64_t id)
 {
     rpc_channel_st *channel =
         register_channel(kChannelTypeProc, id, proc->events);

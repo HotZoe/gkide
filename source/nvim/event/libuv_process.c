@@ -20,9 +20,10 @@
 #endif
 
 /// @returns zero on success, or negative error code
-int libuv_process_spawn(libuv_process_st *uvproc) FUNC_ATTR_NONNULL_ALL
+int libuv_process_spawn(libuv_process_st *uvproc)
+FUNC_ATTR_NONNULL_ALL
 {
-    Process *proc = (Process *)uvproc;
+    process_st *proc = (process_st *)uvproc;
 
     uvproc->uvopts.file = proc->argv[0];
     uvproc->uvopts.args = proc->argv;
@@ -93,7 +94,7 @@ void libuv_process_close(libuv_process_st *uvproc) FUNC_ATTR_NONNULL_ARG(1)
 
 static void close_cb(uv_handle_t *handle)
 {
-    Process *proc = handle->data;
+    process_st *proc = handle->data;
 
     if(proc->internal_close_cb)
     {
@@ -105,7 +106,7 @@ static void exit_cb(uv_process_t *handle,
                     int64_t status,
                     int FUNC_ARGS_UNUSED_REALY(term_signal))
 {
-    Process *proc = handle->data;
+    process_st *proc = handle->data;
     proc->status = (int)status;
     proc->internal_exit_cb(proc);
 }

@@ -9,7 +9,7 @@
 
 typedef struct libuv_process_s
 {
-    Process process;
+    process_st process;
     uv_process_t uv;
     uv_process_options_t uvopts;
     uv_stdio_container_t uvstdio[3];

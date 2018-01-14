@@ -36,7 +36,8 @@
 static bool process_is_tearing_down = false;
 
 /// @returns zero on success, or negative error code
-int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
+int process_spawn(process_st *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     if(proc->in)
     {
@@ -149,7 +150,7 @@ FUNC_ATTR_NONNULL_ALL
 
     kl_iter(WatcherPtr, loop->children, current)
     {
-        Process *proc = (*current)->data;
+        process_st *proc = (*current)->data;
 
         if(proc->detach || proc->type == kProcessTypePty)
         {
@@ -175,7 +176,7 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 // Wrappers around `stream_close` that protect against double-closing.
-void process_close_streams(Process *proc)
+void process_close_streams(process_st *proc)
 FUNC_ATTR_NONNULL_ALL
 {
     process_close_in(proc);
@@ -183,19 +184,19 @@ FUNC_ATTR_NONNULL_ALL
     process_close_err(proc);
 }
 
-void process_close_in(Process *proc)
+void process_close_in(process_st *proc)
 FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, in);
 }
 
-void process_close_out(Process *proc)
+void process_close_out(process_st *proc)
 FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, out);
 }
 
-void process_close_err(Process *proc)
+void process_close_err(process_st *proc)
 FUNC_ATTR_NONNULL_ALL
 {
     CLOSE_PROC_STREAM(proc, err);
@@ -203,14 +204,14 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Synchronously wait for a process to finish
 ///
-/// @param process  Process instance
+/// @param process  process_st instance
 /// @param ms       Time in milliseconds to wait for the process.
 ///                 0 for no wait. -1 to wait until the process quits.
 /// @return
 /// Exit code of the process.
 /// - -1 if the timeout expired while the process is still running.
 /// - -2 if the user interruped the wait.
-int process_wait(Process *proc, int ms, multiqueue_st *events)
+int process_wait(process_st *proc, int ms, multiqueue_st *events)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     int status = -1;
@@ -280,7 +281,8 @@ FUNC_ATTR_NONNULL_ARG(1)
 }
 
 /// Ask a process to terminate and eventually kill if it doesn't respond
-void process_stop(Process *proc) FUNC_ATTR_NONNULL_ALL
+void process_stop(process_st *proc)
+FUNC_ATTR_NONNULL_ALL
 {
     if(proc->stopped_time)
     {
@@ -330,7 +332,7 @@ static void children_kill_cb(uv_timer_t *handle)
 
     kl_iter(WatcherPtr, loop->children, current)
     {
-        Process *proc = (*current)->data;
+        process_st *proc = (*current)->data;
 
         if(!proc->stopped_time)
         {
@@ -355,7 +357,7 @@ static void children_kill_cb(uv_timer_t *handle)
 
 static void process_close_event(void **argv)
 {
-    Process *proc = argv[0];
+    process_st *proc = argv[0];
     shell_free_argv(proc->argv);
 
     if(proc->type == kProcessTypePty)
@@ -369,7 +371,7 @@ static void process_close_event(void **argv)
     }
 }
 
-static void decref(Process *proc)
+static void decref(process_st *proc)
 {
     if(--proc->refcount != 0)
     {
@@ -395,7 +397,8 @@ static void decref(Process *proc)
     CREATE_EVENT(proc->events, process_close_event, 1, proc);
 }
 
-static void process_close(Process *proc) FUNC_ATTR_NONNULL_ARG(1)
+static void process_close(process_st *proc)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     if(process_is_tearing_down
        && (proc->detach || proc->type == kProcessTypePty)
@@ -428,7 +431,8 @@ static void process_close(Process *proc) FUNC_ATTR_NONNULL_ARG(1)
 ///
 /// @param proc     Process, for which an output stream should be flushed.
 /// @param stream   Stream to flush.
-static void flush_stream(Process *proc, Stream *stream) FUNC_ATTR_NONNULL_ARG(1)
+static void flush_stream(process_st *proc, Stream *stream)
+FUNC_ATTR_NONNULL_ARG(1)
 {
     if(!stream || stream->closed)
     {
@@ -482,14 +486,14 @@ static void flush_stream(Process *proc, Stream *stream) FUNC_ATTR_NONNULL_ARG(1)
 
 static void process_close_handles(void **argv)
 {
-    Process *proc = argv[0];
+    process_st *proc = argv[0];
     flush_stream(proc, proc->out);
     flush_stream(proc, proc->err);
     process_close_streams(proc);
     process_close(proc);
 }
 
-static void on_process_exit(Process *proc)
+static void on_process_exit(process_st *proc)
 {
   main_loop_st *loop = proc->loop;
 
@@ -513,6 +517,6 @@ static void on_process_exit(Process *proc)
 static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                                     void *data)
 {
-    Process *proc = data;
+    process_st *proc = data;
     decref(proc);
 }

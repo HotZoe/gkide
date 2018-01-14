@@ -46,7 +46,7 @@ int pty_process_spawn(PtyProcess *ptyproc) FUNC_ATTR_NONNULL_ALL
     }
 
     int status = 0; // zero or negative error code (libuv convention)
-    Process *proc = (Process *)ptyproc;
+    process_st *proc = (process_st *)ptyproc;
 
     assert(!proc->err);
 
@@ -145,7 +145,7 @@ void pty_process_close(PtyProcess *ptyproc)
 FUNC_ATTR_NONNULL_ALL
 {
     pty_process_close_master(ptyproc);
-    Process *proc = (Process *)ptyproc;
+    process_st *proc = (process_st *)ptyproc;
 
     if(proc->internal_close_cb)
     {
@@ -184,7 +184,7 @@ FUNC_ATTR_NONNULL_ALL
     signal(SIGTERM, SIG_DFL);
     signal(SIGALRM, SIG_DFL);
 
-    Process *proc = (Process *)ptyproc;
+    process_st *proc = (process_st *)ptyproc;
 
     if(proc->cwd && os_chdir(proc->cwd) != 0)
     {
@@ -324,7 +324,7 @@ static void chld_handler(uv_signal_t *handle,
 
     kl_iter(WatcherPtr, loop->children, current)
     {
-        Process *proc = (*current)->data;
+        process_st *proc = (*current)->data;
 
         if(proc->pid == pid)
         {

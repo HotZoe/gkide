@@ -9,7 +9,7 @@
 
 typedef struct pty_process
 {
-    Process process;
+    process_st process;
     char *term_name;
     uint16_t width;
     uint16_t height;

@@ -14879,7 +14879,7 @@ static void f_jobclose(typval_st *argvars,
         return;
     }
 
-    Process *proc = (Process *)&data->proc;
+    process_st *proc = (process_st *)&data->proc;
 
     if(argvars[1].v_type == kNvarString)
     {
@@ -14973,7 +14973,7 @@ static void f_jobpid(typval_st *argvars,
         return;
     }
 
-    Process *proc = (Process *)&data->proc;
+    process_st *proc = (process_st *)&data->proc;
     rettv->vval.v_number = proc->pid;
 }
 
@@ -15006,7 +15006,7 @@ static void f_jobsend(typval_st *argvars,
         return;
     }
 
-    if(((Process *)&data->proc)->in->closed)
+    if(((process_st *)&data->proc)->in->closed)
     {
         EMSG(_("Can't send data to the job: stdin is closed"));
         return;
@@ -15228,7 +15228,7 @@ static void f_jobstart(typval_st *argvars,
                                             detach,
                                             cwd);
 
-    Process *proc = (Process *)&data->proc;
+    process_st *proc = (process_st *)&data->proc;
 
     if(pty)
     {
@@ -15295,7 +15295,7 @@ static void f_jobstop(typval_st *argvars,
         return;
     }
 
-    process_stop((Process *)&data->proc);
+    process_stop((process_st *)&data->proc);
     data->stopped = true;
     rettv->vval.v_number = 1;
 }
@@ -15377,7 +15377,7 @@ static void f_jobwait(typval_st *argvars,
             continue;
         }
 
-        int status = process_wait((Process *)&data->proc,
+        int status = process_wait((process_st *)&data->proc,
                                   remaining,
                                   waiting_jobs);
 
@@ -29144,7 +29144,7 @@ static inline TerminalJobData *common_job_init(char **argv,
         data->proc.uv = libuv_process_init(&main_loop, data);
     }
 
-    Process *proc = (Process *)&data->proc;
+    process_st *proc = (process_st *)&data->proc;
 
     proc->argv = argv;
     proc->in = &data->in;
@@ -29186,7 +29186,7 @@ static inline bool common_job_callbacks(dict_st *vopts,
 
 static inline bool common_job_start(TerminalJobData *data, typval_st *rettv)
 {
-    Process *proc = (Process *)&data->proc;
+    process_st *proc = (process_st *)&data->proc;
 
     if(proc->type == kProcessTypePty && proc->detach)
     {
@@ -29370,7 +29370,7 @@ static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
     }
 }
 
-static void eval_job_process_exit_cb(Process *proc, int status, void *d)
+static void eval_job_process_exit_cb(process_st *proc, int status, void *d)
 {
     TerminalJobData *data = d;
 
@@ -29439,7 +29439,7 @@ static void term_close(void *d)
     if(!data->exited)
     {
         data->exited = true;
-        process_stop((Process *)&data->proc);
+        process_stop((process_st *)&data->proc);
     }
 
     multiqueue_put(data->events, term_delayed_free, 1, data);

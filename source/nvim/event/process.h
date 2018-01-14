@@ -13,11 +13,11 @@ typedef enum
     kProcessTypePty
 } ProcessType;
 
-typedef struct process Process;
-typedef void (*process_exit_cb)(Process *proc, int status, void *data);
-typedef void (*internal_process_cb)(Process *proc);
+typedef struct process_s process_st;
+typedef void (*process_exit_cb)(process_st *proc, int status, void *data);
+typedef void (*internal_process_cb)(process_st *proc);
 
-struct process
+struct process_s
 {
     ProcessType type;
     main_loop_st *loop;
@@ -44,11 +44,11 @@ struct process
     multiqueue_st *events;
 };
 
-static inline Process process_init(main_loop_st *loop,
+static inline process_st process_init(main_loop_st *loop,
                                    ProcessType type,
                                    void *data)
 {
-    return (Process) {
+    return (process_st) {
         .type = type,
         .data = data,
         .loop = loop,
