@@ -21721,7 +21721,7 @@ static void f_termopen(typval_st *argvars,
         return;
     }
 
-    TerminalOptions topts;
+    terminal_opt_st topts;
 
     topts.data = data;
     topts.width = curwin->w_width;

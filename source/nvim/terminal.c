@@ -106,7 +106,7 @@ typedef struct
 
 struct terminal
 {
-    TerminalOptions opts; ///< options passed to terminal_open
+    terminal_opt_st opts; ///< options passed to terminal_open
     VTerm *vt;
     VTermScreen *vts;
     /// buffer used to:
@@ -222,7 +222,7 @@ void terminal_teardown(void)
     map_free(int, int)(color_indexes);
 }
 
-terminal_st *terminal_open(TerminalOptions opts)
+terminal_st *terminal_open(terminal_opt_st opts)
 {
     bool true_color = ui_rgb_attached();
 
