@@ -7,12 +7,12 @@
 
 typedef struct nvim_state_s nvim_state_st;
 
-typedef int(*state_check_callback)(nvim_state_st *state);
+typedef int(*state_check_callback_ft)(nvim_state_st *state);
 typedef int(*state_execute_callback)(nvim_state_st *state, int key);
 
 struct nvim_state_s
 {
-    state_check_callback check;
+    state_check_callback_ft check;
     state_execute_callback execute;
 };
 
