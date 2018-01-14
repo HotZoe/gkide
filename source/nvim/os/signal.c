@@ -23,13 +23,13 @@
 #include "nvim/os/signal.h"
 #include "nvim/event/loop.h"
 
-static SignalWatcher shup;
-static SignalWatcher spipe;
-static SignalWatcher squit;
-static SignalWatcher sterm;
+static signal_watcher_st shup;
+static signal_watcher_st spipe;
+static signal_watcher_st squit;
+static signal_watcher_st sterm;
 
 #ifdef SIGPWR
-    static SignalWatcher spwr;
+    static signal_watcher_st spwr;
 #endif
 
 static bool rejecting_deadly;
@@ -156,7 +156,7 @@ static void deadly_signal(int signum)
     preserve_exit();
 }
 
-static void on_signal(SignalWatcher *FUNC_ARGS_UNUSED_REALY(handle),
+static void on_signal(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(handle),
                       int signum,
                       void *FUNC_ARGS_UNUSED_REALY(data))
 {

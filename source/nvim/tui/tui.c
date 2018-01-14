@@ -89,7 +89,7 @@ typedef struct tui_data_s
     } output_handle;
 
     bool out_isatty;
-    SignalWatcher winch_handle, cont_handle;
+    signal_watcher_st winch_handle, cont_handle;
     bool cont_received;
     UGrid grid;
     kvec_t(rect_st) invalid_regions;
@@ -357,7 +357,7 @@ static void tui_scheduler(event_msg_st event, void *d)
 }
 
 #ifdef UNIX
-static void sigcont_cb(SignalWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
+static void sigcont_cb(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
                        int FUNC_ARGS_UNUSED_REALY(signum),
                        void *data)
 {
@@ -365,7 +365,7 @@ static void sigcont_cb(SignalWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
 }
 #endif
 
-static void sigwinch_cb(SignalWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
+static void sigwinch_cb(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
                         int FUNC_ARGS_UNUSED_REALY(signum),
                         void *data)
 {

@@ -7,11 +7,11 @@
 
 #include "nvim/event/loop.h"
 
-typedef struct signal_watcher SignalWatcher;
-typedef void (*signal_cb)(SignalWatcher *watcher, int signum, void *data);
-typedef void (*signal_close_cb)(SignalWatcher *watcher, void *data);
+typedef struct signal_watcher_s signal_watcher_st;
+typedef void (*signal_cb)(signal_watcher_st *watcher, int signum, void *data);
+typedef void (*signal_close_cb)(signal_watcher_st *watcher, void *data);
 
-struct signal_watcher
+struct signal_watcher_s
 {
     uv_signal_t uv;
     void *data;
