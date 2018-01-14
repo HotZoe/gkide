@@ -141,15 +141,15 @@ slang_st *first_lang = NULL;
 /// file used for @b zG and @b zW
 uchar_kt *int_wordlist = NULL;
 
-typedef struct wordcount_S
+typedef struct wordcnt_s
 {
-    uint16_t wc_count;  ///< nr of times word was seen
-    uchar_kt wc_word[1];  ///< word, actually longer
-} wordcount_T;
+    uint16_t wc_count;   ///< nr of times word was seen
+    uchar_kt wc_word[1]; ///< word, actually longer
+} wordcnt_st;
 
 #define MAXWORDCOUNT   0xffff
-#define WC_KEY_OFF     offsetof(wordcount_T, wc_word)
-#define HI2WC(hi)      ((wordcount_T *)((hi)->hi_key - WC_KEY_OFF))
+#define WC_KEY_OFF     offsetof(wordcnt_st, wc_word)
+#define HI2WC(hi)      ((wordcnt_st *)((hi)->hi_key - WC_KEY_OFF))
 
 /// Information used when looking for suggestions.
 typedef struct suginfo_s
@@ -2323,7 +2323,7 @@ void count_common_word(slang_st *lp, uchar_kt *word, int len, int count)
 {
     hash_kt hash;
     hashitem_st *hi;
-    wordcount_T *wc;
+    wordcnt_st *wc;
     uchar_kt buf[MAXWLEN];
     uchar_kt *p;
 
@@ -2343,7 +2343,7 @@ void count_common_word(slang_st *lp, uchar_kt *word, int len, int count)
 
     if(HASHITEM_EMPTY(hi))
     {
-        wc = xmalloc(sizeof(wordcount_T) + p_len);
+        wc = xmalloc(sizeof(wordcnt_st) + p_len);
         memcpy(wc->wc_word, p, p_len + 1);
         wc->wc_count = count;
         hash_add_item(&lp->sl_wordcount, hi, wc->wc_word, hash);
@@ -2367,7 +2367,7 @@ static int score_wordcount_adj(slang_st *slang,
                                bool split)
 {
     hashitem_st *hi;
-    wordcount_T *wc;
+    wordcnt_st *wc;
     int bonus;
     int newscore;
     hi = hash_find(&slang->sl_wordcount, word);

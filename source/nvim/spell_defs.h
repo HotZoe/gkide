@@ -128,7 +128,7 @@ struct slang_s
     uchar_kt *sl_info;         ///< infotext string or NULL
     uchar_kt sl_regions[17];   ///< table with up to 8 region names plus NUL
     uchar_kt *sl_midword;      ///< MIDWORD string or NULL
-    hashtable_st sl_wordcount; ///< hashtable with word count, wordcount_T
+    hashtable_st sl_wordcount; ///< hashtable with word count, wordcnt_st
 
     int sl_compmax;          ///< COMPOUNDWORDMAX (default: MAXWLEN)
     int sl_compminlen;       ///< COMPOUNDMIN (default: 0)
