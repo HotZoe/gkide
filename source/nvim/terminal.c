@@ -78,14 +78,14 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/handle.h"
 
-typedef struct terminal_state
+typedef struct terminal_state_s
 {
     nvim_state_st state;
     terminal_st *term;
-    int save_rd;    ///< saved value of RedrawingDisabled
+    int save_rd;        ///< saved value of RedrawingDisabled
     bool close;
-    bool got_bsl;   ///< if the last input was <C-\>
-} TerminalState;
+    bool got_bsl;       ///< if the last input was <C-\>
+} terminal_state_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "terminal.c.generated.h"
@@ -104,7 +104,7 @@ typedef struct
     VTermScreenCell cells[];
 } ScrollbackLine;
 
-struct terminal
+struct terminal_s
 {
     terminal_opt_st opts; ///< options passed to terminal_open
     VTerm *vt;
@@ -427,8 +427,8 @@ void terminal_enter(void)
     // Should only be called when curbuf has a terminal.
     assert(buf->terminal);
 
-    TerminalState state, *s = &state;
-    memset(s, 0, sizeof(TerminalState));
+    terminal_state_st state, *s = &state;
+    memset(s, 0, sizeof(terminal_state_st));
     s->term = buf->terminal;
     // Ensure the terminal is properly sized.
     terminal_resize(s->term, 0, 0);
@@ -495,7 +495,7 @@ void terminal_enter(void)
 
 static int terminal_execute(nvim_state_st *state, int key)
 {
-    TerminalState *s = (TerminalState *)state;
+    terminal_state_st *s = (terminal_state_st *)state;
 
     switch(key)
     {

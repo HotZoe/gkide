@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef struct terminal terminal_st;
+typedef struct terminal_s terminal_st;
 typedef void (*terminal_write_ft)(char *buffer, size_t size, void *data);
 typedef void (*terminal_resize_ft)(uint16_t width, uint16_t height, void *data);
 typedef void (*terminal_close_ft)(void *data);
