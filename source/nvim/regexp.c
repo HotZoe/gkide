@@ -283,25 +283,25 @@ typedef struct parse_state_s
 /// Structure used to save the current input state, when it needs to be
 /// restored after trying a match. Used by reg_save() and reg_restore().
 /// Also stores the length of "backpos".
-typedef struct
+typedef struct regsave_s
 {
     union
     {
         uchar_kt *ptr; ///< reginput pointer, for single-line regexp
-        bpos_st pos;    ///< reginput pos, for multi-line regexp
+        bpos_st pos;   ///< reginput pos, for multi-line regexp
     } rs_u;
     int rs_len;
 } regsave_st;
 
 /// struct to save start/end pointer/position in for \(\)
-typedef struct
+typedef struct save_se_s
 {
     union
     {
         uchar_kt *ptr;
         bpos_st pos;
     } se_u;
-} save_se_T;
+} save_se_st;
 
 /// used for BEHIND and NOBEHIND matching
 typedef struct regbehind_s
@@ -309,8 +309,8 @@ typedef struct regbehind_s
     regsave_st save_after;
     regsave_st save_behind;
     int save_need_clear_subexpr;
-    save_se_T save_start[NSUBEXP];
-    save_se_T save_end[NSUBEXP];
+    save_se_st save_start[NSUBEXP];
+    save_se_st save_end[NSUBEXP];
 } regbehind_st;
 
 // Values for rs_state in regitem_T.
@@ -343,7 +343,7 @@ typedef struct regitem_S
     uchar_kt *rs_scan;   ///< current node in program
     union
     {
-        save_se_T sesave;
+        save_se_st sesave;
         regsave_st regsave;
     } rs_un;     ///< room for saving reginput
     short rs_no; ///< submatch nr or BEHIND/NOBEHIND
@@ -7988,14 +7988,14 @@ static int reg_save_equal(regsave_st *save)
 ///
 /// Use se_save() to use pointer (save_se_multi()) or position
 /// (save_se_one()), depending on REG_MULTI.
-static void save_se_multi(save_se_T *savep, bpos_st *posp)
+static void save_se_multi(save_se_st *savep, bpos_st *posp)
 {
     savep->se_u.pos = *posp;
     posp->lnum = reglnum;
     posp->col = (columnum_kt)(reginput - regline);
 }
 
-static void save_se_one(save_se_T *savep, uchar_kt **pp)
+static void save_se_one(save_se_st *savep, uchar_kt **pp)
 {
     savep->se_u.ptr = *pp;
     *pp = reginput;
@@ -10195,7 +10195,7 @@ static int nstate;
 static int istate;
 
 // If not NULL match must end at this position
-static save_se_T *nfa_endp = NULL;
+static save_se_st *nfa_endp = NULL;
 
 // listid is global, so that it increases on recursive calls to
 // nfa_regmatch(), which means we don't have to clear the lastlist
@@ -16233,9 +16233,9 @@ static int recursive_regmatch(nfa_state_st *state,
     int save_reglnum = reglnum;
     int save_nfa_match = nfa_match;
     int save_nfa_listid = nfa_listid;
-    save_se_T *save_nfa_endp = nfa_endp;
-    save_se_T endpos;
-    save_se_T *endposp = NULL;
+    save_se_st *save_nfa_endp = nfa_endp;
+    save_se_st endpos;
+    save_se_st *endposp = NULL;
     int result;
     int need_restore = FALSE;
 
