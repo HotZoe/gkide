@@ -2096,7 +2096,7 @@ FUNC_ATTR_NONNULL_ALL
     } while(0)
 
 static inline int _nothing_conv_real_list_after_start(typval_st *const tv,
-                                                      MPConvStackVal *const mpsv)
+                                                      mpconv_stack_st *const mpsv)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -2146,7 +2146,7 @@ FUNC_ATTR_ALWAYS_INLINE
 static inline int _nothing_conv_real_dict_after_start(typval_st *const tv,
                                                       dict_st **const dictp,
                                                       const void *const nodictvar,
-                                                      MPConvStackVal *const mpsv)
+                                                      mpconv_stack_st *const mpsv)
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_WARN_UNUSED_RESULT
 {

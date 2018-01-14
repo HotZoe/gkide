@@ -34,7 +34,7 @@ typedef enum
 } MPConvPartialStage;
 
 /// Structure representing current VimL to messagepack conversion state
-typedef struct
+typedef struct mpconv_stack_s
 {
     MPConvStackValType type;  ///< Type of the stack entry.
     typval_st *tv;             ///< Currently converted typval_st.
@@ -70,10 +70,10 @@ typedef struct
             size_t todo;      ///< Number of items left to process.
         } a;                  ///< State of list or generic mapping conversion.
     } data;                   ///< Data to convert.
-} MPConvStackVal;
+} mpconv_stack_st;
 
 /// Stack used to convert VimL values to messagepack.
-typedef kvec_withinit_t(MPConvStackVal, 8) MPConvStack;
+typedef kvec_withinit_t(mpconv_stack_st, 8) MPConvStack;
 
 // Defines for MPConvStack
 #define _mp_size    kv_size

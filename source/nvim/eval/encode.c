@@ -137,7 +137,7 @@ FUNC_ATTR_NONNULL_ALL
             ga_concat(&msg_ga, ", ");
         }
 
-        MPConvStackVal v = kv_A(*mpstack, i);
+        mpconv_stack_st v = kv_A(*mpstack, i);
 
         switch(v.type)
         {
@@ -522,7 +522,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         size_t backref = 0;                                                 \
         for(; backref < kv_size(*mpstack); backref++)                       \
         {                                                                   \
-            const MPConvStackVal mpval = kv_A(*mpstack, backref);           \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref);           \
             if(mpval.type == conv_type)                                     \
             {                                                               \
                 if(conv_type == kMPConvDict)                                \
@@ -566,7 +566,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         size_t backref = 0;                                             \
         for(; backref < kv_size(*mpstack); backref++)                   \
         {                                                               \
-            const MPConvStackVal mpval = kv_A(*mpstack, backref);       \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref);       \
             if(mpval.type == conv_type)                                 \
             {                                                           \
                 if(conv_type == kMPConvDict)                            \

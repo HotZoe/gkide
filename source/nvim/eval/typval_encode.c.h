@@ -136,7 +136,7 @@
 ///
 /// @param  tv  Pointer to typval where value is stored. May be NULL. May
 ///             point to a special dictionary.
-/// @param  mpsv  Pushed MPConvStackVal value.
+/// @param  mpsv  Pushed mpconv_stack_st value.
 
 /// @def TYPVAL_ENCODE_CONV_LIST_BETWEEN_ITEMS
 /// @brief Macros used after finishing converting non-last list item
@@ -167,7 +167,7 @@
 /// @param  tv  Pointer to typval where dictionary is stored. May be NULL.
 ///             May not point to a special dictionary.
 /// @param  dict  Converted dictionary, lvalue.
-/// @param  mpsv  Pushed MPConvStackVal value.
+/// @param  mpsv  Pushed mpconv_stack_st value.
 
 /// @def TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK
 /// @brief Macros used to check special dictionary key
@@ -298,7 +298,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     MPConvStack *const mpstack,
-    MPConvStackVal *const cur_mpsv,
+    mpconv_stack_st *const cur_mpsv,
     typval_st *const tv,
     const int copyID,
     const char *const objname)
@@ -334,7 +334,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     MPConvStack *const mpstack,
-    MPConvStackVal *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
+    mpconv_stack_st *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
     typval_st *const tv,
     const int copyID,
     const char *const objname)
@@ -378,7 +378,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
                                            ? NULL
                                            : partial_name(pt)));
 
-            _mp_push(*mpstack, ((MPConvStackVal) {
+            _mp_push(*mpstack, ((mpconv_stack_st) {
                 .type = kMPConvPartial,
                 .tv = tv,
                 .saved_copyID = copyID - 1,
@@ -412,7 +412,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
             assert(saved_copyID != copyID && saved_copyID != copyID - 1);
 
-            _mp_push(*mpstack, ((MPConvStackVal) {
+            _mp_push(*mpstack, ((mpconv_stack_st) {
                 .type = kMPConvList,
                 .tv = tv,
                 .saved_copyID = saved_copyID,
@@ -610,7 +610,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                         assert(saved_copyID != copyID && saved_copyID != copyID - 1);
 
-                        _mp_push(*mpstack, ((MPConvStackVal) {
+                        _mp_push(*mpstack, ((mpconv_stack_st) {
                             .tv = tv,
                             .type = kMPConvList,
                             .saved_copyID = saved_copyID,
@@ -662,7 +662,7 @@ static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
 
                         assert(saved_copyID != copyID && saved_copyID != copyID - 1);
 
-                        _mp_push(*mpstack, ((MPConvStackVal) {
+                        _mp_push(*mpstack, ((mpconv_stack_st) {
                             .tv = tv,
                             .type = kMPConvPairs,
                             .saved_copyID = saved_copyID,
@@ -727,7 +727,7 @@ _convert_one_value_regular_dict:
 
             assert(saved_copyID != copyID && saved_copyID != copyID - 1);
 
-            _mp_push(*mpstack, ((MPConvStackVal) {
+            _mp_push(*mpstack, ((mpconv_stack_st) {
                 .tv = tv,
                 .type = kMPConvDict,
                 .saved_copyID = saved_copyID,
@@ -806,7 +806,7 @@ typval_encode_stop_converting_one_item:
 
     while(_mp_size(mpstack))
     {
-        MPConvStackVal *cur_mpsv = &_mp_last(mpstack);
+        mpconv_stack_st *cur_mpsv = &_mp_last(mpstack);
         typval_st *tv = NULL;
 
         switch(cur_mpsv->type)
@@ -933,7 +933,7 @@ typval_encode_stop_converting_one_item:
                         {
                             TYPVAL_ENCODE_CONV_LIST_START(NULL, pt->pt_argc);
 
-                            _mp_push(mpstack, ((MPConvStackVal) {
+                            _mp_push(mpstack, ((mpconv_stack_st) {
                                 .type = kMPConvPartialList,
                                 .tv = NULL,
                                 .saved_copyID = copyID - 1,
@@ -992,7 +992,7 @@ typval_encode_stop_converting_one_item:
 
                             assert(saved_copyID != copyID && saved_copyID != copyID - 1);
 
-                            _mp_push(mpstack, ((MPConvStackVal) {
+                            _mp_push(mpstack, ((mpconv_stack_st) {
                                 .type = kMPConvDict,
                                 .tv = NULL,
                                 .saved_copyID = saved_copyID,

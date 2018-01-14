@@ -658,7 +658,7 @@ nlua_pop_typval_table_processing_end:
     {                                                                  \
         for(size_t backref = kv_size(*mpstack); backref; backref--)    \
         {                                                              \
-            const MPConvStackVal mpval = kv_A(*mpstack, backref - 1);  \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref - 1);  \
             if(mpval.type == conv_type)                                \
             {                                                          \
                 if(conv_type == kMPConvDict                            \
