@@ -245,12 +245,12 @@ typedef struct prt_dsc_comment_s
     int type;
 } prt_dsc_comment_st;
 
-struct prt_dsc_line_S
+typedef struct prt_dsc_line_s
 {
     int type;
     uchar_kt *string;
     int len;
-};
+} prt_dsc_line_st;
 
 /// Static buffer to read initial comments in a resource
 /// file, some can have a couple of KB of comments!
@@ -1950,7 +1950,7 @@ static int prt_resfile_skip_ws(int offset)
 
 /// returns detail on next DSC comment line found.
 /// Returns true if a DSC comment is found, else false
-static int prt_next_dsc(struct prt_dsc_line_S *p_dsc_line)
+static int prt_next_dsc(prt_dsc_line_st *p_dsc_line)
 {
     int comment;
     int offset;
@@ -2018,7 +2018,7 @@ static int prt_open_resource(struct prt_ps_resource_S *resource)
     int seen_title;
     int seen_version;
     FILE *fd_resource;
-    struct prt_dsc_line_S dsc_line;
+    prt_dsc_line_st dsc_line;
     fd_resource = mch_fopen((char *)resource->filename, READBIN);
 
     if(fd_resource == NULL)
