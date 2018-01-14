@@ -20,7 +20,7 @@ struct ui_bridge_s
     // callback called in another thread
     UI *ui;
 
-    event_scheduler scheduler;
+    event_scheduler_ft scheduler;
 
     // thread handle
     // a handle is an abstract reference to a resource.

@@ -16,7 +16,7 @@ typedef struct event_msg_s
     void *argv[EVENT_HANDLER_MAX_ARGC];
 } event_msg_st;
 
-typedef void(*event_scheduler)(event_msg_st event, void *data);
+typedef void(*event_scheduler_ft)(event_msg_st event, void *data);
 
 #define VA_EVENT_INIT(event, h, a)                       \
     do                                                   \
