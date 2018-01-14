@@ -304,14 +304,14 @@ typedef struct
 } save_se_T;
 
 /// used for BEHIND and NOBEHIND matching
-typedef struct regbehind_S
+typedef struct regbehind_s
 {
     regsave_st save_after;
     regsave_st save_behind;
     int save_need_clear_subexpr;
     save_se_T save_start[NSUBEXP];
     save_se_T save_end[NSUBEXP];
-} regbehind_T;
+} regbehind_st;
 
 // Values for rs_state in regitem_T.
 typedef enum regstate_E
@@ -4584,7 +4584,7 @@ static int reg_line_lbr; ///< "\n" in string is line break
 // "regstack" and "backpos" are used by regmatch().
 // They are kept over calls to avoid invoking malloc()
 // and free() often. "regstack" is a stack with regitem_T items,
-// sometimes preceded by regstar_T or regbehind_T.
+// sometimes preceded by regstar_T or regbehind_st.
 // "backpos_st" is a table with backpos_st for BACK
 static garray_st regstack = GA_EMPTY_INIT_VALUE;
 static garray_st backpos = GA_EMPTY_INIT_VALUE;
@@ -6589,8 +6589,8 @@ static int regmatch(uchar_kt *scan)
                         }
                         else
                         {
-                            ga_grow(&regstack, sizeof(regbehind_T));
-                            regstack.ga_len += sizeof(regbehind_T);
+                            ga_grow(&regstack, sizeof(regbehind_st));
+                            regstack.ga_len += sizeof(regbehind_st);
                             rp = regstack_push(RS_BEHIND1, scan);
 
                             if(rp == NULL)
@@ -6602,7 +6602,7 @@ static int regmatch(uchar_kt *scan)
                                 // Need to save the subexpr to be able to
                                 // restore them when there is a match but
                                 // we don't use it.
-                                save_subexpr(((regbehind_T *)rp) - 1);
+                                save_subexpr(((regbehind_st *)rp) - 1);
                                 rp->rs_no = op;
                                 reg_save(&rp->rs_un.regsave, &backpos);
 
@@ -6859,7 +6859,7 @@ static int regmatch(uchar_kt *scan)
                     if(status == RA_NOMATCH)
                     {
                         regstack_pop(&scan);
-                        regstack.ga_len -= sizeof(regbehind_T);
+                        regstack.ga_len -= sizeof(regbehind_st);
                     }
                     else
                     {
@@ -6871,7 +6871,7 @@ static int regmatch(uchar_kt *scan)
                         // current position.
                         //
                         // save the position after the found match for next
-                        reg_save(&(((regbehind_T *)rp) - 1)->save_after, &backpos);
+                        reg_save(&(((regbehind_st *)rp) - 1)->save_after, &backpos);
 
                         // Start looking for a match with operand at the
                         // current position. Go back one character until
@@ -6879,7 +6879,7 @@ static int regmatch(uchar_kt *scan)
                         // line or the previous line (for multi-line matching).
                         // Set behind_pos to where the match should end, BHPOS
                         // will match it. Save the current value.
-                        (((regbehind_T *)rp) - 1)->save_behind = behind_pos;
+                        (((regbehind_st *)rp) - 1)->save_behind = behind_pos;
                         behind_pos = rp->rs_un.regsave;
                         rp->rs_state = RS_BEHIND2;
                         reg_restore(&rp->rs_un.regsave, &backpos);
@@ -6893,11 +6893,11 @@ static int regmatch(uchar_kt *scan)
                     if(status == RA_MATCH && reg_save_equal(&behind_pos))
                     {
                         // found a match that ends where "next" started
-                        behind_pos = (((regbehind_T *)rp) - 1)->save_behind;
+                        behind_pos = (((regbehind_st *)rp) - 1)->save_behind;
 
                         if(rp->rs_no == BEHIND)
                         {
-                            reg_restore(&(((regbehind_T *)rp) - 1)->save_after,
+                            reg_restore(&(((regbehind_st *)rp) - 1)->save_after,
                                         &backpos);
                         }
                         else
@@ -6907,11 +6907,11 @@ static int regmatch(uchar_kt *scan)
                             // because what follows matched,
                             // so they have been set.
                             status = RA_NOMATCH;
-                            restore_subexpr(((regbehind_T *)rp) - 1);
+                            restore_subexpr(((regbehind_st *)rp) - 1);
                         }
 
                         regstack_pop(&scan);
-                        regstack.ga_len -= sizeof(regbehind_T);
+                        regstack.ga_len -= sizeof(regbehind_st);
                     }
                     else
                     {
@@ -6998,18 +6998,18 @@ static int regmatch(uchar_kt *scan)
                                 // been  changed, need to restore them
                                 // for the next try.
                                 status = RA_NOMATCH;
-                                restore_subexpr(((regbehind_T *)rp) - 1);
+                                restore_subexpr(((regbehind_st *)rp) - 1);
                             }
                         }
                         else
                         {
                             // Can't advance.
                             // For NOBEHIND that's a match.
-                            behind_pos = (((regbehind_T *)rp) - 1)->save_behind;
+                            behind_pos = (((regbehind_st *)rp) - 1)->save_behind;
 
                             if(rp->rs_no == NOBEHIND)
                             {
-                                reg_restore(&(((regbehind_T *)rp) - 1)->save_after,
+                                reg_restore(&(((regbehind_st *)rp) - 1)->save_after,
                                             &backpos);
                                 status = RA_MATCH;
                             }
@@ -7021,12 +7021,12 @@ static int regmatch(uchar_kt *scan)
                                 if(status == RA_MATCH)
                                 {
                                     status = RA_NOMATCH;
-                                    restore_subexpr(((regbehind_T *)rp) - 1);
+                                    restore_subexpr(((regbehind_st *)rp) - 1);
                                 }
                             }
 
                             regstack_pop(&scan);
-                            regstack.ga_len -= sizeof(regbehind_T);
+                            regstack.ga_len -= sizeof(regbehind_st);
                         }
                     }
 
@@ -7868,7 +7868,7 @@ static void cleanup_zsubexpr(void)
 
 /// Save the current subexpr to "bp", so
 /// that they can be restored later by restore_subexpr().
-static void save_subexpr(regbehind_T *bp)
+static void save_subexpr(regbehind_st *bp)
 {
     int i;
 
@@ -7896,7 +7896,7 @@ static void save_subexpr(regbehind_T *bp)
 }
 
 /// Restore the subexpr from @b bp.
-static void restore_subexpr(regbehind_T *bp)
+static void restore_subexpr(regbehind_st *bp)
 {
     int i;
 
