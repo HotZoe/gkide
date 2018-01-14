@@ -31,12 +31,12 @@
 #include "nvim/strings.h"
 #include "nvim/window.h"
 
-typedef struct
+typedef struct lineoff_s
 {
-    linenum_kt lnum;  ///< line number
-    int fill;       ///< filler lines
-    int height;     ///< height of added line
-} lineoff_T;
+    linenum_kt lnum; ///< line number
+    int fill;        ///< filler lines
+    int height;      ///< height of added line
+} lineoff_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "move.c.generated.h"
@@ -287,7 +287,7 @@ void update_topline(void)
                 if((long)curwin->w_cursor.lnum >= (long)curwin->w_botline - p_so
                    || hasAnyFolding(curwin))
                 {
-                    lineoff_T loff;
+                    lineoff_st loff;
 
                     // Cursor is (a few lines) above botline,
                     // check if there are 'scrolloff' window
@@ -423,7 +423,7 @@ static bool check_top_offset(void)
        || hasAnyFolding(curwin)
       )
     {
-        lineoff_T loff;
+        lineoff_st loff;
         loff.lnum = curwin->w_cursor.lnum;
         loff.fill = 0;
         int n = curwin->w_topfill; // always have this context
@@ -1507,7 +1507,7 @@ void scrollup_clamp(void)
 /// a (wrapped) text line. Uses and sets "lp->fill".
 /// Returns the height of the added line in "lp->height".
 /// Lines above the first one are incredibly high: MAXCOL.
-static void topline_back(lineoff_T *lp)
+static void topline_back(lineoff_st *lp)
 {
     if(lp->fill < diff_check_fill(curwin, lp->lnum))
     {
@@ -1540,7 +1540,7 @@ static void topline_back(lineoff_T *lp)
 /// a closed fold or a (wrapped) text line.  Uses and sets "lp->fill".
 /// Returns the height of the added line in "lp->height".
 /// Lines below the last one are incredibly high.
-static void botline_forw(lineoff_T *lp)
+static void botline_forw(lineoff_st *lp)
 {
     if(lp->fill < diff_check_fill(curwin, lp->lnum + 1))
     {
@@ -1572,7 +1572,7 @@ static void botline_forw(lineoff_T *lp)
 /// Switch from including filler lines below lp->lnum to including filler
 /// lines above loff.lnum + 1. This keeps pointing to the same line.
 /// When there are no filler lines nothing changes.
-static void botline_topline(lineoff_T *lp)
+static void botline_topline(lineoff_st *lp)
 {
     if(lp->fill > 0)
     {
@@ -1584,7 +1584,7 @@ static void botline_topline(lineoff_T *lp)
 /// Switch from including filler lines above lp->lnum to including filler
 /// lines below loff.lnum - 1. This keeps pointing to the same line.
 /// When there are no filler lines nothing changes.
-static void topline_botline(lineoff_T *lp)
+static void topline_botline(lineoff_st *lp)
 {
     if(lp->fill > 0)
     {
@@ -1777,8 +1777,8 @@ void scroll_cursor_bot(int min_scroll, int set_topbot)
     int used;
     int scrolled = 0;
     int extra = 0;
-    lineoff_T loff;
-    lineoff_T boff;
+    lineoff_st loff;
+    lineoff_st boff;
     int fill_below_window;
     linenum_kt old_topline = curwin->w_topline;
     int old_topfill = curwin->w_topfill;
@@ -1995,8 +1995,8 @@ void scroll_cursor_halfway(int atend)
     int above = 0;
     int topfill = 0;
     int below = 0;
-    lineoff_T loff;
-    lineoff_T boff;
+    lineoff_st loff;
+    lineoff_st boff;
     linenum_kt old_topline = curwin->w_topline;
     loff.lnum = boff.lnum = curwin->w_cursor.lnum;
     (void)hasFolding(loff.lnum, &loff.lnum, &boff.lnum);
@@ -2221,7 +2221,7 @@ int onepage(int dir, long count)
 {
     long n;
     int retval = OK;
-    lineoff_T loff;
+    lineoff_st loff;
     linenum_kt old_topline = curwin->w_topline;
 
     if(curbuf->b_ml.ml_line_count == 1) // nothing to do
@@ -2478,7 +2478,7 @@ int onepage(int dir, long count)
 ///  l2 last text line       l2 top text line
 ///  -------------           l3 second text line
 ///  l3                      etc.
-static void get_scroll_overlap(lineoff_T *lp, int dir)
+static void get_scroll_overlap(lineoff_st *lp, int dir)
 {
     int min_height = curwin->w_height - 2;
 
@@ -2498,7 +2498,7 @@ static void get_scroll_overlap(lineoff_T *lp, int dir)
         return; // no overlap
     }
 
-    lineoff_T loff0 = *lp;
+    lineoff_st loff0 = *lp;
 
     if(dir > 0)
     {
@@ -2517,7 +2517,7 @@ static void get_scroll_overlap(lineoff_T *lp, int dir)
         return;
     }
 
-    lineoff_T loff1 = *lp;
+    lineoff_st loff1 = *lp;
 
     if(dir > 0)
     {
@@ -2536,7 +2536,7 @@ static void get_scroll_overlap(lineoff_T *lp, int dir)
         return;
     }
 
-    lineoff_T loff2 = *lp;
+    lineoff_st loff2 = *lp;
 
     if(dir > 0)
     {
