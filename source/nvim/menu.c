@@ -1737,19 +1737,19 @@ void ex_emenu(exargs_st *eap)
 }
 
 /// Translation of menu names. Just a simple lookup table.
-typedef struct
+typedef struct menutrans_s
 {
     uchar_kt *from;        ///< English name
     uchar_kt *from_noamp;  ///< same, without '&'
     uchar_kt *to;          ///< translated name
-} menutrans_T;
+} menutrans_st;
 
 static garray_st menutrans_ga = GA_EMPTY_INIT_VALUE;
 
-#define FREE_MENUTRANS(mt)   \
-    menutrans_T* _mt = (mt); \
-    xfree(_mt->from);        \
-    xfree(_mt->from_noamp);  \
+#define FREE_MENUTRANS(mt)    \
+    menutrans_st* _mt = (mt); \
+    xfree(_mt->from);         \
+    xfree(_mt->from_noamp);   \
     xfree(_mt->to)
 
 /// ":menutrans".
@@ -1762,13 +1762,13 @@ void ex_menutranslate(exargs_st *eap)
 
     if(menutrans_ga.ga_itemsize == 0)
     {
-        ga_init(&menutrans_ga, (int)sizeof(menutrans_T), 5);
+        ga_init(&menutrans_ga, (int)sizeof(menutrans_st), 5);
     }
 
     // ":menutrans clear": clear all translations.
     if(STRNCMP(arg, "clear", 5) == 0 && ends_excmd(*skipwhite(arg + 5)))
     {
-        GA_DEEP_CLEAR(&menutrans_ga, menutrans_T, FREE_MENUTRANS);
+        GA_DEEP_CLEAR(&menutrans_ga, menutrans_st, FREE_MENUTRANS);
 
         // Delete all "menutrans_" global variables.
         del_menutrans_vars();
@@ -1797,7 +1797,7 @@ void ex_menutranslate(exargs_st *eap)
             menu_unescape_name(from);
             menu_unescape_name(to);
 
-            menutrans_T *tp = GA_APPEND_VIA_PTR(menutrans_T, &menutrans_ga);
+            menutrans_st *tp = GA_APPEND_VIA_PTR(menutrans_st, &menutrans_ga);
             tp->from = from;
             tp->from_noamp = from_noamp;
             tp->to = to;
@@ -1826,7 +1826,7 @@ static uchar_kt *menu_skip_part(uchar_kt *p)
 static uchar_kt *menutrans_lookup(uchar_kt *name, int len)
 {
     uchar_kt *dname;
-    menutrans_T *tp = (menutrans_T *)menutrans_ga.ga_data;
+    menutrans_st *tp = (menutrans_st *)menutrans_ga.ga_data;
 
     for(int i = 0; i < menutrans_ga.ga_len; i++)
     {
