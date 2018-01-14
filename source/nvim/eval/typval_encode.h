@@ -159,7 +159,7 @@ static inline size_t tv_strlen(const typval_st *const tv)
     _TYPVAL_ENCODE_FUNC_NAME(_typval_encode_, _check_self_reference)
 
 /// Entry point function name
-#define _TYPVAL_ENCODE_ENCODE \
+#define TVE_ENCODE_ENTRY_FUNC \
     _TYPVAL_ENCODE_FUNC_NAME(encode_vim_to_, )
 
 /// Name of the …convert_one_value function

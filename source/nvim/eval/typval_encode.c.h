@@ -762,7 +762,7 @@ typval_encode_stop_converting_one_item:
     goto typval_encode_stop_converting_one_item;
 }
 
-TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
+TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     typval_st *const tv,
     const char *const objname)
@@ -782,7 +782,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// Object name, used for error reporting.
 ///
 /// @return OK in case of success, FAIL in case of failure.
-TYPVAL_ENCODE_SCOPE int _TYPVAL_ENCODE_ENCODE(
+TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     typval_st *const top_tv,
     const char *const objname)
