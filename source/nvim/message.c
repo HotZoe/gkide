@@ -93,7 +93,7 @@
 #define DLG_BUTTON_SEP    '\n'
 #define DLG_HOTKEY_CHAR   '&'
 
-typedef struct msgchunk_S msgchunk_T;
+typedef struct msgchunk_s msgchunk_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "message.c.generated.h"
@@ -101,10 +101,10 @@ typedef struct msgchunk_S msgchunk_T;
 
 /// To be able to scroll back at the "more" and "hit-enter" prompts we
 /// need to store the displayed text and remember where screen lines start.
-struct msgchunk_S
+struct msgchunk_s
 {
-    msgchunk_T *sb_next;
-    msgchunk_T *sb_prev;
+    msgchunk_st *sb_next;
+    msgchunk_st *sb_prev;
     char sb_eol;          ///< TRUE when line ends after this text
     int sb_msg_col;       ///< column in which text starts
     int sb_attr;          ///< text attributes
@@ -2231,7 +2231,7 @@ static void inc_msg_scrolled(void)
 }
 
 /// last displayed text
-static msgchunk_T *last_msgchunk = NULL;
+static msgchunk_st *last_msgchunk = NULL;
 
 /// clear text on next msg
 static int do_clear_sb_text = FALSE;
@@ -2249,7 +2249,7 @@ static void store_sb_text( uchar_kt **sb_str,
                            int *sb_col,
                            int finish)
 {
-    msgchunk_T *mp;
+    msgchunk_st *mp;
 
     if(do_clear_sb_text)
     {
@@ -2259,7 +2259,7 @@ static void store_sb_text( uchar_kt **sb_str,
 
     if(s > *sb_str)
     {
-        mp = xmalloc((sizeof(msgchunk_T) + (s - *sb_str)));
+        mp = xmalloc((sizeof(msgchunk_st) + (s - *sb_str)));
         mp->sb_eol = finish;
         mp->sb_msg_col = *sb_col;
         mp->sb_attr = attr;
@@ -2300,7 +2300,7 @@ void may_clear_sb_text(void)
 /// Called when redrawing the screen.
 void clear_sb_text(void)
 {
-    msgchunk_T *mp;
+    msgchunk_st *mp;
 
     while(last_msgchunk != NULL)
     {
@@ -2313,7 +2313,7 @@ void clear_sb_text(void)
 /// "g<" command.
 void show_sb_text(void)
 {
-    msgchunk_T *mp;
+    msgchunk_st *mp;
 
     // Only show something if there is more than one line, otherwise it looks
     // weird, typing a command without output results in one line.
@@ -2331,9 +2331,9 @@ void show_sb_text(void)
 }
 
 /// Move to the start of screen line in already displayed text.
-static msgchunk_T *msg_sb_start(msgchunk_T *mps)
+static msgchunk_st *msg_sb_start(msgchunk_st *mps)
 {
-    msgchunk_T *mp = mps;
+    msgchunk_st *mp = mps;
 
     while(mp != NULL && mp->sb_prev != NULL && !mp->sb_prev->sb_eol)
     {
@@ -2354,9 +2354,9 @@ void msg_sb_eol(void)
 
 /// Display a screen line from previously displayed text at row "row".
 /// Returns a pointer to the text for the next line (can be NULL).
-static msgchunk_T *disp_sb_line(int row, msgchunk_T *smp)
+static msgchunk_st *disp_sb_line(int row, msgchunk_st *smp)
 {
-    msgchunk_T *mp = smp;
+    msgchunk_st *mp = smp;
     uchar_kt *p;
 
     for(;;)
@@ -2489,8 +2489,8 @@ static int do_more_prompt(int typed_char)
     int c;
     int retval = FALSE;
     int toscroll;
-    msgchunk_T *mp_last = NULL;
-    msgchunk_T *mp;
+    msgchunk_st *mp_last = NULL;
+    msgchunk_st *mp;
     int i;
 
     // We get called recursively when a timer callback outputs a message. In
