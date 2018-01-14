@@ -314,32 +314,32 @@ typedef struct regbehind_s
 } regbehind_st;
 
 // Values for rs_state in regitem_T.
-typedef enum regstate_E
+typedef enum regstate_e
 {
-    RS_NOPEN = 0,      ///< NOPEN and NCLOSE
-    RS_MOPEN,          ///< MOPEN + [0-9]
-    RS_MCLOSE,         ///< MCLOSE + [0-9]
-    RS_ZOPEN,          ///< ZOPEN + [0-9]
-    RS_ZCLOSE,         ///< ZCLOSE + [0-9]
-    RS_BRANCH,         ///< BRANCH
-    RS_BRCPLX_MORE,    ///< BRACE_COMPLEX and trying one more match
-    RS_BRCPLX_LONG,    ///< BRACE_COMPLEX and trying longest match
-    RS_BRCPLX_SHORT,   ///< BRACE_COMPLEX and trying shortest match
-    RS_NOMATCH,        ///< NOMATCH
-    RS_BEHIND1,        ///< BEHIND / NOBEHIND matching rest
-    RS_BEHIND2,        ///< BEHIND / NOBEHIND matching behind part
-    RS_STAR_LONG,      ///< STAR/PLUS/BRACE_SIMPLE longest match
-    RS_STAR_SHORT,     ///< STAR/PLUS/BRACE_SIMPLE shortest match
-} regstate_T;
+    RS_NOPEN = 0,    ///< NOPEN and NCLOSE
+    RS_MOPEN,        ///< MOPEN + [0-9]
+    RS_MCLOSE,       ///< MCLOSE + [0-9]
+    RS_ZOPEN,        ///< ZOPEN + [0-9]
+    RS_ZCLOSE,       ///< ZCLOSE + [0-9]
+    RS_BRANCH,       ///< BRANCH
+    RS_BRCPLX_MORE,  ///< BRACE_COMPLEX and trying one more match
+    RS_BRCPLX_LONG,  ///< BRACE_COMPLEX and trying longest match
+    RS_BRCPLX_SHORT, ///< BRACE_COMPLEX and trying shortest match
+    RS_NOMATCH,      ///< NOMATCH
+    RS_BEHIND1,      ///< BEHIND / NOBEHIND matching rest
+    RS_BEHIND2,      ///< BEHIND / NOBEHIND matching behind part
+    RS_STAR_LONG,    ///< STAR/PLUS/BRACE_SIMPLE longest match
+    RS_STAR_SHORT,   ///< STAR/PLUS/BRACE_SIMPLE shortest match
+} regstate_et;
 
-/// When there are alternatives a regstate_T is put on the regstack
+/// When there are alternatives a regstate_et is put on the regstack
 /// to remember what we are doing.
 ///
 /// Before it may be another type of item, depending on rs_state,
 /// to remember more things.
 typedef struct regitem_S
 {
-    regstate_T rs_state; ///< what we are doing, one of RS_ above
+    regstate_et rs_state; ///< what we are doing, one of RS_ above
     uchar_kt *rs_scan;   ///< current node in program
     union
     {
@@ -7182,7 +7182,7 @@ static int regmatch(uchar_kt *scan)
 /// @return
 /// - pointer to new item.
 /// - NULL when out of memory.
-static regitem_T *regstack_push(regstate_T state, uchar_kt *scan)
+static regitem_T *regstack_push(regstate_et state, uchar_kt *scan)
 {
     regitem_T *rp;
 
