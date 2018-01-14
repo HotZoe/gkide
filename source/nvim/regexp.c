@@ -267,7 +267,7 @@
 /// pointer to a function returning void. This should work for all compilers.
 typedef void (*(*fptr_ft)(int *, int))(void);
 
-typedef struct
+typedef struct parse_state_s
 {
     uchar_kt *regparse;
     int prevchr_len;
@@ -278,7 +278,7 @@ typedef struct
     int at_start;
     int prev_at_start;
     int regnpar;
-} parse_state_T;
+} parse_state_st;
 
 /// Structure used to save the current input state, when it needs to be
 /// restored after trying a match. Used by reg_save() and reg_restore().
@@ -3977,7 +3977,7 @@ static void initchr(uchar_kt *str)
 
 /// Save the current parse state, so that it can be
 /// restored and parsing starts in the same state again.
-static void save_parse_state(parse_state_T *ps)
+static void save_parse_state(parse_state_st *ps)
 {
     ps->regparse = regparse;
     ps->prevchr_len = prevchr_len;
@@ -3991,7 +3991,7 @@ static void save_parse_state(parse_state_T *ps)
 }
 
 /// Restore a previously saved parse state.
-static void restore_parse_state(parse_state_T *ps)
+static void restore_parse_state(parse_state_st *ps)
 {
     regparse = ps->regparse;
     prevchr_len = ps->prevchr_len;
@@ -12436,8 +12436,8 @@ static int nfa_regpiece(void)
     long minval;
     long maxval;
     int greedy = TRUE; // Braces are prefixed with '-' ?
-    parse_state_T old_state;
-    parse_state_T new_state;
+    parse_state_st old_state;
+    parse_state_st new_state;
 
     int c2;
     int old_post_pos;
