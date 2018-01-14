@@ -746,7 +746,7 @@ struct filebuf_s
     synblk_st b_s;
 
     signlist_T *b_signlist;     ///< list of signs to draw
-    Terminal *terminal;         ///< Terminal instance associated with the buffer
+    terminal_st *terminal;      ///< instance associated with the buffer
     dict_st *additional_data;   ///< Additional data from shada file if any.
     int b_mapped_ctrl_c;        ///< modes where CTRL-C is mapped
     bufhl_info_T *b_bufhl_info; ///< buffer stored highlights

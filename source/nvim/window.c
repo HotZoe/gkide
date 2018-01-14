@@ -2402,7 +2402,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 
     filebuf_st *old_curbuf = curbuf;
-    Terminal *term = win->w_buffer ? win->w_buffer->terminal : NULL;
+    terminal_st *term = win->w_buffer ? win->w_buffer->terminal : NULL;
 
     if(term)
     {

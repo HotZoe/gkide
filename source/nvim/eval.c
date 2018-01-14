@@ -483,7 +483,7 @@ typedef struct terminal_jobdata_s
     Stream in;
     Stream out;
     Stream err;            ///< Initialized in common_job_start().
-    Terminal *term;
+    terminal_st *term;
     bool stopped;
     bool exited;
     bool rpc;
@@ -21761,7 +21761,7 @@ static void f_termopen(typval_st *argvars,
                  &err);
 
     api_clear_error(&err);
-    Terminal *term = terminal_open(topts);
+    terminal_st *term = terminal_open(topts);
     data->term = term;
     data->refcount++;
     return;

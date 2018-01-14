@@ -81,7 +81,7 @@
 typedef struct terminal_state
 {
     nvim_state_st state;
-    Terminal *term;
+    terminal_st *term;
     int save_rd;    ///< saved value of RedrawingDisabled
     bool close;
     bool got_bsl;   ///< if the last input was <C-\>
@@ -222,12 +222,12 @@ void terminal_teardown(void)
     map_free(int, int)(color_indexes);
 }
 
-Terminal *terminal_open(TerminalOptions opts)
+terminal_st *terminal_open(TerminalOptions opts)
 {
     bool true_color = ui_rgb_attached();
 
     // Create a new terminal instance and configure it
-    Terminal *rv = xcalloc(1, sizeof(Terminal));
+    terminal_st *rv = xcalloc(1, sizeof(terminal_st));
     rv->opts = opts;
     rv->cursor.visible = true;
 
@@ -332,7 +332,7 @@ Terminal *terminal_open(TerminalOptions opts)
     return rv;
 }
 
-void terminal_close(Terminal *term, char *msg)
+void terminal_close(terminal_st *term, char *msg)
 {
     if(term->closed)
     {
@@ -381,7 +381,7 @@ void terminal_close(Terminal *term, char *msg)
     }
 }
 
-void terminal_resize(Terminal *term, uint16_t width, uint16_t height)
+void terminal_resize(terminal_st *term, uint16_t width, uint16_t height)
 {
     if(term->closed)
     {
@@ -571,7 +571,7 @@ static int terminal_execute(nvim_state_st *state, int key)
     return curbuf->handle == s->term->buf_handle;
 }
 
-void terminal_destroy(Terminal *term)
+void terminal_destroy(terminal_st *term)
 {
     filebuf_st *buf = handle_get_buffer(term->buf_handle);
 
@@ -603,7 +603,7 @@ void terminal_destroy(Terminal *term)
     }
 }
 
-void terminal_send(Terminal *term, char *data, size_t size)
+void terminal_send(terminal_st *term, char *data, size_t size)
 {
     if(term->closed)
     {
@@ -613,7 +613,7 @@ void terminal_send(Terminal *term, char *data, size_t size)
     term->opts.write_cb(data, size, term->opts.data);
 }
 
-void terminal_send_key(Terminal *term, int c)
+void terminal_send_key(terminal_st *term, int c)
 {
     VTermModifier mod = VTERM_MOD_NONE;
     VTermKey key = convert_key(c, &mod);
@@ -635,7 +635,7 @@ void terminal_send_key(Terminal *term, int c)
                   (size_t)len);
 }
 
-void terminal_receive(Terminal *term, char *data, size_t len)
+void terminal_receive(terminal_st *term, char *data, size_t len)
 {
     if(!data)
     {
@@ -646,7 +646,7 @@ void terminal_receive(Terminal *term, char *data, size_t len)
     vterm_screen_flush_damage(term->vts);
 }
 
-void terminal_get_line_attributes(Terminal *term,
+void terminal_get_line_attributes(terminal_st *term,
                                   win_st *wp,
                                   int linenr,
                                   int *term_attrs)
@@ -733,7 +733,7 @@ static int term_movecursor(VTermPos new,
                            int FUNC_ARGS_UNUSED_REALY(visible),
                            void *data)
 {
-    Terminal *term = data;
+    terminal_st *term = data;
 
     term->cursor.row = new.row;
     term->cursor.col = new.col;
@@ -760,7 +760,7 @@ FUNC_ATTR_NONNULL_ALL
 
 static int term_settermprop(VTermProp prop, VTermValue *val, void *data)
 {
-    Terminal *term = data;
+    terminal_st *term = data;
 
     switch(prop)
     {
@@ -799,7 +799,7 @@ static int term_bell(void *FUNC_ARGS_UNUSED_REALY(data))
 /// Scrollback push handler (from pangoterm).
 static int term_sb_push(int cols, const VTermScreenCell *cells, void *data)
 {
-    Terminal *term = data;
+    terminal_st *term = data;
 
     if(!term->sb_size)
     {
@@ -863,10 +863,10 @@ static int term_sb_push(int cols, const VTermScreenCell *cells, void *data)
 ///
 /// @param cols
 /// @param cells  VTerm state to update.
-/// @param data   Terminal
+/// @param data   terminal_st
 static int term_sb_pop(int cols, VTermScreenCell *cells, void *data)
 {
-    Terminal *term = data;
+    terminal_st *term = data;
 
     if(!term->sb_current)
     {
@@ -1033,7 +1033,7 @@ static VTermKey convert_key(int key, VTermModifier *statep)
     }
 }
 
-static void mouse_action(Terminal *term,
+static void mouse_action(terminal_st *term,
                          int button,
                          int row,
                          int col,
@@ -1062,7 +1062,7 @@ static void mouse_action(Terminal *term,
 /// process a mouse event while the terminal is focused.
 ///
 /// @return true if the terminal should lose focus
-static bool send_mouse_event(Terminal *term, int c)
+static bool send_mouse_event(terminal_st *term, int c)
 {
     int row = mouse_row, col = mouse_col;
     win_st *mouse_win = mouse_find_win(&row, &col);
@@ -1161,7 +1161,7 @@ static bool send_mouse_event(Terminal *term, int c)
     return true;
 }
 
-static void fetch_row(Terminal *term, int row, int end_col)
+static void fetch_row(terminal_st *term, int row, int end_col)
 {
     int col = 0;
     size_t line_len = 0;
@@ -1204,7 +1204,7 @@ static void fetch_row(Terminal *term, int row, int end_col)
     term->textbuf[line_len] = 0;
 }
 
-static void fetch_cell(Terminal *term,
+static void fetch_cell(terminal_st *term,
                        int row,
                        int col,
                        VTermScreenCell *cell)
@@ -1236,7 +1236,7 @@ static void fetch_cell(Terminal *term,
 }
 
 /// queue a terminal instance for refresh
-static void invalidate_terminal(Terminal *term, int start_row, int end_row)
+static void invalidate_terminal(terminal_st *term, int start_row, int end_row)
 {
     if(start_row != -1 && end_row != -1)
     {
@@ -1253,7 +1253,7 @@ static void invalidate_terminal(Terminal *term, int start_row, int end_row)
     }
 }
 
-static void refresh_terminal(Terminal *term)
+static void refresh_terminal(terminal_st *term)
 {
     filebuf_st *buf = handle_get_buffer(term->buf_handle);
     bool valid = true;
@@ -1292,7 +1292,7 @@ static void refresh_timer_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
         goto end;
     }
 
-    Terminal *term;
+    terminal_st *term;
     void *stub;
     (void)(stub);
 
@@ -1317,7 +1317,8 @@ end:
     refresh_pending = false;
 }
 
-static void refresh_size(Terminal *term, filebuf_st *FUNC_ARGS_UNUSED_REALY(buf))
+static void refresh_size(terminal_st *term,
+                         filebuf_st *FUNC_ARGS_UNUSED_REALY(buf))
 {
     if(!term->pending_resize || term->closed)
     {
@@ -1333,7 +1334,7 @@ static void refresh_size(Terminal *term, filebuf_st *FUNC_ARGS_UNUSED_REALY(buf)
 }
 
 /// Adjusts scrollback storage after 'scrollback' option changed.
-static void on_scrollback_option_changed(Terminal *term,
+static void on_scrollback_option_changed(terminal_st *term,
                                          filebuf_st *FUNC_ARGS_UNUSED_REALY(buf))
 {
     const size_t scbk = curbuf->b_p_scbk < 0
@@ -1375,7 +1376,7 @@ static void on_scrollback_option_changed(Terminal *term,
 }
 
 /// Refresh the scrollback of an invalidated terminal.
-static void refresh_scrollback(Terminal *term, filebuf_st *buf)
+static void refresh_scrollback(terminal_st *term, filebuf_st *buf)
 {
     int width, height;
     vterm_get_size(term->vt, &height, &width);
@@ -1414,7 +1415,7 @@ static void refresh_scrollback(Terminal *term, filebuf_st *buf)
 
 /// Refresh the screen (visible part of the buffer when
 /// the terminal is focused) of a invalidated terminal
-static void refresh_screen(Terminal *term, filebuf_st *buf)
+static void refresh_screen(terminal_st *term, filebuf_st *buf)
 {
     int changed = 0;
     int added = 0;
@@ -1468,7 +1469,7 @@ static bool is_term_visible(void)
 
 static void redraw(bool restore_cursor)
 {
-    Terminal *term = curbuf->terminal;
+    terminal_st *term = curbuf->terminal;
 
     if(!term)
     {
@@ -1521,7 +1522,7 @@ static void redraw(bool restore_cursor)
     ui_flush();
 }
 
-static void adjust_topline(Terminal *term, filebuf_st *buf, long added)
+static void adjust_topline(terminal_st *term, filebuf_st *buf, long added)
 {
     int height, width;
     vterm_get_size(term->vt, &height, &width);
@@ -1553,17 +1554,17 @@ static void adjust_topline(Terminal *term, filebuf_st *buf, long added)
     }
 }
 
-static int row_to_linenr(Terminal *term, int row)
+static int row_to_linenr(terminal_st *term, int row)
 {
     return row != INT_MAX ? row + (int)term->sb_current + 1 : INT_MAX;
 }
 
-static int linenr_to_row(Terminal *term, int linenr)
+static int linenr_to_row(terminal_st *term, int linenr)
 {
     return linenr - (int)term->sb_current - 1;
 }
 
-static bool is_focused(Terminal *term)
+static bool is_focused(terminal_st *term)
 {
     return curmod & kTermFocusMode && curbuf->terminal == term;
 }
