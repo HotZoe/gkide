@@ -392,7 +392,7 @@ struct frag_s
 };
 typedef struct frag_s frag_st;
 
-typedef struct
+typedef struct regsub_s
 {
     /// number of subexpr with useful info
     int in_use;
@@ -413,12 +413,12 @@ typedef struct
             uchar_kt *end;
         } line[NSUBEXP];
     } list;
-} regsub_T;
+} regsub_st;
 
 typedef struct
 {
-    regsub_T norm; ///< \( .. \) matches
-    regsub_T synt; ///< \z( .. \) matches
+    regsub_st norm; ///< \( .. \) matches
+    regsub_st synt; ///< \z( .. \) matches
 } regsubs_T;
 
 /// nfa_pim_st stores a Postponed Invisible Match.
@@ -14834,7 +14834,7 @@ static void log_subsexpr(regsubs_T *subs)
     }
 }
 
-static void log_subexpr(regsub_T *sub)
+static void log_subexpr(regsub_st *sub)
 {
     int j;
 
@@ -14899,7 +14899,7 @@ static void copy_pim(nfa_pim_st *to, nfa_pim_st *from)
     to->end = from->end;
 }
 
-static void clear_sub(regsub_T *sub)
+static void clear_sub(regsub_st *sub)
 {
     if(REG_MULTI)
     {
@@ -14916,7 +14916,7 @@ static void clear_sub(regsub_T *sub)
 }
 
 /// Copy the submatches from @b from to @b to.
-static void copy_sub(regsub_T *to, regsub_T *from)
+static void copy_sub(regsub_st *to, regsub_st *from)
 {
     to->in_use = from->in_use;
 
@@ -14939,7 +14939,7 @@ static void copy_sub(regsub_T *to, regsub_T *from)
 }
 
 /// Like copy_sub() but exclude the main match.
-static void copy_sub_off(regsub_T *to, regsub_T *from)
+static void copy_sub_off(regsub_st *to, regsub_st *from)
 {
     if(to->in_use < from->in_use)
     {
@@ -14965,7 +14965,7 @@ static void copy_sub_off(regsub_T *to, regsub_T *from)
 }
 
 /// Like copy_sub() but only do the end of the main match if \ze is present.
-static void copy_ze_off(regsub_T *to, regsub_T *from)
+static void copy_ze_off(regsub_st *to, regsub_st *from)
 {
     if(nfa_has_zend)
     {
@@ -14990,7 +14990,7 @@ static void copy_ze_off(regsub_T *to, regsub_T *from)
 /// @return
 /// - TRUE if @b sub1 and @b sub2 have the same start positions.
 /// - When using back-references also check the end position.
-static int sub_equal(regsub_T *sub1, regsub_T *sub2)
+static int sub_equal(regsub_st *sub1, regsub_st *sub2)
 {
     int i;
     int todo;
@@ -15127,7 +15127,7 @@ static int sub_equal(regsub_T *sub1, regsub_T *sub2)
 
 #ifdef REGEXP_DEBUG
 static void report_state(char *action,
-                         regsub_T *sub,
+                         regsub_st *sub,
                          nfa_state_st *state,
                          int lid,
                          nfa_pim_st *pim)
@@ -15373,7 +15373,7 @@ static regsubs_T *addstate(nfa_list_st *l,
     int save_in_use;
     uchar_kt *save_ptr;
     int i;
-    regsub_T *sub;
+    regsub_st *sub;
     regsubs_T *subs = subs_arg;
     static regsubs_T temp_subs;
 
@@ -16072,7 +16072,7 @@ static int check_char_class(int char_class, int c)
 ///
 /// @return
 /// TRUE if it matches.
-static int match_backref(regsub_T *sub, int subidx, int *bytelen)
+static int match_backref(regsub_st *sub, int subidx, int *bytelen)
 {
     int len;
 
