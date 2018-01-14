@@ -265,7 +265,7 @@
 /// a function returning a pointer to a function ...
 /// This is impossible, so we declare a pointer to a function returning a
 /// pointer to a function returning void. This should work for all compilers.
-typedef void (*(*fptr_T)(int *, int))(void);
+typedef void (*(*fptr_ft)(int *, int))(void);
 
 typedef struct
 {
@@ -8914,28 +8914,28 @@ FUNC_ATTR_ALWAYS_INLINE
 // ----------------------------------------
 
 /// This stuff below really confuses cc on an SGI
-static fptr_T do_upper(int *d, int c)
+static fptr_ft do_upper(int *d, int c)
 {
     *d = mb_toupper(c);
-    return (fptr_T)NULL;
+    return (fptr_ft)NULL;
 }
 
-static fptr_T do_Upper(int *d, int c)
+static fptr_ft do_Upper(int *d, int c)
 {
     *d = mb_toupper(c);
-    return (fptr_T)do_Upper;
+    return (fptr_ft)do_Upper;
 }
 
-static fptr_T do_lower(int *d, int c)
+static fptr_ft do_lower(int *d, int c)
 {
     *d = mb_tolower(c);
-    return (fptr_T)NULL;
+    return (fptr_ft)NULL;
 }
 
-static fptr_T do_Lower(int *d, int c)
+static fptr_ft do_Lower(int *d, int c)
 {
     *d = mb_tolower(c);
-    return (fptr_T)do_Lower;
+    return (fptr_ft)do_Lower;
 }
 
 /// Replace tildes in the pattern by the old pattern.
@@ -9162,8 +9162,8 @@ static int vim_regsub_both(uchar_kt *source,
     uchar_kt *src;
     uchar_kt *dst;
     uchar_kt *s;
-    fptr_T func_all = (fptr_T)NULL;
-    fptr_T func_one = (fptr_T)NULL;
+    fptr_ft func_all = (fptr_ft)NULL;
+    fptr_ft func_one = (fptr_ft)NULL;
     linenum_kt clnum = 0; // init for GCC
     int len = 0; // init for GCC
     static uchar_kt *eval_result = NULL;
@@ -9376,24 +9376,24 @@ static int vim_regsub_both(uchar_kt *source,
                     switch(*src++)
                     {
                         case 'u':
-                            func_one = (fptr_T)do_upper;
+                            func_one = (fptr_ft)do_upper;
                             continue;
 
                         case 'U':
-                            func_all = (fptr_T)do_Upper;
+                            func_all = (fptr_ft)do_Upper;
                             continue;
 
                         case 'l':
-                            func_one = (fptr_T)do_lower;
+                            func_one = (fptr_ft)do_lower;
                             continue;
 
                         case 'L':
-                            func_all = (fptr_T)do_Lower;
+                            func_all = (fptr_ft)do_Lower;
                             continue;
 
                         case 'e':
                         case 'E':
-                            func_one = func_all = (fptr_T)NULL;
+                            func_one = func_all = (fptr_ft)NULL;
                             continue;
                     }
                 }
@@ -9468,15 +9468,15 @@ static int vim_regsub_both(uchar_kt *source,
                 }
 
                 // Write to buffer, if copy is set.
-                if(func_one != (fptr_T)NULL)
+                if(func_one != (fptr_ft)NULL)
                 {
                     // Turbo C complains without the typecast
-                    func_one = (fptr_T)(func_one(&cc, c));
+                    func_one = (fptr_ft)(func_one(&cc, c));
                 }
-                else if(func_all != (fptr_T)NULL)
+                else if(func_all != (fptr_ft)NULL)
                 {
                     // Turbo C complains without the typecast
-                    func_all = (fptr_T)(func_all(&cc, c));
+                    func_all = (fptr_ft)(func_all(&cc, c));
                 }
                 else // just copy
                 {
@@ -9632,15 +9632,15 @@ static int vim_regsub_both(uchar_kt *source,
                                     c = *s;
                                 }
 
-                                if(func_one != (fptr_T)NULL)
+                                if(func_one != (fptr_ft)NULL)
                                 {
                                     // Turbo C complains without the typecast
-                                    func_one = (fptr_T)(func_one(&cc, c));
+                                    func_one = (fptr_ft)(func_one(&cc, c));
                                 }
-                                else if(func_all != (fptr_T)NULL)
+                                else if(func_all != (fptr_ft)NULL)
                                 {
                                     // Turbo C complains without the typecast
-                                    func_all = (fptr_T)(func_all(&cc, c));
+                                    func_all = (fptr_ft)(func_all(&cc, c));
                                 }
                                 else // just copy
                                 {
