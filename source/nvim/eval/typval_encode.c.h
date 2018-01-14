@@ -203,7 +203,7 @@
 /// @brief Macros used when self-containing container is detected
 ///
 /// @param  val  Container for which this situation was detected.
-/// @param  conv_type  Type of the stack entry, @see MPConvStackValType.
+/// @param  conv_type  Type of the stack entry, @see mpstkety_type_et.
 
 /// @def TYPVAL_ENCODE_ALLOW_SPECIALS
 /// @brief Macros that specifies whether special dictionaries are special
@@ -255,7 +255,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     int *const val_copyID,
     const MPConvStack *const mpstack,
     const int copyID,
-    const MPConvStackValType conv_type,
+    const mpstkety_type_et conv_type,
     const char *const objname)
 REAL_FATTR_NONNULL_ARG(2, 3, 4, 7)
 REAL_FATTR_WARN_UNUSED_RESULT
@@ -272,7 +272,7 @@ REAL_FATTR_ALWAYS_INLINE;
 /// @param[in]  mpstack    Stack with values to convert. Read-only, used for error
 ///                        reporting.
 /// @param[in]  copyID     CopyID used by the caller.
-/// @param[in]  conv_type  Type of the conversion, @see MPConvStackValType.
+/// @param[in]  conv_type  Type of the conversion, @see mpstkety_type_et.
 /// @param[in]  objname    Object name, used for error reporting.
 ///
 /// @return NOTDONE in case of success, what to return in case of failure.
@@ -282,7 +282,7 @@ static inline int _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(
     int *const val_copyID,
     const MPConvStack *const FUNC_ARGS_UNUSED_MAYBE(mpstack),
     const int copyID,
-    const MPConvStackValType FUNC_ARGS_UNUSED_MAYBE(conv_type),
+    const mpstkety_type_et FUNC_ARGS_UNUSED_MAYBE(conv_type),
     const char *const FUNC_ARGS_UNUSED_MAYBE(objname))
 {
     if(*val_copyID == copyID)

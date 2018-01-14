@@ -16,27 +16,29 @@
 #include "nvim/func_attr.h"
 
 /// Type of the stack entry
-typedef enum
+///
+/// stkety = stack entry
+typedef enum mpstkety_type_e
 {
-    kMPConvDict,         ///< Convert dict_st *dictionary.
-    kMPConvList,         ///< Convert list_st *list.
-    kMPConvPairs,        ///< Convert mapping represented as a list_st* of pairs.
-    kMPConvPartial,      ///< Convert partial_st* partial.
-    kMPConvPartialList,  ///< Convert argc/argv pair coming from a partial.
-} MPConvStackValType;
+    kMPConvDict,        ///< Convert dict_st *dictionary.
+    kMPConvList,        ///< Convert list_st *list.
+    kMPConvPairs,       ///< Convert mapping represented as a list_st* of pairs.
+    kMPConvPartial,     ///< Convert partial_st* partial.
+    kMPConvPartialList, ///< Convert argc/argv pair coming from a partial.
+} mpstkety_type_et;
 
 /// Stage at which partial is being converted
 typedef enum
 {
-    kMPConvPartialArgs,  ///< About to convert arguments.
-    kMPConvPartialSelf,  ///< About to convert self dictionary.
-    kMPConvPartialEnd,   ///< Already converted everything.
+    kMPConvPartialArgs, ///< About to convert arguments.
+    kMPConvPartialSelf, ///< About to convert self dictionary.
+    kMPConvPartialEnd,  ///< Already converted everything.
 } MPConvPartialStage;
 
 /// Structure representing current VimL to messagepack conversion state
 typedef struct mpconv_stack_s
 {
-    MPConvStackValType type;  ///< Type of the stack entry.
+    mpstkety_type_et type;  ///< Type of the stack entry.
     typval_st *tv;             ///< Currently converted typval_st.
     int saved_copyID;         ///< copyID item used to have.
     union
@@ -109,7 +111,7 @@ static inline size_t tv_strlen(const typval_st *const tv)
 ///                      After checking whether value of this attribute is
 ///                      copyID (variable) it is set to copyID.
 /// @param[in]  copyID   CopyID used by the caller.
-/// @param  conv_type    Type of the conversion, @see MPConvStackValType.
+/// @param  conv_type    Type of the conversion, @see mpstkety_type_et.
 #define _TYPVAL_ENCODE_DO_CHECK_SELF_REFERENCE(val, copyID_attr, copyID, conv_type) \
     do                                                                              \
     {                                                                               \
