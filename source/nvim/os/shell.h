@@ -8,7 +8,7 @@
 #include "nvim/types.h"
 
 /// Flags for os_call_shell() second argument
-typedef enum
+typedef enum shellopt_s
 {
     kShellOptFilter = 1,     ///< filtering text
     kShellOptExpand = 2,     ///< expanding wildcards
@@ -17,7 +17,7 @@ typedef enum
     kShellOptRead = 16,      ///< read lines and insert into buffer
     kShellOptWrite = 32,     ///< write lines from buffer
     kShellOptHideMess = 64,  ///< previously a global variable from os_unix.c
-} ShellOpts;
+} shellopt_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "os/shell.h.generated.h"

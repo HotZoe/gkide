@@ -3302,7 +3302,7 @@ void fast_breakcheck(void)
 /// os_call_shell wrapper.
 /// Handles 'verbose', :profile, and v:shell_error.
 /// Invalidates cached tags.
-int call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_shell_arg)
+int call_shell(uchar_kt *cmd, shellopt_st opts, uchar_kt *extra_shell_arg)
 {
     int retval;
     proftime_kt wait_time;
@@ -3354,7 +3354,7 @@ int call_shell(uchar_kt *cmd, ShellOpts opts, uchar_kt *extra_shell_arg)
 /// @return an allocated string, or NULL for error.
 uchar_kt *get_cmd_output(uchar_kt *cmd,
                        uchar_kt *infile,
-                       ShellOpts flags,
+                       shellopt_st flags,
                        size_t *ret_len)
 {
     uchar_kt *buffer = NULL;

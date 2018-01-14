@@ -205,7 +205,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     uchar_kt *p;
     bool dir;
     uchar_kt *extra_shell_arg = NULL;
-    ShellOpts shellopts = kShellOptExpand | kShellOptSilent;
+    shellopt_st shellopts = kShellOptExpand | kShellOptSilent;
     int j;
     uchar_kt *tempname;
     uchar_kt *command;
