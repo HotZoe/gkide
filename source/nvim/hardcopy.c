@@ -256,13 +256,13 @@ typedef struct prt_dsc_line_s
 /// file, some can have a couple of KB of comments!
 #define PRT_FILE_BUFFER_LEN   (2048)
 
-struct prt_resfile_buffer_S
+typedef struct prt_resfile_buf_s
 {
     uchar_kt buffer[PRT_FILE_BUFFER_LEN];
     int len;
     int line_start;
     int line_end;
-};
+} prt_resfile_buf_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "hardcopy.c.generated.h"
@@ -1868,7 +1868,7 @@ static int prt_find_resource(char *name, struct prt_ps_resource_S *resource)
 #define PSLF  (0x0a)
 #define PSCR  (0x0d)
 
-static struct prt_resfile_buffer_S prt_resfile;
+static prt_resfile_buf_st prt_resfile;
 
 static int prt_resfile_next_line(void)
 {
