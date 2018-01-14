@@ -28,50 +28,50 @@ typedef enum mpstkety_type_e
 } mpstkety_type_et;
 
 /// Stage at which partial is being converted
-typedef enum
+typedef enum mpprtl_stage_e
 {
     kMPConvPartialArgs, ///< About to convert arguments.
     kMPConvPartialSelf, ///< About to convert self dictionary.
     kMPConvPartialEnd,  ///< Already converted everything.
-} MPConvPartialStage;
+} mpprtl_stage_et;
 
 /// Structure representing current VimL to messagepack conversion state
 typedef struct mpconv_stack_s
 {
     mpstkety_type_et type;  ///< Type of the stack entry.
-    typval_st *tv;             ///< Currently converted typval_st.
-    int saved_copyID;         ///< copyID item used to have.
+    typval_st *tv;          ///< Currently converted typval_st.
+    int saved_copyID;       ///< copyID item used to have.
     union
     {
         struct
         {
-            dict_st *dict;     ///< Currently converted dictionary.
-            dict_st **dictp;   ///< Location where that dictionary is stored.
-                              ///< Normally it is &.tv->vval.v_dict, but not when
-                              ///< converting partials.
-            hashitem_st *hi;   ///< Currently converted dictionary item.
-            size_t todo;      ///< Amount of items left to process.
-        } d;                  ///< State of dictionary conversion.
+            dict_st *dict;   ///< Currently converted dictionary.
+            dict_st **dictp; ///< Location where that dictionary is stored.
+                             ///< Normally it is &.tv->vval.v_dict, but not
+                             ///< when converting partials.
+            hashitem_st *hi; ///< Currently converted dictionary item.
+            size_t todo;     ///< Amount of items left to process.
+        } d; ///< State of dictionary conversion.
 
         struct
         {
-            list_st *list;     ///< Currently converted list.
-            listitem_st *li;   ///< Currently converted list item.
-        } l;                  ///< State of list or generic mapping conversion.
+            list_st *list;   ///< Currently converted list.
+            listitem_st *li; ///< Currently converted list item.
+        } l; ///< State of list or generic mapping conversion.
 
         struct
         {
-            MPConvPartialStage stage;  ///< Stage at which partial is being converted.
-            partial_st *pt;             ///< Currently converted partial.
-        } p;                           ///< State of partial conversion.
+            mpprtl_stage_et stage; ///< Stage at which partial is being converted.
+            partial_st *pt;        ///< Currently converted partial.
+        } p; ///< State of partial conversion.
 
         struct
         {
-            typval_st *arg;    ///< Currently converted argument.
-            typval_st *argv;   ///< Start of the argument list.
-            size_t todo;      ///< Number of items left to process.
-        } a;                  ///< State of list or generic mapping conversion.
-    } data;                   ///< Data to convert.
+            typval_st *arg;  ///< Currently converted argument.
+            typval_st *argv; ///< Start of the argument list.
+            size_t todo;     ///< Number of items left to process.
+        } a; ///< State of list or generic mapping conversion.
+    } data;  ///< Data to convert.
 } mpconv_stack_st;
 
 /// Stack used to convert VimL values to messagepack.
@@ -94,39 +94,45 @@ REAL_FATTR_NONNULL_ALL;
 /// Length of the string stored in typval_st
 ///
 /// @param[in]  tv
-/// String for which to compute length for. Must be typval_st with kNvarString.
+/// String for which to compute length for.
+/// Must be typval_st with kNvarString.
 ///
 /// @return
 /// Length of the string stored in typval_st, including 0 for NULL string.
 static inline size_t tv_strlen(const typval_st *const tv)
 {
     assert(tv->v_type == kNvarString);
-    return (tv->vval.v_string == NULL ? 0 : strlen((char *) tv->vval.v_string));
+    return (tv->vval.v_string == NULL
+            ? 0
+            : strlen((char *) tv->vval.v_string));
 }
 
 /// Code for checking whether container references itself
 ///
-/// @param[in,out]  val  Container to check.
-/// @param  copyID_attr  Name of the container attribute that holds copyID.
+/// @param[in,out] val   Container to check.
+/// @param copyID_attr   Name of the container attribute that holds copyID.
 ///                      After checking whether value of this attribute is
 ///                      copyID (variable) it is set to copyID.
 /// @param[in]  copyID   CopyID used by the caller.
 /// @param  conv_type    Type of the conversion, @see mpstkety_type_et.
-#define _TYPVAL_ENCODE_DO_CHECK_SELF_REFERENCE(val, copyID_attr, copyID, conv_type) \
-    do                                                                              \
-    {                                                                               \
-        const int te_csr_ret = _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(                 \
-                                TYPVAL_ENCODE_FIRST_ARG_NAME,                       \
-                                (val),                                              \
-                                &(val)->copyID_attr,                                \
-                                mpstack,                                            \
-                                copyID,                                             \
-                                conv_type,                                          \
-                                objname);                                           \
-        if(te_csr_ret != NOTDONE)                                                   \
-        {                                                                           \
-            return te_csr_ret;                                                      \
-        }                                                                           \
+#define _TYPVAL_ENCODE_DO_CHECK_SELF_REFERENCE(val,                  \
+                                               copyID_attr,          \
+                                               copyID,               \
+                                               conv_type)            \
+    do                                                               \
+    {                                                                \
+        const int te_csr_ret = _TYPVAL_ENCODE_CHECK_SELF_REFERENCE(  \
+                               TYPVAL_ENCODE_FIRST_ARG_NAME,         \
+                               (val),                                \
+                               &(val)->copyID_attr,                  \
+                               mpstack,                              \
+                               copyID,                               \
+                               conv_type,                            \
+                               objname);                             \
+        if(te_csr_ret != NOTDONE)                                    \
+        {                                                            \
+            return te_csr_ret;                                       \
+        }                                                            \
     } while(0)
 
 #define _TYPVAL_ENCODE_FUNC_NAME_INNER_2(pref, name, suf) \
