@@ -1251,11 +1251,11 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Helper structure for nlua_pop_Object
-typedef struct
+typedef struct objpop_stackitem_s
 {
     Object *obj;     ///< Location where conversion result is saved.
     bool container;  ///< True if tv is a container.
-} ObjPopStackItem;
+} objpop_stackitem_st;
 
 /// Convert lua table to object
 ///
@@ -1264,9 +1264,9 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 {
     Object ret = NIL;
     const int initial_size = lua_gettop(lstate);
-    kvec_t(ObjPopStackItem) stack = KV_INITIAL_VALUE;
+    kvec_t(objpop_stackitem_st) stack = KV_INITIAL_VALUE;
 
-    kv_push(stack, ((ObjPopStackItem) {
+    kv_push(stack, ((objpop_stackitem_st) {
         &ret, false
     }));
 
@@ -1279,7 +1279,7 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
             break;
         }
 
-        ObjPopStackItem cur = kv_pop(stack);
+        objpop_stackitem_st cur = kv_pop(stack);
 
         if(cur.container)
         {
@@ -1321,7 +1321,7 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
 
                     kv_push(stack, cur);
 
-                    cur = (ObjPopStackItem) {
+                    cur = (objpop_stackitem_st) {
                         .obj = &cur.obj->data.dictionary.items[idx].value,
                         .container = false,
                     };
@@ -1350,7 +1350,7 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
                 }
 
                 kv_push(stack, cur);
-                cur = (ObjPopStackItem) {
+                cur = (objpop_stackitem_st) {
                     .obj = &cur.obj->data.array.items[idx],
                     .container = false,
                 };
