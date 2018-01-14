@@ -456,7 +456,7 @@ static void update_attrs(ui_st *ui, uihl_attr_st attrs)
     }
 }
 
-static void print_cell(ui_st *ui, UCell *ptr)
+static void print_cell(ui_st *ui, ucell_st *ptr)
 {
     update_attrs(ui, ptr->attrs);
     out(ui, ptr->data, strlen(ptr->data));

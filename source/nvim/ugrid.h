@@ -6,10 +6,10 @@
 #include "nvim/ui.h"
 #include "nvim/globals.h"
 
-typedef struct ucell UCell;
+typedef struct ucell_s ucell_st;
 typedef struct ugrid UGrid;
 
-struct ucell
+struct ucell_s
 {
     char data[6 * MAX_MCO + 1];
     uihl_attr_st attrs;
@@ -28,7 +28,7 @@ struct ugrid
     int width;
     int height;
     uihl_attr_st attrs;
-    UCell **cells;
+    ucell_st **cells;
 };
 
 #define EMPTY_ATTRS \
@@ -39,10 +39,10 @@ struct ugrid
     {                                                         \
         for(int row = top; row <= bot; row++)                 \
         {                                                     \
-            UCell *row_cells = (grid)->cells[row];            \
+            ucell_st *row_cells = (grid)->cells[row];            \
             for(int col = left; col <= right; col++)          \
             {                                                 \
-                UCell *cell = row_cells + col;                \
+                ucell_st *cell = row_cells + col;                \
                 (void)(cell);                                 \
                 code;                                         \
             }                                                 \

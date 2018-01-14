@@ -29,11 +29,11 @@ void ugrid_free(UGrid *grid)
 void ugrid_resize(UGrid *grid, int width, int height)
 {
     destroy_cells(grid);
-    grid->cells = xmalloc((size_t)height * sizeof(UCell *));
+    grid->cells = xmalloc((size_t)height * sizeof(ucell_st *));
 
     for(int i = 0; i < height; i++)
     {
-        grid->cells[i] = xcalloc((size_t)width, sizeof(UCell));
+        grid->cells[i] = xcalloc((size_t)width, sizeof(ucell_st));
     }
 
     grid->top = 0;
@@ -99,12 +99,12 @@ void ugrid_scroll(UGrid *grid,
     // Copy cell data
     for(i = start; i != stop; i += step)
     {
-        UCell *target_row = grid->cells[i] + grid->left;
-        UCell *source_row = grid->cells[i + count] + grid->left;
+        ucell_st *target_row = grid->cells[i] + grid->left;
+        ucell_st *source_row = grid->cells[i + count] + grid->left;
 
         memcpy(target_row,
                source_row,
-               sizeof(UCell) * (size_t)(grid->right - grid->left + 1));
+               sizeof(ucell_st) * (size_t)(grid->right - grid->left + 1));
     }
 
     // clear cells in the emptied region,
@@ -122,9 +122,9 @@ void ugrid_scroll(UGrid *grid,
     clear_region(grid, *clear_top, *clear_bot, grid->left, grid->right);
 }
 
-UCell *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
+ucell_st *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
 {
-    UCell *cell = grid->cells[grid->row] + grid->col;
+    ucell_st *cell = grid->cells[grid->row] + grid->col;
 
     cell->data[size] = 0;
     cell->attrs = grid->attrs;
