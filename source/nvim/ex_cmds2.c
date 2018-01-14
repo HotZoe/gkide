@@ -83,12 +83,12 @@ static garray_st script_items = { 0, 0, sizeof(scriptitem_st), 4, NULL };
 #define SCRIPT_ITEM(id) (((scriptitem_st *)script_items.ga_data)[(id) - 1])
 
 // Struct used in sn_prl_ga for every line of a script.
-typedef struct sn_prl_S
+typedef struct sn_prl_s
 {
-    int snp_count;                ///< nr of times line was executed
-    proftime_kt sn_prl_total;      ///< time spent in a line + children
-    proftime_kt sn_prl_self;       ///< time spent in a line itself
-} sn_prl_T;
+    int snp_count;            ///< nr of times line was executed
+    proftime_kt sn_prl_total; ///< time spent in a line + children
+    proftime_kt sn_prl_self;  ///< time spent in a line itself
+} sn_prl_st;
 
 /// Structure used to store info for each sourced file.
 /// It is shared between do_source() and getsourceline().
@@ -112,7 +112,7 @@ struct source_cookie
     vimconv_T conv;               ///< type of conversion
 };
 
-#define PRL_ITEM(si, idx)     (((sn_prl_T *)(si)->sn_prl_ga.ga_data)[(idx)])
+#define PRL_ITEM(si, idx)     (((sn_prl_st *)(si)->sn_prl_ga.ga_data)[(idx)])
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds2.c.generated.h"
@@ -1312,7 +1312,7 @@ static void profile_init(scriptitem_st *si)
     si->sn_pr_count = 0;
     si->sn_pr_total = profile_zero();
     si->sn_pr_self = profile_zero();
-    ga_init(&si->sn_prl_ga, sizeof(sn_prl_T), 100);
+    ga_init(&si->sn_prl_ga, sizeof(sn_prl_st), 100);
     si->sn_prl_idx = -1;
     si->sn_prof_on = true;
     si->sn_pr_nest = 0;
@@ -1382,7 +1382,7 @@ static void script_dump_profile(FILE *fd)
 {
     scriptitem_st *si;
     FILE *sfd;
-    sn_prl_T *pp;
+    sn_prl_st *pp;
 
     for(int id = 1; id <= script_items.ga_len; id++)
     {
@@ -4144,7 +4144,7 @@ static uchar_kt *get_one_sourceline(struct source_cookie *sp)
 void script_line_start(void)
 {
     scriptitem_st *si;
-    sn_prl_T *pp;
+    sn_prl_st *pp;
 
     if(current_SID <= 0 || current_SID > script_items.ga_len)
     {
@@ -4200,7 +4200,7 @@ void script_line_exec(void)
 void script_line_end(void)
 {
     scriptitem_st *si;
-    sn_prl_T *pp;
+    sn_prl_st *pp;
 
     if(current_SID <= 0 || current_SID > script_items.ga_len)
     {
