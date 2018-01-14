@@ -108,11 +108,11 @@ struct msgchunk_S
     char sb_eol;          ///< TRUE when line ends after this text
     int sb_msg_col;       ///< column in which text starts
     int sb_attr;          ///< text attributes
-    uchar_kt sb_text[1];    ///< text to be displayed, actually longer
+    uchar_kt sb_text[1];  ///< text to be displayed, actually longer
 };
 
-static uchar_kt *confirm_msg = NULL;    ///< ":confirm" message
-static uchar_kt *confirm_msg_tail;      ///< tail of confirm_msg
+static uchar_kt *confirm_msg = NULL;  ///< ":confirm" message
+static uchar_kt *confirm_msg_tail;    ///< tail of confirm_msg
 static int confirm_msg_used = FALSE;  ///< displaying confirm_msg
 
 static int msg_hist_len = 0;
@@ -120,8 +120,8 @@ static int msg_hist_len = 0;
 static FILE *verbose_fd = NULL;
 static int verbose_did_open = FALSE;
 
-MessageHistoryEntry *first_msg_hist = NULL;
-MessageHistoryEntry *last_msg_hist = NULL;
+msg_history_st *first_msg_hist = NULL;
+msg_history_st *last_msg_hist = NULL;
 
 /// Displays the string @b s on the status line.
 /// When terminal not initialized (yet) mch_errmsg(..) is used.
@@ -782,7 +782,7 @@ static void add_msg_hist(const char *s, int len, int attr)
     }
 
     // allocate an entry and add the message at the end of the history
-    struct msg_hist *p = xmalloc(sizeof(struct msg_hist));
+    msg_history_st *p = xmalloc(sizeof(msg_history_st));
 
     if(len < 0)
     {
@@ -824,7 +824,7 @@ static void add_msg_hist(const char *s, int len, int attr)
 /// Returns FAIL if there are no messages.
 int delete_first_msg(void)
 {
-    struct msg_hist *p;
+    msg_history_st *p;
 
     if(msg_hist_len <= 0)
     {
@@ -851,7 +851,7 @@ void ex_messages(void *const eap_p)
 FUNC_ATTR_NONNULL_ALL
 {
     const exargs_st *const eap = (const exargs_st *)eap_p;
-    struct msg_hist *p;
+    msg_history_st *p;
     int c = 0;
 
     if(STRCMP(eap->arg, "clear") == 0)

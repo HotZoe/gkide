@@ -63,18 +63,18 @@
 #define MSG_PUTS_LONG_ATTR(s, a)    msg_puts_long_attr((uchar_kt *)(s), (a))
 
 /// Message history for ':messages'
-typedef struct msg_hist
+typedef struct msg_history_s
 {
-    struct msg_hist *next;  ///< Next message.
-    uchar_kt *msg;            ///< Message text.
-    int attr;               ///< Message highlighting.
-} MessageHistoryEntry;
+    struct msg_history_s *next; ///< Next message.
+    uchar_kt *msg;              ///< Message text.
+    int attr;                   ///< Message highlighting.
+} msg_history_st;
 
 /// First message
-extern MessageHistoryEntry *first_msg_hist;
+extern msg_history_st *first_msg_hist;
 
 /// Last message
-extern MessageHistoryEntry *last_msg_hist;
+extern msg_history_st *last_msg_hist;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "message.h.generated.h"
