@@ -296,7 +296,7 @@ static inline int TVE_SELF_REF_CHECK_FUNC(
     return NOTDONE;
 }
 
-static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
+static int TVE_ENCODE_CONVERT_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const cur_mpsv,
@@ -332,7 +332,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 /// Object name, used for error reporting.
 ///
 /// @return OK in case of success, FAIL in case of failure.
-static int _TYPVAL_ENCODE_CONVERT_ONE_VALUE(
+static int TVE_ENCODE_CONVERT_FUNC(
     TYPVAL_ENCODE_FIRST_ARG_TYPE TYPVAL_ENCODE_FIRST_ARG_NAME,
     mpconv_stackvec_st *const mpstack,
     mpconv_stack_st *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
@@ -749,7 +749,7 @@ _convert_one_value_regular_dict:
 
         case kNvarUnknown:
         {
-            EMSG2(_(e_intern2), STR(_TYPVAL_ENCODE_CONVERT_ONE_VALUE) "()");
+            EMSG2(_(e_intern2), STR(TVE_ENCODE_CONVERT_FUNC) "()");
             return FAIL;
         }
     }
@@ -791,7 +791,7 @@ TYPVAL_ENCODE_SCOPE int TVE_ENCODE_ENTRY_FUNC(
     mpconv_stackvec_st mpstack;
     _mp_init(mpstack);
 
-    if(_TYPVAL_ENCODE_CONVERT_ONE_VALUE(TYPVAL_ENCODE_FIRST_ARG_NAME,
+    if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
                                         &mpstack,
                                         NULL,
                                         top_tv,
@@ -899,7 +899,7 @@ typval_encode_stop_converting_one_item:
                 TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(encode_vim_to__error_ret,
                                                      kv_pair->lv_first->li_tv);
 
-                if(_TYPVAL_ENCODE_CONVERT_ONE_VALUE(TYPVAL_ENCODE_FIRST_ARG_NAME,
+                if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
                                                     &mpstack,
                                                     cur_mpsv,
                                                     &kv_pair->lv_first->li_tv,
@@ -1051,7 +1051,7 @@ typval_encode_stop_converting_one_item:
 
         assert(tv != NULL);
 
-        if(_TYPVAL_ENCODE_CONVERT_ONE_VALUE(TYPVAL_ENCODE_FIRST_ARG_NAME,
+        if(TVE_ENCODE_CONVERT_FUNC(TYPVAL_ENCODE_FIRST_ARG_NAME,
                                             &mpstack,
                                             cur_mpsv,
                                             tv,
