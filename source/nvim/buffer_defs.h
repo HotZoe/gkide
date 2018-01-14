@@ -511,10 +511,10 @@ struct filebuf_s
     /// These variables are set when VIsual_active becomes FALSE
     visualinfo_st b_visual;
 
-    int b_visual_mode_eval;    ///< b_visual.vi_mode for visualmode()
-    mark_st b_last_cursor; ///< cursor position when last unloading this
-    mark_st b_last_insert; ///< where Insert mode was left
-    mark_st b_last_change; ///< position of last change: '. mark'
+    int b_visual_mode_eval; ///< b_visual.vi_mode for visualmode()
+    mark_st b_last_cursor;  ///< cursor position when last unloading this
+    mark_st b_last_insert;  ///< where Insert mode was left
+    mark_st b_last_change;  ///< position of last change: '. mark'
 
 
     /// the changelist contains old change positions
@@ -745,7 +745,7 @@ struct filebuf_s
     /// to this, but some windows may use a different synblk_st.
     synblk_st b_s;
 
-    signlist_T *b_signlist;     ///< list of signs to draw
+    signlist_st *b_signlist;    ///< list of signs to draw
     terminal_st *terminal;      ///< instance associated with the buffer
     dict_st *additional_data;   ///< Additional data from shada file if any.
     int b_mapped_ctrl_c;        ///< modes where CTRL-C is mapped

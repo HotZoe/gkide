@@ -6318,13 +6318,13 @@ bool find_win_for_buf(filebuf_st *buf, win_st **wp, tabpage_st **tp)
 /// @param lnum     line number which gets the mark
 /// @param typenr   typenr of sign we are adding
 static void insert_sign(filebuf_st *buf,
-                        signlist_T *prev,
-                        signlist_T *next,
+                        signlist_st *prev,
+                        signlist_st *next,
                         int id,
                         linenum_kt lnum,
                         int typenr)
 {
-    signlist_T *newsign = xmalloc(sizeof(signlist_T));
+    signlist_st *newsign = xmalloc(sizeof(signlist_st));
     newsign->id = id;
     newsign->lnum = lnum;
     newsign->typenr = typenr;
@@ -6356,8 +6356,8 @@ static void insert_sign(filebuf_st *buf,
 /// @param typenr  typenr of sign we are adding
 void buf_addsign(filebuf_st *buf, int id, linenum_kt lnum, int typenr)
 {
-    signlist_T *sign = NULL; // a sign in the signlist
-    signlist_T *prev = NULL; // the previous sign
+    signlist_st *sign = NULL; // a sign in the signlist
+    signlist_st *prev = NULL; // the previous sign
 
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
@@ -6391,7 +6391,7 @@ void buf_addsign(filebuf_st *buf, int id, linenum_kt lnum, int typenr)
 /// Returns the line number of the sign, or zero if the sign is not found.
 linenum_kt buf_change_sign_type(filebuf_st *buf, int markId, int typenr)
 {
-    signlist_T *sign; // a sign in the signlist
+    signlist_st *sign; // a sign in the signlist
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
     {
@@ -6410,7 +6410,7 @@ linenum_kt buf_change_sign_type(filebuf_st *buf, int markId, int typenr)
 /// @param type one of: SIGN_ICON, SIGN_TEXT, SIGN_ANY, SIGN_LINEHL
 int buf_getsigntype(filebuf_st *buf, linenum_kt lnum, int type)
 {
-    signlist_T *sign; // a sign in a b_signlist
+    signlist_st *sign; // a sign in a b_signlist
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
     {
@@ -6431,9 +6431,9 @@ int buf_getsigntype(filebuf_st *buf, linenum_kt lnum, int type)
 /// @param id   sign id
 linenum_kt buf_delsign(filebuf_st *buf, int id)
 {
-    signlist_T **lastp; // pointer to pointer to current sign
-    signlist_T *sign; // a sign in a b_signlist
-    signlist_T *next; // the next sign in a b_signlist
+    signlist_st **lastp; // pointer to pointer to current sign
+    signlist_st *sign; // a sign in a b_signlist
+    signlist_st *next; // the next sign in a b_signlist
     linenum_kt lnum; // line number whose sign was deleted
     lastp = &buf->b_signlist;
     lnum = 0;
@@ -6475,7 +6475,7 @@ linenum_kt buf_delsign(filebuf_st *buf, int id)
 ///
 int buf_findsign(filebuf_st *buf, int id)
 {
-    signlist_T *sign; // a sign in the signlist
+    signlist_st *sign; // a sign in the signlist
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
     {
@@ -6492,7 +6492,7 @@ int buf_findsign(filebuf_st *buf, int id)
 /// @param lnum  line number of sign
 int buf_findsign_id(filebuf_st *buf, linenum_kt lnum)
 {
-    signlist_T *sign; // a sign in the signlist
+    signlist_st *sign; // a sign in the signlist
 
     for(sign = buf->b_signlist; sign != NULL; sign = sign->next)
     {
@@ -6509,7 +6509,7 @@ int buf_findsign_id(filebuf_st *buf, linenum_kt lnum)
 /// Delete signs in buffer "buf".
 void buf_delete_signs(filebuf_st *buf)
 {
-    signlist_T *next;
+    signlist_st *next;
 
     // When deleting the last sign need to redraw the windows to remove the
     // sign column. Not when curwin is NULL (this means we're exiting).
@@ -6544,7 +6544,7 @@ void buf_delete_all_signs(void)
 void sign_list_placed(filebuf_st *rbuf)
 {
     filebuf_st *buf;
-    signlist_T *p;
+    signlist_st *p;
     char lbuf[BUFSIZ];
     MSG_PUTS_TITLE(_("\n--- Signs ---"));
     msg_putchar('\n');
@@ -6595,7 +6595,7 @@ void sign_mark_adjust(linenum_kt line1,
                       long amount,
                       long amount_after)
 {
-    signlist_T *sign; // a sign in a b_signlist
+    signlist_st *sign; // a sign in a b_signlist
 
     for(sign = curbuf->b_signlist; sign != NULL; sign = sign->next)
     {

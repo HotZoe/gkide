@@ -11832,7 +11832,7 @@ static void f_get(typval_st *argvars,
 /// Returns information about signs placed in a buffer as list of dicts.
 static void get_buffer_signs(filebuf_st *buf, list_st *l)
 {
-    for(signlist_T *sign = buf->b_signlist; sign; sign = sign->next)
+    for(signlist_st *sign = buf->b_signlist; sign; sign = sign->next)
     {
         dict_st *const d = tv_dict_alloc();
 

@@ -5,16 +5,14 @@
 
 #include "nvim/pos.h"
 
-// signs: line annotations
-
-typedef struct signlist signlist_T;
-
+/// signs: line annotations
+typedef struct signlist signlist_st;
 struct signlist
 {
-    int id;           ///< unique identifier for each placed sign
-    linenum_kt lnum;    ///< line number which has this sign
-    int typenr;       ///< typenr of sign
-    signlist_T *next; ///< next signlist entry
+    int id;            ///< unique identifier for each placed sign
+    linenum_kt lnum;   ///< line number which has this sign
+    int typenr;        ///< typenr of sign
+    signlist_st *next; ///< next signlist entry
 };
 
 // type argument for buf_getsigntype()
