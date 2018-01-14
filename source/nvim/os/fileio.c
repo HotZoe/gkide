@@ -101,7 +101,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     if(ret_fp->wr)
     {
         ret_fp->rv->data = ret_fp;
-        ret_fp->rv->full_cb = (rbuffer_callback) & file_rb_write_full_cb;
+        ret_fp->rv->full_cb = (ringbuf_callback_ft) & file_rb_write_full_cb;
     }
 
     return 0;

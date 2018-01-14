@@ -4,8 +4,8 @@
 /// pointers around the memory region. It should be more efficient than the old
 /// ringbuf_st which required memmove() calls to relocate read/write positions.
 ///
-/// The main purpose of ringbuf_st is simplify memory management when reading from
-/// uv_stream_t instances:
+/// The main purpose of ringbuf_st is simplify memory management when
+/// reading from uv_stream_t instances:
 ///
 /// - The event loop writes data to a ringbuf_st, advancing the write pointer
 /// - The main loop reads data, advancing the read pointer
@@ -69,12 +69,12 @@ typedef struct ringbuf_s ringbuf_st;
 /// Type of function invoked during certain events:
 /// - When the ringbuf_st switches to the full state
 /// - When the ringbuf_st switches to the non-full state
-typedef void(*rbuffer_callback)(ringbuf_st *buf, void *data);
+typedef void(*ringbuf_callback_ft)(ringbuf_st *buf, void *data);
 
 struct ringbuf_s
 {
-    rbuffer_callback full_cb;
-    rbuffer_callback nonfull_cb;
+    ringbuf_callback_ft full_cb;
+    ringbuf_callback_ft nonfull_cb;
     void *data;
     size_t size;
 
