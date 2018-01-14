@@ -174,15 +174,15 @@ static prt_opttable_st mbfont_opts[OPT_MBFONT_NUM_OPTIONS] =
 };
 
 /// These values determine the print position on a page.
-typedef struct
+typedef struct prt_pos_s
 {
     int lead_spaces;       ///< remaining spaces for a TAB
     int print_pos;         ///< virtual column for computing TABs
-    columnum_kt column;        ///< byte column
-    linenum_kt file_line;    ///< line nr in the buffer
+    columnum_kt column;    ///< byte column
+    linenum_kt file_line;  ///< line nr in the buffer
     size_t bytes_printed;  ///< bytes printed so far
     int ff;                ///< seen form feed character
-} prt_pos_T;
+} prt_pos_st;
 
 struct prt_mediasize_S
 {
@@ -797,11 +797,11 @@ void ex_hardcopy(exargs_st *eap)
         collated_copies < settings.n_collated_copies;
         collated_copies++)
     {
-        prt_pos_T prtpos; // current print position
-        prt_pos_T page_prtpos; // print position at page start
+        prt_pos_st prtpos; // current print position
+        prt_pos_st page_prtpos; // print position at page start
         int side;
 
-        memset(&page_prtpos, 0, sizeof(prt_pos_T));
+        memset(&page_prtpos, 0, sizeof(prt_pos_st));
         page_prtpos.file_line = eap->line1;
         prtpos = page_prtpos;
 
@@ -960,7 +960,7 @@ print_fail_no_begin:
 /// or zero if the line is finished.
 static columnum_kt hardcopy_line(prt_geninfo_st *psettings,
                              int page_line,
-                             prt_pos_T *ppos)
+                             prt_pos_st *ppos)
 {
     columnum_kt col;
     uchar_kt *line;
