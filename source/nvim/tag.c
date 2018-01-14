@@ -62,14 +62,14 @@ typedef struct tag_ptr_s
 } tag_ptr_st;
 
 /// Structure to hold info about the tag pattern being used.
-typedef struct
+typedef struct pattern_s
 {
     uchar_kt *pat;        ///< the pattern
     int len;              ///< length of pat[]
     uchar_kt *head;       ///< start of pattern head
     int headlen;          ///< length of head[]
     regmatch_st regmatch; ///< regexp program, may be NULL
-} pat_T;
+} pattern_st;
 
 // The matching tags are first stored in one of the hash tables.
 // In which one depends on the priority of the match. ht_match[]
@@ -88,7 +88,14 @@ typedef struct
 
 
 static char *mt_names[MT_COUNT/2] = {
-    "FSC", "F C", "F  ", "FS ", " SC", "  C", "   ", " S "
+    "FSC",
+    "F C",
+    "F  ",
+    "FS ",
+    " SC",
+    "  C",
+    "   ",
+    " S "
 };
 
 /// fname for NOTAGFILE error
@@ -245,8 +252,8 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
                 if(ptag_entry.tagname != NULL
                    && STRCMP(ptag_entry.tagname, tag) == 0)
                 {
-                    // Jumping to same tag: keep the current match, so that
-                    // the CursorHold autocommand example works.
+                    // Jumping to same tag: keep the current match,
+                    // so that the CursorHold autocommand example works.
                     cur_match = ptag_entry.cur_match;
                     cur_fnum = ptag_entry.cur_fnum;
                 }
@@ -1308,7 +1315,7 @@ static int tag_strnicmp(uchar_kt *s1, uchar_kt *s2, size_t len)
 }
 
 /// Extract info from the tag search pattern "pats->pat".
-static void prepare_pats(pat_T *pats, int has_re)
+static void prepare_pats(pattern_st *pats, int has_re)
 {
     pats->head = pats->pat;
     pats->headlen = pats->len;
@@ -1470,7 +1477,7 @@ int find_tags(uchar_kt *pat,
     uchar_kt help_lang[3]; // lang of current tags file
     uchar_kt *saved_pat = NULL;  // copy of pat[]
     bool is_txt = false;
-    pat_T orgpat; // holds unconverted pattern info
+    pattern_st orgpat; // holds unconverted pattern info
     vimconv_T vimconv;
     int findall = (mincount == MAXCOL || mincount == TAG_MANY);
     // find all matching tags
