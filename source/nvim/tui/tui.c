@@ -62,13 +62,13 @@ typedef enum TermType
     kTermTeraTerm,
 } TermType;
 
-typedef struct
+typedef struct rect_s
 {
     int top;
     int bot;
     int left;
     int right;
-} Rect;
+} rect_st;
 
 typedef struct
 {
@@ -92,7 +92,7 @@ typedef struct
     SignalWatcher winch_handle, cont_handle;
     bool cont_received;
     UGrid grid;
-    kvec_t(Rect) invalid_regions;
+    kvec_t(rect_st) invalid_regions;
     int out_fd;
     bool scroll_region_is_full_screen;
     bool can_change_scroll_region;
@@ -1049,7 +1049,7 @@ static void tui_flush(ui_st *ui)
 
     while(kv_size(data->invalid_regions))
     {
-        Rect r = kv_pop(data->invalid_regions);
+        rect_st r = kv_pop(data->invalid_regions);
         int currow = -1;
 
         UGRID_FOREACH_CELL(grid, r.top, r.bot, r.left, r.right, {
@@ -1142,7 +1142,7 @@ static void tui_event(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
 static void invalidate(ui_st *ui, int top, int bot, int left, int right)
 {
     TUIData *data = ui->data;
-    Rect *intersects = NULL;
+    rect_st *intersects = NULL;
 
     // Increase dimensions before comparing to ensure
     // adjacent regions are treated as intersecting
@@ -1153,7 +1153,7 @@ static void invalidate(ui_st *ui, int top, int bot, int left, int right)
 
     for(size_t i = 0; i < kv_size(data->invalid_regions); i++)
     {
-        Rect *r = &kv_A(data->invalid_regions, i);
+        rect_st *r = &kv_A(data->invalid_regions, i);
 
         if(!(top > r->bot
              || bot < r->top
@@ -1182,8 +1182,7 @@ static void invalidate(ui_st *ui, int top, int bot, int left, int right)
     else
     {
         // Else just add a new entry;
-        kv_push(data->invalid_regions, ((Rect)
-        {
+        kv_push(data->invalid_regions, ((rect_st) {
             top, bot, left, right
         }));
     }
