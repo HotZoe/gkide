@@ -72,7 +72,7 @@ typedef struct
 
 typedef struct
 {
-    UIBridgeData *bridge;
+    ui_bridge_st *bridge;
     main_loop_st *loop;
     bool stop;
     unibi_var_t params[9];
@@ -297,7 +297,7 @@ static void tui_stop(UI *ui)
 }
 
 /// Main function of the TUI thread
-static void tui_main(UIBridgeData *bridge, UI *ui)
+static void tui_main(ui_bridge_st *bridge, UI *ui)
 {
     main_loop_st tui_loop;
     loop_init(&tui_loop, NULL);

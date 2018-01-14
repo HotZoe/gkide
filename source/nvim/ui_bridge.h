@@ -8,10 +8,10 @@
 #include "nvim/ui.h"
 #include "nvim/event/defs.h"
 
-typedef struct ui_bridge_data UIBridgeData;
-typedef void(*ui_main_ft)(UIBridgeData *bridge, UI *ui);
+typedef struct ui_bridge_s ui_bridge_st;
+typedef void(*ui_main_ft)(ui_bridge_st *bridge, UI *ui);
 
-struct ui_bridge_data
+struct ui_bridge_s
 {
     /// actual UI passed to ui_attach()
     UI bridge;
@@ -45,7 +45,7 @@ struct ui_bridge_data
 #define CONTINUE(b)                          \
     do                                       \
     {                                        \
-        UIBridgeData *d = (UIBridgeData *)b; \
+        ui_bridge_st *d = (ui_bridge_st *)b; \
         uv_mutex_lock(&d->mutex);            \
         d->ready = true;                     \
         uv_cond_signal(&d->cond);            \
