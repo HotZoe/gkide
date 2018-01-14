@@ -53,34 +53,34 @@
 /// Growarray to store info about already sourced scripts.
 /// Also store the dev/ino, so that we don't have to stat() each
 /// script when going through the list.
-typedef struct scriptitem_S
+typedef struct scriptitem_s
 {
-    uchar_kt      *sn_name;
+    uchar_kt *sn_name;
     bool file_id_valid;
     fileid_st file_id;
-    bool sn_prof_on;        ///< true when script is/was profiled
-    bool sn_pr_force;       ///< forceit: profile functions in this script
+    bool sn_prof_on;         ///< true when script is/was profiled
+    bool sn_pr_force;        ///< forceit: profile functions in this script
     proftime_kt sn_pr_child; ///< time set when going into first child
-    int sn_pr_nest;         ///< nesting for sn_pr_child
+    int sn_pr_nest;          ///< nesting for sn_pr_child
 
     // profiling the script as a whole
-    int sn_pr_count;           ///< nr of times sourced
+    int sn_pr_count;            ///< nr of times sourced
     proftime_kt sn_pr_total;    ///< time spent in script + children
     proftime_kt sn_pr_self;     ///< time spent in script itself
     proftime_kt sn_pr_start;    ///< time at script start
     proftime_kt sn_pr_children; ///< time in children after script start
 
     // profiling the script per line
-    garray_st sn_prl_ga;           ///< things stored for every line
-    proftime_kt sn_prl_start;      ///< start time for current line
-    proftime_kt sn_prl_children;   ///< time spent in children for this line
-    proftime_kt sn_prl_wait;       ///< wait start time for current line
-    linenum_kt sn_prl_idx;          ///< index of line being timed; -1 if none
-    int sn_prl_execed;            ///< line being timed was executed
-} scriptitem_T;
+    garray_st sn_prl_ga;         ///< things stored for every line
+    proftime_kt sn_prl_start;    ///< start time for current line
+    proftime_kt sn_prl_children; ///< time spent in children for this line
+    proftime_kt sn_prl_wait;     ///< wait start time for current line
+    linenum_kt sn_prl_idx;       ///< index of line being timed; -1 if none
+    int sn_prl_execed;           ///< line being timed was executed
+} scriptitem_st;
 
-static garray_st script_items = { 0, 0, sizeof(scriptitem_T), 4, NULL };
-#define SCRIPT_ITEM(id) (((scriptitem_T *)script_items.ga_data)[(id) - 1])
+static garray_st script_items = { 0, 0, sizeof(scriptitem_st), 4, NULL };
+#define SCRIPT_ITEM(id) (((scriptitem_st *)script_items.ga_data)[(id) - 1])
 
 // Struct used in sn_prl_ga for every line of a script.
 typedef struct sn_prl_S
@@ -1250,7 +1250,7 @@ static void profile_reset(void)
     // Reset sourced files.
     for(int id = 1; id <= script_items.ga_len; id++)
     {
-        scriptitem_T *si = &SCRIPT_ITEM(id);
+        scriptitem_st *si = &SCRIPT_ITEM(id);
 
         if(si->sn_prof_on)
         {
@@ -1307,7 +1307,7 @@ static void profile_reset(void)
 }
 
 /// Start profiling a script.
-static void profile_init(scriptitem_T *si)
+static void profile_init(scriptitem_st *si)
 {
     si->sn_pr_count = 0;
     si->sn_pr_total = profile_zero();
@@ -1323,7 +1323,7 @@ static void profile_init(scriptitem_T *si)
 /// @param tm  place to store wait time
 void script_prof_save(proftime_kt  *tm)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
 
     if(current_SID > 0 && current_SID <= script_items.ga_len)
     {
@@ -1341,7 +1341,7 @@ void script_prof_save(proftime_kt  *tm)
 /// Count time spent in children after invoking another script or function.
 void script_prof_restore(proftime_kt *tm)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
 
     if(current_SID > 0 && current_SID <= script_items.ga_len)
     {
@@ -1380,7 +1380,7 @@ void prof_inchar_exit(void)
 /// Dump the profiling results for all scripts in file "fd".
 static void script_dump_profile(FILE *fd)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
     FILE *sfd;
     sn_prl_T *pp;
 
@@ -3486,7 +3486,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
     static script_id_kt last_current_SID = 0;
     void *save_funccalp;
     int save_debug_break_level = debug_break_level;
-    scriptitem_T *si = NULL;
+    scriptitem_st *si = NULL;
     int retval = FAIL;
 
     // expend the env-var if has, need to free()
@@ -3888,7 +3888,7 @@ uchar_kt *get_scriptname(script_id_kt id)
 
 void free_scriptnames(void)
 {
-    GA_DEEP_CLEAR(&script_items, scriptitem_T, FREE_SCRIPTNAME);
+    GA_DEEP_CLEAR(&script_items, scriptitem_st, FREE_SCRIPTNAME);
 }
 #endif
 
@@ -4143,7 +4143,7 @@ static uchar_kt *get_one_sourceline(struct source_cookie *sp)
 /// but we won't find out until later and we need to store the time now.
 void script_line_start(void)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
     sn_prl_T *pp;
 
     if(current_SID <= 0 || current_SID > script_items.ga_len)
@@ -4181,7 +4181,7 @@ void script_line_start(void)
 /// Called when actually executing a function line.
 void script_line_exec(void)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
 
     if(current_SID <= 0 || current_SID > script_items.ga_len)
     {
@@ -4199,7 +4199,7 @@ void script_line_exec(void)
 /// Called when done with a function line.
 void script_line_end(void)
 {
-    scriptitem_T *si;
+    scriptitem_st *si;
     sn_prl_T *pp;
 
     if(current_SID <= 0 || current_SID > script_items.ga_len)
