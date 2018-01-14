@@ -63,9 +63,6 @@
 #include "nvim/os/input.h"
 #include "nvim/os/time.h"
 
-/// Struct to hold the sign properties.
-typedef struct sign sign_st;
-
 /// Case matching style to use for :substitute
 typedef enum sub_ignore_e
 {
@@ -95,6 +92,21 @@ typedef struct matched_line_s
     uchar_kt *line;
     kvec_t(columnum_kt) cols;  ///< columns of in-line matches
 } matched_line_st;
+
+/// Struct to hold the sign properties.
+typedef struct sign_s sign_st;
+struct sign_s
+{
+    sign_st *sn_next;   ///< next sign in list
+    int sn_typenr;      ///< type number of sign
+    uchar_kt *sn_name;  ///< name of sign
+    uchar_kt *sn_icon;  ///< name of pixmap
+    uchar_kt *sn_text;  ///< text used instead of pixmap
+    int sn_line_hl;     ///< highlight ID for line
+    int sn_text_hl;     ///< highlight ID for text
+};
+
+
 typedef kvec_t(matched_line_st) MatchedLineVec;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -6963,17 +6975,6 @@ void ex_helptags(exargs_st *eap)
         xfree(dirname);
     }
 }
-
-struct sign
-{
-    sign_st *sn_next;    ///< next sign in list
-    int sn_typenr;      ///< type number of sign
-    uchar_kt *sn_name;    ///< name of sign
-    uchar_kt *sn_icon;    ///< name of pixmap
-    uchar_kt *sn_text;    ///< text used instead of pixmap
-    int sn_line_hl;     ///< highlight ID for line
-    int sn_text_hl;     ///< highlight ID for text
-};
 
 static sign_st *first_sign = NULL;
 static int next_sign_typenr = 1;
