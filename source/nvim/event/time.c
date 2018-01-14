@@ -23,7 +23,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 }
 
 void time_watcher_start(time_watcher_st *watcher,
-                        time_cb cb,
+                        time_ft cb,
                         uint64_t timeout,
                         uint64_t repeat)
 FUNC_ATTR_NONNULL_ALL
@@ -38,7 +38,7 @@ FUNC_ATTR_NONNULL_ALL
     uv_timer_stop(&watcher->uv);
 }
 
-void time_watcher_close(time_watcher_st *watcher, time_cb cb)
+void time_watcher_close(time_watcher_st *watcher, time_ft cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     watcher->close_cb = cb;

@@ -8,13 +8,13 @@
 #include "nvim/event/loop.h"
 
 typedef struct time_watcher_s time_watcher_st;
-typedef void (*time_cb)(time_watcher_st *watcher, void *data);
+typedef void (*time_ft)(time_watcher_st *watcher, void *data);
 struct time_watcher_s
 {
     uv_timer_t uv;
     void *data;
-    time_cb cb;
-    time_cb close_cb;
+    time_ft cb;
+    time_ft close_cb;
     multiqueue_st *events;
     bool blockable;
 };
