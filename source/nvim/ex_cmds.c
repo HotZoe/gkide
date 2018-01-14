@@ -88,14 +88,14 @@ typedef struct
 } subflags_T;
 
 /// Lines matched during :substitute.
-typedef struct
+typedef struct matched_line_s
 {
     linenum_kt lnum;
     long nmatch;
     uchar_kt *line;
     kvec_t(columnum_kt) cols;  ///< columns of in-line matches
-} MatchedLine;
-typedef kvec_t(MatchedLine) MatchedLineVec;
+} matched_line_st;
+typedef kvec_t(matched_line_st) MatchedLineVec;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds.c.generated.h"
@@ -4433,7 +4433,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
             matchcol = 0;
 
             // the current match
-            MatchedLine matched_line = { 0, 0, NULL, KV_INITIAL_VALUE };
+            matched_line_st matched_line = { 0, 0, NULL, KV_INITIAL_VALUE };
 
             // At first match, remember current cursor position.
             if(!got_match)
@@ -5230,7 +5230,7 @@ skip:
         }
     }
 
-    for(MatchedLine m; kv_size(matched_lines);)
+    for(matched_line_st m; kv_size(matched_lines);)
     {
         m = kv_pop(matched_lines);
         xfree(m.line);
@@ -7899,7 +7899,7 @@ FUNC_ATTR_NONNULL_ALL
     // Place cursor on nearest matching line, to undo do_sub() cursor placement.
     for(size_t i = 0; i < matched_lines->size; i++)
     {
-        MatchedLine curmatch = matched_lines->items[i];
+        matched_line_st curmatch = matched_lines->items[i];
 
         if(curmatch.lnum >= old_cusr.lnum)
         {
@@ -7936,7 +7936,7 @@ FUNC_ATTR_NONNULL_ALL
         // Dump the lines into the preview buffer.
         for(size_t line = 0; line < matched_lines->size; line++)
         {
-            MatchedLine mat = matched_lines->items[line];
+            matched_line_st mat = matched_lines->items[line];
             line_size = mb_string2cells(mat.line) + col_width + 1;
 
             // Reallocate if str not long enough
