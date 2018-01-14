@@ -95,7 +95,7 @@ typedef struct terminal_state_s
 /// from libvterm. Improves performance when receiving large bursts of data.
 #define REFRESH_DELAY    10
 
-static TimeWatcher refresh_timer;
+static time_watcher_st refresh_timer;
 static bool refresh_pending = false;
 
 typedef struct
@@ -1283,7 +1283,7 @@ static void refresh_terminal(terminal_st *term)
     adjust_topline(term, buf, ml_added);
 }
 /// Calls refresh_terminal() on all invalidated_terminals.
-static void refresh_timer_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
+static void refresh_timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
                              void *FUNC_ARGS_UNUSED_REALY(data))
 {
     // Cannot redraw (requires event loop) during teardown/exit.

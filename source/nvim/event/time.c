@@ -11,7 +11,7 @@
     #include "event/time.c.generated.h"
 #endif
 
-void time_watcher_init(main_loop_st *loop, TimeWatcher *watcher, void *data)
+void time_watcher_init(main_loop_st *loop, time_watcher_st *watcher, void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -22,7 +22,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     watcher->blockable = false;
 }
 
-void time_watcher_start(TimeWatcher *watcher,
+void time_watcher_start(time_watcher_st *watcher,
                         time_cb cb,
                         uint64_t timeout,
                         uint64_t repeat)
@@ -32,13 +32,13 @@ FUNC_ATTR_NONNULL_ALL
     uv_timer_start(&watcher->uv, time_watcher_cb, timeout, repeat);
 }
 
-void time_watcher_stop(TimeWatcher *watcher)
+void time_watcher_stop(time_watcher_st *watcher)
 FUNC_ATTR_NONNULL_ALL
 {
     uv_timer_stop(&watcher->uv);
 }
 
-void time_watcher_close(TimeWatcher *watcher, time_cb cb)
+void time_watcher_close(time_watcher_st *watcher, time_cb cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     watcher->close_cb = cb;
@@ -47,14 +47,14 @@ FUNC_ATTR_NONNULL_ARG(1)
 
 static void time_event(void **argv)
 {
-    TimeWatcher *watcher = argv[0];
+    time_watcher_st *watcher = argv[0];
     watcher->cb(watcher, watcher->data);
 }
 
 static void time_watcher_cb(uv_timer_t *handle)
 FUNC_ATTR_NONNULL_ALL
 {
-    TimeWatcher *watcher = handle->data;
+    time_watcher_st *watcher = handle->data;
 
     if(watcher->blockable && !multiqueue_empty(watcher->events))
     {
@@ -68,7 +68,7 @@ FUNC_ATTR_NONNULL_ALL
 
 static void close_cb(uv_handle_t *handle)
 {
-    TimeWatcher *watcher = handle->data;
+    time_watcher_st *watcher = handle->data;
 
     if(watcher->close_cb)
     {

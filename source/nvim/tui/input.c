@@ -287,7 +287,7 @@ static TermKeyResult tk_getkey(TermKey *tk, TermKeyKey *key, bool force)
     return force ? termkey_getkey_force(tk, key) : termkey_getkey(tk, key);
 }
 
-static void timer_cb(TimeWatcher *watcher, void *data);
+static void timer_cb(time_watcher_st *watcher, void *data);
 
 static int get_key_code_timeout(void)
 {
@@ -354,7 +354,7 @@ static void tk_getkeys(TermInput *input, bool force)
     }
 }
 
-static void timer_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(watcher), void *data)
+static void timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher), void *data)
 {
     tk_getkeys(data, true);
     flush_input(data, true);

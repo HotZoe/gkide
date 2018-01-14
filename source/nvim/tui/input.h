@@ -23,7 +23,7 @@ typedef struct term_input
     TermKey_Terminfo_Getstr_Hook *tk_ti_hook_fn;
 #endif
 
-    TimeWatcher timer_handle;
+    time_watcher_st timer_handle;
     main_loop_st *loop;
 
 #ifdef HOST_OS_WINDOWS

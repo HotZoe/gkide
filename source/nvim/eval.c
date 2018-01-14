@@ -507,7 +507,7 @@ typedef struct job_event_s
 
 typedef struct timer_s
 {
-    TimeWatcher tw;
+    time_watcher_st tw;
     int timer_id;
     int repeat_count;
     int refcount;
@@ -22096,7 +22096,7 @@ static void f_timer_stopall(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 }
 
 /// invoked on the main loop
-static void timer_due_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
+static void timer_due_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(tw), void *data)
 {
     timer_st *timer = (timer_st *)data;
 
@@ -22149,7 +22149,7 @@ static void timer_stop(timer_st *timer)
 }
 
 /// invoked on next event loop tick, so queue is empty
-static void timer_close_cb(TimeWatcher *FUNC_ARGS_UNUSED_REALY(tw), void *data)
+static void timer_close_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(tw), void *data)
 {
     timer_st *timer = (timer_st *)data;
     multiqueue_free(timer->tw.events);
