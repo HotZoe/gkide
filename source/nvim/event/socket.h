@@ -11,25 +11,26 @@
 
 #define ADDRESS_MAX_SIZE 256
 
-typedef struct socket_watcher SocketWatcher;
-typedef void (*socket_cb)(SocketWatcher *watcher, int result, void *data);
-typedef void (*socket_close_cb)(SocketWatcher *watcher, void *data);
+typedef struct socket_watcher_s socket_watcher_st;
+typedef void (*socket_cb)(socket_watcher_st *watcher, int result, void *data);
+typedef void (*socket_close_cb)(socket_watcher_st *watcher, void *data);
 
-struct socket_watcher
+struct socket_watcher_s
 {
-    char addr[ADDRESS_MAX_SIZE]; ///< Pipe/socket path, or TCP address string
+    /// Pipe/socket path, or TCP address string
+    char addr[ADDRESS_MAX_SIZE];
 
     union
     {
         struct
         {
-            uv_tcp_t handle; ///<
-            struct addrinfo *addrinfo; ///<
-        } tcp; ///<
+            uv_tcp_t handle;
+            struct addrinfo *addrinfo;
+        } tcp;
         struct
         {
-            uv_pipe_t handle; ///<
-        } pipe; ///<
+            uv_pipe_t handle;
+        } pipe;
     } uv; ///< TCP server or unix socket (named pipe on Windows)
 
     uv_stream_t *stream;

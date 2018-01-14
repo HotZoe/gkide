@@ -35,7 +35,7 @@ static garray_st watchers = GA_EMPTY_INIT_VALUE;
 /// Initializes the module
 bool server_init(void)
 {
-    ga_init(&watchers, sizeof(SocketWatcher *), 1);
+    ga_init(&watchers, sizeof(socket_watcher_st *), 1);
     bool must_free = false;
     const char *listen_address = os_getenv(LISTEN_ADDRESS_ENV_VAR);
 
@@ -61,7 +61,7 @@ bool server_init(void)
 }
 
 /// Teardown a single server
-static void close_socket_watcher(SocketWatcher **watcher)
+static void close_socket_watcher(socket_watcher_st **watcher)
 {
     socket_watcher_close(*watcher, free_server);
 }
@@ -71,7 +71,7 @@ static void close_socket_watcher(SocketWatcher **watcher)
 static void set_vservername(garray_st *srvs)
 {
     char *default_server = (srvs->ga_len > 0)
-                           ? ((SocketWatcher **)srvs->ga_data)[0]->addr
+                           ? ((socket_watcher_st **)srvs->ga_data)[0]->addr
                            : NULL;
 
     set_vim_var_string(VV_SEND_SERVER, default_server, -1);
@@ -80,7 +80,7 @@ static void set_vservername(garray_st *srvs)
 /// Teardown the server module
 void server_teardown(void)
 {
-    GA_DEEP_CLEAR(&watchers, SocketWatcher *, close_socket_watcher);
+    GA_DEEP_CLEAR(&watchers, socket_watcher_st *, close_socket_watcher);
 }
 
 /// Generates unique address for local server.
@@ -113,7 +113,7 @@ bool server_owns_pipe_address(const char *path)
 {
     for(int i = 0; i < watchers.ga_len; i++)
     {
-        if(!strcmp(path, ((SocketWatcher **)watchers.ga_data)[i]->addr))
+        if(!strcmp(path, ((socket_watcher_st **)watchers.ga_data)[i]->addr))
         {
             return true;
         }
@@ -143,7 +143,7 @@ int server_start(const char *endpoint)
         return 1;
     }
 
-    SocketWatcher *watcher = xmalloc(sizeof(SocketWatcher));
+    socket_watcher_st *watcher = xmalloc(sizeof(socket_watcher_st));
     int result = socket_watcher_init(&main_loop, watcher, endpoint);
 
     if(result < 0)
@@ -156,7 +156,7 @@ int server_start(const char *endpoint)
     for(int i = 0; i < watchers.ga_len; i++)
     {
         if(!strcmp(watcher->addr,
-                   ((SocketWatcher **)watchers.ga_data)[i]->addr))
+                   ((socket_watcher_st **)watchers.ga_data)[i]->addr))
         {
             ERROR_LOG("Already listening on %s", watcher->addr);
 
@@ -189,7 +189,7 @@ int server_start(const char *endpoint)
 
     // Add the watcher to the list.
     ga_grow(&watchers, 1);
-    ((SocketWatcher **)watchers.ga_data)[watchers.ga_len++] = watcher;
+    ((socket_watcher_st **)watchers.ga_data)[watchers.ga_len++] = watcher;
 
     // Update v:servername, if not set.
     if(STRLEN(get_vim_var_str(VV_SEND_SERVER)) == 0)
@@ -205,7 +205,7 @@ int server_start(const char *endpoint)
 /// @param endpoint Address of the server.
 void server_stop(char *endpoint)
 {
-    SocketWatcher *watcher;
+    socket_watcher_st *watcher;
     char addr[ADDRESS_MAX_SIZE];
 
     // Trim to 'ADDRESS_MAX_SIZE'
@@ -214,7 +214,7 @@ void server_stop(char *endpoint)
 
     for(; i < watchers.ga_len; i++)
     {
-        watcher = ((SocketWatcher **)watchers.ga_data)[i];
+        watcher = ((socket_watcher_st **)watchers.ga_data)[i];
 
         if(strcmp(addr, watcher->addr) == 0)
         {
@@ -241,8 +241,8 @@ void server_stop(char *endpoint)
     // Remove this server from the list by swapping it with the last item.
     if(i != watchers.ga_len - 1)
     {
-        ((SocketWatcher **)watchers.ga_data)[i] =
-            ((SocketWatcher **)watchers.ga_data)[watchers.ga_len - 1];
+        ((socket_watcher_st **)watchers.ga_data)[i] =
+            ((socket_watcher_st **)watchers.ga_data)[watchers.ga_len - 1];
     }
 
     watchers.ga_len--;
@@ -267,13 +267,13 @@ char **server_address_list(size_t *size) FUNC_ATTR_NONNULL_ALL
 
     for(int i = 0; i < watchers.ga_len; i++)
     {
-        addrs[i] = xstrdup(((SocketWatcher **)watchers.ga_data)[i]->addr);
+        addrs[i] = xstrdup(((socket_watcher_st **)watchers.ga_data)[i]->addr);
     }
 
     return addrs;
 }
 
-static void connection_cb(SocketWatcher *watcher,
+static void connection_cb(socket_watcher_st *watcher,
                           int result,
                           void *FUNC_ARGS_UNUSED_REALY(data))
 {
@@ -286,7 +286,7 @@ static void connection_cb(SocketWatcher *watcher,
     channel_from_connection(watcher);
 }
 
-static void free_server(SocketWatcher *watcher,
+static void free_server(socket_watcher_st *watcher,
                         void *FUNC_ARGS_UNUSED_REALY(data))
 {
     xfree(watcher);

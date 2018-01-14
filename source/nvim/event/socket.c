@@ -25,7 +25,7 @@
 #endif
 
 int socket_watcher_init(main_loop_st *loop,
-                        SocketWatcher *watcher,
+                        socket_watcher_st *watcher,
                         const char *endpoint)
 FUNC_ATTR_NONNULL_ALL
 {
@@ -93,7 +93,7 @@ FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-int socket_watcher_start(SocketWatcher *watcher, int backlog, socket_cb cb)
+int socket_watcher_start(socket_watcher_st *watcher, int backlog, socket_cb cb)
 FUNC_ATTR_NONNULL_ALL
 {
     watcher->cb = cb;
@@ -176,7 +176,7 @@ FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-int socket_watcher_accept(SocketWatcher *watcher, Stream *stream)
+int socket_watcher_accept(socket_watcher_st *watcher, Stream *stream)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -205,7 +205,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     return 0;
 }
 
-void socket_watcher_close(SocketWatcher *watcher, socket_close_cb cb)
+void socket_watcher_close(socket_watcher_st *watcher, socket_close_cb cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     watcher->close_cb = cb;
@@ -214,14 +214,14 @@ FUNC_ATTR_NONNULL_ARG(1)
 
 static void connection_event(void **argv)
 {
-    SocketWatcher *watcher = argv[0];
+    socket_watcher_st *watcher = argv[0];
     int status = (int)(uintptr_t)(argv[1]);
     watcher->cb(watcher, status, watcher->data);
 }
 
 static void connection_cb(uv_stream_t *handle, int status)
 {
-    SocketWatcher *watcher = handle->data;
+    socket_watcher_st *watcher = handle->data;
 
     CREATE_EVENT(watcher->events, connection_event,
                  2, watcher, (void *)(uintptr_t)status);
@@ -229,7 +229,7 @@ static void connection_cb(uv_stream_t *handle, int status)
 
 static void close_cb(uv_handle_t *handle)
 {
-    SocketWatcher *watcher = handle->data;
+    socket_watcher_st *watcher = handle->data;
 
     if(watcher->close_cb)
     {

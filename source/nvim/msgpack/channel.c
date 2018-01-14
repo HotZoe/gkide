@@ -152,8 +152,8 @@ uint64_t channel_from_process(process_st *proc, uint64_t id)
 
 /// Creates an API channel from a tcp/pipe socket connection
 ///
-/// @param watcher The SocketWatcher ready to accept the connection
-void channel_from_connection(SocketWatcher *watcher)
+/// @param watcher The socket_watcher_st ready to accept the connection
+void channel_from_connection(socket_watcher_st *watcher)
 {
     rpc_channel_st *channel = register_channel(kChannelTypeSocket, 0, NULL);
     socket_watcher_accept(watcher, &channel->data.stream);
