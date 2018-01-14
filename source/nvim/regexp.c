@@ -415,11 +415,11 @@ typedef struct regsub_s
     } list;
 } regsub_st;
 
-typedef struct
+typedef struct regsubinfo_s
 {
     regsub_st norm; ///< \( .. \) matches
     regsub_st synt; ///< \z( .. \) matches
-} regsubs_T;
+} regsubinfo_st;
 
 /// nfa_pim_st stores a Postponed Invisible Match.
 typedef struct nfa_pim_s nfa_pim_st;
@@ -427,7 +427,7 @@ struct nfa_pim_s
 {
     int result;          /// NFA_PIM_*, see below
     nfa_state_st *state; ///< the invisible match start state
-    regsubs_T subs;      ///< submatch info, only party used
+    regsubinfo_st subs;  ///< submatch info, only party used
     union
     {
         bpos_st pos;
@@ -445,7 +445,7 @@ typedef struct nfa_thread_s
     nfa_pim_st pim;
 
     /// submatch info, only party used
-    regsubs_T subs;
+    regsubinfo_st subs;
 } nfa_thread_st;
 
 /// nfa_list_st contains the alternative NFA execution states.
@@ -14824,7 +14824,7 @@ static void nfa_postprocess(nfa_regprog_st *prog)
 #define NFA_PIM_NOMATCH  3   ///< pim executed, no match
 
 #ifdef REGEXP_DEBUG
-static void log_subsexpr(regsubs_T *subs)
+static void log_subsexpr(regsubinfo_st *subs)
 {
     log_subexpr(&subs->norm);
 
@@ -15165,7 +15165,7 @@ static void report_state(char *action,
 /// list "l" with the same positions as "subs".
 static int has_state_with_pos(nfa_list_st *l,
                               nfa_state_st *state,
-                              regsubs_T *subs,
+                              regsubinfo_st *subs,
                               nfa_pim_st *pim)
 {
     nfa_thread_st *thread;
@@ -15328,7 +15328,7 @@ static int match_follows(nfa_state_st *startstate, int depth)
 /// TRUE if "state" is already in list "l".
 static int state_in_list(nfa_list_st *l,
                          nfa_state_st *state,
-                         regsubs_T *subs)
+                         regsubinfo_st *subs)
 {
     if(state->lastlist[nfa_ll_index] == l->id)
     {
@@ -15356,9 +15356,9 @@ static int state_in_list(nfa_list_st *l,
 /// @returns
 /// "subs_arg", possibly copied into temp_subs.
 ///
-static regsubs_T *addstate(nfa_list_st *l,
+static regsubinfo_st *addstate(nfa_list_st *l,
                            nfa_state_st *state,
-                           regsubs_T *subs_arg,
+                           regsubinfo_st *subs_arg,
                            nfa_pim_st *pim,
                            int off_arg)
 {
@@ -15374,8 +15374,8 @@ static regsubs_T *addstate(nfa_list_st *l,
     uchar_kt *save_ptr;
     int i;
     regsub_st *sub;
-    regsubs_T *subs = subs_arg;
-    static regsubs_T temp_subs;
+    regsubinfo_st *subs = subs_arg;
+    static regsubinfo_st temp_subs;
 
 #ifdef REGEXP_DEBUG
     int did_print = FALSE;
@@ -15851,7 +15851,7 @@ static regsubs_T *addstate(nfa_list_st *l,
 /// @param ip
 static void addstate_here(nfa_list_st *l,
                           nfa_state_st *state,
-                          regsubs_T *subs,
+                          regsubinfo_st *subs,
                           nfa_pim_st *pim,
                           int *ip)
 {
@@ -16225,8 +16225,8 @@ static bool nfa_re_num_cmp(uintmax_t val, int op, uintmax_t pos)
 static int recursive_regmatch(nfa_state_st *state,
                               nfa_pim_st *pim,
                               nfa_regprog_st *prog,
-                              regsubs_T *submatch,
-                              regsubs_T *m,
+                              regsubinfo_st *submatch,
+                              regsubinfo_st *m,
                               int **listids)
 {
     int save_reginput_col = (int)(reginput - regline);
@@ -16697,8 +16697,8 @@ static long find_match_text(columnum_kt startcol,
 /// Caller must ensure that: start != NULL.
 static int nfa_regmatch(nfa_regprog_st *prog,
                         nfa_state_st *start,
-                        regsubs_T *submatch,
-                        regsubs_T *m)
+                        regsubinfo_st *submatch,
+                        regsubinfo_st *m)
 {
     int result;
     int flag = 0;
@@ -18384,7 +18384,7 @@ static long nfa_regtry(nfa_regprog_st *prog,
                        proftime_kt *tm)
 {
     int i;
-    regsubs_T subs, m;
+    regsubinfo_st subs, m;
     nfa_state_st *start = prog->start;
 
 #ifdef REGEXP_DEBUG

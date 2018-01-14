@@ -5,7 +5,7 @@
 
 #include "nvim/event/libuv_process.h"
 
-typedef struct pty_process
+typedef struct pty_process_s
 {
     process_st process;
     char *term_name;
