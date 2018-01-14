@@ -435,23 +435,23 @@ struct nfa_pim_s
     } end;              ///< where the match must end
 };
 
-/// nfa_thread_T contains execution information of a NFA state
-typedef struct
+/// nfa_thread_st contains execution information of a NFA state
+typedef struct nfa_thread_s
 {
     nfa_state_st *state;
     int count;
 
-    /// if pim.result != NFA_PIM_UNUSED:  postponed invisible match
+    /// if pim.result != NFA_PIM_UNUSED: postponed invisible match
     nfa_pim_st pim;
 
     /// submatch info, only party used
     regsubs_T subs;
-} nfa_thread_T;
+} nfa_thread_st;
 
 /// nfa_list_st contains the alternative NFA execution states.
 typedef struct nfa_list_s
 {
-    nfa_thread_T *t;  ///< allocated array of states
+    nfa_thread_st *t; ///< allocated array of states
     int n;            ///< nr of states currently in "t"
     int len;          ///< max nr of states in "t"
     int id;           ///< ID of the list
@@ -15168,7 +15168,7 @@ static int has_state_with_pos(nfa_list_st *l,
                               regsubs_T *subs,
                               nfa_pim_st *pim)
 {
-    nfa_thread_T *thread;
+    nfa_thread_st *thread;
 
     for(int i = 0; i < l->n; ++i)
     {
@@ -15368,7 +15368,7 @@ static regsubs_T *addstate(nfa_list_st *l,
     int listindex = 0;
     int k;
     int found = FALSE;
-    nfa_thread_T *thread;
+    nfa_thread_st *thread;
     bpos_st save_lpos;
     int save_in_use;
     uchar_kt *save_ptr;
@@ -15532,7 +15532,7 @@ static regsubs_T *addstate(nfa_list_st *l,
                     subs = &temp_subs;
                 }
 
-                l->t = xrealloc(l->t, newlen * sizeof(nfa_thread_T));
+                l->t = xrealloc(l->t, newlen * sizeof(nfa_thread_st));
                 l->len = newlen;
             }
 
@@ -15890,17 +15890,17 @@ static void addstate_here(nfa_list_st *l,
             // not enough space to move the new states, reallocate
             // the list and move the states to the right position
             l->len = l->len * 3 / 2 + 50;
-            nfa_thread_T *newl = xmalloc(l->len * sizeof(nfa_thread_T));
+            nfa_thread_st *newl = xmalloc(l->len * sizeof(nfa_thread_st));
 
             memmove(&(newl[0]),
                     &(l->t[0]),
-                    sizeof(nfa_thread_T) * listidx);
+                    sizeof(nfa_thread_st) * listidx);
             memmove(&(newl[listidx]),
                     &(l->t[l->n - count]),
-                    sizeof(nfa_thread_T) * count);
+                    sizeof(nfa_thread_st) * count);
             memmove(&(newl[listidx + count]),
                     &(l->t[listidx + 1]),
-                    sizeof(nfa_thread_T) * (l->n - count - listidx - 1));
+                    sizeof(nfa_thread_st) * (l->n - count - listidx - 1));
 
             xfree(l->t);
             l->t = newl;
@@ -15911,10 +15911,10 @@ static void addstate_here(nfa_list_st *l,
             // from the end to the current position
             memmove(&(l->t[listidx + count]),
                     &(l->t[listidx + 1]),
-                    sizeof(nfa_thread_T) * (l->n - listidx - 1));
+                    sizeof(nfa_thread_st) * (l->n - listidx - 1));
             memmove(&(l->t[listidx]),
                     &(l->t[l->n - 1]),
-                    sizeof(nfa_thread_T) * count);
+                    sizeof(nfa_thread_st) * count);
         }
     }
 
@@ -16703,7 +16703,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
     int result;
     int flag = 0;
     bool go_to_nextline = false;
-    nfa_thread_T *t;
+    nfa_thread_st *t;
     nfa_list_st list[2];
     int listidx;
     nfa_list_st *thislist;
@@ -16751,7 +16751,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
     nfa_match = false;
 
     // Allocate memory for the lists of nodes.
-    size_t size = (nstate + 1) * sizeof(nfa_thread_T);
+    size_t size = (nstate + 1) * sizeof(nfa_thread_st);
     list[0].t = xmalloc(size);
     list[0].len = nstate + 1;
     list[1].t = xmalloc(size);

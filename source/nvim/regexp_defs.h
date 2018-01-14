@@ -74,7 +74,7 @@ struct nfa_state_s
 };
 
 /// Structure used by the NFA matcher.
-typedef struct
+typedef struct nfa_regprog_s
 {
     // These four members implement regprog_st.
     regengine_st *engine;
@@ -82,11 +82,11 @@ typedef struct
     unsigned re_engine;
     unsigned re_flags;    ///< Second argument for vim_regcomp().
 
-    nfa_state_st *start;   ///< points into state[]
+    nfa_state_st *start;  ///< points into state[]
 
     int reganch;          ///< pattern starts with ^
     int regstart;         ///< char at start of pattern
-    uchar_kt *match_text;   ///< plain text to match with
+    uchar_kt *match_text; ///< plain text to match with
 
     int has_zend;         ///< pattern contains \ze
     int has_backref;      ///< pattern contains \1 .. \9
@@ -94,13 +94,13 @@ typedef struct
     uchar_kt *pattern;
     int nsubexp;          ///< number of ()
     int nstate;
-    nfa_state_st state[1]; ///< actually longer ...
+    nfa_state_st state[1];///< actually longer ...
 } nfa_regprog_st;
 
 /// Structure to be used for single-line matching.
 /// Sub-match "no" starts at "startp[no]" and ends just before "endp[no]".
 /// When there is no match, the pointer is NULL.
-typedef struct
+typedef struct regmatch_s
 {
     regprog_st *regprog;
     uchar_kt *startp[NSUBEXP];
@@ -114,19 +114,19 @@ typedef struct
 /// just before column "endpos[no].col". The line numbers are relative
 /// to the first line, thus startpos[0].lnum is always 0. When there is
 /// no match, the line number is -1.
-typedef struct
+typedef struct regmmatch_s
 {
     regprog_st *regprog;
     bpos_st startpos[NSUBEXP];
     bpos_st endpos[NSUBEXP];
     int rmm_ic;
-    columnum_kt rmm_maxcol;        ///< when not zero: maximum column
+    columnum_kt rmm_maxcol;    ///< when not zero: maximum column
 } regmmatch_st;
 
 /// Structure used to store external references: "\z\(\)" to "\z\1".
 /// Use a reference count to avoid the need to copy this around.
 /// When it goes from 1 to zero the matches need to be freed.
-typedef struct
+typedef struct reg_extmatch_s
 {
     short refcnt;
     uchar_kt *matches[NSUBEXP];
