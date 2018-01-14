@@ -7,11 +7,11 @@
 #include "nvim/event/rstream.h"
 #include "nvim/event/wstream.h"
 
-typedef enum
+typedef enum process_type_e
 {
     kProcessTypeUv,
     kProcessTypePty
-} ProcessType;
+} process_type_et;
 
 typedef struct process_s process_st;
 typedef void (*internal_process_ft)(process_st *proc);
@@ -19,7 +19,7 @@ typedef void (*process_exit_ft)(process_st *proc, int status, void *data);
 
 struct process_s
 {
-    ProcessType type;
+    process_type_et type;
     main_loop_st *loop;
     void *data;
     int pid;
@@ -45,7 +45,7 @@ struct process_s
 };
 
 static inline process_st process_init(main_loop_st *loop,
-                                      ProcessType type,
+                                      process_type_et type,
                                       void *data)
 {
     return (process_st) {
