@@ -449,15 +449,15 @@ typedef struct
     regsubs_T subs;
 } nfa_thread_T;
 
-/// nfa_list_T contains the alternative NFA execution states.
-typedef struct
+/// nfa_list_st contains the alternative NFA execution states.
+typedef struct nfa_list_s
 {
     nfa_thread_T *t;  ///< allocated array of states
     int n;            ///< nr of states currently in "t"
     int len;          ///< max nr of states in "t"
     int id;           ///< ID of the list
     int has_pim;      ///< TRUE when any state has a PIM
-} nfa_list_T;
+} nfa_list_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "regexp.c.generated.h"
@@ -15164,7 +15164,7 @@ static void report_state(char *action,
 /// @return
 /// TRUE if the same state is already in
 /// list "l" with the same positions as "subs".
-static int has_state_with_pos(nfa_list_T *l,
+static int has_state_with_pos(nfa_list_st *l,
                               nfa_state_st *state,
                               regsubs_T *subs,
                               nfa_pim_T *pim)
@@ -15327,7 +15327,7 @@ static int match_follows(nfa_state_st *startstate, int depth)
 ///
 /// @return
 /// TRUE if "state" is already in list "l".
-static int state_in_list(nfa_list_T *l,
+static int state_in_list(nfa_list_st *l,
                          nfa_state_st *state,
                          regsubs_T *subs)
 {
@@ -15357,7 +15357,7 @@ static int state_in_list(nfa_list_T *l,
 /// @returns
 /// "subs_arg", possibly copied into temp_subs.
 ///
-static regsubs_T *addstate(nfa_list_T *l,
+static regsubs_T *addstate(nfa_list_st *l,
                            nfa_state_st *state,
                            regsubs_T *subs_arg,
                            nfa_pim_T *pim,
@@ -15850,7 +15850,7 @@ static regsubs_T *addstate(nfa_list_T *l,
 /// @param subs   pointers to subexpressions
 /// @param pim    postponed look-behind match
 /// @param ip
-static void addstate_here(nfa_list_T *l,
+static void addstate_here(nfa_list_st *l,
                           nfa_state_st *state,
                           regsubs_T *subs,
                           nfa_pim_T *pim,
@@ -16705,10 +16705,10 @@ static int nfa_regmatch(nfa_regprog_st *prog,
     int flag = 0;
     bool go_to_nextline = false;
     nfa_thread_T *t;
-    nfa_list_T list[2];
+    nfa_list_st list[2];
     int listidx;
-    nfa_list_T *thislist;
-    nfa_list_T *nextlist;
+    nfa_list_st *thislist;
+    nfa_list_st *nextlist;
     int *listids = NULL;
     nfa_state_st *add_state;
     bool add_here;
