@@ -440,7 +440,7 @@ static bool handle_forced_escape(TermInput *input)
 }
 
 static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
-                    RBuffer *FUNC_ARGS_UNUSED_REALY(buf),
+                    ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
                     size_t FUNC_ARGS_UNUSED_REALY(c),
                     void *data,
                     bool eof)

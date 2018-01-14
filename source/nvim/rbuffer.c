@@ -12,8 +12,8 @@
     #include "rbuffer.c.generated.h"
 #endif
 
-/// Creates a new @b RBuffer instance.
-RBuffer *rbuffer_new(size_t capacity)
+/// Creates a new @b ringbuf_st instance.
+ringbuf_st *rbuffer_new(size_t capacity)
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_RET
 {
@@ -22,7 +22,7 @@ FUNC_ATTR_NONNULL_RET
         capacity = 0x10000;
     }
 
-    RBuffer *rv = xcalloc(1, sizeof(RBuffer) + capacity);
+    ringbuf_st *rv = xcalloc(1, sizeof(ringbuf_st) + capacity);
 
     rv->size = 0;
     rv->data = NULL;
@@ -38,25 +38,25 @@ FUNC_ATTR_NONNULL_RET
     return rv;
 }
 
-void rbuffer_free(RBuffer *buf)
+void rbuffer_free(ringbuf_st *buf)
 {
     xfree(buf->temp);
     xfree(buf);
 }
 
-size_t rbuffer_size(RBuffer *buf)
+size_t rbuffer_size(ringbuf_st *buf)
 FUNC_ATTR_NONNULL_ALL
 {
     return buf->size;
 }
 
-size_t rbuffer_capacity(RBuffer *buf)
+size_t rbuffer_capacity(ringbuf_st *buf)
 FUNC_ATTR_NONNULL_ALL
 {
     return (size_t)(buf->end_ptr - buf->start_ptr);
 }
 
-size_t rbuffer_space(RBuffer *buf)
+size_t rbuffer_space(ringbuf_st *buf)
 FUNC_ATTR_NONNULL_ALL
 {
     return rbuffer_capacity(buf) - buf->size;
@@ -68,7 +68,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// It is necessary to call this function twice to ensure all empty space was
 /// used. See RBUFFER_UNTIL_FULL for a macro that simplifies this task.
-char *rbuffer_write_ptr(RBuffer *buf, size_t *write_count)
+char *rbuffer_write_ptr(ringbuf_st *buf, size_t *write_count)
 FUNC_ATTR_NONNULL_ALL
 {
     if(buf->size == rbuffer_capacity(buf))
@@ -89,9 +89,9 @@ FUNC_ATTR_NONNULL_ALL
     return buf->write_ptr;
 }
 
-/// Reset an RBuffer so read_ptr is at the beginning of the memory. If
+/// Reset an ringbuf_st so read_ptr is at the beginning of the memory. If
 /// necessary, this moves existing data by allocating temporary memory.
-void rbuffer_reset(RBuffer *buf)
+void rbuffer_reset(ringbuf_st *buf)
 FUNC_ATTR_NONNULL_ALL
 {
     size_t temp_size;
@@ -118,7 +118,7 @@ FUNC_ATTR_NONNULL_ALL
 /// automatically by rbuffer_write, but when using rbuffer_write_ptr
 /// directly, this needs to called after the data was copied to the internal
 /// buffer. The write pointer will be wrapped if required.
-void rbuffer_produced(RBuffer *buf, size_t count)
+void rbuffer_produced(ringbuf_st *buf, size_t count)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(count &&count <= rbuffer_space(buf));
@@ -145,7 +145,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// It is necessary to call this function twice to ensure all available bytes
 /// were read. See RBUFFER_UNTIL_EMPTY for a macro that simplifies this task.
-char *rbuffer_read_ptr(RBuffer *buf, size_t *read_count)
+char *rbuffer_read_ptr(ringbuf_st *buf, size_t *read_count)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!buf->size)
@@ -170,7 +170,7 @@ FUNC_ATTR_NONNULL_ALL
 /// automatically by rbuffer_read, but when using rbuffer_read_ptr
 /// directly, this needs to called after the data was copied from the internal
 /// buffer. The read pointer will be wrapped if required.
-void rbuffer_consumed(RBuffer *buf, size_t count)
+void rbuffer_consumed(ringbuf_st *buf, size_t count)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(count &&count <= buf->size);
@@ -191,9 +191,9 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-/// Higher level functions for copying from/to RBuffer
+/// Higher level functions for copying from/to ringbuf_st
 /// instances and data pointers
-size_t rbuffer_write(RBuffer *buf, const char *src, size_t src_size)
+size_t rbuffer_write(ringbuf_st *buf, const char *src, size_t src_size)
 FUNC_ATTR_NONNULL_ALL
 {
     size_t size = src_size;
@@ -215,7 +215,7 @@ FUNC_ATTR_NONNULL_ALL
     return size - src_size;
 }
 
-size_t rbuffer_read(RBuffer *buf, char *dst, size_t dst_size)
+size_t rbuffer_read(ringbuf_st *buf, char *dst, size_t dst_size)
 FUNC_ATTR_NONNULL_ALL
 {
     size_t size = dst_size;
@@ -237,7 +237,7 @@ FUNC_ATTR_NONNULL_ALL
     return size - dst_size;
 }
 
-char *rbuffer_get(RBuffer *buf, size_t index)
+char *rbuffer_get(ringbuf_st *buf, size_t index)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_NONNULL_RET
 {
@@ -253,7 +253,7 @@ FUNC_ATTR_NONNULL_RET
     return rptr;
 }
 
-int rbuffer_cmp(RBuffer *buf, const char *str, size_t count)
+int rbuffer_cmp(ringbuf_st *buf, const char *str, size_t count)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(count <= buf->size);

@@ -31,7 +31,7 @@ typedef struct term_input
 #endif
 
     Stream read_stream;
-    RBuffer *key_buffer;
+    ringbuf_st *key_buffer;
     uv_mutex_t key_buffer_mutex;
     uv_cond_t key_buffer_cond;
 } TermInput;

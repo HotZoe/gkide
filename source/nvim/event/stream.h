@@ -18,7 +18,7 @@ typedef struct stream Stream;
 /// The Stream instance
 ///
 /// @param rbuffer
-/// The associated RBuffer instance
+/// The associated ringbuf_st instance
 ///
 /// @param count
 /// Number of bytes to read. This must be respected if keeping
@@ -32,7 +32,7 @@ typedef struct stream Stream;
 /// @param eof
 /// If the stream reached EOF.
 typedef void (*stream_read_cb)(Stream *stream,
-                               RBuffer *buf,
+                               ringbuf_st *buf,
                                size_t count,
                                void *data,
                                bool eof);
@@ -63,7 +63,7 @@ struct stream
 
     uv_stream_t *uvstream;
     uv_buf_t uvbuf;
-    RBuffer *buffer;
+    ringbuf_st *buffer;
     uv_file fd;
     stream_read_cb read_cb;
     stream_write_cb write_cb;

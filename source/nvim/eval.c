@@ -29318,7 +29318,7 @@ static inline void process_job_event(terminal_jobdata_st *data,
 }
 
 static void on_job_stdout(Stream *stream,
-                          RBuffer *buf,
+                          ringbuf_st *buf,
                           size_t count,
                           void *job,
                           bool eof)
@@ -29328,7 +29328,7 @@ static void on_job_stdout(Stream *stream,
 }
 
 static void on_job_stderr(Stream *stream,
-                          RBuffer *buf,
+                          ringbuf_st *buf,
                           size_t count,
                           void *job,
                           bool eof)
@@ -29339,7 +29339,7 @@ static void on_job_stderr(Stream *stream,
 
 static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
                           terminal_jobdata_st *data,
-                          RBuffer *buf,
+                          ringbuf_st *buf,
                           size_t count,
                           bool eof,
                           callback_st *callback,

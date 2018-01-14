@@ -2,12 +2,12 @@
 ///
 /// Specialized ring buffer. This is basically an array that wraps read/write
 /// pointers around the memory region. It should be more efficient than the old
-/// RBuffer which required memmove() calls to relocate read/write positions.
+/// ringbuf_st which required memmove() calls to relocate read/write positions.
 ///
-/// The main purpose of RBuffer is simplify memory management when reading from
+/// The main purpose of ringbuf_st is simplify memory management when reading from
 /// uv_stream_t instances:
 ///
-/// - The event loop writes data to a RBuffer, advancing the write pointer
+/// - The event loop writes data to a ringbuf_st, advancing the write pointer
 /// - The main loop reads data, advancing the read pointer
 /// - If the buffer becomes full(size == capacity) the rstream is temporarily
 ///   stopped(automatic backpressure handling)
@@ -52,7 +52,6 @@
             rbuffer_space(buf);                         \
             wptr = rbuffer_write_ptr(buf, &wcnt))
 
-
 /// Iteration
 #define RBUFFER_EACH(buf, c, i)                             \
     for(size_t i = 0; i < buf->size; i = buf->size)         \
@@ -65,14 +64,14 @@
     for(size_t i = buf->size; i != SIZE_MAX; i = SIZE_MAX) \
         for(char c = 0; i-- > 0 ? ((int)(c = *rbuffer_get(buf, i))) || 1 : 0;)
 
-typedef struct rbuffer RBuffer;
+typedef struct ringbuf_s ringbuf_st;
 
 /// Type of function invoked during certain events:
-/// - When the RBuffer switches to the full state
-/// - When the RBuffer switches to the non-full state
-typedef void(*rbuffer_callback)(RBuffer *buf, void *data);
+/// - When the ringbuf_st switches to the full state
+/// - When the ringbuf_st switches to the non-full state
+typedef void(*rbuffer_callback)(ringbuf_st *buf, void *data);
 
-struct rbuffer
+struct ringbuf_s
 {
     rbuffer_callback full_cb;
     rbuffer_callback nonfull_cb;

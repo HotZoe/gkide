@@ -79,12 +79,12 @@ void rstream_stop(Stream *stream) FUNC_ATTR_NONNULL_ALL
     }
 }
 
-static void on_rbuffer_full(RBuffer *FUNC_ARGS_UNUSED_REALY(buf), void *data)
+static void on_rbuffer_full(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf), void *data)
 {
     rstream_stop(data);
 }
 
-static void on_rbuffer_nonfull(RBuffer *FUNC_ARGS_UNUSED_REALY(buf), void *data)
+static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf), void *data)
 {
     Stream *stream = data;
     assert(stream->read_cb);
@@ -130,7 +130,7 @@ static void read_cb(uv_stream_t *uvstream,
         // cnt == 0 means libuv asked for a buffer and decided it wasn't needed:
         // http://docs.libuv.org/en/latest/stream.html#c.uv_read_start.
         //
-        // We don't need to do anything with the RBuffer because the next call
+        // We don't need to do anything with the ringbuf_st because the next call
         // to `alloc_cb` will return the same unused pointer(`rbuffer_produced`
         // won't be called)
         if(cnt != UV_ENOBUFS && cnt != 0)

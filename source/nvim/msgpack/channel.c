@@ -422,7 +422,7 @@ void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
 }
 
 static void receive_msgpack(Stream *FUNC_ARGS_UNUSED_MAYBE(stream),
-                            RBuffer *rbuf,
+                            ringbuf_st *rbuf,
                             size_t FUNC_ARGS_UNUSED_REALY(cnt),
                             void *data,
                             bool eof)

@@ -13,8 +13,8 @@
 typedef struct filedesc_s
 {
     int fd;       ///< File descriptor.
-    int _error;   ///< Error code for use with RBuffer callbacks or zero.
-    RBuffer *rv;  ///< Read or write buffer.
+    int _error;   ///< Error code for use with ringbuf_st callbacks or zero.
+    ringbuf_st *rv;  ///< Read or write buffer.
     bool wr;      ///< True if file is in write mode.
     bool eof;     ///< True if end of file was encountered.
 } filedesc_st;

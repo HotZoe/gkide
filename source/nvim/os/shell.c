@@ -372,7 +372,7 @@ static void dynamic_buffer_ensure(dynamic_buf_st *buf, size_t desired)
 }
 
 static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
-                           RBuffer *buf,
+                           ringbuf_st *buf,
                            size_t FUNC_ARGS_UNUSED_REALY(count),
                            void *data,
                            bool FUNC_ARGS_UNUSED_REALY(eof))
@@ -599,7 +599,7 @@ static void out_data_append_to_screen(char *output,
 }
 
 static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
-                        RBuffer *buf,
+                        ringbuf_st *buf,
                         size_t FUNC_ARGS_UNUSED_REALY(count),
                         void *FUNC_ARGS_UNUSED_REALY(data),
                         bool eof)

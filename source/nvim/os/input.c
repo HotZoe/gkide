@@ -35,7 +35,7 @@ typedef enum
 } InbufPollResult;
 
 static Stream read_stream = { .closed = true };
-static RBuffer *input_buffer = NULL;
+static ringbuf_st *input_buffer = NULL;
 static bool input_eof = false;
 static int global_fd = 0;
 static int events_enabled = 0;
@@ -457,7 +457,7 @@ static InbufPollResult inbuf_poll(int ms)
 }
 
 static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
-                    RBuffer *buf,
+                    ringbuf_st *buf,
                     size_t FUNC_ARGS_UNUSED_REALY(c),
                     void *FUNC_ARGS_UNUSED_REALY(data),
                     bool at_eof)

@@ -233,13 +233,13 @@ FUNC_ATTR_NONNULL_ALL
 /// Like IObuff, but allows file_\* callers not to care about spoiling it.
 static char writebuf[kRWBufferSize];
 
-/// Function run when RBuffer is full when writing to a file
+/// Function run when ringbuf_st is full when writing to a file
 ///
 /// Actually does writing to the file, may also be invoked directly.
 ///
-/// @param[in,out]  rv  RBuffer instance used.
+/// @param[in,out]  rv  ringbuf_st instance used.
 /// @param[in,out]  fp  File to work with.
-static void file_rb_write_full_cb(RBuffer *const rv, filedesc_st *const fp)
+static void file_rb_write_full_cb(ringbuf_st *const rv, filedesc_st *const fp)
 FUNC_ATTR_NONNULL_ALL
 {
     assert(fp->wr);
@@ -288,7 +288,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     char *buf = ret_buf;
     size_t read_remaining = size;
-    RBuffer *const rv = fp->rv;
+    ringbuf_st *const rv = fp->rv;
 
     while(read_remaining)
     {
@@ -315,7 +315,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         #ifdef HAVE_FUN_READV
             // If there is readv() syscall, then take an opportunity to populate
-            // both target buffer and RBuffer at once
+            // both target buffer and ringbuf_st at once
             size_t write_count;
 
             struct iovec iov[] = {
@@ -350,7 +350,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         #else
             if(read_remaining >= kRWBufferSize)
             {
-                // otherwise leave RBuffer empty and populate only target
+                // otherwise leave ringbuf_st empty and populate only target
                 // buffer, because filtering information through rbuffer will
                 // be more syscalls.
                 const ptrdiff_t r_ret = os_read(fp->fd, &fp->eof,
