@@ -219,7 +219,7 @@ typedef struct prt_ps_charset_s
 } prt_ps_charset_st;
 
 /// Collections of encodings and charsets for multi-byte printing
-struct prt_ps_mbfont_S
+typedef struct prt_ps_mbfont_s
 {
     int num_encodings;
     prt_ps_encoding_st *encodings;
@@ -227,7 +227,7 @@ struct prt_ps_mbfont_S
     prt_ps_charset_st *charsets;
     char *ascii_enc;
     char *defcs;
-};
+} prt_ps_mbfont_st;
 
 struct prt_ps_resource_S
 {
@@ -1385,7 +1385,7 @@ static prt_ps_charset_st k_charsets[] =
     { "ISO10646",    "UniKS",    CS_KR_ISO10646   }
 };
 
-static struct prt_ps_mbfont_S prt_ps_mbfonts[] =
+static prt_ps_mbfont_st prt_ps_mbfonts[] =
 {
     {
         ARRAY_SIZE(j_encodings),
@@ -2545,7 +2545,7 @@ static int prt_get_lpp(void)
 }
 
 static int prt_match_encoding(char *p_encoding,
-                              struct prt_ps_mbfont_S *p_cmap,
+                              prt_ps_mbfont_st *p_cmap,
                               prt_ps_encoding_st **pp_mbenc)
 {
     int mbenc;
@@ -2572,7 +2572,7 @@ static int prt_match_encoding(char *p_encoding,
 }
 
 static int prt_match_charset(char *p_charset,
-                             struct prt_ps_mbfont_S *p_cmap,
+                             prt_ps_mbfont_st *p_cmap,
                              prt_ps_charset_st **pp_mbchar)
 {
     int mbchar;
