@@ -78,7 +78,7 @@ typedef struct tui_data_s
     unibi_var_t params[9];
     char buf[OUTBUF_SIZE];
     size_t bufpos, bufsize;
-    TermInput input;
+    terminput_st input;
     uv_loop_t write_loop;
     unibi_term *ut;
 
@@ -1567,7 +1567,7 @@ static const char *tui_get_stty_erase(void)
 }
 
 /// libtermkey hook to override terminfo entries.
-/// @see TermInput.tk_ti_hook_fn
+/// @see terminput_st.tk_ti_hook_fn
 static const char *tui_tk_ti_getstr(const char *name,
                                     const char *value,
                                     void *FUNC_ARGS_UNUSED_REALY(data))

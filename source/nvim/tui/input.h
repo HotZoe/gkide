@@ -34,7 +34,7 @@ typedef struct term_input
     ringbuf_st *key_buffer;
     uv_mutex_t key_buffer_mutex;
     uv_cond_t key_buffer_cond;
-} TermInput;
+} terminput_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "tui/input.h.generated.h"
