@@ -38,7 +38,7 @@ FUNC_API_NOEXPORT
 void remote_ui_disconnect(uint64_t channel_id)
 FUNC_API_NOEXPORT
 {
-    UI *ui = pmap_get(uint64_t)(connected_uis, channel_id);
+    ui_st *ui = pmap_get(uint64_t)(connected_uis, channel_id);
 
     if(!ui)
     {
@@ -75,7 +75,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
         return;
     }
 
-    UI *ui = xcalloc(1, sizeof(UI));
+    ui_st *ui = xcalloc(1, sizeof(ui_st));
     ui->width = (int)width;
     ui->height = (int)height;
     ui->rgb = true;
@@ -175,7 +175,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
         return;
     }
 
-    UI *ui = pmap_get(uint64_t)(connected_uis, channel_id);
+    ui_st *ui = pmap_get(uint64_t)(connected_uis, channel_id);
     ui->width = (int)width;
     ui->height = (int)height;
     ui_refresh();
@@ -194,7 +194,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
         return;
     }
 
-    UI *ui = pmap_get(uint64_t)(connected_uis, channel_id);
+    ui_st *ui = pmap_get(uint64_t)(connected_uis, channel_id);
 
     ui_set_option(ui, name, value, error);
 
@@ -204,7 +204,7 @@ FUNC_API_SINCE(1) FUNC_API_REMOTE_ONLY
     }
 }
 
-static void ui_set_option(UI *ui,
+static void ui_set_option(ui_st *ui,
                           String name,
                           Object value,
                           error_st *error)
@@ -260,7 +260,7 @@ static void ui_set_option(UI *ui,
 #undef UI_EXT_OPTION
 }
 
-static void push_call(UI *ui, char *name, Array args)
+static void push_call(ui_st *ui, char *name, Array args)
 {
     Array call = ARRAY_DICT_INIT;
     ui_data_st *data = ui->data;
@@ -284,7 +284,7 @@ static void push_call(UI *ui, char *name, Array args)
     kv_A(data->buffer, kv_size(data->buffer) - 1).data.array = call;
 }
 
-static void remote_ui_highlight_set(UI *ui, uihl_attr_st attrs)
+static void remote_ui_highlight_set(ui_st *ui, uihl_attr_st attrs)
 {
     Array args = ARRAY_DICT_INIT;
     Dictionary hl = ARRAY_DICT_INIT;
@@ -333,7 +333,7 @@ static void remote_ui_highlight_set(UI *ui, uihl_attr_st attrs)
     push_call(ui, "highlight_set", args);
 }
 
-static void remote_ui_flush(UI *ui)
+static void remote_ui_flush(ui_st *ui)
 {
     ui_data_st *data = ui->data;
 
@@ -344,7 +344,10 @@ static void remote_ui_flush(UI *ui)
     }
 }
 
-static void remote_ui_event(UI *ui, char *name, Array args, bool *args_consumed)
+static void remote_ui_event(ui_st *ui,
+                            char *name,
+                            Array args,
+                            bool *args_consumed)
 {
     Array my_args = ARRAY_DICT_INIT;
 

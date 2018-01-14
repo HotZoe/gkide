@@ -47,7 +47,7 @@
 
 #define MAX_UI_COUNT 16
 
-static UI *uis[MAX_UI_COUNT];
+static ui_st *uis[MAX_UI_COUNT];
 static bool ui_ext[UI_WIDGETS] = { 0 };
 static size_t ui_count = 0;
 static int row = 0, col = 0;
@@ -74,7 +74,7 @@ static int old_mode_idx = -1;
         flush_cursor_update();                  \
         for(size_t i = 0; i < ui_count; i++)    \
         {                                       \
-            UI *ui = uis[i];                    \
+            ui_st *ui = uis[i];                 \
             UI_CALL_MORE(funname, __VA_ARGS__); \
         }                                       \
     } while(0)
@@ -85,7 +85,7 @@ static int old_mode_idx = -1;
         flush_cursor_update();                             \
         for(size_t i = 0; i < ui_count; i++)               \
         {                                                  \
-            UI *ui = uis[i];                               \
+            ui_st *ui = uis[i];                            \
             UI_CALL_HELPER(CNT(__VA_ARGS__), __VA_ARGS__); \
         }                                                  \
     } while(0)
@@ -187,7 +187,7 @@ void ui_refresh(void)
 
     for(size_t i = 0; i < ui_count; i++)
     {
-        UI *ui = uis[i];
+        ui_st *ui = uis[i];
         width = MIN(ui->width, width);
         height = MIN(ui->height, height);
 
@@ -252,7 +252,7 @@ void ui_busy_stop(void)
     }
 }
 
-void ui_attach_impl(UI *ui)
+void ui_attach_impl(ui_st *ui)
 {
     if(ui_count == MAX_UI_COUNT)
     {
@@ -263,7 +263,7 @@ void ui_attach_impl(UI *ui)
     ui_refresh();
 }
 
-void ui_detach_impl(UI *ui)
+void ui_detach_impl(ui_st *ui)
 {
     size_t shift_index = MAX_UI_COUNT;
 

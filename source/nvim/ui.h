@@ -32,9 +32,8 @@ typedef struct uihl_attr_s
     int special;
 } uihl_attr_st;
 
-typedef struct ui_t UI;
-
-struct ui_t
+typedef struct ui_s ui_st;
+struct ui_s
 {
     bool rgb;
     /// Externalized widgets
@@ -48,8 +47,8 @@ struct ui_t
     #include "ui_events.generated.h"
     #endif
 
-    void (*stop)(UI *ui);
-    void (*event)(UI *ui, char *name, Array args, bool *args_consumed);
+    void (*stop)(ui_st *ui);
+    void (*event)(ui_st *ui, char *name, Array args, bool *args_consumed);
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

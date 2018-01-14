@@ -69,7 +69,7 @@ for i = 1, #events do
     assert(ev.return_type == 'void')
 
     if ev.since == nil then
-        print("Ui event "..ev.name.." lacks since field.\n")
+        print("ui_st event "..ev.name.." lacks since field.\n")
         os.exit(1)
     end
 
@@ -77,12 +77,12 @@ for i = 1, #events do
 
     if not ev.remote_only then
         proto_output:write('  void (*'..ev.name..')')
-        write_signature(proto_output, ev, 'UI *ui')
+        write_signature(proto_output, ev, 'ui_st *ui')
         proto_output:write(';\n')
 
         if not ev.remote_impl then
             remote_output:write('static void remote_ui_'..ev.name)
-            write_signature(remote_output, ev, 'UI *ui')
+            write_signature(remote_output, ev, 'ui_st *ui')
             remote_output:write('\n{\n')
             write_arglist(remote_output, ev, true)
             remote_output:write('  push_call(ui, "'..ev.name..'", args);\n')
@@ -128,14 +128,14 @@ for i = 1, #events do
 
         bridge_output:write('static void ui_bridge_' .. ev.name
                             .. '_event(void **argv)\n{\n')
-        bridge_output:write('  UI *ui = UI(argv[0]);\n')
+        bridge_output:write('  ui_st *ui = UI_PTR(argv[0]);\n')
         bridge_output:write(recv)
         bridge_output:write('  ui->'..ev.name..'(ui'..recv_argv..');\n')
         bridge_output:write(recv_cleanup)
         bridge_output:write('}\n\n')
 
         bridge_output:write('static void ui_bridge_'..ev.name)
-        write_signature(bridge_output, ev, 'UI *ui')
+        write_signature(bridge_output, ev, 'ui_st *ui')
         bridge_output:write('\n{\n')
         bridge_output:write(send)
         bridge_output:write('  UI_CALL(ui, ' .. ev.name .. ', '

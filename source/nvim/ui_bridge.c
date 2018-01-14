@@ -21,7 +21,7 @@
     #include "ui_bridge.c.generated.h"
 #endif
 
-#define UI(b) (((ui_bridge_st *)b)->ui)
+#define UI_PTR(b) (((ui_bridge_st *)b)->ui)
 
 #if NVIM_LOG_LEVEL_MIN <= DEBUG_LOG_LEVEL
 static size_t uilog_seen = 0;
@@ -48,7 +48,7 @@ static argv_callback_ft uilog_event = NULL;
         ((ui_bridge_st *)ui)->scheduler(event_create(ui_bridge_##name##_event, \
                                                      argc,                     \
                                                      __VA_ARGS__),             \
-                                        UI(ui));                               \
+                                        UI_PTR(ui));                           \
     }while(0)
 #else
 /// Schedule a function call on the UI bridge thread.
@@ -56,7 +56,7 @@ static argv_callback_ft uilog_event = NULL;
     ((ui_bridge_st *)ui)->scheduler(event_create(ui_bridge_##name##_event, \
                                                  argc,                     \
                                                  __VA_ARGS__),             \
-                                    UI(ui))
+                                    UI_PTR(ui))
 #endif
 
 #define INT2PTR(i)   ((void *)(intptr_t)i)
@@ -66,7 +66,9 @@ static argv_callback_ft uilog_event = NULL;
     #include "ui_events_bridge.generated.h"
 #endif
 
-UI *ui_bridge_attach(UI *ui, ui_main_ft ui_main, event_scheduler_ft scheduler)
+ui_st *ui_bridge_attach(ui_st *ui,
+                        ui_main_ft ui_main,
+                        event_scheduler_ft scheduler)
 {
     ui_bridge_st *rv = xcalloc(1, sizeof(ui_bridge_st));
 
@@ -122,6 +124,7 @@ UI *ui_bridge_attach(UI *ui, ui_main_ft ui_main, event_scheduler_ft scheduler)
 
     uv_mutex_unlock(&rv->mutex);
     ui_attach_impl(&rv->bridge);
+
     return &rv->bridge;
 }
 
@@ -139,7 +142,7 @@ static void ui_thread_run(void *data)
     bridge->ui_main(bridge, bridge->ui);
 }
 
-static void ui_bridge_stop(UI *b)
+static void ui_bridge_stop(ui_st *b)
 {
     ui_bridge_st *bridge = (ui_bridge_st *)b;
     bool stopped = bridge->stopped = false;
@@ -167,11 +170,11 @@ static void ui_bridge_stop(UI *b)
 }
 static void ui_bridge_stop_event(void **argv)
 {
-    UI *ui = UI(argv[0]);
+    ui_st *ui = UI_PTR(argv[0]);
     ui->stop(ui);
 }
 
-static void ui_bridge_highlight_set(UI *b, uihl_attr_st attrs)
+static void ui_bridge_highlight_set(ui_st *b, uihl_attr_st attrs)
 {
     uihl_attr_st *a = xmalloc(sizeof(uihl_attr_st));
     *a = attrs;
@@ -179,12 +182,12 @@ static void ui_bridge_highlight_set(UI *b, uihl_attr_st attrs)
 }
 static void ui_bridge_highlight_set_event(void **argv)
 {
-    UI *ui = UI(argv[0]);
+    ui_st *ui = UI_PTR(argv[0]);
     ui->highlight_set(ui, *((uihl_attr_st *)argv[1]));
     xfree(argv[1]);
 }
 
-static void ui_bridge_suspend(UI *b)
+static void ui_bridge_suspend(ui_st *b)
 {
     ui_bridge_st *data = (ui_bridge_st *)b;
     uv_mutex_lock(&data->mutex);
@@ -202,6 +205,6 @@ static void ui_bridge_suspend(UI *b)
 }
 static void ui_bridge_suspend_event(void **argv)
 {
-    UI *ui = UI(argv[0]);
+    ui_st *ui = UI_PTR(argv[0]);
     ui->suspend(ui);
 }

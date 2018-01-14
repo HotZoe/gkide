@@ -126,9 +126,9 @@ static bool is_tmux = false;
     #include "tui/tui.c.generated.h"
 #endif
 
-UI *tui_start(void)
+ui_st *tui_start(void)
 {
-    UI *ui = xcalloc(1, sizeof(UI));
+    ui_st *ui = xcalloc(1, sizeof(ui_st));
 
     ui->stop = tui_stop;
     ui->rgb = p_tgc;
@@ -163,7 +163,7 @@ UI *tui_start(void)
     return ui_bridge_attach(ui, tui_main, tui_scheduler);
 }
 
-static void terminfo_start(UI *ui)
+static void terminfo_start(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -235,7 +235,7 @@ static void terminfo_start(UI *ui)
     }
 }
 
-static void terminfo_stop(UI *ui)
+static void terminfo_stop(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -267,7 +267,7 @@ static void terminfo_stop(UI *ui)
     unibi_destroy(data->ut);
 }
 
-static void tui_terminal_start(UI *ui)
+static void tui_terminal_start(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -279,7 +279,7 @@ static void tui_terminal_start(UI *ui)
     term_input_start(&data->input);
 }
 
-static void tui_terminal_stop(UI *ui)
+static void tui_terminal_stop(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -289,7 +289,7 @@ static void tui_terminal_stop(UI *ui)
     ugrid_free(&data->grid);
 }
 
-static void tui_stop(UI *ui)
+static void tui_stop(ui_st *ui)
 {
     tui_terminal_stop(ui);
     TUIData *data = ui->data;
@@ -297,7 +297,7 @@ static void tui_stop(UI *ui)
 }
 
 /// Main function of the TUI thread
-static void tui_main(ui_bridge_st *bridge, UI *ui)
+static void tui_main(ui_bridge_st *bridge, ui_st *ui)
 {
     main_loop_st tui_loop;
     loop_init(&tui_loop, NULL);
@@ -351,7 +351,7 @@ static void tui_main(ui_bridge_st *bridge, UI *ui)
 
 static void tui_scheduler(event_msg_st event, void *d)
 {
-    UI *ui = d;
+    ui_st *ui = d;
     TUIData *data = ui->data;
     loop_schedule(data->loop, event);
 }
@@ -370,7 +370,7 @@ static void sigwinch_cb(SignalWatcher *FUNC_ARGS_UNUSED_REALY(watcher),
                         void *data)
 {
     got_winch = true;
-    UI *ui = data;
+    ui_st *ui = data;
     update_size(ui);
     ui_schedule_refresh();
 }
@@ -386,7 +386,7 @@ static bool attrs_differ(uihl_attr_st a1, uihl_attr_st a2)
            || a1.reverse != a2.reverse;
 }
 
-static void update_attrs(UI *ui, uihl_attr_st attrs)
+static void update_attrs(ui_st *ui, uihl_attr_st attrs)
 {
     TUIData *data = ui->data;
 
@@ -456,13 +456,13 @@ static void update_attrs(UI *ui, uihl_attr_st attrs)
     }
 }
 
-static void print_cell(UI *ui, UCell *ptr)
+static void print_cell(ui_st *ui, UCell *ptr)
 {
     update_attrs(ui, ptr->attrs);
     out(ui, ptr->data, strlen(ptr->data));
 }
 
-static void clear_region(UI *ui, int top, int bot, int left, int right)
+static void clear_region(ui_st *ui, int top, int bot, int left, int right)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -530,7 +530,7 @@ static void clear_region(UI *ui, int top, int bot, int left, int right)
     unibi_goto(ui, grid->row, grid->col);
 }
 
-static bool can_use_scroll(UI *ui)
+static bool can_use_scroll(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -542,7 +542,7 @@ static bool can_use_scroll(UI *ui)
                    || data->can_set_left_right_margin));
 }
 
-static void set_scroll_region(UI *ui)
+static void set_scroll_region(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -573,7 +573,7 @@ static void set_scroll_region(UI *ui)
     unibi_goto(ui, grid->row, grid->col);
 }
 
-static void reset_scroll_region(UI *ui)
+static void reset_scroll_region(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -611,7 +611,7 @@ static void reset_scroll_region(UI *ui)
     unibi_goto(ui, grid->row, grid->col);
 }
 
-static void tui_resize(UI *ui, Integer width, Integer height)
+static void tui_resize(ui_st *ui, Integer width, Integer height)
 {
     TUIData *data = ui->data;
     ugrid_resize(&data->grid, (int)width, (int)height);
@@ -636,7 +636,7 @@ static void tui_resize(UI *ui, Integer width, Integer height)
     }
 }
 
-static void tui_clear(UI *ui)
+static void tui_clear(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -645,7 +645,7 @@ static void tui_clear(UI *ui)
     clear_region(ui, grid->top, grid->bot, grid->left, grid->right);
 }
 
-static void tui_eol_clear(UI *ui)
+static void tui_eol_clear(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -654,7 +654,7 @@ static void tui_eol_clear(UI *ui)
     clear_region(ui, grid->row, grid->row, grid->col, grid->right);
 }
 
-static void tui_cursor_goto(UI *ui, Integer row, Integer col)
+static void tui_cursor_goto(ui_st *ui, Integer row, Integer col)
 {
     TUIData *data = ui->data;
 
@@ -717,7 +717,7 @@ static cursor_info_st decode_cursor_entry(Dictionary args)
     return r;
 }
 
-static void tui_mode_info_set(UI *ui, bool guicursor_enabled, Array args)
+static void tui_mode_info_set(ui_st *ui, bool guicursor_enabled, Array args)
 {
     cursor_style_enabled = guicursor_enabled;
 
@@ -740,23 +740,23 @@ static void tui_mode_info_set(UI *ui, bool guicursor_enabled, Array args)
     tui_set_mode(ui, data->showing_mode);
 }
 
-static void tui_update_menu(UI *FUNC_ARGS_UNUSED_REALY(ui))
+static void tui_update_menu(ui_st *FUNC_ARGS_UNUSED_REALY(ui))
 {
     // Do nothing
     // menus are for GUI only
 }
 
-static void tui_busy_start(UI *ui)
+static void tui_busy_start(ui_st *ui)
 {
     ((TUIData *)ui->data)->busy = true;
 }
 
-static void tui_busy_stop(UI *ui)
+static void tui_busy_stop(ui_st *ui)
 {
     ((TUIData *)ui->data)->busy = false;
 }
 
-static void tui_mouse_on(UI *ui)
+static void tui_mouse_on(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -767,7 +767,7 @@ static void tui_mouse_on(UI *ui)
     }
 }
 
-static void tui_mouse_off(UI *ui)
+static void tui_mouse_off(ui_st *ui)
 {
     TUIData *data = ui->data;
 
@@ -778,7 +778,7 @@ static void tui_mouse_off(UI *ui)
     }
 }
 
-static void tui_set_mode(UI *ui, mode_shape_et mode)
+static void tui_set_mode(ui_st *ui, mode_shape_et mode)
 {
     if(!cursor_style_enabled)
     {
@@ -881,7 +881,7 @@ static void tui_set_mode(UI *ui, mode_shape_et mode)
 }
 
 /// @param mode editor mode
-static void tui_mode_change(UI *ui,
+static void tui_mode_change(ui_st *ui,
                             String FUNC_ARGS_UNUSED_REALY(mode),
                             Integer mode_idx)
 {
@@ -891,7 +891,7 @@ static void tui_mode_change(UI *ui,
     data->showing_mode = (mode_shape_et)mode_idx;
 }
 
-static void tui_set_scroll_region(UI *ui,
+static void tui_set_scroll_region(ui_st *ui,
                                   Integer top,
                                   Integer bot,
                                   Integer left,
@@ -911,7 +911,7 @@ static void tui_set_scroll_region(UI *ui,
                                          && bot == ui->height - 1;
 }
 
-static void tui_scroll(UI *ui, Integer count)
+static void tui_scroll(ui_st *ui, Integer count)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -989,44 +989,44 @@ static void tui_scroll(UI *ui, Integer count)
     }
 }
 
-static void tui_highlight_set(UI *ui, uihl_attr_st attrs)
+static void tui_highlight_set(ui_st *ui, uihl_attr_st attrs)
 {
     ((TUIData *)ui->data)->grid.attrs = attrs;
 }
 
-static void tui_put(UI *ui, String text)
+static void tui_put(ui_st *ui, String text)
 {
     TUIData *data = ui->data;
     print_cell(ui, ugrid_put(&data->grid, (uint8_t *)text.data, text.size));
 }
 
-static void tui_bell(UI *ui)
+static void tui_bell(ui_st *ui)
 {
     unibi_out(ui, unibi_bell);
 }
 
-static void tui_visual_bell(UI *ui)
+static void tui_visual_bell(ui_st *ui)
 {
     unibi_out(ui, unibi_flash_screen);
 }
 
-static void tui_update_fg(UI *ui, Integer fg)
+static void tui_update_fg(ui_st *ui, Integer fg)
 {
     ((TUIData *)ui->data)->grid.fg = (int)fg;
 }
 
-static void tui_update_bg(UI *ui, Integer bg)
+static void tui_update_bg(ui_st *ui, Integer bg)
 {
     ((TUIData *)ui->data)->grid.bg = (int)bg;
 }
 
-static void tui_update_sp(UI *FUNC_ARGS_UNUSED_REALY(ui),
+static void tui_update_sp(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
                           Integer FUNC_ARGS_UNUSED_REALY(sp))
 {
     // Do nothing; 'special' color is for GUI only
 }
 
-static void tui_flush(UI *ui)
+static void tui_flush(ui_st *ui)
 {
     TUIData *data = ui->data;
     UGrid *grid = &data->grid;
@@ -1069,7 +1069,7 @@ static void tui_flush(UI *ui)
 #ifdef UNIX
 static void suspend_event(void **argv)
 {
-    UI *ui = argv[0];
+    ui_st *ui = argv[0];
     TUIData *data = ui->data;
     bool enable_mouse = data->mouse_enabled;
     tui_terminal_stop(ui);
@@ -1098,7 +1098,7 @@ static void suspend_event(void **argv)
 }
 #endif
 
-static void tui_suspend(UI *ui)
+static void tui_suspend(ui_st *ui)
 {
 #ifdef UNIX
     TUIData *data = ui->data;
@@ -1110,7 +1110,7 @@ static void tui_suspend(UI *ui)
 #endif
 }
 
-static void tui_set_title(UI *ui, String title)
+static void tui_set_title(ui_st *ui, String title)
 {
     TUIData *data = ui->data;
 
@@ -1125,21 +1125,21 @@ static void tui_set_title(UI *ui, String title)
     unibi_out(ui, unibi_from_status_line);
 }
 
-static void tui_set_icon(UI *FUNC_ARGS_UNUSED_REALY(ui),
+static void tui_set_icon(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
                          String FUNC_ARGS_UNUSED_REALY(icon))
 {
 }
 
 /// NB: if we start to use this, the ui_bridge must
 /// be updated to make a copy for the tui thread
-static void tui_event(UI *FUNC_ARGS_UNUSED_REALY(ui),
+static void tui_event(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
                       char *FUNC_ARGS_UNUSED_REALY(name),
                       Array FUNC_ARGS_UNUSED_REALY(args),
                       bool *FUNC_ARGS_UNUSED_REALY(args_consumed))
 {
 }
 
-static void invalidate(UI *ui, int top, int bot, int left, int right)
+static void invalidate(ui_st *ui, int top, int bot, int left, int right)
 {
     TUIData *data = ui->data;
     Rect *intersects = NULL;
@@ -1189,7 +1189,7 @@ static void invalidate(UI *ui, int top, int bot, int left, int right)
     }
 }
 
-static void update_size(UI *ui)
+static void update_size(ui_st *ui)
 {
     TUIData *data = ui->data;
     int width = 0, height = 0;
@@ -1242,7 +1242,7 @@ end:
     data->bridge->bridge.height = ui->height = height;
 }
 
-static void unibi_goto(UI *ui, int row, int col)
+static void unibi_goto(ui_st *ui, int row, int col)
 {
     TUIData *data = ui->data;
 
@@ -1251,7 +1251,7 @@ static void unibi_goto(UI *ui, int row, int col)
     unibi_out(ui, unibi_cursor_address);
 }
 
-static void unibi_out(UI *ui, int unibi_index)
+static void unibi_out(ui_st *ui, int unibi_index)
 {
     TUIData *data = ui->data;
     const char *str = NULL;
@@ -1277,7 +1277,7 @@ static void unibi_out(UI *ui, int unibi_index)
 
 static void out(void *ctx, const char *str, size_t len)
 {
-    UI *ui = ctx;
+    ui_st *ui = ctx;
     TUIData *data = ui->data;
     size_t available = data->bufsize - data->bufpos;
 
@@ -1506,7 +1506,7 @@ end:
     unibi_set_if_empty(ut, unibi_clr_eos, "\x1b[J");
 }
 
-static void flush_buf(UI *ui, bool toggle_cursor)
+static void flush_buf(ui_st *ui, bool toggle_cursor)
 {
     uv_write_t req;
     uv_buf_t buf;

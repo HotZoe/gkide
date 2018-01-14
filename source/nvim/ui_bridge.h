@@ -9,16 +9,16 @@
 #include "nvim/event/defs.h"
 
 typedef struct ui_bridge_s ui_bridge_st;
-typedef void(*ui_main_ft)(ui_bridge_st *bridge, UI *ui);
+typedef void(*ui_main_ft)(ui_bridge_st *bridge, ui_st *ui);
 
 struct ui_bridge_s
 {
     /// actual UI passed to ui_attach()
-    UI bridge;
+    ui_st bridge;
 
     /// UI pointer that will have its
     // callback called in another thread
-    UI *ui;
+    ui_st *ui;
 
     event_scheduler_ft scheduler;
 
