@@ -205,7 +205,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     return 0;
 }
 
-void socket_watcher_close(socket_watcher_st *watcher, socket_close_cb cb)
+void socket_watcher_close(socket_watcher_st *watcher, socket_close_ft cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     watcher->close_cb = cb;
