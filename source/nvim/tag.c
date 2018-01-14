@@ -45,21 +45,21 @@
 #include "nvim/os/input.h"
 
 /// Structure to hold pointers to various items in a tag line.
-typedef struct tag_pointers
+typedef struct tag_ptr_s
 {
     // filled in by parse_tag_line():
-    uchar_kt *tagname;         ///< start of tag name (skip "file:")
-    uchar_kt *tagname_end;     ///< char after tag name
-    uchar_kt *fname;           ///< first char of file name
-    uchar_kt *fname_end;       ///< char after file name
-    uchar_kt *command;         ///< first char of command
+    uchar_kt *tagname;      ///< start of tag name (skip "file:")
+    uchar_kt *tagname_end;  ///< char after tag name
+    uchar_kt *fname;        ///< first char of file name
+    uchar_kt *fname_end;    ///< char after file name
+    uchar_kt *command;      ///< first char of command
 
     // filled in by parse_match():
-    uchar_kt *command_end;     ///< first char after command
-    uchar_kt *tag_fname;       ///< file name of the tags file
-    uchar_kt *tagkind;         ///< "kind:" value
-    uchar_kt *tagkind_end;     ///< end of tagkind
-} tagptrs_T;
+    uchar_kt *command_end;  ///< first char after command
+    uchar_kt *tag_fname;    ///< file name of the tags file
+    uchar_kt *tagkind;      ///< "kind:" value
+    uchar_kt *tagkind_end;  ///< end of tagkind
+} tag_ptr_st;
 
 /// Structure to hold info about the tag pattern being used.
 typedef struct
@@ -68,7 +68,7 @@ typedef struct
     int len;              ///< length of pat[]
     uchar_kt *head;       ///< start of pattern head
     int headlen;          ///< length of head[]
-    regmatch_st regmatch;  ///< regexp program, may be NULL
+    regmatch_st regmatch; ///< regexp program, may be NULL
 } pat_T;
 
 // The matching tags are first stored in one of the hash tables.
@@ -164,8 +164,8 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
     mark_st saved_fmark;
     int taglen;
     int jumped_to_tag = FALSE;
-    tagptrs_T tagp;
-    tagptrs_T tagp2;
+    tag_ptr_st tagp;
+    tag_ptr_st tagp2;
     int new_num_matches;
     uchar_kt **new_matches;
     int attr;
@@ -1414,7 +1414,7 @@ int find_tags(uchar_kt *pat,
     uchar_kt *tag_fname; // name of tag file
     tagname_T tn; // info for get_tagfname()
     int first_file; // trying first tag file
-    tagptrs_T tagp;
+    tag_ptr_st tagp;
     int did_open = FALSE; // did open a tag file
     int stop_searching = FALSE; // stop when match found or error
     int retval = FAIL; // return value
@@ -2856,7 +2856,7 @@ void tagname_free(tagname_T *tnp)
 /// If is_etag is TRUE, tagp->fname and tagp->fname_end are not set.
 ///
 /// @return FAIL if there is a format error in this line, OK otherwise.
-static int parse_tag_line(uchar_kt *lbuf, tagptrs_T *tagp)
+static int parse_tag_line(uchar_kt *lbuf, tag_ptr_st *tagp)
 {
     uchar_kt *p;
     // Isolate the tagname, from lbuf up to the first white
@@ -2914,7 +2914,7 @@ static int parse_tag_line(uchar_kt *lbuf, tagptrs_T *tagp)
 /// @return
 /// - TRUE if it is a static tag and adjust *tagname to the real tag.
 /// - FALSE if it is not a static tag.
-static bool test_for_static(tagptrs_T *tagp)
+static bool test_for_static(tag_ptr_st *tagp)
 {
     uchar_kt *p;
     int len;
@@ -2956,7 +2956,7 @@ static bool test_for_static(tagptrs_T *tagp)
 /// - without Emacs tags: <mtt><tag_fname><NUL><lbuf>
 ///
 /// @return OK or FAIL.
-static int parse_match(uchar_kt *lbuf, tagptrs_T *tagp)
+static int parse_match(uchar_kt *lbuf, tag_ptr_st *tagp)
 {
     int retval;
     uchar_kt *p;
@@ -3027,7 +3027,7 @@ static int parse_match(uchar_kt *lbuf, tagptrs_T *tagp)
 /// Concatenate the tags file name with the matching tag file name.
 ///
 /// @return an allocated string.
-static uchar_kt *tag_full_fname(tagptrs_T *tagp)
+static uchar_kt *tag_full_fname(tag_ptr_st *tagp)
 {
     int c = *tagp->fname_end;
     *tagp->fname_end = NUL;
@@ -3057,7 +3057,7 @@ static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
     uchar_kt *pbuf_end;
     uchar_kt *tofree_fname = NULL;
     uchar_kt *fname;
-    tagptrs_T tagp;
+    tag_ptr_st tagp;
     int retval = FAIL;
     int getfile_result;
     int search_options;
@@ -3523,7 +3523,7 @@ int expand_tags(int tagnames, uchar_kt *pat, int *num_file, uchar_kt ***file)
     int c;
     int tagnmflag;
     uchar_kt tagnm[100];
-    tagptrs_T t_p;
+    tag_ptr_st t_p;
     int ret;
 
     if(tagnames)
@@ -3653,7 +3653,7 @@ int get_tags(list_st *list, uchar_kt *pat, uchar_kt *buf_fname)
     uchar_kt **matches;
     uchar_kt *full_fname;
     dict_st *dict;
-    tagptrs_T tp;
+    tag_ptr_st tp;
     bool is_static;
 
     ret = find_tags(pat,
