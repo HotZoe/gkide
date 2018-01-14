@@ -44,15 +44,14 @@
 
 /// directory stack
 typedef struct dirstack_s dirstack_st;
-
 struct dirstack_s
 {
     dirstack_st *next;
     uchar_kt *dirname;
 };
 
-typedef struct qfline_s qfline_st;
 /// For each error the next struct is allocated and linked in a list.
+typedef struct qfline_s qfline_st;
 struct qfline_s
 {
     qfline_st *qf_next;    ///< pointer to next error in the list
@@ -111,8 +110,8 @@ static qfinfo_st ql_info;
 /// maximum number of % recognized
 #define FMT_PATTERNS   10
 
-typedef struct errfmt_info_s errfmt_info_st;
 /// Structure used to hold the info of one part of 'errorformat'
+typedef struct errfmt_info_s errfmt_info_st;
 struct errfmt_info_s
 {
     /// pre-formatted part of 'errorformat'
@@ -158,7 +157,7 @@ enum
     kQfIgnoreLine = 4
 };
 
-typedef struct
+typedef struct qfstate_s
 {
     uchar_kt *linebuf;
     size_t linelen;
@@ -173,7 +172,7 @@ typedef struct
     linenum_kt lnumlast;
 } qfstate_st;
 
-typedef struct
+typedef struct qffield_s
 {
     uchar_kt *namebuf;
     uchar_kt *errmsg;

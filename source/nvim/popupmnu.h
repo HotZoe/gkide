@@ -6,14 +6,13 @@
 #include "nvim/types.h"
 
 /// Used for popup menu items.
-typedef struct
+typedef struct pumitem_s
 {
-    uchar_kt *pum_text;   ///< main menu text
-    uchar_kt *pum_kind;   ///< extra kind text (may be truncated)
-    uchar_kt *pum_extra;  ///< extra menu text (may be truncated)
-    uchar_kt *pum_info;   ///< extra info
-} pumitem_T;
-
+    uchar_kt *pum_text;  ///< main menu text
+    uchar_kt *pum_kind;  ///< extra kind text (may be truncated)
+    uchar_kt *pum_extra; ///< extra menu text (may be truncated)
+    uchar_kt *pum_info;  ///< extra info
+} pumitem_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "popupmnu.h.generated.h"

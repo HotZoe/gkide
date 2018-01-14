@@ -24,7 +24,7 @@
 #include "nvim/ui.h"
 
 /// items of displayed pum
-static pumitem_T *pum_array = NULL;
+static pumitem_st *pum_array = NULL;
 static int pum_size;        ///< nr of items in "pum_array"
 static int pum_selected;    ///< index of selected item or -1
 static int pum_first = 0;   ///< index of top item
@@ -60,7 +60,7 @@ static bool pum_external = false;
 /// @param array_changed
 /// if true, array contains different items since last call
 /// if false, a new item is selected, but the array is the same
-void pum_display(pumitem_T *array,
+void pum_display(pumitem_st *array,
                  int size,
                  int selected,
                  bool array_changed)

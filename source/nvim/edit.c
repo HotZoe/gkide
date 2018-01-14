@@ -3061,7 +3061,7 @@ void set_completion(columnum_kt startcol, list_st *list)
 
 // "compl_match_array" points the currently displayed list of
 // entries in the popup menu. It is NULL when there is no popup menu.
-static pumitem_T *compl_match_array = NULL;
+static pumitem_st *compl_match_array = NULL;
 static int compl_match_arraysize;
 
 /// Update the screen and when there is any scrolling remove the popup menu.
@@ -3193,7 +3193,7 @@ void ins_compl_show_pum(void)
         }
 
         assert(compl_match_arraysize >= 0);
-        compl_match_array = xcalloc(compl_match_arraysize, sizeof(pumitem_T));
+        compl_match_array = xcalloc(compl_match_arraysize, sizeof(pumitem_st));
 
         // If the current match is the original text don't find the first
         // match after it, don't highlight anything.
