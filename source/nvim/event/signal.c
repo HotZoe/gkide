@@ -20,7 +20,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     watcher->events = loop->fast_events;
 }
 
-void signal_watcher_start(signal_watcher_st *watcher, signal_cb cb, int signum)
+void signal_watcher_start(signal_watcher_st *watcher, signal_ft cb, int signum)
 FUNC_ATTR_NONNULL_ALL
 {
     watcher->cb = cb;
