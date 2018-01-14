@@ -14,7 +14,7 @@ typedef enum
 } ProcessType;
 
 typedef struct process_s process_st;
-typedef void (*process_exit_cb)(process_st *proc, int status, void *data);
+typedef void (*process_exit_ft)(process_st *proc, int status, void *data);
 typedef void (*internal_process_cb)(process_st *proc);
 
 struct process_s
@@ -34,7 +34,7 @@ struct process_s
     Stream *in;
     Stream *out;
     Stream *err;
-    process_exit_cb cb;
+    process_exit_ft cb;
     internal_process_cb internal_exit_cb;
     internal_process_cb internal_close_cb;
 
