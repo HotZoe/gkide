@@ -72,13 +72,14 @@ HANDLE_TYPE_CONVERSION_IMPL(Buffer, buffer)
 HANDLE_TYPE_CONVERSION_IMPL(Window, window)
 HANDLE_TYPE_CONVERSION_IMPL(Tabpage, tabpage)
 
-typedef struct
+/// Map to API object stack item
+typedef struct m2api_objstkitem_s
 {
     const msgpack_object *mobj;
     Object *aobj;
     bool container;
     size_t idx;
-} MPToAPIObjectStackItem;
+} m2api_objstkitem_st;
 
 /// Convert type used by msgpack parser to Nvim API type.
 ///
@@ -91,16 +92,15 @@ FUNC_ATTR_NONNULL_ALL
 {
     bool ret = true;
 
-    kvec_t(MPToAPIObjectStackItem) stack = KV_INITIAL_VALUE;
+    kvec_t(m2api_objstkitem_st) stack = KV_INITIAL_VALUE;
 
-    kv_push(stack, ((MPToAPIObjectStackItem)
-    {
+    kv_push(stack, ((m2api_objstkitem_st) {
         obj, arg, false, 0
     }));
 
     while(ret && kv_size(stack))
     {
-        MPToAPIObjectStackItem cur = kv_last(stack);
+        m2api_objstkitem_st cur = kv_last(stack);
 
         if(!cur.container)
         {
@@ -192,7 +192,7 @@ case type:                                                                    \
                         cur.idx++;
                         kv_last(stack) = cur;
 
-                        kv_push(stack, ((MPToAPIObjectStackItem) {
+                        kv_push(stack, ((m2api_objstkitem_st) {
                             .mobj = &cur.mobj->via.array.ptr[idx],
                             .aobj = &cur.aobj->data.array.items[idx],
                             .container = false,
@@ -274,7 +274,7 @@ case type:                                                                    \
 
                         if(ret)
                         {
-                            kv_push(stack, ((MPToAPIObjectStackItem) {
+                            kv_push(stack, ((m2api_objstkitem_st) {
                                 .mobj = &cur.mobj->via.map.ptr[idx].val,
                                 .aobj = &cur.aobj->data.dictionary.items[idx].value,
                                 .container = false,
