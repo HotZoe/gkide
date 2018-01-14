@@ -65,7 +65,7 @@ void loop_poll_events(main_loop_st *loop, int ms)
 }
 
 /// Schedule an event from another thread
-void loop_schedule(main_loop_st *loop, Event event)
+void loop_schedule(main_loop_st *loop, event_msg_st event)
 {
     uv_mutex_lock(&loop->mutex);
     multiqueue_put_event(loop->thread_events, event);
@@ -127,7 +127,7 @@ static void async_cb(uv_async_t *handle)
 
     while(!multiqueue_empty(l->thread_events))
     {
-        Event ev = multiqueue_get(l->thread_events);
+        event_msg_st ev = multiqueue_get(l->thread_events);
         multiqueue_put_event(l->fast_events, ev);
     }
 

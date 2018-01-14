@@ -349,7 +349,7 @@ static void tui_main(UIBridgeData *bridge, UI *ui)
     xfree(ui);
 }
 
-static void tui_scheduler(Event event, void *d)
+static void tui_scheduler(event_msg_st event, void *d)
 {
     UI *ui = d;
     TUIData *data = ui->data;

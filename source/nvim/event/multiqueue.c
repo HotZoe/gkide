@@ -64,7 +64,7 @@ struct multiqueue_item
         multiqueue_st *queue;
         struct
         {
-            Event event;
+            event_msg_st event;
             MultiQueueItem *parent_item;
         } item;
     } data;
@@ -86,7 +86,7 @@ struct multiqueue_s
     #include "event/multiqueue.c.generated.h"
 #endif
 
-static Event nil_event = { 0 }; // { .handler = NULL, .argv = {NULL} }
+static event_msg_st nil_event = { 0 }; // { .handler = NULL, .argv = {NULL} }
 
 multiqueue_st *multiqueue_new_parent(put_callback_ft put_cb, void *data)
 {
@@ -140,12 +140,12 @@ void multiqueue_free(multiqueue_st *ptr)
 }
 
 /// Removes the next item and returns its Event.
-Event multiqueue_get(multiqueue_st *ptr)
+event_msg_st multiqueue_get(multiqueue_st *ptr)
 {
     return multiqueue_empty(ptr) ? nil_event : multiqueue_remove(ptr);
 }
 
-void multiqueue_put_event(multiqueue_st *ptr, Event event)
+void multiqueue_put_event(multiqueue_st *ptr, event_msg_st event)
 {
     assert(ptr);
     multiqueue_push(ptr, event);
@@ -162,7 +162,7 @@ void multiqueue_process_events(multiqueue_st *ptr)
 
     while(!multiqueue_empty(ptr))
     {
-        Event event = multiqueue_remove(ptr);
+        event_msg_st event = multiqueue_remove(ptr);
 
         if(event.handler)
         {
@@ -203,10 +203,10 @@ size_t multiqueue_size(multiqueue_st *ptr)
 /// Gets an Event from an item.
 ///
 /// @param remove   Remove the node from its queue, and free it.
-static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
+static event_msg_st multiqueueitem_get_event(MultiQueueItem *item, bool remove)
 {
     assert(item != NULL);
-    Event ev;
+    event_msg_st ev;
 
     if(item->link)
     {
@@ -242,7 +242,7 @@ static Event multiqueueitem_get_event(MultiQueueItem *item, bool remove)
     return ev;
 }
 
-static Event multiqueue_remove(multiqueue_st *ptr)
+static event_msg_st multiqueue_remove(multiqueue_st *ptr)
 {
     assert(!multiqueue_empty(ptr));
     queue_st *h = QUEUE_HEAD(&ptr->headtail);
@@ -252,14 +252,14 @@ static Event multiqueue_remove(multiqueue_st *ptr)
     // Only a parent queue has link-nodes
     assert(!item->link || !ptr->parent);
 
-    Event ev = multiqueueitem_get_event(item, true);
+    event_msg_st ev = multiqueueitem_get_event(item, true);
     ptr->size--;
     xfree(item);
 
     return ev;
 }
 
-static void multiqueue_push(multiqueue_st *ptr, Event event)
+static void multiqueue_push(multiqueue_st *ptr, event_msg_st event)
 {
     MultiQueueItem *item = xmalloc(sizeof(MultiQueueItem));
     item->link = false;
