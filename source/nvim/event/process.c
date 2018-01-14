@@ -58,7 +58,7 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
     switch(proc->type)
     {
         case kProcessTypeUv:
-            status = libuv_process_spawn((LibuvProcess *)proc);
+            status = libuv_process_spawn((libuv_process_st *)proc);
             break;
 
         case kProcessTypePty:
@@ -88,7 +88,7 @@ int process_spawn(Process *proc) FUNC_ATTR_NONNULL_ALL
 
         if(proc->type == kProcessTypeUv)
         {
-            uv_close((uv_handle_t *)&(((LibuvProcess *)proc)->uv), NULL);
+            uv_close((uv_handle_t *)&(((libuv_process_st *)proc)->uv), NULL);
         }
         else
         {
@@ -411,7 +411,7 @@ static void process_close(Process *proc) FUNC_ATTR_NONNULL_ARG(1)
     switch(proc->type)
     {
         case kProcessTypeUv:
-            libuv_process_close((LibuvProcess *)proc);
+            libuv_process_close((libuv_process_st *)proc);
             break;
 
         case kProcessTypePty:

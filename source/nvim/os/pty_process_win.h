@@ -13,9 +13,9 @@ typedef struct pty_process
     uint16_t height;
 } PtyProcess;
 
-#define pty_process_spawn(job)        libuv_process_spawn((LibuvProcess *)job)
-#define pty_process_close(job)        libuv_process_close((LibuvProcess *)job)
-#define pty_process_close_master(job) libuv_process_close((LibuvProcess *)job)
+#define pty_process_spawn(job)        libuv_process_spawn((libuv_process_st *)job)
+#define pty_process_close(job)        libuv_process_close((libuv_process_st *)job)
+#define pty_process_close_master(job) libuv_process_close((libuv_process_st *)job)
 
 // windows do nothing
 #define pty_process_teardown(loop)             (void)loop;

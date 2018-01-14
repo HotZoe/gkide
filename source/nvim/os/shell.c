@@ -246,7 +246,7 @@ static int do_os_system(char **argv,
     char prog[MAXPATHL];
     xstrlcpy(prog, argv[0], MAXPATHL);
 
-    LibuvProcess uvproc = libuv_process_init(&main_loop, &buf);
+    libuv_process_st uvproc = libuv_process_init(&main_loop, &buf);
     Process *proc = &uvproc.process;
     multiqueue_st *events = multiqueue_new_child(main_loop.events);
     Stream in;
