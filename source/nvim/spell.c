@@ -304,11 +304,11 @@ int did_set_spelltab;
 
 /// structure used to store soundfolded words that
 /// add_sound_suggest() has handled already.
-typedef struct
+typedef struct sftword_s
 {
-    short sft_score;     ///< lowest score used
-    uchar_kt sft_word[1];  ///< soundfolded word, actually longer
-} sftword_T;
+    short sft_score;      ///< lowest score used
+    uchar_kt sft_word[1]; ///< soundfolded word, actually longer
+} sftword_st;
 
 typedef struct limitscore_s
 {
@@ -6887,9 +6887,9 @@ static int stp_sal_score(suggest_T *stp,
     return soundalike_score(goodsound, pbad);
 }
 
-static sftword_T dumsft;
+static sftword_st dumsft;
 
-#define HIKEY2SFT(p)  ((sftword_T *)(p - (dumsft.sft_word - (uchar_kt *)&dumsft)))
+#define HIKEY2SFT(p)  ((sftword_st *)(p - (dumsft.sft_word - (uchar_kt *)&dumsft)))
 #define HI2SFT(hi)    HIKEY2SFT((hi)->hi_key)
 
 // Prepare for calling suggest_try_soundalike().
@@ -7016,7 +7016,7 @@ static void add_sound_suggest(suginfo_T *su,
     int goodscore;
     hash_kt hash;
     hashitem_st *hi;
-    sftword_T *sft;
+    sftword_st *sft;
     int bc, gc;
     int limit;
 
@@ -7034,7 +7034,7 @@ static void add_sound_suggest(suginfo_T *su,
 
     if(HASHITEM_EMPTY(hi))
     {
-        sft = xmalloc(sizeof(sftword_T) + goodword_len);
+        sft = xmalloc(sizeof(sftword_st) + goodword_len);
         sft->sft_score = score;
         memcpy(sft->sft_word, goodword, goodword_len + 1);
         hash_add_item(&slang->sl_sounddone, hi, sft->sft_word, hash);
