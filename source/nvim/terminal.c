@@ -98,11 +98,11 @@ typedef struct terminal_state_s
 static time_watcher_st refresh_timer;
 static bool refresh_pending = false;
 
-typedef struct
+typedef struct scrollback_line_s
 {
     size_t cols;
     VTermScreenCell cells[];
-} ScrollbackLine;
+} scrollback_line_st;
 
 struct terminal_s
 {
@@ -114,9 +114,10 @@ struct terminal_s
     ///  - receive data from libvterm as a result of key presses.
     char textbuf[0x1fff];
 
-    ScrollbackLine **sb_buffer;  ///< Scrollback buffer storage for libvterm
-    size_t sb_current;           ///< number of rows pushed to sb_buffer
-    size_t sb_size;              ///< sb_buffer size
+    /// Scrollback buffer storage for libvterm
+    scrollback_line_st **sb_buffer;
+    size_t sb_current; ///< number of rows pushed to sb_buffer
+    size_t sb_size;    ///< sb_buffer size
 
     /// "virtual index" that points to the first sb_buffer row that
     /// we need to push to the terminal buffer when refreshing the
@@ -281,7 +282,7 @@ terminal_st *terminal_open(terminal_opt_st opts)
     rv->sb_size = curbuf->b_p_scbk < 0
                   ? SB_MAX : (size_t)MAX(1, curbuf->b_p_scbk);
 
-    rv->sb_buffer = xmalloc(sizeof(ScrollbackLine *) * rv->sb_size);
+    rv->sb_buffer = xmalloc(sizeof(scrollback_line_st *) * rv->sb_size);
 
     if(!true_color)
     {
@@ -808,7 +809,7 @@ static int term_sb_push(int cols, const VTermScreenCell *cells, void *data)
 
     // copy vterm cells into sb_buffer
     size_t c = (size_t)cols;
-    ScrollbackLine *sbrow = NULL;
+    scrollback_line_st *sbrow = NULL;
 
     if(term->sb_current == term->sb_size)
     {
@@ -837,7 +838,7 @@ static int term_sb_push(int cols, const VTermScreenCell *cells, void *data)
 
     if(!sbrow)
     {
-        sbrow = xmalloc(sizeof(ScrollbackLine) + c * sizeof(sbrow->cells[0]));
+        sbrow = xmalloc(sizeof(scrollback_line_st) + c * sizeof(sbrow->cells[0]));
         sbrow->cols = c;
     }
 
@@ -878,7 +879,7 @@ static int term_sb_pop(int cols, VTermScreenCell *cells, void *data)
         term->sb_pending--;
     }
 
-    ScrollbackLine *sbrow = term->sb_buffer[0];
+    scrollback_line_st *sbrow = term->sb_buffer[0];
     term->sb_current--;
 
     // Forget the "popped" row by shifting the rest onto it.
@@ -1211,7 +1212,7 @@ static void fetch_cell(terminal_st *term,
 {
     if(row < 0)
     {
-        ScrollbackLine *sbrow = term->sb_buffer[-row - 1];
+        scrollback_line_st *sbrow = term->sb_buffer[-row - 1];
 
         if((size_t)col < sbrow->cols)
         {
@@ -1365,7 +1366,7 @@ static void on_scrollback_option_changed(terminal_st *term,
     }
 
     // Resize the scrollback storage.
-    size_t sb_region = sizeof(ScrollbackLine *) * scbk;
+    size_t sb_region = sizeof(scrollback_line_st *) * scbk;
 
     if(scbk != term->sb_size)
     {
