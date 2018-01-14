@@ -9,7 +9,7 @@
 #include "nvim/event/defs.h"
 
 typedef struct ui_bridge_data UIBridgeData;
-typedef void(*ui_main_fn)(UIBridgeData *bridge, UI *ui);
+typedef void(*ui_main_ft)(UIBridgeData *bridge, UI *ui);
 
 struct ui_bridge_data
 {
@@ -26,7 +26,7 @@ struct ui_bridge_data
     // a handle is an abstract reference to a resource.
     uv_thread_t ui_thread;
 
-    ui_main_fn ui_main;
+    ui_main_ft ui_main;
     uv_mutex_t mutex;
     uv_cond_t cond;
 

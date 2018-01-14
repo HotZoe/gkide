@@ -66,7 +66,7 @@ static argv_callback_ft uilog_event = NULL;
     #include "ui_events_bridge.generated.h"
 #endif
 
-UI *ui_bridge_attach(UI *ui, ui_main_fn ui_main, event_scheduler scheduler)
+UI *ui_bridge_attach(UI *ui, ui_main_ft ui_main, event_scheduler scheduler)
 {
     UIBridgeData *rv = xcalloc(1, sizeof(UIBridgeData));
 
