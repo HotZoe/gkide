@@ -50,7 +50,7 @@
 #define TMUX_WRAP(seq) \
     (is_tmux ? "\x1bPtmux;\x1b" seq "\x1b\\" : seq)
 
-typedef enum TermType
+typedef enum term_type_e
 {
     kTermUnknown,
     kTermGnome,
@@ -60,7 +60,7 @@ typedef enum TermType
     kTermDTTerm,
     kTermXTerm,
     kTermTeraTerm,
-} TermType;
+} term_type_et;
 
 typedef struct rect_s
 {
@@ -103,7 +103,7 @@ typedef struct
     cursor_info_st cursor_shapes[kCsrShpIdxAllIndexCount];
     uihl_attr_st print_attrs;
     mode_shape_et showing_mode;
-    TermType term;
+    term_type_et term;
 
     struct
     {
@@ -1299,7 +1299,7 @@ static void unibi_set_if_empty(unibi_term *ut,
     }
 }
 
-static TermType detect_term(const char *term, const char *colorterm)
+static term_type_et detect_term(const char *term, const char *colorterm)
 {
     if(STARTS_WITH(term, "rxvt"))
     {
