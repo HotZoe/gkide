@@ -95,20 +95,20 @@
 
 static prt_opttable_st printer_opts[kPrtOptNumOptions] =
 {
-    {"top",      TRUE,  0, NULL, 0, FALSE},
-    {"bottom",   TRUE,  0, NULL, 0, FALSE},
-    {"left",     TRUE,  0, NULL, 0, FALSE},
-    {"right",    TRUE,  0, NULL, 0, FALSE},
-    {"header",   TRUE,  0, NULL, 0, FALSE},
-    {"syntax",   FALSE, 0, NULL, 0, FALSE},
-    {"number",   FALSE, 0, NULL, 0, FALSE},
-    {"wrap",     FALSE, 0, NULL, 0, FALSE},
-    {"duplex",   FALSE, 0, NULL, 0, FALSE},
-    {"portrait", FALSE, 0, NULL, 0, FALSE},
-    {"paper",    FALSE, 0, NULL, 0, FALSE},
-    {"collate",  FALSE, 0, NULL, 0, FALSE},
-    {"jobsplit", FALSE, 0, NULL, 0, FALSE},
-    {"formfeed", FALSE, 0, NULL, 0, FALSE},
+    { "top",      TRUE,  0, NULL, 0, FALSE },
+    { "bottom",   TRUE,  0, NULL, 0, FALSE },
+    { "left",     TRUE,  0, NULL, 0, FALSE },
+    { "right",    TRUE,  0, NULL, 0, FALSE },
+    { "header",   TRUE,  0, NULL, 0, FALSE },
+    { "syntax",   FALSE, 0, NULL, 0, FALSE },
+    { "number",   FALSE, 0, NULL, 0, FALSE },
+    { "wrap",     FALSE, 0, NULL, 0, FALSE },
+    { "duplex",   FALSE, 0, NULL, 0, FALSE },
+    { "portrait", FALSE, 0, NULL, 0, FALSE },
+    { "paper",    FALSE, 0, NULL, 0, FALSE },
+    { "collate",  FALSE, 0, NULL, 0, FALSE },
+    { "jobsplit", FALSE, 0, NULL, 0, FALSE },
+    { "formfeed", FALSE, 0, NULL, 0, FALSE },
 };
 
 static const uint32_t cterm_color_8[8] =
@@ -151,9 +151,9 @@ static int current_syn_id;
 static int curr_italic;
 static int curr_bold;
 static int curr_underline;
+static int page_count;
 static uint32_t curr_bg;
 static uint32_t curr_fg;
-static int page_count;
 
 #define OPT_MBFONT_USECOURIER   0
 #define OPT_MBFONT_ASCII        1
@@ -165,12 +165,12 @@ static int page_count;
 
 static prt_opttable_st mbfont_opts[OPT_MBFONT_NUM_OPTIONS] =
 {
-    {"c", FALSE, 0, NULL, 0, FALSE},
-    {"a", FALSE, 0, NULL, 0, FALSE},
-    {"r", FALSE, 0, NULL, 0, FALSE},
-    {"b", FALSE, 0, NULL, 0, FALSE},
-    {"i", FALSE, 0, NULL, 0, FALSE},
-    {"o", FALSE, 0, NULL, 0, FALSE},
+    { "c", FALSE, 0, NULL, 0, FALSE },
+    { "a", FALSE, 0, NULL, 0, FALSE },
+    { "r", FALSE, 0, NULL, 0, FALSE },
+    { "b", FALSE, 0, NULL, 0, FALSE },
+    { "i", FALSE, 0, NULL, 0, FALSE },
+    { "o", FALSE, 0, NULL, 0, FALSE },
 };
 
 /// These values determine the print position on a page.
@@ -192,7 +192,7 @@ typedef struct prt_mediasize_s
 } prt_mediasize_st;
 
 /// PS font names, must be in Roman, Bold, Italic, Bold-Italic order
-struct prt_ps_font_S
+typedef struct prt_ps_font_s
 {
     int wx;
     int uline_offset;
@@ -200,7 +200,7 @@ struct prt_ps_font_S
     int bbox_min_y;
     int bbox_max_y;
     char *(ps_fontname[4]);
-};
+} prt_ps_font_st;
 
 /// Structures to map user named encoding and
 ///  mapping to PS equivalents for building CID font name
@@ -1151,18 +1151,18 @@ static prt_mediasize_st prt_mediasize[] =
 #define PRT_PS_FONT_BOLDOBLIQUE     (3)
 
 /// Standard font metrics for Courier family
-static struct prt_ps_font_S prt_ps_courier_font =
+static prt_ps_font_st prt_ps_courier_font =
 {
     600,
     -100,
     50,
     -250,
     805,
-    {"Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique"}
+    { "Courier", "Courier-Bold", "Courier-Oblique", "Courier-BoldOblique" }
 };
 
 /// Generic font metrics for multi-byte fonts
-static struct prt_ps_font_S prt_ps_mb_font =
+static prt_ps_font_st prt_ps_mb_font =
 {
     1000,
     -100,
@@ -1173,7 +1173,7 @@ static struct prt_ps_font_S prt_ps_mb_font =
 };
 
 /// Pointer to current font set being used
-static struct prt_ps_font_S *prt_ps_font;
+static prt_ps_font_st *prt_ps_font;
 
 #define CS_JIS_C_1978   (0x01)
 #define CS_JIS_X_1983   (0x02)
@@ -2279,7 +2279,7 @@ static void prt_dsc_resources(char *comment, char *type, char *string)
 }
 
 static void prt_dsc_font_resource(char *resource,
-                                  struct prt_ps_font_S *ps_font)
+                                  prt_ps_font_st *ps_font)
 {
     int i;
 
