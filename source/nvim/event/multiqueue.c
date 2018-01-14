@@ -55,9 +55,8 @@
 #include "nvim/memory.h"
 #include "nvim/os/time.h"
 
-typedef struct multiqueue_item MultiQueueItem;
-
-struct multiqueue_item
+typedef struct multiqueue_item_s multiqueue_item_st;
+struct multiqueue_item_s
 {
     union
     {
@@ -65,7 +64,7 @@ struct multiqueue_item
         struct
         {
             event_msg_st event;
-            MultiQueueItem *parent_item;
+            multiqueue_item_st *parent_item;
         } item;
     } data;
     /// true: current item is just a link to a node in a child queue
@@ -124,7 +123,7 @@ void multiqueue_free(multiqueue_st *ptr)
     while(!queue_empty(&ptr->headtail))
     {
         queue_st *q = QUEUE_HEAD(&ptr->headtail);
-        MultiQueueItem *item = multiqueue_node_data(q);
+        multiqueue_item_st *item = multiqueue_node_data(q);
 
         if(ptr->parent)
         {
@@ -203,7 +202,7 @@ size_t multiqueue_size(multiqueue_st *ptr)
 /// Gets an Event from an item.
 ///
 /// @param remove   Remove the node from its queue, and free it.
-static event_msg_st multiqueueitem_get_event(MultiQueueItem *item, bool remove)
+static event_msg_st multiqueueitem_get_event(multiqueue_item_st *item, bool remove)
 {
     assert(item != NULL);
     event_msg_st ev;
@@ -214,7 +213,7 @@ static event_msg_st multiqueueitem_get_event(MultiQueueItem *item, bool remove)
         multiqueue_st *linked = item->data.queue;
         assert(!multiqueue_empty(linked));
 
-        MultiQueueItem *child =
+        multiqueue_item_st *child =
             multiqueue_node_data(QUEUE_HEAD(&linked->headtail));
 
         ev = child->data.item.event;
@@ -247,7 +246,7 @@ static event_msg_st multiqueue_remove(multiqueue_st *ptr)
     assert(!multiqueue_empty(ptr));
     queue_st *h = QUEUE_HEAD(&ptr->headtail);
     queue_remove(h);
-    MultiQueueItem *item = multiqueue_node_data(h);
+    multiqueue_item_st *item = multiqueue_node_data(h);
 
     // Only a parent queue has link-nodes
     assert(!item->link || !ptr->parent);
@@ -261,7 +260,7 @@ static event_msg_st multiqueue_remove(multiqueue_st *ptr)
 
 static void multiqueue_push(multiqueue_st *ptr, event_msg_st event)
 {
-    MultiQueueItem *item = xmalloc(sizeof(MultiQueueItem));
+    multiqueue_item_st *item = xmalloc(sizeof(multiqueue_item_st));
     item->link = false;
     item->data.item.event = event;
     item->data.item.parent_item = NULL;
@@ -270,7 +269,7 @@ static void multiqueue_push(multiqueue_st *ptr, event_msg_st event)
     if(ptr->parent)
     {
         // push link node to the parent queue
-        item->data.item.parent_item = xmalloc(sizeof(MultiQueueItem));
+        item->data.item.parent_item = xmalloc(sizeof(multiqueue_item_st));
         item->data.item.parent_item->link = true;
         item->data.item.parent_item->data.queue = ptr;
 
@@ -281,7 +280,7 @@ static void multiqueue_push(multiqueue_st *ptr, event_msg_st event)
     ptr->size++;
 }
 
-static MultiQueueItem *multiqueue_node_data(queue_st *q)
+static multiqueue_item_st *multiqueue_node_data(queue_st *q)
 {
-    return QUEUE_DATA(q, MultiQueueItem, node);
+    return QUEUE_DATA(q, multiqueue_item_st, node);
 }
