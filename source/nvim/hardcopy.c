@@ -204,12 +204,12 @@ typedef struct prt_ps_font_s
 
 /// Structures to map user named encoding and
 ///  mapping to PS equivalents for building CID font name
-struct prt_ps_encoding_S
+typedef struct prt_ps_encoding_s
 {
     char *encoding;
     char *cmap_encoding;
     int needs_charset;
-};
+} prt_ps_encoding_st;
 
 typedef struct prt_ps_charset_s
 {
@@ -222,7 +222,7 @@ typedef struct prt_ps_charset_s
 struct prt_ps_mbfont_S
 {
     int num_encodings;
-    struct prt_ps_encoding_S *encodings;
+    prt_ps_encoding_st *encodings;
     int num_charsets;
     prt_ps_charset_st *charsets;
     char *ascii_enc;
@@ -1185,12 +1185,12 @@ static prt_ps_font_st *prt_ps_font;
 #define CS_KANJITALK7   (0x80)
 
 /// Japanese encodings and charsets
-static struct prt_ps_encoding_S j_encodings[] =
+static prt_ps_encoding_st j_encodings[] =
 {
     {
         "iso-2022-jp",
         NULL,
-        (CS_JIS_C_1978|CS_JIS_X_1983|CS_JIS_X_1990|CS_NEC)
+        (CS_JIS_C_1978 | CS_JIS_X_1983 | CS_JIS_X_1990 | CS_NEC)
     },
     {
         "euc-jp",
@@ -1238,12 +1238,12 @@ static prt_ps_charset_st j_charsets[] =
 #define CS_SC_ISO10646      (0x40)
 
 /// Simplified Chinese encodings and charsets
-static struct prt_ps_encoding_S sc_encodings[] =
+static prt_ps_encoding_st sc_encodings[] =
 {
     {
         "iso-2022",
         NULL,
-        (CS_GB_2312_80|CS_GBT_12345_90)
+        (CS_GB_2312_80 | CS_GBT_12345_90)
     },
     {
         "gb18030",
@@ -1297,12 +1297,12 @@ static prt_ps_charset_st sc_charsets[] =
 #define CS_TC_ISO10646      (0x1000)
 
 /// Traditional Chinese encodings and charsets
-static struct prt_ps_encoding_S tc_encodings[] =
+static prt_ps_encoding_st tc_encodings[] =
 {
     {
         "iso-2022",
         NULL,
-        (CS_CNS_PLANE_1|CS_CNS_PLANE_2)
+        (CS_CNS_PLANE_1 | CS_CNS_PLANE_2)
     },
     {
         "euc-tw",
@@ -1363,7 +1363,7 @@ static prt_ps_charset_st tc_charsets[] =
 #define CS_KR_ISO10646      (0x08)
 
 /// Korean encodings and charsets
-static struct prt_ps_encoding_S k_encodings[] =
+static prt_ps_encoding_st k_encodings[] =
 {
     { "iso-2022-kr", NULL,       CS_KR_X_1992               },
     { "euc-kr",      "EUC",      (CS_KR_X_1992 | CS_KR_MAC) },
@@ -2546,11 +2546,11 @@ static int prt_get_lpp(void)
 
 static int prt_match_encoding(char *p_encoding,
                               struct prt_ps_mbfont_S *p_cmap,
-                              struct prt_ps_encoding_S **pp_mbenc)
+                              prt_ps_encoding_st **pp_mbenc)
 {
     int mbenc;
     int enc_len;
-    struct prt_ps_encoding_S *p_mbenc;
+    prt_ps_encoding_st *p_mbenc;
     *pp_mbenc = NULL;
 
     // Look for recognised encoding
@@ -2614,8 +2614,8 @@ int mch_print_init(prt_geninfo_st *psettings,
     int props;
     int cmap = 0;
     uchar_kt *p_encoding;
-    struct prt_ps_encoding_S *p_mbenc;
-    struct prt_ps_encoding_S *p_mbenc_first;
+    prt_ps_encoding_st *p_mbenc;
+    prt_ps_encoding_st *p_mbenc_first;
     prt_ps_charset_st *p_mbchar = NULL;
 
     // Set up font and encoding.
