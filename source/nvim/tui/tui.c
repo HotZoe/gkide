@@ -91,7 +91,7 @@ typedef struct tui_data_s
     bool out_isatty;
     signal_watcher_st winch_handle, cont_handle;
     bool cont_received;
-    UGrid grid;
+    ugrid_st grid;
     kvec_t(rect_st) invalid_regions;
     int out_fd;
     bool scroll_region_is_full_screen;
@@ -398,7 +398,7 @@ static void update_attrs(ui_st *ui, uihl_attr_st attrs)
     data->print_attrs = attrs;
     unibi_out(ui, unibi_exit_attribute_mode);
 
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
     int fg = attrs.foreground != -1 ? attrs.foreground : grid->fg;
     int bg = attrs.background != -1 ? attrs.background : grid->bg;
 
@@ -465,7 +465,7 @@ static void print_cell(ui_st *ui, ucell_st *ptr)
 static void clear_region(ui_st *ui, int top, int bot, int left, int right)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
     bool cleared = false;
 
     if(grid->bg == -1 && right == ui->width -1)
@@ -533,7 +533,7 @@ static void clear_region(ui_st *ui, int top, int bot, int left, int right)
 static bool can_use_scroll(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
 
     return data->scroll_region_is_full_screen
            || (data->can_change_scroll_region
@@ -545,7 +545,7 @@ static bool can_use_scroll(ui_st *ui)
 static void set_scroll_region(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
 
     data->params[0].i = grid->top;
     data->params[1].i = grid->bot;
@@ -576,7 +576,7 @@ static void set_scroll_region(ui_st *ui)
 static void reset_scroll_region(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
 
     if(0 <= data->unibi_ext.reset_scroll_region)
     {
@@ -639,7 +639,7 @@ static void tui_resize(ui_st *ui, Integer width, Integer height)
 static void tui_clear(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
 
     ugrid_clear(grid);
     clear_region(ui, grid->top, grid->bot, grid->left, grid->right);
@@ -648,7 +648,7 @@ static void tui_clear(ui_st *ui)
 static void tui_eol_clear(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
 
     ugrid_eol_clear(grid);
     clear_region(ui, grid->row, grid->row, grid->col, grid->right);
@@ -914,7 +914,7 @@ static void tui_set_scroll_region(ui_st *ui,
 static void tui_scroll(ui_st *ui, Integer count)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
     int clear_top, clear_bot;
 
     ugrid_scroll(grid, (int)count, &clear_top, &clear_bot);
@@ -1029,7 +1029,7 @@ static void tui_update_sp(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
 static void tui_flush(ui_st *ui)
 {
     tuidata_st *data = ui->data;
-    UGrid *grid = &data->grid;
+    ugrid_st *grid = &data->grid;
     size_t nrevents = loop_size(data->loop);
 
     if(nrevents > TOO_MANY_EVENTS)

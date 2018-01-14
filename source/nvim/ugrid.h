@@ -7,7 +7,7 @@
 #include "nvim/globals.h"
 
 typedef struct ucell_s ucell_st;
-typedef struct ugrid UGrid;
+typedef struct ugrid_s ugrid_st;
 
 struct ucell_s
 {
@@ -15,7 +15,7 @@ struct ucell_s
     uihl_attr_st attrs;
 };
 
-struct ugrid
+struct ugrid_s
 {
     int top;
     int bot;
@@ -39,10 +39,10 @@ struct ugrid
     {                                                         \
         for(int row = top; row <= bot; row++)                 \
         {                                                     \
-            ucell_st *row_cells = (grid)->cells[row];            \
+            ucell_st *row_cells = (grid)->cells[row];         \
             for(int col = left; col <= right; col++)          \
             {                                                 \
-                ucell_st *cell = row_cells + col;                \
+                ucell_st *cell = row_cells + col;             \
                 (void)(cell);                                 \
                 code;                                         \
             }                                                 \

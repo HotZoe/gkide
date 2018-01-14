@@ -13,7 +13,7 @@
     #include "ugrid.c.generated.h"
 #endif
 
-void ugrid_init(UGrid *grid)
+void ugrid_init(ugrid_st *grid)
 {
     grid->attrs = EMPTY_ATTRS;
     grid->fg = -1;
@@ -21,12 +21,12 @@ void ugrid_init(UGrid *grid)
     grid->cells = NULL;
 }
 
-void ugrid_free(UGrid *grid)
+void ugrid_free(ugrid_st *grid)
 {
     destroy_cells(grid);
 }
 
-void ugrid_resize(UGrid *grid, int width, int height)
+void ugrid_resize(ugrid_st *grid, int width, int height)
 {
     destroy_cells(grid);
     grid->cells = xmalloc((size_t)height * sizeof(ucell_st *));
@@ -45,23 +45,23 @@ void ugrid_resize(UGrid *grid, int width, int height)
     grid->height = height;
 }
 
-void ugrid_clear(UGrid *grid)
+void ugrid_clear(ugrid_st *grid)
 {
     clear_region(grid, grid->top, grid->bot, grid->left, grid->right);
 }
 
-void ugrid_eol_clear(UGrid *grid)
+void ugrid_eol_clear(ugrid_st *grid)
 {
     clear_region(grid, grid->row, grid->row, grid->col, grid->right);
 }
 
-void ugrid_goto(UGrid *grid, int row, int col)
+void ugrid_goto(ugrid_st *grid, int row, int col)
 {
     grid->row = row;
     grid->col = col;
 }
 
-void ugrid_set_scroll_region(UGrid *grid,
+void ugrid_set_scroll_region(ugrid_st *grid,
                              int top,
                              int bot,
                              int left,
@@ -73,7 +73,7 @@ void ugrid_set_scroll_region(UGrid *grid,
     grid->right = right;
 }
 
-void ugrid_scroll(UGrid *grid,
+void ugrid_scroll(ugrid_st *grid,
                   int count,
                   int *clear_top,
                   int *clear_bot)
@@ -122,7 +122,7 @@ void ugrid_scroll(UGrid *grid,
     clear_region(grid, *clear_top, *clear_bot, grid->left, grid->right);
 }
 
-ucell_st *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
+ucell_st *ugrid_put(ugrid_st *grid, uint8_t *text, size_t size)
 {
     ucell_st *cell = grid->cells[grid->row] + grid->col;
 
@@ -138,7 +138,7 @@ ucell_st *ugrid_put(UGrid *grid, uint8_t *text, size_t size)
     return cell;
 }
 
-static void clear_region(UGrid *grid,
+static void clear_region(ugrid_st *grid,
                          int top,
                          int bot,
                          int left,
@@ -156,7 +156,7 @@ static void clear_region(UGrid *grid,
     });
 }
 
-static void destroy_cells(UGrid *grid)
+static void destroy_cells(ugrid_st *grid)
 {
     if(grid->cells)
     {
