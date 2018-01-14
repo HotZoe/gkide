@@ -6765,7 +6765,7 @@ void bufhl_clear_line_range(filebuf_st *buf,
 ///
 /// @param lnum
 /// Linenr where the highlight should be cleared
-static bool bufhl_clear_line(bufhl_info_T *bufhl_info,
+static bool bufhl_clear_line(bufhl_info_st *bufhl_info,
                              int src_id,
                              linenum_kt lnum)
 {
@@ -6832,7 +6832,7 @@ void bufhl_mark_adjust(filebuf_st *buf,
         return;
     }
 
-    bufhl_info_T *newmap = map_new(linenum_kt, bufhl_vec_st)();
+    bufhl_info_st *newmap = map_new(linenum_kt, bufhl_vec_st)();
     linenum_kt line;
     bufhl_vec_st lineinfo;
 
