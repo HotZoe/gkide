@@ -1789,11 +1789,11 @@ static void printdigraph(digraph_st *dp)
 }
 
 /// structure used for b_kmap_ga.ga_data
-typedef struct
+typedef struct kmap_s
 {
     uchar_kt *from;
     uchar_kt *to;
-} kmap_T;
+} kmap_st;
 
 /// maximum length of @b from or @b to
 #define KMAP_MAXLEN 20
@@ -1884,7 +1884,7 @@ void ex_loadkeymap(exargs_st *eap)
 
     curbuf->b_kmap_state = 0;
 
-    ga_init(&curbuf->b_kmap_ga, (int)sizeof(kmap_T), 20);
+    ga_init(&curbuf->b_kmap_ga, (int)sizeof(kmap_st), 20);
 
     // Set 'cpoptions' to "C" to avoid line continuation.
     p_cpo = (uchar_kt *)"C";
@@ -1903,7 +1903,7 @@ void ex_loadkeymap(exargs_st *eap)
 
         if((*p != '"') && (*p != NUL))
         {
-            kmap_T *kp = GA_APPEND_VIA_PTR(kmap_T, &curbuf->b_kmap_ga);
+            kmap_st *kp = GA_APPEND_VIA_PTR(kmap_st, &curbuf->b_kmap_ga);
 
             s = skiptowhite(p);
             kp->from = vim_strnsave(p, (size_t)(s - p));
@@ -1936,8 +1936,8 @@ void ex_loadkeymap(exargs_st *eap)
         vim_snprintf((char *)buf,
                      sizeof(buf),
                      "<buffer> %s %s",
-                     ((kmap_T *)curbuf->b_kmap_ga.ga_data)[i].from,
-                     ((kmap_T *)curbuf->b_kmap_ga.ga_data)[i].to);
+                     ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].from,
+                     ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].to);
 
         (void)do_map(2, buf, kModFlgLangMap, FALSE);
     }
@@ -1951,7 +1951,7 @@ void ex_loadkeymap(exargs_st *eap)
 /// Stop using 'keymap'.
 static void keymap_unload(void)
 {
-    kmap_T *kp;
+    kmap_st *kp;
     uchar_kt *save_cpo = p_cpo;
     uchar_kt buf[KMAP_MAXLEN + 10];
 
@@ -1964,7 +1964,7 @@ static void keymap_unload(void)
     p_cpo = (uchar_kt *)"C";
 
     // clear the ":lmap"s
-    kp = (kmap_T *)curbuf->b_kmap_ga.ga_data;
+    kp = (kmap_st *)curbuf->b_kmap_ga.ga_data;
 
     for(int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
     {
