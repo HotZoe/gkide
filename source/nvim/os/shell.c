@@ -299,7 +299,7 @@ static int do_os_system(char **argv,
     // write the input, if any
     if(input)
     {
-        WBuffer *input_buffer =
+        wbuffer_st *input_buffer =
             wstream_new_buffer((char *) input, len, 1, NULL);
 
         if(!wstream_write(&in, input_buffer))

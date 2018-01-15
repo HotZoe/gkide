@@ -11,10 +11,10 @@
 #include "nvim/event/loop.h"
 #include "nvim/event/stream.h"
 
-typedef struct wbuffer WBuffer;
+typedef struct wbuffer_s wbuffer_st;
 typedef void (*wbuffer_data_finalizer)(void *data);
 
-struct wbuffer
+struct wbuffer_s
 {
     size_t size;
     size_t refcount;

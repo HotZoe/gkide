@@ -17,7 +17,7 @@
 typedef struct
 {
     stream_st *stream;
-    WBuffer *buffer;
+    wbuffer_st *buffer;
     uv_write_t uv_req;
 } WRequest;
 
@@ -77,7 +77,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 /// @param buffer  The buffer which contains data to be written
 ///
 /// @return false if the write failed
-bool wstream_write(stream_st *stream, WBuffer *buffer)
+bool wstream_write(stream_st *stream, wbuffer_st *buffer)
 FUNC_ATTR_NONNULL_ALL
 {
     // This should not be called after a stream was freed
@@ -119,33 +119,33 @@ err:
     return false;
 }
 
-/// Creates a WBuffer object for holding output data. Instances of this
+/// Creates a wbuffer_st object for holding output data. Instances of this
 /// object can be reused across stream_st instances, and the memory is freed
 /// automatically when no longer needed(it tracks the number of references
 /// internally)
 ///
 /// @param data
-/// Data stored by the WBuffer
+/// Data stored by the wbuffer_st
 ///
 /// @param size
 /// The size of the data array
 ///
 /// @param refcount
-/// The number of references for the WBuffer. This will be used by stream_st
-/// instances to decide when a WBuffer should be freed.
+/// The number of references for the wbuffer_st. This will be used by stream_st
+/// instances to decide when a wbuffer_st should be freed.
 ///
 /// @param cb
 /// Pointer to function that will be responsible for freeing the buffer
 /// data(passing 'free' will work as expected).
 ///
-/// @return The allocated WBuffer instance
-WBuffer *wstream_new_buffer(char *data,
+/// @return The allocated wbuffer_st instance
+wbuffer_st *wstream_new_buffer(char *data,
                             size_t size,
                             size_t refcount,
                             wbuffer_data_finalizer cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
-    WBuffer *rv = xmalloc(sizeof(WBuffer));
+    wbuffer_st *rv = xmalloc(sizeof(wbuffer_st));
     rv->size = size;
     rv->refcount = refcount;
     rv->cb = cb;
@@ -175,7 +175,7 @@ static void write_cb(uv_write_t *req, int status)
     xfree(data);
 }
 
-void wstream_release_wbuffer(WBuffer *buffer)
+void wstream_release_wbuffer(wbuffer_st *buffer)
 FUNC_ATTR_NONNULL_ALL
 {
     if(!--buffer->refcount)

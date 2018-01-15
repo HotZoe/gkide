@@ -85,7 +85,7 @@ typedef struct rpc_channel_s
     uint64_t next_request_id;
 
     kvec_t(rpc_channel_callframe_st *) call_stack;
-    kvec_t(WBuffer *) delayed_notifications;
+    kvec_t(wbuffer_st *) delayed_notifications;
 
     multiqueue_st *events;
 } rpc_channel_st;
@@ -226,7 +226,7 @@ bool channel_send_event(uint64_t id, const char *name, Array args)
             // Pending request, queue the notification for later sending.
             const String method = cstr_as_string((char *)name);
 
-            WBuffer *buffer = serialize_request(id, 0, method,
+            wbuffer_st *buffer = serialize_request(id, 0, method,
                                                 args, &out_buffer, 1);
 
             kv_push(channel->delayed_notifications, buffer);
@@ -634,7 +634,7 @@ static void on_request_event(void **argv)
     api_clear_error(&error);
 }
 
-static bool channel_write(rpc_channel_st *channel, WBuffer *buffer)
+static bool channel_write(rpc_channel_st *channel, wbuffer_st *buffer)
 {
     bool success = false;
 
@@ -686,7 +686,7 @@ static bool channel_write(rpc_channel_st *channel, WBuffer *buffer)
 static void internal_read_event(void **argv)
 {
     rpc_channel_st *channel = argv[0];
-    WBuffer *buffer = argv[1];
+    wbuffer_st *buffer = argv[1];
 
     msgpack_unpacker_reserve_buffer(channel->unpacker, buffer->size);
 
@@ -761,7 +761,7 @@ static void broadcast_event(const char *name, Array args)
     }
 
     const String method = cstr_as_string((char *)name);
-    WBuffer *buffer = serialize_request(0,
+    wbuffer_st *buffer = serialize_request(0,
                                         0,
                                         method,
                                         args,
@@ -960,7 +960,7 @@ static void call_set_error(rpc_channel_st *channel, char *msg)
     close_channel(channel);
 }
 
-static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
+static wbuffer_st *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
                                   uint64_t request_id,
                                   const String method,
                                   Array args,
@@ -972,7 +972,7 @@ static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
     rpc_serialize_request(request_id, method, args, &pac);
     SERVER_MSG_LOG(channel_id, sbuffer);
 
-    WBuffer *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
+    wbuffer_st *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
                                      sbuffer->size,
                                      refcount,
                                      xfree);
@@ -982,7 +982,7 @@ static WBuffer *serialize_request(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
     return rv;
 }
 
-static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
+static wbuffer_st *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
                                    uint64_t response_id,
                                    error_st *err,
                                    Object arg,
@@ -994,7 +994,7 @@ static WBuffer *serialize_response(uint64_t FUNC_ARGS_UNUSED_MAYBE(channel_id),
 
     SERVER_MSG_LOG(channel_id, sbuffer);
 
-    WBuffer *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
+    wbuffer_st *rv = wstream_new_buffer(xmemdup(sbuffer->data, sbuffer->size),
                                      sbuffer->size,
                                      1, // responses only go though 1 channel
                                      xfree);
@@ -1008,7 +1008,7 @@ static void send_delayed_notifications(rpc_channel_st *channel)
 {
     for(size_t i = 0; i < kv_size(channel->delayed_notifications); i++)
     {
-        WBuffer *buffer = kv_A(channel->delayed_notifications, i);
+        wbuffer_st *buffer = kv_A(channel->delayed_notifications, i);
         channel_write(channel, buffer);
     }
 

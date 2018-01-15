@@ -15026,7 +15026,7 @@ static void f_jobsend(typval_st *argvars,
         return;
     }
 
-    WBuffer *buf = wstream_new_buffer(input, input_len, 1, xfree);
+    wbuffer_st *buf = wstream_new_buffer(input, input_len, 1, xfree);
     rettv->vval.v_number = wstream_write(data->proc.uv.process.in, buf);
 }
 
@@ -29406,7 +29406,7 @@ static void term_write(char *buf, size_t size, void *d)
         return;
     }
 
-    WBuffer *wbuf = wstream_new_buffer(xmemdup(buf, size), size, 1, xfree);
+    wbuffer_st *wbuf = wstream_new_buffer(xmemdup(buf, size), size, 1, xfree);
     wstream_write(&job->in, wbuf);
 }
 
