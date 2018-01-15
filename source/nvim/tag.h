@@ -33,7 +33,7 @@
                             ///< find up to this many tags
 
 /// Structure used for get_tagfname().
-typedef struct
+typedef struct tagname_s
 {
 
     uchar_kt *tn_tags;          ///< value of 'tags' when starting
@@ -41,7 +41,7 @@ typedef struct
     int tn_did_filefind_init;
     int tn_hf_idx;
     void *tn_search_ctx;
-} tagname_T;
+} tagname_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "tag.h.generated.h"

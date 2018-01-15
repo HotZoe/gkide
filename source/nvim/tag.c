@@ -1419,7 +1419,7 @@ int find_tags(uchar_kt *pat,
     uchar_kt *lbuf; // line buffer
     int lbuf_size = LSIZE; // length of lbuf
     uchar_kt *tag_fname; // name of tag file
-    tagname_T tn; // info for get_tagfname()
+    tagname_st tn; // info for get_tagfname()
     int first_file; // trying first tag file
     tag_ptr_st tagp;
     int did_open = FALSE; // did open a tag file
@@ -2724,14 +2724,14 @@ void free_tag_stuff(void)
 /// @param buf    pointer to buffer of MAXPATHL chars
 ///
 /// @return FAIL if no more tag file names, OK otherwise.
-int get_tagfname(tagname_T *tnp, int first, uchar_kt *buf)
+int get_tagfname(tagname_st *tnp, int first, uchar_kt *buf)
 {
     uchar_kt *fname = NULL;
     uchar_kt *r_ptr;
 
     if(first)
     {
-        memset(tnp, 0, sizeof(tagname_T));
+        memset(tnp, 0, sizeof(tagname_st));
     }
 
     if(curbuf->b_help)
@@ -2845,8 +2845,8 @@ int get_tagfname(tagname_T *tnp, int first, uchar_kt *buf)
     return OK;
 }
 
-/// Free the contents of a tagname_T that was filled by get_tagfname().
-void tagname_free(tagname_T *tnp)
+/// Free the contents of a tagname_st that was filled by get_tagfname().
+void tagname_free(tagname_st *tnp)
 {
     xfree(tnp->tn_tags);
     vim_findfile_cleanup(tnp->tn_search_ctx);

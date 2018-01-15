@@ -21586,7 +21586,7 @@ static void f_tagfiles(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                        func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     char *fname;
-    tagname_T tn;
+    tagname_st tn;
     tv_list_alloc_ret(rettv);
     fname = xmalloc(MAXPATHL);
     bool first = true;
