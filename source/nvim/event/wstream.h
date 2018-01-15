@@ -12,14 +12,14 @@
 #include "nvim/event/stream.h"
 
 typedef struct wbuffer_s wbuffer_st;
-typedef void (*wbuffer_data_finalizer)(void *data);
+typedef void (*wbuffer_finalizer_ft)(void *data);
 
 struct wbuffer_s
 {
     size_t size;
     size_t refcount;
     char *data;
-    wbuffer_data_finalizer cb;
+    wbuffer_finalizer_ft cb;
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

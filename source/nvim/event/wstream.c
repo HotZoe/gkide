@@ -142,7 +142,7 @@ err:
 wbuffer_st *wstream_new_buffer(char *data,
                             size_t size,
                             size_t refcount,
-                            wbuffer_data_finalizer cb)
+                            wbuffer_finalizer_ft cb)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     wbuffer_st *rv = xmalloc(sizeof(wbuffer_st));
