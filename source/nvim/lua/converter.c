@@ -242,7 +242,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 }
 
 /// Helper structure for nlua_pop_typval
-typedef struct
+typedef struct tvpop_stackitem_s
 {
     /// Location where conversion result is saved.
     typval_st *tv;
@@ -252,7 +252,7 @@ typedef struct
     bool special;
     /// Container index (used to detect self-referencing structures).
     int idx;
-} TVPopStackItem;
+} tvpop_stackitem_st;
 
 /// Convert lua object to VimL typval_st
 ///
@@ -267,9 +267,9 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
 {
     bool ret = true;
     const int initial_size = lua_gettop(lstate);
-    kvec_t(TVPopStackItem) stack = KV_INITIAL_VALUE;
+    kvec_t(tvpop_stackitem_st) stack = KV_INITIAL_VALUE;
 
-    kv_push(stack, ((TVPopStackItem) {
+    kv_push(stack, ((tvpop_stackitem_st) {
         ret_tv, false, false, 0
     }));
 
@@ -284,7 +284,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
             break;
         }
 
-        TVPopStackItem cur = kv_pop(stack);
+        tvpop_stackitem_st cur = kv_pop(stack);
 
         if(cur.container)
         {
@@ -328,7 +328,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                         listitem_st *const val = tv_list_item_alloc();
                         tv_list_append(kv_pair, val);
                         kv_push(stack, cur);
-                        cur = (TVPopStackItem) {
+                        cur = (tvpop_stackitem_st) {
                             &val->li_tv, false, false, 0
                         };
                     }
@@ -342,7 +342,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                         }
 
                         kv_push(stack, cur);
-                        cur = (TVPopStackItem) {
+                        cur = (tvpop_stackitem_st) {
                             &di->di_tv, false, false, 0
                         };
                     }
@@ -367,7 +367,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
                 listitem_st *const li = tv_list_item_alloc();
                 tv_list_append(cur.tv->vval.v_list, li);
                 kv_push(stack, cur);
-                cur = (TVPopStackItem) {
+                cur = (tvpop_stackitem_st) {
                     &li->li_tv, false, false, 0
                 };
             }
@@ -438,7 +438,7 @@ bool nlua_pop_typval(lua_State *lstate, typval_st *ret_tv)
 
                 for(size_t i = 0; i < kv_size(stack); i++)
                 {
-                    const TVPopStackItem item = kv_A(stack, i);
+                    const tvpop_stackitem_st item = kv_A(stack, i);
 
                     if(item.container && lua_rawequal(lstate, -1, item.idx))
                     {
