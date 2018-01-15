@@ -170,7 +170,7 @@ static long     p_sts_nopaste;
 static long     p_tw_nopaste;
 static long     p_wm_nopaste;
 
-typedef struct vimoption
+typedef struct vimoption_s
 {
     char *fullname;        ///< full option name
     char *shortname;       ///< permissible abbreviation
@@ -184,7 +184,7 @@ typedef struct vimoption
     script_id_kt scriptID; ///< script in which the option was last set
 
     #define SCRIPTID_INIT  , 0
-} vimoption_T;
+} vimoption_st;
 
 #define VI_DEFAULT    0  ///< def_val[VI_DEFAULT] is Vi default value
 #define VIM_DEFAULT   1  ///< def_val[VIM_DEFAULT] is Vim default value
@@ -6358,7 +6358,7 @@ int get_option_value_strict(char *name,
         return 0;
     }
 
-    vimoption_T *p = &options[opt_idx];
+    vimoption_st *p = &options[opt_idx];
 
     // Hidden option
     if(p->var == NULL)
@@ -6633,7 +6633,7 @@ static int find_key_option(const uchar_kt *arg)
 /// OPT_LOCAL and/or OPT_GLOBAL
 static void showoptions(int all, int opt_flags)
 {
-    vimoption_T *p;
+    vimoption_st *p;
     int col;
     uchar_kt *varp;
     int item_count;
@@ -6646,7 +6646,7 @@ static void showoptions(int all, int opt_flags)
 #define INC  20
 #define GAP  3
 
-    vimoption_T **items = xmalloc(sizeof(vimoption_T *) * PARAM_COUNT);
+    vimoption_st **items = xmalloc(sizeof(vimoption_st *) * PARAM_COUNT);
 
     // Highlight title
     if(all == 2)
@@ -6760,7 +6760,7 @@ static void showoptions(int all, int opt_flags)
 }
 
 /// Return TRUE if option "p" has its default value.
-static int optval_default(vimoption_T *p, uchar_kt *varp)
+static int optval_default(vimoption_st *p, uchar_kt *varp)
 {
     int dvi;
 
@@ -6790,7 +6790,7 @@ static int optval_default(vimoption_T *p, uchar_kt *varp)
 ///
 /// @param p
 /// @param opt_flags   OPT_LOCAL or OPT_GLOBAL
-static void showoneopt(vimoption_T *p, int opt_flags)
+static void showoneopt(vimoption_st *p, int opt_flags)
 {
     uchar_kt *varp;
     int save_silent = silent_mode;
@@ -6852,7 +6852,7 @@ static void showoneopt(vimoption_T *p, int opt_flags)
 /// @return FAIL on error, OK otherwise.
 int makeset(FILE *fd, int opt_flags, int local_only)
 {
-    vimoption_T *p;
+    vimoption_st *p;
     uchar_kt *varp; // currently used value
     uchar_kt *varp_fresh; // local value
     uchar_kt *varp_local = NULL; // fresh value
@@ -7195,7 +7195,7 @@ void comp_col(void)
 /// Unset local option value, similar to ":set opt<".
 void unset_global_local_option(char *name, void *from)
 {
-    vimoption_T *p;
+    vimoption_st *p;
     filebuf_st *buf = (filebuf_st *)from;
     int opt_idx = findoption(name);
 
@@ -7288,7 +7288,7 @@ void unset_global_local_option(char *name, void *from)
 }
 
 /// Get pointer to option variable, depending on local or global scope.
-static uchar_kt *get_varp_scope(vimoption_T *p, int opt_flags)
+static uchar_kt *get_varp_scope(vimoption_st *p, int opt_flags)
 {
     if((opt_flags & OPT_GLOBAL) && p->indir != PV_NONE)
     {
@@ -7367,7 +7367,7 @@ static uchar_kt *get_varp_scope(vimoption_T *p, int opt_flags)
 }
 
 /// Get pointer to option variable.
-static uchar_kt *get_varp(vimoption_T *p)
+static uchar_kt *get_varp(vimoption_st *p)
 {
     // hidden option, always return NULL
     if(p->var == NULL)
@@ -8508,7 +8508,7 @@ void ExpandOldSetting(int *num_file, uchar_kt ***file)
 ///
 /// @param opp
 /// @param opt_flags  OPT_GLOBAL and/or OPT_LOCAL
-static void option_value2string(vimoption_T *opp, int opt_flags)
+static void option_value2string(vimoption_st *opp, int opt_flags)
 {
     uchar_kt *varp;
     varp = get_varp_scope(opp, opt_flags);
@@ -9664,7 +9664,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     for(int opt_idx = 0; options[opt_idx].fullname; opt_idx++)
     {
-        struct vimoption *opt = &options[opt_idx];
+        vimoption_st *opt = &options[opt_idx];
 
         if((bufopt && (opt->indir & PV_BUF))
            || (!bufopt && (opt->indir & PV_WIN)))
