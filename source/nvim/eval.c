@@ -19753,7 +19753,7 @@ typedef struct sort_item_s
 {
     listitem_st *item;
     int idx;
-} sortItem_T;
+} sort_item_st;
 
 /// struct storing information about current sort
 typedef struct sortinfo_s
@@ -19777,8 +19777,8 @@ static int item_compare(const void *s1,
                         bool keep_zero)
 {
     int res;
-    sortItem_T *const si1 = (sortItem_T *)s1;
-    sortItem_T *const si2 = (sortItem_T *)s2;
+    sort_item_st *const si1 = (sort_item_st *)s1;
+    sort_item_st *const si2 = (sort_item_st *)s2;
     typval_st *const tv1 = &si1->item->li_tv;
     typval_st *const tv2 = &si2->item->li_tv;
 
@@ -19894,7 +19894,7 @@ static int item_compare_not_keeping_zero(const void *s1, const void *s2)
 
 static int item_compare2(const void *s1, const void *s2, bool keep_zero)
 {
-    sortItem_T *si1,*si2;
+    sort_item_st *si1,*si2;
     int res;
     typval_st rettv;
     typval_st argv[3];
@@ -19908,8 +19908,8 @@ static int item_compare2(const void *s1, const void *s2, bool keep_zero)
         return 0;
     }
 
-    si1 = (sortItem_T *)s1;
-    si2 = (sortItem_T *)s2;
+    si1 = (sort_item_st *)s1;
+    si2 = (sort_item_st *)s2;
 
     if(partial == NULL)
     {
@@ -19984,7 +19984,7 @@ static void do_sort_uniq(typval_st *argvars, typval_st *rettv, bool sort)
 {
     list_st *l;
     listitem_st *li;
-    sortItem_T *ptrs;
+    sort_item_st *ptrs;
     long len;
     long i;
 
@@ -20109,7 +20109,7 @@ static void do_sort_uniq(typval_st *argvars, typval_st *rettv, bool sort)
         }
 
         // Make an array with each entry pointing to an item in the List.
-        ptrs = xmalloc((size_t)(len * sizeof (sortItem_T)));
+        ptrs = xmalloc((size_t)(len * sizeof (sort_item_st)));
         i = 0;
 
         if(sort)
@@ -20135,7 +20135,7 @@ static void do_sort_uniq(typval_st *argvars, typval_st *rettv, bool sort)
                 // Sort the array with item pointers.
                 qsort(ptrs,
                       (size_t)len,
-                      sizeof(sortItem_T),
+                      sizeof(sort_item_st),
                       (info.item_compare_func == NULL
                        && info.item_compare_partial == NULL
                        ? item_compare_not_keeping_zero
