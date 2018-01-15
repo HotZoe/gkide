@@ -43,7 +43,7 @@ typedef void (*stream_read_ft)(stream_st *stream,
 /// @param wstream  The stream_st instance
 /// @param data     User-defined data
 /// @param status   0 on success, anything else indicates failure
-typedef void (*stream_write_cb)(stream_st *stream, void *data, int status);
+typedef void (*stream_write_ft)(stream_st *stream, void *data, int status);
 
 /// Type of function called when the stream_st
 /// has information about a write request.
@@ -66,7 +66,7 @@ struct stream_s
     ringbuf_st *buffer;
     uv_file fd;
     stream_read_ft read_cb;
-    stream_write_cb write_cb;
+    stream_write_ft write_cb;
     void *cb_data;
     stream_close_cb close_cb;
     stream_close_cb internal_close_cb;

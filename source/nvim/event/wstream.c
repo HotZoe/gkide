@@ -62,7 +62,7 @@ void wstream_init(stream_st *stream, size_t maxmem)
 ///
 /// @param stream  The stream_st instance
 /// @param cb      The callback
-void wstream_set_write_cb(stream_st *stream, stream_write_cb cb, void *data)
+void wstream_set_write_cb(stream_st *stream, stream_write_ft cb, void *data)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     stream->write_cb = cb;
