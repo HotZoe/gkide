@@ -21,7 +21,7 @@
     #include "tui/input.c.generated.h"
 #endif
 
-void term_input_init(terminput_st *input, main_loop_st *loop)
+void term_input_init(terminal_input_st *input, main_loop_st *loop)
 {
     input->loop = loop;
     input->paste_enabled = false;
@@ -60,7 +60,7 @@ void term_input_init(terminput_st *input, main_loop_st *loop)
     time_watcher_init(loop, &input->timer_handle, input);
 }
 
-void term_input_destroy(terminput_st *input)
+void term_input_destroy(terminal_input_st *input)
 {
     rbuffer_free(input->key_buffer);
     uv_mutex_destroy(&input->key_buffer_mutex);
@@ -70,12 +70,12 @@ void term_input_destroy(terminput_st *input)
     termkey_destroy(input->tk);
 }
 
-void term_input_start(terminput_st *input)
+void term_input_start(terminal_input_st *input)
 {
     rstream_start(&input->read_stream, read_cb, input);
 }
 
-void term_input_stop(terminput_st *input)
+void term_input_stop(terminal_input_st *input)
 {
     rstream_stop(&input->read_stream);
     time_watcher_stop(&input->timer_handle);
@@ -88,7 +88,7 @@ static void input_done_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 
 static void wait_input_enqueue(void **argv)
 {
-    terminput_st *input = argv[0];
+    terminal_input_st *input = argv[0];
 
     RBUFFER_UNTIL_EMPTY(input->key_buffer, buf, len)
     {
@@ -116,7 +116,7 @@ static void wait_input_enqueue(void **argv)
     uv_mutex_unlock(&input->key_buffer_mutex);
 }
 
-static void flush_input(terminput_st *input, bool wait_until_empty)
+static void flush_input(terminal_input_st *input, bool wait_until_empty)
 {
     size_t drain_boundary = wait_until_empty ? 0 : 0xff;
 
@@ -135,7 +135,7 @@ static void flush_input(terminput_st *input, bool wait_until_empty)
     } while(rbuffer_size(input->key_buffer) > drain_boundary);
 }
 
-static void enqueue_input(terminput_st *input, char *buf, size_t size)
+static void enqueue_input(terminal_input_st *input, char *buf, size_t size)
 {
     if(rbuffer_size(input->key_buffer)
        > rbuffer_capacity(input->key_buffer) - 0xff)
@@ -148,7 +148,7 @@ static void enqueue_input(terminput_st *input, char *buf, size_t size)
     rbuffer_write(input->key_buffer, buf, size);
 }
 
-static void forward_simple_utf8(terminput_st *input, TermKeyKey *key)
+static void forward_simple_utf8(terminal_input_st *input, TermKeyKey *key)
 {
     size_t len = 0;
     char buf[64];
@@ -171,7 +171,7 @@ static void forward_simple_utf8(terminput_st *input, TermKeyKey *key)
     enqueue_input(input, buf, len);
 }
 
-static void forward_modified_utf8(terminput_st *input, TermKeyKey *key)
+static void forward_modified_utf8(terminal_input_st *input, TermKeyKey *key)
 {
     size_t len;
     char buf[64];
@@ -198,7 +198,7 @@ static void forward_modified_utf8(terminput_st *input, TermKeyKey *key)
     enqueue_input(input, buf, len);
 }
 
-static void forward_mouse_event(terminput_st *input, TermKeyKey *key)
+static void forward_mouse_event(terminal_input_st *input, TermKeyKey *key)
 {
     char buf[64];
     size_t len = 0;
@@ -312,7 +312,7 @@ static int get_key_code_timeout(void)
     return (int)ms;
 }
 
-static void tk_getkeys(terminput_st *input, bool force)
+static void tk_getkeys(terminal_input_st *input, bool force)
 {
     TermKeyKey key;
     TermKeyResult result;
@@ -369,7 +369,7 @@ static void timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher), void *dat
 /// @param input the input stream
 ///
 /// @return true iff handle_focus_event consumed some input
-static bool handle_focus_event(terminput_st *input)
+static bool handle_focus_event(terminal_input_st *input)
 {
     if(rbuffer_size(input->read_stream.buffer) > 2
        && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[I", 3)
@@ -394,7 +394,7 @@ static bool handle_focus_event(terminput_st *input)
     return false;
 }
 
-static bool handle_bracketed_paste(terminput_st *input)
+static bool handle_bracketed_paste(terminal_input_st *input)
 {
     if(rbuffer_size(input->read_stream.buffer) > 5
        && (!rbuffer_cmp(input->read_stream.buffer, "\x1b[200~", 6)
@@ -418,7 +418,7 @@ static bool handle_bracketed_paste(terminput_st *input)
     return false;
 }
 
-static bool handle_forced_escape(terminput_st *input)
+static bool handle_forced_escape(terminal_input_st *input)
 {
     if(rbuffer_size(input->read_stream.buffer) > 1
        && !rbuffer_cmp(input->read_stream.buffer, "\x1b\x00", 2))
@@ -445,7 +445,7 @@ static void read_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
                     void *data,
                     bool eof)
 {
-    terminput_st *input = data;
+    terminal_input_st *input = data;
 
     if(eof)
     {
@@ -532,7 +532,7 @@ static void read_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
 
 static void restart_reading(void **argv)
 {
-    terminput_st *input = argv[0];
+    terminal_input_st *input = argv[0];
 
     rstream_init_fd(input->loop, &input->read_stream, input->in_fd, 0xfff);
     rstream_start(&input->read_stream, read_cb, input);

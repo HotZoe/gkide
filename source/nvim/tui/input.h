@@ -11,7 +11,7 @@
 
 #include "config.h"
 
-typedef struct term_input
+typedef struct terminal_input_s
 {
     int in_fd;
     bool paste_enabled;
@@ -34,7 +34,7 @@ typedef struct term_input
     ringbuf_st *key_buffer;
     uv_mutex_t key_buffer_mutex;
     uv_cond_t key_buffer_cond;
-} terminput_st;
+} terminal_input_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "tui/input.h.generated.h"
