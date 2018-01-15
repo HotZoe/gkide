@@ -6668,13 +6668,13 @@ static int in_id_list(state_item_st *cur_si,
     return !retval;
 }
 
-struct subcommand
+typedef struct subcommand_s
 {
     char  *name; ///< subcommand name
     void (*func)(exargs_st *, int);  ///< function to call
-};
+} subcommand_st;
 
-static struct subcommand subcommands[] = {
+static subcommand_st subcommands[] = {
     { "case",      syn_cmd_case },
     { "clear",     syn_cmd_clear },
     { "cluster",   syn_cmd_cluster },
