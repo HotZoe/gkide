@@ -14,12 +14,12 @@
 
 #define DEFAULT_MAXMEM 1024 * 1024 * 10
 
-typedef struct
+typedef struct wrequest_s
 {
     stream_st *stream;
     wbuffer_st *buffer;
     uv_write_t uv_req;
-} WRequest;
+} wrequest_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "event/wstream.c.generated.h"
@@ -91,7 +91,7 @@ FUNC_ATTR_NONNULL_ALL
 
     stream->curmem += buffer->size;
 
-    WRequest *data = xmalloc(sizeof(WRequest));
+    wrequest_st *data = xmalloc(sizeof(wrequest_st));
     data->stream = stream;
     data->buffer = buffer;
     data->uv_req.data = data;
@@ -155,7 +155,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
 static void write_cb(uv_write_t *req, int status)
 {
-    WRequest *data = req->data;
+    wrequest_st *data = req->data;
     data->stream->curmem -= data->buffer->size;
     wstream_release_wbuffer(data->buffer);
 
