@@ -9061,10 +9061,10 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
         return 0;
     }
 
-    // Relies on sl_list to be the first item in staticList10_T.
-    init_static_list((staticList10_T *)(argv->vval.v_list));
+    // Relies on sl_list to be the first item in list10item_st.
+    init_static_list((list10item_st *)(argv->vval.v_list));
 
-    // There are always 10 list items in staticList10_T.
+    // There are always 10 list items in list10item_st.
     li = argv->vval.v_list->lv_first;
 
     for(i = 0; i < 10; i++)
@@ -9088,7 +9088,7 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
     return 1;
 }
 
-static void clear_submatch_list(staticList10_T *sl)
+static void clear_submatch_list(list10item_st *sl)
 {
     int i;
 
@@ -9232,7 +9232,7 @@ static int vim_regsub_both(uchar_kt *source,
                 typval_st argv[2];
                 int dummy;
                 typval_st rettv;
-                staticList10_T matchList;
+                list10item_st matchList;
                 rettv.v_type = kNvarString;
                 rettv.vval.v_string = NULL;
 

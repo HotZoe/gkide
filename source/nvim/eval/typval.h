@@ -185,11 +185,11 @@ struct list_s
 
 /// Static list with 10 items.
 /// Use init_static_list() to initialize.
-typedef struct
+typedef struct list10item_s
 {
     list_st sl_list; // must be first
     listitem_st sl_items[10];
-} staticList10_T;
+} list10item_st;
 
 /// Structure to hold an item of a Dictionary.
 /// Also used for a variable. The key is copied

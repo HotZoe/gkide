@@ -22819,11 +22819,11 @@ write_list_error:
 }
 
 /// Initializes a static list with 10 items.
-void init_static_list(staticList10_T *sl)
+void init_static_list(list10item_st *sl)
 {
     list_st *l = &sl->sl_list;
 
-    memset(sl, 0, sizeof(staticList10_T));
+    memset(sl, 0, sizeof(list10item_st));
     l->lv_first = &sl->sl_items[0];
     l->lv_last = &sl->sl_items[9];
     l->lv_refcount = DO_NOT_FREE_CNT;
