@@ -73,7 +73,7 @@ typedef int (*Indenter)(void);
                              ///< alphabetic character
 
 /// Flags for get_reg_contents().
-enum GRegFlags
+enum getreg_flg_e
 {
     kGRegNoExpr  = 1,  ///< Do not allow expression register.
     kGRegExprSrc = 2,  ///< Return expression itself for "=" register.
@@ -81,16 +81,16 @@ enum GRegFlags
 };
 
 /// Definition of one register
-typedef struct yankreg
+typedef struct yankreg_s
 {
-    uchar_kt **y_array;         ///< Pointer to an array of line pointers.
+    uchar_kt **y_array;       ///< Pointer to an array of line pointers.
     size_t y_size;            ///< Number of lines in y_array.
-    motion_type_et y_type;        ///< Register type
-    columnum_kt y_width;          ///< Register width
+    motion_type_et y_type;    ///< Register type
+    columnum_kt y_width;      ///< Register width
                               ///< (only valid for y_type == kBlockWise).
-    timestamp_kt timestamp;      ///< Time when register was last modified.
-    dict_st *additional_data;  ///< Additional data from ShaDa file.
-} yankreg_T;
+    timestamp_kt timestamp;   ///< Time when register was last modified.
+    dict_st *additional_data; ///< Additional data from ShaDa file.
+} yankreg_st;
 
 /// Convert register name into register index
 ///

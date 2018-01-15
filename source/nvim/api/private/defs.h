@@ -9,18 +9,6 @@
 
 #include "nvim/func_attr.h"
 
-#define ERROR_INIT      { .type = kErrorTypeNone, .msg = NULL }
-#define STRING_INIT     { .data = NULL, .size = 0 }
-#define OBJECT_INIT     { .type = kObjectTypeNil }
-#define ARRAY_DICT_INIT { .size = 0, .capacity = 0, .items = NULL }
-
-#define ERROR_SET(e)      ((e)->type != kErrorTypeNone)
-
-#ifdef INCLUDE_GENERATED_DECLARATIONS
-    #define ArrayOf(...)      Array
-    #define DictionaryOf(...) Dictionary
-#endif
-
 /// Mask for all internal calls
 #define INTERNAL_CALL_MASK    (((uint64_t)1) << (sizeof(uint64_t) * 8 - 1))
 
@@ -33,42 +21,35 @@
 /// Internal call from lua code
 #define LUA_INTERNAL_CALL     (VIML_INTERNAL_CALL + 1)
 
-static inline bool is_internal_call(uint64_t channel_id)
-REAL_FATTR_ALWAYS_INLINE
-REAL_FATTR_CONST;
-
-/// Check whether call is internal
-///
-/// @param[in]  channel_id  Channel id.
-///
-/// @return true if channel_id refers to internal channel.
-static inline bool is_internal_call(const uint64_t channel_id)
-{
-    return !!(channel_id & INTERNAL_CALL_MASK);
-}
-
-typedef int handle_kt;
-
-/// The nvl-object type
-typedef struct object_s Object;
-
 /// Maximum value of an Integer
-#define API_INTEGER_MAX INT64_MAX
+#define API_INTEGER_MAX       INT64_MAX
 
 /// Minimum value of an Integer
-#define API_INTEGER_MIN INT64_MIN
+#define API_INTEGER_MIN       INT64_MIN
 
-// The nvl-object's value type
-#define NIL                   ((Object) { .type = kObjectTypeNil })
-typedef bool                  Boolean;
-typedef int64_t               Integer;
-typedef double                Float;
-typedef struct string_s       String;
-typedef struct array_s        Array;
-typedef struct dictionary_s   Dictionary;
-typedef handle_kt             Buffer;
-typedef handle_kt             Window;
-typedef handle_kt             Tabpage;
+#define ERROR_INIT          { .type = kErrorTypeNone, .msg = NULL }
+#define STRING_INIT         { .data = NULL, .size = 0 }
+#define OBJECT_INIT         { .type = kObjectTypeNil }
+#define ARRAY_DICT_INIT     { .size = 0, .capacity = 0, .items = NULL }
+#define NIL                 ((Object) { .type = kObjectTypeNil })
+#define ERROR_SET(e)        ((e)->type != kErrorTypeNone)
+
+#ifdef INCLUDE_GENERATED_DECLARATIONS
+    #define ArrayOf(...)      Array
+    #define DictionaryOf(...) Dictionary
+#endif
+
+typedef int                  handle_kt;
+typedef struct object_s      Object;    ///< nvl-object type
+typedef bool                 Boolean;   ///< nvl-object's value type
+typedef int64_t              Integer;   ///< nvl-object's value type
+typedef double               Float;     ///< nvl-object's value type
+typedef struct string_s      String;    ///< nvl-object's value type
+typedef struct array_s       Array;     ///< nvl-object's value type
+typedef struct dictionary_s  Dictionary;///< nvl-object's value type
+typedef handle_kt            Buffer;    ///< nvl-object's value type
+typedef handle_kt            Window;    ///< nvl-object's value type
+typedef handle_kt            Tabpage;   ///< nvl-object's value type
 
 typedef enum object_type_e
 {
@@ -79,7 +60,9 @@ typedef enum object_type_e
     kObjectTypeString,
     kObjectTypeArray,
     kObjectTypeDictionary,
-    // EXT types, cannot be split or reordered, see #EXT_OBJECT_TYPE_SHIFT
+
+    // EXT types, cannot be split or reordered,
+    // see #EXT_OBJECT_TYPE_SHIFT
     kObjectTypeBuffer,
     kObjectTypeWindow,
     kObjectTypeTabpage,
@@ -147,5 +130,19 @@ typedef struct error_s
     error_type_et type;
     char *msg;
 } error_st;
+
+static inline bool is_internal_call(uint64_t channel_id)
+REAL_FATTR_ALWAYS_INLINE
+REAL_FATTR_CONST;
+
+/// Check whether call is internal
+///
+/// @param[in]  channel_id  Channel id.
+///
+/// @return true if channel_id refers to internal channel.
+static inline bool is_internal_call(const uint64_t channel_id)
+{
+    return !!(channel_id & INTERNAL_CALL_MASK);
+}
 
 #endif // NVIM_API_PRIVATE_DEFS_H

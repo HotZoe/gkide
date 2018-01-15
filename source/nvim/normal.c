@@ -9769,7 +9769,7 @@ static void nv_join(cmdarg_st *cap)
 static void nv_put(cmdarg_st *cap)
 {
     int regname = 0;
-    yankreg_T *savereg = NULL;
+    yankreg_st *savereg = NULL;
     bool empty = false;
     bool was_visual = false;
     int dir;

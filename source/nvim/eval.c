@@ -6657,7 +6657,7 @@ bool garbage_collect(bool testing)
 
         do
         {
-            yankreg_T reg;
+            yankreg_st reg;
             char name = NUL;
             reg_iter = op_register_iter(reg_iter, &name, &reg);
 

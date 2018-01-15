@@ -48,10 +48,10 @@
 #include "nvim/os/input.h"
 #include "nvim/os/time.h"
 
-static yankreg_T y_regs[NUM_REGISTERS];
+static yankreg_st y_regs[NUM_REGISTERS];
 
 /// ptr to last written yankreg
-static yankreg_T *y_previous = NULL;
+static yankreg_st *y_previous = NULL;
 
 static bool clipboard_didwarn_unnamed = false;
 
@@ -904,7 +904,7 @@ typedef enum
     YREG_PUT,
 } yreg_mode_t;
 
-/// Return yankreg_T to use, according to the value of @b regname.
+/// Return yankreg_st to use, according to the value of @b regname.
 /// Cannot handle the '_' (black hole) register.
 /// Must only be called with a valid register name!
 ///
@@ -923,9 +923,9 @@ typedef enum
 ///
 /// - YREG_PUT:
 ///   Obtain the location that would be read when pasting `regname`.
-yankreg_T *get_yank_register(int regname, int mode)
+yankreg_st *get_yank_register(int regname, int mode)
 {
-    yankreg_T *reg;
+    yankreg_st *reg;
 
     if(mode == YREG_PASTE && get_clipboard(regname, &reg, false))
     {
@@ -970,12 +970,12 @@ static bool is_append_register(int regname)
 
 /// Returns a copy of contents in register @b name
 /// for use in do_put. Should be freed by caller.
-yankreg_T *copy_register(int name)
+yankreg_st *copy_register(int name)
 FUNC_ATTR_NONNULL_RET
 {
-    yankreg_T *reg = get_yank_register(name, YREG_PASTE);
+    yankreg_st *reg = get_yank_register(name, YREG_PASTE);
 
-    yankreg_T *copy = xmalloc(sizeof(yankreg_T));
+    yankreg_st *copy = xmalloc(sizeof(yankreg_st));
     *copy = *reg;
 
     if(copy->y_size == 0)
@@ -1008,7 +1008,7 @@ bool yank_register_mline(int regname)
         return false;
     }
 
-    yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+    yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
     return reg->y_type == kMTLineWise;
 }
@@ -1020,7 +1020,7 @@ int do_record(int c)
 {
     uchar_kt *p;
     static int regname;
-    yankreg_T  *old_y_previous;
+    yankreg_st  *old_y_previous;
     int retval;
 
     if(Recording == false)
@@ -1068,7 +1068,7 @@ int do_record(int c)
     return retval;
 }
 
-static void set_yreg_additional_data(yankreg_T *reg, dict_st *additional_data)
+static void set_yreg_additional_data(yankreg_st *reg, dict_st *additional_data)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(reg->additional_data == additional_data)
@@ -1099,7 +1099,7 @@ static int stuff_yank(int regname, uchar_kt *p)
         return OK;
     }
 
-    yankreg_T *reg = get_yank_register(regname, YREG_YANK);
+    yankreg_st *reg = get_yank_register(regname, YREG_YANK);
 
     if(is_append_register(regname) && reg->y_array != NULL)
     {
@@ -1227,7 +1227,7 @@ int do_execreg(int regname, int colon, int addcr, int silent)
     }
     else
     {
-        yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+        yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
         if(reg->y_array == NULL)
         {
@@ -1420,7 +1420,7 @@ int insert_reg(int regname, int literally)
     }
     else // Name or number register.
     {
-        yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+        yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
         if(reg->y_array == NULL)
         {
@@ -1599,7 +1599,7 @@ int get_spec_reg(int regname, uchar_kt **argp, int *allocated, int errmsg)
 /// @returns FAIL for failure, OK otherwise
 bool cmdline_paste_reg(int regname, bool literally, bool remcr)
 {
-    yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+    yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
     if(reg->y_array == NULL)
     {
@@ -1718,7 +1718,7 @@ int op_delete(oparg_st *oap)
     // register. For the black hole register '_' don't yank anything.
     if(oap->regname != '_')
     {
-        yankreg_T *reg = NULL;
+        yankreg_st *reg = NULL;
 
         if(oap->regname != 0)
         {
@@ -2925,7 +2925,7 @@ void init_yank(void)
 /// Free contents of yankreg @b reg.
 /// Called for normal freeing and in case of error.
 /// @b reg must not be NULL (but `reg->y_array` might be)
-void free_register(yankreg_T *reg)
+void free_register(yankreg_st *reg)
 FUNC_ATTR_NONNULL_ALL
 {
     set_yreg_additional_data(reg, NULL);
@@ -2965,7 +2965,7 @@ FUNC_ATTR_NONNULL_ALL
         return true; // black hole: nothing to do
     }
 
-    yankreg_T *reg = get_yank_register(oap->regname, YREG_YANK);
+    yankreg_st *reg = get_yank_register(oap->regname, YREG_YANK);
     op_yank_reg(oap, message, reg, is_append_register(oap->regname));
     set_clipboard(oap->regname, reg);
     do_autocmd_textyankpost(oap, reg);
@@ -2975,10 +2975,10 @@ FUNC_ATTR_NONNULL_ALL
 
 static void op_yank_reg(oparg_st *oap,
                         bool message,
-                        yankreg_T *reg,
+                        yankreg_st *reg,
                         bool append)
 {
-    yankreg_T newreg; // new yank register when appending
+    yankreg_st newreg; // new yank register when appending
     uchar_kt **new_ptr;
     linenum_kt lnum; // current line number
     size_t j;
@@ -2988,7 +2988,7 @@ static void op_yank_reg(oparg_st *oap,
     uchar_kt *p;
     uchar_kt *pnew;
     blockdef_st bd;
-    yankreg_T *curr = reg; // copy of current register
+    yankreg_st *curr = reg; // copy of current register
 
     // append to existing contents
     if(append && reg->y_array != NULL)
@@ -3240,7 +3240,7 @@ static void op_yank_reg(oparg_st *oap,
     return;
 }
 
-static void yank_copy_line(yankreg_T *reg,
+static void yank_copy_line(yankreg_st *reg,
                            blockdef_st *bd,
                            size_t y_idx)
 {
@@ -3262,7 +3262,7 @@ static void yank_copy_line(yankreg_T *reg,
 ///
 /// @param oap  Operator arguments.
 /// @param reg  The yank register used.
-static void do_autocmd_textyankpost(oparg_st *oap, yankreg_T *reg)
+static void do_autocmd_textyankpost(oparg_st *oap, yankreg_st *reg)
 FUNC_ATTR_NONNULL_ALL
 {
     static bool recursive = false;
@@ -3325,7 +3325,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param dir
 /// BACKWARD for 'P', FORWARD for 'p'
-void do_put(int regname, yankreg_T *reg, int dir, long count, int flags)
+void do_put(int regname, yankreg_st *reg, int dir, long count, int flags)
 {
     uchar_kt *ptr;
     uchar_kt *newp;
@@ -4311,7 +4311,7 @@ int get_register_name(int num)
 void ex_display(exargs_st *eap)
 {
     uchar_kt *p;
-    yankreg_T *yb;
+    yankreg_st *yb;
     int name;
     uchar_kt *arg = eap->arg;
     int clen;
@@ -6246,7 +6246,7 @@ motion_type_et get_reg_type(int regname, columnum_kt *reg_width)
         return kMTUnknown;
     }
 
-    yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+    yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
     if(reg->y_array != NULL)
     {
@@ -6321,7 +6321,7 @@ static void *get_reg_wrap_one_line(uchar_kt *s, int flags)
 /// @remark Used for `@r` in expressions and for getreg().
 ///
 /// @param regname  The register.
-/// @param flags    see @ref GRegFlags
+/// @param flags    see @ref getreg_flg_e
 ///
 /// @returns The contents of the register as an allocated string.
 /// @returns A linked list when @b flags contains @ref kGRegList.
@@ -6374,7 +6374,7 @@ void *get_reg_contents(int regname, int flags)
         return get_reg_wrap_one_line(vim_strsave(retval), flags);
     }
 
-    yankreg_T *reg = get_yank_register(regname, YREG_PASTE);
+    yankreg_st *reg = get_yank_register(regname, YREG_PASTE);
 
     if(reg->y_array == NULL)
     {
@@ -6430,8 +6430,8 @@ void *get_reg_contents(int regname, int flags)
     return retval;
 }
 
-static yankreg_T *init_write_reg(int name,
-                                 yankreg_T **old_y_previous,
+static yankreg_st *init_write_reg(int name,
+                                 yankreg_st **old_y_previous,
                                  bool must_append)
 {
     if(!valid_yank_reg(name, true)) // check for valid reg name
@@ -6442,7 +6442,7 @@ static yankreg_T *init_write_reg(int name,
 
     // Don't want to change the current (unnamed) register.
     *old_y_previous = y_previous;
-    yankreg_T *reg = get_yank_register(name, YREG_YANK);
+    yankreg_st *reg = get_yank_register(name, YREG_YANK);
 
     if(!is_append_register(name) && !must_append)
     {
@@ -6453,8 +6453,8 @@ static yankreg_T *init_write_reg(int name,
 }
 
 static void finish_write_reg(int name,
-                             yankreg_T *reg,
-                             yankreg_T *old_y_previous)
+                             yankreg_st *reg,
+                             yankreg_st *old_y_previous)
 {
     // Send text of clipboard register to the clipboard.
     set_clipboard(name, reg);
@@ -6508,7 +6508,7 @@ void write_reg_contents_lst(int name,
         return;
     }
 
-    yankreg_T  *old_y_previous, *reg;
+    yankreg_st  *old_y_previous, *reg;
 
     if(!(reg = init_write_reg(name, &old_y_previous, must_append)))
     {
@@ -6626,7 +6626,7 @@ void write_reg_contents_ex(int name,
         return;
     }
 
-    yankreg_T  *old_y_previous, *reg;
+    yankreg_st  *old_y_previous, *reg;
 
     if(!(reg = init_write_reg(name, &old_y_previous, must_append)))
     {
@@ -6647,7 +6647,7 @@ void write_reg_contents_ex(int name,
 /// @param len       length of the string (Ignored when str_list=true.)
 /// @param blocklen  width of visual block, or -1 for "I don't know."
 /// @param str_list  True if str is `uchar_kt **`.
-static void str_to_reg(yankreg_T *y_ptr,
+static void str_to_reg(yankreg_st *y_ptr,
                        motion_type_et yank_type,
                        const uchar_kt *str,
                        size_t len,
@@ -7212,7 +7212,7 @@ int get_default_register_name(void)
 /// @returns
 /// the yankreg that should be written into, or NULL
 /// if the register isn't a clipboard or provider isn't available.
-static yankreg_T *adjust_clipboard_name(int *name, bool quiet, bool writing)
+static yankreg_st *adjust_clipboard_name(int *name, bool quiet, bool writing)
 {
     if(*name == '*' || *name == '+')
     {
@@ -7254,7 +7254,7 @@ static yankreg_T *adjust_clipboard_name(int *name, bool quiet, bool writing)
             return NULL;
         }
 
-        yankreg_T *target;
+        yankreg_st *target;
 
         if(cb_flags & CB_UNNAMEDPLUS)
         {
@@ -7274,11 +7274,11 @@ static yankreg_T *adjust_clipboard_name(int *name, bool quiet, bool writing)
     return NULL;
 }
 
-static bool get_clipboard(int name, yankreg_T **target, bool quiet)
+static bool get_clipboard(int name, yankreg_st **target, bool quiet)
 {
     // show message on error
     bool errmsg = true;
-    yankreg_T *reg = adjust_clipboard_name(&name, quiet, false);
+    yankreg_st *reg = adjust_clipboard_name(&name, quiet, false);
 
     if(reg == NULL)
     {
@@ -7445,7 +7445,7 @@ err:
     return false;
 }
 
-static void set_clipboard(int name, yankreg_T *reg)
+static void set_clipboard(int name, yankreg_st *reg)
 {
     if(!adjust_clipboard_name(&name, false, true))
     {
@@ -7531,7 +7531,7 @@ void end_batch_changes(void)
 }
 
 /// Check whether register is empty
-static inline bool reg_empty(const yankreg_T *const reg)
+static inline bool reg_empty(const yankreg_st *const reg)
 FUNC_ATTR_PURE
 {
     return (reg->y_array == NULL
@@ -7552,14 +7552,14 @@ FUNC_ATTR_PURE
 /// call or NULL if iteration is over.
 const void *op_register_iter(const void *const iter,
                              char *const name,
-                             yankreg_T *const reg)
+                             yankreg_st *const reg)
 FUNC_ATTR_NONNULL_ARG(2, 3)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *name = NUL;
-    const yankreg_T *iter_reg = (iter == NULL
+    const yankreg_st *iter_reg = (iter == NULL
                                  ? &(y_regs[0])
-                                 : (const yankreg_T *const) iter);
+                                 : (const yankreg_st *const) iter);
 
     while(iter_reg - &(y_regs[0]) < NUM_SAVED_REGISTERS && reg_empty(iter_reg))
     {
@@ -7610,7 +7610,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  reg   Register value.
 ///
 /// @return true on success, false on failure.
-bool op_register_set(const char name, const yankreg_T reg)
+bool op_register_set(const char name, const yankreg_st reg)
 {
     int i = op_reg_index(name);
 
@@ -7630,7 +7630,7 @@ bool op_register_set(const char name, const yankreg_T reg)
 /// @param[in] name  Register name.
 ///
 /// @return Pointer to the register contents or NULL.
-const yankreg_T *op_register_get(const char name)
+const yankreg_st *op_register_get(const char name)
 {
     int i = op_reg_index(name);
 

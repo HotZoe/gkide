@@ -1671,7 +1671,7 @@ FUNC_ATTR_NONNULL_ALL
 
                 if(!force)
                 {
-                    const yankreg_T *const reg =
+                    const yankreg_st *const reg =
                         op_register_get(cur_entry.data.reg.name);
 
                     if(reg == NULL || reg->timestamp >= cur_entry.timestamp)
@@ -1681,7 +1681,7 @@ FUNC_ATTR_NONNULL_ALL
                     }
                 }
 
-                if(!op_register_set(cur_entry.data.reg.name, (yankreg_T) {
+                if(!op_register_set(cur_entry.data.reg.name, (yankreg_st) {
                     .y_array = (uchar_kt **)cur_entry.data.reg.contents,
                     .y_size = cur_entry.data.reg.contents_size,
                     .y_type = cur_entry.data.reg.type,
@@ -3470,7 +3470,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
         do
         {
-            yankreg_T reg;
+            yankreg_st reg;
             char name = NUL;
             reg_iter = op_register_iter(reg_iter, &name, &reg);
 
