@@ -5870,7 +5870,7 @@ void ex_helpgrep(exargs_st *eap)
 
     if(regmatch.regprog != NULL)
     {
-        vimconv_T vc;
+        vimconv_st vc;
 
         // Help files are in utf-8 or latin1,
         // convert lines when 'encoding' differs.

@@ -6322,7 +6322,7 @@ void fix_help_buffer(void)
                     FILE *fd;
                     uchar_kt *s;
                     int fi;
-                    vimconv_T vc;
+                    vimconv_st vc;
                     uchar_kt *cp;
 
                     // Find all "doc/ *.txt" files in this directory.

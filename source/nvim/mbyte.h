@@ -8,8 +8,8 @@
 
 #include "nvim/iconv.h"
 #include "nvim/func_attr.h"
-#include "nvim/os/os_defs.h" // For WCHAR, indirect
-#include "nvim/types.h" // for uchar_kt
+#include "nvim/os/os_defs.h"
+#include "nvim/types.h"
 
 // Return byte length of character that starts with byte "b".
 // Returns 1 for a single-byte character.
@@ -46,8 +46,8 @@
 #define mb_ptr2char      utf_ptr2char
 #define mb_head_off      utf_head_off
 
-/// Flags for vimconv_T
-typedef enum
+/// Flags for vimconv_st
+typedef enum vimconvflg_e
 {
     CONV_NONE      = 0,
     CONV_TO_UTF8   = 1,
@@ -55,12 +55,12 @@ typedef enum
     CONV_TO_LATIN1 = 3,
     CONV_TO_LATIN9 = 4,
     CONV_ICONV     = 5,
-} ConvFlags;
+} vimconvflg_et;
 
 /// Structure used for string conversions
-typedef struct
+typedef struct vimconv_s
 {
-    int vc_type;   ///< Zero or more ConvFlags.
+    int vc_type;   ///< see vimconvflg_et.
     int vc_factor; ///< Maximal expansion factor.
 
 #ifdef USE_ICONV
@@ -69,7 +69,7 @@ typedef struct
 
     bool vc_fail;  ///< What to do with invalid characters:
                    ///< if true, fail, otherwise use '?'.
-} vimconv_T;
+} vimconv_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "mbyte.h.generated.h"

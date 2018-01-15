@@ -10,7 +10,7 @@
 #include "nvim/mark_defs.h"
 
 /// Structure to store info about the Visual area.
-typedef struct
+typedef struct visualinfo_s
 {
     apos_st vi_start;        ///< start pos of last VIsual
     apos_st vi_end;          ///< end position of last VIsual
@@ -23,7 +23,7 @@ typedef struct undo_hdr_s   undo_hdr_st; ///< undo header block
 
 struct undo_blk_s
 {
-    undo_blk_st *ue_next;   ///< pointer to next entry in list
+    undo_blk_st *ue_next; ///< pointer to next entry in list
     linenum_kt ue_top;    ///< number of line above undo block
     linenum_kt ue_bot;    ///< number of line below undo block
     linenum_kt ue_lcount; ///< linecount when u_save called
@@ -82,7 +82,7 @@ struct undo_hdr_s
 #define UH_EMPTYBUF   0x02  ///< buffer was empty
 
 /// Structure passed around between undofile functions.
-typedef struct
+typedef struct undobuf_s
 {
     filebuf_st *bi_buf;
     FILE *bi_fp;

@@ -497,7 +497,7 @@ void tv_list_append_number(list_st *const l, const number_kt n)
 /// Copied list. May be NULL in case original
 /// list is NULL or some failure happens.
 /// The refcount of the new list is set to 1.
-list_st *tv_list_copy(const vimconv_T *const conv,
+list_st *tv_list_copy(const vimconv_st *const conv,
                      list_st *const orig,
                      const bool deep,
                      const int copyID)
@@ -1834,7 +1834,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return
 /// Copied dictionary. May be NULL in case original dictionary is NULL or
 /// some failure happens. The refcount of the new dictionary is set to 1.
-dict_st *tv_dict_copy(const vimconv_T *const conv,
+dict_st *tv_dict_copy(const vimconv_st *const conv,
                      dict_st *const orig,
                      const bool deep,
                      const int copyID)

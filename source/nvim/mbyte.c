@@ -1878,7 +1878,7 @@ void utf_find_illegal(void)
     apos_st pos = curwin->w_cursor;
     uchar_kt *p;
     int len;
-    vimconv_T vimconv;
+    vimconv_st vimconv;
     uchar_kt *tofree = NULL;
     vimconv.vc_type = CONV_NONE;
 
@@ -2418,7 +2418,7 @@ void *my_iconv_open(uchar_kt *to, uchar_kt *from)
 /// sequence and set "*unconvlenp" to the length of it.
 /// Returns the converted string in allocated memory. NULL for an error.
 /// If resultlenp is not NULL, sets it to the result length in bytes.
-static uchar_kt *iconv_string(const vimconv_T *const vcp,
+static uchar_kt *iconv_string(const vimconv_st *const vcp,
                             uchar_kt *str,
                             size_t slen,
                             size_t *unconvlenp,
@@ -2691,14 +2691,14 @@ void iconv_end(void)
 ///
 /// Afterwards invoke with "from" and "to" equal to NULL to cleanup.
 /// Return FAIL when conversion is not supported, OK otherwise.
-int convert_setup(vimconv_T *vcp, uchar_kt *from, uchar_kt *to)
+int convert_setup(vimconv_st *vcp, uchar_kt *from, uchar_kt *to)
 {
     return convert_setup_ext(vcp, from, true, to, true);
 }
 
 /// As convert_setup(), but only when from_unicode_is_utf8 is TRUE will all
 /// "from" unicode charsets be considered utf-8. Same for "to".
-int convert_setup_ext(vimconv_T *vcp,
+int convert_setup_ext(vimconv_st *vcp,
                       uchar_kt *from,
                       bool from_unicode_is_utf8,
                       uchar_kt *to,
@@ -2804,7 +2804,7 @@ int convert_setup_ext(vimconv_T *vcp,
 /// When "lenp" is NULL, use NUL terminated strings.
 /// Illegal chars are often changed to "?", unless vcp->vc_fail is set.
 /// When something goes wrong, NULL is returned and "*lenp" is unchanged.
-uchar_kt *string_convert(const vimconv_T *const vcp, uchar_kt *ptr, size_t *lenp)
+uchar_kt *string_convert(const vimconv_st *const vcp, uchar_kt *ptr, size_t *lenp)
 {
     return string_convert_ext(vcp, ptr, lenp, NULL);
 }
@@ -2812,7 +2812,7 @@ uchar_kt *string_convert(const vimconv_T *const vcp, uchar_kt *ptr, size_t *lenp
 /// Like string_convert(), but when "unconvlenp" is not NULL and there are is
 /// an incomplete sequence at the end it is not converted and "*unconvlenp" is
 /// set to the number of remaining bytes.
-uchar_kt *string_convert_ext(const vimconv_T *const vcp,
+uchar_kt *string_convert_ext(const vimconv_st *const vcp,
                            uchar_kt *ptr,
                            size_t *lenp,
                            size_t *unconvlenp)

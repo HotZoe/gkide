@@ -14247,7 +14247,7 @@ static void f_iconv(typval_st *argvars,
                     typval_st *rettv,
                     func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    vimconv_T vimconv;
+    vimconv_st vimconv;
     rettv->v_type = kNvarString;
     rettv->vval.v_string = NULL;
     const char *const str = tv_get_string(&argvars[0]);
@@ -20585,7 +20585,7 @@ static void f_strftime(typval_st *argvars,
     }
     else
     {
-        vimconv_T conv;
+        vimconv_st conv;
         uchar_kt *enc;
         conv.vc_type = CONV_NONE;
         enc = enc_locale();
@@ -25099,7 +25099,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///                     a copy with (`copy[0] isnot copy[1]`), with non-zero it
 ///                     will emit a copy with (`copy[0] is copy[1]`) like in the
 ///                     original list. Not used when deep is false.
-int var_item_copy(const vimconv_T *const conv,
+int var_item_copy(const vimconv_st *const conv,
                   typval_st *const from,
                   typval_st *const to,
                   const bool deep,
@@ -25139,7 +25139,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
                 to->v_type = kNvarString;
                 to->v_lock = 0;
 
-                if((to->vval.v_string = string_convert((vimconv_T *)conv,
+                if((to->vval.v_string = string_convert((vimconv_st *)conv,
                                                        from->vval.v_string,
                                                        NULL)) == NULL)
                 {

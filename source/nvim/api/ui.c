@@ -21,7 +21,7 @@
     #include "ui_events_remote.generated.h"
 #endif
 
-typedef struct
+typedef struct ui_data_s
 {
     uint64_t channel_id;
     Array buffer;

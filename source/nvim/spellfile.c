@@ -490,7 +490,7 @@ typedef struct spellinfo_s
     int si_add;            ///< addition file
     int si_clear_chartab;  ///< when TRUE clear char tables
     int si_region;         ///< region mask
-    vimconv_T si_conv;     ///< for conversion to 'encoding'
+    vimconv_st si_conv;     ///< for conversion to 'encoding'
     int si_memtot;         ///< runtime memory used
     int si_verbose;        ///< verbose messages
     int si_msg_count;      ///< number of words added since last message

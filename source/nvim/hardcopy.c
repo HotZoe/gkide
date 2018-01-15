@@ -1541,7 +1541,7 @@ static uchar_kt prt_line_buffer[257];
 static garray_st prt_ps_buffer = GA_EMPTY_INIT_VALUE;
 
 static int prt_do_conv;
-static vimconv_T prt_conv;
+static vimconv_st prt_conv;
 
 static int prt_out_mbyte;
 static int prt_custom_cmap;

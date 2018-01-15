@@ -1478,7 +1478,7 @@ int find_tags(uchar_kt *pat,
     uchar_kt *saved_pat = NULL;  // copy of pat[]
     bool is_txt = false;
     pattern_st orgpat; // holds unconverted pattern info
-    vimconv_T vimconv;
+    vimconv_st vimconv;
     int findall = (mincount == MAXCOL || mincount == TAG_MANY);
     // find all matching tags
     int sort_error = FALSE; // tags file not sorted

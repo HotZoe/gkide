@@ -1549,7 +1549,7 @@ static int getexactdigraph(int char1, int char2, int meta_char)
     {
         uchar_kt *to;
         uchar_kt buf[6];
-        vimconv_T vc;
+        vimconv_st vc;
 
         // Convert the Unicode digraph to 'encoding'.
         int i = utf_char2bytes(retval, buf);

@@ -109,7 +109,7 @@ typedef struct source_cookie_s
     uchar_kt *fname;        ///< name of sourced file
     int dbg_tick;           ///< debug_tick when breakpoint was set
     int level;              ///< top nesting level of sourced file
-    vimconv_T conv;         ///< type of conversion
+    vimconv_st conv;         ///< type of conversion
 } source_cookie_st;
 
 #define PRL_ITEM(si, idx)   (((sn_prl_st *)(si)->sn_prl_ga.ga_data)[(idx)])
