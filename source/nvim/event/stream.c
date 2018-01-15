@@ -88,7 +88,7 @@ FUNC_ATTR_NONNULL_ARG(2)
 }
 
 void stream_close(stream_st *stream,
-                  stream_close_cb on_stream_close,
+                  stream_close_ft on_stream_close,
                   void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 {

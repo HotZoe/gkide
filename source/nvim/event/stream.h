@@ -50,7 +50,7 @@ typedef void (*stream_write_ft)(stream_st *stream, void *data, int status);
 ///
 /// @param wstream  The stream_st instance
 /// @param data     User-defined data
-typedef void (*stream_close_cb)(stream_st *stream, void *data);
+typedef void (*stream_close_ft)(stream_st *stream, void *data);
 
 struct stream_s
 {
@@ -68,8 +68,8 @@ struct stream_s
     stream_read_ft read_cb;
     stream_write_ft write_cb;
     void *cb_data;
-    stream_close_cb close_cb;
-    stream_close_cb internal_close_cb;
+    stream_close_ft close_cb;
+    stream_close_ft internal_close_cb;
     void *close_cb_data;
     void *internal_data;
     size_t fpos;
