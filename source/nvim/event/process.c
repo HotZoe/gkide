@@ -429,9 +429,9 @@ FUNC_ATTR_NONNULL_ARG(1)
 
 /// Flush output stream.
 ///
-/// @param proc     Process, for which an output stream should be flushed.
-/// @param stream   Stream to flush.
-static void flush_stream(process_st *proc, Stream *stream)
+/// @param proc     process, for which an output stream should be flushed.
+/// @param stream   stream to flush.
+static void flush_stream(process_st *proc, stream_st *stream)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     if(!stream || stream->closed)
@@ -514,7 +514,7 @@ static void on_process_exit(process_st *proc)
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }
 
-static void on_process_stream_close(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void on_process_stream_close(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                                     void *data)
 {
     process_st *proc = data;

@@ -30,7 +30,7 @@ typedef struct term_input
     uv_tty_t tty_in;
 #endif
 
-    Stream read_stream;
+    stream_st read_stream;
     ringbuf_st *key_buffer;
     uv_mutex_t key_buffer_mutex;
     uv_cond_t key_buffer_cond;

@@ -19,7 +19,10 @@
     #include "event/rstream.c.generated.h"
 #endif
 
-void rstream_init_fd(main_loop_st *loop, Stream *stream, int fd, size_t bufsize)
+void rstream_init_fd(main_loop_st *loop,
+                     stream_st *stream,
+                     int fd,
+                     size_t bufsize)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -27,7 +30,9 @@ FUNC_ATTR_NONNULL_ARG(2)
     rstream_init(stream, bufsize);
 }
 
-void rstream_init_stream(Stream *stream, uv_stream_t *uvstream, size_t bufsize)
+void rstream_init_stream(stream_st *stream,
+                         uv_stream_t *uvstream,
+                         size_t bufsize)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -35,7 +40,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     rstream_init(stream, bufsize);
 }
 
-void rstream_init(Stream *stream, size_t bufsize)
+void rstream_init(stream_st *stream, size_t bufsize)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     stream->buffer = rbuffer_new(bufsize);
@@ -45,10 +50,10 @@ FUNC_ATTR_NONNULL_ARG(1)
 }
 
 
-/// Starts watching for events from a `Stream` instance.
+/// Starts watching for events from a stream_st instance.
 ///
-/// @param stream The `Stream` instance
-void rstream_start(Stream *stream, stream_read_cb cb, void *data)
+/// @param stream   The stream_st instance
+void rstream_start(stream_st *stream, stream_read_cb cb, void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     stream->read_cb = cb;
@@ -64,10 +69,11 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 }
 
-/// Stops watching for events from a `Stream` instance.
+/// Stops watching for events from a stream_st instance.
 ///
-/// @param stream The `Stream` instance
-void rstream_stop(Stream *stream) FUNC_ATTR_NONNULL_ALL
+/// @param stream The stream_st instance
+void rstream_stop(stream_st *stream)
+FUNC_ATTR_NONNULL_ALL
 {
     if(stream->uvstream)
     {
@@ -84,9 +90,10 @@ static void on_rbuffer_full(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf), void *data)
     rstream_stop(data);
 }
 
-static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf), void *data)
+static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
+                               void *data)
 {
-    Stream *stream = data;
+    stream_st *stream = data;
     assert(stream->read_cb);
     rstream_start(stream, stream->read_cb, stream->cb_data);
 }
@@ -98,7 +105,7 @@ static void alloc_cb(uv_handle_t *handle,
                      size_t FUNC_ARGS_UNUSED_REALY(suggested),
                      uv_buf_t *buf)
 {
-    Stream *stream = handle->data;
+    stream_st *stream = handle->data;
 
     // 'uv_buf_t.len' happens to have different size on Windows.
     size_t write_count;
@@ -118,7 +125,7 @@ static void read_cb(uv_stream_t *uvstream,
                     ssize_t cnt,
                     const uv_buf_t *FUNC_ARGS_UNUSED_REALY(buf))
 {
-    Stream *stream = uvstream->data;
+    stream_st *stream = uvstream->data;
 
     if(cnt > 0)
     {
@@ -162,7 +169,7 @@ static void read_cb(uv_stream_t *uvstream,
 static void fread_idle_cb(uv_idle_t *handle)
 {
     uv_fs_t req;
-    Stream *stream = handle->data;
+    stream_st *stream = handle->data;
 
     // 'uv_buf_t.len' happens to have different size on Windows.
     size_t write_count;
@@ -212,7 +219,7 @@ static void fread_idle_cb(uv_idle_t *handle)
 
 static void read_event(void **argv)
 {
-    Stream *stream = argv[0];
+    stream_st *stream = argv[0];
 
     if(stream->read_cb)
     {
@@ -229,7 +236,7 @@ static void read_event(void **argv)
     }
 }
 
-static void invoke_read_cb(Stream *stream, size_t count, bool eof)
+static void invoke_read_cb(stream_st *stream, size_t count, bool eof)
 {
     // Don't let the stream be closed before the event is processed.
     stream->pending_reqs++;

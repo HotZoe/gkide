@@ -176,7 +176,7 @@ FUNC_ATTR_NONNULL_ALL
     return 0;
 }
 
-int socket_watcher_accept(socket_watcher_st *watcher, Stream *stream)
+int socket_watcher_accept(socket_watcher_st *watcher, stream_st *stream)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -249,7 +249,7 @@ static void connect_cb(uv_connect_t *req, int status)
 }
 
 bool socket_connect(main_loop_st *loop,
-                    Stream *stream,
+                    stream_st *stream,
                     bool is_tcp,
                     const char *address,
                     int timeout,

@@ -37,7 +37,7 @@ int stream_set_blocking(int fd, bool blocking)
 }
 
 void stream_init(main_loop_st *loop,
-                 Stream *stream,
+                 stream_st *stream,
                  int fd,
                  uv_stream_t *uvstream)
 FUNC_ATTR_NONNULL_ARG(2)
@@ -87,7 +87,9 @@ FUNC_ATTR_NONNULL_ARG(2)
     stream->num_bytes = 0;
 }
 
-void stream_close(Stream *stream, stream_close_cb on_stream_close, void *data)
+void stream_close(stream_st *stream,
+                  stream_close_cb on_stream_close,
+                  void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     assert(!stream->closed);
@@ -101,7 +103,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     }
 }
 
-void stream_close_handle(Stream *stream)
+void stream_close_handle(stream_st *stream)
 FUNC_ATTR_NONNULL_ALL
 {
     if(stream->uvstream)
@@ -116,7 +118,7 @@ FUNC_ATTR_NONNULL_ALL
 
 static void close_cb(uv_handle_t *handle)
 {
-    Stream *stream = handle->data;
+    stream_st *stream = handle->data;
 
     if(stream->buffer)
     {

@@ -31,9 +31,9 @@ struct process_s
     uint64_t stopped_time;
     const char *cwd;
     char **argv;
-    Stream *in;
-    Stream *out;
-    Stream *err;
+    stream_st *in;
+    stream_st *out;
+    stream_st *err;
     process_exit_ft cb;
     internal_process_ft internal_exit_cb;
     internal_process_ft internal_close_cb;

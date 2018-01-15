@@ -72,13 +72,13 @@ typedef struct rpc_channel_s
 
     union
     {
-        Stream stream;
+        stream_st stream;
         process_st *proc;
 
         struct
         {
-            Stream in;
-            Stream out;
+            stream_st in;
+            stream_st out;
         } std;
     } data;
 
@@ -421,7 +421,7 @@ void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
     decref(channel);
 }
 
-static void receive_msgpack(Stream *FUNC_ARGS_UNUSED_MAYBE(stream),
+static void receive_msgpack(stream_st *FUNC_ARGS_UNUSED_MAYBE(stream),
                             ringbuf_st *rbuf,
                             size_t FUNC_ARGS_UNUSED_REALY(cnt),
                             void *data,
@@ -879,7 +879,8 @@ static void free_channel(rpc_channel_st *channel)
     xfree(channel);
 }
 
-static void close_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr), void *data)
+static void close_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+                     void *data)
 {
     decref(data);
 }

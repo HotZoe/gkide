@@ -16,7 +16,7 @@
 
 typedef struct
 {
-    Stream *stream;
+    stream_st *stream;
     WBuffer *buffer;
     uv_write_t uv_req;
 } WRequest;
@@ -25,7 +25,10 @@ typedef struct
     #include "event/wstream.c.generated.h"
 #endif
 
-void wstream_init_fd(main_loop_st *loop, Stream *stream, int fd, size_t maxmem)
+void wstream_init_fd(main_loop_st *loop,
+                     stream_st *stream,
+                     int fd,
+                     size_t maxmem)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -33,7 +36,9 @@ FUNC_ATTR_NONNULL_ARG(2)
     wstream_init(stream, maxmem);
 }
 
-void wstream_init_stream(Stream *stream, uv_stream_t *uvstream, size_t maxmem)
+void wstream_init_stream(stream_st *stream,
+                         uv_stream_t *uvstream,
+                         size_t maxmem)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -41,7 +46,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     wstream_init(stream, maxmem);
 }
 
-void wstream_init(Stream *stream, size_t maxmem)
+void wstream_init(stream_st *stream, size_t maxmem)
 {
     stream->maxmem = maxmem ? maxmem : DEFAULT_MAXMEM;
 }
@@ -55,9 +60,9 @@ void wstream_init(Stream *stream, size_t maxmem)
 /// @note This callback will not fire if the write request couldn't even be
 ///       queued properly (i.e.: when `wstream_write() returns an error`).
 ///
-/// @param stream The `Stream` instance
-/// @param cb     The callback
-void wstream_set_write_cb(Stream *stream, stream_write_cb cb, void *data)
+/// @param stream  The stream_st instance
+/// @param cb      The callback
+void wstream_set_write_cb(stream_st *stream, stream_write_cb cb, void *data)
 FUNC_ATTR_NONNULL_ARG(1, 2)
 {
     stream->write_cb = cb;
@@ -65,14 +70,14 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 }
 
 /// Queues data for writing to the backing file descriptor of
-/// a @b Stream instance. This will fail if the write would cause
-/// the Stream use more memory than specified by @b maxmem.
+/// a @b stream_st instance. This will fail if the write would cause
+/// the stream_st use more memory than specified by @b maxmem.
 ///
-/// @param stream  The @b Stream instance
+/// @param stream  The @b stream_st instance
 /// @param buffer  The buffer which contains data to be written
 ///
 /// @return false if the write failed
-bool wstream_write(Stream *stream, WBuffer *buffer)
+bool wstream_write(stream_st *stream, WBuffer *buffer)
 FUNC_ATTR_NONNULL_ALL
 {
     // This should not be called after a stream was freed
@@ -115,7 +120,7 @@ err:
 }
 
 /// Creates a WBuffer object for holding output data. Instances of this
-/// object can be reused across Stream instances, and the memory is freed
+/// object can be reused across stream_st instances, and the memory is freed
 /// automatically when no longer needed(it tracks the number of references
 /// internally)
 ///
@@ -126,7 +131,7 @@ err:
 /// The size of the data array
 ///
 /// @param refcount
-/// The number of references for the WBuffer. This will be used by Stream
+/// The number of references for the WBuffer. This will be used by stream_st
 /// instances to decide when a WBuffer should be freed.
 ///
 /// @param cb

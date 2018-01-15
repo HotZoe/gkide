@@ -478,9 +478,9 @@ typedef struct terminal_jobdata_s
         libuv_process_st uv;
         pty_process_st pty;
     } proc;
-    Stream in;
-    Stream out;
-    Stream err;            ///< Initialized in common_job_start().
+    stream_st in;
+    stream_st out;
+    stream_st err;            ///< Initialized in common_job_start().
     terminal_st *term;
     bool stopped;
     bool exited;
@@ -29315,7 +29315,7 @@ static inline void process_job_event(terminal_jobdata_st *data,
     on_job_event(&event_data);
 }
 
-static void on_job_stdout(Stream *stream,
+static void on_job_stdout(stream_st *stream,
                           ringbuf_st *buf,
                           size_t count,
                           void *job,
@@ -29325,7 +29325,7 @@ static void on_job_stdout(Stream *stream,
     on_job_output(stream, job, buf, count, eof, &data->on_stdout, "stdout");
 }
 
-static void on_job_stderr(Stream *stream,
+static void on_job_stderr(stream_st *stream,
                           ringbuf_st *buf,
                           size_t count,
                           void *job,
@@ -29335,7 +29335,7 @@ static void on_job_stderr(Stream *stream,
     on_job_output(stream, job, buf, count, eof, &data->on_stderr, "stderr");
 }
 
-static void on_job_output(Stream *FUNC_ARGS_UNUSED_REALY(stream),
+static void on_job_output(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
                           terminal_jobdata_st *data,
                           ringbuf_st *buf,
                           size_t count,

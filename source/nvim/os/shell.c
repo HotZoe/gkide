@@ -249,9 +249,9 @@ static int do_os_system(char **argv,
     libuv_process_st uvproc = libuv_process_init(&main_loop, &buf);
     process_st *proc = &uvproc.process;
     multiqueue_st *events = multiqueue_new_child(main_loop.events);
-    Stream in;
-    Stream out;
-    Stream err;
+    stream_st in;
+    stream_st out;
+    stream_st err;
 
     proc->events = events;
     proc->argv = argv;
@@ -371,7 +371,7 @@ static void dynamic_buffer_ensure(dynamic_buf_st *buf, size_t desired)
     buf->data = xrealloc(buf->data, buf->cap);
 }
 
-static void system_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void system_data_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                            ringbuf_st *buf,
                            size_t FUNC_ARGS_UNUSED_REALY(count),
                            void *data,
@@ -598,7 +598,7 @@ static void out_data_append_to_screen(char *output,
     ui_flush();
 }
 
-static void out_data_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void out_data_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
                         ringbuf_st *buf,
                         size_t FUNC_ARGS_UNUSED_REALY(count),
                         void *FUNC_ARGS_UNUSED_REALY(data),
@@ -838,7 +838,7 @@ static size_t write_output(char *output,
     return (size_t)(output - start);
 }
 
-static void shell_write_cb(Stream *stream,
+static void shell_write_cb(stream_st *stream,
                            void *FUNC_ARGS_UNUSED_REALY(data),
                            int status)
 {

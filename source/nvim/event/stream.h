@@ -11,11 +11,11 @@
 #include "nvim/event/loop.h"
 #include "nvim/rbuffer.h"
 
-typedef struct stream Stream;
-/// Type of function called when the Stream buffer is filled with data
+typedef struct stream_s stream_st;
+/// Type of function called when the stream_st buffer is filled with data
 ///
 /// @param stream
-/// The Stream instance
+/// The stream_st instance
 ///
 /// @param rbuffer
 /// The associated ringbuf_st instance
@@ -31,28 +31,28 @@ typedef struct stream Stream;
 ///
 /// @param eof
 /// If the stream reached EOF.
-typedef void (*stream_read_cb)(Stream *stream,
+typedef void (*stream_read_cb)(stream_st *stream,
                                ringbuf_st *buf,
                                size_t count,
                                void *data,
                                bool eof);
 
-/// Type of function called when the Stream
+/// Type of function called when the stream_st
 /// has information about a write request.
 ///
-/// @param wstream  The Stream instance
+/// @param wstream  The stream_st instance
 /// @param data     User-defined data
 /// @param status   0 on success, anything else indicates failure
-typedef void (*stream_write_cb)(Stream *stream, void *data, int status);
+typedef void (*stream_write_cb)(stream_st *stream, void *data, int status);
 
-/// Type of function called when the Stream
+/// Type of function called when the stream_st
 /// has information about a write request.
 ///
-/// @param wstream  The Stream instance
+/// @param wstream  The stream_st instance
 /// @param data     User-defined data
-typedef void (*stream_close_cb)(Stream *stream, void *data);
+typedef void (*stream_close_cb)(stream_st *stream, void *data);
 
-struct stream
+struct stream_s
 {
     union
     {

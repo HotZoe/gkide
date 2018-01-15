@@ -34,7 +34,7 @@ typedef enum
     kInputEof
 } InbufPollResult;
 
-static Stream read_stream = { .closed = true };
+static stream_st read_stream = { .closed = true };
 static ringbuf_st *input_buffer = NULL;
 static bool input_eof = false;
 static int global_fd = 0;
@@ -456,7 +456,7 @@ static InbufPollResult inbuf_poll(int ms)
     return input_eof ? kInputEof : kInputNone;
 }
 
-static void read_cb(Stream *FUNC_ARGS_UNUSED_REALY(stream),
+static void read_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
                     ringbuf_st *buf,
                     size_t FUNC_ARGS_UNUSED_REALY(c),
                     void *FUNC_ARGS_UNUSED_REALY(data),

@@ -21,7 +21,7 @@
 #define CLEAR         50  ///< screen messed up, clear it
 
 /// Status line click definition
-typedef struct
+typedef struct stl_clickdef_s
 {
     enum
     {
@@ -35,7 +35,7 @@ typedef struct
 } stl_clickdef_st;
 
 /// Used for tabline clicks
-typedef struct
+typedef struct stl_clickrec_s
 {
     stl_clickdef_st def;  ///< Click definition.
     const char *start;    ///< Location where region starts.
