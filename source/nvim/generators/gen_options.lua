@@ -201,7 +201,7 @@ local dump_option = function(i, o)
     w('  },')
 end
 
-w('static vimoption_T options[] = {')
+w('static vimoption_st options[] = {')
 
 for i, o in ipairs(options.options) do
     dump_option(i, o)

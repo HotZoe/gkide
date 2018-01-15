@@ -86,30 +86,30 @@
 #define PV_BUF       0x4000  ///< buffer-local option
 #define PV_MASK      0x0fff  ///< global option which also has a local value.
 
-#define OPT_WIN(x)   (idopt_T)(PV_WIN + (int)(x))
-#define OPT_BUF(x)   (idopt_T)(PV_BUF + (int)(x))
-#define OPT_BOTH(x)  (idopt_T)(PV_BOTH + (int)(x))
+#define OPT_WIN(x)   (indirflg_et)(PV_WIN + (int)(x))
+#define OPT_BUF(x)   (indirflg_et)(PV_BUF + (int)(x))
+#define OPT_BOTH(x)  (indirflg_et)(PV_BOTH + (int)(x))
 
 // WV_ and BV_ values get typecasted to this for the "indir" field
-typedef enum
+typedef enum indirflg_e
 {
     PV_NONE = 0,
     PV_MAXVAL = 0xffff ///< to avoid warnings for value out of range
-} idopt_T;
+} indirflg_et;
 
 /// Options local to a window have a value local to a buffer and
 /// global to all buffers. Indicate this by setting "var" to VAR_WIN.
 #define VAR_WIN   ((uchar_kt *)-1)
 
 // These are the global values for options which are also local to a buffer.
-static int      p_ai;
-static int      p_bin;
-static int      p_bomb;
+static int        p_ai;
+static int        p_bin;
+static int        p_bomb;
 static uchar_kt  *p_bh;
 static uchar_kt  *p_bt;
-static int      p_bl;
-static int      p_ci;
-static int      p_cin;
+static int        p_bl;
+static int        p_ci;
+static int        p_cin;
 static uchar_kt  *p_cink;
 static uchar_kt  *p_cino;
 static uchar_kt  *p_cinw;
@@ -118,57 +118,57 @@ static uchar_kt  *p_cms;
 static uchar_kt  *p_cpt;
 static uchar_kt  *p_cfu;
 static uchar_kt  *p_ofu;
-static int      p_eol;
-static int      p_fixeol;
-static int      p_et;
+static int        p_eol;
+static int        p_fixeol;
+static int        p_et;
 static uchar_kt  *p_fenc;
 static uchar_kt  *p_ff;
 static uchar_kt  *p_fo;
 static uchar_kt  *p_flp;
 static uchar_kt  *p_ft;
-static long     p_iminsert;
-static long     p_imsearch;
+static long       p_iminsert;
+static long       p_imsearch;
 static uchar_kt  *p_inex;
 static uchar_kt  *p_inde;
 static uchar_kt  *p_indk;
 static uchar_kt  *p_fex;
-static int      p_inf;
+static int        p_inf;
 static uchar_kt  *p_isk;
-static int      p_lisp;
-static int      p_ml;
-static int      p_ma;
-static int      p_mod;
+static int        p_lisp;
+static int        p_ml;
+static int        p_ma;
+static int        p_mod;
 static uchar_kt  *p_mps;
 static uchar_kt  *p_nf;
-static int      p_pi;
+static int        p_pi;
 static uchar_kt  *p_qe;
-static int      p_ro;
-static int      p_si;
-static long     p_sts;
+static int        p_ro;
+static int        p_si;
+static long       p_sts;
 static uchar_kt  *p_sua;
-static long     p_sw;
-static int      p_swf;
-static long     p_smc;
+static long       p_sw;
+static int        p_swf;
+static long       p_smc;
 static uchar_kt  *p_syn;
 static uchar_kt  *p_spc;
 static uchar_kt  *p_spf;
 static uchar_kt  *p_spl;
-static long     p_ts;
-static long     p_tw;
-static int      p_udf;
-static long     p_wm;
+static long       p_ts;
+static long       p_tw;
+static int        p_udf;
+static long       p_wm;
 static uchar_kt  *p_keymap;
 // Saved values for when 'bin' is set.
-static int      p_et_nobin;
-static int      p_ml_nobin;
-static long     p_tw_nobin;
-static long     p_wm_nobin;
+static int        p_et_nobin;
+static int        p_ml_nobin;
+static long       p_tw_nobin;
+static long       p_wm_nobin;
 // Saved values for when 'paste' is set.
-static int      p_ai_nopaste;
-static int      p_et_nopaste;
-static long     p_sts_nopaste;
-static long     p_tw_nopaste;
-static long     p_wm_nopaste;
+static int        p_ai_nopaste;
+static int        p_et_nopaste;
+static long       p_sts_nopaste;
+static long       p_tw_nopaste;
+static long       p_wm_nopaste;
 
 typedef struct vimoption_s
 {
@@ -178,7 +178,7 @@ typedef struct vimoption_s
     uchar_kt *var;         ///< global option: pointer to variable;
                            ///< window-local option: VAR_WIN;
                            ///< buffer-local option: global value
-    idopt_T indir;         ///< global option: PV_NONE;
+    indirflg_et indir;     ///< global option: PV_NONE;
                            ///< local option: indirect option index
     uchar_kt *def_val[2];  ///< default values for variable (vi and vim)
     script_id_kt scriptID; ///< script in which the option was last set
