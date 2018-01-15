@@ -19749,14 +19749,14 @@ static void f_sockconnect(typval_st *argvars,
 }
 
 /// struct used in the array that's given to qsort()
-typedef struct
+typedef struct sort_item_s
 {
     listitem_st *item;
     int idx;
 } sortItem_T;
 
 /// struct storing information about current sort
-typedef struct
+typedef struct sortinfo_s
 {
     int item_compare_ic;
     bool item_compare_numeric;
@@ -19766,8 +19766,8 @@ typedef struct
     partial_st *item_compare_partial;
     dict_st *item_compare_selfdict;
     bool item_compare_func_err;
-} sortinfo_T;
-static sortinfo_T *sortinfo = NULL;
+} sortinfo_st;
+static sortinfo_st *sortinfo = NULL;
 
 #define ITEM_COMPARE_FAIL 999
 
@@ -19990,8 +19990,8 @@ static void do_sort_uniq(typval_st *argvars, typval_st *rettv, bool sort)
 
     // Pointer to current info struct used in compare function.
     // Save and restore the current one for nested calls.
-    sortinfo_T info;
-    sortinfo_T *old_sortinfo = sortinfo;
+    sortinfo_st info;
+    sortinfo_st *old_sortinfo = sortinfo;
     sortinfo = &info;
 
     const char *const arg_errmsg = (sort
