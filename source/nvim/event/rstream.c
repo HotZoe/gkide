@@ -53,7 +53,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// Starts watching for events from a stream_st instance.
 ///
 /// @param stream   The stream_st instance
-void rstream_start(stream_st *stream, stream_read_cb cb, void *data)
+void rstream_start(stream_st *stream, stream_read_ft cb, void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 {
     stream->read_cb = cb;

@@ -31,7 +31,7 @@ typedef struct stream_s stream_st;
 ///
 /// @param eof
 /// If the stream reached EOF.
-typedef void (*stream_read_cb)(stream_st *stream,
+typedef void (*stream_read_ft)(stream_st *stream,
                                ringbuf_st *buf,
                                size_t count,
                                void *data,
@@ -65,7 +65,7 @@ struct stream_s
     uv_buf_t uvbuf;
     ringbuf_st *buffer;
     uv_file fd;
-    stream_read_cb read_cb;
+    stream_read_ft read_cb;
     stream_write_cb write_cb;
     void *cb_data;
     stream_close_cb close_cb;

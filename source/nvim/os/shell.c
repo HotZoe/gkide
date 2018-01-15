@@ -226,7 +226,7 @@ static int do_os_system(char **argv,
     out_data_ring(NULL, 0); // Initialize output ring-buffer.
     // the output buffer
     dynamic_buf_st buf = DYNAMIC_BUFFER_INIT;
-    stream_read_cb data_cb = system_data_cb;
+    stream_read_ft data_cb = system_data_cb;
 
     if(nread)
     {
