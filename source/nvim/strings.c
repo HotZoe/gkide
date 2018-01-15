@@ -759,7 +759,7 @@ static const void *tv_ptr(const typval_st *const tvs, int *const idxp)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-#define OFF(attr) offsetof(union typval_vval_union, attr)
+#define OFF(attr) offsetof(typval_val_ut, attr)
 
     STATIC_ASSERT(OFF(v_string) == OFF(v_list)
                   && OFF(v_string) == OFF(v_dict)

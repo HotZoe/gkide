@@ -104,35 +104,37 @@ typedef enum
     kNvlVarFixed    = 2, ///< Locked forever.
 } nvlvar_lock_status_et;
 
+/// the type-value's value
+typedef union typval_val_u
+{
+    ///< Number, for kNvarNumber.
+    number_kt v_number;
+
+    ///< Special value, for kNvarSpecial.
+    nvlvar_special_value_et v_special;
+
+    ///< Floating-point number, for kNvarFloat.
+    float_kt v_float;
+
+    ///< String, for kNvarString and kNvarUfunc, can be NULL.
+    uchar_kt *v_string;
+
+    ///< List for kNvarList, can be NULL.
+    list_st *v_list;
+
+    ///< Dictionary for kNvarDict, can be NULL.
+    dict_st *v_dict;
+
+    ///< Closure: function with args, for kNvarPartial
+    partial_st *v_partial;
+} typval_val_ut;
+
 /// Structure that holds an internal variable value
 typedef struct
 {
     nvlvar_type_et v_type;        ///< Variable type.
     nvlvar_lock_status_et v_lock; ///< Variable lock status.
-
-    union typval_vval_union
-    {
-        ///< Number, for kNvarNumber.
-        number_kt v_number;
-
-        ///< Special value, for kNvarSpecial.
-        nvlvar_special_value_et v_special;
-
-        ///< Floating-point number, for kNvarFloat.
-        float_kt v_float;
-
-        ///< String, for kNvarString and kNvarUfunc, can be NULL.
-        uchar_kt *v_string;
-
-        ///< List for kNvarList, can be NULL.
-        list_st *v_list;
-
-        ///< Dictionary for kNvarDict, can be NULL.
-        dict_st *v_dict;
-
-        ///< Closure: function with args, for kNvarPartial
-        partial_st *v_partial;
-    } vval; ///< Actual value.
+    typval_val_ut vval;           ///< Actual value.
 } typval_st;
 
 /// Values for dict_st::dv_scope
