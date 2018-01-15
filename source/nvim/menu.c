@@ -57,7 +57,7 @@ void ex_menu(exargs_st *eap)
     int i;
     long pri_tab[MENUDEPTH + 1];
     int enable = MAYBE; // TRUE for "menu enable", FALSE for "menu disable
-    vimmenu_T menuarg;
+    vimmenu_st menuarg;
 
     modes = get_menu_cmd_modes(eap->cmd, eap->forceit, &noremap, &unmenu);
     arg = eap->arg;
@@ -309,16 +309,16 @@ void ex_menu(exargs_st *eap)
 ///
 /// @param call_data
 static int add_menu_path(uchar_kt *menu_path,
-                         vimmenu_T *menuarg,
+                         vimmenu_st *menuarg,
                          long *pri_tab,
                          uchar_kt *call_data)
 {
     uchar_kt *path_name;
     int modes = menuarg->modes;
-    vimmenu_T **menup;
-    vimmenu_T *menu = NULL;
-    vimmenu_T *parent;
-    vimmenu_T **lower_pri;
+    vimmenu_st **menup;
+    vimmenu_st *menu = NULL;
+    vimmenu_st *parent;
+    vimmenu_st **lower_pri;
     uchar_kt *p;
     uchar_kt *name;
     uchar_kt *dname;
@@ -427,7 +427,7 @@ static int add_menu_path(uchar_kt *menu_path,
             }
 
             // Not already there, so lets add it
-            menu = xcalloc(1, sizeof(vimmenu_T));
+            menu = xcalloc(1, sizeof(vimmenu_st));
             menu->modes = modes;
             menu->enabled = MENU_ALL_MODES;
             menu->name = vim_strsave(name);
@@ -598,7 +598,7 @@ erret:
 
 /// Set the (sub)menu with the given name
 /// to enabled or disabled. Called recursively.
-static int menu_nable_recurse(vimmenu_T *menu,
+static int menu_nable_recurse(vimmenu_st *menu,
                               uchar_kt *name,
                               int modes,
                               int enable)
@@ -667,14 +667,14 @@ static int menu_nable_recurse(vimmenu_T *menu,
 /// @param menup
 /// @param name
 /// @param modes  don't give error messages
-static int remove_menu(vimmenu_T **menup,
+static int remove_menu(vimmenu_st **menup,
                        uchar_kt *name,
                        int modes,
                        bool silent)
 {
     uchar_kt *p;
-    vimmenu_T *menu;
-    vimmenu_T *child;
+    vimmenu_st *menu;
+    vimmenu_st *child;
 
     if(*menup == NULL)
     {
@@ -786,10 +786,10 @@ static int remove_menu(vimmenu_T **menup,
 }
 
 /// Free the given menu structure and remove it from the linked list.
-static void free_menu(vimmenu_T **menup)
+static void free_menu(vimmenu_st **menup)
 {
     int i;
-    vimmenu_T *menu = *menup;
+    vimmenu_st *menu = *menup;
 
     // Don't change *menup until after calling gui_mch_destroy_menu(). The
     // MacOS code needs the original structure to properly delete the menu.
@@ -810,7 +810,7 @@ static void free_menu(vimmenu_T **menup)
 }
 
 /// Free the menu->string with the given index.
-static void free_menu_string(vimmenu_T *menu, int idx)
+static void free_menu_string(vimmenu_st *menu, int idx)
 {
     int count = 0;
     int i;
@@ -836,8 +836,8 @@ static int show_menus(uchar_kt *path_name, int modes)
 {
     uchar_kt *p;
     uchar_kt *name;
-    vimmenu_T *menu;
-    vimmenu_T *parent = NULL;
+    vimmenu_st *menu;
+    vimmenu_st *parent = NULL;
 
     menu = root_menu;
     name = path_name = vim_strsave(path_name);
@@ -895,7 +895,7 @@ static int show_menus(uchar_kt *path_name, int modes)
 }
 
 /// Recursively show the mappings associated with the menus under the given one
-static void show_menus_recursive(vimmenu_T *menu, int modes, int depth)
+static void show_menus_recursive(vimmenu_st *menu, int modes, int depth)
 {
     int i;
     int bit;
@@ -1015,7 +1015,7 @@ static void show_menus_recursive(vimmenu_T *menu, int modes, int depth)
 }
 
 /// Used when expanding menu names.
-static vimmenu_T *expand_menu = NULL;
+static vimmenu_st *expand_menu = NULL;
 
 static int expand_modes = 0x0;
 
@@ -1034,7 +1034,7 @@ uchar_kt *set_context_in_menu_cmd(expand_st *xp,
     uchar_kt *path_name = NULL;
     uchar_kt *name;
     int unmenu;
-    vimmenu_T *menu;
+    vimmenu_st *menu;
     int expand_menus;
     xp->xp_context = EXPAND_UNSUCCESSFUL;
 
@@ -1169,7 +1169,7 @@ uchar_kt *set_context_in_menu_cmd(expand_st *xp,
 /// obtain the list of (sub)menus (not entries).
 uchar_kt *get_menu_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
-    static vimmenu_T *menu = NULL;
+    static vimmenu_st *menu = NULL;
     uchar_kt *str;
     static int should_advance = FALSE;
 
@@ -1230,7 +1230,7 @@ uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
 #define TBUFFER_LEN 256
 
-    static vimmenu_T *menu = NULL;
+    static vimmenu_st *menu = NULL;
     static uchar_kt tbuffer[TBUFFER_LEN];
     uchar_kt *str;
     static int should_advance = FALSE;
@@ -1341,7 +1341,7 @@ uchar_kt *menu_name_skip(uchar_kt *name)
 
 /// Return TRUE when "name" matches with menu "menu". The name is compared in
 /// two ways: raw menu name and menu name without '&'. ignore part after a TAB.
-static int menu_name_equal(uchar_kt *name, vimmenu_T *menu)
+static int menu_name_equal(uchar_kt *name, vimmenu_st *menu)
 {
     if(menu->en_name != NULL
        && (menu_namecmp(name, menu->en_name)
@@ -1590,7 +1590,7 @@ void ex_emenu(exargs_st *eap)
     uchar_kt *p;
     uchar_kt *mode;
     uchar_kt *name;
-    vimmenu_T *menu;
+    vimmenu_st *menu;
     uchar_kt *saved_name;
 
     saved_name = vim_strsave(eap->arg);

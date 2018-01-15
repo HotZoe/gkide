@@ -8,7 +8,7 @@
 #include "nvim/types.h"
 #include "nvim/ex_cmds_defs.h"
 
-// Indices into vimmenu_T->strings[] and vimmenu_T->noremap[] for each mode
+// Indices into vimmenu_st->strings[] and vimmenu_st->noremap[] for each mode
 #define MENU_INDEX_INVALID     -1
 #define MENU_INDEX_NORMAL       0
 #define MENU_INDEX_VISUAL       1
@@ -32,29 +32,29 @@
 // Start a menu name with this to not include it on the main menu bar
 #define MNU_HIDDEN_CHAR         ']'
 
-typedef struct VimMenu vimmenu_T;
+typedef struct vimmenu_s vimmenu_st;
 
-struct VimMenu
+struct vimmenu_s
 {
-    int modes;      ///< Which modes is this menu visible for?
-    int enabled;    ///< for which modes the menu is enabled
-    uchar_kt *name;   ///< Name of menu, possibly translated
-    uchar_kt *dname;  ///< Displayed Name ("name" without '&')
+    int modes;       ///< Which modes is this menu visible for?
+    int enabled;     ///< for which modes the menu is enabled
+    uchar_kt *name;  ///< Name of menu, possibly translated
+    uchar_kt *dname; ///< Displayed Name ("name" without '&')
 
     /// @b name untranslated, NULL when @b name was not translated
     uchar_kt *en_name;
     /// @b dname untranslated, NULL when @b dname was not translated
     uchar_kt *en_dname;
 
-    int mnemonic;                ///< mnemonic key (after '&')
+    int mnemonic;                  ///< mnemonic key (after '&')
     uchar_kt *actext;              ///< accelerator text (after TAB)
-    long priority;               ///< Menu order priority
+    long priority;                 ///< Menu order priority
     uchar_kt *strings[MENU_MODES]; ///< Mapped string for each mode
-    int noremap[MENU_MODES];     ///< A REMAP_ flag for each mode
-    bool silent[MENU_MODES];     ///< A silent flag for each mode
-    vimmenu_T *children;         ///< Children of sub-menu
-    vimmenu_T *parent;           ///< Parent of menu
-    vimmenu_T *next;             ///< Next item in menu
+    int noremap[MENU_MODES];       ///< A REMAP_ flag for each mode
+    bool silent[MENU_MODES];       ///< A silent flag for each mode
+    vimmenu_st *children;          ///< Children of sub-menu
+    vimmenu_st *parent;            ///< Parent of menu
+    vimmenu_st *next;              ///< Next item in menu
 };
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

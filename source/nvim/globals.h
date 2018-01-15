@@ -601,7 +601,7 @@ EXTERN int diff_foldcolumn INIT(= 2); ///< 'foldcolumn' for diff mode
 EXTERN int diff_need_scrollbind INIT(= FALSE);
 
 /// The root of the menu hierarchy.
-EXTERN vimmenu_T *root_menu INIT(= NULL);
+EXTERN vimmenu_st *root_menu INIT(= NULL);
 
 /// While defining the system menu, sys_menu is TRUE. This avoids
 /// overruling of menus that the user already defined.

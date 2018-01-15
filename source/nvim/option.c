@@ -172,16 +172,16 @@ static long     p_wm_nopaste;
 
 typedef struct vimoption
 {
-    char *fullname;     ///< full option name
-    char *shortname;    ///< permissible abbreviation
-    uint32_t flags;     ///< see below
-    uchar_kt *var;        ///< global option: pointer to variable;
-                        ///< window-local option: VAR_WIN;
-                        ///< buffer-local option: global value
-    idopt_T indir;      ///< global option: PV_NONE;
-                        ///< local option: indirect option index
-    uchar_kt *def_val[2]; ///< default values for variable (vi and vim)
-    script_id_kt scriptID;    ///< script in which the option was last set
+    char *fullname;        ///< full option name
+    char *shortname;       ///< permissible abbreviation
+    uint32_t flags;        ///< see below
+    uchar_kt *var;         ///< global option: pointer to variable;
+                           ///< window-local option: VAR_WIN;
+                           ///< buffer-local option: global value
+    idopt_T indir;         ///< global option: PV_NONE;
+                           ///< local option: indirect option index
+    uchar_kt *def_val[2];  ///< default values for variable (vi and vim)
+    script_id_kt scriptID; ///< script in which the option was last set
 
     #define SCRIPTID_INIT  , 0
 } vimoption_T;
