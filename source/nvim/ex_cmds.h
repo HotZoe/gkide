@@ -21,17 +21,17 @@
 
 
 // for lnum argument in do_ecmd()
-#define ECMD_LASTL      (linenum_kt)0     ///< use last position in loaded file
-#define ECMD_LAST       (linenum_kt)-1    ///< use last position in all files
-#define ECMD_ONE        (linenum_kt)1     ///< use first line
+#define ECMD_LASTL      (linenum_kt)0   ///< use last position in loaded file
+#define ECMD_LAST       (linenum_kt)-1  ///< use last position in all files
+#define ECMD_ONE        (linenum_kt)1   ///< use first line
 
 /// Previous :substitute replacement string definition
-typedef struct
+typedef struct subrepstr_s
 {
     char *sub;                    ///< Previous replacement string.
-    timestamp_kt timestamp;          ///< Time when it was last set.
-    list_st *additional_elements;  ///< Additional data left from ShaDa file.
-} SubReplacementString;
+    timestamp_kt timestamp;       ///< Time when it was last set.
+    list_st *additional_elements; ///< Additional data left from ShaDa file.
+} subrepstr_st;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "ex_cmds.h.generated.h"

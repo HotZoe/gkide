@@ -6766,7 +6766,7 @@ bool garbage_collect(bool testing)
 
     // previously used replacement string
     {
-        SubReplacementString sub;
+        subrepstr_st sub;
         sub_get_replacement(&sub);
         ABORTING(set_ref_list)(sub.additional_elements, copyID);
     }

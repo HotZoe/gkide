@@ -3866,7 +3866,7 @@ int check_secure(void)
 }
 
 /// Previous substitute replacement string
-static SubReplacementString old_sub = {NULL, 0, NULL};
+static subrepstr_st old_sub = {NULL, 0, NULL};
 
 /// call beginline() after ":g"
 static int global_need_beginline;
@@ -3875,7 +3875,7 @@ static int global_need_beginline;
 ///
 /// @param[out] ret_sub
 /// Location where old string will be saved.
-void sub_get_replacement(SubReplacementString *const ret_sub)
+void sub_get_replacement(subrepstr_st *const ret_sub)
 FUNC_ATTR_NONNULL_ALL
 {
     *ret_sub = old_sub;
@@ -3886,7 +3886,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @warning `sub` must be in allocated memory. It is not copied.
 ///
 /// @param[in]  sub  New replacement string.
-void sub_set_replacement(SubReplacementString sub)
+void sub_set_replacement(subrepstr_st sub)
 {
     xfree(old_sub.sub);
 
@@ -4258,7 +4258,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
 
         if(!eap->skip && !preview)
         {
-            sub_set_replacement((SubReplacementString) {
+            sub_set_replacement((subrepstr_st) {
                 .sub = xstrdup((char *) sub),
                 .timestamp = os_time(),
                 .additional_elements = NULL, });
@@ -5544,7 +5544,7 @@ void global_exe(uchar_kt *cmd)
 #if defined(EXITFREE)
 void free_old_sub(void)
 {
-    sub_set_replacement((SubReplacementString)
+    sub_set_replacement((subrepstr_st)
     {
         NULL, 0, NULL
     });

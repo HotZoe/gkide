@@ -1612,7 +1612,7 @@ FUNC_ATTR_NONNULL_ALL
             {
                 if(!force)
                 {
-                    SubReplacementString sub;
+                    subrepstr_st sub;
                     sub_get_replacement(&sub);
 
                     if(sub.sub != NULL && sub.timestamp >= cur_entry.timestamp)
@@ -1622,7 +1622,7 @@ FUNC_ATTR_NONNULL_ALL
                     }
                 }
 
-                sub_set_replacement((SubReplacementString) {
+                sub_set_replacement((subrepstr_st) {
                     .sub = cur_entry.data.sub_string.sub,
                     .timestamp = cur_entry.timestamp,
                     .additional_elements =
@@ -3335,7 +3335,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     // Initialize substitute replacement string
     {
-        SubReplacementString sub;
+        subrepstr_st sub;
         sub_get_replacement(&sub);
         wms->replacement = (pfse_info_st) {
             .can_free_entry = false,
