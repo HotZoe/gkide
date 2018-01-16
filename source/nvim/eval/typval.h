@@ -30,17 +30,12 @@
 /// %d printf format specifier for number_kt
 #define NumberKtPrtFmt    "d"
 
-typedef int               number_kt;
-// =======================string_st
-typedef struct ufunc_s    ufunc_st;
-typedef struct list_s     list_st;
-typedef struct dict_s     dict_st;
-typedef double            float_kt;
-/// @todo remove, boolean
-/// =======================special
-typedef struct partial_s  partial_st;
-/// @todo add userdata
-/// =======================userdata_st
+typedef int               number_kt;   ///< nvim language object type
+typedef struct ufunc_s    ufunc_st;    ///< nvim language object type
+typedef struct list_s     list_st;     ///< nvim language object type
+typedef struct dict_s     dict_st;     ///< nvim language object type
+typedef double            float_kt;    ///< nvim language object type
+typedef struct partial_s  partial_st;  ///< nvim language object type
 
 /// NvimL(nvl) variable types, @see typval_st::v_type
 typedef enum

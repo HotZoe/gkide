@@ -40,16 +40,17 @@
 #endif
 
 typedef int                  handle_kt;
-typedef struct object_s      Object;    ///< nvl-object type
-typedef bool                 Boolean;   ///< nvl-object's value type
-typedef int64_t              Integer;   ///< nvl-object's value type
-typedef double               Float;     ///< nvl-object's value type
-typedef struct string_s      String;    ///< nvl-object's value type
-typedef struct array_s       Array;     ///< nvl-object's value type
-typedef struct dictionary_s  Dictionary;///< nvl-object's value type
-typedef handle_kt            Buffer;    ///< nvl-object's value type
-typedef handle_kt            Window;    ///< nvl-object's value type
-typedef handle_kt            Tabpage;   ///< nvl-object's value type
+
+typedef struct object_s      Object;    ///< Remote API object type
+typedef bool                 Boolean;   ///< Remote API object type
+typedef int64_t              Integer;   ///< Remote API object type
+typedef double               Float;     ///< Remote API object type
+typedef struct string_s      String;    ///< Remote API object type
+typedef struct array_s       Array;     ///< Remote API object type
+typedef struct dictionary_s  Dictionary;///< Remote API object type
+typedef handle_kt            Buffer;    ///< Remote API object type
+typedef handle_kt            Window;    ///< Remote API object type
+typedef handle_kt            Tabpage;   ///< Remote API object type
 
 typedef enum object_type_e
 {
