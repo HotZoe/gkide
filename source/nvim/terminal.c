@@ -160,14 +160,14 @@ static VTermScreenCallbacks vterm_screen_callbacks = {
     .sb_popline  = term_sb_pop,
 };
 
-static PMap(ptr_t) *invalidated_terminals;
+static PMap(ptr_kt) *invalidated_terminals;
 static Map(int, int) *color_indexes;
 static int default_vt_fg, default_vt_bg;
 static VTermColor default_vt_bg_rgb;
 
 void terminal_init(void)
 {
-    invalidated_terminals = pmap_new(ptr_t)();
+    invalidated_terminals = pmap_new(ptr_kt)();
     time_watcher_init(&main_loop, &refresh_timer, NULL);
 
     // refresh_timer_cb will redraw the screen which can call vimscript
@@ -219,7 +219,7 @@ void terminal_teardown(void)
     multiqueue_free(refresh_timer.events);
     time_watcher_close(&refresh_timer, NULL);
 
-    pmap_free(ptr_t)(invalidated_terminals);
+    pmap_free(ptr_kt)(invalidated_terminals);
     map_free(int, int)(color_indexes);
 }
 
@@ -584,13 +584,13 @@ void terminal_destroy(terminal_st *term)
 
     if(!term->refcount)
     {
-        if(pmap_has(ptr_t)(invalidated_terminals, term))
+        if(pmap_has(ptr_kt)(invalidated_terminals, term))
         {
             // flush any pending changes to the buffer
             block_autocmds();
             refresh_terminal(term);
             unblock_autocmds();
-            pmap_del(ptr_t)(invalidated_terminals, term);
+            pmap_del(ptr_kt)(invalidated_terminals, term);
         }
 
         for(size_t i = 0; i < term->sb_current; i++)
@@ -856,7 +856,7 @@ static int term_sb_push(int cols, const VTermScreenCell *cells, void *data)
     }
 
     memcpy(sbrow->cells, cells, sizeof(cells[0]) * c);
-    pmap_put(ptr_t)(invalidated_terminals, term, NULL);
+    pmap_put(ptr_kt)(invalidated_terminals, term, NULL);
     return 1;
 }
 
@@ -904,7 +904,7 @@ static int term_sb_pop(int cols, VTermScreenCell *cells, void *data)
     }
 
     xfree(sbrow);
-    pmap_put(ptr_t)(invalidated_terminals, term, NULL);
+    pmap_put(ptr_kt)(invalidated_terminals, term, NULL);
 
     return 1;
 }
@@ -1245,7 +1245,7 @@ static void invalidate_terminal(terminal_st *term, int start_row, int end_row)
         term->invalid_end = MAX(term->invalid_end, end_row);
     }
 
-    pmap_put(ptr_t)(invalidated_terminals, term, NULL);
+    pmap_put(ptr_kt)(invalidated_terminals, term, NULL);
 
     if(!refresh_pending)
     {
@@ -1305,7 +1305,7 @@ static void refresh_timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
                 term, stub, { refresh_terminal(term); });
 
     bool any_visible = is_term_visible();
-    pmap_clear(ptr_t)(invalidated_terminals);
+    pmap_clear(ptr_kt)(invalidated_terminals);
     unblock_autocmds();
 
     if(any_visible)
@@ -1460,7 +1460,7 @@ static bool is_term_visible(void)
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
         if(wp->w_buffer->terminal
-           && pmap_has(ptr_t)(invalidated_terminals, wp->w_buffer->terminal))
+           && pmap_has(ptr_kt)(invalidated_terminals, wp->w_buffer->terminal))
         {
             return true;
         }

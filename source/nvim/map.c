@@ -26,11 +26,11 @@
 #define handle_kt_eq    kh_int_hash_equal
 
 #if defined(HOST_OS_ARCH_64)
-    #define ptr_t_hash(key)     uint64_t_hash((uint64_t)key)
-    #define ptr_t_eq(a, b)      uint64_t_eq((uint64_t)a, (uint64_t)b)
+    #define ptr_kt_hash(key)     uint64_t_hash((uint64_t)key)
+    #define ptr_kt_eq(a, b)      uint64_t_eq((uint64_t)a, (uint64_t)b)
 #elif defined(HOST_OS_ARCH_32)
-    #define ptr_t_hash(key)     uint32_t_hash((uint32_t)key)
-    #define ptr_t_eq(a, b)      uint32_t_eq((uint32_t)a, (uint32_t)b)
+    #define ptr_kt_hash(key)     uint32_t_hash((uint32_t)key)
+    #define ptr_kt_eq(a, b)      uint32_t_eq((uint32_t)a, (uint32_t)b)
 #endif
 
 #define INITIALIZER(T, U)               T##_##U##_initializer
@@ -153,10 +153,10 @@ static inline bool String_eq(String a, String b)
 
 
 MAP_IMPL(int,      int,   DEFAULT_INITIALIZER)
-MAP_IMPL(cstr_t,   ptr_t, DEFAULT_INITIALIZER)
-MAP_IMPL(ptr_t,    ptr_t, DEFAULT_INITIALIZER)
-MAP_IMPL(uint64_t, ptr_t, DEFAULT_INITIALIZER)
-MAP_IMPL(handle_kt, ptr_t, DEFAULT_INITIALIZER)
+MAP_IMPL(cstr_t,   ptr_kt, DEFAULT_INITIALIZER)
+MAP_IMPL(ptr_kt,    ptr_kt, DEFAULT_INITIALIZER)
+MAP_IMPL(uint64_t, ptr_kt, DEFAULT_INITIALIZER)
+MAP_IMPL(handle_kt, ptr_kt, DEFAULT_INITIALIZER)
 
 #define BUFFER_HL_VEC_INITIALIZER    { .size = 0,  .capacity = 0, .items = NULL }
 #define MSGPACK_HANDLER_INITIALIZER  { .fn = NULL, .async = false }

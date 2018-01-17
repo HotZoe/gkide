@@ -93,8 +93,8 @@ typedef struct main_args_s
     char *pre_commands[MAX_ARG_CMDS]; ///< commands from --cmd argument
 
     int edit_type;              ///< type of editing to do
-    uchar_kt *tagname;            ///< tag from -t argument
-    uchar_kt *use_ef;             ///< 'errorfile' from -q argument
+    uchar_kt *tagname;          ///< tag from -t argument
+    uchar_kt *use_ef;           ///< 'errorfile' from -q argument
 
     int want_full_screen;       ///< full screen on startup
     bool input_isatty;          ///< stdin is a terminal
@@ -108,10 +108,10 @@ typedef struct main_args_s
     int window_layout;          ///< 0, WIN_HOR, WIN_VER or WIN_TABS
 
 #if !defined(UNIX)
-    int literal;               ///< don't expand file names
+    int literal;                ///< don't expand file names
 #endif
 
-    int diff_mode;             ///< start with @b diff set
+    int diff_mode;              ///< start with @b diff set
 } main_args_st;
 
 // Values for edit_type
