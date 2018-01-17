@@ -64,7 +64,7 @@ typedef struct rpc_channel_s
     size_t refcount;
     size_t pending_requests;
 
-    PMap(cstr_t) *subscribed_events;
+    PMap(cstr_kt) *subscribed_events;
     bool closed;
 
     rpc_channel_type_et type;
@@ -100,7 +100,7 @@ typedef struct rpc_channel_request_s
 } rpc_channel_request_st;
 
 static PMap(uint64_t) *channels = NULL;
-static PMap(cstr_t) *event_strings = NULL;
+static PMap(cstr_kt) *event_strings = NULL;
 static msgpack_sbuffer out_buffer;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -112,7 +112,7 @@ void channel_init(void)
 {
     ch_before_blocking_events = multiqueue_new_child(main_loop.events);
     channels = pmap_new(uint64_t)();
-    event_strings = pmap_new(cstr_t)();
+    event_strings = pmap_new(cstr_kt)();
     msgpack_sbuffer_init(&out_buffer);
     remote_ui_init();
 }
@@ -346,15 +346,15 @@ void channel_subscribe(uint64_t id, char *event)
         abort();
     }
 
-    char *event_string = pmap_get(cstr_t)(event_strings, event);
+    char *event_string = pmap_get(cstr_kt)(event_strings, event);
 
     if(!event_string)
     {
         event_string = xstrdup(event);
-        pmap_put(cstr_t)(event_strings, event_string, event_string);
+        pmap_put(cstr_kt)(event_strings, event_string, event_string);
     }
 
-    pmap_put(cstr_t)(channel->subscribed_events, event_string, event_string);
+    pmap_put(cstr_kt)(channel->subscribed_events, event_string, event_string);
 }
 
 /// Unsubscribes to event broadcasts
@@ -748,7 +748,7 @@ static void broadcast_event(const char *name, Array args)
     rpc_channel_st *channel;
 
     map_foreach_value(channels, channel, {
-        if(pmap_has(cstr_t)(channel->subscribed_events, name))
+        if(pmap_has(cstr_kt)(channel->subscribed_events, name))
         {
             kv_push(subscribed, channel);
         }
@@ -788,11 +788,11 @@ end:
 
 static void unsubscribe(rpc_channel_st *channel, char *event)
 {
-    char *event_string = pmap_get(cstr_t)(event_strings, event);
-    pmap_del(cstr_t)(channel->subscribed_events, event_string);
+    char *event_string = pmap_get(cstr_kt)(event_strings, event);
+    pmap_del(cstr_kt)(channel->subscribed_events, event_string);
 
     map_foreach_value(channels, channel, {
-        if(pmap_has(cstr_t)(channel->subscribed_events, event_string))
+        if(pmap_has(cstr_kt)(channel->subscribed_events, event_string))
         {
             return;
         }
@@ -800,7 +800,7 @@ static void unsubscribe(rpc_channel_st *channel, char *event)
 
     // Since the string is no longer used by other
     // channels, release it's memory
-    pmap_del(cstr_t)(event_strings, event_string);
+    pmap_del(cstr_kt)(event_strings, event_string);
 
     xfree(event_string);
 }
@@ -867,7 +867,7 @@ static void free_channel(rpc_channel_st *channel)
         unsubscribe(channel, event_string);
     });
 
-    pmap_free(cstr_t)(channel->subscribed_events);
+    pmap_free(cstr_kt)(channel->subscribed_events);
     kv_destroy(channel->call_stack);
     kv_destroy(channel->delayed_notifications);
 
@@ -898,7 +898,7 @@ static rpc_channel_st *register_channel(rpc_channel_type_et type,
     rv->unpacker = msgpack_unpacker_new(MSGPACK_UNPACKER_INIT_BUFFER_SIZE);
     rv->id = id > 0 ? id : next_chan_id++;
     rv->pending_requests = 0;
-    rv->subscribed_events = pmap_new(cstr_t)();
+    rv->subscribed_events = pmap_new(cstr_kt)();
     rv->next_request_id = 1;
 
     kv_init(rv->call_stack);

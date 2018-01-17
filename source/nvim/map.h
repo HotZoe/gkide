@@ -27,13 +27,13 @@
     U    map_##T##_##U##_del(Map(T, U) *map, T key);           \
     void map_##T##_##U##_clear(Map(T, U) *map);
 
-MAP_DECLS(int,       int)
-MAP_DECLS(cstr_t,    ptr_kt)
+MAP_DECLS(int,        int)
+MAP_DECLS(cstr_kt,    ptr_kt)
 MAP_DECLS(ptr_kt,     ptr_kt)
-MAP_DECLS(uint64_t,  ptr_kt)
-MAP_DECLS(handle_kt, ptr_kt)
-MAP_DECLS(linenum_kt,  bufhl_vec_st)
-MAP_DECLS(String,    rpc_request_handler_st)
+MAP_DECLS(uint64_t,   ptr_kt)
+MAP_DECLS(handle_kt,  ptr_kt)
+MAP_DECLS(linenum_kt, bufhl_vec_st)
+MAP_DECLS(String,     rpc_request_handler_st)
 
 #define map_new(T, U)   map_##T##_##U##_new
 #define map_free(T, U)  map_##T##_##U##_free

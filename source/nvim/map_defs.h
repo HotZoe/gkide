@@ -6,7 +6,7 @@
 #include "nvim/lib/khash.h"
 
 typedef void *ptr_kt;
-typedef const char *cstr_t;
+typedef const char *cstr_kt;
 
 #define Map(T, U)  Map_##T##_##U
 #define PMap(T)    Map(T, ptr_kt)
