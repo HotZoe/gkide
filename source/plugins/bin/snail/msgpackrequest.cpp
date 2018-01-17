@@ -19,7 +19,8 @@ namespace SnailNvimQt {
 MsgpackRequest::MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent)
     :QObject(parent), id(id), m_dev(dev), m_function(Function::NEOVIM_FN_NULL)
 {
-    connect(&m_timer, &QTimer::timeout, this, &MsgpackRequest::requestTimeout);
+    connect(&m_timer, &QTimer::timeout,
+            this, &MsgpackRequest::requestTimeout);
 }
 
 /// The function id for the function signature associated with this call.

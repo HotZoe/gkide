@@ -36,7 +36,7 @@ int gui_main(int argc, char **argv)
 #endif
 
     SnailNvimQt::App::processCliOptions(parser, app.arguments());
-    auto c = app.createConnector(parser);
+    auto c = SnailNvimQt::App::createConnector(parser);
     app.showUi(c, parser);
     return app.exec();
 }

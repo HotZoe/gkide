@@ -4,7 +4,6 @@
 #include <QTextCodec>
 #include <QSocketNotifier>
 
-// read/write
 #ifdef _WIN32
     #include <io.h>
     #include "plugins/bin/snail/stdinreader.h"
@@ -18,18 +17,13 @@
 
 namespace SnailNvimQt {
 
-/// @class SnailNvimQt::MsgpackIODevice
-///
-/// @brief A msgpack-rpc channel build on top of QIODevice
-
-
 /// Build a MsgpackIODevice that reads from stdin and writes to stdout
 MsgpackIODevice *MsgpackIODevice::fromStdinOut(QObject *parent)
 {
     MsgpackIODevice *rpc = new MsgpackIODevice(NULL, parent);
 
     msgpack_packer_init(&rpc->m_pk, rpc,
-                        (msgpack_packer_write)MsgpackIODevice::msgpack_write_to_stdout);
+                        MsgpackIODevice::msgpack_write_to_stdout);
 
 #ifdef _WIN32
     StdinReader *rsn =
@@ -52,13 +46,18 @@ MsgpackIODevice::MsgpackIODevice(QIODevice *dev, QObject *parent)
 {
     qRegisterMetaType<MsgpackError>("MsgpackError");
     qRegisterMetaType<Function::FunctionId>("Function::FunctionId");
+
+    // for msgpack 1.x
+    // must be destroyed by msgpack_unpacker_destroy(msgpack_unpacker*)
     msgpack_unpacker_init(&m_uk, MSGPACK_UNPACKER_INIT_BUFFER_SIZE);
 
     if(m_dev)
     {
-        // MSVC: wont build without the (mspack_packer_write) cast
+        // for msgpack 1.x
+        // use packer as value (not pointer),
+        // don't need to call destroy function
         msgpack_packer_init(&m_pk, this,
-                            (msgpack_packer_write)MsgpackIODevice::msgpack_write_to_dev);
+                            MsgpackIODevice::msgpack_write_to_dev);
 
         m_dev->setParent(this);
 
@@ -79,6 +78,7 @@ MsgpackIODevice::~MsgpackIODevice()
     msgpack_unpacker_destroy(&m_uk);
 }
 
+/// is IODevice opened and check errors
 bool MsgpackIODevice::isOpen()
 {
     if(m_error == InvalidDevice)
@@ -119,7 +119,8 @@ bool MsgpackIODevice::setEncoding(const QByteArray &name)
     if(!m_encoding)
     {
         setError(UnsupportedEncoding,
-                 QString("Unsupported encoding (%1)").arg(QString::fromLatin1(name)));
+                 QString("Unsupported encoding: %1")
+                 .arg(QString::fromLatin1(name)));
 
         return false;
     }
@@ -136,7 +137,7 @@ int MsgpackIODevice::msgpack_write_to_stdout(void *data,
 
     if(bytes == -1)
     {
-        c->setError(InvalidDevice, tr("Error writing to device"));
+        c->setError(InvalidDevice, tr("Error writing to stdout"));
     }
 
     return (int)bytes;
@@ -162,21 +163,33 @@ int MsgpackIODevice::msgpack_write_to_dev(void *data,
 /// @see fromStdinOut() and StdinReader()
 void MsgpackIODevice::dataAvailableStdin(const QByteArray &data)
 {
+    // check the msgpack_unpacker's buffer capacity
     if((quint64)data.length() > msgpack_unpacker_buffer_capacity(&m_uk))
     {
         setError(InvalidDevice,
                  tr("Error when reading from stdin, "
-                    "BUG(buffered data exceeds capaciy)"));
+                    "buffer data exceeds capaciy.)"));
 
         return;
     }
     else if(data.length() > 0)
     {
+        // write the data to the buffer
         memcpy(msgpack_unpacker_buffer(&m_uk), data.constData(), data.length());
+
+        // notify the number of wrote bytes to msgpack_unpacker
         msgpack_unpacker_buffer_consumed(&m_uk, data.length());
+
+        // msgpack_unpacker is ready to unpack
+        // An unpacked object is stored in msgpack_unpacked
         msgpack_unpacked result;
         msgpack_unpacked_init(&result);
 
+        // MSGPACK_UNPACK_SUCCESS       2   successfully unpacked
+        // MSGPACK_UNPACK_EXTRA_BYTES   1
+        // MSGPACK_UNPACK_CONTINUE      0   msgpack format data is incomplete
+        // MSGPACK_UNPACK_PARSE_ERROR  -1   msgpack format data is invalid
+        // MSGPACK_UNPACK_NOMEM_ERROR  -2
         while(msgpack_unpacker_next(&m_uk, &result))
         {
             dispatch(result.data);
@@ -189,6 +202,7 @@ void MsgpackIODevice::dataAvailableStdin(const QByteArray &data)
 /// @see fromStdinOut() and QSocketNotifier()
 void MsgpackIODevice::dataAvailableFd(int fd)
 {
+    // unpacker has not enough buffer
     if(msgpack_unpacker_buffer_capacity(&m_uk) == 0)
     {
         if(!msgpack_unpacker_reserve_buffer(&m_uk, 8192))
@@ -198,12 +212,14 @@ void MsgpackIODevice::dataAvailableFd(int fd)
         }
     }
 
+    // read data from fd to unpacker buffer
     qint64 bytes = read(fd, msgpack_unpacker_buffer(&m_uk),
-                        (unsigned int)msgpack_unpacker_buffer_capacity(&m_uk));
+                        (size_t)msgpack_unpacker_buffer_capacity(&m_uk));
 
     if(bytes > 0)
     {
         msgpack_unpacker_buffer_consumed(&m_uk, bytes);
+
         msgpack_unpacked result;
         msgpack_unpacked_init(&result);
 
@@ -214,7 +230,8 @@ void MsgpackIODevice::dataAvailableFd(int fd)
     }
     else if(bytes == -1)
     {
-        setError(InvalidDevice, tr("Error when reading from device"));
+        setError(InvalidDevice,
+                 QString("Error when reading from device: %1").arg(fd));
     }
 }
 
@@ -227,6 +244,7 @@ void MsgpackIODevice::dataAvailable()
 
     while(read > 0)
     {
+        // unpacker has not enough buffer
         if(msgpack_unpacker_buffer_capacity(&m_uk) == 0)
         {
             if(!msgpack_unpacker_reserve_buffer(&m_uk, 8192))
@@ -236,12 +254,14 @@ void MsgpackIODevice::dataAvailable()
             }
         }
 
+        // read data from device to unpacker buffer
         read = m_dev->read(msgpack_unpacker_buffer(&m_uk),
                            msgpack_unpacker_buffer_capacity(&m_uk));
 
         if(read > 0)
         {
             msgpack_unpacker_buffer_consumed(&m_uk, read);
+
             msgpack_unpacked result;
             msgpack_unpacked_init(&result);
 
@@ -253,22 +273,26 @@ void MsgpackIODevice::dataAvailable()
     }
 }
 
-/// Send error response for the given request message
+/// Send error response for the given request message with error-message
 void MsgpackIODevice::sendError(const msgpack_object &req, const QString &msg)
 {
-    if(req.via.array.ptr[0].via.u64 != 0)
+    // nvim msgpack rpc calls are
+    // [type(int), msgid(int), method(int), args(array)]
+    if(req.via.array.ptr[0].via.u64 != msgRequest)
     {
-        qFatal("Errors can only be send as replies to Requests(type=0)");
+        qFatal("Errors can only be send as replies "
+               "to nvim for snail message request");
     }
 
     sendError(req.via.array.ptr[1].via.u64, msg);
 }
 
+/// nvim response error, given back a error response to nvim
 void MsgpackIODevice::sendError(uint64_t msgid, const QString &msg)
 {
     // [type(1), msgid, error, result(nil)]
     msgpack_pack_array(&m_pk, 4);
-    msgpack_pack_int(&m_pk, 1); // 1 = Response
+    msgpack_pack_int(&m_pk, msgResponse);
     msgpack_pack_int(&m_pk, (int)msgid);
     QByteArray utf8 = msg.toUtf8();
     msgpack_pack_bin(&m_pk, utf8.size());
@@ -279,7 +303,7 @@ void MsgpackIODevice::sendError(uint64_t msgid, const QString &msg)
 /// Do some sanity checks and forward message to the proper handler
 void MsgpackIODevice::dispatch(msgpack_object &req)
 {
-    // neovim msgpack rpc calls are
+    // nvim msgpack rpc calls are
     // [type(int), msgid(int), method(int), args(array)]
     if(req.type != MSGPACK_OBJECT_ARRAY)
     {
@@ -289,65 +313,67 @@ void MsgpackIODevice::dispatch(msgpack_object &req)
 
     if(req.via.array.size < 3 || req.via.array.size > 4)
     {
-        qDebug() << "Received Invalid msgpack: message len MUST be 3 or 4";
+        qDebug() << "Received Invalid msgpack: msgLen MUST be 3 or 4";
         return;
     }
 
     if(req.via.array.ptr[0].type != MSGPACK_OBJECT_POSITIVE_INTEGER)
     {
-        qDebug() << "Received Invalid msgpack: msg type MUST be an integer";
+        qDebug() << "Received Invalid msgpack: msgType MUST be an integer";
         return;
     }
 
     uint64_t type = req.via.array.ptr[0].via.u64;
 
+    // msgpack rpc calls MsgpackMsgType
     switch(type)
     {
-        case 0:
+        case msgRequest:
             if(req.via.array.ptr[1].type != MSGPACK_OBJECT_POSITIVE_INTEGER)
             {
                 qDebug() << "Received Invalid request: "
-                            "msg id MUST be a positive integer";
-                sendError(req, tr("Msg Id must be a positive integer"));
+                            "msgID must be a positive integer";
+                sendError(req, tr("msgID must be a positive integer"));
                 return;
             }
 
             if(req.via.array.ptr[2].type != MSGPACK_OBJECT_BIN &&
                req.via.array.ptr[2].type != MSGPACK_OBJECT_STR)
             {
-                qDebug() << "Received Invalid request: method MUST be a String"
-                         << req.via.array.ptr[2];
-                sendError(req, tr("Method id must be a positive integer"));
+                qDebug() << "Received Invalid request: "
+                            "msgMethod MUST be a String";
+                sendError(req,
+                          tr("msgMethod must be a positive integer or String"));
                 return;
             }
 
             if(req.via.array.ptr[3].type != MSGPACK_OBJECT_ARRAY)
             {
-                qDebug() << "Invalid request: arguments MUST be an array";
-                sendError(req, tr("Paremeters must be an array"));
+                qDebug() << "Invalid request: msgArguments MUST be an array";
+                sendError(req, tr("msgArguments must be an array"));
                 return;
             }
 
             dispatchRequest(req);
             break;
 
-        case 1:
+        case msgResponse:
             if(req.via.array.ptr[1].type != MSGPACK_OBJECT_POSITIVE_INTEGER)
             {
                 qDebug() << "Received Invalid response: "
-                            "msg id MUST be a positive integer";
+                            "msgID MUST be a positive integer";
                 return;
             }
 
             dispatchResponse(req);
             break;
 
-        case 2:
+        case msgNotification:
             dispatchNotification(req);
             break;
 
         default:
-            qDebug() << "Unsupported msg type" << type;
+            qDebug() << "Unsupported msgType" << type;
     }
 }
 
@@ -368,22 +394,23 @@ void MsgpackIODevice::dispatchRequest(msgpack_object &req)
 
     if(decodeMsgpack(req.via.array.ptr[2], method))
     {
-        qDebug() << "Found unexpected method in request" << req;
+        qDebug() << "Found unexpected method in request: " << req;
         goto err;
     }
 
     if(decodeMsgpack(req.via.array.ptr[3], params))
     {
-        qDebug() << "Found unexpected parameters in request" << req;
+        qDebug() << "Found unexpected parameters in request: " << req;
         goto err;
     }
 
     m_reqHandler->handleRequest(this, (quint32)msgid, method, params.toList());
     return;
+
 err:
     // Send error reply [type(1), msgid, error, NIL]
     msgpack_pack_array(&m_pk, 4);
-    msgpack_pack_int(&m_pk, 1);
+    msgpack_pack_int(&m_pk, msgResponse);
     msgpack_pack_int(&m_pk, (int)msgid);
     msgpack_pack_bin(&m_pk, errmsg.size());
     msgpack_pack_bin_body(&m_pk, errmsg.constData(), errmsg.size());
@@ -397,6 +424,10 @@ void MsgpackIODevice::setRequestHandler(MsgpackRequestHandler *h)
 }
 
 /// Send back a response [type(1), msgid(uint), error(...), result(...)]
+///
+/// @param msgid    message ID of nvim<->snail
+/// @param err      error message
+/// @param res      result message
 bool MsgpackIODevice::sendResponse(uint64_t msgid,
                                    const QVariant &err,
                                    const QVariant &res)
@@ -409,7 +440,7 @@ bool MsgpackIODevice::sendResponse(uint64_t msgid,
     }
 
     msgpack_pack_array(&m_pk, 4);
-    msgpack_pack_int(&m_pk, 1);
+    msgpack_pack_int(&m_pk, msgResponse);
     msgpack_pack_int(&m_pk, (int)msgid);
     send(err);
     send(res);
@@ -417,7 +448,8 @@ bool MsgpackIODevice::sendResponse(uint64_t msgid,
 }
 
 /// Send [type(2), method, params]
-/// Returns false if the params could not be serialized
+///
+/// @return false if the params could not be serialized
 bool MsgpackIODevice::sendNotification(const QByteArray &method,
                                        const QVariantList &params)
 {
@@ -427,7 +459,7 @@ bool MsgpackIODevice::sendNotification(const QByteArray &method,
     }
 
     msgpack_pack_array(&m_pk, 3);
-    msgpack_pack_int(&m_pk, 2);
+    msgpack_pack_int(&m_pk, msgNotification);
     send(method);
     send(params);
     return true;
@@ -443,7 +475,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
 
     if(!m_requests.contains((unsigned int)msgid))
     {
-        qWarning() << "Received response for unknown message" << msgid;
+        qWarning() << "Received response for unknown msgID: " << msgid;
         return;
     }
 
@@ -456,7 +488,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
 
         if(decodeMsgpack(resp.via.array.ptr[2], val))
         {
-            qWarning() << "Error decoding response error object";
+            qWarning() << "Error decoding response error-object";
             goto err;
         }
 
@@ -479,7 +511,7 @@ err:
     req->deleteLater();
 }
 
-/// Return list of pending request ids
+/// Return list of pending request msgIDs
 QList<quint32> MsgpackIODevice::pendingRequests() const
 {
     return m_requests.keys();
@@ -538,15 +570,15 @@ QString MsgpackIODevice::errorString() const
 ///
 /// Use send() to pass on each of the call parameters
 ///
-/// Returns a MsgpackRequest object. You can connect to
-/// its finished() SIGNAL to handle the response
+/// @return a MsgpackRequest object.
+/// You can connect to its finished() SIGNAL to handle the response
 MsgpackRequest *MsgpackIODevice::startRequestUnchecked(const QString &method,
                                                        quint32 argcount)
 {
     quint32 msgid = msgId();
     // [type(0), msgid, method, args]
     msgpack_pack_array(&m_pk, 4);
-    msgpack_pack_int(&m_pk, 0);
+    msgpack_pack_int(&m_pk, msgRequest);
     msgpack_pack_int(&m_pk, msgid);
     const QByteArray &utf8 = method.toUtf8();
     msgpack_pack_bin(&m_pk, utf8.size());
@@ -566,7 +598,7 @@ void MsgpackIODevice::requestTimeout(quint32 id)
     {
         MsgpackRequest *r = m_requests.take(id);
         r->deleteLater();
-        qWarning() << "Request" << id << "timed out:"  << r->function();
+        qWarning() << "Request " << id << " timed out:"  << r->function();
     }
 }
 
@@ -600,6 +632,7 @@ void MsgpackIODevice::send(const QByteArray &bin)
     msgpack_pack_bin(&m_pk, bin.size());
     msgpack_pack_bin_body(&m_pk, bin.constData(), bin.size());
 }
+
 bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, QByteArray &out)
 {
     if(in.type == MSGPACK_OBJECT_BIN)
@@ -621,7 +654,6 @@ bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, QByteArray &out)
     return false;
 }
 
-
 /// Serialise a valud into the msgpack stream
 void MsgpackIODevice::send(bool b)
 {
@@ -634,6 +666,7 @@ void MsgpackIODevice::send(bool b)
         msgpack_pack_false(&m_pk);
     }
 }
+
 bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, bool &out)
 {
     if(in.type != MSGPACK_OBJECT_BOOLEAN)
@@ -648,7 +681,6 @@ bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, bool &out)
     return false;
 }
 
-
 void MsgpackIODevice::send(const QList<QByteArray> &list)
 {
     msgpack_pack_array(&m_pk, list.size());
@@ -658,6 +690,7 @@ void MsgpackIODevice::send(const QList<QByteArray> &list)
         send(elem);
     }
 }
+
 bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in,
                                     QList<QByteArray> &out)
 {
@@ -975,6 +1008,7 @@ bool MsgpackIODevice::decodeMsgpack(const msgpack_object &in, QPoint &out)
     // QPoint is (x,y)  neovim Position is (row, col)
     out = QPoint((int)col, (int)row);
     return false;
+
 fail:
     qWarning() << "Attempting to decode as QPoint failed" << in.type << in;
     out =  QPoint();

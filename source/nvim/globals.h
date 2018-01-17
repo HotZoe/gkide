@@ -691,7 +691,7 @@ EXTERN int exiting INIT(= FALSE);
 /// TRUE when planning to exit Vim.
 ///
 /// Might still keep on running if there is a changed buffer.
-/// volatile because it is used in signal handler deathtrap"()"
+/// volatile because it is used in signal handler deathtrap()
 EXTERN volatile int full_screen INIT(= false);
 
 /// TRUE when doing full-screen output,

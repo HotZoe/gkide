@@ -89,7 +89,7 @@ void MainWindow::neovimExited(int status)
         close();
     }
 }
-void MainWindow::neovimError(NvimConnector::NeovimError err)
+void MainWindow::neovimError(NvimConnector::NvimError err)
 {
     showIfDelayed();
 

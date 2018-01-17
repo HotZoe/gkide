@@ -12,14 +12,17 @@ namespace SnailNvimQt {
 
 /// The helper deals with Neovim API internals,
 /// it handles msgpack responses on behalf of the connector.
-NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c) :QObject(c), m_c(c)
+NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c)
+    :QObject(c), m_c(c)
 {
+    /* nothing */
 }
 
 /// Handle Msgpack-rpc errors when fetching the API metadata
-void NvimConnectorHelper::handleMetadataError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                                              Function::FunctionId,
-                                              const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
+void NvimConnectorHelper::handleMetadataError(
+        quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+        Function::FunctionId,
+        const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
 {
     m_c->setError(NvimConnector::NoMetadata,
                   tr("Unable to get Neovim api information"));

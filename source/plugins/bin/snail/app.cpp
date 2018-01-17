@@ -79,7 +79,8 @@ void App::processCliOptions(QCommandLineParser &parser,
     QString arg_desc;
 
 #ifdef Q_OS_UNIX
-    QCommandLineOption arg_nofork("nofork"); // --nofork
+    // --nofork
+    QCommandLineOption arg_nofork("nofork");
     arg_desc = QCoreApplication::translate("main", "Run snail in foreground.");
     arg_nofork.setDescription(arg_desc);
     parser.addOption(arg_nofork);
@@ -157,19 +158,22 @@ void App::processCliOptions(QCommandLineParser &parser,
 
     if(exclusive > 1)
     {
-        qWarning() << "Options --server, --spawn and --embed are mutually exclusive.\n";
+        qWarning() << "Options --server, --spawn and --embed "
+                      "are mutually exclusive.\n";
         ::exit(EXIT_FAILURE);
     }
 
     if(!parser.positionalArguments().isEmpty() && (has_embed || has_server))
     {
-        qWarning() << "Options --embed and --server do not accept positional arguments.\n";
+        qWarning() << "Options --embed and --server "
+                      "do not accept positional arguments.\n";
         ::exit(EXIT_FAILURE);
     }
 
     if(parser.positionalArguments().isEmpty() && has_spawn)
     {
-        qWarning() << "Option --spawn requires at least one positional argument.\n";
+        qWarning() << "Option --spawn requires at least "
+                      "one positional argument.\n";
         ::exit(EXIT_FAILURE);
     }
 }
@@ -216,7 +220,8 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         else
         {
             // check the default plugin directory: gkide/plg
-            QDir gkide_dir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+            QDir gkide_dir =
+                QFileInfo(QCoreApplication::applicationDirPath()).dir();
 
             #ifdef Q_OS_MAC
             // within the bundle at: gkide/Resources/plg
@@ -246,7 +251,9 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         // fall back to the gkide-nvim default path: gkide/bin/nvim
         if(!QFileInfo(nvim_exec).isExecutable())
         {
-            QDir gkide_dir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+            QDir gkide_dir =
+                QFileInfo(QCoreApplication::applicationDirPath()).dir();
+
             #ifdef Q_OS_WIN
             nvim_exec = QString("%1/bin/nvim.exe").arg(gkide_dir.path());
             #else

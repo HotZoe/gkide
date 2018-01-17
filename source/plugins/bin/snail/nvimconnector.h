@@ -25,12 +25,12 @@ class NvimConnector: public QObject
     /// True if the Neovim instance is ready
     /// @see neovimObject
     Q_PROPERTY(bool ready READ isReady NOTIFY ready)
-    Q_ENUMS(NeovimError)
+    Q_ENUMS(NvimError)
 
 public:
-    enum NeovimError
+    enum NvimError
     {
-        NoError=0,
+        NoError = 0,
         NoMetadata,
         MetadataDescriptorError,
         UnexpectedMsg,
@@ -43,7 +43,7 @@ public:
         RuntimeMsgpackError,
     };
 
-    /// Underlying connection used to read Neovim
+    /// Underlying connection used to read nvim
     enum NeovimConnectionType
     {
         OtherConnection,
@@ -55,41 +55,41 @@ public:
     NvimConnector(QIODevice *s);
     NvimConnector(MsgpackIODevice *s);
 
+    static NvimConnector *fromStdinOut(void);
     static NvimConnector *spawn(const QStringList &params=QStringList(),
                                 const QString &exe="nvim");
     static NvimConnector *connectToSocket(const QString &);
     static NvimConnector *connectToHost(const QString &host, int port);
     static NvimConnector *connectToNeovim(const QString &server=QString());
-    static NvimConnector *fromStdinOut();
 
-    bool canReconnect();
-    NvimConnector *reconnect();
+    bool canReconnect(void);
+    NvimConnector *reconnect(void);
 
-    NeovimError errorCause();
-    QString errorString();
+    NvimError errorCause(void);
+    QString errorString(void);
 
     // FIXME: remove this
     MsgpackRequest *attachUi(int64_t width, int64_t height);
-    void detachUi();
+    void detachUi(void);
 
-    bool isReady();
-    Neovim *neovimObject();
-    uint64_t channel();
+    bool isReady(void);
+    Neovim *neovimObject(void);
+    uint64_t channel(void);
     QString decode(const QByteArray &);
     QByteArray encode(const QString &);
     NeovimConnectionType connectionType();
 
 signals:
-    /// Emitted when Neovim is ready
+    /// Emitted when nvim is ready
     void ready(void);
-    void error(NeovimError err);
+    void error(NvimError err);
     void processExited(int exitCode);
 
 public slots:
     void fatalTimeout(void);
 
 protected:
-    void setError(NeovimError err, const QString &msg);
+    void setError(NvimError err, const QString &msg);
     void clearError(void);
 
 protected slots:
@@ -102,7 +102,7 @@ private:
     MsgpackIODevice *m_dev;
     NvimConnectorHelper *m_helper;
     QString m_errorString;
-    NeovimError m_error;
+    NvimError m_error;
 
     Neovim *m_neovimobj;
     quint64 m_channel;
@@ -118,6 +118,6 @@ private:
 
 } // namespace::SnailNvimQt
 
-Q_DECLARE_METATYPE(SnailNvimQt::NvimConnector::NeovimError)
+Q_DECLARE_METATYPE(SnailNvimQt::NvimConnector::NvimError)
 
 #endif // PLUGIN_SNAIL_NVIMCONNECTOR_H

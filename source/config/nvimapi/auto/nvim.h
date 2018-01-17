@@ -8,6 +8,7 @@
 #include "plugins/bin/snail/function.h"
 
 namespace SnailNvimQt {
+
 class NvimConnector;
 class MsgpackRequest;
 

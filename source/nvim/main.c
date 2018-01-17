@@ -1521,7 +1521,7 @@ FUNC_ATTR_NONNULL_ALL
 
 /// Get filename from command line, if any.
 static uchar_kt *get_fname(main_args_st *FUNC_ARGS_UNUSED_MAYBE(parmp),
-                         uchar_kt *FUNC_ARGS_UNUSED_MAYBE(cwd))
+                           uchar_kt *FUNC_ARGS_UNUSED_MAYBE(cwd))
 {
 #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
     // Expand wildcards in file names.

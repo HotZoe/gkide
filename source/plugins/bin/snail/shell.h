@@ -52,7 +52,7 @@ public slots:
     void openFiles(const QList<QUrl> url);
 
 protected slots:
-    void neovimError(NvimConnector::NeovimError);
+    void neovimError(NvimConnector::NvimError);
     void neovimExited(int);
     void neovimResizeFinished();
     void mouseClickReset();

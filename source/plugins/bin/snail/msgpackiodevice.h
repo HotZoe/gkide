@@ -11,22 +11,37 @@ namespace SnailNvimQt {
 
 class MsgpackRequest;
 class MsgpackRequestHandler;
+
+/// A msgpack-rpc channel build on top of QIODevice
 class MsgpackIODevice: public QObject
 {
     Q_OBJECT
     Q_ENUMS(MsgpackError)
-    Q_PROPERTY(MsgpackError error READ errorCause NOTIFY error)
-    Q_PROPERTY(QByteArray encoding READ encoding WRITE setEncoding)
+    Q_PROPERTY(MsgpackError error
+               READ     errorCause
+               NOTIFY   error)
+    Q_PROPERTY(QByteArray encoding
+               READ     encoding
+               WRITE    setEncoding)
 public:
     enum MsgpackError
     {
-        NoError=0,
-        InvalidDevice,
-        InvalidMsgpack,
-        UnsupportedEncoding,
+        NoError             = 0,
+        InvalidDevice       = 1,
+        InvalidMsgpack      = 2,
+        UnsupportedEncoding = 3
     };
+    enum MsgpackMsgType
+    {
+        msgRequest      = 0,
+        msgResponse     = 1,
+        msgNotification = 2,
+        msgUnsupported  = 3,
+    };
+
     MsgpackIODevice(QIODevice *, QObject *parent=0);
     ~MsgpackIODevice();
+
     static MsgpackIODevice *fromStdinOut(QObject *parent=0);
 
     bool isOpen();
@@ -34,7 +49,7 @@ public:
     MsgpackError errorCause() const
     {
         return m_error;
-    };
+    }
 
     QByteArray encoding() const;
     bool setEncoding(const QByteArray &);
@@ -76,6 +91,7 @@ public:
     void registerExtType(int8_t type, msgpackExtDecoder);
 
     QList<quint32> pendingRequests() const;
+
 signals:
     void error(MsgpackError);
     /// A notification with the given name and arguments was received
@@ -116,9 +132,13 @@ private:
 
     quint32 m_reqid;
     QIODevice *m_dev;
+
+    /// conversion between text encodingslocale->unicode
     QTextCodec *m_encoding;
-    msgpack_packer m_pk;
-    msgpack_unpacker m_uk;
+
+    msgpack_packer m_pk;    ///< msgpack packer
+    msgpack_unpacker m_uk;  ///< msgpack unpacker
+
     QHash<quint32, MsgpackRequest *> m_requests;
     MsgpackRequestHandler *m_reqHandler;
     QHash<int8_t, msgpackExtDecoder> m_extTypes;
