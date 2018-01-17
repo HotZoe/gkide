@@ -22,9 +22,9 @@
 #include "nvim/strings.h"
 
 #include "config.h"
+#include "envdefs.h"
 
 #define MAX_CONNECTIONS         32
-#define LISTEN_ADDRESS_ENV_VAR  "NVIM_LISTEN_ADDRESS"
 
 static garray_st watchers = GA_EMPTY_INIT_VALUE;
 
@@ -37,7 +37,7 @@ bool server_init(void)
 {
     ga_init(&watchers, sizeof(socket_watcher_st *), 1);
     bool must_free = false;
-    const char *listen_address = os_getenv(LISTEN_ADDRESS_ENV_VAR);
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
 
     if(listen_address == NULL)
     {
@@ -180,11 +180,11 @@ int server_start(const char *endpoint)
     }
 
     // Update $NVIM_LISTEN_ADDRESS, if not set.
-    const char *listen_address = os_getenv(LISTEN_ADDRESS_ENV_VAR);
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
 
     if(listen_address == NULL)
     {
-        os_setenv(LISTEN_ADDRESS_ENV_VAR, watcher->addr, 1);
+        os_setenv(ENV_GKIDE_NVIM_SERADD, watcher->addr, 1);
     }
 
     // Add the watcher to the list.
@@ -229,11 +229,11 @@ void server_stop(char *endpoint)
     }
 
     // Unset $NVIM_LISTEN_ADDRESS if it is the stopped address.
-    const char *listen_address = os_getenv(LISTEN_ADDRESS_ENV_VAR);
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
 
     if(listen_address && STRCMP(addr, listen_address) == 0)
     {
-        os_unsetenv(LISTEN_ADDRESS_ENV_VAR);
+        os_unsetenv(ENV_GKIDE_NVIM_SERADD);
     }
 
     socket_watcher_close(watcher, free_server);
