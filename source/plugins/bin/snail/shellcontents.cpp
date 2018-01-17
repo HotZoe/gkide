@@ -7,8 +7,8 @@
 
 Cell ShellContents::invalidCell = Cell::invalid();;
 
-/// Build shell contents from file, each line in the
-/// file is a shell line.
+/// Build shell contents from file,
+/// each line in the file is a shell line.
 bool ShellContents::fromFile(const QString &path)
 {
     if(_data != NULL)
@@ -148,9 +148,13 @@ void ShellContents::clearRegion(int row0, int col0, int row1, int col1,
     }
 }
 
-/// Scroll the region by count lines. (row1, col1) is the first position outside
-/// the scrolled area.
-void ShellContents::scrollRegion(int row0, int row1, int col0, int col1, int count)
+/// Scroll the region by count lines. (row1, col1) is
+/// the first position outside the scrolled area.
+void ShellContents::scrollRegion(int row0,
+                                 int row1,
+                                 int col0,
+                                 int col1,
+                                 int count)
 {
     if(count == 0)
     {
@@ -263,11 +267,21 @@ const Cell &ShellContents::constValue(int row, int column) const
 }
 
 /// Writes content to the shell, returns the number of columns written
-int ShellContents::put(const QString &str, int row, int column,
-                       QColor fg, QColor bg, QColor sp, bool bold, bool italic,
-                       bool underline, bool undercurl)
+int ShellContents::put(const QString &str,
+                       int row,
+                       int column,
+                       QColor fg,
+                       QColor bg,
+                       QColor sp,
+                       bool bold,
+                       bool italic,
+                       bool underline,
+                       bool undercurl)
 {
-    if(row < 0 || row >= _rows || column < 0 || column >= _columns)
+    if(row < 0
+       || row >= _rows
+       || column < 0
+       || column >= _columns)
     {
         return 0;
     }

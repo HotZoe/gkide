@@ -66,7 +66,8 @@ bool isBadMonospace(const QFont &f)
         QFontInfo info(f);
 
         qDebug() << f.family()
-                 << "Average and Maximum font width mismatch for Regular font; QFont::exactMatch() is"
+                 << "Average and Maximum font width mismatch "
+                    "for Regular font; QFont::exactMatch() is"
                  << f.exactMatch()
                  << "Real font is "
                  << info.family()
@@ -82,7 +83,8 @@ bool isBadMonospace(const QFont &f)
         QFontInfo info(fi);
 
         qDebug() << fi.family()
-                 << "Average and Maximum font width mismatch for Italic font; QFont::exactMatch() is"
+                 << "Average and Maximum font width mismatch "
+                    "for Italic font; QFont::exactMatch() is"
                  << fi.exactMatch()
                  << "Real font is "
                  << info.family()
@@ -98,7 +100,8 @@ bool isBadMonospace(const QFont &f)
         QFontInfo info(fb);
 
         qDebug() << fb.family()
-                 << "Average and Maximum font width mismatch for Bold font; QFont::exactMatch() is"
+                 << "Average and Maximum font width mismatch "
+                    "for Bold font; QFont::exactMatch() is"
                  << fb.exactMatch()
                  << "Real font is "
                  << info.family()
@@ -114,7 +117,8 @@ bool isBadMonospace(const QFont &f)
         QFontInfo info(fbi);
 
         qDebug() << fbi.family()
-                 << "Average and Maximum font width mismatch for Bold+Italic font; QFont::exactMatch() is"
+                 << "Average and Maximum font width mismatch "
+                    "for Bold+Italic font; QFont::exactMatch() is"
                  << fbi.exactMatch()
                  << "Real font is "
                  << info.family()
@@ -127,7 +131,8 @@ bool isBadMonospace(const QFont &f)
        || fm_normal.maxWidth() != fm_boldit.maxWidth()
        || fm_normal.maxWidth() != fm_bold.maxWidth())
     {
-        qDebug() << f.family() << "Average and Maximum font width mismatch between font types";
+        qDebug() << f.family()
+                 << "Average and Maximum font width mismatch between font types";
         return true;
     }
 

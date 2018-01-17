@@ -17,8 +17,8 @@ namespace SnailNvimQt {
 ///
 /// A background thread to read data from Stdin
 ///
-/// For Unix systems a better alternative to this is to use QSocketNotifier, with
-/// a little work it produces the same effect with none of the overhead.
+/// For Unix systems a better alternative to this is to use QSocketNotifier,
+/// with a little work it produces the same effect with none of the overhead.
 
 /// Read from stdin in a background thread with
 /// @arg maxSize is the read buffer size
@@ -60,4 +60,4 @@ void StdinReader::run()
 /// @arg data is no larger than maxSize
 /// @see StdinReader::StdinReader
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

@@ -162,15 +162,20 @@ QString InputConv::convertMouse(Qt::MouseButton bt,
             return "";
     }
 
-    QString inp = QString("<%1%2%3><%4,%5>").arg(
-                      modPrefix(mod)).arg(buttonName).arg(evType).arg(pos.x()).arg(pos.y());
+    QString inp = QString("<%1%2%3><%4,%5>")
+                  .arg(modPrefix(mod))
+                  .arg(buttonName)
+                  .arg(evType)
+                  .arg(pos.x())
+                  .arg(pos.y());
     return inp;
 }
 
 /// Convert Qt key input into Neovim key-notation
 ///
 /// @see QKeyEvent
-QString InputConv::convertKey(const QString &text, int k, Qt::KeyboardModifiers mod)
+QString InputConv::convertKey(const QString &text,
+                              int k, Qt::KeyboardModifiers mod)
 {
     if(mod & Qt::KeypadModifier)
     {
@@ -256,7 +261,8 @@ QString InputConv::convertKey(const QString &text, int k, Qt::KeyboardModifiers 
     }
     else if(text.isEmpty())
     {
-        // on macs, text is empty for ctrl+key and cmd+key combos (with or without alt)
+        // on macs, text is empty for ctrl+key
+        // and cmd+key combos (with or without alt)
         if(mod & ControlModifier || mod & CmdModifier)
         {
             // ignore ctrl, alt and cmd key combos by themselves
@@ -268,17 +274,20 @@ QString InputConv::convertKey(const QString &text, int k, Qt::KeyboardModifiers 
             }
             else
             {
-                c = QChar(k); // key code will be the value of the char (hopefully)
+                // key code will be the value of the char (hopefully)
+                c = QChar(k);
             }
         }
         else
         {
-            return QString(); // This is a special key we can't handle
+            // This is a special key we can't handle
+            return QString();
         }
     }
     else
     {
-        c = text.at(0); // Key event compression is disabled, text has one char
+        // Key event compression is disabled, text has one char
+        c = text.at(0);
     }
 
     // Remove SHIFT
@@ -304,4 +313,4 @@ QString InputConv::convertKey(const QString &text, int k, Qt::KeyboardModifiers 
     return QString(c);
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

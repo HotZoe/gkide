@@ -11,7 +11,8 @@ MainWindow::MainWindow(NvimConnector *c, QWidget *parent)
 {
     m_errorWidget = new ErrorWidget();
     m_stack.addWidget(m_errorWidget);
-    connect(m_errorWidget, &ErrorWidget::reconnectNeovim, this, &MainWindow::reconnectNeovim);
+    connect(m_errorWidget, &ErrorWidget::reconnectNeovim,
+            this, &MainWindow::reconnectNeovim);
     setCentralWidget(&m_stack);
     init(c);
 }
@@ -40,12 +41,18 @@ void MainWindow::init(NvimConnector *c)
     connect(m_shell, SIGNAL(neovimTitleChanged(const QString &)),
             this, SLOT(neovimSetTitle(const QString &)));
 
-    connect(m_shell, &Shell::neovimResized, this, &MainWindow::neovimWidgetResized);
-    connect(m_shell, &Shell::neovimMaximized, this, &MainWindow::neovimMaximized);
-    connect(m_shell, &Shell::neovimFullScreen, this, &MainWindow::neovimFullScreen);
-    connect(m_shell, &Shell::neovimGuiCloseRequest, this, &MainWindow::neovimGuiCloseRequest);
-    connect(m_nvim, &NvimConnector::processExited, this, &MainWindow::neovimExited);
-    connect(m_nvim, &NvimConnector::error, this, &MainWindow::neovimError);
+    connect(m_shell, &Shell::neovimResized,
+            this, &MainWindow::neovimWidgetResized);
+    connect(m_shell, &Shell::neovimMaximized,
+            this, &MainWindow::neovimMaximized);
+    connect(m_shell, &Shell::neovimFullScreen,
+            this, &MainWindow::neovimFullScreen);
+    connect(m_shell, &Shell::neovimGuiCloseRequest,
+            this, &MainWindow::neovimGuiCloseRequest);
+    connect(m_nvim, &NvimConnector::processExited,
+            this, &MainWindow::neovimExited);
+    connect(m_nvim, &NvimConnector::error,
+            this, &MainWindow::neovimError);
 
     m_shell->setFocus(Qt::OtherFocusReason);
 
@@ -195,8 +202,10 @@ void MainWindow::delayedShow(DelayedShow type)
         QTimer *t = new QTimer(this);
         t->setSingleShot(true);
         t->setInterval(1000);
-        connect(m_shell, &Shell::neovimResized, this, &MainWindow::showIfDelayed);
-        connect(t, &QTimer::timeout, this, &MainWindow::showIfDelayed);
+        connect(m_shell, &Shell::neovimResized,
+                this, &MainWindow::showIfDelayed);
+        connect(t, &QTimer::timeout,
+                this, &MainWindow::showIfDelayed);
         t->start();
     }
 }
@@ -237,5 +246,5 @@ Shell *MainWindow::shell()
     return m_shell;
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 

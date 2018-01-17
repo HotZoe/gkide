@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/app.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_APP_H
-#define SNAIL_LIBS_NVIMCORE_APP_H
+#ifndef PLUGIN_SNAIL_APP_H
+#define PLUGIN_SNAIL_APP_H
 
 #include <QUrl>
 #include <QList>
@@ -31,4 +31,4 @@ signals:
 
 } // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_APP_H
+#endif // PLUGIN_SNAIL_APP_H

@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/shell.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_SHELL_H
-#define SNAIL_LIBS_NVIMCORE_SHELL_H
+#ifndef PLUGIN_SNAIL_SHELL_H
+#define PLUGIN_SNAIL_SHELL_H
 
 #include <QWidget>
 #include <QVariantList>
@@ -25,7 +25,8 @@ public:
     Shell(NvimConnector *nvim, QWidget *parent=0);
     ~Shell();
     QSize sizeIncrement() const;
-    static QColor color(qint64 color, const QColor &fallback=QColor());
+    static QColor color(qint64 color,
+                        const QColor &fallback=QColor());
     static bool isBadMonospace(const QFont &f);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const Q_DECL_OVERRIDE;
     bool neovimBusy() const;
@@ -42,7 +43,8 @@ signals:
     void neovimGuiCloseRequest();
 
 public slots:
-    void handleNeovimNotification(const QByteArray &name, const QVariantList &args);
+    void handleNeovimNotification(const QByteArray &name,
+                                  const QVariantList &args);
     void resizeNeovim(const QSize &);
     void resizeNeovim(int n_cols, int n_rows);
     bool setGuiFont(const QString &fdesc, bool force = false);
@@ -134,6 +136,6 @@ private:
     bool m_neovimBusy;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_SHELL_H
+#endif // PLUGIN_SNAIL_SHELL_H

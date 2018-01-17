@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/function.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_FUNCTION_H
-#define SNAIL_LIBS_NVIMCORE_FUNCTION_H
+#ifndef PLUGIN_SNAIL_FUNCTION_H
+#define PLUGIN_SNAIL_FUNCTION_H
 
 #include <QtGlobal>
 #include <QByteArray>
@@ -28,17 +28,19 @@ public:
     Function(const QString &ret, const QString &name,
              QList<QPair<QString,QString>> params, bool can_fail);
 
-    Function(const QString &ret, const QString &name, QList<QString> paramTypes, bool can_fail);
+    Function(const QString &ret, const QString &name,
+             QList<QString> paramTypes, bool can_fail);
     bool isValid() const;
     bool operator==(const Function &other);
     static Function fromVariant(const QVariant &);
     static QList<QPair<QString,QString>> parseParameters(const QVariantList &obj);
 
 
-    bool can_fail;        ///< Whether this function call fail without returning
-    QString return_type;  ///< Function return type
-    QString name;         ///< Function name
-    QList<QPair<QString,QString>> parameters; ///< Function parameter types and name
+    bool can_fail;       ///< Whether this function call fail without returning
+    QString return_type; ///< Function return type
+    QString name;        ///< Function name
+    ///< Function parameter types and name
+    QList<QPair<QString,QString>> parameters;
 
     QString signature() const;
 
@@ -50,6 +52,6 @@ private:
     bool m_valid;
 };
 
-} // [Namespace] SnailNvimQt
+} // Namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_FUNCTION_H
+#endif // PLUGIN_SNAIL_FUNCTION_H

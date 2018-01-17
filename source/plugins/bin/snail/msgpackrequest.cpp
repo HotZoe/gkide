@@ -32,7 +32,8 @@ Function::FunctionId MsgpackRequest::function()
 
 /// Associate a function id with this request
 ///
-/// SnailNvimQt has auto-generated call handlers (in SnailNvimQt::NvimConnector::neovimObject)
+/// SnailNvimQt has auto-generated call handlers (in
+/// SnailNvimQt::NvimConnector::neovimObject)
 /// that will be used to process the response
 void MsgpackRequest::setFunction(Function::FunctionId f)
 {
@@ -51,4 +52,4 @@ void MsgpackRequest::requestTimeout()
     emit timeout(this->id);
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

@@ -4,8 +4,8 @@
 /// class is meant to hold state about shell contents, but no more - e.g. cursor
 /// information should be stored somewhere else.
 
-#ifndef SNAIL_LIBS_NVIMCORE_SHELLCONTENTS_H
-#define SNAIL_LIBS_NVIMCORE_SHELLCONTENTS_H
+#ifndef PLUGIN_SNAIL_SHELLCONTENTS_H
+#define PLUGIN_SNAIL_SHELLCONTENTS_H
 
 #include "plugins/bin/snail/cell.h"
 
@@ -55,4 +55,4 @@ private:
     ShellContents &operator=(const ShellContents &other);
 };
 
-#endif // SNAIL_LIBS_NVIMCORE_SHELLCONTENTS_H
+#endif // PLUGIN_SNAIL_SHELLCONTENTS_H

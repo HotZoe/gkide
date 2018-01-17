@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/msgpackrequest.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_MSGPACKREQUEST_H
-#define SNAIL_LIBS_NVIMCORE_MSGPACKREQUEST_H
+#ifndef PLUGIN_SNAIL_MSGPACKREQUEST_H
+#define PLUGIN_SNAIL_MSGPACKREQUEST_H
 
 #include <QObject>
 #include <QTimer>
@@ -33,6 +33,6 @@ private:
     QTimer m_timer;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_MSGPACKREQUEST_H
+#endif // PLUGIN_SNAIL_MSGPACKREQUEST_H

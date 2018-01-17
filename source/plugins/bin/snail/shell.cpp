@@ -18,17 +18,19 @@ namespace SnailNvimQt {
 
 Shell::Shell(NvimConnector *nvim, QWidget *parent)
     :ShellWidget(parent), m_attached(false), m_nvim(nvim),
-     m_font_bold(false), m_font_italic(false), m_font_underline(false), m_font_undercurl(false),
-     m_mouseHide(true), m_hg_foreground(Qt::black), m_hg_background(Qt::white),
-     m_hg_special(QColor()), m_cursor_color(Qt::white), m_cursor_pos(0,0), m_insertMode(false),
-     m_resizing(false), m_mouse_wheel_delta_fraction(0, 0), m_neovimBusy(false)
+     m_font_bold(false), m_font_italic(false), m_font_underline(false),
+     m_font_undercurl(false), m_mouseHide(true), m_hg_foreground(Qt::black),
+     m_hg_background(Qt::white), m_hg_special(QColor()), m_cursor_color(Qt::white),
+     m_cursor_pos(0,0), m_insertMode(false), m_resizing(false),
+     m_mouse_wheel_delta_fraction(0, 0), m_neovimBusy(false)
 {
     setAttribute(Qt::WA_KeyCompression, false);
     setAcceptDrops(true);
     setMouseTracking(true);
     m_mouseclick_timer.setInterval(QApplication::doubleClickInterval());
     m_mouseclick_timer.setSingleShot(true);
-    connect(&m_mouseclick_timer, &QTimer::timeout, this, &Shell::mouseClickReset);
+    connect(&m_mouseclick_timer, &QTimer::timeout,
+            this, &Shell::mouseClickReset);
 
     setAttribute(Qt::WA_InputMethodEnabled, true); // IM Tooltip
     m_tooltip = new QLabel(this);
@@ -163,11 +165,14 @@ void Shell::setAttached(bool attached)
         m_nvim->neovimObject()->vim_command("runtime plugin/nvim_gui_shim.vim");
         m_nvim->neovimObject()->vim_command("runtime! ginit.vim");
 
-        // Noevim was not able to open urls till now. Check if we have any to open.
+        // Noevim was not able to open urls till now.
+        // Check if we have any to open.
         if(!m_deferredOpen.isEmpty())
         {
             openFiles(m_deferredOpen);
-            m_deferredOpen.clear(); //Neovim may change state. Clear to prevent reopening.
+            // Neovim may change state.
+            // Clear to prevent reopening.
+            m_deferredOpen.clear();
         }
     }
 
@@ -178,7 +183,8 @@ void Shell::setAttached(bool attached)
 /// The top left corner position (pixel) for the cursor
 QPoint Shell::neovimCursorTopLeft() const
 {
-    return QPoint(m_cursor_pos.x()*cellSize().width(), m_cursor_pos.y()*cellSize().height());
+    return QPoint(m_cursor_pos.x()*cellSize().width(),
+                  m_cursor_pos.y()*cellSize().height());
 }
 
 /// Get the area filled by the cursor
@@ -214,9 +220,11 @@ void Shell::init()
     connect(m_nvim->neovimObject(), &Neovim::on_ui_try_resize,
             this, &Shell::neovimResizeFinished);
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
+
     // FIXME: this API will change
-    MsgpackRequest *req = m_nvim->attachUi((int64_t)(screenRect.width()*0.66/cellSize().width()),
-                                           (int64_t)(screenRect.height()*0.66/cellSize().height()));
+    MsgpackRequest *req =
+        m_nvim->attachUi((int64_t)(screenRect.width()*0.66/cellSize().width()),
+                         (int64_t)(screenRect.height()*0.66/cellSize().height()));
 
     connect(req, &MsgpackRequest::finished, this, &Shell::setAttached);
     // Subscribe to GUI events
@@ -263,7 +271,8 @@ void Shell::handleHighlightSet(const QVariantMap &attrs)
     if(attrs.contains("foreground"))
     {
         /// @todo: When does Neovim send -1
-        m_hg_foreground = color(attrs.value("foreground").toLongLong(), foreground());
+        m_hg_foreground =
+            color(attrs.value("foreground").toLongLong(), foreground());
     }
     else
     {
@@ -272,7 +281,8 @@ void Shell::handleHighlightSet(const QVariantMap &attrs)
 
     if(attrs.contains("background"))
     {
-        m_hg_background = color(attrs.value("background").toLongLong(), background());
+        m_hg_background =
+            color(attrs.value("background").toLongLong(), background());
     }
     else
     {
@@ -304,7 +314,8 @@ void Shell::handleHighlightSet(const QVariantMap &attrs)
 /// Paint a character and advance the cursor
 void Shell::handlePut(const QVariantList &args)
 {
-    if(args.size() != 1 || (QMetaType::Type)args.at(0).type() != QMetaType::QByteArray)
+    if(args.size() != 1
+       || (QMetaType::Type)args.at(0).type() != QMetaType::QByteArray)
     {
         qWarning() << "Unexpected arguments for redraw:put" << args;
         return;
@@ -314,10 +325,16 @@ void Shell::handlePut(const QVariantList &args)
 
     if(!text.isEmpty())
     {
-        int cols = put(text, m_cursor_pos.y(), m_cursor_pos.x(),
-                       m_hg_foreground, m_hg_background, m_hg_special,
-                       m_font_bold, m_font_italic,
-                       m_font_underline, m_font_undercurl);
+        int cols = put(text,
+                       m_cursor_pos.y(),
+                       m_cursor_pos.x(),
+                       m_hg_foreground,
+                       m_hg_background,
+                       m_hg_special,
+                       m_font_bold,
+                       m_font_italic,
+                       m_font_underline,
+                       m_font_undercurl);
 
         // Move cursor ahead
         update(neovimCursorRect());
@@ -364,7 +381,8 @@ void Shell::handleSetScrollRegion(const QVariantList &opargs)
 {
     if(opargs.size() < 4)
     {
-        qWarning() << "Unexpected arguments for redraw:set_scroll_region" << opargs;
+        qWarning() << "Unexpected arguments for redraw:set_scroll_region"
+                   << opargs;
         return;
     }
 
@@ -383,7 +401,8 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     {
         if(opargs.size() < 1 || !opargs.at(0).canConvert<quint64>())
         {
-            qWarning() << "Unexpected arguments for redraw:" << name << opargs;
+            qWarning() << "Unexpected arguments for redraw:"
+                       << name << opargs;
             return;
         }
 
@@ -400,7 +419,8 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     {
         if(opargs.size() < 1 || !opargs.at(0).canConvert<quint64>())
         {
-            qWarning() << "Unexpected arguments for redraw:" << name << opargs;
+            qWarning() << "Unexpected arguments for redraw:"
+                       << name << opargs;
             return;
         }
 
@@ -418,7 +438,8 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     {
         if(opargs.size() < 1 || !opargs.at(0).canConvert<quint64>())
         {
-            qWarning() << "Unexpected arguments for redraw:" << name << opargs;
+            qWarning() << "Unexpected arguments for redraw:"
+                       << name << opargs;
             return;
         }
 
@@ -437,7 +458,8 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
            || !opargs.at(0).canConvert<quint64>()
            || !opargs.at(1).canConvert<quint64>())
         {
-            qWarning() << "Unexpected arguments for redraw:" << name << opargs;
+            qWarning() << "Unexpected arguments for redraw:"
+                       << name << opargs;
             return;
         }
 
@@ -453,7 +475,10 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     }
     else if(name == "eol_clear")
     {
-        clearRegion(m_cursor_pos.y(), m_cursor_pos.x(), m_cursor_pos.y()+1, columns());
+        clearRegion(m_cursor_pos.y(),
+                    m_cursor_pos.x(),
+                    m_cursor_pos.y()+1,
+                    columns());
     }
     else if(name == "cursor_goto")
     {
@@ -461,17 +486,21 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
            || !opargs.at(0).canConvert<quint64>()
            || !opargs.at(1).canConvert<quint64>())
         {
-            qWarning() << "Unexpected arguments for redraw:" << name << opargs;
+            qWarning() << "Unexpected arguments for redraw:"
+                       << name << opargs;
             return;
         }
 
-        setNeovimCursor(opargs.at(0).toULongLong(), opargs.at(1).toULongLong());
+        setNeovimCursor(opargs.at(0).toULongLong(),
+                        opargs.at(1).toULongLong());
     }
     else if(name == "highlight_set")
     {
-        if(opargs.size() < 1 && (QMetaType::Type)opargs.at(0).type() != QMetaType::QVariantMap)
+        if(opargs.size() < 1
+           && (QMetaType::Type)opargs.at(0).type() != QMetaType::QVariantMap)
         {
-            qWarning() << "Unexpected argument for redraw:" << name << opargs;
+            qWarning() << "Unexpected argument for redraw:"
+                       << name << opargs;
             return;
         }
 
@@ -532,7 +561,8 @@ void Shell::handleRedraw(const QByteArray &name, const QVariantList &opargs)
     }
     else
     {
-        qDebug() << "Received unknown redraw notification" << name << opargs;
+        qDebug() << "Received unknown redraw notification"
+                 << name << opargs;
     }
 }
 
@@ -585,7 +615,8 @@ void Shell::handleBusy(bool busy)
 }
 
 /// FIXME: fix QVariant type conversions
-void Shell::handleNeovimNotification(const QByteArray &name, const QVariantList &args)
+void Shell::handleNeovimNotification(const QByteArray &name,
+                                     const QVariantList &args)
 {
     if(name == "Gui" && args.size() > 0)
     {
@@ -665,7 +696,8 @@ void Shell::handleNeovimNotification(const QByteArray &name, const QVariantList 
     {
         if((QMetaType::Type)update_item.type() != QMetaType::QVariantList)
         {
-            qWarning() << "Received unexpected redraw operation" << update_item;
+            qWarning() << "Received unexpected redraw operation"
+                       << update_item;
             continue;
         }
 
@@ -673,7 +705,8 @@ void Shell::handleNeovimNotification(const QByteArray &name, const QVariantList 
 
         if(redrawupdate.size() < 2)
         {
-            qWarning() << "Received unexpected redraw operation" << update_item;
+            qWarning() << "Received unexpected redraw operation"
+                       << update_item;
             continue;
         }
 
@@ -684,7 +717,8 @@ void Shell::handleNeovimNotification(const QByteArray &name, const QVariantList 
         {
             if((QMetaType::Type)opargs_var.type() != QMetaType::QVariantList)
             {
-                qWarning() << "Received unexpected redraw arguments, expecting list" << opargs_var;
+                qWarning() << "Received unexpected redraw "
+                              "arguments, expecting list" << opargs_var;
                 continue;
             }
 
@@ -709,7 +743,8 @@ void Shell::paintEvent(QPaintEvent *ev)
     // just invert the shell colors by painting white with XoR
     if(ev->region().contains(neovimCursorTopLeft()))
     {
-        bool wide = contents().constValue(m_cursor_pos.y(), m_cursor_pos.x()).doubleWidth;
+        bool wide = contents().constValue(m_cursor_pos.y(),
+                                          m_cursor_pos.x()).doubleWidth;
         QRect cursorRect(neovimCursorTopLeft(), cellSize());
 
         if(m_insertMode)
@@ -813,10 +848,12 @@ void Shell::mouseClickReset()
 
 /// Increment consecutive mouse click count
 ///
-/// Since Vim only supports up to 4-click events the counter rotates after 4 clicks.
+/// Since Vim only supports up to 4-click events
+/// the counter rotates after 4 clicks.
 void Shell::mouseClickIncrement(Qt::MouseButton bt)
 {
-    if(m_mouseclick_pending != Qt::NoButton && bt != m_mouseclick_pending)
+    if(m_mouseclick_pending != Qt::NoButton
+       && bt != m_mouseclick_pending)
     {
         mouseClickReset();
     }
@@ -854,8 +891,8 @@ void Shell::mouseMoveEvent(QMouseEvent *ev)
 void Shell::wheelEvent(QWheelEvent *ev)
 {
 #ifdef Q_OS_MAC
-    // For some reason <ScrollWheel*> scrolls multiple lines at once
-    // we have to account for it, to make sure that pixelDelta() is used correctly.
+    // For some reason <ScrollWheel*> scrolls multiple lines at once. we have
+    //  to account for it, to make sure that pixelDelta() is used correctly.
     const int scroll_columns = 6;
     const int scroll_rows = 3;
     // Minimal scroll step
@@ -864,10 +901,12 @@ void Shell::wheelEvent(QWheelEvent *ev)
     // Total scroll delta considering previous events
     QPoint total_delta = m_mouse_wheel_delta_fraction + ev->pixelDelta();
     // Delta rounded to a minimal scroll step
-    QPoint cell_delta(total_delta.x() / scroll_step_x, total_delta.y() / scroll_step_y);
+    QPoint cell_delta(total_delta.x() / scroll_step_x,
+                      total_delta.y() / scroll_step_y);
     // Save remainder for future events
-    m_mouse_wheel_delta_fraction = total_delta - QPoint(cell_delta.x() * scroll_step_x,
-                                                        cell_delta.y() * scroll_step_y);
+    m_mouse_wheel_delta_fraction =
+        total_delta - QPoint(cell_delta.x() * scroll_step_x,
+                             cell_delta.y() * scroll_step_y);
     int horiz = cell_delta.x();
     int vert = cell_delta.y();
 #else
@@ -881,7 +920,8 @@ void Shell::wheelEvent(QWheelEvent *ev)
         return;
     }
 
-    QPoint pos(ev->x()/cellSize().width(), ev->y()/cellSize().height());
+    QPoint pos(ev->x()/cellSize().width(),
+               ev->y()/cellSize().height());
     QString inp;
 
     if(vert != 0)
@@ -905,10 +945,12 @@ void Shell::wheelEvent(QWheelEvent *ev)
 
 void Shell::updateWindowId()
 {
-    if(m_attached && m_nvim->connectionType() == NvimConnector::SpawnedConnection)
+    if(m_attached
+       && m_nvim->connectionType() == NvimConnector::SpawnedConnection)
     {
         WId window_id = effectiveWinId();
-        m_nvim->neovimObject()->vim_set_var("GuiWindowId", QVariant(window_id));
+        m_nvim->neovimObject()->vim_set_var("GuiWindowId",
+                                            QVariant(window_id));
     }
 }
 
@@ -974,7 +1016,8 @@ void Shell::neovimResizeFinished()
 
     if(m_resize_neovim_pending.isValid())
     {
-        resizeNeovim(m_resize_neovim_pending.width(), m_resize_neovim_pending.height());
+        resizeNeovim(m_resize_neovim_pending.width(),
+                     m_resize_neovim_pending.height());
         m_resize_neovim_pending = QSize();
     }
 }
@@ -1019,7 +1062,8 @@ void Shell::updateGuiWindowState(Qt::WindowStates state)
 
 void Shell::closeEvent(QCloseEvent *ev)
 {
-    if(m_attached && m_nvim->connectionType() == NvimConnector::SpawnedConnection)
+    if(m_attached
+       && m_nvim->connectionType() == NvimConnector::SpawnedConnection)
     {
         // If attached to a spawned Neovim process, ignore the event
         // and try to close Neovim as :qa
@@ -1143,7 +1187,8 @@ bool Shell::isBadMonospace(const QFont &f)
     {
         QFontInfo info(f);
         qDebug() << f.family()
-                 << "Average and Maximum font width mismatch for Regular font; QFont::exactMatch() is"
+                 << "Average and Maximum font width mismatch "
+                    "for Regular font; QFont::exactMatch() is"
                  << f.exactMatch()
                  << "Real font is " << info.family() << info.pointSize();
         return true;
@@ -1155,7 +1200,8 @@ bool Shell::isBadMonospace(const QFont &f)
     {
         QFontInfo info(fi);
         qDebug() << fi.family() <<
-                 "Average and Maximum font width mismatch for Italic font; QFont::exactMatch() is"
+                 "Average and Maximum font width mismatch "
+                 "for Italic font; QFont::exactMatch() is"
                  << fi.exactMatch()
                  << "Real font is " << info.family() << info.pointSize();
         return true;
@@ -1167,7 +1213,8 @@ bool Shell::isBadMonospace(const QFont &f)
     {
         QFontInfo info(fb);
         qDebug() << fb.family() <<
-                 "Average and Maximum font width mismatch for Bold font; QFont::exactMatch() is"
+                 "Average and Maximum font width mismatch "
+                 "for Bold font; QFont::exactMatch() is"
                  << fb.exactMatch()
                  << "Real font is " << info.family() << info.pointSize();
         return true;
@@ -1179,7 +1226,8 @@ bool Shell::isBadMonospace(const QFont &f)
     {
         QFontInfo info(fbi);
         qDebug() << fbi.family() <<
-                 "Average and Maximum font width mismatch for Bold+Italic font; QFont::exactMatch() is"
+                 "Average and Maximum font width mismatch "
+                 "for Bold+Italic font; QFont::exactMatch() is"
                  << fbi.exactMatch()
                  << "Real font is " << info.family() << info.pointSize();
         return true;
@@ -1189,7 +1237,8 @@ bool Shell::isBadMonospace(const QFont &f)
        || fm_normal.maxWidth() != fm_boldit.maxWidth()
        || fm_normal.maxWidth() != fm_bold.maxWidth())
     {
-        qDebug() << f.family() << "Average and Maximum font width mismatch between font types";
+        qDebug() << f.family()
+                 << "Average and Maximum font width mismatch between font types";
         return true;
     }
 
@@ -1259,4 +1308,4 @@ void Shell::openFiles(QList<QUrl> urls)
     }
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

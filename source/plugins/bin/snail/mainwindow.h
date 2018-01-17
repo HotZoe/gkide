@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/mainwindow.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_MAINWINDOW_H
-#define SNAIL_LIBS_NVIMCORE_MAINWINDOW_H
+#ifndef PLUGIN_SNAIL_MAINWINDOW_H
+#define PLUGIN_SNAIL_MAINWINDOW_H
 
 #include <QMainWindow>
 #include <QStackedWidget>
@@ -58,6 +58,6 @@ private:
     QStackedWidget m_stack;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_MAINWINDOW_H
+#endif // PLUGIN_SNAIL_MAINWINDOW_H

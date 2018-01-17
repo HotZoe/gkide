@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/stdinreader.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_STDINNOTIFIER_H
-#define SNAIL_LIBS_NVIMCORE_STDINNOTIFIER_H
+#ifndef PLUGIN_SNAIL_STDINNOTIFIER_H
+#define PLUGIN_SNAIL_STDINNOTIFIER_H
 
 #include <QThread>
 #include <QFile>
@@ -22,6 +22,6 @@ private:
     qint64 m_maxSize;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_STDINNOTIFIER_H
+#endif // PLUGIN_SNAIL_STDINNOTIFIER_H

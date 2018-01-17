@@ -51,7 +51,7 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 {
     SnailNvimQt::MainWindow *win = new SnailNvimQt::MainWindow(c);
 
-    QObject::connect(instance(),   SIGNAL(openFilesTriggered(const QList<QUrl>)),
+    QObject::connect(instance(),SIGNAL(openFilesTriggered(const QList<QUrl>)),
                      win->shell(), SLOT(openFiles(const QList<QUrl>)));
 
     if(parser.isSet("fullscreen"))
@@ -68,11 +68,13 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
     }
 }
 
-/// Initialize CLI parser with all the snail arguments, process the provided arguments and
-/// check for errors.
+/// Initialize CLI parser with all the snail arguments, process the
+/// provided arguments and check for errors.
 ///
-/// When appropriate this function will call QCommandLineParser::showHelp() terminating the program.
-void App::processCliOptions(QCommandLineParser &parser, const QStringList &arguments)
+/// When appropriate this function will call
+/// QCommandLineParser::showHelp() terminating the program.
+void App::processCliOptions(QCommandLineParser &parser,
+                            const QStringList &arguments)
 {
     QString arg_desc;
 
@@ -88,7 +90,7 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     arg_desc = QCoreApplication::translate("main", "nvim executable path.");
     arg_nvim.setDescription(arg_desc);
     arg_nvim.setValueName("nvim_exec");
-    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim"); // set default value
+    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim");
     parser.addOption(arg_nvim);
 
     // --server <address>
@@ -126,7 +128,7 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     QCommandLineOption arg_geometry("geometry");
     arg_desc = QCoreApplication::translate("main", "Initial the window geometry.");
     arg_geometry.setDescription(arg_desc);
-    arg_server.setValueName("geometry");/// @todo
+    arg_server.setValueName("geometry");
     parser.addOption(arg_geometry);
 
     // positional arguments
@@ -140,7 +142,8 @@ void App::processCliOptions(QCommandLineParser &parser, const QStringList &argum
     // --help
     parser.addHelpOption();
 
-    parser.process(arguments); // processes the real command line arguments
+    // processes the real command line arguments
+    parser.process(arguments);
 
     if(parser.isSet("help"))
     {
@@ -260,4 +263,4 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     }
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

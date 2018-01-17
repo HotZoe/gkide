@@ -27,7 +27,8 @@ Function::Function()
 {
 }
 
-/// Construct new function with the given return type, name, parameters and error
+/// Construct new function with the given
+/// return type, name, parameters and error
 Function::Function(const QString &ret,
                    const QString &name,
                    QList<QPair<QString,QString>> params,
@@ -40,7 +41,8 @@ Function::Function(const QString &ret,
     this->can_fail = can_fail;
 }
 
-/// Construct new function with the given return type, name, parameters and error
+/// Construct new function with the given
+/// return type, name, parameters and error
 Function::Function(const QString &ret,
                    const QString &name,
                    QList<QString> paramTypes,
@@ -115,7 +117,8 @@ Function Function::fromVariant(const QVariant &fun)
         {
             if(!it.value().canConvert<QByteArray>())
             {
-                qDebug() << "Found unexpected data type when unpacking function" << fun;
+                qDebug() << "Found unexpected data type when unpacking function"
+                         << fun;
                 return f;
             }
 
@@ -125,7 +128,8 @@ Function Function::fromVariant(const QVariant &fun)
         {
             if(!it.value().canConvert<QByteArray>())
             {
-                qDebug() << "Found unexpected data type when unpacking function" << fun;
+                qDebug() << "Found unexpected data type when unpacking function"
+                         << fun;
                 return f;
             }
 
@@ -135,7 +139,8 @@ Function Function::fromVariant(const QVariant &fun)
         {
             if(!it.value().canConvert<bool>())
             {
-                qDebug() << "Found unexpected data type when unpacking function" << fun;
+                qDebug() << "Found unexpected data type when unpacking function"
+                         << fun;
                 return f;
             }
 
@@ -145,7 +150,8 @@ Function Function::fromVariant(const QVariant &fun)
         {
             if(!it.value().canConvert<QVariantList>())
             {
-                qDebug() << "Found unexpected data type when unpacking function" << fun;
+                qDebug() << "Found unexpected data type when unpacking function"
+                         << fun;
                 return f;
             }
 
@@ -181,7 +187,9 @@ Function Function::fromVariant(const QVariant &fun)
         }
         else
         {
-            qDebug() << "Unsupported function attribute"<< it.key() << it.value();
+            qDebug() << "Unsupported function attribute"
+                     << it.key()
+                     << it.value();
         }
     }
 
@@ -210,7 +218,8 @@ QList<QPair<QString,QString>> Function::parseParameters(const QVariantList &obj)
         {
             QByteArray type, name;
 
-            if(!params.at(j).canConvert<QByteArray>() || !params.at(j+1).canConvert<QByteArray>())
+            if(!params.at(j).canConvert<QByteArray>()
+               || !params.at(j+1).canConvert<QByteArray>())
             {
                 return fail;
             }
@@ -241,7 +250,7 @@ QString Function::signature() const
         notes += " !fail";
     }
 
-    return  QString("%1 %2(%3)%4").arg(return_type).arg(name).arg(sigparams.join(", ")).arg(notes);
+    return QString("%1 %2(%3)%4").arg(return_type).arg(name).arg(sigparams.join(", ")).arg(notes);
 }
 
 /// return the FunctionId or NEOVIM_FN_NULL if the function is uknown
@@ -263,5 +272,5 @@ Function::FunctionId Function::functionId(const Function &f)
     return Function::NEOVIM_FN_NULL;
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 

@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/msgpackiodevice.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_MSGPACKIODEVICE_H
-#define SNAIL_LIBS_NVIMCORE_MSGPACKIODEVICE_H
+#ifndef PLUGIN_SNAIL_MSGPACKIODEVICE_H
+#define PLUGIN_SNAIL_MSGPACKIODEVICE_H
 
 #include <QIODevice>
 #include <QHash>
@@ -40,7 +40,8 @@ public:
     bool setEncoding(const QByteArray &);
 
     quint32 msgId();
-    MsgpackRequest *startRequestUnchecked(const QString &method, quint32 argcount);
+    MsgpackRequest *startRequestUnchecked(const QString &method,
+                                          quint32 argcount);
 
     void send(int64_t);
     void send(const QVariant &);
@@ -69,7 +70,9 @@ public:
     void setRequestHandler(MsgpackRequestHandler *);
 
     /// Typedef for msgpack-to-Qvariant decoder @see registerExtType
-    typedef QVariant(*msgpackExtDecoder)(MsgpackIODevice *, const char *data, quint32 size);
+    typedef QVariant(*msgpackExtDecoder)(MsgpackIODevice *,
+                                         const char *data,
+                                         quint32 size);
     void registerExtType(int8_t type, msgpackExtDecoder);
 
     QList<quint32> pendingRequests() const;
@@ -104,8 +107,12 @@ protected slots:
     void requestTimeout(quint32 id);
 
 private:
-    static int msgpack_write_to_stdout(void *data, const char *buf, unsigned long int len);
-    static int msgpack_write_to_dev(void *data, const char *buf, unsigned long int len);
+    static int msgpack_write_to_stdout(void *data,
+                                       const char *buf,
+                                       unsigned long int len);
+    static int msgpack_write_to_dev(void *data,
+                                    const char *buf,
+                                    unsigned long int len);
 
     quint32 m_reqid;
     QIODevice *m_dev;
@@ -129,8 +136,8 @@ public:
                                const QVariantList &)=0;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
 Q_DECLARE_METATYPE(SnailNvimQt::MsgpackIODevice::MsgpackError)
 
-#endif // SNAIL_LIBS_NVIMCORE_MSGPACKIODEVICE_H
+#endif // PLUGIN_SNAIL_MSGPACKIODEVICE_H

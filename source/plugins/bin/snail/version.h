@@ -1,9 +1,9 @@
 /// @file plugins/bin/snail/version.h
 
-#ifndef SNAIL_APP_VERSION_H
-#define SNAIL_APP_VERSION_H
+#ifndef PLUGIN_SNAIL_VERSION_H
+#define PLUGIN_SNAIL_VERSION_H
 
 #include "generated/config/miscinfo.h"
 #include "generated/config/versiondef.h"
 
-#endif // SNAIL_APP_VERSION_H
+#endif // PLUGIN_SNAIL_VERSION_H

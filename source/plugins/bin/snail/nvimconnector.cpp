@@ -16,8 +16,10 @@ namespace SnailNvimQt {
 /// @brief A Connection to a Neovim instance
 
 /// Create a new Neovim API connection from an open IO device
-NvimConnector::NvimConnector(QIODevice *dev) :NvimConnector(new MsgpackIODevice(dev))
+NvimConnector::NvimConnector(QIODevice *dev)
+    :NvimConnector(new MsgpackIODevice(dev))
 {
+    /* nothing */
 }
 
 NvimConnector::NvimConnector(MsgpackIODevice *dev)
@@ -26,7 +28,8 @@ NvimConnector::NvimConnector(MsgpackIODevice *dev)
 {
     m_helper = new NvimConnectorHelper(this);
     qRegisterMetaType<NeovimError>("NeovimError");
-    connect(m_dev, &MsgpackIODevice::error, this, &NvimConnector::msgpackError);
+    connect(m_dev, &MsgpackIODevice::error,
+            this, &NvimConnector::msgpackError);
 
     if(!m_dev->isOpen())
     {
@@ -82,7 +85,8 @@ MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 {
     // FIXME: this should be in class Neovim
     MsgpackRequest *r = m_dev->startRequestUnchecked("ui_attach", 3);
-    connect(r, &MsgpackRequest::timeout, this, &NvimConnector::fatalTimeout);
+    connect(r, &MsgpackRequest::timeout,
+            this, &NvimConnector::fatalTimeout);
     r->setTimeout(5000);
     m_dev->send(width);
     m_dev->send(height);
@@ -109,9 +113,12 @@ uint64_t NvimConnector::channel()
 void NvimConnector::discoverMetadata()
 {
     MsgpackRequest *r = m_dev->startRequestUnchecked("vim_get_api_info", 0);
-    connect(r, &MsgpackRequest::finished, m_helper, &NvimConnectorHelper::handleMetadata);
-    connect(r, &MsgpackRequest::error, m_helper, &NvimConnectorHelper::handleMetadataError);
-    connect(r, &MsgpackRequest::timeout, this, &NvimConnector::fatalTimeout);
+    connect(r, &MsgpackRequest::finished,
+            m_helper, &NvimConnectorHelper::handleMetadata);
+    connect(r, &MsgpackRequest::error,
+            m_helper, &NvimConnectorHelper::handleMetadataError);
+    connect(r, &MsgpackRequest::timeout,
+            this, &NvimConnector::fatalTimeout);
     r->setTimeout(5000);
 }
 
@@ -154,7 +161,8 @@ Neovim *NvimConnector::neovimObject()
 /// Launch an embedded Neovim process
 ///
 /// @see processExited
-NvimConnector *NvimConnector::spawn(const QStringList &params, const QString &exe)
+NvimConnector *NvimConnector::spawn(const QStringList &params,
+                                    const QString &exe)
 {
     QStringList args;
     QProcess *p = new QProcess();
@@ -166,7 +174,8 @@ NvimConnector *NvimConnector::spawn(const QStringList &params, const QString &ex
     }
     else
     {
-        // Neovim accepts a -- argument after which only filenames are passed
+        // Neovim accepts a -- argument after
+        // which only filenames are passed
         int idx = params.indexOf("--");
         args.append(params.mid(0, idx));
         args << "--embed" << "--headless";
@@ -202,8 +211,10 @@ NvimConnector *NvimConnector::connectToSocket(const QString &path)
     NvimConnector *c = new NvimConnector(s);
     c->m_ctype = SocketConnection;
     c->m_connSocket = path;
-    connect(s, SIGNAL(error(QLocalSocket::LocalSocketError)), c, SLOT(socketError()));
-    connect(s, &QLocalSocket::connected, c, &NvimConnector::discoverMetadata);
+    connect(s, SIGNAL(error(QLocalSocket::LocalSocketError)),
+            c, SLOT(socketError()));
+    connect(s, &QLocalSocket::connected,
+            c, &NvimConnector::discoverMetadata);
     s->connectToServer(path);
     return c;
 }
@@ -220,16 +231,19 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
     c->m_ctype = HostConnection;
     c->m_connHost = host;
     c->m_connPort = port;
-    connect(s, SIGNAL(error(QAbstractSocket::SocketError)), c, SLOT(socketError()));
-    connect(s, &QAbstractSocket::connected, c, &NvimConnector::discoverMetadata);
+    connect(s, SIGNAL(error(QAbstractSocket::SocketError)),
+            c, SLOT(socketError()));
+    connect(s, &QAbstractSocket::connected,
+            c, &NvimConnector::discoverMetadata);
     s->connectToHost(host, (quint16)port);
     return c;
 }
 
 /// Connect to a running instance of Neovim (if available).
 ///
-/// This method gets the Neovim endpoint from the NVIM_LISTEN_ADDRESS environment
-/// variable, if it is not available a new Neovim instance is spawned().
+/// This method gets the Neovim endpoint from the NVIM_LISTEN_ADDRESS
+/// environment variable, if it is not available a new Neovim instance
+/// is spawned().
 ///
 /// @see spawn()
 NvimConnector *NvimConnector::connectToNeovim(const QString &server)
@@ -268,7 +282,8 @@ NvimConnector *NvimConnector::fromStdinOut()
     return new NvimConnector(MsgpackIODevice::fromStdinOut());
 }
 
-/// Called when running embedded Neovim to report an error with the Neovim process
+/// Called when running embedded Neovim to
+/// report an error with the Neovim process
 void NvimConnector::processError(QProcess::ProcessError err)
 {
     switch(err)
@@ -310,8 +325,8 @@ void NvimConnector::fatalTimeout()
     setError(RuntimeMsgpackError, "Neovim is taking too long to respond");
 }
 
-/// True if NvimConnector::reconnect can be called to reconnect with Neovim. This
-/// is true unless you built the NvimConnector ctor directly instead
+/// True if NvimConnector::reconnect can be called to reconnect with Neovim.
+/// This is true unless you built the NvimConnector ctor directly instead
 /// of using on of the static methods.
 bool NvimConnector::canReconnect()
 {
@@ -326,8 +341,8 @@ NvimConnector::NeovimConnectionType NvimConnector::connectionType()
 
 /// Create a new connection using the same parameters as the current one.
 ///
-/// This is the equivalent of creating a new object with spawn(), connectToHost(),
-/// or connectToSocket()
+/// This is the equivalent of creating a new object with spawn(),
+/// connectToHost(), or connectToSocket()
 ///
 /// If canReconnect() returns false, this function will return NULL.
 NvimConnector *NvimConnector::reconnect()
@@ -357,9 +372,9 @@ NvimConnector *NvimConnector::reconnect()
 
 /// @fn SnailNvimQt::NvimConnector::processExited(int exitStatus)
 ///
-/// If the Neovim process was started using SnailNvimQt::NvimConnector::spawn this signal
-/// is emitted when the process exits.
+/// If the Neovim process was started using SnailNvimQt::NvimConnector::spawn
+/// this signal is emitted when the process exits.
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
 #include "moc_nvimconnector.cpp"

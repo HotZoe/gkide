@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/nvimconnector.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
-#define SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
+#ifndef PLUGIN_SNAIL_NVIMCONNECTOR_H
+#define PLUGIN_SNAIL_NVIMCONNECTOR_H
 
 #include <QObject>
 #include <QProcess>
@@ -54,7 +54,9 @@ public:
 
     NvimConnector(QIODevice *s);
     NvimConnector(MsgpackIODevice *s);
-    static NvimConnector *spawn(const QStringList &params=QStringList(), const QString &exe="nvim");
+
+    static NvimConnector *spawn(const QStringList &params=QStringList(),
+                                const QString &exe="nvim");
     static NvimConnector *connectToSocket(const QString &);
     static NvimConnector *connectToHost(const QString &host, int port);
     static NvimConnector *connectToNeovim(const QString &server=QString());
@@ -114,8 +116,8 @@ private:
     bool m_ready;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
 Q_DECLARE_METATYPE(SnailNvimQt::NvimConnector::NeovimError)
 
-#endif // SNAIL_LIBS_NVIMCORE_NVIMCONNECTOR_H
+#endif // PLUGIN_SNAIL_NVIMCONNECTOR_H

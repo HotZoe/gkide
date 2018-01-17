@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/errorwidget.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_ERRORWIDGET_H
-#define SNAIL_LIBS_NVIMCORE_ERRORWIDGET_H
+#ifndef PLUGIN_SNAIL_ERRORWIDGET_H
+#define PLUGIN_SNAIL_ERRORWIDGET_H
 
 #include <QWidget>
 #include <QPushButton>
@@ -26,6 +26,6 @@ private:
     QPushButton *m_closeButton;
 };
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_ERRORWIDGET_H
+#endif // PLUGIN_SNAIL_ERRORWIDGET_H

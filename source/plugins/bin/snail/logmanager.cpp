@@ -29,14 +29,19 @@ void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
                      const QMessageLogContext &FUNC_ATTR_ARGS_UNUSED_REALY(ctx),
                      const QString &FUNC_ATTR_ARGS_UNUSED_REALY(msg))
 {
-    return; // ignore all Qt loggings when enable logging and not set environment log file
+    // ignore all Qt loggings when enable
+    // logging and not set environment log file
+    return;
 }
 #else
-/// A log handler for Qt messages, all messages are dumped into the file: @def ENV_GKIDE_SNAIL_LOGGINGS.
+/// A log handler for Qt messages, all messages are
+/// dumped into the file: @def ENV_GKIDE_SNAIL_LOGGINGS.
 ///
-/// In UNIX Qt prints messages to the console output, but in Windows this is the only way to
-/// get Qt's debug/warning messages.
-void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QString &msg)
+/// In UNIX Qt prints messages to the console output,
+/// but in Windows this is the only way to get Qt's debug/warning messages.
+void logging_handler(QtMsgType type,
+                     const QMessageLogContext &ctx,
+                     const QString &msg)
 {
     LogLevelType lglv;
 
@@ -74,7 +79,8 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
     if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_LOGLEVEL)
        && !qEnvironmentVariableIsEmpty(ENV_GKIDE_SNAIL_LOGLEVEL))
     {
-        env_level = qEnvironmentVariableIntValue(ENV_GKIDE_SNAIL_LOGLEVEL, &env_ok);
+        env_level =
+            qEnvironmentVariableIntValue(ENV_GKIDE_SNAIL_LOGLEVEL, &env_ok);
     }
 
     if(env_ok && lglv < env_level)
@@ -101,7 +107,8 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
             // the env value ending in slash
             if(!fi.isDir())
             {
-                // not exist, try to create it with parents directories if needed.
+                // not exist, try to create it
+                // with parents directories if needed.
                 if(!QDir(env_val).mkpath(env_val))
                 {
                     return; // can not create, skip
@@ -117,7 +124,8 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
 
             if(!log_dir.exists())
             {
-                // not exist, try to create it with parents directories if needed.
+                // not exist, try to create it
+                // with parents directories if needed.
                 if(!log_dir.mkpath(fi.path()))
                 {
                     return; // can not create, skip
@@ -177,7 +185,8 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
         logFile.setFileName(gkide_usr_home + "/snail.log");
     }
 
-    QString log_msg = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
+    QString log_msg =
+        QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ");
 
     // cast to avoid gcc '-Wswitch'
     switch(static_cast<int>(lglv))
@@ -203,7 +212,10 @@ void logging_handler(QtMsgType type, const QMessageLogContext &ctx, const QStrin
 
     file_name = QString(file_name.constData() + file_name.lastIndexOf("/") + 1);
 
-    log_msg += file_name + "@" + QString::number(ctx.line) + QString("] %1\n").arg(msg);
+    log_msg += file_name
+               + "@"
+               + QString::number(ctx.line)
+               + QString("] %1\n").arg(msg);
 
     if(logFile.open(QIODevice::Append | QIODevice::Text))
     {
@@ -242,4 +254,4 @@ bool getLoginEnvironment(const QString &path)
 }
 #endif
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

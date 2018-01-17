@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/util.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_UTIL_H
-#define SNAIL_LIBS_NVIMCORE_UTIL_H
+#ifndef PLUGIN_SNAIL_UTIL_H
+#define PLUGIN_SNAIL_UTIL_H
 
 #include <QDebug>
 #include <msgpack.h>
@@ -21,7 +21,8 @@ bool decode(const QVariant &in, QList<T> &out)
 
     if((QMetaType::Type)in.type() != QMetaType::QVariantList)
     {
-        qWarning() << "Attempting to decode as QList<...> when type is" << in.type() << in;
+        qWarning() << "Attempting to decode as QList<...> when type is"
+                   << in.type() << in;
         return true;
     }
 
@@ -62,6 +63,6 @@ inline bool variant_not_zero(const QVariant &v)
     return !ok || int_val != 0;
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt
 
-#endif // SNAIL_LIBS_NVIMCORE_UTIL_H
+#endif // PLUGIN_SNAIL_UTIL_H

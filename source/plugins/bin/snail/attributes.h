@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/attributes.h
 
-#ifndef SNAIL_APP_ATTRIBUTES_H
-#define SNAIL_APP_ATTRIBUTES_H
+#ifndef PLUGIN_SNAIL_ATTRIBUTES_H
+#define PLUGIN_SNAIL_ATTRIBUTES_H
 
 // For all gnulikes: gcc, clang, intel
 // https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
@@ -37,4 +37,4 @@
     #define FUNC_ATTR_ARGS_UNUSED_REALY(v)   UNUSED_##v
 #endif
 
-#endif // SNAIL_APP_ATTRIBUTES_H
+#endif // PLUGIN_SNAIL_ATTRIBUTES_H

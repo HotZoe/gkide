@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/shellwidget.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_SHELLWIDGET_H
-#define SNAIL_LIBS_NVIMCORE_SHELLWIDGET_H
+#ifndef PLUGIN_SNAIL_SHELLWIDGET_H
+#define PLUGIN_SNAIL_SHELLWIDGET_H
 
 #include <QWidget>
 #include "plugins/bin/snail/shellcontents.h"
@@ -71,4 +71,4 @@ private:
     unsigned int m_lineSpace;
 };
 
-#endif // SNAIL_LIBS_NVIMCORE_SHELLWIDGET_H
+#endif // PLUGIN_SNAIL_SHELLWIDGET_H

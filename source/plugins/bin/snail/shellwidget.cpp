@@ -37,13 +37,17 @@ void ShellWidget::setDefaultFont()
     setShellFont(DEFAULT_FONT, 11, -1, false, true);
 }
 
-bool ShellWidget::setShellFont(const QString &family, int ptSize, int weight,
-                               bool italic, bool force)
+bool ShellWidget::setShellFont(const QString &family,
+                               int ptSize,
+                               int weight,
+                               bool italic,
+                               bool force)
 {
     QFont f(family, ptSize, weight, italic);
 
     f.setStyleHint(QFont::TypeWriter,
-                   QFont::StyleStrategy(QFont::PreferDefault | QFont::ForceIntegerMetrics));
+                   QFont::StyleStrategy(QFont::PreferDefault
+                                        | QFont::ForceIntegerMetrics));
 
     f.setFixedPitch(true);
     f.setKerning(false);
@@ -101,7 +105,8 @@ void ShellWidget::setCellSize()
 {
     QFontMetrics fm(font());
     m_ascent = fm.ascent();
-    m_cellSize = QSize(fm.width('W'), qMax(fm.lineSpacing(), fm.height()) + m_lineSpace);
+    m_cellSize = QSize(fm.width('W'),
+                       qMax(fm.lineSpacing(), fm.height()) + m_lineSpace);
     setSizeIncrement(m_cellSize);
 }
 
@@ -143,7 +148,8 @@ void ShellWidget::paintEvent(QPaintEvent *ev)
 
                 if(j <= 0 || !contents().constValue(i, j-1).doubleWidth)
                 {
-                    // Only paint bg/fg if this is not the second cell of a wide char
+                    // Only paint bg/fg if this is
+                    // not the second cell of a wide char
                     if(cell.backgroundColor.isValid())
                     {
                         p.fillRect(r, cell.backgroundColor);
@@ -234,7 +240,8 @@ void ShellWidget::paintEvent(QPaintEvent *ev)
         }
     }
 
-    QRect shellArea = absoluteShellRect(0, 0, m_contents.rows(), m_contents.columns());
+    QRect shellArea =
+        absoluteShellRect(0, 0, m_contents.rows(), m_contents.columns());
     QRegion margins = QRegion(rect()).subtracted(shellArea);
 
     foreach(QRect margin, margins.intersected(ev->region()).rects())
@@ -267,7 +274,8 @@ void ShellWidget::resizeEvent(QResizeEvent *ev)
 
 QSize ShellWidget::sizeHint() const
 {
-    return QSize(m_cellSize.width()*m_contents.columns(), m_cellSize.height()*m_contents.rows());
+    return QSize(m_cellSize.width()*m_contents.columns(),
+                 m_cellSize.height()*m_contents.rows());
 }
 
 void ShellWidget::resizeShell(int n_rows, int n_columns)
@@ -379,7 +387,8 @@ void ShellWidget::scrollShell(int rows)
 }
 
 /// Scroll an area, count rows (positive numbers move content up)
-void ShellWidget::scrollShellRegion(int row0, int row1, int col0, int col1, int rows)
+void ShellWidget::scrollShellRegion(int row0, int row1,
+                                    int col0, int col1, int rows)
 {
     if(rows != 0)
     {
@@ -393,7 +402,8 @@ void ShellWidget::scrollShellRegion(int row0, int row1, int col0, int col1, int 
 /// Convert Area in row/col coordinates into pixel coordinates
 ///
 /// (row0, col0) is the start position and rowcount/colcount the size
-QRect ShellWidget::absoluteShellRect(int row0, int col0, int rowcount, int colcount)
+QRect ShellWidget::absoluteShellRect(int row0, int col0,
+                                     int rowcount, int colcount)
 {
     return QRect(col0*m_cellSize.width(),
                  row0*m_cellSize.height(),

@@ -41,8 +41,7 @@ int gui_main(int argc, char **argv)
     return app.exec();
 }
 
-/// Command Line Interface
-/// Parsing command line arguments
+/// Command Line Interface, parsing command line arguments then start GUI
 int cli_main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
@@ -69,22 +68,23 @@ int main(int argc, char **argv)
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // Do an early check for --nofork before creating a QApplication,
-    // thus we have chance to parse the command line arguments by QCommandLineParser
+    // thus we have chance to parse the command line arguments
+    // by QCommandLineParser
     bool nofork = false;
 
     for(int i=1; i<argc; i++)
     {
         if(QString::compare("--", argv[i]) == 0)
         {
-            break;
+            break; // have cmd-line arguments
         }
         else if(QString::compare("--spawn", argv[i]) == 0)
         {
-            break;
+            break; // cmd-line spawn
         }
         else if(QString::compare("--nofork", argv[i]) == 0)
         {
-            nofork = true;
+            nofork = true; // start GUI, no fork
             break;
         }
     }

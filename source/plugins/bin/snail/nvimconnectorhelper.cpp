@@ -10,8 +10,8 @@
 
 namespace SnailNvimQt {
 
-/// The helper deals with Neovim API internals, it handles
-/// msgpack responses on behalf of the connector.
+/// The helper deals with Neovim API internals,
+/// it handles msgpack responses on behalf of the connector.
 NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c) :QObject(c), m_c(c)
 {
 }
@@ -21,7 +21,8 @@ void NvimConnectorHelper::handleMetadataError(quint32 FUNC_ATTR_ARGS_UNUSED_REAL
                                               Function::FunctionId,
                                               const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
 {
-    m_c->setError(NvimConnector::NoMetadata, tr("Unable to get Neovim api information"));
+    m_c->setError(NvimConnector::NoMetadata,
+                  tr("Unable to get Neovim api information"));
     return; /// @todo: better error message (from result?)
 }
 
@@ -40,7 +41,8 @@ void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msg
        || !asList.at(1).canConvert<QVariantMap>())
     {
         m_c->setError(NvimConnector::UnexpectedMsg,
-                      tr("Unable to unpack metadata response description, unexpected data type"));
+                      tr("Unable to unpack metadata response "
+                         "description, unexpected data type"));
     }
 
     m_c->m_channel = asList.at(0).toUInt();
@@ -56,8 +58,9 @@ void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msg
             if(!checkFunctions(it.value().toList()))
             {
                 m_c->setError(NvimConnector::APIMisMatch,
-                              tr("API methods mismatch: Cannot connect to this instance of "
-                                 "Neovim, its version is likely too old, or the API has changed"));
+                              tr("API methods mismatch: "
+                                 "Cannot connect to nvim instance, its version "
+                                 "is too old, or the API has changed!"));
                 return;
             }
         }
@@ -70,7 +73,8 @@ void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msg
                 this, &NvimConnectorHelper::encodingChanged);
 
         MsgpackRequest *r = m_c->neovimObject()->vim_get_option("encoding");
-        connect(r, &MsgpackRequest::timeout, m_c, &NvimConnector::fatalTimeout);
+        connect(r, &MsgpackRequest::timeout,
+                m_c, &NvimConnector::fatalTimeout);
         r->setTimeout(10000);
     }
     else
@@ -107,7 +111,8 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
 
     foreach(const QVariant &val, ftable)
     {
-        Function::FunctionId fid = Function::functionId(Function::fromVariant(val));
+        Function::FunctionId fid =
+            Function::functionId(Function::fromVariant(val));
 
         if(fid != Function::NEOVIM_FN_NULL)
         {
@@ -119,4 +124,4 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
     return Function::knownFunctions.size() == supported.size();
 }
 
-} // [Namespace] SnailNvimQt
+} // namespace::SnailNvimQt

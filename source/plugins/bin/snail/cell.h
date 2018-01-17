@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/cell.h
 
-#ifndef SNAIL_LIBS_NVIMCORE_CELL_H
-#define SNAIL_LIBS_NVIMCORE_CELL_H
+#ifndef PLUGIN_SNAIL_CELL_H
+#define PLUGIN_SNAIL_CELL_H
 
 #include <QColor>
 #include <QChar>
@@ -21,9 +21,9 @@ public:
 
     /// Default cells are space characters using invalid colors
     inline Cell()
-        :c(' '), foregroundColor(QColor()), backgroundColor(QColor()), specialColor(QColor()),
-         bold(false), italic(false), underline(false), undercurl(false),
-         valid(true), doubleWidth(false)
+        :c(' '), foregroundColor(QColor()), backgroundColor(QColor()),
+         specialColor(QColor()), bold(false), italic(false), underline(false),
+         undercurl(false), valid(true), doubleWidth(false)
     { /* do nothing */ }
 
     inline void reset(void)
@@ -35,7 +35,6 @@ public:
         bold = italic = underline = undercurl = doubleWidth = false;
         valid = true;
     }
-
 
     /// Create an empty Cell with a background color
     static Cell bg(QColor bg)
@@ -53,7 +52,8 @@ public:
 
     static inline Cell invalid()
     {
-        Cell c = Cell('X', Qt::white, Qt::red, QColor(), false, false, false, false);
+        Cell c = Cell('X', Qt::white, Qt::red, QColor(),
+                      false, false, false, false);
         c.valid = false;
         return c;
     }
@@ -85,4 +85,4 @@ inline bool operator==(const Cell &c1, const Cell &c2)
            );
 }
 
-#endif // SNAIL_LIBS_NVIMCORE_CELL_H
+#endif // PLUGIN_SNAIL_CELL_H
