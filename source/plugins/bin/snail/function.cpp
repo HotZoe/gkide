@@ -10,11 +10,11 @@ typedef QPair<QString,QString> StringPair;
 
 /// @class SnailNvimQt::Function
 ///
-/// @brief Representation of a Neovim API function signature
+/// @brief Representation of a Nvim API function signature
 
 /// @enum Function::FunctionId
 ///
-/// Neovim API function identifiers, the list
+/// Nvim API function identifiers, the list
 /// SnailNvimQt::Function::knownFunctions is indexed with this enum.
 
 #ifndef NEOVIMQT_NO_AUTO
@@ -268,7 +268,7 @@ Function::FunctionId Function::functionId(const Function &f)
         return Function::FunctionId(index);
     }
 
-    qDebug() << "Unknown Neovim function" << f.signature();
+    qDebug() << "Unknown Nvim function" << f.signature();
     return Function::NEOVIM_FN_NULL;
 }
 

@@ -42,7 +42,7 @@ MsgpackIODevice *MsgpackIODevice::fromStdinOut(QObject *parent)
 
 MsgpackIODevice::MsgpackIODevice(QIODevice *dev, QObject *parent)
     : QObject(parent), m_reqid(0), m_dev(dev),
-      m_encoding(0), m_reqHandler(0), m_error(NoError)
+      m_encoding(NULL), m_reqHandler(NULL), m_error(NoError)
 {
     qRegisterMetaType<MsgpackError>("MsgpackError");
     qRegisterMetaType<Function::FunctionId>("Function::FunctionId");
@@ -545,7 +545,7 @@ void MsgpackIODevice::setError(MsgpackError err, const QString &msg)
 {
     m_error = err;
     m_errorString = msg;
-    qWarning() << "MsgpackIO fatal error" << m_errorString;
+    qWarning() << "MsgpackIO fatal error: " << m_errorString;
     emit error(m_error);
 }
 
@@ -1031,7 +1031,7 @@ QByteArray MsgpackIODevice::encode(const QString &str)
     }
 }
 
-/// Decode byte array as string, from Neovim's encoding
+/// Decode byte array as string, from Nvim's encoding
 QString MsgpackIODevice::decode(const QByteArray &data)
 {
     if(m_encoding)

@@ -464,7 +464,7 @@ typedef struct api2mpobj_stackitem_s
     size_t idx;
 } api2mpobj_stackitem_st;
 
-/// Convert type used by Neovim API to msgpack
+/// Convert type used by Nvim API to msgpack
 ///
 /// @param[in]  result
 /// Object to convert.

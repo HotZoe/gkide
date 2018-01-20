@@ -189,7 +189,7 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         QString server = parser.value("server");
 
         Q_ASSERT(server.isEmpty() == false);
-        qDebug() << "server_addr=" << server;
+        qDebug() << "serverAddr=" << server;
 
         return SnailNvimQt::NvimConnector::connectToNeovim(server);
     }
@@ -204,69 +204,72 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         nvimArgs << "--cmd";
         nvimArgs << "set termguicolors";
 
-        QString nvim_exec = parser.value("nvim");
+        // default nvim program: gkide/bin/nvim
+        QString nvimProg = parser.value("nvim");
 
+        // environment nvim program check: $GKIDE_SNAIL_NVIMEXEC
         if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_NVIMEXEC))
         {
             QString nvim_bin = qgetenv(ENV_GKIDE_SNAIL_NVIMEXEC);
 
-            qDebug() << "nvim_exec_env=" << nvim_bin;
+            qDebug() << "nvimProgEnv=" << nvim_bin;
 
             if(QFileInfo(nvim_bin).isExecutable())
             {
-                nvim_exec = nvim_bin;
-            }
-        }
-        else
-        {
-            // check the default plugin directory: gkide/plg
-            QDir gkide_dir =
-                QFileInfo(QCoreApplication::applicationDirPath()).dir();
-
-            #ifdef Q_OS_MAC
-            // within the bundle at: gkide/Resources/plg
-            gkide_dir.cd("Resources");
-            #endif
-
-            gkide_dir.cd("plg");
-
-            if(gkide_dir.exists())
-            {
-                nvimArgs.insert(1, QString("let &rtp.=',%1'").arg(gkide_dir.path()));
-            }
-
-            if(qEnvironmentVariableIsSet(ENV_GKIDE_NVIM_RTMPLG))
-            {
-                QString plg_dir = qgetenv(ENV_GKIDE_NVIM_RTMPLG);
-
-                qDebug() << "plg_dir_env=" << plg_dir;
-
-                if(QFileInfo(plg_dir).isDir())
-                {
-                    nvimArgs.insert(1, QString("let &rtp.=',%1'").arg(plg_dir));
-                }
+                nvimProg = nvim_bin;
             }
         }
 
         // fall back to the gkide-nvim default path: gkide/bin/nvim
-        if(!QFileInfo(nvim_exec).isExecutable())
+        if(!QFileInfo(nvimProg).isExecutable())
         {
-            QDir gkide_dir =
+            QDir gkideDir =
                 QFileInfo(QCoreApplication::applicationDirPath()).dir();
 
             #ifdef Q_OS_WIN
-            nvim_exec = QString("%1/bin/nvim.exe").arg(gkide_dir.path());
+            nvimProg = QString("%1/bin/nvim.exe").arg(gkideDir.path());
             #else
-            nvim_exec = QString("%1/bin/nvim").arg(gkide_dir.path());
+            nvimProg = QString("%1/bin/nvim").arg(gkideDir.path());
             #endif
         }
 
-        qDebug() << "nvim_exec=" << nvim_exec;
+        qDebug() << "nvimProg: " << nvimProg;
+
+        // get the GKIDE install directory
+        QDir gkideDir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
+
+        #ifdef Q_OS_MAC
+        // within the bundle at: gkide/Resources/plg
+        gkideDir.cd("Resources");
+        #endif
+
+        gkideDir.cd("plg");
+
+        // default plugin directory check: gkide/plg
+        if(gkideDir.exists())
+        {
+            QString plgDir = QString("let &rtp.=',%1'").arg(gkideDir.path());
+            nvimArgs.insert(1, plgDir);
+        }
+
+        // environment plugin directory check: $GKIDE_NVIM_RTMPLG
+        if(qEnvironmentVariableIsSet(ENV_GKIDE_NVIM_RTMPLG))
+        {
+            QString envPlgDir = qgetenv(ENV_GKIDE_NVIM_RTMPLG);
+
+            qDebug() << "plgDirEnv=" << envPlgDir;
+
+            if(QFileInfo(envPlgDir).isDir())
+            {
+                QString plgDir = QString("let &rtp.=',%1'").arg(envPlgDir);
+                nvimArgs.insert(1, plgDir);
+            }
+        }
 
         // Pass positional file arguments to nvim
         nvimArgs.append(parser.positionalArguments());
 
-        return SnailNvimQt::NvimConnector::spawn(nvimArgs, nvim_exec);
+        return SnailNvimQt::NvimConnector::spawn(nvimArgs, nvimProg);
     }
 }
 

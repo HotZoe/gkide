@@ -194,7 +194,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         else if(ret.type == kObjectTypeArray)
         {
             // Determine what is the last number in a *sequence* of keys.
-            // This condition makes sure that Neovim will not crash when
+            // This condition makes sure that Nvim will not crash when
             // it gets table {[vim.type_idx]=vim.types.array, [SIZE_MAX]=1}:
             // without it maxidx will be SIZE_MAX, with this condition it
             // should be zero and [SIZE_MAX] key should be ignored.

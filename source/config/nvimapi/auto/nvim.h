@@ -12,11 +12,11 @@ namespace SnailNvimQt {
 class NvimConnector;
 class MsgpackRequest;
 
-class Neovim: public QObject
+class Nvim: public QObject
 {
     Q_OBJECT
 public:
-    Neovim(NvimConnector *);
+    Nvim(NvimConnector *);
 
 protected slots:
     void handleResponse(quint32 id, Function::FunctionId fun, const QVariant &);

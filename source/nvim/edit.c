@@ -1168,11 +1168,11 @@ static int insert_handle_key(InsertState *s)
             multiqueue_process_events(main_loop.events);
             break;
 
-        case K_FOCUSGAINED: // Neovim has been given focus
+        case K_FOCUSGAINED: // Nvim has been given focus
             apply_autocmds(EVENT_FOCUSGAINED, NULL, NULL, false, curbuf);
             break;
 
-        case K_FOCUSLOST: // Neovim has lost focus
+        case K_FOCUSLOST: // Nvim has lost focus
             apply_autocmds(EVENT_FOCUSLOST, NULL, NULL, false, curbuf);
             break;
 

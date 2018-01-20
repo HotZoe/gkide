@@ -15,14 +15,15 @@ namespace SnailNvimQt {
 class MsgpackIODevice;
 class NvimConnectorHelper;
 
+/// Connection to a Nvim instance
 class NvimConnector: public QObject
 {
-    friend class Neovim;
+    friend class Nvim;
     friend class NvimConnectorHelper;
 
     Q_OBJECT
 
-    /// True if the Neovim instance is ready
+    /// True if the Nvim instance is ready
     /// @see neovimObject
     Q_PROPERTY(bool ready READ isReady NOTIFY ready)
     Q_ENUMS(NvimError)
@@ -73,7 +74,7 @@ public:
     void detachUi(void);
 
     bool isReady(void);
-    Neovim *neovimObject(void);
+    Nvim *neovimObject(void);
     uint64_t channel(void);
     QString decode(const QByteArray &);
     QByteArray encode(const QString &);
@@ -104,14 +105,15 @@ private:
     QString m_errorString;
     NvimError m_error;
 
-    Neovim *m_neovimobj;
+    Nvim *m_neovimobj;
     quint64 m_channel;
 
     // Store connection arguments for reconnect()
     NeovimConnectionType m_ctype;
     QStringList m_spawnArgs;
     QString m_spawnExe;
-    QString m_connSocket, m_connHost;
+    QString m_connSocket;
+    QString m_connHost;
     int m_connPort;
     bool m_ready;
 };

@@ -87,17 +87,17 @@ QString InputConv::modPrefix(Qt::KeyboardModifiers mod)
     return modprefix;
 }
 
-/// Convert mouse event information into Neovim key notation
+/// Convert mouse event information into Nvim key notation
 ///
 /// @param type        is one of the Qt mouse event types
-/// @param pos         is in Neovim Coordinates
+/// @param pos         is in Nvim Coordinates
 /// @param clickCount  is the number of consecutive mouse clicks
 ///                    1 for a single click, 2 for a double click, up to 4.
 ///                    This value is only used for LeftMouse events.
 ///
 /// @see QMouseEvent
 ///
-/// If the event is not valid for Neovim, returns an empty string
+/// If the event is not valid for Nvim, returns an empty string
 QString InputConv::convertMouse(Qt::MouseButton bt,
                                 QEvent::Type type,
                                 Qt::KeyboardModifiers mod,
@@ -110,7 +110,7 @@ QString InputConv::convertMouse(Qt::MouseButton bt,
     {
         case Qt::LeftButton:
 
-            // In practice Neovim only supports the clickcount for Left
+            // In practice Nvim only supports the clickcount for Left
             // mouse presses, even if our shell can support other buttons
             if(clickCount > 1 && clickCount <= 4)
             {
@@ -171,7 +171,7 @@ QString InputConv::convertMouse(Qt::MouseButton bt,
     return inp;
 }
 
-/// Convert Qt key input into Neovim key-notation
+/// Convert Qt key input into Nvim key-notation
 ///
 /// @see QKeyEvent
 QString InputConv::convertKey(const QString &text,

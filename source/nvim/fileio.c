@@ -6682,7 +6682,7 @@ void forward_slash(uchar_kt *fname)
 /// Name of Vim's own temp dir. Ends in a slash.
 static uchar_kt *vim_tempdir = NULL;
 
-/// Create a directory for private use by this instance of Neovim.
+/// Create a directory for private use by this instance of Nvim.
 /// This is done once, and the same directory is used for all temp files.
 /// This method avoids security problems because of symlink attacks et al.
 /// It's also a bit faster, because we only need to check for an existing
@@ -6815,7 +6815,7 @@ uchar_kt *vim_gettempdir(void)
     return vim_tempdir;
 }
 
-/// Set Neovim own temporary directory name to `tempdir`. This directory should
+/// Set Nvim own temporary directory name to `tempdir`. This directory should
 /// be already created. Expand this name to a full path and put it in
 /// `vim_tempdir`. This avoids that using `:cd` would confuse us.
 ///
@@ -6844,7 +6844,7 @@ static bool vim_settempdir(char *tempdir)
 /// @note The temp file is NOT created.
 ///
 /// @return
-/// pointer to the temp file name or NULL if Neovim can't create
+/// pointer to the temp file name or NULL if Nvim can't create
 /// temporary directory for its own temporary files.
 uchar_kt *vim_tempname(void)
 {

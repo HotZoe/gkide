@@ -67,7 +67,7 @@ bool MainWindow::neovimAttached() const
     return (m_shell != NULL && m_shell->neovimAttached());
 }
 
-/// The Neovim process has exited
+/// The Nvim process has exited
 void MainWindow::neovimExited(int status)
 {
     showIfDelayed();
@@ -80,7 +80,7 @@ void MainWindow::neovimExited(int status)
     }
     else if(status != 0)
     {
-        m_errorWidget->setText(QString("Neovim exited with status code (%1)").arg(status));
+        m_errorWidget->setText(QString("Nvim exited with status code (%1)").arg(status));
         m_errorWidget->showReconnect(m_nvim->canReconnect());
         m_stack.setCurrentIndex(0);
     }
@@ -165,7 +165,7 @@ void MainWindow::reconnectNeovim()
 
 void MainWindow::closeEvent(QCloseEvent *ev)
 {
-    // Never unless the Neovim shell closes too
+    // Never unless the Nvim shell closes too
     if(m_shell->close())
     {
         QWidget::closeEvent(ev);
@@ -185,7 +185,7 @@ void MainWindow::changeEvent(QEvent *ev)
     QWidget::changeEvent(ev);
 }
 
-/// Call show() after a 1s delay or when Neovim attachment
+/// Call show() after a 1s delay or when Nvim attachment
 /// is complete, whichever comes first
 void MainWindow::delayedShow(DelayedShow type)
 {

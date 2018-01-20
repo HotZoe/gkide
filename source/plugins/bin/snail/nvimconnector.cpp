@@ -11,11 +11,7 @@
 
 namespace SnailNvimQt {
 
-/// @class SnailNvimQt::NvimConnector
-///
-/// @brief A Connection to a Neovim instance
-
-/// Create a new Neovim API connection from an open IO device
+/// Create a new Nvim API connection from an open IO device
 NvimConnector::NvimConnector(QIODevice *dev)
     :NvimConnector(new MsgpackIODevice(dev))
 {
@@ -23,8 +19,9 @@ NvimConnector::NvimConnector(QIODevice *dev)
 }
 
 NvimConnector::NvimConnector(MsgpackIODevice *dev)
-    :QObject(), m_dev(dev), m_helper(0), m_error(NoError), m_neovimobj(NULL),
-     m_channel(0), m_ctype(OtherConnection), m_ready(false)
+    : QObject(), m_dev(dev), m_helper(NULL), m_error(NoError),
+      m_neovimobj(NULL), m_channel(0), m_ctype(OtherConnection),
+      m_ready(false)
 {
     m_helper = new NvimConnectorHelper(this);
     qRegisterMetaType<NvimError>("NvimError");
@@ -48,13 +45,13 @@ void NvimConnector::setError(NvimError err, const QString &msg)
     {
         m_error = err;
         m_errorString = msg;
-        qWarning() << "Neovim fatal error" << m_errorString;
+        qWarning() << "Nvim fatal error" << m_errorString;
         emit error(m_error);
     }
     else
     {
         // Only the first error is raised
-        qDebug() << "(Ignored) Neovim fatal error" << msg;
+        qDebug() << "(Ignored) Nvim fatal error" << msg;
     }
 }
 
@@ -77,13 +74,13 @@ QString NvimConnector::errorString(void)
     return m_errorString;
 }
 
-/// Inform Neovim we are a GUI with the given width/height and want
+/// Inform Nvim we are a GUI with the given width/height and want
 /// to receive UI events. With/Height are expressed in cells.
 ///
-/// @warning This method might be moved to class Neovim
+/// @warning This method might be moved to class Nvim
 MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 {
-    // FIXME: this should be in class Neovim
+    // FIXME: this should be in class Nvim
     MsgpackRequest *r = m_dev->startRequestUnchecked("ui_attach", 3);
     connect(r, &MsgpackRequest::timeout,
             this, &NvimConnector::fatalTimeout);
@@ -96,14 +93,14 @@ MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 
 /// Stop receiving UI updates
 ///
-/// @warning This method might be moved to class Neovim
+/// @warning This method might be moved to class Nvim
 void NvimConnector::detachUi(void)
 {
-    // FIXME: this should be in class Neovim
+    // FIXME: this should be in class Nvim
     m_dev->startRequestUnchecked("ui_detach", 0);
 }
 
-/// Returns the channel id used by Neovim to identify this connection
+/// Returns the channel id used by Nvim to identify this connection
 uint64_t NvimConnector::channel(void)
 {
     return m_channel;
@@ -122,7 +119,7 @@ void NvimConnector::discoverMetadata(void)
     r->setTimeout(5000);
 }
 
-/// True if the Neovim instance is ready
+/// True if the Nvim instance is ready
 ///
 /// @see ready
 bool NvimConnector::isReady(void)
@@ -136,7 +133,7 @@ QString NvimConnector::decode(const QByteArray &in)
     return m_dev->decode(in);
 }
 
-/// Encode a string into the appropriate encoding for this Neovim instance
+/// Encode a string into the appropriate encoding for this Nvim instance
 ///
 /// see :h 'encoding'
 QByteArray NvimConnector::encode(const QString &in)
@@ -148,11 +145,11 @@ QByteArray NvimConnector::encode(const QString &in)
 ///
 /// @warning Do not call this before NvimConnector::ready as been signaled
 /// @see NvimConnector::isReady
-Neovim *NvimConnector::neovimObject(void)
+Nvim *NvimConnector::neovimObject(void)
 {
     if(!m_neovimobj)
     {
-        m_neovimobj = new Neovim(this);
+        m_neovimobj = new Nvim(this);
     }
 
     return m_neovimobj;
@@ -160,12 +157,14 @@ Neovim *NvimConnector::neovimObject(void)
 
 /// Launch an embedded nvim process
 ///
+/// @param params   the nvim executable arguments
+/// @param exe      the nvim executable program
+///
 /// @see processExited
 NvimConnector *NvimConnector::spawn(const QStringList &params,
                                     const QString &exe)
 {
     QStringList args;
-    QProcess *p = new QProcess();
 
     if(params.indexOf("--") == -1)
     {
@@ -182,7 +181,11 @@ NvimConnector *NvimConnector::spawn(const QStringList &params,
         args.append(params.mid(idx));
     }
 
+    // nvim process
+    QProcess *p = new QProcess();
+    // snail nvim connector
     NvimConnector *c = new NvimConnector(p);
+
     c->m_ctype = SpawnedConnection;
     c->m_spawnArgs = params;
     c->m_spawnExe = exe;
@@ -202,7 +205,7 @@ NvimConnector *NvimConnector::spawn(const QStringList &params,
     return c;
 }
 
-/// Connect to Neovim using a local UNIX socket.
+/// Connect to Nvim using a local UNIX socket.
 ///
 /// This method also works in Windows, using named pipes.
 ///
@@ -221,7 +224,7 @@ NvimConnector *NvimConnector::connectToSocket(const QString &path)
     return c;
 }
 
-/// Connect to a Neovim through a TCP connection
+/// Connect to a Nvim through a TCP connection
 ///
 /// @param host is a valid hostname or IP address
 /// @param port is the TCP port
@@ -241,10 +244,10 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
     return c;
 }
 
-/// Connect to a running instance of Neovim (if available).
+/// Connect to a running instance of Nvim (if available).
 ///
-/// This method gets the Neovim endpoint from the NVIM_LISTEN_ADDRESS
-/// environment variable, if it is not available a new Neovim instance
+/// This method gets the Nvim endpoint from the NVIM_LISTEN_ADDRESS
+/// environment variable, if it is not available a new Nvim instance
 /// is spawned().
 ///
 /// @see spawn()
@@ -284,8 +287,8 @@ NvimConnector *NvimConnector::fromStdinOut(void)
     return new NvimConnector(MsgpackIODevice::fromStdinOut());
 }
 
-/// Called when running embedded Neovim to
-/// report an error with the Neovim process
+/// Called when running embedded Nvim to
+/// report an error with the Nvim process
 void NvimConnector::processError(QProcess::ProcessError err)
 {
     switch(err)
@@ -317,17 +320,17 @@ void NvimConnector::msgpackError(void)
     setError(MsgpackError, m_dev->errorString());
 }
 
-/// Raise a fatal error for a Neovim timeout
+/// Raise a fatal error for a Nvim timeout
 ///
-/// Sometimes Neovim takes too long to respond to some requests, or maybe
+/// Sometimes Nvim takes too long to respond to some requests, or maybe
 /// the channel is stuck. In such cases it is preferable to raise and error,
-/// internally this is what discoverMetadata does if Neovim does not reply.
+/// internally this is what discoverMetadata does if Nvim does not reply.
 void NvimConnector::fatalTimeout(void)
 {
-    setError(RuntimeMsgpackError, "Neovim is taking too long to respond");
+    setError(RuntimeMsgpackError, "Nvim is taking too long to respond");
 }
 
-/// True if NvimConnector::reconnect can be called to reconnect with Neovim.
+/// True if NvimConnector::reconnect can be called to reconnect with Nvim.
 /// This is true unless you built the NvimConnector ctor directly instead
 /// of using on of the static methods.
 bool NvimConnector::canReconnect(void)
@@ -374,7 +377,7 @@ NvimConnector *NvimConnector::reconnect(void)
 
 /// @fn SnailNvimQt::NvimConnector::processExited(int exitStatus)
 ///
-/// If the Neovim process was started using SnailNvimQt::NvimConnector::spawn
+/// If the Nvim process was started using SnailNvimQt::NvimConnector::spawn
 /// this signal is emitted when the process exits.
 
 } // namespace::SnailNvimQt

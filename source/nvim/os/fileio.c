@@ -1,7 +1,7 @@
 /// @file nvim/os/fileio.c
 ///
 /// Buffered reading/writing to a file. Unlike fileio.c this is not dealing with
-/// Neovim stuctures for buffer, with autocommands, etc: just fopen/fread/fwrite
+/// Nvim stuctures for buffer, with autocommands, etc: just fopen/fread/fwrite
 /// replacement.
 
 #include <assert.h>

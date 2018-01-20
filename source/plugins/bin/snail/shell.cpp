@@ -41,7 +41,7 @@ Shell::Shell(NvimConnector *nvim, QWidget *parent)
 
     if(m_nvim == NULL)
     {
-        qWarning() << "Received NULL as Neovim Connector";
+        qWarning() << "Received NULL as Nvim Connector";
         return;
     }
 
@@ -170,7 +170,7 @@ void Shell::setAttached(bool attached)
         if(!m_deferredOpen.isEmpty())
         {
             openFiles(m_deferredOpen);
-            // Neovim may change state.
+            // Nvim may change state.
             // Clear to prevent reopening.
             m_deferredOpen.clear();
         }
@@ -215,9 +215,9 @@ void Shell::init()
         return;
     }
 
-    connect(m_nvim->neovimObject(), &Neovim::neovimNotification,
+    connect(m_nvim->neovimObject(), &Nvim::neovimNotification,
             this, &Shell::handleNeovimNotification);
-    connect(m_nvim->neovimObject(), &Neovim::on_ui_try_resize,
+    connect(m_nvim->neovimObject(), &Nvim::on_ui_try_resize,
             this, &Shell::neovimResizeFinished);
     QRect screenRect = QApplication::desktop()->availableGeometry(this);
 
@@ -236,7 +236,7 @@ void Shell::neovimError(NvimConnector::NvimError FUNC_ATTR_ARGS_UNUSED_REALY(err
     setAttached(false);
 }
 
-/// The Neovim process has exited
+/// The Nvim process has exited
 void Shell::neovimExited(int status)
 {
     setAttached(false);
@@ -247,7 +247,7 @@ void Shell::neovimExited(int status)
     }
 }
 
-/// Neovim requested a resize
+/// Nvim requested a resize
 ///
 /// - update cols/rows
 /// - reset the cursor, scroll_region
@@ -270,7 +270,7 @@ void Shell::handleHighlightSet(const QVariantMap &attrs)
 {
     if(attrs.contains("foreground"))
     {
-        /// @todo: When does Neovim send -1
+        /// @todo: When does Nvim send -1
         m_hg_foreground =
             color(attrs.value("foreground").toLongLong(), foreground());
     }
@@ -681,7 +681,7 @@ void Shell::handleNeovimNotification(const QByteArray &name,
         }
         else if(guiEvName == "Close" && args.size() == 1)
         {
-            qDebug() << "Neovim requested a GUI close";
+            qDebug() << "Nvim requested a GUI close";
             emit neovimGuiCloseRequest();
         }
 
@@ -739,7 +739,7 @@ void Shell::paintEvent(QPaintEvent *ev)
 
     ShellWidget::paintEvent(ev);
 
-    // paint cursor - we are not actually using Neovim colors yet,
+    // paint cursor - we are not actually using Nvim colors yet,
     // just invert the shell colors by painting white with XoR
     if(ev->region().contains(neovimCursorTopLeft()))
     {
@@ -964,7 +964,7 @@ bool Shell::event(QEvent *event)
     return QWidget::event(event);
 }
 
-/// Resize remote Neovim (pixel coordinates)
+/// Resize remote Nvim (pixel coordinates)
 ///
 /// The given size is rounded down to the nearest row/column count.
 void Shell::resizeNeovim(const QSize &newSize)
@@ -974,9 +974,9 @@ void Shell::resizeNeovim(const QSize &newSize)
     resizeNeovim(n_cols, n_rows);
 }
 
-/// Resize remote Neovim.
+/// Resize remote Nvim.
 ///
-/// Neovim ignores concurrent resizes. If you call this method while
+/// Nvim ignores concurrent resizes. If you call this method while
 /// a resize is already in progress, the later call is delayed until
 /// the previous one is finished.
 void Shell::resizeNeovim(int n_cols, int n_rows)
@@ -1033,7 +1033,7 @@ void Shell::changeEvent(QEvent *ev)
 }
 
 /// Call this when the GUI window state has changed. The relevant
-/// g:Gui* variables will be set in Neovim
+/// g:Gui* variables will be set in Nvim
 void Shell::updateGuiWindowState(Qt::WindowStates state)
 {
     if(!m_attached)
@@ -1065,8 +1065,8 @@ void Shell::closeEvent(QCloseEvent *ev)
     if(m_attached
        && m_nvim->connectionType() == NvimConnector::SpawnedConnection)
     {
-        // If attached to a spawned Neovim process, ignore the event
-        // and try to close Neovim as :qa
+        // If attached to a spawned Nvim process, ignore the event
+        // and try to close Nvim as :qa
         ev->ignore();
         m_nvim->neovimObject()->vim_command("qa");
     }
@@ -1280,7 +1280,7 @@ void Shell::dropEvent(QDropEvent *ev)
     ev->acceptProposedAction();
 }
 
-/// Open multiple URLs in Neovim
+/// Open multiple URLs in Nvim
 void Shell::openFiles(QList<QUrl> urls)
 {
     if(m_nvim && m_attached)
@@ -1303,7 +1303,7 @@ void Shell::openFiles(QList<QUrl> urls)
     }
     else
     {
-        // Neovim cannot open urls now. Store them to open later.
+        // Nvim cannot open urls now. Store them to open later.
         m_deferredOpen.append(urls);
     }
 }

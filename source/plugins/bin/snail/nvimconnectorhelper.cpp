@@ -10,7 +10,7 @@
 
 namespace SnailNvimQt {
 
-/// The helper deals with Neovim API internals,
+/// The helper deals with Nvim API internals,
 /// it handles msgpack responses on behalf of the connector.
 NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c)
     :QObject(c), m_c(c)
@@ -25,17 +25,18 @@ void NvimConnectorHelper::handleMetadataError(
         const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
 {
     m_c->setError(NvimConnector::NoMetadata,
-                  tr("Unable to get Neovim api information"));
+                  tr("Unable to get Nvim api information"));
     return; /// @todo: better error message (from result?)
 }
 
-/// Process metadata object returned by Neovim
+/// Process metadata object returned by Nvim
 ///
 /// - Set channel_id
 /// - Check if all functions we need are available
-void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                                         Function::FunctionId,
-                                         const QVariant &result)
+void NvimConnectorHelper::handleMetadata(
+        quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+        Function::FunctionId,
+        const QVariant &result)
 {
     const QVariantList asList = result.toList();
 
@@ -72,7 +73,7 @@ void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msg
     if(m_c->errorCause() == NvimConnector::NoError)
     {
         // Get &encoding before we signal readyness
-        connect(m_c->neovimObject(), &Neovim::on_vim_get_option,
+        connect(m_c->neovimObject(), &Nvim::on_vim_get_option,
                 this, &NvimConnectorHelper::encodingChanged);
 
         MsgpackRequest *r = m_c->neovimObject()->vim_get_option("encoding");
@@ -89,7 +90,7 @@ void NvimConnectorHelper::handleMetadata(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msg
 /// Called after metadata discovery, to get the &encoding
 void NvimConnectorHelper::encodingChanged(const QVariant  &obj)
 {
-    disconnect(m_c->neovimObject(), &Neovim::on_vim_get_option,
+    disconnect(m_c->neovimObject(), &Nvim::on_vim_get_option,
                this, &NvimConnectorHelper::encodingChanged);
 
     m_c->m_dev->setEncoding(obj.toByteArray());

@@ -141,7 +141,7 @@ char *os_getenvname_at_index(size_t index)
     return name;
 }
 
-/// Get the process ID of the Neovim process.
+/// Get the process ID of the Nvim process.
 ///
 /// @return the process ID.
 int64_t os_get_pid(void)

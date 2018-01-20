@@ -711,7 +711,7 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
         // 2. Code point is not printable according to utf_printable().
         //
         // This is done to make resulting values displayable on screen
-        // also not from Neovim.
+        // also not from Nvim.
         #define ENCODE_RAW(ch)  (ch >= 0x20 && utf_printable(ch))
 
         for(size_t i = 0; i < utf_len;)

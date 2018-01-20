@@ -392,7 +392,7 @@ bool channel_close(uint64_t id)
 }
 
 /// Creates an API channel from stdin/stdout.
-/// This is used when embedding Neovim
+/// This is used when embedding Nvim
 void channel_from_stdio(void)
 {
     rpc_channel_st *channel = register_channel(kChannelTypeStdio, 0, NULL);
