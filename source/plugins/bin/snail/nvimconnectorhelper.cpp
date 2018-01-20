@@ -21,7 +21,7 @@ NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c)
 /// Handle Msgpack-rpc errors when fetching the API metadata
 void NvimConnectorHelper::handleMetadataError(
         quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-        Function::FunctionId,
+        NvimApiFunc::FunctionId,
         const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
 {
     m_c->setError(NvimConnector::NoMetadata,
@@ -35,7 +35,7 @@ void NvimConnectorHelper::handleMetadataError(
 /// - Check if all functions we need are available
 void NvimConnectorHelper::handleMetadata(
         quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-        Function::FunctionId,
+        NvimApiFunc::FunctionId,
         const QVariant &result)
 {
     const QVariantList asList = result.toList();
@@ -111,21 +111,21 @@ void NvimConnectorHelper::encodingChanged(const QVariant  &obj)
 /// Returns false if there is an API mismatch
 bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
 {
-    QList<Function::FunctionId> supported;
+    QList<NvimApiFunc::FunctionId> supported;
 
     foreach(const QVariant &val, ftable)
     {
-        Function::FunctionId fid =
-            Function::functionId(Function::fromVariant(val));
+        NvimApiFunc::FunctionId fid =
+            NvimApiFunc::functionId(NvimApiFunc::fromVariant(val));
 
-        if(fid != Function::NEOVIM_FN_NULL)
+        if(fid != NvimApiFunc::NEOVIM_FN_NULL)
         {
             supported.append(fid);
         }
     }
 
     // true if all the generated functions are supported
-    return Function::knownFunctions.size() == supported.size();
+    return NvimApiFunc::knownFunctions.size() == supported.size();
 }
 
 } // namespace::SnailNvimQt

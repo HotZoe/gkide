@@ -19,8 +19,8 @@ public:
     Nvim(NvimConnector *);
 
 protected slots:
-    void handleResponse(quint32 id, Function::FunctionId fun, const QVariant &);
-    void handleResponseError(quint32 id, Function::FunctionId fun, const QVariant &);
+    void handleResponse(quint32 id, NvimApiFunc::FunctionId fun, const QVariant &);
+    void handleResponseError(quint32 id, NvimApiFunc::FunctionId fun, const QVariant &);
 
 signals:
     void error(const QString &errmsg, const QVariant &errObj);

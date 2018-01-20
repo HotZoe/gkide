@@ -1,41 +1,41 @@
 // Auto generated 2017-07-12 22:09:26.826170
-const QList<Function> Function::knownFunctions = QList<Function>()
-<< Function("Integer", "nvim_buf_line_count",
+const QList<NvimApiFunc> NvimApiFunc::knownFunctions = QList<NvimApiFunc>()
+<< NvimApiFunc("Integer", "nvim_buf_line_count",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("String", "buffer_get_line",
+<< NvimApiFunc("String", "buffer_get_line",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 		, false)
-<< Function("void", "buffer_set_line",
+<< NvimApiFunc("void", "buffer_set_line",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("String")
 		, false)
-<< Function("void", "buffer_del_line",
+<< NvimApiFunc("void", "buffer_del_line",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 		, false)
-<< Function("ArrayOf(String)", "buffer_get_line_slice",
-	QList<QString>()
-			<< QString("Buffer")
-			<< QString("Integer")
-			<< QString("Integer")
-			<< QString("Boolean")
-			<< QString("Boolean")
-		, false)
-<< Function("ArrayOf(String)", "nvim_buf_get_lines",
+<< NvimApiFunc("ArrayOf(String)", "buffer_get_line_slice",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Boolean")
+			<< QString("Boolean")
 		, false)
-<< Function("void", "buffer_set_line_slice",
+<< NvimApiFunc("ArrayOf(String)", "nvim_buf_get_lines",
+	QList<QString>()
+			<< QString("Buffer")
+			<< QString("Integer")
+			<< QString("Integer")
+			<< QString("Boolean")
+		, false)
+<< NvimApiFunc("void", "buffer_set_line_slice",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
@@ -44,7 +44,7 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 			<< QString("Boolean")
 			<< QString("ArrayOf(String)")
 		, false)
-<< Function("void", "nvim_buf_set_lines",
+<< NvimApiFunc("void", "nvim_buf_set_lines",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
@@ -52,82 +52,82 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 			<< QString("Boolean")
 			<< QString("ArrayOf(String)")
 		, false)
-<< Function("Object", "nvim_buf_get_var",
+<< NvimApiFunc("Object", "nvim_buf_get_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Integer", "nvim_buf_get_changedtick",
+<< NvimApiFunc("Integer", "nvim_buf_get_changedtick",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("ArrayOf(Dictionary)", "nvim_buf_get_keymap",
-	QList<QString>()
-			<< QString("Buffer")
-			<< QString("String")
-		, false)
-<< Function("void", "nvim_buf_set_var",
-	QList<QString>()
-			<< QString("Buffer")
-			<< QString("String")
-			<< QString("Object")
-		, false)
-<< Function("void", "nvim_buf_del_var",
+<< NvimApiFunc("ArrayOf(Dictionary)", "nvim_buf_get_keymap",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Object", "buffer_set_var",
+<< NvimApiFunc("void", "nvim_buf_set_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Object", "buffer_del_var",
+<< NvimApiFunc("void", "nvim_buf_del_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Object", "nvim_buf_get_option",
-	QList<QString>()
-			<< QString("Buffer")
-			<< QString("String")
-		, false)
-<< Function("void", "nvim_buf_set_option",
+<< NvimApiFunc("Object", "buffer_set_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Integer", "nvim_buf_get_number",
-	QList<QString>()
-			<< QString("Buffer")
-		, false)
-<< Function("String", "nvim_buf_get_name",
-	QList<QString>()
-			<< QString("Buffer")
-		, false)
-<< Function("void", "nvim_buf_set_name",
+<< NvimApiFunc("Object", "buffer_del_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Boolean", "nvim_buf_is_valid",
+<< NvimApiFunc("Object", "nvim_buf_get_option",
+	QList<QString>()
+			<< QString("Buffer")
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "nvim_buf_set_option",
+	QList<QString>()
+			<< QString("Buffer")
+			<< QString("String")
+			<< QString("Object")
+		, false)
+<< NvimApiFunc("Integer", "nvim_buf_get_number",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("void", "buffer_insert",
+<< NvimApiFunc("String", "nvim_buf_get_name",
+	QList<QString>()
+			<< QString("Buffer")
+		, false)
+<< NvimApiFunc("void", "nvim_buf_set_name",
+	QList<QString>()
+			<< QString("Buffer")
+			<< QString("String")
+		, false)
+<< NvimApiFunc("Boolean", "nvim_buf_is_valid",
+	QList<QString>()
+			<< QString("Buffer")
+		, false)
+<< NvimApiFunc("void", "buffer_insert",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("ArrayOf(String)")
 		, false)
-<< Function("ArrayOf(Integer, 2)", "nvim_buf_get_mark",
+<< NvimApiFunc("ArrayOf(Integer, 2)", "nvim_buf_get_mark",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Integer", "nvim_buf_add_highlight",
+<< NvimApiFunc("Integer", "nvim_buf_add_highlight",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
@@ -136,344 +136,344 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("void", "nvim_buf_clear_highlight",
+<< NvimApiFunc("void", "nvim_buf_clear_highlight",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("ArrayOf(Window)", "nvim_tabpage_list_wins",
+<< NvimApiFunc("ArrayOf(Window)", "nvim_tabpage_list_wins",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("Object", "nvim_tabpage_get_var",
+<< NvimApiFunc("Object", "nvim_tabpage_get_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_tabpage_set_var",
+<< NvimApiFunc("void", "nvim_tabpage_set_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("void", "nvim_tabpage_del_var",
+<< NvimApiFunc("void", "nvim_tabpage_del_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 		, false)
-<< Function("Object", "tabpage_set_var",
+<< NvimApiFunc("Object", "tabpage_set_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Object", "tabpage_del_var",
+<< NvimApiFunc("Object", "tabpage_del_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 		, false)
-<< Function("Window", "nvim_tabpage_get_win",
+<< NvimApiFunc("Window", "nvim_tabpage_get_win",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("Integer", "nvim_tabpage_get_number",
+<< NvimApiFunc("Integer", "nvim_tabpage_get_number",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("Boolean", "nvim_tabpage_is_valid",
+<< NvimApiFunc("Boolean", "nvim_tabpage_is_valid",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("void", "nvim_ui_attach",
+<< NvimApiFunc("void", "nvim_ui_attach",
 	QList<QString>()
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Dictionary")
 		, false)
-<< Function("void", "ui_attach",
+<< NvimApiFunc("void", "ui_attach",
 	QList<QString>()
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Boolean")
 		, false)
-<< Function("void", "nvim_ui_detach",
+<< NvimApiFunc("void", "nvim_ui_detach",
 	QList<QString>()
 		, false)
-<< Function("void", "nvim_ui_try_resize",
+<< NvimApiFunc("void", "nvim_ui_try_resize",
 	QList<QString>()
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("void", "nvim_ui_set_option",
+<< NvimApiFunc("void", "nvim_ui_set_option",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("void", "nvim_command",
+<< NvimApiFunc("void", "nvim_command",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_feedkeys",
+<< NvimApiFunc("void", "nvim_feedkeys",
 	QList<QString>()
 			<< QString("String")
 			<< QString("String")
 			<< QString("Boolean")
 		, false)
-<< Function("Integer", "nvim_input",
+<< NvimApiFunc("Integer", "nvim_input",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("String", "nvim_replace_termcodes",
+<< NvimApiFunc("String", "nvim_replace_termcodes",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Boolean")
 			<< QString("Boolean")
 			<< QString("Boolean")
 		, false)
-<< Function("String", "nvim_command_output",
+<< NvimApiFunc("String", "nvim_command_output",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "nvim_eval",
+<< NvimApiFunc("Object", "nvim_eval",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "nvim_call_function",
+<< NvimApiFunc("Object", "nvim_call_function",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Array")
 		, false)
-<< Function("Object", "nvim_execute_lua",
+<< NvimApiFunc("Object", "nvim_execute_lua",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Array")
 		, false)
-<< Function("Integer", "nvim_strwidth",
+<< NvimApiFunc("Integer", "nvim_strwidth",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("ArrayOf(String)", "nvim_list_runtime_paths",
+<< NvimApiFunc("ArrayOf(String)", "nvim_list_runtime_paths",
 	QList<QString>()
 		, false)
-<< Function("void", "nvim_set_current_dir",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("String", "nvim_get_current_line",
-	QList<QString>()
-		, false)
-<< Function("void", "nvim_set_current_line",
+<< NvimApiFunc("void", "nvim_set_current_dir",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_del_current_line",
+<< NvimApiFunc("String", "nvim_get_current_line",
 	QList<QString>()
 		, false)
-<< Function("Object", "nvim_get_var",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("void", "nvim_set_var",
-	QList<QString>()
-			<< QString("String")
-			<< QString("Object")
-		, false)
-<< Function("void", "nvim_del_var",
+<< NvimApiFunc("void", "nvim_set_current_line",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "vim_set_var",
+<< NvimApiFunc("void", "nvim_del_current_line",
+	QList<QString>()
+		, false)
+<< NvimApiFunc("Object", "nvim_get_var",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "nvim_set_var",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Object", "vim_del_var",
+<< NvimApiFunc("void", "nvim_del_var",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "nvim_get_vvar",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("Object", "nvim_get_option",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("void", "nvim_set_option",
+<< NvimApiFunc("Object", "vim_set_var",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("void", "nvim_out_write",
+<< NvimApiFunc("Object", "vim_del_var",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_err_write",
+<< NvimApiFunc("Object", "nvim_get_vvar",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_err_writeln",
+<< NvimApiFunc("Object", "nvim_get_option",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("ArrayOf(Buffer)", "nvim_list_bufs",
+<< NvimApiFunc("void", "nvim_set_option",
+	QList<QString>()
+			<< QString("String")
+			<< QString("Object")
+		, false)
+<< NvimApiFunc("void", "nvim_out_write",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "nvim_err_write",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "nvim_err_writeln",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("ArrayOf(Buffer)", "nvim_list_bufs",
 	QList<QString>()
 		, false)
-<< Function("Buffer", "nvim_get_current_buf",
+<< NvimApiFunc("Buffer", "nvim_get_current_buf",
 	QList<QString>()
 		, false)
-<< Function("void", "nvim_set_current_buf",
+<< NvimApiFunc("void", "nvim_set_current_buf",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("ArrayOf(Window)", "nvim_list_wins",
+<< NvimApiFunc("ArrayOf(Window)", "nvim_list_wins",
 	QList<QString>()
 		, false)
-<< Function("Window", "nvim_get_current_win",
+<< NvimApiFunc("Window", "nvim_get_current_win",
 	QList<QString>()
 		, false)
-<< Function("void", "nvim_set_current_win",
+<< NvimApiFunc("void", "nvim_set_current_win",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("ArrayOf(Tabpage)", "nvim_list_tabpages",
+<< NvimApiFunc("ArrayOf(Tabpage)", "nvim_list_tabpages",
 	QList<QString>()
 		, false)
-<< Function("Tabpage", "nvim_get_current_tabpage",
+<< NvimApiFunc("Tabpage", "nvim_get_current_tabpage",
 	QList<QString>()
 		, false)
-<< Function("void", "nvim_set_current_tabpage",
+<< NvimApiFunc("void", "nvim_set_current_tabpage",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("void", "nvim_subscribe",
+<< NvimApiFunc("void", "nvim_subscribe",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_unsubscribe",
+<< NvimApiFunc("void", "nvim_unsubscribe",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Integer", "nvim_get_color_by_name",
+<< NvimApiFunc("Integer", "nvim_get_color_by_name",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Dictionary", "nvim_get_color_map",
+<< NvimApiFunc("Dictionary", "nvim_get_color_map",
 	QList<QString>()
 		, false)
-<< Function("Dictionary", "nvim_get_mode",
+<< NvimApiFunc("Dictionary", "nvim_get_mode",
 	QList<QString>()
 		, false)
-<< Function("ArrayOf(Dictionary)", "nvim_get_keymap",
+<< NvimApiFunc("ArrayOf(Dictionary)", "nvim_get_keymap",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Array", "nvim_get_api_info",
+<< NvimApiFunc("Array", "nvim_get_api_info",
 	QList<QString>()
 		, false)
-<< Function("Array", "nvim_call_atomic",
+<< NvimApiFunc("Array", "nvim_call_atomic",
 	QList<QString>()
 			<< QString("Array")
 		, false)
-<< Function("Buffer", "nvim_win_get_buf",
+<< NvimApiFunc("Buffer", "nvim_win_get_buf",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("ArrayOf(Integer, 2)", "nvim_win_get_cursor",
+<< NvimApiFunc("ArrayOf(Integer, 2)", "nvim_win_get_cursor",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("void", "nvim_win_set_cursor",
+<< NvimApiFunc("void", "nvim_win_set_cursor",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("ArrayOf(Integer, 2)")
 		, false)
-<< Function("Integer", "nvim_win_get_height",
+<< NvimApiFunc("Integer", "nvim_win_get_height",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("void", "nvim_win_set_height",
-	QList<QString>()
-			<< QString("Window")
-			<< QString("Integer")
-		, false)
-<< Function("Integer", "nvim_win_get_width",
-	QList<QString>()
-			<< QString("Window")
-		, false)
-<< Function("void", "nvim_win_set_width",
+<< NvimApiFunc("void", "nvim_win_set_height",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("Integer")
 		, false)
-<< Function("Object", "nvim_win_get_var",
+<< NvimApiFunc("Integer", "nvim_win_get_width",
+	QList<QString>()
+			<< QString("Window")
+		, false)
+<< NvimApiFunc("void", "nvim_win_set_width",
+	QList<QString>()
+			<< QString("Window")
+			<< QString("Integer")
+		, false)
+<< NvimApiFunc("Object", "nvim_win_get_var",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 		, false)
-<< Function("void", "nvim_win_set_var",
-	QList<QString>()
-			<< QString("Window")
-			<< QString("String")
-			<< QString("Object")
-		, false)
-<< Function("void", "nvim_win_del_var",
-	QList<QString>()
-			<< QString("Window")
-			<< QString("String")
-		, false)
-<< Function("Object", "window_set_var",
+<< NvimApiFunc("void", "nvim_win_set_var",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Object", "window_del_var",
+<< NvimApiFunc("void", "nvim_win_del_var",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 		, false)
-<< Function("Object", "nvim_win_get_option",
-	QList<QString>()
-			<< QString("Window")
-			<< QString("String")
-		, false)
-<< Function("void", "nvim_win_set_option",
+<< NvimApiFunc("Object", "window_set_var",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("ArrayOf(Integer, 2)", "nvim_win_get_position",
+<< NvimApiFunc("Object", "window_del_var",
+	QList<QString>()
+			<< QString("Window")
+			<< QString("String")
+		, false)
+<< NvimApiFunc("Object", "nvim_win_get_option",
+	QList<QString>()
+			<< QString("Window")
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "nvim_win_set_option",
+	QList<QString>()
+			<< QString("Window")
+			<< QString("String")
+			<< QString("Object")
+		, false)
+<< NvimApiFunc("ArrayOf(Integer, 2)", "nvim_win_get_position",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Tabpage", "nvim_win_get_tabpage",
+<< NvimApiFunc("Tabpage", "nvim_win_get_tabpage",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Integer", "nvim_win_get_number",
+<< NvimApiFunc("Integer", "nvim_win_get_number",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Boolean", "nvim_win_is_valid",
+<< NvimApiFunc("Boolean", "nvim_win_is_valid",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Integer", "buffer_line_count",
+<< NvimApiFunc("Integer", "buffer_line_count",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("ArrayOf(String)", "buffer_get_lines",
+<< NvimApiFunc("ArrayOf(String)", "buffer_get_lines",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Boolean")
 		, false)
-<< Function("void", "buffer_set_lines",
+<< NvimApiFunc("void", "buffer_set_lines",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
@@ -481,45 +481,45 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 			<< QString("Boolean")
 			<< QString("ArrayOf(String)")
 		, false)
-<< Function("Object", "buffer_get_var",
+<< NvimApiFunc("Object", "buffer_get_var",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Object", "buffer_get_option",
+<< NvimApiFunc("Object", "buffer_get_option",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("void", "buffer_set_option",
+<< NvimApiFunc("void", "buffer_set_option",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("Integer", "buffer_get_number",
+<< NvimApiFunc("Integer", "buffer_get_number",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("String", "buffer_get_name",
+<< NvimApiFunc("String", "buffer_get_name",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("void", "buffer_set_name",
-	QList<QString>()
-			<< QString("Buffer")
-			<< QString("String")
-		, false)
-<< Function("Boolean", "buffer_is_valid",
-	QList<QString>()
-			<< QString("Buffer")
-		, false)
-<< Function("ArrayOf(Integer, 2)", "buffer_get_mark",
+<< NvimApiFunc("void", "buffer_set_name",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("String")
 		, false)
-<< Function("Integer", "buffer_add_highlight",
+<< NvimApiFunc("Boolean", "buffer_is_valid",
+	QList<QString>()
+			<< QString("Buffer")
+		, false)
+<< NvimApiFunc("ArrayOf(Integer, 2)", "buffer_get_mark",
+	QList<QString>()
+			<< QString("Buffer")
+			<< QString("String")
+		, false)
+<< NvimApiFunc("Integer", "buffer_add_highlight",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
@@ -528,223 +528,223 @@ const QList<Function> Function::knownFunctions = QList<Function>()
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("void", "buffer_clear_highlight",
+<< NvimApiFunc("void", "buffer_clear_highlight",
 	QList<QString>()
 			<< QString("Buffer")
 			<< QString("Integer")
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("ArrayOf(Window)", "tabpage_get_windows",
+<< NvimApiFunc("ArrayOf(Window)", "tabpage_get_windows",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("Object", "tabpage_get_var",
+<< NvimApiFunc("Object", "tabpage_get_var",
 	QList<QString>()
 			<< QString("Tabpage")
 			<< QString("String")
 		, false)
-<< Function("Window", "tabpage_get_window",
+<< NvimApiFunc("Window", "tabpage_get_window",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("Boolean", "tabpage_is_valid",
+<< NvimApiFunc("Boolean", "tabpage_is_valid",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("void", "ui_detach",
+<< NvimApiFunc("void", "ui_detach",
 	QList<QString>()
 		, false)
-<< Function("Object", "ui_try_resize",
+<< NvimApiFunc("Object", "ui_try_resize",
 	QList<QString>()
 			<< QString("Integer")
 			<< QString("Integer")
 		, false)
-<< Function("void", "vim_command",
+<< NvimApiFunc("void", "vim_command",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_feedkeys",
+<< NvimApiFunc("void", "vim_feedkeys",
 	QList<QString>()
 			<< QString("String")
 			<< QString("String")
 			<< QString("Boolean")
 		, false)
-<< Function("Integer", "vim_input",
+<< NvimApiFunc("Integer", "vim_input",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("String", "vim_replace_termcodes",
+<< NvimApiFunc("String", "vim_replace_termcodes",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Boolean")
 			<< QString("Boolean")
 			<< QString("Boolean")
 		, false)
-<< Function("String", "vim_command_output",
+<< NvimApiFunc("String", "vim_command_output",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "vim_eval",
+<< NvimApiFunc("Object", "vim_eval",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "vim_call_function",
+<< NvimApiFunc("Object", "vim_call_function",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Array")
 		, false)
-<< Function("Integer", "vim_strwidth",
+<< NvimApiFunc("Integer", "vim_strwidth",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("ArrayOf(String)", "vim_list_runtime_paths",
+<< NvimApiFunc("ArrayOf(String)", "vim_list_runtime_paths",
 	QList<QString>()
 		, false)
-<< Function("void", "vim_change_directory",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("String", "vim_get_current_line",
-	QList<QString>()
-		, false)
-<< Function("void", "vim_set_current_line",
+<< NvimApiFunc("void", "vim_change_directory",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_del_current_line",
+<< NvimApiFunc("String", "vim_get_current_line",
 	QList<QString>()
 		, false)
-<< Function("Object", "vim_get_var",
-	QList<QString>()
-			<< QString("String")
-		, false)
-<< Function("Object", "vim_get_vvar",
+<< NvimApiFunc("void", "vim_set_current_line",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Object", "vim_get_option",
+<< NvimApiFunc("void", "vim_del_current_line",
+	QList<QString>()
+		, false)
+<< NvimApiFunc("Object", "vim_get_var",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_set_option",
+<< NvimApiFunc("Object", "vim_get_vvar",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("Object", "vim_get_option",
+	QList<QString>()
+			<< QString("String")
+		, false)
+<< NvimApiFunc("void", "vim_set_option",
 	QList<QString>()
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("void", "vim_out_write",
+<< NvimApiFunc("void", "vim_out_write",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_err_write",
+<< NvimApiFunc("void", "vim_err_write",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_report_error",
+<< NvimApiFunc("void", "vim_report_error",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("ArrayOf(Buffer)", "vim_get_buffers",
+<< NvimApiFunc("ArrayOf(Buffer)", "vim_get_buffers",
 	QList<QString>()
 		, false)
-<< Function("Buffer", "vim_get_current_buffer",
+<< NvimApiFunc("Buffer", "vim_get_current_buffer",
 	QList<QString>()
 		, false)
-<< Function("void", "vim_set_current_buffer",
+<< NvimApiFunc("void", "vim_set_current_buffer",
 	QList<QString>()
 			<< QString("Buffer")
 		, false)
-<< Function("ArrayOf(Window)", "vim_get_windows",
+<< NvimApiFunc("ArrayOf(Window)", "vim_get_windows",
 	QList<QString>()
 		, false)
-<< Function("Window", "vim_get_current_window",
+<< NvimApiFunc("Window", "vim_get_current_window",
 	QList<QString>()
 		, false)
-<< Function("void", "vim_set_current_window",
+<< NvimApiFunc("void", "vim_set_current_window",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("ArrayOf(Tabpage)", "vim_get_tabpages",
+<< NvimApiFunc("ArrayOf(Tabpage)", "vim_get_tabpages",
 	QList<QString>()
 		, false)
-<< Function("Tabpage", "vim_get_current_tabpage",
+<< NvimApiFunc("Tabpage", "vim_get_current_tabpage",
 	QList<QString>()
 		, false)
-<< Function("void", "vim_set_current_tabpage",
+<< NvimApiFunc("void", "vim_set_current_tabpage",
 	QList<QString>()
 			<< QString("Tabpage")
 		, false)
-<< Function("void", "vim_subscribe",
+<< NvimApiFunc("void", "vim_subscribe",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("void", "vim_unsubscribe",
+<< NvimApiFunc("void", "vim_unsubscribe",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Integer", "vim_name_to_color",
+<< NvimApiFunc("Integer", "vim_name_to_color",
 	QList<QString>()
 			<< QString("String")
 		, false)
-<< Function("Dictionary", "vim_get_color_map",
+<< NvimApiFunc("Dictionary", "vim_get_color_map",
 	QList<QString>()
 		, false)
-<< Function("Buffer", "window_get_buffer",
+<< NvimApiFunc("Buffer", "window_get_buffer",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("ArrayOf(Integer, 2)", "window_get_cursor",
+<< NvimApiFunc("ArrayOf(Integer, 2)", "window_get_cursor",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("void", "window_set_cursor",
+<< NvimApiFunc("void", "window_set_cursor",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("ArrayOf(Integer, 2)")
 		, false)
-<< Function("Integer", "window_get_height",
+<< NvimApiFunc("Integer", "window_get_height",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("void", "window_set_height",
-	QList<QString>()
-			<< QString("Window")
-			<< QString("Integer")
-		, false)
-<< Function("Integer", "window_get_width",
-	QList<QString>()
-			<< QString("Window")
-		, false)
-<< Function("void", "window_set_width",
+<< NvimApiFunc("void", "window_set_height",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("Integer")
 		, false)
-<< Function("Object", "window_get_var",
+<< NvimApiFunc("Integer", "window_get_width",
+	QList<QString>()
+			<< QString("Window")
+		, false)
+<< NvimApiFunc("void", "window_set_width",
+	QList<QString>()
+			<< QString("Window")
+			<< QString("Integer")
+		, false)
+<< NvimApiFunc("Object", "window_get_var",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 		, false)
-<< Function("Object", "window_get_option",
+<< NvimApiFunc("Object", "window_get_option",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 		, false)
-<< Function("void", "window_set_option",
+<< NvimApiFunc("void", "window_set_option",
 	QList<QString>()
 			<< QString("Window")
 			<< QString("String")
 			<< QString("Object")
 		, false)
-<< Function("ArrayOf(Integer, 2)", "window_get_position",
+<< NvimApiFunc("ArrayOf(Integer, 2)", "window_get_position",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Tabpage", "window_get_tabpage",
+<< NvimApiFunc("Tabpage", "window_get_tabpage",
 	QList<QString>()
 			<< QString("Window")
 		, false)
-<< Function("Boolean", "window_is_valid",
+<< NvimApiFunc("Boolean", "window_is_valid",
 	QList<QString>()
 			<< QString("Window")
 		, false)

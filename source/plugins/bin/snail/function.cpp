@@ -8,24 +8,25 @@ namespace SnailNvimQt {
 
 typedef QPair<QString,QString> StringPair;
 
-/// @enum Function::FunctionId
+/// @enum NvimApiFunc::FunctionId
 ///
 /// Nvim API function identifiers, the list
-/// SnailNvimQt::Function::knownFunctions is indexed with this enum.
+/// SnailNvimQt::NvimApiFunc::knownFunctions is indexed with this enum.
 
 #ifndef NEOVIMQT_NO_AUTO
     #include "config/nvimapi/auto/func_sig.hpp"
 #endif
 
 /// Construct invalid function
-Function::Function()
+NvimApiFunc::NvimApiFunc()
     :can_fail(false), m_valid(false)
 {
+    /* nothing */
 }
 
 /// Construct new function with the given
 /// return type, name, parameters and error
-Function::Function(const QString &ret,
+NvimApiFunc::NvimApiFunc(const QString &ret,
                    const QString &name,
                    QList<QPair<QString,QString>> params,
                    bool can_fail)
@@ -39,7 +40,7 @@ Function::Function(const QString &ret,
 
 /// Construct new function with the given
 /// return type, name, parameters and error
-Function::Function(const QString &ret,
+NvimApiFunc::NvimApiFunc(const QString &ret,
                    const QString &name,
                    QList<QString> paramTypes,
                    bool can_fail)
@@ -57,14 +58,14 @@ Function::Function(const QString &ret,
 }
 
 /// Returns true if this function has all the necessary attributes
-bool Function::isValid() const
+bool NvimApiFunc::isValid() const
 {
     return m_valid;
 }
 
 /// Two functions are considered identical if their names
 /// argument and return types, and error status are identical
-bool Function::operator==(const Function &other)
+bool NvimApiFunc::operator==(const NvimApiFunc &other)
 {
     if(this->name != other.name)
     {
@@ -92,9 +93,9 @@ bool Function::operator==(const Function &other)
     return true;
 }
 
-Function Function::fromVariant(const QVariant &fun)
+NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
 {
-    Function f;
+    NvimApiFunc f;
 
     if(!fun.canConvert<QVariantMap>())
     {
@@ -196,7 +197,7 @@ Function Function::fromVariant(const QVariant &fun)
 /// Retrieve parameter types from a list of function parameters in the metadata
 /// object. Basically retrieves the even numbered elements of the array (types)
 /// i.e. [Type0 name0 Type1 name1 ... ] -> [Type0 Type1 ...]
-QList<QPair<QString,QString>> Function::parseParameters(const QVariantList &obj)
+QList<QPair<QString,QString>> NvimApiFunc::parseParameters(const QVariantList &obj)
 {
     QList<QPair<QString,QString>> fail;
     QList<QPair<QString,QString>> res;
@@ -230,7 +231,7 @@ QList<QPair<QString,QString>> Function::parseParameters(const QVariantList &obj)
     return res;
 }
 
-QString Function::signature() const
+QString NvimApiFunc::signature() const
 {
     QStringList sigparams;
 
@@ -250,22 +251,22 @@ QString Function::signature() const
 }
 
 /// return the FunctionId or NEOVIM_FN_NULL if the function is uknown
-Function::FunctionId Function::functionId(const Function &f)
+NvimApiFunc::FunctionId NvimApiFunc::functionId(const NvimApiFunc &f)
 {
     if(!f.isValid())
     {
-        return Function::NEOVIM_FN_NULL;
+        return NvimApiFunc::NEOVIM_FN_NULL;
     }
 
-    int index = Function::knownFunctions.indexOf(f);
+    int index = NvimApiFunc::knownFunctions.indexOf(f);
 
     if(index != -1)
     {
-        return Function::FunctionId(index);
+        return NvimApiFunc::FunctionId(index);
     }
 
     qDebug() << "Unknown Nvim function" << f.signature();
-    return Function::NEOVIM_FN_NULL;
+    return NvimApiFunc::NEOVIM_FN_NULL;
 }
 
 } // namespace::SnailNvimQt

@@ -14,7 +14,7 @@
 namespace SnailNvimQt {
 
 /// Representation of a Nvim API function signature
-class Function
+class NvimApiFunc
 {
     Q_ENUMS(FunctionId)
 public:
@@ -24,22 +24,22 @@ public:
     #include "config/nvimapi/auto/func_idx.h"
     #endif
 
-    static Function fromVariant(const QVariant &);
+    static NvimApiFunc fromVariant(const QVariant &);
     static QList<QPair<QString,QString>> parseParameters(const QVariantList &obj);
 
     /// The static list **knowFunctions** holds a list of all the supported
     /// signature. The list is populated at compile time from a code generator.
-    static const QList<Function> knownFunctions;
-    static FunctionId functionId(const Function &);
+    static const QList<NvimApiFunc> knownFunctions;
+    static FunctionId functionId(const NvimApiFunc &);
 
-    Function();
-    Function(const QString &ret, const QString &name,
+    NvimApiFunc();
+    NvimApiFunc(const QString &ret, const QString &name,
              QList<QPair<QString,QString>> params, bool can_fail);
-    Function(const QString &ret, const QString &name,
+    NvimApiFunc(const QString &ret, const QString &name,
              QList<QString> paramTypes, bool can_fail);
 
     bool isValid() const;
-    bool operator==(const Function &other);
+    bool operator==(const NvimApiFunc &other);
 
     /// API function return type
     QString return_type;

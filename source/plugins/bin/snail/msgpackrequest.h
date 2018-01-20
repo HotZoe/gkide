@@ -17,15 +17,15 @@ class MsgpackRequest: public QObject
     Q_OBJECT
 public:
     MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent=0);
-    void setFunction(Function::FunctionId);
-    Function::FunctionId function();
+    void setFunction(NvimApiFunc::FunctionId);
+    NvimApiFunc::FunctionId function();
     void setTimeout(int msec);
 
 signals:
     /// The request has finished
-    void finished(quint32 msgid, Function::FunctionId fun, const QVariant &resp);
+    void finished(quint32 msgid, NvimApiFunc::FunctionId fun, const QVariant &resp);
     /// The request has error
-    void error(quint32 msgid, Function::FunctionId fun, const QVariant &err);
+    void error(quint32 msgid, NvimApiFunc::FunctionId fun, const QVariant &err);
     /// The request timeout
     void timeout(quint32 id);
 
@@ -37,7 +37,7 @@ public:
 
 private:
     MsgpackIODevice *m_dev;
-    Function::FunctionId m_function;
+    NvimApiFunc::FunctionId m_function;
     QTimer m_timer;
 };
 
