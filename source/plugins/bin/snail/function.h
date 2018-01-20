@@ -25,7 +25,7 @@ public:
     #endif
 
     static NvimApiFunc fromVariant(const QVariant &);
-    static QList<QPair<QString,QString>> parseParameters(const QVariantList &obj);
+    static QList<QPair<QString,QString>> parseArgs(const QVariantList &obj);
 
     /// A list of all the supported nvim API signature.
     /// The list is populated at compile time from a code generator.

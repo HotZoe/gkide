@@ -152,7 +152,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
                 return f;
             }
 
-            f.parameters = parseParameters(it.value().toList());
+            f.parameters = parseArgs(it.value().toList());
         }
         else if(it.key() == "id")
         {
@@ -197,7 +197,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
 /// Retrieve parameter types from a list of function parameters in the metadata
 /// object. Basically retrieves the even numbered elements of the array (types)
 /// i.e. [Type0 name0 Type1 name1 ... ] -> [Type0 Type1 ...]
-QList<QPair<QString,QString>> NvimApiFunc::parseParameters(const QVariantList &obj)
+QList<QPair<QString,QString>> NvimApiFunc::parseArgs(const QVariantList &obj)
 {
     QList<QPair<QString,QString>> fail;
     QList<QPair<QString,QString>> res;
