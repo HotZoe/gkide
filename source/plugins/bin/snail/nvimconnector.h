@@ -110,8 +110,8 @@ private:
 
     // Store connection arguments for reconnect()
     NeovimConnectionType m_ctype;
-    QStringList m_spawnArgs;
-    QString m_spawnExe;
+    QStringList m_spawnArgs; ///< nvim executable arguments
+    QString m_spawnExe;      ///< nvim executable program
     QString m_connSocket;
     QString m_connHost;
     int m_connPort;

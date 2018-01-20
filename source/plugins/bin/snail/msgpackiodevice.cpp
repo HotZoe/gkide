@@ -570,6 +570,9 @@ QString MsgpackIODevice::errorString() const
 ///
 /// Use send() to pass on each of the call parameters
 ///
+/// @param method    nvim api function name
+/// @param argcount  nvim api function arguments count
+///
 /// @return a MsgpackRequest object.
 /// You can connect to its finished() SIGNAL to handle the response
 MsgpackRequest *MsgpackIODevice::startRequestUnchecked(const QString &method,
