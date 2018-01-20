@@ -46,7 +46,7 @@ public:
     QList<FuncArg> m_func_args; ///< API function arguments type and name list
 
     /// Whether this function call fail without returning
-    bool can_fail;
+    bool m_can_fail;
 
     QString signature() const;
 

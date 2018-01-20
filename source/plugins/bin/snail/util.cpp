@@ -88,6 +88,6 @@ QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f)
         dbg.space() << p.first << ",";
     }
 
-    dbg.space() << ")" << "fails:" << f.can_fail;
+    dbg.space() << ")" << "fails:" << f.m_can_fail;
     return dbg.maybeSpace();
 }

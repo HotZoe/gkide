@@ -10,7 +10,7 @@ namespace SnailNvimQt {
 
 /// Construct invalid function
 NvimApiFunc::NvimApiFunc()
-    :can_fail(false), m_valid(false)
+    :m_can_fail(false), m_valid(false)
 {
     /* nothing */
 }
@@ -26,7 +26,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
     this->m_func_type = ret;
     this->m_func_name = name;
     this->m_func_args = params;
-    this->can_fail = can_fail;
+    this->m_can_fail  = can_fail;
 }
 
 /// Construct new function with the given
@@ -45,7 +45,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
         this->m_func_args.append(FuncArg(type, ""));
     }
 
-    this->can_fail = can_fail;
+    this->m_can_fail = can_fail;
 }
 
 /// Returns true if this function has all the necessary attributes
@@ -132,7 +132,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
                 return f;
             }
 
-            f.can_fail = it.value().toBool();
+            f.m_can_fail = it.value().toBool();
         }
         else if(it.key() == "parameters")
         {
@@ -231,7 +231,7 @@ QString NvimApiFunc::signature() const
 
     QString notes;
 
-    if(can_fail)
+    if(m_can_fail)
     {
         notes += " !fail";
     }
