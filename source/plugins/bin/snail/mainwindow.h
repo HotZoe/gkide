@@ -51,7 +51,7 @@ private slots:
 
 private:
     void init(NvimConnector *);
-    NvimConnector *m_nvim;
+    NvimConnector *m_nvimCon;
     ErrorWidget *m_errorWidget;
     Shell *m_shell;
     DelayedShow m_delayedShow;

@@ -104,7 +104,7 @@ private slots:
 private:
     bool m_attached;
 
-    NvimConnector *m_nvim;
+    NvimConnector *m_nvimCon;
 
     QList<QUrl> m_deferredOpen;
 

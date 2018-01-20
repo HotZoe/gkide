@@ -6,7 +6,7 @@
 namespace SnailNvimQt {
 
 MainWindow::MainWindow(NvimConnector *c, QWidget *parent)
-    :QMainWindow(parent), m_nvim(0), m_errorWidget(0), m_shell(0),
+    :QMainWindow(parent), m_nvimCon(0), m_errorWidget(0), m_shell(0),
      m_delayedShow(DelayedShow::Disabled)
 {
     m_errorWidget = new ErrorWidget();
@@ -25,12 +25,12 @@ void MainWindow::init(NvimConnector *c)
         m_stack.removeWidget(m_shell);
     }
 
-    if(m_nvim)
+    if(m_nvimCon)
     {
-        m_nvim->deleteLater();
+        m_nvimCon->deleteLater();
     }
 
-    m_nvim = c;
+    m_nvimCon = c;
     m_shell = new Shell(c);
     m_stack.insertWidget(1, m_shell);
     m_stack.setCurrentIndex(1);
@@ -49,16 +49,16 @@ void MainWindow::init(NvimConnector *c)
             this, &MainWindow::neovimFullScreen);
     connect(m_shell, &Shell::neovimGuiCloseRequest,
             this, &MainWindow::neovimGuiCloseRequest);
-    connect(m_nvim, &NvimConnector::processExited,
+    connect(m_nvimCon, &NvimConnector::processExited,
             this, &MainWindow::neovimExited);
-    connect(m_nvim, &NvimConnector::error,
+    connect(m_nvimCon, &NvimConnector::error,
             this, &MainWindow::neovimError);
 
     m_shell->setFocus(Qt::OtherFocusReason);
 
-    if(m_nvim->errorCause())
+    if(m_nvimCon->errorCause())
     {
-        neovimError(m_nvim->errorCause());
+        neovimError(m_nvimCon->errorCause());
     }
 }
 
@@ -72,16 +72,16 @@ void MainWindow::neovimExited(int status)
 {
     showIfDelayed();
 
-    if(m_nvim->errorCause() != NvimConnector::NoError)
+    if(m_nvimCon->errorCause() != NvimConnector::NoError)
     {
-        m_errorWidget->setText(m_nvim->errorString());
-        m_errorWidget->showReconnect(m_nvim->canReconnect());
+        m_errorWidget->setText(m_nvimCon->errorString());
+        m_errorWidget->showReconnect(m_nvimCon->canReconnect());
         m_stack.setCurrentIndex(0);
     }
     else if(status != 0)
     {
         m_errorWidget->setText(QString("Nvim exited with status code (%1)").arg(status));
-        m_errorWidget->showReconnect(m_nvim->canReconnect());
+        m_errorWidget->showReconnect(m_nvimCon->canReconnect());
         m_stack.setCurrentIndex(0);
     }
     else
@@ -96,14 +96,14 @@ void MainWindow::neovimError(NvimConnector::NvimError err)
     switch(err)
     {
         case NvimConnector::FailedToStart:
-            m_errorWidget->setText("Unable to start nvim: " + m_nvim->errorString());
+            m_errorWidget->setText("Unable to start nvim: " + m_nvimCon->errorString());
             break;
 
         default:
-            m_errorWidget->setText(m_nvim->errorString());
+            m_errorWidget->setText(m_nvimCon->errorString());
     }
 
-    m_errorWidget->showReconnect(m_nvim->canReconnect());
+    m_errorWidget->showReconnect(m_nvimCon->canReconnect());
     m_stack.setCurrentIndex(0);
 }
 
@@ -155,9 +155,9 @@ void MainWindow::neovimGuiCloseRequest()
 
 void MainWindow::reconnectNeovim()
 {
-    if(m_nvim->canReconnect())
+    if(m_nvimCon->canReconnect())
     {
-        init(m_nvim->reconnect());
+        init(m_nvimCon->reconnect());
     }
 
     m_stack.setCurrentIndex(1);
@@ -191,7 +191,7 @@ void MainWindow::delayedShow(DelayedShow type)
 {
     m_delayedShow = type;
 
-    if(m_nvim->errorCause() != NvimConnector::NoError)
+    if(m_nvimCon->errorCause() != NvimConnector::NoError)
     {
         showIfDelayed();
         return;
