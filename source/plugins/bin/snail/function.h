@@ -42,7 +42,7 @@ public:
     bool operator==(const NvimApiFunc &other);
 
     /// API function return type
-    QString return_type;
+    QString m_func_type;
     /// API function name
     QString name;
     /// API function argument type and name

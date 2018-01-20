@@ -81,7 +81,7 @@ QDebug operator<<(QDebug dbg, const msgpack_object &obj)
 typedef QPair<QString,QString> Param;
 QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f)
 {
-    dbg.space() << f.return_type << f.name << "(";
+    dbg.space() << f.m_func_type << f.name << "(";
 
     foreach(Param p, f.parameters)
     {

@@ -32,7 +32,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
                    bool can_fail)
     :m_valid(true)
 {
-    this->return_type = ret;
+    this->m_func_type = ret;
     this->name = name;
     this->parameters = params;
     this->can_fail = can_fail;
@@ -46,7 +46,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
                    bool can_fail)
     :m_valid(true)
 {
-    this->return_type = ret;
+    this->m_func_type = ret;
     this->name = name;
 
     foreach(QString type, paramTypes)
@@ -72,7 +72,7 @@ bool NvimApiFunc::operator==(const NvimApiFunc &other)
         return false;
     }
 
-    if(this->return_type != other.return_type)
+    if(this->m_func_type != other.m_func_type)
     {
         return false;
     }
@@ -119,7 +119,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
                 return f;
             }
 
-            f.return_type = QString::fromUtf8(it.value().toByteArray());
+            f.m_func_type = QString::fromUtf8(it.value().toByteArray());
         }
         else if(it.key() == "name")
         {
@@ -247,7 +247,10 @@ QString NvimApiFunc::signature() const
         notes += " !fail";
     }
 
-    return QString("%1 %2(%3)%4").arg(return_type).arg(name).arg(sigparams.join(", ")).arg(notes);
+    return QString("%1 %2(%3)%4")
+           .arg(m_func_type)
+           .arg(name)
+           .arg(sigparams.join(", ")).arg(notes);
 }
 
 /// return the NvimApiFuncID or NEOVIM_FN_NULL if the function is uknown
