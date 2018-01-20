@@ -5,14 +5,6 @@
 
 namespace SnailNvimQt {
 
-/// @class SnailNvimQt::MsgpackRequest
-///
-/// @brief A MsgpackRequest represents an ongoing API call
-
-/// @fn SnailNvimQt::MsgpackRequest::finished
-///
-/// @brief The request has finished
-
 /// Creates a new MsgpackRequest, identified by id
 ///
 /// @see SnailNvimQt::MsgpackIODevice::msgId

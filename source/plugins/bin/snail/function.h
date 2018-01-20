@@ -13,6 +13,7 @@
 
 namespace SnailNvimQt {
 
+/// Representation of a Nvim API function signature
 class Function
 {
     Q_ENUMS(FunctionId)
@@ -23,35 +24,39 @@ public:
     #include "config/nvimapi/auto/func_idx.h"
     #endif
 
-    Function();
-
-    Function(const QString &ret, const QString &name,
-             QList<QPair<QString,QString>> params, bool can_fail);
-
-    Function(const QString &ret, const QString &name,
-             QList<QString> paramTypes, bool can_fail);
-    bool isValid() const;
-    bool operator==(const Function &other);
     static Function fromVariant(const QVariant &);
     static QList<QPair<QString,QString>> parseParameters(const QVariantList &obj);
 
+    /// The static list **knowFunctions** holds a list of all the supported
+    /// signature. The list is populated at compile time from a code generator.
+    static const QList<Function> knownFunctions;
+    static FunctionId functionId(const Function &);
 
-    bool can_fail;       ///< Whether this function call fail without returning
-    QString return_type; ///< Function return type
-    QString name;        ///< Function name
-    ///< Function parameter types and name
+    Function();
+    Function(const QString &ret, const QString &name,
+             QList<QPair<QString,QString>> params, bool can_fail);
+    Function(const QString &ret, const QString &name,
+             QList<QString> paramTypes, bool can_fail);
+
+    bool isValid() const;
+    bool operator==(const Function &other);
+
+    /// API function return type
+    QString return_type;
+    /// API function name
+    QString name;
+    /// API function argument type and name
     QList<QPair<QString,QString>> parameters;
+
+    /// Whether this function call fail without returning
+    bool can_fail;
 
     QString signature() const;
 
-    /// The static list **knowFunctions** holds a list of all the supported
-    /// signature. The list is populated at compile time from a code generator.
-    const static QList<Function> knownFunctions;
-    static FunctionId functionId(const Function &);
 private:
     bool m_valid;
 };
 
-} // Namespace::SnailNvimQt
+} // namespace::SnailNvimQt
 
 #endif // PLUGIN_SNAIL_FUNCTION_H

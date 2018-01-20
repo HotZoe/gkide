@@ -8,10 +8,6 @@ namespace SnailNvimQt {
 
 typedef QPair<QString,QString> StringPair;
 
-/// @class SnailNvimQt::Function
-///
-/// @brief Representation of a Nvim API function signature
-
 /// @enum Function::FunctionId
 ///
 /// Nvim API function identifiers, the list

@@ -20,7 +20,7 @@ NvimConnector::NvimConnector(QIODevice *dev)
 
 NvimConnector::NvimConnector(MsgpackIODevice *dev)
     : QObject(), m_dev(dev), m_helper(NULL), m_error(NoError),
-      m_neovimobj(NULL), m_channel(0), m_ctype(OtherConnection),
+      m_nvimObj(NULL), m_channel(0), m_ctype(OtherConnection),
       m_ready(false)
 {
     m_helper = new NvimConnectorHelper(this);
@@ -147,12 +147,12 @@ QByteArray NvimConnector::encode(const QString &in)
 /// @see NvimConnector::isReady
 Nvim *NvimConnector::neovimObject(void)
 {
-    if(!m_neovimobj)
+    if(!m_nvimObj)
     {
-        m_neovimobj = new Nvim(this);
+        m_nvimObj = new Nvim(this);
     }
 
-    return m_neovimobj;
+    return m_nvimObj;
 }
 
 /// Launch an embedded nvim process

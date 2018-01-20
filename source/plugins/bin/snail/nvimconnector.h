@@ -105,7 +105,7 @@ private:
     QString m_errorString;
     NvimError m_error;
 
-    Nvim *m_neovimobj;
+    Nvim *m_nvimObj;
     quint64 m_channel;
 
     // Store connection arguments for reconnect()

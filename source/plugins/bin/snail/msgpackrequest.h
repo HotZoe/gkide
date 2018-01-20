@@ -11,6 +11,7 @@ namespace SnailNvimQt {
 
 class MsgpackIODevice;
 
+/// A MsgpackRequest represents an ongoing API call
 class MsgpackRequest: public QObject
 {
     Q_OBJECT
@@ -20,16 +21,19 @@ public:
     Function::FunctionId function();
     void setTimeout(int msec);
 
-    /// The identifier for this Msgpack request
-    const quint32 id;
-
 signals:
+    /// The request has finished
     void finished(quint32 msgid, Function::FunctionId fun, const QVariant &resp);
+    /// The request has error
     void error(quint32 msgid, Function::FunctionId fun, const QVariant &err);
+    /// The request timeout
     void timeout(quint32 id);
 
 protected slots:
     void requestTimeout();
+
+public:
+    const quint32 id; ///< msgpack request identifier
 
 private:
     MsgpackIODevice *m_dev;
