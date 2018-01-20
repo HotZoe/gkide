@@ -125,7 +125,7 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
     }
 
     // true if all the generated functions are supported
-    return NvimApiFunc::knownFunctions.size() == supported.size();
+    return NvimApiFunc::nvimAPIs.size() == supported.size();
 }
 
 } // namespace::SnailNvimQt

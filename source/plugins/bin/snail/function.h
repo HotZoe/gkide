@@ -27,9 +27,9 @@ public:
     static NvimApiFunc fromVariant(const QVariant &);
     static QList<QPair<QString,QString>> parseParameters(const QVariantList &obj);
 
-    /// The static list **knowFunctions** holds a list of all the supported
-    /// signature. The list is populated at compile time from a code generator.
-    static const QList<NvimApiFunc> knownFunctions;
+    /// A list of all the supported nvim API signature.
+    /// The list is populated at compile time from a code generator.
+    static const QList<NvimApiFunc> nvimAPIs;
     static FunctionId functionId(const NvimApiFunc &);
 
     NvimApiFunc();

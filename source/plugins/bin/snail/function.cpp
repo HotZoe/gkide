@@ -11,7 +11,7 @@ typedef QPair<QString,QString> StringPair;
 /// @enum NvimApiFunc::FunctionId
 ///
 /// Nvim API function identifiers, the list
-/// SnailNvimQt::NvimApiFunc::knownFunctions is indexed with this enum.
+/// SnailNvimQt::NvimApiFunc::nvimAPIs is indexed with this enum.
 
 #ifndef NEOVIMQT_NO_AUTO
     #include "config/nvimapi/auto/func_sig.hpp"
@@ -258,7 +258,7 @@ NvimApiFunc::FunctionId NvimApiFunc::functionId(const NvimApiFunc &f)
         return NvimApiFunc::NEOVIM_FN_NULL;
     }
 
-    int index = NvimApiFunc::knownFunctions.indexOf(f);
+    int index = NvimApiFunc::nvimAPIs.indexOf(f);
 
     if(index != -1)
     {

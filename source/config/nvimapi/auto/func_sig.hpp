@@ -1,5 +1,5 @@
 // Auto generated 2017-07-12 22:09:26.826170
-const QList<NvimApiFunc> NvimApiFunc::knownFunctions = QList<NvimApiFunc>()
+const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 << NvimApiFunc("Integer", "nvim_buf_line_count",
 	QList<QString>()
 			<< QString("Buffer")
