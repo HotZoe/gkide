@@ -249,12 +249,12 @@ QString NvimApiFunc::signature() const
            .arg(sigparams.join(", ")).arg(notes);
 }
 
-/// return the NvimApiFuncID or NEOVIM_FN_NULL if the function is uknown
+/// return the NvimApiFuncID or kNvimAPI_NULL if the function is uknown
 NvimApiFunc::NvimApiFuncID NvimApiFunc::nvimApiID(const NvimApiFunc &f)
 {
     if(!f.isValid())
     {
-        return NvimApiFunc::NEOVIM_FN_NULL;
+        return NvimApiFunc::kNvimAPI_NULL;
     }
 
     int index = NvimApiFunc::nvimAPIs.indexOf(f);
@@ -265,7 +265,7 @@ NvimApiFunc::NvimApiFuncID NvimApiFunc::nvimApiID(const NvimApiFunc &f)
     }
 
     qDebug() << "Unknown Nvim function" << f.signature();
-    return NvimApiFunc::NEOVIM_FN_NULL;
+    return NvimApiFunc::kNvimAPI_NULL;
 }
 
 } // namespace::SnailNvimQt

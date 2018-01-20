@@ -118,7 +118,7 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
         NvimApiFunc::NvimApiFuncID fid =
             NvimApiFunc::nvimApiID(NvimApiFunc::fromVariant(val));
 
-        if(fid != NvimApiFunc::NEOVIM_FN_NULL)
+        if(fid != NvimApiFunc::kNvimAPI_NULL)
         {
             supported.append(fid);
         }

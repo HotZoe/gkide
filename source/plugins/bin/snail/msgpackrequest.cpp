@@ -8,15 +8,18 @@ namespace SnailNvimQt {
 /// Creates a new MsgpackRequest, identified by id
 ///
 /// @see SnailNvimQt::MsgpackIODevice::msgId
-MsgpackRequest::MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent)
-    :QObject(parent), id(id), m_dev(dev), m_function(NvimApiFunc::NEOVIM_FN_NULL)
+MsgpackRequest::MsgpackRequest(quint32 id,
+                               MsgpackIODevice *dev,
+                               QObject *parent)
+    : QObject(parent), id(id), m_dev(dev),
+      m_function(NvimApiFunc::kNvimAPI_NULL)
 {
     connect(&m_timer, &QTimer::timeout,
             this, &MsgpackRequest::requestTimeout);
 }
 
 /// The function id for the function signature associated with this call.
-/// The value NEOVIM_FN_NULL indicates this call will not go through the
+/// The value kNvimAPI_NULL indicates this call will not go through the
 /// the generated function handlers.
 NvimApiFunc::NvimApiFuncID MsgpackRequest::function()
 {
