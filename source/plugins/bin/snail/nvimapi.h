@@ -40,12 +40,10 @@ public:
     bool isValid() const;
     bool operator==(const NvimApiFunc &other);
 
-    /// API function return type
-    QString m_func_type;
-    /// API function name
-    QString name;
-    /// API function argument type and name
-    QList<FuncArg> parameters;
+
+    QString m_func_type;       ///< API function return type
+    QString m_func_name;       ///< API function name
+    QList<FuncArg> parameters; ///< API function argument type and name
 
     /// Whether this function call fail without returning
     bool can_fail;

@@ -24,7 +24,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
     :m_valid(true)
 {
     this->m_func_type = ret;
-    this->name = name;
+    this->m_func_name = name;
     this->parameters = params;
     this->can_fail = can_fail;
 }
@@ -38,7 +38,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
     :m_valid(true)
 {
     this->m_func_type = ret;
-    this->name = name;
+    this->m_func_name = name;
 
     foreach(QString type, paramTypes)
     {
@@ -58,7 +58,7 @@ bool NvimApiFunc::isValid() const
 /// argument and return types, and error status are identical
 bool NvimApiFunc::operator==(const NvimApiFunc &other)
 {
-    if(this->name != other.name)
+    if(this->m_func_name != other.m_func_name)
     {
         return false;
     }
@@ -121,7 +121,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
                 return f;
             }
 
-            f.name = QString::fromUtf8(it.value().toByteArray());
+            f.m_func_name = QString::fromUtf8(it.value().toByteArray());
         }
         else if(it.key() == "can_fail")
         {
@@ -238,7 +238,7 @@ QString NvimApiFunc::signature() const
 
     return QString("%1 %2(%3)%4")
            .arg(m_func_type)
-           .arg(name)
+           .arg(m_func_name)
            .arg(sigparams.join(", ")).arg(notes);
 }
 

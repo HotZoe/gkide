@@ -81,7 +81,7 @@ QDebug operator<<(QDebug dbg, const msgpack_object &obj)
 
 QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f)
 {
-    dbg.space() << f.m_func_type << f.name << "(";
+    dbg.space() << f.m_func_type << f.m_func_name << "(";
 
     foreach(SnailNvimQt::FuncArg p, f.parameters)
     {
