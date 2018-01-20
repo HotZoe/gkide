@@ -16,7 +16,7 @@ namespace SnailNvimQt {
 /// Representation of a Nvim API function signature
 class NvimApiFunc
 {
-    Q_ENUMS(FunctionId)
+    Q_ENUMS(NvimApiFuncID)
 public:
 
     #ifndef NEOVIMQT_NO_AUTO
@@ -30,7 +30,7 @@ public:
     /// A list of all the supported nvim API signature.
     /// The list is populated at compile time from a code generator.
     static const QList<NvimApiFunc> nvimAPIs;
-    static FunctionId nvimApiID(const NvimApiFunc &);
+    static NvimApiFuncID nvimApiID(const NvimApiFunc &);
 
     NvimApiFunc();
     NvimApiFunc(const QString &ret, const QString &name,

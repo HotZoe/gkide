@@ -1,6 +1,6 @@
 // Auto generated 2017-07-12 22:09:26.851279
 
-enum FunctionId
+enum NvimApiFuncID
 {
     NEOVIM_FN_NVIM_BUF_LINE_COUNT,
     NEOVIM_FN_BUFFER_GET_LINE,

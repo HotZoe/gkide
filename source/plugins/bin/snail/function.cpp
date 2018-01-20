@@ -8,7 +8,7 @@ namespace SnailNvimQt {
 
 typedef QPair<QString,QString> StringPair;
 
-/// @enum NvimApiFunc::FunctionId
+/// @enum NvimApiFunc::NvimApiFuncID
 ///
 /// Nvim API function identifiers, the list
 /// SnailNvimQt::NvimApiFunc::nvimAPIs is indexed with this enum.
@@ -250,8 +250,8 @@ QString NvimApiFunc::signature() const
     return QString("%1 %2(%3)%4").arg(return_type).arg(name).arg(sigparams.join(", ")).arg(notes);
 }
 
-/// return the FunctionId or NEOVIM_FN_NULL if the function is uknown
-NvimApiFunc::FunctionId NvimApiFunc::nvimApiID(const NvimApiFunc &f)
+/// return the NvimApiFuncID or NEOVIM_FN_NULL if the function is uknown
+NvimApiFunc::NvimApiFuncID NvimApiFunc::nvimApiID(const NvimApiFunc &f)
 {
     if(!f.isValid())
     {
@@ -262,7 +262,7 @@ NvimApiFunc::FunctionId NvimApiFunc::nvimApiID(const NvimApiFunc &f)
 
     if(index != -1)
     {
-        return NvimApiFunc::FunctionId(index);
+        return NvimApiFunc::NvimApiFuncID(index);
     }
 
     qDebug() << "Unknown Nvim function" << f.signature();

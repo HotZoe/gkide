@@ -45,7 +45,7 @@ MsgpackIODevice::MsgpackIODevice(QIODevice *dev, QObject *parent)
       m_encoding(NULL), m_reqHandler(NULL), m_error(NoError)
 {
     qRegisterMetaType<MsgpackError>("MsgpackError");
-    qRegisterMetaType<NvimApiFunc::FunctionId>("NvimApiFunc::FunctionId");
+    qRegisterMetaType<NvimApiFunc::NvimApiFuncID>("NvimApiFunc::NvimApiFuncID");
 
     // for msgpack 1.x
     // must be destroyed by msgpack_unpacker_destroy(msgpack_unpacker*)

@@ -1628,7 +1628,7 @@ MsgpackRequest *Nvim::window_is_valid(int64_t window)
 
 // Handlers
 void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                                 NvimApiFunc::FunctionId fun,
+                                 NvimApiFunc::NvimApiFuncID fun,
                                  const QVariant &res)
 {
     // TODO: support Nvim error types Exception/Validation/etc
@@ -2312,7 +2312,7 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
 }
 
 void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                            NvimApiFunc::FunctionId fun,
+                            NvimApiFunc::NvimApiFuncID fun,
                             const QVariant &res)
 {
     switch(fun)

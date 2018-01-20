@@ -18,7 +18,7 @@ MsgpackRequest::MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent
 /// The function id for the function signature associated with this call.
 /// The value NEOVIM_FN_NULL indicates this call will not go through the
 /// the generated function handlers.
-NvimApiFunc::FunctionId MsgpackRequest::function()
+NvimApiFunc::NvimApiFuncID MsgpackRequest::function()
 {
     return m_function;
 }
@@ -28,7 +28,7 @@ NvimApiFunc::FunctionId MsgpackRequest::function()
 /// SnailNvimQt has auto-generated call handlers (in
 /// SnailNvimQt::NvimConnector::neovimObject)
 /// that will be used to process the response
-void MsgpackRequest::setFunction(NvimApiFunc::FunctionId f)
+void MsgpackRequest::setFunction(NvimApiFunc::NvimApiFuncID f)
 {
     m_function = f;
 }
