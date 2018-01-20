@@ -83,7 +83,7 @@ QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f)
 {
     dbg.space() << f.m_func_type << f.m_func_name << "(";
 
-    foreach(SnailNvimQt::FuncArg p, f.parameters)
+    foreach(SnailNvimQt::FuncArg p, f.m_func_args)
     {
         dbg.space() << p.first << ",";
     }

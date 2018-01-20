@@ -41,9 +41,9 @@ public:
     bool operator==(const NvimApiFunc &other);
 
 
-    QString m_func_type;       ///< API function return type
-    QString m_func_name;       ///< API function name
-    QList<FuncArg> parameters; ///< API function argument type and name
+    QString m_func_type;        ///< API function return type
+    QString m_func_name;        ///< API function name
+    QList<FuncArg> m_func_args; ///< API function arguments type and name list
 
     /// Whether this function call fail without returning
     bool can_fail;

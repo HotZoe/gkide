@@ -25,7 +25,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
 {
     this->m_func_type = ret;
     this->m_func_name = name;
-    this->parameters = params;
+    this->m_func_args = params;
     this->can_fail = can_fail;
 }
 
@@ -42,7 +42,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
 
     foreach(QString type, paramTypes)
     {
-        this->parameters.append(FuncArg(type, ""));
+        this->m_func_args.append(FuncArg(type, ""));
     }
 
     this->can_fail = can_fail;
@@ -68,14 +68,14 @@ bool NvimApiFunc::operator==(const NvimApiFunc &other)
         return false;
     }
 
-    if(this->parameters.size() != other.parameters.size())
+    if(this->m_func_args.size() != other.m_func_args.size())
     {
         return false;
     }
 
-    for(int i=0; i<this->parameters.size(); i++)
+    for(int i=0; i<this->m_func_args.size(); i++)
     {
-        if(this->parameters.at(i).first != other.parameters.at(i).first)
+        if(this->m_func_args.at(i).first != other.m_func_args.at(i).first)
         {
             return false;
         }
@@ -143,7 +143,7 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
                 return f;
             }
 
-            f.parameters = parseArgs(it.value().toList());
+            f.m_func_args = parseArgs(it.value().toList());
         }
         else if(it.key() == "id")
         {
@@ -224,7 +224,7 @@ QString NvimApiFunc::signature() const
 {
     QStringList sigparams;
 
-    foreach(const FuncArg p, parameters)
+    foreach(const FuncArg p, m_func_args)
     {
         sigparams.append(QString("%1 %2").arg(p.first).arg(p.second));
     }
