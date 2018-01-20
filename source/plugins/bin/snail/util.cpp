@@ -1,6 +1,7 @@
 /// @file plugins/bin/snail/util.cpp
 
 #include "plugins/bin/snail/util.h"
+#include "plugins/bin/snail/snail.h"
 
 namespace SnailNvimQt {
 
@@ -78,12 +79,11 @@ QDebug operator<<(QDebug dbg, const msgpack_object &obj)
     return dbg.maybeSpace();
 }
 
-typedef QPair<QString,QString> Param;
 QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f)
 {
     dbg.space() << f.m_func_type << f.name << "(";
 
-    foreach(Param p, f.parameters)
+    foreach(SnailNvimQt::FuncArg p, f.parameters)
     {
         dbg.space() << p.first << ",";
     }

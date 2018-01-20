@@ -6,8 +6,6 @@
 
 namespace SnailNvimQt {
 
-typedef QPair<QString,QString> StringPair;
-
 /// @enum NvimApiFunc::NvimApiFuncID
 ///
 /// Nvim API function identifiers, the list
@@ -27,9 +25,9 @@ NvimApiFunc::NvimApiFunc()
 /// Construct new function with the given
 /// return type, name, parameters and error
 NvimApiFunc::NvimApiFunc(const QString &ret,
-                   const QString &name,
-                   QList<QPair<QString,QString>> params,
-                   bool can_fail)
+                         const QString &name,
+                         QList<FuncArg> params,
+                         bool can_fail)
     :m_valid(true)
 {
     this->m_func_type = ret;
@@ -51,7 +49,7 @@ NvimApiFunc::NvimApiFunc(const QString &ret,
 
     foreach(QString type, paramTypes)
     {
-        this->parameters .append(QPair<QString,QString>(type, ""));
+        this->parameters.append(FuncArg(type, ""));
     }
 
     this->can_fail = can_fail;
@@ -194,13 +192,14 @@ NvimApiFunc NvimApiFunc::fromVariant(const QVariant &fun)
     return f;
 }
 
-/// Retrieve parameter types from a list of function parameters in the metadata
-/// object. Basically retrieves the even numbered elements of the array (types)
-/// i.e. [Type0 name0 Type1 name1 ... ] -> [Type0 Type1 ...]
-QList<QPair<QString,QString>> NvimApiFunc::parseArgs(const QVariantList &obj)
+/// Retrieve parameter types from a list of function parameters
+/// in the metadata object. Basically retrieves the even numbered
+/// elements of the array (types), for example:
+/// [Type0 name0 Type1 name1 ... ] -> [Type0 Type1 ...]
+QList<FuncArg> NvimApiFunc::parseArgs(const QVariantList &obj)
 {
-    QList<QPair<QString,QString>> fail;
-    QList<QPair<QString,QString>> res;
+    QList<FuncArg> res;
+    QList<FuncArg> fail;
 
     foreach(const QVariant &val, obj)
     {
@@ -213,17 +212,14 @@ QList<QPair<QString,QString>> NvimApiFunc::parseArgs(const QVariantList &obj)
 
         for(int j=0; j<params.size(); j+=2)
         {
-            QByteArray type, name;
-
             if(!params.at(j).canConvert<QByteArray>()
                || !params.at(j+1).canConvert<QByteArray>())
             {
                 return fail;
             }
 
-            QPair<QString,QString> arg(
-                QString::fromUtf8(params.at(j).toByteArray()),
-                QString::fromUtf8(params.at(j+1).toByteArray()));
+            FuncArg arg(QString::fromUtf8(params.at(j).toByteArray()),
+                        QString::fromUtf8(params.at(j+1).toByteArray()));
             res.append(arg);
         }
     }
@@ -235,7 +231,7 @@ QString NvimApiFunc::signature() const
 {
     QStringList sigparams;
 
-    foreach(const StringPair p, parameters)
+    foreach(const FuncArg p, parameters)
     {
         sigparams.append(QString("%1 %2").arg(p.first).arg(p.second));
     }

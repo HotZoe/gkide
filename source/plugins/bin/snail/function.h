@@ -11,6 +11,8 @@
 #include <QStringList>
 #include <QPoint>
 
+#include "plugins/bin/snail/snail.h"
+
 namespace SnailNvimQt {
 
 /// Representation of a Nvim API function signature
@@ -25,7 +27,7 @@ public:
     #endif
 
     static NvimApiFunc fromVariant(const QVariant &);
-    static QList<QPair<QString,QString>> parseArgs(const QVariantList &obj);
+    static QList<FuncArg> parseArgs(const QVariantList &obj);
 
     /// A list of all the supported nvim API signature.
     /// The list is populated at compile time from a code generator.
@@ -34,9 +36,9 @@ public:
 
     NvimApiFunc();
     NvimApiFunc(const QString &ret, const QString &name,
-             QList<QPair<QString,QString>> params, bool can_fail);
+                QList<FuncArg> params, bool can_fail);
     NvimApiFunc(const QString &ret, const QString &name,
-             QList<QString> paramTypes, bool can_fail);
+                QList<QString> paramTypes, bool can_fail);
 
     bool isValid() const;
     bool operator==(const NvimApiFunc &other);
@@ -46,7 +48,7 @@ public:
     /// API function name
     QString name;
     /// API function argument type and name
-    QList<QPair<QString,QString>> parameters;
+    QList<FuncArg> parameters;
 
     /// Whether this function call fail without returning
     bool can_fail;
