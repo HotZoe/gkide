@@ -21,10 +21,8 @@ class NvimApiFunc
     Q_ENUMS(NvimApiFuncID)
 public:
 
-    #ifndef NEOVIMQT_NO_AUTO
     // Bring in auto-generated enum
     #include "config/nvimapi/auto/func_idx.h"
-    #endif
 
     static NvimApiFunc fromVariant(const QVariant &);
     static QList<FuncArg> parseArgs(const QVariantList &obj);

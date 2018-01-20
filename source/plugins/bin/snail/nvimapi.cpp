@@ -11,9 +11,7 @@ namespace SnailNvimQt {
 /// Nvim API function identifiers, the list
 /// SnailNvimQt::NvimApiFunc::nvimAPIs is indexed with this enum.
 
-#ifndef NEOVIMQT_NO_AUTO
-    #include "config/nvimapi/auto/func_sig.hpp"
-#endif
+#include "config/nvimapi/auto/func_sig.hpp"
 
 /// Construct invalid function
 NvimApiFunc::NvimApiFunc()
