@@ -262,8 +262,8 @@ target_link_libraries(snail ${SNAIL_LINK_LIBS}) # --verbose
 
 add_subdirectory(config)
 
-if($ENV{UPDATE_NVIMCORE_BINDINGS})
-    add_dependencies(snail update-nvimbindings)
+if($ENV{UPDATE_NVIMAPI_BINDINGS})
+    add_dependencies(snail update-nvimapi-bindings)
 endif()
 
 if(SNAIL_TESTING_ENABLE)

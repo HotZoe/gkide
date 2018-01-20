@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
-C++ source code generator to create bindings from Neovim API functions using Qt types/signals/slots
+C++ source code generator to create bindings
+from nvim API functions using Qt types/signals/slots
 """
 import re
 import os
@@ -10,7 +11,20 @@ import msgpack
 import datetime
 import subprocess
 
-INPUT = 'bindings'
+INPUT_DIR = 'bindings'
+NVIM_API_INFO_DBG = False
+
+def show_nvim_api_info_data(info):
+    """
+    """
+    if not NVIM_API_INFO_DBG:
+        return
+
+    import json
+    info_json = json.dumps(info, indent=4, sort_keys=False, ensure_ascii=False)
+    print(info_json)
+
+    sys.exit(0)
 
 def decutf8(inp):
     """
@@ -27,7 +41,7 @@ def decutf8(inp):
 
 def get_api_info(nvim):
     """
-    Call the neovim binary to get the api info
+    Call the nvim binary to get the api info
     """
     args = [nvim, '--api-info']
     info = subprocess.check_output(args)
@@ -35,8 +49,13 @@ def get_api_info(nvim):
 
 def generate_file(name, outpath, **kw):
     from jinja2 import Environment, FileSystemLoader
-    env=Environment(loader=FileSystemLoader(INPUT), trim_blocks=True)
+
+    env=Environment(loader=FileSystemLoader(INPUT_DIR))
     template = env.get_template(name)
+    
+    #for api in kw['nvimAPIs']:
+    #    print '[%s]' %api.name.upper()
+
     with open(os.path.join(outpath, name), 'w') as fp:
         fp.write(template.render(kw))
 
@@ -46,11 +65,11 @@ class UnsupportedType(Exception):
     """
     pass
 
-class NeovimTypeVal:
+class NvimSupportedType:
     """
-    Representation for Neovim Parameter/Return
+    Representation for nvim Parameter/Return type
     """
-    # msgpack simple types types
+    # msgpack simple types map: nvim <-> Qt
     MsgpackSimpleTypeMap = {
         'void': 'void',
         'Array': 'QVariantList',
@@ -61,7 +80,7 @@ class NeovimTypeVal:
         'Dictionary': 'QVariantMap',
     }
 
-    # msgpack extension types
+    # msgpack extension types map: nvim <-> Qt
     MsgpackExtensionTypeMap = {
         'Window': 'int64_t',
         'Buffer': 'int64_t',
@@ -78,7 +97,7 @@ class NeovimTypeVal:
         self.name = name
         self.neovim_type = typename
         self.msgpack_ext = False
-        self.native_type = NeovimTypeVal.nativeType(typename)
+        self.native_type = NvimSupportedType.nativeType(typename)
 
         self.sendmethod = 'send'
         self.decodemethod = 'decodeMsgpack'
@@ -102,7 +121,7 @@ class NeovimTypeVal:
     @classmethod
     def nativeType(cls, typename):
         """
-        Return the native type for this Neovim type.
+        Return the native type for this nvim type.
         """
         if typename == 'void':
             return typename
@@ -117,13 +136,16 @@ class NeovimTypeVal:
             return 'QPoint'
         raise UnsupportedType(typename)
 
-class Function:
+class NvimApiFunc:
     """
-    Representation for a Neovim API Function
+    Representation for a nvim API function information
     """
-    # Attributes names that we support, see src/function.c for details
-    attr_values = ['name', 'parameters', 'return_type', 'can_fail', 'deprecated_since',
-                   'since', 'method', 'async', 'impl_name', 'noeval', 'receives_channel_id']
+    # Attributes names that we support
+    attr_values = [
+        'name', 'parameters', 'return_type',  'can_fail',
+        'deprecated_since',  'since',  'method', 'async',
+        'impl_name', 'noeval', 'receives_channel_id'
+    ]
     __KNOWN_ATTRIBUTES = set(attr_values)
 
     def __init__(self, nvim_fun):
@@ -131,11 +153,11 @@ class Function:
         self.name =  self.fun['name']
         self.valid = False
         self.parameters = []
-        
+
         try:
-            self.return_type = NeovimTypeVal(self.fun['return_type'])
+            self.return_type = NvimSupportedType(self.fun['return_type'])
             for param in self.fun['parameters']:
-                self.parameters.append(NeovimTypeVal(*param))
+                self.parameters.append(NvimSupportedType(*param))
         except UnsupportedType as ex:
             print('Found unsupported type(%s) when adding function %s(), skipping' % (ex, self.name))
             return
@@ -160,7 +182,7 @@ class Function:
         return self.fun.get('deprecated_since', None)
 
     def unknown_attributes(self):
-        attrs = set(self.fun.keys()) - Function.__KNOWN_ATTRIBUTES
+        attrs = set(self.fun.keys()) - NvimApiFunc.__KNOWN_ATTRIBUTES
         return attrs
 
     def real_signature(self):
@@ -181,13 +203,13 @@ class Function:
 
 def print_api(api):
     """
-    Show Neovim API Function information in stdout
+    Show nvim API function information in stdout
     """
     for key in api.keys():
         if key == 'functions':
             print('Functions')
             for f in api[key]:
-                fundef = Function(f)
+                fundef = NvimApiFunc(f)
                 if not fundef.valid:
                     continue
                 sig = fundef.signature()
@@ -218,37 +240,41 @@ if __name__ == '__main__':
 
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print('Usage:')
-        print('\tnvimbinding <nvim>')
-        print('\tnvimbinding <nvim> [output-path]')
+        print('    nvimbinding <nvim>')
+        print('    nvimbinding <nvim> [output-path]')
         sys.exit(-1)
 
-    nvim = sys.argv[1]
+    nvim_prog = sys.argv[1] # nvim program
     outpath = None if len(sys.argv) < 3 else sys.argv[2]
 
     try:
-        api = get_api_info(sys.argv[1])
+        api = get_api_info(nvim_prog)
+        show_nvim_api_info_data(api)
     except subprocess.CalledProcessError as ex:
-        print(ex)
+        print(ex) # get nvim API info error
         sys.exit(-1)
 
     if outpath:
-        print('Writing auto generated bindings to %s' % outpath)
+        print('Writing nvim bindings to [%s]' % outpath)
         if not os.path.exists(outpath):
             os.makedirs(outpath)
-        for name in os.listdir(INPUT):
+        for name in os.listdir(INPUT_DIR):
             if name.startswith('.'):
                 continue
-            if not name.endswith('.h') and not name.endswith('.hpp') and not name.endswith('.cpp'):
+            if not name.endswith('.h') and not name.endswith('.c') and not name.endswith('.cpp'):
                 continue
 
             env = {}
-            env['date'] = datetime.datetime.now()
-            functions = [Function(f) for f in api['functions'] if f['name'] != 'vim_get_api_info']
-            env['functions'] = [f for f in functions if f.valid]
-            exttypes = { typename:info['id'] for typename,info in api['types'].items()}
-            env['exttypes'] = exttypes
+            env['datetime'] = datetime.datetime.utcnow()
+            apisObjList = [NvimApiFunc(f) for f in api['functions'] if f['name'] != 'vim_get_api_info']
+
+            # NvimApiFunc object list for key: nvimAPIs
+            env['nvimAPIs'] = [obj for obj in apisObjList if obj.valid]
+
+            apiExtTypes = { typename:info['id'] for typename,info in api['types'].items() }
+            env['apiExtTypes'] = apiExtTypes
             generate_file(name, outpath, **env)
 
     else:
-        print('API info for %s:' % nvim)
+        print('nvim API info for [%s]' % nvim_prog)
         print_api(api)

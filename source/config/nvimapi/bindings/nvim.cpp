@@ -1,16 +1,19 @@
-// Auto generated {{date}}
+/// @file config/nvimapi/auto/nvim.cpp
+///
+/// Auto generated: UTC {{datetime}}
 
-#include "snail/app/attributes.h"
-#include "snail/libs/nvimcore/util.h"
-#include "snail/libs/nvimcore/auto/nvim.h"
-#include "snail/libs/nvimcore/nvimconnector.h"
-#include "snail/libs/nvimcore/msgpackrequest.h"
-#include "snail/libs/nvimcore/msgpackiodevice.h"
+#include "config/nvimapi/auto/nvim.h"
+
+#include "plugins/bin/snail/attributes.h"
+#include "plugins/bin/snail/util.h"
+#include "plugins/bin/snail/nvimconnector.h"
+#include "plugins/bin/snail/msgpackrequest.h"
+#include "plugins/bin/snail/msgpackiodevice.h"
 
 namespace SnailNvimQt {
 
-// Unpack Neovim EXT types: Window, Buffer Tabpage, which are all uint64_t
-// see Neovim:msgpack_rpc_to_
+/// Unpack Nvim EXT types: Window, Buffer Tabpage, which are all uint64_t
+/// see Nvim:msgpack_rpc_to_
 QVariant unpackBuffer(MsgpackIODevice *FUNC_ATTR_ARGS_UNUSED_REALY(dev),
                       const char *in,
                       quint32 size)
@@ -31,55 +34,56 @@ QVariant unpackBuffer(MsgpackIODevice *FUNC_ATTR_ARGS_UNUSED_REALY(dev),
 #define unpackWindow  unpackBuffer
 #define unpackTabpage unpackBuffer
 
-Neovim::Neovim(NvimConnector *c) :m_c(c)
+Nvim::Nvim(NvimConnector *c) :m_c(c)
 {
-    // EXT types
-    {
+    // Ext types of msgpack
+{%- for extName in apiExtTypes %}
+    m_c->m_dev->registerExtType({{ apiExtTypes[extName] }}, unpack{{ extName }});
+{%- endfor %}
 
-        % for typename in exttypes %
-    }
-m_c->m_dev->registerExtType({{exttypes[typename]}}, unpack{{typename}});
-    {
-        % endfor %
-    }
     connect(m_c->m_dev, &MsgpackIODevice::notification,
-            this, &Neovim::neovimNotification);
+            this, &Nvim::neovimNotification);
 }
 
 // Slots
+{%- for api in nvimAPIs %}
+MsgpackRequest *Nvim::{{ api.name }}(
+    {%- for char in api.argstring -%}
+        {% if char == ',' -%}
+            ,
+            {# fixed indent for func #}
+            {%- for var in [1,1,1,1,1,1,1,1,1,1] -%}
+                {{' '}}
+            {%- endfor -%}
+            {# dynamic indent for func #}
+            {%- for var in api.name|list -%}
+                {{' '}}
+            {%- endfor -%}
+        {% else -%}
+            {{ char }}
+        {%- endif -%}
+    {% endfor %})
 {
+    MsgpackRequest *r = 
+        m_c->m_dev->startRequestUnchecked("{{ api.name }}", {{ api.argcount }});
 
-    % for f in functions %
-}
-MsgpackRequest *Neovim::
-{
-{
-    f.name
-}
-}({{f.argstring}})
-{
-    MsgpackRequest *r = m_c->m_dev->startRequestUnchecked("{{f.name}}", {{f.argcount}});
-    r->setFunction(Function::NEOVIM_FN_{{f.name.upper()}});
-    connect(r, &MsgpackRequest::finished, this, &Neovim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Neovim::handleResponseError);
-    {
+    r->setFunction(kNvimAPI_{{ api.name.upper() }});
 
-        % for param in f.parameters %
-    }
-m_c->m_dev-> {{param.sendmethod}}({{param.name}});
-    {
-        % endfor %
-    }
+    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
+    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
+
+    {% for arg in api.parameters -%}
+    m_c->m_dev->{{ arg.sendmethod }}({{ arg.name }});
+    {% endfor -%}
+
     return r;
 }
-{
-    % endfor %
-}
+{% endfor %}
 
 // Handlers
-void Neovim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                                 Function::FunctionId fun,
-                                 const QVariant &res)
+void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+                               NvimApiFuncID fun,
+                               const QVariant &res)
 {
     // TODO: support Neovim error types Exception/Validation/etc
     QString errMsg;
@@ -99,73 +103,47 @@ void Neovim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
 
     switch(fun)
     {
-            {
-
-                % for f in functions %
-            }
-
-    case Function::NEOVIM_FN_{{f.name.upper()}}:
-            emit err_{{f.name}}(errMsg, res);
+        {%- for api in nvimAPIs %}
+        case kNvimAPI_{{ api.name.upper() }}:
+            emit err_{{ api.name }}(errMsg, res);
             break;
-            {
-                % endfor %
-            }
+        {% endfor -%}
 
         default:
             m_c->setError(NvimConnector::RuntimeMsgpackError,
-                          QString("Received error for function that should not fail: %s").arg(fun));
+                          QString("Received error for function "
+                                  "that should not fail: %s").arg(fun));
     }
 }
 
-void Neovim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-                            Function::FunctionId fun,
-                            const QVariant &res)
+void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+                          NvimApiFuncID fun,
+                          const QVariant &res)
 {
     switch(fun)
     {
-            {
-
-                % for f in functions %
-            }
-
-    case Function::NEOVIM_FN_{{f.name.upper()}}:
+    {% for api in nvimAPIs %}
+        case kNvimAPI_{{ api.name.upper() }}:
         {
-            {
+        {%- if api.return_type.native_type != 'void' %}
+            {{ api.return_type.native_type }} data;
 
-                % if f.return_type.native_type != 'void' %
-            }
-        {
-            {
-                f.return_type.native_type
-            }
-        }
-        data;
-
-        if(decode(res, data))
+            if(decode(res, data))
             {
                 m_c->setError(NvimConnector::RuntimeMsgpackError,
-                              "Error unpacking return type for {{f.name}}");
+                    "Error unpacking return type for {{ api.name }}");
                 return;
             }
             else
             {
-                emit on_{{f.name}}(data);
+                emit on_{{ api.name }}(data);
             }
-
-            {
-                % else %
-                }
-
-            emit on_{{f.name}}();
-            {
-                % endif %
-            }
+        {% else %}
+            emit on_{{ api.name }}();
+        {%- endif -%}
         }
         break;
-        {
-            % endfor %
-        }
-
+    {% endfor %}
         default:
             qWarning() << "Received unexpected response";
     }

@@ -51,7 +51,7 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 {
     SnailNvimQt::MainWindow *win = new SnailNvimQt::MainWindow(c);
 
-    QObject::connect(instance(),SIGNAL(openFilesTriggered(const QList<QUrl>)),
+    QObject::connect(instance(), SIGNAL(openFilesTriggered(const QList<QUrl>)),
                      win->shell(), SLOT(openFiles(const QList<QUrl>)));
 
     if(parser.isSet("fullscreen"))
