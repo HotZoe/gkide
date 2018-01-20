@@ -1,8 +1,8 @@
-/// @file plugins/bin/snail/function.cpp
+/// @file plugins/bin/snail/nvimapi.cpp
 
 #include <QMetaMethod>
 #include <QStringList>
-#include "plugins/bin/snail/function.h"
+#include "plugins/bin/snail/nvimapi.h"
 
 namespace SnailNvimQt {
 

@@ -1,4 +1,4 @@
-/// @file plugins/bin/snail/function.h
+/// @file plugins/bin/snail/nvimapi.h
 
 #ifndef PLUGIN_SNAIL_FUNCTION_H
 #define PLUGIN_SNAIL_FUNCTION_H

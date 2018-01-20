@@ -5,7 +5,7 @@
 
 #include <QDebug>
 #include <msgpack.h>
-#include "plugins/bin/snail/function.h"
+#include "plugins/bin/snail/nvimapi.h"
 
 QDebug operator<<(QDebug dbg, const msgpack_object &);
 QDebug operator<<(QDebug dbg, const SnailNvimQt::NvimApiFunc &f);

@@ -5,7 +5,7 @@
 
 #include <QObject>
 #include <QTimer>
-#include "plugins/bin/snail/function.h"
+#include "plugins/bin/snail/nvimapi.h"
 
 namespace SnailNvimQt {
 
