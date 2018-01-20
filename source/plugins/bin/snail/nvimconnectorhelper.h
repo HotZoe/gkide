@@ -15,10 +15,10 @@ public:
 
 public slots:
     void handleMetadata(quint32,
-                        NvimApiFunc::NvimApiFuncID,
+                        NvimApiFuncID,
                         const QVariant &result);
     void handleMetadataError(quint32 msgid,
-                             NvimApiFunc::NvimApiFuncID,
+                             NvimApiFuncID,
                              const QVariant &errobj);
     void encodingChanged(const QVariant &);
 protected:

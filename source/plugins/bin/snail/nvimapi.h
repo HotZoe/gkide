@@ -1,7 +1,7 @@
 /// @file plugins/bin/snail/nvimapi.h
 
-#ifndef PLUGIN_SNAIL_FUNCTION_H
-#define PLUGIN_SNAIL_FUNCTION_H
+#ifndef PLUGIN_SNAIL_NVIMAPI_H
+#define PLUGIN_SNAIL_NVIMAPI_H
 
 #include <QtGlobal>
 #include <QByteArray>
@@ -15,14 +15,13 @@
 
 namespace SnailNvimQt {
 
+#include "config/nvimapi/auto/NvimApiFuncID.c"
+
 /// Representation of a Nvim API function signature
 class NvimApiFunc
 {
     Q_ENUMS(NvimApiFuncID)
 public:
-
-    // Bring in auto-generated enum
-    #include "config/nvimapi/auto/func_idx.h"
 
     static NvimApiFunc fromVariant(const QVariant &);
     static QList<FuncArg> parseArgs(const QVariantList &obj);
@@ -59,4 +58,4 @@ private:
 
 } // namespace::SnailNvimQt
 
-#endif // PLUGIN_SNAIL_FUNCTION_H
+#endif // PLUGIN_SNAIL_NVIMAPI_H

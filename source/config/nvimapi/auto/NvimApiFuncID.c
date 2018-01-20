@@ -1,4 +1,11 @@
-// Auto generated 2017-07-12 22:09:26.851279
+/// @enum NvimApiFuncID
+///
+/// Nvim API function identifiers ID, the list
+/// SnailNvimQt::NvimApiFunc::nvimAPIs is indexed with this enum.
+///
+/// @note Bring in auto-generated nvim function API enum
+///
+/// Auto generated 2017-07-12 22:09:26.851279
 
 enum NvimApiFuncID
 {

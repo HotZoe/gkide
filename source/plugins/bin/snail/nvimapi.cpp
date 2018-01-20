@@ -6,12 +6,7 @@
 
 namespace SnailNvimQt {
 
-/// @enum NvimApiFunc::NvimApiFuncID
-///
-/// Nvim API function identifiers, the list
-/// SnailNvimQt::NvimApiFunc::nvimAPIs is indexed with this enum.
-
-#include "config/nvimapi/auto/func_sig.hpp"
+#include "config/nvimapi/auto/nvimAPIs.c"
 
 /// Construct invalid function
 NvimApiFunc::NvimApiFunc()
@@ -248,22 +243,22 @@ QString NvimApiFunc::signature() const
 }
 
 /// return the NvimApiFuncID or kNvimAPI_NULL if the function is uknown
-NvimApiFunc::NvimApiFuncID NvimApiFunc::nvimApiID(const NvimApiFunc &f)
+NvimApiFuncID NvimApiFunc::nvimApiID(const NvimApiFunc &f)
 {
     if(!f.isValid())
     {
-        return NvimApiFunc::kNvimAPI_NULL;
+        return kNvimAPI_NULL;
     }
 
     int index = NvimApiFunc::nvimAPIs.indexOf(f);
 
     if(index != -1)
     {
-        return NvimApiFunc::NvimApiFuncID(index);
+        return NvimApiFuncID(index);
     }
 
     qDebug() << "Unknown Nvim function" << f.signature();
-    return NvimApiFunc::kNvimAPI_NULL;
+    return kNvimAPI_NULL;
 }
 
 } // namespace::SnailNvimQt
