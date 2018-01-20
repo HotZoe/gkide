@@ -251,7 +251,7 @@ QString NvimApiFunc::signature() const
 }
 
 /// return the FunctionId or NEOVIM_FN_NULL if the function is uknown
-NvimApiFunc::FunctionId NvimApiFunc::functionId(const NvimApiFunc &f)
+NvimApiFunc::FunctionId NvimApiFunc::nvimApiID(const NvimApiFunc &f)
 {
     if(!f.isValid())
     {

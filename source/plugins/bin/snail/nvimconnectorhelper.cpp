@@ -116,7 +116,7 @@ bool NvimConnectorHelper::checkFunctions(const QVariantList &ftable)
     foreach(const QVariant &val, ftable)
     {
         NvimApiFunc::FunctionId fid =
-            NvimApiFunc::functionId(NvimApiFunc::fromVariant(val));
+            NvimApiFunc::nvimApiID(NvimApiFunc::fromVariant(val));
 
         if(fid != NvimApiFunc::NEOVIM_FN_NULL)
         {

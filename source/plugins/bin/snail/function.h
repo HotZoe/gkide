@@ -30,7 +30,7 @@ public:
     /// A list of all the supported nvim API signature.
     /// The list is populated at compile time from a code generator.
     static const QList<NvimApiFunc> nvimAPIs;
-    static FunctionId functionId(const NvimApiFunc &);
+    static FunctionId nvimApiID(const NvimApiFunc &);
 
     NvimApiFunc();
     NvimApiFunc(const QString &ret, const QString &name,
