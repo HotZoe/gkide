@@ -9,6 +9,10 @@
 #include "plugins/bin/snail/logmanager.h"
 #include "plugins/bin/snail/mainwindow.h"
 
+#ifdef SNAIL_ENABLE_WINPOS_INFO
+    #include "plugins/bin/snail/winpos_info.h"
+#endif
+
 namespace SnailNvimQt {
 
 App::App(int &argc, char **argv): QApplication(argc, argv)
@@ -51,8 +55,13 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 {
     SnailNvimQt::MainWindow *win = new SnailNvimQt::MainWindow(c);
 
-    QObject::connect(instance(), SIGNAL(openFilesTriggered(const QList<QUrl>)),
-                     win->shell(), SLOT(openFiles(const QList<QUrl>)));
+#ifdef SNAIL_ENABLE_WINPOS_INFO
+    WinPosInfo *winpos_info = new WinPosInfo(win);
+    winpos_info->show();
+#endif
+
+    connect(instance(), SIGNAL(openFilesTriggered(const QList<QUrl>)),
+            win->shell(), SLOT(openFiles(const QList<QUrl>)));
 
     if(parser.isSet("fullscreen"))
     {

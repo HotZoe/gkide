@@ -79,7 +79,7 @@ MsgpackIODevice::~MsgpackIODevice()
 }
 
 /// is IODevice opened and check errors
-bool MsgpackIODevice::isOpen()
+bool MsgpackIODevice::isOpen(void)
 {
     if(m_error == InvalidDevice)
     {
@@ -98,7 +98,7 @@ bool MsgpackIODevice::isOpen()
 /// The encoding used by the MsgpackIODevice::encode
 /// and MsgpackIODevice::decode methods
 /// @see setEncoding
-QByteArray MsgpackIODevice::encoding() const
+QByteArray MsgpackIODevice::encoding(void) const
 {
     if(m_encoding)
     {
@@ -238,7 +238,7 @@ void MsgpackIODevice::dataAvailableFd(int fd)
 /// Process incoming data from the underlying device
 ///
 /// @see QIODevice()
-void MsgpackIODevice::dataAvailable()
+void MsgpackIODevice::dataAvailable(void)
 {
     qint64 read = 1;
 
@@ -512,7 +512,7 @@ err:
 }
 
 /// Return list of pending request msgIDs
-QList<quint32> MsgpackIODevice::pendingRequests() const
+QList<quint32> MsgpackIODevice::pendingRequests(void) const
 {
     return m_requests.keys();
 }
@@ -550,7 +550,7 @@ void MsgpackIODevice::setError(MsgpackError err, const QString &msg)
 }
 
 /// Return error string for the current error
-QString MsgpackIODevice::errorString() const
+QString MsgpackIODevice::errorString(void) const
 {
     if(m_error)
     {
@@ -606,7 +606,7 @@ void MsgpackIODevice::requestTimeout(quint32 id)
 }
 
 /// Returns a new msgid that can be used for a msg
-quint32 MsgpackIODevice::msgId()
+quint32 MsgpackIODevice::msgId(void)
 {
     return this->m_reqid++;
 }

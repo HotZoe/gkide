@@ -21,7 +21,7 @@ MsgpackRequest::MsgpackRequest(quint32 id,
 /// The function id for the function signature associated with this call.
 /// The value kNvimAPI_NULL indicates this call will not go through the
 /// the generated function handlers.
-NvimApiFuncID MsgpackRequest::function()
+NvimApiFuncID MsgpackRequest::function(void)
 {
     return m_function;
 }
@@ -43,7 +43,7 @@ void MsgpackRequest::setTimeout(int msec)
     m_timer.start();
 }
 
-void MsgpackRequest::requestTimeout()
+void MsgpackRequest::requestTimeout(void)
 {
     emit timeout(this->id);
 }

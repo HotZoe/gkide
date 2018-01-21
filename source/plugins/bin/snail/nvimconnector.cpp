@@ -116,7 +116,7 @@ void NvimConnector::discoverMetadata(void)
             m_helper, &NvimConnectorHelper::handleMetadataError);
     connect(r, &MsgpackRequest::timeout,
             this, &NvimConnector::fatalTimeout);
-    r->setTimeout(5000);
+    r->setTimeout(5000); // 5s
 }
 
 /// True if the Nvim instance is ready

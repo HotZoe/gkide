@@ -44,17 +44,17 @@ public:
 
     static MsgpackIODevice *fromStdinOut(QObject *parent=0);
 
-    bool isOpen();
-    QString errorString() const;
-    MsgpackError errorCause() const
+    bool isOpen(void);
+    QString errorString(void) const;
+    MsgpackError errorCause(void) const
     {
         return m_error;
     }
 
-    QByteArray encoding() const;
+    QByteArray encoding(void) const;
     bool setEncoding(const QByteArray &);
 
-    quint32 msgId();
+    quint32 msgId(void);
     MsgpackRequest *startRequestUnchecked(const QString &method,
                                           quint32 argcount);
 
@@ -90,7 +90,7 @@ public:
                                          quint32 size);
     void registerExtType(int8_t type, msgpackExtDecoder);
 
-    QList<quint32> pendingRequests() const;
+    QList<quint32> pendingRequests(void) const;
 
 signals:
     void error(MsgpackError);
@@ -116,7 +116,7 @@ protected:
 protected slots:
     void setError(MsgpackError err, const QString &msg);
 
-    void dataAvailable();
+    void dataAvailable(void);
     void dataAvailableStdin(const QByteArray &);
     void dataAvailableFd(int fd);
 

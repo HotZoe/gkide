@@ -189,6 +189,12 @@ set(SNAIL_CONFIG_CXX_FLAGS_${build_type}
 file(GLOB SNAIL_HEADERS *.h)
 file(GLOB SNAIL_SOURCES *.cpp)
 
+if(NOT SNAIL_ENABLE_WINPOS_INFO)
+    # disable by default
+    list(REMOVE_ITEM SNAIL_HEADERS "${CMAKE_CURRENT_LIST_DIR}/winpos_info.h")
+    list(REMOVE_ITEM SNAIL_SOURCES "${CMAKE_CURRENT_LIST_DIR}/winpos_info.cpp")
+endif()
+
 list(APPEND NVIM_API_SRC
      ${CMAKE_SOURCE_DIR}/source/config/nvimapi/auto/nvim.cpp)
 
