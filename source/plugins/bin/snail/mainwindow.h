@@ -24,8 +24,8 @@ public:
     };
 
     MainWindow(NvimConnector *, QWidget *parent=0);
-    bool neovimAttached() const;
-    Shell *shell();
+    bool neovimAttached(void) const;
+    Shell *shell(void);
 
 public slots:
     void delayedShow(DelayedShow type=DelayedShow::Normal);
@@ -39,18 +39,20 @@ protected:
 
 private slots:
     void neovimSetTitle(const QString &title);
-    void neovimWidgetResized();
+    void neovimWidgetResized(void);
     void neovimMaximized(bool);
     void neovimFullScreen(bool);
-    void neovimGuiCloseRequest();
+    void neovimGuiCloseRequest(void);
     void neovimExited(int status);
     void neovimError(NvimConnector::NvimError);
-    void reconnectNeovim();
-    void showIfDelayed();
+    void reconnectNeovim(void);
+    void showIfDelayed(void);
     void neovimAttachmentChanged(bool);
 
 private:
     void init(NvimConnector *);
+
+private:
     NvimConnector *m_nvimCon;
     ErrorWidget *m_errorWidget;
     Shell *m_shell;

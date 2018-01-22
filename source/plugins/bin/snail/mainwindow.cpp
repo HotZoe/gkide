@@ -62,7 +62,7 @@ void MainWindow::init(NvimConnector *c)
     }
 }
 
-bool MainWindow::neovimAttached() const
+bool MainWindow::neovimAttached(void) const
 {
     return (m_shell != NULL && m_shell->neovimAttached());
 }
@@ -80,7 +80,8 @@ void MainWindow::neovimExited(int status)
     }
     else if(status != 0)
     {
-        m_errorWidget->setText(QString("Nvim exited with status code (%1)").arg(status));
+        m_errorWidget->setText(QString("Nvim exited with status code "
+                                       "(%1)").arg(status));
         m_errorWidget->showReconnect(m_nvimCon->canReconnect());
         m_stack.setCurrentIndex(0);
     }
@@ -96,7 +97,8 @@ void MainWindow::neovimError(NvimConnector::NvimError err)
     switch(err)
     {
         case NvimConnector::FailedToStart:
-            m_errorWidget->setText("Unable to start nvim: " + m_nvimCon->errorString());
+            m_errorWidget->setText("Unable to start nvim: "
+                                   + m_nvimCon->errorString());
             break;
 
         default:
@@ -112,7 +114,7 @@ void MainWindow::neovimSetTitle(const QString &title)
     this->setWindowTitle(title);
 }
 
-void MainWindow::neovimWidgetResized()
+void MainWindow::neovimWidgetResized(void)
 {
     if(isMaximized() || isFullScreen())
     {
@@ -148,12 +150,12 @@ void MainWindow::neovimFullScreen(bool set)
     }
 }
 
-void MainWindow::neovimGuiCloseRequest()
+void MainWindow::neovimGuiCloseRequest(void)
 {
     QMainWindow::close();
 }
 
-void MainWindow::reconnectNeovim()
+void MainWindow::reconnectNeovim(void)
 {
     if(m_nvimCon->canReconnect())
     {
@@ -210,7 +212,7 @@ void MainWindow::delayedShow(DelayedShow type)
     }
 }
 
-void MainWindow::showIfDelayed()
+void MainWindow::showIfDelayed(void)
 {
     if(!isVisible())
     {
@@ -241,7 +243,7 @@ void MainWindow::neovimAttachmentChanged(bool attached)
     }
 }
 
-Shell *MainWindow::shell()
+Shell *MainWindow::shell(void)
 {
     return m_shell;
 }
