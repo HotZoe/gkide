@@ -42,7 +42,7 @@ public:
     MsgpackIODevice(QIODevice *, QObject *parent=0);
     ~MsgpackIODevice();
 
-    static MsgpackIODevice *fromStdinOut(QObject *parent=0);
+    static MsgpackIODevice *connectToStdInOut(QObject *parent=0);
 
     bool isOpen(void);
     QString errorString(void) const;

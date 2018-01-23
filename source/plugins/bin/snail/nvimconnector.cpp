@@ -282,9 +282,9 @@ NvimConnector *NvimConnector::connectToNvim(const QString &server)
     return connectToSocket(addr);
 }
 
-NvimConnector *NvimConnector::fromStdinOut(void)
+NvimConnector *NvimConnector::connectToStdInOut(void)
 {
-    return new NvimConnector(MsgpackIODevice::fromStdinOut());
+    return new NvimConnector(MsgpackIODevice::connectToStdInOut());
 }
 
 /// Called when running embedded Nvim to

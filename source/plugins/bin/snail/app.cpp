@@ -191,7 +191,7 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
 {
     if(parser.isSet("embed"))
     {
-        return SnailNvimQt::NvimConnector::fromStdinOut();
+        return SnailNvimQt::NvimConnector::connectToStdInOut();
     }
     else if(parser.isSet("server"))
     {

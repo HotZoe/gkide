@@ -18,7 +18,7 @@
 namespace SnailNvimQt {
 
 /// Build a MsgpackIODevice that reads from stdin and writes to stdout
-MsgpackIODevice *MsgpackIODevice::fromStdinOut(QObject *parent)
+MsgpackIODevice *MsgpackIODevice::connectToStdInOut(QObject *parent)
 {
     MsgpackIODevice *rpc = new MsgpackIODevice(NULL, parent);
 
@@ -160,7 +160,7 @@ int MsgpackIODevice::msgpack_write_to_dev(void *data,
 
 /// Process incoming data.
 ///
-/// @see fromStdinOut() and StdinReader()
+/// @see connectToStdInOut() and StdinReader()
 void MsgpackIODevice::dataAvailableStdin(const QByteArray &data)
 {
     // check the msgpack_unpacker's buffer capacity
@@ -199,7 +199,7 @@ void MsgpackIODevice::dataAvailableStdin(const QByteArray &data)
 
 /// Process incoming data from the given fd.
 ///
-/// @see fromStdinOut() and QSocketNotifier()
+/// @see connectToStdInOut() and QSocketNotifier()
 void MsgpackIODevice::dataAvailableFd(int fd)
 {
     // unpacker has not enough buffer
