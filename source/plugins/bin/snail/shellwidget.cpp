@@ -25,7 +25,7 @@ ShellWidget *ShellWidget::fromFile(const QString &path)
     return w;
 }
 
-void ShellWidget::setDefaultFont()
+void ShellWidget::setDefaultFont(void)
 {
 #if defined(Q_OS_MAC)
     #define DEFAULT_FONT "Courier New"
@@ -64,13 +64,15 @@ bool ShellWidget::setShellFont(const QString &family,
     {
         if(!fi.fixedPitch())
         {
-            emit fontError(QString("%1 is not a fixed pitch font").arg(f.family()));
+            emit fontError(QString("%1 is not a "
+                                   "fixed pitch font").arg(f.family()));
             return false;
         }
 
         if(isBadMonospace(f))
         {
-            emit fontError(QString("Warning: Font \"%1\" reports bad fixed pitch metrics").arg(f.family()));
+            emit fontError(QString("Warning: Font \"%1\" reports "
+                                   "bad fixed pitch metrics").arg(f.family()));
         }
     }
 
@@ -101,7 +103,7 @@ void ShellWidget::setLineSpace(unsigned int height)
 ///   height, the leading may be negative and we want the
 ///   larger value
 /// - Width is the width of the "W" character
-void ShellWidget::setCellSize()
+void ShellWidget::setCellSize(void)
 {
     QFontMetrics fm(font());
     m_ascent = fm.ascent();
@@ -110,7 +112,7 @@ void ShellWidget::setCellSize()
     setSizeIncrement(m_cellSize);
 }
 
-QSize ShellWidget::cellSize() const
+QSize ShellWidget::cellSize(void) const
 {
     return m_cellSize;
 }
@@ -272,7 +274,7 @@ void ShellWidget::resizeEvent(QResizeEvent *ev)
     QWidget::resizeEvent(ev);
 }
 
-QSize ShellWidget::sizeHint() const
+QSize ShellWidget::sizeHint(void) const
 {
     return QSize(m_cellSize.width()*m_contents.columns(),
                  m_cellSize.height()*m_contents.rows());
@@ -292,7 +294,7 @@ void ShellWidget::setSpecial(const QColor &color)
     m_spColor = color;
 }
 
-QColor ShellWidget::special() const
+QColor ShellWidget::special(void) const
 {
     return m_spColor;
 }
@@ -302,7 +304,7 @@ void ShellWidget::setBackground(const QColor &color)
     m_bgColor = color;
 }
 
-QColor ShellWidget::background() const
+QColor ShellWidget::background(void) const
 {
     return m_bgColor;
 }
@@ -312,12 +314,12 @@ void ShellWidget::setForeground(const QColor &color)
     m_fgColor = color;
 }
 
-QColor ShellWidget::foreground() const
+QColor ShellWidget::foreground(void) const
 {
     return m_fgColor;
 }
 
-const ShellContents &ShellWidget::contents() const
+const ShellContents &ShellWidget::contents(void) const
 {
     return m_contents;
 }
@@ -411,22 +413,22 @@ QRect ShellWidget::absoluteShellRect(int row0, int col0,
                  rowcount*m_cellSize.height());
 }
 
-QString ShellWidget::fontFamily() const
+QString ShellWidget::fontFamily(void) const
 {
     return QFontInfo(font()).family();
 }
 
-int ShellWidget::fontSize() const
+int ShellWidget::fontSize(void) const
 {
     return font().pointSize();
 }
 
-int ShellWidget::rows() const
+int ShellWidget::rows(void) const
 {
     return m_contents.rows();
 }
 
-int ShellWidget::columns() const
+int ShellWidget::columns(void) const
 {
     return m_contents.columns();
 }

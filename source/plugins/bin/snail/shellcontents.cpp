@@ -65,7 +65,7 @@ ShellContents::ShellContents(const ShellContents &other)
 
 /// Allocates new shell data storage.
 /// This leaks memory, make sure to free _data if needed.
-void ShellContents::allocData()
+void ShellContents::allocData(void)
 {
     _data = new Cell[_rows*_columns];
 }
@@ -99,7 +99,10 @@ void ShellContents::clearRow(int r, int startCol)
 
 /// Verify if the region is valid adjust out of bounds values, returns
 /// false if the region is invalid;
-bool ShellContents::verifyRegion(int &row0, int &row1, int &col0, int &col1)
+bool ShellContents::verifyRegion(int &row0,
+                                 int &row1,
+                                 int &col0,
+                                 int &col1)
 {
     if(row0 >= _rows || col0 >= _columns || row1 < 0 || col1 < 0)
     {
@@ -131,7 +134,10 @@ bool ShellContents::verifyRegion(int &row0, int &row1, int &col0, int &col1)
 
 /// Clear shell region starting at (row0, col0) up until (row1, col1)
 /// e.g. clearRegion(1, 1, 3, 3) clears a region with size 2x2
-void ShellContents::clearRegion(int row0, int col0, int row1, int col1,
+void ShellContents::clearRegion(int row0,
+                                int col0,
+                                int row1,
+                                int col1,
                                 QColor bg)
 {
     if(!verifyRegion(row0, row1, col0, col1))
@@ -241,7 +247,7 @@ void ShellContents::resize(int newRows, int newColumns)
     delete [] old;
 }
 
-const Cell *ShellContents::data()
+const Cell *ShellContents::data(void)
 {
     return _data;
 }

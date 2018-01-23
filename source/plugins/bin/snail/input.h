@@ -15,13 +15,18 @@ class InputConv
 public:
     InputConv();
 
-    QString convertKey(const QString &text, int key, Qt::KeyboardModifiers mod);
+    QString convertKey(const QString &text,
+                       int key,
+                       Qt::KeyboardModifiers mod);
     QString modPrefix(Qt::KeyboardModifiers mod);
+    QString convertMouse(Qt::MouseButton bt,
+                         QEvent::Type type,
+                         Qt::KeyboardModifiers mod,
+                         QPoint pos,
+                         short clicksCount);
 
     QHash<int, QString> specialKeys;
     QHash<QString, QString> replaceKeys;
-    QString convertMouse(Qt::MouseButton bt, QEvent::Type type,
-                         Qt::KeyboardModifiers mod, QPoint pos, short clicksCount);
 
 protected:
     // define our own key and modifier modifier
@@ -43,12 +48,12 @@ protected:
     const Qt::Key Key_Cmd = (Qt::Key)0;
     #endif
 
-    const Qt::KeyboardModifiers MetaModifier  = Qt::MetaModifier;
+    const Qt::KeyboardModifiers MetaModifier = Qt::MetaModifier;
     const Qt::Key Key_Control = Qt::Key_Control;
 #endif
     const Qt::KeyboardModifiers ShiftModifier = Qt::ShiftModifier;
-    const Qt::KeyboardModifiers AltModifier   = Qt::AltModifier;
-    const Qt::KeyboardModifiers NoModifier    = Qt::NoModifier;
+    const Qt::KeyboardModifiers AltModifier = Qt::AltModifier;
+    const Qt::KeyboardModifiers NoModifier = Qt::NoModifier;
     const Qt::Key Key_Alt = Qt::Key_Alt;
 };
 

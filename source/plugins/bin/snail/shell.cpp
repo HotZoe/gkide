@@ -45,10 +45,14 @@ Shell::Shell(NvimConnector *nvim, QWidget *parent)
         return;
     }
 
-    connect(m_nvimCon, &NvimConnector::ready, this, &Shell::init);
-    connect(m_nvimCon, &NvimConnector::error, this, &Shell::neovimError);
-    connect(m_nvimCon, &NvimConnector::processExited, this, &Shell::neovimExited);
-    connect(this, &ShellWidget::fontError, this, &Shell::fontError);
+    connect(m_nvimCon, &NvimConnector::ready,
+            this, &Shell::init);
+    connect(m_nvimCon, &NvimConnector::error,
+            this, &Shell::neovimError);
+    connect(m_nvimCon, &NvimConnector::processExited,
+            this, &Shell::neovimExited);
+    connect(this, &ShellWidget::fontError,
+            this, &Shell::fontError);
 
     if(m_nvimCon->isReady())
     {
@@ -64,7 +68,7 @@ void Shell::fontError(const QString &msg)
     }
 }
 
-QString Shell::fontDesc()
+QString Shell::fontDesc(void)
 {
     QString fdesc = QString("%1:h%2").arg(fontFamily()).arg(fontSize());
 
@@ -181,14 +185,14 @@ void Shell::setAttached(bool attached)
 }
 
 /// The top left corner position (pixel) for the cursor
-QPoint Shell::neovimCursorTopLeft() const
+QPoint Shell::neovimCursorTopLeft(void) const
 {
     return QPoint(m_cursor_pos.x()*cellSize().width(),
                   m_cursor_pos.y()*cellSize().height());
 }
 
 /// Get the area filled by the cursor
-QRect Shell::neovimCursorRect() const
+QRect Shell::neovimCursorRect(void) const
 {
     return neovimCursorRect(m_cursor_pos);
 }
@@ -208,7 +212,7 @@ QRect Shell::neovimCursorRect(QPoint at) const
     return r;
 }
 
-void Shell::init()
+void Shell::init(void)
 {
     if(!m_nvimCon || !m_nvimCon->neovimObject())
     {
@@ -839,7 +843,7 @@ void Shell::mousePressEvent(QMouseEvent *ev)
     neovimMouseEvent(ev);
 }
 /// Reset state for mouse N-click tracking
-void Shell::mouseClickReset()
+void Shell::mouseClickReset(void)
 {
     m_mouseclick_count = 0;
     m_mouseclick_pending = Qt::NoButton;
@@ -943,14 +947,14 @@ void Shell::wheelEvent(QWheelEvent *ev)
     m_nvimCon->neovimObject()->vim_input(inp.toLatin1());
 }
 
-void Shell::updateWindowId()
+void Shell::updateWindowId(void)
 {
     if(m_attached
        && m_nvimCon->connectionType() == NvimConnector::SpawnedConnection)
     {
         WId window_id = effectiveWinId();
         m_nvimCon->neovimObject()->vim_set_var("GuiWindowId",
-                                            QVariant(window_id));
+                                               QVariant(window_id));
     }
 }
 
@@ -1010,7 +1014,7 @@ void Shell::resizeEvent(QResizeEvent *ev)
 }
 
 /// Finished call to ui_try_resize
-void Shell::neovimResizeFinished()
+void Shell::neovimResizeFinished(void)
 {
     m_resizing = false;
 
@@ -1154,12 +1158,12 @@ QVariant Shell::inputMethodQuery(Qt::InputMethodQuery query) const
     return QVariant();
 }
 
-bool Shell::neovimBusy() const
+bool Shell::neovimBusy(void) const
 {
     return m_neovimBusy;
 }
 
-bool Shell::neovimAttached() const
+bool Shell::neovimAttached(void) const
 {
     return m_attached;
 }

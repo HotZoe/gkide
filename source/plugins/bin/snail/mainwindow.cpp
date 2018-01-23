@@ -6,8 +6,8 @@
 namespace SnailNvimQt {
 
 MainWindow::MainWindow(NvimConnector *c, QWidget *parent)
-    : QMainWindow(parent), m_nvimCon(0), m_errorWidget(0),
-      m_shell(0), m_delayedShow(DelayedShow::Disabled)
+    : QMainWindow(parent), m_nvimCon(NULL), m_errorWidget(NULL),
+      m_shell(NULL), m_delayedShow(DelayedShow::Disabled)
 {
     m_errorWidget = new ErrorWidget();
     m_stack.addWidget(m_errorWidget);

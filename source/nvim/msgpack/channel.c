@@ -226,8 +226,8 @@ bool channel_send_event(uint64_t id, const char *name, Array args)
             // Pending request, queue the notification for later sending.
             const String method = cstr_as_string((char *)name);
 
-            wbuffer_st *buffer = serialize_request(id, 0, method,
-                                                args, &out_buffer, 1);
+            wbuffer_st *buffer =
+                serialize_request(id, 0, method, args, &out_buffer, 1);
 
             kv_push(channel->delayed_notifications, buffer);
         }

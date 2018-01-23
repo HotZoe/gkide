@@ -8,7 +8,7 @@
 namespace SnailNvimQt {
 
 ErrorWidget::ErrorWidget(QWidget *parent)
-    : QWidget(parent), m_errorLabel(0), m_closeButton(0)
+    : QWidget(parent), m_errorLabel(NULL), m_closeButton(NULL)
 {
     m_errorLabel = new QLabel();
     m_closeButton = new QPushButton(tr("Retry"));

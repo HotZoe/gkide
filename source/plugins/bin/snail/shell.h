@@ -24,14 +24,14 @@ class Shell: public ShellWidget
 public:
     Shell(NvimConnector *nvim, QWidget *parent=0);
     ~Shell();
-    QSize sizeIncrement() const;
+    QSize sizeIncrement(void) const;
     static QColor color(qint64 color,
                         const QColor &fallback=QColor());
     static bool isBadMonospace(const QFont &f);
     virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const Q_DECL_OVERRIDE;
-    bool neovimBusy() const;
-    bool neovimAttached() const;
-    QString fontDesc();
+    bool neovimBusy(void) const;
+    bool neovimAttached(void) const;
+    QString fontDesc(void);
 
 signals:
     void neovimTitleChanged(const QString &title);
@@ -40,7 +40,7 @@ signals:
     void neovimAttached(bool);
     void neovimMaximized(bool);
     void neovimFullScreen(bool);
-    void neovimGuiCloseRequest();
+    void neovimGuiCloseRequest(void);
 
 public slots:
     void handleNeovimNotification(const QByteArray &name,
@@ -54,12 +54,12 @@ public slots:
 protected slots:
     void neovimError(NvimConnector::NvimError);
     void neovimExited(int);
-    void neovimResizeFinished();
-    void mouseClickReset();
+    void neovimResizeFinished(void);
+    void mouseClickReset(void);
     void mouseClickIncrement(Qt::MouseButton bt);
-    void init();
+    void init(void);
     void fontError(const QString &msg);
-    void updateWindowId();
+    void updateWindowId(void);
 
 protected:
     void tooltip(const QString &text);
@@ -67,8 +67,8 @@ protected:
     virtual void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE;
     virtual bool event(QEvent *event) Q_DECL_OVERRIDE;
 
-    QPoint neovimCursorTopLeft() const;
-    QRect neovimCursorRect() const;
+    QPoint neovimCursorTopLeft(void) const;
+    QRect neovimCursorRect(void) const;
     QRect neovimCursorRect(QPoint at) const;
     void setNeovimCursor(quint64 col, quint64 row);
 
@@ -109,12 +109,20 @@ private:
     QList<QUrl> m_deferredOpen;
 
     QRect m_scroll_region;
-    bool m_font_bold, m_font_italic, m_font_underline, m_font_undercurl;
+
+    bool m_font_bold;
+    bool m_font_italic;
+    bool m_font_underline;
+    bool m_font_undercurl;
+
     bool m_mouseHide;
 
-    // highlight fg/bg - from redraw:highlightset - by default we
-    // use the values from above
-    QColor m_hg_foreground, m_hg_background, m_hg_special;
+    // highlight fg/bg - from redraw:highlightset -
+    // by default we use the values from above
+    QColor m_hg_foreground;
+    QColor m_hg_background;
+    QColor m_hg_special;
+
     QColor m_cursor_color;
 
     /// Cursor position in shell coordinates
@@ -125,10 +133,12 @@ private:
     QSize m_resize_neovim_pending;
     QLabel *m_tooltip;
     QPoint m_mouse_pos;
+
     // 2/3/4 mouse click tracking
     QTimer m_mouseclick_timer;
     short m_mouseclick_count;
     Qt::MouseButton m_mouseclick_pending;
+
     // Accumulates remainder of steppy scroll
     QPoint m_mouse_wheel_delta_fraction;
 
