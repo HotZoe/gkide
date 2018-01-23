@@ -82,8 +82,8 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 ///
 /// When appropriate this function will call
 /// QCommandLineParser::showHelp() terminating the program.
-void App::processCliOptions(QCommandLineParser &parser,
-                            const QStringList &arguments)
+void App::initCliArgs(QCommandLineParser &parser,
+                      const QStringList &arguments)
 {
     QString arg_desc;
 

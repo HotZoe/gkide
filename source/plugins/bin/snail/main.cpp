@@ -35,7 +35,7 @@ int gui_main(int argc, char **argv)
     }
 #endif
 
-    SnailNvimQt::App::processCliOptions(parser, app.arguments());
+    SnailNvimQt::App::initCliArgs(parser, app.arguments());
     auto c = SnailNvimQt::App::createConnector(parser);
     app.showUi(c, parser);
 
@@ -47,7 +47,7 @@ int cli_main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     QCommandLineParser parser;
-    SnailNvimQt::App::processCliOptions(parser, app.arguments());
+    SnailNvimQt::App::initCliArgs(parser, app.arguments());
     QStringList new_args = app.arguments().mid(1);
     new_args.insert(0, "--nofork");
 

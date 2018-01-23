@@ -18,8 +18,8 @@ class App: public QApplication
     Q_OBJECT
 public:
     static NvimConnector *createConnector(const QCommandLineParser &p);
-    static void processCliOptions(QCommandLineParser &p,
-                                  const QStringList &arguments);
+    static void initCliArgs(QCommandLineParser &p,
+                            const QStringList &arguments);
 
     App(int &argc, char **argv);
     bool event(QEvent *event);
