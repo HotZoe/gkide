@@ -251,7 +251,7 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
 /// is spawned().
 ///
 /// @see spawn()
-NvimConnector *NvimConnector::connectToNeovim(const QString &server)
+NvimConnector *NvimConnector::connectToNvim(const QString &server)
 {
     QString addr = server;
 

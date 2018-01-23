@@ -200,7 +200,7 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         Q_ASSERT(server.isEmpty() == false);
         qDebug() << "serverAddr=" << server;
 
-        return SnailNvimQt::NvimConnector::connectToNeovim(server);
+        return SnailNvimQt::NvimConnector::connectToNvim(server);
     }
     else if(parser.isSet("spawn") && !parser.positionalArguments().isEmpty())
     {

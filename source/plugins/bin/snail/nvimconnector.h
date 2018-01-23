@@ -59,9 +59,10 @@ public:
     static NvimConnector *fromStdinOut(void);
     static NvimConnector *spawn(const QStringList &params=QStringList(),
                                 const QString &exe="nvim");
+
     static NvimConnector *connectToSocket(const QString &);
     static NvimConnector *connectToHost(const QString &host, int port);
-    static NvimConnector *connectToNeovim(const QString &server=QString());
+    static NvimConnector *connectToNvim(const QString &server=QString());
 
     bool canReconnect(void);
     NvimConnector *reconnect(void);
