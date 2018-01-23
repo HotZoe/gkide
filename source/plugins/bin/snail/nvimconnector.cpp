@@ -157,28 +157,28 @@ Nvim *NvimConnector::neovimObject(void)
 
 /// Launch an embedded nvim process
 ///
-/// @param params   the nvim executable arguments
-/// @param exe      the nvim executable program
+/// @param args   the nvim executable arguments
+/// @param exe    the nvim executable program
 ///
 /// @see processExited
-NvimConnector *NvimConnector::spawn(const QStringList &params,
-                                    const QString &exe)
+NvimConnector *NvimConnector::startEmbedNvim(const QStringList &args,
+                                             const QString &exe)
 {
-    QStringList args;
+    QStringList exe_args;
 
-    if(params.indexOf("--") == -1)
+    if(args.indexOf("--") == -1)
     {
-        args.append(params);
-        args << "--embed" << "--headless";
+        exe_args.append(args);
+        exe_args << "--embed" << "--headless";
     }
     else
     {
         // nvim accepts a -- argument after
         // which only filenames are passed
-        int idx = params.indexOf("--");
-        args.append(params.mid(0, idx));
-        args << "--embed" << "--headless";
-        args.append(params.mid(idx));
+        int idx = args.indexOf("--");
+        exe_args.append(args.mid(0, idx));
+        exe_args << "--embed" << "--headless";
+        exe_args.append(args.mid(idx));
     }
 
     // nvim process
@@ -187,7 +187,7 @@ NvimConnector *NvimConnector::spawn(const QStringList &params,
     NvimConnector *c = new NvimConnector(p);
 
     c->m_ctype = SpawnedConnection;
-    c->m_spawnArgs = params;
+    c->m_spawnArgs = args;
     c->m_spawnExe = exe;
 
     // Qt 4.X old syntax
@@ -201,7 +201,7 @@ NvimConnector *NvimConnector::spawn(const QStringList &params,
     connect(p, &QProcess::started,
             c, &NvimConnector::discoverMetadata);
 
-    p->start(exe, args);
+    p->start(exe, exe_args);
     return c;
 }
 
@@ -250,7 +250,7 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
 /// environment variable, if it is not available a new Nvim instance
 /// is spawned().
 ///
-/// @see spawn()
+/// @see startEmbedNvim()
 NvimConnector *NvimConnector::connectToNvim(const QString &server)
 {
     QString addr = server;
@@ -262,7 +262,7 @@ NvimConnector *NvimConnector::connectToNvim(const QString &server)
 
     if(addr.isEmpty())
     {
-        return spawn();
+        return startEmbedNvim();
     }
 
     int colon_pos = addr.lastIndexOf(':');
@@ -346,7 +346,7 @@ NvimConnector::NeovimConnectionType NvimConnector::connectionType()
 
 /// Create a new connection using the same parameters as the current one.
 ///
-/// This is the equivalent of creating a new object with spawn(),
+/// This is the equivalent of creating a new object with startEmbedNvim(),
 /// connectToHost(), or connectToSocket()
 ///
 /// If canReconnect() returns false, this function will return NULL.
@@ -355,7 +355,7 @@ NvimConnector *NvimConnector::reconnect(void)
     switch(m_ctype)
     {
         case SpawnedConnection:
-            return NvimConnector::spawn(m_spawnArgs, m_spawnExe);
+            return NvimConnector::startEmbedNvim(m_spawnArgs, m_spawnExe);
 
         case HostConnection:
             return NvimConnector::connectToHost(m_connHost, m_connPort);
@@ -377,8 +377,9 @@ NvimConnector *NvimConnector::reconnect(void)
 
 /// @fn SnailNvimQt::NvimConnector::processExited(int exitStatus)
 ///
-/// If the Nvim process was started using SnailNvimQt::NvimConnector::spawn
-/// this signal is emitted when the process exits.
+/// If the Nvim process was started using
+/// SnailNvimQt::NvimConnector::startEmbedNvim() this signal is emitted
+/// when the process exits.
 
 } // namespace::SnailNvimQt
 

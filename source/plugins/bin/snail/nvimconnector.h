@@ -56,13 +56,12 @@ public:
     NvimConnector(QIODevice *s);
     NvimConnector(MsgpackIODevice *s);
 
-    static NvimConnector *spawn(const QStringList &params=QStringList(),
-                                const QString &exe="nvim");
-
     static NvimConnector *connectToStdInOut(void);
     static NvimConnector *connectToSocket(const QString &);
     static NvimConnector *connectToHost(const QString &host, int port);
     static NvimConnector *connectToNvim(const QString &server=QString());
+    static NvimConnector *startEmbedNvim(const QStringList &args=QStringList(),
+                                         const QString &exe="nvim");
 
     bool canReconnect(void);
     NvimConnector *reconnect(void);

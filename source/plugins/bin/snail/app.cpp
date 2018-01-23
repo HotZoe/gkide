@@ -205,7 +205,7 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     else if(parser.isSet("spawn") && !parser.positionalArguments().isEmpty())
     {
         const QStringList &args = parser.positionalArguments();
-        return SnailNvimQt::NvimConnector::spawn(args.mid(1), args.at(0));
+        return SnailNvimQt::NvimConnector::startEmbedNvim(args.mid(1), args.at(0));
     }
     else
     {
@@ -278,7 +278,7 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         // Pass positional file arguments to nvim
         nvimArgs.append(parser.positionalArguments());
 
-        return SnailNvimQt::NvimConnector::spawn(nvimArgs, nvimProg);
+        return SnailNvimQt::NvimConnector::startEmbedNvim(nvimArgs, nvimProg);
     }
 }
 
