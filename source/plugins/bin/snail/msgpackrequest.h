@@ -37,7 +37,7 @@ protected slots:
     void requestTimeout(void);
 
 public:
-    const quint32 id; ///< msgpack request identifier
+    const quint32 m_msgid; ///< msgpack request identifier
 
 private:
     MsgpackIODevice *m_dev;

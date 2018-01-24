@@ -494,7 +494,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
             goto err;
         }
 
-        emit req->error(req->id, req->function(), val);
+        emit req->error(req->m_msgid, req->function(), val);
     }
     else
     {
@@ -506,7 +506,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
             goto err;
         }
 
-        emit req->finished(req->id, req->function(), val);
+        emit req->finished(req->m_msgid, req->function(), val);
     }
 
 err:

@@ -11,8 +11,8 @@ namespace SnailNvimQt {
 MsgpackRequest::MsgpackRequest(quint32 id,
                                MsgpackIODevice *dev,
                                QObject *parent)
-    : QObject(parent), id(id), m_dev(dev),
-      m_funid(kNvimAPI_NULL)
+    : QObject(parent), m_msgid(id),
+      m_dev(dev), m_funid(kNvimAPI_NULL)
 {
     connect(&m_timer, &QTimer::timeout,
             this, &MsgpackRequest::requestTimeout);
@@ -45,7 +45,7 @@ void MsgpackRequest::setTimeout(int msec)
 
 void MsgpackRequest::requestTimeout(void)
 {
-    emit timeout(this->id);
+    emit timeout(this->m_msgid);
 }
 
 } // namespace::SnailNvimQt
