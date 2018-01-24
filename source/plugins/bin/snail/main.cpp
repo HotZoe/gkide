@@ -5,8 +5,10 @@
 #include <QProcess>
 #include <QApplication>
 #include <QCommandLineParser>
-#include "versiondef.h"
-#include "configsnail.h"
+
+#include "generated/config/versiondef.h"
+#include "generated/config/configsnail.h"
+
 #include "plugins/bin/snail/app.h"
 #include "plugins/bin/snail/nvimconnector.h"
 

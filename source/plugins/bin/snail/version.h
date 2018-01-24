@@ -5,5 +5,6 @@
 
 #include "generated/config/miscinfo.h"
 #include "generated/config/versiondef.h"
+#include "generated/config/configsnail.h"
 
 #endif // PLUGIN_SNAIL_VERSION_H

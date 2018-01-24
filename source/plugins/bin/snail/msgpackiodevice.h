@@ -123,12 +123,8 @@ protected slots:
     void requestTimeout(quint32 id);
 
 private:
-    static int msgpack_write_to_stdout(void *data,
-                                       const char *buf,
-                                       unsigned long int len);
-    static int msgpack_write_to_dev(void *data,
-                                    const char *buf,
-                                    unsigned long int len);
+    static int msgpack_write_to_stdout(void *data, const char *buf, size_t len);
+    static int msgpack_write_to_dev(void *data, const char *buf, size_t len);
 
     quint32 m_reqid;
     QIODevice *m_dev;

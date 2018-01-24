@@ -22,8 +22,9 @@ MsgpackIODevice *MsgpackIODevice::connectToStdInOut(QObject *parent)
 {
     MsgpackIODevice *rpc = new MsgpackIODevice(NULL, parent);
 
-    msgpack_packer_init(&rpc->m_pk, rpc,
-                        MsgpackIODevice::msgpack_write_to_stdout);
+    msgpack_packer_write write_func =
+        (msgpack_packer_write)MsgpackIODevice::msgpack_write_to_stdout;
+    msgpack_packer_init(&rpc->m_pk, rpc, write_func);
 
 #ifdef _WIN32
     StdinReader *rsn =
@@ -56,8 +57,9 @@ MsgpackIODevice::MsgpackIODevice(QIODevice *dev, QObject *parent)
         // for msgpack 1.x
         // use packer as value (not pointer),
         // don't need to call destroy function
-        msgpack_packer_init(&m_pk, this,
-                            MsgpackIODevice::msgpack_write_to_dev);
+        msgpack_packer_write write_func =
+            (msgpack_packer_write)MsgpackIODevice::msgpack_write_to_dev;
+        msgpack_packer_init(&m_pk, this, write_func);
 
         m_dev->setParent(this);
 
@@ -130,7 +132,7 @@ bool MsgpackIODevice::setEncoding(const QByteArray &name)
 
 int MsgpackIODevice::msgpack_write_to_stdout(void *data,
                                              const char *buf,
-                                             unsigned long int len)
+                                             size_t len)
 {
     MsgpackIODevice *c = static_cast<MsgpackIODevice *>(data);
     qint64 bytes = write(1, buf, len);
@@ -145,7 +147,7 @@ int MsgpackIODevice::msgpack_write_to_stdout(void *data,
 
 int MsgpackIODevice::msgpack_write_to_dev(void *data,
                                           const char *buf,
-                                          unsigned long int len)
+                                          size_t len)
 {
     MsgpackIODevice *c = static_cast<MsgpackIODevice *>(data);
     qint64 bytes = c->m_dev->write(buf, len);

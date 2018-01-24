@@ -5,8 +5,10 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QFileOpenEvent>
-#include "envdefs.h"
-#include "configsnail.h"
+
+#include "generated/config/envdefs.h"
+#include "generated/config/configsnail.h"
+
 #include "plugins/bin/snail/attributes.h"
 #include "plugins/bin/snail/logmanager.h"
 
