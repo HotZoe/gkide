@@ -67,7 +67,7 @@ MsgpackRequest *Nvim::{{ api.name }}(
     MsgpackRequest *r = 
         m_c->m_dev->startRequestUnchecked("{{ api.name }}", {{ api.argcount }});
 
-    r->setFunction(kNvimAPI_{{ api.name.upper() }});
+    r->setFuncId(kNvimAPI_{{ api.name.upper() }});
 
     connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);

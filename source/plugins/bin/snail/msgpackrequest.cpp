@@ -31,7 +31,7 @@ NvimApiFuncID MsgpackRequest::funcId(void)
 /// SnailNvimQt has auto-generated call handlers (in
 /// SnailNvimQt::NvimConnector::neovimObject)
 /// that will be used to process the response
-void MsgpackRequest::setFunction(NvimApiFuncID f)
+void MsgpackRequest::setFuncId(NvimApiFuncID f)
 {
     m_funid = f;
 }
