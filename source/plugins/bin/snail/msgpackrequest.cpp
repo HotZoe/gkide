@@ -12,7 +12,7 @@ MsgpackRequest::MsgpackRequest(quint32 id,
                                MsgpackIODevice *dev,
                                QObject *parent)
     : QObject(parent), id(id), m_dev(dev),
-      m_function(kNvimAPI_NULL)
+      m_funid(kNvimAPI_NULL)
 {
     connect(&m_timer, &QTimer::timeout,
             this, &MsgpackRequest::requestTimeout);
@@ -23,7 +23,7 @@ MsgpackRequest::MsgpackRequest(quint32 id,
 /// the generated function handlers.
 NvimApiFuncID MsgpackRequest::function(void)
 {
-    return m_function;
+    return m_funid;
 }
 
 /// Associate a function id with this request
@@ -33,7 +33,7 @@ NvimApiFuncID MsgpackRequest::function(void)
 /// that will be used to process the response
 void MsgpackRequest::setFunction(NvimApiFuncID f)
 {
-    m_function = f;
+    m_funid = f;
 }
 
 void MsgpackRequest::setTimeout(int msec)

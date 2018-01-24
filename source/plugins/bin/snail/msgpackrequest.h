@@ -41,7 +41,7 @@ public:
 
 private:
     MsgpackIODevice *m_dev;
-    NvimApiFuncID m_function;
+    NvimApiFuncID m_funid;
     QTimer m_timer;
 };
 
