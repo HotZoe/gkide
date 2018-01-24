@@ -18,7 +18,7 @@ class MsgpackRequest: public QObject
 public:
     MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent=0);
     void setFunction(NvimApiFuncID);
-    NvimApiFuncID function(void);
+    NvimApiFuncID funcId(void);
     void setTimeout(int msec);
 
 signals:

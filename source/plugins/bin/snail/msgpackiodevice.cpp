@@ -494,7 +494,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
             goto err;
         }
 
-        emit req->error(req->m_msgid, req->function(), val);
+        emit req->error(req->m_msgid, req->funcId(), val);
     }
     else
     {
@@ -506,7 +506,7 @@ void MsgpackIODevice::dispatchResponse(msgpack_object &resp)
             goto err;
         }
 
-        emit req->finished(req->m_msgid, req->function(), val);
+        emit req->finished(req->m_msgid, req->funcId(), val);
     }
 
 err:
@@ -603,7 +603,7 @@ void MsgpackIODevice::requestTimeout(quint32 id)
     {
         MsgpackRequest *r = m_requests.take(id);
         r->deleteLater();
-        qWarning() << "Request " << id << " timed out:"  << r->function();
+        qWarning() << "Request " << id << " timed out:"  << r->funcId();
     }
 }
 

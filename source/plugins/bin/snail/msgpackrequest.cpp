@@ -21,7 +21,7 @@ MsgpackRequest::MsgpackRequest(quint32 id,
 /// The function id for the function signature associated with this call.
 /// The value kNvimAPI_NULL indicates this call will not go through the
 /// the generated function handlers.
-NvimApiFuncID MsgpackRequest::function(void)
+NvimApiFuncID MsgpackRequest::funcId(void)
 {
     return m_funid;
 }
