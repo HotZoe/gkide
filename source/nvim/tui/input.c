@@ -10,7 +10,7 @@
 #include "nvim/os/input.h"
 #include "nvim/event/rstream.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #define PASTETOGGLE_KEY  "<Paste>"
 #define FOCUSGAINED_KEY  "<FocusGained>"

@@ -3,7 +3,7 @@
 #ifndef NVIM_OS_PTY_PROCESS_H
 #define NVIM_OS_PTY_PROCESS_H
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifdef HOST_OS_WINDOWS
     #include "nvim/os/pty_process_win.h"

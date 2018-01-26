@@ -100,7 +100,7 @@
 #include "nvim/eval/gc.h"
 #include "nvim/macros.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #if (defined(HOST_OS_WINDOWS) && !defined(FOUND_WORKING_LIBINTL))
 // for separate library: libintl.a

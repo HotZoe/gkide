@@ -3,9 +3,10 @@
 #ifndef NVIM_VIM_H
 #define NVIM_VIM_H
 
-#include "config.h"
+#include "generated/config/config.h"
+#include "generated/config/confignvim.h"
+
 #include "nvim/pos.h"
-#include "confignvim.h"
 #include "nvim/types.h"
 
 // Some defines from the old feature.h

@@ -12,8 +12,8 @@
 #include "nvim/os/os.h"
 #include "nvim/os/time.h"
 
-#include "config.h"
-#include "envdefs.h"
+#include "generated/config/config.h"
+#include "generated/config/envdefs.h"
 
 /// First location of the log file used by log_path_init()
 #define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_RTMLOG

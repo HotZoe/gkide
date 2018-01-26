@@ -3,7 +3,7 @@
 #ifndef NVIM_OS_WIN_DEFS_H
 #define NVIM_OS_WIN_DEFS_H
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifndef HOST_OS_WINDOWS
     #error "Header must be included only when compiling for Windows."

@@ -12,8 +12,8 @@
 // USE_ICONV, or to put the USE_ICONV definition in config.h.in directly. As
 // it stands, globals.h needs to be included alongside iconv.h.
 
-#include "config.h"
-#include "confignvim.h"
+#include "generated/config/config.h"
+#include "generated/config/confignvim.h"
 
 // Use iconv() when it's available, either by linking to the library at
 // compile time or by loading it at runtime.

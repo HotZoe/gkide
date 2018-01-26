@@ -9,9 +9,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "config.h"
-#include "confignvim.h"
-
 #ifdef HAVE_HDR_SYS_UIO_H
     #include <sys/uio.h>
 #endif
@@ -28,7 +25,8 @@
 #include "nvim/path.h"
 #include "nvim/strings.h"
 
-#include "config.h"
+#include "generated/config/config.h"
+#include "generated/config/confignvim.h"
 
 #ifdef HOST_OS_WINDOWS
     // for utf8_to_utf16, utf16_to_utf8

@@ -265,7 +265,7 @@ include(InstallHelpers)
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-include_directories("${GEN_CONFIG_DIR}")
+include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/source")
 
 add_subdirectory(nvim)

@@ -73,7 +73,7 @@
     #include "buffer.c.generated.h"
 #endif
 
-#include "config.h"
+#include "generated/config/config.h"
 
 static char *msg_loclist = N_("[Location List]");
 static char *msg_qflist = N_("[Quickfix List]");

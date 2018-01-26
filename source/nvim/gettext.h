@@ -3,7 +3,7 @@
 #ifndef NVIM_GETTEXT_H
 #define NVIM_GETTEXT_H
 
-#include "confignvim.h"
+#include "generated/config/confignvim.h"
 
 #ifdef FOUND_WORKING_LIBINTL
     #include <libintl.h>

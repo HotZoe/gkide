@@ -69,8 +69,8 @@
 #include "nvim/api/private/handle.h"
 #include "nvim/api/private/dispatch.h"
 
-#include "config.h"
-#include "envdefs.h"
+#include "generated/config/config.h"
+#include "generated/config/envdefs.h"
 
 #define WIN_HOR   1  ///< @b -o horizontally split windows for 'window_layout'
 #define WIN_VER   2  ///< @b -O vertically split windows for 'window_layout'

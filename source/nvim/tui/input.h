@@ -9,7 +9,7 @@
 #include "nvim/event/stream.h"
 #include "nvim/event/time.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 typedef struct terminal_input_s
 {

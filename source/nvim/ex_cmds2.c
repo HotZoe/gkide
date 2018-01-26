@@ -48,7 +48,7 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 /// Growarray to store info about already sourced scripts.
 /// Also store the dev/ino, so that we don't have to stat() each

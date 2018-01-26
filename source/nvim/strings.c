@@ -49,7 +49,7 @@
 #include "nvim/os/shell.h"
 #include "nvim/eval/encode.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 /// Copy @b string into newly allocated memory.
 uchar_kt *vim_strsave(const uchar_kt *string)

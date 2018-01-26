@@ -3,7 +3,7 @@
 #ifndef NVIM_MACROS_H
 #define NVIM_MACROS_H
 
-#include "config.h"
+#include "generated/config/config.h"
 
 // EXTERN is only defined in main.c.
 // That's where global variables are actually defined and initialized.

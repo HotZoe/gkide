@@ -9,8 +9,8 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-#include "config.h"
-#include "confignvim.h"
+#include "generated/config/config.h"
+#include "generated/config/confignvim.h"
 
 #ifdef HAVE_HDR_SYS_UIO_H
     #include <sys/uio.h>

@@ -1,6 +1,6 @@
 /// @file config/nvimapi/auto/nvim.h
 ///
-/// Auto generated: UTC 2018-01-21 05:42:49.040283
+/// Auto generated: UTC 2018-01-26 15:12:59.837832
 
 #ifndef CONFIG_NVIMAPI_AUTO_NVIM_H
 #define CONFIG_NVIMAPI_AUTO_NVIM_H
@@ -189,8 +189,9 @@ public slots:
                                   QList<QByteArray> lines);
     
     /// nvim API:
-    /// ArrayOf(Integer, 2) nvim_buf_get_mark(Buffer buffer,
-    ///                                       String name);
+    /// ArrayOf(Integer,
+    ///                                    2) nvim_buf_get_mark(Buffer buffer,
+    ///                                    String name);
     MsgpackRequest *nvim_buf_get_mark(int64_t buffer,
                                       QByteArray name);
     
@@ -493,12 +494,14 @@ public slots:
     MsgpackRequest *nvim_win_get_buf(int64_t window);
     
     /// nvim API:
-    /// ArrayOf(Integer, 2) nvim_win_get_cursor(Window window);
+    /// ArrayOf(Integer,
+    ///                                      2) nvim_win_get_cursor(Window window);
     MsgpackRequest *nvim_win_get_cursor(int64_t window);
     
     /// nvim API:
     /// void nvim_win_set_cursor(Window window,
-    ///                          ArrayOf(Integer, 2) pos);
+    ///                          ArrayOf(Integer,
+    ///                          2) pos);
     MsgpackRequest *nvim_win_set_cursor(int64_t window,
                                         QPoint pos);
     
@@ -571,7 +574,8 @@ public slots:
                                         QVariant value);
     
     /// nvim API:
-    /// ArrayOf(Integer, 2) nvim_win_get_position(Window window);
+    /// ArrayOf(Integer,
+    ///                                        2) nvim_win_get_position(Window window);
     MsgpackRequest *nvim_win_get_position(int64_t window);
     
     /// nvim API:
@@ -651,8 +655,9 @@ public slots:
     MsgpackRequest *buffer_is_valid(int64_t buffer);
     
     /// @deprecated nvim API:
-    /// ArrayOf(Integer, 2) buffer_get_mark(Buffer buffer,
-    ///                                     String name);
+    /// ArrayOf(Integer,
+    ///                                  2) buffer_get_mark(Buffer buffer,
+    ///                                  String name);
     MsgpackRequest *buffer_get_mark(int64_t buffer,
                                     QByteArray name);
     
@@ -859,12 +864,14 @@ public slots:
     MsgpackRequest *window_get_buffer(int64_t window);
     
     /// @deprecated nvim API:
-    /// ArrayOf(Integer, 2) window_get_cursor(Window window);
+    /// ArrayOf(Integer,
+    ///                                    2) window_get_cursor(Window window);
     MsgpackRequest *window_get_cursor(int64_t window);
     
     /// @deprecated nvim API:
     /// void window_set_cursor(Window window,
-    ///                        ArrayOf(Integer, 2) pos);
+    ///                        ArrayOf(Integer,
+    ///                        2) pos);
     MsgpackRequest *window_set_cursor(int64_t window,
                                       QPoint pos);
     
@@ -909,7 +916,8 @@ public slots:
                                       QVariant value);
     
     /// @deprecated nvim API:
-    /// ArrayOf(Integer, 2) window_get_position(Window window);
+    /// ArrayOf(Integer,
+    ///                                      2) window_get_position(Window window);
     MsgpackRequest *window_get_position(int64_t window);
     
     /// @deprecated nvim API:

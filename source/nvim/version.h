@@ -3,7 +3,7 @@
 #ifndef NVIM_VERSION_H
 #define NVIM_VERSION_H
 
-#include "versiondef.h"
+#include "generated/config/versiondef.h"
 #include "nvim/ex_cmds_defs.h"
 
 // defined in version.c

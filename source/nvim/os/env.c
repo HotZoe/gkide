@@ -18,7 +18,7 @@
 #include "nvim/ex_getln.h"
 #include "nvim/version.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifdef HOST_OS_WINDOWS
     // for utf8_to_utf16, utf16_to_utf8

@@ -8,7 +8,7 @@
 #include "nvim/memory.h"
 #include "nvim/ascii.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 /// Names of the environment variables, mapped to XDGVarType values
 static const char *xdg_env_vars[] =

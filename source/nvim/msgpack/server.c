@@ -21,8 +21,8 @@
 #include "nvim/path.h"
 #include "nvim/strings.h"
 
-#include "config.h"
-#include "envdefs.h"
+#include "generated/config/config.h"
+#include "generated/config/envdefs.h"
 
 #define MAX_CONNECTIONS         32
 

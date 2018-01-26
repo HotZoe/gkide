@@ -9,7 +9,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifdef HOST_OS_WINDOWS
     #include "nvim/os/win_defs.h"

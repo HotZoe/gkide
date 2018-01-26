@@ -33,7 +33,7 @@
 #include "nvim/os/input.h"
 #include "nvim/window.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #define URL_SLASH       1  ///< path_is_url() has found "://"
 #define URL_BACKSLASH   2  ///< path_is_url() has found ":\\"

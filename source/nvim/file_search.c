@@ -66,7 +66,7 @@
 #include "nvim/os/input.h"
 #include "nvim/os/fs_defs.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 /// used for expanding filenames
 static uchar_kt *ff_expand_buffer = NULL;

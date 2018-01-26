@@ -5,7 +5,7 @@
 ///
 /// @note Bring in auto-generated nvim function API enum
 ///
-/// Auto generated: UTC 2018-01-21 05:42:49.091655
+/// Auto generated: UTC 2018-01-26 15:12:59.904589
 enum NvimApiFuncID
 {
     kNvimAPI_NVIM_BUF_LINE_COUNT,

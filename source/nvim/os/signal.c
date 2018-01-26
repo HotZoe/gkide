@@ -5,7 +5,7 @@
 
 #include <uv.h>
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifndef HOST_OS_WINDOWS
     #include <signal.h> // for sigset_t

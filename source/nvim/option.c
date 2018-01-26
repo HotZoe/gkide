@@ -75,8 +75,8 @@
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
 
-#include "config.h"
-#include "envdefs.h"
+#include "generated/config/config.h"
+#include "generated/config/envdefs.h"
 
 // The options that are local to a window or buffer have
 // "indir" set to one of these values. Special values

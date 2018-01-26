@@ -1,6 +1,6 @@
 /// @file config/nvimapi/auto/nvim.cpp
 ///
-/// Auto generated: UTC 2018-01-21 05:42:49.007844
+/// Auto generated: UTC 2018-01-26 15:12:59.726135
 
 #include "config/nvimapi/auto/nvim.h"
 

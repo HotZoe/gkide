@@ -13,7 +13,7 @@
 #include "nvim/macros.h"
 #include "nvim/os/os.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "event/libuv_process.c.generated.h"

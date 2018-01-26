@@ -56,7 +56,7 @@
 #include "nvim/arabic.h"
 #include "nvim/mark.h"
 
-#include "config.h"
+#include "generated/config/config.h"
 
 /// mutlibyte convert
 typedef struct mbyte_conv_s

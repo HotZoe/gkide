@@ -2,7 +2,7 @@
 ///
 /// @note also see NvimApiFuncID
 ///
-/// Auto generated: UTC 2018-01-21 05:42:49.032912
+/// Auto generated: UTC 2018-01-26 15:12:59.797491
 const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 << NvimApiFunc("Integer", // return type
                "nvim_buf_line_count", // function name
