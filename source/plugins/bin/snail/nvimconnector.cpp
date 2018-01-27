@@ -109,7 +109,7 @@ uint64_t NvimConnector::channel(void)
 /// Request API information from nvim
 void NvimConnector::discoverMetadata(void)
 {
-    MsgpackRequest *r = m_dev->startRequestUnchecked("vim_get_api_info", 0);
+    MsgpackRequest *r = m_dev->startRequestUnchecked("nvim_get_api_info", 0);
     connect(r, &MsgpackRequest::finished,
             m_helper, &NvimConnectorHelper::handleMetadata);
     connect(r, &MsgpackRequest::error,

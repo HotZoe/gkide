@@ -3254,7 +3254,7 @@ void free_for_info(void *fi_void)
 
 void set_context_for_expression(expand_st *xp,
                                 uchar_kt *arg,
-								excmd_idx_et cmdidx)
+                                excmd_idx_et cmdidx)
 {
     int got_eq = FALSE;
     int c;
@@ -8513,7 +8513,7 @@ static void api_wrapper(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 
     if(ERROR_SET(&err))
     {
-        nvim_err_writeln(cstr_as_string(err.msg));
+        nvim_errmsg_writeln(cstr_as_string(err.msg));
         goto end;
     }
 
@@ -18085,7 +18085,7 @@ static void f_rpcrequest(typval_st *argvars,
 
     if(ERROR_SET(&err))
     {
-        nvim_err_writeln(cstr_as_string(err.msg));
+        nvim_errmsg_writeln(cstr_as_string(err.msg));
         goto end;
     }
 

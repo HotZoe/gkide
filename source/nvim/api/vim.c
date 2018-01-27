@@ -597,28 +597,28 @@ FUNC_API_SINCE(1)
     write_msg(str, false);
 }
 
-/// Writes a message to vim error buffer
+/// Writes a message to nvim error buffer
 ///
 /// @param str Message
-void nvim_err_write(String str)
+void nvim_errmsg_write(String str)
 FUNC_API_SINCE(1)
 {
     write_msg(str, true);
 }
 
-/// Writes a message to vim error buffer.
+/// Writes a message to nvim error buffer.
 /// Appends a linefeed to ensure all contents are written.
 ///
 /// @param str Message
 ///
-/// @see nvim_err_write()
-void nvim_err_writeln(String str)
+/// @see nvim_errmsg_write()
+void nvim_errmsg_writeln(String str)
 FUNC_API_SINCE(1)
 {
-    nvim_err_write(str);
-    nvim_err_write((String)
-    {
-        .data = "\n", .size = 1
+    nvim_errmsg_write(str);
+    nvim_errmsg_write((String) {
+        .data = "\n",
+        .size = 1
     });
 }
 

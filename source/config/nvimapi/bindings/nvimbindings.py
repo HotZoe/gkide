@@ -142,9 +142,9 @@ class NvimApiFunc:
     """
     # Attributes names that we support
     attr_values = [
-        'name', 'parameters', 'return_type',  'can_fail',
-        'deprecated_since',  'since',  'method', 'async',
-        'impl_name', 'noeval', 'receives_channel_id'
+        'return_type', 'name', 'parameters', 'can_fail',
+        'async', 'deprecated_since', 'since', 'impl_name',
+        'method', 'noeval', 'receives_channel_id'
     ]
     __KNOWN_ATTRIBUTES = set(attr_values)
 

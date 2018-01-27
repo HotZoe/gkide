@@ -102,7 +102,6 @@ local function startswith(String, Start)
 end
 
 -- nvim/api/dispatch_deprecated.lua
--- These will be removed eventually.
 -- Export functions under older deprecated names. 
 local deprecated_aliases = require("api.dispatch_deprecated") 
 
@@ -173,7 +172,7 @@ exported_attributes = {
 exported_functions  = {}
 
 for _,f in ipairs(functions) do
-    if not startswith(f.name, "nvim__") then
+    if not startswith(f.name, "nvim_id_") then
         local f_exported = {}
         for _,attr in ipairs(exported_attributes) do
             f_exported[attr] = f[attr]

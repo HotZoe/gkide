@@ -73,10 +73,10 @@ void NvimConnectorHelper::handleMetadata(
     if(m_c->errorCause() == NvimConnector::NoError)
     {
         // Get &encoding before we signal readyness
-        connect(m_c->neovimObject(), &Nvim::on_vim_get_option,
+        connect(m_c->neovimObject(), &Nvim::on_nvim_get_option,
                 this, &NvimConnectorHelper::encodingChanged);
 
-        MsgpackRequest *r = m_c->neovimObject()->vim_get_option("encoding");
+        MsgpackRequest *r = m_c->neovimObject()->nvim_get_option("encoding");
         connect(r, &MsgpackRequest::timeout,
                 m_c, &NvimConnector::fatalTimeout);
         r->setTimeout(10000);
@@ -90,7 +90,7 @@ void NvimConnectorHelper::handleMetadata(
 /// Called after metadata discovery, to get the &encoding
 void NvimConnectorHelper::encodingChanged(const QVariant  &obj)
 {
-    disconnect(m_c->neovimObject(), &Nvim::on_vim_get_option,
+    disconnect(m_c->neovimObject(), &Nvim::on_nvim_get_option,
                this, &NvimConnectorHelper::encodingChanged);
 
     m_c->m_dev->setEncoding(obj.toByteArray());
