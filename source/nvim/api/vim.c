@@ -1043,8 +1043,6 @@ static void write_msg(String message, bool to_err)
 }
 #undef PUSH_CHAR
 
-// Functions used for testing purposes
-
 /// Returns object given as argument
 ///
 /// This API function is used for testing.
@@ -1053,7 +1051,9 @@ static void write_msg(String message, bool to_err)
 /// @param[in]  obj  Object to return.
 ///
 /// @return its argument.
-Object nvim__id(Object obj)
+///
+/// @note Functions used for testing purposes
+Object nvim_id_object(Object obj)
 {
     return copy_object(obj);
 }
@@ -1066,7 +1066,9 @@ Object nvim__id(Object obj)
 /// @param[in]  arr  Array to return.
 ///
 /// @return its argument.
-Array nvim__id_array(Array arr)
+///
+/// @note Functions used for testing purposes
+Array nvim_id_array(Array arr)
 {
     return copy_object(ARRAY_OBJ(arr)).data.array;
 }
@@ -1079,7 +1081,9 @@ Array nvim__id_array(Array arr)
 /// @param[in]  dct  Dictionary to return.
 ///
 /// @return its argument.
-Dictionary nvim__id_dictionary(Dictionary dct)
+///
+/// @note Functions used for testing purposes
+Dictionary nvim_id_dictionary(Dictionary dct)
 {
     return copy_object(DICTIONARY_OBJ(dct)).data.dictionary;
 }
@@ -1092,7 +1096,9 @@ Dictionary nvim__id_dictionary(Dictionary dct)
 /// @param[in]  flt  Value to return.
 ///
 /// @return its argument.
-Float nvim__id_float(Float flt)
+///
+/// @note Functions used for testing purposes
+Float nvim_id_float(Float flt)
 {
     return flt;
 }

@@ -109,10 +109,10 @@ local deprecated_aliases = require("api.dispatch_deprecated")
 for i,f in ipairs(shallowcopy(functions)) do
     local ismethod = false
     if startswith(f.name, "nvim_") then
-        if startswith(f.name, "nvim__") then
-            f.since = -1
+        if startswith(f.name, "nvim_id_") then
+            f.since = -1 -- for nvim testing purposes
         elseif f.since == nil then
-            print("Function "..f.name.." lacks since field.\n")
+            print("Nvim API function lacks since field: " .. f.name)
             os.exit(1)
         end
         
