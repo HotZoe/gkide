@@ -65,6 +65,7 @@ for i=6, #arg do
     -- since/noexport/deprecated_since ...
     for i=1, #tmp do
         local fn = tmp[i]
+        -- c_grammar.func_dbg_print(fn)
         if not fn.noexport then
             functions[#functions + 1] = tmp[i]
             function_names[fn.name] = true

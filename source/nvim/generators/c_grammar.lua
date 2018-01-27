@@ -70,4 +70,23 @@ local c_proto = Ct(
 
 local grammar = Ct((c_proto + c_comment + c_preproc + ws) ^ 1)
 
-return { grammar=grammar, typed_container=typed_container }
+local function grammar_debug_print(func)
+    print('function type: ' .. func.return_type)
+    print('function name: ' .. func.name)
+
+    print('function flag: async            = ' .. tostring(func.async))
+    print('function flag: since            = ' .. tostring(func.since))
+    print('function flag: deprecated_since = ' .. tostring(func.deprecated_since))
+    print('function flag: noexport         = ' .. tostring(func.noexport))
+    print('function flag: remote_only      = ' .. tostring(func.remote_only))
+    print('function flag: remote_impl      = ' .. tostring(func.remote_impl))
+    print('function flag: bridge_impl      = ' .. tostring(func.bridge_impl))
+
+    print('\n')
+end
+
+return {
+    grammar = grammar,
+    typed_container = typed_container,
+    func_dbg_print = grammar_debug_print
+}
