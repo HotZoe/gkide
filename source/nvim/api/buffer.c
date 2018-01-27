@@ -499,9 +499,9 @@ FUNC_API_SINCE(2)
 /// @param  buffer_id  Buffer handle
 /// @param[out] err    Error details, if any
 /// @returns An array of maparg() like dictionaries describing mappings
-ArrayOf(Dictionary) nvim_buf_get_keymap(Buffer buffer, 
-                                         String mode, 
-										 error_st *err)
+ArrayOf(Dictionary) nvim_buf_get_keymap(Buffer buffer,
+                                        String mode,
+                                        error_st *err)
 FUNC_API_SINCE(3)
 {
     filebuf_st *buf = find_buffer_by_handle(buffer, err);
@@ -644,7 +644,8 @@ FUNC_API_SINCE(1)
 /// @param[out] err   Error details, if any
 /// @return Buffer number
 Integer nvim_buf_get_number(Buffer buffer, error_st *err)
-FUNC_API_SINCE(1) FUNC_API_DEPRECATED_SINCE(2)
+FUNC_API_SINCE(1)
+FUNC_API_DEPRECATED_SINCE(2)
 {
     Integer rv = 0;
     filebuf_st *buf = find_buffer_by_handle(buffer, err);
