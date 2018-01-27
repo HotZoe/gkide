@@ -316,8 +316,9 @@ file(GLOB NVIM_HEADERS *.h)
 
 file(GLOB NVIM_API_HEADERS api/*.h)
 
-list(REMOVE_ITEM
-     NVIM_API_HEADERS ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
+# this file is not compiled, just parsed for definitons
+set(NVIM_UI_EVENTS_API_DEFS ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
+list(REMOVE_ITEM NVIM_API_HEADERS ${NVIM_UI_EVENTS_API_DEFS})
 
 list(APPEND subdir_set "os")
 list(APPEND subdir_set "tui")
@@ -459,7 +460,7 @@ set(NVIM_GEN_SRC_OPTIONS
 set(UNICODE_DIR
     ${CMAKE_CURRENT_LIST_DIR}/unicode)
 file(GLOB UNICODE_FILES
-    ${UNICODE_DIR}/*.txt)
+     ${UNICODE_DIR}/*.txt)
 set(GENERATOR_UNICODETAB
     ${GENERATOR_DIR}/gen_unicode_tables.lua)
 set(NVIM_GEN_SRC_UNICODETABLE
@@ -558,22 +559,22 @@ foreach(sfile ${NVIM_SOURCES}
 
     # file name with extension
     get_filename_component(file_name_we ${sfile} NAME)
+    # relative file path with extension
+    set(relative_file_we "${relative_path}/${file_name_we}")
+
     # file name without extension
     get_filename_component(file_name_oe ${sfile} NAME_WE)
-
-    if(NOT ${relative_path} EQUAL ".")
-        set(file_name_we "${relative_path}/${file_name_we}")
-        set(file_name_oe "${relative_path}/${file_name_oe}")
-    endif()
+    # relative file path without extension
+    set(relative_file_oe "${relative_path}/${file_name_oe}")
 
     # generated files
     #
     # processor output file
-    set(gf_i   "${NVIM_AUTO_DIR}/${file_name_oe}.i")
+    set(gf_i   "${NVIM_AUTO_DIR}/${relative_file_oe}.i")
     # static, to be included in sources
-    set(gf_c_h "${NVIM_AUTO_DIR}/${file_name_oe}.c.generated.h")
+    set(gf_c_h "${NVIM_AUTO_DIR}/${relative_file_oe}.c.generated.h")
     # global, to be included in headers
-    set(gf_h_h "${NVIM_INCLUDE_DIR}/${file_name_oe}.h.generated.h")
+    set(gf_h_h "${NVIM_INCLUDE_DIR}/${relative_file_oe}.h.generated.h")
 
     # set preprocessor output directory for source file
     set(preproc_output -E -o ${gf_i})
@@ -595,13 +596,13 @@ foreach(sfile ${NVIM_SOURCES}
     list(APPEND NVIM_GEN_FOR_SOURCE "${gf_c_h}")
     list(APPEND NVIM_GEN_FOR_HEADER "${gf_h_h}")
 
-    if(${relative_path}        MATCHES "^api$"
-       AND NOT ${file_name_we} MATCHES "^api/helpers.c$")
+    # add the generated API header files
+    if(${relative_path} MATCHES "^api$")
         list(APPEND NVIM_API_HEADERS ${gf_h_h})
     endif()
 endforeach()
 
-# generating: API
+# generating: API dispatch
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_API_DISPATCH}
                             ${NVIM_GEN_SRC_FUNCS_METADATA}
                             ${NVIM_GEN_BIN_API_METADATA}
@@ -635,14 +636,14 @@ add_custom_command(OUTPUT   ${NVIM_GEN_SRC_UI_EVENTS}
                             ${NVIM_GEN_SRC_UI_EVENTS_METADATA}
                    COMMAND  ${LUA_PROG} ${GENERATOR_API_UI_EVENTS}
                                         ${CMAKE_CURRENT_LIST_DIR}
-                                        ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h
+                                        ${NVIM_UI_EVENTS_API_DEFS}
                                         ${NVIM_GEN_SRC_UI_EVENTS}
                                         ${NVIM_GEN_SRC_UI_EVENTS_CALL}
                                         ${NVIM_GEN_SRC_UI_EVENTS_REMOTE}
                                         ${NVIM_GEN_SRC_UI_EVENTS_BRIDGE}
                                         ${NVIM_GEN_SRC_UI_EVENTS_METADATA}
                    DEPENDS  ${GENERATOR_API_UI_EVENTS}
-                            ${CMAKE_CURRENT_LIST_DIR}/api/ui_events.in.h)
+                            ${NVIM_UI_EVENTS_API_DEFS})
 
 # generating: EX commands
 add_custom_command(OUTPUT   ${NVIM_GEN_SRC_EX_CMDS_ENUM}
