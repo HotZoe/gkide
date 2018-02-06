@@ -14,11 +14,11 @@ public:
     NvimConnectorHelper(NvimConnector *);
 
 public slots:
-    void handleMetadata(quint32,
-                        NvimApiFuncID,
+    void handleMetadata(quint32 msgid,
+                        NvimApiFuncID afid,
                         const QVariant &result);
     void handleMetadataError(quint32 msgid,
-                             NvimApiFuncID,
+                             NvimApiFuncID afid,
                              const QVariant &errobj);
     void encodingChanged(const QVariant &);
 protected:

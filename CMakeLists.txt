@@ -46,7 +46,7 @@ set(NVIM_VERSION_PATCH    1) # bump: bug fix, none user perception changing ...
 
 # nvim API version
 set(NVIM_API_VERSION      1) # nvim API version
-set(NVIM_API_COMPATV      1) # nvim compat API version
+set(NVIM_API_COMPATIBLE   1) # nvim compatible API version
 set(NVIM_API_PRERELEASE   true)
 
 # gkide basic version

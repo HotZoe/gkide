@@ -944,7 +944,7 @@ Dictionary api_metadata(void)
 
     if(!metadata.size)
     {
-        PUT(metadata, "version", DICTIONARY_OBJ(version_dict()));
+        PUT(metadata, "version", DICTIONARY_OBJ(gen_version_dict()));
         init_function_metadata(&metadata);
         init_ui_event_metadata(&metadata);
         init_error_type_metadata(&metadata);

@@ -217,7 +217,8 @@ bool has_nvim_patch(int n)
     return false;
 }
 
-Dictionary version_dict(void)
+/// generated nvim version dictionary info for remote API object
+Dictionary gen_version_dict(void)
 {
     Dictionary d = ARRAY_DICT_INIT;
 
@@ -225,7 +226,7 @@ Dictionary version_dict(void)
     PUT(d, "minor", INTEGER_OBJ(NVIM_VERSION_MINOR));
     PUT(d, "patch", INTEGER_OBJ(NVIM_VERSION_PATCH));
     PUT(d, "api_level", INTEGER_OBJ(NVIM_API_VERSION));
-    PUT(d, "api_compatible", INTEGER_OBJ(NVIM_API_COMPATV));
+    PUT(d, "api_compatible", INTEGER_OBJ(NVIM_API_COMPATIBLE));
     PUT(d, "api_prerelease", BOOLEAN_OBJ(NVIM_API_PRERELEASE));
 
     return d;
