@@ -81,13 +81,19 @@ QString NvimConnector::errorString(void)
 MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 {
     // FIXME: this should be in class Nvim
-    MsgpackRequest *r = m_dev->startRequestUnchecked("ui_attach", 3);
+    MsgpackRequest *r = m_dev->startRequestUnchecked("nvim_ui_attach", 3);
+
     connect(r, &MsgpackRequest::timeout,
             this, &NvimConnector::fatalTimeout);
     r->setTimeout(5000);
+
     m_dev->send(width);
     m_dev->send(height);
-    m_dev->send(true);
+
+    QVariantMap opts;
+    opts.insert("rgb", true);
+    m_dev->send(opts);
+
     return r;
 }
 
@@ -97,7 +103,7 @@ MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 void NvimConnector::detachUi(void)
 {
     // FIXME: this should be in class Nvim
-    m_dev->startRequestUnchecked("ui_detach", 0);
+    m_dev->startRequestUnchecked("nvim_ui_detach", 0);
 }
 
 /// Returns the channel id used by Nvim to identify this connection

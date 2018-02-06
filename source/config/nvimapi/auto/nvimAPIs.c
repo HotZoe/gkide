@@ -2,7 +2,7 @@
 ///
 /// @note also see NvimApiFuncID
 ///
-/// Auto generated: UTC 2018-01-27 21:52:25.660385
+/// Auto generated: UTC 2018-02-06 15:02:36.642347
 const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 << NvimApiFunc("Integer", // return type
                "nvim_buf_line_count", // function name
@@ -10,32 +10,17 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                    << QString("Buffer"),
 	           false)
 << NvimApiFunc("String", // return type
-               "buffer_get_line", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer"),
+               "nvim_get_current_line", // function name
+	           QList<QString>(),
 	           false)
 << NvimApiFunc("void", // return type
-               "buffer_set_line", // function name
+               "nvim_set_current_line", // function name
 	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer")
                    << QString("String"),
 	           false)
 << NvimApiFunc("void", // return type
-               "buffer_del_line", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer"),
-	           false)
-<< NvimApiFunc("ArrayOf(String)", // return type
-               "buffer_get_line_slice", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer")
-                   << QString("Integer")
-                   << QString("Boolean")
-                   << QString("Boolean"),
+               "nvim_del_current_line", // function name
+	           QList<QString>(),
 	           false)
 << NvimApiFunc("ArrayOf(String)", // return type
                "nvim_buf_get_lines", // function name
@@ -44,16 +29,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                    << QString("Integer")
                    << QString("Integer")
                    << QString("Boolean"),
-	           false)
-<< NvimApiFunc("void", // return type
-               "buffer_set_line_slice", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer")
-                   << QString("Integer")
-                   << QString("Boolean")
-                   << QString("Boolean")
-                   << QString("ArrayOf(String)"),
 	           false)
 << NvimApiFunc("void", // return type
                "nvim_buf_set_lines", // function name
@@ -95,19 +70,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                    << QString("String"),
 	           false)
 << NvimApiFunc("Object", // return type
-               "buffer_set_var", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("String")
-                   << QString("Object"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "buffer_del_var", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("String"),
-	           false)
-<< NvimApiFunc("Object", // return type
                "nvim_buf_get_option", // function name
 	           QList<QString>()
                    << QString("Buffer")
@@ -140,13 +102,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                "nvim_buf_is_valid", // function name
 	           QList<QString>()
                    << QString("Buffer"),
-	           false)
-<< NvimApiFunc("void", // return type
-               "buffer_insert", // function name
-	           QList<QString>()
-                   << QString("Buffer")
-                   << QString("Integer")
-                   << QString("ArrayOf(String)"),
 	           false)
 << NvimApiFunc("ArrayOf(Integer, 2)", // return type
                "nvim_buf_get_mark", // function name
@@ -196,19 +151,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                    << QString("Tabpage")
                    << QString("String"),
 	           false)
-<< NvimApiFunc("Object", // return type
-               "tabpage_set_var", // function name
-	           QList<QString>()
-                   << QString("Tabpage")
-                   << QString("String")
-                   << QString("Object"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "tabpage_del_var", // function name
-	           QList<QString>()
-                   << QString("Tabpage")
-                   << QString("String"),
-	           false)
 << NvimApiFunc("Window", // return type
                "nvim_tabpage_get_win", // function name
 	           QList<QString>()
@@ -230,13 +172,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
                    << QString("Integer")
                    << QString("Integer")
                    << QString("Dictionary"),
-	           false)
-<< NvimApiFunc("void", // return type
-               "ui_attach", // function name
-	           QList<QString>()
-                   << QString("Integer")
-                   << QString("Integer")
-                   << QString("Boolean"),
 	           false)
 << NvimApiFunc("void", // return type
                "nvim_ui_detach", // function name
@@ -315,19 +250,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 	           QList<QString>()
                    << QString("String"),
 	           false)
-<< NvimApiFunc("String", // return type
-               "nvim_get_current_line", // function name
-	           QList<QString>(),
-	           false)
-<< NvimApiFunc("void", // return type
-               "nvim_set_current_line", // function name
-	           QList<QString>()
-                   << QString("String"),
-	           false)
-<< NvimApiFunc("void", // return type
-               "nvim_del_current_line", // function name
-	           QList<QString>(),
-	           false)
 << NvimApiFunc("Object", // return type
                "nvim_get_var", // function name
 	           QList<QString>()
@@ -341,17 +263,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 	           false)
 << NvimApiFunc("void", // return type
                "nvim_del_var", // function name
-	           QList<QString>()
-                   << QString("String"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "vim_set_var", // function name
-	           QList<QString>()
-                   << QString("String")
-                   << QString("Object"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "vim_del_var", // function name
 	           QList<QString>()
                    << QString("String"),
 	           false)
@@ -515,19 +426,6 @@ const QList<NvimApiFunc> NvimApiFunc::nvimAPIs = QList<NvimApiFunc>()
 	           false)
 << NvimApiFunc("void", // return type
                "nvim_win_del_var", // function name
-	           QList<QString>()
-                   << QString("Window")
-                   << QString("String"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "window_set_var", // function name
-	           QList<QString>()
-                   << QString("Window")
-                   << QString("String")
-                   << QString("Object"),
-	           false)
-<< NvimApiFunc("Object", // return type
-               "window_del_var", // function name
 	           QList<QString>()
                    << QString("Window")
                    << QString("String"),

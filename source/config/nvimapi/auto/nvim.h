@@ -1,6 +1,6 @@
 /// @file config/nvimapi/auto/nvim.h
 ///
-/// Auto generated: UTC 2018-01-27 21:52:25.665392
+/// Auto generated: UTC 2018-02-06 15:02:36.647683
 
 #ifndef CONFIG_NVIMAPI_AUTO_NVIM_H
 #define CONFIG_NVIMAPI_AUTO_NVIM_H
@@ -36,37 +36,17 @@ public slots:
     /// Integer nvim_buf_line_count(Buffer buffer);
     MsgpackRequest *nvim_buf_line_count(int64_t buffer);
     
-    /// @deprecated nvim API:
-    /// String buffer_get_line(Buffer buffer,
-    ///                        Integer index);
-    MsgpackRequest *buffer_get_line(int64_t buffer,
-                                    int64_t index);
+    /// nvim API:
+    /// String nvim_get_current_line);
+    MsgpackRequest *nvim_get_current_line();
     
-    /// @deprecated nvim API:
-    /// void buffer_set_line(Buffer buffer,
-    ///                      Integer index,
-    ///                      String line);
-    MsgpackRequest *buffer_set_line(int64_t buffer,
-                                    int64_t index,
-                                    QByteArray line);
+    /// nvim API:
+    /// void nvim_set_current_line(String line);
+    MsgpackRequest *nvim_set_current_line(QByteArray line);
     
-    /// @deprecated nvim API:
-    /// void buffer_del_line(Buffer buffer,
-    ///                      Integer index);
-    MsgpackRequest *buffer_del_line(int64_t buffer,
-                                    int64_t index);
-    
-    /// @deprecated nvim API:
-    /// ArrayOf(String) buffer_get_line_slice(Buffer buffer,
-    ///                                       Integer start,
-    ///                                       Integer end,
-    ///                                       Boolean include_start,
-    ///                                       Boolean include_end);
-    MsgpackRequest *buffer_get_line_slice(int64_t buffer,
-                                          int64_t start,
-                                          int64_t end,
-                                          bool include_start,
-                                          bool include_end);
+    /// nvim API:
+    /// void nvim_del_current_line);
+    MsgpackRequest *nvim_del_current_line();
     
     /// nvim API:
     /// ArrayOf(String) nvim_buf_get_lines(Buffer buffer,
@@ -77,20 +57,6 @@ public slots:
                                        int64_t start,
                                        int64_t end,
                                        bool strict_indexing);
-    
-    /// @deprecated nvim API:
-    /// void buffer_set_line_slice(Buffer buffer,
-    ///                            Integer start,
-    ///                            Integer end,
-    ///                            Boolean include_start,
-    ///                            Boolean include_end,
-    ///                            ArrayOf(String) replacement);
-    MsgpackRequest *buffer_set_line_slice(int64_t buffer,
-                                          int64_t start,
-                                          int64_t end,
-                                          bool include_start,
-                                          bool include_end,
-                                          QList<QByteArray> replacement);
     
     /// nvim API:
     /// void nvim_buf_set_lines(Buffer buffer,
@@ -134,20 +100,6 @@ public slots:
     MsgpackRequest *nvim_buf_del_var(int64_t buffer,
                                      QByteArray name);
     
-    /// @deprecated nvim API:
-    /// Object buffer_set_var(Buffer buffer,
-    ///                       String name,
-    ///                       Object value);
-    MsgpackRequest *buffer_set_var(int64_t buffer,
-                                   QByteArray name,
-                                   QVariant value);
-    
-    /// @deprecated nvim API:
-    /// Object buffer_del_var(Buffer buffer,
-    ///                       String name);
-    MsgpackRequest *buffer_del_var(int64_t buffer,
-                                   QByteArray name);
-    
     /// nvim API:
     /// Object nvim_buf_get_option(Buffer buffer,
     ///                            String name);
@@ -179,14 +131,6 @@ public slots:
     /// nvim API:
     /// Boolean nvim_buf_is_valid(Buffer buffer);
     MsgpackRequest *nvim_buf_is_valid(int64_t buffer);
-    
-    /// @deprecated nvim API:
-    /// void buffer_insert(Buffer buffer,
-    ///                    Integer lnum,
-    ///                    ArrayOf(String) lines);
-    MsgpackRequest *buffer_insert(int64_t buffer,
-                                  int64_t lnum,
-                                  QList<QByteArray> lines);
     
     /// nvim API:
     /// ArrayOf(Integer,
@@ -243,20 +187,6 @@ public slots:
     MsgpackRequest *nvim_tabpage_del_var(int64_t tabpage,
                                          QByteArray name);
     
-    /// @deprecated nvim API:
-    /// Object tabpage_set_var(Tabpage tabpage,
-    ///                        String name,
-    ///                        Object value);
-    MsgpackRequest *tabpage_set_var(int64_t tabpage,
-                                    QByteArray name,
-                                    QVariant value);
-    
-    /// @deprecated nvim API:
-    /// Object tabpage_del_var(Tabpage tabpage,
-    ///                        String name);
-    MsgpackRequest *tabpage_del_var(int64_t tabpage,
-                                    QByteArray name);
-    
     /// nvim API:
     /// Window nvim_tabpage_get_win(Tabpage tabpage);
     MsgpackRequest *nvim_tabpage_get_win(int64_t tabpage);
@@ -276,14 +206,6 @@ public slots:
     MsgpackRequest *nvim_ui_attach(int64_t width,
                                    int64_t height,
                                    QVariantMap options);
-    
-    /// @deprecated nvim API:
-    /// void ui_attach(Integer width,
-    ///                Integer height,
-    ///                Boolean enable_rgb);
-    MsgpackRequest *ui_attach(int64_t width,
-                              int64_t height,
-                              bool enable_rgb);
     
     /// nvim API:
     /// void nvim_ui_detach);
@@ -360,18 +282,6 @@ public slots:
     MsgpackRequest *nvim_set_current_dir(QByteArray dir);
     
     /// nvim API:
-    /// String nvim_get_current_line);
-    MsgpackRequest *nvim_get_current_line();
-    
-    /// nvim API:
-    /// void nvim_set_current_line(String line);
-    MsgpackRequest *nvim_set_current_line(QByteArray line);
-    
-    /// nvim API:
-    /// void nvim_del_current_line);
-    MsgpackRequest *nvim_del_current_line();
-    
-    /// nvim API:
     /// Object nvim_get_var(String name);
     MsgpackRequest *nvim_get_var(QByteArray name);
     
@@ -384,16 +294,6 @@ public slots:
     /// nvim API:
     /// void nvim_del_var(String name);
     MsgpackRequest *nvim_del_var(QByteArray name);
-    
-    /// @deprecated nvim API:
-    /// Object vim_set_var(String name,
-    ///                    Object value);
-    MsgpackRequest *vim_set_var(QByteArray name,
-                                QVariant value);
-    
-    /// @deprecated nvim API:
-    /// Object vim_del_var(String name);
-    MsgpackRequest *vim_del_var(QByteArray name);
     
     /// nvim API:
     /// Object nvim_get_vvar(String name);
@@ -545,20 +445,6 @@ public slots:
     MsgpackRequest *nvim_win_del_var(int64_t window,
                                      QByteArray name);
     
-    /// @deprecated nvim API:
-    /// Object window_set_var(Window window,
-    ///                       String name,
-    ///                       Object value);
-    MsgpackRequest *window_set_var(int64_t window,
-                                   QByteArray name,
-                                   QVariant value);
-    
-    /// @deprecated nvim API:
-    /// Object window_del_var(Window window,
-    ///                       String name);
-    MsgpackRequest *window_del_var(int64_t window,
-                                   QByteArray name);
-    
     /// nvim API:
     /// Object nvim_win_get_option(Window window,
     ///                            String name);
@@ -594,23 +480,17 @@ signals:
     void on_nvim_buf_line_count(int64_t);
     void err_nvim_buf_line_count(const QString &, const QVariant &);
 
-    void on_buffer_get_line(QByteArray);
-    void err_buffer_get_line(const QString &, const QVariant &);
+    void on_nvim_get_current_line(QByteArray);
+    void err_nvim_get_current_line(const QString &, const QVariant &);
 
-    void on_buffer_set_line(void);
-    void err_buffer_set_line(const QString &, const QVariant &);
+    void on_nvim_set_current_line(void);
+    void err_nvim_set_current_line(const QString &, const QVariant &);
 
-    void on_buffer_del_line(void);
-    void err_buffer_del_line(const QString &, const QVariant &);
-
-    void on_buffer_get_line_slice(QList<QByteArray>);
-    void err_buffer_get_line_slice(const QString &, const QVariant &);
+    void on_nvim_del_current_line(void);
+    void err_nvim_del_current_line(const QString &, const QVariant &);
 
     void on_nvim_buf_get_lines(QList<QByteArray>);
     void err_nvim_buf_get_lines(const QString &, const QVariant &);
-
-    void on_buffer_set_line_slice(void);
-    void err_buffer_set_line_slice(const QString &, const QVariant &);
 
     void on_nvim_buf_set_lines(void);
     void err_nvim_buf_set_lines(const QString &, const QVariant &);
@@ -630,12 +510,6 @@ signals:
     void on_nvim_buf_del_var(void);
     void err_nvim_buf_del_var(const QString &, const QVariant &);
 
-    void on_buffer_set_var(QVariant);
-    void err_buffer_set_var(const QString &, const QVariant &);
-
-    void on_buffer_del_var(QVariant);
-    void err_buffer_del_var(const QString &, const QVariant &);
-
     void on_nvim_buf_get_option(QVariant);
     void err_nvim_buf_get_option(const QString &, const QVariant &);
 
@@ -653,9 +527,6 @@ signals:
 
     void on_nvim_buf_is_valid(bool);
     void err_nvim_buf_is_valid(const QString &, const QVariant &);
-
-    void on_buffer_insert(void);
-    void err_buffer_insert(const QString &, const QVariant &);
 
     void on_nvim_buf_get_mark(QPoint);
     void err_nvim_buf_get_mark(const QString &, const QVariant &);
@@ -678,12 +549,6 @@ signals:
     void on_nvim_tabpage_del_var(void);
     void err_nvim_tabpage_del_var(const QString &, const QVariant &);
 
-    void on_tabpage_set_var(QVariant);
-    void err_tabpage_set_var(const QString &, const QVariant &);
-
-    void on_tabpage_del_var(QVariant);
-    void err_tabpage_del_var(const QString &, const QVariant &);
-
     void on_nvim_tabpage_get_win(int64_t);
     void err_nvim_tabpage_get_win(const QString &, const QVariant &);
 
@@ -695,9 +560,6 @@ signals:
 
     void on_nvim_ui_attach(void);
     void err_nvim_ui_attach(const QString &, const QVariant &);
-
-    void on_ui_attach(void);
-    void err_ui_attach(const QString &, const QVariant &);
 
     void on_nvim_ui_detach(void);
     void err_nvim_ui_detach(const QString &, const QVariant &);
@@ -741,15 +603,6 @@ signals:
     void on_nvim_set_current_dir(void);
     void err_nvim_set_current_dir(const QString &, const QVariant &);
 
-    void on_nvim_get_current_line(QByteArray);
-    void err_nvim_get_current_line(const QString &, const QVariant &);
-
-    void on_nvim_set_current_line(void);
-    void err_nvim_set_current_line(const QString &, const QVariant &);
-
-    void on_nvim_del_current_line(void);
-    void err_nvim_del_current_line(const QString &, const QVariant &);
-
     void on_nvim_get_var(QVariant);
     void err_nvim_get_var(const QString &, const QVariant &);
 
@@ -758,12 +611,6 @@ signals:
 
     void on_nvim_del_var(void);
     void err_nvim_del_var(const QString &, const QVariant &);
-
-    void on_vim_set_var(QVariant);
-    void err_vim_set_var(const QString &, const QVariant &);
-
-    void on_vim_del_var(QVariant);
-    void err_vim_del_var(const QString &, const QVariant &);
 
     void on_nvim_get_vvar(QVariant);
     void err_nvim_get_vvar(const QString &, const QVariant &);
@@ -863,12 +710,6 @@ signals:
 
     void on_nvim_win_del_var(void);
     void err_nvim_win_del_var(const QString &, const QVariant &);
-
-    void on_window_set_var(QVariant);
-    void err_window_set_var(const QString &, const QVariant &);
-
-    void on_window_del_var(QVariant);
-    void err_window_del_var(const QString &, const QVariant &);
 
     void on_nvim_win_get_option(QVariant);
     void err_nvim_win_get_option(const QString &, const QVariant &);

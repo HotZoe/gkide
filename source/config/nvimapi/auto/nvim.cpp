@@ -1,6 +1,6 @@
 /// @file config/nvimapi/auto/nvim.cpp
 ///
-/// Auto generated: UTC 2018-01-27 21:52:25.638925
+/// Auto generated: UTC 2018-02-06 15:02:36.619418
 
 #include "config/nvimapi/auto/nvim.h"
 
@@ -60,75 +60,43 @@ MsgpackRequest *Nvim::nvim_buf_line_count(int64_t buffer)
     return r;
 }
 
-MsgpackRequest *Nvim::buffer_get_line(int64_t buffer,
-                                      int64_t index)
+MsgpackRequest *Nvim::nvim_get_current_line()
 {
     MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_get_line", 2);
+        m_c->m_dev->startRequestUnchecked("nvim_get_current_line", 0);
 
-    r->setFuncId(kNvimAPI_BUFFER_GET_LINE);
+    r->setFuncId(kNvimAPI_NVIM_GET_CURRENT_LINE);
 
     connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
 
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(index);
     return r;
 }
 
-MsgpackRequest *Nvim::buffer_set_line(int64_t buffer,
-                                      int64_t index,
-                                      QByteArray line)
+MsgpackRequest *Nvim::nvim_set_current_line(QByteArray line)
 {
     MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_set_line", 3);
+        m_c->m_dev->startRequestUnchecked("nvim_set_current_line", 1);
 
-    r->setFuncId(kNvimAPI_BUFFER_SET_LINE);
+    r->setFuncId(kNvimAPI_NVIM_SET_CURRENT_LINE);
 
     connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
 
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(index);
     m_c->m_dev->send(line);
     return r;
 }
 
-MsgpackRequest *Nvim::buffer_del_line(int64_t buffer,
-                                      int64_t index)
+MsgpackRequest *Nvim::nvim_del_current_line()
 {
     MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_del_line", 2);
+        m_c->m_dev->startRequestUnchecked("nvim_del_current_line", 0);
 
-    r->setFuncId(kNvimAPI_BUFFER_DEL_LINE);
+    r->setFuncId(kNvimAPI_NVIM_DEL_CURRENT_LINE);
 
     connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
 
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(index);
-    return r;
-}
-
-MsgpackRequest *Nvim::buffer_get_line_slice(int64_t buffer,
-                                            int64_t start,
-                                            int64_t end,
-                                            bool include_start,
-                                            bool include_end)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_get_line_slice", 5);
-
-    r->setFuncId(kNvimAPI_BUFFER_GET_LINE_SLICE);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(start);
-    m_c->m_dev->send(end);
-    m_c->m_dev->send(include_start);
-    m_c->m_dev->send(include_end);
     return r;
 }
 
@@ -149,30 +117,6 @@ MsgpackRequest *Nvim::nvim_buf_get_lines(int64_t buffer,
     m_c->m_dev->send(start);
     m_c->m_dev->send(end);
     m_c->m_dev->send(strict_indexing);
-    return r;
-}
-
-MsgpackRequest *Nvim::buffer_set_line_slice(int64_t buffer,
-                                            int64_t start,
-                                            int64_t end,
-                                            bool include_start,
-                                            bool include_end,
-                                            QList<QByteArray> replacement)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_set_line_slice", 6);
-
-    r->setFuncId(kNvimAPI_BUFFER_SET_LINE_SLICE);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(start);
-    m_c->m_dev->send(end);
-    m_c->m_dev->send(include_start);
-    m_c->m_dev->send(include_end);
-    m_c->m_dev->sendArrayOf(replacement);
     return r;
 }
 
@@ -278,40 +222,6 @@ MsgpackRequest *Nvim::nvim_buf_del_var(int64_t buffer,
     return r;
 }
 
-MsgpackRequest *Nvim::buffer_set_var(int64_t buffer,
-                                     QByteArray name,
-                                     QVariant value)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_set_var", 3);
-
-    r->setFuncId(kNvimAPI_BUFFER_SET_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(name);
-    m_c->m_dev->send(value);
-    return r;
-}
-
-MsgpackRequest *Nvim::buffer_del_var(int64_t buffer,
-                                     QByteArray name)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_del_var", 2);
-
-    r->setFuncId(kNvimAPI_BUFFER_DEL_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(name);
-    return r;
-}
-
 MsgpackRequest *Nvim::nvim_buf_get_option(int64_t buffer,
                                           QByteArray name)
 {
@@ -401,24 +311,6 @@ MsgpackRequest *Nvim::nvim_buf_is_valid(int64_t buffer)
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
 
     m_c->m_dev->send(buffer);
-    return r;
-}
-
-MsgpackRequest *Nvim::buffer_insert(int64_t buffer,
-                                    int64_t lnum,
-                                    QList<QByteArray> lines)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("buffer_insert", 3);
-
-    r->setFuncId(kNvimAPI_BUFFER_INSERT);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(buffer);
-    m_c->m_dev->send(lnum);
-    m_c->m_dev->sendArrayOf(lines);
     return r;
 }
 
@@ -546,40 +438,6 @@ MsgpackRequest *Nvim::nvim_tabpage_del_var(int64_t tabpage,
     return r;
 }
 
-MsgpackRequest *Nvim::tabpage_set_var(int64_t tabpage,
-                                      QByteArray name,
-                                      QVariant value)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("tabpage_set_var", 3);
-
-    r->setFuncId(kNvimAPI_TABPAGE_SET_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(tabpage);
-    m_c->m_dev->send(name);
-    m_c->m_dev->send(value);
-    return r;
-}
-
-MsgpackRequest *Nvim::tabpage_del_var(int64_t tabpage,
-                                      QByteArray name)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("tabpage_del_var", 2);
-
-    r->setFuncId(kNvimAPI_TABPAGE_DEL_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(tabpage);
-    m_c->m_dev->send(name);
-    return r;
-}
-
 MsgpackRequest *Nvim::nvim_tabpage_get_win(int64_t tabpage)
 {
     MsgpackRequest *r = 
@@ -637,24 +495,6 @@ MsgpackRequest *Nvim::nvim_ui_attach(int64_t width,
     m_c->m_dev->send(width);
     m_c->m_dev->send(height);
     m_c->m_dev->send(options);
-    return r;
-}
-
-MsgpackRequest *Nvim::ui_attach(int64_t width,
-                                int64_t height,
-                                bool enable_rgb)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("ui_attach", 3);
-
-    r->setFuncId(kNvimAPI_UI_ATTACH);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(width);
-    m_c->m_dev->send(height);
-    m_c->m_dev->send(enable_rgb);
     return r;
 }
 
@@ -870,46 +710,6 @@ MsgpackRequest *Nvim::nvim_set_current_dir(QByteArray dir)
     return r;
 }
 
-MsgpackRequest *Nvim::nvim_get_current_line()
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("nvim_get_current_line", 0);
-
-    r->setFuncId(kNvimAPI_NVIM_GET_CURRENT_LINE);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    return r;
-}
-
-MsgpackRequest *Nvim::nvim_set_current_line(QByteArray line)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("nvim_set_current_line", 1);
-
-    r->setFuncId(kNvimAPI_NVIM_SET_CURRENT_LINE);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(line);
-    return r;
-}
-
-MsgpackRequest *Nvim::nvim_del_current_line()
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("nvim_del_current_line", 0);
-
-    r->setFuncId(kNvimAPI_NVIM_DEL_CURRENT_LINE);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    return r;
-}
-
 MsgpackRequest *Nvim::nvim_get_var(QByteArray name)
 {
     MsgpackRequest *r = 
@@ -946,36 +746,6 @@ MsgpackRequest *Nvim::nvim_del_var(QByteArray name)
         m_c->m_dev->startRequestUnchecked("nvim_del_var", 1);
 
     r->setFuncId(kNvimAPI_NVIM_DEL_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(name);
-    return r;
-}
-
-MsgpackRequest *Nvim::vim_set_var(QByteArray name,
-                                  QVariant value)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("vim_set_var", 2);
-
-    r->setFuncId(kNvimAPI_VIM_SET_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(name);
-    m_c->m_dev->send(value);
-    return r;
-}
-
-MsgpackRequest *Nvim::vim_del_var(QByteArray name)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("vim_del_var", 1);
-
-    r->setFuncId(kNvimAPI_VIM_DEL_VAR);
 
     connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
     connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
@@ -1453,40 +1223,6 @@ MsgpackRequest *Nvim::nvim_win_del_var(int64_t window,
     return r;
 }
 
-MsgpackRequest *Nvim::window_set_var(int64_t window,
-                                     QByteArray name,
-                                     QVariant value)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("window_set_var", 3);
-
-    r->setFuncId(kNvimAPI_WINDOW_SET_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(window);
-    m_c->m_dev->send(name);
-    m_c->m_dev->send(value);
-    return r;
-}
-
-MsgpackRequest *Nvim::window_del_var(int64_t window,
-                                     QByteArray name)
-{
-    MsgpackRequest *r = 
-        m_c->m_dev->startRequestUnchecked("window_del_var", 2);
-
-    r->setFuncId(kNvimAPI_WINDOW_DEL_VAR);
-
-    connect(r, &MsgpackRequest::finished, this, &Nvim::handleResponse);
-    connect(r, &MsgpackRequest::error, this, &Nvim::handleResponseError);
-
-    m_c->m_dev->send(window);
-    m_c->m_dev->send(name);
-    return r;
-}
-
 MsgpackRequest *Nvim::nvim_win_get_option(int64_t window,
                                           QByteArray name)
 {
@@ -1605,28 +1341,20 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit err_nvim_buf_line_count(errMsg, res);
             break;
         
-        case kNvimAPI_BUFFER_GET_LINE:
-            emit err_buffer_get_line(errMsg, res);
+        case kNvimAPI_NVIM_GET_CURRENT_LINE:
+            emit err_nvim_get_current_line(errMsg, res);
             break;
         
-        case kNvimAPI_BUFFER_SET_LINE:
-            emit err_buffer_set_line(errMsg, res);
+        case kNvimAPI_NVIM_SET_CURRENT_LINE:
+            emit err_nvim_set_current_line(errMsg, res);
             break;
         
-        case kNvimAPI_BUFFER_DEL_LINE:
-            emit err_buffer_del_line(errMsg, res);
-            break;
-        
-        case kNvimAPI_BUFFER_GET_LINE_SLICE:
-            emit err_buffer_get_line_slice(errMsg, res);
+        case kNvimAPI_NVIM_DEL_CURRENT_LINE:
+            emit err_nvim_del_current_line(errMsg, res);
             break;
         
         case kNvimAPI_NVIM_BUF_GET_LINES:
             emit err_nvim_buf_get_lines(errMsg, res);
-            break;
-        
-        case kNvimAPI_BUFFER_SET_LINE_SLICE:
-            emit err_buffer_set_line_slice(errMsg, res);
             break;
         
         case kNvimAPI_NVIM_BUF_SET_LINES:
@@ -1653,14 +1381,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit err_nvim_buf_del_var(errMsg, res);
             break;
         
-        case kNvimAPI_BUFFER_SET_VAR:
-            emit err_buffer_set_var(errMsg, res);
-            break;
-        
-        case kNvimAPI_BUFFER_DEL_VAR:
-            emit err_buffer_del_var(errMsg, res);
-            break;
-        
         case kNvimAPI_NVIM_BUF_GET_OPTION:
             emit err_nvim_buf_get_option(errMsg, res);
             break;
@@ -1683,10 +1403,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         
         case kNvimAPI_NVIM_BUF_IS_VALID:
             emit err_nvim_buf_is_valid(errMsg, res);
-            break;
-        
-        case kNvimAPI_BUFFER_INSERT:
-            emit err_buffer_insert(errMsg, res);
             break;
         
         case kNvimAPI_NVIM_BUF_GET_MARK:
@@ -1717,14 +1433,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit err_nvim_tabpage_del_var(errMsg, res);
             break;
         
-        case kNvimAPI_TABPAGE_SET_VAR:
-            emit err_tabpage_set_var(errMsg, res);
-            break;
-        
-        case kNvimAPI_TABPAGE_DEL_VAR:
-            emit err_tabpage_del_var(errMsg, res);
-            break;
-        
         case kNvimAPI_NVIM_TABPAGE_GET_WIN:
             emit err_nvim_tabpage_get_win(errMsg, res);
             break;
@@ -1739,10 +1447,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         
         case kNvimAPI_NVIM_UI_ATTACH:
             emit err_nvim_ui_attach(errMsg, res);
-            break;
-        
-        case kNvimAPI_UI_ATTACH:
-            emit err_ui_attach(errMsg, res);
             break;
         
         case kNvimAPI_NVIM_UI_DETACH:
@@ -1801,18 +1505,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit err_nvim_set_current_dir(errMsg, res);
             break;
         
-        case kNvimAPI_NVIM_GET_CURRENT_LINE:
-            emit err_nvim_get_current_line(errMsg, res);
-            break;
-        
-        case kNvimAPI_NVIM_SET_CURRENT_LINE:
-            emit err_nvim_set_current_line(errMsg, res);
-            break;
-        
-        case kNvimAPI_NVIM_DEL_CURRENT_LINE:
-            emit err_nvim_del_current_line(errMsg, res);
-            break;
-        
         case kNvimAPI_NVIM_GET_VAR:
             emit err_nvim_get_var(errMsg, res);
             break;
@@ -1823,14 +1515,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         
         case kNvimAPI_NVIM_DEL_VAR:
             emit err_nvim_del_var(errMsg, res);
-            break;
-        
-        case kNvimAPI_VIM_SET_VAR:
-            emit err_vim_set_var(errMsg, res);
-            break;
-        
-        case kNvimAPI_VIM_DEL_VAR:
-            emit err_vim_del_var(errMsg, res);
             break;
         
         case kNvimAPI_NVIM_GET_VVAR:
@@ -1965,14 +1649,6 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit err_nvim_win_del_var(errMsg, res);
             break;
         
-        case kNvimAPI_WINDOW_SET_VAR:
-            emit err_window_set_var(errMsg, res);
-            break;
-        
-        case kNvimAPI_WINDOW_DEL_VAR:
-            emit err_window_del_var(errMsg, res);
-            break;
-        
         case kNvimAPI_NVIM_WIN_GET_OPTION:
             emit err_nvim_win_get_option(errMsg, res);
             break;
@@ -2027,48 +1703,31 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         }
         break;
     
-        case kNvimAPI_BUFFER_GET_LINE:
+        case kNvimAPI_NVIM_GET_CURRENT_LINE:
         {
             QByteArray data;
 
             if(decode(res, data))
             {
                 m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for buffer_get_line");
+                    "Error unpacking return type for nvim_get_current_line");
                 return;
             }
             else
             {
-                emit on_buffer_get_line(data);
+                emit on_nvim_get_current_line(data);
             }
         }
         break;
     
-        case kNvimAPI_BUFFER_SET_LINE:
+        case kNvimAPI_NVIM_SET_CURRENT_LINE:
         {
-            emit on_buffer_set_line();}
+            emit on_nvim_set_current_line();}
         break;
     
-        case kNvimAPI_BUFFER_DEL_LINE:
+        case kNvimAPI_NVIM_DEL_CURRENT_LINE:
         {
-            emit on_buffer_del_line();}
-        break;
-    
-        case kNvimAPI_BUFFER_GET_LINE_SLICE:
-        {
-            QList<QByteArray> data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for buffer_get_line_slice");
-                return;
-            }
-            else
-            {
-                emit on_buffer_get_line_slice(data);
-            }
-        }
+            emit on_nvim_del_current_line();}
         break;
     
         case kNvimAPI_NVIM_BUF_GET_LINES:
@@ -2086,11 +1745,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
                 emit on_nvim_buf_get_lines(data);
             }
         }
-        break;
-    
-        case kNvimAPI_BUFFER_SET_LINE_SLICE:
-        {
-            emit on_buffer_set_line_slice();}
         break;
     
         case kNvimAPI_NVIM_BUF_SET_LINES:
@@ -2157,40 +1811,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         case kNvimAPI_NVIM_BUF_DEL_VAR:
         {
             emit on_nvim_buf_del_var();}
-        break;
-    
-        case kNvimAPI_BUFFER_SET_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for buffer_set_var");
-                return;
-            }
-            else
-            {
-                emit on_buffer_set_var(data);
-            }
-        }
-        break;
-    
-        case kNvimAPI_BUFFER_DEL_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for buffer_del_var");
-                return;
-            }
-            else
-            {
-                emit on_buffer_del_var(data);
-            }
-        }
         break;
     
         case kNvimAPI_NVIM_BUF_GET_OPTION:
@@ -2269,11 +1889,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
                 emit on_nvim_buf_is_valid(data);
             }
         }
-        break;
-    
-        case kNvimAPI_BUFFER_INSERT:
-        {
-            emit on_buffer_insert();}
         break;
     
         case kNvimAPI_NVIM_BUF_GET_MARK:
@@ -2359,40 +1974,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit on_nvim_tabpage_del_var();}
         break;
     
-        case kNvimAPI_TABPAGE_SET_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for tabpage_set_var");
-                return;
-            }
-            else
-            {
-                emit on_tabpage_set_var(data);
-            }
-        }
-        break;
-    
-        case kNvimAPI_TABPAGE_DEL_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for tabpage_del_var");
-                return;
-            }
-            else
-            {
-                emit on_tabpage_del_var(data);
-            }
-        }
-        break;
-    
         case kNvimAPI_NVIM_TABPAGE_GET_WIN:
         {
             int64_t data;
@@ -2447,11 +2028,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         case kNvimAPI_NVIM_UI_ATTACH:
         {
             emit on_nvim_ui_attach();}
-        break;
-    
-        case kNvimAPI_UI_ATTACH:
-        {
-            emit on_ui_attach();}
         break;
     
         case kNvimAPI_NVIM_UI_DETACH:
@@ -2620,33 +2196,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
             emit on_nvim_set_current_dir();}
         break;
     
-        case kNvimAPI_NVIM_GET_CURRENT_LINE:
-        {
-            QByteArray data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for nvim_get_current_line");
-                return;
-            }
-            else
-            {
-                emit on_nvim_get_current_line(data);
-            }
-        }
-        break;
-    
-        case kNvimAPI_NVIM_SET_CURRENT_LINE:
-        {
-            emit on_nvim_set_current_line();}
-        break;
-    
-        case kNvimAPI_NVIM_DEL_CURRENT_LINE:
-        {
-            emit on_nvim_del_current_line();}
-        break;
-    
         case kNvimAPI_NVIM_GET_VAR:
         {
             QVariant data;
@@ -2672,40 +2221,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         case kNvimAPI_NVIM_DEL_VAR:
         {
             emit on_nvim_del_var();}
-        break;
-    
-        case kNvimAPI_VIM_SET_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for vim_set_var");
-                return;
-            }
-            else
-            {
-                emit on_vim_set_var(data);
-            }
-        }
-        break;
-    
-        case kNvimAPI_VIM_DEL_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for vim_del_var");
-                return;
-            }
-            else
-            {
-                emit on_vim_del_var(data);
-            }
-        }
         break;
     
         case kNvimAPI_NVIM_GET_VVAR:
@@ -3099,40 +2614,6 @@ void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
         case kNvimAPI_NVIM_WIN_DEL_VAR:
         {
             emit on_nvim_win_del_var();}
-        break;
-    
-        case kNvimAPI_WINDOW_SET_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for window_set_var");
-                return;
-            }
-            else
-            {
-                emit on_window_set_var(data);
-            }
-        }
-        break;
-    
-        case kNvimAPI_WINDOW_DEL_VAR:
-        {
-            QVariant data;
-
-            if(decode(res, data))
-            {
-                m_c->setError(NvimConnector::RuntimeMsgpackError,
-                    "Error unpacking return type for window_del_var");
-                return;
-            }
-            else
-            {
-                emit on_window_del_var(data);
-            }
-        }
         break;
     
         case kNvimAPI_NVIM_WIN_GET_OPTION:

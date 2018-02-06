@@ -129,19 +129,6 @@ FUNC_API_REMOTE_ONLY
     ui_attach_impl(ui);
 }
 
-/// @deprecated
-void ui_attach(uint64_t channel_id,
-               Integer width,
-               Integer height,
-               Boolean enable_rgb,
-               error_st *err)
-{
-    Dictionary opts = ARRAY_DICT_INIT;
-    PUT(opts, "rgb", BOOLEAN_OBJ(enable_rgb));
-    nvim_ui_attach(channel_id, width, height, opts, err);
-    api_free_dictionary(opts);
-}
-
 void nvim_ui_detach(uint64_t channel_id, error_st *err)
 FUNC_API_SINCE(1)
 FUNC_API_REMOTE_ONLY

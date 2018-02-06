@@ -262,54 +262,6 @@ FUNC_API_SINCE(1)
     dict_set_var(win->w_vars, name, NIL, true, false, err);
 }
 
-/// Sets a window-scoped (w:) variable
-///
-/// @deprecated
-///
-/// @param window   Window handle
-/// @param name     Variable name
-/// @param value    Variable value
-/// @param[out] err Error details, if any
-///
-/// @return
-/// Old value or nil if there was no previous value.
-///
-/// @warning
-/// It may return nil if there was no previous value
-/// or if previous value was `v:null`.
-Object window_set_var(Window window, String name, Object value, error_st *err)
-{
-    win_st *win = find_window_by_handle(window, err);
-
-    if(!win)
-    {
-        return (Object) OBJECT_INIT;
-    }
-
-    return dict_set_var(win->w_vars, name, value, false, true, err);
-}
-
-/// Removes a window-scoped (w:) variable
-///
-/// @deprecated
-///
-/// @param window   Window handle
-/// @param name     variable name
-/// @param[out] err Error details, if any
-///
-/// @return Old value
-Object window_del_var(Window window, String name, error_st *err)
-{
-    win_st *win = find_window_by_handle(window, err);
-
-    if(!win)
-    {
-        return (Object) OBJECT_INIT;
-    }
-
-    return dict_set_var(win->w_vars, name, NIL, true, true, err);
-}
-
 /// Gets a window option value
 ///
 /// @param window   Window handle

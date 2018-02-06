@@ -13,7 +13,7 @@ typedef void(*ui_main_ft)(ui_bridge_st *bridge, ui_st *ui);
 
 struct ui_bridge_s
 {
-    /// actual UI passed to ui_attach()
+    /// actual UI passed to nvim_ui_attach()
     ui_st bridge;
 
     /// UI pointer that will have its

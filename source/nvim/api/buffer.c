@@ -47,23 +47,19 @@ FUNC_API_SINCE(1)
     return buf->b_ml.ml_line_count;
 }
 
-/// Gets a buffer line
+/// Gets the current line
 ///
-/// @deprecated use nvim_buf_get_lines instead.
-///             for positive indices (including 0) use
-///                 "nvim_buf_get_lines(buffer, index, index+1, true)"
-///             for negative indices use
-///                 "nvim_buf_get_lines(buffer, index-1, index, true)"
-///
-/// @param buffer   Buffer handle
-/// @param index    Line index
 /// @param[out] err Error details, if any
-/// @return Line string
-String buffer_get_line(Buffer buffer, Integer index, error_st *err)
+/// @return Current line string
+String nvim_get_current_line(error_st *err)
+FUNC_API_SINCE(1)
 {
     String rv = { .size = 0 };
-    index = convert_index(index);
-    Array slice = nvim_buf_get_lines(0, buffer, index, index+1, true, err);
+
+    Integer index = convert_index(curwin->w_cursor.lnum - 1);
+
+    Array slice =
+        nvim_buf_get_lines(0, curbuf->handle, index, index+1, true, err);
 
     if(!ERROR_SET(err) && slice.size)
     {
@@ -74,69 +70,32 @@ String buffer_get_line(Buffer buffer, Integer index, error_st *err)
     return rv;
 }
 
-/// Sets a buffer line
+/// Sets the current line
 ///
-/// @deprecated use nvim_buf_set_lines instead.
-///             for positive indices use
-///                 "nvim_buf_set_lines(buffer, index, index+1, true, [line])"
-///             for negative indices use
-///                 "nvim_buf_set_lines(buffer, index-1, index, true, [line])"
-///
-/// @param buffer   Buffer handle
-/// @param index    Line index
-/// @param line     Contents of the new line
+/// @param line     Line contents
 /// @param[out] err Error details, if any
-void buffer_set_line(Buffer buffer, Integer index, String line, error_st *err)
+void nvim_set_current_line(String line, error_st *err)
+FUNC_API_SINCE(1)
 {
     Object l = STRING_OBJ(line);
-    Array array = { .items = &l, .size = 1 };
+    Array array = {
+        .items = &l,
+        .size = 1
+    };
 
-    index = convert_index(index);
-    nvim_buf_set_lines(0, buffer, index, index+1, true,  array, err);
+    Integer index = convert_index(curwin->w_cursor.lnum - 1);
+    nvim_buf_set_lines(0, curbuf->handle, index, index+1, true, array, err);
 }
 
-/// Deletes a buffer line
+/// Deletes the current line
 ///
-/// @deprecated use nvim_buf_set_lines instead.
-///             for positive indices use
-///                 "nvim_buf_set_lines(buffer, index, index+1, true, [])"
-///             for negative indices use
-///                 "nvim_buf_set_lines(buffer, index-1, index, true, [])"
-/// @param buffer   buffer handle
-/// @param index    line index
 /// @param[out] err Error details, if any
-void buffer_del_line(Buffer buffer, Integer index, error_st *err)
+void nvim_del_current_line(error_st *err)
+FUNC_API_SINCE(1)
 {
     Array array = ARRAY_DICT_INIT;
-    index = convert_index(index);
-    nvim_buf_set_lines(0, buffer, index, index+1, true, array, err);
-}
-
-/// Retrieves a line range from the buffer
-///
-/// @deprecated use nvim_buf_get_lines(buffer, newstart, newend, false)
-///             where newstart = start + int(not include_start) - int(start < 0)
-///                   newend = end + int(include_end) - int(end < 0)
-///                   int(bool) = 1 if bool is true else 0
-///
-/// @param buffer         Buffer handle
-/// @param start          First line index
-/// @param end            Last line index
-/// @param include_start  True if the slice includes the @b start parameter
-/// @param include_end    True if the slice includes the @b end parameter
-/// @param[out] err       Error details, if any
-/// @return Array of lines
-ArrayOf(String) buffer_get_line_slice(Buffer buffer,
-                                      Integer start,
-                                      Integer end,
-                                      Boolean include_start,
-                                      Boolean include_end,
-                                      error_st *err)
-{
-    start = convert_index(start) + !include_start;
-    end = convert_index(end) + include_end;
-
-    return nvim_buf_get_lines(0, buffer, start, end, false, err);
+    Integer index = convert_index(curwin->w_cursor.lnum - 1);
+    nvim_buf_set_lines(0, curbuf->handle, index, index+1, true, array, err);
 }
 
 /// Retrieves a line range from the buffer
@@ -226,36 +185,6 @@ end:
 
     return rv;
 }
-
-
-/// Replaces a line range on the buffer
-///
-/// @deprecated use nvim_buf_set_lines(buffer, newstart, newend, false, lines)
-///             where newstart = start + int(not include_start) + int(start < 0)
-///                   newend = end + int(include_end) + int(end < 0)
-///                   int(bool) = 1 if bool is true else 0
-///
-/// @param buffer         Buffer handle
-/// @param start          First line index
-/// @param end            Last line index
-/// @param include_start  True if the slice includes the @b start parameter
-/// @param include_end    True if the slice includes the @b end parameter
-/// @param replacement    Array of lines to use as replacement (0-length
-//                        array will delete the line range)
-/// @param[out] err       Error details, if any
-void buffer_set_line_slice(Buffer buffer,
-                           Integer start,
-                           Integer end,
-                           Boolean include_start,
-                           Boolean include_end,
-                           ArrayOf(String) replacement, // NOLINT
-                           error_st *err)
-{
-    start = convert_index(start) + !include_start;
-    end = convert_index(end) + include_end;
-    nvim_buf_set_lines(0, buffer, start, end, false, replacement, err);
-}
-
 
 /// Replaces line range on the buffer
 ///
@@ -551,51 +480,6 @@ FUNC_API_SINCE(1)
     dict_set_var(buf->b_vars, name, NIL, true, false, err);
 }
 
-/// Sets a buffer-scoped (b:) variable
-///
-/// @deprecated
-///
-/// @param buffer     Buffer handle
-/// @param name       Variable name
-/// @param value      Variable value
-/// @param[out] err   Error details, if any
-/// @return Old value or nil if there was no previous value.
-///
-///         @warning It may return nil if there was no previous value
-///                  or if previous value was `v:null`.
-Object buffer_set_var(Buffer buffer, String name, Object value, error_st *err)
-{
-    filebuf_st *buf = find_buffer_by_handle(buffer, err);
-
-    if(!buf)
-    {
-        return (Object) OBJECT_INIT;
-    }
-
-    return dict_set_var(buf->b_vars, name, value, false, true, err);
-}
-
-/// Removes a buffer-scoped (b:) variable
-///
-/// @deprecated
-///
-/// @param buffer     Buffer handle
-/// @param name       Variable name
-/// @param[out] err   Error details, if any
-/// @return Old value
-Object buffer_del_var(Buffer buffer, String name, error_st *err)
-{
-    filebuf_st *buf = find_buffer_by_handle(buffer, err);
-
-    if(!buf)
-    {
-        return (Object) OBJECT_INIT;
-    }
-
-    return dict_set_var(buf->b_vars, name, NIL, true, true, err);
-}
-
-
 /// Gets a buffer option value
 ///
 /// @param buffer     Buffer handle
@@ -721,25 +605,6 @@ FUNC_API_SINCE(1)
     Boolean ret = find_buffer_by_handle(buffer, &stub) != NULL;
     api_clear_error(&stub);
     return ret;
-}
-
-/// Inserts a sequence of lines to a buffer at a certain index
-///
-/// @deprecated use nvim_buf_set_lines(buffer, lnum, lnum, true, lines)
-///
-/// @param buffer     Buffer handle
-/// @param lnum       Insert the lines after @b lnum. If negative, appends to
-///                   the end of the buffer.
-/// @param lines      Array of lines
-/// @param[out] err   Error details, if any
-void buffer_insert(Buffer buffer,
-                   Integer lnum,
-                   ArrayOf(String) lines,
-                   error_st *err)
-{
-    // "lnum" will be the index of the line after inserting,
-    // no matter if it is negative or not
-    nvim_buf_set_lines(0, buffer, lnum, lnum, true, lines, err);
 }
 
 /// Return a tuple (row,col) representing the position of the named mark

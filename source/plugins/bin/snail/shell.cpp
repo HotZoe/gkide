@@ -138,7 +138,7 @@ bool Shell::setGuiFont(const QString &fdesc, bool force)
     if(ok && m_attached)
     {
         resizeNeovim(size());
-        m_nvimCon->neovimObject()->vim_set_var("GuiFont", fontDesc());
+        m_nvimCon->neovimObject()->nvim_set_var("GuiFont", fontDesc());
     }
 
     return ok;
@@ -159,7 +159,7 @@ void Shell::setAttached(bool attached)
     if(attached)
     {
         updateWindowId();
-        m_nvimCon->neovimObject()->vim_set_var("GuiFont", fontDesc());
+        m_nvimCon->neovimObject()->nvim_set_var("GuiFont", fontDesc());
 
         if(isWindow())
         {
@@ -676,14 +676,14 @@ void Shell::handleNeovimNotification(const QByteArray &name,
         {
             auto val = args.at(1).toUInt();
             setLineSpace(val);
-            m_nvimCon->neovimObject()->vim_set_var("GuiLinespace", val);
+            m_nvimCon->neovimObject()->nvim_set_var("GuiLinespace", val);
             resizeNeovim(size());
         }
         else if(guiEvName == "Mousehide" && args.size() == 2)
         {
             m_mouseHide = variant_not_zero(args.at(1));
             int val = m_mouseHide ? 1 : 0;
-            m_nvimCon->neovimObject()->vim_set_var("GuiMousehide", val);
+            m_nvimCon->neovimObject()->nvim_set_var("GuiMousehide", val);
         }
         else if(guiEvName == "Close" && args.size() == 1)
         {
@@ -955,8 +955,8 @@ void Shell::updateWindowId(void)
        && m_nvimCon->connectionType() == NvimConnector::SpawnedConnection)
     {
         WId window_id = effectiveWinId();
-        m_nvimCon->neovimObject()->vim_set_var("GuiWindowId",
-                                               QVariant(window_id));
+        m_nvimCon->neovimObject()->nvim_set_var("GuiWindowId",
+                                                QVariant(window_id));
     }
 }
 
@@ -1049,20 +1049,20 @@ void Shell::updateGuiWindowState(Qt::WindowStates state)
 
     if(state & Qt::WindowMaximized)
     {
-        m_nvimCon->neovimObject()->vim_set_var("GuiWindowMaximized", 1);
+        m_nvimCon->neovimObject()->nvim_set_var("GuiWindowMaximized", 1);
     }
     else
     {
-        m_nvimCon->neovimObject()->vim_set_var("GuiWindowMaximized", 0);
+        m_nvimCon->neovimObject()->nvim_set_var("GuiWindowMaximized", 0);
     }
 
     if(state & Qt::WindowFullScreen)
     {
-        m_nvimCon->neovimObject()->vim_set_var("GuiWindowFullScreen", 1);
+        m_nvimCon->neovimObject()->nvim_set_var("GuiWindowFullScreen", 1);
     }
     else
     {
-        m_nvimCon->neovimObject()->vim_set_var("GuiWindowFullScreen", 0);
+        m_nvimCon->neovimObject()->nvim_set_var("GuiWindowFullScreen", 0);
     }
 }
 

@@ -463,35 +463,6 @@ FUNC_API_SINCE(1)
     try_end(err);
 }
 
-/// Gets the current line
-///
-/// @param[out] err Error details, if any
-/// @return Current line string
-String nvim_get_current_line(error_st *err)
-FUNC_API_SINCE(1)
-{
-    return buffer_get_line(curbuf->handle, curwin->w_cursor.lnum - 1, err);
-}
-
-/// Sets the current line
-///
-/// @param line     Line contents
-/// @param[out] err Error details, if any
-void nvim_set_current_line(String line, error_st *err)
-FUNC_API_SINCE(1)
-{
-    buffer_set_line(curbuf->handle, curwin->w_cursor.lnum - 1, line, err);
-}
-
-/// Deletes the current line
-///
-/// @param[out] err Error details, if any
-void nvim_del_current_line(error_st *err)
-FUNC_API_SINCE(1)
-{
-    buffer_del_line(curbuf->handle, curwin->w_cursor.lnum - 1, err);
-}
-
 /// Gets a global (g:) variable
 ///
 /// @param name     Variable name
@@ -523,34 +494,6 @@ void nvim_del_var(String name, error_st *err)
 FUNC_API_SINCE(1)
 {
     dict_set_var(&globvardict, name, NIL, true, false, err);
-}
-
-/// Sets a global variable
-///
-/// @deprecated
-///
-/// @param name     Variable name
-/// @param value    Variable value
-/// @param[out] err Error details, if any
-/// @return Old value or nil if there was no previous value.
-///
-///         @warning It may return nil if there was no previous value
-///                  or if previous value was `v:null`.
-Object vim_set_var(String name, Object value, error_st *err)
-{
-    return dict_set_var(&globvardict, name, value, false, true, err);
-}
-
-/// Removes a global variable
-///
-/// @deprecated
-///
-/// @param name     Variable name
-/// @param[out] err Error details, if any
-/// @return Old value
-Object vim_del_var(String name, error_st *err)
-{
-    return dict_set_var(&globvardict, name, NIL, true, true, err);
 }
 
 /// Gets a v: variable
