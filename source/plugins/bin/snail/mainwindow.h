@@ -5,11 +5,15 @@
 
 #include <QMainWindow>
 #include <QStackedWidget>
-#include "plugins/bin/snail/nvimconnector.h"
-#include "plugins/bin/snail/errorwidget.h"
+
+#include "plugins/bin/snail/menu.h"
 #include "plugins/bin/snail/shell.h"
+#include "plugins/bin/snail/errorwidget.h"
+#include "plugins/bin/snail/nvimconnector.h"
 
 namespace SnailNvimQt {
+
+class GkideMenu;
 
 class MainWindow: public QMainWindow
 {
@@ -58,6 +62,7 @@ private:
     Shell *m_shell;
     DelayedShow m_delayedShow;
     QStackedWidget m_stack;
+    GkideMenu *m_menu;
 };
 
 } // namespace::SnailNvimQt

@@ -11,10 +11,15 @@ MainWindow::MainWindow(NvimConnector *c, QWidget *parent)
 {
     m_errorWidget = new ErrorWidget();
     m_stack.addWidget(m_errorWidget);
+
     connect(m_errorWidget, &ErrorWidget::reconnectNeovim,
             this, &MainWindow::reconnectNeovim);
+
     setCentralWidget(&m_stack);
+
     init(c);
+
+    m_menu = GkideMenu::getGkideMenuInstance(this);
 }
 
 void MainWindow::init(NvimConnector *c)
