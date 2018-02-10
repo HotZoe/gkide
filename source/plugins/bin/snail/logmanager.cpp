@@ -6,7 +6,7 @@
 #include <QTextStream>
 #include <QFileOpenEvent>
 
-#include "generated/config/envdefs.h"
+#include "generated/config/gkideenvs.h"
 #include "generated/config/configsnail.h"
 
 #include "plugins/bin/snail/attributes.h"

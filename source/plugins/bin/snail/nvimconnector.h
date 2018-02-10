@@ -9,6 +9,7 @@
 #include <QAbstractSocket>
 #include "config/nvimapi/auto/nvim.h"
 #include "plugins/bin/snail/nvimapi.h"
+#include "plugins/bin/snail/version.h"
 
 namespace SnailNvimQt {
 
@@ -106,6 +107,7 @@ private:
     NvimError m_error;
 
     Nvim *m_nvimObj;
+    NvimVersion *m_nvimVer;
     quint64 m_channel;
 
     // Store connection arguments for reconnect()

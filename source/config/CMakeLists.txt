@@ -29,15 +29,15 @@ configure_file("${CMAKE_CURRENT_LIST_DIR}/miscinfo.h.in"
 message(STATUS
         "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/miscinfo.h")
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/versiondef.h.in"
-                "${GEN_CONFIG_DIR}/versiondef.h")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/gkideversion.h.in"
+                "${GEN_CONFIG_DIR}/gkideversion.h")
 message(STATUS
-        "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/versiondef.h")
+        "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/gkideversion.h")
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/envdefs.h.in"
-                "${GEN_CONFIG_DIR}/envdefs.h")
+configure_file("${CMAKE_CURRENT_LIST_DIR}/gkideenvs.h.in"
+                "${GEN_CONFIG_DIR}/gkideenvs.h")
 message(STATUS
-        "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/envdefs.h")
+        "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/gkideenvs.h")
 
 # Generated doxygen configuration file
 set(DOXYGEN_MANUAL_NAME        "nvim")

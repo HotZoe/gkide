@@ -15,6 +15,8 @@
 #include "nvim/misc1.h"
 #include "nvim/ui.h"
 
+#include "generated/config/confignvim.h"
+
 #ifdef FOUND_WORKING_JEMALLOC
     // Force je_ prefix on jemalloc functions.
     #define JEMALLOC_NO_DEMANGLE

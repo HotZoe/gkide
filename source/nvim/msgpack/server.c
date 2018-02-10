@@ -22,7 +22,7 @@
 #include "nvim/strings.h"
 
 #include "generated/config/config.h"
-#include "generated/config/envdefs.h"
+#include "generated/config/gkideenvs.h"
 
 #define MAX_CONNECTIONS         32
 

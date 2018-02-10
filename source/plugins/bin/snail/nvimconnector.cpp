@@ -20,8 +20,8 @@ NvimConnector::NvimConnector(QIODevice *dev)
 
 NvimConnector::NvimConnector(MsgpackIODevice *dev)
     : QObject(), m_dev(dev), m_helper(NULL), m_error(NoError),
-      m_nvimObj(NULL), m_channel(0), m_ctype(OtherConnection),
-      m_ready(false)
+      m_nvimObj(NULL), m_nvimVer(NULL), m_channel(0),
+      m_ctype(OtherConnection), m_ready(false)
 {
     m_helper = new NvimConnectorHelper(this);
     qRegisterMetaType<NvimError>("NvimError");

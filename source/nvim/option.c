@@ -76,7 +76,7 @@
 #include "nvim/os/input.h"
 
 #include "generated/config/config.h"
-#include "generated/config/envdefs.h"
+#include "generated/config/gkideenvs.h"
 
 // The options that are local to a window or buffer have
 // "indir" set to one of these values. Special values

@@ -3226,7 +3226,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                         },
                         {
                             STATIC_CSTR_AS_STRING("version"),
-                            STRING_OBJ(cstr_as_string(nvim_gkide_version))
+                            STRING_OBJ(cstr_as_string(nvim_version_long))
                         },
                         {
                             STATIC_CSTR_AS_STRING("max_kbyte"),

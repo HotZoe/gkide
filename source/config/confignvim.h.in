@@ -43,6 +43,7 @@
 // check dependency libraries
 #cmakedefine FOUND_WORKING_ICONV
 #cmakedefine FOUND_WORKING_LIBINTL
+#cmakedefine FOUND_WORKING_JEMALLOC
 
 #cmakedefine ORDER_BIG_ENDIAN
 

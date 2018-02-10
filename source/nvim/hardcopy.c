@@ -3045,7 +3045,7 @@ int mch_print_begin(prt_geninfo_st *psettings)
     }
 
     prt_dsc_textline("For", buffer);
-    prt_dsc_textline("Creator", nvim_gkide_version);
+    prt_dsc_textline("Creator", nvim_version_long);
 
     // Note: to ensure Clean8bit I don't think we can use LC_TIME
     now = time(NULL);
@@ -3121,7 +3121,7 @@ int mch_print_begin(prt_geninfo_st *psettings)
 
     if(prt_out_mbyte)
     {
-        prt_dsc_font_resource((prt_use_courier ? NULL : "DocumentNeededResources"), 
+        prt_dsc_font_resource((prt_use_courier ? NULL : "DocumentNeededResources"),
                               &prt_ps_mb_font);
 
         if(!prt_custom_cmap)
@@ -3308,7 +3308,7 @@ int mch_print_begin(prt_geninfo_st *psettings)
     prt_dsc_requirements(prt_duplex,
                          prt_tumble,
                          prt_collate,
-                         psettings->do_syntax, 
+                         psettings->do_syntax,
                          prt_num_copies);
 
     prt_dsc_noarg("EndComments");

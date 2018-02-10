@@ -3,11 +3,11 @@
 #ifndef NVIM_VERSION_H
 #define NVIM_VERSION_H
 
-#include "generated/config/versiondef.h"
+#include "generated/config/gkideversion.h"
 #include "nvim/ex_cmds_defs.h"
 
 // defined in version.c
-extern char *nvim_gkide_version;
+extern char *nvim_version_long;
 
 /// swap file version, for compatibility, also the base version of vim.
 ///

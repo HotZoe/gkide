@@ -56,7 +56,7 @@
 #
 # dev -> alpha -> beta -> rc -> release -> stable
 #
-# GKIDE_CMAKE_EXTRA_FLAGS += -DPACKAGE_RELEASE_TYPE=release
+# GKIDE_CMAKE_EXTRA_FLAGS += -DGKIDE_RELEASE_TYPE=release
 
 # Sets the build type: defaults to 'Release'. Valid values:
 #

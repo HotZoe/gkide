@@ -53,21 +53,54 @@ void NvimConnectorHelper::handleMetadata(
     const QVariantMap metadata = asList.at(1).toMap();
     QMapIterator<QString,QVariant> it(metadata);
 
+    QString verinfo;
+    bool bindingFuncOK = false;
+
     while(it.hasNext())
     {
         it.next();
 
         if(it.key() == "functions")
         {
-            if(!checkFunctions(it.value().toList()))
-            {
-                m_c->setError(NvimConnector::APIMisMatch,
-                              tr("API methods mismatch: "
-                                 "Cannot connect to nvim instance, its version "
-                                 "is too old, or the API has changed!"));
-                return;
-            }
+            bindingFuncOK = checkFunctions(it.value().toList());
         }
+
+        if(it.key() == "version")
+        {
+            if(this->m_c->m_nvimVer == NULL)
+            {
+                this->m_c->m_nvimVer = new NvimVersion();
+            }
+
+            this->m_c->m_nvimVer->setNvimVersionInfo(it.value().toMap());
+
+            verinfo =
+                QString("nvim API mismatch as too old or changed!\n"
+                        "nvim major(%1): %2\n"
+                        "nvim minor(%3): %4\n"
+                        "nvim patch(%5): %6\n"
+                        "nvim API level(%7): %8\n"
+                        "nvim API compatible(%9): %10\n"
+                        "nvim API prerelease(%11): %12\n")
+                .arg(this->m_c->m_nvimVer->bindNvimVersionMajor())
+                .arg(this->m_c->m_nvimVer->nvimVersionMajor())
+                .arg(this->m_c->m_nvimVer->bindNvimVersionMinor())
+                .arg(this->m_c->m_nvimVer->nvimVersionMinor())
+                .arg(this->m_c->m_nvimVer->bindNvimVersionPatch())
+                .arg(this->m_c->m_nvimVer->nvimVersionPatch())
+                .arg(this->m_c->m_nvimVer->bindNvimApiLevel())
+                .arg(this->m_c->m_nvimVer->nvimApiLevel())
+                .arg(this->m_c->m_nvimVer->bindNvimApiCompatible())
+                .arg(this->m_c->m_nvimVer->nvimApiCompatible())
+                .arg(this->m_c->m_nvimVer->bindNvimApiPrerelease())
+                .arg(this->m_c->m_nvimVer->nvimApiPrerelease());
+        }
+    }
+
+    if(!bindingFuncOK || !this->m_c->m_nvimVer->checkNvimApiVersion())
+    {
+        m_c->setError(NvimConnector::APIMisMatch, verinfo);
+        return;
     }
 
     if(m_c->errorCause() == NvimConnector::NoError)

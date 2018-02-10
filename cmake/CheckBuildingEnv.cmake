@@ -88,7 +88,6 @@ message(STATUS "C++ Compiler      : ${CMAKE_CXX_COMPILER_ID}-${CMAKE_CXX_COMPILE
 message(STATUS "Host System       : ${target_system}, ${host_pc_arch}, ${host_pc_endian}")
 message(STATUS "Target System     : ${target_system}, ${host_os_arch}, ${host_pc_endian}")
 message(STATUS "CMake Generator   : ${CMAKE_GENERATOR}")
-message(STATUS "CMake Build Type  : ${CMAKE_BUILD_TYPE}")
 
 # Get Current System Data Time
 GetCurrentSystemTime(PACKAGE_BUILD_TIMESTAMP)
@@ -100,9 +99,9 @@ string(REPLACE ":" "" PACKAGE_BUILD_TIMESTAMP ${PACKAGE_BUILD_TIMESTAMP})
 string(REPLACE " " "" RELEASE_BUILD_TIMESTAMP ${PACKAGE_BUILD_TIMESTAMP}) # build number
 
 set(RELEASE_PACKAGE_SYS "${target_system}-${host_os_arch}")
-set(RELEASE_PACKAGE_VER "${PACKAGE_VERSION_BASIC}-${PACKAGE_VERSION_TRAIL}")
+set(RELEASE_PACKAGE_VER "${GKIDE_RELEASE_VERSION}-${GKIDE_VERSION_TRAIL}")
 
-set(RELEASE_PACKAGE_NAME "${RELEASE_PACKAGE_VER}-${GIT_COMMIT_HASH_SHORT}")
+set(GKIDE_PACKAGE_NAME "${RELEASE_PACKAGE_VER}-${GIT_COMMIT_HASH_SHORT}")
 
-set(RELEASE_PACKAGE_NAME
-    "gkide-v${RELEASE_PACKAGE_NAME}-${RELEASE_PACKAGE_SYS}-${RELEASE_BUILD_TIMESTAMP}")
+set(GKIDE_PACKAGE_NAME
+    "gkide-v${GKIDE_PACKAGE_NAME}-${RELEASE_PACKAGE_SYS}-${RELEASE_BUILD_TIMESTAMP}")

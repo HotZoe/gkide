@@ -6,14 +6,10 @@
 #include <QApplication>
 #include <QCommandLineParser>
 
-#include "generated/config/versiondef.h"
-#include "generated/config/configsnail.h"
-
 #include "plugins/bin/snail/app.h"
 #include "plugins/bin/snail/nvimconnector.h"
 
-#define SNAIL_APP_VERSION_STRING \
-    "v" SNAIL_VERSION_BASIC "@" RELEASE_PACKAGE_NAME
+#include "generated/config/gkideversion.h"
 
 /// GUI Interface
 int gui_main(int argc, char **argv)
@@ -67,7 +63,7 @@ int cli_main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    QCoreApplication::setApplicationVersion(SNAIL_APP_VERSION_STRING);
+    QCoreApplication::setApplicationVersion(SNAIL_VERSION_LONG);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // Do an early check for --nofork before creating a QApplication,

@@ -4,7 +4,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 #include <QFileOpenEvent>
-#include "generated/config/envdefs.h"
+#include "generated/config/gkideenvs.h"
 #include "plugins/bin/snail/app.h"
 #include "plugins/bin/snail/logmanager.h"
 #include "plugins/bin/snail/mainwindow.h"

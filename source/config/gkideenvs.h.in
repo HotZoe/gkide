@@ -1,7 +1,7 @@
-/// @file generated/config/envdefs.h
+/// @file generated/config/gkideenvs.h
 
-#ifndef GKIDE_GENERATED_CONFIG_ENVDEFS_H
-#define GKIDE_GENERATED_CONFIG_ENVDEFS_H
+#ifndef GKIDE_GENERATED_CONFIG_GKIDEENVS_H
+#define GKIDE_GENERATED_CONFIG_GKIDEENVS_H
 
 #define GKIDE_NVIM_DOMAIN         "gkidenvim"
 
@@ -21,4 +21,4 @@
 #define ENV_GKIDE_SNAIL_LOGLEVEL  "GKIDE_SNAIL_LOGLEVEL"  ///< log-level
 #define ENV_GKIDE_SNAIL_NVIMEXEC  "GKIDE_SNAIL_NVIMEXEC"  ///< nvim executable
 
-#endif // GKIDE_GENERATED_CONFIG_ENVDEFS_H
+#endif // GKIDE_GENERATED_CONFIG_GKIDEENVS_H
