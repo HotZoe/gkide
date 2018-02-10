@@ -126,5 +126,16 @@ if(NOT "${HAVE_BSD_BE64TOH}")
     ORDER_BIG_ENDIAN)
 endif()
 
-configure_file("${PROJECT_SOURCE_DIR}/source/config/confignvim.h.in"
+# get nvim compile flags
+include(GetCompileFlags)
+GetTargetCompileFlags(nvim NVIM_BUILD_CFLAGS false)
+
+# set the project root directory to ~/project/gkide
+# unifying the information to be shown in the program
+string(REPLACE "${CMAKE_SOURCE_DIR}" "gkide"
+               NVIM_BUILD_CFLAGS "${NVIM_BUILD_CFLAGS}")
+
+configure_file("${CMAKE_CURRENT_LIST_DIR}/confignvim.h.in"
                "${GEN_CONFIG_DIR}/confignvim.h")
+
+add_subdirectory(doxygen)

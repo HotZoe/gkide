@@ -9,15 +9,6 @@ string(REPLACE "${CMAKE_SOURCE_DIR}" "gkide"
 
 configure_file("${CMAKE_CURRENT_LIST_DIR}/configsnail.h.in"
                "${GEN_CONFIG_DIR}/configsnail.h")
-message(STATUS
-        "[${CMAKE_BUILD_TYPE}] Config header: ${GEN_CONFIG_DIR}/configsnail.h")
 
-set(DOXYGEN_MANUAL_NAME        "snail")
-set(DOXYGEN_MANUAL_OUTPUT_DIR  "snail")
-set(DOXYGEN_MANUAL_EXCLUDE     "")
-set(DOXYGEN_MANUAL_INPUT
-    "${GEN_CONFIG_DIR} ${PROJECT_SOURCE_DIR}/source/plugins/bin/snail")
+add_subdirectory(doxygen)
 
-configure_file("${CMAKE_CURRENT_LIST_DIR}/doxygen/Doxyfile.in"
-                "${GENERATED_DIR}/doxygen/Doxyfile.snail")
-message(STATUS "Doxygen Config: ${GENERATED_DIR}/doxygen/Doxyfile.snail")

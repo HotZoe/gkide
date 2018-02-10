@@ -301,9 +301,6 @@ if(NVIM_FEAT_TUI)
     list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBTERMKEY_LIBRARIES})
 endif()
 
-# generate configurations for nvim only
-include(ConfigNvim)
-
 # for config compile flags, hard code into source
 set(NVIM_CONFIG_C_FLAGS ${CMAKE_C_FLAGS} PARENT_SCOPE)
 
@@ -712,6 +709,9 @@ endif()
 
 add_executable(nvim ${NVIM_ALL_SOURCES})
 install_helper(TARGETS nvim)
+
+# generate the configurations
+add_subdirectory(config)
 
 if(UNIX)
     # Add libraries for unix.

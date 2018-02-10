@@ -4,7 +4,7 @@
 #define PLUGIN_SNAIL_VERSION_H
 
 #include <QVariant>
-#include "generated/config/miscinfo.h"
+#include "generated/config/buildinfo.h"
 #include "generated/config/gkideversion.h"
 
 namespace SnailNvimQt {

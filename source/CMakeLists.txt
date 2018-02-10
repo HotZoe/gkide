@@ -269,5 +269,6 @@ include_directories("${PROJECT_BINARY_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}/source")
 
 add_subdirectory(nvim)
-add_subdirectory(config)
 add_subdirectory(plugins)
+
+add_subdirectory(config)
