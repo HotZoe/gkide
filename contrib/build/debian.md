@@ -2,7 +2,7 @@
 
 - install prerequisite tools and libraries, run:
   ```
-  $ sudo apt install cmake libtool automake pkg-config gettext openssl git python
+  $ sudo apt install cmake libtool automake pkg-config gettext openssl git python cppcheck libx11-dev
   ```
 - about qt5
   - install shared qt5, or
@@ -11,3 +11,4 @@
 - do local config by copy and modify **contrib/local.mk.eg**
 - run: `$ make`
 - run: `$ make install`
+
