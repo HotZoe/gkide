@@ -128,7 +128,7 @@ list(APPEND THIRD_PARTY_LIBS busted-lua)
 
 message(STATUS  "Building: luarocks => luacheck, for nvim testing")
 set(luacheck_rockspec_url
-    "https://raw.githubusercontent.com/mpeterv/luacheck/master/luacheck-scm-1.rockspec")
+    "https://luarocks.org/manifests/mpeterv/luacheck-0.20.0-1.rockspec")
 add_custom_command(OUTPUT  ${DEPS_BIN_DIR}/luacheck
                    COMMAND ${LUAROCKS_BINARY} build ${luacheck_rockspec_url} ${LUAROCKS_BUILDARGS}
                    DEPENDS busted)
