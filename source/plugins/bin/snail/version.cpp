@@ -78,4 +78,48 @@ bool NvimVersion::setNvimVersionInfo(QVariantMap info)
     return true;
 }
 
+GkideVersionInfo::GkideVersionInfo(QWidget *parent)
+{
+    this->setParent(parent);
+    this->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+    this->setAttribute(Qt::WA_DeleteOnClose, true);
+
+    this->setWindowTitle("About GKIDE");
+    this->setFixedSize(550, 260);
+
+    m_winLayout = new QGridLayout(this);
+
+    QImage gkideLogoImg(":/gkide.png");
+    QPixmap gkideLogoPixmap;
+    gkideLogoPixmap.convertFromImage(gkideLogoImg);
+    gkideLogoPixmap = gkideLogoPixmap.scaled(150, 150, Qt::KeepAspectRatio);
+
+    m_imageLabel = new QLabel(this);
+    m_imageLabel->setGeometry(10, 10, 150, 150);
+    m_imageLabel->setPixmap(gkideLogoPixmap);
+    // image (0, 0) - (1, 1), which takes (1 row 1 column)
+    m_winLayout->addWidget(m_imageLabel, 0, 0, 1, 1);
+
+    //long width = gkideLogoPixmap.width();
+    //long height = gkideLogoPixmap.height();
+    //QString info;
+    //info.append("width:");
+    //info.append(QString::number(width, 10));
+    //info.append("height:");
+    //info.append(QString::number(height, 10));
+
+    GkideVersion gkideInfo;
+    QString brief("GKIDE version ");
+    brief = brief + gkideInfo.getVersionString();
+    m_briefLabel = new QLabel(brief, this);
+    m_winLayout->addWidget(m_briefLabel, 0, 1);
+}
+
+GkideVersionInfo::~GkideVersionInfo()
+{
+    delete m_briefLabel;
+    delete m_imageLabel;
+    delete m_winLayout;
+}
+
 } // namespace::SnailNvimQt

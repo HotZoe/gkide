@@ -1,6 +1,7 @@
 /// @file plugins/bin/snail/mainwindow.cpp
 
 #include <QCloseEvent>
+
 #include "plugins/bin/snail/mainwindow.h"
 
 namespace SnailNvimQt {
