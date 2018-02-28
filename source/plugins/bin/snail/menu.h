@@ -17,21 +17,27 @@ namespace SnailNvimQt {
 
 class MainWindow;
 
-class GkideMenu
+class GkideMenu: public QObject
 {
+    Q_OBJECT
+
 public:
     ~GkideMenu();
     static GkideMenu *getGkideMenuInstance(MainWindow *mw, bool redo=false);
 
 private:
-    GkideMenu(void);
     GkideMenu(MainWindow *mw);
     static GkideMenu *m_instance;
+
+    MainWindow *m_mainwin;
 
     QMenuBar *m_menuBar;
 
     QMenu *m_fileMenu;
     QMenu *m_helpMenu;
+
+private slots:
+    void trigerHelpAboutGKIDE(bool act);
 };
 
 } // namespace::SnailNvimQt

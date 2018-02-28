@@ -3,7 +3,11 @@
 #ifndef PLUGIN_SNAIL_VERSION_H
 #define PLUGIN_SNAIL_VERSION_H
 
+#include <QLabel>
+#include <QDialog>
 #include <QVariant>
+#include <QGridLayout>
+
 #include "generated/config/buildinfo.h"
 #include "generated/config/gkideversion.h"
 
@@ -134,9 +138,6 @@ public:
 class GkideVersion
 {
 public:
-    GkideVersion(void);
-    ~GkideVersion();
-
     int getVersionMajor(void)
     {
         return GKIDE_VERSION_MAJOR;
@@ -181,6 +182,21 @@ public:
     {
         return GKIDE_PACKAGE_NAME;
     }
+};
+
+class GkideVersionInfo: public QDialog
+{
+    Q_OBJECT
+
+public:
+    GkideVersionInfo(QWidget *parent=NULL);
+    ~GkideVersionInfo();
+
+private:
+    QLabel *m_briefLabel;
+    QLabel *m_imageLabel;
+
+    QGridLayout *m_winLayout;
 };
 
 } // namespace::SnailNvimQt
