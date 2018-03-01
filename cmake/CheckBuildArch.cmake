@@ -20,10 +20,10 @@ endif()
 
 # check current build host arch
 if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND host_pc_supported_bit64)
-    set(host_pc_arch "x86_64")
+    set(host_pc_arch "x64")
     option(HOST_PC_ARCH_64 "Host System is 64-bits." ON)
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4 AND host_pc_supported_bit32)
-    set(host_pc_arch "x86_32")
+    set(host_pc_arch "x86")
     option(HOST_PC_ARCH_32 "Host System is 32-bits." ON)
 else()
     message(FATAL_ERROR "Unknown host os architecture!")

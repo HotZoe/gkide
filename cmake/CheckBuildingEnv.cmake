@@ -68,10 +68,12 @@ else()
 endif()
 
 if(HOST_OS_ARCH_32)
-    set(host_os_arch "x86_32")
+    set(host_os_arch "x86")
 else()
-    set(host_os_arch "x86_64")
+    set(host_os_arch "x64")
 endif()
+
+set(BUILD_OS_ARCH "${host_os_arch}")
 
 # Target endian type will always the same as Host PC
 include(CheckHostEndianType)

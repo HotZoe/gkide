@@ -193,10 +193,18 @@ public:
     ~GkideVersionInfo();
 
 private:
-    QLabel *m_briefLabel;
     QLabel *m_imageLabel;
+    QLabel *m_titleLabel;
+    QLabel *m_packageLabel;
+    QLabel *m_snailLabel;
+    QLabel *m_snailHashLabel;
+    QLabel *m_snailTimeLabel;
+    QLabel *m_snailBuilderLabel;
+    QLabel *m_nvimLabel;
+    QLabel *m_nvimHashLabel;
+    QLabel *m_nvimTimeLabel;
+    QLabel *m_nvimBuilderLabel;
 
-    QGridLayout *m_winLayout;
 };
 
 } // namespace::SnailNvimQt

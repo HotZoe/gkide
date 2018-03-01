@@ -5,6 +5,7 @@
 
 #define BUILD_OS_NAME            "@BUILD_OS_NAME@"
 #define BUILD_OS_VERSION         "@BUILD_OS_VERSION@"
+#define BUILD_OS_ARCH            "@BUILD_OS_ARCH@"
 #define BUILD_ON_HOST            "@BUILD_HOST_NAME@"
 #define BUILD_BY_USER            "@BUILD_USER_NAME@"
 #define BUILD_DATA_TIME          "@RELEASE_BUILD_TIMESTAMP@"
