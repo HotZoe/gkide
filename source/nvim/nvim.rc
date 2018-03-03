@@ -1,12 +1,11 @@
 #include <winver.h>
 #include <winresrc.h>
-#include "generated/config/miscinfo.h"
-#include "generated/config/versiondef.h"
+#include "generated/config/gkideversion.h"
 
 #define VER_FILE_VERSION_NUM       NVIM_VERSION_MAJOR,NVIM_VERSION_MINOR,NVIM_VERSION_PATCH,0
 #define VER_FILE_VERSION_STR       NVIM_VERSION_BASIC
 #define VER_PROD_VERSION_NUM       GKIDE_VERSION_MAJOR,GKIDE_VERSION_MINOR,GKIDE_VERSION_PATCH,0
-#define VER_PROD_VERSION_STR       GKIDE_VERSION_BASIC
+#define VER_PROD_VERSION_STR       GKIDE_RELEASE_VERSION
 #define VER_COMPANYNAME_STR        "JustForFun"
 #define VER_FILEDESCRIPTION_STR    "Variant Vim Core"
 #define VER_LEGALCOPYRIGHT_STR     "Copyright GPL3 License"
