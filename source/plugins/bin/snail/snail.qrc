@@ -1,7 +1,10 @@
-<!DOCTYPE RCC><RCC VERSION="1.0">
-<qresource>
-    <file alias="snail.png">pix/snail.png</file>
-    <file alias="gkide.png">pix/gkide.png</file>
-    <file alias="nvim.png">../../../nvim/pix/nvim.png</file>
-</qresource>
+<RCC>
+    <qresource prefix="/logo">
+        <file alias="snail.png">pix/logo/snail.png</file>
+        <file alias="gkide.png">pix/logo/gkide.png</file>
+    </qresource>
+    <qresource prefix="/error">
+        <file alias="nvim.png">pix/error/nvim.png</file>
+    </qresource>
 </RCC>
+

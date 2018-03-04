@@ -17,7 +17,7 @@ namespace SnailNvimQt {
 
 App::App(int &argc, char **argv): QApplication(argc, argv)
 {
-    setWindowIcon(QIcon(":/snail.png"));
+    setWindowIcon(QIcon(":/logo/snail.png"));
     setApplicationDisplayName("GKIDE");
 
 #ifdef Q_OS_MAC

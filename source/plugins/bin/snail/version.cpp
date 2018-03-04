@@ -86,7 +86,7 @@ GkideVersionInfo::GkideVersionInfo(QWidget *parent)
     this->setWindowTitle("About GKIDE");
     this->setFixedSize(610, 250);
 
-    QImage gkideLogoImg(":/gkide.png");
+    QImage gkideLogoImg(":/logo/gkide.png");
     QPixmap gkideLogoPixmap;
     gkideLogoPixmap.convertFromImage(gkideLogoImg);
     gkideLogoPixmap = gkideLogoPixmap.scaled(160, 160, Qt::KeepAspectRatio);
