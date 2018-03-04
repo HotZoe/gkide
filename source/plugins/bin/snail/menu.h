@@ -32,9 +32,14 @@ private:
     MainWindow *m_mainwin;
 
     QMenuBar *m_menuBar;
+    QToolBar *m_toolBar;
 
-    QMenu *m_fileMenu;
-    QMenu *m_helpMenu;
+    QMenu *m_file;
+    QMenu *m_help;
+
+    QAction *m_file_NewFileProject;
+    QAction *m_file_OpenFileProject;
+    QAction *m_help_AboutGKIDE;
 
 private slots:
     void trigerHelpAboutGKIDE(bool act);

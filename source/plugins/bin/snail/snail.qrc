@@ -3,8 +3,28 @@
         <file alias="snail.png">pix/logo/snail.png</file>
         <file alias="gkide.png">pix/logo/gkide.png</file>
     </qresource>
+
     <qresource prefix="/error">
         <file alias="nvim.png">pix/error/nvim.png</file>
+    </qresource>
+
+    <qresource prefix="/menu/ico/">
+        <file alias="file_open.png">pix/menu/file_open.png</file>
+        <file alias="file_save.png">pix/menu/file_save.png</file>
+        <file alias="edit_cut.png">pix/menu/edit_cut.png</file>
+        <file alias="edit_copy.png">pix/menu/edit_copy.png</file>
+        <file alias="edit_paste.png">pix/menu/edit_paste.png</file>
+        <file alias="edit_undo.png">pix/menu/edit_undo.png</file>
+        <file alias="edit_redo.png">pix/menu/edit_redo.png</file>
+        <file alias="search_prev.png">pix/menu/search_prev.png</file>
+        <file alias="search_next.png">pix/menu/search_next.png</file>
+        <file alias="search.png">pix/menu/search.png</file>
+        <file alias="search_bookmark.png">pix/menu/search_bookmark.png</file>
+        <file alias="search_prev_result.png">pix/menu/search_prev_result.png</file>
+        <file alias="search_next_result.png">pix/menu/search_next_result.png</file>
+        <file alias="project_build.png">pix/menu/project_build.png</file>
+        <file alias="options_remote.png">pix/menu/options_remote.png</file>
+        <file alias="run_nvl.png">pix/menu/run_nvl.png</file>
     </qresource>
 </RCC>
 
