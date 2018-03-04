@@ -17,7 +17,7 @@
 #define VER_INTERNALNAME_STR       "gkide-snail.exe"
 #define VER_ORIGINALFILENAME_STR   "snail.exe"
 
-SNAIL_ICON_IDX    ICON    "pix/snail.ico"
+SNAIL_ICON_IDX    ICON    "pix/ico/snail.ico"
 VS_VERSION_INFO   VERSIONINFO
 FILEVERSION       VER_FILE_VERSION_NUM
 PRODUCTVERSION    VER_PROD_VERSION_NUM
