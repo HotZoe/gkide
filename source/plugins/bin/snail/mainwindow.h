@@ -27,7 +27,7 @@ public:
         FullScreen,
     };
 
-    MainWindow(NvimConnector *, QWidget *parent=0);
+    MainWindow(NvimConnector *c, QWidget *parent=0);
     bool neovimAttached(void) const;
     Shell *shell(void);
 

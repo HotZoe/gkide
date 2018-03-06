@@ -35,12 +35,34 @@ private:
     QToolBar *m_toolBar;
 
     QMenu *m_file;
+    QMenu *m_edit;
+    QMenu *m_search;
+    QMenu *m_project;
+    QMenu *m_options;
+    QMenu *m_tools;
+    QMenu *m_view;
+    QMenu *m_window;
     QMenu *m_help;
 
     QAction *m_file_NewFileProject;
     QAction *m_file_OpenFileProject;
+    QAction *m_file_SaveFile;
+    QAction *m_edit_Cut;
+    QAction *m_edit_Copy;
+    QAction *m_edit_Paste;
+    QAction *m_edit_Undo;
+    QAction *m_edit_Redo;
+    QAction *m_search_Search;
+    QAction *m_search_Prev;
+    QAction *m_search_Next;
+    QAction *m_search_Bookmark;
+    QAction *m_search_PrevResult;
+    QAction *m_search_NextResult;
+    QAction *m_project_Build;
+    QAction *m_options_Remote;
     QAction *m_help_AboutGKIDE;
 
+    QAction *m_run_nvl;
 private slots:
     void trigerHelpAboutGKIDE(bool act);
 };
