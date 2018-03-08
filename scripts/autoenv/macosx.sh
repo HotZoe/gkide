@@ -5,6 +5,7 @@
 # install tools
 brew install cmake
 brew install libtool
+brew install libtool-bin
 brew install automake
 brew install pkg-config
 brew install gettext

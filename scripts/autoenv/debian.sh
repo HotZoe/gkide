@@ -5,6 +5,7 @@
 # install tools
 sudo apt install cmake
 sudo apt install libtool
+sudo apt install libtool-bin
 sudo apt install automake
 sudo apt install pkg-config
 sudo apt install gettext

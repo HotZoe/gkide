@@ -26,6 +26,7 @@ pacman -S unzip
 pacman -S git
 pacman -S cmake
 pacman -S libtool
+pacman -S libtool-bin
 pacman -S automake
 pacman -S pkg-config
 pacman -S gettext
