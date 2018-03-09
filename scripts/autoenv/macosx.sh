@@ -11,6 +11,7 @@ brew install pkg-config
 brew install gettext
 brew install openssl
 brew install git
+brew install curl
 brew install python
 brew install cppcheck
 brew install libx11-dev

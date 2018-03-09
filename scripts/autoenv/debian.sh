@@ -11,6 +11,7 @@ sudo apt install pkg-config
 sudo apt install gettext
 sudo apt install openssl
 sudo apt install git
+sudo apt install curl
 sudo apt install python
 sudo apt install cppcheck
 sudo apt install libx11-dev

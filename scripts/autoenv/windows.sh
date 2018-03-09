@@ -24,6 +24,7 @@ fi
 pacman -S gperf
 pacman -S unzip
 pacman -S git
+pacman -S curl
 pacman -S cmake
 pacman -S libtool
 pacman -S libtool-bin
