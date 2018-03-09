@@ -197,17 +197,67 @@ ifneq (,$(QT5_STATIC_LIB_PREFIX))
     GKIDE_CMAKE_BUILD_FLAGS += -DSNAIL_USE_SHARED_QT5=OFF
 endif
 
-ifeq (,$(QT5_INSTALL_PREFIX))
-    ifneq (env-check,$(MAKECMDGOALS))
-        $(error Qt5 install perfix not set, see contrib/local.mk.eg)
-    endif
-else
-    GKIDE_CMAKE_BUILD_FLAGS += -DCMAKE_PREFIX_PATH=$(QT5_INSTALL_PREFIX)
+# not all make target need to check the Qt lib
+TARGETS_DO_CHECK_QT_LIB := all gkide snail install check check-snail
+DO_CHECK_QT_LIB := false
+
+ifneq (, $(strip $(filter $(TARGETS_DO_CHECK_QT_LIB), $(MAKECMDGOALS))))
+    DO_CHECK_QT_LIB := true
 endif
 
-.PHONY: deps cmake nvim snail all install
+ifeq (, $(MAKECMDGOALS))
+    DO_CHECK_QT_LIB := true
+endif
 
-all: nvim snail
+# build nvim only, do not build snail, so do not need Qt stuff,
+# the default value is false, which means build both
+BUILD_NVIM_ONLY := false
+
+ifneq (, $(findstring nvim-only, $(MAKECMDGOALS)))
+    BUILD_NVIM_ONLY := true
+endif
+
+ifeq (, $(call filter-false, $(BUILD_NVIM_ONLY)))
+    ifeq (,$(QT5_INSTALL_PREFIX))
+        ifeq (true, $(DO_CHECK_QT_LIB))
+            $(error Qt5 install perfix not set, see contrib/local.mk.eg)
+        endif
+    else
+        GKIDE_CMAKE_BUILD_FLAGS += -DCMAKE_PREFIX_PATH=$(QT5_INSTALL_PREFIX)
+    endif
+else
+    GKIDE_CMAKE_BUILD_FLAGS += -DGKIDE_BUILD_NVIM_ONLY=ON
+endif
+
+.PHONY: all
+.PHONY: install
+
+.PHONY: nvim-only
+.PHONY: deps cmake
+.PHONY: gkide nvim snail
+
+.PHONY: check
+.PHONY: check-nvim check-snail
+
+.PHONY: clean
+.PHONY: gkideclean docsclean distclean
+
+.PHONY: htmls
+.PHONY: html-nvim html-snail
+.PHONY: pdfs
+.PHONY: pdf-nvim pdf-snail
+
+.PHONY: envcheck cppcheck
+
+.PHONY: flowchart
+
+.PHONY: strip eustrip
+
+.PHONY: help
+
+gkide: nvim snail
+
+all: gkide htmls pdfs
 
 install: all $(MINSIZEREL_AUTO_STRIP)
 	+$(BUILD_CMD) -C build install
@@ -224,7 +274,18 @@ snail: build/.run-cmake
 nvim: build/.run-cmake
 	+$(BUILD_CMD) -C build nvim
 
+nvim-only: build/.run-cmake-nvim-only
+	+$(BUILD_CMD) -C build nvim
+
 build/.run-cmake: | deps
+	$(Q)cd build && $(CMAKE_PROG) -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
+ifeq (ON,$(windows_cmd_shell))
+	$(Q)echo ok > $@
+else
+	$(Q)touch $@
+endif
+
+build/.run-cmake-nvim-only: | deps
 	$(Q)cd build && $(CMAKE_PROG) -G $(CMAKE_GENERATOR_NAME) $(GKIDE_CMAKE_BUILD_FLAGS) ..
 ifeq (ON,$(windows_cmd_shell))
 	$(Q)echo ok > $@
@@ -249,21 +310,13 @@ else
 endif
 	$(Q)cd deps/build && $(CMAKE_PROG) -G $(CMAKE_GENERATOR_NAME) $(DEPS_CMAKE_BUILD_FLAGS) ..
 
-.PHONY: check-nvim
-
 check-nvim:
 	$(Q)echo "Nothing todo for nvim test now"
-
-.PHONY: check-snail
 
 check-snail:
 	$(Q)echo "Nothing todo for snail test now"
 
-.PHONY: check
-
 check: check-nvim check-snail
-
-.PHONY: clean gkideclean docsclean distclean
 
 clean:
 ifeq (ON,$(windows_cmd_shell))
@@ -295,8 +348,6 @@ else
 	$(Q)rm -rf deps/build
 endif
 
-.PHONY: htmls pdfs html-nvim pdf-nvim html-snail pdf-snail
-
 build/generated/doxygen/.run-doxygen-nvim:
 	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.nvim
 
@@ -327,7 +378,6 @@ pdf-nvim:  build/generated/doxygen/.run-latex-nvim
 html-snail: build/generated/doxygen/.run-doxygen-snail
 pdf-snail:  build/generated/doxygen/.run-latex-snail
 
-.PHONY: envcheck cppcheck
 envcheck:
 	$(Q)$(MSYS_SHELL_PATH) scripts/envcheck/env-check.sh $(QT5_INSTALL_PREFIX) $(MSYS_SHELL_PATH)
 
@@ -345,18 +395,20 @@ endif
 
 # The output format of dot
 DOT_OUTPUT_FORMAT ?= svg
+
 # extra args passed to dot program
 ifeq (, $(DOT_ARGS))
     DOT_ARGS := -Kdot
 endif
+
 # The output directory of dot
 ifeq (ON,$(windows_cmd_shell))
     DOT_OUTPUT_DIR=$(subst \,/,$(strip $(shell cd)))/docs/build/graphviz
 else
     DOT_OUTPUT_DIR=$(shell pwd)/docs/build/graphviz
 endif
+
 # generated the flow diagram by run dot
-.PHONY: flowchart
 flowchart:
 ifeq (ON,$(windows_cmd_shell))
 	$(Q)cd docs && if not exist build mkdir build
@@ -369,7 +421,6 @@ endif
 	                                  DOT_OUTPUT_FORMAT=$(DOT_OUTPUT_FORMAT) \
 	                                  WINDOWS_CMD_SHELL=$(windows_cmd_shell)
 
-.PHONY: strip eustrip
 strip: nvim snail
 	$(Q)$(STRIP_PROG) $(STRIP_ARGS) build/bin/nvim
 	$(Q)$(STRIP_PROG) $(STRIP_ARGS) build/bin/snail
@@ -378,15 +429,14 @@ eustrip: nvim snail
 	$(Q)$(EU_STRIP_PROG) $(EU_STRIP_ARGS) build/bin/nvim  -f build/bin/nvim.sym
 	$(Q)$(EU_STRIP_PROG) $(EU_STRIP_ARGS) build/bin/snail -f build/bin/snail.sym
 
-.PHONY: help
 help:
 	@echo "The <target> of the Makefile are as following:"
-	@echo ""
-	@echo "  all                       to build nvim & snail, the default target."
+	@echo "  gkide                     to build nvim & snail, the default target."
 	@echo "  cmake                     to re-run cmake for gkide."
 	@echo "  deps                      to build gkide dependence libraries."
 	@echo "  nvim                      to build nvim."
 	@echo "  snail                     to build snail."
+	@echo "  nvim-only                 to build nvim only, do not need Qt lib."
 	@echo ""
 	@echo "  check                     equal to 'check-nvim' and 'check-snail'."
 	@echo "  check-nvim                equal to 'run-nvim-*' targets."
@@ -413,7 +463,6 @@ help:
 	@echo "  distclean                 to remove 'deps/build' and 'build' directory."
 	@echo ""
 	@echo "The <argument> of the Makefile are as following:"
-	@echo ""
 	@echo "  V=1                       Show make rules commands, the default is hidden."
 	@echo "  DOXYGEN_PROG=...          Where is doxygen program, the default is: 'doxygen'"
 	@echo "  NINJA_PROG=...            Where is ninja program,   the default is: ''"
@@ -422,3 +471,4 @@ help:
 	@echo ""
 	@echo "  Much more settings can be done using 'local.mk', see 'contrib/local.mk.eg' for details."
 	@echo ""
+

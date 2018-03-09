@@ -2,6 +2,7 @@ option(JEMALLOC_ENABLE "Enable jemalloc library." ON)
 
 # prefer to use static Qt5 for release build and shared Qt5 for debug build
 # you can also select to use what you want to!
+option(GKIDE_BUILD_NVIM_ONLY "Build nvim only, skip Qt stuff."     OFF)
 option(SNAIL_USE_STATIC_QT5 "snail use static Qt5 library enable." ON)
 option(SNAIL_USE_SHARED_QT5 "snail use shared Qt5 library enable." OFF)
 
@@ -9,13 +10,16 @@ if(SNAIL_USE_STATIC_QT5 AND SNAIL_USE_SHARED_QT5)
     message(FATAL_ERROR "static/shared Qt5 can not both enable!")
 endif()
 
-# Qt5 library is set through 'CMAKE_PREFIX_PATH'
-if(NOT CMAKE_PREFIX_PATH)
-    message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
-    message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
+if(NOT GKIDE_BUILD_NVIM_ONLY)
+    # Qt5 library is set through 'CMAKE_PREFIX_PATH'
+    if(NOT CMAKE_PREFIX_PATH)
+        message(STATUS "CMAKE_PREFIX_PATH = ${CMAKE_PREFIX_PATH}")
+        message(FATAL_ERROR "Qt5 install perfix not set, see contrib/local.mk.eg.")
+    endif()
+
+    set(QT_LIB_PREFIX_DIR ${CMAKE_PREFIX_PATH})
+    message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
 endif()
-set(QT_LIB_PREFIX_DIR ${CMAKE_PREFIX_PATH})
-message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
 
 # Dependency libraries search path
 set(BUNDLED_DEPS_PREFIX
