@@ -89,6 +89,26 @@ endif()
 
 string(TOUPPER ${CMAKE_BUILD_TYPE} build_type)
 
+if(NOT NVIM_RELEASE_TYPE)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(NVIM_RELEASE_TYPE "release")
+    elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+        set(NVIM_RELEASE_TYPE "stable")
+    else()
+        set(NVIM_RELEASE_TYPE "dev")
+    endif()
+endif()
+
+if(NOT SNAIL_RELEASE_TYPE)
+    if(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(SNAIL_RELEASE_TYPE "release")
+    elseif(CMAKE_BUILD_TYPE STREQUAL "MinSizeRel")
+        set(SNAIL_RELEASE_TYPE "stable")
+    else()
+        set(SNAIL_RELEASE_TYPE "dev")
+    endif()
+endif()
+
 # Check release type
 if(GKIDE_RELEASE_TYPE)
     if(GKIDE_RELEASE_TYPE STREQUAL    "dev"

@@ -209,4 +209,7 @@
 /// @return ((Type *)obj).
 #define STRUCT_CAST(Type, obj)   ((Type *)(obj))
 
+#define JUST_SHOW_IT(x)  #x
+#define TO_STRING(x)     JUST_SHOW_IT(x)
+
 #endif // NVIM_MACROS_H

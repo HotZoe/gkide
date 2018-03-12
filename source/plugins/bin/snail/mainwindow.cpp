@@ -254,5 +254,10 @@ Shell *MainWindow::shell(void)
     return m_shell;
 }
 
+NvimConnector *MainWindow::getNvimConnector(void)
+{
+    return m_nvimCon;
+}
+
 } // namespace::SnailNvimQt
 

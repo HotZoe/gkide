@@ -8,8 +8,20 @@
 
 #include "plugins/bin/snail/app.h"
 #include "plugins/bin/snail/nvimconnector.h"
-
 #include "generated/config/gkideversion.h"
+
+#define SNAIL_MODIFY_TIME \
+    GIT_COMMIT_DATE " " GIT_COMMIT_TIME " " GIT_COMMIT_ZONE
+
+#define BUILD_OS_INFO \
+    BUILD_ON_HOST "(" BUILD_OS_NAME ", v" BUILD_OS_VERSION ", " BUILD_OS_ARCH ")"
+
+#define SNAIL_VERSION_INFO                              \
+    "v" SNAIL_VERSION_BASIC "-" SNAIL_RELEASE_TYPE "\n" \
+    "build at " BUILD_TIMESTAMP "\n"                    \
+    "modified at " SNAIL_MODIFY_TIME "\n"               \
+    "compiled by " BUILD_BY_USER "@" BUILD_OS_INFO "\n" \
+    GKIDE_PACKAGE_NAME
 
 /// GUI Interface
 int gui_main(int argc, char **argv)
@@ -63,7 +75,7 @@ int cli_main(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-    QCoreApplication::setApplicationVersion(SNAIL_VERSION_LONG);
+    QCoreApplication::setApplicationVersion(SNAIL_VERSION_INFO);
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     // Do an early check for --nofork before creating a QApplication,

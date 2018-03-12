@@ -708,9 +708,10 @@ String cstr_to_string(const char *str)
     }
 
     size_t len = strlen(str);
-    return (String)
-    {
-        .data = xmemdupz(str, len), .size = len
+
+    return (String) {
+        .data = xmemdupz(str, len),
+        .size = len
     };
 }
 

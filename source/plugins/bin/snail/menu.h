@@ -5,6 +5,8 @@
 
 #include <QObject>
 #include <QMenu>
+#include <QLabel>
+#include <QDialog>
 #include <QAction>
 #include <QMenuBar>
 #include <QToolBar>
@@ -65,6 +67,28 @@ private:
     QAction *m_run_nvl;
 private slots:
     void trigerHelpAboutGKIDE(bool act);
+};
+
+class GkideVersionInfo: public QDialog
+{
+    Q_OBJECT
+
+public:
+    GkideVersionInfo(MainWindow *mw = NULL);
+    ~GkideVersionInfo();
+
+private:
+    QLabel *m_imageLabel;
+    QLabel *m_titleLabel;
+    QLabel *m_snailLabel;
+    QLabel *m_snailHashLabel;
+    QLabel *m_snailTimeLabel;
+    QLabel *m_snailBuilderLabel;
+    QLabel *m_nvimLabel;
+    QLabel *m_nvimHashLabel;
+    QLabel *m_nvimTimeLabel;
+    QLabel *m_nvimBuilderLabel;
+
 };
 
 } // namespace::SnailNvimQt

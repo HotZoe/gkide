@@ -376,6 +376,10 @@ NvimConnector *NvimConnector::reconnect(void)
     return NULL; // NOT-REACHED
 }
 
+NvimVersion *NvimConnector::getNvimVersionObj(void)
+{
+    return m_nvimVer;
+}
 /// @fn SnailNvimQt::NvimConnector::error(NvimError)
 ///
 /// This signal is emitted when an error occurs. Use NvimConnector::errorString

@@ -3,10 +3,8 @@
 #ifndef PLUGIN_SNAIL_VERSION_H
 #define PLUGIN_SNAIL_VERSION_H
 
-#include <QLabel>
-#include <QDialog>
+#include <QString>
 #include <QVariant>
-#include <QGridLayout>
 
 #include "generated/config/buildinfo.h"
 #include "generated/config/gkideversion.h"
@@ -93,14 +91,63 @@ public:
         return NVIM_API_PRERELEASE;
     }
 
+    QString getBuildReversion(void)
+    {
+        return m_buildReversion;
+    }
+
+    QString getBuildTimestamp(void)
+    {
+        return m_buildTimestamp;
+    }
+
+    QString getBuildByUser(void)
+    {
+        return m_buildByUser;
+    }
+
+    QString getBuildOnHost(void)
+    {
+        return m_buildOnHost;
+    }
+
+    QString getBuildOsName(void)
+    {
+        return m_buildOsName;
+    }
+
+    QString getBuildOsArch(void)
+    {
+        return m_buildOsArch;
+    }
+
+    QString getBuildOsVersion(void)
+    {
+        return m_buildOsVersion;
+    }
+
+    QString getBuildReleaseType(void)
+    {
+        return m_buildReleaseType;
+    }
+
 private:
     int m_major; ///< nvim runtime major version
     int m_minor; ///< nvim runtime minor version
     int m_patch; ///< nvim runtime patch version
 
-    int m_api_level;       ///< nvim runtime API level
-    int m_api_compatible;  ///< nvim runtime API compatible level
-    bool m_api_prerelease; ///< nvim runtime API prerelease
+    int m_api_level;        ///< nvim runtime API level
+    int m_api_compatible;   ///< nvim runtime API compatible level
+    bool m_api_prerelease;  ///< nvim runtime API prerelease
+
+    QString m_buildReversion;    ///< nvim reversion, git short hash
+    QString m_buildTimestamp;    ///< nvim build date time
+    QString m_buildByUser;       ///< nvim build user name
+    QString m_buildOnHost;       ///< nvim build host name
+    QString m_buildOsName;       ///< nvim build system name
+    QString m_buildOsArch;       ///< nvim build system arch
+    QString m_buildOsVersion;    ///< nvim build system version
+    QString m_buildReleaseType;  ///< nvim build release type
 };
 
 class SnailVersion
@@ -182,29 +229,6 @@ public:
     {
         return GKIDE_PACKAGE_NAME;
     }
-};
-
-class GkideVersionInfo: public QDialog
-{
-    Q_OBJECT
-
-public:
-    GkideVersionInfo(QWidget *parent=NULL);
-    ~GkideVersionInfo();
-
-private:
-    QLabel *m_imageLabel;
-    QLabel *m_titleLabel;
-    QLabel *m_packageLabel;
-    QLabel *m_snailLabel;
-    QLabel *m_snailHashLabel;
-    QLabel *m_snailTimeLabel;
-    QLabel *m_snailBuilderLabel;
-    QLabel *m_nvimLabel;
-    QLabel *m_nvimHashLabel;
-    QLabel *m_nvimTimeLabel;
-    QLabel *m_nvimBuilderLabel;
-
 };
 
 } // namespace::SnailNvimQt

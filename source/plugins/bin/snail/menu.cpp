@@ -293,4 +293,148 @@ void GkideMenu::trigerHelpAboutGKIDE(bool FUNC_ATTR_ARGS_UNUSED_REALY(act))
     info->show();
 }
 
+#define WIN_HIGHT   260
+#define WIN_WIDTH   620
+
+#define LOGO_X      20
+#define LOGO_Y      50
+#define LOGO_HIGHT  160
+#define LOGO_WIDTH  160
+GkideVersionInfo::GkideVersionInfo(MainWindow *mw)
+{
+    this->setParent(mw);
+    this->setWindowFlags(Qt::Dialog | Qt::WindowStaysOnTopHint);
+    this->setAttribute(Qt::WA_DeleteOnClose, true);
+    this->setWindowTitle("About GKIDE");
+    this->setFixedSize(WIN_WIDTH, WIN_HIGHT);
+
+    QImage gkideLogoImg(":/logo/gkide.png");
+    QPixmap gkideLogoPixmap;
+    gkideLogoPixmap.convertFromImage(gkideLogoImg);
+    gkideLogoPixmap = gkideLogoPixmap.scaled(160, 160, Qt::KeepAspectRatio);
+    m_imageLabel = new QLabel(this);
+    m_imageLabel->setGeometry(QRect(LOGO_X, LOGO_Y, LOGO_WIDTH, LOGO_HIGHT));
+    m_imageLabel->setPixmap(gkideLogoPixmap);
+
+    #define LABEL_H     15  // hight
+    #define LABEL_W     420 // width
+    #define LABEL_X     180
+    #define DELTA_Y     (9 + LABEL_H)
+
+    int label_y = 20;
+
+    QFont titleFont;
+    titleFont.setPointSize(16);
+    titleFont.setBold(true);
+    titleFont.setWeight(75);
+    m_titleLabel = new QLabel(this);
+    m_titleLabel->setFont(titleFont);
+    m_titleLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H + 5));
+    m_titleLabel->setAlignment(Qt::AlignCenter);//AlignLeft,
+    m_titleLabel->setText("GKIDE Version v" GKIDE_RELEASE_VERSION);
+    label_y += DELTA_Y + 7;
+
+    QFont txtFont;
+    txtFont.setPointSize(10);
+    QFont progFont;
+    progFont.setPointSize(12);
+    progFont.setBold(true);
+    progFont.setWeight(75);
+
+    m_snailLabel = new QLabel(this);
+    m_snailLabel->setFont(progFont);
+    m_snailLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_snailLabel->setAlignment(Qt::AlignCenter);
+    m_snailLabel->setText("snail v" SNAIL_VERSION_BASIC "-" SNAIL_RELEASE_TYPE);
+    label_y += DELTA_Y;
+
+    m_snailHashLabel = new QLabel(this);
+    m_snailHashLabel->setFont(txtFont);
+    m_snailHashLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_snailHashLabel->setAlignment(Qt::AlignCenter);
+    m_snailHashLabel->setText("Reversion @" GIT_COMMIT_HASH);
+    label_y += DELTA_Y;
+
+    m_snailTimeLabel = new QLabel(this);
+    m_snailTimeLabel->setFont(txtFont);
+    m_snailTimeLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_snailTimeLabel->setAlignment(Qt::AlignCenter);
+    // Build at 2017-12-02 12:32:54
+    m_snailTimeLabel->setText("Build at " BUILD_TIMESTAMP);
+    label_y += DELTA_Y;
+
+    m_snailBuilderLabel = new QLabel(this);
+    m_snailBuilderLabel->setFont(txtFont);
+    m_snailBuilderLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_snailBuilderLabel->setAlignment(Qt::AlignCenter);
+    //By XXXX on XXXX, windows7, x64, v16.04
+    m_snailBuilderLabel->setText("By " BUILD_BY_USER
+                                 " on " BUILD_ON_HOST
+                                 ", " BUILD_OS_NAME
+                                 ", " BUILD_OS_ARCH
+                                 ", v" BUILD_OS_VERSION);
+    label_y += DELTA_Y;
+
+    NvimVersion *nvimVerObj = mw->getNvimConnector()->getNvimVersionObj();
+
+    m_nvimLabel = new QLabel(this);
+    m_nvimLabel->setFont(progFont);
+    m_nvimLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_nvimLabel->setAlignment(Qt::AlignCenter);
+    m_nvimLabel->setText(QString("nvim v")
+                         + QString::number(nvimVerObj->nvimVersionMajor(), 10)
+                         + QString(".")
+                         + QString::number(nvimVerObj->nvimVersionMinor(), 10)
+                         + QString(".")
+                         + QString::number(nvimVerObj->nvimVersionPatch(), 10)
+                         + QString("-")
+                         + nvimVerObj->getBuildReleaseType()
+                         + QString(", API(v")
+                         + QString::number(nvimVerObj->nvimApiLevel(), 10)
+                         + QString(")"));
+    label_y += DELTA_Y;
+
+    m_nvimHashLabel = new QLabel(this);
+    m_nvimHashLabel->setFont(txtFont);
+    m_nvimHashLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_nvimHashLabel->setAlignment(Qt::AlignCenter);
+    m_nvimHashLabel->setText(QString("Reversion @")
+                             + nvimVerObj->getBuildReversion());
+    label_y += DELTA_Y;
+
+    m_nvimTimeLabel = new QLabel(this);
+    m_nvimTimeLabel->setFont(txtFont);
+    m_nvimTimeLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_nvimTimeLabel->setAlignment(Qt::AlignCenter);
+    // Build at 2017-12-02 12:32:54 +08000
+    m_nvimTimeLabel->setText(QString("Build at ")
+                             + nvimVerObj->getBuildTimestamp());
+    label_y += DELTA_Y;
+
+    m_nvimBuilderLabel = new QLabel(this);
+    m_nvimBuilderLabel->setFont(txtFont);
+    m_nvimBuilderLabel->setGeometry(QRect(LABEL_X, label_y, LABEL_W, LABEL_H));
+    m_nvimBuilderLabel->setAlignment(Qt::AlignCenter);
+    //By XXXX on XXXX, windows7, x64, v16.04
+    m_nvimBuilderLabel->setText(QString("By ") + nvimVerObj->getBuildByUser()
+                                + QString(" on ") + nvimVerObj->getBuildOnHost()
+                                + QString(", ") + nvimVerObj->getBuildOsName()
+                                + QString(", ") + nvimVerObj->getBuildOsArch()
+                                + QString(", v") + nvimVerObj->getBuildOsVersion());
+}
+
+GkideVersionInfo::~GkideVersionInfo()
+{
+    delete m_imageLabel;
+    delete m_titleLabel;
+    delete m_snailLabel;
+    delete m_snailHashLabel;
+    delete m_snailTimeLabel;
+    delete m_snailBuilderLabel;
+    delete m_nvimLabel;
+    delete m_nvimHashLabel;
+    delete m_nvimTimeLabel;
+    delete m_nvimBuilderLabel;
+}
+
 } // namespace::SnailNvimQt

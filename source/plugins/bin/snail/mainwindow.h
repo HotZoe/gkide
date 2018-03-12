@@ -31,6 +31,8 @@ public:
     bool neovimAttached(void) const;
     Shell *shell(void);
 
+    NvimConnector *getNvimConnector(void);
+
 public slots:
     void delayedShow(DelayedShow type=DelayedShow::Normal);
 

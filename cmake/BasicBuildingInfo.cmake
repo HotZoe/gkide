@@ -163,7 +163,7 @@ function(get_current_system_time_linux _sys_time)
     find_program(DATE_PROG date)
 
     if(EXISTS ${DATE_PROG})
-        execute_process(COMMAND ${DATE_PROG} "+%Y-%m-%d\ %T"
+        execute_process(COMMAND ${DATE_PROG} "+%Y-%m-%d\ %T\ %z"
                         OUTPUT_STRIP_TRAILING_WHITESPACE
                         OUTPUT_VARIABLE  _cur_date_time)
 

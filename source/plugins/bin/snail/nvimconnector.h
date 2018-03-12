@@ -81,6 +81,7 @@ public:
     QByteArray encode(const QString &);
     NeovimConnectionType connectionType();
 
+    NvimVersion *getNvimVersionObj(void);
 signals:
     /// Emitted when nvim is ready
     void ready(void);

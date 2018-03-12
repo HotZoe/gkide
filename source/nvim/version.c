@@ -26,16 +26,19 @@
 #include "generated/config/gkideversion.h"
 #include "generated/config/confignvim.h"
 
+#define NVIM_VERSION_LONG                               \
+    "nvim v" NVIM_VERSION_BASIC "-" NVIM_RELEASE_TYPE   \
+    ", API(v" TO_STRING(NVIM_API_VERSION) ")"
+
 // ":version", "$ nvim --version"
-#define NVIM_MODIFY_TIME   GIT_COMMIT_DATE " " GIT_COMMIT_TIME " " GIT_COMMIT_ZONE
+#define NVIM_MODIFY_TIME \
+    GIT_COMMIT_DATE " " GIT_COMMIT_TIME " " GIT_COMMIT_ZONE
 
 char *nvim_version_long =
     "NVIM v" NVIM_VERSION_BASIC " (GKIDE v" GKIDE_RELEASE_VERSION ")";
 
-static uchar_kt *compiled_sys =
-    (uchar_kt *)BUILD_ON_HOST "(" BUILD_OS_NAME " " BUILD_OS_VERSION ")";
-
-static uchar_kt *compiled_usr = (uchar_kt *)BUILD_BY_USER;
+#define BUILD_HOST_OS_INFO \
+    BUILD_ON_HOST "(" BUILD_OS_NAME ", v" BUILD_OS_VERSION ", " BUILD_OS_ARCH ")"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "version.c.generated.h"
@@ -231,6 +234,15 @@ Dictionary gen_version_dict(void)
     PUT(d, "api_compatible", INTEGER_OBJ(NVIM_API_COMPATIBLE));
     PUT(d, "api_prerelease", BOOLEAN_OBJ(NVIM_API_PRERELEASE));
 
+    PUT(d, "build_reversion", STRING_OBJ(cstr_to_string(GIT_COMMIT_HASH)));
+    PUT(d, "build_timestamp", STRING_OBJ(cstr_to_string(BUILD_TIMESTAMP)));
+    PUT(d, "build_by_user", STRING_OBJ(cstr_to_string(BUILD_BY_USER)));
+    PUT(d, "build_on_host", STRING_OBJ(cstr_to_string(BUILD_ON_HOST)));
+    PUT(d, "build_os_name", STRING_OBJ(cstr_to_string(BUILD_OS_NAME)));
+    PUT(d, "build_os_arch", STRING_OBJ(cstr_to_string(BUILD_OS_ARCH)));
+    PUT(d, "build_os_version", STRING_OBJ(cstr_to_string(BUILD_OS_VERSION)));
+    PUT(d, "build_release_type", STRING_OBJ(cstr_to_string(NVIM_RELEASE_TYPE)));
+
     return d;
 }
 
@@ -332,21 +344,18 @@ static void list_features(void)
 
 void list_version(void)
 {
-    MSG_PUTS("    Version: " NVIM_VERSION_LONG "\n");
-    MSG_PUTS(" Build date: " BUILD_TIMESTAMP   "\n");
-    MSG_PUTS(" Build type: " NVIM_BUILD_TYPE   "\n");
-    MSG_PUTS("Modified at: " NVIM_MODIFY_TIME  "\n");
-    MSG_PUTS("Compiled by: ");
-    MSG_PUTS(compiled_usr);
-    MSG_PUTS("@");
-    MSG_PUTS(compiled_sys);
+    MSG_PUTS("      Version: " NVIM_VERSION_LONG "\n");
+    MSG_PUTS("     Build at: " BUILD_TIMESTAMP "\n");
+    MSG_PUTS("  Modified at: " NVIM_MODIFY_TIME "\n");
+    MSG_PUTS("  Compiled by: " BUILD_BY_USER "@" BUILD_HOST_OS_INFO "\n");
+    MSG_PUTS("GKIDE Package: " GKIDE_PACKAGE_NAME "\n");
 
     // When adding features here, don't forget to update the list of internal
     // variables in 'eval.c'. Print the list of extra patch descriptions if
     // there is at least one.
     if(extra_patches[0] != NULL)
     {
-        MSG_PUTS("\n\nExtra patches:\n");
+        MSG_PUTS("\nExtra patches:\n");
         char *s = "";
 
         for(int i = 0; extra_patches[i] != NULL; ++i)
@@ -357,7 +366,7 @@ void list_version(void)
         }
     }
 
-    version_msg("\n\nOptional features included (+) or excluded (-):\n");
+    version_msg("\nOptional features included (+) or excluded (-):\n");
     list_features();
 
     size_t len;
