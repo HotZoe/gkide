@@ -5,6 +5,9 @@
 
 #include "plugins/bin/snail/errorwidget.h"
 
+#define NVIM_ERR_LOGO_HIGHT     64
+#define NVIM_ERR_LOGO_WIGHT     64
+
 namespace SnailNvimQt {
 
 ErrorWidget::ErrorWidget(QWidget *parent)
@@ -13,7 +16,9 @@ ErrorWidget::ErrorWidget(QWidget *parent)
     m_errorLabel = new QLabel();
     m_closeButton = new QPushButton(tr("Retry"));
     m_image = new QLabel();
-    m_image->setPixmap(QPixmap(":/error/nvim.png").scaled(64, 64, Qt::KeepAspectRatio));
+    m_image->setPixmap(QPixmap(":/error/nvim.png").scaled(NVIM_ERR_LOGO_HIGHT,
+                                                          NVIM_ERR_LOGO_WIGHT,
+                                                          Qt::KeepAspectRatio));
 
     connect(m_closeButton, &QPushButton::clicked,
             this, &ErrorWidget::reconnectNeovim);

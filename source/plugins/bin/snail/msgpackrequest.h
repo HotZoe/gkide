@@ -19,7 +19,7 @@ public:
     MsgpackRequest(quint32 id, MsgpackIODevice *dev, QObject *parent=0);
     void setFuncId(NvimApiFuncID);
     NvimApiFuncID funcId(void);
-    void setTimeout(int msec);
+    void setTimeoutStart(int msec);
 
 signals:
     /// The request has finished
@@ -37,7 +37,7 @@ protected slots:
     void requestTimeout(void);
 
 public:
-    const quint32 m_msgid; ///< msgpack request identifier
+    const quint32 m_msgid;
 
 private:
     MsgpackIODevice *m_dev;

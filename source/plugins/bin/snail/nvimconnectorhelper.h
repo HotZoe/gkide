@@ -26,7 +26,6 @@ protected:
 
 private:
     NvimConnector *m_c;
-
 };
 
 } // namespace::SnailNvimQt

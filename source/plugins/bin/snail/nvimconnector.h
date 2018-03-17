@@ -27,7 +27,6 @@ class NvimConnector: public QObject
     /// True if the Nvim instance is ready
     /// @see neovimObject
     Q_PROPERTY(bool ready READ isReady NOTIFY ready)
-    Q_ENUMS(NvimError)
 
 public:
     enum NvimError
@@ -44,6 +43,7 @@ public:
         MsgpackError,
         RuntimeMsgpackError,
     };
+    Q_ENUM(NvimError)
 
     /// Underlying connection used to read nvim
     enum NeovimConnectionType

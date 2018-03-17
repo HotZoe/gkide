@@ -112,7 +112,7 @@ void NvimConnectorHelper::handleMetadata(
         MsgpackRequest *r = m_c->neovimObject()->nvim_get_option("encoding");
         connect(r, &MsgpackRequest::timeout,
                 m_c, &NvimConnector::fatalTimeout);
-        r->setTimeout(10000);
+        r->setTimeoutStart(10000);
     }
     else
     {

@@ -36,7 +36,7 @@ void MsgpackRequest::setFuncId(NvimApiFuncID f)
     m_funid = f;
 }
 
-void MsgpackRequest::setTimeout(int msec)
+void MsgpackRequest::setTimeoutStart(int msec)
 {
     m_timer.setInterval(msec);
     m_timer.setSingleShot(true);

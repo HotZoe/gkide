@@ -24,7 +24,7 @@ NvimConnector::NvimConnector(MsgpackIODevice *dev)
       m_ctype(OtherConnection), m_ready(false)
 {
     m_helper = new NvimConnectorHelper(this);
-    qRegisterMetaType<NvimError>("NvimError");
+
     connect(m_dev, &MsgpackIODevice::error,
             this, &NvimConnector::msgpackError);
 
@@ -85,7 +85,7 @@ MsgpackRequest *NvimConnector::attachUi(int64_t width, int64_t height)
 
     connect(r, &MsgpackRequest::timeout,
             this, &NvimConnector::fatalTimeout);
-    r->setTimeout(5000);
+    r->setTimeoutStart(5000);
 
     m_dev->send(width);
     m_dev->send(height);
@@ -116,13 +116,14 @@ uint64_t NvimConnector::channel(void)
 void NvimConnector::discoverMetadata(void)
 {
     MsgpackRequest *r = m_dev->startRequestUnchecked("nvim_get_api_info", 0);
+    r->setFuncId(kNvimAPI_NVIM_GET_API_INFO);
     connect(r, &MsgpackRequest::finished,
             m_helper, &NvimConnectorHelper::handleMetadata);
     connect(r, &MsgpackRequest::error,
             m_helper, &NvimConnectorHelper::handleMetadataError);
     connect(r, &MsgpackRequest::timeout,
             this, &NvimConnector::fatalTimeout);
-    r->setTimeout(5000); // 5s
+    r->setTimeoutStart(5000); // 5s
 }
 
 /// True if the Nvim instance is ready

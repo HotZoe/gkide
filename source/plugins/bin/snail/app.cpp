@@ -100,7 +100,13 @@ void App::initCliArgs(QCommandLineParser &parser,
     arg_desc = QCoreApplication::translate("main", "nvim executable path.");
     arg_nvim.setDescription(arg_desc);
     arg_nvim.setValueName("nvim_exec");
+
+    #ifdef Q_OS_WIN
+    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim.exe");
+    #else
     arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim");
+    #endif
+
     parser.addOption(arg_nvim);
 
     // --server <address>
@@ -197,8 +203,8 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     {
         QString server = parser.value("server");
 
-        Q_ASSERT(server.isEmpty() == false);
         qDebug() << "serverAddr=" << server;
+        Q_ASSERT(server.isEmpty() == false);
 
         return SnailNvimQt::NvimConnector::connectToNvim(server);
     }
@@ -213,8 +219,8 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         nvimArgs << "--cmd";
         nvimArgs << "set termguicolors";
 
-        // default nvim program: gkide/bin/nvim
-        QString nvimProg = parser.value("nvim");
+        // nvim program
+        QString nvimProg;
 
         // environment nvim program check: $GKIDE_SNAIL_NVIMEXEC
         if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_NVIMEXEC))
@@ -232,14 +238,8 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         // fall back to the gkide-nvim default path: gkide/bin/nvim
         if(!QFileInfo(nvimProg).isExecutable())
         {
-            QDir gkideDir =
-                QFileInfo(QCoreApplication::applicationDirPath()).dir();
-
-            #ifdef Q_OS_WIN
-            nvimProg = QString("%1/bin/nvim.exe").arg(gkideDir.path());
-            #else
-            nvimProg = QString("%1/bin/nvim").arg(gkideDir.path());
-            #endif
+            // default nvim program: gkide/bin/nvim
+            nvimProg = parser.value("nvim");
         }
 
         qDebug() << "nvimProg: " << nvimProg;

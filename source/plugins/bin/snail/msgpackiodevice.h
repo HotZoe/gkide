@@ -16,28 +16,31 @@ class MsgpackRequestHandler;
 class MsgpackIODevice: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(MsgpackError)
+
     Q_PROPERTY(MsgpackError error
-               READ     errorCause
-               NOTIFY   error)
-    Q_PROPERTY(QByteArray encoding
-               READ     encoding
-               WRITE    setEncoding)
+               READ         errorCause
+               NOTIFY       error)
+    Q_PROPERTY(QByteArray   encoding
+               READ         encoding
+               WRITE        setEncoding)
 public:
     enum MsgpackError
     {
-        NoError             = 0,
-        InvalidDevice       = 1,
-        InvalidMsgpack      = 2,
-        UnsupportedEncoding = 3
+        NoError = 0,
+        InvalidDevice,
+        InvalidMsgpack,
+        UnsupportedEncoding,
     };
+    Q_ENUM(MsgpackError)
+
     enum MsgpackMsgType
     {
-        msgRequest      = 0,
-        msgResponse     = 1,
-        msgNotification = 2,
-        msgUnsupported  = 3,
+        msgRequest = 0,
+        msgResponse,
+        msgNotification,
+        msgUnsupported,
     };
+    Q_ENUM(MsgpackMsgType)
 
     MsgpackIODevice(QIODevice *, QObject *parent=0);
     ~MsgpackIODevice();
@@ -117,8 +120,12 @@ protected slots:
     void setError(MsgpackError err, const QString &msg);
 
     void dataAvailable(void);
+
+#ifdef Q_OS_WIN
     void dataAvailableStdin(const QByteArray &);
+#else
     void dataAvailableFd(int fd);
+#endif
 
     void requestTimeout(quint32 id);
 
@@ -132,11 +139,11 @@ private:
     /// conversion between text encodingslocale->unicode
     QTextCodec *m_encoding;
 
-    msgpack_packer m_pk;    ///< msgpack packer
-    msgpack_unpacker m_uk;  ///< msgpack unpacker
+    msgpack_packer m_pk; ///< msgpack packer
+    msgpack_unpacker m_uk; ///< msgpack unpacker
 
-    QHash<quint32, MsgpackRequest *> m_requests;
     MsgpackRequestHandler *m_reqHandler;
+    QHash<quint32, MsgpackRequest *> m_requests;
     QHash<int8_t, msgpackExtDecoder> m_extTypes;
 
     QString m_errorString;

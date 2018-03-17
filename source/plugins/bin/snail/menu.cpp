@@ -14,6 +14,8 @@ GkideMenu::GkideMenu(MainWindow *mw)
     m_menuBar = new QMenuBar(m_mainwin); // menubar
     m_toolBar = new QToolBar(m_mainwin); // toolbar
     m_toolBar->setFixedHeight(30);
+    m_toolBar->setMovable(false);
+    m_toolBar->setVisible(false);
 
     // File
     m_file = new QMenu(m_menuBar);
@@ -195,6 +197,8 @@ GkideMenu::GkideMenu(MainWindow *mw)
 
     // View->Toolbar Show Hide
     QAction *a_view_ToolbarShowHide = m_toolBar->toggleViewAction();
+    a_view_ToolbarShowHide->setCheckable(true);
+    a_view_ToolbarShowHide->setChecked(false);
     a_view_ToolbarShowHide->setText("Toolbar Show/Hide");
 
     // Window
@@ -237,17 +241,20 @@ GkideMenu::GkideMenu(MainWindow *mw)
 
     m_toolBar->addAction(m_file_OpenFileProject);
     m_toolBar->addAction(m_file_SaveFile);
+    m_toolBar->addSeparator();
     m_toolBar->addAction(m_edit_Cut);
     m_toolBar->addAction(m_edit_Copy);
     m_toolBar->addAction(m_edit_Paste);
     m_toolBar->addAction(m_edit_Undo);
     m_toolBar->addAction(m_edit_Redo);
+    m_toolBar->addSeparator();
     m_toolBar->addAction(m_search_Prev);
     m_toolBar->addAction(m_search_Search);
     m_toolBar->addAction(m_search_Next);
     m_toolBar->addAction(m_search_PrevResult);
     m_toolBar->addAction(m_search_Bookmark);
     m_toolBar->addAction(m_search_NextResult);
+    m_toolBar->addSeparator();
     m_toolBar->addAction(m_project_Build);
     m_toolBar->addAction(m_options_Remote);
     m_toolBar->addAction(m_run_nvl);
