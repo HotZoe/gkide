@@ -13,8 +13,8 @@ MainWindow::MainWindow(NvimConnector *c, QWidget *parent)
     m_errorWidget = new ErrorWidget();
     m_stack.addWidget(m_errorWidget);
 
-    connect(m_errorWidget, &ErrorWidget::reconnectNeovim,
-            this, &MainWindow::reconnectNeovim);
+    connect(m_errorWidget, &ErrorWidget::reconnectNvim,
+            this, &MainWindow::reconnectNvim);
 
     setCentralWidget(&m_stack);
 
@@ -161,7 +161,7 @@ void MainWindow::neovimGuiCloseRequest(void)
     QMainWindow::close();
 }
 
-void MainWindow::reconnectNeovim(void)
+void MainWindow::reconnectNvim(void)
 {
     if(m_nvimCon->canReconnect())
     {

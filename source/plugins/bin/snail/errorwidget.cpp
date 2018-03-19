@@ -21,7 +21,7 @@ ErrorWidget::ErrorWidget(QWidget *parent)
                                                           Qt::KeepAspectRatio));
 
     connect(m_closeButton, &QPushButton::clicked,
-            this, &ErrorWidget::reconnectNeovim);
+            this, &ErrorWidget::reconnectNvim);
 
     QHBoxLayout *inner_layout = new QHBoxLayout();
     inner_layout->addStretch();

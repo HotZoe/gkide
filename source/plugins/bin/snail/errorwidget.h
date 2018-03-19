@@ -18,7 +18,7 @@ public slots:
     void setText(const QString &text);
     void showReconnect(bool);
 signals:
-    void reconnectNeovim(void);
+    void reconnectNvim(void);
 
 private:
     QLabel *m_errorLabel;

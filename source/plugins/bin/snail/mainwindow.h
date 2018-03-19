@@ -51,7 +51,7 @@ private slots:
     void neovimGuiCloseRequest(void);
     void neovimExited(int status);
     void neovimError(NvimConnector::NvimError);
-    void reconnectNeovim(void);
+    void reconnectNvim(void);
     void showIfDelayed(void);
     void neovimAttachmentChanged(bool);
 
