@@ -56,7 +56,7 @@ void MainWindow::init(NvimConnector *c)
     connect(m_shell, &Shell::neovimGuiCloseRequest,
             this, &MainWindow::neovimGuiCloseRequest);
     connect(m_nvimCon, &NvimConnector::processExited,
-            this, &MainWindow::neovimExited);
+            this, &MainWindow::nvimExited);
     connect(m_nvimCon, &NvimConnector::error,
             this, &MainWindow::nvimError);
 
@@ -74,7 +74,7 @@ bool MainWindow::neovimAttached(void) const
 }
 
 /// The Nvim process has exited
-void MainWindow::neovimExited(int status)
+void MainWindow::nvimExited(int status)
 {
     showIfDelayed();
 

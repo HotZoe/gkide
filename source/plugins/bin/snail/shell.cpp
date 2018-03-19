@@ -50,7 +50,7 @@ Shell::Shell(NvimConnector *nvim, QWidget *parent)
     connect(m_nvimCon, &NvimConnector::error,
             this, &Shell::nvimError);
     connect(m_nvimCon, &NvimConnector::processExited,
-            this, &Shell::neovimExited);
+            this, &Shell::nvimExited);
     connect(this, &ShellWidget::fontError,
             this, &Shell::fontError);
 
@@ -243,7 +243,7 @@ void Shell::nvimError(NvimConnector::NvimError FUNC_ATTR_ARGS_UNUSED_REALY(err))
 }
 
 /// The Nvim process has exited
-void Shell::neovimExited(int status)
+void Shell::nvimExited(int status)
 {
     setAttached(false);
 

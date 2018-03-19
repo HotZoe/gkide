@@ -53,7 +53,7 @@ public slots:
 
 protected slots:
     void nvimError(NvimConnector::NvimError);
-    void neovimExited(int);
+    void nvimExited(int);
     void neovimResizeFinished(void);
     void mouseClickReset(void);
     void mouseClickIncrement(Qt::MouseButton bt);

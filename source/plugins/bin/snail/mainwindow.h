@@ -49,7 +49,7 @@ private slots:
     void neovimMaximized(bool);
     void neovimFullScreen(bool);
     void neovimGuiCloseRequest(void);
-    void neovimExited(int status);
+    void nvimExited(int status);
     void nvimError(NvimConnector::NvimError);
     void reconnectNvim(void);
     void showIfDelayed(void);
