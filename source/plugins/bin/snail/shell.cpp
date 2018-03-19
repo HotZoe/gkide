@@ -48,7 +48,7 @@ Shell::Shell(NvimConnector *nvim, QWidget *parent)
     connect(m_nvimCon, &NvimConnector::ready,
             this, &Shell::init);
     connect(m_nvimCon, &NvimConnector::error,
-            this, &Shell::neovimError);
+            this, &Shell::nvimError);
     connect(m_nvimCon, &NvimConnector::processExited,
             this, &Shell::neovimExited);
     connect(this, &ShellWidget::fontError,
@@ -237,7 +237,7 @@ void Shell::init(void)
     m_nvimCon->neovimObject()->nvim_subscribe("Gui");
 }
 
-void Shell::neovimError(NvimConnector::NvimError FUNC_ATTR_ARGS_UNUSED_REALY(err))
+void Shell::nvimError(NvimConnector::NvimError FUNC_ATTR_ARGS_UNUSED_REALY(err))
 {
     setAttached(false);
 }

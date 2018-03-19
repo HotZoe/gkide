@@ -58,13 +58,13 @@ void MainWindow::init(NvimConnector *c)
     connect(m_nvimCon, &NvimConnector::processExited,
             this, &MainWindow::neovimExited);
     connect(m_nvimCon, &NvimConnector::error,
-            this, &MainWindow::neovimError);
+            this, &MainWindow::nvimError);
 
     m_shell->setFocus(Qt::OtherFocusReason);
 
     if(m_nvimCon->errorCause())
     {
-        neovimError(m_nvimCon->errorCause());
+        nvimError(m_nvimCon->errorCause());
     }
 }
 
@@ -96,7 +96,7 @@ void MainWindow::neovimExited(int status)
         close();
     }
 }
-void MainWindow::neovimError(NvimConnector::NvimError err)
+void MainWindow::nvimError(NvimConnector::NvimError err)
 {
     showIfDelayed();
 
