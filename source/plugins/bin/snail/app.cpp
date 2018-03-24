@@ -86,20 +86,6 @@ void App::initCliArgs(QCommandLineParser &parser,
     parser.addOption(arg_nofork);
 #endif
 
-    // --nvim <nvim_path>
-    QCommandLineOption arg_nvim("nvim");
-    arg_desc = QCoreApplication::translate("main", "nvim executable path.");
-    arg_nvim.setDescription(arg_desc);
-    arg_nvim.setValueName("nvim_exec");
-
-    #ifdef Q_OS_WIN
-    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim.exe");
-    #else
-    arg_nvim.setDefaultValue(App::applicationDirPath() + "/nvim");
-    #endif
-
-    parser.addOption(arg_nvim);
-
     // --server <address>
     QCommandLineOption arg_server("server");
     arg_desc = QCoreApplication::translate("main", "Connect to existing nvim instance.");
@@ -197,60 +183,21 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
         nvimArgs << "--cmd";
         nvimArgs << "set termguicolors";
 
+        // GKIDE home directory
+        QString gkideHome = App::applicationDirPath();
+
         // nvim program
-        QString nvimProg;
-
-        // environment nvim program check: $GKIDE_SNAIL_NVIMEXEC
-        if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_NVIMEXEC))
-        {
-            QString nvim_bin = qgetenv(ENV_GKIDE_SNAIL_NVIMEXEC);
-
-            qDebug() << "nvimProgEnv=" << nvim_bin;
-
-            if(QFileInfo(nvim_bin).isExecutable())
-            {
-                nvimProg = nvim_bin;
-            }
-        }
-
-        // fall back to the gkide-nvim default path: gkide/bin/nvim
-        if(!QFileInfo(nvimProg).isExecutable())
-        {
-            // default nvim program: gkide/bin/nvim
-            nvimProg = parser.value("nvim");
-        }
+        #ifdef Q_OS_WIN
+        QString nvimProg = gkideHome + "/nvim.exe";
+        #else
+        QString nvimProg = gkideHome + "/nvim";
+        #endif
 
         qDebug() << "nvimProg: " << nvimProg;
 
-        // get the GKIDE install directory
-        QDir gkideDir = QFileInfo(QCoreApplication::applicationDirPath()).dir();
-
-        #ifdef Q_OS_MAC
-        // within the bundle at: gkide/Resources/plg
-        gkideDir.cd("Resources");
-        #endif
-
-        gkideDir.cd("plg");
-
-        // default plugin directory check: gkide/plg
-        if(gkideDir.exists())
+        if(!QFileInfo(nvimProg).isExecutable())
         {
-            QString plgDir = QString("let &rtp.=',%1'").arg(gkideDir.path());
-            nvimArgs.insert(1, plgDir);
-        }
-
-        // environment plugin directory check: $GKIDE_NVIM_RTMPLG
-        if(qEnvironmentVariableIsSet(ENV_GKIDE_NVIM_RTMPLG))
-        {
-            QString envPlgDir = qgetenv(ENV_GKIDE_NVIM_RTMPLG);
-
-            qDebug() << "plgDirEnv=" << envPlgDir;
-
-            if(QFileInfo(envPlgDir).isDir())
-            {
-                QString plgDir = QString("let &rtp.=',%1'").arg(envPlgDir);
-                nvimArgs.insert(1, plgDir);
-            }
+            ::exit(EXIT_FAILURE);
         }
 
         // Pass positional file arguments to nvim
