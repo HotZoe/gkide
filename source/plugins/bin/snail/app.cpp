@@ -153,13 +153,6 @@ void App::initCliArgs(QCommandLineParser &parser,
     arg_fullscreen.setDescription(arg_desc);
     parser.addOption(arg_fullscreen);
 
-    // --geometry
-    QCommandLineOption arg_geometry("geometry");
-    arg_desc = QCoreApplication::translate("main", "Initial the window geometry.");
-    arg_geometry.setDescription(arg_desc);
-    arg_server.setValueName("geometry");
-    parser.addOption(arg_geometry);
-
     // positional arguments
     arg_desc = QCoreApplication::translate("main", "Edit specified file(s).");
     parser.addPositionalArgument("file", arg_desc, "[file...]");
