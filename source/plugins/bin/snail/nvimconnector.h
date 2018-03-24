@@ -57,7 +57,6 @@ public:
     NvimConnector(QIODevice *s);
     NvimConnector(MsgpackIODevice *s);
 
-    static NvimConnector *connectToStdInOut(void);
     static NvimConnector *connectToSocket(const QString &);
     static NvimConnector *connectToHost(const QString &host, int port);
     static NvimConnector *connectToNvim(const QString &server=QString());

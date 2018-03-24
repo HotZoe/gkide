@@ -107,12 +107,6 @@ void App::initCliArgs(QCommandLineParser &parser,
     arg_server.setValueName("server_addr");
     parser.addOption(arg_server);
 
-    // --embed
-    QCommandLineOption arg_embed("embed");
-    arg_desc = QCoreApplication::translate("main", "Communicate with nvim over stdin/stdout/stderr.");
-    arg_embed.setDescription(arg_desc);
-    parser.addOption(arg_embed);
-
     // --spawn
     QCommandLineOption arg_spawn("spawn");
     arg_desc = QCoreApplication::translate("main", "Treat positional arguments as the nvim argv.");
@@ -157,22 +151,19 @@ void App::initCliArgs(QCommandLineParser &parser,
         parser.showHelp();
     }
 
-    bool has_embed = parser.isSet("embed");
     bool has_spawn = parser.isSet("spawn");
     bool has_server = parser.isSet("server");
-    int exclusive = has_server + has_embed + has_spawn;
+    int exclusive = has_server + has_spawn;
 
     if(exclusive > 1)
     {
-        qWarning() << "Options --server, --spawn and --embed "
-                      "are mutually exclusive.\n";
+        qWarning() << "Options --server, --spawn are mutually exclusive.\n";
         ::exit(EXIT_FAILURE);
     }
 
-    if(!parser.positionalArguments().isEmpty() && (has_embed || has_server))
+    if(!parser.positionalArguments().isEmpty() && has_server)
     {
-        qWarning() << "Options --embed and --server "
-                      "do not accept positional arguments.\n";
+        qWarning() << "Options --server do not accept positional arguments.\n";
         ::exit(EXIT_FAILURE);
     }
 
@@ -186,11 +177,7 @@ void App::initCliArgs(QCommandLineParser &parser,
 
 NvimConnector *App::createConnector(const QCommandLineParser &parser)
 {
-    if(parser.isSet("embed"))
-    {
-        return SnailNvimQt::NvimConnector::connectToStdInOut();
-    }
-    else if(parser.isSet("server"))
+    if(parser.isSet("server"))
     {
         QString server = parser.value("server");
 

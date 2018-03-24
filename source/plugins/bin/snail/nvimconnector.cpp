@@ -289,11 +289,6 @@ NvimConnector *NvimConnector::connectToNvim(const QString &server)
     return connectToSocket(addr);
 }
 
-NvimConnector *NvimConnector::connectToStdInOut(void)
-{
-    return new NvimConnector(MsgpackIODevice::connectToStdInOut());
-}
-
 /// Called when running embedded Nvim to
 /// report an error with the Nvim process
 void NvimConnector::processError(QProcess::ProcessError err)

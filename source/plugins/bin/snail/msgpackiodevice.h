@@ -45,8 +45,6 @@ public:
     MsgpackIODevice(QIODevice *, QObject *parent=0);
     ~MsgpackIODevice();
 
-    static MsgpackIODevice *connectToStdInOut(QObject *parent=0);
-
     bool isOpen(void);
     QString errorString(void) const;
     MsgpackError errorCause(void) const
@@ -118,19 +116,10 @@ protected:
 
 protected slots:
     void setError(MsgpackError err, const QString &msg);
-
     void dataAvailable(void);
-
-#ifdef Q_OS_WIN
-    void dataAvailableStdin(const QByteArray &);
-#else
-    void dataAvailableFd(int fd);
-#endif
-
     void requestTimeout(quint32 id);
 
 private:
-    static int msgpack_write_to_stdout(void *data, const char *buf, size_t len);
     static int msgpack_write_to_dev(void *data, const char *buf, size_t len);
 
     quint32 m_reqid;

@@ -7,50 +7,14 @@
 #include <QTextCodec>
 #include <QSocketNotifier>
 
-#ifdef Q_OS_WIN
-    #include <io.h>
-    #include "plugins/bin/snail/stdinreader.h"
-#else
-    #include <unistd.h> // for write()
-#endif
-
 #include "plugins/bin/snail/util.h"
 #include "plugins/bin/snail/msgpackrequest.h"
 #include "plugins/bin/snail/msgpackiodevice.h"
-
-#define nvim_stdin      0
-#define nvim_stdout     1
-#define nvim_stderr     2
 
 // msgpack unpack buffer to extend size
 #define UNPACK_BUFFER_EXTEND_SIZE   (8*1024)
 
 namespace SnailNvimQt {
-
-/// Build a MsgpackIODevice that reads from stdin and writes to stdout
-MsgpackIODevice *MsgpackIODevice::connectToStdInOut(QObject *parent)
-{
-    MsgpackIODevice *rpc = new MsgpackIODevice(NULL, parent);
-
-    msgpack_packer_write write_func =
-        (msgpack_packer_write)MsgpackIODevice::msgpack_write_to_stdout;
-    msgpack_packer_init(&rpc->m_pk, rpc, write_func);
-
-#ifdef Q_OS_WIN
-    StdinReader *rsn =
-        new StdinReader(msgpack_unpacker_buffer_capacity(&rpc->m_uk), rpc);
-    connect(rsn, &StdinReader::dataAvailable,
-            rpc, &MsgpackIODevice::dataAvailableStdin);
-    rsn->start();
-#else
-    QSocketNotifier *rsn =
-        new QSocketNotifier(nvim_stdin, QSocketNotifier::Read, rpc);
-    connect(rsn, &QSocketNotifier::activated,
-            rpc, &MsgpackIODevice::dataAvailableFd);
-#endif
-
-    return rpc;
-}
 
 MsgpackIODevice::MsgpackIODevice(QIODevice *dev, QObject *parent)
     : QObject(parent), m_reqid(0), m_dev(dev),
@@ -144,23 +108,6 @@ bool MsgpackIODevice::setEncoding(const QByteArray &name)
     return true;
 }
 
-int MsgpackIODevice::msgpack_write_to_stdout(void *data,
-                                             const char *buf,
-                                             size_t len)
-{
-    MsgpackIODevice *c = static_cast<MsgpackIODevice *>(data);
-    qint64 bytes = write(nvim_stdout, buf, len); // the C way
-
-    if(bytes == -1)
-    {
-        c->setError(InvalidDevice,
-                    QString("Error writing to stdout: ")
-                    + QString(strerror(errno)));
-    }
-
-    return (int)bytes;
-}
-
 int MsgpackIODevice::msgpack_write_to_dev(void *data,
                                           const char *buf,
                                           size_t len)
@@ -175,85 +122,6 @@ int MsgpackIODevice::msgpack_write_to_dev(void *data,
 
     return (int)bytes;
 }
-
-#ifdef Q_OS_WIN
-/// Process incoming data.
-///
-/// @see connectToStdInOut() and StdinReader()
-void MsgpackIODevice::dataAvailableStdin(const QByteArray &data)
-{
-    // check the msgpack_unpacker's buffer capacity
-    if((quint64)data.length() > msgpack_unpacker_buffer_capacity(&m_uk))
-    {
-        setError(InvalidDevice,
-                 QString("Error when reading from stdin, "
-                         "buffer data exceeds capaciy."));
-
-        return;
-    }
-    else if(data.length() > 0)
-    {
-        // write the data to the buffer
-        memcpy(msgpack_unpacker_buffer(&m_uk), data.constData(), data.length());
-
-        // notify the number of wrote bytes to msgpack_unpacker
-        msgpack_unpacker_buffer_consumed(&m_uk, data.length());
-
-        // msgpack_unpacker is ready to unpack
-        // An unpacked object is stored in msgpack_unpacked
-        msgpack_unpacked result;
-        msgpack_unpacked_init(&result);
-
-        // MSGPACK_UNPACK_SUCCESS       2   successfully unpacked
-        // MSGPACK_UNPACK_EXTRA_BYTES   1
-        // MSGPACK_UNPACK_CONTINUE      0   msgpack format data is incomplete
-        // MSGPACK_UNPACK_PARSE_ERROR  -1   msgpack format data is invalid
-        // MSGPACK_UNPACK_NOMEM_ERROR  -2
-        while(msgpack_unpacker_next(&m_uk, &result))
-        {
-            dispatch(result.data);
-        }
-    }
-}
-#else
-/// Process incoming data from the given fd.
-///
-/// @see connectToStdInOut() and QSocketNotifier()
-void MsgpackIODevice::dataAvailableFd(int fd)
-{
-    // unpacker has not enough buffer
-    if(msgpack_unpacker_buffer_capacity(&m_uk) == 0)
-    {
-        if(!msgpack_unpacker_reserve_buffer(&m_uk, UNPACK_BUFFER_EXTEND_SIZE))
-        {
-            qFatal("Could not allocate memory in unpack buffer");
-            return;
-        }
-    }
-
-    // read data from fd to unpacker buffer
-    qint64 bytes = read(fd, msgpack_unpacker_buffer(&m_uk),
-                        (size_t)msgpack_unpacker_buffer_capacity(&m_uk));
-
-    if(bytes > 0)
-    {
-        msgpack_unpacker_buffer_consumed(&m_uk, bytes);
-
-        msgpack_unpacked result;
-        msgpack_unpacked_init(&result);
-
-        while(msgpack_unpacker_next(&m_uk, &result))
-        {
-            dispatch(result.data);
-        }
-    }
-    else if(bytes == -1)
-    {
-        setError(InvalidDevice,
-                 QString("Error when reading from device: %1").arg(fd));
-    }
-}
-#endif
 
 /// Process incoming data from the underlying device
 ///
