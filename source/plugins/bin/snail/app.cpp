@@ -1,15 +1,57 @@
 /// @file plugins/bin/snail/app.cpp
 
 #include <QDir>
+#include <QDialog>
 #include <QFileInfo>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QTextStream>
 #include <QFileOpenEvent>
+
 #include "generated/config/gkideenvs.h"
 #include "plugins/bin/snail/app.h"
 #include "plugins/bin/snail/logmanager.h"
 #include "plugins/bin/snail/mainwindow.h"
 
 namespace SnailNvimQt {
+
+void App::appExit(QString reason, QString todo)
+{
+    QDialog *errDialog = new QDialog;
+
+    errDialog->setWindowTitle("GKIDE Fatal Error");
+    errDialog->setFixedSize(500, 100);
+
+    QLabel *reasonLabel = new QLabel;
+    reasonLabel->setAlignment(Qt::AlignCenter);
+    reasonLabel->setText(reason);
+
+    QLabel *todoLabel = new QLabel;
+    todoLabel->setAlignment(Qt::AlignCenter);
+    todoLabel->setText(todo);
+
+    QPushButton *exitButton = new QPushButton;
+    exitButton->setText("Exit");
+    exitButton->setFixedSize(80, 30);
+    QObject::connect(exitButton, &QPushButton::clicked,
+                     errDialog, &QDialog::done);
+
+    QHBoxLayout *button_layout = new QHBoxLayout;
+    button_layout->addWidget(exitButton);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(reasonLabel);
+    layout->addWidget(todoLabel);
+    layout->addLayout(button_layout);
+    layout->setSpacing(10);
+    layout->setContentsMargins(10, 10, 10, 10);
+
+    errDialog->setLayout(layout);
+    errDialog->show();
+    errDialog->exec();
+
+    ::exit(EXIT_FAILURE);
+}
 
 App::App(int &argc, char **argv): QApplication(argc, argv)
 {
@@ -143,21 +185,20 @@ void App::initCliArgs(QCommandLineParser &parser,
 
     if(exclusive > 1)
     {
-        qWarning() << "Options --server, --spawn are mutually exclusive.\n";
-        ::exit(EXIT_FAILURE);
+        appExit("Options --server, --spawn are mutually exclusive.",
+                "Retry with new arguments.");
     }
 
     if(!parser.positionalArguments().isEmpty() && has_server)
     {
-        qWarning() << "Options --server do not accept positional arguments.\n";
-        ::exit(EXIT_FAILURE);
+        appExit("Options --server do not accept positional arguments.",
+                "Retry with new arguments.");
     }
 
     if(parser.positionalArguments().isEmpty() && has_spawn)
     {
-        qWarning() << "Option --spawn requires at least "
-                      "one positional argument.\n";
-        ::exit(EXIT_FAILURE);
+        appExit("Option --spawn requires at least one positional argument.",
+                "Retry with new arguments.");
     }
 }
 
@@ -197,7 +238,8 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
 
         if(!QFileInfo(nvimProg).isExecutable())
         {
-            ::exit(EXIT_FAILURE);
+            appExit("Program not exit: " + nvimProg,
+                    "Please check and reinstall.");
         }
 
         // Pass positional file arguments to nvim

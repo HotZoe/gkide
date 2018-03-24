@@ -17,6 +17,7 @@ class App: public QApplication
 {
     Q_OBJECT
 public:
+    static void appExit(QString reason, QString todo);
     static NvimConnector *createConnector(const QCommandLineParser &p);
     static void initCliArgs(QCommandLineParser &p,
                             const QStringList &arguments);
