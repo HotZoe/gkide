@@ -29,22 +29,6 @@ int gui_main(int argc, char **argv)
     SnailNvimQt::App app(argc, argv);
     QCommandLineParser parser;
 
-#ifdef TRACE_LOG_ENABLE
-    // click and run, get the arguments to this file
-    QFile logFile(QCoreApplication::applicationDirPath()+"/debug.log");
-    if(logFile.open(QIODevice::Append | QIODevice::Text))
-    {
-        QTextStream stream(&logFile);
-
-        for(int i=1; i<argc; i++)
-        {
-            stream << argv[i] << "\n";
-        }
-
-        logFile.close();
-    }
-#endif
-
     SnailNvimQt::App::initCliArgs(parser, app.arguments());
     auto c = SnailNvimQt::App::createConnector(parser);
     app.showUi(c, parser);
@@ -64,7 +48,7 @@ int cli_main(int argc, char **argv)
     // detached from the command line, re-run snail, get a new GUI process
     if(QProcess::startDetached(app.applicationFilePath(), new_args))
     {
-        return 0; // command line snail exit
+        return 0; // snail command line exit
     }
     else
     {
@@ -85,15 +69,7 @@ int main(int argc, char **argv)
 
     for(int i=1; i<argc; i++)
     {
-        if(QString::compare("--", argv[i]) == 0)
-        {
-            break; // have cmd-line arguments
-        }
-        else if(QString::compare("--spawn", argv[i]) == 0)
-        {
-            break; // cmd-line spawn
-        }
-        else if(QString::compare("--nofork", argv[i]) == 0)
+        if(QString::compare("--nofork", argv[i]) == 0)
         {
             nofork = true; // start GUI, no fork
             break;

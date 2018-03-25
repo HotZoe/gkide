@@ -33,10 +33,13 @@ set(ENV{PKG_CONFIG_PATH}
 message(STATUS "Pkg Config Path   : $ENV{PKG_CONFIG_PATH}")
 message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 
+# libssh
+find_package(Libssh 0.7.5 REQUIRED)
+include_directories(SYSTEM ${LIBSSH_INCLUDE_DIRS})
+
 # msgpack
 find_package(Msgpack 1.0.0 REQUIRED)
 include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
 
 # jemalloc
 if(JEMALLOC_ENABLE)
@@ -47,7 +50,6 @@ if(JEMALLOC_ENABLE)
         find_package(JeMalloc REQUIRED)
         set(FOUND_WORKING_JEMALLOC true)
         include_directories(SYSTEM ${JEMALLOC_INCLUDE_DIRS})
-        list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
     endif()
 else()
     set(FOUND_WORKING_JEMALLOC false)
@@ -64,7 +66,6 @@ endif()
 # - CMAKE_USE_PTHREADS_INIT      - are we using pthreads
 # - CMAKE_HP_PTHREADS_INIT       - are we using hp pthreads
 find_package(Threads REQUIRED)
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
 
 # Lua program
 include(CheckLuaProg)

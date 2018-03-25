@@ -58,9 +58,14 @@ public:
     NvimConnector(MsgpackIODevice *s);
 
     static NvimConnector *connectToSocket(const QString &);
-    static NvimConnector *connectToHost(const QString &host, int port);
     static NvimConnector *connectToNvim(const QString &server=QString());
-    static NvimConnector *startEmbedNvim(const QStringList &args=QStringList(),
+
+    static NvimConnector *connectToHost(const QString &host, int port);
+    static NvimConnector *connectToHost(const QString &host, // remote host
+                                        const QString &user, // login name
+                                        const QString &pass, // login pass
+                                        int port = 22);      // remote port
+    static NvimConnector *startEmbedNvim(const QStringList &args = QStringList(),
                                          const QString &exe="nvim");
 
     bool canReconnect(void);

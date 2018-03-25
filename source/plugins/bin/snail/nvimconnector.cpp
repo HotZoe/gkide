@@ -214,6 +214,19 @@ NvimConnector *NvimConnector::connectToSocket(const QString &path)
     return c;
 }
 
+NvimConnector *NvimConnector::connectToHost(const QString &host,
+                                            const QString &user,
+                                            const QString &pass,
+                                            int port)
+{
+    qDebug() << "host: " << host;
+    qDebug() << "user: " << user;
+    qDebug() << "pass: " << pass;
+    qDebug() << "port: " << port;
+
+    return NULL;
+}
+
 /// Connect to a Nvim through a TCP connection
 ///
 /// @param host is a valid hostname or IP address

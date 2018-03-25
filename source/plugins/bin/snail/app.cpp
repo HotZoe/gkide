@@ -123,17 +123,10 @@ void App::initCliArgs(QCommandLineParser &parser,
 #ifdef Q_OS_UNIX
     // --nofork
     QCommandLineOption arg_nofork("nofork");
-    arg_desc = QCoreApplication::translate("main", "Run snail in foreground.");
+    arg_desc = QCoreApplication::translate("main", "Run in foreground.");
     arg_nofork.setDescription(arg_desc);
     parser.addOption(arg_nofork);
 #endif
-
-    // --profile
-    QCommandLineOption arg_profile("profile");
-    arg_desc = QCoreApplication::translate("main", "GKIDE profile.");
-    arg_profile.setDescription(arg_desc);
-    arg_profile.setValueName("file");
-    parser.addOption(arg_profile);
 
     // --project
     QCommandLineOption arg_project("project");
@@ -185,15 +178,17 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
 {
     if(parser.isSet("remote"))
     {
-        QString remote = parser.value("address");
+        QString remote = parser.value("remote");
 
         if(remote.isEmpty())
         {
-            appExit("Program not exit: ",
-                    "Please check and reinstall.");
+            appExit("TODO", "TODO");
         }
 
-        return SnailNvimQt::NvimConnector::connectToNvim(remote);
+        //return SnailNvimQt::NvimConnector::connectToNvim(remote);
+        return SnailNvimQt::NvimConnector::connectToHost(remote,
+                                                         QString("charlie"),
+                                                         QString("wlc"));
     }
     else
     {

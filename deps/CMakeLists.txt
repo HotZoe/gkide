@@ -109,6 +109,7 @@ option(SKIP_DOWNLOAD_LUV        "Skip download : luv"        ${SKIP_DOWNLOAD_DEP
 option(SKIP_DOWNLOAD_LUA        "Skip download : lua"        ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_GPERF      "Skip download : gperf"      ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LIBUV      "Skip download : libuv"      ${SKIP_DOWNLOAD_DEPS})
+option(SKIP_DOWNLOAD_LIBSSH     "Skip download : libssh"     ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LUAJIT     "Skip download : luajit"     ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_MSGPACK    "Skip download : msgpack"    ${SKIP_DOWNLOAD_DEPS})
 option(SKIP_DOWNLOAD_LUAROCKS   "Skip download : luarocks"   ${SKIP_DOWNLOAD_DEPS})
@@ -160,6 +161,9 @@ include(BuildLibuv)
 
 # dependencies: none
 #include(BuildLibiconv)
+
+# dependencies: none
+include(BuildLibssh)
 
 # TODO, remove
 # dependencies: none

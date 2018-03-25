@@ -16,7 +16,7 @@ function(BuildLuv)
         message(FATAL_ERROR "Must set CONFIGURE_COMMAND, BUILD_COMMAND, INSTALL_COMMAND.")
     endif()
 
-    ExternalProject_Add(luv-static
+    ExternalProject_Add(luv
         PREFIX             ${DEPS_BUILD_DIR}
         URL                ${LUV_URL}
         DOWNLOAD_DIR       ${DEPS_DOWNLOAD_DIR}/luv
@@ -79,7 +79,7 @@ BuildLuv(PATCH_COMMAND     ${LUV_PATCH_COMMAND}
          BUILD_COMMAND     ${LUV_BUILD_COMMAND}
          INSTALL_COMMAND   ${LUV_INSTALL_COMMAND})
 
-add_dependencies(luv-static lua)
-add_dependencies(luv-static libuv)
+add_dependencies(luv lua)
+add_dependencies(luv libuv)
 
-list(APPEND THIRD_PARTY_LIBS luv-static)
+list(APPEND THIRD_PARTY_LIBS luv)

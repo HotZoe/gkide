@@ -16,11 +16,7 @@ function(BuildLibuv)
         message(FATAL_ERROR "Must set CONFIGURE_COMMAND, BUILD_COMMAND, INSTALL_COMMAND.")
     endif()
 
-    if(NOT _libuv_TARGET)
-        set(_libuv_TARGET "libuv")
-    endif()
-
-    ExternalProject_Add(   ${_libuv_TARGET}
+    ExternalProject_Add(   libuv
         PREFIX             ${DEPS_BUILD_DIR}
         URL                ${LIBUV_URL}
         DOWNLOAD_DIR       ${DEPS_DOWNLOAD_DIR}/libuv
@@ -28,7 +24,7 @@ function(BuildLibuv)
                            -DDOWNLOAD_DIR=${DEPS_DOWNLOAD_DIR}/libuv
                            -DDOWNLOAD_URL=${LIBUV_URL}
                            -DDOWNLOAD_VER=${LIBUV_VERSION}
-                           -DBUILD_TARGET=${_libuv_TARGET}
+                           -DBUILD_TARGET=libuv
                            -DBUILD_PREFIX=${DEPS_BUILD_DIR}
                            -DBUILD_INTREE=${_libuv_BUILD_IN_SOURCE}
                            -DEXPECT_SHA256=${LIBUV_SHA256}

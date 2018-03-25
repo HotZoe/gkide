@@ -246,6 +246,17 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pedantic")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wstrict-prototypes")
 
+# thread
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
+
+# jemalloc
+if(FOUND_WORKING_JEMALLOC)
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${JEMALLOC_LIBRARIES})
+endif()
+
+# msgpack
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${MSGPACK_LIBRARIES})
+
 # libuv
 find_package(LibUV 1.9.1 REQUIRED)
 include_directories(SYSTEM ${LIBUV_INCLUDE_DIRS})

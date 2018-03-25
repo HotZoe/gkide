@@ -105,7 +105,6 @@ else()
 endif()
 
 if(SNAIL_TRACE_ENABLE)
-    add_definitions("-DTRACE_LOG_ENABLE")
     message(STATUS "snail *enable TRACE(0) logging")
 else()
     add_definitions("-DQT_NO_INFO_OUTPUT")
@@ -189,6 +188,16 @@ set(SNAIL_CONFIG_CXX_FLAGS_${build_type}
 file(GLOB SNAIL_HEADERS *.h)
 file(GLOB SNAIL_SOURCES *.cpp)
 
+list(APPEND subdir_set "ssh")
+
+foreach(subdir ${subdir_set})
+    file(GLOB sources ${subdir}/*.cpp)
+    file(GLOB headers ${subdir}/*.h)
+
+    list(APPEND SNAIL_SOURCES ${sources})
+    list(APPEND SNAIL_HEADERS ${headers})
+endforeach()
+
 list(APPEND NVIM_API_SRC
      ${CMAKE_SOURCE_DIR}/source/config/nvimapi/auto/nvim.cpp)
 
@@ -207,11 +216,13 @@ find_package(Qt5Core    REQUIRED)
 find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Network REQUIRED)
 
-list(APPEND SNAIL_LINK_LIBS "${MSGPACK_LIBRARIES}")
-list(APPEND SNAIL_LINK_LIBS "Qt5::Network")
-list(APPEND SNAIL_LINK_LIBS "Qt5::Widgets")
-list(APPEND SNAIL_LINK_LIBS "Qt5::Core")
 list(APPEND SNAIL_LINK_LIBS "Qt5::Gui")
+list(APPEND SNAIL_LINK_LIBS "Qt5::Core")
+list(APPEND SNAIL_LINK_LIBS "Qt5::Widgets")
+list(APPEND SNAIL_LINK_LIBS "Qt5::Network")
+list(APPEND SNAIL_LINK_LIBS "${LIBSSH_LIBRARIES}")
+list(APPEND SNAIL_LINK_LIBS "-lrt -lcrypto -lz") # for libssh
+list(APPEND SNAIL_LINK_LIBS "${MSGPACK_LIBRARIES}")
 
 if(SNAIL_USE_STATIC_QT5)
     # create qt-plugin file for static link Qt
@@ -258,7 +269,8 @@ add_executable(snail
 
 install_helper(TARGETS snail)
 
-target_link_libraries(snail ${SNAIL_LINK_LIBS}) # --verbose
+# verbose show target linkge libraries: --verbose
+target_link_libraries(snail ${SNAIL_LINK_LIBS})
 
 add_subdirectory(config)
 

@@ -61,6 +61,11 @@ set(LUAROCKS_URL        https://github.com/luarocks/luarocks/archive/v2.4.2.tar.
 set(LUAROCKS_SHA256     eef88c2429c715a7beb921e4b1ba571dddb7c74a250fbb0d3cc0d4be7a5865d9)
 list(APPEND dep_urls    ${LUAROCKS_URL})
 
+set(LIBSSH_VERSION      0.7.5)
+set(LIBSSH_URL          https://red.libssh.org/attachments/download/218/libssh-0.7.5.tar.xz)
+set(LIBSSH_SHA256       54e86dd5dc20e5367e58f3caab337ce37675f863f80df85b6b1614966a337095)
+list(APPEND dep_urls    ${LIBSSH_URL})
+
 # TODO, remove this, and git for deps build
 # orginal version: http://www.leonerd.org.uk/code/libvterm/
 set(LIBVTERM_VERSION    0.0.0)

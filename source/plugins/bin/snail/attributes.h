@@ -37,4 +37,6 @@
     #define FUNC_ATTR_ARGS_UNUSED_REALY(v)   UNUSED_##v
 #endif
 
+#define TODO_FUNC_ARGS_UNUSED(x)    ((void)(x))
+
 #endif // PLUGIN_SNAIL_ATTRIBUTES_H
