@@ -1,6 +1,8 @@
 /// @file plugins/bin/snail/mainwindow.cpp
 
 #include <QCloseEvent>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include "plugins/bin/snail/mainwindow.h"
 
@@ -224,6 +226,15 @@ void MainWindow::showIfDelayed(void)
     {
         if(m_delayedShow == DelayedShow::Normal)
         {
+            int mainwin_width = frameGeometry().width();
+            int mainwin_hight = frameGeometry().height();
+            int desktop_width = QApplication::desktop()->width();
+            int desktop_hight = QApplication::desktop()->height();
+
+            int win_width = (desktop_width - mainwin_width)/2;
+            int win_hight = (desktop_hight - mainwin_hight)/2;
+
+            move(win_width, win_hight);
             show();
         }
         else if(m_delayedShow == DelayedShow::Maximized)

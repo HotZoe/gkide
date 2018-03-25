@@ -171,23 +171,6 @@ Nvim *NvimConnector::neovimObject(void)
 NvimConnector *NvimConnector::startEmbedNvim(const QStringList &args,
                                              const QString &exe)
 {
-    QStringList exe_args;
-
-    if(args.indexOf("--") == -1)
-    {
-        exe_args.append(args);
-        exe_args << "--embed" << "--headless";
-    }
-    else
-    {
-        // nvim accepts a -- argument after
-        // which only filenames are passed
-        int idx = args.indexOf("--");
-        exe_args.append(args.mid(0, idx));
-        exe_args << "--embed" << "--headless";
-        exe_args.append(args.mid(idx));
-    }
-
     // nvim process
     QProcess *p = new QProcess();
     // snail nvim connector
@@ -208,7 +191,7 @@ NvimConnector *NvimConnector::startEmbedNvim(const QStringList &args,
     connect(p, &QProcess::started,
             c, &NvimConnector::discoverMetadata);
 
-    p->start(exe, exe_args);
+    p->start(exe, args);
     return c;
 }
 

@@ -98,11 +98,11 @@ void App::showUi(NvimConnector *c, const QCommandLineParser &parser)
 
     if(parser.isSet("fullscreen"))
     {
-        win->delayedShow(SnailNvimQt::MainWindow::DelayedShow::FullScreen);
+        win->delayedShow(MainWindow::DelayedShow::FullScreen);
     }
     else if(parser.isSet("maximized"))
     {
-        win->delayedShow(SnailNvimQt::MainWindow::DelayedShow::Maximized);
+        win->delayedShow(MainWindow::DelayedShow::Maximized);
     }
     else
     {
@@ -128,22 +128,30 @@ void App::initCliArgs(QCommandLineParser &parser,
     parser.addOption(arg_nofork);
 #endif
 
-    // --server <address>
-    QCommandLineOption arg_server("server");
-    arg_desc = QCoreApplication::translate("main", "Connect to existing nvim instance.");
-    arg_server.setDescription(arg_desc);
-    arg_server.setValueName("server_addr");
-    parser.addOption(arg_server);
+    // --profile
+    QCommandLineOption arg_profile("profile");
+    arg_desc = QCoreApplication::translate("main", "GKIDE profile.");
+    arg_profile.setDescription(arg_desc);
+    arg_profile.setValueName("file");
+    parser.addOption(arg_profile);
 
-    // --spawn
-    QCommandLineOption arg_spawn("spawn");
-    arg_desc = QCoreApplication::translate("main", "Treat positional arguments as the nvim argv.");
-    arg_spawn.setDescription(arg_desc);
-    parser.addOption(arg_spawn);
+    // --project
+    QCommandLineOption arg_project("project");
+    arg_desc = QCoreApplication::translate("main", "Project name to open.");
+    arg_project.setDescription(arg_desc);
+    arg_project.setValueName("name");
+    parser.addOption(arg_project);
+
+    // --remote <address>
+    QCommandLineOption arg_server("remote");
+    arg_desc = QCoreApplication::translate("main", "Connect to remote nvim.");
+    arg_server.setDescription(arg_desc);
+    arg_server.setValueName("address");
+    parser.addOption(arg_server);
 
     // --maximized
     QCommandLineOption arg_maximized("maximized");
-    arg_desc = QCoreApplication::translate("main", "Maximize the window on startup");
+    arg_desc = QCoreApplication::translate("main", "Maximize the window on startup.");
     arg_maximized.setDescription(arg_desc);
     parser.addOption(arg_maximized);
 
@@ -155,9 +163,9 @@ void App::initCliArgs(QCommandLineParser &parser,
 
     // positional arguments
     arg_desc = QCoreApplication::translate("main", "Edit specified file(s).");
-    parser.addPositionalArgument("file", arg_desc, "[file...]");
+    parser.addPositionalArgument("file...", arg_desc, "[file...]");
     arg_desc = QCoreApplication::translate("main", "Additional arguments forwarded to nvim.");
-    parser.addPositionalArgument("...", arg_desc, "[-- ...]");
+    parser.addPositionalArgument("-- ...", arg_desc, "-- [-|+...]");
 
     // --version
     parser.addVersionOption();
@@ -171,51 +179,29 @@ void App::initCliArgs(QCommandLineParser &parser,
     {
         parser.showHelp();
     }
-
-    bool has_spawn = parser.isSet("spawn");
-    bool has_server = parser.isSet("server");
-    int exclusive = has_server + has_spawn;
-
-    if(exclusive > 1)
-    {
-        appExit("Options --server, --spawn are mutually exclusive.",
-                "Retry with new arguments.");
-    }
-
-    if(!parser.positionalArguments().isEmpty() && has_server)
-    {
-        appExit("Options --server do not accept positional arguments.",
-                "Retry with new arguments.");
-    }
-
-    if(parser.positionalArguments().isEmpty() && has_spawn)
-    {
-        appExit("Option --spawn requires at least one positional argument.",
-                "Retry with new arguments.");
-    }
 }
 
 NvimConnector *App::createConnector(const QCommandLineParser &parser)
 {
-    if(parser.isSet("server"))
+    if(parser.isSet("remote"))
     {
-        QString server = parser.value("server");
+        QString remote = parser.value("address");
 
-        qDebug() << "serverAddr=" << server;
-        Q_ASSERT(server.isEmpty() == false);
+        if(remote.isEmpty())
+        {
+            appExit("Program not exit: ",
+                    "Please check and reinstall.");
+        }
 
-        return SnailNvimQt::NvimConnector::connectToNvim(server);
-    }
-    else if(parser.isSet("spawn") && !parser.positionalArguments().isEmpty())
-    {
-        const QStringList &args = parser.positionalArguments();
-        return SnailNvimQt::NvimConnector::startEmbedNvim(args.mid(1), args.at(0));
+        return SnailNvimQt::NvimConnector::connectToNvim(remote);
     }
     else
     {
         QStringList nvimArgs;
         nvimArgs << "--cmd";
         nvimArgs << "set termguicolors";
+        nvimArgs << "--embed";
+        nvimArgs << "--headless";
 
         // GKIDE home directory
         QString gkideHome = App::applicationDirPath();
