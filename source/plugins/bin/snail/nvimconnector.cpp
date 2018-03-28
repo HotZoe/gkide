@@ -2,8 +2,8 @@
 
 #include <QtGlobal>
 #include <QMetaMethod>
-#include <QLocalSocket>
 #include <QTcpSocket>
+#include <QHostInfo>
 
 #include "generated/config/gkideenvs.h"
 #include "plugins/bin/snail/nvimconnector.h"
@@ -208,28 +208,137 @@ NvimConnector *NvimConnector::connectToSocket(const QString &path)
     NvimConnector *c = new NvimConnector(s);
     c->m_ctype = SocketConnection;
     c->m_connSocket = path;
+
+    // error is overload by QLocalSocket
     connect(s, SIGNAL(error(QLocalSocket::LocalSocketError)),
-            c, SLOT(socketError()));
+            c, SLOT(unixSocketError(QLocalSocket::LocalSocketError)));
+
     connect(s, &QLocalSocket::connected,
             c, &NvimConnector::discoverMetadata);
     s->connectToServer(path);
     return c;
 }
 
+bool NvimConnector::isLocalHost(const QString &addr)
+{
+    if(addr.isEmpty())
+    {
+        return false;
+    }
+
+    qDebug() << "Host Address: " << addr;
+
+    // normal convention check to save time
+    if(QString::compare("localhost", addr) == 0
+       || QString::compare("127.0.0.1", addr) == 0)
+    {
+        return true;
+    }
+
+    // IPv4 or IPv6
+    int ip_type;
+    ipv4_addr_t ip_v4_addr;
+    ipv6_addr_t ip_v6_addr;
+    QHostAddress ip_info(addr);
+
+    if(!ip_info.setAddress(addr))
+    {
+        // invalid IP address, domain name, "www.gkide.com"
+        QHostInfo info = QHostInfo::fromName(addr);
+        if(!info.addresses().isEmpty())
+        {
+            // much more simple
+            ip_type = info.addresses().first().protocol();
+            ip_v4_addr = info.addresses().first().toIPv4Address();
+            ip_v6_addr = info.addresses().first().toIPv6Address();
+        }
+
+        // DNS error
+        return false;
+    }
+    else
+    {
+        // valid IP address, e.g. "127.0.0.1" v4 or v6, convert
+        ip_type = ip_info.protocol();
+        ip_v4_addr = ip_info.toIPv4Address();
+        ip_v6_addr = ip_info.toIPv6Address();
+    }
+
+    QList<QHostAddress> host_addrs = QNetworkInterface::allAddresses();
+    for(int i = 0; i < host_addrs.size(); ++i)
+    {
+        //QString ipstr = host_addrs.at(i).toString();
+        if(ip_type != host_addrs.at(i).protocol())
+        {
+            continue;
+        }
+
+        switch(ip_type)
+        {
+            case QAbstractSocket::IPv4Protocol:
+            {
+                if(ip_v4_addr == host_addrs.at(i).toIPv4Address())
+                {
+                    return true;
+                }
+                break;
+            }
+            case QAbstractSocket::IPv6Protocol:
+            {
+                if(ip_v6_addr == host_addrs.at(i).toIPv6Address())
+                {
+                    return true;
+                }
+                break;
+            }
+            case QAbstractSocket::AnyIPProtocol:
+            {
+                if(ip_v4_addr == host_addrs.at(i).toIPv4Address()
+                   || ip_v6_addr == host_addrs.at(i).toIPv6Address())
+                {
+                    return true;
+                }
+                break;
+            }
+            default:
+            {
+                // QAbstractSocket::UnknownNetworkLayerProtocol
+                break;
+            }
+        }
+    }
+
+    return false;
+}
+
 /// Connect to a Nvim through a TCP connection
 ///
 /// @param host is a valid hostname or IP address
 /// @param port is the TCP port
-///
 NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
 {
+    if(isLocalHost(host))
+    {
+        // for local host, it is faster to use embed nvim than the TCP one
+        // thus, we do do not need to go through the network stack.
+        return NULL; // startEmbedNvim()
+    }
+
+    // use TCP to connect to remote nvim instance:
+    // - if it started, then all will be done
+    // - if it not started, then popup dialog to get login info,
+    //   then start it and do connect to it
+
     QTcpSocket *s = new QTcpSocket();
     NvimConnector *c = new NvimConnector(s);
     c->m_ctype = HostConnection;
     c->m_connHost = host;
     c->m_connPort = port;
+
+    // error is overload by QAbstractSocket
     connect(s, SIGNAL(error(QAbstractSocket::SocketError)),
-            c, SLOT(socketError()));
+            c, SLOT(tcpSocketError(QAbstractSocket::SocketError)));
+
     connect(s, &QAbstractSocket::connected,
             c, &NvimConnector::discoverMetadata);
     s->connectToHost(host, (quint16)port);
@@ -242,7 +351,10 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
 ///   1. if @b $GKIDE_NVIM_LISTEN environment set, use it as server.
 ///   2. if not, then started embed nvim.
 ///
-/// @see startEmbedNvim()
+/// @see
+/// - startEmbedNvim()
+/// - connectToHost()
+/// - connectToSocket()
 NvimConnector *NvimConnector::connectToNvimInstance(const QString &server)
 {
     QString addr = server;
@@ -296,10 +408,28 @@ void NvimConnector::processError(QProcess::ProcessError err)
     }
 }
 
-/// Handle errors from QLocalSocket or QTcpSocket
-void NvimConnector::socketError(void)
+/// Handle errors from QTcpSocket
+void NvimConnector::tcpSocketError(QAbstractSocket::SocketError err)
 {
-    setError(SocketError, m_dev->errorString());
+    qDebug() << "TcpSocketError: " << err;
+
+    socketError(QString("TcpSocket(%1): ").arg(err));
+}
+
+/// Handle errors from QLocalSocket
+void NvimConnector::unixSocketError(QLocalSocket::LocalSocketError err)
+{
+    //QLocalSocket::ServerNotFoundError
+    //QLocalSocket::SocketAccessError
+    qDebug() << "UnixSocketError: " << err;
+
+    socketError(QString("UnixSocket(%1): ").arg(err));
+}
+
+/// Handle errors from QLocalSocket or QTcpSocket
+void NvimConnector::socketError(const QString &msg)
+{
+    setError(SocketError, msg + m_dev->errorString());
 }
 
 /// Handle errors in MsgpackIODevice
