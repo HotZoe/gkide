@@ -4,6 +4,8 @@
 #include <QMetaMethod>
 #include <QLocalSocket>
 #include <QTcpSocket>
+
+#include "generated/config/gkideenvs.h"
 #include "plugins/bin/snail/nvimconnector.h"
 #include "plugins/bin/snail/msgpackrequest.h"
 #include "plugins/bin/snail/nvimconnectorhelper.h"
@@ -214,19 +216,6 @@ NvimConnector *NvimConnector::connectToSocket(const QString &path)
     return c;
 }
 
-NvimConnector *NvimConnector::connectToHost(const QString &host,
-                                            const QString &user,
-                                            const QString &pass,
-                                            int port)
-{
-    qDebug() << "host: " << host;
-    qDebug() << "user: " << user;
-    qDebug() << "pass: " << pass;
-    qDebug() << "port: " << port;
-
-    return NULL;
-}
-
 /// Connect to a Nvim through a TCP connection
 ///
 /// @param host is a valid hostname or IP address
@@ -249,27 +238,27 @@ NvimConnector *NvimConnector::connectToHost(const QString &host, int port)
 
 /// Connect to a running instance of Nvim (if available).
 ///
-/// This method gets the Nvim endpoint from the NVIM_LISTEN_ADDRESS
-/// environment variable, if it is not available a new Nvim instance
-/// is spawned().
+/// - if @b server is empty, then:
+///   1. if @b $GKIDE_NVIM_LISTEN environment set, use it as server.
+///   2. if not, then started embed nvim.
 ///
 /// @see startEmbedNvim()
-NvimConnector *NvimConnector::connectToNvim(const QString &server)
+NvimConnector *NvimConnector::connectToNvimInstance(const QString &server)
 {
     QString addr = server;
 
     if(addr.isEmpty())
     {
-        addr = QString::fromLocal8Bit(qgetenv("NVIM_LISTEN_ADDRESS"));
+        addr = QString::fromLocal8Bit(qgetenv(ENV_GKIDE_NVIM_LISTEN));
     }
 
     if(addr.isEmpty())
     {
-        return startEmbedNvim();
+        return NULL; // startEmbedNvim()
     }
 
+    // address:port
     int colon_pos = addr.lastIndexOf(':');
-
     if(colon_pos != -1 && colon_pos != 0 && addr[colon_pos-1] != ':')
     {
         bool ok;
@@ -282,6 +271,7 @@ NvimConnector *NvimConnector::connectToNvim(const QString &server)
         }
     }
 
+    // named pipe
     return connectToSocket(addr);
 }
 
@@ -372,16 +362,6 @@ NvimVersion *NvimConnector::getNvimVersionObj(void)
 {
     return m_nvimVer;
 }
-/// @fn SnailNvimQt::NvimConnector::error(NvimError)
-///
-/// This signal is emitted when an error occurs. Use NvimConnector::errorString
-/// to get an error message.
-
-/// @fn SnailNvimQt::NvimConnector::processExited(int exitStatus)
-///
-/// If the Nvim process was started using
-/// SnailNvimQt::NvimConnector::startEmbedNvim() this signal is emitted
-/// when the process exits.
 
 } // namespace::SnailNvimQt
 

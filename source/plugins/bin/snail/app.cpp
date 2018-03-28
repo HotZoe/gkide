@@ -135,9 +135,9 @@ void App::initCliArgs(QCommandLineParser &parser,
     arg_project.setValueName("name");
     parser.addOption(arg_project);
 
-    // --remote <address>
-    QCommandLineOption arg_server("remote");
-    arg_desc = QCoreApplication::translate("main", "Connect to remote nvim.");
+    // --host <address>
+    QCommandLineOption arg_server("host");
+    arg_desc = QCoreApplication::translate("main", "Connect to host(local/remote) nvim.");
     arg_server.setDescription(arg_desc);
     arg_server.setValueName("address");
     parser.addOption(arg_server);
@@ -176,51 +176,46 @@ void App::initCliArgs(QCommandLineParser &parser,
 
 NvimConnector *App::createConnector(const QCommandLineParser &parser)
 {
-    if(parser.isSet("remote"))
+    if(parser.isSet("host"))
     {
-        QString remote = parser.value("remote");
+        QString server = parser.value("host");
 
-        if(remote.isEmpty())
+        NvimConnector *nvimConn = NvimConnector::connectToNvimInstance(server);
+
+        if(nvimConn)
         {
-            appExit("TODO", "TODO");
+            return nvimConn;
         }
-
-        //return SnailNvimQt::NvimConnector::connectToNvim(remote);
-        return SnailNvimQt::NvimConnector::connectToHost(remote,
-                                                         QString("charlie"),
-                                                         QString("wlc"));
     }
-    else
+
+    QStringList nvimArgs;
+    nvimArgs << "--cmd";
+    nvimArgs << "set termguicolors";
+    nvimArgs << "--embed";
+    nvimArgs << "--headless";
+
+    // GKIDE home directory
+    QString gkideHome = App::applicationDirPath();
+
+    // nvim program
+    #ifdef Q_OS_WIN
+    QString nvimProg = gkideHome + "/nvim.exe";
+    #else
+    QString nvimProg = gkideHome + "/nvim";
+    #endif
+
+    qDebug() << "nvimProg: " << nvimProg;
+
+    if(!QFileInfo(nvimProg).isExecutable())
     {
-        QStringList nvimArgs;
-        nvimArgs << "--cmd";
-        nvimArgs << "set termguicolors";
-        nvimArgs << "--embed";
-        nvimArgs << "--headless";
-
-        // GKIDE home directory
-        QString gkideHome = App::applicationDirPath();
-
-        // nvim program
-        #ifdef Q_OS_WIN
-        QString nvimProg = gkideHome + "/nvim.exe";
-        #else
-        QString nvimProg = gkideHome + "/nvim";
-        #endif
-
-        qDebug() << "nvimProg: " << nvimProg;
-
-        if(!QFileInfo(nvimProg).isExecutable())
-        {
-            appExit("Program not exit: " + nvimProg,
-                    "Please check and reinstall.");
-        }
-
-        // Pass positional file arguments to nvim
-        nvimArgs.append(parser.positionalArguments());
-
-        return SnailNvimQt::NvimConnector::startEmbedNvim(nvimArgs, nvimProg);
+        appExit("Program not exit: " + nvimProg,
+                "Please check and reinstall.");
     }
+
+    // Pass positional file arguments to nvim
+    nvimArgs.append(parser.positionalArguments());
+
+    return NvimConnector::startEmbedNvim(nvimArgs, nvimProg);
 }
 
 } // namespace::SnailNvimQt

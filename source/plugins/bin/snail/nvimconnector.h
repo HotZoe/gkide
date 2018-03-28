@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QTextCodec>
 #include <QAbstractSocket>
+
 #include "config/nvimapi/auto/nvim.h"
 #include "plugins/bin/snail/nvimapi.h"
 #include "plugins/bin/snail/version.h"
@@ -57,16 +58,12 @@ public:
     NvimConnector(QIODevice *s);
     NvimConnector(MsgpackIODevice *s);
 
-    static NvimConnector *connectToSocket(const QString &);
-    static NvimConnector *connectToNvim(const QString &server=QString());
-
+    static NvimConnector *connectToSocket(const QString &path);
     static NvimConnector *connectToHost(const QString &host, int port);
-    static NvimConnector *connectToHost(const QString &host, // remote host
-                                        const QString &user, // login name
-                                        const QString &pass, // login pass
-                                        int port = 22);      // remote port
-    static NvimConnector *startEmbedNvim(const QStringList &args = QStringList(),
-                                         const QString &exe="nvim");
+
+    static NvimConnector *connectToNvimInstance(const QString &server=QString());
+    static NvimConnector *startEmbedNvim(const QStringList &args,
+                                         const QString &exe);
 
     bool canReconnect(void);
     NvimConnector *reconnect(void);
@@ -89,7 +86,13 @@ public:
 signals:
     /// Emitted when nvim is ready
     void ready(void);
+
+    /// This signal is emitted when an error occurs.
+    /// Use errorString() to get an error message.
     void error(NvimError err);
+
+    /// If the Nvim process was started using startEmbedNvim()
+    /// this signal is emitted when the process exits.
     void processExited(int exitCode);
 
 public slots:

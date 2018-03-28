@@ -37,7 +37,7 @@ bool server_init(void)
 {
     ga_init(&watchers, sizeof(socket_watcher_st *), 1);
     bool must_free = false;
-    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
 
     if(listen_address == NULL)
     {
@@ -179,12 +179,12 @@ int server_start(const char *endpoint)
         return result;
     }
 
-    // Update $NVIM_LISTEN_ADDRESS, if not set.
-    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
+    // Update $GKIDE_NVIM_LISTEN, if not set.
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
 
     if(listen_address == NULL)
     {
-        os_setenv(ENV_GKIDE_NVIM_SERADD, watcher->addr, 1);
+        os_setenv(ENV_GKIDE_NVIM_LISTEN, watcher->addr, 1);
     }
 
     // Add the watcher to the list.
@@ -228,12 +228,12 @@ void server_stop(char *endpoint)
         return;
     }
 
-    // Unset $NVIM_LISTEN_ADDRESS if it is the stopped address.
-    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_SERADD);
+    // Unset $GKIDE_NVIM_LISTEN if it is the stopped address.
+    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
 
     if(listen_address && STRCMP(addr, listen_address) == 0)
     {
-        os_unsetenv(ENV_GKIDE_NVIM_SERADD);
+        os_unsetenv(ENV_GKIDE_NVIM_LISTEN);
     }
 
     socket_watcher_close(watcher, free_server);

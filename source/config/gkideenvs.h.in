@@ -15,7 +15,7 @@
 #define ENV_GKIDE_NVIM_LOCALE     "GKIDE_NVIM_LOCALE"     ///< locale
 #define ENV_GKIDE_NVIM_RTMLOG     "GKIDE_NVIM_RTMLOG"     ///< runtime log
 #define ENV_GKIDE_NVIM_RTMPLG     "GKIDE_NVIM_RTMPLG"     ///< runtime plugin
-#define ENV_GKIDE_NVIM_SERADD     "GKIDE_NVIM_SERADD"     ///< server address
+#define ENV_GKIDE_NVIM_LISTEN     "GKIDE_NVIM_LISTEN"     ///< listen address
 
 #define ENV_GKIDE_SNAIL_LOGGINGS  "GKIDE_SNAIL_LOGGINGS"  ///< log
 #define ENV_GKIDE_SNAIL_LOGLEVEL  "GKIDE_SNAIL_LOGLEVEL"  ///< log-level
