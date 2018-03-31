@@ -33,10 +33,6 @@ set(ENV{PKG_CONFIG_PATH}
 message(STATUS "Pkg Config Path   : $ENV{PKG_CONFIG_PATH}")
 message(STATUS "Deps Search Path  : ${BUNDLED_DEPS_PREFIX}")
 
-# libssh
-find_package(Libssh 0.7.5 REQUIRED)
-include_directories(SYSTEM ${LIBSSH_INCLUDE_DIRS})
-
 # msgpack
 find_package(Msgpack 1.0.0 REQUIRED)
 include_directories(SYSTEM ${MSGPACK_INCLUDE_DIRS})

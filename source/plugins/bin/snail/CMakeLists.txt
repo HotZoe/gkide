@@ -203,10 +203,29 @@ list(APPEND NVIM_API_SRC
 
 file(GLOB SNAIL_QT_RESC *.qrc)
 
-if(NOT WIN32)
-    list(REMOVE_ITEM SNAIL_SOURCES stdinreader.cpp)
+# libssh
+find_package(Libssh 0.7.5 REQUIRED)
+list(APPEND SNAIL_LINK_LIBS "${LIBSSH_LIBRARIES}")
+
+if(HOST_OS_WINDOWS)
+    # About MSYS2 build static programs
+    # when use MSYS2 build windows C/C++ programs, by default, at least need:
+    # libgcc_s_seh-1.dll, libstdc++-6.dll, libwinpthread-1.dll
+    # if do not want these dlls, give '-static' to gcc/g++ is ok
+    # please note that if there have some other linking libraries use dynamic link,
+    # which relay on these dlls, the '-static' flag do not have affect.
+    add_definitions("-DLIBSSH_STATIC") # no '__declspec(dllimport)'
+    list(APPEND SNAIL_LINK_LIBS "-Wl,-Bstatic -lz")
+    list(APPEND SNAIL_LINK_LIBS "-Wl,-Bstatic -lcrypto")
+else()
+    list(APPEND SNAIL_LINK_LIBS "-lcrypto -lz")
+    include_directories(SYSTEM ${LIBSSH_INCLUDE_DIRS})
 endif()
 
+# msgpack
+list(APPEND SNAIL_LINK_LIBS "${MSGPACK_LIBRARIES}")
+
+# Qt
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -220,9 +239,6 @@ list(APPEND SNAIL_LINK_LIBS "Qt5::Gui")
 list(APPEND SNAIL_LINK_LIBS "Qt5::Core")
 list(APPEND SNAIL_LINK_LIBS "Qt5::Widgets")
 list(APPEND SNAIL_LINK_LIBS "Qt5::Network")
-list(APPEND SNAIL_LINK_LIBS "${LIBSSH_LIBRARIES}")
-list(APPEND SNAIL_LINK_LIBS "-lrt -lcrypto -lz") # for libssh
-list(APPEND SNAIL_LINK_LIBS "${MSGPACK_LIBRARIES}")
 
 if(SNAIL_USE_STATIC_QT5)
     # create qt-plugin file for static link Qt

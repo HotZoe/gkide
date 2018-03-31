@@ -47,6 +47,7 @@ pacman -S ${pkg_prefix}-cmake
 pacman -S ${pkg_prefix}-perl
 pacman -S ${pkg_prefix}-python2 
 pacman -S ${pkg_prefix}-jasper
+pacman -S ${pkg_prefix}-libssh
 
 # git commit style configurations following
 
