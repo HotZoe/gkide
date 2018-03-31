@@ -262,11 +262,6 @@ find_package(LibUV 1.9.1 REQUIRED)
 include_directories(SYSTEM ${LIBUV_INCLUDE_DIRS})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBUV_LIBRARIES})
 
-# libvterm
-find_package(LibVterm REQUIRED)
-include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
-list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
-
 # libintl
 find_package(LibIntl)
 if(LibIntl_FOUND)
@@ -303,10 +298,17 @@ list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
 # terminal UI for nvim
 if(NVIM_FEAT_TUI)
+    # libvterm
+    find_package(LibVterm REQUIRED)
+    include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
+    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
+
+    # unibilium
     find_package(Unibilium REQUIRED)
     include_directories(SYSTEM ${UNIBILIUM_INCLUDE_DIRS})
     list(APPEND NVIM_DEP_LINK_LIBRARIES ${UNIBILIUM_LIBRARIES})
 
+    # libtermkey
     find_package(LibTermkey REQUIRED)
     include_directories(SYSTEM ${LIBTERMKEY_INCLUDE_DIRS})
     list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBTERMKEY_LIBRARIES})

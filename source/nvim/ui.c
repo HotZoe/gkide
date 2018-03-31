@@ -33,12 +33,8 @@
 #include "nvim/window.h"
 #include "nvim/cursor_shape.h"
 
-#ifdef NVIM_FEAT_TUI
-    #include "nvim/tui/tui.h"
-#else
-    #include "nvim/msgpack/server.h"
-#endif
-
+#include "nvim/tui/tui.h"
+#include "nvim/msgpack/server.h"
 #include "nvim/api/private/helpers.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

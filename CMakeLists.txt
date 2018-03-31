@@ -260,13 +260,8 @@ set(CMAKE_INSTALL_PLG_DIR  "${CMAKE_INSTALL_PREFIX}/plg"  CACHE PATH "" FORCE)
 set(CMAKE_INSTALL_MIS_DIR  "${CMAKE_INSTALL_PREFIX}/mis"  CACHE PATH "" FORCE)
 
 # TUI support for nvim
-if(HOST_OS_WINDOWS)
-    # Disable TUI for windows build
-    option(NVIM_FEAT_TUI "Enable the Terminal UI for nvim." OFF)
-else()
-    # Enable TUI for none windws build
-    option(NVIM_FEAT_TUI "Enable the Terminal UI for nvim." ON)
-endif()
+# Enable TUI for none windws build
+option(NVIM_FEAT_TUI "Enable the Terminal UI for nvim." ON)
 
 add_subdirectory(source)
 

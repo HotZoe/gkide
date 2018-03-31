@@ -165,15 +165,15 @@ include(BuildLibuv)
 # dependencies: none
 include(BuildLibssh)
 
-# TODO, remove
+# for nvim TUI
 # dependencies: none
 include(BuildLibvterm)
 
-# TODO, remove
+# for nvim TUI
 # dependencies: none
 include(BuildUnibilium)
 
-# TODO, remove
+# for nvim TUI
 # dependencies: unibilium
 include(BuildLibtermkey)
 
