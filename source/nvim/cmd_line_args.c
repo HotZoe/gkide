@@ -135,51 +135,8 @@ void cmd_line_args_parser(main_args_st *parmp)
                 case '-':
                     process_cmd_opt_long(parmp, argv);
                     // "--" don't take any more option arguments
-                    // "--help" give help message
-                    // "--version" give version message
-                    // "--literal" take files literally
-                    // "--noplugin[s]" skip plugins
                     // "--cmd <cmd>" execute cmd before vimrc
-                    if(STRICMP(argv[0] + argv_idx, "api-info") == 0)
-                    {
-                        msgpack_sbuffer *b = msgpack_sbuffer_new();
-
-                        msgpack_packer *p =
-                            msgpack_packer_new(b, msgpack_sbuffer_write);
-
-                        Object md = DICTIONARY_OBJ(api_metadata());
-
-                        rpc_from_object(md, p);
-
-                        for(size_t i = 0; i < b->size; i++)
-                        {
-                            putchar(b->data[i]);
-                        }
-
-                        msgpack_packer_free(p);
-                        mch_exit(0);
-                    }
-                    else if(STRICMP(argv[0] + argv_idx, "headless") == 0)
-                    {
-                        parmp->headless = true;
-                    }
-                    else if(STRICMP(argv[0] + argv_idx, "embed") == 0)
-                    {
-                        embedded_mode = true;
-                        parmp->headless = true;
-                        channel_from_stdio();
-                    }
-                    else if(STRNICMP(argv[0] + argv_idx, "literal", 7) == 0)
-                    {
-                        #if !defined(UNIX)
-                        parmp->literal = TRUE;
-                        #endif
-                    }
-                    else if(STRNICMP(argv[0] + argv_idx, "noplugin", 8) == 0)
-                    {
-                        p_lpl = FALSE;
-                    }
-                    else if(STRNICMP(argv[0] + argv_idx, "cmd", 3) == 0)
+                    if(STRNICMP(argv[0] + argv_idx, "cmd", 3) == 0)
                     {
                         want_optval = TRUE;
                         argv_idx += 3;
@@ -746,6 +703,50 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         // --version
         show_version();
         mch_exit(0);
+    }
+    else if(STRICMP(cmd_name, "api-info") == 0)
+    {
+        // --api-info
+        msgpack_sbuffer *b = msgpack_sbuffer_new();
+
+        msgpack_packer *p =
+            msgpack_packer_new(b, msgpack_sbuffer_write);
+
+        Object md = DICTIONARY_OBJ(api_metadata());
+
+        rpc_from_object(md, p);
+
+        for(size_t i = 0; i < b->size; i++)
+        {
+            putchar(b->data[i]);
+        }
+
+        msgpack_packer_free(p);
+        mch_exit(0);
+    }
+    else if(STRICMP(cmd_name, "headless") == 0)
+    {
+        // --headless
+        parmp->headless = true;
+    }
+    else if(STRICMP(cmd_name, "embed") == 0)
+    {
+        // --embed
+        embedded_mode = true;
+        parmp->headless = true;
+        channel_from_stdio();
+    }
+    else if(STRICMP(cmd_name, "literal") == 0)
+    {
+        // --literal, take files literally
+        #if !defined(UNIX)
+        parmp->literal = TRUE;
+        #endif
+    }
+    else if(STRNICMP(cmd_name, "noplugin", 8) == 0)
+    {
+        // --noplugin[s], skip plugins
+        p_lpl = FALSE;
     }
 }
 
