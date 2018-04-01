@@ -1178,7 +1178,6 @@ EXTERN uchar_kt e_nesting[] INIT(= N_("E22: Scripts nested too deep"));
 EXTERN uchar_kt e_noalt[] INIT(= N_("E23: No alternate file"));
 EXTERN uchar_kt e_noabbr[] INIT(= N_("E24: No such abbreviation"));
 EXTERN uchar_kt e_nobang[] INIT(= N_("E477: No ! allowed"));
-EXTERN uchar_kt e_nogvim[] INIT(= N_("E25: Nvim does not have a built-in GUI"));
 EXTERN uchar_kt e_nogroup[] INIT(= N_("E28: No such highlight group name: %s"));
 EXTERN uchar_kt e_noinstext[] INIT(= N_("E29: No inserted text yet"));
 EXTERN uchar_kt e_nolastcmd[] INIT(= N_("E30: No previous command line"));

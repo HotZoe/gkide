@@ -270,11 +270,6 @@ void cmd_line_args_parser(main_args_st *parmp)
                     // "-f"  GUI: run in foreground.
                     break;
 
-                case 'g':
-                    // "-g" start GUI
-                    main_start_gui();
-                    break;
-
                 case 'F':
                     // "-F" start in Farsi mode: rl + fkmap set.
                     p_fkmap = true;
@@ -321,18 +316,6 @@ void cmd_line_args_parser(main_args_st *parmp)
 
                 case 'p':
                     // "-p[N]" open N tab pages
-                #ifdef TARGET_API_MAC_OSX
-                    // For some reason on MacOS X, an argument like:
-                    // -psn_0_10223617 is passed in when invoke from Finder
-                    // or with the 'open' command
-                    if(argv[0][argv_idx] == 's')
-                    {
-                        argv_idx = -1;// bypass full -psn
-                        main_start_gui();
-                        break;
-                    }
-                #endif
-
                     // default is 0: open window for each file
                     parmp->window_count = get_number_arg(argv[0], &argv_idx, 0);
                     parmp->window_layout = kWinLayoutTabpage;
@@ -773,14 +756,6 @@ static void show_version(void)
     list_version();
     msg_putchar('\n');
     msg_didout = FALSE;
-}
-
-/// Setup to start using the GUI.  Exit with an error when not available.
-static void main_start_gui(void)
-{
-    mch_errmsg(_(e_nogvim));
-    mch_errmsg("\n");
-    mch_exit(2);
 }
 
 /// Gets the integer value of a numeric command

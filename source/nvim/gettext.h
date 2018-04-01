@@ -10,7 +10,7 @@
 
     #define _(x)    gettext((char *)(x))
 
-    // XXX do we actually need this?
+    // no-operation macro
     #ifdef gettext_noop
         #define N_(x)    gettext_noop(x)
     #else

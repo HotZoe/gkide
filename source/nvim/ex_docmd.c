@@ -9084,12 +9084,6 @@ void do_exedit(exargs_st *eap, win_st *old_curwin)
     ex_no_reprint = TRUE;
 }
 
-/// ":gui" and ":gvim" when there is no GUI.
-static void ex_nogui(exargs_st *eap)
-{
-    eap->errmsg = e_nogvim;
-}
-
 static void ex_swapname(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
     if(curbuf->b_ml.ml_mfp == NULL || curbuf->b_ml.ml_mfp->mf_fname == NULL)

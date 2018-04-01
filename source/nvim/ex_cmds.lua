@@ -1033,18 +1033,6 @@ return
         func='ex_make',
     },
     {
-        cmdname='gui',
-        flags=bit.bor(BANG, FILES, EDITCMD, ARGOPT, TRLBAR, CMDWIN),
-        addr_type=ADDR_LINES,
-        func='ex_nogui',
-    },
-    {
-        cmdname='gvim',
-        flags=bit.bor(BANG, FILES, EDITCMD, ARGOPT, TRLBAR, CMDWIN),
-        addr_type=ADDR_LINES,
-        func='ex_nogui',
-    },
-    {
         cmdname='help',
         flags=bit.bor(BANG, EXTRA, NOTRLCOM),
         addr_type=ADDR_LINES,
