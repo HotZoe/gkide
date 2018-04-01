@@ -29,7 +29,7 @@
 #endif
 
 // Error messages
-static const char *err_arg_missing = N_("Argument missing after");
+static const char *err_arg_missing = N_("Option value missing after: ");
 static const char *err_opt_garbage = N_("Garbage after option argument");
 static const char *err_opt_unknown = N_("Unknown option argument");
 static const char *err_too_many_args = N_("Too many edit arguments");
@@ -133,18 +133,22 @@ void cmd_line_args_parser(main_args_st *parmp)
                     break;
                 }
                 case '-':
-                    process_cmd_opt_long(parmp, argv);
+                {
+                    if(SKIP_TO_NEXT == process_cmd_opt_long(parmp, argv))
+                    {
+                        --argc;
+                        ++argv; // skip the option value
+                    }
+
+                    argv_idx = SKIP_TO_NEXT;
+                    break;
+                }
                     // "--" don't take any more option arguments
                     // "--cmd <cmd>" execute cmd before vimrc
                     if(STRNICMP(argv[0] + argv_idx, "cmd", 3) == 0)
                     {
                         want_optval = TRUE;
                         argv_idx += 3;
-                    }
-                    else if(STRNICMP(argv[0] + argv_idx, "startuptime", 11) == 0)
-                    {
-                        want_optval = TRUE;
-                        argv_idx += 11;
                     }
                     else
                     {
@@ -484,7 +488,6 @@ void cmd_line_args_parser(main_args_st *parmp)
                             parmp->pre_cmd_args[parmp->pre_cmd_num++] = argv[0];
                         }
 
-                        // "--startuptime <file>" already handled
                         break;
 
                     case 'q':
@@ -584,7 +587,7 @@ void cmd_line_args_parser(main_args_st *parmp)
         // If there are no more letters after the current "-",
         // go to next argument. argv_idx is set to -1 when the
         // current argument is to be skipped.
-        if(argv_idx <= 0 || argv[0][argv_idx] == NUL)
+        if(argv_idx == SKIP_TO_NEXT )
         {
             --argc;
             ++argv;
@@ -692,6 +695,7 @@ static int process_cmd_opt_short(main_args_st *parmp, char **argv)
 static int process_cmd_opt_long(main_args_st *parmp, char **argv)
 {
     char *cmd_name = argv[0] + 2;
+
     if(STRICMP(cmd_name, "help") == 0)
     {
         // --help
@@ -748,6 +752,51 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         // --noplugin[s], skip plugins
         p_lpl = FALSE;
     }
+    else if(STRICMP(cmd_name, "startuptime") == 0)
+    {
+        // --startuptime <logfile>
+        // already handled by init_startuptime()
+        if(NOTDONE == check_opt_val(parmp, argv, "--startuptime"))
+        {
+            // --startuptime, just skip it
+            return OK;
+        }
+
+        // skip the option value, then process next option
+        return SKIP_TO_NEXT;
+    }
+
+    return OK;
+}
+
+static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
+{
+    const char *opt_ptr = argv[0];
+    const char *opt_val = argv[1];
+
+    if(opt_ptr[strlen(cmd_name)] != NUL)
+    {
+        // option have grabage chars
+        cmd_args_err_exit(err_opt_garbage, opt_ptr);
+    }
+
+    if(parmp->argc < 3 /* all cmd line args number */
+       || '-' == opt_val[0]
+       || '+' == opt_val[0])
+    {
+        if(STRICMP(cmd_name, "--startuptime") == 0)
+        {
+            // already handled by init_startuptime()
+            // if do not have option value, just skip it!
+            return NOTDONE;
+        }
+
+        // do not have option value, or next option just
+        // follwoing, that is option value do not start with - or +
+        cmd_args_err_exit(err_arg_missing, opt_ptr);
+    }
+
+    return OK;
 }
 
 /// Prints the following then exits:
