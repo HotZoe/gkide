@@ -2481,7 +2481,7 @@ void do_wqall(exargs_st *eap)
     {
         if(!error)
         {
-            getout(0); // exit Vim
+            exit_nvim_properly(0); // exit Vim
         }
 
         not_exiting();

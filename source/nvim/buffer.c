@@ -125,7 +125,7 @@ int open_buffer(int read_stdin, exargs_st *eap, int flags)
         if(curbuf == NULL)
         {
             EMSG(_("E82: Cannot allocate any buffer, exiting..."));
-            getout(2);
+            exit_nvim_properly(1);
         }
 
         EMSG(_("E83: Cannot allocate buffer, using other one..."));

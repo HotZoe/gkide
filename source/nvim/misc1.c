@@ -3267,7 +3267,7 @@ void preserve_exit(void)
     }
     ml_close_all(false); // close all memfiles, without deleting
     mch_errmsg("Vim: Finished.\n");
-    getout(1);
+    exit_nvim_properly(1);
 }
 
 #ifndef BREAKCHECK_SKIP

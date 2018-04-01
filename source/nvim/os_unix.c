@@ -118,7 +118,7 @@ void mch_copy_sec(uchar_kt *from_file, uchar_kt *to_file)
         freecon(from_context);
     }
 }
-#endif  // HAVE_SELINUX
+#endif // HAVE_SELINUX
 
 // Return a pointer to the ACL of file @b fname in allocated memory.
 // Return NULL if the ACL is not available for whatever reason.
@@ -147,7 +147,8 @@ void mch_free_acl(nvim_acl_kt aclent)
 }
 #endif
 
-void mch_exit(int r) FUNC_ATTR_NORETURN
+void mch_exit(int r)
+FUNC_ATTR_NORETURN
 {
     exiting = true;
 

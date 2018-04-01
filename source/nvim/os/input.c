@@ -532,7 +532,7 @@ static void read_error_exit(void)
     if(silent_mode)
     {
         // Normal way to exit for "ex -s"
-        getout(0);
+        exit_nvim_properly(0);
     }
 
     STRCPY(IObuff, _("Vim: Error reading input, exiting...\n"));

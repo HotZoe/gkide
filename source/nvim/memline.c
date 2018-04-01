@@ -916,7 +916,7 @@ void ml_recover(void)
     // When called from main() still need to initialize storage structure
     if(called_from_main && ml_open(curbuf) == FAIL)
     {
-        getout(1);
+        exit_nvim_properly(1);
     }
 
     // Allocate a buffer structure for the swap file that
