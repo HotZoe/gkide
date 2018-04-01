@@ -80,7 +80,7 @@ void cmd_line_usage(void)
     mch_msg(_("  +                     Start at end of file\n"));
     mch_msg(_("  +<linenum>            Start at line <linenum>\n"));
     mch_msg(_("  +/<pattern>           Start at first occurrence of <pattern>\n"));
-    mch_msg(_("  --cmd <command>       Execute <command> before loading any vimrc\n"));
+    mch_msg(_("  --cmd <command>       Execute <command> before loading any nvimrc\n"));
     mch_msg(_("  -c <command>          Execute <command> after loading the first file\n"));
     mch_msg(_("  -S <session>          Source <session> after loading the first file\n"));
     mch_msg(_("  -s <scriptin>         Read Normal mode commands from <scriptin>\n"));
@@ -134,23 +134,14 @@ void cmd_line_args_parser(main_args_st *parmp)
                 }
                 case '-':
                 {
-                    if(SKIP_TO_NEXT == process_cmd_opt_long(parmp, argv))
-                    {
-                        --argc;
-                        ++argv; // skip the option value
-                    }
+                    int skip_arg_cnt = process_cmd_opt_long(parmp, argv);
+                    argc -= skip_arg_cnt;
+                    argv += skip_arg_cnt; // skip the option value
 
-                    argv_idx = SKIP_TO_NEXT;
+                    argv_idx = SKIP_TO_NEXT; // skip the option
                     break;
                 }
                     // "--" don't take any more option arguments
-                    // "--cmd <cmd>" execute cmd before vimrc
-                    if(STRNICMP(argv[0] + argv_idx, "cmd", 3) == 0)
-                    {
-                        want_optval = TRUE;
-                        argv_idx += 3;
-                    }
-                    else
                     {
                         if(argv[0][argv_idx])
                         {
@@ -476,20 +467,6 @@ void cmd_line_args_parser(main_args_st *parmp)
 
                         break;
 
-                    case '-':
-                        if(argv[-1][2] == 'c')
-                        {
-                            // "--cmd {command}" execute command
-                            if(parmp->pre_cmd_num >= MAX_CMDS_NUM)
-                            {
-                                cmd_args_err_exit(err_extra_cmd, NULL);
-                            }
-
-                            parmp->pre_cmd_args[parmp->pre_cmd_num++] = argv[0];
-                        }
-
-                        break;
-
                     case 'q':
                         // "-q {errorfile}" QuickFix mode
                         parmp->err_file = (uchar_kt *)argv[0];
@@ -692,8 +669,10 @@ static int process_cmd_opt_short(main_args_st *parmp, char **argv)
 
 }
 
+// how many option value need to skip, zero for none
 static int process_cmd_opt_long(main_args_st *parmp, char **argv)
 {
+    char *opt_value= argv[1];
     char *cmd_name = argv[0] + 2;
 
     if(STRICMP(cmd_name, "help") == 0)
@@ -759,14 +738,25 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         if(NOTDONE == check_opt_val(parmp, argv, "--startuptime"))
         {
             // --startuptime, just skip it
-            return OK;
+            return 0;
         }
 
-        // skip the option value, then process next option
-        return SKIP_TO_NEXT;
+        // skip <logfile>, then process next option
+        return 1;
+    }
+    else if(STRICMP(cmd_name, "cmd") == 0)
+    {
+        // --cmd <cmd>, execute <cmd> before loading any nvimrc
+        check_opt_val(parmp, argv, "--cmd");
+        parmp->pre_cmd_args[parmp->pre_cmd_num++] = opt_value;
+
+        // [TODO]: how this command works?
+        //parmp->pre_cmd_args[parmp->pre_cmd_num++] = argv[2];
+
+        return 2;
     }
 
-    return OK;
+    return 0;
 }
 
 static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
@@ -794,6 +784,11 @@ static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
         // do not have option value, or next option just
         // follwoing, that is option value do not start with - or +
         cmd_args_err_exit(err_arg_missing, opt_ptr);
+    }
+
+    if(parmp->pre_cmd_num >= MAX_CMDS_NUM)
+    {
+        cmd_args_err_exit(err_extra_cmd, NULL);
     }
 
     return OK;
