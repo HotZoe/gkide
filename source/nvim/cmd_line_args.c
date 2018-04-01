@@ -128,26 +128,11 @@ void cmd_line_args_parser(main_args_st *parmp)
             switch(cmd_id)
             {
                 case NUL:
-
-                    // "vim -"  read from stdin
-                    if(exmode_active)
-                    {
-                        // "ex -" silent mode
-                        silent_mode = TRUE;
-                    }
-                    else
-                    {
-                        if(parmp->edit_type != kEditTypeNone)
-                        {
-                            cmd_args_err_exit(err_too_many_args, argv[0]);
-                        }
-
-                        parmp->edit_type = kEditTypeStdin;
-                    }
-
-                    argv_idx = -1; // skip to next argument
+                {
+                    process_cmd_minus_only(parmp, argv);
+                    argv_idx = SKIP_TO_NEXT;
                     break;
-
+                }
                 case '-':
 
                     // "--" don't take any more option arguments
@@ -725,6 +710,25 @@ static void process_cmd_plus(main_args_st *parmp, char **argv)
     {
         // "+{number}", "+/{pat}" or "+{command}"
         parmp->cmd_args[parmp->cmd_num++] = &(argv[0][1]);
+    }
+}
+
+static void process_cmd_minus_only(main_args_st *parmp, char **argv)
+{
+    // "vim -"  read from stdin
+    if(exmode_active)
+    {
+        // "ex -" silent mode
+        silent_mode = TRUE;
+    }
+    else
+    {
+        if(parmp->edit_type != kEditTypeNone)
+        {
+            cmd_args_err_exit(err_too_many_args, argv[0]);
+        }
+
+        parmp->edit_type = kEditTypeStdin;
     }
 }
 
