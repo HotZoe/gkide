@@ -110,7 +110,6 @@ void cmd_line_args_parser(main_args_st *parmp)
     int had_minmin = FALSE; // found "--" argument
 
     long n;
-    uchar_kt *p = NULL;
 
     while(argc > 0)
     {
@@ -129,7 +128,7 @@ void cmd_line_args_parser(main_args_st *parmp)
             {
                 case NUL:
                 {
-                    process_cmd_minus_only(parmp, argv);
+                    process_cmd_only_minus(parmp, argv);
                     argv_idx = SKIP_TO_NEXT;
                     break;
                 }
@@ -630,43 +629,9 @@ void cmd_line_args_parser(main_args_st *parmp)
         }
         else
         {
-            // File name argument.
-            argv_idx = -1; // skip to next argument
-
-            // Check for only one type of editing.
-            if(parmp->edit_type != kEditTypeNone && parmp->edit_type != kEditTypeFile)
-            {
-                cmd_args_err_exit(err_too_many_args, argv[0]);
-            }
-
-            parmp->edit_type = kEditTypeFile;
-            // Add the file to the global argument list.
-            ga_grow(&global_alist.al_ga, 1);
-            p = vim_strsave((uchar_kt *)argv[0]);
-
-            if(parmp->diff_mode
-               && os_isdir(p)
-               && GARGCOUNT > 0
-               && !os_isdir(alist_name(&GARGLIST[0])))
-            {
-                char *fn = (char *)path_tail(alist_name(&GARGLIST[0]));
-                uchar_kt *r = (uchar_kt *)concat_fnames((char *)p, fn, TRUE);
-                xfree(p);
-                p = r;
-            }
-
-        #ifdef USE_FNAME_CASE
-            // Make the case of the file name match the actual file.
-            path_fix_case(p);
-        #endif
-
-        #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
-            int buf_nr = parmp->literal ? 2 : 0; // add buffer nr after exp.
-        #else
-            int buf_nr = 2; // add buffer number now and use curbuf
-        #endif
-
-            alist_add(&global_alist, p, buf_nr);
+            // File name argument following "--"
+            process_cmd_only_minus_minus(parmp, argv);
+            argv_idx = SKIP_TO_NEXT;
         }
 
         // If there are no more letters after the current "-",
@@ -713,7 +678,7 @@ static void process_cmd_plus(main_args_st *parmp, char **argv)
     }
 }
 
-static void process_cmd_minus_only(main_args_st *parmp, char **argv)
+static void process_cmd_only_minus(main_args_st *parmp, char **argv)
 {
     // "vim -"  read from stdin
     if(exmode_active)
@@ -730,6 +695,46 @@ static void process_cmd_minus_only(main_args_st *parmp, char **argv)
 
         parmp->edit_type = kEditTypeStdin;
     }
+}
+
+static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
+{
+    // Check for only one type of editing.
+    if(parmp->edit_type != kEditTypeNone
+       && parmp->edit_type != kEditTypeFile)
+    {
+        cmd_args_err_exit(err_too_many_args, argv[0]);
+    }
+
+    ga_grow(&global_alist.al_ga, 1);
+    parmp->edit_type = kEditTypeFile;
+
+    uchar_kt *usr_file = vim_strsave((uchar_kt *)argv[0]);
+
+    if(parmp->diff_mode
+       && os_isdir(usr_file)
+       && GARGCOUNT > 0
+       && !os_isdir(alist_name(&GARGLIST[0])))
+    {
+        char *fn = (char *)path_tail(alist_name(&GARGLIST[0]));
+        uchar_kt *r = (uchar_kt *)concat_fnames((char *)usr_file, fn, TRUE);
+        xfree(usr_file);
+        usr_file = r;
+    }
+
+    #ifdef USE_FNAME_CASE
+    // Make the case of the file name match the actual file.
+    path_fix_case(usr_file);
+    #endif
+
+    #if !defined(HOST_OS_LINUX) && !defined(HOST_OS_MACOS)
+    int buf_nr = parmp->literal ? 2 : 0; // add buffer nr after exp.
+    #else
+    int buf_nr = 2; // add buffer number now and use curbuf
+    #endif
+
+    // Add the file to the global argument list.
+    alist_add(&global_alist, usr_file, buf_nr);
 }
 
 /// Prints the following then exits:
