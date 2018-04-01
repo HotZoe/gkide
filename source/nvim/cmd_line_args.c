@@ -133,24 +133,14 @@ void cmd_line_args_parser(main_args_st *parmp)
                     break;
                 }
                 case '-':
-
+                    process_cmd_opt_long(parmp, argv);
                     // "--" don't take any more option arguments
                     // "--help" give help message
                     // "--version" give version message
                     // "--literal" take files literally
                     // "--noplugin[s]" skip plugins
                     // "--cmd <cmd>" execute cmd before vimrc
-                    if(STRICMP(argv[0] + argv_idx, "help") == 0)
-                    {
-                        cmd_line_usage();
-                        mch_exit(0);
-                    }
-                    else if(STRICMP(argv[0] + argv_idx, "version") == 0)
-                    {
-                        show_version();
-                        mch_exit(0);
-                    }
-                    else if(STRICMP(argv[0] + argv_idx, "api-info") == 0)
+                    if(STRICMP(argv[0] + argv_idx, "api-info") == 0)
                     {
                         msgpack_sbuffer *b = msgpack_sbuffer_new();
 
@@ -735,6 +725,28 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
 
     // Add the file to the global argument list.
     alist_add(&global_alist, usr_file, buf_nr);
+}
+
+static int process_cmd_opt_short(main_args_st *parmp, char **argv)
+{
+
+}
+
+static int process_cmd_opt_long(main_args_st *parmp, char **argv)
+{
+    char *cmd_name = argv[0] + 2;
+    if(STRICMP(cmd_name, "help") == 0)
+    {
+        // --help
+        cmd_line_usage();
+        mch_exit(0);
+    }
+    else if(STRICMP(cmd_name, "version") == 0)
+    {
+        // --version
+        show_version();
+        mch_exit(0);
+    }
 }
 
 /// Prints the following then exits:
