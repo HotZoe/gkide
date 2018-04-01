@@ -29,7 +29,7 @@
 #endif
 
 // Error messages
-static const char *err_arg_missing = N_("Option value missing after: ");
+static const char *err_arg_missing = N_("Option value missing after");
 static const char *err_opt_garbage = N_("Garbage after option argument");
 static const char *err_opt_unknown = N_("Unknown option argument");
 static const char *err_too_many_args = N_("Too many edit arguments");
@@ -135,29 +135,21 @@ void cmd_line_args_parser(main_args_st *parmp)
                 case '-':
                 {
                     int skip_arg_cnt = process_cmd_opt_long(parmp, argv);
-                    argc -= skip_arg_cnt;
-                    argv += skip_arg_cnt; // skip the option value
+
+                    if(skip_arg_cnt < 0)
+                    {
+                        // found "--"
+                        had_minmin = TRUE;
+                    }
+                    else
+                    {
+                        argc -= skip_arg_cnt;
+                        argv += skip_arg_cnt; // skip the option value
+                    }
 
                     argv_idx = SKIP_TO_NEXT; // skip the option
                     break;
                 }
-                    // "--" don't take any more option arguments
-                    {
-                        if(argv[0][argv_idx])
-                        {
-                            cmd_args_err_exit(err_opt_unknown, argv[0]);
-                        }
-
-                        had_minmin = TRUE;
-                    }
-
-                    if(!want_optval)
-                    {
-                        argv_idx = -1; // skip to next argument
-                    }
-
-                    break;
-
                 case 'A':
                     // "-A" start in Arabic mode.
                     set_option_value("arabic", 1L, NULL, 0);
@@ -564,7 +556,7 @@ void cmd_line_args_parser(main_args_st *parmp)
         // If there are no more letters after the current "-",
         // go to next argument. argv_idx is set to -1 when the
         // current argument is to be skipped.
-        if(argv_idx == SKIP_TO_NEXT )
+        if(argv_idx == SKIP_TO_NEXT)
         {
             --argc;
             ++argv;
@@ -755,6 +747,16 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
 
         return 2;
     }
+    else
+    {
+        if(NUL != cmd_name[0])
+        {
+            // invalid option name
+            cmd_args_err_exit(err_opt_unknown, argv[0]);
+        }
+
+        return -1; // found "--"
+    }
 
     return 0;
 }
@@ -794,13 +796,11 @@ static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
     return OK;
 }
 
-/// Prints the following then exits:
-/// - An error message @b errstr
-/// - A string @b str if not null
+/// Prints the following then exits.
 ///
 /// @param errstr  string containing an error message
-/// @param str     string to append to the primary error message, or NULL
-static void cmd_args_err_exit(const char *errstr, const char *str)
+/// @param info    more detail error message, or NULL
+static void cmd_args_err_exit(const char *errstr, const char *info)
 {
     char *prgname = (char *)path_tail((uchar_kt *)programme_name());
     signal_stop(); // kill us with CTRL-C here, if you like
@@ -809,10 +809,10 @@ static void cmd_args_err_exit(const char *errstr, const char *str)
     mch_errmsg(": ");
     mch_errmsg(_(errstr));
 
-    if(str != NULL)
+    if(info != NULL)
     {
         mch_errmsg(": \"");
-        mch_errmsg(str);
+        mch_errmsg(info);
         mch_errmsg("\"");
     }
 
