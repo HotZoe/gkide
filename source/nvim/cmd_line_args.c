@@ -95,16 +95,20 @@ void cmd_line_usage(void)
     mch_msg(_("  -h, --help            Print this help message and exit\n"));
 }
 
+// skip to next argument
+#define SKIP_TO_NEXT    -1
+
 /// Parse the command line arguments.
 void cmd_line_args_parser(main_args_st *parmp)
 {
     // skip the programe name itself
     int argc = parmp->argc - 1;
     char **argv = parmp->argv + 1;
+
     int argv_idx = 1; // index in argv[n][]
-    int want_argument; // option argument with argument
+    int want_optval = FALSE; // option argument with argument
     int had_minmin = FALSE; // found "--" argument
-    int c;
+
     long n;
     uchar_kt *p = NULL;
 
@@ -112,30 +116,16 @@ void cmd_line_args_parser(main_args_st *parmp)
     {
         if(argv[0][0] == '+' && !had_minmin)
         {
-            // "+" or "+{number}" or "+/{pat}" or "+{command}" argument.
-            if(parmp->cmd_num >= MAX_CMDS_NUM)
-            {
-                cmd_args_err_exit(err_extra_cmd, NULL);
-            }
-
-            argv_idx = -1; // skip to next argument
-
-            if(argv[0][1] == NUL)
-            {
-                parmp->cmd_args[parmp->cmd_num++] = "$";
-            }
-            else
-            {
-                parmp->cmd_args[parmp->cmd_num++] = &(argv[0][1]);
-            }
+            process_cmd_plus(parmp, argv);
+            argv_idx = SKIP_TO_NEXT;
         }
         else if(argv[0][0] == '-' && !had_minmin)
         {
             // Optional argument
-            want_argument = FALSE;
-            c = argv[0][argv_idx++];
+            want_optval = FALSE;
+            int cmd_id = argv[0][argv_idx++];
 
-            switch(c)
+            switch(cmd_id)
             {
                 case NUL:
 
@@ -217,12 +207,12 @@ void cmd_line_args_parser(main_args_st *parmp)
                     }
                     else if(STRNICMP(argv[0] + argv_idx, "cmd", 3) == 0)
                     {
-                        want_argument = TRUE;
+                        want_optval = TRUE;
                         argv_idx += 3;
                     }
                     else if(STRNICMP(argv[0] + argv_idx, "startuptime", 11) == 0)
                     {
-                        want_argument = TRUE;
+                        want_optval = TRUE;
                         argv_idx += 11;
                     }
                     else
@@ -235,7 +225,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                         had_minmin = TRUE;
                     }
 
-                    if(!want_argument)
+                    if(!want_optval)
                     {
                         argv_idx = -1; // skip to next argument
                     }
@@ -354,7 +344,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                     else if(argc > 1)
                     {
                         // "-q {errorfile}"
-                        want_argument = TRUE;
+                        want_optval = TRUE;
                     }
 
                     break;
@@ -380,7 +370,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                     else
                     {
                         // "-s {scriptin}" read from script file
-                        want_argument = TRUE;
+                        want_optval = TRUE;
                     }
 
                     break;
@@ -404,7 +394,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                     else
                     {
                         // "-t {tag}"
-                        want_argument = TRUE;
+                        want_optval = TRUE;
                     }
 
                     break;
@@ -449,7 +439,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                         break;
                     }
 
-                    want_argument = TRUE;
+                    want_optval = TRUE;
                     break;
 
                 case 'Z':
@@ -480,7 +470,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                 case 'u': // "-u {vimrc}" vim inits file
                 case 'U': // "-U {gvimrc}" gvim inits file
                 case 'W': // "-W {scriptout}" overwrite
-                    want_argument = TRUE;
+                    want_optval = TRUE;
                     break;
 
                 default:
@@ -488,7 +478,7 @@ void cmd_line_args_parser(main_args_st *parmp)
             }
 
             // Handle option arguments with argument.
-            if(want_argument)
+            if(want_optval)
             {
                 // Check for garbage immediately after the option letter.
                 if(argv[0][argv_idx] != NUL)
@@ -499,7 +489,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                 --argc;
 
                 // -S has an optional argument
-                if(argc < 1 && c != 'S')
+                if(argc < 1 && cmd_id != 'S')
                 {
                     cmd_args_err_exit(err_arg_missing, argv[0]);
                 }
@@ -507,7 +497,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                 ++argv;
                 argv_idx = -1;
 
-                switch(c)
+                switch(cmd_id)
                 {
                     case 'c': // "-c {command}" execute command
                     case 'S': // "-S {file}" execute Vim script
@@ -516,7 +506,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                             cmd_args_err_exit(err_extra_cmd, NULL);
                         }
 
-                        if(c == 'S')
+                        if(cmd_id == 'S')
                         {
                             char *a;
 
@@ -639,7 +629,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                         }
 
                         if((scriptout = mch_fopen(argv[0],
-                                                  c == 'w'
+                                                  cmd_id == 'w'
                                                   ? APPENDBIN
                                                   : WRITEBIN)) == NULL)
                         {
@@ -717,6 +707,25 @@ void cmd_line_args_parser(main_args_st *parmp)
     }
 
     TIME_MSG("cmd_line_args_parser");
+}
+
+static void process_cmd_plus(main_args_st *parmp, char **argv)
+{
+    if(parmp->cmd_num >= MAX_CMDS_NUM)
+    {
+        cmd_args_err_exit(err_extra_cmd, NULL);
+    }
+
+    if(argv[0][1] == NUL)
+    {
+        // "+", start at end of file
+        parmp->cmd_args[parmp->cmd_num++] = "$";
+    }
+    else
+    {
+        // "+{number}", "+/{pat}" or "+{command}"
+        parmp->cmd_args[parmp->cmd_num++] = &(argv[0][1]);
+    }
 }
 
 /// Prints the following then exits:
