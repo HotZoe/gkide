@@ -33,7 +33,10 @@
 #include "nvim/window.h"
 #include "nvim/cursor_shape.h"
 
-#include "nvim/tui/tui.h"
+#ifdef NVIM_BUILTIN_TUI_ENABLE
+    #include "nvim/tui/tui.h"
+#endif
+
 #include "nvim/msgpack/server.h"
 #include "nvim/api/private/helpers.h"
 

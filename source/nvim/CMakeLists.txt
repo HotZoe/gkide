@@ -1,5 +1,9 @@
 # TUI support for nvim
-option(NVIM_BUILTIN_TUI_ENABLE "Enable the builtin Terminal UI for nvim." ON)
+if(HOST_OS_WINDOWS)
+    option(NVIM_BUILTIN_TUI_ENABLE "Enable the builtin Terminal UI for nvim." OFF)
+else()
+    option(NVIM_BUILTIN_TUI_ENABLE "Enable the builtin Terminal UI for nvim." ON)
+endif()
 
 set(NVIM_TRACE_ENABLE false) # disable nvim trace logging by default
 set(NVIM_DEBUG_ENABLE false) # disable nvim debug logging by default
@@ -299,13 +303,13 @@ find_package(Lua REQUIRED)
 include_directories(SYSTEM ${LUA_INCLUDE_DIR})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
+# libvterm
+find_package(LibVterm REQUIRED)
+include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
+list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
+
 # terminal UI for nvim
 if(NVIM_BUILTIN_TUI_ENABLE)
-    # libvterm
-    find_package(LibVterm REQUIRED)
-    include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
-    list(APPEND NVIM_DEP_LINK_LIBRARIES ${LIBVTERM_LIBRARIES})
-
     # unibilium
     find_package(Unibilium REQUIRED)
     include_directories(SYSTEM ${UNIBILIUM_INCLUDE_DIRS})
