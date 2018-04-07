@@ -187,7 +187,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                 case 'h':
                     // "-h" give help message
                     cmd_line_usage();
-                    mch_exit(0);
+                    mch_exit(kNEStatusSuccess);
 
                 case 'H':
                     // "-H" start in Hebrew mode: rl + hkmap set.
@@ -329,7 +329,7 @@ void cmd_line_args_parser(main_args_st *parmp)
 
                 case 'v':
                     show_version();
-                    mch_exit(0);
+                    mch_exit(kNEStatusSuccess);
 
                 case 'V':
                     // "-V{N}"  Verbose level
@@ -474,13 +474,13 @@ void cmd_line_args_parser(main_args_st *parmp)
                         // "-s {scriptin}" read from script file
                         if(scriptin[0] != NULL)
                         {
-                scripterror:
+scripterror:
                             mch_errmsg(_("Attempt to open script file again: \""));
                             mch_errmsg(argv[-1]);
                             mch_errmsg(" ");
                             mch_errmsg(argv[0]);
                             mch_errmsg("\"\n");
-                            mch_exit(2);
+                            mch_exit(kNEStatusOpenNvlScriptAgain);
                         }
 
                         if((scriptin[0] = mch_fopen(argv[0], READBIN)) == NULL)
@@ -488,7 +488,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                             mch_errmsg(_("Cannot open for reading: \""));
                             mch_errmsg(argv[0]);
                             mch_errmsg("\"\n");
-                            mch_exit(2);
+                            mch_exit(kNEStatusNvlScriptCanNotOpen);
                         }
 
                         save_typebuf();
@@ -539,7 +539,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                             mch_errmsg(_("Cannot open for script output: \""));
                             mch_errmsg(argv[0]);
                             mch_errmsg("\"\n");
-                            mch_exit(2);
+                            mch_exit(kNEStatusNvlScriptCanNotWrite);
                         }
 
                         break;
@@ -664,20 +664,20 @@ static int process_cmd_opt_short(main_args_st *parmp, char **argv)
 // how many option value need to skip, zero for none
 static int process_cmd_opt_long(main_args_st *parmp, char **argv)
 {
-    char *opt_value= argv[1];
+    //char *opt_value= argv[1];
     char *cmd_name = argv[0] + 2;
 
     if(STRICMP(cmd_name, "help") == 0)
     {
         // --help
         cmd_line_usage();
-        mch_exit(0);
+        mch_exit(kNEStatusSuccess);
     }
     else if(STRICMP(cmd_name, "version") == 0)
     {
         // --version
         show_version();
-        mch_exit(0);
+        mch_exit(kNEStatusSuccess);
     }
     else if(STRICMP(cmd_name, "api-info") == 0)
     {
@@ -697,18 +697,18 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         }
 
         msgpack_packer_free(p);
-        mch_exit(0);
+        mch_exit(kNEStatusSuccess);
     }
     else if(STRICMP(cmd_name, "headless") == 0)
     {
         // --headless
-        parmp->headless = true;
+        headless_mode = true;
     }
     else if(STRICMP(cmd_name, "embed") == 0)
     {
         // --embed
         embedded_mode = true;
-        parmp->headless = true;
+        headless_mode = true;
         channel_from_stdio();
     }
     else if(STRICMP(cmd_name, "literal") == 0)
@@ -725,24 +725,35 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
     }
     else if(STRICMP(cmd_name, "startuptime") == 0)
     {
-        // --startuptime <logfile>
-        // already handled by init_startuptime()
-        if(NOTDONE == check_opt_val(parmp, argv, "--startuptime"))
+        if(NOTDONE == check_opt_val(parmp, argv, "--startuptime", true))
         {
-            // --startuptime, just skip it
+            // "--startuptime", just skip it
             return 0;
         }
 
-        // skip <logfile>, then process next option
+        // "--startuptime <logfile>"
+        // already handled by early_cmd_line_args_scan()
+        return 1;
+    }
+    else if(STRICMP(cmd_name, "server") == 0)
+    {
+        if(NOTDONE == check_opt_val(parmp, argv, "--server", true))
+        {
+            // --server, use default server address value
+            return 0;
+        }
+
+        // --server [addr:port]
+        // already handled by early_cmd_line_args_scan()
         return 1;
     }
     else if(STRICMP(cmd_name, "cmd") == 0)
     {
         // --cmd <cmd>, execute <cmd> before loading any nvimrc
-        check_opt_val(parmp, argv, "--cmd");
-        parmp->pre_cmd_args[parmp->pre_cmd_num++] = opt_value;
+        check_opt_val(parmp, argv, "--cmd", false);
 
         // [TODO]: how this command works?
+        //parmp->pre_cmd_args[parmp->pre_cmd_num++] = opt_value;
         //parmp->pre_cmd_args[parmp->pre_cmd_num++] = argv[2];
 
         return 2;
@@ -761,7 +772,16 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
     return 0;
 }
 
-static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
+/// check option value
+///
+/// @param parmp        cmd line arguments from main()
+/// @param argv         current cmd line arguments to process
+/// @param cmd_name     the cmd line option full name with two-minus
+/// @param skip_val     is the option value can skipable ?
+static int check_opt_val(main_args_st *parmp,
+                         char **argv,
+                         char *cmd_name,
+                         bool skip_val)
 {
     const char *opt_ptr = argv[0];
     const char *opt_val = argv[1];
@@ -776,10 +796,9 @@ static int check_opt_val(main_args_st *parmp, char **argv, char *cmd_name)
        || '-' == opt_val[0]
        || '+' == opt_val[0])
     {
-        if(STRICMP(cmd_name, "--startuptime") == 0)
+        if(skip_val)
         {
-            // already handled by init_startuptime()
-            // if do not have option value, just skip it!
+            // this option value can be skipped
             return NOTDONE;
         }
 
@@ -820,7 +839,7 @@ static void cmd_args_err_exit(const char *errstr, const char *info)
     mch_errmsg(prgname);
     mch_errmsg(" -h\"\n");
 
-    mch_exit(1);
+    mch_exit(kNEStatusCommandLineArgsError);
 }
 
 /// Prints version information for

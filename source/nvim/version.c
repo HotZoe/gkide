@@ -68,7 +68,7 @@ static char *features[] =
     "-jemalloc",
 #endif
 
-#ifdef NVIM_FEAT_TUI
+#ifdef NVIM_BUILTIN_TUI_ENABLE
     "+tui",
 #else
     "-tui",

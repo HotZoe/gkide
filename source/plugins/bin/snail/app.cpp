@@ -189,10 +189,10 @@ NvimConnector *App::createConnector(const QCommandLineParser &parser)
     }
 
     QStringList nvimArgs;
-    nvimArgs << "--cmd";
-    nvimArgs << "set termguicolors";
+    //nvimArgs << "--cmd";
+    //nvimArgs << "set termguicolors";
     nvimArgs << "--embed";
-    nvimArgs << "--headless";
+    //nvimArgs << "--headless";
 
     // GKIDE home directory
     QString gkideHome = App::applicationDirPath();

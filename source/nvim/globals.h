@@ -1259,6 +1259,8 @@ EXTERN char *ignoredp;
 
 /// If a msgpack-rpc channel should be started over stdin/stdout
 EXTERN bool embedded_mode INIT(= false);
+/// do not try to start an user interface
+EXTERN bool headless_mode INIT(= false);
 
 /// next free id for a job or rpc channel
 EXTERN uint64_t next_chan_id INIT(= 1);

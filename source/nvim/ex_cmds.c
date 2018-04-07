@@ -2481,7 +2481,8 @@ void do_wqall(exargs_st *eap)
     {
         if(!error)
         {
-            exit_nvim_properly(0); // exit Vim
+            // exit nvim
+            exit_nvim_properly(kNEStatusSuccess);
         }
 
         not_exiting();

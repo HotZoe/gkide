@@ -44,14 +44,12 @@ typedef struct main_args_s
     int edit_type;          ///< type of editing to do, @b edit_type_et
     uchar_kt *tagname;      ///< tag from -t argument
     uchar_kt *err_file;     ///< 'errorfile' from -q argument
-    uchar_kt *server_addr;  ///< NULL: not start, NUL: default, others: use it
 
     int want_full_screen;   ///< full screen on startup
     bool input_isatty;      ///< stdin is a terminal
     bool output_isatty;     ///< stdout is a terminal
     bool err_isatty;        ///< stderr is a terminal
-    bool headless;          ///< Do not try to start an user interface
-                            ///< or read/write to stdio(unless embedding)
+
     int no_swap_file;       ///< @b -n argument used
     int debug_break_level;
     int window_count;       ///< number of windows to use

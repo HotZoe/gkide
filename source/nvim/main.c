@@ -149,7 +149,7 @@ static void early_init(void)
     // Can't do anything without it, exit when it fails.
     if(!win_alloc_first())
     {
-        mch_exit(0);
+        mch_exit(kNEStatusWinAllocateFailed);
     }
 
     init_yank(); // init yank buffers
@@ -159,7 +159,7 @@ static void early_init(void)
     // Find out the gkide user home directory
     if(!init_gkide_usr_home())
     {
-        mch_exit(0);
+        mch_exit(kNEStatusNoUserHome);
     }
 
     // Set the default values for the options.
@@ -183,7 +183,7 @@ int main(int argc, char **argv)
 
     time_init();
     init_cmd_line_args(&params, argc, argv);
-    init_startuptime(&params);
+    early_cmd_line_args_scan(&params);
     early_init();
     check_and_set_isatty(&params);
     event_init();
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
     cmdline_row = (int)(Rows - p_ch);
     msg_row = cmdline_row;
     screenalloc(false); // allocate screen buffers
-    set_init_2(params.headless);
+    set_init_2(headless_mode);
     TIME_MSG("set_init_2");
 
     msg_scroll = TRUE;
@@ -248,9 +248,9 @@ int main(int argc, char **argv)
     // Set the break level after the terminal is initialized.
     debug_break_level = params.debug_break_level;
 
-    bool reading_input = !params.headless && (params.input_isatty
-                                              || params.output_isatty
-                                              || params.err_isatty);
+    bool reading_input = !headless_mode && (params.input_isatty
+                                            || params.output_isatty
+                                            || params.err_isatty);
     if(reading_input)
     {
         // One of the startup commands (arguments, sourced scripts or
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
     if(recoverymode && fname == NULL)
     {
         recover_names(NULL, TRUE, 0, NULL);
-        mch_exit(0);
+        mch_exit(kNEStatusNoRecoveryFile);
     }
 
     // Set a few option defaults after reading vimrc files:
@@ -390,7 +390,7 @@ int main(int argc, char **argv)
         wait_return(TRUE);
     }
 
-    if(!params.headless)
+    if(!headless_mode)
     {
         // Stop reading from input stream,
         // the UI layer will take over now.
@@ -691,28 +691,52 @@ static void init_cmd_line_args(main_args_st *paramp, int argc, char **argv)
     memset(paramp, 0, sizeof(*paramp));
     paramp->argc = argc;
     paramp->argv = argv;
-    paramp->headless = false;
     paramp->want_full_screen = true;
     paramp->debug_break_level = -1;
     paramp->window_count = -1;
-}
-
-/// Initialize global startuptime file if <b>--startuptime</b>
-/// passed with an argument, e.g. $ nvim --startuptime nvim.log
-static void init_startuptime(main_args_st *paramp)
-{
-    for(int i = 1; i < paramp->argc; i++)
-    {
-        if(STRICMP(paramp->argv[i], "--startuptime") == 0
-           && i + 1 < paramp->argc)
-        {
-            time_fd = mch_fopen(paramp->argv[i + 1], "a");
-            time_start("--- NVIM STARTING ---");
-            break;
-        }
-    }
 
     starttime = time(NULL);
+}
+
+/// Do early check cmd line arguments.
+///
+/// - if found "--startuptime nvim.log", initialize global startuptime file
+/// - fi found "--server [addr:port]", init nvim server address info
+static void early_cmd_line_args_scan(main_args_st *paramp)
+{
+    // early process command line arguments:
+    // --startuptime [logfile]
+    // --server [addr:port]
+    int opt_to_found = 2;
+
+    for(int i = 1; i < paramp->argc && opt_to_found; i++)
+    {
+        const char *opt_name = paramp->argv[i];
+        const char *opt_value = NULL;
+
+        if(i + 1 < paramp->argc
+           && '-' != paramp->argv[i + 1][0]
+           && '+' != paramp->argv[i + 1][0])
+        {
+            opt_value = paramp->argv[i + 1];
+        }
+
+        if(STRICMP(opt_name, "--startuptime") == 0)
+        {
+            opt_to_found--;
+            if(NULL != opt_value)
+            {
+                // startup logfile
+                time_fd = mch_fopen(opt_value, "a");
+                time_start("--- NVIM STARTING ---");
+            }
+        }
+        else if(STRICMP(opt_name, "--server") == 0)
+        {
+            opt_to_found--;
+            init_server_addr_info(opt_value);
+        }
+    }
 }
 
 /// Check if we have an interactive window, if it does, set flags
@@ -884,7 +908,7 @@ static void handle_quickfix(main_args_st *paramp)
         if(qf_init(NULL, p_ef, p_efm, true, IObuff) < 0)
         {
             ui_linefeed();
-            mch_exit(3);
+            mch_exit(kNEStatusQuickFixInitErr);
         }
 
         TIME_MSG("reading errorfile");
@@ -906,7 +930,7 @@ static void handle_tag(uchar_kt *tagname)
         // If the user doesn't want to edit the file then we quit here.
         if(swap_exists_did_quit)
         {
-            exit_nvim_properly(1);
+            exit_nvim_properly(kNEStatusFailure);
         }
     }
 }
@@ -916,7 +940,7 @@ static void handle_tag(uchar_kt *tagname)
 /// When starting in Ex mode and commands come from a file, set Silent mode.
 static void check_tty(main_args_st *parmp)
 {
-    if(parmp->headless)
+    if(headless_mode)
     {
         return;
     }
@@ -1039,7 +1063,7 @@ static void create_windows(main_args_st *parmp)
 
         if(curbuf->b_ml.ml_mfp == NULL)
         {
-            exit_nvim_properly(1); // failed
+            exit_nvim_properly(kNEStatusFailure);
         }
 
         do_modelines(0); // do modelines
@@ -1111,7 +1135,7 @@ static void create_windows(main_args_st *parmp)
                     {
                         // abort selected or quit and only one window
                         did_emsg = FALSE; // avoid hit-enter prompt
-                        exit_nvim_properly(1);
+                        exit_nvim_properly(kNEStatusFailure);
                     }
 
                     // We can't close the window, it would disturb what
@@ -1243,7 +1267,7 @@ static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
                 {
                     // abort selected and only one window
                     did_emsg = FALSE; // avoid hit-enter prompt
-                    exit_nvim_properly(1);
+                    exit_nvim_properly(kNEStatusFailure);
                 }
 
                 win_close(curwin, TRUE);
@@ -1612,7 +1636,7 @@ static void check_swap_exists_action(void)
 {
     if(swap_exists_action == SEA_QUIT)
     {
-        exit_nvim_properly(1);
+        exit_nvim_properly(kNEStatusFailure);
     }
 
     handle_swap_exists(NULL);

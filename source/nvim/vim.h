@@ -325,4 +325,34 @@ enum
 /// Cannot have this many windows per tab.
 #define LOWEST_WIN_ID   1000
 
+/// nvim exit status
+typedef enum nvim_exit_status_e
+{
+    kNEStatusSuccess = 0, ///< nvim exit normally
+    kNEStatusFailure = 1, ///< nvim exit with error
+
+    kNEStatusWinAllocateFailed      = -1,
+    kNEStatusNoUserHome             = -2,
+    kNEStatusNoRecoveryFile         = -3,
+    kNEStatusQuickFixInitErr        = -4,
+    kNEStatusOpenNvlScriptAgain     = -5,
+    kNEStatusNvlScriptCanNotOpen    = -6,
+    kNEStatusNvlScriptCanNotWrite   = -7,
+    kNEStatusCommandLineArgsError   = -8,
+    kNEStatusBufAllocateFailed      = -9,
+    kNEStatusCscopeConnectionError  = -10,
+    kNEStatusPreserveFilesExit      = -11,
+    kNEStatusNvimServerInvalidPort  = -12,
+    kNEStatusNvimServerInvalidAddr  = -13,
+
+} nvim_exit_status_et;
+
+#define TO_FIX_THIS(msg)                                \
+    do                                                  \
+    {                                                   \
+        fprintf(stderr, "[ToFixThis]-[%s, %d]: %s\n",   \
+                __func__, __LINE__, msg);               \
+        exit(1); /* fatal error, need to fix it ! */    \
+    } while(0)
+
 #endif // NVIM_VIM_H

@@ -848,7 +848,7 @@ static void exit_event(void **argv)
 
     if(!exiting)
     {
-        mch_exit(0);
+        mch_exit(kNEStatusSuccess);
     }
 }
 

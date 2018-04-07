@@ -103,9 +103,20 @@ static int old_mode_idx = -1;
 
 void ui_builtin_start(void)
 {
-#ifdef NVIM_FEAT_TUI
-    tui_start();
-#else
+#ifdef NVIM_BUILTIN_TUI_ENABLE
+    if(!start_nvim_server())
+    {
+        tui_start();
+        return;
+    }
+#endif
+
+    if(!start_nvim_server())
+    {
+        init_server_addr_info(NULL);
+        server_init();
+    }
+
     fprintf(stderr, "Nvim headless-mode started.\n");
     size_t len;
     char **addrs = server_address_list(&len);
@@ -123,7 +134,6 @@ void ui_builtin_start(void)
     }
 
     fprintf(stderr, "Press CTRL+C to exit.\n");
-#endif
 }
 
 void ui_builtin_stop(void)

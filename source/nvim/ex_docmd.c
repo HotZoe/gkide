@@ -7872,7 +7872,7 @@ static void ex_quit(exargs_st *eap)
         // :h|wincmd w|q     - quit
         if(only_one_window() && (firstwin == lastwin || eap->addr_count == 0))
         {
-            exit_nvim_properly(0);
+            exit_nvim_properly(kNEStatusSuccess);
         }
 
         // close window; may free buffer
@@ -7883,7 +7883,7 @@ static void ex_quit(exargs_st *eap)
 /// ":cquit".
 static void ex_cquit(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    exit_nvim_properly(1);
+    exit_nvim_properly(kNEStatusFailure);
 }
 
 /// ":qall": try to quit all windows
@@ -7924,7 +7924,7 @@ static void ex_quit_all(exargs_st *eap)
 
     if(eap->forceit || !check_changed_any(false, false))
     {
-        exit_nvim_properly(0);
+        exit_nvim_properly(kNEStatusSuccess);
     }
 
     not_exiting();
@@ -8321,8 +8321,8 @@ static void ex_exit(exargs_st *eap)
     {
         if(only_one_window())
         {
-            // quit last window, exit Vim
-            exit_nvim_properly(0);
+            // quit last window, exit nvim
+            exit_nvim_properly(kNEStatusSuccess);
         }
 
         // Quit current window, may free the buffer.

@@ -1,3 +1,6 @@
+# TUI support for nvim
+option(NVIM_BUILTIN_TUI_ENABLE "Enable the builtin Terminal UI for nvim." ON)
+
 set(NVIM_TRACE_ENABLE false) # disable nvim trace logging by default
 set(NVIM_DEBUG_ENABLE false) # disable nvim debug logging by default
 set(NVIM_STATE_ENABLE false) # disable nvim state logging by default
@@ -297,7 +300,7 @@ include_directories(SYSTEM ${LUA_INCLUDE_DIR})
 list(APPEND NVIM_DEP_LINK_LIBRARIES ${LUA_LIBRARIES})
 
 # terminal UI for nvim
-if(NVIM_FEAT_TUI)
+if(NVIM_BUILTIN_TUI_ENABLE)
     # libvterm
     find_package(LibVterm REQUIRED)
     include_directories(SYSTEM ${LIBVTERM_INCLUDE_DIRS})
@@ -343,7 +346,7 @@ set(NVIM_AUTO_DIR ${CMAKE_CURRENT_BINARY_DIR}/auto)
 set(NVIM_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 foreach(subdir ${subdir_set})
-    if(${subdir} MATCHES "tui" AND NOT NVIM_FEAT_TUI)
+    if(${subdir} MATCHES "tui" AND NOT NVIM_BUILTIN_TUI_ENABLE)
         continue()
     endif()
 

@@ -9,6 +9,7 @@
 #include "nvim/msgpack/channel.h"
 #include "nvim/msgpack/server.h"
 #include "nvim/os/os.h"
+#include "nvim/os_unix.h"
 #include "nvim/event/socket.h"
 #include "nvim/ascii.h"
 #include "nvim/eval.h"
@@ -17,6 +18,7 @@
 #include "nvim/main.h"
 #include "nvim/memory.h"
 #include "nvim/log.h"
+#include "nvim/charset.h"
 #include "nvim/fileio.h"
 #include "nvim/path.h"
 #include "nvim/strings.h"
@@ -24,40 +26,506 @@
 #include "generated/config/config.h"
 #include "generated/config/gkideenvs.h"
 
+/// nvim server max connections
 #define MAX_CONNECTIONS         32
 
+/// nvim network server default port
+#define SERVER_DEFAULT_PORT     6666
+
+#define EMPTY_HOST_IF_INFO      { 0, NULL }
+
 static garray_st watchers = GA_EMPTY_INIT_VALUE;
+
+// nvim server server info
+static server_addr_info_st nvim_server_addr;
+
+// host interface info list
+static host_if_info_st host_if_info = EMPTY_HOST_IF_INFO;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "msgpack/server.c.generated.h"
 #endif
 
-/// Initializes the module
-bool server_init(void)
+static bool is_ip_address_char_valid(const char *addr)
 {
-    ga_init(&watchers, sizeof(socket_watcher_st *), 1);
-    bool must_free = false;
-    const char *listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
-
-    if(listen_address == NULL)
-    {
-        must_free = true;
-        listen_address = server_address_new();
-    }
-
-    if(!listen_address)
+    if(NULL == addr)
     {
         return false;
     }
 
-    bool ok = (server_start(listen_address) == 0);
-
-    if(must_free)
+    while(*addr)
     {
-        xfree((char *) listen_address);
+        char c = addr[0];
+        if(isxdigit(c) || c == ':' || c == '.')
+        {
+            addr++;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool is_ip_address_valid(const char *addr)
+{
+    char data[10] = { 0 };
+    int ip_num[16] = { -1 };
+    bool ip_v4_valid = true;
+
+    if(false == is_ip_address_char_valid(addr))
+    {
+        return false;
     }
 
-    return ok;
+    // check for IPv4
+    sscanf(addr, "%d.%d.%d.%d%s",
+           ip_num + 0, ip_num + 1, ip_num + 2, ip_num + 3, data);
+
+    if(ip_num[0] > 255 || ip_num[0] < 0
+       || ip_num[1] > 255 || ip_num[1] < 0
+       || ip_num[2] > 255 || ip_num[2] < 0
+       || ip_num[3] > 255 || ip_num[3] < 0)
+    {
+        ip_v4_valid = false;
+    }
+
+    if(data[0] != NUL)
+    {
+        ip_v4_valid = false;
+    }
+
+    if(ip_v4_valid)
+    {
+        return true;
+    }
+
+    // check for IPv6
+    int sep_cnt_v6 = 0;
+    int sep_cnt_v4 = 0;
+    bool found_double_colon = false;
+    bool found_embed_ipv4 = false;
+
+    // for detect A:B:1.2:D.3 and like strings
+    int sep_idx = 0;
+    char found_sep_seq[11] = { NUL };
+
+    int blk_idx = 0; // 0, 1, 2, 3
+    memset(data, NUL, 5);
+
+    while(*addr)
+    {
+        char c = addr[0];
+        bool is_separator = false;
+        if(isxdigit(c))
+        {
+            data[blk_idx++] = c;
+        }
+        else
+        {
+            // ':' or '.'
+            is_separator = true;
+            found_sep_seq[sep_idx++] = c;
+            if('.' == c)
+            {
+                // ::ffff:192.1.56.10
+                sep_cnt_v4++;
+                found_embed_ipv4 = true;
+                if(sep_cnt_v4 > 3)
+                {
+                    // the embed IPv4 invalid
+                    return false;
+                }
+            }
+            else
+            {
+                sep_cnt_v6++;
+                if(':' == addr[1])
+                {
+                    sep_cnt_v6--; // :: as a whole
+                    if(!found_double_colon)
+                    {
+                        // ff06:0:0:0:0:0:0:c3  <=> ff06::c3
+                        found_double_colon = true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+            }
+        }
+
+        if(blk_idx > 3)
+        {
+            // a block can not have more then 4 digit char
+            return false;
+        }
+
+        if(is_separator || NUL == addr[1])
+        {
+            intmax_t num;
+            uchar_kt *err_char = (uchar_kt *)data;
+            int ret = getdigits_safe(&err_char, &num);
+
+            if(ret == FAIL || num < 0 || num > 0xFFFF)
+            {
+                return false;
+            }
+
+            if('.' == c && num > 255)
+            {
+                return false;
+            }
+
+            blk_idx = 0;
+            memset(data, NUL, 5);
+        }
+
+        addr++;
+    }
+
+    if(found_embed_ipv4)
+    {
+        // check for stupid strings
+        bool have_colon = false;
+        while(sep_idx--)
+        {
+            if(have_colon
+               && '.' == found_sep_seq[sep_idx])
+            {
+                // what are this, are you kiding?
+                return false;
+            }
+
+            if(':' == found_sep_seq[sep_idx])
+            {
+                have_colon = true;
+            }
+        }
+
+        if(!found_double_colon
+           && 6 != sep_cnt_v6)
+        {
+            return false;
+        }
+        else
+        {
+            if(sep_cnt_v6 > 5)
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        if(!found_double_colon
+           && 7 != sep_cnt_v6)
+        {
+            return false;
+        }
+        else
+        {
+            if(sep_cnt_v6 > 5)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/// nvim server address info default vale
+///
+/// @param addr     nvim server address
+///
+/// @note
+/// - piped-name        unix socket/piped name
+/// - eth-name:port     TCP connection, IPv4 come first, if not then IPv6
+/// - IP:port           TCP connection
+void init_server_addr_info(const char *addr)
+{
+    init_host_interfaces_info();
+
+    const char *listen_address = addr;
+    int server_type = kServerTypeNotStart;
+
+    if(NULL == listen_address)
+    {
+        // --server, get and check $GKIDE_NVIM_LISTEN
+        listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
+    }
+
+    if(NULL == listen_address)
+    {
+        // unix socket or named pipe
+        server_type = kServerTypeLocal;
+        // the auto generated name should be make later, because
+        // for now, something is not properly inited yet!
+        listen_address = NULL;
+    }
+
+    if(kServerTypeLocal == server_type)
+    {
+        nvim_server_addr.server_type = kServerTypeLocal;
+        nvim_server_addr.data.local = listen_address;
+        return;
+    }
+
+    char *addr_end = (char *)strrchr(listen_address, ':');
+    if(NULL == addr_end && !is_ip_address_valid(listen_address))
+    {
+        // unix socket or named pipe
+        nvim_server_addr.server_type = kServerTypeLocal;
+        nvim_server_addr.data.local = listen_address;
+        return;
+    }
+
+    // prepare for TCP connection
+    nvim_server_addr.server_type = kServerTypeNetwork;
+
+    char *server_port = NULL;
+    const char *server_addr = listen_address;
+    if(addr_end)
+    {
+        *addr_end = '\0';
+        server_port = addr_end + 1;
+    }
+
+    if(NULL == server_port || NUL == *server_port)
+    {
+        // address ending with :, no port given
+        // use the default nvim server port number
+        nvim_server_addr.data.network.port = SERVER_DEFAULT_PORT;
+    }
+    else
+    {
+        intmax_t iport;
+        uchar_kt *port_err = (uchar_kt *)server_port;
+        int ret = getdigits_safe(&port_err, &iport);
+
+        if(ret == FAIL || iport < 0 || iport > UINT16_MAX)
+        {
+            mch_errmsg("Invalid port: ");
+            mch_errmsg(server_port);
+            mch_errmsg("\n");
+            exit(kNEStatusNvimServerInvalidPort);
+        }
+        nvim_server_addr.data.network.port = (unsigned short)iport;
+    }
+
+    nvim_server_addr.data.network.if_info = NULL;
+
+    // find out a working interface to use for remote connection
+    if_info_st *ptr = host_if_info.header;
+    while(NULL != ptr)
+    {
+        if(STRICMP(server_addr, ptr->if_name) == 0)
+        {
+            if(AF_INET == ptr->ip_protocol)
+            {
+                nvim_server_addr.data.network.if_info = ptr;
+                nvim_server_addr.data.network.prefer_protocol = AF_INET;
+            }
+            else if(ptr->brother
+                    && AF_INET == ptr->brother->ip_protocol)
+            {
+                nvim_server_addr.data.network.if_info = ptr->brother;
+                nvim_server_addr.data.network.prefer_protocol = AF_INET;
+            }
+            else
+            {
+                nvim_server_addr.data.network.if_info = ptr;
+                nvim_server_addr.data.network.prefer_protocol = AF_INET6;
+            }
+            break;
+        }
+        else if(STRICMP(server_addr, ptr->if_address) == 0)
+        {
+            nvim_server_addr.data.network.if_info = ptr;
+            nvim_server_addr.data.network.prefer_protocol = ptr->ip_protocol;
+            break;
+        }
+        ptr = ptr->next;
+    }
+
+    if(NULL == nvim_server_addr.data.network.if_info)
+    {
+        // the given address is neither of one of the host IPs or eth-names
+        mch_errmsg("Invalid address: ");
+        mch_errmsg(server_addr);
+        mch_errmsg("\n");
+        exit(kNEStatusNvimServerInvalidAddr);
+    }
+
+    if(nvim_server_addr.data.network.if_info->is_internal)
+    {
+        mch_errmsg("Local network nvim server only!\n");
+    }
+}
+
+/// get host interfaces information
+static void init_host_interfaces_info(void)
+{
+    // just in case ...
+    if(host_if_info.header != NULL
+       && host_if_info.if_count != 0)
+    {
+        return;
+    }
+
+    int if_cnt = 0; // total number of interface
+    uv_interface_address_t *ifs_info = NULL;
+
+    uv_interface_addresses(&ifs_info, &if_cnt);
+    host_if_info.if_count = if_cnt;
+
+    if(0 == if_cnt)
+    {
+        return;
+    }
+
+    host_if_info.header = xmalloc(sizeof(if_info_st));
+
+    char buf[512];
+    int i = if_cnt;
+    if_info_st *ptr = host_if_info.header;
+    while(i--)
+    {
+        uv_interface_address_t info = ifs_info[i];
+
+        ptr->if_name = xstrdup(info.name); // if name
+        ptr->is_internal = info.is_internal; // internal or not
+
+        if(info.address.address4.sin_family == AF_INET)
+        {
+            ptr->ip_protocol = AF_INET;
+            uv_ip4_name(&info.address.address4, buf, sizeof(buf));
+        }
+        else if(info.address.address4.sin_family == AF_INET6)
+        {
+            ptr->ip_protocol = AF_INET6;
+            uv_ip6_name(&info.address.address6, buf, sizeof(buf));
+        }
+
+        ptr->if_address = xstrdup(buf);
+        ptr->next = NULL;
+        ptr->brother = NULL;
+
+        if(0 == i)
+        {
+            break;
+        }
+        else
+        {
+            ptr->next = xmalloc(sizeof(if_info_st));
+            ptr = ptr->next;
+        }
+    }
+
+    uv_free_interface_addresses(ifs_info, if_cnt);
+
+    // find brothors
+    i = if_cnt;
+    ptr = host_if_info.header;
+    while(i--)
+    {
+        int k = if_cnt;
+        const char *if_name = ptr->if_name;
+        if_info_st *chk_ptr = host_if_info.header;
+        while(k--)
+        {
+            if(chk_ptr != ptr /* not the same if info object */
+               && STRICMP(if_name, chk_ptr->if_name) == 0)
+            {
+                ptr->brother = chk_ptr;
+                break;
+            }
+
+            chk_ptr = chk_ptr->next;
+        }
+
+        ptr = ptr->next;
+    }
+
+    assert(host_if_info.if_count != 0);
+    assert(host_if_info.header != NULL);
+}
+
+/// return host interface info if it match
+///
+/// @param addr_or_name     IP address or interface name
+if_info_st *get_addr_binded_host_if_info(const char *addr_or_name)
+{
+    int if_cnt = host_if_info.if_count;
+    if_info_st *ptr = host_if_info.header;
+    while(if_cnt--)
+    {
+        if(STRICMP(addr_or_name, ptr->if_address) == 0
+           || STRICMP(addr_or_name, ptr->if_name) == 0)
+        {
+            return ptr;
+        }
+        ptr = ptr->next;
+    }
+
+    return NULL;
+}
+
+/// start nvim server or not
+/// - true: start nvim server
+/// - false: do not start nvim server
+bool start_nvim_server(void)
+{
+    return nvim_server_addr.server_type;
+}
+
+/// Initializes the nvim server module
+bool server_init(void)
+{
+    char addr_port[ADDRESS_MAX_SIZE] = { 0 };
+    switch(nvim_server_addr.server_type)
+    {
+        case kServerTypeNotStart:
+        {
+            // no --server option
+            // do not start nvim server for client connection
+            return true;
+        }
+        case kServerTypeLocal:
+        {
+            if(NULL == nvim_server_addr.data.local)
+            {
+                nvim_server_addr.data.local = server_address_new();
+            }
+            STRNCPY(addr_port, nvim_server_addr.data.local, ADDRESS_MAX_SIZE-1);
+            break;
+        }
+        case kServerTypeNetwork:
+        {
+            char *srv_addr = nvim_server_addr.data.network.if_info->if_address;
+            unsigned short srv_port = nvim_server_addr.data.network.port;
+            STRNCPY(addr_port, srv_addr, ADDRESS_MAX_SIZE-1);
+            vim_snprintf_add(addr_port, ADDRESS_MAX_SIZE-1, ":%d", srv_port);
+            break;
+        }
+        default:
+        {
+            TO_FIX_THIS("This should never happen!");
+        }
+    }
+
+    ga_init(&watchers, sizeof(socket_watcher_st *), 1);
+
+    if(server_start(addr_port) == 0)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 /// Teardown a single server
@@ -256,7 +724,8 @@ void server_stop(char *endpoint)
 
 /// Returns an allocated array of server addresses.
 /// @param[out] size The size of the returned array.
-char **server_address_list(size_t *size) FUNC_ATTR_NONNULL_ALL
+char **server_address_list(size_t *size)
+FUNC_ATTR_NONNULL_ALL
 {
     if((*size = (size_t)watchers.ga_len) == 0)
     {

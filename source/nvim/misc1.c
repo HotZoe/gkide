@@ -3246,7 +3246,7 @@ void preserve_exit(void)
     if(really_exiting)
     {
         stream_set_blocking(input_global_fd(), true); //normalize stream (#2598)
-        exit(2);
+        exit(kNEStatusPreserveFilesExit);
     }
 
     really_exiting = true;
@@ -3267,7 +3267,7 @@ void preserve_exit(void)
     }
     ml_close_all(false); // close all memfiles, without deleting
     mch_errmsg("Vim: Finished.\n");
-    exit_nvim_properly(1);
+    exit_nvim_properly(kNEStatusFailure);
 }
 
 #ifndef BREAKCHECK_SKIP

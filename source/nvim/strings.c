@@ -870,11 +870,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Append a formatted value to the string
 ///
+/// @param str      string buffer to operating
+/// @param str_m    the size of the string buffer
+/// @param fmt      the format string
+/// @param ...      the arguments to append
+///
 /// @see vim_vsnprintf().
 int vim_snprintf_add(char *str, size_t str_m, char *fmt, ...)
 {
     const size_t len = strlen(str);
-    size_t space;
+    size_t space; // the left space can be used in the buffer
 
     if(str_m <= len)
     {

@@ -1027,7 +1027,7 @@ err_closing:
             // normalize stream (#2598)
             stream_set_blocking(input_global_fd(), true);
 
-            exit(127);
+            exit(kNEStatusCscopeConnectionError);
 
         // NOTREACHED
         default: // parent.

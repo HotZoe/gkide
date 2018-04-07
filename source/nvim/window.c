@@ -2601,7 +2601,7 @@ int win_close(win_st *win, int free_buf)
             curwin->w_buffer = curbuf;
         }
 
-        exit_nvim_properly(0);
+        exit_nvim_properly(kNEStatusSuccess);
     }
 
     // Autocommands may have moved to another tab page.

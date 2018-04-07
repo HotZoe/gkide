@@ -47,7 +47,7 @@
 
 #cmakedefine ORDER_BIG_ENDIAN
 
-#cmakedefine NVIM_FEAT_TUI
+#cmakedefine NVIM_BUILTIN_TUI_ENABLE
 
 #define SYSHDR_ENDIAN_H     <${INCLUDE_FILE_ENDIAN_H}>
 
