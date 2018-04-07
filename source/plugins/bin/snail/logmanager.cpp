@@ -169,7 +169,7 @@ void logging_handler(QtMsgType type,
     {
         // $GKIDE_USR_HOME not set, use the default value $HOME value
         #ifdef Q_OS_WIN
-        QString gkide_usr_home = QDir::homePath() + "/gkide";
+        QString gkide_usr_home = QDir::homePath() + "/Documents/gkide";
         #else
         QString gkide_usr_home = QDir::homePath() + "/.gkide";
         #endif

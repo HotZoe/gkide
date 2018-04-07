@@ -291,7 +291,7 @@ bool init_gkide_usr_home(void)
     {
         // Default value
 #ifdef HOST_OS_WINDOWS
-        snprintf((char *)NameBuff, MAXPATHL, "%s\\gkide", std_home);
+        snprintf((char *)NameBuff, MAXPATHL, "%s\\Documents\\gkide", std_home);
 #else
         snprintf((char *)NameBuff, MAXPATHL, "%s/.gkide", std_home);
 #endif
