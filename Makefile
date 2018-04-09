@@ -91,27 +91,11 @@ ifeq (OFF,$(windows_cmd_shell))
     endif
 endif
 
-# Auto strip for MinSizeRel build if 'strip' program exist, and then install
-MINSIZEREL_AUTO_STRIP :=
-
 # CMake build flags for GKIDE, if not set the build type, then it will be 'Release'
 ifeq (,$(GKIDE_CMAKE_BUILD_TYPE))
     GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=Release
 else
     GKIDE_CMAKE_BUILD_FLAGS := -DCMAKE_BUILD_TYPE=$(GKIDE_CMAKE_BUILD_TYPE)
-
-    ifeq (MinSizeRel, $(GKIDE_CMAKE_BUILD_TYPE))
-	    ifeq (, $(findstring strip, $(MAKECMDGOALS)))
-	        ifneq (, $(findstring install, $(MAKECMDGOALS)))
-		        MINSIZEREL_AUTO_STRIP := strip
-	        endif
-	    endif
-    endif
-endif
-
-ifeq (,$(shell strip --version))
-    # 'strip' program not find in $PATH, skip anyway
-    MINSIZEREL_AUTO_STRIP :=
 endif
 
 # CMake build flags for deps, most time the build type should be 'Release'
@@ -259,7 +243,9 @@ gkide: nvim snail
 
 all: gkide htmls pdfs
 
-install: all $(MINSIZEREL_AUTO_STRIP)
+INSTALL_TARGETS := nvim snail
+
+install: $(INSTALL_TARGETS)
 	+$(BUILD_CMD) -C build install
 
 cmake:
