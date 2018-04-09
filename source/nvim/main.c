@@ -141,7 +141,7 @@ static void early_init(void)
 #if defined(HAVE_HDR_LOCALE_H)
     // Setup to use the current locale (for ctype() and many other things).
     // NOTE: Translated messages with encodings other than latin1 will not
-    // work until set_init_1() has been called!
+    // work until init_options_part_1() has been called!
     init_locale();
 #endif
 
@@ -166,7 +166,7 @@ static void early_init(void)
     // NOTE: Non-latin1 translated messages are working only after this,
     // because this is where "has_mbyte" will be set, which is used by
     // msg_outtrans_len_attr().
-    set_init_1();
+    init_options_part_1();
     set_lang_var(); // set v:lang and v:ctype
     TIME_MSG("early_init");
 }
@@ -235,8 +235,8 @@ int main(int argc, char **argv)
     cmdline_row = (int)(Rows - p_ch);
     msg_row = cmdline_row;
     screenalloc(false); // allocate screen buffers
-    set_init_2(headless_mode);
-    TIME_MSG("set_init_2");
+    init_options_part_2(headless_mode);
+    TIME_MSG("init_options_part_2");
 
     msg_scroll = TRUE;
     no_wait_return = TRUE;
@@ -323,8 +323,8 @@ int main(int argc, char **argv)
 
     // Set a few option defaults after reading vimrc files:
     // 'title' and 'icon', Unix: 'shellpipe' and 'shellredir'.
-    set_init_3();
-    TIME_MSG("set_init_3");
+    init_options_part_3();
+    TIME_MSG("init_options_part_3");
 
     // "-n" argument: Disable swap file by setting 'updatecount' to 0.
     // Note that this overrides anything from a vimrc file.

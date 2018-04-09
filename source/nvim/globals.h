@@ -1039,8 +1039,8 @@ EXTERN int redir_off INIT(= false);       ///< no redirection for a moment
 EXTERN FILE *redir_fd INIT(= NULL);       ///< message redirection file
 EXTERN int redir_reg INIT(= 0);           ///< message redirection register
 EXTERN int redir_vname INIT(= 0);         ///< message redirection variable
-EXTERN garray_st *capture_ga INIT(= NULL); ///< captured output for execute()
-EXTERN uchar_kt langmap_mapchar[256];       ///< mapping for language keys
+EXTERN garray_st *capture_ga INIT(= NULL);///< captured output for execute()
+EXTERN uchar_kt langmap_mapchar[256];     ///< mapping for language keys
 EXTERN int save_p_ls INIT(= -1);          ///< Save 'laststatus' setting
 EXTERN int save_p_wmh INIT(= -1);         ///< Save 'winminheight' setting
 EXTERN char breakat_flags[256];           ///< which characters are in 'breakat'

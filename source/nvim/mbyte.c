@@ -2178,7 +2178,7 @@ FUNC_ATTR_NONNULL_RET
 
     if(STRCMP(enc, "default") == 0)
     {
-        // Use the default encoding as found by set_init_1().
+        // Use the default encoding as found by init_options_part_1().
         return vim_strsave(fenc_default);
     }
 

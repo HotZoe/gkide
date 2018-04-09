@@ -698,9 +698,9 @@ static void set_runtimepath_default(void)
 
 #undef NVIM_SIZE
 
-/// Set the default for @b backupskip to
+/// init nvim option "backupskip, bsk" to the default value,
 /// include environment variables for temp files.
-static void set_init_1_tmp_dir(void)
+static void init_option_backupskip(void)
 {
     int len;
     garray_st ga;
@@ -718,14 +718,14 @@ static void set_init_1_tmp_dir(void)
         char *p;
         bool mustfree = true;
 
-    #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
+        #if(defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS))
         if(*names[n] == NUL)
         {
             p = "/tmp";
             mustfree = false;
         }
         else
-    #endif
+        #endif
         {
             p = vim_getenv(names[n]);
         }
@@ -762,7 +762,7 @@ static void set_init_1_tmp_dir(void)
 
 /// 'maxmemtot' and 'maxmem' may have
 /// to be adjusted for available memory
-static void set_init_1_adj_mem(void)
+static void init_option_adj_mem(void)
 {
     int opt_idx = findoption("maxmemtot");
 
@@ -786,7 +786,7 @@ static void set_init_1_adj_mem(void)
 }
 
 /// Initialize the 'cdpath' option's default value.
-static void set_init_1_opt_cdpath(void)
+static void init_option_cdpath(void)
 {
     uchar_kt *cdpath = (uchar_kt *)vim_getenv("CDPATH");
 
@@ -833,7 +833,7 @@ static void set_init_1_opt_cdpath(void)
 /// Initialize the options, first part.
 ///
 /// Called only once from main(), just after creating the first buffer.
-void set_init_1(void)
+void init_options_part_1(void)
 {
     int opt_idx;
     langmap_init();
@@ -848,9 +848,9 @@ void set_init_1(void)
         set_string_default("sh", (char *) shell, false);
     }
 
-    set_init_1_tmp_dir();
-    set_init_1_adj_mem();
-    set_init_1_opt_cdpath();
+    init_option_backupskip();
+    init_option_adj_mem();
+    init_option_cdpath();
 
 #if defined(HOST_OS_WINDOWS) || defined(HOST_OS_MACOS)
     // Set print encoding on platforms that don't default to latin1
@@ -1192,7 +1192,7 @@ void free_all_options(void)
 
 /// Initialize the options, part two:
 /// After getting @b Rows and @b Columns.
-void set_init_2(bool headless)
+void init_options_part_2(bool headless)
 {
     // 'scroll' defaults to half the window height.
     // Note that this default is wrong when the window height changes.
@@ -1230,7 +1230,7 @@ void set_init_2(bool headless)
 
 /// Initialize the options, part three:
 /// After reading the *.nvimrc
-void set_init_3(void)
+void init_options_part_3(void)
 {
     // Set 'shellpipe' and 'shellredir', depending
     // on the 'shell' option. This is done after other
