@@ -120,8 +120,8 @@ typedef enum
 // Use screen_Rows and screen_Columns to access items in ScreenLines[].
 // They may have different values when the screen wasn't (re)allocated yet
 // after setting Rows or Columns (e.g., when starting up).
-#define DFLT_COLS       100             ///< default value for 'columns'
-#define DFLT_ROWS       35              ///< default value for 'lines'
+#define DFLT_COLS       80              ///< default value for 'columns'
+#define DFLT_ROWS       30              ///< default value for 'lines'
 EXTERN long Rows INIT(= DFLT_ROWS);     ///< nr of rows in the screen
 EXTERN long Columns INIT(= DFLT_COLS);  ///< nr of columns in the screen
 

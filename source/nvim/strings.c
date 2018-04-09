@@ -1941,3 +1941,50 @@ int vim_vsnprintf(char *str,
     // written to the buffer if it were large enough.
     return (int)str_l;
 }
+
+/// convert number to ascii string
+///
+/// @param[in]  num     the number to convert
+/// @param[in]  radix   the base for output, bigger then zero
+/// @param[i/o] string  the buffer to write, NUL ending
+///
+/// @note
+/// - the @b buf must have enough space for the output string.
+/// - ignore all signed/unsigned, all treat as unsigned number
+///
+/// @return
+/// if success, return the @b buf; otherwise, return NULL
+char *nvim_ntoa(long num, int radix, char *string)
+{
+    if(NULL == string || radix <= 0)
+    {
+        return NULL;
+    }
+
+    char index[] = "0123456789ABCDEF";
+
+    if(num < 0)
+    {
+        num = -num;
+    }
+
+    // convert to reversed order
+    int i = 0;
+    do
+    {
+        string[i++] = index[num%radix];
+        num /= radix;
+    } while(num);
+
+    string[i] = NUL;
+
+    char swap;
+    for(int j=0; j<=(i-1)/2; j++)
+    {
+        swap = string[j];
+        string[j] = string[i-1-j];
+        string[i-1-j] = swap;
+    }
+
+    return string;
+}

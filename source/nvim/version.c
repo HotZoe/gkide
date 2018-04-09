@@ -44,12 +44,19 @@ char *nvim_version_long =
     #include "version.c.generated.h"
 #endif
 
+// feature name no more than 15 chars for pretty
 static char *features[] =
 {
 #ifdef HAVE_ACL
     "+acl",
 #else
     "-acl",
+#endif
+
+#ifdef NVIM_BUILTIN_TUI_ENABLE
+    "+tui",
+#else
+    "-tui",
 #endif
 
 #if (defined(HAVE_HDR_ICONV_H) && defined(USE_ICONV)) || defined(DYNAMIC_ICONV)
@@ -68,30 +75,25 @@ static char *features[] =
     "-jemalloc",
 #endif
 
-#ifdef NVIM_BUILTIN_TUI_ENABLE
-    "+tui",
-#else
-    "-tui",
-#endif
-
     NULL
 };
 
-/// nvim patch number list
-static const int included_patches[] =
+#define PATCH_INFO(id, desc)    \
+    [id] = {                    \
+        .patch_id = id,         \
+        .patch_desc = desc,     \
+    }
+typedef struct patch_info_s
 {
-    0,
-};
+    int patch_id;
+    char *patch_desc;
+} patch_info_st;
 
-/// Place to put a short description when adding a feature with a patch.
-/// Keep it short, e.g.,: "relative numbers", "persistent undo".
-/// Also add a comment marker to separate the lines. See the official Vim
-/// patches for the diff format: It must use a context of one line only.
-/// Create it by hand or use "diff -C2" and edit the patch.
-static char *(extra_patches[]) =
+static patch_info_st extra_patches[] =
 {
-    // Add your patch description below this line
-    NULL
+    // patch description message no more than 80 chars for pretty
+    // add patch description below
+    PATCH_INFO(0, NULL),
 };
 
 /// Compares a version string to the current GKIDE version.
@@ -211,9 +213,10 @@ FUNC_ATTR_NONNULL_ALL
 /// @return true if patch `n` has been included.
 bool has_nvim_patch(int n)
 {
-    for(int i = 0; included_patches[i] != 0; i++)
+    int cnt = ARRAY_SIZE(extra_patches);
+    for(int i = 0; i < cnt; i++)
     {
-        if(included_patches[i] == n)
+        if(extra_patches[i].patch_id == n)
         {
             return true;
         }
@@ -256,88 +259,54 @@ void ex_version(exargs_st *eap)
     }
 }
 
-/// List all features aligned in columns, dictionary style.
+// Print the list of extra patch descriptions if there is at least one.
+static void list_patches(void)
+{
+    int cnt = ARRAY_SIZE(extra_patches);
+    if(extra_patches[0].patch_desc != NULL)
+    {
+        MSG_PUTS("\n\nExtra patches:");
+
+        for(int i = 0; i < cnt; ++i)
+        {
+            int id = extra_patches[i].patch_id;
+            char *desc = extra_patches[i].patch_desc;
+            char data[20] = { 0 };
+
+            msg_putchar('\n');
+            version_msg(nvim_ntoa(id, 10, data));
+            version_msg(" - ");
+            version_msg(desc);
+        }
+    }
+}
+
+// List all features aligned in columns
 static void list_features(void)
 {
-    int nfeat = 0;
-    int width = 0;
+    version_msg("\n\nOptional features included (+) or excluded (-):\n");
 
-    // Find the length of the longest feature
-    // name, use that + 1 as the column width
-    int i;
-
-    for(i = 0; features[i] != NULL; ++i)
+    // for pretty show, each line has 5-items
+    // and each item take 15-char-spaces
+    int cnt = 0;
+    for(int i = 0; !got_int && features[i] != NULL; ++i)
     {
-        int l = (int)STRLEN(features[i]);
+        int len = (int)STRLEN(features[i]);
+        int space_to_feat = 15 - len;
 
-        if(l > width)
+        cnt++;
+        version_msg(features[i]);
+
+        if(5 == cnt)
         {
-            width = l;
+            cnt = 0;
+            msg_putchar('\n');
+            continue;
         }
 
-        nfeat++;
-    }
-
-    width += 1;
-
-    if(Columns < width)
-    {
-        // Not enough screen columns - show one per line
-        for(i = 0; features[i] != NULL; ++i)
+        while(space_to_feat--)
         {
-            version_msg(features[i]);
-
-            if(msg_col > 0)
-            {
-                msg_putchar('\n');
-            }
-        }
-
-        return;
-    }
-
-    // The rightmost column doesn't need a separator.
-    // Sacrifice it to fit in one more column if possible.
-    int ncol = (int)(Columns + 1) / width;
-    int nrow = nfeat / ncol + (nfeat % ncol ? 1 : 0);
-
-    // i counts columns then rows. idx counts rows then columns.
-    for(i = 0; !got_int && i < nrow * ncol; ++i)
-    {
-        int idx = (i / ncol) + (i % ncol) * nrow;
-
-        if(idx < nfeat)
-        {
-            int last_col = (i + 1) % ncol == 0;
-            msg_puts(features[idx]);
-
-            if(last_col)
-            {
-                if(msg_col > 0)
-                {
-                    msg_putchar('\n');
-                }
-            }
-            else
-            {
-                while(msg_col % width)
-                {
-                    int old_msg_col = msg_col;
-                    msg_putchar(' ');
-
-                    if(old_msg_col == msg_col)
-                    {
-                        break; // XXX: Avoid infinite loop.
-                    }
-                }
-            }
-        }
-        else
-        {
-            if(msg_col > 0)
-            {
-                msg_putchar('\n');
-            }
+            msg_putchar(' ');
         }
     }
 }
@@ -349,25 +318,6 @@ void list_version(void)
     MSG_PUTS("  Modified at: " NVIM_MODIFY_TIME "\n");
     MSG_PUTS("  Compiled by: " BUILD_BY_USER "@" BUILD_HOST_OS_INFO "\n");
     MSG_PUTS("GKIDE Package: " GKIDE_PACKAGE_NAME "\n");
-
-    // When adding features here, don't forget to update the list of internal
-    // variables in 'eval.c'. Print the list of extra patch descriptions if
-    // there is at least one.
-    if(extra_patches[0] != NULL)
-    {
-        MSG_PUTS("\nExtra patches:\n");
-        char *s = "";
-
-        for(int i = 0; extra_patches[i] != NULL; ++i)
-        {
-            MSG_PUTS(s);
-            s = ", ";
-            MSG_PUTS(extra_patches[i]);
-        }
-    }
-
-    version_msg("\nOptional features included (+) or excluded (-):\n");
-    list_features();
 
     size_t len;
     char msg_buf[MAXPATHL] = { 0 };
@@ -392,10 +342,11 @@ void list_version(void)
 
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, mis\n");
-    version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG
-                " ,then $GKIDE_SYS_HOME/etc/config.nvl");
-    version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG
-                " ,then $GKIDE_USR_HOME/etc/config.nvl");
+    version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG "/config.nvl");
+    version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG "/config");
+
+    list_features();
+    list_patches();
 }
 
 /// Output a string for the version message. If it's going to wrap,
