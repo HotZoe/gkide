@@ -144,11 +144,16 @@ endif()
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCC)
     check_c_compiler_flag(-Og CC_HAS_OG_FLAG)
+    check_c_compiler_flag(-O0 CC_HAS_O0_FLAG)
 else()
     set(CC_HAS_OG_FLAG false)
+    set(CC_HAS_O0_FLAG false)
 endif()
 
-if(CC_HAS_OG_FLAG)
+if(CC_HAS_O0_FLAG)
+    set(CMAKE_C_FLAGS_DEV "-O0 -g"
+        CACHE STRING "CFlags used for development build." FORCE)
+elseif(CC_HAS_OG_FLAG)
     set(CMAKE_C_FLAGS_DEV "-Og -g"
         CACHE STRING "CFlags used for development build." FORCE)
 else()

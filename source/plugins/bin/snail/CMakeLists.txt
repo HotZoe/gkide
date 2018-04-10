@@ -161,11 +161,16 @@ endif()
 # Build flags for Dev build type
 if(CMAKE_COMPILER_IS_GNUCXX)
     check_cxx_compiler_flag(-Og CX_HAS_OG_FLAG)
+    check_cxx_compiler_flag(-O0 CC_HAS_O0_FLAG)
 else()
     set(CX_HAS_OG_FLAG false)
+    set(CC_HAS_O0_FLAG false)
 endif()
 
-if(CX_HAS_OG_FLAG)
+if(CC_HAS_O0_FLAG)
+    set(CMAKE_CXX_FLAGS_DEV
+        "-O0 -g" CACHE STRING "CXXFlags used for development build." FORCE)
+elseif(CX_HAS_OG_FLAG)
     set(CMAKE_CXX_FLAGS_DEV
         "-Og -g" CACHE STRING "CXXFlags used for development build." FORCE)
 else()
