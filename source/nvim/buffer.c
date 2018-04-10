@@ -1889,7 +1889,8 @@ static int top_file_num = 1; ///< highest file number
 ///
 /// @param[out]  buf  Buffer to intialize for.
 static inline void buf_init_changedtick(filebuf_st *const buf)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ALL
 {
     STATIC_ASSERT(sizeof("changedtick") <= sizeof(buf->changedtick_di.di_key),
                   "buf->changedtick_di cannot hold large enough keys");
@@ -1909,27 +1910,26 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
 }
 
 /// Add a file name to the buffer list.
-/// If the same file name already exists return a pointer to that buffer.
-/// If it does not exist, or if fname == NULL, a new entry is created.
-/// If (flags & BLN_CURBUF) is TRUE, may use current buffer.
-/// If (flags & BLN_LISTED) is TRUE, add new buffer to buffer list.
-/// If (flags & BLN_DUMMY) is TRUE, don't count it as a real buffer.
-/// If (flags & BLN_NEW) is TRUE, don't use an existing buffer.
-/// If (flags & BLN_NOOPT) is TRUE, don't copy options from the current buffer
-///                                 if the buffer already exists.
+/// - If the same file name already exists return a pointer to that buffer.
+/// - If it does not exist, or if fname == NULL, a new entry is created.
+/// - If (flags & BLN_CURBUF) is TRUE, may use current buffer.
+/// - If (flags & BLN_LISTED) is TRUE, add new buffer to buffer list.
+/// - If (flags & BLN_DUMMY) is TRUE, don't count it as a real buffer.
+/// - If (flags & BLN_NEW) is TRUE, don't use an existing buffer.
+/// - If (flags & BLN_NOOPT) is TRUE, don't copy options from the current
+///   buffer if the buffer already exists.
 /// This is the ONLY way to create a new buffer.
 ///
 /// @param ffname full path of fname or relative
 /// @param sfname short fname or NULL
 /// @param lnum   preferred cursor line
-/// @param flags  BLN_ defines
-/// @param bufnr
+/// @param flags  BLN_ defines, @b bln_values_e
 ///
 /// @return pointer to the buffer
 filebuf_st *buflist_new(uchar_kt *ffname,
-                   uchar_kt *sfname,
-                   linenum_kt lnum,
-                   int flags)
+                        uchar_kt *sfname,
+                        linenum_kt lnum,
+                        int flags)
 {
     filebuf_st *buf;
     fname_expand(curbuf, &ffname, &sfname); // will allocate ffname
@@ -1938,11 +1938,13 @@ filebuf_st *buflist_new(uchar_kt *ffname,
     // We can use inode numbers when the file exists.
     // Works better for hard links.
     fileid_st file_id;
-    bool file_id_valid = (sfname != NULL && os_fileid((char *)sfname, &file_id));
+    bool file_id_valid =
+        (sfname != NULL && os_fileid((char *)sfname, &file_id));
 
     if(ffname != NULL
        && !(flags & BLN_DUMMY)
-       && (buf = buflist_findname_file_id(ffname, &file_id,
+       && (buf = buflist_findname_file_id(ffname,
+                                          &file_id,
                                           file_id_valid)) != NULL)
     {
         xfree(ffname);
@@ -1995,7 +1997,7 @@ filebuf_st *buflist_new(uchar_kt *ffname,
         buf = curbuf;
 
         // It's like this buffer is deleted. Watch out for autocommands that
-        // change curbuf!  If that happens, allocate a new buffer anyway.
+        // change curbuf! If that happens, allocate a new buffer anyway.
         if(curbuf->b_p_bl)
         {
             apply_autocmds(EVENT_BUFDELETE, NULL, NULL, FALSE, curbuf);

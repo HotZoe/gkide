@@ -127,7 +127,7 @@ struct autopatcmd_s
     uchar_kt *fname;     ///< fname to match with
     uchar_kt *sfname;    ///< sfname to match with
     uchar_kt *tail;      ///< tail of fname
-    event_T event;       ///< current event
+    auto_event_et event; ///< current event
     int arg_bufnr;       ///< initially equal to <abuf>,
                          ///< set to zero when buf is deleted
     autopatcmd_st *next; ///< chain of active apc-s for auto-invalidation
@@ -6887,7 +6887,7 @@ static int current_augroup = AUGROUP_DEFAULT;
 /// need to delete marked patterns
 static int au_need_clean = FALSE;
 
-static event_T last_event;
+static auto_event_et last_event;
 static int last_group;
 static int autocmd_blocked = 0; ///< block all autocmds
 
@@ -6906,7 +6906,7 @@ FUNC_ATTR_ALWAYS_INLINE
 }
 
 /// Show the autocommands for one autopat_st.
-static void show_autocmd(autopat_st *ap, event_T event)
+static void show_autocmd(autopat_st *ap, auto_event_et event)
 {
     autocmd_st *ac;
 
@@ -7031,7 +7031,7 @@ static void au_cleanup(void)
 {
     autopat_st *ap, **prev_ap;
     autocmd_st *ac, **prev_ac;
-    event_T event;
+    auto_event_et event;
 
     if(autocmd_busy || !au_need_clean)
     {
@@ -7039,9 +7039,9 @@ static void au_cleanup(void)
     }
 
     // loop over all events
-    for(event = (event_T)0;
+    for(event = (auto_event_et)0;
         (int)event < (int)NUM_EVENTS;
-        event = (event_T)((int)event + 1))
+        event = (auto_event_et)((int)event + 1))
     {
         // loop over all autocommand patterns
         prev_ap = &(first_autopat[(int)event]);
@@ -7089,7 +7089,7 @@ static void au_cleanup(void)
 void aubuflocal_remove(filebuf_st *buf)
 {
     autopat_st *ap;
-    event_T event;
+    auto_event_et event;
     autopatcmd_st *apc;
 
     // invalidate currently executing autocommands
@@ -7102,9 +7102,9 @@ void aubuflocal_remove(filebuf_st *buf)
     }
 
     // invalidate buflocals looping through events
-    for(event = (event_T)0;
+    for(event = (auto_event_et)0;
         (int)event < (int)NUM_EVENTS;
-        event = (event_T)((int)event + 1))
+        event = (auto_event_et)((int)event + 1))
     {
         // loop over all autocommand patterns
         for(ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
@@ -7178,13 +7178,13 @@ static void au_del_group(uchar_kt *name)
     }
     else
     {
-        event_T event;
+        auto_event_et event;
         autopat_st *ap;
         int in_use = false;
 
-        for(event = (event_T)0;
+        for(event = (auto_event_et)0;
             (int)event < (int)NUM_EVENTS;
-            event = (event_T)((int)event + 1))
+            event = (auto_event_et)((int)event + 1))
         {
             for(ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
             {
@@ -7315,7 +7315,7 @@ void free_all_autocmds(void)
 /// - Return the event number for event name "start".
 /// - Return NUM_EVENTS if the event name was not found.
 /// - Return a pointer to the next event name in "end".
-static event_T event_name2nr(const uchar_kt *start, uchar_kt **end)
+static auto_event_et event_name2nr(const uchar_kt *start, uchar_kt **end)
 {
     const uchar_kt *p;
     int i;
@@ -7355,7 +7355,7 @@ static event_T event_name2nr(const uchar_kt *start, uchar_kt **end)
 /// @param[in]  event  Event to return name for.
 ///
 /// @return Event name, static string. Returns "Unknown" for unknown events.
-static const char *event_nr2name(event_T event)
+static const char *event_nr2name(auto_event_et event)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_CONST
@@ -7416,8 +7416,9 @@ static uchar_kt *find_end_event(uchar_kt *arg, int have_group)
 /// Return true if "event" is included in 'eventignore'.
 ///
 /// @param event event to check
-static bool event_ignored(event_T event)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+static bool event_ignored(auto_event_et event)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     uchar_kt *p = p_ei;
 
@@ -7550,7 +7551,7 @@ void do_autocmd(uchar_kt *arg_in, int forceit)
     uchar_kt *pat;
     uchar_kt *envpat = NULL;
     uchar_kt *cmd;
-    event_T event;
+    auto_event_et event;
     int need_free = FALSE;
     int nested = FALSE;
     int group;
@@ -7651,13 +7652,14 @@ void do_autocmd(uchar_kt *arg_in, int forceit)
     }
 
     // Loop over the events.
-    last_event = (event_T)-1; // for listing the event name
+    last_event = (auto_event_et)-1; // for listing the event name
     last_group = AUGROUP_ERROR; // for listing the group name
 
     if(*arg == '*' || *arg == NUL || *arg == '|')
     {
-        for(event = (event_T)0; (int)event < (int)NUM_EVENTS;
-            event = (event_T)((int)event + 1))
+        for(event = (auto_event_et)0;
+            (int)event < (int)NUM_EVENTS;
+            event = (auto_event_et)((int)event + 1))
         {
             if(do_autocmd_event(event, pat, nested,
                                 cmd, forceit, group) == FAIL)
@@ -7670,7 +7672,7 @@ void do_autocmd(uchar_kt *arg_in, int forceit)
     {
         while(*arg && *arg != '|' && !ascii_iswhite(*arg))
         {
-            event_T event = event_name2nr(arg, &arg);
+            auto_event_et event = event_name2nr(arg, &arg);
             assert(event < NUM_EVENTS);
 
             if(do_autocmd_event(event, pat, nested,
@@ -7729,7 +7731,7 @@ static int au_get_grouparg(uchar_kt **argp)
 /// - If *cmd == NUL show entries.
 /// - If forceit == TRUE delete entries.
 /// - If group is not AUGROUP_ALL, only use this group.
-static int do_autocmd_event(event_T event,
+static int do_autocmd_event(auto_event_et event,
                             uchar_kt *pat,
                             int nested,
                             uchar_kt *cmd,
@@ -8327,7 +8329,7 @@ static int autocmd_nested = FALSE;
 /// @param buf      Buffer for <abuf>
 ///
 /// @return true if some commands were executed.
-bool apply_autocmds(event_T event,
+bool apply_autocmds(auto_event_et event,
                     uchar_kt *fname,
                     uchar_kt *fname_io,
                     bool force,
@@ -8353,7 +8355,7 @@ bool apply_autocmds(event_T event,
 /// @param exarg Ex command arguments
 ///
 /// @return true if some commands were executed.
-static bool apply_autocmds_exarg(event_T event,
+static bool apply_autocmds_exarg(auto_event_et event,
                                  uchar_kt *fname,
                                  uchar_kt *fname_io,
                                  bool force,
@@ -8382,7 +8384,7 @@ static bool apply_autocmds_exarg(event_T event,
 /// @param[in,out] retval caller's retval
 ///
 /// @return true if some autocommands were executed
-bool apply_autocmds_retval(event_T event,
+bool apply_autocmds_retval(auto_event_et event,
                            uchar_kt *fname,
                            uchar_kt *fname_io,
                            bool force,
@@ -8480,7 +8482,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Ex command arguments
 ///
 /// @return true if some commands were executed.
-static bool apply_autocmds_group(event_T event,
+static bool apply_autocmds_group(auto_event_et event,
                                  uchar_kt *fname,
                                  uchar_kt *fname_io,
                                  bool force,
@@ -9098,7 +9100,7 @@ uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
 /// @param event  event that occured.
 /// @param sfname filename the event occured in.
 /// @param buf    buffer the file is open in
-bool has_autocmd(event_T event, uchar_kt *sfname, filebuf_st *buf)
+bool has_autocmd(auto_event_et event, uchar_kt *sfname, filebuf_st *buf)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool retval = false;
@@ -9276,7 +9278,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 bool au_exists(const char *const arg)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    event_T event;
+    auto_event_et event;
     autopat_st *ap;
     filebuf_st *buflocal_buf = NULL;
     int group;

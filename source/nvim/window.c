@@ -3782,7 +3782,7 @@ void close_others(int message, int forceit)
 }
 
 
-/// Init the current window "curwin".
+/// Init the current window @b curwin
 /// Called when a new file is being edited.
 void curwin_init(void)
 {
@@ -3794,8 +3794,9 @@ void win_init_empty(win_st *wp)
     redraw_win_later(wp, NOT_VALID);
 
     wp->w_lines_valid = 0;
+    wp->w_curswant = 0;
     wp->w_cursor.lnum = 1;
-    wp->w_curswant = wp->w_cursor.col = 0;
+    wp->w_cursor.col = 0;
     wp->w_cursor.coladd = 0;
     wp->w_pcmark.lnum = 1; // pcmark not cleared but set to line 1
     wp->w_pcmark.col = 0;
@@ -4998,19 +4999,18 @@ static win_st *win_alloc(win_st *after, int hidden)
     new_wp->w_topfill = 0;
     new_wp->w_botline = 2;
     new_wp->w_cursor.lnum = 1;
-    new_wp->w_scbind_pos = 1;
+    new_wp->w_scbind_pos = 1; // TODO: what magic ?
 
     // We won't calculate w_fraction until resizing the window
-    new_wp->w_fraction = 0;
-    new_wp->w_prev_fraction_row = -1;
+    new_wp->w_fraction = 0;  // TODO: what magic ?
+    new_wp->w_prev_fraction_row = -1; // TODO: what magic ?
     foldInitWin(new_wp);
     unblock_autocmds();
     new_wp->w_match_head = NULL;
-    new_wp->w_next_match_id = 4;
+    new_wp->w_next_match_id = 4; // TODO: what magic ?
 
     return new_wp;
 }
-
 
 /// Remove window 'wp' from the window list and free the structure.
 ///

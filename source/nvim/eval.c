@@ -23650,27 +23650,33 @@ static int eval_isnamec1(int c)
 }
 
 /// Get number v: variable value.
-long get_vim_var_nr(int idx) FUNC_ATTR_PURE
+long get_vim_var_nr(int idx)
+FUNC_ATTR_PURE
 {
     return vimvars[idx].vv_nr;
 }
 
-/// Get string v: variable value.  Uses a static buffer, can only be used once.
-uchar_kt *get_vim_var_str(int idx) FUNC_ATTR_PURE FUNC_ATTR_NONNULL_RET
+/// Get string v: variable value.
+/// Uses a static buffer, can only be used once.
+uchar_kt *get_vim_var_str(int idx)
+FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_RET
 {
     return (uchar_kt *)tv_get_string(&vimvars[idx].vv_tv);
 }
 
 /// Get List v: variable value.
 /// Caller must take care of reference count when needed.
-list_st *get_vim_var_list(int idx) FUNC_ATTR_PURE
+list_st *get_vim_var_list(int idx)
+FUNC_ATTR_PURE
 {
     return vimvars[idx].vv_list;
 }
 
 /// Get Dictionary v: variable value.
 /// Caller must take care of reference count when needed.
-dict_st *get_vim_var_dict(int idx) FUNC_ATTR_PURE
+dict_st *get_vim_var_dict(int idx)
+FUNC_ATTR_PURE
 {
     return vimvars[idx].vv_dict;
 }

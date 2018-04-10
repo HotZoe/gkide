@@ -464,7 +464,7 @@ struct filebuf_s
     filebuf_st *b_next;  ///< links in list of buffers
     filebuf_st *b_prev;
 
-    int b_nwindows;   ///< nr of windows open on this buffer
+    int b_nwindows;   ///< number of windows open on this buffer
     int b_flags;      ///< various BF_ flags
     int b_locked;     ///< Buffer is being closed or referenced, don't
                       ///< let autocommands wipe it out.
@@ -825,11 +825,19 @@ typedef struct lineinfo_s
     linenum_kt wl_lastlnum; ///< last buffer line number for logical line
 } lineinfo_st;
 
-/// Windows are kept in a tree of frames.  Each frame has a column (FR_COL)
+/// frame layout
+typedef enum frame_layout_e
+{
+    FR_LEAF = 0, ///< frame is a leaf, which has a window
+    FR_ROW  = 1, ///< frame with a row of windows
+    FR_COL  = 2, ///< frame with a column of windows
+} frame_layout_et;
+
+/// Windows are kept in a tree of frames. Each frame has a column (FR_COL)
 /// or row (FR_ROW) layout or is a leaf, which has a window.
 struct frame_s
 {
-    char fr_layout;      ///< FR_LEAF, FR_COL or FR_ROW
+    char fr_layout;      ///< FR_LEAF, FR_COL or FR_ROW, @b frame_layout_et
     int fr_width;
     int fr_newwidth;     ///< new width used in win_equal_rec()
     int fr_height;
@@ -841,10 +849,6 @@ struct frame_s
     frame_st *fr_child;  ///< first contained frame
     win_st *fr_win;      ///< window that fills this frame
 };
-
-#define FR_LEAF   0   ///< frame is a leaf
-#define FR_ROW    1   ///< frame with a row of windows
-#define FR_COL    2   ///< frame with a column of windows
 
 /// Struct used for highlighting 'hlsearch' matches, matches defined by
 /// ":match" and matches defined by match functions.
@@ -908,12 +912,12 @@ struct matchitem_s
 /// All row numbers are relative to the start of the window, except w_winrow.
 struct window_s
 {
-    handle_kt handle; ///< unique identifier for the window
+    handle_kt handle; ///< unique identifier for the window, window ID
 
     /// buffer we are a window into (used often, keep it the first item!)
     filebuf_st *w_buffer;
 
-    synblk_st *w_s;      ///< for :ownsyntax
+    synblk_st *w_s;       ///< for :ownsyntax
     int w_hl_id;          ///< 'winhighlight' id
     int w_hl_id_inactive; ///< 'winhighlight' id for inactive window
     int w_hl_attr;        ///< 'winhighlight' final attrs

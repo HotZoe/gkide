@@ -81,8 +81,8 @@ void input_stop(void)
 
 static void cursorhold_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 {
-    event_T event = curmod & kInsertMode 
-	                ? EVENT_CURSORHOLDI : EVENT_CURSORHOLD;
+    auto_event_et event = curmod & kInsertMode
+                          ? EVENT_CURSORHOLDI : EVENT_CURSORHOLD;
     
 	apply_autocmds(event, NULL, NULL, false, curbuf);
 	

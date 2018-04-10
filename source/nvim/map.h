@@ -10,22 +10,14 @@
 #include "nvim/api/private/dispatch.h"
 #include "nvim/bufhl_defs.h"
 
+// key(T), value(U)
 #define MAP_DECLS(T, U)                                        \
     KHASH_DECLARE(T##_##U##_map, T, U)                         \
                                                                \
     typedef struct                                             \
     {                                                          \
         khash_t(T##_##U##_map) *table;                         \
-    } Map(T, U);                                               \
-                                                               \
-    Map(T, U) *map_##T##_##U##_new(void);                      \
-    void map_##T##_##U##_free(Map(T, U) *map);                 \
-    U    map_##T##_##U##_get(Map(T, U) *map, T key);           \
-    bool map_##T##_##U##_has(Map(T, U) *map, T key);           \
-    U    map_##T##_##U##_put(Map(T, U) *map, T key, U value);  \
-    U   *map_##T##_##U##_ref(Map(T, U) *map, T key, bool put); \
-    U    map_##T##_##U##_del(Map(T, U) *map, T key);           \
-    void map_##T##_##U##_clear(Map(T, U) *map);
+    } Map(T, U);
 
 MAP_DECLS(int,        int)
 MAP_DECLS(cstr_kt,    ptr_kt)
@@ -57,5 +49,9 @@ MAP_DECLS(String,     rpc_request_handler_st)
 
 #define map_foreach_value(map, value, block) \
     kh_foreach_value(map->table, value, block)
+
+#ifdef INCLUDE_GENERATED_DECLARATIONS
+    #include "map.h.generated.h"
+#endif
 
 #endif // NVIM_MAP_H

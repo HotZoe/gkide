@@ -7,15 +7,8 @@
 #include "nvim/buffer_defs.h"
 #include "nvim/api/private/defs.h"
 
-#define HANDLE_DECLS(type, name)               \
-    type *handle_get_##name(handle_kt handle); \
-    void handle_register_##name(type *name);   \
-    void handle_unregister_##name(type *name);
-
-HANDLE_DECLS(filebuf_st, buffer)
-HANDLE_DECLS(win_st, window)
-HANDLE_DECLS(tabpage_st, tabpage)
-
-void handle_init(void);
+#ifdef INCLUDE_GENERATED_DECLARATIONS
+    #include "api/private/handle.h.generated.h"
+#endif
 
 #endif // NVIM_API_PRIVATE_HANDLE_H

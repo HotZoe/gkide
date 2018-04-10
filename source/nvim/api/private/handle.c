@@ -7,34 +7,63 @@
 #include "nvim/map.h"
 #include "nvim/api/private/handle.h"
 
-#define HANDLE_INIT(name) name##_handles = pmap_new(handle_kt)()
+#ifdef INCLUDE_GENERATED_DECLARATIONS
+    #include "api/private/handle.c.generated.h"
+#endif
 
-#define HANDLE_IMPL(type, name)                                  \
-    static PMap(handle_kt) *name##_handles = NULL;               \
-                                                                 \
-    type *handle_get_##name(handle_kt handle)                    \
-    {                                                            \
-        return pmap_get(handle_kt)(name##_handles, handle);      \
-    }                                                            \
-                                                                 \
-    void handle_register_##name(type *name)                      \
-    {                                                            \
-        pmap_put(handle_kt)(name##_handles, name->handle, name); \
-    }                                                            \
-                                                                 \
-    void handle_unregister_##name(type *name)                    \
-    {                                                            \
-        pmap_del(handle_kt)(name##_handles, name->handle);       \
-    }
+static PMap(handle_kt) *window_handles = NULL;
+static PMap(handle_kt) *buffer_handles = NULL;
+static PMap(handle_kt) *tabpage_handles = NULL;
 
-HANDLE_IMPL(win_st, window)
-HANDLE_IMPL(filebuf_st, buffer)
-HANDLE_IMPL(tabpage_st, tabpage)
+win_st *handle_get_window(handle_kt handle)
+{
+    return pmap_get(handle_kt)(window_handles, handle);
+}
+
+void handle_register_window(win_st *window)
+{
+    pmap_put(handle_kt)(window_handles, window->handle, window);
+}
+
+void handle_unregister_window(win_st *window)
+{
+    pmap_del(handle_kt)(window_handles, window->handle);
+}
+
+filebuf_st *handle_get_buffer(handle_kt handle)
+{
+    return pmap_get(handle_kt)(buffer_handles, handle);
+}
+
+void handle_register_buffer(filebuf_st *buffer)
+{
+    pmap_put(handle_kt)(buffer_handles, buffer->handle, buffer);
+}
+
+void handle_unregister_buffer(filebuf_st *buffer)
+{
+    pmap_del(handle_kt)(buffer_handles, buffer->handle);
+}
+
+tabpage_st *handle_get_tabpage(handle_kt handle)
+{
+    return pmap_get(handle_kt)(tabpage_handles, handle);
+}
+
+void handle_register_tabpage(tabpage_st *tabpage)
+{
+    pmap_put(handle_kt)(tabpage_handles, tabpage->handle, tabpage);
+}
+
+void handle_unregister_tabpage(tabpage_st *tabpage)
+{
+    pmap_del(handle_kt)(tabpage_handles, tabpage->handle);
+}
 
 /// init three big thing: buffer, window, tabpage
 void handle_init(void)
 {
-    HANDLE_INIT(buffer);
-    HANDLE_INIT(window);
-    HANDLE_INIT(tabpage);
+    buffer_handles = pmap_new(handle_kt)();
+    window_handles = pmap_new(handle_kt)();
+    tabpage_handles = pmap_new(handle_kt)();
 }

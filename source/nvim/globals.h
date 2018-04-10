@@ -625,19 +625,19 @@ EXTERN win_st *prevwin INIT(= NULL);  ///< previous window
     FOR_ALL_WINDOWS_IN_TAB(wp, tp)
 
 /// -V:FOR_ALL_WINDOWS_IN_TAB:501
-#define FOR_ALL_WINDOWS_IN_TAB(wp, tp)  \
+#define FOR_ALL_WINDOWS_IN_TAB(wp, tp)   \
     for(win_st *wp = ((tp) == curtab)    \
-        ? firstwin : (tp)->tp_firstwin; \
-        wp != NULL;                     \
+        ? firstwin : (tp)->tp_firstwin;  \
+        wp != NULL;                      \
         wp = wp->w_next)
 
-EXTERN win_st *curwin;    ///< currently active window
+EXTERN win_st *curwin; ///< currently active window
 EXTERN win_st *aucmd_win; ///< window used in aucmd_prepbuf()
 EXTERN int aucmd_win_used INIT(= FALSE); ///< aucmd_win is being used
 
 // The window layout is kept in a tree of frames.
-// topframe points to the top of the tree.
-EXTERN frame_st  *topframe;  ///< top of the window frame tree
+// 'topframe' points to the top of the tree.
+EXTERN frame_st *topframe; ///< top of the window frame tree
 
 // Tab pages are alternative topframes. "first_tabpage" points to the first
 // one in the list, "curtab" is the current one.
@@ -670,7 +670,7 @@ EXTERN int mf_dont_release INIT(= FALSE);  ///< don't release blocks
 // curwin->w_alist points to this when the window is
 // using the global argument list.
 
-EXTERN arglist_st global_alist;           ///< global argument list
+EXTERN arglist_st global_alist;        ///< global argument list
 EXTERN int max_alist_id INIT(= 0);     ///< the previous argument list id
 EXTERN int arg_had_last INIT(= FALSE); ///< accessed last file in #global_alist
 

@@ -13,7 +13,7 @@
 #include "nvim/macros.h"
 
 /// Values for buflist_getfile()
-enum getf_values
+enum getf_values_e
 {
     GETF_SETMARK = 0x01, ///< set pcmark before jumping
     GETF_ALT     = 0x02, ///< jumping to alternate file (not buf num)
@@ -21,7 +21,7 @@ enum getf_values
 };
 
 /// Values for buflist_new() flags
-enum bln_values
+enum bln_values_e
 {
     BLN_CURBUF = 1,   ///< May re-use curbuf for new buffer
     BLN_LISTED = 2,   ///< Put new buffer in buffer list
@@ -31,7 +31,7 @@ enum bln_values
 };
 
 /// Values for action argument for do_buffer()
-enum dobuf_action_values
+enum dobuf_action_values_e
 {
     DOBUF_GOTO   = 0, ///< go to specified buffer
     DOBUF_SPLIT  = 1, ///< split window and go to specified buffer
@@ -41,7 +41,7 @@ enum dobuf_action_values
 };
 
 /// Values for start argument for do_buffer()
-enum dobuf_start_values
+enum dobuf_start_values_e
 {
     DOBUF_CURRENT = 0, ///< "count" buffer from current buffer
     DOBUF_FIRST   = 1, ///< "count" buffer from first buffer
@@ -50,7 +50,7 @@ enum dobuf_start_values
 };
 
 /// flags for buf_freeall()
-enum bfa_values
+enum bfa_values_e
 {
     BFA_DEL       = 1, ///< buffer is going to be deleted
     BFA_WIPE      = 2, ///< buffer is going to be wiped out
