@@ -226,15 +226,27 @@ void MainWindow::showIfDelayed(void)
     {
         if(m_delayedShow == DelayedShow::Normal)
         {
-            int mainwin_width = frameGeometry().width();
-            int mainwin_hight = frameGeometry().height();
             int desktop_width = QApplication::desktop()->width();
-            int desktop_hight = QApplication::desktop()->height();
+            int desktop_height = QApplication::desktop()->height();
+
+            static bool startup_autosize = true;
+            if(startup_autosize)
+            {
+                startup_autosize = false;
+                // startup 2/3 of the desktop screen size
+                int auto_width = (desktop_width/3)*2;
+                int auto_height = (desktop_height/3)*2;
+                this->resize(auto_width, auto_height);
+            }
+
+            int mainwin_width = frameGeometry().width();
+            int mainwin_height = frameGeometry().height();
 
             int win_width = (desktop_width - mainwin_width)/2;
-            int win_hight = (desktop_hight - mainwin_hight)/2;
+            int win_height = (desktop_height - mainwin_height)/2;
 
-            move(win_width, win_hight);
+            move(win_width, win_height);
+
             show();
         }
         else if(m_delayedShow == DelayedShow::Maximized)
