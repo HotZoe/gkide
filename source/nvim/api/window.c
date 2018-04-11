@@ -30,7 +30,7 @@ FUNC_API_SINCE(1)
         return 0;
     }
 
-    return win->w_buffer->handle;
+    return win->w_buffer->b_id;
 }
 
 /// Gets the cursor position in the window

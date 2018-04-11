@@ -120,7 +120,7 @@ int hasAnyFolding(win_st *win)
 {
     // very simple now, but can become more complex later
     return !win->w_buffer->terminal
-           && win->w_p_fen
+           && win->w_o_curbuf.wo_fen
            && (!foldmethodIsManual(win) || !GA_EMPTY(&win->w_folds));
 }
 
@@ -323,37 +323,37 @@ long foldedCount(win_st *win, linenum_kt lnum, foldinfo_st *infop)
 /// Return TRUE if 'foldmethod' is "manual"
 int foldmethodIsManual(win_st *wp)
 {
-    return wp->w_p_fdm[3] == 'u';
+    return wp->w_o_curbuf.wo_fdm[3] == 'u';
 }
 
 /// Return TRUE if 'foldmethod' is "indent"
 int foldmethodIsIndent(win_st *wp)
 {
-    return wp->w_p_fdm[0] == 'i';
+    return wp->w_o_curbuf.wo_fdm[0] == 'i';
 }
 
 /// Return TRUE if 'foldmethod' is "expr"
 int foldmethodIsExpr(win_st *wp)
 {
-    return wp->w_p_fdm[1] == 'x';
+    return wp->w_o_curbuf.wo_fdm[1] == 'x';
 }
 
 /// Return TRUE if 'foldmethod' is "marker"
 int foldmethodIsMarker(win_st *wp)
 {
-    return wp->w_p_fdm[2] == 'r';
+    return wp->w_o_curbuf.wo_fdm[2] == 'r';
 }
 
 /// Return TRUE if 'foldmethod' is "syntax"
 int foldmethodIsSyntax(win_st *wp)
 {
-    return wp->w_p_fdm[0] == 's';
+    return wp->w_o_curbuf.wo_fdm[0] == 's';
 }
 
 /// Return TRUE if 'foldmethod' is "diff"
 int foldmethodIsDiff(win_st *wp)
 {
-    return wp->w_p_fdm[0] == 'd';
+    return wp->w_o_curbuf.wo_fdm[0] == 'd';
 }
 
 /// Close fold for current window at line "lnum".
@@ -457,14 +457,14 @@ void newFoldLevel(void)
 {
     newFoldLevelWin(curwin);
 
-    if(foldmethodIsDiff(curwin) && curwin->w_p_scb)
+    if(foldmethodIsDiff(curwin) && curwin->w_o_curbuf.wo_scb)
     {
         // Set the same foldlevel in other windows in diff mode.
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp != curwin && foldmethodIsDiff(wp) && wp->w_p_scb)
+            if(wp != curwin && foldmethodIsDiff(wp) && wp->w_o_curbuf.wo_scb)
             {
-                wp->w_p_fdl = curwin->w_p_fdl;
+                wp->w_o_curbuf.wo_fdl = curwin->w_o_curbuf.wo_fdl;
                 newFoldLevelWin(wp);
             }
         }
@@ -503,7 +503,7 @@ void foldCheckClose(void)
 
         if(checkCloseRec(&curwin->w_folds,
                          curwin->w_cursor.lnum,
-                         (int)curwin->w_p_fdl))
+                         (int)curwin->w_o_curbuf.wo_fdl))
         {
             changed_window_setting();
         }
@@ -616,7 +616,7 @@ void foldCreate(linenum_kt start, linenum_kt end)
             {
                 use_level = TRUE;
 
-                if(level >= curwin->w_p_fdl)
+                if(level >= curwin->w_o_curbuf.wo_fdl)
                 {
                     closed = TRUE;
                 }
@@ -698,7 +698,7 @@ void foldCreate(linenum_kt start, linenum_kt end)
 
         // We want the new fold to be closed. If it would remain open because
         // of using 'foldlevel', need to adjust fd_flags of containing folds.
-        if(use_level && !closed && level < curwin->w_p_fdl)
+        if(use_level && !closed && level < curwin->w_o_curbuf.wo_fdl)
         {
             closeFold(start, 1L);
         }
@@ -1309,7 +1309,7 @@ static linenum_kt setManualFold(linenum_kt lnum,
                               int recurse,
                               int *donep)
 {
-    if(foldmethodIsDiff(curwin) && curwin->w_p_scb)
+    if(foldmethodIsDiff(curwin) && curwin->w_o_curbuf.wo_scb)
     {
         linenum_kt dlnum;
 
@@ -1317,7 +1317,7 @@ static linenum_kt setManualFold(linenum_kt lnum,
         // Calculate the line number from the diffs.
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp != curwin && foldmethodIsDiff(wp) && wp->w_p_scb)
+            if(wp != curwin && foldmethodIsDiff(wp) && wp->w_o_curbuf.wo_scb)
             {
                 dlnum = diff_lnum_win(curwin->w_cursor.lnum, wp);
 
@@ -1394,7 +1394,7 @@ static linenum_kt setManualFoldWin(win_st *wp,
         {
             use_level = TRUE;
 
-            if(level >= wp->w_p_fdl)
+            if(level >= wp->w_o_curbuf.wo_fdl)
             {
                 fp->fd_flags = FD_CLOSED;
             }
@@ -1770,7 +1770,7 @@ static int check_closed(win_st *win,
     {
         *use_levelp = TRUE;
 
-        if(level >= win->w_p_fdl)
+        if(level >= win->w_o_curbuf.wo_fdl)
         {
             closed = TRUE;
         }
@@ -1819,7 +1819,7 @@ static void checkSmall(win_st *wp, fold_st *fp, linenum_kt lnum_off)
         // Mark any nested folds to maybe-small
         setSmallMaybe(&fp->fd_nested);
 
-        if(fp->fd_len > curwin->w_p_fml)
+        if(fp->fd_len > curwin->w_o_curbuf.wo_fml)
         {
             fp->fd_small = FALSE;
         }
@@ -1831,7 +1831,7 @@ static void checkSmall(win_st *wp, fold_st *fp, linenum_kt lnum_off)
             {
                 count += plines_win_nofold(wp, fp->fd_top + lnum_off + n);
 
-                if(count > curwin->w_p_fml)
+                if(count > curwin->w_o_curbuf.wo_fml)
                 {
                     fp->fd_small = FALSE;
                     return;
@@ -1858,14 +1858,14 @@ static void setSmallMaybe(garray_st *gap)
 /// (inclusive) in the current window by adding markers.
 static void foldCreateMarkers(linenum_kt start, linenum_kt end)
 {
-    if(!MODIFIABLE(curbuf))
+    if(!curbuf->b_p_ma)
     {
         EMSG(_(e_modifiable));
         return;
     }
 
     parseMarker(curwin);
-    foldAddMarker(start, curwin->w_p_fmr, foldstartmarkerlen);
+    foldAddMarker(start, curwin->w_o_curbuf.wo_fmr, foldstartmarkerlen);
     foldAddMarker(end, foldendmarker, foldendmarkerlen);
 
     // Update both changes here, to avoid all folds after the start are
@@ -1927,7 +1927,9 @@ static void deleteFoldMarkers(fold_st *fp, int recursive, linenum_kt lnum_off)
         }
     }
 
-    foldDelMarker(fp->fd_top + lnum_off, curwin->w_p_fmr, foldstartmarkerlen);
+    foldDelMarker(fp->fd_top + lnum_off,
+                  curwin->w_o_curbuf.wo_fmr,
+                  foldstartmarkerlen);
 
     foldDelMarker(fp->fd_top + lnum_off + fp->fd_len - 1,
                   foldendmarker, foldendmarkerlen);
@@ -2020,7 +2022,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         did_emsg = FALSE;
     }
 
-    if(*wp->w_p_fdt != NUL)
+    if(*wp->w_o_curbuf.wo_fdt != NUL)
     {
         char dashes[MAX_LEVEL + 2];
         win_st *save_curwin;
@@ -2053,7 +2055,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             curbuf = wp->w_buffer;
             ++emsg_silent; // handle exceptions, but don't display errors
 
-            text = eval_to_string_safe(wp->w_p_fdt,
+            text = eval_to_string_safe(wp->w_o_curbuf.wo_fdt,
                                        NULL,
                                        was_set_insecurely((uchar_kt *)"foldtext",
                                                           OPT_LOCAL));
@@ -2172,7 +2174,7 @@ void foldtext_cleanup(uchar_kt *str)
     {
         size_t len = 0;
 
-        if(STRNCMP(s, curwin->w_p_fmr, foldstartmarkerlen) == 0)
+        if(STRNCMP(s, curwin->w_o_curbuf.wo_fmr, foldstartmarkerlen) == 0)
         {
             len = foldstartmarkerlen;
         }
@@ -2496,7 +2498,7 @@ static void foldUpdateIEMS(win_st *wp, linenum_kt top, linenum_kt bot)
     foldRemove(&wp->w_folds, start, end);
 
     // If some fold changed, need to redraw and position cursor.
-    if(fold_changed && wp->w_p_fen)
+    if(fold_changed && wp->w_o_curbuf.wo_fen)
     {
         changed_window_setting_win(wp);
     }
@@ -3453,7 +3455,7 @@ static void foldlevelIndent(fold_line_st *flp)
 
     // empty line or lines starting with a character in 'foldignore': level
     // depends on surrounding lines
-    if(*s == NUL || vim_strchr(flp->wp->w_p_fdi, *s) != NULL)
+    if(*s == NUL || vim_strchr(flp->wp->w_o_curbuf.wo_fdi, *s) != NULL)
     {
         // first and last line can't be undefined, use level 0
         if(lnum == 1 || lnum == buf->b_ml.ml_line_count)
@@ -3470,9 +3472,9 @@ static void foldlevelIndent(fold_line_st *flp)
         flp->lvl = get_indent_buf(buf, lnum) / get_sw_value(curbuf);
     }
 
-    if(flp->lvl > flp->wp->w_p_fdn)
+    if(flp->lvl > flp->wp->w_o_curbuf.wo_fdn)
     {
-        flp->lvl = (int) MAX(0, flp->wp->w_p_fdn);
+        flp->lvl = (int) MAX(0, flp->wp->w_o_curbuf.wo_fdn);
     }
 }
 
@@ -3516,7 +3518,7 @@ static void foldlevelExpr(fold_line_st *flp)
     // KeyTyped may be reset to 0 when calling a function which invokes
     // do_cmdline(). To make 'foldopen' work correctly restore KeyTyped.
     save_keytyped = KeyTyped;
-    n = eval_foldexpr(flp->wp->w_p_fde, &c);
+    n = eval_foldexpr(flp->wp->w_o_curbuf.wo_fde, &c);
     KeyTyped = save_keytyped;
 
     switch(c)
@@ -3610,8 +3612,8 @@ static void foldlevelExpr(fold_line_st *flp)
 /// Relies on the option value to have been checked for correctness already.
 static void parseMarker(win_st *wp)
 {
-    foldendmarker = vim_strchr(wp->w_p_fmr, ',');
-    foldstartmarkerlen = (size_t)(foldendmarker++ - wp->w_p_fmr);
+    foldendmarker = vim_strchr(wp->w_o_curbuf.wo_fmr, ',');
+    foldstartmarkerlen = (size_t)(foldendmarker++ - wp->w_o_curbuf.wo_fmr);
     foldendmarkerlen = STRLEN(foldendmarker);
 }
 
@@ -3632,7 +3634,7 @@ static void foldlevelMarker(fold_line_st *flp)
     int n;
 
     // cache a few values for speed
-    startmarker = flp->wp->w_p_fmr;
+    startmarker = flp->wp->w_o_curbuf.wo_fmr;
     cstart = *startmarker;
     ++startmarker;
     cend = *foldendmarker;
@@ -3836,8 +3838,8 @@ static int put_foldopen_recurse(FILE *fd,
                 // is already closed, as it will close the parent.
                 level = foldLevelWin(wp, off + fp->fd_top);
 
-                if((fp->fd_flags == FD_CLOSED && wp->w_p_fdl >= level)
-                   || (fp->fd_flags != FD_CLOSED && wp->w_p_fdl < level))
+                if((fp->fd_flags == FD_CLOSED && wp->w_o_curbuf.wo_fdl >= level)
+                   || (fp->fd_flags != FD_CLOSED && wp->w_o_curbuf.wo_fdl < level))
                 {
                     if(put_fold_open_close(fd, fp, off) == FAIL)
                     {

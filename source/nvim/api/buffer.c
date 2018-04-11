@@ -59,7 +59,7 @@ FUNC_API_SINCE(1)
     Integer index = convert_index(curwin->w_cursor.lnum - 1);
 
     Array slice =
-        nvim_buf_get_lines(0, curbuf->handle, index, index+1, true, err);
+        nvim_buf_get_lines(0, curbuf->b_id, index, index+1, true, err);
 
     if(!ERROR_SET(err) && slice.size)
     {
@@ -84,7 +84,7 @@ FUNC_API_SINCE(1)
     };
 
     Integer index = convert_index(curwin->w_cursor.lnum - 1);
-    nvim_buf_set_lines(0, curbuf->handle, index, index+1, true, array, err);
+    nvim_buf_set_lines(0, curbuf->b_id, index, index+1, true, array, err);
 }
 
 /// Deletes the current line
@@ -95,7 +95,7 @@ FUNC_API_SINCE(1)
 {
     Array array = ARRAY_DICT_INIT;
     Integer index = convert_index(curwin->w_cursor.lnum - 1);
-    nvim_buf_set_lines(0, curbuf->handle, index, index+1, true, array, err);
+    nvim_buf_set_lines(0, curbuf->b_id, index, index+1, true, array, err);
 }
 
 /// Retrieves a line range from the buffer
@@ -539,7 +539,7 @@ FUNC_API_DEPRECATED_SINCE(2)
         return rv;
     }
 
-    return buf->b_fnum;
+    return buf->b_id;
 }
 
 /// Gets the full file name for the buffer

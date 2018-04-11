@@ -1208,7 +1208,7 @@ static int compute_buffer_local_count(int addr_type, int lnum, int offset)
     int count = offset;
     filebuf_st *buf = firstbuf;
 
-    while(buf->b_next != NULL && buf->b_fnum < lnum)
+    while(buf->b_next != NULL && buf->b_id < lnum)
     {
         buf = buf->b_next;
     }
@@ -1258,7 +1258,7 @@ static int compute_buffer_local_count(int addr_type, int lnum, int offset)
         }
     }
 
-    return buf->b_fnum;
+    return buf->b_id;
 }
 
 static int current_win_nr(win_st *win)
@@ -1903,16 +1903,16 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
             case ADDR_ARGUMENTS:
                 ea.line2 = curwin->w_arg_idx + 1;
 
-                if(ea.line2 > ARGCOUNT)
+                if(ea.line2 > carg_cnt)
                 {
-                    ea.line2 = ARGCOUNT;
+                    ea.line2 = carg_cnt;
                 }
 
                 break;
 
             case ADDR_LOADED_BUFFERS:
             case ADDR_BUFFERS:
-                ea.line2 = curbuf->b_fnum;
+                ea.line2 = curbuf->b_id;
                 break;
 
             case ADDR_TABS:
@@ -1966,7 +1966,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                             buf = buf->b_next;
                         }
 
-                        ea.line1 = buf->b_fnum;
+                        ea.line1 = buf->b_id;
                         buf = lastbuf;
 
                         while(buf->b_prev != NULL && buf->b_ml.ml_mfp == NULL)
@@ -1974,13 +1974,13 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                             buf = buf->b_prev;
                         }
 
-                        ea.line2 = buf->b_fnum;
+                        ea.line2 = buf->b_id;
                         break;
                     }
 
                     case ADDR_BUFFERS:
-                        ea.line1 = firstbuf->b_fnum;
-                        ea.line2 = lastbuf->b_fnum;
+                        ea.line1 = firstbuf->b_id;
+                        ea.line2 = lastbuf->b_id;
                         break;
 
                     case ADDR_WINDOWS:
@@ -2008,14 +2008,14 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                         break;
 
                     case ADDR_ARGUMENTS:
-                        if(ARGCOUNT == 0)
+                        if(carg_cnt == 0)
                         {
                             ea.line1 = ea.line2 = 0;
                         }
                         else
                         {
                             ea.line1 = 1;
-                            ea.line2 = ARGCOUNT;
+                            ea.line2 = carg_cnt;
                         }
 
                         break;
@@ -2267,7 +2267,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
             goto doend;
         }
 
-        if(!MODIFIABLE(curbuf)
+        if(!curbuf->b_p_ma
            && (ea.argt & MODIFY)
            // allow :put in terminals
            && (!curbuf->terminal || ea.cmdidx != CMD_put))
@@ -2507,7 +2507,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                     buf = buf->b_next;
                 }
 
-                ea.line1 = buf->b_fnum;
+                ea.line1 = buf->b_id;
                 buf = lastbuf;
 
                 while(buf->b_prev != NULL && buf->b_ml.ml_mfp == NULL)
@@ -2515,12 +2515,12 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                     buf = buf->b_prev;
                 }
 
-                ea.line2 = buf->b_fnum;
+                ea.line2 = buf->b_id;
                 break;
 
             case ADDR_BUFFERS:
-                ea.line1 = firstbuf->b_fnum;
-                ea.line2 = lastbuf->b_fnum;
+                ea.line1 = firstbuf->b_id;
+                ea.line2 = lastbuf->b_id;
                 break;
 
             case ADDR_WINDOWS:
@@ -2536,13 +2536,13 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                 break;
 
             case ADDR_ARGUMENTS:
-                if(ARGCOUNT == 0)
+                if(carg_cnt == 0)
                 {
                     ea.line1 = ea.line2 = 0;
                 }
                 else
                 {
-                    ea.line2 = ARGCOUNT;
+                    ea.line2 = carg_cnt;
                 }
 
                 break;
@@ -4587,7 +4587,7 @@ static linenum_kt get_address(exargs_st *eap,
 
                     case ADDR_LOADED_BUFFERS:
                     case ADDR_BUFFERS:
-                        lnum = curbuf->b_fnum;
+                        lnum = curbuf->b_id;
                         break;
 
                     case ADDR_TABS:
@@ -4621,7 +4621,7 @@ static linenum_kt get_address(exargs_st *eap,
                         break;
 
                     case ADDR_ARGUMENTS:
-                        lnum = ARGCOUNT;
+                        lnum = carg_cnt;
                         break;
 
                     case ADDR_LOADED_BUFFERS:
@@ -4637,11 +4637,11 @@ static linenum_kt get_address(exargs_st *eap,
                             buf = buf->b_prev;
                         }
 
-                        lnum = buf->b_fnum;
+                        lnum = buf->b_id;
                         break;
 
                     case ADDR_BUFFERS:
-                        lnum = lastbuf->b_fnum;
+                        lnum = lastbuf->b_id;
                         break;
 
                     case ADDR_TABS:
@@ -4863,7 +4863,7 @@ static linenum_kt get_address(exargs_st *eap,
 
                     case ADDR_LOADED_BUFFERS:
                     case ADDR_BUFFERS:
-                        lnum = curbuf->b_fnum;
+                        lnum = curbuf->b_id;
                         break;
 
                     case ADDR_TABS:
@@ -5013,8 +5013,8 @@ static uchar_kt *invalid_range(exargs_st *eap)
 
             case ADDR_ARGUMENTS:
 
-                // add 1 if ARGCOUNT is 0
-                if(eap->line2 > ARGCOUNT + (!ARGCOUNT))
+                // add 1 if carg_cnt is 0
+                if(eap->line2 > carg_cnt + (!carg_cnt))
                 {
                     return (uchar_kt *)_(e_invrange);
                 }
@@ -5022,8 +5022,8 @@ static uchar_kt *invalid_range(exargs_st *eap)
                 break;
 
             case ADDR_BUFFERS:
-                if(eap->line1 < firstbuf->b_fnum
-                   || eap->line2 > lastbuf->b_fnum)
+                if(eap->line1 < firstbuf->b_id
+                   || eap->line2 > lastbuf->b_id)
                 {
                     return (uchar_kt *)_(e_invrange);
                 }
@@ -5043,7 +5043,7 @@ static uchar_kt *invalid_range(exargs_st *eap)
                     buf = buf->b_next;
                 }
 
-                if(eap->line1 < buf->b_fnum)
+                if(eap->line1 < buf->b_id)
                 {
                     return (uchar_kt *)_(e_invrange);
                 }
@@ -5060,7 +5060,7 @@ static uchar_kt *invalid_range(exargs_st *eap)
                     buf = buf->b_prev;
                 }
 
-                if(eap->line2 > buf->b_fnum)
+                if(eap->line2 > buf->b_id)
                 {
                     return (uchar_kt *)_(e_invrange);
                 }
@@ -6087,11 +6087,11 @@ uchar_kt *check_nextcmd(uchar_kt *p)
 /// @param forceit
 static int check_more(int message, int forceit)
 {
-    int n = ARGCOUNT - curwin->w_arg_idx - 1;
+    int n = carg_cnt - curwin->w_arg_idx - 1;
 
     if(!forceit
        && only_one_window()
-       && ARGCOUNT > 1
+       && carg_cnt > 1
        && !arg_had_last
        && n >= 0 && quitmore == 0)
     {
@@ -7974,7 +7974,7 @@ static void ex_pclose(exargs_st *eap)
 {
     FOR_ALL_WINDOWS_IN_TAB(win, curtab)
     {
-        if(win->w_p_pvw)
+        if(win->w_o_curbuf.wo_pvw)
         {
             ex_win_close(eap->forceit, win, NULL);
             break;
@@ -8394,7 +8394,7 @@ void alist_init(arglist_st *al)
 /// If the argument list is no longer used by any window, free it.
 void alist_unlink(arglist_st *al)
 {
-    if(al != &global_alist && --al->al_refcount <= 0)
+    if(al != &g_arglist && --al->al_refcount <= 0)
     {
         alist_clear(al);
         xfree(al);
@@ -8427,14 +8427,14 @@ void alist_expand(int *fnum_list, int fnum_len)
     // expansion.  Also, the vimrc file isn't read yet, thus the user
     // can't set the options.
     p_su = empty_option;
-    old_arg_files = xmalloc(sizeof(*old_arg_files) * GARGCOUNT);
+    old_arg_files = xmalloc(sizeof(*old_arg_files) * g_arglist.al_ga.ga_len);
 
-    for(i = 0; i < GARGCOUNT; ++i)
+    for(i = 0; i < g_arglist.al_ga.ga_len; ++i)
     {
-        old_arg_files[i] = vim_strsave(GARGLIST[i].ae_fname);
+        old_arg_files[i] = vim_strsave(garg_list[i].ae_fname);
     }
 
-    old_arg_count = GARGCOUNT;
+    old_arg_count = g_arglist.al_ga.ga_len;
 
     if(expand_wildcards(old_arg_count,
                         old_arg_files,
@@ -8443,7 +8443,7 @@ void alist_expand(int *fnum_list, int fnum_len)
                         EW_FILE | EW_NOTFOUND | EW_ADDSLASH | EW_NOERROR) == OK
        && new_arg_file_count > 0)
     {
-        alist_set(&global_alist,
+        alist_set(&g_arglist,
                   new_arg_file_count,
                   new_arg_files,
                   TRUE,
@@ -8498,7 +8498,7 @@ void alist_set(arglist_st *al,
         xfree(files);
     }
 
-    if(al == &global_alist)
+    if(al == &g_arglist)
     {
         arg_had_last = FALSE;
     }
@@ -8521,11 +8521,12 @@ void alist_add(arglist_st *al, uchar_kt *fname, int set_fnum)
     slash_adjust(fname);
     #endif
 
-    AARGLIST(al)[al->al_ga.ga_len].ae_fname = fname;
+    aentry_st *arg_data = (aentry_st *)(al->al_ga.ga_data);
+    arg_data[al->al_ga.ga_len].ae_fname = fname;
 
     if(set_fnum > 0)
     {
-        AARGLIST(al)[al->al_ga.ga_len].ae_fnum =
+        arg_data[al->al_ga.ga_len].ae_fnum =
             buflist_add(fname, BLN_LISTED | (set_fnum == 2 ? BLN_CURBUF : 0));
     }
 
@@ -8536,23 +8537,26 @@ void alist_add(arglist_st *al, uchar_kt *fname, int set_fnum)
 /// Adjust slashes in file names.  Called after 'shellslash' was set.
 void alist_slash_adjust(void)
 {
-    for(int i = 0; i < GARGCOUNT; ++i)
+    for(int i = 0; i < g_arglist.al_ga.ga_len; ++i)
     {
-        if(GARGLIST[i].ae_fname != NULL)
+        if(garg_list[i].ae_fname != NULL)
         {
-            slash_adjust(GARGLIST[i].ae_fname);
+            slash_adjust(garg_list[i].ae_fname);
         }
     }
 
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
-        if(wp->w_alist != &global_alist)
+        if(wp->w_alist != &g_arglist)
         {
-            for(int i = 0; i < WARGCOUNT(wp); ++i)
+            int win_arg_cnt = wp->w_alist->al_ga.ga_len;
+            aentry_st *win_arg_buf = (aentry_st *)wp->w_alist->al_ga.ga_data;
+
+            for(int i = 0; i < win_arg_cnt; ++i)
             {
-                if(WARGLIST(wp)[i].ae_fname != NULL)
+                if(win_arg_buf[i].ae_fname != NULL)
                 {
-                    slash_adjust(WARGLIST(wp)[i].ae_fname);
+                    slash_adjust(win_arg_buf[i].ae_fname);
                 }
             }
         }
@@ -8563,7 +8567,7 @@ void alist_slash_adjust(void)
 /// ":preserve".
 static void ex_preserve(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 {
-    curbuf->b_flags |= BF_PRESERVED;
+    curbuf->b_flags |= kWBF_Preserve;
     ml_preserve(curbuf, TRUE);
 }
 
@@ -8658,7 +8662,7 @@ void ex_splitview(exargs_st *eap)
                && old_curwin->w_buffer != curbuf
                && !cmdmod.keepalt)
             {
-                old_curwin->w_alt_fnum = curbuf->b_fnum;
+                old_curwin->w_alt_fnum = curbuf->b_id;
             }
         }
     }
@@ -9078,7 +9082,7 @@ void do_exedit(exargs_st *eap, win_st *old_curwin)
        && old_curwin->w_buffer != curbuf
        && !cmdmod.keepalt)
     {
-        old_curwin->w_alt_fnum = curbuf->b_fnum;
+        old_curwin->w_alt_fnum = curbuf->b_id;
     }
 
     ex_no_reprint = TRUE;
@@ -9108,12 +9112,12 @@ static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     setpcmark();
 
     // determine max topline
-    if(curwin->w_p_scb)
+    if(curwin->w_o_curbuf.wo_scb)
     {
         topline = curwin->w_topline;
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_p_scb && wp->w_buffer)
+            if(wp->w_o_curbuf.wo_scb && wp->w_buffer)
             {
                 y = wp->w_buffer->b_ml.ml_line_count - p_so;
 
@@ -9139,7 +9143,7 @@ static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     {
         curwin = wp;
 
-        if(curwin->w_p_scb)
+        if(curwin->w_o_curbuf.wo_scb)
         {
             curbuf = curwin->w_buffer;
             y = topline - curwin->w_topline;
@@ -9163,7 +9167,7 @@ static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     curwin = save_curwin;
     curbuf = save_curbuf;
 
-    if(curwin->w_p_scb)
+    if(curwin->w_o_curbuf.wo_scb)
     {
         did_syncbind = TRUE;
         checkpcmark();
@@ -9624,7 +9628,7 @@ static void ex_operators(exargs_st *eap)
             break;
 
         default: // CMD_rshift or CMD_lshift
-            if((eap->cmdidx == CMD_rshift) ^ curwin->w_p_rl)
+            if((eap->cmdidx == CMD_rshift) ^ curwin->w_o_curbuf.wo_rl)
             {
                 oa.op_type = OP_RSHIFT;
             }
@@ -10395,7 +10399,7 @@ void update_topline_cursor(void)
     check_cursor(); // put cursor on valid line
     update_topline();
 
-    if(!curwin->w_p_wrap)
+    if(!curwin->w_o_curbuf.wo_wrap)
     {
         validate_cursor();
     }
@@ -11218,9 +11222,9 @@ static uchar_kt *arg_all(void)
     {
         len = 0;
 
-        for(idx = 0; idx < ARGCOUNT; ++idx)
+        for(idx = 0; idx < carg_cnt; ++idx)
         {
-            p = alist_name(&ARGLIST[idx]);
+            p = alist_name(&carg_list[idx]);
 
             if(p == NULL)
             {
@@ -11456,7 +11460,7 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
     // the global argument list
     if(ses_arglist(fd,
                    "argglobal",
-                   &global_alist.al_ga,
+                   &g_arglist.al_ga,
                    !(ssop_flags & SSOP_CURDIR),
                    &ssop_flags) == FAIL)
     {
@@ -11934,7 +11938,7 @@ static int put_view(FILE *fd,
     do_cursor = (flagp == &ssop_flags || *flagp & SSOP_CURSOR);
 
     // Local argument list.
-    if(wp->w_alist == &global_alist)
+    if(wp->w_alist == &g_arglist)
     {
         if(put_line(fd, "argglobal") == FAIL)
         {
@@ -11957,8 +11961,9 @@ static int put_view(FILE *fd,
 
     // Only when part of a session: restore the argument index.
     // Some arguments may have been deleted, check if the index is valid.
+    int win_arg_cnt = wp->w_alist->al_ga.ga_len;
     if(wp->w_arg_idx != current_arg_idx
-       && wp->w_arg_idx < WARGCOUNT(wp)
+       && wp->w_arg_idx < win_arg_cnt
        && flagp == &ssop_flags)
     {
         if(fprintf(fd, "%" PRId64 "argu", (int64_t)(wp->w_arg_idx + 1)) < 0
@@ -12089,7 +12094,9 @@ static int put_view(FILE *fd,
         }
         else
         {
-            if(!wp->w_p_wrap && wp->w_leftcol > 0 && wp->w_width > 0)
+            if(!wp->w_o_curbuf.wo_wrap
+               && wp->w_leftcol > 0
+               && wp->w_width > 0)
             {
                 if(fprintf(fd, "let s:c = %" PRId64 " - ((%" PRId64
                            " * winwidth(0) + %" PRId64 ") / %" PRId64 ")",

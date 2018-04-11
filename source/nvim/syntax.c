@@ -1844,9 +1844,9 @@ int get_syntax_attr(columnum_kt col, bool *can_spell, int keep_state)
     {
         // Default: Only do spelling when there is no
         // @Spell cluster or when ":syn spell toplevel" was used.
-        *can_spell = syn_block->b_syn_spell == SYNSPL_DEFAULT
+        *can_spell = syn_block->b_syn_spell == kSpellCheck_Default
                      ? (syn_block->b_spell_cluster_id == 0)
-                     : (syn_block->b_syn_spell == SYNSPL_TOP);
+                     : (syn_block->b_syn_spell == kSpellCheck_TopText);
     }
 
     // check for out of memory situation
@@ -2387,7 +2387,7 @@ static int syn_current_attr(int syncing,
                 // Do spelling for items without @NoSpell cluster.
                 if(syn_block->b_nospell_cluster_id == 0 || current_trans_id == 0)
                 {
-                    *can_spell = (syn_block->b_syn_spell != SYNSPL_NOTOP);
+                    *can_spell = (syn_block->b_syn_spell != kSpellCheck_NoTopText);
                 }
                 else
                 {
@@ -2405,7 +2405,7 @@ static int syn_current_attr(int syncing,
                 // only spell check when ":syn spell toplevel" was used.
                 if(current_trans_id == 0)
                 {
-                    *can_spell = (syn_block->b_syn_spell == SYNSPL_TOP);
+                    *can_spell = (syn_block->b_syn_spell == kSpellCheck_TopText);
                 }
                 else
                 {
@@ -2449,9 +2449,9 @@ static int syn_current_attr(int syncing,
     {
         // Default: Only do spelling when there is no @Spell
         // cluster or when ":syn spell toplevel" was used.
-        *can_spell = syn_block->b_syn_spell == SYNSPL_DEFAULT
+        *can_spell = syn_block->b_syn_spell == kSpellCheck_Default
                      ? (syn_block->b_spell_cluster_id == 0)
-                     : (syn_block->b_syn_spell == SYNSPL_TOP);
+                     : (syn_block->b_syn_spell == kSpellCheck_TopText);
     }
 
     // nextgroup ends at end of line,
@@ -3591,15 +3591,15 @@ static void syn_cmd_spell(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 
     if(STRNICMP(arg, "toplevel", 8) == 0 && next - arg == 8)
     {
-        curwin->w_s->b_syn_spell = SYNSPL_TOP;
+        curwin->w_s->b_syn_spell = kSpellCheck_TopText;
     }
     else if(STRNICMP(arg, "notoplevel", 10) == 0 && next - arg == 10)
     {
-        curwin->w_s->b_syn_spell = SYNSPL_NOTOP;
+        curwin->w_s->b_syn_spell = kSpellCheck_NoTopText;
     }
     else if(STRNICMP(arg, "default", 7) == 0 && next - arg == 7)
     {
-        curwin->w_s->b_syn_spell = SYNSPL_DEFAULT;
+        curwin->w_s->b_syn_spell = kSpellCheck_Default;
     }
     else
     {
@@ -3669,7 +3669,7 @@ void syntax_clear(synblk_st *block)
 {
     block->b_syn_error = FALSE; // clear previous error
     block->b_syn_ic = FALSE; // Use case, by default
-    block->b_syn_spell = SYNSPL_DEFAULT; // default spell checking
+    block->b_syn_spell = kSpellCheck_Default; // default spell checking
     block->b_syn_containedin = FALSE;
     // free the keywords
     clear_keywtab(&block->b_keywtab);
@@ -6756,7 +6756,7 @@ void ex_ownsyntax(exargs_st *eap)
         hash_init(&curwin->w_s->b_keywtab_ic);
 
         /// @todo: Keep the spell checking as it was
-        curwin->w_p_spell = false; // No spell checking
+        curwin->w_o_curbuf.wo_spell = false; // No spell checking
 
         clear_string_option(&curwin->w_s->b_p_spc);
         clear_string_option(&curwin->w_s->b_p_spf);
@@ -6990,9 +6990,9 @@ int syn_get_foldlevel(win_st *wp, long lnum)
         }
     }
 
-    if(level > wp->w_p_fdn)
+    if(level > wp->w_o_curbuf.wo_fdn)
     {
-        level = wp->w_p_fdn;
+        level = wp->w_o_curbuf.wo_fdn;
 
         if(level < 0)
         {

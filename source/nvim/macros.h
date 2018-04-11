@@ -118,7 +118,8 @@
 #define UTF_COMPOSINGLIKE(p1, p2)  utf_composinglike((p1), (p2))
 
 /// Whether to draw the vertical bar on the right side of the cell.
-#define CURSOR_BAR_RIGHT  (curwin->w_p_rl && (!(curmod & kCmdLineMode) || cmdmsg_rl))
+#define CURSOR_BAR_RIGHT  \
+    (curwin->w_o_curbuf.wo_rl && (!(curmod & kCmdLineMode) || cmdmsg_rl))
 
 // mb_ptr_adv(): advance a pointer to the next character,
 // taking care of multi-byte characters if needed.
@@ -148,7 +149,8 @@
 #define MB_CHAR2LEN(c)     mb_char2len(c)
 #define PTR2CHAR(p)        mb_ptr2char(p)
 
-#define RESET_BINDING(wp)  (wp)->w_p_scb = FALSE; (wp)->w_p_crb = FALSE
+#define RESET_BINDING(wp)  \
+    (wp)->w_o_curbuf.wo_scb = FALSE; (wp)->w_o_curbuf.wo_crb = FALSE
 
 /// Calculate the length of a C array.
 ///

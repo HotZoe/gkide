@@ -655,7 +655,7 @@ static void put_curr_and_l_to_X(uchar_kt c)
 {
     int tempc;
 
-    if(curwin->w_p_rl && p_ri)
+    if(curwin->w_o_curbuf.wo_rl && p_ri)
     {
         return;
     }
@@ -1203,7 +1203,7 @@ int fkmap(int c)
         arrow_used = TRUE;
         (void)stop_arrow();
 
-        if(!curwin->w_p_rl && revins)
+        if(!curwin->w_o_curbuf.wo_rl && revins)
         {
             inc_cursor();
         }
@@ -1219,7 +1219,7 @@ int fkmap(int c)
             (void)stop_arrow();
             revins = 0;
 
-            if(curwin->w_p_rl)
+            if(curwin->w_o_curbuf.wo_rl)
             {
                 while((F_isdigit(gchar_cursor())
                        || (gchar_cursor() == F_PERIOD
@@ -1261,12 +1261,12 @@ int fkmap(int c)
 
     if(!revins)
     {
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             p_ri = 0;
         }
 
-        if(!curwin->w_p_rl)
+        if(!curwin->w_o_curbuf.wo_rl)
         {
             p_ri = 1;
         }
@@ -3554,7 +3554,7 @@ void farsi_f8(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
 
 void farsi_f9(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
 {
-    if(p_altkeymap && curwin->w_p_rl)
+    if(p_altkeymap && curwin->w_o_curbuf.wo_rl)
     {
         curwin->w_farsi = curwin->w_farsi ^ W_CONV;
 

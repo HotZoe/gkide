@@ -1543,7 +1543,7 @@ int plines_win_nofill(win_st *wp, linenum_kt lnum, int winheight)
 {
     int lines;
 
-    if(!wp->w_p_wrap)
+    if(!wp->w_o_curbuf.wo_wrap)
     {
         return 1;
     }
@@ -1588,7 +1588,7 @@ int plines_win_nofold(win_st *wp, linenum_kt lnum)
 
     // If list mode is on, then the '$' at the end
     // of the line may take up one extra column.
-    if(wp->w_p_list && lcs_eol != NUL)
+    if(wp->w_o_curbuf.wo_list && lcs_eol != NUL)
     {
         col += 1;
     }
@@ -1621,7 +1621,7 @@ int plines_win_col(win_st *wp, linenum_kt lnum, long column)
     // When folded the result is one line anyway.
     int lines = diff_check_fill(wp, lnum);
 
-    if(!wp->w_p_wrap)
+    if(!wp->w_o_curbuf.wo_wrap)
     {
         return lines + 1;
     }
@@ -1646,7 +1646,9 @@ int plines_win_col(win_st *wp, linenum_kt lnum, long column)
 	// last screen position of the TAB. This only fixes an error when the TAB
 	// wraps from one screen line to the next (when 'columns' is not a 
 	// multiple of 'ts')
-    if(*s == TAB && (curmod & kNormalMode) && (!wp->w_p_list || lcs_tab1))
+    if(*s == TAB
+       && (curmod & kNormalMode)
+       && (!wp->w_o_curbuf.wo_list || lcs_tab1))
     {
         col += win_lbr_chartabsize(wp, line, s, col, NULL) - 1;
     }
@@ -1784,12 +1786,12 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
         {
             // Disable 'list' temporarily, unless 'cpo' contains the 'L' flag.
             // Returns the old value of list, so when finished,
-            // curwin->w_p_list should be set back to this.
-            int old_list = curwin->w_p_list;
+            // curwin->w_o_curbuf.wo_list should be set back to this.
+            int old_list = curwin->w_o_curbuf.wo_list;
 
             if(old_list && vim_strchr(p_cpo, CPO_LISTWM) == NULL)
             {
-                curwin->w_p_list = false;
+                curwin->w_o_curbuf.wo_list = false;
             }
 
             // In virtual replace mode each character may replace one or more
@@ -1820,7 +1822,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
                 }
             }
 
-            curwin->w_p_list = old_list;
+            curwin->w_o_curbuf.wo_list = old_list;
         }
         else if(oldp[col] != NUL)
         {
@@ -2231,13 +2233,13 @@ void changed_bytes(linenum_kt lnum, columnum_kt col)
     changed_common(lnum, col, lnum + 1, 0L);
 
     // Diff highlighting in other diff windows may need to be updated too.
-    if(curwin->w_p_diff)
+    if(curwin->w_o_curbuf.wo_diff)
     {
         linenum_kt wlnum;
 
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_p_diff && wp != curwin)
+            if(wp->w_o_curbuf.wo_diff && wp != curwin)
             {
                 redraw_win_later(wp, VALID);
                 wlnum = diff_lnum_win(lnum, wp);
@@ -2333,14 +2335,14 @@ void changed_lines(linenum_kt lnum, columnum_kt col, linenum_kt lnume, long xtra
 {
     changed_lines_buf(curbuf, lnum, lnume, xtra);
 
-    if(xtra == 0 && curwin->w_p_diff)
+    if(xtra == 0 && curwin->w_o_curbuf.wo_diff)
     {
         // When the number of lines doesn't change then mark_adjust() isn't
         // called and other diff buffers still need to be marked for displaying.
         linenum_kt wlnum;
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_p_diff && wp != curwin)
+            if(wp->w_o_curbuf.wo_diff && wp != curwin)
             {
                 redraw_win_later(wp, VALID);
                 wlnum = diff_lnum_win(lnum, wp);
@@ -2606,7 +2608,7 @@ static void changed_common(linenum_kt lnum,
             }
 
             // relative numbering may require updating more
-            if(wp->w_p_rnu)
+            if(wp->w_o_curbuf.wo_rnu)
             {
                 redraw_win_later(wp, SOME_VALID);
             }

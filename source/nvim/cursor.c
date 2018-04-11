@@ -49,12 +49,12 @@ int coladvance_force(columnum_kt wcol)
 
     if(wcol == MAXCOL)
     {
-        curwin->w_valid &= ~VALID_VIRTCOL;
+        curwin->w_valid &= ~kWVF_FileCol;
     }
     else
     {
         // Virtcol is valid
-        curwin->w_valid |= VALID_VIRTCOL;
+        curwin->w_valid |= kWVF_FileCol;
         curwin->w_virtcol = wcol;
     }
 
@@ -74,12 +74,12 @@ int coladvance(columnum_kt wcol)
 
     if(wcol == MAXCOL || rc == FAIL)
     {
-        curwin->w_valid &= ~VALID_VIRTCOL;
+        curwin->w_valid &= ~kWVF_FileCol;
     }
     else if(*get_cursor_pos_ptr() != TAB)
     {
         // Virtcol is valid when not on a TAB
-        curwin->w_valid |= VALID_VIRTCOL;
+        curwin->w_valid |= kWVF_FileCol;
         curwin->w_virtcol = wcol;
     }
 
@@ -129,7 +129,7 @@ static int coladvance2(apos_st *pos, bool addspaces, bool finetune, columnum_kt 
         int width = curwin->w_width - win_col_off(curwin);
 
         if(finetune
-           && curwin->w_p_wrap
+           && curwin->w_o_curbuf.wo_wrap
            && curwin->w_width != 0
            && wcol >= (columnum_kt)width)
         {

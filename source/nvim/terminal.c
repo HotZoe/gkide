@@ -233,7 +233,7 @@ terminal_st *terminal_open(terminal_opt_st opts)
     rv->cursor.visible = true;
 
     // Associate the terminal instance with the new buffer
-    rv->buf_handle = curbuf->handle;
+    rv->buf_handle = curbuf->b_id;
     curbuf->terminal = rv;
 
     // Create VTerm
@@ -444,12 +444,12 @@ void terminal_enter(void)
     // Disable these options in terminal-mode. They are nonsense
     // because cursor is placed at end of buffer to "follow" output.
     win_st *save_curwin = curwin;
-    int save_w_p_cul = curwin->w_p_cul;
-    int save_w_p_cuc = curwin->w_p_cuc;
-    int save_w_p_rnu = curwin->w_p_rnu;
-    curwin->w_p_cul = false;
-    curwin->w_p_cuc = false;
-    curwin->w_p_rnu = false;
+    int save_w_p_cul = curwin->w_o_curbuf.wo_cul;
+    int save_w_p_cuc = curwin->w_o_curbuf.wo_cuc;
+    int save_w_p_rnu = curwin->w_o_curbuf.wo_rnu;
+    curwin->w_o_curbuf.wo_cul = false;
+    curwin->w_o_curbuf.wo_cuc = false;
+    curwin->w_o_curbuf.wo_rnu = false;
 
     adjust_topline(s->term, buf, 0); // scroll to end
 
@@ -469,9 +469,9 @@ void terminal_enter(void)
     // save_curwin may be invalid (window closed)!
     if(save_curwin == curwin)
     {
-        curwin->w_p_cul = save_w_p_cul;
-        curwin->w_p_cuc = save_w_p_cuc;
-        curwin->w_p_rnu = save_w_p_rnu;
+        curwin->w_o_curbuf.wo_cul = save_w_p_cul;
+        curwin->w_o_curbuf.wo_cuc = save_w_p_cuc;
+        curwin->w_o_curbuf.wo_rnu = save_w_p_rnu;
     }
 
     // draw the unfocused cursor
@@ -479,7 +479,7 @@ void terminal_enter(void)
                         s->term->cursor.row,
                         s->term->cursor.row + 1);
     unshowmode(true);
-    redraw(curbuf->handle != s->term->buf_handle);
+    redraw(curbuf->b_id != s->term->buf_handle);
     ui_busy_stop();
 
     if(s->close)
@@ -569,7 +569,7 @@ static int terminal_execute(nvim_state_st *state, int key)
             terminal_send_key(s->term, key);
     }
 
-    return curbuf->handle == s->term->buf_handle;
+    return curbuf->b_id == s->term->buf_handle;
 }
 
 void terminal_destroy(terminal_st *term)
@@ -1508,7 +1508,7 @@ static void redraw(bool restore_cursor)
                                     row_to_linenr(term, term->cursor.row));
 
         // Nudge cursor when returning to normal-mode.
-        int off = is_focused(term) ? 0 : (curwin->w_p_rl ? 1 : -1);
+        int off = is_focused(term) ? 0 : (curwin->w_o_curbuf.wo_rl ? 1 : -1);
 
         curwin->w_cursor.col = MAX(0,
                                    term->cursor.col

@@ -1477,7 +1477,7 @@ FUNC_ATTR_NONNULL_ALL
             | (p_hi ? kSDReadHistory : 0)
             | (find_shada_parameter('!') != NULL ? kSDReadVariables : 0)
             | (find_shada_parameter('%') != NULL
-               && ARGCOUNT == 0 ? kSDReadBufferList : 0))
+               && carg_cnt == 0 ? kSDReadBufferList : 0))
          : 0)
         | (want_marks && get_shada_parameter('\'') > 0
            ? kSDReadLocalMarks | kSDReadChanges
@@ -1726,7 +1726,7 @@ FUNC_ATTR_NONNULL_ALL
                                         : NULL),
                     .fmark = {
                         .mark = cur_entry.data.filemark.mark,
-                        .fnum = (buf == NULL ? 0 : buf->b_fnum),
+                        .fnum = (buf == NULL ? 0 : buf->b_id),
                         .timestamp = cur_entry.timestamp,
                         .additional_data =
                             cur_entry.data.filemark.additional_data,

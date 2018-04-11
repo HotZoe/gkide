@@ -151,7 +151,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
     int tagstackidx = curwin->w_tagstackidx;
     int tagstacklen = curwin->w_tagstacklen;
     int cur_match = 0;
-    int cur_fnum = curbuf->b_fnum;
+    int cur_fnum = curbuf->b_id;
     int oldtagstackidx = tagstackidx;
     int prevtagstackidx = tagstackidx;
     int prev_num_matches;
@@ -332,7 +332,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
                 // invalidate the tagstack before it's used.
                 saved_fmark = tagstack[tagstackidx].fmark;
 
-                if(saved_fmark.fnum != curbuf->b_fnum)
+                if(saved_fmark.fnum != curbuf->b_id)
                 {
                     // Jump to other file. If this fails (e.g. because the
                     // file was changed) keep original position in tag stack.
@@ -457,7 +457,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
                     EMSG(_("E425: Cannot go before first matching tag"));
                     skip_msg = TRUE;
                     cur_match = 0;
-                    cur_fnum = curbuf->b_fnum;
+                    cur_fnum = curbuf->b_id;
                 }
             }
         }
@@ -479,7 +479,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
             if(save_pos)
             {
                 tagstack[tagstackidx].fmark.mark = curwin->w_cursor;
-                tagstack[tagstackidx].fmark.fnum = curbuf->b_fnum;
+                tagstack[tagstackidx].fmark.fnum = curbuf->b_id;
             }
 
             // Curwin will change in the call to jumpto_tag() if ":stag" was
@@ -498,7 +498,7 @@ int do_tag(uchar_kt *tag, int type, int count, int forceit,  int verbose)
     // When not using the current buffer get the name of buffer "cur_fnum".
     // Makes sure that the tag order doesn't change when using a remembered
     // position for "cur_match".
-    if(cur_fnum != curbuf->b_fnum)
+    if(cur_fnum != curbuf->b_id)
     {
         filebuf_st *buf = buflist_findnr(cur_fnum);
 
@@ -1271,7 +1271,7 @@ void do_tags(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
             msg_outtrans(IObuff);
 
             msg_outtrans_attr(name,
-                              tagstack[i].fmark.fnum == curbuf->b_fnum
+                              tagstack[i].fmark.fnum == curbuf->b_id
                               ? hl_attr(HLF_D) : 0);
             xfree(name);
         }
@@ -3131,7 +3131,7 @@ static int jumpto_tag(uchar_kt *lbuf, int forceit, int keep_help)
 
         // If we are reusing a window, we may change dir when
         // entering it (autocommands) so turn the tag filename into a fullpath
-        if(!curwin->w_p_pvw)
+        if(!curwin->w_o_curbuf.wo_pvw)
         {
             full_fname = (uchar_kt *)FullName_save((char *)fname, FALSE);
             fname = full_fname;

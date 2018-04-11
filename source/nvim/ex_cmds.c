@@ -252,7 +252,7 @@ void ex_align(exargs_st *eap)
     int has_tab;
     int width;
 
-    if(curwin->w_p_rl)
+    if(curwin->w_o_curbuf.wo_rl)
     {
         // switch left and right aligning
         if(eap->cmdidx == CMD_right)
@@ -861,8 +861,8 @@ void ex_retab(exargs_st *eap)
     int save_list;
     linenum_kt first_line = 0; // first changed line
     linenum_kt last_line = 0; // last changed line
-    save_list = curwin->w_p_list;
-    curwin->w_p_list = 0; // don't want list mode here
+    save_list = curwin->w_o_curbuf.wo_list;
+    curwin->w_o_curbuf.wo_list = 0; // don't want list mode here
     new_ts = getdigits_int(&(eap->arg));
 
     if(new_ts < 0)
@@ -1017,7 +1017,7 @@ void ex_retab(exargs_st *eap)
         changed_lines(first_line, 0, last_line + 1, 0L);
     }
 
-    curwin->w_p_list = save_list; // restore 'list'
+    curwin->w_o_curbuf.wo_list = save_list; // restore 'list'
     curbuf->b_p_ts = new_ts;
     coladvance(curwin->w_curswant);
     u_clearline();
@@ -1916,7 +1916,7 @@ void print_line_no_prefix(linenum_kt lnum, int use_number, int list)
 {
     char numbuf[30];
 
-    if(curwin->w_p_nu || use_number)
+    if(curwin->w_o_curbuf.wo_nu || use_number)
     {
         vim_snprintf(numbuf, sizeof(numbuf), "%*" LineNumKtPrtFmt " ",
                      number_width(curwin), lnum);
@@ -1991,7 +1991,7 @@ int rename_buffer(uchar_kt *new_fname)
         return FAIL;
     }
 
-    curbuf->b_flags |= BF_NOTEDITED;
+    curbuf->b_flags |= kWBF_NotEdited;
 
     if(xfname != NULL && *xfname != NUL)
     {
@@ -1999,7 +1999,7 @@ int rename_buffer(uchar_kt *new_fname)
 
         if(buf != NULL && !cmdmod.keepalt)
         {
-            curwin->w_alt_fnum = buf->b_fnum;
+            curwin->w_alt_fnum = buf->b_id;
         }
     }
 
@@ -2275,8 +2275,8 @@ theend:
     return retval;
 }
 
-/// Check if it is allowed to overwrite a file. If b_flags has BF_NOTEDITED,
-/// BF_NEW or BF_READERR, check for overwriting current file.
+/// Check if it is allowed to overwrite a file. If b_flags has kWBF_NotEdited,
+/// kWBF_NewFile or kWBF_ReadError, check for overwriting current file.
 /// May set eap->forceit if a dialog says it's OK to overwrite.
 ///
 /// @param eap
@@ -2295,9 +2295,9 @@ int check_overwrite(exargs_st *eap,
     // write to other file or b_flags set or not writing the whole file:
     // overwriting only allowed with '!'
     if((other
-        || (buf->b_flags & BF_NOTEDITED)
-        || ((buf->b_flags & BF_NEW) && vim_strchr(p_cpo, CPO_OVERNEW) == NULL)
-        || (buf->b_flags & BF_READERR))
+        || (buf->b_flags & kWBF_NotEdited)
+        || ((buf->b_flags & kWBF_NewFile) && vim_strchr(p_cpo, CPO_OVERNEW) == NULL)
+        || (buf->b_flags & kWBF_ReadError))
        && !p_wa
        && !bt_nofile(buf)
        && os_path_exists(ffname))
@@ -2449,7 +2449,7 @@ void do_wqall(exargs_st *eap)
 
         if(buf->b_ffname == NULL)
         {
-            EMSGN(_("E141: No file name for buffer %" PRId64), buf->b_fnum);
+            EMSGN(_("E141: No file name for buffer %" PRId64), buf->b_id);
             ++error;
         }
         else if(check_readonly(&eap->forceit, buf)
@@ -2596,7 +2596,7 @@ int getfile(int fnum,
     }
     else
     {
-        other = (fnum != curbuf->b_fnum);
+        other = (fnum != curbuf->b_id);
     }
 
     if(other)
@@ -2752,7 +2752,7 @@ int do_ecmd(int fnum,
 
     if(fnum != 0)
     {
-        if(fnum == curbuf->b_fnum) // file is already being edited
+        if(fnum == curbuf->b_id) // file is already being edited
         {
             return OK; // nothing to do
         }
@@ -2869,7 +2869,7 @@ int do_ecmd(int fnum,
         {
             if(!cmdmod.keepalt)
             {
-                curwin->w_alt_fnum = curbuf->b_fnum;
+                curwin->w_alt_fnum = curbuf->b_id;
             }
 
             if(oldwin != NULL)
@@ -3238,7 +3238,7 @@ int do_ecmd(int fnum,
         if(!oldbuf) // need to read the file
         {
             swap_exists_action = SEA_DIALOG;
-            curbuf->b_flags |= BF_CHECK_RO; // set/reset 'ro' flag
+            curbuf->b_flags |= kWBF_CheckReadOnly; // set/reset 'ro' flag
 
             // Open the buffer and read the file.
             if(should_abort(open_buffer(FALSE, eap, readfile_flags)))
@@ -3288,7 +3288,7 @@ int do_ecmd(int fnum,
     // Tell the diff stuff that this buffer is new and/or needs updating.
     // Also needed when re-editing the same buffer, because unloading will
     // have removed it as a diff buffer.
-    if(curwin->w_p_diff)
+    if(curwin->w_o_curbuf.wo_diff)
     {
         diff_buf_add(curbuf);
         diff_invalidate(curbuf);
@@ -3296,7 +3296,9 @@ int do_ecmd(int fnum,
 
     // If the window options were changed may need to set the spell language.
     // Can only do this after the buffer has been properly setup.
-    if(did_get_winopts && curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
+    if(did_get_winopts
+       && curwin->w_o_curbuf.wo_spell
+       && *curwin->w_s->b_p_spl != NUL)
     {
         (void)did_set_spelllang(curwin);
     }
@@ -3679,7 +3681,7 @@ void ex_z(exargs_st *eap)
     }
     else if(firstwin == lastwin)
     {
-        bigness = curwin->w_p_scr * 2;
+        bigness = curwin->w_o_curbuf.wo_scr * 2;
     }
     else
     {
@@ -4219,7 +4221,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
         else
         {
             // find the end of the regexp
-            if(p_altkeymap && curwin->w_p_rl)
+            if(p_altkeymap && curwin->w_o_curbuf.wo_rl)
             {
                 lrF_sub(cmd);
             }
@@ -4331,7 +4333,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
         return NULL;
     }
 
-    if(!subflags.do_count && !MODIFIABLE(curbuf))
+    if(!subflags.do_count && !curbuf->b_p_ma)
     {
         // Substitution is not allowed in non-'modifiable' buffer
         EMSG(_(e_modifiable));
@@ -4588,7 +4590,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
 
                             getvcol(curwin, &curwin->w_cursor, NULL, NULL, &ec);
 
-                            if(subflags.do_number || curwin->w_p_nu)
+                            if(subflags.do_number || curwin->w_o_curbuf.wo_nu)
                             {
                                 int numw = number_width(curwin) + 1;
                                 sc += numw;
@@ -4619,8 +4621,8 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
                         {
                             uchar_kt *orig_line = NULL;
                             int len_change = 0;
-                            int save_p_fen = curwin->w_p_fen;
-                            curwin->w_p_fen = FALSE;
+                            int save_p_fen = curwin->w_o_curbuf.wo_fen;
+                            curwin->w_o_curbuf.wo_fen = FALSE;
 
                             // Invert the matched string.
                             // Remove the inversion afterwards.
@@ -4664,7 +4666,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
                             update_screen(SOME_VALID);
                             highlight_match = FALSE;
                             redraw_later(SOME_VALID);
-                            curwin->w_p_fen = save_p_fen;
+                            curwin->w_o_curbuf.wo_fen = save_p_fen;
 
                             if(msg_row == Rows - 1)
                             {
@@ -5416,7 +5418,7 @@ void ex_global(exargs_st *eap)
         }
     }
 
-    if(p_altkeymap && curwin->w_p_rl)
+    if(p_altkeymap && curwin->w_o_curbuf.wo_rl)
     {
         lrFswap(pat,0);
     }
@@ -5560,12 +5562,12 @@ void free_old_sub(void)
 bool prepare_tagpreview(bool undo_sync)
 {
     // If there is already a preview window open, use that one.
-    if(!curwin->w_p_pvw)
+    if(!curwin->w_o_curbuf.wo_pvw)
     {
         bool found_win = false;
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_p_pvw)
+            if(wp->w_o_curbuf.wo_pvw)
             {
                 win_enter(wp, undo_sync);
                 found_win = true;
@@ -5581,14 +5583,14 @@ bool prepare_tagpreview(bool undo_sync)
                 return false;
             }
 
-            curwin->w_p_pvw = TRUE;
-            curwin->w_p_wfh = TRUE;
+            curwin->w_o_curbuf.wo_pvw = TRUE;
+            curwin->w_o_curbuf.wo_wfh = TRUE;
 
             // don't take over 'scrollbind' and 'cursorbind'
             RESET_BINDING(curwin);
 
-            curwin->w_p_diff = FALSE; // no 'diff'
-            curwin->w_p_fdc = 0; // no 'foldcolumn'
+            curwin->w_o_curbuf.wo_diff = FALSE; // no 'diff'
+            curwin->w_o_curbuf.wo_fdc = 0; // no 'foldcolumn'
             return true;
         }
     }
@@ -5772,7 +5774,7 @@ void ex_help(exargs_st *eap)
             // Open help file (do_ecmd() will set b_help flag, readfile() will
             // set b_p_ro flag).
             // Set the alternate file to the previously edited file.
-            alt_fnum = curbuf->b_fnum;
+            alt_fnum = curbuf->b_id;
 
             (void)do_ecmd(0,
                           NULL,
@@ -5787,7 +5789,7 @@ void ex_help(exargs_st *eap)
                 curwin->w_alt_fnum = alt_fnum;
             }
 
-            empty_fnum = curbuf->b_fnum;
+            empty_fnum = curbuf->b_id;
         }
     }
 
@@ -5804,7 +5806,7 @@ void ex_help(exargs_st *eap)
     // Delete the empty buffer if we're not using it.
     // Careful: autocommands may have jumped to another window,
     // check that the buffer is not in a window.
-    if(empty_fnum != 0 && curbuf->b_fnum != empty_fnum)
+    if(empty_fnum != 0 && curbuf->b_id != empty_fnum)
     {
         buf = buflist_findnr(empty_fnum);
 
@@ -6215,20 +6217,20 @@ static void prepare_help_buffer(void)
                              OPT_FREE|OPT_LOCAL,
                              0);
 
-    curbuf->b_p_ts = 8;         // 'tabstop' is 8.
-    curwin->w_p_list = FALSE;   // No list mode.
-    curbuf->b_p_ma = FALSE;     // Not modifiable.
-    curbuf->b_p_bin = FALSE;    // Reset 'bin' before reading file.
-    curwin->w_p_nu = 0;         // No line numbers.
-    curwin->w_p_rnu = 0;        // No relative line numbers.
+    curbuf->b_p_ts = 8; // 'tabstop' is 8.
+    curwin->w_o_curbuf.wo_list = FALSE; // No list mode.
+    curbuf->b_p_ma = FALSE; // Not modifiable.
+    curbuf->b_p_bin = FALSE; // Reset 'bin' before reading file.
+    curwin->w_o_curbuf.wo_nu = 0; // No line numbers.
+    curwin->w_o_curbuf.wo_rnu = 0; // No relative line numbers.
 
-    RESET_BINDING(curwin);      // No scroll or cursor binding.
+    RESET_BINDING(curwin); // No scroll or cursor binding.
 
-    curwin->w_p_arab = FALSE;   // No arabic mode.
-    curwin->w_p_rl  = FALSE;    // Help window is left-to-right.
-    curwin->w_p_fen = FALSE;    // No folding in the help window.
-    curwin->w_p_diff = FALSE;   // No 'diff'.
-    curwin->w_p_spell = FALSE;  // No spell checking.
+    curwin->w_o_curbuf.wo_arab = FALSE; // No arabic mode.
+    curwin->w_o_curbuf.wo_rl = FALSE; // Help window is left-to-right.
+    curwin->w_o_curbuf.wo_fen = FALSE; // No folding in the help window.
+    curwin->w_o_curbuf.wo_diff = FALSE; // No 'diff'.
+    curwin->w_o_curbuf.wo_spell = FALSE; // No spell checking.
     set_buflisted(FALSE);
 }
 
@@ -7915,15 +7917,15 @@ FUNC_ATTR_NONNULL_ALL
         buf_open_scratch(preview_buf ? bufnr : 0, "[Preview]");
         buf_clear();
         preview_buf = curbuf;
-        bufnr = preview_buf->handle;
+        bufnr = preview_buf->b_id;
         curbuf->b_p_bl = false;
         curbuf->b_p_ma = true;
         curbuf->b_p_ul = -1;
         curbuf->b_p_tw = 0; // Reset 'textwidth' (was set by ftplugin)
-        curwin->w_p_cul = false;
-        curwin->w_p_cuc = false;
-        curwin->w_p_spell = false;
-        curwin->w_p_fen = false;
+        curwin->w_o_curbuf.wo_cul = false;
+        curwin->w_o_curbuf.wo_cuc = false;
+        curwin->w_o_curbuf.wo_spell = false;
+        curwin->w_o_curbuf.wo_fen = false;
 
         // Width of the "| lnum|..." column which displays the line numbers.
         linenum_kt highest_num_line = kv_last(*matched_lines).lnum;
@@ -8029,11 +8031,11 @@ void ex_substitute(exargs_st *eap)
     time_t save_b_u_time_cur = curbuf->b_u_time_cur;
     undo_hdr_st *save_b_u_newhead = curbuf->b_u_newhead;
     long save_b_p_ul = curbuf->b_p_ul;
-    int save_w_p_cul = curwin->w_p_cul;
-    int save_w_p_cuc = curwin->w_p_cuc;
+    int save_w_p_cul = curwin->w_o_curbuf.wo_cul;
+    int save_w_p_cuc = curwin->w_o_curbuf.wo_cuc;
     curbuf->b_p_ul = LONG_MAX; // make sure we can undo all changes
-    curwin->w_p_cul = false; // Disable 'cursorline'
-    curwin->w_p_cuc = false; // Disable 'cursorcolumn'
+    curwin->w_o_curbuf.wo_cul = false; // Disable 'cursorline'
+    curwin->w_o_curbuf.wo_cuc = false; // Disable 'cursorcolumn'
     filebuf_st *preview_buf = do_sub(eap, profile_setlimit(p_rdt));
 
     if(save_changedtick != curbuf->b_changedtick)
@@ -8059,8 +8061,8 @@ void ex_substitute(exargs_st *eap)
     }
 
     curbuf->b_p_ul = save_b_p_ul;
-    curwin->w_p_cul = save_w_p_cul; // Restore 'cursorline'
-    curwin->w_p_cuc = save_w_p_cuc; // Restore 'cursorcolumn'
+    curwin->w_o_curbuf.wo_cul = save_w_p_cul; // Restore 'cursorline'
+    curwin->w_o_curbuf.wo_cuc = save_w_p_cuc; // Restore 'cursorcolumn'
     eap->arg = save_eap;
     restore_search_patterns();
     win_size_restore(&save_view);

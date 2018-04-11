@@ -354,7 +354,7 @@ int readfile(uchar_kt *fname,
     curbuf->b_no_eol_lnum = 0; // in case it was set by the previous read
 
     // If there is no file name yet, use the one for the read file.
-    // BF_NOTEDITED is set to reflect this.
+    // kWBF_NotEdited is set to reflect this.
     // Don't do this for a read from a filter.
     // Only do this when 'cpoptions' contains the 'f' flag.
     if(curbuf->b_ffname == NULL
@@ -505,8 +505,8 @@ int readfile(uchar_kt *fname,
     // When opening a new file we take the readonly flag from the file.
     // Default is r/w, can be set to r/o below.
     // Don't reset it when in readonly mode
-    // Only set/reset b_p_ro when BF_CHECK_RO is set.
-    check_readonly = (newfile && (curbuf->b_flags & BF_CHECK_RO));
+    // Only set/reset b_p_ro when kWBF_CheckReadOnly is set.
+    check_readonly = (newfile && (curbuf->b_flags & kWBF_CheckReadOnly));
 
     if(check_readonly && !readonlymode)
     {
@@ -544,7 +544,7 @@ int readfile(uchar_kt *fname,
 
         // Reset the "new file" flag.
         // It will be set again below when the file doesn't exist.
-        curbuf->b_flags &= ~(BF_NEW | BF_NEW_W);
+        curbuf->b_flags &= ~(kWBF_NewFile | kWBF_NewFileWarn);
     }
 
     // Check readonly.
@@ -585,7 +585,7 @@ int readfile(uchar_kt *fname,
             {
                 // Set the 'new-file' flag, so that when the file has
                 // been created by someone else, a ":w" will complain.
-                curbuf->b_flags |= BF_NEW;
+                curbuf->b_flags |= kWBF_NewFile;
 
                 // Create a swap file now, so that other Vims are warned
                 // that we are editing this file.  Don't do this for a
@@ -2951,7 +2951,7 @@ int buf_write(filebuf_st *buf,
     ex_no_reprint = TRUE;
 
     // If there is no file name yet, use the one for the written file.
-    // BF_NOTEDITED is set to reflect this (in case the write fails).
+    // kWBF_NotEdited is set to reflect this (in case the write fails).
     // Don't do this when the write is for a filter command.
     // Don't do this when appending.
     // Only do this when 'cpoptions' contains the 'F' flag.
@@ -3155,11 +3155,11 @@ int buf_write(filebuf_st *buf,
 
                     if(append)
                     {
-                        buf->b_flags &= ~BF_NEW;
+                        buf->b_flags &= ~kWBF_NewFile;
                     }
                     else
                     {
-                        buf->b_flags &= ~BF_WRITE_MASK;
+                        buf->b_flags &= ~kWBF_WriteBufMask;
                     }
                 }
 
@@ -4565,18 +4565,18 @@ restore_backup:
     }
 
     // If written to the current file, update the timestamp of the swap file
-    // and reset the BF_WRITE_MASK flags. Also sets buf->b_mtime.
+    // and reset the kWBF_WriteBufMask flags. Also sets buf->b_mtime.
     if(overwriting)
     {
         ml_timestamp(buf);
 
         if(append)
         {
-            buf->b_flags &= ~BF_NEW;
+            buf->b_flags &= ~kWBF_NewFile;
         }
         else
         {
-            buf->b_flags &= ~BF_WRITE_MASK;
+            buf->b_flags &= ~kWBF_WriteBufMask;
         }
     }
 
@@ -4813,7 +4813,7 @@ static int set_rw_fname(uchar_kt *fname, uchar_kt *sfname)
 
     if(setfname(curbuf, fname, sfname, FALSE) == OK)
     {
-        curbuf->b_flags |= BF_NOTEDITED;
+        curbuf->b_flags |= kWBF_NotEdited;
     }
 
     // ....and a new named one is created
@@ -6196,7 +6196,7 @@ int buf_check_timestamp(filebuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
     fileinfo_st file_info;
     bool file_info_ok;
 
-    if(!(buf->b_flags & BF_NOTEDITED)
+    if(!(buf->b_flags & kWBF_NotEdited)
        && buf->b_mtime != 0
        && (!(file_info_ok = os_fileinfo((char *)buf->b_ffname, &file_info))
            || time_differs(file_info.stat.st_mtim.tv_sec, buf->b_mtime)
@@ -6334,12 +6334,12 @@ int buf_check_timestamp(filebuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
             }
         }
     }
-    else if((buf->b_flags & BF_NEW) && !(buf->b_flags & BF_NEW_W)
+    else if((buf->b_flags & kWBF_NewFile) && !(buf->b_flags & kWBF_NewFileWarn)
             && os_path_exists(buf->b_ffname))
     {
         retval = 1;
         mesg = _("W13: Warning: File \"%s\" has been created after editing started");
-        buf->b_flags |= BF_NEW_W;
+        buf->b_flags |= kWBF_NewFileWarn;
         can_reload = TRUE;
     }
 
@@ -6532,7 +6532,7 @@ void buf_reload(filebuf_st *buf, int orig_mode)
 
     if(saved == OK)
     {
-        curbuf->b_flags |= BF_CHECK_RO; // check for RO again
+        curbuf->b_flags |= kWBF_CheckReadOnly; // check for RO again
         keep_filetype = true; // don't detect 'filetype'
 
         if(readfile(buf->b_ffname,
@@ -7095,7 +7095,7 @@ void aubuflocal_remove(filebuf_st *buf)
     // invalidate currently executing autocommands
     for(apc = active_apc_list; apc; apc = apc->next)
     {
-        if(buf->b_fnum == apc->arg_bufnr)
+        if(buf->b_id == apc->arg_bufnr)
         {
             apc->arg_bufnr = 0;
         }
@@ -7109,7 +7109,7 @@ void aubuflocal_remove(filebuf_st *buf)
         // loop over all autocommand patterns
         for(ap = first_autopat[(int)event]; ap != NULL; ap = ap->next)
         {
-            if(ap->buflocal_nr == buf->b_fnum)
+            if(ap->buflocal_nr == buf->b_id)
             {
                 au_remove_pat(ap);
 
@@ -7119,7 +7119,7 @@ void aubuflocal_remove(filebuf_st *buf)
 
                     smsg(_("auto-removing autocommand: %s <buffer=%d>"),
                          event_nr2name(event),
-                         buf->b_fnum);
+                         buf->b_id);
 
                     verbose_leave();
                 }
@@ -7826,7 +7826,7 @@ static int do_autocmd_event(auto_event_et event,
             if(patlen == 8)
             {
                 // "<buffer>"
-                buflocal_nr = curbuf->b_fnum;
+                buflocal_nr = curbuf->b_id;
             }
             else if(patlen > 9 && pat[7] == '=')
             {
@@ -8617,7 +8617,7 @@ static bool apply_autocmds_group(auto_event_et event,
     }
     else
     {
-        autocmd_bufnr = buf->b_fnum;
+        autocmd_bufnr = buf->b_id;
     }
 
     // When the file name is NULL or empty, use the file name of buffer "buf".
@@ -9127,7 +9127,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
            && ap->cmds != NULL
            && (ap->buflocal_nr == 0
                ? match_file_pat(NULL, &ap->reg_prog, fname, sfname, tail, ap->allow_dirs)
-               : buf != NULL && ap->buflocal_nr == buf->b_fnum))
+               : buf != NULL && ap->buflocal_nr == buf->b_id))
         {
             retval = true;
             break;
@@ -9361,7 +9361,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
            && (pattern == NULL
                || (buflocal_buf == NULL
                    ? fnamecmp(ap->pat, (uchar_kt *)pattern) == 0
-                   : ap->buflocal_nr == buflocal_buf->b_fnum)))
+                   : ap->buflocal_nr == buflocal_buf->b_id)))
         {
             retval = true;
             break;

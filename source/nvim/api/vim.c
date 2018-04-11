@@ -583,7 +583,7 @@ FUNC_API_SINCE(1)
 
     FOR_ALL_BUFFERS(b)
     {
-        rv.items[i++] = BUFFER_OBJ(b->handle);
+        rv.items[i++] = BUFFER_OBJ(b->b_id);
     }
 
     return rv;
@@ -595,7 +595,7 @@ FUNC_API_SINCE(1)
 Buffer nvim_get_current_buf(void)
 FUNC_API_SINCE(1)
 {
-    return curbuf->handle;
+    return curbuf->b_id;
 }
 
 /// Sets the current buffer
@@ -614,7 +614,7 @@ FUNC_API_SINCE(1)
 
     try_start();
 
-    int result = do_buffer(DOBUF_GOTO, DOBUF_FIRST, FORWARD, buf->b_fnum, 0);
+    int result = do_buffer(DOBUF_GOTO, DOBUF_FIRST, FORWARD, buf->b_id, 0);
 
     if(!try_end(err) && result == FAIL)
     {

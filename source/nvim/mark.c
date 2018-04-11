@@ -48,7 +48,7 @@ static xfilemark_st namedfm[NGLOBALMARKS];
 /// Returns OK on success, FAIL if bad name given.
 int setmark(int c)
 {
-    return setmark_pos(c, &curwin->w_cursor, curbuf->b_fnum);
+    return setmark_pos(c, &curwin->w_cursor, curbuf->b_id);
 }
 
 /// Free mark_st item
@@ -104,7 +104,7 @@ int setmark_pos(int c, apos_st *pos, int fnum)
 
     if(c == '"')
     {
-        RESET_FMARK(&curbuf->b_last_cursor, *pos, curbuf->b_fnum);
+        RESET_FMARK(&curbuf->b_last_cursor, *pos, curbuf->b_id);
         return OK;
     }
 
@@ -204,7 +204,7 @@ void setpcmark(void)
     curwin->w_jumplistidx = curwin->w_jumplistlen;
     fm = &curwin->w_jumplist[curwin->w_jumplistlen - 1];
 
-    SET_XFMARK(fm, curwin->w_pcmark, curbuf->b_fnum, NULL);
+    SET_XFMARK(fm, curwin->w_pcmark, curbuf->b_id, NULL);
 }
 
 /// To change context, call setpcmark(), then move the current position to
@@ -264,7 +264,7 @@ apos_st *movemark(int count)
             fname2fnum(jmp);
         }
 
-        if(jmp->fmark.fnum != curbuf->b_fnum)
+        if(jmp->fmark.fnum != curbuf->b_id)
         {
             // jump to other file
             if(buflist_findnr(jmp->fmark.fnum) == NULL) // Skip this one ..
@@ -484,7 +484,7 @@ apos_st *getmark_buf_fnum(filebuf_st *buf, int c, int changefile, int *fnum)
         {
             *fnum = namedfm[c].fmark.fnum;
         }
-        else if(namedfm[c].fmark.fnum != buf->b_fnum)
+        else if(namedfm[c].fmark.fnum != buf->b_id)
         {
             // mark is in another file
             posp = &pos_copy;
@@ -636,7 +636,7 @@ static void fmarks_check_one(xfilemark_st *fm, uchar_kt *name, filebuf_st *buf)
        && fm->fname != NULL
        && fnamecmp(name, fm->fname) == 0)
     {
-        fm->fmark.fnum = buf->b_fnum;
+        fm->fmark.fnum = buf->b_id;
         xfree(fm->fname);
         fm->fname = NULL;
     }
@@ -707,7 +707,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Returns an allocated string.
 uchar_kt *fm_getname(mark_st *fmark, int lead_len)
 {
-    if(fmark->fnum == curbuf->b_fnum) // current buffer
+    if(fmark->fnum == curbuf->b_id) // current buffer
     {
         return mark_line(&(fmark->mark), lead_len);
     }
@@ -783,7 +783,7 @@ void do_marks(exargs_st *eap)
                           arg,
                           &namedfm[i].fmark.mark,
                           name,
-                          namedfm[i].fmark.fnum == curbuf->b_fnum);
+                          namedfm[i].fmark.fnum == curbuf->b_id);
 
             if(namedfm[i].fmark.fnum != 0)
             {
@@ -1042,7 +1042,7 @@ void ex_jumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
             msg_outtrans(IObuff);
 
             msg_outtrans_attr(name,
-                              curwin->w_jumplist[i].fmark.fnum == curbuf->b_fnum
+                              curwin->w_jumplist[i].fmark.fnum == curbuf->b_id
                               ? hl_attr(HLF_D) : 0);
             xfree(name);
             os_breakcheck();
@@ -1191,7 +1191,7 @@ static void mark_adjust_internal(linenum_kt line1,
                                  bool adjust_folds)
 {
     int i;
-    int fnum = curbuf->b_fnum;
+    int fnum = curbuf->b_id;
     linenum_kt *lp;
     static apos_st initpos = INIT_POS_T(1, 0, 0);
 
@@ -1400,7 +1400,7 @@ void mark_col_adjust(linenum_kt lnum,
                      long col_amount)
 {
     int i;
-    int fnum = curbuf->b_fnum;
+    int fnum = curbuf->b_id;
     apos_st *posp;
 
     if((col_amount == 0L && lnum_amount == 0L) || cmdmod.lockmarks)

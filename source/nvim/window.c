@@ -181,7 +181,7 @@ newwindow:
             wp = NULL;
             FOR_ALL_WINDOWS_IN_TAB(wp2, curtab)
             {
-                if(wp2->w_p_pvw)
+                if(wp2->w_o_curbuf.wo_pvw)
                 {
                     wp = wp2;
                     break;
@@ -803,7 +803,7 @@ int win_split_ins(int size, int flags, win_st *new_wp, int dir)
         // We don't like to take lines for the new window from a
         // 'winfixwidth' window. Take them from a window to the
         // left or right instead, if possible.
-        if(oldwin->w_p_wfw)
+        if(oldwin->w_o_curbuf.wo_wfw)
         {
             win_setwidth_win(oldwin->w_width + new_size, oldwin);
         }
@@ -922,7 +922,7 @@ int win_split_ins(int size, int flags, win_st *new_wp, int dir)
         // We don't like to take lines for the new window from a
         // 'winfixheight' window. Take them from a window above or below
         // instead, if possible.
-        if(oldwin->w_p_wfh)
+        if(oldwin->w_o_curbuf.wo_wfh)
         {
             win_setheight_win(oldwin->w_height
                               + new_size
@@ -1108,7 +1108,7 @@ int win_split_ins(int size, int flags, win_st *new_wp, int dir)
 
     if(flags & WSP_VERT)
     {
-        wp->w_p_scr = curwin->w_p_scr;
+        wp->w_o_curbuf.wo_scr = curwin->w_o_curbuf.wo_scr;
 
         if(need_status)
         {
@@ -2635,7 +2635,7 @@ int win_close(win_st *win, int free_buf)
     {
         curwin = wp;
 
-        if(wp->w_p_pvw || bt_quickfix(wp->w_buffer))
+        if(wp->w_o_curbuf.wo_pvw || bt_quickfix(wp->w_buffer))
         {
             // If the cursor goes to the preview or the quickfix
             // window, try finding another window to go to.
@@ -2655,7 +2655,7 @@ int win_close(win_st *win, int free_buf)
                     break;
                 }
 
-                if(!wp->w_p_pvw && !bt_quickfix(wp->w_buffer))
+                if(!wp->w_o_curbuf.wo_pvw && !bt_quickfix(wp->w_buffer))
                 {
                     curwin = wp;
                     break;
@@ -2880,7 +2880,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
         // When 'winfixheight' is set, try to find another
         // frame in the column (as close to the closed frame
         // as possible) to distribute the height to.
-        if(frp2->fr_win != NULL && frp2->fr_win->w_p_wfh)
+        if(frp2->fr_win != NULL && frp2->fr_win->w_o_curbuf.wo_wfh)
         {
             frp = frp_close->fr_prev;
             frp3 = frp_close->fr_next;
@@ -2889,7 +2889,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
             {
                 if(frp != NULL)
                 {
-                    if(frp->fr_win != NULL && !frp->fr_win->w_p_wfh)
+                    if(frp->fr_win != NULL && !frp->fr_win->w_o_curbuf.wo_wfh)
                     {
                         frp2 = frp;
                         wp = frp->fr_win;
@@ -2901,7 +2901,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
 
                 if(frp3 != NULL)
                 {
-                    if(frp3->fr_win != NULL && !frp3->fr_win->w_p_wfh)
+                    if(frp3->fr_win != NULL && !frp3->fr_win->w_o_curbuf.wo_wfh)
                     {
                         frp2 = frp3;
                         wp = frp3->fr_win;
@@ -2924,7 +2924,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
         // When 'winfixwidth' is set, try to find another frame in
         // the column (as close to the closed frame as possible)
         // to distribute the width to.
-        if(frp2->fr_win != NULL && frp2->fr_win->w_p_wfw)
+        if(frp2->fr_win != NULL && frp2->fr_win->w_o_curbuf.wo_wfw)
         {
             frp = frp_close->fr_prev;
             frp3 = frp_close->fr_next;
@@ -2933,7 +2933,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
             {
                 if(frp != NULL)
                 {
-                    if(frp->fr_win != NULL && !frp->fr_win->w_p_wfw)
+                    if(frp->fr_win != NULL && !frp->fr_win->w_o_curbuf.wo_wfw)
                     {
                         frp2 = frp;
                         wp = frp->fr_win;
@@ -2945,7 +2945,7 @@ win_st *winframe_remove(win_st *win, int *dirp,tabpage_st *tp)
 
                 if(frp3 != NULL)
                 {
-                    if(frp3->fr_win != NULL && !frp3->fr_win->w_p_wfw)
+                    if(frp3->fr_win != NULL && !frp3->fr_win->w_o_curbuf.wo_wfw)
                     {
                         frp2 = frp3;
                         wp = frp3->fr_win;
@@ -3278,7 +3278,7 @@ FUNC_ATTR_NONNULL_ALL
     // frame with one window: fixed height if 'winfixheight' set.
     if(frp->fr_win != NULL)
     {
-        return frp->fr_win->w_p_wfh;
+        return frp->fr_win->w_o_curbuf.wo_wfh;
     }
 
     if(frp->fr_layout == FR_ROW)
@@ -3323,7 +3323,7 @@ FUNC_ATTR_NONNULL_ALL
     // frame with one window: fixed width if 'winfixwidth' set.
     if(frp->fr_win != NULL)
     {
-        return frp->fr_win->w_p_wfw;
+        return frp->fr_win->w_o_curbuf.wo_wfw;
     }
 
     if(frp->fr_layout == FR_COL)
@@ -3806,7 +3806,7 @@ void win_init_empty(win_st *wp)
     wp->w_topfill = 0;
     wp->w_botline = 2;
 
-    if(wp->w_p_rl)
+    if(wp->w_o_curbuf.wo_rl)
     {
         wp->w_farsi = W_CONV + W_R_L;
     }
@@ -3869,7 +3869,7 @@ static int win_alloc_firstwin(win_st *oldwin)
         curwin->w_buffer = curbuf;
         curwin->w_s = &(curbuf->b_s);
         curbuf->b_nwindows = 1; // there is one window
-        curwin->w_alist = &global_alist;
+        curwin->w_alist = &g_arglist;
         curwin_init(); // init current window
     }
     else
@@ -4510,12 +4510,12 @@ void win_goto(win_st *wp)
     win_enter(wp, true);
 
     // Conceal cursor line in previous window, unconceal in current window.
-    if(win_valid(owp) && owp->w_p_cole > 0 && !msg_scrolled)
+    if(win_valid(owp) && owp->w_o_curbuf.wo_cole > 0 && !msg_scrolled)
     {
         update_single_line(owp, owp->w_cursor.lnum);
     }
 
-    if(curwin->w_p_cole > 0 && !msg_scrolled)
+    if(curwin->w_o_curbuf.wo_cole > 0 && !msg_scrolled)
     {
         need_cursor_line_redraw = TRUE;
     }
@@ -4874,7 +4874,7 @@ static void win_enter_ext(win_st *wp,
     }
 
     // set window height to desired minimal value
-    if(curwin->w_height < p_wh && !curwin->w_p_wfh)
+    if(curwin->w_height < p_wh && !curwin->w_o_curbuf.wo_wfh)
     {
         win_setheight((int)p_wh);
     }
@@ -4884,7 +4884,7 @@ static void win_enter_ext(win_st *wp,
     }
 
     // set window width to desired minimal value
-    if(curwin->w_width < p_wiw && !curwin->w_p_wfw)
+    if(curwin->w_width < p_wiw && !curwin->w_o_curbuf.wo_wfw)
     {
         win_setwidth((int)p_wiw);
     }
@@ -5029,8 +5029,8 @@ static void win_free(win_st *wp, tabpage_st *tp)
     // Don't execute autocommands while the window is halfway being deleted.
     // gui_mch_destroy_scrollbar() may trigger a FocusGained event.
     block_autocmds();
-    clear_winopt(&wp->w_onebuf_opt);
-    clear_winopt(&wp->w_allbuf_opt);
+    clear_winopt(&wp->w_o_curbuf);
+    clear_winopt(&wp->w_o_allbuf);
     vars_clear(&wp->w_vars->dv_hashtab); // free all w: variables
     hash_init(&wp->w_vars->dv_hashtab);
     unref_var_dict(wp->w_vars);
@@ -5491,7 +5491,7 @@ static void frame_setheight(frame_st *curfrp, int height)
             {
                 if(frp != curfrp
                    && frp->fr_win != NULL
-                   && frp->fr_win->w_p_wfh)
+                   && frp->fr_win->w_o_curbuf.wo_wfh)
                 {
                     room_reserved += frp->fr_height;
                 }
@@ -5597,7 +5597,7 @@ static void frame_setheight(frame_st *curfrp, int height)
 
                 if(room_reserved > 0
                    && frp->fr_win != NULL
-                   && frp->fr_win->w_p_wfh)
+                   && frp->fr_win->w_o_curbuf.wo_wfh)
                 {
                     if(room_reserved >= frp->fr_height)
                     {
@@ -5729,7 +5729,7 @@ static void frame_setwidth(frame_st *curfrp, int width)
             {
                 if(frp != curfrp
                    && frp->fr_win != NULL
-                   && frp->fr_win->w_p_wfw)
+                   && frp->fr_win->w_o_curbuf.wo_wfw)
                 {
                     room_reserved += frp->fr_width;
                 }
@@ -5807,7 +5807,7 @@ static void frame_setwidth(frame_st *curfrp, int width)
 
                 if(room_reserved > 0
                    && frp->fr_win != NULL
-                   && frp->fr_win->w_p_wfw)
+                   && frp->fr_win->w_o_curbuf.wo_wfw)
                 {
                     if(room_reserved >= frp->fr_width)
                     {
@@ -6273,7 +6273,7 @@ void scroll_to_fraction(win_st *wp, int prev_height)
 
     // Don't change w_topline when height is zero. Don't set w_topline when
     // 'scrollbind' is set and this isn't the current window.
-    if(height > 0 && (!wp->w_p_scb || wp == curwin))
+    if(height > 0 && (!wp->w_o_curbuf.wo_scb || wp == curwin))
     {
         // Find a value for w_topline that shows the cursor at the same
         // relative position in the window as before (more or less).
@@ -6429,11 +6429,11 @@ void win_new_width(win_st *wp, int width)
 
 void win_comp_scroll(win_st *wp)
 {
-    wp->w_p_scr = wp->w_height / 2;
+    wp->w_o_curbuf.wo_scr = wp->w_height / 2;
 
-    if(wp->w_p_scr == 0)
+    if(wp->w_o_curbuf.wo_scr == 0)
     {
-        wp->w_p_scr = 1;
+        wp->w_o_curbuf.wo_scr = 1;
     }
 }
 
@@ -6458,7 +6458,7 @@ void command_height(void)
     // Avoid changing the height of a window with 'winfixheight' set.
     while(frp->fr_prev != NULL
           && frp->fr_layout == FR_LEAF
-          && frp->fr_win->w_p_wfh)
+          && frp->fr_win->w_o_curbuf.wo_wfh)
     {
         frp = frp->fr_prev;
     }
@@ -6863,7 +6863,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         if(wp->w_buffer != NULL
            && (!((wp->w_buffer->b_help && !curbuf->b_help)
-                 || wp->w_p_pvw)
+                 || wp->w_o_curbuf.wo_pvw)
                || wp == curwin)
            && wp != aucmd_win)
         {
@@ -7239,7 +7239,7 @@ int match_add(win_st *wp,
         int i;
 
         for(i = 0, li = pos_list->lv_first;
-            li != NULL && i < MAXPOSMATCH;
+            li != NULL && i < MAX_POS_NUM_MATCH;
             i++, li = li->li_next)
         {
             linenum_kt lnum = 0;
@@ -7708,7 +7708,7 @@ void win_findbuf(typval_st *argvars, list_st *list)
 
     FOR_ALL_TAB_WINDOWS(tp, wp)
     {
-        if(wp->w_buffer->b_fnum == bufnr)
+        if(wp->w_buffer->b_id == bufnr)
         {
             tv_list_append_number(list, wp->handle);
         }

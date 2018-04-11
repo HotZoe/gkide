@@ -1646,7 +1646,7 @@ int do_set(uchar_kt *arg,  int opt_flags)
                 // In diff mode some options are overruled. This avoids that
                 // 'foldmethod' becomes "marker" instead of "diff" and that
                 // "wrap" gets set.
-                if(curwin->w_p_diff
+                if(curwin->w_o_curbuf.wo_diff
                    && opt_idx >= 0 // shut up coverity warning
                    && (options[opt_idx].indir == PV_FDM
                        || options[opt_idx].indir == PV_WRAP))
@@ -1720,13 +1720,13 @@ int do_set(uchar_kt *arg,  int opt_flags)
                         }
                         else if((int)options[opt_idx].indir & PV_WIN)
                         {
-                            last_set_msg(curwin->w_p_scriptID[
-                                (int)options[opt_idx].indir & PV_MASK]);
+                            int idx = options[opt_idx].indir & PV_MASK;
+                            last_set_msg(curwin->w_o_curbuf.wo_scriptID[idx]);
                         }
                         else if((int)options[opt_idx].indir & PV_BUF)
                         {
-                            last_set_msg(curbuf->b_p_scriptID[
-                                (int)options[opt_idx].indir & PV_MASK]);
+                            int idx = options[opt_idx].indir & PV_MASK;
+                            last_set_msg(curbuf->b_p_scriptID[idx]);
                         }
                     }
                 }
@@ -3185,7 +3185,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'breakindentopt'
-    else if(varp == &curwin->w_p_briopt)
+    else if(varp == &curwin->w_o_curbuf.wo_briopt)
     {
         if(briopt_check(curwin) == FAIL)
         {
@@ -3223,7 +3223,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'colorcolumn'
-    else if(varp == &curwin->w_p_cc)
+    else if(varp == &curwin->w_o_curbuf.wo_cc)
     {
         errmsg = check_colorcolumn(curwin);
     }
@@ -3375,7 +3375,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
     {
         if(gvarp == &p_fenc)
         {
-            if(!MODIFIABLE(curbuf) && opt_flags != OPT_GLOBAL)
+            if(!curbuf->b_p_ma && opt_flags != OPT_GLOBAL)
             {
                 errmsg = e_modifiable;
             }
@@ -3470,7 +3470,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
     // 'fileformat'
     else if(gvarp == &p_ff)
     {
-        if(!MODIFIABLE(curbuf) && !(opt_flags & OPT_GLOBAL))
+        if(!curbuf->b_p_ma && !(opt_flags & OPT_GLOBAL))
         {
             errmsg = e_modifiable;
         }
@@ -4022,7 +4022,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
             completeopt_was_set();
         }
     }
-    else if(varp == &curwin->w_p_scl)
+    else if(varp == &curwin->w_o_curbuf.wo_scl)
     {
         // 'signcolumn'
         if(check_opt_strings(*varp, p_scl_values, false) != OK)
@@ -4115,10 +4115,10 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'foldmethod'
-    else if(gvarp == &curwin->w_allbuf_opt.wo_fdm)
+    else if(gvarp == &curwin->w_o_allbuf.wo_fdm)
     {
         if(check_opt_strings(*varp, p_fdm_values, FALSE) != OK
-           || *curwin->w_p_fdm == NUL)
+           || *curwin->w_o_curbuf.wo_fdm == NUL)
         {
             errmsg = e_invarg;
         }
@@ -4133,7 +4133,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'foldexpr'
-    else if(varp == &curwin->w_p_fde)
+    else if(varp == &curwin->w_o_curbuf.wo_fde)
     {
         if(foldmethodIsExpr(curwin))
         {
@@ -4141,7 +4141,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'foldmarker'
-    else if(gvarp == &curwin->w_allbuf_opt.wo_fmr)
+    else if(gvarp == &curwin->w_o_allbuf.wo_fmr)
     {
         p = vim_strchr(*varp, ',');
 
@@ -4183,7 +4183,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         }
     }
     // 'foldignore'
-    else if(gvarp == &curwin->w_allbuf_opt.wo_fdi)
+    else if(gvarp == &curwin->w_o_allbuf.wo_fdi)
     {
         if(foldmethodIsIndent(curwin))
         {
@@ -4260,7 +4260,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
             errmsg = e_invarg;
         }
     }
-    else if(varp == &curwin->w_p_winhl)
+    else if(varp == &curwin->w_o_curbuf.wo_winhl)
     {
         if(!parse_winhl_opt(curwin))
         {
@@ -4289,7 +4289,7 @@ static uchar_kt *did_set_string_option(int opt_idx,
         {
             p = (uchar_kt *)FO_ALL;
         }
-        else if(varp == &curwin->w_p_cocu)
+        else if(varp == &curwin->w_o_curbuf.wo_cocu)
         {
             p = (uchar_kt *)COCU_ALL;
         }
@@ -4455,7 +4455,7 @@ uchar_kt *check_colorcolumn(win_st *wp)
         return NULL; // buffer was closed
     }
 
-    for(s = wp->w_p_cc; *s != NUL && count < 255;)
+    for(s = wp->w_o_curbuf.wo_cc; *s != NUL && count < 255;)
     {
         if(*s == '-' || *s == '+')
         {
@@ -4826,7 +4826,7 @@ static uchar_kt *did_set_spell_option(bool is_spellfile)
     {
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_buffer == curbuf && wp->w_p_spell)
+            if(wp->w_buffer == curbuf && wp->w_o_curbuf.wo_spell)
             {
                 errmsg = did_set_spelllang(wp);
                 break;
@@ -4874,7 +4874,7 @@ static uchar_kt *compile_cap_prog(synblk_st *synblock)
 static bool parse_winhl_opt(win_st *wp)
 {
     int w_hl_id = 0, w_hl_id_inactive = 0;
-    const char *p = (const char *)wp->w_p_winhl;
+    const char *p = (const char *)wp->w_o_curbuf.wo_winhl;
 
     while(*p)
     {
@@ -4937,7 +4937,7 @@ static void set_option_scriptID_idx(int opt_idx, int opt_flags, int id)
         }
         else if(indir & PV_WIN)
         {
-            curwin->w_p_scriptID[indir & PV_MASK] = id;
+            curwin->w_o_curbuf.wo_scriptID[indir & PV_MASK] = id;
         }
     }
 }
@@ -5156,24 +5156,24 @@ static char *set_bool_option(const int opt_idx,
     }
     // when 'scrollbind' is set: snapshot the current position
     // to avoid a jump at the end of normal_cmd()
-    else if((int *)varp == &curwin->w_p_scb)
+    else if((int *)varp == &curwin->w_o_curbuf.wo_scb)
     {
-        if(curwin->w_p_scb)
+        if(curwin->w_o_curbuf.wo_scb)
         {
             do_check_scrollbind(FALSE);
             curwin->w_scbind_pos = curwin->w_topline;
         }
     }
     // There can be only one window with 'previewwindow' set.
-    else if((int *)varp == &curwin->w_p_pvw)
+    else if((int *)varp == &curwin->w_o_curbuf.wo_pvw)
     {
-        if(curwin->w_p_pvw)
+        if(curwin->w_o_curbuf.wo_pvw)
         {
             FOR_ALL_WINDOWS_IN_TAB(win, curtab)
             {
-                if(win->w_p_pvw && win != curwin)
+                if(win->w_o_curbuf.wo_pvw && win != curwin)
                 {
-                    curwin->w_p_pvw = false;
+                    curwin->w_o_curbuf.wo_pvw = false;
                     return N_("E590: A preview window already exists");
                 }
             }
@@ -5231,9 +5231,9 @@ static char *set_bool_option(const int opt_idx,
 #endif
 
     // If 'wrap' is set, set w_leftcol to zero.
-    else if((int *)varp == &curwin->w_p_wrap)
+    else if((int *)varp == &curwin->w_o_curbuf.wo_wrap)
     {
-        if(curwin->w_p_wrap)
+        if(curwin->w_o_curbuf.wo_wrap)
         {
             curwin->w_leftcol = 0;
         }
@@ -5252,7 +5252,7 @@ static char *set_bool_option(const int opt_idx,
         do_autochdir();
     }
     // 'diff'
-    else if((int *)varp == &curwin->w_p_diff)
+    else if((int *)varp == &curwin->w_o_curbuf.wo_diff)
     {
         // May add or remove the buffer
         // from the list of diff buffers.
@@ -5264,9 +5264,9 @@ static char *set_bool_option(const int opt_idx,
         }
     }
     // 'spell'
-    else if((int *)varp == &curwin->w_p_spell)
+    else if((int *)varp == &curwin->w_o_curbuf.wo_spell)
     {
-        if(curwin->w_p_spell)
+        if(curwin->w_o_curbuf.wo_spell)
         {
             uchar_kt *errmsg = did_set_spelllang(curwin);
 
@@ -5302,7 +5302,7 @@ static char *set_bool_option(const int opt_idx,
     if((p_hkmap || p_fkmap) && p_altkeymap)
     {
         p_altkeymap = p_fkmap;
-        curwin->w_p_arab = FALSE;
+        curwin->w_o_curbuf.wo_arab = FALSE;
         (void)init_chartab();
     }
 
@@ -5311,7 +5311,7 @@ static char *set_bool_option(const int opt_idx,
     {
         p_altkeymap = 0;
         p_fkmap = 0;
-        curwin->w_p_arab = FALSE;
+        curwin->w_o_curbuf.wo_arab = FALSE;
         (void)init_chartab();
     }
 
@@ -5320,21 +5320,21 @@ static char *set_bool_option(const int opt_idx,
     {
         p_altkeymap = 1;
         p_hkmap = 0;
-        curwin->w_p_arab = FALSE;
+        curwin->w_o_curbuf.wo_arab = FALSE;
         (void)init_chartab();
     }
 
-    if((int *)varp == &curwin->w_p_arab)
+    if((int *)varp == &curwin->w_o_curbuf.wo_arab)
     {
-        if(curwin->w_p_arab)
+        if(curwin->w_o_curbuf.wo_arab)
         {
             // 'arabic' is set, handle various sub-settings.
             if(!p_tbidi)
             {
                 // set rightleft mode
-                if(!curwin->w_p_rl)
+                if(!curwin->w_o_curbuf.wo_rl)
                 {
-                    curwin->w_p_rl = TRUE;
+                    curwin->w_o_curbuf.wo_rl = TRUE;
                     changed_window_setting();
                 }
 
@@ -5377,9 +5377,9 @@ static char *set_bool_option(const int opt_idx,
             if(!p_tbidi)
             {
                 // reset rightleft mode
-                if(curwin->w_p_rl)
+                if(curwin->w_o_curbuf.wo_rl)
                 {
-                    curwin->w_p_rl = FALSE;
+                    curwin->w_o_curbuf.wo_rl = FALSE;
                     changed_window_setting();
                 }
 
@@ -5580,22 +5580,22 @@ static char *set_num_option(int opt_idx,
         shell_new_rows();
     }
     // 'foldlevel'
-    else if(pp == &curwin->w_p_fdl)
+    else if(pp == &curwin->w_o_curbuf.wo_fdl)
     {
-        if(curwin->w_p_fdl < 0)
+        if(curwin->w_o_curbuf.wo_fdl < 0)
         {
-            curwin->w_p_fdl = 0;
+            curwin->w_o_curbuf.wo_fdl = 0;
         }
 
         newFoldLevel();
     }
     // 'foldminlines'
-    else if(pp == &curwin->w_p_fml)
+    else if(pp == &curwin->w_o_curbuf.wo_fml)
     {
         foldUpdateAll(curwin);
     }
     // 'foldnestmax'
-    else if(pp == &curwin->w_p_fdn)
+    else if(pp == &curwin->w_o_curbuf.wo_fdn)
     {
         if(foldmethodIsSyntax(curwin) || foldmethodIsIndent(curwin))
         {
@@ -5603,17 +5603,17 @@ static char *set_num_option(int opt_idx,
         }
     }
     // 'foldcolumn'
-    else if(pp == &curwin->w_p_fdc)
+    else if(pp == &curwin->w_o_curbuf.wo_fdc)
     {
-        if(curwin->w_p_fdc < 0)
+        if(curwin->w_o_curbuf.wo_fdc < 0)
         {
             errmsg = e_positive;
-            curwin->w_p_fdc = 0;
+            curwin->w_o_curbuf.wo_fdc = 0;
         }
-        else if(curwin->w_p_fdc > 12)
+        else if(curwin->w_o_curbuf.wo_fdc > 12)
         {
             errmsg = e_invarg;
-            curwin->w_p_fdc = 12;
+            curwin->w_o_curbuf.wo_fdc = 12;
         }
 
         // 'shiftwidth' or 'tabstop'
@@ -5732,17 +5732,17 @@ static char *set_num_option(int opt_idx,
             ml_open_files();
         }
     }
-    else if(pp == &curwin->w_p_cole)
+    else if(pp == &curwin->w_o_curbuf.wo_cole)
     {
-        if(curwin->w_p_cole < 0)
+        if(curwin->w_o_curbuf.wo_cole < 0)
         {
             errmsg = e_positive;
-            curwin->w_p_cole = 0;
+            curwin->w_o_curbuf.wo_cole = 0;
         }
-        else if(curwin->w_p_cole > 3)
+        else if(curwin->w_o_curbuf.wo_cole > 3)
         {
             errmsg = e_invarg;
-            curwin->w_p_cole = 3;
+            curwin->w_o_curbuf.wo_cole = 3;
         }
     }
     // sync undo before 'undolevels' changes
@@ -5763,18 +5763,18 @@ static char *set_num_option(int opt_idx,
         curbuf->b_p_ul = value;
     }
     // 'numberwidth' must be positive
-    else if(pp == &curwin->w_p_nuw)
+    else if(pp == &curwin->w_o_curbuf.wo_nuw)
     {
-        if(curwin->w_p_nuw < 1)
+        if(curwin->w_o_curbuf.wo_nuw < 1)
         {
             errmsg = e_positive;
-            curwin->w_p_nuw = 1;
+            curwin->w_o_curbuf.wo_nuw = 1;
         }
 
-        if(curwin->w_p_nuw > 10)
+        if(curwin->w_o_curbuf.wo_nuw > 10)
         {
             errmsg = e_invarg;
-            curwin->w_p_nuw = 10;
+            curwin->w_o_curbuf.wo_nuw = 10;
         }
 
         curwin->w_nrwidth_line_count = 0;
@@ -5889,14 +5889,14 @@ static char *set_num_option(int opt_idx,
         p_tm = 0;
     }
 
-    if((curwin->w_p_scr <= 0
-        || (curwin->w_p_scr > curwin->w_height
+    if((curwin->w_o_curbuf.wo_scr <= 0
+        || (curwin->w_o_curbuf.wo_scr > curwin->w_height
             && curwin->w_height > 0))
        && full_screen)
     {
-        if(pp == &(curwin->w_p_scr))
+        if(pp == &(curwin->w_o_curbuf.wo_scr))
         {
-            if(curwin->w_p_scr != 0)
+            if(curwin->w_o_curbuf.wo_scr != 0)
             {
                 errmsg = e_scroll;
             }
@@ -5905,14 +5905,14 @@ static char *set_num_option(int opt_idx,
         }
         // If 'scroll' became invalid because
         // of a side effect silently adjust it.
-        else if(curwin->w_p_scr <= 0)
+        else if(curwin->w_o_curbuf.wo_scr <= 0)
         {
-            curwin->w_p_scr = 1;
+            curwin->w_o_curbuf.wo_scr = 1;
         }
         else
         {
-            // curwin->w_p_scr > curwin->w_height
-            curwin->w_p_scr = curwin->w_height;
+            // curwin->w_o_curbuf.wo_scr > curwin->w_height
+            curwin->w_o_curbuf.wo_scr = curwin->w_height;
         }
     }
 
@@ -6979,11 +6979,11 @@ int makeset(FILE *fd, int opt_flags, int local_only)
                             do_endif = true;
                         }
 
-                        if(put_setstring(fd,
-                                         cmd,
-                                         p->fullname,
-                                         (uchar_kt **)varp,
-                                         (p->flags & P_EXPAND) != 0) == FAIL)
+                        if(put_setstr(fd,
+                                      cmd,
+                                      p->fullname,
+                                      (uchar_kt **)varp,
+                                      (p->flags & P_EXPAND) != 0) == FAIL)
                         {
                             return FAIL;
                         }
@@ -7010,14 +7010,14 @@ int makeset(FILE *fd, int opt_flags, int local_only)
 /// "folds" but not "options".
 int makefoldset(FILE *fd)
 {
-    if(put_setstring(fd, "setlocal", "fdm", &curwin->w_p_fdm, FALSE) == FAIL
-       || put_setstring(fd, "setlocal", "fde", &curwin->w_p_fde, FALSE) == FAIL
-       || put_setstring(fd, "setlocal", "fmr", &curwin->w_p_fmr, FALSE) == FAIL
-       || put_setstring(fd, "setlocal", "fdi", &curwin->w_p_fdi, FALSE) == FAIL
-       || put_setnum(fd, "setlocal", "fdl", &curwin->w_p_fdl) == FAIL
-       || put_setnum(fd, "setlocal", "fml", &curwin->w_p_fml) == FAIL
-       || put_setnum(fd, "setlocal", "fdn", &curwin->w_p_fdn) == FAIL
-       || put_setbool(fd, "setlocal", "fen", curwin->w_p_fen) == FAIL
+    if(put_setstr(fd, "setlocal", "fdm", &curwin->w_o_curbuf.wo_fdm, FALSE) == FAIL
+       || put_setstr(fd, "setlocal", "fde", &curwin->w_o_curbuf.wo_fde, FALSE) == FAIL
+       || put_setstr(fd, "setlocal", "fmr", &curwin->w_o_curbuf.wo_fmr, FALSE) == FAIL
+       || put_setstr(fd, "setlocal", "fdi", &curwin->w_o_curbuf.wo_fdi, FALSE) == FAIL
+       || put_setnum(fd, "setlocal", "fdl", &curwin->w_o_curbuf.wo_fdl) == FAIL
+       || put_setnum(fd, "setlocal", "fml", &curwin->w_o_curbuf.wo_fml) == FAIL
+       || put_setnum(fd, "setlocal", "fdn", &curwin->w_o_curbuf.wo_fdn) == FAIL
+       || put_setbool(fd, "setlocal", "fen", curwin->w_o_curbuf.wo_fen) == FAIL
       )
     {
         return FAIL;
@@ -7026,11 +7026,11 @@ int makefoldset(FILE *fd)
     return OK;
 }
 
-static int put_setstring(FILE *fd,
-                         char *cmd,
-                         char *name,
-                         uchar_kt **valuep,
-                         int expand)
+static int put_setstr(FILE *fd,
+                      char *cmd,
+                      char *name,
+                      uchar_kt **valuep,
+                      int expand)
 {
     uchar_kt *s;
     uchar_kt *buf;
@@ -7274,7 +7274,7 @@ void unset_global_local_option(char *name, void *from)
             break;
 
         case PV_STL:
-            clear_string_option(&((win_st *)from)->w_p_stl);
+            clear_string_option(&((win_st *)from)->w_o_curbuf.wo_stl);
             break;
 
         case PV_UL:
@@ -7347,7 +7347,7 @@ static uchar_kt *get_varp_scope(vimoption_st *p, int opt_flags)
                 return (uchar_kt *)&(curbuf->b_p_tsr);
 
             case PV_STL:
-                return (uchar_kt *)&(curwin->w_p_stl);
+                return (uchar_kt *)&(curwin->w_o_curbuf.wo_stl);
 
             case PV_UL:
                 return (uchar_kt *)&(curbuf->b_p_ul);
@@ -7443,8 +7443,8 @@ static uchar_kt *get_varp(vimoption_st *p)
                    ? (uchar_kt *)&(curbuf->b_p_mp) : p->var;
 
         case PV_STL:
-            return *curwin->w_p_stl != NUL
-                   ? (uchar_kt *)&(curwin->w_p_stl) : p->var;
+            return *curwin->w_o_curbuf.wo_stl != NUL
+                   ? (uchar_kt *)&(curwin->w_o_curbuf.wo_stl) : p->var;
 
         case PV_UL:
             return curbuf->b_p_ul != NO_LOCAL_UNDOLEVEL
@@ -7455,106 +7455,106 @@ static uchar_kt *get_varp(vimoption_st *p)
                    ? (uchar_kt *)&(curbuf->b_p_lw) : p->var;
 
         case PV_ARAB:
-            return (uchar_kt *)&(curwin->w_p_arab);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_arab);
 
         case PV_LIST:
-            return (uchar_kt *)&(curwin->w_p_list);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_list);
 
         case PV_SPELL:
-            return (uchar_kt *)&(curwin->w_p_spell);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_spell);
 
         case PV_CUC:
-            return (uchar_kt *)&(curwin->w_p_cuc);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_cuc);
 
         case PV_CUL:
-            return (uchar_kt *)&(curwin->w_p_cul);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_cul);
 
         case PV_CC:
-            return (uchar_kt *)&(curwin->w_p_cc);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_cc);
 
         case PV_DIFF:
-            return (uchar_kt *)&(curwin->w_p_diff);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_diff);
 
         case PV_FDC:
-            return (uchar_kt *)&(curwin->w_p_fdc);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdc);
 
         case PV_FEN:
-            return (uchar_kt *)&(curwin->w_p_fen);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fen);
 
         case PV_FDI:
-            return (uchar_kt *)&(curwin->w_p_fdi);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdi);
 
         case PV_FDL:
-            return (uchar_kt *)&(curwin->w_p_fdl);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdl);
 
         case PV_FDM:
-            return (uchar_kt *)&(curwin->w_p_fdm);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdm);
 
         case PV_FML:
-            return (uchar_kt *)&(curwin->w_p_fml);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fml);
 
         case PV_FDN:
-            return (uchar_kt *)&(curwin->w_p_fdn);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdn);
 
         case PV_FDE:
-            return (uchar_kt *)&(curwin->w_p_fde);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fde);
 
         case PV_FDT:
-            return (uchar_kt *)&(curwin->w_p_fdt);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fdt);
 
         case PV_FMR:
-            return (uchar_kt *)&(curwin->w_p_fmr);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_fmr);
 
         case PV_NU:
-            return (uchar_kt *)&(curwin->w_p_nu);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_nu);
 
         case PV_RNU:
-            return (uchar_kt *)&(curwin->w_p_rnu);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_rnu);
 
         case PV_NUW:
-            return (uchar_kt *)&(curwin->w_p_nuw);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_nuw);
 
         case PV_WFH:
-            return (uchar_kt *)&(curwin->w_p_wfh);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_wfh);
 
         case PV_WFW:
-            return (uchar_kt *)&(curwin->w_p_wfw);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_wfw);
 
         case PV_PVW:
-            return (uchar_kt *)&(curwin->w_p_pvw);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_pvw);
 
         case PV_RL:
-            return (uchar_kt *)&(curwin->w_p_rl);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_rl);
 
         case PV_RLC:
-            return (uchar_kt *)&(curwin->w_p_rlc);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_rlc);
 
         case PV_SCROLL:
-            return (uchar_kt *)&(curwin->w_p_scr);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_scr);
 
         case PV_WRAP:
-            return (uchar_kt *)&(curwin->w_p_wrap);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_wrap);
 
         case PV_LBR:
-            return (uchar_kt *)&(curwin->w_p_lbr);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_lbr);
 
         case PV_BRI:
-            return (uchar_kt *)&(curwin->w_p_bri);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_bri);
 
         case PV_BRIOPT:
-            return (uchar_kt *)&(curwin->w_p_briopt);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_briopt);
 
         case PV_SCBIND:
-            return (uchar_kt *)&(curwin->w_p_scb);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_scb);
 
         case PV_CRBIND:
-            return (uchar_kt *)&(curwin->w_p_crb);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_crb);
 
         case PV_COCU:
-            return (uchar_kt *)&(curwin->w_p_cocu);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_cocu);
 
         case PV_COLE:
-            return (uchar_kt *)&(curwin->w_p_cole);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_cole);
 
         case PV_AI:
             return (uchar_kt *)&(curbuf->b_p_ai);
@@ -7728,10 +7728,10 @@ static uchar_kt *get_varp(vimoption_st *p)
             return (uchar_kt *)&(curbuf->b_p_keymap);
 
         case PV_SCL:
-            return (uchar_kt *)&(curwin->w_p_scl);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_scl);
 
         case PV_WINHL:
-            return (uchar_kt *)&(curwin->w_p_winhl);
+            return (uchar_kt *)&(curwin->w_o_curbuf.wo_winhl);
 
         default:
             EMSG(_("E356: get_varp ERROR"));
@@ -7757,8 +7757,8 @@ uchar_kt *get_equalprg(void)
 /// Used when splitting a window.
 void win_copy_options(win_st *wp_from, win_st *wp_to)
 {
-    copy_winopt(&wp_from->w_onebuf_opt, &wp_to->w_onebuf_opt);
-    copy_winopt(&wp_from->w_allbuf_opt, &wp_to->w_allbuf_opt);
+    copy_winopt(&wp_from->w_o_curbuf, &wp_to->w_o_curbuf);
+    copy_winopt(&wp_from->w_o_allbuf, &wp_to->w_o_allbuf);
     wp_to->w_farsi = wp_from->w_farsi; // Is this right?
 }
 
@@ -7820,8 +7820,8 @@ void copy_winopt(winopt_st *from, winopt_st *to)
 /// Check string options in a window for a NULL value.
 void check_win_options(win_st *win)
 {
-    check_winopt(&win->w_onebuf_opt);
-    check_winopt(&win->w_allbuf_opt);
+    check_winopt(&win->w_o_curbuf);
+    check_winopt(&win->w_o_allbuf);
 }
 
 /// Check for NULL pointers in a winopt_st
@@ -9235,13 +9235,13 @@ void save_file_ff(filebuf_st *buf)
 bool file_ff_differs(filebuf_st *buf, bool ignore_empty)
 {
     // In a buffer that was never loaded the options are not valid.
-    if(buf->b_flags & BF_NEVERLOADED)
+    if(buf->b_flags & kWBF_NeverLoaded)
     {
         return FALSE;
     }
 
     if(ignore_empty
-       && (buf->b_flags & BF_NEW)
+       && (buf->b_flags & kWBF_NewFile)
        && buf->b_ml.ml_line_count == 1
        && *ml_get_buf(buf, (linenum_kt)1, FALSE) == NUL)
     {
@@ -9407,7 +9407,7 @@ static bool briopt_check(win_st *wp)
     int bri_shift = 0;
     int bri_min = 20;
     bool bri_sbr = false;
-    uchar_kt *p = wp->w_p_briopt;
+    uchar_kt *p = wp->w_o_curbuf.wo_briopt;
 
     while(*p != NUL)
     {
@@ -9643,12 +9643,12 @@ int csh_like_shell(void)
 /// Return true when window @b wp has a column to draw signs in.
 bool signcolumn_on(win_st *wp)
 {
-    if(*wp->w_p_scl == 'n')
+    if(*wp->w_o_curbuf.wo_scl == 'n')
     {
         return false;
     }
 
-    if(*wp->w_p_scl == 'y')
+    if(*wp->w_o_curbuf.wo_scl == 'y')
     {
         return true;
     }

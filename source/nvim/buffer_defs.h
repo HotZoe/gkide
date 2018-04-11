@@ -7,18 +7,12 @@
 #include <stdint.h>
 #include <stdio.h> // for FILE
 
-typedef struct filebuf_s filebuf_st;
-
-/// Reference to a buffer that stores the value of buf_free_count.
-/// bufref_valid() only needs to check "buf" when the count differs.
-typedef struct bufref_s
-{
-    filebuf_st *br_buf;
-    int br_buf_free_count;
-} bufref_st;
+typedef struct filebuf_s filebuf_st; // for undo_defs.h
+typedef struct window_s  win_st; // for regexp_defs.h
 
 #include "nvim/garray.h"
 #include "nvim/pos.h"
+#include "nvim/argitem.h"
 #include "nvim/option_defs.h"
 #include "nvim/mark_defs.h"
 #include "nvim/undo_defs.h"
@@ -27,68 +21,70 @@ typedef struct bufref_s
 #include "nvim/profile.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/map.h"
-
-#define MODIFIABLE(buf) (buf->b_p_ma)
-
-// Flags for w_valid.
-// These are set when something in a window structure becomes invalid, except
-// when the cursor is moved.  Call check_cursor_moved() before testing one of
-// the flags.
-// These are reset when that thing has been updated and is valid again.
-//
-// Every function that invalidates one of these must call one of the
-// invalidate_* functions.
-//
-// w_valid is supposed to be used only in screen.c.
-// From other files, use the functions that set or reset the flags.
-//
-// VALID_BOTLINE    VALID_BOTLINE_AP
-//  on      on      w_botline valid
-//  off     on      w_botline approximated
-//  off     off     w_botline not valid
-//  on      off     not possible
-
-#define VALID_WROW       0x01  ///< w_wrow (window row) is valid
-#define VALID_WCOL       0x02  ///< w_wcol (window col) is valid
-#define VALID_VIRTCOL    0x04  ///< w_virtcol (file col) is valid
-#define VALID_CHEIGHT    0x08  ///< w_cline_height and w_cline_folded valid
-#define VALID_CROW       0x10  ///< w_cline_row is valid
-#define VALID_BOTLINE    0x20  ///< w_botine and w_empty_rows are valid
-#define VALID_BOTLINE_AP 0x40  ///< w_botine is approximated
-#define VALID_TOPLINE    0x80  ///< w_topline is valid (for cursor position)
-
-// flags for b_flags
-#define BF_RECOVERED    0x01  ///< buffer has been recovered
-#define BF_CHECK_RO     0x02  ///< need to check readonly when loading file
-                              ///< into buffer (set by ":e", may be reset by ":buf")
-#define BF_NEVERLOADED  0x04  ///< file has never been loaded into buffer,
-                              ///< many variables still need to be set
-#define BF_NOTEDITED    0x08  ///< Set when file name is changed after
-                              ///< starting to edit, reset when file is written out.
-#define BF_NEW          0x10  ///< file didn't exist when editing started
-#define BF_NEW_W        0x20  ///< Warned for BF_NEW and file created
-#define BF_READERR      0x40  ///< got errors while reading the file
-#define BF_DUMMY        0x80  ///< dummy buffer, only used internally
-#define BF_PRESERVED    0x100 ///< ":preserve" was used
-
-// Mask to check for flags that prevent normal writing
-#define BF_WRITE_MASK   (BF_NOTEDITED + BF_NEW + BF_READERR)
-
-typedef struct window_s  win_st;
-typedef struct frame_s   frame_st;
-typedef struct wininfo_s wininfo_st;
-
 #include "nvim/memline_defs.h"
 #include "nvim/memfile_defs.h"
 #include "nvim/regexp_defs.h"
 #include "nvim/syntax_defs.h"
 #include "nvim/sign_defs.h"
 #include "nvim/bufhl_defs.h"
-
-typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_st;
-
 #include "nvim/os/fs_defs.h"
 #include "nvim/terminal.h"
+
+/// Flags for @b win_st::w_valid
+/// These are set when something in a window structure becomes invalid, except
+/// when the cursor is moved. Call check_cursor_moved() before testing one of
+/// the flags.
+/// These are reset when that thing has been updated and is valid again.
+///
+/// Every function that invalidates one of these must call one of the
+/// invalidate_* functions.
+///
+/// kWVF_BotLine    kWVF_BotLineAp
+/// on              on              w_botline valid
+/// off             on              w_botline approximated
+/// off             off             w_botline not valid
+/// on              off             not possible
+typedef enum win_valid_flag_e
+{
+    kWVF_WinRow     = 0x01,  ///< win_st::w_wrow (window row) is valid
+    kWVF_WinCol     = 0x02,  ///< win_st::w_wcol (window col) is valid
+    kWVF_FileCol    = 0x04,  ///< win_st::w_virtcol (file col) is valid
+    kWVF_CLHeight   = 0x08,  ///< win_st::w_cline_height & w_cline_folded valid
+    kWVF_CLRow      = 0x10,  ///< win_st::w_cline_row is valid
+    kWVF_BotLine    = 0x20,  ///< win_st::w_botline & w_empty_rows are valid
+    kWVF_BotLineAp  = 0x40,  ///< win_st::w_botline approximated
+    kWVF_TopLine    = 0x80,  ///< win_st::w_topline is valid (for cursor position)
+} win_valid_flag_et;
+
+/// flags for win_st::b_flags
+typedef enum win_filebuf_flag_e
+{
+    kWBF_BufRecovered   = 0x01, ///< buffer has been recovered
+    kWBF_CheckReadOnly  = 0x02, ///< need to check readonly when loading file into
+                                ///< buffer (set by ":e", may be reset by ":buf")
+    kWBF_NeverLoaded    = 0x04, ///< file has never been loaded into buffer,
+                                ///< many variables still need to be set
+    kWBF_NotEdited      = 0x08, ///< Set when file name is changed after starting
+                                ///< to edit, reset when file is written out.
+    kWBF_NewFile        = 0x10, ///< file didn't exist when editing started
+    kWBF_NewFileWarn    = 0x20, ///< Warned for kWBF_NewFile and file created
+    kWBF_ReadError      = 0x40, ///< got errors while reading the file
+    kWBF_DummyBuf       = 0x80, ///< dummy buffer, only used internally
+    kWBF_Preserve       = 0x100,///< ":preserve" was used
+
+    /// Mask to check for flags that prevent normal writing
+    kWBF_WriteBufMask   = (kWBF_NotEdited + kWBF_NewFile + kWBF_ReadError),
+} win_filebuf_flag_et;
+
+typedef struct frame_s   frame_st;
+
+/// Reference to a buffer that stores the value of buf_free_count.
+/// bufref_valid() only needs to check "buf" when the count differs.
+typedef struct bufref_s
+{
+    filebuf_st *br_buf;
+    int br_buf_free_count;
+} bufref_st;
 
 /// The taggy struct is used to store the information about a :tag command.
 typedef struct taggy_s
@@ -99,10 +95,8 @@ typedef struct taggy_s
     int cur_fnum;      ///< buffer number used for cur_match
 } taggy_st;
 
-typedef struct buffblock_s  buffblock_st;
-typedef struct buffheader_s buffheader_st;
-
 /// structure used to store one block of the stuff/redo/recording buffers
+typedef struct buffblock_s  buffblock_st;
 struct buffblock_s
 {
     buffblock_st *b_next;  ///< pointer to next buffblock
@@ -110,6 +104,7 @@ struct buffblock_s
 };
 
 /// header used for the stuff buffer and the redo buffer
+typedef struct buffheader_s buffheader_st;
 struct buffheader_s
 {
     buffblock_st bh_first; ///< first (dummy) block of list
@@ -124,142 +119,51 @@ struct buffheader_s
 typedef struct winopt_s
 {
     int wo_arab;                ///< 'arabic'
-#define w_p_arab                w_onebuf_opt.wo_arab
-
     int wo_bri;                 ///< 'breakindent'
-#define w_p_bri                 w_onebuf_opt.wo_bri
-
     uchar_kt *wo_briopt;        ///< 'breakindentopt'
-#define w_p_briopt              w_onebuf_opt.wo_briopt
-
     int wo_diff;                ///< 'diff'
-#define w_p_diff                w_onebuf_opt.wo_diff
-
     long wo_fdc;                ///< 'foldcolumn'
-#define w_p_fdc                 w_onebuf_opt.wo_fdc
-
     int wo_fdc_save;            ///< 'foldenable' saved for diff mode
-#define w_p_fdc_save            w_onebuf_opt.wo_fdc_save
-
     int wo_fen;                 ///< 'foldenable'
-#define w_p_fen                 w_onebuf_opt.wo_fen
-
     int wo_fen_save;            ///< 'foldenable' saved for diff mode
-#define w_p_fen_save            w_onebuf_opt.wo_fen_save
-
     uchar_kt *wo_fdi;           ///< 'foldignore'
-#define w_p_fdi                 w_onebuf_opt.wo_fdi
-
     long wo_fdl;                ///< 'foldlevel'
-#define w_p_fdl                 w_onebuf_opt.wo_fdl
-
     int wo_fdl_save;            ///< 'foldlevel' state saved for diff mode
-#define w_p_fdl_save            w_onebuf_opt.wo_fdl_save
-
     uchar_kt *wo_fdm;           ///< 'foldmethod'
-#define w_p_fdm                 w_onebuf_opt.wo_fdm
-
     uchar_kt *wo_fdm_save;      ///< 'fdm' saved for diff mode
-#define w_p_fdm_save            w_onebuf_opt.wo_fdm_save
-
     long wo_fml;                ///< 'foldminlines'
-#define w_p_fml                 w_onebuf_opt.wo_fml
-
     long wo_fdn;                ///< 'foldnestmax'
-#define w_p_fdn                 w_onebuf_opt.wo_fdn
-
     uchar_kt *wo_fde;           ///< 'foldexpr'
-#define w_p_fde                 w_onebuf_opt.wo_fde
-
     uchar_kt *wo_fdt;           ///< 'foldtext'
-#define w_p_fdt                 w_onebuf_opt.wo_fdt
-
     uchar_kt *wo_fmr;           ///< 'foldmarker'
-#define w_p_fmr                 w_onebuf_opt.wo_fmr
-
     int wo_lbr;                 ///< 'linebreak'
-#define w_p_lbr                 w_onebuf_opt.wo_lbr
-
     int wo_list;                ///< 'list'
-#define w_p_list                w_onebuf_opt.wo_list
-
     int wo_nu;                  ///< 'number'
-#define w_p_nu                  w_onebuf_opt.wo_nu
-
     int wo_rnu;                 ///< 'relativenumber'
-#define w_p_rnu                 w_onebuf_opt.wo_rnu
-
     long wo_nuw;                ///< 'numberwidth'
-#define w_p_nuw                 w_onebuf_opt.wo_nuw
-
     int wo_wfh;                 ///< 'winfixheight'
-#define w_p_wfh                 w_onebuf_opt.wo_wfh
-
     int wo_wfw;                 ///< 'winfixwidth'
-#define w_p_wfw                 w_onebuf_opt.wo_wfw
-
     int wo_pvw;                 ///< 'previewwindow'
-#define w_p_pvw                 w_onebuf_opt.wo_pvw
-
     int wo_rl;                  ///< 'rightleft'
-#define w_p_rl                  w_onebuf_opt.wo_rl
-
     uchar_kt *wo_rlc;           ///< 'rightleftcmd'
-#define w_p_rlc                 w_onebuf_opt.wo_rlc
-
     long wo_scr;                ///< 'scroll'
-#define w_p_scr                 w_onebuf_opt.wo_scr
-
     int wo_spell;               ///< 'spell'
-#define w_p_spell               w_onebuf_opt.wo_spell
-
     int wo_cuc;                 ///< 'cursorcolumn'
-#define w_p_cuc                 w_onebuf_opt.wo_cuc
-
     int wo_cul;                 ///< 'cursorline'
-#define w_p_cul                 w_onebuf_opt.wo_cul
-
     uchar_kt *wo_cc;            ///< 'colorcolumn'
-#define w_p_cc                  w_onebuf_opt.wo_cc
-
     uchar_kt *wo_stl;           ///< 'statusline'
-#define w_p_stl                 w_onebuf_opt.wo_stl
-
     int wo_scb;                 ///< 'scrollbind'
-#define w_p_scb                 w_onebuf_opt.wo_scb
-
     int wo_diff_saved;          ///< options were saved for starting diff mode
-#define w_p_diff_saved          w_onebuf_opt.wo_diff_saved
-
     int wo_scb_save;            ///< 'scrollbind' saved for diff mode
-#define w_p_scb_save            w_onebuf_opt.wo_scb_save
-
     int wo_wrap;                ///< 'wrap'
-#define w_p_wrap                w_onebuf_opt.wo_wrap
-
     int wo_wrap_save;           ///< 'wrap' state saved for diff mode
-#define w_p_wrap_save           w_onebuf_opt.wo_wrap_save
-
     uchar_kt *wo_cocu;          ///< 'concealcursor'
-#define w_p_cocu                w_onebuf_opt.wo_cocu
-
     long wo_cole;               ///< 'conceallevel'
-#define w_p_cole                w_onebuf_opt.wo_cole
-
     int wo_crb;                 ///< 'cursorbind'
-#define w_p_crb                 w_onebuf_opt.wo_crb
-
     int wo_crb_save;            ///< 'cursorbind' state saved for diff mode
-#define w_p_crb_save            w_onebuf_opt.wo_crb_save
-
     uchar_kt *wo_scl;           ///< 'signcolumn'
-#define w_p_scl                 w_onebuf_opt.wo_scl
-
     uchar_kt *wo_winhl;         ///< 'winhighlight'
-#define w_p_winhl               w_onebuf_opt.wo_winhl
-
-    int wo_scriptID[WV_COUNT];  ///< SIDs for window-local options
-#define w_p_scriptID            w_onebuf_opt.wo_scriptID
+    int wo_scriptID[WV_COUNT];  ///< script-id for window-local options
 } winopt_st;
 
 /// Window info stored with a buffer.
@@ -270,6 +174,7 @@ typedef struct winopt_s
 /// 2. The window-local options for a buffer work in a similar way.
 ///    The window-info is kept in a list at b_wininfo. It is kept in
 ///    most-recently-used order.
+typedef struct wininfo_s wininfo_st;
 struct wininfo_s
 {
     wininfo_st *wi_next;  ///< next entry or NULL for last entry
@@ -281,37 +186,6 @@ struct wininfo_s
     bool wi_fold_manual;  ///< copy of w_fold_manual
     garray_st wi_folds;   ///< clone of w_folds
 };
-
-/// Argument list: Array of file names.
-/// Used for the global argument list and the argument lists local to a window.
-///
-/// @todo move arglist_s to another header
-typedef struct arglist_s
-{
-    garray_st al_ga;  ///< growarray with the array of file names
-    int al_refcount;  ///< number of windows using this arglist_st
-    int id;           ///< id of this arglist_st
-} arglist_st;
-
-/// For each argument remember the file name as it was given, and the buffer
-/// number that contains the expanded file name (required for when ":cd" is
-/// used.
-///
-/// @todo: move aentry_st to another header
-typedef struct argentry_s
-{
-    uchar_kt *ae_fname; ///< file name as specified
-    int ae_fnum;        ///< buffer number with expanded file name
-} aentry_st;
-
-#define ALIST(win)      (win)->w_alist
-#define GARGLIST        ((aentry_st *)global_alist.al_ga.ga_data)
-#define ARGLIST         ((aentry_st *)ALIST(curwin)->al_ga.ga_data)
-#define WARGLIST(wp)    ((aentry_st *)ALIST(wp)->al_ga.ga_data)
-#define AARGLIST(al)    ((aentry_st *)((al)->al_ga.ga_data))
-#define GARGCOUNT       (global_alist.al_ga.ga_len)
-#define ARGCOUNT        (ALIST(curwin)->al_ga.ga_len)
-#define WARGCOUNT(wp)   (ALIST(wp)->al_ga.ga_len)
 
 /// Used for the typeahead buffer: typebuf.
 typedef struct typebuf_s
@@ -365,13 +239,13 @@ typedef struct hl_stline_s
     int userhl;
 } hl_stline_st;
 
-// values for b_syn_spell: what to do with toplevel text
-#define SYNSPL_DEFAULT  0   ///< spell check if @Spell not defined
-#define SYNSPL_TOP      1   ///< spell check toplevel text
-#define SYNSPL_NOTOP    2   ///< don't spell check toplevel text
-
-/// avoid #ifdefs for when b_spell is not available
-#define B_SPELL(buf)   ((buf)->b_spell)
+/// values for b_syn_spell: what to do with toplevel text
+typedef enum syn_spell_e
+{
+    kSpellCheck_Default     = 0, ///< spell check if @Spell not defined
+    kSpellCheck_TopText     = 1, ///< spell check toplevel text
+    kSpellCheck_NoTopText   = 2, ///< don't spell check toplevel text
+} syn_spell_et;
 
 /// quickfix info
 typedef struct qfinfo_s qfinfo_st;
@@ -440,10 +314,9 @@ typedef struct synblk_s
     uchar_kt *b_syn_isk;       ///< iskeyword option
 } synblk_st;
 
-/// Type used for changedtick_di member in filebuf_st
-///
-/// Primary exists so that literals of relevant type can be made.
-typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
+typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) changedtick_st;
+
+typedef Map(linenum_kt, bufhl_vec_st) bufhl_info_st;
 
 #define BUF_HAS_QF_ENTRY   1
 #define BUF_HAS_LL_ENTRY   2
@@ -458,14 +331,13 @@ typedef TV_DICTITEM_STRUCT(sizeof("changedtick")) ChangedtickDictItem;
 /// A buffer is new if the associated file has never been loaded yet.
 struct filebuf_s
 {
-    #define b_fnum handle
-    handle_kt handle;    ///< unique id for the buffer (buffer number)
+    handle_kt b_id;      ///< unique id for the buffer
     memline_st b_ml;     ///< associated memline (also contains line count
     filebuf_st *b_next;  ///< links in list of buffers
     filebuf_st *b_prev;
 
     int b_nwindows;   ///< number of windows open on this buffer
-    int b_flags;      ///< various BF_ flags
+    int b_flags;      ///< see @b win_filebuf_flag_et
     int b_locked;     ///< Buffer is being closed or referenced, don't
                       ///< let autocommands wipe it out.
 
@@ -483,10 +355,12 @@ struct filebuf_s
     /// 'modified': Set to true if something in the
     /// file has been changed and not written out.
     int b_changed;
+
     /// Change identifier incremented for each change, including undo
     #define b_changedtick changedtick_di.di_tv.vval.v_number
     /// b:changedtick dictionary item.
-    ChangedtickDictItem changedtick_di;
+    changedtick_st changedtick_di;
+
     /// Set to true if we are in the middle of saving the buffer.
     bool b_saving;
 
@@ -736,10 +610,7 @@ struct filebuf_s
     // spell buffer:
     //    used for spell info, never displayed and doesn't have a file name.
     bool b_help;  ///< TRUE for help file buffer (when set b_p_bt is "help")
-
-    bool b_spell; ///< True for a spell file buffer, most fields
-                  ///< are not used!  Use the B_SPELL macro to
-                  ///< access b_spell without #ifdef.
+    bool b_spell; ///< True for a spell file buffer, most fields are not used!
 
     /// Info related to syntax highlighting. w_s normally points
     /// to this, but some windows may use a different synblk_st.
@@ -870,7 +741,7 @@ typedef struct hlmatch_s
 } hlmatch_st;
 
 /// number of positions supported by matchaddpos()
-#define MAXPOSMATCH 8
+#define MAX_POS_NUM_MATCH   8
 
 /// Same as bpos_st, but with additional field len.
 typedef struct cpos_s
@@ -885,10 +756,10 @@ typedef struct cpos_s
 typedef struct posmatch_s posmatch_st;
 struct posmatch_s
 {
-    cpos_st pos[MAXPOSMATCH]; ///< array of positions
-    int cur;                  ///< internal position counter
-    linenum_kt toplnum;       ///< top buffer line
-    linenum_kt botlnum;       ///< bottom buffer line
+    cpos_st pos[MAX_POS_NUM_MATCH]; ///< array of positions
+    int cur;                        ///< internal position counter
+    linenum_kt toplnum;             ///< top buffer line
+    linenum_kt botlnum;             ///< bottom buffer line
 };
 
 /// matchitem_st provides a linked list for storing
@@ -982,8 +853,8 @@ struct window_s
     // Use functions in screen.c to check if they are valid and to update.
     // w_valid is a bitfield of flags, which indicate if specific values are
     // valid or need to be recomputed.
-    int w_valid;
-    apos_st w_valid_cursor;      ///< last known position of w_cursor, used to adjust w_valid
+    int w_valid; ///< see @b win_valid_flag_et
+    apos_st w_valid_cursor; ///< last known position of w_cursor, used to adjust w_valid
     columnum_kt w_valid_leftcol; ///< last known w_leftcol
 
     // w_cline_height is the number of physical lines taken by the buffer line
@@ -1042,13 +913,10 @@ struct window_s
     int w_arg_idx_invalid; ///< editing another file than w_arg_idx
     uchar_kt *w_localdir;  ///< absolute path of local directory or NULL
 
-    // Options local to a window.
-    // They are local because they influence the layout of the window or
-    // depend on the window layout.
-    // There are two values: w_onebuf_opt is local to the buffer currently in
-    // this window, w_allbuf_opt is for all buffers in this window.
-    winopt_st w_onebuf_opt;
-    winopt_st w_allbuf_opt;
+    // Options local to a window. They are local because they influence
+    // the layout of the window or depend on the window layout.
+    winopt_st w_o_curbuf; ///< local to the buffer currently in this window
+    winopt_st w_o_allbuf; ///< for all buffers in this window
 
     // A few options have local flags for P_INSECURE.
     uint32_t w_p_stl_flags;  ///< flags for 'statusline'

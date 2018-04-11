@@ -37,12 +37,12 @@ filebuf_st *handle_get_buffer(handle_kt handle)
 
 void handle_register_buffer(filebuf_st *buffer)
 {
-    pmap_put(handle_kt)(buffer_handles, buffer->handle, buffer);
+    pmap_put(handle_kt)(buffer_handles, buffer->b_id, buffer);
 }
 
 void handle_unregister_buffer(filebuf_st *buffer)
 {
-    pmap_del(handle_kt)(buffer_handles, buffer->handle);
+    pmap_del(handle_kt)(buffer_handles, buffer->b_id);
 }
 
 tabpage_st *handle_get_tabpage(handle_kt handle)

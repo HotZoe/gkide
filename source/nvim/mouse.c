@@ -185,8 +185,9 @@ retnomove:
            && (wp->w_buffer != curwin->w_buffer
                || (!on_status_line
                    && !on_sep_line
-                   && (wp->w_p_rl ? col < wp->w_width - wp->w_p_fdc :
-                       col >= wp->w_p_fdc
+                   && (wp->w_o_curbuf.wo_rl
+                       ? col < wp->w_width - wp->w_o_curbuf.wo_fdc
+                       : col >= wp->w_o_curbuf.wo_fdc
                        + (cmdwin_type == 0 && wp == curwin ? 0 : 1))
                    && (flags & MOUSE_MAY_STOP_VIS))))
         {
@@ -331,10 +332,10 @@ retnomove:
 
             check_topfill(curwin, false);
 
-            curwin->w_valid &= ~(VALID_WROW
-                                 | VALID_CROW
-                                 | VALID_BOTLINE
-                                 | VALID_BOTLINE_AP);
+            curwin->w_valid &= ~(kWVF_WinRow
+                                 | kWVF_CLRow
+                                 | kWVF_BotLine
+                                 | kWVF_BotLineAp);
 
             redraw_later(VALID);
             row = 0;
@@ -382,10 +383,10 @@ retnomove:
             check_topfill(curwin, false);
             redraw_later(VALID);
 
-            curwin->w_valid &= ~(VALID_WROW
-                                 | VALID_CROW
-                                 | VALID_BOTLINE
-                                 | VALID_BOTLINE_AP);
+            curwin->w_valid &= ~(kWVF_WinRow
+                                 | kWVF_CLRow
+                                 | kWVF_BotLine
+                                 | kWVF_BotLineAp);
 
             row = curwin->w_height - 1;
         }
@@ -398,15 +399,15 @@ retnomove:
                && curwin->w_cursor.lnum == curwin->w_buffer->b_ml.ml_line_count
                && curwin->w_cursor.lnum == curwin->w_topline)
             {
-                curwin->w_valid &= ~(VALID_TOPLINE);
+                curwin->w_valid &= ~(kWVF_TopLine);
             }
         }
     }
 
     // Check for position outside of the fold column.
-    if(curwin->w_p_rl
-       ? col < curwin->w_width - curwin->w_p_fdc
-       : col >= curwin->w_p_fdc + (cmdwin_type == 0 ? 0 : 1))
+    if(curwin->w_o_curbuf.wo_rl
+       ? col < curwin->w_width - curwin->w_o_curbuf.wo_fdc
+       : col >= curwin->w_o_curbuf.wo_fdc + (cmdwin_type == 0 ? 0 : 1))
     {
         mouse_char = ' ';
     }
@@ -491,7 +492,7 @@ bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenum_kt *lnump)
     int off;
     int count;
 
-    if(win->w_p_rl)
+    if(win->w_o_curbuf.wo_rl)
     {
         col = win->w_width - 1 - col;
     }
@@ -501,7 +502,8 @@ bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenum_kt *lnump)
     while(row > 0)
     {
         // Don't include filler lines in "count"
-        if(win->w_p_diff && !hasFoldingWin(win, lnum, NULL, NULL, true, NULL))
+        if(win->w_o_curbuf.wo_diff
+           && !hasFoldingWin(win, lnum, NULL, NULL, true, NULL))
         {
             if(lnum == win->w_topline)
             {
@@ -552,7 +554,7 @@ bool mouse_comp_pos(win_st *win, int *rowp, int *colp, linenum_kt *lnump)
         col += win->w_skipcol;
     }
 
-    if(!win->w_p_wrap)
+    if(!win->w_o_curbuf.wo_wrap)
     {
         col += win->w_leftcol;
     }
@@ -786,7 +788,7 @@ static linenum_kt find_longest_lnum(void)
 /// Return TRUE if the cursor moved, FALSE otherwise.
 bool mouse_scroll_horiz(int dir)
 {
-    if(curwin->w_p_wrap)
+    if(curwin->w_o_curbuf.wo_wrap)
     {
         return false;
     }
@@ -828,7 +830,7 @@ bool mouse_scroll_horiz(int dir)
 /// before the current column. But only when it's absolutely necessary.
 static int mouse_adjust_click(win_st *wp, int row, int col)
 {
-    if(!(wp->w_p_cole > 0
+    if(!(wp->w_o_curbuf.wo_cole > 0
          && curbuf->b_p_smc > 0
          && wp->w_leftcol < curbuf->b_p_smc
          && conceal_cursor_line(wp)))
@@ -863,7 +865,7 @@ static int mouse_adjust_click(win_st *wp, int row, int col)
 
         if(matchid != 0)
         {
-            if(wp->w_p_cole == 3)
+            if(wp->w_o_curbuf.wo_cole == 3)
             {
                 bcol++;
             }
@@ -881,8 +883,8 @@ static int mouse_adjust_click(win_st *wp, int row, int col)
                         bcol++;
                     }
                 }
-                else if(wp->w_p_cole == 1
-                        || (wp->w_p_cole == 2
+                else if(wp->w_o_curbuf.wo_cole == 1
+                        || (wp->w_o_curbuf.wo_cole == 2
                             && (lcs_conceal != NUL
                                 || syn_get_sub_char() != NUL)))
                 {

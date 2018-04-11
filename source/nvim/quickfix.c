@@ -1921,7 +1921,7 @@ static int qf_get_fnum(qfinfo_st *qi, uchar_kt *directory, uchar_kt *fname)
     buf->b_has_qf_entry =
         (qi == &ql_info) ? BUF_HAS_QF_ENTRY : BUF_HAS_LL_ENTRY;
 
-    return buf->b_fnum;
+    return buf->b_id;
 }
 
 /// Push dirbuf onto the directory stack and
@@ -2403,7 +2403,7 @@ void qf_jump(qfinfo_st *qi, int dir, int errornr, int forceit)
         {
             FOR_ALL_TAB_WINDOWS(tp, wp)
             {
-                if(wp->w_buffer->b_fnum == qf_ptr->qf_fnum)
+                if(wp->w_buffer->b_id == qf_ptr->qf_fnum)
                 {
                     goto_tabpage_win(tp, wp);
                     usable_win = true;
@@ -2458,7 +2458,7 @@ win_found:
                     // Find the window showing the selected file
                     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
                     {
-                        if(wp->w_buffer->b_fnum == qf_ptr->qf_fnum)
+                        if(wp->w_buffer->b_id == qf_ptr->qf_fnum)
                         {
                             win = wp;
                             break;
@@ -2508,7 +2508,7 @@ win_found:
 
                 for(;;)
                 {
-                    if(win->w_buffer->b_fnum == qf_ptr->qf_fnum)
+                    if(win->w_buffer->b_id == qf_ptr->qf_fnum)
                     {
                         break;
                     }
@@ -2543,7 +2543,7 @@ win_found:
                     }
 
                     // Remember a usable window.
-                    if(altwin == NULL && !win->w_p_pvw
+                    if(altwin == NULL && !win->w_o_curbuf.wo_pvw
                        && win->w_buffer->b_p_bt[0] == NUL)
                     {
                         altwin = win;
@@ -3194,7 +3194,7 @@ void qf_mark_adjust(win_st *wp,
                 i < qi->qf_lists[idx].qf_count && qfp != NULL;
                 i++, qfp = qfp->qf_next)
             {
-                if(qfp->qf_fnum == curbuf->b_fnum)
+                if(qfp->qf_fnum == curbuf->b_id)
                 {
                     found_one = true;
 
@@ -3445,7 +3445,7 @@ void ex_copen(exargs_st *eap)
         if(qf_buf != NULL)
         {
             // Use the existing quickfix buffer
-            (void)do_ecmd(qf_buf->b_fnum,
+            (void)do_ecmd(qf_buf->b_id,
                           NULL,
                           NULL,
                           NULL,
@@ -3465,7 +3465,7 @@ void ex_copen(exargs_st *eap)
 
             RESET_BINDING(curwin);
 
-            curwin->w_p_diff = false;
+            curwin->w_o_curbuf.wo_diff = false;
             set_option_value("fdm", 0L, "manual", OPT_LOCAL);
         }
 
@@ -3478,7 +3478,7 @@ void ex_copen(exargs_st *eap)
             win_setheight(height);
         }
 
-        curwin->w_p_wfh = TRUE; // set 'winfixheight'
+        curwin->w_o_curbuf.wo_wfh = TRUE; // set 'winfixheight'
 
         if(win_valid(win))
         {
@@ -4838,7 +4838,7 @@ void ex_vimgrep(exargs_st *eap)
                     if(qf_add_entry(qi,
                                     NULL,  /* dir */
                                     fname,
-                                    duplicate_name ? 0 : buf->b_fnum,
+                                    duplicate_name ? 0 : buf->b_id,
                                     ml_get_buf(buf, regmatch.startpos[0].lnum + lnum, false),
                                     regmatch.startpos[0].lnum + lnum,
                                     regmatch.startpos[0].col + 1,
@@ -4918,7 +4918,7 @@ void ex_vimgrep(exargs_st *eap)
                         unload_dummy_buffer(buf, dirname_start);
 
                         // Keeping the buffer, remove the dummy flag.
-                        buf->b_flags &= ~BF_DUMMY;
+                        buf->b_flags &= ~kWBF_DummyBuf;
                         buf = NULL;
                     }
                 }
@@ -4926,7 +4926,7 @@ void ex_vimgrep(exargs_st *eap)
                 if(buf != NULL)
                 {
                     // Keeping the buffer, remove the dummy flag.
-                    buf->b_flags &= ~BF_DUMMY;
+                    buf->b_flags &= ~kWBF_DummyBuf;
 
                     // If the buffer is still loaded we need to use the
                     // directory we jumped to below.
@@ -5090,13 +5090,13 @@ static filebuf_st *load_dummy_buffer(uchar_kt *fname,
         check_need_swap(TRUE);
 
         // Remove the "dummy" flag, otherwise autocommands may not work.
-        curbuf->b_flags &= ~BF_DUMMY;
+        curbuf->b_flags &= ~kWBF_DummyBuf;
         newbuf_to_wipe.br_buf = NULL;
 
         if(readfile(fname, NULL, (linenum_kt)0, (linenum_kt)0,
                     (linenum_kt)MAXLNUM, NULL, READ_NEW | READ_DUMMY) == OK
            && !got_int
-           && !(curbuf->b_flags & BF_NEW))
+           && !(curbuf->b_flags & kWBF_NewFile))
         {
             failed = FALSE;
 
@@ -5121,7 +5121,7 @@ static filebuf_st *load_dummy_buffer(uchar_kt *fname,
 
         // Add back the "dummy" flag, otherwise
         // buflist_findname_file_id() won't skip it.
-        newbuf->b_flags |= BF_DUMMY;
+        newbuf->b_flags |= kWBF_DummyBuf;
     }
 
     // When autocommands/'autochdir' option changed directory: go back.

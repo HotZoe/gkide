@@ -1726,14 +1726,14 @@ bool check_changed_any(bool hidden, bool unload)
     }
 
     bufnrs = xmalloc(sizeof(*bufnrs) * bufcount);
-    bufnrs[bufnum++] = curbuf->b_fnum; // curbuf
+    bufnrs[bufnum++] = curbuf->b_id; // curbuf
 
     // buf in curtab
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
         if(wp->w_buffer != curbuf)
         {
-            add_bufnum(bufnrs, &bufnum, wp->w_buffer->b_fnum);
+            add_bufnum(bufnrs, &bufnum, wp->w_buffer->b_id);
         }
     }
 
@@ -1744,7 +1744,7 @@ bool check_changed_any(bool hidden, bool unload)
         {
             FOR_ALL_WINDOWS_IN_TAB(wp, tp)
             {
-                add_bufnum(bufnrs, &bufnum, wp->w_buffer->b_fnum);
+                add_bufnum(bufnrs, &bufnum, wp->w_buffer->b_id);
             }
         }
     }
@@ -1752,7 +1752,7 @@ bool check_changed_any(bool hidden, bool unload)
     // any other buf
     FOR_ALL_BUFFERS(buf)
     {
-        add_bufnum(bufnrs, &bufnum, buf->b_fnum);
+        add_bufnum(bufnrs, &bufnum, buf->b_id);
     }
 
     filebuf_st *buf = NULL;
@@ -2039,19 +2039,19 @@ static int do_arglist(uchar_kt *str, int what, int after)
 
             didone = false;
 
-            for(match = 0; match < ARGCOUNT; match++)
+            for(match = 0; match < carg_cnt; match++)
             {
-                if(vim_regexec(&regmatch, alist_name(&ARGLIST[match]),
+                if(vim_regexec(&regmatch, alist_name(&carg_list[match]),
                                (columnum_kt)0))
                 {
                     didone = true;
-                    xfree(ARGLIST[match].ae_fname);
+                    xfree(carg_list[match].ae_fname);
 
-                    memmove(ARGLIST + match,
-                            ARGLIST + match + 1,
-                            (size_t)(ARGCOUNT - match - 1) * sizeof(aentry_st));
+                    memmove(carg_list + match,
+                            carg_list + match + 1,
+                            (size_t)(carg_cnt - match - 1) * sizeof(aentry_st));
 
-                    ALIST(curwin)->al_ga.ga_len--;
+                    curwin->w_alist->al_ga.ga_len--;
 
                     if(curwin->w_arg_idx > match)
                     {
@@ -2096,7 +2096,7 @@ static int do_arglist(uchar_kt *str, int what, int after)
         }
         else // what == AL_SET
         {
-            alist_set(ALIST(curwin), exp_count, exp_files, false, NULL, 0);
+            alist_set(curwin->w_alist, exp_count, exp_files, false, NULL, 0);
         }
     }
 
@@ -2120,10 +2120,13 @@ static void alist_check_arg_idx(void)
 /// the file at the current argument index.
 static bool editing_arg_idx(win_st *win)
 {
-    return !(win->w_arg_idx >= WARGCOUNT(win)
-             || (win->w_buffer->b_fnum != WARGLIST(win)[win->w_arg_idx].ae_fnum
+    int win_arg_cnt = win->w_alist->al_ga.ga_len;
+    aentry_st *win_arg_buf = (aentry_st *)win->w_alist->al_ga.ga_data;
+
+    return !(win->w_arg_idx >= win_arg_cnt
+             || (win->w_buffer->b_id != win_arg_buf[win->w_arg_idx].ae_fnum
                  && (win->w_buffer->b_ffname == NULL
-                     || !(path_full_compare(alist_name(&WARGLIST(win)[win->w_arg_idx]),
+                     || !(path_full_compare(alist_name(&win_arg_buf[win->w_arg_idx]),
                                             win->w_buffer->b_ffname, true)
                           & kEqualFiles))));
 }
@@ -2131,20 +2134,23 @@ static bool editing_arg_idx(win_st *win)
 /// Check if window "win" is editing the w_arg_idx file in its argument list.
 void check_arg_idx(win_st *win)
 {
-    if(WARGCOUNT(win) > 1 && !editing_arg_idx(win))
+    int win_arg_cnt = win->w_alist->al_ga.ga_len;
+    if(win_arg_cnt > 1 && !editing_arg_idx(win))
     {
         // We are not editing the current entry in the argument list.
         // Set "arg_had_last" if we are editing the last one.
         win->w_arg_idx_invalid = true;
 
-        if(win->w_arg_idx != WARGCOUNT(win) - 1
+        int win_arg_cnt = win->w_alist->al_ga.ga_len - 1;
+
+        if(win->w_arg_idx != win_arg_cnt
            && arg_had_last == false
-           && ALIST(win) == &global_alist
-           && GARGCOUNT > 0
-           && win->w_arg_idx < GARGCOUNT
-           && (win->w_buffer->b_fnum == GARGLIST[GARGCOUNT - 1].ae_fnum
+           && win->w_alist == &g_arglist
+           && g_arglist.al_ga.ga_len > 0
+           && win->w_arg_idx < g_arglist.al_ga.ga_len
+           && (win->w_buffer->b_id == garg_list[garg_cnt - 1].ae_fnum
                || (win->w_buffer->b_ffname != NULL
-                   && (path_full_compare(alist_name(&GARGLIST[GARGCOUNT - 1]),
+                   && (path_full_compare(alist_name(&garg_list[garg_cnt - 1]),
                                          win->w_buffer->b_ffname, true)
                        & kEqualFiles))))
         {
@@ -2157,8 +2163,10 @@ void check_arg_idx(win_st *win)
         // Set "arg_had_last" if it's also the last one
         win->w_arg_idx_invalid = false;
 
-        if(win->w_arg_idx == WARGCOUNT(win) - 1
-           && win->w_alist == &global_alist)
+        int win_arg_cnt = win->w_alist->al_ga.ga_len - 1;
+
+        if(win->w_arg_idx == win_arg_cnt
+           && win->w_alist == &g_arglist)
         {
             arg_had_last = true;
         }
@@ -2170,11 +2178,11 @@ void ex_args(exargs_st *eap)
 {
     if(eap->cmdidx != CMD_args)
     {
-        alist_unlink(ALIST(curwin));
+        alist_unlink(curwin->w_alist);
 
         if(eap->cmdidx == CMD_argglobal)
         {
-            ALIST(curwin) = &global_alist;
+            curwin->w_alist = &g_arglist;
         }
         else // eap->cmdidx == CMD_arglocal
         {
@@ -2191,20 +2199,20 @@ void ex_args(exargs_st *eap)
     else if(eap->cmdidx == CMD_args)
     {
         // ":args": list arguments.
-        if(ARGCOUNT > 0)
+        if(carg_cnt > 0)
         {
             // Overwrite the command, for a short list
             // there is no scrolling required and no wait_return().
             gotocmdline(true);
 
-            for(int i = 0; i < ARGCOUNT; i++)
+            for(int i = 0; i < carg_cnt; i++)
             {
                 if(i == curwin->w_arg_idx)
                 {
                     msg_putchar('[');
                 }
 
-                msg_outtrans(alist_name(&ARGLIST[i]));
+                msg_outtrans(alist_name(&carg_list[i]));
 
                 if(i == curwin->w_arg_idx)
                 {
@@ -2220,16 +2228,18 @@ void ex_args(exargs_st *eap)
         garray_st *gap = &curwin->w_alist->al_ga;
 
         // ":argslocal": make a local copy of the global argument list.
-        ga_grow(gap, GARGCOUNT);
+        ga_grow(gap, g_arglist.al_ga.ga_len);
 
-        for(int i = 0; i < GARGCOUNT; i++)
+        for(int i = 0; i < g_arglist.al_ga.ga_len; i++)
         {
-            if(GARGLIST[i].ae_fname != NULL)
+            if(garg_list[i].ae_fname != NULL)
             {
-                AARGLIST(curwin->w_alist)[gap->ga_len].ae_fname =
-                    vim_strsave(GARGLIST[i].ae_fname);
-                AARGLIST(curwin->w_alist)[gap->ga_len].ae_fnum =
-                    GARGLIST[i].ae_fnum;
+                aentry_st *arg_data =
+                    (aentry_st *)(curwin->w_alist->al_ga.ga_data);
+                arg_data[gap->ga_len].ae_fname =
+                    vim_strsave(garg_list[i].ae_fname);
+                arg_data[gap->ga_len].ae_fnum =
+                    garg_list[i].ae_fnum;
                 gap->ga_len++;
             }
         }
@@ -2240,9 +2250,9 @@ void ex_args(exargs_st *eap)
 void ex_previous(exargs_st *eap)
 {
     // If past the last one already, go to the last one.
-    if(curwin->w_arg_idx - (int)eap->line2 >= ARGCOUNT)
+    if(curwin->w_arg_idx - (int)eap->line2 >= carg_cnt)
     {
-        do_argfile(eap, ARGCOUNT - 1);
+        do_argfile(eap, carg_cnt - 1);
     }
     else
     {
@@ -2259,7 +2269,7 @@ void ex_rewind(exargs_st *eap)
 /// ":last" and ":slast".
 void ex_last(exargs_st *eap)
 {
-    do_argfile(eap, ARGCOUNT - 1);
+    do_argfile(eap, carg_cnt - 1);
 }
 
 /// ":argument" and ":sargument".
@@ -2286,9 +2296,9 @@ void do_argfile(exargs_st *eap, int argn)
     uchar_kt *p;
     int old_arg_idx = curwin->w_arg_idx;
 
-    if(argn < 0 || argn >= ARGCOUNT)
+    if(argn < 0 || argn >= carg_cnt)
     {
-        if(ARGCOUNT <= 1)
+        if(carg_cnt <= 1)
         {
             EMSG(_("E163: There is only one file to edit"));
         }
@@ -2323,7 +2333,7 @@ void do_argfile(exargs_st *eap, int argn)
 
             if(P_HID(curbuf))
             {
-                p = (uchar_kt *)fix_fname((char *)alist_name(&ARGLIST[argn]));
+                p = (uchar_kt *)fix_fname((char *)alist_name(&carg_list[argn]));
                 other = otherfile(p);
                 xfree(p);
             }
@@ -2340,8 +2350,8 @@ void do_argfile(exargs_st *eap, int argn)
 
         curwin->w_arg_idx = argn;
 
-        if(argn == ARGCOUNT - 1
-           && curwin->w_alist == &global_alist)
+        if(argn == carg_cnt - 1
+           && curwin->w_alist == &g_arglist)
         {
             arg_had_last = true;
         }
@@ -2350,7 +2360,7 @@ void do_argfile(exargs_st *eap, int argn)
         // When it fails (e.g. Abort for already edited file) restore the
         // argument index.
         if(do_ecmd(0,
-                   alist_name(&ARGLIST[curwin->w_arg_idx]),
+                   alist_name(&carg_list[curwin->w_arg_idx]),
                    NULL,
                    eap,
                    ECMD_LAST,
@@ -2409,15 +2419,15 @@ void ex_argedit(exargs_st *eap)
     fnum = buflist_add(eap->arg, BLN_LISTED);
 
     // Check if this argument is already in the argument list.
-    for(i = 0; i < ARGCOUNT; i++)
+    for(i = 0; i < carg_cnt; i++)
     {
-        if(ARGLIST[i].ae_fnum == fnum)
+        if(carg_list[i].ae_fnum == fnum)
         {
             break;
         }
     }
 
-    if(i == ARGCOUNT)
+    if(i == carg_cnt)
     {
         // Can't find it, add it to the argument list.
         s = vim_strsave(eap->arg);
@@ -2451,9 +2461,9 @@ void ex_argdelete(exargs_st *eap)
     if(eap->addr_count > 0)
     {
         // ":1,4argdel": Delete all arguments in the range.
-        if(eap->line2 > ARGCOUNT)
+        if(eap->line2 > carg_cnt)
         {
-            eap->line2 = ARGCOUNT;
+            eap->line2 = carg_cnt;
         }
 
         linenum_kt n = eap->line2 - eap->line1 + 1;
@@ -2466,13 +2476,13 @@ void ex_argdelete(exargs_st *eap)
         {
             for(linenum_kt i = eap->line1; i <= eap->line2; i++)
             {
-                xfree(ARGLIST[i - 1].ae_fname);
+                xfree(carg_list[i - 1].ae_fname);
             }
 
-            memmove(ARGLIST + eap->line1 - 1, ARGLIST + eap->line2,
-                    (size_t)(ARGCOUNT - eap->line2) * sizeof(aentry_st));
+            memmove(carg_list + eap->line1 - 1, carg_list + eap->line2,
+                    (size_t)(carg_cnt - eap->line2) * sizeof(aentry_st));
 
-            ALIST(curwin)->al_ga.ga_len -= (int)n;
+            curwin->w_alist->al_ga.ga_len -= (int)n;
 
             if(curwin->w_arg_idx >= eap->line2)
             {
@@ -2483,13 +2493,13 @@ void ex_argdelete(exargs_st *eap)
                 curwin->w_arg_idx = (int)eap->line1;
             }
 
-            if(ARGCOUNT == 0)
+            if(carg_cnt == 0)
             {
                 curwin->w_arg_idx = 0;
             }
-            else if(curwin->w_arg_idx >= ARGCOUNT)
+            else if(curwin->w_arg_idx >= carg_cnt)
             {
-                curwin->w_arg_idx = ARGCOUNT - 1;
+                curwin->w_arg_idx = carg_cnt - 1;
             }
         }
     }
@@ -2569,10 +2579,10 @@ void ex_listdo(exargs_st *eap)
         {
             // Advance to the first listed buffer after "eap->line1".
             for(buf = firstbuf;
-                buf != NULL && (buf->b_fnum < eap->line1 || !buf->b_p_bl);
+                buf != NULL && (buf->b_id < eap->line1 || !buf->b_p_bl);
                 buf = buf->b_next)
             {
-                if(buf->b_fnum > eap->line2)
+                if(buf->b_id > eap->line2)
                 {
                     buf = NULL;
                     break;
@@ -2581,7 +2591,7 @@ void ex_listdo(exargs_st *eap)
 
             if(buf != NULL)
             {
-                goto_buffer(eap, DOBUF_FIRST, FORWARD, buf->b_fnum);
+                goto_buffer(eap, DOBUF_FIRST, FORWARD, buf->b_id);
             }
         }
         else if(eap->cmdidx == CMD_cdo || eap->cmdidx == CMD_ldo
@@ -2620,7 +2630,7 @@ void ex_listdo(exargs_st *eap)
             if(eap->cmdidx == CMD_argdo)
             {
                 // go to argument "i"
-                if(i == ARGCOUNT)
+                if(i == carg_cnt)
                 {
                     break;
                 }
@@ -2683,7 +2693,7 @@ void ex_listdo(exargs_st *eap)
                 {
                     if(buf->b_p_bl)
                     {
-                        next_fnum = buf->b_fnum;
+                        next_fnum = buf->b_id;
                         break;
                     }
                 }
@@ -2706,7 +2716,7 @@ void ex_listdo(exargs_st *eap)
                 bool buf_still_exists = false;
                 FOR_ALL_BUFFERS(bp)
                 {
-                    if(bp->b_fnum == next_fnum)
+                    if(bp->b_id == next_fnum)
                     {
                         buf_still_exists = true;
                         break;
@@ -2729,7 +2739,7 @@ void ex_listdo(exargs_st *eap)
                 xfree(p_shm_save);
 
                 // If autocommands took us elsewhere, quit here.
-                if(curbuf->b_fnum != next_fnum)
+                if(curbuf->b_id != next_fnum)
                 {
                     break;
                 }
@@ -2762,7 +2772,7 @@ void ex_listdo(exargs_st *eap)
                 validate_cursor(); // cursor may have moved
 
                 // required when 'scrollbind' has been set
-                if(curwin->w_p_scb)
+                if(curwin->w_o_curbuf.wo_scb)
                 {
                     do_check_scrollbind(true);
                 }
@@ -2808,34 +2818,34 @@ void ex_listdo(exargs_st *eap)
 /// index of first added argument
 static int alist_add_list(int count, uchar_kt **files, int after)
 {
-    int old_argcount = ARGCOUNT;
+    int old_argcount = carg_cnt;
 
-    ga_grow(&ALIST(curwin)->al_ga, count);
+    ga_grow(&curwin->w_alist->al_ga, count);
     {
         if(after < 0)
         {
             after = 0;
         }
 
-        if(after > ARGCOUNT)
+        if(after > carg_cnt)
         {
-            after = ARGCOUNT;
+            after = carg_cnt;
         }
 
-        if(after < ARGCOUNT)
+        if(after < carg_cnt)
         {
-            memmove(&(ARGLIST[after + count]),
-                    &(ARGLIST[after]),
-                    (size_t)(ARGCOUNT - after) * sizeof(aentry_st));
+            memmove(&(carg_list[after + count]),
+                    &(carg_list[after]),
+                    (size_t)(carg_cnt - after) * sizeof(aentry_st));
         }
 
         for(int i = 0; i < count; i++)
         {
-            ARGLIST[after + i].ae_fname = files[i];
-            ARGLIST[after + i].ae_fnum = buflist_add(files[i], BLN_LISTED);
+            carg_list[after + i].ae_fname = files[i];
+            carg_list[after + i].ae_fnum = buflist_add(files[i], BLN_LISTED);
         }
 
-        ALIST(curwin)->al_ga.ga_len += count;
+        curwin->w_alist->al_ga.ga_len += count;
 
         if(old_argcount > 0 && curwin->w_arg_idx >= after)
         {
@@ -4774,7 +4784,7 @@ void ex_drop(exargs_st *eap)
     // Expanding wildcards may result in an empty argument list. E.g. when
     // editing "foo.pyc" and ".pyc" is in 'wildignore'. Assume that we
     // already did an error message for this.
-    if(ARGCOUNT == 0)
+    if(carg_cnt == 0)
     {
         return;
     }
@@ -4791,7 +4801,7 @@ void ex_drop(exargs_st *eap)
         // ":drop file ...": Edit the first argument. Jump to an existing
         // window if possible, edit in current window if the current buffer
         // can be abandoned, otherwise open a new window.
-        buf = buflist_findnr(ARGLIST[0].ae_fnum);
+        buf = buflist_findnr(carg_list[0].ae_fnum);
         FOR_ALL_TAB_WINDOWS(tp, wp)
         {
             if(wp->w_buffer == buf)

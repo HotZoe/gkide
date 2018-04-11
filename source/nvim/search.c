@@ -175,7 +175,8 @@ int search_regcomp(uchar_kt *pat,
         mr_pattern_alloced = FALSE;
     }
 
-    if(curwin->w_p_rl && *curwin->w_p_rlc == 's')
+    if(curwin->w_o_curbuf.wo_rl
+       && *curwin->w_o_curbuf.wo_rlc == 's')
     {
         mr_pattern = reverse_text(pat);
         mr_pattern_alloced = TRUE;
@@ -1406,7 +1407,8 @@ int do_search(oparg_st *oap,
                 // mode, but the 'ruler' and 'showcmd' area use it too, thus
                 // it would be blanked out again very soon. Show it on the
                 // left, but do reverse the text.
-                if(curwin->w_p_rl && *curwin->w_p_rlc == 's')
+                if(curwin->w_o_curbuf.wo_rl
+                   && *curwin->w_o_curbuf.wo_rlc == 's')
                 {
                     uchar_kt *r = reverse_text(trunc != NULL ? trunc : msgbuf);
                     xfree(trunc);
@@ -1471,7 +1473,7 @@ int do_search(oparg_st *oap,
             }
         }
 
-        if(p_altkeymap && curwin->w_p_rl)
+        if(p_altkeymap && curwin->w_o_curbuf.wo_rl)
         {
             lrFswap(searchstr,0);
         }
@@ -2284,7 +2286,8 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
 
     // This is just guessing: when 'rightleft' is set, search for a matching
     // paren/brace in the other direction.
-    if(curwin->w_p_rl && vim_strchr((uchar_kt *)"()[]{}<>", initc) != NULL)
+    if(curwin->w_o_curbuf.wo_rl
+       && vim_strchr((uchar_kt *)"()[]{}<>", initc) != NULL)
     {
         backwards = !backwards;
     }
@@ -2836,7 +2839,7 @@ void showmatch(int c)
     // 'matchpairs' is "x:y,x:y"
     for(p = curbuf->b_p_mps; *p != NUL; ++p)
     {
-        if(PTR2CHAR(p) == c && (curwin->w_p_rl ^ p_ri))
+        if(PTR2CHAR(p) == c && (curwin->w_o_curbuf.wo_rl ^ p_ri))
         {
             break;
         }
@@ -2844,7 +2847,7 @@ void showmatch(int c)
         p += MB_PTR2LEN(p) + 1;
 
         if(PTR2CHAR(p) == c
-           && !(curwin->w_p_rl ^ p_ri)
+           && !(curwin->w_o_curbuf.wo_rl ^ p_ri)
           )
         {
             break;
@@ -2865,12 +2868,12 @@ void showmatch(int c)
     else if(lpos->lnum >= curwin->w_topline
             && lpos->lnum < curwin->w_botline)
     {
-        if(!curwin->w_p_wrap)
+        if(!curwin->w_o_curbuf.wo_wrap)
         {
             getvcol(curwin, lpos, NULL, &vcol, NULL);
         }
 
-        if(curwin->w_p_wrap
+        if(curwin->w_o_curbuf.wo_wrap
            || (vcol >= curwin->w_leftcol
                && vcol < curwin->w_leftcol + curwin->w_width))
         {

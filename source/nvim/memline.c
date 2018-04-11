@@ -319,7 +319,7 @@ int ml_open(filebuf_st *buf)
     // is created.
     mf_put(mfp, hp, true, false);
 
-    if(!buf->b_help && !B_SPELL(buf))
+    if(!buf->b_help && !buf->b_spell)
     {
         (void)mf_sync(mfp, 0);
     }
@@ -622,7 +622,7 @@ void ml_close(filebuf_st *buf, int del_file)
 
     // Reset the "recovered" flag, give the ATTENTION
     // prompt the next time this buffer is loaded.
-    buf->b_flags &= ~BF_RECOVERED;
+    buf->b_flags &= ~kWBF_BufRecovered;
 }
 
 /// Close all existing memlines and memfiles.
@@ -634,7 +634,7 @@ void ml_close_all(int del_file)
 {
     FOR_ALL_BUFFERS(buf)
     {
-        ml_close(buf, del_file && ((buf->b_flags & BF_PRESERVED) == 0));
+        ml_close(buf, del_file && ((buf->b_flags & kWBF_Preserve) == 0));
     }
     spell_delete_wordlist(); // delete the internal wordlist
     vim_deltempdir(); // delete created temp directory
@@ -1405,7 +1405,7 @@ void ml_recover(void)
         ml_delete(curbuf->b_ml.ml_line_count, FALSE);
     }
 
-    curbuf->b_flags |= BF_RECOVERED;
+    curbuf->b_flags |= kWBF_BufRecovered;
     recoverymode = FALSE;
 
     if(got_int)
@@ -4003,7 +4003,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
             // viewing a help file or when the path of the file is different
             // (happens when all .swp files are in one directory).
             if(!recoverymode && buf_fname != NULL
-               && !buf->b_help && !(buf->b_flags & BF_DUMMY))
+               && !buf->b_help && !(buf->b_flags & kWBF_DummyBuf))
             {
                 int fd;
                 int differ = FALSE;
@@ -4056,7 +4056,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
 
                 // give the ATTENTION message when there is an old swap file
                 // for the current file, and the buffer was not recovered.
-                if(differ == FALSE && !(curbuf->b_flags & BF_RECOVERED)
+                if(differ == FALSE && !(curbuf->b_flags & kWBF_BufRecovered)
                    && vim_strchr(p_shm, SHM_ATTENTION) == NULL)
                 {
                     int choice = 0;

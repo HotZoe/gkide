@@ -95,7 +95,7 @@ redo:
     // anchor position: the start of the completed word
     row = curwin->w_wrow + curwin->w_winrow;
 
-    if(curwin->w_p_rl)
+    if(curwin->w_o_curbuf.wo_rl)
     {
         col = curwin->w_wincol + curwin->w_width - curwin->w_wcol - 1;
     }
@@ -139,7 +139,7 @@ redo:
 
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
-        if(wp->w_p_pvw)
+        if(wp->w_o_curbuf.wo_pvw)
         {
             pvwin = wp;
             break;
@@ -304,13 +304,14 @@ redo:
     }
 
     if((((col < Columns - PUM_DEF_WIDTH) || (col < Columns - max_width))
-        && !curwin->w_p_rl)
-       || (curwin->w_p_rl && ((col > PUM_DEF_WIDTH) || (col > max_width))))
+        && !curwin->w_o_curbuf.wo_rl)
+       || (curwin->w_o_curbuf.wo_rl
+           && ((col > PUM_DEF_WIDTH) || (col > max_width))))
     {
         // align pum column with "col"
         pum_col = col;
 
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             pum_width = pum_col - pum_scrollbar + 1;
         }
@@ -335,7 +336,7 @@ redo:
     else if(Columns < def_width)
     {
         // not enough room, will use what we have
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             assert(Columns - 1 >= INT_MIN);
             pum_col = (int)(Columns - 1);
@@ -356,7 +357,7 @@ redo:
             max_width = PUM_DEF_WIDTH;
         }
 
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             pum_col = max_width - 1;
         }
@@ -429,7 +430,7 @@ void pum_redraw(void)
         attr = (idx == pum_selected) ? attr_select : attr_norm;
 
         // prepend a space if there is room
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             if(pum_col < curwin->w_wincol + curwin->w_width - 1)
             {
@@ -489,7 +490,7 @@ void pum_redraw(void)
                         st = transstr(s);
                         *p = saved;
 
-                        if(curwin->w_p_rl)
+                        if(curwin->w_o_curbuf.wo_rl)
                         {
                             uchar_kt *rt = reverse_text(st);
                             uchar_kt *rt_start = rt;
@@ -540,7 +541,7 @@ void pum_redraw(void)
                         }
 
                         // Display two spaces for a Tab.
-                        if(curwin->w_p_rl)
+                        if(curwin->w_o_curbuf.wo_rl)
                         {
                             screen_puts_len((uchar_kt *)"  ",
                                             2,
@@ -592,7 +593,7 @@ void pum_redraw(void)
                 break;
             }
 
-            if(curwin->w_p_rl)
+            if(curwin->w_o_curbuf.wo_rl)
             {
                 screen_fill(row, row + 1, pum_col - pum_base_width - n + 1,
                             col + 1, ' ', ' ', attr);
@@ -608,7 +609,7 @@ void pum_redraw(void)
             totwidth = pum_base_width + n;
         }
 
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             screen_fill(row, row + 1,
                         pum_col - pum_width + 1,
@@ -630,7 +631,7 @@ void pum_redraw(void)
 
         if(pum_scrollbar > 0)
         {
-            if(curwin->w_p_rl)
+            if(curwin->w_o_curbuf.wo_rl)
             {
                 screen_putchar(' ',
                                row,
@@ -766,7 +767,7 @@ static int pum_set_selected(int n, int repeat)
             RedrawingDisabled--;
             g_do_tagpreview = 0;
 
-            if(curwin->w_p_pvw)
+            if(curwin->w_o_curbuf.wo_pvw)
             {
                 if(!resized
                    && (curbuf->b_nwindows == 1)

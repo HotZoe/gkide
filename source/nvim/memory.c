@@ -750,7 +750,7 @@ void free_all_mem(void)
     free_all_options();
     free_all_marks();
 
-    alist_clear(&global_alist);
+    alist_clear(&g_arglist);
 
     free_homedir();
     free_users();

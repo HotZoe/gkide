@@ -81,7 +81,7 @@ void diff_buf_delete(filebuf_st *buf)
 /// @param win
 void diff_buf_adjust(win_st *win)
 {
-    if(!win->w_p_diff)
+    if(!win->w_o_curbuf.wo_diff)
     {
         // When there is no window showing a diff
         // for this buffer, remove it from the diffs.
@@ -89,7 +89,7 @@ void diff_buf_adjust(win_st *win)
 
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if((wp->w_buffer == win->w_buffer) && wp->w_p_diff)
+            if((wp->w_buffer == win->w_buffer) && wp->w_o_curbuf.wo_diff)
             {
                 found_win = true;
             }
@@ -715,7 +715,7 @@ static void diff_redraw(int dofold)
 {
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
-        if(!wp->w_p_diff)
+        if(!wp->w_o_curbuf.wo_diff)
         {
             continue;
         }
@@ -1286,7 +1286,7 @@ void ex_diffsplit(exargs_st *eap)
     {
         // Pretend it was a ":split fname" command
         eap->cmdidx = CMD_split;
-        curwin->w_p_diff = TRUE;
+        curwin->w_o_curbuf.wo_diff = TRUE;
         do_exedit(eap, old_curwin);
 
         // split must have worked
@@ -1337,37 +1337,37 @@ void diff_win_options(win_st *wp, int addbuf)
     curwin = old_curwin;
 
     // Use 'scrollbind' and 'cursorbind' when available
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
-        wp->w_p_scb_save = wp->w_p_scb;
+        wp->w_o_curbuf.wo_scb_save = wp->w_o_curbuf.wo_scb;
     }
 
-    wp->w_p_scb = TRUE;
+    wp->w_o_curbuf.wo_scb = TRUE;
 
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
-        wp->w_p_crb_save = wp->w_p_crb;
+        wp->w_o_curbuf.wo_crb_save = wp->w_o_curbuf.wo_crb;
     }
 
-    wp->w_p_crb = TRUE;
+    wp->w_o_curbuf.wo_crb = TRUE;
 
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
-        wp->w_p_wrap_save = wp->w_p_wrap;
+        wp->w_o_curbuf.wo_wrap_save = wp->w_o_curbuf.wo_wrap;
     }
 
-    wp->w_p_wrap = false;
+    wp->w_o_curbuf.wo_wrap = false;
     curwin = wp;
     curbuf = curwin->w_buffer;
 
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
-        if(wp->w_p_diff_saved)
+        if(wp->w_o_curbuf.wo_diff_saved)
         {
-            free_string_option(wp->w_p_fdm_save);
+            free_string_option(wp->w_o_curbuf.wo_fdm_save);
         }
 
-        wp->w_p_fdm_save = vim_strsave(wp->w_p_fdm);
+        wp->w_o_curbuf.wo_fdm_save = vim_strsave(wp->w_o_curbuf.wo_fdm);
     }
 
     set_string_option_direct((uchar_kt *)"fdm",
@@ -1379,16 +1379,16 @@ void diff_win_options(win_st *wp, int addbuf)
     curwin = old_curwin;
     curbuf = curwin->w_buffer;
 
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
-        wp->w_p_fdc_save = wp->w_p_fdc;
-        wp->w_p_fen_save = wp->w_p_fen;
-        wp->w_p_fdl_save = wp->w_p_fdl;
+        wp->w_o_curbuf.wo_fdc_save = wp->w_o_curbuf.wo_fdc;
+        wp->w_o_curbuf.wo_fen_save = wp->w_o_curbuf.wo_fen;
+        wp->w_o_curbuf.wo_fdl_save = wp->w_o_curbuf.wo_fdl;
     }
 
-    wp->w_p_fdc = diff_foldcolumn;
-    wp->w_p_fen = TRUE;
-    wp->w_p_fdl = 0;
+    wp->w_o_curbuf.wo_fdc = diff_foldcolumn;
+    wp->w_o_curbuf.wo_fen = TRUE;
+    wp->w_o_curbuf.wo_fdl = 0;
     foldUpdateAll(wp);
 
     // make sure topline is not halfway through a fold
@@ -1400,8 +1400,8 @@ void diff_win_options(win_st *wp, int addbuf)
     }
 
     // Saved the current values, to be restored in ex_diffoff().
-    wp->w_p_diff_saved = TRUE;
-    wp->w_p_diff = true;
+    wp->w_o_curbuf.wo_diff_saved = TRUE;
+    wp->w_o_curbuf.wo_diff = true;
 
     if(addbuf)
     {
@@ -1421,49 +1421,52 @@ void ex_diffoff(exargs_st *eap)
     int diffwin = false;
     FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
     {
-        if(eap->forceit ? wp->w_p_diff : (wp == curwin))
+        if(eap->forceit ? wp->w_o_curbuf.wo_diff : (wp == curwin))
         {
             // Set 'diff' off. If option values were saved in
             // diff_win_options(), restore the ones whose settings
             // seem to have been left over from diff mode.
-            wp->w_p_diff = false;
+            wp->w_o_curbuf.wo_diff = false;
 
-            if(wp->w_p_diff_saved)
+            if(wp->w_o_curbuf.wo_diff_saved)
             {
-                if(wp->w_p_scb)
+                if(wp->w_o_curbuf.wo_scb)
                 {
-                    wp->w_p_scb = wp->w_p_scb_save;
+                    wp->w_o_curbuf.wo_scb = wp->w_o_curbuf.wo_scb_save;
                 }
 
-                if(wp->w_p_crb)
+                if(wp->w_o_curbuf.wo_crb)
                 {
-                    wp->w_p_crb = wp->w_p_crb_save;
+                    wp->w_o_curbuf.wo_crb = wp->w_o_curbuf.wo_crb_save;
                 }
 
-                if(!wp->w_p_wrap)
+                if(!wp->w_o_curbuf.wo_wrap)
                 {
-                    wp->w_p_wrap = wp->w_p_wrap_save;
+                    wp->w_o_curbuf.wo_wrap =
+                        wp->w_o_curbuf.wo_wrap_save;
                 }
 
-                free_string_option(wp->w_p_fdm);
-                wp->w_p_fdm = vim_strsave(wp->w_p_fdm_save);
+                free_string_option(wp->w_o_curbuf.wo_fdm);
+                wp->w_o_curbuf.wo_fdm =
+                    vim_strsave(wp->w_o_curbuf.wo_fdm_save);
 
-                if(wp->w_p_fdc == diff_foldcolumn)
+                if(wp->w_o_curbuf.wo_fdc == diff_foldcolumn)
                 {
-                    wp->w_p_fdc = wp->w_p_fdc_save;
+                    wp->w_o_curbuf.wo_fdc = wp->w_o_curbuf.wo_fdc_save;
                 }
 
-                if(wp->w_p_fdl == 0)
+                if(wp->w_o_curbuf.wo_fdl == 0)
                 {
-                    wp->w_p_fdl = wp->w_p_fdl_save;
+                    wp->w_o_curbuf.wo_fdl = wp->w_o_curbuf.wo_fdl_save;
                 }
 
                 // Only restore 'foldenable' when 'foldmethod' is not
                 // "manual", otherwise we continue to show the diff folds.
-                if(wp->w_p_fen)
+                if(wp->w_o_curbuf.wo_fen)
                 {
-                    wp->w_p_fen = foldmethodIsManual(wp)
-                                  ? false : wp->w_p_fen_save;
+                    wp->w_o_curbuf.wo_fen =
+                        foldmethodIsManual(wp)
+                        ? false : wp->w_o_curbuf.wo_fen_save;
                 }
 
                 foldUpdateAll(wp);
@@ -1480,7 +1483,7 @@ void ex_diffoff(exargs_st *eap)
             diff_buf_adjust(wp);
         }
 
-        diffwin |= wp->w_p_diff;
+        diffwin |= wp->w_o_curbuf.wo_diff;
     }
 
     // Remove "hor" from from 'scrollopt' if there are no diff windows left.
@@ -1815,7 +1818,7 @@ int diff_check(win_st *wp, linenum_kt lnum)
     }
 
     // no diffs at all
-    if((curtab->tp_first_diff == NULL) || !wp->w_p_diff)
+    if((curtab->tp_first_diff == NULL) || !wp->w_o_curbuf.wo_diff)
     {
         return 0;
     }
@@ -2495,7 +2498,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     diffblk_st *dp;
 
     // Return if 'diff' isn't set.
-    if(!wp->w_p_diff)
+    if(!wp->w_o_curbuf.wo_diff)
     {
         return false;
     }
@@ -2623,7 +2626,7 @@ void ex_diffgetput(exargs_st *eap)
                && (curtab->tp_diffbuf[idx_other] != NULL))
             {
                 if((eap->cmdidx != CMD_diffput)
-                   || MODIFIABLE(curtab->tp_diffbuf[idx_other]))
+                   || curtab->tp_diffbuf[idx_other]->b_p_ma)
                 {
                     break;
                 }
@@ -2652,7 +2655,7 @@ void ex_diffgetput(exargs_st *eap)
             if((curtab->tp_diffbuf[i] != curbuf)
                && (curtab->tp_diffbuf[i] != NULL)
                && ((eap->cmdidx != CMD_diffput)
-                   || MODIFIABLE(curtab->tp_diffbuf[i])))
+                   || curtab->tp_diffbuf[i]->b_p_ma))
             {
                 EMSG(_("E101: More than two buffers in diff mode, "
                        "don't know which one to use"));

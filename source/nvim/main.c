@@ -153,8 +153,8 @@ static void early_init(void)
     }
 
     init_yank(); // init yank buffers
-    alist_init(&global_alist); // Init the argument list to empty.
-    global_alist.id = 0;
+    alist_init(&g_arglist); // Init the argument list to empty.
+    g_arglist.id = 0;
 
     // Find out the gkide user home directory
     if(!init_gkide_usr_home())
@@ -189,11 +189,11 @@ int main(int argc, char **argv)
     event_init();
 
     // Process the command line arguments.
-    // File names are put in the global argument list "global_alist".
+    // File names are put in the global argument list "g_arglist".
     cmd_line_args_parser(&params);
 
     // Get filename from command line, if any.
-    if(GARGCOUNT > 0)
+    if(g_arglist.al_ga.ga_len > 0)
     {
         fname = get_cmd_line_fname(&params, cwd);
     }
@@ -333,11 +333,11 @@ int main(int argc, char **argv)
         p_uc = 0;
     }
 
-    if(curwin->w_p_rl && p_altkeymap)
+    if(curwin->w_o_curbuf.wo_rl && p_altkeymap)
     {
         p_fkmap = TRUE; // Set the Farsi keymap mode
         p_hkmap = FALSE; // Reset the Hebrew keymap mode
-        curwin->w_p_arab = FALSE; // Reset the Arabic keymap mode
+        curwin->w_o_curbuf.wo_arab = FALSE; // Reset the Arabic keymap mode
     }
 
     // Read in registers, history etc, from the ShaDa file.
@@ -493,7 +493,7 @@ int main(int argc, char **argv)
 
     // When a startup script or session file setup for diff'ing and
     // scrollbind, sync the scrollbind now.
-    if(curwin->w_p_diff && curwin->w_p_scb)
+    if(curwin->w_o_curbuf.wo_diff && curwin->w_o_curbuf.wo_scb)
     {
         update_topline();
         check_scrollbind((linenum_kt)0, 0L);
@@ -850,7 +850,7 @@ static uchar_kt *get_cmd_line_fname(main_args_st *FUNC_ARGS_UNUSED_MAYBE(parmp),
         }
     }
 #endif
-    return alist_name(&GARGLIST[0]);
+    return alist_name(&garg_list[0]);
 }
 
 /// Decide about window layout for diff mode after reading vimrc.
@@ -1020,7 +1020,7 @@ static void create_windows(main_args_st *parmp)
 
     if(parmp->window_count == 0)
     {
-        parmp->window_count = GARGCOUNT;
+        parmp->window_count = g_arglist.al_ga.ga_len;
     }
 
     if(parmp->window_count > 1)
@@ -1119,7 +1119,7 @@ static void create_windows(main_args_st *parmp)
                 // Set 'foldlevel' to 'foldlevelstart' if it's not negative.
                 if(p_fdls >= 0)
                 {
-                    curwin->w_p_fdl = p_fdls;
+                    curwin->w_o_curbuf.wo_fdl = p_fdls;
                 }
 
                 // When getting the ATTENTION prompt here, use a dialog
@@ -1252,8 +1252,8 @@ static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
             swap_exists_did_quit = FALSE;
 
             (void)do_ecmd(0,
-                          arg_idx < GARGCOUNT
-                          ? alist_name(&GARGLIST[arg_idx]) : NULL,
+                          arg_idx < g_arglist.al_ga.ga_len
+                          ? alist_name(&garg_list[arg_idx]) : NULL,
                           NULL,
                           NULL,
                           ECMD_LASTL,
@@ -1274,7 +1274,7 @@ static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
                 advance = FALSE;
             }
 
-            if(arg_idx == GARGCOUNT - 1)
+            if(arg_idx == g_arglist.al_ga.ga_len - 1)
             {
                 arg_had_last = TRUE;
             }
@@ -1304,7 +1304,7 @@ static void edit_buffers(main_args_st *parmp, uchar_kt *cwd)
     win = firstwin;
 
     // Avoid making a preview window the current window.
-    while(win->w_p_pvw)
+    while(win->w_o_curbuf.wo_pvw)
     {
         win = win->w_next;
 

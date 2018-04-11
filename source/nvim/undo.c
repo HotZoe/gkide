@@ -321,7 +321,7 @@ int u_savedel(linenum_kt lnum, long nlines)
 bool undo_allowed(void)
 {
     // Don't allow changes when 'modifiable' is off.
-    if(!MODIFIABLE(curbuf))
+    if(!curbuf->b_p_ma)
     {
         EMSG(_(e_modifiable));
         return false;
@@ -3107,7 +3107,7 @@ static void u_undo_end(int did_undo, int absolute, bool quiet)
     {
         FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
         {
-            if(wp->w_buffer == curbuf && wp->w_p_cole > 0)
+            if(wp->w_buffer == curbuf && wp->w_o_curbuf.wo_cole > 0)
             {
                 redraw_win_later(wp, NOT_VALID);
             }

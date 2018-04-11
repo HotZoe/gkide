@@ -407,7 +407,7 @@ void update_screen(int type)
     // 'relativenumber' column changes.
     if(curwin->w_redr_type < NOT_VALID
        && curwin->w_nrwidth
-          != ((curwin->w_p_nu || curwin->w_p_rnu)
+          != ((curwin->w_o_curbuf.wo_nu || curwin->w_o_curbuf.wo_rnu)
               ? number_width(curwin) : 0))
     {
         curwin->w_redr_type = NOT_VALID;
@@ -430,7 +430,7 @@ void update_screen(int type)
                 && VIsual_active
                 && curwin->w_old_cursor_lnum == curwin->w_cursor.lnum
                 && curwin->w_old_visual_mode == VIsual_mode
-                && (curwin->w_valid & VALID_VIRTCOL)
+                && (curwin->w_valid & kWVF_FileCol)
                 && curwin->w_old_curswant == curwin->w_curswant)))
     {
         curwin->w_redr_type = type;
@@ -529,7 +529,7 @@ int conceal_cursor_line(win_st *wp)
 {
     int c;
 
-    if(*wp->w_p_cocu == NUL)
+    if(*wp->w_o_curbuf.wo_cocu == NUL)
     {
         return FALSE;
     }
@@ -555,13 +555,13 @@ int conceal_cursor_line(win_st *wp)
         return FALSE;
     }
 
-    return vim_strchr(wp->w_p_cocu, c) != NULL;
+    return vim_strchr(wp->w_o_curbuf.wo_cocu, c) != NULL;
 }
 
 /// Check if the cursor line needs to be redrawn because of 'concealcursor'.
 void conceal_check_cursur_line(void)
 {
-    if(curwin->w_p_cole > 0 && conceal_cursor_line(curwin))
+    if(curwin->w_o_curbuf.wo_cole > 0 && conceal_cursor_line(curwin))
     {
         need_cursor_line_redraw = TRUE;
 
@@ -800,7 +800,8 @@ static void win_update(win_st *wp)
 
     // Force redraw when width of 'number' or
     // 'relativenumber' column changes.
-    i = (wp->w_p_nu || wp->w_p_rnu) ? number_width(wp) : 0;
+    i = (wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
+        ? number_width(wp) : 0;
 
     if(wp->w_nrwidth != i)
     {
@@ -958,7 +959,7 @@ static void win_update(win_st *wp)
 
         // When line numbers are displayed need to redraw all lines below
         // inserted/deleted lines.
-        if(mod_top != 0 && buf->b_mod_xlines != 0 && wp->w_p_nu)
+        if(mod_top != 0 && buf->b_mod_xlines != 0 && wp->w_o_curbuf.wo_nu)
         {
             mod_bot = MAXLNUM;
         }
@@ -1207,7 +1208,7 @@ static void win_update(win_st *wp)
 
                     // Correct the first entry for filler lines
                     // at the top when it won't get updated below.
-                    if(wp->w_p_diff && bot_start > 0)
+                    if(wp->w_o_curbuf.wo_diff && bot_start > 0)
                     {
                         wp->w_lines[0].wl_size =
                             plines_win_nofill(wp, wp->w_topline, TRUE)
@@ -1366,7 +1367,7 @@ static void win_update(win_st *wp)
                 columnum_kt fromc, toc;
                 int save_ve_flags = ve_flags;
 
-                if(curwin->w_p_lbr)
+                if(curwin->w_o_curbuf.wo_lbr)
                 {
                     ve_flags = VE_ALL;
                 }
@@ -1421,7 +1422,7 @@ static void win_update(win_st *wp)
 
         // If we know the value of w_botline, use it to restrict
         // the update to the lines that are visible in the window.
-        if(wp->w_valid & VALID_BOTLINE)
+        if(wp->w_valid & kWVF_BotLine)
         {
             if(from >= wp->w_botline)
             {
@@ -1992,12 +1993,12 @@ static void win_update(win_st *wp)
         // doesn't look too bad. Only do this for the current window (where
         // changes are relevant).
 
-        wp->w_valid |= VALID_BOTLINE;
+        wp->w_valid |= kWVF_BotLine;
 
         if(wp == curwin && wp->w_botline != old_botline && !recursive)
         {
             recursive = TRUE;
-            curwin->w_valid &= ~VALID_TOPLINE;
+            curwin->w_valid &= ~kWVF_TopLine;
             update_topline(); // may invalidate w_botline again
 
             if(must_redraw != 0)
@@ -2042,7 +2043,7 @@ static void win_draw_end(win_st *wp,
         attr = hl_combine_attr(wp->w_hl_attr, attr);
     }
 
-    if(wp->w_p_rl)
+    if(wp->w_o_curbuf.wo_rl)
     {
         // No check for cmdline window:
         // should never be right-left.
@@ -2159,7 +2160,7 @@ static int advance_color_col(int vcol, int **color_cols)
 /// is available for window "wp", minus "col".
 static int compute_foldcolumn(win_st *wp, int col)
 {
-    int fdc = wp->w_p_fdc;
+    int fdc = wp->w_o_curbuf.wo_fdc;
     int wmw = wp == curwin && p_wmw == 0 ? 1 : p_wmw;
     int wwidth = wp->w_width;
 
@@ -2221,7 +2222,7 @@ static void fold_line(win_st *wp,
     {
         fill_foldcolumn(buf, wp, TRUE, lnum);
 
-        if(wp->w_p_rl)
+        if(wp->w_o_curbuf.wo_rl)
         {
             int i;
             copy_text_attr(off + wp->w_width - fdc - col,
@@ -2242,7 +2243,7 @@ static void fold_line(win_st *wp,
     }
 
 #define RL_MEMSET(p, v, l)                                         \
-    if(wp->w_p_rl)                                                 \
+    if(wp->w_o_curbuf.wo_rl)                                     \
     {                                                              \
         for(ri = 0; ri < l; ++ri)                                  \
         {                                                          \
@@ -2283,7 +2284,7 @@ static void fold_line(win_st *wp,
     }
 
     // 3. Add the 'number' or 'relativenumber' column
-    if(wp->w_p_nu || wp->w_p_rnu)
+    if(wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
     {
         len = wp->w_width - col;
 
@@ -2299,7 +2300,7 @@ static void fold_line(win_st *wp,
             }
 
             // 'number' + 'norelativenumber'
-            if(wp->w_p_nu && !wp->w_p_rnu)
+            if(wp->w_o_curbuf.wo_nu && !wp->w_o_curbuf.wo_rnu)
             {
                 num = (long)lnum;
             }
@@ -2308,7 +2309,9 @@ static void fold_line(win_st *wp,
                 // 'relativenumber', don't use negative numbers
                 num = labs((long)get_cursor_rel_lnum(wp, lnum));
 
-                if(num == 0 && wp->w_p_nu && wp->w_p_rnu)
+                if(num == 0
+                   && wp->w_o_curbuf.wo_nu
+                   && wp->w_o_curbuf.wo_rnu)
                 {
                     // 'number' + 'relativenumber':
                     // cursor line shows absolute line number
@@ -2319,7 +2322,7 @@ static void fold_line(win_st *wp,
 
             sprintf((char *)buf, fmt, w, num);
 
-            if(wp->w_p_rl)
+            if(wp->w_o_curbuf.wo_rl)
             {
                 // the line number isn't reversed
                 copy_text_attr(off + wp->w_width - len - col,
@@ -2352,7 +2355,7 @@ static void fold_line(win_st *wp,
         int prev_c = 0; // previous Arabic character
         int prev_c1 = 0; // first composing char for prev_c
 
-        if(wp->w_p_rl)
+        if(wp->w_o_curbuf.wo_rl)
         {
             idx = off;
         }
@@ -2367,7 +2370,7 @@ static void fold_line(win_st *wp,
             cells = (*mb_ptr2cells)(p);
             c_len = (*mb_ptr2len)(p);
 
-            if(col + cells > wp->w_width - (wp->w_p_rl ? col : 0))
+            if(col + cells > wp->w_width - (wp->w_o_curbuf.wo_rl ? col : 0))
             {
                 break;
             }
@@ -2394,7 +2397,7 @@ static void fold_line(win_st *wp,
 
                         // The idea of what is the previous and next
                         // character depends on 'rightleft'.
-                        if(wp->w_p_rl)
+                        if(wp->w_o_curbuf.wo_rl)
                         {
                             pc = prev_c;
                             pc1 = prev_c1;
@@ -2466,7 +2469,7 @@ static void fold_line(win_st *wp,
 
         if(len > 0)
         {
-            if(wp->w_p_rl)
+            if(wp->w_o_curbuf.wo_rl)
             {
                 STRNCPY(current_ScreenLine, text, len);
             }
@@ -2480,13 +2483,13 @@ static void fold_line(win_st *wp,
     }
 
     // Fill the rest of the line with the fold filler
-    if(wp->w_p_rl)
+    if(wp->w_o_curbuf.wo_rl)
     {
         col -= txtcol;
     }
 
     while(col < wp->w_width
-          - (wp->w_p_rl ? txtcol : 0)
+          - (wp->w_o_curbuf.wo_rl ? txtcol : 0)
          )
     {
         if(enc_utf8)
@@ -2579,7 +2582,7 @@ static void fold_line(win_st *wp,
         {
             txtcol += j;
 
-            if(wp->w_p_wrap)
+            if(wp->w_o_curbuf.wo_wrap)
             {
                 txtcol -= wp->w_skipcol;
             }
@@ -2600,11 +2603,11 @@ static void fold_line(win_st *wp,
     }
 
     // Show 'cursorcolumn' in the fold line.
-    if(wp->w_p_cuc)
+    if(wp->w_o_curbuf.wo_cuc)
     {
         txtcol += wp->w_virtcol;
 
-        if(wp->w_p_wrap)
+        if(wp->w_o_curbuf.wo_wrap)
         {
             txtcol -= wp->w_skipcol;
         }
@@ -2632,7 +2635,7 @@ static void fold_line(win_st *wp,
         curwin->w_cline_row = row;
         curwin->w_cline_height = 1;
         curwin->w_cline_folded = true;
-        curwin->w_valid |= (VALID_CHEIGHT|VALID_CROW);
+        curwin->w_valid |= (kWVF_CLHeight | kWVF_CLRow);
     }
 }
 
@@ -2886,7 +2889,7 @@ static int win_line(win_st *wp,
 
     // To speed up the loop below, set extra_check when there is linebreak,
     // trailing white space and/or syntax processing to be done.
-    extra_check = wp->w_p_lbr;
+    extra_check = wp->w_o_curbuf.wo_lbr;
 
     if(syntax_present(wp) && !wp->w_s->b_syn_error)
     {
@@ -2922,7 +2925,7 @@ static int win_line(win_st *wp,
         draw_color_col = advance_color_col(VCOL_HLC, &color_cols);
     }
 
-    if(wp->w_p_spell
+    if(wp->w_o_curbuf.wo_spell
        && *wp->w_s->b_p_spl != NUL
        && !GA_EMPTY(&wp->w_s->b_langp)
        && *(char **)(wp->w_s->b_langp.ga_data) != NULL)
@@ -3201,7 +3204,7 @@ static int win_line(win_st *wp,
         }
     }
 
-    if(wp->w_p_list)
+    if(wp->w_o_curbuf.wo_list)
     {
         if(lcs_space || lcs_trail)
         {
@@ -3224,7 +3227,7 @@ static int win_line(win_st *wp,
 
     // 'nowrap' or 'wrap' and a single line that doesn't fit:
     // Advance to the first character to be displayed.
-    if(wp->w_p_wrap)
+    if(wp->w_o_curbuf.wo_wrap)
     {
         v = wp->w_skipcol;
     }
@@ -3252,7 +3255,7 @@ static int win_line(win_st *wp,
         // - the visual mode is active,
         // the end of the line may be before the start of the displayed part.
         if(vcol < v
-           && (wp->w_p_cuc
+           && (wp->w_o_curbuf.wo_cuc
                || draw_color_col
                || virtual_active()
                || (VIsual_active && wp->w_buffer == curwin->w_buffer)))
@@ -3281,7 +3284,7 @@ static int win_line(win_st *wp,
         }
 
         // When w_skipcol is non-zero, first line needs 'showbreak'
-        if(wp->w_p_wrap)
+        if(wp->w_o_curbuf.wo_wrap)
         {
             need_showbreak = TRUE;
         }
@@ -3447,7 +3450,7 @@ static int win_line(win_st *wp,
     // Cursor line highlighting for 'cursorline' in the current window.
     // Not when Visual mode is active, because it's not clear what is
     // selected then.
-    if(wp->w_p_cul && lnum == wp->w_cursor.lnum
+    if(wp->w_o_curbuf.wo_cul && lnum == wp->w_cursor.lnum
        && !(wp == curwin && VIsual_active))
     {
         if(line_attr != 0
@@ -3468,7 +3471,7 @@ static int win_line(win_st *wp,
     off = (unsigned)(current_ScreenLine - ScreenLines);
     col = 0;
 
-    if(wp->w_p_rl)
+    if(wp->w_o_curbuf.wo_rl)
     {
         // Rightleft window: process the text in the normal direction,
         // but put it in current_ScreenLine[] from right to left.
@@ -3568,7 +3571,7 @@ static int win_line(win_st *wp,
 
                 // Display the absolute or relative line number. After the
                 // first fill with blanks when the 'n' flag isn't in 'cpo'
-                if((wp->w_p_nu || wp->w_p_rnu)
+                if((wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
                    && (row == startrow
                        + filler_lines
                        || vim_strchr(p_cpo, CPO_NUMCOL) == NULL))
@@ -3580,7 +3583,8 @@ static int win_line(win_st *wp,
                         char *fmt = "%*ld ";
 
                         // 'number' + 'norelativenumber'
-                        if(wp->w_p_nu && !wp->w_p_rnu)
+                        if(wp->w_o_curbuf.wo_nu
+                           && !wp->w_o_curbuf.wo_rnu)
                         {
                             num = (long)lnum;
                         }
@@ -3589,7 +3593,9 @@ static int win_line(win_st *wp,
                             // 'relativenumber', don't use negative numbers
                             num = labs((long)get_cursor_rel_lnum(wp, lnum));
 
-                            if(num == 0 && wp->w_p_nu && wp->w_p_rnu)
+                            if(num == 0
+                               && wp->w_o_curbuf.wo_nu
+                               && wp->w_o_curbuf.wo_rnu)
                             {
                                 // 'number' + 'relativenumber'
                                 num = lnum;
@@ -3607,7 +3613,7 @@ static int win_line(win_st *wp,
                             }
                         }
 
-                        if(wp->w_p_rl) // reverse line numbers
+                        if(wp->w_o_curbuf.wo_rl) // reverse line numbers
                         {
                             rl_mirror(extra);
                         }
@@ -3627,7 +3633,7 @@ static int win_line(win_st *wp,
                     // the current line differently.
                     // TODO: Can we use CursorLine instead of CursorLineNr
                     // when CursorLineNr isn't set ?
-                    if((wp->w_p_cul || wp->w_p_rnu)
+                    if((wp->w_o_curbuf.wo_cul || wp->w_o_curbuf.wo_rnu)
                        && lnum == wp->w_cursor.lnum)
                     {
                         char_attr = hl_attr(HLF_CLN);
@@ -3656,7 +3662,7 @@ static int win_line(win_st *wp,
             {
                 draw_state = WL_BRI;
 
-                if(wp->w_p_bri
+                if(wp->w_o_curbuf.wo_bri
                    && row != startrow
                    && filler_lines == 0)
                 {
@@ -3666,7 +3672,7 @@ static int win_line(win_st *wp,
                     {
                         char_attr = hl_attr(diff_hlf);
 
-                        if(wp->w_p_cul && lnum == wp->w_cursor.lnum)
+                        if(wp->w_o_curbuf.wo_cul && lnum == wp->w_cursor.lnum)
                         {
                             char_attr =
                                 hl_combine_attr(char_attr, hl_attr(HLF_CUL));
@@ -3705,7 +3711,7 @@ static int win_line(win_st *wp,
                         c_extra = fill_diff;
                     }
 
-                    if(wp->w_p_rl)
+                    if(wp->w_o_curbuf.wo_rl)
                     {
                         n_extra = col + 1;
                     }
@@ -3735,7 +3741,7 @@ static int win_line(win_st *wp,
                     }
 
                     // combine 'showbreak' with 'cursorline'
-                    if(wp->w_p_cul && lnum == wp->w_cursor.lnum)
+                    if(wp->w_o_curbuf.wo_cul && lnum == wp->w_cursor.lnum)
                     {
                         char_attr = hl_combine_attr(char_attr, hl_attr(HLF_CUL));
                     }
@@ -3774,11 +3780,11 @@ static int win_line(win_st *wp,
            && filler_todo <= 0)
         {
             SCREEN_LINE(screen_row, wp->w_wincol,
-                        col, -wp->w_width, wp->w_p_rl);
+                        col, -wp->w_width, wp->w_o_curbuf.wo_rl);
 
             // Pretend we have finished updating the window.
             // Except when 'cursorcolumn' is set.
-            if(wp->w_p_cuc)
+            if(wp->w_o_curbuf.wo_cuc)
             {
                 row = wp->w_cline_row + wp->w_cline_height;
             }
@@ -3984,7 +3990,7 @@ static int win_line(win_st *wp,
 
                 line_attr = hl_attr(diff_hlf);
 
-                if(wp->w_p_cul && lnum == wp->w_cursor.lnum)
+                if(wp->w_o_curbuf.wo_cul && lnum == wp->w_cursor.lnum)
                 {
                     line_attr = hl_combine_attr(line_attr, hl_attr(HLF_CUL));
                 }
@@ -4099,7 +4105,8 @@ static int win_line(win_st *wp,
 
                     // If a double-width char doesn't fit
                     // display a '>' in the last column.
-                    if((wp->w_p_rl ? (col <= 0) : (col >= wp->w_width - 1))
+                    if((wp->w_o_curbuf.wo_rl
+                        ? (col <= 0) : (col >= wp->w_width - 1))
                        && (*mb_char2cells)(mb_c) == 2)
                     {
                         c = '>';
@@ -4190,7 +4197,7 @@ static int win_line(win_st *wp,
                         // Non-BMP character : display as ? or fullwidth ?.
                         transchar_hex(extra, mb_c);
 
-                        if(wp->w_p_rl) // reverse
+                        if(wp->w_o_curbuf.wo_rl) // reverse
                         {
                             rl_mirror(extra);
                         }
@@ -4221,7 +4228,7 @@ static int win_line(win_st *wp,
 
                         // The idea of what is the previous and next
                         // character depends on 'rightleft'.
-                        if(wp->w_p_rl)
+                        if(wp->w_o_curbuf.wo_rl)
                         {
                             pc = prev_c;
                             pc1 = prev_c1;
@@ -4294,7 +4301,8 @@ static int win_line(win_st *wp,
                 // If a double-width char doesn't fit display a '>' in the
                 // last column; the character is displayed at the start of the
                 // next line.
-                if((wp->w_p_rl ? (col <= 0) : (col >= wp->w_width - 1))
+                if((wp->w_o_curbuf.wo_rl
+                    ? (col <= 0) : (col >= wp->w_width - 1))
                    && (*mb_char2cells)(mb_c) == 2)
                 {
                     c = '>';
@@ -4533,7 +4541,9 @@ static int win_line(win_st *wp,
                 }
 
                 // Found last space before word: check for line break.
-                if(wp->w_p_lbr && vim_isbreak(c) && !vim_isbreak(*ptr))
+                if(wp->w_o_curbuf.wo_lbr
+                   && vim_isbreak(c)
+                   && !vim_isbreak(*ptr))
                 {
                     int mb_off = has_mbyte ? (*mb_head_off)(line, ptr - 1) : 0;
                     uchar_kt *p = ptr - (mb_off + 1);
@@ -4558,7 +4568,7 @@ static int win_line(win_st *wp,
                             FIX_FOR_BOGUSCOLS;
                         }
 
-                        if(!wp->w_p_list)
+                        if(!wp->w_o_curbuf.wo_list)
                         {
                             c = ' ';
                         }
@@ -4566,7 +4576,7 @@ static int win_line(win_st *wp,
                 }
 
                 // 'list': change char 160 to lcs_nbsp and space to lcs_space.
-                if(wp->w_p_list
+                if(wp->w_o_curbuf.wo_list
                    && (((c == 160
                          || (mb_utf8 && (mb_c == 160 || mb_c == 0x202f)))
                         && lcs_nbsp)
@@ -4617,14 +4627,16 @@ static int win_line(win_st *wp,
                 // when getting a character from the file, we may have to
                 // turn it into something else on the way to putting it
                 // into "ScreenLines".
-                if(c == TAB && (!wp->w_p_list || lcs_tab1))
+                if(c == TAB && (!wp->w_o_curbuf.wo_list || lcs_tab1))
                 {
                     int tab_len = 0;
                     long vcol_adjusted = vcol; // removed showbreak length
 
                     // Only adjust the tab_len, when at the first column
                     // after the showbreak value was drawn.
-                    if(*p_sbr != NUL && vcol == vcol_sbr && wp->w_p_wrap)
+                    if(*p_sbr != NUL
+                       && vcol == vcol_sbr
+                       && wp->w_o_curbuf.wo_wrap)
                     {
                         vcol_adjusted = vcol - MB_CHARLEN(p_sbr);
                     }
@@ -4633,7 +4645,7 @@ static int win_line(win_st *wp,
                     tab_len = (int)wp->w_buffer->b_p_ts
                               - vcol_adjusted % (int)wp->w_buffer->b_p_ts - 1;
 
-                    if(!wp->w_p_lbr || !wp->w_p_list)
+                    if(!wp->w_o_curbuf.wo_lbr || !wp->w_o_curbuf.wo_list)
                     {
                         n_extra = tab_len;
                     }
@@ -4650,7 +4662,7 @@ static int win_line(win_st *wp,
                         }
 
                         // boguscols before FIX_FOR_BOGUSCOLS macro from above.
-                        if(wp->w_p_list
+                        if(wp->w_o_curbuf.wo_list
                            && lcs_tab1
                            && old_boguscols > 0
                            && n_extra > tab_len)
@@ -4707,7 +4719,7 @@ static int win_line(win_st *wp,
                         // correctly set further below (effectively reverts the
                         // FIX_FOR_BOGSUCOLS macro.
                         if(n_extra == tab_len + vc_saved
-                           && wp->w_p_list && lcs_tab1)
+                           && wp->w_o_curbuf.wo_list && lcs_tab1)
                         {
                             tab_len += vc_saved;
                         }
@@ -4715,11 +4727,11 @@ static int win_line(win_st *wp,
 
                     mb_utf8 = (int)false; // don't draw as UTF-8
 
-                    if(wp->w_p_list)
+                    if(wp->w_o_curbuf.wo_list)
                     {
                         c = lcs_tab1;
 
-                        if(wp->w_p_lbr)
+                        if(wp->w_o_curbuf.wo_lbr)
                         {
                             // using p_extra from above
                             c_extra = NUL;
@@ -4748,11 +4760,11 @@ static int win_line(win_st *wp,
                     }
                 }
                 else if(c == NUL
-                        && (wp->w_p_list
+                        && (wp->w_o_curbuf.wo_list
                             || ((fromcol >= 0 || fromcol_prev >= 0)
                                 && tocol > vcol
                                 && VIsual_mode != Ctrl_V
-                                && (wp->w_p_rl
+                                && (wp->w_o_curbuf.wo_rl
                                     ? (col >= 0)
                                     : (col < wp->w_width))
                                 && !(noinvcur
@@ -4782,7 +4794,7 @@ static int win_line(win_st *wp,
                         }
                     }
 
-                    if(wp->w_p_list && lcs_eol > 0)
+                    if(wp->w_o_curbuf.wo_list && lcs_eol > 0)
                     {
                         c = lcs_eol;
                     }
@@ -4818,14 +4830,14 @@ static int win_line(win_st *wp,
                         n_extra = byte2cells(c) - 1;
                     }
 
-                    if((dy_flags & DY_UHEX) && wp->w_p_rl)
+                    if((dy_flags & DY_UHEX) && wp->w_o_curbuf.wo_rl)
                     {
                         rl_mirror(p_extra); // reverse "<12>"
                     }
 
                     c_extra = NUL;
 
-                    if(wp->w_p_lbr)
+                    if(wp->w_o_curbuf.wo_lbr)
                     {
                         uchar_kt *p;
                         c = *p_extra;
@@ -4851,13 +4863,14 @@ static int win_line(win_st *wp,
                         && virtual_active()
                         && tocol != MAXCOL
                         && vcol < tocol
-                        && (wp->w_p_rl ? (col >= 0) : (col < wp->w_width)))
+                        && (wp->w_o_curbuf.wo_rl
+                            ? (col >= 0) : (col < wp->w_width)))
                 {
                     c = ' ';
                     ptr--;  // put it back at the NUL
                 }
                 else if((diff_hlf != (hlf_T)0 || line_attr != 0)
-                        && (wp->w_p_rl
+                        && (wp->w_o_curbuf.wo_rl
                             ? (col >= 0)
                             : (col - boguscols < wp->w_width)))
                 {
@@ -4883,7 +4896,8 @@ static int win_line(win_st *wp,
                         {
                             char_attr = hl_attr(diff_hlf);
 
-                            if(wp->w_p_cul && lnum == wp->w_cursor.lnum)
+                            if(wp->w_o_curbuf.wo_cul
+                               && lnum == wp->w_cursor.lnum)
                             {
                                 char_attr = hl_combine_attr(char_attr,
                                                             hl_attr(HLF_CUL));
@@ -4893,14 +4907,14 @@ static int win_line(win_st *wp,
                 }
             }
 
-            if(wp->w_p_cole > 0
+            if(wp->w_o_curbuf.wo_cole > 0
                && (wp != curwin
                    || lnum != wp->w_cursor.lnum
                    || conceal_cursor_line(wp))
                && ((syntax_flags & HL_CONCEAL) != 0
                    || has_match_conc > 0)
                && !(lnum_in_visual_area
-                    && vim_strchr(wp->w_p_cocu, 'v') == NULL))
+                    && vim_strchr(wp->w_o_curbuf.wo_cocu, 'v') == NULL))
             {
                 char_attr = conceal_attr;
 
@@ -4908,8 +4922,8 @@ static int win_line(win_st *wp,
                     || has_match_conc > 1)
                    && (syn_get_sub_char() != NUL
                        || match_conc
-                       || wp->w_p_cole == 1)
-                   && wp->w_p_cole != 3)
+                       || wp->w_o_curbuf.wo_cole == 1)
+                   && wp->w_o_curbuf.wo_cole != 3)
                 {
                     // First time at this concealed item:
                     // display one character.
@@ -4939,9 +4953,9 @@ static int win_line(win_st *wp,
 
                     vcol += n_extra;
 
-                    if(wp->w_p_wrap && n_extra > 0)
+                    if(wp->w_o_curbuf.wo_wrap && n_extra > 0)
                     {
-                        if(wp->w_p_rl)
+                        if(wp->w_o_curbuf.wo_rl)
                         {
                             col -= n_extra;
                             boguscols -= n_extra;
@@ -4991,7 +5005,7 @@ static int win_line(win_st *wp,
            && conceal_cursor_line(wp)
            && (int)wp->w_virtcol <= vcol + n_skip)
         {
-            if(wp->w_p_rl)
+            if(wp->w_o_curbuf.wo_rl)
             {
                 wp->w_wcol = wp->w_width - col + boguscols - 1;
             }
@@ -5016,8 +5030,8 @@ static int win_line(win_st *wp,
         // character of the line and the user wants us to show us a
         // special character (via 'listchars' option "precedes:<char>".
         if(lcs_prec_todo != NUL
-           && wp->w_p_list
-           && (wp->w_p_wrap ? wp->w_skipcol > 0 : wp->w_leftcol > 0)
+           && wp->w_o_curbuf.wo_list
+           && (wp->w_o_curbuf.wo_wrap ? wp->w_skipcol > 0 : wp->w_leftcol > 0)
            && filler_todo <= 0
            && draw_state > WL_NR
            && c != NUL)
@@ -5063,9 +5077,10 @@ static int win_line(win_st *wp,
         if(c == NUL || did_line_attr == 1)
         {
             long prevcol = (long)(ptr - line) - (c == NUL);
-
+            long currcol = wp->w_o_curbuf.wo_wrap
+                           ? wp->w_skipcol : wp->w_leftcol;
             // we're not really at that column when skipping some text
-            if((long)(wp->w_p_wrap ? wp->w_skipcol : wp->w_leftcol) > prevcol)
+            if(currcol > prevcol)
             {
                 ++prevcol;
             }
@@ -5109,7 +5124,7 @@ static int win_line(win_st *wp,
             {
                 int n = 0;
 
-                if(wp->w_p_rl)
+                if(wp->w_o_curbuf.wo_rl)
                 {
                     if(col < 0)
                     {
@@ -5185,7 +5200,7 @@ static int win_line(win_st *wp,
 
                 ScreenAttrs[off] = char_attr;
 
-                if(wp->w_p_rl)
+                if(wp->w_o_curbuf.wo_rl)
                 {
                     --col;
                     --off;
@@ -5216,7 +5231,7 @@ static int win_line(win_st *wp,
 
             // Highlight 'cursorcolumn' & 'colorcolumn'
             // past end of the line.
-            if(wp->w_p_wrap)
+            if(wp->w_o_curbuf.wo_wrap)
             {
                 v = wp->w_skipcol;
             }
@@ -5243,17 +5258,17 @@ static int win_line(win_st *wp,
                 draw_color_col = advance_color_col(VCOL_HLC, &color_cols);
             }
 
-            if(((wp->w_p_cuc
+            if(((wp->w_o_curbuf.wo_cuc
                  && (int)wp->w_virtcol >= VCOL_HLC - eol_hl_off
                  && (int)wp->w_virtcol <
                  wp->w_width * (row - startrow + 1) + v
                  && lnum != wp->w_cursor.lnum) || draw_color_col)
-               && !wp->w_p_rl)
+               && !wp->w_o_curbuf.wo_rl)
             {
                 int rightmost_vcol = 0;
                 int i;
 
-                if(wp->w_p_cuc)
+                if(wp->w_o_curbuf.wo_cuc)
                 {
                     rightmost_vcol = wp->w_virtcol;
                 }
@@ -5293,7 +5308,8 @@ static int win_line(win_st *wp,
                         draw_color_col = advance_color_col(VCOL_HLC,
                                                            &color_cols);
 
-                    if(wp->w_p_cuc && VCOL_HLC == (long)wp->w_virtcol)
+                    if(wp->w_o_curbuf.wo_cuc
+                       && VCOL_HLC == (long)wp->w_virtcol)
                     {
                         ScreenAttrs[off++] = cuc_attr;
                     }
@@ -5335,7 +5351,7 @@ static int win_line(win_st *wp,
             }
 
             SCREEN_LINE(screen_row, wp->w_wincol,
-                        col, wp->w_width, wp->w_p_rl);
+                        col, wp->w_width, wp->w_o_curbuf.wo_rl);
             row++;
 
             // Update w_cline_height and w_cline_folded if the cursor
@@ -5345,7 +5361,7 @@ static int win_line(win_st *wp,
                 curwin->w_cline_row = startrow;
                 curwin->w_cline_height = row - startrow;
                 curwin->w_cline_folded = false;
-                curwin->w_valid |= (VALID_CHEIGHT|VALID_CROW);
+                curwin->w_valid |= (kWVF_CLHeight | kWVF_CLRow);
             }
 
             break;
@@ -5353,11 +5369,11 @@ static int win_line(win_st *wp,
 
         // line continues beyond line end
         if(lcs_ext
-           && !wp->w_p_wrap
+           && !wp->w_o_curbuf.wo_wrap
            && filler_todo <= 0
-           && (wp->w_p_rl ? col == 0 : col == wp->w_width - 1)
+           && (wp->w_o_curbuf.wo_rl ? col == 0 : col == wp->w_width - 1)
            && (*ptr != NUL
-               || (wp->w_p_list && lcs_eol_one > 0)
+               || (wp->w_o_curbuf.wo_list && lcs_eol_one > 0)
                || (n_extra && (c_extra != NUL || *p_extra != NUL))))
         {
             c = lcs_ext;
@@ -5396,7 +5412,8 @@ static int win_line(win_st *wp,
 
         if(draw_state == WL_LINE && !lnum_in_visual_area)
         {
-            if(wp->w_p_cuc && VCOL_HLC == (long)wp->w_virtcol
+            if(wp->w_o_curbuf.wo_cuc
+               && VCOL_HLC == (long)wp->w_virtcol
                && lnum != wp->w_cursor.lnum)
             {
                 vcol_save_attr = char_attr;
@@ -5416,7 +5433,9 @@ static int win_line(win_st *wp,
         if(draw_state < WL_LINE || n_skip <= 0)
         {
             // Store the character.
-            if(has_mbyte && wp->w_p_rl && (*mb_char2cells)(mb_c) > 1)
+            if(has_mbyte
+               && wp->w_o_curbuf.wo_rl
+               && (*mb_char2cells)(mb_c) > 1)
             {
                 // A double-wide character is:
                 // put first halve in left cell.
@@ -5502,7 +5521,7 @@ static int win_line(win_st *wp,
                     tocol++;
                 }
 
-                if(wp->w_p_rl)
+                if(wp->w_o_curbuf.wo_rl)
                 {
                     // now it's time to backup one cell
                     --off;
@@ -5510,7 +5529,7 @@ static int win_line(win_st *wp,
                 }
             }
 
-            if(wp->w_p_rl)
+            if(wp->w_o_curbuf.wo_rl)
             {
                 --off;
                 --col;
@@ -5521,7 +5540,7 @@ static int win_line(win_st *wp,
                 ++col;
             }
         }
-        else if(wp->w_p_cole > 0 && is_concealing)
+        else if(wp->w_o_curbuf.wo_cole > 0 && is_concealing)
         {
             --n_skip;
             ++vcol_off;
@@ -5531,7 +5550,7 @@ static int win_line(win_st *wp,
                 vcol_off += n_extra;
             }
 
-            if(wp->w_p_wrap)
+            if(wp->w_o_curbuf.wo_wrap)
             {
                 // Special voodoo required if 'wrap' is on.
                 //
@@ -5548,7 +5567,7 @@ static int win_line(win_st *wp,
                 {
                     vcol += n_extra;
 
-                    if(wp->w_p_rl)
+                    if(wp->w_o_curbuf.wo_rl)
                     {
                         col -= n_extra;
                         boguscols -= n_extra;
@@ -5566,7 +5585,7 @@ static int win_line(win_st *wp,
                 if(has_mbyte && (*mb_char2cells)(mb_c) > 1)
                 {
                     // Need to fill two screen columns.
-                    if(wp->w_p_rl)
+                    if(wp->w_o_curbuf.wo_rl)
                     {
                         --boguscols;
                         --col;
@@ -5578,7 +5597,7 @@ static int win_line(win_st *wp,
                     }
                 }
 
-                if(wp->w_p_rl)
+                if(wp->w_o_curbuf.wo_rl)
                 {
                     --boguscols;
                     --col;
@@ -5632,15 +5651,17 @@ static int win_line(win_st *wp,
 
         // At end of screen line and there is more to come: Display the line
         // so far. If there is no more to display it is caught above.
-        if((wp->w_p_rl ? (col < 0) : (col >= wp->w_width))
+        if((wp->w_o_curbuf.wo_rl ? (col < 0) : (col >= wp->w_width))
            && (*ptr != NUL
                || filler_todo > 0
-               || (wp->w_p_list && lcs_eol != NUL && p_extra != at_end_str)
+               || (wp->w_o_curbuf.wo_list
+                   && lcs_eol != NUL
+                   && p_extra != at_end_str)
                || (n_extra != 0 && (c_extra != NUL || *p_extra != NUL)))
           )
         {
             SCREEN_LINE(screen_row, wp->w_wincol,
-                        col - boguscols, wp->w_width, wp->w_p_rl);
+                        col - boguscols, wp->w_width, wp->w_o_curbuf.wo_rl);
 
             boguscols = 0;
             ++row;
@@ -5648,7 +5669,7 @@ static int win_line(win_st *wp,
 
             // When not wrapping and finished diff lines, or when displayed
             // '$' and highlighting until last column, break here.
-            if((!wp->w_p_wrap
+            if((!wp->w_o_curbuf.wo_wrap
                 && filler_todo <= 0
                ) || lcs_eol_one == -1)
             {
@@ -5729,7 +5750,7 @@ static int win_line(win_st *wp,
             col = 0;
             off = (unsigned)(current_ScreenLine - ScreenLines);
 
-            if(wp->w_p_rl)
+            if(wp->w_o_curbuf.wo_rl)
             {
                 // col is not used if breaking!
                 col = wp->w_width - 1;
@@ -6523,7 +6544,7 @@ void win_redr_status(win_st *wp)
         // popup menu is visible and may be drawn over it
         wp->w_redr_status = true;
     }
-    else if(*p_stl != NUL || *wp->w_p_stl != NUL)
+    else if(*p_stl != NUL || *wp->w_o_curbuf.wo_stl != NUL)
     {
         // redraw custom status line
         redraw_custom_statusline(wp);
@@ -6536,7 +6557,7 @@ void win_redr_status(win_st *wp)
         len = (int)STRLEN(p);
 
         if(wp->w_buffer->b_help
-           || wp->w_p_pvw
+           || wp->w_o_curbuf.wo_pvw
            || bufIsChanged(wp->w_buffer)
            || wp->w_buffer->b_p_ro)
         {
@@ -6549,7 +6570,7 @@ void win_redr_status(win_st *wp)
             len += (int)STRLEN(p + len);
         }
 
-        if(wp->w_p_pvw)
+        if(wp->w_o_curbuf.wo_pvw)
         {
             STRCPY(p + len, _("[Preview]"));
             len += (int)STRLEN(p + len);
@@ -6675,7 +6696,7 @@ static void redraw_custom_statusline(win_st *wp)
         set_string_option_direct((uchar_kt *)"statusline", -1,
                                  (uchar_kt *)"",
                                  OPT_FREE
-                                 | (*wp->w_p_stl != NUL
+                                 | (*wp->w_o_curbuf.wo_stl != NUL
                                     ? OPT_LOCAL : OPT_GLOBAL), SID_ERROR);
     }
 
@@ -6868,9 +6889,9 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
         }
         else
         {
-            if(*wp->w_p_stl != NUL)
+            if(*wp->w_o_curbuf.wo_stl != NUL)
             {
-                stl = wp->w_p_stl;
+                stl = wp->w_o_curbuf.wo_stl;
             }
             else
             {
@@ -6878,7 +6899,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
             }
 
             use_sandbox = was_set_insecurely((uchar_kt *)"statusline",
-                                             *wp->w_p_stl == NUL
+                                             *wp->w_o_curbuf.wo_stl == NUL
                                              ? 0 : OPT_LOCAL);
         }
 
@@ -6893,8 +6914,8 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
     // Temporarily reset 'cursorbind', we don't
     // want a side effect from moving the cursor away and back.
     ewp = wp == NULL ? curwin : wp;
-    p_crb_save = ewp->w_p_crb;
-    ewp->w_p_crb = FALSE;
+    p_crb_save = ewp->w_o_curbuf.wo_crb;
+    ewp->w_o_curbuf.wo_crb = FALSE;
 
     // Make a copy, because the statusline may include a function call that
     // might change the option value and free the memory.
@@ -6910,7 +6931,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
                              hltab,
                              tabtab);
     xfree(stl);
-    ewp->w_p_crb = p_crb_save;
+    ewp->w_o_curbuf.wo_crb = p_crb_save;
 
     // Make all characters printable.
     p = transstr(buf);
@@ -7661,7 +7682,7 @@ static int next_search_hl_pos(hlmatch_st *shl,
     int found = -1;
     shl->lnum = 0;
 
-    for(i = posmatch->cur; i < MAXPOSMATCH; i++)
+    for(i = posmatch->cur; i < MAX_POS_NUM_MATCH; i++)
     {
         cpos_st *pos = &posmatch->pos[i];
 
@@ -8505,7 +8526,7 @@ void setcursor(void)
                        curwin->w_wincol + (
                            // With 'rightleft' set and the cursor on a double-wide
                            // character, position it on the leftmost column.
-                           curwin->w_p_rl
+                           curwin->w_o_curbuf.wo_rl
                            ? (curwin->w_width
                               - curwin->w_wcol
                               - ((has_mbyte
@@ -9028,7 +9049,7 @@ int showmode(void)
 
                 if(curmod & kModFlgLangMap)
                 {
-                    if(curwin->w_p_arab)
+                    if(curwin->w_o_curbuf.wo_arab)
                     {
                         MSG_PUTS_ATTR(_(" Arabic"), attr);
                     }
@@ -9529,7 +9550,7 @@ void showruler(int always)
         return;
     }
 
-    if((*p_stl != NUL || *curwin->w_p_stl != NUL)
+    if((*p_stl != NUL || *curwin->w_o_curbuf.wo_stl != NUL)
        && curwin->w_status_height)
     {
         redraw_custom_statusline(curwin);
@@ -9650,11 +9671,11 @@ static void win_redr_ruler(win_st *wp, int always)
         // In list mode virtcol needs to be recomputed
         columnum_kt virtcol = wp->w_virtcol;
 
-        if(wp->w_p_list && lcs_tab1 == NUL)
+        if(wp->w_o_curbuf.wo_list && lcs_tab1 == NUL)
         {
-            wp->w_p_list = FALSE;
+            wp->w_o_curbuf.wo_list = FALSE;
             getvvcol(wp, &wp->w_cursor, NULL, &virtcol, NULL);
-            wp->w_p_list = TRUE;
+            wp->w_o_curbuf.wo_list = TRUE;
         }
 
 #define RULER_BUF_LEN     70
@@ -9770,7 +9791,8 @@ int number_width(win_st *wp)
     int n;
     linenum_kt lnum;
 
-    if(wp->w_p_rnu && !wp->w_p_nu)
+    if(wp->w_o_curbuf.wo_rnu
+       && !wp->w_o_curbuf.wo_nu)
     {
         // cursor line shows "0"
         lnum = wp->w_height;
@@ -9796,9 +9818,9 @@ int number_width(win_st *wp)
     } while(lnum > 0);
 
     // 'numberwidth' gives the minimal width plus one
-    if(n < wp->w_p_nuw - 1)
+    if(n < wp->w_o_curbuf.wo_nuw - 1)
     {
-        n = wp->w_p_nuw - 1;
+        n = wp->w_o_curbuf.wo_nuw - 1;
     }
 
     wp->w_nrwidth_width = n;
@@ -9883,7 +9905,7 @@ void screen_resize(int width, int height)
         }
         else
         {
-            if(curwin->w_p_scb)
+            if(curwin->w_o_curbuf.wo_scb)
             {
                 do_check_scrollbind(TRUE);
             }

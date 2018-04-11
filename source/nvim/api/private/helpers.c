@@ -1227,7 +1227,7 @@ ArrayOf(Dictionary) keymap_array(String mode, filebuf_st *buf)
     int int_mode = get_map_mode(&p, 0);
 
     // Determine the desired buffer value
-    long buffer_value = (buf == NULL) ? 0 : buf->handle;
+    long buffer_value = (buf == NULL) ? 0 : buf->b_id;
 
     for(int i = 0; i < MAX_MAPHASH; i++)
     {

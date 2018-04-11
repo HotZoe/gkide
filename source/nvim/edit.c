@@ -640,7 +640,7 @@ static int insert_check(nvim_state_st *state)
     // Don't do this when the topline changed already, it has already been
     // adjusted (by insertchar() calling open_line())).
     if(curbuf->b_mod_set
-       && curwin->w_p_wrap
+       && curwin->w_o_curbuf.wo_wrap
        && !s->did_backspace
        && curwin->w_topline == s->old_topline
        && curwin->w_topfill == s->old_topfill)
@@ -678,12 +678,12 @@ static int insert_check(nvim_state_st *state)
     // Also shows mode, ruler and positions cursor.
     ins_redraw(true);
 
-    if(curwin->w_p_scb)
+    if(curwin->w_o_curbuf.wo_scb)
     {
         do_check_scrollbind(true);
     }
 
-    if(curwin->w_p_crb)
+    if(curwin->w_o_curbuf.wo_crb)
     {
         do_check_cursorbind();
     }
@@ -881,7 +881,7 @@ static int insert_execute(nvim_state_st *state, int key)
         }
     }
 
-    if(curwin->w_p_rl)
+    if(curwin->w_o_curbuf.wo_rl)
     {
         switch(s->c)
         {
@@ -1663,7 +1663,7 @@ static void ins_redraw(int ready)
     // Trigger CursorMoved if the cursor moved.  Not when the popup menu is
     // visible, the command might delete it.
     if(ready
-       && (has_event(EVENT_CURSORMOVEDI) || curwin->w_p_cole > 0)
+       && (has_event(EVENT_CURSORMOVEDI) || curwin->w_o_curbuf.wo_cole > 0)
        && !equalpos(last_cursormoved, curwin->w_cursor)
        && !pum_visible())
     {
@@ -1684,7 +1684,7 @@ static void ins_redraw(int ready)
             apply_autocmds(EVENT_CURSORMOVEDI, NULL, NULL, false, curbuf);
         }
 
-        if(curwin->w_p_cole > 0)
+        if(curwin->w_o_curbuf.wo_cole > 0)
         {
             conceal_old_cursor_line = last_cursormoved.lnum;
             conceal_new_cursor_line = curwin->w_cursor.lnum;
@@ -1733,7 +1733,7 @@ static void ins_redraw(int ready)
                            ? curwin->w_cursor.lnum
                            : conceal_new_cursor_line);
 
-        curwin->w_valid &= ~VALID_CROW;
+        curwin->w_valid &= ~kWVF_CLRow;
     }
 
     showruler(FALSE);
@@ -1810,7 +1810,7 @@ void edit_putchar(int c, int highlight)
         pc_col = curwin->w_wincol;
         pc_status = PC_STATUS_UNSET;
 
-        if(curwin->w_p_rl)
+        if(curwin->w_o_curbuf.wo_rl)
         {
             pc_col += curwin->w_width - 1 - curwin->w_wcol;
 
@@ -1956,8 +1956,8 @@ void change_indent(int type,
     }
 
     // for the following tricks we don't want list mode
-    save_p_list = curwin->w_p_list;
-    curwin->w_p_list = FALSE;
+    save_p_list = curwin->w_o_curbuf.wo_list;
+    curwin->w_o_curbuf.wo_list = FALSE;
     vc = getvcol_nolist(&curwin->w_cursor);
     vcol = vc;
 
@@ -2076,7 +2076,7 @@ void change_indent(int type,
         insstart_less = MAXCOL;
     }
 
-    curwin->w_p_list = save_p_list;
+    curwin->w_o_curbuf.wo_list = save_p_list;
 
     if(new_cursor_col <= 0)
     {
@@ -2282,7 +2282,9 @@ static void ins_ctrl_x(void)
 static bool check_compl_option(bool dict_opt)
 {
     if(dict_opt
-       ? (*curbuf->b_p_dict == NUL && *p_dict == NUL && !curwin->w_p_spell)
+       ? (*curbuf->b_p_dict == NUL
+          && *p_dict == NUL
+          && !curwin->w_o_curbuf.wo_spell)
        : (*curbuf->b_p_tsr == NUL && *p_tsr == NUL))
     {
         ctrl_x_mode = 0;
@@ -3336,7 +3338,7 @@ static void ins_compl_dictionaries(uchar_kt *dict_start,
     {
         // When 'dictionary' is empty and spell
         // checking is enabled use "spell".
-        if(!thesaurus && curwin->w_p_spell)
+        if(!thesaurus && curwin->w_o_curbuf.wo_spell)
         {
             dict = (uchar_kt *)"spell";
         }
@@ -6894,10 +6896,10 @@ static void internal_format(int textwidth,
     columnum_kt leader_len;
     int no_leader = FALSE;
     int do_comments = (flags & INSCHAR_DO_COM);
-    int has_lbr = curwin->w_p_lbr;
+    int has_lbr = curwin->w_o_curbuf.wo_lbr;
 
     // make sure win_lbr_chartabsize() counts correctly
-    curwin->w_p_lbr = false;
+    curwin->w_o_curbuf.wo_lbr = false;
 
     // When 'ai' is off we don't want a space under the cursor to be
     // deleted. Replace it with an 'x' temporarily.
@@ -7287,7 +7289,7 @@ static void internal_format(int textwidth,
         pchar_cursor(save_char);
     }
 
-    curwin->w_p_lbr = has_lbr;
+    curwin->w_o_curbuf.wo_lbr = has_lbr;
 
     if(!format_only && haveto_redraw)
     {
@@ -7488,14 +7490,14 @@ int comp_textwidth(int ff)
             textwidth -= 1;
         }
 
-        textwidth -= curwin->w_p_fdc;
+        textwidth -= curwin->w_o_curbuf.wo_fdc;
 
         if(signcolumn_on(curwin))
         {
             textwidth -= 1;
         }
 
-        if(curwin->w_p_nu || curwin->w_p_rnu)
+        if(curwin->w_o_curbuf.wo_nu || curwin->w_o_curbuf.wo_rnu)
         {
             textwidth -= 8;
         }
@@ -7984,7 +7986,7 @@ int oneleft(void)
 
             // getviscol() is slow, skip it when 'showbreak' is empty,
             // 'breakindent' is not set and there are no multi-byte characters
-            if((*p_sbr == NUL && !curwin->w_p_bri && !has_mbyte)
+            if((*p_sbr == NUL && !curwin->w_o_curbuf.wo_bri && !has_mbyte)
                || getviscol() < v)
             {
                 break;
@@ -9338,7 +9340,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     // Remember the last Insert position in the '^ mark.
     if(!cmdmod.keepjumps)
     {
-        RESET_FMARK(&curbuf->b_last_insert, curwin->w_cursor, curbuf->b_fnum);
+        RESET_FMARK(&curbuf->b_last_insert, curwin->w_cursor, curbuf->b_id);
     }
 
     // The cursor should end up on the last inserted character.
@@ -9425,7 +9427,7 @@ static void ins_ctrl_(void)
         // characters entered in one mode (normal/reverse insert).
         arrow_used = TRUE;
         (void)stop_arrow();
-        p_fkmap = curwin->w_p_rl ^ p_ri;
+        p_fkmap = curwin->w_o_curbuf.wo_rl ^ p_ri;
 
         if(p_fkmap && p_ri)
         {
@@ -9434,7 +9436,7 @@ static void ins_ctrl_(void)
     }
     else
     {
-        p_hkmap = curwin->w_p_rl ^ p_ri; // be consistent!
+        p_hkmap = curwin->w_o_curbuf.wo_rl ^ p_ri; // be consistent!
     }
 
     showmode();
@@ -10615,7 +10617,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         apos_st *cursor;
         columnum_kt want_vcol, vcol;
         int change_col = -1;
-        int save_list = curwin->w_p_list;
+        int save_list = curwin->w_o_curbuf.wo_list;
 
         // Get the current line.
         // For 'kVReplaceMode' mode, don't make real changes
@@ -10636,7 +10638,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         // When 'L' is not in 'cpoptions' a tab always takes up 'ts' spaces.
         if(vim_strchr(p_cpo, CPO_LISTWM) == NULL)
         {
-            curwin->w_p_list = FALSE;
+            curwin->w_o_curbuf.wo_list = FALSE;
         }
 
         // Find first white before the cursor
@@ -10755,7 +10757,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             xfree(saved_line);
         }
 
-        curwin->w_p_list = save_list;
+        curwin->w_o_curbuf.wo_list = save_list;
     }
 
     return false;
@@ -11110,7 +11112,8 @@ static void ins_try_si(int c)
 /// Unless 'cpo' contains the 'L' flag.
 static columnum_kt get_nolist_virtcol(void)
 {
-    if(curwin->w_p_list && vim_strchr(p_cpo, CPO_LISTWM) == NULL)
+    if(curwin->w_o_curbuf.wo_list
+       && vim_strchr(p_cpo, CPO_LISTWM) == NULL)
     {
         return getvcol_nolist(&curwin->w_cursor);
     }

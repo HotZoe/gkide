@@ -625,17 +625,17 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
         cmd_args_err_exit(err_too_many_args, argv[0]);
     }
 
-    ga_grow(&global_alist.al_ga, 1);
+    ga_grow(&g_arglist.al_ga, 1);
     parmp->edit_type = kEditTypeFile;
 
     uchar_kt *usr_file = vim_strsave((uchar_kt *)argv[0]);
 
     if(parmp->diff_mode
        && os_isdir(usr_file)
-       && GARGCOUNT > 0
-       && !os_isdir(alist_name(&GARGLIST[0])))
+       && g_arglist.al_ga.ga_len > 0
+       && !os_isdir(alist_name(&garg_list[0])))
     {
-        char *fn = (char *)path_tail(alist_name(&GARGLIST[0]));
+        char *fn = (char *)path_tail(alist_name(&garg_list[0]));
         uchar_kt *r = (uchar_kt *)concat_fnames((char *)usr_file, fn, TRUE);
         xfree(usr_file);
         usr_file = r;
@@ -653,7 +653,7 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
     #endif
 
     // Add the file to the global argument list.
-    alist_add(&global_alist, usr_file, buf_nr);
+    alist_add(&g_arglist, usr_file, buf_nr);
 }
 
 static int process_cmd_opt_short(main_args_st *parmp, char **argv)

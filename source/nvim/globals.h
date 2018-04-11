@@ -91,23 +91,19 @@ typedef enum
 } TriState;
 
 /// nvim running status
-typedef enum
+typedef enum running_status_e
 {
     /// startup/exit has finished, normal status
     kRS_Normal  = 0,
-
     /// startup not finished: needs to update the screen
     kRS_Screens = 1,
-
     /// startup not finished: needs to run auto cmds
     kRS_Autocmd = 2,
-
     /// startup not finished: needs to load buffers
     kRS_Buffers = 3,
-
     /// startup not finished: needs to load plugins
     kRS_Plugins = 4,
-} RunningStatus;
+} running_status_et;
 
 // Values for "starting"
 #define NO_SCREEN    2   ///< no screen updating yet
@@ -631,6 +627,9 @@ EXTERN win_st *prevwin INIT(= NULL);  ///< previous window
         wp != NULL;                      \
         wp = wp->w_next)
 
+#define carg_list   ((aentry_st *)curwin->w_alist->al_ga.ga_data)
+#define carg_cnt    (curwin->w_alist->al_ga.ga_len)
+
 EXTERN win_st *curwin; ///< currently active window
 EXTERN win_st *aucmd_win; ///< window used in aucmd_prepbuf()
 EXTERN int aucmd_win_used INIT(= FALSE); ///< aucmd_win is being used
@@ -658,27 +657,31 @@ EXTERN filebuf_st *curbuf INIT(= NULL);    ///< currently active buffer
 // Iterates over all buffers in the buffer list.
 #define FOR_ALL_BUFFERS(buf) \
     for(filebuf_st *buf = firstbuf; buf != NULL; buf = buf->b_next)
+
 #define FOR_ALL_BUFFERS_BACKWARDS(buf)  \
     for(filebuf_st *buf = lastbuf;  buf != NULL; buf = buf->b_prev)
 
 // Flag that is set when switching off 'swapfile'.
 // It means that all blocks are to be loaded into memory.
 // Shouldn't be global...
-EXTERN int mf_dont_release INIT(= FALSE);  ///< don't release blocks
+EXTERN int mf_dont_release INIT(= FALSE); ///< don't release blocks
 
 // List of files being edited (global argument list).
 // curwin->w_alist points to this when the window is
 // using the global argument list.
 
-EXTERN arglist_st global_alist;        ///< global argument list
+#define garg_cnt    (g_arglist.al_ga.ga_len)
+#define garg_list   ((aentry_st *)g_arglist.al_ga.ga_data)
+
+EXTERN arglist_st g_arglist;           ///< global argument list
 EXTERN int max_alist_id INIT(= 0);     ///< the previous argument list id
-EXTERN int arg_had_last INIT(= FALSE); ///< accessed last file in #global_alist
+EXTERN int arg_had_last INIT(= FALSE); ///< accessed last file in #g_arglist
 
 EXTERN int ru_col;  ///< column for ruler
 EXTERN int ru_wid;  ///< 'rulerfmt' width of ruler when non-zero
 EXTERN int sc_col;  ///< column for shown command
 
-EXTERN RunningStatus runtime_status INIT(= kRS_Screens);
+EXTERN running_status_et runtime_status INIT(= kRS_Screens);
 
 /// When starting or exiting some things are
 /// done differently (e.g. screen updating).

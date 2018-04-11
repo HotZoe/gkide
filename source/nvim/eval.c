@@ -8691,7 +8691,7 @@ static void f_argc(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
                    typval_st *rettv,
                    func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
-    rettv->vval.v_number = ARGCOUNT;
+    rettv->vval.v_number = carg_cnt;
 }
 
 /// "argidx()" function
@@ -8727,10 +8727,10 @@ static void f_argv(typval_st *argvars,
     {
         idx = tv_get_number_chk(&argvars[0], NULL);
 
-        if(idx >= 0 && idx < ARGCOUNT)
+        if(idx >= 0 && idx < carg_cnt)
         {
             rettv->vval.v_string =
-                (uchar_kt *)xstrdup((const char *)alist_name(&ARGLIST[idx]));
+                (uchar_kt *)xstrdup((const char *)alist_name(&carg_list[idx]));
         }
         else
         {
@@ -8743,10 +8743,10 @@ static void f_argv(typval_st *argvars,
     {
         tv_list_alloc_ret(rettv);
 
-        for(idx = 0; idx < ARGCOUNT; idx++)
+        for(idx = 0; idx < carg_cnt; idx++)
         {
             tv_list_append_string(rettv->vval.v_list,
-                                  (const char *)alist_name(&ARGLIST[idx]), -1);
+                                  (const char *)alist_name(&carg_list[idx]), -1);
         }
     }
 }
@@ -9305,7 +9305,7 @@ static void f_bufnr(typval_st *argvars,
 
     if(buf != NULL)
     {
-        rettv->vval.v_number = buf->b_fnum;
+        rettv->vval.v_number = buf->b_id;
     }
 }
 
@@ -9596,10 +9596,10 @@ static void f_col(typval_st *argvars,
 {
     columnum_kt col = 0;
     apos_st *fp;
-    int fnum = curbuf->b_fnum;
+    int fnum = curbuf->b_id;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
 
-    if(fp != NULL && fnum == curbuf->b_fnum)
+    if(fp != NULL && fnum == curbuf->b_id)
     {
         if(fp->col == MAXCOL)
         {
@@ -10203,7 +10203,7 @@ static void f_diff_hlID(typval_st *argvars,
 
     if(lnum != prev_lnum
        || changedtick != curbuf->b_changedtick
-       || fnum != curbuf->b_fnum)
+       || fnum != curbuf->b_id)
     {
         // New line, buffer, change: need to get the values.
         filler_lines = diff_check(curwin, lnum);
@@ -10236,7 +10236,7 @@ static void f_diff_hlID(typval_st *argvars,
 
         prev_lnum = lnum;
         changedtick = curbuf->b_changedtick;
-        fnum = curbuf->b_fnum;
+        fnum = curbuf->b_id;
     }
 
     if(hlID == HLF_CHD || hlID == HLF_TXD)
@@ -11848,7 +11848,7 @@ static void get_buffer_signs(filebuf_st *buf, list_st *l)
 static dict_st *get_buffer_info(filebuf_st *buf)
 {
     dict_st *const dict = tv_dict_alloc();
-    tv_dict_add_nr(dict, S_LEN("bufnr"), buf->b_fnum);
+    tv_dict_add_nr(dict, S_LEN("bufnr"), buf->b_id);
 
     tv_dict_add_str(dict,
                     S_LEN("name"),
@@ -12895,7 +12895,7 @@ static void f_getmatches(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
         if(cur->match.regprog == NULL)
         {
             // match added with matchaddpos()
-            for(i = 0; i < MAXPOSMATCH; ++i)
+            for(i = 0; i < MAX_POS_NUM_MATCH; ++i)
             {
                 cpos_st   *llpos;
                 char buf[6];
@@ -13253,7 +13253,7 @@ static dict_st *get_win_info(win_st *wp, int16_t tpnr, int16_t winnr)
     tv_dict_add_nr(dict, S_LEN("winid"), wp->handle);
     tv_dict_add_nr(dict, S_LEN("height"), wp->w_height);
     tv_dict_add_nr(dict, S_LEN("width"), wp->w_width);
-    tv_dict_add_nr(dict, S_LEN("bufnr"), wp->w_buffer->b_fnum);
+    tv_dict_add_nr(dict, S_LEN("bufnr"), wp->w_buffer->b_id);
     tv_dict_add_nr(dict, S_LEN("quickfix"), bt_quickfix(wp->w_buffer));
 
     tv_dict_add_nr(dict,
@@ -15556,9 +15556,9 @@ static void f_last_buffer_nr(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
 
     FOR_ALL_BUFFERS(buf)
     {
-        if(n < buf->b_fnum)
+        if(n < buf->b_id)
         {
-            n = buf->b_fnum;
+            n = buf->b_id;
         }
     }
     rettv->vval.v_number = n;
@@ -19327,7 +19327,7 @@ static void f_setpos(typval_st *argvars,
             if(name[0] == '.' && name[1] == NUL)
             {
                 // set cursor
-                if(fnum == curbuf->b_fnum)
+                if(fnum == curbuf->b_id)
                 {
                     curwin->w_cursor = pos;
 
@@ -20283,7 +20283,7 @@ static void f_spellbadword(typval_st *argvars,
             word = (char *)get_cursor_pos_ptr();
         }
     }
-    else if(curwin->w_p_spell && *curbuf->b_s.b_p_spl != NUL)
+    else if(curwin->w_o_curbuf.wo_spell && *curbuf->b_s.b_p_spl != NUL)
     {
         const char *str = tv_get_string_chk(&argvars[0]);
         int capcol = -1;
@@ -20330,7 +20330,7 @@ static void f_spellsuggest(typval_st *argvars,
     bool need_capital = false;
     tv_list_alloc_ret(rettv);
 
-    if(curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
+    if(curwin->w_o_curbuf.wo_spell && *curwin->w_s->b_p_spl != NUL)
     {
         const char *const str = tv_get_string(&argvars[0]);
 
@@ -21246,17 +21246,19 @@ static void f_synconcealed(typval_st *argvars,
     tv_list_alloc_ret(rettv);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count && col >= 0
-       && (size_t)col <= STRLEN(ml_get(lnum)) && curwin->w_p_cole > 0)
+       && (size_t)col <= STRLEN(ml_get(lnum)) && curwin->w_o_curbuf.wo_cole > 0)
     {
         (void)syn_get_id(curwin, lnum, col, false, NULL, false);
         syntax_flags = get_syntax_info(&matchid);
 
         // get the conceal character
-        if((syntax_flags & HL_CONCEAL) && curwin->w_p_cole < 3)
+        if((syntax_flags & HL_CONCEAL) && curwin->w_o_curbuf.wo_cole < 3)
         {
             cchar = syn_get_sub_char();
 
-            if(cchar == NUL && curwin->w_p_cole == 1 && lcs_conceal != NUL)
+            if(cchar == NUL
+               && curwin->w_o_curbuf.wo_cole == 1
+               && lcs_conceal != NUL)
             {
                 cchar = lcs_conceal;
             }
@@ -21465,7 +21467,7 @@ static void f_tabpagebuflist(typval_st *argvars,
 
         while(wp != NULL)
         {
-            tv_list_append_number(rettv->vval.v_list, wp->w_buffer->b_fnum);
+            tv_list_append_number(rettv->vval.v_list, wp->w_buffer->b_id);
             wp = wp->w_next;
         }
     }
@@ -22460,11 +22462,11 @@ static void f_virtcol(typval_st *argvars,
 {
     columnum_kt vcol = 0;
     apos_st *fp;
-    int fnum = curbuf->b_fnum;
+    int fnum = curbuf->b_id;
     fp = var2fpos(&argvars[0], FALSE, &fnum);
 
     if(fp != NULL && fp->lnum <= curbuf->b_ml.ml_line_count
-       && fnum == curbuf->b_fnum)
+       && fnum == curbuf->b_id)
     {
         getvvcol(curwin, fp, NULL, NULL, &vcol);
         ++vcol;
@@ -22558,7 +22560,7 @@ static void f_winbufnr(typval_st *argvars,
     }
     else
     {
-        rettv->vval.v_number = wp->w_buffer->b_fnum;
+        rettv->vval.v_number = wp->w_buffer->b_id;
     }
 }
 
@@ -23273,7 +23275,7 @@ static int list2fpos(typval_st *arg,
 
         if(n == 0)
         {
-            n = curbuf->b_fnum; // Current buffer.
+            n = curbuf->b_id; // Current buffer.
         }
 
         *fnump = n;

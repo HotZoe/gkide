@@ -1059,13 +1059,13 @@ normal_end:
     xfree(s->ca.searchbuf);
     mb_check_adjust_col(curwin); // #6203
 
-    if(curwin->w_p_scb && s->toplevel)
+    if(curwin->w_o_curbuf.wo_scb && s->toplevel)
     {
         validate_cursor(); // may need to update w_leftcol
         do_check_scrollbind(true);
     }
 
-    if(curwin->w_p_crb && s->toplevel)
+    if(curwin->w_o_curbuf.wo_crb && s->toplevel)
     {
         validate_cursor(); // may need to update w_leftcol
         do_check_cursorbind();
@@ -1245,7 +1245,7 @@ static int normal_execute(nvim_state_st *state, int key)
         goto finish;
     }
 
-    if(curwin->w_p_rl
+    if(curwin->w_o_curbuf.wo_rl
        && KeyTyped
        && !KeyStuffed
        && (nv_cmds[s->idx].cmd_flags & NV_RL))
@@ -1396,7 +1396,7 @@ static void normal_check_cursor_moved(normal_state_st *s)
 {
     // Trigger CursorMoved if the cursor moved.
     if(!finish_op
-       && (has_event(EVENT_CURSORMOVED) || curwin->w_p_cole > 0)
+       && (has_event(EVENT_CURSORMOVED) || curwin->w_o_curbuf.wo_cole > 0)
        && !equalpos(last_cursormoved, curwin->w_cursor))
     {
         if(has_event(EVENT_CURSORMOVED))
@@ -1404,7 +1404,7 @@ static void normal_check_cursor_moved(normal_state_st *s)
             apply_autocmds(EVENT_CURSORMOVED, NULL, NULL, false, curbuf);
         }
 
-        if(curwin->w_p_cole > 0)
+        if(curwin->w_o_curbuf.wo_cole > 0)
         {
             s->conceal_old_cursor_line = last_cursormoved.lnum;
             s->conceal_new_cursor_line = curwin->w_cursor.lnum;
@@ -1515,7 +1515,7 @@ static void normal_redraw(normal_state_st *s)
         }
 
         update_single_line(curwin, s->conceal_new_cursor_line);
-        curwin->w_valid &= ~VALID_CROW;
+        curwin->w_valid &= ~kWVF_CLRow;
     }
 
     setcursor();
@@ -1631,7 +1631,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
     apos_st old_cursor;
     bool empty_region_error;
     int restart_edit_save;
-    int lbr_saved = curwin->w_p_lbr;
+    int lbr_saved = curwin->w_o_curbuf.wo_lbr;
 
     // The visual area is remembered for redo
     static int redo_VIsual_mode = NUL; // 'v', 'V', or Ctrl-V
@@ -1647,12 +1647,12 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
     if((finish_op || VIsual_active) && oap->op_type != OP_NOP)
     {
         // Avoid a problem with unwanted linebreaks in block mode
-        if(curwin->w_p_lbr)
+        if(curwin->w_o_curbuf.wo_lbr)
         {
-            curwin->w_valid &= ~VALID_VIRTCOL;
+            curwin->w_valid &= ~kWVF_FileCol;
         }
 
-        curwin->w_p_lbr = false;
+        curwin->w_o_curbuf.wo_lbr = false;
         oap->is_VIsual = VIsual_active;
 
         if(oap->motion_force == 'V')
@@ -1862,7 +1862,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
             // w_virtcol may have been updated;
             // if the cursor goes back to its previous position
             // w_virtcol becomes invalid and isn't updated automatically.
-            curwin->w_valid &= ~VALID_VIRTCOL;
+            curwin->w_valid &= ~kWVF_FileCol;
         }
         else
         {
@@ -2034,7 +2034,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
                    && oap->motion_force == NUL)
                 {
                     // Make sure redrawing is correct.
-                    curwin->w_p_lbr = lbr_saved;
+                    curwin->w_o_curbuf.wo_lbr = lbr_saved;
                     redraw_curbuf_later(INVERTED);
                 }
             }
@@ -2070,9 +2070,9 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
         // Force a redraw when operating on an empty Visual region, when
         // 'modifiable is off or creating a fold.
         if(oap->is_VIsual
-           && (oap->empty || !MODIFIABLE(curbuf) || oap->op_type == OP_FOLD))
+           && (oap->empty || !curbuf->b_p_ma || oap->op_type == OP_FOLD))
         {
-            curwin->w_p_lbr = lbr_saved;
+            curwin->w_o_curbuf.wo_lbr = lbr_saved;
             redraw_curbuf_later(INVERTED);
         }
 
@@ -2179,7 +2179,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
                 }
                 else
                 {
-                    curwin->w_p_lbr = lbr_saved;
+                    curwin->w_o_curbuf.wo_lbr = lbr_saved;
                     (void)op_yank(oap, !gui_yank);
                 }
 
@@ -2213,9 +2213,9 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
 
                     // Restore linebreak, so that when
                     // the user edits it looks as before.
-                    if(curwin->w_p_lbr != lbr_saved)
+                    if(curwin->w_o_curbuf.wo_lbr != lbr_saved)
                     {
-                        curwin->w_p_lbr = lbr_saved;
+                        curwin->w_o_curbuf.wo_lbr = lbr_saved;
                         get_op_vcol(oap, redo_VIsual_mode, false);
                     }
 
@@ -2309,7 +2309,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
             case OP_FUNCTION:
                 // Restore linebreak, so that when
                 // the user edits it looks as before.
-                curwin->w_p_lbr = lbr_saved;
+                curwin->w_o_curbuf.wo_lbr = lbr_saved;
                 op_function(oap); // call 'operatorfunc'
                 break;
 
@@ -2332,16 +2332,16 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
 
                     // Restore linebreak, so that when
                     // the user edits it looks as before.
-                    if(curwin->w_p_lbr != lbr_saved)
+                    if(curwin->w_o_curbuf.wo_lbr != lbr_saved)
                     {
-                        curwin->w_p_lbr = lbr_saved;
+                        curwin->w_o_curbuf.wo_lbr = lbr_saved;
                         get_op_vcol(oap, redo_VIsual_mode, false);
                     }
 
                     op_insert(oap, cap->count1);
 
                     // Reset linebreak, so that formatting works correctly.
-                    curwin->w_p_lbr = false;
+                    curwin->w_o_curbuf.wo_lbr = false;
 
                     // TODO: when inserting in several
                     // lines, should format all the lines.
@@ -2367,9 +2367,9 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
                 {
                     // Restore linebreak, so that
                     // when the user edits it looks as before.
-                    if(curwin->w_p_lbr != lbr_saved)
+                    if(curwin->w_o_curbuf.wo_lbr != lbr_saved)
                     {
-                        curwin->w_p_lbr = lbr_saved;
+                        curwin->w_o_curbuf.wo_lbr = lbr_saved;
                         get_op_vcol(oap, redo_VIsual_mode, false);
                     }
 
@@ -2416,7 +2416,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
                 else
                 {
                     VIsual_active = true;
-                    curwin->w_p_lbr = lbr_saved;
+                    curwin->w_o_curbuf.wo_lbr = lbr_saved;
                     op_addsub(oap, cap->count1, redo_VIsual_arg);
                     VIsual_active = false;
                 }
@@ -2441,7 +2441,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
                    || oap->op_type == OP_RSHIFT
                    || oap->op_type == OP_DELETE))
             {
-                curwin->w_p_lbr = false;
+                curwin->w_o_curbuf.wo_lbr = false;
                 coladvance(curwin->w_curswant = old_col);
             }
         }
@@ -2453,7 +2453,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
         clearop(oap);
     }
 
-    curwin->w_p_lbr = lbr_saved;
+    curwin->w_o_curbuf.wo_lbr = lbr_saved;
 }
 
 /// Handle indent and format operators and visual mode ":".
@@ -4260,7 +4260,7 @@ void do_check_scrollbind(bool check)
     static filebuf_st *old_buf = NULL;
     static columnum_kt old_leftcol = 0;
 
-    if(check && curwin->w_p_scb)
+    if(check && curwin->w_o_curbuf.wo_scb)
     {
         // If a ":syncbind" command was just used,
         // don't scroll, only reset the values.
@@ -4273,7 +4273,7 @@ void do_check_scrollbind(bool check)
             // Synchronize other windows, as necessary according to
             // 'scrollbind'. Don't do this after an ":edit" command, except
             // when 'diff' is set.
-            if((curwin->w_buffer == old_buf || curwin->w_p_diff)
+            if((curwin->w_buffer == old_buf || curwin->w_o_curbuf.wo_diff)
                && (curwin->w_topline != old_topline
                    || curwin->w_topfill != old_topfill
                    || curwin->w_leftcol != old_leftcol))
@@ -4324,7 +4324,7 @@ void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
 
     // check 'scrollopt' string for vertical and horizontal scroll options
     want_ver = (vim_strchr(p_sbo, 'v') && topline_diff != 0);
-    want_ver |= old_curwin->w_p_diff;
+    want_ver |= old_curwin->w_o_curbuf.wo_diff;
     want_hor = (vim_strchr(p_sbo, 'h') && (leftcol_diff || topline_diff != 0));
 
     // loop through the scrollbound windows and scroll accordingly
@@ -4336,7 +4336,7 @@ void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
         curbuf = curwin->w_buffer;
 
         // skip original window  and windows with 'noscrollbind'
-        if(curwin == old_curwin || !curwin->w_p_scb)
+        if(curwin == old_curwin || !curwin->w_o_curbuf.wo_scb)
         {
             continue;
         }
@@ -4344,7 +4344,7 @@ void check_scrollbind(linenum_kt topline_diff, long leftcol_diff)
         // do the vertical scroll
         if(want_ver)
         {
-            if(old_curwin->w_p_diff && curwin->w_p_diff)
+            if(old_curwin->w_o_curbuf.wo_diff && curwin->w_o_curbuf.wo_diff)
             {
                 diff_set_topline(old_curwin, curwin);
             }
@@ -4815,7 +4815,7 @@ static bool nv_screengo(oparg_st *oap, int dir, long dist)
         coladvance(curwin->w_curswant);
     }
 
-    if(curwin->w_cursor.col > 0 && curwin->w_p_wrap)
+    if(curwin->w_cursor.col > 0 && curwin->w_o_curbuf.wo_wrap)
     {
         // Check for landing on a character that got split at the end of the
         // last line. We want to advance a screenline, not end up in the same
@@ -4926,7 +4926,7 @@ void scroll_redraw(int up, long count)
         // valid, otherwise the screen jumps back at the end of the file.
         cursor_correct();
         check_cursor_moved(curwin);
-        curwin->w_valid |= VALID_TOPLINE;
+        curwin->w_valid |= kWVF_TopLine;
 
         // If moved back to where we were, at least move the cursor, otherwise
         // we get stuck at one position. Don't move the cursor up if the
@@ -4955,7 +4955,7 @@ void scroll_redraw(int up, long count)
             // Mark w_topline as valid, otherwise the
             // screen jumps back at the end of the file.
             check_cursor_moved(curwin);
-            curwin->w_valid |= VALID_TOPLINE;
+            curwin->w_valid |= kWVF_TopLine;
         }
     }
 
@@ -4973,8 +4973,8 @@ static void nv_zet(cmdarg_st *cap)
     int n;
     columnum_kt col;
     int nchar = cap->nchar;
-    long old_fdl = curwin->w_p_fdl;
-    int old_fen = curwin->w_p_fen;
+    long old_fdl = curwin->w_o_curbuf.wo_fdl;
+    int old_fen = curwin->w_o_curbuf.wo_fen;
     bool undo = false;
     assert(p_siso <= INT_MAX);
     int l_p_siso = (int)p_siso;
@@ -5144,7 +5144,7 @@ dozet:
 
         case 'h': // "zh" - scroll screen to the right
         case K_LEFT:
-            if(!curwin->w_p_wrap)
+            if(!curwin->w_o_curbuf.wo_wrap)
             {
                 if((columnum_kt)cap->count1 > curwin->w_leftcol)
                 {
@@ -5167,7 +5167,7 @@ dozet:
 
         case 'l': // "zl" - scroll screen to the left
         case K_RIGHT:
-            if(!curwin->w_p_wrap)
+            if(!curwin->w_o_curbuf.wo_wrap)
             {
                 // scroll the window left
                 curwin->w_leftcol += (columnum_kt)cap->count1;
@@ -5177,7 +5177,7 @@ dozet:
             break;
 
         case 's': // "zs" - scroll screen, cursor at the start
-            if(!curwin->w_p_wrap)
+            if(!curwin->w_o_curbuf.wo_wrap)
             {
                 if(hasFolding(curwin->w_cursor.lnum, NULL, NULL))
                 {
@@ -5207,7 +5207,7 @@ dozet:
             break;
 
         case 'e': // "ze" - scroll screen, cursor at the end
-            if(!curwin->w_p_wrap)
+            if(!curwin->w_o_curbuf.wo_wrap)
             {
                 if(hasFolding(curwin->w_cursor.lnum, NULL, NULL))
                 {
@@ -5244,7 +5244,7 @@ dozet:
             {
                 cap->nchar = 'f';
                 nv_operator(cap);
-                curwin->w_p_fen = true;
+                curwin->w_o_curbuf.wo_fen = true;
 
                 // "zF" is like "zfzf"
                 if(nchar == 'F' && cap->oap->op_type == OP_FOLD)
@@ -5296,15 +5296,15 @@ dozet:
             break;
 
         case 'n': // "zn": fold none: reset 'foldenable'
-            curwin->w_p_fen = false;
+            curwin->w_o_curbuf.wo_fen = false;
             break;
 
         case 'N': // "zN": fold Normal: set 'foldenable'
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             break;
 
         case 'i': // "zi": invert folding: toggle 'foldenable'
-            curwin->w_p_fen = !curwin->w_p_fen;
+            curwin->w_o_curbuf.wo_fen = !curwin->w_o_curbuf.wo_fen;
             break;
 
         case 'a': // "za": open closed fold or close open fold at cursor
@@ -5315,7 +5315,7 @@ dozet:
             else
             {
                 closeFold(curwin->w_cursor.lnum, cap->count1);
-                curwin->w_p_fen = true;
+                curwin->w_o_curbuf.wo_fen = true;
             }
 
             break;
@@ -5328,7 +5328,7 @@ dozet:
             else
             {
                 closeFoldRecurse(curwin->w_cursor.lnum);
-                curwin->w_p_fen = true;
+                curwin->w_o_curbuf.wo_fen = true;
             }
 
             break;
@@ -5367,7 +5367,7 @@ dozet:
                 closeFold(curwin->w_cursor.lnum, cap->count1);
             }
 
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             break;
 
         case 'C': // "zC": close fold recursively
@@ -5380,7 +5380,7 @@ dozet:
                 closeFoldRecurse(curwin->w_cursor.lnum);
             }
 
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             break;
 
         case 'v': // "zv": open folds at the cursor
@@ -5388,53 +5388,53 @@ dozet:
             break;
 
         case 'x': // "zx": re-apply 'foldlevel' and open folds at the cursor
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             curwin->w_foldinvalid = true; // recompute folds
             newFoldLevel(); // update right now
             foldOpenCursor();
             break;
 
         case 'X': // "zX": undo manual opens/closes, re-apply 'foldlevel'
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             curwin->w_foldinvalid = true; // recompute folds
             old_fdl = -1; // force an update
             break;
 
         case 'm': // "zm": fold more
-            if(curwin->w_p_fdl > 0)
+            if(curwin->w_o_curbuf.wo_fdl > 0)
             {
-                curwin->w_p_fdl -= cap->count1;
+                curwin->w_o_curbuf.wo_fdl -= cap->count1;
 
-                if(curwin->w_p_fdl < 0)
+                if(curwin->w_o_curbuf.wo_fdl < 0)
                 {
-                    curwin->w_p_fdl = 0;
+                    curwin->w_o_curbuf.wo_fdl = 0;
                 }
             }
 
             old_fdl = -1; // force an update
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             break;
 
         case 'M': // "zM": close all folds
-            curwin->w_p_fdl = 0;
+            curwin->w_o_curbuf.wo_fdl = 0;
             old_fdl = -1; // force an update
-            curwin->w_p_fen = true;
+            curwin->w_o_curbuf.wo_fen = true;
             break;
 
         case 'r': // "zr": reduce folding
-            curwin->w_p_fdl += cap->count1;
+            curwin->w_o_curbuf.wo_fdl += cap->count1;
             {
                 int d = getDeepestNesting();
 
-                if(curwin->w_p_fdl >= d)
+                if(curwin->w_o_curbuf.wo_fdl >= d)
                 {
-                    curwin->w_p_fdl = d;
+                    curwin->w_o_curbuf.wo_fdl = d;
                 }
             }
             break;
 
         case 'R': // "zR": open all folds
-            curwin->w_p_fdl = getDeepestNesting();
+            curwin->w_o_curbuf.wo_fdl = getDeepestNesting();
             old_fdl = -1; // force an update
             break;
 
@@ -5530,16 +5530,18 @@ dozet:
     }
 
     // Redraw when 'foldenable' changed
-    if(old_fen != curwin->w_p_fen)
+    if(old_fen != curwin->w_o_curbuf.wo_fen)
     {
-        if(foldmethodIsDiff(curwin) && curwin->w_p_scb)
+        if(foldmethodIsDiff(curwin) && curwin->w_o_curbuf.wo_scb)
         {
             // Adjust 'foldenable' in diff-synced windows.
             FOR_ALL_WINDOWS_IN_TAB(wp, curtab)
             {
-                if(wp != curwin && foldmethodIsDiff(wp) && wp->w_p_scb)
+                if(wp != curwin
+                   && foldmethodIsDiff(wp)
+                   && wp->w_o_curbuf.wo_scb)
                 {
-                    wp->w_p_fen = curwin->w_p_fen;
+                    wp->w_o_curbuf.wo_fen = curwin->w_o_curbuf.wo_fen;
                     changed_window_setting_win(wp);
                 }
             }
@@ -5549,7 +5551,7 @@ dozet:
     }
 
     // Redraw when 'foldlevel' changed.
-    if(old_fdl != curwin->w_p_fdl)
+    if(old_fdl != curwin->w_o_curbuf.wo_fdl)
     {
         newFoldLevel();
     }
@@ -7644,7 +7646,7 @@ static void nv_Replace(cmdarg_st *cap)
     }
     else if(!checkclearopq(cap->oap))
     {
-        if(!MODIFIABLE(curbuf))
+        if(!curbuf->b_p_ma)
         {
             EMSG(_(e_modifiable));
         }
@@ -7671,7 +7673,7 @@ static void nv_vreplace(cmdarg_st *cap)
     }
     else if(!checkclearopq(cap->oap))
     {
-        if(!MODIFIABLE(curbuf))
+        if(!curbuf->b_p_ma)
         {
             EMSG(_(e_modifiable));
         }
@@ -8425,7 +8427,7 @@ static void nv_g_cmd(cmdarg_st *cap)
 
             // with 'nowrap' it works just like the normal
             // "j" command; also when in a closed fold
-            if(!curwin->w_p_wrap
+            if(!curwin->w_o_curbuf.wo_wrap
                || hasFolding(curwin->w_cursor.lnum, NULL, NULL))
             {
                 oap->motion_type = kMTLineWise;
@@ -8448,7 +8450,7 @@ static void nv_g_cmd(cmdarg_st *cap)
 
             // with 'nowrap' it works just like the normal
             // "k" command; also when in a closed fold
-            if(!curwin->w_p_wrap
+            if(!curwin->w_o_curbuf.wo_wrap
                || hasFolding(curwin->w_cursor.lnum, NULL, NULL))
             {
                 oap->motion_type = kMTLineWise;
@@ -8485,7 +8487,7 @@ static void nv_g_cmd(cmdarg_st *cap)
             oap->motion_type = kMTCharWise;
             oap->inclusive = false;
 
-            if(curwin->w_p_wrap && curwin->w_width != 0)
+            if(curwin->w_o_curbuf.wo_wrap && curwin->w_width != 0)
             {
                 int width1 = curwin->w_width - curwin_col_off();
                 int width2 = width1 + curwin_col_off2();
@@ -8509,7 +8511,7 @@ static void nv_g_cmd(cmdarg_st *cap)
             {
                 i += (curwin->w_width
                       - curwin_col_off()
-                      + ((curwin->w_p_wrap && i > 0)
+                      + ((curwin->w_o_curbuf.wo_wrap && i > 0)
                          ? curwin_col_off2() : 0)) / 2;
             }
 
@@ -8570,7 +8572,7 @@ static void nv_g_cmd(cmdarg_st *cap)
             oap->motion_type = kMTCharWise;
             oap->inclusive = true;
 
-            if(curwin->w_p_wrap && curwin->w_width != 0)
+            if(curwin->w_o_curbuf.wo_wrap && curwin->w_width != 0)
             {
                 curwin->w_curswant = MAXCOL; // so we stay at the end
 
@@ -8591,7 +8593,7 @@ static void nv_g_cmd(cmdarg_st *cap)
                     curwin->w_curswant = curwin->w_virtcol;
                     curwin->w_set_curswant = false;
 
-                    if(curwin->w_cursor.col > 0 && curwin->w_p_wrap)
+                    if(curwin->w_cursor.col > 0 && curwin->w_o_curbuf.wo_wrap)
                     {
                         // Check for landing on a character that got split at
                         // the end of the line. We do not want to advance to
@@ -8879,20 +8881,24 @@ static void n_opencmd(cmdarg_st *cap)
                              NULL, &curwin->w_cursor.lnum);
         }
 
-        if(u_save((linenum_kt)(curwin->w_cursor.lnum - (cap->cmdchar == 'O' ? 1 : 0)),
-                  (linenum_kt)(curwin->w_cursor.lnum + (cap->cmdchar == 'o' ? 1 : 0)))
-           && open_line(cap->cmdchar == 'O' ? BACKWARD : FORWARD,
-                        has_format_option(FO_OPEN_COMS) ? OPENLINE_DO_COM : 0, 0))
+        linenum_kt tl = curwin->w_cursor.lnum - (cap->cmdchar == 'O' ? 1 : 0);
+        linenum_kt bl = curwin->w_cursor.lnum + (cap->cmdchar == 'o' ? 1 : 0);
+        if(u_save(tl, bl)
+           && open_line(cap->cmdchar == 'O'
+                        ? BACKWARD : FORWARD,
+                        has_format_option(FO_OPEN_COMS)
+                        ? OPENLINE_DO_COM : 0, 0))
         {
-            if(curwin->w_p_cole > 0 && oldline != curwin->w_cursor.lnum)
+            if(curwin->w_o_curbuf.wo_cole > 0
+               && oldline != curwin->w_cursor.lnum)
             {
                 update_single_line(curwin, oldline);
             }
 
-            if(curwin->w_p_cul)
+            if(curwin->w_o_curbuf.wo_cul)
             {
                 // force redraw of cursorline
-                curwin->w_valid &= ~VALID_CROW;
+                curwin->w_valid &= ~kWVF_CLRow;
             }
 
             invoke_edit(cap, false, cap->cmdchar, true);

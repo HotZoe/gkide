@@ -1651,7 +1651,7 @@ void msg_prt_line(uchar_kt *s, int list)
     uchar_kt *trail = NULL;
     int l;
 
-    if(curwin->w_p_list)
+    if(curwin->w_o_curbuf.wo_list)
     {
         list = TRUE;
     }

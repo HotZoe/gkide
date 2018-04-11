@@ -211,7 +211,8 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     ExpandInit(&s->xpc);
     ccline.xpc = &s->xpc;
 
-    if(curwin->w_p_rl && *curwin->w_p_rlc == 's'
+    if(curwin->w_o_curbuf.wo_rl
+       && *curwin->w_o_curbuf.wo_rlc == 's'
        && (s->firstc == '/' || s->firstc == '?'))
     {
         cmdmsg_rl = true;
@@ -6737,10 +6738,10 @@ static int ex_window(void)
 
     // Command-line buffer has bufhidden=wipe, unlike a true "scratch" buffer.
     set_option_value("bh", 0L, "wipe", OPT_LOCAL);
-    curwin->w_p_rl = cmdmsg_rl;
+    curwin->w_o_curbuf.wo_rl = cmdmsg_rl;
     cmdmsg_rl = false;
     curbuf->b_p_ma = true;
-    curwin->w_p_fen = false;
+    curwin->w_o_curbuf.wo_fen = false;
 
     // Do execute autocommands for setting the filetype (load syntax).
     unblock_autocmds();
@@ -6918,7 +6919,7 @@ static int ex_window(void)
         block_autocmds();
 
         // Avoid command-line window first character being concealed
-        curwin->w_p_cole = 0;
+        curwin->w_o_curbuf.wo_cole = 0;
         wp = curwin;
         set_bufref(&bufref, curbuf);
         win_goto(old_curwin);

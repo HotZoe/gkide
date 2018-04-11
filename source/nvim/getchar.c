@@ -2496,7 +2496,7 @@ static int vgetorpeek(int advance)
                                 col = curwin->w_cursor.col - 1;
                             }
                         }
-                        else if(curwin->w_p_wrap && curwin->w_wrow)
+                        else if(curwin->w_o_curbuf.wo_wrap && curwin->w_wrow)
                         {
                             --curwin->w_wrow;
                             curwin->w_wcol = curwin->w_width - 1;
@@ -3153,7 +3153,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
 
     // When in right-to-left mode and alternate keymap option set,
     // reverse the character flow in the rhs in Farsi.
-    if(p_altkeymap && curwin->w_p_rl)
+    if(p_altkeymap && curwin->w_o_curbuf.wo_rl)
     {
         lrswap(rhs);
     }

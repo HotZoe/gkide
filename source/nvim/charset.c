@@ -853,7 +853,8 @@ int vim_strnsize(uchar_kt *s, int len)
 ///
 /// @return Number of characters.
 #define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)     \
-    if(*(p) == TAB && (!(wp)->w_p_list || lcs_tab1)) \
+    if(*(p) == TAB                                   \
+       && (!(wp)->w_o_curbuf.wo_list || lcs_tab1)) \
     {                                                \
         const int ts = (int) (buf)->b_p_ts;          \
         return (ts - (int)(col % ts));               \
@@ -1071,9 +1072,11 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return The number of characters taken up on the screen.
 int lbr_chartabsize(uchar_kt *line, unsigned char *s, columnum_kt col)
 {
-    if(!curwin->w_p_lbr && (*p_sbr == NUL) && !curwin->w_p_bri)
+    if(!curwin->w_o_curbuf.wo_lbr
+       && (*p_sbr == NUL)
+       && !curwin->w_o_curbuf.wo_bri)
     {
-        if(curwin->w_p_wrap)
+        if(curwin->w_o_curbuf.wo_wrap)
         {
             return win_nolbr_chartabsize(curwin, s, col, NULL);
         }
@@ -1128,9 +1131,11 @@ int win_lbr_chartabsize(win_st *wp,
     columnum_kt col_adj = 0; // col + screen size of tab
 
     // No 'linebreak', 'showbreak' and 'breakindent': return quickly.
-    if(!wp->w_p_lbr && !wp->w_p_bri && (*p_sbr == NUL))
+    if(!wp->w_o_curbuf.wo_lbr
+        && !wp->w_o_curbuf.wo_bri
+        && (*p_sbr == NUL))
     {
-        if(wp->w_p_wrap)
+        if(wp->w_o_curbuf.wo_wrap)
         {
             return win_nolbr_chartabsize(wp, s, col, headp);
         }
@@ -1149,10 +1154,10 @@ int win_lbr_chartabsize(win_st *wp,
 
     // If 'linebreak' set check at a blank before a non-blank if the line
     // needs a break here
-    if(wp->w_p_lbr
+    if(wp->w_o_curbuf.wo_lbr
        && vim_isbreak(c)
        && !vim_isbreak(s[1])
-       && wp->w_p_wrap
+       && wp->w_o_curbuf.wo_wrap
        && (wp->w_width != 0))
     {
         // Count all characters from first non-blank after a blank up to next
@@ -1198,7 +1203,7 @@ int win_lbr_chartabsize(win_st *wp,
     }
     else if((size == 2)
             && (MB_BYTE2LEN(*s) > 1)
-            && wp->w_p_wrap
+            && wp->w_o_curbuf.wo_wrap
             && in_win_border(wp, col))
     {
         // Count the ">" in the last column.
@@ -1211,7 +1216,9 @@ int win_lbr_chartabsize(win_st *wp,
     // Set *headp to the size of what we add.
     added = 0;
 
-    if((*p_sbr != NUL || wp->w_p_bri) && wp->w_p_wrap && (col != 0))
+    if((*p_sbr != NUL || wp->w_o_curbuf.wo_bri)
+       && wp->w_o_curbuf.wo_wrap
+       && (col != 0))
     {
         columnum_kt sbrlen = 0;
         int numberwidth = win_col_off(wp);
@@ -1283,7 +1290,7 @@ int win_lbr_chartabsize(win_st *wp,
                 }
             }
 
-            if(wp->w_p_bri)
+            if(wp->w_o_curbuf.wo_bri)
             {
                 added += get_breakindent_win(wp, line);
             }
@@ -1322,7 +1329,7 @@ static int win_nolbr_chartabsize(win_st *wp,
 {
     int n;
 
-    if((*s == TAB) && (!wp->w_p_list || lcs_tab1))
+    if((*s == TAB) && (!wp->w_o_curbuf.wo_list || lcs_tab1))
     {
         n = (int)wp->w_buffer->b_p_ts;
         return n - (col % n);
@@ -1436,10 +1443,10 @@ void getvcol(win_st *wp,
     // When 'list', 'linebreak', 'showbreak' and 'breakindent' are not set
     // use a simple loop.
     // Also use this when 'list' is set but tabs take their normal size.
-    if((!wp->w_p_list || (lcs_tab1 != NUL))
-       && !wp->w_p_lbr
+    if((!wp->w_o_curbuf.wo_list || (lcs_tab1 != NUL))
+       && !wp->w_o_curbuf.wo_lbr
        && (*p_sbr == NUL)
-       && !wp->w_p_bri)
+       && !wp->w_o_curbuf.wo_bri)
     {
         for(;;)
         {
@@ -1476,7 +1483,7 @@ void getvcol(win_st *wp,
                 // it wraps to the next line, it's like this char is three
                 // cells wide.
                 if((incr == 2)
-                   && wp->w_p_wrap
+                   && wp->w_o_curbuf.wo_wrap
                    && (MB_BYTE2LEN(*ptr) > 1)
                    && in_win_border(wp, vcol))
                 {
@@ -1536,7 +1543,7 @@ void getvcol(win_st *wp,
     {
         if((*ptr == TAB)
            && (curmod & kNormalMode)
-           && !wp->w_p_list
+           && !wp->w_o_curbuf.wo_list
            && !virtual_active()
            && !(VIsual_active && ((*p_sel == 'e') || ltoreq(*pos, VIsual))))
         {
@@ -1558,12 +1565,12 @@ void getvcol(win_st *wp,
 /// @retujrn The virtual cursor column.
 columnum_kt getvcol_nolist(apos_st *posp)
 {
-    int list_save = curwin->w_p_list;
+    int list_save = curwin->w_o_curbuf.wo_list;
     columnum_kt vcol;
 
-    curwin->w_p_list = false;
+    curwin->w_o_curbuf.wo_list = false;
     getvcol(curwin, posp, NULL, &vcol, NULL);
-    curwin->w_p_list = list_save;
+    curwin->w_o_curbuf.wo_list = list_save;
 
     return vcol;
 }

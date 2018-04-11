@@ -710,7 +710,7 @@ void op_reindent(oparg_st *oap, Indenter how)
     linenum_kt start_lnum = curwin->w_cursor.lnum;
 
     // Don't even try when 'modifiable' is off.
-    if(!MODIFIABLE(curbuf))
+    if(!curbuf->b_p_ma)
     {
         EMSG(_(e_modifiable));
         return;
@@ -1653,7 +1653,7 @@ int op_delete(oparg_st *oap)
         return u_save_cursor();
     }
 
-    if(!MODIFIABLE(curbuf))
+    if(!curbuf->b_p_ma)
     {
         EMSG(_(e_modifiable));
         return FAIL;
@@ -3186,7 +3186,7 @@ static void op_yank_reg(oparg_st *oap,
         xfree(reg->y_array);
     }
 
-    if(curwin->w_p_rnu)
+    if(curwin->w_o_curbuf.wo_rnu)
     {
         redraw_later(SOME_VALID); // cursor moved to start
     }
@@ -6594,7 +6594,7 @@ void write_reg_contents_ex(int name,
             return;
         }
 
-        curwin->w_alt_fnum = buf->b_fnum;
+        curwin->w_alt_fnum = buf->b_id;
         return;
     }
 

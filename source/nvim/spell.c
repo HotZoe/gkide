@@ -1692,7 +1692,7 @@ static bool spell_valid_case(int wordflags, int treeflags)
 /// Returns true if spell checking is not enabled.
 static bool no_spell_checking(win_st *wp)
 {
-    if(!wp->w_p_spell
+    if(!wp->w_o_curbuf.wo_spell
        || *wp->w_s->b_p_spl == NUL
        || GA_EMPTY(&wp->w_s->b_langp))
     {
@@ -3192,7 +3192,7 @@ void spell_reload(void)
         // window for this buffer in which 'spell' is set.
         if(*wp->w_s->b_p_spl != NUL)
         {
-            if(wp->w_p_spell)
+            if(wp->w_o_curbuf.wo_spell)
             {
                 (void)did_set_spelllang(wp);
                 break;
@@ -3682,7 +3682,7 @@ void spell_suggest(int count)
         repl_to = NULL;
 
         // When 'rightleft' is set the list is drawn right-left.
-        cmdmsg_rl = curwin->w_p_rl;
+        cmdmsg_rl = curwin->w_o_curbuf.wo_rl;
 
         if(cmdmsg_rl)
         {
@@ -7738,7 +7738,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
 {
-    if(curwin->w_p_spell && *curwin->w_s->b_p_spl != NUL)
+    if(curwin->w_o_curbuf.wo_spell && *curwin->w_s->b_p_spl != NUL)
     {
         // Use the sound-folding of the first language that supports it.
         for(int lpi = 0; lpi < curwin->w_s->b_langp.ga_len; lpi++)
