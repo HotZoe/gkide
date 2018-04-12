@@ -494,7 +494,7 @@ EXTERN uchar_kt *p_dip;   ///< 'diffopt'
 EXTERN uchar_kt *p_dex;   ///< 'diffexpr'
 EXTERN uchar_kt *p_dict;  ///< 'dictionary'
 EXTERN int p_dg;          ///< 'digraph'
-EXTERN uchar_kt *p_dir;   ///< 'directory'
+EXTERN uchar_kt *p_sdir;  ///< 'swapdir'
 
 EXTERN uchar_kt *p_dy;    ///< 'display'
 EXTERN unsigned dy_flags; ///< 'display' flags

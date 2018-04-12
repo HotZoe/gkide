@@ -37,7 +37,7 @@ void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
 }
 #else
 /// A log handler for Qt messages, all messages are
-/// dumped into the file: @def ENV_GKIDE_SNAIL_LOGGINGS.
+/// dumped into the file: @def $GKIDE_SNAIL_LOG.
 ///
 /// In UNIX Qt prints messages to the console output,
 /// but in Windows this is the only way to get Qt's debug/warning messages.
@@ -97,11 +97,11 @@ void logging_handler(QtMsgType type,
 
     QFile logFile;
 
-    if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_LOGGINGS)
-       && !qEnvironmentVariableIsEmpty(ENV_GKIDE_SNAIL_LOGGINGS))
+    if(qEnvironmentVariableIsSet(ENV_GKIDE_SNAIL_LOG)
+       && !qEnvironmentVariableIsEmpty(ENV_GKIDE_SNAIL_LOG))
     {
-        // check $GKIDE_SNAIL_LOGGINGS
-        QString env_val = qgetenv(ENV_GKIDE_SNAIL_LOGGINGS);
+        // check $GKIDE_SNAIL_LOG
+        QString env_val = qgetenv(ENV_GKIDE_SNAIL_LOG);
         QFileInfo fi(env_val);
 
         if(fi.fileName().isEmpty())

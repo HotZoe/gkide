@@ -8816,9 +8816,8 @@ static void ex_tabs(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
             }
             else
             {
-                home_replace(wp->w_buffer,
-                             wp->w_buffer->b_fname,
-                             IObuff, IOSIZE, TRUE);
+                usr_home_replace(wp->w_buffer,
+                                 wp->w_buffer->b_fname, IObuff, IOSIZE);
             }
 
             msg_outtrans(IObuff);
@@ -11397,7 +11396,8 @@ static int makeopens(FILE *fd, uchar_kt *dirnow)
     }
     else if(ssop_flags & SSOP_CURDIR)
     {
-        sname = home_replace_save(NULL, globaldir != NULL ? globaldir : dirnow);
+        uchar_kt *cur_dir = globaldir != NULL ? globaldir : dirnow;
+        sname = usr_home_replace_malloc(NULL, cur_dir);
 
         if(fputs("cd ", fd) < 0
            || ses_put_fname(fd, sname, &ssop_flags) == FAIL
@@ -12240,7 +12240,7 @@ static int ses_fname(FILE *fd, filebuf_st *buf, unsigned *flagp)
 static int ses_put_fname(FILE *fd, uchar_kt *name, unsigned *flagp)
 {
     uchar_kt *p;
-    uchar_kt *sname = home_replace_save(NULL, name);
+    uchar_kt *sname = usr_home_replace_malloc(NULL, name);
 
     if(*flagp & SSOP_SLASH)
     {
@@ -12289,7 +12289,7 @@ static char *get_view_file(int c)
         return NULL;
     }
 
-    char *sname = (char *)home_replace_save(NULL, curbuf->b_ffname);
+    char *sname = (char *)usr_home_replace_malloc(NULL, curbuf->b_ffname);
 
     // We want a file name without separators,
     // because we're not going to make a directory.

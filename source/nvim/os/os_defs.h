@@ -54,6 +54,7 @@
 /// negative libuv error codes are returned by a number of os functions.
 #define os_strerror          uv_strerror
 
+// the path separator use by the host system
 #ifdef HOST_OS_WINDOWS
     #define os_strtok        strtok_s
     #define OS_PATH_SEP_STR  "\\"

@@ -28644,7 +28644,7 @@ void last_set_msg(script_id_kt scriptID)
 {
     if(scriptID != 0)
     {
-        uchar_kt *p = home_replace_save(NULL, get_scriptname(scriptID));
+        uchar_kt *p = usr_home_replace_malloc(NULL, get_scriptname(scriptID));
         verbose_enter();
         MSG_PUTS(_("\n\tLast set from "));
         MSG_PUTS(p);
@@ -28814,7 +28814,7 @@ repeat:
             }
             else
             {
-                home_replace(NULL, p, dirname, MAXPATHL, TRUE);
+                usr_home_replace(NULL, p, dirname, MAXPATHL);
 
                 // Only replace it when it starts with '~'
                 if(*dirname == '~')

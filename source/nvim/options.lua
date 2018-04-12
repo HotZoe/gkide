@@ -616,16 +616,6 @@ return {
       defaults={if_true={vi=false}}
     },
     {
-      full_name='directory', abbreviation='dir',
-      type='string', list='onecomma', scope={'global'},
-      deny_duplicates=true,
-      secure=true,
-      vi_def=true,
-      expand='nodefault',
-      varname='p_dir',
-      defaults={if_true={vi=''}}
-    },
-    {
       full_name='display', abbreviation='dy',
       type='string', list='onecomma', scope={'global'},
       deny_duplicates=true,
@@ -2305,6 +2295,16 @@ return {
       alloced=true,
       varname='p_sua',
       defaults={if_true={vi=""}}
+    },
+    {
+      full_name='swapdir', abbreviation='sdir',
+      type='string', list='onecomma', scope={'global'},
+      deny_duplicates=true,
+      secure=true,
+      vi_def=true,
+      expand='nodefault',
+      varname='p_sdir',
+      defaults={if_true={vi=''}}
     },
     {
       full_name='swapfile', abbreviation='swf',

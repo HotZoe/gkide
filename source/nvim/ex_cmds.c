@@ -2340,12 +2340,12 @@ int check_overwrite(exargs_st *eap,
             uchar_kt *p;
             uchar_kt *swapname;
 
-            // We only try the first entry in 'directory', without checking if
+            // We only try the first entry in 'swapdir', without checking if
             // it's writable. If the "." directory is not writable the write
             // will probably fail anyway.
             // Use 'shortname' of the current buffer, since there is no buffer
             // for the written file.
-            if(*p_dir == NUL)
+            if(*p_sdir == NUL)
             {
                 dir = xmalloc(5);
                 STRCPY(dir, ".");
@@ -2353,7 +2353,7 @@ int check_overwrite(exargs_st *eap,
             else
             {
                 dir = xmalloc(MAXPATHL);
-                p = p_dir;
+                p = p_sdir;
                 copy_option_part(&p, dir, MAXPATHL, ",");
             }
 

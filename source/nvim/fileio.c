@@ -4864,11 +4864,8 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     ret_buf[0] = '"';
 
-    home_replace(buf,
-                 (const uchar_kt *)fname,
-                 (uchar_kt *)ret_buf + 1,
-                 (int)buf_len - 4,
-                 true);
+    usr_home_replace(buf, (const uchar_kt *)fname,
+                     (uchar_kt *)ret_buf + 1, (int)buf_len - 4);
 
     xstrlcat(ret_buf, "\" ", buf_len);
 }
@@ -6345,7 +6342,7 @@ int buf_check_timestamp(filebuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
 
     if(mesg != NULL)
     {
-        path = home_replace_save(buf, buf->b_fname);
+        path = usr_home_replace_malloc(buf, buf->b_fname);
 
         if(!helpmesg)
         {

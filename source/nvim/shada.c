@@ -74,12 +74,6 @@ KHASH_MAP_INIT_STR(fnamebufs, filebuf_st *)
 #define find_shada_parameter(...) \
     ((const char *)find_shada_parameter(__VA_ARGS__))
 
-#define home_replace_save(a, b) \
-    ((char *)home_replace_save(a, (uchar_kt *)b))
-
-#define home_replace(a, b, c, d, e) \
-    home_replace(a, (uchar_kt *)b, (uchar_kt *)c, d, e)
-
 #define vim_rename(a, b) \
     (vim_rename((uchar_kt *)a, (uchar_kt *)b))
 
@@ -5273,7 +5267,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     char part[MAXPATHL + 1];
     bool retval = false;
 
-    char *new_name = home_replace_save(NULL, name);
+    char *new_name = (char *)usr_home_replace_malloc(NULL, (uchar_kt *)name);
 
     for(p = (char *) p_shada; *p;)
     {
@@ -5281,7 +5275,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         if(part[0] == 'r')
         {
-            home_replace(NULL, part + 1, NameBuff, MAXPATHL, true);
+            usr_home_replace(NULL, (uchar_kt *)(part + 1),
+                             NameBuff, MAXPATHL);
             size_t n = STRLEN(NameBuff);
 
             if(mb_strnicmp(NameBuff, new_name, n) == 0)

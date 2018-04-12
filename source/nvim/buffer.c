@@ -2672,7 +2672,7 @@ int ExpandBufnames(uchar_kt *pat, int *num_file, uchar_kt ***file, int options)
                     {
                         if(options & WILD_HOME_REPLACE)
                         {
-                            p = home_replace_save(buf, p);
+                            p = usr_home_replace_malloc(buf, p);
                         }
                         else
                         {
@@ -2752,7 +2752,7 @@ static uchar_kt *fname_match(regmatch_st *rmp,
         else
         {
             // Replace $(HOME) with '~' and try matching again
-            p = home_replace_save(NULL, name);
+            p = usr_home_replace_malloc(NULL, name);
 
             if(vim_regexec(rmp, p, (columnum_kt)0))
             {
@@ -2784,7 +2784,7 @@ filebuf_st *buflist_findnr(int nr)
 /// @param helptail  for help buffers return tail only
 ///
 /// When the file has no name an empty string is returned.
-/// home_replace() is used to shorten the file name (used for marks).
+/// usr_home_replace() is used to shorten the file name (used for marks).
 /// Returns a pointer to allocated memory, of NULL when failed.
 uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
 {
@@ -2795,8 +2795,8 @@ uchar_kt *buflist_nr2name(int n, int fullname, int helptail)
         return NULL;
     }
 
-    return home_replace_save(helptail ? buf : NULL,
-                             fullname ? buf->b_ffname : buf->b_fname);
+    return usr_home_replace_malloc(helptail ? buf : NULL,
+                                   fullname ? buf->b_ffname : buf->b_fname);
 }
 
 /// Set the line and column numbers for the given buffer and window
@@ -3044,7 +3044,7 @@ void buflist_list(exargs_st *eap)
         }
         else
         {
-            home_replace(buf, buf->b_fname, NameBuff, MAXPATHL, true);
+            usr_home_replace(buf, buf->b_fname, NameBuff, MAXPATHL);
         }
 
         if(message_filtered(NameBuff))
@@ -3476,10 +3476,8 @@ void fileinfo(int fullname, int shorthelp, int dont_truncate)
             name = curbuf->b_ffname;
         }
 
-        home_replace(shorthelp ? curbuf : NULL,
-                     name,
-                     p,
-                     (size_t)(IOSIZE - (p - buffer)), true);
+        usr_home_replace(shorthelp ? curbuf : NULL,
+                         name, p, (size_t)(IOSIZE - (p - buffer)));
     }
 
     vim_snprintf_add((char *)buffer,
@@ -3723,11 +3721,8 @@ void maketitle(void)
                 off = (int)STRLEN(buf);
                 buf[off++] = ' ';
                 buf[off++] = '(';
-                home_replace(curbuf,
-                             curbuf->b_ffname,
-                             buf + off,
-                             (size_t)(SPACE_FOR_DIR - off),
-                             true);
+                usr_home_replace(curbuf, curbuf->b_ffname,
+                                 buf + off, (size_t)(SPACE_FOR_DIR - off));
 
                 #ifdef BACKSLASH_IN_FILENAME
                 // avoid "c:/name" to be reduced to "c"
@@ -4467,7 +4462,7 @@ int build_stl_str_hl(win_st *wp,
                                   ? wp->w_buffer->b_ffname
                                   : wp->w_buffer->b_fname;
 
-                    home_replace(wp->w_buffer, t, NameBuff, MAXPATHL, true);
+                    usr_home_replace(wp->w_buffer, t, NameBuff, MAXPATHL);
                 }
 
                 trans_characters(NameBuff, MAXPATHL);

@@ -1298,7 +1298,7 @@ void msg_home_replace_hl(uchar_kt *fname)
 static void msg_home_replace_attr(uchar_kt *fname, int attr)
 {
     uchar_kt *name;
-    name = home_replace_save(NULL, fname);
+    name = usr_home_replace_malloc(NULL, fname);
     msg_outtrans_attr(name, attr);
     xfree(name);
 }

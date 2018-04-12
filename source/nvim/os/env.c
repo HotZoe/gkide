@@ -208,9 +208,6 @@ typedef enum
     kNLC_FLG = 4  ///< if set, check sequence: SYS->USR, otherwise, the reverse
 } NvimLayoutCheck;
 
-char *gkide_usr_home = NULL; ///< gkide user home directory, runtime fixed
-char *gkide_sys_home = NULL; ///< gkide system home directory, runtime fixed
-
 /// To get the user home directory: get the value of $GKIDE_USR_HOME
 /// Here used this environment is because $HOME is used everywhere, so
 /// that if change its value which will affect others, now, use another
@@ -793,27 +790,22 @@ char *vim_getenv(const char *name)
     return NULL;
 }
 
-/// Replace home directory by ~ in each space or comma separated file name in
-/// @b src If anything fails (except when out of space) dst equals src.
+/// Replace user home directory by ~ in each space or comma separated
+/// file name in @b src, if anything fails (except when out of space)
+/// @b dst equals @b src.
 ///
-/// @param buf    When not NULL, check for help files
-/// @param src    Input file name
-/// @param dst    Where to put the result
-/// @param dstlen Maximum length of the result
-/// @param one    If true, only replace one file name, including spaces and
-///               commas in the file name
-void home_replace(const filebuf_st *const buf,
-                  const uchar_kt *src,
-                  uchar_kt *dst,
-                  size_t dstlen,
-                  bool one)
+/// @param buf      When not NULL, check for help files
+/// @param src      Input file name, to check and do replace
+/// @param dst      Where to put the result
+/// @param dstlen   Maximum length of the result
+void usr_home_replace(const filebuf_st *const buf,
+                      const uchar_kt *src,
+                      uchar_kt *dst,
+                      size_t dstlen)
 {
-    size_t dirlen = 0, envlen = 0;
-    size_t len;
-
     if(src == NULL)
     {
-        *dst = NUL;
+        *dst = NUL; // make sure c-string
         return;
     }
 
@@ -824,127 +816,81 @@ void home_replace(const filebuf_st *const buf,
         return;
     }
 
-    // We check both the value of the $HOME
-    // environment variable and the "real" home directory.
-    if(gkide_usr_home != NULL)
-    {
-        dirlen = STRLEN(gkide_usr_home);
-    }
+    assert(gkide_usr_home != NULL);
+    const size_t usr_home_len = STRLEN(gkide_usr_home);
 
-    uchar_kt *homedir_env = (uchar_kt *)os_getenv("HOME");
-    bool must_free = false;
-
-    if(homedir_env != NULL && vim_strchr(homedir_env, '~') != NULL)
-    {
-        must_free = true;
-        size_t usedlen = 0;
-        size_t flen = STRLEN(homedir_env);
-        uchar_kt *fbuf = NULL;
-        (void)modify_fname((uchar_kt *)":p", &usedlen, &homedir_env, &fbuf, &flen);
-        flen = STRLEN(homedir_env);
-
-        // Remove the trailing / that is added to a directory.
-        if(flen > 0 && vim_ispathsep(homedir_env[flen - 1]))
-        {
-            homedir_env[flen - 1] = NUL;
-        }
-    }
-
-    if(homedir_env != NULL)
-    {
-        envlen = STRLEN(homedir_env);
-    }
-
-    if(!one)
-    {
-        src = skipwhite(src);
-    }
-
-    while(*src && dstlen > 0)
+    while(src[0] && dstlen > 0)
     {
         // Here we are at the beginning of a file name.
-        // First, check to see if the beginning of the file name matches
-        // $HOME or the "real" home directory. Check that there is a '/'
-        // after the match (so that if e.g. the file is "/home/pieter/bla",
+        //
+        // check to see if the beginning of the file name matches
+        // $GKIDE_USR_HOME directory and make sure that there is a '/'
+        // after the match, so that if e.g. the file is "/home/pieter/bla",
         // and the home directory is "/home/piet", the file does not end up
-        // as "~er/bla" (which would seem to indicate the file "bla" in user
-        // er's home directory)).
-        uchar_kt *p = (uchar_kt *)gkide_usr_home;
-        len = dirlen;
-
-        for(;;)
+        // as "~er/bla"
+        if(fnamencmp(src, gkide_usr_home, usr_home_len) == 0
+           && (vim_ispathsep(src[usr_home_len])
+               || src[usr_home_len] == ','
+               || src[usr_home_len] == ' '
+               || src[usr_home_len] == NUL))
         {
-            if(len
-               && fnamencmp(src, p, len) == 0
-               && (vim_ispathsep(src[len])
-                   || (!one && (src[len] == ',' || src[len] == ' '))
-                   || src[len] == NUL))
+            src += usr_home_len;
+
+            if(--dstlen > 0)
             {
-                src += len;
-
-                if(--dstlen > 0)
-                {
-                    *dst++ = '~';
-                }
-
-                // If it's just the home directory, add  "/"
-                if(!vim_ispathsep(src[0]) && --dstlen > 0)
-                {
-                    *dst++ = '/';
-                }
-
-                break;
+                *dst++ = '~';
             }
 
-            if(p == homedir_env)
+            // not ending in path separator, add it
+            if(!vim_ispathsep(src[0]) && --dstlen > 0)
             {
-                break;
+                *dst++ = OS_PATH_SEP_CHAR;
             }
-
-            p = homedir_env;
-            len = envlen;
         }
 
-        // if (!one) skip to separator: space or comma
-        while(*src && (one || (*src != ',' && *src != ' ')) && --dstlen > 0)
+        // the rest of part to copy
+        while(*src && *src != ',' && *src != ' ' && --dstlen > 0)
         {
             *dst++ = *src++;
         }
 
-        // skip separator
-        while((*src == ' ' || *src == ',') && --dstlen > 0)
+        // copy separator, point to next item
+        while(*src && (*src == ' ' || *src == ','))
         {
             *dst++ = *src++;
         }
     }
 
-    // if (dstlen == 0) out of space, what to do?
+    // make sure c-string
     *dst = NUL;
-
-    if(must_free)
-    {
-        xfree(homedir_env);
-    }
 }
 
-/// Like home_replace, store the replaced string in allocated memory.
+/// Like usr_home_replace(), store the replaced string in allocated memory.
 ///
-/// @param buf When not NULL, check for help files
-/// @param src Input file name
-uchar_kt *home_replace_save(filebuf_st *buf, uchar_kt *src)
+/// @param buf  When not NULL, check for help files
+/// @param src  Input file name
+///
+/// @return allocated c-string, which has the user home replaced
+uchar_kt *usr_home_replace_malloc(filebuf_st *buf, uchar_kt *src)
 FUNC_ATTR_NONNULL_RET
 {
-    // space for "~/" and trailing NUL
-    size_t len = 3;
-
-    // just in case
-    if(src != NULL)
+    if(NULL == src)
     {
-        len += STRLEN(src);
+        return NULL;
     }
 
-    uchar_kt *dst = xmalloc(len);
-    home_replace(buf, src, dst, len, true);
+    size_t old_len = STRLEN(src);
+    uchar_kt *dst = xmalloc(old_len);
+    usr_home_replace(buf, src, dst, old_len);
+
+    size_t new_len = STRLEN(dst);
+
+    if(new_len < old_len && NUL == dst[new_len])
+    {
+        // need to free the extra not used space
+        void *ptr = dst + new_len + 1;
+        xfree(ptr);
+    }
 
     return dst;
 }

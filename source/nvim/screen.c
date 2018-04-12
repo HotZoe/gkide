@@ -9462,7 +9462,7 @@ void get_trans_bufname(filebuf_st *buf)
     }
     else
     {
-        home_replace(buf, buf->b_fname, NameBuff, MAXPATHL, TRUE);
+        usr_home_replace(buf, buf->b_fname, NameBuff, MAXPATHL);
     }
 
     trans_characters(NameBuff, MAXPATHL);

@@ -402,8 +402,8 @@ void ml_setname(filebuf_st *buf)
         return;
     }
 
-    // Try all directories in the 'directory' option.
-    dirp = p_dir;
+    // Try all directories in the 'swapdir' option.
+    dirp = p_sdir;
     bool found_existing_dir = false;
 
     for(;;)
@@ -525,8 +525,8 @@ void ml_open_file(filebuf_st *buf)
         return;
     }
 
-    // Try all directories in 'directory' option.
-    dirp = p_dir;
+    // Try all directories in 'swapdir' option.
+    dirp = p_sdir;
     bool found_existing_dir = false;
 
     for(;;)
@@ -540,7 +540,7 @@ void ml_open_file(filebuf_st *buf)
         // and creating it, another Vim creates the file. In that case the
         // creation will fail and we will use another directory.
         fname = (uchar_kt *)findswapname(buf, (char **)&dirp,
-                                       NULL, &found_existing_dir);
+                                         NULL, &found_existing_dir);
 
         if(dirp == NULL)
         {
@@ -728,10 +728,10 @@ static void set_b0_fname(blk_zero_st *b0p, filebuf_st *buf)
         // For a file under the home directory of the current user, we try to
         // replace the home directory path with "~user". This helps when
         // editing the same file on different machines over a network.
-        // First replace home dir path with "~/" with home_replace().
+        // First replace home dir path with "~/" with usr_home_replace().
         // Then insert the user name to get "~user/".
-        home_replace(NULL, buf->b_ffname,
-                     b0p->b0_fname, B0_FNAME_SIZE_CRYPT, TRUE);
+        usr_home_replace(NULL, buf->b_ffname, b0p->b0_fname,
+                         B0_FNAME_SIZE_CRYPT);
 
         if(b0p->b0_fname[0] == '~')
         {
@@ -1059,7 +1059,7 @@ void ml_recover(void)
         }
     }
 
-    home_replace(NULL, mfp->mf_fname, NameBuff, MAXPATHL, TRUE);
+    usr_home_replace(NULL, mfp->mf_fname, NameBuff, MAXPATHL);
     smsg(_("Using swap file \"%s\""), NameBuff);
 
     if(buf_spname(curbuf) != NULL)
@@ -1068,7 +1068,7 @@ void ml_recover(void)
     }
     else
     {
-        home_replace(NULL, curbuf->b_ffname, NameBuff, MAXPATHL, TRUE);
+        usr_home_replace(NULL, curbuf->b_ffname, NameBuff, MAXPATHL);
     }
 
     smsg(_("Original file \"%s\""), NameBuff);
@@ -1529,10 +1529,10 @@ int recover_names(uchar_kt *fname, int list, int nr, uchar_kt **fname_out)
         msg_putchar('\n');
     }
 
-    // Do the loop for every directory in 'directory'.
+    // Do the loop for every directory in 'swapdir'.
     // First allocate some memory to put the directory name in.
-    dir_name = xmalloc(STRLEN(p_dir) + 1);
-    dirp = p_dir;
+    dir_name = xmalloc(STRLEN(p_sdir) + 1);
+    dirp = p_sdir;
 
     while(dir_name != NULL && *dirp)
     {
@@ -4100,9 +4100,9 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                         char *const name = xmalloc(name_len);
 
                         memcpy(name, sw_msg_1, sw_msg_1_len + 1);
-                        home_replace(NULL, (uchar_kt *)fname,
-                                     (uchar_kt *)&name[sw_msg_1_len],
-                                     fname_len, true);
+                        usr_home_replace(NULL, (uchar_kt *)fname,
+                                         (uchar_kt *)&name[sw_msg_1_len],
+                                         fname_len);
 
                         xstrlcat(name, sw_msg_2, name_len);
 

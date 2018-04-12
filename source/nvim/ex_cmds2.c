@@ -941,7 +941,7 @@ void ex_breaklist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 
             if(bp->dbg_type == DBG_FILE)
             {
-                home_replace(NULL, bp->dbg_name, NameBuff, MAXPATHL, true);
+                usr_home_replace(NULL, bp->dbg_name, NameBuff, MAXPATHL);
             }
 
             smsg(_("%3d  %s %s  line %" PRId64),
@@ -3841,8 +3841,8 @@ void ex_scriptnames(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     {
         if(SCRIPT_ITEM(i).sn_name != NULL)
         {
-            home_replace(NULL, SCRIPT_ITEM(i).sn_name,
-                         NameBuff, MAXPATHL, true);
+            usr_home_replace(NULL, SCRIPT_ITEM(i).sn_name,
+                             NameBuff, MAXPATHL);
             smsg("%3d: %s", i, NameBuff);
         }
     }

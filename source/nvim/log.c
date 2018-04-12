@@ -16,7 +16,7 @@
 #include "generated/config/gkideenvs.h"
 
 /// First location of the log file used by log_path_init()
-#define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_RTMLOG
+#define USR_LOG_FILE          "$" ENV_GKIDE_NVIM_LOG
 
 /// Fall back location of the log file used by log_path_init()
 #define USR_LOG_FILE_DEFAULT  "$" ENV_GKIDE_USR_HOME OS_PATH_SEP_STR "nvim.log"

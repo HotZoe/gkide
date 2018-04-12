@@ -3629,7 +3629,7 @@ static int nextwild(expand_st *xp, int type, int options, int escape)
 ///
 /// @param options
 /// - options = WILD_LIST_NOTFOUND: list entries without a match
-/// - options = WILD_HOME_REPLACE:  do home_replace() for buffer names
+/// - options = WILD_HOME_REPLACE:  do usr_home_replace() for buffer names
 /// - options = WILD_USE_NL:        Use '\n' for WILD_ALL
 /// - options = WILD_NO_BEEP:       Don't beep for multiple matches
 /// - options = WILD_ADD_SLASH:     add a slash after directory names
@@ -4127,7 +4127,7 @@ void tilde_replace(uchar_kt *orig_pat, int num_files, uchar_kt **files)
     {
         for(i = 0; i < num_files; ++i)
         {
-            p = home_replace_save(NULL, files[i]);
+            p = usr_home_replace_malloc(NULL, files[i]);
             xfree(files[i]);
             files[i] = p;
         }
@@ -4206,7 +4206,7 @@ static int showmatches(expand_st *xp, int wildmenu)
                              || xp->xp_context == EXPAND_SHELLCMD
                              || xp->xp_context == EXPAND_BUFFERS))
             {
-                home_replace(NULL, files_found[i], NameBuff, MAXPATHL, TRUE);
+                usr_home_replace(NULL, files_found[i], NameBuff, MAXPATHL);
                 j = vim_strsize(NameBuff);
             }
             else
@@ -4306,11 +4306,8 @@ static int showmatches(expand_st *xp, int wildmenu)
                     }
                     else
                     {
-                        home_replace(NULL,
-                                     files_found[k],
-                                     NameBuff,
-                                     MAXPATHL,
-                                     TRUE);
+                        usr_home_replace(NULL,files_found[k],
+                                         NameBuff, MAXPATHL);
 
                         p = NameBuff;
                     }

@@ -7185,8 +7185,9 @@ void spell_add_word(uchar_kt *word, int len, int bad, int idx,  bool undo)
 
                         if(undo)
                         {
-                            home_replace(NULL, fname, NameBuff, MAXPATHL, TRUE);
-                            smsg(_("Word '%.*s' removed from %s"), len, word, NameBuff);
+                            usr_home_replace(NULL, fname, NameBuff, MAXPATHL);
+                            smsg(_("Word '%.*s' removed from %s"),
+                                 len, word, NameBuff);
                         }
                     }
 
@@ -7243,7 +7244,7 @@ void spell_add_word(uchar_kt *word, int len, int bad, int idx,  bool undo)
             }
 
             fclose(fd);
-            home_replace(NULL, fname, NameBuff, MAXPATHL, TRUE);
+            usr_home_replace(NULL, fname, NameBuff, MAXPATHL);
             smsg(_("Word '%.*s' added to %s"), len, word, NameBuff);
         }
     }

@@ -1052,8 +1052,10 @@ EXTERN int wild_menu_showing INIT(= 0);
 #define WM_SHOWN     1   ///< wildmenu showing
 #define WM_SCROLLED  2   ///< wildmenu showing with scroll
 
-extern char *gkide_sys_home;
-extern char *gkide_usr_home;
+/// nvim user home directory, runtime fixed
+EXTERN char *gkide_usr_home INIT(= NULL);
+/// nvim system home directory, runtime fixed
+EXTERN char *gkide_sys_home INIT(= NULL);
 
 /// When a window has a local directory, the absolute path of the global
 /// current directory is stored here (in allocated memory). If the current

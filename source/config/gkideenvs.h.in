@@ -1,23 +1,34 @@
 /// @file generated/config/gkideenvs.h
+///
+/// GKIDE Environment Variables
 
 #ifndef GKIDE_GENERATED_CONFIG_GKIDEENVS_H
 #define GKIDE_GENERATED_CONFIG_GKIDEENVS_H
 
 #define GKIDE_NVIM_DOMAIN         "gkidenvim"
 
-// Environment Variables
-#define ENV_GKIDE_SYS_HOME        "GKIDE_SYS_HOME"        ///< gkide home
-#define ENV_GKIDE_USR_HOME        "GKIDE_USR_HOME"        ///< user home
+/// GKIDE: install home
+#define ENV_GKIDE_SYS_HOME        "GKIDE_SYS_HOME"
+/// GKIDE: user home
+#define ENV_GKIDE_USR_HOME        "GKIDE_USR_HOME"
+/// GKIDE: global config
+#define ENV_GKIDE_SYS_CONFIG      "GKIDE_SYS_CONFIG"
+/// GKIDE: user config
+#define ENV_GKIDE_USR_CONFIG      "GKIDE_USR_CONFIG"
 
-#define ENV_GKIDE_SYS_CONFIG      "GKIDE_SYS_CONFIG"      ///< global config
-#define ENV_GKIDE_USR_CONFIG      "GKIDE_USR_CONFIG"      ///< user config
+/// nvim: loale settings
+#define ENV_GKIDE_NVIM_LOCALE     "GKIDE_NVIM_LOCALE"
+/// nvim: logfile
+#define ENV_GKIDE_NVIM_LOG        "GKIDE_NVIM_LOG"
+/// nvim: plugin search path
+#define ENV_GKIDE_NVIM_PLUGIN     "GKIDE_NVIM_PLUGIN"
+/// nvim: server listen address
+#define ENV_GKIDE_NVIM_LISTEN     "GKIDE_NVIM_LISTEN"
 
-#define ENV_GKIDE_NVIM_LOCALE     "GKIDE_NVIM_LOCALE"     ///< locale
-#define ENV_GKIDE_NVIM_RTMLOG     "GKIDE_NVIM_RTMLOG"     ///< runtime log
-#define ENV_GKIDE_NVIM_RTMPLG     "GKIDE_NVIM_RTMPLG"     ///< runtime plugin
-#define ENV_GKIDE_NVIM_LISTEN     "GKIDE_NVIM_LISTEN"     ///< listen address
 
-#define ENV_GKIDE_SNAIL_LOGGINGS  "GKIDE_SNAIL_LOGGINGS"  ///< log
-#define ENV_GKIDE_SNAIL_LOGLEVEL  "GKIDE_SNAIL_LOGLEVEL"  ///< log-level
+/// snail: logfile
+#define ENV_GKIDE_SNAIL_LOG       "GKIDE_SNAIL_LOG"
+/// snail: log level
+#define ENV_GKIDE_SNAIL_LOGLEVEL  "GKIDE_SNAIL_LOGLEVEL"
 
 #endif // GKIDE_GENERATED_CONFIG_GKIDEENVS_H

@@ -74,6 +74,7 @@
 #include "nvim/window.h"
 #include "nvim/os/os.h"
 #include "nvim/os/input.h"
+#include "nvim/os/std_path.h"
 
 #include "generated/config/config.h"
 #include "generated/config/gkideenvs.h"
@@ -332,6 +333,12 @@ static char *(p_cot_values[]) = {
 #endif
 
 /// Append string with escaped commas
+///
+/// @note
+/// @b dest and @b src must not overlap
+///
+/// @return
+/// a c-string pointer, which point to the c-string ending of @b dest
 static char *strcpy_comma_escaped(char *dest,
                                   const char *src,
                                   const size_t len)
@@ -353,350 +360,85 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     return &dest[len + shift];
 }
 
-/// Compute length of a colon-separated value,
-/// doubled and with some suffixes
-///
-/// @param[in] val
-/// Colon-separated array value.
-///
-/// @param[in] common_suf_len
-/// Length of the common suffix which is appended to
-/// each item in the array, twice.
-///
-/// @param[in] single_suf_len
-/// Length of the suffix which is appended to each
-/// item in the array once.
-///
-/// @return
-/// Length of the comma-separated string array that contains each item
-/// in the original array twice with suffixes with given length
-/// (common_suf is present after each new item, single_suf is present
-/// after half of the new items) and with commas after each item, commas
-/// inside the values are escaped.
-static inline size_t compute_double_colon_len(const char *const val,
-                                              const size_t common_suf_len,
-                                              const size_t single_suf_len)
-FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_PURE
-{
-    if(val == NULL || *val == NUL)
-    {
-        return 0;
-    }
-
-    size_t ret = 0;
-    const void *iter = NULL;
-
-    do
-    {
-        size_t dir_len;
-        const char *dir;
-        iter = vim_env_iter(':', val, iter, &dir, &dir_len);
-
-        if(dir != NULL && dir_len > 0)
-        {
-            ret += ((dir_len + std_memcnt(dir, ',', dir_len)
-                     + common_suf_len
-                     + !after_pathsep(dir, dir + dir_len)) * 2
-                    + single_suf_len);
-        }
-    } while(iter != NULL);
-
-    return ret;
-}
-
-#define NVIM_SIZE (sizeof("nvim") - 1)
-
-/// Add directories to a comma-separated array from a colon-separated one
-///
-/// Commas are escaped in process. To each item OS_PATH_SEP_CHAR "nvim" is
-/// appended in addition to suf1 and suf2.
-///
-/// @param[in,out] dest
-/// Destination comma-separated array.
-///
-/// @param[in] val
-/// Source colon-separated array.
-///
-/// @param[in] suf1
-/// If not NULL, suffix appended to destination. Prior to it
-/// directory separator is appended. Suffix must not contain commas.
-///
-/// @param[in] len1
-/// Length of the suf1.
-///
-/// @param[in] suf2
-/// If not NULL, another suffix appended to destination. Again
-/// with directory separator behind. Suffix must not contain commas.
-/// @param[in] len2
-/// Length of the suf2.
-///
-/// @param[in] forward
-/// If true, iterate over val in forward direction.
-/// Otherwise in reverse.
-///
-/// @return (dest + appended_characters_length)
-static inline char *add_colon_dirs(char *dest,
-                                   const char *const val,
-                                   const char *const suf1,
-                                   const size_t len1,
-                                   const char *const suf2,
-                                   const size_t len2,
-                                   const bool forward)
-FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_NONNULL_ARG(1)
-{
-    if(val == NULL || *val == NUL)
-    {
-        return dest;
-    }
-
-    const void *iter = NULL;
-
-    do
-    {
-        size_t dir_len;
-        const char *dir;
-
-        iter = (forward
-                ? vim_env_iter
-                : vim_env_iter_rev)(':', val, iter, &dir, &dir_len);
-
-        if(dir != NULL && dir_len > 0)
-        {
-            dest = strcpy_comma_escaped(dest, dir, dir_len);
-
-            if(!after_pathsep(dest - 1, dest))
-            {
-                *dest++ = OS_PATH_SEP_CHAR;
-            }
-
-            memmove(dest, "nvim", NVIM_SIZE);
-            dest += NVIM_SIZE;
-
-            if(suf1 != NULL)
-            {
-                *dest++ = OS_PATH_SEP_CHAR;
-                memmove(dest, suf1, len1);
-                dest += len1;
-
-                if(suf2 != NULL)
-                {
-                    *dest++ = OS_PATH_SEP_CHAR;
-                    memmove(dest, suf2, len2);
-                    dest += len2;
-                }
-            }
-
-            *dest++ = ',';
-        }
-    } while(iter != NULL);
-
-    return dest;
-}
-
 /// Add directory to a comma-separated list of directories
 ///
 /// In the added directory comma is escaped.
 ///
-/// @param[in,out] dest
-/// Destination comma-separated array.
+/// @param[in,out] dest      destination comma-separated array.
+/// @param[in]     path      directory to append.
+/// @param[in]     path_len  the length of @b path, including NUL.
 ///
-/// @param[in] dir
-/// Directory to append.
-///
-/// @param[in] dir_len
-/// the length of @b dir.
-///
-/// @param[in] append_nvim
-/// If true, append "nvim" as the very first suffix.
-///
-/// @param[in] suf1
-/// If not NULL, suffix appended to destination. Prior to it
-/// directory separator is appended. Suffix must not contain commas.
-///
-/// @param[in] len1
-/// Length of the suf1.
-///
-/// @param[in] suf2
-/// If not NULL, another suffix appended to destination. Again
-/// with directory separator behind. Suffix must not contain commas.
-///
-/// @param[in] len2
-/// Length of the suf2.
-///
-/// @return (dest + appended_characters_length)
-static inline char *add_dir(char *dest,
-                            const char *const dir,
-                            const size_t dir_len,
-                            const bool append_nvim,
-                            const char *const suf1,
-                            const size_t len1,
-                            const char *const suf2,
-                            const size_t len2)
+/// @return @b dest + appended_characters_length
+static inline char *plugin_path_append(char *dest,
+                                       const char *const path,
+                                       const size_t path_len)
 FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    if(dir == NULL || dir_len == 0)
+    if(NULL != path && 0 != path_len)
     {
-        return dest;
+        // do not copy the c-string ending NUL, following make sure it
+        dest = strcpy_comma_escaped(dest, path, path_len - 1);
+
+        *dest++ = ','; // add a comma
+        *dest = NUL; // make sure c-string
     }
 
-    dest = strcpy_comma_escaped(dest, dir, dir_len);
-
-    if(append_nvim)
-    {
-        if(!after_pathsep(dest - 1, dest))
-        {
-            *dest++ = OS_PATH_SEP_CHAR;
-        }
-
-        memmove(dest, "nvim", NVIM_SIZE);
-        dest += NVIM_SIZE;
-
-        if(suf1 != NULL)
-        {
-            *dest++ = OS_PATH_SEP_CHAR;
-            memmove(dest, suf1, len1);
-            dest += len1;
-
-            if(suf2 != NULL)
-            {
-                *dest++ = OS_PATH_SEP_CHAR;
-                memmove(dest, suf2, len2);
-                dest += len2;
-            }
-        }
-    }
-
-    *dest++ = ',';
     return dest;
 }
 
 /// Set &runtimepath to default value
-static void set_runtimepath_default(void)
+static void init_plugin_runtimepath(void)
 {
-    char *const vimruntime = vim_getenv("VIMRUNTIME");
-    char *const data_home = stdpaths_get_xdg_var(kXDGDataHome);
-    char *const data_dirs = stdpaths_get_xdg_var(kXDGDataDirs);
-    char *const config_home = stdpaths_get_xdg_var(kXDGConfigHome);
-    char *const config_dirs = stdpaths_get_xdg_var(kXDGConfigDirs);
+    assert(NULL != gkide_sys_home);
+    assert(NULL != gkide_usr_home);
 
-#define SITE_SIZE  (sizeof("site") - 1)
-#define AFTER_SIZE (sizeof("after") - 1)
+    char *const std_sys_path = xstrdup(gkide_sys_home);
+    char *const std_usr_path = xstrdup(gkide_usr_home);
+    char *const plg_sys_path = concat_fnames_realloc(std_sys_path, "plg", true);
+    char *const plg_usr_path = concat_fnames_realloc(std_usr_path, "plugin", true);
+    char *const plg_env_path = vim_getenv(ENV_GKIDE_NVIM_PLUGIN);
 
-    size_t rtp_size = 0;
-    size_t data_len = 0;
-    size_t config_len = 0;
-    size_t vimruntime_len = 0;
+    // c-string length + NUL + escape-char-number
+    size_t plg_sys_len = 0;
+    size_t plg_usr_len = 0;
+    size_t plg_env_len = 0;
 
-    if(data_home != NULL)
+    plg_sys_len = strlen(plg_sys_path) + 1;
+
+    if(os_path_exists((uchar_kt *)plg_usr_path))
     {
-        data_len = strlen(data_home);
-
-        if(data_len != 0)
-        {
-            rtp_size += ((data_len
-                          + std_memcnt(data_home, ',', data_len)
-                          + NVIM_SIZE + 1 + SITE_SIZE + 1
-                          + !after_pathsep(data_home,
-                                           data_home + data_len)) * 2
-                         + AFTER_SIZE + 1);
-        }
+        plg_usr_len = strlen(plg_usr_path) + 1;
     }
 
-    if(config_home != NULL)
+    if(NULL != plg_env_path)
     {
-        config_len = strlen(config_home);
-
-        if(config_len != 0)
-        {
-            rtp_size += ((config_len
-                          + std_memcnt(config_home, ',', config_len)
-                          + NVIM_SIZE + 1
-                          + !after_pathsep(config_home,
-                                           config_home + config_len)) * 2
-                         + AFTER_SIZE + 1);
-        }
+        // need to escape comma
+        plg_env_len += strlen(plg_env_path) + 1;
+        plg_env_len += std_memcnt(plg_env_path, ',', plg_env_len);
     }
 
-    if(vimruntime != NULL)
-    {
-        vimruntime_len = strlen(vimruntime);
+    size_t plugin_len = plg_sys_len + plg_usr_len + plg_env_len;
+    char *const plugin_path = xmalloc(plugin_len);
+    char *ptr = plugin_path;
 
-        if(vimruntime_len != 0)
-        {
-            rtp_size += vimruntime_len
-                        + std_memcnt(vimruntime, ',', vimruntime_len)
-                        + 1;
-        }
-    }
+    ptr = plugin_path_append(ptr, plg_sys_path, plg_sys_len);
+    ptr = plugin_path_append(ptr, plg_usr_path, plg_usr_len);
+    ptr = plugin_path_append(ptr, plg_env_path, plg_env_len);
+    ptr[-1] = NUL; // strip trailing comma
 
-    rtp_size += compute_double_colon_len(data_dirs,
-                                         NVIM_SIZE + 1 + SITE_SIZE + 1,
-                                         AFTER_SIZE + 1);
+    assert((size_t)(ptr - plugin_path) == plugin_len);
+    DEV_TRACE_MSG("pluginpath: %s", plugin_path);
 
-    rtp_size += compute_double_colon_len(config_dirs,
-                                         NVIM_SIZE + 1,
-                                         AFTER_SIZE + 1);
+    set_string_default("runtimepath", plugin_path, true);
+    set_string_default("packpath", plugin_path, false);
+    //set_string_default("pluginpath", plugin_path, true); // todo
 
-    if(rtp_size == 0)
-    {
-        return;
-    }
-
-    char *const rtp = xmalloc(rtp_size);
-    char *rtp_cur = rtp;
-
-    rtp_cur = add_dir(rtp_cur, config_home,
-                      config_len, true, NULL, 0, NULL, 0);
-
-    rtp_cur = add_colon_dirs(rtp_cur, config_dirs,
-                             NULL, 0, NULL, 0, true);
-
-    rtp_cur = add_dir(rtp_cur, data_home, data_len,
-                      true, "site", SITE_SIZE, NULL, 0);
-
-    rtp_cur = add_colon_dirs(rtp_cur, data_dirs,
-                             "site", SITE_SIZE, NULL, 0, true);
-
-    rtp_cur = add_dir(rtp_cur, vimruntime,
-                      vimruntime_len, false, NULL, 0, NULL, 0);
-
-    rtp_cur = add_colon_dirs(rtp_cur, data_dirs, "site",
-                             SITE_SIZE, "after", AFTER_SIZE, false);
-
-    rtp_cur = add_dir(rtp_cur, data_home, data_len, true,
-                      "site", SITE_SIZE, "after", AFTER_SIZE);
-
-    rtp_cur = add_colon_dirs(rtp_cur, config_dirs,
-                             "after", AFTER_SIZE, NULL, 0, false);
-
-    rtp_cur = add_dir(rtp_cur, config_home, config_len,
-                      true, "after", AFTER_SIZE, NULL, 0);
-
-    rtp_cur[-1] = NUL; // Strip trailing comma.
-    assert((size_t)(rtp_cur - rtp) == rtp_size);
-
-#undef SITE_SIZE
-#undef AFTER_SIZE
-
-    DEV_TRACE_MSG("RunTimePath: %s", rtp);
-
-    set_string_default("runtimepath", rtp, true);
-    // Make a copy of 'rtp' for 'packpath'
-    set_string_default("packpath", rtp, false);
-
-    xfree(data_dirs);
-    xfree(config_dirs);
-    xfree(data_home);
-    xfree(config_home);
-    xfree(vimruntime);
+    xfree(plg_sys_path);
+    xfree(plg_usr_path);
+    xfree(plg_env_path);
 }
-
-#undef NVIM_SIZE
 
 /// init nvim option "backupskip, bsk" to the default value,
 /// include environment variables for temp files.
@@ -832,6 +574,36 @@ static void init_option_cdpath(void)
     }
 }
 
+// init the directory options to its default value
+static void init_dir_options(void)
+{
+    char *opt_val = NULL;
+
+    // List of directories for the backup file, separated with commas.
+    // $GKIDE_USR_HOME/auto/backup, nvim option name: backupdir, bdir
+    opt_val = stdpath_user_auto_subpath("backup", false, false);
+    // if not exist and can't create, just set to NULL
+    set_string_default("backupdir", opt_val, true);
+
+    // Name of the directory where to store files for |:mkview|
+    // $GKIDE_USR_HOME/auto/view, nvim option name: viewdir, vdir
+    opt_val = stdpath_user_auto_subpath("view", false, false);
+    // if not exist and can't create, just set to NULL
+    set_string_default("viewdir", opt_val, true);
+
+    // List of directory names for undo files, separated with commas.
+    // $GKIDE_USR_HOME/auto/undo, nvim option name: undodir, udir
+    opt_val = stdpath_user_auto_subpath("undo", false, false);
+    // if not exist and can't create, just set to NULL
+    set_string_default("undodir", opt_val, true);
+
+    // List of directory names for swap files, separated with commas.
+    // $GKIDE_USR_HOME/auto/swap, nvim option name: swapdir, sdir
+    opt_val = stdpath_user_auto_subpath("swap", false, false);
+    // if not exist and can't create, just set to NULL
+    set_string_default("swapdir", opt_val, true);
+}
+
 /// Initialize the options, first part.
 ///
 /// Called only once from main(), just after creating the first buffer.
@@ -877,22 +649,11 @@ void init_options_part_1(void)
 #endif
                        false);
 
-    // Make a backup before overwriting a file.
-    char *backupdir = stdpaths_user_data_subpath("backup", 0, true);
-    const size_t backupdir_len = strlen(backupdir);
-    backupdir = xrealloc(backupdir, backupdir_len + 3);
+    init_dir_options();
 
-    memmove(backupdir + 2, backupdir, backupdir_len + 1);
-    memmove(backupdir, ".,", 2); // insert ".,", current directory
-
-    set_string_default("backupdir", backupdir, true);
-    set_string_default("viewdir",   stdpaths_user_data_subpath("view", 0, true), true);
-    set_string_default("directory", stdpaths_user_data_subpath("swap", 2, true), true);
-    set_string_default("undodir",   stdpaths_user_data_subpath("undo", 0, true), true);
-
-    // Set default for &runtimepath.
+    // Set default value for &runtimepath.
     // All necessary expansions are performed in this function.
-    set_runtimepath_default();
+    init_plugin_runtimepath();
 
     // Set all the options (except the terminal options) to their
     // default value. Also set the global value for local options.
@@ -1010,8 +771,8 @@ void init_options_part_1(void)
 /// @param opt_flags    OPT_FREE, OPT_LOCAL and/or OPT_GLOBAL
 /// @param compatible   use Vi default value
 static void set_option_default(int opt_idx,
-                                      int opt_flags,
-                                      int compatible)
+                               int opt_flags,
+                               int compatible)
 {
     int dvi; // index in def_val[]
     int both = (opt_flags & (OPT_LOCAL | OPT_GLOBAL)) == 0;
@@ -1019,7 +780,7 @@ static void set_option_default(int opt_idx,
 
     // pointer to variable for current option
     uchar_kt *varp = get_varp_scope(&(options[opt_idx]),
-                                  both ? OPT_LOCAL : opt_flags);
+                                    both ? OPT_LOCAL : opt_flags);
 
     // skip hidden option, nothing to do for it
     if(varp != NULL)
@@ -2054,10 +1815,11 @@ int do_set(uchar_kt *arg,  int opt_flags)
                                 save_arg = arg;
                                 arg = errbuf;
                             }
-                            // Remove '>' before 'dir' and 'bdir', for
+                            // Remove '>' before 'sdir' and 'bdir', for
                             // backwards compatibility with version 3.0
+                            /// @todo: no compatibility
                             else if(*arg == '>'
-                                    && (varp == (uchar_kt *)&p_dir
+                                    && (varp == (uchar_kt *)&p_sdir
                                         || varp == (uchar_kt *)&p_bdir))
                             {
                                 ++arg;
@@ -7064,7 +6826,7 @@ static int put_setstr(FILE *fd,
         else if(expand)
         {
             buf = xmalloc(MAXPATHL);
-            home_replace(NULL, *valuep, buf, MAXPATHL, FALSE);
+            usr_home_replace(NULL, *valuep, buf, MAXPATHL);
 
             if(put_escstr(fd, buf, 2) == FAIL)
             {
@@ -8294,7 +8056,7 @@ void set_context_in_set_cmd(expand_st *xp, uchar_kt *arg, int opt_flags)
         p = options[opt_idx].var;
 
         if(p == (uchar_kt *)&p_bdir
-           || p == (uchar_kt *)&p_dir
+           || p == (uchar_kt *)&p_sdir
            || p == (uchar_kt *)&p_path
            || p == (uchar_kt *)&p_pp
            || p == (uchar_kt *)&p_rtp
@@ -8549,7 +8311,7 @@ static void option_value2string(vimoption_st *opp, int opt_flags)
         }
         else if(opp->flags & P_EXPAND)
         {
-            home_replace(NULL, varp, NameBuff, MAXPATHL, FALSE);
+            usr_home_replace(NULL, varp, NameBuff, MAXPATHL);
         }
         // Translate 'pastetoggle' into special key names
         else if((uchar_kt **)opp->var == &p_pt)
