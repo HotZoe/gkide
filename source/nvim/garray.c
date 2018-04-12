@@ -70,10 +70,7 @@ void ga_set_growsize(garray_st *gap, int growsize)
     }
 }
 
-/// Make room in growing array "gap" for at least "n" items.
-///
-/// @param gap
-/// @param n
+/// Make room in growing array @b gap for at least @b n items.
 void ga_grow(garray_st *gap, int n)
 {
     if(gap->ga_maxlen - gap->ga_len >= n)

@@ -6,9 +6,9 @@
 
 #include "nvim/os/os.h"
 
-/// Get the total system physical memory in KiB.
+/// Get the total system physical memory in KB.
 uint64_t os_get_total_mem_kib(void)
 {
-    // Convert bytes to KiB.
+    // Convert bytes to KB.
     return uv_get_total_memory() / 1024;
 }

@@ -764,6 +764,7 @@ static void init_option_backupskip(void)
 /// to be adjusted for available memory
 static void init_option_adj_mem(void)
 {
+    // Maximum amount of memory (KB) to use for all buffers together
     int opt_idx = findoption("maxmemtot");
 
     if(opt_idx >= 0)
@@ -776,8 +777,9 @@ static void init_option_adj_mem(void)
                       ? UINTPTR_MAX : (uintptr_t)(available_kib /2);
 
         options[opt_idx].def_val[VI_DEFAULT] = (uchar_kt *)n;
-        opt_idx = findoption("maxmem");
 
+        // Maximum amount of memory (KB) to use for one buffer
+        opt_idx = findoption("maxmem");
         if(opt_idx >= 0)
         {
             options[opt_idx].def_val[VI_DEFAULT] = (uchar_kt *)n;
@@ -845,6 +847,7 @@ void init_options_part_1(void)
 
     if(shell != NULL)
     {
+        // Name of the shell to use for ! and :! commands.
         set_string_default("sh", (char *) shell, false);
     }
 
@@ -874,6 +877,7 @@ void init_options_part_1(void)
 #endif
                        false);
 
+    // Make a backup before overwriting a file.
     char *backupdir = stdpaths_user_data_subpath("backup", 0, true);
     const size_t backupdir_len = strlen(backupdir);
     backupdir = xrealloc(backupdir, backupdir_len + 3);

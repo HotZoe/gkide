@@ -707,7 +707,8 @@ const void *vim_env_iter(const char delim,
                          const void *const iter,
                          const char **const dir,
                          size_t *const len)
-FUNC_ATTR_NONNULL_ARG(2, 4, 5) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 4, 5)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *varval = (const char *) iter;
 
