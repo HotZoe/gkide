@@ -620,15 +620,15 @@ static int command_line_execute(nvim_state_st *state, int key)
         || s->xpc.xp_context == EXPAND_SHELLCMD) && p_wmnu)
     {
         uchar_kt upseg[5];
-        upseg[0] = PATHSEP;
+        upseg[0] = OS_PATH_SEP_CHAR;
         upseg[1] = '.';
         upseg[2] = '.';
-        upseg[3] = PATHSEP;
+        upseg[3] = OS_PATH_SEP_CHAR;
         upseg[4] = NUL;
 
         if(s->c == K_DOWN
            && ccline.cmdpos > 0
-           && ccline.cmdbuff[ccline.cmdpos - 1] == PATHSEP
+           && ccline.cmdbuff[ccline.cmdpos - 1] == OS_PATH_SEP_CHAR
            && (ccline.cmdpos < 3
                || ccline.cmdbuff[ccline.cmdpos - 2] != '.'
                || ccline.cmdbuff[ccline.cmdpos - 3] != '.'))

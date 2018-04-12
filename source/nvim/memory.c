@@ -372,7 +372,7 @@ FUNC_ATTR_PURE
 /// @param len   The length of @b data.
 ///
 /// @returns the number of occurrences of @b c in @b data[len].
-size_t memcnt(const void *data, char c, size_t len)
+size_t std_memcnt(const void *data, char c, size_t len)
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
 {

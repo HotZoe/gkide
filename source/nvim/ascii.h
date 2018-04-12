@@ -83,15 +83,6 @@
 #define CTRL_H_STR      "\010"
 #define CTRL_V_STR      "\026"
 
-// Character that separates dir names in a path.
-#ifdef BACKSLASH_IN_FILENAME
-    #define PATHSEP        psepc
-    #define PATHSEPSTR     pseps
-#else
-    #define PATHSEP        '/'
-    #define PATHSEPSTR     "/"
-#endif
-
 static inline bool ascii_iswhite(int)
 REAL_FATTR_CONST
 REAL_FATTR_ALWAYS_INLINE;

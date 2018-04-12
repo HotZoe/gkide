@@ -1459,13 +1459,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             }
 
             const char path_tail[] = {
-                'n', 'v', 'i', 'm', PATHSEP,
+                'n', 'v', 'i', 'm', OS_PATH_SEP_CHAR,
                 'i', 'n', 'i', 't', '.', 'v', 'i', 'm', NUL
             };
 
             char *vimrc = xmalloc(dir_len + sizeof(path_tail) + 1);
             memmove(vimrc, dir, dir_len);
-            vimrc[dir_len] = PATHSEP;
+            vimrc[dir_len] = OS_PATH_SEP_CHAR;
             memmove(vimrc + dir_len + 1, path_tail, sizeof(path_tail));
 
             if(do_source((uchar_kt *) vimrc, true,

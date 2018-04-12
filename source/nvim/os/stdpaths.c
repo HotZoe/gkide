@@ -143,7 +143,7 @@ FUNC_ATTR_NONNULL_RET
 {
     char *ret = concat_fnames_realloc(get_xdg_home(kXDGDataHome), fname, true);
     const size_t len = strlen(ret);
-    const size_t numcommas = (escape_commas ? memcnt(ret, ',', len) : 0);
+    const size_t numcommas = (escape_commas ? std_memcnt(ret, ',', len) : 0);
 
     if(numcommas || trailing_pathseps)
     {
@@ -162,7 +162,7 @@ FUNC_ATTR_NONNULL_RET
 
         if(trailing_pathseps)
         {
-            memset(ret + len + numcommas, PATHSEP, trailing_pathseps);
+            memset(ret + len + numcommas, OS_PATH_SEP_CHAR, trailing_pathseps);
         }
 
         ret[len + trailing_pathseps + numcommas] = NUL;

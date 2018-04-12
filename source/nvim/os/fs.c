@@ -932,7 +932,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         if(e > past_head)
         {
-            *e = PATHSEP;
+            *e = OS_PATH_SEP_CHAR;
         }
         else
         {
@@ -943,7 +943,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         e += component_len;
 
         if(e == real_end
-           && memcnt(e - component_len, PATHSEP, component_len)
+           && std_memcnt(e - component_len, OS_PATH_SEP_CHAR, component_len)
               == component_len)
         {
             break; // Path ends with something like "////". Ignore this.

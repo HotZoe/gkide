@@ -500,7 +500,7 @@ void *vim_findfile_init(uchar_kt *path,
                 {
                     EMSG2(_("E343: Invalid path: '**[number]' must be at the "
                             "end of the path or be followed by '%s'."),
-                          PATHSEPSTR);
+                          OS_PATH_SEP_STR);
 
                     goto error_return;
                 }
@@ -1491,8 +1491,8 @@ static int ff_path_in_stoplist(uchar_kt *path, int path_len, uchar_kt **stopdirs
         if((int)STRLEN(stopdirs_v[i]) > path_len)
         {
             // match for parent directory. So '/home' also matches
-            // '/home/rks'. Check for PATHSEP in stopdirs_v[i], else
-            // '/home/r' would also match '/home/rks'
+            // '/home/rks'. Check for OS_PATH_SEP_CHAR in stopdirs_v[i],
+            // else '/home/r' would also match '/home/rks'
             if(fnamencmp(stopdirs_v[i], path, path_len) == 0
                && vim_ispathsep(stopdirs_v[i][path_len]))
             {

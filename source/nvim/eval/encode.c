@@ -387,7 +387,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         else                                                           \
         {                                                              \
             const size_t len_ = (len);                                 \
-            ga_grow(gap, (int) (2 + len_ + memcnt(buf_, '\'', len_))); \
+            ga_grow(gap, (int)(2+len_+std_memcnt(buf_, '\'', len_)));  \
             ga_append(gap, '\'');                                      \
             for(size_t i = 0; i < len_; i++)                           \
             {                                                          \

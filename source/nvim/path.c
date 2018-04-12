@@ -463,7 +463,7 @@ FUNC_ATTR_NONNULL_RET
 {
     if(sep && *fname1 && !after_pathsep(fname1, fname1 + len1))
     {
-        fname1[len1] = PATHSEP;
+        fname1[len1] = OS_PATH_SEP_CHAR;
         memmove(fname1 + len1 + 1, fname2, len2 + 1);
     }
     else
@@ -541,14 +541,14 @@ FUNC_ATTR_NONNULL_ALL
 
     if(*p != NUL && !after_pathsep(p, p + len))
     {
-        const size_t pathsep_len = sizeof(PATHSEPSTR);
+        const size_t pathsep_len = sizeof(OS_PATH_SEP_STR);
 
         if(len > MAXPATHL - pathsep_len)
         {
             return false;
         }
 
-        memcpy(p + len, PATHSEPSTR, pathsep_len);
+        memcpy(p + len, OS_PATH_SEP_STR, pathsep_len);
     }
 
     return true;
@@ -1078,7 +1078,7 @@ static void expand_path_option(uchar_kt *curdir, garray_st *gap)
 
             STRMOVE(buf + len + 1, buf);
             STRCPY(buf, curdir);
-            buf[len] = (uchar_kt)PATHSEP;
+            buf[len] = (uchar_kt)OS_PATH_SEP_CHAR;
             simplify_filename(buf);
         }
 
@@ -1278,7 +1278,7 @@ static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
             continue;
         }
 
-        rel_path = xmalloc(STRLEN(short_name) + STRLEN(PATHSEPSTR) + 2);
+        rel_path = xmalloc(STRLEN(short_name) + STRLEN(OS_PATH_SEP_STR) + 2);
         STRCPY(rel_path, ".");
         add_pathsep((char *)rel_path);
         STRCAT(rel_path, short_name);
@@ -2704,7 +2704,7 @@ int append_path(char *path, const char *to_append, size_t max_len)
             return FAIL;
         }
 
-        xstrlcat(path, PATHSEPSTR, max_len);
+        xstrlcat(path, OS_PATH_SEP_STR, max_len);
     }
 
     // +1 for the NUL at the end.
@@ -2801,7 +2801,7 @@ void path_guess_exepath(const char *argv0, char *buf, size_t bufsize) FUNC_ATTR_
     {
         xstrlcpy(buf, argv0, bufsize);
     }
-    else if(argv0[0] == '.' || strchr(argv0, PATHSEP))
+    else if(argv0[0] == '.' || strchr(argv0, OS_PATH_SEP_CHAR))
     {
         // Relative to CWD.
         if(os_dirname((uchar_kt *)buf, MAXPATHL) != OK)
@@ -2809,7 +2809,7 @@ void path_guess_exepath(const char *argv0, char *buf, size_t bufsize) FUNC_ATTR_
             buf[0] = NUL;
         }
 
-        xstrlcat(buf, PATHSEPSTR, bufsize);
+        xstrlcat(buf, OS_PATH_SEP_STR, bufsize);
         xstrlcat(buf, argv0, bufsize);
     }
     else
@@ -2834,7 +2834,7 @@ void path_guess_exepath(const char *argv0, char *buf, size_t bufsize) FUNC_ATTR_
             }
 
             xstrlcpy((char *)NameBuff, dir, dir_len + 1);
-            xstrlcat((char *)NameBuff, PATHSEPSTR, sizeof(NameBuff));
+            xstrlcat((char *)NameBuff, OS_PATH_SEP_STR, sizeof(NameBuff));
             xstrlcat((char *)NameBuff, argv0, sizeof(NameBuff));
 
             if(os_can_exe(NameBuff, NULL, false))

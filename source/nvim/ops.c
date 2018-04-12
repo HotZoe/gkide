@@ -6682,7 +6682,7 @@ FUNC_ATTR_NONNULL_ALL
     }
     else
     {
-        newlines = memcnt(str, '\n', len);
+        newlines = std_memcnt(str, '\n', len);
 
         if(yank_type == kMTCharWise || len == 0 || str[len - 1] != '\n')
         {

@@ -395,7 +395,7 @@ FUNC_ATTR_PURE
 
         if(dir != NULL && dir_len > 0)
         {
-            ret += ((dir_len + memcnt(dir, ',', dir_len)
+            ret += ((dir_len + std_memcnt(dir, ',', dir_len)
                      + common_suf_len
                      + !after_pathsep(dir, dir + dir_len)) * 2
                     + single_suf_len);
@@ -409,8 +409,8 @@ FUNC_ATTR_PURE
 
 /// Add directories to a comma-separated array from a colon-separated one
 ///
-/// Commas are escaped in process. To each item PATHSEP "nvim" is appended in
-/// addition to suf1 and suf2.
+/// Commas are escaped in process. To each item OS_PATH_SEP_CHAR "nvim" is
+/// appended in addition to suf1 and suf2.
 ///
 /// @param[in,out] dest
 /// Destination comma-separated array.
@@ -469,7 +469,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             if(!after_pathsep(dest - 1, dest))
             {
-                *dest++ = PATHSEP;
+                *dest++ = OS_PATH_SEP_CHAR;
             }
 
             memmove(dest, "nvim", NVIM_SIZE);
@@ -477,13 +477,13 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             if(suf1 != NULL)
             {
-                *dest++ = PATHSEP;
+                *dest++ = OS_PATH_SEP_CHAR;
                 memmove(dest, suf1, len1);
                 dest += len1;
 
                 if(suf2 != NULL)
                 {
-                    *dest++ = PATHSEP;
+                    *dest++ = OS_PATH_SEP_CHAR;
                     memmove(dest, suf2, len2);
                     dest += len2;
                 }
@@ -550,7 +550,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         if(!after_pathsep(dest - 1, dest))
         {
-            *dest++ = PATHSEP;
+            *dest++ = OS_PATH_SEP_CHAR;
         }
 
         memmove(dest, "nvim", NVIM_SIZE);
@@ -558,13 +558,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         if(suf1 != NULL)
         {
-            *dest++ = PATHSEP;
+            *dest++ = OS_PATH_SEP_CHAR;
             memmove(dest, suf1, len1);
             dest += len1;
 
             if(suf2 != NULL)
             {
-                *dest++ = PATHSEP;
+                *dest++ = OS_PATH_SEP_CHAR;
                 memmove(dest, suf2, len2);
                 dest += len2;
             }
@@ -599,7 +599,7 @@ static void set_runtimepath_default(void)
         if(data_len != 0)
         {
             rtp_size += ((data_len
-                          + memcnt(data_home, ',', data_len)
+                          + std_memcnt(data_home, ',', data_len)
                           + NVIM_SIZE + 1 + SITE_SIZE + 1
                           + !after_pathsep(data_home,
                                            data_home + data_len)) * 2
@@ -614,7 +614,7 @@ static void set_runtimepath_default(void)
         if(config_len != 0)
         {
             rtp_size += ((config_len
-                          + memcnt(config_home, ',', config_len)
+                          + std_memcnt(config_home, ',', config_len)
                           + NVIM_SIZE + 1
                           + !after_pathsep(config_home,
                                            config_home + config_len)) * 2
@@ -629,7 +629,7 @@ static void set_runtimepath_default(void)
         if(vimruntime_len != 0)
         {
             rtp_size += vimruntime_len
-                        + memcnt(vimruntime, ',', vimruntime_len)
+                        + std_memcnt(vimruntime, ',', vimruntime_len)
                         + 1;
         }
     }

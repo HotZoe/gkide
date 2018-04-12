@@ -5603,7 +5603,7 @@ FUNC_ATTR_NONNULL_ARG(2)
     // current directory (we need the full path in case :cd is used).
     if(fname == NULL || *fname == NUL)
     {
-        // +3 for PATHSEP, "_" (Win), NUL
+        // +3 for OS_PATH_SEP_CHAR, "_" (Win), NUL
         retval = xmalloc(MAXPATHL + extlen + 3);
 
         if(os_dirname((uchar_kt *)retval, MAXPATHL) == FAIL
