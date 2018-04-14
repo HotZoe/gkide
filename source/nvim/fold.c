@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/fold.h"
 #include "nvim/charset.h"
@@ -1140,7 +1140,7 @@ void foldAdjustVisual(void)
     if(hasFolding(end->lnum, NULL, &end->lnum))
     {
         ptr = ml_get(end->lnum);
-        end->col = (columnum_kt)STRLEN(ptr);
+        end->col = (columnum_kt)ustrlen(ptr);
 
         if(end->col > 0 && *p_sel == 'o')
         {
@@ -1886,25 +1886,25 @@ static void foldAddMarker(linenum_kt lnum,
 
     // Allocate a new line: old-line + 'cms'-start + marker + 'cms'-end
     line = ml_get(lnum);
-    size_t line_len = STRLEN(line);
+    size_t line_len = ustrlen(line);
 
     if(u_save(lnum - 1, lnum + 1) == OK)
     {
         // Check if the line ends with an unclosed comment
         skip_comment(line, false, false, &line_is_comment);
-        newline = xmalloc(line_len + markerlen + STRLEN(cms) + 1);
-        STRCPY(newline, line);
+        newline = xmalloc(line_len + markerlen + ustrlen(cms) + 1);
+        ustrcpy(newline, line);
 
         // Append the marker to the end of the line
         if(p == NULL || line_is_comment)
         {
-            STRLCPY(newline + line_len, marker, markerlen + 1);
+            ustrlcpy(newline + line_len, marker, markerlen + 1);
         }
         else
         {
-            STRCPY(newline + line_len, cms);
+            ustrcpy(newline + line_len, cms);
             memcpy(newline + line_len + (p - cms), marker, markerlen);
-            STRCPY(newline + line_len + (p - cms) + markerlen, p + 2);
+            ustrcpy(newline + line_len + (p - cms) + markerlen, p + 2);
         }
 
         ml_replace(lnum, newline, false);
@@ -1948,7 +1948,7 @@ static void foldDelMarker(linenum_kt lnum, uchar_kt *marker, size_t markerlen)
 
     for(uchar_kt *p = line; *p != NUL; ++p)
     {
-        if(STRNCMP(p, marker, markerlen) != 0)
+        if(ustrncmp(p, marker, markerlen) != 0)
         {
             continue;
         }
@@ -1967,21 +1967,21 @@ static void foldDelMarker(linenum_kt lnum, uchar_kt *marker, size_t markerlen)
             cms2 = (uchar_kt *)strstr((char *)cms, "%s");
 
             if(p - line >= cms2 - cms
-               && STRNCMP(p - (cms2 - cms), cms, cms2 - cms) == 0
-               && STRNCMP(p + len, cms2 + 2, STRLEN(cms2 + 2)) == 0)
+               && ustrncmp(p - (cms2 - cms), cms, cms2 - cms) == 0
+               && ustrncmp(p + len, cms2 + 2, ustrlen(cms2 + 2)) == 0)
             {
                 p -= cms2 - cms;
-                len += STRLEN(cms) - 2;
+                len += ustrlen(cms) - 2;
             }
         }
 
         if(u_save(lnum - 1, lnum + 1) == OK)
         {
             // Make new line: text-before-marker + text-after-marker
-            newline = xmalloc(STRLEN(line) - len + 1);
+            newline = xmalloc(ustrlen(line) - len + 1);
             assert(p >= line);
             memcpy(newline, line, (size_t)(p - line));
-            STRCPY(newline + (p - line), p + len);
+            ustrcpy(newline + (p - line), p + len);
             ml_replace(lnum, newline, FALSE);
         }
 
@@ -2089,7 +2089,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
                 if(has_mbyte && (len = (*mb_ptr2len)(p)) > 1)
                 {
-                    if(!vim_isprintc((*mb_ptr2char)(p)))
+                    if(!is_print_char((*mb_ptr2char)(p)))
                     {
                         break;
                     }
@@ -2119,10 +2119,10 @@ FUNC_ATTR_NONNULL_ARG(1)
     {
         unsigned long count = (unsigned long)(lnume - lnum + 1);
 
-        vim_snprintf((char *)buf,
-                     FOLD_TEXT_LEN,
-                     ngettext("+--%3ld line folded",
-                              "+--%3ld lines folded ", count),
+        xsnprintf((char *)buf,
+                  FOLD_TEXT_LEN,
+                  ngettext("+--%3ld line folded",
+                           "+--%3ld lines folded ", count),
                      count);
         text = buf;
     }
@@ -2140,7 +2140,7 @@ void foldtext_cleanup(uchar_kt *str)
 
     // Ignore leading and trailing white space in 'commentstring'.
     uchar_kt *cms_start = skipwhite(curbuf->b_p_cms);
-    size_t cms_slen = STRLEN(cms_start);
+    size_t cms_slen = ustrlen(cms_start);
 
     while(cms_slen > 0 && ascii_iswhite(cms_start[cms_slen - 1]))
     {
@@ -2174,11 +2174,11 @@ void foldtext_cleanup(uchar_kt *str)
     {
         size_t len = 0;
 
-        if(STRNCMP(s, curwin->w_o_curbuf.wo_fmr, foldstartmarkerlen) == 0)
+        if(ustrncmp(s, curwin->w_o_curbuf.wo_fmr, foldstartmarkerlen) == 0)
         {
             len = foldstartmarkerlen;
         }
-        else if(STRNCMP(s, foldendmarker, foldendmarkerlen) == 0)
+        else if(ustrncmp(s, foldendmarker, foldendmarkerlen) == 0)
         {
             len = foldendmarkerlen;
         }
@@ -2196,7 +2196,7 @@ void foldtext_cleanup(uchar_kt *str)
                 ;
 
             if(p >= str + cms_slen
-               && STRNCMP(p - cms_slen, cms_start, cms_slen) == 0)
+               && ustrncmp(p - cms_slen, cms_start, cms_slen) == 0)
             {
                 len += (size_t)(s - p) + cms_slen;
                 s = p - cms_slen;
@@ -2204,13 +2204,13 @@ void foldtext_cleanup(uchar_kt *str)
         }
         else if(cms_end != NULL)
         {
-            if(!did1 && cms_slen > 0 && STRNCMP(s, cms_start, cms_slen) == 0)
+            if(!did1 && cms_slen > 0 && ustrncmp(s, cms_start, cms_slen) == 0)
             {
                 len = cms_slen;
                 did1 = TRUE;
             }
             else if(!did2 && cms_elen > 0
-                    && STRNCMP(s, cms_end, cms_elen) == 0)
+                    && ustrncmp(s, cms_end, cms_elen) == 0)
             {
                 len = cms_elen;
                 did2 = TRUE;
@@ -2224,7 +2224,7 @@ void foldtext_cleanup(uchar_kt *str)
                 ++len;
             }
 
-            STRMOVE(s, s + len);
+            xstrmove(s, s + len);
         }
         else
         {
@@ -3455,7 +3455,7 @@ static void foldlevelIndent(fold_line_st *flp)
 
     // empty line or lines starting with a character in 'foldignore': level
     // depends on surrounding lines
-    if(*s == NUL || vim_strchr(flp->wp->w_o_curbuf.wo_fdi, *s) != NULL)
+    if(*s == NUL || ustrchr(flp->wp->w_o_curbuf.wo_fdi, *s) != NULL)
     {
         // first and last line can't be undefined, use level 0
         if(lnum == 1 || lnum == buf->b_ml.ml_line_count)
@@ -3612,9 +3612,9 @@ static void foldlevelExpr(fold_line_st *flp)
 /// Relies on the option value to have been checked for correctness already.
 static void parseMarker(win_st *wp)
 {
-    foldendmarker = vim_strchr(wp->w_o_curbuf.wo_fmr, ',');
+    foldendmarker = ustrchr(wp->w_o_curbuf.wo_fmr, ',');
     foldstartmarkerlen = (size_t)(foldendmarker++ - wp->w_o_curbuf.wo_fmr);
-    foldendmarkerlen = STRLEN(foldendmarker);
+    foldendmarkerlen = ustrlen(foldendmarker);
 }
 
 /// Low level function to get the foldlevel for the "marker" method.
@@ -3647,7 +3647,7 @@ static void foldlevelMarker(fold_line_st *flp)
     while(*s)
     {
         if(*s == cstart
-           && STRNCMP(s + 1, startmarker, foldstartmarkerlen - 1) == 0)
+           && ustrncmp(s + 1, startmarker, foldstartmarkerlen - 1) == 0)
         {
             // found startmarker: set flp->lvl
             s += foldstartmarkerlen;
@@ -3679,7 +3679,7 @@ static void foldlevelMarker(fold_line_st *flp)
             }
         }
         else if(*s == cend
-                && STRNCMP(s + 1, foldendmarker + 1, foldendmarkerlen - 1) == 0)
+                && ustrncmp(s + 1, foldendmarker + 1, foldendmarkerlen - 1) == 0)
         {
             // found endmarker: set flp->lvl_next
             s += foldendmarkerlen;

@@ -43,8 +43,9 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
+#include "nvim/error.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/memline.h"
 #include "nvim/buffer.h"
 #include "nvim/cursor.h"
@@ -297,7 +298,7 @@ int ml_open(filebuf_st *buf)
     b0p->b0_magic_short = (short)B0_MAGIC_SHORT;
     b0p->b0_magic_char = B0_MAGIC_CHAR;
 
-    xstrlcpy(xstpcpy((char *) b0p->b0_version, "VIM "), VIM_SWAP_VERSION, 6);
+    xstrncpy(xstpcpy((char *) b0p->b0_version, "VIM "), VIM_SWAP_VERSION, 6);
     long_to_char((long)mfp->mf_page_size, b0p->b0_page_size);
 
     if(!buf->b_spell)
@@ -737,12 +738,12 @@ static void set_b0_fname(blk_zero_st *b0p, filebuf_st *buf)
         {
             // If there is no user name or it is too long, don't use "~/"
             int retval = os_get_user_name(uname, B0_UNAME_SIZE);
-            size_t ulen = STRLEN(uname);
-            size_t flen = STRLEN(b0p->b0_fname);
+            size_t ulen = ustrlen(uname);
+            size_t flen = ustrlen(b0p->b0_fname);
 
             if(retval == FAIL || ulen + flen > B0_FNAME_SIZE_CRYPT - 1)
             {
-                STRLCPY(b0p->b0_fname, buf->b_ffname, B0_FNAME_SIZE_CRYPT);
+                ustrlcpy(b0p->b0_fname, buf->b_ffname, B0_FNAME_SIZE_CRYPT);
             }
             else
             {
@@ -796,9 +797,9 @@ static void add_b0_fenc(blk_zero_st *b0p, filebuf_st *buf)
 {
     int n;
     int size = B0_FNAME_SIZE_NOCRYPT;
-    n = (int)STRLEN(buf->b_p_fenc);
+    n = (int)ustrlen(buf->b_p_fenc);
 
-    if((int)STRLEN(b0p->b0_fname) + n + 1 > size)
+    if((int)ustrlen(b0p->b0_fname) + n + 1 > size)
     {
         b0p->b0_flags &= ~B0_HAS_FENC;
     }
@@ -861,15 +862,15 @@ void ml_recover(void)
         fname = (uchar_kt *)"";
     }
 
-    len = (int)STRLEN(fname);
+    len = (int)ustrlen(fname);
 
     if(len >= 4
-       && STRNICMP(fname + len - 4, ".s", 2) == 0
-       && vim_strchr((uchar_kt *)"UVWuvw", fname[len - 2]) != NULL
+       && ustrnicmp(fname + len - 4, ".s", 2) == 0
+       && ustrchr((uchar_kt *)"UVWuvw", fname[len - 2]) != NULL
        && ASCII_ISALPHA(fname[len - 1]))
     {
         directly = TRUE;
-        fname_used = vim_strsave(fname); // make a copy for mf_open()
+        fname_used = ustrdup(fname); // make a copy for mf_open()
     }
     else
     {
@@ -934,7 +935,7 @@ void ml_recover(void)
     // open the memfile from the old swap file
     // save "fname_used" for the message:
     // mf_open() will consume "fname_used"!
-    p = vim_strsave(fname_used);
+    p = ustrdup(fname_used);
     mfp = mf_open(fname_used, O_RDONLY);
     fname_used = p;
 
@@ -973,7 +974,7 @@ void ml_recover(void)
 
     b0p = hp->bh_data;
 
-    if(STRNCMP(b0p->b0_version, "VIM 3.0", 7) == 0)
+    if(ustrncmp(b0p->b0_version, "VIM 3.0", 7) == 0)
     {
         msg_start();
         msg_outtrans_attr(mfp->mf_fname, MSG_HIST);
@@ -1064,7 +1065,7 @@ void ml_recover(void)
 
     if(buf_spname(curbuf) != NULL)
     {
-        STRLCPY(NameBuff, buf_spname(curbuf), MAXPATHL);
+        ustrlcpy(NameBuff, buf_spname(curbuf), MAXPATHL);
     }
     else
     {
@@ -1101,7 +1102,7 @@ void ml_recover(void)
         for(p = b0p->b0_fname + fnsize; p > b0p->b0_fname && p[-1] != NUL; --p)
         { /* empty body */ }
 
-        b0_fenc = vim_strnsave(p, (int)(b0p->b0_fname + fnsize - p));
+        b0_fenc = ustrndup(p, (int)(b0p->b0_fname + fnsize - p));
     }
 
     mf_put(mfp, hp, false, false); // release block 0
@@ -1384,8 +1385,8 @@ void ml_recover(void)
         for(idx = 1; idx <= lnum; ++idx)
         {
             // Need to copy one line, fetching the other one may flush it.
-            p = vim_strsave(ml_get(idx));
-            i = STRCMP(p, ml_get(idx + lnum));
+            p = ustrdup(ml_get(idx));
+            i = ustrcmp(p, ml_get(idx + lnum));
             xfree(p);
 
             if(i != 0)
@@ -1531,7 +1532,7 @@ int recover_names(uchar_kt *fname, int list, int nr, uchar_kt **fname_out)
 
     // Do the loop for every directory in 'swapdir'.
     // First allocate some memory to put the directory name in.
-    dir_name = xmalloc(STRLEN(p_sdir) + 1);
+    dir_name = xmalloc(ustrlen(p_sdir) + 1);
     dirp = p_sdir;
 
     while(dir_name != NULL && *dirp)
@@ -1545,12 +1546,12 @@ int recover_names(uchar_kt *fname, int list, int nr, uchar_kt **fname_out)
         {
             if(fname == NULL)
             {
-                names[0] = vim_strsave((uchar_kt *)"*.sw?");
+                names[0] = ustrdup((uchar_kt *)"*.sw?");
 
                 // For Unix names starting with a dot are special.
                 // MS-Windows supports this too, on some file systems.
-                names[1] = vim_strsave((uchar_kt *)".*.sw?");
-                names[2] = vim_strsave((uchar_kt *)".sw?");
+                names[1] = ustrdup((uchar_kt *)".*.sw?");
+                names[2] = ustrdup((uchar_kt *)".sw?");
                 num_names = 3;
             }
             else
@@ -1572,7 +1573,7 @@ int recover_names(uchar_kt *fname, int list, int nr, uchar_kt **fname_out)
             }
             else
             {
-                p = dir_name + STRLEN(dir_name);
+                p = dir_name + ustrlen(dir_name);
 
                 if(after_pathsep((char *)dir_name, (char *)p) && p[-1] == p[-2])
                 {
@@ -1657,7 +1658,7 @@ int recover_names(uchar_kt *fname, int list, int nr, uchar_kt **fname_out)
             if(nr <= file_count)
             {
                 *fname_out =
-                    vim_strsave(files[nr - 1 + num_files - file_count]);
+                    ustrdup(files[nr - 1 + num_files - file_count]);
 
                 dirp = (uchar_kt *)""; // stop searching
             }
@@ -1803,7 +1804,7 @@ static time_t swapfile_info(uchar_kt *fname)
     {
         if(read_eintr(fd, &b0, sizeof(b0)) == sizeof(b0))
         {
-            if(STRNCMP(b0.b0_version, "VIM 3.0", 7) == 0)
+            if(ustrncmp(b0.b0_version, "VIM 3.0", 7) == 0)
             {
                 MSG_PUTS(_("         [from Vim version 3.0]"));
             }
@@ -1914,15 +1915,15 @@ FUNC_ATTR_NONNULL_ALL
     {
         uchar_kt *p = names[num_names - 1];
 
-        int i = (int)STRLEN(names[num_names - 1])
-                - (int)STRLEN(names[num_names]);
+        int i = (int)ustrlen(names[num_names - 1])
+                - (int)ustrlen(names[num_names]);
 
         if(i > 0)
         {
             p += i; // file name has been expanded to full path
         }
 
-        if(STRCMP(p, names[num_names]) != 0)
+        if(ustrcmp(p, names[num_names]) != 0)
         {
             ++num_names;
         }
@@ -2135,7 +2136,7 @@ uchar_kt *ml_get_buf(filebuf_st *buf, linenum_kt lnum, int will_change)
 
 errorret:
 
-        STRCPY(IObuff, "???");
+        ustrcpy(IObuff, "???");
         return IObuff;
     }
 
@@ -2306,7 +2307,7 @@ static int ml_append_int(filebuf_st *buf,
 
     if(len == 0)
     {
-        len = (columnum_kt)STRLEN(line) + 1; // space needed for the text
+        len = (columnum_kt)ustrlen(line) + 1; // space needed for the text
     }
 
     space_needed = len + INDEX_SIZE; // space needed for text + index
@@ -2838,7 +2839,7 @@ int ml_replace(linenum_kt lnum, uchar_kt *line, bool copy)
 
     if(copy)
     {
-        line = vim_strsave(line);
+        line = ustrdup(line);
     }
 
     if(curbuf->b_ml.ml_line_lnum != lnum) // other line buffered
@@ -3215,7 +3216,7 @@ static void ml_flush_line(filebuf_st *buf)
                 old_len = (dp->db_index[idx - 1] & DB_INDEX_MASK) - start;
             }
 
-            new_len = (columnum_kt)STRLEN(new_line) + 1;
+            new_len = (columnum_kt)ustrlen(new_line) + 1;
             extra = new_len - old_len; // negative if lines gets smaller
 
             // if new line fits in data block, replace directly
@@ -3624,7 +3625,7 @@ int resolve_symlink(const uchar_kt *fname, uchar_kt *buf)
 
     // Put the result so far in tmp[], starting
     // with the original name.
-    STRLCPY(tmp, fname, MAXPATHL);
+    ustrlcpy(tmp, fname, MAXPATHL);
 
     for(;;)
     {
@@ -3666,19 +3667,19 @@ int resolve_symlink(const uchar_kt *fname, uchar_kt *buf)
         // points to.
         if(path_is_absolute_path(buf))
         {
-            STRCPY(tmp, buf);
+            ustrcpy(tmp, buf);
         }
         else
         {
             uchar_kt *tail;
             tail = path_tail(tmp);
 
-            if(STRLEN(tail) + STRLEN(buf) >= MAXPATHL)
+            if(ustrlen(tail) + ustrlen(buf) >= MAXPATHL)
             {
                 return FAIL;
             }
 
-            STRCPY(tail, buf);
+            ustrcpy(tail, buf);
         }
     }
 
@@ -3703,7 +3704,7 @@ uchar_kt *makeswapname(uchar_kt *fname,
     uchar_kt fname_buf[MAXPATHL];
 #endif
 
-    s = dir_name + STRLEN(dir_name);
+    s = dir_name + ustrlen(dir_name);
 
     if(after_pathsep((char *)dir_name, (char *)s)
        && s[-1] == s[-2]) // Ends with '//', Use Full path
@@ -3767,7 +3768,7 @@ uchar_kt *get_file_in_dir(uchar_kt *fname, uchar_kt *dname)
 
     if(dname[0] == '.' && dname[1] == NUL)
     {
-        retval = vim_strsave(fname);
+        retval = ustrdup(fname);
     }
     else if(dname[0] == '.' && vim_ispathsep(dname[1]))
     {
@@ -4057,7 +4058,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                 // give the ATTENTION message when there is an old swap file
                 // for the current file, and the buffer was not recovered.
                 if(differ == FALSE && !(curbuf->b_flags & kWBF_BufRecovered)
-                   && vim_strchr(p_shm, SHM_ATTENTION) == NULL)
+                   && ustrchr(p_shm, SHM_ATTENTION) == NULL)
                 {
                     int choice = 0;
 
@@ -4104,7 +4105,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2, 4)
                                          (uchar_kt *)&name[sw_msg_1_len],
                                          fname_len);
 
-                        xstrlcat(name, sw_msg_2, name_len);
+                        xstrncat(name, sw_msg_2, name_len);
 
                         choice = do_dialog(VIM_WARNING,
                                            (uchar_kt *)_("VIM - ATTENTION"),
@@ -4327,7 +4328,7 @@ static int fnamecmp_ino(uchar_kt *fname_c, uchar_kt *fname_s, long ino_block0)
 
     if(retval_c == OK && retval_s == OK)
     {
-        return STRCMP(buf_c, buf_s) != 0;
+        return ustrcmp(buf_c, buf_s) != 0;
     }
 
     // Can't compare inodes or file names, guess that
@@ -4445,7 +4446,7 @@ static void ml_updatechunk(filebuf_st *buf,
         buf->b_ml.ml_usedchunks = 1;
         buf->b_ml.ml_chunksize[0].mlcs_numlines = 1;
         buf->b_ml.ml_chunksize[0].mlcs_totalsize =
-            (long)STRLEN(buf->b_ml.ml_line_ptr) + 1;
+            (long)ustrlen(buf->b_ml.ml_line_ptr) + 1;
         return;
     }
 
@@ -4946,7 +4947,7 @@ int dec(apos_st *lp)
     {
         lp->lnum--;
         p = ml_get(lp->lnum);
-        lp->col = (columnum_kt)STRLEN(p);
+        lp->col = (columnum_kt)ustrlen(p);
 
         if(has_mbyte)
         {

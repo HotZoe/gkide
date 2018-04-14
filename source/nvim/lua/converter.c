@@ -16,7 +16,7 @@
 /// @todo
 /// vim.h is not actually needed, but
 /// otherwise it states MAXPATHL is redefined
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 
 #include "nvim/globals.h"
 #include "nvim/message.h"

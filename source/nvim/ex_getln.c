@@ -9,7 +9,7 @@
 #include <inttypes.h>
 
 #include "nvim/assert.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/arabic.h"
 #include "nvim/ex_getln.h"
@@ -59,6 +59,7 @@
 #include "nvim/os/os.h"
 #include "nvim/event/loop.h"
 #include "nvim/os/time.h"
+#include "nvim/utils.h"
 
 /// Variables shared between getcmdline(), redrawcmdline() and others.
 /// These need to be saved when using CTRL-R |, that's why they are
@@ -166,7 +167,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     s->indent = indent;
     s->save_msg_scroll = msg_scroll;
     s->save_State = curmod;
-    s->save_p_icm = vim_strsave(p_icm);
+    s->save_p_icm = ustrdup(p_icm);
     s->ignore_drag_release = true;
 
     if(s->firstc == -1)
@@ -322,7 +323,7 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
             if(s->firstc == ':')
             {
                 xfree(new_last_cmdline);
-                new_last_cmdline = vim_strsave(ccline.cmdbuff);
+                new_last_cmdline = ustrdup(ccline.cmdbuff);
             }
         }
 
@@ -636,7 +637,7 @@ static int command_line_execute(nvim_state_st *state, int key)
             // go down a directory
             s->c = p_wc;
         }
-        else if(STRNCMP(s->xpc.xp_pattern, upseg + 1, 3) == 0
+        else if(ustrncmp(s->xpc.xp_pattern, upseg + 1, 3) == 0
                 && s->c == K_DOWN)
         {
             // If in a direct ancestor, strip off one ../ to go down
@@ -685,7 +686,7 @@ static int command_line_execute(nvim_state_st *state, int key)
 
             #ifdef BACKSLASH_IN_FILENAME
                 if(vim_ispathsep(ccline.cmdbuff[s->j])
-                   && vim_strchr((const uchar_kt *)" *?[{`$%#",
+                   && ustrchr((const uchar_kt *)" *?[{`$%#",
                                  ccline.cmdbuff[s->j + 1]) == NULL)
             #else
                 if(vim_ispathsep(ccline.cmdbuff[s->j]))
@@ -707,11 +708,11 @@ static int command_line_execute(nvim_state_st *state, int key)
             {
                 s->j = s->i;
             }
-            else if(STRNCMP(ccline.cmdbuff + s->j, upseg, 4) == 0)
+            else if(ustrncmp(ccline.cmdbuff + s->j, upseg, 4) == 0)
             {
                 s->j += 4;
             }
-            else if(STRNCMP(ccline.cmdbuff + s->j, upseg + 1, 3) == 0
+            else if(ustrncmp(ccline.cmdbuff + s->j, upseg + 1, 3) == 0
                     && s->j == s->i)
             {
                 s->j += 3;
@@ -791,10 +792,10 @@ static int command_line_execute(nvim_state_st *state, int key)
 
                 if(p != NULL)
                 {
-                    len = (int)STRLEN(p);
+                    len = (int)ustrlen(p);
                     realloc_cmdbuff(len + 1);
                     ccline.cmdlen = len;
-                    STRCPY(ccline.cmdbuff, p);
+                    ustrcpy(ccline.cmdbuff, p);
                     xfree(p);
 
                     // Restore the cursor or use the position set with
@@ -852,7 +853,7 @@ static int command_line_execute(nvim_state_st *state, int key)
        || s->c == '\r'
        || s->c == K_KENTER
        || (s->c == ESC
-           && (!KeyTyped || vim_strchr(p_cpo, CPO_ESC) != NULL)))
+           && (!KeyTyped || ustrchr(p_cpo, CPO_ESC) != NULL)))
     {
         // In Ex mode a backslash escapes a newline.
         if(exmode_active
@@ -1119,10 +1120,10 @@ static int command_line_handle_key(CommandLineState *s)
                         --p;
                     }
 
-                    s->i = vim_iswordc(p[-1]);
+                    s->i = is_kwc(p[-1]);
 
                     while(p > ccline.cmdbuff && !ascii_isspace(p[-1])
-                          && vim_iswordc(p[-1]) == s->i)
+                          && is_kwc(p[-1]) == s->i)
                     {
                         --p;
                     }
@@ -1544,8 +1545,8 @@ static int command_line_handle_key(CommandLineState *s)
                     if(s->c != NUL)
                     {
                         if(s->c == s->firstc
-                           || vim_strchr((uchar_kt *)(p_magic ? "\\^$.*[" : "\\^$"), s->c)
-                           != NULL)
+                           || ustrchr((uchar_kt *)(p_magic ? "\\^$.*[" : "\\^$"),
+                                      s->c) != NULL)
                         {
                             // put a backslash before special characters
                             stuffcharReadbuff(s->c);
@@ -1603,11 +1604,11 @@ static int command_line_handle_key(CommandLineState *s)
             // save current command string so it can be restored later
             if(s->lookfor == NULL)
             {
-                s->lookfor = vim_strsave(ccline.cmdbuff);
+                s->lookfor = ustrdup(ccline.cmdbuff);
                 s->lookfor[ccline.cmdpos] = NUL;
             }
 
-            s->j = (int)STRLEN(s->lookfor);
+            s->j = (int)ustrlen(s->lookfor);
 
             for(;;)
             {
@@ -1670,7 +1671,7 @@ static int command_line_handle_key(CommandLineState *s)
 
                 if((s->c != K_UP && s->c != K_DOWN)
                    || s->hiscnt == s->i
-                   || STRNCMP(history[s->histype][s->hiscnt].hisstr,
+                   || ustrncmp(history[s->histype][s->hiscnt].hisstr,
                               s->lookfor, (size_t)s->j) == 0)
                 {
                     break;
@@ -1696,7 +1697,7 @@ static int command_line_handle_key(CommandLineState *s)
 
                 if(s->histype == kHistSearch
                    && p != s->lookfor
-                   && (old_firstc = p[STRLEN(p) + 1]) != s->firstc)
+                   && (old_firstc = p[ustrlen(p) + 1]) != s->firstc)
                 {
                     // Correct for the separator character used when
                     // adding the history entry vs the one used now.
@@ -1754,11 +1755,11 @@ static int command_line_handle_key(CommandLineState *s)
                 }
                 else
                 {
-                    alloc_cmdbuff((int)STRLEN(p));
-                    STRCPY(ccline.cmdbuff, p);
+                    alloc_cmdbuff((int)ustrlen(p));
+                    ustrcpy(ccline.cmdbuff, p);
                 }
 
-                ccline.cmdpos = ccline.cmdlen = (int)STRLEN(ccline.cmdbuff);
+                ccline.cmdpos = ccline.cmdlen = (int)ustrlen(ccline.cmdbuff);
                 redrawcmd();
                 return command_line_changed(s);
             }
@@ -1843,7 +1844,7 @@ static int command_line_handle_key(CommandLineState *s)
 
     // End of switch on command line character.
     // We come here if we have a normal character.
-    if(s->do_abbr && (IS_SPECIAL(s->c) || !vim_iswordc(s->c))
+    if(s->do_abbr && (IS_SPECIAL(s->c) || !is_kwc(s->c))
        // Add ABBR_OFF for characters above 0x100, this is
        // what check_abbr() expects.
        && (ccheck_abbr((has_mbyte && s->c >= 0x100) ? (s->c + ABBR_OFF) : s->c)
@@ -2880,7 +2881,7 @@ void unputcmdline(void)
 }
 
 /// Put the given string, of the given length, onto the command line.
-/// If len is -1, then STRLEN() is used to calculate the length.
+/// If len is -1, then ustrlen() is used to calculate the length.
 /// If 'redraw' is TRUE then the new part of the command line, and the remaining
 /// part will be redrawn, otherwise it will not.  If this function is called
 /// twice in a row, then 'redraw' should be FALSE and redrawcmd() should be
@@ -2893,7 +2894,7 @@ void put_on_cmdline(uchar_kt *str, int len, int redraw)
 
     if(len < 0)
     {
-        len = (int)STRLEN(str);
+        len = (int)ustrlen(str);
     }
 
     realloc_cmdbuff(ccline.cmdlen + len + 1);
@@ -3185,7 +3186,7 @@ static bool cmdline_paste(int regname, bool literally, bool remcr)
                 {
                     len = (*mb_head_off)(ccline.cmdbuff, w - 1) + 1;
 
-                    if(!vim_iswordc(mb_ptr2char(w - len)))
+                    if(!is_kwc(mb_ptr2char(w - len)))
                     {
                         break;
                     }
@@ -3194,7 +3195,7 @@ static bool cmdline_paste(int regname, bool literally, bool remcr)
                 }
                 else
                 {
-                    if(!vim_iswordc(w[-1]))
+                    if(!is_kwc(w[-1]))
                     {
                         break;
                     }
@@ -3205,7 +3206,7 @@ static bool cmdline_paste(int regname, bool literally, bool remcr)
 
             len = (int)((ccline.cmdbuff + ccline.cmdpos) - w);
 
-            if(p_ic ? STRNICMP(w, arg, len) == 0 : STRNCMP(w, arg, len) == 0)
+            if(p_ic ? ustrnicmp(w, arg, len) == 0 : ustrncmp(w, arg, len) == 0)
             {
                 p += len;
             }
@@ -3466,7 +3467,7 @@ static int sort_func_compare(const void *s1, const void *s2)
         return 1;
     }
 
-    return STRCMP(p1, p2);
+    return ustrcmp(p1, p2);
 }
 
 /// Return FAIL if this is not an appropriate context in which to do
@@ -3541,7 +3542,7 @@ static int nextwild(expand_st *xp, int type, int options, int escape)
 
             p2 = ExpandOne(xp,
                            p1,
-                           vim_strnsave(&ccline.cmdbuff[i], xp->xp_pattern_len),
+                           ustrndup(&ccline.cmdbuff[i], xp->xp_pattern_len),
                            use_options,
                            type);
             xfree(p1);
@@ -3558,7 +3559,7 @@ static int nextwild(expand_st *xp, int type, int options, int escape)
                     }
                 }
 
-                if((int)STRLEN(p2) < j)
+                if((int)ustrlen(p2) < j)
                 {
                     xfree(p2);
                     p2 = NULL;
@@ -3569,7 +3570,7 @@ static int nextwild(expand_st *xp, int type, int options, int escape)
 
     if(p2 != NULL && !got_int)
     {
-        difflen = (int)STRLEN(p2) - xp->xp_pattern_len;
+        difflen = (int)ustrlen(p2) - xp->xp_pattern_len;
 
         if(ccline.cmdlen + difflen + 4 > ccline.cmdbufflen)
         {
@@ -3581,7 +3582,7 @@ static int nextwild(expand_st *xp, int type, int options, int escape)
                 &ccline.cmdbuff[ccline.cmdpos],
                 (size_t)(ccline.cmdlen - ccline.cmdpos + 1));
 
-        memmove(&ccline.cmdbuff[i], p2, STRLEN(p2));
+        memmove(&ccline.cmdbuff[i], p2, ustrlen(p2));
         ccline.cmdlen += difflen;
         ccline.cmdpos += difflen;
     }
@@ -3718,10 +3719,10 @@ uchar_kt *ExpandOne(expand_st *xp,
 
             if(findex == -1)
             {
-                return vim_strsave(orig_save);
+                return ustrdup(orig_save);
             }
 
-            return vim_strsave(xp->xp_files[findex]);
+            return ustrdup(xp->xp_files[findex]);
         }
         else
         {
@@ -3830,7 +3831,7 @@ uchar_kt *ExpandOne(expand_st *xp,
 
                 if(!(non_suf_match != 1 && mode == WILD_EXPAND_FREE))
                 {
-                    ss = vim_strsave(xp->xp_files[0]);
+                    ss = ustrdup(xp->xp_files[0]);
                 }
             }
         }
@@ -3906,7 +3907,7 @@ uchar_kt *ExpandOne(expand_st *xp,
 
         for(i = 0; i < xp->xp_numfiles; ++i)
         {
-            len += STRLEN(xp->xp_files[i]) + 1;
+            len += ustrlen(xp->xp_files[i]) + 1;
         }
 
         ss = xmalloc(len);
@@ -3914,11 +3915,11 @@ uchar_kt *ExpandOne(expand_st *xp,
 
         for(i = 0; i < xp->xp_numfiles; ++i)
         {
-            STRCAT(ss, xp->xp_files[i]);
+            ustrcat(ss, xp->xp_files[i]);
 
             if(i != xp->xp_numfiles - 1)
             {
-                STRCAT(ss, (options & WILD_USE_NL) ? "\n" : " ");
+                ustrcat(ss, (options & WILD_USE_NL) ? "\n" : " ");
             }
         }
     }
@@ -3994,12 +3995,12 @@ void ExpandEscape(expand_st *xp,
                 // for ":set path=" we need to escape spaces twice
                 if(xp->xp_backslash == XP_BS_THREE)
                 {
-                    p = vim_strsave_escaped(files[i], (uchar_kt *)" ");
+                    p = ustrdup_escape(files[i], (uchar_kt *)" ");
                     xfree(files[i]);
                     files[i] = p;
 
                     #if defined(BACKSLASH_IN_FILENAME)
-                    p = vim_strsave_escaped(files[i], (uchar_kt *)" ");
+                    p = ustrdup_escape(files[i], (uchar_kt *)" ");
                     xfree(files[i]);
                     files[i] = p;
                     #endif
@@ -4037,7 +4038,7 @@ void ExpandEscape(expand_st *xp,
             // would terminate the ":tag" command.
             for(i = 0; i < numfiles; ++i)
             {
-                p = vim_strsave_escaped(files[i], (uchar_kt *)"\\|\"");
+                p = ustrdup_escape(files[i], (uchar_kt *)"\\|\"");
                 xfree(files[i]);
                 files[i] = p;
             }
@@ -4070,26 +4071,27 @@ FUNC_ATTR_NONNULL_ALL
     // Don't escape '[', '{' and '!' if they are in 'isfname'.
     for(const char *s = PATH_ESC_CHARS; *s != NUL; s++)
     {
-        if((*s != '[' && *s != '{' && *s != '!') || !vim_isfilec(*s))
+        if((*s != '[' && *s != '{' && *s != '!') || !is_file_name_char(*s))
         {
             buf[j++] = *s;
         }
     }
 
     buf[j] = NUL;
-    char *p = (char *)vim_strsave_escaped((const uchar_kt *)fname, (const uchar_kt *)buf);
+    char *p = (char *)ustrdup_escape((const uchar_kt *)fname,
+                                      (const uchar_kt *)buf);
 #else
     #define PATH_ESC_CHARS   ((uchar_kt *)" \t\n*?[{`$\\%#'\"|!<")
     #define SHELL_ESC_CHARS  ((uchar_kt *)" \t\n*?[{`$\\%#'\"|!<>();&")
 
-    char *p = (char *)vim_strsave_escaped((const uchar_kt *)fname,
-                                          (shell ? SHELL_ESC_CHARS : PATH_ESC_CHARS));
+    char *p = (char *)ustrdup_escape((const uchar_kt *)fname,
+                                      (shell ? SHELL_ESC_CHARS : PATH_ESC_CHARS));
 
     if(shell && csh_like_shell())
     {
         // For csh and similar shells need to put two backslashes before '!'.
         // One is taken by Vim, one by the shell.
-        char *s = (char *)vim_strsave_escaped((const uchar_kt *)p,
+        char *s = (char *)ustrdup_escape((const uchar_kt *)p,
                                               (const uchar_kt *)"!");
         xfree(p);
         p = s;
@@ -4109,9 +4111,9 @@ FUNC_ATTR_NONNULL_ALL
 /// Put a backslash before the file name in "pp", which is in allocated memory.
 static void escape_fname(uchar_kt **pp)
 {
-    uchar_kt *p = xmalloc(STRLEN(*pp) + 2);
+    uchar_kt *p = xmalloc(ustrlen(*pp) + 2);
     p[0] = '\\';
-    STRCPY(p + 1, *pp);
+    ustrcpy(p + 1, *pp);
     xfree(*pp);
     *pp = p;
 }
@@ -4207,11 +4209,11 @@ static int showmatches(expand_st *xp, int wildmenu)
                              || xp->xp_context == EXPAND_BUFFERS))
             {
                 usr_home_replace(NULL, files_found[i], NameBuff, MAXPATHL);
-                j = vim_strsize(NameBuff);
+                j = ustr_scrsize(NameBuff);
             }
             else
             {
-                j = vim_strsize(L_SHOWFILE(i));
+                j = ustr_scrsize(L_SHOWFILE(i));
             }
 
             if(j > maxlen)
@@ -4258,7 +4260,7 @@ static int showmatches(expand_st *xp, int wildmenu)
                 if(xp->xp_context == EXPAND_TAGS_LISTFILES)
                 {
                     msg_outtrans_attr(files_found[k], hl_attr(HLF_D));
-                    p = files_found[k] + STRLEN(files_found[k]) + 1;
+                    p = files_found[k] + ustrlen(files_found[k]) + 1;
                     msg_advance(maxlen + 1);
                     msg_puts((const char *)p);
                     msg_advance(maxlen + 3);
@@ -4411,7 +4413,7 @@ static int expand_showtail(expand_st *xp)
         {
             ++s;
         }
-        else if(vim_strchr((uchar_kt *)"*?[", *s) != NULL)
+        else if(ustrchr((uchar_kt *)"*?[", *s) != NULL)
         {
             return FALSE;
         }
@@ -4445,7 +4447,7 @@ FUNC_ATTR_NONNULL_RET
     {
         // Matching will be done internally (on something other than files).
         // So we convert the file-matching-type wildcards into our kind for
-        // use with vim_regcomp(). First work out how long it will be:
+        // use with regexp_compile(). First work out how long it will be:
 
         // For help tags the translation is done in find_help_tags().
         // For a tag pattern starting with "/" no translation is needed.
@@ -4457,7 +4459,7 @@ FUNC_ATTR_NONNULL_RET
            || context == EXPAND_PACKADD
            || (context == EXPAND_TAGS && fname[0] == '/'))
         {
-            retval = vim_strnsave(fname, len);
+            retval = ustrndup(fname, len);
         }
         else
         {
@@ -4546,7 +4548,7 @@ FUNC_ATTR_NONNULL_RET
     else
     {
         retval = xmalloc(len + 4);
-        STRLCPY(retval, fname, len + 1);
+        ustrlcpy(retval, fname, len + 1);
 
         // Don't add a star to *, ~, ~user, $var or `cmd`.
         // * would become **, which walks the whole tree.
@@ -4571,8 +4573,8 @@ FUNC_ATTR_NONNULL_RET
 
         if((*retval != '~' || tail != retval)
            && !ends_in_star
-           && vim_strchr(tail, '$') == NULL
-           && vim_strchr(retval, '`') == NULL)
+           && ustrchr(tail, '$') == NULL
+           && ustrchr(retval, '`') == NULL)
         {
             retval[len++] = '*';
         }
@@ -4787,14 +4789,14 @@ static void cleanup_help_tags(int num_file, uchar_kt **file)
 
     for(int i = 0; i < num_file; i++)
     {
-        int len = (int)STRLEN(file[i]) - 3;
+        int len = (int)ustrlen(file[i]) - 3;
 
         if(len <= 0)
         {
             continue;
         }
 
-        if(STRCMP(file[i] + len, "@en") == 0)
+        if(ustrcmp(file[i] + len, "@en") == 0)
         {
             // Sorting on priority means the same item in another language may
             // be anywhere. Search all items for a match up to the "@en".
@@ -4803,8 +4805,8 @@ static void cleanup_help_tags(int num_file, uchar_kt **file)
             for(j = 0; j < num_file; j++)
             {
                 if(j != i
-                   && (int)STRLEN(file[j]) == len + 3
-                   && STRNCMP(file[i], file[j], len + 1) == 0)
+                   && (int)ustrlen(file[j]) == len + 3
+                   && ustrncmp(file[i], file[j], len + 1) == 0)
                 {
                     break;
                 }
@@ -4822,14 +4824,14 @@ static void cleanup_help_tags(int num_file, uchar_kt **file)
     {
         for(int i = 0; i < num_file; i++)
         {
-            int len = (int)STRLEN(file[i]) - 3;
+            int len = (int)ustrlen(file[i]) - 3;
 
             if(len <= 0)
             {
                 continue;
             }
 
-            if(STRCMP(file[i] + len, buf) == 0)
+            if(ustrcmp(file[i] + len, buf) == 0)
             {
                 // remove the default language
                 file[i][len] = NUL;
@@ -4896,7 +4898,7 @@ static int ExpandFromContext(expand_st *xp,
         if(xp->xp_backslash != XP_BS_NONE)
         {
             free_pat = TRUE;
-            pat = vim_strsave(pat);
+            pat = ustrdup(pat);
 
             for(i = 0; pat[i]; ++i)
             {
@@ -4907,12 +4909,12 @@ static int ExpandFromContext(expand_st *xp,
                        && pat[i + 2] == '\\'
                        && pat[i + 3] == ' ')
                     {
-                        STRMOVE(pat + i, pat + i + 3);
+                        xstrmove(pat + i, pat + i + 3);
                     }
 
                     if(xp->xp_backslash == XP_BS_ONE && pat[i + 1] == ' ')
                     {
-                        STRMOVE(pat + i, pat + i + 1);
+                        xstrmove(pat + i, pat + i + 1);
                     }
                 }
             }
@@ -5029,7 +5031,7 @@ static int ExpandFromContext(expand_st *xp,
         return ExpandPackAddDir(pat, num_file, file);
     }
 
-    regmatch.regprog = vim_regcomp(pat, p_magic ? RE_MAGIC : 0);
+    regmatch.regprog = regexp_compile(pat, p_magic ? RE_MAGIC : 0);
 
     if(regmatch.regprog == NULL)
     {
@@ -5194,11 +5196,11 @@ void ExpandGeneric(expand_st *xp,
         {
             if(escaped)
             {
-                str = vim_strsave_escaped(str, (uchar_kt *)" \t\\.");
+                str = ustrdup_escape(str, (uchar_kt *)" \t\\.");
             }
             else
             {
-                str = vim_strsave(str);
+                str = ustrdup(str);
             }
 
             (*file)[count++] = str;
@@ -5206,7 +5208,7 @@ void ExpandGeneric(expand_st *xp,
             if(func == get_menu_names && str != NULL)
             {
                 // test for separator added by get_menu_names()
-                str += STRLEN(str) - 1;
+                str += ustrlen(str) - 1;
 
                 if(*str == '\001')
                 {
@@ -5232,7 +5234,7 @@ void ExpandGeneric(expand_st *xp,
         }
         else
         {
-            sort_strings(*file, *num_file);
+            ustr_quick_sort(*file, *num_file);
         }
     }
 
@@ -5274,12 +5276,12 @@ FUNC_ATTR_NONNULL_ALL
 
     // for ":set path=" and ":set tags=" halve
     // backslashes for escaped space
-    pat = vim_strsave(filepat);
+    pat = ustrdup(filepat);
 
     for(i = 0; pat[i]; ++i)
         if(pat[i] == '\\' && pat[i + 1] == ' ')
         {
-            STRMOVE(pat + i, pat + i + 1);
+            xstrmove(pat + i, pat + i + 1);
         }
 
     flags |= EW_FILE | EW_EXEC | EW_SHELLCMD;
@@ -5340,11 +5342,11 @@ FUNC_ATTR_NONNULL_ALL
             s++; // Skip space used for absolute path name.
         }
 
-        e = vim_strchr(s, ':');
+        e = ustrchr(s, ':');
 
         if(e == NULL)
         {
-            e = s + STRLEN(s);
+            e = s + ustrlen(s);
         }
 
         l = e - s;
@@ -5354,10 +5356,10 @@ FUNC_ATTR_NONNULL_ALL
             break;
         }
 
-        STRLCPY(buf, s, l + 1);
+        ustrlcpy(buf, s, l + 1);
         add_pathsep((char *)buf);
-        l = STRLEN(buf);
-        STRLCPY(buf + l, pat, MAXPATHL - l);
+        l = ustrlen(buf);
+        ustrlcpy(buf + l, pat, MAXPATHL - l);
 
         // Expand matches in one directory of $PATH.
         ret = expand_wildcards(1, &buf, num_file, file, flags);
@@ -5370,10 +5372,10 @@ FUNC_ATTR_NONNULL_ALL
                 {
                     s = (*file)[i];
 
-                    if(STRLEN(s) > l)
+                    if(ustrlen(s) > l)
                     {
                         // Remove the path again.
-                        STRMOVE(s, s + l);
+                        xstrmove(s, s + l);
                         ((uchar_kt **)ga.ga_data)[ga.ga_len++] = s;
                     }
                     else
@@ -5434,7 +5436,7 @@ static void *call_user_expand_func(user_expand_func_T user_expand_func,
         ccline.cmdbuff[ccline.cmdlen] = 0;
     }
 
-    args[0] = vim_strnsave(xp->xp_pattern, xp->xp_pattern_len);
+    args[0] = ustrndup(xp->xp_pattern, xp->xp_pattern_len);
     args[1] = xp->xp_line;
     sprintf((char *)num, "%d", xp->xp_col);
     args[2] = num;
@@ -5482,11 +5484,11 @@ static int ExpandUserDefined(expand_st *xp,
 
     for(s = retstr; *s != NUL; s = e)
     {
-        e = vim_strchr(s, '\n');
+        e = ustrchr(s, '\n');
 
         if(e == NULL)
         {
-            e = s + STRLEN(s);
+            e = s + ustrlen(s);
         }
 
         keep = *e;
@@ -5504,7 +5506,7 @@ static int ExpandUserDefined(expand_st *xp,
             continue;
         }
 
-        GA_APPEND(uchar_kt *, &ga, vim_strnsave(s, (int)(e - s)));
+        GA_APPEND(uchar_kt *, &ga, ustrndup(s, (int)(e - s)));
         *e = keep;
 
         if(*e != NUL)
@@ -5546,7 +5548,7 @@ static int ExpandUserList(expand_st *xp, int *num_file, uchar_kt ***file)
             continue; // Skip non-string items and empty strings
         }
 
-        GA_APPEND(uchar_kt *, &ga, vim_strsave(li->li_tv.vval.v_string));
+        GA_APPEND(uchar_kt *, &ga, ustrdup(li->li_tv.vval.v_string));
     }
 
     tv_list_unref(retlist);
@@ -5572,13 +5574,13 @@ static int ExpandRTDir(uchar_kt *pat,
 {
     *num_file = 0;
     *file = NULL;
-    size_t pat_len = STRLEN(pat);
+    size_t pat_len = ustrlen(pat);
     garray_st ga;
     ga_init(&ga, (int)sizeof(char *), 10);
 
     for(int i = 0; dirnames[i] != NULL; i++)
     {
-        size_t size = STRLEN(dirnames[i]) + pat_len + 7;
+        size_t size = ustrlen(dirnames[i]) + pat_len + 7;
         uchar_kt *s = xmalloc(size);
         snprintf((char *)s, size, "%s/%s*.vim", dirnames[i], pat);
         globpath(p_rtp, s, &ga, 0);
@@ -5589,7 +5591,7 @@ static int ExpandRTDir(uchar_kt *pat,
     {
         for(int i = 0; dirnames[i] != NULL; i++)
         {
-            size_t size = STRLEN(dirnames[i]) + pat_len + 22;
+            size_t size = ustrlen(dirnames[i]) + pat_len + 22;
             uchar_kt *s = xmalloc(size);
 
             snprintf((char *)s,
@@ -5607,7 +5609,7 @@ static int ExpandRTDir(uchar_kt *pat,
     {
         for(int i = 0; dirnames[i] != NULL; i++)
         {
-            size_t size = STRLEN(dirnames[i]) + pat_len + 20;
+            size_t size = ustrlen(dirnames[i]) + pat_len + 20;
             uchar_kt *s = xmalloc(size);
 
             snprintf((char *)s,
@@ -5625,9 +5627,9 @@ static int ExpandRTDir(uchar_kt *pat,
     {
         uchar_kt *match = ((uchar_kt **)ga.ga_data)[i];
         uchar_kt *s = match;
-        uchar_kt *e = s + STRLEN(s);
+        uchar_kt *e = s + ustrlen(s);
 
-        if(e - s > 4 && STRNICMP(e - 4, ".vim", 4) == 0)
+        if(e - s > 4 && ustrnicmp(e - 4, ".vim", 4) == 0)
         {
             e -= 4;
 
@@ -5666,7 +5668,7 @@ static int ExpandPackAddDir(uchar_kt *pat, int *num_file, uchar_kt ***file)
     garray_st ga;
     *num_file = 0;
     *file = NULL;
-    size_t pat_len = STRLEN(pat);
+    size_t pat_len = ustrlen(pat);
     ga_init(&ga, (int)sizeof(char *), 10);
     size_t buflen = pat_len + 26;
     uchar_kt *s = xmalloc(buflen);
@@ -5679,7 +5681,7 @@ static int ExpandPackAddDir(uchar_kt *pat, int *num_file, uchar_kt ***file)
     {
         uchar_kt *match = ((uchar_kt **)ga.ga_data)[i];
         s = path_tail(match);
-        uchar_kt *e = s + STRLEN(s);
+        uchar_kt *e = s + ustrlen(s);
         memmove(match, s, e - s + 1);
     }
 
@@ -5712,10 +5714,10 @@ void globpath(uchar_kt *path, uchar_kt *file, garray_st *ga, int expand_options)
         // Copy one item of the path to buf[] and concatenate the file name.
         copy_option_part(&path, buf, MAXPATHL, ",");
 
-        if(STRLEN(buf) + STRLEN(file) + 2 < MAXPATHL)
+        if(ustrlen(buf) + ustrlen(file) + 2 < MAXPATHL)
         {
             add_pathsep((char *)buf);
-            STRCAT(buf, file); // NOLINT
+            ustrcat(buf, file); // NOLINT
             uchar_kt **p;
             int num_p = 0;
             (void)ExpandFromContext(&xpc,
@@ -5737,7 +5739,7 @@ void globpath(uchar_kt *path, uchar_kt *file, garray_st *ga, int expand_options)
 
                 for(int i = 0; i < num_p; i++)
                 {
-                    ((uchar_kt **)ga->ga_data)[ga->ga_len] = vim_strsave(p[i]);
+                    ((uchar_kt **)ga->ga_data)[ga->ga_len] = ustrdup(p[i]);
                     ga->ga_len++;
                 }
 
@@ -5816,7 +5818,7 @@ static uchar_kt *get_history_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 {
     static uchar_kt compl[2] = { NUL, NUL };
     char *short_names = ":=@>?/";
-    int short_names_count = (int)STRLEN(short_names);
+    int short_names_count = (int)ustrlen(short_names);
     int history_name_count = ARRAY_SIZE(history_names) - 1;
 
     if(idx < short_names_count)
@@ -5957,8 +5959,8 @@ static int in_history(int type, uchar_kt *str, int move_to_front, int sep)
         // character matches as well.
         p = history[type][i].hisstr;
 
-        if(STRCMP(str, p) == 0
-           && (type != kHistSearch || sep == p[STRLEN(p) + 1]))
+        if(ustrcmp(str, p) == 0
+           && (type != kHistSearch || sep == p[ustrlen(p) + 1]))
         {
             if(!move_to_front)
             {
@@ -6036,13 +6038,13 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     for(history_type_et i = 0; history_names[i] != NULL; i++)
     {
-        if(STRNICMP(name, history_names[i], len) == 0)
+        if(ustrnicmp(name, history_names[i], len) == 0)
         {
             return i;
         }
     }
 
-    if(vim_strchr((uchar_kt *)":=@>?/", name[0]) != NULL && len == 1)
+    if(ustrchr((uchar_kt *)":=@>?/", name[0]) != NULL && len == 1)
     {
         return hist_char2type(name[0]);
     }
@@ -6109,8 +6111,8 @@ void add_to_history(int histype, uchar_kt *new_entry, int in_map, int sep)
         hist_free_entry(hisptr);
 
         // Store the separator after the NUL of the string.
-        len = (int)STRLEN(new_entry);
-        hisptr->hisstr = vim_strnsave(new_entry, len + 2);
+        len = (int)ustrlen(new_entry);
+        hisptr->hisstr = ustrndup(new_entry, len + 2);
         hisptr->timestamp = os_time();
         hisptr->additional_elements = NULL;
         hisptr->hisstr[len + 1] = sep;
@@ -6172,7 +6174,7 @@ uchar_kt *get_cmdline_str(void)
         return NULL;
     }
 
-    return vim_strnsave(p->cmdbuff, p->cmdlen);
+    return ustrndup(p->cmdbuff, p->cmdlen);
 }
 
 /// Get the current command line position, counted in bytes.
@@ -6353,7 +6355,7 @@ int del_history_entry(int histype, uchar_kt *str)
        && histype < HIST_COUNT
        && *str != NUL
        && (idx = hisidx[histype]) >= 0
-       && (regmatch.regprog = vim_regcomp(str, RE_MAGIC + RE_STRING))
+       && (regmatch.regprog = regexp_compile(str, RE_MAGIC + RE_STRING))
        != NULL)
     {
         i = last = idx;
@@ -6459,7 +6461,7 @@ int get_list_range(uchar_kt **str, int *num1, int *num2)
 
     if(**str == '-' || ascii_isdigit(**str)) // parse "from" part of range
     {
-        vim_str2nr(*str, NULL, &len, 0, &num, NULL, 0);
+        str_to_num(*str, NULL, &len, 0, &num, NULL, 0);
         *str += len;
         *num1 = (int)num;
         first = true;
@@ -6470,7 +6472,7 @@ int get_list_range(uchar_kt **str, int *num1, int *num2)
     if(**str == ',') // parse "to" part of range
     {
         *str = skipwhite(*str + 1);
-        vim_str2nr(*str, NULL, &len, 0, &num, NULL, 0);
+        str_to_num(*str, NULL, &len, 0, &num, NULL, 0);
 
         if(len > 0)
         {
@@ -6514,7 +6516,7 @@ void ex_history(exargs_st *eap)
         end = arg;
 
         while(ASCII_ISALPHA(*end)
-              || vim_strchr((uchar_kt *)":=@>/?", *end) != NULL)
+              || ustrchr((uchar_kt *)":=@>/?", *end) != NULL)
         {
             end++;
         }
@@ -6523,7 +6525,7 @@ void ex_history(exargs_st *eap)
 
         if(histype1 == kHistInvalid)
         {
-            if(STRNICMP(arg, "all", end - arg) == 0)
+            if(ustrnicmp(arg, "all", end - arg) == 0)
             {
                 histype1 = 0;
                 histype2 = HIST_COUNT-1;
@@ -6552,8 +6554,8 @@ void ex_history(exargs_st *eap)
 
     for(; !got_int && histype1 <= histype2; ++histype1)
     {
-        STRCPY(IObuff, "\n      #  ");
-        STRCAT(STRCAT(IObuff, history_names[histype1]), " history");
+        ustrcpy(IObuff, "\n      #  ");
+        ustrcat(ustrcat(IObuff, history_names[histype1]), " history");
         MSG_PUTS_TITLE(IObuff);
         idx = hisidx[histype1];
         hist = history[histype1];
@@ -6588,16 +6590,16 @@ void ex_history(exargs_st *eap)
                             i == idx ? '>' : ' ',
                             hist[i].hisnum);
 
-                    if(vim_strsize(hist[i].hisstr) > (int)Columns - 10)
+                    if(ustr_scrsize(hist[i].hisstr) > (int)Columns - 10)
                     {
                         trunc_string(hist[i].hisstr,
-                                     IObuff + STRLEN(IObuff),
+                                     IObuff + ustrlen(IObuff),
                                      (int)Columns - 10,
-                                     IOSIZE - (int)STRLEN(IObuff));
+                                     IOSIZE - (int)ustrlen(IObuff));
                     }
                     else
                     {
-                        STRCAT(IObuff, hist[i].hisstr);
+                        ustrcat(IObuff, hist[i].hisstr);
                     }
 
                     msg_outtrans(IObuff);
@@ -6876,7 +6878,7 @@ static int ex_window(void)
         }
         else if(cmdwin_result == K_XF2) // :qa typed
         {
-            ccline.cmdbuff = vim_strsave((uchar_kt *)"qa");
+            ccline.cmdbuff = ustrdup((uchar_kt *)"qa");
             cmdwin_result = CAR;
         }
         else if(cmdwin_result == Ctrl_C)
@@ -6887,7 +6889,7 @@ static int ex_window(void)
         }
         else
         {
-            ccline.cmdbuff = vim_strsave(get_cursor_line_ptr());
+            ccline.cmdbuff = ustrdup(get_cursor_line_ptr());
         }
 
         if(ccline.cmdbuff == NULL)
@@ -6896,7 +6898,7 @@ static int ex_window(void)
         }
         else
         {
-            ccline.cmdlen = (int)STRLEN(ccline.cmdbuff);
+            ccline.cmdlen = (int)ustrlen(ccline.cmdbuff);
             ccline.cmdbufflen = ccline.cmdlen + 1;
             ccline.cmdpos = curwin->w_cursor.col;
 
@@ -6969,7 +6971,7 @@ FUNC_ATTR_MALLOC
 
     if(cmd[0] != '<' || cmd[1] != '<' || eap->getline == NULL)
     {
-        *lenp = STRLEN(eap->arg);
+        *lenp = ustrlen(eap->arg);
         return eap->skip ? NULL : xmemdupz(eap->arg, *lenp);
     }
 

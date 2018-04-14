@@ -83,7 +83,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/undo.h"
 #include "nvim/macros.h"
@@ -109,6 +109,7 @@
 #include "nvim/types.h"
 #include "nvim/os/os.h"
 #include "nvim/os/time.h"
+#include "nvim/utils.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "undo.c.generated.h"
@@ -736,7 +737,7 @@ void u_compute_hash(uchar_kt *hash)
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
     {
         p = ml_get(lnum);
-        sha256_update(&ctx, p, (uint32_t)(STRLEN(p) + 1));
+        sha256_update(&ctx, p, (uint32_t)(ustrlen(p) + 1));
     }
 
     sha256_finish(&ctx, hash);
@@ -919,7 +920,7 @@ FUNC_ATTR_NONNULL_ALL
 
     // Write buffer-specific data.
     undo_write_bytes(bi, (uintmax_t)buf->b_ml.ml_line_count, 4);
-    size_t len = buf->b_u_line_ptr ? STRLEN(buf->b_u_line_ptr) : 0;
+    size_t len = buf->b_u_line_ptr ? ustrlen(buf->b_u_line_ptr) : 0;
     undo_write_bytes(bi, len, 4);
 
     if(len > 0 && !undo_write(bi, buf->b_u_line_ptr, len))
@@ -1126,7 +1127,7 @@ static bool serialize_uep(undobuf_st *bi, undo_blk_st *uep)
 
     for(size_t i = 0; i < (size_t)uep->ue_size; i++)
     {
-        size_t len = STRLEN(uep->ue_array[i]);
+        size_t len = ustrlen(uep->ue_array[i]);
 
         if(!undo_write_bytes(bi, len, 4))
         {
@@ -1432,13 +1433,6 @@ FUNC_ATTR_NONNULL_ARG(3, 4)
     {
         os_setperm(file_name, (perm & 0707) | ((perm & 07) << 3));
     }
-
-    #ifdef HAVE_SELINUX
-    if(buf->b_ffname != NULL)
-    {
-        mch_copy_sec(buf->b_ffname, file_name);
-    }
-    #endif
 #endif
 
     fp = fdopen(fd, "w");
@@ -1532,19 +1526,6 @@ write_error:
     {
         EMSG2(_("E829: write error in undo file: %s"), file_name);
     }
-
-#ifdef HAVE_ACL
-    if(buf->b_ffname != NULL)
-    {
-        nvim_acl_kt acl;
-
-        // For systems that support ACL:
-        // get the ACL from the original file.
-        acl = mch_get_acl(buf->b_ffname);
-        mch_set_acl((uchar_kt *)file_name, acl);
-        mch_free_acl(acl);
-    }
-#endif
 
 theend:
 
@@ -2065,7 +2046,7 @@ void u_undo(int count)
         count = 1;
     }
 
-    if(vim_strchr(p_cpo, CPO_UNDO) == NULL)
+    if(ustrchr(p_cpo, CPO_UNDO) == NULL)
     {
         undo_undoes = TRUE;
     }
@@ -2081,7 +2062,7 @@ void u_undo(int count)
 // If 'cpoptions' does not contain 'u': Always redo.
 void u_redo(int count)
 {
-    if(vim_strchr(p_cpo, CPO_UNDO) == NULL)
+    if(ustrchr(p_cpo, CPO_UNDO) == NULL)
     {
         undo_undoes = false;
     }
@@ -2773,7 +2754,7 @@ static void u_undoredo(int undo)
                 // undoing auto-formatting puts the cursor in the previous line.
                 for(i = 0; i < newsize && i < oldsize; ++i)
                 {
-                    if(STRCMP(uep->ue_array[i], ml_get(top + 1 + i)) != 0)
+                    if(ustrcmp(uep->ue_array[i], ml_get(top + 1 + i)) != 0)
                     {
                         break;
                     }
@@ -3167,24 +3148,24 @@ void ex_undolist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
            && uhp->uh_walk != nomark
            && uhp->uh_walk != mark)
         {
-            vim_snprintf((char *)IObuff, IOSIZE,
-                         "%6ld %7ld  ", uhp->uh_seq, changes);
+            xsnprintf((char *)IObuff, IOSIZE,
+                      "%6ld %7ld  ", uhp->uh_seq, changes);
 
-            u_add_time(IObuff + STRLEN(IObuff),
-                       IOSIZE - STRLEN(IObuff), uhp->uh_time);
+            u_add_time(IObuff + ustrlen(IObuff),
+                       IOSIZE - ustrlen(IObuff), uhp->uh_time);
 
             if(uhp->uh_save_nr > 0)
             {
-                while(STRLEN(IObuff) < 33)
+                while(ustrlen(IObuff) < 33)
                 {
-                    STRCAT(IObuff, " ");
+                    ustrcat(IObuff, " ");
                 }
 
-                vim_snprintf_add((char *)IObuff, IOSIZE,
-                                 "  %3ld", uhp->uh_save_nr);
+                xvsnprintf_add((char *)IObuff, IOSIZE,
+                               "  %3ld", uhp->uh_save_nr);
             }
 
-            GA_APPEND(uchar_kt *, &ga, vim_strsave(IObuff));
+            GA_APPEND(uchar_kt *, &ga, ustrdup(IObuff));
         }
 
         uhp->uh_walk = mark;
@@ -3237,7 +3218,7 @@ void ex_undolist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     }
     else
     {
-        sort_strings((uchar_kt **)ga.ga_data, ga.ga_len);
+        ustr_quick_sort((uchar_kt **)ga.ga_data, ga.ga_len);
         msg_start();
 
         msg_puts_attr(_("number changes  when               saved"),
@@ -3280,10 +3261,9 @@ static void u_add_time(uchar_kt *buf, size_t buflen, time_t tt)
     }
     else
     {
-        vim_snprintf((char *)buf,
-                     buflen,
-                     _("%" PRId64 " seconds ago"),
-                     (int64_t)(time(NULL) - tt));
+        xsnprintf((char *)buf, buflen,
+                  _("%" PRId64 " seconds ago"),
+                  (int64_t)(time(NULL) - tt));
     }
 }
 
@@ -3349,7 +3329,7 @@ void u_find_first_changed(void)
         lnum < curbuf->b_ml.ml_line_count && lnum <= uep->ue_size;
         ++lnum)
     {
-        if(STRCMP(ml_get_buf(curbuf, lnum, FALSE), uep->ue_array[lnum - 1]) != 0)
+        if(ustrcmp(ml_get_buf(curbuf, lnum, FALSE), uep->ue_array[lnum - 1]) != 0)
         {
             clearpos(&(uhp->uh_cursor));
             uhp->uh_cursor.lnum = lnum;
@@ -3716,7 +3696,7 @@ void u_blockfree(filebuf_st *buf)
 /// u_save_line(): allocate memory and copy line 'lnum' into it.
 static uchar_kt *u_save_line(linenum_kt lnum)
 {
-    return vim_strsave(ml_get(lnum));
+    return ustrdup(ml_get(lnum));
 }
 
 /// Check if the 'modified' flag is set, or 'ff' has changed (only need to

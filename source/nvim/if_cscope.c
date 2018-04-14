@@ -13,7 +13,8 @@
 #include <inttypes.h>
 #include <fcntl.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
+#include "nvim/error.h"
 #include "nvim/ascii.h"
 #include "nvim/if_cscope.h"
 #include "nvim/charset.h"
@@ -180,7 +181,7 @@ uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
                 if(current_idx++ == idx)
                 {
-                    vim_snprintf(connection, sizeof(connection), "%zu", i);
+                    xsnprintf(connection, sizeof(connection), "%zu", i);
                     return (uchar_kt *)connection;
                 }
             }
@@ -194,9 +195,9 @@ uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Handle command line completion for :cscope command.
-void set_context_in_cscope_cmd(expand_st *xp, 
-                               const char *arg, 
-							   excmd_idx_et cmdidx)
+void set_context_in_cscope_cmd(expand_st *xp,
+                               const char *arg,
+                               excmd_idx_et cmdidx)
 {
     // Default: expand subcommands.
     xp->xp_context = EXPAND_CSCOPE;
@@ -218,15 +219,15 @@ void set_context_in_cscope_cmd(expand_st *xp,
             {
                 xp->xp_context = EXPAND_NOTHING;
             }
-            else if(STRNICMP(arg, "add", p - arg) == 0)
+            else if(ustrnicmp(arg, "add", p - arg) == 0)
             {
                 xp->xp_context = EXPAND_FILES;
             }
-            else if(STRNICMP(arg, "kill", p - arg) == 0)
+            else if(ustrnicmp(arg, "kill", p - arg) == 0)
             {
                 expand_what = EXP_CSCOPE_KILL;
             }
-            else if(STRNICMP(arg, "find", p - arg) == 0)
+            else if(ustrnicmp(arg, "find", p - arg) == 0)
             {
                 expand_what = EXP_CSCOPE_FIND;
             }
@@ -397,7 +398,7 @@ int cs_fgets(uchar_kt *buf, int size)
         return true;
     }
 
-    STRLCPY(buf, p, size);
+    ustrlcpy(buf, p, size);
     return FALSE;
 }
 
@@ -550,7 +551,7 @@ static int cs_add_common(char *arg1, char *arg2, char *flags)
     // get the filename (arg1), expand it, and try to stat it
     fname = xmalloc(MAXPATHL + 1);
     expand_env((uchar_kt *)arg1, (uchar_kt *)fname, MAXPATHL);
-    size_t len = STRLEN(fname);
+    size_t len = ustrlen(fname);
     fbuf = (uchar_kt *)fname;
 
     (void)modify_fname((uchar_kt *)":p", &usedlen,
@@ -561,7 +562,7 @@ static int cs_add_common(char *arg1, char *arg2, char *flags)
         goto add_err;
     }
 
-    fname = (char *)vim_strnsave((uchar_kt *)fname, len);
+    fname = (char *)ustrndup((uchar_kt *)fname, len);
     xfree(fbuf);
     fileinfo_st file_info;
     bool file_info_ok  = os_fileinfo(fname, &file_info);
@@ -1211,7 +1212,7 @@ static int cs_find_common(char *opt,
             cmdletter = opt[0];
     }
 
-    qfpos = (char *)vim_strchr(p_csqf, cmdletter);
+    qfpos = (char *)ustrchr(p_csqf, cmdletter);
 
     if(qfpos != NULL)
     {
@@ -1400,7 +1401,7 @@ static int cs_help(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     while(cmdp->name != NULL)
     {
         char *help = _(cmdp->help);
-        int space_cnt = 30 - vim_strsize((uchar_kt *)help);
+        int space_cnt = 30 - ustr_scrsize((uchar_kt *)help);
 
         // Use %*s rather than %30s to ensure proper alignment in utf-8
         if(space_cnt < 0)
@@ -1545,7 +1546,7 @@ static cscmd_st *cs_lookup_cmd(exargs_st *eap)
     }
 
     // Store length of eap->arg before it gets modified by strtok().
-    eap_arg_len = (int)STRLEN(eap->arg);
+    eap_arg_len = (int)ustrlen(eap->arg);
 
     if((stok = strtok((char *)(eap->arg), (const char *)" ")) == NULL)
     {
@@ -2052,7 +2053,7 @@ FUNC_ATTR_NONNULL_ALL
     char *cstag_msg = _("Cscope tag: %s");
 
     assert(num_matches > 0);
-    assert(strcnt(matches[0], '\t') >= 2);
+    assert(xstrcnt(matches[0], '\t') >= 2);
 
     char *ptag = matches[0];
     char *ptag_end = strchr(ptag, '\t');
@@ -2081,7 +2082,7 @@ FUNC_ATTR_NONNULL_ALL
 
     for(size_t i = 0; i < num_matches; i++)
     {
-        assert(strcnt(matches[i], '\t') >= 2);
+        assert(xstrcnt(matches[i], '\t') >= 2);
 
         // Parse filename, line number and optional part.
         char *fname = strchr(matches[i], '\t') + 1;
@@ -2187,7 +2188,7 @@ static int cs_read_prompt(size_t i)
         while((ch = getc(csinfo[i].fr_fp)) != EOF && ch != CSCOPE_PROMPT[0])
         {
             // if there is room and char is printable
-            if(bufpos < maxlen - 1 && vim_isprintc(ch))
+            if(bufpos < maxlen - 1 && is_print_char(ch))
             {
                 // lazy buffer allocation
                 if(buf == NULL)
@@ -2496,10 +2497,10 @@ static char *cs_resolve_file(size_t i, char *name)
         // use cscope.out path in path resolution.
         csdir = xmalloc(MAXPATHL);
 
-        STRLCPY(csdir, csinfo[i].fname,
+        ustrlcpy(csdir, csinfo[i].fname,
                 path_tail((uchar_kt *)csinfo[i].fname) - (uchar_kt *)csinfo[i].fname + 1);
 
-        len += STRLEN(csdir);
+        len += ustrlen(csdir);
     }
 
     // Note/example: this won't work if the cscope output already starts

@@ -11,8 +11,9 @@
     #include <signal.h> // for sigset_t
 #endif
 
+#include "nvim/error.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/globals.h"
 #include "nvim/memline.h"
 #include "nvim/eval.h"
@@ -149,11 +150,11 @@ static void deadly_signal(int signum)
 
     snprintf((char *)IObuff,
              sizeof(IObuff),
-             "Vim: Caught deadly signal '%s'\n",
+             "nvim: Caught deadly signal '%s'\n",
              signal_name(signum));
 
     // Preserve files and exit.
-    preserve_exit();
+    preserve_exit(kNEStatusFailure);
 }
 
 static void on_signal(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(handle),

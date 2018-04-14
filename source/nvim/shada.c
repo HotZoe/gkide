@@ -15,7 +15,7 @@
 
 #include "nvim/os/os.h"
 #include "nvim/os/time.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/shada.h"
 #include "nvim/message.h"
@@ -955,7 +955,7 @@ FUNC_ATTR_NONNULL_ALL
         return error;
     }
 
-    assert(STRCMP(p_enc, "utf-8") == 0);
+    assert(ustrcmp(p_enc, "utf-8") == 0);
 
     return 0;
 }
@@ -1019,7 +1019,7 @@ static int msgpack_sd_writer_write(void *data, const char *buf, size_t len)
 static bool shada_disabled(void)
 FUNC_ATTR_PURE
 {
-    return used_shada_file != NULL && STRCMP(used_shada_file, "NONE") == 0;
+    return used_shada_file != NULL && ustrcmp(used_shada_file, "NONE") == 0;
 }
 
 /// Read ShaDa file
@@ -1118,7 +1118,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     .histtype = history_type,
                     .string = (char *) hist_he.hisstr,
                     .sep = (char)(history_type == kHistSearch
-                                  ? (char) hist_he.hisstr[STRLEN(hist_he.hisstr) + 1]
+                                  ? (char) hist_he.hisstr[ustrlen(hist_he.hisstr) + 1]
                                   : 0),
                     .additional_elements = hist_he.additional_elements,
                 }
@@ -1757,7 +1757,7 @@ FUNC_ATTR_NONNULL_ALL
                                 cur_entry,
                                 (buf == NULL
                                  ? (jl_entry.fname != NULL
-                                    && STRCMP(fm.fname, jl_entry.fname) == 0)
+                                    && ustrcmp(fm.fname, jl_entry.fname) == 0)
                                  : fm.fmark.fnum == jl_entry.fmark.fnum),
                                 free_xfmark,
                                 SDE_TO_XFMARK,
@@ -4339,7 +4339,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define CHECK_KEY(key, expected)                \
     (key.via.str.size == sizeof(expected) - 1   \
-     && STRNCMP(key.via.str.ptr, expected, sizeof(expected) - 1) == 0)
+     && ustrncmp(key.via.str.ptr, expected, sizeof(expected) - 1) == 0)
 
 #define CLEAR_GA_AND_ERROR_OUT(ga)       \
     do                                   \
@@ -5277,7 +5277,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         {
             usr_home_replace(NULL, (uchar_kt *)(part + 1),
                              NameBuff, MAXPATHL);
-            size_t n = STRLEN(NameBuff);
+            size_t n = ustrlen(NameBuff);
 
             if(mb_strnicmp(NameBuff, new_name, n) == 0)
             {

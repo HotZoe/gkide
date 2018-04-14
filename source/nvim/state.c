@@ -6,7 +6,7 @@
 
 #include "nvim/ascii.h"
 #include "nvim/state.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 #include "nvim/getchar.h"
 #include "nvim/option_defs.h"

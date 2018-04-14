@@ -8,7 +8,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
+#include "nvim/error.h"
 #include "nvim/ascii.h"
 #include "nvim/assert.h"
 #include "nvim/message.h"
@@ -123,6 +124,23 @@ static int verbose_did_open = FALSE;
 msg_history_st *first_msg_hist = NULL;
 msg_history_st *last_msg_hist = NULL;
 
+/// Avoid repeating the error message many times (they take 1 second each).
+/// Did_outofmem_msg is reset when a character is read.
+void msg_out_of_memory(size_t size)
+{
+    if(!did_outofmem_msg)
+    {
+        // Don't hide this message
+        emsg_silent = 0;
+
+        // Must come first to avoid coming back here when
+        // printing the error message fails, e.g. when setting v:errmsg.
+        did_outofmem_msg = true;
+
+        EMSGU(_("E342: Out of memory!  (allocating %" PRIu64 " bytes)"), size);
+    }
+}
+
 /// Displays the string @b s on the status line.
 /// When terminal not initialized (yet) mch_errmsg(..) is used.
 ///
@@ -183,7 +201,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     if(s != keep_msg || (*s != '<'
                          && last_msg_hist != NULL
                          && last_msg_hist->msg != NULL
-                         && STRCMP(s, last_msg_hist->msg)))
+                         && ustrcmp(s, last_msg_hist->msg)))
     {
         add_msg_hist((const char *)s, -1, attr);
     }
@@ -210,7 +228,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
     if(keep
        && retval
-       && vim_strsize(s) < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
+       && ustr_scrsize(s) < (int)(Rows - cmdline_row - 1) * Columns + sc_col)
     {
         set_keep_msg(s, 0);
     }
@@ -237,7 +255,7 @@ uchar_kt *msg_strtrunc(uchar_kt *s, int force)
         && shortmess(SHM_TRUNCALL)
         && !exmode_active && msg_silent == 0) || force)
     {
-        int len = vim_strsize(s);
+        int len = ustr_scrsize(s);
 
         if(msg_scrolled != 0) // Use all the columns.
         {
@@ -313,7 +331,7 @@ void trunc_string(uchar_kt *s, uchar_kt *buf, int room_in, int buflen)
     }
 
     // Last part: End of the string.
-    half = i = (int)STRLEN(s);
+    half = i = (int)ustrlen(s);
 
     for(;;)
     {
@@ -337,7 +355,7 @@ void trunc_string(uchar_kt *s, uchar_kt *buf, int room_in, int buflen)
     {
         if(s != buf) // text fits without truncating
         {
-            len = STRLEN(s);
+            len = ustrlen(s);
 
             if(len >= (size_t)buflen)
             {
@@ -360,7 +378,7 @@ void trunc_string(uchar_kt *s, uchar_kt *buf, int room_in, int buflen)
     {
         // set the middle and copy the last part
         memmove(buf + e, "...", (size_t)3);
-        len = STRLEN(s + i) + 1;
+        len = ustrlen(s + i) + 1;
 
         if(len >= (size_t)buflen - e - 3)
         {
@@ -383,7 +401,7 @@ int smsg(char *s, ...)
 {
     va_list arglist;
     va_start(arglist, s);
-    vim_vsnprintf((char *)IObuff, IOSIZE, s, arglist, NULL);
+    xvsnprintf((char *)IObuff, IOSIZE, s, arglist, NULL);
     va_end(arglist);
     return msg(IObuff);
 }
@@ -392,7 +410,7 @@ int smsg_attr(int attr, char *s, ...)
 {
     va_list arglist;
     va_start(arglist, s);
-    vim_vsnprintf((char *)IObuff, IOSIZE, s, arglist, NULL);
+    xvsnprintf((char *)IObuff, IOSIZE, s, arglist, NULL);
     va_end(arglist);
     return msg_attr((const char *)IObuff, attr);
 }
@@ -418,7 +436,7 @@ static int other_sourcing_name(void)
     {
         if(last_sourcing_name != NULL)
         {
-            return STRCMP(sourcing_name, last_sourcing_name) != 0;
+            return ustrcmp(sourcing_name, last_sourcing_name) != 0;
         }
 
         return TRUE;
@@ -439,7 +457,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(sourcing_name != NULL && other_sourcing_name())
     {
         const char *const p = _("Error detected while processing %s:");
-        const size_t buf_len = STRLEN(sourcing_name) + strlen(p) + 1;
+        const size_t buf_len = ustrlen(sourcing_name) + strlen(p) + 1;
         char *const buf = xmalloc(buf_len);
 
         snprintf(buf, buf_len, p, sourcing_name);
@@ -510,7 +528,7 @@ void msg_source(int attr)
         }
         else
         {
-            last_sourcing_name = vim_strsave(sourcing_name);
+            last_sourcing_name = ustrdup(sourcing_name);
         }
     }
 
@@ -524,8 +542,8 @@ void msg_source(int attr)
 int emsg_not_now(void)
 {
     if((emsg_off > 0
-        && vim_strchr(p_debug, 'm') == NULL
-        && vim_strchr(p_debug, 't') == NULL) || emsg_skip > 0)
+        && ustrchr(p_debug, 'm') == NULL
+        && ustrchr(p_debug, 't') == NULL) || emsg_skip > 0)
     {
         return TRUE;
     }
@@ -564,7 +582,7 @@ int emsg(const uchar_kt *s_)
     severe = emsg_severe;
     emsg_severe = false;
 
-    if(!emsg_off || vim_strchr(p_debug, 't') != NULL)
+    if(!emsg_off || ustrchr(p_debug, 't') != NULL)
     {
         // Cause a throw of an error exception if appropriate. Don't display
         // the error message in this case. (If no matching catch clause will
@@ -679,7 +697,7 @@ bool emsgf(const char *const fmt, ...)
 
     va_list ap;
     va_start(ap, fmt);
-    vim_vsnprintf(errbuf, sizeof(errbuf), fmt, ap, NULL);
+    xvsnprintf(errbuf, sizeof(errbuf), fmt, ap, NULL);
     va_end(ap);
 
     return emsg((const uchar_kt *)errbuf);
@@ -696,7 +714,7 @@ void msg_schedule_emsgf(const char *const fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
-    vim_vsnprintf((char *)IObuff, IOSIZE, fmt, ap, NULL);
+    xvsnprintf((char *)IObuff, IOSIZE, fmt, ap, NULL);
     va_end(ap);
     char *s = xstrdup((char *)IObuff);
     loop_schedule(&main_loop, event_create(msg_emsgf_event, 1, s));
@@ -739,11 +757,11 @@ uchar_kt *msg_may_trunc(int force, uchar_kt *s)
     room = (int)(Rows - cmdline_row - 1) * Columns + sc_col - 1;
 
     if((force || (shortmess(SHM_TRUNC) && !exmode_active))
-       && (n = (int)STRLEN(s) - room) > 0)
+       && (n = (int)ustrlen(s) - room) > 0)
     {
         if(has_mbyte)
         {
-            int size = vim_strsize(s);
+            int size = ustr_scrsize(s);
 
             // There may be room anyway when there are multibyte chars.
             if(size <= room)
@@ -786,7 +804,7 @@ static void add_msg_hist(const char *s, int len, int attr)
 
     if(len < 0)
     {
-        len = (int)STRLEN(s);
+        len = (int)ustrlen(s);
     }
 
     // remove leading and trailing newlines
@@ -854,7 +872,7 @@ FUNC_ATTR_NONNULL_ALL
     msg_history_st *p;
     int c = 0;
 
-    if(STRCMP(eap->arg, "clear") == 0)
+    if(ustrcmp(eap->arg, "clear") == 0)
     {
         int keep = eap->addr_count == 0 ? 0 : eap->line2;
 
@@ -1096,7 +1114,7 @@ void wait_return(int redraw)
         {
             (void)jump_to_mouse(MOUSE_SETPOS, NULL, 0);
         }
-        else if(vim_strchr((uchar_kt *)"\r\n ", c) == NULL && c != Ctrl_C)
+        else if(ustrchr((uchar_kt *)"\r\n ", c) == NULL && c != Ctrl_C)
         {
             // Put the character back in the typeahead buffer.Don't use the
             // stuff buffer, because lmaps wouldn't work.
@@ -1133,7 +1151,7 @@ void wait_return(int redraw)
     reset_last_sourcing();
 
     if(keep_msg != NULL
-       && vim_strsize(keep_msg) >= (Rows - cmdline_row - 1) * Columns + sc_col)
+       && ustr_scrsize(keep_msg) >= (Rows - cmdline_row - 1) * Columns + sc_col)
     {
         xfree(keep_msg);
         keep_msg = NULL; // don't redisplay message, it's too long
@@ -1184,7 +1202,7 @@ void set_keep_msg(uchar_kt *s, int attr)
 
     if(s != NULL && msg_silent == 0)
     {
-        keep_msg = vim_strsave(s);
+        keep_msg = ustrdup(s);
     }
     else
     {
@@ -1314,7 +1332,7 @@ int msg_outtrans(uchar_kt *str)
 
 int msg_outtrans_attr(uchar_kt *str, int attr)
 {
-    return msg_outtrans_len_attr(str, (int)STRLEN(str), attr);
+    return msg_outtrans_len_attr(str, (int)ustrlen(str), attr);
 }
 
 int msg_outtrans_len(uchar_kt *str, int len)
@@ -1373,7 +1391,7 @@ int msg_outtrans_len_attr(uchar_kt *msgstr, int len, int attr)
         {
             c = (*mb_ptr2char)((uchar_kt *)str);
 
-            if(vim_isprintc(c))
+            if(is_print_char(c))
             {
                 // Printable multi-byte char: count the cells.
                 retval += (*mb_ptr2cells)((uchar_kt *)str);
@@ -1416,7 +1434,7 @@ int msg_outtrans_len_attr(uchar_kt *msgstr, int len, int attr)
                 msg_puts_attr((const char *)s,
                               attr == 0 ? hl_attr(HLF_8) : attr);
 
-                retval += (int)STRLEN(s);
+                retval += (int)ustrlen(s);
             }
             else
             {
@@ -1499,7 +1517,7 @@ int msg_outtrans_special(uchar_kt *strstart, int from)
             string = (const char *)str2special((uchar_kt **)&str, from);
         }
 
-        const int len = vim_strsize((uchar_kt *)string);
+        const int len = ustr_scrsize((uchar_kt *)string);
 
         // Highlight special keys
         msg_puts_attr(string,
@@ -1631,9 +1649,9 @@ void str2specialbuf(uchar_kt *sp, uchar_kt *buf, int len)
     {
         s = str2special(&sp, FALSE);
 
-        if((int)(STRLEN(s) + STRLEN(buf)) < len)
+        if((int)(ustrlen(s) + ustrlen(buf)) < len)
         {
-            STRCAT(buf, s);
+            ustrcat(buf, s);
         }
     }
 }
@@ -1659,7 +1677,7 @@ void msg_prt_line(uchar_kt *s, int list)
     // find start of trailing whitespace
     if(list && lcs_trail)
     {
-        trail = s + STRLEN(s);
+        trail = s + ustrlen(s);
 
         while(trail > s && ascii_iswhite(trail[-1]))
         {
@@ -1839,7 +1857,7 @@ void msg_puts_title(const char *s)
 /// Does not handle multi-byte characters!
 void msg_puts_long_attr(uchar_kt *longstr, int attr)
 {
-    msg_puts_long_len_attr(longstr, (int)STRLEN(longstr), attr);
+    msg_puts_long_len_attr(longstr, (int)ustrlen(longstr), attr);
 }
 
 void msg_puts_long_len_attr(uchar_kt *longstr, int len, int attr)
@@ -2027,9 +2045,9 @@ static void msg_puts_display(const uchar_kt *str,
                 --lines_left;
             }
 
-            if(p_more 
-			   && lines_left == 0 
-			   && curmod != kNormalWaitMode
+            if(p_more
+               && lines_left == 0
+               && curmod != kNormalWaitMode
                && !msg_no_more && !exmode_active)
             {
                 if(do_more_prompt(NUL))
@@ -2217,8 +2235,8 @@ static void inc_msg_scrolled(void)
             size_t len = strlen(p) + 40;
             tofree = xmalloc(len);
 
-            vim_snprintf(tofree, len, _("%s line %" PRId64),
-                         p, (int64_t) sourcing_lnum);
+            xsnprintf(tofree, len, _("%s line %" PRId64),
+                      p, (int64_t) sourcing_lnum);
 
             p = tofree;
         }
@@ -2750,92 +2768,6 @@ static int do_more_prompt(int typed_char)
     return retval;
 }
 
-#if defined(USE_MCH_ERRMSG)
-#ifdef mch_errmsg
-    #undef mch_errmsg
-#endif
-
-#ifdef mch_msg
-    #undef mch_msg
-#endif
-
-/// Give an error message. To be used when the screen hasn't been initialized
-/// yet. When stderr can't be used, collect error messages until the GUI has
-/// started and they can be displayed in a message box.
-void mch_errmsg(char *str)
-{
-    int len;
-
-#ifdef UNIX
-    // On Unix use stderr if it's a tty.
-    // When not going to start the GUI also use stderr.
-    // On Mac, when started from Finder, stderr is the console.
-    if(os_isatty(2))
-    {
-        fprintf(stderr, "%s", str);
-        return;
-    }
-#endif
-
-    // avoid a delay for a message that isn't there
-    emsg_on_display = FALSE;
-    len = (int)STRLEN(str) + 1;
-
-    if(error_ga.ga_data == NULL)
-    {
-        ga_set_growsize(&error_ga, 80);
-        error_ga.ga_itemsize = 1;
-    }
-
-    ga_grow(&error_ga, len);
-
-    memmove((uchar_kt *)error_ga.ga_data + error_ga.ga_len,
-            (uchar_kt *)str, len);
-#ifdef UNIX
-    // remove CR characters, they are displayed
-    {
-        uchar_kt *p;
-        p = (uchar_kt *)error_ga.ga_data + error_ga.ga_len;
-
-        for(;;)
-        {
-            p = vim_strchr(p, '\r');
-
-            if(p == NULL)
-            {
-                break;
-            }
-
-            *p = ' ';
-        }
-    }
-#endif
-
-    --len; // don't count the NUL at the end
-    error_ga.ga_len += len;
-}
-
-/// Give a message. To be used when the screen hasn't been initialized yet.
-/// When there is no tty, collect messages until the GUI has started and they
-/// can be displayed in a message box.
-void mch_msg(char *str)
-{
-#ifdef UNIX
-    // On Unix use stdout if we have a tty. This allows "vim -h | more" and
-    // uses mch_errmsg() when started from the desktop.
-    // When not going to start the GUI also use stdout.
-    // On Mac, when started from Finder, stderr is the console.
-    if(os_isatty(2))
-    {
-        printf("%s", str);
-        return;
-    }
-#endif
-
-    mch_errmsg(str);
-}
-#endif
-
 /// Put a character on the screen at the current message position
 /// and advance to the next position. Only for printable ASCII!
 static void msg_screen_putchar(int c, int attr)
@@ -2871,7 +2803,7 @@ void msg_moremsg(int full)
     if(full)
     {
         screen_puts((uchar_kt *) _(" SPACE/d/j: screen/page/line down, b/u/k: up, q: quit "),
-                    (int)Rows - 1, vim_strsize(s), attr);
+                    (int)Rows - 1, ustr_scrsize(s), attr);
     }
 }
 
@@ -2954,9 +2886,9 @@ int msg_end(void)
     // or the ruler option is set and we run into it,
     // we have to redraw the window. Do not do this if
     // we are abandoning the file or editing the command line.
-    if(!exiting 
-	   && need_wait_return 
-	   && !(curmod & kCmdLineMode))
+    if(!exiting
+       && need_wait_return
+       && !(curmod & kCmdLineMode))
     {
         wait_return(FALSE);
         return FALSE;
@@ -3036,7 +2968,7 @@ static void redir_write(const char *const str, const ptrdiff_t maxlen)
             }
         }
 
-        size_t len = maxlen == -1 ? STRLEN(s) : (size_t)maxlen;
+        size_t len = maxlen == -1 ? ustrlen(s) : (size_t)maxlen;
 
         if(capture_ga)
         {
@@ -3488,9 +3420,9 @@ static uchar_kt *console_dialog_alloc(const uchar_kt *message,
         mb_ptr_adv(r);
     }
 
-    len += (int)(STRLEN(message)
+    len += (int)(ustrlen(message)
                  + 2 // for the NL's
-                 + STRLEN(buttons)
+                 + ustrlen(buttons)
                  + 3); // for the ": " and NUL
 
     lenhotkey++; // for the NUL
@@ -3547,8 +3479,8 @@ static void copy_hotkeys_and_msg(const uchar_kt *message,
                                  uchar_kt *hotkeys_ptr)
 {
     *confirm_msg = '\n';
-    STRCPY(confirm_msg + 1, message);
-    uchar_kt *msgp = confirm_msg + 1 + STRLEN(message);
+    ustrcpy(confirm_msg + 1, message);
+    uchar_kt *msgp = confirm_msg + 1 + ustrlen(message);
 
     // Define first default hotkey. Keep the hotkey string NUL
     // terminated to avoid reading past the end.
@@ -3576,7 +3508,7 @@ static void copy_hotkeys_and_msg(const uchar_kt *message,
             *msgp++ = ' '; // '\n' -> ', '
 
             // Advance to next hotkey and set default hotkey
-            hotkeys_ptr += (has_mbyte) ? STRLEN(hotkeys_ptr): 1;
+            hotkeys_ptr += (has_mbyte) ? ustrlen(hotkeys_ptr): 1;
             hotkeys_ptr[copy_char(r + 1, hotkeys_ptr, TRUE)] = NUL;
 
             if(default_button_idx)

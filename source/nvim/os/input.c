@@ -6,12 +6,13 @@
 
 #include <uv.h>
 
+#include "nvim/error.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/os/input.h"
 #include "nvim/event/loop.h"
 #include "nvim/event/rstream.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ui.h"
 #include "nvim/memory.h"
 #include "nvim/keymap.h"
@@ -83,9 +84,9 @@ static void cursorhold_event(void **FUNC_ARGS_UNUSED_REALY(argv))
 {
     auto_event_et event = curmod & kInsertMode
                           ? EVENT_CURSORHOLDI : EVENT_CURSORHOLD;
-    
-	apply_autocmds(event, NULL, NULL, false, curbuf);
-	
+
+    apply_autocmds(event, NULL, NULL, false, curbuf);
+
     did_cursorhold = true;
 }
 
@@ -535,8 +536,8 @@ static void read_error_exit(void)
         exit_nvim_properly(kNEStatusSuccess);
     }
 
-    STRCPY(IObuff, _("Vim: Error reading input, exiting...\n"));
-    preserve_exit();
+    ustrcpy(IObuff, _("nvim: Error reading input, exiting ...\n"));
+    preserve_exit(kNEStatusFailure);
 }
 
 static bool pending_events(void)

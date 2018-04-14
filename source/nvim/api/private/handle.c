@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdint.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/map.h"
 #include "nvim/api/private/handle.h"
 

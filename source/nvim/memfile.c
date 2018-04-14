@@ -43,7 +43,7 @@
 #include <stdbool.h>
 #include <fcntl.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/memfile.h"
 #include "nvim/fileio.h"
@@ -1147,10 +1147,6 @@ static bool mf_do_open(memfile_st *mfp, uchar_kt *fname, int flags)
     }
 
     (void)os_set_cloexec(mfp->mf_fd);
-
-#ifdef HAVE_SELINUX
-    mch_copy_sec(fname, mfp->mf_fname);
-#endif
 
     return true;
 }

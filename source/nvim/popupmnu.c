@@ -6,7 +6,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/ascii.h"
 #include "nvim/popupmnu.h"
@@ -256,7 +256,7 @@ redo:
     // Compute the width of the widest match and the widest extra.
     for(i = 0; i < size; ++i)
     {
-        w = vim_strsize(array[i].pum_text);
+        w = ustr_scrsize(array[i].pum_text);
 
         if(max_width < w)
         {
@@ -265,7 +265,7 @@ redo:
 
         if(array[i].pum_kind != NULL)
         {
-            w = vim_strsize(array[i].pum_kind) + 1;
+            w = ustr_scrsize(array[i].pum_kind) + 1;
 
             if(kind_width < w)
             {
@@ -275,7 +275,7 @@ redo:
 
         if(array[i].pum_extra != NULL)
         {
-            w = vim_strsize(array[i].pum_extra) + 1;
+            w = ustr_scrsize(array[i].pum_extra) + 1;
 
             if(extra_width < w)
             {
@@ -494,7 +494,7 @@ void pum_redraw(void)
                         {
                             uchar_kt *rt = reverse_text(st);
                             uchar_kt *rt_start = rt;
-                            int size = vim_strsize(rt);
+                            int size = ustr_scrsize(rt);
 
                             if(size > pum_width)
                             {
@@ -515,7 +515,7 @@ void pum_redraw(void)
                             }
 
                             screen_puts_len(rt,
-                                            (int)STRLEN(rt),
+                                            (int)ustrlen(rt),
                                             row,
                                             col - size + 1,
                                             attr);
@@ -527,7 +527,7 @@ void pum_redraw(void)
                         else
                         {
                             screen_puts_len(st,
-                                            (int)STRLEN(st),
+                                            (int)ustrlen(st),
                                             row,
                                             col,
                                             attr);
@@ -745,7 +745,7 @@ static int pum_set_selected(int n, int repeat)
         if((pum_array[pum_selected].pum_info != NULL)
            && (Rows > 10)
            && (repeat <= 1)
-           && (vim_strchr(p_cot, 'p') != NULL))
+           && (ustrchr(p_cot, 'p') != NULL))
         {
             win_st *curwin_save = curwin;
             int res = OK;
@@ -807,7 +807,7 @@ static int pum_set_selected(int n, int repeat)
 
                     for(p = pum_array[pum_selected].pum_info; *p != NUL;)
                     {
-                        e = vim_strchr(p, '\n');
+                        e = ustrchr(p, '\n');
 
                         if(e == NULL)
                         {

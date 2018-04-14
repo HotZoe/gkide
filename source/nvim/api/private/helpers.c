@@ -11,7 +11,7 @@
 #include "nvim/api/private/handle.h"
 #include "nvim/msgpack/helpers.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/buffer.h"
 #include "nvim/window.h"
 #include "nvim/memory.h"
@@ -25,7 +25,7 @@
 #include "nvim/lib/kvec.h"
 #include "nvim/getchar.h"
 
-/// Helper structure for vim_to_object
+/// Helper structure for nvim_to_object
 typedef struct encode_data_s
 {
     kvec_t(Object) stack; ///< Object stack.
@@ -107,7 +107,7 @@ Object dict_get_value(dict_st *dict, String key, error_st *err)
         return (Object)OBJECT_INIT;
     }
 
-    return vim_to_object(&di->di_tv);
+    return nvim_to_object(&di->di_tv);
 }
 
 /// Set a value in a scope dict. Objects are
@@ -198,7 +198,7 @@ Object dict_set_var(dict_st *dict,
             // Return the old value
             if(retval)
             {
-                rv = vim_to_object(&di->di_tv);
+                rv = nvim_to_object(&di->di_tv);
             }
 
             // Delete the entry
@@ -228,7 +228,7 @@ Object dict_set_var(dict_st *dict,
             // Return the old value
             if(retval)
             {
-                rv = vim_to_object(&di->di_tv);
+                rv = nvim_to_object(&di->di_tv);
             }
 
             tv_clear(&di->di_tv);
@@ -625,12 +625,12 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @param obj The source object
 /// @return The converted value
-Object vim_to_object(typval_st *obj)
+Object nvim_to_object(typval_st *obj)
 {
     encode_data_st edata = { .stack = KV_INITIAL_VALUE };
 
     const int evo_ret =
-        encode_vim_to_object(&edata, obj, "vim_to_object argument");
+        encode_vim_to_object(&edata, obj, "nvim_to_object argument");
 
     (void)evo_ret;
     assert(evo_ret == OK);
@@ -1243,7 +1243,7 @@ ArrayOf(Dictionary) keymap_array(String mode, filebuf_st *buf)
                                    buffer_value,
                                    false);
 
-                ADD(mappings, vim_to_object( (typval_st[]) {
+                ADD(mappings, nvim_to_object( (typval_st[]) {
                     {
                         .v_type = kNvarDict,
                         .vval.v_dict = dict

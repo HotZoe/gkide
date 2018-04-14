@@ -64,7 +64,7 @@
 #include <inttypes.h>
 #include <stdint.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 
 #ifdef HAVE_HDR_LOCALE_H
@@ -316,7 +316,7 @@ static uchar_kt *parse_list_options(uchar_kt *option_str,
 
     while(*stringp)
     {
-        colonp = vim_strchr(stringp, ':');
+        colonp = ustrchr(stringp, ':');
 
         if(colonp == NULL)
         {
@@ -324,18 +324,18 @@ static uchar_kt *parse_list_options(uchar_kt *option_str,
             break;
         }
 
-        commap = vim_strchr(stringp, ',');
+        commap = ustrchr(stringp, ',');
 
         if(commap == NULL)
         {
-            commap = option_str + STRLEN(option_str);
+            commap = option_str + ustrlen(option_str);
         }
 
         len = (int)(colonp - stringp);
 
         for(idx = 0; idx < table_size; ++idx)
         {
-            if(STRNICMP(stringp, table[idx].name, len) == 0)
+            if(ustrnicmp(stringp, table[idx].name, len) == 0)
             {
                 break;
             }
@@ -550,7 +550,7 @@ int prt_get_unit(int idx)
     {
         for(i = 0; i < 4; ++i)
         {
-            if(STRNICMP(printer_opts[idx].string, units[i], 2) == 0)
+            if(ustrnicmp(printer_opts[idx].string, units[i], 2) == 0)
             {
                 u = i;
                 break;
@@ -759,7 +759,7 @@ void ex_hardcopy(exargs_st *eap)
     // Estimate the total lines to be printed
     for(lnum = eap->line1; lnum <= eap->line2; lnum++)
     {
-        bytes_to_print += STRLEN(skipwhite(ml_get(lnum)));
+        bytes_to_print += ustrlen(skipwhite(ml_get(lnum)));
     }
 
     if(bytes_to_print == 0)
@@ -856,7 +856,7 @@ void ex_hardcopy(exargs_st *eap)
 
                     if(settings.n_collated_copies > 1)
                     {
-                        sprintf((char *)IObuff + STRLEN(IObuff),
+                        sprintf((char *)IObuff + ustrlen(IObuff),
                                 _(" Copy %d of %d"),
                                 collated_copies + 1,
                                 settings.n_collated_copies);
@@ -884,7 +884,7 @@ void ex_hardcopy(exargs_st *eap)
                         {
                             // finished a file line
                             prtpos.bytes_printed +=
-                                STRLEN(skipwhite(ml_get(prtpos.file_line)));
+                                ustrlen(skipwhite(ml_get(prtpos.file_line)));
 
                             if(++prtpos.file_line > eap->line2)
                             {
@@ -933,9 +933,9 @@ void ex_hardcopy(exargs_st *eap)
             page_prtpos = prtpos;
         }
 
-        vim_snprintf((char *)IObuff,
-                     IOSIZE, _("Printed: %s"),
-                     settings.jobname);
+        xsnprintf((char *)IObuff,
+                  IOSIZE, _("Printed: %s"),
+                  settings.jobname);
 
         prt_message(IObuff);
     }
@@ -1564,7 +1564,7 @@ static void prt_write_file_raw_len(uchar_kt *buffer, size_t bytes)
 
 static void prt_write_file(uchar_kt *buffer)
 {
-    prt_write_file_len(buffer, STRLEN(buffer));
+    prt_write_file_len(buffer, ustrlen(buffer));
 }
 
 static void prt_write_file_len(uchar_kt *buffer, size_t bytes)
@@ -1575,7 +1575,7 @@ static void prt_write_file_len(uchar_kt *buffer, size_t bytes)
 /// Write a string.
 static void prt_write_string(char *s)
 {
-    vim_snprintf((char *)prt_line_buffer, sizeof(prt_line_buffer), "%s", s);
+    xsnprintf((char *)prt_line_buffer, sizeof(prt_line_buffer), "%s", s);
     prt_write_file(prt_line_buffer);
 }
 
@@ -1596,12 +1596,12 @@ static void prt_write_boolean(int b)
 /// Write PostScript to re-encode and define the font.
 static void prt_def_font(char *new_name, char *encoding, int height, char *font)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "/_%s /VIM-%s /%s ref\n",
-                 new_name,
-                 encoding,
-                 font);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "/_%s /VIM-%s /%s ref\n",
+              new_name,
+              encoding,
+              font);
 
     prt_write_file(prt_line_buffer);
 
@@ -1616,12 +1616,12 @@ static void prt_def_font(char *new_name, char *encoding, int height, char *font)
     }
     else
     {
-        vim_snprintf((char *)prt_line_buffer,
-                     sizeof(prt_line_buffer),
-                     "/%s %d /_%s ffs\n",
-                     new_name,
-                     height,
-                     new_name);
+        xsnprintf((char *)prt_line_buffer,
+                  sizeof(prt_line_buffer),
+                  "/%s %d /_%s ffs\n",
+                  new_name,
+                  height,
+                  new_name);
     }
 
     prt_write_file(prt_line_buffer);
@@ -1630,21 +1630,21 @@ static void prt_def_font(char *new_name, char *encoding, int height, char *font)
 /// Write a line to define the CID font.
 static void prt_def_cidfont(char *new_name, int height, char *cidfont)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "/_%s /%s[/%s] vim_composefont\n",
-                 new_name,
-                 prt_cmap,
-                 cidfont);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "/_%s /%s[/%s] vim_composefont\n",
+              new_name,
+              prt_cmap,
+              cidfont);
 
     prt_write_file(prt_line_buffer);
 
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "/%s %d /_%s ffs\n",
-                 new_name,
-                 height,
-                 new_name);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "/%s %d /_%s ffs\n",
+              new_name,
+              height,
+              new_name);
 
     prt_write_file(prt_line_buffer);
 }
@@ -1652,11 +1652,11 @@ static void prt_def_cidfont(char *new_name, int height, char *cidfont)
 /// Write a line to define a duplicate of a CID font
 static void prt_dup_cidfont(char *original_name, char *new_name)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "/%s %s d\n",
-                 new_name,
-                 original_name);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "/%s %s d\n",
+              new_name,
+              original_name);
 
     prt_write_file(prt_line_buffer);
 }
@@ -1722,10 +1722,10 @@ static void prt_write_real(double val, int prec)
 /// Write a line to define a numeric variable.
 static void prt_def_var(char *name, double value, int prec)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "/%s ",
-                 name);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "/%s ",
+              name);
 
     prt_write_file(prt_line_buffer);
     prt_write_real(value, prec);
@@ -1833,13 +1833,13 @@ static void prt_resource_name(uchar_kt *filename, void *cookie)
 {
     uchar_kt *resource_filename = cookie;
 
-    if(STRLEN(filename) >= MAXPATHL)
+    if(ustrlen(filename) >= MAXPATHL)
     {
         *resource_filename = NUL;
     }
     else
     {
-        STRCPY(resource_filename, filename);
+        ustrcpy(resource_filename, filename);
     }
 }
 
@@ -1848,13 +1848,13 @@ static int prt_find_resource(char *name, prt_ps_resource_st *resource)
     uchar_kt *buffer;
     int retval;
     buffer = xmallocz(MAXPATHL);
-    STRLCPY(resource->name, name, 64);
+    ustrlcpy(resource->name, name, 64);
 
     // Look for named resource file in runtimepath
-    STRCPY(buffer, "print");
+    ustrcpy(buffer, "print");
     add_pathsep((char *)buffer);
-    xstrlcat((char *)buffer, name, MAXPATHL);
-    xstrlcat((char *)buffer, ".ps", MAXPATHL);
+    xstrncat((char *)buffer, name, MAXPATHL);
+    xstrncat((char *)buffer, ".ps", MAXPATHL);
     resource->filename[0] = NUL;
 
     retval = (do_in_runtimepath(buffer, 0, prt_resource_name, resource->filename)
@@ -1911,7 +1911,7 @@ static int prt_resfile_strncmp(int offset, char *string, int len)
         return 1;
     }
 
-    return STRNCMP(&prt_resfile.buffer[prt_resfile.line_start + offset], string, len);
+    return ustrncmp(&prt_resfile.buffer[prt_resfile.line_start + offset], string, len);
 }
 
 static int prt_resfile_skip_nonws(int offset)
@@ -2058,7 +2058,7 @@ static int prt_open_resource(prt_ps_resource_st *resource)
 
     if(prt_resfile_strncmp(offset,
                            PRT_RESOURCE_HEADER,
-                           (int)STRLEN(PRT_RESOURCE_HEADER)) != 0)
+                           (int)ustrlen(PRT_RESOURCE_HEADER)) != 0)
     {
         EMSG2(_("E618: file \"%s\" is not a PostScript resource file"),
               resource->filename);
@@ -2067,7 +2067,7 @@ static int prt_open_resource(prt_ps_resource_st *resource)
     }
 
     // Skip over any version numbers and following ws
-    offset += (int)STRLEN(PRT_RESOURCE_HEADER);
+    offset += (int)ustrlen(PRT_RESOURCE_HEADER);
     offset = prt_resfile_skip_nonws(offset);
 
     if(offset == -1)
@@ -2084,7 +2084,7 @@ static int prt_open_resource(prt_ps_resource_st *resource)
 
     if(prt_resfile_strncmp(offset,
                            PRT_RESOURCE_RESOURCE,
-                           (int)STRLEN(PRT_RESOURCE_RESOURCE)) != 0)
+                           (int)ustrlen(PRT_RESOURCE_RESOURCE)) != 0)
     {
         EMSG2(_("E619: file \"%s\" is not a supported PostScript resource file"),
               resource->filename);
@@ -2092,21 +2092,21 @@ static int prt_open_resource(prt_ps_resource_st *resource)
         return FALSE;
     }
 
-    offset += (int)STRLEN(PRT_RESOURCE_RESOURCE);
+    offset += (int)ustrlen(PRT_RESOURCE_RESOURCE);
 
     /* Decide type of resource in the file */
     if(prt_resfile_strncmp(offset, PRT_RESOURCE_PROCSET,
-                           (int)STRLEN(PRT_RESOURCE_PROCSET)) == 0)
+                           (int)ustrlen(PRT_RESOURCE_PROCSET)) == 0)
     {
         resource->type = PRT_RESOURCE_TYPE_PROCSET;
     }
     else if(prt_resfile_strncmp(offset, PRT_RESOURCE_ENCODING,
-                                (int)STRLEN(PRT_RESOURCE_ENCODING)) == 0)
+                                (int)ustrlen(PRT_RESOURCE_ENCODING)) == 0)
     {
         resource->type = PRT_RESOURCE_TYPE_ENCODING;
     }
     else if(prt_resfile_strncmp(offset, PRT_RESOURCE_CMAP,
-                                (int)STRLEN(PRT_RESOURCE_CMAP)) == 0)
+                                (int)ustrlen(PRT_RESOURCE_CMAP)) == 0)
     {
         resource->type = PRT_RESOURCE_TYPE_CMAP;
     }
@@ -2130,7 +2130,7 @@ static int prt_open_resource(prt_ps_resource_st *resource)
         switch(dsc_line.type)
         {
             case PRT_DSC_TITLE_TYPE:
-                STRLCPY(resource->title, dsc_line.string, dsc_line.len + 1);
+                ustrlcpy(resource->title, dsc_line.string, dsc_line.len + 1);
                 seen_title = TRUE;
 
                 if(seen_version)
@@ -2141,7 +2141,7 @@ static int prt_open_resource(prt_ps_resource_st *resource)
                 break;
 
             case PRT_DSC_VERSION_TYPE:
-                STRLCPY(resource->version, dsc_line.string, dsc_line.len + 1);
+                ustrlcpy(resource->version, dsc_line.string, dsc_line.len + 1);
                 seen_version = TRUE;
 
                 if(seen_title)
@@ -2178,7 +2178,7 @@ static int prt_check_resource(prt_ps_resource_st *resource,
                               uchar_kt *version)
 {
     // Version number m.n should match, the revision number does not matter
-    if(STRNCMP(resource->version, version, STRLEN(version)))
+    if(ustrncmp(resource->version, version, ustrlen(version)))
     {
         EMSG2(_("E621: \"%s\" resource file has wrong version"), resource->name);
         return FALSE;
@@ -2195,21 +2195,21 @@ static void prt_dsc_start(void)
 
 static void prt_dsc_noarg(char *comment)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "%%%%%s\n",
-                 comment);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "%%%%%s\n",
+              comment);
 
     prt_write_file(prt_line_buffer);
 }
 
 static void prt_dsc_textline(char *comment, char *text)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "%%%%%s: %s\n",
-                 comment,
-                 text);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "%%%%%s: %s\n",
+              comment,
+              text);
 
     prt_write_file(prt_line_buffer);
 }
@@ -2217,11 +2217,11 @@ static void prt_dsc_textline(char *comment, char *text)
 static void prt_dsc_text(char *comment, char *text)
 {
     // TODO - should scan 'text' for any chars needing escaping!
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "%%%%%s: (%s)\n",
-                 comment,
-                 text);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "%%%%%s: (%s)\n",
+              comment,
+              text);
 
     prt_write_file(prt_line_buffer);
 }
@@ -2232,10 +2232,10 @@ static void prt_dsc_ints(char *comment, int count, int *ints)
 {
     int i;
 
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "%%%%%s:",
-                 comment);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "%%%%%s:",
+              comment);
 
     prt_write_file(prt_line_buffer);
 
@@ -2255,26 +2255,26 @@ static void prt_dsc_resources(char *comment, char *type, char *string)
 {
     if(comment != NULL)
     {
-        vim_snprintf((char *)prt_line_buffer,
-                     sizeof(prt_line_buffer),
-                     "%%%%%s: %s",
-                     comment,
-                     type);
+        xsnprintf((char *)prt_line_buffer,
+                  sizeof(prt_line_buffer),
+                  "%%%%%s: %s",
+                  comment,
+                  type);
     }
     else
     {
-        vim_snprintf((char *)prt_line_buffer,
-                     sizeof(prt_line_buffer),
-                     "%%%%+ %s",
-                     type);
+        xsnprintf((char *)prt_line_buffer,
+                  sizeof(prt_line_buffer),
+                  "%%%%+ %s",
+                  type);
     }
 
     prt_write_file(prt_line_buffer);
 
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 " %s\n",
-                 string);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              " %s\n",
+              string);
 
     prt_write_file(prt_line_buffer);
 }
@@ -2352,10 +2352,10 @@ static void prt_dsc_docmedia(char *paper_name,
                              char *colour,
                              char *type)
 {
-    vim_snprintf((char *)prt_line_buffer,
-                 sizeof(prt_line_buffer),
-                 "%%%%DocumentMedia: %s ",
-                 paper_name);
+    xsnprintf((char *)prt_line_buffer,
+              sizeof(prt_line_buffer),
+              "%%%%DocumentMedia: %s ",
+              paper_name);
 
     prt_write_file(prt_line_buffer);
     prt_write_real(width, 2);
@@ -2555,12 +2555,12 @@ static int prt_match_encoding(char *p_encoding,
     *pp_mbenc = NULL;
 
     // Look for recognised encoding
-    enc_len = (int)STRLEN(p_encoding);
+    enc_len = (int)ustrlen(p_encoding);
     p_mbenc = p_cmap->encodings;
 
     for(mbenc = 0; mbenc < p_cmap->num_encodings; mbenc++)
     {
-        if(STRNICMP(p_mbenc->encoding, p_encoding, enc_len) == 0)
+        if(ustrnicmp(p_mbenc->encoding, p_encoding, enc_len) == 0)
         {
             *pp_mbenc = p_mbenc;
             return TRUE;
@@ -2586,12 +2586,12 @@ static int prt_match_charset(char *p_charset,
         p_charset = p_cmap->defcs;
     }
 
-    char_len = (int)STRLEN(p_charset);
+    char_len = (int)ustrlen(p_charset);
     p_mbchar = p_cmap->charsets;
 
     for(mbchar = 0; mbchar < p_cmap->num_charsets; mbchar++)
     {
-        if(STRNICMP(p_mbchar->charset, p_charset, char_len) == 0)
+        if(ustrnicmp(p_mbchar->charset, p_charset, char_len) == 0)
         {
             *pp_mbchar = p_mbchar;
             return TRUE;
@@ -2690,8 +2690,8 @@ int mch_print_init(prt_geninfo_st *psettings,
             // Add charset name if not empty
             if(p_mbchar->cmap_charset != NULL)
             {
-                STRLCPY(prt_cmap, p_mbchar->cmap_charset, sizeof(prt_cmap) - 2);
-                STRCAT(prt_cmap, "-");
+                ustrlcpy(prt_cmap, p_mbchar->cmap_charset, sizeof(prt_cmap) - 2);
+                ustrcat(prt_cmap, "-");
             }
         }
         else
@@ -2703,19 +2703,19 @@ int mch_print_init(prt_geninfo_st *psettings,
                 return FALSE;
             }
 
-            STRLCPY(prt_cmap, p_pmcs, sizeof(prt_cmap) - 2);
-            STRCAT(prt_cmap, "-");
+            ustrlcpy(prt_cmap, p_pmcs, sizeof(prt_cmap) - 2);
+            ustrcat(prt_cmap, "-");
         }
 
         // CMap name ends with (optional) encoding name and -H for horizontal
         if(p_mbenc->cmap_encoding != NULL
-           && STRLEN(prt_cmap) + STRLEN(p_mbenc->cmap_encoding) + 3 < sizeof(prt_cmap))
+           && ustrlen(prt_cmap) + ustrlen(p_mbenc->cmap_encoding) + 3 < sizeof(prt_cmap))
         {
-            STRCAT(prt_cmap, p_mbenc->cmap_encoding);
-            STRCAT(prt_cmap, "-");
+            ustrcat(prt_cmap, p_mbenc->cmap_encoding);
+            ustrcat(prt_cmap, "-");
         }
 
-        STRCAT(prt_cmap, "H");
+        ustrcat(prt_cmap, "H");
 
         if(!mbfont_opts[OPT_MBFONT_REGULAR].present)
         {
@@ -2793,8 +2793,8 @@ int mch_print_init(prt_geninfo_st *psettings,
 
     for(i = 0; i < (int)PRT_MEDIASIZE_LEN; ++i)
     {
-        if(STRLEN(prt_mediasize[i].name) == (unsigned)paper_strlen
-           && STRNICMP(prt_mediasize[i].name, paper_name, paper_strlen) == 0)
+        if(ustrlen(prt_mediasize[i].name) == (unsigned)paper_strlen
+           && ustrnicmp(prt_mediasize[i].name, paper_name, paper_strlen) == 0)
         {
             break;
         }
@@ -2842,7 +2842,7 @@ int mch_print_init(prt_geninfo_st *psettings,
     // Set up the font size.
     fontsize = PRT_PS_DEFAULT_FONTSIZE;
 
-    for(p = p_pfn; (p = vim_strchr(p, ':')) != NULL; ++p)
+    for(p = p_pfn; (p = ustrchr(p, ':')) != NULL; ++p)
     {
         if(p[1] == 'h' && ascii_isdigit(p[2]))
         {
@@ -2895,12 +2895,12 @@ int mch_print_init(prt_geninfo_st *psettings,
 
     if(printer_opts[kPrtOptDuplex].present)
     {
-        if(STRNICMP(printer_opts[kPrtOptDuplex].string, "off", 3) == 0)
+        if(ustrnicmp(printer_opts[kPrtOptDuplex].string, "off", 3) == 0)
         {
             prt_duplex = FALSE;
             psettings->duplex = 0;
         }
-        else if(STRNICMP(printer_opts[kPrtOptDuplex].string, "short", 5)
+        else if(ustrnicmp(printer_opts[kPrtOptDuplex].string, "short", 5)
                 == 0)
         {
             prt_tumble = TRUE;
@@ -3041,7 +3041,7 @@ int mch_print_begin(prt_geninfo_st *psettings)
 
     if(os_get_user_name(buffer, 256) == FAIL)
     {
-        STRCPY(buffer, "Unknown");
+        ustrcpy(buffer, "Unknown");
     }
 
     prt_dsc_textline("For", buffer);
@@ -3052,7 +3052,7 @@ int mch_print_begin(prt_geninfo_st *psettings)
     p_time = ctime(&now);
 
     // Note: ctime() adds a \n so we have to remove it :-(
-    p = vim_strchr((uchar_kt *)p_time, '\n');
+    p = ustrchr((uchar_kt *)p_time, '\n');
 
     if(p != NULL)
     {
@@ -3272,25 +3272,25 @@ int mch_print_begin(prt_geninfo_st *psettings)
     }
 
     // List resources supplied
-    STRCPY(buffer, res_prolog.title);
-    STRCAT(buffer, " ");
-    STRCAT(buffer, res_prolog.version);
+    ustrcpy(buffer, res_prolog.title);
+    ustrcat(buffer, " ");
+    ustrcat(buffer, res_prolog.version);
 
     prt_dsc_resources("DocumentSuppliedResources", "procset", buffer);
 
     if(prt_out_mbyte)
     {
-        STRCPY(buffer, res_cidfont.title);
-        STRCAT(buffer, " ");
-        STRCAT(buffer, res_cidfont.version);
+        ustrcpy(buffer, res_cidfont.title);
+        ustrcat(buffer, " ");
+        ustrcat(buffer, res_cidfont.version);
 
         prt_dsc_resources(NULL, "procset", buffer);
 
         if(prt_custom_cmap)
         {
-            STRCPY(buffer, res_cmap.title);
-            STRCAT(buffer, " ");
-            STRCAT(buffer, res_cmap.version);
+            ustrcpy(buffer, res_cmap.title);
+            ustrcat(buffer, " ");
+            ustrcat(buffer, res_cmap.version);
 
             prt_dsc_resources(NULL, "cmap", buffer);
         }
@@ -3298,9 +3298,9 @@ int mch_print_begin(prt_geninfo_st *psettings)
 
     if(!prt_out_mbyte || prt_use_courier)
     {
-        STRCPY(buffer, res_encoding.title);
-        STRCAT(buffer, " ");
-        STRCAT(buffer, res_encoding.version);
+        ustrcpy(buffer, res_encoding.title);
+        ustrcat(buffer, " ");
+        ustrcat(buffer, res_encoding.version);
 
         prt_dsc_resources(NULL, "encoding", buffer);
     }

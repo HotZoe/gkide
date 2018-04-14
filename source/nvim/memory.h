@@ -8,30 +8,30 @@
 #include <stddef.h> // for size_t
 #include <time.h> // for time_t
 
-/// malloc() function signature
-typedef void *(*MemMalloc)(size_t);
-
-/// free() function signature
-typedef void (*MemFree)(void *);
-
-/// calloc() function signature
-typedef void *(*MemCalloc)(size_t, size_t);
-
-/// realloc() function signature
-typedef void *(*MemRealloc)(void *, size_t);
-
 #ifdef UNIT_TESTING
+    /// malloc() function signature
+    typedef void *(*mem_malloc_ft)(size_t);
+
+    /// free() function signature
+    typedef void (*mem_free_ft)(void *);
+
+    /// calloc() function signature
+    typedef void *(*mem_calloc_ft)(size_t, size_t);
+
+    /// realloc() function signature
+    typedef void *(*mem_realloc_ft)(void *, size_t);
+
     /// When unit testing: pointer to the malloc() function, may be altered
-    extern MemMalloc mem_malloc;
+    extern mem_malloc_ft mem_malloc;
 
     /// When unit testing: pointer to the free() function, may be altered
-    extern MemFree mem_free;
+    extern mem_free_ft mem_free;
 
     /// When unit testing: pointer to the calloc() function, may be altered
-    extern MemCalloc mem_calloc;
+    extern mem_calloc_ft mem_calloc;
 
     /// When unit testing: pointer to the realloc() function, may be altered
-    extern MemRealloc mem_realloc;
+    extern mem_realloc_ft mem_realloc;
 #endif
 
 #ifdef EXITFREE

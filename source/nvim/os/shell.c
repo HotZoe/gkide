@@ -17,7 +17,7 @@
 #include "nvim/os/signal.h"
 #include "nvim/types.h"
 #include "nvim/main.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/message.h"
 #include "nvim/memory.h"
 #include "nvim/ui.h"
@@ -244,7 +244,7 @@ static int do_os_system(char **argv,
 
     // Copy the program name in case we need to report an error.
     char prog[MAXPATHL];
-    xstrlcpy(prog, argv[0], MAXPATHL);
+    xstrncpy(prog, argv[0], MAXPATHL);
 
     libuv_process_st uvproc = libuv_process_init(&main_loop, &buf);
     process_st *proc = &uvproc.process;
@@ -649,7 +649,7 @@ FUNC_ATTR_NONNULL_ARG(1)
 
         if(argv != NULL)
         {
-            argv[argc] = vim_strnsave_unquoted(p, len); // Fill the slot
+            argv[argc] = xstrdup_unquoted(p, len); // Fill the slot
         }
 
         argc++;
@@ -719,7 +719,7 @@ static void read_input(dynamic_buf_st *buf)
         }
         else
         {
-            uchar_kt  *s = vim_strchr(lp + written, NL);
+            uchar_kt  *s = ustrchr(lp + written, NL);
             len = s == NULL ? l : (size_t)(s - (lp + written));
             dynamic_buffer_ensure(buf, buf->len + len);
             memcpy(buf->data + buf->len, lp + written, len);
@@ -878,28 +878,28 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     const char *ecmd = cmd;
 
-    if(*p_sxe != NUL && STRCMP(p_sxq, "(") == 0)
+    if(*p_sxe != NUL && ustrcmp(p_sxq, "(") == 0)
     {
         ecmd =
-            (char *)vim_strsave_escaped_ext((uchar_kt *)cmd, p_sxe, '^', false);
+            (char *)ustrdup_escape_ext((uchar_kt *)cmd, p_sxe, '^', false);
     }
 
-    size_t ncmd_size = strlen(ecmd) + STRLEN(p_sxq) * 2 + 1;
+    size_t ncmd_size = strlen(ecmd) + ustrlen(p_sxq) * 2 + 1;
     char *ncmd = xmalloc(ncmd_size);
 
     // When 'shellxquote' is ( append ).
     // When 'shellxquote' is "( append )".
-    if(STRCMP(p_sxq, "(") == 0)
+    if(ustrcmp(p_sxq, "(") == 0)
     {
-        vim_snprintf(ncmd, ncmd_size, "(%s)", ecmd);
+        xsnprintf(ncmd, ncmd_size, "(%s)", ecmd);
     }
-    else if(STRCMP(p_sxq, "\"(") == 0)
+    else if(ustrcmp(p_sxq, "\"(") == 0)
     {
-        vim_snprintf(ncmd, ncmd_size, "\"(%s)\"", ecmd);
+        xsnprintf(ncmd, ncmd_size, "\"(%s)\"", ecmd);
     }
     else
     {
-        vim_snprintf(ncmd, ncmd_size, "%s%s%s", p_sxq, ecmd, p_sxq);
+        xsnprintf(ncmd, ncmd_size, "%s%s%s", p_sxq, ecmd, p_sxq);
     }
 
     if(ecmd != cmd)

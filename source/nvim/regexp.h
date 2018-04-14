@@ -7,7 +7,7 @@
 #include "nvim/buffer_defs.h"
 #include "nvim/regexp_defs.h"
 
-// Second argument for vim_regcomp().
+// Second argument for regexp_compile().
 #define RE_MAGIC      1  ///< 'magic' option
 #define RE_STRING     2  ///< match in string instead of buffer text
 #define RE_STRICT     4  ///< don't allow [abc] without ]

@@ -3,7 +3,7 @@
 #ifndef NVIM_BUFFER_H
 #define NVIM_BUFFER_H
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/window.h"
 #include "nvim/pos.h" // for linenum_kt
 #include "nvim/ex_cmds_defs.h" // for exargs_st

@@ -68,7 +68,7 @@ int os_get_uname(uv_uid_t uid, char *s, size_t len)
        && pw->pw_name != NULL
        && *(pw->pw_name) != NUL)
     {
-        STRLCPY(s, pw->pw_name, len);
+        ustrlcpy(s, pw->pw_name, len);
         return OK;
     }
 #endif

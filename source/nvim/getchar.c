@@ -9,7 +9,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/getchar.h"
 #include "nvim/buffer_defs.h"
@@ -172,7 +172,7 @@ static uchar_kt *get_buffcont(buffheader_st *buffer, int dozero)
     // compute the total length of the string
     for(buffblock_st *bp = buffer->bh_first.b_next; bp != NULL; bp = bp->b_next)
     {
-        count += STRLEN(bp->b_str);
+        count += ustrlen(bp->b_str);
     }
 
     if(count || dozero)
@@ -206,7 +206,7 @@ uchar_kt *get_recorded(void)
 
     // Remove the characters that were added the last time, these must be the
     // (possibly mapped) characters that stopped the recording.
-    len = STRLEN(p);
+    len = ustrlen(p);
 
     if(len >= last_recorded_len)
     {
@@ -266,7 +266,7 @@ static void add_buff(buffheader_st *const buf,
     {
         memmove(buf->bh_first.b_next->b_str,
                 buf->bh_first.b_next->b_str + buf->bh_index,
-                STRLEN(buf->bh_first.b_next->b_str + buf->bh_index) + 1);
+                ustrlen(buf->bh_first.b_next->b_str + buf->bh_index) + 1);
     }
 
     buf->bh_index = 0;
@@ -274,8 +274,8 @@ static void add_buff(buffheader_st *const buf,
 
     if(buf->bh_space >= (size_t)slen)
     {
-        len = STRLEN(buf->bh_curr->b_str);
-        STRLCPY(buf->bh_curr->b_str + len, s, slen + 1);
+        len = ustrlen(buf->bh_curr->b_str);
+        ustrlcpy(buf->bh_curr->b_str + len, s, slen + 1);
         buf->bh_space -= (size_t)slen;
     }
     else
@@ -291,7 +291,7 @@ static void add_buff(buffheader_st *const buf,
 
         buffblock_st *p = xmalloc(sizeof(buffblock_st) + len);
         buf->bh_space = len - (size_t)slen;
-        STRLCPY(p->b_str, s, slen + 1);
+        ustrlcpy(p->b_str, s, slen + 1);
         p->b_next = buf->bh_curr->b_next;
         buf->bh_curr->b_next = p;
         buf->bh_curr = p;
@@ -870,7 +870,7 @@ int start_redo_ins(void)
     // skip the count and the command character
     while((c = read_redo(FALSE, FALSE)) != NUL)
     {
-        if(vim_strchr((uchar_kt *)"AaIiRrOo", c) != NULL)
+        if(ustrchr((uchar_kt *)"AaIiRrOo", c) != NULL)
         {
             if(c == 'O' || c == 'o')
             {
@@ -940,7 +940,7 @@ int ins_typebuf(uchar_kt *str, int noremap, int offset, int nottyped, bool silen
         typebuf.tb_change_cnt = 1;
     }
 
-    addlen = (int)STRLEN(str);
+    addlen = (int)ustrlen(str);
 
     // Easy case: there is room in front of typebuf.tb_buf[typebuf.tb_off]
     if(offset == 0 && addlen <= typebuf.tb_off)
@@ -1957,7 +1957,7 @@ static int vgetorpeek(int advance)
                     // Otherwise we behave like having gotten a CTRL-C.
                     // As a result typing CTRL-C in insert mode will
                     // really insert a CTRL-C.
-                    if((c || typebuf.tb_maplen) 
+                    if((c || typebuf.tb_maplen)
                        && (curmod & (kInsertMode + kCmdLineMode)))
                     {
                         c = ESC;
@@ -2003,8 +2003,8 @@ static int vgetorpeek(int advance)
                        && (no_zero_mapping == 0 || c1 != '0')
                        && (typebuf.tb_maplen == 0
                            || (p_remap
-                               && (typebuf.tb_noremap[typebuf.tb_off] 
-							       & (RM_NONE|RM_ABBR)) == 0))
+                               && (typebuf.tb_noremap[typebuf.tb_off]
+                                   & (RM_NONE|RM_ABBR)) == 0))
                        && !(p_paste && (curmod & (kInsertMode + kCmdLineMode)))
                        && !(curmod == kNormalWaitMode && (c1 == CAR || c1 == ' '))
                        && curmod != kAskMoreMode
@@ -2056,8 +2056,8 @@ static int vgetorpeek(int advance)
                             // Skip ":lmap" mappings if keys were mapped.
                             if(mp->m_keys[0] == c1
                                && (mp->m_mode & local_State)
-                               && ((mp->m_mode & kModFlgLangMap) == 0 
-							       || typebuf.tb_maplen == 0))
+                               && ((mp->m_mode & kModFlgLangMap) == 0
+                                   || typebuf.tb_maplen == 0))
                             {
                                 int nomap = nolmaplen;
                                 int c2;
@@ -2347,8 +2347,8 @@ static int vgetorpeek(int advance)
                         {
                             int save_vgetc_busy = vgetc_busy;
                             vgetc_busy = 0;
-                            save_m_keys = vim_strsave(mp->m_keys);
-                            save_m_str = vim_strsave(mp->m_str);
+                            save_m_keys = ustrdup(mp->m_keys);
+                            save_m_str = ustrdup(mp->m_str);
                             s = eval_map_expr(save_m_str, NUL);
                             vgetc_busy = save_vgetc_busy;
                         }
@@ -2374,7 +2374,7 @@ static int vgetorpeek(int advance)
                             {
                                 noremap = save_m_noremap;
                             }
-                            else if(STRNCMP(s,
+                            else if(ustrncmp(s,
                                             save_m_keys != NULL ? save_m_keys : mp->m_keys,
                                             (size_t)keylen) != 0)
                             {
@@ -2569,8 +2569,8 @@ static int vgetorpeek(int advance)
                     {
                         c = Ctrl_L;
                     }
-                    else if((curmod & kCmdLineMode) 
-					        || (cmdwin_type > 0 && tc == ESC))
+                    else if((curmod & kCmdLineMode)
+                            || (cmdwin_type > 0 && tc == ESC))
                     {
                         c = Ctrl_C;
                     }
@@ -2731,10 +2731,10 @@ static int vgetorpeek(int advance)
     // The "kInsertMode" message is taken care of here:
     // - if we return an ESC to exit insert mode, the message is deleted
     // - if we don't return an ESC but deleted the message before, redisplay it
-    if(advance 
-	   && p_smd 
-	   && msg_silent == 0 
-	   && (curmod & kInsertMode))
+    if(advance
+       && p_smd
+       && msg_silent == 0
+       && (curmod & kInsertMode))
     {
         if(c == ESC && !mode_deleted && !no_mapping && mode_displayed)
         {
@@ -2948,7 +2948,7 @@ int fix_input_buffer(uchar_kt *buf, int len)
 /// @note arg
 /// cannot be a read-only string, it will be modified.
 ///
-/// @param mode    
+/// @param mode
 /// - for :map   mode is kNormalMode + kVisualMode + kMapSelectMode + kOpPendMode
 /// - for :map!  mode is kInsertMode + kCmdLineMode
 /// - for :cmap  mode is kCmdLineMode
@@ -3020,7 +3020,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     for(;;)
     {
         // Check for "<buffer>": mapping local to buffer.
-        if(STRNCMP(keys, "<buffer>", 8) == 0)
+        if(ustrncmp(keys, "<buffer>", 8) == 0)
         {
             keys = skipwhite(keys + 8);
             map_table = curbuf->b_maphash;
@@ -3029,7 +3029,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<nowait>": don't wait for more characters.
-        if(STRNCMP(keys, "<nowait>", 8) == 0)
+        if(ustrncmp(keys, "<nowait>", 8) == 0)
         {
             keys = skipwhite(keys + 8);
             nowait = true;
@@ -3037,7 +3037,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<silent>": don't echo commands.
-        if(STRNCMP(keys, "<silent>", 8) == 0)
+        if(ustrncmp(keys, "<silent>", 8) == 0)
         {
             keys = skipwhite(keys + 8);
             silent = true;
@@ -3045,7 +3045,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<special>": accept special keys in <>
-        if(STRNCMP(keys, "<special>", 9) == 0)
+        if(ustrncmp(keys, "<special>", 9) == 0)
         {
             keys = skipwhite(keys + 9);
             special = true;
@@ -3053,7 +3053,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<script>": remap script-local mappings only
-        if(STRNCMP(keys, "<script>", 8) == 0)
+        if(ustrncmp(keys, "<script>", 8) == 0)
         {
             keys = skipwhite(keys + 8);
             noremap = REMAP_SCRIPT;
@@ -3061,7 +3061,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<expr>": {rhs} is an expression.
-        if(STRNCMP(keys, "<expr>", 6) == 0)
+        if(ustrncmp(keys, "<expr>", 6) == 0)
         {
             keys = skipwhite(keys + 6);
             expr = true;
@@ -3069,7 +3069,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
 
         // Check for "<unique>": don't overwrite an existing mapping.
-        if(STRNCMP(keys, "<unique>", 8) == 0)
+        if(ustrncmp(keys, "<unique>", 8) == 0)
         {
             keys = skipwhite(keys + 8);
             unique = true;
@@ -3085,7 +3085,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     // Accept backslash like CTRL-V when 'cpoptions' does not contain 'B'.
     // with :unmap white space is included in the keys, no argument possible.
     p = keys;
-    do_backslash = (vim_strchr(p_cpo, CPO_BSLASH) == NULL);
+    do_backslash = (ustrchr(p_cpo, CPO_BSLASH) == NULL);
 
     while(*p && (maptype == 1 || !ascii_iswhite(*p)))
     {
@@ -3123,7 +3123,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     if(haskey)
     {
         keys = replace_termcodes(keys,
-                                 STRLEN(keys),
+                                 ustrlen(keys),
                                  &keys_buf,
                                  true,
                                  true,
@@ -3135,14 +3135,14 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
 
     if(hasarg)
     {
-        if(STRICMP(rhs, "<nop>") == 0) // "<Nop>" means nothing
+        if(ustricmp(rhs, "<nop>") == 0) // "<Nop>" means nothing
         {
             rhs = (uchar_kt *)"";
         }
         else
         {
             rhs = replace_termcodes(rhs,
-                                    STRLEN(rhs),
+                                    ustrlen(rhs),
                                     &arg_buf,
                                     false,
                                     true,
@@ -3161,7 +3161,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
     // check arguments and translate function keys
     if(haskey)
     {
-        len = (int)STRLEN(keys);
+        len = (int)ustrlen(keys);
 
         if(len > MAXMAPLEN) // maximum length of MAXMAPLEN chars
         {
@@ -3179,7 +3179,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
             {
                 int first, last;
                 int same = -1;
-                first = vim_iswordp(keys);
+                first = is_kwc_ptr(keys);
                 last = first;
                 p = keys + (*mb_ptr2len)(keys);
                 n = 1;
@@ -3187,7 +3187,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                 while(p < keys + len)
                 {
                     ++n; // nr of (multi-byte) chars
-                    last = vim_iswordp(p); // type of last char
+                    last = is_kwc_ptr(p); // type of last char
 
                     if(same == -1 && last != first)
                     {
@@ -3203,11 +3203,11 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                     goto theend;
                 }
             }
-            else if(vim_iswordc(keys[len - 1])) // ends in keyword char
+            else if(is_kwc(keys[len - 1])) // ends in keyword char
             {
                 for(n = 0; n < len - 2; ++n)
                 {
-                    if(vim_iswordc(keys[n]) != vim_iswordc(keys[len - 2]))
+                    if(is_kwc(keys[n]) != is_kwc(keys[len - 2]))
                     {
                         retval = 1;
                         goto theend;
@@ -3264,7 +3264,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                 if((mp->m_mode & mode) != 0
                    && mp->m_keylen == len
                    && unique
-                   && STRNCMP(mp->m_keys, keys, (size_t)len) == 0)
+                   && ustrncmp(mp->m_keys, keys, (size_t)len) == 0)
                 {
                     if(abbrev)
                     {
@@ -3316,7 +3316,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                     {
                         n = mp->m_keylen;
 
-                        if(STRNCMP(mp->m_keys, keys, (size_t)(n < len ? n : len)) == 0)
+                        if(ustrncmp(mp->m_keys, keys, (size_t)(n < len ? n : len)) == 0)
                         {
                             showmap(mp, TRUE);
                             did_local = TRUE;
@@ -3371,7 +3371,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                 {
                     if(round) // second round: Try unmap "rhs" string
                     {
-                        n = (int)STRLEN(mp->m_str);
+                        n = (int)ustrlen(mp->m_str);
                         p = mp->m_str;
                     }
                     else
@@ -3380,7 +3380,7 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                         p = mp->m_keys;
                     }
 
-                    if(STRNCMP(p, keys, (size_t)(n < len ? n : len)) == 0)
+                    if(ustrncmp(p, keys, (size_t)(n < len ? n : len)) == 0)
                     {
                         if(maptype == 1) // delete entry
                         {
@@ -3434,9 +3434,9 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
                             if(mp->m_mode == 0 && !did_it) // reuse entry
                             {
                                 xfree(mp->m_str);
-                                mp->m_str = vim_strsave(rhs);
+                                mp->m_str = ustrdup(rhs);
                                 xfree(mp->m_orig_str);
-                                mp->m_orig_str = vim_strsave(orig_rhs);
+                                mp->m_orig_str = ustrdup(orig_rhs);
                                 mp->m_noremap = noremap;
                                 mp->m_nowait = nowait;
                                 mp->m_silent = silent;
@@ -3531,10 +3531,10 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
         }
     }
 
-    mp->m_keys = vim_strsave(keys);
-    mp->m_str = vim_strsave(rhs);
-    mp->m_orig_str = vim_strsave(orig_rhs);
-    mp->m_keylen = (int)STRLEN(mp->m_keys);
+    mp->m_keys = ustrdup(keys);
+    mp->m_str = ustrdup(rhs);
+    mp->m_orig_str = ustrdup(orig_rhs);
+    mp->m_keylen = (int)ustrlen(mp->m_keys);
     mp->m_noremap = noremap;
     mp->m_nowait = nowait;
     mp->m_silent = silent;
@@ -3641,10 +3641,10 @@ int get_map_mode(uchar_kt **cmdp, int forceit)
         }
         else
         {
-            mode = kVisualMode 
-			       + kMapSelectMode 
-				   + kNormalMode 
-				   + kOpPendMode; // :map
+            mode = kVisualMode
+                   + kMapSelectMode
+                   + kNormalMode
+                   + kOpPendMode; // :map
         }
     }
 
@@ -3658,7 +3658,7 @@ void map_clear_mode(uchar_kt *cmdp, uchar_kt *arg, int forceit, int abbr)
 {
     int mode;
     int local;
-    local = (STRCMP(arg, "<buffer>") == 0);
+    local = (ustrcmp(arg, "<buffer>") == 0);
 
     if(!local && *arg != NUL)
     {
@@ -3895,7 +3895,7 @@ static void showmap(map_abbr_st *mp, int local)
     {
         // Remove escaping of CSI, because "m_str" is
         // in a format to be used as typeahead.
-        uchar_kt *s = vim_strsave(mp->m_str);
+        uchar_kt *s = ustrdup(mp->m_str);
         vim_unescape_csi(s);
         msg_outtrans_special(s, FALSE);
         xfree(s);
@@ -4073,10 +4073,10 @@ uchar_kt *set_context_in_map_cmd(expand_st *xp,
 
             if(!isabbrev)
             {
-                expand_mapmodes += kVisualMode 
-				                   + kMapSelectMode 
-								   + kNormalMode 
-								   + kOpPendMode;
+                expand_mapmodes += kVisualMode
+                                   + kMapSelectMode
+                                   + kNormalMode
+                                   + kOpPendMode;
             }
         }
 
@@ -4086,38 +4086,38 @@ uchar_kt *set_context_in_map_cmd(expand_st *xp,
 
         for(;;)
         {
-            if(STRNCMP(arg, "<buffer>", 8) == 0)
+            if(ustrncmp(arg, "<buffer>", 8) == 0)
             {
                 expand_buffer = TRUE;
                 arg = skipwhite(arg + 8);
                 continue;
             }
 
-            if(STRNCMP(arg, "<unique>", 8) == 0)
+            if(ustrncmp(arg, "<unique>", 8) == 0)
             {
                 arg = skipwhite(arg + 8);
                 continue;
             }
 
-            if(STRNCMP(arg, "<nowait>", 8) == 0)
+            if(ustrncmp(arg, "<nowait>", 8) == 0)
             {
                 arg = skipwhite(arg + 8);
                 continue;
             }
 
-            if(STRNCMP(arg, "<silent>", 8) == 0)
+            if(ustrncmp(arg, "<silent>", 8) == 0)
             {
                 arg = skipwhite(arg + 8);
                 continue;
             }
 
-            if(STRNCMP(arg, "<script>", 8) == 0)
+            if(ustrncmp(arg, "<script>", 8) == 0)
             {
                 arg = skipwhite(arg + 8);
                 continue;
             }
 
-            if(STRNCMP(arg, "<expr>", 6) == 0)
+            if(ustrncmp(arg, "<expr>", 6) == 0)
             {
                 arg = skipwhite(arg + 6);
                 continue;
@@ -4192,7 +4192,7 @@ int ExpandMappings(regmatch_st *regmatch, int *num_file, uchar_kt ***file)
                 }
                 else
                 {
-                    (*file)[count++] = vim_strsave(p);
+                    (*file)[count++] = ustrdup(p);
                 }
             }
         }
@@ -4259,7 +4259,7 @@ int ExpandMappings(regmatch_st *regmatch, int *num_file, uchar_kt ***file)
         uchar_kt  **ptr3;
 
         // Sort the matches
-        sort_strings(*file, count);
+        ustr_quick_sort(*file, count);
 
         // Remove multiple entries
         ptr1 = *file;
@@ -4268,7 +4268,7 @@ int ExpandMappings(regmatch_st *regmatch, int *num_file, uchar_kt ***file)
 
         while(ptr2 < ptr3)
         {
-            if(STRCMP(*ptr1, *ptr2))
+            if(ustrcmp(*ptr1, *ptr2))
             {
                 *++ptr1 = *ptr2++;
             }
@@ -4336,7 +4336,7 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
         uchar_kt *p;
         p = mb_prevptr(ptr, ptr + col);
 
-        if(!vim_iswordp(p))
+        if(!is_kwc_ptr(p))
         {
             vim_abbr = TRUE; // Vim added abbr.
         }
@@ -4346,7 +4346,7 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
 
             if(p > ptr)
             {
-                is_id = vim_iswordp(mb_prevptr(ptr, p));
+                is_id = is_kwc_ptr(mb_prevptr(ptr, p));
             }
         }
 
@@ -4356,7 +4356,8 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
         {
             p = mb_prevptr(ptr, p);
 
-            if(ascii_isspace(*p) || (!vim_abbr && is_id != vim_iswordp(p)))
+            if(ascii_isspace(*p)
+               || (!vim_abbr && is_id != is_kwc_ptr(p)))
             {
                 p += (*mb_ptr2len)(p);
                 break;
@@ -4369,7 +4370,7 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
     }
     else
     {
-        if(!vim_iswordc(ptr[col - 1]))
+        if(!is_kwc(ptr[col - 1]))
         {
             vim_abbr = TRUE; // Vim added abbr.
         }
@@ -4379,13 +4380,13 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
 
             if(col > 1)
             {
-                is_id = vim_iswordc(ptr[col - 2]);
+                is_id = is_kwc(ptr[col - 2]);
             }
         }
 
         for(scol = col - 1;
             scol > 0 && !ascii_isspace(ptr[scol - 1])
-            && (vim_abbr || is_id == vim_iswordc(ptr[scol - 1]));
+            && (vim_abbr || is_id == is_kwc(ptr[scol - 1]));
             --scol)
         { /* empty body */ }
     }
@@ -4419,15 +4420,15 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
             if(strchr((const char *)mp->m_keys, K_SPECIAL) != NULL)
             {
                 // Might have CSI escaped mp->m_keys.
-                q = vim_strsave(mp->m_keys);
+                q = ustrdup(mp->m_keys);
                 vim_unescape_csi(q);
-                qlen = (int)STRLEN(q);
+                qlen = (int)ustrlen(q);
             }
 
             // find entries with right mode and keys
             match = (mp->m_mode & curmod)
                     && qlen == len
-                    && !STRNCMP(q, ptr, (size_t)len);
+                    && !ustrncmp(q, ptr, (size_t)len);
 
             if(q != mp->m_keys)
             {
@@ -4508,7 +4509,7 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
                 (void)ins_typebuf(s, mp->m_noremap, 0, TRUE, mp->m_silent);
 
                 // no abbrev. for these chars
-                typebuf.tb_no_abbr_cnt += (int)STRLEN(s) + j + 1;
+                typebuf.tb_no_abbr_cnt += (int)ustrlen(s) + j + 1;
 
                 if(mp->m_expr)
                 {
@@ -4553,7 +4554,7 @@ static uchar_kt *eval_map_expr(uchar_kt *str, int c)
 
     // Remove escaping of CSI, because "str" is
     // in a format to be used as typeahead.
-    expr = vim_strsave(str);
+    expr = ustrdup(str);
     vim_unescape_csi(expr);
     save_cmd = save_cmdline_alloc();
 
@@ -4593,7 +4594,7 @@ uchar_kt *vim_strsave_escape_csi(uchar_kt *p)
     // Need a buffer to hold up to three times as much.
     // Four in case of an illegal utf-8 byte:
     // 0xc0 -> 0xc3 - 0x80 -> 0xc3 K_SPECIAL KS_SPECIAL KE_FILLER
-    uchar_kt *res = xmalloc(STRLEN(p) * 4 + 1);
+    uchar_kt *res = xmalloc(ustrlen(p) * 4 + 1);
     uchar_kt *d = res;
 
     for(uchar_kt *s = p; *s != NUL;)
@@ -5111,7 +5112,7 @@ uchar_kt *check_map(uchar_kt *keys,
     map_abbr_st *mp;
     int local;
     validate_maphash();
-    len = (int)STRLEN(keys);
+    len = (int)ustrlen(keys);
 
     for(local = 1; local >= 0; --local)
     {
@@ -5163,7 +5164,7 @@ uchar_kt *check_map(uchar_kt *keys,
 
                     minlen = keylen < len ? keylen : len;
 
-                    if(STRNCMP(s, keys, minlen) == 0)
+                    if(ustrncmp(s, keys, minlen) == 0)
                     {
                         if(mp_ptr != NULL)
                         {
@@ -5193,7 +5194,7 @@ void add_map(uchar_kt *map, int mode)
     uchar_kt *s;
     uchar_kt *cpo_save = p_cpo;
     p_cpo = (uchar_kt *)""; // Allow <> notation
-    s = vim_strsave(map);
+    s = ustrdup(map);
     (void)do_map(0, s, mode, FALSE);
     xfree(s);
     p_cpo = cpo_save;

@@ -284,7 +284,7 @@ EXTERN int ex_exitval INIT(= 0);
 /// there is an error message
 EXTERN int emsg_on_display INIT(= FALSE);
 
-/// vim_regcomp() called emsg()
+/// regexp_compile() called emsg()
 EXTERN int rc_did_emsg INIT(= FALSE);
 
 /// don't wait for return for now
@@ -1133,11 +1133,6 @@ EXTERN linenum_kt spell_redraw_lnum INIT(= 0);
 
 /// Set when the cursor line needs to be redrawn.
 EXTERN int need_cursor_line_redraw INIT(= FALSE);
-
-#ifdef USE_MCH_ERRMSG
-    /// Grow array to collect error messages in until they can be displayed.
-    EXTERN garray_st error_ga INIT(= GA_EMPTY_INIT_VALUE);
-#endif
 
 // The error messages that can be shared are included here.
 // Excluded are errors that are only used once and debugging messages.

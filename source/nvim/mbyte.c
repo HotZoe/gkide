@@ -31,7 +31,7 @@
 #include <wchar.h>
 #include <wctype.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 
 #ifdef HAVE_HDR_LOCALE_H
@@ -312,7 +312,7 @@ static int enc_canon_search(const uchar_kt *name)
 
     for(i = 0; i < IDX_COUNT; ++i)
     {
-        if(STRCMP(name, enc_canon_table[i].name) == 0)
+        if(ustrcmp(name, enc_canon_table[i].name) == 0)
         {
             return i;
         }
@@ -335,12 +335,12 @@ int enc_canon_props(const uchar_kt *name)
         return enc_canon_table[i].prop;
     }
 
-    if(STRNCMP(name, "2byte-", 6) == 0)
+    if(ustrncmp(name, "2byte-", 6) == 0)
     {
         return ENC_DBCS;
     }
 
-    if(STRNCMP(name, "8bit-", 5) == 0 || STRNCMP(name, "iso-8859-", 9) == 0)
+    if(ustrncmp(name, "8bit-", 5) == 0 || ustrncmp(name, "iso-8859-", 9) == 0)
     {
         return ENC_8BIT;
     }
@@ -360,16 +360,16 @@ int bomb_size(void)
     if(curbuf->b_p_bomb && !curbuf->b_p_bin)
     {
         if(*curbuf->b_p_fenc == NUL
-           || STRCMP(curbuf->b_p_fenc, "utf-8") == 0)
+           || ustrcmp(curbuf->b_p_fenc, "utf-8") == 0)
         {
             n = 3;
         }
-        else if(STRNCMP(curbuf->b_p_fenc, "ucs-2", 5) == 0
-                || STRNCMP(curbuf->b_p_fenc, "utf-16", 6) == 0)
+        else if(ustrncmp(curbuf->b_p_fenc, "ucs-2", 5) == 0
+                || ustrncmp(curbuf->b_p_fenc, "utf-16", 6) == 0)
         {
             n = 2;
         }
-        else if(STRNCMP(curbuf->b_p_fenc, "ucs-4", 5) == 0)
+        else if(ustrncmp(curbuf->b_p_fenc, "ucs-4", 5) == 0)
         {
             n = 4;
         }
@@ -387,7 +387,7 @@ void remove_bom(uchar_kt *s)
     {
         if((uint8_t)p[1] == 0xbb && (uint8_t)p[2] == 0xbf)
         {
-            STRMOVE(p, p + 3);
+            xstrmove(p, p + 3);
         }
         else
         {
@@ -415,7 +415,7 @@ int mb_get_class_tab(const uchar_kt *p, const uint64_t *const chartab)
             return 0;
         }
 
-        if(vim_iswordc_tab(p[0], chartab))
+        if(is_kwc_tab(p[0], chartab))
         {
             return 2;
         }
@@ -502,7 +502,7 @@ int utf_char2cells(int c)
         }
     }
     // Characters below 0x100 are influenced by 'isprint' option
-    else if(c >= 0x80 && !vim_isprintc(c))
+    else if(c >= 0x80 && !is_print_char(c))
     {
         return 4; // unprintable, displays <xx>
     }
@@ -1278,7 +1278,7 @@ int utf_class(int c)
             return 0; // blank
         }
 
-        if(vim_iswordc(c))
+        if(is_kwc(c))
         {
             return 2; // word character
         }
@@ -1650,7 +1650,7 @@ int mb_strnicmp(const uchar_kt *s1, const uchar_kt *s2, const size_t nn)
 /// We need to call mb_stricmp() even when we aren't dealing with
 /// a multi-byte encoding because mb_stricmp() takes care of all ASCII and
 /// non-ascii encodings, including characters with umlauts in latin1,
-/// etc., while STRICMP() only handles the system locale version, which
+/// etc., while ustricmp() only handles the system locale version, which
 /// often does not handle non-ascii properly.
 ///
 /// @param[in] s1  First string to compare, not more then #MAXCOL characters.
@@ -1692,7 +1692,7 @@ void show_utf8(void)
             // start of (composing) character, get its length
             if(i > 0)
             {
-                STRCPY(IObuff + rlen, "+ ");
+                ustrcpy(IObuff + rlen, "+ ");
                 rlen += 2;
             }
 
@@ -1704,7 +1704,7 @@ void show_utf8(void)
                 (line[i] == NL) ? NUL : line[i]);
 
         --clen;
-        rlen += (int)STRLEN(IObuff + rlen);
+        rlen += (int)ustrlen(IObuff + rlen);
 
         if(rlen > IOSIZE - 20)
         {
@@ -1982,7 +1982,7 @@ void mb_check_adjust_col(void *win_)
     if(oldcol != 0)
     {
         uchar_kt *p = ml_get_buf(win->w_buffer, win->w_cursor.lnum, false);
-        columnum_kt len = (columnum_kt)STRLEN(p);
+        columnum_kt len = (columnum_kt)ustrlen(p);
 
         // Empty line or invalid column?
         if(len == 0 || oldcol < 0)
@@ -2005,7 +2005,7 @@ void mb_check_adjust_col(void *win_)
         // the right half of a double-wide character.
         if(win->w_cursor.coladd == 1
            && p[win->w_cursor.col] != TAB
-           && vim_isprintc((*mb_ptr2char)(p + win->w_cursor.col))
+           && is_print_char((*mb_ptr2char)(p + win->w_cursor.col))
            && ptr2cells(p + win->w_cursor.col) > 1)
         {
             win->w_cursor.coladd = 0;
@@ -2152,12 +2152,12 @@ int mb_fix_col(int col, int row)
 /// Skip the Vim specific head of a 'encoding' name.
 uchar_kt *enc_skip(uchar_kt *p)
 {
-    if(STRNCMP(p, "2byte-", 6) == 0)
+    if(ustrncmp(p, "2byte-", 6) == 0)
     {
         return p + 6;
     }
 
-    if(STRNCMP(p, "8bit-", 5) == 0)
+    if(ustrncmp(p, "8bit-", 5) == 0)
     {
         return p + 5;
     }
@@ -2176,14 +2176,14 @@ FUNC_ATTR_NONNULL_RET
     uchar_kt *p;
     uchar_kt *s;
 
-    if(STRCMP(enc, "default") == 0)
+    if(ustrcmp(enc, "default") == 0)
     {
         // Use the default encoding as found by init_options_part_1().
-        return vim_strsave(fenc_default);
+        return ustrdup(fenc_default);
     }
 
     // copy "enc" to allocated memory, with room for two '-'
-    uchar_kt *r = xmalloc(STRLEN(enc) + 3);
+    uchar_kt *r = xmalloc(ustrlen(enc) + 3);
 
     // Make it all lower case and replace '_' with '-'.
     p = r;
@@ -2206,29 +2206,29 @@ FUNC_ATTR_NONNULL_RET
     p = enc_skip(r);
 
     // Change "microsoft-cp" to "cp".  Used in some spell files.
-    if(STRNCMP(p, "microsoft-cp", 12) == 0)
+    if(ustrncmp(p, "microsoft-cp", 12) == 0)
     {
-        STRMOVE(p, p + 10);
+        xstrmove(p, p + 10);
     }
 
     // "iso8859" -> "iso-8859"
-    if(STRNCMP(p, "iso8859", 7) == 0)
+    if(ustrncmp(p, "iso8859", 7) == 0)
     {
-        STRMOVE(p + 4, p + 3);
+        xstrmove(p + 4, p + 3);
         p[3] = '-';
     }
 
     // "iso-8859n" -> "iso-8859-n"
-    if(STRNCMP(p, "iso-8859", 8) == 0 && p[8] != '-')
+    if(ustrncmp(p, "iso-8859", 8) == 0 && p[8] != '-')
     {
-        STRMOVE(p + 9, p + 8);
+        xstrmove(p + 9, p + 8);
         p[8] = '-';
     }
 
     // "latin-N" -> "latinN"
-    if(STRNCMP(p, "latin-", 6) == 0)
+    if(ustrncmp(p, "latin-", 6) == 0)
     {
-        STRMOVE(p + 5, p + 6);
+        xstrmove(p + 5, p + 6);
     }
 
     if(enc_canon_search(p) >= 0)
@@ -2236,14 +2236,14 @@ FUNC_ATTR_NONNULL_RET
         // canonical name can be used unmodified
         if(p != r)
         {
-            STRMOVE(r, p);
+            xstrmove(r, p);
         }
     }
     else if((i = enc_alias_search(p)) >= 0)
     {
         // alias recognized, get canonical name
         xfree(r);
-        r = vim_strsave((uchar_kt *)enc_canon_table[i].name);
+        r = ustrdup((uchar_kt *)enc_canon_table[i].name);
     }
 
     return r;
@@ -2257,7 +2257,7 @@ static int enc_alias_search(uchar_kt *name)
 
     for(i = 0; enc_alias_table[i].name != NULL; ++i)
     {
-        if(STRCMP(name, enc_alias_table[i].name) == 0)
+        if(ustrcmp(name, enc_alias_table[i].name) == 0)
         {
             return enc_alias_table[i].canon;
         }
@@ -2310,12 +2310,12 @@ uchar_kt *enc_locale(void)
     // - make the name lowercase and replace '_' with '-'.
     // - exception: "ja_JP.EUC" == "euc-jp", "zh_CN.EUC" = "euc-cn",
     //              "ko_KR.EUC" == "euc-kr"
-    const char *p = (char *)vim_strchr((uchar_kt *)s, '.');
+    const char *p = (char *)ustrchr((uchar_kt *)s, '.');
 
     if(p != NULL)
     {
         if(p > s + 2
-           && !STRNICMP(p + 1, "EUC", 3)
+           && !ustrnicmp(p + 1, "EUC", 3)
            && !isalnum((int)p[4])
            && p[4] != '-'
            && p[-3] == '_')
@@ -2726,7 +2726,7 @@ int convert_setup_ext(vimconv_st *vcp,
        || *from == NUL
        || to == NULL
        || *to == NUL
-       || STRCMP(from, to) == 0)
+       || ustrcmp(from, to) == 0)
     {
         return OK;
     }
@@ -2825,7 +2825,7 @@ uchar_kt *string_convert_ext(const vimconv_st *const vcp,
 
     if(lenp == NULL)
     {
-        len = STRLEN(ptr);
+        len = ustrlen(ptr);
     }
     else
     {
@@ -2834,7 +2834,7 @@ uchar_kt *string_convert_ext(const vimconv_st *const vcp,
 
     if(len == 0)
     {
-        return vim_strsave((uchar_kt *)"");
+        return ustrdup((uchar_kt *)"");
     }
 
     switch(vcp->vc_type)

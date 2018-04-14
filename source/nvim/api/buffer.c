@@ -10,7 +10,7 @@
 #include "nvim/api/buffer.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/buffer.h"
 #include "nvim/cursor.h"
 #include "nvim/memline.h"
@@ -164,7 +164,7 @@ FUNC_API_SINCE(1)
         // Vim represents NULs as NLs, but this may confuse clients.
         if(channel_id != VIML_INTERNAL_CALL)
         {
-            strchrsub(str.data.string.data, '\n', '\0');
+            xstrchrsub(str.data.string.data, '\n', '\0');
         }
 
         rv.items[i] = str;
@@ -273,7 +273,7 @@ FUNC_API_SINCE(1)
         // Fill lines[i] with l's contents.
         // Convert NULs to newlines as required by NL-used-for-NUL.
         lines[i] = xmemdupz(l.data, l.size);
-        memchrsub(lines[i], NUL, NL, l.size);
+        xmemchrsub(lines[i], NUL, NL, l.size);
     }
 
     try_start();

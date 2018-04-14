@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "nvim/api/private/handle.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/os_unix.h"
 #include "nvim/buffer.h"
@@ -42,109 +42,8 @@
 #include "nvim/os/signal.h"
 #include "nvim/msgpack/helpers.h"
 
-#ifdef HAVE_SELINUX
-    #include <selinux/selinux.h>
-    static int selinux_enabled = -1;
-#endif
-
-
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "os_unix.c.generated.h"
-#endif
-
-#if defined(HAVE_ACL)
-#ifdef HAVE_SYS_ACL_H
-    #include <sys/acl.h>
-#endif
-#ifdef HAVE_SYS_ACCESS_H
-    #include <sys/access.h>
-#endif
-
-#if defined(HAVE_SELINUX)
-/// Copy security info from @b from_file to @b to_file.
-void mch_copy_sec(uchar_kt *from_file, uchar_kt *to_file)
-{
-    if(from_file == NULL)
-    {
-        return;
-    }
-
-    if(selinux_enabled == -1)
-    {
-        selinux_enabled = is_selinux_enabled();
-    }
-
-    if(selinux_enabled > 0)
-    {
-        security_context_t from_context = NULL;
-        security_context_t to_context = NULL;
-
-        if(getfilecon((char *)from_file, &from_context) < 0)
-        {
-            // If the filesystem doesn't support extended attributes,
-            // the original had no special security context and the
-            // target cannot have one either.
-            if(errno == EOPNOTSUPP)
-            {
-                return;
-            }
-
-            MSG_PUTS(_("\nCould not get security context for "));
-            msg_outtrans(from_file);
-            msg_putchar('\n');
-            return;
-        }
-
-        if(getfilecon((char *)to_file, &to_context) < 0)
-        {
-            MSG_PUTS(_("\nCould not get security context for "));
-            msg_outtrans(to_file);
-            msg_putchar('\n');
-            freecon(from_context);
-            return;
-        }
-
-        if(strcmp(from_context, to_context) != 0)
-        {
-            if(setfilecon((char *)to_file, from_context) < 0)
-            {
-                MSG_PUTS(_("\nCould not set security context for "));
-                msg_outtrans(to_file);
-                msg_putchar('\n');
-            }
-        }
-
-        freecon(to_context);
-        freecon(from_context);
-    }
-}
-#endif // HAVE_SELINUX
-
-// Return a pointer to the ACL of file @b fname in allocated memory.
-// Return NULL if the ACL is not available for whatever reason.
-nvim_acl_kt mch_get_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname))
-{
-    nvim_acl_kt ret = NULL;
-    return ret;
-}
-
-// Set the ACL of file @b fname to @b acl (unless it's NULL).
-void mch_set_acl(const uchar_kt *FUNC_ARGS_UNUSED_REALY(fname),
-                 nvim_acl_kt aclent)
-{
-    if(aclent == NULL)
-    {
-        return;
-    }
-}
-
-void mch_free_acl(nvim_acl_kt aclent)
-{
-    if(aclent == NULL)
-    {
-        return;
-    }
-}
 #endif
 
 void mch_exit(int r)
@@ -230,7 +129,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     bool is_fish_shell =
     #if defined(UNIX)
-        STRNCMP(invocation_path_tail(p_sh, NULL), "fish", 4) == 0;
+        ustrncmp(invocation_path_tail(p_sh, NULL), "fish", 4) == 0;
     #else
         false;
     #endif
@@ -257,7 +156,7 @@ FUNC_ATTR_NONNULL_ARG(4)
     {
         for(i = 0; i < num_pat; i++)
         {
-            if(vim_strchr(pat[i], '`') != NULL
+            if(ustrchr(pat[i], '`') != NULL
                && (check_restricted() || check_secure()))
             {
                 return FAIL;
@@ -290,18 +189,18 @@ FUNC_ATTR_NONNULL_ARG(4)
     // STYLE_ECHO: space separated.
     //     A shell we don't know, stay safe and use "echo".
     if(num_pat == 1 && *pat[0] == '`'
-       && (len = STRLEN(pat[0])) > 2
+       && (len = ustrlen(pat[0])) > 2
        && *(pat[0] + len - 1) == '`')
     {
         shell_style = STYLE_BT;
     }
-    else if((len = STRLEN(p_sh)) >= 3)
+    else if((len = ustrlen(p_sh)) >= 3)
     {
-        if(STRCMP(p_sh + len - 3, "csh") == 0)
+        if(ustrcmp(p_sh + len - 3, "csh") == 0)
         {
             shell_style = STYLE_GLOB;
         }
-        else if(STRCMP(p_sh + len - 3, "zsh") == 0)
+        else if(ustrcmp(p_sh + len - 3, "zsh") == 0)
         {
             shell_style = STYLE_PRINT;
         }
@@ -316,11 +215,11 @@ FUNC_ATTR_NONNULL_ARG(4)
     // Compute the length of the command.
     // We need 2 extra bytes: for the optional '&' and for the NUL.
     // Worst case: "unset nonomatch; print -N >" plus two is 29
-    len = STRLEN(tempname) + 29;
+    len = ustrlen(tempname) + 29;
 
     if(shell_style == STYLE_VIMGLOB)
     {
-        len += STRLEN(sh_vimglob_func);
+        len += ustrlen(sh_vimglob_func);
     }
 
     for(i = 0; i < num_pat; i++)
@@ -331,7 +230,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
         for(j = 0; pat[i][j] != NUL; j++)
         {
-            if(vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
+            if(ustrchr(SHELL_SPECIAL, pat[i][j]) != NULL)
             {
                 len++; // may add a backslash
             }
@@ -358,20 +257,20 @@ FUNC_ATTR_NONNULL_ARG(4)
         // change `command; command& ` to (command; command )
         if(is_fish_shell)
         {
-            STRCPY(command, "begin; ");
+            ustrcpy(command, "begin; ");
         }
         else
         {
-            STRCPY(command, "(");
+            ustrcpy(command, "(");
         }
 
-        STRCAT(command, pat[0] + 1); // exclude first backtick
-        p = command + STRLEN(command) - 1;
+        ustrcat(command, pat[0] + 1); // exclude first backtick
+        p = command + ustrlen(command) - 1;
 
         if(is_fish_shell)
         {
             *p-- = ';';
-            STRCAT(command, " end");
+            ustrcat(command, " end");
         }
         else
         {
@@ -389,38 +288,38 @@ FUNC_ATTR_NONNULL_ARG(4)
             *p = ' ';
         }
 
-        STRCAT(command, ">");
+        ustrcat(command, ">");
     }
     else
     {
         if(flags & EW_NOTFOUND)
         {
-            STRCPY(command, "set nonomatch; ");
+            ustrcpy(command, "set nonomatch; ");
         }
         else
         {
-            STRCPY(command, "unset nonomatch; ");
+            ustrcpy(command, "unset nonomatch; ");
         }
 
         if(shell_style == STYLE_GLOB)
         {
-            STRCAT(command, "glob >");
+            ustrcat(command, "glob >");
         }
         else if(shell_style == STYLE_PRINT)
         {
-            STRCAT(command, "print -N >");
+            ustrcat(command, "print -N >");
         }
         else if(shell_style == STYLE_VIMGLOB)
         {
-            STRCAT(command, sh_vimglob_func);
+            ustrcat(command, sh_vimglob_func);
         }
         else
         {
-            STRCAT(command, "echo >");
+            ustrcat(command, "echo >");
         }
     }
 
-    STRCAT(command, tempname);
+    ustrcat(command, tempname);
 
     if(shell_style != STYLE_BT)
     {
@@ -429,7 +328,7 @@ FUNC_ATTR_NONNULL_ARG(4)
             // Put a backslash before special
             // characters, except inside ``.
             bool intick = false;
-            p = command + STRLEN(command);
+            p = command + ustrlen(command);
             *p++ = ' ';
 
             for(j = 0; pat[i][j] != NUL; j++)
@@ -444,7 +343,7 @@ FUNC_ATTR_NONNULL_ARG(4)
                     // But keep backslash inside backticks, before
                     // a special character and before a backtick.
                     if(intick
-                       || vim_strchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL
+                       || ustrchr(SHELL_SPECIAL, pat[i][j + 1]) != NULL
                        || pat[i][j + 1] == '`')
                     {
                         *p++ = '\\';
@@ -454,7 +353,7 @@ FUNC_ATTR_NONNULL_ARG(4)
                 }
                 else if(!intick
                         && ((flags & EW_KEEPDOLLAR) == 0 || pat[i][j] != '$')
-                        && vim_strchr(SHELL_SPECIAL, pat[i][j]) != NULL)
+                        && ustrchr(SHELL_SPECIAL, pat[i][j]) != NULL)
                 {
                     // Put a backslash before a special character,
                     // but not when inside ``. And not for $var when
@@ -477,7 +376,7 @@ FUNC_ATTR_NONNULL_ARG(4)
 
     if(ampersent)
     {
-        STRCAT(command, "&"); // put the '&' after the redirection
+        ustrcat(command, "&"); // put the '&' after the redirection
     }
 
     // Using zsh -G: If a pattern has no matches, it is just deleted from
@@ -654,7 +553,7 @@ FUNC_ATTR_NONNULL_ARG(4)
             // If there is a NUL, set did_find_nul, else set check_spaces
             buffer[len] = NUL;
 
-            if(len && (int)STRLEN(buffer) < (int)len)
+            if(len && (int)ustrlen(buffer) < (int)len)
             {
                 did_find_nul = true;
             }
@@ -770,8 +669,8 @@ FUNC_ATTR_NONNULL_ARG(4)
             continue;
         }
 
-        p = xmalloc(STRLEN((*file)[i]) + 1 + dir);
-        STRCPY(p, (*file)[i]);
+        p = xmalloc(ustrlen((*file)[i]) + 1 + dir);
+        ustrcpy(p, (*file)[i]);
 
         if(dir)
         {
@@ -816,7 +715,7 @@ static void save_patterns(int num_pat,
 
     for(i = 0; i < num_pat; i++)
     {
-        s = vim_strsave(pat[i]);
+        s = ustrdup(pat[i]);
 
         // Be compatible with expand_filename():
         // halve the number of backslashes.
@@ -849,7 +748,7 @@ static bool have_dollars(int num, uchar_kt **file)
 
     for(i = 0; i < num; i++)
     {
-        if(vim_strchr(file[i], '$') != NULL)
+        if(ustrchr(file[i], '$') != NULL)
         {
             return true;
         }

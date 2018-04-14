@@ -6,7 +6,7 @@
 
 #include "nvim/map.h"
 #include "nvim/map_defs.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/memory.h"
 #include "nvim/api/private/dispatch.h"
 

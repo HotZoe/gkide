@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ui.h"
 #include "nvim/ugrid.h"
 

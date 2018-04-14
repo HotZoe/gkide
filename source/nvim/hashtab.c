@@ -23,7 +23,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/hashtab.h"
 #include "nvim/message.h"
@@ -95,7 +95,7 @@ void hash_clear_all(hashtable_st *ht, unsigned int off)
 /// changed in any way.
 hashitem_st *hash_find(const hashtable_st *const ht, const uchar_kt *const key)
 {
-    return hash_lookup(ht, (const char *)key, STRLEN(key), hash_hash(key));
+    return hash_lookup(ht, (const char *)key, ustrlen(key), hash_hash(key));
 }
 
 /// Like hash_find, but key is not NUL-terminated
@@ -160,7 +160,7 @@ hashitem_st *hash_lookup(const hashtable_st *const ht,
         freeitem = hi;
     }
     else if((hi->hi_hash == hash)
-            && (STRNCMP(hi->hi_key, key, key_len) == 0)
+            && (ustrncmp(hi->hi_key, key, key_len) == 0)
             && hi->hi_key[key_len] == NUL)
     {
         return hi;
@@ -188,7 +188,7 @@ hashitem_st *hash_lookup(const hashtable_st *const ht,
 
         if((hi->hi_hash == hash)
            && (hi->hi_key != HI_KEY_REMOVED)
-           && (STRNCMP(hi->hi_key, key, key_len) == 0)
+           && (ustrncmp(hi->hi_key, key, key_len) == 0)
            && hi->hi_key[key_len] == NUL)
         {
             return hi;
@@ -230,7 +230,7 @@ void hash_debug_results(void)
 int hash_add(hashtable_st *ht, uchar_kt *key)
 {
     hash_kt hash = hash_hash(key);
-    hashitem_st *hi = hash_lookup(ht, (const char *)key, STRLEN(key), hash);
+    hashitem_st *hi = hash_lookup(ht, (const char *)key, ustrlen(key), hash);
 
     if(!HASHITEM_EMPTY(hi))
     {

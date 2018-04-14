@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/keymap.h"
 #include "nvim/charset.h"
@@ -14,6 +14,7 @@
 #include "nvim/message.h"
 #include "nvim/strings.h"
 #include "nvim/mouse.h"
+#include "nvim/utils.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "keymap.c.generated.h"
@@ -472,7 +473,7 @@ uchar_kt *get_special_key_name(int c, int modifiers)
     if(c > 0 && (*mb_char2len)(c) == 1)
     {
         if(table_idx < 0
-           && (!vim_isprintc(c) || (c & 0x7f) == ' ')
+           && (!is_print_char(c) || (c & 0x7f) == ' ')
            && (c & 0x80))
         {
             c &= 0x7f;
@@ -482,7 +483,7 @@ uchar_kt *get_special_key_name(int c, int modifiers)
             table_idx = find_special_key_in_table(c);
         }
 
-        if(table_idx < 0 && !vim_isprintc(c) && c < ' ')
+        if(table_idx < 0 && !is_print_char(c) && c < ' ')
         {
             c += '@';
             modifiers |= MOD_MASK_CTRL;
@@ -516,7 +517,7 @@ uchar_kt *get_special_key_name(int c, int modifiers)
             {
                 idx += (*mb_char2bytes)(c, string + idx);
             }
-            else if(vim_isprintc(c))
+            else if(is_print_char(c))
             {
                 string[idx++] = (uchar_kt)c;
             }
@@ -533,8 +534,8 @@ uchar_kt *get_special_key_name(int c, int modifiers)
     }
     else // use name of special key
     {
-        STRCPY(string + idx, key_names_table[table_idx].name);
-        idx = (int)STRLEN(string);
+        ustrcpy(string + idx, key_names_table[table_idx].name);
+        idx = (int)ustrlen(string);
     }
 
     string[idx++] = '>';
@@ -671,7 +672,7 @@ FUNC_ATTR_NONNULL_ALL
     // Find end of modifier list
     last_dash = src;
 
-    for(bp = src + 1; bp <= end && (*bp == '-' || vim_isIDc(*bp)); bp++)
+    for(bp = src + 1; bp <= end && (*bp == '-' || is_id_char(*bp)); bp++)
     {
         if(*bp == '-')
         {
@@ -712,9 +713,9 @@ FUNC_ATTR_NONNULL_ALL
         {
             bp += 3; // skip t_xx, xx may be '-' or '>'
         }
-        else if(end - bp > 4 && STRNICMP(bp, "char-", 5) == 0)
+        else if(end - bp > 4 && ustrnicmp(bp, "char-", 5) == 0)
         {
-            vim_str2nr(bp + 5, NULL, &l, STR2NR_ALL, NULL, NULL, 0);
+            str_to_num(bp + 5, NULL, &l, kStrToNumAll, NULL, NULL, 0);
             bp += l + 5;
             break;
         }
@@ -745,11 +746,11 @@ FUNC_ATTR_NONNULL_ALL
         // Legal modifier name.
         if(bp >= last_dash)
         {
-            if(STRNICMP(last_dash + 1, "char-", 5) == 0
+            if(ustrnicmp(last_dash + 1, "char-", 5) == 0
                && ascii_isdigit(last_dash[6]))
             {
                 // <Char-123> or <Char-033> or <Char-0x33>
-                vim_str2nr(last_dash + 6, NULL, NULL, STR2NR_ALL, NULL, &n, 0);
+                str_to_num(last_dash + 6, NULL, NULL, kStrToNumAll, NULL, &n, 0);
                 key = (int)n;
             }
             else
@@ -885,7 +886,7 @@ int get_special_key_code(const uchar_kt *name)
     {
         table_name = key_names_table[i].name;
 
-        for(j = 0; vim_isIDc(name[j]) && table_name[j] != NUL; j++)
+        for(j = 0; is_id_char(name[j]) && table_name[j] != NUL; j++)
         {
             if(TOLOWER_ASC(table_name[j]) != TOLOWER_ASC(name[j]))
             {
@@ -893,7 +894,7 @@ int get_special_key_code(const uchar_kt *name)
             }
         }
 
-        if(!vim_isIDc(name[j]) && table_name[j] == NUL)
+        if(!is_id_char(name[j]) && table_name[j] == NUL)
         {
             return key_names_table[i].key;
         }
@@ -1010,11 +1011,11 @@ FUNC_ATTR_NONNULL_ALL
         // If 'cpoptions' does not contain '<',
         // check for special key codes, like "<C-S-LeftMouse>"
         if(do_special
-           && (do_lt || ((end - src) >= 3 && STRNCMP(src, "<lt>", 4) != 0)))
+           && (do_lt || ((end - src) >= 3 && ustrncmp(src, "<lt>", 4) != 0)))
         {
             // Replace <SID> by K_SNR <script-nr> _.
             // (room: 5 * 6 = 30 bytes; needed: 3 + <nr> + 1 <= 14)
-            if(end - src >= 4 && STRNICMP(src, "<SID>", 5) == 0)
+            if(end - src >= 4 && ustrnicmp(src, "<SID>", 5) == 0)
             {
                 if(current_SID <= 0)
                 {
@@ -1030,7 +1031,7 @@ FUNC_ATTR_NONNULL_ALL
                     sprintf((char *)result + dlen,
                             "%" PRId64, (int64_t)current_SID);
 
-                    dlen += STRLEN(result + dlen);
+                    dlen += ustrlen(result + dlen);
                     result[dlen++] = '_';
                     continue;
                 }
@@ -1053,12 +1054,12 @@ FUNC_ATTR_NONNULL_ALL
             // Replace <Leader> by the value of "mapleader".
             // Replace <LocalLeader> by the value of "maplocalleader".
             // If "mapleader" or "maplocalleader" isn't set use a backslash.
-            if(end - src >= 7 && STRNICMP(src, "<Leader>", 8) == 0)
+            if(end - src >= 7 && ustrnicmp(src, "<Leader>", 8) == 0)
             {
                 len = 8;
                 p = get_var_value("g:mapleader");
             }
-            else if(end - src >= 12 && STRNICMP(src, "<LocalLeader>", 13) == 0)
+            else if(end - src >= 12 && ustrnicmp(src, "<LocalLeader>", 13) == 0)
             {
                 len = 13;
                 p = get_var_value("g:maplocalleader");
@@ -1072,7 +1073,7 @@ FUNC_ATTR_NONNULL_ALL
             if(len != 0)
             {
                 // Allow up to 8 * 6 characters for "mapleader".
-                if(p == NULL || *p == NUL || STRLEN(p) > 8 * 6)
+                if(p == NULL || *p == NUL || ustrlen(p) > 8 * 6)
                 {
                     s = (uchar_kt *)"\\";
                 }

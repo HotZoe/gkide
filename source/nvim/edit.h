@@ -3,7 +3,7 @@
 #ifndef NVIM_EDIT_H
 #define NVIM_EDIT_H
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 
 // Array indexes used for cptext argument of ins_compl_add()
 #define CPT_ABBR    0   ///< "abbr"

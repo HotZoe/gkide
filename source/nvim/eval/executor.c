@@ -4,7 +4,7 @@
 #include "nvim/eval/executor.h"
 #include "nvim/eval.h"
 #include "nvim/message.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/globals.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -114,9 +114,7 @@ FUNC_ATTR_NONNULL_ALL
                     char numbuf[NUMBUFLEN];
 
                     char *const s =
-                        (char *)concat_str((const uchar_kt *)tvs,
-                                           (const uchar_kt *)tv_get_string_buf(tv2,
-                                                                             numbuf));
+                        xstrdup_concat(tvs, tv_get_string_buf(tv2, numbuf));
                     tv_clear(tv1);
                     tv1->v_type = kNvarString;
                     tv1->vval.v_string = (uchar_kt *)s;

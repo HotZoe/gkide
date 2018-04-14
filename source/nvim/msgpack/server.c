@@ -12,9 +12,10 @@
 #include "nvim/os_unix.h"
 #include "nvim/event/socket.h"
 #include "nvim/ascii.h"
+#include "nvim/error.h"
 #include "nvim/eval.h"
 #include "nvim/garray.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 #include "nvim/memory.h"
 #include "nvim/log.h"
@@ -323,7 +324,7 @@ void init_server_addr_info(const char *addr)
     if_info_st *ptr = host_if_info.header;
     while(NULL != ptr)
     {
-        if(STRICMP(server_addr, ptr->if_name) == 0)
+        if(ustricmp(server_addr, ptr->if_name) == 0)
         {
             if(AF_INET == ptr->ip_protocol)
             {
@@ -343,7 +344,7 @@ void init_server_addr_info(const char *addr)
             }
             break;
         }
-        else if(STRICMP(server_addr, ptr->if_address) == 0)
+        else if(ustricmp(server_addr, ptr->if_address) == 0)
         {
             nvim_server_addr.data.network.if_info = ptr;
             nvim_server_addr.data.network.prefer_protocol = ptr->ip_protocol;
@@ -439,7 +440,7 @@ static void init_host_interfaces_info(void)
         while(k--)
         {
             if(chk_ptr != ptr /* not the same if info object */
-               && STRICMP(if_name, chk_ptr->if_name) == 0)
+               && ustricmp(if_name, chk_ptr->if_name) == 0)
             {
                 ptr->brother = chk_ptr;
                 break;
@@ -464,8 +465,8 @@ if_info_st *get_addr_binded_host_if_info(const char *addr_or_name)
     if_info_st *ptr = host_if_info.header;
     while(if_cnt--)
     {
-        if(STRICMP(addr_or_name, ptr->if_address) == 0
-           || STRICMP(addr_or_name, ptr->if_name) == 0)
+        if(ustricmp(addr_or_name, ptr->if_address) == 0
+           || ustricmp(addr_or_name, ptr->if_name) == 0)
         {
             return ptr;
         }
@@ -501,15 +502,17 @@ bool server_init(void)
             {
                 nvim_server_addr.data.local = server_address_new();
             }
-            STRNCPY(addr_port, nvim_server_addr.data.local, ADDRESS_MAX_SIZE-1);
+            ustrncpy(addr_port,
+                     nvim_server_addr.data.local,
+                     ADDRESS_MAX_SIZE - 1);
             break;
         }
         case kServerTypeNetwork:
         {
             char *srv_addr = nvim_server_addr.data.network.if_info->if_address;
             unsigned short srv_port = nvim_server_addr.data.network.port;
-            STRNCPY(addr_port, srv_addr, ADDRESS_MAX_SIZE-1);
-            vim_snprintf_add(addr_port, ADDRESS_MAX_SIZE-1, ":%d", srv_port);
+            ustrncpy(addr_port, srv_addr, ADDRESS_MAX_SIZE-1);
+            xvsnprintf_add(addr_port, ADDRESS_MAX_SIZE-1, ":%d", srv_port);
             break;
         }
         default:
@@ -660,7 +663,7 @@ int server_start(const char *endpoint)
     ((socket_watcher_st **)watchers.ga_data)[watchers.ga_len++] = watcher;
 
     // Update v:servername, if not set.
-    if(STRLEN(get_vim_var_str(VV_SEND_SERVER)) == 0)
+    if(ustrlen(get_vim_var_str(VV_SEND_SERVER)) == 0)
     {
         set_vservername(&watchers);
     }
@@ -677,7 +680,7 @@ void server_stop(char *endpoint)
     char addr[ADDRESS_MAX_SIZE];
 
     // Trim to 'ADDRESS_MAX_SIZE'
-    xstrlcpy(addr, endpoint, sizeof(addr));
+    xstrncpy(addr, endpoint, sizeof(addr));
     int i = 0; // Index of the server whose address equals addr.
 
     for(; i < watchers.ga_len; i++)
@@ -699,7 +702,7 @@ void server_stop(char *endpoint)
     // Unset $GKIDE_NVIM_LISTEN if it is the stopped address.
     const char *listen_address = os_getenv(ENV_GKIDE_NVIM_LISTEN);
 
-    if(listen_address && STRCMP(addr, listen_address) == 0)
+    if(listen_address && ustrcmp(addr, listen_address) == 0)
     {
         os_unsetenv(ENV_GKIDE_NVIM_LISTEN);
     }
@@ -716,7 +719,7 @@ void server_stop(char *endpoint)
     watchers.ga_len--;
 
     // If v:servername is the stopped address, re-initialize it.
-    if(STRCMP(addr, get_vim_var_str(VV_SEND_SERVER)) == 0)
+    if(ustrcmp(addr, get_vim_var_str(VV_SEND_SERVER)) == 0)
     {
         set_vservername(&watchers);
     }

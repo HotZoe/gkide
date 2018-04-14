@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/syntax.h"
 #include "nvim/charset.h"
@@ -696,7 +696,7 @@ static void syn_sync(win_st *wp, linenum_kt start_lnum, synstate_st *last_valid)
         {
             line = ml_get(start_lnum - 1);
 
-            if(*line == NUL || *(line + STRLEN(line) - 1) != '\\')
+            if(*line == NUL || *(line + ustrlen(line) - 1) != '\\')
             {
                 break;
             }
@@ -2006,9 +2006,9 @@ static int syn_current_attr(int syncing,
             {
                 line = syn_getcurline();
 
-                if(vim_iswordp_buf(line + current_col, syn_buf)
+                if(is_kwc_ptr_buf(line + current_col, syn_buf)
                    && (current_col == 0
-                       || !vim_iswordp_buf(line
+                       || !is_kwc_ptr_buf(line
                                            + current_col
                                            - 1
                                            - (has_mbyte
@@ -2881,7 +2881,7 @@ static void update_si_end(state_item_st *sip, int startcol, int force)
             // a "oneline" never continues in the next line
             sip->si_ends = TRUE;
             sip->si_m_endpos.lnum = current_lnum;
-            sip->si_m_endpos.col = (columnum_kt)STRLEN(syn_getcurline());
+            sip->si_m_endpos.col = (columnum_kt)ustrlen(syn_getcurline());
         }
         else
         {
@@ -3100,7 +3100,7 @@ static void find_endpos(int idx,
                 }
 
                 line = ml_get_buf(syn_buf, startpos->lnum, false);
-                int line_len = (int)STRLEN(line);
+                int line_len = (int)ustrlen(line);
 
                 // take care of an empty match or negative offset
                 if(pos.col <= matchcol)
@@ -3332,7 +3332,7 @@ static void syn_add_start_off(bpos_st *result,
     {
         // a "\n" at the end of the pattern may take us below the last line
         result->lnum = syn_buf->b_ml.ml_line_count;
-        col = (int)STRLEN(ml_get_buf(syn_buf, result->lnum, FALSE));
+        col = (int)ustrlen(ml_get_buf(syn_buf, result->lnum, FALSE));
     }
 
     if(off != 0)
@@ -3451,7 +3451,7 @@ static int check_keyword_id(uchar_kt *line,
         {
             ++kwlen;
         }
-    } while(vim_iswordp_buf(kwp + kwlen, syn_buf));
+    } while(is_kwc_ptr_buf(kwp + kwlen, syn_buf));
 
     if(kwlen > MAXKEYWLEN)
     {
@@ -3460,7 +3460,7 @@ static int check_keyword_id(uchar_kt *line,
 
     // Must make a copy of the keyword, so
     // we can add a NUL and make it lowercase.
-    STRLCPY(keyword, kwp, kwlen + 1);
+    ustrlcpy(keyword, kwp, kwlen + 1);
     keyentry_st *kp = NULL;
 
     // matching case
@@ -3472,7 +3472,7 @@ static int check_keyword_id(uchar_kt *line,
     // ignoring case
     if(kp == NULL && syn_block->b_keywtab_ic.ht_used != 0)
     {
-        str_foldcase(kwp, kwlen, keyword, MAXKEYWLEN + 1);
+        ustr_foldcase(kwp, kwlen, keyword, MAXKEYWLEN + 1);
         kp = match_keyword(keyword, &syn_block->b_keywtab_ic, cur_si);
     }
 
@@ -3533,11 +3533,11 @@ static void syn_cmd_conceal(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 
     next = skiptowhite(arg);
 
-    if(STRNICMP(arg, "on", 2) == 0 && next - arg == 2)
+    if(ustrnicmp(arg, "on", 2) == 0 && next - arg == 2)
     {
         curwin->w_s->b_syn_conceal = TRUE;
     }
-    else if(STRNICMP(arg, "off", 3) == 0 && next - arg == 3)
+    else if(ustrnicmp(arg, "off", 3) == 0 && next - arg == 3)
     {
         curwin->w_s->b_syn_conceal = FALSE;
     }
@@ -3561,11 +3561,11 @@ static void syn_cmd_case(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 
     next = skiptowhite(arg);
 
-    if(STRNICMP(arg, "match", 5) == 0 && next - arg == 5)
+    if(ustrnicmp(arg, "match", 5) == 0 && next - arg == 5)
     {
         curwin->w_s->b_syn_ic = FALSE;
     }
-    else if(STRNICMP(arg, "ignore", 6) == 0 && next - arg == 6)
+    else if(ustrnicmp(arg, "ignore", 6) == 0 && next - arg == 6)
     {
         curwin->w_s->b_syn_ic = TRUE;
     }
@@ -3589,15 +3589,15 @@ static void syn_cmd_spell(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 
     next = skiptowhite(arg);
 
-    if(STRNICMP(arg, "toplevel", 8) == 0 && next - arg == 8)
+    if(ustrnicmp(arg, "toplevel", 8) == 0 && next - arg == 8)
     {
         curwin->w_s->b_syn_spell = kSpellCheck_TopText;
     }
-    else if(STRNICMP(arg, "notoplevel", 10) == 0 && next - arg == 10)
+    else if(ustrnicmp(arg, "notoplevel", 10) == 0 && next - arg == 10)
     {
         curwin->w_s->b_syn_spell = kSpellCheck_NoTopText;
     }
-    else if(STRNICMP(arg, "default", 7) == 0 && next - arg == 7)
+    else if(ustrnicmp(arg, "default", 7) == 0 && next - arg == 7)
     {
         curwin->w_s->b_syn_spell = kSpellCheck_Default;
     }
@@ -3642,7 +3642,7 @@ static void syn_cmd_iskeyword(exargs_st *eap,
     }
     else
     {
-        if(STRNICMP(arg, "clear", 5) == 0)
+        if(ustrnicmp(arg, "clear", 5) == 0)
         {
             memmove(curwin->w_s->b_syn_chartab, curbuf->b_chartab, (size_t)32);
             clear_string_option(&curwin->w_s->b_syn_isk);
@@ -3651,7 +3651,7 @@ static void syn_cmd_iskeyword(exargs_st *eap,
         {
             memmove(save_chartab, curbuf->b_chartab, (size_t)32);
             save_isk = curbuf->b_p_isk;
-            curbuf->b_p_isk = vim_strsave(arg);
+            curbuf->b_p_isk = ustrdup(arg);
             buf_init_chartab(curbuf, false);
             memmove(curwin->w_s->b_syn_chartab, curbuf->b_chartab, (size_t)32);
             memmove(curbuf->b_chartab, save_chartab, (size_t)32);
@@ -3953,7 +3953,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         char buf[100];
         memcpy(buf, "so ", 4);
-        vim_snprintf(buf + 3, sizeof(buf) - 3, SYS_SYNTAX_FNS_NVL, name);
+        xsnprintf(buf + 3, sizeof(buf) - 3, SYS_SYNTAX_FNS_NVL, name);
         do_cmdline_cmd(buf);
     }
 }
@@ -4398,7 +4398,7 @@ static void put_pattern(char *s, int c, synpat_st *spp, int attr)
     msg_putchar(c);
 
     // output the pattern, in between a char that is not in the pattern
-    for(i = 0; vim_strchr(spp->sp_pattern, sepchars[i]) != NULL;)
+    for(i = 0; ustrchr(spp->sp_pattern, sepchars[i]) != NULL;)
     {
         if(sepchars[++i] == NUL)
         {
@@ -4505,7 +4505,7 @@ static int syn_list_keywords(int id, hashtable_st *ht,int did_header, int attr)
                 }
                 else
                 {
-                    outlen = (int)STRLEN(kp->keyword);
+                    outlen = (int)ustrlen(kp->keyword);
                 }
 
                 // output "contained" and "nextgroup" on each line
@@ -4675,14 +4675,14 @@ static void add_keyword(uchar_kt *name,
     uchar_kt name_folded[MAXKEYWLEN + 1];
 
     uchar_kt *name_ic = (curwin->w_s->b_syn_ic)
-                      ? str_foldcase(name,
-                                     (int)STRLEN(name),
-                                     name_folded,
-                                     sizeof(name_folded))
-                      : name;
+                        ? ustr_foldcase(name,
+                                        (int)ustrlen(name),
+                                        name_folded,
+                                        sizeof(name_folded))
+                        : name;
 
-    keyentry_st *kp = xmalloc(sizeof(keyentry_st) + STRLEN(name_ic));
-    STRCPY(kp->keyword, name_ic);
+    keyentry_st *kp = xmalloc(sizeof(keyentry_st) + ustrlen(name_ic));
+    ustrcpy(kp->keyword, name_ic);
     kp->k_syn.id = id;
     kp->k_syn.inc_tag = current_syn_inc_tag;
     kp->flags = flags;
@@ -4703,7 +4703,7 @@ static void add_keyword(uchar_kt *name,
 
     hashitem_st *hi = hash_lookup(ht,
                                  (const char *)kp->keyword,
-                                 STRLEN(kp->keyword), hash);
+                                 ustrlen(kp->keyword), hash);
 
     // even though it looks like only the kp->keyword member is
     // being used here, vim uses some pointer trickery to get the orignal
@@ -4890,7 +4890,7 @@ static uchar_kt *get_syn_options(uchar_kt *arg,
                 *conceal_char = arg[6];
             }
 
-            if(!vim_isprintc_strict(*conceal_char))
+            if(!is_print_char_strict(*conceal_char))
             {
                 EMSG(_("E844: invalid cchar value"));
                 return NULL;
@@ -4920,9 +4920,9 @@ static uchar_kt *get_syn_options(uchar_kt *arg,
                     return NULL;
                 }
 
-                gname = vim_strnsave(gname_start, (int)(arg - gname_start));
+                gname = ustrndup(gname_start, (int)(arg - gname_start));
 
-                if(STRCMP(gname, "NONE") == 0)
+                if(ustrcmp(gname, "NONE") == 0)
                 {
                     *opt->sync_idx = NONE_IDX;
                 }
@@ -5095,7 +5095,7 @@ static void syn_cmd_keyword(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
         if(syn_id != 0)
         {
             // Allocate a buffer, for removing backslashes in the keyword.
-            keyword_copy = xmalloc(STRLEN(rest) + 1);
+            keyword_copy = xmalloc(ustrlen(rest) + 1);
         }
 
         if(keyword_copy != NULL)
@@ -5143,9 +5143,9 @@ static void syn_cmd_keyword(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
                 syn_incl_toplevel(syn_id, &syn_opt_arg.flags);
 
                 // 2: Add an entry for each keyword.
-                for(kw = keyword_copy; --cnt >= 0; kw += STRLEN(kw) + 1)
+                for(kw = keyword_copy; --cnt >= 0; kw += ustrlen(kw) + 1)
                 {
-                    for(p = vim_strchr(kw, '[');;)
+                    for(p = ustrchr(kw, '[');;)
                     {
                         if(p != NULL)
                         {
@@ -5400,21 +5400,21 @@ static void syn_cmd_region(exargs_st *eap, int syncing)
         }
 
         xfree(key);
-        key = vim_strnsave_up(rest, (int)(key_end - rest));
+        key = ustrndup_to_upper(rest, (int)(key_end - rest));
 
-        if(STRCMP(key, "MATCHGROUP") == 0)
+        if(ustrcmp(key, "MATCHGROUP") == 0)
         {
             item = ITEM_MATCHGROUP;
         }
-        else if(STRCMP(key, "START") == 0)
+        else if(ustrcmp(key, "START") == 0)
         {
             item = ITEM_START;
         }
-        else if(STRCMP(key, "END") == 0)
+        else if(ustrcmp(key, "END") == 0)
         {
             item = ITEM_END;
         }
-        else if(STRCMP(key, "SKIP") == 0)
+        else if(ustrcmp(key, "SKIP") == 0)
         {
             // one skip pattern allowed
             if(pat_ptrs[ITEM_SKIP] != NULL)
@@ -5451,7 +5451,7 @@ static void syn_cmd_region(exargs_st *eap, int syncing)
         {
             p = skiptowhite(rest);
 
-            if((p - rest == 4 && STRNCMP(rest, "NONE", 4) == 0) || eap->skip)
+            if((p - rest == 4 && ustrncmp(rest, "NONE", 4) == 0) || eap->skip)
             {
                 matchgroup_id = 0;
             }
@@ -5788,13 +5788,13 @@ static void syn_combine_list(short **clstr1, short **clstr2, int list_op)
 static int syn_scl_name2id(uchar_kt *name)
 {
     // Avoid using stricmp() too much, it's slow on some systems
-    uchar_kt *name_u = vim_strsave_up(name);
+    uchar_kt *name_u = ustrdup_upper(name);
     int i;
 
     for(i = curwin->w_s->b_syn_clusters.ga_len; --i >= 0;)
     {
         if(SYN_CLSTR(curwin->w_s)[i].scl_name_u != NULL
-           && STRCMP(name_u, SYN_CLSTR(curwin->w_s)[i].scl_name_u) == 0)
+           && ustrcmp(name_u, SYN_CLSTR(curwin->w_s)[i].scl_name_u) == 0)
         {
             break;
         }
@@ -5807,7 +5807,7 @@ static int syn_scl_name2id(uchar_kt *name)
 /// Like syn_scl_name2id(), but take a pointer + length argument.
 static int syn_scl_namen2id(uchar_kt *linep, int len)
 {
-    uchar_kt *name = vim_strnsave(linep, len);
+    uchar_kt *name = ustrndup(linep, len);
     int id = syn_scl_name2id(name);
     xfree(name);
     return id;
@@ -5821,7 +5821,7 @@ static int syn_check_cluster(uchar_kt *pp, int len)
 {
     int id;
     uchar_kt *name;
-    name = vim_strnsave(pp, len);
+    name = ustrndup(pp, len);
     id = syn_scl_name2id(name);
 
     if(id == 0) // doesn't exist yet
@@ -5861,15 +5861,15 @@ static int syn_add_cluster(uchar_kt *name)
                                            &curwin->w_s->b_syn_clusters);
     memset(scp, 0, sizeof(*scp));
     scp->scl_name = name;
-    scp->scl_name_u = vim_strsave_up(name);
+    scp->scl_name_u = ustrdup_upper(name);
     scp->scl_list = NULL;
 
-    if(STRICMP(name, "Spell") == 0)
+    if(ustricmp(name, "Spell") == 0)
     {
         curwin->w_s->b_spell_cluster_id = len + SYNID_CLUSTER;
     }
 
-    if(STRICMP(name, "NoSpell") == 0)
+    if(ustricmp(name, "NoSpell") == 0)
     {
         curwin->w_s->b_nospell_cluster_id = len + SYNID_CLUSTER;
     }
@@ -5911,19 +5911,19 @@ static void syn_cmd_cluster(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
 
         for(;;)
         {
-            if(STRNICMP(rest, "add", 3) == 0
+            if(ustrnicmp(rest, "add", 3) == 0
                && (ascii_iswhite(rest[3]) || rest[3] == '='))
             {
                 opt_len = 3;
                 list_op = CLUSTER_ADD;
             }
-            else if(STRNICMP(rest, "remove", 6) == 0
+            else if(ustrnicmp(rest, "remove", 6) == 0
                     && (ascii_iswhite(rest[6]) || rest[6] == '='))
             {
                 opt_len = 6;
                 list_op = CLUSTER_SUBTRACT;
             }
-            else if(STRNICMP(rest, "contains", 8) == 0
+            else if(ustrnicmp(rest, "contains", 8) == 0
                     && (ascii_iswhite(rest[8]) || rest[8] == '='))
             {
                 opt_len = 8;
@@ -5997,12 +5997,12 @@ static uchar_kt *get_syn_pattern(uchar_kt *arg, synpat_st *ci)
     }
 
     // store the pattern and compiled regexp program
-    ci->sp_pattern = vim_strnsave(arg + 1, (int)(end - arg - 1));
+    ci->sp_pattern = ustrndup(arg + 1, (int)(end - arg - 1));
 
     // Make 'cpoptions' empty, to avoid the 'l' flag
     cpo_save = p_cpo;
     p_cpo = (uchar_kt *)"";
-    ci->sp_prog = vim_regcomp(ci->sp_pattern, RE_MAGIC);
+    ci->sp_prog = regexp_compile(ci->sp_pattern, RE_MAGIC);
     p_cpo = cpo_save;
 
     if(ci->sp_prog == NULL)
@@ -6018,7 +6018,7 @@ static uchar_kt *get_syn_pattern(uchar_kt *arg, synpat_st *ci)
     {
         for(idx = SPO_COUNT; --idx >= 0;)
         {
-            if(STRNCMP(end, spo_name_tab[idx], 3) == 0)
+            if(ustrncmp(end, spo_name_tab[idx], 3) == 0)
             {
                 break;
             }
@@ -6120,9 +6120,9 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
         arg_end = skiptowhite(arg_start);
         next_arg = skipwhite(arg_end);
         xfree(key);
-        key = vim_strnsave_up(arg_start, (int)(arg_end - arg_start));
+        key = ustrndup_to_upper(arg_start, (int)(arg_end - arg_start));
 
-        if(STRCMP(key, "CCOMMENT") == 0)
+        if(ustrcmp(key, "CCOMMENT") == 0)
         {
             if(!eap->skip)
             {
@@ -6146,10 +6146,10 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
                 curwin->w_s->b_syn_sync_id = syn_name2id((uchar_kt *)"Comment");
             }
         }
-        else if(STRNCMP(key, "LINES", 5) == 0
-                || STRNCMP(key, "MINLINES", 8) == 0
-                || STRNCMP(key, "MAXLINES", 8) == 0
-                || STRNCMP(key, "LINEBREAKS", 10) == 0)
+        else if(ustrncmp(key, "LINES", 5) == 0
+                || ustrncmp(key, "MINLINES", 8) == 0
+                || ustrncmp(key, "MAXLINES", 8) == 0
+                || ustrncmp(key, "LINEBREAKS", 10) == 0)
         {
             if(key[4] == 'S')
             {
@@ -6188,7 +6188,7 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
                 }
             }
         }
-        else if(STRCMP(key, "FROMSTART") == 0)
+        else if(ustrcmp(key, "FROMSTART") == 0)
         {
             if(!eap->skip)
             {
@@ -6196,7 +6196,7 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
                 curwin->w_s->b_syn_sync_maxlines = 0;
             }
         }
-        else if(STRCMP(key, "LINECONT") == 0)
+        else if(ustrcmp(key, "LINECONT") == 0)
         {
             if(*next_arg == NUL) // missing pattern
             {
@@ -6224,7 +6224,7 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
             {
                 // store the pattern and compiled regexp program
                 curwin->w_s->b_syn_linecont_pat =
-                    vim_strnsave(next_arg + 1, (int)(arg_end - next_arg - 1));
+                    ustrndup(next_arg + 1, (int)(arg_end - next_arg - 1));
 
                 curwin->w_s->b_syn_linecont_ic = curwin->w_s->b_syn_ic;
 
@@ -6233,7 +6233,7 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
                 p_cpo = (uchar_kt *)"";
 
                 curwin->w_s->b_syn_linecont_prog =
-                    vim_regcomp(curwin->w_s->b_syn_linecont_pat, RE_MAGIC);
+                    regexp_compile(curwin->w_s->b_syn_linecont_pat, RE_MAGIC);
 
                 p_cpo = cpo_save;
                 syn_clear_time(&curwin->w_s->b_syn_linecont_time);
@@ -6253,15 +6253,15 @@ static void syn_cmd_sync(exargs_st *eap, int FUNC_ARGS_UNUSED_REALY(syncing))
         {
             eap->arg = next_arg;
 
-            if(STRCMP(key, "MATCH") == 0)
+            if(ustrcmp(key, "MATCH") == 0)
             {
                 syn_cmd_match(eap, TRUE);
             }
-            else if(STRCMP(key, "REGION") == 0)
+            else if(ustrcmp(key, "REGION") == 0)
             {
                 syn_cmd_region(eap, TRUE);
             }
-            else if(STRCMP(key, "CLEAR") == 0)
+            else if(ustrcmp(key, "CLEAR") == 0)
             {
                 syn_cmd_clear(eap, TRUE);
             }
@@ -6347,12 +6347,12 @@ static int get_id_list(uchar_kt **arg, int keylen, short **list)
             { /* do nothing */ }
 
             name = xmalloc((int)(end - p + 3)); // leave room for "^$"
-            STRLCPY(name + 1, p, end - p + 1);
+            ustrlcpy(name + 1, p, end - p + 1);
 
-            if(STRCMP(name + 1, "ALLBUT") == 0
-               || STRCMP(name + 1, "ALL") == 0
-               || STRCMP(name + 1, "TOP") == 0
-               || STRCMP(name + 1, "CONTAINED") == 0)
+            if(ustrcmp(name + 1, "ALLBUT") == 0
+               || ustrcmp(name + 1, "ALL") == 0
+               || ustrcmp(name + 1, "TOP") == 0
+               || ustrcmp(name + 1, "CONTAINED") == 0)
             {
                 if(TOUPPER_ASC(**arg) != 'C')
                 {
@@ -6392,7 +6392,7 @@ static int get_id_list(uchar_kt **arg, int keylen, short **list)
             else
             {
                 // Handle full group name.
-                if(vim_strpbrk(name + 1, (uchar_kt *)"\\.*^$~[") == NULL)
+                if(xstrpbrk(name + 1, (uchar_kt *)"\\.*^$~[") == NULL)
                 {
                     id = syn_check_group(name + 1, (int)(end - p));
                 }
@@ -6400,8 +6400,8 @@ static int get_id_list(uchar_kt **arg, int keylen, short **list)
                 {
                     // Handle match of regexp with group names.
                     *name = '^';
-                    STRCAT(name, "$");
-                    regmatch.regprog = vim_regcomp(name, RE_MAGIC);
+                    ustrcat(name, "$");
+                    regmatch.regprog = regexp_compile(name, RE_MAGIC);
 
                     if(regmatch.regprog == NULL)
                     {
@@ -6712,7 +6712,7 @@ void ex_syntax(exargs_st *eap)
     for(subcmd_end = arg; ASCII_ISALPHA(*subcmd_end); ++subcmd_end)
     { /* do nothing */ }
 
-    subcmd_name = vim_strnsave(arg, (int)(subcmd_end - arg));
+    subcmd_name = ustrndup(arg, (int)(subcmd_end - arg));
 
     if(eap->skip) // skip error messages for all subcommands
     {
@@ -6727,7 +6727,7 @@ void ex_syntax(exargs_st *eap)
             break;
         }
 
-        if(STRCMP(subcmd_name, (uchar_kt *)subcommands[i].name) == 0)
+        if(ustrcmp(subcmd_name, (uchar_kt *)subcommands[i].name) == 0)
         {
             eap->arg = skipwhite(subcmd_end);
             (subcommands[i].func)(eap, FALSE);
@@ -6769,7 +6769,7 @@ void ex_ownsyntax(exargs_st *eap)
 
     if(old_value != NULL)
     {
-        old_value = vim_strsave(old_value);
+        old_value = ustrdup(old_value);
     }
 
     // Apply the "syntax" autocommand event,
@@ -6849,14 +6849,14 @@ void set_context_in_syntax_cmd(expand_st *xp, const char *arg)
             {
                 xp->xp_context = EXPAND_NOTHING;
             }
-            else if(STRNICMP(arg, "case", p - arg) == 0)
+            else if(ustrnicmp(arg, "case", p - arg) == 0)
             {
                 expand_what = EXP_CASE;
             }
-            else if(STRNICMP(arg, "keyword", p - arg) == 0
-                    || STRNICMP(arg, "region", p - arg) == 0
-                    || STRNICMP(arg, "match", p - arg) == 0
-                    || STRNICMP(arg, "list", p - arg) == 0)
+            else if(ustrnicmp(arg, "keyword", p - arg) == 0
+                    || ustrnicmp(arg, "region", p - arg) == 0
+                    || ustrnicmp(arg, "match", p - arg) == 0
+                    || ustrnicmp(arg, "list", p - arg) == 0)
             {
                 xp->xp_context = EXPAND_HIGHLIGHT;
             }
@@ -7006,19 +7006,19 @@ int syn_get_foldlevel(win_st *wp, long lnum)
 /// ":syntime".
 void ex_syntime(exargs_st *eap)
 {
-    if(STRCMP(eap->arg, "on") == 0)
+    if(ustrcmp(eap->arg, "on") == 0)
     {
         syn_time_on = TRUE;
     }
-    else if(STRCMP(eap->arg, "off") == 0)
+    else if(ustrcmp(eap->arg, "off") == 0)
     {
         syn_time_on = FALSE;
     }
-    else if(STRCMP(eap->arg, "clear") == 0)
+    else if(ustrcmp(eap->arg, "clear") == 0)
     {
         syntime_clear();
     }
-    else if(STRCMP(eap->arg, "report") == 0)
+    else if(ustrcmp(eap->arg, "report") == 0)
     {
         syntime_report();
     }
@@ -7167,9 +7167,9 @@ static void syntime_report(void)
             len = Columns - 70;
         }
 
-        if(len > (int)STRLEN(p->pattern))
+        if(len > (int)ustrlen(p->pattern))
         {
-            len = (int)STRLEN(p->pattern);
+            len = (int)ustrlen(p->pattern);
         }
 
         msg_outtrans_len(p->pattern, len);
@@ -7303,7 +7303,7 @@ void init_highlight(int both, int reset)
     {
         // Value of g:colors_name could be freed in
         // load_colors() and make p invalid, so copy it.
-        uchar_kt *copy_p = vim_strsave(p);
+        uchar_kt *copy_p = ustrdup(p);
         bool okay = load_colors(copy_p);
         xfree(copy_p);
 
@@ -7413,7 +7413,7 @@ int load_colors(uchar_kt *name)
     }
 
     recursive = true;
-    size_t buflen = STRLEN(name) + 12;
+    size_t buflen = ustrlen(name) + 12;
     buf = xmalloc(buflen);
     snprintf((char *)buf, buflen, "colors/%s.vim", name);
     retval = source_runtime(buf, DIP_START + DIP_OPT);
@@ -7468,7 +7468,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
     linep = skipwhite(name_end);
 
     // Check for "default" argument.
-    if(STRNCMP(line, "default", name_end - line) == 0)
+    if(ustrncmp(line, "default", name_end - line) == 0)
     {
         dodefault = TRUE;
         line = linep;
@@ -7477,12 +7477,12 @@ void do_highlight(uchar_kt *line, int forceit, int init)
     }
 
     // Check for "clear" or "link" argument.
-    if(STRNCMP(line, "clear", name_end - line) == 0)
+    if(ustrncmp(line, "clear", name_end - line) == 0)
     {
         doclear = TRUE;
     }
 
-    if(STRNCMP(line, "link", name_end - line) == 0)
+    if(ustrncmp(line, "link", name_end - line) == 0)
     {
         dolink = TRUE;
     }
@@ -7533,7 +7533,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
 
         from_id = syn_check_group(from_start, (int)(from_end - from_start));
 
-        if(STRNCMP(to_start, "NONE", 4) == 0)
+        if(ustrncmp(to_start, "NONE", 4) == 0)
         {
             to_id = 0;
         }
@@ -7615,7 +7615,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
         return;
     }
 
-    if(STRCMP(HL_TABLE()[idx].sg_name_u, "NORMAL") == 0)
+    if(ustrcmp(HL_TABLE()[idx].sg_name_u, "NORMAL") == 0)
     {
         is_normal_group = TRUE;
     }
@@ -7652,10 +7652,10 @@ void do_highlight(uchar_kt *line, int forceit, int init)
             }
 
             xfree(key);
-            key = vim_strnsave_up(key_start, (int)(linep - key_start));
+            key = ustrndup_to_upper(key_start, (int)(linep - key_start));
             linep = skipwhite(linep);
 
-            if(STRCMP(key, "NONE") == 0)
+            if(ustrcmp(key, "NONE") == 0)
             {
                 if(!init || HL_TABLE()[idx].sg_set == 0)
                 {
@@ -7684,7 +7684,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
             if(*linep == '\'') // guifg='color name'
             {
                 arg_start = ++linep;
-                linep = vim_strchr(linep, '\'');
+                linep = ustrchr(linep, '\'');
 
                 if(linep == NULL)
                 {
@@ -7707,7 +7707,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
             }
 
             xfree(arg);
-            arg = vim_strnsave(arg_start, (int)(linep - arg_start));
+            arg = ustrndup(arg_start, (int)(linep - arg_start));
 
             if(*linep == '\'')
             {
@@ -7715,9 +7715,9 @@ void do_highlight(uchar_kt *line, int forceit, int init)
             }
 
             // Store the argument.
-            if(STRCMP(key, "TERM") == 0
-               || STRCMP(key, "CTERM") == 0
-               || STRCMP(key, "GUI") == 0)
+            if(ustrcmp(key, "TERM") == 0
+               || ustrcmp(key, "CTERM") == 0
+               || ustrcmp(key, "GUI") == 0)
             {
                 attr = 0;
                 off = 0;
@@ -7726,9 +7726,9 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                 {
                     for(i = ARRAY_SIZE(hl_attr_table); --i >= 0;)
                     {
-                        len = (int)STRLEN(hl_name_table[i]);
+                        len = (int)ustrlen(hl_name_table[i]);
 
-                        if(STRNICMP(arg + off, hl_name_table[i], len) == 0)
+                        if(ustrnicmp(arg + off, hl_name_table[i], len) == 0)
                         {
                             attr |= hl_attr_table[i];
                             off += len;
@@ -7781,11 +7781,11 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     }
                 }
             }
-            else if(STRCMP(key, "FONT") == 0)
+            else if(ustrcmp(key, "FONT") == 0)
             {
                 /* in non-GUI fonts are simply ignored */
             }
-            else if(STRCMP(key, "CTERMFG") == 0 || STRCMP(key, "CTERMBG") == 0)
+            else if(ustrcmp(key, "CTERMFG") == 0 || ustrcmp(key, "CTERMBG") == 0)
             {
                 if(!init || !(HL_TABLE()[idx].sg_set & SG_CTERM))
                 {
@@ -7806,7 +7806,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     {
                         color = atoi((char *)arg);
                     }
-                    else if(STRICMP(arg, "fg") == 0)
+                    else if(ustricmp(arg, "fg") == 0)
                     {
                         if(cterm_normal_fg_color)
                         {
@@ -7819,7 +7819,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                             break;
                         }
                     }
-                    else if(STRICMP(arg, "bg") == 0)
+                    else if(ustricmp(arg, "bg") == 0)
                     {
                         if(cterm_normal_bg_color > 0)
                         {
@@ -7890,13 +7890,13 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                             5+8, 3+8, 3+8, 7+8,  -1
                         };
 
-                        // reduce calls to STRICMP a bit, it can be slow
+                        // reduce calls to ustricmp a bit, it can be slow
                         off = TOUPPER_ASC(*arg);
 
                         for(i = ARRAY_SIZE(color_names); --i >= 0;)
                         {
                             if(off == color_names[i][0]
-                               && STRICMP(arg + 1, color_names[i] + 1) == 0)
+                               && ustricmp(arg + 1, color_names[i] + 1) == 0)
                             {
                                 break;
                             }
@@ -8015,7 +8015,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     }
                 }
             }
-            else if(STRCMP(key, "GUIFG") == 0)
+            else if(ustrcmp(key, "GUIFG") == 0)
             {
                 if(!init || !(HL_TABLE()[idx].sg_set & SG_GUI))
                 {
@@ -8026,7 +8026,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
 
                     xfree(HL_TABLE()[idx].sg_rgb_fg_name);
 
-                    if(STRCMP(arg, "NONE"))
+                    if(ustrcmp(arg, "NONE"))
                     {
                         HL_TABLE()[idx].sg_rgb_fg_name =
                             (uint8_t *)xstrdup((char *)arg);
@@ -8045,7 +8045,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     normal_fg = HL_TABLE()[idx].sg_rgb_fg;
                 }
             }
-            else if(STRCMP(key, "GUIBG") == 0)
+            else if(ustrcmp(key, "GUIBG") == 0)
             {
                 if(!init || !(HL_TABLE()[idx].sg_set & SG_GUI))
                 {
@@ -8056,7 +8056,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
 
                     xfree(HL_TABLE()[idx].sg_rgb_bg_name);
 
-                    if(STRCMP(arg, "NONE") != 0)
+                    if(ustrcmp(arg, "NONE") != 0)
                     {
                         HL_TABLE()[idx].sg_rgb_bg_name =
                             (uint8_t *)xstrdup((char *)arg);
@@ -8075,7 +8075,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     normal_bg = HL_TABLE()[idx].sg_rgb_bg;
                 }
             }
-            else if(STRCMP(key, "GUISP") == 0)
+            else if(ustrcmp(key, "GUISP") == 0)
             {
                 if(!init || !(HL_TABLE()[idx].sg_set & SG_GUI))
                 {
@@ -8086,7 +8086,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
 
                     xfree(HL_TABLE()[idx].sg_rgb_sp_name);
 
-                    if(STRCMP(arg, "NONE") != 0)
+                    if(ustrcmp(arg, "NONE") != 0)
                     {
                         HL_TABLE()[idx].sg_rgb_sp_name =
                             (uint8_t *)xstrdup((char *)arg);
@@ -8105,7 +8105,7 @@ void do_highlight(uchar_kt *line, int forceit, int init)
                     normal_sp = HL_TABLE()[idx].sg_rgb_sp;
                 }
             }
-            else if(STRCMP(key, "START") == 0 || STRCMP(key, "STOP") == 0)
+            else if(ustrcmp(key, "START") == 0 || ustrcmp(key, "STOP") == 0)
             {
                 // Ignored for now
             }
@@ -8493,17 +8493,17 @@ static int highlight_list_arg(int id,
                 {
                     if(buf[0] != NUL)
                     {
-                        xstrlcat((char *)buf, ",", 100);
+                        xstrncat((char *)buf, ",", 100);
                     }
 
-                    xstrlcat((char *)buf, hl_name_table[i], 100);
+                    xstrncat((char *)buf, hl_name_table[i], 100);
                     iarg &= ~hl_attr_table[i]; // don't want "inverse"
                 }
             }
         }
 
         (void)syn_list_header(didh,
-                              (int)(vim_strsize(ts) + STRLEN(name) + 1),
+                              (int)(ustr_scrsize(ts) + ustrlen(name) + 1),
                               id);
         didh = TRUE;
 
@@ -8749,7 +8749,7 @@ static void set_hl_attr(int idx)
 
     // The "Normal" group doesn't need an attribute number
     if(sgp->sg_name_u != NULL
-       && STRCMP(sgp->sg_name_u, "NORMAL") == 0)
+       && ustrcmp(sgp->sg_name_u, "NORMAL") == 0)
     {
         return;
     }
@@ -8794,13 +8794,13 @@ int syn_name2id(const uchar_kt *name)
     // Avoid using stricmp() too much, it's slow on some systems
     // Avoid alloc()/free(), these are slow too. ID names over 200 chars
     // don't deserve to be found!
-    STRLCPY(name_u, name, 200);
-    vim_strup(name_u);
+    ustrlcpy(name_u, name, 200);
+    xstr_to_upper(name_u);
 
     for(i = highlight_ga.ga_len; --i >= 0;)
     {
         if(HL_TABLE()[i].sg_name_u != NULL
-           && STRCMP(name_u, HL_TABLE()[i].sg_name_u) == 0)
+           && ustrcmp(name_u, HL_TABLE()[i].sg_name_u) == 0)
         {
             break;
         }
@@ -8830,7 +8830,7 @@ uchar_kt *syn_id2name(int id)
 /// Like syn_name2id(), but take a pointer + length argument.
 int syn_namen2id(uchar_kt *linep, int len)
 {
-    uchar_kt *name = vim_strnsave(linep, len);
+    uchar_kt *name = ustrndup(linep, len);
     int id = syn_name2id(name);
     xfree(name);
     return id;
@@ -8845,7 +8845,7 @@ int syn_namen2id(uchar_kt *linep, int len)
 /// @return 0 for failure else the id of the group
 int syn_check_group(uchar_kt *pp, int len)
 {
-    uchar_kt  *name = vim_strnsave(pp, len);
+    uchar_kt  *name = ustrndup(pp, len);
     int id = syn_name2id(name);
 
     if(id == 0) // doesn't exist yet
@@ -8870,7 +8870,7 @@ static int syn_add_group(uchar_kt *name)
     // Check that the name is ASCII letters, digits and underscore.
     for(p = name; *p != NUL; ++p)
     {
-        if(!vim_isprintc(*p))
+        if(!is_print_char(*p))
         {
             EMSG(_("E669: Unprintable character in group name"));
             xfree(name);
@@ -8904,7 +8904,7 @@ static int syn_add_group(uchar_kt *name)
     hl_group_st *hlgp = GA_APPEND_VIA_PTR(hl_group_st, &highlight_ga);
     memset(hlgp, 0, sizeof(*hlgp));
     hlgp->sg_name = name;
-    hlgp->sg_name_u = vim_strsave_up(name);
+    hlgp->sg_name_u = ustrdup_upper(name);
 
     // ID is index plus one
     return highlight_ga.ga_len;
@@ -9005,7 +9005,7 @@ void highlight_changed(void)
     for(int hlf = 0; hlf < (int)HLF_COUNT; hlf++)
     {
         id = syn_check_group((uchar_kt *)hlf_names[hlf],
-                             STRLEN(hlf_names[hlf]));
+                             ustrlen(hlf_names[hlf]));
 
         if(id == 0)
         {
@@ -9928,18 +9928,18 @@ rgb_color_kt name_to_color(const uint8_t *name)
         // rgb hex string
         return strtol((char *)(name + 1), NULL, 16);
     }
-    else if(!STRICMP(name, "bg") || !STRICMP(name, "background"))
+    else if(!ustricmp(name, "bg") || !ustricmp(name, "background"))
     {
         return normal_bg;
     }
-    else if(!STRICMP(name, "fg") || !STRICMP(name, "foreground"))
+    else if(!ustricmp(name, "fg") || !ustricmp(name, "foreground"))
     {
         return normal_fg;
     }
 
     for(int i = 0; color_name_table[i].name != NULL; i++)
     {
-        if(!STRICMP(name, color_name_table[i].name))
+        if(!ustricmp(name, color_name_table[i].name))
         {
             return color_name_table[i].color;
         }

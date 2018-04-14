@@ -3,7 +3,7 @@
 #ifndef NVIM_INDENT_H
 #define NVIM_INDENT_H
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 
 // flags for set_indent()
 #define SIN_CHANGED     1   ///< call changed_bytes() when line changed

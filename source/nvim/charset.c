@@ -5,10 +5,10 @@
 #include <assert.h>
 #include <string.h>
 #include <wctype.h>
-#include <wchar.h>  // for towupper() and towlower()
+#include <wchar.h> // for towupper() and towlower()
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/charset.h"
 #include "nvim/farsi.h"
@@ -27,13 +27,14 @@
 #include "nvim/state.h"
 #include "nvim/strings.h"
 #include "nvim/path.h"
-
+#include "nvim/utils.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "charset.c.generated.h"
 #endif
 
-// b_chartab[] is an array with 256 bits, each bit representing one of the characters 0-255.
+// b_chartab[] is an array with 256 bits,
+// each bit representing one of the characters 0-255.
 #define SET_CHARTAB(buf, c) \
     (buf)->b_chartab[(unsigned)(c) >> 6] |= (1ull << ((c) & 0x3f))
 
@@ -299,14 +300,15 @@ int buf_init_chartab(filebuf_st *buf, int global)
                             {
                                 if(tilde)
                                 {
-                                    g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask)
-                                                             + ((dy_flags & DY_UHEX) ? 4 : 2));
-
+                                    g_chartab[c] =
+                                        (uint8_t)((g_chartab[c] & ~kCT_CellMask)
+                                                  + ((dy_flags & DY_UHEX) ? 4:2));
                                     g_chartab[c] &= (uint8_t)~kCT_CharPrint;
                                 }
                                 else
                                 {
-                                    g_chartab[c] = (uint8_t)((g_chartab[c] & ~kCT_CellMask) + 1);
+                                    g_chartab[c] =
+                                        (uint8_t)((g_chartab[c] & ~kCT_CellMask) + 1);
                                     g_chartab[c] |= kCT_CharPrint;
                                 }
                             }
@@ -373,7 +375,7 @@ void trans_characters(uchar_kt *buf, int bufsize)
     int room; // room in buffer after string
     uchar_kt *trs; // translated character
     int trs_len; // length of trs[]
-    len = (int)STRLEN(buf);
+    len = (int)ustrlen(buf);
     room = bufsize - len;
 
     while(*buf != 0)
@@ -386,7 +388,7 @@ void trans_characters(uchar_kt *buf, int bufsize)
         else
         {
             trs = transchar_byte(*buf);
-            trs_len = (int)STRLEN(trs);
+            trs_len = (int)ustrlen(trs);
 
             if(trs_len > 1)
             {
@@ -435,14 +437,14 @@ FUNC_ATTR_NONNULL_RET
             c = (*mb_ptr2char)(p);
             p += l;
 
-            if(vim_isprintc(c))
+            if(is_print_char(c))
             {
                 len += l;
             }
             else
             {
                 transchar_hex(hexbuf, c);
-                len += STRLEN(hexbuf);
+                len += ustrlen(hexbuf);
             }
         }
         else
@@ -472,138 +474,25 @@ FUNC_ATTR_NONNULL_RET
         {
             c = (*mb_ptr2char)(p);
 
-            if(vim_isprintc(c))
+            if(is_print_char(c))
             {
                 // append printable multi-byte char
-                STRNCAT(res, p, l);
+                ustrncat(res, p, l);
             }
             else
             {
-                transchar_hex(res + STRLEN(res), c);
+                transchar_hex(res + ustrlen(res), c);
             }
 
             p += l;
         }
         else
         {
-            STRCAT(res, transchar_byte(*p++));
+            ustrcat(res, transchar_byte(*p++));
         }
     }
 
     return res;
-}
-
-/// Convert the string "str[orglen]" to do ignore-case comparing.
-/// Use the current locale.
-///
-/// When "buf" is NULL, return an allocated string.
-/// Otherwise, put the result in buf, limited by buflen, and return buf.
-uchar_kt *str_foldcase(uchar_kt *str, int orglen, uchar_kt *buf, int buflen)
-FUNC_ATTR_NONNULL_RET
-{
-    int i;
-    garray_st ga;
-    int len = orglen;
-
-    #define GA_CHAR(i)    ((uchar_kt *)ga.ga_data)[i]
-    #define GA_PTR(i)     ((uchar_kt *)ga.ga_data + i)
-    #define STR_CHAR(i)   (buf == NULL ? GA_CHAR(i) : buf[i])
-    #define STR_PTR(i)    (buf == NULL ? GA_PTR(i) : buf + i)
-
-    // Copy "str" into "buf" or allocated memory, unmodified.
-    if(buf == NULL)
-    {
-        ga_init(&ga, 1, 10);
-        ga_grow(&ga, len + 1);
-        memmove(ga.ga_data, str, (size_t)len);
-        ga.ga_len = len;
-    }
-    else
-    {
-        if(len >= buflen)
-        {
-            // Ugly!
-            len = buflen - 1;
-        }
-
-        memmove(buf, str, (size_t)len);
-    }
-
-    if(buf == NULL)
-    {
-        GA_CHAR(len) = NUL;
-    }
-    else
-    {
-        buf[len] = NUL;
-    }
-
-    // Make each character lower case.
-    i = 0;
-
-    while(STR_CHAR(i) != NUL)
-    {
-        int c = utf_ptr2char(STR_PTR(i));
-        int olen = utf_ptr2len(STR_PTR(i));
-        int lc = mb_tolower(c);
-
-        // Only replace the character when it is not an invalid
-        // sequence (ASCII character or more than one byte) and
-        // mb_tolower() doesn't return the original character.
-        if(((c < 0x80) || (olen > 1)) && (c != lc))
-        {
-            int nlen = utf_char2len(lc);
-
-            // If the byte length changes need to shift the following
-            // characters forward or backward.
-            if(olen != nlen)
-            {
-                if(nlen > olen)
-                {
-                    if(buf == NULL)
-                    {
-                        ga_grow(&ga, nlen - olen + 1);
-                    }
-                    else
-                    {
-                        if(len + nlen - olen >= buflen)
-                        {
-                            // out of memory, keep old char
-                            lc = c;
-                            nlen = olen;
-                        }
-                    }
-                }
-
-                if(olen != nlen)
-                {
-                    if(buf == NULL)
-                    {
-                        STRMOVE(GA_PTR(i) + nlen, GA_PTR(i) + olen);
-                        ga.ga_len += nlen - olen;
-                    }
-                    else
-                    {
-                        STRMOVE(buf + i + nlen, buf + i + olen);
-                        len += nlen - olen;
-                    }
-                }
-            }
-
-            (void)utf_char2bytes(lc, STR_PTR(i));
-        }
-
-        // skip to next multi-byte char
-        i += (*mb_ptr2len)(STR_PTR(i));
-    }
-
-
-    if(buf == NULL)
-    {
-        return (uchar_kt *)ga.ga_data;
-    }
-
-    return buf;
 }
 
 /// Catch 22: g_chartab[] can't be initialized before the options are
@@ -634,7 +523,7 @@ uchar_kt *transchar(int c)
 
     if((!chartab_initialized
         && (((c >= ' ') && (c <= '~')) || (p_altkeymap && F_ischar(c))))
-       || ((c < 256) && vim_isprintc_strict(c)))
+       || ((c < 256) && is_print_char_strict(c)))
     {
         // printable character
         transchar_buf[i] = (uchar_kt)c;
@@ -715,31 +604,14 @@ void transchar_hex(uchar_kt *buf, int c)
 
     if(c > 255)
     {
-        buf[++i] = (uchar_kt)nr2hex((unsigned)c >> 12);
-        buf[++i] = (uchar_kt)nr2hex((unsigned)c >> 8);
+        buf[++i] = (uchar_kt)num_to_hex((unsigned)c >> 12);
+        buf[++i] = (uchar_kt)num_to_hex((unsigned)c >> 8);
     }
 
-    buf[++i] = (uchar_kt)(nr2hex((unsigned)c >> 4));
-    buf[++i] = (uchar_kt)(nr2hex((unsigned)c));
+    buf[++i] = (uchar_kt)(num_to_hex((unsigned)c >> 4));
+    buf[++i] = (uchar_kt)(num_to_hex((unsigned)c));
     buf[++i] = '>';
     buf[++i] = NUL;
-}
-
-/// Convert the lower 4 bits of byte "c" to its hex character.
-/// Lower case letters are used to avoid the confusion of <F1>
-/// being 0xf1 or function key 1.
-///
-/// @param c
-///
-/// @return the hex character.
-static unsigned nr2hex(unsigned c)
-{
-    if((c & 0xf) <= 9)
-    {
-        return (c & 0xf) + '0';
-    }
-
-    return (c & 0xf) - 10 + 'a';
 }
 
 /// Return number of display cells occupied by byte "b".
@@ -805,44 +677,6 @@ int ptr2cells(const uchar_kt *p)
     return g_chartab[*p] & kCT_CellMask;
 }
 
-/// Return the number of character cells string "s" will take on the screen,
-/// counting TABs as two characters: "^I".
-///
-/// 's' must be non-null.
-///
-/// @param s
-///
-/// @return number of character cells.
-int vim_strsize(uchar_kt *s)
-{
-    return vim_strnsize(s, (int)MAXCOL);
-}
-
-/// Return the number of character cells string "s[len]" will take on the
-/// screen, counting TABs as two characters: "^I".
-///
-/// 's' must be non-null.
-///
-/// @param s
-/// @param len
-///
-/// @return Number of character cells.
-int vim_strnsize(uchar_kt *s, int len)
-{
-    assert(s != NULL);
-    int size = 0;
-
-    while(*s != NUL && --len >= 0)
-    {
-        int l = (*mb_ptr2len)(s);
-        size += ptr2cells(s);
-        s += l;
-        len -= l - 1;
-    }
-
-    return size;
-}
-
 /// Return the number of characters 'c' will take on the screen, taking
 /// into account the size of a tab.
 /// Use a define to make it fast, this is used very often!!!
@@ -854,7 +688,7 @@ int vim_strnsize(uchar_kt *s, int len)
 /// @return Number of characters.
 #define RET_WIN_BUF_CHARTABSIZE(wp, buf, p, col)     \
     if(*(p) == TAB                                   \
-       && (!(wp)->w_o_curbuf.wo_list || lcs_tab1)) \
+       && (!(wp)->w_o_curbuf.wo_list || lcs_tab1))   \
     {                                                \
         const int ts = (int) (buf)->b_p_ts;          \
         return (ts - (int)(col % ts));               \
@@ -929,21 +763,23 @@ unsigned int win_linetabsize(win_st *wp, uchar_kt *line, columnum_kt len)
 /// Letters and characters from the @b isident option.
 ///
 /// @param  c  character to check
-bool vim_isIDc(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_id_char(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return c > 0 && c < 0x100 && (g_chartab[c] & kCT_CharID);
 }
 
-/// Check that "c" is a keyword character:
+/// Check that @b c is a keyword character:
 /// Letters and characters from 'iskeyword' option for current buffer.
 /// For multi-byte characters mb_get_class() is used (builtin rules).
 ///
 /// @param  c  character to check
-bool vim_iswordc(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_kwc(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
-    return vim_iswordc_buf(c, curbuf);
+    return is_kwc_buf(c, curbuf);
 }
 
 /// Check that "c" is a keyword character
@@ -952,8 +788,10 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param[in]  c  Character to check.
 /// @param[in]  chartab  Buffer chartab.
-bool vim_iswordc_tab(const int c, const uint64_t *const chartab)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+bool is_kwc_tab(const int c, const uint64_t *const chartab)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     return (c >= 0x100
             ? (utf_class(c) >= 2)
@@ -966,19 +804,23 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
 ///
 /// @param  c    character to check
 /// @param  buf  buffer whose keywords to use
-bool vim_iswordc_buf(int c, filebuf_st *buf)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ARG(2)
+bool is_kwc_buf(int c, filebuf_st *buf)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2)
 {
-    return vim_iswordc_tab(c, buf->b_chartab);
+    return is_kwc_tab(c, buf->b_chartab);
 }
 
-/// Just like vim_iswordc() but uses a pointer to the (multi-byte) character.
+/// Just like is_kwc() but uses a pointer to the (multi-byte) character.
 ///
 /// @param  p  pointer to the multi-byte character
 ///
 /// @return true if "p" points to a keyword character.
-bool vim_iswordp(uchar_kt *p)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+bool is_kwc_ptr(uchar_kt *p)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     if(MB_BYTE2LEN(*p) > 1)
     {
@@ -988,15 +830,17 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
     return GET_CHARTAB(curbuf, *p) != 0;
 }
 
-/// Just like vim_iswordc_buf() but uses a pointer to the (multi-byte)
+/// Just like is_kwc_buf() but uses a pointer to the (multi-byte)
 /// character.
 ///
 /// @param  p    pointer to the multi-byte character
 /// @param  buf  buffer whose keywords to use
 ///
 /// @return true if "p" points to a keyword character.
-bool vim_iswordp_buf(uchar_kt *p, filebuf_st *buf)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+bool is_kwc_ptr_buf(uchar_kt *p, filebuf_st *buf)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
 {
     if(MB_BYTE2LEN(*p) > 1)
     {
@@ -1006,12 +850,13 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
     return GET_CHARTAB(buf, *p) != 0;
 }
 
-/// Check that **c** is a valid file-name character.
+/// Check that @b c is a valid file-name character.
 /// Assume characters above 0x100 are valid (multi-byte).
 ///
 /// @param  c  character to check
-bool vim_isfilec(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_file_name_char(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return c >= 0x100 || (c > 0 && (g_chartab[c] & kCT_CharFName));
 }
@@ -1022,21 +867,23 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 /// returns false.
 ///
 /// @param  c  character to check
-bool vim_isfilec_or_wc(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_file_name_char_or_wildcard(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     uchar_kt buf[2];
     buf[0] = (uchar_kt)c;
     buf[1] = NUL;
-    return vim_isfilec(c) || c == ']' || path_has_wildcard(buf);
+    return is_file_name_char(c) || c == ']' || path_has_wildcard(buf);
 }
 
 /// Check that "c" is a printable character.
 /// Assume characters above 0x100 are printable for double-byte encodings.
 ///
 /// @param  c  character to check
-bool vim_isprintc(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_print_char(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(c >= 0x100)
     {
@@ -1046,14 +893,15 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
     return c >= 0x100 || (c > 0 && (g_chartab[c] & kCT_CharPrint));
 }
 
-/// Strict version of vim_isprintc(c), don't return true if "c" is the head
+/// Strict version of is_print_char(c), don't return true if "c" is the head
 /// byte of a double-byte character.
 ///
 /// @param  c  character to check
 ///
 /// @return true if "c" is a printable character.
-bool vim_isprintc_strict(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+bool is_print_char_strict(int c)
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(c >= 0x100)
     {
@@ -1276,17 +1124,17 @@ int win_lbr_chartabsize(win_st *wp,
                         width = (columnum_kt)wp->w_width;
                     }
 
-                    added += ((size - prev_width) / width) * vim_strsize(p_sbr);
+                    added += ((size - prev_width) / width) * ustr_scrsize(p_sbr);
 
                     if((size - prev_width) % width)
                     {
                         // Wrapped, add another length of 'sbr'.
-                        added += vim_strsize(p_sbr);
+                        added += ustr_scrsize(p_sbr);
                     }
                 }
                 else
                 {
-                    added += vim_strsize(p_sbr);
+                    added += ustr_scrsize(p_sbr);
                 }
             }
 
@@ -1603,11 +1451,11 @@ void getvvcol(win_st *wp,
         // Cannot put the cursor on part of a wide character.
         ptr = ml_get_buf(wp->w_buffer, pos->lnum, false);
 
-        if(pos->col < (columnum_kt)STRLEN(ptr))
+        if(pos->col < (columnum_kt)ustrlen(ptr))
         {
             int c = (*mb_ptr2char)(ptr + pos->col);
 
-            if((c != TAB) && vim_isprintc(c))
+            if((c != TAB) && is_print_char(c))
             {
                 endadd = (columnum_kt)(char2cells(c) - 1);
 
@@ -1942,232 +1790,10 @@ long getdigits_long(uchar_kt **pp)
 /// Check that "lbuf" is empty or only contains blanks.
 ///
 /// @param  lbuf  line buffer to check
-bool vim_isblankline(uchar_kt *lbuf)
+bool is_blank_line(uchar_kt *lbuf)
 {
     uchar_kt *p = skipwhite(lbuf);
     return *p == NUL || *p == '\r' || *p == '\n';
-}
-
-/// Convert a string into a long and/or unsigned long, taking care of
-/// hexadecimal, octal and binary numbers.  Accepts a '-' sign.
-/// If "prep" is not NULL, returns a flag to indicate the type of the number:
-///  -  0     decimal
-///  - '0'    octal
-///  - 'B'    bin
-///  - 'b'    bin
-///  - 'X'    hex
-///  - 'x'    hex
-///
-/// - If "len" is not NULL, the length of the number in characters is returned.
-/// - If "nptr" is not NULL, the signed result is returned in it.
-/// - If "unptr" is not NULL, the unsigned result is returned in it.
-/// - If "what" contains STR2NR_BIN recognize binary numbers.
-/// - If "what" contains STR2NR_OCT recognize octal numbers.
-/// - If "what" contains STR2NR_HEX recognize hex numbers.
-/// - If "what" contains STR2NR_FORCE always assume bin/oct/hex.
-/// - If maxlen > 0, check at a maximum maxlen chars.
-///
-/// @param start
-/// @param prep   Returns type of number 0 = decimal, 'x' or 'X' is hex,
-///               '0' = octal, 'b' or 'B' is bin
-/// @param len    Returns the detected length of number.
-/// @param what   Recognizes what number passed.
-/// @param nptr   Returns the signed result.
-/// @param unptr  Returns the unsigned result.
-/// @param maxlen Max length of string to check.
-void vim_str2nr(const uchar_kt *const start,
-                int *const prep,
-                int *const len,
-                const int what,
-                long *const nptr,
-                unsigned long *const unptr,
-                const int maxlen)
-{
-    const uchar_kt *ptr = start;
-    int pre = 0; // default is decimal
-    bool negative = false;
-    unsigned long un = 0;
-
-    if(ptr[0] == '-')
-    {
-        negative = true;
-        ptr++;
-    }
-
-    // Recognize hex, octal and bin.
-    if((ptr[0] == '0')
-        && (ptr[1] != '8')
-        && (ptr[1] != '9')
-        && (maxlen == 0 || maxlen > 1))
-    {
-        pre = ptr[1];
-
-        if((what & STR2NR_HEX)
-           && ((pre == 'X') || (pre == 'x'))
-           && ascii_isxdigit(ptr[2])
-           && (maxlen == 0 || maxlen > 2))
-        {
-            // hexadecimal
-            ptr += 2;
-        }
-        else if((what & STR2NR_BIN)
-                && ((pre == 'B') || (pre == 'b'))
-                && ascii_isbdigit(ptr[2])
-                && (maxlen == 0 || maxlen > 2))
-        {
-            // binary
-            ptr += 2;
-        }
-        else
-        {
-            // decimal or octal, default is decimal
-            pre = 0;
-
-            if(what & STR2NR_OCT)
-            {
-                // Don't interpret "0", "08" or "0129" as octal.
-                for(int n = 1; ascii_isdigit(ptr[n]); ++n)
-                {
-                    if(ptr[n] > '7')
-                    {
-                        // can't be octal
-                        pre = 0;
-                        break;
-                    }
-
-                    if(ptr[n] >= '0')
-                    {
-                        // assume octal
-                        pre = '0';
-                    }
-
-                    if(n == maxlen)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    // Do the string-to-numeric conversion "manually" to avoid sscanf quirks.
-    int n = 1;
-
-    if((pre == 'B') || (pre == 'b') || what == STR2NR_BIN + STR2NR_FORCE)
-    {
-        // bin
-        if(pre != 0)
-        {
-            n += 2; // skip over "0b"
-        }
-
-        while('0' <= *ptr && *ptr <= '1')
-        {
-            un = 2 * un + (unsigned long)(*ptr - '0');
-            ptr++;
-
-            if(n++ == maxlen)
-            {
-                break;
-            }
-        }
-    }
-    else if((pre == '0') || what == STR2NR_OCT + STR2NR_FORCE)
-    {
-        // octal
-        while('0' <= *ptr && *ptr <= '7')
-        {
-            un = 8 * un + (unsigned long)(*ptr - '0');
-            ptr++;
-
-            if(n++ == maxlen)
-            {
-                break;
-            }
-        }
-    }
-    else if((pre == 'X') || (pre == 'x') || what == STR2NR_HEX + STR2NR_FORCE)
-    {
-        // hex
-        if(pre != 0)
-        {
-            n += 2; // skip over "0x"
-        }
-
-        while(ascii_isxdigit(*ptr))
-        {
-            un = 16 * un + (unsigned long)hex2nr(*ptr);
-            ptr++;
-
-            if(n++ == maxlen)
-            {
-                break;
-            }
-        }
-    }
-    else
-    {
-        // decimal
-        while(ascii_isdigit(*ptr))
-        {
-            un = 10 * un + (unsigned long)(*ptr - '0');
-            ptr++;
-
-            if(n++ == maxlen)
-            {
-                break;
-            }
-        }
-    }
-
-    if(prep != NULL)
-    {
-        *prep = pre;
-    }
-
-    if(len != NULL)
-    {
-        *len = (int)(ptr - start);
-    }
-
-    if(nptr != NULL)
-    {
-        if(negative)
-        {
-            // account for leading '-' for decimal numbers
-            *nptr = -(long)un;
-        }
-        else
-        {
-            *nptr = (long)un;
-        }
-    }
-
-    if(unptr != NULL)
-    {
-        *unptr = un;
-    }
-}
-
-/// Return the value of a single hex character.
-/// Only valid when the argument is '0' - '9', 'A' - 'F' or 'a' - 'f'.
-///
-/// @param c
-///
-/// @return The value of the hex character.
-int hex2nr(int c)
-{
-    if((c >= 'a') && (c <= 'f'))
-    {
-        return c - 'a' + 10;
-    }
-
-    if((c >= 'A') && (c <= 'F'))
-    {
-        return c - 'A' + 10;
-    }
-
-    return c - '0';
 }
 
 /// Check that "str" starts with a backslash that should be removed.
@@ -2195,7 +1821,7 @@ FUNC_ATTR_NONNULL_ALL
                || (str[1] != NUL
                    && str[1] != '*'
                    && str[1] != '?'
-                   && !vim_isfilec(str[1])));
+                   && !is_file_name_char(str[1])));
 #else
     return str[0] == '\\' && str[1] != NUL;
 #endif
@@ -2210,7 +1836,7 @@ void backslash_halve(uchar_kt *p)
     {
         if(rem_backslash(p))
         {
-            STRMOVE(p, p + 1);
+            xstrmove(p, p + 1);
         }
     }
 }
@@ -2223,7 +1849,7 @@ void backslash_halve(uchar_kt *p)
 uchar_kt *backslash_halve_save(uchar_kt *p)
 {
     // TODO(philix): simplify and improve backslash_halve_save algorithm
-    uchar_kt *res = vim_strsave(p);
+    uchar_kt *res = ustrdup(p);
     backslash_halve(res);
     return res;
 }

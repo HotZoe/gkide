@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/log.h"
 #include "nvim/memory.h"
@@ -108,7 +108,7 @@ void ga_remove_duplicate_strings(garray_st *gap)
 {
     uchar_kt **fnames = gap->ga_data;
     // sort the growing array, which puts duplicates next to each other
-    sort_strings(fnames, gap->ga_len);
+    ustr_quick_sort(fnames, gap->ga_len);
 
     // loop over the growing array in reverse
     for(int i = gap->ga_len - 1; i > 0; i--)

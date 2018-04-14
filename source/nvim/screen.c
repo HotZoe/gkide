@@ -87,7 +87,7 @@
 #include <stdbool.h>
 #include <string.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/arabic.h"
 #include "nvim/screen.h"
@@ -555,7 +555,7 @@ int conceal_cursor_line(win_st *wp)
         return FALSE;
     }
 
-    return vim_strchr(wp->w_o_curbuf.wo_cocu, c) != NULL;
+    return ustrchr(wp->w_o_curbuf.wo_cocu, c) != NULL;
 }
 
 /// Check if the cursor line needs to be redrawn because of 'concealcursor'.
@@ -2460,7 +2460,7 @@ static void fold_line(win_st *wp,
     }
     else
     {
-        len = (int)STRLEN(text);
+        len = (int)ustrlen(text);
 
         if(len > wp->w_width - col)
         {
@@ -2471,11 +2471,11 @@ static void fold_line(win_st *wp,
         {
             if(wp->w_o_curbuf.wo_rl)
             {
-                STRNCPY(current_ScreenLine, text, len);
+                ustrncpy(current_ScreenLine, text, len);
             }
             else
             {
-                STRNCPY(current_ScreenLine + col, text, len);
+                ustrncpy(current_ScreenLine + col, text, len);
             }
 
             col += len;
@@ -2539,7 +2539,7 @@ static void fold_line(win_st *wp,
                    && (lnume < bot->lnum
                        || (lnume == bot->lnum
                            && (bot->col - (*p_sel == 'e'))
-                           >= (columnum_kt)STRLEN(ml_get_buf(wp->w_buffer,
+                           >= (columnum_kt)ustrlen(ml_get_buf(wp->w_buffer,
                                                          lnume,
                                                          FALSE)))))))
         {
@@ -3183,7 +3183,7 @@ static int win_line(win_st *wp,
         }
         else
         {
-            v = (long)STRLEN(line);
+            v = (long)ustrlen(line);
 
             if(v < SPWORDLEN)
             {
@@ -3191,7 +3191,7 @@ static int win_line(win_st *wp,
                 // the start of the next line.
                 nextlinecol = 0;
                 memmove(nextline, line, (size_t)v);
-                STRMOVE(nextline + v, nextline + SPWORDLEN);
+                xstrmove(nextline + v, nextline + SPWORDLEN);
                 nextline_idx = v + 1;
             }
             else
@@ -3214,7 +3214,7 @@ static int win_line(win_st *wp,
         // find start of trailing whitespace
         if(lcs_trail)
         {
-            trailcol = (columnum_kt)STRLEN(ptr);
+            trailcol = (columnum_kt)ustrlen(ptr);
 
             while(trailcol > (columnum_kt)0 && ascii_iswhite(ptr[trailcol - 1]))
             {
@@ -3556,7 +3556,7 @@ static int win_line(win_st *wp,
                             if(p_extra != NULL)
                             {
                                 c_extra = NUL;
-                                n_extra = (int)STRLEN(p_extra);
+                                n_extra = (int)ustrlen(p_extra);
                             }
 
                             char_attr = sign_get_attr(text_sign, FALSE);
@@ -3574,7 +3574,7 @@ static int win_line(win_st *wp,
                 if((wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
                    && (row == startrow
                        + filler_lines
-                       || vim_strchr(p_cpo, CPO_NUMCOL) == NULL))
+                       || ustrchr(p_cpo, CPO_NUMCOL) == NULL))
                 {
                     // Draw the line number (empty space after wrapping).
                     if(row == startrow + filler_lines)
@@ -3728,7 +3728,7 @@ static int win_line(win_st *wp,
                     // Draw 'showbreak' at the start of each broken line.
                     p_extra = p_sbr;
                     c_extra = NUL;
-                    n_extra = (int)STRLEN(p_sbr);
+                    n_extra = (int)ustrlen(p_sbr);
                     char_attr = hl_attr(HLF_AT);
                     need_showbreak = FALSE;
                     vcol_sbr = vcol + MB_CHARLEN(p_sbr);
@@ -4191,7 +4191,7 @@ static int win_line(win_st *wp,
 
                     if((mb_l == 1 && c >= 0x80)
                        || (mb_l >= 1 && mb_c == 0)
-                       || (mb_l > 1 && (!vim_isprintc(mb_c))))
+                       || (mb_l > 1 && (!is_print_char(mb_c))))
                     {
                         // Illegal UTF-8 byte: display as <xx>.
                         // Non-BMP character : display as ? or fullwidth ?.
@@ -4206,7 +4206,7 @@ static int win_line(win_st *wp,
                         c = *p_extra;
                         mb_c = mb_ptr2char_adv((const uchar_kt **)&p_extra);
                         mb_utf8 = (c >= 0x80);
-                        n_extra = (int)STRLEN(p_extra);
+                        n_extra = (int)ustrlen(p_extra);
                         c_extra = NUL;
 
                         if(area_attr == 0 && search_attr == 0)
@@ -4278,11 +4278,11 @@ static int win_line(win_st *wp,
                             {
                                 // illegal tail byte
                                 mb_l = 2;
-                                STRCPY(extra, "XX");
+                                ustrcpy(extra, "XX");
                             }
 
                             p_extra = extra;
-                            n_extra = (int)STRLEN(extra) - 1;
+                            n_extra = (int)ustrlen(extra) - 1;
                             c_extra = NUL;
                             c = *p_extra++;
 
@@ -4622,7 +4622,7 @@ static int win_line(win_st *wp,
             }
 
             // Handling of non-printable characters.
-            if(!vim_isprintc(c))
+            if(!is_print_char(c))
             {
                 // when getting a character from the file, we may have to
                 // turn it into something else on the way to putting it
@@ -4843,7 +4843,7 @@ static int win_line(win_st *wp,
                         c = *p_extra;
                         p = xmalloc(n_extra + 1);
                         memset(p, ' ', n_extra);
-                        STRNCPY(p, p_extra + 1, STRLEN(p_extra) - 1);
+                        ustrncpy(p, p_extra + 1, ustrlen(p_extra) - 1);
                         p[n_extra] = NUL;
                         p_extra_free = p_extra = p;
                     }
@@ -4914,7 +4914,7 @@ static int win_line(win_st *wp,
                && ((syntax_flags & HL_CONCEAL) != 0
                    || has_match_conc > 0)
                && !(lnum_in_visual_area
-                    && vim_strchr(wp->w_o_curbuf.wo_cocu, 'v') == NULL))
+                    && ustrchr(wp->w_o_curbuf.wo_cocu, 'v') == NULL))
             {
                 char_attr = conceal_attr;
 
@@ -6113,7 +6113,7 @@ void rl_mirror(uchar_kt *str)
     uchar_kt *p1, *p2;
     int t;
 
-    for(p1 = str, p2 = str + STRLEN(str) - 1; p1 < p2; ++p1, --p2)
+    for(p1 = str, p2 = str + ustrlen(str) - 1; p1 < p2; ++p1, --p2)
     {
         t = *p1;
         *p1 = *p2;
@@ -6381,7 +6381,7 @@ void win_redr_status_matches(expand_st *xp,
     }
     else
     {
-        STRCPY(buf, "< ");
+        ustrcpy(buf, "< ");
         len = 2;
     }
 
@@ -6404,8 +6404,8 @@ void win_redr_status_matches(expand_st *xp,
 
         if(emenu && menu_is_separator(s))
         {
-            STRCPY(buf + len, transchar('|'));
-            l = (int)STRLEN(buf + len);
+            ustrcpy(buf + len, transchar('|'));
+            l = (int)ustrlen(buf + len);
             len += l;
             clen += l;
         }
@@ -6418,14 +6418,14 @@ void win_redr_status_matches(expand_st *xp,
 
                 if(has_mbyte && (l = (*mb_ptr2len)(s)) > 1)
                 {
-                    STRNCPY(buf + len, s, l);
+                    ustrncpy(buf + len, s, l);
                     s += l - 1;
                     len += l;
                 }
                 else
                 {
-                    STRCPY(buf + len, transchar_byte(*s));
-                    len += (int)STRLEN(buf + len);
+                    ustrcpy(buf + len, transchar_byte(*s));
+                    len += (int)ustrlen(buf + len);
                 }
             }
         }
@@ -6554,7 +6554,7 @@ void win_redr_status(win_st *wp)
         fillchar = fillchar_status(&attr, wp == curwin);
         get_trans_bufname(wp->w_buffer);
         p = NameBuff;
-        len = (int)STRLEN(p);
+        len = (int)ustrlen(p);
 
         if(wp->w_buffer->b_help
            || wp->w_o_curbuf.wo_pvw
@@ -6566,26 +6566,26 @@ void win_redr_status(win_st *wp)
 
         if(wp->w_buffer->b_help)
         {
-            STRCPY(p + len, _("[Help]"));
-            len += (int)STRLEN(p + len);
+            ustrcpy(p + len, _("[Help]"));
+            len += (int)ustrlen(p + len);
         }
 
         if(wp->w_o_curbuf.wo_pvw)
         {
-            STRCPY(p + len, _("[Preview]"));
-            len += (int)STRLEN(p + len);
+            ustrcpy(p + len, _("[Preview]"));
+            len += (int)ustrlen(p + len);
         }
 
         if(bufIsChanged(wp->w_buffer))
         {
-            STRCPY(p + len, "[+]");
+            ustrcpy(p + len, "[+]");
             len += 3;
         }
 
         if(wp->w_buffer->b_p_ro)
         {
-            STRCPY(p + len, _("[RO]"));
-            len += (int)STRLEN(p + len);
+            ustrcpy(p + len, _("[RO]"));
+            len += (int)ustrlen(p + len);
         }
 
         this_ru_col = ru_col - (Columns - wp->w_width);
@@ -6635,12 +6635,12 @@ void win_redr_status(win_st *wp)
                     attr);
 
         if(get_keymap_str(wp, (uchar_kt *)"<%s>", NameBuff, MAXPATHL)
-           && this_ru_col - len > (int)(STRLEN(NameBuff) + 1))
+           && this_ru_col - len > (int)(ustrlen(NameBuff) + 1))
         {
             screen_puts(NameBuff,
                         row,
                         (int)(this_ru_col
-                              - STRLEN(NameBuff)
+                              - ustrlen(NameBuff)
                               - 1
                               + wp->w_wincol),
                         attr);
@@ -6757,7 +6757,7 @@ int get_keymap_str(win_st *wp, uchar_kt *fmt, uchar_kt *buf, int len)
     uchar_kt *s;
     curbuf = wp->w_buffer;
     curwin = wp;
-    STRCPY(buf, "b:keymap_name"); // must be writable
+    ustrcpy(buf, "b:keymap_name"); // must be writable
     ++emsg_skip;
     s = p = eval_to_string(buf, NULL, FALSE);
     --emsg_skip;
@@ -6776,7 +6776,7 @@ int get_keymap_str(win_st *wp, uchar_kt *fmt, uchar_kt *buf, int len)
         }
     }
 
-    if(vim_snprintf((char *)buf, len, (char *)fmt, p) > len - 1)
+    if(xsnprintf((char *)buf, len, (char *)fmt, p) > len - 1)
     {
         buf[0] = NUL;
     }
@@ -6919,7 +6919,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
 
     // Make a copy, because the statusline may include a function call that
     // might change the option value and free the memory.
-    stl = vim_strsave(stl);
+    stl = ustrdup(stl);
 
     width = build_stl_str_hl(ewp,
                              buf,
@@ -6935,7 +6935,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
 
     // Make all characters printable.
     p = transstr(buf);
-    len = STRLCPY(buf, p, sizeof(buf));
+    len = ustrlcpy(buf, p, sizeof(buf));
     len = (size_t)len < sizeof(buf) ? len : (int)sizeof(buf) - 1;
     xfree(p);
 
@@ -6956,7 +6956,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
     {
         int len = (int)(hltab[n].start - p);
         screen_puts_len(p, len, row, col, curattr);
-        col += vim_strnsize(p, len);
+        col += ustr_scrsize_len(p, len);
         p = hltab[n].start;
 
         if(hltab[n].userhl == 0)
@@ -6994,7 +6994,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
 
         for(n = 0; tabtab[n].start != NULL; n++)
         {
-            len += vim_strnsize(p, (int)(tabtab[n].start - (char *) p));
+            len += ustr_scrsize_len(p, (int)(tabtab[n].start - (char *) p));
 
             while(col < len)
             {
@@ -7578,7 +7578,7 @@ static void next_search_hl(win_st *win,
         {
             matchcol = 0;
         }
-        else if(vim_strchr(p_cpo, CPO_SEARCH) == NULL
+        else if(ustrchr(p_cpo, CPO_SEARCH) == NULL
                 || (shl->rm.endpos[0].lnum == 0
                     && shl->rm.endpos[0].col <= shl->rm.startpos[0].col))
         {
@@ -8203,7 +8203,7 @@ retry:
         if(ScreenLines != NULL || !done_outofmem_msg)
         {
             // guess the size
-            do_outofmem_msg((Rows + 1) * Columns);
+            msg_out_of_memory((Rows + 1) * Columns);
 
             // Remember we did this to avoid getting
             // outofmem messages over and over again.
@@ -8531,7 +8531,7 @@ void setcursor(void)
                               - curwin->w_wcol
                               - ((has_mbyte
                                   && (*mb_ptr2cells)(get_cursor_pos_ptr()) == 2
-                                  && vim_isprintc(gchar_cursor())) ? 2 : 1))
+                                  && is_print_char(gchar_cursor())) ? 2 : 1))
                            : curwin->w_wcol));
     }
 }
@@ -8914,7 +8914,7 @@ int showmode(void)
     int attr;
     int nwr_save;
     int sub_attr;
-	
+
     do_mode = ((p_smd && msg_silent == 0)
                && ((curmod & kTermFocusMode)
                    || (curmod & kInsertMode)
@@ -8964,17 +8964,17 @@ int showmode(void)
 
                 if(edit_submode_extra != NULL)
                 {
-                    length -= vim_strsize(edit_submode_extra);
+                    length -= ustr_scrsize(edit_submode_extra);
                 }
 
                 if(length > 0)
                 {
                     if(edit_submode_pre != NULL)
                     {
-                        length -= vim_strsize(edit_submode_pre);
+                        length -= ustr_scrsize(edit_submode_pre);
                     }
 
-                    if(length - vim_strsize(edit_submode) > 0)
+                    if(length - ustr_scrsize(edit_submode) > 0)
                     {
                         if(edit_submode_pre != NULL)
                         {
@@ -9197,7 +9197,7 @@ static void recording_mode(int attr)
     if(!shortmess(SHM_RECORDING))
     {
         uchar_kt s[4];
-        vim_snprintf((char *)s, ARRAY_SIZE(s), " @%c", Recording);
+        xsnprintf((char *)s, ARRAY_SIZE(s), " @%c", Recording);
         MSG_PUTS_ATTR(s, attr);
     }
 }
@@ -9336,8 +9336,8 @@ static void draw_tabline(void)
             {
                 if(wincount > 1)
                 {
-                    vim_snprintf((char *)NameBuff, MAXPATHL, "%d", wincount);
-                    len = (int)STRLEN(NameBuff);
+                    xsnprintf((char *)NameBuff, MAXPATHL, "%d", wincount);
+                    len = (int)ustrlen(NameBuff);
 
                     if(col + len >= Columns - 3)
                     {
@@ -9364,7 +9364,7 @@ static void draw_tabline(void)
                 // Get buffer name in NameBuff[]
                 get_trans_bufname(cwp->w_buffer);
                 (void)shorten_dir(NameBuff);
-                len = vim_strsize(NameBuff);
+                len = ustr_scrsize(NameBuff);
                 p = NameBuff;
 
                 if(has_mbyte)
@@ -9386,7 +9386,7 @@ static void draw_tabline(void)
                     len = Columns - col - 1;
                 }
 
-                screen_puts_len(p, (int)STRLEN(p), 0, col, attr);
+                screen_puts_len(p, (int)ustrlen(p), 0, col, attr);
                 col += len;
             }
 
@@ -9458,7 +9458,7 @@ void get_trans_bufname(filebuf_st *buf)
 {
     if(buf_spname(buf) != NULL)
     {
-        STRLCPY(NameBuff, buf_spname(buf), MAXPATHL);
+        ustrlcpy(NameBuff, buf_spname(buf), MAXPATHL);
     }
     else
     {
@@ -9684,12 +9684,11 @@ static void win_redr_ruler(win_st *wp, int always)
 
         // Some sprintfs return the length, some return a pointer.
         // To avoid portability problems we use strlen() here.
-        vim_snprintf((char *)buffer, RULER_BUF_LEN, "%" PRId64 ",",
-                     (wp->w_buffer->b_ml.ml_flags & kMLflgBufEmpty)
-                     ? (int64_t)0L
-                     : (int64_t)wp->w_cursor.lnum);
+        xsnprintf((char *)buffer, RULER_BUF_LEN, "%" PRId64 ",",
+                  (wp->w_buffer->b_ml.ml_flags & kMLflgBufEmpty)
+                  ? (int64_t)0L : (int64_t)wp->w_cursor.lnum);
 
-        size_t len = STRLEN(buffer);
+        size_t len = ustrlen(buffer);
 
         col_print(buffer + len, RULER_BUF_LEN - len,
                   empty_line ? 0 : (int)wp->w_cursor.col + 1,
@@ -9698,10 +9697,10 @@ static void win_redr_ruler(win_st *wp, int always)
         // Add a "50%" if there is room for it.
         // On the last line, don't print in the last column (scrolls the
         // screen up on some terminals).
-        int i = (int)STRLEN(buffer);
+        int i = (int)ustrlen(buffer);
 
         get_rel_pos(wp, buffer + i + 1, RULER_BUF_LEN - i - 1);
-        int o = i + vim_strsize(buffer + i + 1);
+        int o = i + ustr_scrsize(buffer + i + 1);
 
         // can't use last char of screen
         if(wp->w_status_height == 0)
@@ -9759,7 +9758,7 @@ static void win_redr_ruler(win_st *wp, int always)
                 }
             }
         }
-        else if(this_ru_col + (int)STRLEN(buffer) > width)
+        else if(this_ru_col + (int)ustrlen(buffer) > width)
         {
             buffer[width - this_ru_col] = NUL;
         }
@@ -9768,7 +9767,7 @@ static void win_redr_ruler(win_st *wp, int always)
         i = redraw_cmdline;
 
         screen_fill(row, row + 1,
-                    this_ru_col + off + (int)STRLEN(buffer),
+                    this_ru_col + off + (int)ustrlen(buffer),
                     off + width, fillchar, fillchar, attr);
 
         // don't redraw the cmdline because of showing the ruler
@@ -9874,9 +9873,9 @@ void screen_resize(int width, int height)
     // The window layout used to be adjusted here, but it now happens in
     // screenalloc() (also invoked from screenclear()). That is because the
     // "busy" check above may skip this, but not screenalloc().
-    if(curmod != kAskMoreMode 
-	   && curmod != kExecExtCmdMode 
-	   && curmod != kConfirmMode)
+    if(curmod != kAskMoreMode
+       && curmod != kExecExtCmdMode
+       && curmod != kConfirmMode)
     {
         screenclear();
     }

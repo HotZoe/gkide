@@ -11,7 +11,7 @@
 #include "nvim/event/wstream.h"
 #include "nvim/os/os.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/strings.h"
 #include "nvim/path.h"
 #include "nvim/main.h"
@@ -29,7 +29,7 @@ int socket_watcher_init(main_loop_st *loop,
                         const char *endpoint)
 FUNC_ATTR_NONNULL_ALL
 {
-    xstrlcpy(watcher->addr, endpoint, sizeof(watcher->addr));
+    xstrncpy(watcher->addr, endpoint, sizeof(watcher->addr));
     char *addr = watcher->addr;
     char *host_end = strrchr(addr, ':');
 

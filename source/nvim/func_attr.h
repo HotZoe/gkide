@@ -15,8 +15,10 @@
 ///   - undefined @b DEFINE_FUNC_ATTRIBUTES
 ///   - undefined @b DEFINE_KEEP_ATTRIBUTES
 ///
-/// - <b>FUNC_ATTR_*</b> macros should be in *.c files, to auto generated declarations.
-/// - <b>REAL_FATTR_*</b> macros should be in *.c files, not auto generated declarations.
+/// - <b>FUNC_ATTR_*</b> macros should be in *.c files,
+///   to auto generated declarations.
+/// - <b>REAL_FATTR_*</b> macros should be in *.c files,
+///   not auto generated declarations.
 ///
 
 // gcc and clang expose their version as follows:
@@ -121,25 +123,28 @@
         #define REAL_FATTR_ALLOC_SIZE_PROD(x, y) __attribute__((__alloc_size__(x, y)))
         #endif
 
-        /// the arguments not always used, e.g: used for windows build, but not for linux
+        /// the arguments not always used,
+        /// e.g: used for windows build, but not for linux
         #define REAL_ARGS_ATTR_UNUSED_MAYBE(v)   v __attribute__((__unused__))
 
-        /// the arguments always not used, and you get an error if you try use @b v
-        /// in the code anywhere.
+        /// the arguments always not used, and you get an error
+        /// if you try use @b v in the code anywhere.
         ///
-        /// @note it does not work for arguments which contain parenthesis, e.g.:
+        /// @note
+        /// it does not work for arguments which contain parenthesis, e.g.:
         ///
         /// ~~~~~~~~~~~~~~~{.c}
         /// int func(char (*names)[3]);
         ///
-        /// int func(char (*REAL_FATTR_ARG_UNUSED_REALY(names))[3]); // do not work
-        /// int func(char (*UNUSED_names __attribute__((__unused__)))[3]); // do not work
+        /// // do not work
+        /// int func(char (*REAL_FATTR_ARG_UNUSED_REALY(names))[3]);
+        /// int func(char (*UNUSED_names __attribute__((__unused__)))[3]);
         /// ~~~~~~~~~~~~~~~
         ///
-        /// so, those type arguments, use `(void)names;` in the function body instead
-        /// the macro is defined following: SUPPRESS_UNUSED_WARNINGS
+        /// so, those type arguments, use `(void)names;` in the function body
+        /// instead the macro is defined following, see FUNC_ARGS_UNUSED_FORCE
         ///
-        /// @todo rewrite the signature of the function and related function pointer
+        /// @todo refactoring the function and related function pointer
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
     #endif
 
@@ -205,9 +210,11 @@
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v
     #endif
 
-    #define FUNC_ARGS_UNUSED_MAYBE(v)     REAL_ARGS_ATTR_UNUSED_MAYBE(v)
+    /// @todo refactoring the function or just remove the unused args
+    #define FUNC_ARGS_UNUSED_FORCE(v)     (void)(v)
+    /// @todo refactoring the function or just remove the unused args
     #define FUNC_ARGS_UNUSED_REALY(v)     REAL_ARGS_ATTR_UNUSED_REALY(v)
-    #define SUPPRESS_UNUSED_WARNINGS(v)   (void)(v)
+    #define FUNC_ARGS_UNUSED_MAYBE(v)     REAL_ARGS_ATTR_UNUSED_MAYBE(v)
 
     // keep the following two macro not touched for the generated *.i
     #ifdef DEFINE_KEEP_ATTRIBUTES

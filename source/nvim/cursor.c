@@ -12,7 +12,7 @@
 #include "nvim/move.h"
 #include "nvim/screen.h"
 #include "nvim/state.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/mark.h"
 
@@ -64,7 +64,7 @@ int coladvance_force(columnum_kt wcol)
 /// Try to advance the Cursor to the specified screen column.
 /// If virtual editing: fine tune the cursor position.
 /// Note that all virtual positions off the end of a line should share
-/// a curwin->w_cursor.col value (n.b. this is equal to STRLEN(line)),
+/// a curwin->w_cursor.col value (n.b. this is equal to ustrlen(line)),
 /// beginning at coladd 0.
 ///
 /// return OK if desired column is reached, FAIL if not
@@ -111,7 +111,7 @@ static int coladvance2(apos_st *pos, bool addspaces, bool finetune, columnum_kt 
 
     if(wcol >= MAXCOL)
     {
-        idx = (int)STRLEN(line) - 1 + one_more;
+        idx = (int)ustrlen(line) - 1 + one_more;
         col = wcol;
 
         if((addspaces || finetune) && !VIsual_active)
@@ -198,7 +198,7 @@ static int coladvance2(apos_st *pos, bool addspaces, bool finetune, columnum_kt 
             else
             {
                 // Break a tab
-                int linelen = (int)STRLEN(line);
+                int linelen = (int)ustrlen(line);
                 int correct = wcol - col - csize + 1; // negative!!
                 uchar_kt *newline;
 
@@ -350,7 +350,7 @@ void check_pos(filebuf_st *buf, apos_st *pos)
     if(pos->col > 0)
     {
         line = ml_get_buf(buf, pos->lnum, false);
-        len = (columnum_kt)STRLEN(line);
+        len = (columnum_kt)ustrlen(line);
 
         if(pos->col > len)
         {
@@ -393,7 +393,7 @@ void check_cursor_col_win(win_st *win)
     columnum_kt oldcol = win->w_cursor.col;
     columnum_kt oldcoladd = win->w_cursor.col + win->w_cursor.coladd;
 
-    len = (columnum_kt)STRLEN(ml_get_buf(win->w_buffer,
+    len = (columnum_kt)ustrlen(ml_get_buf(win->w_buffer,
                                      win->w_cursor.lnum, false));
 
     if(len == 0)

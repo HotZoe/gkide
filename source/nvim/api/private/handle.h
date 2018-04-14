@@ -3,7 +3,7 @@
 #ifndef NVIM_API_PRIVATE_HANDLE_H
 #define NVIM_API_PRIVATE_HANDLE_H
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/buffer_defs.h"
 #include "nvim/api/private/defs.h"
 

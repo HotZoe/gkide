@@ -8,7 +8,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
+#include "nvim/error.h"
 #include "nvim/ascii.h"
 #include "nvim/misc1.h"
 #include "nvim/charset.h"
@@ -62,7 +63,7 @@ static garray_st ga_users = GA_EMPTY_INIT_VALUE;
 
 /// Add a new line below or above the current line.
 ///
-/// For @b kVReplaceMode mode, we only add a new line when we get to the end of 
+/// For @b kVReplaceMode mode, we only add a new line when we get to the end of
 /// the file, otherwise we just start replacing the next line.
 ///
 /// Caller must take care of undo. Since @b kVReplaceMode may affect any number of
@@ -110,7 +111,7 @@ int open_line(int dir, int flags, int second_line_indent)
     int saved_pi = curbuf->b_p_pi;  // copy of preserveindent setting
 
     // make a copy of the current line so we can mess with it
-    uchar_kt *saved_line = vim_strsave(get_cursor_line_ptr());
+    uchar_kt *saved_line = ustrdup(get_cursor_line_ptr());
 
     if(curmod & kModFlgVReplace)
     {
@@ -123,11 +124,11 @@ int open_line(int dir, int flags, int second_line_indent)
         // stuff onto the replace stack.
         if(curwin->w_cursor.lnum < orig_line_count)
         {
-            next_line = vim_strsave(ml_get(curwin->w_cursor.lnum + 1));
+            next_line = ustrdup(ml_get(curwin->w_cursor.lnum + 1));
         }
         else
         {
-            next_line = vim_strsave((uchar_kt *)"");
+            next_line = ustrdup((uchar_kt *)"");
         }
 
         // In 'kVReplaceMode' mode, a NL replaces the rest of the line, and starts
@@ -166,7 +167,7 @@ int open_line(int dir, int flags, int second_line_indent)
             first_char = *p;
         }
 
-        extra_len = (int)STRLEN(p_extra);
+        extra_len = (int)ustrlen(p_extra);
         saved_char = *p_extra;
         *p_extra = NUL;
     }
@@ -280,7 +281,7 @@ int open_line(int dir, int flags, int second_line_indent)
                 else // Not a comment line
                 {
                     // Find last non-blank in line
-                    p = ptr + STRLEN(ptr) - 1;
+                    p = ptr + ustrlen(ptr) - 1;
 
                     while(p > ptr && ascii_iswhite(*p))
                     {
@@ -349,7 +350,7 @@ int open_line(int dir, int flags, int second_line_indent)
                     while((ptr[0] == '#' || was_backslashed)
                           && curwin->w_cursor.lnum < curbuf->b_ml.ml_line_count)
                     {
-                        if(*ptr && ptr[STRLEN(ptr) - 1] == '\\')
+                        if(*ptr && ptr[ustrlen(ptr) - 1] == '\\')
                         {
                             was_backslashed = true;
                         }
@@ -488,7 +489,7 @@ int open_line(int dir, int flags, int second_line_indent)
                 {
                     for(p = saved_line + lead_len; *p; ++p)
                     {
-                        if(STRNCMP(p, lead_end, n) == 0)
+                        if(ustrncmp(p, lead_end, n) == 0)
                         {
                             comment_end = p;
                             lead_len = 0;
@@ -503,7 +504,7 @@ int open_line(int dir, int flags, int second_line_indent)
                     if(current_flag == COM_START)
                     {
                         lead_repl = lead_middle;
-                        lead_repl_len = (int)STRLEN(lead_middle);
+                        lead_repl_len = (int)ustrlen(lead_middle);
                     }
 
                     // If we have hit RETURN immediately after the start
@@ -604,7 +605,7 @@ int open_line(int dir, int flags, int second_line_indent)
                                       + 1));
 
             allocated = leader; // remember to free it later
-            STRLCPY(leader, saved_line, lead_len + 1);
+            ustrlcpy(leader, saved_line, lead_len + 1);
 
             // Replace leader with lead_repl, right or left adjusted
             if(lead_repl != NULL)
@@ -641,7 +642,8 @@ int open_line(int dir, int flags, int second_line_indent)
                     // Compute the length of the replaced characters in
                     // screen characters, not bytes.
                     {
-                        int repl_size = vim_strnsize(lead_repl, lead_repl_len);
+                        int repl_size =
+                            ustr_scrsize_len(lead_repl, lead_repl_len);
                         int old_size = 0;
                         uchar_kt  *endp = p;
                         int l;
@@ -705,7 +707,8 @@ int open_line(int dir, int flags, int second_line_indent)
                     // screen characters, not bytes. Move the part that is
                     // not to be overwritten.
                     {
-                        int repl_size = vim_strnsize(lead_repl, lead_repl_len);
+                        int repl_size =
+                            ustr_scrsize_len(lead_repl, lead_repl_len);
                         int i;
                         int l;
 
@@ -713,7 +716,7 @@ int open_line(int dir, int flags, int second_line_indent)
                         {
                             l = (*mb_ptr2len)(p + i);
 
-                            if(vim_strnsize(p, i + l) > repl_size)
+                            if(ustr_scrsize_len(p, i + l) > repl_size)
                             {
                                 break;
                             }
@@ -796,7 +799,7 @@ int open_line(int dir, int flags, int second_line_indent)
                 while(off > 0 && lead_len > 0 && leader[lead_len - 1] == ' ')
                 {
                     // Don't do it when there is a tab before the space
-                    if(vim_strchr(skipwhite(leader), '\t') != NULL)
+                    if(ustrchr(skipwhite(leader), '\t') != NULL)
                     {
                         break;
                     }
@@ -860,7 +863,7 @@ int open_line(int dir, int flags, int second_line_indent)
     }
 
     // (curmod == kInsertMode || curmod == kReplaceMode)
-	//  only when dir == FORWARD
+    //  only when dir == FORWARD
     if(p_extra != NULL)
     {
         *p_extra = saved_char; // restore char that NUL replaced
@@ -910,20 +913,20 @@ int open_line(int dir, int flags, int second_line_indent)
         if(flags & OPENLINE_COM_LIST && second_line_indent > 0)
         {
             int i;
-            int padding = second_line_indent - (newindent + (int)STRLEN(leader));
+            int padding = second_line_indent - (newindent + (int)ustrlen(leader));
 
             // Here whitespace is inserted after the comment char.
             // Below, set_indent(newindent, SIN_INSERT) will insert the
             // whitespace needed before the comment char.
             for(i = 0; i < padding; i++)
             {
-                STRCAT(leader, " ");
+                ustrcat(leader, " ");
                 less_cols--;
                 newcol++;
             }
         }
 
-        STRCAT(leader, p_extra);
+        ustrcat(leader, p_extra);
         p_extra = leader;
         did_ai = TRUE; // So truncating blanks works with comments
         less_cols -= lead_len;
@@ -1029,8 +1032,8 @@ int open_line(int dir, int flags, int second_line_indent)
         }
     }
 
-    // In 'kReplaceMode' mode, for each character in the extra leader, there 
-	// must be a NUL on the replace stack, for when it is deleted with BS.
+    // In 'kReplaceMode' mode, for each character in the extra leader, there
+    // must be a NUL on the replace stack, for when it is deleted with BS.
     if(REPLACE_NORMAL(curmod))
     {
         while(lead_len-- > 0)
@@ -1092,8 +1095,8 @@ int open_line(int dir, int flags, int second_line_indent)
     curwin->w_cursor.coladd = 0;
 
     // In 'kVReplaceMode' mode, we are handling the replace stack ourselves, so stop
-    // fixthisline() from doing it (via change_indent()) by telling it we're 
-	// in normal 'kInsertMode' mode.
+    // fixthisline() from doing it (via change_indent()) by telling it we're
+    // in normal 'kInsertMode' mode.
     if(curmod & kModFlgVReplace)
     {
         vreplace_mode = curmod; // So we know to put things right later
@@ -1137,7 +1140,7 @@ int open_line(int dir, int flags, int second_line_indent)
     if(curmod & kModFlgVReplace)
     {
         // Put new line in p_extra
-        p_extra = vim_strsave(get_cursor_line_ptr());
+        p_extra = ustrdup(get_cursor_line_ptr());
 
         // Put back original line
         ml_replace(curwin->w_cursor.lnum, next_line, FALSE);
@@ -1212,7 +1215,7 @@ int get_leader_len(uchar_kt *line,
 
             prev_list = list;
             (void)copy_option_part(&list, part_buf, COM_MAX_LEN, ",");
-            string = vim_strchr(part_buf, ':');
+            string = ustrchr(part_buf, ':');
 
             if(string == NULL) // missing ':', ignore this part
             {
@@ -1224,21 +1227,21 @@ int get_leader_len(uchar_kt *line,
             // If we found a middle match previously, use
             // that match when this is not a middle or end.
             if(middle_match_len != 0
-               && vim_strchr(part_buf, COM_MIDDLE) == NULL
-               && vim_strchr(part_buf, COM_END) == NULL)
+               && ustrchr(part_buf, COM_MIDDLE) == NULL
+               && ustrchr(part_buf, COM_END) == NULL)
             {
                 break;
             }
 
             // When we already found a nested comment, only
             // accept further nested comments.
-            if(got_com && vim_strchr(part_buf, COM_NEST) == NULL)
+            if(got_com && ustrchr(part_buf, COM_NEST) == NULL)
             {
                 continue;
             }
 
             // When 'O' flag present and using "O" command skip this one.
-            if(backward && vim_strchr(part_buf, COM_NOBACK) != NULL)
+            if(backward && ustrchr(part_buf, COM_NOBACK) != NULL)
             {
                 continue;
             }
@@ -1270,7 +1273,7 @@ int get_leader_len(uchar_kt *line,
 
             // When 'b' flag used, there must be white space or an
             // end-of-line after the string in the line.
-            if(vim_strchr(part_buf, COM_BLANK) != NULL
+            if(ustrchr(part_buf, COM_BLANK) != NULL
                && !ascii_iswhite(line[i + j]) && line[i + j] != NUL)
             {
                 continue;
@@ -1281,7 +1284,7 @@ int get_leader_len(uchar_kt *line,
             // comment in which case it's better to return the length of the
             // end comment and its flags. Thus we keep searching with middle
             // and end matches and use an end match if it matches better.
-            if(vim_strchr(part_buf, COM_MIDDLE) != NULL)
+            if(ustrchr(part_buf, COM_MIDDLE) != NULL)
             {
                 if(middle_match_len == 0)
                 {
@@ -1343,7 +1346,7 @@ int get_leader_len(uchar_kt *line,
         // If this comment doesn't nest, stop here.
         got_com = TRUE;
 
-        if(vim_strchr(part_buf, COM_NEST) == NULL)
+        if(ustrchr(part_buf, COM_NEST) == NULL)
         {
             break;
         }
@@ -1370,7 +1373,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
     uchar_kt part_buf[COM_MAX_LEN]; // buffer for one option part
 
     // Repeat to match several nested comment strings.
-    i = (int)STRLEN(line);
+    i = (int)ustrlen(line);
 
     while(--i >= lower_check_bound)
     {
@@ -1383,7 +1386,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
             // Get one option part into part_buf[].
             // Advance list to next one. put string at start of string.
             (void)copy_option_part(&list, part_buf, COM_MAX_LEN, ",");
-            string = vim_strchr(part_buf, ':');
+            string = ustrchr(part_buf, ':');
 
             if(string == NULL)
             {
@@ -1421,7 +1424,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
 
             // When 'b' flag used, there must be white space or an
             // end-of-line after the string in the line.
-            if(vim_strchr(part_buf, COM_BLANK) != NULL
+            if(ustrchr(part_buf, COM_BLANK) != NULL
                && !ascii_iswhite(line[i + j]) && line[i + j] != NUL)
             {
                 continue;
@@ -1446,7 +1449,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
             result = i;
 
             // If this comment nests, continue searching.
-            if(vim_strchr(part_buf, COM_NEST) != NULL)
+            if(ustrchr(part_buf, COM_NEST) != NULL)
             {
                 continue;
             }
@@ -1463,7 +1466,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
                 ++com_leader;
             }
 
-            len1 = (int)STRLEN(com_leader);
+            len1 = (int)ustrlen(com_leader);
 
             for(list = curbuf->b_p_com; *list;)
             {
@@ -1475,7 +1478,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
                     continue;
                 }
 
-                string = vim_strchr(part_buf2, ':');
+                string = ustrchr(part_buf2, ':');
                 ++string;
 
                 while(ascii_iswhite(*string))
@@ -1483,7 +1486,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
                     ++string;
                 }
 
-                len2 = (int)STRLEN(string);
+                len2 = (int)ustrlen(string);
 
                 if(len2 == 0)
                 {
@@ -1496,7 +1499,7 @@ int get_last_leader_offset(uchar_kt *line, uchar_kt **flags)
                 {
                     --off;
 
-                    if(!STRNCMP(string + off, com_leader, len2 - off))
+                    if(!ustrncmp(string + off, com_leader, len2 - off))
                     {
                         if(i - off < lower_check_bound)
                         {
@@ -1642,10 +1645,10 @@ int plines_win_col(win_st *wp, linenum_kt lnum, long column)
     }
 
     // If *s is a TAB, and the TAB is not displayed as ^I, and we're not in
-    // kInsertMode mode, then col must be adjusted so that it represents the 
-	// last screen position of the TAB. This only fixes an error when the TAB
-	// wraps from one screen line to the next (when 'columns' is not a 
-	// multiple of 'ts')
+    // kInsertMode mode, then col must be adjusted so that it represents the
+    // last screen position of the TAB. This only fixes an error when the TAB
+    // wraps from one screen line to the next (when 'columns' is not a
+    // multiple of 'ts')
     if(*s == TAB
        && (curmod & kNormalMode)
        && (!wp->w_o_curbuf.wo_list || lcs_tab1))
@@ -1708,7 +1711,7 @@ int plines_m_win(win_st *wp, linenum_kt first, linenum_kt last)
 /// Handles Replace mode and multi-byte characters.
 void ins_bytes(uchar_kt *p)
 {
-    ins_bytes_len(p, STRLEN(p));
+    ins_bytes_len(p, ustrlen(p));
 }
 
 /// Insert string "p" with length "len" at the cursor position.
@@ -1743,7 +1746,7 @@ void ins_bytes_len(uchar_kt *p, size_t len)
     }
 }
 
-/// Insert or replace a single character at the cursor position. When in 
+/// Insert or replace a single character at the cursor position. When in
 /// @b kReplaceMode or @b kVReplaceMode mode, replace any existing character.
 /// Caller must have prepared for undo.
 /// For multi-byte characters we get the whole character, the caller must
@@ -1774,7 +1777,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
     size_t col = (size_t)curwin->w_cursor.col;
     linenum_kt lnum = curwin->w_cursor.lnum;
     uchar_kt *oldp = ml_get(lnum);
-    size_t linelen = STRLEN(oldp) + 1; // length of old line including NUL
+    size_t linelen = ustrlen(oldp) + 1; // length of old line including NUL
 
     // The lengths default to the values for when not replacing.
     size_t oldlen = 0; // nr of bytes inserted
@@ -1789,7 +1792,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
             // curwin->w_o_curbuf.wo_list should be set back to this.
             int old_list = curwin->w_o_curbuf.wo_list;
 
-            if(old_list && vim_strchr(p_cpo, CPO_LISTWM) == NULL)
+            if(old_list && ustrchr(p_cpo, CPO_LISTWM) == NULL)
             {
                 curwin->w_o_curbuf.wo_list = false;
             }
@@ -1878,10 +1881,10 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
 
     // If we're in Insert or Replace mode and 'showmatch' is set,
     // then briefly show the match for right parens and braces.
-    if(p_sm 
-	   && (curmod & kInsertMode) 
-	   && msg_silent == 0 
-	   && !ins_compl_active())
+    if(p_sm
+       && (curmod & kInsertMode)
+       && msg_silent == 0
+       && !ins_compl_active())
     {
         showmatch(mb_ptr2char(buf));
     }
@@ -1901,7 +1904,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
 void ins_str(uchar_kt *s)
 {
     uchar_kt *oldp, *newp;
-    int newlen = (int)STRLEN(s);
+    int newlen = (int)ustrlen(s);
     int oldlen;
     columnum_kt col;
     linenum_kt lnum = curwin->w_cursor.lnum;
@@ -1913,7 +1916,7 @@ void ins_str(uchar_kt *s)
 
     col = curwin->w_cursor.col;
     oldp = ml_get(lnum);
-    oldlen = (int)STRLEN(oldp);
+    oldlen = (int)ustrlen(oldp);
     newp = (uchar_kt *) xmalloc((size_t)(oldlen + newlen + 1));
 
     if(col > 0)
@@ -1985,7 +1988,7 @@ int del_bytes(columnum_kt count, bool fixpos_arg, bool use_delcombine)
     columnum_kt col = curwin->w_cursor.col;
     bool fixpos = fixpos_arg;
     uchar_kt *oldp = ml_get(lnum);
-    columnum_kt oldlen = (columnum_kt)STRLEN(oldp);
+    columnum_kt oldlen = (columnum_kt)ustrlen(oldp);
 
     // Can't do anything when the cursor is on the NUL after the line.
     if(col >= oldlen)
@@ -2086,11 +2089,11 @@ void truncate_line(int fixpos)
 
     if(col == 0)
     {
-        newp = vim_strsave((uchar_kt *)"");
+        newp = ustrdup((uchar_kt *)"");
     }
     else
     {
-        newp = vim_strnsave(ml_get(lnum), (size_t)col);
+        newp = ustrndup(ml_get(lnum), (size_t)col);
     }
 
     ml_replace(lnum, newp, false);
@@ -2869,9 +2872,9 @@ int get_keystroke(void)
 
         if(n == KEYLEN_REMOVED) // key code removed
         {
-            if(must_redraw != 0 
-			   && !need_wait_return 
-			   && (curmod & kCmdLineMode) == 0)
+            if(must_redraw != 0
+               && !need_wait_return
+               && (curmod & kCmdLineMode) == 0)
             {
                 // Redrawing was postponed, do it now.
                 update_screen(0);
@@ -3100,30 +3103,30 @@ void msgmore(long n)
         {
             if(n > 0)
             {
-                STRLCPY(msg_buf, _("1 more line"), MSG_BUF_LEN);
+                ustrlcpy(msg_buf, _("1 more line"), MSG_BUF_LEN);
             }
             else
             {
-                STRLCPY(msg_buf, _("1 line less"), MSG_BUF_LEN);
+                ustrlcpy(msg_buf, _("1 line less"), MSG_BUF_LEN);
             }
         }
         else
         {
             if(n > 0)
             {
-                vim_snprintf((char *)msg_buf, MSG_BUF_LEN,
-                             _("%" PRId64 " more lines"), (int64_t)pn);
+                xsnprintf((char *)msg_buf, MSG_BUF_LEN,
+                          _("%" PRId64 " more lines"), (int64_t)pn);
             }
             else
             {
-                vim_snprintf((char *)msg_buf, MSG_BUF_LEN,
-                             _("%" PRId64 " fewer lines"), (int64_t)pn);
+                xsnprintf((char *)msg_buf, MSG_BUF_LEN,
+                          _("%" PRId64 " fewer lines"), (int64_t)pn);
             }
         }
 
         if(got_int)
         {
-            xstrlcat((char *)msg_buf, _(" (Interrupted)"), MSG_BUF_LEN);
+            xstrncat((char *)msg_buf, _(" (Interrupted)"), MSG_BUF_LEN);
         }
 
         if(msg(msg_buf))
@@ -3164,7 +3167,7 @@ void vim_beep(unsigned val)
 
         // When 'verbose' is set and we are sourcing a script or executing a
         // function give the user a hint where the beep comes from.
-        if(vim_strchr(p_debug, 'e') != NULL)
+        if(ustrchr(p_debug, 'e') != NULL)
         {
             msg_source(hl_attr(HLF_W));
             msg_attr(_("Beep!"), hl_attr(HLF_W));
@@ -3213,18 +3216,18 @@ uchar_kt *get_users(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 /// - 2 is name fully matches a user name.
 int match_user(uchar_kt *name)
 {
-    int n = (int)STRLEN(name);
+    int n = (int)ustrlen(name);
     int result = 0;
     init_users();
 
     for(int i = 0; i < ga_users.ga_len; i++)
     {
-        if(STRCMP(((uchar_kt **)ga_users.ga_data)[i], name) == 0)
+        if(ustrcmp(((uchar_kt **)ga_users.ga_data)[i], name) == 0)
         {
             return 2; // full match
         }
 
-        if(STRNCMP(((uchar_kt **)ga_users.ga_data)[i], name, n) == 0)
+        if(ustrncmp(((uchar_kt **)ga_users.ga_data)[i], name, n) == 0)
         {
             result = 1; // partial match
         }
@@ -3236,10 +3239,12 @@ int match_user(uchar_kt *name)
 /// Preserve files and exit.
 /// When called IObuff must contain a message.
 ///
+/// @param exit_code see @b nvim_exit_status_e
+///
 /// @note
 /// This may be called from deathtrap() in a signal
 /// handler, avoid unsafe functions, such as allocating memory.
-void preserve_exit(void)
+void preserve_exit(int exit_code)
 {
     // 'true' when we are sure to exit, e.g., after a deadly signal
     static bool really_exiting = false;
@@ -3268,8 +3273,8 @@ void preserve_exit(void)
         }
     }
     ml_close_all(false); // close all memfiles, without deleting
-    mch_errmsg("Vim: Finished.\n");
-    exit_nvim_properly(kNEStatusFailure);
+    mch_errmsg("nvim: Finished.\n");
+    exit_nvim_properly(exit_code);
 }
 
 #ifndef BREAKCHECK_SKIP

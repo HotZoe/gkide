@@ -18,10 +18,10 @@
 #include "nvim/mbyte.h"
 #include "nvim/message.h"
 #include "nvim/memory.h"
-#include "nvim/charset.h" // vim_isprintc()
+#include "nvim/charset.h" // is_print_char()
 #include "nvim/macros.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h" // For _()
+#include "nvim/nvim.h" // For _()
 #include "nvim/lib/kvec.h"
 #include "nvim/eval/typval_encode.h"
 
@@ -71,7 +71,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             str = (char *)li->li_tv.vval.v_string + li_len;
             memcpy(str, buf, line_length);
             str[line_length] = 0;
-            memchrsub(str, NUL, NL, line_length);
+            xmemchrsub(str, NUL, NL, line_length);
         }
 
         line_end++;
@@ -87,7 +87,7 @@ FUNC_ATTR_NONNULL_ARG(1)
         {
             const size_t line_length = (size_t)(line_end - line_start);
             str = xmemdupz(line_start, line_length);
-            memchrsub(str, NUL, NL, line_length);
+            xmemchrsub(str, NUL, NL, line_length);
         }
 
         tv_list_append_allocated_string(list, str);
@@ -151,7 +151,7 @@ FUNC_ATTR_NONNULL_ALL
                 };
 
                 char *const key = encode_tv2string(&key_tv, NULL);
-                vim_snprintf((char *) IObuff, IOSIZE, key_msg, key);
+                xsnprintf((char *) IObuff, IOSIZE, key_msg, key);
                 xfree(key);
                 ga_concat(&msg_ga, IObuff);
                 break;
@@ -175,7 +175,7 @@ FUNC_ATTR_NONNULL_ALL
                    || (li->li_tv.v_type != kNvarList
                        && li->li_tv.vval.v_list->lv_len <= 0))
                 {
-                    vim_snprintf((char *) IObuff, IOSIZE, idx_msg, idx);
+                    xsnprintf((char *) IObuff, IOSIZE, idx_msg, idx);
 
                     ga_concat(&msg_ga, IObuff);
                 }
@@ -184,7 +184,7 @@ FUNC_ATTR_NONNULL_ALL
                     typval_st key_tv = li->li_tv.vval.v_list->lv_first->li_tv;
                     char *const key = encode_tv2echo(&key_tv, NULL);
 
-                    vim_snprintf((char *) IObuff, IOSIZE,
+                    xsnprintf((char *) IObuff, IOSIZE,
                                  key_pair_msg, key, idx);
 
                     xfree(key);
@@ -224,7 +224,7 @@ FUNC_ATTR_NONNULL_ALL
             case kMPConvPartialList:
             {
                 const int idx = (int)(v.data.a.arg - v.data.a.argv) - 1;
-                vim_snprintf((char *)IObuff, IOSIZE, partial_arg_i_msg, idx);
+                xsnprintf((char *)IObuff, IOSIZE, partial_arg_i_msg, idx);
 
                 ga_concat(&msg_ga, IObuff);
 
@@ -272,7 +272,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
 
             if(li->li_tv.vval.v_string != 0)
             {
-                len += STRLEN(li->li_tv.vval.v_string);
+                len += ustrlen(li->li_tv.vval.v_string);
             }
         }
 
@@ -367,7 +367,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
             state->offset = 0;
             state->li_length = (state->li->li_tv.vval.v_string == NULL
-                                ? 0 : STRLEN(state->li->li_tv.vval.v_string));
+                                ? 0 : ustrlen(state->li->li_tv.vval.v_string));
         }
     }
 
@@ -387,7 +387,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         else                                                           \
         {                                                              \
             const size_t len_ = (len);                                 \
-            ga_grow(gap, (int)(2+len_+std_memcnt(buf_, '\'', len_)));  \
+            ga_grow(gap, (int)(2 + len_ + xmemcnt(buf_, '\'', len_))); \
             ga_append(gap, '\'');                                      \
             for(size_t i = 0; i < len_; i++)                           \
             {                                                          \
@@ -406,24 +406,24 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
 #define TYPVAL_ENCODE_CONV_EXT_STRING(tv, buf, len, type)
 
-#define TYPVAL_ENCODE_CONV_NUMBER(tv, num)           \
-    do                                               \
-    {                                                \
-        char numbuf[NUMBUFLEN];                      \
-        vim_snprintf(numbuf, ARRAY_SIZE(numbuf),     \
-                     "%" PRId64, (int64_t) (num));   \
-        ga_concat(gap, numbuf);                      \
+#define TYPVAL_ENCODE_CONV_NUMBER(tv, num)       \
+    do                                           \
+    {                                            \
+        char numbuf[NUMBUFLEN];                  \
+        xsnprintf(numbuf, ARRAY_SIZE(numbuf),    \
+                  "%" PRId64, (int64_t) (num));  \
+        ga_concat(gap, numbuf);                  \
     } while(0)
 
 #define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                             \
     do                                                                \
     {                                                                 \
-        const float_kt flt_ = (flt);                                   \
+        const float_kt flt_ = (flt);                                  \
         switch(fpclassify((float) flt_))                              \
         {                                                             \
             case FP_NAN:                                              \
             {                                                         \
-                ga_concat(gap, (uchar_kt *) "str2float('nan')");        \
+                ga_concat(gap, (uchar_kt *) "str2float('nan')");      \
                 break;                                                \
             }                                                         \
             case FP_INFINITE:                                         \
@@ -432,14 +432,14 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 {                                                     \
                     ga_append(gap, '-');                              \
                 }                                                     \
-                ga_concat(gap, (uchar_kt *) "str2float('inf')");        \
+                ga_concat(gap, (uchar_kt *) "str2float('inf')");      \
                 break;                                                \
             }                                                         \
             default:                                                  \
             {                                                         \
                 char numbuf[NUMBUFLEN];                               \
-                vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_); \
-                ga_concat(gap, (uchar_kt *) numbuf);                    \
+                xsnprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_);    \
+                ga_concat(gap, (uchar_kt *) numbuf);                  \
             }                                                         \
         }                                                             \
     } while(0)
@@ -522,7 +522,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         size_t backref = 0;                                                 \
         for(; backref < kv_size(*mpstack); backref++)                       \
         {                                                                   \
-            const mpconv_stack_st mpval = kv_A(*mpstack, backref);           \
+            const mpconv_stack_st mpval = kv_A(*mpstack, backref);          \
             if(mpval.type == conv_type)                                     \
             {                                                               \
                 if(conv_type == kMPConvDict)                                \
@@ -541,7 +541,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
                 }                                                           \
             }                                                               \
         }                                                                   \
-        vim_snprintf(ebuf, ARRAY_SIZE(ebuf), "{E724@%zu}", backref);        \
+        xsnprintf(ebuf, ARRAY_SIZE(ebuf), "{E724@%zu}", backref);           \
         ga_concat(gap, &ebuf[0]);                                           \
     } while(0)
 
@@ -586,11 +586,11 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
         }                                                               \
         if(conv_type == kMPConvDict)                                    \
         {                                                               \
-            vim_snprintf(ebuf, ARRAY_SIZE(ebuf), "{...@%zu}", backref); \
+            xsnprintf(ebuf, ARRAY_SIZE(ebuf), "{...@%zu}", backref);    \
         }                                                               \
         else                                                            \
         {                                                               \
-            vim_snprintf(ebuf, ARRAY_SIZE(ebuf), "[...@%zu]", backref); \
+            xsnprintf(ebuf, ARRAY_SIZE(ebuf), "[...@%zu]", backref);    \
         }                                                               \
         ga_concat(gap, &ebuf[0]);                                       \
         return OK;                                                      \
@@ -632,19 +632,19 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     ga_concat(gap, ((num)? "true": "false"))
 
 #undef  TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER
-#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)                  \
-    do                                                               \
-    {                                                                \
-        char numbuf[NUMBUFLEN];                                      \
-        vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%" PRIu64, (num)); \
-        ga_concat(gap, numbuf);                                      \
+#define TYPVAL_ENCODE_CONV_UNSIGNED_NUMBER(tv, num)               \
+    do                                                            \
+    {                                                             \
+        char numbuf[NUMBUFLEN];                                   \
+        xsnprintf(numbuf, ARRAY_SIZE(numbuf), "%" PRIu64, (num)); \
+        ga_concat(gap, numbuf);                                   \
     } while(0)
 
 #undef  TYPVAL_ENCODE_CONV_FLOAT
 #define TYPVAL_ENCODE_CONV_FLOAT(tv, flt)                               \
     do                                                                  \
     {                                                                   \
-        const float_kt flt_ = (flt);                                     \
+        const float_kt flt_ = (flt);                                    \
         switch(fpclassify((float) flt_))                                \
         {                                                               \
             case FP_NAN:                                                \
@@ -660,8 +660,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
             default:                                                    \
             {                                                           \
                 char numbuf[NUMBUFLEN];                                 \
-                vim_snprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_);   \
-                ga_concat(gap, (uchar_kt *) numbuf);                      \
+                xsnprintf(numbuf, ARRAY_SIZE(numbuf), "%g", flt_);      \
+                ga_concat(gap, (uchar_kt *) numbuf);                    \
                 break;                                                  \
             }                                                           \
         }                                                               \

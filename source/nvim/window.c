@@ -4,8 +4,9 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
+#include "nvim/error.h"
 #include "nvim/api/private/handle.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/window.h"
 #include "nvim/buffer.h"
@@ -136,8 +137,7 @@ newwindow:
 
             if(Prenum) // window height
             {
-                vim_snprintf(cbuf, sizeof(cbuf) - 5,
-                             "%" PRId64, (int64_t)Prenum);
+                xsnprintf(cbuf, sizeof(cbuf) - 5, "%" PRId64, (int64_t)Prenum);
             }
             else
             {
@@ -146,10 +146,10 @@ newwindow:
 
             if(nchar == 'v' || nchar == Ctrl_V)
             {
-                xstrlcat(cbuf, "v", sizeof(cbuf));
+                xstrncat(cbuf, "v", sizeof(cbuf));
             }
 
-            xstrlcat(cbuf, "new", sizeof(cbuf));
+            xstrncat(cbuf, "new", sizeof(cbuf));
             do_cmdline_cmd(cbuf);
             break;
 
@@ -615,11 +615,11 @@ static void cmd_with_count(char *cmd,
                            size_t bufsize,
                            int64_t Prenum)
 {
-    size_t len = xstrlcpy((char *)bufp, cmd, bufsize);
+    size_t len = xstrncpy((char *)bufp, cmd, bufsize);
 
     if(Prenum > 0 && len < bufsize)
     {
-        vim_snprintf((char *)bufp + len, bufsize - len, "%" PRId64, Prenum);
+        xsnprintf((char *)bufp + len, bufsize - len, "%" PRId64, Prenum);
     }
 }
 
@@ -1353,7 +1353,7 @@ static void win_init(win_st *newp, win_st *oldp, int flags)
     }
 
     newp->w_localdir = (oldp->w_localdir == NULL)
-                       ? NULL : vim_strsave(oldp->w_localdir);
+                       ? NULL : ustrdup(oldp->w_localdir);
 
     // copy tagstack and folds
     for(i = 0; i < oldp->w_tagstacklen; i++)
@@ -1363,7 +1363,7 @@ static void win_init(win_st *newp, win_st *oldp, int flags)
         if(newp->w_tagstack[i].tagname != NULL)
         {
             newp->w_tagstack[i].tagname =
-                vim_strsave(newp->w_tagstack[i].tagname);
+                ustrdup(newp->w_tagstack[i].tagname);
         }
     }
 
@@ -3972,7 +3972,7 @@ int win_new_tabpage(int after, uchar_kt *filename)
     }
 
     newtp->tp_localdir = tp->tp_localdir
-                         ? vim_strsave(tp->tp_localdir) : NULL;
+                         ? ustrdup(tp->tp_localdir) : NULL;
     curtab = newtp;
 
     // Create a new empty window.
@@ -4814,7 +4814,7 @@ static void win_enter_ext(win_st *wp,
 
         if(os_chdir(new_dir) == 0)
         {
-            if(!p_acd && !strequal(new_dir, cwd))
+            if(!p_acd && !xstrequal(new_dir, cwd))
             {
                 do_autocmd_dirchanged(new_dir,
                                       curwin->w_localdir
@@ -4831,7 +4831,7 @@ static void win_enter_ext(win_st *wp,
         // in the global directory: Change to the global directory.
         if(os_chdir((char *)globaldir) == 0)
         {
-            if(!p_acd && !strequal((char *)globaldir, cwd))
+            if(!p_acd && !xstrequal((char *)globaldir, cwd))
             {
                 do_autocmd_dirchanged((char *)globaldir, kCdScopeGlobal);
             }
@@ -6616,7 +6616,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
     // be the start of a file name
     ptr = line + col;
 
-    while(*ptr != NUL && !vim_isfilec(*ptr))
+    while(*ptr != NUL && !is_file_name_char(*ptr))
     {
         mb_ptr_adv(ptr);
     }
@@ -6639,7 +6639,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
         {
             ptr -= len + 1;
         }
-        else if(vim_isfilec(ptr[-1])
+        else if(is_file_name_char(ptr[-1])
                 || ((options & FNAME_HYP) && path_is_url((char *)ptr - 1)))
         {
             --ptr;
@@ -6654,7 +6654,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
     // Also allow "://" when ':' is not in 'isfname'.
     len = 0;
 
-    while(vim_isfilec(ptr[len])
+    while(is_file_name_char(ptr[len])
           || (ptr[len] == '\\' && ptr[len + 1] == ' ')
           || ((options & FNAME_HYP) && path_is_url((char *)ptr + len)))
     {
@@ -6676,7 +6676,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
     // If there is trailing punctuation, remove it.
     // But don't remove "..", could be a directory name.
     if(len > 2
-       && vim_strchr((uchar_kt *)".,:;!", ptr[len - 1]) != NULL
+       && ustrchr((uchar_kt *)".,:;!", ptr[len - 1]) != NULL
        && ptr[len - 2] != '.')
     {
         --len;
@@ -7190,7 +7190,7 @@ int match_add(win_st *wp,
     }
 
     if(pat != NULL
-       && (regprog = vim_regcomp((uchar_kt *)pat, RE_MAGIC)) == NULL)
+       && (regprog = regexp_compile((uchar_kt *)pat, RE_MAGIC)) == NULL)
     {
         EMSG2(_(e_invarg2), pat);
         return -1;

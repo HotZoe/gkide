@@ -2,7 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/cursor_shape.h"
 #include "nvim/ex_getln.h"
@@ -125,7 +125,7 @@ uchar_kt *parse_shape_opt(int what)
 
         while(*modep != NUL)
         {
-            colonp = vim_strchr(modep, ':');
+            colonp = ustrchr(modep, ':');
 
             if(colonp == NULL)
             {
@@ -137,7 +137,7 @@ uchar_kt *parse_shape_opt(int what)
                 return (uchar_kt *)N_("E546: Illegal mode");
             }
 
-            commap = vim_strchr(modep, ',');
+            commap = ustrchr(modep, ',');
 
             // Repeat for all modes before the colon.
             // For the 'a' mode, we loop to handle all the modes.
@@ -166,7 +166,7 @@ uchar_kt *parse_shape_opt(int what)
                     {
                         for(idx = 0; idx < kCsrShpIdxAllIndexCount; ++idx)
                         {
-                            if(STRNICMP(modep, shape_table[idx].name, len) == 0)
+                            if(ustrnicmp(modep, shape_table[idx].name, len) == 0)
                             {
                                 break;
                             }
@@ -211,23 +211,23 @@ uchar_kt *parse_shape_opt(int what)
                         i = *p;
                         len = 0;
 
-                        if(STRNICMP(p, "ver", 3) == 0)
+                        if(ustrnicmp(p, "ver", 3) == 0)
                         {
                             len = 3;
                         }
-                        else if(STRNICMP(p, "hor", 3) == 0)
+                        else if(ustrnicmp(p, "hor", 3) == 0)
                         {
                             len = 3;
                         }
-                        else if(STRNICMP(p, "blinkwait", 9) == 0)
+                        else if(ustrnicmp(p, "blinkwait", 9) == 0)
                         {
                             len = 9;
                         }
-                        else if(STRNICMP(p, "blinkon", 7) == 0)
+                        else if(ustrnicmp(p, "blinkon", 7) == 0)
                         {
                             len = 7;
                         }
-                        else if(STRNICMP(p, "blinkoff", 8) == 0)
+                        else if(ustrnicmp(p, "blinkoff", 8) == 0)
                         {
                             len = 8;
                         }
@@ -281,7 +281,7 @@ uchar_kt *parse_shape_opt(int what)
                                 }
                             }
                         }
-                        else if(STRNICMP(p, "block", 5) == 0)
+                        else if(ustrnicmp(p, "block", 5) == 0)
                         {
                             if(round == 2)
                             {
@@ -293,14 +293,14 @@ uchar_kt *parse_shape_opt(int what)
                         else
                         {
                             // must be a highlight group name then
-                            endp = vim_strchr(p, '-');
+                            endp = ustrchr(p, '-');
 
                             if(commap == NULL)
                             {
                                 // last part
                                 if(endp == NULL)
                                 {
-                                    endp = p + STRLEN(p); // find end of part
+                                    endp = p + ustrlen(p); // find end of part
                                 }
                             }
                             else if(endp > commap || endp == NULL)
@@ -308,7 +308,7 @@ uchar_kt *parse_shape_opt(int what)
                                 endp = commap;
                             }
 
-                            slashp = vim_strchr(p, '/');
+                            slashp = ustrchr(p, '/');
 
                             if(slashp != NULL && slashp < endp)
                             {

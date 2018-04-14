@@ -1,7 +1,7 @@
-/// @file nvim/vim.h
+/// @file nvim/nvim.h
 
-#ifndef NVIM_VIM_H
-#define NVIM_VIM_H
+#ifndef NVIM_NVIM_H
+#define NVIM_NVIM_H
 
 #include "generated/config/config.h"
 #include "generated/config/confignvim.h"
@@ -31,13 +31,6 @@
 /// number in ASCII (64 bits binary + NUL)
 #define NUMBUFLEN     65
 
-// flags for vim_str2nr()
-#define STR2NR_BIN    1
-#define STR2NR_OCT    2
-#define STR2NR_HEX    4
-#define STR2NR_ALL    (STR2NR_BIN + STR2NR_OCT + STR2NR_HEX)
-
-#define STR2NR_FORCE  8      ///< only when ONE of the above is used
 #define MAX_TYPENR    65535  ///<
 #define ROOT_UID      0
 
@@ -218,46 +211,6 @@ enum
 /// Size in bytes of the hash used in the undo file.
 #define UNDO_HASH_SIZE    32
 
-// defines to avoid typecasts from (uchar_kt *) to (char *) and back
-#define STRLEN(s)          strlen((char *)(s))
-#define STRCPY(d, s)       strcpy((char *)(d), (char *)(s))
-#define STRNCPY(d, s, n)   strncpy((char *)(d), (char *)(s), (size_t)(n))
-#define STRLCPY(d, s, n)   xstrlcpy((char *)(d), (char *)(s), (size_t)(n))
-#define STRCMP(d, s)       strcmp((char *)(d), (char *)(s))
-#define STRNCMP(d, s, n)   strncmp((char *)(d), (char *)(s), (size_t)(n))
-
-#ifdef HAVE_FUN_STRCASECMP
-    #define STRICMP(d, s)  strcasecmp((char *)(d), (char *)(s))
-#else
-    #ifdef HAVE_STRICMP
-        #define STRICMP(d, s)  stricmp((char *)(d), (char *)(s))
-    #else
-        #define STRICMP(d, s)  vim_stricmp((char *)(d), (char *)(s))
-    #endif
-#endif
-
-/// Like strcpy() but allows overlapped source and destination.
-#define STRMOVE(d, s)  memmove((d), (s), STRLEN(s) + 1)
-
-#ifdef HAVE_FUN_STRNCASECMP
-    #define STRNICMP(d, s, n) \
-        strncasecmp((char *)(d), (char *)(s), (size_t)(n))
-#else
-    #ifdef HAVE_STRNICMP
-        #define STRNICMP(d, s, n) \
-            strnicmp((char *)(d), (char *)(s), (size_t)(n))
-    #else
-        #define STRNICMP(d, s, n) \
-            vim_strnicmp((char *)(d), (char *)(s), (size_t)(n))
-    #endif
-#endif
-
-#define STRCAT(d, s)       strcat((char *)(d), (char *)(s))
-#define STRNCAT(d, s, n)   strncat((char *)(d), (char *)(s), (size_t)(n))
-#define STRLCAT(d, s, n)   xstrlcat((char *)(d), (char *)(s), (size_t)(n))
-
-#define vim_strpbrk(s, cs) (uchar_kt *)strpbrk((char *)(s), (char *)(cs))
-
 #include "nvim/message.h"
 
 /// Prefer using emsgf(), because perror() may send the output
@@ -295,14 +248,6 @@ enum
 /// plus six following composing characters of three bytes each.
 #define MB_MAXBYTES    21
 
-// This has to go after the include of proto.h, as proto/gui.pro declares
-// functions of these names. The declarations would break if the defines
-// had been seen at that stage. But it must be before globals.h, where
-// error_ga is declared.
-#define mch_errmsg(str)    fprintf(stderr, "%s", (str))
-#define display_errors()   fflush(stderr)
-#define mch_msg(str)       printf("%s", (str))
-
 #include "nvim/globals.h"        // global variables and messages
 #include "nvim/buffer_defs.h"    // buffer and windows
 #include "nvim/ex_cmds_defs.h"   // Ex command defines
@@ -325,34 +270,4 @@ enum
 /// Cannot have this many windows per tab.
 #define LOWEST_WIN_ID   1000
 
-/// nvim exit status
-typedef enum nvim_exit_status_e
-{
-    kNEStatusSuccess = 0, ///< nvim exit normally
-    kNEStatusFailure = 1, ///< nvim exit with error
-
-    kNEStatusWinAllocateFailed      = -1,
-    kNEStatusNoUserHome             = -2,
-    kNEStatusNoRecoveryFile         = -3,
-    kNEStatusQuickFixInitErr        = -4,
-    kNEStatusOpenNvlScriptAgain     = -5,
-    kNEStatusNvlScriptCanNotOpen    = -6,
-    kNEStatusNvlScriptCanNotWrite   = -7,
-    kNEStatusCommandLineArgsError   = -8,
-    kNEStatusBufAllocateFailed      = -9,
-    kNEStatusCscopeConnectionError  = -10,
-    kNEStatusPreserveFilesExit      = -11,
-    kNEStatusNvimServerInvalidPort  = -12,
-    kNEStatusNvimServerInvalidAddr  = -13,
-
-} nvim_exit_status_et;
-
-#define TO_FIX_THIS(msg)                                \
-    do                                                  \
-    {                                                   \
-        fprintf(stderr, "[ToFixThis]-[%s, %d]: %s\n",   \
-                __func__, __LINE__, msg);               \
-        exit(1); /* fatal error, need to fix it ! */    \
-    } while(0)
-
-#endif // NVIM_VIM_H
+#endif // NVIM_NVIM_H

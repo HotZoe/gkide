@@ -14,7 +14,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/move.h"
 #include "nvim/charset.h"
@@ -846,7 +846,7 @@ int curwin_col_off(void)
 int win_col_off2(win_st *wp)
 {
     if((wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
-       && vim_strchr(p_cpo, CPO_NUMCOL) != NULL)
+       && ustrchr(p_cpo, CPO_NUMCOL) != NULL)
     {
         return number_width(wp) + 1;
     }
@@ -930,7 +930,7 @@ void curs_columns(int may_scroll)
             // isn't shown, backup to first column
             if(*p_sbr
                && *get_cursor_pos_ptr() == NUL
-               && curwin->w_wcol == (int)vim_strsize(p_sbr))
+               && curwin->w_wcol == (int)ustr_scrsize(p_sbr))
             {
                 curwin->w_wcol = 0;
             }

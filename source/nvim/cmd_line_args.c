@@ -1,9 +1,10 @@
 /// @file nvim/cmd_line_args.c
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 #include "nvim/eval.h"
 #include "nvim/path.h"
+#include "nvim/error.h"
 #include "nvim/ascii.h"
 #include "nvim/buffer.h"
 #include "nvim/option.h"
@@ -341,7 +342,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                         set_option_value("verbosefile", 0L,
                                          argv[0] + argv_idx, 0);
 
-                        argv_idx = (int)STRLEN(argv[0]);
+                        argv_idx = (int)ustrlen(argv[0]);
                     }
 
                     break;
@@ -447,7 +448,7 @@ void cmd_line_args_parser(main_args_st *parmp)
                                 a = argv[0];
                             }
 
-                            char *s = xmalloc(STRLEN(a) + 4);
+                            char *s = xmalloc(ustrlen(a) + 4);
                             sprintf(s, "so %s", a);
                             parmp->cmds_tofree[parmp->cmd_num] = TRUE;
                             parmp->cmd_args[parmp->cmd_num++] = s;
@@ -568,7 +569,7 @@ scripterror:
     // set v:swapcommand to the first one.
     if(parmp->cmd_num > 0)
     {
-        const size_t swcmd_len = STRLEN(parmp->cmd_args[0]) + 3;
+        const size_t swcmd_len = ustrlen(parmp->cmd_args[0]) + 3;
         char *const swcmd = xmalloc(swcmd_len);
         snprintf(swcmd, swcmd_len, ":%s\r", parmp->cmd_args[0]);
         set_vim_var_string(VV_SWAPCOMMAND, swcmd, -1);
@@ -628,7 +629,7 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
     ga_grow(&g_arglist.al_ga, 1);
     parmp->edit_type = kEditTypeFile;
 
-    uchar_kt *usr_file = vim_strsave((uchar_kt *)argv[0]);
+    uchar_kt *usr_file = ustrdup((uchar_kt *)argv[0]);
 
     if(parmp->diff_mode
        && os_isdir(usr_file)
@@ -657,8 +658,11 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
 }
 
 static int process_cmd_opt_short(main_args_st *parmp, char **argv)
+FUNC_ATTR_UNUSED
 {
-
+    FUNC_ARGS_UNUSED_FORCE(parmp);
+    FUNC_ARGS_UNUSED_FORCE(argv);
+    return 0;
 }
 
 // how many option value need to skip, zero for none
@@ -667,19 +671,19 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
     //char *opt_value= argv[1];
     char *cmd_name = argv[0] + 2;
 
-    if(STRICMP(cmd_name, "help") == 0)
+    if(ustricmp(cmd_name, "help") == 0)
     {
         // --help
         cmd_line_usage();
         mch_exit(kNEStatusSuccess);
     }
-    else if(STRICMP(cmd_name, "version") == 0)
+    else if(ustricmp(cmd_name, "version") == 0)
     {
         // --version
         show_version();
         mch_exit(kNEStatusSuccess);
     }
-    else if(STRICMP(cmd_name, "api-info") == 0)
+    else if(ustricmp(cmd_name, "api-info") == 0)
     {
         // --api-info
         msgpack_sbuffer *b = msgpack_sbuffer_new();
@@ -699,31 +703,31 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         msgpack_packer_free(p);
         mch_exit(kNEStatusSuccess);
     }
-    else if(STRICMP(cmd_name, "headless") == 0)
+    else if(ustricmp(cmd_name, "headless") == 0)
     {
         // --headless
         headless_mode = true;
     }
-    else if(STRICMP(cmd_name, "embed") == 0)
+    else if(ustricmp(cmd_name, "embed") == 0)
     {
         // --embed
         embedded_mode = true;
         headless_mode = true;
         channel_from_stdio();
     }
-    else if(STRICMP(cmd_name, "literal") == 0)
+    else if(ustricmp(cmd_name, "literal") == 0)
     {
         // --literal, take files literally
         #if !defined(UNIX)
         parmp->literal = TRUE;
         #endif
     }
-    else if(STRNICMP(cmd_name, "noplugin", 8) == 0)
+    else if(ustrnicmp(cmd_name, "noplugin", 8) == 0)
     {
         // --noplugin[s], skip plugins
         p_lpl = FALSE;
     }
-    else if(STRICMP(cmd_name, "startuptime") == 0)
+    else if(ustricmp(cmd_name, "startuptime") == 0)
     {
         if(NOTDONE == check_opt_val(parmp, argv, "--startuptime", true))
         {
@@ -735,7 +739,7 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         // already handled by early_cmd_line_args_scan()
         return 1;
     }
-    else if(STRICMP(cmd_name, "server") == 0)
+    else if(ustricmp(cmd_name, "server") == 0)
     {
         if(NOTDONE == check_opt_val(parmp, argv, "--server", true))
         {
@@ -747,7 +751,7 @@ static int process_cmd_opt_long(main_args_st *parmp, char **argv)
         // already handled by early_cmd_line_args_scan()
         return 1;
     }
-    else if(STRICMP(cmd_name, "cmd") == 0)
+    else if(ustricmp(cmd_name, "cmd") == 0)
     {
         // --cmd <cmd>, execute <cmd> before loading any nvimrc
         check_opt_val(parmp, argv, "--cmd", false);
@@ -846,7 +850,7 @@ static void cmd_args_err_exit(const char *errstr, const char *info)
 /// <b>$ nvim -v</b> or <b>$ nvim --version</b>
 static void show_version(void)
 {
-    info_message = TRUE; // use mch_msg(), not mch_errmsg()
+    info_message = TRUE;
     list_version();
     msg_putchar('\n');
     msg_didout = FALSE;

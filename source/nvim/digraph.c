@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/digraph.h"
 #include "nvim/charset.h"
@@ -1779,10 +1779,10 @@ static void printdigraph(digraph_st *dp)
 
         assert(p >= buf);
 
-        vim_snprintf((char *)p,
-                     sizeof(buf) - (size_t)(p - buf),
-                     " %3d",
-                     dp->result);
+        xsnprintf((char *)p,
+                  sizeof(buf) - (size_t)(p - buf),
+                  " %3d",
+                  dp->result);
 
         msg_outtrans(buf);
     }
@@ -1824,24 +1824,24 @@ uchar_kt *keymap_init(void)
         // Source the keymap file.
         // It will contain a ":loadkeymap" command
         // which will call ex_loadkeymap() below.
-        buflen = STRLEN(curbuf->b_p_keymap) + STRLEN(p_enc) + 14;
+        buflen = ustrlen(curbuf->b_p_keymap) + ustrlen(p_enc) + 14;
 
         buf = xmalloc(buflen);
 
         // try finding "keymap/'keymap'_'encoding'.vim"  in 'runtimepath'
-        vim_snprintf(buf,
-                     buflen,
-                     "keymap/%s_%s.vim",
-                     curbuf->b_p_keymap,
-                     p_enc);
+        xsnprintf(buf,
+                  buflen,
+                  "keymap/%s_%s.vim",
+                  curbuf->b_p_keymap,
+                  p_enc);
 
         if(source_runtime((uchar_kt *)buf, 0) == FAIL)
         {
             // try finding "keymap/'keymap'.vim" in 'runtimepath'
-            vim_snprintf(buf,
-                         buflen,
-                         "keymap/%s.vim",
-                         curbuf->b_p_keymap);
+            xsnprintf(buf,
+                      buflen,
+                      "keymap/%s.vim",
+                      curbuf->b_p_keymap);
 
             if(source_runtime((uchar_kt *)buf, 0) == FAIL)
             {
@@ -1906,12 +1906,12 @@ void ex_loadkeymap(exargs_st *eap)
             kmap_st *kp = GA_APPEND_VIA_PTR(kmap_st, &curbuf->b_kmap_ga);
 
             s = skiptowhite(p);
-            kp->from = vim_strnsave(p, (size_t)(s - p));
+            kp->from = ustrndup(p, (size_t)(s - p));
             p = skipwhite(s);
             s = skiptowhite(p);
-            kp->to = vim_strnsave(p, (size_t)(s - p));
+            kp->to = ustrndup(p, (size_t)(s - p));
 
-            if((STRLEN(kp->from) + STRLEN(kp->to) >= KMAP_LLEN)
+            if((ustrlen(kp->from) + ustrlen(kp->to) >= KMAP_LLEN)
                || (*kp->from == NUL)
                || (*kp->to == NUL))
             {
@@ -1933,11 +1933,11 @@ void ex_loadkeymap(exargs_st *eap)
     // setup ":lnoremap" to map the keys
     for(int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
     {
-        vim_snprintf((char *)buf,
-                     sizeof(buf),
-                     "<buffer> %s %s",
-                     ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].from,
-                     ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].to);
+        xsnprintf((char *)buf,
+                  sizeof(buf),
+                  "<buffer> %s %s",
+                  ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].from,
+                  ((kmap_st *)curbuf->b_kmap_ga.ga_data)[i].to);
 
         (void)do_map(2, buf, kModFlgLangMap, FALSE);
     }
@@ -1968,7 +1968,7 @@ static void keymap_unload(void)
 
     for(int i = 0; i < curbuf->b_kmap_ga.ga_len; ++i)
     {
-        vim_snprintf((char *)buf, sizeof(buf), "<buffer> %s", kp[i].from);
+        xsnprintf((char *)buf, sizeof(buf), "<buffer> %s", kp[i].from);
 
         (void)do_map(1, buf, kModFlgLangMap, FALSE);
 

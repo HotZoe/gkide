@@ -17,7 +17,7 @@
 #include "nvim/misc1.h"
 #include "nvim/screen.h"
 #include "nvim/strings.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 
 #define SRC_EDT 0
@@ -303,7 +303,7 @@ static uchar_kt toF_Xor_X_(int c)
 
             if(p_ri
                && (curwin->w_cursor.col + 1
-                   < (columnum_kt)STRLEN(get_cursor_line_ptr())))
+                   < (columnum_kt)ustrlen(get_cursor_line_ptr())))
             {
                 inc_cursor();
 
@@ -315,7 +315,7 @@ static uchar_kt toF_Xor_X_(int c)
                 dec_cursor();
             }
 
-            if(!p_ri && STRLEN(get_cursor_line_ptr()))
+            if(!p_ri && ustrlen(get_cursor_line_ptr()))
             {
                 dec_cursor();
 
@@ -660,7 +660,7 @@ static void put_curr_and_l_to_X(uchar_kt c)
         return;
     }
 
-    if((curwin->w_cursor.col < (columnum_kt)STRLEN(get_cursor_line_ptr())))
+    if((curwin->w_cursor.col < (columnum_kt)ustrlen(get_cursor_line_ptr())))
     {
         if(!p_ri || curwin->w_cursor.col)
         {
@@ -932,7 +932,7 @@ static void chg_c_to_X_or_X(void)
     int tempc;
     tempc = gchar_cursor();
 
-    if(curwin->w_cursor.col + 1 < (columnum_kt)STRLEN(get_cursor_line_ptr()))
+    if(curwin->w_cursor.col + 1 < (columnum_kt)ustrlen(get_cursor_line_ptr()))
     {
         inc_cursor();
 
@@ -959,7 +959,7 @@ static void chg_l_to_X_orX_(void)
     int tempc;
 
     if((curwin->w_cursor.col != 0)
-       && (curwin->w_cursor.col + 1 == (columnum_kt)STRLEN(get_cursor_line_ptr())))
+       && (curwin->w_cursor.col + 1 == (columnum_kt)ustrlen(get_cursor_line_ptr())))
     {
         return;
     }
@@ -1049,7 +1049,7 @@ static void chg_l_toXor_X(void)
     uchar_kt tempc;
 
     if((curwin->w_cursor.col != 0)
-       && (curwin->w_cursor.col + 1 == (columnum_kt)STRLEN(get_cursor_line_ptr())))
+       && (curwin->w_cursor.col + 1 == (columnum_kt)ustrlen(get_cursor_line_ptr())))
     {
         return;
     }
@@ -1892,7 +1892,7 @@ int fkmap(int c)
             break;
 
         case 'G':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(gchar_cursor() == _LAM)
                 {
@@ -1938,7 +1938,7 @@ int fkmap(int c)
             return tempc;
 
         case 'h':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(p_ri)
                 {
@@ -1990,7 +1990,7 @@ int fkmap(int c)
             return tempc;
 
         case 'i':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(!p_ri && !F_is_TyE(tempc))
                 {
@@ -2034,7 +2034,7 @@ int fkmap(int c)
             break;
 
         case 'J':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(p_ri)
                 {
@@ -2115,7 +2115,7 @@ int fkmap(int c)
             break;
 
         case 'u':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(!p_ri && !F_is_TyE(tempc))
                 {
@@ -2169,7 +2169,7 @@ int fkmap(int c)
             break;
 
         case 'y':
-            if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+            if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
             {
                 if(!p_ri && !F_is_TyE(tempc))
                 {
@@ -2239,7 +2239,7 @@ int fkmap(int c)
 
     if((F_isalpha(tempc) || F_isdigit(tempc)))
     {
-        if(!curwin->w_cursor.col && STRLEN(get_cursor_line_ptr()))
+        if(!curwin->w_cursor.col && ustrlen(get_cursor_line_ptr()))
         {
             if(!p_ri && !F_is_TyE(tempc))
             {
@@ -2840,7 +2840,7 @@ static void conv_to_pvim(void)
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; ++lnum)
     {
         ptr = ml_get((linenum_kt)lnum);
-        llen = (int)STRLEN(ptr);
+        llen = (int)ustrlen(ptr);
 
         for(i = 0; i < llen - 1; i++)
         {
@@ -2892,7 +2892,7 @@ static void conv_to_pstd(void)
     for(lnum = 1; lnum <= curbuf->b_ml.ml_line_count; lnum++)
     {
         ptr = ml_get((linenum_kt)lnum);
-        llen = (int)STRLEN(ptr);
+        llen = (int)ustrlen(ptr);
 
         for(i = 0; i < llen; i++)
         {
@@ -2935,7 +2935,7 @@ uchar_kt *lrswap(uchar_kt *ibuf)
 {
     if((ibuf != NULL) && (*ibuf != NUL))
     {
-        lrswapbuf(ibuf, (int)STRLEN(ibuf));
+        lrswapbuf(ibuf, (int)ustrlen(ibuf));
     }
 
     return ibuf;
@@ -2956,7 +2956,7 @@ uchar_kt *lrFswap(uchar_kt *cmdbuf, int len)
         return cmdbuf;
     }
 
-    if((len == 0) && ((len = (int)STRLEN(cmdbuf)) == 0))
+    if((len == 0) && ((len = (int)ustrlen(cmdbuf)) == 0))
     {
         return cmdbuf;
     }
@@ -2992,7 +2992,7 @@ uchar_kt *lrF_sub(uchar_kt *ibuf)
     p = ibuf;
 
     // Find the boundary of the search path
-    while(((p = vim_strchr(p + 1, '/')) != NULL) && p[-1] == '\\')
+    while(((p = ustrchr(p + 1, '/')) != NULL) && p[-1] == '\\')
     {
         // empty
     }
@@ -3012,7 +3012,7 @@ uchar_kt *lrF_sub(uchar_kt *ibuf)
     }
     else
     {
-        cnt = (int)STRLEN(p);
+        cnt = (int)ustrlen(p);
     }
 
     // Reverse the characters in the substitute section and take care of '\'

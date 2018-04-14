@@ -18,7 +18,7 @@
 #include "nvim/memory.h"
 #include "nvim/globals.h"
 #include "nvim/hashtab.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/pos.h"
 #include "nvim/charset.h"
@@ -27,6 +27,7 @@
 #include "nvim/macros.h"
 #include "nvim/mbyte.h"
 #include "nvim/message.h"
+#include "nvim/utils.h"
 
 /// @todo (ZyX-I): Move line_breakcheck out of misc1
 #include "nvim/misc1.h" // For line_breakcheck
@@ -998,7 +999,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     {
         case kCallbackFuncref:
         {
-            return STRCMP(cb1->data.funcref, cb2->data.funcref) == 0;
+            return ustrcmp(cb1->data.funcref, cb2->data.funcref) == 0;
         }
 
         case kCallbackPartial:
@@ -1866,7 +1867,7 @@ dict_st *tv_dict_copy(const vimconv_st *const conv,
         }
         else
         {
-            size_t len = STRLEN(di->di_key);
+            size_t len = ustrlen(di->di_key);
             char *const key = (char *)string_convert(conv, di->di_key, &len);
 
             if(key == NULL)
@@ -2345,7 +2346,7 @@ void tv_copy(typval_st *const from, typval_st *const to)
         {
             if(from->vval.v_string != NULL)
             {
-                to->vval.v_string = vim_strsave(from->vval.v_string);
+                to->vval.v_string = ustrdup(from->vval.v_string);
 
                 if(from->v_type == kNvarUfunc)
                 {
@@ -2887,7 +2888,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param[in]  tv  Object to get value from.
 ///
-/// @return Number value: vim_str2nr() output for kNvarString objects, value
+/// @return Number value: str_to_num() output for kNvarString objects, value
 ///         for kNvarNumber objects, -1 for other types.
 number_kt tv_get_number(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
@@ -2908,7 +2909,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @note Needs to be initialized to `false` to be useful.
 ///
 /// @return
-/// Number value: vim_str2nr() output for kNvarString objects, value for
+/// Number value: str_to_num() output for kNvarString objects, value for
 /// kNvarNumber objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
 number_kt tv_get_number_chk(const typval_st *const tv, bool *const ret_error)
 FUNC_ATTR_WARN_UNUSED_RESULT
@@ -2938,8 +2939,8 @@ FUNC_ATTR_NONNULL_ARG(1)
             if(tv->vval.v_string != NULL)
             {
                 long nr;
-                vim_str2nr(tv->vval.v_string, NULL,
-                           NULL, STR2NR_ALL, &nr, NULL, 0);
+                str_to_num(tv->vval.v_string, NULL,
+                           NULL, kStrToNumAll, &nr, NULL, 0);
 
                 n = (number_kt)nr;
             }
@@ -3112,7 +3113,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         case kNvarSpecial:
         {
-            STRCPY(buf, encode_special_var_names[tv->vval.v_special]);
+            ustrcpy(buf, encode_special_var_names[tv->vval.v_special]);
             return buf;
         }
 

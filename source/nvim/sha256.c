@@ -14,7 +14,7 @@
 #include <stdio.h>         // for snprintf().
 
 #include "nvim/sha256.h"   // for sha256_ctx_st
-#include "nvim/vim.h"      // for STRCPY()/STRLEN().
+#include "nvim/nvim.h"      // for ustrcpy()/ustrlen().
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "sha256.c.generated.h"
@@ -336,7 +336,7 @@ bool sha256_self_test(void)
                                  strlen(sha_self_test_msg[i]),
                                  NULL, 0);
 
-            STRCPY(output, hexit);
+            ustrcpy(output, hexit);
         }
         else
         {

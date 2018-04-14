@@ -8,8 +8,9 @@
 #include <msgpack.h>
 
 #include "nvim/api/private/helpers.h"
-#include "nvim/api/vim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/api/ui.h"
+#include "nvim/error.h"
 #include "nvim/msgpack/channel.h"
 #include "nvim/msgpack/server.h"
 #include "nvim/event/loop.h"
@@ -18,7 +19,7 @@
 #include "nvim/event/wstream.h"
 #include "nvim/event/socket.h"
 #include "nvim/msgpack/helpers.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 #include "nvim/ascii.h"
 #include "nvim/memory.h"
@@ -498,7 +499,7 @@ static void parse_msgpack(rpc_channel_st *channel)
         mch_errmsg(e_outofmem);
         mch_errmsg("\n");
         decref(channel);
-        preserve_exit();
+        preserve_exit(kNEStatusHostMemoryNotEnough);
     }
 
     if(result == MSGPACK_UNPACK_PARSE_ERROR)

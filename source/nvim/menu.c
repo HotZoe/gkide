@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <string.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/menu.h"
 #include "nvim/charset.h"
@@ -64,21 +64,21 @@ void ex_menu(exargs_st *eap)
 
     for(;;)
     {
-        if(STRNCMP(arg, "<script>", 8) == 0)
+        if(ustrncmp(arg, "<script>", 8) == 0)
         {
             noremap = REMAP_SCRIPT;
             arg = skipwhite(arg + 8);
             continue;
         }
 
-        if(STRNCMP(arg, "<silent>", 8) == 0)
+        if(ustrncmp(arg, "<silent>", 8) == 0)
         {
             silent = true;
             arg = skipwhite(arg + 8);
             continue;
         }
 
-        if(STRNCMP(arg, "<special>", 9) == 0)
+        if(ustrncmp(arg, "<special>", 9) == 0)
         {
             special = true;
             arg = skipwhite(arg + 9);
@@ -89,7 +89,7 @@ void ex_menu(exargs_st *eap)
     }
 
     // Locate an optional "icon=filename" argument.
-    if(STRNCMP(arg, "icon=", 5) == 0)
+    if(ustrncmp(arg, "icon=", 5) == 0)
     {
         arg += 5;
 
@@ -97,7 +97,7 @@ void ex_menu(exargs_st *eap)
         {
             if(*arg == '\\')
             {
-                STRMOVE(arg, arg + 1);
+                xstrmove(arg, arg + 1);
             }
 
             mb_ptr_adv(arg);
@@ -156,12 +156,12 @@ void ex_menu(exargs_st *eap)
     pri_tab[MENUDEPTH] = -1; // mark end of the table
 
     // Check for "disable" or "enable" argument.
-    if(STRNCMP(arg, "enable", 6) == 0 && ascii_iswhite(arg[6]))
+    if(ustrncmp(arg, "enable", 6) == 0 && ascii_iswhite(arg[6]))
     {
         enable = TRUE;
         arg = skipwhite(arg + 6);
     }
-    else if(STRNCMP(arg, "disable", 7) == 0 && ascii_iswhite(arg[7]))
+    else if(ustrncmp(arg, "disable", 7) == 0 && ascii_iswhite(arg[7]))
     {
         enable = FALSE;
         arg = skipwhite(arg + 7);
@@ -201,7 +201,7 @@ void ex_menu(exargs_st *eap)
         // Change sensitivity of the menu.
         // For the PopUp menu, remove a menu for each mode separately.
         // Careful: menu_nable_recurse() changes menu_path.
-        if(STRCMP(menu_path, "*") == 0) // meaning: do all menus
+        if(ustrcmp(menu_path, "*") == 0) // meaning: do all menus
         {
             menu_path = (uchar_kt *)"";
         }
@@ -224,7 +224,7 @@ void ex_menu(exargs_st *eap)
     else if(unmenu)
     {
         // Delete menu(s).
-        if(STRCMP(menu_path, "*") == 0) // meaning: remove all menus
+        if(ustrcmp(menu_path, "*") == 0) // meaning: remove all menus
         {
             menu_path = (uchar_kt *)"";
         }
@@ -250,7 +250,7 @@ void ex_menu(exargs_st *eap)
     {
         // Add menu(s).
         // Replace special key codes.
-        if(STRICMP(map_to, "<nop>") == 0) // "<Nop>" means nothing
+        if(ustricmp(map_to, "<nop>") == 0) // "<Nop>" means nothing
         {
             map_to = (uchar_kt *)"";
             map_buf = NULL;
@@ -262,7 +262,7 @@ void ex_menu(exargs_st *eap)
         else
         {
             map_to = replace_termcodes(map_to,
-                                       STRLEN(map_to),
+                                       ustrlen(map_to),
                                        &map_buf,
                                        false,
                                        true,
@@ -334,7 +334,7 @@ static int add_menu_path(uchar_kt *menu_path,
 
     // Make a copy so we can stuff around with
     // it, since it could be const
-    path_name = vim_strsave(menu_path);
+    path_name = ustrdup(menu_path);
     menup = &root_menu;
     parent = NULL;
     name = path_name;
@@ -344,7 +344,7 @@ static int add_menu_path(uchar_kt *menu_path,
         // Get name of this element in the menu hierarchy,
         // and the simplified name (without mnemonic and accelerator text).
         next_name = menu_name_skip(name);
-        map_to = menutrans_lookup(name, (int)STRLEN(name));
+        map_to = menutrans_lookup(name, (int)ustrlen(name));
 
         if(map_to != NULL)
         {
@@ -430,14 +430,14 @@ static int add_menu_path(uchar_kt *menu_path,
             menu = xcalloc(1, sizeof(vimmenu_st));
             menu->modes = modes;
             menu->enabled = MENU_ALL_MODES;
-            menu->name = vim_strsave(name);
+            menu->name = ustrdup(name);
 
             // separate mnemonic and accelerator text from actual menu name
             menu->dname = menu_text(name, &menu->mnemonic, &menu->actext);
 
             if(en_name != NULL)
             {
-                menu->en_name = vim_strsave(en_name);
+                menu->en_name = ustrdup(en_name);
                 menu->en_dname = menu_text(en_name, NULL, NULL);
             }
             else
@@ -492,7 +492,7 @@ static int add_menu_path(uchar_kt *menu_path,
 
     if(menu != NULL && modes)
     {
-        p = (call_data == NULL) ? NULL : vim_strsave(call_data);
+        p = (call_data == NULL) ? NULL : ustrdup(call_data);
 
         // loop over all modes, may add more than one
         for(i = 0; i < MENU_MODES; ++i)
@@ -527,22 +527,22 @@ static int add_menu_path(uchar_kt *menu_path,
 
                 if(c != 0)
                 {
-                    menu->strings[i] = xmalloc(STRLEN(call_data) + 5);
+                    menu->strings[i] = xmalloc(ustrlen(call_data) + 5);
                     menu->strings[i][0] = c;
 
                     if(d == 0)
                     {
-                        STRCPY(menu->strings[i] + 1, call_data);
+                        ustrcpy(menu->strings[i] + 1, call_data);
                     }
                     else
                     {
                         menu->strings[i][1] = d;
-                        STRCPY(menu->strings[i] + 2, call_data);
+                        ustrcpy(menu->strings[i] + 2, call_data);
                     }
 
                     if(c == Ctrl_C)
                     {
-                        int len = (int)STRLEN(menu->strings[i]);
+                        int len = (int)ustrlen(menu->strings[i]);
 
                         // Append CTRL-\ CTRL-G to obey 'insertmode'.
                         menu->strings[i][len] = Ctrl_BSL;
@@ -840,7 +840,7 @@ static int show_menus(uchar_kt *path_name, int modes)
     vimmenu_st *parent = NULL;
 
     menu = root_menu;
-    name = path_name = vim_strsave(path_name);
+    name = path_name = ustrdup(path_name);
 
     // First, find the (sub)menu with the given name
     while(*name)
@@ -1049,12 +1049,12 @@ uchar_kt *set_context_in_menu_cmd(expand_st *xp,
 
     if(!ascii_iswhite(*p))
     {
-        if(STRNCMP(arg, "enable", 6) == 0
+        if(ustrncmp(arg, "enable", 6) == 0
            && (arg[6] == NUL ||  ascii_iswhite(arg[6])))
         {
             p = arg + 6;
         }
-        else if(STRNCMP(arg, "disable", 7) == 0
+        else if(ustrncmp(arg, "disable", 7) == 0
                 && (arg[7] == NUL || ascii_iswhite(arg[7])))
         {
             p = arg + 7;
@@ -1111,7 +1111,7 @@ uchar_kt *set_context_in_menu_cmd(expand_st *xp,
         {
             size_t path_len = (size_t)(after_dot - arg);
             path_name = xmalloc(path_len);
-            STRLCPY(path_name, arg, path_len);
+            ustrlcpy(path_name, arg, path_len);
         }
 
         name = path_name;
@@ -1245,7 +1245,7 @@ uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
     while(menu != NULL
           && (menu_is_hidden(menu->dname)
               || (expand_emenu && menu_is_separator(menu->dname))
-              || menu->dname[STRLEN(menu->dname) - 1] == '.'))
+              || menu->dname[ustrlen(menu->dname) - 1] == '.'))
     {
         menu = menu->next;
     }
@@ -1261,11 +1261,11 @@ uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
         {
             if(should_advance)
             {
-                STRLCPY(tbuffer, menu->en_dname, TBUFFER_LEN - 1);
+                ustrlcpy(tbuffer, menu->en_dname, TBUFFER_LEN - 1);
             }
             else
             {
-                STRLCPY(tbuffer, menu->dname,  TBUFFER_LEN - 1);
+                ustrlcpy(tbuffer, menu->dname,  TBUFFER_LEN - 1);
 
                 if(menu->en_dname == NULL)
                 {
@@ -1275,7 +1275,7 @@ uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
             // hack on menu separators:  use a 'magic' char for the
             // separator so that '.' in names gets escaped properly
-            STRCAT(tbuffer, "\001");
+            ustrcat(tbuffer, "\001");
             str = tbuffer;
         }
         else
@@ -1322,7 +1322,7 @@ uchar_kt *menu_name_skip(uchar_kt *name)
     {
         if(*p == '\\' || *p == Ctrl_V)
         {
-            STRMOVE(p, p + 1);
+            xstrmove(p, p + 1);
 
             if(*p == NUL)
             {
@@ -1469,10 +1469,10 @@ static int get_menu_cmd_modes(uchar_kt *cmd,
 /// Returns the name in allocated memory.
 static uchar_kt *popup_mode_name(uchar_kt *name, int idx)
 {
-    size_t len = STRLEN(name);
+    size_t len = ustrlen(name);
     assert(len >= 4);
 
-    uchar_kt *p = vim_strnsave(name, len + 1);
+    uchar_kt *p = ustrndup(name, len + 1);
     memmove(p + 6, p + 5, len - 4);
     p[5] = menu_mode_chars[idx];
 
@@ -1506,27 +1506,27 @@ FUNC_ATTR_NONNULL_ARG(1)
     uchar_kt *text;
 
     // Locate accelerator text, after the first TAB
-    p = vim_strchr(str, TAB);
+    p = ustrchr(str, TAB);
 
     if(p != NULL)
     {
         if(actext != NULL)
         {
-            *actext = vim_strsave(p + 1);
+            *actext = ustrdup(p + 1);
         }
 
         assert(p >= str);
-        text = vim_strnsave(str, (size_t)(p - str));
+        text = ustrndup(str, (size_t)(p - str));
     }
     else
     {
-        text = vim_strsave(str);
+        text = ustrdup(str);
     }
 
     // Find mnemonic characters "&a" and reduce "&&" to "&".
     for(p = text; p != NULL;)
     {
-        p = vim_strchr(p, '&');
+        p = ustrchr(p, '&');
 
         if(p != NULL)
         {
@@ -1540,7 +1540,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 *mnemonic = p[1];
             }
 
-            STRMOVE(p, p + 1);
+            xstrmove(p, p + 1);
             p = p + 1;
         }
     }
@@ -1559,21 +1559,21 @@ int menu_is_menubar(uchar_kt *name)
 /// Return TRUE if "name" is a popup menu name.
 int menu_is_popup(uchar_kt *name)
 {
-    return STRNCMP(name, "PopUp", 5) == 0;
+    return ustrncmp(name, "PopUp", 5) == 0;
 }
 
 
 /// Return TRUE if "name" is a toolbar menu name.
 int menu_is_toolbar(uchar_kt *name)
 {
-    return STRNCMP(name, "ToolBar", 7) == 0;
+    return ustrncmp(name, "ToolBar", 7) == 0;
 }
 
 /// Return TRUE if the name is a menu
 /// separator identifier: Starts and ends with '-'
 int menu_is_separator(uchar_kt *name)
 {
-    return name[0] == '-' && name[STRLEN(name) - 1] == '-';
+    return name[0] == '-' && name[ustrlen(name) - 1] == '-';
 }
 
 /// Return TRUE if the menu is hidden:  Starts with ']'
@@ -1593,7 +1593,7 @@ void ex_emenu(exargs_st *eap)
     vimmenu_st *menu;
     uchar_kt *saved_name;
 
-    saved_name = vim_strsave(eap->arg);
+    saved_name = ustrdup(eap->arg);
     menu = root_menu;
     name = saved_name;
 
@@ -1766,7 +1766,7 @@ void ex_menutranslate(exargs_st *eap)
     }
 
     // ":menutrans clear": clear all translations.
-    if(STRNCMP(arg, "clear", 5) == 0 && ends_excmd(*skipwhite(arg + 5)))
+    if(ustrncmp(arg, "clear", 5) == 0 && ends_excmd(*skipwhite(arg + 5)))
     {
         GA_DEEP_CLEAR(&menutrans_ga, menutrans_st, FREE_MENUTRANS);
 
@@ -1788,10 +1788,10 @@ void ex_menutranslate(exargs_st *eap)
         }
         else
         {
-            from = vim_strsave(from);
+            from = ustrdup(from);
             from_noamp = menu_text(from, NULL, NULL);
             assert(arg >= to);
-            to = vim_strnsave(to, (size_t)(arg - to));
+            to = ustrndup(to, (size_t)(arg - to));
             menu_translate_tab_and_shift(from);
             menu_translate_tab_and_shift(to);
             menu_unescape_name(from);
@@ -1830,7 +1830,7 @@ static uchar_kt *menutrans_lookup(uchar_kt *name, int len)
 
     for(int i = 0; i < menutrans_ga.ga_len; i++)
     {
-        if(STRNCMP(name, tp[i].from, len) == 0 && tp[i].from[len] == NUL)
+        if(ustrncmp(name, tp[i].from, len) == 0 && tp[i].from[len] == NUL)
         {
             return tp[i].to;
         }
@@ -1844,7 +1844,7 @@ static uchar_kt *menutrans_lookup(uchar_kt *name, int len)
 
     for(int i = 0; i < menutrans_ga.ga_len; i++)
     {
-        if(STRCMP(dname, tp[i].from_noamp) == 0)
+        if(ustrcmp(dname, tp[i].from_noamp) == 0)
         {
             xfree(dname);
             return tp[i].to;
@@ -1864,7 +1864,7 @@ static void menu_unescape_name(uchar_kt *name)
     {
         if(*p == '\\')
         {
-            STRMOVE(p, p + 1);
+            xstrmove(p, p + 1);
         }
     }
 }
@@ -1881,10 +1881,10 @@ static uchar_kt *menu_translate_tab_and_shift(uchar_kt *arg_start)
         {
             arg++;
         }
-        else if(STRNICMP(arg, "<TAB>", 5) == 0)
+        else if(ustrnicmp(arg, "<TAB>", 5) == 0)
         {
             *arg = TAB;
-            STRMOVE(arg + 1, arg + 5);
+            xstrmove(arg + 1, arg + 5);
         }
 
         arg++;

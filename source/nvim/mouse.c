@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #include "nvim/mouse.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/window.h"
 #include "nvim/state.h"
@@ -679,7 +679,7 @@ int mouse_has(int c)
         switch(*p)
         {
             case 'a':
-                if(vim_strchr((uchar_kt *)MOUSE_A, c) != NULL)
+                if(ustrchr((uchar_kt *)MOUSE_A, c) != NULL)
                 {
                     return true;
                 }
@@ -838,7 +838,7 @@ static int mouse_adjust_click(win_st *wp, int row, int col)
         return col;
     }
 
-    int end = (columnum_kt)STRLEN(ml_get(wp->w_cursor.lnum));
+    int end = (columnum_kt)ustrlen(ml_get(wp->w_cursor.lnum));
     int vend = getviscol2(end, 0);
 
     if(col >= vend)

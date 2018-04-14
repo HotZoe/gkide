@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <uv.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/charset.h"
 #include "nvim/fileio.h"
@@ -137,7 +137,7 @@ char *os_getenvname_at_index(size_t index)
         namesize++;
     }
 
-    char *name = (char *)vim_strnsave((uchar_kt *)str, namesize);
+    char *name = (char *)ustrndup((uchar_kt *)str, namesize);
     return name;
 }
 
@@ -168,7 +168,7 @@ void os_get_hostname(char *hostname, size_t size)
     }
     else
     {
-        xstrlcpy(hostname, vutsname.nodename, size);
+        xstrncpy(hostname, vutsname.nodename, size);
     }
 #elif defined(HOST_OS_WINDOWS)
     WCHAR host_utf16[MAX_COMPUTERNAME_LENGTH + 1];
@@ -192,7 +192,7 @@ void os_get_hostname(char *hostname, size_t size)
         return;
     }
 
-    xstrlcpy(hostname, host_utf8, size);
+    xstrncpy(hostname, host_utf8, size);
     xfree(host_utf8);
 #else
     EMSG("os_get_hostname failed: missing uname()");
@@ -382,7 +382,7 @@ bool init_gkide_usr_home(void)
         gkide_usr_home = NULL;
     }
 
-    gkide_usr_home = (char *)vim_strsave((uchar_kt *)usr_home);
+    gkide_usr_home = (char *)ustrdup((uchar_kt *)usr_home);
 
     if(set_usr_home_env)
     {
@@ -452,7 +452,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
     bool copy_char;
     bool mustfree; // var was allocated, need to free it later
     bool at_start = true; // at start of a name
-    int prefix_len = (prefix == NULL) ? 0 : (int)STRLEN(prefix);
+    int prefix_len = (prefix == NULL) ? 0 : (int)ustrlen(prefix);
 
     // should leave one char space for comma at the end, which is ','
     dstlen--; // now turn to index
@@ -503,7 +503,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
 
             #if defined(HOST_OS_LINUX) || defined(HOST_OS_MACOS)
                 // Unix has ${var-name} type environment vars
-                if(*tail == '{' && !vim_isIDc('{'))
+                if(*tail == '{' && !is_id_char('{'))
                 {
                     tail++; // ignore '{'
 
@@ -518,7 +518,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
                 {
                     // $VarName type of environment vars
                     // c now is the string length count
-                    while(c-- > 0 && *tail != NUL && vim_isIDc(*tail))
+                    while(c-- > 0 && *tail != NUL && is_id_char(*tail))
                     {
                         *var++ = *tail++;
                     }
@@ -550,7 +550,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
             }
             else if(src[1] == NUL // home directory, "~"
                     || vim_ispathsep(src[1]) // "~/" or "~\"
-                    || vim_strchr((uchar_kt *)" ,\t\n", src[1]) != NULL)
+                    || ustrchr((uchar_kt *)" ,\t\n", src[1]) != NULL)
             {
                 var = (uchar_kt *)gkide_usr_home; // ~
                 tail = src + 1; // the left
@@ -563,7 +563,10 @@ void expand_env_esc(uchar_kt *restrict srcp,
                 var = dst;
                 int c = dstlen - 1;
 
-                while(c-- > 0 && *tail && vim_isfilec(*tail) && !vim_ispathsep(*tail))
+                while(c-- > 0
+                      && *tail
+                      && is_file_name_char(*tail)
+                      && !vim_ispathsep(*tail))
                 {
                     *var++ = *tail++;
                 }
@@ -594,9 +597,9 @@ void expand_env_esc(uchar_kt *restrict srcp,
         #ifdef BACKSLASH_IN_FILENAME
             // If 'shellslash' is set change backslashes to forward slashes.
             // Can't use slash_adjust(), p_ssl may be set temporarily.
-            if(p_ssl && var != NULL && vim_strchr(var, '\\') != NULL)
+            if(p_ssl && var != NULL && ustrchr(var, '\\') != NULL)
             {
-                uchar_kt *p = vim_strsave(var);
+                uchar_kt *p = ustrdup(var);
 
                 if(mustfree)
                 {
@@ -611,9 +614,9 @@ void expand_env_esc(uchar_kt *restrict srcp,
 
             // If "var" contains white space, escape it with a backslash.
             // Required for ":e ~/tt" when $HOME includes a space.
-            if(esc && var != NULL && vim_strpbrk(var, (uchar_kt *)" \t") != NULL)
+            if(esc && var != NULL && xstrpbrk(var, (uchar_kt *)" \t") != NULL)
             {
-                uchar_kt *p = vim_strsave_escaped(var, (uchar_kt *)" \t");
+                uchar_kt *p = ustrdup_escape(var, (uchar_kt *)" \t");
 
                 if(mustfree)
                 {
@@ -626,11 +629,11 @@ void expand_env_esc(uchar_kt *restrict srcp,
 
             // copy the env-var value and the left to 'dst'
             // if var != NULL && *var != NUL, then it is new mallocate env-var value
-            if(var != NULL && *var != NUL && (STRLEN(var) + STRLEN(tail) + 1 < (unsigned)dstlen))
+            if(var != NULL && *var != NUL && (ustrlen(var) + ustrlen(tail) + 1 < (unsigned)dstlen))
             {
-                STRCPY(dst, var); // copy env-var value
-                dstlen -= (int)STRLEN(var);
-                int c = (int)STRLEN(var); // next beginning index for 'dst'
+                ustrcpy(dst, var); // copy env-var value
+                dstlen -= (int)ustrlen(var);
+                int c = (int)ustrlen(var); // next beginning index for 'dst'
 
                 // if var[] ends in a path separator and tail[] starts with it, skip a character
                 if(*var != NUL && after_pathsep((char *)dst, (char *)dst + c)
@@ -676,7 +679,7 @@ void expand_env_esc(uchar_kt *restrict srcp,
 
             if(prefix != NULL
                && src - prefix_len >= srcp
-               && STRNCMP(src - prefix_len, prefix, prefix_len) == 0)
+               && ustrncmp(src - prefix_len, prefix, prefix_len) == 0)
             {
                 at_start = true;
             }
@@ -812,12 +815,12 @@ void usr_home_replace(const filebuf_st *const buf,
     // If the file is a help file, remove the path completely.
     if(buf != NULL && buf->b_help)
     {
-        xstrlcpy((char *)dst, (char *)path_tail(src), dstlen);
+        xstrncpy((char *)dst, (char *)path_tail(src), dstlen);
         return;
     }
 
     assert(gkide_usr_home != NULL);
-    const size_t usr_home_len = STRLEN(gkide_usr_home);
+    const size_t usr_home_len = ustrlen(gkide_usr_home);
 
     while(src[0] && dstlen > 0)
     {
@@ -879,11 +882,11 @@ FUNC_ATTR_NONNULL_RET
         return NULL;
     }
 
-    size_t old_len = STRLEN(src);
+    size_t old_len = ustrlen(src);
     uchar_kt *dst = xmalloc(old_len);
     usr_home_replace(buf, src, dst, old_len);
 
-    size_t new_len = STRLEN(dst);
+    size_t new_len = ustrlen(dst);
 
     if(new_len < old_len && NUL == dst[new_len])
     {
@@ -912,7 +915,7 @@ uchar_kt *get_env_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
     if(envname)
     {
-        STRLCPY(name, envname, ENVNAMELEN);
+        ustrlcpy(name, envname, ENVNAMELEN);
         xfree(envname);
         return name;
     }
@@ -947,7 +950,7 @@ FUNC_ATTR_NONNULL_ALL
 
     assert(tail >= fname &&dirlen + 1 < sizeof(os_buf));
 
-    xstrlcpy(os_buf, fname, dirlen + 1);
+    xstrncpy(os_buf, fname, dirlen + 1);
 
     const char *path = os_getenv("PATH");
     const size_t pathlen = path ? strlen(path) : 0;
@@ -963,11 +966,11 @@ FUNC_ATTR_NONNULL_ALL
         }
         else
         {
-            xstrlcpy(temp, path, newlen);
-            xstrlcat(temp, ENV_SEPSTR, newlen);
+            xstrncpy(temp, path, newlen);
+            xstrncat(temp, ENV_SEPSTR, newlen);
         }
 
-        xstrlcat(temp, os_buf, newlen);
+        xstrncat(temp, os_buf, newlen);
         os_setenv("PATH", temp, 1);
         xfree(temp);
         return true;
@@ -994,7 +997,7 @@ bool os_term_is_nice(void)
 
     const char *termprg = os_getenv("TERM_PROGRAM");
 
-    if(termprg && striequal(termprg, "iTerm.app"))
+    if(termprg && xstriequal(termprg, "iTerm.app"))
     {
         return true;
     }
@@ -1018,16 +1021,16 @@ bool os_shell_is_cmdexe(const char *sh) FUNC_ATTR_NONNULL_ALL
         return false;
     }
 
-    if(striequal(sh, "$COMSPEC"))
+    if(xstriequal(sh, "$COMSPEC"))
     {
         const char *comspec = os_getenv("COMSPEC");
-        return striequal("cmd.exe", (char *)path_tail((uchar_kt *)comspec));
+        return xstriequal("cmd.exe", (char *)path_tail((uchar_kt *)comspec));
     }
 
-    if(striequal(sh, "cmd.exe") || striequal(sh, "cmd"))
+    if(xstriequal(sh, "cmd.exe") || xstriequal(sh, "cmd"))
     {
         return true;
     }
 
-    return striequal("cmd.exe", (char *)path_tail((uchar_kt *)sh));
+    return xstriequal("cmd.exe", (char *)path_tail((uchar_kt *)sh));
 }

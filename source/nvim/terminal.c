@@ -45,7 +45,7 @@
 
 #include <vterm.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/terminal.h"
 #include "nvim/message.h"
 #include "nvim/memory.h"

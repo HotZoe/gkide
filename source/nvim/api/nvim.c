@@ -1,4 +1,4 @@
-/// @file nvim/api/vim.c
+/// @file nvim/api/nvim.c
 
 #include <assert.h>
 #include <stdint.h>
@@ -8,14 +8,14 @@
 #include <string.h>
 #include <limits.h>
 
-#include "nvim/api/vim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/buffer.h"
 #include "nvim/msgpack/channel.h"
 #include "nvim/lua/executor.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/buffer.h"
 #include "nvim/file_search.h"
 #include "nvim/window.h"
@@ -35,7 +35,7 @@
 #define LINE_BUFFER_SIZE 4096
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
-    #include "api/vim.c.generated.h"
+    #include "api/nvim.c.generated.h"
 #endif
 
 /// Executes an ex-command.
@@ -256,7 +256,7 @@ FUNC_API_SINCE(1)
     if(!try_end(err))
     {
         // No errors, convert the result
-        rv = vim_to_object(&rettv);
+        rv = nvim_to_object(&rettv);
     }
 
     // Free the Vim object
@@ -320,7 +320,7 @@ FUNC_API_SINCE(1)
 
     if(!try_end(err))
     {
-        rv = vim_to_object(&rettv);
+        rv = nvim_to_object(&rettv);
     }
 
     tv_clear(&rettv);

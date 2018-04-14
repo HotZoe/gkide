@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/buffer_defs.h"
 
 // jump_to_mouse() returns one of first four these values,

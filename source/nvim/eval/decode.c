@@ -13,7 +13,8 @@
 #include "nvim/globals.h"
 #include "nvim/charset.h"
 #include "nvim/lib/kvec.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
+#include "nvim/utils.h"
 
 /// Helper structure
 typedef struct container_item_s
@@ -601,10 +602,10 @@ FUNC_ATTR_ALWAYS_INLINE
                     t += 4;
                     unsigned long ch;
 
-                    vim_str2nr((uchar_kt *) ubuf,
+                    str_to_num((uchar_kt *) ubuf,
                                NULL,
                                NULL,
-                               STR2NR_HEX | STR2NR_FORCE,
+                               kStrToNumHex | kStrToNumOne,
                                NULL,
                                &ch,
                                4);
@@ -865,12 +866,12 @@ parse_json_number_check:
         // Convert integer
         long nr;
         int num_len;
-        vim_str2nr((uchar_kt *) s, NULL, &num_len, 0, &nr, NULL, (int) (p - s));
+        str_to_num((uchar_kt *) s, NULL, &num_len, 0, &nr, NULL, (int) (p - s));
 
         if((int) exp_num_len != num_len)
         {
             emsgf(_("E685: internal error: while converting number \"%.*s\" "
-                    "to integer vim_str2nr consumed %i bytes in place of %zu"),
+                    "to integer str_to_num consumed %i bytes in place of %zu"),
                   (int) exp_num_len, s, num_len, exp_num_len);
         }
 

@@ -119,7 +119,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if((error_number = uv_cwd((char *)buf, &len)) != kLibuvSuccess)
     {
-        STRLCPY(buf, uv_strerror(error_number), len);
+        ustrlcpy(buf, uv_strerror(error_number), len);
         return FAIL;
     }
 
@@ -183,7 +183,7 @@ int os_nodetype(const char *name)
     // Edge case from Vim os_win32.c:
     // We can't open a file with a name "\\.\con" or "\\.\prn", trying to read
     // from it later will cause Vim to hang. Thus return NODE_WRITABLE here.
-    if(STRNCMP(name, "\\\\.\\", 4) == 0)
+    if(ustrncmp(name, "\\\\.\\", 4) == 0)
     {
         return NODE_WRITABLE;
     }
@@ -351,7 +351,7 @@ FUNC_ATTR_NONNULL_ALL
 static bool is_executable_ext(char *name, const char *pathext)
 FUNC_ATTR_NONNULL_ALL
 {
-    xstrlcpy(os_buf, name, sizeof(os_buf));
+    xstrncpy(os_buf, name, sizeof(os_buf));
     char *buf_end = xstrchrnul(os_buf, '\0');
 
     for(const char *ext = pathext; *ext; ext++)
@@ -364,7 +364,7 @@ FUNC_ATTR_NONNULL_ALL
         }
 
         const char *ext_end = xstrchrnul(ext, ENV_SEPCHAR);
-        STRLCPY(buf_end, ext, ext_end - ext + 1);
+        ustrlcpy(buf_end, ext, ext_end - ext + 1);
 
         if(is_executable(os_buf))
         {
@@ -408,7 +408,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     char *path = xstrdup(path_env);
 #endif
 
-    size_t buf_len = STRLEN(name) + strlen(path) + 2;
+    size_t buf_len = ustrlen(name) + strlen(path) + 2;
 
 #ifdef HOST_OS_WINDOWS
     const char *pathext = os_getenv("PATHEXT");
@@ -432,7 +432,7 @@ FUNC_ATTR_NONNULL_ARG(1)
     {
         char *e = xstrchrnul(p, ENV_SEPCHAR);
         // Combine the $PATH segment with `name`.
-        STRLCPY(buf, p, e - p + 1);
+        ustrlcpy(buf, p, e - p + 1);
         append_path(buf, (char *)name, buf_len);
 
     #ifdef HOST_OS_WINDOWS
@@ -943,7 +943,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         e += component_len;
 
         if(e == real_end
-           && std_memcnt(e - component_len, OS_PATH_SEP_CHAR, component_len)
+           && xmemcnt(e - component_len, OS_PATH_SEP_CHAR, component_len)
               == component_len)
         {
             break; // Path ends with something like "////". Ignore this.
@@ -977,7 +977,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(result == kLibuvSuccess)
     {
-        STRNCPY(path, request.path, TEMP_FILE_PATH_MAXLEN);
+        ustrncpy(path, request.path, TEMP_FILE_PATH_MAXLEN);
     }
 
     uv_fs_req_cleanup(&request);
@@ -1230,7 +1230,7 @@ FUNC_ATTR_MALLOC
 
     const size_t len = strlen(fname);
 
-    if(len <= 4 || STRNICMP(fname + len - 4, ".lnk", 4) != 0)
+    if(len <= 4 || ustrnicmp(fname + len - 4, ".lnk", 4) != 0)
     {
         return rfname;
     }

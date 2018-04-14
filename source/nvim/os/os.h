@@ -8,7 +8,7 @@
 
 #include "nvim/os/fs_defs.h"
 #include "nvim/os/stdpaths_defs.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "os/fs.h.generated.h"

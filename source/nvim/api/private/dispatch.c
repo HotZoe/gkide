@@ -8,7 +8,7 @@
 
 #include "nvim/map.h"
 #include "nvim/log.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/msgpack/helpers.h"
 #include "nvim/api/private/dispatch.h"
 #include "nvim/api/private/helpers.h"
@@ -17,7 +17,7 @@
 #include "nvim/api/buffer.h"
 #include "nvim/api/tabpage.h"
 #include "nvim/api/ui.h"
-#include "nvim/api/vim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/api/window.h"
 
 static Map(String, rpc_request_handler_st) *methods = NULL;

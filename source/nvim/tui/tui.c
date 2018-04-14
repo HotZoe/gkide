@@ -18,13 +18,13 @@
 #include "nvim/lib/kvec.h"
 
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/log.h"
 #include "nvim/ui.h"
 #include "nvim/map.h"
 #include "nvim/main.h"
 #include "nvim/memory.h"
-#include "nvim/api/vim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/event/loop.h"
 #include "nvim/event/signal.h"
@@ -666,15 +666,15 @@ cursor_shape_et tui_cursor_decode_shape(const char *shape_str)
 {
     cursor_shape_et shape = 0;
 
-    if(strequal(shape_str, "block"))
+    if(xstrequal(shape_str, "block"))
     {
         shape = kCsrShpBlock;
     }
-    else if(strequal(shape_str, "vertical"))
+    else if(xstrequal(shape_str, "vertical"))
     {
         shape = kCsrShpVertical;
     }
-    else if(strequal(shape_str, "horizontal"))
+    else if(xstrequal(shape_str, "horizontal"))
     {
         shape = kCsrShpHorizontal;
     }
@@ -695,20 +695,20 @@ static cursor_info_st decode_cursor_entry(Dictionary args)
         char *key = args.items[i].key.data;
         Object value = args.items[i].value;
 
-        if(strequal(key, "cursor_shape"))
+        if(xstrequal(key, "cursor_shape"))
         {
             r.shape =
                 tui_cursor_decode_shape(args.items[i].value.data.string.data);
         }
-        else if(strequal(key, "blinkon"))
+        else if(xstrequal(key, "blinkon"))
         {
             r.blinkon = (int)value.data.integer;
         }
-        else if(strequal(key, "blinkoff"))
+        else if(xstrequal(key, "blinkoff"))
         {
             r.blinkoff = (int)value.data.integer;
         }
-        else if(strequal(key, "hl_id"))
+        else if(xstrequal(key, "hl_id"))
         {
             r.id = (int)value.data.integer;
         }
@@ -1579,7 +1579,7 @@ static const char *tui_tk_ti_getstr(const char *name,
         stty_erase = tui_get_stty_erase();
     }
 
-    if(strequal(name, "key_backspace"))
+    if(xstrequal(name, "key_backspace"))
     {
         STATE_LOG("libtermkey:kbs=%s", value);
 
@@ -1588,12 +1588,12 @@ static const char *tui_tk_ti_getstr(const char *name,
             return stty_erase;
         }
     }
-    else if(strequal(name, "key_dc"))
+    else if(xstrequal(name, "key_dc"))
     {
         STATE_LOG("libtermkey:kdch1=%s", value);
 
         // Vim: "If <BS> and <DEL> are now the same, redefine <DEL>."
-        if(value != NULL && strequal(stty_erase, value))
+        if(value != NULL && xstrequal(stty_erase, value))
         {
             return stty_erase[0] == DEL ? CTRL_H_STR : DEL_STR;
         }

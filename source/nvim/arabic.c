@@ -12,7 +12,7 @@
 
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/arabic.h"
 

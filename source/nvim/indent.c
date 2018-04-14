@@ -232,7 +232,7 @@ int set_indent(int size, int flags)
         p = skipwhite(p);
     }
 
-    line_len = (int)STRLEN(p) + 1;
+    line_len = (int)ustrlen(p) + 1;
 
     // If 'preserveindent' and 'expandtab' are both set keep the original
     // characters and allocate accordingly. We will fill the rest with spaces
@@ -471,7 +471,7 @@ int copy_indent(int size, uchar_kt *src)
         {
             // Allocate memory for the result:
             // the copied indent, new indent and the rest of the line.
-            line_len = (int)STRLEN(get_cursor_line_ptr()) + 1;
+            line_len = (int)ustrlen(get_cursor_line_ptr()) + 1;
 
             assert(ind_len + line_len >= 0);
 
@@ -516,7 +516,7 @@ int get_number_indent(linenum_kt lnum)
         lead_len = get_leader_len(ml_get(lnum), NULL, false, true);
     }
 
-    regmatch.regprog = vim_regcomp(curbuf->b_p_flp, RE_MAGIC);
+    regmatch.regprog = regexp_compile(curbuf->b_p_flp, RE_MAGIC);
 
     if(regmatch.regprog != NULL)
     {
@@ -558,7 +558,7 @@ int get_breakindent_win(win_st *wp, uchar_kt *line)
     const int eff_wwidth =
         wp->w_width
         - ((wp->w_o_curbuf.wo_nu || wp->w_o_curbuf.wo_rnu)
-           && (vim_strchr(p_cpo, CPO_NUMCOL) == NULL)
+           && (ustrchr(p_cpo, CPO_NUMCOL) == NULL)
               ? number_width(wp) + 1 : 0);
 
     // used cached indent, unless pointer or 'tabstop' changed
@@ -580,7 +580,7 @@ int get_breakindent_win(win_st *wp, uchar_kt *line)
     // indent minus the length of the showbreak string
     if(wp->w_p_brisbr)
     {
-        bri -= vim_strsize(p_sbr);
+        bri -= ustr_scrsize(p_sbr);
     }
 
     // Add offset for number column, if 'n' is in 'cpoptions'
@@ -707,7 +707,7 @@ int get_lisp_indent(void)
     int vi_lisp;
 
     // Set vi_lisp to use the vi-compatible method.
-    vi_lisp = (vim_strchr(p_cpo, CPO_LISP) != NULL);
+    vi_lisp = (ustrchr(p_cpo, CPO_LISP) != NULL);
     realpos = curwin->w_cursor;
     curwin->w_cursor.col = 0;
 
@@ -942,9 +942,9 @@ static int lisp_match(uchar_kt *p)
     while(*word != NUL)
     {
         (void)copy_option_part(&word, buf, LSIZE, ",");
-        len = (int)STRLEN(buf);
+        len = (int)ustrlen(buf);
 
-        if((STRNCMP(buf, p, len) == 0) && (p[len] == ' '))
+        if((ustrncmp(buf, p, len) == 0) && (p[len] == ' '))
         {
             return true;
         }

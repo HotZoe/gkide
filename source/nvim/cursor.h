@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "cursor.h.generated.h"

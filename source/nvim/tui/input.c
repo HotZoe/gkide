@@ -1,8 +1,8 @@
 /// @file nvim/tui/input.c
 
 #include "nvim/tui/input.h"
-#include "nvim/vim.h"
-#include "nvim/api/vim.h"
+#include "nvim/nvim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/api/private/helpers.h"
 #include "nvim/ascii.h"
 #include "nvim/main.h"

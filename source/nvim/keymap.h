@@ -434,10 +434,9 @@ enum key_extra
 #define FLAG_CPO_BSLASH    0x01
 #define FLAG_CPO_SPECI     0x02
 
-#define CPO_TO_CPO_FLAGS   (((vim_strchr(p_cpo, CPO_BSLASH) == NULL) \
-                             ? 0 : FLAG_CPO_BSLASH) |                \
-                            (vim_strchr(p_cpo, CPO_SPECI) == NULL    \
-                             ? 0 : FLAG_CPO_SPECI))
+#define CPO_TO_CPO_FLAGS   \
+    (((ustrchr(p_cpo, CPO_BSLASH) == NULL) ? 0 : FLAG_CPO_BSLASH) \
+     |(ustrchr(p_cpo, CPO_SPECI) == NULL ? 0 : FLAG_CPO_SPECI))
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "keymap.h.generated.h"

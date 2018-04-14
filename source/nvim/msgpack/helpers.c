@@ -10,7 +10,7 @@
 #include "nvim/api/private/helpers.h"
 #include "nvim/msgpack/helpers.h"
 #include "nvim/lib/kvec.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/log.h"
 #include "nvim/memory.h"
 #include "nvim/assert.h"

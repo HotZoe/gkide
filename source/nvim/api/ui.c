@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ui.h"
 #include "nvim/memory.h"
 #include "nvim/map.h"
@@ -203,7 +203,7 @@ static void ui_set_option(ui_st *ui,
 #define UI_EXT_OPTION(o, e)                                                   \
     do                                                                        \
     {                                                                         \
-        if(strequal(name.data, #o))                                           \
+        if(xstrequal(name.data, #o))                                           \
         {                                                                     \
             if(value.type != kObjectTypeBoolean)                              \
             {                                                                 \
@@ -216,7 +216,7 @@ static void ui_set_option(ui_st *ui,
         }                                                                     \
     } while (0)
 
-    if(strequal(name.data, "rgb"))
+    if(xstrequal(name.data, "rgb"))
     {
         if(value.type != kObjectTypeBoolean)
         {
@@ -233,7 +233,7 @@ static void ui_set_option(ui_st *ui,
     UI_EXT_OPTION(ext_tabline, kUITabline);
     UI_EXT_OPTION(ext_wildmenu, kUIWildmenu);
 
-    if(strequal(name.data, "popupmenu_external"))
+    if(xstrequal(name.data, "popupmenu_external"))
     {
         // LEGACY: Deprecated option, use `ui_ext` instead.
         if(value.type != kObjectTypeBoolean)

@@ -1,7 +1,7 @@
 /// @file nvim/regexp.c
 ///
 /// Handling of regular expressions:
-/// vim_regcomp(), vim_regexec(), vim_regsub()
+/// regexp_compile(), vim_regexec(), vim_regsub()
 ///
 /// @note:
 /// This is NOT the original regular expression code as written by Henry
@@ -49,7 +49,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/regexp.h"
 #include "nvim/charset.h"
@@ -62,6 +62,7 @@
 #include "nvim/misc1.h"
 #include "nvim/garray.h"
 #include "nvim/strings.h"
+#include "nvim/utils.h"
 
 #ifdef REGEXP_DEBUG
     // show/save debugging data when BT engine is used
@@ -89,10 +90,10 @@
 // Regstart and reganch permit very fast decisions on suitable starting points
 // for a match, cutting down the work a lot. Regmust permits fast rejection
 // of lines that cannot possibly match. The regmust tests are costly enough
-// that vim_regcomp() supplies a regmust only if the r.e. contains something
+// that regexp_compile() supplies a regmust only if the r.e. contains something
 // potentially expensive (at present, the only such thing detected is * or +
 // at the start of the r.e., which can involve a lot of backup). Regmlen is
-// supplied because the test in vim_regexec() needs it and vim_regcomp() is
+// supplied because the test in vim_regexec() needs it and regexp_compile() is
 // computing it anyway.
 
 // Structure for regexp "program".  This is essentially a linear encoding
@@ -546,7 +547,7 @@ static int toggle_Magic(int x)
 /// Utility definitions.
 #define UCHARAT(p)      ((int)*(uchar_kt *)(p))
 
-// Used for an error (down from) vim_regcomp():
+// Used for an error (down from) regexp_compile():
 // give the error message, set rc_did_emsg and return NULL
 #define EMSG_RET_NULL(m)     return (EMSG(m), rc_did_emsg = TRUE, (void *)NULL)
 #define EMSG_RET_FAIL(m)     return (EMSG(m), rc_did_emsg = TRUE, FAIL)
@@ -711,9 +712,9 @@ static int get_char_class(uchar_kt **pp)
     {
         for(i = 0; i < (int)ARRAY_SIZE(class_names); ++i)
         {
-            if(STRNCMP(*pp + 2, class_names[i], STRLEN(class_names[i])) == 0)
+            if(ustrncmp(*pp + 2, class_names[i], ustrlen(class_names[i])) == 0)
             {
-                *pp += STRLEN(class_names[i]) + 2;
+                *pp += ustrlen(class_names[i]) + 2;
                 return i;
             }
         }
@@ -804,7 +805,7 @@ static void init_class_tab(void)
 #define RF_ICOMBINE  8   ///< ignore combining characters
 #define RF_LOOKBH    16  ///< uses "\@<=" or "\@<!"
 
-// Global work variables for vim_regcomp().
+// Global work variables for regexp_compile().
 
 static uchar_kt *regparse;      ///< Input-scan pointer.
 static int prevchr_len;         ///< byte length of previous char
@@ -820,7 +821,7 @@ static unsigned regflags;       ///< RF_ flags for prog
 static long brace_min[10];      ///< Minimums for complex brace repeats
 static long brace_max[10];      ///< Maximums for complex brace repeats
 static int brace_count[10];     ///< Current counts for complex brace repeats
-static int had_eol;             ///< TRUE when EOL found by vim_regcomp()
+static int had_eol;             ///< TRUE when EOL found by regexp_compile()
 static int one_exactly = FALSE; ///< only do one char for EXACTLY
 
 #define MAGIC_NONE     1  ///< "\V" very unmagic
@@ -929,8 +930,8 @@ static int get_equi_class(uchar_kt **pp)
 static void reg_equi_class(int c)
 {
     if(enc_utf8
-       || STRCMP(p_enc, "latin1") == 0
-       || STRCMP(p_enc, "iso-8859-15") == 0)
+       || ustrcmp(p_enc, "latin1") == 0
+       || ustrcmp(p_enc, "iso-8859-15") == 0)
     {
         switch(c)
         {
@@ -1772,7 +1773,7 @@ static int reg_cpo_lit;
 
 static void get_cpo_flags(void)
 {
-    reg_cpo_lit = vim_strchr(p_cpo, CPO_LITERAL) != NULL;
+    reg_cpo_lit = ustrchr(p_cpo, CPO_LITERAL) != NULL;
 }
 
 /// Skip over a "[]" range.
@@ -1810,9 +1811,9 @@ static uchar_kt *skip_anyof(uchar_kt *p)
             }
         }
         else if(*p == '\\'
-                && (vim_strchr(REGEXP_INRANGE, p[1]) != NULL
+                && (ustrchr(REGEXP_INRANGE, p[1]) != NULL
                     || (!reg_cpo_lit
-                        && vim_strchr(REGEXP_ABBR, p[1]) != NULL)))
+                        && ustrchr(REGEXP_ABBR, p[1]) != NULL)))
         {
             p += 2;
         }
@@ -1884,11 +1885,11 @@ uchar_kt *skip_regexp(uchar_kt *startp, int dirc, int magic, uchar_kt **newp)
                 // change "\?" to "?", make a copy first.
                 if(*newp == NULL)
                 {
-                    *newp = vim_strsave(startp);
+                    *newp = ustrdup(startp);
                     p = *newp + (p - startp);
                 }
 
-                STRMOVE(p, p + 1);
+                xstrmove(p, p + 1);
             }
             else
             {
@@ -2060,10 +2061,10 @@ static regprog_st *bt_regcomp(uchar_kt *expr, int re_flags)
             for(; scan != NULL; scan = regnext(scan))
             {
                 if(OP(scan) == EXACTLY
-                   && STRLEN(OPERAND(scan)) >= (size_t)len)
+                   && ustrlen(OPERAND(scan)) >= (size_t)len)
                 {
                     longest = OPERAND(scan);
-                    len = (int)STRLEN(OPERAND(scan));
+                    len = (int)ustrlen(OPERAND(scan));
                 }
             }
 
@@ -2090,7 +2091,7 @@ static void bt_regfree(regprog_st *prog)
 /// Used once to get the length and once to do it.
 ///
 /// @param expr
-/// @param re_flags  see vim_regcomp()
+/// @param re_flags  see regexp_compile()
 static void regcomp_start(uchar_kt *expr, int re_flags)
 {
     initchr(expr);
@@ -2118,7 +2119,7 @@ static void regcomp_start(uchar_kt *expr, int re_flags)
     had_eol = FALSE;
 }
 
-/// Check if during the previous call to vim_regcomp the EOL
+/// Check if during the previous call to regexp_compile the EOL
 /// item "$" has been found. This is messy, but it works fine.
 int vim_regcomp_had_eol(void)
 {
@@ -2750,7 +2751,7 @@ static uchar_kt *regatom(int *flagp)
         case Magic('L'):
         case Magic('u'):
         case Magic('U'):
-            p = vim_strchr(classchars, no_Magic(c));
+            p = ustrchr(classchars, no_Magic(c));
 
             if(p == NULL)
             {
@@ -3360,10 +3361,10 @@ collection:
                         // Vim accepts "\t", "\e", etc., but only when the 'l'
                         // flag in 'cpoptions' is not included.
                         else if(*regparse == '\\'
-                                && (vim_strchr(REGEXP_INRANGE,
+                                && (ustrchr(REGEXP_INRANGE,
                                                regparse[1]) != NULL
                                     || (!reg_cpo_lit
-                                        && vim_strchr(REGEXP_ABBR,
+                                        && ustrchr(REGEXP_ABBR,
                                                       regparse[1]) != NULL)))
                         {
                             regparse++;
@@ -3518,7 +3519,7 @@ collection:
                                 case CLASS_PRINT:
                                     for(cu = 1; cu <= 255; cu++)
                                     {
-                                        if(vim_isprintc(cu))
+                                        if(is_print_char(cu))
                                         {
                                             regmbc(cu);
                                         }
@@ -4174,7 +4175,7 @@ static int peekchr(void)
                 --after_slash;
                 curchr = toggle_Magic(curchr);
             }
-            else if(vim_strchr(REGEXP_ABBR, c))
+            else if(ustrchr(REGEXP_ABBR, c))
             {
                 // Handle abbreviations, like "\t" for TAB
                 curchr = backslash_trans(c);
@@ -4305,7 +4306,7 @@ static int gethexchrs(int maxinputlen)
         }
 
         nr <<= 4;
-        nr |= hex2nr(c);
+        nr |= hex_to_num(c);
         ++regparse;
     }
 
@@ -4373,7 +4374,7 @@ static int getoctchrs(void)
         }
 
         nr <<= 3;
-        nr |= hex2nr(c);
+        nr |= hex_to_num(c);
         ++regparse;
     }
 
@@ -4642,7 +4643,7 @@ static bpos_st reg_endzpos[NSUBEXP];     ///< idem, end pos
 #define REG_MULTI   (reg_match == NULL)
 
 /// Match a regexp against a string. "rmp->regprog" is a compiled regexp
-/// as returned by vim_regcomp(). Uses curbuf for line count and 'iskeyword'.
+/// as returned by regexp_compile(). Uses curbuf for line count and 'iskeyword'.
 /// If "line_lbr" is true, consider a "\n" in "line" to be a line break.
 ///
 /// @param rmp
@@ -4676,7 +4677,7 @@ static int bt_regexec_nl(regmatch_st *rmp,
 
 
 /// Matches a regexp against multiple lines.
-/// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
+/// "rmp->regprog" is a compiled regexp as returned by regexp_compile().
 /// Uses curbuf for line count and 'iskeyword'.
 ///
 /// @param win    Window in which to search or NULL
@@ -4813,7 +4814,7 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
         // Use two versions of the loop to avoid overhead of conditions.
         if(!ireg_ic)
         {
-            while((s = vim_strchr(s, c)) != NULL)
+            while((s = ustrchr(s, c)) != NULL)
             {
                 if(cstrncmp(s, prog->regmust, &prog->regmlen) == 0)
                 {
@@ -5078,7 +5079,7 @@ static long regtry(bt_regprog_st *prog, columnum_kt col)
                    && reg_endzpos[i].col >= reg_startzpos[i].col)
                 {
                     re_extmatch_out->matches[i] =
-                        vim_strnsave(reg_getline(reg_startzpos[i].lnum)
+                        ustrndup(reg_getline(reg_startzpos[i].lnum)
                                      + reg_startzpos[i].col,
                                      reg_endzpos[i].col - reg_startzpos[i].col);
                 }
@@ -5088,8 +5089,8 @@ static long regtry(bt_regprog_st *prog, columnum_kt col)
                 if(reg_startzp[i] != NULL && reg_endzp[i] != NULL)
                 {
                     re_extmatch_out->matches[i] =
-                        vim_strnsave(reg_startzp[i],
-                                     (int)(reg_endzp[i] - reg_startzp[i]));
+                        ustrndup(reg_startzp[i],
+                                 (int)(reg_endzp[i] - reg_startzp[i]));
                 }
             }
         }
@@ -5506,9 +5507,9 @@ static int regmatch(uchar_kt *scan)
                         }
                         else
                         {
-                            if(!vim_iswordc_buf(c, reg_buf)
+                            if(!is_kwc_buf(c, reg_buf)
                                || (reginput > regline
-                                   && vim_iswordc_buf(reginput[-1], reg_buf)))
+                                   && is_kwc_buf(reginput[-1], reg_buf)))
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5542,9 +5543,9 @@ static int regmatch(uchar_kt *scan)
                         }
                         else
                         {
-                            if(!vim_iswordc_buf(reginput[-1], reg_buf)
+                            if(!is_kwc_buf(reginput[-1], reg_buf)
                                || (reginput[0] != NUL
-                                   && vim_iswordc_buf(c, reg_buf)))
+                                   && is_kwc_buf(c, reg_buf)))
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5567,7 +5568,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case IDENT:
-                        if(!vim_isIDc(c))
+                        if(!is_id_char(c))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5579,7 +5580,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case SIDENT:
-                        if(ascii_isdigit(*reginput) || !vim_isIDc(c))
+                        if(ascii_isdigit(*reginput) || !is_id_char(c))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5591,7 +5592,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case KWORD:
-                        if(!vim_iswordp_buf(reginput, reg_buf))
+                        if(!is_kwc_ptr_buf(reginput, reg_buf))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5604,7 +5605,7 @@ static int regmatch(uchar_kt *scan)
 
                     case SKWORD:
                         if(ascii_isdigit(*reginput)
-                           || !vim_iswordp_buf(reginput, reg_buf))
+                           || !is_kwc_ptr_buf(reginput, reg_buf))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5616,7 +5617,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case FNAME:
-                        if(!vim_isfilec(c))
+                        if(!is_file_name_char(c))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5628,7 +5629,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case SFNAME:
-                        if(ascii_isdigit(*reginput) || !vim_isfilec(c))
+                        if(ascii_isdigit(*reginput) || !is_file_name_char(c))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5640,7 +5641,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case PRINT:
-                        if(!vim_isprintc(PTR2CHAR(reginput)))
+                        if(!is_print_char(PTR2CHAR(reginput)))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5653,7 +5654,7 @@ static int regmatch(uchar_kt *scan)
 
                     case SPRINT:
                         if(ascii_isdigit(*reginput)
-                           || !vim_isprintc(PTR2CHAR(reginput)))
+                           || !is_print_char(PTR2CHAR(reginput)))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5909,7 +5910,7 @@ static int regmatch(uchar_kt *scan)
                             else
                             {
                                 // Need to match first byte again for multi-byte.
-                                len = (int)STRLEN(opnd);
+                                len = (int)ustrlen(opnd);
 
                                 if(cstrncmp(opnd, reginput, &len) != 0)
                                 {
@@ -6313,7 +6314,7 @@ static int regmatch(uchar_kt *scan)
                         if(re_extmatch_in != NULL
                            && re_extmatch_in->matches[no] != NULL)
                         {
-                            len = (int)STRLEN(re_extmatch_in->matches[no]);
+                            len = (int)ustrlen(re_extmatch_in->matches[no]);
 
                             if(cstrncmp(re_extmatch_in->matches[no],
                                         reginput,
@@ -6928,7 +6929,7 @@ static int regmatch(uchar_kt *scan)
                             if(limit > 0
                                && ((rp->rs_un.regsave.rs_u.pos.lnum
                                     < behind_pos.rs_u.pos.lnum
-                                    ? (columnum_kt)STRLEN(regline)
+                                    ? (columnum_kt)ustrlen(regline)
                                     : behind_pos.rs_u.pos.col)
                                    - rp->rs_un.regsave.rs_u.pos.col >= limit))
                             {
@@ -6945,7 +6946,7 @@ static int regmatch(uchar_kt *scan)
                                 {
                                     reg_restore(&rp->rs_un.regsave, &backpos);
                                     rp->rs_un.regsave.rs_u.pos.col =
-                                        (columnum_kt)STRLEN(regline);
+                                        (columnum_kt)ustrlen(regline);
                                 }
                             }
                             else
@@ -7079,7 +7080,7 @@ static int regmatch(uchar_kt *scan)
                                         break;
                                     }
 
-                                    reginput = regline + STRLEN(regline);
+                                    reginput = regline + ustrlen(regline);
                                     fast_breakcheck();
                                 }
                                 else
@@ -7271,7 +7272,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
         case SIDENT + ADD_NL:
             while(count < maxcount)
             {
-                if(vim_isIDc(PTR2CHAR(scan))
+                if(is_id_char(PTR2CHAR(scan))
                    && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7320,7 +7321,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
         case SKWORD + ADD_NL:
             while(count < maxcount)
             {
-                if(vim_iswordp_buf(scan, reg_buf)
+                if(is_kwc_ptr_buf(scan, reg_buf)
                    && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7369,7 +7370,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
         case SFNAME + ADD_NL:
             while(count < maxcount)
             {
-                if(vim_isfilec(PTR2CHAR(scan))
+                if(is_file_name_char(PTR2CHAR(scan))
                    && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7436,7 +7437,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
                         break;
                     }
                 }
-                else if(vim_isprintc(PTR2CHAR(scan)) == 1
+                else if(is_print_char(PTR2CHAR(scan)) == 1
                         && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -8049,7 +8050,7 @@ static int match_with_backref(linenum_kt start_lnum,
         // the other, need to make copy. Slow!
         if(regline != reg_tofree)
         {
-            len = (int)STRLEN(regline);
+            len = (int)ustrlen(regline);
 
             if(reg_tofree == NULL || len >= (int)reg_tofreelen)
             {
@@ -8059,7 +8060,7 @@ static int match_with_backref(linenum_kt start_lnum,
                 reg_tofreelen = len;
             }
 
-            STRCPY(reg_tofree, regline);
+            ustrcpy(reg_tofree, regline);
             reginput = reg_tofree + (reginput - regline);
             regline = reg_tofree;
         }
@@ -8074,7 +8075,7 @@ static int match_with_backref(linenum_kt start_lnum,
         }
         else
         {
-            len = (int)STRLEN(p + ccol);
+            len = (int)ustrlen(p + ccol);
         }
 
         if(cstrncmp(p + ccol, reginput, &len) != 0)
@@ -8244,7 +8245,7 @@ static uchar_kt *regprop(uchar_kt *op)
 {
     char *p;
     static char buf[50];
-    STRCPY(buf, ":");
+    ustrcpy(buf, ":");
 
     switch((int) OP(op))
     {
@@ -8561,7 +8562,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case MOPEN + 7:
         case MOPEN + 8:
         case MOPEN + 9:
-            sprintf(buf + STRLEN(buf), "MOPEN%d", OP(op) - MOPEN);
+            sprintf(buf + ustrlen(buf), "MOPEN%d", OP(op) - MOPEN);
             p = NULL;
             break;
 
@@ -8578,7 +8579,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case MCLOSE + 7:
         case MCLOSE + 8:
         case MCLOSE + 9:
-            sprintf(buf + STRLEN(buf), "MCLOSE%d", OP(op) - MCLOSE);
+            sprintf(buf + ustrlen(buf), "MCLOSE%d", OP(op) - MCLOSE);
             p = NULL;
             break;
 
@@ -8591,7 +8592,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case BACKREF + 7:
         case BACKREF + 8:
         case BACKREF + 9:
-            sprintf(buf + STRLEN(buf), "BACKREF%d", OP(op) - BACKREF);
+            sprintf(buf + ustrlen(buf), "BACKREF%d", OP(op) - BACKREF);
             p = NULL;
             break;
 
@@ -8612,7 +8613,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case ZOPEN + 7:
         case ZOPEN + 8:
         case ZOPEN + 9:
-            sprintf(buf + STRLEN(buf), "ZOPEN%d", OP(op) - ZOPEN);
+            sprintf(buf + ustrlen(buf), "ZOPEN%d", OP(op) - ZOPEN);
             p = NULL;
             break;
 
@@ -8625,7 +8626,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case ZCLOSE + 7:
         case ZCLOSE + 8:
         case ZCLOSE + 9:
-            sprintf(buf + STRLEN(buf), "ZCLOSE%d", OP(op) - ZCLOSE);
+            sprintf(buf + ustrlen(buf), "ZCLOSE%d", OP(op) - ZCLOSE);
             p = NULL;
             break;
 
@@ -8638,7 +8639,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case ZREF + 7:
         case ZREF + 8:
         case ZREF + 9:
-            sprintf(buf + STRLEN(buf), "ZREF%d", OP(op) - ZREF);
+            sprintf(buf + ustrlen(buf), "ZREF%d", OP(op) - ZREF);
             p = NULL;
             break;
 
@@ -8688,7 +8689,7 @@ static uchar_kt *regprop(uchar_kt *op)
         case BRACE_COMPLEX + 7:
         case BRACE_COMPLEX + 8:
         case BRACE_COMPLEX + 9:
-            sprintf(buf + STRLEN(buf),
+            sprintf(buf + ustrlen(buf),
                     "BRACE_COMPLEX%d",
                     OP(op) - BRACE_COMPLEX);
             p = NULL;
@@ -8703,14 +8704,14 @@ static uchar_kt *regprop(uchar_kt *op)
             break;
 
         default:
-            sprintf(buf + STRLEN(buf), "corrupt %d", OP(op));
+            sprintf(buf + ustrlen(buf), "corrupt %d", OP(op));
             p = NULL;
             break;
     }
 
     if(p != NULL)
     {
-        STRCAT(buf, p);
+        ustrcat(buf, p);
     }
 
     return (uchar_kt *)buf;
@@ -8799,7 +8800,7 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
 
     if(!ireg_ic)
     {
-        result = STRNCMP(s1, s2, *n);
+        result = ustrncmp(s1, s2, *n);
     }
     else
     {
@@ -8869,7 +8870,7 @@ FUNC_ATTR_ALWAYS_INLINE
 {
     if(!ireg_ic)
     {
-        return vim_strchr(s, c);
+        return ustrchr(s, c);
     }
 
     // Use folded case for UTF-8, slow!
@@ -8902,7 +8903,7 @@ FUNC_ATTR_ALWAYS_INLINE
     }
     else
     {
-        return vim_strchr(s, c);
+        return ustrchr(s, c);
     }
 
     char tofind[] = { (char)c, (char)cc, NUL };
@@ -8963,8 +8964,8 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
             if(reg_prev_sub != NULL)
             {
                 // length = len(newsub) - 1 + len(prev_sub) + 1
-                prevlen = (int)STRLEN(reg_prev_sub);
-                tmpsub = xmalloc(STRLEN(newsub) + prevlen);
+                prevlen = (int)ustrlen(reg_prev_sub);
+                tmpsub = xmalloc(ustrlen(newsub) + prevlen);
 
                 // copy prefix
                 len = (int)(p - newsub); // not including ~
@@ -8979,7 +8980,7 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
                     ++p; // back off to backslash
                 }
 
-                STRCPY(tmpsub + len + prevlen, p + 1);
+                ustrcpy(tmpsub + len + prevlen, p + 1);
 
                 // already allocated newsub
                 if(newsub != source)
@@ -8992,11 +8993,11 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
             }
             else if(magic)
             {
-                STRMOVE(p, p + 1); // remove '~'
+                xstrmove(p, p + 1); // remove '~'
             }
             else
             {
-                STRMOVE(p, p + 2); // remove '\~'
+                xstrmove(p, p + 2); // remove '\~'
             }
 
             --p;
@@ -9026,7 +9027,7 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
     else
     {
         // no ~ found, need to save newsub
-        reg_prev_sub = vim_strsave(newsub);
+        reg_prev_sub = ustrdup(newsub);
     }
 
     return newsub;
@@ -9077,7 +9078,7 @@ static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
         }
         else
         {
-            s = vim_strnsave(s, (int)(submatch_match->endp[i] - s));
+            s = ustrndup(s, (int)(submatch_match->endp[i] - s));
         }
 
         li->li_tv.v_type = kNvarString;
@@ -9200,8 +9201,8 @@ static int vim_regsub_both(uchar_kt *source,
         {
             if(eval_result != NULL)
             {
-                STRCPY(dest, eval_result);
-                dst += STRLEN(eval_result);
+                ustrcpy(dest, eval_result);
+                dst += ustrlen(eval_result);
                 xfree(eval_result);
                 eval_result = NULL;
             }
@@ -9251,7 +9252,7 @@ static int vim_regsub_both(uchar_kt *source,
                         s = expr->vval.v_string;
 
                         call_func(s,
-                                  (int)STRLEN(s),
+                                  (int)ustrlen(s),
                                   &rettv,
                                   1,
                                   argv,
@@ -9269,7 +9270,7 @@ static int vim_regsub_both(uchar_kt *source,
                         s = partial_name(partial);
 
                         call_func(s,
-                                  (int)STRLEN(s),
+                                  (int)ustrlen(s),
                                   &rettv,
                                   1,
                                   argv,
@@ -9294,7 +9295,7 @@ static int vim_regsub_both(uchar_kt *source,
 
                 if(eval_result != NULL)
                 {
-                    eval_result = vim_strsave(eval_result);
+                    eval_result = ustrdup(eval_result);
                 }
 
                 tv_clear(&rettv);
@@ -9335,12 +9336,12 @@ static int vim_regsub_both(uchar_kt *source,
                 if(had_backslash && backslash)
                 {
                     // Backslashes will be consumed, need to double them.
-                    s = vim_strsave_escaped(eval_result, (uchar_kt *)"\\");
+                    s = ustrdup_escape(eval_result, (uchar_kt *)"\\");
                     xfree(eval_result);
                     eval_result = s;
                 }
 
-                dst += STRLEN(eval_result);
+                dst += ustrlen(eval_result);
             }
 
             reg_match = submatch_match;
@@ -9371,7 +9372,7 @@ static int vim_regsub_both(uchar_kt *source,
                 {
                     no = *src++ - '0';
                 }
-                else if(vim_strchr((uchar_kt *)"uUlLeE", *src))
+                else if(ustrchr((uchar_kt *)"uUlLeE", *src))
                 {
                     switch(*src++)
                     {
@@ -9543,7 +9544,7 @@ static int vim_regsub_both(uchar_kt *source,
                         }
                         else
                         {
-                            len = (int)STRLEN(s);
+                            len = (int)ustrlen(s);
                         }
                     }
                 }
@@ -9588,7 +9589,7 @@ static int vim_regsub_both(uchar_kt *source,
                                 }
                                 else
                                 {
-                                    len = (int)STRLEN(s);
+                                    len = (int)ustrlen(s);
                                 }
                             }
                             else
@@ -9767,7 +9768,7 @@ uchar_kt *reg_submatch(int no)
 
                 if(round == 2)
                 {
-                    STRLCPY(retval, s, len + 1);
+                    ustrlcpy(retval, s, len + 1);
                 }
 
                 ++len;
@@ -9777,11 +9778,11 @@ uchar_kt *reg_submatch(int no)
                 // Multiple lines:
                 // take start line from start col, middle
                 // lines completely and end line up to end col.
-                len = STRLEN(s);
+                len = ustrlen(s);
 
                 if(round == 2)
                 {
-                    STRCPY(retval, s);
+                    ustrcpy(retval, s);
                     retval[len] = '\n';
                 }
 
@@ -9794,10 +9795,10 @@ uchar_kt *reg_submatch(int no)
 
                     if(round == 2)
                     {
-                        STRCPY(retval + len, s);
+                        ustrcpy(retval + len, s);
                     }
 
-                    len += STRLEN(s);
+                    len += ustrlen(s);
 
                     if(round == 2)
                     {
@@ -9809,9 +9810,9 @@ uchar_kt *reg_submatch(int no)
 
                 if(round == 2)
                 {
-                    STRNCPY(retval + len,
-                            reg_getline_submatch(lnum),
-                            submatch_mmatch->endpos[no].col);
+                    ustrncpy(retval + len,
+                             reg_getline_submatch(lnum),
+                             submatch_mmatch->endpos[no].col);
                 }
 
                 len += submatch_mmatch->endpos[no].col;
@@ -9840,7 +9841,7 @@ uchar_kt *reg_submatch(int no)
         }
         else
         {
-            retval = vim_strnsave(s, (int)(submatch_match->endp[no] - s));
+            retval = ustrndup(s, (int)(submatch_match->endp[no] - s));
         }
     }
 
@@ -10221,7 +10222,7 @@ static int nfa_ll_index = 0;
 /// Initialize internal variables before NFA compilation.
 ///
 /// @param expr
-/// @param re_flags   see vim_regcomp()
+/// @param re_flags   see regexp_compile()
 static void nfa_regcomp_start(uchar_kt *expr, int re_flags)
 {
     size_t postfix_size;
@@ -10231,7 +10232,7 @@ static void nfa_regcomp_start(uchar_kt *expr, int re_flags)
     istate = 0;
 
     // A reasonable estimation for maximum size
-    nstate_max = (STRLEN(expr) + 1) * 25;
+    nstate_max = (ustrlen(expr) + 1) * 25;
 
     // Some items blow up in size, such as [A-z]. Add more space for that.
     // When it is still not enough realloc_post_list() will be used.
@@ -10709,8 +10710,8 @@ static void nfa_emit_equi_class(int c)
 {
 
     if(enc_utf8
-       || STRCMP(p_enc, "latin1") == 0
-       || STRCMP(p_enc, "iso-8859-15") == 0)
+       || ustrcmp(p_enc, "latin1") == 0
+       || ustrcmp(p_enc, "iso-8859-15") == 0)
     {
         switch(c)
         {
@@ -11629,7 +11630,7 @@ static int nfa_regatom(void)
         case Magic('L'):
         case Magic('u'):
         case Magic('U'):
-            p = vim_strchr(classchars, no_Magic(c));
+            p = ustrchr(classchars, no_Magic(c));
 
             if(p == NULL)
             {
@@ -12200,9 +12201,9 @@ collection:
                     // flag in 'cpoptions' is not included.
                     if(*regparse == '\\'
                        && regparse + 1 <= endp
-                       && (vim_strchr(REGEXP_INRANGE, regparse[1]) != NULL
+                       && (ustrchr(REGEXP_INRANGE, regparse[1]) != NULL
                            || (!reg_cpo_lit
-                               && vim_strchr(REGEXP_ABBR, regparse[1]) != NULL)))
+                               && ustrchr(REGEXP_ABBR, regparse[1]) != NULL)))
                     {
                         mb_ptr_adv(regparse);
 
@@ -12934,196 +12935,196 @@ static void nfa_set_code(int c)
         c -= NFA_ADD_NL;
     }
 
-    STRCPY(code, "");
+    ustrcpy(code, "");
 
     switch(c)
     {
         case NFA_MATCH:
-            STRCPY(code, "NFA_MATCH ");
+            ustrcpy(code, "NFA_MATCH ");
             break;
 
         case NFA_SPLIT:
-            STRCPY(code, "NFA_SPLIT ");
+            ustrcpy(code, "NFA_SPLIT ");
             break;
 
         case NFA_CONCAT:
-            STRCPY(code, "NFA_CONCAT ");
+            ustrcpy(code, "NFA_CONCAT ");
             break;
 
         case NFA_NEWL:
-            STRCPY(code, "NFA_NEWL ");
+            ustrcpy(code, "NFA_NEWL ");
             break;
 
         case NFA_ZSTART:
-            STRCPY(code, "NFA_ZSTART");
+            ustrcpy(code, "NFA_ZSTART");
             break;
 
         case NFA_ZEND:
-            STRCPY(code, "NFA_ZEND");
+            ustrcpy(code, "NFA_ZEND");
             break;
 
         case NFA_BACKREF1:
-            STRCPY(code, "NFA_BACKREF1");
+            ustrcpy(code, "NFA_BACKREF1");
             break;
 
         case NFA_BACKREF2:
-            STRCPY(code, "NFA_BACKREF2");
+            ustrcpy(code, "NFA_BACKREF2");
             break;
 
         case NFA_BACKREF3:
-            STRCPY(code, "NFA_BACKREF3");
+            ustrcpy(code, "NFA_BACKREF3");
             break;
 
         case NFA_BACKREF4:
-            STRCPY(code, "NFA_BACKREF4");
+            ustrcpy(code, "NFA_BACKREF4");
             break;
 
         case NFA_BACKREF5:
-            STRCPY(code, "NFA_BACKREF5");
+            ustrcpy(code, "NFA_BACKREF5");
             break;
 
         case NFA_BACKREF6:
-            STRCPY(code, "NFA_BACKREF6");
+            ustrcpy(code, "NFA_BACKREF6");
             break;
 
         case NFA_BACKREF7:
-            STRCPY(code, "NFA_BACKREF7");
+            ustrcpy(code, "NFA_BACKREF7");
             break;
 
         case NFA_BACKREF8:
-            STRCPY(code, "NFA_BACKREF8");
+            ustrcpy(code, "NFA_BACKREF8");
             break;
 
         case NFA_BACKREF9:
-            STRCPY(code, "NFA_BACKREF9");
+            ustrcpy(code, "NFA_BACKREF9");
             break;
 
         case NFA_ZREF1:
-            STRCPY(code, "NFA_ZREF1");
+            ustrcpy(code, "NFA_ZREF1");
             break;
 
         case NFA_ZREF2:
-            STRCPY(code, "NFA_ZREF2");
+            ustrcpy(code, "NFA_ZREF2");
             break;
 
         case NFA_ZREF3:
-            STRCPY(code, "NFA_ZREF3");
+            ustrcpy(code, "NFA_ZREF3");
             break;
 
         case NFA_ZREF4:
-            STRCPY(code, "NFA_ZREF4");
+            ustrcpy(code, "NFA_ZREF4");
             break;
 
         case NFA_ZREF5:
-            STRCPY(code, "NFA_ZREF5");
+            ustrcpy(code, "NFA_ZREF5");
             break;
 
         case NFA_ZREF6:
-            STRCPY(code, "NFA_ZREF6");
+            ustrcpy(code, "NFA_ZREF6");
             break;
 
         case NFA_ZREF7:
-            STRCPY(code, "NFA_ZREF7");
+            ustrcpy(code, "NFA_ZREF7");
             break;
 
         case NFA_ZREF8:
-            STRCPY(code, "NFA_ZREF8");
+            ustrcpy(code, "NFA_ZREF8");
             break;
 
         case NFA_ZREF9:
-            STRCPY(code, "NFA_ZREF9");
+            ustrcpy(code, "NFA_ZREF9");
             break;
 
         case NFA_SKIP:
-            STRCPY(code, "NFA_SKIP");
+            ustrcpy(code, "NFA_SKIP");
             break;
 
         case NFA_PREV_ATOM_NO_WIDTH:
-            STRCPY(code, "NFA_PREV_ATOM_NO_WIDTH");
+            ustrcpy(code, "NFA_PREV_ATOM_NO_WIDTH");
             break;
 
         case NFA_PREV_ATOM_NO_WIDTH_NEG:
-            STRCPY(code, "NFA_PREV_ATOM_NO_WIDTH_NEG");
+            ustrcpy(code, "NFA_PREV_ATOM_NO_WIDTH_NEG");
             break;
 
         case NFA_PREV_ATOM_JUST_BEFORE:
-            STRCPY(code, "NFA_PREV_ATOM_JUST_BEFORE");
+            ustrcpy(code, "NFA_PREV_ATOM_JUST_BEFORE");
             break;
 
         case NFA_PREV_ATOM_JUST_BEFORE_NEG:
-            STRCPY(code, "NFA_PREV_ATOM_JUST_BEFORE_NEG");
+            ustrcpy(code, "NFA_PREV_ATOM_JUST_BEFORE_NEG");
             break;
 
         case NFA_PREV_ATOM_LIKE_PATTERN:
-            STRCPY(code, "NFA_PREV_ATOM_LIKE_PATTERN");
+            ustrcpy(code, "NFA_PREV_ATOM_LIKE_PATTERN");
             break;
 
         case NFA_NOPEN:
-            STRCPY(code, "NFA_NOPEN");
+            ustrcpy(code, "NFA_NOPEN");
             break;
 
         case NFA_NCLOSE:
-            STRCPY(code, "NFA_NCLOSE");
+            ustrcpy(code, "NFA_NCLOSE");
             break;
 
         case NFA_START_INVISIBLE:
-            STRCPY(code, "NFA_START_INVISIBLE");
+            ustrcpy(code, "NFA_START_INVISIBLE");
             break;
 
         case NFA_START_INVISIBLE_FIRST:
-            STRCPY(code, "NFA_START_INVISIBLE_FIRST");
+            ustrcpy(code, "NFA_START_INVISIBLE_FIRST");
             break;
 
         case NFA_START_INVISIBLE_NEG:
-            STRCPY(code, "NFA_START_INVISIBLE_NEG");
+            ustrcpy(code, "NFA_START_INVISIBLE_NEG");
             break;
 
         case NFA_START_INVISIBLE_NEG_FIRST:
-            STRCPY(code, "NFA_START_INVISIBLE_NEG_FIRST");
+            ustrcpy(code, "NFA_START_INVISIBLE_NEG_FIRST");
             break;
 
         case NFA_START_INVISIBLE_BEFORE:
-            STRCPY(code, "NFA_START_INVISIBLE_BEFORE");
+            ustrcpy(code, "NFA_START_INVISIBLE_BEFORE");
             break;
 
         case NFA_START_INVISIBLE_BEFORE_FIRST:
-            STRCPY(code, "NFA_START_INVISIBLE_BEFORE_FIRST");
+            ustrcpy(code, "NFA_START_INVISIBLE_BEFORE_FIRST");
             break;
 
         case NFA_START_INVISIBLE_BEFORE_NEG:
-            STRCPY(code, "NFA_START_INVISIBLE_BEFORE_NEG");
+            ustrcpy(code, "NFA_START_INVISIBLE_BEFORE_NEG");
             break;
 
         case NFA_START_INVISIBLE_BEFORE_NEG_FIRST:
-            STRCPY(code, "NFA_START_INVISIBLE_BEFORE_NEG_FIRST");
+            ustrcpy(code, "NFA_START_INVISIBLE_BEFORE_NEG_FIRST");
             break;
 
         case NFA_START_PATTERN:
-            STRCPY(code, "NFA_START_PATTERN");
+            ustrcpy(code, "NFA_START_PATTERN");
             break;
 
         case NFA_END_INVISIBLE:
-            STRCPY(code, "NFA_END_INVISIBLE");
+            ustrcpy(code, "NFA_END_INVISIBLE");
             break;
 
         case NFA_END_INVISIBLE_NEG:
-            STRCPY(code, "NFA_END_INVISIBLE_NEG");
+            ustrcpy(code, "NFA_END_INVISIBLE_NEG");
             break;
 
         case NFA_END_PATTERN:
-            STRCPY(code, "NFA_END_PATTERN");
+            ustrcpy(code, "NFA_END_PATTERN");
             break;
 
         case NFA_COMPOSING:
-            STRCPY(code, "NFA_COMPOSING");
+            ustrcpy(code, "NFA_COMPOSING");
             break;
 
         case NFA_END_COMPOSING:
-            STRCPY(code, "NFA_END_COMPOSING");
+            ustrcpy(code, "NFA_END_COMPOSING");
             break;
 
         case NFA_OPT_CHARS:
-            STRCPY(code, "NFA_OPT_CHARS");
+            ustrcpy(code, "NFA_OPT_CHARS");
             break;
 
         case NFA_MOPEN:
@@ -13136,7 +13137,7 @@ static void nfa_set_code(int c)
         case NFA_MOPEN7:
         case NFA_MOPEN8:
         case NFA_MOPEN9:
-            STRCPY(code, "NFA_MOPEN(x)");
+            ustrcpy(code, "NFA_MOPEN(x)");
             code[10] = c - NFA_MOPEN + '0';
             break;
 
@@ -13150,7 +13151,7 @@ static void nfa_set_code(int c)
         case NFA_MCLOSE7:
         case NFA_MCLOSE8:
         case NFA_MCLOSE9:
-            STRCPY(code, "NFA_MCLOSE(x)");
+            ustrcpy(code, "NFA_MCLOSE(x)");
             code[11] = c - NFA_MCLOSE + '0';
             break;
 
@@ -13164,7 +13165,7 @@ static void nfa_set_code(int c)
         case NFA_ZOPEN7:
         case NFA_ZOPEN8:
         case NFA_ZOPEN9:
-            STRCPY(code, "NFA_ZOPEN(x)");
+            ustrcpy(code, "NFA_ZOPEN(x)");
             code[10] = c - NFA_ZOPEN + '0';
             break;
 
@@ -13178,342 +13179,342 @@ static void nfa_set_code(int c)
         case NFA_ZCLOSE7:
         case NFA_ZCLOSE8:
         case NFA_ZCLOSE9:
-            STRCPY(code, "NFA_ZCLOSE(x)");
+            ustrcpy(code, "NFA_ZCLOSE(x)");
             code[11] = c - NFA_ZCLOSE + '0';
             break;
 
         case NFA_EOL:
-            STRCPY(code, "NFA_EOL ");
+            ustrcpy(code, "NFA_EOL ");
             break;
 
         case NFA_BOL:
-            STRCPY(code, "NFA_BOL ");
+            ustrcpy(code, "NFA_BOL ");
             break;
 
         case NFA_EOW:
-            STRCPY(code, "NFA_EOW ");
+            ustrcpy(code, "NFA_EOW ");
             break;
 
         case NFA_BOW:
-            STRCPY(code, "NFA_BOW ");
+            ustrcpy(code, "NFA_BOW ");
             break;
 
         case NFA_EOF:
-            STRCPY(code, "NFA_EOF ");
+            ustrcpy(code, "NFA_EOF ");
             break;
 
         case NFA_BOF:
-            STRCPY(code, "NFA_BOF ");
+            ustrcpy(code, "NFA_BOF ");
             break;
 
         case NFA_LNUM:
-            STRCPY(code, "NFA_LNUM ");
+            ustrcpy(code, "NFA_LNUM ");
             break;
 
         case NFA_LNUM_GT:
-            STRCPY(code, "NFA_LNUM_GT ");
+            ustrcpy(code, "NFA_LNUM_GT ");
             break;
 
         case NFA_LNUM_LT:
-            STRCPY(code, "NFA_LNUM_LT ");
+            ustrcpy(code, "NFA_LNUM_LT ");
             break;
 
         case NFA_COL:
-            STRCPY(code, "NFA_COL ");
+            ustrcpy(code, "NFA_COL ");
             break;
 
         case NFA_COL_GT:
-            STRCPY(code, "NFA_COL_GT ");
+            ustrcpy(code, "NFA_COL_GT ");
             break;
 
         case NFA_COL_LT:
-            STRCPY(code, "NFA_COL_LT ");
+            ustrcpy(code, "NFA_COL_LT ");
             break;
 
         case NFA_VCOL:
-            STRCPY(code, "NFA_VCOL ");
+            ustrcpy(code, "NFA_VCOL ");
             break;
 
         case NFA_VCOL_GT:
-            STRCPY(code, "NFA_VCOL_GT ");
+            ustrcpy(code, "NFA_VCOL_GT ");
             break;
 
         case NFA_VCOL_LT:
-            STRCPY(code, "NFA_VCOL_LT ");
+            ustrcpy(code, "NFA_VCOL_LT ");
             break;
 
         case NFA_MARK:
-            STRCPY(code, "NFA_MARK ");
+            ustrcpy(code, "NFA_MARK ");
             break;
 
         case NFA_MARK_GT:
-            STRCPY(code, "NFA_MARK_GT ");
+            ustrcpy(code, "NFA_MARK_GT ");
             break;
 
         case NFA_MARK_LT:
-            STRCPY(code, "NFA_MARK_LT ");
+            ustrcpy(code, "NFA_MARK_LT ");
             break;
 
         case NFA_CURSOR:
-            STRCPY(code, "NFA_CURSOR ");
+            ustrcpy(code, "NFA_CURSOR ");
             break;
 
         case NFA_VISUAL:
-            STRCPY(code, "NFA_VISUAL ");
+            ustrcpy(code, "NFA_VISUAL ");
             break;
 
         case NFA_ANY_COMPOSING:
-            STRCPY(code, "NFA_ANY_COMPOSING ");
+            ustrcpy(code, "NFA_ANY_COMPOSING ");
             break;
 
         case NFA_STAR:
-            STRCPY(code, "NFA_STAR ");
+            ustrcpy(code, "NFA_STAR ");
             break;
 
         case NFA_STAR_NONGREEDY:
-            STRCPY(code, "NFA_STAR_NONGREEDY ");
+            ustrcpy(code, "NFA_STAR_NONGREEDY ");
             break;
 
         case NFA_QUEST:
-            STRCPY(code, "NFA_QUEST");
+            ustrcpy(code, "NFA_QUEST");
             break;
 
         case NFA_QUEST_NONGREEDY:
-            STRCPY(code, "NFA_QUEST_NON_GREEDY");
+            ustrcpy(code, "NFA_QUEST_NON_GREEDY");
             break;
 
         case NFA_EMPTY:
-            STRCPY(code, "NFA_EMPTY");
+            ustrcpy(code, "NFA_EMPTY");
             break;
 
         case NFA_OR:
-            STRCPY(code, "NFA_OR");
+            ustrcpy(code, "NFA_OR");
             break;
 
         case NFA_START_COLL:
-            STRCPY(code, "NFA_START_COLL");
+            ustrcpy(code, "NFA_START_COLL");
             break;
 
         case NFA_END_COLL:
-            STRCPY(code, "NFA_END_COLL");
+            ustrcpy(code, "NFA_END_COLL");
             break;
 
         case NFA_START_NEG_COLL:
-            STRCPY(code, "NFA_START_NEG_COLL");
+            ustrcpy(code, "NFA_START_NEG_COLL");
             break;
 
         case NFA_END_NEG_COLL:
-            STRCPY(code, "NFA_END_NEG_COLL");
+            ustrcpy(code, "NFA_END_NEG_COLL");
             break;
 
         case NFA_RANGE:
-            STRCPY(code, "NFA_RANGE");
+            ustrcpy(code, "NFA_RANGE");
             break;
 
         case NFA_RANGE_MIN:
-            STRCPY(code, "NFA_RANGE_MIN");
+            ustrcpy(code, "NFA_RANGE_MIN");
             break;
 
         case NFA_RANGE_MAX:
-            STRCPY(code, "NFA_RANGE_MAX");
+            ustrcpy(code, "NFA_RANGE_MAX");
             break;
 
         case NFA_CLASS_ALNUM:
-            STRCPY(code, "NFA_CLASS_ALNUM");
+            ustrcpy(code, "NFA_CLASS_ALNUM");
             break;
 
         case NFA_CLASS_ALPHA:
-            STRCPY(code, "NFA_CLASS_ALPHA");
+            ustrcpy(code, "NFA_CLASS_ALPHA");
             break;
 
         case NFA_CLASS_BLANK:
-            STRCPY(code, "NFA_CLASS_BLANK");
+            ustrcpy(code, "NFA_CLASS_BLANK");
             break;
 
         case NFA_CLASS_CNTRL:
-            STRCPY(code, "NFA_CLASS_CNTRL");
+            ustrcpy(code, "NFA_CLASS_CNTRL");
             break;
 
         case NFA_CLASS_DIGIT:
-            STRCPY(code, "NFA_CLASS_DIGIT");
+            ustrcpy(code, "NFA_CLASS_DIGIT");
             break;
 
         case NFA_CLASS_GRAPH:
-            STRCPY(code, "NFA_CLASS_GRAPH");
+            ustrcpy(code, "NFA_CLASS_GRAPH");
             break;
 
         case NFA_CLASS_LOWER:
-            STRCPY(code, "NFA_CLASS_LOWER");
+            ustrcpy(code, "NFA_CLASS_LOWER");
             break;
 
         case NFA_CLASS_PRINT:
-            STRCPY(code, "NFA_CLASS_PRINT");
+            ustrcpy(code, "NFA_CLASS_PRINT");
             break;
 
         case NFA_CLASS_PUNCT:
-            STRCPY(code, "NFA_CLASS_PUNCT");
+            ustrcpy(code, "NFA_CLASS_PUNCT");
             break;
 
         case NFA_CLASS_SPACE:
-            STRCPY(code, "NFA_CLASS_SPACE");
+            ustrcpy(code, "NFA_CLASS_SPACE");
             break;
 
         case NFA_CLASS_UPPER:
-            STRCPY(code, "NFA_CLASS_UPPER");
+            ustrcpy(code, "NFA_CLASS_UPPER");
             break;
 
         case NFA_CLASS_XDIGIT:
-            STRCPY(code, "NFA_CLASS_XDIGIT");
+            ustrcpy(code, "NFA_CLASS_XDIGIT");
             break;
 
         case NFA_CLASS_TAB:
-            STRCPY(code, "NFA_CLASS_TAB");
+            ustrcpy(code, "NFA_CLASS_TAB");
             break;
 
         case NFA_CLASS_RETURN:
-            STRCPY(code, "NFA_CLASS_RETURN");
+            ustrcpy(code, "NFA_CLASS_RETURN");
             break;
 
         case NFA_CLASS_BACKSPACE:
-            STRCPY(code, "NFA_CLASS_BACKSPACE");
+            ustrcpy(code, "NFA_CLASS_BACKSPACE");
             break;
 
         case NFA_CLASS_ESCAPE:
-            STRCPY(code, "NFA_CLASS_ESCAPE");
+            ustrcpy(code, "NFA_CLASS_ESCAPE");
             break;
 
         case NFA_ANY:
-            STRCPY(code, "NFA_ANY");
+            ustrcpy(code, "NFA_ANY");
             break;
 
         case NFA_IDENT:
-            STRCPY(code, "NFA_IDENT");
+            ustrcpy(code, "NFA_IDENT");
             break;
 
         case NFA_SIDENT:
-            STRCPY(code, "NFA_SIDENT");
+            ustrcpy(code, "NFA_SIDENT");
             break;
 
         case NFA_KWORD:
-            STRCPY(code, "NFA_KWORD");
+            ustrcpy(code, "NFA_KWORD");
             break;
 
         case NFA_SKWORD:
-            STRCPY(code, "NFA_SKWORD");
+            ustrcpy(code, "NFA_SKWORD");
             break;
 
         case NFA_FNAME:
-            STRCPY(code, "NFA_FNAME");
+            ustrcpy(code, "NFA_FNAME");
             break;
 
         case NFA_SFNAME:
-            STRCPY(code, "NFA_SFNAME");
+            ustrcpy(code, "NFA_SFNAME");
             break;
 
         case NFA_PRINT:
-            STRCPY(code, "NFA_PRINT");
+            ustrcpy(code, "NFA_PRINT");
             break;
 
         case NFA_SPRINT:
-            STRCPY(code, "NFA_SPRINT");
+            ustrcpy(code, "NFA_SPRINT");
             break;
 
         case NFA_WHITE:
-            STRCPY(code, "NFA_WHITE");
+            ustrcpy(code, "NFA_WHITE");
             break;
 
         case NFA_NWHITE:
-            STRCPY(code, "NFA_NWHITE");
+            ustrcpy(code, "NFA_NWHITE");
             break;
 
         case NFA_DIGIT:
-            STRCPY(code, "NFA_DIGIT");
+            ustrcpy(code, "NFA_DIGIT");
             break;
 
         case NFA_NDIGIT:
-            STRCPY(code, "NFA_NDIGIT");
+            ustrcpy(code, "NFA_NDIGIT");
             break;
 
         case NFA_HEX:
-            STRCPY(code, "NFA_HEX");
+            ustrcpy(code, "NFA_HEX");
             break;
 
         case NFA_NHEX:
-            STRCPY(code, "NFA_NHEX");
+            ustrcpy(code, "NFA_NHEX");
             break;
 
         case NFA_OCTAL:
-            STRCPY(code, "NFA_OCTAL");
+            ustrcpy(code, "NFA_OCTAL");
             break;
 
         case NFA_NOCTAL:
-            STRCPY(code, "NFA_NOCTAL");
+            ustrcpy(code, "NFA_NOCTAL");
             break;
 
         case NFA_WORD:
-            STRCPY(code, "NFA_WORD");
+            ustrcpy(code, "NFA_WORD");
             break;
 
         case NFA_NWORD:
-            STRCPY(code, "NFA_NWORD");
+            ustrcpy(code, "NFA_NWORD");
             break;
 
         case NFA_HEAD:
-            STRCPY(code, "NFA_HEAD");
+            ustrcpy(code, "NFA_HEAD");
             break;
 
         case NFA_NHEAD:
-            STRCPY(code, "NFA_NHEAD");
+            ustrcpy(code, "NFA_NHEAD");
             break;
 
         case NFA_ALPHA:
-            STRCPY(code, "NFA_ALPHA");
+            ustrcpy(code, "NFA_ALPHA");
             break;
 
         case NFA_NALPHA:
-            STRCPY(code, "NFA_NALPHA");
+            ustrcpy(code, "NFA_NALPHA");
             break;
 
         case NFA_LOWER:
-            STRCPY(code, "NFA_LOWER");
+            ustrcpy(code, "NFA_LOWER");
             break;
 
         case NFA_NLOWER:
-            STRCPY(code, "NFA_NLOWER");
+            ustrcpy(code, "NFA_NLOWER");
             break;
 
         case NFA_UPPER:
-            STRCPY(code, "NFA_UPPER");
+            ustrcpy(code, "NFA_UPPER");
             break;
 
         case NFA_NUPPER:
-            STRCPY(code, "NFA_NUPPER");
+            ustrcpy(code, "NFA_NUPPER");
             break;
 
         case NFA_LOWER_IC:
-            STRCPY(code, "NFA_LOWER_IC");
+            ustrcpy(code, "NFA_LOWER_IC");
             break;
 
         case NFA_NLOWER_IC:
-            STRCPY(code, "NFA_NLOWER_IC");
+            ustrcpy(code, "NFA_NLOWER_IC");
             break;
 
         case NFA_UPPER_IC:
-            STRCPY(code, "NFA_UPPER_IC");
+            ustrcpy(code, "NFA_UPPER_IC");
             break;
 
         case NFA_NUPPER_IC:
-            STRCPY(code, "NFA_NUPPER_IC");
+            ustrcpy(code, "NFA_NUPPER_IC");
             break;
 
         default:
-            STRCPY(code, "CHAR(x)");
+            ustrcpy(code, "CHAR(x)");
             code[5] = c;
     }
 
     if(addnl == TRUE)
     {
-        STRCAT(code, " + NEWLINE ");
+        ustrcat(code, " + NEWLINE ");
     }
 }
 
@@ -13589,10 +13590,10 @@ static void nfa_print_state2(FILE *debugf,
     {
         int last = indent->ga_len - 3;
         uchar_kt save[2];
-        STRNCPY(save, &p[last], 2);
-        STRNCPY(&p[last], "+-", 2);
+        ustrncpy(save, &p[last], 2);
+        ustrncpy(&p[last], "+-", 2);
         fprintf(debugf, " %s", p);
-        STRNCPY(&p[last], save, 2);
+        ustrncpy(&p[last], save, 2);
     }
     else
     {
@@ -15984,7 +15985,7 @@ static int check_char_class(int char_class, int c)
             break;
 
         case NFA_CLASS_PRINT:
-            if(vim_isprintc(c))
+            if(is_print_char(c))
             {
                 return OK;
             }
@@ -16159,7 +16160,7 @@ static int match_zref(int subidx, int *bytelen)
         return TRUE;
     }
 
-    len = (int)STRLEN(re_extmatch_in->matches[subidx]);
+    len = (int)ustrlen(re_extmatch_in->matches[subidx]);
 
     if(cstrncmp(re_extmatch_in->matches[subidx], reginput, &len) == 0)
     {
@@ -16321,7 +16322,7 @@ static int recursive_regmatch(nfa_state_st *state,
                 }
                 else
                 {
-                    reginput = regline + STRLEN(regline);
+                    reginput = regline + ustrlen(regline);
                 }
             }
 
@@ -17337,9 +17338,9 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                             result = false;
                         }
                     }
-                    else if(!vim_iswordc_buf(curc, reg_buf)
+                    else if(!is_kwc_buf(curc, reg_buf)
                             || (reginput > regline
-                                && vim_iswordc_buf(reginput[-1], reg_buf)))
+                                && is_kwc_buf(reginput[-1], reg_buf)))
                     {
                         result = false;
                     }
@@ -17376,9 +17377,9 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                             result = false;
                         }
                     }
-                    else if(!vim_iswordc_buf(reginput[-1], reg_buf)
+                    else if(!is_kwc_buf(reginput[-1], reg_buf)
                             || (reginput[0] != NUL
-                                && vim_iswordc_buf(curc, reg_buf)))
+                                && is_kwc_buf(curc, reg_buf)))
                     {
                         result = false;
                     }
@@ -17650,44 +17651,44 @@ static int nfa_regmatch(nfa_regprog_st *prog,
 
                 // Character classes like \a for alpha, \d for digit etc.
                 case NFA_IDENT: //  \i
-                    result = vim_isIDc(curc);
+                    result = is_id_char(curc);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_SIDENT: //  \I
-                    result = !ascii_isdigit(curc) && vim_isIDc(curc);
+                    result = !ascii_isdigit(curc) && is_id_char(curc);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_KWORD: //  \k
-                    result = vim_iswordp_buf(reginput, reg_buf);
+                    result = is_kwc_ptr_buf(reginput, reg_buf);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_SKWORD: //  \K
                     result = !ascii_isdigit(curc)
-                             && vim_iswordp_buf(reginput, reg_buf);
+                             && is_kwc_ptr_buf(reginput, reg_buf);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_FNAME: //  \f
-                    result = vim_isfilec(curc);
+                    result = is_file_name_char(curc);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_SFNAME: //  \F
-                    result = !ascii_isdigit(curc) && vim_isfilec(curc);
+                    result = !ascii_isdigit(curc) && is_file_name_char(curc);
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_PRINT: //  \p
-                    result = vim_isprintc(PTR2CHAR(reginput));
+                    result = is_print_char(PTR2CHAR(reginput));
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_SPRINT: //  \P
                     result = !ascii_isdigit(curc)
-                             && vim_isprintc(PTR2CHAR(reginput));
+                             && is_print_char(PTR2CHAR(reginput));
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
@@ -18505,8 +18506,8 @@ static long nfa_regtry(nfa_regprog_st *prog,
                    && mpos->end_col >= mpos->start_col)
                 {
                     re_extmatch_out->matches[i] =
-                        vim_strnsave(reg_getline(mpos->start_lnum) + mpos->start_col,
-                                     mpos->end_col - mpos->start_col);
+                        ustrndup(reg_getline(mpos->start_lnum) + mpos->start_col,
+                                 mpos->end_col - mpos->start_col);
                 }
             }
             else
@@ -18516,8 +18517,7 @@ static long nfa_regtry(nfa_regprog_st *prog,
                 if(lpos->start != NULL && lpos->end != NULL)
                 {
                     re_extmatch_out->matches[i] =
-                        vim_strnsave(lpos->start,
-                                     (int)(lpos->end - lpos->start));
+                        ustrndup(lpos->start, (int)(lpos->end - lpos->start));
                 }
             }
         }
@@ -18741,7 +18741,7 @@ static regprog_st *nfa_regcomp(uchar_kt *expr, int re_flags)
 
     // Remember whether this pattern has any \z specials in it.
     prog->reghasz = re_has_z;
-    prog->pattern = vim_strsave(expr);
+    prog->pattern = ustrdup(expr);
     nfa_regengine.expr = NULL;
 
 out:
@@ -18807,7 +18807,7 @@ static int nfa_regexec_nl(regmatch_st *rmp,
 }
 
 /// Matches a regexp against multiple lines.
-/// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
+/// "rmp->regprog" is a compiled regexp as returned by regexp_compile().
 /// Uses curbuf for line count and 'iskeyword'.
 ///
 /// @param win Window in which to search or NULL
@@ -18874,7 +18874,7 @@ static regengine_st nfa_regengine =
 };
 
 /// Which regexp engine to use ?
-/// Needed for vim_regcomp(). Must match with 'regexpengine'.
+/// Needed for regexp_compile(). Must match with 'regexpengine'.
 static int regexp_engine = 0;
 
 #ifdef REGEXP_DEBUG
@@ -18892,14 +18892,14 @@ static uchar_kt regname[][30] =
 /// - the program in allocated memory.
 ///   Use vim_regfree() to free the memory.
 /// - NULL for an error.
-regprog_st *vim_regcomp(uchar_kt *expr_arg, int re_flags)
+regprog_st *regexp_compile(uchar_kt *expr_arg, int re_flags)
 {
     regprog_st *prog = NULL;
     uchar_kt *expr = expr_arg;
     regexp_engine = p_re;
 
     // Check for prefix "\%#=", that sets the regexp engine
-    if(STRNCMP(expr, "\\%#=", 4) == 0)
+    if(ustrncmp(expr, "\\%#=", 4) == 0)
     {
         int newengine = expr[4] - '0';
 
@@ -18981,7 +18981,7 @@ regprog_st *vim_regcomp(uchar_kt *expr_arg, int re_flags)
     return prog;
 }
 
-/// Free a compiled regexp program, returned by vim_regcomp().
+/// Free a compiled regexp program, returned by regexp_compile().
 void vim_regfree(regprog_st *prog)
 {
     if(prog != NULL)
@@ -19002,7 +19002,7 @@ static void report_re_switch(uchar_kt *pat)
 }
 
 /// Matches a regexp against a string.
-/// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
+/// "rmp->regprog" is a compiled regexp as returned by regexp_compile().
 /// Note: "rmp->regprog" may be freed and changed.
 /// Uses curbuf for line count and 'iskeyword'.
 /// When "nl" is true consider a "\n" in "line" to be a line break.
@@ -19027,11 +19027,11 @@ static int vim_regexec_both(regmatch_st *rmp,
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
 
-        uchar_kt *pat = vim_strsave(((nfa_regprog_st *)rmp->regprog)->pattern);
+        uchar_kt *pat = ustrdup(((nfa_regprog_st *)rmp->regprog)->pattern);
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
         report_re_switch(pat);
-        rmp->regprog = vim_regcomp(pat, re_flags);
+        rmp->regprog = regexp_compile(pat, re_flags);
 
         if(rmp->regprog != NULL)
         {
@@ -19087,7 +19087,7 @@ int vim_regexec_nl(regmatch_st *rmp, uchar_kt *line, columnum_kt col)
 }
 
 /// Match a regexp against multiple lines.
-/// "rmp->regprog" is a compiled regexp as returned by vim_regcomp().
+/// "rmp->regprog" is a compiled regexp as returned by regexp_compile().
 ///
 /// @param rmp
 /// @param win     window in which to search or NULL
@@ -19120,12 +19120,12 @@ long vim_regexec_multi(regmmatch_st *rmp,
     {
         int save_p_re = p_re;
         int re_flags = rmp->regprog->re_flags;
-        uchar_kt *pat = vim_strsave(((nfa_regprog_st *)rmp->regprog)->pattern);
+        uchar_kt *pat = ustrdup(((nfa_regprog_st *)rmp->regprog)->pattern);
 
         p_re = BACKTRACKING_ENGINE;
         vim_regfree(rmp->regprog);
         report_re_switch(pat);
-        rmp->regprog = vim_regcomp(pat, re_flags);
+        rmp->regprog = regexp_compile(pat, re_flags);
 
         if(rmp->regprog != NULL)
         {

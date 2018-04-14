@@ -13,7 +13,7 @@
 #include <msgpack.h>
 
 #include "nvim/assert.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #ifdef HAVE_HDR_LOCALE_H
     #include <locale.h>
@@ -87,7 +87,7 @@
 #include "nvim/msgpack/server.h"
 #include "nvim/msgpack/helpers.h"
 #include "nvim/api/private/helpers.h"
-#include "nvim/api/vim.h"
+#include "nvim/api/nvim.h"
 #include "nvim/os/dl.h"
 #include "nvim/os/input.h"
 #include "nvim/event/loop.h"
@@ -99,6 +99,7 @@
 #include "nvim/eval/executor.h"
 #include "nvim/eval/gc.h"
 #include "nvim/macros.h"
+#include "nvim/utils.h"
 
 #include "generated/config/config.h"
 
@@ -565,7 +566,7 @@ static PMap(uint64_t) *jobs = NULL;
 static PMap(uint64_t) *timers = NULL;
 static uint64_t last_timer_id = 0;
 
-/// Dummy va_list for passing to vim_snprintf
+/// Dummy va_list for passing to xsnprintf
 ///
 /// Used because:
 /// - passing a NULL pointer doesn't work when va_list isn't a pointer
@@ -619,8 +620,8 @@ void eval_init(void)
     {
         p = &vimvars[i];
 
-        assert(STRLEN(p->vv_name) <= 16);
-        STRCPY(p->vv_di.di_key, p->vv_name);
+        assert(ustrlen(p->vv_name) <= 16);
+        ustrcpy(p->vv_di.di_key, p->vv_name);
 
         if(p->vv_flags & VV_RO)
         {
@@ -790,7 +791,7 @@ void set_internal_string_var(uchar_kt *name, uchar_kt *value)
         .vval.v_string = value,
     };
 
-    set_var((const char *)name, STRLEN(name), (typval_st *)&tv, true);
+    set_var((const char *)name, ustrlen(name), (typval_st *)&tv, true);
 }
 
 static leftval_st *redir_lval = NULL;
@@ -818,7 +819,7 @@ int var_redir_start(uchar_kt *name, int append)
     }
 
     // Make a copy of the name, it is used in redir_lval until redir ends.
-    redir_varname = vim_strsave(name);
+    redir_varname = ustrdup(name);
     redir_lval = xcalloc(1, sizeof(leftval_st));
 
     // The output is stored in growarray "redir_ga" until redirection ends.
@@ -900,7 +901,7 @@ void var_redir_str(uchar_kt *value, int value_len)
 
     if(value_len == -1)
     {
-        len = (int)STRLEN(value); // Append the entire string
+        len = (int)ustrlen(value); // Append the entire string
     }
     else
     {
@@ -1181,7 +1182,7 @@ uchar_kt *eval_to_string(uchar_kt *arg, uchar_kt **nextcmd, int convert)
         else if(convert && tv.v_type == kNvarFloat)
         {
             char numbuf[NUMBUFLEN];
-            vim_snprintf(numbuf, NUMBUFLEN, "%g", tv.vval.v_float);
+            xsnprintf(numbuf, NUMBUFLEN, "%g", tv.vval.v_float);
             retval = xstrdup(numbuf);
         }
         else
@@ -1390,10 +1391,10 @@ int call_vim_function(const uchar_kt *func,
         else
         {
             // Recognize a number argument, the others must be strings.
-            vim_str2nr(argv[i], NULL, &len, STR2NR_ALL, &n, NULL, 0);
+            str_to_num(argv[i], NULL, &len, kStrToNumAll, &n, NULL, 0);
         }
 
-        if(len != 0 && len == (int)STRLEN(argv[i]))
+        if(len != 0 && len == (int)ustrlen(argv[i]))
         {
             argvars[i].v_type = kNvarNumber;
             argvars[i].vval.v_number = n;
@@ -1414,7 +1415,7 @@ int call_vim_function(const uchar_kt *func,
     rettv->v_type = kNvarUnknown; // tv_clear() uses this.
 
     ret = call_func(func,
-                    (int)STRLEN(func),
+                    (int)ustrlen(func),
                     rettv,
                     argc,
                     argvars,
@@ -1683,7 +1684,7 @@ void ex_let(exargs_st *eap)
     expr = skipwhite(argend);
 
     if(*expr != '='
-       && !(vim_strchr((uchar_kt *)"+-.", *expr) != NULL && expr[1] == '='))
+       && !(ustrchr((uchar_kt *)"+-.", *expr) != NULL && expr[1] == '='))
     {
         // ":let" without "=": list variables
         if(*arg == '[')
@@ -1716,7 +1717,7 @@ void ex_let(exargs_st *eap)
 
         if(*expr != '=')
         {
-            if(vim_strchr((uchar_kt *)"+-.", *expr) != NULL)
+            if(ustrchr((uchar_kt *)"+-.", *expr) != NULL)
             {
                 op[0] = *expr; // +=, -=, .=
             }
@@ -2204,7 +2205,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 EMSG2(_(e_letwrong), op);
             }
             else if(endchars != NULL
-                    && vim_strchr(endchars, *skipwhite(arg)) == NULL)
+                    && ustrchr(endchars, *skipwhite(arg)) == NULL)
             {
                 EMSG(_(e_letunexp));
             }
@@ -2220,8 +2221,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
                     if(s != NULL)
                     {
-                        tofree = concat_str((const uchar_kt *)s,
-                                            (const uchar_kt *)p);
+                        tofree = (uchar_kt *)xstrdup_concat(s, p);
 
                         p = (const char *)tofree;
                         xfree(s);
@@ -2232,16 +2232,16 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 {
                     vim_setenv(name, p);
 
-                    if(STRICMP(name, ENV_GKIDE_USR_HOME) == 0)
+                    if(ustricmp(name, ENV_GKIDE_USR_HOME) == 0)
                     {
                         (void)init_gkide_usr_home();
                     }
-                    else if(didset_vim && STRICMP(name, "VIM") == 0)
+                    else if(didset_vim && ustricmp(name, "VIM") == 0)
                     {
                         didset_vim = false;
                     }
                     else if(didset_vimruntime
-                            && STRICMP(name, "VIMRUNTIME") == 0)
+                            && ustricmp(name, "VIMRUNTIME") == 0)
                     {
                         didset_vimruntime = false;
                     }
@@ -2265,7 +2265,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
         if(p == NULL
            || (endchars != NULL
-               && vim_strchr(endchars, *skipwhite((const uchar_kt *)p)) == NULL))
+               && ustrchr(endchars, *skipwhite((const uchar_kt *)p)) == NULL))
         {
             EMSG(_(e_letunexp));
         }
@@ -2310,8 +2310,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                     {
                         char *const oldstringval = stringval;
 
-                        stringval = (char *)concat_str((const uchar_kt *)stringval,
-                                                       (const uchar_kt *)s);
+                        stringval = xstrdup_concat(stringval, s);
 
                         xfree(oldstringval);
                         s = stringval;
@@ -2339,7 +2338,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             emsgf(_(e_letwrong), op);
         }
         else if(endchars != NULL
-                && vim_strchr(endchars, *skipwhite(arg + 1)) == NULL)
+                && ustrchr(endchars, *skipwhite(arg + 1)) == NULL)
         {
             emsgf(_(e_letunexp));
         }
@@ -2355,7 +2354,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
                 if(s != NULL)
                 {
-                    ptofree = concat_str(s, (const uchar_kt *)p);
+                    ptofree = ustrdup_concat(s, (const uchar_kt *)p);
                     p = (const char *)ptofree;
                     xfree(s);
                 }
@@ -2364,7 +2363,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             if(p != NULL)
             {
                 write_reg_contents(*arg == '@' ? '"' : *arg,
-                                   (const uchar_kt *)p, STRLEN(p), false);
+                                   (const uchar_kt *)p, ustrlen(p), false);
                 arg_end = arg + 1;
             }
 
@@ -2383,7 +2382,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         if(p != NULL && lv.ll_name != NULL)
         {
             if(endchars != NULL
-               && vim_strchr(endchars, *skipwhite(p)) == NULL)
+               && ustrchr(endchars, *skipwhite(p)) == NULL)
             {
                 EMSG(_(e_letunexp));
             }
@@ -2797,11 +2796,11 @@ FUNC_ATTR_NONNULL_ARG(1, 3)
 
                 if(len == -1)
                 {
-                    lp->ll_newkey = vim_strsave(key);
+                    lp->ll_newkey = ustrdup(key);
                 }
                 else
                 {
-                    lp->ll_newkey = vim_strnsave(key, len);
+                    lp->ll_newkey = ustrndup(key, len);
                 }
 
                 if(len == -1)
@@ -2960,7 +2959,7 @@ static void set_var_lval(leftval_st *lp,
             di = NULL; // handle +=, -= and .=
 
             if(get_var_tv((const char *)lp->ll_name,
-                          (int)STRLEN(lp->ll_name),
+                          (int)ustrlen(lp->ll_name),
                           &tv,
                           &di,
                           true,
@@ -3264,10 +3263,10 @@ void set_context_for_expression(expand_st *xp,
     {
         xp->xp_context = EXPAND_USER_VARS;
 
-        if(vim_strpbrk(arg, (uchar_kt *)"\"'+-*/%.=!?~|&$([<>,#") == NULL)
+        if(xstrpbrk(arg, (uchar_kt *)"\"'+-*/%.=!?~|&$([<>,#") == NULL)
         {
             // ":let var1 var2 ...": find last space.
-            for(p = arg + STRLEN(arg); p >= arg;)
+            for(p = arg + ustrlen(arg); p >= arg;)
             {
                 xp->xp_pattern = p;
                 mb_ptr_back(arg, p);
@@ -3288,7 +3287,8 @@ void set_context_for_expression(expand_st *xp,
                                    : EXPAND_EXPRESSION;
     }
 
-    while((xp->xp_pattern = vim_strpbrk(arg, (uchar_kt *)"\"'+-*/%.=!?~|&$([<>,#")) != NULL)
+    xp->xp_pattern = xstrpbrk(arg, (uchar_kt *)"\"'+-*/%.=!?~|&$([<>,#");
+    while(xp->xp_pattern != NULL)
     {
         c = *xp->xp_pattern;
 
@@ -3301,7 +3301,8 @@ void set_context_for_expression(expand_st *xp,
                 ++xp->xp_pattern;
 
                 xp->xp_context = cmdidx != CMD_let
-                                 || got_eq ? EXPAND_EXPRESSION : EXPAND_NOTHING;
+                                 || got_eq
+                                    ? EXPAND_EXPRESSION : EXPAND_NOTHING;
             }
             else if(c != ' ')
             {
@@ -3330,7 +3331,7 @@ void set_context_for_expression(expand_st *xp,
         }
         else if((c == '<' || c == '#')
                 && xp->xp_context == EXPAND_FUNCTIONS
-                && vim_strchr(xp->xp_pattern, '(') == NULL)
+                && ustrchr(xp->xp_pattern, '(') == NULL)
         {
             // Function name can start with "<SNR>" and contain '#'.
             break;
@@ -3388,6 +3389,8 @@ void set_context_for_expression(expand_st *xp,
             while((c = *++arg) != NUL && (c == ' ' || c == '\t'))
             { /* empty body */ }
         }
+
+        xp->xp_pattern = xstrpbrk(arg, (uchar_kt *)"\"'+-*/%.=!?~|&$([<>,#");
     }
 
     xp->xp_pattern = arg;
@@ -3451,7 +3454,7 @@ void ex_call(exargs_st *eap)
     // If it is the name of a variable of type kNvarUfunc or kNvarPartial use its
     // contents. For kNvarPartial get its partial, unless we already have one
     // from trans_function_name().
-    len = (int)STRLEN(tofree);
+    len = (int)ustrlen(tofree);
 
     name = deref_func_name((const char *)tofree, &len,
                            partial != NULL ? NULL : &partial, false);
@@ -3493,7 +3496,7 @@ void ex_call(exargs_st *eap)
         arg = startarg;
 
         if(get_func_tv(name,
-                       (int)STRLEN(name),
+                       (int)ustrlen(name),
                        &rettv,
                        &arg,
                        eap->line1,
@@ -3931,7 +3934,7 @@ void del_menutrans_vars(void)
     hash_lock(&globvarht);
 
     HASHTAB_ITER(&globvarht, hi, {
-        if(STRNCMP(hi->hi_key, "menutrans_", 10) == 0)
+        if(ustrncmp(hi->hi_key, "menutrans_", 10) == 0)
         {
             delete_var(&globvarht, hi);
         }
@@ -3949,7 +3952,7 @@ static size_t varnamebuflen = 0;
 /// Function to concatenate a prefix and a variable name.
 static uchar_kt *cat_prefix_varname(int prefix, uchar_kt *name)
 {
-    size_t len = STRLEN(name) + 3;
+    size_t len = ustrlen(name) + 3;
 
     if(len > varnamebuflen)
     {
@@ -3961,7 +3964,7 @@ static uchar_kt *cat_prefix_varname(int prefix, uchar_kt *name)
 
     *varnamebuf = prefix;
     varnamebuf[1] = ':';
-    STRCPY(varnamebuf + 2, name);
+    ustrcpy(varnamebuf + 2, name);
     return varnamebuf;
 }
 
@@ -4000,7 +4003,7 @@ uchar_kt *get_user_var_name(expand_st *xp, int idx)
             ++hi;
         }
 
-        if(STRNCMP("g:", xp->xp_pattern, 2) == 0)
+        if(ustrncmp("g:", xp->xp_pattern, 2) == 0)
         {
             return cat_prefix_varname('g', hi->hi_key);
         }
@@ -4098,7 +4101,7 @@ static int pattern_match(uchar_kt *pat, uchar_kt *text, int ic)
     // avoid 'l' flag in 'cpoptions'
     uchar_kt *save_cpo = p_cpo;
     p_cpo = (uchar_kt *)"";
-    regmatch.regprog = vim_regcomp(pat, RE_MAGIC + RE_STRING);
+    regmatch.regprog = regexp_compile(pat, RE_MAGIC + RE_STRING);
 
     if(regmatch.regprog != NULL)
     {
@@ -4941,7 +4944,7 @@ static int eval_lev_5(uchar_kt **arg, typval_st *rettv, int evaluate)
                     return FAIL;
                 }
 
-                p = concat_str((const uchar_kt *)s1, (const uchar_kt *)s2);
+                p = (uchar_kt *)xstrdup_concat(s1, s2);
                 tv_clear(rettv);
                 rettv->v_type = kNvarString;
                 rettv->vval.v_string = p;
@@ -5358,7 +5361,7 @@ static int eval_lev_7(uchar_kt **arg,
             }
             else
             {
-                vim_str2nr(*arg, NULL, &len, STR2NR_ALL, &n, NULL, 0);
+                str_to_num(*arg, NULL, &len, kStrToNumAll, &n, NULL, 0);
                 *arg += len;
 
                 if(evaluate)
@@ -6194,7 +6197,7 @@ static int get_string_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
                         while(--n >= 0 && ascii_isxdigit(p[1]))
                         {
                             ++p;
-                            nr = (nr << 4) + hex2nr(*p);
+                            nr = (nr << 4) + hex_to_num(*p);
                         }
 
                         ++p;
@@ -6239,7 +6242,7 @@ static int get_string_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
                 // Special key, e.g.: "\<C-W>"
                 case '<':
                     extra = trans_special((const uchar_kt **)&p,
-                                          STRLEN(p), name, true, true);
+                                          ustrlen(p), name, true, true);
 
                     if(extra != 0)
                     {
@@ -6486,7 +6489,7 @@ bool func_equal(typval_st *tv1, typval_st *tv2, bool ic)
             return false;
         }
     }
-    else if(STRCMP(s1, s2) != 0)
+    else if(ustrcmp(s1, s2) != 0)
     {
         return false;
     }
@@ -7024,7 +7027,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 }
                 else
                 {
-                    ht_stack_T *newitem = try_malloc(sizeof(ht_stack_T));
+                    ht_stack_T *newitem = xmalloc(sizeof(ht_stack_T));
 
                     if(newitem == NULL)
                     {
@@ -7070,7 +7073,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                 }
                 else
                 {
-                    list_stack_T *newitem = try_malloc(sizeof(list_stack_T));
+                    list_stack_T *newitem = xmalloc(sizeof(list_stack_T));
 
                     if(newitem == NULL)
                     {
@@ -7423,8 +7426,8 @@ static int get_function_args(uchar_kt **argp,
 
             if(arg == p
                || isdigit(*arg)
-               || (p - arg == 9 && STRNCMP(arg, "firstline", 9) == 0)
-               || (p - arg == 8 && STRNCMP(arg, "lastline", 8) == 0))
+               || (p - arg == 9 && ustrncmp(arg, "firstline", 9) == 0)
+               || (p - arg == 8 && ustrncmp(arg, "lastline", 8) == 0))
             {
                 if(!skip)
                 {
@@ -7439,7 +7442,7 @@ static int get_function_args(uchar_kt **argp,
                 ga_grow(newargs, 1);
                 c = *p;
                 *p = NUL;
-                arg = vim_strsave(arg);
+                arg = ustrdup(arg);
 
                 if(arg == NULL)
                 {
@@ -7450,7 +7453,7 @@ static int get_function_args(uchar_kt **argp,
                 // Check for duplicate argument name.
                 for(i = 0; i < newargs->ga_len; i++)
                 {
-                    if(STRCMP(((uchar_kt **)(newargs->ga_data))[i], arg) == 0)
+                    if(ustrcmp(((uchar_kt **)(newargs->ga_data))[i], arg) == 0)
                     {
                         EMSG2(_("E853: Duplicate argument name: %s"), arg);
                         xfree(arg);
@@ -7605,7 +7608,7 @@ static int get_lambda_tv(uchar_kt **arg, typval_st *rettv, bool evaluate)
         lambda_no++;
         snprintf((char *)name, sizeof(name), "<lambda>%d", lambda_no);
 
-        fp = (ufunc_st *)xcalloc(1, sizeof(ufunc_st) + STRLEN(name));
+        fp = (ufunc_st *)xcalloc(1, sizeof(ufunc_st) + ustrlen(name));
         pt = (partial_st *)xcalloc(1, sizeof(partial_st));
 
         if(pt == NULL)
@@ -7622,11 +7625,11 @@ static int get_lambda_tv(uchar_kt **arg, typval_st *rettv, bool evaluate)
         p = (uchar_kt *)xmalloc(len);
         ((uchar_kt **)(newlines.ga_data))[newlines.ga_len++] = p;
 
-        STRCPY(p, "return ");
-        STRLCPY(p + 7, s, e - s + 1);
+        ustrcpy(p, "return ");
+        ustrlcpy(p + 7, s, e - s + 1);
         fp->uf_refcount = 1;
 
-        STRCPY(fp->uf_name, name);
+        ustrcpy(fp->uf_name, name);
         hash_add(&func_hashtab, UF2HIKEY(fp));
 
         fp->uf_args = newargs;
@@ -7880,7 +7883,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
             return (uchar_kt *)"";
         }
 
-        *lenp = (int)STRLEN(v->di_tv.vval.v_string);
+        *lenp = (int)ustrlen(v->di_tv.vval.v_string);
         return v->di_tv.vval.v_string;
     }
 
@@ -7900,7 +7903,7 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
         }
 
         uchar_kt *s = partial_name(pt);
-        *lenp = (int)STRLEN(s);
+        *lenp = (int)ustrlen(s);
         return s;
     }
 
@@ -8086,18 +8089,18 @@ FUNC_ATTR_WARN_UNUSED_RESULT
                          "%" PRId64 "_",
                          (int64_t)current_SID);
 
-                i = (int)STRLEN(fname_buf);
+                i = (int)ustrlen(fname_buf);
             }
         }
 
-        if(i + STRLEN(name + llen) < FLEN_FIXED)
+        if(i + ustrlen(name + llen) < FLEN_FIXED)
         {
-            STRCPY(fname_buf + i, name + llen);
+            ustrcpy(fname_buf + i, name + llen);
             fname = fname_buf;
         }
         else
         {
-            fname = xmalloc(i + STRLEN(name + llen) + 1);
+            fname = xmalloc(i + ustrlen(name + llen) + 1);
 
             if(fname == NULL)
             {
@@ -8107,7 +8110,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             {
                 *tofree = fname;
                 memmove(fname, fname_buf, (size_t)i);
-                STRCPY(fname + i, name + llen);
+                ustrcpy(fname + i, name + llen);
             }
         }
     }
@@ -8229,7 +8232,7 @@ int call_func(const uchar_kt *funcname,
 
     // Make a copy of the name, if it comes from a funcref variable it could
     // be changed or deleted in the called function.
-    name = vim_strnsave(funcname, len);
+    name = ustrndup(funcname, len);
 
     if(name == NULL)
     {
@@ -8305,7 +8308,7 @@ int call_func(const uchar_kt *funcname,
 
             // Try loading a package.
             if(fp == NULL && script_autoload((const char *)rfname,
-                                             STRLEN(rfname),
+                                             ustrlen(rfname),
                                              true) && !aborting())
             {
                 // Loaded a package, search for the function again.
@@ -8446,7 +8449,7 @@ static void emsg_funcname(char *ermsg, uchar_kt *name)
 
     if(*name == K_SPECIAL)
     {
-        p = concat_str((uchar_kt *)"<SNR>", name + 3);
+        p = ustrdup_concat((uchar_kt *)"<SNR>", name + 3);
     }
     else
     {
@@ -8505,7 +8508,7 @@ static void api_wrapper(typval_st *argvars, typval_st *rettv, func_ptr_ft fptr)
 
     for(typval_st *tv = argvars; tv->v_type != kNvarUnknown; tv++)
     {
-        ADD(args, vim_to_object(tv));
+        ADD(args, nvim_to_object(tv));
     }
 
     error_st err = ERROR_INIT;
@@ -8729,8 +8732,7 @@ static void f_argv(typval_st *argvars,
 
         if(idx >= 0 && idx < carg_cnt)
         {
-            rettv->vval.v_string =
-                (uchar_kt *)xstrdup((const char *)alist_name(&carg_list[idx]));
+            rettv->vval.v_string = ustrdup(alist_name(&carg_list[idx]));
         }
         else
         {
@@ -8769,8 +8771,8 @@ static void prepare_assert_error(garray_st *gap)
 
     if(sourcing_lnum > 0)
     {
-        vim_snprintf(buf, ARRAY_SIZE(buf),
-                     "line %" PRId64, (int64_t)sourcing_lnum);
+        xsnprintf(buf, ARRAY_SIZE(buf),
+                  "line %" PRId64, (int64_t)sourcing_lnum);
 
         ga_concat(gap, (uchar_kt *)buf);
     }
@@ -8990,9 +8992,9 @@ void assert_inrange(typval_st *argvars)
         prepare_assert_error(&ga);
         char msg[55];
 
-        vim_snprintf(msg, sizeof(msg),
-                     "range %" NumberKtPrtFmt " - %" NumberKtPrtFmt ",",
-                     lower, upper);
+        xsnprintf(msg, sizeof(msg),
+                  "range %" NumberKtPrtFmt " - %" NumberKtPrtFmt ",",
+                  lower, upper);
 
         fill_assert_error(&ga,
                           &argvars[3],
@@ -9158,7 +9160,7 @@ static filebuf_st *find_buffer(typval_st *avar)
             {
                 if(bp->b_fname != NULL
                    && (path_with_url((char *)bp->b_fname) || bt_nofile(bp))
-                   && STRCMP(bp->b_fname, avar->vval.v_string) == 0)
+                   && ustrcmp(bp->b_fname, avar->vval.v_string) == 0)
                 {
                     buf = bp;
                     break;
@@ -9233,7 +9235,7 @@ static filebuf_st *get_buf_tv(typval_st *tv, int curtab_only)
     p_cpo = (uchar_kt *)"";
 
     buf = buflist_findnr(buflist_findpat(name,
-                                         name + STRLEN(name),
+                                         name + ustrlen(name),
                                          TRUE,
                                          FALSE,
                                          curtab_only));
@@ -9268,7 +9270,7 @@ static void f_bufname(typval_st *argvars,
 
     if(buf != NULL && buf->b_fname != NULL)
     {
-        rettv->vval.v_string = (uchar_kt *)xstrdup((char *)buf->b_fname);
+        rettv->vval.v_string = ustrdup(buf->b_fname);
     }
 }
 
@@ -9459,7 +9461,7 @@ int func_call(uchar_kt *name,
     if(item == NULL)
     {
         r = call_func(name,
-                      (int)STRLEN(name),
+                      (int)ustrlen(name),
                       rettv,
                       argc,
                       argv,
@@ -9606,7 +9608,7 @@ static void f_col(typval_st *argvars,
             // '> can be MAXCOL, get the length of the line then
             if(fp->lnum <= curbuf->b_ml.ml_line_count)
             {
-                col = (columnum_kt)STRLEN(ml_get(fp->lnum)) + 1;
+                col = (columnum_kt)ustrlen(ml_get(fp->lnum)) + 1;
             }
             else
             {
@@ -10313,8 +10315,8 @@ static void f_escape(typval_st *argvars,
     char buf[NUMBUFLEN];
 
     rettv->vval.v_string =
-            vim_strsave_escaped((const uchar_kt *)tv_get_string(&argvars[0]),
-                                (const uchar_kt *)tv_get_string_buf(&argvars[1], buf));
+            ustrdup_escape((const uchar_kt *)tv_get_string(&argvars[0]),
+                            (const uchar_kt *)tv_get_string_buf(&argvars[1], buf));
 
     rettv->v_type = kNvarString;
 }
@@ -10462,7 +10464,7 @@ static void f_execute(typval_st *argvars,
     ga_append(capture_ga, NUL);
 
     rettv->v_type = kNvarString;
-    rettv->vval.v_string = vim_strsave(capture_ga->ga_data);
+    rettv->vval.v_string = ustrdup(capture_ga->ga_data);
     ga_clear(capture_ga);
     capture_ga = save_capture_ga;
 }
@@ -10995,7 +10997,7 @@ static void filter_map(typval_st *argvars, typval_st *rettv, int map)
                         break;
                     }
 
-                    vimvars[VV_KEY].vv_str = vim_strsave(di->di_key);
+                    vimvars[VV_KEY].vv_str = ustrdup(di->di_key);
                     int r = filter_map_one(&di->di_tv, expr, map, &rem);
                     tv_clear(&vimvars[VV_KEY].vv_tv);
 
@@ -11071,7 +11073,7 @@ static int filter_map_one(typval_st *tv, typval_st *expr, int map, int *remp)
         const uchar_kt *const s = expr->vval.v_string;
 
         if(call_func(s,
-                     (int)STRLEN(s),
+                     (int)ustrlen(s),
                      &rettv,
                      2,
                      argv,
@@ -11092,7 +11094,7 @@ static int filter_map_one(typval_st *tv, typval_st *expr, int map, int *remp)
         const uchar_kt *const s = partial_name(partial);
 
         if(call_func(s,
-                     (int)STRLEN(s),
+                     (int)ustrlen(s),
                      &rettv,
                      2,
                      argv,
@@ -11392,14 +11394,14 @@ static void f_foldtext(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
         unsigned long count = (unsigned long)(foldend - foldstart + 1);
         txt = ngettext("+-%s%3ld line: ", "+-%s%3ld lines: ", count);
 
-        r = xmalloc(STRLEN(txt)
-                    + STRLEN(dashes) // for %s
+        r = xmalloc(ustrlen(txt)
+                    + ustrlen(dashes) // for %s
                     + 20             // for %3ld
-                    + STRLEN(s));    // concatenated
+                    + ustrlen(s));    // concatenated
 
         sprintf((char *)r, txt, dashes, count);
-        len = (int)STRLEN(r);
-        STRCAT(r, s);
+        len = (int)ustrlen(r);
+        ustrcat(r, s);
 
         // remove 'foldmarker' and 'commentstring'
         foldtext_cleanup(r + len);
@@ -11434,7 +11436,7 @@ static void f_foldtextresult(typval_st *argvars,
 
         if(text == buf)
         {
-            text = vim_strsave(text);
+            text = ustrdup(text);
         }
 
         rettv->vval.v_string = text;
@@ -11477,7 +11479,7 @@ static void common_function(typval_st *argvars,
         use_string = true;
     }
 
-    if((use_string && vim_strchr(s, AUTOLOAD_CHAR) == NULL) || is_funcref)
+    if((use_string && ustrchr(s, AUTOLOAD_CHAR) == NULL) || is_funcref)
     {
         name = s;
         trans_name = trans_function_name(&name,
@@ -11513,7 +11515,7 @@ static void common_function(typval_st *argvars,
         int arg_idx = 0;
         list_st *list = NULL;
 
-        if(STRNCMP(s, "s:", 2) == 0 || STRNCMP(s, "<SID>", 5) == 0)
+        if(ustrncmp(s, "s:", 2) == 0 || ustrncmp(s, "<SID>", 5) == 0)
         {
             char sid_buf[25];
             int off = *s == 's' ? 2 : 5;
@@ -11525,17 +11527,17 @@ static void common_function(typval_st *argvars,
             snprintf(sid_buf, sizeof(sid_buf),
                      "<SNR>%" PRId64 "_", (int64_t)current_SID);
 
-            name = xmalloc(STRLEN(sid_buf) + STRLEN(s + off) + 1);
+            name = xmalloc(ustrlen(sid_buf) + ustrlen(s + off) + 1);
 
             if(name != NULL)
             {
-                STRCPY(name, sid_buf);
-                STRCAT(name, s + off);
+                ustrcpy(name, sid_buf);
+                ustrcat(name, s + off);
             }
         }
         else
         {
-            name = vim_strsave(s);
+            name = ustrdup(s);
         }
 
         if(argvars[1].v_type != kNvarUnknown)
@@ -11770,9 +11772,9 @@ static void f_get(typval_st *argvars,
             if(strcmp(what, "func") == 0 || strcmp(what, "name") == 0)
             {
                 rettv->v_type = (*what == 'f' ? kNvarUfunc : kNvarString);
-                const char *const n = (const char *)partial_name(pt);
-                assert(n != NULL);
-                rettv->vval.v_string = (uchar_kt *)xstrdup(n);
+                const uchar_kt *name = partial_name(pt);
+                assert(name != NULL);
+                rettv->vval.v_string = ustrdup(name);
 
                 if(rettv->v_type == kNvarUfunc)
                 {
@@ -12007,7 +12009,7 @@ static void get_buffer_lines(filebuf_st *buf,
             p = (uchar_kt *)"";
         }
 
-        rettv->vval.v_string = vim_strsave(p);
+        rettv->vval.v_string = ustrdup(p);
     }
     else
     {
@@ -12257,7 +12259,7 @@ static void f_getchar(typval_st *argvars,
 
         temp[i++] = NUL;
         rettv->v_type = kNvarString;
-        rettv->vval.v_string = vim_strsave(temp);
+        rettv->vval.v_string = ustrdup(temp);
 
         if(is_mouse_key(n))
         {
@@ -12382,13 +12384,13 @@ static void f_getcompletion(typval_st *argvars,
     if(strcmp(tv_get_string(&argvars[1]), "cmdline") == 0)
     {
         set_one_cmd_context(&xpc, tv_get_string(&argvars[0]));
-        xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+        xpc.xp_pattern_len = (int)ustrlen(xpc.xp_pattern);
         goto theend;
     }
 
     ExpandInit(&xpc);
     xpc.xp_pattern = (uchar_kt *)tv_get_string(&argvars[0]);
-    xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+    xpc.xp_pattern_len = (int)ustrlen(xpc.xp_pattern);
 
     xpc.xp_context =
         cmdcomplete_str_to_type((uchar_kt *)tv_get_string(&argvars[1]));
@@ -12402,7 +12404,7 @@ static void f_getcompletion(typval_st *argvars,
     if(xpc.xp_context == EXPAND_MENUS)
     {
         set_context_in_menu_cmd(&xpc, (uchar_kt *)"menu", xpc.xp_pattern, false);
-        xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+        xpc.xp_pattern_len = (int)ustrlen(xpc.xp_pattern);
     }
 
     if(xpc.xp_context == EXPAND_CSCOPE)
@@ -12410,13 +12412,13 @@ static void f_getcompletion(typval_st *argvars,
         set_context_in_cscope_cmd(&xpc,
                                   (const char *)xpc.xp_pattern, CMD_cscope);
 
-        xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+        xpc.xp_pattern_len = (int)ustrlen(xpc.xp_pattern);
     }
 
     if(xpc.xp_context == EXPAND_SIGN)
     {
         set_context_in_sign_cmd(&xpc, xpc.xp_pattern);
-        xpc.xp_pattern_len = (int)STRLEN(xpc.xp_pattern);
+        xpc.xp_pattern_len = (int)ustrlen(xpc.xp_pattern);
     }
 
 theend:
@@ -12588,10 +12590,10 @@ static void f_getcwd(typval_st *argvars,
 
     if(from)
     {
-        xstrlcpy((char *)cwd, (char *)from, MAXPATHL);
+        xstrncpy((char *)cwd, (char *)from, MAXPATHL);
     }
 
-    rettv->vval.v_string = vim_strsave(cwd);
+    rettv->vval.v_string = ustrdup(cwd);
 
 #ifdef BACKSLASH_IN_FILENAME
     slash_adjust(rettv->vval.v_string);
@@ -12804,7 +12806,7 @@ static void f_getftype(typval_st *argvars,
         }
     #endif
 #endif
-        type = vim_strsave((uchar_kt *)t);
+        type = ustrdup((uchar_kt *)t);
     }
 
     rettv->vval.v_string = type;
@@ -13678,7 +13680,7 @@ static void f_glob2regpat(typval_st *argvars,
          ? NULL : file_pat_to_reg_pat((uchar_kt *)pat, NULL, NULL, false));
 }
 
-/// NvimL: has() function
+/// nvim: has() function
 static void f_has(typval_st *argvars,
                   typval_st *rettv,
                   func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
@@ -13734,9 +13736,6 @@ static void f_has(typval_st *argvars,
     #endif
 
     // common staff
-    #ifdef HAVE_ACL
-        "acl",
-    #endif
         "arabic",
         "autocmd",
         "browsefilter",
@@ -13835,7 +13834,7 @@ static void f_has(typval_st *argvars,
 
     for(size_t i = 0; i < ARRAY_SIZE(has_list); i++)
     {
-        if(STRICMP(name, has_list[i]) == 0)
+        if(ustricmp(name, has_list[i]) == 0)
         {
             status = true;
             break;
@@ -13845,7 +13844,7 @@ static void f_has(typval_st *argvars,
     if(!status)
     {
         // check patch
-        if(STRNICMP(name, "patch", 5) == 0)
+        if(ustrnicmp(name, "patch", 5) == 0)
         {
             if(name[5] == ':') // patch:123456
             {
@@ -13870,30 +13869,30 @@ static void f_has(typval_st *argvars,
                 }
             }
         }
-        else if(STRNICMP(name, "nvim@", 5) == 0)
+        else if(ustrnicmp(name, "nvim@", 5) == 0)
         {
             status = has_nvim_version(name + 5); // nvim@x.y.z
         }
-        else if(STRNICMP(name, "gkide@", 6) == 0)
+        else if(ustrnicmp(name, "gkide@", 6) == 0)
         {
             status = has_gkide_version(name + 6); // gkide@x.y.z
         }
-        else if(STRICMP(name, "nvim_starting") == 0)
+        else if(ustricmp(name, "nvim_starting") == 0)
         {
             status = (runtime_status != kRS_Normal);
         }
 #if defined(USE_ICONV) && defined(DYNAMIC_ICONV)
-        else if(STRICMP(name, "iconv") == 0)
+        else if(ustricmp(name, "iconv") == 0)
         {
             status = iconv_enabled(false);
         }
 #endif
-        else if(STRICMP(name, "syntax_items") == 0)
+        else if(ustricmp(name, "syntax_items") == 0)
         {
             status = syntax_present(curwin);
 #ifdef HOST_OS_LINUX
         }
-        else if(STRICMP(name, "unnamedplus") == 0)
+        else if(ustricmp(name, "unnamedplus") == 0)
         {
             status = eval_has_provider("clipboard");
 #endif
@@ -14184,7 +14183,7 @@ static void f_histget(typval_st *argvars,
         }
 
         // -1 on type error
-        rettv->vval.v_string = vim_strsave(get_history_entry(type, idx));
+        rettv->vval.v_string = ustrdup(get_history_entry(type, idx));
     }
 
     rettv->v_type = kNvarString;
@@ -14239,7 +14238,7 @@ static void f_hostname(typval_st *FUNC_ARGS_UNUSED_REALY(argvars),
     char hostname[256];
     os_get_hostname(hostname, 256);
     rettv->v_type = kNvarString;
-    rettv->vval.v_string = vim_strsave((uchar_kt *)hostname);
+    rettv->vval.v_string = ustrdup((uchar_kt *)hostname);
 }
 
 /// iconv() function
@@ -14794,7 +14793,7 @@ static void dict_list(typval_st *const tv,
             {
                 li->li_tv.v_type = kNvarString;
                 li->li_tv.v_lock = kNvlVarUnlocked;
-                li->li_tv.vval.v_string = vim_strsave(di->di_key);
+                li->li_tv.vval.v_string = ustrdup(di->di_key);
                 break;
             }
 
@@ -14817,7 +14816,7 @@ static void dict_list(typval_st *const tv,
                 tv_list_append(sub_l, sub_li);
                 sub_li->li_tv.v_type = kNvarString;
                 sub_li->li_tv.v_lock = kNvlVarUnlocked;
-                sub_li->li_tv.vval.v_string = vim_strsave(di->di_key);
+                sub_li->li_tv.vval.v_string = ustrdup(di->di_key);
                 sub_li = tv_list_item_alloc();
                 tv_list_append(sub_l, sub_li);
                 tv_copy(&di->di_tv, &sub_li->li_tv);
@@ -14834,11 +14833,13 @@ static void f_id(typval_st *argvars,
                  func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 FUNC_ATTR_NONNULL_ALL
 {
-    const int len = vim_vsnprintf(NULL, 0, "%p", dummy_ap, argvars);
+    const int len = xvsnprintf(NULL, 0, "%p", dummy_ap, argvars);
 
     rettv->v_type = kNvarString;
     rettv->vval.v_string = xmalloc(len + 1);
-    vim_vsnprintf((char *)rettv->vval.v_string, len + 1, "%p", dummy_ap, argvars);
+
+    xvsnprintf((char *)rettv->vval.v_string,
+               len + 1, "%p", dummy_ap, argvars);
 }
 
 /// "items(dict)" function
@@ -15792,7 +15793,7 @@ static void get_maparg(typval_st *argvars, typval_st *rettv, int exact)
 
     mode = get_map_mode((uchar_kt **)&which, 0);
 
-    keys = replace_termcodes(keys, STRLEN(keys), &keys_buf,
+    keys = replace_termcodes(keys, ustrlen(keys), &keys_buf,
                              true, true, false, CPO_TO_CPO_FLAGS);
 
     rhs = check_map(keys, mode, exact, false, abbr, &mp, &buffer_local);
@@ -15955,7 +15956,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
     else
     {
         expr = str = (uchar_kt *)tv_get_string(&argvars[0]);
-        len = (long)STRLEN(str);
+        len = (long)ustrlen(str);
     }
 
     char patbuf[NUMBUFLEN];
@@ -16024,7 +16025,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
         }
     }
 
-    regmatch.regprog = vim_regcomp((uchar_kt *)pat, RE_MAGIC + RE_STRING);
+    regmatch.regprog = regexp_compile((uchar_kt *)pat, RE_MAGIC + RE_STRING);
 
     if(regmatch.regprog != NULL)
     {
@@ -16093,7 +16094,7 @@ static void find_some_match(typval_st *argvars, typval_st *rettv, int type)
 
                 int rd = (int)(regmatch.endp[0] - regmatch.startp[0]);
 
-                li1->li_tv.vval.v_string = vim_strnsave(regmatch.startp[0], rd);
+                li1->li_tv.vval.v_string = ustrndup(regmatch.startp[0], rd);
                 li3->li_tv.vval.v_number = (number_kt)(regmatch.startp[0] - expr);
                 li4->li_tv.vval.v_number = (number_kt)(regmatch.endp[0] - expr);
 
@@ -16579,7 +16580,7 @@ FUNC_ATTR_NONNULL_ALL
 
     for(listitem_st *li = list->lv_first; li != NULL; li = li->li_next)
     {
-        vim_snprintf(msgbuf, sizeof(msgbuf), (char *) msg, idx);
+        xsnprintf(msgbuf, sizeof(msgbuf), (char *) msg, idx);
         idx++;
 
         if(encode_vim_to_msgpack(lpacker, &li->li_tv, msgbuf) == FAIL)
@@ -16860,13 +16861,13 @@ static void f_printf(typval_st *argvars,
         did_emsg = false;
         char buf[NUMBUFLEN];
         const char *fmt = tv_get_string_buf(&argvars[0], buf);
-        len = vim_vsnprintf(NULL, 0, fmt, dummy_ap, argvars + 1);
+        len = xvsnprintf(NULL, 0, fmt, dummy_ap, argvars + 1);
 
         if(!did_emsg)
         {
             char *s = xmalloc(len + 1);
             rettv->vval.v_string = (uchar_kt *)s;
-            (void)vim_vsnprintf(s, len + 1, fmt, dummy_ap, argvars + 1);
+            (void)xvsnprintf(s, len + 1, fmt, dummy_ap, argvars + 1);
         }
 
         did_emsg |= saved_did_emsg;
@@ -17033,7 +17034,7 @@ static void f_readfile(typval_st *argvars,
                 if(prevlen == 0)
                 {
                     assert(len < INT_MAX);
-                    s = vim_strnsave(start, (int)len);
+                    s = ustrndup(start, (int)len);
                 }
                 else
                 {
@@ -17283,7 +17284,7 @@ FUNC_ATTR_NONNULL_ALL
 
     if(list2proftime(&argvars[0], &tm) == OK)
     {
-        rettv->vval.v_string = (uchar_kt *) xstrdup(profile_msg(tm));
+        rettv->vval.v_string = (uchar_kt *)xstrdup(profile_msg(tm));
     }
 }
 
@@ -17567,7 +17568,7 @@ static void f_resolve(typval_st *argvars,
                 {
                     cpy = remain;
                     remain = (remain
-                              ? (char *)concat_str((uchar_kt *)q - 1, (uchar_kt *)remain)
+                              ? xstrdup_concat(q - 1, remain)
                               : xstrdup(q - 1));
 
                     xfree(cpy);
@@ -17610,14 +17611,14 @@ static void f_resolve(typval_st *argvars,
             const size_t p_len = strlen(p);
             cpy = xmallocz(p_len + len);
             memcpy(cpy, p, p_len + 1);
-            xstrlcat(cpy + p_len, remain, len + 1);
+            xstrncat(cpy + p_len, remain, len + 1);
             xfree(p);
             p = cpy;
 
             // Shorten "remain".
             if(*q != NUL)
             {
-                STRMOVE(remain, q - 1);
+                xstrmove(remain, q - 1);
             }
             else
             {
@@ -17640,8 +17641,7 @@ static void f_resolve(typval_st *argvars,
                             && (p[2] == NUL || vim_ispathsep(p[2]))))))
             {
                 // Prepend "./"
-                cpy = (char *)concat_str((const uchar_kt *)"./",
-                                         (const uchar_kt *)p);
+                cpy = xstrdup_concat("./", p);
 
                 xfree(p);
                 p = cpy;
@@ -17658,7 +17658,7 @@ static void f_resolve(typval_st *argvars,
 
                 if(q > p)
                 {
-                    STRMOVE(p, p + 2);
+                    xstrmove(p, p + 2);
                 }
             }
         }
@@ -17988,7 +17988,7 @@ static void f_rpcnotify(typval_st *argvars,
 
     for(typval_st *tv = argvars + 2; tv->v_type != kNvarUnknown; tv++)
     {
-        ADD(args, vim_to_object(tv));
+        ADD(args, nvim_to_object(tv));
     }
 
     if(!channel_send_event((uint64_t)argvars[0].vval.v_number,
@@ -18032,7 +18032,7 @@ static void f_rpcrequest(typval_st *argvars,
 
     for(typval_st *tv = argvars + 2; tv->v_type != kNvarUnknown; tv++)
     {
-        ADD(args, vim_to_object(tv));
+        ADD(args, nvim_to_object(tv));
     }
 
     script_id_kt save_current_SID;
@@ -18497,14 +18497,14 @@ long do_searchpair(uchar_kt *spat,
 
     // Make two search patterns: start/end (pat2,
     // for in nested pairs) and start/middle/end (pat3, for the top pair).
-    pat2 = xmalloc(STRLEN(spat) + STRLEN(epat) + 15);
-    pat3 = xmalloc(STRLEN(spat) + STRLEN(mpat) + STRLEN(epat) + 23);
+    pat2 = xmalloc(ustrlen(spat) + ustrlen(epat) + 15);
+    pat3 = xmalloc(ustrlen(spat) + ustrlen(mpat) + ustrlen(epat) + 23);
 
     sprintf((char *)pat2, "\\(%s\\m\\)\\|\\(%s\\m\\)", spat, epat);
 
     if(*mpat == NUL)
     {
-        STRCPY(pat3, pat2);
+        ustrcpy(pat3, pat2);
     }
     else
     {
@@ -18838,7 +18838,7 @@ static void f_setbufvar(typval_st *argvars,
         else
         {
             filebuf_st *save_curbuf = curbuf;
-            const size_t varname_len = STRLEN(varname);
+            const size_t varname_len = ustrlen(varname);
             char *const bufvarname = xmalloc(varname_len + 3);
 
             curbuf = buf;
@@ -19511,7 +19511,7 @@ free_lstval:
 
         write_reg_contents_ex(regname,
                               (const uchar_kt *)strval,
-                              STRLEN(strval),
+                              ustrlen(strval),
                               append,
                               yank_type,
                               block_len);
@@ -19661,7 +19661,7 @@ static void f_shellescape(typval_st *argvars,
                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     rettv->vval.v_string =
-        vim_strsave_shellescape((const uchar_kt *)tv_get_string(&argvars[0]),
+        ustrdup_escape_shell((const uchar_kt *)tv_get_string(&argvars[0]),
                                 non_zero_arg(&argvars[1]),
                                 true);
     rettv->v_type = kNvarString;
@@ -19852,11 +19852,11 @@ static int item_compare(const void *s1,
     {
         if(sortinfo->item_compare_ic)
         {
-            res = STRICMP(p1, p2);
+            res = ustricmp(p1, p2);
         }
         else
         {
-            res = STRCMP(p1, p2);
+            res = ustrcmp(p1, p2);
         }
     }
     else
@@ -19928,7 +19928,7 @@ static int item_compare2(const void *s1, const void *s2, bool keep_zero)
     rettv.v_type = kNvarUnknown; // tv_clear() uses this
 
     res = call_func((const uchar_kt *)func_name,
-                    (int)STRLEN(func_name),
+                    (int)ustrlen(func_name),
                     &rettv,
                     2,
                     argv,
@@ -20420,7 +20420,7 @@ static void f_split(typval_st *argvars,
         return;
     }
 
-    regmatch.regprog = vim_regcomp((uchar_kt *)pat, RE_MAGIC + RE_STRING);
+    regmatch.regprog = regexp_compile((uchar_kt *)pat, RE_MAGIC + RE_STRING);
 
     if(regmatch.regprog != NULL)
     {
@@ -20530,19 +20530,19 @@ static void f_str2nr(typval_st *argvars,
     {
         case 2:
         {
-            what = STR2NR_BIN | STR2NR_FORCE;
+            what = kStrToNumBin | kStrToNumOne;
             break;
         }
 
         case 8:
         {
-            what = STR2NR_OCT | STR2NR_FORCE;
+            what = kStrToNumOct | kStrToNumOne;
             break;
         }
 
         case 16:
         {
-            what = STR2NR_HEX | STR2NR_FORCE;
+            what = kStrToNumHex | kStrToNumOne;
             break;
         }
 
@@ -20552,7 +20552,7 @@ static void f_str2nr(typval_st *argvars,
         }
     }
 
-    vim_str2nr(p, NULL, NULL, what, &n, NULL, 0);
+    str_to_num(p, NULL, NULL, what, &n, NULL, 0);
     rettv->vval.v_number = n;
 }
 
@@ -20581,7 +20581,7 @@ static void f_strftime(typval_st *argvars,
     // MSVC returns NULL for an invalid value of seconds.
     if(curtime_ptr == NULL)
     {
-        rettv->vval.v_string = vim_strsave((uchar_kt *)_("(Invalid)"));
+        rettv->vval.v_string = ustrdup((uchar_kt *)_("(Invalid)"));
     }
     else
     {
@@ -20651,7 +20651,7 @@ static void f_strgetchar(typval_st *argvars,
         return;
     }
 
-    const size_t len = STRLEN(str);
+    const size_t len = ustrlen(str);
     size_t byteidx = 0;
 
     while(charidx >= 0 && byteidx < len)
@@ -20790,7 +20790,7 @@ static void f_strcharpart(typval_st *argvars,
                           func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *const p = tv_get_string(&argvars[0]);
-    const size_t slen = STRLEN(p);
+    const size_t slen = ustrlen(p);
     int nbyte = 0;
     bool error = false;
     number_kt nchar = tv_get_number_chk(&argvars[1], &error);
@@ -20927,7 +20927,7 @@ static void f_strridx(typval_st *argvars,
         return; // Type error; errmsg already given.
     }
 
-    const size_t haystack_len = STRLEN(haystack);
+    const size_t haystack_len = ustrlen(haystack);
     ptrdiff_t end_idx;
 
     if(argvars[2].v_type != kNvarUnknown)
@@ -21088,7 +21088,7 @@ static void f_synID(typval_st *argvars,
        && lnum >= 1
        && lnum <= curbuf->b_ml.ml_line_count
        && col >= 0
-       && (size_t)col < STRLEN(ml_get(lnum)))
+       && (size_t)col < ustrlen(ml_get(lnum)))
     {
         id = syn_get_id(curwin, lnum, col, trans, NULL, false);
     }
@@ -21191,7 +21191,7 @@ static void f_synIDattr(typval_st *argvars,
 
         case 'u':
         {
-            if(STRLEN(what) <= 5 || TOLOWER_ASC(what[5]) != 'c') // underline
+            if(ustrlen(what) <= 5 || TOLOWER_ASC(what[5]) != 'c') // underline
             {
                 p = highlight_has_attr(id, HL_UNDERLINE, modec);
             }
@@ -21246,7 +21246,7 @@ static void f_synconcealed(typval_st *argvars,
     tv_list_alloc_ret(rettv);
 
     if(lnum >= 1 && lnum <= curbuf->b_ml.ml_line_count && col >= 0
-       && (size_t)col <= STRLEN(ml_get(lnum)) && curwin->w_o_curbuf.wo_cole > 0)
+       && (size_t)col <= ustrlen(ml_get(lnum)) && curwin->w_o_curbuf.wo_cole > 0)
     {
         (void)syn_get_id(curwin, lnum, col, false, NULL, false);
         syntax_flags = get_syntax_info(&matchid);
@@ -21299,7 +21299,7 @@ static void f_synstack(typval_st *argvars,
     if(lnum >= 1
        && lnum <= curbuf->b_ml.ml_line_count
        && col >= 0
-       && (size_t)col <= STRLEN(ml_get(lnum)))
+       && (size_t)col <= ustrlen(ml_get(lnum)))
     {
         tv_list_alloc_ret(rettv);
         (void)syn_get_id(curwin, lnum, col, false, NULL, true);
@@ -21404,7 +21404,7 @@ static void get_system_output_as_rettv(typval_st *argvars,
     {
         // res may contain several NULs before the final terminating one.
         // Replace them with SOH (1) like in get_cmd_output() to avoid truncation.
-        memchrsub(res, NUL, 1, nread);
+        xmemchrsub(res, NUL, 1, nread);
 
 #ifdef USE_CRNL
         // translate <CR><NL> into <NL>
@@ -21790,7 +21790,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
     {
         uchar_kt *name = arg->vval.v_string;
         func_ref(name);
-        callback->data.funcref = vim_strsave(name);
+        callback->data.funcref = ustrdup(name);
         callback->type = kCallbackFuncref;
     }
     else if(arg->v_type == kNvarNumber && arg->vval.v_number == 0)
@@ -21870,7 +21870,7 @@ FUNC_ATTR_NONNULL_ALL
 
     int dummy;
     return call_func(name,
-                     (int)STRLEN(name),
+                     (int)ustrlen(name),
                      rettv,
                      argcount_in,
                      argvars_in,
@@ -21940,7 +21940,7 @@ static void add_timer_info(typval_st *rettv, timer_st *timer)
     else if(timer->callback.type == kCallbackFuncref)
     {
         di->di_tv.v_type = kNvarUfunc;
-        di->di_tv.vval.v_string = vim_strsave(timer->callback.data.funcref);
+        di->di_tv.vval.v_string = ustrdup(timer->callback.data.funcref);
     }
 
     di->di_tv.v_lock = 0;
@@ -22188,7 +22188,7 @@ static void f_tolower(typval_st *argvars,
     rettv->v_type = kNvarString;
 
     rettv->vval.v_string =
-        (uchar_kt *)strcase_save(tv_get_string(&argvars[0]), false);
+        (uchar_kt *)xstrdup_case_convert(tv_get_string(&argvars[0]), false);
 }
 
 /// "toupper(string)" function
@@ -22199,7 +22199,7 @@ static void f_toupper(typval_st *argvars,
     rettv->v_type = kNvarString;
 
     rettv->vval.v_string =
-        (uchar_kt *)strcase_save(tv_get_string(&argvars[0]), true);
+        (uchar_kt *)xstrdup_case_convert(tv_get_string(&argvars[0]), true);
 }
 
 /// "tr(string, fromstr, tostr)" function
@@ -22251,7 +22251,7 @@ static void f_tr(typval_st *argvars,
             {
                 fromlen = (*mb_ptr2len)((const uchar_kt *)p);
 
-                if(fromlen == inlen && STRNCMP(in_str, p, inlen) == 0)
+                if(fromlen == inlen && ustrncmp(in_str, p, inlen) == 0)
                 {
                     int tolen;
 
@@ -22484,7 +22484,7 @@ static void f_visualmode(typval_st *argvars,
     rettv->v_type = kNvarString;
     str[0] = curbuf->b_visual_mode_eval;
     str[1] = NUL;
-    rettv->vval.v_string = vim_strsave(str);
+    rettv->vval.v_string = ustrdup(str);
 
     // A non-zero number or non-empty string argument: reset mode.
     if(non_zero_arg(&argvars[0]))
@@ -23135,14 +23135,14 @@ FUNC_ATTR_NONNULL_ALL
             return NULL;
         }
 
-        len = (long)STRLEN(ml_get(pos.lnum));
+        len = (long)ustrlen(ml_get(pos.lnum));
         // We accept "$" for the column number: last column.
         li = tv_list_find(l, 1L);
 
         if(li != NULL
            && li->li_tv.v_type == kNvarString
            && li->li_tv.vval.v_string != NULL
-           && STRCMP(li->li_tv.vval.v_string, "$") == 0)
+           && ustrcmp(li->li_tv.vval.v_string, "$") == 0)
         {
             pos.col = len + 1;
         }
@@ -23228,7 +23228,7 @@ FUNC_ATTR_NONNULL_ALL
         else
         {
             pos.lnum = curwin->w_cursor.lnum;
-            pos.col = (columnum_kt)STRLEN(get_cursor_line_ptr());
+            pos.col = (columnum_kt)ustrlen(get_cursor_line_ptr());
         }
 
         return &pos;
@@ -23324,7 +23324,7 @@ static int get_env_len(const uchar_kt **arg)
     int len;
     const uchar_kt *p;
 
-    for(p = *arg; vim_isIDc(*p); p++)
+    for(p = *arg; is_id_char(*p); p++)
     { /* empty body */ }
 
     if(p == *arg) // No name found.
@@ -23355,7 +23355,7 @@ static int get_id_len(const char **const arg)
             len = (int)(p - *arg);
 
             if(len > 1
-               || (len == 1 && vim_strchr(namespace_char, **arg) == NULL))
+               || (len == 1 && ustrchr(namespace_char, **arg) == NULL))
             {
                 break;
             }
@@ -23437,7 +23437,7 @@ static int get_name_len(const char **const arg,
 
         *alias = (char *)temp_string;
         *arg = (const char *)skipwhite((const uchar_kt *)p);
-        return (int)STRLEN(temp_string);
+        return (int)ustrlen(temp_string);
     }
 
     len += get_id_len(arg);
@@ -23523,7 +23523,7 @@ static const uchar_kt *find_name_end(const uchar_kt *arg,
             len = (int)(p - arg);
 
             if((len > 1 && p[-1] != '}')
-               || (len == 1 && vim_strchr(namespace_char, *arg) == NULL))
+               || (len == 1 && ustrchr(namespace_char, *arg) == NULL))
             {
                 break;
             }
@@ -23601,13 +23601,13 @@ static uchar_kt *make_expanded_name(const uchar_kt *in_start,
 
     if(temp_result != NULL && nextcmd == NULL)
     {
-        retval = xmalloc(STRLEN(temp_result)
+        retval = xmalloc(ustrlen(temp_result)
                          + (expr_start - in_start)
                          + (in_end - expr_end) + 1);
 
-        STRCPY(retval, in_start);
-        STRCAT(retval, temp_result);
-        STRCAT(retval, expr_end + 1);
+        ustrcpy(retval, in_start);
+        ustrcat(retval, temp_result);
+        ustrcat(retval, expr_end + 1);
     }
 
     xfree(temp_result);
@@ -23895,12 +23895,12 @@ uchar_kt *set_cmdarg(exargs_st *eap, uchar_kt *oldarg)
 
     if(eap->force_ff != 0)
     {
-        len += STRLEN(eap->cmd + eap->force_ff) + 6;
+        len += ustrlen(eap->cmd + eap->force_ff) + 6;
     }
 
     if(eap->force_enc != 0)
     {
-        len += STRLEN(eap->cmd + eap->force_enc) + 7;
+        len += ustrlen(eap->cmd + eap->force_enc) + 7;
     }
 
     if(eap->bad_char != 0)
@@ -23925,32 +23925,32 @@ uchar_kt *set_cmdarg(exargs_st *eap, uchar_kt *oldarg)
 
     if(eap->read_edit)
     {
-        STRCAT(newval, " ++edit");
+        ustrcat(newval, " ++edit");
     }
 
     if(eap->force_ff != 0)
     {
-        sprintf((char *)newval + STRLEN(newval), " ++ff=%s",
+        sprintf((char *)newval + ustrlen(newval), " ++ff=%s",
                 eap->cmd + eap->force_ff);
     }
 
     if(eap->force_enc != 0)
     {
-        sprintf((char *)newval + STRLEN(newval), " ++enc=%s",
+        sprintf((char *)newval + ustrlen(newval), " ++enc=%s",
                 eap->cmd + eap->force_enc);
     }
 
     if(eap->bad_char == BAD_KEEP)
     {
-        STRCPY(newval + STRLEN(newval), " ++bad=keep");
+        ustrcpy(newval + ustrlen(newval), " ++bad=keep");
     }
     else if(eap->bad_char == BAD_DROP)
     {
-        STRCPY(newval + STRLEN(newval), " ++bad=drop");
+        ustrcpy(newval + ustrlen(newval), " ++bad=drop");
     }
     else if(eap->bad_char != 0)
     {
-        sprintf((char *)newval + STRLEN(newval), " ++bad=%c", eap->bad_char);
+        sprintf((char *)newval + ustrlen(newval), " ++bad=%c", eap->bad_char);
     }
 
     vimvars[VV_CMDARG].vv_str = newval;
@@ -24080,7 +24080,7 @@ static int handle_subscript(const char **const arg,
             }
 
             ret = get_func_tv(s,
-                              (int)STRLEN(s),
+                              (int)ustrlen(s),
                               rettv,
                               (uchar_kt **)arg,
                               curwin->w_cursor.lnum,
@@ -24213,7 +24213,7 @@ void set_selfdict(typval_st *rettv, dict_st *selfdict)
                 // be referenced elsewhere.
                 if(ret_pt->pt_name != NULL)
                 {
-                    pt->pt_name = vim_strsave(ret_pt->pt_name);
+                    pt->pt_name = ustrdup(ret_pt->pt_name);
                     func_ref(pt->pt_name);
                 }
                 else
@@ -24695,7 +24695,7 @@ static void list_one_var(dictitem_st *v, const char *prefix, int *first)
 
     list_one_var_a(prefix,
                    (const char *)v->di_key,
-                   STRLEN(v->di_key),
+                   ustrlen(v->di_key),
                    v->di_tv.v_type,
                    (s == NULL ? "" : s),
                    first);
@@ -24892,7 +24892,7 @@ FUNC_ATTR_NONNULL_ALL
         }
 
         v = xmalloc(sizeof(dictitem_st) + strlen(varname));
-        STRCPY(v->di_key, varname);
+        ustrcpy(v->di_key, varname);
 
         if(tv_dict_add(dict, v) == FAIL)
         {
@@ -25045,7 +25045,7 @@ FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // Allow for w: b: s: and t:.
-    if(!(vim_strchr((uchar_kt *)"wbst", name[0]) != NULL && name[1] == ':')
+    if(!(ustrchr((uchar_kt *)"wbst", name[0]) != NULL && name[1] == ':')
        && !ASCII_ISUPPER((name[0] != NUL && name[1] == ':') ? name[2] : name[0]))
     {
         EMSG2(_("E704: Funcref variable name must start with a capital: %s"), name);
@@ -25151,7 +25151,7 @@ FUNC_ATTR_NONNULL_ARG(2, 3)
                                                        from->vval.v_string,
                                                        NULL)) == NULL)
                 {
-                    to->vval.v_string = (uchar_kt *) xstrdup((char *) from->vval.v_string);
+                    to->vval.v_string = ustrdup(from->vval.v_string);
                 }
             }
 
@@ -25569,7 +25569,7 @@ void ex_function(exargs_st *eap)
             regmatch_st regmatch;
             c = *p;
             *p = NUL;
-            regmatch.regprog = vim_regcomp(eap->arg + 1, RE_MAGIC);
+            regmatch.regprog = regexp_compile(eap->arg + 1, RE_MAGIC);
             *p = c;
 
             if(regmatch.regprog != NULL)
@@ -25621,7 +25621,7 @@ void ex_function(exargs_st *eap)
     // g:func      global function name, same as "func"
     p = eap->arg;
     name = trans_function_name(&p, eap->skip, 0, &fudi, NULL);
-    paren = (vim_strchr(p, '(') != NULL);
+    paren = (ustrchr(p, '(') != NULL);
 
     if(name == NULL && (fudi.fd_dict == NULL || !paren) && !eap->skip)
     {
@@ -25725,9 +25725,9 @@ void ex_function(exargs_st *eap)
         }
 
         // attempt to continue by skipping some text
-        if(vim_strchr(p, '(') != NULL)
+        if(ustrchr(p, '(') != NULL)
         {
-            p = vim_strchr(p, '(');
+            p = ustrchr(p, '(');
         }
     }
 
@@ -25783,22 +25783,22 @@ void ex_function(exargs_st *eap)
     {
         p = skipwhite(p);
 
-        if(STRNCMP(p, "range", 5) == 0)
+        if(ustrncmp(p, "range", 5) == 0)
         {
             flags |= FC_RANGE;
             p += 5;
         }
-        else if(STRNCMP(p, "dict", 4) == 0)
+        else if(ustrncmp(p, "dict", 4) == 0)
         {
             flags |= FC_DICT;
             p += 4;
         }
-        else if(STRNCMP(p, "abort", 5) == 0)
+        else if(ustrncmp(p, "abort", 5) == 0)
         {
             flags |= FC_ABORT;
             p += 5;
         }
-        else if(STRNCMP(p, "closure", 7) == 0)
+        else if(ustrncmp(p, "closure", 7) == 0)
         {
             flags |= FC_CLOSURE;
             p += 7;
@@ -25872,11 +25872,11 @@ void ex_function(exargs_st *eap)
         {
             // Use eap->arg, split up in parts by line breaks.
             theline = line_arg;
-            p = vim_strchr(theline, '\n');
+            p = ustrchr(theline, '\n');
 
             if(p == NULL)
             {
-                line_arg += STRLEN(line_arg);
+                line_arg += ustrlen(line_arg);
             }
             else
             {
@@ -25919,7 +25919,7 @@ void ex_function(exargs_st *eap)
         {
             // between ":append" and "." and between
             // ":python <<EOF" and "EOF" don't check for ":endfunc".
-            if(STRCMP(theline, skip_until) == 0)
+            if(ustrcmp(theline, skip_until) == 0)
             {
                 xfree(skip_until);
                 skip_until = NULL;
@@ -25944,14 +25944,14 @@ void ex_function(exargs_st *eap)
 
             // Increase indent inside "if", "while", "for" and "try",
             // decrease at "end".
-            if(indent > 2 && STRNCMP(p, "end", 3) == 0)
+            if(indent > 2 && ustrncmp(p, "end", 3) == 0)
             {
                 indent -= 2;
             }
-            else if(STRNCMP(p, "if", 2) == 0
-                    || STRNCMP(p, "wh", 2) == 0
-                    || STRNCMP(p, "for", 3) == 0
-                    || STRNCMP(p, "try", 3) == 0)
+            else if(ustrncmp(p, "if", 2) == 0
+                    || ustrncmp(p, "wh", 2) == 0
+                    || ustrncmp(p, "for", 3) == 0
+                    || ustrncmp(p, "try", 3) == 0)
             {
                 indent += 2;
             }
@@ -25982,7 +25982,7 @@ void ex_function(exargs_st *eap)
                     && (!ASCII_ISALPHA(p[1])
                         || (p[1] == 'n' && (!ASCII_ISALPHA(p[2]) || (p[2] == 's'))))))
             {
-                skip_until = vim_strsave((uchar_kt *)".");
+                skip_until = ustrdup((uchar_kt *)".");
             }
 
             // Check for ":python <<EOF", ":lua <<EOF", etc.
@@ -26001,11 +26001,11 @@ void ex_function(exargs_st *eap)
 
                 if(*p == NUL)
                 {
-                    skip_until = vim_strsave((uchar_kt *)".");
+                    skip_until = ustrdup((uchar_kt *)".");
                 }
                 else
                 {
-                    skip_until = vim_strsave(p);
+                    skip_until = ustrdup(p);
                 }
             }
         }
@@ -26016,7 +26016,7 @@ void ex_function(exargs_st *eap)
         // Copy the line to newly allocated memory. get_one_sourceline()
         // allocates 250 bytes per line, this saves 80% on average.
         // The cost is an extra alloc/free.
-        p = vim_strsave(theline);
+        p = ustrdup(theline);
 
         if(line_arg == NULL)
         {
@@ -26050,7 +26050,7 @@ void ex_function(exargs_st *eap)
     // If there are no errors, add the function
     if(fudi.fd_dict == NULL)
     {
-        v = find_var((const char *)name, STRLEN(name), &ht, false);
+        v = find_var((const char *)name, ustrlen(name), &ht, false);
 
         if(v != NULL && v->di_tv.v_type == kNvarUfunc)
         {
@@ -26122,12 +26122,12 @@ void ex_function(exargs_st *eap)
         // Can only be used with a Funcref!
         xfree(name);
         sprintf(numbuf, "%d", ++func_nr);
-        name = vim_strsave((uchar_kt *)numbuf);
+        name = ustrdup((uchar_kt *)numbuf);
     }
 
     if(fp == NULL)
     {
-        if(fudi.fd_dict == NULL && vim_strchr(name, AUTOLOAD_CHAR) != NULL)
+        if(fudi.fd_dict == NULL && ustrchr(name, AUTOLOAD_CHAR) != NULL)
         {
             int slen, plen;
             uchar_kt  *scriptname;
@@ -26138,11 +26138,11 @@ void ex_function(exargs_st *eap)
             if(sourcing_name != NULL)
             {
                 scriptname =
-                    (uchar_kt *)autoload_name((const char *)name, STRLEN(name));
+                    (uchar_kt *)autoload_name((const char *)name, ustrlen(name));
 
-                p = vim_strchr(scriptname, '/');
-                plen = (int)STRLEN(p);
-                slen = (int)STRLEN(sourcing_name);
+                p = ustrchr(scriptname, '/');
+                plen = (int)ustrlen(p);
+                slen = (int)ustrlen(sourcing_name);
 
                 if(slen > plen && fnamecmp(p, sourcing_name + slen - plen) == 0)
                 {
@@ -26159,7 +26159,7 @@ void ex_function(exargs_st *eap)
             }
         }
 
-        fp = xcalloc(1, sizeof(ufunc_st) + STRLEN(name));
+        fp = xcalloc(1, sizeof(ufunc_st) + ustrlen(name));
 
         if(fudi.fd_dict != NULL)
         {
@@ -26183,12 +26183,12 @@ void ex_function(exargs_st *eap)
 
             fudi.fd_di->di_tv.v_type = kNvarUfunc;
             fudi.fd_di->di_tv.v_lock = 0;
-            fudi.fd_di->di_tv.vval.v_string = vim_strsave(name);
+            fudi.fd_di->di_tv.vval.v_string = ustrdup(name);
             flags |= FC_DICT; // behave like "dict" was used
         }
 
         // insert the new function in the function list
-        STRCPY(fp->uf_name, name);
+        ustrcpy(fp->uf_name, name);
 
         if(overwrite)
         {
@@ -26358,13 +26358,13 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
         if(lv.ll_tv->v_type == kNvarUfunc
            && lv.ll_tv->vval.v_string != NULL)
         {
-            name = vim_strsave(lv.ll_tv->vval.v_string);
+            name = ustrdup(lv.ll_tv->vval.v_string);
             *pp = (uchar_kt *)end;
         }
         else if(lv.ll_tv->v_type == kNvarPartial
                 && lv.ll_tv->vval.v_partial != NULL)
         {
-            name = vim_strsave(partial_name(lv.ll_tv->vval.v_partial));
+            name = ustrdup(partial_name(lv.ll_tv->vval.v_partial));
             *pp = (uchar_kt *)end;
 
             if(partial != NULL)
@@ -26428,7 +26428,7 @@ static uchar_kt *trans_function_name(uchar_kt **pp,
 
     if(name != NULL)
     {
-        name = vim_strsave(name);
+        name = ustrdup(name);
         *pp = (uchar_kt *)end;
 
         if(strncmp((char *)name, "<SNR>", 5) == 0)
@@ -27070,7 +27070,7 @@ static bool script_autoload(const char *const name,
 
     for(; i < ga_loaded.ga_len; i++)
     {
-        if(STRCMP(((char **)ga_loaded.ga_data)[i] + 9, scriptname + 9) == 0)
+        if(ustrcmp(((char **)ga_loaded.ga_data)[i] + 9, scriptname + 9) == 0)
         {
             break;
         }
@@ -27165,12 +27165,12 @@ uchar_kt *get_user_func_name(expand_st *xp, int idx)
         fp = HI2UF(hi);
 
         if((fp->uf_flags & FC_DICT)
-           || STRNCMP(fp->uf_name, "<lambda>", 8) == 0)
+           || ustrncmp(fp->uf_name, "<lambda>", 8) == 0)
         {
             return (uchar_kt *)""; // don't show dict and lambda functions
         }
 
-        if(STRLEN(fp->uf_name) + 4 >= IOSIZE)
+        if(ustrlen(fp->uf_name) + 4 >= IOSIZE)
         {
             return fp->uf_name; // prevents overflow
         }
@@ -27179,11 +27179,11 @@ uchar_kt *get_user_func_name(expand_st *xp, int idx)
 
         if(xp->xp_context != EXPAND_USER_FUNC)
         {
-            STRCAT(IObuff, "(");
+            ustrcat(IObuff, "(");
 
             if(!fp->uf_varargs && GA_EMPTY(&fp->uf_args))
             {
-                STRCAT(IObuff, ")");
+                ustrcat(IObuff, ")");
             }
         }
 
@@ -27200,12 +27200,12 @@ static void cat_func_name(uchar_kt *buf, ufunc_st *fp)
 {
     if(fp->uf_name[0] == K_SPECIAL)
     {
-        STRCPY(buf, "<SNR>");
-        STRCAT(buf, fp->uf_name + 3);
+        ustrcpy(buf, "<SNR>");
+        ustrcat(buf, fp->uf_name + 3);
     }
     else
     {
-        STRCPY(buf, fp->uf_name);
+        ustrcpy(buf, fp->uf_name);
     }
 }
 
@@ -27544,7 +27544,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     ga_init(&fc->fc_funcs, sizeof(ufunc_st *), 1);
     func_ptr_ref(fp);
 
-    if(STRNCMP(fp->uf_name, "<lambda>", 8) == 0)
+    if(ustrncmp(fp->uf_name, "<lambda>", 8) == 0)
     {
         islambda = true;
     }
@@ -27564,7 +27564,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
 #ifndef __clang_analyzer__
         name = v->di_key;
-        STRCPY(name, "self");
+        ustrcpy(name, "self");
 #endif
 
         v->di_flags = DI_FLAGS_RO + DI_FLAGS_FIX;
@@ -27591,7 +27591,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
 #ifndef __clang_analyzer__
     name = v->di_key;
-    STRCPY(name, "000");
+    ustrcpy(name, "000");
 #endif
 
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
@@ -27638,18 +27638,18 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
             name = numbuf;
         }
 
-        if(fixvar_idx < FIXVAR_CNT && STRLEN(name) <= VAR_SHORT_LEN)
+        if(fixvar_idx < FIXVAR_CNT && ustrlen(name) <= VAR_SHORT_LEN)
         {
             v = (dictitem_st *)&fc->fixvar[fixvar_idx++];
             v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
         }
         else
         {
-            v = xmalloc(sizeof(dictitem_st) + STRLEN(name));
+            v = xmalloc(sizeof(dictitem_st) + ustrlen(name));
             v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX | DI_FLAGS_ALLOC;
         }
 
-        STRCPY(v->di_key, name);
+        ustrcpy(v->di_key, name);
 
         // Note: the values are copied directly to avoid alloc/free.
         // "argvars" must have kNvlVarFixed for v_lock.
@@ -27687,27 +27687,27 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
     // * "["number"].." or "function "
     // * "<SNR>" + fp->uf_name - 3
     // * terminating NUL
-    size_t len = (save_sourcing_name == NULL ? 0 : STRLEN(save_sourcing_name))
-                 + STRLEN(fp->uf_name) + 27;
+    size_t len = (save_sourcing_name == NULL ? 0 : ustrlen(save_sourcing_name))
+                 + ustrlen(fp->uf_name) + 27;
 
     sourcing_name = xmalloc(len);
 
     {
         if(save_sourcing_name != NULL
-           && STRNCMP(save_sourcing_name, "function ", 9) == 0)
+           && ustrncmp(save_sourcing_name, "function ", 9) == 0)
         {
-            vim_snprintf((char *)sourcing_name,
-                         len,
-                         "%s[%" PRId64 "]..",
-                         save_sourcing_name,
-                         (int64_t)save_sourcing_lnum);
+            xsnprintf((char *)sourcing_name,
+                      len,
+                      "%s[%" PRId64 "]..",
+                      save_sourcing_name,
+                      (int64_t)save_sourcing_lnum);
         }
         else
         {
-            STRCPY(sourcing_name, "function ");
+            ustrcpy(sourcing_name, "function ");
         }
 
-        cat_func_name(sourcing_name + STRLEN(sourcing_name), fp);
+        cat_func_name(sourcing_name + ustrlen(sourcing_name), fp);
 
         if(p_verbose >= 12)
         {
@@ -27742,7 +27742,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
                             char *s = tofree;
                             char buf[MSG_BUF_LEN];
 
-                            if(vim_strsize((uchar_kt *)s) > MSG_BUF_CLEN)
+                            if(ustr_scrsize((uchar_kt *)s) > MSG_BUF_CLEN)
                             {
                                 trunc_string((uchar_kt *)s,
                                              (uchar_kt *)buf,
@@ -27863,7 +27863,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 
             if(s != NULL)
             {
-                if(vim_strsize(s) > MSG_BUF_CLEN)
+                if(ustr_scrsize(s) > MSG_BUF_CLEN)
                 {
                     trunc_string(s, buf, MSG_BUF_CLEN, MSG_BUF_LEN);
                     s = buf;
@@ -28045,7 +28045,7 @@ static void free_funccal(func_call_st *fc, int free_val)
 static void add_nr_var(dict_st *dp, dictitem_st *v, char *name, number_kt nr)
 {
 #ifndef __clang_analyzer__
-    STRCPY(v->di_key, name);
+    ustrcpy(v->di_key, name);
 #endif
 
     v->di_flags = DI_FLAGS_RO | DI_FLAGS_FIX;
@@ -28222,16 +28222,16 @@ uchar_kt *get_return_cmd(void *rettv)
         s = (uchar_kt *)"";
     }
 
-    STRCPY(IObuff, ":return ");
-    STRLCPY(IObuff + 8, s, IOSIZE - 8);
+    ustrcpy(IObuff, ":return ");
+    ustrlcpy(IObuff + 8, s, IOSIZE - 8);
 
-    if(STRLEN(s) + 8 >= IOSIZE)
+    if(ustrlen(s) + 8 >= IOSIZE)
     {
-        STRCPY(IObuff + IOSIZE - 4, "...");
+        ustrcpy(IObuff + IOSIZE - 4, "...");
     }
 
     xfree(tofree);
-    return vim_strsave(IObuff);
+    return ustrdup(IObuff);
 }
 
 /// Get next function line.
@@ -28282,7 +28282,7 @@ uchar_kt *get_func_line(int FUNC_ARGS_UNUSED_REALY(c),
         }
         else
         {
-            retval = vim_strsave(((uchar_kt **)(gap->ga_data))[fcp->linenr++]);
+            retval = ustrdup(((uchar_kt **)(gap->ga_data))[fcp->linenr++]);
             sourcing_lnum = fcp->linenr;
 
             if(do_profiling == PROF_YES)
@@ -28587,8 +28587,8 @@ int store_session_globals(FILE *fd)
             // Escape special characters with a backslash.
             // Turn a LF and CR into \n and \r.
             uchar_kt *const p =
-                vim_strsave_escaped((const uchar_kt *)tv_get_string(&this_var->di_tv),
-                                    (const uchar_kt *)"\\\"\n\r");
+                ustrdup_escape((const uchar_kt *)tv_get_string(&this_var->di_tv),
+                               (const uchar_kt *)"\\\"\n\r");
 
             for(uchar_kt *t = p; *t != NUL; t++)
             {
@@ -28746,7 +28746,7 @@ repeat:
         if(os_isdir(*fnamep))
         {
             // Make room for one or two extra characters.
-            *fnamep = vim_strnsave(*fnamep, STRLEN(*fnamep) + 2);
+            *fnamep = ustrndup(*fnamep, ustrlen(*fnamep) + 2);
             xfree(*bufp); // free any allocated file name
             *bufp = *fnamep;
 
@@ -28819,7 +28819,7 @@ repeat:
                 // Only replace it when it starts with '~'
                 if(*dirname == '~')
                 {
-                    s = vim_strsave(dirname);
+                    s = ustrdup(dirname);
                     *fnamep = s;
                     xfree(*bufp);
                     *bufp = s;
@@ -28831,7 +28831,7 @@ repeat:
     }
 
     tail = path_tail(*fnamep);
-    *fnamelen = STRLEN(*fnamep);
+    *fnamelen = ustrlen(*fnamep);
 
     // ":h" - head, remove "/file_name", can be repeated
     // Don't remove the first "/" or "c:\"
@@ -28852,7 +28852,7 @@ repeat:
         {
             // Result is empty.  Turn it into "." to make ":cd %:h" work.
             xfree(*bufp);
-            *bufp = *fnamep = tail = vim_strsave((uchar_kt *)".");
+            *bufp = *fnamep = tail = ustrdup((uchar_kt *)".");
             *fnamelen = 1;
         }
         else
@@ -28952,24 +28952,24 @@ repeat:
         if(sep)
         {
             // find end of pattern
-            p = vim_strchr(s, sep);
+            p = ustrchr(s, sep);
 
             if(p != NULL)
             {
-                pat = vim_strnsave(s, (int)(p - s));
+                pat = ustrndup(s, (int)(p - s));
                 s = p + 1;
 
                 // find end of substitution
-                p = vim_strchr(s, sep);
+                p = ustrchr(s, sep);
 
                 if(p != NULL)
                 {
-                    sub = vim_strnsave(s, (int)(p - s));
-                    str = vim_strnsave(*fnamep, *fnamelen);
+                    sub = ustrndup(s, (int)(p - s));
+                    str = ustrndup(*fnamep, *fnamelen);
                     *usedlen = (size_t)(p + 1 - src);
                     s = do_string_sub(str, pat, sub, NULL, flags);
                     *fnamep = s;
-                    *fnamelen = STRLEN(s);
+                    *fnamelen = ustrlen(s);
                     xfree(*bufp);
                     *bufp = s;
                     didit = TRUE;
@@ -28990,7 +28990,7 @@ repeat:
 
     if(src[*usedlen] == ':' && src[*usedlen + 1] == 'S')
     {
-        // vim_strsave_shellescape() needs a NUL terminated string.
+        // ustrdup_escape_shell() needs a NUL terminated string.
         c = (*fnamep)[*fnamelen];
 
         if(c != NUL)
@@ -28998,7 +28998,7 @@ repeat:
             (*fnamep)[*fnamelen] = NUL;
         }
 
-        p = vim_strsave_shellescape(*fnamep, false, false);
+        p = ustrdup_escape_shell(*fnamep, false, false);
 
         if(c != NUL)
         {
@@ -29007,7 +29007,7 @@ repeat:
 
         xfree(*bufp);
         *bufp = *fnamep = p;
-        *fnamelen = STRLEN(p);
+        *fnamelen = ustrlen(p);
         *usedlen += 2;
     }
 
@@ -29039,12 +29039,12 @@ uchar_kt *do_string_sub(uchar_kt *str,
     ga_init(&ga, 1, 200);
     do_all = (flags[0] == 'g');
     regmatch.rm_ic = p_ic;
-    regmatch.regprog = vim_regcomp(pat, RE_MAGIC + RE_STRING);
+    regmatch.regprog = regexp_compile(pat, RE_MAGIC + RE_STRING);
 
     if(regmatch.regprog != NULL)
     {
         tail = str;
-        end = str + STRLEN(str);
+        end = str + ustrlen(str);
 
         while(vim_regexec_nl(&regmatch, str, (columnum_kt)(tail - str)))
         {
@@ -29101,13 +29101,13 @@ uchar_kt *do_string_sub(uchar_kt *str,
 
         if(ga.ga_data != NULL)
         {
-            STRCPY((char *)ga.ga_data + ga.ga_len, tail);
+            ustrcpy((char *)ga.ga_data + ga.ga_len, tail);
         }
 
         vim_regfree(regmatch.regprog);
     }
 
-    uchar_kt *ret = vim_strsave(ga.ga_data == NULL ? str : (uchar_kt *)ga.ga_data);
+    uchar_kt *ret = ustrdup(ga.ga_data == NULL ? str : (uchar_kt *)ga.ga_data);
     ga_clear(&ga);
 
     if(p_cpo == empty_option)

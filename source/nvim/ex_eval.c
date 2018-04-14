@@ -40,7 +40,7 @@
 #include <inttypes.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/ex_eval.h"
 #include "nvim/charset.h"
@@ -214,7 +214,7 @@ int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
         // Prepare the throw of an error exception, so that everything will
         // be aborted (except for executing finally clauses), until the error
         // exception is caught; if still uncaught at the top level, the error
-        // message will be displayed and the script processing terminated then. 
+        // message will be displayed and the script processing terminated then.
         // - This function has no access to the conditional stack.
         //   Thus, the actual throw is made after the failing command
         //   has returned.
@@ -230,7 +230,7 @@ int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
             }
 
             elem = xmalloc(sizeof(errmsg_list_st));
-            elem->msg = vim_strsave(mesg);
+            elem->msg = ustrdup(mesg);
             elem->next = NULL;
             elem->throw_msg = NULL;
             *plist = elem;
@@ -241,7 +241,7 @@ int cause_errthrow(uchar_kt *mesg, int severe, int *ignore)
                 // Skip the extra "Vim " prefix for message "E458".
                 tmsg = elem->msg;
 
-                if(STRNCMP(tmsg, "Vim E", 5) == 0
+                if(ustrncmp(tmsg, "Vim E", 5) == 0
                    && ascii_isdigit(tmsg[5])
                    && ascii_isdigit(tmsg[6])
                    && ascii_isdigit(tmsg[7])
@@ -391,21 +391,18 @@ uchar_kt *get_exception_string(void *value,
 
         if(cmdname != NULL && *cmdname != NUL)
         {
-            size_t cmdlen = STRLEN(cmdname);
+            size_t cmdlen = ustrlen(cmdname);
 
-            ret = vim_strnsave((uchar_kt *)"Vim(",
-                               4
-                               + cmdlen
-                               + 2
-                               + STRLEN(mesg));
+            ret = ustrndup((uchar_kt *)"Vim(",
+                            4 + cmdlen + 2 + ustrlen(mesg));
 
-            STRCPY(&ret[4], cmdname);
-            STRCPY(&ret[4 + cmdlen], "):");
+            ustrcpy(&ret[4], cmdname);
+            ustrcpy(&ret[4 + cmdlen], "):");
             val = ret + 4 + cmdlen + 2;
         }
         else
         {
-            ret = vim_strnsave((uchar_kt *)"Vim:", 4 + STRLEN(mesg));
+            ret = ustrndup((uchar_kt *)"Vim:", 4 + ustrlen(mesg));
             val = ret + 4;
         }
 
@@ -425,7 +422,7 @@ uchar_kt *get_exception_string(void *value,
             {
                 if(*p == NUL || p == mesg)
                 {
-                    STRCAT(val, mesg); // 'E123' missing or at beginning
+                    ustrcat(val, mesg); // 'E123' missing or at beginning
                 }
                 else
                 {
@@ -437,9 +434,9 @@ uchar_kt *get_exception_string(void *value,
                         continue;
                     }
 
-                    STRCAT(val, p);
+                    ustrcat(val, p);
                     p[-2] = NUL;
-                    sprintf((char *)(val + STRLEN(p)), " (%s)", &mesg[1]);
+                    sprintf((char *)(val + ustrlen(p)), " (%s)", &mesg[1]);
                     p[-2] = '"';
                 }
 
@@ -471,7 +468,7 @@ static int throw_exception(void *value, int type, uchar_kt *cmdname)
     // when no active try block is found, see do_cmdline().
     if(type == ET_USER)
     {
-        if(STRNCMP((uchar_kt *)value, "Vim", 3) == 0
+        if(ustrncmp((uchar_kt *)value, "Vim", 3) == 0
            && (((uchar_kt *)value)[3] == NUL || ((uchar_kt *)value)[3] == ':'
                || ((uchar_kt *)value)[3] == '('))
         {
@@ -497,8 +494,8 @@ static int throw_exception(void *value, int type, uchar_kt *cmdname)
     }
 
     excp->type = type;
-    excp->throw_name = vim_strsave(sourcing_name == NULL
-                                   ? (uchar_kt *)"" : sourcing_name);
+    excp->throw_name = ustrdup(sourcing_name == NULL
+                               ? (uchar_kt *)"" : sourcing_name);
     excp->throw_lnum = sourcing_lnum;
 
     if(p_verbose >= 13 || debug_break_level > 0)
@@ -573,7 +570,7 @@ static void discard_exception(excmd_exception_st *excp, int was_finished)
     if(p_verbose >= 13 || debug_break_level > 0)
     {
         int save_msg_silent = msg_silent;
-        saved_IObuff = vim_strsave(IObuff);
+        saved_IObuff = ustrdup(IObuff);
 
         if(debug_break_level > 0)
         {
@@ -612,7 +609,7 @@ static void discard_exception(excmd_exception_st *excp, int was_finished)
             verbose_leave();
         }
 
-        xstrlcpy((char *)IObuff, (const char *)saved_IObuff, IOSIZE);
+        xstrncpy((char *)IObuff, (const char *)saved_IObuff, IOSIZE);
         xfree(saved_IObuff);
     }
 
@@ -650,12 +647,12 @@ static void catch_exception(excmd_exception_st *excp)
     {
         if(excp->throw_lnum != 0)
         {
-            vim_snprintf((char *)IObuff, IOSIZE, _("%s, line %" PRId64),
+            xsnprintf((char *)IObuff, IOSIZE, _("%s, line %" PRId64),
                          excp->throw_name, (int64_t)excp->throw_lnum);
         }
         else
         {
-            vim_snprintf((char *)IObuff, IOSIZE, "%s", excp->throw_name);
+            xsnprintf((char *)IObuff, IOSIZE, "%s", excp->throw_name);
         }
 
         set_vim_var_string(VV_THROWPOINT, (char *) IObuff, -1);
@@ -725,14 +722,14 @@ static void finish_exception(excmd_exception_st *excp)
         {
             if(caught_stack->throw_lnum != 0)
             {
-                vim_snprintf((char *)IObuff, IOSIZE,
-                             _("%s, line %" PRId64), caught_stack->throw_name,
-                             (int64_t)caught_stack->throw_lnum);
+                xsnprintf((char *)IObuff, IOSIZE,
+                          _("%s, line %" PRId64), caught_stack->throw_name,
+                          (int64_t)caught_stack->throw_lnum);
             }
             else
             {
-                vim_snprintf((char *)IObuff, IOSIZE, "%s",
-                             caught_stack->throw_name);
+                xsnprintf((char *)IObuff, IOSIZE, "%s",
+                          caught_stack->throw_name);
             }
 
             set_vim_var_string(VV_THROWPOINT, (char *) IObuff, -1);
@@ -812,8 +809,8 @@ static void report_pending(int action, int pending, void *value)
         default:
             if(pending & kCSTflgThrow)
             {
-                vim_snprintf((char *)IObuff, IOSIZE, mesg, _("Exception"));
-                mesg = (char *)concat_str(IObuff, (uchar_kt *)": %s");
+                xsnprintf((char *)IObuff, IOSIZE, mesg, _("Exception"));
+                mesg = xstrdup_concat((char *)IObuff, ": %s");
                 s = (char *)((excmd_exception_st *)value)->value;
             }
             else if((pending & kCSTflgError) && (pending & kCSTflgInterrupt))
@@ -1628,7 +1625,7 @@ void ex_catch(exargs_st *eap)
                 // Disable error messages, it will
                 // make current exception invalid
                 emsg_off++;
-                regmatch.regprog = vim_regcomp(pat, RE_MAGIC + RE_STRING);
+                regmatch.regprog = regexp_compile(pat, RE_MAGIC + RE_STRING);
                 emsg_off--;
                 regmatch.rm_ic = false;
 

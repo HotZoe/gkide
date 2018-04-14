@@ -5,7 +5,7 @@
 #include <inttypes.h>
 #include <stdbool.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/diff.h"
 #include "nvim/buffer.h"
@@ -618,9 +618,9 @@ static void diff_check_unchanged(tabpage_st *tp, diffblk_st *dp)
             }
 
             uchar_kt *line_org =
-                vim_strsave(ml_get_buf(tp->tp_diffbuf[i_org],
-                                       dp->df_lnum[i_org] + off_org,
-                                       FALSE));
+                ustrdup(ml_get_buf(tp->tp_diffbuf[i_org],
+                                   dp->df_lnum[i_org] + off_org,
+                                   FALSE));
             int i_new;
 
             for(i_new = i_org + 1; i_new < DB_COUNT; ++i_new)
@@ -758,7 +758,7 @@ static void diff_redraw(int dofold)
 static int diff_write(filebuf_st *buf, uchar_kt *fname)
 {
     uchar_kt *save_ff = buf->b_p_ff;
-    buf->b_p_ff = vim_strsave((uchar_kt *)FF_UNIX);
+    buf->b_p_ff = ustrdup((uchar_kt *)FF_UNIX);
 
     int r = buf_write(buf,
                       fname,
@@ -887,7 +887,7 @@ void ex_diffupdate(exargs_st *eap)
                             break;
                         }
 
-                        if(STRNCMP(linebuf, "1c1", 3) == 0)
+                        if(ustrncmp(linebuf, "1c1", 3) == 0)
                         {
                             ok = TRUE;
                         }
@@ -1015,7 +1015,7 @@ static void diff_file(const char *const tmp_orig,
         const size_t len = (strlen(tmp_orig)
                             + strlen(tmp_new)
                             + strlen(tmp_diff)
-                            + STRLEN(p_srr) + 27);
+                            + ustrlen(p_srr) + 27);
 
         char *const cmd = xmalloc(len);
 
@@ -1028,12 +1028,11 @@ static void diff_file(const char *const tmp_orig,
         // Build the diff command and execute it.  Always use -a, binary
         // differences are of no use.  Ignore errors, diff returns
         // non-zero when differences have been found.
-        vim_snprintf(cmd, len, "diff %s%s%s%s%s %s",
-                     diff_a_works ? "-a " : "",
-                     "",
-                     (diff_flags & DIFF_IWHITE) ? "-b " : "",
-                     (diff_flags & DIFF_ICASE) ? "-i " : "",
-                     tmp_orig, tmp_new);
+        xsnprintf(cmd, len, "diff %s%s%s%s%s %s",
+                  diff_a_works ? "-a " : "", "",
+                  (diff_flags & DIFF_IWHITE) ? "-b " : "",
+                  (diff_flags & DIFF_ICASE) ? "-i " : "",
+                  tmp_orig, tmp_new);
 
         append_redir(cmd, len, (char *) p_srr, tmp_diff);
         block_autocmds(); // Avoid ShellCmdPost stuff
@@ -1097,11 +1096,11 @@ void ex_diffpatch(exargs_st *eap)
 #endif
 
 #ifdef UNIX
-    size_t buflen = STRLEN(tmp_orig)
-                    + (fullname != NULL ? STRLEN(fullname) : STRLEN(eap->arg))
-                    + STRLEN(tmp_new) + 16;
+    size_t buflen = ustrlen(tmp_orig)
+                    + (fullname != NULL ? ustrlen(fullname) : ustrlen(eap->arg))
+                    + ustrlen(tmp_new) + 16;
 #else
-    size_t buflen = STRLEN(tmp_orig) + (STRLEN(eap->arg)) + STRLEN(tmp_new) + 16;
+    size_t buflen = ustrlen(tmp_orig) + (ustrlen(eap->arg)) + ustrlen(tmp_new) + 16;
 #endif
 
     buf = xmalloc(buflen);
@@ -1145,19 +1144,19 @@ void ex_diffpatch(exargs_st *eap)
     {
 #ifdef UNIX
         // Build the patch command and execute it. Ignore errors.
-        vim_snprintf((char *)buf,
-                     buflen,
-                     "patch -o %s %s < \"%s\"",
-                     tmp_new,
-                     tmp_orig,
-                     fullname != NULL ? fullname : eap->arg);
+        xsnprintf((char *)buf,
+                  buflen,
+                  "patch -o %s %s < \"%s\"",
+                  tmp_new,
+                  tmp_orig,
+                  fullname != NULL ? fullname : eap->arg);
 #else
-        vim_snprintf((char *)buf,
-                     buflen,
-                     "patch -o %s %s < \"%s\"",
-                     tmp_new,
-                     tmp_orig,
-                     eap->arg);
+        xsnprintf((char *)buf,
+                  buflen,
+                  "patch -o %s %s < \"%s\"",
+                  tmp_new,
+                  tmp_orig,
+                  eap->arg);
 #endif
 
         block_autocmds(); // Avoid ShellCmdPost stuff
@@ -1181,13 +1180,13 @@ void ex_diffpatch(exargs_st *eap)
     redraw_later(CLEAR);
 
     // Delete any .orig or .rej file created.
-    STRCPY(buf, tmp_new);
-    STRCAT(buf, ".orig");
+    ustrcpy(buf, tmp_new);
+    ustrcat(buf, ".orig");
 
     os_remove((char *)buf);
 
-    STRCPY(buf, tmp_new);
-    STRCAT(buf, ".rej");
+    ustrcpy(buf, tmp_new);
+    ustrcat(buf, ".rej");
 
     os_remove((char *)buf);
 
@@ -1204,10 +1203,10 @@ void ex_diffpatch(exargs_st *eap)
     {
         if(curbuf->b_fname != NULL)
         {
-            newname = vim_strnsave(curbuf->b_fname,
-                                   (int)(STRLEN(curbuf->b_fname) + 4));
+            newname = ustrndup(curbuf->b_fname,
+                               (int)(ustrlen(curbuf->b_fname) + 4));
 
-            STRCAT(newname, ".new");
+            ustrcat(newname, ".new");
         }
 
         // don't use a new tab page, each tab page has its own diffs
@@ -1367,7 +1366,7 @@ void diff_win_options(win_st *wp, int addbuf)
             free_string_option(wp->w_o_curbuf.wo_fdm_save);
         }
 
-        wp->w_o_curbuf.wo_fdm_save = vim_strsave(wp->w_o_curbuf.wo_fdm);
+        wp->w_o_curbuf.wo_fdm_save = ustrdup(wp->w_o_curbuf.wo_fdm);
     }
 
     set_string_option_direct((uchar_kt *)"fdm",
@@ -1394,7 +1393,7 @@ void diff_win_options(win_st *wp, int addbuf)
     // make sure topline is not halfway through a fold
     changed_window_setting_win(wp);
 
-    if(vim_strchr(p_sbo, 'h') == NULL)
+    if(ustrchr(p_sbo, 'h') == NULL)
     {
         do_cmdline_cmd("set sbo+=hor");
     }
@@ -1448,7 +1447,7 @@ void ex_diffoff(exargs_st *eap)
 
                 free_string_option(wp->w_o_curbuf.wo_fdm);
                 wp->w_o_curbuf.wo_fdm =
-                    vim_strsave(wp->w_o_curbuf.wo_fdm_save);
+                    ustrdup(wp->w_o_curbuf.wo_fdm_save);
 
                 if(wp->w_o_curbuf.wo_fdc == diff_foldcolumn)
                 {
@@ -1487,7 +1486,7 @@ void ex_diffoff(exargs_st *eap)
     }
 
     // Remove "hor" from from 'scrollopt' if there are no diff windows left.
-    if(!diffwin && (vim_strchr(p_sbo, 'h') != NULL))
+    if(!diffwin && (ustrchr(p_sbo, 'h') != NULL))
     {
         do_cmdline_cmd("set sbo-=hor");
     }
@@ -1963,8 +1962,8 @@ FUNC_ATTR_NONNULL_ARG(1)
     for(int i = 0; i < dp->df_count[idx1]; i++)
     {
         uchar_kt *line =
-            vim_strsave(ml_get_buf(curtab->tp_diffbuf[idx1],
-                                   dp->df_lnum[idx1] + i, false));
+            ustrdup(ml_get_buf(curtab->tp_diffbuf[idx1],
+                               dp->df_lnum[idx1] + i, false));
 
         int cmp =
             diff_cmp(line, ml_get_buf(curtab->tp_diffbuf[idx2],
@@ -1992,7 +1991,7 @@ static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
 {
     if((diff_flags & (DIFF_ICASE | DIFF_IWHITE)) == 0)
     {
-        return STRCMP(s1, s2);
+        return ustrcmp(s1, s2);
     }
 
     if((diff_flags & DIFF_ICASE) && !(diff_flags & DIFF_IWHITE))
@@ -2022,7 +2021,7 @@ static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
 
             if(l > 1)
             {
-                if((STRNCMP(p1, p2, l) != 0)
+                if((ustrncmp(p1, p2, l) != 0)
                    && (!enc_utf8
                        || !(diff_flags & DIFF_ICASE)
                        || (utf_fold(utf_ptr2char(p1))
@@ -2246,37 +2245,37 @@ int diffopt_changed(void)
 
     while(*p != NUL)
     {
-        if(STRNCMP(p, "filler", 6) == 0)
+        if(ustrncmp(p, "filler", 6) == 0)
         {
             p += 6;
             diff_flags_new |= DIFF_FILLER;
         }
-        else if((STRNCMP(p, "context:", 8) == 0) && ascii_isdigit(p[8]))
+        else if((ustrncmp(p, "context:", 8) == 0) && ascii_isdigit(p[8]))
         {
             p += 8;
             diff_context_new = getdigits_int(&p);
         }
-        else if(STRNCMP(p, "icase", 5) == 0)
+        else if(ustrncmp(p, "icase", 5) == 0)
         {
             p += 5;
             diff_flags_new |= DIFF_ICASE;
         }
-        else if(STRNCMP(p, "iwhite", 6) == 0)
+        else if(ustrncmp(p, "iwhite", 6) == 0)
         {
             p += 6;
             diff_flags_new |= DIFF_IWHITE;
         }
-        else if(STRNCMP(p, "horizontal", 10) == 0)
+        else if(ustrncmp(p, "horizontal", 10) == 0)
         {
             p += 10;
             diff_flags_new |= DIFF_HORIZONTAL;
         }
-        else if(STRNCMP(p, "vertical", 8) == 0)
+        else if(ustrncmp(p, "vertical", 8) == 0)
         {
             p += 8;
             diff_flags_new |= DIFF_VERTICAL;
         }
-        else if((STRNCMP(p, "foldcolumn:", 11) == 0) && ascii_isdigit(p[11]))
+        else if((ustrncmp(p, "foldcolumn:", 11) == 0) && ascii_isdigit(p[11]))
         {
             p += 11;
             diff_foldcolumn_new = getdigits_int(&p);
@@ -2348,7 +2347,7 @@ FUNC_ATTR_NONNULL_ALL
     bool added = true;
 
     // Make a copy of the line, the next ml_get() will invalidate it.
-    uchar_kt *line_org = vim_strsave(ml_get_buf(wp->w_buffer, lnum, FALSE));
+    uchar_kt *line_org = ustrdup(ml_get_buf(wp->w_buffer, lnum, FALSE));
 
     int idx = diff_buf_idx(wp->w_buffer);
 
@@ -2434,8 +2433,8 @@ FUNC_ATTR_NONNULL_ALL
             // Search for end of difference, if any.
             if((line_org[si_org] != NUL) || (line_new[si_new] != NUL))
             {
-                ei_org = (int)STRLEN(line_org);
-                ei_new = (int)STRLEN(line_new);
+                ei_org = (int)ustrlen(line_org);
+                ei_new = (int)ustrlen(line_new);
 
                 while(ei_org >= *startp
                       && ei_new >= si_new
@@ -2566,7 +2565,7 @@ void nv_diffgetput(bool put, size_t count)
     }
     else
     {
-        vim_snprintf(buf, 30, "%zu", count);
+        xsnprintf(buf, 30, "%zu", count);
         ea.arg = (uchar_kt *)buf;
     }
 
@@ -2667,7 +2666,7 @@ void ex_diffgetput(exargs_st *eap)
     {
         // Buffer number or pattern given.
         // Ignore trailing white space.
-        p = eap->arg + STRLEN(eap->arg);
+        p = eap->arg + ustrlen(eap->arg);
 
         while(p > eap->arg && ascii_iswhite(p[-1]))
         {
@@ -2866,8 +2865,7 @@ void ex_diffgetput(exargs_st *eap)
                     break;
                 }
 
-                p = vim_strsave(ml_get_buf(curtab->tp_diffbuf[idx_from],
-                                           nr, FALSE));
+                p = ustrdup(ml_get_buf(curtab->tp_diffbuf[idx_from], nr, FALSE));
 
                 ml_append(lnum + i - 1, p, 0, FALSE);
                 xfree(p);

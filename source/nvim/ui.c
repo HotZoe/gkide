@@ -6,7 +6,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ui.h"
 #include "nvim/charset.h"
 #include "nvim/cursor.h"

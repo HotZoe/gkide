@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 #include "nvim/api/private/defs.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/memory.h"
 #include "nvim/lib/kvec.h"
 

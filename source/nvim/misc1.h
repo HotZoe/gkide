@@ -3,7 +3,7 @@
 #ifndef NVIM_MISC1_H
 #define NVIM_MISC1_H
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/os/shell.h"
 
 // flags for open_line()

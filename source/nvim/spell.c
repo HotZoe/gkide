@@ -84,7 +84,7 @@
 
 #include <stddef.h>  // for offsetof()
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/spell.h"
 #include "nvim/buffer.h"
@@ -173,7 +173,7 @@ typedef struct suginfo_s
 typedef struct suggest_s
 {
     uchar_kt *st_word;  ///< suggested word, allocated string
-    int st_wordlen;     ///< STRLEN(st_word)
+    int st_wordlen;     ///< ustrlen(st_word)
     int st_orglen;      ///< length of replaced text
     int st_score;       ///< lower is better
     int st_altscore;    ///< used when st_score compares equal
@@ -466,7 +466,7 @@ size_t spell_check(win_st *wp,
                          mi.mi_fword,
                          MAXWLEN + 1);
 
-    mi.mi_fwordlen = (int)STRLEN(mi.mi_fword);
+    mi.mi_fwordlen = (int)ustrlen(mi.mi_fword);
     mi.mi_result = SP_BAD; // The word is bad unless we recognize it.
     mi.mi_result2 = SP_BAD;
 
@@ -835,7 +835,7 @@ static void find_word(matchinf_st *mip, int mode)
             // case-folded word is equal to the keep-case word.
             p = mip->mi_word;
 
-            if(STRNCMP(ptr, p, wlen) != 0)
+            if(ustrncmp(ptr, p, wlen) != 0)
             {
                 for(uchar_kt *s = ptr; s < ptr + wlen; mb_ptr_adv(s))
                 {
@@ -982,7 +982,7 @@ static void find_word(matchinf_st *mip, int mode)
                     // Need to check the caps type
                     // of the appended compound word.
                     if(has_mbyte
-                       && STRNCMP(ptr, mip->mi_word, mip->mi_compoff) != 0)
+                       && ustrncmp(ptr, mip->mi_word, mip->mi_compoff) != 0)
                     {
                         // case folding may have changed the length
                         p = mip->mi_word;
@@ -1043,7 +1043,7 @@ static void find_word(matchinf_st *mip, int mode)
                         }
                         else
                         {
-                            STRLCPY(fword, ptr, endlen[endidxcnt] + 1);
+                            ustrlcpy(fword, ptr, endlen[endidxcnt] + 1);
                         }
                     }
 
@@ -1095,7 +1095,7 @@ static void find_word(matchinf_st *mip, int mode)
                     // the case-folded word is equal to the keep-case word.
                     p = mip->mi_fword;
 
-                    if(STRNCMP(ptr, p, wlen) != 0)
+                    if(ustrncmp(ptr, p, wlen) != 0)
                     {
                         for(uchar_kt *s = ptr; s < ptr + wlen; mb_ptr_adv(s))
                         {
@@ -1271,14 +1271,14 @@ static bool match_checkcompoundpattern(uchar_kt *ptr, int wlen, garray_st *gap)
     {
         p = ((uchar_kt **)gap->ga_data)[i + 1];
 
-        if(STRNCMP(ptr + wlen, p, STRLEN(p)) == 0)
+        if(ustrncmp(ptr + wlen, p, ustrlen(p)) == 0)
         {
             // Second part matches at start of following compound word, now
             // check if first part matches at end of previous word.
             p = ((uchar_kt **)gap->ga_data)[i];
-            len = (int)STRLEN(p);
+            len = (int)ustrlen(p);
 
-            if(len <= wlen && STRNCMP(ptr + wlen - len, p, len) == 0)
+            if(len <= wlen && ustrncmp(ptr + wlen - len, p, len) == 0)
             {
                 return true;
             }
@@ -1330,7 +1330,7 @@ static bool can_compound(slang_st *slang, uchar_kt *word, uchar_kt *flags)
     if(slang->sl_compsylmax < MAXWLEN
        && count_syllables(slang, word) > slang->sl_compsylmax)
     {
-        return (int)STRLEN(flags) < slang->sl_compmax;
+        return (int)ustrlen(flags) < slang->sl_compmax;
     }
 
     return true;
@@ -1426,7 +1426,7 @@ static bool match_compoundrule(slang_st *slang, uchar_kt *compflags)
         }
 
         // Skip to the next "/", where the next pattern starts.
-        p = vim_strchr(p, '/');
+        p = ustrchr(p, '/');
 
         if(p == NULL)
         {
@@ -1671,7 +1671,7 @@ static int fold_more(matchinf_st *mip)
                          mip->mi_fword + mip->mi_fwordlen,
                          MAXWLEN - mip->mi_fwordlen);
 
-    flen = (int)STRLEN(mip->mi_fword + mip->mi_fwordlen);
+    flen = (int)ustrlen(mip->mi_fword + mip->mi_fwordlen);
     mip->mi_fwordlen += flen;
     return flen;
 }
@@ -1765,7 +1765,7 @@ size_t spell_move_to(win_st *wp,
     while(!got_int)
     {
         line = ml_get_buf(wp->w_buffer, lnum, FALSE);
-        len = STRLEN(line);
+        len = ustrlen(line);
 
         if(buflen < len + MAXWLEN + 2)
         {
@@ -1803,11 +1803,11 @@ size_t spell_move_to(win_st *wp,
 
         // Copy the line into "buf" and append
         // the start of the next line if possible.
-        STRCPY(buf, line);
+        ustrcpy(buf, line);
 
         if(lnum < wp->w_buffer->b_ml.ml_line_count)
         {
-            spell_cat_line(buf + STRLEN(buf),
+            spell_cat_line(buf + ustrlen(buf),
                            ml_get_buf(wp->w_buffer, lnum + 1, FALSE),
                            MAXWLEN);
         }
@@ -2022,7 +2022,7 @@ void spell_cat_line(uchar_kt *buf, uchar_kt *line, int maxlen)
     int n;
     p = skipwhite(line);
 
-    while(vim_strchr((uchar_kt *)"*#/\"\t", *p) != NULL)
+    while(ustrchr((uchar_kt *)"*#/\"\t", *p) != NULL)
     {
         p = skipwhite(p + 1);
     }
@@ -2036,7 +2036,7 @@ void spell_cat_line(uchar_kt *buf, uchar_kt *line, int maxlen)
         if(n < maxlen - 1)
         {
             memset(buf, ' ', n);
-            STRLCPY(buf +  n, p, maxlen - n);
+            ustrlcpy(buf +  n, p, maxlen - n);
         }
     }
 }
@@ -2052,7 +2052,7 @@ static void spell_load_lang(uchar_kt *lang)
 
     // Copy the language name to pass it to spell_load_cb() as a cookie.
     // It's truncated when an error is detected.
-    STRCPY(sl.sl_lang, lang);
+    ustrcpy(sl.sl_lang, lang);
     sl.sl_slang = NULL;
     sl.sl_nobreak = false;
 
@@ -2061,21 +2061,21 @@ static void spell_load_lang(uchar_kt *lang)
     for(round = 1; round <= 2; ++round)
     {
         // Find the first spell file for "lang" in 'runtimepath' and load it.
-        vim_snprintf((char *)fname_enc,
-                     sizeof(fname_enc) - 5,
-                     "spell/%s.%s.spl",
-                     lang,
-                     spell_enc());
+        xsnprintf((char *)fname_enc,
+                  sizeof(fname_enc) - 5,
+                  "spell/%s.%s.spl",
+                  lang,
+                  spell_enc());
 
         r = do_in_runtimepath(fname_enc, 0, spell_load_cb, &sl);
 
         if(r == FAIL && *sl.sl_lang != NUL)
         {
             // Try loading the ASCII version.
-            vim_snprintf((char *)fname_enc,
-                         sizeof(fname_enc) - 5,
-                         "spell/%s.ascii.spl",
-                         lang);
+            xsnprintf((char *)fname_enc,
+                      sizeof(fname_enc) - 5,
+                      "spell/%s.ascii.spl",
+                      lang);
             r = do_in_runtimepath(fname_enc, 0, spell_load_cb, &sl);
 
             if(r == FAIL
@@ -2114,7 +2114,7 @@ static void spell_load_lang(uchar_kt *lang)
     else if(sl.sl_slang != NULL)
     {
         // At least one file was loaded, now load ALL the additions.
-        STRCPY(fname_enc + STRLEN(fname_enc) - 3, "add.spl");
+        ustrcpy(fname_enc + ustrlen(fname_enc) - 3, "add.spl");
         do_in_runtimepath(fname_enc, DIP_ALL, spell_load_cb, &sl);
     }
 }
@@ -2123,7 +2123,7 @@ static void spell_load_lang(uchar_kt *lang)
 /// use "latin1" for "latin9". And limit to 60 characters (just in case).
 uchar_kt *spell_enc(void)
 {
-    if(STRLEN(p_enc) < 60 && STRCMP(p_enc, "iso-8859-15") != 0)
+    if(ustrlen(p_enc) < 60 && ustrcmp(p_enc, "iso-8859-15") != 0)
     {
         return p_enc;
     }
@@ -2135,8 +2135,8 @@ uchar_kt *spell_enc(void)
 /// the internal wordlist into "fname[MAXPATHL]".
 static void int_wordlist_spl(uchar_kt *fname)
 {
-    vim_snprintf((char *)fname, MAXPATHL,
-                 SPL_FNAME_TMPL, int_wordlist, spell_enc());
+    xsnprintf((char *)fname, MAXPATHL,
+              SPL_FNAME_TMPL, int_wordlist, spell_enc());
 }
 
 /// Allocate a new slang_st for language @b lang
@@ -2147,7 +2147,7 @@ slang_st *slang_alloc(uchar_kt *lang)
 
     if(lang != NULL)
     {
-        lp->sl_name = vim_strsave(lang);
+        lp->sl_name = ustrdup(lang);
     }
 
     ga_init(&lp->sl_rep, sizeof(fromto_st), 10);
@@ -2333,12 +2333,12 @@ void count_common_word(slang_st *lp, uchar_kt *word, int len, int count)
     }
     else
     {
-        STRLCPY(buf, word, len + 1);
+        ustrlcpy(buf, word, len + 1);
         p = buf;
     }
 
     hash = hash_hash(p);
-    const size_t p_len = STRLEN(p);
+    const size_t p_len = ustrlen(p);
     hi = hash_lookup(&lp->sl_wordcount, (const char *)p, p_len, hash);
 
     if(HASHITEM_EMPTY(hi))
@@ -2434,7 +2434,7 @@ int init_syl_tab(slang_st *slang)
     uchar_kt *s;
     int l;
     ga_init(&slang->sl_syl_items, sizeof(syl_item_st), 4);
-    p = vim_strchr(slang->sl_syllable, '/');
+    p = ustrchr(slang->sl_syllable, '/');
 
     while(p != NULL)
     {
@@ -2446,11 +2446,11 @@ int init_syl_tab(slang_st *slang)
         }
 
         s = p;
-        p = vim_strchr(p, '/');
+        p = ustrchr(p, '/');
 
         if(p == NULL)
         {
-            l = (int)STRLEN(s);
+            l = (int)ustrlen(s);
         }
         else
         {
@@ -2463,7 +2463,7 @@ int init_syl_tab(slang_st *slang)
         }
 
         syl_item_st *syl = GA_APPEND_VIA_PTR(syl_item_st, &slang->sl_syl_items);
-        STRLCPY(syl->sy_chars, s, l + 1);
+        ustrlcpy(syl->sy_chars, s, l + 1);
         syl->sy_len = l;
     }
 
@@ -2505,7 +2505,7 @@ static int count_syllables(slang_st *slang, uchar_kt *word)
             syl = ((syl_item_st *)slang->sl_syl_items.ga_data) + i;
 
             if(syl->sy_len > len
-               && STRNCMP(p, syl->sy_chars, syl->sy_len) == 0)
+               && ustrncmp(p, syl->sy_chars, syl->sy_len) == 0)
             {
                 len = syl->sy_len;
             }
@@ -2522,7 +2522,7 @@ static int count_syllables(slang_st *slang, uchar_kt *word)
             c = mb_ptr2char(p);
             len = (*mb_ptr2len)(p);
 
-            if(vim_strchr(slang->sl_syllable, c) == NULL)
+            if(ustrchr(slang->sl_syllable, c) == NULL)
             {
                 skip = false; // No, search for next syllable
             }
@@ -2579,7 +2579,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
 
     // Make a copy of 'spelllang', the SpellFileMissing
     // autocommands may change it under our fingers.
-    spl_copy = vim_strsave(wp->w_s->b_p_spl);
+    spl_copy = ustrdup(wp->w_s->b_p_spl);
     wp->w_s->b_cjk = 0;
 
     // Loop over comma separated language names.
@@ -2588,9 +2588,9 @@ uchar_kt *did_set_spelllang(win_st *wp)
         // Get one language name.
         copy_option_part(&splp, lang, MAXWLEN, ",");
         region = NULL;
-        len = (int)STRLEN(lang);
+        len = (int)ustrlen(lang);
 
-        if(STRCMP(lang, "cjk") == 0)
+        if(ustrcmp(lang, "cjk") == 0)
         {
             wp->w_s->b_cjk = 1;
             continue;
@@ -2603,14 +2603,14 @@ uchar_kt *did_set_spelllang(win_st *wp)
         {
             filename = true;
             // Locate a region and remove it from the file name.
-            p = vim_strchr(path_tail(lang), '_');
+            p = ustrchr(path_tail(lang), '_');
 
             if(p != NULL
                && ASCII_ISALPHA(p[1])
                && ASCII_ISALPHA(p[2])
                && !ASCII_ISALPHA(p[3]))
             {
-                STRLCPY(region_cp, p + 1, 3);
+                ustrlcpy(region_cp, p + 1, 3);
                 memmove(p, p + 3, len - (p - lang) - 2);
                 region = region_cp;
             }
@@ -2647,7 +2647,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
             // Check if we loaded this language before.
             for(slang = first_lang; slang != NULL; slang = slang->sl_next)
             {
-                if(STRICMP(lang, slang->sl_name) == 0)
+                if(ustricmp(lang, slang->sl_name) == 0)
                 {
                     break;
                 }
@@ -2658,7 +2658,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
         {
             // If the region differs from what was used
             // before then don't use it for 'spellfile'.
-            if(use_region != NULL && STRCMP(region, use_region) != 0)
+            if(use_region != NULL && ustrcmp(region, use_region) != 0)
             {
                 dont_use_region = true;
             }
@@ -2693,7 +2693,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
         {
             if(filename
                ? path_full_compare(lang, slang->sl_fname, FALSE) == kEqualFiles
-               : STRICMP(lang, slang->sl_name) == 0)
+               : ustricmp(lang, slang->sl_name) == 0)
             {
                 region_mask = REGION_ALL;
 
@@ -2763,7 +2763,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
         {
             // One entry in 'spellfile'.
             copy_option_part(&spf, spf_name, MAXPATHL - 5, ",");
-            STRCAT(spf_name, ".spl");
+            ustrcat(spf_name, ".spl");
 
             // If it was already found above then skip it.
             for(c = 0; c < ga.ga_len; ++c)
@@ -2801,12 +2801,12 @@ uchar_kt *did_set_spelllang(win_st *wp)
             // use an arbitrary name.
             if(round == 0)
             {
-                STRCPY(lang, "internal wordlist");
+                ustrcpy(lang, "internal wordlist");
             }
             else
             {
-                STRLCPY(lang, path_tail(spf_name), MAXWLEN + 1);
-                p = vim_strchr(lang, '.');
+                ustrlcpy(lang, path_tail(spf_name), MAXWLEN + 1);
+                p = ustrchr(lang, '.');
 
                 if(p != NULL)
                 {
@@ -2880,7 +2880,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
                 lp2 = LANGP_ENTRY(ga, j);
 
                 if(!GA_EMPTY(&lp2->lp_slang->sl_sal)
-                   && STRNCMP(lp->lp_slang->sl_name,
+                   && ustrncmp(lp->lp_slang->sl_name,
                               lp2->lp_slang->sl_name,
                               2) == 0)
                 {
@@ -2904,7 +2904,7 @@ uchar_kt *did_set_spelllang(win_st *wp)
                 lp2 = LANGP_ENTRY(ga, j);
 
                 if(!GA_EMPTY(&lp2->lp_slang->sl_rep)
-                   && STRNCMP(lp->lp_slang->sl_name,
+                   && ustrncmp(lp->lp_slang->sl_name,
                               lp2->lp_slang->sl_name,
                               2) == 0)
                 {
@@ -2960,16 +2960,16 @@ static void use_midword(slang_st *lp, win_st *wp)
             else if(wp->w_s->b_spell_ismw_mb == NULL)
             {
                 // First multi-byte char in "b_spell_ismw_mb".
-                wp->w_s->b_spell_ismw_mb = vim_strnsave(p, l);
+                wp->w_s->b_spell_ismw_mb = ustrndup(p, l);
             }
             else
             {
                 // Append multi-byte chars to "b_spell_ismw_mb".
-                n = (int)STRLEN(wp->w_s->b_spell_ismw_mb);
-                bp = vim_strnsave(wp->w_s->b_spell_ismw_mb, n + l);
+                n = (int)ustrlen(wp->w_s->b_spell_ismw_mb);
+                bp = ustrndup(wp->w_s->b_spell_ismw_mb, n + l);
                 xfree(wp->w_s->b_spell_ismw_mb);
                 wp->w_s->b_spell_ismw_mb = bp;
-                STRLCPY(bp + n, p, l + 1);
+                ustrlcpy(bp + n, p, l + 1);
             }
 
             p += l;
@@ -3355,7 +3355,7 @@ static bool spell_iswordp(uchar_kt *p, win_st *wp)
             if(c < 256
                ? wp->w_s->b_spell_ismw[c]
                : (wp->w_s->b_spell_ismw_mb != NULL
-                  && vim_strchr(wp->w_s->b_spell_ismw_mb, c) != NULL))
+                  && ustrchr(wp->w_s->b_spell_ismw_mb, c) != NULL))
             {
                 s = p + l;
             }
@@ -3419,7 +3419,7 @@ static bool spell_iswordp_w(int *p, win_st *wp)
     if(*p < 256
        ? wp->w_s->b_spell_ismw[*p]
        : (wp->w_s->b_spell_ismw_mb != NULL
-          && vim_strchr(wp->w_s->b_spell_ismw_mb, *p) != NULL))
+          && ustrchr(wp->w_s->b_spell_ismw_mb, *p) != NULL))
     {
         s = p + 1;
     }
@@ -3519,20 +3519,20 @@ int spell_check_sps(void)
                 f = -1;
             }
         }
-        else if(STRCMP(buf, "best") == 0)
+        else if(ustrcmp(buf, "best") == 0)
         {
             f = SPS_BEST;
         }
-        else if(STRCMP(buf, "fast") == 0)
+        else if(ustrcmp(buf, "fast") == 0)
         {
             f = SPS_FAST;
         }
-        else if(STRCMP(buf, "double") == 0)
+        else if(ustrcmp(buf, "double") == 0)
         {
             f = SPS_DOUBLE;
         }
-        else if(STRNCMP(buf, "expr:", 5) != 0
-                && STRNCMP(buf, "file:", 5) != 0)
+        else if(ustrncmp(buf, "expr:", 5) != 0
+                && ustrncmp(buf, "file:", 5) != 0)
         {
             f = -1;
         }
@@ -3646,7 +3646,7 @@ void spell_suggest(int count)
     need_cap = check_need_cap(curwin->w_cursor.lnum, curwin->w_cursor.col);
 
     // Make a copy of current line since autocommands may free the line.
-    line = vim_strsave(get_cursor_line_ptr());
+    line = ustrdup(get_cursor_line_ptr());
 
     // Get the list of suggestions. Limit to 'lines' - 2 or the number in
     // 'spellsuggest', whatever is smaller.
@@ -3693,15 +3693,15 @@ void spell_suggest(int count)
         msg_row = Rows - 1; // for when 'cmdheight' > 1
         lines_left = Rows; // avoid more prompt
 
-        vim_snprintf((char *)IObuff, IOSIZE, _("Change \"%.*s\" to:"),
-                     sug.su_badlen, sug.su_badptr);
+        xsnprintf((char *)IObuff, IOSIZE, _("Change \"%.*s\" to:"),
+                  sug.su_badlen, sug.su_badptr);
 
-        if(cmdmsg_rl && STRNCMP(IObuff, "Change", 6) == 0)
+        if(cmdmsg_rl && ustrncmp(IObuff, "Change", 6) == 0)
         {
             // And now the rabbit from the high hat:
             // Avoid showing the untranslated message rightleft.
-            vim_snprintf((char *)IObuff, IOSIZE, ":ot \"%.*s\" egnahC",
-                         sug.su_badlen, sug.su_badptr);
+            xsnprintf((char *)IObuff, IOSIZE, ":ot \"%.*s\" egnahC",
+                      sug.su_badlen, sug.su_badptr);
         }
 
         msg_puts((const char *)IObuff);
@@ -3715,16 +3715,16 @@ void spell_suggest(int count)
 
             // The suggested word may replace only part
             // of the bad word, add the not replaced part.
-            STRLCPY(wcopy, stp->st_word, MAXWLEN + 1);
+            ustrlcpy(wcopy, stp->st_word, MAXWLEN + 1);
 
             if(sug.su_badlen > stp->st_orglen)
             {
-                STRLCPY(wcopy + stp->st_wordlen,
+                ustrlcpy(wcopy + stp->st_wordlen,
                         sug.su_badptr + stp->st_orglen,
                         sug.su_badlen - stp->st_orglen + 1);
             }
 
-            vim_snprintf((char *)IObuff, IOSIZE, "%2d", i + 1);
+            xsnprintf((char *)IObuff, IOSIZE, "%2d", i + 1);
 
             if(cmdmsg_rl)
             {
@@ -3732,13 +3732,13 @@ void spell_suggest(int count)
             }
 
             msg_puts((const char *)IObuff);
-            vim_snprintf((char *)IObuff, IOSIZE, " \"%s\"", wcopy);
+            xsnprintf((char *)IObuff, IOSIZE, " \"%s\"", wcopy);
             msg_puts((const char *)IObuff);
 
             // The word may replace more than "su_badlen".
             if(sug.su_badlen < stp->st_orglen)
             {
-                vim_snprintf((char *)IObuff, IOSIZE, _(" < \"%.*s\""),
+                xsnprintf((char *)IObuff, IOSIZE, _(" < \"%.*s\""),
                              stp->st_orglen, sug.su_badptr);
 
                 msg_puts((const char *)IObuff);
@@ -3749,14 +3749,13 @@ void spell_suggest(int count)
                 // Add the score.
                 if(sps_flags & (SPS_DOUBLE | SPS_BEST))
                 {
-                    vim_snprintf((char *)IObuff, IOSIZE, " (%s%d - %d)",
-                                 stp->st_salscore ? "s " : "",
-                                 stp->st_score, stp->st_altscore);
+                    xsnprintf((char *)IObuff, IOSIZE, " (%s%d - %d)",
+                              stp->st_salscore ? "s " : "",
+                              stp->st_score, stp->st_altscore);
                 }
                 else
                 {
-                    vim_snprintf((char *)IObuff, IOSIZE,
-                                 " (%d)", stp->st_score);
+                    xsnprintf((char *)IObuff, IOSIZE, " (%d)", stp->st_score);
                 }
 
                 if(cmdmsg_rl)
@@ -3801,27 +3800,27 @@ void spell_suggest(int count)
         {
             // Replacing less than "su_badlen",
             // append the remainder to repl_to.
-            repl_from = vim_strnsave(sug.su_badptr, sug.su_badlen);
+            repl_from = ustrndup(sug.su_badptr, sug.su_badlen);
 
-            vim_snprintf((char *)IObuff, IOSIZE, "%s%.*s", stp->st_word,
-                         sug.su_badlen - stp->st_orglen,
-                         sug.su_badptr + stp->st_orglen);
+            xsnprintf((char *)IObuff, IOSIZE, "%s%.*s", stp->st_word,
+                      sug.su_badlen - stp->st_orglen,
+                      sug.su_badptr + stp->st_orglen);
 
-            repl_to = vim_strsave(IObuff);
+            repl_to = ustrdup(IObuff);
         }
         else
         {
             // Replacing su_badlen or more, use the whole word.
-            repl_from = vim_strnsave(sug.su_badptr, stp->st_orglen);
-            repl_to = vim_strsave(stp->st_word);
+            repl_from = ustrndup(sug.su_badptr, stp->st_orglen);
+            repl_to = ustrdup(stp->st_word);
         }
 
         // Replace the word.
-        p = xmalloc(STRLEN(line) - stp->st_orglen + stp->st_wordlen + 1);
+        p = xmalloc(ustrlen(line) - stp->st_orglen + stp->st_wordlen + 1);
         c = (int)(sug.su_badptr - line);
         memmove(p, line, c);
-        STRCPY(p + c, stp->st_word);
-        STRCAT(p, sug.su_badptr + stp->st_orglen);
+        ustrcpy(p + c, stp->st_word);
+        ustrcat(p, sug.su_badptr + stp->st_orglen);
         ml_replace(curwin->w_cursor.lnum, p, FALSE);
         curwin->w_cursor.col = c;
         // For redo we use a change-word command.
@@ -3883,9 +3882,9 @@ static bool check_need_cap(linenum_kt lnum, columnum_kt col)
             else
             {
                 // Append a space in place of the line break.
-                line_copy = concat_str(line, (uchar_kt *)" ");
+                line_copy = ustrdup_concat(line, (uchar_kt *)" ");
                 line = line_copy;
-                endcol = (columnum_kt)STRLEN(line);
+                endcol = (columnum_kt)ustrlen(line);
             }
         }
     }
@@ -3944,8 +3943,8 @@ void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
         return;
     }
 
-    addlen = (int)(STRLEN(repl_to) - STRLEN(repl_from));
-    frompat = xmalloc(STRLEN(repl_from) + 7);
+    addlen = (int)(ustrlen(repl_to) - ustrlen(repl_from));
+    frompat = xmalloc(ustrlen(repl_from) + 7);
     sprintf((char *)frompat, "\\V\\<%s\\>", repl_from);
     p_ws = false;
     sub_nsubs = 0;
@@ -3964,13 +3963,13 @@ void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
         // This happens when changing "etc" to "etc.".
         line = get_cursor_line_ptr();
 
-        if(addlen <= 0 || STRNCMP(line + curwin->w_cursor.col,
-                                  repl_to, STRLEN(repl_to)) != 0)
+        if(addlen <= 0 || ustrncmp(line + curwin->w_cursor.col,
+                                  repl_to, ustrlen(repl_to)) != 0)
         {
-            p = xmalloc(STRLEN(line) + addlen + 1);
+            p = xmalloc(ustrlen(line) + addlen + 1);
             memmove(p, line, curwin->w_cursor.col);
-            STRCPY(p + curwin->w_cursor.col, repl_to);
-            STRCAT(p, line + curwin->w_cursor.col + STRLEN(repl_from));
+            ustrcpy(p + curwin->w_cursor.col, repl_to);
+            ustrcat(p, line + curwin->w_cursor.col + ustrlen(repl_from));
             ml_replace(curwin->w_cursor.lnum, p, FALSE);
             changed_bytes(curwin->w_cursor.lnum, curwin->w_cursor.col);
 
@@ -3983,7 +3982,7 @@ void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
             ++sub_nsubs;
         }
 
-        curwin->w_cursor.col += (columnum_kt)STRLEN(repl_to);
+        curwin->w_cursor.col += (columnum_kt)ustrlen(repl_to);
     }
 
     p_ws = save_ws;
@@ -4031,11 +4030,11 @@ void spell_suggest_list(garray_st *gap,
         // The suggested word may replace only
         // part of "word", add the not replaced part.
         wcopy = xmalloc(stp->st_wordlen
-                        + STRLEN(sug.su_badptr + stp->st_orglen)
+                        + ustrlen(sug.su_badptr + stp->st_orglen)
                         + 1);
 
-        STRCPY(wcopy, stp->st_word);
-        STRCPY(wcopy + stp->st_wordlen, sug.su_badptr + stp->st_orglen);
+        ustrcpy(wcopy, stp->st_word);
+        ustrcpy(wcopy + stp->st_wordlen, sug.su_badptr + stp->st_orglen);
 
         ((uchar_kt **)gap->ga_data)[gap->ga_len++] = wcopy;
     }
@@ -4109,7 +4108,7 @@ static void spell_find_suggest(uchar_kt *badptr,
         su->su_badlen = MAXWLEN - 1; // just in case
     }
 
-    STRLCPY(su->su_badword, su->su_badptr, su->su_badlen + 1);
+    ustrlcpy(su->su_badword, su->su_badptr, su->su_badlen + 1);
 
     (void)spell_casefold(su->su_badptr,
                          su->su_badlen,
@@ -4177,14 +4176,14 @@ static void spell_find_suggest(uchar_kt *badptr,
     }
 
     // Make a copy of 'spellsuggest', because the expression may change it.
-    sps_copy = vim_strsave(p_sps);
+    sps_copy = ustrdup(p_sps);
 
     // Loop over the items in 'spellsuggest'.
     for(p = sps_copy; *p != NUL;)
     {
         copy_option_part(&p, buf, MAXPATHL, ",");
 
-        if(STRNCMP(buf, "expr:", 5) == 0)
+        if(ustrncmp(buf, "expr:", 5) == 0)
         {
             // Evaluate an expression. Skip this when called recursively,
             // when using spellsuggest() in the expression.
@@ -4195,7 +4194,7 @@ static void spell_find_suggest(uchar_kt *badptr,
                 expr_busy = false;
             }
         }
-        else if(STRNCMP(buf, "file:", 5) == 0)
+        else if(ustrncmp(buf, "file:", 5) == 0)
             // Use list of suggestions in a file.
         {
             spell_suggest_file(su, buf + 5);
@@ -4290,7 +4289,7 @@ static void spell_suggest_file(suginfo_st *su, uchar_kt *fname)
     while(!vim_fgets(line, MAXWLEN * 2, fd) && !got_int)
     {
         line_breakcheck();
-        p = vim_strchr(line, '/');
+        p = ustrchr(line, '/');
 
         if(p == NULL)
         {
@@ -4299,7 +4298,7 @@ static void spell_suggest_file(suginfo_st *su, uchar_kt *fname)
 
         *p++ = NUL;
 
-        if(STRICMP(su->su_badword, line) == 0)
+        if(ustricmp(su->su_badword, line) == 0)
         {
             // Match! Isolate the good word, until CR or NL.
             for(len = 0; p[len] >= ' '; ++len)
@@ -4486,7 +4485,7 @@ void onecap_copy(uchar_kt *word, uchar_kt *wcopy, bool upper)
         wcopy[0] = c;
     }
 
-    STRLCPY(wcopy + l, p, MAXWLEN - l);
+    ustrlcpy(wcopy + l, p, MAXWLEN - l);
 }
 
 // Make a copy of "word" with all the letters upper cased into
@@ -4560,7 +4559,7 @@ static void suggest_try_special(suginfo_st *su)
     len = p - su->su_fbadword;
     p = skipwhite(p);
 
-    if(STRLEN(p) == len && STRNCMP(su->su_fbadword, p, len) == 0)
+    if(ustrlen(p) == len && ustrncmp(su->su_fbadword, p, len) == 0)
     {
         // Include badflags: if the badword is onecap or allcap
         // use that for the goodword too: "The the" -> "The".
@@ -4648,10 +4647,10 @@ static void suggest_try_change(suginfo_st *su)
     // We make a copy of the case-folded bad word, so that we can modify it
     // to find matches (esp. REP items). Append some more text, changing
     // chars after the bad word may help.
-    STRCPY(fword, su->su_fbadword);
-    n = (int)STRLEN(fword);
+    ustrcpy(fword, su->su_fbadword);
+    n = (int)ustrlen(fword);
     p = su->su_badptr + su->su_badlen;
-    (void)spell_casefold(p, (int)STRLEN(p), fword + n, MAXWLEN - n);
+    (void)spell_casefold(p, (int)ustrlen(p), fword + n, MAXWLEN - n);
 
     for(int lpi = 0; lpi < curwin->w_s->b_langp.ga_len; ++lpi)
     {
@@ -4870,7 +4869,7 @@ static void suggest_trie_walk(suginfo_st *su,
                                        preword + sp->ts_prewordlen,
                                        flags);
 
-                        sp->ts_prewordlen = (uchar_kt)STRLEN(preword);
+                        sp->ts_prewordlen = (uchar_kt)ustrlen(preword);
                         sp->ts_splitoff = sp->ts_twordlen;
                     }
 
@@ -4971,7 +4970,7 @@ static void suggest_trie_walk(suginfo_st *su,
                         // too, we need to check if a correct word follows.
                         if(sp->ts_fidx - sp->ts_splitfidx
                            == sp->ts_twordlen - sp->ts_splitoff
-                           && STRNCMP(fword + sp->ts_splitfidx,
+                           && ustrncmp(fword + sp->ts_splitfidx,
                                       tword + sp->ts_splitoff,
                                       sp->ts_fidx - sp->ts_splitfidx) == 0)
                         {
@@ -5026,9 +5025,9 @@ static void suggest_trie_walk(suginfo_st *su,
                         compflags[sp->ts_complen] = ((unsigned)flags >> 24);
                         compflags[sp->ts_complen + 1] = NUL;
 
-                        STRLCPY(preword + sp->ts_prewordlen,
-                                tword + sp->ts_splitoff,
-                                sp->ts_twordlen - sp->ts_splitoff + 1);
+                        ustrlcpy(preword + sp->ts_prewordlen,
+                                 tword + sp->ts_splitoff,
+                                 sp->ts_twordlen - sp->ts_splitoff + 1);
 
                         // Verify CHECKCOMPOUNDPATTERN rules.
                         if(match_checkcompoundpattern(preword,
@@ -5068,7 +5067,7 @@ static void suggest_trie_walk(suginfo_st *su,
                 // For the soundfold tree don't change the case, simply append.
                 if(soundfold)
                 {
-                    STRCPY(preword + sp->ts_prewordlen,
+                    ustrcpy(preword + sp->ts_prewordlen,
                            tword + sp->ts_splitoff);
                 }
                 else if(flags & WF_KEEPCAP)
@@ -5159,7 +5158,7 @@ static void suggest_trie_walk(suginfo_st *su,
                 {
                     #ifdef DEBUG_TRIEWALK
                     // The badword also ends: add suggestions.
-                    if(soundfold && STRCMP(preword, "smwrd") == 0)
+                    if(soundfold && ustrcmp(preword, "smwrd") == 0)
                     {
                         int j;
 
@@ -5188,7 +5187,7 @@ static void suggest_trie_walk(suginfo_st *su,
 
                         if(!spell_iswordp(p, curwin))
                         {
-                            p = preword + STRLEN(preword);
+                            p = preword + ustrlen(preword);
                             mb_ptr_back(preword, p);
 
                             if(spell_iswordp(p, curwin))
@@ -5384,10 +5383,10 @@ static void suggest_trie_walk(suginfo_st *su,
                             // Append a space to preword when splitting.
                             if(!try_compound && !fword_ends)
                             {
-                                STRCAT(preword, " ");
+                                ustrcat(preword, " ");
                             }
 
-                            sp->ts_prewordlen = (uchar_kt)STRLEN(preword);
+                            sp->ts_prewordlen = (uchar_kt)ustrlen(preword);
                             sp->ts_splitoff = sp->ts_twordlen;
                             sp->ts_splitfidx = sp->ts_fidx;
 
@@ -6347,7 +6346,7 @@ static void suggest_trie_walk(suginfo_st *su,
                         break;
                     }
 
-                    if(STRNCMP(ftp->ft_from, p, STRLEN(ftp->ft_from)) == 0
+                    if(ustrncmp(ftp->ft_from, p, ustrlen(ftp->ft_from)) == 0
                        && TRY_DEEPER(su, stack, depth, SCORE_REP))
                     {
                         go_deeper(stack, depth, SCORE_REP);
@@ -6366,12 +6365,12 @@ static void suggest_trie_walk(suginfo_st *su,
 
                         // Change the "from" to the "to" string.
                         ++depth;
-                        fl = (int)STRLEN(ftp->ft_from);
-                        tl = (int)STRLEN(ftp->ft_to);
+                        fl = (int)ustrlen(ftp->ft_from);
+                        tl = (int)ustrlen(ftp->ft_to);
 
                         if(fl != tl)
                         {
-                            STRMOVE(p + tl, p + fl);
+                            xstrmove(p + tl, p + fl);
                             repextra += tl - fl;
                         }
 
@@ -6402,13 +6401,13 @@ static void suggest_trie_walk(suginfo_st *su,
                 }
 
                 ftp = (fromto_st *)gap->ga_data + sp->ts_curi - 1;
-                fl = (int)STRLEN(ftp->ft_from);
-                tl = (int)STRLEN(ftp->ft_to);
+                fl = (int)ustrlen(ftp->ft_from);
+                tl = (int)ustrlen(ftp->ft_to);
                 p = fword + sp->ts_fidx;
 
                 if(fl != tl)
                 {
-                    STRMOVE(p + fl, p + tl);
+                    xstrmove(p + fl, p + tl);
                     repextra -= tl - fl;
                 }
 
@@ -6603,17 +6602,17 @@ static void find_keepcap_word(slang_st *slang, uchar_kt *fword, uchar_kt *kword)
                 // Copy it to "kword" and go a level deeper.
                 if(round[depth] == 1)
                 {
-                    STRNCPY(kword + kwordlen[depth],
-                            fword + fwordidx[depth],
-                            flen);
+                    ustrncpy(kword + kwordlen[depth],
+                             fword + fwordidx[depth],
+                             flen);
 
                     kwordlen[depth + 1] = kwordlen[depth] + flen;
                 }
                 else
                 {
-                    STRNCPY(kword + kwordlen[depth],
-                            uword + uwordidx[depth],
-                            ulen);
+                    ustrncpy(kword + kwordlen[depth],
+                             uword + uwordidx[depth],
+                             ulen);
 
                     kwordlen[depth + 1] = kwordlen[depth] + ulen;
                 }
@@ -6664,7 +6663,7 @@ static void score_comp_sal(suginfo_st *su)
                 {
                     // Add the suggestion.
                     sstp = &SUG(su->su_sga, su->su_sga.ga_len);
-                    sstp->st_word = vim_strsave(stp->st_word);
+                    sstp->st_word = ustrdup(stp->st_word);
                     sstp->st_wordlen = stp->st_wordlen;
                     sstp->st_score = score;
                     sstp->st_altscore = 0;
@@ -6780,7 +6779,7 @@ static void score_combine(suginfo_st *su)
                 int j;
 
                 for(j = 0; j < ga.ga_len; ++j)
-                    if(STRCMP(stp[j].st_word, p) == 0)
+                    if(ustrcmp(stp[j].st_word, p) == 0)
                     {
                         break;
                     }
@@ -6856,7 +6855,7 @@ static int stp_sal_score(suggest_st *stp,
         {
             for(p = fword; *(p = skiptowhite(p)) != NUL;)
             {
-                STRMOVE(p, p + 1);
+                xstrmove(p, p + 1);
             }
         }
 
@@ -6868,11 +6867,11 @@ static int stp_sal_score(suggest_st *stp,
     {
         // Add part of the bad word to the good word,
         // so that we soundfold what replaces the bad word.
-        STRCPY(goodword, stp->st_word);
+        ustrcpy(goodword, stp->st_word);
 
-        STRLCPY(goodword + stp->st_wordlen,
-                su->su_badptr + su->su_badlen - lendiff,
-                lendiff + 1);
+        ustrlcpy(goodword + stp->st_wordlen,
+                 su->su_badptr + su->su_badlen - lendiff,
+                 lendiff + 1);
 
         pgood = goodword;
     }
@@ -7025,7 +7024,7 @@ static void add_sound_suggest(suginfo_st *su,
     // the words that have a better score than before. Use a hashtable to
     // remember the words that have been done.
     hash = hash_hash(goodword);
-    const size_t goodword_len = STRLEN(goodword);
+    const size_t goodword_len = ustrlen(goodword);
 
     hi = hash_lookup(&slang->sl_sounddone,
                      (const char *)goodword,
@@ -7095,7 +7094,7 @@ static void add_sound_suggest(suginfo_st *su,
             {
                 if(i > byts[n]) // safety check
                 {
-                    STRCPY(theword + wlen, "BAD");
+                    ustrcpy(theword + wlen, "BAD");
                     wlen += 3;
                     goto badword;
                 }
@@ -7347,7 +7346,7 @@ static void make_case_word(uchar_kt *fword, uchar_kt *cword, int flags)
     else
     {
         // Use goodword as-is.
-        STRCPY(cword, fword);
+        ustrcpy(cword, fword);
     }
 }
 
@@ -7370,7 +7369,7 @@ static bool similar_chars(slang_st *slang, int c1, int c2)
         }
         else
         {
-            m1 = mb_ptr2char(hi->hi_key + STRLEN(hi->hi_key) + 1);
+            m1 = mb_ptr2char(hi->hi_key + ustrlen(hi->hi_key) + 1);
         }
     }
     else
@@ -7394,7 +7393,7 @@ static bool similar_chars(slang_st *slang, int c1, int c2)
         }
         else
         {
-            m2 = mb_ptr2char(hi->hi_key + STRLEN(hi->hi_key) + 1);
+            m2 = mb_ptr2char(hi->hi_key + ustrlen(hi->hi_key) + 1);
         }
     }
     else
@@ -7435,7 +7434,7 @@ static void add_suggestion(suginfo_st *su,
 
     // Minimize "badlen" for consistency. Avoids that changing "the the" to
     // "thee the" is added next to changing the first "the" the "thee".
-    const uchar_kt *pgood = goodword + STRLEN(goodword);
+    const uchar_kt *pgood = goodword + ustrlen(goodword);
     uchar_kt *pbad = su->su_badptr + badlenarg;
 
     for(;;)
@@ -7489,7 +7488,7 @@ static void add_suggestion(suginfo_st *su,
         {
             if(stp->st_wordlen == goodlen
                && stp->st_orglen == badlen
-               && STRNCMP(stp->st_word, goodword, goodlen) == 0)
+               && ustrncmp(stp->st_word, goodword, goodlen) == 0)
             {
                 // Found it. Remember the word with the lowest score.
                 if(stp->st_slang == NULL)
@@ -7539,7 +7538,7 @@ static void add_suggestion(suginfo_st *su,
     {
         // Add a suggestion.
         stp = GA_APPEND_VIA_PTR(suggest_st, gap);
-        stp->st_word = vim_strnsave(goodword, goodlen);
+        stp->st_word = ustrndup(goodword, goodlen);
         stp->st_wordlen = goodlen;
         stp->st_score = score;
         stp->st_altscore = altscore;
@@ -7581,12 +7580,12 @@ static void check_suggestions(suginfo_st *su, garray_st *gap)
     for(int i = gap->ga_len - 1; i >= 0; --i)
     {
         // Need to append what follows to check for "the the".
-        STRLCPY(longword, stp[i].st_word, MAXWLEN + 1);
+        ustrlcpy(longword, stp[i].st_word, MAXWLEN + 1);
         len = stp[i].st_wordlen;
 
-        STRLCPY(longword + len,
-                su->su_badptr + stp[i].st_orglen,
-                MAXWLEN - len + 1);
+        ustrlcpy(longword + len,
+                 su->su_badptr + stp[i].st_orglen,
+                 MAXWLEN - len + 1);
 
         attr = HLF_COUNT;
         (void)spell_check(curwin, longword, &attr, NULL, false);
@@ -7614,7 +7613,7 @@ static void add_banned(suginfo_st *su, uchar_kt *word)
     hash_kt hash;
     hashitem_st *hi;
     hash = hash_hash(word);
-    const size_t word_len = STRLEN(word);
+    const size_t word_len = ustrlen(word);
     hi = hash_lookup(&su->su_banned, (const char *)word, word_len, hash);
 
     if(HASHITEM_EMPTY(hi))
@@ -7685,7 +7684,7 @@ static int sug_compare(const void *s1, const void *s2)
 
         if(n == 0)
         {
-            n = STRICMP(p1->st_word, p2->st_word);
+            n = ustricmp(p1->st_word, p2->st_word);
         }
     }
 
@@ -7794,7 +7793,7 @@ void spell_soundfold(slang_st *slang, uchar_kt *inword, bool folded, uchar_kt *r
         }
         else
         {
-            (void)spell_casefold(inword, (int)STRLEN(inword), fword, MAXWLEN);
+            (void)spell_casefold(inword, (int)ustrlen(inword), fword, MAXWLEN);
             word = fword;
         }
 
@@ -7948,7 +7947,7 @@ static void spell_soundfold_sal(slang_st *slang, uchar_kt *inword, uchar_kt *res
     }
     else
     {
-        STRLCPY(word, s, MAXWLEN);
+        ustrlcpy(word, s, MAXWLEN);
     }
 
     smp = (salitem_T *)slang->sl_sal.ga_data;
@@ -8169,7 +8168,7 @@ static void spell_soundfold_sal(slang_st *slang, uchar_kt *inword, uchar_kt *res
                     }
 
                     pf = smp[n].sm_rules;
-                    p0 = (vim_strchr(pf, '<') != NULL) ? 1 : 0;
+                    p0 = (ustrchr(pf, '<') != NULL) ? 1 : 0;
 
                     if(p0 == 1 && z == 0)
                     {
@@ -8195,7 +8194,7 @@ static void spell_soundfold_sal(slang_st *slang, uchar_kt *inword, uchar_kt *res
 
                         if(k > k0)
                         {
-                            STRMOVE(word + i + k0, word + i + k);
+                            xstrmove(word + i + k0, word + i + k);
                         }
 
                         // new "actual letter"
@@ -8227,7 +8226,7 @@ static void spell_soundfold_sal(slang_st *slang, uchar_kt *inword, uchar_kt *res
                                 res[reslen++] = c;
                             }
 
-                            STRMOVE(word, word + i + 1);
+                            xstrmove(word, word + i + 1);
                             i = 0;
                             z0 = 1;
                         }
@@ -8547,7 +8546,7 @@ static void spell_soundfold_wsal(slang_st *slang, uchar_kt *inword, uchar_kt *re
                     // replace string
                     ws = smp[n].sm_to_w;
                     s = smp[n].sm_rules;
-                    p0 = (vim_strchr(s, '<') != NULL) ? 1 : 0;
+                    p0 = (ustrchr(s, '<') != NULL) ? 1 : 0;
 
                     if(p0 == 1 && z == 0)
                     {
@@ -8735,8 +8734,8 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
         }
     }
 
-    goodlen = (int)STRLEN(goodsound);
-    badlen = (int)STRLEN(badsound);
+    goodlen = (int)ustrlen(goodsound);
+    badlen = (int)ustrlen(badsound);
 
     // Return quickly if the lengths are too
     // different to be fixed by two changes.
@@ -8779,7 +8778,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
             }
 
             // strings must be equal after second delete
-            if(STRCMP(pl + 1, ps) == 0)
+            if(ustrcmp(pl + 1, ps) == 0)
             {
                 return score + SCORE_DEL * 2;
             }
@@ -8807,13 +8806,13 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
 
             // 2: delete then swap, then rest must be equal
             if(pl2[0] == ps2[1] && pl2[1] == ps2[0]
-               && STRCMP(pl2 + 2, ps2 + 2) == 0)
+               && ustrcmp(pl2 + 2, ps2 + 2) == 0)
             {
                 return score + SCORE_DEL + SCORE_SWAP;
             }
 
             // 3: delete then substitute, then the rest must be equal
-            if(STRCMP(pl2 + 1, ps2 + 1) == 0)
+            if(ustrcmp(pl2 + 1, ps2 + 1) == 0)
             {
                 return score + SCORE_DEL + SCORE_SUBST;
             }
@@ -8831,7 +8830,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
                 }
 
                 // delete a char and then strings must be equal
-                if(STRCMP(pl2 + 1, ps2) == 0)
+                if(ustrcmp(pl2 + 1, ps2) == 0)
                 {
                     return score + SCORE_SWAP + SCORE_DEL;
                 }
@@ -8848,7 +8847,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
             }
 
             // delete a char and then strings must be equal
-            if(STRCMP(pl2 + 1, ps2) == 0)
+            if(ustrcmp(pl2 + 1, ps2) == 0)
             {
                 return score + SCORE_SUBST + SCORE_DEL;
             }
@@ -8885,13 +8884,13 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
 
                 // 3: swap and swap again
                 if(pl2[0] == ps2[1] && pl2[1] == ps2[0]
-                   && STRCMP(pl2 + 2, ps2 + 2) == 0)
+                   && ustrcmp(pl2 + 2, ps2 + 2) == 0)
                 {
                     return score + SCORE_SWAP + SCORE_SWAP;
                 }
 
                 // 4: swap and substitute
-                if(STRCMP(pl2 + 1, ps2 + 1) == 0)
+                if(ustrcmp(pl2 + 1, ps2 + 1) == 0)
                 {
                     return score + SCORE_SWAP + SCORE_SUBST;
                 }
@@ -8914,13 +8913,13 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
 
             // 6: substitute and swap
             if(pl2[0] == ps2[1] && pl2[1] == ps2[0]
-               && STRCMP(pl2 + 2, ps2 + 2) == 0)
+               && ustrcmp(pl2 + 2, ps2 + 2) == 0)
             {
                 return score + SCORE_SUBST + SCORE_SWAP;
             }
 
             // 7: substitute and substitute
-            if(STRCMP(pl2 + 1, ps2 + 1) == 0)
+            if(ustrcmp(pl2 + 1, ps2 + 1) == 0)
             {
                 return score + SCORE_SUBST + SCORE_SUBST;
             }
@@ -8935,7 +8934,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
                 ++ps2;
             }
 
-            if(STRCMP(pl2 + 1, ps2) == 0)
+            if(ustrcmp(pl2 + 1, ps2) == 0)
             {
                 return score + SCORE_INS + SCORE_DEL;
             }
@@ -8950,7 +8949,7 @@ static int soundalike_score(uchar_kt *goodstart, uchar_kt *badstart)
                 ++ps2;
             }
 
-            if(STRCMP(pl2, ps2 + 1) == 0)
+            if(ustrcmp(pl2, ps2 + 1) == 0)
             {
                 return score + SCORE_INS + SCORE_DEL;
             }
@@ -9007,8 +9006,8 @@ static int spell_edit_score(slang_st *slang, uchar_kt *badword, uchar_kt *goodwo
     }
     else
     {
-        badlen = (int)STRLEN(badword) + 1;
-        goodlen = (int)STRLEN(goodword) + 1;
+        badlen = (int)ustrlen(badword) + 1;
+        goodlen = (int)ustrlen(goodword) + 1;
     }
 
     // We use "cnt" as an array: CNT(badword_idx, goodword_idx).
@@ -9656,7 +9655,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
                 dumpflags |= DUMPFLAG_ONECAP;
             }
             else if(n == WF_ALLCAP
-                    && (int)STRLEN(pat) > mb_ptr2len(pat))
+                    && (int)ustrlen(pat) > mb_ptr2len(pat))
             {
                 dumpflags |= DUMPFLAG_ALLCAP;
             }
@@ -9676,7 +9675,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
             {
                 region_names = p;
             }
-            else if(STRCMP(region_names, p) != 0)
+            else if(ustrcmp(region_names, p) != 0)
             {
                 do_region = false; // region names are different
                 break;
@@ -9688,7 +9687,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
     {
         if(pat == NULL)
         {
-            vim_snprintf((char *)IObuff, IOSIZE, "/regions=%s", region_names);
+            xsnprintf((char *)IObuff, IOSIZE, "/regions=%s", region_names);
             ml_append(lnum++, IObuff, (columnum_kt)0, FALSE);
         }
     }
@@ -9710,7 +9709,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
 
         if(pat == NULL)
         {
-            vim_snprintf((char *)IObuff, IOSIZE, "# file: %s", slang->sl_fname);
+            xsnprintf((char *)IObuff, IOSIZE, "# file: %s", slang->sl_fname);
             ml_append(lnum++, IObuff, (columnum_kt)0, FALSE);
         }
 
@@ -9718,7 +9717,7 @@ void spell_dump_compl(uchar_kt *pat, int ic, int *dir, int dumpflags_arg)
         // prefixes only use parts of the tree that match "pat".
         if(pat != NULL && slang->sl_pbyts == NULL)
         {
-            patlen = (int)STRLEN(pat);
+            patlen = (int)ustrlen(pat);
         }
         else
         {
@@ -9895,21 +9894,21 @@ static void dump_word(slang_st *slang,
         // Add flags and regions after a slash.
         if((flags & (WF_BANNED | WF_RARE | WF_REGION)) || keepcap)
         {
-            STRCPY(badword, p);
-            STRCAT(badword, "/");
+            ustrcpy(badword, p);
+            ustrcat(badword, "/");
 
             if(keepcap)
             {
-                STRCAT(badword, "=");
+                ustrcat(badword, "=");
             }
 
             if(flags & WF_BANNED)
             {
-                STRCAT(badword, "!");
+                ustrcat(badword, "!");
             }
             else if(flags & WF_RARE)
             {
-                STRCAT(badword, "?");
+                ustrcat(badword, "?");
             }
 
             if(flags & WF_REGION)
@@ -9918,7 +9917,7 @@ static void dump_word(slang_st *slang,
                 {
                     if(flags & (0x10000 << i))
                     {
-                        sprintf((char *)badword + STRLEN(badword), "%d", i + 1);
+                        sprintf((char *)badword + ustrlen(badword), "%d", i + 1);
                     }
                 }
             }
@@ -9935,8 +9934,8 @@ static void dump_word(slang_st *slang,
 
             if(!HASHITEM_EMPTY(hi))
             {
-                vim_snprintf((char *)IObuff, IOSIZE,
-                             "%s\t%d", tw, HI2WC(hi)->wc_count);
+                xsnprintf((char *)IObuff, IOSIZE,
+                          "%s\t%d", tw, HI2WC(hi)->wc_count);
 
                 p = IObuff;
             }
@@ -9945,9 +9944,9 @@ static void dump_word(slang_st *slang,
         ml_append(lnum, p, (columnum_kt)0, FALSE);
     }
     else if(((dumpflags & DUMPFLAG_ICASE)
-             ? mb_strnicmp(p, pat, STRLEN(pat)) == 0
-             : STRNCMP(p, pat, STRLEN(pat)) == 0)
-            && ins_compl_add_infercase(p, (int)STRLEN(p),
+             ? mb_strnicmp(p, pat, ustrlen(pat)) == 0
+             : ustrncmp(p, pat, ustrlen(pat)) == 0)
+            && ins_compl_add_infercase(p, (int)ustrlen(p),
                                        p_ic, NULL, *dir, 0) == OK)
     {
         // if dir was BACKWARD then honor it just once
@@ -10046,7 +10045,7 @@ static linenum_kt dump_prefixes(slang_st *slang,
 
                     if(c != 0)
                     {
-                        STRLCPY(prefix + depth, word, MAXWLEN - depth);
+                        ustrlcpy(prefix + depth, word, MAXWLEN - depth);
 
                         dump_word(slang,
                                   prefix,
@@ -10072,7 +10071,7 @@ static linenum_kt dump_prefixes(slang_st *slang,
 
                         if(c != 0)
                         {
-                            STRLCPY(prefix + depth, word_up, MAXWLEN - depth);
+                            ustrlcpy(prefix + depth, word_up, MAXWLEN - depth);
 
                             dump_word(slang,
                                       prefix,

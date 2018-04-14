@@ -8,8 +8,9 @@
 
 #include <msgpack.h>
 
+#include "nvim/error.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 #include "nvim/diff.h"
 #include "nvim/eval.h"
@@ -523,7 +524,9 @@ int main(int argc, char **argv)
     return 0;
 }
 
-// Exit nvim properly
+/// Exit nvim properly
+///
+/// @param exitval exit code, see @b nvim_exit_status_e
 void exit_nvim_properly(int exitval)
 {
     tabpage_st *tp;
@@ -656,9 +659,9 @@ static void init_locale(void)
 
     // the default local root directory for nvim, which is
     // $GKIDE_SYS_HOME/mis/language
-    vim_snprintf((char *)NameBuff, MAXPATHL,
-                 "%s" OS_PATH_SEP_STR "mis" OS_PATH_SEP_STR "language",
-                 gkide_sys_home);
+    xsnprintf((char *)NameBuff, MAXPATHL,
+              "%s" OS_PATH_SEP_STR "mis" OS_PATH_SEP_STR "language",
+              gkide_sys_home);
 
     // expand_env() doesn't work yet, because g_chartab[] is not
     // initialized yet, call vim_getenv() directly
@@ -667,7 +670,7 @@ static void init_locale(void)
     if(p != NULL && *p != NUL)
     {
         // user env settings comes first, overwrite
-        vim_snprintf((char *)NameBuff, MAXPATHL, "%s", p);
+        xsnprintf((char *)NameBuff, MAXPATHL, "%s", p);
     }
 
     xfree(p);
@@ -721,7 +724,7 @@ static void early_cmd_line_args_scan(main_args_st *paramp)
             opt_value = paramp->argv[i + 1];
         }
 
-        if(STRICMP(opt_name, "--startuptime") == 0)
+        if(ustricmp(opt_name, "--startuptime") == 0)
         {
             opt_to_found--;
             if(NULL != opt_value)
@@ -731,7 +734,7 @@ static void early_cmd_line_args_scan(main_args_st *paramp)
                 time_start("--- NVIM STARTING ---");
             }
         }
-        else if(STRICMP(opt_name, "--server") == 0)
+        else if(ustricmp(opt_name, "--server") == 0)
         {
             opt_to_found--;
             init_server_addr_info(opt_value);
@@ -903,7 +906,7 @@ static void handle_quickfix(main_args_st *paramp)
                                      SID_CARG);
         }
 
-        vim_snprintf((char *)IObuff, IOSIZE, "cfile %s", p_ef);
+        xsnprintf((char *)IObuff, IOSIZE, "cfile %s", p_ef);
 
         if(qf_init(NULL, p_ef, p_efm, true, IObuff) < 0)
         {
@@ -922,7 +925,7 @@ static void handle_tag(uchar_kt *tagname)
     if(tagname != NULL)
     {
         swap_exists_did_quit = FALSE;
-        vim_snprintf((char *)IObuff, IOSIZE, "ta %s", tagname);
+        xsnprintf((char *)IObuff, IOSIZE, "ta %s", tagname);
         do_cmdline_cmd((char *)IObuff);
 
         TIME_MSG("jumping to tag");

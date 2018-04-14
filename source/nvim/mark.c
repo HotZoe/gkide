@@ -12,7 +12,7 @@
 #include <string.h>
 #include <limits.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #include "nvim/mark.h"
 #include "nvim/buffer.h"
@@ -586,12 +586,12 @@ static void fname2fnum(xfilemark_st *fm)
         {
             int len;
             expand_env((uchar_kt *)"~/", NameBuff, MAXPATHL);
-            len = (int)STRLEN(NameBuff);
-            STRLCPY(NameBuff + len, fm->fname + 2, MAXPATHL - len);
+            len = (int)ustrlen(NameBuff);
+            ustrlcpy(NameBuff + len, fm->fname + 2, MAXPATHL - len);
         }
         else
         {
-            STRLCPY(NameBuff, fm->fname, MAXPATHL);
+            ustrlcpy(NameBuff, fm->fname, MAXPATHL);
         }
 
         // Try to shorten the file name.
@@ -724,12 +724,12 @@ static uchar_kt *mark_line(apos_st *mp, int lead_len)
 
     if(mp->lnum == 0 || mp->lnum > curbuf->b_ml.ml_line_count)
     {
-        return vim_strsave((uchar_kt *)"-invalid-");
+        return ustrdup((uchar_kt *)"-invalid-");
     }
 
     assert(Columns >= 0 && (size_t)Columns <= SIZE_MAX);
 
-    s = vim_strnsave(skipwhite(ml_get(mp->lnum)), (size_t)Columns);
+    s = ustrndup(skipwhite(ml_get(mp->lnum)), (size_t)Columns);
     // Truncate the line to fit it in the window
     len = 0;
 
@@ -836,7 +836,7 @@ static void show_one_mark(int c,
     }
     // don't output anything if 'q' typed at --more-- prompt
     else if(!got_int
-            && (arg == NULL || vim_strchr(arg, c) != NULL)
+            && (arg == NULL || ustrchr(arg, c) != NULL)
             && p->lnum != 0)
     {
         if(!did_title)
@@ -1549,7 +1549,7 @@ void copy_jumplist(win_st *from, win_st *to)
 
         if(from->w_jumplist[i].fname != NULL)
         {
-            to->w_jumplist[i].fname = vim_strsave(from->w_jumplist[i].fname);
+            to->w_jumplist[i].fname = ustrdup(from->w_jumplist[i].fname);
         }
     }
 
@@ -1924,7 +1924,7 @@ FUNC_ATTR_NONNULL_ALL
         // on the right half of a double-wide character.
         if(lp->coladd == 1
            && p[lp->col] != TAB
-           && vim_isprintc((*mb_ptr2char)(p + lp->col))
+           && is_print_char((*mb_ptr2char)(p + lp->col))
            && ptr2cells(p + lp->col) > 1)
         {
             lp->coladd = 0;

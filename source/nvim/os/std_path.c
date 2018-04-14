@@ -43,7 +43,7 @@ FUNC_ATTR_NONNULL_RET
     {
         size_t add_len = 0; // number of char to add
         // number of commas to escape
-        size_t num = (escape_commas ? std_memcnt(str, ',', len) : 0);
+        size_t num = (escape_commas ? xmemcnt(str, ',', len) : 0);
 
         add_len += trail_pathsep ? 1 : 0;
         add_len += escape_commas ? num : 0;

@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "nvim/memory.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/rbuffer.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS

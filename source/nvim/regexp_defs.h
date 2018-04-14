@@ -22,7 +22,7 @@
 #define NFA_MAX_STATES     100000
 #define NFA_TOO_EXPENSIVE  -1
 
-// Which regexp engine to use? Needed for vim_regcomp().
+// Which regexp engine to use? Needed for regexp_compile().
 // Must match with 'regexpengine'.
 #define AUTOMATIC_ENGINE     0
 #define BACKTRACKING_ENGINE  1
@@ -30,15 +30,15 @@
 
 typedef struct regengine_s regengine_st;
 
-/// Structure returned by vim_regcomp() to pass on to vim_regexec().
+/// Structure returned by regexp_compile() to pass on to vim_regexec().
 /// This is the general structure. For the actual matcher, two specific
 /// structures are used. See code below.
 typedef struct regprog_s
 {
     regengine_st *engine;
     unsigned regflags;
-    unsigned re_engine;  ///< Automatic, backtracking or NFA engine.
-    unsigned re_flags;   ///< Second argument for vim_regcomp().
+    unsigned re_engine; ///< Automatic, backtracking or NFA engine.
+    unsigned re_flags; ///< Second argument for regexp_compile().
 } regprog_st;
 
 /// Structure used by the back track matcher.
@@ -50,7 +50,7 @@ typedef struct bt_regprog_s
     regengine_st *engine;
     unsigned regflags;
     unsigned re_engine;
-    unsigned re_flags;   ///< Second argument for vim_regcomp().
+    unsigned re_flags; ///< Second argument for regexp_compile().
 
     int regstart;
     uchar_kt reganch;
@@ -80,19 +80,19 @@ typedef struct nfa_regprog_s
     regengine_st *engine;
     unsigned regflags;
     unsigned re_engine;
-    unsigned re_flags;    ///< Second argument for vim_regcomp().
+    unsigned re_flags; ///< Second argument for regexp_compile().
 
-    nfa_state_st *start;  ///< points into state[]
+    nfa_state_st *start; ///< points into state[]
 
-    int reganch;          ///< pattern starts with ^
-    int regstart;         ///< char at start of pattern
+    int reganch; ///< pattern starts with ^
+    int regstart; ///< char at start of pattern
     uchar_kt *match_text; ///< plain text to match with
 
-    int has_zend;         ///< pattern contains \ze
-    int has_backref;      ///< pattern contains \1 .. \9
+    int has_zend; ///< pattern contains \ze
+    int has_backref; ///< pattern contains \1 .. \9
     int reghasz;
     uchar_kt *pattern;
-    int nsubexp;          ///< number of ()
+    int nsubexp; ///< number of ()
     int nstate;
     nfa_state_st state[1];///< actually longer ...
 } nfa_regprog_st;

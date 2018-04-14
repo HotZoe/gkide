@@ -24,6 +24,8 @@
 #define VIM_ALL         5
 #define VIM_DISCARDALL  6
 
+#define mch_msg(str)                printf("%s", (str))
+
 /// Show plain message
 #define MSG(s)                      msg((uchar_kt *)(s))
 

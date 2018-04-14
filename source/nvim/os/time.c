@@ -11,7 +11,7 @@
 #include "nvim/os/time.h"
 #include "nvim/os/input.h"
 #include "nvim/event/loop.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/main.h"
 
 static uv_cond_t delay_cond;

@@ -9,7 +9,8 @@
 
 #include "nvim/event/rstream.h"
 #include "nvim/ascii.h"
-#include "nvim/vim.h"
+#include "nvim/error.h"
+#include "nvim/nvim.h"
 #include "nvim/memory.h"
 #include "nvim/log.h"
 #include "nvim/misc1.h"
@@ -189,7 +190,7 @@ static void fread_idle_cb(uv_idle_t *handle)
     if(fpos_intmax > INT64_MAX)
     {
         ERROR_LOG("stream offset overflow");
-        preserve_exit();
+        preserve_exit(kNEStatusFailure);
     }
 
     // Synchronous read

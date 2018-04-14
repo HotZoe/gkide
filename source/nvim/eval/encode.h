@@ -9,7 +9,7 @@
 
 #include "nvim/eval.h"
 #include "nvim/garray.h"
-#include "nvim/vim.h" // For STRLEN
+#include "nvim/nvim.h" // For ustrlen
 
 /// Convert VimL value to msgpack string
 ///
@@ -49,7 +49,7 @@ FUNC_ATTR_NONNULL_ALL
         .li = list->lv_first,
         .offset = 0,
         .li_length = (list->lv_first->li_tv.vval.v_string == NULL
-                      ? 0 : STRLEN(list->lv_first->li_tv.vval.v_string)),
+                      ? 0 : ustrlen(list->lv_first->li_tv.vval.v_string)),
     };
 }
 

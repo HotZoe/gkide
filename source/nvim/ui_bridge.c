@@ -10,7 +10,7 @@
 
 #include "nvim/log.h"
 #include "nvim/main.h"
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ui.h"
 #include "nvim/memory.h"
 #include "nvim/ui_bridge.h"

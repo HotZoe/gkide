@@ -4,14 +4,15 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#include "nvim/error.h"
 #include "nvim/misc1.h"
 #include "nvim/getchar.h"
 #include "nvim/garray.h"
 #include "nvim/func_attr.h"
 #include "nvim/api/private/defs.h"
 #include "nvim/api/private/helpers.h"
-#include "nvim/api/vim.h"
-#include "nvim/vim.h"
+#include "nvim/api/nvim.h"
+#include "nvim/nvim.h"
 #include "nvim/ex_getln.h"
 #include "nvim/message.h"
 #include "nvim/memline.h"
@@ -135,7 +136,7 @@ FUNC_ATTR_NONNULL_ALL
 {
     const char *s1 = luaL_checklstring(lstate, 1, NULL);
     const char *s2 = luaL_checklstring(lstate, 2, NULL);
-    const int ret = STRICMP(s1, s2);
+    const int ret = ustricmp(s1, s2);
     lua_pop(lstate, 2);
     lua_pushnumber(lstate, (lua_Number)((ret > 0) - (ret < 0)));
 
@@ -354,7 +355,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
     if(lstate == NULL)
     {
         EMSG(_("E970: Failed to initialize lua interpreter"));
-        preserve_exit();
+        preserve_exit(kNEStatusInterpreterInitErrorLua);
     }
 
     luaL_openlibs(lstate);
@@ -658,7 +659,7 @@ FUNC_ATTR_NONNULL_ALL
         if(input.v_type != kNvarString
            || input.vval.v_string == NULL
            || *input.vval.v_string == NUL
-           || STRCMP(input.vval.v_string, "cont") == 0)
+           || ustrcmp(input.vval.v_string, "cont") == 0)
         {
             tv_clear(&input);
             return 0;
@@ -666,7 +667,7 @@ FUNC_ATTR_NONNULL_ALL
 
         if(luaL_loadbuffer(lstate,
                            (const char *)input.vval.v_string,
-                           STRLEN(input.vval.v_string),
+                           ustrlen(input.vval.v_string),
                            "=(debug command)"))
         {
             nlua_error(lstate,
@@ -784,7 +785,7 @@ FUNC_ATTR_NONNULL_ALL
         return;
     }
 
-    const String cmd = { .size = STRLEN(eap->arg), .data = (char *)eap->arg, };
+    const String cmd = { .size = ustrlen(eap->arg), .data = (char *)eap->arg, };
 
     const linenum_kt range[] = { eap->line1, eap->line2 };
 

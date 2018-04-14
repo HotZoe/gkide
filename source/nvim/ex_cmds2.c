@@ -8,7 +8,7 @@
 #include <string.h>
 #include <fcntl.h>
 
-#include "nvim/vim.h"
+#include "nvim/nvim.h"
 #include "nvim/ascii.h"
 #ifdef HAVE_HDR_LOCALE_H
     #include <locale.h>
@@ -664,15 +664,15 @@ static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
     bp = &DEBUGGY(gap, gap->ga_len);
 
     // Find "func" or "file".
-    if(STRNCMP(p, "func", 4) == 0)
+    if(ustrncmp(p, "func", 4) == 0)
     {
         bp->dbg_type = DBG_FUNC;
     }
-    else if(STRNCMP(p, "file", 4) == 0)
+    else if(ustrncmp(p, "file", 4) == 0)
     {
         bp->dbg_type = DBG_FILE;
     }
-    else if(gap != &prof_ga && STRNCMP(p, "here", 4) == 0)
+    else if(gap != &prof_ga && ustrncmp(p, "here", 4) == 0)
     {
         if(curbuf->b_ffname == NULL)
         {
@@ -717,11 +717,11 @@ static int dbg_parsearg(uchar_kt *arg, garray_st *gap)
 
     if(bp->dbg_type == DBG_FUNC)
     {
-        bp->dbg_name = vim_strsave(p);
+        bp->dbg_name = ustrdup(p);
     }
     else if(here)
     {
-        bp->dbg_name = vim_strsave(curbuf->b_ffname);
+        bp->dbg_name = ustrdup(curbuf->b_ffname);
     }
     else
     {
@@ -783,7 +783,7 @@ void ex_breakadd(exargs_st *eap)
 
         if(pat != NULL)
         {
-            bp->dbg_prog = vim_regcomp(pat, RE_MAGIC + RE_STRING);
+            bp->dbg_prog = regexp_compile(pat, RE_MAGIC + RE_STRING);
             xfree(pat);
         }
 
@@ -872,7 +872,7 @@ void ex_breakdel(exargs_st *eap)
             bpi = &DEBUGGY(gap, i);
 
             if(bp->dbg_type == bpi->dbg_type
-               && STRCMP(bp->dbg_name, bpi->dbg_name) == 0
+               && ustrcmp(bp->dbg_name, bpi->dbg_name) == 0
                && (bp->dbg_lnum == bpi->dbg_lnum
                    || (bp->dbg_lnum == 0
                        && (best_lnum == 0
@@ -1005,9 +1005,9 @@ static linenum_kt debuggy_find(bool file,
     // Replace K_SNR in function name with "<SNR>".
     if(!file && fname[0] == K_SPECIAL)
     {
-        name = xmalloc(STRLEN(fname) + 3);
-        STRCPY(name, "<SNR>");
-        STRCPY(name + 5, fname + 3);
+        name = xmalloc(ustrlen(fname) + 3);
+        ustrcpy(name, "<SNR>");
+        ustrcpy(name + 5, fname + 3);
     }
 
     for(int i = 0; i < gap->ga_len; i++)
@@ -1069,7 +1069,7 @@ void ex_profile(exargs_st *eap)
     len = (int)(e - eap->arg);
     e = skipwhite(e);
 
-    if(len == 5 && STRNCMP(eap->arg, "start", 5) == 0 && *e != NUL)
+    if(len == 5 && ustrncmp(eap->arg, "start", 5) == 0 && *e != NUL)
     {
         xfree(profile_fname);
         profile_fname = expand_env_save_opt(e, true);
@@ -1081,14 +1081,14 @@ void ex_profile(exargs_st *eap)
     {
         EMSG(_("E750: First use \":profile start {fname}\""));
     }
-    else if(STRCMP(eap->arg, "stop") == 0)
+    else if(ustrcmp(eap->arg, "stop") == 0)
     {
         profile_dump();
         do_profiling = PROF_NONE;
         set_vim_var_nr(VV_PROFILING, 0L);
         profile_reset();
     }
-    else if(STRCMP(eap->arg, "pause") == 0)
+    else if(ustrcmp(eap->arg, "pause") == 0)
     {
         if(do_profiling == PROF_YES)
         {
@@ -1097,7 +1097,7 @@ void ex_profile(exargs_st *eap)
 
         do_profiling = PROF_PAUSED;
     }
-    else if(STRCMP(eap->arg, "continue") == 0)
+    else if(ustrcmp(eap->arg, "continue") == 0)
     {
         if(do_profiling == PROF_PAUSED)
         {
@@ -1107,7 +1107,7 @@ void ex_profile(exargs_st *eap)
 
         do_profiling = PROF_YES;
     }
-    else if(STRCMP(eap->arg, "dump") == 0)
+    else if(ustrcmp(eap->arg, "dump") == 0)
     {
         profile_dump();
     }
@@ -2029,7 +2029,7 @@ static int do_arglist(uchar_kt *str, int what, int after)
                 break;
             }
 
-            regmatch.regprog = vim_regcomp(p, p_magic ? RE_MAGIC : 0);
+            regmatch.regprog = regexp_compile(p, p_magic ? RE_MAGIC : 0);
 
             if(regmatch.regprog == NULL)
             {
@@ -2237,7 +2237,7 @@ void ex_args(exargs_st *eap)
                 aentry_st *arg_data =
                     (aentry_st *)(curwin->w_alist->al_ga.ga_data);
                 arg_data[gap->ga_len].ae_fname =
-                    vim_strsave(garg_list[i].ae_fname);
+                    ustrdup(garg_list[i].ae_fname);
                 arg_data[gap->ga_len].ae_fnum =
                     garg_list[i].ae_fnum;
                 gap->ga_len++;
@@ -2430,7 +2430,7 @@ void ex_argedit(exargs_st *eap)
     if(i == carg_cnt)
     {
         // Can't find it, add it to the argument list.
-        s = vim_strsave(eap->arg);
+        s = ustrdup(eap->arg);
 
         int after = eap->addr_count > 0
                     ? (int)eap->line2 : curwin->w_arg_idx + 1;
@@ -2641,7 +2641,7 @@ void ex_listdo(exargs_st *eap)
                 {
                     // Clear 'shm' to avoid that the file message overwrites
                     // any output from the command.
-                    p_shm_save = vim_strsave(p_shm);
+                    p_shm_save = ustrdup(p_shm);
                     set_option_value("shm", 0L, "", 0);
                     do_argfile(eap, i);
                     set_option_value("shm", 0L, (char *)p_shm_save, 0);
@@ -2730,7 +2730,7 @@ void ex_listdo(exargs_st *eap)
 
                 // Go to the next buffer. Clear 'shm' to avoid that the file
                 // message overwrites any output from the command.
-                p_shm_save = vim_strsave(p_shm);
+                p_shm_save = ustrdup(p_shm);
                 set_option_value("shm", 0L, "", 0);
 
                 goto_buffer(eap, DOBUF_FIRST, FORWARD, next_fnum);
@@ -2871,7 +2871,7 @@ void ex_compiler(exargs_st *eap)
     }
     else
     {
-        size_t bufsize = STRLEN(eap->arg) + 14;
+        size_t bufsize = ustrlen(eap->arg) + 14;
         buf = xmalloc(bufsize);
 
         if(eap->forceit)
@@ -2891,7 +2891,7 @@ void ex_compiler(exargs_st *eap)
 
             if(old_cur_comp != NULL)
             {
-                old_cur_comp = vim_strsave(old_cur_comp);
+                old_cur_comp = ustrdup(old_cur_comp);
             }
 
             do_cmdline_cmd("command -nargs=* CompilerSet setlocal <args>");
@@ -2943,22 +2943,22 @@ void ex_runtime(exargs_st *eap)
     ptrdiff_t len = p - arg;
     int flags = eap->forceit ? DIP_ALL : 0;
 
-    if(STRNCMP(arg, "START", len) == 0)
+    if(ustrncmp(arg, "START", len) == 0)
     {
         flags += DIP_START + DIP_NORTP;
         arg = skipwhite(arg + len);
     }
-    else if(STRNCMP(arg, "OPT", len) == 0)
+    else if(ustrncmp(arg, "OPT", len) == 0)
     {
         flags += DIP_OPT + DIP_NORTP;
         arg = skipwhite(arg + len);
     }
-    else if(STRNCMP(arg, "PACK", len) == 0)
+    else if(ustrncmp(arg, "PACK", len) == 0)
     {
         flags += DIP_START + DIP_OPT + DIP_NORTP;
         arg = skipwhite(arg + len);
     }
-    else if(STRNCMP(arg, "ALL", len) == 0)
+    else if(ustrncmp(arg, "ALL", len) == 0)
     {
         flags += DIP_START + DIP_OPT;
         arg = skipwhite(arg + len);
@@ -3006,7 +3006,7 @@ int do_in_path(uchar_kt *path,
 
     // Make a copy of 'runtimepath'.
     // Invoking the callback may change the value.
-    uchar_kt *rtp_copy = vim_strsave(path);
+    uchar_kt *rtp_copy = ustrdup(path);
     uchar_kt *buf = xmallocz(MAXPATHL);
 
     {
@@ -3025,13 +3025,13 @@ int do_in_path(uchar_kt *path,
         {
             // Copy the path from 'runtimepath' to buf[].
             copy_option_part(&rtp, buf, MAXPATHL, ",");
-            size_t buflen = STRLEN(buf);
+            size_t buflen = ustrlen(buf);
 
             // Skip after or non-after directories.
             if(flags & (DIP_NOAFTER | DIP_AFTER))
             {
                 bool is_after = buflen >= 5
-                                && STRCMP(buf + buflen - 5, "after") == 0;
+                                && ustrcmp(buf + buflen - 5, "after") == 0;
 
                 if((is_after && (flags & DIP_NOAFTER))
                    || (!is_after && (flags & DIP_AFTER)))
@@ -3049,10 +3049,10 @@ int do_in_path(uchar_kt *path,
                     did_one = (cookie == NULL);
                 }
             }
-            else if(buflen + STRLEN(name) + 2 < MAXPATHL)
+            else if(buflen + ustrlen(name) + 2 < MAXPATHL)
             {
                 add_pathsep((char *)buf);
-                tail = buf + STRLEN(buf);
+                tail = buf + ustrlen(buf);
 
                 // Loop over all patterns in "name"
                 uchar_kt *np = name;
@@ -3147,10 +3147,10 @@ int do_in_runtimepath(uchar_kt *name,
     if((done == FAIL || (flags & DIP_ALL)) && (flags & DIP_START))
     {
         char *start_dir = "pack/*/start/*/%s"; // NOLINT
-        size_t len = STRLEN(start_dir) + STRLEN(name);
+        size_t len = ustrlen(start_dir) + ustrlen(name);
         uchar_kt *s = xmallocz(len);
 
-        vim_snprintf((char *)s, len, start_dir, name);
+        xsnprintf((char *)s, len, start_dir, name);
         done = do_in_path(p_pp, s, flags, callback, cookie);
 
         xfree(s);
@@ -3159,10 +3159,10 @@ int do_in_runtimepath(uchar_kt *name,
     if((done == FAIL || (flags & DIP_ALL)) && (flags & DIP_OPT))
     {
         char *opt_dir = "pack/*/opt/*/%s"; // NOLINT
-        size_t len = STRLEN(opt_dir) + STRLEN(name);
+        size_t len = ustrlen(opt_dir) + ustrlen(name);
         uchar_kt *s = xmallocz(len);
 
-        vim_snprintf((char *)s, len, opt_dir, name);
+        xsnprintf((char *)s, len, opt_dir, name);
         done = do_in_path(p_pp, s, flags, callback, cookie);
 
         xfree(s);
@@ -3252,7 +3252,7 @@ static void add_pack_plugin(uchar_kt *fname, void *cookie)
         if(insp == NULL)
         {
             // not found, append at the end
-            insp = (const char *)p_rtp + STRLEN(p_rtp);
+            insp = (const char *)p_rtp + ustrlen(p_rtp);
         }
         else
         {
@@ -3276,12 +3276,12 @@ static void add_pack_plugin(uchar_kt *fname, void *cookie)
             afterlen = strlen(afterdir) + 1; // add one for comma
         }
 
-        const size_t oldlen = STRLEN(p_rtp);
+        const size_t oldlen = ustrlen(p_rtp);
         const size_t addlen = strlen(ffname) + 1; // add one for comma
         const size_t new_rtp_len = oldlen + addlen + afterlen + 1;
 
         // add one for NUL -------------------------------------^
-        char *const new_rtp = try_malloc(new_rtp_len);
+        char *const new_rtp = xmalloc(new_rtp_len);
 
         if(new_rtp == NULL)
         {
@@ -3321,24 +3321,24 @@ static void add_pack_plugin(uchar_kt *fname, void *cookie)
     {
         static const char *plugpat = "%s/plugin/**/*.vim"; // NOLINT
         static const char *ftpat = "%s/ftdetect/*.vim"; // NOLINT
-        size_t len = strlen(ffname) + STRLEN(ftpat);
-        uchar_kt *pat = try_malloc(len + 1);
+        size_t len = strlen(ffname) + ustrlen(ftpat);
+        uchar_kt *pat = xmalloc(len + 1);
 
         if(pat == NULL)
         {
             goto theend;
         }
 
-        vim_snprintf((char *)pat, len, plugpat, ffname);
+        xsnprintf((char *)pat, len, plugpat, ffname);
         source_all_matches(pat);
-        uchar_kt *cmd = vim_strsave((uchar_kt *)"g:did_load_filetypes");
+        uchar_kt *cmd = ustrdup((uchar_kt *)"g:did_load_filetypes");
 
         // If runtime/filetype.vim wasn't loaded yet,
         // the scripts will be found when it loads.
         if(eval_to_number(cmd) > 0)
         {
             do_cmdline_cmd("augroup filetypedetect");
-            vim_snprintf((char *)pat, len, ftpat, ffname);
+            xsnprintf((char *)pat, len, ftpat, ffname);
             source_all_matches(pat);
             do_cmdline_cmd("augroup END");
         }
@@ -3384,10 +3384,10 @@ void ex_packloadall(exargs_st *eap)
 void ex_packadd(exargs_st *eap)
 {
     static const char *plugpat = "pack/*/opt/%s"; // NOLINT
-    size_t len = STRLEN(plugpat) + STRLEN(eap->arg);
+    size_t len = ustrlen(plugpat) + ustrlen(eap->arg);
     char *pat = (char *)xmallocz(len);
 
-    vim_snprintf(pat, len, plugpat, eap->arg);
+    xsnprintf(pat, len, plugpat, eap->arg);
 
     do_in_path(p_pp,
                (uchar_kt *)pat,
@@ -3543,7 +3543,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
         p = path_tail(fname_exp); // get the file name first
 
         if((*p == '.' || *p == '_')
-           && (STRICMP(p + 1, "nvimrc") == 0 || STRICMP(p + 1, "cmdrc") == 0))
+           && (ustricmp(p + 1, "nvimrc") == 0 || ustricmp(p + 1, "cmdrc") == 0))
         {
             *p = (*p == '_') ? '.' : '_';
             cookie.fp = fopen_noinh_readbin((char *)fname_exp);
@@ -3636,7 +3636,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
     uchar_kt *firstline = getsourceline(0, (void *)&cookie, 0);
 
     if(firstline != NULL
-       && STRLEN(firstline) >= 3
+       && ustrlen(firstline) >= 3
        && firstline[0] == 0xef
        && firstline[1] == 0xbb
        && firstline[2] == 0xbf)
@@ -3647,7 +3647,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 
         if(p == NULL)
         {
-            p = vim_strsave(firstline + 3);
+            p = ustrdup(firstline + 3);
         }
 
         xfree(firstline);
@@ -3799,7 +3799,7 @@ int do_source(uchar_kt *fname, int check_other, int is_vimrc)
 
     if(l_time_fd != NULL)
     {
-        vim_snprintf((char *)IObuff, IOSIZE, "sourcing %s", fname);
+        xsnprintf((char *)IObuff, IOSIZE, "sourcing %s", fname);
         time_msg((char *)IObuff, &start_time);
         time_pop(rel_time);
     }
@@ -3952,7 +3952,7 @@ uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
 
     // Only concatenate lines starting with a \ when 'cpoptions' doesn't
     // contain the 'C' flag.
-    if(line != NULL && (vim_strchr(p_cpo, CPO_CONCAT) == NULL))
+    if(line != NULL && (ustrchr(p_cpo, CPO_CONCAT) == NULL))
     {
         // compensate for the one line read-ahead
         sourcing_lnum--;
@@ -4056,7 +4056,7 @@ static uchar_kt *get_one_sourceline(source_cookie_st *sp)
             break;
         }
 
-        len = ga.ga_len + (int)STRLEN(buf + ga.ga_len);
+        len = ga.ga_len + (int)ustrlen(buf + ga.ga_len);
 
 #ifdef USE_CRNL
         // Ignore a trailing CTRL-Z, when in Dos mode. Only recognize the
@@ -4494,19 +4494,19 @@ void ex_language(exargs_st *eap)
 
     if((*p == NUL || ascii_iswhite(*p)) && p - eap->arg >= 3)
     {
-        if(STRNICMP(eap->arg, "messages", p - eap->arg) == 0)
+        if(ustrnicmp(eap->arg, "messages", p - eap->arg) == 0)
         {
             what = VIM_LC_MESSAGES;
             name = skipwhite(p);
             whatstr = "messages ";
         }
-        else if(STRNICMP(eap->arg, "ctype", p - eap->arg) == 0)
+        else if(ustrnicmp(eap->arg, "ctype", p - eap->arg) == 0)
         {
             what = LC_CTYPE;
             name = skipwhite(p);
             whatstr = "ctype ";
         }
-        else if(STRNICMP(eap->arg, "time", p - eap->arg) == 0)
+        else if(ustrnicmp(eap->arg, "time", p - eap->arg) == 0)
         {
             what = LC_TIME;
             name = skipwhite(p);
@@ -4642,7 +4642,7 @@ static uchar_kt **find_locales(void)
 
     while(loc != NULL)
     {
-        loc = vim_strsave(loc);
+        loc = ustrdup(loc);
         GA_APPEND(uchar_kt *, &locales_ga, loc);
         loc = (uchar_kt *)os_strtok(NULL, "\n", &saveptr);
     }
