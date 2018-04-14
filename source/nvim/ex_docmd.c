@@ -2970,15 +2970,15 @@ static void append_command(uchar_kt *cmd)
 
     while(*s != NUL && d - IObuff < IOSIZE - 7)
     {
-        if(enc_utf8 ? (s[0] == 0xc2 && s[1] == 0xa0) : *s == 0xa0)
+        if(s[0] == 0xc2 && s[1] == 0xa0)
         {
-            s += enc_utf8 ? 2 : 1;
+            s += 2;
             ustrcpy(d, "<a0>");
             d += 4;
         }
         else
         {
-            MB_COPY_CHAR(s, d);
+            mb_copy_char((const uchar_kt **)&s, &d);
         }
     }
 
@@ -3713,14 +3713,7 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
 
         while(*p != NUL)
         {
-            if(has_mbyte)
-            {
-                c = mb_ptr2char((const uchar_kt *)p);
-            }
-            else
-            {
-                c = (uint8_t)(*p);
-            }
+            c = mb_ptr2char((const uchar_kt *)p);
 
             if(c == '\\' && p[1] != NUL)
             {
@@ -3744,28 +3737,14 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
 
                 while(*p != NUL)
                 {
-                    if(has_mbyte)
-                    {
-                        c = mb_ptr2char((const uchar_kt *)p);
-                    }
-                    else
-                    {
-                        c = *p;
-                    }
+                    c = mb_ptr2char((const uchar_kt *)p);
 
                     if(c == '`' || is_file_name_char_or_wildcard(c))
                     {
                         break;
                     }
 
-                    if(has_mbyte)
-                    {
-                        len = (size_t)(*mb_ptr2len)((const uchar_kt *)p);
-                    }
-                    else
-                    {
-                        len = 1;
-                    }
+                    len = (size_t)(*mb_ptr2len)((const uchar_kt *)p);
 
                     mb_ptr_adv(p);
                 }
@@ -6953,7 +6932,7 @@ static uchar_kt *uc_split_args(uchar_kt *arg, size_t *lenp)
         }
         else
         {
-            MB_COPY_CHAR(p, q);
+            mb_copy_char((const uchar_kt **)&p, &q);
         }
     }
 
@@ -7132,11 +7111,7 @@ static size_t uc_check_code(uchar_kt *code,
                     {
                         // DBCS can contain \ in a trail byte, skip the
                         // double-byte character.
-                        if(enc_dbcs != 0 && (*mb_ptr2len)(p) == 2)
-                        {
-                            ++p;
-                        }
-                        else if(*p == '\\' || *p == '"')
+                        if(*p == '\\' || *p == '"')
                         {
                             ++result;
                         }
@@ -7150,11 +7125,7 @@ static size_t uc_check_code(uchar_kt *code,
                         {
                             // DBCS can contain \ in a trail byte, copy the
                             // double-byte character to avoid escaping.
-                            if(enc_dbcs != 0 && (*mb_ptr2len)(p) == 2)
-                            {
-                                *buf++ = *p++;
-                            }
-                            else if(*p == '\\' || *p == '"')
+                            if(*p == '\\' || *p == '"')
                             {
                                 *buf++ = '\\';
                             }
@@ -10448,45 +10419,42 @@ static void ex_normal(exargs_st *eap)
     // vgetc() expects a CSI and K_SPECIAL to have been escaped.
     // Don't do this for the K_SPECIAL leading byte, otherwise
     // special keys will not work.
-    if(has_mbyte)
-    {
-        int len = 0;
+    int len = 0;
 
-        // Count the number of characters to be escaped.
-        for(p = eap->arg; *p != NUL; ++p)
+    // Count the number of characters to be escaped.
+    for(p = eap->arg; *p != NUL; ++p)
+    {
+        for(l = (*mb_ptr2len)(p) - 1; l > 0; --l)
         {
-            for(l = (*mb_ptr2len)(p) - 1; l > 0; --l)
+            // trailbyte K_SPECIAL or CSI
+            if(*++p == K_SPECIAL)
             {
-                // trailbyte K_SPECIAL or CSI
-                if(*++p == K_SPECIAL)
-                {
-                    len += 2;
-                }
+                len += 2;
             }
         }
+    }
 
-        if(len > 0)
+    if(len > 0)
+    {
+        arg = xmalloc(ustrlen(eap->arg) + len + 1);
+        len = 0;
+
+        for(p = eap->arg; *p != NUL; ++p)
         {
-            arg = xmalloc(ustrlen(eap->arg) + len + 1);
-            len = 0;
+            arg[len++] = *p;
 
-            for(p = eap->arg; *p != NUL; ++p)
+            for(l = (*mb_ptr2len)(p) - 1; l > 0; --l)
             {
-                arg[len++] = *p;
+                arg[len++] = *++p;
 
-                for(l = (*mb_ptr2len)(p) - 1; l > 0; --l)
+                if(*p == K_SPECIAL)
                 {
-                    arg[len++] = *++p;
-
-                    if(*p == K_SPECIAL)
-                    {
-                        arg[len++] = KS_SPECIAL;
-                        arg[len++] = KE_FILLER;
-                    }
+                    arg[len++] = KS_SPECIAL;
+                    arg[len++] = KE_FILLER;
                 }
-
-                arg[len] = NUL;
             }
+
+            arg[len] = NUL;
         }
     }
 

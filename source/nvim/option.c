@@ -1876,8 +1876,7 @@ int do_set(uchar_kt *arg,  int opt_flags)
                                     ++arg; // remove backslash
                                 }
 
-                                if(has_mbyte
-                                   && (i = (*mb_ptr2len)(arg)) > 1)
+                                if((i = (*mb_ptr2len)(arg)) > 1)
                                 {
                                     // copy multibyte char
                                     memmove(s, arg, (size_t)i);
@@ -3272,58 +3271,36 @@ static uchar_kt *did_set_string_option(int opt_idx,
     // 'matchpairs'
     else if(gvarp == &p_mps)
     {
-        if(has_mbyte)
+        for(p = *varp; *p != NUL; ++p)
         {
-            for(p = *varp; *p != NUL; ++p)
+            int x2 = -1;
+            int x3 = -1;
+
+            if(*p != NUL)
             {
-                int x2 = -1;
-                int x3 = -1;
-
-                if(*p != NUL)
-                {
-                    p += mb_ptr2len(p);
-                }
-
-                if(*p != NUL)
-                {
-                    x2 = *p++;
-                }
-
-                if(*p != NUL)
-                {
-                    x3 = mb_ptr2char(p);
-                    p += mb_ptr2len(p);
-                }
-
-                if(x2 != ':' || x3 == -1 || (*p != NUL && *p != ','))
-                {
-                    errmsg = e_invarg;
-                    break;
-                }
-
-                if(*p == NUL)
-                {
-                    break;
-                }
+                p += mb_ptr2len(p);
             }
-        }
-        else
-        {
-            // Check for "x:y,x:y"
-            for(p = *varp; *p != NUL; p += 4)
-            {
-                if(p[1] != ':'
-                   || p[2] == NUL
-                   || (p[3] != NUL && p[3] != ','))
-                {
-                    errmsg = e_invarg;
-                    break;
-                }
 
-                if(p[3] == NUL)
-                {
-                    break;
-                }
+            if(*p != NUL)
+            {
+                x2 = *p++;
+            }
+
+            if(*p != NUL)
+            {
+                x3 = mb_ptr2char(p);
+                p += mb_ptr2len(p);
+            }
+
+            if(x2 != ':' || x3 == -1 || (*p != NUL && *p != ','))
+            {
+                errmsg = e_invarg;
+                break;
+            }
+
+            if(*p == NUL)
+            {
+                break;
             }
         }
     }
@@ -9068,89 +9045,46 @@ void find_mps_values(int *initc, int *findc, int *backwards, int switchit)
 
     while(*ptr != NUL)
     {
-        if(has_mbyte)
+        uchar_kt *prev;
+
+        if(mb_ptr2char(ptr) == *initc)
         {
-            uchar_kt *prev;
-
-            if(mb_ptr2char(ptr) == *initc)
+            if(switchit)
             {
-                if(switchit)
-                {
-                    *findc = *initc;
-                    *initc = mb_ptr2char(ptr + mb_ptr2len(ptr) + 1);
-                    *backwards = TRUE;
-                }
-                else
-                {
-                    *findc = mb_ptr2char(ptr + mb_ptr2len(ptr) + 1);
-                    *backwards = FALSE;
-                }
-
-                return;
+                *findc = *initc;
+                *initc = mb_ptr2char(ptr + mb_ptr2len(ptr) + 1);
+                *backwards = TRUE;
+            }
+            else
+            {
+                *findc = mb_ptr2char(ptr + mb_ptr2len(ptr) + 1);
+                *backwards = FALSE;
             }
 
-            prev = ptr;
-            ptr += mb_ptr2len(ptr) + 1;
-
-            if(mb_ptr2char(ptr) == *initc)
-            {
-                if(switchit)
-                {
-                    *findc = *initc;
-                    *initc = mb_ptr2char(prev);
-                    *backwards = FALSE;
-                }
-                else
-                {
-                    *findc = mb_ptr2char(prev);
-                    *backwards = TRUE;
-                }
-
-                return;
-            }
-
-            ptr += mb_ptr2len(ptr);
+            return;
         }
-        else
+
+        prev = ptr;
+        ptr += mb_ptr2len(ptr) + 1;
+
+        if(mb_ptr2char(ptr) == *initc)
         {
-            if(*ptr == *initc)
+            if(switchit)
             {
-                if(switchit)
-                {
-                    *backwards = TRUE;
-                    *findc = *initc;
-                    *initc = ptr[2];
-                }
-                else
-                {
-                    *backwards = FALSE;
-                    *findc = ptr[2];
-                }
-
-                return;
+                *findc = *initc;
+                *initc = mb_ptr2char(prev);
+                *backwards = FALSE;
+            }
+            else
+            {
+                *findc = mb_ptr2char(prev);
+                *backwards = TRUE;
             }
 
-            ptr += 2;
-
-            if(*ptr == *initc)
-            {
-                if(switchit)
-                {
-                    *backwards = FALSE;
-                    *findc = *initc;
-                    *initc = ptr[-2];
-                }
-                else
-                {
-                    *backwards = TRUE;
-                    *findc =  ptr[-2];
-                }
-
-                return;
-            }
-
-            ++ptr;
+            return;
         }
+
+        ptr += mb_ptr2len(ptr);
 
         if(*ptr == ',')
         {

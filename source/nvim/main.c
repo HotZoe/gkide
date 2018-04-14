@@ -164,9 +164,6 @@ static void early_init(void)
     }
 
     // Set the default values for the options.
-    // NOTE: Non-latin1 translated messages are working only after this,
-    // because this is where "has_mbyte" will be set, which is used by
-    // msg_outtrans_len_attr().
     init_options_part_1();
     set_lang_var(); // set v:lang and v:ctype
     TIME_MSG("early_init");

@@ -1545,43 +1545,6 @@ static int getexactdigraph(int char1, int char2, int meta_char)
         }
     }
 
-    if((retval != 0) && !enc_utf8)
-    {
-        uchar_kt *to;
-        uchar_kt buf[6];
-        vimconv_st vc;
-
-        // Convert the Unicode digraph to 'encoding'.
-        int i = utf_char2bytes(retval, buf);
-        retval = 0;
-        vc.vc_type = CONV_NONE;
-
-        if(convert_setup(&vc, (uchar_kt *)"utf-8", p_enc) == OK)
-        {
-            vc.vc_fail = true;
-
-            assert(i >= 0);
-
-            size_t len = (size_t)i;
-            to = string_convert(&vc, buf, &len);
-
-            if(to != NULL)
-            {
-                retval = (*mb_ptr2char)(to);
-                xfree(to);
-            }
-
-            (void)convert_setup(&vc, NULL, NULL);
-        }
-    }
-
-    // Ignore multi-byte characters
-    // when not in multi-byte mode.
-    if(!has_mbyte && (retval > 0xff))
-    {
-        retval = 0;
-    }
-
     if(retval == 0)
     {
         // digraph deleted or not found
@@ -1709,9 +1672,9 @@ void listdigraphs(void)
 
         tmp.result = getexactdigraph(tmp.char1, tmp.char2, FALSE);
 
-        if((tmp.result != 0)
-           && (tmp.result != tmp.char2)
-           && (has_mbyte || (tmp.result <= 255)))
+        if(tmp.result != 0
+           && tmp.result != tmp.char2
+           && tmp.result <= 255)
         {
             printdigraph(&tmp);
         }

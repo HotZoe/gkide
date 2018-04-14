@@ -1029,7 +1029,7 @@ retry:
         {
             fio_flags = FIO_UCSBOM;
         }
-        else if(enc_utf8 || ustrcmp(p_enc, "latin1") == 0)
+        else if(ustrcmp(p_enc, "latin1") == 0)
         {
             // Check if UCS-2/4 or Latin1 to UTF-8 conversion needs to be
             // done.  This is handled below after read().  Prepare the
@@ -1045,9 +1045,7 @@ retry:
         // Try using iconv() if we can't convert internally.
         if(fio_flags == 0 && !did_iconv)
         {
-            iconv_fd = (iconv_t)my_iconv_open(enc_utf8
-                                              ? (uchar_kt *)"utf-8"
-                                              : p_enc, fenc);
+            iconv_fd = (iconv_t)my_iconv_open((uchar_kt *)"utf-8", fenc);
         }
     #endif
 
@@ -1377,7 +1375,7 @@ retry:
                && (fio_flags == FIO_UCSBOM
                    || (!curbuf->b_p_bomb
                        && tmpname == NULL
-                       && (*fenc == 'u' || (*fenc == NUL && enc_utf8)))))
+                       && (*fenc == 'u' || *fenc == NUL))))
             {
                 uchar_kt *ccname;
                 int blen;
@@ -1516,8 +1514,6 @@ retry:
                 uchar_kt *dest;
                 uchar_kt *tail = NULL;
 
-                // "enc_utf8" set: Convert Unicode or Latin1 to UTF-8.
-                // "enc_utf8" not set: Convert Unicode to Latin1.
                 // Go from end to start through the buffer, because the number
                 // of bytes may increase.
                 // "dest" points to after where the UTF-8 bytes go, "p" points
@@ -1753,52 +1749,8 @@ retry:
                         }
                     }
 
-                    if(enc_utf8) // produce UTF-8
-                    {
-                        dest -= utf_char2len(u8c);
-                        (void)utf_char2bytes(u8c, dest);
-                    }
-                    else // produce Latin1
-                    {
-                        --dest;
-
-                        if(u8c >= 0x100)
-                        {
-                            // character doesn't fit in latin1, retry with
-                            // another fenc when possible, otherwise just
-                            // report the error.
-                            if(can_retry)
-                            {
-                                goto rewind_retry;
-                            }
-
-                            if(conv_error == 0)
-                            {
-                                conv_error = readfile_linenr(linecnt, ptr, p);
-                            }
-
-                            if(bad_char_behavior == BAD_DROP)
-                            {
-                                ++dest;
-                            }
-                            else if(bad_char_behavior == BAD_KEEP)
-                            {
-                                *dest = u8c;
-                            }
-                            else if(eap != NULL && eap->bad_char != 0)
-                            {
-                                *dest = bad_char_behavior;
-                            }
-                            else
-                            {
-                                *dest = 0xBF;
-                            }
-                        }
-                        else
-                        {
-                            *dest = u8c;
-                        }
-                    }
+                    dest -= utf_char2len(u8c);
+                    (void)utf_char2bytes(u8c, dest);
                 }
 
                 // move the linerest to before the converted characters
@@ -1807,7 +1759,7 @@ retry:
                 size = (long)((ptr + real_size) - dest);
                 ptr = dest;
             }
-            else if(enc_utf8 && !curbuf->b_p_bin)
+            else if(!curbuf->b_p_bin)
             {
                 int incomplete_tail = FALSE;
 
@@ -2731,7 +2683,7 @@ static uchar_kt *readfile_charconvert(uchar_kt *fname, uchar_kt *fenc, int *fdp)
         *fdp = -1;
 
         if(eval_charconvert((char *) fenc,
-                            enc_utf8 ? "utf-8" : (char *) p_enc,
+                            "utf-8",
                             (char *) fname,
                             (char *) tmpname) == FAIL)
         {
@@ -3874,7 +3826,7 @@ nobackup:
     // Check if UTF-8 to UCS-2/4 or Latin1 conversion needs to be done.  Or
     // Latin1 to Unicode conversion. This is handled in buf_write_bytes().
     // Prepare the flags for it and allocate bw_conv_buf when needed.
-    if(converted && (enc_utf8 || ustrcmp(p_enc, "latin1") == 0))
+    if(converted)
     {
         wb_flags = get_fio_flags(fenc);
 
@@ -3905,7 +3857,7 @@ nobackup:
         // Use iconv() conversion when
         // conversion is needed and it's not done internally.
         write_info.bw_iconv_fd =
-                (iconv_t)my_iconv_open(fenc, enc_utf8 ? (uchar_kt *)"utf-8" : p_enc);
+                (iconv_t)my_iconv_open(fenc, (uchar_kt *)"utf-8");
 
         if(write_info.bw_iconv_fd != (iconv_t)-1)
         {
@@ -4315,7 +4267,7 @@ restore_backup:
         // with 'charconvert' to (overwrite) the output file.
         if(end != 0)
         {
-            if(eval_charconvert(enc_utf8 ? "utf-8" : (char *) p_enc,
+            if(eval_charconvert("utf-8",
                                 (char *) fenc,
                                 (char *) wfname,
                                 (char *) fname) == FAIL)
@@ -5312,7 +5264,7 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 
     // Encodings differ. However, conversion is not needed
     // when 'enc' is any. Unicode encoding and the file is UTF-8.
-    return !(enc_utf8 && fenc_flags == FIO_UTF8);
+    return !(fenc_flags == FIO_UTF8);
 }
 
 /// Return the FIO_ flags needed for the internal conversion if
@@ -6589,11 +6541,7 @@ void forward_slash(uchar_kt *fname)
     for(p = fname; *p != NUL; p++)
     {
         // The Big5 encoding can have '\' in the trail byte.
-        if(enc_dbcs != 0 && (*mb_ptr2len)(p) > 1)
-        {
-            p++;
-        }
-        else if(*p == '\\')
+        if(*p == '\\')
         {
             *p = '/';
         }
@@ -9464,13 +9412,6 @@ FUNC_ATTR_NONNULL_ARG(1)
 
             default:
                 size++;
-
-                if(enc_dbcs != 0 && (*mb_ptr2len)(p) > 1)
-                {
-                    ++p;
-                    ++size;
-                }
-
                 break;
         }
     }
@@ -9648,11 +9589,7 @@ FUNC_ATTR_NONNULL_ARG(1)
                 break;
 
             default:
-                if(enc_dbcs != 0 && (*mb_ptr2len)(p) > 1)
-                {
-                    reg_pat[i++] = *p++;
-                }
-                else if(allow_dirs != NULL && vim_ispathsep(*p))
+                if(allow_dirs != NULL && vim_ispathsep(*p))
                 {
                     *allow_dirs = TRUE;
                 }

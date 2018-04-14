@@ -1085,7 +1085,7 @@ int win_lbr_chartabsize(win_st *wp,
 
             if(*p_sbr != NUL)
             {
-                sbrlen = (columnum_kt)MB_CHARLEN(p_sbr);
+                sbrlen = (columnum_kt)mb_charlen(p_sbr);
 
                 if(col >= sbrlen)
                 {

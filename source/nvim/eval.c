@@ -6253,13 +6253,13 @@ static int get_string_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
                     FALL_THROUGH_ATTRIBUTE;
 
                 default:
-                    MB_COPY_CHAR(p, name);
+                    mb_copy_char((const uchar_kt **)&p, &name);
                     break;
             }
         }
         else
         {
-            MB_COPY_CHAR(p, name);
+            mb_copy_char((const uchar_kt **)&p, &name);
         }
     }
 
@@ -6328,7 +6328,7 @@ static int get_lit_string_tv(uchar_kt **arg, typval_st *rettv, int evaluate)
             ++p;
         }
 
-        MB_COPY_CHAR(p, str);
+        mb_copy_char((const uchar_kt **)&p, &str);
     }
 
     *str = NUL;
@@ -9404,7 +9404,7 @@ static void byteidx(typval_st *argvars, typval_st *rettv, int comp)
             return;
         }
 
-        if(enc_utf8 && comp)
+        if(comp)
         {
             t += utf_ptr2len((const uchar_kt *)t);
         }
@@ -9983,10 +9983,7 @@ static void f_cursor(typval_st *argvars,
     check_cursor();
 
     // Correct cursor for multi-byte character.
-    if(has_mbyte)
-    {
-        mb_adjust_cursor();
-    }
+    mb_adjust_cursor();
 
     curwin->w_set_curswant = set_curswant;
     rettv->vval.v_number = 0;
@@ -12248,13 +12245,9 @@ static void f_getchar(typval_st *argvars,
             temp[i++] = K_SECOND(n);
             temp[i++] = K_THIRD(n);
         }
-        else if(has_mbyte)
-        {
-            i += (*mb_char2bytes)(n, temp + i);
-        }
         else
         {
-            temp[i++] = n;
+            i += (*mb_char2bytes)(n, temp + i);
         }
 
         temp[i++] = NUL;
@@ -17066,7 +17059,7 @@ static void f_readfile(typval_st *argvars,
             }
             // Check for utf8 "bom"; U+FEFF is encoded as EF BB BF. Do this
             // when finding the BF and check the previous two bytes.
-            else if(*p == 0xbf && enc_utf8 && !binary)
+            else if(*p == 0xbf && !binary)
             {
                 // Find the two bytes before the 0xbf.If p is at buf, or buf
                 // + 1, these may be in the "prev" string.
@@ -18246,7 +18239,7 @@ static void f_screenchar(typval_st *argvars,
     {
         off = LineOffset[row] + col;
 
-        if(enc_utf8 && ScreenLinesUC[off] != 0)
+        if(ScreenLinesUC[off] != 0)
         {
             c = ScreenLinesUC[off];
         }
@@ -18870,16 +18863,9 @@ static void f_setcharsearch(typval_st *argvars,
 
         if(csearch != NULL)
         {
-            if(enc_utf8)
-            {
-                int pcc[MAX_MCO];
-                int c = utfc_ptr2char(csearch, pcc);
-                set_last_csearch(c, csearch, utfc_ptr2len(csearch));
-            }
-            else
-            {
-                set_last_csearch(PTR2CHAR(csearch), csearch, MB_PTR2LEN(csearch));
-            }
+            int pcc[MAX_MCO];
+            int c = utfc_ptr2char(csearch, pcc);
+            set_last_csearch(c, csearch, utfc_ptr2len(csearch));
         }
 
         di = tv_dict_find(d, S_LEN("forward"));
@@ -20663,7 +20649,7 @@ static void f_strgetchar(typval_st *argvars,
         }
 
         charidx--;
-        byteidx += MB_CPTR2LEN((const uchar_kt *)str + byteidx);
+        byteidx += mb_cptr2len((const uchar_kt *)str + byteidx);
     }
 }
 
@@ -20801,7 +20787,7 @@ static void f_strcharpart(typval_st *argvars,
         {
             while(nchar > 0 && (size_t)nbyte < slen)
             {
-                nbyte += MB_CPTR2LEN((const uchar_kt *)p + nbyte);
+                nbyte += mb_cptr2len((const uchar_kt *)p + nbyte);
                 nchar--;
             }
         }
@@ -20827,7 +20813,7 @@ static void f_strcharpart(typval_st *argvars,
             }
             else
             {
-                len += (size_t)MB_CPTR2LEN((const uchar_kt *)p + off);
+                len += (size_t)mb_cptr2len((const uchar_kt *)p + off);
             }
 
             charlen--;
@@ -21265,14 +21251,7 @@ static void f_synconcealed(typval_st *argvars,
 
             if(cchar != NUL)
             {
-                if(has_mbyte)
-                {
-                    (*mb_char2bytes)(cchar, str);
-                }
-                else
-                {
-                    str[0] = cchar;
-                }
+                (*mb_char2bytes)(cchar, str);
             }
         }
     }
@@ -22225,101 +22204,73 @@ static void f_tr(typval_st *argvars,
     garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
 
-    if(!has_mbyte)
-    {
-        // Not multi-byte: fromstr and tostr must be the same length.
-        if(strlen(fromstr) != strlen(tostr))
-        {
-            goto error;
-        }
-    }
-
     // fromstr and tostr have to contain the same number of chars.
     bool first = true;
 
     while(*in_str != NUL)
     {
-        if(has_mbyte)
+        const char *cpstr = in_str;
+        const int inlen = (*mb_ptr2len)((const uchar_kt *)in_str);
+        int cplen = inlen;
+        int idx = 0;
+        int fromlen;
+
+        for(const char *p = fromstr; *p != NUL; p += fromlen)
         {
-            const char *cpstr = in_str;
-            const int inlen = (*mb_ptr2len)((const uchar_kt *)in_str);
-            int cplen = inlen;
-            int idx = 0;
-            int fromlen;
+            fromlen = (*mb_ptr2len)((const uchar_kt *)p);
 
-            for(const char *p = fromstr; *p != NUL; p += fromlen)
+            if(fromlen == inlen && ustrncmp(in_str, p, inlen) == 0)
             {
-                fromlen = (*mb_ptr2len)((const uchar_kt *)p);
-
-                if(fromlen == inlen && ustrncmp(in_str, p, inlen) == 0)
-                {
-                    int tolen;
-
-                    for(p = tostr; *p != NUL; p += tolen)
-                    {
-                        tolen = (*mb_ptr2len)((const uchar_kt *)p);
-
-                        if(idx-- == 0)
-                        {
-                            cplen = tolen;
-                            cpstr = (char *)p;
-                            break;
-                        }
-                    }
-
-                    if(*p == NUL)
-                    {
-                        // tostr is shorter than fromstr.
-                        goto error;
-                    }
-
-                    break;
-                }
-
-                idx++;
-            }
-
-            if(first && cpstr == in_str)
-            {
-                // Check that fromstr and tostr have the same number of
-                // (multi-byte) characters. Done only once when a character
-                // of in_str doesn't appear in fromstr.
-                first = false;
                 int tolen;
 
-                for(const char *p = tostr; *p != NUL; p += tolen)
+                for(p = tostr; *p != NUL; p += tolen)
                 {
                     tolen = (*mb_ptr2len)((const uchar_kt *)p);
-                    idx--;
+
+                    if(idx-- == 0)
+                    {
+                        cplen = tolen;
+                        cpstr = (char *)p;
+                        break;
+                    }
                 }
 
-                if(idx != 0)
+                if(*p == NUL)
                 {
+                    // tostr is shorter than fromstr.
                     goto error;
                 }
+
+                break;
             }
 
-            ga_grow(&ga, cplen);
-            memmove((char *)ga.ga_data + ga.ga_len, cpstr, (size_t)cplen);
-            ga.ga_len += cplen;
-            in_str += inlen;
+            idx++;
         }
-        else
+
+        if(first && cpstr == in_str)
         {
-            // When not using multi-byte chars we can do it faster.
-            const char *const p = strchr(fromstr, *in_str);
+            // Check that fromstr and tostr have the same number of
+            // (multi-byte) characters. Done only once when a character
+            // of in_str doesn't appear in fromstr.
+            first = false;
+            int tolen;
 
-            if(p != NULL)
+            for(const char *p = tostr; *p != NUL; p += tolen)
             {
-                ga_append(&ga, tostr[p - fromstr]);
-            }
-            else
-            {
-                ga_append(&ga, *in_str);
+                tolen = (*mb_ptr2len)((const uchar_kt *)p);
+                idx--;
             }
 
-            in_str++;
+            if(idx != 0)
+            {
+                goto error;
+            }
         }
+
+        ga_grow(&ga, cplen);
+        memmove((char *)ga.ga_data + ga.ga_len, cpstr, (size_t)cplen);
+        ga.ga_len += cplen;
+        in_str += inlen;
     }
 
     // add a terminating NUL
@@ -23688,16 +23639,7 @@ void set_vim_var_char(int c)
 {
     char buf[MB_MAXBYTES + 1];
 
-    if(has_mbyte)
-    {
-        buf[(*mb_char2bytes)(c, (uchar_kt *) buf)] = NUL;
-    }
-    else
-    {
-        buf[0] = c;
-        buf[1] = NUL;
-    }
-
+    buf[(*mb_char2bytes)(c, (uchar_kt *) buf)] = NUL;
     set_vim_var_string(VV_CHAR, buf, -1);
 }
 
@@ -25303,16 +25245,9 @@ void ex_echo(exargs_st *eap)
                     }
                     else
                     {
-                        if(has_mbyte)
-                        {
-                            int i = (*mb_ptr2len)((const uchar_kt *)p);
-                            (void)msg_outtrans_len_attr((uchar_kt *)p, i, echo_attr);
-                            p += i - 1;
-                        }
-                        else
-                        {
-                            (void)msg_outtrans_len_attr((uchar_kt *)p, 1, echo_attr);
-                        }
+                        int i = (*mb_ptr2len)((const uchar_kt *)p);
+                        (void)msg_outtrans_len_attr((uchar_kt *)p, i, echo_attr);
+                        p += i - 1;
                     }
                 }
             }
@@ -29054,7 +28989,7 @@ uchar_kt *do_string_sub(uchar_kt *str,
                 if(zero_width == regmatch.startp[0])
                 {
                     // avoid getting stuck on a match with an empty string
-                    int i = MB_PTR2LEN(tail);
+                    int i = mb_ptr2len(tail);
                     memmove((uchar_kt *)ga.ga_data + ga.ga_len, tail, (size_t)i);
                     ga.ga_len += i;
                     tail += i;

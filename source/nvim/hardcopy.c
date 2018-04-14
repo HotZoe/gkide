@@ -1065,15 +1065,7 @@ static columnum_kt hardcopy_line(prt_geninfo_st *psettings,
         else
         {
             need_break = mch_print_text_out(line + col, (size_t)outputlen);
-
-            if(has_mbyte)
-            {
-                print_pos += (*mb_ptr2cells)(line + col);
-            }
-            else
-            {
-                print_pos++;
-            }
+            print_pos += (*mb_ptr2cells)(line + col);
         }
     }
 

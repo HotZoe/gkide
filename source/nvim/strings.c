@@ -360,7 +360,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         size_t l;
 
-        if(has_mbyte && (l = (size_t)(*mb_ptr2len)(p)) > 1)
+        if((l = (size_t)(*mb_ptr2len)(p)) > 1)
         {
             length += l; // count a multibyte char
             p += l - 1;
@@ -382,7 +382,7 @@ FUNC_ATTR_NONNULL_ALL
     {
         size_t l;
 
-        if(has_mbyte && (l = (size_t)(*mb_ptr2len)(p)) > 1)
+        if((l = (size_t)(*mb_ptr2len)(p)) > 1)
         {
             memcpy(p2, p, l);
             p2 += l;
@@ -606,7 +606,7 @@ FUNC_ATTR_NONNULL_ALL
             continue;
         }
 
-        MB_COPY_CHAR(p, d);
+        mb_copy_char(&p, &d);
     }
 
     // add terminating quote and finish with a NUL

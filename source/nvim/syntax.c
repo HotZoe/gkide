@@ -2011,12 +2011,10 @@ static int syn_current_attr(int syncing,
                        || !is_kwc_ptr_buf(line
                                            + current_col
                                            - 1
-                                           - (has_mbyte
-                                              ? (*mb_head_off)(line,
-                                                               line
-                                                               + current_col
-                                                               - 1)
-                                              : 0),
+                                           - (*mb_head_off)(line,
+                                                            line
+                                                            + current_col
+                                                            - 1),
                                            syn_buf)))
                 {
                     syn_id = check_keyword_id(line,
@@ -3443,14 +3441,7 @@ static int check_keyword_id(uchar_kt *line,
 
     do
     {
-        if(has_mbyte)
-        {
-            kwlen += (*mb_ptr2len)(kwp + kwlen);
-        }
-        else
-        {
-            ++kwlen;
-        }
+        kwlen += (*mb_ptr2len)(kwp + kwlen);
     } while(is_kwc_ptr_buf(kwp + kwlen, syn_buf));
 
     if(kwlen > MAXKEYWLEN)
@@ -4880,15 +4871,8 @@ static uchar_kt *get_syn_options(uchar_kt *arg,
         }
         else if(flagtab[fidx].argtype == 11 && arg[5] == '=')
         {
-            if(has_mbyte) // cchar = ?
-            {
-                *conceal_char = mb_ptr2char(arg + 6);
-                arg += mb_ptr2len(arg + 6) - 1;
-            }
-            else
-            {
-                *conceal_char = arg[6];
-            }
+            *conceal_char = mb_ptr2char(arg + 6);
+            arg += mb_ptr2len(arg + 6) - 1;
 
             if(!is_print_char_strict(*conceal_char))
             {

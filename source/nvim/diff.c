@@ -2022,8 +2022,7 @@ static int diff_cmp(uchar_kt *s1, uchar_kt *s2)
             if(l > 1)
             {
                 if((ustrncmp(p1, p2, l) != 0)
-                   && (!enc_utf8
-                       || !(diff_flags & DIFF_ICASE)
+                   && (!(diff_flags & DIFF_ICASE)
                        || (utf_fold(utf_ptr2char(p1))
                            != utf_fold(utf_ptr2char(p2)))))
                 {
@@ -2417,13 +2416,10 @@ FUNC_ATTR_NONNULL_ALL
                 }
             }
 
-            if(has_mbyte)
-            {
-                // Move back to first byte of character in both lines (may
-                // have "nn^" in line_org and "n^ in line_new).
-                si_org -= (*mb_head_off)(line_org, line_org + si_org);
-                si_new -= (*mb_head_off)(line_new, line_new + si_new);
-            }
+            // Move back to first byte of character in both lines (may
+            // have "nn^" in line_org and "n^ in line_new).
+            si_org -= (*mb_head_off)(line_org, line_org + si_org);
+            si_new -= (*mb_head_off)(line_new, line_new + si_new);
 
             if(*startp > si_org)
             {

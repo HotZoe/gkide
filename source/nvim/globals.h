@@ -146,7 +146,7 @@ EXTERN uchar_kt *LineWraps INIT(= NULL);
 // NUL when the character in ScreenLines[] is to be used (ASCII char).
 // The composing characters are to be drawn on top of the original character.
 // ScreenLinesC[0][off] is only to be used when ScreenLinesUC[off] != 0.
-// Note: These three are only allocated when enc_utf8 is set!
+// These three are only allocated.
 
 /// decoded UTF-8 characters
 EXTERN utf8char_kt *ScreenLinesUC INIT(= NULL);
@@ -809,8 +809,8 @@ EXTERN int orig_line_count INIT(= 0);  ///< Line count when "gR" started
 EXTERN int vr_lines_changed INIT(= 0); ///< #Lines changed by "gR" so far
 
 // These flags are set based upon 'fileencoding'.
-// Note that "enc_utf8" is also set for "unicode", because the characters are
-// internally stored as UTF-8 (to avoid trouble with NUL bytes).
+// Note that the characters are internally stored
+// as UTF-8 (to avoid trouble with NUL bytes).
 #define DBCS_JPN       932     ///< japan
 #define DBCS_JPNU      9932    ///< euc-jp
 #define DBCS_KOR       949     ///< korea
@@ -821,15 +821,6 @@ EXTERN int vr_lines_changed INIT(= 0); ///< #Lines changed by "gR" so far
 #define DBCS_CHTU      9950    ///< euc-tw
 #define DBCS_2BYTE     1       ///< 2byte-
 #define DBCS_DEBUG     -1      ///<
-
-/// mbyte flags that used to depend on @b encoding.
-/// These are now deprecated, as @b encoding is always "utf-8".
-/// Code that use them can be refactored to remove dead code.
-///
-/// @todo, remove the dead code, to make things simple
-#define enc_dbcs  false
-#define enc_utf8  true
-#define has_mbyte true
 
 /// Encoding used when 'fencs' is set to "default"
 EXTERN uchar_kt *fenc_default INIT(= NULL);

@@ -513,7 +513,7 @@ uchar_kt *get_special_key_name(int c, int modifiers)
         else
         {
             // Not a special key, only modifiers, output directly
-            if(has_mbyte && (*mb_char2len)(c) > 1)
+            if((*mb_char2len)(c) > 1)
             {
                 idx += (*mb_char2bytes)(c, string + idx);
             }
@@ -598,7 +598,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
         dst[dlen++] = (uchar_kt)KEY2TERMCAP0(key);
         dst[dlen++] = KEY2TERMCAP1(key);
     }
-    else if(has_mbyte && !keycode)
+    else if(!keycode)
     {
         dlen += (unsigned int)(*mb_char2bytes)(key, dst + dlen);
     }
@@ -680,14 +680,7 @@ FUNC_ATTR_NONNULL_ALL
 
             if(bp + 1 <= end)
             {
-                if(has_mbyte)
-                {
-                    l = mb_ptr2len_len(bp + 1, (int)(end - bp) + 1);
-                }
-                else
-                {
-                    l = 1;
-                }
+                l = mb_ptr2len_len(bp + 1, (int)(end - bp) + 1);
 
                 // Anything accepted, like <C-?>.
                 // <C-"> or <M-"> are not special in strings as " is
@@ -767,7 +760,7 @@ FUNC_ATTR_NONNULL_ALL
 
                 if(modifiers != 0 && last_dash[l + 1] == '>')
                 {
-                    key = PTR2CHAR(last_dash + off);
+                    key = mb_ptr2char(last_dash + off);
                 }
                 else
                 {

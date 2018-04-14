@@ -324,14 +324,11 @@ uchar_kt *shorten_dir(uchar_kt *str)
                 skip = true;
             }
 
-            if(has_mbyte)
-            {
-                int l = mb_ptr2len(s);
+            int l = mb_ptr2len(s);
 
-                while(--l > 0)
-                {
-                    *d++ = *++s;
-                }
+            while(--l > 0)
+            {
+                *d++ = *++s;
             }
         }
     }
@@ -406,8 +403,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
     while(len > 0)
     {
-        c1 = PTR2CHAR((const uchar_kt *)p1);
-        c2 = PTR2CHAR((const uchar_kt *)p2);
+        c1 = mb_ptr2char((const uchar_kt *)p1);
+        c2 = mb_ptr2char((const uchar_kt *)p2);
 
         if((c1 == NUL || c2 == NUL
             || (!((c1 == '/' || c1 == '\\') && (c2 == '\\' || c2 == '/'))))
@@ -416,9 +413,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
             break;
         }
 
-        len -= (size_t) MB_PTR2LEN((const uchar_kt *)p1);
-        p1 += MB_PTR2LEN((const uchar_kt *)p1);
-        p2 += MB_PTR2LEN((const uchar_kt *)p2);
+        len -= (size_t) mb_ptr2len((const uchar_kt *)p1);
+        p1 += mb_ptr2len((const uchar_kt *)p1);
+        p2 += mb_ptr2len((const uchar_kt *)p2);
     }
 
     return c1 - c2;
@@ -771,24 +768,17 @@ FUNC_ATTR_NONNULL_ALL
                 && (ustrchr((uchar_kt *)"*?[{~$", *path_end) != NULL
         #ifndef HOST_OS_WINDOWS
                     || (!p_fic && (flags & EW_ICASE)
-                        && isalpha(PTR2CHAR(path_end)))
+                        && isalpha(mb_ptr2char(path_end)))
         #endif
                    ))
         {
             e = p;
         }
 
-        if(has_mbyte)
-        {
-            len = (size_t)(*mb_ptr2len)(path_end);
-            memcpy(p, path_end, len);
-            p += len;
-            path_end += len;
-        }
-        else
-        {
-            *p++ = *path_end++;
-        }
+        len = (size_t)(*mb_ptr2len)(path_end);
+        memcpy(p, path_end, len);
+        p += len;
+        path_end += len;
     }
 
     e = p;
@@ -2310,8 +2300,8 @@ int pathcmp(const char *p, const char *q, int maxlen)
 
     for(i = 0, j = 0; maxlen < 0 || (i < maxlen && j < maxlen);)
     {
-        c1 = PTR2CHAR((uchar_kt *)p + i);
-        c2 = PTR2CHAR((uchar_kt *)q + j);
+        c1 = mb_ptr2char((uchar_kt *)p + i);
+        c2 = mb_ptr2char((uchar_kt *)q + j);
 
         // End of "p": check if "q" also ends or just has a slash.
         if(c1 == NUL)
@@ -2355,8 +2345,8 @@ int pathcmp(const char *p, const char *q, int maxlen)
             return p_fic ? mb_toupper(c1) - mb_toupper(c2) : c1 - c2; // no match
         }
 
-        i += MB_PTR2LEN((uchar_kt *)p + i);
-        j += MB_PTR2LEN((uchar_kt *)q + j);
+        i += mb_ptr2len((uchar_kt *)p + i);
+        j += mb_ptr2len((uchar_kt *)q + j);
     }
 
     if(s == NULL) // "i" or "j" ran into "maxlen"
@@ -2364,8 +2354,8 @@ int pathcmp(const char *p, const char *q, int maxlen)
         return 0;
     }
 
-    c1 = PTR2CHAR((uchar_kt *)s + i);
-    c2 = PTR2CHAR((uchar_kt *)s + i + MB_PTR2LEN((uchar_kt *)s + i));
+    c1 = mb_ptr2char((uchar_kt *)s + i);
+    c2 = mb_ptr2char((uchar_kt *)s + i + mb_ptr2len((uchar_kt *)s + i));
     // ignore a trailing slash, but not "//" or ":/"
 #ifdef BACKSLASH_IN_FILENAME
 

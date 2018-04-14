@@ -5871,11 +5871,6 @@ void ex_helpgrep(exargs_st *eap)
         // convert lines when 'encoding' differs.
         vc.vc_type = CONV_NONE;
 
-        if(!enc_utf8)
-        {
-            convert_setup(&vc, (uchar_kt *)"utf-8", p_enc);
-        }
-
         // create a new quickfix list
         qf_new_list(qi, *eap->cmdlinep);
 

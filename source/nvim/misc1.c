@@ -142,14 +142,7 @@ int open_line(int dir, int flags, int second_line_indent)
 
         while(*p != NUL)
         {
-            if(has_mbyte)
-            {
-                p += replace_push_mb(p);
-            }
-            else
-            {
-                replace_push(*p++);
-            }
+            p += replace_push_mb(p);
         }
 
         saved_line[curwin->w_cursor.col] = NUL;
@@ -881,7 +874,7 @@ int open_line(int dir, int flags, int second_line_indent)
         if(curbuf->b_p_ai || (flags & OPENLINE_DELSPACES))
         {
             while((*p_extra == ' ' || *p_extra == '\t')
-                  && (!enc_utf8 || !utf_iscomposing(utf_ptr2char(p_extra + 1))))
+                  && (!utf_iscomposing(utf_ptr2char(p_extra + 1))))
             {
                 if(REPLACE_NORMAL(curmod))
                 {
@@ -1718,31 +1711,14 @@ void ins_bytes(uchar_kt *p)
 /// Handles Replace mode and multi-byte characters.
 void ins_bytes_len(uchar_kt *p, size_t len)
 {
-    if(has_mbyte)
-    {
-        size_t n;
+    size_t n;
 
-        for(size_t i = 0; i < len; i += n)
-        {
-            if(enc_utf8)
-            {
-                // avoid reading past p[len]
-                n = (size_t)utfc_ptr2len_len(p + i, (int)(len - i));
-            }
-            else
-            {
-                n = (size_t)(*mb_ptr2len)(p + i);
-            }
-
-            ins_char_bytes(p + i, n);
-        }
-    }
-    else
+    for(size_t i = 0; i < len; i += n)
     {
-        for(size_t i = 0; i < len; i++)
-        {
-            ins_char(p[i]);
-        }
+        // avoid reading past p[len]
+        n = (size_t)utfc_ptr2len_len(p + i, (int)(len - i));
+
+        ins_char_bytes(p + i, n);
     }
 }
 
@@ -1841,14 +1817,7 @@ void ins_char_bytes(uchar_kt *buf, size_t charlen)
 
         for(size_t i = 0; i < oldlen; i++)
         {
-            if(has_mbyte)
-            {
-                i += (size_t)replace_push_mb(oldp + col + i) - 1;
-            }
-            else
-            {
-                replace_push(oldp[col + i]);
-            }
+            i += (size_t)replace_push_mb(oldp + col + i) - 1;
         }
     }
 
@@ -1938,20 +1907,15 @@ void ins_str(uchar_kt *s)
 /// @return FAIL for failure, OK otherwise
 int del_char(int fixpos)
 {
-    if(has_mbyte)
+    // Make sure the cursor is at the start of a character.
+    mb_adjust_cursor();
+
+    if(*get_cursor_pos_ptr() == NUL)
     {
-        // Make sure the cursor is at the start of a character.
-        mb_adjust_cursor();
-
-        if(*get_cursor_pos_ptr() == NUL)
-        {
-            return FAIL;
-        }
-
-        return del_chars(1L, fixpos);
+        return FAIL;
     }
 
-    return del_bytes(1, fixpos, true);
+    return del_chars(1L, fixpos);
 }
 
 /// Like del_bytes(), but delete characters instead of bytes.
@@ -1998,7 +1962,8 @@ int del_bytes(columnum_kt count, bool fixpos_arg, bool use_delcombine)
 
     // If 'delcombine' is set and deleting (less than) one
     // character, only delete the last combining character.
-    if(p_deco && use_delcombine && enc_utf8
+    if(p_deco
+       && use_delcombine
        && utfc_ptr2len(oldp + col) >= count)
     {
         int cc[MAX_MCO];
@@ -2038,11 +2003,8 @@ int del_bytes(columnum_kt count, bool fixpos_arg, bool use_delcombine)
             --curwin->w_cursor.col;
             curwin->w_cursor.coladd = 0;
 
-            if(has_mbyte)
-            {
-                curwin->w_cursor.col -=
-                    (*mb_head_off)(oldp, oldp + curwin->w_cursor.col);
-            }
+            curwin->w_cursor.col -=
+                (*mb_head_off)(oldp, oldp + curwin->w_cursor.col);
         }
 
         count = oldlen - col;
@@ -2158,13 +2120,7 @@ void del_lines(long nlines, int undo)
 int gchar_pos(apos_st *pos)
 {
     uchar_kt *ptr = ml_get_pos(pos);
-
-    if(has_mbyte)
-    {
-        return (*mb_ptr2char)(ptr);
-    }
-
-    return (int)*ptr;
+    return (*mb_ptr2char)(ptr);
 }
 
 /// Call this function when something in the current buffer is changed.
@@ -2923,16 +2879,13 @@ int get_keystroke(void)
             break;
         }
 
-        if(has_mbyte)
+        if(MB_BYTE2LEN(n) > len)
         {
-            if(MB_BYTE2LEN(n) > len)
-            {
-                continue; // more bytes to get
-            }
-
-            buf[len >= buflen ? buflen - 1 : len] = NUL;
-            n = (*mb_ptr2char)(buf);
+            continue; // more bytes to get
         }
+
+        buf[len >= buflen ? buflen - 1 : len] = NUL;
+        n = (*mb_ptr2char)(buf);
 
         #ifdef UNIX
         if(n == intr_char)

@@ -898,21 +898,11 @@ static int get_equi_class(uchar_kt **pp)
 
     if(p[1] == '=')
     {
-        if(has_mbyte)
-        {
-            l = (*mb_ptr2len)(p + 2);
-        }
+        l = (*mb_ptr2len)(p + 2);
 
         if(p[l + 2] == '=' && p[l + 3] == ']')
         {
-            if(has_mbyte)
-            {
-                c = mb_ptr2char(p + 2);
-            }
-            else
-            {
-                c = p[2];
-            }
+            c = mb_ptr2char(p + 2);
 
             *pp += l + 4;
             return c;
@@ -929,804 +919,799 @@ static int get_equi_class(uchar_kt **pp)
 /// When changing this function, also change nfa_emit_equi_class()
 static void reg_equi_class(int c)
 {
-    if(enc_utf8
-       || ustrcmp(p_enc, "latin1") == 0
-       || ustrcmp(p_enc, "iso-8859-15") == 0)
+    switch(c)
     {
-        switch(c)
-        {
-            // multi-byte char case. Do not use '\300'
-            // style, it results in a negative number.
-            case 'A':
-            case 0xc0:
-            case 0xc1:
-            case 0xc2:
-            case 0xc3:
-            case 0xc4:
-            case 0xc5:
-            case 0x100:
-            case 0x102:
-            case 0x104:
-            case 0x1cd:
-            case 0x1de:
-            case 0x1e0:
-            case 0x1ea2:
-                regmbc('A');
-                regmbc(0xc0);
-                regmbc(0xc1);
-                regmbc(0xc2);
-                regmbc(0xc3);
-                regmbc(0xc4);
-                regmbc(0xc5);
-                regmbc(0x100);
-                regmbc(0x102);
-                regmbc(0x104);
-                regmbc(0x1cd);
-                regmbc(0x1de);
-                regmbc(0x1e0);
-                regmbc(0x1ea2);
-                return;
+        // multi-byte char case. Do not use '\300'
+        // style, it results in a negative number.
+        case 'A':
+        case 0xc0:
+        case 0xc1:
+        case 0xc2:
+        case 0xc3:
+        case 0xc4:
+        case 0xc5:
+        case 0x100:
+        case 0x102:
+        case 0x104:
+        case 0x1cd:
+        case 0x1de:
+        case 0x1e0:
+        case 0x1ea2:
+            regmbc('A');
+            regmbc(0xc0);
+            regmbc(0xc1);
+            regmbc(0xc2);
+            regmbc(0xc3);
+            regmbc(0xc4);
+            regmbc(0xc5);
+            regmbc(0x100);
+            regmbc(0x102);
+            regmbc(0x104);
+            regmbc(0x1cd);
+            regmbc(0x1de);
+            regmbc(0x1e0);
+            regmbc(0x1ea2);
+            return;
 
-            case 'B':
-            case 0x1e02:
-            case 0x1e06:
-                regmbc('B');
-                regmbc(0x1e02);
-                regmbc(0x1e06);
-                return;
+        case 'B':
+        case 0x1e02:
+        case 0x1e06:
+            regmbc('B');
+            regmbc(0x1e02);
+            regmbc(0x1e06);
+            return;
 
-            case 'C':
-            case 0xc7:
-            case 0x106:
-            case 0x108:
-            case 0x10a:
-            case 0x10c:
-                regmbc('C');
-                regmbc(0xc7);
-                regmbc(0x106);
-                regmbc(0x108);
-                regmbc(0x10a);
-                regmbc(0x10c);
-                return;
+        case 'C':
+        case 0xc7:
+        case 0x106:
+        case 0x108:
+        case 0x10a:
+        case 0x10c:
+            regmbc('C');
+            regmbc(0xc7);
+            regmbc(0x106);
+            regmbc(0x108);
+            regmbc(0x10a);
+            regmbc(0x10c);
+            return;
 
-            case 'D':
-            case 0x10e:
-            case 0x110:
-            case 0x1e0a:
-            case 0x1e0e:
-            case 0x1e10:
-                regmbc('D');
-                regmbc(0x10e);
-                regmbc(0x110);
-                regmbc(0x1e0a);
-                regmbc(0x1e0e);
-                regmbc(0x1e10);
-                return;
+        case 'D':
+        case 0x10e:
+        case 0x110:
+        case 0x1e0a:
+        case 0x1e0e:
+        case 0x1e10:
+            regmbc('D');
+            regmbc(0x10e);
+            regmbc(0x110);
+            regmbc(0x1e0a);
+            regmbc(0x1e0e);
+            regmbc(0x1e10);
+            return;
 
-            case 'E':
-            case 0xc8:
-            case 0xc9:
-            case 0xca:
-            case 0xcb:
-            case 0x112:
-            case 0x114:
-            case 0x116:
-            case 0x118:
-            case 0x11a:
-            case 0x1eba:
-            case 0x1ebc:
-                regmbc('E');
-                regmbc(0xc8);
-                regmbc(0xc9);
-                regmbc(0xca);
-                regmbc(0xcb);
-                regmbc(0x112);
-                regmbc(0x114);
-                regmbc(0x116);
-                regmbc(0x118);
-                regmbc(0x11a);
-                regmbc(0x1eba);
-                regmbc(0x1ebc);
-                return;
+        case 'E':
+        case 0xc8:
+        case 0xc9:
+        case 0xca:
+        case 0xcb:
+        case 0x112:
+        case 0x114:
+        case 0x116:
+        case 0x118:
+        case 0x11a:
+        case 0x1eba:
+        case 0x1ebc:
+            regmbc('E');
+            regmbc(0xc8);
+            regmbc(0xc9);
+            regmbc(0xca);
+            regmbc(0xcb);
+            regmbc(0x112);
+            regmbc(0x114);
+            regmbc(0x116);
+            regmbc(0x118);
+            regmbc(0x11a);
+            regmbc(0x1eba);
+            regmbc(0x1ebc);
+            return;
 
-            case 'F':
-            case 0x1e1e:
-                regmbc('F');
-                regmbc(0x1e1e);
-                return;
+        case 'F':
+        case 0x1e1e:
+            regmbc('F');
+            regmbc(0x1e1e);
+            return;
 
-            case 'G':
-            case 0x11c:
-            case 0x11e:
-            case 0x120:
-            case 0x122:
-            case 0x1e4:
-            case 0x1e6:
-            case 0x1f4:
-            case 0x1e20:
-                regmbc('G');
-                regmbc(0x11c);
-                regmbc(0x11e);
-                regmbc(0x120);
-                regmbc(0x122);
-                regmbc(0x1e4);
-                regmbc(0x1e6);
-                regmbc(0x1f4);
-                regmbc(0x1e20);
-                return;
+        case 'G':
+        case 0x11c:
+        case 0x11e:
+        case 0x120:
+        case 0x122:
+        case 0x1e4:
+        case 0x1e6:
+        case 0x1f4:
+        case 0x1e20:
+            regmbc('G');
+            regmbc(0x11c);
+            regmbc(0x11e);
+            regmbc(0x120);
+            regmbc(0x122);
+            regmbc(0x1e4);
+            regmbc(0x1e6);
+            regmbc(0x1f4);
+            regmbc(0x1e20);
+            return;
 
-            case 'H':
-            case 0x124:
-            case 0x126:
-            case 0x1e22:
-            case 0x1e26:
-            case 0x1e28:
-                regmbc('H');
-                regmbc(0x124);
-                regmbc(0x126);
-                regmbc(0x1e22);
-                regmbc(0x1e26);
-                regmbc(0x1e28);
-                return;
+        case 'H':
+        case 0x124:
+        case 0x126:
+        case 0x1e22:
+        case 0x1e26:
+        case 0x1e28:
+            regmbc('H');
+            regmbc(0x124);
+            regmbc(0x126);
+            regmbc(0x1e22);
+            regmbc(0x1e26);
+            regmbc(0x1e28);
+            return;
 
-            case 'I':
-            case 0xcc:
-            case 0xcd:
-            case 0xce:
-            case 0xcf:
-            case 0x128:
-            case 0x12a:
-            case 0x12c:
-            case 0x12e:
-            case 0x130:
-            case 0x1cf:
-            case 0x1ec8:
-                regmbc('I');
-                regmbc(0xcc);
-                regmbc(0xcd);
-                regmbc(0xce);
-                regmbc(0xcf);
-                regmbc(0x128);
-                regmbc(0x12a);
-                regmbc(0x12c);
-                regmbc(0x12e);
-                regmbc(0x130);
-                regmbc(0x1cf);
-                regmbc(0x1ec8);
-                return;
+        case 'I':
+        case 0xcc:
+        case 0xcd:
+        case 0xce:
+        case 0xcf:
+        case 0x128:
+        case 0x12a:
+        case 0x12c:
+        case 0x12e:
+        case 0x130:
+        case 0x1cf:
+        case 0x1ec8:
+            regmbc('I');
+            regmbc(0xcc);
+            regmbc(0xcd);
+            regmbc(0xce);
+            regmbc(0xcf);
+            regmbc(0x128);
+            regmbc(0x12a);
+            regmbc(0x12c);
+            regmbc(0x12e);
+            regmbc(0x130);
+            regmbc(0x1cf);
+            regmbc(0x1ec8);
+            return;
 
-            case 'J':
-            case 0x134:
-                regmbc('J');
-                regmbc(0x134);
-                return;
+        case 'J':
+        case 0x134:
+            regmbc('J');
+            regmbc(0x134);
+            return;
 
-            case 'K':
-            case 0x136:
-            case 0x1e8:
-            case 0x1e30:
-            case 0x1e34:
-                regmbc('K');
-                regmbc(0x136);
-                regmbc(0x1e8);
-                regmbc(0x1e30);
-                regmbc(0x1e34);
-                return;
+        case 'K':
+        case 0x136:
+        case 0x1e8:
+        case 0x1e30:
+        case 0x1e34:
+            regmbc('K');
+            regmbc(0x136);
+            regmbc(0x1e8);
+            regmbc(0x1e30);
+            regmbc(0x1e34);
+            return;
 
-            case 'L':
-            case 0x139:
-            case 0x13b:
-            case 0x13d:
-            case 0x13f:
-            case 0x141:
-            case 0x1e3a:
-                regmbc('L');
-                regmbc(0x139);
-                regmbc(0x13b);
-                regmbc(0x13d);
-                regmbc(0x13f);
-                regmbc(0x141);
-                regmbc(0x1e3a);
-                return;
+        case 'L':
+        case 0x139:
+        case 0x13b:
+        case 0x13d:
+        case 0x13f:
+        case 0x141:
+        case 0x1e3a:
+            regmbc('L');
+            regmbc(0x139);
+            regmbc(0x13b);
+            regmbc(0x13d);
+            regmbc(0x13f);
+            regmbc(0x141);
+            regmbc(0x1e3a);
+            return;
 
-            case 'M':
-            case 0x1e3e:
-            case 0x1e40:
-                regmbc('M');
-                regmbc(0x1e3e);
-                regmbc(0x1e40);
-                return;
+        case 'M':
+        case 0x1e3e:
+        case 0x1e40:
+            regmbc('M');
+            regmbc(0x1e3e);
+            regmbc(0x1e40);
+            return;
 
-            case 'N':
-            case 0xd1:
-            case 0x143:
-            case 0x145:
-            case 0x147:
-            case 0x1e44:
-            case 0x1e48:
-                regmbc('N');
-                regmbc(0xd1);
-                regmbc(0x143);
-                regmbc(0x145);
-                regmbc(0x147);
-                regmbc(0x1e44);
-                regmbc(0x1e48);
-                return;
+        case 'N':
+        case 0xd1:
+        case 0x143:
+        case 0x145:
+        case 0x147:
+        case 0x1e44:
+        case 0x1e48:
+            regmbc('N');
+            regmbc(0xd1);
+            regmbc(0x143);
+            regmbc(0x145);
+            regmbc(0x147);
+            regmbc(0x1e44);
+            regmbc(0x1e48);
+            return;
 
-            case 'O':
-            case 0xd2:
-            case 0xd3:
-            case 0xd4:
-            case 0xd5:
-            case 0xd6:
-            case 0xd8:
-            case 0x14c:
-            case 0x14e:
-            case 0x150:
-            case 0x1a0:
-            case 0x1d1:
-            case 0x1ea:
-            case 0x1ec:
-            case 0x1ece:
-                regmbc('O');
-                regmbc(0xd2);
-                regmbc(0xd3);
-                regmbc(0xd4);
-                regmbc(0xd5);
-                regmbc(0xd6);
-                regmbc(0xd8);
-                regmbc(0x14c);
-                regmbc(0x14e);
-                regmbc(0x150);
-                regmbc(0x1a0);
-                regmbc(0x1d1);
-                regmbc(0x1ea);
-                regmbc(0x1ec);
-                regmbc(0x1ece);
-                return;
+        case 'O':
+        case 0xd2:
+        case 0xd3:
+        case 0xd4:
+        case 0xd5:
+        case 0xd6:
+        case 0xd8:
+        case 0x14c:
+        case 0x14e:
+        case 0x150:
+        case 0x1a0:
+        case 0x1d1:
+        case 0x1ea:
+        case 0x1ec:
+        case 0x1ece:
+            regmbc('O');
+            regmbc(0xd2);
+            regmbc(0xd3);
+            regmbc(0xd4);
+            regmbc(0xd5);
+            regmbc(0xd6);
+            regmbc(0xd8);
+            regmbc(0x14c);
+            regmbc(0x14e);
+            regmbc(0x150);
+            regmbc(0x1a0);
+            regmbc(0x1d1);
+            regmbc(0x1ea);
+            regmbc(0x1ec);
+            regmbc(0x1ece);
+            return;
 
-            case 'P':
-            case 0x1e54:
-            case 0x1e56:
-                regmbc('P');
-                regmbc(0x1e54);
-                regmbc(0x1e56);
-                return;
+        case 'P':
+        case 0x1e54:
+        case 0x1e56:
+            regmbc('P');
+            regmbc(0x1e54);
+            regmbc(0x1e56);
+            return;
 
-            case 'R':
-            case 0x154:
-            case 0x156:
-            case 0x158:
-            case 0x1e58:
-            case 0x1e5e:
-                regmbc('R');
-                regmbc(0x154);
-                regmbc(0x156);
-                regmbc(0x158);
-                regmbc(0x1e58);
-                regmbc(0x1e5e);
-                return;
+        case 'R':
+        case 0x154:
+        case 0x156:
+        case 0x158:
+        case 0x1e58:
+        case 0x1e5e:
+            regmbc('R');
+            regmbc(0x154);
+            regmbc(0x156);
+            regmbc(0x158);
+            regmbc(0x1e58);
+            regmbc(0x1e5e);
+            return;
 
-            case 'S':
-            case 0x15a:
-            case 0x15c:
-            case 0x15e:
-            case 0x160:
-            case 0x1e60:
-                regmbc('S');
-                regmbc(0x15a);
-                regmbc(0x15c);
-                regmbc(0x15e);
-                regmbc(0x160);
-                regmbc(0x1e60);
-                return;
+        case 'S':
+        case 0x15a:
+        case 0x15c:
+        case 0x15e:
+        case 0x160:
+        case 0x1e60:
+            regmbc('S');
+            regmbc(0x15a);
+            regmbc(0x15c);
+            regmbc(0x15e);
+            regmbc(0x160);
+            regmbc(0x1e60);
+            return;
 
-            case 'T':
-            case 0x162:
-            case 0x164:
-            case 0x166:
-            case 0x1e6a:
-            case 0x1e6e:
-                regmbc('T');
-                regmbc(0x162);
-                regmbc(0x164);
-                regmbc(0x166);
-                regmbc(0x1e6a);
-                regmbc(0x1e6e);
-                return;
+        case 'T':
+        case 0x162:
+        case 0x164:
+        case 0x166:
+        case 0x1e6a:
+        case 0x1e6e:
+            regmbc('T');
+            regmbc(0x162);
+            regmbc(0x164);
+            regmbc(0x166);
+            regmbc(0x1e6a);
+            regmbc(0x1e6e);
+            return;
 
-            case 'U':
-            case 0xd9:
-            case 0xda:
-            case 0xdb:
-            case 0xdc:
-            case 0x168:
-            case 0x16a:
-            case 0x16c:
-            case 0x16e:
-            case 0x170:
-            case 0x172:
-            case 0x1af:
-            case 0x1d3:
-            case 0x1ee6:
-                regmbc('U');
-                regmbc(0xd9);
-                regmbc(0xda);
-                regmbc(0xdb);
-                regmbc(0xdc);
-                regmbc(0x168);
-                regmbc(0x16a);
-                regmbc(0x16c);
-                regmbc(0x16e);
-                regmbc(0x170);
-                regmbc(0x172);
-                regmbc(0x1af);
-                regmbc(0x1d3);
-                regmbc(0x1ee6);
-                return;
+        case 'U':
+        case 0xd9:
+        case 0xda:
+        case 0xdb:
+        case 0xdc:
+        case 0x168:
+        case 0x16a:
+        case 0x16c:
+        case 0x16e:
+        case 0x170:
+        case 0x172:
+        case 0x1af:
+        case 0x1d3:
+        case 0x1ee6:
+            regmbc('U');
+            regmbc(0xd9);
+            regmbc(0xda);
+            regmbc(0xdb);
+            regmbc(0xdc);
+            regmbc(0x168);
+            regmbc(0x16a);
+            regmbc(0x16c);
+            regmbc(0x16e);
+            regmbc(0x170);
+            regmbc(0x172);
+            regmbc(0x1af);
+            regmbc(0x1d3);
+            regmbc(0x1ee6);
+            return;
 
-            case 'V':
-            case 0x1e7c:
-                regmbc('V');
-                regmbc(0x1e7c);
-                return;
+        case 'V':
+        case 0x1e7c:
+            regmbc('V');
+            regmbc(0x1e7c);
+            return;
 
-            case 'W':
-            case 0x174:
-            case 0x1e80:
-            case 0x1e82:
-            case 0x1e84:
-            case 0x1e86:
-                regmbc('W');
-                regmbc(0x174);
-                regmbc(0x1e80);
-                regmbc(0x1e82);
-                regmbc(0x1e84);
-                regmbc(0x1e86);
-                return;
+        case 'W':
+        case 0x174:
+        case 0x1e80:
+        case 0x1e82:
+        case 0x1e84:
+        case 0x1e86:
+            regmbc('W');
+            regmbc(0x174);
+            regmbc(0x1e80);
+            regmbc(0x1e82);
+            regmbc(0x1e84);
+            regmbc(0x1e86);
+            return;
 
-            case 'X':
-            case 0x1e8a:
-            case 0x1e8c:
-                regmbc('X');
-                regmbc(0x1e8a);
-                regmbc(0x1e8c);
-                return;
+        case 'X':
+        case 0x1e8a:
+        case 0x1e8c:
+            regmbc('X');
+            regmbc(0x1e8a);
+            regmbc(0x1e8c);
+            return;
 
-            case 'Y':
-            case 0xdd:
-            case 0x176:
-            case 0x178:
-            case 0x1e8e:
-            case 0x1ef2:
-            case 0x1ef6:
-            case 0x1ef8:
-                regmbc('Y');
-                regmbc(0xdd);
-                regmbc(0x176);
-                regmbc(0x178);
-                regmbc(0x1e8e);
-                regmbc(0x1ef2);
-                regmbc(0x1ef6);
-                regmbc(0x1ef8);
-                return;
+        case 'Y':
+        case 0xdd:
+        case 0x176:
+        case 0x178:
+        case 0x1e8e:
+        case 0x1ef2:
+        case 0x1ef6:
+        case 0x1ef8:
+            regmbc('Y');
+            regmbc(0xdd);
+            regmbc(0x176);
+            regmbc(0x178);
+            regmbc(0x1e8e);
+            regmbc(0x1ef2);
+            regmbc(0x1ef6);
+            regmbc(0x1ef8);
+            return;
 
-            case 'Z':
-            case 0x179:
-            case 0x17b:
-            case 0x17d:
-            case 0x1b5:
-            case 0x1e90:
-            case 0x1e94:
-                regmbc('Z');
-                regmbc(0x179);
-                regmbc(0x17b);
-                regmbc(0x17d);
-                regmbc(0x1b5);
-                regmbc(0x1e90);
-                regmbc(0x1e94);
-                return;
+        case 'Z':
+        case 0x179:
+        case 0x17b:
+        case 0x17d:
+        case 0x1b5:
+        case 0x1e90:
+        case 0x1e94:
+            regmbc('Z');
+            regmbc(0x179);
+            regmbc(0x17b);
+            regmbc(0x17d);
+            regmbc(0x1b5);
+            regmbc(0x1e90);
+            regmbc(0x1e94);
+            return;
 
-            case 'a':
-            case 0xe0:
-            case 0xe1:
-            case 0xe2:
-            case 0xe3:
-            case 0xe4:
-            case 0xe5:
-            case 0x101:
-            case 0x103:
-            case 0x105:
-            case 0x1ce:
-            case 0x1df:
-            case 0x1e1:
-            case 0x1ea3:
-                regmbc('a');
-                regmbc(0xe0);
-                regmbc(0xe1);
-                regmbc(0xe2);
-                regmbc(0xe3);
-                regmbc(0xe4);
-                regmbc(0xe5);
-                regmbc(0x101);
-                regmbc(0x103);
-                regmbc(0x105);
-                regmbc(0x1ce);
-                regmbc(0x1df);
-                regmbc(0x1e1);
-                regmbc(0x1ea3);
-                return;
+        case 'a':
+        case 0xe0:
+        case 0xe1:
+        case 0xe2:
+        case 0xe3:
+        case 0xe4:
+        case 0xe5:
+        case 0x101:
+        case 0x103:
+        case 0x105:
+        case 0x1ce:
+        case 0x1df:
+        case 0x1e1:
+        case 0x1ea3:
+            regmbc('a');
+            regmbc(0xe0);
+            regmbc(0xe1);
+            regmbc(0xe2);
+            regmbc(0xe3);
+            regmbc(0xe4);
+            regmbc(0xe5);
+            regmbc(0x101);
+            regmbc(0x103);
+            regmbc(0x105);
+            regmbc(0x1ce);
+            regmbc(0x1df);
+            regmbc(0x1e1);
+            regmbc(0x1ea3);
+            return;
 
-            case 'b':
-            case 0x1e03:
-            case 0x1e07:
-                regmbc('b');
-                regmbc(0x1e03);
-                regmbc(0x1e07);
-                return;
+        case 'b':
+        case 0x1e03:
+        case 0x1e07:
+            regmbc('b');
+            regmbc(0x1e03);
+            regmbc(0x1e07);
+            return;
 
-            case 'c':
-            case 0xe7:
-            case 0x107:
-            case 0x109:
-            case 0x10b:
-            case 0x10d:
-                regmbc('c');
-                regmbc(0xe7);
-                regmbc(0x107);
-                regmbc(0x109);
-                regmbc(0x10b);
-                regmbc(0x10d);
-                return;
+        case 'c':
+        case 0xe7:
+        case 0x107:
+        case 0x109:
+        case 0x10b:
+        case 0x10d:
+            regmbc('c');
+            regmbc(0xe7);
+            regmbc(0x107);
+            regmbc(0x109);
+            regmbc(0x10b);
+            regmbc(0x10d);
+            return;
 
-            case 'd':
-            case 0x10f:
-            case 0x111:
-            case 0x1e0b:
-            case 0x1e0f:
-            case 0x1e11:
-                regmbc('d');
-                regmbc(0x10f);
-                regmbc(0x111);
-                regmbc(0x1e0b);
-                regmbc(0x1e0f);
-                regmbc(0x1e11);
-                return;
+        case 'd':
+        case 0x10f:
+        case 0x111:
+        case 0x1e0b:
+        case 0x1e0f:
+        case 0x1e11:
+            regmbc('d');
+            regmbc(0x10f);
+            regmbc(0x111);
+            regmbc(0x1e0b);
+            regmbc(0x1e0f);
+            regmbc(0x1e11);
+            return;
 
-            case 'e':
-            case 0xe8:
-            case 0xe9:
-            case 0xea:
-            case 0xeb:
-            case 0x113:
-            case 0x115:
-            case 0x117:
-            case 0x119:
-            case 0x11b:
-            case 0x1ebb:
-            case 0x1ebd:
-                regmbc('e');
-                regmbc(0xe8);
-                regmbc(0xe9);
-                regmbc(0xea);
-                regmbc(0xeb);
-                regmbc(0x113);
-                regmbc(0x115);
-                regmbc(0x117);
-                regmbc(0x119);
-                regmbc(0x11b);
-                regmbc(0x1ebb);
-                regmbc(0x1ebd);
-                return;
+        case 'e':
+        case 0xe8:
+        case 0xe9:
+        case 0xea:
+        case 0xeb:
+        case 0x113:
+        case 0x115:
+        case 0x117:
+        case 0x119:
+        case 0x11b:
+        case 0x1ebb:
+        case 0x1ebd:
+            regmbc('e');
+            regmbc(0xe8);
+            regmbc(0xe9);
+            regmbc(0xea);
+            regmbc(0xeb);
+            regmbc(0x113);
+            regmbc(0x115);
+            regmbc(0x117);
+            regmbc(0x119);
+            regmbc(0x11b);
+            regmbc(0x1ebb);
+            regmbc(0x1ebd);
+            return;
 
-            case 'f':
-            case 0x1e1f:
-                regmbc('f');
-                regmbc(0x1e1f);
-                return;
+        case 'f':
+        case 0x1e1f:
+            regmbc('f');
+            regmbc(0x1e1f);
+            return;
 
-            case 'g':
-            case 0x11d:
-            case 0x11f:
-            case 0x121:
-            case 0x123:
-            case 0x1e5:
-            case 0x1e7:
-            case 0x1f5:
-            case 0x1e21:
-                regmbc('g');
-                regmbc(0x11d);
-                regmbc(0x11f);
-                regmbc(0x121);
-                regmbc(0x123);
-                regmbc(0x1e5);
-                regmbc(0x1e7);
-                regmbc(0x1f5);
-                regmbc(0x1e21);
-                return;
+        case 'g':
+        case 0x11d:
+        case 0x11f:
+        case 0x121:
+        case 0x123:
+        case 0x1e5:
+        case 0x1e7:
+        case 0x1f5:
+        case 0x1e21:
+            regmbc('g');
+            regmbc(0x11d);
+            regmbc(0x11f);
+            regmbc(0x121);
+            regmbc(0x123);
+            regmbc(0x1e5);
+            regmbc(0x1e7);
+            regmbc(0x1f5);
+            regmbc(0x1e21);
+            return;
 
-            case 'h':
-            case 0x125:
-            case 0x127:
-            case 0x1e23:
-            case 0x1e27:
-            case 0x1e29:
-            case 0x1e96:
-                regmbc('h');
-                regmbc(0x125);
-                regmbc(0x127);
-                regmbc(0x1e23);
-                regmbc(0x1e27);
-                regmbc(0x1e29);
-                regmbc(0x1e96);
-                return;
+        case 'h':
+        case 0x125:
+        case 0x127:
+        case 0x1e23:
+        case 0x1e27:
+        case 0x1e29:
+        case 0x1e96:
+            regmbc('h');
+            regmbc(0x125);
+            regmbc(0x127);
+            regmbc(0x1e23);
+            regmbc(0x1e27);
+            regmbc(0x1e29);
+            regmbc(0x1e96);
+            return;
 
-            case 'i':
-            case 0xec:
-            case 0xed:
-            case 0xee:
-            case 0xef:
-            case 0x129:
-            case 0x12b:
-            case 0x12d:
-            case 0x12f:
-            case 0x1d0:
-            case 0x1ec9:
-                regmbc('i');
-                regmbc(0xec);
-                regmbc(0xed);
-                regmbc(0xee);
-                regmbc(0xef);
-                regmbc(0x129);
-                regmbc(0x12b);
-                regmbc(0x12d);
-                regmbc(0x12f);
-                regmbc(0x1d0);
-                regmbc(0x1ec9);
-                return;
+        case 'i':
+        case 0xec:
+        case 0xed:
+        case 0xee:
+        case 0xef:
+        case 0x129:
+        case 0x12b:
+        case 0x12d:
+        case 0x12f:
+        case 0x1d0:
+        case 0x1ec9:
+            regmbc('i');
+            regmbc(0xec);
+            regmbc(0xed);
+            regmbc(0xee);
+            regmbc(0xef);
+            regmbc(0x129);
+            regmbc(0x12b);
+            regmbc(0x12d);
+            regmbc(0x12f);
+            regmbc(0x1d0);
+            regmbc(0x1ec9);
+            return;
 
-            case 'j':
-            case 0x135:
-            case 0x1f0:
-                regmbc('j');
-                regmbc(0x135);
-                regmbc(0x1f0);
-                return;
+        case 'j':
+        case 0x135:
+        case 0x1f0:
+            regmbc('j');
+            regmbc(0x135);
+            regmbc(0x1f0);
+            return;
 
-            case 'k':
-            case 0x137:
-            case 0x1e9:
-            case 0x1e31:
-            case 0x1e35:
-                regmbc('k');
-                regmbc(0x137);
-                regmbc(0x1e9);
-                regmbc(0x1e31);
-                regmbc(0x1e35);
-                return;
+        case 'k':
+        case 0x137:
+        case 0x1e9:
+        case 0x1e31:
+        case 0x1e35:
+            regmbc('k');
+            regmbc(0x137);
+            regmbc(0x1e9);
+            regmbc(0x1e31);
+            regmbc(0x1e35);
+            return;
 
-            case 'l':
-            case 0x13a:
-            case 0x13c:
-            case 0x13e:
-            case 0x140:
-            case 0x142:
-            case 0x1e3b:
-                regmbc('l');
-                regmbc(0x13a);
-                regmbc(0x13c);
-                regmbc(0x13e);
-                regmbc(0x140);
-                regmbc(0x142);
-                regmbc(0x1e3b);
-                return;
+        case 'l':
+        case 0x13a:
+        case 0x13c:
+        case 0x13e:
+        case 0x140:
+        case 0x142:
+        case 0x1e3b:
+            regmbc('l');
+            regmbc(0x13a);
+            regmbc(0x13c);
+            regmbc(0x13e);
+            regmbc(0x140);
+            regmbc(0x142);
+            regmbc(0x1e3b);
+            return;
 
-            case 'm':
-            case 0x1e3f:
-            case 0x1e41:
-                regmbc('m');
-                regmbc(0x1e3f);
-                regmbc(0x1e41);
-                return;
+        case 'm':
+        case 0x1e3f:
+        case 0x1e41:
+            regmbc('m');
+            regmbc(0x1e3f);
+            regmbc(0x1e41);
+            return;
 
-            case 'n':
-            case 0xf1:
-            case 0x144:
-            case 0x146:
-            case 0x148:
-            case 0x149:
-            case 0x1e45:
-            case 0x1e49:
-                regmbc('n');
-                regmbc(0xf1);
-                regmbc(0x144);
-                regmbc(0x146);
-                regmbc(0x148);
-                regmbc(0x149);
-                regmbc(0x1e45);
-                regmbc(0x1e49);
-                return;
+        case 'n':
+        case 0xf1:
+        case 0x144:
+        case 0x146:
+        case 0x148:
+        case 0x149:
+        case 0x1e45:
+        case 0x1e49:
+            regmbc('n');
+            regmbc(0xf1);
+            regmbc(0x144);
+            regmbc(0x146);
+            regmbc(0x148);
+            regmbc(0x149);
+            regmbc(0x1e45);
+            regmbc(0x1e49);
+            return;
 
-            case 'o':
-            case 0xf2:
-            case 0xf3:
-            case 0xf4:
-            case 0xf5:
-            case 0xf6:
-            case 0xf8:
-            case 0x14d:
-            case 0x14f:
-            case 0x151:
-            case 0x1a1:
-            case 0x1d2:
-            case 0x1eb:
-            case 0x1ed:
-            case 0x1ecf:
-                regmbc('o');
-                regmbc(0xf2);
-                regmbc(0xf3);
-                regmbc(0xf4);
-                regmbc(0xf5);
-                regmbc(0xf6);
-                regmbc(0xf8);
-                regmbc(0x14d);
-                regmbc(0x14f);
-                regmbc(0x151);
-                regmbc(0x1a1);
-                regmbc(0x1d2);
-                regmbc(0x1eb);
-                regmbc(0x1ed);
-                regmbc(0x1ecf);
-                return;
+        case 'o':
+        case 0xf2:
+        case 0xf3:
+        case 0xf4:
+        case 0xf5:
+        case 0xf6:
+        case 0xf8:
+        case 0x14d:
+        case 0x14f:
+        case 0x151:
+        case 0x1a1:
+        case 0x1d2:
+        case 0x1eb:
+        case 0x1ed:
+        case 0x1ecf:
+            regmbc('o');
+            regmbc(0xf2);
+            regmbc(0xf3);
+            regmbc(0xf4);
+            regmbc(0xf5);
+            regmbc(0xf6);
+            regmbc(0xf8);
+            regmbc(0x14d);
+            regmbc(0x14f);
+            regmbc(0x151);
+            regmbc(0x1a1);
+            regmbc(0x1d2);
+            regmbc(0x1eb);
+            regmbc(0x1ed);
+            regmbc(0x1ecf);
+            return;
 
-            case 'p':
-            case 0x1e55:
-            case 0x1e57:
-                regmbc('p');
-                regmbc(0x1e55);
-                regmbc(0x1e57);
-                return;
+        case 'p':
+        case 0x1e55:
+        case 0x1e57:
+            regmbc('p');
+            regmbc(0x1e55);
+            regmbc(0x1e57);
+            return;
 
-            case 'r':
-            case 0x155:
-            case 0x157:
-            case 0x159:
-            case 0x1e59:
-            case 0x1e5f:
-                regmbc('r');
-                regmbc(0x155);
-                regmbc(0x157);
-                regmbc(0x159);
-                regmbc(0x1e59);
-                regmbc(0x1e5f);
-                return;
+        case 'r':
+        case 0x155:
+        case 0x157:
+        case 0x159:
+        case 0x1e59:
+        case 0x1e5f:
+            regmbc('r');
+            regmbc(0x155);
+            regmbc(0x157);
+            regmbc(0x159);
+            regmbc(0x1e59);
+            regmbc(0x1e5f);
+            return;
 
-            case 's':
-            case 0x15b:
-            case 0x15d:
-            case 0x15f:
-            case 0x161:
-            case 0x1e61:
-                regmbc('s');
-                regmbc(0x15b);
-                regmbc(0x15d);
-                regmbc(0x15f);
-                regmbc(0x161);
-                regmbc(0x1e61);
-                return;
+        case 's':
+        case 0x15b:
+        case 0x15d:
+        case 0x15f:
+        case 0x161:
+        case 0x1e61:
+            regmbc('s');
+            regmbc(0x15b);
+            regmbc(0x15d);
+            regmbc(0x15f);
+            regmbc(0x161);
+            regmbc(0x1e61);
+            return;
 
-            case 't':
-            case 0x163:
-            case 0x165:
-            case 0x167:
-            case 0x1e6b:
-            case 0x1e6f:
-            case 0x1e97:
-                regmbc('t');
-                regmbc(0x163);
-                regmbc(0x165);
-                regmbc(0x167);
-                regmbc(0x1e6b);
-                regmbc(0x1e6f);
-                regmbc(0x1e97);
-                return;
+        case 't':
+        case 0x163:
+        case 0x165:
+        case 0x167:
+        case 0x1e6b:
+        case 0x1e6f:
+        case 0x1e97:
+            regmbc('t');
+            regmbc(0x163);
+            regmbc(0x165);
+            regmbc(0x167);
+            regmbc(0x1e6b);
+            regmbc(0x1e6f);
+            regmbc(0x1e97);
+            return;
 
-            case 'u':
-            case 0xf9:
-            case 0xfa:
-            case 0xfb:
-            case 0xfc:
-            case 0x169:
-            case 0x16b:
-            case 0x16d:
-            case 0x16f:
-            case 0x171:
-            case 0x173:
-            case 0x1b0:
-            case 0x1d4:
-            case 0x1ee7:
-                regmbc('u');
-                regmbc(0xf9);
-                regmbc(0xfa);
-                regmbc(0xfb);
-                regmbc(0xfc);
-                regmbc(0x169);
-                regmbc(0x16b);
-                regmbc(0x16d);
-                regmbc(0x16f);
-                regmbc(0x171);
-                regmbc(0x173);
-                regmbc(0x1b0);
-                regmbc(0x1d4);
-                regmbc(0x1ee7);
-                return;
+        case 'u':
+        case 0xf9:
+        case 0xfa:
+        case 0xfb:
+        case 0xfc:
+        case 0x169:
+        case 0x16b:
+        case 0x16d:
+        case 0x16f:
+        case 0x171:
+        case 0x173:
+        case 0x1b0:
+        case 0x1d4:
+        case 0x1ee7:
+            regmbc('u');
+            regmbc(0xf9);
+            regmbc(0xfa);
+            regmbc(0xfb);
+            regmbc(0xfc);
+            regmbc(0x169);
+            regmbc(0x16b);
+            regmbc(0x16d);
+            regmbc(0x16f);
+            regmbc(0x171);
+            regmbc(0x173);
+            regmbc(0x1b0);
+            regmbc(0x1d4);
+            regmbc(0x1ee7);
+            return;
 
-            case 'v':
-            case 0x1e7d:
-                regmbc('v');
-                regmbc(0x1e7d);
-                return;
+        case 'v':
+        case 0x1e7d:
+            regmbc('v');
+            regmbc(0x1e7d);
+            return;
 
-            case 'w':
-            case 0x175:
-            case 0x1e81:
-            case 0x1e83:
-            case 0x1e85:
-            case 0x1e87:
-            case 0x1e98:
-                regmbc('w');
-                regmbc(0x175);
-                regmbc(0x1e81);
-                regmbc(0x1e83);
-                regmbc(0x1e85);
-                regmbc(0x1e87);
-                regmbc(0x1e98);
-                return;
+        case 'w':
+        case 0x175:
+        case 0x1e81:
+        case 0x1e83:
+        case 0x1e85:
+        case 0x1e87:
+        case 0x1e98:
+            regmbc('w');
+            regmbc(0x175);
+            regmbc(0x1e81);
+            regmbc(0x1e83);
+            regmbc(0x1e85);
+            regmbc(0x1e87);
+            regmbc(0x1e98);
+            return;
 
-            case 'x':
-            case 0x1e8b:
-            case 0x1e8d:
-                regmbc('x');
-                regmbc(0x1e8b);
-                regmbc(0x1e8d);
-                return;
+        case 'x':
+        case 0x1e8b:
+        case 0x1e8d:
+            regmbc('x');
+            regmbc(0x1e8b);
+            regmbc(0x1e8d);
+            return;
 
-            case 'y':
-            case 0xfd:
-            case 0xff:
-            case 0x177:
-            case 0x1e8f:
-            case 0x1e99:
-            case 0x1ef3:
-            case 0x1ef7:
-            case 0x1ef9:
-                regmbc('y');
-                regmbc(0xfd);
-                regmbc(0xff);
-                regmbc(0x177);
-                regmbc(0x1e8f);
-                regmbc(0x1e99);
-                regmbc(0x1ef3);
-                regmbc(0x1ef7);
-                regmbc(0x1ef9);
-                return;
+        case 'y':
+        case 0xfd:
+        case 0xff:
+        case 0x177:
+        case 0x1e8f:
+        case 0x1e99:
+        case 0x1ef3:
+        case 0x1ef7:
+        case 0x1ef9:
+            regmbc('y');
+            regmbc(0xfd);
+            regmbc(0xff);
+            regmbc(0x177);
+            regmbc(0x1e8f);
+            regmbc(0x1e99);
+            regmbc(0x1ef3);
+            regmbc(0x1ef7);
+            regmbc(0x1ef9);
+            return;
 
-            case 'z':
-            case 0x17a:
-            case 0x17c:
-            case 0x17e:
-            case 0x1b6:
-            case 0x1e91:
-            case 0x1e95:
-                regmbc('z');
-                regmbc(0x17a);
-                regmbc(0x17c);
-                regmbc(0x17e);
-                regmbc(0x1b6);
-                regmbc(0x1e91);
-                regmbc(0x1e95);
-                return;
-        }
+        case 'z':
+        case 0x17a:
+        case 0x17c:
+        case 0x17e:
+        case 0x1b6:
+        case 0x1e91:
+        case 0x1e95:
+            regmbc('z');
+            regmbc(0x17a);
+            regmbc(0x17c);
+            regmbc(0x17e);
+            regmbc(0x1b6);
+            regmbc(0x1e91);
+            regmbc(0x1e95);
+            return;
     }
 
     regmbc(c);
@@ -1744,21 +1729,11 @@ static int get_coll_element(uchar_kt **pp)
 
     if(p[0] != NUL && p[1] == '.')
     {
-        if(has_mbyte)
-        {
-            l = (*mb_ptr2len)(p + 2);
-        }
+        l = (*mb_ptr2len)(p + 2);
 
         if(p[l + 2] == '.' && p[l + 3] == ']')
         {
-            if(has_mbyte)
-            {
-                c = mb_ptr2char(p + 2);
-            }
-            else
-            {
-                c = p[2];
-            }
+            c = mb_ptr2char(p + 2);
 
             *pp += l + 4;
             return c;
@@ -1797,7 +1772,7 @@ static uchar_kt *skip_anyof(uchar_kt *p)
 
     while(*p != NUL && *p != ']')
     {
-        if(has_mbyte && (l = (*mb_ptr2len)(p)) > 1)
+        if((l = (*mb_ptr2len)(p)) > 1)
         {
             p += l;
         }
@@ -2011,14 +1986,7 @@ static regprog_st *bt_regcomp(uchar_kt *expr, int re_flags)
 
         if(OP(scan) == EXACTLY)
         {
-            if(has_mbyte)
-            {
-                r->regstart = (*mb_ptr2char)(OPERAND(scan));
-            }
-            else
-            {
-                r->regstart = *OPERAND(scan);
-            }
+            r->regstart = (*mb_ptr2char)(OPERAND(scan));
         }
         else if(OP(scan) == BOW
                 || OP(scan) == EOW
@@ -2032,14 +2000,7 @@ static regprog_st *bt_regcomp(uchar_kt *expr, int re_flags)
 
             if(OP(regnext_scan) == EXACTLY)
             {
-                if(has_mbyte)
-                {
-                    r->regstart = (*mb_ptr2char)(OPERAND(regnext_scan));
-                }
-                else
-                {
-                    r->regstart = *OPERAND(regnext_scan);
-                }
+                r->regstart = (*mb_ptr2char)(OPERAND(regnext_scan));
             }
         }
 
@@ -2760,7 +2721,7 @@ static uchar_kt *regatom(int *flagp)
 
             // When '.' is followed by a composing char ignore the dot,
             // so that the composing char is matched here.
-            if(enc_utf8 && c == Magic('.') && utf_iscomposing(peekchr()))
+            if(c == Magic('.') && utf_iscomposing(peekchr()))
             {
                 c = getchr();
                 goto do_multibyte;
@@ -3310,14 +3271,9 @@ collection:
 
                                 if(endc == 0)
                                 {
-                                    if(has_mbyte)
-                                    {
-                                        endc = mb_ptr2char_adv((const uchar_kt **)&regparse);
-                                    }
-                                    else
-                                    {
-                                        endc = *regparse++;
-                                    }
+                                    const uchar_kt **ptr = NULL;
+                                    ptr = (const uchar_kt **)&regparse;
+                                    endc = mb_ptr2char_adv(ptr);
                                 }
 
                                 // Handle \o40, \x20 and \u20AC style sequences
@@ -3331,9 +3287,8 @@ collection:
                                     EMSG_RET_NULL(_(e_invrange));
                                 }
 
-                                if(has_mbyte
-                                   && ((*mb_char2len)(startc) > 1
-                                       || (*mb_char2len)(endc) > 1))
+                                if((*mb_char2len)(startc) > 1
+                                       || (*mb_char2len)(endc) > 1)
                                 {
                                     // Limit to a range of 256 chars
                                     if(endc > startc + 256)
@@ -3588,29 +3543,21 @@ collection:
                         }
                         else
                         {
-                            if(has_mbyte)
+                            int len;
+
+                            // produce a multibyte character, including
+                            // any following composing characters
+                            startc = mb_ptr2char(regparse);
+                            len = (*mb_ptr2len)(regparse);
+
+                            if(utf_char2len(startc) != len)
                             {
-                                int len;
-
-                                // produce a multibyte character, including
-                                // any following composing characters
-                                startc = mb_ptr2char(regparse);
-                                len = (*mb_ptr2len)(regparse);
-
-                                if(enc_utf8 && utf_char2len(startc) != len)
-                                {
-                                    startc = -1; // composing chars
-                                }
-
-                                while(--len >= 0)
-                                {
-                                    regc(*regparse++);
-                                }
+                                startc = -1; // composing chars
                             }
-                            else
+
+                            while(--len >= 0)
                             {
-                                startc = *regparse++;
-                                regc(startc);
+                                regc(*regparse++);
                             }
                         }
                     }
@@ -3669,32 +3616,22 @@ do_multibyte:
             {
                 c = no_Magic(c);
 
-                if(has_mbyte)
-                {
-                    regmbc(c);
+                regmbc(c);
 
-                    if(enc_utf8)
+                int l;
+
+                // Need to get composing character too.
+                for(;;)
+                {
+                    l = utf_ptr2len(regparse);
+
+                    if(!UTF_COMPOSINGLIKE(regparse, regparse + l))
                     {
-                        int l;
-
-                        // Need to get composing character too.
-                        for(;;)
-                        {
-                            l = utf_ptr2len(regparse);
-
-                            if(!UTF_COMPOSINGLIKE(regparse, regparse + l))
-                            {
-                                break;
-                            }
-
-                            regmbc(utf_ptr2char(regparse));
-                            skipchr();
-                        }
+                        break;
                     }
-                }
-                else
-                {
-                    regc(c);
+
+                    regmbc(utf_ptr2char(regparse));
+                    skipchr();
                 }
 
                 c = getchr();
@@ -3731,10 +3668,9 @@ static bool re_mult_next(char *what)
 /// used instead of EXACTLY for character "c".
 static int use_multibytecode(int c)
 {
-    return has_mbyte
-           && (*mb_char2len)(c) > 1
+    return (*mb_char2len)(c) > 1
            && (re_multi_type(peekchr()) != NOT_MULTI
-               || (enc_utf8 && utf_iscomposing(c)));
+               || utf_iscomposing(c));
 }
 
 /// Emit a node.
@@ -3775,11 +3711,6 @@ static void regc(int b)
 /// Emit (if appropriate) a multi-byte character of code
 static void regmbc(int c)
 {
-    if(!has_mbyte && c > 0xff)
-    {
-        return;
-    }
-
     if(regcode == JUST_CALC_SIZE)
     {
         regsize += (*mb_char2len)(c);
@@ -4188,24 +4119,14 @@ static int peekchr(void)
             {
                 // Next character can never be (made) magic?
                 // Then backslashing it won't do anything.
-                if(has_mbyte)
-                {
-                    curchr = (*mb_ptr2char)(regparse + 1);
-                }
-                else
-                {
-                    curchr = c;
-                }
+                curchr = (*mb_ptr2char)(regparse + 1);
             }
 
             break;
         }
 
         default:
-            if(has_mbyte)
-            {
-                curchr = (*mb_ptr2char)(regparse);
-            }
+            curchr = (*mb_ptr2char)(regparse);
     }
 
     return curchr;
@@ -4799,14 +4720,7 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
     {
         int c;
 
-        if(has_mbyte)
-        {
-            c = (*mb_ptr2char)(prog->regmust);
-        }
-        else
-        {
-            c = *prog->regmust;
-        }
+        c = (*mb_ptr2char)(prog->regmust);
 
         s = line + col;
 
@@ -4850,21 +4764,12 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
     // Simplest case: Anchored match need be tried only once.
     if(prog->reganch)
     {
-        int c;
-
-        if(has_mbyte)
-        {
-            c = (*mb_ptr2char)(regline + col);
-        }
-        else
-        {
-            c = regline[col];
-        }
+        int c = (*mb_ptr2char)(regline + col);
 
         if(prog->regstart == NUL
            || prog->regstart == c
            || (ireg_ic
-               && ((enc_utf8 && utf_fold(prog->regstart) == utf_fold(c))
+               && (utf_fold(prog->regstart) == utf_fold(c)
                    || (c < 255
                        && prog->regstart < 255
                        && mb_tolower(prog->regstart) == mb_tolower(c)))))
@@ -4923,14 +4828,7 @@ static long bt_regexec_both(uchar_kt *line, columnum_kt col, proftime_kt *tm)
                 break;
             }
 
-            if(has_mbyte)
-            {
-                col += (*mb_ptr2len)(regline + col);
-            }
-            else
-            {
-                ++col;
-            }
+            col += (*mb_ptr2len)(regline + col);
 
             // Check for timeout once in a
             // twenty times to avoid overhead.
@@ -5342,14 +5240,7 @@ static int regmatch(uchar_kt *scan)
                     op -= ADD_NL;
                 }
 
-                if(has_mbyte)
-                {
-                    c = (*mb_ptr2char)(reginput);
-                }
-                else
-                {
-                    c = *reginput;
-                }
+                c = (*mb_ptr2char)(reginput);
 
                 switch(op)
                 {
@@ -5485,7 +5376,7 @@ static int regmatch(uchar_kt *scan)
                             // Can't match at end of line
                             status = RA_NOMATCH;
                         }
-                        else if(has_mbyte)
+                        else
                         {
                             int this_class;
 
@@ -5505,15 +5396,6 @@ static int regmatch(uchar_kt *scan)
                                 status = RA_NOMATCH;
                             }
                         }
-                        else
-                        {
-                            if(!is_kwc_buf(c, reg_buf)
-                               || (reginput > regline
-                                   && is_kwc_buf(reginput[-1], reg_buf)))
-                            {
-                                status = RA_NOMATCH;
-                            }
-                        }
 
                         break;
 
@@ -5523,7 +5405,7 @@ static int regmatch(uchar_kt *scan)
                             // Can't match at start of line
                             status = RA_NOMATCH;
                         }
-                        else if(has_mbyte)
+                        else
                         {
                             int this_class, prev_class;
 
@@ -5537,15 +5419,6 @@ static int regmatch(uchar_kt *scan)
                             if(this_class == prev_class
                                || prev_class == 0
                                || prev_class == 1)
-                            {
-                                status = RA_NOMATCH;
-                            }
-                        }
-                        else
-                        {
-                            if(!is_kwc_buf(reginput[-1], reg_buf)
-                               || (reginput[0] != NUL
-                                   && is_kwc_buf(c, reg_buf)))
                             {
                                 status = RA_NOMATCH;
                             }
@@ -5641,7 +5514,7 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case PRINT:
-                        if(!is_print_char(PTR2CHAR(reginput)))
+                        if(!is_print_char(mb_ptr2char(reginput)))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5654,7 +5527,7 @@ static int regmatch(uchar_kt *scan)
 
                     case SPRINT:
                         if(ascii_isdigit(*reginput)
-                           || !is_print_char(PTR2CHAR(reginput)))
+                           || !is_print_char(mb_ptr2char(reginput)))
                         {
                             status = RA_NOMATCH;
                         }
@@ -5888,11 +5761,7 @@ static int regmatch(uchar_kt *scan)
                         opnd = OPERAND(scan);
 
                         // Inline the first byte, for speed.
-                        if(*opnd != *reginput
-                           && (!ireg_ic
-                               || (!enc_utf8
-                                   && mb_tolower(*opnd)
-                                      != mb_tolower(*reginput))))
+                        if(*opnd != *reginput && !ireg_ic)
                         {
                             status = RA_NOMATCH;
                         }
@@ -5903,7 +5772,7 @@ static int regmatch(uchar_kt *scan)
                         }
                         else
                         {
-                            if(opnd[1] == NUL && !(enc_utf8 && ireg_ic))
+                            if(opnd[1] == NUL && !ireg_ic)
                             {
                                 len = 1; // matched a single byte above
                             }
@@ -5920,7 +5789,7 @@ static int regmatch(uchar_kt *scan)
 
                             // Check for following composing character, unless
                             // %C follows (skips over all composing chars).
-                            if(status != RA_NOMATCH && enc_utf8
+                            if(status != RA_NOMATCH
                                && UTF_COMPOSINGLIKE(reginput, reginput + len)
                                && !ireg_icombine
                                && OP(next) != RE_COMPOSING)
@@ -5959,86 +5828,75 @@ static int regmatch(uchar_kt *scan)
                         break;
 
                     case MULTIBYTECODE:
-                        if(has_mbyte)
-                        {
-                            int i, len;
-                            uchar_kt  *opnd;
-                            int opndc = 0, inpc;
-                            opnd = OPERAND(scan);
+                    {
+                        int i, len;
+                        uchar_kt  *opnd;
+                        int opndc = 0, inpc;
+                        opnd = OPERAND(scan);
 
-                            // Safety check (just in case 'encoding'
-                            // was changed since compiling the program).
-                            if((len = (*mb_ptr2len)(opnd)) < 2)
-                            {
-                                status = RA_NOMATCH;
-                                break;
-                            }
-
-                            if(enc_utf8)
-                            {
-                                opndc = mb_ptr2char(opnd);
-                            }
-
-                            if(enc_utf8 && utf_iscomposing(opndc))
-                            {
-                                // When only a composing char is given
-                                // match at any position where that composing
-                                //  char appears.
-                                status = RA_NOMATCH;
-
-                                for(i = 0;
-                                    reginput[i] != NUL;
-                                    i += utf_ptr2len(reginput + i))
-                                {
-                                    inpc = mb_ptr2char(reginput + i);
-
-                                    if(!utf_iscomposing(inpc))
-                                    {
-                                        if(i > 0)
-                                        {
-                                            break;
-                                        }
-                                    }
-                                    else if(opndc == inpc)
-                                    {
-                                        // Include all following composing chars.
-                                        len = i + mb_ptr2len(reginput + i);
-                                        status = RA_MATCH;
-                                        break;
-                                    }
-                                }
-                            }
-                            else
-                                for(i = 0; i < len; ++i)
-                                {
-                                    if(opnd[i] != reginput[i])
-                                    {
-                                        status = RA_NOMATCH;
-                                        break;
-                                    }
-                                }
-
-                            reginput += len;
-                        }
-                        else
+                        // Safety check (just in case 'encoding'
+                        // was changed since compiling the program).
+                        if((len = (*mb_ptr2len)(opnd)) < 2)
                         {
                             status = RA_NOMATCH;
+                            break;
                         }
 
-                        break;
+                        opndc = mb_ptr2char(opnd);
 
-                    case RE_COMPOSING:
-                        if(enc_utf8)
+                        if(utf_iscomposing(opndc))
                         {
-                            // Skip composing characters.
-                            while(utf_iscomposing(utf_ptr2char(reginput)))
+                            // When only a composing char is given
+                            // match at any position where that composing
+                            //  char appears.
+                            status = RA_NOMATCH;
+
+                            for(i = 0;
+                                reginput[i] != NUL;
+                                i += utf_ptr2len(reginput + i))
                             {
-                                mb_cptr_adv(reginput);
+                                inpc = mb_ptr2char(reginput + i);
+
+                                if(!utf_iscomposing(inpc))
+                                {
+                                    if(i > 0)
+                                    {
+                                        break;
+                                    }
+                                }
+                                else if(opndc == inpc)
+                                {
+                                    // Include all following composing chars.
+                                    len = i + mb_ptr2len(reginput + i);
+                                    status = RA_MATCH;
+                                    break;
+                                }
                             }
                         }
+                        else
+                            for(i = 0; i < len; ++i)
+                            {
+                                if(opnd[i] != reginput[i])
+                                {
+                                    status = RA_NOMATCH;
+                                    break;
+                                }
+                            }
+
+                        reginput += len;
 
                         break;
+                    }
+                    case RE_COMPOSING:
+                    {
+                        // Skip composing characters.
+                        while(utf_iscomposing(utf_ptr2char(reginput)))
+                        {
+                            mb_cptr_adv(reginput);
+                        }
 
+                        break;
+                    }
                     case NOTHING:
                         break;
 
@@ -6951,19 +6809,12 @@ static int regmatch(uchar_kt *scan)
                             }
                             else
                             {
-                                if(has_mbyte)
-                                {
-                                    rp->rs_un.regsave.rs_u.pos.col -=
-                                        (*mb_head_off)(regline,
-                                                       regline
-                                                       + rp->rs_un.regsave.rs_u.pos.col
-                                                       - 1)
-                                        + 1;
-                                }
-                                else
-                                {
-                                    --rp->rs_un.regsave.rs_u.pos.col;
-                                }
+                                rp->rs_un.regsave.rs_u.pos.col -=
+                                    (*mb_head_off)(regline,
+                                                   regline
+                                                   + rp->rs_un.regsave.rs_u.pos.col
+                                                   - 1)
+                                    + 1;
                             }
                         }
                         else
@@ -7272,7 +7123,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
         case SIDENT + ADD_NL:
             while(count < maxcount)
             {
-                if(is_id_char(PTR2CHAR(scan))
+                if(is_id_char(mb_ptr2char(scan))
                    && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7370,7 +7221,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
         case SFNAME + ADD_NL:
             while(count < maxcount)
             {
-                if(is_file_name_char(PTR2CHAR(scan))
+                if(is_file_name_char(mb_ptr2char(scan))
                    && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7437,7 +7288,7 @@ static int regrepeat(uchar_kt *p, long maxcount)
                         break;
                     }
                 }
-                else if(is_print_char(PTR2CHAR(scan)) == 1
+                else if(is_print_char(mb_ptr2char(scan)) == 1
                         && (testval || !ascii_isdigit(*scan)))
                 {
                     mb_ptr_adv(scan);
@@ -7485,7 +7336,7 @@ do_class:
                         break;
                     }
                 }
-                else if(has_mbyte && (l = (*mb_ptr2len)(scan)) > 1)
+                else if((l = (*mb_ptr2len)(scan)) > 1)
                 {
                     if(testval != 0)
                     {
@@ -7640,7 +7491,7 @@ do_class:
             // was changed since compiling the program).
             if((len = (*mb_ptr2len)(opnd)) > 1)
             {
-                if(ireg_ic && enc_utf8)
+                if(ireg_ic)
                 {
                     cf = utf_fold(utf_ptr2char(opnd));
                 }
@@ -7657,7 +7508,6 @@ do_class:
 
                     if(i < len
                        && (!ireg_ic
-                           || !enc_utf8
                            || utf_fold(utf_ptr2char(scan)) != cf))
                     {
                         break;
@@ -7704,7 +7554,7 @@ do_class:
                 {
                     ++scan;
                 }
-                else if(has_mbyte && (len = (*mb_ptr2len)(scan)) > 1)
+                else if((len = (*mb_ptr2len)(scan)) > 1)
                 {
                     if((cstrchr(opnd, (*mb_ptr2char)(scan)) == NULL) == testval)
                     {
@@ -8809,7 +8659,7 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
     }
 
     // if it failed and it's utf8 and we want to combineignore:
-    if(result != 0 && enc_utf8 && ireg_icombine)
+    if(result != 0 && ireg_icombine)
     {
         int c1;
         int c2;
@@ -9010,10 +8860,7 @@ uchar_kt *regtilde(uchar_kt *source, int magic)
                 ++p;
             }
 
-            if(has_mbyte)
-            {
-                p += (*mb_ptr2len)(p) - 1;
-            }
+            p += (*mb_ptr2len)(p) - 1;
         }
     }
 
@@ -9463,7 +9310,7 @@ static int vim_regsub_both(uchar_kt *source,
                             c = *src++;
                     }
                 }
-                else if(has_mbyte)
+                else
                 {
                     c = mb_ptr2char(src - 1);
                 }
@@ -9484,42 +9331,32 @@ static int vim_regsub_both(uchar_kt *source,
                     cc = c;
                 }
 
-                if(has_mbyte)
-                {
-                    int totlen = mb_ptr2len(src - 1);
+                int totlen = mb_ptr2len(src - 1);
 
+                if(copy)
+                {
+                    mb_char2bytes(cc, dst);
+                }
+
+                dst += mb_char2len(cc) - 1;
+
+                int clen = utf_ptr2len(src - 1);
+
+                // If the character length is shorter than
+                // "totlen", there are composing characters;
+                // copy them as-is.
+                if(clen < totlen)
+                {
                     if(copy)
                     {
-                        mb_char2bytes(cc, dst);
+                        memmove(dst + 1, src - 1 + clen,
+                                (size_t)(totlen - clen));
                     }
 
-                    dst += mb_char2len(cc) - 1;
-
-                    if(enc_utf8)
-                    {
-                        int clen = utf_ptr2len(src - 1);
-
-                        // If the character length is shorter than
-                        // "totlen", there are composing characters;
-                        // copy them as-is.
-                        if(clen < totlen)
-                        {
-                            if(copy)
-                            {
-                                memmove(dst + 1, src - 1 + clen,
-                                        (size_t)(totlen - clen));
-                            }
-
-                            dst += totlen - clen;
-                        }
-                    }
-
-                    src += totlen - 1;
+                    dst += totlen - clen;
                 }
-                else if(copy)
-                {
-                    *dst = cc;
-                }
+
+                src += totlen - 1;
 
                 dst++;
             }
@@ -9624,14 +9461,7 @@ static int vim_regsub_both(uchar_kt *source,
                             }
                             else
                             {
-                                if(has_mbyte)
-                                {
-                                    c = mb_ptr2char(s);
-                                }
-                                else
-                                {
-                                    c = *s;
-                                }
+                                c = mb_ptr2char(s);
 
                                 if(func_one != (fptr_ft)NULL)
                                 {
@@ -9648,35 +9478,21 @@ static int vim_regsub_both(uchar_kt *source,
                                     cc = c;
                                 }
 
-                                if(has_mbyte)
+                                int l;
+
+                                // Copy composing characters
+                                // separately, one at a time.
+                                l = utf_ptr2len(s) - 1;
+
+                                s += l;
+                                len -= l;
+
+                                if(copy)
                                 {
-                                    int l;
-
-                                    // Copy composing characters
-                                    // separately, one at a time.
-                                    if(enc_utf8)
-                                    {
-                                        l = utf_ptr2len(s) - 1;
-                                    }
-                                    else
-                                    {
-                                        l = mb_ptr2len(s) - 1;
-                                    }
-
-                                    s += l;
-                                    len -= l;
-
-                                    if(copy)
-                                    {
-                                        mb_char2bytes(cc, dst);
-                                    }
-
-                                    dst += mb_char2len(cc) - 1;
+                                    mb_char2bytes(cc, dst);
                                 }
-                                else if(copy)
-                                {
-                                    *dst = cc;
-                                }
+
+                                dst += mb_char2len(cc) - 1;
 
                                 dst++;
                             }
@@ -10414,7 +10230,7 @@ static uchar_kt *nfa_get_match_text(nfa_state_st *start)
 
     while(p->c > 0)
     {
-        len += MB_CHAR2LEN(p->c);
+        len += mb_char2len(p->c);
         p = p->out;
     }
 
@@ -10429,15 +10245,7 @@ static uchar_kt *nfa_get_match_text(nfa_state_st *start)
 
     while(p->c > 0)
     {
-        if(has_mbyte)
-        {
-            s += (*mb_char2bytes)(p->c, s);
-        }
-        else
-        {
-            *s++ = p->c;
-        }
-
+        s += (*mb_char2bytes)(p->c, s);
         p = p->out;
     }
 
@@ -10708,804 +10516,798 @@ static int nfa_recognize_char_class(uchar_kt *start,
 /// When changing this function, also update reg_equi_class()
 static void nfa_emit_equi_class(int c)
 {
-
-    if(enc_utf8
-       || ustrcmp(p_enc, "latin1") == 0
-       || ustrcmp(p_enc, "iso-8859-15") == 0)
+    switch(c)
     {
-        switch(c)
-        {
-            case 'A':
-            case A_grave:
-            case A_acute:
-            case A_circumflex:
-            case A_virguilla:
-            case A_diaeresis:
-            case A_ring:
-            case 0x100:
-            case 0x102:
-            case 0x104:
-            case 0x1cd:
-            case 0x1de:
-            case 0x1e0:
-            case 0x1ea2:
-                EMITMBC('A');
-                EMITMBC(A_grave);
-                EMITMBC(A_acute);
-                EMITMBC(A_circumflex);
-                EMITMBC(A_virguilla);
-                EMITMBC(A_diaeresis);
-                EMITMBC(A_ring);
-                EMITMBC(0x100)
-                EMITMBC(0x102)
-                EMITMBC(0x104)
-                EMITMBC(0x1cd)
-                EMITMBC(0x1de)
-                EMITMBC(0x1e0)
-                EMITMBC(0x1ea2)
-                return;
+        case 'A':
+        case A_grave:
+        case A_acute:
+        case A_circumflex:
+        case A_virguilla:
+        case A_diaeresis:
+        case A_ring:
+        case 0x100:
+        case 0x102:
+        case 0x104:
+        case 0x1cd:
+        case 0x1de:
+        case 0x1e0:
+        case 0x1ea2:
+            EMITMBC('A');
+            EMITMBC(A_grave);
+            EMITMBC(A_acute);
+            EMITMBC(A_circumflex);
+            EMITMBC(A_virguilla);
+            EMITMBC(A_diaeresis);
+            EMITMBC(A_ring);
+            EMITMBC(0x100)
+            EMITMBC(0x102)
+            EMITMBC(0x104)
+            EMITMBC(0x1cd)
+            EMITMBC(0x1de)
+            EMITMBC(0x1e0)
+            EMITMBC(0x1ea2)
+            return;
 
-            case 'B':
-            case 0x1e02:
-            case 0x1e06:
-                EMITMBC('B');
-                EMITMBC(0x1e02)
-                EMITMBC(0x1e06)
-                return;
+        case 'B':
+        case 0x1e02:
+        case 0x1e06:
+            EMITMBC('B');
+            EMITMBC(0x1e02)
+            EMITMBC(0x1e06)
+            return;
 
-            case 'C':
-            case C_cedilla:
-            case 0x106:
-            case 0x108:
-            case 0x10a:
-            case 0x10c:
-                EMITMBC('C');
-                EMITMBC(C_cedilla);
-                EMITMBC(0x106)
-                EMITMBC(0x108)
-                EMITMBC(0x10a)
-                EMITMBC(0x10c)
-                return;
+        case 'C':
+        case C_cedilla:
+        case 0x106:
+        case 0x108:
+        case 0x10a:
+        case 0x10c:
+            EMITMBC('C');
+            EMITMBC(C_cedilla);
+            EMITMBC(0x106)
+            EMITMBC(0x108)
+            EMITMBC(0x10a)
+            EMITMBC(0x10c)
+            return;
 
-            case 'D':
-            case 0x10e:
-            case 0x110:
-            case 0x1e0a:
-            case 0x1e0e:
-            case 0x1e10:
-                EMITMBC('D');
-                EMITMBC(0x10e)
-                EMITMBC(0x110)
-                EMITMBC(0x1e0a)
-                EMITMBC(0x1e0e)
-                EMITMBC(0x1e10)
-                return;
+        case 'D':
+        case 0x10e:
+        case 0x110:
+        case 0x1e0a:
+        case 0x1e0e:
+        case 0x1e10:
+            EMITMBC('D');
+            EMITMBC(0x10e)
+            EMITMBC(0x110)
+            EMITMBC(0x1e0a)
+            EMITMBC(0x1e0e)
+            EMITMBC(0x1e10)
+            return;
 
-            case 'E':
-            case E_grave:
-            case E_acute:
-            case E_circumflex:
-            case E_diaeresis:
-            case 0x112:
-            case 0x114:
-            case 0x116:
-            case 0x118:
-            case 0x11a:
-            case 0x1eba:
-            case 0x1ebc:
-                EMITMBC('E');
-                EMITMBC(E_grave);
-                EMITMBC(E_acute);
-                EMITMBC(E_circumflex);
-                EMITMBC(E_diaeresis);
-                EMITMBC(0x112)
-                EMITMBC(0x114)
-                EMITMBC(0x116)
-                EMITMBC(0x118)
-                EMITMBC(0x11a)
-                EMITMBC(0x1eba)
-                EMITMBC(0x1ebc)
-                return;
+        case 'E':
+        case E_grave:
+        case E_acute:
+        case E_circumflex:
+        case E_diaeresis:
+        case 0x112:
+        case 0x114:
+        case 0x116:
+        case 0x118:
+        case 0x11a:
+        case 0x1eba:
+        case 0x1ebc:
+            EMITMBC('E');
+            EMITMBC(E_grave);
+            EMITMBC(E_acute);
+            EMITMBC(E_circumflex);
+            EMITMBC(E_diaeresis);
+            EMITMBC(0x112)
+            EMITMBC(0x114)
+            EMITMBC(0x116)
+            EMITMBC(0x118)
+            EMITMBC(0x11a)
+            EMITMBC(0x1eba)
+            EMITMBC(0x1ebc)
+            return;
 
-            case 'F':
-            case 0x1e1e:
-                EMITMBC('F');
-                EMITMBC(0x1e1e)
-                return;
+        case 'F':
+        case 0x1e1e:
+            EMITMBC('F');
+            EMITMBC(0x1e1e)
+            return;
 
-            case 'G':
-            case 0x11c:
-            case 0x11e:
-            case 0x120:
-            case 0x122:
-            case 0x1e4:
-            case 0x1e6:
-            case 0x1f4:
-            case 0x1e20:
-                EMITMBC('G');
-                EMITMBC(0x11c)
-                EMITMBC(0x11e)
-                EMITMBC(0x120)
-                EMITMBC(0x122)
-                EMITMBC(0x1e4)
-                EMITMBC(0x1e6)
-                EMITMBC(0x1f4)
-                EMITMBC(0x1e20)
-                return;
+        case 'G':
+        case 0x11c:
+        case 0x11e:
+        case 0x120:
+        case 0x122:
+        case 0x1e4:
+        case 0x1e6:
+        case 0x1f4:
+        case 0x1e20:
+            EMITMBC('G');
+            EMITMBC(0x11c)
+            EMITMBC(0x11e)
+            EMITMBC(0x120)
+            EMITMBC(0x122)
+            EMITMBC(0x1e4)
+            EMITMBC(0x1e6)
+            EMITMBC(0x1f4)
+            EMITMBC(0x1e20)
+            return;
 
-            case 'H':
-            case 0x124:
-            case 0x126:
-            case 0x1e22:
-            case 0x1e26:
-            case 0x1e28:
-                EMITMBC('H');
-                EMITMBC(0x124)
-                EMITMBC(0x126)
-                EMITMBC(0x1e22)
-                EMITMBC(0x1e26)
-                EMITMBC(0x1e28)
-                return;
+        case 'H':
+        case 0x124:
+        case 0x126:
+        case 0x1e22:
+        case 0x1e26:
+        case 0x1e28:
+            EMITMBC('H');
+            EMITMBC(0x124)
+            EMITMBC(0x126)
+            EMITMBC(0x1e22)
+            EMITMBC(0x1e26)
+            EMITMBC(0x1e28)
+            return;
 
-            case 'I':
-            case I_grave:
-            case I_acute:
-            case I_circumflex:
-            case I_diaeresis:
-            case 0x128:
-            case 0x12a:
-            case 0x12c:
-            case 0x12e:
-            case 0x130:
-            case 0x1cf:
-            case 0x1ec8:
-                EMITMBC('I');
-                EMITMBC(I_grave);
-                EMITMBC(I_acute);
-                EMITMBC(I_circumflex);
-                EMITMBC(I_diaeresis);
-                EMITMBC(0x128)
-                EMITMBC(0x12a)
-                EMITMBC(0x12c)
-                EMITMBC(0x12e)
-                EMITMBC(0x130)
-                EMITMBC(0x1cf)
-                EMITMBC(0x1ec8)
-                return;
+        case 'I':
+        case I_grave:
+        case I_acute:
+        case I_circumflex:
+        case I_diaeresis:
+        case 0x128:
+        case 0x12a:
+        case 0x12c:
+        case 0x12e:
+        case 0x130:
+        case 0x1cf:
+        case 0x1ec8:
+            EMITMBC('I');
+            EMITMBC(I_grave);
+            EMITMBC(I_acute);
+            EMITMBC(I_circumflex);
+            EMITMBC(I_diaeresis);
+            EMITMBC(0x128)
+            EMITMBC(0x12a)
+            EMITMBC(0x12c)
+            EMITMBC(0x12e)
+            EMITMBC(0x130)
+            EMITMBC(0x1cf)
+            EMITMBC(0x1ec8)
+            return;
 
-            case 'J':
-            case 0x134:
-                EMITMBC('J');
-                EMITMBC(0x134)
-                return;
+        case 'J':
+        case 0x134:
+            EMITMBC('J');
+            EMITMBC(0x134)
+            return;
 
-            case 'K':
-            case 0x136:
-            case 0x1e8:
-            case 0x1e30:
-            case 0x1e34:
-                EMITMBC('K');
-                EMITMBC(0x136)
-                EMITMBC(0x1e8)
-                EMITMBC(0x1e30)
-                EMITMBC(0x1e34)
-                return;
+        case 'K':
+        case 0x136:
+        case 0x1e8:
+        case 0x1e30:
+        case 0x1e34:
+            EMITMBC('K');
+            EMITMBC(0x136)
+            EMITMBC(0x1e8)
+            EMITMBC(0x1e30)
+            EMITMBC(0x1e34)
+            return;
 
-            case 'L':
-            case 0x139:
-            case 0x13b:
-            case 0x13d:
-            case 0x13f:
-            case 0x141:
-            case 0x1e3a:
-                EMITMBC('L');
-                EMITMBC(0x139)
-                EMITMBC(0x13b)
-                EMITMBC(0x13d)
-                EMITMBC(0x13f)
-                EMITMBC(0x141)
-                EMITMBC(0x1e3a)
-                return;
+        case 'L':
+        case 0x139:
+        case 0x13b:
+        case 0x13d:
+        case 0x13f:
+        case 0x141:
+        case 0x1e3a:
+            EMITMBC('L');
+            EMITMBC(0x139)
+            EMITMBC(0x13b)
+            EMITMBC(0x13d)
+            EMITMBC(0x13f)
+            EMITMBC(0x141)
+            EMITMBC(0x1e3a)
+            return;
 
-            case 'M':
-            case 0x1e3e:
-            case 0x1e40:
-                EMITMBC('M');
-                EMITMBC(0x1e3e)
-                EMITMBC(0x1e40)
-                return;
+        case 'M':
+        case 0x1e3e:
+        case 0x1e40:
+            EMITMBC('M');
+            EMITMBC(0x1e3e)
+            EMITMBC(0x1e40)
+            return;
 
-            case 'N':
-            case N_virguilla:
-            case 0x143:
-            case 0x145:
-            case 0x147:
-            case 0x1e44:
-            case 0x1e48:
-                EMITMBC('N');
-                EMITMBC(N_virguilla);
-                EMITMBC(0x143)
-                EMITMBC(0x145)
-                EMITMBC(0x147)
-                EMITMBC(0x1e44)
-                EMITMBC(0x1e48)
-                return;
+        case 'N':
+        case N_virguilla:
+        case 0x143:
+        case 0x145:
+        case 0x147:
+        case 0x1e44:
+        case 0x1e48:
+            EMITMBC('N');
+            EMITMBC(N_virguilla);
+            EMITMBC(0x143)
+            EMITMBC(0x145)
+            EMITMBC(0x147)
+            EMITMBC(0x1e44)
+            EMITMBC(0x1e48)
+            return;
 
-            case 'O':
-            case O_grave:
-            case O_acute:
-            case O_circumflex:
-            case O_virguilla:
-            case O_diaeresis:
-            case O_slash:
-            case 0x14c:
-            case 0x14e:
-            case 0x150:
-            case 0x1a0:
-            case 0x1d1:
-            case 0x1ea:
-            case 0x1ec:
-            case 0x1ece:
-                EMITMBC('O');
-                EMITMBC(O_grave);
-                EMITMBC(O_acute);
-                EMITMBC(O_circumflex);
-                EMITMBC(O_virguilla);
-                EMITMBC(O_diaeresis);
-                EMITMBC(O_slash);
-                EMITMBC(0x14c)
-                EMITMBC(0x14e)
-                EMITMBC(0x150)
-                EMITMBC(0x1a0)
-                EMITMBC(0x1d1)
-                EMITMBC(0x1ea)
-                EMITMBC(0x1ec)
-                EMITMBC(0x1ece)
-                return;
+        case 'O':
+        case O_grave:
+        case O_acute:
+        case O_circumflex:
+        case O_virguilla:
+        case O_diaeresis:
+        case O_slash:
+        case 0x14c:
+        case 0x14e:
+        case 0x150:
+        case 0x1a0:
+        case 0x1d1:
+        case 0x1ea:
+        case 0x1ec:
+        case 0x1ece:
+            EMITMBC('O');
+            EMITMBC(O_grave);
+            EMITMBC(O_acute);
+            EMITMBC(O_circumflex);
+            EMITMBC(O_virguilla);
+            EMITMBC(O_diaeresis);
+            EMITMBC(O_slash);
+            EMITMBC(0x14c)
+            EMITMBC(0x14e)
+            EMITMBC(0x150)
+            EMITMBC(0x1a0)
+            EMITMBC(0x1d1)
+            EMITMBC(0x1ea)
+            EMITMBC(0x1ec)
+            EMITMBC(0x1ece)
+            return;
 
-            case 'P':
-            case 0x1e54:
-            case 0x1e56:
-                EMITMBC('P');
-                EMITMBC(0x1e54)
-                EMITMBC(0x1e56)
-                return;
+        case 'P':
+        case 0x1e54:
+        case 0x1e56:
+            EMITMBC('P');
+            EMITMBC(0x1e54)
+            EMITMBC(0x1e56)
+            return;
 
-            case 'R':
-            case 0x154:
-            case 0x156:
-            case 0x158:
-            case 0x1e58:
-            case 0x1e5e:
-                EMITMBC('R');
-                EMITMBC(0x154)
-                EMITMBC(0x156)
-                EMITMBC(0x158)
-                EMITMBC(0x1e58)
-                EMITMBC(0x1e5e)
-                return;
+        case 'R':
+        case 0x154:
+        case 0x156:
+        case 0x158:
+        case 0x1e58:
+        case 0x1e5e:
+            EMITMBC('R');
+            EMITMBC(0x154)
+            EMITMBC(0x156)
+            EMITMBC(0x158)
+            EMITMBC(0x1e58)
+            EMITMBC(0x1e5e)
+            return;
 
-            case 'S':
-            case 0x15a:
-            case 0x15c:
-            case 0x15e:
-            case 0x160:
-            case 0x1e60:
-                EMITMBC('S');
-                EMITMBC(0x15a)
-                EMITMBC(0x15c)
-                EMITMBC(0x15e)
-                EMITMBC(0x160)
-                EMITMBC(0x1e60)
-                return;
+        case 'S':
+        case 0x15a:
+        case 0x15c:
+        case 0x15e:
+        case 0x160:
+        case 0x1e60:
+            EMITMBC('S');
+            EMITMBC(0x15a)
+            EMITMBC(0x15c)
+            EMITMBC(0x15e)
+            EMITMBC(0x160)
+            EMITMBC(0x1e60)
+            return;
 
-            case 'T':
-            case 0x162:
-            case 0x164:
-            case 0x166:
-            case 0x1e6a:
-            case 0x1e6e:
-                EMITMBC('T');
-                EMITMBC(0x162)
-                EMITMBC(0x164)
-                EMITMBC(0x166)
-                EMITMBC(0x1e6a)
-                EMITMBC(0x1e6e)
-                return;
+        case 'T':
+        case 0x162:
+        case 0x164:
+        case 0x166:
+        case 0x1e6a:
+        case 0x1e6e:
+            EMITMBC('T');
+            EMITMBC(0x162)
+            EMITMBC(0x164)
+            EMITMBC(0x166)
+            EMITMBC(0x1e6a)
+            EMITMBC(0x1e6e)
+            return;
 
-            case 'U':
-            case U_grave:
-            case U_acute:
-            case U_diaeresis:
-            case U_circumflex:
-            case 0x168:
-            case 0x16a:
-            case 0x16c:
-            case 0x16e:
-            case 0x170:
-            case 0x172:
-            case 0x1af:
-            case 0x1d3:
-            case 0x1ee6:
-                EMITMBC('U');
-                EMITMBC(U_grave);
-                EMITMBC(U_acute);
-                EMITMBC(U_diaeresis);
-                EMITMBC(U_circumflex);
-                EMITMBC(0x168)
-                EMITMBC(0x16a)
-                EMITMBC(0x16c)
-                EMITMBC(0x16e)
-                EMITMBC(0x170)
-                EMITMBC(0x172)
-                EMITMBC(0x1af)
-                EMITMBC(0x1d3)
-                EMITMBC(0x1ee6)
-                return;
+        case 'U':
+        case U_grave:
+        case U_acute:
+        case U_diaeresis:
+        case U_circumflex:
+        case 0x168:
+        case 0x16a:
+        case 0x16c:
+        case 0x16e:
+        case 0x170:
+        case 0x172:
+        case 0x1af:
+        case 0x1d3:
+        case 0x1ee6:
+            EMITMBC('U');
+            EMITMBC(U_grave);
+            EMITMBC(U_acute);
+            EMITMBC(U_diaeresis);
+            EMITMBC(U_circumflex);
+            EMITMBC(0x168)
+            EMITMBC(0x16a)
+            EMITMBC(0x16c)
+            EMITMBC(0x16e)
+            EMITMBC(0x170)
+            EMITMBC(0x172)
+            EMITMBC(0x1af)
+            EMITMBC(0x1d3)
+            EMITMBC(0x1ee6)
+            return;
 
-            case 'V':
-            case 0x1e7c:
-                EMITMBC('V');
-                EMITMBC(0x1e7c)
-                return;
+        case 'V':
+        case 0x1e7c:
+            EMITMBC('V');
+            EMITMBC(0x1e7c)
+            return;
 
-            case 'W':
-            case 0x174:
-            case 0x1e80:
-            case 0x1e82:
-            case 0x1e84:
-            case 0x1e86:
-                EMITMBC('W');
-                EMITMBC(0x174)
-                EMITMBC(0x1e80)
-                EMITMBC(0x1e82)
-                EMITMBC(0x1e84)
-                EMITMBC(0x1e86)
-                return;
+        case 'W':
+        case 0x174:
+        case 0x1e80:
+        case 0x1e82:
+        case 0x1e84:
+        case 0x1e86:
+            EMITMBC('W');
+            EMITMBC(0x174)
+            EMITMBC(0x1e80)
+            EMITMBC(0x1e82)
+            EMITMBC(0x1e84)
+            EMITMBC(0x1e86)
+            return;
 
-            case 'X':
-            case 0x1e8a:
-            case 0x1e8c:
-                EMITMBC('X');
-                EMITMBC(0x1e8a)
-                EMITMBC(0x1e8c)
-                return;
+        case 'X':
+        case 0x1e8a:
+        case 0x1e8c:
+            EMITMBC('X');
+            EMITMBC(0x1e8a)
+            EMITMBC(0x1e8c)
+            return;
 
-            case 'Y':
-            case Y_acute:
-            case 0x176:
-            case 0x178:
-            case 0x1e8e:
-            case 0x1ef2:
-            case 0x1ef6:
-            case 0x1ef8:
-                EMITMBC('Y');
-                EMITMBC(Y_acute);
-                EMITMBC(0x176)
-                EMITMBC(0x178)
-                EMITMBC(0x1e8e)
-                EMITMBC(0x1ef2)
-                EMITMBC(0x1ef6)
-                EMITMBC(0x1ef8)
-                return;
+        case 'Y':
+        case Y_acute:
+        case 0x176:
+        case 0x178:
+        case 0x1e8e:
+        case 0x1ef2:
+        case 0x1ef6:
+        case 0x1ef8:
+            EMITMBC('Y');
+            EMITMBC(Y_acute);
+            EMITMBC(0x176)
+            EMITMBC(0x178)
+            EMITMBC(0x1e8e)
+            EMITMBC(0x1ef2)
+            EMITMBC(0x1ef6)
+            EMITMBC(0x1ef8)
+            return;
 
-            case 'Z':
-            case 0x179:
-            case 0x17b:
-            case 0x17d:
-            case 0x1b5:
-            case 0x1e90:
-            case 0x1e94:
-                EMITMBC('Z');
-                EMITMBC(0x179)
-                EMITMBC(0x17b)
-                EMITMBC(0x17d)
-                EMITMBC(0x1b5)
-                EMITMBC(0x1e90)
-                EMITMBC(0x1e94)
-                return;
+        case 'Z':
+        case 0x179:
+        case 0x17b:
+        case 0x17d:
+        case 0x1b5:
+        case 0x1e90:
+        case 0x1e94:
+            EMITMBC('Z');
+            EMITMBC(0x179)
+            EMITMBC(0x17b)
+            EMITMBC(0x17d)
+            EMITMBC(0x1b5)
+            EMITMBC(0x1e90)
+            EMITMBC(0x1e94)
+            return;
 
-            case 'a':
-            case a_grave:
-            case a_acute:
-            case a_circumflex:
-            case a_virguilla:
-            case a_diaeresis:
-            case a_ring:
-            case 0x101:
-            case 0x103:
-            case 0x105:
-            case 0x1ce:
-            case 0x1df:
-            case 0x1e1:
-            case 0x1ea3:
-                EMITMBC('a');
-                EMITMBC(a_grave);
-                EMITMBC(a_acute);
-                EMITMBC(a_circumflex);
-                EMITMBC(a_virguilla);
-                EMITMBC(a_diaeresis);
-                EMITMBC(a_ring);
-                EMITMBC(0x101)
-                EMITMBC(0x103)
-                EMITMBC(0x105)
-                EMITMBC(0x1ce)
-                EMITMBC(0x1df)
-                EMITMBC(0x1e1)
-                EMITMBC(0x1ea3)
-                return;
+        case 'a':
+        case a_grave:
+        case a_acute:
+        case a_circumflex:
+        case a_virguilla:
+        case a_diaeresis:
+        case a_ring:
+        case 0x101:
+        case 0x103:
+        case 0x105:
+        case 0x1ce:
+        case 0x1df:
+        case 0x1e1:
+        case 0x1ea3:
+            EMITMBC('a');
+            EMITMBC(a_grave);
+            EMITMBC(a_acute);
+            EMITMBC(a_circumflex);
+            EMITMBC(a_virguilla);
+            EMITMBC(a_diaeresis);
+            EMITMBC(a_ring);
+            EMITMBC(0x101)
+            EMITMBC(0x103)
+            EMITMBC(0x105)
+            EMITMBC(0x1ce)
+            EMITMBC(0x1df)
+            EMITMBC(0x1e1)
+            EMITMBC(0x1ea3)
+            return;
 
-            case 'b':
-            case 0x1e03:
-            case 0x1e07:
-                EMITMBC('b');
-                EMITMBC(0x1e03)
-                EMITMBC(0x1e07)
-                return;
+        case 'b':
+        case 0x1e03:
+        case 0x1e07:
+            EMITMBC('b');
+            EMITMBC(0x1e03)
+            EMITMBC(0x1e07)
+            return;
 
-            case 'c':
-            case c_cedilla:
-            case 0x107:
-            case 0x109:
-            case 0x10b:
-            case 0x10d:
-                EMITMBC('c');
-                EMITMBC(c_cedilla);
-                EMITMBC(0x107)
-                EMITMBC(0x109)
-                EMITMBC(0x10b)
-                EMITMBC(0x10d)
-                return;
+        case 'c':
+        case c_cedilla:
+        case 0x107:
+        case 0x109:
+        case 0x10b:
+        case 0x10d:
+            EMITMBC('c');
+            EMITMBC(c_cedilla);
+            EMITMBC(0x107)
+            EMITMBC(0x109)
+            EMITMBC(0x10b)
+            EMITMBC(0x10d)
+            return;
 
-            case 'd':
-            case 0x10f:
-            case 0x111:
-            case 0x1e0b:
-            case 0x1e0f:
-            case 0x1e11:
-                EMITMBC('d');
-                EMITMBC(0x10f)
-                EMITMBC(0x111)
-                EMITMBC(0x1e0b)
-                EMITMBC(0x1e0f)
-                EMITMBC(0x1e11)
-                return;
+        case 'd':
+        case 0x10f:
+        case 0x111:
+        case 0x1e0b:
+        case 0x1e0f:
+        case 0x1e11:
+            EMITMBC('d');
+            EMITMBC(0x10f)
+            EMITMBC(0x111)
+            EMITMBC(0x1e0b)
+            EMITMBC(0x1e0f)
+            EMITMBC(0x1e11)
+            return;
 
-            case 'e':
-            case e_grave:
-            case e_acute:
-            case e_circumflex:
-            case e_diaeresis:
-            case 0x113:
-            case 0x115:
-            case 0x117:
-            case 0x119:
-            case 0x11b:
-            case 0x1ebb:
-            case 0x1ebd:
-                EMITMBC('e');
-                EMITMBC(e_grave);
-                EMITMBC(e_acute);
-                EMITMBC(e_circumflex);
-                EMITMBC(e_diaeresis);
-                EMITMBC(0x113)
-                EMITMBC(0x115)
-                EMITMBC(0x117)
-                EMITMBC(0x119)
-                EMITMBC(0x11b)
-                EMITMBC(0x1ebb)
-                EMITMBC(0x1ebd)
-                return;
+        case 'e':
+        case e_grave:
+        case e_acute:
+        case e_circumflex:
+        case e_diaeresis:
+        case 0x113:
+        case 0x115:
+        case 0x117:
+        case 0x119:
+        case 0x11b:
+        case 0x1ebb:
+        case 0x1ebd:
+            EMITMBC('e');
+            EMITMBC(e_grave);
+            EMITMBC(e_acute);
+            EMITMBC(e_circumflex);
+            EMITMBC(e_diaeresis);
+            EMITMBC(0x113)
+            EMITMBC(0x115)
+            EMITMBC(0x117)
+            EMITMBC(0x119)
+            EMITMBC(0x11b)
+            EMITMBC(0x1ebb)
+            EMITMBC(0x1ebd)
+            return;
 
-            case 'f':
-            case 0x1e1f:
-                EMITMBC('f');
-                EMITMBC(0x1e1f)
-                return;
+        case 'f':
+        case 0x1e1f:
+            EMITMBC('f');
+            EMITMBC(0x1e1f)
+            return;
 
-            case 'g':
-            case 0x11d:
-            case 0x11f:
-            case 0x121:
-            case 0x123:
-            case 0x1e5:
-            case 0x1e7:
-            case 0x1f5:
-            case 0x1e21:
-                EMITMBC('g');
-                EMITMBC(0x11d)
-                EMITMBC(0x11f)
-                EMITMBC(0x121)
-                EMITMBC(0x123)
-                EMITMBC(0x1e5)
-                EMITMBC(0x1e7)
-                EMITMBC(0x1f5)
-                EMITMBC(0x1e21)
-                return;
+        case 'g':
+        case 0x11d:
+        case 0x11f:
+        case 0x121:
+        case 0x123:
+        case 0x1e5:
+        case 0x1e7:
+        case 0x1f5:
+        case 0x1e21:
+            EMITMBC('g');
+            EMITMBC(0x11d)
+            EMITMBC(0x11f)
+            EMITMBC(0x121)
+            EMITMBC(0x123)
+            EMITMBC(0x1e5)
+            EMITMBC(0x1e7)
+            EMITMBC(0x1f5)
+            EMITMBC(0x1e21)
+            return;
 
-            case 'h':
-            case 0x125:
-            case 0x127:
-            case 0x1e23:
-            case 0x1e27:
-            case 0x1e29:
-            case 0x1e96:
-                EMITMBC('h');
-                EMITMBC(0x125)
-                EMITMBC(0x127)
-                EMITMBC(0x1e23)
-                EMITMBC(0x1e27)
-                EMITMBC(0x1e29)
-                EMITMBC(0x1e96)
-                return;
+        case 'h':
+        case 0x125:
+        case 0x127:
+        case 0x1e23:
+        case 0x1e27:
+        case 0x1e29:
+        case 0x1e96:
+            EMITMBC('h');
+            EMITMBC(0x125)
+            EMITMBC(0x127)
+            EMITMBC(0x1e23)
+            EMITMBC(0x1e27)
+            EMITMBC(0x1e29)
+            EMITMBC(0x1e96)
+            return;
 
-            case 'i':
-            case i_grave:
-            case i_acute:
-            case i_circumflex:
-            case i_diaeresis:
-            case 0x129:
-            case 0x12b:
-            case 0x12d:
-            case 0x12f:
-            case 0x1d0:
-            case 0x1ec9:
-                EMITMBC('i');
-                EMITMBC(i_grave);
-                EMITMBC(i_acute);
-                EMITMBC(i_circumflex);
-                EMITMBC(i_diaeresis);
-                EMITMBC(0x129)
-                EMITMBC(0x12b)
-                EMITMBC(0x12d)
-                EMITMBC(0x12f)
-                EMITMBC(0x1d0)
-                EMITMBC(0x1ec9)
-                return;
+        case 'i':
+        case i_grave:
+        case i_acute:
+        case i_circumflex:
+        case i_diaeresis:
+        case 0x129:
+        case 0x12b:
+        case 0x12d:
+        case 0x12f:
+        case 0x1d0:
+        case 0x1ec9:
+            EMITMBC('i');
+            EMITMBC(i_grave);
+            EMITMBC(i_acute);
+            EMITMBC(i_circumflex);
+            EMITMBC(i_diaeresis);
+            EMITMBC(0x129)
+            EMITMBC(0x12b)
+            EMITMBC(0x12d)
+            EMITMBC(0x12f)
+            EMITMBC(0x1d0)
+            EMITMBC(0x1ec9)
+            return;
 
-            case 'j':
-            case 0x135:
-            case 0x1f0:
-                EMITMBC('j');
-                EMITMBC(0x135)
-                EMITMBC(0x1f0)
-                return;
+        case 'j':
+        case 0x135:
+        case 0x1f0:
+            EMITMBC('j');
+            EMITMBC(0x135)
+            EMITMBC(0x1f0)
+            return;
 
-            case 'k':
-            case 0x137:
-            case 0x1e9:
-            case 0x1e31:
-            case 0x1e35:
-                EMITMBC('k');
-                EMITMBC(0x137)
-                EMITMBC(0x1e9)
-                EMITMBC(0x1e31)
-                EMITMBC(0x1e35)
-                return;
+        case 'k':
+        case 0x137:
+        case 0x1e9:
+        case 0x1e31:
+        case 0x1e35:
+            EMITMBC('k');
+            EMITMBC(0x137)
+            EMITMBC(0x1e9)
+            EMITMBC(0x1e31)
+            EMITMBC(0x1e35)
+            return;
 
-            case 'l':
-            case 0x13a:
-            case 0x13c:
-            case 0x13e:
-            case 0x140:
-            case 0x142:
-            case 0x1e3b:
-                EMITMBC('l');
-                EMITMBC(0x13a)
-                EMITMBC(0x13c)
-                EMITMBC(0x13e)
-                EMITMBC(0x140)
-                EMITMBC(0x142)
-                EMITMBC(0x1e3b)
-                return;
+        case 'l':
+        case 0x13a:
+        case 0x13c:
+        case 0x13e:
+        case 0x140:
+        case 0x142:
+        case 0x1e3b:
+            EMITMBC('l');
+            EMITMBC(0x13a)
+            EMITMBC(0x13c)
+            EMITMBC(0x13e)
+            EMITMBC(0x140)
+            EMITMBC(0x142)
+            EMITMBC(0x1e3b)
+            return;
 
-            case 'm':
-            case 0x1e3f:
-            case 0x1e41:
-                EMITMBC('m');
-                EMITMBC(0x1e3f)
-                EMITMBC(0x1e41)
-                return;
+        case 'm':
+        case 0x1e3f:
+        case 0x1e41:
+            EMITMBC('m');
+            EMITMBC(0x1e3f)
+            EMITMBC(0x1e41)
+            return;
 
-            case 'n':
-            case n_virguilla:
-            case 0x144:
-            case 0x146:
-            case 0x148:
-            case 0x149:
-            case 0x1e45:
-            case 0x1e49:
-                EMITMBC('n');
-                EMITMBC(n_virguilla);
-                EMITMBC(0x144)
-                EMITMBC(0x146)
-                EMITMBC(0x148)
-                EMITMBC(0x149)
-                EMITMBC(0x1e45)
-                EMITMBC(0x1e49)
-                return;
+        case 'n':
+        case n_virguilla:
+        case 0x144:
+        case 0x146:
+        case 0x148:
+        case 0x149:
+        case 0x1e45:
+        case 0x1e49:
+            EMITMBC('n');
+            EMITMBC(n_virguilla);
+            EMITMBC(0x144)
+            EMITMBC(0x146)
+            EMITMBC(0x148)
+            EMITMBC(0x149)
+            EMITMBC(0x1e45)
+            EMITMBC(0x1e49)
+            return;
 
-            case 'o':
-            case o_grave:
-            case o_acute:
-            case o_circumflex:
-            case o_virguilla:
-            case o_diaeresis:
-            case o_slash:
-            case 0x14d:
-            case 0x14f:
-            case 0x151:
-            case 0x1a1:
-            case 0x1d2:
-            case 0x1eb:
-            case 0x1ed:
-            case 0x1ecf:
-                EMITMBC('o');
-                EMITMBC(o_grave);
-                EMITMBC(o_acute);
-                EMITMBC(o_circumflex);
-                EMITMBC(o_virguilla);
-                EMITMBC(o_diaeresis);
-                EMITMBC(o_slash);
-                EMITMBC(0x14d)
-                EMITMBC(0x14f)
-                EMITMBC(0x151)
-                EMITMBC(0x1a1)
-                EMITMBC(0x1d2)
-                EMITMBC(0x1eb)
-                EMITMBC(0x1ed)
-                EMITMBC(0x1ecf)
-                return;
+        case 'o':
+        case o_grave:
+        case o_acute:
+        case o_circumflex:
+        case o_virguilla:
+        case o_diaeresis:
+        case o_slash:
+        case 0x14d:
+        case 0x14f:
+        case 0x151:
+        case 0x1a1:
+        case 0x1d2:
+        case 0x1eb:
+        case 0x1ed:
+        case 0x1ecf:
+            EMITMBC('o');
+            EMITMBC(o_grave);
+            EMITMBC(o_acute);
+            EMITMBC(o_circumflex);
+            EMITMBC(o_virguilla);
+            EMITMBC(o_diaeresis);
+            EMITMBC(o_slash);
+            EMITMBC(0x14d)
+            EMITMBC(0x14f)
+            EMITMBC(0x151)
+            EMITMBC(0x1a1)
+            EMITMBC(0x1d2)
+            EMITMBC(0x1eb)
+            EMITMBC(0x1ed)
+            EMITMBC(0x1ecf)
+            return;
 
-            case 'p':
-            case 0x1e55:
-            case 0x1e57:
-                EMITMBC('p');
-                EMITMBC(0x1e55)
-                EMITMBC(0x1e57)
-                return;
+        case 'p':
+        case 0x1e55:
+        case 0x1e57:
+            EMITMBC('p');
+            EMITMBC(0x1e55)
+            EMITMBC(0x1e57)
+            return;
 
-            case 'r':
-            case 0x155:
-            case 0x157:
-            case 0x159:
-            case 0x1e59:
-            case 0x1e5f:
-                EMITMBC('r');
-                EMITMBC(0x155)
-                EMITMBC(0x157)
-                EMITMBC(0x159)
-                EMITMBC(0x1e59)
-                EMITMBC(0x1e5f)
-                return;
+        case 'r':
+        case 0x155:
+        case 0x157:
+        case 0x159:
+        case 0x1e59:
+        case 0x1e5f:
+            EMITMBC('r');
+            EMITMBC(0x155)
+            EMITMBC(0x157)
+            EMITMBC(0x159)
+            EMITMBC(0x1e59)
+            EMITMBC(0x1e5f)
+            return;
 
-            case 's':
-            case 0x15b:
-            case 0x15d:
-            case 0x15f:
-            case 0x161:
-            case 0x1e61:
-                EMITMBC('s');
-                EMITMBC(0x15b)
-                EMITMBC(0x15d)
-                EMITMBC(0x15f)
-                EMITMBC(0x161)
-                EMITMBC(0x1e61)
-                return;
+        case 's':
+        case 0x15b:
+        case 0x15d:
+        case 0x15f:
+        case 0x161:
+        case 0x1e61:
+            EMITMBC('s');
+            EMITMBC(0x15b)
+            EMITMBC(0x15d)
+            EMITMBC(0x15f)
+            EMITMBC(0x161)
+            EMITMBC(0x1e61)
+            return;
 
-            case 't':
-            case 0x163:
-            case 0x165:
-            case 0x167:
-            case 0x1e6b:
-            case 0x1e6f:
-            case 0x1e97:
-                EMITMBC('t');
-                EMITMBC(0x163)
-                EMITMBC(0x165)
-                EMITMBC(0x167)
-                EMITMBC(0x1e6b)
-                EMITMBC(0x1e6f)
-                EMITMBC(0x1e97)
-                return;
+        case 't':
+        case 0x163:
+        case 0x165:
+        case 0x167:
+        case 0x1e6b:
+        case 0x1e6f:
+        case 0x1e97:
+            EMITMBC('t');
+            EMITMBC(0x163)
+            EMITMBC(0x165)
+            EMITMBC(0x167)
+            EMITMBC(0x1e6b)
+            EMITMBC(0x1e6f)
+            EMITMBC(0x1e97)
+            return;
 
-            case 'u':
-            case u_grave:
-            case u_acute:
-            case u_circumflex:
-            case u_diaeresis:
-            case 0x169:
-            case 0x16b:
-            case 0x16d:
-            case 0x16f:
-            case 0x171:
-            case 0x173:
-            case 0x1b0:
-            case 0x1d4:
-            case 0x1ee7:
-                EMITMBC('u');
-                EMITMBC(u_grave);
-                EMITMBC(u_acute);
-                EMITMBC(u_circumflex);
-                EMITMBC(u_diaeresis);
-                EMITMBC(0x169)
-                EMITMBC(0x16b)
-                EMITMBC(0x16d)
-                EMITMBC(0x16f)
-                EMITMBC(0x171)
-                EMITMBC(0x173)
-                EMITMBC(0x1b0)
-                EMITMBC(0x1d4)
-                EMITMBC(0x1ee7)
-                return;
+        case 'u':
+        case u_grave:
+        case u_acute:
+        case u_circumflex:
+        case u_diaeresis:
+        case 0x169:
+        case 0x16b:
+        case 0x16d:
+        case 0x16f:
+        case 0x171:
+        case 0x173:
+        case 0x1b0:
+        case 0x1d4:
+        case 0x1ee7:
+            EMITMBC('u');
+            EMITMBC(u_grave);
+            EMITMBC(u_acute);
+            EMITMBC(u_circumflex);
+            EMITMBC(u_diaeresis);
+            EMITMBC(0x169)
+            EMITMBC(0x16b)
+            EMITMBC(0x16d)
+            EMITMBC(0x16f)
+            EMITMBC(0x171)
+            EMITMBC(0x173)
+            EMITMBC(0x1b0)
+            EMITMBC(0x1d4)
+            EMITMBC(0x1ee7)
+            return;
 
-            case 'v':
-            case 0x1e7d:
-                EMITMBC('v');
-                EMITMBC(0x1e7d)
-                return;
+        case 'v':
+        case 0x1e7d:
+            EMITMBC('v');
+            EMITMBC(0x1e7d)
+            return;
 
-            case 'w':
-            case 0x175:
-            case 0x1e81:
-            case 0x1e83:
-            case 0x1e85:
-            case 0x1e87:
-            case 0x1e98:
-                EMITMBC('w');
-                EMITMBC(0x175)
-                EMITMBC(0x1e81)
-                EMITMBC(0x1e83)
-                EMITMBC(0x1e85)
-                EMITMBC(0x1e87)
-                EMITMBC(0x1e98)
-                return;
+        case 'w':
+        case 0x175:
+        case 0x1e81:
+        case 0x1e83:
+        case 0x1e85:
+        case 0x1e87:
+        case 0x1e98:
+            EMITMBC('w');
+            EMITMBC(0x175)
+            EMITMBC(0x1e81)
+            EMITMBC(0x1e83)
+            EMITMBC(0x1e85)
+            EMITMBC(0x1e87)
+            EMITMBC(0x1e98)
+            return;
 
-            case 'x':
-            case 0x1e8b:
-            case 0x1e8d:
-                EMITMBC('x');
-                EMITMBC(0x1e8b)
-                EMITMBC(0x1e8d)
-                return;
+        case 'x':
+        case 0x1e8b:
+        case 0x1e8d:
+            EMITMBC('x');
+            EMITMBC(0x1e8b)
+            EMITMBC(0x1e8d)
+            return;
 
-            case 'y':
-            case y_acute:
-            case y_diaeresis:
-            case 0x177:
-            case 0x1e8f:
-            case 0x1e99:
-            case 0x1ef3:
-            case 0x1ef7:
-            case 0x1ef9:
-                EMITMBC('y');
-                EMITMBC(y_acute);
-                EMITMBC(y_diaeresis);
-                EMITMBC(0x177)
-                EMITMBC(0x1e8f)
-                EMITMBC(0x1e99)
-                EMITMBC(0x1ef3)
-                EMITMBC(0x1ef7)
-                EMITMBC(0x1ef9)
-                return;
+        case 'y':
+        case y_acute:
+        case y_diaeresis:
+        case 0x177:
+        case 0x1e8f:
+        case 0x1e99:
+        case 0x1ef3:
+        case 0x1ef7:
+        case 0x1ef9:
+            EMITMBC('y');
+            EMITMBC(y_acute);
+            EMITMBC(y_diaeresis);
+            EMITMBC(0x177)
+            EMITMBC(0x1e8f)
+            EMITMBC(0x1e99)
+            EMITMBC(0x1ef3)
+            EMITMBC(0x1ef7)
+            EMITMBC(0x1ef9)
+            return;
 
-            case 'z':
-            case 0x17a:
-            case 0x17c:
-            case 0x17e:
-            case 0x1b6:
-            case 0x1e91:
-            case 0x1e95:
-                EMITMBC('z');
-                EMITMBC(0x17a)
-                EMITMBC(0x17c)
-                EMITMBC(0x17e)
-                EMITMBC(0x1b6)
-                EMITMBC(0x1e91)
-                EMITMBC(0x1e95)
-                return;
-            // default: character itself
-        }
+        case 'z':
+        case 0x17a:
+        case 0x17c:
+        case 0x17e:
+        case 0x1b6:
+        case 0x1e91:
+        case 0x1e95:
+            EMITMBC('z');
+            EMITMBC(0x17a)
+            EMITMBC(0x17c)
+            EMITMBC(0x17e)
+            EMITMBC(0x1b6)
+            EMITMBC(0x1e91)
+            EMITMBC(0x1e95)
+            return;
+        // default: character itself
     }
 
     EMITMBC(c);
@@ -11647,7 +11449,7 @@ static int nfa_regatom(void)
 
             // When '.' is followed by a composing char ignore the
             // dot, so that the composing char is matched here.
-            if(enc_utf8 && c == Magic('.') && utf_iscomposing(peekchr()))
+            if(c == Magic('.') && utf_iscomposing(peekchr()))
             {
                 old_regparse = regparse;
                 c = getchr();
@@ -11718,7 +11520,7 @@ static int nfa_regatom(void)
 
             for(lp = reg_prev_sub; *lp != NUL; mb_cptr_adv(lp))
             {
-                EMIT(PTR2CHAR(lp));
+                EMIT(mb_ptr2char(lp));
 
                 if(lp != reg_prev_sub)
                 {
@@ -12232,7 +12034,7 @@ collection:
                     // Normal printable char
                     if(startc == -1)
                     {
-                        startc = PTR2CHAR(regparse);
+                        startc = mb_ptr2char(regparse);
                     }
 
                     // Previous char was '-', so this char is end of range.
@@ -12264,9 +12066,8 @@ collection:
                             EMIT(NFA_RANGE);
                             EMIT(NFA_CONCAT);
                         }
-                        else if(has_mbyte
-                                && ((*mb_char2len)(startc) > 1
-                                    || (*mb_char2len)(endc) > 1))
+                        else if((*mb_char2len)(startc) > 1
+                                || (*mb_char2len)(endc) > 1)
                         {
                             // Emit the characters in the range.
                             // "startc" was already emitted, so skip it.
@@ -12373,9 +12174,8 @@ collection:
 nfa_do_multibyte:
 
             // plen is length of current char with composing chars
-            if(enc_utf8
-               && ((*mb_char2len)(c) != (plen = (*mb_ptr2len)(old_regparse))
-                   || utf_iscomposing(c)))
+            if((*mb_char2len)(c) != (plen = (*mb_ptr2len)(old_regparse))
+               || utf_iscomposing(c))
             {
                 int i = 0;
 
@@ -13947,14 +13747,7 @@ static int nfa_max_width(nfa_state_st *startstate, int depth)
             case NFA_NUPPER_IC:
             case NFA_ANY_COMPOSING:
                 // possibly non-ascii
-                if(has_mbyte)
-                {
-                    len += 3;
-                }
-                else
-                {
-                    ++len;
-                }
+                len += 3;
 
                 break;
 
@@ -14070,7 +13863,7 @@ static int nfa_max_width(nfa_state_st *startstate, int depth)
                 }
 
                 // normal character
-                len += MB_CHAR2LEN(state->c);
+                len += mb_char2len(state->c);
                 break;
         }
 
@@ -16329,11 +16122,7 @@ static int recursive_regmatch(nfa_state_st *state,
             if((int)(reginput - regline) >= state->val)
             {
                 reginput -= state->val;
-
-                if(has_mbyte)
-                {
-                    reginput -= mb_head_off(regline, reginput);
-                }
+                reginput -= mb_head_off(regline, reginput);
             }
             else
             {
@@ -16620,7 +16409,7 @@ static long find_match_text(columnum_kt startcol,
                             int regstart,
                             uchar_kt *match_text)
 {
-#define PTR2LEN(x)    enc_utf8 ? utf_ptr2len(x) : MB_PTR2LEN(x)
+#define PTR2LEN(x)    utf_ptr2len(x)
 
     columnum_kt col = startcol;
     int regstart_len = PTR2LEN(regline + startcol);
@@ -16634,9 +16423,9 @@ static long find_match_text(columnum_kt startcol,
         while(*s1)
         {
             int c1_len = PTR2LEN(s1);
-            int c1 = PTR2CHAR(s1);
+            int c1 = mb_ptr2char(s1);
             int c2_len = PTR2LEN(s2);
-            int c2 = PTR2CHAR(s2);
+            int c2 = mb_ptr2char(s2);
 
             if((c1 != c2 && (!ireg_ic || mb_tolower(c1) != mb_tolower(c2)))
                || c1_len != c2_len)
@@ -16651,7 +16440,7 @@ static long find_match_text(columnum_kt startcol,
 
         if(match
            // check that no composing char follows
-           && !(enc_utf8 && utf_iscomposing(PTR2CHAR(s2))))
+           && !utf_iscomposing(mb_ptr2char(s2)))
         {
             cleanup_subexpr();
 
@@ -16827,16 +16616,8 @@ static int nfa_regmatch(nfa_regprog_st *prog,
         int curc;
         int clen;
 
-        if(has_mbyte)
-        {
-            curc = (*mb_ptr2char)(reginput);
-            clen = (*mb_ptr2len)(reginput);
-        }
-        else
-        {
-            curc = *reginput;
-            clen = 1;
-        }
+        curc = (*mb_ptr2char)(reginput);
+        clen = (*mb_ptr2len)(reginput);
 
         if(curc == NUL)
         {
@@ -16939,7 +16720,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                 {
                     // If the match ends before a composing characters and
                     // ireg_icombine is not set, that is not really a match.
-                    if(enc_utf8 && !ireg_icombine && utf_iscomposing(curc))
+                    if(!ireg_icombine && utf_iscomposing(curc))
                     {
                         break;
                     }
@@ -17320,7 +17101,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     {
                         result = false;
                     }
-                    else if(has_mbyte)
+                    else
                     {
                         int this_class;
 
@@ -17338,12 +17119,6 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                             result = false;
                         }
                     }
-                    else if(!is_kwc_buf(curc, reg_buf)
-                            || (reginput > regline
-                                && is_kwc_buf(reginput[-1], reg_buf)))
-                    {
-                        result = false;
-                    }
 
                     if(result)
                     {
@@ -17360,7 +17135,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     {
                         result = false;
                     }
-                    else if(has_mbyte)
+                    else
                     {
                         int this_class, prev_class;
 
@@ -17376,12 +17151,6 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                         {
                             result = false;
                         }
-                    }
-                    else if(!is_kwc_buf(reginput[-1], reg_buf)
-                            || (reginput[0] != NUL
-                                && is_kwc_buf(curc, reg_buf)))
-                    {
-                        result = false;
                     }
 
                     if(result)
@@ -17636,7 +17405,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
 
                     // On a composing character skip over it.
                     // Otherwise do nothing. Always matches.
-                    if(enc_utf8 && utf_iscomposing(curc))
+                    if(utf_iscomposing(curc))
                     {
                         add_off = clen;
                     }
@@ -17682,13 +17451,13 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     break;
 
                 case NFA_PRINT: //  \p
-                    result = is_print_char(PTR2CHAR(reginput));
+                    result = is_print_char(mb_ptr2char(reginput));
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
                 case NFA_SPRINT: //  \P
                     result = !ascii_isdigit(curc)
-                             && is_print_char(PTR2CHAR(reginput));
+                             && is_print_char(mb_ptr2char(reginput));
                     ADD_STATE_IF_MATCH(t->state);
                     break;
 
@@ -17937,7 +17706,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     // Bail out quickly when there can't be a match,
                     // avoid the overhead of win_linetabsize() on long lines.
                     if(op != 1
-                       && col > t->state->val * (has_mbyte ? MB_MAXBYTES : 1))
+                       && col > t->state->val * MB_MAXBYTES)
                     {
                         break;
                     }
@@ -18073,7 +17842,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
 
                     // If ireg_icombine is not set only skip over the character
                     // itself.  When it is set skip over composing characters.
-                    if(result && enc_utf8 && !ireg_icombine)
+                    if(result && !ireg_icombine)
                     {
                         clen = utf_ptr2len(reginput);
                     }
@@ -18259,7 +18028,7 @@ static int nfa_regmatch(nfa_regprog_st *prog,
                     {
                         // Checking if the required start character matches is
                         // cheaper than adding a state that won't match.
-                        c = PTR2CHAR(reginput + clen);
+                        c = mb_ptr2char(reginput + clen);
 
                         if(c != prog->regstart
                            && (!ireg_ic

@@ -316,17 +316,14 @@ void trunc_string(uchar_kt *s, uchar_kt *buf, int room_in, int buflen)
         len += n;
         buf[e] = s[e];
 
-        if(has_mbyte)
+        for(n = (*mb_ptr2len)(s + e); --n > 0;)
         {
-            for(n = (*mb_ptr2len)(s + e); --n > 0;)
+            if(++e == buflen)
             {
-                if(++e == buflen)
-                {
-                    break;
-                }
-
-                buf[e] = s[e];
+                break;
             }
+
+            buf[e] = s[e];
         }
     }
 
@@ -759,24 +756,21 @@ uchar_kt *msg_may_trunc(int force, uchar_kt *s)
     if((force || (shortmess(SHM_TRUNC) && !exmode_active))
        && (n = (int)ustrlen(s) - room) > 0)
     {
-        if(has_mbyte)
+        int size = ustr_scrsize(s);
+
+        // There may be room anyway when there are multibyte chars.
+        if(size <= room)
         {
-            int size = ustr_scrsize(s);
-
-            // There may be room anyway when there are multibyte chars.
-            if(size <= room)
-            {
-                return s;
-            }
-
-            for(n = 0; size >= room;)
-            {
-                size -= (*mb_ptr2cells)(s + n);
-                n += (*mb_ptr2len)(s + n);
-            }
-
-            --n;
+            return s;
         }
+
+        for(n = 0; size >= room;)
+        {
+            size -= (*mb_ptr2cells)(s + n);
+            n += (*mb_ptr2len)(s + n);
+        }
+
+        --n;
 
         s += n;
         *s = '<';
@@ -1347,7 +1341,7 @@ uchar_kt *msg_outtrans_one(uchar_kt *p, int attr)
 {
     int l;
 
-    if(has_mbyte && (l = (*mb_ptr2len)(p)) > 1)
+    if((l = (*mb_ptr2len)(p)) > 1)
     {
         msg_outtrans_len_attr(p, l, attr);
         return p + l;
@@ -1375,7 +1369,7 @@ int msg_outtrans_len_attr(uchar_kt *msgstr, int len, int attr)
 
     // If the string starts with a composing character first
     // draw a space on which the composing char can be drawn.
-    if(enc_utf8 && utf_iscomposing(utf_ptr2char(msgstr)))
+    if(utf_iscomposing(utf_ptr2char(msgstr)))
     {
         msg_puts_attr(" ", attr);
     }
@@ -1564,17 +1558,14 @@ uchar_kt *str2special(uchar_kt **sp, int from)
     int modifiers = 0;
     int special = FALSE;
 
-    if(has_mbyte)
-    {
-        uchar_kt  *p;
-        // Try to un-escape a multi-byte character. Return the
-        // un-escaped string if it is a multi-byte character.
-        p = mb_unescape(sp);
+    uchar_kt  *tmp_ptr;
+    // Try to un-escape a multi-byte character. Return the
+    // un-escaped string if it is a multi-byte character.
+    tmp_ptr = mb_unescape(sp);
 
-        if(p != NULL)
-        {
-            return p;
-        }
+    if(tmp_ptr != NULL)
+    {
+        return tmp_ptr;
     }
 
     c = *str;
@@ -1605,12 +1596,12 @@ uchar_kt *str2special(uchar_kt **sp, int from)
         }
     }
 
-    if(has_mbyte && !IS_SPECIAL(c))
+    if(!IS_SPECIAL(c))
     {
         int len = (*mb_ptr2len)(str);
 
         // For multi-byte characters check for an illegal byte.
-        if(has_mbyte && MB_BYTE2LEN(*str) > len)
+        if(MB_BYTE2LEN(*str) > len)
         {
             transchar_nonprint(buf, c);
             *sp = str + 1;
@@ -1707,7 +1698,7 @@ void msg_prt_line(uchar_kt *s, int list)
                 c = *p_extra++;
             }
         }
-        else if(has_mbyte && (l = (*mb_ptr2len)(s)) > 1)
+        else if((l = (*mb_ptr2len)(s)) > 1)
         {
             col += (*mb_ptr2cells)(s);
             char buf[MB_MAXBYTES + 1];
@@ -1961,14 +1952,12 @@ static void msg_puts_display(const uchar_kt *str,
            && (*s == '\n' || (cmdmsg_rl
                               ? (msg_col <= 1
                                  || (*s == TAB && msg_col <= 7)
-                                 || (has_mbyte
-                                     && (*mb_ptr2cells)(s) > 1
+                                 || ((*mb_ptr2cells)(s) > 1
                                      && msg_col <= 2))
                               : (msg_col + t_col >= Columns - 1
                                  || (*s == TAB
                                      && msg_col + t_col >= ((Columns - 1) & ~7))
-                                 || (has_mbyte
-                                     && (*mb_ptr2cells)(s) > 1
+                                 || ((*mb_ptr2cells)(s) > 1
                                      && msg_col + t_col >= Columns - 2)))))
         {
             // The screen is scrolled up when at the last row (some terminals
@@ -2071,8 +2060,7 @@ static void msg_puts_display(const uchar_kt *str,
 
         wrap = *s == '\n'
                || msg_col + t_col >= Columns
-               || (has_mbyte
-                   && (*mb_ptr2cells)(s) > 1
+               || ((*mb_ptr2cells)(s) > 1
                    && msg_col + t_col >= Columns - 1);
 
         if(t_col > 0
@@ -2131,24 +2119,16 @@ static void msg_puts_display(const uchar_kt *str,
         }
         else
         {
-            if(has_mbyte)
-            {
-                cw = (*mb_ptr2cells)(s);
+            cw = (*mb_ptr2cells)(s);
 
-                if(enc_utf8 && maxlen >= 0)
-                {
-                    // avoid including composing chars after the end
-                    l = utfc_ptr2len_len(s, (int)((str + maxlen) - s));
-                }
-                else
-                {
-                    l = (*mb_ptr2len)(s);
-                }
+            if(maxlen >= 0)
+            {
+                // avoid including composing chars after the end
+                l = utfc_ptr2len_len(s, (int)((str + maxlen) - s));
             }
             else
             {
-                cw = 1;
-                l = 1;
+                l = (*mb_ptr2len)(s);
             }
 
             // When drawing from right to left or when a double-wide character
@@ -2412,7 +2392,7 @@ static void t_puts(int *t_col, const uchar_kt *t_s, const uchar_kt *s, int attr)
 
     // If the string starts with a composing character
     // don't increment the column position for it.
-    if(enc_utf8 && utf_iscomposing(utf_ptr2char(t_s)))
+    if(utf_iscomposing(utf_ptr2char(t_s)))
     {
         --msg_col;
     }
@@ -3282,19 +3262,12 @@ int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
 
                 for(i = 0; hotkeys[i]; ++i)
                 {
-                    if(has_mbyte)
-                    {
-                        if((*mb_ptr2char)(hotkeys + i) == c)
-                        {
-                            break;
-                        }
-
-                        i += (*mb_ptr2len)(hotkeys + i) - 1;
-                    }
-                    else if(hotkeys[i] == c)
+                    if((*mb_ptr2char)(hotkeys + i) == c)
                     {
                         break;
                     }
+
+                    i += (*mb_ptr2len)(hotkeys + i) - 1;
 
                     ++retval;
                 }
@@ -3331,37 +3304,21 @@ static int copy_char(uchar_kt *from, uchar_kt *to, int lowercase)
     int len;
     int c;
 
-    if(has_mbyte)
+    if(lowercase)
     {
-        if(lowercase)
-        {
-            c = mb_tolower((*mb_ptr2char)(from));
-            return (*mb_char2bytes)(c, to);
-        }
-        else
-        {
-            len = (*mb_ptr2len)(from);
-            memmove(to, from, (size_t)len);
-            return len;
-        }
+        c = mb_tolower((*mb_ptr2char)(from));
+        return (*mb_char2bytes)(c, to);
     }
     else
     {
-        if(lowercase)
-        {
-            *to = (uchar_kt)TOLOWER_LOC(*from);
-        }
-        else
-        {
-            *to = *from;
-        }
-
-        return 1;
+        len = (*mb_ptr2len)(from);
+        memmove(to, from, (size_t)len);
+        return len;
     }
 }
 
-#define HAS_HOTKEY_LEN 30
-#define HOTK_LEN (has_mbyte ? MB_MAXBYTES : 1)
+#define HAS_HOTKEY_LEN  30
+#define HOTK_LEN        (MB_MAXBYTES)
 
 /// Allocates memory for dialog string & for storing hotkeys
 ///
@@ -3508,7 +3465,7 @@ static void copy_hotkeys_and_msg(const uchar_kt *message,
             *msgp++ = ' '; // '\n' -> ', '
 
             // Advance to next hotkey and set default hotkey
-            hotkeys_ptr += (has_mbyte) ? ustrlen(hotkeys_ptr): 1;
+            hotkeys_ptr += ustrlen(hotkeys_ptr);
             hotkeys_ptr[copy_char(r + 1, hotkeys_ptr, TRUE)] = NUL;
 
             if(default_button_idx)

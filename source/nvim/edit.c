@@ -458,7 +458,7 @@ static void insert_enter(InsertState *s)
             {
                 ++curwin->w_cursor.col;
             }
-            else if(has_mbyte)
+            else
             {
                 s->i = (*mb_ptr2len)(s->ptr);
 
@@ -775,7 +775,7 @@ static int insert_execute(nvim_state_st *state, int key)
                 {
                     for(p = str; *p != NUL; mb_ptr_adv(p))
                     {
-                        ins_compl_addleader(PTR2CHAR(p));
+                        ins_compl_addleader(mb_ptr2char(p));
                     }
 
                     xfree(str);
@@ -1467,7 +1467,7 @@ normalchar:
                         // Insert the new value of v:char literally.
                         for(p = str; *p != NUL; mb_ptr_adv(p))
                         {
-                            s->c = PTR2CHAR(p);
+                            s->c = mb_ptr2char(p);
 
                             if(s->c == CAR || s->c == K_KENTER || s->c == NL)
                             {
@@ -1519,8 +1519,7 @@ normalchar:
             if(is_kwc(s->c)
                || (!echeck_abbr(// Add ABBR_OFF for characters above 0x100,
                                 // this is what check_abbr() expects.
-                                (has_mbyte && s->c >= 0x100)
-                                ? (s->c + ABBR_OFF) : s->c)
+                                (s->c >= 0x100) ? (s->c + ABBR_OFF) : s->c)
                    && s->c != Ctrl_RSB))
             {
                 insert_special(s->c, false, false);
@@ -1815,16 +1814,13 @@ void edit_putchar(int c, int highlight)
         {
             pc_col += curwin->w_width - 1 - curwin->w_wcol;
 
-            if(has_mbyte)
-            {
-                int fix_col = mb_fix_col(pc_col, pc_row);
+            int fix_col = mb_fix_col(pc_col, pc_row);
 
-                if(fix_col != pc_col)
-                {
-                    screen_putchar(' ', pc_row, fix_col, attr);
-                    --curwin->w_wcol;
-                    pc_status = PC_STATUS_RIGHT;
-                }
+            if(fix_col != pc_col)
+            {
+                screen_putchar(' ', pc_row, fix_col, attr);
+                --curwin->w_wcol;
+                pc_status = PC_STATUS_RIGHT;
             }
         }
         else
@@ -1883,14 +1879,11 @@ void display_dollar(columnum_kt col)
     save_col = curwin->w_cursor.col;
     curwin->w_cursor.col = col;
 
-    if(has_mbyte)
-    {
-        uchar_kt *p;
+    uchar_kt *p;
 
-        // If on the last byte of a multi-byte move to the first byte.
-        p = get_cursor_line_ptr();
-        curwin->w_cursor.col -= (*mb_head_off)(p, p + col);
-    }
+    // If on the last byte of a multi-byte move to the first byte.
+    p = get_cursor_line_ptr();
+    curwin->w_cursor.col -= (*mb_head_off)(p, p + col);
 
     curs_columns(FALSE); // recompute w_wrow and w_wcol
 
@@ -2045,7 +2038,7 @@ void change_indent(int type,
         {
             last_vcol = vcol;
 
-            if(has_mbyte && new_cursor_col >= 0)
+            if(new_cursor_col >= 0)
             {
                 new_cursor_col += (*mb_ptr2len)(ptr + new_cursor_col);
             }
@@ -2216,7 +2209,7 @@ void backspace_until_column(int col)
 /// @return true when something was deleted.
 static bool del_char_after_col(int limit_col)
 {
-    if(enc_utf8 && limit_col >= 0)
+    if(limit_col >= 0)
     {
         columnum_kt ecol = curwin->w_cursor.col + 1;
         // Make sure the cursor is at the start of a character, but
@@ -2449,37 +2442,23 @@ int ins_compl_add_infercase(uchar_kt *str,
     {
         // Infer case of completed part.
         // Find actual length of completion.
-        if(has_mbyte)
-        {
-            const uchar_kt *p = str;
-            actual_len = 0;
+        const uchar_kt *p = str;
+        actual_len = 0;
 
-            while(*p != NUL)
-            {
-                mb_ptr_adv(p);
-                ++actual_len;
-            }
-        }
-        else
+        while(*p != NUL)
         {
-            actual_len = len;
+            mb_ptr_adv(p);
+            ++actual_len;
         }
 
         // Find actual length of original text.
-        if(has_mbyte)
-        {
-            const uchar_kt *p = compl_orig_text;
-            actual_compl_length = 0;
+        const uchar_kt *org_txt_ptr = compl_orig_text;
+        actual_compl_length = 0;
 
-            while(*p != NUL)
-            {
-                mb_ptr_adv(p);
-                ++actual_compl_length;
-            }
-        }
-        else
+        while(*org_txt_ptr != NUL)
         {
-            actual_compl_length = compl_length;
+            mb_ptr_adv(org_txt_ptr);
+            ++actual_compl_length;
         }
 
         // "actual_len" may be smaller than "actual_compl_length" when using
@@ -2494,14 +2473,7 @@ int ins_compl_add_infercase(uchar_kt *str,
 
             for(i = 0; i < actual_len; i++)
             {
-                if(has_mbyte)
-                {
-                    wca[i] = mb_ptr2char_adv(&p);
-                }
-                else
-                {
-                    wca[i] = *(p++);
-                }
+                wca[i] = mb_ptr2char_adv(&p);
             }
         }
 
@@ -2511,14 +2483,7 @@ int ins_compl_add_infercase(uchar_kt *str,
 
             for(i = 0; i < min_len; i++)
             {
-                if(has_mbyte)
-                {
-                    c = mb_ptr2char_adv(&p);
-                }
-                else
-                {
-                    c = *(p++);
-                }
+                c = mb_ptr2char_adv(&p);
 
                 if(mb_islower(c))
                 {
@@ -2546,14 +2511,7 @@ int ins_compl_add_infercase(uchar_kt *str,
 
             for(i = 0; i < min_len; i++)
             {
-                if(has_mbyte)
-                {
-                    c = mb_ptr2char_adv(&p);
-                }
-                else
-                {
-                    c = *(p++);
-                }
+                c = mb_ptr2char_adv(&p);
 
                 if(was_letter && mb_isupper(c) && mb_islower(wca[i]))
                 {
@@ -2576,14 +2534,7 @@ int ins_compl_add_infercase(uchar_kt *str,
 
             for(i = 0; i < min_len; i++)
             {
-                if(has_mbyte)
-                {
-                    c = mb_ptr2char_adv(&p);
-                }
-                else
-                {
-                    c = *(p++);
-                }
+                c = mb_ptr2char_adv(&p);
 
                 if(mb_islower(c))
                 {
@@ -2606,14 +2557,7 @@ int ins_compl_add_infercase(uchar_kt *str,
 
             while(i < actual_len && (p - IObuff + 6) < IOSIZE)
             {
-                if(has_mbyte)
-                {
-                    p += (*mb_char2bytes)(wca[i++], p);
-                }
-                else
-                {
-                    *(p++) = wca[i++];
-                }
+                p += (*mb_char2bytes)(wca[i++], p);
             }
 
             *p = NUL;
@@ -2862,16 +2806,8 @@ static void ins_compl_longest_match(compl_T *match)
 
         while(*p != NUL)
         {
-            if(has_mbyte)
-            {
-                c1 = mb_ptr2char(p);
-                c2 = mb_ptr2char(s);
-            }
-            else
-            {
-                c1 = *p;
-                c2 = *s;
-            }
+            c1 = mb_ptr2char(p);
+            c2 = mb_ptr2char(s);
 
             if(match->cp_icase
                ? (mb_tolower(c1) != mb_tolower(c2))
@@ -2880,16 +2816,8 @@ static void ins_compl_longest_match(compl_T *match)
                 break;
             }
 
-            if(has_mbyte)
-            {
-                mb_ptr_adv(p);
-                mb_ptr_adv(s);
-            }
-            else
-            {
-                ++p;
-                ++s;
-            }
+            mb_ptr_adv(p);
+            mb_ptr_adv(s);
         }
 
         if(*p != NUL)
@@ -3530,26 +3458,19 @@ static void ins_compl_files(int count,
                         wstart = ptr;
 
                         // Find end of the word.
-                        if(has_mbyte)
+                        // Japanese words may have characters in
+                        // different classes, only separate words
+                        // with single-byte non-word characters.
+                        while(*ptr != NUL)
                         {
-                            // Japanese words may have characters in
-                            // different classes, only separate words
-                            // with single-byte non-word characters.
-                            while(*ptr != NUL)
+                            int l = (*mb_ptr2len)(ptr);
+
+                            if(l < 2 && !is_kwc(*ptr))
                             {
-                                int l = (*mb_ptr2len)(ptr);
-
-                                if(l < 2 && !is_kwc(*ptr))
-                                {
-                                    break;
-                                }
-
-                                ptr += l;
+                                break;
                             }
-                        }
-                        else
-                        {
-                            ptr = find_word_end(ptr);
+
+                            ptr += l;
                         }
 
                         // Add the word. Skip the regexp match.
@@ -3594,19 +3515,9 @@ static void ins_compl_files(int count,
 /// Returns a pointer to the first char of the word.  Also stops at a NUL.
 uchar_kt *find_word_start(uchar_kt *ptr)
 {
-    if(has_mbyte)
+    while(*ptr != NUL && *ptr != '\n' && mb_get_class(ptr) <= 1)
     {
-        while(*ptr != NUL && *ptr != '\n' && mb_get_class(ptr) <= 1)
-        {
-            ptr += (*mb_ptr2len)(ptr);
-        }
-    }
-    else
-    {
-        while(*ptr != NUL && *ptr != '\n' && !is_kwc(*ptr))
-        {
-            ++ptr;
-        }
+        ptr += (*mb_ptr2len)(ptr);
     }
 
     return ptr;
@@ -3616,30 +3527,18 @@ uchar_kt *find_word_start(uchar_kt *ptr)
 /// Returns a pointer to just after the word.
 uchar_kt *find_word_end(uchar_kt *ptr)
 {
-    int start_class;
+    int start_class = mb_get_class(ptr);
 
-    if(has_mbyte)
+    if(start_class > 1)
     {
-        start_class = mb_get_class(ptr);
-
-        if(start_class > 1)
+        while(*ptr != NUL)
         {
-            while(*ptr != NUL)
+            ptr += (*mb_ptr2len)(ptr);
+
+            if(mb_get_class(ptr) != start_class)
             {
-                ptr += (*mb_ptr2len)(ptr);
-
-                if(mb_get_class(ptr) != start_class)
-                {
-                    break;
-                }
+                break;
             }
-        }
-    }
-    else
-    {
-        while(is_kwc(*ptr))
-        {
-            ++ptr;
         }
     }
 
@@ -3854,7 +3753,7 @@ static void ins_compl_addleader(int c)
         return;
     }
 
-    if(has_mbyte && (cc = (*mb_char2len)(c)) > 1)
+    if((cc = (*mb_char2len)(c)) > 1)
     {
         uchar_kt buf[MB_MAXBYTES + 1];
         (*mb_char2bytes)(c, buf);
@@ -3951,7 +3850,7 @@ static void ins_compl_addfrommatch(void)
     }
 
     p += len;
-    c = PTR2CHAR(p);
+    c = mb_ptr2char(p);
     ins_compl_addleader(c);
 }
 
@@ -5805,29 +5704,21 @@ static int ins_complete(int c, bool enable_pum)
             {
                 // Search the point of change class of multibyte character
                 // or not a word single byte character backward.
-                if(has_mbyte)
-                {
-                    int base_class;
-                    int head_off;
-                    startcol -= (*mb_head_off)(line, line + startcol);
-                    base_class = mb_get_class(line + startcol);
+                int base_class;
+                int head_off;
+                startcol -= (*mb_head_off)(line, line + startcol);
+                base_class = mb_get_class(line + startcol);
 
-                    while(--startcol >= 0)
+                while(--startcol >= 0)
+                {
+                    head_off = (*mb_head_off)(line, line + startcol);
+
+                    if(base_class != mb_get_class(line + startcol - head_off))
                     {
-                        head_off = (*mb_head_off)(line, line + startcol);
-
-                        if(base_class != mb_get_class(line + startcol - head_off))
-                        {
-                            break;
-                        }
-
-                        startcol -= head_off;
+                        break;
                     }
-                }
-                else
-                {
-                    while(--startcol >= 0 && is_kwc(line[startcol]))
-                    { /* empty body */ }
+
+                    startcol -= head_off;
                 }
 
                 compl_col += ++startcol;
@@ -5886,12 +5777,12 @@ static int ins_complete(int c, bool enable_pum)
                 uchar_kt  *p = line + startcol;
                 mb_ptr_back(line, p);
 
-                while(p > line && is_file_name_char(PTR2CHAR(p)))
+                while(p > line && is_file_name_char(mb_ptr2char(p)))
                 {
                     mb_ptr_back(line, p);
                 }
 
-                if(p == line && is_file_name_char(PTR2CHAR(p)))
+                if(p == line && is_file_name_char(mb_ptr2char(p)))
                 {
                     startcol = 0;
                 }
@@ -6395,22 +6286,19 @@ static unsigned quote_meta(uchar_kt *dest, uchar_kt *src, int len)
         }
 
         // Copy remaining bytes of a multibyte character.
-        if(has_mbyte)
+        int i, mb_len;
+        mb_len = (*mb_ptr2len)(src) - 1;
+
+        if(mb_len > 0 && len >= mb_len)
         {
-            int i, mb_len;
-            mb_len = (*mb_ptr2len)(src) - 1;
-
-            if(mb_len > 0 && len >= mb_len)
+            for(i = 0; i < mb_len; ++i)
             {
-                for(i = 0; i < mb_len; ++i)
-                {
-                    --len;
-                    ++src;
+                --len;
+                ++src;
 
-                    if(dest != NULL)
-                    {
-                        *dest++ = *src;
-                    }
+                if(dest != NULL)
+                {
+                    *dest++ = *src;
                 }
             }
         }
@@ -6550,11 +6438,6 @@ int get_literal(void)
         cc = '\n';
     }
 
-    if(enc_dbcs && (cc & 0xff) == 0)
-    {
-        cc = '?';
-    }
-
     // don't accept an illegal DBCS char,
     // the NUL in the second byte will cause trouble!
     --no_mapping;
@@ -6625,7 +6508,7 @@ static void insert_special(int c, int allow_modmask, int ctrlv)
 
 #define WHITECHAR(cc)  \
     (ascii_iswhite(cc) \
-     && (!enc_utf8 || !utf_iscomposing(utf_ptr2char(get_cursor_pos_ptr() + 1))))
+     && !utf_iscomposing(utf_ptr2char(get_cursor_pos_ptr() + 1)))
 
 /// @param c              character to insert or NUL
 /// @param flags          INSCHAR_FORMAT, etc.
@@ -6776,7 +6659,7 @@ void insertchar(int c,  int flags, int second_indent)
     // Don't do this when there an InsertCharPre autocommand is defined,
     // because we need to fire the event for every character.
     if(!ISSPECIAL(c)
-       && (!has_mbyte || (*mb_char2len)(c) == 1)
+       && (*mb_char2len)(c) == 1
        && vpeekc() != NUL
        && !(curmod & kModFlgReplace)
        && !cindent_on()
@@ -6802,7 +6685,7 @@ void insertchar(int c,  int flags, int second_indent)
         // - need to check for abbreviation: A non-word char after a word-char
         while((c = vpeekc()) != NUL
               && !ISSPECIAL(c)
-              && (!has_mbyte || MB_BYTE2LEN_CHECK(c) == 1)
+              && MB_BYTE2LEN_CHECK(c) == 1
               && i < INPUT_BUFLEN
               && (textwidth == 0
                   || (virtcol += byte2cells(buf[i - 1])) < (columnum_kt)textwidth)
@@ -6849,7 +6732,7 @@ void insertchar(int c,  int flags, int second_indent)
     {
         int cc;
 
-        if(has_mbyte && (cc = (*mb_char2len)(c)) > 1)
+        if((cc = (*mb_char2len)(c)) > 1)
         {
             uchar_kt buf[MB_MAXBYTES + 1];
             (*mb_char2bytes)(c, buf);
@@ -7948,14 +7831,7 @@ int oneright(void)
         return FAIL; // already at the very end
     }
 
-    if(has_mbyte)
-    {
-        l = (*mb_ptr2len)(ptr);
-    }
-    else
-    {
-        l = 1;
-    }
+    l = (*mb_ptr2len)(ptr);
 
     // move "l" bytes right, but don't end up on the NUL,
     // unless 'virtualedit' contains "onemore".
@@ -7990,8 +7866,7 @@ int oneleft(void)
 
             // getviscol() is slow, skip it when 'showbreak' is empty,
             // 'breakindent' is not set and there are no multi-byte characters
-            if((*p_sbr == NUL && !curwin->w_o_curbuf.wo_bri && !has_mbyte)
-               || getviscol() < v)
+            if(getviscol() < v)
             {
                 break;
             }
@@ -8028,10 +7903,7 @@ int oneleft(void)
 
     // if the character on the left of the current cursor
     // is a multi-byte character, move to its first byte
-    if(has_mbyte)
-    {
-        mb_adjust_cursor();
-    }
+    mb_adjust_cursor();
 
     return OK;
 }
@@ -8436,7 +8308,7 @@ static void mb_replace_pop_ins(int cc)
     int n;
     uchar_kt buf[MB_MAXBYTES + 1];
 
-    if(has_mbyte && (n = MB_BYTE2LEN(cc)) > 1)
+    if((n = MB_BYTE2LEN(cc)) > 1)
     {
         buf[0] = cc;
 
@@ -8452,49 +8324,46 @@ static void mb_replace_pop_ins(int cc)
         ins_char(cc);
     }
 
-    if(enc_utf8)
+    // Handle composing chars.
+    while(1)
     {
-        // Handle composing chars.
-        for(;;)
-        {
-            c = replace_pop();
+        c = replace_pop();
 
-            // stack empty
-            if(c == -1)
+        // stack empty
+        if(c == -1)
+        {
+            break;
+        }
+
+        if((n = MB_BYTE2LEN(c)) == 1)
+        {
+            // Not a multi-byte char, put it back.
+            replace_push(c);
+            break;
+        }
+        else
+        {
+            buf[0] = c;
+            assert(n > 1);
+
+            for(i = 1; i < n; ++i)
             {
-                break;
+                buf[i] = replace_pop();
             }
 
-            if((n = MB_BYTE2LEN(c)) == 1)
+            if(utf_iscomposing(utf_ptr2char(buf)))
             {
-                // Not a multi-byte char, put it back.
-                replace_push(c);
-                break;
+                ins_bytes_len(buf, n);
             }
             else
             {
-                buf[0] = c;
-                assert(n > 1);
-
-                for(i = 1; i < n; ++i)
+                // Not a composing char, put it back.
+                for(i = n - 1; i >= 0; --i)
                 {
-                    buf[i] = replace_pop();
+                    replace_push(buf[i]);
                 }
 
-                if(utf_iscomposing(utf_ptr2char(buf)))
-                {
-                    ins_bytes_len(buf, n);
-                }
-                else
-                {
-                    // Not a composing char, put it back.
-                    for(i = n - 1; i >= 0; --i)
-                    {
-                        replace_push(buf[i]);
-                    }
-
-                    break;
-                }
+                break;
             }
         }
     }
@@ -8540,27 +8409,14 @@ static void replace_do_bs(int limit_col)
             orig_vcols = chartabsize(get_cursor_pos_ptr(), start_vcol);
         }
 
-        if(has_mbyte)
+        (void)del_char_after_col(limit_col);
+
+        if(l_State & kModFlgVReplace)
         {
-            (void)del_char_after_col(limit_col);
-
-            if(l_State & kModFlgVReplace)
-            {
-                orig_len = (int)ustrlen(get_cursor_pos_ptr());
-            }
-
-            replace_push(cc);
-        }
-        else
-        {
-            pchar_cursor(cc);
-
-            if(l_State & kModFlgVReplace)
-            {
-                orig_len = (int)ustrlen(get_cursor_pos_ptr()) - 1;
-            }
+            orig_len = (int)ustrlen(get_cursor_pos_ptr());
         }
 
+        replace_push(cc);
         replace_pop_ins();
 
         if(l_State & kModFlgVReplace)
@@ -8877,28 +8733,15 @@ bool in_cinkeys(int keytyped, int when, bool line_is_empty)
                     // search back for the start of a word.
                     line = get_cursor_line_ptr();
 
-                    if(has_mbyte)
-                    {
-                        uchar_kt *n;
+                    uchar_kt *n;
 
-                        for(s = line + curwin->w_cursor.col; s > line; s = n)
-                        {
-                            n = mb_prevptr(line, s);
-
-                            if(!is_kwc_ptr(n))
-                            {
-                                break;
-                            }
-                        }
-                    }
-                    else
+                    for(s = line + curwin->w_cursor.col; s > line; s = n)
                     {
-                        for(s = line + curwin->w_cursor.col; s > line; --s)
+                        n = mb_prevptr(line, s);
+
+                        if(!is_kwc_ptr(n))
                         {
-                            if(!is_kwc(s[-1]))
-                            {
-                                break;
-                            }
+                            break;
                         }
                     }
 
@@ -9370,10 +9213,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             --curwin->w_cursor.col;
 
             // Correct cursor for multi-byte character.
-            if(has_mbyte)
-            {
-                mb_adjust_cursor();
-            }
+            mb_adjust_cursor();
         }
     }
 
@@ -9964,10 +9804,7 @@ FUNC_ATTR_NONNULL_ARG(3)
         {
             int cclass = 0, prev_cclass = 0;
 
-            if(has_mbyte)
-            {
-                cclass = mb_get_class(get_cursor_pos_ptr());
-            }
+            cclass = mb_get_class(get_cursor_pos_ptr());
 
             do
             {
@@ -9980,11 +9817,8 @@ FUNC_ATTR_NONNULL_ARG(3)
                 cc = gchar_cursor();
 
                 // look multi-byte character class
-                if(has_mbyte)
-                {
-                    prev_cclass = cclass;
-                    cclass = mb_get_class(get_cursor_pos_ptr());
-                }
+                prev_cclass = cclass;
+                cclass = mb_get_class(get_cursor_pos_ptr());
 
                 if(mode == BACKSPACE_WORD && !ascii_isspace(cc))
                 {
@@ -10014,10 +9848,9 @@ FUNC_ATTR_NONNULL_ARG(3)
                 }
                 else
                 {
-                    const bool l_enc_utf8 = enc_utf8;
                     const int l_p_deco = p_deco;
 
-                    if(l_enc_utf8 && l_p_deco)
+                    if(l_p_deco)
                     {
                         (void)utfc_ptr2char(get_cursor_pos_ptr(), cpc);
                     }
@@ -10027,7 +9860,7 @@ FUNC_ATTR_NONNULL_ARG(3)
                     // If there are combining characters and 'delcombine'
                     // is set move the cursor back.
                     // Don't back up before the base character.
-                    if(l_enc_utf8 && l_p_deco && cpc[0] != NUL)
+                    if(l_p_deco && cpc[0] != NUL)
                     {
                         inc_cursor();
                     }
@@ -10347,14 +10180,7 @@ static void ins_right(bool end_change)
         }
         else
         {
-            if(has_mbyte)
-            {
-                curwin->w_cursor.col += (*mb_ptr2len)(get_cursor_pos_ptr());
-            }
-            else
-            {
-                ++curwin->w_cursor.col;
-            }
+            curwin->w_cursor.col += (*mb_ptr2len)(get_cursor_pos_ptr());
         }
 
         revins_legal++;
@@ -11142,15 +10968,7 @@ static uchar_kt *do_insert_char_pre(int c)
         return NULL;
     }
 
-    if(has_mbyte)
-    {
-        buf[(*mb_char2bytes)(c, (uchar_kt *) buf)] = NUL;
-    }
-    else
-    {
-        buf[0] = c;
-        buf[1] = NUL;
-    }
+    buf[(*mb_char2bytes)(c, (uchar_kt *) buf)] = NUL;
 
     // Lock the text to avoid weird things from happening.
     textlock++;

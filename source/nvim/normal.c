@@ -844,7 +844,7 @@ static void normal_get_additional_char(normal_state_st *s)
         // mapping.
         no_mapping--;
 
-        while(enc_utf8 && lang
+        while(lang
               && (s->c = vpeekc()) > 0
               && (s->c >= 0x100 || MB_BYTE2LEN(vpeekc()) > 1))
         {
@@ -2044,7 +2044,7 @@ void do_pending_operator(cmdarg_st *cap, int old_col, bool gui_yank)
         }
 
         // Include the trailing byte of a multi-byte char.
-        if(has_mbyte && oap->inclusive)
+        if(oap->inclusive)
         {
             int l;
             l = (*mb_ptr2len)(ml_get_pos(&oap->end));
@@ -3572,7 +3572,7 @@ static int get_mouse_class(uchar_kt *p)
 {
     int c;
 
-    if(has_mbyte && MB_BYTE2LEN(p[0]) > 1)
+    if(MB_BYTE2LEN(p[0]) > 1)
     {
         return mb_get_class(p);
     }
@@ -3719,84 +3719,51 @@ size_t find_ident_at_pos(win_st *wp,
         // 1. skip to start of identifier/string
         col = startcol;
 
-        if(has_mbyte)
+        while(ptr[col] != NUL)
         {
-            while(ptr[col] != NUL)
-            {
-                this_class = mb_get_class(ptr + col);
+            this_class = mb_get_class(ptr + col);
 
-                if(this_class != 0 && (i == 1 || this_class != 1))
-                {
-                    break;
-                }
-
-                col += (*mb_ptr2len)(ptr + col);
-            }
-        }
-        else
-        {
-            while(ptr[col] != NUL
-                  && (i == 0 ? !is_kwc(ptr[col]) : ascii_iswhite(ptr[col])))
+            if(this_class != 0 && (i == 1 || this_class != 1))
             {
-                ++col;
+                break;
             }
+
+            col += (*mb_ptr2len)(ptr + col);
         }
 
         // 2. Back up to start of identifier/string.
-        if(has_mbyte)
+        // Remember class of character under cursor.
+        this_class = mb_get_class(ptr + col);
+
+        while(col > 0 && this_class != 0)
         {
-            // Remember class of character under cursor.
-            this_class = mb_get_class(ptr + col);
+            prevcol = col - 1 - (*mb_head_off)(ptr, ptr + col - 1);
+            prev_class = mb_get_class(ptr + prevcol);
 
-            while(col > 0 && this_class != 0)
-            {
-                prevcol = col - 1 - (*mb_head_off)(ptr, ptr + col - 1);
-                prev_class = mb_get_class(ptr + prevcol);
-
-                if(this_class != prev_class
-                   && (i == 0 || prev_class == 0 || (find_type & kFindFlgIdent)))
-                {
-                    break;
-                }
-
-                col = prevcol;
-            }
-
-            // If we don't want just any old string, or we've found an
-            // identifier, stop searching.
-            if(this_class > 2)
-            {
-                this_class = 2;
-            }
-
-            if(!(find_type & kFindFlgString) || this_class == 2)
+            if(this_class != prev_class
+               && (i == 0 || prev_class == 0 || (find_type & kFindFlgIdent)))
             {
                 break;
             }
+
+            col = prevcol;
         }
-        else
-        {
-            while(col > 0
-                  && ((i == 0
-                       ? is_kwc(ptr[col - 1])
-                       : (!ascii_iswhite(ptr[col - 1])
-                          && (!(find_type & kFindFlgIdent)
-                              || !is_kwc(ptr[col - 1]))))))
-            {
-                --col;
-            }
 
-            // If we don't want just any old string, or we've found an
-            // identifier, stop searching.
-            if(!(find_type & kFindFlgString) || is_kwc(ptr[col]))
-            {
-                break;
-            }
+        // If we don't want just any old string, or we've found an
+        // identifier, stop searching.
+        if(this_class > 2)
+        {
+            this_class = 2;
+        }
+
+        if(!(find_type & kFindFlgString) || this_class == 2)
+        {
+            break;
         }
     }
 
     if(ptr[col] == NUL
-       || (i == 0 && (has_mbyte ? this_class != 2 : !is_kwc(ptr[col]))))
+       || (i == 0 && this_class != 2))
     {
         // didn't find an identifier or string
         if(find_type & kFindFlgString)
@@ -3817,27 +3784,15 @@ size_t find_ident_at_pos(win_st *wp,
     // 3. Find the end if the identifier/string.
     col = 0;
 
-    if(has_mbyte)
-    {
-        // Search for point of changing multibyte character class.
-        this_class = mb_get_class(ptr);
+    // Search for point of changing multibyte character class.
+    this_class = mb_get_class(ptr);
 
-        while(ptr[col] != NUL
-              && ((i == 0
-                   ? mb_get_class(ptr + col) == this_class
-                   : mb_get_class(ptr + col) != 0)))
-        {
-            col += (*mb_ptr2len)(ptr + col);
-        }
-    }
-    else
+    while(ptr[col] != NUL
+          && ((i == 0
+               ? mb_get_class(ptr + col) == this_class
+               : mb_get_class(ptr + col) != 0)))
     {
-        while((i == 0
-               ? is_kwc(ptr[col])
-               : (ptr[col] != NUL && !ascii_iswhite(ptr[col]))))
-        {
-            ++col;
-        }
+        col += (*mb_ptr2len)(ptr + col);
     }
 
     assert(col >= 0);
@@ -6007,14 +5962,11 @@ static void nv_ident(cmdarg_st *cap)
 
             // When current byte is a part of multibyte character,
             // copy all bytes of that character.
-            if(has_mbyte)
-            {
-                size_t len = (size_t)((*mb_ptr2len)(ptr) - 1);
+            size_t len = (size_t)((*mb_ptr2len)(ptr) - 1);
 
-                for(size_t i = 0; i < len && n > 0; ++i, --n)
-                {
-                    *p++ = *ptr++;
-                }
+            for(size_t i = 0; i < len && n > 0; ++i, --n)
+            {
+                *p++ = *ptr++;
             }
 
             *p++ = *ptr++;
@@ -6027,9 +5979,7 @@ static void nv_ident(cmdarg_st *cap)
     if(cmdchar == '*' || cmdchar == '#')
     {
         if(!g_cmd
-           && (has_mbyte
-               ? is_kwc_ptr(mb_prevptr(get_cursor_line_ptr(), ptr))
-               : is_kwc(ptr[-1])))
+           && is_kwc_ptr(mb_prevptr(get_cursor_line_ptr(), ptr)))
         {
             ustrcat(buf, "\\>");
         }
@@ -6091,11 +6041,8 @@ bool get_visual_text(cmdarg_st *cap, uchar_kt **pp, size_t *lenp)
             *lenp = (size_t)(curwin->w_cursor.col - VIsual.col + 1);
         }
 
-        if(has_mbyte)
-        {
-            // Correct the length to include the whole last character.
-            *lenp += (size_t)((*mb_ptr2len)(*pp + (*lenp - 1)) - 1);
-        }
+        // Correct the length to include the whole last character.
+        *lenp += (size_t)((*mb_ptr2len)(*pp + (*lenp - 1)) - 1);
     }
 
     reset_VIsual_and_resel();
@@ -6314,15 +6261,8 @@ static void nv_right(cmdarg_st *cap)
             }
             else
             {
-                if(has_mbyte)
-                {
-                    curwin->w_cursor.col +=
-                        (*mb_ptr2len)(get_cursor_pos_ptr());
-                }
-                else
-                {
-                    ++curwin->w_cursor.col;
-                }
+                curwin->w_cursor.col +=
+                    (*mb_ptr2len)(get_cursor_pos_ptr());
             }
         }
     }
@@ -6387,14 +6327,7 @@ static void nv_left(cmdarg_st *cap)
 
                     if(*cp != NUL)
                     {
-                        if(has_mbyte)
-                        {
-                            curwin->w_cursor.col += (*mb_ptr2len)(cp);
-                        }
-                        else
-                        {
-                            curwin->w_cursor.col++;
-                        }
+                        curwin->w_cursor.col += (*mb_ptr2len)(cp);
                     }
 
                     cap->retval |= CA_NO_ADJ_OP_END;
@@ -7416,7 +7349,7 @@ static void nv_replace(cmdarg_st *cap)
     ptr = get_cursor_pos_ptr();
 
     if(ustrlen(ptr) < (unsigned)cap->count1
-       || (has_mbyte && mb_charlen(ptr) < cap->count1))
+       || mb_charlen(ptr) < cap->count1)
     {
         clearopbeep(cap->oap);
         return;
@@ -7471,108 +7404,62 @@ static void nv_replace(cmdarg_st *cap)
 
         curbuf->b_op_start = curwin->w_cursor;
 
-        if(has_mbyte)
+        int old_State = curmod;
+
+        if(cap->ncharC1 != 0)
         {
-            int old_State = curmod;
+            AppendCharToRedobuff(cap->ncharC1);
+        }
+
+        if(cap->ncharC2 != 0)
+        {
+            AppendCharToRedobuff(cap->ncharC2);
+        }
+
+        // This is slow, but it handles replacing a single-byte with a
+        // multi-byte and the other way around. Also handles adding
+        // composing characters for utf-8.
+        for(n = cap->count1; n > 0; --n)
+        {
+            curmod = kReplaceMode;
+
+            if(cap->nchar == Ctrl_E || cap->nchar == Ctrl_Y)
+            {
+                int c = ins_copychar(curwin->w_cursor.lnum
+                                     + (cap->nchar == Ctrl_Y ? -1 : 1));
+
+                if(c != NUL)
+                {
+                    ins_char(c);
+                }
+                else
+                {
+                    // will be decremented further down
+                    ++curwin->w_cursor.col;
+                }
+            }
+            else
+            {
+                ins_char(cap->nchar);
+            }
+
+            curmod = old_State;
 
             if(cap->ncharC1 != 0)
             {
-                AppendCharToRedobuff(cap->ncharC1);
+                ins_char(cap->ncharC1);
             }
 
             if(cap->ncharC2 != 0)
             {
-                AppendCharToRedobuff(cap->ncharC2);
-            }
-
-            // This is slow, but it handles replacing a single-byte with a
-            // multi-byte and the other way around. Also handles adding
-            // composing characters for utf-8.
-            for(n = cap->count1; n > 0; --n)
-            {
-                curmod = kReplaceMode;
-
-                if(cap->nchar == Ctrl_E || cap->nchar == Ctrl_Y)
-                {
-                    int c = ins_copychar(curwin->w_cursor.lnum
-                                         + (cap->nchar == Ctrl_Y ? -1 : 1));
-
-                    if(c != NUL)
-                    {
-                        ins_char(c);
-                    }
-                    else
-                    {
-                        // will be decremented further down
-                        ++curwin->w_cursor.col;
-                    }
-                }
-                else
-                {
-                    ins_char(cap->nchar);
-                }
-
-                curmod = old_State;
-
-                if(cap->ncharC1 != 0)
-                {
-                    ins_char(cap->ncharC1);
-                }
-
-                if(cap->ncharC2 != 0)
-                {
-                    ins_char(cap->ncharC2);
-                }
+                ins_char(cap->ncharC2);
             }
         }
-        else
-        {
-            // Replace the characters within one line.
-            for(n = cap->count1; n > 0; --n)
-            {
-                // Get ptr again, because u_save and/or showmatch() will have
-                // released the line. At the same time we let know that the
-                // line will be changed.
-                ptr = ml_get_buf(curbuf, curwin->w_cursor.lnum, true);
-
-                if(cap->nchar == Ctrl_E || cap->nchar == Ctrl_Y)
-                {
-                    int c = ins_copychar(curwin->w_cursor.lnum
-                                         + (cap->nchar == Ctrl_Y ? -1 : 1));
-
-                    if(c != NUL)
-                    {
-                        assert(c >= 0 && c <= UCHAR_MAX);
-                        ptr[curwin->w_cursor.col] = (uchar_kt)c;
-                    }
-                }
-                else
-                {
-                    assert(cap->nchar >= 0 && cap->nchar <= UCHAR_MAX);
-                    ptr[curwin->w_cursor.col] = (uchar_kt)cap->nchar;
-                }
-
-                if(p_sm && msg_silent == 0)
-                {
-                    showmatch(cap->nchar);
-                }
-
-                ++curwin->w_cursor.col;
-            }
-
-            // mark the buffer as changed and prepare for displaying
-            changed_bytes(curwin->w_cursor.lnum,
-                          (columnum_kt)(curwin->w_cursor.col - cap->count1));
-        }
-
         --curwin->w_cursor.col; // cursor on the last replaced char
 
         // if the character on the left of the current
         // cursor is a multi-byte character, move two characters left
-        if(has_mbyte)
-        {
-            mb_adjust_cursor();
-        }
+        mb_adjust_cursor();
 
         curbuf->b_op_end = curwin->w_cursor;
         curwin->w_set_curswant = true;
@@ -9199,10 +9086,7 @@ static void adjust_cursor(oparg_st *oap)
         --curwin->w_cursor.col;
 
         // prevent cursor from moving on the trail byte
-        if(has_mbyte)
-        {
-            mb_adjust_cursor();
-        }
+        mb_adjust_cursor();
 
         oap->inclusive = true;
     }
@@ -9237,15 +9121,7 @@ static void adjust_for_sel(cmdarg_st *cap)
        && gchar_cursor() != NUL
        && lt(VIsual, curwin->w_cursor))
     {
-        if(has_mbyte)
-        {
-            inc_cursor();
-        }
-        else
-        {
-            ++curwin->w_cursor.col;
-        }
-
+        inc_cursor();
         cap->oap->inclusive = false;
     }
 }
@@ -9969,10 +9845,7 @@ static void get_op_vcol(oparg_st *oap, columnum_kt redo_VIsual_vcol, bool initia
     oap->motion_type = kMTBlockWise;
 
     // prevent from moving onto a trail byte
-    if(has_mbyte)
-    {
-        mark_mb_adjustpos(curwin->w_buffer, &oap->end);
-    }
+    mark_mb_adjustpos(curwin->w_buffer, &oap->end);
 
     getvvcol(curwin, &(oap->start), &oap->start_vcol, NULL, &oap->end_vcol);
 

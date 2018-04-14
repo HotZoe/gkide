@@ -6635,7 +6635,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
     // char back to ":" before "//" even when ':' is not in 'isfname'.
     while(ptr > line)
     {
-        if(has_mbyte && (len = (size_t)((*mb_head_off)(line, ptr - 1))) > 0)
+        if((len = (size_t)((*mb_head_off)(line, ptr - 1))) > 0)
         {
             ptr -= len + 1;
         }
@@ -6663,14 +6663,7 @@ uchar_kt *file_name_in_line(uchar_kt *line,
             ++len; // Skip over the "\" in "\ ".
         }
 
-        if(has_mbyte)
-        {
-            len += (size_t)(*mb_ptr2len)(ptr + len);
-        }
-        else
-        {
-            ++len;
-        }
+        len += (size_t)(*mb_ptr2len)(ptr + len);
     }
 
     // If there is trailing punctuation, remove it.

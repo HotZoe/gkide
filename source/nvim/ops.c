@@ -403,21 +403,14 @@ static void shift_block(oparg_st *oap, int amount)
 
         if(bd.startspaces)
         {
-            if(has_mbyte)
+            if((*mb_ptr2len)(bd.textstart) == 1)
             {
-                if((*mb_ptr2len)(bd.textstart) == 1)
-                {
-                    bd.textstart++;
-                }
-                else
-                {
-                    ws_vcol = 0;
-                    bd.startspaces = 0;
-                }
+                bd.textstart++;
             }
             else
             {
-                bd.textstart++;
+                ws_vcol = 0;
+                bd.startspaces = 0;
             }
         }
 
@@ -634,7 +627,7 @@ static void block_insert(oparg_st *oap,
             }
         }
 
-        if(has_mbyte && spaces > 0)
+        if(spaces > 0)
         {
             int off;
 
@@ -1471,9 +1464,7 @@ static void stuffescaped(const char *arg, int literally)
         // stuff a single special character
         if(*arg != NUL)
         {
-            const int c = (has_mbyte
-                           ? mb_cptr2char_adv((const uchar_kt **)&arg)
-                           : (uint8_t)(*arg++));
+            const int c = mb_cptr2char_adv((const uchar_kt **)&arg);
 
             if(literally && ((c < ' ' && c != TAB) || c == DEL))
             {
@@ -1660,10 +1651,7 @@ int op_delete(oparg_st *oap)
         return FAIL;
     }
 
-    if(has_mbyte)
-    {
-        mb_adjust_opend(oap);
-    }
+    mb_adjust_opend(oap);
 
     // Imitate the strange Vi behaviour:
     // If the delete spans more than one line and motion_type == kMTCharWise
@@ -2055,10 +2043,7 @@ int op_replace(oparg_st *oap, int c)
         c = (c == -1 ? '\r' : '\n');
     }
 
-    if(has_mbyte)
-    {
-        mb_adjust_opend(oap);
-    }
+    mb_adjust_opend(oap);
 
     if(u_save((linenum_kt)(oap->start.lnum - 1),
               (linenum_kt)(oap->end.lnum + 1)) == FAIL)
@@ -2165,17 +2150,9 @@ int op_replace(oparg_st *oap, int c)
                 // strlen(newp) at this point
                 int newp_len = bd.textcol + bd.startspaces;
 
-                if(has_mbyte)
+                while(--num_chars >= 0)
                 {
-                    while(--num_chars >= 0)
-                    {
-                        newp_len += (*mb_char2bytes)(c, newp + newp_len);
-                    }
-                }
-                else
-                {
-                    memset(newp + newp_len, c, (size_t)numc);
-                    newp_len += numc;
+                    newp_len += (*mb_char2bytes)(c, newp + newp_len);
                 }
 
                 if(!bd.is_short)
@@ -2447,15 +2424,12 @@ static int swapchars(int op_type, apos_st *pos, int length)
 
     for(todo = length; todo > 0; --todo)
     {
-        if(has_mbyte)
-        {
-            int len = (*mb_ptr2len)(ml_get_pos(pos));
+        int len = (*mb_ptr2len)(ml_get_pos(pos));
 
-            // we're counting bytes, not characters
-            if(len > 0)
-            {
-                todo -= len - 1;
-            }
+        // we're counting bytes, not characters
+        if(len > 0)
+        {
+            todo -= len - 1;
         }
 
         did_change |= swapchar(op_type, pos);
@@ -2500,11 +2474,6 @@ int swapchar(int op_type, apos_st *pos)
         inc(pos);
     }
 
-    if(enc_dbcs != 0 && c >= 0x100) // No lower/uppercase letter
-    {
-        return FALSE;
-    }
-
     nc = c;
 
     if(mb_islower(c))
@@ -2532,7 +2501,7 @@ int swapchar(int op_type, apos_st *pos)
 
     if(nc != c)
     {
-        if(enc_utf8 && (c >= 0x80 || nc >= 0x80))
+        if(c >= 0x80 || nc >= 0x80)
         {
             apos_st sp = curwin->w_cursor;
             curwin->w_cursor = *pos;
@@ -4469,7 +4438,7 @@ static void dis_msg(uchar_kt *p, int skip_esc)
           && !(*p == ESC && skip_esc && *(p + 1) == NUL)
           && (n -= ptr2cells(p)) >= 0)
     {
-        if(has_mbyte && (l = (*mb_ptr2len)(p)) > 1)
+        if((l = (*mb_ptr2len)(p)) > 1)
         {
             msg_outtrans_len(p, l);
             p += l;
@@ -4686,26 +4655,14 @@ int do_join(size_t count,
 
         if(insert_space && currsize > 0)
         {
-            if(has_mbyte)
+            cend = curr + currsize;
+            mb_ptr_back(curr, cend);
+            endcurr1 = (*mb_ptr2char)(cend);
+
+            if(cend > curr)
             {
-                cend = curr + currsize;
                 mb_ptr_back(curr, cend);
-                endcurr1 = (*mb_ptr2char)(cend);
-
-                if(cend > curr)
-                {
-                    mb_ptr_back(curr, cend);
-                    endcurr2 = (*mb_ptr2char)(cend);
-                }
-            }
-            else
-            {
-                endcurr1 = *(curr + currsize - 1);
-
-                if(currsize > 1)
-                {
-                    endcurr2 = *(curr + currsize - 2);
-                }
+                endcurr2 = (*mb_ptr2char)(cend);
             }
         }
 
@@ -5895,7 +5852,7 @@ int do_addsub(int op_type, apos_st *pos, int length, linenum_kt Prenum1)
         while(ptr[col] != NUL && length > 0 && !ascii_isdigit(ptr[col])
               && !(doalp && ASCII_ISALPHA(ptr[col])))
         {
-            int mb_len = MB_PTR2LEN(ptr + col);
+            int mb_len = mb_ptr2len(ptr + col);
             col += mb_len;
             length -= mb_len;
         }

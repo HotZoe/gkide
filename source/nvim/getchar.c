@@ -589,9 +589,7 @@ void AppendToRedobuffLit(uchar_kt *str, int len)
 
         // Handle a special or multibyte character.
         // Composing chars separately are handled separately.
-        const int c = (has_mbyte
-                       ? mb_cptr2char_adv((const uchar_kt **)&s)
-                       : (uint8_t)(*s++));
+        const int c = mb_cptr2char_adv((const uchar_kt **)&s);
 
         if(c < ' ' || c == DEL || (*s == NUL && (c == '0' || c == '^')))
         {
@@ -730,7 +728,7 @@ static int read_redo(int init, int old_redo)
     // Reverse the conversion done by add_char_buff()
     // For a multi-byte character get all the bytes and return the
     // converted character.
-    if(has_mbyte && (c != K_SPECIAL || p[1] == KS_SPECIAL))
+    if(c != K_SPECIAL || p[1] == KS_SPECIAL)
     {
         n = MB_BYTE2LEN_CHECK(c);
     }
@@ -1696,7 +1694,7 @@ int vgetc(void)
             // For a multi-byte character get all the bytes and return
             // the converted character.
             // Note: This will loop until enough bytes are received!
-            if(has_mbyte && (n = MB_BYTE2LEN_CHECK(c)) > 1)
+            if((n = MB_BYTE2LEN_CHECK(c)) > 1)
             {
                 no_mapping++;
                 buf[0] = (uchar_kt)c;
@@ -2093,9 +2091,8 @@ static int vgetorpeek(int advance)
                                 uchar_kt *p1 = mp->m_keys;
                                 uchar_kt *p2 = mb_unescape(&p1);
 
-                                if(has_mbyte
-                                   && p2 != NULL
-                                   && MB_BYTE2LEN(c1) > MB_PTR2LEN(p2))
+                                if(p2 != NULL
+                                   && MB_BYTE2LEN(c1) > mb_ptr2len(p2))
                                 {
                                     mlen = 0;
                                 }
@@ -2473,14 +2470,7 @@ static int vgetorpeek(int advance)
                                                             ptr + col,
                                                             (columnum_kt)vcol);
 
-                                    if(has_mbyte)
-                                    {
-                                        col += (*mb_ptr2len)(ptr + col);
-                                    }
-                                    else
-                                    {
-                                        ++col;
-                                    }
+                                    col += (*mb_ptr2len)(ptr + col);
                                 }
 
                                 curwin->w_wrow = curwin->w_cline_row
@@ -2503,7 +2493,7 @@ static int vgetorpeek(int advance)
                             col = curwin->w_cursor.col - 1;
                         }
 
-                        if(has_mbyte && col > 0 && curwin->w_wcol > 0)
+                        if(col > 0 && curwin->w_wcol > 0)
                         {
                             // Correct when the cursor is on the right halve
                             // of a double-wide character.
@@ -3175,44 +3165,30 @@ int do_map(int maptype, uchar_kt *arg, int mode, int abbrev)
             // rest must be all keyword-char or all non-keyword-char.
             // Otherwise we won't be able to find the start of it in a
             // vi-compatible way.
-            if(has_mbyte)
+            int first, last;
+            int same = -1;
+            first = is_kwc_ptr(keys);
+            last = first;
+            p = keys + (*mb_ptr2len)(keys);
+            n = 1;
+
+            while(p < keys + len)
             {
-                int first, last;
-                int same = -1;
-                first = is_kwc_ptr(keys);
-                last = first;
-                p = keys + (*mb_ptr2len)(keys);
-                n = 1;
+                ++n; // nr of (multi-byte) chars
+                last = is_kwc_ptr(p); // type of last char
 
-                while(p < keys + len)
+                if(same == -1 && last != first)
                 {
-                    ++n; // nr of (multi-byte) chars
-                    last = is_kwc_ptr(p); // type of last char
-
-                    if(same == -1 && last != first)
-                    {
-                        same = n - 1; // count of same char type
-                    }
-
-                    p += (*mb_ptr2len)(p);
+                    same = n - 1; // count of same char type
                 }
 
-                if(last && n > 2 && same >= 0 && same < n - 1)
-                {
-                    retval = 1;
-                    goto theend;
-                }
+                p += (*mb_ptr2len)(p);
             }
-            else if(is_kwc(keys[len - 1])) // ends in keyword char
+
+            if(last && n > 2 && same >= 0 && same < n - 1)
             {
-                for(n = 0; n < len - 2; ++n)
-                {
-                    if(is_kwc(keys[n]) != is_kwc(keys[len - 2]))
-                    {
-                        retval = 1;
-                        goto theend;
-                    }
-                }
+                retval = 1;
+                goto theend;
             }
 
             // An abbreviation cannot contain white space.
@@ -4331,65 +4307,40 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
         return FALSE;
     }
 
-    if(has_mbyte)
+    uchar_kt *p;
+    p = mb_prevptr(ptr, ptr + col);
+
+    if(!is_kwc_ptr(p))
     {
-        uchar_kt *p;
-        p = mb_prevptr(ptr, ptr + col);
-
-        if(!is_kwc_ptr(p))
-        {
-            vim_abbr = TRUE; // Vim added abbr.
-        }
-        else
-        {
-            vim_abbr = FALSE; // vi compatible abbr.
-
-            if(p > ptr)
-            {
-                is_id = is_kwc_ptr(mb_prevptr(ptr, p));
-            }
-        }
-
-        clen = 1;
-
-        while(p > ptr + mincol)
-        {
-            p = mb_prevptr(ptr, p);
-
-            if(ascii_isspace(*p)
-               || (!vim_abbr && is_id != is_kwc_ptr(p)))
-            {
-                p += (*mb_ptr2len)(p);
-                break;
-            }
-
-            ++clen;
-        }
-
-        scol = (int)(p - ptr);
+        vim_abbr = TRUE; // Vim added abbr.
     }
     else
     {
-        if(!is_kwc(ptr[col - 1]))
-        {
-            vim_abbr = TRUE; // Vim added abbr.
-        }
-        else
-        {
-            vim_abbr = FALSE; // vi compatible abbr.
+        vim_abbr = FALSE; // vi compatible abbr.
 
-            if(col > 1)
-            {
-                is_id = is_kwc(ptr[col - 2]);
-            }
+        if(p > ptr)
+        {
+            is_id = is_kwc_ptr(mb_prevptr(ptr, p));
         }
-
-        for(scol = col - 1;
-            scol > 0 && !ascii_isspace(ptr[scol - 1])
-            && (vim_abbr || is_id == is_kwc(ptr[scol - 1]));
-            --scol)
-        { /* empty body */ }
     }
+
+    clen = 1;
+
+    while(p > ptr + mincol)
+    {
+        p = mb_prevptr(ptr, p);
+
+        if(ascii_isspace(*p)
+           || (!vim_abbr && is_id != is_kwc_ptr(p)))
+        {
+            p += (*mb_ptr2len)(p);
+            break;
+        }
+
+        ++clen;
+    }
+
+    scol = (int)(p - ptr);
 
     if(scol < mincol)
     {
@@ -4472,20 +4423,13 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
                         tb[j++] = Ctrl_V; // special char needs CTRL-V
                     }
 
-                    if(has_mbyte)
+                    // if ABBR_OFF has been added, remove it here
+                    if(c >= ABBR_OFF)
                     {
-                        // if ABBR_OFF has been added, remove it here
-                        if(c >= ABBR_OFF)
-                        {
-                            c -= ABBR_OFF;
-                        }
+                        c -= ABBR_OFF;
+                    }
 
-                        j += (*mb_char2bytes)(c, tb + j);
-                    }
-                    else
-                    {
-                        tb[j++] = (uchar_kt)c;
-                    }
+                    j += (*mb_char2bytes)(c, tb + j);
                 }
 
                 tb[j] = NUL;
@@ -4520,11 +4464,7 @@ int check_abbr(int c, uchar_kt *ptr, int col, int mincol)
             tb[0] = Ctrl_H;
             tb[1] = NUL;
 
-            if(has_mbyte)
-            {
-                len = clen; // Delete characters instead of bytes
-            }
-
+            len = clen; // Delete characters instead of bytes
             while(len-- > 0) // delete the from string
             {
                 (void)ins_typebuf(tb, 1, 0, TRUE, mp->m_silent);
@@ -4610,8 +4550,8 @@ uchar_kt *vim_strsave_escape_csi(uchar_kt *p)
         {
             // Add character, possibly multi-byte to destination, escaping
             // CSI and K_SPECIAL. Be careful, it can be an illegal byte!
-            d = add_char2buf(PTR2CHAR(s), d);
-            s += MB_CPTR2LEN(s);
+            d = add_char2buf(mb_ptr2char(s), d);
+            s += mb_cptr2len(s);
         }
     }
 

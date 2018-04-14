@@ -1148,10 +1148,7 @@ void foldAdjustVisual(void)
         }
 
         // prevent cursor from moving on the trail byte
-        if(has_mbyte)
-        {
-            mb_adjust_cursor();
-        }
+        mb_adjust_cursor();
     }
 }
 
@@ -2087,7 +2084,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             {
                 int len;
 
-                if(has_mbyte && (len = (*mb_ptr2len)(p)) > 1)
+                if((len = (*mb_ptr2len)(p)) > 1)
                 {
                     if(!is_print_char((*mb_ptr2char)(p)))
                     {

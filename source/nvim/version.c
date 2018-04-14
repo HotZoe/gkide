@@ -536,15 +536,8 @@ static void do_intro_line(long row, uchar_kt *mesg, int attr)
             p[l] != NUL && (l == 0 || (p[l] != '<' && p[l - 1] != '>'));
             ++l)
         {
-            if(has_mbyte)
-            {
-                clen += ptr2cells(p + l);
-                l += (*mb_ptr2len)(p + l) - 1;
-            }
-            else
-            {
-                clen += byte2cells(p[l]);
-            }
+            clen += ptr2cells(p + l);
+            l += (*mb_ptr2len)(p + l) - 1;
         }
 
         assert(row <= INT_MAX && col <= INT_MAX);

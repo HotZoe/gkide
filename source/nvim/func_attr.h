@@ -144,7 +144,7 @@
         /// so, those type arguments, use `(void)names;` in the function body
         /// instead the macro is defined following, see FUNC_ARGS_UNUSED_FORCE
         ///
-        /// @todo refactoring the function and related function pointer
+        /// refactoring the function and related function pointer
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
     #endif
 
@@ -210,9 +210,9 @@
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v
     #endif
 
-    /// @todo refactoring the function or just remove the unused args
+    /// refactoring the function or just remove the unused args
     #define FUNC_ARGS_UNUSED_FORCE(v)     (void)(v)
-    /// @todo refactoring the function or just remove the unused args
+    /// refactoring the function or just remove the unused args
     #define FUNC_ARGS_UNUSED_REALY(v)     REAL_ARGS_ATTR_UNUSED_REALY(v)
     #define FUNC_ARGS_UNUSED_MAYBE(v)     REAL_ARGS_ATTR_UNUSED_MAYBE(v)
 

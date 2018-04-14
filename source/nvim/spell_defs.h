@@ -161,7 +161,7 @@ struct slang_s
     bool sl_rem_accents;  ///< SAL remove_accents
 
     /// SOFOFROM and SOFOTO instead of SAL items:
-    /// - @b sl_sal_first maps chars, when has_mbyte
+    /// - @b sl_sal_first maps chars
     /// - @b sl_sal is a list of wide char lists.
     bool sl_sofo;
 
@@ -277,17 +277,17 @@ typedef struct trystate_s
 /// that for ASCII, because we don't want to use 'casemap' here. Otherwise use
 /// the "w" library function for characters above 255.
 #define SPELL_TOFOLD(c)         \
-    (enc_utf8 && (c) >= 128     \
+    ((c) >= 128                 \
      ? utf_fold(c) : (c) < 256  \
      ? (int)spelltab.st_fold[c] : (int)towlower(c))
 
 #define SPELL_TOUPPER(c)         \
-    (enc_utf8 && (c) >= 128      \
+    ((c) >= 128                  \
      ? mb_toupper(c) : (c) < 256 \
      ? (int)spelltab.st_upper[c] : (int)towupper(c))
 
 #define SPELL_ISUPPER(c)         \
-    (enc_utf8 && (c) >= 128      \
+    ((c) >= 128                  \
      ? mb_isupper(c) : (c) < 256 \
      ? spelltab.st_isu[c] : iswupper(c))
 

@@ -46,6 +46,22 @@
 #define mb_ptr2char      utf_ptr2char
 #define mb_head_off      utf_head_off
 
+/// get length of multi-byte char, not including composing chars
+#define mb_cptr2len(p)     utf_ptr2len(p)
+
+/// Advance multi-byte pointer, skip over composing chars.
+///
+/// advance a pointer to the next character, taking care of
+/// multi-byte characters if needed.
+#define mb_ptr_adv(p)      (p += mb_ptr2len((uchar_kt *)p))
+/// Advance multi-byte pointer, do not skip over composing chars.
+#define mb_cptr_adv(p)     (p += utf_ptr2len(p))
+
+/// Backup multi-byte pointer. Only use with "p" > "s" !
+/// backup a pointer to the previous character,
+/// taking care of multi-byte characters if needed.
+#define mb_ptr_back(s, p)  (p -= mb_head_off((uchar_kt *)s, (uchar_kt *)p - 1) + 1)
+
 /// Flags for vimconv_st
 typedef enum vimconvflg_e
 {

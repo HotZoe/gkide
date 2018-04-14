@@ -236,17 +236,10 @@ FUNC_ATTR_NONNULL_RET
 
     for(size_t s_i = 0; s_i < len; ++s_i)
     {
-        if(has_mbyte)
-        {
-            int mb_len = (*mb_ptr2len)(s + s_i);
-            rev_i -= mb_len;
-            memmove(rev + rev_i, s + s_i, mb_len);
-            s_i += mb_len - 1;
-        }
-        else
-        {
-            rev[--rev_i] = s[s_i];
-        }
+        int mb_len = (*mb_ptr2len)(s + s_i);
+        rev_i -= mb_len;
+        memmove(rev + rev_i, s + s_i, mb_len);
+        s_i += mb_len - 1;
     }
 
     rev[len] = NUL;
@@ -636,8 +629,7 @@ int searchit(win_st *win,
         {
             start_char_len = 0;
         }
-        else if(has_mbyte
-                && pos->lnum >= 1
+        else if(pos->lnum >= 1
                 && pos->lnum <= buf->b_ml.ml_line_count
                 && pos->col < MAXCOL - 2)
         {
@@ -785,7 +777,7 @@ int searchit(win_st *win,
 
                             if(matchcol == matchpos.col && ptr[matchcol] != NUL)
                             {
-                                matchcol += MB_PTR2LEN(ptr + matchcol);
+                                matchcol += mb_ptr2len(ptr + matchcol);
                             }
 
                             if(matchcol == 0 && (options & SEARCH_START))
@@ -879,15 +871,7 @@ int searchit(win_st *win,
                                 if(matchcol == matchpos.col
                                    && ptr[matchcol] != NUL)
                                 {
-                                    if(has_mbyte)
-                                    {
-                                        matchcol +=
-                                            (*mb_ptr2len)(ptr + matchcol);
-                                    }
-                                    else
-                                    {
-                                        ++matchcol;
-                                    }
+                                    matchcol += (*mb_ptr2len)(ptr + matchcol);
                                 }
                             }
                             else
@@ -902,15 +886,7 @@ int searchit(win_st *win,
 
                                 if(ptr[matchcol] != NUL)
                                 {
-                                    if(has_mbyte)
-                                    {
-                                        matchcol +=
-                                            (*mb_ptr2len)(ptr + matchcol);
-                                    }
-                                    else
-                                    {
-                                        ++matchcol;
-                                    }
+                                    matchcol += (*mb_ptr2len)(ptr + matchcol);
                                 }
                             }
 
@@ -964,8 +940,7 @@ int searchit(win_st *win,
                         {
                             --pos->col;
 
-                            if(has_mbyte
-                               && pos->lnum <= buf->b_ml.ml_line_count)
+                            if(pos->lnum <= buf->b_ml.ml_line_count)
                             {
                                 ptr = ml_get_buf(buf, pos->lnum, FALSE);
                                 pos->col -= (*mb_head_off)(ptr, ptr + pos->col);
@@ -1360,7 +1335,7 @@ int do_search(oparg_st *oap,
             {
                 msgbuf[0] = dirc;
 
-                if(enc_utf8 && utf_iscomposing(utf_ptr2char(p)))
+                if(utf_iscomposing(utf_ptr2char(p)))
                 {
                     // Use a space to draw the composing char on.
                     msgbuf[1] = ' ';
@@ -1796,63 +1771,43 @@ int searchc(cmdarg_st *cap, int t_cmd)
 
     while(count--)
     {
-        if(has_mbyte)
+        while(1)
         {
-            for(;;)
+            if(dir > 0)
             {
-                if(dir > 0)
-                {
-                    col += (*mb_ptr2len)(p + col);
+                col += (*mb_ptr2len)(p + col);
 
-                    if(col >= len)
-                    {
-                        return FAIL;
-                    }
-                }
-                else
+                if(col >= len)
                 {
-                    if(col == 0)
-                    {
-                        return FAIL;
-                    }
-
-                    col -= (*mb_head_off)(p, p + col - 1) + 1;
+                    return FAIL;
                 }
-
-                if(lastc_bytelen == 1)
-                {
-                    if(p[col] == c && stop)
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    if(memcmp(p + col, lastc_bytes, lastc_bytelen) == 0 && stop)
-                    {
-                        break;
-                    }
-                }
-
-                stop = TRUE;
             }
-        }
-        else
-        {
-            for(;;)
+            else
             {
-                if((col += dir) < 0 || col >= len)
+                if(col == 0)
                 {
                     return FAIL;
                 }
 
+                col -= (*mb_head_off)(p, p + col - 1) + 1;
+            }
+
+            if(lastc_bytelen == 1)
+            {
                 if(p[col] == c && stop)
                 {
                     break;
                 }
-
-                stop = TRUE;
             }
+            else
+            {
+                if(memcmp(p + col, lastc_bytes, lastc_bytelen) == 0 && stop)
+                {
+                    break;
+                }
+            }
+
+            stop = TRUE;
         }
     }
 
@@ -1861,18 +1816,15 @@ int searchc(cmdarg_st *cap, int t_cmd)
         // backup to before the character (possibly double-byte)
         col -= dir;
 
-        if(has_mbyte)
+        // Landed on the search char which is lastc_bytelen long
+        if(dir < 0)
         {
-            // Landed on the search char which is lastc_bytelen long
-            if(dir < 0)
-            {
-                col += lastc_bytelen - 1;
-            }
-            else
-            {
-                // To previous char, which may be multi-byte.
-                col -= (*mb_head_off)(p, p + col);
-            }
+            col += lastc_bytelen - 1;
+        }
+        else
+        {
+            // To previous char, which may be multi-byte.
+            col -= (*mb_head_off)(p, p + col);
         }
     }
 
@@ -1898,7 +1850,7 @@ static int check_prevcol(uchar_kt *linep, int col, int ch, int *prevcol)
 {
     --col;
 
-    if(col > 0 && has_mbyte)
+    if(col > 0)
     {
         col -= (*mb_head_off)(linep, linep + col);
     }
@@ -2131,7 +2083,7 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
 
                 for(;;)
                 {
-                    initc = PTR2CHAR(linep + pos.col);
+                    initc = mb_ptr2char(linep + pos.col);
 
                     if(initc == NUL)
                     {
@@ -2145,7 +2097,7 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
                         break;
                     }
 
-                    pos.col += MB_PTR2LEN(linep + pos.col);
+                    pos.col += mb_ptr2len(linep + pos.col);
                 }
 
                 if(!findc)
@@ -2354,10 +2306,7 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
             {
                 --pos.col;
 
-                if(has_mbyte)
-                {
-                    pos.col -= (*mb_head_off)(linep, linep + pos.col);
-                }
+                pos.col -= (*mb_head_off)(linep, linep + pos.col);
             }
         }
         else // forward search
@@ -2396,14 +2345,7 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
             }
             else
             {
-                if(has_mbyte)
-                {
-                    pos.col += (*mb_ptr2len)(linep + pos.col);
-                }
-                else
-                {
-                    ++pos.col;
-                }
+                pos.col += (*mb_ptr2len)(linep + pos.col);
             }
         }
 
@@ -2600,7 +2542,7 @@ apos_st *findmatchlimit(oparg_st *oap, int initc, int flags, int64_t maxtravel)
         // we do not know which part to ignore. Therefore we only set
         // inquote if the number of quotes in a line is even, unless this
         // line or the previous one ends in a '\'. Complicated, isn't it?
-        c = PTR2CHAR(linep + pos.col);
+        c = mb_ptr2char(linep + pos.col);
 
         switch(c)
         {
@@ -2839,21 +2781,21 @@ void showmatch(int c)
     // 'matchpairs' is "x:y,x:y"
     for(p = curbuf->b_p_mps; *p != NUL; ++p)
     {
-        if(PTR2CHAR(p) == c && (curwin->w_o_curbuf.wo_rl ^ p_ri))
+        if(mb_ptr2char(p) == c && (curwin->w_o_curbuf.wo_rl ^ p_ri))
         {
             break;
         }
 
-        p += MB_PTR2LEN(p) + 1;
+        p += mb_ptr2len(p) + 1;
 
-        if(PTR2CHAR(p) == c
+        if(mb_ptr2char(p) == c
            && !(curwin->w_o_curbuf.wo_rl ^ p_ri)
           )
         {
             break;
         }
 
-        p += MB_PTR2LEN(p);
+        p += mb_ptr2len(p);
 
         if(*p == NUL)
         {
@@ -4302,53 +4244,24 @@ static int in_html_tag(int end_tag)
     int lc = NUL;
     apos_st pos;
 
-    if(enc_dbcs)
+    for(p = line + curwin->w_cursor.col; p > line;)
     {
-        uchar_kt  *lp = NULL;
-
-        // We search forward until the cursor, because
-        // searching backwards is very slow for DBCS encodings.
-        for(p = line; p < line + curwin->w_cursor.col; mb_ptr_adv(p))
+        if(*p == '<') // find '<' under/before cursor
         {
-            if(*p == '>' || *p == '<')
-            {
-                lc = *p;
-                lp = p;
-            }
+            break;
         }
 
-        // check for '<' under cursor
-        if(*p != '<')
-        {
-            if(lc != '<')
-            {
-                return FALSE;
-            }
+        mb_ptr_back(line, p);
 
-            p = lp;
+        if(*p == '>') // find '>' before cursor
+        {
+            break;
         }
     }
-    else
+
+    if(*p != '<')
     {
-        for(p = line + curwin->w_cursor.col; p > line;)
-        {
-            if(*p == '<') // find '<' under/before cursor
-            {
-                break;
-            }
-
-            mb_ptr_back(line, p);
-
-            if(*p == '>') // find '>' before cursor
-            {
-                break;
-            }
-        }
-
-        if(*p != '<')
-        {
-            return FALSE;
-        }
+        return FALSE;
     }
 
     pos.lnum = curwin->w_cursor.lnum;
@@ -4888,14 +4801,7 @@ static int find_next_quote(uchar_kt *line,
             break;
         }
 
-        if(has_mbyte)
-        {
-            col += (*mb_ptr2len)(line + col);
-        }
-        else
-        {
-            ++col;
-        }
+        col += (*mb_ptr2len)(line + col);
     }
 
     return col;
@@ -6262,7 +6168,7 @@ exit_matched:
                && action == ACTION_EXPAND
                && !(compl_cont_status & CONT_SOL)
                && *startp != NUL
-               && *(p = startp + MB_PTR2LEN(startp)) != NUL)
+               && *(p = startp + mb_ptr2len(startp)) != NUL)
             {
                 goto search_line;
             }

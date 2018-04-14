@@ -1918,7 +1918,6 @@ FUNC_ATTR_NONNULL_ALL
 /// - If (flags & BLN_CURBUF) is TRUE, may use current buffer.
 /// - If (flags & BLN_LISTED) is TRUE, add new buffer to buffer list.
 /// - If (flags & BLN_DUMMY) is TRUE, don't count it as a real buffer.
-/// - If (flags & BLN_NEW) is TRUE, don't use an existing buffer.
 /// - If (flags & BLN_NOOPT) is TRUE, don't copy options from the current
 ///   buffer if the buffer already exists.
 /// This is the ONLY way to create a new buffer.
@@ -1926,7 +1925,7 @@ FUNC_ATTR_NONNULL_ALL
 /// @param ffname full path of fname or relative
 /// @param sfname short fname or NULL
 /// @param lnum   preferred cursor line
-/// @param flags  BLN_ defines, @b bln_values_e
+/// @param flags  BLN_ defines, @b bln_values_et
 ///
 /// @return pointer to the buffer
 filebuf_st *buflist_new(uchar_kt *ffname,
@@ -3830,12 +3829,7 @@ void maketitle(void)
             if(len > 100) // Truncate name at 100 bytes.
             {
                 len -= 100;
-
-                if(has_mbyte)
-                {
-                    len += (*mb_tail_off)(i_name, i_name + len) + 1;
-                }
-
+                len += (*mb_tail_off)(i_name, i_name + len) + 1;
                 i_name += len;
             }
 
@@ -4173,21 +4167,13 @@ int build_stl_str_hl(win_st *wp,
                 // Determine the number of bytes to remove
                 long n;
 
-                if(has_mbyte)
-                {
-                    // Find the first character that should be included.
-                    n = 0;
+                // Find the first character that should be included.
+                n = 0;
 
-                    while(group_len >= items[groupitems[groupdepth]].maxwid)
-                    {
-                        group_len -= ptr2cells(t + n);
-                        n += (*mb_ptr2len)(t + n);
-                    }
-                }
-                else
+                while(group_len >= items[groupitems[groupdepth]].maxwid)
                 {
-                    n = (long)(out_p - t)
-                        - items[groupitems[groupdepth]].maxwid + 1;
+                    group_len -= ptr2cells(t + n);
+                    n += (*mb_ptr2len)(t + n);
                 }
 
                 // Prepend the `<` to indicate
@@ -4851,15 +4837,8 @@ int build_stl_str_hl(win_st *wp,
             {
                 while(l >= maxwid)
                 {
-                    if(has_mbyte)
-                    {
-                        l -= ptr2cells(t);
-                        t += (*mb_ptr2len)(t);
-                    }
-                    else
-                    {
-                        l -= byte2cells(*t++);
-                    }
+                    l -= ptr2cells(t);
+                    t += (*mb_ptr2len)(t);
                 }
 
                 // Early out if there isn't enough
@@ -5089,30 +5068,21 @@ int build_stl_str_hl(win_st *wp,
         {
             // If we are using a multi-byte encoding, walk from the
             // beginning of the string to find the last character that will fit.
-            if(has_mbyte)
-            {
-                trunc_p = out;
-                width = 0;
+            trunc_p = out;
+            width = 0;
 
-                for(;;)
+            for(;;)
+            {
+                width += ptr2cells(trunc_p);
+
+                if(width >= maxwidth)
                 {
-                    width += ptr2cells(trunc_p);
-
-                    if(width >= maxwidth)
-                    {
-                        break;
-                    }
-
-                    // Note: Only advance the pointer if the next
-                    //       character will fit in the available output space
-                    trunc_p += (*mb_ptr2len)(trunc_p);
+                    break;
                 }
-            }
-            else
-            {
-                // Otherwise put the truncation point at the end,
-                // leaving enough room for a single-character truncation marker
-                trunc_p = out + maxwidth - 1;
+
+                // Note: Only advance the pointer if the next
+                //       character will fit in the available output space
+                trunc_p += (*mb_ptr2len)(trunc_p);
             }
 
             // Ignore any items in the statusline that occur after
@@ -5135,20 +5105,12 @@ int build_stl_str_hl(win_st *wp,
             // Determine how many bytes to remove
             long trunc_len;
 
-            if(has_mbyte)
-            {
-                trunc_len = 0;
+            trunc_len = 0;
 
-                while(width >= maxwidth)
-                {
-                    width -= ptr2cells(trunc_p + trunc_len);
-                    trunc_len += (*mb_ptr2len)(trunc_p + trunc_len);
-                }
-            }
-            else
+            while(width >= maxwidth)
             {
-                // Truncate an extra character so we can insert our `<`.
-                trunc_len = (width - maxwidth) + 1;
+                width -= ptr2cells(trunc_p + trunc_len);
+                trunc_len += (*mb_ptr2len)(trunc_p + trunc_len);
             }
 
             // Truncate the string

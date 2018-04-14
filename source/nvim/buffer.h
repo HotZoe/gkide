@@ -21,14 +21,13 @@ enum getf_values_e
 };
 
 /// Values for buflist_new() flags
-enum bln_values_e
+typedef enum bln_values_e
 {
     BLN_CURBUF = 1,   ///< May re-use curbuf for new buffer
     BLN_LISTED = 2,   ///< Put new buffer in buffer list
     BLN_DUMMY  = 4,   ///< Allocating dummy buffer
     BLN_NOOPT  = 16,  ///< Don't copy options to existing buffer
-    /// @todo(mhinz): merge patch that introduces BLN_NEW
-};
+} bln_values_et;
 
 /// Values for action argument for do_buffer()
 enum dobuf_action_values_e

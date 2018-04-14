@@ -4870,10 +4870,7 @@ void goto_byte(long cnt)
     check_cursor();
 
     // Make sure the cursor is on the first byte of a multi-byte char.
-    if(has_mbyte)
-    {
-        mb_adjust_cursor();
-    }
+    mb_adjust_cursor();
 }
 
 /// Increment the line pointer "lp" crossing line boundaries as necessary.
@@ -4887,12 +4884,9 @@ int inc(apos_st *lp)
 
     if(*p != NUL) // still within line, move to next char (may be NUL)
     {
-        if(has_mbyte)
-        {
-            int l = (*mb_ptr2len)(p);
-            lp->col += l;
-            return (p[l] != NUL) ? 0 : 2;
-        }
+        int l = (*mb_ptr2len)(p);
+        lp->col += l;
+        return (p[l] != NUL) ? 0 : 2;
 
         lp->col++;
         lp->coladd = 0;
@@ -4934,11 +4928,8 @@ int dec(apos_st *lp)
     {
         lp->col--;
 
-        if(has_mbyte)
-        {
-            p = ml_get(lp->lnum);
-            lp->col -= (*mb_head_off)(p, p + lp->col);
-        }
+        p = ml_get(lp->lnum);
+        lp->col -= (*mb_head_off)(p, p + lp->col);
 
         return 0;
     }
@@ -4948,11 +4939,7 @@ int dec(apos_st *lp)
         lp->lnum--;
         p = ml_get(lp->lnum);
         lp->col = (columnum_kt)ustrlen(p);
-
-        if(has_mbyte)
-        {
-            lp->col -= (*mb_head_off)(p, p + lp->col);
-        }
+        lp->col -= (*mb_head_off)(p, p + lp->col);
 
         return 1;
     }

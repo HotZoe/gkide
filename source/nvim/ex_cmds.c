@@ -126,16 +126,8 @@ void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
     int cc[MAX_MCO];
     int ci = 0;
     int len;
-    const bool l_enc_utf8 = enc_utf8;
 
-    if(l_enc_utf8)
-    {
-        c = utfc_ptr2char(get_cursor_pos_ptr(), cc);
-    }
-    else
-    {
-        c = gchar_cursor();
-    }
+    c = utfc_ptr2char(get_cursor_pos_ptr(), cc);
 
     if(c == NUL)
     {
@@ -145,7 +137,7 @@ void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 
     IObuff[0] = NUL;
 
-    if(!has_mbyte || (enc_dbcs != 0 && c < 0x100) || c < 0x80)
+    if(c < 0x80)
     {
         if(c == NL) // NUL is stored as NL
         {
@@ -185,18 +177,11 @@ void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
                   _("<%s>%s%s  %d,  Hex %02x,  Octal %03o"),
                   transchar(c), buf1, buf2, cval, cval, cval);
 
-        if(l_enc_utf8)
-        {
-            c = cc[ci++];
-        }
-        else
-        {
-            c = 0;
-        }
+        c = cc[ci++];
     }
 
     // Repeat for combining characters.
-    while(has_mbyte && (c >= 0x100 || (l_enc_utf8 && c >= 0x80)))
+    while(c >= 0x100 || c >= 0x80)
     {
         len = (int)ustrlen(IObuff);
 
@@ -209,9 +194,9 @@ void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
         IObuff[len++] = '<';
 
 #ifdef USE_GUI
-        if(l_enc_utf8 && utf_iscomposing(c) && !gui.in_use)
+        if(utf_iscomposing(c) && !gui.in_use)
 #else
-        if(l_enc_utf8 && utf_iscomposing(c))
+        if(utf_iscomposing(c))
 #endif
         {
             // draw composing char on top of a space
@@ -231,14 +216,7 @@ void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
             break;
         }
 
-        if(l_enc_utf8)
-        {
-            c = cc[ci++];
-        }
-        else
-        {
-            c = 0;
-        }
+        c = cc[ci++];
     }
 
     msg(IObuff);
@@ -986,14 +964,7 @@ void ex_retab(exargs_st *eap)
 
             vcol += chartabsize(ptr + col, (columnum_kt)vcol);
 
-            if(has_mbyte)
-            {
-                col += (*mb_ptr2len)(ptr + col);
-            }
-            else
-            {
-                ++col;
-            }
+            col += (*mb_ptr2len)(ptr + col);
         }
 
         if(new_line == NULL)
@@ -4511,14 +4482,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
                     else
                     {
                         // search for a match at next column
-                        if(has_mbyte)
-                        {
-                            matchcol += mb_ptr2len(sub_firstline + matchcol);
-                        }
-                        else
-                        {
-                            ++matchcol;
-                        }
+                        matchcol += mb_ptr2len(sub_firstline + matchcol);
                     }
 
                     goto skip;
@@ -4961,7 +4925,7 @@ static filebuf_st *do_sub(exargs_st *eap, proftime_kt timeout)
                                 p1 = new_start - 1;
                             }
                         }
-                        else if(has_mbyte)
+                        else
                         {
                             p1 += (*mb_ptr2len)(p1) - 1;
                         }

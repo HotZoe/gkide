@@ -500,7 +500,7 @@ void pum_redraw(void)
                             {
                                 do
                                 {
-                                    size -= has_mbyte ? (*mb_ptr2cells)(rt) : 1;
+                                    size -= (*mb_ptr2cells)(rt);
                                     mb_ptr_adv(rt);
                                 } while(size > pum_width);
 

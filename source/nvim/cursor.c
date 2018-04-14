@@ -266,10 +266,7 @@ static int coladvance2(apos_st *pos, bool addspaces, bool finetune, columnum_kt 
     }
 
     // Prevent from moving onto a trail byte.
-    if(has_mbyte)
-    {
-        mark_mb_adjustpos(curbuf, pos);
-    }
+    mark_mb_adjustpos(curbuf, pos);
 
     if(col < wcol)
     {
@@ -406,8 +403,8 @@ void check_cursor_col_win(win_st *win)
         // - in Insert mode or restarting Insert mode
         // - in Visual mode and 'selection' isn't "old"
         // - 'virtualedit' is set
-        if((curmod & kInsertMode) 
-		   || restart_edit
+        if((curmod & kInsertMode)
+           || restart_edit
            || (VIsual_active && *p_sel != 'o')
            || (ve_flags & VE_ONEMORE)
            || virtual_active())
@@ -419,10 +416,7 @@ void check_cursor_col_win(win_st *win)
             win->w_cursor.col = len - 1;
 
             // Move the cursor to the head byte.
-            if(has_mbyte)
-            {
-                mark_mb_adjustpos(win->w_buffer, &win->w_cursor);
-            }
+            mark_mb_adjustpos(win->w_buffer, &win->w_cursor);
         }
     }
     else if(win->w_cursor.col < 0)
@@ -532,12 +526,7 @@ bool leftcol_changed(void)
 
 int gchar_cursor(void)
 {
-    if(has_mbyte)
-    {
-        return (*mb_ptr2char)(get_cursor_pos_ptr());
-    }
-
-    return (int)*get_cursor_pos_ptr();
+    return (*mb_ptr2char)(get_cursor_pos_ptr());
 }
 
 /// Write a character at the current cursor position.

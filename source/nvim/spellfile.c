@@ -301,8 +301,6 @@
 static char *e_spell_trunc = N_("E758: Truncated spell file");
 static char *e_afftrailing = N_("Trailing text in %s line %d: %s");
 static char *e_affname = N_("Affix name too long in %s line %d: %s");
-static char *e_affform = N_("E761: Format error in affix file FOL, LOW or UPP");
-static char *e_affrange = N_("E762: Character in FOL, LOW or UPP is out of range");
 static char *msg_compressing = N_("Compressing word tree...");
 
 /// Maximum length in bytes of a line in a .aff and .dic file.
@@ -1521,29 +1519,26 @@ static int read_sal_section(FILE *fd, slang_st *slang)
             return ccnt;
         }
 
-        if(has_mbyte)
+        // convert the multi-byte strings to wide char strings
+        smp->sm_lead_w = mb_str2wide(smp->sm_lead);
+        smp->sm_leadlen = mb_charlen(smp->sm_lead);
+
+        if(smp->sm_oneof == NULL)
         {
-            // convert the multi-byte strings to wide char strings
-            smp->sm_lead_w = mb_str2wide(smp->sm_lead);
-            smp->sm_leadlen = mb_charlen(smp->sm_lead);
+            smp->sm_oneof_w = NULL;
+        }
+        else
+        {
+            smp->sm_oneof_w = mb_str2wide(smp->sm_oneof);
+        }
 
-            if(smp->sm_oneof == NULL)
-            {
-                smp->sm_oneof_w = NULL;
-            }
-            else
-            {
-                smp->sm_oneof_w = mb_str2wide(smp->sm_oneof);
-            }
-
-            if(smp->sm_to == NULL)
-            {
-                smp->sm_to_w = NULL;
-            }
-            else
-            {
-                smp->sm_to_w = mb_str2wide(smp->sm_to);
-            }
+        if(smp->sm_to == NULL)
+        {
+            smp->sm_to_w = NULL;
+        }
+        else
+        {
+            smp->sm_to_w = mb_str2wide(smp->sm_to);
         }
     }
 
@@ -1559,14 +1554,10 @@ static int read_sal_section(FILE *fd, slang_st *slang)
         smp->sm_oneof = NULL;
         smp->sm_rules = p;
         smp->sm_to = NULL;
-
-        if(has_mbyte)
-        {
-            smp->sm_lead_w = mb_str2wide(smp->sm_lead);
-            smp->sm_leadlen = 0;
-            smp->sm_oneof_w = NULL;
-            smp->sm_to_w = NULL;
-        }
+        smp->sm_lead_w = mb_str2wide(smp->sm_lead);
+        smp->sm_leadlen = 0;
+        smp->sm_oneof_w = NULL;
+        smp->sm_to_w = NULL;
 
         ++gap->ga_len;
     }
@@ -1749,11 +1740,7 @@ static int read_compound(FILE *fd, slang_st *slang, int len)
     // Inserting backslashes may double the length, "^\(\)$<Nul>" is 7 bytes.
     // Conversion to utf-8 may double the size.
     c = todo * 2 + 7;
-
-    if(enc_utf8)
-    {
-        c += todo * 2;
-    }
+    c += todo * 2;
 
     pat = xmalloc(c);
 
@@ -1850,14 +1837,7 @@ static int read_compound(FILE *fd, slang_st *slang, int len)
                 *pp++ = '\\'; // "a?" becomes "a\?", "a+" becomes "a\+"
             }
 
-            if(enc_utf8)
-            {
-                pp += mb_char2bytes(c, pp);
-            }
-            else
-            {
-                *pp++ = c;
-            }
+            pp += mb_char2bytes(c, pp);
         }
     }
 
@@ -1894,91 +1874,73 @@ static int set_sofo(slang_st *lp, uchar_kt *from, uchar_kt *to)
     int c;
     int *inp;
 
-    if(has_mbyte)
+    // Use "sl_sal" as an array with 256 pointers to a list of wide
+    // characters. The index is the low byte of the character.
+    // The list contains from-to pairs with a terminating NUL.
+    // sl_sal_first[] is used for latin1 "from" characters.
+    gap = &lp->sl_sal;
+    ga_init(gap, sizeof(int *), 1);
+    ga_grow(gap, 256);
+    memset(gap->ga_data, 0, sizeof(int *) * 256);
+    gap->ga_len = 256;
+
+    // First count the number of items for each list. Temporarily use
+    // sl_sal_first[] for this.
+    for(p = from, s = to; *p != NUL && *s != NUL;)
     {
-        // Use "sl_sal" as an array with 256 pointers to a list of wide
-        // characters. The index is the low byte of the character.
-        // The list contains from-to pairs with a terminating NUL.
-        // sl_sal_first[] is used for latin1 "from" characters.
-        gap = &lp->sl_sal;
-        ga_init(gap, sizeof(int *), 1);
-        ga_grow(gap, 256);
-        memset(gap->ga_data, 0, sizeof(int *) * 256);
-        gap->ga_len = 256;
+        c = mb_cptr2char_adv((const uchar_kt **)&p);
+        mb_cptr_adv(s);
 
-        // First count the number of items for each list. Temporarily use
-        // sl_sal_first[] for this.
-        for(p = from, s = to; *p != NUL && *s != NUL;)
+        if(c >= 256)
         {
-            c = mb_cptr2char_adv((const uchar_kt **)&p);
-            mb_cptr_adv(s);
-
-            if(c >= 256)
-            {
-                ++lp->sl_sal_first[c & 0xff];
-            }
-        }
-
-        if(*p != NUL || *s != NUL) // lengths differ
-        {
-            return SP_FORMERROR;
-        }
-
-        // Allocate the lists.
-        for(i = 0; i < 256; ++i)
-        {
-            if(lp->sl_sal_first[i] > 0)
-            {
-                p = xmalloc(sizeof(int) * (lp->sl_sal_first[i] * 2 + 1));
-                ((int **)gap->ga_data)[i] = (int *)p;
-                *(int *)p = 0;
-            }
-        }
-
-        // Put the characters up to 255 in sl_sal_first[]
-        // the rest in a sl_sal list.
-        memset(lp->sl_sal_first, 0, sizeof(salfirst_kt) * 256);
-
-        for(p = from, s = to; *p != NUL && *s != NUL;)
-        {
-            c = mb_cptr2char_adv((const uchar_kt **)&p);
-            i = mb_cptr2char_adv((const uchar_kt **)&s);
-
-            if(c >= 256)
-            {
-                // Append the from-to chars at the end
-                // of the list with the low byte.
-                inp = ((int **)gap->ga_data)[c & 0xff];
-
-                while(*inp != 0)
-                {
-                    ++inp;
-                }
-
-                *inp++ = c; // from char
-                *inp++ = i; // to char
-                *inp++ = NUL; // NUL at the end
-            }
-            else // mapping byte to char is done in sl_sal_first[]
-            {
-                lp->sl_sal_first[c] = i;
-            }
+            ++lp->sl_sal_first[c & 0xff];
         }
     }
-    else
+
+    if(*p != NUL || *s != NUL) // lengths differ
     {
-        // mapping bytes to bytes is done in sl_sal_first[]
-        if(ustrlen(from) != ustrlen(to))
-        {
-            return SP_FORMERROR;
-        }
+        return SP_FORMERROR;
+    }
 
-        for(i = 0; to[i] != NUL; ++i)
+    // Allocate the lists.
+    for(i = 0; i < 256; ++i)
+    {
+        if(lp->sl_sal_first[i] > 0)
         {
-            lp->sl_sal_first[from[i]] = to[i];
+            p = xmalloc(sizeof(int) * (lp->sl_sal_first[i] * 2 + 1));
+            ((int **)gap->ga_data)[i] = (int *)p;
+            *(int *)p = 0;
         }
+    }
 
-        lp->sl_sal.ga_len = 1; // indicates we have soundfolding
+    // Put the characters up to 255 in sl_sal_first[]
+    // the rest in a sl_sal list.
+    memset(lp->sl_sal_first, 0, sizeof(salfirst_kt) * 256);
+
+    for(p = from, s = to; *p != NUL && *s != NUL;)
+    {
+        c = mb_cptr2char_adv((const uchar_kt **)&p);
+        i = mb_cptr2char_adv((const uchar_kt **)&s);
+
+        if(c >= 256)
+        {
+            // Append the from-to chars at the end
+            // of the list with the low byte.
+            inp = ((int **)gap->ga_data)[c & 0xff];
+
+            while(*inp != 0)
+            {
+                ++inp;
+            }
+
+            *inp++ = c; // from char
+            *inp++ = i; // to char
+            *inp++ = NUL; // NUL at the end
+        }
+        else // mapping byte to char is done in sl_sal_first[]
+        {
+            lp->sl_sal_first[c] = i;
+        }
     }
 
     return 0;
@@ -2005,46 +1967,34 @@ static void set_sal_first(slang_st *lp)
         // Use the lowest byte of the first character.
         // For latin1 it's the character, for other encodings
         // it should differ for most characters.
-        if(has_mbyte)
-        {
-            c = *smp[i].sm_lead_w & 0xff;
-        }
-        else
-        {
-            c = *smp[i].sm_lead;
-        }
+        c = *smp[i].sm_lead_w & 0xff;
 
         if(sfirst[c] == -1)
         {
             sfirst[c] = i;
 
-            if(has_mbyte)
+            // Make sure all entries with this byte are following each
+            // other. Move the ones that are in the wrong position.
+            // Do keep the same ordering!
+            while(i + 1 < gap->ga_len
+                  && (*smp[i + 1].sm_lead_w & 0xff) == c)
             {
-                int n;
+                ++i; // Skip over entry with same index byte.
+            }
 
-                // Make sure all entries with this byte are following each
-                // other. Move the ones that are in the wrong position.
-                // Do keep the same ordering!
-                while(i + 1 < gap->ga_len
-                      && (*smp[i + 1].sm_lead_w & 0xff) == c)
+            for(int n = 1; i + n < gap->ga_len; ++n)
+            {
+                if((*smp[i + n].sm_lead_w & 0xff) == c)
                 {
-                    ++i; // Skip over entry with same index byte.
-                }
+                    salitem_T tsal;
 
-                for(n = 1; i + n < gap->ga_len; ++n)
-                {
-                    if((*smp[i + n].sm_lead_w & 0xff) == c)
-                    {
-                        salitem_T tsal;
-
-                        // Move entry with same index byte
-                        // after the entries we already found.
-                        ++i;
-                        --n;
-                        tsal = smp[i + n];
-                        memmove(smp + i + 1, smp + i, sizeof(salitem_T) * n);
-                        smp[i] = tsal;
-                    }
+                    // Move entry with same index byte
+                    // after the entries we already found.
+                    ++i;
+                    --n;
+                    tsal = smp[i + n];
+                    memmove(smp + i + 1, smp + i, sizeof(salitem_T) * n);
+                    smp[i] = tsal;
                 }
             }
         }
@@ -3230,17 +3180,17 @@ static afffile_st *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
                            && aff_entry->ae_chop[(*mb_ptr2len)(aff_entry->ae_chop)] == NUL)
                         {
                             int c, c_up;
-                            c = PTR2CHAR(aff_entry->ae_chop);
+                            c = mb_ptr2char(aff_entry->ae_chop);
                             c_up = SPELL_TOUPPER(c);
 
                             if(c_up != c
                                && (aff_entry->ae_cond == NULL
-                                   || PTR2CHAR(aff_entry->ae_cond) == c))
+                                   || mb_ptr2char(aff_entry->ae_cond) == c))
                             {
                                 p = aff_entry->ae_add + ustrlen(aff_entry->ae_add);
                                 mb_ptr_back(aff_entry->ae_add, p);
 
-                                if(PTR2CHAR(p) == c_up)
+                                if(mb_ptr2char(p) == c_up)
                                 {
                                     upper = true;
                                     aff_entry->ae_chop = NULL;
@@ -3253,23 +3203,20 @@ static afffile_st *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
                                     {
                                         uchar_kt buf[MAXLINELEN];
 
-                                        if(has_mbyte)
-                                        {
-                                            onecap_copy(items[4], buf, true);
-                                            aff_entry->ae_cond = getroom_save(spin, buf);
-                                        }
-                                        else
-                                        {
-                                            *aff_entry->ae_cond = c_up;
-                                        }
+                                        onecap_copy(items[4], buf, true);
+                                        aff_entry->ae_cond =
+                                            getroom_save(spin, buf);
 
                                         if(aff_entry->ae_cond != NULL)
                                         {
-                                            sprintf((char *)buf, "^%s", aff_entry->ae_cond);
+                                            sprintf((char *)buf, "^%s",
+                                                    aff_entry->ae_cond);
                                             vim_regfree(aff_entry->ae_prog);
 
                                             aff_entry->ae_prog =
-                                                regexp_compile(buf, RE_MAGIC + RE_STRING);
+                                                regexp_compile(buf,
+                                                               RE_MAGIC
+                                                               + RE_STRING);
                                         }
                                     }
                                 }
@@ -3516,22 +3463,6 @@ static afffile_st *spell_read_aff(spellinfo_st *spin, uchar_kt *fname)
             // currently used spell properties.
             init_spell_chartab();
             spin->si_clear_chartab = false;
-        }
-
-        // Don't write a word table for an ASCII file, so that we don't check
-        // for conflicts with a word table that matches 'encoding'.
-        // Don't write one for utf-8 either, we use utf_*() and
-        // mb_get_class(), the list of chars in the file will be incomplete.
-        if(!spin->si_ascii && !enc_utf8)
-        {
-            if(fol == NULL || low == NULL || upp == NULL)
-            {
-                smsg(_("Missing FOL/LOW/UPP line in %s"), fname);
-            }
-            else
-            {
-                (void)set_spell_chartab(fol, low, upp);
-            }
         }
 
         xfree(fol);
@@ -4535,18 +4466,11 @@ static int store_aff_word(spellinfo_st *spin,
                             if(ae->ae_chop != NULL)
                             {
                                 // Skip chop string.
-                                if(has_mbyte)
-                                {
-                                    i = mb_charlen(ae->ae_chop);
+                                i = mb_charlen(ae->ae_chop);
 
-                                    for(; i > 0; --i)
-                                    {
-                                        mb_ptr_adv(p);
-                                    }
-                                }
-                                else
+                                for(; i > 0; --i)
                                 {
-                                    p += ustrlen(ae->ae_chop);
+                                    mb_ptr_adv(p);
                                 }
                             }
 
@@ -4561,7 +4485,7 @@ static int store_aff_word(spellinfo_st *spin,
                             {
                                 // Remove chop string.
                                 p = newword + ustrlen(newword);
-                                i = (int)MB_CHARLEN(ae->ae_chop);
+                                i = (int)mb_charlen(ae->ae_chop);
 
                                 for(; i > 0; --i)
                                 {
@@ -5716,14 +5640,7 @@ static int write_vim_spell(spellinfo_st *spin, uchar_kt *fname)
 
         for(size_t i = 128; i < 256; ++i)
         {
-            if(has_mbyte)
-            {
-                l += (size_t)mb_char2bytes(spelltab.st_fold[i], folchars + l);
-            }
-            else
-            {
-                folchars[l++] = spelltab.st_fold[i];
-            }
+            l += (size_t)mb_char2bytes(spelltab.st_fold[i], folchars + l);
         }
 
         put_bytes(fd, 1 + 128 + 2 + l, 4); // <sectionlen>
@@ -7352,83 +7269,6 @@ static void init_spellfile(void)
 
         xfree(buf);
     }
-}
-
-/// Set the spell character tables from strings in the affix file.
-static int set_spell_chartab(uchar_kt *fol, uchar_kt *low, uchar_kt *upp)
-{
-    // We build the new tables here first,
-    // so that we can compare with the previous one.
-    spelltab_st new_st;
-    uchar_kt *pf = fol, *pl = low, *pu = upp;
-    int f, l, u;
-    clear_spell_chartab(&new_st);
-
-    while(*pf != NUL)
-    {
-        if(*pl == NUL || *pu == NUL)
-        {
-            EMSG(_(e_affform));
-            return FAIL;
-        }
-
-        f = mb_ptr2char_adv((const uchar_kt **)&pf);
-        l = mb_ptr2char_adv((const uchar_kt **)&pl);
-        u = mb_ptr2char_adv((const uchar_kt **)&pu);
-
-        // Every character that appears is a word character.
-        if(f < 256)
-        {
-            new_st.st_isw[f] = true;
-        }
-
-        if(l < 256)
-        {
-            new_st.st_isw[l] = true;
-        }
-
-        if(u < 256)
-        {
-            new_st.st_isw[u] = true;
-        }
-
-        // if "LOW" and "FOL" are not the same
-        // the "LOW" char needs case-folding
-        if(l < 256 && l != f)
-        {
-            if(f >= 256)
-            {
-                EMSG(_(e_affrange));
-                return FAIL;
-            }
-
-            new_st.st_fold[l] = f;
-        }
-
-        // if "UPP" and "FOL" are not the same the "UPP"
-        // char needs case-folding, it's upper case and
-        // the "UPP" is the upper case of "FOL" .
-        if(u < 256 && u != f)
-        {
-            if(f >= 256)
-            {
-                EMSG(_(e_affrange));
-                return FAIL;
-            }
-
-            new_st.st_fold[u] = f;
-            new_st.st_isu[u] = true;
-            new_st.st_upper[f] = u;
-        }
-    }
-
-    if(*pl != NUL || *pu != NUL)
-    {
-        EMSG(_(e_affform));
-        return FAIL;
-    }
-
-    return set_spell_finish(&new_st);
 }
 
 /// Set the spell character tables from strings in the .spl file.
