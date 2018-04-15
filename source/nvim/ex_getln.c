@@ -355,7 +355,9 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
         need_wait_return = false;
     }
 
-    set_string_option_direct((uchar_kt *)"icm", -1, s->save_p_icm, OPT_FREE,
+    set_string_option_direct((uchar_kt *)"icm", -1,
+                             s->save_p_icm,
+                             kOptSetFree,
                              SID_NONE);
     curmod = s->save_State;
     setmouse();
@@ -4478,7 +4480,7 @@ FUNC_ATTR_NONNULL_RET
 ///   - EXPAND_BUFFERS
 ///     - Complete file names for :buf and :sbuf commands.
 ///   - EXPAND_FILES
-///     - After command with XFILE set, or after setting with P_EXPAND set.
+///     - After command with XFILE set, or after setting with kOptAttrExpand set.
 ///       eg :e ^I, :w>>^I
 ///   - EXPAND_DIRECTORIES
 ///     - In some cases this is used instead of the latter when we know only
@@ -6605,7 +6607,7 @@ static int ex_window(void)
     buf_open_scratch(0, "[Command Line]");
 
     // Command-line buffer has bufhidden=wipe, unlike a true "scratch" buffer.
-    set_option_value("bh", 0L, "wipe", OPT_LOCAL);
+    set_option_value("bh", 0L, "wipe", kOptSetLocal);
     curwin->w_o_curbuf.wo_rl = cmdmsg_rl;
     cmdmsg_rl = false;
     curbuf->b_p_ma = true;
@@ -6626,7 +6628,7 @@ static int ex_window(void)
             add_map((uchar_kt *)"<buffer> <Tab> a<C-X><C-V>", kNormalMode);
         }
 
-        set_option_value("ft", 0L, "vim", OPT_LOCAL);
+        set_option_value("ft", 0L, "vim", kOptSetLocal);
     }
 
     // Reset 'textwidth' after setting 'filetype'

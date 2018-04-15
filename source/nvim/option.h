@@ -12,17 +12,18 @@
 
 /// Flags for option-setting functions
 ///
-/// When OPT_GLOBAL and OPT_LOCAL are both missing,
+/// When kOptSetGlobal and kOptSetLocal are both missing,
 /// set both local and global values, get local value.
-typedef enum
+typedef enum option_set_flags_e
 {
-    OPT_FREE     = 1,   ///< Free old value if it was allocated.
-    OPT_GLOBAL   = 2,   ///< Use global value.
-    OPT_LOCAL    = 4,   ///< Use local value.
-    OPT_MODELINE = 8,   ///< Option in modeline.
-    OPT_WINONLY  = 16,  ///< Only set window-local options.
-    OPT_NOWIN    = 32,  ///< Don’t set window-local options.
-} OptionFlags;
+    kOptSetDefault  = 0,
+    kOptSetFree     = 1,  ///< Free old value if it was allocated
+    kOptSetGlobal   = 2,  ///< Use global value
+    kOptSetLocal    = 4,  ///< Use local value
+    kOptSetModeline = 8,  ///< Option in modeline
+    kOptSetWinOnly  = 16, ///< Only set window-local options
+    kOptSetWinNone  = 32, ///< Don’t set window-local options
+} option_set_flags_et;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "option.h.generated.h"

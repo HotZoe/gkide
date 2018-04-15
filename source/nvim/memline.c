@@ -1131,12 +1131,12 @@ void ml_recover(void)
     // Use the 'fileformat' and 'fileencoding' as stored in the swap file.
     if(b0_ff != 0)
     {
-        set_fileformat(b0_ff - 1, OPT_LOCAL);
+        set_fileformat(b0_ff - 1, kOptSetLocal);
     }
 
     if(b0_fenc != NULL)
     {
-        set_option_value("fenc", 0L, (char *)b0_fenc, OPT_LOCAL);
+        set_option_value("fenc", 0L, (char *)b0_fenc, kOptSetLocal);
         xfree(b0_fenc);
     }
 

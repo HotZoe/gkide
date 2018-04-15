@@ -1,49 +1,74 @@
--- {
 --  {
---    full_name='aleph', abbreviation='al',
---    varname='p_aleph', pv_name=nil,
---    type='number', list=nil, scope={'global'},
---    deny_duplicates=nil,
---    enable_if=nil,
---    defaults={condition=nil, if_true={vi=224, vim=0}, if_false=nil},
---    secure=nil, gettext=nil, noglob=nil, normal_fname_chars=nil,
---    pri_mkrc=nil, deny_in_modelines=nil,
---    expand=nil, nodefault=nil, no_mkrc=nil, vi_def=true, vim=true,
---    alloced=nil,
---    save_pv_indir=nil,
---    redraw={'curswant'},
+--      {
+--          full_name           = 'aleph',
+--          abbreviation        = 'al',
+--          type                = 'number',
+--          scope               = {'global'},
+--          varname             = 'p_aleph',
+--          pv_name             = nil,
+--          list                = nil,
+--          deny_duplicates     = nil,
+--          secure              = nil,
+--          gettext             = nil,
+--          noglob              = nil,
+--          normal_fname_chars  = nil,
+--          pri_mkrc            = nil,
+--          deny_in_modelines   = nil,
+--          expand              = nil,
+--          nodefault           = nil,
+--          no_mkrc             = nil,
+--          vi_def              = true,
+--          vim                 = true,
+--          alloced             = nil,
+--          save_pv_indir       = nil,
+--          redraw              = {'curswant'},
+--          enable_if           = nil,
+--          defaults            = {
+--              condition = nil,
+--              if_true   = { vi=224, vim=0 },
+--              if_false  = nil },
+--      }
 --  }
--- }
--- types: bool, number, string
--- lists: (nil), comma, onecomma, flags, flagscomma
--- scopes: global, buffer, window
--- redraw options: statuslines, current_window, curent_window_only,
---                 current_buffer, all_windows, everything, curswant
--- default: {vi=…[, vim=…]}
--- defaults: {condition=#if condition, if_true=default, if_false=default}
--- #if condition:
---    string: #ifdef string
---    !string: #ifndef string
---    {string, string}: #if defined(string) && defined(string)
---    {!string, !string}: #if !defined(string) && !defined(string)
+--
+-- type: 'bool', 'number', 'string'
+-- scope: 'global', 'buffer', 'window'
+-- varname: option variable name of the c source code
+-- list: nil, 'comma', 'onecomma', 'flags', 'flagscomma'
+-- redraw: 'statuslines', 'current_window', 'curent_window_only',
+--         'current_buffer', 'all_windows', 'everything', 'curswant'
+
+-- enable_if: nil, true, false, macro-string-value
+-- default: {vi=... [, vim=...]}
+-- defaults: {condition=string, if_true=default, if_false=default}
+--      #if string:
+--          string: #if defined(string)
+--          !string: #if !defined(string)
+--          {string, string}: #if defined(string) && defined(string)
+--          {!string, !string}: #if !defined(string) && !defined(string)
+
 local cstr = function(s)
   return '"' .. s:gsub('["\\]', '\\%0'):gsub('\t', '\\t') .. '"'
 end
+
 local macros=function(s)
   return function()
     return s
   end
 end
+
 local imacros=function(s)
   return function()
     return '(intptr_t)' .. s
   end
 end
+
 local N_=function(s)
   return function()
     return 'N_(' .. cstr(s) .. ')'
   end
 end
+
+-- please note that the following table must sort by alphabetical order!!!
 return {
   cstr=cstr,
   options={

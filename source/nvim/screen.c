@@ -6492,9 +6492,9 @@ static void redraw_custom_statusline(win_st *wp)
         // again and again.
         set_string_option_direct((uchar_kt *)"statusline", -1,
                                  (uchar_kt *)"",
-                                 OPT_FREE
+                                 kOptSetFree
                                  | (*wp->w_o_curbuf.wo_stl != NUL
-                                    ? OPT_LOCAL : OPT_GLOBAL), SID_ERROR);
+                                    ? kOptSetLocal : kOptSetGlobal), SID_ERROR);
     }
 
     did_emsg |= saved_did_emsg;
@@ -6697,7 +6697,7 @@ static void win_redr_custom(win_st *wp, int draw_ruler)
 
             use_sandbox = was_set_insecurely((uchar_kt *)"statusline",
                                              *wp->w_o_curbuf.wo_stl == NUL
-                                             ? 0 : OPT_LOCAL);
+                                             ? 0 : kOptSetLocal);
         }
 
         col += wp->w_wincol;
@@ -8887,7 +8887,7 @@ static void draw_tabline(void)
         if(did_emsg)
         {
             set_string_option_direct((uchar_kt *)"tabline", -1,
-                                     (uchar_kt *)"", OPT_FREE, SID_ERROR);
+                                     (uchar_kt *)"", kOptSetFree, SID_ERROR);
         }
 
         did_emsg |= saved_did_emsg;
@@ -9234,7 +9234,7 @@ static void win_redr_ruler(win_st *wp, int always)
         if(called_emsg)
         {
             set_string_option_direct((uchar_kt *)"rulerformat", -1,
-                                     (uchar_kt *)"", OPT_FREE, SID_ERROR);
+                                     (uchar_kt *)"", kOptSetFree, SID_ERROR);
         }
 
         called_emsg |= save_called_emsg;

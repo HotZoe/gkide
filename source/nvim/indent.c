@@ -635,7 +635,7 @@ int get_expr_indent(void)
     columnum_kt save_curswant;
     int save_set_curswant;
     int save_State;
-    int use_sandbox = was_set_insecurely((uchar_kt *)"indentexpr", OPT_LOCAL);
+    int use_sandbox = was_set_insecurely((uchar_kt *)"indentexpr", kOptSetLocal);
 
     // Save and restore cursor position and curswant,
     // in case it was changed * via :normal commands.

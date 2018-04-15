@@ -337,7 +337,7 @@ void list_version(void)
     // directories layout
     version_msg("\n     Default Layout: bin, etc, plg, doc, mis\n");
     version_msg("\n      System config: $" ENV_GKIDE_SYS_CONFIG "/config.nvl");
-    version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG "/config");
+    version_msg("\n        User config: $" ENV_GKIDE_USR_CONFIG "/config.nvl");
 
     list_features();
     list_patches();

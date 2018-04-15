@@ -7260,7 +7260,7 @@ static void init_spellfile(void)
                                                     ".ascii.") != NULL)
                            ? "ascii" : (const char *)spell_enc()));
 
-                set_option_value("spellfile", 0L, (const char *)buf, OPT_LOCAL);
+                set_option_value("spellfile", 0L, (const char *)buf, kOptSetLocal);
                 break;
             }
 

@@ -1957,7 +1957,7 @@ rewind_retry:
                 // May set 'p_ff' if editing a new file.
                 if(set_options)
                 {
-                    set_fileformat(fileformat, OPT_LOCAL);
+                    set_fileformat(fileformat, kOptSetLocal);
                 }
             }
         }
@@ -2065,7 +2065,7 @@ rewind_retry:
 
                                     if(set_options)
                                     {
-                                        set_fileformat(EOL_UNIX, OPT_LOCAL);
+                                        set_fileformat(EOL_UNIX, kOptSetLocal);
                                     }
 
                                     file_rewind = TRUE;
@@ -2164,7 +2164,7 @@ failed:
         set_string_option_direct((uchar_kt *)"fenc",
                                  -1,
                                  fenc,
-                                 OPT_FREE | OPT_LOCAL,
+                                 kOptSetFree | kOptSetLocal,
                                  0);
     }
 
@@ -2588,11 +2588,11 @@ void set_file_options(int set_options, exargs_st *eap)
     {
         if(eap != NULL && eap->force_ff != 0)
         {
-            set_fileformat(get_fileformat_force(curbuf, eap), OPT_LOCAL);
+            set_fileformat(get_fileformat_force(curbuf, eap), kOptSetLocal);
         }
         else if(*p_ffs != NUL)
         {
-            set_fileformat(default_fileformat(), OPT_LOCAL);
+            set_fileformat(default_fileformat(), kOptSetLocal);
         }
     }
 
@@ -2601,7 +2601,7 @@ void set_file_options(int set_options, exargs_st *eap)
     {
         int oldval = curbuf->b_p_bin;
         curbuf->b_p_bin = (eap->force_bin == FORCE_BIN);
-        set_options_bin(oldval, curbuf->b_p_bin, OPT_LOCAL);
+        set_options_bin(oldval, curbuf->b_p_bin, kOptSetLocal);
     }
 }
 
@@ -2613,7 +2613,7 @@ void set_forced_fenc(exargs_st *eap)
         uchar_kt *fenc = enc_canonize(eap->cmd + eap->force_enc);
 
         set_string_option_direct((uchar_kt *)"fenc", -1,
-                                 fenc, OPT_FREE | OPT_LOCAL, 0);
+                                 fenc, kOptSetFree | kOptSetLocal, 0);
 
         xfree(fenc);
     }
@@ -7355,7 +7355,7 @@ uchar_kt *au_event_disable(char *what)
     set_string_option_direct((uchar_kt *)"ei",
                              -1,
                              new_ei,
-                             OPT_FREE,
+                             kOptSetFree,
                              SID_NONE);
     xfree(new_ei);
 
@@ -7369,7 +7369,7 @@ void au_event_restore(uchar_kt *old_ei)
         set_string_option_direct((uchar_kt *)"ei",
                                  -1,
                                  old_ei,
-                                 OPT_FREE,
+                                 kOptSetFree,
                                  SID_NONE);
         xfree(old_ei);
     }
@@ -7951,7 +7951,7 @@ void ex_doautoall(exargs_st *eap)
         {
             // Execute the modeline settings, but don't set window-local
             // options if we are using the current window for another buffer.
-            do_modelines(curwin == aucmd_win ? OPT_NOWIN : 0);
+            do_modelines(curwin == aucmd_win ? kOptSetWinNone : 0);
         }
 
         // restore the current window

@@ -1372,7 +1372,7 @@ void diff_win_options(win_st *wp, int addbuf)
     set_string_option_direct((uchar_kt *)"fdm",
                              -1,
                              (uchar_kt *)"diff",
-                             OPT_LOCAL | OPT_FREE,
+                             kOptSetLocal | kOptSetFree,
                              0);
 
     curwin = old_curwin;

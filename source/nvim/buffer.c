@@ -3657,7 +3657,7 @@ void maketitle(void)
                     set_string_option_direct((uchar_kt *)"titlestring",
                                              -1,
                                              (uchar_kt *)"",
-                                             OPT_FREE,
+                                             kOptSetFree,
                                              SID_ERROR);
                 }
 
@@ -3801,7 +3801,7 @@ void maketitle(void)
                     set_string_option_direct((uchar_kt *)"iconstring",
                                              -1,
                                              (uchar_kt *)"",
-                                             OPT_FREE,
+                                             kOptSetFree,
                                              SID_ERROR);
                 }
 
@@ -6010,8 +6010,8 @@ void ex_buffer_all(exargs_st *eap)
 /// do_modelines() - process mode lines for the current file
 ///
 /// "flags" can be:
-/// OPT_WINONLY     only set options local to window
-/// OPT_NOWIN       don't set options local to window
+/// kOptSetWinOnly     only set options local to window
+/// kOptSetWinNone       don't set options local to window
 ///
 /// Returns immediately if the "ml" option isn't set.
 void do_modelines(int flags)
@@ -6186,7 +6186,7 @@ static int chk_modeline(linenum_kt lnum, int flags)
         {
             save_SID = current_SID;
             current_SID = SID_MODELINE;
-            retval = do_set(s, OPT_MODELINE | OPT_LOCAL | flags);
+            retval = do_set(s, kOptSetModeline | kOptSetLocal | flags);
             current_SID = save_SID;
 
             if(retval == FAIL)  // stop if error found
@@ -7003,8 +7003,8 @@ void buf_open_scratch(handle_kt bufnr, char *bufname)
 {
     (void)do_ecmd((int)bufnr, NULL, NULL, NULL, ECMD_ONE, ECMD_HIDE, NULL);
     (void)setfname(curbuf, (uchar_kt *)bufname, NULL, true);
-    set_option_value("bh", 0L, "hide", OPT_LOCAL);
-    set_option_value("bt", 0L, "nofile", OPT_LOCAL);
-    set_option_value("swf", 0L, NULL, OPT_LOCAL);
+    set_option_value("bh", 0L, "hide", kOptSetLocal);
+    set_option_value("bt", 0L, "nofile", kOptSetLocal);
+    set_option_value("swf", 0L, NULL, kOptSetLocal);
     RESET_BINDING(curwin);
 }

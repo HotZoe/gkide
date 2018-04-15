@@ -899,7 +899,7 @@ static void handle_quickfix(main_args_st *paramp)
             set_string_option_direct((uchar_kt *)"ef",
                                      -1,
                                      paramp->err_file,
-                                     OPT_FREE,
+                                     kOptSetFree,
                                      SID_CARG);
         }
 

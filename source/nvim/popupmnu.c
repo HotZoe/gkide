@@ -793,10 +793,10 @@ static int pum_set_selected(int n, int repeat)
                     {
                         // Edit a new, empty buffer.
                         // Set options for a "wipeout" buffer.
-                        set_option_value("swf", 0L, NULL, OPT_LOCAL);
-                        set_option_value("bt", 0L, "nofile", OPT_LOCAL);
-                        set_option_value("bh", 0L, "wipe", OPT_LOCAL);
-                        set_option_value("diff", 0L, NULL, OPT_LOCAL);
+                        set_option_value("swf", 0L, NULL, kOptSetLocal);
+                        set_option_value("bt", 0L, "nofile", kOptSetLocal);
+                        set_option_value("bh", 0L, "wipe", kOptSetLocal);
+                        set_option_value("diff", 0L, NULL, kOptSetLocal);
                     }
                 }
 

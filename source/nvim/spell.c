@@ -8691,14 +8691,14 @@ void ex_spelldump(exargs_st *eap)
         return;
     }
 
-    get_option_value((uchar_kt *)"spl", &dummy, &spl, OPT_LOCAL);
+    get_option_value((uchar_kt *)"spl", &dummy, &spl, kOptSetLocal);
 
     // Create a new empty buffer in a new window.
     do_cmdline_cmd("new");
 
     // enable spelling locally in the new window
-    set_option_value("spell", true, "", OPT_LOCAL);
-    set_option_value("spl",  dummy, (char *)spl, OPT_LOCAL);
+    set_option_value("spell", true, "", kOptSetLocal);
+    set_option_value("spl",  dummy, (char *)spl, kOptSetLocal);
 
     xfree(spl);
 

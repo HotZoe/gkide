@@ -1994,7 +1994,7 @@ static char *eval_includeexpr(const char *const ptr, const size_t len)
     set_vim_var_string(VV_FNAME, ptr, (ptrdiff_t) len);
     char *res = (char *) eval_to_string_safe(
                     curbuf->b_p_inex, NULL, was_set_insecurely((uchar_kt *)"includeexpr",
-                                                               OPT_LOCAL));
+                                                               kOptSetLocal));
     set_vim_var_string(VV_FNAME, NULL, 0);
     return res;
 }

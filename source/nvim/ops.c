@@ -4973,7 +4973,7 @@ int fex_format(linenum_kt lnum, long count, int c)
 {
     int r;
     uchar_kt *fex;
-    int use_sandbox = was_set_insecurely((uchar_kt *)"formatexpr", OPT_LOCAL);
+    int use_sandbox = was_set_insecurely((uchar_kt *)"formatexpr", kOptSetLocal);
 
     // Set v:lnum to the first line number and v:count to the number of lines.
     // Set v:char to the character to be inserted (can be NUL).

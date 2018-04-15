@@ -918,7 +918,7 @@ struct window_s
     winopt_st w_o_curbuf; ///< local to the buffer currently in this window
     winopt_st w_o_allbuf; ///< for all buffers in this window
 
-    // A few options have local flags for P_INSECURE.
+    // A few options have local flags for kOptAttrInSecure.
     uint32_t w_p_stl_flags;  ///< flags for 'statusline'
     uint32_t w_p_fde_flags;  ///< flags for 'foldexpr'
     uint32_t w_p_fdt_flags;  ///< flags for 'foldtext'

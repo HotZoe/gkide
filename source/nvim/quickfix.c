@@ -3454,14 +3454,14 @@ void ex_copen(exargs_st *eap)
             (void)do_ecmd(0, NULL, NULL, NULL, ECMD_ONE, ECMD_HIDE, oldwin);
 
             // Switch off 'swapfile'.
-            set_option_value("swf", 0L, NULL, OPT_LOCAL);
-            set_option_value("bt", 0L, "quickfix", OPT_LOCAL);
-            set_option_value("bh", 0L, "wipe", OPT_LOCAL);
+            set_option_value("swf", 0L, NULL, kOptSetLocal);
+            set_option_value("bt", 0L, "quickfix", kOptSetLocal);
+            set_option_value("bh", 0L, "wipe", kOptSetLocal);
 
             RESET_BINDING(curwin);
 
             curwin->w_o_curbuf.wo_diff = false;
-            set_option_value("fdm", 0L, "manual", OPT_LOCAL);
+            set_option_value("fdm", 0L, "manual", kOptSetLocal);
         }
 
         // Only set the height when still in the same tab
@@ -3842,7 +3842,7 @@ static void qf_fill_buffer(qfinfo_st *qi, filebuf_st *buf, qfline_st *old_last)
         // Set the 'filetype' to "qf" each time after filling the buffer. This
         // resembles reading a file into a buffer, it's more logical when using
         // autocommands.
-        set_option_value("ft", 0L, "qf", OPT_LOCAL);
+        set_option_value("ft", 0L, "qf", kOptSetLocal);
         curbuf->b_p_ma = false;
         keep_filetype = true; // don't detect 'filetype'
 
@@ -4507,7 +4507,8 @@ void ex_cfile(exargs_st *eap)
 
     if(*eap->arg != NUL)
     {
-        set_string_option_direct((uchar_kt *)"ef", -1, eap->arg, OPT_FREE, 0);
+        set_string_option_direct((uchar_kt *)"ef", -1,
+                                 eap->arg, kOptSetFree, 0);
     }
 
     // This function is used by the :cfile, :cgetfile and :caddfile
@@ -4944,7 +4945,7 @@ void ex_vimgrep(exargs_st *eap)
                                    TRUE,
                                    buf);
 
-                    do_modelines(OPT_NOWIN);
+                    do_modelines(kOptSetWinNone);
                     aucmd_restbuf(&aco);
                 }
             }

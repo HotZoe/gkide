@@ -257,7 +257,7 @@ terminal_st *terminal_open(terminal_opt_st opts)
     rv->invalid_start = 0;
     rv->invalid_end = opts.height;
     refresh_screen(rv, curbuf);
-    set_option_value("buftype", 0, "terminal", OPT_LOCAL);
+    set_option_value("buftype", 0, "terminal", kOptSetLocal);
 
     // Default settings for terminal buffers
     curbuf->b_p_ma = false;     // 'nomodifiable'
@@ -265,8 +265,8 @@ terminal_st *terminal_open(terminal_opt_st opts)
     curbuf->b_p_scbk = p_scbk;  // 'scrollback'
     curbuf->b_p_tw = 0;         // 'textwidth'
 
-    set_option_value("wrap", false, NULL, OPT_LOCAL);
-    set_option_value("list", false, NULL, OPT_LOCAL);
+    set_option_value("wrap", false, NULL, kOptSetLocal);
+    set_option_value("list", false, NULL, kOptSetLocal);
     buf_set_term_title(curbuf, (char *)curbuf->b_ffname);
     RESET_BINDING(curwin);
 

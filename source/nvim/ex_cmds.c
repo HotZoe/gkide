@@ -3231,7 +3231,7 @@ int do_ecmd(int fnum,
             // Read the modelines, but only to set window-local options. Any
             // buffer-local options have already been set and may have been
             // changed by the user.
-            do_modelines(OPT_WINONLY);
+            do_modelines(kOptSetWinOnly);
 
             apply_autocmds_retval(EVENT_BUFENTER, NULL, NULL, FALSE, curbuf, &retval);
             apply_autocmds_retval(EVENT_BUFWINENTER, NULL, NULL, FALSE, curbuf, &retval);
@@ -5192,7 +5192,7 @@ skip:
             set_string_option_direct((uchar_kt *)"icm",
                                      -1,
                                      (uchar_kt *)"",
-                                     OPT_FREE,
+                                     kOptSetFree,
                                      SID_NONE);
         }
         else if(*p_icm != NUL
@@ -6160,7 +6160,7 @@ static void prepare_help_buffer(void)
     set_string_option_direct((uchar_kt *)"buftype",
                              -1,
                              (uchar_kt *)"help",
-                             OPT_FREE|OPT_LOCAL,
+                             kOptSetFree | kOptSetLocal,
                              0);
 
     // Always set these options after jumping to a help tag, because the
@@ -6172,7 +6172,8 @@ static void prepare_help_buffer(void)
 
     if(ustrcmp(curbuf->b_p_isk, p) != 0)
     {
-        set_string_option_direct((uchar_kt *)"isk", -1, p, OPT_FREE|OPT_LOCAL, 0);
+        set_string_option_direct((uchar_kt *)"isk", -1, p,
+                                 kOptSetFree | kOptSetLocal, 0);
         check_buf_options(curbuf);
         (void)buf_init_chartab(curbuf, FALSE);
     }
@@ -6181,7 +6182,7 @@ static void prepare_help_buffer(void)
     set_string_option_direct((uchar_kt *)"fdm",
                              -1,
                              (uchar_kt *)"manual",
-                             OPT_FREE|OPT_LOCAL,
+                             kOptSetFree | kOptSetLocal,
                              0);
 
     curbuf->b_p_ts = 8; // 'tabstop' is 8.
@@ -6214,7 +6215,7 @@ void fix_help_buffer(void)
     uchar_kt *rt;
 
     // Set filetype to "help".
-    set_option_value("ft", 0L, "help", OPT_LOCAL);
+    set_option_value("ft", 0L, "help", kOptSetLocal);
 
     if(!syntax_present(curwin))
     {
@@ -7855,7 +7856,7 @@ FUNC_ATTR_NONNULL_ALL
     set_string_option_direct((uchar_kt *)"shm",
                              -1,
                              (uchar_kt *)"F",
-                             OPT_FREE,
+                             kOptSetFree,
                              SID_NONE);
 
     bool outside_curline = (eap->line1 != old_cusr.lnum
@@ -7967,7 +7968,7 @@ FUNC_ATTR_NONNULL_ALL
     set_string_option_direct((uchar_kt *)"shm",
                              -1,
                              save_shm_p,
-                             OPT_FREE,
+                             kOptSetFree,
                              SID_NONE);
 
     xfree(save_shm_p);

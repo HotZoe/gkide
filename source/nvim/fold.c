@@ -2055,7 +2055,7 @@ FUNC_ATTR_NONNULL_ARG(1)
             text = eval_to_string_safe(wp->w_o_curbuf.wo_fdt,
                                        NULL,
                                        was_set_insecurely((uchar_kt *)"foldtext",
-                                                          OPT_LOCAL));
+                                                          kOptSetLocal));
             --emsg_silent;
 
             if(text == NULL || did_emsg)

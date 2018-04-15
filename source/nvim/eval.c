@@ -1597,7 +1597,7 @@ int eval_foldexpr(uchar_kt *arg, int *cp)
     typval_st tv;
     int retval;
     uchar_kt *s;
-    int use_sandbox = was_set_insecurely((uchar_kt *)"foldexpr", OPT_LOCAL);
+    int use_sandbox = was_set_insecurely((uchar_kt *)"foldexpr", kOptSetLocal);
     ++emsg_off;
 
     if(use_sandbox)
@@ -18822,7 +18822,7 @@ static void f_setbufvar(typval_st *argvars,
 
             if(!error && strval != NULL)
             {
-                set_option_value(varname, numval, strval, OPT_LOCAL);
+                set_option_value(varname, numval, strval, kOptSetLocal);
             }
 
             // reset notion of buffer
@@ -19606,7 +19606,7 @@ static void setwinvar(typval_st *argvars,
 
                 if(!error && strval != NULL)
                 {
-                    set_option_value(varname, numval, strval, OPT_LOCAL);
+                    set_option_value(varname, numval, strval, kOptSetLocal);
                 }
             }
             else
@@ -25404,12 +25404,12 @@ static const char *find_option_end(const char **const arg,
 
     if(*p == 'g' && p[1] == ':')
     {
-        *opt_flags = OPT_GLOBAL;
+        *opt_flags = kOptSetGlobal;
         p += 2;
     }
     else if(*p == 'l' && p[1] == ':')
     {
-        *opt_flags = OPT_LOCAL;
+        *opt_flags = kOptSetLocal;
         p += 2;
     }
     else

@@ -358,7 +358,7 @@ void set_option_to(void *to,
         }
     }
 
-    int opt_flags = (type == SREQ_GLOBAL) ? OPT_GLOBAL : OPT_LOCAL;
+    int opt_flags = (type == SREQ_GLOBAL) ? kOptSetGlobal : kOptSetLocal;
 
     if(flags & SOPT_BOOL)
     {

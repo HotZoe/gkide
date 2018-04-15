@@ -1654,7 +1654,7 @@ static uchar_kt *do_one_cmd(uchar_kt **cmdlinep,
                         set_string_option_direct((uchar_kt *)"ei",
                                                  -1,
                                                  (uchar_kt *)"all",
-                                                 OPT_FREE,
+                                                 kOptSetFree,
                                                  SID_NONE);
                     }
 
@@ -2875,7 +2875,7 @@ doend:
         set_string_option_direct((uchar_kt *)"ei",
                                  -1,
                                  cmdmod.save_ei,
-                                 OPT_FREE,
+                                 kOptSetFree,
                                  SID_NONE);
         free_string_option(cmdmod.save_ei);
     }
@@ -4122,11 +4122,11 @@ const char *set_one_cmd_context(expand_st *xp, const char *buff)
             break;
 
         case CMD_setglobal:
-            set_context_in_set_cmd(xp, (uchar_kt *)arg, OPT_GLOBAL);
+            set_context_in_set_cmd(xp, (uchar_kt *)arg, kOptSetGlobal);
             break;
 
         case CMD_setlocal:
-            set_context_in_set_cmd(xp, (uchar_kt *)arg, OPT_LOCAL);
+            set_context_in_set_cmd(xp, (uchar_kt *)arg, kOptSetLocal);
             break;
 
         case CMD_tag:
@@ -10153,7 +10153,7 @@ static void ex_mkrc(exargs_st *eap)
            || (eap->cmdidx == CMD_mksession && (*flagp & SSOP_OPTIONS)))
         {
             failed |= (makemap(fd, NULL) == FAIL
-                       || makeset(fd, OPT_GLOBAL, FALSE) == FAIL);
+                       || makeset(fd, kOptSetGlobal, FALSE) == FAIL);
         }
 
         if(!failed && view_session)
@@ -12000,7 +12000,7 @@ static int put_view(FILE *fd,
     if(*flagp & (SSOP_OPTIONS | SSOP_LOCALOPTIONS))
     {
         f = makeset(fd,
-                    OPT_LOCAL,
+                    kOptSetLocal,
                     flagp == &vop_flags || !(*flagp & SSOP_OPTIONS));
     }
     else if(*flagp & SSOP_FOLDS)
@@ -12545,7 +12545,7 @@ static void ex_setfiletype(exargs_st *eap)
 {
     if(!did_filetype)
     {
-        set_option_value("filetype", 0L, (char *)eap->arg, OPT_LOCAL);
+        set_option_value("filetype", 0L, (char *)eap->arg, kOptSetLocal);
     }
 }
 
@@ -12567,11 +12567,11 @@ static void ex_set(exargs_st *eap)
 
     if(eap->cmdidx == CMD_setlocal)
     {
-        flags = OPT_LOCAL;
+        flags = kOptSetLocal;
     }
     else if(eap->cmdidx == CMD_setglobal)
     {
-        flags = OPT_GLOBAL;
+        flags = kOptSetGlobal;
     }
 
     (void)do_set(eap->arg, flags);
