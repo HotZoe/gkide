@@ -68,13 +68,19 @@ typedef struct normal_state_s
     bool need_flushbuf;
     bool conceal_update_lines;
     bool set_prevcount;
-    bool previous_got_int; ///< also see ::got_int
-    bool cmdwin;           ///< command-line window normal mode
-    bool noexmode;         ///< true if the normal mode was pushed from
-                           ///< ex mode(:global or :visual for example)
-    bool toplevel;         ///< top-level normal mode
-    oparg_st oa;           ///< operator arguments
-    cmdarg_st ca;          ///< command arguments
+    /// also see ::got_int
+    bool previous_got_int;
+    /// command-line window normal mode
+    bool cmdwin;
+    /// true if the normal mode was pushed from
+    /// ex mode(:global or :visual for example)
+    bool noexmode;
+    /// top-level normal mode
+    bool toplevel;
+    /// operator arguments
+    oparg_st oa;
+    /// command arguments
+    cmdarg_st ca;
     int mapped_len;
     int old_mapped_len;
     int idx;
@@ -1527,9 +1533,9 @@ static void normal_redraw(normal_state_st *s)
 /// Function executed before each iteration of normal mode.
 ///
 /// @return:
-/// - 1 if the iteration should continue normally
-/// - -1 if the iteration should be skipped
-/// - 0 if the main loop must exit
+/// - @b kNSCC_Continue, if the iteration should continue normally
+/// - @b kNSCC_LoopNext, if the iteration should be skipped
+/// - @b kNSCC_ExitNvim, if the main loop must exit
 static int normal_check(nvim_state_st *state)
 {
     normal_state_st *s = (normal_state_st *)state;
@@ -1593,22 +1599,22 @@ static int normal_check(nvim_state_st *state)
     {
         if(s->noexmode)
         {
-            return 0;
+            return kNSCC_ExitNvim;
         }
 
         do_exmode(exmode_active == EXMODE_VIM);
-        return -1;
+        return kNSCC_LoopNext;
     }
 
     if(s->cmdwin && cmdwin_result != 0)
     {
         // command-line window and cmdwin_result is set
-        return 0;
+        return kNSCC_ExitNvim;
     }
 
     normal_prepare(s);
 
-    return 1;
+    return kNSCC_Continue;
 }
 
 /// Set v:count and v:count1 according to "cap".

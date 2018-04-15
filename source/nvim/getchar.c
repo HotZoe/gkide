@@ -65,17 +65,19 @@
 /// minimal size for @b b_str
 #define MINIMAL_SIZE 20
 
-static buffheader_st redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_st recordbuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_st old_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_st save_redobuff = { { NULL, { NUL } }, NULL, 0, 0 };
-static buffheader_st save_old_redobuff = { { NULL, {NUL} }, NULL, 0, 0 };
+#define INIT_BUFFER_HEADER      { { NULL, { NUL } }, NULL, 0, 0 }
 
+static buffheader_st redobuff = INIT_BUFFER_HEADER;
+static buffheader_st recordbuff = INIT_BUFFER_HEADER;
+static buffheader_st old_redobuff = INIT_BUFFER_HEADER;
+static buffheader_st save_redobuff = INIT_BUFFER_HEADER;
+static buffheader_st save_old_redobuff = INIT_BUFFER_HEADER;
 /// First read ahead buffer. Used for translated commands.
-static buffheader_st readbuf1 = { { NULL, { NUL } }, NULL, 0, 0 };
-
+static buffheader_st readbuf1 = INIT_BUFFER_HEADER;
 /// Second read ahead buffer. Used for redo.
-static buffheader_st readbuf2 = { { NULL, { NUL } }, NULL, 0, 0 };
+static buffheader_st readbuf2 = INIT_BUFFER_HEADER;
+
+#undef INIT_BUFFER_HEADER
 
 /// typeahead char that's not flushed
 static int typeahead_char = 0;

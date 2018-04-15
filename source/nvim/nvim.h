@@ -53,7 +53,7 @@
 /// The upper bits are used to distinguish between other states.
 ///
 /// @see ::curmod
-enum NvimWorkingMode
+typedef enum nvim_working_mode_e
 {
     kNormalMode    = 0x01, ///< mode: Normal mode, command expected
     kVisualMode    = 0x02, ///< mode: Visual mode, use get_real_state()
@@ -61,6 +61,7 @@ enum NvimWorkingMode
                            ///<       get the current mode use get_real_state()
     kCmdLineMode   = 0x08, ///< mode: Command line mode
     kInsertMode    = 0x10, ///< mode: Insert mode
+
     kModFlgLangMap = 0x20, ///< flag: Language mapping flag can be combined
                            ///<       with @b kInsertMode and @b kCmdLineMode
     kModFlgReplace = 0x40, ///< flag: Replace mode flag
@@ -97,7 +98,7 @@ enum NvimWorkingMode
 
     /// all mode bits used for mapping
     kModFlgAllMapFlg = (0x3f | kMapSelectMode | kTermFocusMode),
-};
+} nvim_working_mode_et;
 
 /// Directions
 typedef enum

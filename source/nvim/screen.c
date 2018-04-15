@@ -2030,7 +2030,7 @@ static void win_draw_end(win_st *wp,
                          int c2,
                          int row,
                          int endrow,
-                         hlf_T hl)
+                         hlf_et hl)
 {
     int n = 0;
     #define FDC_OFF n
@@ -2773,7 +2773,7 @@ static int win_line(win_st *wp,
     int u8cc[MAX_MCO]; // composing UTF-8 chars
     int filler_lines; // nr of filler lines to be drawn
     int filler_todo; // nr of filler lines still to do + 1
-    hlf_T diff_hlf = (hlf_T)0; // type of diff highlighting
+    hlf_et diff_hlf = (hlf_et)0; // type of diff highlighting
     int change_start = MAXCOL; // first col of changed area
     int change_end = -1; // last col of changed area
     columnum_kt trailcol = MAXCOL; // start of trailing spaces
@@ -3247,7 +3247,7 @@ static int win_line(win_st *wp,
         {
             size_t len;
             columnum_kt linecol = (columnum_kt)(ptr - line);
-            hlf_T spell_hlf = HLF_COUNT;
+            hlf_et spell_hlf = HLF_COUNT;
             pos = wp->w_cursor;
             wp->w_cursor.lnum = lnum;
             wp->w_cursor.col = linecol;
@@ -3620,7 +3620,7 @@ static int win_line(win_st *wp,
                 {
                     char_attr = 0; // was: hl_attr(HLF_AT);
 
-                    if(diff_hlf != (hlf_T)0)
+                    if(diff_hlf != (hlf_et)0)
                     {
                         char_attr = hl_attr(diff_hlf);
 
@@ -3918,7 +3918,7 @@ static int win_line(win_st *wp,
                 }
             }
 
-            if(diff_hlf != (hlf_T)0)
+            if(diff_hlf != (hlf_et)0)
             {
                 if(diff_hlf == HLF_CHD && ptr - line >= change_start
                    && n_extra == 0)
@@ -4297,7 +4297,7 @@ static int win_line(win_st *wp,
                         uchar_kt *prev_ptr;
                         uchar_kt *p;
                         int len;
-                        hlf_T spell_hlf = HLF_COUNT;
+                        hlf_et spell_hlf = HLF_COUNT;
 
                         prev_ptr = ptr - mb_l;
                         v -= mb_l - 1;
@@ -4639,7 +4639,7 @@ static int win_line(win_st *wp,
                     // Display a '$' after the line or highlight an extra
                     // character if the line break is included. For a diff
                     // line the highlighting continues after the "$".
-                    if(diff_hlf == (hlf_T)0 && line_attr == 0)
+                    if(diff_hlf == (hlf_et)0 && line_attr == 0)
                     {
                         // In virtualedit, visual selections
                         // may extend beyond end of line.
@@ -4733,7 +4733,7 @@ static int win_line(win_st *wp,
                     c = ' ';
                     ptr--;  // put it back at the NUL
                 }
-                else if((diff_hlf != (hlf_T)0 || line_attr != 0)
+                else if((diff_hlf != (hlf_et)0 || line_attr != 0)
                         && (wp->w_o_curbuf.wo_rl
                             ? (col >= 0)
                             : (col - boguscols < wp->w_width)))

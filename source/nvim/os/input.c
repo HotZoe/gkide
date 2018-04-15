@@ -28,12 +28,12 @@
 #define READ_BUFFER_SIZE    0xfff
 #define INPUT_BUFFER_SIZE   (READ_BUFFER_SIZE * 4)
 
-typedef enum
+typedef enum inbufpoll_result_e
 {
     kInputNone,
     kInputAvail,
     kInputEof
-} InbufPollResult;
+} inbufpoll_result_et;
 
 static stream_st read_stream = { .closed = true };
 static ringbuf_st *input_buffer = NULL;
@@ -109,7 +109,7 @@ int os_inchar(uint8_t *buf, int maxlen, int ms, int tb_change_cnt)
         return (int)rbuffer_read(input_buffer, (char *)buf, (size_t)maxlen);
     }
 
-    InbufPollResult result;
+    inbufpoll_result_et result;
 
     if(ms >= 0)
     {
@@ -447,7 +447,7 @@ bool input_available(void)
 }
 
 /// This is a replacement for the old WaitForChar() function in os_unix.c
-static InbufPollResult inbuf_poll(int ms)
+static inbufpoll_result_et inbuf_poll(int ms)
 {
     if(input_ready() || input_poll(ms))
     {

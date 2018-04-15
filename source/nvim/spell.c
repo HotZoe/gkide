@@ -372,7 +372,7 @@ static uchar_kt *repl_to = NULL;
 /// so that the caller can skip over the word.
 size_t spell_check(win_st *wp,
                    uchar_kt *ptr,
-                   hlf_T *attrp,
+                   hlf_et *attrp,
                    int *capcol,
                    bool docount)
 {
@@ -1703,7 +1703,7 @@ size_t spell_move_to(win_st *wp,
                      int dir,
                      bool allwords,
                      bool curline,
-                     hlf_T *attrp)
+                     hlf_et *attrp)
 {
     linenum_kt lnum;
     apos_st found_pos;
@@ -1711,7 +1711,7 @@ size_t spell_move_to(win_st *wp,
     uchar_kt *line;
     uchar_kt *p;
     uchar_kt *endp;
-    hlf_T attr = HLF_COUNT;
+    hlf_et attr = HLF_COUNT;
     size_t len;
     int has_syntax = syntax_present(wp);
     int col;
@@ -4001,7 +4001,7 @@ static void spell_find_suggest(uchar_kt *badptr,
                                bool need_cap,
                                bool interactive)
 {
-    hlf_T attr = HLF_COUNT;
+    hlf_et attr = HLF_COUNT;
     uchar_kt buf[MAXPATHL];
     uchar_kt *p;
     bool do_combine = false;
@@ -7290,7 +7290,7 @@ static void check_suggestions(suginfo_st *su, garray_st *gap)
     suggest_st *stp;
     uchar_kt longword[MAXWLEN + 1];
     int len;
-    hlf_T attr;
+    hlf_et attr;
     stp = &SUG(*gap, 0);
 
     for(int i = gap->ga_len - 1; i >= 0; --i)

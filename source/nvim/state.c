@@ -19,15 +19,15 @@
 
 void state_enter(nvim_state_st *s)
 {
-    for(;;)
+    while(1)
     {
         int check_result = s->check ? s->check(s) : 1;
 
-        if(!check_result)
+        if(kNSCC_ExitNvim == check_result)
         {
             break;
         }
-        else if(check_result == -1)
+        else if(kNSCC_LoopNext == check_result)
         {
             continue;
         }
@@ -93,11 +93,11 @@ int virtual_active(void)
     }
 
     return ve_flags == VE_ALL
-           || ((ve_flags & VE_BLOCK) 
-		       && VIsual_active 
-			   && VIsual_mode == Ctrl_V)
-           || ((ve_flags & VE_INSERT) 
-		       && (curmod & kInsertMode));
+           || ((ve_flags & VE_BLOCK)
+               && VIsual_active
+               && VIsual_mode == Ctrl_V)
+           || ((ve_flags & VE_INSERT)
+               && (curmod & kInsertMode));
 }
 
 /// @b kVisualMode, @b kMapSelectMode and @b kOpPendMode, @b curmod are never

@@ -439,9 +439,9 @@ EXTERN int did_check_timestamps INIT(= FALSE);
 /// Don't check timestamps
 EXTERN int no_check_timestamps INIT(= 0);
 
-/// Values for index in highlight_attr[].
-/// When making changes, also update hlf_names below!
-typedef enum
+/// Values for index in ::highlight_attr
+/// When making changes, also update ::hlf_names below!
+typedef enum hlf_e
 {
     HLF_8 = 0,       ///< Meta & special keys listed with ":map", text that is
                      ///< displayed different from what it is
@@ -493,7 +493,7 @@ typedef enum
     HLF_0,           ///< Whitespace
     HLF_INACTIVE,    ///< NormalNC: Normal text in non-current windows
     HLF_COUNT        ///< MUST be the last one
-} hlf_T;
+} hlf_et;
 
 EXTERN const char *hlf_names[] INIT(=
 {
@@ -736,12 +736,12 @@ EXTERN bool did_source_startup_scripts INIT(= false);
 /// start position of active Visual selection
 EXTERN apos_st VIsual;
 
+/// whether Visual mode is active
 EXTERN int VIsual_active INIT(= FALSE);
 
-/// whether Visual mode is active
+/// whether Visual Select mode is active
 EXTERN int VIsual_select INIT(= FALSE);
 
-/// whether Select mode is active
 EXTERN int VIsual_reselect;
 
 /// whether to restart the selection after
@@ -864,7 +864,7 @@ EXTERN int *(*iconv_errno)(void);
 #endif
 
 /// This is the current state(mode) of the command interpreter.
-/// @b curmod is the main state of Vim.
+/// @b curmod is the main state of nvim.
 ///
 /// There are other variables that modify the state:
 /// - "Visual_mode"    When @b curmod is ::kNormalMode or ::kInsertMode.
@@ -904,11 +904,11 @@ EXTERN uchar_kt *edit_submode INIT(= NULL);       ///< msg for CTRL-X submode
 EXTERN uchar_kt *edit_submode_pre INIT(= NULL);   ///< prepended to edit_submode
 EXTERN uchar_kt *edit_submode_extra INIT(= NULL); ///< appended to edit_submode
 
-EXTERN hlf_T edit_submode_highl;      ///< highl. method for extra info
+EXTERN hlf_et edit_submode_highl;     ///< highl. method for extra info
 EXTERN int ctrl_x_mode INIT(= 0);     ///< Which Ctrl-X mode are we in?
 EXTERN int no_abbr INIT(= TRUE);      ///< TRUE when no abbreviations loaded
 EXTERN int mapped_ctrl_c INIT(= 0);   ///< Modes where CTRL-C is mapped.
-EXTERN cmdmod_st cmdmod;               ///< Ex command modifiers
+EXTERN cmdmod_st cmdmod;              ///< Ex command modifiers
 
 EXTERN int msg_silent INIT(= 0);         ///< don't print messages
 EXTERN int emsg_silent INIT(= 0);        ///< don't print error messages

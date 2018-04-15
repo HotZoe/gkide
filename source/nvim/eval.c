@@ -10190,7 +10190,7 @@ static void f_diff_hlID(typval_st *argvars,
     static int fnum = 0;
     static int change_start = 0;
     static int change_end = 0;
-    static hlf_T hlID = (hlf_T)0;
+    static hlf_et hlID = (hlf_et)0;
     int filler_lines;
     int col;
 
@@ -10230,7 +10230,7 @@ static void f_diff_hlID(typval_st *argvars,
         }
         else
         {
-            hlID = (hlf_T)0;
+            hlID = (hlf_et)0;
         }
 
         prev_lnum = lnum;
@@ -10252,7 +10252,7 @@ static void f_diff_hlID(typval_st *argvars,
         }
     }
 
-    rettv->vval.v_number = hlID == (hlf_T)0 ? 0 : (int)hlID;
+    rettv->vval.v_number = hlID == (hlf_et)0 ? 0 : (int)hlID;
 }
 
 /// "empty({expr})" function
@@ -20255,7 +20255,7 @@ static void f_spellbadword(typval_st *argvars,
                            func_ptr_ft FUNC_ARGS_UNUSED_REALY(fptr))
 {
     const char *word = "";
-    hlf_T attr = HLF_COUNT;
+    hlf_et attr = HLF_COUNT;
     size_t len = 0;
     tv_list_alloc_ret(rettv);
 

@@ -8,12 +8,12 @@
 #include "nvim/buffer_defs.h"
 
 /// flag values for find_ident_under_cursor()
-enum find_flg_e
+typedef enum find_flg_e
 {
     kFindFlgIdent  = 1, ///< find identifier (word)
     kFindFlgString = 2, ///< find any string (word)
     kFindFlgEval   = 4  ///< include "->", "[]" and "."
-};
+} find_flg_et;
 
 /// Motion types, used for operators and for yank/delete registers.
 ///
@@ -30,26 +30,41 @@ typedef enum motion_type_e
 /// Arguments for operators.
 typedef struct oparg_s
 {
-    int op_type;                ///< current pending operator type
-    int regname;                ///< register to use for the operator
-    motion_type_et motion_type; ///< type of the current cursor motion
-    int motion_force;    ///< force motion type: 'v', 'V' or CTRL-V
-    bool use_reg_one;    ///< true if delete uses reg 1 even when not linewise
-    bool inclusive;      ///< true if char motion is inclusive (only
-                         ///< valid when motion_type is kMTCharWise)
-    bool end_adjusted;   ///< backuped b_op_end one char
-                         ///< (only used by do_format())
-    apos_st start;       ///< start of the operator
-    apos_st end;         ///< end of the operator
-    apos_st cursor_start;///< cursor position before motion for "gw"
-
-    long line_count; ///< number of lines from op_start to op_end (inclusive)
-    bool empty;      ///< op_start and op_end the same (only used by op_change())
-    bool is_VIsual;  ///< operator on Visual area
-    columnum_kt start_vcol;///< start col for block mode operator
-    columnum_kt end_vcol;  ///< end col for block mode operator
-    long prev_opcount;     ///< ca.opcount saved for K_EVENT
-    long prev_count0;      ///< ca.count0 saved for K_EVENT
+    /// current pending operator type
+    int op_type;
+    /// register to use for the operator
+    int regname;
+    /// type of the current cursor motion
+    motion_type_et motion_type;
+    /// force motion type: 'v', 'V' or CTRL-V
+    int motion_force;
+    /// true if delete uses reg 1 even when not linewise
+    bool use_reg_one;
+    /// true if char motion is inclusive, only
+    /// valid when motion_type is kMTCharWise
+    bool inclusive;
+    /// backuped b_op_end one char, only used by do_format()
+    bool end_adjusted;
+    /// start of the operator
+    apos_st start;
+    /// end of the operator
+    apos_st end;
+    /// cursor position before motion for "gw"
+    apos_st cursor_start;
+    /// number of lines from op_start to op_end (inclusive)
+    long line_count;
+    /// op_start and op_end the same (only used by op_change())
+    bool empty;
+    /// operator on Visual area
+    bool is_VIsual;
+    /// start col for block mode operator
+    columnum_kt start_vcol;
+    /// end col for block mode operator
+    columnum_kt end_vcol;
+    /// ca.opcount saved for K_EVENT
+    long prev_opcount;
+    /// ca.count0 saved for K_EVENT
+    long prev_count0;
 } oparg_st;
 
 /// Arguments for Normal mode commands.

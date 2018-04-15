@@ -518,7 +518,7 @@ int main(int argc, char **argv)
     // This never returns.
     normal_enter(false, false);
 
-    return 0;
+    return kNEStatusSuccess;
 }
 
 /// Exit nvim properly
