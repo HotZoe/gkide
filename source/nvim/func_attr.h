@@ -142,7 +142,7 @@
         /// ~~~~~~~~~~~~~~~
         ///
         /// so, those type arguments, use `(void)names;` in the function body
-        /// instead the macro is defined following, see FUNC_ARGS_UNUSED_FORCE
+        /// instead the macro is defined following, see FUNC_ARGS_UNUSED_TODO
         ///
         /// refactoring the function and related function pointer
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
@@ -210,22 +210,15 @@
         #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v
     #endif
 
-    /// refactoring the function or just remove the unused args
-    #define FUNC_ARGS_UNUSED_FORCE(v)     (void)(v)
-    /// refactoring the function or just remove the unused args
-    #define FUNC_ARGS_UNUSED_REALY(v)     REAL_ARGS_ATTR_UNUSED_REALY(v)
-    #define FUNC_ARGS_UNUSED_MAYBE(v)     REAL_ARGS_ATTR_UNUSED_MAYBE(v)
-
-    // keep the following two macro not touched for the generated *.i
-    #ifdef DEFINE_KEEP_ATTRIBUTES
-        #undef FUNC_ARGS_UNUSED_MAYBE
-        #undef FUNC_ARGS_UNUSED_REALY
-    #endif
+    /// the unused args must keep, such as to fit the function pointer
+    #define FUNC_ARGS_UNUSED_MUST(v)     (void)(v)
+    /// refactoring the function or just remove the unused args or todo
+    #define FUNC_ARGS_UNUSED_TODO(v)     (void)(v)
 #endif
 
 // set up FUNC_ATTR_* anyway
 #ifdef DEFINE_FUNC_ATTRIBUTES
-    // used by generated header files *.generated.h
+    // used only by header files *.h
     #define FUNC_API_ASYNC
     #define FUNC_API_NOEXPORT
     #define FUNC_API_REMOTE_ONLY
@@ -245,8 +238,14 @@
     #define FUNC_ATTR_NONNULL_ARG(...)      REAL_FATTR_NONNULL_ARG(__VA_ARGS__)
     #define FUNC_ATTR_NONNULL_RET           REAL_FATTR_NONNULL_RET
     #define FUNC_ATTR_NORETURN              REAL_FATTR_NORETURN
+
+    // used by header files *.h and source files *.c
+    /// @todo refactoring the function or just remove the unused args
+    #define FUNC_ARGS_UNUSED_REALY(v)       REAL_ARGS_ATTR_UNUSED_REALY(v)
+    /// for some reason the function argument maybe not used
+    #define FUNC_ARGS_UNUSED_MAYBE(v)       REAL_ARGS_ATTR_UNUSED_MAYBE(v)
 #elif !defined(DEFINE_KEEP_ATTRIBUTES)
-    // used by *.c files
+    // used only by source files *.c
     #define FUNC_ATTR_MALLOC
     #define FUNC_ATTR_ALLOC_SIZE(x)
     #define FUNC_ATTR_ALLOC_SIZE_PROD(x, y)
@@ -261,3 +260,5 @@
     #define FUNC_ATTR_NONNULL_RET
     #define FUNC_ATTR_NORETURN
 #endif
+
+// keep the FUNC_ATTR_* macros not touched for the generated *.i

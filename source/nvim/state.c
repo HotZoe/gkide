@@ -19,15 +19,16 @@
 
 void state_enter(nvim_state_st *s)
 {
+    loop_status_et what_todo = kNLSC_Continue;
     while(1)
     {
-        int check_result = s->check ? s->check(s) : 1;
+        what_todo = s->check ? s->check(s) : kNLSC_Continue;
 
-        if(kNSCC_ExitNvim == check_result)
+        if(kNLSC_ExitNvim == what_todo)
         {
             break;
         }
-        else if(kNSCC_LoopNext == check_result)
+        else if(kNLSC_NextLoop == what_todo)
         {
             continue;
         }
@@ -68,13 +69,13 @@ getkey:
             may_sync_undo();
         }
 
-        int execute_result = s->execute(s, key);
+        what_todo = s->execute ? s->execute(s, key) : kNLSC_Continue;
 
-        if(!execute_result)
+        if(kNLSC_ExitNvim == what_todo)
         {
             break;
         }
-        else if(execute_result == -1)
+        else if(kNLSC_GetKey == what_todo)
         {
             goto getkey;
         }

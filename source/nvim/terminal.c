@@ -494,6 +494,12 @@ void terminal_enter(void)
     }
 }
 
+static int terminal_check(nvim_state_st *FUNC_ARGS_UNUSED_REALY(state))
+FUNC_ATTR_UNUSED
+{
+    return kNLSC_Continue;
+}
+
 static int terminal_execute(nvim_state_st *state, int key)
 {
     terminal_state_st *s = (terminal_state_st *)state;
@@ -524,7 +530,7 @@ static int terminal_execute(nvim_state_st *state, int key)
         case K_MOUSEUP:
             if(send_mouse_event(s->term, key))
             {
-                return 0;
+                return kNLSC_ExitNvim;
             }
 
             break;
@@ -539,7 +545,7 @@ static int terminal_execute(nvim_state_st *state, int key)
             if(s->term->buf_handle == 0)
             {
                 s->close = true;
-                return 0;
+                return kNLSC_ExitNvim;
             }
 
             break;
@@ -547,7 +553,7 @@ static int terminal_execute(nvim_state_st *state, int key)
         case Ctrl_N:
             if(s->got_bsl)
             {
-                return 0;
+                return kNLSC_ExitNvim;
             }
 
             FALL_THROUGH_ATTRIBUTE;
@@ -562,13 +568,14 @@ static int terminal_execute(nvim_state_st *state, int key)
             if(s->term->closed)
             {
                 s->close = true;
-                return 0;
+                return kNLSC_ExitNvim;
             }
 
             s->got_bsl = false;
             terminal_send_key(s->term, key);
     }
 
+    /// @todo why do not equal will exit nvim ?
     return curbuf->b_id == s->term->buf_handle;
 }
 

@@ -5,6 +5,19 @@
 
 #include <stddef.h>
 
+/// nvim main loop status code
+///
+/// @note use by callback function of type
+/// - @b nvim_state_check_ft, for nvim state check
+/// - @b nvim_state_execute_ft, for nvim cmd execute
+typedef enum loop_status_e
+{
+    kNLSC_ExitNvim = 0, ///< nvim exit, main loop return
+    kNLSC_Continue = 1, ///< state continue, loop go on
+    kNLSC_NextLoop = 2, ///< new loop iteration, skip the following part
+    kNLSC_GetKey   = 3, ///< get another key
+} loop_status_et;
+
 typedef struct nvim_state_s nvim_state_st;
 
 typedef int (*nvim_state_check_ft)(nvim_state_st *state);
@@ -15,14 +28,6 @@ struct nvim_state_s
     nvim_state_check_ft check;
     nvim_state_execute_ft execute;
 };
-
-/// nvim state check code
-typedef enum state_check_code_e
-{
-    kNSCC_ExitNvim = 0, ///< nvim exit, loop stop
-    kNSCC_Continue = 1, ///< state continue, loop go on
-    kNSCC_LoopNext = 2, ///< next state check, loop next iteration
-} state_check_code_et;
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
     #include "state.h.generated.h"

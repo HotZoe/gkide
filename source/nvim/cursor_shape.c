@@ -408,7 +408,7 @@ int cursor_get_mode_idx(void)
     }
     else if(curmod & kCmdLineMode)
     {
-        if(cmdline_at_end())
+        if(end_of_cmdline())
         {
             return kCsrShpIdxCmdNormal;
         }

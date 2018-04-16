@@ -158,7 +158,7 @@ static int hislen = 0; ///< actual length of history tables
 static int cmd_hkmap = 0; ///< Hebrew mapping during command line
 static int cmd_fkmap = 0; ///< Farsi mapping during command line
 
-static uint8_t *command_line_enter(int firstc, long count, int indent)
+static uint8_t *cmdline_enter(int firstc, long count, int indent)
 {
     CommandLineState state, *s = &state;
     memset(s, 0, sizeof(CommandLineState));
@@ -288,8 +288,8 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
 
     did_emsg = false;
     got_int = false;
-    s->state.check = command_line_check;
-    s->state.execute = command_line_execute;
+    s->state.check = cmdline_check;
+    s->state.execute = cmdline_execute;
     state_enter(&s->state);
     cmdmsg_rl = false;
     cmd_fkmap = 0;
@@ -371,8 +371,10 @@ static uint8_t *command_line_enter(int firstc, long count, int indent)
     }
 }
 
-static int command_line_check(nvim_state_st *FUNC_ARGS_UNUSED_REALY(state))
+static int cmdline_check(nvim_state_st *state)
 {
+    FUNC_ARGS_UNUSED_MUST(state);
+
     // Don't redirect the typed command.
     // Repeated, because a ":redir" inside
     // completion may switch it on.
@@ -382,14 +384,14 @@ static int command_line_check(nvim_state_st *FUNC_ARGS_UNUSED_REALY(state))
     cursorcmd(); // set the cursor on the right spot
     ui_cursor_shape();
 
-    return 1;
+    return kNLSC_Continue;
 }
 
-static int command_line_execute(nvim_state_st *state, int key)
+static int cmdline_execute(nvim_state_st *state, int key)
 {
     if(key == K_IGNORE || key == K_PASTE)
     {
-        return -1; // get another key
+        return kNLSC_GetKey; // get another key
     }
 
     CommandLineState *s = (CommandLineState *)state;
@@ -399,7 +401,7 @@ static int command_line_execute(nvim_state_st *state, int key)
     {
         multiqueue_process_events(main_loop.events);
         redrawcmdline();
-        return 1;
+        return kNLSC_Continue;
     }
 
     if(KeyTyped)
@@ -610,7 +612,7 @@ static int command_line_execute(nvim_state_st *state, int key)
 
             if(s->i > 0)
             {
-                cmdline_del(s->i);
+                del_cmdline_chars(s->i);
             }
 
             s->c = p_wc;
@@ -664,7 +666,7 @@ static int command_line_execute(nvim_state_st *state, int key)
                && ccline.cmdbuff[s->j - 2] == '.'
                && (vim_ispathsep(ccline.cmdbuff[s->j - 3]) || s->j == s->i + 2))
             {
-                cmdline_del(s->j - 2);
+                del_cmdline_chars(s->j - 2);
                 s->c = p_wc;
             }
         }
@@ -722,12 +724,12 @@ static int command_line_execute(nvim_state_st *state, int key)
             {
                 // TODO(tarruda): this is only for DOS/Unix systems
                 // need to put in machine-specific stuff here and in upseg init
-                cmdline_del(s->j);
+                del_cmdline_chars(s->j);
                 put_on_cmdline(upseg + 1, 3, false);
             }
             else if(ccline.cmdpos > s->i)
             {
-                cmdline_del(s->i);
+                del_cmdline_chars(s->i);
             }
 
             // Now complete in the new directory. Set KeyTyped in case the
@@ -756,7 +758,7 @@ static int command_line_execute(nvim_state_st *state, int key)
         }
         else if(s->c == 'e')
         {
-            uchar_kt  *p = NULL;
+            uchar_kt *p = NULL;
             int len;
 
             // Replace the command line with the result of an expression.
@@ -827,7 +829,7 @@ static int command_line_execute(nvim_state_st *state, int key)
 
             // will free ccline.cmdbuff after putting it in history
             s->gotesc = true;
-            return 0; // back to Normal mode
+            return kNLSC_ExitNvim; /// @todo why ? back to Normal mode
         }
     }
 
@@ -879,7 +881,7 @@ static int command_line_execute(nvim_state_st *state, int key)
                 ui_flush();
             }
 
-            return 0;
+            return kNLSC_ExitNvim;
         }
     }
 
@@ -1147,7 +1149,7 @@ static int command_line_handle_key(CommandLineState *s)
                 }
 
                 redraw_cmdline = true;
-                return 0; // back to cmd mode
+                return kNLSC_ExitNvim; /// @todo why ? back to cmd mode
             }
 
             return command_line_changed(s);
@@ -1233,7 +1235,7 @@ static int command_line_handle_key(CommandLineState *s)
 
             // will free ccline.cmdbuff after putting it in history
             s->gotesc = true;
-            return 0; // back to cmd mode
+            return kNLSC_ExitNvim; /// @todo why ? back to cmd mode
 
         case Ctrl_R: // insert register
             putcmdline('"', true);
@@ -1280,7 +1282,7 @@ static int command_line_handle_key(CommandLineState *s)
                 {
                     // will free ccline.cmdbuff after putting it in history
                     s->gotesc = true;
-                    return 0; // back to cmd mode
+                    return kNLSC_ExitNvim; /// @todo why ? back to cmd mode
                 }
 
                 KeyTyped = false; // Don't do p_wc completion.
@@ -1309,7 +1311,7 @@ static int command_line_handle_key(CommandLineState *s)
             }
 
             redrawcmd();
-            return 1; // don't do incremental search now
+            return kNLSC_Continue; // don't do incremental search now
 
         case K_RIGHT:
         case K_S_RIGHT:
@@ -1321,7 +1323,7 @@ static int command_line_handle_key(CommandLineState *s)
                     break;
                 }
 
-                s->i = cmdline_charsize(ccline.cmdpos);
+                s->i = charsize_of_cmdline(ccline.cmdpos);
 
                 if(KeyTyped && ccline.cmdspos + s->i >= Columns * Rows)
                 {
@@ -1356,7 +1358,7 @@ static int command_line_handle_key(CommandLineState *s)
                     (*mb_head_off)(ccline.cmdbuff,
                                    ccline.cmdbuff + ccline.cmdpos);
 
-                ccline.cmdspos -= cmdline_charsize(ccline.cmdpos);
+                ccline.cmdspos -= charsize_of_cmdline(ccline.cmdpos);
             } while(ccline.cmdpos > 0
                     && (s->c == K_S_LEFT || s->c == K_C_LEFT
                         || (mod_mask & (MOD_MASK_SHIFT|MOD_MASK_CTRL)))
@@ -1420,7 +1422,7 @@ static int command_line_handle_key(CommandLineState *s)
             for(ccline.cmdpos = 0; ccline.cmdpos < ccline.cmdlen;
                 ++ccline.cmdpos)
             {
-                s->i = cmdline_charsize(ccline.cmdpos);
+                s->i = charsize_of_cmdline(ccline.cmdpos);
 
                 if(mouse_row <= cmdline_row + ccline.cmdspos / Columns
                    && mouse_col < ccline.cmdspos % Columns + s->i)
@@ -1834,7 +1836,7 @@ static int command_line_not_changed(CommandLineState *s)
     // Enter command_line_changed() when the command line did change.
     if(!s->incsearch_postponed)
     {
-        return 1;
+        return kNLSC_Continue;
     }
 
     return command_line_changed(s);
@@ -1852,7 +1854,7 @@ static int command_line_changed(CommandLineState *s)
         if(char_avail())
         {
             s->incsearch_postponed = true;
-            return 1;
+            return kNLSC_Continue;
         }
 
         s->incsearch_postponed = false;
@@ -2012,7 +2014,7 @@ static int command_line_changed(CommandLineState *s)
         }
     }
 
-    return 1;
+    return kNLSC_Continue;
 }
 
 /// accept a command line starting with firstc.
@@ -2037,7 +2039,7 @@ static int command_line_changed(CommandLineState *s)
 /// pointer to allocated string if there is a commandline, NULL otherwise.
 uchar_kt *getcmdline(int firstc, long count, int indent)
 {
-    return command_line_enter(firstc, count, indent);
+    return cmdline_enter(firstc, count, indent);
 }
 
 /// Get a command line with a prompt.
@@ -2140,7 +2142,7 @@ int allbuf_locked(void)
     return FALSE;
 }
 
-static int cmdline_charsize(int idx)
+static int charsize_of_cmdline(int idx)
 {
     if(cmdline_star > 0) // showing '*', always 1 position
     {
@@ -2186,7 +2188,7 @@ static void set_cmdspos_cursor(void)
 
     for(i = 0; i < ccline.cmdlen && i < ccline.cmdpos; ++i)
     {
-        c = cmdline_charsize(i);
+        c = charsize_of_cmdline(i);
 
         // Count ">" for double-wide multi-byte char that doesn't fit.
         correct_cmdspos(i, c);
@@ -2564,7 +2566,7 @@ bool cmdline_overstrike(void)
 
 
 /// Return true if the cursor is at the end of the cmdline.
-bool cmdline_at_end(void)
+bool end_of_cmdline(void)
 {
     return (ccline.cmdpos >= ccline.cmdlen);
 }
@@ -2943,7 +2945,7 @@ void put_on_cmdline(uchar_kt *str, int len, int redraw)
 
         for(i = 0; i < len; ++i)
         {
-            c = cmdline_charsize(ccline.cmdpos);
+            c = charsize_of_cmdline(ccline.cmdpos);
 
             // count ">" for a double-wide char that doesn't fit.
             correct_cmdspos(ccline.cmdpos, c);
@@ -3162,7 +3164,7 @@ void cmdline_paste_str(uchar_kt *s, int literally)
 
 /// Delete characters on the command line,
 /// from "from" to the current position.
-static void cmdline_del(int from)
+static void del_cmdline_chars(int from)
 {
     memmove(ccline.cmdbuff + from,
             ccline.cmdbuff + ccline.cmdpos,

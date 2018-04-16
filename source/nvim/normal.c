@@ -1335,7 +1335,7 @@ finish:
 
     normal_finish_command(s);
 
-    return 1;
+    return kNLSC_Continue;
 }
 
 static void normal_check_stuff_buffer(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
@@ -1533,9 +1533,9 @@ static void normal_redraw(normal_state_st *s)
 /// Function executed before each iteration of normal mode.
 ///
 /// @return:
-/// - @b kNSCC_Continue, if the iteration should continue normally
-/// - @b kNSCC_LoopNext, if the iteration should be skipped
-/// - @b kNSCC_ExitNvim, if the main loop must exit
+/// - @b kNLSC_Continue, if the iteration should continue normally
+/// - @b kNLSC_NextLoop, if the iteration should be skipped
+/// - @b kNLSC_ExitNvim, if the main loop must exit
 static int normal_check(nvim_state_st *state)
 {
     normal_state_st *s = (normal_state_st *)state;
@@ -1599,22 +1599,22 @@ static int normal_check(nvim_state_st *state)
     {
         if(s->noexmode)
         {
-            return kNSCC_ExitNvim;
+            return kNLSC_ExitNvim;
         }
 
         do_exmode(exmode_active == EXMODE_VIM);
-        return kNSCC_LoopNext;
+        return kNLSC_NextLoop;
     }
 
     if(s->cmdwin && cmdwin_result != 0)
     {
         // command-line window and cmdwin_result is set
-        return kNSCC_ExitNvim;
+        return kNLSC_ExitNvim;
     }
 
     normal_prepare(s);
 
-    return kNSCC_Continue;
+    return kNLSC_Continue;
 }
 
 /// Set v:count and v:count1 according to "cap".

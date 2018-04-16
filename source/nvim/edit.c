@@ -596,9 +596,10 @@ static int insert_check(nvim_state_st *state)
 
     if(stop_insert_mode && !pum_visible())
     {
+        /// @todo why ?
         // ":stopinsert" used or 'insertmode' reset
         s->count = 0;
-        return 0; // exit insert mode
+        return kNLSC_ExitNvim; // exit insert mode
     }
 
     // set curwin->w_curswant for next K_DOWN or K_UP
@@ -704,14 +705,14 @@ static int insert_check(nvim_state_st *state)
         dont_sync_undo = false;
     }
 
-    return 1;
+    return kNLSC_Continue;
 }
 
 static int insert_execute(nvim_state_st *state, int key)
 {
     if(key == K_IGNORE)
     {
-        return -1; // get another key
+        return kNLSC_GetKey; // get another key
     }
 
     InsertState *s = (InsertState *)state;
@@ -745,7 +746,7 @@ static int insert_execute(nvim_state_st *state, int key)
            && curwin->w_cursor.col > compl_col
            && (s->c = ins_compl_bs()) == NUL)
         {
-            return 1; // continue
+            return kNLSC_Continue; // continue
         }
 
         // When no match was selected or it was edited.
@@ -760,7 +761,7 @@ static int insert_execute(nvim_state_st *state, int key)
                       > curwin->w_cursor.col - compl_col))
             {
                 ins_compl_addfrommatch();
-                return 1; // continue
+                return kNLSC_Continue; // continue
             }
 
             // A non-white character that fits in with the current
@@ -785,7 +786,7 @@ static int insert_execute(nvim_state_st *state, int key)
                     ins_compl_addleader(s->c);
                 }
 
-                return 1; // continue
+                return kNLSC_Continue; // continue
             }
 
             // Pressing CTRL-Y selects the current match.  When
@@ -807,7 +808,7 @@ static int insert_execute(nvim_state_st *state, int key)
 
     if(ins_compl_prep(s->c))
     {
-        return 1; // continue
+        return kNLSC_Continue; // continue
     }
 
     // CTRL-\ CTRL-N goes to Normal mode,
@@ -829,7 +830,7 @@ static int insert_execute(nvim_state_st *state, int key)
         }
         else if(s->c == Ctrl_G && p_im)
         {
-            return 1; // continue
+            return kNLSC_Continue; // continue
         }
         else
         {
@@ -841,7 +842,7 @@ static int insert_execute(nvim_state_st *state, int key)
             }
 
             s->count = 0;
-            return 0;
+            return kNLSC_ExitNvim;
         }
     }
 
@@ -850,14 +851,14 @@ static int insert_execute(nvim_state_st *state, int key)
     if((s->c == Ctrl_V || s->c == Ctrl_Q) && ctrl_x_mode == CTRL_X_CMDLINE)
     {
         insert_do_complete(s);
-        return 1;
+        return kNLSC_Continue;
     }
 
     if(s->c == Ctrl_V || s->c == Ctrl_Q)
     {
         ins_ctrl_v();
         s->c = Ctrl_V; // pretend CTRL-V is last typed character
-        return 1; // continue
+        return kNLSC_Continue; // continue
     }
 
     if(cindent_on() && ctrl_x_mode == 0)
@@ -871,7 +872,7 @@ static int insert_execute(nvim_state_st *state, int key)
         if(in_cinkeys(s->c, '!', s->line_is_white))
         {
             insert_do_cindent(s);
-            return 1; // continue
+            return kNLSC_Continue; // continue
         }
 
         if(can_cindent
@@ -917,7 +918,7 @@ static int insert_execute(nvim_state_st *state, int key)
     // characters.
     if(ins_start_select(s->c))
     {
-        return 1; // continue
+        return kNLSC_Continue; // continue
     }
 
     return insert_handle_key(s);
@@ -945,7 +946,7 @@ static int insert_handle_key(InsertState *s)
                 cmdwin_result = K_IGNORE;
                 got_int = false; // don't stop executing autocommands et al
                 s->nomove = true;
-                return 0; // exit insert mode
+                return kNLSC_ExitNvim; /// @todo why ? exit insert mode
             }
 
             // when 'insertmode' set, and not halfway
@@ -965,7 +966,7 @@ static int insert_handle_key(InsertState *s)
                 break;
             }
 
-            return 0; // exit insert mode
+            return kNLSC_ExitNvim; /// @todo why ? exit insert mode
 
         case Ctrl_Z: // suspend when 'insertmode' set
             if(!p_im)
@@ -999,7 +1000,7 @@ static int insert_handle_key(InsertState *s)
             }
 
             s->count = 0;
-            return 0; // exit insert mode
+            return kNLSC_ExitNvim; /// @todo why ? exit insert mode
 
         case K_INS: // toggle insert/replace mode
         case K_KINS:
@@ -1019,7 +1020,7 @@ static int insert_handle_key(InsertState *s)
                 need_start_insertmode = true;
             }
 
-            return 0; // exit insert mode
+            return kNLSC_ExitNvim; /// @todo why ? exit insert mode
 
         case ' ':
             if(mod_mask != 4)
@@ -1037,7 +1038,7 @@ static int insert_handle_key(InsertState *s)
             if(stuff_inserted(NUL, 1L, (s->c == Ctrl_A)) == FAIL
                && s->c != Ctrl_A && !p_im)
             {
-                return 0; // exit insert mode
+                return kNLSC_ExitNvim; /// @todo why ? exit insert mode
             }
 
             s->inserted_space = false;
@@ -1337,12 +1338,12 @@ static int insert_handle_key(InsertState *s)
             {
                 // Execute the command in the cmdline window.
                 cmdwin_result = CAR;
-                return 0;
+                return kNLSC_ExitNvim;
             }
 
             if(ins_eol(s->c) && !p_im)
             {
-                return 0; // out of memory
+                return kNLSC_ExitNvim; // out of memory
             }
 
             auto_format(false, false);
@@ -1421,7 +1422,7 @@ static int insert_handle_key(InsertState *s)
                         break;
                     }
 
-                    return 0; // exit insert mode
+                    return kNLSC_ExitNvim; /// @todo why ? exit insert mode
                 }
 
                 goto normalchar;
@@ -1535,7 +1536,7 @@ normalchar:
         } // switch-default-end
     }
 
-    return 1; // continue
+    return kNLSC_Continue; // continue
 }
 
 static void insert_do_complete(InsertState *s)

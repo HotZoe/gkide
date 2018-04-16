@@ -6913,7 +6913,8 @@ void set_buflisted(int on)
 /// @param  buf  buffer to check
 ///
 /// @return true if the buffer's contents have changed
-bool buf_contents_changed(filebuf_st *buf) FUNC_ATTR_NONNULL_ALL
+bool buf_contents_changed(filebuf_st *buf)
+FUNC_ATTR_NONNULL_ALL
 {
     bool differ = true;
 

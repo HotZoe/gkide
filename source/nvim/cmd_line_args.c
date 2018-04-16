@@ -660,8 +660,8 @@ static void process_cmd_only_minus_minus(main_args_st *parmp, char **argv)
 static int process_cmd_opt_short(main_args_st *parmp, char **argv)
 FUNC_ATTR_UNUSED
 {
-    FUNC_ARGS_UNUSED_FORCE(parmp);
-    FUNC_ARGS_UNUSED_FORCE(argv);
+    FUNC_ARGS_UNUSED_TODO(parmp);
+    FUNC_ARGS_UNUSED_TODO(argv);
     return 0;
 }
 
