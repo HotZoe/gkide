@@ -417,7 +417,7 @@ void trans_characters(uchar_kt *buf, int bufsize)
 ///
 /// @return translated string
 uchar_kt *transstr(uchar_kt *s)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     int c;
     uchar_kt *res;
@@ -790,8 +790,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @param[in]  chartab  Buffer chartab.
 bool is_kwc_tab(const int c, const uint64_t *const chartab)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (c >= 0x100
             ? (utf_class(c) >= 2)
@@ -806,8 +806,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  buf  buffer whose keywords to use
 bool is_kwc_buf(int c, filebuf_st *buf)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(2)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return is_kwc_tab(c, buf->b_chartab);
 }
@@ -819,8 +819,8 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @return true if "p" points to a keyword character.
 bool is_kwc_ptr(uchar_kt *p)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(MB_BYTE2LEN(*p) > 1)
     {
@@ -839,8 +839,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return true if "p" points to a keyword character.
 bool is_kwc_ptr_buf(uchar_kt *p, filebuf_st *buf)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(MB_BYTE2LEN(*p) > 1)
     {
@@ -1206,8 +1206,8 @@ static int win_nolbr_chartabsize(win_st *wp,
 /// @param  vcol  column number
 bool in_win_border(win_st *wp, columnum_kt vcol)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int width1; // width of first line (after line number)
     int width2; // width of further lines
@@ -1557,9 +1557,9 @@ void getvcols(win_st *wp,
 /// @return Pointer to character after the skipped whitespace.
 uchar_kt *skipwhite(const uchar_kt *q)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const uchar_kt *p = q;
 
@@ -1578,9 +1578,9 @@ FUNC_ATTR_NONNULL_RET
 /// @return Pointer to the character after the skipped digits.
 uchar_kt *skipdigits(const uchar_kt *q)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const uchar_kt *p = q;
 
@@ -1601,7 +1601,7 @@ FUNC_ATTR_NONNULL_RET
 const char *skipbin(const char *q)
 FUNC_ATTR_PURE
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     const char *p = q;
 
@@ -1659,7 +1659,7 @@ uchar_kt *skiptodigit(uchar_kt *q)
 const char *skiptobin(const char *q)
 FUNC_ATTR_PURE
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     const char *p = q;
 
@@ -1811,8 +1811,8 @@ bool is_blank_line(uchar_kt *lbuf)
 /// @param  str  file path string to check
 bool rem_backslash(const uchar_kt *str)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
 #ifdef BACKSLASH_IN_FILENAME
     return str[0] == '\\'

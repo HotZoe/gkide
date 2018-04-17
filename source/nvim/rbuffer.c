@@ -14,8 +14,8 @@
 
 /// Creates a new @b ringbuf_st instance.
 ringbuf_st *rbuffer_new(size_t capacity)
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET
 {
     if(!capacity)
     {
@@ -239,7 +239,7 @@ FUNC_ATTR_NONNULL_ALL
 
 char *rbuffer_get(ringbuf_st *buf, size_t index)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     assert(index < buf->size);
 

@@ -1008,7 +1008,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// Always pops one value from the stack.
 Boolean nlua_pop_Boolean(lua_State *lstate,
-                         error_st *FUNC_ARGS_UNUSED_REALY(err))
+                         error_st *FUNC_ARGS_UNUSED_MATCH(err))
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
@@ -1504,15 +1504,16 @@ Object nlua_pop_Object(lua_State *const lstate, error_st *const err)
     return ret;
 }
 
-#define GENERATE_INDEX_FUNCTION(type)                        \
-    type nlua_pop_##type(lua_State *lstate,                  \
-                      error_st *FUNC_ARGS_UNUSED_REALY(err)) \
-    FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT       \
-    {                                                        \
-        type ret;                                            \
-        ret = (type)lua_tonumber(lstate, -1);                \
-        lua_pop(lstate, 1);                                  \
-        return ret;                                          \
+#define GENERATE_INDEX_FUNCTION(type)                           \
+    type nlua_pop_##type(lua_State *lstate,                     \
+                         error_st *FUNC_ARGS_UNUSED_MATCH(err)) \
+    FUNC_ATTR_NONNULL_ALL                                       \
+    FUNC_ATTR_WARN_UNUSED_RESULT                                \
+    {                                                           \
+        type ret;                                               \
+        ret = (type)lua_tonumber(lstate, -1);                   \
+        lua_pop(lstate, 1);                                     \
+        return ret;                                             \
     }
 
 GENERATE_INDEX_FUNCTION(Buffer)

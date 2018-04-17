@@ -253,7 +253,8 @@ FUNC_ATTR_NONNULL_ALL
 bool encode_vim_list_to_buf(const list_st *const list,
                             size_t *const ret_len,
                             char **const ret_buf)
-FUNC_ATTR_NONNULL_ARG(2, 3) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t len = 0;
 
@@ -328,7 +329,8 @@ int encode_read_from_list(list_state_st *const state,
                           char *const buf,
                           const size_t nbuf,
                           size_t *const read_bytes)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     char *const buf_end = buf + nbuf;
     char *p = buf;
@@ -691,7 +693,8 @@ static const char xdigits[] = "0123456789ABCDEF";
 static inline int convert_to_json_string(garray_st *const gap,
                                          const char *const buf,
                                          const size_t len)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_NONNULL_ARG(1)
 {
     const char *utf_buf = buf;
 
@@ -882,7 +885,9 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_ALWAYS_INLINE
 ///
 /// @param[in]  tv  Key to check.
 bool encode_check_json_key(const typval_st *const tv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
+FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(tv->v_type == kNvarString)
     {
@@ -989,7 +994,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_PURE
 ///
 /// @return String representation of the variable or NULL.
 char *encode_tv2string(typval_st *tv, size_t *len)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ARG(1)
 {
     garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
@@ -1020,7 +1026,8 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 ///
 /// @return String representation of the variable or NULL.
 char *encode_tv2echo(typval_st *tv, size_t *len)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ARG(1)
 {
     garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);
@@ -1057,7 +1064,8 @@ FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
 ///
 /// @return String representation of the variable or NULL.
 char *encode_tv2json(typval_st *tv, size_t *len)
-FUNC_ATTR_NONNULL_ARG(1) FUNC_ATTR_MALLOC
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ARG(1)
 {
     garray_st ga;
     ga_init(&ga, (int)sizeof(char), 80);

@@ -294,7 +294,7 @@ GkideMenu::~GkideMenu()
     delete m_menuBar;
 }
 
-void GkideMenu::trigerHelpAboutGKIDE(bool FUNC_ATTR_ARGS_UNUSED_REALY(act))
+void GkideMenu::trigerHelpAboutGKIDE(bool VATTR_UNUSED_MATCH(act))
 {
     GkideVersionInfo *info = new GkideVersionInfo(m_mainwin);
     info->show();

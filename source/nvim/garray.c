@@ -136,7 +136,7 @@ void ga_remove_duplicate_strings(garray_st *gap)
 ///
 /// @returns the concatenated strings
 uchar_kt *ga_concat_strings_sep(const garray_st *gap, const char *sep)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     const size_t nelem = (size_t) gap->ga_len;
     const char **strings = gap->ga_data;
@@ -176,7 +176,8 @@ FUNC_ATTR_NONNULL_RET
 /// @param gap
 ///
 /// @returns the concatenated strings
-uchar_kt *ga_concat_strings(const garray_st *gap) FUNC_ATTR_NONNULL_RET
+uchar_kt *ga_concat_strings(const garray_st *gap)
+FUNC_ATTR_NONNULL_RETURN
 {
     return ga_concat_strings_sep(gap, ",");
 }

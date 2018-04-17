@@ -1317,7 +1317,7 @@ void ex_diffsplit(exargs_st *eap)
 }
 
 /// Set options to show diffs for the current window.
-void ex_diffthis(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_diffthis(exargs_st *FUNC_ARGS_UNUSED_MATCH(exarg_ptr))
 {
     // Set 'diff', 'scrollbind' on and 'wrap' off.
     diff_win_options(curwin, TRUE);
@@ -1946,8 +1946,8 @@ int diff_check(win_st *wp, linenum_kt lnum)
 /// @return true if two entires are equal.
 static bool diff_equal_entry(diffblk_st *dp, int idx1, int idx2)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(dp->df_count[idx1] != dp->df_count[idx2])
     {
@@ -2335,8 +2335,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return true if the line was added, no other buffer has it.
 bool diff_find_change(win_st *wp, linenum_kt lnum, int *startp, int *endp)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     uchar_kt *line_new;
     int si_org;
@@ -2486,8 +2486,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return false if there are no diff blocks at all in this window.
 bool diff_infold(win_st *wp, linenum_kt lnum)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool other = false;
     diffblk_st *dp;
@@ -3015,8 +3015,8 @@ static void diff_fold_update(diffblk_st *dp, int skip_idx)
 /// @param  buf  buffer to check.
 bool diff_mode_buf(filebuf_st *buf)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     FOR_ALL_TABS(tp)
     {

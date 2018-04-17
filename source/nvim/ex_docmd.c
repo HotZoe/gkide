@@ -6021,7 +6021,8 @@ static void ex_blast(exargs_st *eap)
     }
 }
 
-int ends_excmd(int c) FUNC_ATTR_CONST
+int ends_excmd(int c)
+FUNC_ATTR_CONST
 {
     return c == NUL || c == '|' || c == '"' || c == '\n';
 }
@@ -6122,7 +6123,7 @@ static int check_more(int message, int forceit)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of command names.
-uchar_kt *get_command_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_command_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx >= (int)CMD_SIZE)
     {
@@ -6782,7 +6783,7 @@ static void ex_command(exargs_st *eap)
 
 /// @b :comclear
 /// - Clear all user commands, global and for current buffer.
-void ex_comclear(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_comclear(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     uc_clear(&ucmds);
     uc_clear(&curbuf->b_ucmds);
@@ -7536,14 +7537,14 @@ static uchar_kt *get_user_command_name(int idx)
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user address type names.
-uchar_kt *get_user_cmd_addr_type(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_addr_type(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     return (uchar_kt *)addr_type_complete[idx].name;
 }
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user command names.
-uchar_kt *get_user_commands(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_commands(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx < curbuf->b_ucmds.ga_len)
     {
@@ -7562,7 +7563,7 @@ uchar_kt *get_user_commands(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
 /// Function given to ExpandGeneric() to obtain the list
 /// of user command attributes.
-uchar_kt *get_user_cmd_flags(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_flags(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     static char *user_cmd_flags[] = {
         "addr",   "bang",     "bar",
@@ -7579,7 +7580,7 @@ uchar_kt *get_user_cmd_flags(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of values for -nargs.
-uchar_kt *get_user_cmd_nargs(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_nargs(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     static char *user_cmd_nargs[] = { "0", "1", "*", "?", "+"};
 
@@ -7592,7 +7593,7 @@ uchar_kt *get_user_cmd_nargs(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of values for -complete.
-uchar_kt *get_user_cmd_complete(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_user_cmd_complete(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     return (uchar_kt *)command_complete[idx].name;
 }
@@ -7853,7 +7854,7 @@ static void ex_quit(exargs_st *eap)
 }
 
 /// ":cquit".
-static void ex_cquit(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_cquit(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     exit_nvim_properly(kNEStatusFailure);
 }
@@ -8537,7 +8538,7 @@ void alist_slash_adjust(void)
 #endif
 
 /// ":preserve".
-static void ex_preserve(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_preserve(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     curbuf->b_flags |= kWBF_Preserve;
     ml_preserve(curbuf, TRUE);
@@ -8750,7 +8751,7 @@ static void ex_tabmove(exargs_st *eap)
 }
 
 /// :tabs command: List tabs and their contents.
-static void ex_tabs(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_tabs(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     int tabcount = 1;
     msg_start();
@@ -9059,7 +9060,7 @@ void do_exedit(exargs_st *eap, win_st *old_curwin)
     ex_no_reprint = TRUE;
 }
 
-static void ex_swapname(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_swapname(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     if(curbuf->b_ml.ml_mfp == NULL || curbuf->b_ml.ml_mfp->mf_fname == NULL)
     {
@@ -9073,7 +9074,7 @@ static void ex_swapname(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
 
 /// ":syncbind" forces all 'scrollbind' windows to have the same relative offset.
 /// (1998-11-02 16:21:01  R. Edward Ralston <eralston@computer.org>)
-static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_syncbind(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     long y;
     long topline;
@@ -9407,7 +9408,7 @@ void ex_cd(exargs_st *eap)
 }
 
 /// ":pwd".
-static void ex_pwd(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_pwd(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     if(os_dirname(NameBuff, MAXPATHL) == OK)
     {
@@ -9796,7 +9797,7 @@ static void ex_rundo(exargs_st *eap)
 }
 
 /// ":redo".
-static void ex_redo(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_redo(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     u_redo(1);
 }
@@ -10560,7 +10561,7 @@ static void ex_startinsert(exargs_st *eap)
 }
 
 /// ":stopinsert"
-static void ex_stopinsert(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_stopinsert(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     restart_edit = 0;
     stop_insert_mode = true;
@@ -12405,7 +12406,7 @@ static void ex_behave(exargs_st *eap)
 
 /// Function given to ExpandGeneric() to obtain the possible
 /// arguments of the ":behave {mswin,xterm}" command.
-uchar_kt *get_behave_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_behave_arg(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx == 0)
     {
@@ -12578,7 +12579,7 @@ static void ex_set(exargs_st *eap)
 }
 
 /// @b :nohlsearch
-static void ex_nohlsearch(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static void ex_nohlsearch(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     SET_NO_HLSEARCH(TRUE);
     redraw_all_later(SOME_VALID);

@@ -464,8 +464,8 @@ void set_option_to(void *to,
 
 static inline void typval_encode_list_start(encode_data_st *const edata,
                                             const size_t len)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     kv_push(edata->stack, ARRAY_OBJ(((Array) {
         .capacity = len,
@@ -480,7 +480,8 @@ FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_CONV_REAL_LIST_AFTER_START(tv, mpsv)
 
 static inline void typval_encode_between_list_items(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     Object item = kv_pop(edata->stack);
     Object *const list = &kv_last(edata->stack);
@@ -495,8 +496,8 @@ FUNC_ATTR_ALWAYS_INLINE FUNC_ATTR_NONNULL_ALL
     typval_encode_between_list_items(edata)
 
 static inline void typval_encode_list_end(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     typval_encode_between_list_items(edata);
 
@@ -510,8 +511,8 @@ FUNC_ATTR_NONNULL_ALL
 
 static inline void typval_encode_dict_start(encode_data_st *const edata,
                                             const size_t len)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     kv_push(edata->stack, DICTIONARY_OBJ(((Dictionary) {
         .capacity = len,
@@ -528,8 +529,8 @@ FUNC_ATTR_NONNULL_ALL
 #define TYPVAL_ENCODE_SPECIAL_DICT_KEY_CHECK(label, kv_pair)
 
 static inline void typval_encode_after_key(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     Object key = kv_pop(edata->stack);
     Object *const dict = &kv_last(edata->stack);
@@ -554,8 +555,8 @@ FUNC_ATTR_NONNULL_ALL
     typval_encode_after_key(edata)
 
 static inline void typval_encode_between_dict_items(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     Object val = kv_pop(edata->stack);
     Object *const dict = &kv_last(edata->stack);
@@ -568,8 +569,8 @@ FUNC_ATTR_NONNULL_ALL
     typval_encode_between_dict_items(edata)
 
 static inline void typval_encode_dict_end(encode_data_st *const edata)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     typval_encode_between_dict_items(edata);
 

@@ -9,7 +9,9 @@
     #include "event/signal.c.generated.h"
 #endif
 
-void signal_watcher_init(main_loop_st *loop, signal_watcher_st *watcher, void *data)
+void signal_watcher_init(main_loop_st *loop,
+                         signal_watcher_st *watcher,
+                         void *data)
 FUNC_ATTR_NONNULL_ARG(1)
 FUNC_ATTR_NONNULL_ARG(2)
 {
@@ -47,7 +49,7 @@ static void signal_event(void **argv)
 }
 
 static void signal_watcher_cb(uv_signal_t *handle,
-                              int FUNC_ARGS_UNUSED_REALY(signum))
+                              int FUNC_ARGS_UNUSED_MATCH(signum))
 {
     signal_watcher_st *watcher = handle->data;
     CREATE_EVENT(watcher->events, signal_event, 1, watcher);

@@ -227,7 +227,7 @@ uchar_kt *get_search_pat(void)
 /// @todo
 /// move reverse_text() to strings.c
 uchar_kt *reverse_text(uchar_kt *s)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     // Reverse the pattern.
     size_t len = ustrlen(s);

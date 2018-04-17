@@ -997,7 +997,7 @@ void ex_delmarks(exargs_st *eap)
 }
 
 /// print the jumplist
-void ex_jumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_jumps(exargs_st *FUNC_ARGS_UNUSED_MATCH(exarg_ptr))
 {
     int i;
     uchar_kt *name;
@@ -1057,7 +1057,7 @@ void ex_jumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
     }
 }
 
-void ex_clearjumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_clearjumps(exargs_st *FUNC_ARGS_UNUSED_MATCH(exarg_ptr))
 {
     free_jumplist(curwin);
     curwin->w_jumplistlen = 0;
@@ -1065,7 +1065,7 @@ void ex_clearjumps(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
 }
 
 /// print the changelist
-void ex_changes(exargs_st *FUNC_ARGS_UNUSED_REALY(exarg_ptr))
+void ex_changes(exargs_st *FUNC_ARGS_UNUSED_MATCH(exarg_ptr))
 {
     int i;
     uchar_kt *name;
@@ -1728,8 +1728,8 @@ const void *mark_buffer_iter(const void *const iter,
                              const filebuf_st *const buf,
                              char *const name,
                              mark_st *const fm)
-FUNC_ATTR_NONNULL_ARG(2, 3, 4)
 FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 3, 4)
 {
     *name = NUL;
 

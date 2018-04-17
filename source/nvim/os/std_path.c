@@ -28,9 +28,9 @@
 char *stdpath_user_auto_subpath(const char *sub_path,
                                 const bool trail_pathsep,
                                 const bool escape_commas)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     assert(NULL != sub_path);
     assert(NULL != gkide_usr_home);

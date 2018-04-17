@@ -925,7 +925,7 @@ void ex_breakdel(exargs_st *eap)
 }
 
 /// ":breaklist".
-void ex_breaklist(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_breaklist(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     debuggy_st *bp;
 
@@ -1184,7 +1184,7 @@ static char *pexpand_cmds[] =
 
 /// Function given to ExpandGeneric() to obtain the profile command
 /// specific expansion.
-uchar_kt *get_profile_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_profile_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     switch(pexpand_what)
     {
@@ -2969,7 +2969,7 @@ void ex_runtime(exargs_st *eap)
 
 
 static void source_callback(uchar_kt *fname,
-                            void *FUNC_ARGS_UNUSED_REALY(cookie))
+                            void *FUNC_ARGS_UNUSED_MATCH(cookie))
 {
     (void)do_source(fname, false, kLoadSftAuto);
 }
@@ -3399,7 +3399,7 @@ void ex_packadd(exargs_st *eap)
 }
 
 /// ":options"
-void ex_options(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_options(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     cmd_source((uchar_kt *)SYS_OPTWIN_FILE, NULL);
 }
@@ -3835,7 +3835,7 @@ theend:
 
 
 /// ":scriptnames"
-void ex_scriptnames(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_scriptnames(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     for(int i = 1; i <= script_items.ga_len && !got_int; i++)
     {
@@ -3908,9 +3908,9 @@ void free_scriptnames(void)
 /// @return
 /// pointer to the line in allocated memory, or
 /// NULL for end-of-file or some error.
-uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_REALY(c),
+uchar_kt *getsourceline(int FUNC_ARGS_UNUSED_MATCH(c),
                       void *cookie,
-                      int FUNC_ARGS_UNUSED_REALY(indent))
+                      int FUNC_ARGS_UNUSED_MATCH(indent))
 {
     uchar_kt *line;
     uchar_kt *p;
@@ -4676,7 +4676,7 @@ void free_locales(void)
 
 /// Function given to ExpandGeneric() to obtain the possible
 /// arguments of the ":language" command.
-uchar_kt *get_lang_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_lang_arg(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx == 0)
     {
@@ -4704,7 +4704,7 @@ uchar_kt *get_lang_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 }
 
 /// Function given to ExpandGeneric() to obtain the available locales.
-uchar_kt *get_locales(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_locales(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     init_locales();
 

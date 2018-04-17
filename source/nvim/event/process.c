@@ -514,7 +514,7 @@ static void on_process_exit(process_st *proc)
     CREATE_EVENT(queue, process_close_handles, 1, proc);
 }
 
-static void on_process_stream_close(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void on_process_stream_close(stream_st *FUNC_ARGS_UNUSED_MATCH(stream_ptr),
                                     void *data)
 {
     process_st *proc = data;

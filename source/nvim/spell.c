@@ -3865,7 +3865,7 @@ static bool check_need_cap(linenum_kt lnum, columnum_kt col)
 
 
 /// ":spellrepall"
-void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_spellrepall(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     apos_st pos = curwin->w_cursor;
     uchar_kt *frompat;
@@ -7449,9 +7449,9 @@ static int cleanup_suggestions(garray_st *gap, int maxscore, int keep)
 /// May return copy of the input string if soundfolding is not
 /// supported by any of the languages in &spellang.
 char *eval_soundfold(const char *const word)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(curwin->w_o_curbuf.wo_spell && *curwin->w_s->b_p_spl != NUL)
     {
@@ -8647,7 +8647,7 @@ pop:
 }
 
 /// ":spellinfo"
-void ex_spellinfo(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_spellinfo(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     if(no_spell_checking(curwin))
     {
@@ -9285,7 +9285,7 @@ void spell_expand_check_cap(columnum_kt col)
 /// Used for Insert mode completion CTRL-X ?.
 /// Returns the number of matches.
 /// The matches are in "matchp[]", array of allocated strings.
-int expand_spelling(linenum_kt FUNC_ARGS_UNUSED_REALY(lnum),
+int expand_spelling(linenum_kt FUNC_ARGS_UNUSED_MATCH(lnum),
                     uchar_kt *pat,
                     uchar_kt ***matchp)
 {

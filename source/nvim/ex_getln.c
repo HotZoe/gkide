@@ -371,10 +371,8 @@ static uint8_t *cmdline_enter(int firstc, long count, int indent)
     }
 }
 
-static int cmdline_check(nvim_state_st *state)
+static int cmdline_check(nvim_state_st *FUNC_ARGS_UNUSED_MATCH(state))
 {
-    FUNC_ARGS_UNUSED_MUST(state);
-
     // Don't redirect the typed command.
     // Repeated, because a ":redir" inside
     // completion may switch it on.
@@ -2224,7 +2222,7 @@ static void correct_cmdspos(int idx, int cells)
 /// @param indent        indent for inside conditionals
 ///
 uchar_kt *getexline(int c,
-                  void *FUNC_ARGS_UNUSED_REALY(cookie),
+                  void *FUNC_ARGS_UNUSED_MATCH(cookie),
                   int indent)
 {
     // When executing a register,
@@ -2247,7 +2245,7 @@ uchar_kt *getexline(int c,
 ///
 /// @return Returns a string in allocated memory or NULL.
 uchar_kt *getexmodeline(int promptc,
-                      void *FUNC_ARGS_UNUSED_REALY(cookie),
+                      void *FUNC_ARGS_UNUSED_MATCH(cookie),
                       int indent)
 {
     garray_st line_ga;
@@ -3930,10 +3928,10 @@ void ExpandEscape(expand_st *xp,
 ///
 /// @return [allocated] escaped file name.
 char *vim_strsave_fnameescape(const char *const fname,
-                                       const bool FUNC_ARGS_UNUSED_MAYBE(shell))
-FUNC_ATTR_NONNULL_RET
+                              const bool FUNC_ARGS_UNUSED_MAYBE(shell))
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
 #ifdef BACKSLASH_IN_FILENAME
     #define PATH_ESC_CHARS " \t\n*?[{`%#'\"|!<"
@@ -4305,7 +4303,7 @@ static int expand_showtail(expand_st *xp)
 /// @param len
 /// @param context  EXPAND_FILES etc.
 uchar_kt *addstar(uchar_kt *fname, int len, int context)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *retval;
     int i, j;
@@ -5687,7 +5685,7 @@ static char *(history_names[]) =
 
 /// Function given to ExpandGeneric() to obtain the possible first
 /// arguments of the ":history command.
-static uchar_kt *get_history_arg(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+static uchar_kt *get_history_arg(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     static uchar_kt compl[2] = { NUL, NUL };
     char *short_names = ":=@>?/";
@@ -6488,7 +6486,8 @@ void ex_history(exargs_st *eap)
 }
 
 /// Translate a history type number to the associated character
-int hist_type2char(int type) FUNC_ATTR_CONST
+int hist_type2char(int type)
+FUNC_ATTR_CONST
 {
     switch(type)
     {
@@ -6836,9 +6835,9 @@ static int ex_window(void)
 /// NULL or script. Does not show any error messages.
 /// NULL is returned when skipping and on error.
 char *script_get(exargs_st *const eap, size_t *const lenp)
+FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_MALLOC
 {
     const char *const cmd = (const char *)eap->arg;
 
@@ -6921,8 +6920,8 @@ const void *hist_iter(const void *const iter,
                       const uint8_t history_type,
                       const bool zero,
                       history_st *const hist)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(4)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     *hist = (history_st) { .hisstr = NULL };
 
@@ -6999,8 +6998,8 @@ FUNC_ATTR_NONNULL_ARG(4)
 history_st *hist_get_array(const uint8_t history_type,
                             int **const new_hisidx,
                             int **const new_hisnum)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     init_history();
     *new_hisidx = &(hisidx[history_type]);

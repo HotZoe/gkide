@@ -12,7 +12,7 @@
     #include "event/loop.c.generated.h"
 #endif
 
-void loop_init(main_loop_st *loop, void *FUNC_ARGS_UNUSED_REALY(data))
+void loop_init(main_loop_st *loop, void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     uv_loop_init(&loop->uv);
 
@@ -73,7 +73,7 @@ void loop_schedule(main_loop_st *loop, event_msg_st event)
     uv_mutex_unlock(&loop->mutex);
 }
 
-void loop_on_put(multiqueue_st *FUNC_ARGS_UNUSED_REALY(queue), void *data)
+void loop_on_put(multiqueue_st *FUNC_ARGS_UNUSED_MATCH(queue), void *data)
 {
     main_loop_st *loop = data;
 
@@ -134,7 +134,7 @@ static void async_cb(uv_async_t *handle)
     uv_mutex_unlock(&l->mutex);
 }
 
-static void timer_cb(uv_timer_t *FUNC_ARGS_UNUSED_REALY(handle))
+static void timer_cb(uv_timer_t *FUNC_ARGS_UNUSED_MATCH(handle))
 {
     // TODO
 }

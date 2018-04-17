@@ -27,9 +27,9 @@ enum LogLevelType
 };
 
 #ifdef SNAIL_LOGGING_DISABLE
-void logging_nothing(QtMsgType FUNC_ATTR_ARGS_UNUSED_REALY(type),
-                     const QMessageLogContext &FUNC_ATTR_ARGS_UNUSED_REALY(ctx),
-                     const QString &FUNC_ATTR_ARGS_UNUSED_REALY(msg))
+void logging_nothing(QtMsgType VATTR_UNUSED_MATCH(type),
+                     const QMessageLogContext &VATTR_UNUSED_MATCH(ctx),
+                     const QString &VATTR_UNUSED_MATCH(msg))
 {
     // ignore all Qt loggings when enable
     // logging and not set environment log file

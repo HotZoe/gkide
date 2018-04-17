@@ -60,7 +60,7 @@ local word = branch(
     concat(branch(lit('ArrayOf('), -- typed container macro
                   lit('DictionaryOf('),
                   lit('FUNC_ARGS_UNUSED_MAYBE('),
-                  lit('FUNC_ARGS_UNUSED_REALY(')
+                  lit('FUNC_ARGS_UNUSED_MATCH(')
            ),
            one_or_more(any_character - lit(')')),
            lit(')')

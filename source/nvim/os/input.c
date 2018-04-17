@@ -80,7 +80,7 @@ void input_stop(void)
     stream_close(&read_stream, NULL, NULL);
 }
 
-static void cursorhold_event(void **FUNC_ARGS_UNUSED_REALY(argv))
+static void cursorhold_event(void **FUNC_ARGS_UNUSED_MATCH(argv))
 {
     auto_event_et event = curmod & kInsertMode
                           ? EVENT_CURSORHOLDI : EVENT_CURSORHOLD;
@@ -457,10 +457,10 @@ static inbufpoll_result_et inbuf_poll(int ms)
     return input_eof ? kInputEof : kInputNone;
 }
 
-static void read_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
+static void read_cb(stream_st *FUNC_ARGS_UNUSED_MATCH(stream),
                     ringbuf_st *buf,
-                    size_t FUNC_ARGS_UNUSED_REALY(c),
-                    void *FUNC_ARGS_UNUSED_REALY(data),
+                    size_t FUNC_ARGS_UNUSED_MATCH(c),
+                    void *FUNC_ARGS_UNUSED_MATCH(data),
                     bool at_eof)
 {
     if(at_eof)

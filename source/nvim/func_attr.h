@@ -89,8 +89,8 @@
     #undef FUNC_ATTR_NONNULL_ARG
 #endif
 
-#ifdef FUNC_ATTR_NONNULL_RET
-    #undef FUNC_ATTR_NONNULL_RET
+#ifdef FUNC_ATTR_NONNULL_RETURN
+    #undef FUNC_ATTR_NONNULL_RETURN
 #endif
 
 #ifdef FUNC_ATTR_NORETURN
@@ -115,7 +115,7 @@
         #define REAL_FATTR_NORETURN              __attribute__((__noreturn__))
 
         #if NVIM_HAS_ATTRIBUTE(returns_nonnull)
-        #define REAL_FATTR_NONNULL_RET           __attribute__((__returns_nonnull__))
+        #define REAL_FATTR_NONNULL_RETURN        __attribute__((__returns_nonnull__))
         #endif
 
         #if NVIM_HAS_ATTRIBUTE(alloc_size)
@@ -142,10 +142,10 @@
         /// ~~~~~~~~~~~~~~~
         ///
         /// so, those type arguments, use `(void)names;` in the function body
-        /// instead the macro is defined following, see FUNC_ARGS_UNUSED_TODO
+        /// instead the macro is defined following, see FUNC_ARGS_UNUSED_MUST
         ///
-        /// refactoring the function and related function pointer
-        #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v  __attribute__((__unused__))
+        /// keep the unused arguments to match the function pointer
+        #define REAL_ARGS_ATTR_UNUSED_MATCH(v)   UNUSED_##v  __attribute__((__unused__))
     #endif
 
     // The following is used to replace the macros in .c files
@@ -194,8 +194,8 @@
         #define REAL_FATTR_NONNULL_ARG(...)
     #endif
 
-    #ifndef REAL_FATTR_NONNULL_RET
-        #define REAL_FATTR_NONNULL_RET
+    #ifndef REAL_FATTR_NONNULL_RETURN
+        #define REAL_FATTR_NONNULL_RETURN
     #endif
 
     #ifndef REAL_FATTR_NORETURN
@@ -206,13 +206,11 @@
         #define REAL_ARGS_ATTR_UNUSED_MAYBE(v)   v
     #endif
 
-    #ifndef REAL_ARGS_ATTR_UNUSED_REALY
-        #define REAL_ARGS_ATTR_UNUSED_REALY(v)   UNUSED_##v
+    #ifndef REAL_ARGS_ATTR_UNUSED_MATCH
+        #define REAL_ARGS_ATTR_UNUSED_MATCH(v)   UNUSED_##v
     #endif
 
-    /// the unused args must keep, such as to fit the function pointer
     #define FUNC_ARGS_UNUSED_MUST(v)     (void)(v)
-    /// refactoring the function or just remove the unused args or todo
     #define FUNC_ARGS_UNUSED_TODO(v)     (void)(v)
 #endif
 
@@ -236,13 +234,11 @@
     #define FUNC_ATTR_UNUSED                REAL_FATTR_UNUSED
     #define FUNC_ATTR_NONNULL_ALL           REAL_FATTR_NONNULL_ALL
     #define FUNC_ATTR_NONNULL_ARG(...)      REAL_FATTR_NONNULL_ARG(__VA_ARGS__)
-    #define FUNC_ATTR_NONNULL_RET           REAL_FATTR_NONNULL_RET
+    #define FUNC_ATTR_NONNULL_RETURN        REAL_FATTR_NONNULL_RETURN
     #define FUNC_ATTR_NORETURN              REAL_FATTR_NORETURN
 
     // used by header files *.h and source files *.c
-    /// @todo refactoring the function or just remove the unused args
-    #define FUNC_ARGS_UNUSED_REALY(v)       REAL_ARGS_ATTR_UNUSED_REALY(v)
-    /// for some reason the function argument maybe not used
+    #define FUNC_ARGS_UNUSED_MATCH(v)       REAL_ARGS_ATTR_UNUSED_MATCH(v)
     #define FUNC_ARGS_UNUSED_MAYBE(v)       REAL_ARGS_ATTR_UNUSED_MAYBE(v)
 #elif !defined(DEFINE_KEEP_ATTRIBUTES)
     // used only by source files *.c
@@ -257,7 +253,7 @@
     #define FUNC_ATTR_UNUSED
     #define FUNC_ATTR_NONNULL_ALL
     #define FUNC_ATTR_NONNULL_ARG(...)
-    #define FUNC_ATTR_NONNULL_RET
+    #define FUNC_ATTR_NONNULL_RETURN
     #define FUNC_ATTR_NORETURN
 #endif
 

@@ -237,7 +237,7 @@ void Shell::init(void)
     m_nvimCon->neovimObject()->nvim_subscribe("Gui");
 }
 
-void Shell::nvimError(NvimConnector::NvimError FUNC_ATTR_ARGS_UNUSED_REALY(err))
+void Shell::nvimError(NvimConnector::NvimError VATTR_UNUSED_MATCH(err))
 {
     setAttached(false);
 }

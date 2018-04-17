@@ -494,7 +494,7 @@ void terminal_enter(void)
     }
 }
 
-static int terminal_check(nvim_state_st *FUNC_ARGS_UNUSED_REALY(state))
+static int terminal_check(nvim_state_st *FUNC_ARGS_UNUSED_MATCH(state))
 FUNC_ATTR_UNUSED
 {
     return kNLSC_Continue;
@@ -738,7 +738,7 @@ static int term_moverect(VTermRect dest, VTermRect src, void *data)
 
 static int term_movecursor(VTermPos new,
                            VTermPos old,
-                           int FUNC_ARGS_UNUSED_REALY(visible),
+                           int FUNC_ARGS_UNUSED_MATCH(visible),
                            void *data)
 {
     terminal_st *term = data;
@@ -798,7 +798,7 @@ static int term_settermprop(VTermProp prop, VTermValue *val, void *data)
     return 1;
 }
 
-static int term_bell(void *FUNC_ARGS_UNUSED_REALY(data))
+static int term_bell(void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     ui_call_bell();
     return 1;
@@ -1291,8 +1291,8 @@ static void refresh_terminal(terminal_st *term)
     adjust_topline(term, buf, ml_added);
 }
 /// Calls refresh_terminal() on all invalidated_terminals.
-static void refresh_timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
-                             void *FUNC_ARGS_UNUSED_REALY(data))
+static void refresh_timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_MATCH(watcher),
+                             void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     // Cannot redraw (requires event loop) during teardown/exit.
     if(exiting)
@@ -1326,7 +1326,7 @@ end:
 }
 
 static void refresh_size(terminal_st *term,
-                         filebuf_st *FUNC_ARGS_UNUSED_REALY(buf))
+                         filebuf_st *FUNC_ARGS_UNUSED_MATCH(buf))
 {
     if(!term->pending_resize || term->closed)
     {
@@ -1343,7 +1343,7 @@ static void refresh_size(terminal_st *term,
 
 /// Adjusts scrollback storage after 'scrollback' option changed.
 static void on_scrollback_option_changed(terminal_st *term,
-                                         filebuf_st *FUNC_ARGS_UNUSED_REALY(buf))
+                                         filebuf_st *FUNC_ARGS_UNUSED_MATCH(buf))
 {
     const size_t scbk = curbuf->b_p_scbk < 0
                         ? SB_MAX

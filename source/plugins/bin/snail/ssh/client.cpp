@@ -70,11 +70,13 @@ SshAuthInfo SshClient::getAuthInfo(void) const
 
 SshRequest *SshClient::remoteExecute(QString cmd, QString args)
 {
+    FUNC_ARGS_UNUSED_TODO(args);
+
     if(cmd.isEmpty())
     {
         return NULL;
     }
-    TODO_FUNC_ARGS_UNUSED(args);
+
     quint64 req_id = newRequestId();
     SshRequest *req = new SshRequest(req_id, m_session, m_channel);
     m_requests.insert(req_id, req);
@@ -84,11 +86,13 @@ SshRequest *SshClient::remoteExecute(QString cmd, QString args)
 
 SshRequest *SshClient::remoteExecute(ssh_channel chl, QString cmd, QString args)
 {
+    FUNC_ARGS_UNUSED_TODO(args);
+
     if(NULL == chl || cmd.isEmpty())
     {
         return NULL;
     }
-    TODO_FUNC_ARGS_UNUSED(args);
+
     return NULL;
 }
 

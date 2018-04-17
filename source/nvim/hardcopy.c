@@ -2597,7 +2597,7 @@ static int prt_match_charset(char *p_charset,
 
 int mch_print_init(prt_geninfo_st *psettings,
                    uchar_kt *jobname,
-                   int FUNC_ARGS_UNUSED_REALY(forceit))
+                   int FUNC_ARGS_UNUSED_MATCH(forceit))
 {
     int i;
     char *paper_name;
@@ -3572,7 +3572,7 @@ int mch_print_end_page(void)
     return !prt_file_error;
 }
 
-int mch_print_begin_page(uchar_kt *FUNC_ARGS_UNUSED_REALY(str))
+int mch_print_begin_page(uchar_kt *FUNC_ARGS_UNUSED_MATCH(str))
 {
     int page_num[2];
     prt_page_num++;

@@ -707,8 +707,8 @@ const void *vim_env_iter(const char delim,
                          const void *const iter,
                          const char **const dir,
                          size_t *const len)
-FUNC_ATTR_NONNULL_ARG(2, 4, 5)
 FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 4, 5)
 {
     const char *varval = (const char *) iter;
 
@@ -750,7 +750,8 @@ const void *vim_env_iter_rev(const char delim,
                              const void *const iter,
                              const char **const dir,
                              size_t *const len)
-FUNC_ATTR_NONNULL_ARG(2, 4, 5) FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ARG(2, 4, 5)
 {
     const char *varend = (const char *) iter;
 
@@ -875,7 +876,7 @@ void usr_home_replace(const filebuf_st *const buf,
 ///
 /// @return allocated c-string, which has the user home replaced
 uchar_kt *usr_home_replace_malloc(filebuf_st *buf, uchar_kt *src)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     if(NULL == src)
     {
@@ -905,7 +906,7 @@ void vim_setenv(const char *name, const char *val)
 }
 
 /// Function given to ExpandGeneric() to obtain an environment variable name.
-uchar_kt *get_env_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_env_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
 #define ENVNAMELEN  100
     // this static buffer is needed to avoid a memory leak in ExpandGeneric
@@ -1014,7 +1015,8 @@ bool os_term_is_nice(void)
 }
 
 /// Returns true if `sh` looks like it resolves to "cmd.exe".
-bool os_shell_is_cmdexe(const char *sh) FUNC_ATTR_NONNULL_ALL
+bool os_shell_is_cmdexe(const char *sh)
+FUNC_ATTR_NONNULL_ALL
 {
     if(*sh == NUL)
     {

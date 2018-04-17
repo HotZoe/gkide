@@ -20,9 +20,9 @@ NvimConnectorHelper::NvimConnectorHelper(NvimConnector *c)
 
 /// Handle Msgpack-rpc errors when fetching the API metadata
 void NvimConnectorHelper::handleMetadataError(
-        quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-        NvimApiFuncID FUNC_ATTR_ARGS_UNUSED_REALY(afid),
-        const QVariant &FUNC_ATTR_ARGS_UNUSED_REALY(errobj))
+        quint32 VATTR_UNUSED_MATCH(msgid),
+        NvimApiFuncID VATTR_UNUSED_MATCH(afid),
+        const QVariant &VATTR_UNUSED_MATCH(errobj))
 {
     m_c->setError(NvimConnector::NoMetadata,
                   tr("Unable to get Nvim api information"));
@@ -34,8 +34,8 @@ void NvimConnectorHelper::handleMetadataError(
 /// - Set channel_id
 /// - Check if all functions we need are available
 void NvimConnectorHelper::handleMetadata(
-        quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
-        NvimApiFuncID FUNC_ATTR_ARGS_UNUSED_REALY(afid),
+        quint32 VATTR_UNUSED_MATCH(msgid),
+        NvimApiFuncID VATTR_UNUSED_MATCH(afid),
         const QVariant &result)
 {
     const QVariantList asList = result.toList();

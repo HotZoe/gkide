@@ -3737,7 +3737,8 @@ void map_clear_int(filebuf_st *buf, int mode, int local, int abbr)
 ///
 /// @return [allocated] NUL-terminated string with characters.
 char *map_mode_to_chars(int mode)
-FUNC_ATTR_MALLOC FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RETURN
 {
     garray_st mapmode;
 
@@ -3900,9 +3901,9 @@ static void showmap(map_abbr_st *mp, int local)
 bool map_to_exists(const char *const str,
                    const char *const modechars,
                    const bool abbr)
+FUNC_ATTR_PURE
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_PURE
 {
     int mode = 0;
     int retval;
@@ -5252,7 +5253,8 @@ static bool typebuf_match_len(const uint8_t *str, int *mlen)
 ///
 /// @param  index  The index in the maphash[]
 /// @param  buf  The buffer to get the maphash from. NULL for global
-map_abbr_st *get_maphash(int index, filebuf_st *buf) FUNC_ATTR_PURE
+map_abbr_st *get_maphash(int index, filebuf_st *buf)
+FUNC_ATTR_PURE
 {
     if(index > MAX_MAPHASH)
     {

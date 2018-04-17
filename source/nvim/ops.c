@@ -965,7 +965,7 @@ static bool is_append_register(int regname)
 /// Returns a copy of contents in register @b name
 /// for use in do_put. Should be freed by caller.
 yankreg_st *copy_register(int name)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     yankreg_st *reg = get_yank_register(name, YREG_PASTE);
 

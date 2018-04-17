@@ -157,9 +157,9 @@ static void deadly_signal(int signum)
     preserve_exit(kNEStatusFailure);
 }
 
-static void on_signal(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(handle),
+static void on_signal(signal_watcher_st *FUNC_ARGS_UNUSED_MATCH(handle),
                       int signum,
-                      void *FUNC_ARGS_UNUSED_REALY(data))
+                      void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     assert(signum >= 0);
 

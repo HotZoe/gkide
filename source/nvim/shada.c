@@ -897,8 +897,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// kSDReadStatusSuccess.
 static psdr_result_et sd_reader_skip(sd_read_st *const sd_reader,
                                      const size_t offset)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(sd_reader->skip(sd_reader, offset) != OK)
     {
@@ -935,8 +935,8 @@ FUNC_ATTR_NONNULL_ALL
 /// libuv error in case of error, 0 otherwise.
 static int open_shada_file_for_reading(const char *const fname,
                                        sd_read_st *sd_reader)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int error;
 
@@ -1333,8 +1333,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return Pointer to the buffer or NULL.
 static filebuf_st *find_buffer(khash_t(fnamebufs) *const fname_bufs,
                                const char *const fname)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int kh_ret;
     khint_t k = kh_put(fnamebufs, fname_bufs, fname, &kh_ret);
@@ -1976,7 +1976,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return An allocated string containing shada file name.
 static char *shada_filename(const char *file)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(file == NULL || *file == NUL)
@@ -2519,8 +2519,8 @@ FUNC_ATTR_ALWAYS_INLINE
 /// structure with greatest greatest_timestamp comes first.
 /// Function signature is compatible with qsort.
 static int compare_file_marks(const void *a, const void *b)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const filemark_st *const *const a_fms = a;
     const filemark_st *const *const b_fms = b;
@@ -2554,8 +2554,8 @@ static inline psdr_result_et shada_parse_msgpack(sd_read_st *const sd_reader,
                                                   const size_t length,
                                                   msgpack_unpacked *ret_unpacked,
                                                   char **const ret_buf)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const uintmax_t initial_fpos = sd_reader->fpos;
     char *const buf = xmalloc(length);
@@ -2974,8 +2974,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// shada_entry_st  List of buffers to save, kSDItemBufferList entry.
 static inline shada_entry_st shada_get_buflist(khash_t(bufset) *const removable_bufs)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int max_bufs = get_shada_parameter('%');
     size_t buf_count = 0;

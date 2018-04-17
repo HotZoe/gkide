@@ -122,7 +122,7 @@ static inline void *_memcpy_free(void *const restrict dest,
                                  void *const restrict src,
                                  const size_t size)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_ALWAYS_INLINE
 {
     memcpy(dest, src, size);

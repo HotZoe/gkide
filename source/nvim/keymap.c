@@ -643,8 +643,8 @@ int find_special_key(const uchar_kt **srcp,
                      const bool keycode,
                      const bool keep_x_key,
                      const bool in_string)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const uchar_kt *last_dash;
     const uchar_kt *end_of_name;

@@ -56,7 +56,7 @@ typedef struct dynamic_buf_s
 ///
 /// @return Newly allocated argument vector. Must be freed with shell_free_argv.
 char **shell_build_argv(const char *cmd, const char *extra_args)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     size_t argc = tokenize(p_sh, NULL) + (cmd ? tokenize(p_shcf, NULL) : 0);
     char **rv = xmalloc((argc + 4) * sizeof(*rv));
@@ -371,11 +371,11 @@ static void dynamic_buffer_ensure(dynamic_buf_st *buf, size_t desired)
     buf->data = xrealloc(buf->data, buf->cap);
 }
 
-static void system_data_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void system_data_cb(stream_st *FUNC_ARGS_UNUSED_MATCH(stream_ptr),
                            ringbuf_st *buf,
-                           size_t FUNC_ARGS_UNUSED_REALY(count),
+                           size_t FUNC_ARGS_UNUSED_MATCH(count),
                            void *data,
-                           bool FUNC_ARGS_UNUSED_REALY(eof))
+                           bool FUNC_ARGS_UNUSED_MATCH(eof))
 {
     dynamic_buf_st *dbuf = data;
     size_t nread = buf->size;
@@ -598,10 +598,10 @@ static void out_data_append_to_screen(char *output,
     ui_flush();
 }
 
-static void out_data_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void out_data_cb(stream_st *FUNC_ARGS_UNUSED_MATCH(stream_ptr),
                         ringbuf_st *buf,
-                        size_t FUNC_ARGS_UNUSED_REALY(count),
-                        void *FUNC_ARGS_UNUSED_REALY(data),
+                        size_t FUNC_ARGS_UNUSED_MATCH(count),
+                        void *FUNC_ARGS_UNUSED_MATCH(data),
                         bool eof)
 {
     // We always output the whole buffer,
@@ -839,7 +839,7 @@ static size_t write_output(char *output,
 }
 
 static void shell_write_cb(stream_st *stream,
-                           void *FUNC_ARGS_UNUSED_REALY(data),
+                           void *FUNC_ARGS_UNUSED_MATCH(data),
                            int status)
 {
     if(status)
@@ -867,8 +867,8 @@ static void shell_write_cb(stream_st *stream,
 ///
 /// @return    Escaped/quoted command string (allocated).
 static char *shell_xescape_xquote(const char *cmd)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(*p_sxq == NUL)

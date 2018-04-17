@@ -434,8 +434,8 @@ static inline int parse_json_string(const char *const buf,
                                     bool *const didcomma,
                                     bool *const didcolon)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *const e = buf + buf_len;
     const char *p = *pp;
@@ -752,8 +752,8 @@ static inline int parse_json_number(const char *const buf,
                                     bool *const didcomma,
                                     bool *const didcolon)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int ret = OK;
     const char *const e = buf + buf_len;
@@ -1370,7 +1370,8 @@ json_decode_string_ret:
 
 /// Convert msgpack object to a VimL one
 int msgpack_to_vim(const msgpack_object mobj, typval_st *const rettv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(mobj.type)
     {

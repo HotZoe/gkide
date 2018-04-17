@@ -631,7 +631,7 @@ static bool normal_need_redraw_mode_message(normal_state_st *s)
             && s->oa.op_type == OP_NOP);
 }
 
-static void normal_redraw_mode_message(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_redraw_mode_message(normal_state_st *FUNC_ARGS_UNUSED_MATCH(s))
 {
     int save_State = curmod;
 
@@ -1338,7 +1338,7 @@ finish:
     return kNLSC_Continue;
 }
 
-static void normal_check_stuff_buffer(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_stuff_buffer(normal_state_st *FUNC_ARGS_UNUSED_MATCH(s))
 {
     if(stuff_empty())
     {
@@ -1424,7 +1424,7 @@ static void normal_check_cursor_moved(normal_state_st *s)
     }
 }
 
-static void normal_check_text_changed(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_text_changed(normal_state_st *FUNC_ARGS_UNUSED_MATCH(s))
 {
     // Trigger TextChanged if b_changedtick differs.
     if(!finish_op
@@ -1441,7 +1441,7 @@ static void normal_check_text_changed(normal_state_st *FUNC_ARGS_UNUSED_REALY(s)
     }
 }
 
-static void normal_check_folds(normal_state_st *FUNC_ARGS_UNUSED_REALY(s))
+static void normal_check_folds(normal_state_st *FUNC_ARGS_UNUSED_MATCH(s))
 {
     // Include a closed fold completely in the Visual area.
     foldAdjustVisual();
@@ -4371,7 +4371,7 @@ static void nv_ignore(cmdarg_st *cap)
 /// but unlike nv_ignore() does start edit().
 ///
 /// Used for "startinsert" executed while starting up.
-static void nv_nop(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_nop(cmdarg_st *FUNC_ARGS_UNUSED_MATCH(cap))
 {
 }
 
@@ -9933,13 +9933,13 @@ static void nv_event(cmdarg_st *cap)
 }
 
 /// Trigger FocusGained event.
-static void nv_focusgained(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_focusgained(cmdarg_st *FUNC_ARGS_UNUSED_MATCH(cap))
 {
     apply_autocmds(EVENT_FOCUSGAINED, NULL, NULL, false, curbuf);
 }
 
 /// Trigger FocusLost event.
-static void nv_focuslost(cmdarg_st *FUNC_ARGS_UNUSED_REALY(cap))
+static void nv_focuslost(cmdarg_st *FUNC_ARGS_UNUSED_MATCH(cap))
 {
     apply_autocmds(EVENT_FOCUSLOST, NULL, NULL, false, curbuf);
 }

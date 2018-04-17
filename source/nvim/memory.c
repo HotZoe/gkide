@@ -124,7 +124,7 @@ FUNC_ATTR_ALLOC_SIZE(1)
 void *xmalloc(size_t size)
 FUNC_ATTR_MALLOC
 FUNC_ATTR_ALLOC_SIZE(1)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     void *ret = try_malloc(size);
 
@@ -154,8 +154,8 @@ void xfree(void *ptr)
 /// @see xmalloc()
 void *xcalloc(size_t count, size_t size)
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_ALLOC_SIZE_PROD(1, 2)
-FUNC_ATTR_NONNULL_RET
 {
     size_t allocated_count = count && size ? count : 1;
     size_t allocated_size = count && size ? size : 1;
@@ -185,9 +185,9 @@ FUNC_ATTR_NONNULL_RET
 ///
 /// @see xmalloc()
 void *xrealloc(void *ptr, size_t size)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALLOC_SIZE(2)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t allocated_size = size ? size : 1;
     void *ret = realloc(ptr, allocated_size);
@@ -218,7 +218,7 @@ FUNC_ATTR_NONNULL_RET
 /// @see xmalloc()
 void *xmallocz(size_t size)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t total_size = size + 1;
@@ -246,9 +246,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// @see xmalloc()
 void *xmemdupz(const void *data, size_t len)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return memcpy(xmallocz(len), data, len);
 }
@@ -264,9 +264,9 @@ FUNC_ATTR_NONNULL_ALL
 /// a pointer to the first instance of @b c,
 /// or one past the end if not found.
 void *xmemscan(const void *addr, char c, size_t size)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     char *p = memchr(addr, c, size);
 
@@ -298,8 +298,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @returns the number of occurrences of @b c in @b data[len].
 size_t xmemcnt(const void *data, char c, size_t len)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     size_t cnt = 0;
     const char *ptr = data;
@@ -324,8 +324,8 @@ FUNC_ATTR_PURE
 ///
 /// @returns a pointer to the found byte in src[len], or NULL.
 void *xmemrchr(const void *src, uint8_t c, size_t len)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     while(len--)
     {
@@ -348,10 +348,10 @@ FUNC_ATTR_PURE
 /// @see xmalloc()
 void *xmemdup(const void *data, size_t len)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_ALLOC_SIZE(2)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALLOC_SIZE(2)
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return memcpy(xmalloc(len), data, len);
 }

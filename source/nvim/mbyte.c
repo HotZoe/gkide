@@ -1591,7 +1591,8 @@ FUNC_ATTR_NONNULL_ALL
 }
 
 /// Reassigns @b str to a new, allocated pointer to a UTF8 string.
-int utf16_to_utf8(const WCHAR *strw, char **str) FUNC_ATTR_NONNULL_ALL
+int utf16_to_utf8(const WCHAR *strw, char **str)
+FUNC_ATTR_NONNULL_ALL
 {
     // Compute the space required to store the string as UTF-8.
     DWORD utf8_len = WideCharToMultiByte(CP_UTF8,
@@ -2169,7 +2170,7 @@ uchar_kt *enc_skip(uchar_kt *p)
 /// case characters and '_' replaced with '-'.
 /// Returns an allocated string.
 uchar_kt *enc_canonize(uchar_kt *enc)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     int i;
     uchar_kt *p;

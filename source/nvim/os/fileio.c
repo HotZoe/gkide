@@ -45,7 +45,8 @@ int file_open(filedesc_st *const ret_fp,
               const char *const fname,
               const int flags,
               const int mode)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
 #define FLAG(flags, flag, fcntl_flags, wrval, cond) \
     do                                              \
@@ -402,8 +403,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ptrdiff_t file_write(filedesc_st *const fp,
                      const char *const buf,
                      const size_t size)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     assert(fp->wr);
     const size_t written = rbuffer_write(fp->rv, buf, size);

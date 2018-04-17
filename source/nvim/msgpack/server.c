@@ -747,7 +747,7 @@ FUNC_ATTR_NONNULL_ALL
 
 static void connection_cb(socket_watcher_st *watcher,
                           int result,
-                          void *FUNC_ARGS_UNUSED_REALY(data))
+                          void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     if(result)
     {
@@ -759,7 +759,7 @@ static void connection_cb(socket_watcher_st *watcher,
 }
 
 static void free_server(socket_watcher_st *watcher,
-                        void *FUNC_ARGS_UNUSED_REALY(data))
+                        void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     xfree(watcher);
 }

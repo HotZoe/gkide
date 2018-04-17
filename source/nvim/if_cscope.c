@@ -118,7 +118,7 @@ static enum
 
 /// Function given to ExpandGeneric() to obtain
 /// the cscope command expansion.
-uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_cscope_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     int current_idx;
 
@@ -504,7 +504,7 @@ int cs_connection(int num, uchar_kt *dbpath, uchar_kt *ppath)
 /// (to look for cscope.out) to the cscope connection list
 ///
 /// MAXPATHL 256
-static int cs_add(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_add(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     char *fname, *ppath, *flags = NULL;
 
@@ -1393,7 +1393,7 @@ static int cs_find_common(char *opt,
 }
 
 /// print help
-static int cs_help(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_help(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     cscmd_st *cmdp = cs_cmds;
     (void)MSG_PUTS(_("cscope commands:\n"));
@@ -1567,7 +1567,7 @@ static cscmd_st *cs_lookup_cmd(exargs_st *eap)
 }
 
 /// nuke em
-static int cs_kill(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_kill(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     char *stok;
     int num;
@@ -2267,7 +2267,7 @@ static int cs_read_prompt(size_t i)
 
 #if defined(UNIX) && defined(SIGALRM)
 //// Used to catch and ignore SIGALRM below.
-static void sig_handler(int FUNC_ARGS_UNUSED_REALY(sig))
+static void sig_handler(int FUNC_ARGS_UNUSED_MATCH(sig))
 {
     // do nothing
     return;
@@ -2409,7 +2409,7 @@ static void cs_release_csp(size_t i, int freefnpp)
 }
 
 /// calls cs_kill on all cscope connections then reinits
-static int cs_reset(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_reset(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     char **dblist = NULL, **pplist = NULL, **fllist = NULL;
     char buf[25]; // for snprintf " (#%zu)"
@@ -2530,7 +2530,7 @@ static char *cs_resolve_file(size_t i, char *name)
 }
 
 /// show all cscope connections
-static int cs_show(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+static int cs_show(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     if(cs_cnt_connections() == 0)
     {

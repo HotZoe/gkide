@@ -306,7 +306,7 @@ error:
 }
 
 static void chld_handler(uv_signal_t *handle,
-                         int FUNC_ARGS_UNUSED_REALY(signum))
+                         int FUNC_ARGS_UNUSED_MATCH(signum))
 {
     int stat = 0;
     int pid;

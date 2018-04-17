@@ -459,7 +459,7 @@ static inline bool tv_get_float_chk(const typval_st *const tv,
 
 static inline dict_watcher_st *tv_dict_watcher_node_data(queue_st *q)
 REAL_FATTR_NONNULL_ALL
-REAL_FATTR_NONNULL_RET
+REAL_FATTR_NONNULL_RETURN
 REAL_FATTR_PURE
 REAL_FATTR_WARN_UNUSED_RESULT
 REAL_FATTR_ALWAYS_INLINE;
@@ -474,9 +474,9 @@ static inline dict_watcher_st *tv_dict_watcher_node_data(queue_st *q)
 }
 
 static inline bool tv_is_func(const typval_st tv)
-FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_CONST
 FUNC_ATTR_ALWAYS_INLINE
-FUNC_ATTR_CONST;
+FUNC_ATTR_WARN_UNUSED_RESULT;
 
 /// Check whether given typval_st contains a function
 ///

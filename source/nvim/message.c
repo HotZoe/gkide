@@ -3196,12 +3196,12 @@ void msg_advance(int col)
 /// @param ex_cmd
 /// when TRUE pressing : accepts default and starts Ex command
 ///
-int do_dialog(int FUNC_ARGS_UNUSED_REALY(type),
-              uchar_kt *FUNC_ARGS_UNUSED_REALY(title),
+int do_dialog(int FUNC_ARGS_UNUSED_MATCH(type),
+              uchar_kt *FUNC_ARGS_UNUSED_MATCH(title),
               uchar_kt *message,
               uchar_kt *buttons,
               int dfltbutton,
-              uchar_kt *FUNC_ARGS_UNUSED_REALY(textfield),
+              uchar_kt *FUNC_ARGS_UNUSED_MATCH(textfield),
               int ex_cmd)
 {
     int oldState;
@@ -3408,7 +3408,7 @@ static uchar_kt *console_dialog_alloc(const uchar_kt *message,
 static uchar_kt *msg_show_console_dialog(uchar_kt *message,
                                        uchar_kt *buttons,
                                        int dfltbutton)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     bool has_hotkey[HAS_HOTKEY_LEN] = {false};
     uchar_kt *hotk = console_dialog_alloc(message, buttons, has_hotkey);

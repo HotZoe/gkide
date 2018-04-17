@@ -357,16 +357,16 @@ static void tui_scheduler(event_msg_st event, void *d)
 }
 
 #ifdef UNIX
-static void sigcont_cb(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
-                       int FUNC_ARGS_UNUSED_REALY(signum),
+static void sigcont_cb(signal_watcher_st *FUNC_ARGS_UNUSED_MATCH(watcher),
+                       int FUNC_ARGS_UNUSED_MATCH(signum),
                        void *data)
 {
     ((tuidata_st *)data)->cont_received = true;
 }
 #endif
 
-static void sigwinch_cb(signal_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher),
-                        int FUNC_ARGS_UNUSED_REALY(signum),
+static void sigwinch_cb(signal_watcher_st *FUNC_ARGS_UNUSED_MATCH(watcher),
+                        int FUNC_ARGS_UNUSED_MATCH(signum),
                         void *data)
 {
     got_winch = true;
@@ -740,7 +740,7 @@ static void tui_mode_info_set(ui_st *ui, bool guicursor_enabled, Array args)
     tui_set_mode(ui, data->showing_mode);
 }
 
-static void tui_update_menu(ui_st *FUNC_ARGS_UNUSED_REALY(ui))
+static void tui_update_menu(ui_st *FUNC_ARGS_UNUSED_MATCH(ui))
 {
     // Do nothing
     // menus are for GUI only
@@ -882,7 +882,7 @@ static void tui_set_mode(ui_st *ui, mode_shape_et mode)
 
 /// @param mode editor mode
 static void tui_mode_change(ui_st *ui,
-                            String FUNC_ARGS_UNUSED_REALY(mode),
+                            String FUNC_ARGS_UNUSED_MATCH(mode),
                             Integer mode_idx)
 {
     tuidata_st *data = ui->data;
@@ -1020,8 +1020,8 @@ static void tui_update_bg(ui_st *ui, Integer bg)
     ((tuidata_st *)ui->data)->grid.bg = (int)bg;
 }
 
-static void tui_update_sp(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
-                          Integer FUNC_ARGS_UNUSED_REALY(sp))
+static void tui_update_sp(ui_st *FUNC_ARGS_UNUSED_MATCH(ui),
+                          Integer FUNC_ARGS_UNUSED_MATCH(sp))
 {
     // Do nothing; 'special' color is for GUI only
 }
@@ -1125,17 +1125,17 @@ static void tui_set_title(ui_st *ui, String title)
     unibi_out(ui, unibi_from_status_line);
 }
 
-static void tui_set_icon(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
-                         String FUNC_ARGS_UNUSED_REALY(icon))
+static void tui_set_icon(ui_st *FUNC_ARGS_UNUSED_MATCH(ui),
+                         String FUNC_ARGS_UNUSED_MATCH(icon))
 {
 }
 
 /// NB: if we start to use this, the ui_bridge must
 /// be updated to make a copy for the tui thread
-static void tui_event(ui_st *FUNC_ARGS_UNUSED_REALY(ui),
-                      char *FUNC_ARGS_UNUSED_REALY(name),
-                      Array FUNC_ARGS_UNUSED_REALY(args),
-                      bool *FUNC_ARGS_UNUSED_REALY(args_consumed))
+static void tui_event(ui_st *FUNC_ARGS_UNUSED_MATCH(ui),
+                      char *FUNC_ARGS_UNUSED_MATCH(name),
+                      Array FUNC_ARGS_UNUSED_MATCH(args),
+                      bool *FUNC_ARGS_UNUSED_MATCH(args_consumed))
 {
 }
 
@@ -1570,7 +1570,7 @@ static const char *tui_get_stty_erase(void)
 /// @see terminal_input_st.tk_ti_hook_fn
 static const char *tui_tk_ti_getstr(const char *name,
                                     const char *value,
-                                    void *FUNC_ARGS_UNUSED_REALY(data))
+                                    void *FUNC_ARGS_UNUSED_MATCH(data))
 {
     static const char *stty_erase = NULL;
 

@@ -86,12 +86,12 @@ FUNC_ATTR_NONNULL_ALL
     }
 }
 
-static void on_rbuffer_full(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf), void *data)
+static void on_rbuffer_full(ringbuf_st *FUNC_ARGS_UNUSED_MATCH(buf), void *data)
 {
     rstream_stop(data);
 }
 
-static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
+static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_MATCH(buf),
                                void *data)
 {
     stream_st *stream = data;
@@ -103,7 +103,7 @@ static void on_rbuffer_nonfull(ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
 ///
 /// Called by libuv to allocate memory for reading.
 static void alloc_cb(uv_handle_t *handle,
-                     size_t FUNC_ARGS_UNUSED_REALY(suggested),
+                     size_t FUNC_ARGS_UNUSED_MATCH(suggested),
                      uv_buf_t *buf)
 {
     stream_st *stream = handle->data;
@@ -124,7 +124,7 @@ static void alloc_cb(uv_handle_t *handle,
 /// returns a 0-length buffer.
 static void read_cb(uv_stream_t *uvstream,
                     ssize_t cnt,
-                    const uv_buf_t *FUNC_ARGS_UNUSED_REALY(buf))
+                    const uv_buf_t *FUNC_ARGS_UNUSED_MATCH(buf))
 {
     stream_st *stream = uvstream->data;
 

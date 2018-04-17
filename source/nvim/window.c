@@ -3107,8 +3107,8 @@ static win_st *frame2win(frame_st *frp)
 /// @param  wp   window
 static bool frame_has_win(frame_st *frp, win_st *wp)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(frp->fr_layout == FR_LEAF)
     {
@@ -3272,8 +3272,8 @@ static void frame_new_height(frame_st *topfrp,
 /// @return true if the frame has a fixed height
 static bool frame_fixed_height(frame_st *frp)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // frame with one window: fixed height if 'winfixheight' set.
     if(frp->fr_win != NULL)
@@ -3317,8 +3317,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return true if the frame has a fixed width
 static bool frame_fixed_width(frame_st *frp)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // frame with one window: fixed width if 'winfixwidth' set.
     if(frp->fr_win != NULL)
@@ -7506,8 +7506,8 @@ matchitem_st *get_match(win_st *wp, int id)
 /// @param  height  expected height
 static bool frame_check_height(frame_st *topfrp, int height)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(topfrp->fr_height != height)
     {
@@ -7534,8 +7534,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @param  width   expected width
 static bool frame_check_width(frame_st *topfrp, int width)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(topfrp->fr_width != width)
     {

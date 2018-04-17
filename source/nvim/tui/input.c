@@ -81,7 +81,7 @@ void term_input_stop(terminal_input_st *input)
     time_watcher_stop(&input->timer_handle);
 }
 
-static void input_done_event(void **FUNC_ARGS_UNUSED_REALY(argv))
+static void input_done_event(void **FUNC_ARGS_UNUSED_MATCH(argv))
 {
     input_done();
 }
@@ -354,7 +354,7 @@ static void tk_getkeys(terminal_input_st *input, bool force)
     }
 }
 
-static void timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_REALY(watcher), void *data)
+static void timer_cb(time_watcher_st *FUNC_ARGS_UNUSED_MATCH(watcher), void *data)
 {
     tk_getkeys(data, true);
     flush_input(data, true);
@@ -439,9 +439,9 @@ static bool handle_forced_escape(terminal_input_st *input)
     return false;
 }
 
-static void read_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream),
-                    ringbuf_st *FUNC_ARGS_UNUSED_REALY(buf),
-                    size_t FUNC_ARGS_UNUSED_REALY(c),
+static void read_cb(stream_st *FUNC_ARGS_UNUSED_MATCH(stream),
+                    ringbuf_st *FUNC_ARGS_UNUSED_MATCH(buf),
+                    size_t FUNC_ARGS_UNUSED_MATCH(c),
                     void *data,
                     bool eof)
 {

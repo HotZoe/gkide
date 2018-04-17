@@ -404,8 +404,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 static inline char *plugin_path_append(char *dest,
                                        const char *const path,
                                        const size_t path_len)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(NULL != path && 0 != path_len)
@@ -2323,7 +2323,7 @@ static uchar_kt *check_cedit(void)
 /// the old value back.
 ///
 /// @param icon  Did set icon instead of title
-static void did_set_title(int FUNC_ARGS_UNUSED_REALY(icon))
+static void did_set_title(int FUNC_ARGS_UNUSED_MATCH(icon))
 {
     if(starting != NO_SCREEN)
     {
@@ -5929,8 +5929,8 @@ int findoption_len(const char *const arg, const size_t len)
 }
 
 bool is_tty_option(const char *name)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return (name[0] == 't' && name[1] == '_') || strcmp(name, "term") == 0;

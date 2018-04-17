@@ -335,7 +335,7 @@ REAL_FATTR_WARN_UNUSED_RESULT;
 static int TVE_ENCODE_CONVERT_FUNC(
     TVE_FIRST_ARG_TYPE TVE_FIRST_ARG_NAME,
     mpconv_stackvec_st *const mpstack,
-    mpconv_stack_st *const FUNC_ARGS_UNUSED_REALY(cur_mpsv),
+    mpconv_stack_st *const FUNC_ARGS_UNUSED_MATCH(cur_mpsv),
     typval_st *const tv,
     const int copyID,
     const char *const objname)

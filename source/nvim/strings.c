@@ -61,9 +61,9 @@
 /// a pointer to the first instance of @b c,
 /// or to the NUL terminator if not found.
 char *xstrchrnul(const char *str, char c)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     char *p = strchr(str, c);
 
@@ -98,8 +98,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @returns the number of occurrences of @b c in @b str.
 size_t xstrcnt(const char *str, char c)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     assert(c != 0);
     size_t cnt = 0;
@@ -130,9 +130,9 @@ FUNC_ATTR_PURE
 /// pointer to the terminating NUL char copied into the dst buffer.
 /// This is the only difference with strcpy(), which returns dst.
 char *xstpcpy(char *restrict dst, const char *restrict src)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const size_t len = strlen(src);
 
@@ -158,9 +158,9 @@ FUNC_ATTR_NONNULL_ALL
 /// @param src
 /// @param maxlen
 char *xstpncpy(char *restrict dst, const char *restrict src, size_t maxlen)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *p = memchr(src, '\0', maxlen);
 
@@ -250,9 +250,10 @@ FUNC_ATTR_NONNULL_ALL
 /// @see xmalloc()
 char *xstrdup(const char *str)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
+
 {
     return xmemdupz(str, strlen(str));
 }
@@ -266,9 +267,9 @@ FUNC_ATTR_NONNULL_ALL
 /// @see xmalloc()
 char *xstrndup(const char *str, size_t len)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     char *p = memchr(str, '\0', len);
     return xmemdupz(str, p ? (size_t)(p - str) : len);
@@ -279,8 +280,8 @@ FUNC_ATTR_NONNULL_ALL
 /// Unlike xstrdup() allocates a new empty string if it receives NULL.
 char *xstrdupnul(const char *const str)
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_NONNULL_RET
 {
     if(str == NULL)
     {
@@ -311,9 +312,9 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Copy @b string into newly allocated memory.
 uchar_kt *ustrdup(const uchar_kt *string)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     return (uchar_kt *)xstrdup((char *)string);
 }
@@ -322,9 +323,9 @@ FUNC_ATTR_NONNULL_ALL
 /// terminate with a NUL. The allocated memory always has size @b len+1,
 /// even when @b string is shorter.
 uchar_kt *ustrndup(const uchar_kt *string, size_t len)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     // strncpy is intentional: some parts of Vim use 'string' shorter
     // than 'len' and expect the remainder to be zeroed out.
@@ -335,9 +336,9 @@ FUNC_ATTR_NONNULL_ALL
 /// preceded by a backslash.
 uchar_kt *ustrdup_escape(const uchar_kt *string,
                          const uchar_kt *esc_chars)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     return ustrdup_escape_ext(string, esc_chars, '\\', false);
 }
@@ -348,9 +349,9 @@ FUNC_ATTR_NONNULL_ALL
 uchar_kt *ustrdup_escape_ext(const uchar_kt *string,
                              const uchar_kt *esc_chars,
                              uchar_kt cc, bool bsl)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     // First count the number of backslashes required.
     // Then allocate the memory and insert them.
@@ -416,9 +417,9 @@ FUNC_ATTR_NONNULL_ALL
 /// @return [allocated] Copy of the string.
 char *xstrdup_unquoted(const char *const string, const size_t length)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     size_t ret_length = 0;
     bool inquote = false;
@@ -482,9 +483,9 @@ FUNC_ATTR_NONNULL_RET
 uchar_kt *ustrdup_escape_shell(const uchar_kt *string,
                                bool do_special,
                                bool do_newline)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *d;
     uchar_kt *escaped_string;
@@ -629,9 +630,9 @@ FUNC_ATTR_NONNULL_ALL
 /// Like ustrdup(), but make all characters uppercase.
 /// This uses ASCII lower-to-upper case translation, language independent.
 uchar_kt *ustrdup_upper(const uchar_kt *string)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *p1;
     p1 = ustrdup(string);
@@ -642,9 +643,9 @@ FUNC_ATTR_NONNULL_ALL
 /// Like ustrndup(), but make all characters uppercase.
 /// This uses ASCII lower-to-upper case translation, language independent.
 uchar_kt *ustrndup_to_upper(const uchar_kt *string, size_t len)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *p1 = ustrndup(string, len);
     xstr_to_upper(p1);
@@ -672,9 +673,9 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] upper/lower cased string.
 char *xstrdup_case_convert(const char *const orig, bool upper)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     char *res = xstrdup(orig);
     char *p = res;
@@ -730,8 +731,8 @@ FUNC_ATTR_NONNULL_ALL
 /// Doesn't work for multi-byte characters.
 /// return 0 for match, < 0 for smaller, > 0 for bigger
 int xstricmp(const char *s1, const char *s2)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     int i;
 
@@ -762,8 +763,8 @@ FUNC_ATTR_PURE
 /// using current locale. Doesn't work for multi-byte characters.
 /// return 0 for match, < 0 for smaller, > 0 for bigger
 int xstrnicmp(const char *s1, const char *s2, size_t len)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     int i;
 
@@ -800,8 +801,8 @@ FUNC_ATTR_PURE
 /// if it was not found or character is invalid. NUL character is never
 /// found, use strlen() instead.
 uchar_kt *ustrchr(const uchar_kt *const string, const int c)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(c <= 0)
@@ -825,8 +826,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// Return NULL if not found.
 /// Does not handle multi-byte char for "c"!
 uchar_kt *ustrrchr(const uchar_kt *string, int c)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 {
     const uchar_kt *retval = NULL;
     const uchar_kt *p = string;
@@ -892,9 +893,9 @@ char *xstrdup_concat(const char *restrict str1,
 /// Concatenate two strings and return the result in allocated memory.
 uchar_kt *ustrdup_concat(const uchar_kt *restrict str1,
                          const uchar_kt *restrict str2)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 {
     size_t l = ustrlen(str1);
     uchar_kt *dest = xmalloc(l + ustrlen(str2) + 1);
@@ -2236,7 +2237,7 @@ int ustr_scrsize(uchar_kt *s)
 /// - if @b buf is NULL, return an allocated string
 /// - put the result in @b buf, limited by @b buflen, and return @b buf
 uchar_kt *ustr_foldcase(uchar_kt *str, int orglen, uchar_kt *buf, int buflen)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     int i;
     garray_st ga;

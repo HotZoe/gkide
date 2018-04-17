@@ -8714,9 +8714,9 @@ static int cstrncmp(uchar_kt *s1, uchar_kt *s2, int *n)
 /// This function is used a lot for simple searches, keep it fast!
 static inline uchar_kt *cstrchr(const uchar_kt *const s, const int c)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(!ireg_ic)
     {
@@ -8895,7 +8895,7 @@ static int submatch_line_lbr;
 
 /// Put the submatches in "argv[0]" which is a
 /// list passed into call_func() by vim_regsub_both().
-static int fill_submatch_list(int FUNC_ARGS_UNUSED_REALY(argc),
+static int fill_submatch_list(int FUNC_ARGS_UNUSED_MATCH(argc),
                               typval_st *argv,
                               int argcount)
 {

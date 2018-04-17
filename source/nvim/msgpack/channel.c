@@ -415,7 +415,7 @@ uint64_t channel_create_internal(void)
     return channel->id;
 }
 
-void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
+void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_MATCH(status))
 {
     rpc_channel_st *channel = pmap_get(uint64_t)(channels, id);
     channel->closed = true;
@@ -424,7 +424,7 @@ void channel_process_exit(uint64_t id, int FUNC_ARGS_UNUSED_REALY(status))
 
 static void receive_msgpack(stream_st *FUNC_ARGS_UNUSED_MAYBE(stream),
                             ringbuf_st *rbuf,
-                            size_t FUNC_ARGS_UNUSED_REALY(cnt),
+                            size_t FUNC_ARGS_UNUSED_MATCH(cnt),
                             void *data,
                             bool eof)
 {
@@ -880,7 +880,7 @@ static void free_channel(rpc_channel_st *channel)
     xfree(channel);
 }
 
-static void close_cb(stream_st *FUNC_ARGS_UNUSED_REALY(stream_ptr),
+static void close_cb(stream_st *FUNC_ARGS_UNUSED_MATCH(stream_ptr),
                      void *data)
 {
     decref(data);

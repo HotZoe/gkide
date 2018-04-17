@@ -14,7 +14,7 @@ namespace SnailNvimQt {
 
 /// Unpack Nvim EXT types: Window, Buffer Tabpage, which are all uint64_t
 /// see Nvim:msgpack_rpc_to_
-QVariant unpackBuffer(MsgpackIODevice *FUNC_ATTR_ARGS_UNUSED_REALY(dev),
+QVariant unpackBuffer(MsgpackIODevice *VATTR_UNUSED_MATCH(dev),
                       const char *in,
                       quint32 size)
 {
@@ -64,7 +64,7 @@ MsgpackRequest *Nvim::{{ api.name }}(
         {%- endif -%}
     {% endfor %})
 {
-    MsgpackRequest *r = 
+    MsgpackRequest *r =
         m_c->m_dev->startRequestUnchecked("{{ api.name }}", {{ api.argcount }});
 
     r->setFuncId(kNvimAPI_{{ api.name.upper() }});
@@ -81,7 +81,7 @@ MsgpackRequest *Nvim::{{ api.name }}(
 {% endfor %}
 
 // Handlers
-void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+void Nvim::handleResponseError(quint32 VATTR_UNUSED_MATCH(msgid),
                                NvimApiFuncID fun,
                                const QVariant &res)
 {
@@ -116,7 +116,7 @@ void Nvim::handleResponseError(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
     }
 }
 
-void Nvim::handleResponse(quint32 FUNC_ATTR_ARGS_UNUSED_REALY(msgid),
+void Nvim::handleResponse(quint32 VATTR_UNUSED_MATCH(msgid),
                           NvimApiFuncID fun,
                           const QVariant &res)
 {

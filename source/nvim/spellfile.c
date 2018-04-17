@@ -592,8 +592,8 @@ typedef struct spellinfo_s
 /// SP_OTHERERROR if reading file failed.
 static inline int spell_check_magic_string(FILE *const fd)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     char buf[VIMSPELLMAGICL];
 
@@ -4942,7 +4942,7 @@ static int spell_read_wordfile(spellinfo_st *spin, uchar_kt *fname)
 /// @param align Align for pointer.
 /// @return Pointer into block data.
 static void *getroom(spellinfo_st *spin, size_t len, bool align)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *p;
     sblock_st *bl = spin->si_blocks;

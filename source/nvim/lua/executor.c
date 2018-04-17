@@ -347,7 +347,7 @@ FUNC_ATTR_NONNULL_ALL
 /// Crashes NeoVim if initialization fails.
 /// Should be called once per lua interpreter instance.
 static lua_State *init_lua(void)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     lua_State *lstate = luaL_newstate();

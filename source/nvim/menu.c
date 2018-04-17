@@ -1167,7 +1167,7 @@ uchar_kt *set_context_in_menu_cmd(expand_st *xp,
 
 /// Function given to ExpandGeneric() to
 /// obtain the list of (sub)menus (not entries).
-uchar_kt *get_menu_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_menu_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     static vimmenu_st *menu = NULL;
     uchar_kt *str;
@@ -1226,7 +1226,7 @@ uchar_kt *get_menu_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
 
 /// Function given to ExpandGeneric() to obtain
 /// the list of menus and menu entries.
-uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_menu_names(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
 #define TBUFFER_LEN 256
 
@@ -1496,11 +1496,14 @@ static uchar_kt *popup_mode_name(uchar_kt *name, int idx)
 /// was found. Memory pointed to is newly allocated.
 ///
 /// @return a pointer to allocated memory.
-static uchar_kt *menu_text(const uchar_kt *str, int *mnemonic, uchar_kt **actext)
-FUNC_ATTR_NONNULL_RET
+static uchar_kt *menu_text(const uchar_kt *str,
+                           int *mnemonic,
+                           uchar_kt **actext)
 FUNC_ATTR_MALLOC
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
+
 {
     uchar_kt *p;
     uchar_kt *text;

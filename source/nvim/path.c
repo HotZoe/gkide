@@ -110,7 +110,7 @@ FileComparison path_full_compare(uchar_kt *s1, uchar_kt *s2, int checkname)
 /// pointer just past the last path separator (empty string, if fname
 /// ends in a slash), or empty string if fname is NULL.
 uchar_kt *path_tail(const uchar_kt *fname)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     if(fname == NULL)
     {
@@ -176,7 +176,7 @@ uchar_kt *path_tail_with_sep(uchar_kt *fname)
 /// @return
 /// The position of the last path separator + 1.
 const uchar_kt *invocation_path_tail(const uchar_kt *invocation, size_t *len)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_NONNULL_ARG(1)
 {
     const uchar_kt *tail = get_past_head((uchar_kt *) invocation);
@@ -365,8 +365,8 @@ bool dir_of_file_exists(uchar_kt *fname)
 ///
 /// @return 0 if they are equal, non-zero otherwise.
 int path_fnamecmp(const char *fname1, const char *fname2)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
 #ifdef BACKSLASH_IN_FILENAME
@@ -390,8 +390,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 int path_fnamencmp(const char *const fname1,
                    const char *const fname2,
                    size_t len)
-FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
 #ifdef BACKSLASH_IN_FILENAME
@@ -456,7 +456,7 @@ static inline char *do_concat_fnames(char *fname1,
                                      const size_t len2,
                                      const bool sep)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     if(sep && *fname1 && !after_pathsep(fname1, fname1 + len1))
     {
@@ -488,7 +488,7 @@ FUNC_ATTR_NONNULL_RET
 /// Concatenation of @b fname1 and @b fname2, caller should call xfree()
 char *concat_fnames(const char *fname1, const char *fname2, bool sep)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     const size_t len1 = strlen(fname1);
     const size_t len2 = strlen(fname2);
@@ -517,7 +517,7 @@ FUNC_ATTR_NONNULL_RET
 /// Concatenation of fname1 and fname2.
 char *concat_fnames_realloc(char *fname1, const char *fname2, bool sep)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     const size_t len1 = strlen(fname1);
     const size_t len2 = strlen(fname2);
@@ -1304,7 +1304,9 @@ static void uniquefy_paths(garray_st *gap, uchar_kt *pattern)
 ///            "/path/file", "/path/dir/", "/path//dir", "/file"
 ///                  ^             ^             ^        ^
 const char *gettail_dir(const char *const fname)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *dir_end = fname;
     const char *next_dir_end = fname;
@@ -2783,7 +2785,8 @@ int path_is_absolute_path(const uchar_kt *fname)
 /// @param[in]  bufsize   Size of @b buf.
 ///
 /// @see os_exepath
-void path_guess_exepath(const char *argv0, char *buf, size_t bufsize) FUNC_ATTR_NONNULL_ALL
+void path_guess_exepath(const char *argv0, char *buf, size_t bufsize)
+FUNC_ATTR_NONNULL_ALL
 {
     char *path = getenv("PATH");
 

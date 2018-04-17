@@ -97,8 +97,8 @@ static patch_info_st extra_patches[] =
 /// @return true if GKIDE is at or above the version.
 bool has_gkide_version(const char *const version_str)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *p = version_str;
     int nvim_major = 0;
@@ -152,8 +152,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return true if Nvim is at or above the version.
 bool has_nvim_version(const char *const version_str)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *p = version_str;
     int nvim_major = 0;
@@ -551,7 +551,7 @@ static void do_intro_line(long row, uchar_kt *mesg, int attr)
 /// ":intro": clear screen, display intro screen and wait for return.
 ///
 /// @param eap
-void ex_intro(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_intro(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     screenclear();
     intro_message(TRUE);

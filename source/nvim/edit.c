@@ -2390,7 +2390,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @param  c  character to check
 static bool ins_compl_accept_char(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(ctrl_x_mode & CTRL_X_WANT_IDENT)
     {
@@ -2764,7 +2765,9 @@ FUNC_ATTR_NONNULL_ARG(1)
 /// @param  str    character string to check
 /// @param  len    lenth of "str"
 static bool ins_compl_equal(compl_T *match, uchar_kt *str, size_t len)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(match->cp_icase)
     {
@@ -3026,7 +3029,8 @@ static void ins_compl_del_pum(void)
 
 /// Check if the popup menu should be displayed.
 static bool pum_wanted(void)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // "completeopt" must contain "menu" or "menuone"
     return ustrchr(p_cot, 'm') != NULL;
@@ -3035,7 +3039,8 @@ FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
 /// Check that there are two or more matches to be shown in the popup menu.
 /// One if "completopt" contains "menuone".
 static bool pum_enough_matches(void)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // Don't display the popup menu if there are no matches or there is only
     // one (ignoring the original text).
@@ -3624,7 +3629,8 @@ static void ins_compl_clear(void)
 }
 
 /// Check that Insert completion is active.
-bool ins_compl_active(void) FUNC_ATTR_PURE
+bool ins_compl_active(void)
+FUNC_ATTR_PURE
 {
     return compl_started;
 }
@@ -5462,7 +5468,8 @@ static int ins_compl_key2dir(int c)
 ///
 /// @param  c  character to check
 static bool ins_compl_pum_key(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return pum_visible() && (c == K_PAGEUP
                              || c == K_KPAGEUP
@@ -5499,7 +5506,8 @@ static int ins_compl_key2count(int c)
 ///
 /// @param  c  character to check
 static bool ins_compl_use_match(int c)
-FUNC_ATTR_CONST FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_CONST
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(c)
     {
@@ -8170,7 +8178,8 @@ uchar_kt *get_last_insert_save(void)
 ///
 /// @return true if the word is a known abbreviation.
 static bool echeck_abbr(int c)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // Don't check for abbreviation in paste mode, when disabled and just
     // after moving around with cursor keys.
@@ -8459,7 +8468,8 @@ static void replace_do_bs(int limit_col)
 
 /// Check that C-indenting is on.
 static bool cindent_on(void)
-FUNC_ATTR_PURE FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return !p_paste && (curbuf->b_p_cin || *curbuf->b_p_inde != NUL);
 }

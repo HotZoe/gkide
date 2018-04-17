@@ -3693,8 +3693,8 @@ int resolve_symlink(const uchar_kt *fname, uchar_kt *buf)
 /// Make swap file name out of the file name and a directory name.
 /// Returns pointer to allocated memory or NULL.
 uchar_kt *makeswapname(uchar_kt *fname,
-                     uchar_kt *FUNC_ARGS_UNUSED_REALY(ffname),
-                     filebuf_st *FUNC_ARGS_UNUSED_REALY(buf),
+                     uchar_kt *FUNC_ARGS_UNUSED_MATCH(ffname),
+                     filebuf_st *FUNC_ARGS_UNUSED_MATCH(buf),
                      uchar_kt *dir_name)
 {
     uchar_kt *r, *s;

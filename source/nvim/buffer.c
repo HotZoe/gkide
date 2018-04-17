@@ -1892,8 +1892,8 @@ static int top_file_num = 1; ///< highest file number
 ///
 /// @param[out]  buf  Buffer to intialize for.
 static inline void buf_init_changedtick(filebuf_st *const buf)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     STATIC_ASSERT(sizeof("changedtick") <= sizeof(buf->changedtick_di.di_key),
                   "buf->changedtick_di cannot hold large enough keys");
@@ -2899,8 +2899,8 @@ FUNC_ATTR_NONNULL_ALL
 /// That's because a diff is local to a tab page.
 static bool wininfo_other_tab_diff(wininfo_st *wip)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(wip->wi_opt.wo_diff)
     {
@@ -3341,8 +3341,8 @@ void buflist_altfpos(win_st *win)
 /// @param  ffname  full path name to check
 bool otherfile(uchar_kt *ffname)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return otherfile_buf(curbuf, ffname, NULL, false);
 }
@@ -3429,8 +3429,8 @@ void buf_set_file_id(filebuf_st *buf)
 /// @param  file_id  file id
 static bool buf_same_file_id(filebuf_st *buf, fileid_st *file_id)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return buf->file_id_valid && os_fileid_equal(&(buf->file_id), file_id);
 }

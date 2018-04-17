@@ -116,7 +116,7 @@ typedef kvec_t(matched_line_st) MatchedLineVec;
 #endif
 
 /// @b :ascii and ga
-void do_ascii(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void do_ascii(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     int c;
     int cval;
@@ -3961,7 +3961,7 @@ FUNC_ATTR_NONNULL_ARG(1, 3, 4)
 /// @returns pointer to the end of the allocated memory
 static uchar_kt *sub_grow_buf(uchar_kt **new_start, int needed_len)
 FUNC_ATTR_NONNULL_ARG(1)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     int new_start_len = 0;
     uchar_kt *new_end;
@@ -4013,7 +4013,7 @@ static uchar_kt *sub_parse_flags(uchar_kt *cmd,
                                subflags_st *subflags,
                                int *which_pat)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     // Find trailing options. When '&' is used, keep old options.
     if(*cmd == '&')
@@ -6490,13 +6490,13 @@ void fix_help_buffer(void)
 }
 
 /// ":exusage"
-void ex_exusage(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_exusage(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     do_cmdline_cmd("help ex-cmd-index");
 }
 
 /// ":viusage"
-void ex_viusage(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_viusage(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     do_cmdline_cmd("help normal-index");
 }
@@ -6953,7 +6953,7 @@ static sign_st *first_sign = NULL;
 static int next_sign_typenr = 1;
 
 /// @b :helpclose Close one help window
-void ex_helpclose(exargs_st *FUNC_ARGS_UNUSED_REALY(eap))
+void ex_helpclose(exargs_st *FUNC_ARGS_UNUSED_MATCH(eap))
 {
     FOR_ALL_WINDOWS_IN_TAB(win, curtab)
     {
@@ -7646,7 +7646,7 @@ static enum
 } expand_what;
 
 /// Function given to ExpandGeneric() to obtain the sign command expansion.
-uchar_kt *get_sign_name(expand_st *FUNC_ARGS_UNUSED_REALY(x), int idx)
+uchar_kt *get_sign_name(expand_st *FUNC_ARGS_UNUSED_MATCH(x), int idx)
 {
     switch(expand_what)
     {

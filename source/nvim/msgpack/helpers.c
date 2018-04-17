@@ -642,8 +642,8 @@ FUNC_ATTR_NONNULL_ARG(2)
 }
 
 /// Handler executed when an invalid method name is passed
-Object rpc_handle_missing_method(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
-                                 Array FUNC_ARGS_UNUSED_REALY(args),
+Object rpc_handle_missing_method(uint64_t FUNC_ARGS_UNUSED_MATCH(channel_id),
+                                 Array FUNC_ARGS_UNUSED_MATCH(args),
                                  error_st *error)
 {
     api_set_error(error, kErrorTypeException, "Invalid method name");
@@ -651,8 +651,8 @@ Object rpc_handle_missing_method(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
 }
 
 /// Handler executed when malformated arguments are passed
-Object rpc_handle_invalid_arguments(uint64_t FUNC_ARGS_UNUSED_REALY(channel_id),
-                                    Array FUNC_ARGS_UNUSED_REALY(args),
+Object rpc_handle_invalid_arguments(uint64_t FUNC_ARGS_UNUSED_MATCH(channel_id),
+                                    Array FUNC_ARGS_UNUSED_MATCH(args),
                                     error_st *error)
 {
     api_set_error(error, kErrorTypeException, "Invalid method arguments");

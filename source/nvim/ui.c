@@ -219,7 +219,7 @@ void ui_refresh(void)
     ui_cursor_shape();
 }
 
-static void ui_refresh_event(void **FUNC_ARGS_UNUSED_REALY(argv))
+static void ui_refresh_event(void **FUNC_ARGS_UNUSED_MATCH(argv))
 {
     ui_refresh();
 }

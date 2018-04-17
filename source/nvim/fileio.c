@@ -2531,7 +2531,8 @@ failed:
 ///
 /// @param fname file name to check
 static bool is_dev_fd_file(uchar_kt *fname)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return ustrncmp(fname, "/dev/fd/", 8) == 0
     && ascii_isdigit(fname[8])
@@ -2626,7 +2627,7 @@ void set_forced_fenc(exargs_st *eap)
 /// result is in allocated memory.
 static uchar_kt *next_fenc(uchar_kt **pp)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     uchar_kt *p;
     uchar_kt *r;
@@ -4887,7 +4888,8 @@ static int check_mtime(filebuf_st *buf, fileinfo_st *file_info)
 ///
 /// @param t1 first time
 /// @param t2 second time
-static bool time_differs(long t1, long t2) FUNC_ATTR_CONST
+static bool time_differs(long t1, long t2)
+FUNC_ATTR_CONST
 {
 #if defined(__linux__) || defined(MSWIN)
     // On a FAT filesystem, esp. under Linux, there are only 5 bits to store
@@ -5236,7 +5238,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return true if conversion is required
 static bool need_conversion(const uchar_kt *fenc)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     int same_encoding;
     int enc_flags;
@@ -6036,7 +6039,7 @@ static int move_lines(filebuf_st *frombuf, filebuf_st *tobuf)
 /// - 1 if a changed buffer was found.
 /// - 2 if a message has been displayed.
 /// - 0 otherwise.
-int buf_check_timestamp(filebuf_st *buf, int FUNC_ARGS_UNUSED_REALY(focus))
+int buf_check_timestamp(filebuf_st *buf, int FUNC_ARGS_UNUSED_MATCH(focus))
 {
     int retval = 0;
     uchar_kt *path;
@@ -7226,9 +7229,9 @@ static auto_event_et event_name2nr(const uchar_kt *start, uchar_kt **end)
 ///
 /// @return Event name, static string. Returns "Unknown" for unknown events.
 static const char *event_nr2name(auto_event_et event)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_CONST
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     for(int i = 0; event_names[i].name != NULL; i++)
     {
@@ -7972,7 +7975,8 @@ void ex_doautoall(exargs_st *eap)
 ///
 /// @param[in,out] argp argument string
 bool check_nomodeline(uchar_kt **argp)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(ustrncmp(*argp, "<nomodeline>", 12) == 0)
     {
@@ -8883,9 +8887,9 @@ static void auto_next_pat(autopatcmd_st *apc, int stop_at_last)
 /// Get next autocommand command.
 /// Called by do_cmdline() to get the next line for ":if".
 /// Returns allocated string, or NULL for end of autocommands.
-uchar_kt *getnextac(int FUNC_ARGS_UNUSED_REALY(c),
+uchar_kt *getnextac(int FUNC_ARGS_UNUSED_MATCH(c),
                   void *cookie,
-                  int FUNC_ARGS_UNUSED_REALY(indent))
+                  int FUNC_ARGS_UNUSED_MATCH(indent))
 {
     autopatcmd_st *acp = (autopatcmd_st *)cookie;
     uchar_kt *retval;
@@ -9015,7 +9019,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 
 /// Function given to ExpandGeneric() to
 /// obtain the list of autocommand group names.
-uchar_kt *get_augroup_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_augroup_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx == augroups.ga_len) // add "END" add the end
     {
@@ -9102,7 +9106,7 @@ uchar_kt *set_context_in_autocmd(expand_st *xp, uchar_kt *arg, int doautocmd)
 }
 
 /// Function given to ExpandGeneric() to obtain the list of event names.
-uchar_kt *get_event_name(expand_st *FUNC_ARGS_UNUSED_REALY(xp), int idx)
+uchar_kt *get_event_name(expand_st *FUNC_ARGS_UNUSED_MATCH(xp), int idx)
 {
     if(idx < augroups.ga_len) // First list group names, if wanted
     {
@@ -9314,8 +9318,8 @@ static bool match_file_pat(uchar_kt *pattern,
 ///
 /// @return true if there was a match
 bool match_file_list(uchar_kt *list, uchar_kt *sfname, uchar_kt *ffname)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1, 3)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     uchar_kt buf[100];
     uchar_kt *tail;

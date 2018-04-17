@@ -50,8 +50,8 @@ const char *const tv_empty_string = "";
 ///
 /// @return [allocated] new list item.
 listitem_st *tv_list_item_alloc(void)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_RETURN
 {
     return xmalloc(sizeof(listitem_st));
 }
@@ -139,7 +139,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] new list.
 list_st *tv_list_alloc(void)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 {
     list_st *const list = xcalloc(1, sizeof(list_st));
 
@@ -920,8 +920,8 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 ///
 /// @return Index of an item or -1 if item is not in the list.
 long tv_list_idx_of_item(const list_st *const l, const listitem_st *const item)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_PURE
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(l == NULL)
     {
@@ -1074,9 +1074,9 @@ FUNC_ATTR_NONNULL_ARG(2)
 /// @return true if key matches, false otherwise.
 static bool tv_dict_watcher_matches(dict_watcher_st *watcher,
                                     const char *const key)
+FUNC_ATTR_PURE
 FUNC_ATTR_NONNULL_ALL
 FUNC_ATTR_WARN_UNUSED_RESULT
-FUNC_ATTR_PURE
 {
     // For now only allow very simple globbing in key patterns: a '*'
     // at the end of the string means it should match everything up to
@@ -1163,10 +1163,10 @@ FUNC_ATTR_NONNULL_ARG(1, 2)
 ///
 /// @return [allocated] new dictionary item.
 dictitem_st *tv_dict_item_alloc_len(const char *const key, const size_t key_len)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     dictitem_st *const di = xmalloc(offsetof(dictitem_st, di_key) + key_len + 1);
 
@@ -1185,10 +1185,10 @@ FUNC_ATTR_MALLOC
 ///
 /// @return [allocated] new dictionary item.
 dictitem_st *tv_dict_item_alloc(const char *const key)
-FUNC_ATTR_NONNULL_RET
-FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_MALLOC
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     return tv_dict_item_alloc_len(key, strlen(key));
 }
@@ -1213,8 +1213,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] new dictionary item.
 static dictitem_st *tv_dict_item_copy(dictitem_st *const di)
-FUNC_ATTR_NONNULL_RET
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     dictitem_st *const new_di = tv_dict_item_alloc((const char *)di->di_key);
@@ -1247,7 +1247,7 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return [allocated] new dictionary.
 dict_st *tv_dict_alloc(void)
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     dict_st *const d = xmalloc(sizeof(dict_st));
@@ -1369,8 +1369,8 @@ void tv_dict_unref(dict_st *const d)
 dictitem_st *tv_dict_find(const dict_st *const d,
                          const char *const key,
                          const ptrdiff_t len)
-FUNC_ATTR_NONNULL_ARG(2)
 FUNC_ATTR_PURE
+FUNC_ATTR_NONNULL_ARG(2)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(d == NULL)
@@ -2001,9 +2001,9 @@ FUNC_ATTR_NONNULL_ALL
 
 static inline int _nothing_conv_func_start(typval_st *const tv,
                                            uchar_kt *const fun)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     tv->v_lock = kNvlVarUnlocked;
 
@@ -2045,8 +2045,8 @@ FUNC_ATTR_NONNULL_ARG(1)
 #define TYPVAL_ENCODE_CONV_FUNC_BEFORE_SELF(tv, len)
 
 static inline void _nothing_conv_func_end(typval_st *const tv, const int copyID)
-FUNC_ATTR_ALWAYS_INLINE
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_ALWAYS_INLINE
 {
     if(tv->v_type == kNvarPartial)
     {
@@ -2184,7 +2184,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 #define TYPVAL_ENCODE_CONV_DICT_AFTER_KEY(tv, dict)
 #define TYPVAL_ENCODE_CONV_DICT_BETWEEN_ITEMS(tv, dict)
 
-static inline void _nothing_conv_dict_end(typval_st *const FUNC_ARGS_UNUSED_REALY(tv),
+static inline void _nothing_conv_dict_end(typval_st *const FUNC_ARGS_UNUSED_MATCH(tv),
                                           dict_st **const dictp,
                                           const void *const nodictvar)
 FUNC_ATTR_ALWAYS_INLINE
@@ -2503,8 +2503,8 @@ FUNC_ATTR_NONNULL_ALL
 /// @return True if value is locked, false otherwise.
 bool tv_islocked(const typval_st *const tv)
 FUNC_ATTR_PURE
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     if(tv->v_lock == kNvlVarLocked)
     {
@@ -2549,7 +2549,9 @@ FUNC_ATTR_NONNULL_ALL
 /// of CPU resources. This especially applies to gettext.
 ///
 /// @return true if variable is locked, false otherwise.
-bool tv_check_lock(const nvlvar_lock_status_et lock, const char *name, size_t name_len)
+bool tv_check_lock(const nvlvar_lock_status_et lock,
+                   const char *name,
+                   size_t name_len)
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *error_message = NULL;
@@ -2616,8 +2618,8 @@ bool tv_equal(typval_st *const tv1,
               typval_st *const tv2,
               const bool ic,
               const bool recursive)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     // TODO(ZyX-I): Make this not recursive
     static int recursive_cnt = 0; // Catch recursive loops.
@@ -2726,7 +2728,8 @@ FUNC_ATTR_NONNULL_ALL
 ///
 /// @return true if everything is OK, false otherwise.
 bool tv_check_str_or_nr(const typval_st *const tv)
-FUNC_ATTR_WARN_UNUSED_RESULT FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
@@ -2802,7 +2805,8 @@ static const char *const num_errors[] =
 ///
 /// @return true if everything is OK, false otherwise.
 bool tv_check_num(const typval_st *const tv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
@@ -2853,7 +2857,8 @@ static const char *const str_errors[] =
 ///
 /// @return true if everything is OK, false otherwise.
 bool tv_check_str(const typval_st *const tv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
@@ -2891,7 +2896,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// @return Number value: str_to_num() output for kNvarString objects, value
 ///         for kNvarNumber objects, -1 for other types.
 number_kt tv_get_number(const typval_st *const tv)
-FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
+FUNC_ATTR_NONNULL_ALL
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     bool error = false;
     return tv_get_number_chk(tv, &error);
@@ -2912,8 +2918,8 @@ FUNC_ATTR_NONNULL_ALL FUNC_ATTR_WARN_UNUSED_RESULT
 /// Number value: str_to_num() output for kNvarString objects, value for
 /// kNvarNumber objects, -1 (ret_error == NULL) or 0 (otherwise) for other types.
 number_kt tv_get_number_chk(const typval_st *const tv, bool *const ret_error)
-FUNC_ATTR_WARN_UNUSED_RESULT
 FUNC_ATTR_NONNULL_ARG(1)
+FUNC_ATTR_WARN_UNUSED_RESULT
 {
     switch(tv->v_type)
     {
@@ -3173,7 +3179,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
 const char *tv_get_string(const typval_st *const tv)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     static char mybuf[NUMBUFLEN];
@@ -3202,7 +3208,7 @@ FUNC_ATTR_WARN_UNUSED_RESULT
 /// for kNvarNumber, v: variable name for kNvarSpecial or empty string.
 const char *tv_get_string_buf(const typval_st *const tv, char *const buf)
 FUNC_ATTR_NONNULL_ALL
-FUNC_ATTR_NONNULL_RET
+FUNC_ATTR_NONNULL_RETURN
 FUNC_ATTR_WARN_UNUSED_RESULT
 {
     const char *const res = (const char *)tv_get_string_buf_chk(tv, buf);
