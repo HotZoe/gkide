@@ -3,11 +3,21 @@ source ${SHARE_DIR}/share/prepare.sh
 
 SHARED_CMAKE_BUILD_FLAGS=""
 CURRENT_BUILD_DIR=""
+BUILD_ERR_MSG=""
 
 function run_make()
 {
     echo '======================================================================'
     make -C "${CURRENT_BUILD_DIR}" "$@"
+
+    if [ $? -ne 0 ]; then
+        echo "Build Target: $@"
+        echo "Build Directory: ${CURRENT_BUILD_DIR}"
+        echo "${BUILD_ERR_MSG}"
+        exit 1
+    fi
+
+    cd "${TRAVIS_BUILD_DIR}"
 }
 
 function build_deps()
@@ -33,13 +43,8 @@ function build_deps()
     CC= cmake -G "Unix Makefiles" ${DEPS_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}/deps/"
 
     CURRENT_BUILD_DIR="${DEPS_BUILD_DIR}"
+    BUILD_ERR_MSG="Error: build deps libraries failed!"
     run_make
-    if ! $?; then
-        echo "Error: build deps libraries failed!"
-        exit 1
-    fi
-    
-    cd "${TRAVIS_BUILD_DIR}"
 }
 
 function prepare_build_gkide()
@@ -69,11 +74,7 @@ function build_gkide()
 
     cd "${GKIDE_BUILD_DIR}"
     CURRENT_BUILD_DIR="${GKIDE_BUILD_DIR}"
-
+    BUILD_ERR_MSG="Error: build nvim failed!"
     run_make nvim
-    if ! $?; then
-        echo "Error: build nvim failed!"
-        exit 1
-    fi
 }
 
