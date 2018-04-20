@@ -341,7 +341,7 @@ build/generated/doxygen/.run-latex-nvim: build/generated/doxygen/.run-doxygen-nv
 	$(Q)$(MAKE_PROG) -C build/generated/doxygen/nvim/latex
 	$(Q)if [ -f build/generated/doxygen/nvim/latex/refman.pdf ]; then  \
 	    mv build/generated/doxygen/nvim/latex/refman.pdf \
-	       build/generated/gkide-nvim-src.pdf; fi
+	       build/generated/doxygen/nvim-dev-doc.pdf; fi
 
 build/generated/doxygen/.run-doxygen-snail:
 	-$(DOXYGEN_PROG) build/generated/doxygen/Doxyfile.snail
@@ -350,7 +350,7 @@ build/generated/doxygen/.run-latex-snail: build/generated/doxygen/.run-doxygen-s
 	$(Q)$(MAKE_PROG) -C build/generated/doxygen/snail/latex
 	$(Q)if [ -f build/generated/doxygen/snail/latex/refman.pdf ]; then \
 	    mv build/generated/doxygen/snail/latex/refman.pdf \
-	       build/generated/gkide-snail-src.pdf; fi
+	       build/generated/doxygen/snail-dev-doc.pdf; fi
 
 # generated nvim & snail html/pdf manual from source code
 htmls: build/generated/doxygen/.run-doxygen-nvim build/generated/doxygen/.run-doxygen-snail

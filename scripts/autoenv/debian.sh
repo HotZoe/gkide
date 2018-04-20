@@ -15,6 +15,14 @@ sudo apt install curl
 sudo apt install python
 sudo apt install cppcheck
 sudo apt install libx11-dev
+sudo apt install gdb
+sudo apt install unzip
+sudo apt install locales
+sudo apt install autoconf
+sudo apt install g++-multilib
+sudo apt install gcc-multilib
+sudo apt install libc6-dev-i386
+sudo apt install build-essential
 
 # install dependencies libraries development version
 sudo apt install libfontconfig1-dev
