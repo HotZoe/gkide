@@ -15,12 +15,10 @@ fi
 
 ${install_package} cmake
 ${install_package} libtool
-${install_package} libtool-bin
 ${install_package} automake
 ${install_package} pkg-config
 ${install_package} gettext
 ${install_package} openssl
-${install_package} git
 ${install_package} curl
 ${install_package} python
 ${install_package} cppcheck
