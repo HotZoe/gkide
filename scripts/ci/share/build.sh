@@ -1,5 +1,5 @@
-source $SHARE_DIR/utils.sh
-source $SHARE_DIR/prepare.sh
+source ${SHARE_DIR}/share/utils.sh
+source ${SHARE_DIR}/share/prepare.sh
 
 SHARED_CMAKE_BUILD_FLAGS=""
 CURRENT_BUILD_DIR=""
