@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-echo "Step_2: install any dependencies that required ..."
+echo "Install any dependencies that required ..."
 
 if [[ "${TRAVIS_OS_NAME}" == osx ]]; then
     brew update

@@ -3,4 +3,4 @@
 set -e
 set -o pipefail
 
-echo "Step_3: run custom commands before build ..."
+echo "Prepare before building ..."

@@ -1,11 +1,14 @@
 dist: trusty
-sudo: false
+sudo: required
 language: c
 
 # build only the master branch
 branches:
     only:
         - master
+
+git:
+  depth: 10
 
 env:
     global:
@@ -39,10 +42,9 @@ matrix:
           compiler: gcc
     fast_finish: true
 
-before_install: scripts/ci/install-prepare.sh
 install:        scripts/ci/install-deps.sh
 before_script:  scripts/ci/build-prepare.sh
-script:         scripts/ci/build-gkide.sh
+script:         scripts/ci/build-running.sh
 after_success:  scripts/ci/build-success.sh
 
 # for details see:
