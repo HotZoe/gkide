@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+set -o pipefail
+
+echo "Step_5: GKIDE build success ..."
+
+# get the build result status
+echo "GKIDE build status: ${TRAVIS_TEST_RESULT}"

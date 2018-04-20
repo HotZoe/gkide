@@ -1,0 +1,53 @@
+dist: trusty
+sudo: false
+language: c
+
+# build only the master branch
+branches:
+    only:
+        - master
+
+env:
+    global:
+        # Directory where third-party dependency sources are downloaded to.
+        - DEPS_DOWNLOAD_DIR="${HOME}/gkide-deps"
+        # Build directory for dependencies libraries
+        - DEPS_BUILD_DIR="${DEPS_DOWNLOAD_DIR}/build"
+        # If this file exists, the dependencies libraries cache is valid
+        - DEPS_CACHE_MARKER="${DEPS_BUILD_DIR}/.travis_cache_marker"
+        # Build directory for GKIDE
+        - GKIDE_BUILD_DIR="${TRAVIS_BUILD_DIR}/build"
+        # Log directory
+        - GKIDE_LOG_DIR="${GKIDE_BUILD_DIR}/log"
+        # Install directory for gkide
+        - GKIDE_INSTALL_PREFIX="$HOME/gkide"
+        # GKIDE build log
+        - GKIDE_BUILD_LOG="${GKIDE_BUILD_DIR}/build.log"
+        # Default CMake flags.
+        - GKIDE_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Debug
+                             -DCMAKE_INSTALL_PREFIX:PATH=${GKIDE_INSTALL_PREFIX}
+                             -DGKIDE_RELEASE_TYPE=dev
+                             -DBUNDLED_DEPS_PREFIX:PATH=${DEPS_BUILD_DIR}/usr
+                             -DTRAVIS_CI_ENABLE=OFF
+                             -DNVIM_LOG_LEVEL_MIN=3"
+        - DEPS_CMAKE_FLAGS="-DCMAKE_BUILD_TYPE=Release
+                            -DDEPS_DOWNLOAD_DIR:PATH=$DEPS_DOWNLOAD_DIR"
+
+matrix:
+    include:
+        - os: linux
+          compiler: gcc
+    fast_finish: true
+
+before_install: scripts/ci/install-prepare.sh
+install:        scripts/ci/install-deps.sh
+before_script:  scripts/ci/build-prepare.sh
+script:         scripts/ci/build-gkide.sh
+after_success:  scripts/ci/build-success.sh
+
+# for details see:
+# - https://docs.travis-ci.com/user/for-beginners
+# - https://docs.travis-ci.com/user/reference/overview/
+# - https://docs.travis-ci.com/user/reference/trusty/
+# - https://docs.travis-ci.com/user/environment-variables#Default-Environment-Variables
+# - https://docs.travis-ci.com/user/customizing-the-build
