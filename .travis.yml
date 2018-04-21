@@ -1,6 +1,6 @@
 dist: trusty
 sudo: required
-language: c
+language: cpp
 
 # build only the master branch
 branches:
