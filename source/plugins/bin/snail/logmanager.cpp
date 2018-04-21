@@ -1,6 +1,7 @@
 /// @file plugins/bin/snail/logmanager.cpp
 
 #include <QDir>
+#include <QtGlobal>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QTextStream>
