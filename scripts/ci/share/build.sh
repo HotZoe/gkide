@@ -61,7 +61,11 @@ function prepare_build_gkide()
         GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} ${SHARED_CMAKE_BUILD_FLAGS}"
     fi
 
-    GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DGKIDE_BUILD_NVIM_ONLY=ON"
+    if test "${BUILD_NVIM_ONLY}" = ON ; then
+        GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DGKIDE_BUILD_NVIM_ONLY=ON"
+    else
+        GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu"
+    fi
 
     cd "${GKIDE_BUILD_DIR}"
     echo "gkide build flags: ${GKIDE_CMAKE_FLAGS}"

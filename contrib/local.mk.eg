@@ -4,6 +4,7 @@
 # This is the location directory which contains: 
 # bin/, lib/, include/, share/, etc.
 #
+# system Qt5 install perfix(linux dynamic)   is: /usr/lib/x86_64-linux-gnu
 # my Qt5 install perfix(for linux dynamic)   is: /opt/Qt5.5.1/5.5/gcc_64
 # my Qt5 install perfix(for windows dynamic) is: D:/App/Msys2/mingw64
 # my Qt5 install perfix(for windows dynamic) is: D:/App/Msys2/mingw32

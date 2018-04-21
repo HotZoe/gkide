@@ -18,7 +18,7 @@ if(NOT GKIDE_BUILD_NVIM_ONLY)
     endif()
 
     set(QT_LIB_PREFIX_DIR ${CMAKE_PREFIX_PATH})
-    message(STATUS "Qt5 Search Path   : ${CMAKE_PREFIX_PATH}")
+    message(STATUS "LibQt5 Search Path: ${CMAKE_PREFIX_PATH}")
 endif()
 
 # Dependency libraries search path

@@ -31,6 +31,7 @@ ${install_package} g++-multilib
 ${install_package} gcc-multilib
 ${install_package} libc6-dev-i386
 ${install_package} build-essential
-    
-#${install_package} qt5-default 
-#${install_package} qttools5-dev-tools
+
+if test "${BUILD_NVIM_ONLY}" != ON ; then
+    ${install_package} qt5-default
+fi
