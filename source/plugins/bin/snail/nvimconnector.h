@@ -86,7 +86,7 @@ public:
         MsgpackError,
         RuntimeMsgpackError,
     };
-    Q_ENUM(NvimError)
+    //Q_ENUM(NvimError)
 
     /// Underlying connection used to read nvim
     enum NeovimConnectionType
