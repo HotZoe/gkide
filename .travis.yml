@@ -12,6 +12,8 @@ git:
 
 env:
     global:
+        # use shared Qt5 library, if it 'OFF' then use static Qt5
+        USE_SHARED_QT5=ON
         # Directory where third-party dependency sources are downloaded to.
         - DEPS_DOWNLOAD_DIR="${HOME}/gkide-deps"
         # Build directory for dependencies libraries

@@ -4,6 +4,7 @@ source ${SHARE_DIR}/share/prepare.sh
 SHARED_CMAKE_BUILD_FLAGS=""
 CURRENT_BUILD_DIR=""
 BUILD_ERR_MSG=""
+QT5_INSTALL_PREFIX=""
 
 function run_make()
 {
@@ -64,7 +65,14 @@ function prepare_build_gkide()
     if test "${BUILD_NVIM_ONLY}" = ON ; then
         GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DGKIDE_BUILD_NVIM_ONLY=ON"
     else
-        GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=/usr/lib/x86_64-linux-gnu"
+        if test "${USE_SHARED_QT5}" = ON ; then
+            GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DSNAIL_USE_SHARED_QT5=ON"
+            GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DSNAIL_USE_STATIC_QT5=OFF"
+        else
+            GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DSNAIL_USE_SHARED_QT5=OFF"
+            GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DSNAIL_USE_STATIC_QT5=ON"
+        fi
+        GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
     fi
 
     cd "${GKIDE_BUILD_DIR}"
