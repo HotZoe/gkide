@@ -88,5 +88,10 @@ function build_gkide()
     CURRENT_BUILD_DIR="${GKIDE_BUILD_DIR}"
     BUILD_ERR_MSG="Error: build nvim failed!"
     run_make nvim
+
+    cd "${GKIDE_BUILD_DIR}"
+    CURRENT_BUILD_DIR="${GKIDE_BUILD_DIR}"
+    BUILD_ERR_MSG="Error: build snail failed!"
+    run_make snail
 }
 
