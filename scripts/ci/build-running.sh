@@ -27,7 +27,7 @@ prepare_gkide_build
 # build nvim
 BUILD_DIR="${GKIDE_BUILD_DIR}"
 BUILD_ERR_MSG="Error: build nvim failed!"
-run_make "nvim" "VERBOSE=1 | tee build.log"
+run_make "nvim" "VERBOSE=1 | tee ${GKIDE_BUILD_DIR}/build.log"
 
 # build snail
 #BUILD_DIR="${GKIDE_BUILD_DIR}"
