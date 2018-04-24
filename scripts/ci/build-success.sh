@@ -5,5 +5,8 @@ set -o pipefail
 
 echo "GKIDE building success ..."
 
-# get the build result status
-echo "GKIDE build status: ${TRAVIS_TEST_RESULT}"
+CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${CI_DIR}/share/git-repo.sh"
+
+echo "update autodocs/dev/log/..."
+update_autodocs_dev_log

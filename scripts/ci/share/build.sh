@@ -1,24 +1,21 @@
-source ${SHARE_DIR}/share/utils.sh
-source ${SHARE_DIR}/share/prepare.sh
-
-SHARED_CMAKE_BUILD_FLAGS=""
-CURRENT_BUILD_DIR=""
-BUILD_ERR_MSG=""
-QT5_INSTALL_PREFIX=""
-
+# ${1}: build target
+# ${2}: extra cmake build flags
 function run_make()
 {
+    local build_target=""
+    if [ "$1" = "" ]; then
+        build_target="deps"
+    fi
+
     echo '======================================================================'
-    make -C "${CURRENT_BUILD_DIR}" "$@"
+    make -C "${BUILD_DIR}" "$1" "$2"
 
     if [ $? -ne 0 ]; then
-        echo "Build Target: $@"
-        echo "Build Directory: ${CURRENT_BUILD_DIR}"
+        echo "Build Target: ${build_target}"
+        echo "Build Directory: ${BUILD_DIR}"
         echo "${BUILD_ERR_MSG}"
         exit 1
     fi
-
-    cd "${TRAVIS_BUILD_DIR}"
 }
 
 function build_deps()
@@ -39,22 +36,17 @@ function build_deps()
 
     # Even if using cached dependencies, run CMake and make to
     # update CMake configuration and update to newer deps versions.
-    cd "${DEPS_BUILD_DIR}"
+    cd "${DEPS_BUILD_DIR}" > /dev/null
     echo "Deps build flags: ${DEPS_CMAKE_FLAGS}"
     CC= cmake -G "Unix Makefiles" ${DEPS_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}/deps/"
 
-    CURRENT_BUILD_DIR="${DEPS_BUILD_DIR}"
+    BUILD_DIR="${DEPS_BUILD_DIR}"
     BUILD_ERR_MSG="Error: build deps libraries failed!"
     run_make
 }
 
-function prepare_build_gkide()
+function prepare_gkide_build()
 {
-    # check env setting before build
-    env_check_pre_build
-    
-    build_deps
-
     mkdir -p "${GKIDE_LOG_DIR}"
     mkdir -p "${GKIDE_BUILD_DIR}"
 
@@ -75,23 +67,7 @@ function prepare_build_gkide()
         GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
     fi
 
-    cd "${GKIDE_BUILD_DIR}"
+    cd "${GKIDE_BUILD_DIR}" > /dev/null
     echo "gkide build flags: ${GKIDE_CMAKE_FLAGS}"
     CC= cmake -G "Unix Makefiles" ${GKIDE_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}"
 }
-
-function build_gkide()
-{
-    prepare_build_gkide
-
-    cd "${GKIDE_BUILD_DIR}"
-    CURRENT_BUILD_DIR="${GKIDE_BUILD_DIR}"
-    BUILD_ERR_MSG="Error: build nvim failed!"
-    run_make nvim
-
-    cd "${GKIDE_BUILD_DIR}"
-    CURRENT_BUILD_DIR="${GKIDE_BUILD_DIR}"
-    BUILD_ERR_MSG="Error: build snail failed!"
-    run_make snail
-}
-
