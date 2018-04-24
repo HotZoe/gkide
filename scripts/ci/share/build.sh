@@ -2,7 +2,7 @@
 function run_cmake()
 {
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
-        cmake -G "Unix Makefiles" "$@ | tee --append ${GKIDESRC_DIR}/build.log"
+        cmake -G "Unix Makefiles" "$@" | tee --append ${GKIDESRC_DIR}/build.log
     else
         cmake -G "Unix Makefiles" "$@"
     fi
@@ -17,7 +17,7 @@ function run_make()
     fi
 
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
-        make -C "${BUILD_DIR}" "$@ VERBOSE=1 | tee --append ${GKIDESRC_DIR}/build.log"
+        make -C "${BUILD_DIR}" "$@ VERBOSE=1" | tee --append ${GKIDESRC_DIR}/build.log
     else
         make -C "${BUILD_DIR}" "$@"
     fi
