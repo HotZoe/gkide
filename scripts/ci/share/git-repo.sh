@@ -1,16 +1,3 @@
-# $TRAVIS_BUILD_DIR => /home/travis/build/gkide/robot
-# The working directory for current job
-# => /home/travis/build/gkide
-REPO_HOME_DIR=$(cd ${TRAVIS_BUILD_DIR}/.. && pwd)
-
-GKIDE_GITHUB_URL=${GKIDE_GITHUB_URL:-https://github.com/gkide}
-
-GKIDESRC_DIR=${GKIDESRC_DIR:-${REPO_HOME_DIR}/gkide}
-
-AUTODOCS_BRANCH=${AUTODOCS_BRANCH:-master}
-AUTODOCS_REPO="${GKIDE_GITHUB_URL}/autodocs.git"
-AUTODOCS_DIR=${AUTODOCS_DIR:-${REPO_HOME_DIR}/autodocs}
-
 SKIP_ROBOT_COMMIT_PUSH="true"
 
 # check if github token is set or not
@@ -69,7 +56,7 @@ function git_repo_commit_push()
     git add "${add_target}"
 
     # CI build and commit
-    local commit_msg="robot: automatic update ${add_target} at $(date "+%Y-%m-%d %z")"
+    local commit_msg="robot: update ${add_target} at $(date "+%Y-%m-%d %z")"
     git commit -m "${commit_msg}" || true
 
     local try_cnt=10
@@ -77,12 +64,12 @@ function git_repo_commit_push()
     while test $(( try_cnt-=1 )) -gt 0 ; do
         if git pull --rebase "${!repo_url}" "${!repo_branch}"; then
             if git push ${!repo_url} ${!repo_branch}; then
-                log_info "Pushed to ${!repo_url}:${!repo_branch}"
+                echo "Pushed to ${!repo_url}:${!repo_branch}"
                 return 0
             fi
         fi
 
-        log_info "Retry[${try_cnt}] pushing to ${!repo_url}:${!repo_branch}"
+        echo "Retry[${try_cnt}] pushing to ${!repo_url}:${!repo_branch}"
         # Pause for 2 seconds, then retry
         sleep 2
     done
@@ -151,8 +138,10 @@ function commit_push_autodocs()
 # upload gkide build log to 'autodocs/dev/log/...'
 function update_autodocs_dev_log()
 {
-    if [ "${SKIP_ROBOT_COMMIT_PUSH}" = "true" ]; then
-        # skip upload build log for missing private github token
+    if [ "${SKIP_ROBOT_COMMIT_PUSH}" = "true" -o "${UPLOAD_BUILD_LOG}" != "ON" ]; then
+        # skip upload build log:
+        # - for just skip it
+        # - for missing private github token
         return
     fi
 
@@ -160,7 +149,7 @@ function update_autodocs_dev_log()
 
     local build_log="dev/log/ci_${TRAVIS_OS_NAME}-gkide_build.log"
 
-    cp "${GKIDE_BUILD_DIR}/build.log" "${AUTODOCS_DIR}/${build_log}"
+    cp "${GKIDESRC_DIR}/build.log" "${AUTODOCS_DIR}/${build_log}"
     
     commit_push_autodocs "${build_log}"
 }

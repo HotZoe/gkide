@@ -13,6 +13,7 @@ SHARED_CMAKE_BUILD_FLAGS=""
 CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${CI_DIR}/share/utils.sh"
 source "${CI_DIR}/share/prepare.sh"
+source "${CI_DIR}/share/config.sh"
 source "${CI_DIR}/share/build.sh"
 
 # check env setting before build anything
@@ -27,9 +28,9 @@ prepare_gkide_build
 # build nvim
 BUILD_DIR="${GKIDE_BUILD_DIR}"
 BUILD_ERR_MSG="Error: build nvim failed!"
-run_make "nvim" "VERBOSE=1 | tee ${GKIDE_BUILD_DIR}/build.log"
+run_make "nvim"
 
 # build snail
-#BUILD_DIR="${GKIDE_BUILD_DIR}"
-#BUILD_ERR_MSG="Error: build snail failed!"
-#run_make snail
+BUILD_DIR="${GKIDE_BUILD_DIR}"
+BUILD_ERR_MSG="Error: build snail failed!"
+run_make snail

@@ -1,5 +1,14 @@
+# $@: cmake args
+function run_cmake()
+{
+    if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
+        cmake -G "Unix Makefiles" "$@ | tee --append ${GKIDESRC_DIR}/build.log"
+    else
+        cmake -G "Unix Makefiles" "$@"
+    fi
+}
+
 # ${1}: build target
-# ${2}: extra cmake build flags
 function run_make()
 {
     local build_target="$1"
@@ -7,8 +16,11 @@ function run_make()
         build_target="deps"
     fi
 
-    echo '======================================================================'
-    make -C "${BUILD_DIR}" "$@"
+    if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
+        make -C "${BUILD_DIR}" "$@ VERBOSE=1 | tee --append ${GKIDESRC_DIR}/build.log"
+    else
+        make -C "${BUILD_DIR}" "$@"
+    fi
 
     if [ $? -ne 0 ]; then
         echo "Build Target: ${build_target}"
@@ -34,11 +46,15 @@ function build_deps()
         DEPS_CMAKE_FLAGS="${DEPS_CMAKE_FLAGS} ${SHARED_CMAKE_BUILD_FLAGS}"
     fi
 
+    if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
+        DEPS_CMAKE_FLAGS="${DEPS_CMAKE_FLAGS} -DCMAKE_VERBOSE_MAKEFILE=ON"
+    fi
+
     # Even if using cached dependencies, run CMake and make to
     # update CMake configuration and update to newer deps versions.
     cd "${DEPS_BUILD_DIR}" > /dev/null
     echo "Deps build flags: ${DEPS_CMAKE_FLAGS}"
-    CC= cmake -G "Unix Makefiles" ${DEPS_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}/deps/"
+    run_cmake ${DEPS_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}/deps/"
 
     BUILD_DIR="${DEPS_BUILD_DIR}"
     BUILD_ERR_MSG="Error: build deps libraries failed!"
@@ -67,7 +83,11 @@ function prepare_gkide_build()
         GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
     fi
 
+    if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
+        GKIDE_CMAKE_FLAGS="${GKIDE_CMAKE_FLAGS} -DCMAKE_VERBOSE_MAKEFILE=ON"
+    fi
+
     cd "${GKIDE_BUILD_DIR}" > /dev/null
     echo "gkide build flags: ${GKIDE_CMAKE_FLAGS}"
-    CC= cmake -G "Unix Makefiles" ${GKIDE_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}"
+    run_cmake ${GKIDE_CMAKE_FLAGS} "${TRAVIS_BUILD_DIR}"
 }
