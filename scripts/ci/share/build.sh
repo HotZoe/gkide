@@ -2,13 +2,13 @@
 # ${2}: extra cmake build flags
 function run_make()
 {
-    local build_target=""
+    local build_target="$1"
     if [ "$1" = "" ]; then
         build_target="deps"
     fi
 
     echo '======================================================================'
-    make -C "${BUILD_DIR}" "$1" "$2"
+    make -C "${BUILD_DIR}" "$@"
 
     if [ $? -ne 0 ]; then
         echo "Build Target: ${build_target}"
