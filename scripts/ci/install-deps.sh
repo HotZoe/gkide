@@ -31,12 +31,4 @@ ${install_package} g++-multilib
 ${install_package} gcc-multilib
 ${install_package} libc6-dev-i386
 ${install_package} build-essential
-
-if test "${BUILD_NVIM_ONLY}" != ON ; then
-    if test ${USE_SHARED_QT5} = ON; then
-        ${install_package} qt5-default
-    else
-        echo "[TODO]: install and config static Qt5 library."
-        exit 1
-    fi
-fi
+${install_package} qt5-default

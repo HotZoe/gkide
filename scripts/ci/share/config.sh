@@ -11,3 +11,16 @@ AUTODOCS_BRANCH="master"
 AUTODOCS_REPO="${GKIDE_GITHUB_URL}/autodocs.git"
 AUTODOCS_DIR="${REPO_HOME_DIR}/autodocs"
 
+AUTODEPS_BRANCH="master"
+AUTODEPS_REPO="${GKIDE_GITHUB_URL}/autodeps.git"
+AUTODEPS_DIR="${REPO_HOME_DIR}/autodeps"
+
+ROBOT_BRANCH="master"
+ROBOT_REPO="${GKIDE_GITHUB_URL}/robot.git"
+ROBOT_DIR="${REPO_HOME_DIR}/robot"
+
+GKIDE_FULL_BUILD_LOG="${BUILD_LOG_DIR}/gkide_full_build.log"
+TEST_FAIL_SUMMARY_LOG="${BUILD_LOG_DIR}/test_fail_summary.log"
+
+BUILD_DIR=""
+BUILD_ERR_MSG=""

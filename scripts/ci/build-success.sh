@@ -9,5 +9,5 @@ CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${CI_DIR}/share/config.sh"
 source "${CI_DIR}/share/git-repo.sh"
 
-echo "update autodocs/dev/log/..."
-update_autodocs_dev_log
+echo "update autodocs/dev/log/XXX/..."
+upload_build_logs

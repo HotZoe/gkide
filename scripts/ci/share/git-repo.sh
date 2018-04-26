@@ -14,7 +14,11 @@ function robot_git_user_config()
 {
     if [ "${CONTINUOUS_INTEGRATION}" = "true" -a has_gh_token ]; then
         SKIP_ROBOT_COMMIT_PUSH="false"
-    
+
+        if [ -f "$HOME/.netrc" ]; then
+            return
+        fi
+
         local git_usr_name="gkide-robot"
         local git_usr_email="ifcoding@163.com"
     
@@ -135,21 +139,41 @@ function commit_push_autodocs()
     git_repo_commit_push AUTODOCS "$1"
 }
 
-# upload gkide build log to 'autodocs/dev/log/...'
-function update_autodocs_dev_log()
+# upload build logs to 'autodocs/dev/log/XXX/...'
+function upload_build_logs()
 {
     if [ "${SKIP_ROBOT_COMMIT_PUSH}" = "true" -o "${UPLOAD_BUILD_LOG}" != "ON" ]; then
         # skip upload build log:
-        # - for just skip it
-        # - for missing private github token
+        # - just skip it
+        # - missing private github token
         return
     fi
 
     clone_autodocs
 
-    local build_log="dev/log/ci_${TRAVIS_OS_NAME}-gkide_build.log"
+    rm -rf "${AUTODOCS_DIR}/dev/log/${TRAVIS_OS_NAME}/*"
+    mkdir -p "${AUTODOCS_DIR}/dev/log/${TRAVIS_OS_NAME}"
 
-    cp "${GKIDESRC_DIR}/build.log" "${AUTODOCS_DIR}/${build_log}"
-    
-    commit_push_autodocs "${build_log}"
+    mv "${BUILD_LOG_DIR}/*.log" "${AUTODOCS_DIR}/dev/log/${TRAVIS_OS_NAME}"
+
+    local build_logs="dev/log/${TRAVIS_OS_NAME}/*.log"
+
+    commit_push_autodocs "${build_logs}"
+}
+
+function clone_robot()
+{
+    git_repo_clone ROBOT
+}
+
+# commit and push
+# ${1}: git add target subtree or file
+function commit_push_robot()
+{
+    git_repo_commit_push ROBOT "$1"
+}
+
+function clone_autodeps()
+{
+    git_repo_clone AUTODEPS
 }
