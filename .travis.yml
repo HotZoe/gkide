@@ -45,22 +45,22 @@ matrix:
     fast_finish: true
     include:
         - stage: normal
-            - os: linux
-              compiler: gcc
-              env: BUILD_NVIM_ONLY = ON
-            - os: linux
-              compiler: gcc
-              env: USE_SHARED_QT5 = ON
-#           - os: linux
-#             compiler: gcc
-#             env: USE_SHARED_QT5 = OFF
-#           - os: osx
-#             compiler: clang
-#             env: USE_SHARED_QT5 = OFF
+          os: linux
+          compiler: gcc
+          env: BUILD_NVIM_ONLY = ON
+        - os: linux
+          compiler: gcc
+          env: USE_SHARED_QT5 = ON
+#       - os: linux
+#         compiler: gcc
+#         env: USE_SHARED_QT5 = OFF
+#       - os: osx
+#         compiler: clang
+#         env: USE_SHARED_QT5 = OFF
 #       - stage: release
-#           - os: linux
-#             compiler: gcc
-#             env: BUILD_NVIM_ONLY = ON
+#         os: linux
+#         compiler: gcc
+#         env: BUILD_NVIM_ONLY = ON
     allow_failures:
         - os: linux
           compiler: gcc
