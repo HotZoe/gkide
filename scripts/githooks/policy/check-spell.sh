@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-function run_test()
+function check_spell()
 {
     which aspell > /dev/null
     if [ ! $? -eq 0 ] ; then
-        exit 0
+        return 0
     fi
 
     set -e
@@ -14,7 +14,7 @@ function run_test()
     if [ ! -z "${warnings}" ] ; then
         echo >&2 "Possible spelling errors in the commit message:"
         echo -e >&2 "    \033[31m"${warnings}"\033[0m\n";
-        exit 1
+        return 1
     fi
 }
 
@@ -29,6 +29,6 @@ case "${1}" in
         fi
         ;;
     *)
-        run_test "$@"
+        check_spell "$@"
         ;;
 esac

@@ -64,7 +64,13 @@ git config core.autocrlf input
 git config core.filemode false
 cp .gitcommitstyle gitcommitstyle
 git config commit.template ${PWD}/gitcommitstyle
-    
+
+# git hooks directory configuration
+# NOTE:
+# - git version should be higher than 2.9.0
+# - for older git version, do config by hand, see the hooks file header
+git config core.hooksPath "${PWD}/scripts/githooks"
+
 # install nodejs
 # todo
 # npm install -g validate-commit-msg

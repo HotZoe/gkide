@@ -63,10 +63,6 @@ matrix:
 #         os: linux
 #         compiler: gcc
 #         env: BUILD_NVIM_ONLY=ON
-    allow_failures:
-        - os: linux
-          compiler: gcc
-          env: USE_SHARED_QT5=ON
 
 before_install: true
 install:        scripts/ci/install-deps.sh

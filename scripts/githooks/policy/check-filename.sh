@@ -27,7 +27,3 @@ $ \033[0;33mgit config hooks.allownonascii true\033[0m"
     echo -e $err_msg
     exit 1
 fi
-
-# If there are whitespace errors, print the offending file names and fail.
-# Check for introduced trailing whitespace or an indent that uses a space before a tab.
-exec git diff-index --check --cached HEAD --
