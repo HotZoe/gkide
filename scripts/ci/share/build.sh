@@ -34,7 +34,10 @@ function deps_cache_check()
     local deps_prev_sha1="ci/target/autodeps/.deps_prev_sha1"
     local pre_deps_sha1=`cat ${ROBOT_DIR}/${deps_prev_sha1}`
     local cur_deps_sha1=`git_repo_sha1 GKIDESRC master deps`
-    
+
+    echo "cur_deps_sha1: ${cur_deps_sha1}"
+    echo "pre_deps_sha1: ${pre_deps_sha1}"
+
     if [ "${cur_deps_sha1}" != "${pre_deps_sha1}" ]; then
         echo "'gkide/deps' changed, update '${ROBOT_DIR}/${deps_prev_sha1}' ..."
         echo "${cur_deps_sha1}" > "${ROBOT_DIR}/${deps_prev_sha1}"

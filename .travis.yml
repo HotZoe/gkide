@@ -3,7 +3,7 @@ sudo: required
 language: cpp
 
 git:
-    depth: 10
+    depth: 100
 
 # build only the master branch
 branches:
@@ -47,24 +47,24 @@ matrix:
         - stage: normal
           os: linux
           compiler: gcc
-          env: BUILD_NVIM_ONLY = ON
+          env: BUILD_NVIM_ONLY=ON
         - os: linux
           compiler: gcc
-          env: USE_SHARED_QT5 = ON
+          env: USE_SHARED_QT5=ON
 #       - os: linux
 #         compiler: gcc
-#         env: USE_SHARED_QT5 = OFF
+#         env: USE_SHARED_QT5=OFF
 #       - os: osx
 #         compiler: clang
-#         env: USE_SHARED_QT5 = OFF
+#         env: USE_SHARED_QT5=OFF
 #       - stage: release
 #         os: linux
 #         compiler: gcc
-#         env: BUILD_NVIM_ONLY = ON
+#         env: BUILD_NVIM_ONLY=ON
     allow_failures:
         - os: linux
           compiler: gcc
-          env: USE_SHARED_QT5 = ON
+          env: USE_SHARED_QT5=ON
 
 before_install: true
 install:        scripts/ci/install-deps.sh
