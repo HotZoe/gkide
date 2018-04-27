@@ -195,13 +195,17 @@ endif
 
 # build nvim only, do not build snail, so do not need Qt stuff,
 # the default value is false, which means build both
-BUILD_NVIM_ONLY := false
+SKIP_CHECK_LIB_QT5 := false
 
 ifneq (, $(findstring nvim-only, $(MAKECMDGOALS)))
-    BUILD_NVIM_ONLY := true
+    SKIP_CHECK_LIB_QT5 := true
 endif
 
-ifeq (, $(call filter-false, $(BUILD_NVIM_ONLY)))
+ifeq (ON, $(BUILD_NVIM_ONLY))
+    SKIP_CHECK_LIB_QT5 := true
+endif
+
+ifeq (, $(call filter-false, $(SKIP_CHECK_LIB_QT5)))
     ifeq (,$(QT5_INSTALL_PREFIX))
         ifeq (true, $(DO_CHECK_QT_LIB))
             $(error Qt5 install perfix not set, see contrib/local.mk.eg)

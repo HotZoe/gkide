@@ -28,6 +28,8 @@ env:
         - secure: "OUDW9dSjFFg8gl/SbABuhKq1FAWL27OESKNqrUdYMTw8A9Yi++lG9wiwkdwbm6aBm0qvSQkh3UJsTUnTDgQH8mpl/OJCi/5yXqaoMftKpv+aAKFCN2JC/zAutBQ3NRU3NSzjlz2MTpEIO3xcrh+yVwkR4VfxFQ8N1zylSP/UMrZP6HsOud6rp8SFnN0sSmu+5HK0OaIXp8T2naIJI/xGhGkcvQJ86h3nGgn5zeATusmI/jyH3vVpCfoAuzW9hopRyWgOdwe8mNo+g2Mf6fgAruyt1z+IXFkBlOi64vqakXy78ngjdOYVCv2vZo+JceiLvbkVP6IYEu7VyuTURArTDMutAMsYiyJEt7iQqQ0PZMMJHgmQ3Gm5bgqz41VUP9rBwKGNQ0lTOBpZHujcftpQQFijNY141W0zbe+ZA/7zkcArWn9mv7ExE9qyYyeBS8NfjxoJ/prS+GbgDEr8VMqk2Kjq6ue0sMybCyeW0BM0uGQrd8gOGbqgz5fI5dFeuYgW1gcmR32NWnpDyhnIo9mhHFW2me5MCK/XyTnYaLmPjW+GjvtHSvnceiMpDpAz58Oeq6oRkRlSAkqlB8DZ8EJZx+VNq6RQyY4WqYXVcA2MjDMu9xl+5uydGoSiC9gS9orQU2qu10TvBjrYWZUAMKZCvqGgIW8OHKrEJ48cZoh1C7E="
         # Auto upload build log to 'autodocs/dev/log/...'
         - UPLOAD_BUILD_LOG=ON
+        # Output verbose build log
+        - VERBOSE_BUILD_LOG=ON
         # Build log directory
         - BUILD_LOG_DIR="${HOME}/log"
         # Set 'OFF' to force rebuild of all dependencies

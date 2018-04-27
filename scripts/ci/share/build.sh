@@ -2,7 +2,7 @@
 function run_cmake()
 {
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
-        cmake -G "Unix Makefiles" "$@" | tee --append ${BUILD_LOG_DIR}/build.log
+        cmake -G "Unix Makefiles" "$@" | tee --append ${GKIDE_FULL_BUILD_LOG}
     else
         cmake -G "Unix Makefiles" "$@"
     fi
@@ -14,7 +14,11 @@ function run_make()
     local build_target="$1"
 
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
-        make "$@ VERBOSE=1" | tee --append ${BUILD_LOG_DIR}/build.log
+        if [ "${VERBOSE_BUILD_LOG}" = "ON" ]; then
+            make "$@ VERBOSE=1" | tee --append ${GKIDE_FULL_BUILD_LOG}
+        else
+            make "$@" | tee --append ${GKIDE_FULL_BUILD_LOG}
+        fi
     else
         make "$@"
     fi
@@ -118,7 +122,7 @@ function do_local_make_config()
     append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DGKIDE_RELEASE_TYPE=${GKIDE_RELEASE_TYPE}"
 
     if test "${BUILD_NVIM_ONLY}" = "ON" ; then
-        append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DGKIDE_BUILD_NVIM_ONLY=ON"
+        append_local_mk "GKIDE_BUILD_NVIM_ONLY := ON"
     else
         local QT5_INSTALL_PREFIX=""
         if test "${USE_SHARED_QT5}" = ON ; then
@@ -144,12 +148,16 @@ function do_local_make_config()
         append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DCMAKE_INSTALL_PREFIX=${GKIDE_INSTALL_PREFIX}"
     fi
 
-    if [ "${NVIM_LOG_LEVEL_MIN}" -ge 0 -a "${NVIM_LOG_LEVEL_MIN}" -le 6 ]; then
-        append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=${NVIM_LOG_LEVEL_MIN}"
+    if [ -n "${NVIM_LOG_LEVEL_MIN}" ]; then
+        if [ "${NVIM_LOG_LEVEL_MIN}" -ge 0 -a "${NVIM_LOG_LEVEL_MIN}" -le 6 ]; then
+            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DNVIM_LOG_LEVEL_MIN=${NVIM_LOG_LEVEL_MIN}"
+        fi
     fi
 
-    if [ "${SNAIL_LOG_LEVEL_MIN}" -ge 0 -a "${SNAIL_LOG_LEVEL_MIN}" -le 6 ]; then
-        append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=${SNAIL_LOG_LEVEL_MIN}"
+    if [ -n "${SNAIL_LOG_LEVEL_MIN}" ]; then
+        if [ "${SNAIL_LOG_LEVEL_MIN}" -ge 0 -a "${SNAIL_LOG_LEVEL_MIN}" -le 6 ]; then
+            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_LOG_LEVEL_MIN=${SNAIL_LOG_LEVEL_MIN}"
+        fi
     fi
 
     if [ "${ASSERTION_ENABLE}" = "OFF" ]; then
