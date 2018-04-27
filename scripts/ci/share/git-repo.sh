@@ -60,7 +60,7 @@ function git_repo_commit_push()
     git add "${add_target}"
 
     # CI build and commit
-    local commit_msg="robot: update ${add_target} at $(date "+%Y-%m-%d %z")"
+    local commit_msg="robot: ${add_target}, $(date "+%Y-%m-%d %H:%M:%S %z")"
     git commit -m "${commit_msg}" || true
 
     local try_cnt=10

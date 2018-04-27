@@ -31,13 +31,13 @@ function deps_cache_check()
 {
     clone_robot
     
-    local deps_prev_sha1="${ROBOT_DIR}/ci/target/autodeps/.deps_prev_sha1"
-    local pre_deps_sha1=`cat ${deps_prev_sha1}`
+    local deps_prev_sha1="ci/target/autodeps/.deps_prev_sha1"
+    local pre_deps_sha1=`cat ${ROBOT_DIR}/${deps_prev_sha1}`
     local cur_deps_sha1=`git_repo_sha1 GKIDESRC master deps`
     
     if [ "${cur_deps_sha1}" != "${pre_deps_sha1}" ]; then
-        echo "'gkide/deps' changed, update '${deps_prev_sha1}' ..."
-        echo "${cur_deps_sha1}" > ${deps_prev_sha1}
+        echo "'gkide/deps' changed, update '${ROBOT_DIR}/${deps_prev_sha1}' ..."
+        echo "${cur_deps_sha1}" > "${ROBOT_DIR}/${deps_prev_sha1}"
 
         commit_push_robot "${deps_prev_sha1}"
     fi
@@ -119,18 +119,13 @@ function do_local_make_config()
     else
         local QT5_INSTALL_PREFIX=""
         if test "${USE_SHARED_QT5}" = ON ; then
-            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_USE_SHARED_QT5=ON"
-            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_USE_STATIC_QT5=OFF"
-
             if test "${BUILD_TARGET_32BIT}" = ON ; then
                 QT5_INSTALL_PREFIX="/usr/lib/i386-linux-gnu"
             else
                 QT5_INSTALL_PREFIX="/usr/lib/x86_64-linux-gnu"
             fi
+            append_local_mk "QT5_SHARED_LIB_PREFIX := ${QT5_INSTALL_PREFIX}"
         else
-            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_USE_SHARED_QT5=OFF"
-            append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DSNAIL_USE_STATIC_QT5=ON"
-
             # TODO: download prebuild static Qt5 library
 
             if test "${BUILD_TARGET_32BIT}" = ON ; then
@@ -138,8 +133,8 @@ function do_local_make_config()
             else
                 QT5_INSTALL_PREFIX="todo_static_qt5_x64"
             fi
+            append_local_mk "QT5_STATIC_LIB_PREFIX := ${QT5_INSTALL_PREFIX}"
         fi
-        append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DCMAKE_PREFIX_PATH=${QT5_INSTALL_PREFIX}"
     fi
 
     if [ -n "${GKIDE_INSTALL_PREFIX}" ]; then
