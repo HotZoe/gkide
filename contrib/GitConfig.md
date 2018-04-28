@@ -10,6 +10,7 @@ Run the following commands in the project root directory:
   - Run: `$ git config core.eol lf`, make sure working directory file's EOL is always **LF**
   - Run: `$ git config core.safecrlf true`, make sure no mixing **LF** and **CRLF**
   - Run: `$ git config core.autocrlf input`, make sure convert **CRLF** to **LF** if any
+  - Run: `$ git config core.hooksPath ${PWD}/scripts/githooks`, make sure convert **CRLF** to **LF** if any
   - For Windows:
     - Run: `$ git config core.filemode false`
     - Run: `$ cp .gitcommitstyle gitcommitstyle`
