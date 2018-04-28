@@ -16,7 +16,6 @@ GIT_REPO_DIR="$(cd ${PWD} && pwd)"
 
 # The policy directory, abs path
 POLICY_DIR="${GIT_REPO_DIR}/scripts/githooks/policy"
-source "${POLICY_DIR}/utils.sh"
 
 function backup_msg_exit()
 {

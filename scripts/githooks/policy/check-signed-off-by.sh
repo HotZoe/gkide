@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+GIT_REPO_DIR="$(cd ${PWD} && pwd)"
+POLICY_DIR="${GIT_REPO_DIR}/scripts/githooks/policy"
+source "${POLICY_DIR}/utils.sh"
+
 function check_signed_off_by()
 {
     grep '^Signed-off-by: ' "${1}" >/dev/null || {
@@ -24,7 +28,7 @@ case "${1}" in
         signingkey=$(git config --get user.signingkey)
         if [ "${signingkey}" = "" ]; then
             echo "Please set your GPG signingkey, run:"
-            echo -e "    $\033[33m git config --global user.signingkey <YourGpgKeyID>\033[0m"
+            echo "    $ `msg_red 'git config --global user.signingkey <YourGpgKeyID>'`"
             exit 1
         fi
 

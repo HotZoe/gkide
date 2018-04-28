@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+GIT_REPO_DIR="$(cd ${PWD} && pwd)"
+POLICY_DIR="${GIT_REPO_DIR}/scripts/githooks/policy"
+source "${POLICY_DIR}/utils.sh"
+
 function check_spell()
 {
     which aspell > /dev/null
@@ -13,7 +17,7 @@ function check_spell()
 
     if [ ! -z "${warnings}" ] ; then
         echo >&2 "Possible spelling errors in the commit message:"
-        echo -e >&2 "    \033[31m"${warnings}"\033[0m\n";
+        echo >&2 "    `msg_red ${warnings}`";
         return 1
     fi
 }

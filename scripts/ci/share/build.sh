@@ -35,18 +35,20 @@ function deps_cache_check()
 {
     clone_robot
     
-    local deps_prev_sha1="ci/target/autodeps/.deps_prev_sha1"
-    local pre_deps_sha1=`cat ${ROBOT_DIR}/${deps_prev_sha1}`
-    local cur_deps_sha1=`git_repo_sha1 GKIDESRC master deps`
+    local pre_sha1_marker="ci/target/autodeps/.deps_sha1_marker"
+    local cur_sha1_marker="${GKIDESRC_DIR}/deps/.deps_sha1_marker"
 
-    echo "cur_deps_sha1: ${cur_deps_sha1}"
-    echo "pre_deps_sha1: ${pre_deps_sha1}"
+    local cur_deps_sha1=`cat ${cur_sha1_marker}`
+    local pre_deps_sha1=`cat ${ROBOT_DIR}/${pre_sha1_marker}`
+
+    echo "[C]SHA1@deps: ${cur_deps_sha1}"
+    echo "[P]SHA1@deps: ${pre_deps_sha1}"
 
     if [ "${cur_deps_sha1}" != "${pre_deps_sha1}" ]; then
-        echo "'gkide/deps' changed, update '${ROBOT_DIR}/${deps_prev_sha1}' ..."
-        echo "${cur_deps_sha1}" > "${ROBOT_DIR}/${deps_prev_sha1}"
+        echo "'gkide/deps' changed, update '${ROBOT_DIR}/${pre_sha1_marker}' ..."
+        echo "${cur_deps_sha1}" > "${ROBOT_DIR}/${pre_sha1_marker}"
 
-        commit_push_robot "${deps_prev_sha1}"
+        commit_push_robot "${pre_sha1_marker}"
     fi
 
     # CI deps-cache valid and do not force to rebuild from fresh

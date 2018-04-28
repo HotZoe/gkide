@@ -36,7 +36,6 @@ GIT_REPO_DIR="$(cd ${PWD} && pwd)"
 
 # The policy directory, abs path
 POLICY_DIR="${GIT_REPO_DIR}/scripts/githooks/policy"
-source "${POLICY_DIR}/utils.sh"
 
 if git rev-parse --verify HEAD >/dev/null 2>&1; then
     against=HEAD

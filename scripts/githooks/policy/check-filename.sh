@@ -2,6 +2,10 @@
 #
 # check if we have non-ASCII filenames, if it does then no commit
 
+GIT_REPO_DIR="$(cd ${PWD} && pwd)"
+POLICY_DIR="${GIT_REPO_DIR}/scripts/githooks/policy"
+source "${POLICY_DIR}/utils.sh"
+
 # If you want to allow non-ASCII filenames set this variable to true.
 allownonascii=$(git config --bool hooks.allownonascii)
 
@@ -18,12 +22,12 @@ if [ "$allownonascii" != "true" ] &&
     test $(git diff --cached --name-only --diff-filter=A -z HEAD |
            LC_ALL=C tr -d '[ -~]\0' | wc -c) != 0
 then
-    err_msg="
-\033[0;31mError\033[0m: Attempt to add a non-ASCII file name.\n\n
-This can cause problems if you want to work with people on other platforms.\n\n
-To be portable it is advisable to rename the file.\n\n
-If you know what you are doing you can disable this check using:\n\n
-$ \033[0;33mgit config hooks.allownonascii true\033[0m"
-    echo -e $err_msg
+    echo "`msg_red Error`: Attempt to add a non-ASCII file name."
+    echo
+    echo "This can cause problems if you want to work with people on other platforms."
+    echo "To be portable it is advisable to rename the file."
+    echo
+    echo "If you know what you are doing you can disable this check using:"
+    echo "$ `msg_red 'git config hooks.allownonascii true'`"
     exit 1
 fi
