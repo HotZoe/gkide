@@ -18,4 +18,6 @@ if all_done_successfully; then
 
     touch "${DEPS_CACHE_MARKER}"
     echo "Updated CI deps cache, timestamp: $(stat_cmd "${DEPS_CACHE_MARKER}")"
+else
+    echo "Something failed, skip CI deps caching."
 fi

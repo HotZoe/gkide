@@ -125,7 +125,7 @@ function do_local_make_config()
     append_local_mk "GKIDE_CMAKE_EXTRA_FLAGS += -DGKIDE_RELEASE_TYPE=${GKIDE_RELEASE_TYPE}"
 
     if test "${BUILD_NVIM_ONLY}" = "ON" ; then
-        append_local_mk "GKIDE_BUILD_NVIM_ONLY := ON"
+        append_local_mk "BUILD_NVIM_ONLY := ON"
     else
         local QT5_INSTALL_PREFIX=""
         if test "${USE_SHARED_QT5}" = ON ; then
