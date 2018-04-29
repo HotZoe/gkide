@@ -201,7 +201,7 @@ ifneq (, $(findstring nvim-only, $(MAKECMDGOALS)))
     SKIP_CHECK_LIB_QT5 := true
 endif
 
-ifeq (ON, $(BUILD_NVIM_ONLY))
+ifeq (ON, $(GKIDE_BUILD_NVIM_ONLY))
     SKIP_CHECK_LIB_QT5 := true
 endif
 
