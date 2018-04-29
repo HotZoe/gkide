@@ -2,9 +2,6 @@ dist: trusty
 sudo: required
 language: cpp
 
-git:
-    depth: 100
-
 # build only the master branch
 branches:
     only:

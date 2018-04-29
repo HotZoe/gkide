@@ -11,7 +11,7 @@ source "${CI_DIR}/share/utils.sh"
 source "${CI_DIR}/share/config.sh"
 
 # Update the third-party dependency cache only if the build & test successful.
-if test_success; then
+if all_done_successfully; then
     rm -rf "${DEPS_CACHE_DIR}/*"
     mv "${GKIDESRC_DIR}/deps/build" "${DEPS_CACHE_DIR}/"
     mv "${GKIDESRC_DIR}/deps/downloads" "${DEPS_CACHE_DIR}/"

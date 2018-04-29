@@ -1,4 +1,4 @@
-function stat_cmd() 
+function stat_cmd()
 {
     if test "${TRAVIS_OS_NAME}" = osx ; then
         stat -f %Sm "${@}"
@@ -7,7 +7,7 @@ function stat_cmd()
     fi
 }
 
-function test_success() 
+function all_done_successfully()
 {
     if test -f "${TEST_FAIL_SUMMARY_LOG}" ; then
         echo 'Test failed, complete summary:'
@@ -15,10 +15,9 @@ function test_success()
         return 1
     fi
 
-    return 0
-}
+    if [ -f ${MARKER_ALL_DONE} ]; then
+        return 0
+    fi
 
-function all_done_successfully() 
-{
-    test_success
+    return 1
 }

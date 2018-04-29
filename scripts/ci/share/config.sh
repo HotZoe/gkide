@@ -19,6 +19,7 @@ ROBOT_BRANCH="master"
 ROBOT_REPO="${GKIDE_GITHUB_URL}/robot.git"
 ROBOT_DIR="${REPO_HOME_DIR}/robot"
 
+MARKER_ALL_DONE="${BUILD_LOG_DIR}/marker_all_done"
 GKIDE_FULL_BUILD_LOG="${BUILD_LOG_DIR}/gkide_full_build.log"
 TEST_FAIL_SUMMARY_LOG="${BUILD_LOG_DIR}/test_fail_summary.log"
 

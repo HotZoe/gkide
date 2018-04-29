@@ -3,7 +3,7 @@
 set -e
 set -o pipefail
 
-echo "GKIDE building ..."
+echo "GKIDE building and testing ..."
 
 CI_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${CI_DIR}/share/utils.sh"
@@ -19,3 +19,5 @@ build_nvim
 
 # build snail
 build_snail
+
+touch ${MARKER_ALL_DONE}

@@ -45,10 +45,11 @@ function deps_cache_check()
     echo "[P]SHA1@deps: ${pre_deps_sha1}"
 
     if [ "${cur_deps_sha1}" != "${pre_deps_sha1}" ]; then
-        echo "'gkide/deps' changed, update '${ROBOT_DIR}/${pre_sha1_marker}' ..."
+        echo "'gkide/deps' changed, update '${ROBOT_DIR}/${pre_sha1_marker}'."
         echo "${cur_deps_sha1}" > "${ROBOT_DIR}/${pre_sha1_marker}"
-
         commit_push_robot "${pre_sha1_marker}"
+    else
+        echo "'gkide/deps' nothing changed."
     fi
 
     # CI deps-cache valid and do not force to rebuild from fresh
