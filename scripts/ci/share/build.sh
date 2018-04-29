@@ -12,7 +12,6 @@ function run_cmake()
 function run_make()
 {
     local build_target="$1"
-    echo "all_args: ""$@"
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
         if [ "${VERBOSE_BUILD_LOG}" = "ON" ]; then
             make "$@" "VERBOSE=1" | tee --append ${GKIDE_FULL_BUILD_LOG}
@@ -55,7 +54,8 @@ function deps_cache_check()
     # CI deps-cache valid and do not force to rebuild from fresh
     if [ -f "${DEPS_CACHE_MARKER}" -a ! "${DEPS_CACHE_ENABLE}" = "OFF" ]; then
         echo "Using Travis cache deps, last update: $(stat_cmd "${DEPS_CACHE_MARKER}")"
-        mv -f "${DEPS_CACHE_DIR}/*" "${TRAVIS_BUILD_DIR}/deps"
+        mv -f "${DEPS_CACHE_DIR}/build" "${TRAVIS_BUILD_DIR}/deps/"
+        mv -f "${DEPS_CACHE_DIR}/downloads" "${TRAVIS_BUILD_DIR}/deps/"
     fi
 }
 
