@@ -225,6 +225,10 @@ function build_nvim()
 
 function build_snail()
 {
+    if [ "${BUILD_NVIM_ONLY}" = "ON" ]; then
+        return 0
+    fi
+
     cd "${GKIDESRC_DIR}" > /dev/null
     BUILD_DIR="${GKIDESRC_DIR}/build"
     BUILD_ERR_MSG="Error: build nvim failed!"

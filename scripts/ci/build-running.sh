@@ -18,4 +18,4 @@ build_deps
 build_nvim
 
 # build snail
-#build_snail
+build_snail
