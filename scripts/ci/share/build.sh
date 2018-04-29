@@ -12,10 +12,10 @@ function run_cmake()
 function run_make()
 {
     local build_target="$1"
-
+    echo "all_args: ""$@"
     if [ "${UPLOAD_BUILD_LOG}" = "ON" ]; then
         if [ "${VERBOSE_BUILD_LOG}" = "ON" ]; then
-            make "$@ VERBOSE=1" | tee --append ${GKIDE_FULL_BUILD_LOG}
+            make "$@" "VERBOSE=1" | tee --append ${GKIDE_FULL_BUILD_LOG}
         else
             make "$@" | tee --append ${GKIDE_FULL_BUILD_LOG}
         fi
